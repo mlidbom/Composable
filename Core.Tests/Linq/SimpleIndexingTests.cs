@@ -1,7 +1,7 @@
-using NUnit.Framework;
+﻿using NUnit.Framework;
 using Void.Linq;
 
-namespace Core.Tests
+namespace Core.Tests.Linq
 {
     [TestFixture]
     public class SimpleIndexingTests
@@ -10,7 +10,7 @@ namespace Core.Tests
         public void ShouldIndexCorrectly()
         {
             var indexesEqualValues = 0.To(9);
-            indexesEqualValues.ForEach((value, index) => Assert.That(index, Is.EqualTo(value)));
+            indexesEqualValues.ForEach((value, index) => Assert.That(indexesEqualValues.AtIndex(index), Is.EqualTo(value)));
 
             Assert.That(indexesEqualValues.Second(), Is.EqualTo(1));
             Assert.That(indexesEqualValues.Third(), Is.EqualTo(2));

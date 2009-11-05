@@ -3,7 +3,7 @@ using System.Linq;
 
 namespace Void.Linq
 {
-    public static class LinqIFilterExtension
+    public static class Filter
     {
         public static IEnumerable<TItemType> Where<TItemType>(this IEnumerable<TItemType> source, IFilter<TItemType> filter)
         {
@@ -21,6 +21,11 @@ namespace Void.Linq
                 source = source.Where(predicate);
             }
             return source;
+        }
+
+        public static bool Matches<T>(this IFilter<T> filter, T item)
+        {
+            return !filter.Filters.Any(predicate => !predicate.Compile().Invoke(item));
         }
     }
 }

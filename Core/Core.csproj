@@ -45,13 +45,15 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Linq\FilterExtensions.cs" />
-    <Compile Include="Linq\LinqIFilterExtension.cs" />
-    <Compile Include="Linq\LinqHierarchyExtensions.cs" />
+    <Compile Include="Linq\Filter.cs" />
+    <Compile Include="Linq\Iteration.cs" />
+    <Compile Include="Linq\Hierarchy.cs" />
     <Compile Include="Linq\IFilter.cs" />
     <Compile Include="Linq\LinqExtensions.cs" />
+    <Compile Include="Linq\Number.cs" />
     <Compile Include="Linq\Seq.cs" />
     <Compile Include="Linq\SimpleIndexing.cs" />
+    <Compile Include="Linq\Zipping.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

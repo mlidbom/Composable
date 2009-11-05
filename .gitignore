@@ -1,0 +1,11 @@
+bin
+obj
+
+
+*.suo
+*.user
+*TraceLog.xml
+*.resharper
+TestResult.xml
+*.VisualState.xml
+

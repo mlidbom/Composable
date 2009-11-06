@@ -44,6 +44,7 @@
     <Compile Include="Linq\NumberTests.cs" />
     <Compile Include="Linq\SeqTests.cs" />
     <Compile Include="Linq\SimpleIndexingTests.cs" />
+    <Compile Include="Linq\ZippingTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

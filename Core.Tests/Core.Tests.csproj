@@ -40,6 +40,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Linq\HierarchyTests.cs" />
     <Compile Include="Linq\NumberTests.cs" />
     <Compile Include="Linq\SeqTests.cs" />
     <Compile Include="Linq\SimpleIndexingTests.cs" />

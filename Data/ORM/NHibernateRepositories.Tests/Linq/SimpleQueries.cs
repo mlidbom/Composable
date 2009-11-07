@@ -1,14 +1,11 @@
-using System;
 using NHibernate.ByteCode.LinFu;
-using NUnit.Framework;
 using Void.Data.ORM.NHibernate;
 using Void.Data.ORM.NHibernateRepositories.Tests.Domain;
 using Void.Data.ORM.Repositories.Tests.Domain;
 
-namespace Void.Data.ORM.NHibernateRepositories.Tests.WhenFirstSaving
+namespace Void.Data.ORM.NHibernateRepositories.Tests.Linq
 {
-    [TestFixture]
-    public class WithGeneratedId : Repositories.Tests.WhenFirstSaving.WithGeneratedId
+    public class SimpleQueries : Repositories.Tests.Linq.SimpleQueries
     {
         protected override IPersistanceSession GetPersistanceSession()
         {
@@ -18,6 +15,6 @@ namespace Void.Data.ORM.NHibernateRepositories.Tests.WhenFirstSaving
         protected override TypeWithGeneratedId GetInstance()
         {
             return new TypewithGeneratedId();
-        }
+        }   
     }
 }

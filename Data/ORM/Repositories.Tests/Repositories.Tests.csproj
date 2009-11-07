@@ -51,6 +51,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Domain\TypeWithGeneratedId.cs" />
+    <Compile Include="Linq\SimpleQueries.cs" />
+    <Compile Include="RepositoryTest.cs" />
     <Compile Include="WhenFirstSaving\WithGeneratedId.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

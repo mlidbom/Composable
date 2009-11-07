@@ -1,5 +1,8 @@
+using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using Void.Linq;
 
 namespace Void.Data.ORM
@@ -38,12 +41,12 @@ namespace Void.Data.ORM
         public virtual bool TryGet(TKey id, out TInstance result)
         {
             result = Session.TryGet<TInstance>(id);
-            return result != null;
+            return !ReferenceEquals(result, null);
         }
 
         public IList<TInstance> TryGetAll(IEnumerable<TKey> ids)
         {
-            return ids.Select(id => TryGet(id)).Where(instance => instance != null).ToList();
+            return ids.Select(id => TryGet(id)).Where(instance => !ReferenceEquals(instance, null)).ToList();
         }
 
         public virtual void SaveOrUpdate(TInstance instance)
@@ -64,9 +67,31 @@ namespace Void.Data.ORM
 
         public IQueryable<TInstance> Find(IFilter<TInstance> criteria)
         {
-            return Linq.Where(criteria);
+            return this.Where(criteria);
         }
 
-        public IQueryable<TInstance> Linq { get { return Session.Linq<TInstance>(); } }
+        #region Implementation of IQueryable
+
+        private IQueryable<TInstance> _query;
+        private IQueryable<TInstance> Query
+        {
+            get { return _query ?? (_query = Session.Linq<TInstance>()); }
+        }
+
+        public IEnumerator<TInstance> GetEnumerator()
+        {
+            return Query.GetEnumerator();
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return GetEnumerator();
+        }
+
+        public Expression Expression { get { return Query.Expression; } }
+        public Type ElementType { get { return Query.ElementType; } }
+        public IQueryProvider Provider { get { return Query.Provider; } }
+
+        #endregion
     }
 }

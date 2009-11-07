@@ -4,7 +4,7 @@ using Void.Linq;
 
 namespace Void.Data.ORM
 {
-    public interface IRepository<TInstance, TKey>
+    public interface IRepository<TInstance, TKey> : IQueryable<TInstance>
     {
         TInstance Get(TKey id);
         TInstance TryGet(TKey id);
@@ -18,6 +18,5 @@ namespace Void.Data.ORM
 
         void Delete(TInstance instance);
         IQueryable<TInstance> Find(IFilter<TInstance> criteria);
-        IQueryable<TInstance> Linq { get; }
     }
 }

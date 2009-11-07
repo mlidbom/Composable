@@ -13,7 +13,7 @@ namespace Void.Data.ORM.Repositories.Tests.Linq
             var instance = GetInstance();
             Repository.SaveOrUpdate(instance);
 
-            var loaded = Repository.Linq.Where(me => me.Id == instance.Id).Single();
+            var loaded = Repository.Where(me => me.Id == instance.Id).Single();
             Assert.That(instance, Is.EqualTo(loaded));
         }
     }

@@ -49,12 +49,6 @@
     <Compile Include="Domain\Entity.cs" />
     <Compile Include="Domain\IEntity.cs" />
     <Compile Include="Domain\EntityWithSurrogateKey.cs" />
-    <Compile Include="InMemoryTesting\GuidIdManager.cs" />
-    <Compile Include="InMemoryTesting\Int64IdManager.cs" />
-    <Compile Include="InMemoryTesting\HashSetPersistanceSession.cs" />
-    <Compile Include="InMemoryTesting\IdManager.cs" />
-    <Compile Include="InMemoryTesting\IIdManager.cs" />
-    <Compile Include="InMemoryTesting\Int32IdManager.cs" />
     <Compile Include="IPersistanceSession.cs" />
     <Compile Include="IRepository.cs" />
     <Compile Include="OptimisticConcurrencyException.cs" />

@@ -2,7 +2,7 @@ using System;
 using System.Collections;
 using System.Linq;
 
-namespace Void.Data.ORM.InMemoryTesting
+namespace Void.Data.ORM.InMemory
 {
     public class Int32IdManager<TInstance> : IdManager<TInstance, int>
     {

@@ -1,6 +1,6 @@
 using System.Collections;
 
-namespace Void.Data.ORM.InMemoryTesting
+namespace Void.Data.ORM.InMemory
 {
     public interface IIdManager
     {

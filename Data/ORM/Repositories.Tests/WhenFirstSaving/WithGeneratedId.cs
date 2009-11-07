@@ -1,10 +1,10 @@
 using System;
 using System.Collections.Generic;
 using NUnit.Framework;
-using Void.Data.ORM.InMemoryTesting;
+using Void.Data.ORM.InMemory;
 using Void.Data.ORM.Repositories.Tests.Domain;
 
-namespace Void.Data.ORM.Repositories.Tests.WhenFirstSavingInstance
+namespace Void.Data.ORM.Repositories.Tests.WhenFirstSaving
 {
     [TestFixture]
     public class WithGeneratedId
@@ -36,15 +36,15 @@ namespace Void.Data.ORM.Repositories.Tests.WhenFirstSavingInstance
         protected virtual IPersistanceSession GetPersistanceSession()
         {
             IDictionary<Type, IIdManager> idManagers = new Dictionary<Type, IIdManager>
+                                                       {
                                                            {
-                                                               {
-                                                                   typeof (TypeWithGeneratedId), new Int32IdManager<TypeWithGeneratedId>
-                                                                                                     {
-                                                                                                         Getter = me => me.Id,
-                                                                                                         Setter = (me, value) => me.Id = value
-                                                                                                     }
-                                                                   }
-                                                           };
+                                                               typeof (TypeWithGeneratedId), new Int32IdManager<TypeWithGeneratedId>
+                                                                                             {
+                                                                                                 Getter = me => me.Id,
+                                                                                                 Setter = (me, value) => me.Id = value
+                                                                                             }
+                                                               }
+                                                       };
             return new HashSetPersistanceSession(idManagers);
         }
 

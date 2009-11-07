@@ -8,7 +8,7 @@ using Void.Data.ORM.Repositories.Tests.Domain;
 namespace Void.Data.ORM.NHibernateRepositories.Tests.WhenFirstSaving
 {
     [TestFixture]
-    public class WithGeneratedId : Repositories.Tests.WhenFirstSavingInstance.WithGeneratedId
+    public class WithGeneratedId : Repositories.Tests.WhenFirstSaving.WithGeneratedId
     {
         static WithGeneratedId()
         {

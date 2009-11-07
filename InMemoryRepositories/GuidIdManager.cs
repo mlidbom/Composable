@@ -1,7 +1,7 @@
 using System;
 using System.Collections;
 
-namespace Void.Data.ORM.InMemoryTesting
+namespace Void.Data.ORM.InMemory
 {
     public class GuidIdManager<TInstance> : IdManager<TInstance, Guid>
     {

@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Void.Data.ORM.InMemoryTesting
+namespace Void.Data.ORM.InMemory
 {
     public class HashSetPersistanceSession : IPersistanceSession
     {

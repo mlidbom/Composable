@@ -48,7 +48,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Data\ORM\Repositories\Repositories.csproj">
+    <ProjectReference Include="..\Repositories\Repositories.csproj">
       <Project>{42E6457A-2943-4D2B-A337-B1DE59AAD1EE}</Project>
       <Name>Repositories</Name>
     </ProjectReference>

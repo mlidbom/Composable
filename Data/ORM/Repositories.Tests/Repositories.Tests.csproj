@@ -57,7 +57,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\..\InMemoryRepositories\InMemoryRepositories.csproj">
+    <ProjectReference Include="..\InMemoryRepositories\InMemoryRepositories.csproj">
       <Project>{8B991155-BB3D-49EF-839F-CF6FD468AFDE}</Project>
       <Name>InMemoryRepositories</Name>
     </ProjectReference>

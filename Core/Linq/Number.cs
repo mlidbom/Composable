@@ -22,7 +22,7 @@ namespace Void.Linq
             }
         }
 
-        public static IEnumerable<int> To(this int me, int guard)
+        public static IEnumerable<int> Through(this int me, int guard)
         {
             return From(me).Take(guard - me + 1);
         }

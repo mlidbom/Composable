@@ -10,8 +10,8 @@ namespace Core.Tests.Linq
         [Test]
         public void ShouldIncludeAllElementsFromSequencesOfEqualLength()
         {
-            var oneToTen = 1.To(10);
-            var elevenToTwenty = 11.To(20);
+            var oneToTen = 1.Through(10);
+            var elevenToTwenty = 11.Through(20);
 
             var zipped = oneToTen.Zip(elevenToTwenty);
 
@@ -24,8 +24,8 @@ namespace Core.Tests.Linq
         [Test]
         public void ShouldIncludeAllElementsFromTheShorterSequence()
         {
-            var oneToFive = 1.To(5);
-            var sixToEight = 6.To(8);
+            var oneToFive = 1.Through(5);
+            var sixToEight = 6.Through(8);
 
             var zipped = oneToFive.Zip(sixToEight);
 

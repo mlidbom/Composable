@@ -14,15 +14,15 @@ namespace Core.Tests.Linq
         }
 
         [Test]
-        public void ToShouldHaveLastElementEqualToArgument()
+        public void ThroughShouldHaveLastElementEqualToArgument()
         {
-            Assert.That(1.To(12).Last(), Is.EqualTo(12));
+            Assert.That(1.Through(12).Last(), Is.EqualTo(12));
         }
 
         [Test]
-        public void ToShouldHaveCountEqualToToMinusFromPlus1()
+        public void ThroughShouldHaveCountEqualToToMinusFromPlus1()
         {
-            Assert.That(12.To(20).Count(), Is.EqualTo(20 - 12 + 1));
+            Assert.That(12.Through(20).Count(), Is.EqualTo(20 - 12 + 1));
         }
 
         [Test]

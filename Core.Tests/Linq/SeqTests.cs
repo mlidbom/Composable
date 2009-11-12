@@ -10,7 +10,7 @@ namespace Core.Tests.Linq
         [Test]
         public void CreateShouldEnumerateAllParamsInOrder()
         {
-            var oneToTen = 1.To(10);
+            var oneToTen = 1.Through(10);
             Assert.That(Seq.Create(oneToTen.ToArray()), Is.EquivalentTo(oneToTen));
         }
     }

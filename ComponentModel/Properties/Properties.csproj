@@ -48,6 +48,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ISerializablePropertyOwner.cs" />
     <Compile Include="Property.cs" />
     <Compile Include="ExpressionUtil.cs" />
     <Compile Include="IProperty.cs" />

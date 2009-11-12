@@ -1,5 +1,6 @@
 #region using
 
+using System;
 using System.ComponentModel;
 using System.Runtime.Serialization;
 
@@ -8,7 +9,7 @@ using System.Runtime.Serialization;
 namespace Void.ComponentModel.Properties.Tests
 {
     [DataContract]
-    public class DomainObject : IPropertyOwner
+    public class DomainObject : ISerializablePropertyOwner
     {
         [DataMember]
         private readonly Property<DomainObject, string> _dependentProperty = new Property<DomainObject, string>(me => me.DependentProperty);
@@ -20,9 +21,7 @@ namespace Void.ComponentModel.Properties.Tests
 
         public DomainObject()
         {
-            _standAloneProperty.Initialize(this);
-            _dependentProperty.Initialize(this);
-            _dependentProperty.DependsUpon(_standAloneProperty);
+            ((ISerializablePropertyOwner)this).InitializeProperties();
         }
 
         #region IPropertyOwner Members
@@ -32,6 +31,13 @@ namespace Void.ComponentModel.Properties.Tests
         public void FirePropertyChanged(string propertyName)
         {
             PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
+        }
+
+        void ISerializablePropertyOwner.InitializeProperties()
+        {
+            _standAloneProperty.Initialize(this);
+            _dependentProperty.Initialize(this);
+            _dependentProperty.DependsUpon(_standAloneProperty);
         }
 
         #endregion

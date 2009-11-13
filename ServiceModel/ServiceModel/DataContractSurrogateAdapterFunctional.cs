@@ -5,7 +5,7 @@ using System.Reflection;
 
 namespace Void.ServiceModel
 {
-    public abstract class DataContractSurrogateAdapterFunctional : DataContractSurrogateAdapter
+    public class DataContractSurrogateAdapterFunctional : DataContractSurrogateAdapter
     {
         public DataContractSurrogateAdapterFunctional()
         {

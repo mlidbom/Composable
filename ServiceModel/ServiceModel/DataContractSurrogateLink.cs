@@ -18,7 +18,7 @@ namespace Void.ServiceModel
             return chain.Aggregate((aggregate, current) => new DataContractSurrogateLink(current, aggregate));
         }
 
-        private DataContractSurrogateLink(IDataContractSurrogate tail, IDataContractSurrogate head)
+        public DataContractSurrogateLink(IDataContractSurrogate tail, IDataContractSurrogate head)
         {
             _tail = tail;
             _head = head;

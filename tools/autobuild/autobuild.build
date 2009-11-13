@@ -1,0 +1,29 @@
+<?xml version="1.0"?>
+<project name="AutoBuild" default="run">
+    <loadtasks assembly="binaries\NAntContrib\NAnt.Contrib.Tasks.dll" />
+
+    <property name="configuration" value="debug"/>
+    <property name="base-dir" value="${project::get-base-directory()}..\..\..\" />
+    <property name="solution-file-path" value="${base-dir}\Void.Everything.sln"/>   
+
+    <target name="run">
+        <call target="run-unit-tests"/>
+    </target>
+    
+    <target name="build-solution">
+        <msbuild project="${solution-file-path}">
+		  <property name="Configuration" value="${configuration}"/>
+		</msbuild>
+    </target>
+    
+    <target name="run-unit-tests" depends="build-solution">
+		<nunit2 verbose="true">
+            <formatter type="Plain" />
+            <test assemblyname="${base-dir}\Core.Tests\bin\${configuration}\Core.Tests.dll" />
+            <test assemblyname="${base-dir}\ComponentModel\Properties.Tests\bin\${configuration}\Void.ComponentModel.Properties.Tests.dll" />
+            <test assemblyname="${base-dir}\ServiceModel\ServiceModel.Tests\bin\${configuration}\ServiceModel.Tests.dll" />
+            <test assemblyname="${base-dir}\Data\Orm\Repositories.Tests\bin\${configuration}\Void.Data.ORM.Repositories.Tests.dll" />
+            <test assemblyname="${base-dir}\Data\Orm\NHibernateRepositories.Tests\bin\${configuration}\Void.Data.ORM.NHibernateRepositories.Tests.dll" />
+    </nunit2>
+    </target>
+</project>

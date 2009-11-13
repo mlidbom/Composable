@@ -45,6 +45,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="EnumExtensions.cs" />
     <Compile Include="Linq\Filter.cs" />
     <Compile Include="Linq\Iteration.cs" />
     <Compile Include="Linq\Hierarchy.cs" />

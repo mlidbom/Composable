@@ -2,6 +2,9 @@ using System;
 
 namespace Void
 {
+    /// <summary>
+    /// Contains extensions methods that are useful to any <see cref="object"/>
+    /// </summary>
     public static class ObjectExtensions
     {
         /// <summary>
@@ -25,7 +28,7 @@ namespace Void
         /// Op4(temp3);
         /// </code>
         /// 
-        /// Using tranform and do.
+        /// Using <see cref="Transform{TSource,TReturn}"/> and <see cref="Do{T}"/>.
         /// <code>
         /// start.Transform(Op1).Transform(Op2).Transform(Op3).Do(Op4);
         /// </code>

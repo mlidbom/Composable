@@ -11,6 +11,11 @@ namespace Void.Linq
             return source.Concat(instances);
         }
 
+        /// <summary>
+        /// <para>The inversion of <see cref="Enumerable.Any{TSource}(System.Collections.Generic.IEnumerable{TSource},System.Func{TSource,bool})"/>.</para>
+        /// <para>Returns true if <paramref name="me"/> contains no elements matching <paramref name="predicate"/></para>
+        /// </summary>
+        /// <returns>true if <paramref name="me"/> contains no objects matching <paramref name="predicate"/>. Otherwise false.</returns>
         public static bool None<T>(this IEnumerable<T> me, Func<T, bool> predicate)
         {
             return !me.Any(predicate);

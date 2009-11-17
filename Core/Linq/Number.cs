@@ -26,13 +26,5 @@ namespace Void.Linq
         {
             return From(me).Take(guard - me + 1);
         }
-
-        public static IEnumerable<int> Times(this int me, int times)
-        {
-            while(--times>0)
-            {
-                yield return me;
-            }
-        }
     }
 }

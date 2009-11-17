@@ -55,6 +55,7 @@
     <Compile Include="Linq\IFilter.cs" />
     <Compile Include="Linq\LinqExtensions.cs" />
     <Compile Include="Linq\Number.cs" />
+    <Compile Include="Linq\ObjectExtensions.cs" />
     <Compile Include="Linq\Seq.cs" />
     <Compile Include="Linq\SimpleIndexing.cs" />
     <Compile Include="Linq\Zipping.cs" />

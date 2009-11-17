@@ -11,6 +11,11 @@ namespace Void.Linq
             return source.Concat(instances);
         }
 
+        public static bool None<T>(this IEnumerable<T> me, Func<T, bool> predicate)
+        {
+            return !me.Any(predicate);
+        } 
+
 
         //todo: Figure out why this method does not resolve as an extension method.
         //is the type inference in C# to weak?

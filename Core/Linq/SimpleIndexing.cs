@@ -12,42 +12,42 @@ namespace Void.Linq
 
         public static T Second<T>(this IEnumerable<T> me)
         {
-            return me.AtIndex(1);
+            return me.ElementAt(1);
         }
 
         public static T Third<T>(this IEnumerable<T> me)
         {
-            return me.AtIndex(2);
+            return me.ElementAt(2);
         }
 
         public static T Fourth<T>(this IEnumerable<T> me)
         {
-            return me.AtIndex(3);
+            return me.ElementAt(3);
         }
 
         public static T Fifth<T>(this IEnumerable<T> me)
         {
-            return me.AtIndex(4);
+            return me.ElementAt(4);
         }
 
         public static T Sixth<T>(this IEnumerable<T> me)
         {
-            return me.AtIndex(5);
+            return me.ElementAt(5);
         }
 
         public static T Seventh<T>(this IEnumerable<T> me)
         {
-            return me.AtIndex(6);
+            return me.ElementAt(6);
         }
 
         public static T Eighth<T>(this IEnumerable<T> me)
         {
-            return me.AtIndex(7);
+            return me.ElementAt(7);
         }
 
         public static T Ninth<T>(this IEnumerable<T> me)
         {
-            return me.AtIndex(8);
+            return me.ElementAt(8);
         }
     }
 }

@@ -10,7 +10,6 @@ namespace Core.Tests.Linq
         public void ShouldIndexCorrectly()
         {
             var indexesEqualValues = 0.Through(9);
-            indexesEqualValues.ForEach((value, index) => Assert.That(indexesEqualValues.AtIndex(index), Is.EqualTo(value)));
 
             Assert.That(indexesEqualValues.Second(), Is.EqualTo(1));
             Assert.That(indexesEqualValues.Third(), Is.EqualTo(2));

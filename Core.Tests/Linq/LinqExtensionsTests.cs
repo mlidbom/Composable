@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using NUnit.Framework;
 using Void.Linq;
+using System.Linq;
 
 namespace Core.Tests.Linq
 {
@@ -21,5 +22,20 @@ namespace Core.Tests.Linq
             var flattened = LinqExtensions.Flatten<List<int>, int>(nestedInts);
             Assert.That(flattened, Is.EquivalentTo(1.Through(7)));
         }
+
+        [Test]
+        public void ChoppingFollowedBySelectManyShouldEqualOriginalSequence()
+        {
+            var oneThroughAHundred = 1.Through(10003).ChopIntoSizesOf(10).SelectMany(me => me);
+            Assert.That(oneThroughAHundred, Is.EqualTo(1.Through(10003)));
+        }
+
+        [Test]
+        public void ChoppingListIntoListSizeChunksShouldReturnOnlyOneChunk()
+        {
+            var oneEntry = 1.Through(10).ChopIntoSizesOf(10);
+            Assert.That(oneEntry.Count(), Is.EqualTo(1));
+        }
+
     }
 }

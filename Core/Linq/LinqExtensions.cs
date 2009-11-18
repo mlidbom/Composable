@@ -29,7 +29,6 @@ namespace Void.Linq
 
             using(var enumerator = me.GetEnumerator())
             {
-                bool done = false;
                 int yielded = size;
                 while (yielded == size)
                 {

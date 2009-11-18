@@ -7,7 +7,7 @@ using Void.Linq;
 using Void.ServiceModel;
 using System.Linq;
 
-namespace ServiceModel
+namespace Void.ServiceModel.Tests
 {
     [TestFixture]
     public class DataContractSurrogateLinqTests
@@ -49,10 +49,10 @@ namespace ServiceModel
                                                     new DataContractSurrogateAdapterFunctional
                                                     {
                                                         GetCustomDataToExportFunc = (_, __) =>
-                                                        {
-                                                            result.Add("second");
-                                                            return null;
-                                                        }
+                                                                                    {
+                                                                                        result.Add("second");
+                                                                                        return null;
+                                                                                    }
                                                     });
 
             uut.GetCustomDataToExport(null, null);

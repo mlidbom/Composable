@@ -21,6 +21,35 @@ namespace Void.Linq
             return !me.Any(predicate);
         } 
 
+        /// <summary>
+        /// Chops an IEnumerable up into <paramref name="size"/> sized chunks.
+        /// </summary>
+        public static IEnumerable<IEnumerable<T>> ChopIntoSizesOf<T>(this IEnumerable<T> me, int size)
+        {
+
+            using(var enumerator = me.GetEnumerator())
+            {
+                bool done = false;
+                int yielded = size;
+                while (yielded == size)
+                {
+                    yielded = 0;
+                    T[] next = new T[size];
+                    while (yielded < size && enumerator.MoveNext())
+                    {
+                        next[yielded++] = enumerator.Current;
+                    }
+                    if(yielded == 0)
+                    {
+                        yield break;
+                    }
+                    yield return yielded == size ? next : next.Take(yielded);
+                }    
+            }
+
+            //todo: figure out why simple implementation based on Skip and Take had horrible performance
+        }
+
 
         //todo: Figure out why this method does not resolve as an extension method.
         //is the type inference in C# to weak?

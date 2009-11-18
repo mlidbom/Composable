@@ -9,3 +9,5 @@ obj
 TestResult.xml
 *.VisualState.xml
 
+*.pidb
+*.userprefs

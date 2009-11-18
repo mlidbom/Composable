@@ -12,11 +12,11 @@ namespace Void.ComponentModel.Properties.Tests
     public class DomainObject : ISerializablePropertyOwner
     {
         [DataMember]
-        private readonly Property<DomainObject, string> _dependentProperty = new Property<DomainObject, string>(me => me.DependentProperty);
+        private Property<DomainObject, string> _dependentProperty = new Property<DomainObject, string>(me => me.DependentProperty);
         public string DependentProperty { get { return _dependentProperty.Value; } set { _dependentProperty.Value = value; } }
 
         [DataMember]
-        private readonly Property<DomainObject, string> _standAloneProperty = new Property<DomainObject, string>(me => me.StandAloneProperty);
+        private Property<DomainObject, string> _standAloneProperty = new Property<DomainObject, string>(me => me.StandAloneProperty);
         public string StandAloneProperty { get { return _standAloneProperty.Value; } set { _standAloneProperty.Value = value; } }
 
         public DomainObject()

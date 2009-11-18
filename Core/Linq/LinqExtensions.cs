@@ -6,6 +6,11 @@ namespace Void.Linq
 {
     public static class LinqExtensions
     {
+        public static IEnumerable<TResult> Let<TSource, TResult>(this IEnumerable<TSource> me, Func<IEnumerable<TSource>, IEnumerable<TResult>> selector)
+        {
+            return selector(me);
+        }
+
         public static IEnumerable<T> Append<T>(this IEnumerable<T> source, params T[] instances)
         {
             return source.Concat(instances);

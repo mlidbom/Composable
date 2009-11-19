@@ -6,14 +6,17 @@ namespace Void.Linq
     /// <summary/>
     public static class Zipping
     {
-        public static IEnumerable<TResult> Zip<TFirst, TSecond, TResult>(this IEnumerable<TFirst> first, IEnumerable<TSecond> second, Func<TFirst, TSecond, TResult> selector)
+        public static IEnumerable<TResult> Zip<TFirst, TSecond, TResult>(this IEnumerable<TFirst> first, IEnumerable<TSecond> second,
+                                                                         Func<TFirst, TSecond, TResult> selector)
         {
             using (var firstEnum = first.GetEnumerator())
-            using (var secondEnum = second.GetEnumerator())
             {
-                while (firstEnum.MoveNext() && secondEnum.MoveNext())
+                using (var secondEnum = second.GetEnumerator())
                 {
-                    yield return selector(firstEnum.Current, secondEnum.Current);
+                    while (firstEnum.MoveNext() && secondEnum.MoveNext())
+                    {
+                        yield return selector(firstEnum.Current, secondEnum.Current);
+                    }
                 }
             }
         }

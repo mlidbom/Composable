@@ -1,7 +1,6 @@
-using System;
+using System.Linq;
 using NUnit.Framework;
 using Void.Linq;
-using System.Linq;
 
 namespace Core.Tests.Linq
 {

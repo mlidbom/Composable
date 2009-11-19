@@ -19,7 +19,6 @@ namespace Core.Tests.Linq
             Assert.That(indexesEqualValues.Seventh(), Is.EqualTo(6));
             Assert.That(indexesEqualValues.Eighth(), Is.EqualTo(7));
             Assert.That(indexesEqualValues.Ninth(), Is.EqualTo(8));
-
         }
     }
 }

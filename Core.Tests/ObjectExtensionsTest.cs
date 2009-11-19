@@ -1,8 +1,8 @@
 using System;
-using NUnit.Framework;
-using Void.Linq;
 using System.Linq;
+using NUnit.Framework;
 using Void;
+using Void.Linq;
 
 namespace Core.Tests
 {
@@ -34,7 +34,6 @@ namespace Core.Tests
             expected.Do(me => result = me);
 
             Assert.That(result, Is.EqualTo(expected));
-            
         }
     }
 }

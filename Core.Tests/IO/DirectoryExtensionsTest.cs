@@ -1,9 +1,9 @@
 using System;
 using System.IO;
+using System.Linq;
 using NUnit.Framework;
 using Void.IO;
 using Void.Linq;
-using System.Linq;
 
 namespace Core.Tests.IO
 {
@@ -37,7 +37,6 @@ namespace Core.Tests.IO
         [Test]
         public void SizeShouldCorrectlyCalculateSize()
         {
-
             string directory = CreateUsableFolderPath();
             var size = CreateDirectoryHierarchy(directory, 3);
 
@@ -57,7 +56,7 @@ namespace Core.Tests.IO
 
         private static int CreateDirectoryHierarchy(string directoryPath, int depth)
         {
-            if(depth <= 0)
+            if (depth <= 0)
             {
                 return 0;
             }
@@ -66,7 +65,7 @@ namespace Core.Tests.IO
             Console.WriteLine("created directory {0}", directoryPath);
             var fileContent = new Byte[100];
             var size = 0;
-            directoryPath.Repeat(2).Select( dir => Path.Combine(dir, Guid.NewGuid().ToString())).ForEach(
+            directoryPath.Repeat(2).Select(dir => Path.Combine(dir, Guid.NewGuid().ToString())).ForEach(
                 file =>
                 {
                     using (var stream = File.Create(file))
@@ -85,6 +84,5 @@ namespace Core.Tests.IO
         }
 
         #endregion
-
     }
 }

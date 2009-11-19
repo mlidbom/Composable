@@ -25,15 +25,14 @@ namespace Void.Linq
         public static bool None<T>(this IEnumerable<T> me, Func<T, bool> predicate)
         {
             return !me.Any(predicate);
-        } 
+        }
 
         /// <summary>
         /// Chops an IEnumerable up into <paramref name="size"/> sized chunks.
         /// </summary>
         public static IEnumerable<IEnumerable<T>> ChopIntoSizesOf<T>(this IEnumerable<T> me, int size)
         {
-
-            using(var enumerator = me.GetEnumerator())
+            using (var enumerator = me.GetEnumerator())
             {
                 int yielded = size;
                 while (yielded == size)
@@ -44,12 +43,12 @@ namespace Void.Linq
                     {
                         next[yielded++] = enumerator.Current;
                     }
-                    if(yielded == 0)
+                    if (yielded == 0)
                     {
                         yield break;
                     }
                     yield return yielded == size ? next : next.Take(yielded);
-                }    
+                }
             }
 
             //todo: figure out why simple implementation based on Skip and Take had horrible performance

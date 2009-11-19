@@ -1,6 +1,6 @@
+using System.Linq;
 using NUnit.Framework;
 using Void.Linq;
-using System.Linq;
 
 namespace Core.Tests.Linq
 {
@@ -47,9 +47,8 @@ namespace Core.Tests.Linq
                         };
 
             var flattened = Seq.Create(root1, root2).FlattenHierarchy(root => root.Children);
-            Assert.That(flattened.Count(), Is.EqualTo(10));//Ensures no duplicates
-            Assert.That(flattened.Distinct().Count(), Is.EqualTo(10));//Ensures all objects are there.
-
+            Assert.That(flattened.Count(), Is.EqualTo(10)); //Ensures no duplicates
+            Assert.That(flattened.Distinct().Count(), Is.EqualTo(10)); //Ensures all objects are there.
         }
     }
 }

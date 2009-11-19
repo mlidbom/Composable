@@ -26,7 +26,7 @@ namespace Void.Hierarchies
         /// 
         /// </summary>
         Func<T, IEnumerable<T>> GetChildren { get; }
-        
+
         /// <summary>
         /// The actual <typeparamref name="T"/> instance that is managed by this instance.
         /// For most implementers this will simply be a reference to the object itself.

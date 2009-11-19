@@ -6,7 +6,7 @@ namespace Core.Tests.Linq
 {
     [TestFixture]
     public class SeqTests
-    {      
+    {
         [Test]
         public void CreateShouldEnumerateAllParamsInOrder()
         {

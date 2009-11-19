@@ -7,8 +7,8 @@ namespace Void.Linq
     /// <summary>
     /// Implementing this interface enables you to  use the existing extensionmethods 
     /// 
-    /// <see cref="Filter.Where{TItemType}(System.Collections.Generic.IEnumerable{TItemType},Void.Linq.IFilter{TItemType})"/>
-    /// and <see cref="Filter.Where{TItemType}(System.Linq.IQueryable{TItemType},Void.Linq.IFilter{TItemType})"/>
+    /// <see cref="Filter.Where{TItemType}(System.Collections.Generic.IEnumerable{TItemType},void.Linq.IFilter{TItemType})"/>
+    /// and <see cref="Filter.Where{TItemType}(System.Linq.IQueryable{TItemType},void.Linq.IFilter{TItemType})"/>
     /// 
     /// This makes your implementing class as easy to use with linq as any simple predicate.
     /// 

@@ -1,8 +1,7 @@
-using System;
 using System.Collections.Generic;
+using System.Linq;
 using NUnit.Framework;
 using Void.Linq;
-using System.Linq;
 
 namespace Core.Tests.Linq
 {
@@ -12,11 +11,11 @@ namespace Core.Tests.Linq
         [Test]
         public void FlattenShouldIterateAllNestedCollectionInstances()
         {
-            var nestedInts = new List<List<int>>()
+            var nestedInts = new List<List<int>>
                              {
-                                 new List<int> {1, }, 
-                                 new List<int>{2,3},
-                                 new List<int>{4,5,6,7}
+                                 new List<int> {1,},
+                                 new List<int> {2, 3},
+                                 new List<int> {4, 5, 6, 7}
                              };
 
             var flattened = LinqExtensions.Flatten<List<int>, int>(nestedInts);
@@ -36,6 +35,5 @@ namespace Core.Tests.Linq
             var oneEntry = 1.Through(10).ChopIntoSizesOf(10);
             Assert.That(oneEntry.Count(), Is.EqualTo(1));
         }
-
     }
 }

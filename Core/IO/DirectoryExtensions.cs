@@ -1,6 +1,6 @@
 using System.IO;
-using Void.Hierarchies;
 using System.Linq;
+using Void.Hierarchies;
 
 namespace Void.IO
 {

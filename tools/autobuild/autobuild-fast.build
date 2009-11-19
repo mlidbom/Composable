@@ -23,7 +23,7 @@
             <test assemblyname="${base-dir}\ComponentModel\Properties.Tests\bin\${configuration}\Void.ComponentModel.Properties.Tests.dll" />
             <test assemblyname="${base-dir}\ServiceModel\ServiceModel.Tests\bin\${configuration}\Void.ServiceModel.Tests.dll" />
             <test assemblyname="${base-dir}\Data\Orm\Repositories.Tests\bin\${configuration}\Void.Data.ORM.Repositories.Tests.dll" />
-            <test assemblyname="${base-dir}\Data\Orm\NHibernateRepositories.Tests\bin\${configuration}\Void.Data.ORM.NHibernateRepositories.Tests.dll" />
+            <!--<test assemblyname="${base-dir}\Data\Orm\NHibernateRepositories.Tests\bin\${configuration}\Void.Data.ORM.NHibernateRepositories.Tests.dll" />-->
     </nunit2>
     </target>
 </project>

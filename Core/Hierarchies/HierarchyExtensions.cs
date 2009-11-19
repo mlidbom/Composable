@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Void.Linq;
+using System.Linq;
 
 namespace Void.Hierarchies
 {
@@ -9,23 +10,44 @@ namespace Void.Hierarchies
     /// is hierarchical in the form that each instance has a collection 
     /// of other instances.
     /// 
-    /// Implementing this interface gives access to all the extentionmethods 
+    /// Implementing this interface gives access to all the extension methods 
     /// implemented upon it which is the main purpose of doing so.
+    /// 
+    /// Normally it would be recommended to use exlicit interface implementation
+    /// in order not to pollute the implementing class' public interface.
+    /// 
+    /// <example>
+    /// A simplistic example might look like this:
+    /// <code>
+    ///    class Person : IHierarchy<Person>
+    ///    {
+    ///        public Person()
+    ///        {
+    ///            Children = new List<Person>();
+    ///        }
+    /// 
+    ///        IEnumerable<IHierarchy<Person>> IHierarchy<Person>.Children
+    ///        {
+    ///            get { return Children.Cast<IHierarchy<Person>>(); }
+    ///        }
+    /// 
+    ///        Person IHierarchy<Person>.Value { get { return this; } }
+    ///
+    ///        public IList<Person> Children { get; set; }            
+    ///    }
+    /// </code>
+    /// </example>
+    /// 
+    /// 
+    /// An alternative to implementing this interface is to use <see cref="HierarchyExtensions.AsHierarchy{T}"/>
     /// </summary>
     /// <typeparam name="T"></typeparam>
     public interface IHierarchy<T>
     {
         /// <summary>
-        /// A function that given an instance finds all the 
-        /// children at the next level down in the hierarchy from that instance.
-        /// 
-        /// For example: A person class that has a Children collection property could 
-        /// pass a method that returns that collection when given a person.
-        /// 
-        /// An alternative to implementing this interface is to use <see cref="HierarchyExtensions.AsHierarchy{T}"/>
-        /// 
+        /// Returns the collection direct descendants of this node.
         /// </summary>
-        Func<T, IEnumerable<T>> GetChildren { get; }
+        IEnumerable<IHierarchy<T>> Children { get; }
 
         /// <summary>
         /// The actual <typeparamref name="T"/> instance that is managed by this instance.
@@ -41,13 +63,22 @@ namespace Void.Hierarchies
     {
         private class Hierarchy<T> : IHierarchy<T>
         {
-            public Func<T, IEnumerable<T>> GetChildren { get; private set; }
+            private Func<T, IEnumerable<T>> childGetter;
+
+            public IEnumerable<IHierarchy<T>> Children
+            {
+                get
+                {
+                    return childGetter(Value).Select(child => child.AsHierarchy(childGetter));
+                }
+            }
+
             public T Value { get; private set; }
 
             public Hierarchy(T nodeValue, Func<T, IEnumerable<T>> childGetter)
             {
                 Value = nodeValue;
-                GetChildren = childGetter;
+                this.childGetter = childGetter;
             }
         }
 
@@ -64,9 +95,9 @@ namespace Void.Hierarchies
         /// Returns <paramref name="me"/> and all the objects in the hierarchy
         /// below <paramref name="me"/> flattened into a sequence
         /// </summary>
-        public static IEnumerable<T> Flatten<T>(this IHierarchy<T> me)
+        public static IEnumerable<T> Flatten<T>(this IHierarchy<T> root)
         {
-            return Seq.Create(me.Value).FlattenHierarchy(me.GetChildren);
+            return Seq.Create(root).FlattenHierarchy(me => me.Children).Select(me => me.Value);
         }
     }
 }

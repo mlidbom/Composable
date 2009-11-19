@@ -12,7 +12,7 @@ namespace Void.Linq
         /// </summary>
         public static IEnumerable<T> Repeat<T>(this T me, int times)
         {
-            while (--times > 0)
+            while (times-- > 0)
             {
                 yield return me;
             }

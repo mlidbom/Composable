@@ -61,6 +61,7 @@ namespace Void.Linq
                 Second = second;
             }
 
+            /// <summary><see cref="object.ToString"/></summary>
             public override string ToString()
             {
                 return string.Format("({0}, {1})", First, Second);

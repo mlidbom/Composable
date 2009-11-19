@@ -7,11 +7,19 @@ namespace Void.Linq
     /// <summary/>
     public static class LinqExtensions
     {
+        /// <summary>
+        /// Binds <paramref name="me"/> to the parameter in <paramref name="selector"/>.
+        /// Enables you to perform operations that require you to alias the sequence being 
+        /// manipulated without having to create temporary variables.
+        /// </summary>
         public static IEnumerable<TResult> Let<TSource, TResult>(this IEnumerable<TSource> me, Func<IEnumerable<TSource>, IEnumerable<TResult>> selector)
         {
             return selector(me);
         }
 
+        /// <summary>
+        /// Adds <paramref name="instances"/> to the end of <paramref name="source"/>
+        /// </summary>
         public static IEnumerable<T> Append<T>(this IEnumerable<T> source, params T[] instances)
         {
             return source.Concat(instances);

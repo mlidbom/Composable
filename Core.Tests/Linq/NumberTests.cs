@@ -1,4 +1,5 @@
 ﻿using System.Linq;
+using System.Threading;
 using NUnit.Framework;
 using Void.Linq;
 
@@ -7,12 +8,6 @@ namespace Core.Tests.Linq
     [TestFixture]
     public class NumberTests
     {
-        [Test]
-        public void FromShouldIteraterFromThisParam()
-        {
-            Assert.That(Number.From(12).First(), Is.EqualTo(12));
-        }
-
         [Test]
         public void ThroughShouldHaveLastElementEqualToArgument()
         {

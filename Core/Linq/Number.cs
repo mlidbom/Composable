@@ -6,14 +6,10 @@ namespace Void.Linq
     /// <summary/>
     public static class Number
     {
-        public static IEnumerable<int> From(int start)
-        {
-            while (start < int.MaxValue)
-            {
-                yield return start++;
-            }
-        }
-
+        /// <summary>
+        /// generates a sequence of integers beginning with <paramref name="me"/> where each element is 
+        /// <paramref name="stepsize"/> larger than the previous
+        /// </summary>
         public static IEnumerable<int> By(this int me, int stepsize)
         {
             while (me < int.MaxValue)
@@ -23,9 +19,17 @@ namespace Void.Linq
             }
         }
 
+
+        /// <summary>
+        /// generates a sequence of integers beginning with <paramref name="me"/> where each element is 
+        /// the previous element plus one
+        /// </summary>
         public static IEnumerable<int> Through(this int me, int guard)
         {
-            return From(me).Take(guard - me + 1);
+            while (me <= guard)
+            {
+                yield return me++;
+            }
         }
     }
 }

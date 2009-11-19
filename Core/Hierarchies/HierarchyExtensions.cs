@@ -62,7 +62,7 @@ namespace Void.Hierarchies
 
         /// <summary>
         /// Returns <paramref name="me"/> and all the objects in the hierarchy
-        /// below <see cref="me"/> flattened into an <see cref="IEnumerable{T}"/>
+        /// below <paramref name="me"/> flattened into a sequence
         /// </summary>
         public static IEnumerable<T> Flatten<T>(this IHierarchy<T> me)
         {

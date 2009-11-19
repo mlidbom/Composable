@@ -3,6 +3,7 @@ using System.Collections.Generic;
 
 namespace Void.Linq
 {
+    /// <summary/>
     public static class Zipping
     {
         public static IEnumerable<TResult> Zip<TFirst, TSecond, TResult>(this IEnumerable<TFirst> first, IEnumerable<TSecond> second, Func<TFirst, TSecond, TResult> selector)

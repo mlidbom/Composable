@@ -3,6 +3,7 @@ using System.Collections.Generic;
 
 namespace Void.Linq
 {
+    /// <summary/>
     public static class Hierarchy
     {
         /// <summary>

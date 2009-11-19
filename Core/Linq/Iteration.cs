@@ -3,6 +3,7 @@ using System.Collections.Generic;
 
 namespace Void.Linq
 {
+    /// <summary/>
     public static class Iteration
     {
         public static void ForEach<TSource, TReturn>(this IEnumerable<TSource> source, Func<TSource, TReturn> action)

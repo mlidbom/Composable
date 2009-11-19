@@ -4,6 +4,7 @@ using System.Linq;
 
 namespace Void.Linq
 {
+    /// <summary/>
     public static class LinqExtensions
     {
         public static IEnumerable<TResult> Let<TSource, TResult>(this IEnumerable<TSource> me, Func<IEnumerable<TSource>, IEnumerable<TResult>> selector)

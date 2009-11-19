@@ -3,6 +3,7 @@ using System.Linq;
 
 namespace Void.Linq
 {
+    /// <summary/>
     public static class Number
     {
         public static IEnumerable<int> From(int start)

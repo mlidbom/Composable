@@ -18,17 +18,6 @@ namespace Core.Tests.IO
         }
 
         [Test]
-        public void SizeShouldCorrectlyCalculateSize()
-        {
-
-            string directory = CreateUsableFolderPath();
-            var size = CreateDirectoryHierarchy(directory, 3);
-
-            Assert.That(directory.AsDirectory().Size(), Is.EqualTo(size));
-            directory.AsDirectory().Delete(true);
-        }
-
-        [Test]
         public void DeleteRecursiveShouldRemoveDirectoryHierarchy()
         {
             var directory = CreateUsableFolderPath();
@@ -36,8 +25,27 @@ namespace Core.Tests.IO
 
             Assert.That(directory.AsDirectory().Exists, "There should be a directory at first");
             Assert.That(directory.AsDirectory().GetDirectories().Any(), Is.True, "There should be subdirectories");
+
+            Console.WriteLine("Deleting directory {0}", directory);
             directory.AsDirectory().DeleteRecursive();
-            Assert.That(directory.AsDirectory().Exists,Is.False, "Directory should have been deleted");
+            Console.WriteLine("Deleted directory {0}", directory);
+
+
+            Assert.That(directory.AsDirectory().Exists, Is.False, "Directory should have been deleted");
+        }
+
+        [Test]
+        public void SizeShouldCorrectlyCalculateSize()
+        {
+
+            string directory = CreateUsableFolderPath();
+            var size = CreateDirectoryHierarchy(directory, 3);
+
+            Assert.That(directory.AsDirectory().Size(), Is.EqualTo(size));
+
+            Console.WriteLine("Deleting directory {0}", directory);
+            directory.AsDirectory().Delete(true);
+            Console.WriteLine("Deleted directory {0}", directory);
         }
 
         #region Helpers
@@ -47,17 +55,18 @@ namespace Core.Tests.IO
             return Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
         }
 
-        private static int CreateDirectoryHierarchy(string dirName, int depth)
+        private static int CreateDirectoryHierarchy(string directoryPath, int depth)
         {
             if(depth <= 0)
             {
                 return 0;
             }
 
-            dirName.AsDirectory().Create();
+            directoryPath.AsDirectory().Create();
+            Console.WriteLine("created directory {0}", directoryPath);
             var fileContent = new Byte[100];
             var size = 0;
-            dirName.Repeat(2).Select( dir => Path.Combine(dir, Guid.NewGuid().ToString())).ForEach(
+            directoryPath.Repeat(2).Select( dir => Path.Combine(dir, Guid.NewGuid().ToString())).ForEach(
                 file =>
                 {
                     using (var stream = File.Create(file))
@@ -65,9 +74,10 @@ namespace Core.Tests.IO
                         stream.Write(fileContent, 0, fileContent.Length);
                         size += fileContent.Length;
                     }
+                    Console.WriteLine("created file {0}", file);
                 });
 
-            size += dirName.Repeat(2)
+            size += directoryPath.Repeat(2)
                 .Select(dir => Path.Combine(dir, Guid.NewGuid().ToString()))
                 .Sum(subdir => CreateDirectoryHierarchy(subdir, depth - 1));
 

@@ -12,7 +12,7 @@ namespace Void.Data.ORM.Domain
     /// <see cref="object.GetHashCode"/>, and <see cref="IEquatable{TEntity}"/>.
     /// 
     /// However, this does not mean that you must use the Guid as the database primary key if you
-    /// persist instances of your inheriting type. See <see cref="EntityWithSurrogateKey{TKey}"/> for an alternative.
+    /// persist instances of your inheriting type. See <see cref="EntityWithSurrogateKey{TEntity,TKey}"/> for an alternative.
     /// </summary>
     public class Entity<TEntity> : IEntity, IEquatable<TEntity> where TEntity : Entity<TEntity>
     {

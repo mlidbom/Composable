@@ -43,6 +43,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="EnumExtensionsTest.cs" />
     <Compile Include="IO\DirectoryExtensionsTest.cs" />
     <Compile Include="Linq\HierarchyTests.cs" />
     <Compile Include="Linq\LinqExtensionsTests.cs" />

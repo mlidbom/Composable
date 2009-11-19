@@ -4,6 +4,7 @@ using System.Linq;
 
 namespace Void.IO
 {
+    /// <summary/>
     public static class DirectoryExtensions
     {
         /// <summary>
@@ -29,6 +30,13 @@ namespace Void.IO
                 .Sum(file => new FileInfo(file).Length);
         }
 
+        /// <summary>
+        /// Recursively deletes everything in a airectory and the directory itself.
+        /// 
+        /// A more intuitive alias for <see cref="DirectoryInfo.Delete(bool)"/>
+        /// called with <paramref name="me"/> and true.
+        /// </summary>
+        /// <param name="me"></param>
         public static void DeleteRecursive(this DirectoryInfo me)
         {
             me.Delete(true);

@@ -84,7 +84,7 @@ namespace Void.Hierarchies
 
         /// <summary>
         /// Returns an <see cref="IHierarchy{T}"/> where <see cref="IHierarchy{T}.Value"/> is <paramref name="me"/> and
-        /// <see cref="IHierarchy{T}.GetChildren"/> is <paramref name="childGetter"/>
+        /// <see cref="IHierarchy{T}.Children"/> is implemented via delegation to <paramref name="childGetter"/>
         /// </summary>
         public static IHierarchy<T> AsHierarchy<T>(this T me, Func<T, IEnumerable<T>> childGetter)
         {
@@ -92,8 +92,8 @@ namespace Void.Hierarchies
         }
 
         /// <summary>
-        /// Returns <paramref name="me"/> and all the objects in the hierarchy
-        /// below <paramref name="me"/> flattened into a sequence
+        /// Returns <paramref name="root"/> and all the objects in the hierarchy
+        /// below <paramref name="root"/> flattened into a sequence
         /// </summary>
         public static IEnumerable<T> Flatten<T>(this IHierarchy<T> root)
         {

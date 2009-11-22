@@ -25,7 +25,7 @@ namespace Void.IO
         public static long Size(this DirectoryInfo me)
         {
             return me.FullName
-                .AsHierarchy(Directory.GetDirectories).Flatten()
+                .AsHierarchy(Directory.GetDirectories).Flatten().Unwrap()
                 .SelectMany(dir => Directory.GetFiles(dir))
                 .Sum(file => new FileInfo(file).Length);
         }

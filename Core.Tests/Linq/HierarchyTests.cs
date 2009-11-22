@@ -56,14 +56,8 @@ namespace Core.Tests.Linq
 
         private class Person : IHierarchy<Person>
         {
-            public Person()
-            {
-                Children = new List<Person>();
-            }
-            IEnumerable<IHierarchy<Person>> IHierarchy<Person>.Children { get { return Children.Cast<IHierarchy<Person>>(); } }
-            Person IHierarchy<Person>.Value { get { return this; } }
-
-            public IList<Person> Children { get; set; }
+            public IList<Person> Children = new List<Person>();
+            IEnumerable<Person> IHierarchy<Person>.Children { get { return Children; } }            
         }
 
 

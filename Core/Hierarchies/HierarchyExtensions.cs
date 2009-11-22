@@ -2,58 +2,24 @@ using System;
 using System.Collections.Generic;
 using Void.Linq;
 using System.Linq;
+using Void.Wrappers;
 
 namespace Void.Hierarchies
 {
     /// <summary>
-    /// Provides a minimal interface for representing a data type which 
-    /// is hierarchical in the form that each instance has a collection 
-    /// of other instances.
-    /// 
-    /// Implementing this interface gives access to all the extension methods 
-    /// implemented upon it which is the main purpose of doing so.
-    /// 
-    /// Normally it would be recommended to use exlicit interface implementation
-    /// in order not to pollute the implementing class' public interface.
+    /// Represents a hierarchy in which the instances in the hierarchy do not themselves 
+    /// implement <see cref="IHierarchy{T}"/>.
     /// 
     /// <example>
-    /// A simplistic example might look like this:
+    /// For instance you could use <see cref="HierarchyExtensions.AsHierarchy{T}"/> like this:
     /// <code>
-    ///    class Person : IHierarchy<Person>
-    ///    {
-    ///        public Person()
-    ///        {
-    ///            Children = new List<Person>();
-    ///        }
-    /// 
-    ///        IEnumerable<IHierarchy<Person>> IHierarchy<Person>.Children
-    ///        {
-    ///            get { return Children.Cast<IHierarchy<Person>>(); }
-    ///        }
-    /// 
-    ///        Person IHierarchy<Person>.Value { get { return this; } }
-    ///
-    ///        public IList<Person> Children { get; set; }            
-    ///    }
+    ///     directoryName.AsHierarchy&lt;
     /// </code>
     /// </example>
     /// 
-    /// 
-    /// An alternative to implementing this interface is to use <see cref="HierarchyExtensions.AsHierarchy{T}"/>
     /// </summary>
-    /// <typeparam name="T"></typeparam>
-    public interface IHierarchy<T>
+    public interface IAutoHierarchy<T> : IHierarchy<IAutoHierarchy<T>>, IWrapper<T>
     {
-        /// <summary>
-        /// Returns the collection direct descendants of this node.
-        /// </summary>
-        IEnumerable<IHierarchy<T>> Children { get; }
-
-        /// <summary>
-        /// The actual <typeparamref name="T"/> instance that is managed by this instance.
-        /// For most implementers this will simply be a reference to the object itself.
-        /// </summary>
-        T Value { get; }
     }
 
     /// <summary>
@@ -61,32 +27,32 @@ namespace Void.Hierarchies
     /// </summary>
     public static class HierarchyExtensions
     {
-        private class Hierarchy<T> : IHierarchy<T>
+        private class Hierarchy<T> : IAutoHierarchy<T>
         {
             private Func<T, IEnumerable<T>> childGetter;
 
-            public IEnumerable<IHierarchy<T>> Children
+            public IEnumerable<IAutoHierarchy<T>> Children
             {
                 get
                 {
-                    return childGetter(Value).Select(child => child.AsHierarchy(childGetter));
+                    return childGetter(Wrapped).Select(child => child.AsHierarchy(childGetter));
                 }
             }
 
-            public T Value { get; private set; }
+            public T Wrapped { get; private set; }
 
             public Hierarchy(T nodeValue, Func<T, IEnumerable<T>> childGetter)
             {
-                Value = nodeValue;
+                Wrapped = nodeValue;
                 this.childGetter = childGetter;
             }
         }
 
         /// <summary>
-        /// Returns an <see cref="IHierarchy{T}"/> where <see cref="IHierarchy{T}.Value"/> is <paramref name="me"/> and
+        /// Returns an <see cref="IAutoHierarchy{T}"/> where <see cref="IWrapper{T}.Wrapped"/> is <paramref name="me"/> and
         /// <see cref="IHierarchy{T}.Children"/> is implemented via delegation to <paramref name="childGetter"/>
         /// </summary>
-        public static IHierarchy<T> AsHierarchy<T>(this T me, Func<T, IEnumerable<T>> childGetter)
+        public static IAutoHierarchy<T> AsHierarchy<T>(this T me, Func<T, IEnumerable<T>> childGetter)
         {
             return new Hierarchy<T>(me, childGetter);
         }
@@ -95,9 +61,18 @@ namespace Void.Hierarchies
         /// Returns <paramref name="root"/> and all the objects in the hierarchy
         /// below <paramref name="root"/> flattened into a sequence
         /// </summary>
-        public static IEnumerable<T> Flatten<T>(this IHierarchy<T> root)
+        public static IEnumerable<T> Flatten<T>(this T root) where T : IHierarchy<T>
         {
-            return Seq.Create(root).FlattenHierarchy(me => me.Children).Select(me => me.Value);
+            return Seq.Create(root).FlattenHierarchy(me => me.Children);
+        }
+
+
+        /// <summary>
+        /// Returns <paramref name="root"/>.Wrapped and all the <see cref="IAutoHierarchy{T}.Wrapped"/>s in the hierarchy
+        /// </summary>
+        public static IEnumerable<T> Unwrap<T>(this IEnumerable<IAutoHierarchy<T>> root) 
+        {
+            return root.Select(me => me.Wrapped);
         }
     }
 }

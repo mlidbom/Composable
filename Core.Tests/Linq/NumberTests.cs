@@ -9,11 +9,21 @@ namespace Core.Tests.Linq
     public class NumberTests
     {
         [Test]
-        public void ThroughShouldHaveLastElementEqualToArgumentMinusStepSizeWhenSteppingByOneOreMinusOne()
+        public void UntilShouldHaveLastElementEqualToArgumentMinusStepSizeWhenSteppingByOneOreMinusOne()
         {
             Assert.That(1.Until(12).Last(), Is.EqualTo(12 - 1));
             Assert.That(1.By(1).Until(12).Last(), Is.EqualTo(12 - 1));
             Assert.That((-1).By(-1).Until(-12).Last(), Is.EqualTo(-12 - (-1)));
+        }
+
+        [Test]
+        public void UntilShouldStopEnumeratingAtValueBeforeGuard()
+        {
+            Assert.That((-1).By(-2).Until(-7).Last(), Is.EqualTo(-5));
+            Assert.That((-1).By(2).Until(7).Last(), Is.EqualTo(5));
+
+            Assert.That((-2).By(3).Until(6).Last(), Is.EqualTo(4));
+            Assert.That(2.By(3).Until(6).Last(), Is.EqualTo(5));
         }
 
         [Test]

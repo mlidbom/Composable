@@ -1,14 +1,20 @@
+using System;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace Void.Linq
 {
     /// <summary/>
     public static class Number
     {
+        /// <summary>
+        /// Represents a sequence first yielding <see cref="StartValue"/> and then infinitely yielding the last value plus <see cref="StepSize"/>
+        /// </summary>
         public struct IterationSpecification
         {
+            /// <summary/>
             public int StartValue;
+
+            /// <summary/>
             public int StepSize;
         }
 
@@ -28,7 +34,7 @@ namespace Void.Linq
 
         /// <summary>
         /// generates a sequence of integers beginning with <paramref name="me"/> where each element is 
-        /// the previous element plus one
+        /// the previous element plus one that includes the upper bound <see cref="guard"/>
         /// </summary>
         public static IEnumerable<int> Through(this int me, int guard)
         {
@@ -38,17 +44,30 @@ namespace Void.Linq
             }
         }
 
+        /// <summary>
+        /// generates a sequence of integers beginning with <paramref name="me"/> where each element is 
+        /// the previous element plus one that excludes the upper bound <see cref="guard"/>
+        /// </summary>
+        public static IEnumerable<int> Until(this int me, int guard)
+        {
+            return me.Through(guard - 1);
+        }
+
+        /// <summary>
+        /// Returns as sequence that will yield all values to and including <see cref="guard"/>
+        /// </summary>
         public static IEnumerable<int> Through(this IterationSpecification me, int guard)
         {
-            int current = me.StartValue;
+            var current = me.StartValue;
             if (me.StepSize > 0)
             {
                 while (current <= guard)
                 {
-                    yield return current ;
+                    yield return current;
                     current += me.StepSize;
                 }
-            }else
+            }
+            else
             {
                 while (current >= guard)
                 {
@@ -56,6 +75,14 @@ namespace Void.Linq
                     current += me.StepSize;
                 }
             }
+        }
+
+        /// <summary>
+        /// Returns as sequence that will yield all values to but excluding <see cref="guard"/>
+        /// </summary>
+        public static IEnumerable<int> Until(this IterationSpecification me, int guard)
+        {
+            return me.Through(guard - Math.Sign(me.StepSize));
         }
     }
 }

@@ -68,7 +68,7 @@ namespace Void.Hierarchies
 
 
         /// <summary>
-        /// Returns <paramref name="root"/>.Wrapped and all the <see cref="IAutoHierarchy{T}.Wrapped"/>s in the hierarchy
+        /// Given a sequence of <see cref="IAutoHierarchy{T}"/> returns a sequence containing the wrapped T values.
         /// </summary>
         public static IEnumerable<T> Unwrap<T>(this IEnumerable<IAutoHierarchy<T>> root) 
         {

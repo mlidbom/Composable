@@ -34,7 +34,7 @@ namespace Void.Linq
 
         /// <summary>
         /// generates a sequence of integers beginning with <paramref name="me"/> where each element is 
-        /// the previous element plus one that includes the upper bound <see cref="guard"/>
+        /// the previous element plus one that includes the upper bound <paramref name="guard"/> cref="guard"/>
         /// </summary>
         public static IEnumerable<int> Through(this int me, int guard)
         {
@@ -46,7 +46,7 @@ namespace Void.Linq
 
         /// <summary>
         /// generates a sequence of integers beginning with <paramref name="me"/> where each element is 
-        /// the previous element plus one that excludes the upper bound <see cref="guard"/>
+        /// the previous element plus one that excludes the upper bound <paramref name="guard"/>
         /// </summary>
         public static IEnumerable<int> Until(this int me, int guard)
         {
@@ -54,7 +54,7 @@ namespace Void.Linq
         }
 
         /// <summary>
-        /// Returns as sequence that will yield all values to and including <see cref="guard"/>
+        /// Returns as sequence that will yield all values to and including <paramref name="guard"/>
         /// </summary>
         public static IEnumerable<int> Through(this IterationSpecification me, int guard)
         {
@@ -78,7 +78,7 @@ namespace Void.Linq
         }
 
         /// <summary>
-        /// Returns as sequence that will yield all values to but excluding <see cref="guard"/>
+        /// Returns as sequence that will yield all values to but excluding <paramref name="guard"/>
         /// </summary>
         public static IEnumerable<int> Until(this IterationSpecification me, int guard)
         {

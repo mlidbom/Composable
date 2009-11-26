@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Diagnostics.Contracts;
 using System.Linq;
 
 namespace Void.Wrappers
@@ -11,6 +12,7 @@ namespace Void.Wrappers
         /// </summary>
         public static IEnumerable<T> Unwrap<T>(this IEnumerable<IWrapper<T>> wrapper)
         {
+            Contract.Requires(wrapper != null);
             return wrapper.Select(wrapping => wrapping.Wrapped);
         }
     }

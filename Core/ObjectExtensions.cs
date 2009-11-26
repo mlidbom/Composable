@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics.Contracts;
 
 namespace Void
 {
@@ -41,6 +42,7 @@ namespace Void
         /// <returns></returns>
         public static TReturn Transform<TSource, TReturn>(this TSource me, Func<TSource, TReturn> transformation)
         {
+            Contract.Requires(me != null && transformation != null);
             return transformation(me);
         }
 
@@ -54,6 +56,7 @@ namespace Void
         /// <param name="action">what should be done to the object</param>
         public static void Do<T>(this T me, Action<T> action)
         {
+            Contract.Requires(me != null && action != null);
             action(me);
         }
     }

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.Contracts;
 using System.Linq;
 
 namespace Void.Linq
@@ -14,6 +15,7 @@ namespace Void.Linq
         /// </summary>
         public static IEnumerable<TResult> Let<TSource, TResult>(this IEnumerable<TSource> me, Func<IEnumerable<TSource>, IEnumerable<TResult>> selector)
         {
+            Contract.Requires(selector != null);
             return selector(me);
         }
 
@@ -22,6 +24,7 @@ namespace Void.Linq
         /// </summary>
         public static IEnumerable<T> Append<T>(this IEnumerable<T> source, params T[] instances)
         {
+            Contract.Requires(source != null && instances != null);
             return source.Concat(instances);
         }
 
@@ -32,6 +35,7 @@ namespace Void.Linq
         /// <returns>true if <paramref name="me"/> contains no objects matching <paramref name="predicate"/>. Otherwise false.</returns>
         public static bool None<T>(this IEnumerable<T> me, Func<T, bool> predicate)
         {
+            Contract.Requires(me != null && predicate != null);
             return !me.Any(predicate);
         }
 
@@ -78,6 +82,7 @@ namespace Void.Linq
         /// <returns>All the objects in all the nested collections </returns>
         public static IEnumerable<TChild> Flatten<T, TChild>(IEnumerable<T> me) where T : IEnumerable<TChild>
         {
+            Contract.Requires(me != null);
             return me.SelectMany(obj => obj);
         }
     }

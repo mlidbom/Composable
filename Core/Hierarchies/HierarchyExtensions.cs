@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.Contracts;
 using Void.Linq;
 using System.Linq;
 using Void.Wrappers;
@@ -29,7 +30,13 @@ namespace Void.Hierarchies
     {
         private class Hierarchy<T> : IAutoHierarchy<T>
         {
-            private Func<T, IEnumerable<T>> childGetter;
+            private readonly Func<T, IEnumerable<T>> childGetter;
+
+            [ContractInvariantMethod]
+            private void ObjectInvariant()
+            {
+                Contract.Invariant(childGetter != null);
+            }
 
             public IEnumerable<IAutoHierarchy<T>> Children
             {
@@ -54,6 +61,8 @@ namespace Void.Hierarchies
         /// </summary>
         public static IAutoHierarchy<T> AsHierarchy<T>(this T me, Func<T, IEnumerable<T>> childGetter)
         {
+            Contract.Requires(me != null && childGetter != null);
+            Contract.Ensures(Contract.Result<IAutoHierarchy<T>>() != null);
             return new Hierarchy<T>(me, childGetter);
         }
 
@@ -63,6 +72,8 @@ namespace Void.Hierarchies
         /// </summary>
         public static IEnumerable<T> Flatten<T>(this T root) where T : IHierarchy<T>
         {
+            Contract.Requires(root != null);
+            Contract.Ensures(Contract.Result<IEnumerable<T>>() != null);
             return Seq.Create(root).FlattenHierarchy(me => me.Children);
         }
 
@@ -72,6 +83,8 @@ namespace Void.Hierarchies
         /// </summary>
         public static IEnumerable<T> Unwrap<T>(this IEnumerable<IAutoHierarchy<T>> root) 
         {
+            Contract.Requires(root != null);
+            Contract.Ensures(Contract.Result<IEnumerable<T>>() != null);
             return root.Select(me => me.Wrapped);
         }
     }

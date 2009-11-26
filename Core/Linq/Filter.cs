@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Diagnostics.Contracts;
 using System.Linq;
 
 namespace Void.Linq
@@ -12,6 +13,7 @@ namespace Void.Linq
         /// </summary>
         public static IEnumerable<TItemType> Where<TItemType>(this IEnumerable<TItemType> source, IFilter<TItemType> filter)
         {
+            Contract.Requires(source != null && filter != null);
             return filter.Filters.Aggregate(source, (aggregate, predicate) => aggregate.Where(predicate.Compile()));
         }
 
@@ -21,6 +23,7 @@ namespace Void.Linq
         /// </summary>
         public static IQueryable<TItemType> Where<TItemType>(this IQueryable<TItemType> source, IFilter<TItemType> filter)
         {
+            Contract.Requires(source != null && filter != null);
             return filter.Filters.Aggregate(source, (aggregate, predicate) => aggregate.Where(predicate));
         }
 
@@ -29,6 +32,7 @@ namespace Void.Linq
         /// </summary>
         public static bool Matches<T>(this IFilter<T> filter, T item)
         {
+            Contract.Requires(filter != null && item != null);
             return !filter.Filters.Any(predicate => !predicate.Compile().Invoke(item));
         }
     }

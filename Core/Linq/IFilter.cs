@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.Contracts;
 using System.Linq.Expressions;
 
 namespace Void.Linq
@@ -17,6 +18,7 @@ namespace Void.Linq
     /// 
     /// </summary>
     /// <typeparam name="T"></typeparam>
+    [ContractClass(typeof (FilterContract<>))]
     public interface IFilter<T>
     {
         /// <summary>
@@ -24,5 +26,19 @@ namespace Void.Linq
         /// the sequence by.
         /// </summary>
         IEnumerable<Expression<Func<T, Boolean>>> Filters { get; }
+    }
+
+    [ContractClassFor(typeof (IFilter<>))]
+    internal class FilterContract<T> : IFilter<T>
+    {
+        /// <summary/>
+        public IEnumerable<Expression<Func<T, bool>>> Filters
+        {
+            get
+            {
+                Contract.Ensures(Contract.Result<IEnumerable<Expression<Func<T, bool>>>>() != null);
+                throw new NotImplementedException();
+            }
+        }
     }
 }

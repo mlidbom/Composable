@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Diagnostics.Contracts;
 
 namespace Void.Hierarchies
 {
@@ -25,11 +27,22 @@ namespace Void.Hierarchies
     /// 
     /// An alternative to implementing this interface is to use <see cref="HierarchyExtensions.AsHierarchy{T}"/>
     /// </summary>
+    [ContractClass(typeof(HierarchyContract<>))]
     public interface IHierarchy<T> where T : IHierarchy<T>
     {
         /// <summary>
         /// Returns the collection direct descendants of this node.
         /// </summary>
         IEnumerable<T> Children { get; }
+    }
+
+    [ContractClassFor(typeof(IHierarchy<>))]
+    internal class HierarchyContract<T> : IHierarchy<HierarchyContract<T>>
+    {
+        public IEnumerable<HierarchyContract<T>> Children { get
+        {
+            Contract.Ensures(Contract.Result<IEnumerable<HierarchyContract<T>>>() != null);
+            throw new NotImplementedException();
+        } }
     }
 }

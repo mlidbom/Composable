@@ -1,3 +1,4 @@
+using System.Diagnostics.Contracts;
 using System.IO;
 using System.Linq;
 using Void.Hierarchies;
@@ -15,6 +16,8 @@ namespace Void.IO
         /// <returns></returns>
         public static DirectoryInfo AsDirectory(this string path)
         {
+            Contract.Requires(path != null);
+            Contract.Ensures(Contract.Result<DirectoryInfo>() != null);
             return new DirectoryInfo(path);
         }
 
@@ -24,6 +27,7 @@ namespace Void.IO
         /// </summary>
         public static long Size(this DirectoryInfo me)
         {
+            Contract.Requires(me != null && me.FullName != null);
             return me.FullName
                 .AsHierarchy(Directory.GetDirectories).Flatten().Unwrap()
                 .SelectMany(dir => Directory.GetFiles(dir))
@@ -39,6 +43,7 @@ namespace Void.IO
         /// <param name="me"></param>
         public static void DeleteRecursive(this DirectoryInfo me)
         {
+            Contract.Requires(me != null);
             me.Delete(true);
         }
     }

@@ -20,6 +20,7 @@
 		<nunit2 verbose="true">
             <formatter type="Plain" />
             <test assemblyname="${base-dir}\Core.Tests\bin\${configuration}\Core.Tests.dll" />
+            <test assemblyname="${base-dir}\Void.Core.PexTests\bin\${configuration}\Void.Core.PexTests.dll" />
             <test assemblyname="${base-dir}\ComponentModel\Properties.Tests\bin\${configuration}\Void.ComponentModel.Properties.Tests.dll" />
             <test assemblyname="${base-dir}\ServiceModel\ServiceModel.Tests\bin\${configuration}\Void.ServiceModel.Tests.dll" />
             <test assemblyname="${base-dir}\Data\Orm\Repositories.Tests\bin\${configuration}\Void.Data.ORM.Repositories.Tests.dll" />

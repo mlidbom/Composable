@@ -649,6 +649,18 @@ namespace Void.Linq.Stubs
                   .Func<global::System.Collections.Generic.IEnumerable<TSource>, global::System.Collections.Generic.IEnumerable<TResult>>));
         }
 
+        /// <summary>Sets the mole of <see cref="M:Void.Linq.LinqExtensions.None``1(System.Collections.Generic.IEnumerable`1{``0})"/>
+        /// </summary>
+        [global::Microsoft.Stubs.Framework.MoleMethod("None", global::Microsoft.Stubs.Framework.MoleBindingFlags.PublicStatic)]
+        public static void NoneIEnumerable0<T>(global::Microsoft.Stubs.Framework.StubDelegates.Func<global::System.Collections.Generic.IEnumerable<T>, bool> mole)
+        {
+            global::System.Type[] gma = new global::System.Type[1];
+            gma[0] = typeof(T);
+            global::Microsoft.Stubs.Framework.MoleRuntime.SetGenericStubPublicStatic
+                ((global::System.Delegate)mole, typeof(global::Void.Linq.LinqExtensions), 
+                "None", gma, typeof(global::System.Collections.Generic.IEnumerable<T>));
+        }
+
         /// <summary>Sets the mole of <see cref="M:Void.Linq.LinqExtensions.None``1(System.Collections.Generic.IEnumerable`1{``0},System.Func`2{``0,System.Boolean})"/>
         /// </summary>
         [global::Microsoft.Stubs.Framework.MoleMethod("None", global::Microsoft.Stubs.Framework.MoleBindingFlags.PublicStatic)]

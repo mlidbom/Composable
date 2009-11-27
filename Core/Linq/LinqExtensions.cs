@@ -40,6 +40,17 @@ namespace Void.Linq
         }
 
         /// <summary>
+        /// <para>The inversion of <see cref="Enumerable.Any{TSource}(System.Collections.Generic.IEnumerable{TSource})"/> .</para>
+        /// <para>Returns true if <paramref name="me"/> contains no elements.</para>
+        /// </summary>
+        /// <returns>true if <paramref name="me"/> contains no objects. Otherwise false.</returns>
+        public static bool None<T>(this IEnumerable<T> me)
+        {
+            Contract.Requires(me != null);
+            return !me.Any();
+        }
+
+        /// <summary>
         /// Chops an IEnumerable up into <paramref name="size"/> sized chunks.
         /// </summary>
         public static IEnumerable<IEnumerable<T>> ChopIntoSizesOf<T>(this IEnumerable<T> me, int size)

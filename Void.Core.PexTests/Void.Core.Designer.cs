@@ -887,6 +887,204 @@ namespace Void.Linq.Stubs
         }
     }
 }
+namespace Void.Stubs
+{
+    /// <summary>Mole type of <see cref="Void.PersistentEntity`1`1"/>
+    /// .</summary>
+    [global::Microsoft.Stubs.Framework.MoleClass(typeof(global::Void.PersistentEntity<>))]
+    [global::System.CodeDom.Compiler.GeneratedCode("Stubs", "0.19.41110.1")]
+    [global::System.Diagnostics.DebuggerDisplay("Mole : PersistentEntity`1")]
+    [global::System.Diagnostics.DebuggerNonUserCode]
+    public partial class MPersistentEntity<TEntity01>
+      : global::Microsoft.Stubs.Framework.MoleBase<global::Void.PersistentEntity<TEntity01>>
+        where TEntity01 : global::Void.PersistentEntity<TEntity01>
+    {
+        /// <summary>Initializes a new mole</summary>
+        public MPersistentEntity()
+        : base()
+        {
+        }
+
+        /// <summary>Initializes a new mole for the given instance</summary>
+        public MPersistentEntity(global::Void.PersistentEntity<TEntity01> instance)
+        : base(instance)
+        {
+        }
+
+        /// <summary>Define moles for all instances members</summary>
+        public static partial class AllInstances
+        {
+            /// <summary>Sets the mole of <see cref="M:Void.PersistentEntity`1`1.Equals(System.Object)"/>
+            /// </summary>
+            public static global::Microsoft.Stubs.Framework.StubDelegates.Func<global::Void.PersistentEntity<TEntity01>, object, bool> EqualsObject
+            {
+                [global::Microsoft.Stubs.Framework.MoleMethod("Equals", global::Microsoft.Stubs.Framework.MoleBindingFlags.PublicInstance)]
+                set
+                {
+                    global::Microsoft.Stubs.Framework.MoleRuntime.SetStubPublicInstance
+                        ((global::System.Delegate)value, typeof(global::Void.PersistentEntity<TEntity01>), (object)null, "Equals", typeof(object));
+                }
+            }
+
+            /// <summary>Sets the mole of <see cref="M:Void.PersistentEntity`1`1.Equals(`1)"/>
+            /// </summary>
+            public static global::Microsoft.Stubs.Framework.StubDelegates.Func<global::Void.PersistentEntity<TEntity01>, TEntity01, bool> EqualsTEntity
+            {
+                [global::Microsoft.Stubs.Framework.MoleMethod("Equals", global::Microsoft.Stubs.Framework.MoleBindingFlags.PublicInstance)]
+                set
+                {
+                    global::Microsoft.Stubs.Framework.MoleRuntime.SetStubPublicInstance
+                        ((global::System.Delegate)value, typeof(global::Void.PersistentEntity<TEntity01>), (object)null, "Equals", typeof(TEntity01));
+                }
+            }
+
+            /// <summary>Sets the mole of <see cref="M:Void.PersistentEntity`1`1.GetHashCode"/>
+            /// </summary>
+            public static global::Microsoft.Stubs.Framework.StubDelegates.Func<global::Void.PersistentEntity<TEntity01>, int> GetHashCode
+            {
+                [global::Microsoft.Stubs.Framework.MoleMethod("GetHashCode", global::Microsoft.Stubs.Framework.MoleBindingFlags.PublicInstance)]
+                set
+                {
+                    global::Microsoft.Stubs.Framework.MoleRuntime.SetStubPublicInstance
+                        ((global::System.Delegate)value, typeof(global::Void.PersistentEntity<TEntity01>), (object)null, "GetHashCode");
+                }
+            }
+
+            /// <summary>Sets the mole of <see cref="P:Void.PersistentEntity`1`1.Id"/>
+            /// </summary>
+            public static global::Microsoft.Stubs.Framework.StubDelegates.Func<global::Void.PersistentEntity<TEntity01>, global::System.Guid> IdGet
+            {
+                [global::Microsoft.Stubs.Framework.MoleMethod("get_Id", global::Microsoft.Stubs.Framework.MoleBindingFlags.PublicInstance)]
+                set
+                {
+                    global::Microsoft.Stubs.Framework.MoleRuntime.SetStubPublicInstance
+                        ((global::System.Delegate)value, typeof(global::Void.PersistentEntity<TEntity01>), (object)null, "get_Id");
+                }
+            }
+
+            /// <summary>Sets the mole of <see cref="P:Void.PersistentEntity`1`1.Id"/>
+            /// </summary>
+            public static global::Microsoft.Stubs.Framework.StubDelegates.Action<global::Void.PersistentEntity<TEntity01>, global::System.Guid> IdSetGuid
+            {
+                [global::Microsoft.Stubs.Framework.MoleMethod("set_Id", global::Microsoft.Stubs.Framework.MoleBindingFlags.NonPublicInstance)]
+                set
+                {
+                    global::Microsoft.Stubs.Framework.MoleRuntime.SetStubNonPublicInstance
+                        ((global::System.Delegate)value, typeof(global::Void.PersistentEntity<TEntity01>), (object)null, "set_Id", typeof(global::System.Guid));
+                }
+            }
+        }
+
+        /// <summary>Binds the members of the interface to the mole.</summary>
+        public global::Void.Stubs.MPersistentEntity<TEntity01> Bind(global::Void.IPersistentEntity<global::System.Guid> target)
+        {
+            global::Microsoft.Stubs.Framework.MoleRuntime.Bind<global::Void.PersistentEntity<TEntity01>, 
+            global::Void.Stubs.MPersistentEntity<TEntity01>, global::Void.IPersistentEntity<global::System.Guid>>(this, target);
+            return this;
+        }
+
+        /// <summary>Binds the members of the interface to the mole.</summary>
+        public global::Void.Stubs.MPersistentEntity<TEntity01> Bind(global::System.IEquatable<TEntity01> target)
+        {
+            global::Microsoft.Stubs.Framework.MoleRuntime
+              .Bind<global::Void.PersistentEntity<TEntity01>, global::Void.Stubs.MPersistentEntity<TEntity01>, global::System.IEquatable<TEntity01>>
+                (this, target);
+            return this;
+        }
+
+        /// <summary>Sets the mole of <see cref="M:Void.PersistentEntity`1`1.#ctor"/>
+        /// </summary>
+        public static global::Microsoft.Stubs.Framework.StubDelegates.Action<global::Void.PersistentEntity<TEntity01>> Constructor
+        {
+            [global::Microsoft.Stubs.Framework.MoleMethod(".ctor", global::Microsoft.Stubs.Framework.MoleBindingFlags.PublicInstance)]
+            set
+            {
+                global::Microsoft.Stubs.Framework.MoleRuntime.SetStubPublicInstance
+                    ((global::System.Delegate)value, typeof(global::Void.PersistentEntity<TEntity01>), (object)null, ".ctor");
+            }
+        }
+
+        /// <summary>Sets the mole of <see cref="M:Void.PersistentEntity`1`1.Equals(System.Object)"/>
+        /// </summary>
+        public global::Microsoft.Stubs.Framework.StubDelegates.Func<object, bool> EqualsObject
+        {
+            [global::Microsoft.Stubs.Framework.MoleMethod("Equals", global::Microsoft.Stubs.Framework.MoleBindingFlags.PublicInstance)]
+            set
+            {
+                global::Microsoft.Stubs.Framework.MoleRuntime.SetStubPublicInstance((global::System.Delegate)
+                  (global::Microsoft.Stubs.Framework.StubExtensions.UnCurry<global::Void.PersistentEntity<TEntity01>, object, bool>(value)), 
+                typeof(global::Void.PersistentEntity<TEntity01>), base.Instance, "Equals", typeof(object));
+            }
+        }
+
+        /// <summary>Sets the mole of <see cref="M:Void.PersistentEntity`1`1.Equals(`1)"/>
+        /// </summary>
+        public global::Microsoft.Stubs.Framework.StubDelegates.Func<TEntity01, bool> EqualsTEntity
+        {
+            [global::Microsoft.Stubs.Framework.MoleMethod("Equals", global::Microsoft.Stubs.Framework.MoleBindingFlags.PublicInstance)]
+            set
+            {
+                global::Microsoft.Stubs.Framework.MoleRuntime.SetStubPublicInstance((global::System.Delegate)
+                  (global::Microsoft.Stubs.Framework.StubExtensions.UnCurry<global::Void.PersistentEntity<TEntity01>, TEntity01, bool>(value)), 
+                typeof(global::Void.PersistentEntity<TEntity01>), base.Instance, "Equals", typeof(TEntity01));
+            }
+        }
+
+        /// <summary>Assigns the &apos;NotImplemented&apos; fallback behavior for all methods of the moled type</summary>
+        public static void FallbackAsNotImplemented()
+        {
+            global::Void.Stubs.MPersistentEntity<TEntity01>.FallbackBehavior = global::Microsoft.Stubs.Framework.MoleFallbackBehavior.NotImplemented;
+        }
+
+        /// <summary>Assigns the fallback behavior for all methods of the moled type</summary>
+        public static global::Microsoft.Stubs.Framework.IMoleBehavior FallbackBehavior
+        {
+            set
+            {
+                global::Microsoft.Stubs.Framework.MoleFallbackBehavior.AttachToType(typeof(global::Void.PersistentEntity<TEntity01>), value);
+            }
+        }
+
+        /// <summary>Sets the mole of <see cref="M:Void.PersistentEntity`1`1.GetHashCode"/>
+        /// </summary>
+        public global::Microsoft.Stubs.Framework.StubDelegates.Func<int> GetHashCode
+        {
+            [global::Microsoft.Stubs.Framework.MoleMethod("GetHashCode", global::Microsoft.Stubs.Framework.MoleBindingFlags.PublicInstance)]
+            set
+            {
+                global::Microsoft.Stubs.Framework.MoleRuntime.SetStubPublicInstance((global::System.Delegate)
+                  (global::Microsoft.Stubs.Framework.StubExtensions.UnCurry<global::Void.PersistentEntity<TEntity01>, int>(value)), 
+                typeof(global::Void.PersistentEntity<TEntity01>), base.Instance, "GetHashCode");
+            }
+        }
+
+        /// <summary>Sets the mole of <see cref="P:Void.PersistentEntity`1`1.Id"/>
+        /// </summary>
+        public global::Microsoft.Stubs.Framework.StubDelegates.Func<global::System.Guid> IdGet
+        {
+            [global::Microsoft.Stubs.Framework.MoleMethod("get_Id", global::Microsoft.Stubs.Framework.MoleBindingFlags.PublicInstance)]
+            set
+            {
+                global::Microsoft.Stubs.Framework.MoleRuntime.SetStubPublicInstance((global::System.Delegate)
+                  (global::Microsoft.Stubs.Framework.StubExtensions.UnCurry<global::Void.PersistentEntity<TEntity01>, global::System.Guid>(value)), 
+                typeof(global::Void.PersistentEntity<TEntity01>), base.Instance, "get_Id");
+            }
+        }
+
+        /// <summary>Sets the mole of <see cref="P:Void.PersistentEntity`1`1.Id"/>
+        /// </summary>
+        public global::Microsoft.Stubs.Framework.StubDelegates.Action<global::System.Guid> IdSetGuid
+        {
+            [global::Microsoft.Stubs.Framework.MoleMethod("set_Id", global::Microsoft.Stubs.Framework.MoleBindingFlags.NonPublicInstance)]
+            set
+            {
+                global::Microsoft.Stubs.Framework.MoleRuntime.SetStubNonPublicInstance((global::System.Delegate)
+                  (global::Microsoft.Stubs.Framework.StubExtensions.UnCurry<global::Void.PersistentEntity<TEntity01>, global::System.Guid>(value)), 
+                typeof(global::Void.PersistentEntity<TEntity01>), base.Instance, "set_Id", typeof(global::System.Guid));
+            }
+        }
+    }
+}
 namespace Void.Linq.Stubs
 {
     /// <summary>Mole type of <see cref="Void.Linq.Seq"/>
@@ -1394,6 +1592,46 @@ namespace Void.Hierarchies.Stubs
         public global::Microsoft.Stubs.Framework.StubDelegates.Func<global::System.Collections.Generic.IEnumerable<T01>> ChildrenGet;
     }
 }
+namespace Void.Stubs
+{
+    /// <summary>Stub type of <see cref="Void.IPersistentEntity`1`1"/>
+    /// .</summary>
+    [global::Microsoft.Stubs.Framework.StubClass(typeof(global::Void.IPersistentEntity<>))]
+    [global::System.CodeDom.Compiler.GeneratedCode("Stubs", "0.19.41110.1")]
+    [global::System.Serializable]
+    [global::System.Diagnostics.DebuggerDisplay("Stub = IPersistentEntity`1")]
+    [global::System.Diagnostics.DebuggerNonUserCode]
+    public partial class SIPersistentEntity<TKeyType01>
+      : global::Microsoft.Stubs.Framework.StubBase
+      , global::Void.IPersistentEntity<TKeyType01>
+    {
+        /// <summary>Initializes a new instance of type SIPersistentEntity</summary>
+        public SIPersistentEntity()
+        {
+        }
+
+        /// <summary>Sets the stub of <see cref="P:Void.IPersistentEntity`1`1.Id"/>
+        /// </summary>
+        TKeyType01 global::Void.IPersistentEntity<TKeyType01>.Id
+        {
+            get
+            {
+                global::Microsoft.Stubs.Framework.StubDelegates.Func<TKeyType01> sh = this.IdGet;
+                if ((object)sh != (object)null)
+                  return sh.Invoke();
+                else 
+                {
+                  global::Microsoft.Stubs.Framework.IStubBehavior stub = base.InstanceFallbackBehavior;
+                  return stub.Result<global::Void.Stubs.SIPersistentEntity<TKeyType01>, TKeyType01>(this);
+                }
+            }
+        }
+
+        /// <summary>Sets the stub of <see cref="P:Void.IPersistentEntity`1`1.Id"/>
+        /// </summary>
+        public global::Microsoft.Stubs.Framework.StubDelegates.Func<TKeyType01> IdGet;
+    }
+}
 namespace Void.Wrappers.Stubs
 {
     /// <summary>Stub type of <see cref="Void.Wrappers.IWrapper`1`1"/>
@@ -1432,5 +1670,122 @@ namespace Void.Wrappers.Stubs
         /// <summary>Sets the stub of <see cref="P:Void.Wrappers.IWrapper`1`1.Wrapped"/>
         /// </summary>
         public global::Microsoft.Stubs.Framework.StubDelegates.Func<T01> WrappedGet;
+    }
+}
+namespace Void.Stubs
+{
+    /// <summary>Stub type of <see cref="Void.PersistentEntity`1`1"/>
+    /// .</summary>
+    [global::Microsoft.Stubs.Framework.StubClass(typeof(global::Void.PersistentEntity<>))]
+    [global::System.CodeDom.Compiler.GeneratedCode("Stubs", "0.19.41110.1")]
+    [global::System.Serializable]
+    [global::System.Diagnostics.DebuggerDisplay("Stub = PersistentEntity`1")]
+    [global::System.Diagnostics.DebuggerNonUserCode]
+    public partial class SPersistentEntity<TEntity01>
+      : global::Void.PersistentEntity<TEntity01>
+      , global::Microsoft.Stubs.Framework.IStub
+      , global::Microsoft.Stubs.Framework.IPartialStub
+        where TEntity01 : global::Void.PersistentEntity<TEntity01>
+    {
+        /// <summary>Initializes a new instance</summary>
+        public SPersistentEntity()
+        {
+            this.InitializeStub();
+        }
+
+        /// <summary>Gets or sets a value that indicates if the base method should be called instead of the fallback behavior</summary>
+        public bool CallBase
+        {
+            get
+            {
+                return this.callBase;
+            }
+            set
+            {
+                this.callBase = value;
+            }
+        }
+
+        /// <summary>Sets the stub of <see cref="M:Void.PersistentEntity`1`1.Equals(System.Object)"/>
+        /// </summary>
+        public override bool Equals(object other)
+        {
+            global::Microsoft.Stubs.Framework.StubDelegates.Func<object, bool> sh = this.EqualsObject;
+            if (sh != (global::Microsoft.Stubs.Framework.StubDelegates.Func<object, bool>)null)
+              return sh.Invoke(other);
+            else 
+            {
+              if (this.callBase)
+                return base.Equals(other);
+              global::Microsoft.Stubs.Framework.IStubBehavior stub = this.InstanceFallbackBehavior;
+              return stub.Result<global::Void.Stubs.SPersistentEntity<TEntity01>, bool>(this);
+            }
+        }
+
+        /// <summary>Sets the stub of <see cref="M:Void.PersistentEntity`1`1.Equals(`1)"/>
+        /// </summary>
+        public override bool Equals(TEntity01 other)
+        {
+            global::Microsoft.Stubs.Framework.StubDelegates.Func<TEntity01, bool> sh = this.EqualsTEntity;
+            if ((object)sh != (object)null)
+              return sh.Invoke(other);
+            else 
+            {
+              if (this.callBase)
+                return base.Equals(other);
+              global::Microsoft.Stubs.Framework.IStubBehavior stub = this.InstanceFallbackBehavior;
+              return stub.Result<global::Void.Stubs.SPersistentEntity<TEntity01>, bool>(this);
+            }
+        }
+
+        /// <summary>Sets the stub of <see cref="M:Void.PersistentEntity`1`1.Equals(System.Object)"/>
+        /// </summary>
+        public global::Microsoft.Stubs.Framework.StubDelegates.Func<object, bool> EqualsObject;
+
+        /// <summary>Sets the stub of <see cref="M:Void.PersistentEntity`1`1.Equals(`1)"/>
+        /// </summary>
+        public global::Microsoft.Stubs.Framework.StubDelegates.Func<TEntity01, bool> EqualsTEntity;
+
+        /// <summary>Sets the stub of <see cref="M:Void.PersistentEntity`1`1.GetHashCode"/>
+        /// </summary>
+        public override int GetHashCode()
+        {
+            global::Microsoft.Stubs.Framework.StubDelegates.Func<int> sh = this.PersistentEntityGetHashCode;
+            if (sh != (global::Microsoft.Stubs.Framework.StubDelegates.Func<int>)null)
+              return sh.Invoke();
+            else 
+            {
+              if (this.callBase)
+                return base.GetHashCode();
+              global::Microsoft.Stubs.Framework.IStubBehavior stub = this.InstanceFallbackBehavior;
+              return stub.Result<global::Void.Stubs.SPersistentEntity<TEntity01>, int>(this);
+            }
+        }
+
+        /// <summary>Initializes a new instance of type SPersistentEntity</summary>
+        private void InitializeStub()
+        {
+        }
+
+        /// <summary>Gets or sets the fallback behavior.</summary>
+        public global::Microsoft.Stubs.Framework.IStubBehavior InstanceFallbackBehavior
+        {
+            get
+            {
+                return global::Microsoft.Stubs.Framework.StubFallbackBehavior.GetValueOrCurrent(this.defaultStub);
+            }
+            set
+            {
+                this.defaultStub = value;
+            }
+        }
+
+        /// <summary>Sets the stub of <see cref="M:Void.PersistentEntity`1`1.GetHashCode"/>
+        /// </summary>
+        public global::Microsoft.Stubs.Framework.StubDelegates.Func<int> PersistentEntityGetHashCode;
+
+        private bool callBase;
+
+        private global::Microsoft.Stubs.Framework.IStubBehavior defaultStub;
     }
 }

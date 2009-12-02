@@ -50,9 +50,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Domain\Entity.cs" />
-    <Compile Include="Domain\IEntity.cs" />
-    <Compile Include="Domain\EntityWithSurrogateKey.cs" />
+    <Compile Include="Domain\PersistentEntityWithSurrogateKey.cs" />
     <Compile Include="IPersistanceSession.cs" />
     <Compile Include="IRepository.cs" />
     <Compile Include="OptimisticConcurrencyException.cs" />

@@ -6,11 +6,11 @@ namespace Void.Time
     public interface ITimePositioned
     {
         /// <summary>The start position of the object on the timeline.</summary>
-        ITimePoint TimeCoordinate { get; }
+        ITimePoint TimePosition { get; }
     }
 
     /// <summary>An <see cref="ITimePositioned"/> guaranteed to have zero duration.</summary>
-    public interface ITimePoint : ITimePositioned
+    public interface ITimePoint
     {
         DateTime AsDateTime();
     }

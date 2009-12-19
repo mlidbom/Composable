@@ -4,7 +4,7 @@ namespace Void.Time
     {
         public static ITimeInterval ProjectAt(this ITimeInterval me, ITimePoint targetTime)
         {
-            return new SimpleTimeInterval(targetTime.TimeCoordinate, me.Duration);
+            return new SimpleTimeInterval(targetTime, me.Duration);
         }
     }
 }

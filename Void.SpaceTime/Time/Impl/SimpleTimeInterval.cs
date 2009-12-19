@@ -4,16 +4,16 @@ namespace Void.Time
 {
     public class SimpleTimeInterval : ITimeInterval
     {
-        public ITimePoint TimeCoordinate { get; private set; }
+        public ITimePoint TimePosition { get; private set; }
         public TimeSpan Duration { get; private set; }
 
-        public SimpleTimeInterval(ITimeInterval template) : this(template.TimeCoordinate, template.Duration)
+        public SimpleTimeInterval(ITimeInterval template) : this(template.TimePosition, template.Duration)
         {
         }
 
         public SimpleTimeInterval(ITimePoint timeCoordinate, TimeSpan duration)
         {
-            TimeCoordinate = timeCoordinate;
+            TimePosition = timeCoordinate;
             Duration = duration;
         }
     }

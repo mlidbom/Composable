@@ -2,11 +2,11 @@
 {
     public class SimpleTimePositioned : ITimePositioned
     {
-        public ITimePoint TimeCoordinate { get; private set; }
+        public ITimePoint TimePosition { get; private set; }
 
         public SimpleTimePositioned(ITimePoint position)
         {
-            TimeCoordinate = position.TimeCoordinate;
+            TimePosition = position;
         }
     }
 }

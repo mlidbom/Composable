@@ -12,7 +12,7 @@ namespace Void.PlaneTime.Impl
             Duration = time.Duration;
         }
 
-        public ITimePoint TimeCoordinate { get; private set; }
+        public ITimePoint TimePosition { get; private set; }
         public TimeSpan Duration { get; set; }
     }
 }

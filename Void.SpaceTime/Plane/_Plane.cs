@@ -1,5 +1,12 @@
 namespace Void.Plane
 {
+    /// <summary>A specific position in the plane.</summary>
+    public interface IPlanePoint
+    {
+        int XCoordinate { get; }
+        int YCoordinate { get; }
+    }
+
     /// <summary>
     /// An object with a position in the plane.
     /// 
@@ -8,13 +15,6 @@ namespace Void.Plane
     public interface IPlanePositioned
     {
         IPlanePoint PlanePosition { get; }
-    }
-
-    /// <summary>An <see cref="IPlanePositioned"/> with zero width and height.</summary>
-    public interface IPlanePoint
-    {
-        int XCoordinate { get; }
-        int YCoordinate { get; }
     }
 
     /// <summary>/// An <see cref="IPlanePositioned"/> with a positive width and height.

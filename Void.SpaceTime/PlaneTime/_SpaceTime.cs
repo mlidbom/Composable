@@ -3,11 +3,11 @@ using Void.Time;
 
 namespace Void.PlaneTime
 {
-    public interface IPlaneTimePositioned : ITimePositioned, IPlanePositioned
+    public interface IPlaneTimePoint : ITimePoint, IPlanePoint
     {
     }
 
-    public interface IPlaneTimePoint : IPlaneTimePositioned, ITimePoint, IPlanePoint
+    public interface IPlaneTimePositioned : ITimePositioned, IPlanePositioned
     {
     }
 

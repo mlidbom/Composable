@@ -6,14 +6,14 @@ namespace Void.PlaneTime
 {
     public static class PlaneTimePoint
     {
-        public static IPlaneTimePoint ProjectAt(this IPlaneTimePoint me, ITimePoint targetTime)
+        public static IPlaneTimePoint Offset(this IPlaneTimePoint me, ITimeMovement movement)
         {
-            return new SimplePlaneTimePoint(me, TimePoint.ProjectAt(me, targetTime));
+            return new SimplePlaneTimePoint(me, TimePoint.Offset(me, movement));
         }
 
-        public static IPlaneTimePoint ProjectAt(this IPlaneTimePoint me, IPlanePoint targetPosition)
+        public static IPlaneTimePoint Offset(this IPlaneTimePoint me, IPlaneMovement movement)
         {
-            return new SimplePlaneTimePoint(PlanePoint.ProjectAt(me, targetPosition), me);
+            return new SimplePlaneTimePoint(PlanePoint.Offset(me, movement), me);
         }
     }
 }

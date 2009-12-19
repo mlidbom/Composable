@@ -4,9 +4,9 @@ namespace Void.Plane
 {
     public static class PlanePoint
     {
-        public static IPlanePoint ProjectAt(this IPlanePoint me, IPlanePoint targetPosition)
+        public static IPlanePoint Offset(this IPlanePoint me, IPlaneMovement movement)
         {
-            return new SimplePlanePoint(me.XCoordinate, me.YCoordinate);
+            return new SimplePlanePoint(me.XCoordinate + movement.XMovement, me.YCoordinate + movement.YMovement);
         }
     }
 }

@@ -4,9 +4,9 @@ namespace Void.Time
 {
     public static class TimePoint
     {
-        public static ITimePoint ProjectAt(this ITimePoint me, ITimePoint targetTime)
+        public static ITimePoint Offset(this ITimePoint me, ITimeMovement movement)
         {
-            return new SimpleTimePoint(targetTime);
+            return new SimpleTimePoint(me.DateTimeValue +  movement.AsTimeSpan());
         }
     }
 }

@@ -7,14 +7,10 @@ namespace Void.PlaneTime.Impl
 {
     public class SimplePlaneTimePoint : SimplePlanePoint, IPlaneTimePoint
     {
-        public ITimePoint TimePosition { get; private set; }
-        
-        //Hide leaking implementation detail with explicit implementation
-        DateTime ITimePoint.AsDateTime() { return TimePosition.AsDateTime(); }
-
+        public DateTime DateTimeValue { get; private set; }
         public SimplePlaneTimePoint(IPlanePoint spacePosition, ITimePoint timePosition):base(spacePosition)
         {
-            TimePosition = timePosition;
+            DateTimeValue = timePosition.DateTimeValue;
         }        
     }
 }

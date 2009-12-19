@@ -13,12 +13,12 @@ namespace Void.Time.Impl
 
         public SimpleTimePoint(ITimePoint position)
         {
-            _datetimeValue = position.AsDateTime();
+            _datetimeValue = position.DateTimeValue;
         }
 
-        public DateTime AsDateTime()
+        public DateTime DateTimeValue
         {
-            return _datetimeValue;
+            get { return _datetimeValue; }
         }
 
         public ITimePoint TimeCoordinate

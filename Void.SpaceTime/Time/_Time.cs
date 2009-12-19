@@ -12,7 +12,7 @@ namespace Void.Time
     /// <summary>An <see cref="ITimePositioned"/> guaranteed to have zero duration.</summary>
     public interface ITimePoint
     {
-        DateTime AsDateTime();
+        DateTime DateTimeValue { get; }
     }
 
     /// <summary> A length of time. Negative values are illegal.</summary>
@@ -25,7 +25,7 @@ namespace Void.Time
     /// <summary>A movement on a timeline. May be positive(forwards in time) or negative(backwards in time).</summary>
     public interface ITimeMovement
     {
-        TimeSpan TimeMovement { get; }
+        TimeSpan AsTimeSpan();
     }
 
     /// <summary>A segment of a timeline.</summary>

@@ -60,10 +60,12 @@
     <Compile Include="Time\Impl\SimpleTimePoint.cs" />
     <Compile Include="Time\_Time.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Tobii\Impl\ApiExposure.cs" />
     <Compile Include="PlaneTime\Impl\SimplePlaneTimePoint.cs" />
     <Compile Include="Tobii\Model\_Model.cs" />
     <Compile Include="Tobii\Model\IProjectableExposure.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Tobii\Impl\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

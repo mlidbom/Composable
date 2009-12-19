@@ -1,12 +1,18 @@
 namespace Void.Plane.Impl
 {
-    public class SimplePlanePoint : SimplePlanePositioned, IPlanePoint
+    public class SimplePlanePoint : IPlanePoint
     {
-        public SimplePlanePoint(int xCoordinate, int yCoordinate) : base(xCoordinate, yCoordinate)
+        public IPlanePoint PlanePosition { get{ return this;} }
+        public int XCoordinate { get; private set; }
+        public int YCoordinate { get; private set; }
+
+        public SimplePlanePoint(int xCoordinate, int yCoordinate)
         {
+            XCoordinate = xCoordinate;
+            YCoordinate = YCoordinate;
         }
 
-        protected SimplePlanePoint(IPlanePositioned position) : base(position)
+        public SimplePlanePoint(IPlanePoint position):this(position.XCoordinate, position.YCoordinate)
         {
         }
     }

@@ -7,13 +7,14 @@ namespace Void.Plane
     /// </summary>
     public interface IPlanePositioned
     {
-        int XCoordinate { get; }
-        int YCoordinate { get; }
+        IPlanePoint PlanePosition { get; }
     }
 
     /// <summary>An <see cref="IPlanePositioned"/> with zero width and height.</summary>
-    public interface IPlanePoint : IPlanePositioned
+    public interface IPlanePoint
     {
+        int XCoordinate { get; }
+        int YCoordinate { get; }
     }
 
     /// <summary>/// An <see cref="IPlanePositioned"/> with a positive width and height.

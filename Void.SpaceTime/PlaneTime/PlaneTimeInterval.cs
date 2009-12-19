@@ -7,12 +7,12 @@ namespace Void.PlaneTime
 {
     public static class PlaneTimeInterval
     {
-        public static IPlaneTimeInterval MoveTo(IPlaneTimeInterval me, ITimePoint targetTime)
+        public static IPlaneTimeInterval ProjectAt(IPlaneTimeInterval me, ITimePoint targetTime)
         {
-            return new SimplePlaneTimeInterval(me, me.MoveTo(targetTime));
+            return new SimplePlaneTimeInterval(me.PlanePosition, me.ProjectAt(targetTime));
         }
 
-        public static IPlaneTimeInterval MoveTo(IPlaneTimeInterval me, IPlanePoint targetPosition)
+        public static IPlaneTimeInterval ProjectAt(IPlaneTimeInterval me, IPlanePoint targetPosition)
         {
             throw new NotImplementedException();
         }

@@ -7,7 +7,7 @@ namespace Void.PlaneTime.Impl
 {
     public class SimplePlaneTimeInterval : SimplePlanePositioned, IPlaneTimeInterval
     {
-        public SimplePlaneTimeInterval(IPlanePositioned position, ITimeInterval time) : base(position)
+        public SimplePlaneTimeInterval(IPlanePoint position, ITimeInterval time) : base(position)
         {
             Duration = time.Duration;
         }

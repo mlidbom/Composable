@@ -4,7 +4,7 @@ namespace Void.Plane
 {
     public static class PlanePoint
     {
-        public static IPlanePoint MoveTo(this IPlanePoint me, IPlanePoint targetPosition)
+        public static IPlanePoint ProjectAt(this IPlanePoint me, IPlanePoint targetPosition)
         {
             return new SimplePlanePoint(me.XCoordinate, me.YCoordinate);
         }

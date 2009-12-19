@@ -1,20 +1,19 @@
 using Void.Plane;
 using Void.PlaneTime.Impl;
 using Void.Time;
-using Void.Tobii.Impl;
 
 namespace Void.PlaneTime
 {
     public static class PlaneTimePoint
     {
-        public static IPlaneTimePoint MoveTo(this IPlaneTimePoint me, ITimePoint targetTime)
+        public static IPlaneTimePoint ProjectAt(this IPlaneTimePoint me, ITimePoint targetTime)
         {
-            return new SimplePlaneTimePoint(me, TimePoint.MoveTo(me, targetTime));
+            return new SimplePlaneTimePoint(me, TimePoint.ProjectAt(me, targetTime));
         }
 
-        public static IPlaneTimePoint MoveTo(this IPlaneTimePoint me, IPlanePoint targetPosition)
+        public static IPlaneTimePoint ProjectAt(this IPlaneTimePoint me, IPlanePoint targetPosition)
         {
-            return new SimplePlaneTimePoint(PlanePoint.MoveTo(me, targetPosition), me);
+            return new SimplePlaneTimePoint(PlanePoint.ProjectAt(me, targetPosition), me);
         }
     }
 }

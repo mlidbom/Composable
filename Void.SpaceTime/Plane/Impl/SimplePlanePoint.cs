@@ -1,3 +1,5 @@
+using System;
+
 namespace Void.Plane.Impl
 {
     public class SimplePlanePoint : IPlanePoint
@@ -8,7 +10,7 @@ namespace Void.Plane.Impl
         public SimplePlanePoint(int xCoordinate, int yCoordinate)
         {
             XCoordinate = xCoordinate;
-            YCoordinate = YCoordinate;
+            YCoordinate = yCoordinate;
         }
 
         public SimplePlanePoint(IPlanePoint position):this(position.XCoordinate, position.YCoordinate)

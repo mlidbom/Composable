@@ -1,8 +1,7 @@
 using Void.Plane;
 
 namespace Void.Shapes
-{
-    /// <summary>/// An <see cref="IPlanePositioned"/> with a positive width and height.
+{    
     /// The Width and Height are those of an imagined rectangle circumscribing the shape.</summary>
     public interface IShape
     {
@@ -14,6 +13,7 @@ namespace Void.Shapes
     public interface IRectangle : IShape
     { }
 
+    /// <summary>An <see cref="IPlanePositioned"/> with a width and height.</summary>
     public interface IPositionedShape : IPlanePositioned, IShape
     { }
 

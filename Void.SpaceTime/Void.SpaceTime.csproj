@@ -54,6 +54,7 @@
     <Compile Include="PlaneTime\Impl\SimplePlaneTimeInterval.cs" />
     <Compile Include="PlaneTime\_SpaceTime.cs" />
     <Compile Include="Shapes\_ShapeDomain.cs" />
+    <Compile Include="Time\Duration.cs" />
     <Compile Include="Time\Impl\SimpleTimeInterval.cs" />
     <Compile Include="Time\Impl\SimpleTimePositioned.cs" />
     <Compile Include="Time\TimePoint.cs" />

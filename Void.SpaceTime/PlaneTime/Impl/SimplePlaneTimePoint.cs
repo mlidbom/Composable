@@ -8,7 +8,7 @@ namespace Void.PlaneTime.Impl
     public class SimplePlaneTimePoint : SimplePlanePoint, IPlaneTimePoint
     {
         public DateTime DateTimeValue { get; private set; }
-        public SimplePlaneTimePoint(IPlanePoint spacePosition, ITimePoint timePosition):base(spacePosition)
+        public SimplePlaneTimePoint(IPlanePoint planePosition, ITimePoint timePosition):base(planePosition)
         {
             DateTimeValue = timePosition.DateTimeValue;
         }        

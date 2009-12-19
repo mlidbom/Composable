@@ -61,7 +61,6 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="PlaneTime\Impl\SimplePlaneTimePoint.cs" />
     <Compile Include="Tobii\Model\_Model.cs" />
-    <Compile Include="Tobii\Model\IProjectableExposure.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Tobii\Impl\" />

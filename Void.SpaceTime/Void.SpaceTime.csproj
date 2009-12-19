@@ -49,9 +49,7 @@
     <Compile Include="Plane\Impl\SimplePlanePoint.cs" />
     <Compile Include="Plane\Impl\SimplePlanePositioned.cs" />
     <Compile Include="Plane\_Plane.cs" />
-    <Compile Include="PlaneTime\PlaneTimeInterval.cs" />
     <Compile Include="PlaneTime\Impl\SimplePlaneTimeInterval.cs" />
-    <Compile Include="PlaneTime\PlaneTimePoint.cs" />
     <Compile Include="PlaneTime\_SpaceTime.cs" />
     <Compile Include="Shapes\_ShapeDomain.cs" />
     <Compile Include="Time\Impl\SimpleTimeInterval.cs" />

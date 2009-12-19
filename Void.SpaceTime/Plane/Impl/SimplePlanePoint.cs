@@ -1,5 +1,8 @@
+using System;
+
 namespace Void.Plane.Impl
 {
+    [Obsolete(WarningMessages.InternalAndInheritanceOnly)]
     public class SimplePlanePoint : IPlanePoint
     {
         public int XCoordinate { get; private set; }

@@ -2,6 +2,25 @@
 
 namespace Void.Time
 {
+    /// <summary>An <see cref="ITimePositioned"/> guaranteed to have zero duration.</summary>
+    public interface ITimePoint
+    {
+        [Obsolete(WarningMessages.InteralOnly)]
+        DateTime DateTimeValue { get; }
+    }
+
+    /// <summary>A vector on a timeline. May be positive(forwards in time) or negative(backwards in time).</summary>
+    public interface ITimeMovement
+    {
+        [Obsolete(WarningMessages.InteralOnly)]
+        TimeSpan TimeSpanValue { get; }
+    }
+
+    /// <summary> A <see cref="ITimeMovement"/> that must be positive. Represents a stretch of time.</summary>
+    public interface IDuration : ITimeMovement
+    {
+    }
+
     /// <summary>An object positioned on a timeline.</summary>
     public interface ITimePositioned
     {
@@ -9,28 +28,10 @@ namespace Void.Time
         ITimePoint TimePosition { get; }
     }
 
-    /// <summary>An <see cref="ITimePositioned"/> guaranteed to have zero duration.</summary>
-    public interface ITimePoint
-    {
-        DateTime DateTimeValue { get; }
-    }
-
-    /// <summary> A length of time. Negative values are illegal.</summary>
-    public interface IDuration
-    {
-        /// <summary>The length of the object on a timeline.</summary>
-        TimeSpan Duration { get; }
-    }
-
-    /// <summary>A movement on a timeline. May be positive(forwards in time) or negative(backwards in time).</summary>
-    public interface ITimeMovement
-    {
-        TimeSpan AsTimeSpan();
-    }
-
     /// <summary>A segment of a timeline.</summary>
-    public interface ITimeInterval : ITimePositioned, IDuration
+    public interface ITimeInterval : ITimePositioned
     {
+        IDuration Duration { get; }
     }
 
     /// <summary>A type capable of projecting a clone of itself to a different position in time.</summary>

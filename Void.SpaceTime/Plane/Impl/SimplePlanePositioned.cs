@@ -1,5 +1,8 @@
+using System;
+
 namespace Void.Plane.Impl
 {
+    [Obsolete(WarningMessages.InternalAndInheritanceOnly)]
     public class SimplePlanePositioned : IPlanePositioned
     {
         public IPlanePoint PlanePosition { get; private set; }

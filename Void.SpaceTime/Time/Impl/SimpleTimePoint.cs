@@ -2,6 +2,7 @@
 
 namespace Void.Time.Impl
 {
+    [Obsolete(WarningMessages.InternalAndInheritanceOnly)]
     public class SimpleTimePoint : ITimePoint
     {
         public DateTime DateTimeValue { get; private set; }
@@ -12,7 +13,9 @@ namespace Void.Time.Impl
 
         public SimpleTimePoint(ITimePoint position)
         {
+#pragma warning disable 612,618
             DateTimeValue = position.DateTimeValue;
+#pragma warning restore 612,618
         }        
     }
 }

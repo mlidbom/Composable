@@ -5,7 +5,10 @@ using Void.Time;
 
 namespace Void.PlaneTime.Impl
 {
+#pragma warning disable 612,618
+    [Obsolete(WarningMessages.InternalAndInheritanceOnly)]
     public class SimplePlaneTimeInterval : SimplePlanePositioned, IPlaneTimeInterval
+#pragma warning restore 612,618
     {
         public SimplePlaneTimeInterval(IPlanePoint position, ITimeInterval time) : base(position)
         {
@@ -13,6 +16,6 @@ namespace Void.PlaneTime.Impl
         }
 
         public ITimePoint TimePosition { get; private set; }
-        public TimeSpan Duration { get; set; }
+        public IDuration Duration { get; set; }
     }
 }

@@ -37,6 +37,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Void.Core.PexTests", "Void.Core.PexTests\Void.Core.PexTests.csproj", "{E3099248-BEEA-40FB-84EB-526BBE614411}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Void.SpaceTime", "Void.SpaceTime\Void.SpaceTime.csproj", "{FA1CE09A-37EA-4D3F-BF5C-F34E2F968CF5}"
+EndProject
 Global
 	GlobalSection(TestCaseManagementSettings) = postSolution
 		CategoryFile = Void.Everything.vsmdi
@@ -94,6 +96,10 @@ Global
 		{E3099248-BEEA-40FB-84EB-526BBE614411}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E3099248-BEEA-40FB-84EB-526BBE614411}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E3099248-BEEA-40FB-84EB-526BBE614411}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FA1CE09A-37EA-4D3F-BF5C-F34E2F968CF5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FA1CE09A-37EA-4D3F-BF5C-F34E2F968CF5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FA1CE09A-37EA-4D3F-BF5C-F34E2F968CF5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FA1CE09A-37EA-4D3F-BF5C-F34E2F968CF5}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

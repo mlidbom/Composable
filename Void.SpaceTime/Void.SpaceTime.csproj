@@ -48,7 +48,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Plane\PlanePoint.cs" />
     <Compile Include="Plane\Impl\SimplePlanePoint.cs" />
     <Compile Include="Plane\Impl\SimplePlanePositioned.cs" />
     <Compile Include="Plane\PlaneProjectable.cs" />

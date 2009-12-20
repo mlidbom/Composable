@@ -2,8 +2,8 @@
 
 namespace Void.Time
 {
-    /// <summary>An <see cref="ITimePositioned"/> guaranteed to have zero duration.</summary>
-    public interface ITimePoint
+    /// <summary>A point on a timeline.</summary>
+    public interface ITimePoint : ITimePositioned
     {
         [Obsolete(WarningMessages.InteralOnly)]
         DateTime DateTimeValue { get; }
@@ -29,9 +29,8 @@ namespace Void.Time
     }
 
     /// <summary>A segment of a timeline.</summary>
-    public interface ITimeInterval : ITimePositioned
+    public interface ITimeInterval : ITimePositioned, IDuration
     {
-        IDuration Duration { get; }
     }
 
     /// <summary>A type capable of projecting a clone of itself to a different position in time.</summary>

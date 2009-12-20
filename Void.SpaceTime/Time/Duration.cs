@@ -21,7 +21,7 @@ namespace Void.Time
             return me.TimeSpanValue() == other.TimeSpanValue();
         }
 
-        public static bool IsZero(this IDuration me)
+        public static bool HasZeroDuration(this IDuration me)
         {
             return me.DurationEquals(Zero);
         }

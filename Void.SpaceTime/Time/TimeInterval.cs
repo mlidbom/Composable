@@ -6,7 +6,7 @@ namespace Void.Time
     {
         public static ITimePoint EndTime(this ITimeInterval me)
         {
-            return me.TimePosition.Offset(me.Duration);
+            return me.TimePosition.Offset(me);
         }
 
         public static ITimePoint StartTime(this ITimeInterval me)
@@ -38,7 +38,7 @@ namespace Void.Time
 
         public static bool IsEmpty(this ITimeInterval me)
         {
-            return me.Duration.IsZero();
+            return me.HasZeroDuration();
         }
 
         #region enable non-warning access to internal use only members

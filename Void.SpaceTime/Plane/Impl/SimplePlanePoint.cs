@@ -17,5 +17,7 @@ namespace Void.Plane.Impl
         public SimplePlanePoint(IPlanePoint position) : this(position.XCoordinate, position.YCoordinate)
         {
         }
+
+        public IPlanePoint PlanePosition { get { return this; } }
     }
 }

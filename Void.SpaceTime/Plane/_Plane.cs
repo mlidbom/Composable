@@ -3,7 +3,7 @@ using System;
 namespace Void.Plane
 {
     /// <summary>A specific position in the plane.</summary>
-    public interface IPlanePoint
+    public interface IPlanePoint : IPlanePositioned
     {
         [Obsolete(WarningMessages.InteralOnly)] int XCoordinate { get; }
         [Obsolete(WarningMessages.InteralOnly)] int YCoordinate { get; }

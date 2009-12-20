@@ -2,13 +2,14 @@ using System;
 
 namespace Void.Plane
 {
-    /// <summary>A specific position in the plane.</summary>
+    /// <summary>A specific point in the plane. A point has zero width and height.</summary>
     public interface IPlanePoint : IPlanePositioned
     {
         [Obsolete(WarningMessages.InteralOnly)] int XCoordinate { get; }
         [Obsolete(WarningMessages.InteralOnly)] int YCoordinate { get; }
     }
 
+    /// <summary>Represents a vector (arrow) in the plane</summary>
     public interface IPlaneMovement
     {
         [Obsolete(WarningMessages.InteralOnly)] int XMovement { get; }
@@ -23,8 +24,10 @@ namespace Void.Plane
     }
 
     /// <summary>An object capable of creating a clone of itself at another <see cref="IPlanePoint"/></summary>
-    public interface IPlaneProjectable<T> : IPlanePositioned where T : IPlaneProjectable<T>
+    /// <typeparam name="TProjection">The type of the projected clone.</typeparam>
+    public interface IPlaneProjectable<TProjection> : IPlanePositioned where TProjection : IPlaneProjectable<TProjection>
     {
-        T ProjectAt(IPlanePoint targetPosition);
+        /// <summary>Create a clone of the object positioned at <paramref name="targetPosition"/></summary>
+        TProjection ProjectAt(IPlanePoint targetPosition);
     }
 }

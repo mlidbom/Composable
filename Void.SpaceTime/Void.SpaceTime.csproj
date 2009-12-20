@@ -69,7 +69,8 @@
     <Compile Include="WarningMessages.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="ClassDiagram1.cd" />
+    <None Include="Tobii.cd" />
+    <None Include="PlaneTime.cd" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Tobii\Impl\" />

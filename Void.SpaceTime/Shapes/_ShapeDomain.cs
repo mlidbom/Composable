@@ -14,9 +14,9 @@ namespace Void.Shapes
     { }
 
     /// <summary>An <see cref="IPlanePositioned"/> with a width and height.</summary>
-    public interface IPositionedShape : IPlanePositioned, IShape
+    public interface IPlanePositionedShape : IPlanePositioned, IShape
     { }
 
-    public interface IPlaneProjectableShape<T> : IPositionedShape, IPlaneProjectable<T> where T : IPlaneProjectableShape<T>
+    public interface IPlaneProjectableShape<T> : IPlanePositionedShape, IPlaneProjectable<T> where T : IPlaneProjectableShape<T>
     { }    
 }

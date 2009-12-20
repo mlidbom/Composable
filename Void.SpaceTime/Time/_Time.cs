@@ -34,8 +34,9 @@ namespace Void.Time
     }
 
     /// <summary>A type capable of projecting a clone of itself to a different position in time.</summary>
-    public interface ITimeProjectable<T> : ITimePositioned where T : ITimeProjectable<T>
+    /// <typeparam name="TProjection">The type of the projected clone.</typeparam>
+    public interface ITimeProjectable<TProjection> : ITimePositioned where TProjection : ITimeProjectable<TProjection>
     {
-        T ProjectAt(ITimePoint targetTime);
+        TProjection ProjectAt(ITimePoint targetTime);
     }
 }

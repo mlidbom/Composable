@@ -7,12 +7,12 @@ namespace Void.Tobii.Model
     {
     }
 
-    public interface IMediaEvent : IPlaneTimePositioned
+    public interface IMediaEvent : IPlaneTimeInterval
     {
         IMedia Media { get; }
     }
 
-    public interface IProjectableMediaEvent<T> : IMediaEvent, IPlaneTimeProjectable<T>
+    public interface IProjectableMediaEvent<T> : IMediaEvent, IProjectablePlaneTimeInterval<T>
         where T : IProjectableMediaEvent<T>
     {
     }

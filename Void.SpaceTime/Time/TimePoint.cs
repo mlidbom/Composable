@@ -50,7 +50,8 @@ namespace Void.Time
         #endregion
 
         #region enable non-warning access to internal use only members
-#pragma warning disable 618
+        #pragma warning disable 618
+        
         private static TimeSpan Value(this ITimeMovement movement)
         {
             return movement.TimeSpanValue;
@@ -66,7 +67,7 @@ namespace Void.Time
             return me.DateTimeValue;
         }
 
-#pragma warning restore 618
+        #pragma warning restore 618
         #endregion
     }
 }

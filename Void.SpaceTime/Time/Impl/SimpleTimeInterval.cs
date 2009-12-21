@@ -8,13 +8,9 @@ namespace Void.Time.Impl
         public ITimePoint TimePosition { get; private set; }
         public IDuration Duration { get; private set; }
 
-        public SimpleTimeInterval(ITimeInterval template) : this(template.TimePosition, template)
+        public SimpleTimeInterval(ITimePoint timeCoordinate, IDuration duration)
         {
-        }
-
-        public SimpleTimeInterval(ITimePositioned timeCoordinate, IDuration duration)
-        {
-            TimePosition = timeCoordinate.TimePosition;
+            TimePosition = timeCoordinate;
             Duration = duration;
         }
 

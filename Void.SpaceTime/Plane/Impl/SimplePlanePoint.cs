@@ -18,11 +18,6 @@ namespace Void.Plane.Impl
         {
         }
 
-        public IPlanePoint ProjectAt(IPlanePoint targetPosition)
-        {
-            return new SimplePlanePoint(targetPosition);
-        }
-
         public IPlanePoint PlanePosition { get { return this; } }
     }
 }

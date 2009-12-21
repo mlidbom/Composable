@@ -11,13 +11,6 @@ namespace Void.Time.Impl
             DateTimeValue = position;
         }
 
-        public SimpleTimePoint(ITimePoint position)
-        {
-#pragma warning disable 612,618
-            DateTimeValue = position.DateTimeValue;
-#pragma warning restore 612,618
-        }
-
         public ITimePoint TimePosition { get { return this; } }
     }
 }

@@ -36,7 +36,7 @@ namespace Void.Time
             return me.LastInstantBefore().IsBefore(point) && me.FirstInstantAfter().IsAfter(point);
         }
 
-        /// <summary>True if every <see cref="ITimePoint"/> this is within <paramref name="other"/> is within <paramref name="me"/></summary>
+        /// <summary>True if <paramref name="me"/> contains every <see cref="ITimePoint"/> that <paramref name="other"/> contains</summary>
         public static bool Contains(this ITimeInterval me, ITimeInterval other)
         {
             return me.Contains(other.FirstInstant()) && me.Contains(other.LastInstant());

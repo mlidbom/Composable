@@ -3,7 +3,7 @@ using System;
 namespace Void.Plane.Impl
 {
     [Obsolete(WarningMessages.InternalAndInheritanceOnly)]
-    public class SimplePlanePoint : IPlanePoint
+    internal class SimplePlanePoint : IPlanePoint
     {
         public int XCoordinate { get; private set; }
         public int YCoordinate { get; private set; }

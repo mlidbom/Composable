@@ -1,42 +1,62 @@
 using System;
-using Void.Time;
 
 namespace Void.Time
 {
+    /// <summary>Operations on an <see cref="IDuration"/></summary>
     public static class Duration
     {
-        public static readonly IDuration Zero = new SimpleDuration(TimeSpan.Zero);
+        /// <summary>The canonical instance of an <see cref="IDuration"/> with zero length in time.</summary>
+        public static readonly IDuration Zero = FromTimeSpan(TimeSpan.Zero);
 
+        /// <summary>The smallest possible duration.</summary>
+        public static readonly IDuration MinValue = FromTimeSpan(TimeSpan.FromTicks(Ticks.PerMicroSecond));
+
+
+        /// <summary>The absolute value of the movement in time between first and second.</summary>
         public static IDuration Between(ITimePoint first, ITimePoint second)
         {
-            if(first.IsAfterOrEqual(second))
+            if (first.IsAfterOrSameInstantAs(second))
             {
-                return Zero;
+                return FromTimeSpan(first.DateTimeValue() - second.DateTimeValue());
             }
-            return new SimpleDuration(second.DateTimeValue() - first.DateTimeValue());
+            return FromTimeSpan(second.DateTimeValue() - first.DateTimeValue());
         }
 
-        public static bool DurationEquals(this IDuration me, IDuration other)
+        /// <summary>True if <paramref name="me"/> has the exact same length in time as <paramref name="other"/></summary>
+        public static bool HasDurationEqualTo(this IDuration me, IDuration other)
         {
             return me.TimeSpanValue() == other.TimeSpanValue();
         }
 
+        /// <summary>True if <paramref name="me"/> has zero length in time.</summary>
         public static bool HasZeroDuration(this IDuration me)
         {
-            return me.DurationEquals(Zero);
+            return me.HasDurationEqualTo(Zero);
+        }
+
+        private static IDuration FromTimeSpan(TimeSpan timeSpan)
+        {
+            return SimpleDuration.FromTimeSpan(timeSpan);
         }
 
         private class SimpleDuration : IDuration
         {
-            public SimpleDuration(TimeSpan value)
+            public TimeSpan TimeSpanValue { get; private set; }
+
+            public static IDuration FromTimeSpan(TimeSpan timeSpan)
+            {
+                return new SimpleDuration(timeSpan);
+            }
+
+            private SimpleDuration(TimeSpan value)
             {
                 TimeSpanValue = value;
             }
-            public TimeSpan TimeSpanValue { get; private set;}
         }
 
         #region enable non-warning access to internal use only members
-        #pragma warning disable 618
+
+#pragma warning disable 618
 
         private static DateTime DateTimeValue(this ITimePoint me)
         {
@@ -48,7 +68,8 @@ namespace Void.Time
             return me.TimeSpanValue;
         }
 
-        #pragma warning restore 618
+#pragma warning restore 618
+
         #endregion
     }
 }

@@ -2,21 +2,24 @@ using Void.Plane;
 
 namespace Void.Shapes
 {    
-    /// The Width and Height are those of an imagined rectangle circumscribing the shape.</summary>
+    /// <summary>Something that occupies an area in the plane.</summary>
     public interface IShape
     {
+        /// <summary>The width of a circumscribed rectangle.</summary>
         uint Width { get; }
+        /// <summary>The height of a circumscribed rectangle.</summary>
         uint Height { get; }
-        bool Contains(IPlanePoint point);
     }
 
+    /// <summary>A rectangular <see cref="IShape"/></summary>
     public interface IRectangle : IShape
     { }
 
-    /// <summary>An <see cref="IPlanePositioned"/> with a width and height.</summary>
+    /// <summary>An <see cref="IPlanePositioned"/> <see cref="IRectangle"/>.</summary>
     public interface IPlanePositionedShape : IPlanePositioned, IShape
     { }
 
+    /// <summary>An <see cref="IPlaneProjectable{TProjection}"/> <see cref="IShape"/> </summary>
     public interface IPlaneProjectableShape<T> : IPlanePositionedShape, IPlaneProjectable<T> where T : IPlaneProjectableShape<T>
     { }    
 }

@@ -11,13 +11,13 @@ namespace Void.Time
             return me.FirstInstant().PreviousInstant();
         }
 
-        /// <summary>The first <see cref="ITimePoint"/> that the <see cref="ITimeInterval"/> <see cref="Contains(ITimeInterval,ITimePoint)"/> (Given that the interval has non-zero duration, othervise it contains no points..)</summary>
+        /// <summary>The first <see cref="ITimePoint"/> that the <see cref="ITimeInterval"/> <see cref="Contains(ITimeInterval,ITimePoint)"/> (Given that the interval has non-zero duration, othervise it contains no points and this point is simply its location in time..)</summary>
         public static ITimePoint FirstInstant(this ITimeInterval me)
         {
             return me.TimePosition;
         }
 
-        /// <summary>The last <see cref="ITimePoint"/> that the <see cref="ITimeInterval"/> <see cref="Contains(ITimeInterval,ITimePoint)"/> (Given that the interval has non-zero duration, othervise it contains no points..)</summary>
+        /// <summary>The last <see cref="ITimePoint"/> that the <see cref="ITimeInterval"/> <see cref="Contains(ITimeInterval,ITimePoint)"/> (Given that the interval has non-zero duration, othervise it contains no points and this point is simply its location in time..)</summary>
         public static ITimePoint LastInstant(this ITimeInterval me)
         {
             return me.FirstInstantAfter().PreviousInstant();
@@ -30,7 +30,7 @@ namespace Void.Time
         }
 
 
-        /// <summary>True if <see cref="FirstInstant"/> is concurrent with or earlier than <paramref name="point"/> and <see cref="LastInstant"/> is after <paramref name="point"/></summary>
+        /// <summary>True if <see cref="LastInstantBefore"/> is before <paramref name="point"/> and <see cref="FirstInstantAfter"/> is after <paramref name="point"/></summary>
         public static bool Contains(this ITimeInterval me, ITimePoint point)
         {
             return me.LastInstantBefore().IsBefore(point) && me.FirstInstantAfter().IsAfter(point);
@@ -42,7 +42,7 @@ namespace Void.Time
             return me.Contains(other.FirstInstant()) && me.Contains(other.LastInstant());
         }
 
-        /// <summary>The <see cref="ITimeInterval"/> that contains all the <see cref="ITimePoint"/>s that are within both <paramref name="other"/> and <paramref name="me"/></summary>
+        /// <summary>The <see cref="ITimeInterval"/> that <see cref="Contains(ITimeInterval,ITimePoint)"/> all the <see cref="ITimePoint"/>s that both <paramref name="other"/> and <paramref name="me"/> <see cref="Contains(ITimeInterval,ITimePoint)"/>.</summary>
         public static ITimeInterval IntersectionWith(this ITimeInterval me, ITimeInterval other)
         {
             var start = TimePoint.Latest(me.FirstInstant(), other.FirstInstant());
@@ -74,6 +74,7 @@ namespace Void.Time
         }
 
         #region enable non-warning access to internal use only members
+
 #pragma warning disable 618
 
         private static SimpleTimeInterval NewTimeInterval(ITimePoint startingPoint, IDuration duration)
@@ -82,6 +83,7 @@ namespace Void.Time
         }
 
 #pragma warning restore 618
+
         #endregion
     }
 }

@@ -3,7 +3,7 @@ using System;
 namespace Void.Time
 {
     /// <summary>Operations on an <see cref="ITimeMovement"/></summary>
-    public static class TimeMoveMent
+    public static class TimeMovement
     {
         /// <summary>Returns an <see cref="ITimeMovement"/> with the same magnitude, but opposite direction.</summary>
         public static ITimeMovement Negate(this ITimeMovement me)

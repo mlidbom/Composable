@@ -56,7 +56,7 @@
     <Compile Include="Shapes\_ShapeDomain.cs" />
     <Compile Include="Time\Duration.cs" />
     <Compile Include="Time\Ticks.cs" />
-    <Compile Include="Time\TimeMoveMent.cs" />
+    <Compile Include="Time\TimeMovement.cs" />
     <Compile Include="Time\TimePoint.cs" />
     <Compile Include="Time\TimeInterval.cs" />
     <Compile Include="Time\Impl\SimpleTimePoint.cs" />

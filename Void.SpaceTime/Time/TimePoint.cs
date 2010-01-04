@@ -24,7 +24,7 @@ namespace Void.Time
         /// <summary>Returns an <see cref="ITimePoint"/> that resides at the position in time that is <paramref name="movement"/> distant from <paramref name="me"/></summary>
         public static ITimePoint Offset(this ITimePoint me, ITimeMovement movement)
         {
-            return FromDateTime(me.Value() + movement.Value());
+            return FromDateTime(me.DateTimeValue() + movement.TimeSpanValue());
         }
 
         #endregion
@@ -35,42 +35,42 @@ namespace Void.Time
         /// <summary>True if <paramref name="me"/> is placed before <paramref name="other"/> on the timeline.</summary>
         public static bool IsBefore(this ITimePoint me, ITimePoint other)
         {
-            return me.Value() < other.Value();
+            return me.DateTimeValue() < other.DateTimeValue();
         }
 
         /// <summary>True if <paramref name="me"/> is placed before or on the same point as <paramref name="other"/> on the timeline.</summary>
         public static bool IsBeforeOrSameInstantAs(this ITimePoint me, ITimePoint other)
         {
-            return me.IsBefore(other) || me.IsSameInstantAs(other);
+            return !me.IsAfter(other);
         }
 
         /// <summary>True if <paramref name="me"/> is placed after <paramref name="other"/> on the timeline.</summary>
         public static bool IsAfter(this ITimePoint me, ITimePoint other)
         {
-            return me.Value() > other.Value();
+            return me.DateTimeValue() > other.DateTimeValue();
         }
 
         /// <summary>True if <paramref name="me"/> is placed after or on the same point as <paramref name="other"/> on the timeline.</summary>
         public static bool IsAfterOrSameInstantAs(this ITimePoint me, ITimePoint other)
         {
-            return me.IsAfter(other) || me.IsSameInstantAs(other);
+            return !me.IsBefore(other);
         }
 
         /// <summary>Returns the latest of the two points in time</summary>
         public static T Latest<T>(T first, T second) where T : ITimePoint
         {
-            return first.Value() > second.Value() ? first : second;
+            return first.DateTimeValue() > second.DateTimeValue() ? first : second;
         }
 
         /// <summary>Returns the earliest of the two points in time</summary>
         public static T Earliest<T>(T first, T second) where T : ITimePoint
         {
-            return first.Value() < second.Value() ? first : second;
+            return first.DateTimeValue() < second.DateTimeValue() ? first : second;
         }
 
         private static bool IsSameInstantAs(this ITimePoint me, ITimePoint other)
         {
-            return me.Value() == other.Value();
+            return me.DateTimeValue() == other.DateTimeValue();
         }
 
         #endregion
@@ -89,7 +89,7 @@ namespace Void.Time
         #region enable non-warning access to internal use only members
         #pragma warning disable 618
         
-        private static TimeSpan Value(this ITimeMovement movement)
+        private static TimeSpan TimeSpanValue(this ITimeMovement movement)
         {
             return movement.TimeSpanValue;
         }
@@ -99,7 +99,7 @@ namespace Void.Time
             return new SimpleTimePoint(time);
         }
 
-        private static DateTime Value(this ITimePoint me)
+        private static DateTime DateTimeValue(this ITimePoint me)
         {
             return me.DateTimeValue;
         }

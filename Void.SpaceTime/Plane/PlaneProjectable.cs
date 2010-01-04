@@ -8,7 +8,7 @@ namespace Void.Plane
         /// <summary>Projects <paramref name="me"/> at the position derived by moving <paramref name="me"/> by <paramref name="movement"/> </summary>
         public static T Offset<T>(this T me, IPlaneMovement movement ) where T : IPlaneProjectable<T>
         {
-            return me.At(me.X() + movement.X(), me.Y() + movement.Y());
+            return me.ProjectAtCoordinates(me.X() + movement.X(), me.Y() + movement.Y());
         }
 
         #region enable non-warning access to internal use only members
@@ -34,7 +34,7 @@ namespace Void.Plane
             return movement.XMovement;
         }
 
-        private static T At<T>(this T me, int xCoordinate, int yCoordinate) where T : IPlaneProjectable<T>
+        private static T ProjectAtCoordinates<T>(this T me, int xCoordinate, int yCoordinate) where T : IPlaneProjectable<T>
         {
             return me.ProjectAt(new SimplePlanePoint(xCoordinate, yCoordinate));
         }

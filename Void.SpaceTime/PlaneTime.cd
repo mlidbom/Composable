@@ -4,10 +4,9 @@
     <Position X="6.5" Y="2" Width="1.75" />
     <InheritanceLine Type="Void.Plane.IPlanePositioned" ManuallyRouted="true" FixedFromPoint="true" FixedToPoint="true">
       <Path>
-        <Point X="6.785" Y="1.604" />
-        <Point X="6.785" Y="1.808" />
-        <Point X="6.864" Y="1.808" />
-        <Point X="6.864" Y="2" />
+        <Point X="6.812" Y="1.603" />
+        <Point X="6.812" Y="1.808" />
+        <Point X="6.812" Y="2" />
       </Path>
     </InheritanceLine>
     <TypeIdentifier>
@@ -128,8 +127,8 @@
     </InheritanceLine>
     <InheritanceLine Type="Void.Time.ITimeProjectable&lt;TProjection&gt;" ManuallyRouted="true" FixedFromPoint="true" FixedToPoint="true">
       <Path>
-        <Point X="11.526" Y="3.233" />
-        <Point X="11.526" Y="5.875" />
+        <Point X="11.438" Y="3.233" />
+        <Point X="11.438" Y="5.875" />
         <Point X="11.438" Y="5.875" />
         <Point X="11.438" Y="6.75" />
       </Path>

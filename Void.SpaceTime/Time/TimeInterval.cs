@@ -5,7 +5,7 @@ namespace Void.Time
     ///<summary>Methods on an <see cref="ITimeInterval"/></summary>
     public static class TimeInterval
     {
-        /// <summary>The last <see cref="ITimePoint"/> before <paramref name="me"/> that is not contained within <paramref name="me"/></summary>
+        /// <summary>The last <see cref="ITimePoint"/> before <paramref name="me"/> that is not part of the interval.<paramref name="me"/></summary>
         public static ITimePoint LastInstantBefore(this ITimeInterval me)
         {
             return me.FirstInstant().PreviousInstant();
@@ -23,7 +23,7 @@ namespace Void.Time
             return me.FirstInstantAfter().PreviousInstant();
         }
 
-        /// <summary>The first instant after <paramref name="me"/></summary>
+        /// <summary>The first <see cref="ITimePoint"/> after the interval.</summary>
         public static ITimePoint FirstInstantAfter(this ITimeInterval me)
         {
             return me.TimePosition.Offset(me);

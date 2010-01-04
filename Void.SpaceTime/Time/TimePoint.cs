@@ -73,19 +73,18 @@ namespace Void.Time
             return me.Value() == other.Value();
         }
 
+        #endregion
 
         private class SimpleTimePoint : ITimePoint
         {
             public DateTime DateTimeValue { get; private set; }
-            protected internal SimpleTimePoint(DateTime position)
+            public ITimePoint TimePosition { get { return this; } }
+
+            public SimpleTimePoint(DateTime position)
             {
                 DateTimeValue = position;
-            }
-
-            public ITimePoint TimePosition { get { return this; } }
-        }
-
-        #endregion
+            }            
+        }        
 
         #region enable non-warning access to internal use only members
         #pragma warning disable 618

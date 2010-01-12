@@ -114,9 +114,9 @@ namespace Void.Data.ORM.NHibernate
         {
             _instances--;
             _disposed = true;
-            if (Session != null)
+            if (_session != null)
             {
-                Session.Dispose();
+                _session.Dispose();
             }
         }
 

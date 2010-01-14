@@ -17,6 +17,10 @@ namespace Void.PlaneTime.Impl
 
         public ITimePoint TimePosition { get; private set; }
         public IDuration Duration { get; set; }
-        public TimeSpan TimeSpanValue { get { return Duration.TimeSpanValue; } }
+
+        public TimeSpan AsTimeSpan()
+        {
+            return Duration.AsTimeSpan();
+        }
     }
 }

@@ -1,23 +1,30 @@
 using System;
+using System.Drawing;
 
 namespace Void.Plane.Impl
 {
-    [Obsolete(WarningMessages.InternalAndInheritanceOnly)]
     internal class SimplePlanePoint : IPlanePoint
     {
-        public int XCoordinate { get; private set; }
-        public int YCoordinate { get; private set; }
+        private Point _point;
 
-        public SimplePlanePoint(int xCoordinate, int yCoordinate)
+        private SimplePlanePoint(Point position)
         {
-            XCoordinate = xCoordinate;
-            YCoordinate = yCoordinate;
+            _point = position;
         }
 
-        public SimplePlanePoint(IPlanePoint position) : this(position.XCoordinate, position.YCoordinate)
-        {
+        protected SimplePlanePoint(IPlanePoint point):this(point.AsPoint())
+        {            
         }
 
         public IPlanePoint PlanePosition { get { return this; } }
+        public Point AsPoint()
+        {
+            return _point;
+        }
+
+        public static IPlanePoint FromXAndY(int x, int y)
+        {
+            return new SimplePlanePoint(new Point(x, y));
+        }
     }
 }

@@ -3,19 +3,17 @@
 namespace Void.Time
 {
     /// <summary>A point on a timeline.</summary>
-    public interface ITimePoint : ITimePositioned
+    public interface ITimePoint : ITimeProjectable<ITimePoint>
     {
         /// <summary>The value of this <see cref="ITimePoint"/> represented as a <see cref="DateTime"/></summary>
-        [Obsolete(WarningMessages.InteralOnly)]
-        DateTime DateTimeValue { get; }
+        DateTime AsDateTime();
     }
 
     /// <summary>A vector on a timeline. May be positive(forwards in time) or negative(backwards in time).</summary>
     public interface ITimeMovement
     {
         /// <summary>The value of this <see cref="ITimeMovement"/> represented as an <see cref="TimeSpan"/></summary>
-        [Obsolete(WarningMessages.InteralOnly)]
-        TimeSpan TimeSpanValue { get; }
+        TimeSpan AsTimeSpan();
     }
 
     /// <summary> A <see cref="ITimeMovement"/> that must be positive. Represents a stretch of time.</summary>

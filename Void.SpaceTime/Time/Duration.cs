@@ -17,15 +17,15 @@ namespace Void.Time
         {
             if (first.IsAfterOrSameInstantAs(second))
             {
-                return FromTimeSpan(first.DateTimeValue() - second.DateTimeValue());
+                return FromTimeSpan(first.AsDateTime() - second.AsDateTime());
             }
-            return FromTimeSpan(second.DateTimeValue() - first.DateTimeValue());
+            return FromTimeSpan(second.AsDateTime() - first.AsDateTime());
         }
 
         /// <summary>True if <paramref name="me"/> has the exact same length in time as <paramref name="other"/></summary>
         public static bool HasDurationEqualTo(this IDuration me, IDuration other)
         {
-            return me.TimeSpanValue() == other.TimeSpanValue();
+            return me.AsTimeSpan() == other.AsTimeSpan();
         }
 
         /// <summary>True if <paramref name="me"/> has zero length in time.</summary>
@@ -41,7 +41,16 @@ namespace Void.Time
 
         private class SimpleDuration : IDuration
         {
-            public TimeSpan TimeSpanValue { get; private set; }
+            private TimeSpan _timeSpanValue;
+            public TimeSpan TimeSpanValue
+            {
+                set { _timeSpanValue = value; }
+            }
+
+            public TimeSpan AsTimeSpan()
+            {
+                return _timeSpanValue;
+            }
 
             public static IDuration FromTimeSpan(TimeSpan timeSpan)
             {
@@ -53,23 +62,5 @@ namespace Void.Time
                 TimeSpanValue = value;
             }
         }
-
-        #region enable non-warning access to internal use only members
-
-#pragma warning disable 618
-
-        private static DateTime DateTimeValue(this ITimePoint me)
-        {
-            return me.DateTimeValue;
-        }
-
-        private static TimeSpan TimeSpanValue(this IDuration me)
-        {
-            return me.TimeSpanValue;
-        }
-
-#pragma warning restore 618
-
-        #endregion
     }
 }

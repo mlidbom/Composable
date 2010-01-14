@@ -60,30 +60,30 @@ namespace Void.Time
             return !me.IntersectionWith(other).HasZeroDuration();
         }
 
-        [Obsolete(WarningMessages.InternalAndInheritanceOnly)]
         private class SimpleTimeInterval : ITimeInterval
         {
             public ITimePoint TimePosition { get; private set; }
-            public TimeSpan TimeSpanValue { get; private set; }
+            private TimeSpan _timeSpanValue;
+            public TimeSpan TimeSpanValue
+            {
+                set { _timeSpanValue = value; }
+            }
+
+            public TimeSpan AsTimeSpan()
+            {
+                return _timeSpanValue;
+            }
 
             public SimpleTimeInterval(ITimePoint timeCoordinate, IDuration duration)
             {
                 TimePosition = timeCoordinate;
-                TimeSpanValue = duration.TimeSpanValue;
+                TimeSpanValue = duration.AsTimeSpan();
             }
         }
-
-        #region enable non-warning access to internal use only members
-
-#pragma warning disable 618
 
         private static SimpleTimeInterval NewTimeInterval(ITimePoint startingPoint, IDuration duration)
         {
             return new SimpleTimeInterval(startingPoint, duration);
         }
-
-#pragma warning restore 618
-
-        #endregion
     }
 }

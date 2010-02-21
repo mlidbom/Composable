@@ -11,6 +11,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Repositories.Tests", "Repos
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NHibernateRepositories.Tests", "NHibernateRepositories.Tests\NHibernateRepositories.Tests.csproj", "{1C8F95E6-B94C-40B1-8305-EF8D150DEF22}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InMemoryRepositories", "InMemoryRepositories\InMemoryRepositories.csproj", "{8B991155-BB3D-49EF-839F-CF6FD468AFDE}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -37,6 +39,10 @@ Global
 		{1C8F95E6-B94C-40B1-8305-EF8D150DEF22}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1C8F95E6-B94C-40B1-8305-EF8D150DEF22}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1C8F95E6-B94C-40B1-8305-EF8D150DEF22}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8B991155-BB3D-49EF-839F-CF6FD468AFDE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8B991155-BB3D-49EF-839F-CF6FD468AFDE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8B991155-BB3D-49EF-839F-CF6FD468AFDE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8B991155-BB3D-49EF-839F-CF6FD468AFDE}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

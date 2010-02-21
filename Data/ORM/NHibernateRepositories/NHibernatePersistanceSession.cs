@@ -67,7 +67,7 @@ namespace Void.Data.ORM.NHibernate
 
         public IQueryable<T> Linq<T>()
         {
-            return Session.Linq<T>();
+            return Session.Query<T>();
         }
 
         public T Get<T>(object id)

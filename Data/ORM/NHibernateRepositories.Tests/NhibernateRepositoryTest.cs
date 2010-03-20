@@ -9,11 +9,12 @@ namespace Void.Data.ORM.NHibernateRepositories.Tests
     {
         public static void Init()
         {
-            
+           
         }
 
         static NhibernateRepositoryTest()
-        {            
+        {
+            HibernatingRhinos.Profiler.Appender.NHibernate.NHibernateProfiler.Initialize();
             InMemoryNHibernatePersistanceSession<ProxyFactoryFactory>.RegisterAssembly(typeof(TypewithGeneratedId).Assembly);
         }
 

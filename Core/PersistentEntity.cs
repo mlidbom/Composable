@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics;
 
 namespace Void
 {
@@ -11,6 +12,7 @@ namespace Void
     /// absolute requirement for a correct implementation of <see cref="object.Equals(object)"/>, 
     /// <see cref="object.GetHashCode"/>, and <see cref="IEquatable{TEntity}"/>.
     /// </summary>
+    [DebuggerDisplay("{GetType().Name} Id={Id}")]
     public class PersistentEntity<TEntity> : IPersistentEntity<Guid>, IEquatable<TEntity> where TEntity : PersistentEntity<TEntity>
     {
         /// <summary>
@@ -30,11 +32,7 @@ namespace Void
         /// </summary>
         public virtual bool Equals(TEntity other)
         {
-            if (ReferenceEquals(null, other))
-            {
-                return false;
-            }
-            return other.Id.Equals(Id);
+            return !ReferenceEquals(null, other) && other.Id.Equals(Id);
         }
 
         /// <summary>

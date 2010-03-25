@@ -30,7 +30,7 @@ namespace Void.Data.ORM
 
         public IList<TInstance> GetAll(IEnumerable<TKey> ids)
         {
-            return ids.Select(id => Get(id)).ToList();
+            return ids.Select(Get).ToList();
         }
 
         public virtual TInstance TryGet(TKey id)
@@ -46,7 +46,7 @@ namespace Void.Data.ORM
 
         public IList<TInstance> TryGetAll(IEnumerable<TKey> ids)
         {
-            return ids.Select(id => TryGet(id)).Where(instance => !ReferenceEquals(instance, null)).ToList();
+            return ids.Select(TryGet).Where(instance => !ReferenceEquals(instance, null)).ToList();
         }
 
         public virtual void SaveOrUpdate(TInstance instance)

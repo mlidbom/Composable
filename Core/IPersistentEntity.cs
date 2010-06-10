@@ -20,7 +20,7 @@ namespace Void
     }
 
     [ContractClassFor(typeof(IPersistentEntity<>))]
-    internal class PersistentEntityContract<T> : IPersistentEntity<T>
+    internal abstract class PersistentEntityContract<T> : IPersistentEntity<T>
     {
         T IPersistentEntity<T>.Id { get
         {

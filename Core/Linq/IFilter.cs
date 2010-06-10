@@ -29,7 +29,7 @@ namespace Void.Linq
     }
 
     [ContractClassFor(typeof (IFilter<>))]
-    internal class FilterContract<T> : IFilter<T>
+    internal abstract class FilterContract<T> : IFilter<T>
     {
         /// <summary/>
         public IEnumerable<Expression<Func<T, bool>>> Filters

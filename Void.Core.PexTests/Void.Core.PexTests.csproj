@@ -10,7 +10,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Void.Core.PexTests</RootNamespace>
     <AssemblyName>Void.Core.PexTests</AssemblyName>
-    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <CodeContractsEnableRuntimeChecking>True</CodeContractsEnableRuntimeChecking>
     <CodeContractsRuntimeCheckingLevel>Full</CodeContractsRuntimeCheckingLevel>
@@ -33,6 +33,7 @@
     <IsWebBootstrapper>false</IsWebBootstrapper>
     <UseApplicationTrust>false</UseApplicationTrust>
     <BootstrapperEnabled>true</BootstrapperEnabled>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -54,16 +55,23 @@
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Microsoft.ExtendedReflection, Version=0.92.50603.1, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL" />
+    <Reference Include="Microsoft.Moles.Framework, Version=0.92.50603.1, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\Program Files\Microsoft Moles\PublicAssemblies\Microsoft.Moles.Framework.dll</HintPath>
+    </Reference>
     <Reference Include="Microsoft.Pex.Framework, Version=0.19.41110.1, Culture=neutral, PublicKeyToken=76a274db078248c8, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\Windows\assembly\GAC_MSIL\Microsoft.Pex.Framework\0.19.41110.1__76a274db078248c8\Microsoft.Pex.Framework.dll</HintPath>
     </Reference>
-    <Reference Include="Microsoft.Pex.Linq, Version=0.19.41110.1, Culture=neutral, PublicKeyToken=76a274db078248c8, processorArchitecture=MSIL" />
-    <Reference Include="Microsoft.Stubs.Framework, Version=0.19.41110.1, Culture=neutral, PublicKeyToken=76a274db078248c8, processorArchitecture=MSIL">
+    <Reference Include="Microsoft.Pex.Linq, Version=0.92.50603.1, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\Windows\assembly\GAC_MSIL\Microsoft.Stubs.Framework\0.19.41110.1__76a274db078248c8\Microsoft.Stubs.Framework.dll</HintPath>
+      <HintPath>..\..\..\..\Program Files\Microsoft Pex\PublicAssemblies\Microsoft.Pex.Linq.dll</HintPath>
     </Reference>
-    <Reference Include="nunit.framework, Version=2.5.2.9222, Culture=neutral, PublicKeyToken=96d09a1eb7f44a77, processorArchitecture=MSIL" />
+    <Reference Include="nunit.framework, Version=2.5.5.10112, Culture=neutral, PublicKeyToken=96d09a1eb7f44a77, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\lib\nunit.framework.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
@@ -76,6 +84,7 @@
     </Reference>
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
+    <Reference Include="Void.Core.Moles, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Core\Core.csproj">
@@ -210,7 +219,7 @@
     <Compile Include="Void.Core.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
-      <DependentUpon>Void.Core.stubx</DependentUpon>
+      <DependentUpon>Void.Core.moles</DependentUpon>
     </Compile>
     <Compile Include="Wrappers\GenericWrapperTTest.Constructor.g.cs">
       <DependentUpon>GenericWrapperTTest.cs</DependentUpon>
@@ -223,12 +232,6 @@
     <Compile Include="Wrappers\WrapperExtensionsTest.Unwrap.g.cs">
       <DependentUpon>WrapperExtensionsTest.cs</DependentUpon>
     </Compile>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Void.Core.stubx">
-      <Generator>StubsGenerator</Generator>
-      <LastGenOutput>Void.Core.Designer.cs</LastGenOutput>
-    </None>
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include="Microsoft.Net.Client.3.5">
@@ -246,6 +249,20 @@
       <ProductName>Windows Installer 3.1</ProductName>
       <Install>true</Install>
     </BootstrapperPackage>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Void.Core.moles">
+      <Generator>MolesGenerator</Generator>
+      <LastGenOutput>Void.Core.Designer.cs</LastGenOutput>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Void.Core.Moles.dll">
+      <DependentUpon>Void.Core.moles</DependentUpon>
+    </Content>
+    <Content Include="Void.Core.Moles.xml">
+      <DependentUpon>Void.Core.moles</DependentUpon>
+    </Content>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

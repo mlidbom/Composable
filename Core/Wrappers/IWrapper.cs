@@ -14,7 +14,7 @@ namespace Void.Wrappers
     }
 
     [ContractClassFor(typeof(IWrapper<>))]
-    internal class WrapperContract<T> : IWrapper<T>
+    internal abstract class WrapperContract<T> : IWrapper<T>
     {
         public T Wrapped { get
         {

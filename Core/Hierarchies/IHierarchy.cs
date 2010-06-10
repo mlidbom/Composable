@@ -37,9 +37,9 @@ namespace Void.Hierarchies
     }
 
     [ContractClassFor(typeof(IHierarchy<>))]
-    internal class HierarchyContract<T> : IHierarchy<HierarchyContract<T>>
+    internal abstract class HierarchyContract<T> : IHierarchy<T> where T : IHierarchy<T>
     {
-        public IEnumerable<HierarchyContract<T>> Children { get
+        public IEnumerable<T> Children { get
         {
             Contract.Ensures(Contract.Result<IEnumerable<HierarchyContract<T>>>() != null);
             throw new NotImplementedException();

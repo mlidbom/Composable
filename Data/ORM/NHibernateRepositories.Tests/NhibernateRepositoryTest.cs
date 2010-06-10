@@ -14,7 +14,7 @@ namespace Void.Data.ORM.NHibernateRepositories.Tests
 
         static NhibernateRepositoryTest()
         {
-            HibernatingRhinos.Profiler.Appender.NHibernate.NHibernateProfiler.Initialize();
+            //HibernatingRhinos.Profiler.Appender.NHibernate.NHibernateProfiler.Initialize();
             InMemoryNHibernatePersistanceSession<ProxyFactoryFactory>.RegisterAssembly(typeof(TypewithGeneratedId).Assembly);
         }
 

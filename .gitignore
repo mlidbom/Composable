@@ -1,3 +1,4 @@
+
 bin
 obj
 test-results
@@ -9,6 +10,7 @@ test-results
 *.resharper
 TestResult.xml
 *.VisualState.xml
+*.g.cs
 
 *.pidb
 *.userprefs

@@ -457,6 +457,27 @@
         <member name="P:Void.Linq.Moles.MSimpleIndexing.Behavior">
             <summary>Assigns the behavior for all methods of the moled type</summary>
         </member>
+        <member name="T:Void.System.Moles.MStringExtensions">
+            <summary>Mole type of <see cref="T:Void.System.StringExtensions"/>
+            .</summary>
+        </member>
+        <member name="M:Void.System.Moles.MStringExtensions.#ctor">
+            <summary>Initializes a new instance</summary>
+        </member>
+        <member name="M:Void.System.Moles.MStringExtensions.BehaveAsNotImplemented">
+            <summary>Assigns the &apos;NotImplemented&apos; behavior for all methods of the moled type</summary>
+        </member>
+        <member name="P:Void.System.Moles.MStringExtensions.Behavior">
+            <summary>Assigns the behavior for all methods of the moled type</summary>
+        </member>
+        <member name="P:Void.System.Moles.MStringExtensions.IsNullOrWhiteSpaceString">
+            <summary>Sets the mole of <see cref="M:Void.System.StringExtensions.IsNullOrWhiteSpace(T:System.String)"/>
+            </summary>
+        </member>
+        <member name="P:Void.System.Moles.MStringExtensions.ToBooleanString">
+            <summary>Sets the mole of <see cref="M:Void.System.StringExtensions.ToBoolean(T:System.String)"/>
+            </summary>
+        </member>
         <member name="T:Void.Wrappers.Moles.MWrapperExtensions">
             <summary>Mole type of <see cref="T:Void.Wrappers.WrapperExtensions"/>
             .</summary>

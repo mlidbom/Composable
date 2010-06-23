@@ -11,7 +11,7 @@ namespace Void.Data.ORM
     /// <typeparam name="TKey"></typeparam>
     public class TransactionalRepository<TInstance, TKey> : Repository<TInstance, TKey>
     {
-        public TransactionalRepository(IPersistanceSession session) : base(session)
+        public TransactionalRepository(IPersistenceSession session) : base(session)
         {
         }
 

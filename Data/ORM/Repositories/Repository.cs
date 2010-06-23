@@ -7,14 +7,14 @@ using Void.Linq;
 
 namespace Void.Data.ORM
 {
-    public class Repository<TInstance, TKey> : Repository<TInstance, TKey, IPersistanceSession>
+    public class Repository<TInstance, TKey> : Repository<TInstance, TKey, IPersistenceSession>
     {
-        public Repository(IPersistanceSession session) : base(session)
+        public Repository(IPersistenceSession session) : base(session)
         {
         }
     }
 
-    public class Repository<TInstance, TKey, TPersistenceSession> : IRepository<TInstance, TKey> where TPersistenceSession : IPersistanceSession
+    public class Repository<TInstance, TKey, TPersistenceSession> : IRepository<TInstance, TKey> where TPersistenceSession : IPersistenceSession
     {
         protected TPersistenceSession Session { get; private set; }
 

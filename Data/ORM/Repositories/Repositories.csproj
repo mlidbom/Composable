@@ -72,7 +72,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Domain\PersistentEntityWithSurrogateKey.cs" />
-    <Compile Include="IPersistanceSession.cs" />
+    <Compile Include="IPersistenceSession.cs" />
     <Compile Include="IRepository.cs" />
     <Compile Include="OptimisticConcurrencyException.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

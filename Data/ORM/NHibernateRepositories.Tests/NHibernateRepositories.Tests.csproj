@@ -54,17 +54,15 @@
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="LinFu.DynamicProxy, Version=1.0.3.14911, Culture=neutral, PublicKeyToken=62a6874124340d6e">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\NHibernateRepositories\lib\LinFu.DynamicProxy.dll</HintPath>
+    <Reference Include="Castle.DynamicProxy2">
+      <HintPath>..\NHibernateRepositories\lib\Castle.DynamicProxy2.dll</HintPath>
     </Reference>
-    <Reference Include="NHibernate, Version=2.1.0.4000, Culture=neutral, PublicKeyToken=aa95f207798dfdb4">
+    <Reference Include="NHibernate, Version=2.1.1.4000, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\NHibernateRepositories\lib\NHibernate.dll</HintPath>
     </Reference>
-    <Reference Include="NHibernate.ByteCode.LinFu, Version=2.1.0.4000, Culture=neutral, PublicKeyToken=aa95f207798dfdb4">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\NHibernateRepositories\lib\NHibernate.ByteCode.LinFu.dll</HintPath>
+    <Reference Include="NHibernate.ByteCode.Castle">
+      <HintPath>..\NHibernateRepositories\lib\NHibernate.ByteCode.Castle.dll</HintPath>
     </Reference>
     <Reference Include="nunit.framework, Version=2.5.2.9222, Culture=neutral, PublicKeyToken=96d09a1eb7f44a77">
       <SpecificVersion>False</SpecificVersion>
@@ -119,7 +117,9 @@
     <EmbeddedResource Include="WhenFirstSaving\TypeWithGeneratedId.hbm.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </EmbeddedResource>
-    <EmbeddedResource Include="Domain\Order.hbm.xml" />
+    <EmbeddedResource Include="Domain\Order.hbm.xml">
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
     <EmbeddedResource Include="Domain\OrderLine.hbm.xml" />
   </ItemGroup>
   <ItemGroup>

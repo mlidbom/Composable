@@ -1,5 +1,5 @@
 using System;
-using NHibernate.ByteCode.LinFu;
+using NHibernate.ByteCode.Castle;
 using NUnit.Framework;
 using Void.Data.ORM.NHibernate;
 using Void.Data.ORM.NHibernateRepositories.Tests.Domain;
@@ -10,7 +10,7 @@ namespace Void.Data.ORM.NHibernateRepositories.Tests.WhenFirstSaving
     [TestFixture]
     public class WithGeneratedId : Repositories.Tests.WhenFirstSaving.WithGeneratedId
     {
-        protected override IPersistanceSession GetPersistanceSession()
+        protected override IPersistenceSession GetPersistanceSession()
         {
             return NhibernateRepositoryTest.GetPersistanceSession();
         }

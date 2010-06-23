@@ -478,6 +478,51 @@
             <summary>Sets the mole of <see cref="M:Void.System.StringExtensions.ToBoolean(T:System.String)"/>
             </summary>
         </member>
+        <member name="T:Void.Moles.MVersionedPersistentEntity`1">
+            <summary>Mole type of <see cref="T:Void.VersionedPersistentEntity`1"/>
+            .</summary>
+        </member>
+        <member name="M:Void.Moles.MVersionedPersistentEntity`1.#ctor">
+            <summary>Initializes a new mole</summary>
+        </member>
+        <member name="M:Void.Moles.MVersionedPersistentEntity`1.#ctor(Void.VersionedPersistentEntity{`0})">
+            <summary>Initializes a new mole for the given instance</summary>
+        </member>
+        <member name="M:Void.Moles.MVersionedPersistentEntity`1.BehaveAsNotImplemented">
+            <summary>Assigns the &apos;NotImplemented&apos; behavior for all methods of the moled type</summary>
+        </member>
+        <member name="M:Void.Moles.MVersionedPersistentEntity`1.Bind(Void.IPersistentEntity{System.Guid})">
+            <summary>Binds the members of the interface to the mole.</summary>
+        </member>
+        <member name="M:Void.Moles.MVersionedPersistentEntity`1.Bind(System.IEquatable{`0})">
+            <summary>Binds the members of the interface to the mole.</summary>
+        </member>
+        <member name="P:Void.Moles.MVersionedPersistentEntity`1.Behavior">
+            <summary>Assigns the behavior for all methods of the moled type</summary>
+        </member>
+        <member name="P:Void.Moles.MVersionedPersistentEntity`1.Constructor">
+            <summary>Sets the mole of <see cref="M:Void.VersionedPersistentEntity`1.#ctor"/>
+            </summary>
+        </member>
+        <member name="P:Void.Moles.MVersionedPersistentEntity`1.VersionGet">
+            <summary>Sets the mole of <see cref="P:Void.VersionedPersistentEntity`1.Version"/>
+            </summary>
+        </member>
+        <member name="P:Void.Moles.MVersionedPersistentEntity`1.VersionSetInt32">
+            <summary>Sets the mole of <see cref="P:Void.VersionedPersistentEntity`1.Version"/>
+            </summary>
+        </member>
+        <member name="T:Void.Moles.MVersionedPersistentEntity`1.AllInstances">
+            <summary>Define moles for all instances members</summary>
+        </member>
+        <member name="P:Void.Moles.MVersionedPersistentEntity`1.AllInstances.VersionGet">
+            <summary>Sets the mole of <see cref="P:Void.VersionedPersistentEntity`1.Version"/>
+            </summary>
+        </member>
+        <member name="P:Void.Moles.MVersionedPersistentEntity`1.AllInstances.VersionSetInt32">
+            <summary>Sets the mole of <see cref="P:Void.VersionedPersistentEntity`1.Version"/>
+            </summary>
+        </member>
         <member name="T:Void.Wrappers.Moles.MWrapperExtensions">
             <summary>Mole type of <see cref="T:Void.Wrappers.WrapperExtensions"/>
             .</summary>
@@ -714,6 +759,22 @@
             <summary>Gets or sets a value that indicates if the base method should be called instead of the fallback behavior</summary>
         </member>
         <member name="P:Void.Moles.SPersistentEntity`1.InstanceBehavior">
+            <summary>Gets or sets the instance behavior.</summary>
+        </member>
+        <member name="T:Void.Moles.SVersionedPersistentEntity`1">
+            <summary>Stub type of <see cref="T:Void.VersionedPersistentEntity`1"/>
+            .</summary>
+        </member>
+        <member name="M:Void.Moles.SVersionedPersistentEntity`1.#ctor">
+            <summary>Initializes a new instance</summary>
+        </member>
+        <member name="M:Void.Moles.SVersionedPersistentEntity`1.InitializeStub">
+            <summary>Initializes a new instance of type SVersionedPersistentEntity</summary>
+        </member>
+        <member name="P:Void.Moles.SVersionedPersistentEntity`1.CallBase">
+            <summary>Gets or sets a value that indicates if the base method should be called instead of the fallback behavior</summary>
+        </member>
+        <member name="P:Void.Moles.SVersionedPersistentEntity`1.InstanceBehavior">
             <summary>Gets or sets the instance behavior.</summary>
         </member>
     </members>

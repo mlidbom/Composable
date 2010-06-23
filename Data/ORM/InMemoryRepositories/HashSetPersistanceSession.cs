@@ -5,7 +5,7 @@ using System.Linq;
 
 namespace Void.Data.ORM.InMemory
 {
-    public class HashSetPersistanceSession : IPersistanceSession
+    public class HashSetPersistanceSession : IPersistenceSession
     {
         private readonly HashSet<object> _data = new HashSet<object>();
         private IDictionary<Type, IIdManager> IdManagers { get; set; }

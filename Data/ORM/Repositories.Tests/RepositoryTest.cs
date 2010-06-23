@@ -8,7 +8,7 @@ namespace Void.Data.ORM.Repositories.Tests
 {
     public class RepositoryTest
     {
-        protected virtual IPersistanceSession GetPersistanceSession()
+        protected virtual IPersistenceSession GetPersistanceSession()
         {
             IDictionary<Type, IIdManager> idManagers = new Dictionary<Type, IIdManager>
                                                        {
@@ -28,7 +28,7 @@ namespace Void.Data.ORM.Repositories.Tests
             return new TypeWithGeneratedId();
         }
 
-        protected IPersistanceSession Session { get; set; }
+        protected IPersistenceSession Session { get; set; }
         protected IRepository<TypeWithGeneratedId, Int32> Repository { get; set; }
 
         [SetUp]

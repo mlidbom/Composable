@@ -107,6 +107,7 @@
     <Compile Include="PersistentEntity.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="System\StringExtensions.cs" />
+    <Compile Include="VersionedPersistentEntity.cs" />
     <Compile Include="Wrappers\GenericWrapper.cs" />
     <Compile Include="Wrappers\IWrapper.cs" />
     <Compile Include="Wrappers\WrapperExtensions.cs" />

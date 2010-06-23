@@ -1,5 +1,5 @@
 using System.Collections.Generic;
-using NHibernate.ByteCode.LinFu;
+using NHibernate.ByteCode.Castle;
 using NUnit.Framework;
 using Void.Data.ORM.NHibernate;
 using Void.Data.ORM.NHibernateRepositories.Tests.Domain;
@@ -23,7 +23,7 @@ namespace Void.Data.ORM.NHibernateRepositories.Tests.Given.ADetachedOrderWithDel
                                       }
                           };
 
-            using (var session = new InMemoryNHibernatePersistanceSession<ProxyFactoryFactory>())
+            using (var session = new InMemoryNHibernatePersistenceSession<ProxyFactoryFactory>())
             {
                 var repo = new TransactionalRepository<Order, int>(session);
                 repo.SaveOrUpdate(order);

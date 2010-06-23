@@ -1,5 +1,5 @@
 ﻿using System;
-using NHibernate.ByteCode.LinFu;
+using NHibernate.ByteCode.Castle;
 using Void.Data.ORM.NHibernate;
 using Void.Data.ORM.NHibernateRepositories.Tests.Domain;
 
@@ -15,12 +15,12 @@ namespace Void.Data.ORM.NHibernateRepositories.Tests
         static NhibernateRepositoryTest()
         {
             //HibernatingRhinos.Profiler.Appender.NHibernate.NHibernateProfiler.Initialize();
-            InMemoryNHibernatePersistanceSession<ProxyFactoryFactory>.RegisterAssembly(typeof(TypewithGeneratedId).Assembly);
+            InMemoryNHibernatePersistenceSession<ProxyFactoryFactory>.RegisterAssembly(typeof(TypewithGeneratedId).Assembly);
         }
 
-        public static IPersistanceSession GetPersistanceSession()
+        public static IPersistenceSession GetPersistanceSession()
         {
-            return new InMemoryNHibernatePersistanceSession<ProxyFactoryFactory>();
+            return new InMemoryNHibernatePersistenceSession<ProxyFactoryFactory>();
         }
     }
 }

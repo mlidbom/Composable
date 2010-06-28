@@ -30,19 +30,20 @@ namespace Void.Hierarchies
     {
         private class Hierarchy<T> : IAutoHierarchy<T>
         {
-            private readonly Func<T, IEnumerable<T>> childGetter;
+            private readonly Func<T, IEnumerable<T>> _childGetter;
 
             [ContractInvariantMethod]
             private void ObjectInvariant()
             {
-                Contract.Invariant(childGetter != null);
+                Contract.Invariant(_childGetter != null);
             }
 
+            [ContractVerification(false)]
             public IEnumerable<IAutoHierarchy<T>> Children
             {
                 get
                 {
-                    return childGetter(Wrapped).Select(child => child.AsHierarchy(childGetter));
+                    return _childGetter(Wrapped).Select(child => child.AsHierarchy(_childGetter));
                 }
             }
 
@@ -50,8 +51,9 @@ namespace Void.Hierarchies
 
             public Hierarchy(T nodeValue, Func<T, IEnumerable<T>> childGetter)
             {
+                Contract.Requires(childGetter != null);
                 Wrapped = nodeValue;
-                this.childGetter = childGetter;
+                this._childGetter = childGetter;
             }
         }
 

@@ -29,7 +29,7 @@ namespace Void.Linq
         }
 
         /// <summary>
-        /// <para>The inversion of <see cref="Enumerable.Any{TSource}(System.Collections.Generic.IEnumerable{TSource},System.Func{TSource,bool})"/>.</para>
+        /// <para>The inversion of Enumerable.Any(Func&lt;T, bool&gt; predicate) </para>
         /// <para>Returns true if <paramref name="me"/> contains no elements matching <paramref name="predicate"/></para>
         /// </summary>
         /// <returns>true if <paramref name="me"/> contains no objects matching <paramref name="predicate"/>. Otherwise false.</returns>
@@ -40,7 +40,7 @@ namespace Void.Linq
         }
 
         /// <summary>
-        /// <para>The inversion of <see cref="Enumerable.Any{TSource}(System.Collections.Generic.IEnumerable{TSource})"/> .</para>
+        /// <para>The inversion of Enumerable.Any() .</para>
         /// <para>Returns true if <paramref name="me"/> contains no elements.</para>
         /// </summary>
         /// <returns>true if <paramref name="me"/> contains no objects. Otherwise false.</returns>

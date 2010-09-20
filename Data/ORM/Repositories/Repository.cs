@@ -75,7 +75,7 @@ namespace Void.Data.ORM
         private IQueryable<TInstance> _query;
         private IQueryable<TInstance> Query
         {
-            get { return _query ?? (_query = Session.Linq<TInstance>()); }
+            get { return _query ?? (_query = Session.Query<TInstance>()); }
         }
 
         public IEnumerator<TInstance> GetEnumerator()

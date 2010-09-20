@@ -15,7 +15,7 @@ namespace Void.Data.ORM.InMemory
             IdManagers = idManagers;
         }
 
-        public IQueryable<T> Linq<T>()
+        public IQueryable<T> Query<T>()
         {
             return _data.OfType<T>().AsQueryable();
         }

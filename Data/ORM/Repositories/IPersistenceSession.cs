@@ -5,7 +5,7 @@ namespace Void.Data.ORM
 {
     public interface IPersistenceSession : IDisposable
     {
-        IQueryable<T> Linq<T>();
+        IQueryable<T> Query<T>();
         T Get<T>(object id);
         T TryGet<T>(object id);
         void SaveOrUpdate(object instance);

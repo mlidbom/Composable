@@ -65,9 +65,9 @@ namespace Void.Data.ORM.NHibernate
 
         #region implementation of IPersistenceSession
 
-        public IQueryable<T> Linq<T>()
+        public IQueryable<T> Query<T>()
         {
-            return Session.Linq<T>();
+            return Session.Query<T>();
         }
 
         public T Get<T>(object id)

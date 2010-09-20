@@ -177,6 +177,23 @@
         <member name="P:Void.Hierarchies.Moles.MHierarchyExtensions.Behavior">
             <summary>Assigns the behavior for all methods of the moled type</summary>
         </member>
+        <member name="T:Void.Transactions.Moles.MInTransaction">
+            <summary>Mole type of <see cref="T:Void.Transactions.InTransaction"/>
+            .</summary>
+        </member>
+        <member name="M:Void.Transactions.Moles.MInTransaction.#ctor">
+            <summary>Initializes a new instance</summary>
+        </member>
+        <member name="M:Void.Transactions.Moles.MInTransaction.BehaveAsNotImplemented">
+            <summary>Assigns the &apos;NotImplemented&apos; behavior for all methods of the moled type</summary>
+        </member>
+        <member name="P:Void.Transactions.Moles.MInTransaction.Behavior">
+            <summary>Assigns the behavior for all methods of the moled type</summary>
+        </member>
+        <member name="P:Void.Transactions.Moles.MInTransaction.ExecuteAction">
+            <summary>Sets the mole of <see cref="M:Void.Transactions.InTransaction.Execute(T:System.Action)"/>
+            </summary>
+        </member>
         <member name="T:Void.Linq.Moles.MIteration">
             <summary>Mole type of <see cref="T:Void.Linq.Iteration"/>
             .</summary>
@@ -457,25 +474,29 @@
         <member name="P:Void.Linq.Moles.MSimpleIndexing.Behavior">
             <summary>Assigns the behavior for all methods of the moled type</summary>
         </member>
-        <member name="T:Void.System.Moles.MStringExtensions">
-            <summary>Mole type of <see cref="T:Void.System.StringExtensions"/>
+        <member name="T:Void.Moles.MStringExtensions">
+            <summary>Mole type of <see cref="T:Void.StringExtensions"/>
             .</summary>
         </member>
-        <member name="M:Void.System.Moles.MStringExtensions.#ctor">
+        <member name="M:Void.Moles.MStringExtensions.#ctor">
             <summary>Initializes a new instance</summary>
         </member>
-        <member name="M:Void.System.Moles.MStringExtensions.BehaveAsNotImplemented">
+        <member name="M:Void.Moles.MStringExtensions.BehaveAsNotImplemented">
             <summary>Assigns the &apos;NotImplemented&apos; behavior for all methods of the moled type</summary>
         </member>
-        <member name="P:Void.System.Moles.MStringExtensions.Behavior">
+        <member name="P:Void.Moles.MStringExtensions.Behavior">
             <summary>Assigns the behavior for all methods of the moled type</summary>
         </member>
-        <member name="P:Void.System.Moles.MStringExtensions.IsNullOrWhiteSpaceString">
-            <summary>Sets the mole of <see cref="M:Void.System.StringExtensions.IsNullOrWhiteSpace(T:System.String)"/>
+        <member name="P:Void.Moles.MStringExtensions.FormatWithStringObjectArray">
+            <summary>Sets the mole of <see cref="M:Void.StringExtensions.FormatWith(T:System.String,T:System.Object[])"/>
             </summary>
         </member>
-        <member name="P:Void.System.Moles.MStringExtensions.ToBooleanString">
-            <summary>Sets the mole of <see cref="M:Void.System.StringExtensions.ToBoolean(T:System.String)"/>
+        <member name="P:Void.Moles.MStringExtensions.IsNullOrWhiteSpaceString">
+            <summary>Sets the mole of <see cref="M:Void.StringExtensions.IsNullOrWhiteSpace(T:System.String)"/>
+            </summary>
+        </member>
+        <member name="P:Void.Moles.MStringExtensions.ToBooleanString">
+            <summary>Sets the mole of <see cref="M:Void.StringExtensions.ToBoolean(T:System.String)"/>
             </summary>
         </member>
         <member name="T:Void.Moles.MVersionedPersistentEntity`1">
@@ -505,23 +526,19 @@
             </summary>
         </member>
         <member name="P:Void.Moles.MVersionedPersistentEntity`1.VersionGet">
-            <summary>Sets the mole of <see cref="P:Void.VersionedPersistentEntity`1.Version"/>
-            </summary>
+            <summary><para>Sets the mole of <see cref="P:Void.VersionedPersistentEntity`1.Version"/>.</para>Contains the current version of the entity</summary>
         </member>
         <member name="P:Void.Moles.MVersionedPersistentEntity`1.VersionSetInt32">
-            <summary>Sets the mole of <see cref="P:Void.VersionedPersistentEntity`1.Version"/>
-            </summary>
+            <summary><para>Sets the mole of <see cref="P:Void.VersionedPersistentEntity`1.Version"/>.</para>Contains the current version of the entity</summary>
         </member>
         <member name="T:Void.Moles.MVersionedPersistentEntity`1.AllInstances">
             <summary>Define moles for all instances members</summary>
         </member>
         <member name="P:Void.Moles.MVersionedPersistentEntity`1.AllInstances.VersionGet">
-            <summary>Sets the mole of <see cref="P:Void.VersionedPersistentEntity`1.Version"/>
-            </summary>
+            <summary><para>Sets the mole of <see cref="P:Void.VersionedPersistentEntity`1.Version"/>.</para>Contains the current version of the entity</summary>
         </member>
         <member name="P:Void.Moles.MVersionedPersistentEntity`1.AllInstances.VersionSetInt32">
-            <summary>Sets the mole of <see cref="P:Void.VersionedPersistentEntity`1.Version"/>
-            </summary>
+            <summary><para>Sets the mole of <see cref="P:Void.VersionedPersistentEntity`1.Version"/>.</para>Contains the current version of the entity</summary>
         </member>
         <member name="T:Void.Wrappers.Moles.MWrapperExtensions">
             <summary>Mole type of <see cref="T:Void.Wrappers.WrapperExtensions"/>

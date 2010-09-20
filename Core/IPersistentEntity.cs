@@ -22,10 +22,19 @@ namespace Void
     [ContractClassFor(typeof(IPersistentEntity<>))]
     internal abstract class PersistentEntityContract<T> : IPersistentEntity<T>
     {
-        T IPersistentEntity<T>.Id { get
+        [ContractInvariantMethod]
+        private void Invariants()
         {
-            Contract.Ensures(!Equals(Contract.Result<T>(), default(T)));
-            throw new NotImplementedException();
-        } }
+            Contract.Invariant(!Equals(((IPersistentEntity<T>)this).Id, default(T)));
+        }
+
+        T IPersistentEntity<T>.Id
+        {
+            get
+            {
+                Contract.Ensures(!Equals(Contract.Result<T>(), default(T)));
+                throw new NotImplementedException();
+            }
+        }
     }
 }

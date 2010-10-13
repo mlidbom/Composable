@@ -9,7 +9,7 @@ namespace Void
         ///<summary>returns true if me is null, empty or only whitespace</summary>
         public static bool IsNullOrWhiteSpace(this string me)
         {
-            return string.IsNullOrEmpty(me) || me.Trim() == string.Empty;
+            return string.IsNullOrWhiteSpace(me);
         }
 
         ///<summary>Delegates to <see cref="bool.Parse"/></summary>

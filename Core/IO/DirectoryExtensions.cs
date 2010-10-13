@@ -24,8 +24,7 @@ namespace Void.IO
         /// <returns></returns>
         public static DirectoryInfo AsDirectory(this string path)
         {
-            Contract.Requires(path != null);
-            Contract.Requires(path.Length > 0);
+            Contract.Requires(!string.IsNullOrWhiteSpace(path));
             Contract.Ensures(Contract.Result<DirectoryInfo>() != null);
             return new DirectoryInfo(path);
         }

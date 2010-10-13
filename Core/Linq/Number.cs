@@ -1,9 +1,11 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.Contracts;
 
 namespace Void.Linq
 {
     /// <summary/>
+    [Pure]
     public static class Number
     {
         /// <summary>

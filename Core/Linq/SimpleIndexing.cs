@@ -5,6 +5,7 @@ using System.Linq;
 namespace Void.Linq
 {
     /// <summary/>
+    [Pure]
     public static class SimpleIndexing
     {
         /// <summary>Returns the second element in the IEnumerable</summary>

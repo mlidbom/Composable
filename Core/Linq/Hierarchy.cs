@@ -5,6 +5,7 @@ using System.Diagnostics.Contracts;
 namespace Void.Linq
 {
     /// <summary/>
+    [Pure]
     public static class Hierarchy
     {
         /// <summary>

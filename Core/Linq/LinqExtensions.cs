@@ -6,6 +6,7 @@ using System.Linq;
 namespace Void.Linq
 {
     /// <summary/>
+    [Pure]
     public static class LinqExtensions
     {
         /// <summary>

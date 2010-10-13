@@ -1,8 +1,11 @@
-﻿namespace Void.Wrappers
+﻿using System.Diagnostics.Contracts;
+
+namespace Void.Wrappers
 {
     /// <summary>
     /// The most simple imaginable implementation of <see cref="IWrapper{T}"/>
     /// </summary>
+    [Pure]
     public class GenericWrapper<T> : IWrapper<T>
     {
         /// <summary>Implements: <see cref="IWrapper{T}.Wrapped"/></summary>

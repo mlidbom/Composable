@@ -6,6 +6,7 @@ namespace Void
     /// <summary>
     /// Contains extensions methods that are useful to any <see cref="object"/>
     /// </summary>
+    [Pure]
     public static class ObjectExtensions
     {
         /// <summary>

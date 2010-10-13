@@ -3,6 +3,7 @@ using System.Diagnostics.Contracts;
 namespace Void
 {
     ///<summary>Contains extensions on <see cref="System.String"/></summary>
+    [Pure]
     public static class StringExtensions
     {
         ///<summary>returns true if me is null, empty or only whitespace</summary>

@@ -5,6 +5,7 @@ using System.Linq;
 namespace Void.Wrappers
 {
     ///<summary/>
+    [Pure]
     public static class WrapperExtensions
     {
         /// <summary>

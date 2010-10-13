@@ -14,6 +14,10 @@
         <member name="M:Void.IO.Moles.MDirectoryExtensions.BehaveAsNotImplemented">
             <summary>Assigns the &apos;NotImplemented&apos; behavior for all methods of the moled type</summary>
         </member>
+        <member name="P:Void.IO.Moles.MDirectoryExtensions.AsDirectoryEnvironmentSpecialFolder">
+            <summary>Sets the mole of <see cref="M:Void.IO.DirectoryExtensions.AsDirectory(T:System.Environment.SpecialFolder)"/>
+            </summary>
+        </member>
         <member name="P:Void.IO.Moles.MDirectoryExtensions.AsDirectoryString">
             <summary>Sets the mole of <see cref="M:Void.IO.DirectoryExtensions.AsDirectory(T:System.String)"/>
             </summary>
@@ -25,16 +29,81 @@
             <summary>Sets the mole of <see cref="M:Void.IO.DirectoryExtensions.DeleteRecursive(T:System.IO.DirectoryInfo)"/>
             </summary>
         </member>
+        <member name="P:Void.IO.Moles.MDirectoryExtensions.DirectoriesRecursiveDirectoryInfo">
+            <summary>Sets the mole of <see cref="M:Void.IO.DirectoryExtensions.DirectoriesRecursive(T:System.IO.DirectoryInfo)"/>
+            </summary>
+        </member>
+        <member name="P:Void.IO.Moles.MDirectoryExtensions.FileDirectoryInfoString">
+            <summary>Sets the mole of <see cref="M:Void.IO.DirectoryExtensions.File(T:System.IO.DirectoryInfo,T:System.String)"/>
+            </summary>
+        </member>
+        <member name="P:Void.IO.Moles.MDirectoryExtensions.FilesResursiveDirectoryInfo">
+            <summary>Sets the mole of <see cref="M:Void.IO.DirectoryExtensions.FilesResursive(T:System.IO.DirectoryInfo)"/>
+            </summary>
+        </member>
         <member name="P:Void.IO.Moles.MDirectoryExtensions.SizeDirectoryInfo">
             <summary>Sets the mole of <see cref="M:Void.IO.DirectoryExtensions.Size(T:System.IO.DirectoryInfo)"/>
+            </summary>
+        </member>
+        <member name="P:Void.IO.Moles.MDirectoryExtensions.SubDirDirectoryInfoString">
+            <summary>Sets the mole of <see cref="M:Void.IO.DirectoryExtensions.SubDir(T:System.IO.DirectoryInfo,T:System.String)"/>
+            </summary>
+        </member>
+        <member name="P:Void.IO.Moles.MDirectoryExtensions._DirectoriesRecursiveb__4DirectoryInfo">
+            <summary>Sets the mole of <see cref="M:Void.IO.DirectoryExtensions.&lt;DirectoriesRecursive&gt;b__4(T:System.IO.DirectoryInfo)"/>
+            </summary>
+        </member>
+        <member name="P:Void.IO.Moles.MDirectoryExtensions._FilesResursiveb__2DirectoryInfo">
+            <summary>Sets the mole of <see cref="M:Void.IO.DirectoryExtensions.&lt;FilesResursive&gt;b__2(T:System.IO.DirectoryInfo)"/>
             </summary>
         </member>
         <member name="P:Void.IO.Moles.MDirectoryExtensions._Sizeb__0String">
             <summary>Sets the mole of <see cref="M:Void.IO.DirectoryExtensions.&lt;Size&gt;b__0(T:System.String)"/>
             </summary>
         </member>
-        <member name="P:Void.IO.Moles.MDirectoryExtensions._Sizeb__1String">
-            <summary>Sets the mole of <see cref="M:Void.IO.DirectoryExtensions.&lt;Size&gt;b__1(T:System.String)"/>
+        <member name="T:Void.IO.Moles.MDirectoryInfoMutators">
+            <summary>Mole type of <see cref="T:Void.IO.DirectoryInfoMutators"/>
+            .</summary>
+        </member>
+        <member name="M:Void.IO.Moles.MDirectoryInfoMutators.#ctor">
+            <summary>Initializes a new instance</summary>
+        </member>
+        <member name="M:Void.IO.Moles.MDirectoryInfoMutators.BehaveAsNotImplemented">
+            <summary>Assigns the &apos;NotImplemented&apos; behavior for all methods of the moled type</summary>
+        </member>
+        <member name="P:Void.IO.Moles.MDirectoryInfoMutators.Behavior">
+            <summary>Assigns the behavior for all methods of the moled type</summary>
+        </member>
+        <member name="P:Void.IO.Moles.MDirectoryInfoMutators.CopyToDirectoryInfoDirectoryInfo">
+            <summary>Sets the mole of <see cref="M:Void.IO.DirectoryInfoMutators.CopyTo(T:System.IO.DirectoryInfo,T:System.IO.DirectoryInfo)"/>
+            </summary>
+        </member>
+        <member name="P:Void.IO.Moles.MDirectoryInfoMutators.MakeWritableDirectoryInfo">
+            <summary>Sets the mole of <see cref="M:Void.IO.DirectoryInfoMutators.MakeWritable(T:System.IO.DirectoryInfo)"/>
+            </summary>
+        </member>
+        <member name="P:Void.IO.Moles.MDirectoryInfoMutators.WriteIntoDirectoryInfoDirectoryInfo">
+            <summary>Sets the mole of <see cref="M:Void.IO.DirectoryInfoMutators.WriteInto(T:System.IO.DirectoryInfo,T:System.IO.DirectoryInfo)"/>
+            </summary>
+        </member>
+        <member name="P:Void.IO.Moles.MDirectoryInfoMutators._MakeWritableb__bFileInfo">
+            <summary>Sets the mole of <see cref="M:Void.IO.DirectoryInfoMutators.&lt;MakeWritable&gt;b__b(T:System.IO.FileInfo)"/>
+            </summary>
+        </member>
+        <member name="P:Void.IO.Moles.MDirectoryInfoMutators._WriteIntob__0FileInfo">
+            <summary>Sets the mole of <see cref="M:Void.IO.DirectoryInfoMutators.&lt;WriteInto&gt;b__0(T:System.IO.FileInfo)"/>
+            </summary>
+        </member>
+        <member name="P:Void.IO.Moles.MDirectoryInfoMutators._WriteIntob__2String">
+            <summary>Sets the mole of <see cref="M:Void.IO.DirectoryInfoMutators.&lt;WriteInto&gt;b__2(T:System.String)"/>
+            </summary>
+        </member>
+        <member name="P:Void.IO.Moles.MDirectoryInfoMutators._WriteIntob__3FileInfo">
+            <summary>Sets the mole of <see cref="M:Void.IO.DirectoryInfoMutators.&lt;WriteInto&gt;b__3(T:System.IO.FileInfo)"/>
+            </summary>
+        </member>
+        <member name="P:Void.IO.Moles.MDirectoryInfoMutators._WriteIntob__4FileInfo">
+            <summary>Sets the mole of <see cref="M:Void.IO.DirectoryInfoMutators.&lt;WriteInto&gt;b__4(T:System.IO.FileInfo)"/>
             </summary>
         </member>
         <member name="T:Void.Moles.MEnumExtensions">
@@ -52,6 +121,23 @@
         </member>
         <member name="P:Void.Moles.MEnumExtensions.HasFlagEnumEnum">
             <summary>Sets the mole of <see cref="M:Void.EnumExtensions.HasFlag(T:System.Enum,T:System.Enum)"/>
+            </summary>
+        </member>
+        <member name="T:Void.IO.Moles.MFileInfoExtensions">
+            <summary>Mole type of <see cref="T:Void.IO.FileInfoExtensions"/>
+            .</summary>
+        </member>
+        <member name="M:Void.IO.Moles.MFileInfoExtensions.#ctor">
+            <summary>Initializes a new instance</summary>
+        </member>
+        <member name="M:Void.IO.Moles.MFileInfoExtensions.BehaveAsNotImplemented">
+            <summary>Assigns the &apos;NotImplemented&apos; behavior for all methods of the moled type</summary>
+        </member>
+        <member name="P:Void.IO.Moles.MFileInfoExtensions.Behavior">
+            <summary>Assigns the behavior for all methods of the moled type</summary>
+        </member>
+        <member name="P:Void.IO.Moles.MFileInfoExtensions.WithExtensionIEnumerableOfFileInfoString">
+            <summary>Sets the mole of <see cref="M:Void.IO.FileInfoExtensions.WithExtension(System.Collections.Generic.IEnumerable`1{T:System.IO.FileInfo},T:System.String)"/>
             </summary>
         </member>
         <member name="T:Void.Linq.Moles.MFilter">

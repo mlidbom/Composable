@@ -26,6 +26,7 @@ namespace Void.Hierarchies
     /// <summary>
     /// Provides extension methods for working with hierarchical data.
     /// </summary>
+    [Pure]
     public static class HierarchyExtensions
     {
         private class Hierarchy<T> : IAutoHierarchy<T>

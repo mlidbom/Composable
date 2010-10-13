@@ -1,8 +1,10 @@
 ﻿using System.Collections.Generic;
+using System.Diagnostics.Contracts;
 
 namespace Void.Linq
 {
     /// <summary/>
+    [Pure]
     public static class Seq
     {
         /// <summary>

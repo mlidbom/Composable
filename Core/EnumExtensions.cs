@@ -4,6 +4,7 @@ using System.Diagnostics.Contracts;
 namespace Void
 {
     /// <summary/>
+    [Pure]
     public static class EnumExtensions
     {
         /// <summary>

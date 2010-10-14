@@ -1,9 +1,11 @@
 ﻿
-Microsoft Visual Studio Solution File, Format Version 10.00
-# Visual Studio 2008
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Core", "Core.csproj", "{3632254D-0C4A-4EB8-B388-4C99F8939584}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Core.Tests", "..\Core.Tests\Core.Tests.csproj", "{4C78131D-DD7B-4C3E-B931-D4C6436EE09E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Void.Core.PexTests", "..\Void.Core.PexTests\Void.Core.PexTests.csproj", "{E3099248-BEEA-40FB-84EB-526BBE614411}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -19,6 +21,10 @@ Global
 		{4C78131D-DD7B-4C3E-B931-D4C6436EE09E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4C78131D-DD7B-4C3E-B931-D4C6436EE09E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4C78131D-DD7B-4C3E-B931-D4C6436EE09E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E3099248-BEEA-40FB-84EB-526BBE614411}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E3099248-BEEA-40FB-84EB-526BBE614411}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E3099248-BEEA-40FB-84EB-526BBE614411}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E3099248-BEEA-40FB-84EB-526BBE614411}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

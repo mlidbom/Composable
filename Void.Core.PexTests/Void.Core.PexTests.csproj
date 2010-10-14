@@ -164,7 +164,6 @@
     <Compile Include="Linq\LinqExtensionsTest.None.g.cs">
       <DependentUpon>LinqExtensionsTest.cs</DependentUpon>
     </Compile>
-    <Compile Include="Linq\NumberIterationSpecificationTest.cs" />
     <Compile Include="Linq\NumberTest.By.g.cs">
       <DependentUpon>NumberTest.cs</DependentUpon>
     </Compile>

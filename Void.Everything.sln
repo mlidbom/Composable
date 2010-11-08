@@ -39,6 +39,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Void.Core.PexTests", "Void.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Void.SpaceTime", "Void.SpaceTime\Void.SpaceTime.csproj", "{FA1CE09A-37EA-4D3F-BF5C-F34E2F968CF5}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Void.DomainEvents", "Void.DomainEvents\Void.DomainEvents.csproj", "{52A99E0F-F12C-422E-9524-B348F4D49C16}"
+EndProject
 Global
 	GlobalSection(TestCaseManagementSettings) = postSolution
 		CategoryFile = Void.Everything.vsmdi
@@ -100,6 +102,10 @@ Global
 		{FA1CE09A-37EA-4D3F-BF5C-F34E2F968CF5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FA1CE09A-37EA-4D3F-BF5C-F34E2F968CF5}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FA1CE09A-37EA-4D3F-BF5C-F34E2F968CF5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{52A99E0F-F12C-422E-9524-B348F4D49C16}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{52A99E0F-F12C-422E-9524-B348F4D49C16}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{52A99E0F-F12C-422E-9524-B348F4D49C16}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{52A99E0F-F12C-422E-9524-B348F4D49C16}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

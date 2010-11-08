@@ -13,6 +13,7 @@ namespace Void
     /// <see cref="object.GetHashCode"/>, and <see cref="IEquatable{TEntity}"/>.
     /// </summary>
     [DebuggerDisplay("{GetType().Name} Id={Id}")]
+    [Serializable]
     public class PersistentEntity<TEntity> : IPersistentEntity<Guid>, IEquatable<TEntity> where TEntity : PersistentEntity<TEntity>
     {
         /// <summary>

@@ -35,15 +35,6 @@ namespace Void.DomainEvents.Tests
         }
     }
 
-    internal class InternalSomethingHappenedHandler : IHandles<SomethingHappend>
-    {
-        public void Handle(SomethingHappend args)
-        {
-            ItHappened(args.Data);
-        }
-        public static event Action<string> ItHappened = data => { };
-    }
-
     public class SomethingHappend : IDomainEvent
     {
         public string Data;
@@ -62,22 +53,14 @@ namespace Void.DomainEvents.Tests
         }
 
         [Test]
-        public void InternalSubscribersAreNotified()
-        {
-            var blah = "";
-            InternalSomethingHappenedHandler.ItHappened += data => blah = data;
-            DomainEvent.Raise(new SomethingHappend { Data = "Hi" });
-            Assert.That(blah, Is.EqualTo("Hi"));
-        }
-
-        [Test]
         public void HandlersAreNotReused()
         {
+            var initialInstances = HandlesSomethingHappened.Instances;
             DomainEvent.Raise(new SomethingHappend(){Data = "Urg"});
-            Assert.That(HandlesSomethingHappened.Instances, Is.EqualTo(1));
+            Assert.That(HandlesSomethingHappened.Instances, Is.GreaterThanOrEqualTo(++initialInstances));
 
             DomainEvent.Raise(new SomethingHappend() { Data = "Urg" });
-            Assert.That(HandlesSomethingHappened.Instances, Is.EqualTo(2));
+            Assert.That(HandlesSomethingHappened.Instances, Is.GreaterThanOrEqualTo(++initialInstances));
         }
     }
 }

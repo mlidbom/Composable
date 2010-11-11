@@ -14,15 +14,15 @@ namespace Void.IO
     {
     
         /// <summary>
-        /// Returns a sequnce where all files have <paramref name="extension"/> as their extension
+        /// Returns a sequnce where all files have <paramref name="extensions"/> as their extension
         /// </summary>
         /// <param name="me"></param>
-        /// <param name="extension"></param>
+        /// <param name="extensions"></param>
         /// <returns></returns>
-        public static IEnumerable<FileInfo> WithExtension(this IEnumerable<FileInfo> me, string extension)
+        public static IEnumerable<FileInfo> WithExtension(this IEnumerable<FileInfo> me, params string[] extensions)
         {
             Contract.Requires(me != null);
-            return me.Where(file => file.Extension == extension);
+            return me.Where(file => extensions.Contains(file.Extension));
         }
     }
 }

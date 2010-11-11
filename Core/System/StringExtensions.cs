@@ -1,4 +1,9 @@
+using System;
+using System.Collections.Generic;
 using System.Diagnostics.Contracts;
+using System.Text;
+using Void.Linq;
+using System.Linq;
 
 namespace Void
 {
@@ -24,6 +29,14 @@ namespace Void
         {
             Contract.Requires(me != null && values != null);
             return string.Format(me, values);
+        }
+
+        /// <summary>Delegates to <see cref="string.Join(string,string[])"/> </summary>
+        public static string Join(this IEnumerable<string> strings, string separator)
+        {
+            Contract.Requires(strings!=null);
+            Contract.Requires(separator != null);
+            return string.Join(separator, strings.ToArray());
         }
     }
 }

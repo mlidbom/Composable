@@ -7,38 +7,8 @@ using NUnit.Framework;
 
 namespace Void.DomainEvents.Tests
 {
-    public class StaticHandlesSomethingHappened : IHandles<SomethingHappend>
-    {
-        public void Handle(SomethingHappend happening)
-        {
-            ItHappened(happening.Data);
-        }
-
-        public static event Action<string> ItHappened = data => { };
-    }
-
-    public class HandlesSomethingHappened : IHandles<SomethingHappend>, IDisposable
-    {
-        public static int Instances { get; private set; }
-        public HandlesSomethingHappened()
-        {
-            Instances++;
-        }
-
-        public void Dispose()
-        {
-            Instances--;
-        }
-
-        public void Handle(SomethingHappend happening)
-        {
-        }
-    }
-
     public class SomethingHappend : IDomainEvent
-    {
-        public string Data;
-    }
+    {}
 
     [TestFixture]
     public class WhenEventIsRaised
@@ -46,21 +16,27 @@ namespace Void.DomainEvents.Tests
         [Test]
         public void SubscribersAreNotified()
         {
-            var blah = "";
-            StaticHandlesSomethingHappened.ItHappened += data => blah = data;
-            DomainEvent.Raise(new SomethingHappend {Data = "Hi"});
-            Assert.That(blah, Is.EqualTo("Hi"));
+            var calls = 0;
+            HandlesSomethingHappened.ItHappened += () => calls++;
+            DomainEvent.Raise(new SomethingHappend());
+            Assert.That(calls, Is.EqualTo(1));
         }
+      
 
         [Test]
-        public void HandlersAreNotReused()
+        public void ManuallyRegisteredListenersAreCalled()
         {
-            var initialInstances = HandlesSomethingHappened.Instances;
-            DomainEvent.Raise(new SomethingHappend(){Data = "Urg"});
-            Assert.That(HandlesSomethingHappened.Instances, Is.GreaterThanOrEqualTo(++initialInstances));
+            
+        }
 
-            DomainEvent.Raise(new SomethingHappend() { Data = "Urg" });
-            Assert.That(HandlesSomethingHappened.Instances, Is.GreaterThanOrEqualTo(++initialInstances));
+        public class HandlesSomethingHappened : IHandles<SomethingHappend>
+        {
+            public void Handle(SomethingHappend happening)
+            {
+                ItHappened();
+            }
+
+            public static event Action ItHappened = () => { };
         }
     }
 }

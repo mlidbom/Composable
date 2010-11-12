@@ -6,8 +6,9 @@ using System.Linq;
 using System.Reflection;
 using StructureMap;
 using StructureMap.Configuration.DSL;
-using Void.Reflection;
+using StructureMap.Pipeline;
 using Void.Linq;
+using Void.Reflection;
 
 #endregion
 
@@ -15,7 +16,6 @@ namespace Void.DomainEvents
 {
     public static class DomainEvent
     {
-        [ThreadStatic] //so that each thread has its own callbacks
         private static readonly List<Delegate> ManualSubscribers = new List<Delegate>();
 
         private static IContainer Container { get; set; } //as before
@@ -24,14 +24,20 @@ namespace Void.DomainEvents
         {
             var registry = new Registry();
             var assemblies = new List<Assembly>();
+            var excludedAssemblies = Seq.Create("System.", "Microsoft.");
             registry.Scan(
                 scanner =>
                     {
-                        scanner.AssembliesFromApplicationBaseDirectory(assembly =>
-                                                                           {
-                                                                               assemblies.Add(assembly);
-                                                                               return true;
-                                                                           }
+                        scanner.AssembliesFromApplicationBaseDirectory(
+                            assembly =>
+                                {
+                                    if (excludedAssemblies.None(excluded => assembly.FullName.StartsWith(excluded)))
+                                    {
+                                        assemblies.Add(assembly);
+                                        return true;
+                                    }
+                                    return false;
+                                }
                             );
                         scanner.ConnectImplementationsToTypesClosing(typeof (IHandles<>));
                     }
@@ -48,27 +54,42 @@ namespace Void.DomainEvents
                 throw new InternalIHandlesImplementationException(illegalImplementations);
             }
 
+
+            
             container.AssertConfigurationIsValid();
+            
+            //AssertconfigurationIsValid creates instances that are apt to implement idisposable and need to be disposed.
+            GC.Collect(2);
+            GC.WaitForPendingFinalizers();
+            
             Container = container;
         }
 
         /// <summary>
         /// Registers a callback for the given domain event.
-        /// This callback will only be called by events thrown on the thread that registers the handler.
         /// Should only be used for testing. Implement <see cref="IHandles{TEvent}"/> for normal usage
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="callback"></param>
-        public static void Register<T>(Action<T> callback) where T : IDomainEvent
+        public static IDisposable Register<T>(Action<T> callback) where T : IDomainEvent
         {
             ManualSubscribers.Add(callback);
+            return new RemoveRegistration(callback);
         }
 
-
-        /// <summary>Clears callbacks passed to Register on the current thread.</summary>
-        public static void ClearCallbacks()
+        private class RemoveRegistration : IDisposable
         {
-            ManualSubscribers.Clear();
+            private readonly Delegate _callbackToRemove;
+
+            public RemoveRegistration(Delegate callback)
+            {
+                _callbackToRemove = callback;
+            }
+
+            public void Dispose()
+            {
+                ManualSubscribers.Remove(_callbackToRemove);
+            }
         }
 
 
@@ -81,11 +102,18 @@ namespace Void.DomainEvents
         /// <param name="args"></param>
         public static void Raise<T>(T args) where T : IDomainEvent
         {
-                Container.GetAllInstances<IHandles<T>>()
-                    .ForEach(handler => handler.Handle(args));
+            Container.GetAllInstances<IHandles<T>>()
+                .ForEach(handler =>
+                             {
+                                 handler.Handle(args);
+                                 if (handler is IDisposable)
+                                 {
+                                     ((IDisposable) handler).Dispose();
+                                 }
+                             });
 
-                ManualSubscribers.OfType<Action<T>>()
-                    .ForEach(action => action(args));
+            ManualSubscribers.OfType<Action<T>>()
+                .ForEach(action => action(args));
         }
     }
 }

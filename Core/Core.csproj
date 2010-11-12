@@ -123,6 +123,7 @@
     <Compile Include="EnumExtensions.cs" />
     <Compile Include="Hierarchies\HierarchyExtensions.cs" />
     <Compile Include="Hierarchies\IHierarchy.cs" />
+    <Compile Include="IntegerExtensions.cs" />
     <Compile Include="IO\DirectoryInfoMutators.cs" />
     <Compile Include="IO\FileInfoExtensions.cs" />
     <Compile Include="IPersistentEntity.cs" />

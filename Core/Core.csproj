@@ -129,6 +129,7 @@
     <Compile Include="IPersistentEntity.cs" />
     <Compile Include="IO\DirectoryExtensions.cs" />
     <Compile Include="Linq\Filter.cs" />
+    <Compile Include="Linq\HashSetExtensions.cs" />
     <Compile Include="Linq\Iteration.cs" />
     <Compile Include="Linq\Hierarchy.cs" />
     <Compile Include="Linq\IFilter.cs" />

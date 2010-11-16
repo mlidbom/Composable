@@ -9,6 +9,9 @@ namespace Void.DomainEvents.Tests
     [TestFixture]
     public class AfterEventIsRaised
     {
+        public class SomethingHappend : IDomainEvent
+        { }
+
         [Test]
         public void HandlersAreNotReused()
         {

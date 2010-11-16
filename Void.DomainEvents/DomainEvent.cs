@@ -9,6 +9,7 @@ using StructureMap.Configuration.DSL;
 using StructureMap.Pipeline;
 using Void.Linq;
 using Void.Reflection;
+using Void.IO;
 
 #endregion
 
@@ -19,50 +20,22 @@ namespace Void.DomainEvents
         private static readonly List<Delegate> ManualSubscribers = new List<Delegate>();
 
         private static IContainer Container { get; set; } //as before
+        private static readonly ISet<Type> Implementors;
 
         static DomainEvent()
         {
-            var registry = new Registry();
-            var assemblies = new List<Assembly>();
-            var excludedAssemblies = Seq.Create("System.", "Microsoft.");
-            registry.Scan(
-                scanner =>
-                    {
-                        scanner.AssembliesFromApplicationBaseDirectory(
-                            assembly =>
-                                {
-                                    if (excludedAssemblies.None(excluded => assembly.FullName.StartsWith(excluded)))
-                                    {
-                                        assemblies.Add(assembly);
-                                        return true;
-                                    }
-                                    return false;
-                                }
-                            );
-                        scanner.ConnectImplementationsToTypesClosing(typeof (IHandles<>));
-                    }
-                );
+            Implementors = AppDomain.CurrentDomain.BaseDirectory.AsDirectory().GetFiles().WithExtension(".dll", ".exe")
+            .Where(assemblyFile => !assemblyFile.Name.StartsWith("System."))
+            .Select(assemblyFile =>  Assembly.LoadFrom(assemblyFile.FullName))
+            .SelectMany(assembly => assembly.GetTypes())
+            .Where(t => t.Implements(typeof(IHandles<>)))
+            .ToSet();;
 
-
-            var container = new Container(registry);
-
-            var illegalImplementations = assemblies.Types()
-                .Where(t => t.Implements(typeof (IHandles<>)) && !t.IsVisible);
-
+            var illegalImplementations = Implementors.Where(t => !t.IsVisible);
             if (illegalImplementations.Any())
             {
                 throw new InternalIHandlesImplementationException(illegalImplementations);
             }
-
-
-            
-            container.AssertConfigurationIsValid();
-            
-            //AssertconfigurationIsValid creates instances that are apt to implement idisposable and need to be disposed.
-            GC.Collect(2);
-            GC.WaitForPendingFinalizers();
-            
-            Container = container;
         }
 
         /// <summary>
@@ -93,6 +66,18 @@ namespace Void.DomainEvents
         }
 
 
+        private static IHandles<T> CreateInstance<T>(Type type) where T : IDomainEvent
+        {
+            return (IHandles<T>) Activator.CreateInstance(type, false);
+        }
+
+        private static IEnumerable<IHandles<T>> FetchHandlersOf<T>() where T : IDomainEvent
+        {
+            return Implementors
+                .Where(t => t.Implements<IHandles<T>>())
+                .Select(CreateInstance<T>);
+        }
+
         /// <summary>
         /// Raises the given domain event
         /// All implementors of <see cref="IHandles{T}"/> will be instantiated and called.
@@ -102,13 +87,13 @@ namespace Void.DomainEvents
         /// <param name="args"></param>
         public static void Raise<T>(T args) where T : IDomainEvent
         {
-            Container.GetAllInstances<IHandles<T>>()
-                .ForEach(handler =>
+
+                FetchHandlersOf<T>().ForEach(handler =>
                              {
                                  handler.Handle(args);
                                  if (handler is IDisposable)
                                  {
-                                     ((IDisposable) handler).Dispose();
+                                     ((IDisposable)handler).Dispose();
                                  }
                              });
 

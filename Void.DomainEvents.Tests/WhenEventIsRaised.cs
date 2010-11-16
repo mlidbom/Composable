@@ -7,17 +7,17 @@ using NUnit.Framework;
 
 namespace Void.DomainEvents.Tests
 {
-    public class SomethingHappend : IDomainEvent
-    {}
-
     [TestFixture]
     public class WhenEventIsRaised
     {
+        public class SomethingHappend : IDomainEvent
+        { }
+
         [Test]
         public void SubscribersAreNotified()
         {
             var calls = 0;
-            HandlesSomethingHappened.ItHappened += () => calls++;
+            HandlesSomethingHappened.IWasNotified += () => calls++;
             DomainEvent.Raise(new SomethingHappend());
             Assert.That(calls, Is.EqualTo(1));
         }
@@ -33,10 +33,10 @@ namespace Void.DomainEvents.Tests
         {
             public void Handle(SomethingHappend happening)
             {
-                ItHappened();
+                IWasNotified();
             }
 
-            public static event Action ItHappened = () => { };
+            public static event Action IWasNotified = () => { };
         }
     }
 }

@@ -2,7 +2,7 @@
 
 <hibernate-mapping xmlns="urn:nhibernate-mapping-2.2" 
                    assembly="Composable.Data.ORM.NHibernateRepositories.Tests" 
-                   namespace="Void.Data.ORM.NHibernateRepositories.Tests.Domain">
+                   namespace="Composable.Data.ORM.NHibernateRepositories.Tests.Domain">
   <class name="TypewithGeneratedId">
     <id name="Id">
       <generator  class="identity" />

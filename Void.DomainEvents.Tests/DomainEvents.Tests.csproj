@@ -8,8 +8,8 @@
     <ProjectGuid>{EB135E45-C722-4921-BAF5-2FF14195072E}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Void.DomainEvents.Tests</RootNamespace>
-    <AssemblyName>Void.DomainEvents.Tests</AssemblyName>
+    <RootNamespace>Composable.DomainEvents.Tests</RootNamespace>
+    <AssemblyName>Composable.DomainEvents.Tests</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -53,13 +53,13 @@
     <Compile Include="WhenEventIsRaised.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Core\Core.csproj">
+    <ProjectReference Include="..\Core\System.csproj">
       <Project>{3632254D-0C4A-4EB8-B388-4C99F8939584}</Project>
-      <Name>Core</Name>
+      <Name>System</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Void.DomainEvents\Void.DomainEvents.csproj">
+    <ProjectReference Include="..\Void.DomainEvents\DomainEvents.csproj">
       <Project>{52A99E0F-F12C-422E-9524-B348F4D49C16}</Project>
-      <Name>Void.DomainEvents</Name>
+      <Name>DomainEvents %28DomainEvents\DomainEvents%29</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

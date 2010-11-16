@@ -8,8 +8,8 @@
     <ProjectGuid>{4C78131D-DD7B-4C3E-B931-D4C6436EE09E}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Core.Tests</RootNamespace>
-    <AssemblyName>Core.Tests</AssemblyName>
+    <RootNamespace>Composable.System.Tests</RootNamespace>
+    <AssemblyName>Composable.System.Tests</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <FileUpgradeFlags>
@@ -107,9 +107,9 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Core\Core.csproj">
+    <ProjectReference Include="..\Core\System.csproj">
       <Project>{3632254D-0C4A-4EB8-B388-4C99F8939584}</Project>
-      <Name>Core</Name>
+      <Name>System</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

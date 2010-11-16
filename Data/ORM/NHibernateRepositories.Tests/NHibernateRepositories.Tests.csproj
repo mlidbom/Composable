@@ -8,8 +8,8 @@
     <ProjectGuid>{1C8F95E6-B94C-40B1-8305-EF8D150DEF22}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Void.Data.ORM.NHibernateRepositories.Tests</RootNamespace>
-    <AssemblyName>Void.Data.ORM.NHibernateRepositories.Tests</AssemblyName>
+    <RootNamespace>Composable.Data.ORM.NHibernateRepositories.Tests</RootNamespace>
+    <AssemblyName>Composable.Data.ORM.NHibernateRepositories.Tests</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <FileUpgradeFlags>
@@ -124,9 +124,9 @@
     <Compile Include="WhenFirstSaving\WithGeneratedId.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\..\Core\Core.csproj">
+    <ProjectReference Include="..\..\..\Core\System.csproj">
       <Project>{3632254D-0C4A-4EB8-B388-4C99F8939584}</Project>
-      <Name>Core</Name>
+      <Name>System</Name>
     </ProjectReference>
     <ProjectReference Include="..\Repositories.Tests\Repositories.Tests.csproj">
       <Project>{CB0CF7B4-8320-4AC6-91F0-C7BD536DD9A3}</Project>

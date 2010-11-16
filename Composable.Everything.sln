@@ -17,7 +17,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Properties", "ComponentMode
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Properties.Tests", "ComponentModel\Properties.Tests\Properties.Tests.csproj", "{722C146D-4670-4F38-B3F0-8E150F504175}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Core", "Core\Core.csproj", "{3632254D-0C4A-4EB8-B388-4C99F8939584}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "System", "Core\System.csproj", "{3632254D-0C4A-4EB8-B388-4C99F8939584}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NHibernateRepositories", "Data\ORM\NHibernateRepositories\NHibernateRepositories.csproj", "{A858472F-F790-4A3B-8782-B7F4FDAECFA1}"
 EndProject
@@ -27,7 +27,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Repositories", "Data\ORM\Re
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Repositories.Tests", "Data\ORM\Repositories.Tests\Repositories.Tests.csproj", "{CB0CF7B4-8320-4AC6-91F0-C7BD536DD9A3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Core.Tests", "Core.Tests\Core.Tests.csproj", "{4C78131D-DD7B-4C3E-B931-D4C6436EE09E}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "System.Tests", "Core.Tests\System.Tests.csproj", "{4C78131D-DD7B-4C3E-B931-D4C6436EE09E}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InMemoryRepositories", "Data\ORM\InMemoryRepositories\InMemoryRepositories.csproj", "{8B991155-BB3D-49EF-839F-CF6FD468AFDE}"
 EndProject
@@ -39,13 +39,13 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Void.Core.PexTests", "Void.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Void.SpaceTime", "Void.SpaceTime\Void.SpaceTime.csproj", "{FA1CE09A-37EA-4D3F-BF5C-F34E2F968CF5}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Void.DomainEvents", "Void.DomainEvents\Void.DomainEvents.csproj", "{52A99E0F-F12C-422E-9524-B348F4D49C16}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DomainEvents", "Void.DomainEvents\DomainEvents.csproj", "{52A99E0F-F12C-422E-9524-B348F4D49C16}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Void.DomainEvents.Tests", "Void.DomainEvents.Tests\Void.DomainEvents.Tests.csproj", "{EB135E45-C722-4921-BAF5-2FF14195072E}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DomainEvents.Tests", "Void.DomainEvents.Tests\DomainEvents.Tests.csproj", "{EB135E45-C722-4921-BAF5-2FF14195072E}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "DomainEvents", "DomainEvents", "{12418B31-15FC-4FDE-9D46-4EC7EFB9DD60}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Void.DomainEvents.TestInternalImplementations", "Void.DomainEvents.TestInternalImplementations\Void.DomainEvents.TestInternalImplementations.csproj", "{F93A2E1E-FDFA-45C8-8EF5-FF8CFA394E91}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DomainEvents.TestInternalImplementations", "Void.DomainEvents.TestInternalImplementations\DomainEvents.TestInternalImplementations.csproj", "{F93A2E1E-FDFA-45C8-8EF5-FF8CFA394E91}"
 EndProject
 Global
 	GlobalSection(TestCaseManagementSettings) = postSolution
@@ -134,8 +134,8 @@ Global
 		{8B991155-BB3D-49EF-839F-CF6FD468AFDE} = {0D81FA34-5884-49E7-BD1C-E62BF990897C}
 		{5CCD8EC5-BC03-475F-83AB-0B21B978B06F} = {9F9C4C11-3E50-4AFF-A2FC-47B69D301B2A}
 		{309FC0B1-D190-47EF-97FA-6F9B13759ACF} = {9F9C4C11-3E50-4AFF-A2FC-47B69D301B2A}
-		{52A99E0F-F12C-422E-9524-B348F4D49C16} = {12418B31-15FC-4FDE-9D46-4EC7EFB9DD60}
 		{EB135E45-C722-4921-BAF5-2FF14195072E} = {12418B31-15FC-4FDE-9D46-4EC7EFB9DD60}
+		{52A99E0F-F12C-422E-9524-B348F4D49C16} = {12418B31-15FC-4FDE-9D46-4EC7EFB9DD60}
 		{F93A2E1E-FDFA-45C8-8EF5-FF8CFA394E91} = {12418B31-15FC-4FDE-9D46-4EC7EFB9DD60}
 	EndGlobalSection
 EndGlobal

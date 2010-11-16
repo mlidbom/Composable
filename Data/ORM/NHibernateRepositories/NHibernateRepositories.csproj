@@ -8,8 +8,8 @@
     <ProjectGuid>{A858472F-F790-4A3B-8782-B7F4FDAECFA1}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Void.Data.ORM.NHibernate</RootNamespace>
-    <AssemblyName>Void.Data.ORM.NHibernateRepositories</AssemblyName>
+    <RootNamespace>Composable.Data.ORM.NHibernate</RootNamespace>
+    <AssemblyName>Composable.Data.ORM.NHibernateRepositories</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <FileUpgradeFlags>
@@ -42,7 +42,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <DocumentationFile>..\..\..\bin\Debug\Void.Data.ORM.NHibernateRepositories.XML</DocumentationFile>
+    <DocumentationFile>..\..\..\bin\Debug\Composable.Data.ORM.NHibernateRepositories.xml</DocumentationFile>
     <NoWarn>1591</NoWarn>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
     <CodeContractsEnableRuntimeChecking>False</CodeContractsEnableRuntimeChecking>
@@ -76,7 +76,7 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <DocumentationFile>..\..\..\bin\Release\Void.Data.ORM.NHibernateRepositories.XML</DocumentationFile>
+    <DocumentationFile>..\..\..\bin\Release\Composable.Data.ORM.NHibernateRepositories.xml</DocumentationFile>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <PropertyGroup>
@@ -118,9 +118,9 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\..\Core\Core.csproj">
+    <ProjectReference Include="..\..\..\Core\System.csproj">
       <Project>{3632254D-0C4A-4EB8-B388-4C99F8939584}</Project>
-      <Name>Core</Name>
+      <Name>System</Name>
     </ProjectReference>
     <ProjectReference Include="..\Repositories\Repositories.csproj">
       <Project>{42E6457A-2943-4D2B-A337-B1DE59AAD1EE}</Project>

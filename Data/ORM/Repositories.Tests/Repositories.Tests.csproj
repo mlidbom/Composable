@@ -8,8 +8,8 @@
     <ProjectGuid>{CB0CF7B4-8320-4AC6-91F0-C7BD536DD9A3}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Void.Data.ORM.Repositories.Tests</RootNamespace>
-    <AssemblyName>Void.Data.ORM.Repositories.Tests</AssemblyName>
+    <RootNamespace>Composable.Data.ORM.Repositories.Tests</RootNamespace>
+    <AssemblyName>Composable.Data.ORM.Repositories.Tests</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <FileUpgradeFlags>

@@ -8,8 +8,8 @@
     <ProjectGuid>{722C146D-4670-4F38-B3F0-8E150F504175}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Void.ComponentModel.Properties.Tests</RootNamespace>
-    <AssemblyName>Void.ComponentModel.Properties.Tests</AssemblyName>
+    <RootNamespace>Composable.System.ComponentModel.Properties.Tests</RootNamespace>
+    <AssemblyName>Composable.System.ComponentModel.Properties.Tests</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <FileUpgradeFlags>

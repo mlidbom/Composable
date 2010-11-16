@@ -8,8 +8,8 @@
     <ProjectGuid>{D7C1DC0F-8436-46A5-9EB6-6ACB5CDB3F14}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Void.ComponentModel.Properties</RootNamespace>
-    <AssemblyName>Void.ComponentModel.Properties</AssemblyName>
+    <RootNamespace>Composable.System.ComponentModel.Properties</RootNamespace>
+    <AssemblyName>Composable.System.ComponentModel.Properties</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <FileUpgradeFlags>

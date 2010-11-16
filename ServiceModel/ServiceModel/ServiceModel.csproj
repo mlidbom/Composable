@@ -8,8 +8,8 @@
     <ProjectGuid>{5CCD8EC5-BC03-475F-83AB-0B21B978B06F}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Void.ServiceModel</RootNamespace>
-    <AssemblyName>ServiceModel</AssemblyName>
+    <RootNamespace>Composable.System.ServiceModel</RootNamespace>
+    <AssemblyName>Composable.System.ServiceModel</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <FileUpgradeFlags>
@@ -42,7 +42,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <DocumentationFile>..\..\bin\Debug\ServiceModel.XML</DocumentationFile>
+    <DocumentationFile>..\..\bin\Debug\Composable.System.ServiceModel.xml</DocumentationFile>
     <NoWarn>1591</NoWarn>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
     <CodeContractsEnableRuntimeChecking>False</CodeContractsEnableRuntimeChecking>
@@ -76,7 +76,7 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <DocumentationFile>..\..\bin\Release\ServiceModel.XML</DocumentationFile>
+    <DocumentationFile>..\..\bin\Release\Composable.System.ServiceModel.xml</DocumentationFile>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <PropertyGroup>
@@ -118,9 +118,9 @@
     <Compile Include="WcfSerializer.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\Core\Core.csproj">
+    <ProjectReference Include="..\..\Core\System.csproj">
       <Project>{3632254D-0C4A-4EB8-B388-4C99F8939584}</Project>
-      <Name>Core</Name>
+      <Name>System</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

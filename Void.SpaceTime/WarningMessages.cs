@@ -1,4 +1,4 @@
-namespace Void
+namespace Composable.SpaceTime
 {
     internal static class WarningMessages
     {

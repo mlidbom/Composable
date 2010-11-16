@@ -1,6 +1,6 @@
 using System;
 
-namespace Void.Data.ORM
+namespace Composable.Data.ORM
 {
     public class OptimisticConcurrencyException : Exception
     {

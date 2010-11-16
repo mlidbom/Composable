@@ -1,13 +1,13 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Composable.System.Linq;
 using NUnit.Framework;
 using NUnit.Framework.Constraints;
-using Void.Linq;
-using Void.ServiceModel;
+using Composable.System.ServiceModel;
 using System.Linq;
 
-namespace Void.ServiceModel.Tests
+namespace Composable.System.ServiceModel.Tests
 {
     [TestFixture]
     public class DataContractSurrogateLinqTests

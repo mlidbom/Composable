@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 
-namespace Void.Linq
+namespace Composable.System.Linq
 {
     ///<summary>
     /// Methods useful for any type when used in a Linq context

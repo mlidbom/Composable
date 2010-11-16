@@ -1,7 +1,7 @@
 ﻿using System.Linq;
 using System.Threading;
 using NUnit.Framework;
-using Void.Linq;
+using Composable.System.Linq;
 
 namespace Core.Tests.Linq
 {

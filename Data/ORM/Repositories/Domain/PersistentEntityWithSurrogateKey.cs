@@ -1,6 +1,7 @@
 using System;
+using Composable.System;
 
-namespace Void.Data.ORM.Domain
+namespace Composable.Data.ORM.Domain
 {
     public class PersistentEntityWithSurrogateKey<TEntity,TKey> : PersistentEntity<TEntity> where TEntity : PersistentEntity<TEntity>
     {

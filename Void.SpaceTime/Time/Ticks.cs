@@ -1,6 +1,6 @@
 using System;
 
-namespace Void.Time
+namespace Composable.SpaceTime.Time
 {
     internal static class Ticks
     {

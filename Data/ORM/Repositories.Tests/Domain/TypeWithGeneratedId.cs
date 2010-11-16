@@ -1,4 +1,4 @@
-namespace Void.Data.ORM.Repositories.Tests.Domain
+namespace Composable.Data.ORM.Repositories.Tests.Domain
 {
     public class TypeWithGeneratedId
     {

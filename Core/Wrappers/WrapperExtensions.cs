@@ -2,7 +2,8 @@ using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using System.Linq;
 
-namespace Void.Wrappers
+//Fixme: does not belong here. Move entire namespace and rename
+namespace Composable.System.Wrappers
 {
     ///<summary/>
     [Pure]

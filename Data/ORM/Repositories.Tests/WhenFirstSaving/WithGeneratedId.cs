@@ -1,8 +1,8 @@
 using System;
 using NUnit.Framework;
-using Void.Data.ORM.Repositories.Tests.Domain;
+using Composable.Data.ORM.Repositories.Tests.Domain;
 
-namespace Void.Data.ORM.Repositories.Tests.WhenFirstSaving
+namespace Composable.Data.ORM.Repositories.Tests.WhenFirstSaving
 {
     [TestFixture]
     public class WithGeneratedId : RepositoryTest

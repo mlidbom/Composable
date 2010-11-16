@@ -1,6 +1,6 @@
 using System;
 
-namespace Void.Time
+namespace Composable.SpaceTime.Time
 {
     ///<summary>Methods on an <see cref="ITimeInterval"/></summary>
     public static class TimeInterval

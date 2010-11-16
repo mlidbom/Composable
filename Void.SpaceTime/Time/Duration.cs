@@ -1,6 +1,6 @@
 using System;
 
-namespace Void.Time
+namespace Composable.SpaceTime.Time
 {
     /// <summary>Operations on an <see cref="IDuration"/></summary>
     public static class Duration

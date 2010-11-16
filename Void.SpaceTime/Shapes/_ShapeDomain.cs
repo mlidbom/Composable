@@ -1,6 +1,6 @@
-using Void.Plane;
+using Composable.SpaceTime.Plane;
 
-namespace Void.Shapes
+namespace Composable.SpaceTime.Shapes
 {    
     /// <summary>Something that occupies an area in the plane.</summary>
     public interface IShape

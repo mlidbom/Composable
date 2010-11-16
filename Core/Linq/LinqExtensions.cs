@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using System.Linq;
 
-namespace Void.Linq
+namespace Composable.System.Linq
 {
     /// <summary/>
     [Pure]

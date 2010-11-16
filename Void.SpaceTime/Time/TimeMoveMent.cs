@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace Void.Time
+namespace Composable.SpaceTime.Time
 {
     /// <summary>Operations on an <see cref="ITimeMovement"/></summary>
     public static class TimeMovement

@@ -1,6 +1,6 @@
 using NHibernate;
 
-namespace Void.Data.ORM.NHibernate
+namespace Composable.Data.ORM.NHibernate
 {
     public interface INHibernatePersistenceSession : IPersistenceSession
     {

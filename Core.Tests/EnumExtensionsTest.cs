@@ -1,5 +1,5 @@
 using NUnit.Framework;
-using Void;
+using Composable.System;
 
 namespace Core.Tests
 {

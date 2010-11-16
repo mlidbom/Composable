@@ -1,8 +1,8 @@
 using System;
 using System.Drawing;
-using Void.Plane.Impl;
+using Composable.SpaceTime.Plane.Impl;
 
-namespace Void.Plane
+namespace Composable.SpaceTime.Plane
 {
     /// <summary>Provides extensions to <see cref="IPlanePoint"/></summary>
     public static class PlanePoint

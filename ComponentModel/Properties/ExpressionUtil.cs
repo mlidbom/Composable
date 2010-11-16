@@ -1,6 +1,6 @@
 using System.Linq.Expressions;
 
-namespace Void.ComponentModel.Properties
+namespace Composable.System.ComponentModel.Properties
 {
     public static class ExpressionUtil
     {

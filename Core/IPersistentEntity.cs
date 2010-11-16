@@ -1,7 +1,7 @@
 using System;
 using System.Diagnostics.Contracts;
 
-namespace Void
+namespace Composable.System
 {
 /// <summary>
 /// Should be implemented by persistent* classes the represents entities in the Domain Driven Design sense of the word.

@@ -1,8 +1,8 @@
 using System.Collections.Generic;
 using System.Linq;
-using Void.Linq;
+using Composable.System.Linq;
 
-namespace Void.Data.ORM
+namespace Composable.Data.ORM
 {
     public interface IRepository<TInstance, TKey> : IQueryable<TInstance>
     {

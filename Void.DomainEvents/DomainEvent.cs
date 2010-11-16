@@ -7,13 +7,13 @@ using System.Reflection;
 using StructureMap;
 using StructureMap.Configuration.DSL;
 using StructureMap.Pipeline;
-using Void.Linq;
-using Void.Reflection;
-using Void.IO;
+using Composable.System.Linq;
+using Composable.System.Reflection;
+using Composable.System.IO;
 
 #endregion
 
-namespace Void.DomainEvents
+namespace Composable.DomainEvents
 {
     public static class DomainEvent
     {

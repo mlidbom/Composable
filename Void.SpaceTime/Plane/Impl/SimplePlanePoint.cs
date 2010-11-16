@@ -1,7 +1,7 @@
 using System;
 using System.Drawing;
 
-namespace Void.Plane.Impl
+namespace Composable.SpaceTime.Plane.Impl
 {
     internal class SimplePlanePoint : IPlanePoint
     {

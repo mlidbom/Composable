@@ -1,6 +1,6 @@
 using System.Drawing;
 
-namespace Void.Plane
+namespace Composable.SpaceTime.Plane
 {
     /// <summary>Provides extensions to <see cref="Point"/></summary>
     public static class PointEx

@@ -4,7 +4,7 @@ using System.ServiceModel.Channels;
 using System.ServiceModel.Description;
 using System.ServiceModel.Dispatcher;
 
-namespace Void.ServiceModel
+namespace Composable.System.ServiceModel
 {
     [Flags]
     public enum Options

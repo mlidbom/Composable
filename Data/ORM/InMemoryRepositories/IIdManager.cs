@@ -1,6 +1,6 @@
 using System.Collections;
 
-namespace Void.Data.ORM.InMemory
+namespace Composable.Data.ORM.InMemoryRepositories
 {
     public interface IIdManager
     {

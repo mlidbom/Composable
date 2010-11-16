@@ -4,7 +4,7 @@ using System.Diagnostics.Contracts;
 using System.IO;
 using System.Linq;
 
-namespace Void.IO
+namespace Composable.System.IO
 {
     /// <summary>
     /// Extensions for <see cref="FileInfo"/>

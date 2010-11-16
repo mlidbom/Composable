@@ -1,8 +1,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using NUnit.Framework;
-using Void.Hierarchies;
-using Void.Linq;
+using Composable.System.Hierarchies;
+using Composable.System.Linq;
 
 namespace Core.Tests.Linq
 {

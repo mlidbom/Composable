@@ -1,7 +1,7 @@
-using Void.Plane;
-using Void.Time;
+using Composable.SpaceTime.Plane;
+using Composable.SpaceTime.Time;
 
-namespace Void.PlaneTime
+namespace Composable.SpaceTime.PlaneTime
 {
     /// <summary>A point in the plane and in time</summary>
     public interface IPlaneTimePoint : ITimePoint, IPlanePoint

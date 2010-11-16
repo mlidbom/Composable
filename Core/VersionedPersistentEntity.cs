@@ -1,6 +1,6 @@
 using System;
 
-namespace Void
+namespace Composable.System
 {
     ///<summary>Base class for persistent entities with versioning information</summary>
     [Serializable]

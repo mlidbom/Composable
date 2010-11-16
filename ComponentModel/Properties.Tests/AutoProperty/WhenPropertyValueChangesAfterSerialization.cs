@@ -2,7 +2,7 @@ using System.IO;
 using System.Runtime.Serialization;
 using NUnit.Framework;
 
-namespace Void.ComponentModel.Properties.Tests.AutoProperty
+namespace Composable.System.ComponentModel.Properties.Tests.AutoProperty
 {
     [TestFixture]
     public class WhenPropertyValueChangesAfterSerialization : WhenPropertyValueChanges

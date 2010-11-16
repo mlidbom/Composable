@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Void.Time.Impl
+namespace Composable.SpaceTime.Time.Impl
 {
     
 }

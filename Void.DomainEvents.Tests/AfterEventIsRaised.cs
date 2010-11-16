@@ -2,9 +2,10 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using NUnit.Framework;
-using Void.Linq;
+using Composable.System.Linq;
+using Composable.System;
 
-namespace Void.DomainEvents.Tests
+namespace Composable.DomainEvents.Tests
 {        
     [TestFixture]
     public class AfterEventIsRaised

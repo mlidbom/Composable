@@ -1,7 +1,7 @@
 using System;
 using System.Linq.Expressions;
 
-namespace Void.ComponentModel.Properties
+namespace Composable.System.ComponentModel.Properties
 {
     public class WrapperProperty<T> : PropertyBase<T>
     {

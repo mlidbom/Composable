@@ -6,7 +6,7 @@ using System.Runtime.Serialization;
 
 #endregion
 
-namespace Void.ComponentModel.Properties.Tests
+namespace Composable.System.ComponentModel.Properties.Tests
 {
     [DataContract]
     public class DomainObject : ISerializablePropertyOwner

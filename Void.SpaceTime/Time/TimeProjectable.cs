@@ -1,4 +1,4 @@
-namespace Void.Time
+namespace Composable.SpaceTime.Time
 {
     /// <summary>Contains extension methods for <see cref="ITimeProjectable{TProjection}"/></summary>
     public static class TimeProjectable

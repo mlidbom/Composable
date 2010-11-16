@@ -1,4 +1,4 @@
-namespace Void.ServiceModel
+namespace Composable.System.ServiceModel
 {
     public interface IReferenceObject
     {

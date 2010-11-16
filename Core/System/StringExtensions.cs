@@ -2,12 +2,12 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using System.Text;
-using Void.Linq;
+using Composable.System.Linq;
 using System.Linq;
 
-namespace Void
+namespace Composable.System
 {
-    ///<summary>Contains extensions on <see cref="System.String"/></summary>
+    ///<summary>Contains extensions on <see cref="string"/></summary>
     [Pure]
     public static class StringExtensions
     {

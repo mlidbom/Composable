@@ -1,6 +1,6 @@
 using System;
 
-namespace Void.Plane.Impl
+namespace Composable.SpaceTime.Plane.Impl
 {
     [Obsolete(WarningMessages.InternalAndInheritanceOnly)]
     internal class SimplePlanePositioned : IPlanePositioned

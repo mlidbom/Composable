@@ -2,9 +2,9 @@ using System;
 using System.Diagnostics.Contracts;
 using System.Transactions;
 
-namespace Void.Transactions
+namespace Composable.System.Transactions
 {
-    ///<summary>Simple utility class for executing a<see cref="System.Action"/> within a <see cref="TransactionScope"/></summary>
+    ///<summary>Simple utility class for executing a<see cref="Action"/> within a <see cref="TransactionScope"/></summary>
     public static class InTransaction
     {
         ///<summary>Runs the supplied action within a <see cref="TransactionScope"/></summary>

@@ -9,7 +9,7 @@ using NHibernate.Cfg;
 
 #endregion
 
-namespace Void.Data.ORM.NHibernate
+namespace Composable.Data.ORM.NHibernate
 {
     public class ConfiguredNHibernatePersistenceSession : NHibernatePersistenceSession
     {

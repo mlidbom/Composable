@@ -2,7 +2,7 @@ using System;
 using System.ComponentModel;
 using NUnit.Framework;
 
-namespace Void.ComponentModel.Properties.Tests.AutoProperty
+namespace Composable.System.ComponentModel.Properties.Tests.AutoProperty
 {
     [TestFixture]
     public class WhenPropertyValueChanges

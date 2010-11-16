@@ -1,7 +1,7 @@
 using NUnit.Framework;
 using System.Linq;
 
-namespace Void.Data.ORM.Repositories.Tests.Linq
+namespace Composable.Data.ORM.Repositories.Tests.Linq
 {
     [TestFixture]
     public class SimpleQueries : RepositoryTest

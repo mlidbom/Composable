@@ -3,9 +3,9 @@ using System.Diagnostics.Contracts;
 using System.IO;
 using System.Linq;
 using Microsoft.VisualBasic.FileIO;
-using Void.Linq;
+using Composable.System.Linq;
 
-namespace Void.IO
+namespace Composable.System.IO
 {
     /// <summary>
     /// Extensions that actually change your filesystem in some way.

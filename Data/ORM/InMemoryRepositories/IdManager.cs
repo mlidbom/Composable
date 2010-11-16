@@ -1,7 +1,7 @@
 using System;
 using System.Collections;
 
-namespace Void.Data.ORM.InMemory
+namespace Composable.Data.ORM.InMemoryRepositories
 {
     public abstract class IdManager<TInstance, TId> : IIdManager
     {

@@ -2,7 +2,7 @@ using System;
 using System.Linq.Expressions;
 using System.Runtime.Serialization;
 
-namespace Void.ComponentModel.Properties
+namespace Composable.System.ComponentModel.Properties
 {
     [DataContract(Namespace = "")]
     public abstract class PropertyBase<TValueType> : IProperty

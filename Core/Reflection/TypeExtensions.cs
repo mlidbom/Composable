@@ -7,7 +7,7 @@ using System.Linq;
 
 #endregion
 
-namespace Void.Reflection
+namespace Composable.System.Reflection
 {
     public static class TypeExtensions
     {

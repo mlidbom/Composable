@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Transactions;
 
-namespace Void.Data.ORM
+namespace Composable.Data.ORM
 {
     /// <summary>
     /// Extends the base repository by wrapping all modifying methods in a <see cref="TransactionScope"/>.

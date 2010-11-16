@@ -1,6 +1,6 @@
 using System;
 
-namespace Void.Time
+namespace Composable.SpaceTime.Time
 {
     /// <summary>Operations on an <see cref="ITimePoint"/></summary>
     public static class TimePoint

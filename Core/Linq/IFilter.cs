@@ -1,15 +1,16 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
+using System.Linq;
 using System.Linq.Expressions;
 
-namespace Void.Linq
+namespace Composable.System.Linq
 {
     /// <summary>
     /// Implementing this interface enables you to  use the existing extensionmethods 
     /// 
-    /// <see cref="Filter.Where{TItemType}(System.Collections.Generic.IEnumerable{TItemType},IFilter{TItemType})"/>
-    /// and <see cref="Filter.Where{TItemType}(System.Linq.IQueryable{TItemType},IFilter{TItemType})"/>
+    /// <see cref="Filter.Where{TItemType}(IEnumerable{T},IFilter{TItemType})"/>
+    /// and <see cref="Filter.Where{TItemType}(IQueryable{T},IFilter{TItemType})"/>
     /// 
     /// This makes your implementing class as easy to use with linq as any simple predicate.
     /// 

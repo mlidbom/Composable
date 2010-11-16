@@ -5,7 +5,7 @@ using NUnit.Framework;
 
 #endregion
 
-namespace Void.DomainEvents.Tests
+namespace Composable.DomainEvents.Tests
 {
     [TestFixture]
     public class WhenEventIsRaised

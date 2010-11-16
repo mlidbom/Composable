@@ -2,7 +2,7 @@ using System;
 using NHibernate.Collection;
 using NHibernate.Proxy;
 
-namespace Void.ServiceModel
+namespace Composable.System.ServiceModel
 {
     public class NHibernateDataContractSurrogate : DataContractSurrogateAdapter
     {

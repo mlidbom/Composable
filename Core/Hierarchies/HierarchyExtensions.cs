@@ -1,11 +1,12 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
-using Void.Linq;
+using Composable.System.Linq;
+using Composable.System.Wrappers;
 using System.Linq;
-using Void.Wrappers;
 
-namespace Void.Hierarchies
+//FIXME:Does not belong here. Extract entire namespace and rename
+namespace Composable.System.Hierarchies
 {
     /// <summary>
     /// Represents a hierarchy in which the instances in the hierarchy do not themselves 

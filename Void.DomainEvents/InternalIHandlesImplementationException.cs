@@ -3,10 +3,11 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Composable.System;
 
 #endregion
 
-namespace Void.DomainEvents
+namespace Composable.DomainEvents
 {
     public class InternalIHandlesImplementationException : Exception
     {

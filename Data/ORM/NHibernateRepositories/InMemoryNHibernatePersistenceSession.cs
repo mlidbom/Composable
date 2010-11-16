@@ -6,7 +6,7 @@ using NHibernate.Dialect;
 using NHibernate.Driver;
 using Environment = NHibernate.Cfg.Environment;
 
-namespace Void.Data.ORM.NHibernate
+namespace Composable.Data.ORM.NHibernate
 {
     public class InMemoryNHibernatePersistenceSession<TProxyFactory> : NHibernatePersistenceSession
     {

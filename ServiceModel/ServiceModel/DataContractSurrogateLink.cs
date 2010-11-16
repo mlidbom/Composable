@@ -6,7 +6,7 @@ using System.Reflection;
 using System.Runtime.Serialization;
 using System.Linq;
 
-namespace Void.ServiceModel
+namespace Composable.System.ServiceModel
 {
     public class DataContractSurrogateLink : IDataContractSurrogate
     {

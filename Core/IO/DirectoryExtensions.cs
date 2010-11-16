@@ -5,12 +5,12 @@ using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using System.IO;
 using System.Linq;
-using Void.Hierarchies;
-using Void.Linq;
+using Composable.System.Hierarchies;
+using Composable.System.Linq;
 
 #endregion
 
-namespace Void.IO
+namespace Composable.System.IO
 {
     /// <summary/>
     [Pure]

@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace Void.ServiceModel
+namespace Composable.System.ServiceModel
 {
     public class RestoreCollectionTypesDataContractSurrogate : DataContractSurrogateAdapter
     {

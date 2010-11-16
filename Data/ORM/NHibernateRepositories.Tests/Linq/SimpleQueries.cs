@@ -1,9 +1,9 @@
+using Composable.Data.ORM.NHibernateRepositories.Tests.Domain;
+using Composable.Data.ORM.Repositories.Tests.Domain;
 using NHibernate.ByteCode.Castle;
-using Void.Data.ORM.NHibernate;
-using Void.Data.ORM.NHibernateRepositories.Tests.Domain;
-using Void.Data.ORM.Repositories.Tests.Domain;
+using Composable.Data.ORM.NHibernate;
 
-namespace Void.Data.ORM.NHibernateRepositories.Tests.Linq
+namespace Composable.Data.ORM.NHibernateRepositories.Tests.Linq
 {
     public class SimpleQueries : Repositories.Tests.Linq.SimpleQueries
     {

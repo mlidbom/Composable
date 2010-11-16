@@ -1,7 +1,7 @@
 using System;
 using System.Diagnostics.Contracts;
 
-namespace Void
+namespace Composable.System
 {
     /// <summary/>
     [Pure]

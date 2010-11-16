@@ -3,7 +3,7 @@ using System.CodeDom;
 using System.Collections.ObjectModel;
 using System.Reflection;
 
-namespace Void.ServiceModel
+namespace Composable.System.ServiceModel
 {
     public class DataContractSurrogateAdapterFunctional : DataContractSurrogateAdapter
     {

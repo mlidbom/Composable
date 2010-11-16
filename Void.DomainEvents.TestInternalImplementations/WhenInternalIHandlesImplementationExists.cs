@@ -1,7 +1,7 @@
 using System;
 using NUnit.Framework;
 
-namespace Void.DomainEvents.TestInternalImplementations
+namespace Composable.DomainEvents.TestInternalImplementations
 {
     public class SomethingHappend : IDomainEvent
     {

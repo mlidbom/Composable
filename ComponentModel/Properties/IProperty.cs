@@ -1,6 +1,6 @@
 using System;
 
-namespace Void.ComponentModel.Properties
+namespace Composable.System.ComponentModel.Properties
 {
     public interface IProperty
     {

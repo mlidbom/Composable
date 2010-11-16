@@ -1,10 +1,10 @@
 using System.Collections.Generic;
+using Composable.Data.ORM.NHibernate;
+using Composable.Data.ORM.NHibernateRepositories.Tests.Domain;
 using NHibernate.ByteCode.Castle;
 using NUnit.Framework;
-using Void.Data.ORM.NHibernate;
-using Void.Data.ORM.NHibernateRepositories.Tests.Domain;
 
-namespace Void.Data.ORM.NHibernateRepositories.Tests.Given.ADetachedOrderWithDeletedOrderlines
+namespace Composable.Data.ORM.NHibernateRepositories.Tests.Given.ADetachedOrderWithDeletedOrderlines
 {
     [TestFixture]
     public class WhenCallingSaveOrUpdate : NhibernateRepositoryTest

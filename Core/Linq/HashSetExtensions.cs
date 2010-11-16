@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace Void.Linq
+namespace Composable.System.Linq
 {
     public static class HashSetExtensions
     {

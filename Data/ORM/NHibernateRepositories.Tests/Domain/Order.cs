@@ -1,7 +1,7 @@
 using System.Collections.Generic;
-using Void.Data.ORM.Domain;
+using Composable.Data.ORM.Domain;
 
-namespace Void.Data.ORM.NHibernateRepositories.Tests.Domain
+namespace Composable.Data.ORM.NHibernateRepositories.Tests.Domain
 {
     public class Order : PersistentEntityWithSurrogateKey<Order,int>
     {

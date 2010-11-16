@@ -1,7 +1,7 @@
 using System;
 using System.Linq;
 
-namespace Void.Data.ORM
+namespace Composable.Data.ORM
 {
     public interface IPersistenceSession : IDisposable
     {

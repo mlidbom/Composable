@@ -1,4 +1,4 @@
-namespace Void.DomainEvents
+namespace Composable.DomainEvents
 {
     public interface IDomainEvent
     {

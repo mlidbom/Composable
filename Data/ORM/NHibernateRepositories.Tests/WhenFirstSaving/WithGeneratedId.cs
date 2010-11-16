@@ -1,11 +1,11 @@
 using System;
+using Composable.Data.ORM.NHibernateRepositories.Tests.Domain;
+using Composable.Data.ORM.Repositories.Tests.Domain;
 using NHibernate.ByteCode.Castle;
 using NUnit.Framework;
-using Void.Data.ORM.NHibernate;
-using Void.Data.ORM.NHibernateRepositories.Tests.Domain;
-using Void.Data.ORM.Repositories.Tests.Domain;
+using Composable.Data.ORM.NHibernate;
 
-namespace Void.Data.ORM.NHibernateRepositories.Tests.WhenFirstSaving
+namespace Composable.Data.ORM.NHibernateRepositories.Tests.WhenFirstSaving
 {
     [TestFixture]
     public class WithGeneratedId : Repositories.Tests.WhenFirstSaving.WithGeneratedId

@@ -4,7 +4,7 @@ using System.Collections.ObjectModel;
 using System.Reflection;
 using System.Runtime.Serialization;
 
-namespace Void.ServiceModel
+namespace Composable.System.ServiceModel
 {
     public abstract class DataContractSurrogateAdapter : IDataContractSurrogate
     {

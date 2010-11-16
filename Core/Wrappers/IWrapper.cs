@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Diagnostics.Contracts;
 
-namespace Void.Wrappers
+namespace Composable.System.Wrappers
 {
     /// <summary>
     /// Represents the generic concept of a type that extends another type by containing a value of the other type.

@@ -1,9 +1,9 @@
 ﻿using System;
+using Composable.Data.ORM.NHibernate;
+using Composable.Data.ORM.NHibernateRepositories.Tests.Domain;
 using NHibernate.ByteCode.Castle;
-using Void.Data.ORM.NHibernate;
-using Void.Data.ORM.NHibernateRepositories.Tests.Domain;
 
-namespace Void.Data.ORM.NHibernateRepositories.Tests
+namespace Composable.Data.ORM.NHibernateRepositories.Tests
 {
     public class NhibernateRepositoryTest
     {

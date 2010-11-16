@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using Composable.Data.ORM.InMemoryRepositories;
+using Composable.Data.ORM.Repositories.Tests.Domain;
 using NUnit.Framework;
-using Void.Data.ORM.InMemory;
-using Void.Data.ORM.Repositories.Tests.Domain;
 
-namespace Void.Data.ORM.Repositories.Tests
+namespace Composable.Data.ORM.Repositories.Tests
 {
     public class RepositoryTest
     {

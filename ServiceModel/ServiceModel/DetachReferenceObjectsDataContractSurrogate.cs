@@ -2,7 +2,7 @@ using System;
 using System.Linq;
 using System.Runtime.Serialization;
 
-namespace Void.ServiceModel
+namespace Composable.System.ServiceModel
 {
     public class DetachReferenceObjectsDataContractSurrogate : DataContractSurrogateAdapter
     {

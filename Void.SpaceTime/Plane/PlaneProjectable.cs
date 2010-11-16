@@ -1,7 +1,7 @@
-using Void.Plane.Impl;
-using Void.Plane;
+using Composable.SpaceTime.Plane.Impl;
+using Composable.SpaceTime.Plane;
 
-namespace Void.Plane
+namespace Composable.SpaceTime.Plane
 {
     ///<summary>Methods on an <see cref="IPlaneProjectable{TProjection}"/></summary>
     public static class PlaneProjectable

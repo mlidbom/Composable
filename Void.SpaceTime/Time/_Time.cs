@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Void.Time
+namespace Composable.SpaceTime.Time
 {
     /// <summary>A point on a timeline.</summary>
     public interface ITimePoint : ITimeProjectable<ITimePoint>

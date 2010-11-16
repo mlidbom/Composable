@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 
-namespace Void.Hierarchies
+namespace Composable.System.Hierarchies
 {
     /// <summary>
     /// Provides a minimal interface for representing a data type which 

@@ -1,8 +1,8 @@
 using System;
 using System.Linq;
 using NUnit.Framework;
-using Void;
-using Void.Linq;
+using Composable.System;
+using Composable.System.Linq;
 
 namespace Core.Tests
 {

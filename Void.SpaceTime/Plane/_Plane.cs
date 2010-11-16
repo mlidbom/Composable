@@ -1,7 +1,7 @@
 using System;
 using System.Drawing;
 
-namespace Void.Plane
+namespace Composable.SpaceTime.Plane
 {
     /// <summary>A specific point in the plane. A point has zero width and height.</summary>
     public interface IPlanePoint : IPlanePositioned

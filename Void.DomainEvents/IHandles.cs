@@ -1,4 +1,4 @@
-namespace Void.DomainEvents
+namespace Composable.DomainEvents
 {
     public interface IHandles<in TEvent> where TEvent : IDomainEvent
     {

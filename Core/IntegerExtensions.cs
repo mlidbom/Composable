@@ -1,6 +1,6 @@
 using System;
 
-namespace Void
+namespace Composable.System
 {
     public static class IntegerExtensions
     {

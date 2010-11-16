@@ -1,7 +1,7 @@
 using System;
 using System.Diagnostics;
 
-namespace Void
+namespace Composable.System
 {
     /// <summary>
     /// Simple base class for Entities that ensures a correct identity based <see cref="object.Equals(object)"/>, <see cref="object.GetHashCode"/>, and <see cref="IEquatable{TEntity}"/>.

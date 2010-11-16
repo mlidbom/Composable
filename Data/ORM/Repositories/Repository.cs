@@ -3,9 +3,9 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
-using Void.Linq;
+using Composable.System.Linq;
 
-namespace Void.Data.ORM
+namespace Composable.Data.ORM
 {
     public class Repository<TInstance, TKey> : Repository<TInstance, TKey, IPersistenceSession>
     {

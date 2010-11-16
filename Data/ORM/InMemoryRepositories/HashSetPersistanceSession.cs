@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Void.Data.ORM.InMemory
+namespace Composable.Data.ORM.InMemoryRepositories
 {
     public class HashSetPersistanceSession : IPersistenceSession
     {

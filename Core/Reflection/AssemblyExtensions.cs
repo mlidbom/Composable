@@ -4,7 +4,7 @@ using System.Diagnostics.Contracts;
 using System.Linq;
 using System.Reflection;
 
-namespace Void.Reflection
+namespace Composable.System.Reflection
 {
     public static class AssemblyExtensions
     {

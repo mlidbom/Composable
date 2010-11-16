@@ -5,7 +5,7 @@ using NHibernate.Cfg;
 using NHibernate.Linq;
 using NHibernate.Tool.hbm2ddl;
 
-namespace Void.Data.ORM.NHibernate
+namespace Composable.Data.ORM.NHibernate
 {
     public abstract class NHibernatePersistenceSession : INHibernatePersistenceSession
     {

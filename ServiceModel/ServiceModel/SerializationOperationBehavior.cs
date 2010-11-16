@@ -4,7 +4,7 @@ using System.Runtime.Serialization;
 using System.ServiceModel.Description;
 using System.Xml;
 
-namespace Void.ServiceModel
+namespace Composable.System.ServiceModel
 {
     internal class SerializationOperationBehavior : DataContractSerializerOperationBehavior
     {

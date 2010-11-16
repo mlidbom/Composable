@@ -1,7 +1,7 @@
 using System;
 using System.ComponentModel;
 
-namespace Void.ComponentModel.Properties
+namespace Composable.System.ComponentModel.Properties
 {
     public interface IPropertyOwner : INotifyPropertyChanged
     {

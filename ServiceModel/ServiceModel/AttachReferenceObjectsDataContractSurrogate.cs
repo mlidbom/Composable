@@ -1,7 +1,7 @@
 using System;
 using System.Linq;
 
-namespace Void.ServiceModel
+namespace Composable.System.ServiceModel
 {
     public class AttachReferenceObjectsDataContractSurrogate : DataContractSurrogateAdapter
     {

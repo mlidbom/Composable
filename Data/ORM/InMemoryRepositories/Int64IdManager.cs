@@ -2,7 +2,7 @@ using System;
 using System.Collections;
 using System.Linq;
 
-namespace Void.Data.ORM.InMemory
+namespace Composable.Data.ORM.InMemoryRepositories
 {
     public class Int64IdManager<TInstance> : IdManager<TInstance, long>
     {

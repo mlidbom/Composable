@@ -1,9 +1,9 @@
 using System;
-using Void.Plane;
-using Void.Plane.Impl;
-using Void.Time;
+using Composable.SpaceTime.Plane;
+using Composable.SpaceTime.Plane.Impl;
+using Composable.SpaceTime.Time;
 
-namespace Void.PlaneTime.Impl
+namespace Composable.SpaceTime.PlaneTime.Impl
 {    
     [Obsolete(WarningMessages.InternalAndInheritanceOnly)]
     internal class SimplePlaneTimePoint : SimplePlanePoint, IPlaneTimePoint

@@ -49,7 +49,7 @@ namespace Composable.Tests.DDD
                 Id = id;
             }
 
-            protected Guid Id { get; set; }
+            public Guid Id { get; private set; }
         }
 
         private class ExpandedAddress : Address
@@ -85,6 +85,15 @@ namespace Composable.Tests.DDD
             var guid2 = new GuidHolder(id);
 
             Assert.IsTrue(guid1.Equals(guid2));
+        }
+
+        [Test]
+        public void GuidEqualsWorksWithNonIdenticalGuid()
+        {
+            var guid1 = new GuidHolder(Guid.NewGuid());
+            var guid2 = new GuidHolder(Guid.NewGuid());
+
+            Assert.IsFalse(guid1.Equals(guid2));
         }
 
         [Test]

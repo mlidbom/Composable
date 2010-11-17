@@ -5,11 +5,11 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProductVersion>9.0.30729</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{1C8F95E6-B94C-40B1-8305-EF8D150DEF22}</ProjectGuid>
+    <ProjectGuid>{4C78131D-DD7B-4C3E-B931-D4C6436EE09E}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Composable.Data.ORM.NHibernateRepositories.Tests</RootNamespace>
-    <AssemblyName>Composable.Data.ORM.NHibernateRepositories.Tests</AssemblyName>
+    <RootNamespace>Composable.System.Tests</RootNamespace>
+    <AssemblyName>Composable.System.Tests</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <FileUpgradeFlags>
@@ -42,8 +42,6 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <GenerateSerializationAssemblies>Off</GenerateSerializationAssemblies>
-    <PlatformTarget>x86</PlatformTarget>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
     <CodeContractsEnableRuntimeChecking>False</CodeContractsEnableRuntimeChecking>
     <CodeContractsRuntimeOnlyPublicSurface>False</CodeContractsRuntimeOnlyPublicSurface>
@@ -79,77 +77,40 @@
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <PropertyGroup>
-    <SignAssembly>false</SignAssembly>
+    <SignAssembly>true</SignAssembly>
   </PropertyGroup>
   <PropertyGroup>
     <AssemblyOriginatorKeyFile>Void.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="NHibernate, Version=2.1.1.4000, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\NHibernateRepositories\lib\NHibernate.dll</HintPath>
-    </Reference>
-    <Reference Include="NHibernate.ByteCode.Castle">
-      <HintPath>..\NHibernateRepositories\lib\NHibernate.ByteCode.Castle.dll</HintPath>
-    </Reference>
-    <Reference Include="nunit.framework, Version=2.5.2.9222, Culture=neutral, PublicKeyToken=96d09a1eb7f44a77">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\lib\nunit.framework.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
     </Reference>
-    <Reference Include="System.Data.SQLite, Version=1.0.65.0, Culture=neutral, PublicKeyToken=db937bc2d44ff139, processorArchitecture=x86">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>lib\System.Data.SQLite.DLL</HintPath>
-    </Reference>
-    <Reference Include="System.Xml.Linq">
-      <RequiredTargetFramework>3.5</RequiredTargetFramework>
-    </Reference>
-    <Reference Include="System.Data.DataSetExtensions">
-      <RequiredTargetFramework>3.5</RequiredTargetFramework>
-    </Reference>
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
+    <Reference Include="nunit.framework, Version=2.5.2.9222, Culture=neutral, PublicKeyToken=96d09a1eb7f44a77">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\lib\nunit.framework.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Domain\Order.cs" />
-    <Compile Include="Domain\OrderLine.cs" />
-    <Compile Include="Given\ADetachedOrderWithDeletedOrderlines\WhenCallingSaveOrUpdate.cs" />
-    <Compile Include="Linq\SimpleQueries.cs" />
-    <Compile Include="NhibernateRepositoryTest.cs" />
+    <Compile Include="EnumExtensionsTest.cs" />
+    <Compile Include="IO\DirectoryExtensionsTest.cs" />
+    <Compile Include="Linq\HierarchyTests.cs" />
+    <Compile Include="Linq\LinqExtensionsTests.cs" />
+    <Compile Include="Linq\NumberTests.cs" />
+    <Compile Include="Linq\SeqTests.cs" />
+    <Compile Include="Linq\SimpleIndexingTests.cs" />
+    <Compile Include="Linq\ZippingTests.cs" />
+    <Compile Include="ObjectExtensionsTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Domain\TypewithGeneratedId.cs" />
-    <Compile Include="WhenFirstSaving\WithGeneratedId.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\..\System\System\Composable.System.csproj">
+    <ProjectReference Include="..\System\Composable.System.csproj">
       <Project>{3632254D-0C4A-4EB8-B388-4C99F8939584}</Project>
       <Name>Composable.System</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Repositories.Tests\Repositories.Tests.csproj">
-      <Project>{CB0CF7B4-8320-4AC6-91F0-C7BD536DD9A3}</Project>
-      <Name>Repositories.Tests</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Repositories\Repositories.csproj">
-      <Project>{42E6457A-2943-4D2B-A337-B1DE59AAD1EE}</Project>
-      <Name>Repositories</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\NHibernateRepositories\NHibernateRepositories.csproj">
-      <Project>{A858472F-F790-4A3B-8782-B7F4FDAECFA1}</Project>
-      <Name>NHibernateRepositories</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="WhenFirstSaving\TypeWithGeneratedId.hbm.xml">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      <SubType>Designer</SubType>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Domain\Order.hbm.xml">
-      <SubType>Designer</SubType>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Domain\OrderLine.hbm.xml" />
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include="Microsoft.Net.Client.3.5">

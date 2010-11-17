@@ -118,10 +118,6 @@
     <Compile Include="WcfSerializer.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\Core\System.csproj">
-      <Project>{3632254D-0C4A-4EB8-B388-4C99F8939584}</Project>
-      <Name>System</Name>
-    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include="Microsoft.Net.Client.3.5">

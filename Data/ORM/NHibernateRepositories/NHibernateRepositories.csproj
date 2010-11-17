@@ -118,9 +118,9 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\..\Core\System.csproj">
+    <ProjectReference Include="..\..\..\System\System\Composable.System.csproj">
       <Project>{3632254D-0C4A-4EB8-B388-4C99F8939584}</Project>
-      <Name>System</Name>
+      <Name>Composable.System</Name>
     </ProjectReference>
     <ProjectReference Include="..\Repositories\Repositories.csproj">
       <Project>{42E6457A-2943-4D2B-A337-B1DE59AAD1EE}</Project>

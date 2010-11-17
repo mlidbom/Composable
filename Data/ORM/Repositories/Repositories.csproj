@@ -111,13 +111,9 @@
     <Compile Include="TransactionalRepository.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\..\Core\Composable.System.csproj">
+    <ProjectReference Include="..\..\..\System\System\Composable.System.csproj">
       <Project>{3632254D-0C4A-4EB8-B388-4C99F8939584}</Project>
       <Name>Composable.System</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\..\Core\System.csproj">
-      <Project>{3632254D-0C4A-4EB8-B388-4C99F8939584}</Project>
-      <Name>System</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

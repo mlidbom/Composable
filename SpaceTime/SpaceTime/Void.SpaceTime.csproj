@@ -1,15 +1,15 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProductVersion>9.0.30729</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{1C8F95E6-B94C-40B1-8305-EF8D150DEF22}</ProjectGuid>
+    <ProjectGuid>{FA1CE09A-37EA-4D3F-BF5C-F34E2F968CF5}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Composable.Data.ORM.NHibernateRepositories.Tests</RootNamespace>
-    <AssemblyName>Composable.Data.ORM.NHibernateRepositories.Tests</AssemblyName>
+    <RootNamespace>Composable.SpaceTime</RootNamespace>
+    <AssemblyName>Composable.SpaceTime</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <FileUpgradeFlags>
@@ -38,12 +38,12 @@
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
+    <OutputPath>..\..\bin\Debug\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <GenerateSerializationAssemblies>Off</GenerateSerializationAssemblies>
-    <PlatformTarget>x86</PlatformTarget>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <DocumentationFile>..\..\bin\Debug\Composable.SpaceTime.xml</DocumentationFile>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
     <CodeContractsEnableRuntimeChecking>False</CodeContractsEnableRuntimeChecking>
     <CodeContractsRuntimeOnlyPublicSurface>False</CodeContractsRuntimeOnlyPublicSurface>
@@ -72,38 +72,25 @@
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
+    <OutputPath>..\..\bin\Release\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+    <DocumentationFile>..\..\bin\Release\Composable.SpaceTime.xml</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup>
-    <SignAssembly>false</SignAssembly>
+    <SignAssembly>true</SignAssembly>
   </PropertyGroup>
   <PropertyGroup>
     <AssemblyOriginatorKeyFile>Void.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="NHibernate, Version=2.1.1.4000, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\NHibernateRepositories\lib\NHibernate.dll</HintPath>
-    </Reference>
-    <Reference Include="NHibernate.ByteCode.Castle">
-      <HintPath>..\NHibernateRepositories\lib\NHibernate.ByteCode.Castle.dll</HintPath>
-    </Reference>
-    <Reference Include="nunit.framework, Version=2.5.2.9222, Culture=neutral, PublicKeyToken=96d09a1eb7f44a77">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\lib\nunit.framework.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
     </Reference>
-    <Reference Include="System.Data.SQLite, Version=1.0.65.0, Culture=neutral, PublicKeyToken=db937bc2d44ff139, processorArchitecture=x86">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>lib\System.Data.SQLite.DLL</HintPath>
-    </Reference>
+    <Reference Include="System.Drawing" />
     <Reference Include="System.Xml.Linq">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
     </Reference>
@@ -114,42 +101,30 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Domain\Order.cs" />
-    <Compile Include="Domain\OrderLine.cs" />
-    <Compile Include="Given\ADetachedOrderWithDeletedOrderlines\WhenCallingSaveOrUpdate.cs" />
-    <Compile Include="Linq\SimpleQueries.cs" />
-    <Compile Include="NhibernateRepositoryTest.cs" />
+    <Compile Include="Plane\Impl\SimplePlanePoint.cs" />
+    <Compile Include="Plane\Impl\SimplePlanePositioned.cs" />
+    <Compile Include="Plane\PlanePoint.cs" />
+    <Compile Include="Plane\PlaneProjectable.cs" />
+    <Compile Include="Plane\PointEx.cs" />
+    <Compile Include="Plane\_Plane.cs" />
+    <Compile Include="PlaneTime\Impl\SimplePlaneTimeInterval.cs" />
+    <Compile Include="PlaneTime\_PlaneTime.cs" />
+    <Compile Include="Shapes\_ShapeDomain.cs" />
+    <Compile Include="Time\Duration.cs" />
+    <Compile Include="Time\Ticks.cs" />
+    <Compile Include="Time\TimeMovement.cs" />
+    <Compile Include="Time\TimePoint.cs" />
+    <Compile Include="Time\TimeInterval.cs" />
+    <Compile Include="Time\Impl\SimpleTimePoint.cs" />
+    <Compile Include="Time\TimeProjectable.cs" />
+    <Compile Include="Time\_Time.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Domain\TypewithGeneratedId.cs" />
-    <Compile Include="WhenFirstSaving\WithGeneratedId.cs" />
+    <Compile Include="PlaneTime\Impl\SimplePlaneTimePoint.cs" />
+    <Compile Include="WarningMessages.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\..\System\System\Composable.System.csproj">
-      <Project>{3632254D-0C4A-4EB8-B388-4C99F8939584}</Project>
-      <Name>Composable.System</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Repositories.Tests\Repositories.Tests.csproj">
-      <Project>{CB0CF7B4-8320-4AC6-91F0-C7BD536DD9A3}</Project>
-      <Name>Repositories.Tests</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Repositories\Repositories.csproj">
-      <Project>{42E6457A-2943-4D2B-A337-B1DE59AAD1EE}</Project>
-      <Name>Repositories</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\NHibernateRepositories\NHibernateRepositories.csproj">
-      <Project>{A858472F-F790-4A3B-8782-B7F4FDAECFA1}</Project>
-      <Name>NHibernateRepositories</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="WhenFirstSaving\TypeWithGeneratedId.hbm.xml">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      <SubType>Designer</SubType>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Domain\Order.hbm.xml">
-      <SubType>Designer</SubType>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Domain\OrderLine.hbm.xml" />
+    <None Include="PlaneTime.cd" />
+    <None Include="Void.snk" />
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include="Microsoft.Net.Client.3.5">
@@ -168,10 +143,7 @@
       <Install>true</Install>
     </BootstrapperPackage>
   </ItemGroup>
-  <ItemGroup>
-    <None Include="Void.snk" />
-  </ItemGroup>
-  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

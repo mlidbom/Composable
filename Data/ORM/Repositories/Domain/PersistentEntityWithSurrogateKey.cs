@@ -1,4 +1,5 @@
 using System;
+using Composable.DDD;
 using Composable.System;
 
 namespace Composable.Data.ORM.Domain

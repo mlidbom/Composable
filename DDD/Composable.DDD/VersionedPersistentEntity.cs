@@ -1,6 +1,6 @@
 using System;
 
-namespace Composable.System
+namespace Composable.DDD
 {
     ///<summary>Base class for persistent entities with versioning information</summary>
     [Serializable]

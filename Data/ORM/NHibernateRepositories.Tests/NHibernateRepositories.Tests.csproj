@@ -124,6 +124,10 @@
     <Compile Include="WhenFirstSaving\WithGeneratedId.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\..\DDD\Composable.DDD\Composable.DDD.csproj">
+      <Project>{C814075D-0E58-419A-9469-0E8953FDD6C5}</Project>
+      <Name>Composable.DDD</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\..\System\System\Composable.System.csproj">
       <Project>{3632254D-0C4A-4EB8-B388-4C99F8939584}</Project>
       <Name>Composable.System</Name>

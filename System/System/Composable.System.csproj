@@ -126,7 +126,6 @@
     <Compile Include="IntegerExtensions.cs" />
     <Compile Include="IO\DirectoryInfoMutators.cs" />
     <Compile Include="IO\FileInfoExtensions.cs" />
-    <Compile Include="IPersistentEntity.cs" />
     <Compile Include="IO\DirectoryExtensions.cs" />
     <Compile Include="Linq\Filter.cs" />
     <Compile Include="Linq\HashSetExtensions.cs" />
@@ -140,13 +139,11 @@
     <Compile Include="Linq\SimpleIndexing.cs" />
     <Compile Include="Linq\Zipping.cs" />
     <Compile Include="ObjectExtensions.cs" />
-    <Compile Include="PersistentEntity.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Reflection\AssemblyExtensions.cs" />
     <Compile Include="Reflection\TypeExtensions.cs" />
     <Compile Include="System\StringExtensions.cs" />
     <Compile Include="Transactions\InTransaction.cs" />
-    <Compile Include="VersionedPersistentEntity.cs" />
     <Compile Include="Wrappers\GenericWrapper.cs" />
     <Compile Include="Wrappers\IWrapper.cs" />
     <Compile Include="Wrappers\WrapperExtensions.cs" />

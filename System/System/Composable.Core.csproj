@@ -120,6 +120,9 @@
     <Reference Include="System.Transactions" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="DDD\IPersistentEntity.cs" />
+    <Compile Include="DDD\PersistentEntity.cs" />
+    <Compile Include="DDD\VersionedPersistentEntity.cs" />
     <Compile Include="System\EnumExtensions.cs" />
     <Compile Include="GenericAbstractions\Hierarchies\HierarchyExtensions.cs" />
     <Compile Include="GenericAbstractions\Hierarchies\IHierarchy.cs" />

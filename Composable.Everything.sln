@@ -27,7 +27,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Repositories", "Data\ORM\Re
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Repositories.Tests", "Data\ORM\Repositories.Tests\Repositories.Tests.csproj", "{CB0CF7B4-8320-4AC6-91F0-C7BD536DD9A3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "System.Tests", "System\System.Tests\System.Tests.csproj", "{4C78131D-DD7B-4C3E-B931-D4C6436EE09E}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Composable.Core.Tests", "System\System.Tests\Composable.Core.Tests.csproj", "{4C78131D-DD7B-4C3E-B931-D4C6436EE09E}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InMemoryRepositories", "Data\ORM\InMemoryRepositories\InMemoryRepositories.csproj", "{8B991155-BB3D-49EF-839F-CF6FD468AFDE}"
 EndProject

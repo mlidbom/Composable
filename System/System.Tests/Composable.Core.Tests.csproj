@@ -8,7 +8,7 @@
     <ProjectGuid>{4C78131D-DD7B-4C3E-B931-D4C6436EE09E}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Composable.System.Tests</RootNamespace>
+    <RootNamespace>Composable.Tests</RootNamespace>
     <AssemblyName>Composable.System.Tests</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
@@ -95,6 +95,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="DDD\ValueObjectTests.cs" />
     <Compile Include="EnumExtensionsTest.cs" />
     <Compile Include="IO\DirectoryExtensionsTest.cs" />
     <Compile Include="Linq\HierarchyTests.cs" />

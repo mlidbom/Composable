@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
+using System.Linq.Expressions;
 using System.Reflection;
+using System.Linq;
 
 namespace Composable.DDD
 {
@@ -9,6 +11,17 @@ namespace Composable.DDD
     ///<typeparam name="T"></typeparam>
     public abstract class ValueObject<T> : IEquatable<T> where T : ValueObject<T>
     {
+        private static Func<object, object> BuildFieldGetter(FieldInfo fieldInfo)
+        {
+            var param = Expression.Parameter(typeof(object), "obj");
+
+            var castParam = Expression.Convert(param, fieldInfo.DeclaringType);
+
+            var lambda = Expression.Lambda<Func<object, object>>(Expression.Field(castParam, fieldInfo), param);
+
+            return lambda.Compile();
+        }
+
         public override bool Equals(object obj)
         {
             if (obj == null)
@@ -21,16 +34,16 @@ namespace Composable.DDD
 
         public override int GetHashCode()
         {
-            var fields = GetFields();
+            var fields = GetFields(this.GetType());
 
             const int startValue = 17;
             const int multiplier = 59;
 
             int hashCode = startValue;
 
-            foreach (FieldInfo field in fields)
+            foreach (var field in fields)
             {
-                var value = field.GetValue(this);
+                var value = field(this);
 
                 if (value != null)
                     hashCode = hashCode * multiplier + value.GetHashCode();
@@ -50,12 +63,12 @@ namespace Composable.DDD
             if (myType != otherType)
                 return false;
 
-            var fields = myType.GetFields(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
+            var fields = GetFields(GetType());
 
-            foreach (FieldInfo field in fields)
+            foreach (var fieldGetter in fields)
             {
-                object value1 = field.GetValue(other);
-                object value2 = field.GetValue(this);
+                object value1 = fieldGetter(other);
+                object value2 = fieldGetter((T) this);
 
                 if (value1 == null)
                 {
@@ -69,19 +82,25 @@ namespace Composable.DDD
             return true;
         }
 
-        private IEnumerable<FieldInfo> GetFields()
+        public static readonly IDictionary<Type, IEnumerable<Func<Object,Object>>> TypeFields = new Dictionary<Type, IEnumerable<Func<object, object>>>();
+        private IEnumerable<Func<Object,Object>> GetFields(Type type)
         {
-            Type t = GetType();
-
-            var fields = new List<FieldInfo>();
-
-            while (t != typeof(object))
+            IEnumerable<Func<Object,Object>> fields;
+            if (!TypeFields.TryGetValue(type, out fields))
             {
-                fields.AddRange(t.GetFields(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public));
 
-                t = t.BaseType;
+                var newFields = new List<Func<Object,object>>();
+                newFields.AddRange(type.GetFields(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public).Select(BuildFieldGetter));
+
+                var baseType = type.BaseType;
+                if(baseType != typeof(object))
+                {
+                    newFields.AddRange(GetFields(baseType));
+                }
+
+                TypeFields[type] = newFields;
+                fields = newFields;
             }
-
             return fields;
         }
 

@@ -108,9 +108,9 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\System\System\Composable.System.csproj">
+    <ProjectReference Include="..\..\System\System\Composable.Core.csproj">
       <Project>{3632254D-0C4A-4EB8-B388-4C99F8939584}</Project>
-      <Name>Composable.System</Name>
+      <Name>Composable.Core</Name>
     </ProjectReference>
     <ProjectReference Include="..\ServiceModel\ServiceModel.csproj">
       <Project>{5CCD8EC5-BC03-475F-83AB-0B21B978B06F}</Project>

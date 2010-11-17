@@ -3,7 +3,7 @@ using System.Diagnostics.Contracts;
 using System.Linq;
 
 //Fixme: does not belong here. Move entire namespace and rename
-namespace Composable.System.Wrappers
+namespace Composable.GenericAbstractions.Wrappers
 {
     ///<summary/>
     [Pure]

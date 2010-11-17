@@ -53,9 +53,9 @@
     <Compile Include="WhenEventIsRaised.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\System\System\Composable.System.csproj">
+    <ProjectReference Include="..\..\System\System\Composable.Core.csproj">
       <Project>{3632254D-0C4A-4EB8-B388-4C99F8939584}</Project>
-      <Name>Composable.System</Name>
+      <Name>Composable.Core</Name>
     </ProjectReference>
     <ProjectReference Include="..\DomainEvents\DomainEvents.csproj">
       <Project>{52A99E0F-F12C-422E-9524-B348F4D49C16}</Project>

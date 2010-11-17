@@ -128,9 +128,9 @@
       <Project>{C814075D-0E58-419A-9469-0E8953FDD6C5}</Project>
       <Name>Composable.DDD</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\..\System\System\Composable.System.csproj">
+    <ProjectReference Include="..\..\..\System\System\Composable.Core.csproj">
       <Project>{3632254D-0C4A-4EB8-B388-4C99F8939584}</Project>
-      <Name>Composable.System</Name>
+      <Name>Composable.Core</Name>
     </ProjectReference>
     <ProjectReference Include="..\Repositories.Tests\Repositories.Tests.csproj">
       <Project>{CB0CF7B4-8320-4AC6-91F0-C7BD536DD9A3}</Project>

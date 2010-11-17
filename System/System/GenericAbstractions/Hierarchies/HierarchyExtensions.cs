@@ -2,11 +2,11 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using Composable.System.Linq;
-using Composable.System.Wrappers;
+using Composable.GenericAbstractions.Wrappers;
 using System.Linq;
 
 //FIXME:Does not belong here. Extract entire namespace and rename
-namespace Composable.System.Hierarchies
+namespace Composable.GenericAbstractions.Hierarchies
 {
     /// <summary>
     /// Represents a hierarchy in which the instances in the hierarchy do not themselves 

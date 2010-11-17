@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using System.IO;
 using System.Linq;
-using Composable.System.Hierarchies;
+using Composable.GenericAbstractions.Hierarchies;
 using Composable.System.Linq;
 
 #endregion

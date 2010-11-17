@@ -17,7 +17,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Properties", "ComponentMode
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Properties.Tests", "ComponentModel\Properties.Tests\Properties.Tests.csproj", "{722C146D-4670-4F38-B3F0-8E150F504175}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Composable.System", "System\System\Composable.System.csproj", "{3632254D-0C4A-4EB8-B388-4C99F8939584}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Composable.Core", "System\System\Composable.Core.csproj", "{3632254D-0C4A-4EB8-B388-4C99F8939584}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NHibernateRepositories", "Data\ORM\NHibernateRepositories\NHibernateRepositories.csproj", "{A858472F-F790-4A3B-8782-B7F4FDAECFA1}"
 EndProject

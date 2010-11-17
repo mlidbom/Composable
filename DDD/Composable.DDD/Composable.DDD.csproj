@@ -55,9 +55,9 @@
     <None Include="Void.snk" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\System\System\Composable.System.csproj">
+    <ProjectReference Include="..\..\System\System\Composable.Core.csproj">
       <Project>{3632254D-0C4A-4EB8-B388-4C99F8939584}</Project>
-      <Name>Composable.System</Name>
+      <Name>Composable.Core</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

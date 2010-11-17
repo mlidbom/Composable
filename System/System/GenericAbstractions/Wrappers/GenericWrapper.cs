@@ -1,6 +1,6 @@
 ﻿using System.Diagnostics.Contracts;
 
-namespace Composable.System.Wrappers
+namespace Composable.GenericAbstractions.Wrappers
 {
     /// <summary>
     /// The most simple imaginable implementation of <see cref="IWrapper{T}"/>

@@ -85,23 +85,28 @@ namespace Composable.DDD
         public static readonly IDictionary<Type, IEnumerable<Func<Object,Object>>> TypeFields = new Dictionary<Type, IEnumerable<Func<object, object>>>();
         private IEnumerable<Func<Object,Object>> GetFields(Type type)
         {
-            IEnumerable<Func<Object,Object>> fields;
-            if (!TypeFields.TryGetValue(type, out fields))
+            lock (TypeFields)
             {
-
-                var newFields = new List<Func<Object,object>>();
-                newFields.AddRange(type.GetFields(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public).Select(BuildFieldGetter));
-
-                var baseType = type.BaseType;
-                if(baseType != typeof(object))
+                IEnumerable<Func<Object, Object>> fields;
+                if (!TypeFields.TryGetValue(type, out fields))
                 {
-                    newFields.AddRange(GetFields(baseType));
-                }
 
-                TypeFields[type] = newFields;
-                fields = newFields;
-            }
-            return fields;
+                    var newFields = new List<Func<Object, object>>();
+                    newFields.AddRange(
+                        type.GetFields(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public).Select(
+                            BuildFieldGetter));
+
+                    var baseType = type.BaseType;
+                    if (baseType != typeof (object))
+                    {
+                        newFields.AddRange(GetFields(baseType));
+                    }
+
+                    TypeFields[type] = newFields;
+                    fields = newFields;
+                }
+                return fields;
+            }            
         }
 
         ///<summary>Compares the objects for equality using value semantics</summary>

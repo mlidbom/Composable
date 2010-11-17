@@ -16,6 +16,10 @@ namespace Composable.DDD
     [Serializable]
     public class PersistentEntity<TEntity> : IPersistentEntity<Guid>, IEquatable<TEntity> where TEntity : PersistentEntity<TEntity>
     {
+        protected PersistentEntity(Guid id)
+        {
+            Id = id;
+        }
         /// <summary>
         /// Creates a new instance with an automatically generated Id
         /// </summary>

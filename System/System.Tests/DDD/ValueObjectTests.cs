@@ -1,5 +1,6 @@
 #region usings
 
+using System;
 using Composable.DDD;
 using NUnit.Framework;
 
@@ -33,10 +34,22 @@ namespace Composable.Tests.DDD
                 get { return _city; }
             }
 
+            public string Guid { get; set; }
+
             public string State
             {
                 get { return _state; }
             }
+        }
+
+        private class GuidHolder : ValueObject<GuidHolder>
+        {
+            public GuidHolder(Guid id)
+            {
+                Id = id;
+            }
+
+            protected Guid Id { get; set; }
         }
 
         private class ExpandedAddress : Address
@@ -65,9 +78,19 @@ namespace Composable.Tests.DDD
         }
 
         [Test]
-        public void AddressEqualsWorksWithNonIdenticalAddresses()
+        public void GuidEqualsWorksWithIdenticalGuid()
         {
-            var address = new Address("Address1", "Austin", "TX");
+            var id = Guid.NewGuid();
+            var guid1 = new GuidHolder(id);
+            var guid2 = new GuidHolder(id);
+
+            Assert.IsTrue(guid1.Equals(guid2));
+        }
+
+        [Test]
+        public void AddressEqualsWorksWithNonIdenticalGuids()
+        {
+            var address = new Address("Address1", "Austin", "TX") {Guid = "test"};
             var address2 = new Address("Address2", "Austin", "TX");
 
             Assert.IsFalse(address.Equals(address2));

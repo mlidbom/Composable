@@ -1,8 +1,12 @@
+#region usings
+
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using System.Linq;
+
+#endregion
 
 namespace Composable.DDD
 {
@@ -11,15 +15,17 @@ namespace Composable.DDD
     ///<typeparam name="T"></typeparam>
     public abstract class ValueObject<T> : IEquatable<T> where T : ValueObject<T>
     {
-        private static Func<object, object> BuildFieldGetter(FieldInfo fieldInfo)
+        private static Func<object, object> BuildFieldGetter(FieldInfo field)
         {
-            var param = Expression.Parameter(typeof(object), "obj");
+            var obj = Expression.Parameter(typeof (object), "obj");
 
-            var castParam = Expression.Convert(param, fieldInfo.DeclaringType);
-
-            var lambda = Expression.Lambda<Func<object, object>>(Expression.Field(castParam, fieldInfo), param);
-
-            return lambda.Compile();
+            return Expression.Lambda<Func<object, object>>(
+                Expression.Convert(
+                    Expression.Field(
+                        Expression.Convert(obj, field.DeclaringType),
+                        field),
+                    typeof (object)),
+                obj).Compile();
         }
 
         public override bool Equals(object obj)
@@ -34,19 +40,19 @@ namespace Composable.DDD
 
         public override int GetHashCode()
         {
-            var fields = GetFields(this.GetType());
+            var fields = GetFields(GetType());
 
             const int startValue = 17;
             const int multiplier = 59;
 
-            int hashCode = startValue;
+            var hashCode = startValue;
 
-            foreach (var field in fields)
+            for (int i = 0; i < fields.Length; i++)
             {
-                var value = field(this);
+                var value = fields[i](this);
 
                 if (value != null)
-                    hashCode = hashCode * multiplier + value.GetHashCode();
+                    hashCode = hashCode * multiplier + value.GetHashCode();   
             }
 
             return hashCode;
@@ -65,10 +71,10 @@ namespace Composable.DDD
 
             var fields = GetFields(GetType());
 
-            foreach (var fieldGetter in fields)
+            for (int i = 0; i < fields.Length; i++)
             {
-                object value1 = fieldGetter(other);
-                object value2 = fieldGetter((T) this);
+                var value1 = fields[i](other);
+                var value2 = fields[i]((T)this);
 
                 if (value1 == null)
                 {
@@ -77,36 +83,55 @@ namespace Composable.DDD
                 }
                 else if (!value1.Equals(value2))
                     return false;
+   
             }
 
             return true;
         }
 
-        public static readonly IDictionary<Type, IEnumerable<Func<Object,Object>>> TypeFields = new Dictionary<Type, IEnumerable<Func<object, object>>>();
-        private IEnumerable<Func<Object,Object>> GetFields(Type type)
+
+        private static readonly Func<Object, Object>[] Fields ;
+
+        private static readonly IDictionary<Type, Func<Object, Object>[]> TypeFields =
+            new Dictionary<Type, Func<Object, Object>[]>();
+
+        static ValueObject()
         {
+            Fields = InnerGetField(typeof(T));
+        }
+
+        private static Func<Object, Object>[] GetFields(Type type)
+        {
+            if (type == typeof(T))
+            {
+                return Fields;
+            }
+
             lock (TypeFields)
             {
-                IEnumerable<Func<Object, Object>> fields;
-                if (!TypeFields.TryGetValue(type, out fields))
+                return InnerGetField(type);
+            }
+        }
+
+        private static Func<object, object>[] InnerGetField(Type type)
+        {
+            Func<Object, Object>[] fields;
+            if (!TypeFields.TryGetValue(type, out fields))
+            {
+                var newFields = new List<Func<Object, object>>();
+                newFields.AddRange(
+                    type.GetFields(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public).Select(
+                        BuildFieldGetter));
+
+                var baseType = type.BaseType;
+                if (baseType != typeof (object))
                 {
-
-                    var newFields = new List<Func<Object, object>>();
-                    newFields.AddRange(
-                        type.GetFields(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public).Select(
-                            BuildFieldGetter));
-
-                    var baseType = type.BaseType;
-                    if (baseType != typeof (object))
-                    {
-                        newFields.AddRange(GetFields(baseType));
-                    }
-
-                    TypeFields[type] = newFields;
-                    fields = newFields;
+                    newFields.AddRange(GetFields(baseType));
                 }
-                return fields;
-            }            
+
+                TypeFields[type] = fields = newFields.ToArray();
+            }
+            return fields;
         }
 
         ///<summary>Compares the objects for equality using value semantics</summary>

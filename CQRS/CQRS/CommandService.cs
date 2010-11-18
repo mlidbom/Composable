@@ -20,49 +20,44 @@ namespace Composable.CQRS
             _serviceLocator = serviceLocator;
         }
 
-        public virtual void Execute<TCommand, TEntityId>(TCommand command)
-            where TCommand : IEntityCommand<TEntityId> 
-        {
-            using (var transaction = new TransactionScope())
-            {
-                var handlerLocators = _serviceLocator.GetAllInstances<IEntityCommandHandlerProvider>();
-                if (handlerLocators.Count() > 1)
-                {
-                    throw new Exception("More than one registered ICommandHandlerProvider");
-                }
-                if (handlerLocators.None())
-                {
-                    throw new Exception("No registered ICommandHandlerProvider");
-                }
-
-                var handler = handlerLocators.Single().Provide<TCommand, TEntityId>(command);
-                if(handler  == null)
-                {
-                    throw new Exception("");
-                }
-
-                handler.Execute((TCommand) command);
-
-                transaction.Complete();
-            }
-        }
-
-
         public virtual void Execute<TCommand>(TCommand command) where TCommand : IDomainCommand
         {
             using (var transaction = new TransactionScope())
             {
-                var handlers = _serviceLocator.GetAllInstances<ICommandHandler<TCommand>>();
-                if (handlers.Count() > 1)
+                if (command is IEntityCommand)
                 {
-                    throw new Exception("More than one registered handler for command: {0}".FormatWith(typeof (TCommand)));
-                }
-                if (handlers.None())
-                {
-                    throw new Exception("No handler registered for {0}".FormatWith(typeof (TCommand)));
-                }
-                handlers.Single().Execute(command);
+                    var handlerLocators = _serviceLocator.GetAllInstances<IEntityCommandHandlerProvider>();
+                    if (handlerLocators.Count() > 1)
+                    {
+                        throw new Exception("More than one registered ICommandHandlerProvider");
+                    }
+                    if (handlerLocators.None())
+                    {
+                        throw new Exception("No registered ICommandHandlerProvider");
+                    }
 
+                    var handler = handlerLocators.Single().Provide<TCommand>(command);
+                    if (handler == null)
+                    {
+                        throw new Exception("");
+                    }
+
+                    handler.Execute(command);
+                }
+                else
+                {
+                    var handlers = _serviceLocator.GetAllInstances<ICommandHandler<TCommand>>();
+                    if (handlers.Count() > 1)
+                    {
+                        throw new Exception(
+                            "More than one registered handler for command: {0}".FormatWith(typeof (TCommand)));
+                    }
+                    if (handlers.None())
+                    {
+                        throw new Exception("No handler registered for {0}".FormatWith(typeof (TCommand)));
+                    }
+                    handlers.Single().Execute(command);
+                }
                 transaction.Complete();
             }
         }

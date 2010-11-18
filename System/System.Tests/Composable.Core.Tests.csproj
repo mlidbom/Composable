@@ -101,6 +101,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="DDD\PersistentEntityTests.cs" />
     <Compile Include="DDD\ValueObjectTests.cs" />
     <Compile Include="EnumExtensionsTest.cs" />
     <Compile Include="IO\DirectoryExtensionsTest.cs" />

@@ -40,7 +40,7 @@ namespace Composable.CQRS
                     var handler = handlerLocator.Provide(command);
                     if (handler == null)
                     {
-                        throw new Exception("{0} instance returned null looking for {1}".FormatWith(handlerLocator.GetType(), typeof(TCommand)));
+                        throw new Exception("{0} instance returned null looking for handler for {1}".FormatWith(handlerLocator.GetType(), typeof(TCommand)));
                     }
 
                     handler.Execute(command);

@@ -33,7 +33,7 @@ namespace Composable.DomainEvents
             .Select(assemblyFile =>  Assembly.LoadFrom(assemblyFile.FullName))
             .SelectMany(assembly => assembly.GetTypes())
             .Where(t => t.Implements(typeof(IHandles<>)))
-            .ToSet();;
+            .ToSet();
 
             var illegalImplementations = Implementors.Where(t => !t.IsVisible);
             if (illegalImplementations.Any())

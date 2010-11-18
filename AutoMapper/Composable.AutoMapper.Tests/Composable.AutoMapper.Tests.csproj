@@ -52,11 +52,23 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AutomaticallyInitsMappings.cs" />
+    <Compile Include="AfterImplementingIProvidesMappings.cs" />
+    <Compile Include="AfterInitializingWithMappingEngineProvider.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="WithoutConfiguration.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\System\System\Composable.Core.csproj">
+      <Project>{3632254D-0C4A-4EB8-B388-4C99F8939584}</Project>
+      <Name>Composable.Core</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Composable.AutoMapper\Composable.AutoMapper.csproj">
+      <Project>{AA0A55FE-EA05-4A3B-9FB7-47E1D570F1CF}</Project>
+      <Name>Composable.AutoMapper</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

@@ -2,13 +2,8 @@
 
 namespace Composable.CQRS
 {
-    public interface IEntityCommand : IEntityCommand<Guid>
+    public interface IEntityCommand : IDomainCommand
     {
-        
-    }
-
-    public interface IEntityCommand<out TKeyType> 
-    {
-        TKeyType EntityId { get; }
-    }
+        object EntityId { get; }
+    }    
 }

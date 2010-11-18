@@ -36,10 +36,11 @@ namespace Composable.CQRS
                         throw new Exception("No registered ICommandHandlerProvider");
                     }
 
-                    var handler = handlerLocators.Single().Provide<TCommand>(command);
+                    var handlerLocator = handlerLocators.Single();
+                    var handler = handlerLocator.Provide(command);
                     if (handler == null)
                     {
-                        throw new Exception("");
+                        throw new Exception("{0} instance returned null looking for {1}".FormatWith(handlerLocator.GetType(), typeof(TCommand)));
                     }
 
                     handler.Execute(command);

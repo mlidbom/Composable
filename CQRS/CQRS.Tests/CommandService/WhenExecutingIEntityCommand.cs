@@ -28,44 +28,45 @@ namespace CQRS.Tests.CommandService
             new Composable.CQRS.CommandService(locator).Execute(new ModifyCandidateCommand(candidate));
             Assert.That(candidate.ModifyCandidateCalled, Is.True, "Execute(ModifyCandidateCommand command) should have been called");
         }
-    }
 
-    public class Candidate : PersistentEntity<Candidate>, ICommandHandler<ModifyCandidateCommand>
-    {
-        public Candidate(Guid id) : base(id)
+        public class Candidate : PersistentEntity<Candidate>, ICommandHandler<ModifyCandidateCommand>
         {
+            public Candidate(Guid id)
+                : base(id)
+            {
+            }
+
+            public void Execute(ModifyCandidateCommand command)
+            {
+                ModifyCandidateCalled = true;
+            }
+
+            public bool ModifyCandidateCalled { get; private set; }
         }
 
-        public void Execute(ModifyCandidateCommand command)
+        public class EntityHandlerProvider : IEntityCommandHandlerProvider
         {
-            ModifyCandidateCalled = true;
+            private readonly IDictionary<Guid, Candidate> _candidates = new Dictionary<Guid, Candidate>();
+
+            public ICommandHandler<TCommand> Provide<TCommand>(TCommand command)
+            {
+                return (ICommandHandler<TCommand>)_candidates[(Guid)((IEntityCommand)command).EntityId];
+            }
+
+            public void Add(Candidate candidate)
+            {
+                _candidates[candidate.Id] = candidate;
+            }
         }
 
-        public bool ModifyCandidateCalled { get; private set; }
-    }
-
-    public class EntityHandlerProvider : IEntityCommandHandlerProvider
-    {
-        private readonly IDictionary<Guid, Candidate> _candidates = new Dictionary<Guid, Candidate>();
-
-        public ICommandHandler<TCommand> Provide<TCommand>(TCommand command)
+        public class ModifyCandidateCommand : IEntityCommand
         {
-            return (ICommandHandler<TCommand>) _candidates[(Guid) ((IEntityCommand)command).EntityId];
-        }
+            public ModifyCandidateCommand(Candidate candidate)
+            {
+                EntityId = candidate.Id;
+            }
 
-        public void Add(Candidate candidate)
-        {
-            _candidates[candidate.Id] = candidate;
+            public object EntityId { get; private set; }
         }
-    }
-
-    public class ModifyCandidateCommand :  IEntityCommand
-    {
-        public ModifyCandidateCommand(Candidate candidate)
-        {
-            EntityId = candidate.Id;
-        }
-
-        public object EntityId { get; private set; }
-    }
+    }   
 }

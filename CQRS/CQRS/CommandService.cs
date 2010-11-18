@@ -20,9 +20,8 @@ namespace Composable.CQRS
             _serviceLocator = serviceLocator;
         }
 
-        public virtual void Execute<TCommand, TEntity>(TCommand command)
-            where TCommand : IEntityCommand<TEntity> 
-            where TEntity : ICommandHandler<TCommand>
+        public virtual void Execute<TCommand, TEntityId>(TCommand command)
+            where TCommand : IEntityCommand<TEntityId> 
         {
             using (var transaction = new TransactionScope())
             {
@@ -36,7 +35,7 @@ namespace Composable.CQRS
                     throw new Exception("No registered ICommandHandlerProvider");
                 }
 
-                var handler = handlerLocators.Single().Provide<TCommand, TEntity>(command);
+                var handler = handlerLocators.Single().Provide<TCommand, TEntityId>(command);
                 if(handler  == null)
                 {
                     throw new Exception("");

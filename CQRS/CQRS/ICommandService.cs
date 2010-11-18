@@ -4,8 +4,7 @@ namespace Composable.CQRS
     {
         void Execute<TCommand>(TCommand command) where TCommand : IDomainCommand;
 
-        void Execute<TCommand, TEntity>(TCommand command)
-            where TCommand : IEntityCommand<TEntity>
-            where TEntity : ICommandHandler<TCommand>;
+        void Execute<TCommand, TEntityId>(TCommand command)
+            where TCommand : IEntityCommand<TEntityId>;
     }
 }

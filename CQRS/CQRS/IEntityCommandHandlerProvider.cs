@@ -2,8 +2,6 @@
 {
     public interface IEntityCommandHandlerProvider
     {
-        ICommandHandler<TCommand> Provide<TCommand, TEntity>(TCommand command) 
-            where TEntity : ICommandHandler<TCommand>
-            where TCommand : IEntityCommand<TEntity>;
+        ICommandHandler<TCommand> Provide<TCommand, TEntityId>(TCommand command) where TCommand : IEntityCommand<TEntityId>;
     }
 }

@@ -24,7 +24,7 @@
       <Output PropertyName="InternalizeOptions" TaskParameter="Value" />
     </CreateProperty>
    
-    <Exec Command="&quot;$(SolutionDir)Lib\ILMergeMSBuildExtension\Ilmerge.exe&quot; /allowDup /targetplatform:v4,c:\Windows\Microsoft.NET\Framework\v4.0.30319\ $(InternalizeOptions) $(SigningOptions) /out:@(MainAssembly)  &quot;@(IntermediateAssembly)&quot; @(IlmergeAssemblies->'&quot;%(FullPath)&quot;', ' ')" />
+    <Exec Command="&quot;$(SolutionDir)packages-manual\ILMergeMSBuildExtension\Ilmerge.exe&quot; /allowDup /targetplatform:v4,c:\Windows\Microsoft.NET\Framework\v4.0.30319\ $(InternalizeOptions) $(SigningOptions) /out:@(MainAssembly)  &quot;@(IntermediateAssembly)&quot; @(IlmergeAssemblies->'&quot;%(FullPath)&quot;', ' ')" />
     
   </Target> 
   <Target Name="_CopyFilesMarkedCopyLocal"/>    

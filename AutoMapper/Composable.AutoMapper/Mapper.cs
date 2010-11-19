@@ -63,5 +63,15 @@ namespace Composable.AutoMapper
         {
             return me.Cast<object>().Select(MapTo<TTarget>);
         }
+
+        public static TTarget MapTo<TTarget>(this object me, Type targetType)
+        {
+            return (TTarget)Engine.Map(me, me.GetType(), targetType);
+        }
+
+        public static IEnumerable<TTarget> MapTo<TTarget>(this IEnumerable me, Type targetType)
+        {
+            return me.Cast<object>().Select(obj => obj.MapTo<TTarget>(targetType));
+        }
     }
 }

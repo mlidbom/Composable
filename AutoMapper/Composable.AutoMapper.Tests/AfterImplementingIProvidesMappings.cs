@@ -14,7 +14,10 @@ namespace Composable.AutoMapper.Tests
         public void ManuallyConfiguredMappingsWork()
         {
             Assert.That(a.MapTo<B>(), Is.EqualTo(b));
-            Assert.That(b.MapTo<A>(), Is.EqualTo(a));            
+            Assert.That(b.MapTo<A>(), Is.EqualTo(a));
+            
+            Assert.That(a.MapTo<B>(typeof(B)), Is.EqualTo(b));
+            Assert.That(b.MapTo<A>(typeof(A)), Is.EqualTo(a));
         }
 
 

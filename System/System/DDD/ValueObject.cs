@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using Newtonsoft.Json;
 
 #endregion
 
@@ -30,7 +31,7 @@ namespace Composable.DDD
 
         public override bool Equals(object obj)
         {
-            if (obj == null)
+            if (ReferenceEquals(obj, null))
                 return false;
 
             var other = obj as T;
@@ -60,7 +61,7 @@ namespace Composable.DDD
 
         public virtual bool Equals(T other)
         {
-            if (other == null)
+            if (ReferenceEquals(other, null))
                 return false;
 
             var myType = GetType();
@@ -76,7 +77,7 @@ namespace Composable.DDD
                 var value1 = fields[i](other);
                 var value2 = fields[i]((T)this);
 
-                if (value1 == null)
+                if (ReferenceEquals(value1, null))
                 {
                     if (value2 != null)
                         return false;
@@ -144,6 +145,12 @@ namespace Composable.DDD
         public static bool operator !=(ValueObject<T> x, ValueObject<T> y)
         {
             return !(x == y);
+        }
+
+
+        public override string ToString()
+        {
+            return JsonConvert.SerializeObject(this, Formatting.Indented);
         }
     }
 }

@@ -66,6 +66,7 @@ namespace Composable.Data.ORM.InMemoryRepositories
 
         public void Dispose()
         {
+            _data.Clear();
         }
 
         #endregion

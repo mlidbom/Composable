@@ -7,12 +7,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Data.Orm", "Data.Orm", "{0D
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ServiceModel", "ServiceModel", "{9F9C4C11-3E50-4AFF-A2FC-47B69D301B2A}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{C7DD432B-8385-430D-8268-8AE8E81B6745}"
-	ProjectSection(SolutionItems) = preProject
-		LocalTestRun.testrunconfig = LocalTestRun.testrunconfig
-		Void.Everything.vsmdi = Void.Everything.vsmdi
-	EndProjectSection
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Properties", "ComponentModel\Properties\Properties.csproj", "{D7C1DC0F-8436-46A5-9EB6-6ACB5CDB3F14}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Properties.Tests", "ComponentModel\Properties.Tests\Properties.Tests.csproj", "{722C146D-4670-4F38-B3F0-8E150F504175}"
@@ -64,9 +58,6 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Composable.AutoMapper.Tests", "AutoMapper\Composable.AutoMapper.Tests\Composable.AutoMapper.Tests.csproj", "{675CDA2B-05D2-4330-A782-294C9EF12A4F}"
 EndProject
 Global
-	GlobalSection(TestCaseManagementSettings) = postSolution
-		CategoryFile = Void.Everything.vsmdi
-	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU

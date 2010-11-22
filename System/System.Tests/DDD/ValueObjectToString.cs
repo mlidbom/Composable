@@ -39,13 +39,13 @@ namespace Composable.Tests.DDD
                                                     {
                                                         Name = "Branch1Name",
                                                         Leaf1 = new Leaf {Name = "Leaf1Name"},
-                                                        Leaf2 = new Leaf {Name = "Leaf1Name"},
+                                                        Leaf2 = new Leaf {Name = "Leaf2Name"},
                                                     },
                                       Branch2 = new Branch
                                                     {
                                                         Name = "Branch1Name",
                                                         Leaf1 = new Leaf {Name = "Leaf1Name"},
-                                                        Leaf2 = new Leaf {Name = "Leaf1Name"},
+                                                        Leaf2 = new Leaf {Name = "Leaf2Name"},
                                                     }
                                   }.ToString();
             Assert.That(description, Is.EqualTo(
@@ -57,7 +57,7 @@ namespace Composable.Tests.DDD
       ""Name"": ""Leaf1Name""
     },
     ""Leaf2"": {
-      ""Name"": ""Leaf1Name""
+      ""Name"": ""Leaf2Name""
     }
   },
   ""Branch2"": {
@@ -66,7 +66,7 @@ namespace Composable.Tests.DDD
       ""Name"": ""Leaf1Name""
     },
     ""Leaf2"": {
-      ""Name"": ""Leaf1Name""
+      ""Name"": ""Leaf2Name""
     }
   }
 }"));

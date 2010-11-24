@@ -24,41 +24,17 @@ namespace Composable.CQRS
         {
             using (var transaction = new TransactionScope())
             {
-                if (command is IEntityCommand)
+                var handlers = _serviceLocator.GetAllInstances<ICommandHandler<TCommand>>();
+                if (handlers.Count() > 1)
                 {
-                    var handlerLocators = _serviceLocator.GetAllInstances<IEntityCommandHandlerProvider>();
-                    if (handlerLocators.Count() > 1)
-                    {
-                        throw new Exception("More than one registered ICommandHandlerProvider");
-                    }
-                    if (handlerLocators.None())
-                    {
-                        throw new Exception("No registered ICommandHandlerProvider");
-                    }
-
-                    var handlerLocator = handlerLocators.Single();
-                    var handler = handlerLocator.Provide(command);
-                    if (handler == null)
-                    {
-                        throw new Exception("{0} instance returned null looking for handler for {1}".FormatWith(handlerLocator.GetType(), typeof(TCommand)));
-                    }
-
-                    handler.Execute(command);
+                    throw new Exception(
+                        "More than one registered handler for command: {0}".FormatWith(typeof(TCommand)));
                 }
-                else
+                if (handlers.None())
                 {
-                    var handlers = _serviceLocator.GetAllInstances<ICommandHandler<TCommand>>();
-                    if (handlers.Count() > 1)
-                    {
-                        throw new Exception(
-                            "More than one registered handler for command: {0}".FormatWith(typeof (TCommand)));
-                    }
-                    if (handlers.None())
-                    {
-                        throw new Exception("No handler registered for {0}".FormatWith(typeof (TCommand)));
-                    }
-                    handlers.Single().Execute(command);
+                    throw new Exception("No handler registered for {0}".FormatWith(typeof(TCommand)));
                 }
+                handlers.Single().Execute(command);
                 transaction.Complete();
             }
         }

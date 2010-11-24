@@ -28,6 +28,7 @@ namespace Composable.DomainEvents
 
         static DomainEvent()
         {
+            //todo:hmmmm....
             Implementors = AppDomain.CurrentDomain.BaseDirectory.AsDirectory().GetFiles().WithExtension(".dll", ".exe")
             .Where(assemblyFile => !assemblyFile.Name.StartsWith("System."))
             .Select(assemblyFile =>  Assembly.LoadFrom(assemblyFile.FullName))

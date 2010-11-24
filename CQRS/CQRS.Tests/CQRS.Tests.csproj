@@ -59,7 +59,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CommandService\WhenExecutingIDomainCommand.cs" />
-    <Compile Include="CommandService\WhenExecutingIEntityCommand.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

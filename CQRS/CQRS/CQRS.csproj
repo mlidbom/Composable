@@ -46,7 +46,6 @@
   <ItemGroup>
     <Compile Include="CommandService.cs" />
     <Compile Include="ICommandHandler.cs" />
-    <Compile Include="IEntityCommand.cs" />
     <Compile Include="IEntityCommandHandlerProvider.cs" />
     <Compile Include="ICommandService.cs" />
     <Compile Include="IDomainCommand.cs" />

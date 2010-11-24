@@ -39,6 +39,7 @@ namespace Composable.AutoMapper
         {
             var configuration = new Configuration(new TypeMapFactory(), MapperRegistry.AllMappers());
 
+            //todo:hmmmm....
             AppDomain.CurrentDomain.BaseDirectory.AsDirectory().GetFiles().WithExtension(".dll", ".exe")
                 .Where(assemblyFile => !assemblyFile.Name.StartsWith("System."))
                 .Select(assemblyFile => Assembly.LoadFrom(assemblyFile.FullName))

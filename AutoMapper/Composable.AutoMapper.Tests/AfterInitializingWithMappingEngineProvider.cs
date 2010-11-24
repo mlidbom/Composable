@@ -33,8 +33,8 @@ namespace Composable.AutoMapper.Tests
             Assert.That(_a.MapTo<B>(), Is.EqualTo(_b));
             Assert.That(_b.MapTo<A>(), Is.EqualTo(_a));
 
-            Assert.That(_a.MapTo<B>(typeof(B)), Is.EqualTo(_b));
-            Assert.That(_b.MapTo<A>(typeof(A)), Is.EqualTo(_a));
+            Assert.That(_a.MapTo(typeof(B)), Is.EqualTo(_b));
+            Assert.That(_b.MapTo(typeof(A)), Is.EqualTo(_a));
         }
 
         [Test]

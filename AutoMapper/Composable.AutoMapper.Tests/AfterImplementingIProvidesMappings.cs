@@ -16,8 +16,8 @@ namespace Composable.AutoMapper.Tests
             Assert.That(a.MapTo<B>(), Is.EqualTo(b));
             Assert.That(b.MapTo<A>(), Is.EqualTo(a));
             
-            Assert.That(a.MapTo<B>(typeof(B)), Is.EqualTo(b));
-            Assert.That(b.MapTo<A>(typeof(A)), Is.EqualTo(a));
+            Assert.That(a.MapTo(typeof(B)), Is.EqualTo(b));
+            Assert.That(b.MapTo(typeof(A)), Is.EqualTo(a));
         }
 
 

@@ -38,5 +38,11 @@ namespace Composable.System
             Contract.Requires(separator != null);
             return string.Join(separator, strings.ToArray());
         }
+
+        ///<summary>True if the beginning of <paramref name="me"/> is one of the supplied strings.</summary>
+        public static bool StartsWith(this string me, params string[] candidates)
+        {
+            return candidates.Any(me.StartsWith);
+        }
     }
 }

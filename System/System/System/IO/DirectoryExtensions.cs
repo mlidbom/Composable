@@ -111,7 +111,7 @@ namespace Composable.System.IO
         /// </summary>
         /// <param name="directory"></param>
         /// <returns></returns>
-        public static IEnumerable<FileInfo> FilesResursive(this DirectoryInfo directory)
+        public static IEnumerable<FileInfo> GetFilesResursive(this DirectoryInfo directory)
         {
             Contract.Requires(directory != null);
             Contract.Ensures(Contract.Result<IEnumerable<FileInfo>>() != null);            

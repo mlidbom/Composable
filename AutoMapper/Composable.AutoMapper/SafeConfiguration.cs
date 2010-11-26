@@ -16,9 +16,11 @@ namespace Composable.AutoMapper
 
         public IMappingExpression<TSource, TDestination> CreateMap<TSource, TDestination>()
         {
-            Type targetType = typeof(TDestination);
-            Type sourceType = typeof(TSource);
+            return CreateMapping<TSource, TDestination>(typeof(TSource), typeof(TDestination));
+        }
 
+        private IMappingExpression<TSource, TDestination> CreateMapping<TSource, TDestination>(Type sourceType, Type targetType)
+        {
             if (!_mapping.ContainsKey(sourceType))
             {
                 _mapping[sourceType] = new HashSet<Type>();
@@ -31,7 +33,6 @@ namespace Composable.AutoMapper
 
             _mapping[sourceType].Add(targetType);
             return _configuration.CreateMap<TSource, TDestination>();
-
         }
     }
 }

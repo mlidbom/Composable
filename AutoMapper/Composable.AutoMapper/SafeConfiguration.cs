@@ -16,23 +16,29 @@ namespace Composable.AutoMapper
 
         public IMappingExpression<TSource, TDestination> CreateMap<TSource, TDestination>()
         {
-            return CreateMapping<TSource, TDestination>(typeof(TSource), typeof(TDestination));
+            InsertMappingHistoryOrThrowOnDuplicateMappings(typeof(TSource), typeof(TDestination));
+            return _configuration.CreateMap<TSource,TDestination>();
         }
 
-        private IMappingExpression<TSource, TDestination> CreateMapping<TSource, TDestination>(Type sourceType, Type targetType)
+        private IMappingExpression CreateMapping(Type sourceType, Type destinationType)
+        {
+            InsertMappingHistoryOrThrowOnDuplicateMappings(sourceType, destinationType);
+            return _configuration.CreateMap(sourceType, destinationType);
+        }
+
+        private void InsertMappingHistoryOrThrowOnDuplicateMappings(Type sourceType, Type destinationType)
         {
             if (!_mapping.ContainsKey(sourceType))
             {
                 _mapping[sourceType] = new HashSet<Type>();
             }
             
-            if(_mapping[sourceType].Contains(targetType))
+            if(_mapping[sourceType].Contains(destinationType))
             {
-                throw new DuplicateMappingException(sourceType, targetType);
+                throw new DuplicateMappingException(sourceType, destinationType);
             }
 
-            _mapping[sourceType].Add(targetType);
-            return _configuration.CreateMap<TSource, TDestination>();
+            _mapping[sourceType].Add(destinationType);
         }
     }
 }

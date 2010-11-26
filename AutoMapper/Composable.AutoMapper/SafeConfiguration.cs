@@ -20,7 +20,7 @@ namespace Composable.AutoMapper
             return _configuration.CreateMap<TSource,TDestination>();
         }
 
-        private IMappingExpression CreateMapping(Type sourceType, Type destinationType)
+        public IMappingExpression CreateMap(Type sourceType, Type destinationType)
         {
             InsertMappingHistoryOrThrowOnDuplicateMappings(sourceType, destinationType);
             return _configuration.CreateMap(sourceType, destinationType);

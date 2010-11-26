@@ -8,6 +8,7 @@ using Microsoft.Practices.ServiceLocation;
 using Composable.System.Linq;
 using Composable.System.Reflection;
 using Composable.System.IO;
+using Composable.System;
 
 #endregion
 
@@ -30,7 +31,7 @@ namespace Composable.DomainEvents
         {
             //todo:hmmmm....
             Implementors = AppDomain.CurrentDomain.BaseDirectory.AsDirectory().GetFiles().WithExtension(".dll", ".exe")
-            .Where(assemblyFile => !assemblyFile.Name.StartsWith("System."))
+            .Where(assemblyFile => !assemblyFile.Name.StartsWith("System.", "Microsoft."))
             .Select(assemblyFile =>  Assembly.LoadFrom(assemblyFile.FullName))
             .SelectMany(assembly => assembly.GetTypes())
             .Where(t => t.Implements(typeof(IHandles<>)))

@@ -24,7 +24,7 @@ namespace Composable.AutoMapper.Tests
 
             var engine = new MappingEngine(configuration);
 
-            Mapper.Init(() => engine);
+            ComposableMapper.Init(() => engine);
         }
 
         [Test]

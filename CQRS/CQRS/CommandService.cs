@@ -20,7 +20,7 @@ namespace Composable.CQRS
             _serviceLocator = serviceLocator;
         }
 
-        public virtual void Execute<TCommand>(TCommand command) where TCommand : IDomainCommand
+        public virtual void Execute<TCommand>(TCommand command)
         {
             using (var transaction = new TransactionScope())
             {

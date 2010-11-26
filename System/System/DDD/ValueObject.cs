@@ -150,7 +150,7 @@ namespace Composable.DDD
 
         public override string ToString()
         {
-            return JsonConvert.SerializeObject(this, Formatting.Indented);
+            return GetType().FullName + ":" + JsonConvert.SerializeObject(this, Formatting.Indented);
         }
     }
 }

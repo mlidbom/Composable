@@ -10,12 +10,13 @@ using AutoMapper.Mappers;
 using Composable.System.IO;
 using Composable.System.Reflection;
 using Composable.System.Linq;
+using Composable.System;
 
 #endregion
 
 namespace Composable.AutoMapper
 {
-    public static class Mapper
+    public static class ComposableMapper
     {
         public static void Init(Func<IMappingEngine> engineProvider)
         {
@@ -38,18 +39,19 @@ namespace Composable.AutoMapper
         private static Func<IMappingEngine> CreateDefaultProvider()
         {
             var configuration = new Configuration(new TypeMapFactory(), MapperRegistry.AllMappers());
+            var safeConfiguration = new SafeConfiguration(configuration);
 
             //todo:hmmmm....
-            AppDomain.CurrentDomain.BaseDirectory.AsDirectory().GetFiles().WithExtension(".dll", ".exe")
-                .Where(assemblyFile => !assemblyFile.Name.StartsWith("System."))
+            AppDomain.CurrentDomain.BaseDirectory.AsDirectory().GetFilesResursive().WithExtension(".dll", ".exe")
+                .Where(assemblyFile => !assemblyFile.Name.StartsWith("System.", "Microsoft."))
                 .Select(assemblyFile => Assembly.LoadFrom(assemblyFile.FullName))
                 .SelectMany(assembly => assembly.GetTypes())
                 .Where(t => t.Implements<IProvidesMappings>() && !t.IsInterface && !t.IsAbstract)
                 .Select(type => (IProvidesMappings)Activator.CreateInstance(type))
-                .ForEach(mappingCreator => mappingCreator.CreateMappings(configuration));
-            
+                .ForEach(mappingCreator => mappingCreator.CreateMappings(safeConfiguration));
+
             configuration.AssertConfigurationIsValid();
-            
+
             var engine = new MappingEngine(configuration);
 
             return () => engine;

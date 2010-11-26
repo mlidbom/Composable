@@ -35,7 +35,7 @@ namespace CQRS.Tests.CommandService
             public bool ExecuteCalled { get; private set; }
         }
 
-        public class ModifyCandidateCommand : IDomainCommand
+        public class ModifyCandidateCommand
         {
         }
     }

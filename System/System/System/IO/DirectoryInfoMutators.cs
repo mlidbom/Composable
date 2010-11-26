@@ -27,7 +27,7 @@ namespace Composable.System.IO
             var targetPath = target.FullName;
 
             //Ensure that existing target files can be overwritten..
-            source.FilesResursive()
+            source.GetFilesResursive()
                 .Select(file => file.FullName)
                 .Select(path => path.Replace(source.FullName, targetPath))
                 .Select(filePath => new FileInfo(filePath))
@@ -56,7 +56,7 @@ namespace Composable.System.IO
         public static void MakeWritable(this DirectoryInfo me)
         {
             Contract.Requires(me != null);
-            me.FilesResursive().ForEach(file => file.IsReadOnly = false);
+            me.GetFilesResursive().ForEach(file => file.IsReadOnly = false);
         }
     }
 }

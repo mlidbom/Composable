@@ -30,7 +30,7 @@ namespace Composable.AutoMapper.Tests
 
         public class MappingBootStrapper : IProvidesMappings
         {
-            public void CreateMappings(Configuration c)
+            public void CreateMappings(SafeConfiguration c)
             {
                 c.CreateMap<A, B>();
                 c.CreateMap<B, A>();

@@ -49,7 +49,7 @@ namespace Composable.Tests.DDD
                                                     }
                                   }.ToString();
             Assert.That(description, Is.EqualTo(
-@"{
+@"Composable.Tests.DDD.ValueObjectToString+Root:{
   ""Name"": ""RootName"",
   ""Branch1"": {
     ""Name"": ""Branch1Name"",

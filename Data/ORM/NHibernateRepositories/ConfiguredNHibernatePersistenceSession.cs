@@ -1,9 +1,6 @@
 ﻿#region usings
 
-using System;
-using System.IO;
-using System.Reflection;
-using System.Runtime.Serialization.Formatters.Binary;
+using System.Collections.Generic;
 using NHibernate;
 using NHibernate.Cfg;
 
@@ -13,7 +10,36 @@ namespace Composable.Data.ORM.NHibernate
 {
     public class ConfiguredNHibernatePersistenceSession : NHibernatePersistenceSession
     {
-        public ConfiguredNHibernatePersistenceSession()
+        private readonly string _configurationFile;
+        public ConfiguredNHibernatePersistenceSession(string configurationFile)
+        {
+            _configurationFile = configurationFile;
+            if (!Configurations.TryGetValue(_configurationFile, out _configuration))
+            {
+                lock (Configurations)
+                {
+                    if (!Configurations.TryGetValue(_configurationFile, out _configuration))
+                    {
+                        _configuration = new Configuration().Configure(_configurationFile);
+                        Configurations[_configurationFile] = _configuration;
+                    }
+                }
+            }
+
+            if (!SessionFactories.TryGetValue(_configurationFile, out _sessionFactory))
+            {
+                lock (SessionFactories)
+                {
+                    if (!SessionFactories.TryGetValue(_configurationFile, out _sessionFactory))
+                    {
+                        _sessionFactory = _configuration.BuildSessionFactory();
+                        SessionFactories[_configurationFile] = _sessionFactory;
+                    }
+                }
+            }
+        }
+
+        public ConfiguredNHibernatePersistenceSession(): this("hibernate.cfg.xml")
         {
         }
 
@@ -21,44 +47,18 @@ namespace Composable.Data.ORM.NHibernate
         {
         }
 
+       
+        private readonly Configuration _configuration;
+        protected override Configuration Configuration { get { return _configuration; } }
 
-        static ConfiguredNHibernatePersistenceSession()
-        {
-            //There is some odd problem where NHibernate sometimes 
-            //escalates transactions unneccessarily to distributed when using the very first session that is created.
-            //this code creates a session that is never used, and the problem is never encountered. 
-            using (var workAround = new ConfiguredNHibernatePersistenceSession())
-            {
-                workAround.SessionFactory.OpenSession();
-            }
-        }
+        private readonly ISessionFactory _sessionFactory;
+        protected override ISessionFactory SessionFactory { get { return _sessionFactory; } }
 
-        private static ISessionFactory sessionFactory;
+        
 
-        protected override ISessionFactory SessionFactory
-        {
-            get
-            {
-                if (sessionFactory == null)
-                {
-                    sessionFactory = Configuration.BuildSessionFactory();
-                }
-                return sessionFactory;
-            }
-        }
 
-        private static Configuration configuration;
-
-        protected override Configuration Configuration
-        {
-            get
-            {
-                if (configuration == null)
-                {
-                    configuration = new Configuration().Configure();
-                }
-                return configuration;
-            }
-        }
+        private static readonly IDictionary<string, Configuration> Configurations = new Dictionary<string, Configuration>();
+        private static readonly IDictionary<string, ISessionFactory> SessionFactories = new Dictionary<string, ISessionFactory>();
+        
     }
 }

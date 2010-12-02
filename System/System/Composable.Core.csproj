@@ -150,6 +150,7 @@
     <Compile Include="System\Reflection\AssemblyExtensions.cs" />
     <Compile Include="System\Reflection\TypeExtensions.cs" />
     <Compile Include="System\StringExtensions.cs" />
+    <Compile Include="System\TimeSpanExtensions.cs" />
     <Compile Include="System\Transactions\InTransaction.cs" />
     <Compile Include="GenericAbstractions\Wrappers\GenericWrapper.cs" />
     <Compile Include="GenericAbstractions\Wrappers\IWrapper.cs" />

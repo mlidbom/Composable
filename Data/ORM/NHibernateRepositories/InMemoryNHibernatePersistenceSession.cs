@@ -1,28 +1,25 @@
-using System;
+#region usings
+
 using System.Reflection;
 using NHibernate;
 using NHibernate.Cfg;
 using NHibernate.Dialect;
 using NHibernate.Driver;
-using Environment = NHibernate.Cfg.Environment;
+using NHibernate.Tool.hbm2ddl;
+
+#endregion
 
 namespace Composable.Data.ORM.NHibernate
 {
     public class InMemoryNHibernatePersistenceSession<TProxyFactory> : NHibernatePersistenceSession
     {
-        public InMemoryNHibernatePersistenceSession(IInterceptor interceptor):base(interceptor)
+        public InMemoryNHibernatePersistenceSession(): base(CreateDataBaseAndOpenSession())
         {
-            CreateDataBase();
-        }
-
-        public InMemoryNHibernatePersistenceSession()
-        {
-            CreateDataBase();
         }
 
         static InMemoryNHibernatePersistenceSession()
         {
-            _configuration = new Configuration()
+            Configuration = new Configuration()
                 .SetProperty(Environment.ReleaseConnections, "on_close")
                 .SetProperty(Environment.Dialect, typeof (SQLiteDialect).AssemblyQualifiedName)
                 .SetProperty(Environment.ConnectionDriver, typeof (SQLite20Driver).AssemblyQualifiedName)
@@ -31,31 +28,20 @@ namespace Composable.Data.ORM.NHibernate
                 .SetProperty(Environment.ShowSql, "true");
         }
 
+        private static readonly Configuration Configuration;
+        private static ISessionFactory _sessionFactory;
+
         public static void RegisterAssembly(Assembly assembly)
         {
-            _configuration.AddAssembly(assembly);
-            _sessionFactory = _configuration.BuildSessionFactory();
+            Configuration.AddAssembly(assembly);
+            _sessionFactory = Configuration.BuildSessionFactory();
         }
 
-        private static ISessionFactory _sessionFactory;
-        protected override ISessionFactory SessionFactory
+        private static ISession CreateDataBaseAndOpenSession()
         {
-            get
-            {
-                if (_sessionFactory == null)
-                {
-                    _sessionFactory = Configuration.BuildSessionFactory();
-                }
-                return _sessionFactory;
-            }
-        }
-
-        private static readonly Configuration _configuration;
-        protected override Configuration Configuration { get { return _configuration; } }
-
-        public static void RegisterMappingFile(string mappingFile)
-        {
-            _configuration.AddFile(mappingFile);
+            var session = _sessionFactory.OpenSession();
+            new SchemaExport(Configuration).Execute(false, true, false, session.Connection, null);
+            return session;
         }
     }
 }

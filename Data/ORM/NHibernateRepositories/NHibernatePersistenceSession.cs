@@ -1,64 +1,28 @@
-using System;
+#region usings
+
 using System.Linq;
 using NHibernate;
-using NHibernate.Cfg;
 using NHibernate.Linq;
-using NHibernate.Tool.hbm2ddl;
+
+#endregion
 
 namespace Composable.Data.ORM.NHibernate
 {
-    public abstract class NHibernatePersistenceSession : INHibernatePersistenceSession
+    public class NHibernatePersistenceSession : IPersistenceSession
     {
-
-        private IInterceptor _interceptor;
-        private ISession _session;
-
-        protected NHibernatePersistenceSession(IInterceptor interceptor)
+        public NHibernatePersistenceSession(ISession session)
         {
-            _interceptor = interceptor;
+            Session = session;
+            _instances++;
         }
 
-        private ISession Session
-        {
-            get
-            {
-                if (_session == null)
-                {
-                    if (_interceptor != null)
-                    {
-                        _session = SessionFactory.OpenSession(_interceptor);
-                    }
-                    else
-                    {
-                        _session = SessionFactory.OpenSession();
-                    }
-                }
-                return _session;
-            }
-        }
-        protected abstract ISessionFactory SessionFactory { get; }
-        protected abstract Configuration Configuration { get; }     
+        public ISession Session { get; private set; }
 
         #region implementation of INHibernatePersistanceSession
-
-        public void CreateDataBase()
-        {
-            new SchemaExport(Configuration).Execute(false, true, false, Session.Connection, null);
-        }
-
-        public IQuery CreateQuery(string query)
-        {
-            return Session.CreateQuery(query);
-        }
 
         public void Clear()
         {
             Session.Clear();
-        }
-
-        public void Evict(object instance)
-        {
-            Session.Evict(instance);
         }
 
         #endregion
@@ -95,10 +59,6 @@ namespace Composable.Data.ORM.NHibernate
         #region Implementation of IDisposable
 
         private static int _instances;
-        protected NHibernatePersistenceSession()
-        {
-            _instances++;
-        }
 
         ~NHibernatePersistenceSession()
         {
@@ -114,13 +74,9 @@ namespace Composable.Data.ORM.NHibernate
         {
             _instances--;
             _disposed = true;
-            if (_session != null)
-            {
-                _session.Dispose();
-            }
+            Session.Dispose();
         }
 
         #endregion
-
     }
 }

@@ -118,11 +118,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ConfiguredNHibernatePersistenceSession.cs" />
-    <Compile Include="INHibernatePersistenceSession.cs" />
     <Compile Include="InMemoryNHibernatePersistenceSession.cs" />
     <Compile Include="NHibernatePersistenceSession.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SessionExtensions.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\..\System\System\Composable.Core.csproj">

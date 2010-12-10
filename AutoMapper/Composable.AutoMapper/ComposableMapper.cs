@@ -23,6 +23,7 @@ namespace Composable.AutoMapper
             _engineProvider = engineProvider;
         }
 
+        private static readonly object LockObject = new Object();
         private static Func<IMappingEngine> _engineProvider;
         private static IMappingEngine Engine
         {
@@ -30,7 +31,13 @@ namespace Composable.AutoMapper
             {
                 if (_engineProvider == null)
                 {
-                    _engineProvider = CreateDefaultProvider();
+                    lock (LockObject)
+                    {
+                        if (_engineProvider == null)
+                        {
+                            _engineProvider = CreateDefaultProvider();
+                        }
+                    }
                 }
                 return _engineProvider();
             }

@@ -1,0 +1,18 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package>
+  <metadata>
+    <id>Composable.Repositories</id>
+    <version>1.0.9.9</version>
+    <authors>Magnus Lidbom</authors>
+    <description>Composable.Repositories provide simple wrapper interfaces and classes that ease abstracing away the specifics of your ORM tool making for less coupling and easier testing.</description>
+    <language>en-US</language>
+    <dependencies>
+      <dependency id="Composable.Core" version="1.1.0.1" />
+    </dependencies>
+  </metadata>
+  <files>
+    <file src="Composable.Data.ORM.Repositories.dll" target="lib" />
+    <file src="Composable.Data.ORM.Repositories.pdb" target="lib" />
+    <file src="Composable.Data.ORM.Repositories.xml" target="lib" />
+  </files>
+</package>

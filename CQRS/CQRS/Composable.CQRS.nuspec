@@ -1,0 +1,18 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package>
+  <metadata>
+    <id>Composable.CQRS</id>
+    <version>1.0.9.9</version>
+    <authors>Magnus Lidbom</authors>
+    <description>Composable.CQRS is a minimalistic framework for working according to the CQRS design principle.</description>
+    <language>en-US</language>
+    <dependencies>
+      <dependency id="Composable.Core" version="1.1.0.1" />
+    </dependencies>
+  </metadata>
+  <files>
+    <file src="Composable.CQRS.dll" target="lib" />
+    <file src="Composable.CQRS.pdb" target="lib" />
+    <file src="Composable.CQRS.xml" target="lib" />
+  </files>
+</package>

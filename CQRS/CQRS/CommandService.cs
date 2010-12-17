@@ -24,17 +24,8 @@ namespace Composable.CQRS
         {
             using (var transaction = new TransactionScope())
             {
-                var handlers = _serviceLocator.GetAllInstances<ICommandHandler<TCommand>>();
-                if (handlers.Count() > 1)
-                {
-                    throw new Exception(
-                        "More than one registered handler for command: {0}".FormatWith(typeof(TCommand)));
-                }
-                if (handlers.None())
-                {
-                    throw new Exception("No handler registered for {0}".FormatWith(typeof(TCommand)));
-                }
-                handlers.Single().Execute(command);
+                var handler = _serviceLocator.GetInstance<ICommandHandler<TCommand>>();                
+                handler.Execute(command);
                 transaction.Complete();
             }
         }

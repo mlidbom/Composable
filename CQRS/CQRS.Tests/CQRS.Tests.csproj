@@ -47,7 +47,7 @@
       <HintPath>..\..\packages\structuremap.2.6.1.0\lib\StructureMap.dll</HintPath>
     </Reference>
     <Reference Include="StructureMapAdapter">
-      <HintPath>..\..\packages-manual\structuremap-adapter-home-grown\StructureMapAdapter.dll</HintPath>
+      <HintPath>..\..\packages\CommonServiceLocator.StructureMapAdapter.1.1\lib\StructureMapAdapter.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />

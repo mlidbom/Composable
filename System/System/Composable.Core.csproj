@@ -111,10 +111,13 @@
   <PropertyGroup>
     <AssemblyOriginatorKeyFile>Void.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
+  <PropertyGroup>
+    <RunPostBuildEvent>OnOutputUpdated</RunPostBuildEvent>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="Microsoft.VisualBasic" />
     <Reference Include="Newtonsoft.Json">
-      <HintPath>..\..\packages-manual\Json35r8\Newtonsoft.Json.dll</HintPath>
+      <HintPath>..\..\packages\Newtonsoft.Json.3.5.8\lib\35\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core">
@@ -174,6 +177,10 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
+    <None Include="Composable.Core.nuspec">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="packages.config" />
     <None Include="Void.snk" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
@@ -184,5 +191,8 @@
   <Target Name="AfterBuild">
   </Target>
   -->
-  <Import Project="$(SolutionDir)\packages-manual\ILMergeMSBuildExtension\Ilmerge.CSharp.targets" />
+  <PropertyGroup>
+    <PostBuildEvent>mkdir packages
+"$(SolutionDir)tools\NuGet.exe" pack "Composable.Core.nuspec"  -o packages</PostBuildEvent>
+  </PropertyGroup>
 </Project>

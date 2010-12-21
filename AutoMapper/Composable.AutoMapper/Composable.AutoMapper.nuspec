@@ -8,6 +8,7 @@
     <language>en-US</language>
     <dependencies>
       <dependency id="Composable.Core" version="1.1.0.0" />
+      <dependency id="AutoMapper" version="1.1.0.118" />
     </dependencies>
   </metadata>
   <files>

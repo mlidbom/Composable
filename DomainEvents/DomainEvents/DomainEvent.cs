@@ -33,7 +33,7 @@ namespace Composable.DomainEvents
             Implementors = AppDomain.CurrentDomain.BaseDirectory.AsDirectory().GetFiles().WithExtension(".dll", ".exe")
             .Where(assemblyFile => !assemblyFile.Name.StartsWith("System.", "Microsoft."))
             .Select(assemblyFile =>  Assembly.LoadFrom(assemblyFile.FullName))
-            .SelectMany(assembly => assembly.GetTypes())
+            .SelectMany(GetTypesSafely)
             .Where(t => t.Implements(typeof(IHandles<>)))
             .ToSet();
 
@@ -41,6 +41,18 @@ namespace Composable.DomainEvents
             if (illegalImplementations.Any())
             {
                 throw new InternalIHandlesImplementationException(illegalImplementations);
+            }
+        }
+
+        private static Type[] GetTypesSafely(Assembly assembly)
+        {
+            try
+            {
+                return assembly.GetTypes();
+            }catch(Exception e)
+            {
+                //fixme: Swallowing exceptions is not that great....
+                return new Type[0];
             }
         }
 

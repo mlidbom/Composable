@@ -52,7 +52,7 @@ namespace Composable.AutoMapper
             AppDomain.CurrentDomain.BaseDirectory.AsDirectory().GetFilesResursive().WithExtension(".dll", ".exe")
                 .Where(assemblyFile => !assemblyFile.Name.StartsWith("System.", "Microsoft."))
                 .Select(assemblyFile => Assembly.LoadFrom(assemblyFile.FullName))
-                .SelectMany(assembly => assembly.GetTypes())
+                .SelectMany(GetTypesSafely)
                 .Where(t => t.Implements<IProvidesMappings>() && !t.IsInterface && !t.IsAbstract)
                 .Select(type => (IProvidesMappings)Activator.CreateInstance(type))
                 .ForEach(mappingCreator => mappingCreator.CreateMappings(safeConfiguration));
@@ -62,6 +62,19 @@ namespace Composable.AutoMapper
             var engine = new MappingEngine(configuration);
 
             return () => engine;
+        }
+
+        private static Type[] GetTypesSafely(Assembly assembly)
+        {
+            try
+            {
+                return assembly.GetTypes();
+            }
+            catch (Exception e)
+            {
+                //fixme: Swallowing exceptions is not that great....
+                return new Type[0];
+            }
         }
 
         public static TTarget MapTo<TTarget>(this object me)

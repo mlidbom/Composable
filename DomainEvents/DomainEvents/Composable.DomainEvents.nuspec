@@ -1,0 +1,18 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package>
+  <metadata>
+    <id>Composable.DomainEvents</id>
+    <version>1.1.1.0</version>
+    <authors>Magnus Lidbom</authors>
+    <description>A simple framewore for publishing and subscribing to Domain Events in a composable fashion.</description>
+    <language>en-US</language>
+    <dependencies>
+      <dependency id="Composable.Core" version="1.1.1.0" />
+    </dependencies>
+  </metadata>
+  <files>
+    <file src="Composable.DomainEvents.dll" target="lib" />
+    <file src="Composable.DomainEvents.pdb" target="lib" />
+    <file src="Composable.DomainEvents.xml" target="lib" />
+  </files>
+</package>

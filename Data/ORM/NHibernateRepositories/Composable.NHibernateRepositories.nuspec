@@ -2,7 +2,7 @@
 <package>
   <metadata>
     <id>Composable.NHibernateRepositories</id>
-    <version>1.1.0.0</version>
+    <version>1.1.1.0</version>
     <authors>Magnus Lidbom</authors>
     <description>Composable.NHibernateRepositories provide simple wrapper interfaces and classes around NHibernate to simplify usage and testing.</description>
     <language>en-US</language>

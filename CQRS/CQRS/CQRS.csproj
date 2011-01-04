@@ -51,6 +51,7 @@
     <Compile Include="EntityCommandHandler.cs" />
     <Compile Include="ICommandHandler.cs" />
     <Compile Include="ICommandService.cs" />
+    <Compile Include="IEntityCommandHandler.cs" />
     <Compile Include="IEntityFetcher.cs" />
     <Compile Include="IEntityHandledCommand.cs" />
     <Compile Include="PersistenceSessionExtensions.cs" />

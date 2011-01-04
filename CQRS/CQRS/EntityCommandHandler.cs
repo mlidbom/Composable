@@ -1,7 +1,7 @@
 ﻿namespace Composable.CQRS
 {
     public class EntityCommandHandler<TEntity, TCommand> : ICommandHandler<TCommand>
-        where TEntity : ICommandHandler<TCommand>
+        where TEntity : IEntityCommandHandler<TCommand>
         where TCommand : IEntityHandledCommand
     {
         private readonly IEntityFetcher _session;

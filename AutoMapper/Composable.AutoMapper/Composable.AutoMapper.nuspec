@@ -2,12 +2,12 @@
 <package>
   <metadata>
     <id>Composable.AutoMapper</id>
-    <version>1.1.1.0</version>
+    <version>1.2.0.0</version>
     <authors>Magnus Lidbom</authors>
     <description>Composable.CQRS is a minimalistic wrapper around AutoMapper to make it easier to integrate with your solution.</description>
     <language>en-US</language>
     <dependencies>
-      <dependency id="Composable.Core" version="1.1.1.0" />
+      <dependency id="Composable.Core" version="1.2.0.0" />
       <dependency id="AutoMapper" version="1.1.0.118" />
     </dependencies>
   </metadata>

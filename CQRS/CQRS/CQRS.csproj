@@ -70,6 +70,7 @@
   <ItemGroup>
     <None Include="Composable.CQRS.nuspec">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <SubType>Designer</SubType>
     </None>
     <None Include="packages.config" />
   </ItemGroup>

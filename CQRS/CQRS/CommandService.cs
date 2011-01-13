@@ -1,10 +1,6 @@
 #region usings
 
-using System;
-using System.Linq;
 using System.Transactions;
-using Composable.System;
-using Composable.System.Linq;
 using Microsoft.Practices.ServiceLocation;
 
 #endregion

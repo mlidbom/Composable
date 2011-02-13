@@ -7,14 +7,14 @@ namespace Composable.CQRS
     {
         public static IEntityFetcher AsEntityFetcher(this IPersistenceSession me)
         {
-            return new PersistanceSessionEntityFetcherAdapter(me);
+            return new PersistenceSessionEntityFetcherAdapter(me);
         }
 
-        private class PersistanceSessionEntityFetcherAdapter : IEntityFetcher
+        private class PersistenceSessionEntityFetcherAdapter : IEntityFetcher
         {
             private readonly IPersistenceSession _session;
 
-            public PersistanceSessionEntityFetcherAdapter(IPersistenceSession session)
+            public PersistenceSessionEntityFetcherAdapter(IPersistenceSession session)
             {
                 _session = session;
             }

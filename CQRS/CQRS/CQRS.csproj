@@ -49,15 +49,19 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="CommandService.cs" />
-    <Compile Include="EntityCommandHandler.cs" />
-    <Compile Include="ICommandHandler.cs" />
-    <Compile Include="ICommandService.cs" />
-    <Compile Include="IEntityCommandHandler.cs" />
+    <Compile Include="Command\CommandService.cs" />
+    <Compile Include="Command\EntityCommandHandler.cs" />
+    <Compile Include="Command\ICommandHandler.cs" />
+    <Compile Include="Command\ICommandService.cs" />
+    <Compile Include="Command\IEntityCommandHandler.cs" />
     <Compile Include="IEntityFetcher.cs" />
-    <Compile Include="IEntityHandledCommand.cs" />
+    <Compile Include="Command\IEntityHandledCommand.cs" />
     <Compile Include="PersistenceSessionExtensions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Query\IQueryHandler.cs" />
+    <Compile Include="Query\QueryService.cs" />
+    <Compile Include="Query\IQuery.cs" />
+    <Compile Include="Query\IQueryService.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\Data\ORM\Repositories\Repositories.csproj">
@@ -76,6 +80,7 @@
     </None>
     <None Include="packages.config" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>mkdir packages

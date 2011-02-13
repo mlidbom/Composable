@@ -2,7 +2,7 @@
 <package>
   <metadata>
     <id>Composable.Repositories</id>
-    <version>1.2.0.0</version>
+    <version>1.3.0.0</version>
     <authors>Magnus Lidbom</authors>
     <description>Composable.Repositories provide simple wrapper interfaces and classes that ease abstracing away the specifics of your ORM tool making for less coupling and easier testing.</description>
     <language>en-US</language>

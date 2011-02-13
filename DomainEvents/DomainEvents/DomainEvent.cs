@@ -17,30 +17,43 @@ namespace Composable.DomainEvents
     public static class DomainEvent
     {
         private static readonly List<Delegate> ManualSubscribers = new List<Delegate>();
+        private static IServiceLocator _locator;
+        private static readonly object LockObject = new object();
 
-        private static readonly ISet<Type> Implementors;
-
-        public static IServiceLocator ServiceLocator { get; set; }
+        public static IServiceLocator ServiceLocator { get
+        {
+            if(_locator == null)
+            {
+                throw new Exception("Domain event class has not been initialized. Please make sure to call Init during your application bootstrapping");
+            }
+            return _locator;
+        } }
 
         public static void Init(IServiceLocator locator)
         {
-            ServiceLocator = locator;
+            InternalInit(locator, allowReinit : false);
         }
 
-        static DomainEvent()
+        public static void ReInitOnlyUseFromTests(IServiceLocator locator)
         {
-            //todo:hmmmm....
-            Implementors = AppDomain.CurrentDomain.BaseDirectory.AsDirectory().GetFiles().WithExtension(".dll", ".exe")
-            .Where(assemblyFile => !assemblyFile.Name.StartsWith("System.", "Microsoft."))
-            .Select(assemblyFile =>  Assembly.LoadFrom(assemblyFile.FullName))
-            .SelectMany(GetTypesSafely)
-            .Where(t => t.Implements(typeof(IHandles<>)))
-            .ToSet();
+            InternalInit(locator, allowReinit: true);
+        }
 
-            var illegalImplementations = Implementors.Where(t => !t.IsVisible);
-            if (illegalImplementations.Any())
+
+        private static void InternalInit(IServiceLocator locator, bool allowReinit)
+        {
+            if(locator == null)
             {
-                throw new InternalIHandlesImplementationException(illegalImplementations);
+                throw new ArgumentNullException("locator");
+            }
+
+            lock (LockObject)
+            {
+                if(!allowReinit && _locator != null)
+                {
+                    throw new Exception("You may only call init once!");
+                }
+                _locator = locator;
             }
         }
 
@@ -93,13 +106,6 @@ namespace Composable.DomainEvents
             return (IHandles<T>) Activator.CreateInstance(type, false);
         }
 
-        private static IEnumerable<IHandles<T>> FetchHandlersOf<T>() where T : IDomainEvent
-        {
-            return Implementors
-                .Where(t => t.Implements<IHandles<T>>())
-                .Select(CreateInstance<T>);
-        }
-
         /// <summary>
         /// Raises the given domain event
         /// All implementors of <see cref="IHandles{T}"/> will be instantiated and called.
@@ -110,7 +116,7 @@ namespace Composable.DomainEvents
         public static void Raise<T>(T args) where T : IDomainEvent
         {
 
-                FetchHandlersOf<T>().ForEach(handler =>
+                ServiceLocator.GetAllInstances<IHandles<T>>().ForEach(handler =>
                              {
                                  handler.Handle(args);
                                  if (handler is IDisposable)

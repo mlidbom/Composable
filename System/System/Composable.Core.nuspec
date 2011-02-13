@@ -7,7 +7,7 @@
     <description>All the magic you might want ;)</description>
     <language>en-US</language>
     <dependencies>
-      <dependency id="Newtonsoft.Json" version="3.5.8" />
+      <dependency id="Newtonsoft.Json" version="4.0.1" />
     </dependencies>
   </metadata>
   <files>

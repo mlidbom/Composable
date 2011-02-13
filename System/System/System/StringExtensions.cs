@@ -42,6 +42,7 @@ namespace Composable.System
         ///<summary>True if the beginning of <paramref name="me"/> is one of the supplied strings.</summary>
         public static bool StartsWith(this string me, params string[] candidates)
         {
+            Contract.Requires(candidates != null);
             return candidates.Any(me.StartsWith);
         }
     }

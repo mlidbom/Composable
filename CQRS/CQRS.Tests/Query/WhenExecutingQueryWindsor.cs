@@ -9,6 +9,8 @@ using Composable.CQRS.Query;
 using Composable.DDD;
 using Microsoft.Practices.ServiceLocation;
 using NUnit.Framework;
+using System.Linq;
+using Castle.Core;
 
 #endregion
 

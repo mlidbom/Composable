@@ -21,7 +21,7 @@ namespace Composable.CQRS.Query
         {
             using (var transaction = new TransactionScope())
             {
-                var handler = _serviceLocator.GetInstance<IQueryHandler<TQuery, TQueryResult>>();
+                var handler = _serviceLocator.GetSingleInstance<IQueryHandler<TQuery, TQueryResult>>();
                 var result = handler.Execute((TQuery) query);
                 transaction.Complete();
                 return result;

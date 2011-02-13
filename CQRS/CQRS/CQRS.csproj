@@ -36,6 +36,7 @@
     <RunPostBuildEvent>OnOutputUpdated</RunPostBuildEvent>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Castle.Core, Version=2.5.1.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc, processorArchitecture=MSIL" />
     <Reference Include="Microsoft.Practices.ServiceLocation">
       <HintPath>..\..\packages\CommonServiceLocator.1.0\lib\NET35\Microsoft.Practices.ServiceLocation.dll</HintPath>
     </Reference>
@@ -54,14 +55,17 @@
     <Compile Include="Command\ICommandHandler.cs" />
     <Compile Include="Command\ICommandService.cs" />
     <Compile Include="Command\IEntityCommandHandler.cs" />
+    <Compile Include="DuplicateHandlersException.cs" />
     <Compile Include="IEntityFetcher.cs" />
     <Compile Include="Command\IEntityHandledCommand.cs" />
+    <Compile Include="NoRegisteredHandlersException.cs" />
     <Compile Include="PersistenceSessionExtensions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Query\IQueryHandler.cs" />
     <Compile Include="Query\QueryService.cs" />
     <Compile Include="Query\IQuery.cs" />
     <Compile Include="Query\IQueryService.cs" />
+    <Compile Include="ServiceLocatorExtensions.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\Data\ORM\Repositories\Repositories.csproj">

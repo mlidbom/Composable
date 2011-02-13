@@ -5,7 +5,7 @@ using Microsoft.Practices.ServiceLocation;
 
 #endregion
 
-namespace Composable.CQRS
+namespace Composable.CQRS.Command
 {
     public class CommandService : ICommandService
     {
@@ -20,7 +20,7 @@ namespace Composable.CQRS
         {
             using (var transaction = new TransactionScope())
             {
-                var handler = _serviceLocator.GetInstance<ICommandHandler<TCommand>>();                
+                var handler = _serviceLocator.GetSingleInstance<ICommandHandler<TCommand>>();                
                 handler.Execute(command);
                 transaction.Complete();
             }

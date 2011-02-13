@@ -5,7 +5,7 @@ using NUnit.Framework;
 namespace Composable.AutoMapper.Tests
 {
     [TestFixture]
-    public class AfterImplementingIProvidesMappings
+    public class AfterImplementingIProvidesMappings : MappingTest
     {
         A a = new A() { Title = "A" };
         B b = new B() { Title = "A" };

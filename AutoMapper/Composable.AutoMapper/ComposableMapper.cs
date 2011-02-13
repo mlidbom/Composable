@@ -11,6 +11,7 @@ using Composable.System.IO;
 using Composable.System.Reflection;
 using Composable.System.Linq;
 using Composable.System;
+using Microsoft.Practices.ServiceLocation;
 
 #endregion
 
@@ -20,15 +21,61 @@ namespace Composable.AutoMapper
     {
         public static void Init(Func<IMappingEngine> engineProvider)
         {
-            _engineProvider = engineProvider;
+            lock (LockObject)
+            {
+                if(_initialized)
+                {
+                    throw new Exception("You may only call Init once");
+                }
+                if (engineProvider == null)
+                {
+                    throw new ArgumentNullException("engineProvider");
+                }
+                _initialized = true;
+                _engineProvider = engineProvider;
+            }
+        }
+
+        public static void Init(IServiceLocator locator)
+        {
+            lock (LockObject)
+            {
+                if (_initialized)
+                {
+                    throw new Exception("You may only call Init once");
+                }
+                if(locator == null)
+                {
+                    throw new ArgumentNullException("locator");
+                }
+                _initialized = true;
+                _locator = locator;
+            }            
+        }
+
+        public static void ResetOnlyCallFromTests()
+        {
+            lock (LockObject)
+            {
+                _initialized = false;
+                _locator = null;
+                _engineProvider = null;
+            }            
         }
 
         private static readonly object LockObject = new Object();
         private static Func<IMappingEngine> _engineProvider;
+        private static IServiceLocator _locator;
+        private static bool _initialized;
+
         private static IMappingEngine Engine
         {
             get
             {
+                if(!_initialized)
+                {
+                    throw new InvalidOperationException("You must call init before using MapTo");
+                }
                 if (_engineProvider == null)
                 {
                     lock (LockObject)
@@ -48,13 +95,7 @@ namespace Composable.AutoMapper
             var configuration = new Configuration(new TypeMapFactory(), MapperRegistry.AllMappers());
             var safeConfiguration = new SafeConfiguration(configuration);
 
-            //todo:hmmmm....
-            AppDomain.CurrentDomain.BaseDirectory.AsDirectory().GetFilesResursive().WithExtension(".dll", ".exe")
-                .Where(assemblyFile => !assemblyFile.Name.StartsWith("System.", "Microsoft."))
-                .Select(assemblyFile => Assembly.LoadFrom(assemblyFile.FullName))
-                .SelectMany(GetTypesSafely)
-                .Where(t => t.Implements<IProvidesMappings>() && !t.IsInterface && !t.IsAbstract)
-                .Select(type => (IProvidesMappings)Activator.CreateInstance(type))
+            _locator.GetAllInstances<IProvidesMappings>()
                 .ForEach(mappingCreator => mappingCreator.CreateMappings(safeConfiguration));
 
             configuration.AssertConfigurationIsValid();

@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Threading;
 using Microsoft.Practices.ServiceLocation;
 using Composable.System.Linq;
 using Composable.System.Reflection;
@@ -16,7 +17,10 @@ namespace Composable.DomainEvents
 {
     public static class DomainEvent
     {
-        private static readonly List<Delegate> ManualSubscribers = new List<Delegate>();
+        //fixme: This is not safe with the threadingmodel of asp.net. Needs to use clever storage that determines whether you are in a web request....
+        private static readonly ThreadLocal<List<Delegate>> ManualSubscribersStorage = new ThreadLocal<List<Delegate>>(() => new List<Delegate>());
+        private static List<Delegate> ManualSubscribers { get { return ManualSubscribersStorage.Value; } }
+
         private static IServiceLocator _locator;
         private static readonly object LockObject = new object();
 
@@ -119,10 +123,6 @@ namespace Composable.DomainEvents
                 ServiceLocator.GetAllInstances<IHandles<T>>().ForEach(handler =>
                              {
                                  handler.Handle(args);
-                                 if (handler is IDisposable)
-                                 {
-                                     ((IDisposable)handler).Dispose();
-                                 }
                              });
 
             ManualSubscribers.OfType<Action<T>>()

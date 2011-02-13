@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.Contracts;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -18,6 +19,7 @@ namespace Composable.DDD
     {
         private static Func<object, object> BuildFieldGetter(FieldInfo field)
         {
+            Contract.Requires(field != null);
             var obj = Expression.Parameter(typeof (object), "obj");
 
             return Expression.Lambda<Func<object, object>>(
@@ -116,6 +118,7 @@ namespace Composable.DDD
 
         private static Func<object, object>[] InnerGetField(Type type)
         {
+            Contract.Requires(type != null);
             Func<Object, Object>[] fields;
             if (!TypeFields.TryGetValue(type, out fields))
             {

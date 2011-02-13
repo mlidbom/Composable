@@ -1,4 +1,5 @@
 using Composable.CQRS;
+using Composable.CQRS.Command;
 using NUnit.Framework;
 using StructureMap;
 using StructureMap.Configuration.DSL;
@@ -18,7 +19,7 @@ namespace CQRS.Tests.Command
 
             var container = new Container(registry);
             var locator = new StructureMapServiceLocator(container);
-            new Composable.CQRS.CommandService(locator).Execute(new ModifyCandidateCommand());
+            new CommandService(locator).Execute(new ModifyCandidateCommand());
             Assert.That(handler.ExecuteCalled, Is.True, "Execute(ModifyCandidateCommand command) should have been called");
         }
 

@@ -1,6 +1,8 @@
+using System;
 using System.Collections.Generic;
 using Castle.Windsor;
 using CommonServiceLocator.WindsorAdapter;
+using Composable.CQRS;
 using Composable.CQRS.Query;
 using Composable.DDD;
 using Microsoft.Practices.ServiceLocation;
@@ -34,6 +36,33 @@ namespace CQRS.Tests.Query
         {
             var result = Locator.GetInstance<IQueryService>().Execute(new ActiveCandidates());
             Assert.That(result, Is.EqualTo(_result));
+        }
+
+        [Test]
+        public void ExceptionIsThrownIfThereAreDuplicateHandlers()
+        {
+            Assert.Throws<DuplicateHandlersException>(() => Locator.GetInstance<IQueryService>().Execute(new DuplicateHandlers()));
+        }
+
+        public class DuplicateHandlers: IQuery<DuplicateHandlers, DuplicateHandlers.ReturnType>
+        {
+            public class ReturnType{}
+        }
+
+        public class DuplicateHandlersHandler1 : IQueryHandler<DuplicateHandlers, DuplicateHandlers.ReturnType>
+        {
+            public DuplicateHandlers.ReturnType Execute(DuplicateHandlers query)
+            {
+                return null;
+            }
+        }
+
+        public class DuplicateHandlersHandler2 : IQueryHandler<DuplicateHandlers, DuplicateHandlers.ReturnType>
+        {
+            public DuplicateHandlers.ReturnType Execute(DuplicateHandlers query)
+            {
+                return null;
+            }
         }
 
 

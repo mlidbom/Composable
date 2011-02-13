@@ -1,13 +1,10 @@
-using System;
-using System.Collections.Generic;
 using Composable.CQRS;
-using Composable.DDD;
 using NUnit.Framework;
 using StructureMap;
 using StructureMap.Configuration.DSL;
 using StructureMap.ServiceLocatorAdapter;
 
-namespace CQRS.Tests.CommandService
+namespace CQRS.Tests.Command
 {
     [TestFixture]
     public class WhenExecutingIDomainCommand

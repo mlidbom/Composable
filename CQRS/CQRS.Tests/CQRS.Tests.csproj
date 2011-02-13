@@ -31,6 +31,15 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Castle.Core">
+      <HintPath>..\..\packages\Castle.Core.2.5.2\lib\NET35\Castle.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="Castle.Windsor">
+      <HintPath>..\..\packages\Castle.Windsor.2.5.2\lib\NET40\Castle.Windsor.dll</HintPath>
+    </Reference>
+    <Reference Include="CommonServiceLocator.WindsorAdapter">
+      <HintPath>..\..\packages\CommonServiceLocator.WindsorAdapter.1.0\lib\NET35\CommonServiceLocator.WindsorAdapter.dll</HintPath>
+    </Reference>
     <Reference Include="Microsoft.Practices.ServiceLocation">
       <HintPath>..\..\packages\CommonServiceLocator.1.0\lib\NET35\Microsoft.Practices.ServiceLocation.dll</HintPath>
     </Reference>
@@ -58,8 +67,11 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="CommandService\WhenExecutingIDomainCommand.cs" />
+    <Compile Include="Command\WhenExecutingIDomainCommand.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Query\WhenExecutingQuery.cs" />
+    <Compile Include="Query\WhenExecutingQueryWindsor.cs" />
+    <Compile Include="Query\WhenExecutingQueryStructuremap.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\System\System\Composable.Core.csproj">

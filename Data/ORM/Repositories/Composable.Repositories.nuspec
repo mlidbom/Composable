@@ -11,8 +11,6 @@
     </dependencies>
   </metadata>
   <files>
-    <file src="Composable.Data.ORM.Repositories.dll" target="lib" />
-    <file src="Composable.Data.ORM.Repositories.pdb" target="lib" />
-    <file src="Composable.Data.ORM.Repositories.xml" target="lib" />
+    <file src="Composable.Data.ORM.Repositories.*" target="lib" />
   </files>
 </package>

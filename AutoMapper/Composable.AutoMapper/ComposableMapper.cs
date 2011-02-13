@@ -70,7 +70,7 @@ namespace Composable.AutoMapper
             {
                 return assembly.GetTypes();
             }
-            catch (Exception e)
+            catch (Exception )
             {
                 //fixme: Swallowing exceptions is not that great....
                 return new Type[0];

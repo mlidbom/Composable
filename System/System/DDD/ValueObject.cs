@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Diagnostics.Contracts;
 using System.Linq;
 using System.Linq.Expressions;
@@ -31,6 +32,7 @@ namespace Composable.DDD
                 obj).Compile();
         }
 
+        /// <see cref="object.Equals(object)"/>
         public override bool Equals(object obj)
         {
             if (ReferenceEquals(obj, null))
@@ -41,6 +43,7 @@ namespace Composable.DDD
             return Equals(other);
         }
 
+        /// <see cref="object.GetHashCode"/>
         public override int GetHashCode()
         {
             var fields = GetFields(GetType());
@@ -52,6 +55,7 @@ namespace Composable.DDD
 
             for (int i = 0; i < fields.Length; i++)
             {
+                Contract.Assume(fields[i] != null);
                 var value = fields[i](this);
 
                 if (value != null)
@@ -61,6 +65,7 @@ namespace Composable.DDD
             return hashCode;
         }
 
+        /// <see cref="object.Equals(object)"/>
         public virtual bool Equals(T other)
         {
             if (ReferenceEquals(other, null))
@@ -76,6 +81,7 @@ namespace Composable.DDD
 
             for (int i = 0; i < fields.Length; i++)
             {
+                Contract.Assume(fields[i] != null);
                 var value1 = fields[i](other);
                 var value2 = fields[i]((T)this);
 
@@ -105,6 +111,7 @@ namespace Composable.DDD
 
         private static Func<Object, Object>[] GetFields(Type type)
         {
+            Contract.Ensures(Contract.Result<Func<Object, Object>[]>() != null);
             if (type == typeof(T))
             {
                 return Fields;
@@ -119,6 +126,7 @@ namespace Composable.DDD
         private static Func<object, object>[] InnerGetField(Type type)
         {
             Contract.Requires(type != null);
+            Contract.Ensures(Contract.Result<Func<object, object>[]>() != null);
             Func<Object, Object>[] fields;
             if (!TypeFields.TryGetValue(type, out fields))
             {
@@ -135,6 +143,7 @@ namespace Composable.DDD
 
                 TypeFields[type] = fields = newFields.ToArray();
             }
+            Contract.Assume(fields != null);
             return fields;
         }
 
@@ -151,6 +160,7 @@ namespace Composable.DDD
         }
 
 
+        ///<returns>A JSON serialized version of the instance.</returns>
         public override string ToString()
         {
             return GetType().FullName + ":" + JsonConvert.SerializeObject(this, Formatting.Indented);

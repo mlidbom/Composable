@@ -1,10 +1,12 @@
 #region usings
 
 using System;
+using System.Threading;
 using Castle.MicroKernel.Registration;
 using Castle.Windsor;
 using CommonServiceLocator.WindsorAdapter;
 using NUnit.Framework;
+using Composable.System;
 
 #endregion
 
@@ -13,7 +15,6 @@ namespace Composable.DomainEvents.Tests
     [TestFixture]
     public class WhenEventIsRaised
     {
-
         [SetUp]
         public void Setup()
         {
@@ -23,7 +24,8 @@ namespace Composable.DomainEvents.Tests
         }
 
         public class SomethingHappend : IDomainEvent
-        { }
+        {
+        }
 
         [Test]
         public void SubscribersAreNotified()
@@ -33,12 +35,36 @@ namespace Composable.DomainEvents.Tests
             DomainEvent.Raise(new SomethingHappend());
             Assert.That(calls, Is.EqualTo(1));
         }
-      
+
 
         [Test]
         public void ManuallyRegisteredListenersAreCalled()
         {
-            Assert.Inconclusive();
+            var called = false;
+            using (DomainEvent.Register<IDomainEvent>(i => { called = true; }))
+            {
+                DomainEvent.Raise(new SomethingHappend());
+            }
+            Assert.That(called, Is.True);
+        }
+
+        [Test]
+        public void ManuallyRegisteredListenersAreNotCalledWhenEventRaisedOnOtherThread()
+        {
+            var called = false;
+            using (DomainEvent.Register<IDomainEvent>(i => { called = true; }))
+            {
+                var done = new ManualResetEvent(false);
+                using (var timer = new Timer((o) =>
+                                                 {
+                                                     DomainEvent.Raise(new SomethingHappend());
+                                                     done.Set();
+                                                 }, null, 1, -1))
+                {
+                    done.WaitOne(2.Seconds());
+                }
+            }
+            Assert.That(called, Is.False);
         }
 
         public class HandlesSomethingHappened : IHandles<SomethingHappend>

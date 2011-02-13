@@ -11,8 +11,6 @@
     </dependencies>
   </metadata>
   <files>
-    <file src="Composable.CQRS.dll" target="lib" />
-    <file src="Composable.CQRS.pdb" target="lib" />
-    <file src="Composable.CQRS.xml" target="lib" />
+    <file src="Composable.CQRS.*" target="lib" />
   </files>
 </package>

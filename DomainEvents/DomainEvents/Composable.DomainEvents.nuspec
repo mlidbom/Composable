@@ -11,8 +11,6 @@
     </dependencies>
   </metadata>
   <files>
-    <file src="Composable.DomainEvents.dll" target="lib" />
-    <file src="Composable.DomainEvents.pdb" target="lib" />
-    <file src="Composable.DomainEvents.xml" target="lib" />
+    <file src="Composable.DomainEvents.*" target="lib" />
   </files>
 </package>

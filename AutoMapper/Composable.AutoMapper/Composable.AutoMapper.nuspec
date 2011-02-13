@@ -12,8 +12,6 @@
     </dependencies>
   </metadata>
   <files>
-    <file src="Composable.AutoMapper.dll" target="lib" />
-    <file src="Composable.AutoMapper.pdb" target="lib" />
-    <file src="Composable.AutoMapper.xml" target="lib" />
+    <file src="Composable.AutoMapper.*" target="lib" />
   </files>
 </package>

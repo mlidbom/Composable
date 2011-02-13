@@ -11,8 +11,6 @@
     </dependencies>
   </metadata>
   <files>
-    <file src="Composable.Core.dll" target="lib" />
-    <file src="Composable.Core.pdb" target="lib" />
-    <file src="Composable.Core.xml" target="lib" />
+    <file src="Composable.Core.*" target="lib" />
   </files>
 </package>

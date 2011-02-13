@@ -9,8 +9,8 @@ namespace Composable.System.Linq
     /// <summary>
     /// Implementing this interface enables you to  use the existing extensionmethods 
     /// 
-    /// <see cref="Filter.Where{TItemType}(IEnumerable{T},IFilter{TItemType})"/>
-    /// and <see cref="Filter.Where{TItemType}(IQueryable{T},IFilter{TItemType})"/>
+    /// <see cref="Filter.Where{TItemType}(IEnumerable{TItemType},Composable.System.Linq.IFilter{TItemType})"/>
+    /// and <see cref="Filter.Where{TItemType}(IQueryable{TItemType},Composable.System.Linq.IFilter{TItemType})"/>
     /// 
     /// This makes your implementing class as easy to use with linq as any simple predicate.
     /// 

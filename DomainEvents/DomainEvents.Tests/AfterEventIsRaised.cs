@@ -1,6 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Threading;
+using Castle.MicroKernel.Registration;
+using Castle.Windsor;
+using CommonServiceLocator.WindsorAdapter;
 using NUnit.Framework;
 using Composable.System.Linq;
 using Composable.System;
@@ -10,6 +13,14 @@ namespace Composable.DomainEvents.Tests
     [TestFixture]
     public class AfterEventIsRaised
     {
+        [SetUp]
+        public void Setup()
+        {
+            var container = new WindsorContainer();
+            container.Register(AllTypes.FromThisAssembly().BasedOn(typeof(IHandles<>)).Configure(cfg => cfg.LifeStyle.Transient));
+            DomainEvent.ReInitOnlyUseFromTests(new WindsorServiceLocator(container));
+        }
+
         public class SomethingHappend : IDomainEvent
         { }
 

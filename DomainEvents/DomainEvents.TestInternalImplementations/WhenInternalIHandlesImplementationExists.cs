@@ -1,4 +1,6 @@
 using System;
+using Castle.Windsor;
+using CommonServiceLocator.WindsorAdapter;
 using NUnit.Framework;
 
 namespace Composable.DomainEvents.TestInternalImplementations
@@ -17,6 +19,12 @@ namespace Composable.DomainEvents.TestInternalImplementations
     [TestFixture]
     public class WhenInternalIHandlesImplementationExists
     {
+        [SetUp]
+        public void Setup()
+        {
+            DomainEvent.Init(new WindsorServiceLocator(new WindsorContainer()));
+        }
+
         [Test]
         public void DomainEventClassThrowsException()
         {

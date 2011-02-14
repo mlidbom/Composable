@@ -121,10 +121,6 @@
       <Project>{3632254D-0C4A-4EB8-B388-4C99F8939584}</Project>
       <Name>Composable.Core</Name>
     </ProjectReference>
-    <ProjectReference Include="..\InMemoryRepositories\InMemoryRepositories.csproj">
-      <Project>{8B991155-BB3D-49EF-839F-CF6FD468AFDE}</Project>
-      <Name>InMemoryRepositories</Name>
-    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include="Microsoft.Net.Client.3.5">

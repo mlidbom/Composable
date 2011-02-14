@@ -152,10 +152,6 @@
       <Project>{CB0CF7B4-8320-4AC6-91F0-C7BD536DD9A3}</Project>
       <Name>Repositories.Tests</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Repositories\Repositories.csproj">
-      <Project>{42E6457A-2943-4D2B-A337-B1DE59AAD1EE}</Project>
-      <Name>Repositories</Name>
-    </ProjectReference>
     <ProjectReference Include="..\NHibernateRepositories\NHibernateRepositories.csproj">
       <Project>{A858472F-F790-4A3B-8782-B7F4FDAECFA1}</Project>
       <Name>NHibernateRepositories</Name>

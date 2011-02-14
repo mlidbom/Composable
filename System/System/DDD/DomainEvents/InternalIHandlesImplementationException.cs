@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.Contracts;
 using System.Linq;
 using Composable.System;
 
@@ -16,6 +17,7 @@ namespace Composable.DomainEvents
                 .FormatWith(
                     illegalImplementations.Select(t => t.AssemblyQualifiedName).Join(Environment.NewLine)))
         {
+            Contract.Requires(illegalImplementations != null);
         }
     }
 }

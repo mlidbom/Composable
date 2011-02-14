@@ -1,6 +1,10 @@
-using System;
+#region usings
+
 using System.Collections;
+using System.Diagnostics.Contracts;
 using System.Linq;
+
+#endregion
 
 namespace Composable.Data.ORM.InMemoryRepositories
 {
@@ -10,13 +14,15 @@ namespace Composable.Data.ORM.InMemoryRepositories
         {
             Unsaved = 0;
         }
+
         public override object NextId(IEnumerable allInstancesOfType)
         {
-            if(!allInstancesOfType.OfType<TInstance>().Any())
+            Contract.Requires(allInstancesOfType != null);
+            if (!allInstancesOfType.OfType<TInstance>().Any())
             {
                 return 1;
             }
-            return allInstancesOfType.Cast<TInstance>().Max(me => (int)Get(me)) + 1;
+            return allInstancesOfType.Cast<TInstance>().Max(me => (int) Get(me)) + 1;
         }
     }
 }

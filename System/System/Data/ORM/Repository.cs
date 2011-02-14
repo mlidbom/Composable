@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics.Contracts;
 using System.Linq;
 using System.Linq.Expressions;
 using Composable.System.Linq;
@@ -29,7 +30,7 @@ namespace Composable.Data.ORM
         }
 
         public IList<TInstance> GetAll(IEnumerable<TKey> ids)
-        {
+        {            
             return ids.Select(Get).ToList();
         }
 

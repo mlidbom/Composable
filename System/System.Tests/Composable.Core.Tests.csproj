@@ -163,6 +163,10 @@
       <Project>{AA0A55FE-EA05-4A3B-9FB7-47E1D570F1CF}</Project>
       <Name>Composable.AutoMapper</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\Data\ORM\Composable.Data.ORM.Repositories\Composable.Data.ORM.csproj">
+      <Project>{9B4B5C29-86A3-48CF-980A-FD5728AE3FAB}</Project>
+      <Name>Composable.Data.ORM</Name>
+    </ProjectReference>
     <ProjectReference Include="..\System\Composable.Core.csproj">
       <Project>{3632254D-0C4A-4EB8-B388-4C99F8939584}</Project>
       <Name>Composable.Core</Name>

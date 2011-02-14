@@ -2,11 +2,12 @@
 <package>
   <metadata>
     <id>Composable.Core</id>
-    <version>1.4.0.0</version>
+    <version>1.5.0.0</version>
     <authors>Magnus Lidbom</authors>
     <description>All the magic you might want ;)</description>
     <language>en-US</language>
     <dependencies>
+      <dependency id="Composable.Repositories" version="1.5.0.0" />
       <dependency id="Newtonsoft.Json" version="4.0.1" />
     </dependencies>
   </metadata>

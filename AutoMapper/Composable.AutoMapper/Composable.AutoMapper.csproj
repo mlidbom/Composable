@@ -64,6 +64,7 @@
   <ItemGroup>
     <None Include="Composable.AutoMapper.nuspec">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <SubType>Designer</SubType>
     </None>
     <None Include="packages.config" />
     <None Include="Void.snk" />

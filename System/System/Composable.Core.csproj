@@ -49,7 +49,7 @@
     <CodeContractsRuntimeThrowOnFailure>True</CodeContractsRuntimeThrowOnFailure>
     <CodeContractsRuntimeCallSiteRequires>False</CodeContractsRuntimeCallSiteRequires>
     <CodeContractsRunCodeAnalysis>True</CodeContractsRunCodeAnalysis>
-    <CodeContractsNonNullObligations>True</CodeContractsNonNullObligations>
+    <CodeContractsNonNullObligations>False</CodeContractsNonNullObligations>
     <CodeContractsBoundsObligations>True</CodeContractsBoundsObligations>
     <CodeContractsArithmeticObligations>True</CodeContractsArithmeticObligations>
     <CodeContractsRedundantAssumptions>True</CodeContractsRedundantAssumptions>
@@ -132,6 +132,7 @@
     <Reference Include="System.Transactions" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CQRS\Command\CommandResult.cs" />
     <Compile Include="CQRS\Command\CommandService.cs" />
     <Compile Include="CQRS\Command\EntityCommandHandler.cs" />
     <Compile Include="CQRS\Command\ICommandHandler.cs" />

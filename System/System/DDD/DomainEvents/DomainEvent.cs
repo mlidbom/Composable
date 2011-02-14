@@ -51,25 +51,14 @@ namespace Composable.DomainEvents
 
         public static void Init(IServiceLocator locator)
         {
-            InternalInit(locator, allowReinit : false);
-        }
-
-        public static void ReInitOnlyUseFromTests(IServiceLocator locator)
-        {
-            InternalInit(locator, allowReinit: true);
-        }
-
-
-        private static void InternalInit(IServiceLocator locator, bool allowReinit)
-        {
-            if(locator == null)
+            if (locator == null)
             {
                 throw new ArgumentNullException("locator");
             }
 
             lock (LockObject)
             {
-                if(!allowReinit && _locator != null)
+                if (_locator != null)
                 {
                     throw new Exception("You may only call init once!");
                 }
@@ -77,6 +66,13 @@ namespace Composable.DomainEvents
             }
         }
 
+        public static void ResetOnlyUseFromTests()
+        {
+            _locator = null;
+        }
+
+
+ 
         private static Type[] GetTypesSafely(Assembly assembly)
         {
             Contract.Requires(assembly!=null);

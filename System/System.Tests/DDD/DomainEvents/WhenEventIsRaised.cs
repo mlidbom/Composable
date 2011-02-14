@@ -20,7 +20,13 @@ namespace Composable.DomainEvents.Tests
         {
             var container = new WindsorContainer();
             container.Register(AllTypes.FromThisAssembly().BasedOn(typeof (IHandles<>)).Configure(cfg => cfg.LifeStyle.Transient));
-            DomainEvent.ReInitOnlyUseFromTests(new WindsorServiceLocator(container));
+            DomainEvent.Init(new WindsorServiceLocator(container));
+        }
+
+        [TearDown]
+        public void TearDown()
+        {
+            DomainEvent.ResetOnlyUseFromTests();
         }
 
         public class SomethingHappend : IDomainEvent

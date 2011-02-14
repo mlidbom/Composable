@@ -7,8 +7,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Data.Orm", "Data.Orm", "{0D
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ServiceModel", "ServiceModel", "{9F9C4C11-3E50-4AFF-A2FC-47B69D301B2A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Properties", "ComponentModel\Properties\Properties.csproj", "{D7C1DC0F-8436-46A5-9EB6-6ACB5CDB3F14}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Properties.Tests", "ComponentModel\Properties.Tests\Properties.Tests.csproj", "{722C146D-4670-4F38-B3F0-8E150F504175}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Composable.Core", "System\System\Composable.Core.csproj", "{3632254D-0C4A-4EB8-B388-4C99F8939584}"
@@ -55,10 +53,6 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{D7C1DC0F-8436-46A5-9EB6-6ACB5CDB3F14}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{D7C1DC0F-8436-46A5-9EB6-6ACB5CDB3F14}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{D7C1DC0F-8436-46A5-9EB6-6ACB5CDB3F14}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{D7C1DC0F-8436-46A5-9EB6-6ACB5CDB3F14}.Release|Any CPU.Build.0 = Release|Any CPU
 		{722C146D-4670-4F38-B3F0-8E150F504175}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{722C146D-4670-4F38-B3F0-8E150F504175}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{722C146D-4670-4F38-B3F0-8E150F504175}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -128,7 +122,6 @@ Global
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
-		{D7C1DC0F-8436-46A5-9EB6-6ACB5CDB3F14} = {F1B742A3-F342-4C78-80CE-4E8553C8BBDA}
 		{722C146D-4670-4F38-B3F0-8E150F504175} = {F1B742A3-F342-4C78-80CE-4E8553C8BBDA}
 		{A858472F-F790-4A3B-8782-B7F4FDAECFA1} = {0D81FA34-5884-49E7-BD1C-E62BF990897C}
 		{1C8F95E6-B94C-40B1-8305-EF8D150DEF22} = {0D81FA34-5884-49E7-BD1C-E62BF990897C}

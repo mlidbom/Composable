@@ -127,6 +127,7 @@
     <Reference Include="System.Core">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
     </Reference>
+    <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.Transactions" />
   </ItemGroup>
   <ItemGroup>
@@ -166,6 +167,13 @@
     <Compile Include="Data\ORM\OptimisticConcurrencyException.cs" />
     <Compile Include="Data\ORM\Repository.cs" />
     <Compile Include="Data\ORM\TransactionalRepository.cs" />
+    <Compile Include="System\ComponentModel\ExpressionUtil.cs" />
+    <Compile Include="System\ComponentModel\IProperty.cs" />
+    <Compile Include="System\ComponentModel\IPropertyOwner.cs" />
+    <Compile Include="System\ComponentModel\ISerializablePropertyOwner.cs" />
+    <Compile Include="System\ComponentModel\Property.cs" />
+    <Compile Include="System\ComponentModel\PropertyBase.cs" />
+    <Compile Include="System\ComponentModel\WrapperProperty.cs" />
     <Compile Include="System\EnumExtensions.cs" />
     <Compile Include="GenericAbstractions\Hierarchies\HierarchyExtensions.cs" />
     <Compile Include="GenericAbstractions\Hierarchies\IHierarchy.cs" />

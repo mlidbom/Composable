@@ -84,10 +84,6 @@
       <Project>{3632254D-0C4A-4EB8-B388-4C99F8939584}</Project>
       <Name>Composable.Core</Name>
     </ProjectReference>
-    <ProjectReference Include="..\CQRS\CQRS.csproj">
-      <Project>{3B776BD4-0EDD-4A83-BC9A-3A53D6649AB0}</Project>
-      <Name>CQRS %28CQRS\CQRS%29</Name>
-    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

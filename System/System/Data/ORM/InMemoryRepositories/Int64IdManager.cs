@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using System.Diagnostics.Contracts;
 using System.Linq;
 
 namespace Composable.Data.ORM.InMemoryRepositories
@@ -13,6 +14,7 @@ namespace Composable.Data.ORM.InMemoryRepositories
 
         public override object NextId(IEnumerable allInstancesOfType)
         {
+            Contract.Requires(allInstancesOfType != null);
             if (!allInstancesOfType.OfType<TInstance>().Any())
             {
                 return (long)1;

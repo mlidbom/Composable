@@ -9,6 +9,18 @@ namespace Composable.System.Linq
     [Pure]
     public static class LinqExtensions
     {
+        public static T SingleNotNull<T>(this IEnumerable<T> me)
+        {
+            Contract.Requires(me!= null);
+            Contract.Ensures(Contract.Result<T>() != null);
+            var result = me.Single();
+            if(result == null)
+            {
+                throw new Exception("Return value null");
+            }
+            return result;
+        }
+
         /// <summary>
         /// Binds <paramref name="me"/> to the parameter in <paramref name="selector"/>.
         /// Enables you to perform operations that require you to alias the sequence being 

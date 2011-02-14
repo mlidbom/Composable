@@ -1,5 +1,6 @@
 #region usings
 
+using System.Diagnostics.Contracts;
 using System.Transactions;
 using Microsoft.Practices.ServiceLocation;
 
@@ -13,7 +14,14 @@ namespace Composable.CQRS.Command
 
         public CommandService(IServiceLocator serviceLocator)
         {
+            Contract.Requires(serviceLocator != null);
             _serviceLocator = serviceLocator;
+        }
+
+        [ContractInvariantMethod]
+        private void Invariant()
+        {
+            Contract.Invariant(_serviceLocator != null);
         }
 
         public virtual void Execute<TCommand>(TCommand command)

@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics.Contracts;
 using System.Linq;
 
 namespace Composable.Data.ORM.InMemoryRepositories
@@ -13,6 +14,12 @@ namespace Composable.Data.ORM.InMemoryRepositories
         public HashSetPersistanceSession(IDictionary<Type, IIdManager> idManagers)
         {
             IdManagers = idManagers;
+        }
+
+        [ContractInvariantMethod]
+        private void Invariant()
+        {
+            Contract.Invariant(_data!=null);
         }
 
         public IQueryable<T> Query<T>()

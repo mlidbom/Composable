@@ -139,6 +139,12 @@
     <Compile Include="DDD\PersistentEntity.cs" />
     <Compile Include="DDD\ValueObject.cs" />
     <Compile Include="DDD\VersionedPersistentEntity.cs" />
+    <Compile Include="Repositories\Domain\PersistentEntityWithSurrogateKey.cs" />
+    <Compile Include="Repositories\IPersistenceSession.cs" />
+    <Compile Include="Repositories\IRepository.cs" />
+    <Compile Include="Repositories\OptimisticConcurrencyException.cs" />
+    <Compile Include="Repositories\Repository.cs" />
+    <Compile Include="Repositories\TransactionalRepository.cs" />
     <Compile Include="System\EnumExtensions.cs" />
     <Compile Include="GenericAbstractions\Hierarchies\HierarchyExtensions.cs" />
     <Compile Include="GenericAbstractions\Hierarchies\IHierarchy.cs" />
@@ -191,6 +197,9 @@
     </None>
     <None Include="packages.config" />
     <None Include="Void.snk" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="CQRS\" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

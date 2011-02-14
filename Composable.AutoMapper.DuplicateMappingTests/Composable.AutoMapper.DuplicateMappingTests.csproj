@@ -77,10 +77,6 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\AutoMapper\Composable.AutoMapper.Tests\Composable.AutoMapper.Tests.csproj">
-      <Project>{675CDA2B-05D2-4330-A782-294C9EF12A4F}</Project>
-      <Name>Composable.AutoMapper.Tests</Name>
-    </ProjectReference>
     <ProjectReference Include="..\AutoMapper\Composable.AutoMapper\Composable.AutoMapper.csproj">
       <Project>{AA0A55FE-EA05-4A3B-9FB7-47E1D570F1CF}</Project>
       <Name>Composable.AutoMapper</Name>

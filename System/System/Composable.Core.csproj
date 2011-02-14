@@ -164,7 +164,6 @@
     <Compile Include="DDD\ValueObject.cs" />
     <Compile Include="DDD\VersionedPersistentEntity.cs" />
     <Compile Include="Data\ORM\Domain\PersistentEntityWithSurrogateKey.cs" />
-    <Compile Include="Data\ORM\IPersistenceSession.cs" />
     <Compile Include="Data\ORM\IRepository.cs" />
     <Compile Include="Data\ORM\OptimisticConcurrencyException.cs" />
     <Compile Include="Data\ORM\Repository.cs" />
@@ -230,6 +229,12 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Data\ORM\NHibernateRepositories\" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\Data\ORM\Composable.Data.ORM.Repositories\Composable.Data.ORM.csproj">
+      <Project>{9B4B5C29-86A3-48CF-980A-FD5728AE3FAB}</Project>
+      <Name>Composable.Data.ORM</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

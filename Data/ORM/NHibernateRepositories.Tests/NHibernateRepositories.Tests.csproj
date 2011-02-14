@@ -152,6 +152,10 @@
       <Project>{3632254D-0C4A-4EB8-B388-4C99F8939584}</Project>
       <Name>Composable.Core</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Composable.Data.ORM.Repositories\Composable.Data.ORM.csproj">
+      <Project>{9B4B5C29-86A3-48CF-980A-FD5728AE3FAB}</Project>
+      <Name>Composable.Data.ORM</Name>
+    </ProjectReference>
     <ProjectReference Include="..\NHibernateRepositories\NHibernateRepositories.csproj">
       <Project>{A858472F-F790-4A3B-8782-B7F4FDAECFA1}</Project>
       <Name>NHibernateRepositories</Name>

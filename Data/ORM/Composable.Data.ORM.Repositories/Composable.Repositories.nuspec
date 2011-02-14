@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package>
+  <metadata>
+    <id>Composable.Repositories</id>
+    <version>1.5.0.0</version>
+    <authors>Magnus Lidbom</authors>
+    <description>Composable.Repositories provide simple wrapper interfaces to simplify usage and testing of various ORM tools.</description>
+    <language>en-US</language>
+  </metadata>
+  <files>
+    <file src="Composable.Data.ORM.*" target="lib" />
+  </files>
+</package>

@@ -144,13 +144,13 @@
     <Compile Include="WhenFirstSaving\WithGeneratedId.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\..\System\System.Tests\Composable.Core.Tests.csproj">
+      <Project>{4C78131D-DD7B-4C3E-B931-D4C6436EE09E}</Project>
+      <Name>Composable.Core.Tests</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\..\System\System\Composable.Core.csproj">
       <Project>{3632254D-0C4A-4EB8-B388-4C99F8939584}</Project>
       <Name>Composable.Core</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Repositories.Tests\Repositories.Tests.csproj">
-      <Project>{CB0CF7B4-8320-4AC6-91F0-C7BD536DD9A3}</Project>
-      <Name>Repositories.Tests</Name>
     </ProjectReference>
     <ProjectReference Include="..\NHibernateRepositories\NHibernateRepositories.csproj">
       <Project>{A858472F-F790-4A3B-8782-B7F4FDAECFA1}</Project>

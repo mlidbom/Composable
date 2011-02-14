@@ -110,6 +110,12 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\packages\NUnit.2.5.9.10348\lib\pnunit.framework.dll</HintPath>
     </Reference>
+    <Reference Include="StructureMap">
+      <HintPath>..\..\packages\structuremap.2.6.1.0\lib\StructureMap.dll</HintPath>
+    </Reference>
+    <Reference Include="StructureMapAdapter">
+      <HintPath>..\..\packages\CommonServiceLocator.StructureMapAdapter.1.1\lib\StructureMapAdapter.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
@@ -119,6 +125,14 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CQRS\Command\WhenExecutingIDomainCommand.cs" />
+    <Compile Include="CQRS\Query\WhenExecutingQuery.cs" />
+    <Compile Include="CQRS\Query\WhenExecutingQueryStructuremap.cs" />
+    <Compile Include="CQRS\Query\WhenExecutingQueryWindsor.cs" />
+    <Compile Include="Data\ORM\Domain\TypeWithGeneratedId.cs" />
+    <Compile Include="Data\ORM\Linq\SimpleQueries.cs" />
+    <Compile Include="Data\ORM\RepositoryTest.cs" />
+    <Compile Include="Data\ORM\WhenFirstSaving\WithGeneratedId.cs" />
     <Compile Include="DDD\DomainEvents\WhenEventIsRaised.cs" />
     <Compile Include="DDD\PersistentEntityTests.cs" />
     <Compile Include="DDD\ValueObjectTests.cs" />

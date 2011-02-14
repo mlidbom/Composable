@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using System.Linq;
+using Composable.System.Linq;
 
 namespace Composable.Data.ORM.InMemoryRepositories
 {
@@ -13,6 +14,8 @@ namespace Composable.Data.ORM.InMemoryRepositories
 
         public HashSetPersistanceSession(IDictionary<Type, IIdManager> idManagers)
         {
+            Contract.Requires(idManagers != null);
+            Contract.Requires(idManagers.None(man => man.Value == null));
             IdManagers = idManagers;
         }
 
@@ -20,6 +23,7 @@ namespace Composable.Data.ORM.InMemoryRepositories
         private void Invariant()
         {
             Contract.Invariant(_data!=null);
+            Contract.Invariant(IdManagers != null);
         }
 
         public IQueryable<T> Query<T>()
@@ -47,6 +51,7 @@ namespace Composable.Data.ORM.InMemoryRepositories
         public void SaveOrUpdate(object instance)
         {
             var idManager = IdManagers[instance.GetType()];
+            Contract.Assume(idManager!=null);
             if(Equals(idManager.Get(instance), idManager.Unsaved))
             {
                 idManager.Set(instance, idManager.NextId(AllInstancesOfType(instance.GetType())));

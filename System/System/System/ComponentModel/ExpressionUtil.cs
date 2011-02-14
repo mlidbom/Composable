@@ -1,3 +1,4 @@
+using System.Diagnostics.Contracts;
 using System.Linq.Expressions;
 
 namespace Composable.System.ComponentModel.Properties
@@ -6,6 +7,7 @@ namespace Composable.System.ComponentModel.Properties
     {
         public static string ExtractMemberName(LambdaExpression lambda)
         {
+            Contract.Requires(lambda!=null);
             var body = lambda.Body;
             MemberExpression memberExpression;
 

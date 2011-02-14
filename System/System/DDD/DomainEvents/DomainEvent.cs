@@ -20,7 +20,12 @@ namespace Composable.DomainEvents
     {
         //fixme: This is not safe with the threadingmodel of asp.net. Needs to use clever storage that determines whether you are in a web request....
         private static readonly ThreadLocal<List<Delegate>> ManualSubscribersStorage = new ThreadLocal<List<Delegate>>(() => new List<Delegate>());
-        private static List<Delegate> ManualSubscribers { get { return ManualSubscribersStorage.Value; } }
+        private static List<Delegate> ManualSubscribers { get
+        {
+            Contract.Ensures(Contract.Result<List<Delegate>>()!=null);
+            Contract.Assume(ManualSubscribersStorage.Value != null);
+            return ManualSubscribersStorage.Value;
+        } }
 
         private static IServiceLocator _locator;
         private static readonly object LockObject = new object();

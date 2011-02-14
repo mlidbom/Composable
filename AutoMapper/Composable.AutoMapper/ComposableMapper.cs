@@ -7,10 +7,6 @@ using System.Linq;
 using System.Reflection;
 using AutoMapper;
 using AutoMapper.Mappers;
-using Composable.System.IO;
-using Composable.System.Reflection;
-using Composable.System.Linq;
-using Composable.System;
 using Microsoft.Practices.ServiceLocation;
 
 #endregion
@@ -95,8 +91,10 @@ namespace Composable.AutoMapper
             var configuration = new Configuration(new TypeMapFactory(), MapperRegistry.AllMappers());
             var safeConfiguration = new SafeConfiguration(configuration);
 
-            _locator.GetAllInstances<IProvidesMappings>()
-                .ForEach(mappingCreator => mappingCreator.CreateMappings(safeConfiguration));
+            foreach (var mappingCreator in _locator.GetAllInstances<IProvidesMappings>())
+            {
+                mappingCreator.CreateMappings(safeConfiguration);   
+            }                
 
             configuration.AssertConfigurationIsValid();
 

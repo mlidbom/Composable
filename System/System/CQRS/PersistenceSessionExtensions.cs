@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics.Contracts;
 using Composable.Data.ORM;
 
 namespace Composable.CQRS
@@ -7,6 +8,7 @@ namespace Composable.CQRS
     {
         public static IEntityFetcher AsEntityFetcher(this IPersistenceSession me)
         {
+            Contract.Requires(me != null);
             return new PersistenceSessionEntityFetcherAdapter(me);
         }
 
@@ -16,7 +18,14 @@ namespace Composable.CQRS
 
             public PersistenceSessionEntityFetcherAdapter(IPersistenceSession session)
             {
+                Contract.Requires(session != null);
                 _session = session;
+            }
+
+            [ContractInvariantMethod]
+            private void Invariants()
+            {
+                Contract.Invariant(_session!=null);
             }
 
             public TEntity Get<TEntity>(object entityId)

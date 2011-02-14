@@ -1,8 +1,10 @@
 using System;
 using System.Collections;
+using System.Diagnostics.Contracts;
 
 namespace Composable.Data.ORM.InMemoryRepositories
 {
+    [ContractVerification(false)]
     public abstract class IdManager<TInstance, TId> : IIdManager
     {
         //Todo: exchange Setter and Getter for Member and make it work for private properties/fields

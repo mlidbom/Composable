@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics.Contracts;
 using System.Linq.Expressions;
 using System.Runtime.Serialization;
 
@@ -23,6 +24,7 @@ namespace Composable.System.ComponentModel.Properties
 
         protected PropertyBase(LambdaExpression member)
         {
+            Contract.Requires(member != null);
             Name = ExpressionUtil.ExtractMemberName(member);
         }
 

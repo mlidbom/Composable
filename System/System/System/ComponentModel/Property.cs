@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics.Contracts;
 using System.Linq.Expressions;
 using System.Runtime.Serialization;
 
@@ -14,6 +15,7 @@ namespace Composable.System.ComponentModel.Properties
 
         public Property(Expression<Func<TOwnerType, TValueType>> member) : base(member)
         {
+            Contract.Requires(member!=null);
         }
 
         public TValueType Value

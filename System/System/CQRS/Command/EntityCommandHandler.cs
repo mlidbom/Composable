@@ -1,4 +1,6 @@
-﻿namespace Composable.CQRS
+﻿using System.Diagnostics.Contracts;
+
+namespace Composable.CQRS
 {
     public class EntityCommandHandler<TEntity, TCommand> : ICommandHandler<TCommand>
         where TEntity : IEntityCommandHandler<TCommand>
@@ -8,7 +10,14 @@
 
         protected EntityCommandHandler(IEntityFetcher session)
         {
+            Contract.Requires(session != null);
             _session = session;
+        }
+
+        [ContractInvariantMethod]
+        private void Invariants()
+        {
+            Contract.Invariant(_session!=null);
         }
 
         public void Execute(TCommand command)

@@ -2,7 +2,7 @@
 <package>
   <metadata>
     <id>Composable.Core</id>
-    <version>1.3.0.0</version>
+    <version>1.4.0.0</version>
     <authors>Magnus Lidbom</authors>
     <description>All the magic you might want ;)</description>
     <language>en-US</language>
@@ -12,6 +12,6 @@
   </metadata>
   <files>
     <file src="Composable.Core.*" target="lib" />
-    <file src="CodeContracts/Composable.Core.*" target="lib" />
+    <file src="CodeContracts/Composable.Core.*" target="lib/CodeContracts" />
   </files>
 </package>

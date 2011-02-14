@@ -145,6 +145,12 @@
     <Compile Include="CQRS\Query\IQueryService.cs" />
     <Compile Include="CQRS\Query\QueryService.cs" />
     <Compile Include="CQRS\ServiceLocatorExtensions.cs" />
+    <Compile Include="Data\ORM\InMemoryRepositories\GuidIdManager.cs" />
+    <Compile Include="Data\ORM\InMemoryRepositories\HashSetPersistanceSession.cs" />
+    <Compile Include="Data\ORM\InMemoryRepositories\IdManager.cs" />
+    <Compile Include="Data\ORM\InMemoryRepositories\IIdManager.cs" />
+    <Compile Include="Data\ORM\InMemoryRepositories\Int32IdManager.cs" />
+    <Compile Include="Data\ORM\InMemoryRepositories\Int64IdManager.cs" />
     <Compile Include="DDD\DomainEvents\BeforeAndAfter.cs" />
     <Compile Include="DDD\DomainEvents\DomainEvent.cs" />
     <Compile Include="DDD\DomainEvents\IDomainEvent.cs" />

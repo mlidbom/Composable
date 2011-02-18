@@ -50,6 +50,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Command\CommandResult.cs" />
     <Compile Include="Command\CommandService.cs" />
     <Compile Include="Command\EntityCommandHandler.cs" />
     <Compile Include="Command\ICommandHandler.cs" />
@@ -68,9 +69,13 @@
     <Compile Include="ServiceLocatorExtensions.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\Data\ORM\Repositories\Repositories.csproj">
+    <ProjectReference Include="..\..\Data\ORM\Repositories\Composable.Data.ORM.csproj">
       <Project>{42E6457A-2943-4D2B-A337-B1DE59AAD1EE}</Project>
-      <Name>Repositories</Name>
+      <Name>Composable.Data.ORM</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\DomainEvents\DomainEvents\DomainEvents.csproj">
+      <Project>{52A99E0F-F12C-422E-9524-B348F4D49C16}</Project>
+      <Name>DomainEvents %28DomainEvents\DomainEvents%29</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\System\System\Composable.Core.csproj">
       <Project>{3632254D-0C4A-4EB8-B388-4C99F8939584}</Project>

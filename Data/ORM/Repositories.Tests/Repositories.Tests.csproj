@@ -121,9 +121,9 @@
       <Project>{8B991155-BB3D-49EF-839F-CF6FD468AFDE}</Project>
       <Name>InMemoryRepositories</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Repositories\Repositories.csproj">
+    <ProjectReference Include="..\Repositories\Composable.Data.ORM.csproj">
       <Project>{42E6457A-2943-4D2B-A337-B1DE59AAD1EE}</Project>
-      <Name>Repositories</Name>
+      <Name>Composable.Data.ORM</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

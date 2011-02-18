@@ -75,10 +75,10 @@ namespace Composable.AutoMapper.Tests
             public string P6 { get { return _p6; } set { _p6 = value; } }
 
             private string _p7;
-            public string P7 { get { return _p6; } private set { _p6 = value; } }
+            public string P7 { get { return _p7; } private set { _p7 = value; } }
 
             private string _p8;
-            private string P8 { get { return _p6; } set { _p6 = value; } }
+            private string P8 { get { return _p8; } set { _p8 = value; } }
 
             protected A():this("A"){}
             public A(string value)
@@ -103,10 +103,10 @@ namespace Composable.AutoMapper.Tests
             public string P6 { get { return _p6; } set { _p6 = value; } }
 
             private string _p7;
-            public string P7 { get { return _p6; } private set { _p6 = value; } }
+            public string P7 { get { return _p7; } private set { _p7 = value; } }
 
             private string _p8;
-            private string P8 { get { return _p6; } set { _p6 = value; } }
+            private string P8 { get { return _p8; } set { _p8 = value; } }
 
             protected B():this("B"){}
             public B(string value)

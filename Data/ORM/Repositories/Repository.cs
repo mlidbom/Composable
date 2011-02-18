@@ -1,10 +1,13 @@
+#region usings
+
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Diagnostics.Contracts;
 using System.Linq;
 using System.Linq.Expressions;
 using Composable.System.Linq;
+
+#endregion
 
 namespace Composable.Data.ORM
 {
@@ -15,7 +18,8 @@ namespace Composable.Data.ORM
         }
     }
 
-    public class Repository<TInstance, TKey, TPersistenceSession> : IRepository<TInstance, TKey> where TPersistenceSession : IPersistenceSession
+    public class Repository<TInstance, TKey, TPersistenceSession> : IRepository<TInstance, TKey>
+        where TPersistenceSession : IPersistenceSession
     {
         protected TPersistenceSession Session { get; private set; }
 
@@ -30,7 +34,7 @@ namespace Composable.Data.ORM
         }
 
         public IList<TInstance> GetAll(IEnumerable<TKey> ids)
-        {            
+        {
             return ids.Select(Get).ToList();
         }
 
@@ -74,10 +78,7 @@ namespace Composable.Data.ORM
         #region Implementation of IQueryable
 
         private IQueryable<TInstance> _query;
-        private IQueryable<TInstance> Query
-        {
-            get { return _query ?? (_query = Session.Query<TInstance>()); }
-        }
+        private IQueryable<TInstance> Query { get { return _query ?? (_query = Session.Query<TInstance>()); } }
 
         public IEnumerator<TInstance> GetEnumerator()
         {

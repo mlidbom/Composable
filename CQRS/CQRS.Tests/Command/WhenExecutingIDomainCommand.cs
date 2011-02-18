@@ -1,7 +1,6 @@
 #region usings
 
 using System.Collections.Generic;
-using System.Linq;
 using Castle.Core;
 using Composable.CQRS;
 using Composable.CQRS.Command;
@@ -25,8 +24,8 @@ namespace CQRS.Tests.Command
         private static readonly IList<SomethingHappened> _raisedEvents =
             new List<SomethingHappened>
                 {
-                    new SomethingHappened(){Name = "FirstEvent"},
-                    new SomethingHappened(){Name = "SecondEvent"}
+                    new SomethingHappened { Name = "FirstEvent" },
+                    new SomethingHappened { Name = "SecondEvent" }
                 };
 
         [SetUp]

@@ -1,6 +1,10 @@
+#region usings
+
 using System;
 using System.Diagnostics.Contracts;
 using System.Linq;
+
+#endregion
 
 namespace Composable.Data.ORM
 {
@@ -40,7 +44,7 @@ namespace Composable.Data.ORM
 
         public void SaveOrUpdate(object instance)
         {
-            Contract.Requires(instance!=null);
+            Contract.Requires(instance != null);
             throw new NotImplementedException();
         }
 

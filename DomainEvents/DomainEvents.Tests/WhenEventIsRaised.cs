@@ -5,8 +5,8 @@ using System.Threading;
 using Castle.MicroKernel.Registration;
 using Castle.Windsor;
 using CommonServiceLocator.WindsorAdapter;
-using NUnit.Framework;
 using Composable.System;
+using NUnit.Framework;
 
 #endregion
 
@@ -19,7 +19,7 @@ namespace Composable.DomainEvents.Tests
         public void Setup()
         {
             var container = new WindsorContainer();
-            container.Register(AllTypes.FromThisAssembly().BasedOn(typeof (IHandles<>)).Configure(cfg => cfg.LifeStyle.Transient));
+            container.Register(AllTypes.FromThisAssembly().BasedOn(typeof(IHandles<>)).Configure(cfg => cfg.LifeStyle.Transient));
             DomainEvent.Init(new WindsorServiceLocator(container));
         }
 
@@ -47,7 +47,7 @@ namespace Composable.DomainEvents.Tests
         public void ManuallyRegisteredListenersAreCalled()
         {
             var called = false;
-            using (DomainEvent.Register<IDomainEvent>(i => { called = true; }))
+            using(DomainEvent.Register<IDomainEvent>(i => { called = true; }))
             {
                 DomainEvent.Raise(new SomethingHappend());
             }
@@ -58,14 +58,14 @@ namespace Composable.DomainEvents.Tests
         public void ManuallyRegisteredListenersAreNotCalledWhenEventRaisedOnOtherThread()
         {
             var called = false;
-            using (DomainEvent.Register<IDomainEvent>(i => { called = true; }))
+            using(DomainEvent.Register<IDomainEvent>(i => { called = true; }))
             {
                 var done = new ManualResetEvent(false);
-                using (var timer = new Timer((o) =>
-                                                 {
-                                                     DomainEvent.Raise(new SomethingHappend());
-                                                     done.Set();
-                                                 }, null, 1, -1))
+                using(var timer = new Timer((o) =>
+                                                {
+                                                    DomainEvent.Raise(new SomethingHappend());
+                                                    done.Set();
+                                                }, null, 1, -1))
                 {
                     done.WaitOne(2.Seconds());
                 }

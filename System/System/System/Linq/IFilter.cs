@@ -1,8 +1,12 @@
+#region usings
+
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using System.Linq;
 using System.Linq.Expressions;
+
+#endregion
 
 namespace Composable.System.Linq
 {
@@ -19,7 +23,7 @@ namespace Composable.System.Linq
     /// 
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    [ContractClass(typeof (FilterContract<>))]
+    [ContractClass(typeof(FilterContract<>))]
     public interface IFilter<T>
     {
         /// <summary>
@@ -29,7 +33,7 @@ namespace Composable.System.Linq
         IEnumerable<Expression<Func<T, Boolean>>> Filters { get; }
     }
 
-    [ContractClassFor(typeof (IFilter<>))]
+    [ContractClassFor(typeof(IFilter<>))]
     internal abstract class FilterContract<T> : IFilter<T>
     {
         /// <summary/>

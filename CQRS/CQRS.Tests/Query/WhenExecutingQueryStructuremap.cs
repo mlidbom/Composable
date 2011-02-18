@@ -1,11 +1,13 @@
-using System;
-using System.Collections.Generic;
+#region usings
+
 using Composable.CQRS.Query;
 using Microsoft.Practices.ServiceLocation;
 using NUnit.Framework;
 using StructureMap;
 using StructureMap.Configuration.DSL;
 using StructureMap.ServiceLocatorAdapter;
+
+#endregion
 
 namespace CQRS.Tests.Query
 {
@@ -19,18 +21,18 @@ namespace CQRS.Tests.Query
         public void Setup()
         {
             var registry = new Registry();
-            
+
 
             registry.Scan(scanner =>
-            {
-                scanner.AssemblyContainingType<ActiveCandidatesHandler>();
-                scanner.ConnectImplementationsToTypesClosing(typeof(IQueryHandler<,>));
-            });
-            registry.For<IServiceLocator>().Use( () => _locator);
+                              {
+                                  scanner.AssemblyContainingType<ActiveCandidatesHandler>();
+                                  scanner.ConnectImplementationsToTypesClosing(typeof(IQueryHandler<,>));
+                              });
+            registry.For<IServiceLocator>().Use(() => _locator);
             registry.For<IQueryService>().Use<QueryService>();
 
             var container = new Container(registry);
             _locator = new StructureMapServiceLocator(container);
-        }        
+        }
     }
 }

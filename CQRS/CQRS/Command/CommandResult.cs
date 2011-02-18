@@ -1,7 +1,6 @@
 ﻿#region usings
 
 using System.Collections.Generic;
-using System.Diagnostics.Contracts;
 using Composable.DomainEvents;
 
 #endregion

@@ -1,5 +1,8 @@
+#region usings
+
 using System;
-using System.Collections.Generic;
+
+#endregion
 
 namespace Composable.SpaceTime.Time
 {
@@ -21,10 +24,7 @@ namespace Composable.SpaceTime.Time
             }
 
             private TimeSpan _timeSpanValue;
-            public TimeSpan TimeSpanValue
-            {
-                set { _timeSpanValue = value; }
-            }
+            public TimeSpan TimeSpanValue { set { _timeSpanValue = value; } }
 
             public TimeSpan AsTimeSpan()
             {

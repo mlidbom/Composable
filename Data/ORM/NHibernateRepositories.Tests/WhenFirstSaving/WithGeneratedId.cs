@@ -1,9 +1,10 @@
-using System;
+#region usings
+
 using Composable.Data.ORM.NHibernateRepositories.Tests.Domain;
 using Composable.Data.ORM.Repositories.Tests.Domain;
-using NHibernate.ByteCode.Castle;
 using NUnit.Framework;
-using Composable.Data.ORM.NHibernate;
+
+#endregion
 
 namespace Composable.Data.ORM.NHibernateRepositories.Tests.WhenFirstSaving
 {

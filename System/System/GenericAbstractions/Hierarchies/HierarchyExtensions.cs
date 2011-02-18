@@ -1,11 +1,16 @@
+#region usings
+
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
-using Composable.System.Linq;
-using Composable.GenericAbstractions.Wrappers;
 using System.Linq;
+using Composable.GenericAbstractions.Wrappers;
+using Composable.System.Linq;
+
+#endregion
 
 //FIXME:Does not belong here. Extract entire namespace and rename
+
 namespace Composable.GenericAbstractions.Hierarchies
 {
     /// <summary>
@@ -41,13 +46,7 @@ namespace Composable.GenericAbstractions.Hierarchies
             }
 
             [ContractVerification(false)]
-            public IEnumerable<IAutoHierarchy<T>> Children
-            {
-                get
-                {
-                    return _childGetter(Wrapped).Select(child => child.AsHierarchy(_childGetter));
-                }
-            }
+            public IEnumerable<IAutoHierarchy<T>> Children { get { return _childGetter(Wrapped).Select(child => child.AsHierarchy(_childGetter)); } }
 
             public T Wrapped { get; private set; }
 
@@ -55,7 +54,7 @@ namespace Composable.GenericAbstractions.Hierarchies
             {
                 Contract.Requires(childGetter != null);
                 Wrapped = nodeValue;
-                this._childGetter = childGetter;
+                _childGetter = childGetter;
             }
         }
 
@@ -85,7 +84,7 @@ namespace Composable.GenericAbstractions.Hierarchies
         /// <summary>
         /// Given a sequence of <see cref="IAutoHierarchy{T}"/> returns a sequence containing the wrapped T values.
         /// </summary>
-        public static IEnumerable<T> Unwrap<T>(this IEnumerable<IAutoHierarchy<T>> root) 
+        public static IEnumerable<T> Unwrap<T>(this IEnumerable<IAutoHierarchy<T>> root)
         {
             Contract.Requires(root != null);
             Contract.Ensures(Contract.Result<IEnumerable<T>>() != null);

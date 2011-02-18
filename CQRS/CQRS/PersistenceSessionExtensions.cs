@@ -1,6 +1,9 @@
-using System;
+#region usings
+
 using System.Diagnostics.Contracts;
 using Composable.Data.ORM;
+
+#endregion
 
 namespace Composable.CQRS
 {
@@ -25,7 +28,7 @@ namespace Composable.CQRS
             [ContractInvariantMethod]
             private void Invariants()
             {
-                Contract.Invariant(_session!=null);
+                Contract.Invariant(_session != null);
             }
 
             public TEntity Get<TEntity>(object entityId)

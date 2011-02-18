@@ -1,6 +1,5 @@
 #region usings
 
-using System;
 using System.Diagnostics.Contracts;
 using System.Transactions;
 using Microsoft.Practices.ServiceLocation;
@@ -22,18 +21,18 @@ namespace Composable.CQRS.Query
         [ContractInvariantMethod]
         private void Invariant()
         {
-            Contract.Invariant(_serviceLocator!=null);
+            Contract.Invariant(_serviceLocator != null);
         }
 
         public TQueryResult Execute<TQuery, TQueryResult>(IQuery<TQuery, TQueryResult> query) where TQuery : IQuery<TQuery, TQueryResult>
-        {            
-            using (var transaction = new TransactionScope())
+        {
+            using(var transaction = new TransactionScope())
             {
                 var handler = _serviceLocator.GetSingleInstance<IQueryHandler<TQuery, TQueryResult>>();
-                var result = handler.Execute((TQuery) query);
+                var result = handler.Execute((TQuery)query);
                 transaction.Complete();
                 return result;
-            }            
+            }
         }
     }
 }

@@ -24,22 +24,13 @@ namespace Composable.Tests.DDD
                 _state = state;
             }
 
-            public string Address1
-            {
-                get { return _address1; }
-            }
+            public string Address1 { get { return _address1; } }
 
-            public string City
-            {
-                get { return _city; }
-            }
+            public string City { get { return _city; } }
 
             public string Guid { get; set; }
 
-            public string State
-            {
-                get { return _state; }
-            }
+            public string State { get { return _state; } }
         }
 
         private class GuidHolder : ValueObject<GuidHolder>
@@ -62,10 +53,7 @@ namespace Composable.Tests.DDD
                 _address2 = address2;
             }
 
-            public string Address2
-            {
-                get { return _address2; }
-            }
+            public string Address2 { get { return _address2; } }
         }
 
         [Test]
@@ -99,7 +87,7 @@ namespace Composable.Tests.DDD
         [Test]
         public void AddressEqualsWorksWithNonIdenticalGuids()
         {
-            var address = new Address("Address1", "Austin", "TX") {Guid = "test"};
+            var address = new Address("Address1", "Austin", "TX") { Guid = "test" };
             var address2 = new Address("Address2", "Austin", "TX");
 
             Assert.IsFalse(address.Equals(address2));

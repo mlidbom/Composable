@@ -1,5 +1,9 @@
-﻿using NUnit.Framework;
+﻿#region usings
+
 using Composable.System.Linq;
+using NUnit.Framework;
+
+#endregion
 
 namespace Core.Tests.Linq
 {

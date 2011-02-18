@@ -1,4 +1,8 @@
+#region usings
+
 using System;
+
+#endregion
 
 namespace Composable.SpaceTime.Time
 {
@@ -86,10 +90,7 @@ namespace Composable.SpaceTime.Time
                 return new SimpleTimePoint(targetTime.AsDateTime());
             }
 
-            public ITimePoint TimePosition
-            {
-                get { return this; }
-            }
+            public ITimePoint TimePosition { get { return this; } }
 
             public SimpleTimePoint(DateTime position)
             {

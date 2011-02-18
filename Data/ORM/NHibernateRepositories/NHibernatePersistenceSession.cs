@@ -62,7 +62,7 @@ namespace Composable.Data.ORM.NHibernate
 
         ~NHibernatePersistenceSession()
         {
-            if (!_disposed)
+            if(!_disposed)
             {
                 //todo:Log.For(this).ErrorMessage("{0} helper instance was not disposed!");
             }

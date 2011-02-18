@@ -1,5 +1,9 @@
-﻿using System.Collections.Generic;
+﻿#region usings
+
+using System.Collections.Generic;
 using System.Diagnostics.Contracts;
+
+#endregion
 
 namespace Composable.System.Linq
 {

@@ -1,5 +1,9 @@
+#region usings
+
 using System;
 using System.Diagnostics.Contracts;
+
+#endregion
 
 namespace Composable.CQRS
 {
@@ -14,8 +18,8 @@ namespace Composable.CQRS
     {
         public CommandResult Execute<TCommand>(TCommand command)
         {
-            Contract.Requires(command!=null);
-            Contract.Ensures(Contract.Result<CommandResult>()!=null);
+            Contract.Requires(command != null);
+            Contract.Ensures(Contract.Result<CommandResult>() != null);
             throw new NotImplementedException();
         }
     }

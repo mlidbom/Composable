@@ -1,8 +1,12 @@
-﻿using System;
+﻿#region usings
+
+using System;
 using System.Collections.Generic;
 using Composable.Data.ORM.InMemoryRepositories;
 using Composable.Data.ORM.Repositories.Tests.Domain;
 using NUnit.Framework;
+
+#endregion
 
 namespace Composable.Data.ORM.Repositories.Tests
 {
@@ -11,15 +15,16 @@ namespace Composable.Data.ORM.Repositories.Tests
         protected virtual IPersistenceSession GetPersistanceSession()
         {
             IDictionary<Type, IIdManager> idManagers = new Dictionary<Type, IIdManager>
-                                                       {
                                                            {
-                                                               typeof (TypeWithGeneratedId), new Int32IdManager<TypeWithGeneratedId>
-                                                                                             {
-                                                                                                 Getter = me => me.Id,
-                                                                                                 Setter = (me, value) => me.Id = value
-                                                                                             }
-                                                               }
-                                                       };
+                                                               {
+                                                                   typeof(TypeWithGeneratedId), new Int32IdManager<TypeWithGeneratedId>
+                                                                                                    {
+                                                                                                        Getter = me => me.Id,
+                                                                                                        Setter =
+                                                                                                            (me, value) => me.Id = value
+                                                                                                    }
+                                                                   }
+                                                           };
             return new HashSetPersistanceSession(idManagers);
         }
 

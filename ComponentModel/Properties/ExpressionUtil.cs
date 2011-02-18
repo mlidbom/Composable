@@ -1,5 +1,9 @@
+#region usings
+
 using System.Diagnostics.Contracts;
 using System.Linq.Expressions;
+
+#endregion
 
 namespace Composable.System.ComponentModel.Properties
 {
@@ -7,17 +11,17 @@ namespace Composable.System.ComponentModel.Properties
     {
         public static string ExtractMemberName(LambdaExpression lambda)
         {
-            Contract.Requires(lambda!=null);
+            Contract.Requires(lambda != null);
             var body = lambda.Body;
             MemberExpression memberExpression;
 
-            if (body is UnaryExpression)
+            if(body is UnaryExpression)
             {
-                memberExpression = (MemberExpression) ((UnaryExpression) body).Operand;
+                memberExpression = (MemberExpression)((UnaryExpression)body).Operand;
             }
             else
             {
-                memberExpression = (MemberExpression) body;
+                memberExpression = (MemberExpression)body;
             }
 
             return memberExpression.Member.Name;

@@ -1,6 +1,9 @@
-using System;
+#region usings
+
 using System.Collections.Generic;
 using System.Transactions;
+
+#endregion
 
 namespace Composable.Data.ORM
 {
@@ -26,7 +29,7 @@ namespace Composable.Data.ORM
 
         public override void SaveOrUpdate(IEnumerable<TInstance> instances)
         {
-            using (var transaction = new TransactionScope())
+            using(var transaction = new TransactionScope())
             {
                 base.SaveOrUpdate(instances);
                 transaction.Complete();
@@ -35,7 +38,7 @@ namespace Composable.Data.ORM
 
         public override void Delete(TInstance instance)
         {
-            using (var transaction = new TransactionScope())
+            using(var transaction = new TransactionScope())
             {
                 base.Delete(instance);
                 transaction.Complete();

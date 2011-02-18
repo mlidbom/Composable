@@ -1,5 +1,8 @@
+#region usings
+
 using NUnit.Framework;
-using Composable.System;
+
+#endregion
 
 namespace Core.Tests
 {

@@ -1,5 +1,9 @@
-﻿using System;
+﻿#region usings
+
+using System;
 using System.Diagnostics.Contracts;
+
+#endregion
 
 namespace Composable.GenericAbstractions.Wrappers
 {
@@ -16,10 +20,13 @@ namespace Composable.GenericAbstractions.Wrappers
     [ContractClassFor(typeof(IWrapper<>))]
     internal abstract class WrapperContract<T> : IWrapper<T>
     {
-        public T Wrapped { get
+        public T Wrapped
         {
-            Contract.Ensures(Contract.Result<T>() != null);
-            throw new NotImplementedException();
-        } }
+            get
+            {
+                Contract.Ensures(Contract.Result<T>() != null);
+                throw new NotImplementedException();
+            }
+        }
     }
 }

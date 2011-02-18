@@ -1,5 +1,9 @@
-using NUnit.Framework;
+#region usings
+
 using System.Linq;
+using NUnit.Framework;
+
+#endregion
 
 namespace Composable.Data.ORM.Repositories.Tests.Linq
 {

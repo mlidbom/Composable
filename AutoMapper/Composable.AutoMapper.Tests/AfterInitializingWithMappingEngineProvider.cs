@@ -1,18 +1,28 @@
-using System;
+#region usings
+
 using AutoMapper;
 using AutoMapper.Mappers;
 using NUnit.Framework;
+
+#endregion
 
 namespace Composable.AutoMapper.Tests
 {
     [TestFixture]
     public class AfterInitializingWithMappingEngineProvider
     {
-        private struct A { public string Title { get; set; } }
-        private struct B { public string Title { get; set; } }
+        private struct A
+        {
+            public string Title { get; set; }
+        }
 
-        A _a = new A() { Title = "A" };
-        B _b = new B() { Title = "A" };
+        private struct B
+        {
+            public string Title { get; set; }
+        }
+
+        private A _a = new A { Title = "A" };
+        private B _b = new B { Title = "A" };
 
         [TestFixtureSetUp]
         public void Setup()

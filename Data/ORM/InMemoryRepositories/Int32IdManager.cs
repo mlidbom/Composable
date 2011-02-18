@@ -18,11 +18,11 @@ namespace Composable.Data.ORM.InMemoryRepositories
         public override object NextId(IEnumerable allInstancesOfType)
         {
             Contract.Requires(allInstancesOfType != null);
-            if (!allInstancesOfType.OfType<TInstance>().Any())
+            if(!allInstancesOfType.OfType<TInstance>().Any())
             {
                 return 1;
             }
-            return allInstancesOfType.Cast<TInstance>().Max(me => (int) Get(me)) + 1;
+            return allInstancesOfType.Cast<TInstance>().Max(me => (int)Get(me)) + 1;
         }
     }
 }

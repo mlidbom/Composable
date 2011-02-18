@@ -4,7 +4,6 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using AutoMapper;
 using AutoMapper.Mappers;
 using Microsoft.Practices.ServiceLocation;
@@ -17,13 +16,13 @@ namespace Composable.AutoMapper
     {
         public static void Init(Func<IMappingEngine> engineProvider)
         {
-            lock (LockObject)
+            lock(LockObject)
             {
                 if(_initialized)
                 {
                     throw new Exception("You may only call Init once");
                 }
-                if (engineProvider == null)
+                if(engineProvider == null)
                 {
                     throw new ArgumentNullException("engineProvider");
                 }
@@ -34,9 +33,9 @@ namespace Composable.AutoMapper
 
         public static void Init(IServiceLocator locator)
         {
-            lock (LockObject)
+            lock(LockObject)
             {
-                if (_initialized)
+                if(_initialized)
                 {
                     throw new Exception("You may only call Init once");
                 }
@@ -46,17 +45,17 @@ namespace Composable.AutoMapper
                 }
                 _initialized = true;
                 _locator = locator;
-            }            
+            }
         }
 
         public static void ResetOnlyCallFromTests()
         {
-            lock (LockObject)
+            lock(LockObject)
             {
                 _initialized = false;
                 _locator = null;
                 _engineProvider = null;
-            }            
+            }
         }
 
         private static readonly object LockObject = new Object();
@@ -72,11 +71,11 @@ namespace Composable.AutoMapper
                 {
                     throw new InvalidOperationException("You must call init before using MapTo");
                 }
-                if (_engineProvider == null)
+                if(_engineProvider == null)
                 {
-                    lock (LockObject)
+                    lock(LockObject)
                     {
-                        if (_engineProvider == null)
+                        if(_engineProvider == null)
                         {
                             _engineProvider = CreateDefaultProvider();
                         }
@@ -91,10 +90,10 @@ namespace Composable.AutoMapper
             var configuration = new Configuration(new TypeMapFactory(), MapperRegistry.AllMappers());
             var safeConfiguration = new SafeConfiguration(configuration);
 
-            foreach (var mappingCreator in _locator.GetAllInstances<IProvidesMappings>())
+            foreach(var mappingCreator in _locator.GetAllInstances<IProvidesMappings>())
             {
-                mappingCreator.CreateMappings(safeConfiguration);   
-            }                
+                mappingCreator.CreateMappings(safeConfiguration);
+            }
 
             configuration.AssertConfigurationIsValid();
 
@@ -105,7 +104,7 @@ namespace Composable.AutoMapper
 
         public static TTarget MapTo<TTarget>(this object me)
         {
-            return (TTarget) Engine.Map(me, me.GetType(), typeof (TTarget));
+            return (TTarget)Engine.Map(me, me.GetType(), typeof(TTarget));
         }
 
         public static IEnumerable<TTarget> MapTo<TTarget>(this IEnumerable me)

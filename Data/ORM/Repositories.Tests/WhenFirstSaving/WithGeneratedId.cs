@@ -1,6 +1,8 @@
-using System;
+#region usings
+
 using NUnit.Framework;
-using Composable.Data.ORM.Repositories.Tests.Domain;
+
+#endregion
 
 namespace Composable.Data.ORM.Repositories.Tests.WhenFirstSaving
 {

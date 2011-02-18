@@ -1,5 +1,9 @@
+#region usings
+
 using Composable.DDD;
 using NUnit.Framework;
+
+#endregion
 
 namespace Composable.AutoMapper.Tests
 {
@@ -21,8 +25,8 @@ namespace Composable.AutoMapper.Tests
         [Test]
         public void MappingToSameTypeWorks()
         {
-            var structA = new StructA {Title = "A"};
-            var classA = new ClassA() {Val1 = "1", Val2 = "2"};
+            var structA = new StructA { Title = "A" };
+            var classA = new ClassA { Val1 = "1", Val2 = "2" };
 
             Assert.That(structA.MapTo<StructA>(), Is.EqualTo(structA));
             Assert.That(classA.MapTo<ClassA>(), Is.EqualTo(classA));

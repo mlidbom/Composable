@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using System.Linq;
 using System.Linq.Expressions;
-using Composable.CQRS;
 using Composable.System.Linq;
 
 namespace Composable.Data.ORM

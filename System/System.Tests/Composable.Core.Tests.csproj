@@ -128,19 +128,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AutoMapper\AfterImplementingIProvidesMappings.cs" />
-    <Compile Include="AutoMapper\AfterInitializingWithMappingEngineProvider.cs" />
-    <Compile Include="AutoMapper\MappingTest.cs" />
-    <Compile Include="AutoMapper\WithoutConfiguration.cs" />
-    <Compile Include="CQRS\Command\WhenExecutingIDomainCommand.cs" />
-    <Compile Include="CQRS\Query\WhenExecutingQuery.cs" />
-    <Compile Include="CQRS\Query\WhenExecutingQueryStructuremap.cs" />
-    <Compile Include="CQRS\Query\WhenExecutingQueryWindsor.cs" />
-    <Compile Include="Data\ORM\Domain\TypeWithGeneratedId.cs" />
-    <Compile Include="Data\ORM\Linq\SimpleQueries.cs" />
-    <Compile Include="Data\ORM\RepositoryTest.cs" />
-    <Compile Include="Data\ORM\WhenFirstSaving\WithGeneratedId.cs" />
-    <Compile Include="DDD\DomainEvents\WhenEventIsRaised.cs" />
     <Compile Include="DDD\PersistentEntityTests.cs" />
     <Compile Include="DDD\ValueObjectTests.cs" />
     <Compile Include="DDD\ValueObjectToString.cs" />
@@ -155,17 +142,14 @@
     <Compile Include="ObjectExtensionsTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="System\Collections\Generic\DictionaryExtensionsTest.cs" />
-    <Compile Include="System\ComponentModel\Properties\AutoProperty\WhenPropertyValueChanges.cs" />
-    <Compile Include="System\ComponentModel\Properties\AutoProperty\WhenPropertyValueChangesAfterSerialization.cs" />
-    <Compile Include="System\ComponentModel\Properties\DomainObject.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\AutoMapper\Composable.AutoMapper\Composable.AutoMapper.csproj">
       <Project>{AA0A55FE-EA05-4A3B-9FB7-47E1D570F1CF}</Project>
       <Name>Composable.AutoMapper</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\Data\ORM\Composable.Data.ORM.Repositories\Composable.Data.ORM.csproj">
-      <Project>{9B4B5C29-86A3-48CF-980A-FD5728AE3FAB}</Project>
+    <ProjectReference Include="..\..\Data\ORM\Repositories\Composable.Data.ORM.csproj">
+      <Project>{42E6457A-2943-4D2B-A337-B1DE59AAD1EE}</Project>
       <Name>Composable.Data.ORM</Name>
     </ProjectReference>
     <ProjectReference Include="..\System\Composable.Core.csproj">
@@ -194,9 +178,7 @@
     <None Include="packages.config" />
     <None Include="Void.snk" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="System\ComponentModel\Properties\WrapperProperty\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

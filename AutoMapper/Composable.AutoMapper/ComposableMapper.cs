@@ -103,19 +103,6 @@ namespace Composable.AutoMapper
             return () => engine;
         }
 
-        private static Type[] GetTypesSafely(Assembly assembly)
-        {
-            try
-            {
-                return assembly.GetTypes();
-            }
-            catch (Exception )
-            {
-                //fixme: Swallowing exceptions is not that great....
-                return new Type[0];
-            }
-        }
-
         public static TTarget MapTo<TTarget>(this object me)
         {
             return (TTarget) Engine.Map(me, me.GetType(), typeof (TTarget));
@@ -134,6 +121,16 @@ namespace Composable.AutoMapper
         public static IEnumerable<object> MapTo(this IEnumerable me, Type targetType)
         {
             return me.Cast<object>().Select(obj => obj.MapTo(targetType));
+        }
+
+        public static void MapOnto<TSource, TTarget>(this TSource source, TTarget target)
+        {
+            Engine.Map(source, target);
+        }
+
+        public static void MapDynamicOnto<TSource, TTarget>(this TSource source, TTarget target)
+        {
+            Engine.DynamicMap(source, target);
         }
     }
 }

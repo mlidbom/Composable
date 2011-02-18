@@ -1,17 +1,21 @@
+#region usings
+
 using System;
 using System.CodeDom;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Linq;
 using System.Reflection;
 using System.Runtime.Serialization;
-using System.Linq;
+
+#endregion
 
 namespace Composable.System.ServiceModel
 {
     public class DataContractSurrogateLink : IDataContractSurrogate
     {
-        private IDataContractSurrogate _head;
-        private IDataContractSurrogate _tail;
+        private readonly IDataContractSurrogate _head;
+        private readonly IDataContractSurrogate _tail;
 
         public static IDataContractSurrogate Chain(IEnumerable<IDataContractSurrogate> chain)
         {
@@ -61,13 +65,15 @@ namespace Composable.System.ServiceModel
             var headCustomDataToExport = _head.GetCustomDataToExport(memberInfo, dataContractType);
             var tailCustomDataToExport = _tail.GetCustomDataToExport(memberInfo, dataContractType);
 
-            if (headCustomDataToExport != null && tailCustomDataToExport != null)
+            if(headCustomDataToExport != null && tailCustomDataToExport != null)
             {
-                throw new Exception(string.Format("Both {0} and {1} surrogates responded to GetCustomDataToExport for memberInfo {2} with dataContractType {3}",
-                    _head.GetType(), _tail.GetType(), memberInfo, dataContractType));
+                throw new Exception(
+                    string.Format(
+                        "Both {0} and {1} surrogates responded to GetCustomDataToExport for memberInfo {2} with dataContractType {3}",
+                        _head.GetType(), _tail.GetType(), memberInfo, dataContractType));
             }
 
-            if (headCustomDataToExport != null)
+            if(headCustomDataToExport != null)
             {
                 return headCustomDataToExport;
             }
@@ -80,13 +86,15 @@ namespace Composable.System.ServiceModel
             var headCustomDataToExport = _head.GetCustomDataToExport(clrType, dataContractType);
             var tailCustomDataToExport = _tail.GetCustomDataToExport(clrType, dataContractType);
 
-            if (headCustomDataToExport != null && tailCustomDataToExport != null)
+            if(headCustomDataToExport != null && tailCustomDataToExport != null)
             {
-                throw new Exception(string.Format("Both {0} and {1} surrogates responded to GetCustomDataToExport for clrType {2} with dataContractType {3}",
-                    _head.GetType(), _tail.GetType(), clrType, dataContractType));
+                throw new Exception(
+                    string.Format(
+                        "Both {0} and {1} surrogates responded to GetCustomDataToExport for clrType {2} with dataContractType {3}",
+                        _head.GetType(), _tail.GetType(), clrType, dataContractType));
             }
 
-            if (headCustomDataToExport != null)
+            if(headCustomDataToExport != null)
             {
                 return headCustomDataToExport;
             }
@@ -101,8 +109,8 @@ namespace Composable.System.ServiceModel
 
             if(headType != null && tailType != null)
             {
-                throw new Exception(string.Format("Both {0} and {1} surrogates responded to GetReferencedTypeOnImport for type {2}.{3}", 
-                    _head.GetType(), _tail.GetType(), typeNamespace, typeName));
+                throw new Exception(string.Format("Both {0} and {1} surrogates responded to GetReferencedTypeOnImport for type {2}.{3}",
+                                                  _head.GetType(), _tail.GetType(), typeNamespace, typeName));
             }
 
             if(headType != null)

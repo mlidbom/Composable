@@ -1,6 +1,10 @@
+#region usings
+
 using System;
 using System.Collections;
 using System.Diagnostics.Contracts;
+
+#endregion
 
 namespace Composable.Data.ORM.InMemoryRepositories
 {
@@ -16,12 +20,12 @@ namespace Composable.Data.ORM.InMemoryRepositories
 
         public object Get(object instance)
         {
-            return Getter((TInstance) instance);
+            return Getter((TInstance)instance);
         }
 
         public void Set(object instance, object id)
         {
-            Setter((TInstance) instance, (TId) id);
+            Setter((TInstance)instance, (TId)id);
         }
 
         public abstract object NextId(IEnumerable allInstancesOfType);

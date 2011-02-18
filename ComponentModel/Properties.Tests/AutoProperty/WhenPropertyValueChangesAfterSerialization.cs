@@ -1,6 +1,10 @@
+#region usings
+
 using System.IO;
 using System.Runtime.Serialization;
 using NUnit.Framework;
+
+#endregion
 
 namespace Composable.Tests.System.ComponentModel.Properties.AutoProperty
 {
@@ -9,12 +13,12 @@ namespace Composable.Tests.System.ComponentModel.Properties.AutoProperty
     {
         protected override DomainObject ProvideInstance()
         {
-            using (var dataStream = new MemoryStream())
+            using(var dataStream = new MemoryStream())
             {
-                var serializer = new DataContractSerializer(typeof (DomainObject));
+                var serializer = new DataContractSerializer(typeof(DomainObject));
                 serializer.WriteObject(dataStream, new DomainObject());
                 dataStream.Position = 0;
-                return (DomainObject) serializer.ReadObject(dataStream);
+                return (DomainObject)serializer.ReadObject(dataStream);
             }
         }
 

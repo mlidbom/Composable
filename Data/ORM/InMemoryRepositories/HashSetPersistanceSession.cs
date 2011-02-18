@@ -1,9 +1,13 @@
+#region usings
+
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using System.Linq;
 using Composable.System.Linq;
+
+#endregion
 
 namespace Composable.Data.ORM.InMemoryRepositories
 {
@@ -22,7 +26,7 @@ namespace Composable.Data.ORM.InMemoryRepositories
         [ContractInvariantMethod]
         private void Invariant()
         {
-            Contract.Invariant(_data!=null);
+            Contract.Invariant(_data != null);
             Contract.Invariant(IdManagers != null);
         }
 
@@ -51,7 +55,7 @@ namespace Composable.Data.ORM.InMemoryRepositories
         public void SaveOrUpdate(object instance)
         {
             var idManager = IdManagers[instance.GetType()];
-            Contract.Assume(idManager!=null);
+            Contract.Assume(idManager != null);
             if(Equals(idManager.Get(instance), idManager.Unsaved))
             {
                 idManager.Set(instance, idManager.NextId(AllInstancesOfType(instance.GetType())));

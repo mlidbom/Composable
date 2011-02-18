@@ -1,6 +1,10 @@
+#region usings
+
 using NHibernate;
 using NHibernate.Cfg;
 using NHibernate.Tool.hbm2ddl;
+
+#endregion
 
 namespace Composable.Data.ORM.NHibernate
 {

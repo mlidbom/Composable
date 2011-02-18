@@ -1,26 +1,27 @@
-using System;
+#region usings
+
 using System.Collections.Generic;
-using Castle.Windsor;
-using CommonServiceLocator.WindsorAdapter;
 using Composable.CQRS;
 using Composable.CQRS.Query;
 using Composable.DDD;
 using Microsoft.Practices.ServiceLocation;
 using NUnit.Framework;
 
+#endregion
+
 namespace CQRS.Tests.Query
 {
     [TestFixture]
     public abstract class WhenExecutingQuery
     {
-        private static List<ActiveCandidates.ActiveCandidate> _result = new List<ActiveCandidates.ActiveCandidate>
-                                                                    {
-                                                                        new ActiveCandidates.ActiveCandidate
-                                                                            {
-                                                                                Forename = "ForeName",
-                                                                                SurName = "SurName"
-                                                                            }
-                                                                    };
+        private static readonly List<ActiveCandidates.ActiveCandidate> _result = new List<ActiveCandidates.ActiveCandidate>
+                                                                                     {
+                                                                                         new ActiveCandidates.ActiveCandidate
+                                                                                             {
+                                                                                                 Forename = "ForeName",
+                                                                                                 SurName = "SurName"
+                                                                                             }
+                                                                                     };
 
         protected abstract IServiceLocator Locator { get; }
 
@@ -44,9 +45,11 @@ namespace CQRS.Tests.Query
             Assert.Throws<DuplicateHandlersException>(() => Locator.GetInstance<IQueryService>().Execute(new DuplicateHandlers()));
         }
 
-        public class DuplicateHandlers: IQuery<DuplicateHandlers, DuplicateHandlers.ReturnType>
+        public class DuplicateHandlers : IQuery<DuplicateHandlers, DuplicateHandlers.ReturnType>
         {
-            public class ReturnType{}
+            public class ReturnType
+            {
+            }
         }
 
         public class DuplicateHandlersHandler1 : IQueryHandler<DuplicateHandlers, DuplicateHandlers.ReturnType>

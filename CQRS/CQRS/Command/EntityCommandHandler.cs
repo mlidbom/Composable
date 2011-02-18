@@ -1,4 +1,8 @@
-﻿using System.Diagnostics.Contracts;
+﻿#region usings
+
+using System.Diagnostics.Contracts;
+
+#endregion
 
 namespace Composable.CQRS
 {
@@ -17,7 +21,7 @@ namespace Composable.CQRS
         [ContractInvariantMethod]
         private void Invariants()
         {
-            Contract.Invariant(_session!=null);
+            Contract.Invariant(_session != null);
         }
 
         public void Execute(TCommand command)

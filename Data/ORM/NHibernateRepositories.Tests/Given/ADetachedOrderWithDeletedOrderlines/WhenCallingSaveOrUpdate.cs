@@ -1,8 +1,12 @@
+#region usings
+
 using System.Collections.Generic;
 using Composable.Data.ORM.NHibernate;
 using Composable.Data.ORM.NHibernateRepositories.Tests.Domain;
 using NHibernate.ByteCode.Castle;
 using NUnit.Framework;
+
+#endregion
 
 namespace Composable.Data.ORM.NHibernateRepositories.Tests.Given.ADetachedOrderWithDeletedOrderlines
 {
@@ -12,18 +16,18 @@ namespace Composable.Data.ORM.NHibernateRepositories.Tests.Given.ADetachedOrderW
         [Test]
         public void TheDeletedOrderLinesShouldBeRemovedFromTheDatabase()
         {
-            Order order = new Order
-                          {
-                              Lines = new List<OrderLine>
-                                      {
-                                          new OrderLine(),
-                                          new OrderLine(),
-                                          new OrderLine(),
-                                          new OrderLine()
-                                      }
-                          };
+            var order = new Order
+                            {
+                                Lines = new List<OrderLine>
+                                            {
+                                                new OrderLine(),
+                                                new OrderLine(),
+                                                new OrderLine(),
+                                                new OrderLine()
+                                            }
+                            };
 
-            using (var session = new InMemoryNHibernatePersistenceSession<ProxyFactoryFactory>())
+            using(var session = new InMemoryNHibernatePersistenceSession<ProxyFactoryFactory>())
             {
                 var repo = new TransactionalRepository<Order, int>(session);
                 repo.SaveOrUpdate(order);

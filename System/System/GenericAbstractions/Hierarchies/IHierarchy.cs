@@ -1,6 +1,10 @@
-﻿using System;
+﻿#region usings
+
+using System;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
+
+#endregion
 
 namespace Composable.GenericAbstractions.Hierarchies
 {
@@ -39,10 +43,13 @@ namespace Composable.GenericAbstractions.Hierarchies
     [ContractClassFor(typeof(IHierarchy<>))]
     internal abstract class HierarchyContract<T> : IHierarchy<T> where T : IHierarchy<T>
     {
-        public IEnumerable<T> Children { get
+        public IEnumerable<T> Children
         {
-            Contract.Ensures(Contract.Result<IEnumerable<HierarchyContract<T>>>() != null);
-            throw new NotImplementedException();
-        } }
+            get
+            {
+                Contract.Ensures(Contract.Result<IEnumerable<HierarchyContract<T>>>() != null);
+                throw new NotImplementedException();
+            }
+        }
     }
 }

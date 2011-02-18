@@ -1,8 +1,11 @@
-using System;
+#region usings
+
 using Castle.MicroKernel.Registration;
 using Castle.Windsor;
 using CommonServiceLocator.WindsorAdapter;
 using NUnit.Framework;
+
+#endregion
 
 namespace Composable.AutoMapper.Tests
 {

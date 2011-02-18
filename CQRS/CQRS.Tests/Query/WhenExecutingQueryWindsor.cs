@@ -1,16 +1,11 @@
 #region usings
 
-using System;
-using System.Collections.Generic;
 using Castle.MicroKernel.Registration;
 using Castle.Windsor;
 using CommonServiceLocator.WindsorAdapter;
 using Composable.CQRS.Query;
-using Composable.DDD;
 using Microsoft.Practices.ServiceLocation;
 using NUnit.Framework;
-using System.Linq;
-using Castle.Core;
 
 #endregion
 
@@ -33,6 +28,6 @@ namespace CQRS.Tests.Query
                 Component.For<IQueryService>().ImplementedBy<QueryService>(),
                 Component.For<IServiceLocator>().Instance(Locator)
                 );
-        }        
+        }
     }
 }

@@ -28,9 +28,9 @@ namespace Composable.CQRS.Command
         public virtual CommandResult Execute<TCommand>(TCommand command)
         {
             var result = new CommandResult();
-            using (DomainEvent.Register<IDomainEvent>(result.RegisterEvent))
+            using(DomainEvent.Register<IDomainEvent>(result.RegisterEvent))
             {
-                using (var transaction = new TransactionScope())
+                using(var transaction = new TransactionScope())
                 {
                     var handler = _serviceLocator.GetSingleInstance<ICommandHandler<TCommand>>();
                     handler.Execute(command);

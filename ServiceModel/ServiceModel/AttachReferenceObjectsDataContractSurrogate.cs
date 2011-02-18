@@ -1,5 +1,9 @@
+#region usings
+
 using System;
 using System.Linq;
+
+#endregion
 
 namespace Composable.System.ServiceModel
 {
@@ -18,16 +22,16 @@ namespace Composable.System.ServiceModel
 
         public override object GetDeserializedObject(object obj, Type targetType)
         {
-            if (obj is IReferenceObject)
+            if(obj is IReferenceObject)
             {
-                if (Config.ReferenceTypesToRegister != null && Config.ReferenceTypesToRegister.Contains(targetType))
+                if(Config.ReferenceTypesToRegister != null && Config.ReferenceTypesToRegister.Contains(targetType))
                 {
-                    return RegisterInstanceDelegate((IReferenceObject) obj);
+                    return RegisterInstanceDelegate((IReferenceObject)obj);
                 }
 
-                if (Config.Options.HasFlag(Options.AttachReferenceObjects))
+                if(Config.Options.HasFlag(Options.AttachReferenceObjects))
                 {
-                    return FetchInstanceDelegate((IReferenceObject) obj);
+                    return FetchInstanceDelegate((IReferenceObject)obj);
                 }
             }
             return obj;

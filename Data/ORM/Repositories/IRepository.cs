@@ -1,3 +1,5 @@
+#region usings
+
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -5,6 +7,8 @@ using System.Diagnostics.Contracts;
 using System.Linq;
 using System.Linq.Expressions;
 using Composable.System.Linq;
+
+#endregion
 
 namespace Composable.Data.ORM
 {
@@ -15,11 +19,11 @@ namespace Composable.Data.ORM
         TInstance TryGet(TKey id);
         bool TryGet(TKey id, out TInstance result);
 
-        IList<TInstance> GetAll(IEnumerable<TKey> ids);                
+        IList<TInstance> GetAll(IEnumerable<TKey> ids);
         IList<TInstance> TryGetAll(IEnumerable<TKey> ids);
 
         void SaveOrUpdate(TInstance instance);
-        void SaveOrUpdate(IEnumerable<TInstance> instances);       
+        void SaveOrUpdate(IEnumerable<TInstance> instances);
 
         void Delete(TInstance instance);
         IQueryable<TInstance> Find(IFilter<TInstance> criteria);
@@ -46,7 +50,7 @@ namespace Composable.Data.ORM
 
         public TInstance Get(TKey id)
         {
-            Contract.Requires(id!=null);
+            Contract.Requires(id != null);
             throw new NotImplementedException();
         }
 

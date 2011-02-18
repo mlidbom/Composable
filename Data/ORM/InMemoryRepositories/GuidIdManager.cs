@@ -1,5 +1,9 @@
+#region usings
+
 using System;
 using System.Collections;
+
+#endregion
 
 namespace Composable.Data.ORM.InMemoryRepositories
 {

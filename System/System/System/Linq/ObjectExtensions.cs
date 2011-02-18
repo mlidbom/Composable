@@ -1,5 +1,9 @@
+#region usings
+
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
+
+#endregion
 
 namespace Composable.System.Linq
 {
@@ -14,7 +18,7 @@ namespace Composable.System.Linq
         /// </summary>
         public static IEnumerable<T> Repeat<T>(this T me, int times)
         {
-            while (times-- > 0)
+            while(times-- > 0)
             {
                 yield return me;
             }

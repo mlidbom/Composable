@@ -1,7 +1,11 @@
+#region usings
+
 using System;
 using System.Diagnostics.Contracts;
 using System.Linq.Expressions;
 using System.Runtime.Serialization;
+
+#endregion
 
 namespace Composable.System.ComponentModel.Properties
 {
@@ -30,24 +34,24 @@ namespace Composable.System.ComponentModel.Properties
 
         protected void AssertInitalized()
         {
-            if (Owner == null && _isConstructed)
+            if(Owner == null && _isConstructed)
             {
-                throw new InvalidOperationException(typeof (TValueType).Name + " Property " + Name + " is not initialized");
+                throw new InvalidOperationException(typeof(TValueType).Name + " Property " + Name + " is not initialized");
             }
         }
 
         protected void OnPropertyChanged()
         {
-            if (!_eventInProgress)
+            if(!_eventInProgress)
             {
                 _eventInProgress = true;
                 try
                 {
-                    if (Owner != null)
+                    if(Owner != null)
                     {
                         Owner.FirePropertyChanged(Name);
                     }
-                    if (PropertyChanged != null)
+                    if(PropertyChanged != null)
                     {
                         PropertyChanged(Name);
                     }

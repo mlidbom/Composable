@@ -13,7 +13,7 @@ namespace Composable.Data.ORM.NHibernate
 {
     public class InMemoryNHibernatePersistenceSession<TProxyFactory> : NHibernatePersistenceSession
     {
-        public InMemoryNHibernatePersistenceSession(): base(CreateDataBaseAndOpenSession())
+        public InMemoryNHibernatePersistenceSession() : base(CreateDataBaseAndOpenSession())
         {
         }
 
@@ -21,10 +21,10 @@ namespace Composable.Data.ORM.NHibernate
         {
             Configuration = new Configuration()
                 .SetProperty(Environment.ReleaseConnections, "on_close")
-                .SetProperty(Environment.Dialect, typeof (SQLiteDialect).AssemblyQualifiedName)
-                .SetProperty(Environment.ConnectionDriver, typeof (SQLite20Driver).AssemblyQualifiedName)
+                .SetProperty(Environment.Dialect, typeof(SQLiteDialect).AssemblyQualifiedName)
+                .SetProperty(Environment.ConnectionDriver, typeof(SQLite20Driver).AssemblyQualifiedName)
                 .SetProperty(Environment.ConnectionString, "data source=:memory:")
-                .SetProperty(Environment.ProxyFactoryFactoryClass, typeof (TProxyFactory).AssemblyQualifiedName)
+                .SetProperty(Environment.ProxyFactoryFactoryClass, typeof(TProxyFactory).AssemblyQualifiedName)
                 .SetProperty(Environment.ShowSql, "true");
         }
 

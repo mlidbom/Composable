@@ -1,6 +1,10 @@
+#region usings
+
 using System;
 using System.IO;
 using System.Runtime.Serialization;
+
+#endregion
 
 namespace Composable.System.ServiceModel
 {
@@ -13,7 +17,7 @@ namespace Composable.System.ServiceModel
 
         public static DataContractSerializer CreateSerializer<T>(OperationExtensionAttribute config)
         {
-            return new DataContractSerializer(typeof (T),
+            return new DataContractSerializer(typeof(T),
                                               null /*knownTypes*/,
                                               int.MaxValue /*maxItemsInObjectGraph*/,
                                               false /*ignoreExtensionDataObject*/,
@@ -33,27 +37,27 @@ namespace Composable.System.ServiceModel
 
         public static T Serialize<T>(T instance, DataContractSerializer serializer)
         {
-            using (MemoryStream writer = new MemoryStream())
+            using(var writer = new MemoryStream())
             {
                 serializer.WriteObject(writer, instance);
                 writer.Seek(0, 0);
-                return (T) serializer.ReadObject(writer);
+                return (T)serializer.ReadObject(writer);
             }
         }
 
         public static T Read<T>(string filePath)
         {
-            if (!File.Exists(filePath))
+            if(!File.Exists(filePath))
             {
                 return default(T);
             }
-            using (var data = new FileStream(filePath, FileMode.Open, FileAccess.Read))
+            using(var data = new FileStream(filePath, FileMode.Open, FileAccess.Read))
             {
                 try
                 {
-                    return (T) CreateSerializer<T>().ReadObject(data);
+                    return (T)CreateSerializer<T>().ReadObject(data);
                 }
-                catch (Exception)
+                catch(Exception)
                 {
                     return default(T);
                 }
@@ -62,7 +66,7 @@ namespace Composable.System.ServiceModel
 
         public static void Write<T>(T instance, string filePath)
         {
-            using (var data = new FileStream(filePath, FileMode.Create))
+            using(var data = new FileStream(filePath, FileMode.Create))
             {
                 var serializer = CreateSerializer<T>();
                 serializer.WriteObject(data, instance);

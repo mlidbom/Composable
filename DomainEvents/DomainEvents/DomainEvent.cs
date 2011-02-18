@@ -6,11 +6,8 @@ using System.Diagnostics.Contracts;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
-using Microsoft.Practices.ServiceLocation;
 using Composable.System.Linq;
-using Composable.System.Reflection;
-using Composable.System.IO;
-using Composable.System;
+using Microsoft.Practices.ServiceLocation;
 
 #endregion
 
@@ -19,13 +16,18 @@ namespace Composable.DomainEvents
     public static class DomainEvent
     {
         //fixme: This is not safe with the threadingmodel of asp.net. Needs to use clever storage that determines whether you are in a web request....
-        private static readonly ThreadLocal<List<Delegate>> ManualSubscribersStorage = new ThreadLocal<List<Delegate>>(() => new List<Delegate>());
-        private static List<Delegate> ManualSubscribers { get
+        private static readonly ThreadLocal<List<Delegate>> ManualSubscribersStorage =
+            new ThreadLocal<List<Delegate>>(() => new List<Delegate>());
+
+        private static List<Delegate> ManualSubscribers
         {
-            Contract.Ensures(Contract.Result<List<Delegate>>()!=null);
-            Contract.Assume(ManualSubscribersStorage.Value != null);
-            return ManualSubscribersStorage.Value;
-        } }
+            get
+            {
+                Contract.Ensures(Contract.Result<List<Delegate>>() != null);
+                Contract.Assume(ManualSubscribersStorage.Value != null);
+                return ManualSubscribersStorage.Value;
+            }
+        }
 
         private static IServiceLocator _locator;
         private static readonly object LockObject = new object();
@@ -34,9 +36,10 @@ namespace Composable.DomainEvents
         {
             get
             {
-                if (_locator == null)
+                if(_locator == null)
                 {
-                    throw new Exception("Domain event class has not been initialized. Please make sure to call Init during your application bootstrapping");
+                    throw new Exception(
+                        "Domain event class has not been initialized. Please make sure to call Init during your application bootstrapping");
                 }
                 return _locator;
             }
@@ -45,20 +48,20 @@ namespace Composable.DomainEvents
         [ContractInvariantMethod]
         private static void Invariants()
         {
-            Contract.Invariant(ManualSubscribers!=null);
-            Contract.Invariant(ServiceLocator!=null);
+            Contract.Invariant(ManualSubscribers != null);
+            Contract.Invariant(ServiceLocator != null);
         }
 
         public static void Init(IServiceLocator locator)
         {
-            if (locator == null)
+            if(locator == null)
             {
                 throw new ArgumentNullException("locator");
             }
 
-            lock (LockObject)
+            lock(LockObject)
             {
-                if (_locator != null)
+                if(_locator != null)
                 {
                     throw new Exception("You may only call init once!");
                 }
@@ -72,14 +75,14 @@ namespace Composable.DomainEvents
         }
 
 
- 
         private static Type[] GetTypesSafely(Assembly assembly)
         {
-            Contract.Requires(assembly!=null);
+            Contract.Requires(assembly != null);
             try
             {
                 return assembly.GetTypes();
-            }catch(Exception)
+            }
+            catch(Exception)
             {
                 //fixme: Swallowing exceptions is not that great....
                 return new Type[0];
@@ -116,11 +119,11 @@ namespace Composable.DomainEvents
 
         private static IHandles<T> CreateInstance<T>(Type type) where T : IDomainEvent
         {
-            if (ServiceLocator != null)
+            if(ServiceLocator != null)
             {
-                return (IHandles<T>) ServiceLocator.GetInstance(type);
+                return (IHandles<T>)ServiceLocator.GetInstance(type);
             }
-            return (IHandles<T>) Activator.CreateInstance(type, false);
+            return (IHandles<T>)Activator.CreateInstance(type, false);
         }
 
         /// <summary>
@@ -134,7 +137,7 @@ namespace Composable.DomainEvents
         public static void Raise<T>(T args) where T : IDomainEvent
         {
             Contract.Requires(args != null);
-                ServiceLocator.GetAllInstances<IHandles<T>>().ForEach(handler => handler.Handle(args));
+            ServiceLocator.GetAllInstances<IHandles<T>>().ForEach(handler => handler.Handle(args));
 
             ManualSubscribers.OfType<Action<T>>()
                 .ForEach(action => action(args));

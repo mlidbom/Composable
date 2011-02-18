@@ -1,7 +1,11 @@
+#region usings
+
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using System.Linq;
+
+#endregion
 
 namespace Composable.System.Linq
 {
@@ -11,7 +15,7 @@ namespace Composable.System.Linq
     {
         public static T SingleNotNull<T>(this IEnumerable<T> me)
         {
-            Contract.Requires(me!= null);
+            Contract.Requires(me != null);
             Contract.Ensures(Contract.Result<T>() != null);
             var result = me.Single();
             if(result == null)
@@ -26,7 +30,8 @@ namespace Composable.System.Linq
         /// Enables you to perform operations that require you to alias the sequence being 
         /// manipulated without having to create temporary variables.
         /// </summary>
-        public static IEnumerable<TResult> Let<TSource, TResult>(this IEnumerable<TSource> me, Func<IEnumerable<TSource>, IEnumerable<TResult>> selector)
+        public static IEnumerable<TResult> Let<TSource, TResult>(this IEnumerable<TSource> me,
+                                                                 Func<IEnumerable<TSource>, IEnumerable<TResult>> selector)
         {
             Contract.Requires(selector != null);
             return selector(me);
@@ -68,18 +73,18 @@ namespace Composable.System.Linq
         /// </summary>
         public static IEnumerable<IEnumerable<T>> ChopIntoSizesOf<T>(this IEnumerable<T> me, int size)
         {
-            using (var enumerator = me.GetEnumerator())
+            using(var enumerator = me.GetEnumerator())
             {
-                int yielded = size;
-                while (yielded == size)
+                var yielded = size;
+                while(yielded == size)
                 {
                     yielded = 0;
-                    T[] next = new T[size];
-                    while (yielded < size && enumerator.MoveNext())
+                    var next = new T[size];
+                    while(yielded < size && enumerator.MoveNext())
                     {
                         next[yielded++] = enumerator.Current;
                     }
-                    if (yielded == 0)
+                    if(yielded == 0)
                     {
                         yield break;
                     }

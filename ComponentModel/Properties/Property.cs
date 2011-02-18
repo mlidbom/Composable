@@ -1,7 +1,11 @@
+#region usings
+
 using System;
 using System.Diagnostics.Contracts;
 using System.Linq.Expressions;
 using System.Runtime.Serialization;
+
+#endregion
 
 namespace Composable.System.ComponentModel.Properties
 {
@@ -10,12 +14,11 @@ namespace Composable.System.ComponentModel.Properties
     {
         //When the object has been created by being deserialized, this is false.....        
 
-        [DataMember(Name = "v")]
-        private TValueType _value;
+        [DataMember(Name = "v")] private TValueType _value;
 
         public Property(Expression<Func<TOwnerType, TValueType>> member) : base(member)
         {
-            Contract.Requires(member!=null);
+            Contract.Requires(member != null);
         }
 
         public TValueType Value
@@ -28,7 +31,7 @@ namespace Composable.System.ComponentModel.Properties
             set
             {
                 AssertInitalized();
-                if (!Equals(_value, value))
+                if(!Equals(_value, value))
                 {
                     _value = value;
                     OnPropertyChanged();

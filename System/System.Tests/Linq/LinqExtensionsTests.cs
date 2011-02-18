@@ -1,7 +1,11 @@
+#region usings
+
 using System.Collections.Generic;
 using System.Linq;
-using NUnit.Framework;
 using Composable.System.Linq;
+using NUnit.Framework;
+
+#endregion
 
 namespace Core.Tests.Linq
 {
@@ -12,11 +16,11 @@ namespace Core.Tests.Linq
         public void FlattenShouldIterateAllNestedCollectionInstances()
         {
             var nestedInts = new List<List<int>>
-                             {
-                                 new List<int> {1,},
-                                 new List<int> {2, 3},
-                                 new List<int> {4, 5, 6, 7}
-                             };
+                                 {
+                                     new List<int> { 1, },
+                                     new List<int> { 2, 3 },
+                                     new List<int> { 4, 5, 6, 7 }
+                                 };
 
             var flattened = LinqExtensions.Flatten<List<int>, int>(nestedInts);
             Assert.That(flattened, Is.EquivalentTo(1.Through(7)));

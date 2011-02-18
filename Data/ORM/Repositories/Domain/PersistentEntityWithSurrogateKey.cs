@@ -1,10 +1,12 @@
-using System;
+#region usings
+
 using Composable.DDD;
-using Composable.System;
+
+#endregion
 
 namespace Composable.Data.ORM.Domain
 {
-    public class PersistentEntityWithSurrogateKey<TEntity,TKey> : PersistentEntity<TEntity> where TEntity : PersistentEntity<TEntity>
+    public class PersistentEntityWithSurrogateKey<TEntity, TKey> : PersistentEntity<TEntity> where TEntity : PersistentEntity<TEntity>
     {
         public virtual TKey PersistentId { get; private set; }
     }

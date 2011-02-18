@@ -1,8 +1,12 @@
+#region usings
+
 using System;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
 using System.ServiceModel.Description;
 using System.Xml;
+
+#endregion
 
 namespace Composable.System.ServiceModel
 {
@@ -27,16 +31,14 @@ namespace Composable.System.ServiceModel
         }
 
 
-
         public IDataContractSurrogate CreateServerSurrogate()
         {
-
-                return DataContractSurrogateLink.Chain(
-                    new IDataContractSurrogate[]
+            return DataContractSurrogateLink.Chain(
+                new IDataContractSurrogate[]
                     {
                         new RestoreCollectionTypesDataContractSurrogate(),
                         new DetachReferenceObjectsDataContractSurrogate(Config),
-                        new NHibernateDataContractSurrogate(Config)                                                                  
+                        new NHibernateDataContractSurrogate(Config)
                     });
         }
 
@@ -45,23 +47,25 @@ namespace Composable.System.ServiceModel
         {
             return DataContractSurrogateLink.Chain(
                 new IDataContractSurrogate[]
-                {
-                    new RestoreCollectionTypesDataContractSurrogate(),
-                    new DetachReferenceObjectsDataContractSurrogate(Config),
-                    new NHibernateDataContractSurrogate(Config),
-                    new AttachReferenceObjectsDataContractSurrogate(Config)
-                });
+                    {
+                        new RestoreCollectionTypesDataContractSurrogate(),
+                        new DetachReferenceObjectsDataContractSurrogate(Config),
+                        new NHibernateDataContractSurrogate(Config),
+                        new AttachReferenceObjectsDataContractSurrogate(Config)
+                    });
         }
     }
 
     internal class ServerSerializationOperationBehavior : SerializationOperationBehavior
     {
-        public ServerSerializationOperationBehavior(OperationDescription operationDescription, OperationExtensionAttribute serializationOptions)
+        public ServerSerializationOperationBehavior(OperationDescription operationDescription,
+                                                    OperationExtensionAttribute serializationOptions)
             : base(operationDescription, serializationOptions)
         {
         }
 
-        public override XmlObjectSerializer CreateSerializer(Type type, XmlDictionaryString name, XmlDictionaryString ns, IList<Type> knownTypes)
+        public override XmlObjectSerializer CreateSerializer(Type type, XmlDictionaryString name, XmlDictionaryString ns,
+                                                             IList<Type> knownTypes)
         {
             var surrogate = CreateServerSurrogate();
             return new DataContractSerializer(type, name, ns, knownTypes,
@@ -74,14 +78,15 @@ namespace Composable.System.ServiceModel
 
     internal class ClientSerializationOperationBehavior : SerializationOperationBehavior
     {
-        public ClientSerializationOperationBehavior(OperationDescription operationDescription, OperationExtensionAttribute serializationOptions)
+        public ClientSerializationOperationBehavior(OperationDescription operationDescription,
+                                                    OperationExtensionAttribute serializationOptions)
             : base(operationDescription, serializationOptions)
         {
         }
 
-     
 
-        public override XmlObjectSerializer CreateSerializer(Type type, XmlDictionaryString name, XmlDictionaryString ns, IList<Type> knownTypes)
+        public override XmlObjectSerializer CreateSerializer(Type type, XmlDictionaryString name, XmlDictionaryString ns,
+                                                             IList<Type> knownTypes)
         {
             var surrogate = CreateClientSurrogate();
             return new DataContractSerializer(type, name, ns, knownTypes,

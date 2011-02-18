@@ -1,7 +1,11 @@
+#region usings
+
 using System;
 using Composable.SpaceTime.Plane;
 using Composable.SpaceTime.Plane.Impl;
 using Composable.SpaceTime.Time;
+
+#endregion
 
 namespace Composable.SpaceTime.PlaneTime.Impl
 {

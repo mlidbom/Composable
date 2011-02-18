@@ -1,4 +1,8 @@
+#region usings
+
 using System;
+
+#endregion
 
 namespace Composable.SpaceTime.Time
 {
@@ -15,7 +19,7 @@ namespace Composable.SpaceTime.Time
         /// <summary>The absolute value of the movement in time between first and second.</summary>
         public static IDuration Between(ITimePoint first, ITimePoint second)
         {
-            if (first.IsAfterOrSameInstantAs(second))
+            if(first.IsAfterOrSameInstantAs(second))
             {
                 return FromTimeSpan(first.AsDateTime() - second.AsDateTime());
             }
@@ -42,10 +46,7 @@ namespace Composable.SpaceTime.Time
         private class SimpleDuration : IDuration
         {
             private TimeSpan _timeSpanValue;
-            public TimeSpan TimeSpanValue
-            {
-                set { _timeSpanValue = value; }
-            }
+            public TimeSpan TimeSpanValue { set { _timeSpanValue = value; } }
 
             public TimeSpan AsTimeSpan()
             {

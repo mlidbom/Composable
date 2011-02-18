@@ -1,4 +1,8 @@
+#region usings
+
 using System.Drawing;
+
+#endregion
 
 namespace Composable.SpaceTime.Plane
 {

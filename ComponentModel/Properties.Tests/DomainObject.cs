@@ -1,6 +1,5 @@
-#region using
+#region usings
 
-using System;
 using System.ComponentModel;
 using System.Runtime.Serialization;
 using Composable.System.ComponentModel.Properties;
@@ -12,12 +11,14 @@ namespace Composable.Tests.System.ComponentModel.Properties
     [DataContract]
     public class DomainObject : ISerializablePropertyOwner
     {
-        [DataMember]
-        private Property<DomainObject, string> _dependentProperty = new Property<DomainObject, string>(me => me.DependentProperty);
+        [DataMember] private Property<DomainObject, string> _dependentProperty =
+            new Property<DomainObject, string>(me => me.DependentProperty);
+
         public string DependentProperty { get { return _dependentProperty.Value; } set { _dependentProperty.Value = value; } }
 
-        [DataMember]
-        private Property<DomainObject, string> _standAloneProperty = new Property<DomainObject, string>(me => me.StandAloneProperty);
+        [DataMember] private Property<DomainObject, string> _standAloneProperty =
+            new Property<DomainObject, string>(me => me.StandAloneProperty);
+
         public string StandAloneProperty { get { return _standAloneProperty.Value; } set { _standAloneProperty.Value = value; } }
 
         public DomainObject()

@@ -1,7 +1,10 @@
-﻿using System;
+﻿#region usings
+
 using Composable.Data.ORM.NHibernate;
 using Composable.Data.ORM.NHibernateRepositories.Tests.Domain;
 using NHibernate.ByteCode.Castle;
+
+#endregion
 
 namespace Composable.Data.ORM.NHibernateRepositories.Tests
 {
@@ -9,7 +12,6 @@ namespace Composable.Data.ORM.NHibernateRepositories.Tests
     {
         public static void Init()
         {
-           
         }
 
         static NhibernateRepositoryTest()

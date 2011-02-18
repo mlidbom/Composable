@@ -1,4 +1,8 @@
+#region usings
+
 using Composable.DDD;
+
+#endregion
 
 namespace Composable.DomainEvents
 {

@@ -1,4 +1,8 @@
+#region usings
+
 using System;
+
+#endregion
 
 namespace Composable.SpaceTime.Time
 {
@@ -47,7 +51,7 @@ namespace Composable.SpaceTime.Time
         {
             var start = TimePoint.Latest(me.FirstInstant(), other.FirstInstant());
             var end = TimePoint.Earliest(me.LastInstant(), other.LastInstant());
-            if (start.IsAfterOrSameInstantAs(end)) //Detect non-intersecting case.
+            if(start.IsAfterOrSameInstantAs(end)) //Detect non-intersecting case.
             {
                 return NewTimeInterval(start, Duration.Zero);
             }
@@ -64,10 +68,7 @@ namespace Composable.SpaceTime.Time
         {
             public ITimePoint TimePosition { get; private set; }
             private TimeSpan _timeSpanValue;
-            public TimeSpan TimeSpanValue
-            {
-                set { _timeSpanValue = value; }
-            }
+            public TimeSpan TimeSpanValue { set { _timeSpanValue = value; } }
 
             public TimeSpan AsTimeSpan()
             {

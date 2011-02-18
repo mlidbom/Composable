@@ -1,7 +1,9 @@
+#region usings
+
 using Composable.Data.ORM.NHibernateRepositories.Tests.Domain;
 using Composable.Data.ORM.Repositories.Tests.Domain;
-using NHibernate.ByteCode.Castle;
-using Composable.Data.ORM.NHibernate;
+
+#endregion
 
 namespace Composable.Data.ORM.NHibernateRepositories.Tests.Linq
 {
@@ -15,6 +17,6 @@ namespace Composable.Data.ORM.NHibernateRepositories.Tests.Linq
         protected override TypeWithGeneratedId GetInstance()
         {
             return new TypewithGeneratedId();
-        }   
+        }
     }
 }

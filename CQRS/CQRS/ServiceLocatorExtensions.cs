@@ -1,8 +1,12 @@
+#region usings
+
 using System;
 using System.Diagnostics.Contracts;
-using Microsoft.Practices.ServiceLocation;
 using System.Linq;
 using Composable.System.Linq;
+using Microsoft.Practices.ServiceLocation;
+
+#endregion
 
 namespace Composable.CQRS
 {
@@ -11,7 +15,7 @@ namespace Composable.CQRS
         public static T GetSingleInstance<T>(this IServiceLocator me)
         {
             Contract.Requires(me != null);
-            Contract.Ensures(Contract.Result<T>()!= null);
+            Contract.Ensures(Contract.Result<T>() != null);
             var instances = me.GetAllInstances<T>();
             Contract.Assume(instances != null);
             if(instances.Count() > 1)

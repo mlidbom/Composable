@@ -1,6 +1,10 @@
+#region usings
+
 using System;
 using System.ComponentModel;
 using NUnit.Framework;
+
+#endregion
 
 namespace Composable.Tests.System.ComponentModel.Properties.AutoProperty
 {
@@ -29,7 +33,7 @@ namespace Composable.Tests.System.ComponentModel.Properties.AutoProperty
             var raised = false;
             instance.PropertyChanged += (_, args) =>
                                             {
-                                                if (args.PropertyName == propertyName)
+                                                if(args.PropertyName == propertyName)
                                                 {
                                                     raised = true;
                                                 }

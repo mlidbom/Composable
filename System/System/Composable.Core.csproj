@@ -168,6 +168,7 @@
     <Compile Include="Data\ORM\OptimisticConcurrencyException.cs" />
     <Compile Include="Data\ORM\Repository.cs" />
     <Compile Include="Data\ORM\TransactionalRepository.cs" />
+    <Compile Include="System\Collections\Collections\DictionaryExtensions.cs" />
     <Compile Include="System\ComponentModel\ExpressionUtil.cs" />
     <Compile Include="System\ComponentModel\IProperty.cs" />
     <Compile Include="System\ComponentModel\IPropertyOwner.cs" />
@@ -223,6 +224,7 @@
   <ItemGroup>
     <None Include="Composable.Core.nuspec">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <SubType>Designer</SubType>
     </None>
     <None Include="packages.config" />
     <None Include="Void.snk" />

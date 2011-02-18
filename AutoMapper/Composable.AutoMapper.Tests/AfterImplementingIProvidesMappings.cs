@@ -77,13 +77,13 @@ namespace Composable.AutoMapper.Tests
             private string _p7;
             public string P7 { get { return _p7; } private set { _p7 = value; } }
 
-            private string _p8;
-            private string P8 { get { return _p8; } set { _p8 = value; } }
+            //private string _p8;
+            //private string P8 { get { return _p8; } set { _p8 = value; } }
 
             protected A():this("A"){}
             public A(string value)
             {
-                P1 = P2 = P6 = P7 = P8 = value;
+                P1 = P2 = P6 = P7 = value;
             }
 
         }
@@ -105,13 +105,13 @@ namespace Composable.AutoMapper.Tests
             private string _p7;
             public string P7 { get { return _p7; } private set { _p7 = value; } }
 
-            private string _p8;
-            private string P8 { get { return _p8; } set { _p8 = value; } }
+            //private string _p8;
+            //private string P8 { get { return _p8; } set { _p8 = value; } }
 
             protected B():this("B"){}
             public B(string value)
             {
-                P1 = P2 = P6 = P7 = P8 = value;
+                P1 = P2 = P6 = P7 = value;
             }
         }
     }

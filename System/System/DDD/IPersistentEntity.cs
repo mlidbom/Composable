@@ -8,7 +8,7 @@ using System.Diagnostics.Contracts;
 namespace Composable.DDD
 {
     /// <summary>
-    /// Should be implemented by persistent* classes the represents entities in the Domain Driven Design sense of the word.
+    /// Should be implemented by persistent* classes that represents entities in the Domain Driven Design sense of the word.
     /// 
     /// The vital distinction about Persistent Entities is that equality is defined by Identity, 
     /// and as such they must guarantee that they have a non-default identity at all times.  

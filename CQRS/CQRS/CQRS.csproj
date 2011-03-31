@@ -70,10 +70,6 @@
     <Compile Include="CQRS\NoRegisteredHandlersException.cs" />
     <Compile Include="Data\ORM\Domain\PersistentEntityWithSurrogateKey.cs" />
     <Compile Include="Data\ORM\IPersistenceSession.cs" />
-    <Compile Include="Data\ORM\IRepository.cs" />
-    <Compile Include="Data\ORM\OptimisticConcurrencyException.cs" />
-    <Compile Include="Data\ORM\Repository.cs" />
-    <Compile Include="Data\ORM\TransactionalRepository.cs" />
     <Compile Include="DomainEvents\BeforeAndAfter.cs" />
     <Compile Include="DomainEvents\DomainEvent.cs" />
     <Compile Include="DomainEvents\IDomainEvent.cs" />

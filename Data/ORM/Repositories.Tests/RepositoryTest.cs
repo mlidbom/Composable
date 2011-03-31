@@ -19,13 +19,11 @@ namespace Composable.Data.ORM.Repositories.Tests
         }
 
         protected IPersistenceSession Session { get; set; }
-        protected IRepository<TypeWithGeneratedId, Int32> Repository { get; set; }
 
         [SetUp]
         public void Setup()
         {
             Session = GetPersistanceSession();
-            Repository = new Repository<TypeWithGeneratedId, Int32>(Session);
         }
 
         [TearDown]

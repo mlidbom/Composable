@@ -13,8 +13,7 @@ namespace Composable.Data.ORM
     {
         IQueryable<T> Query<T>();
         T Get<T>(object id);
-        T TryGet<T>(object id);
-        void SaveOrUpdate(object instance);
+        void Save(object instance);
         void Delete(object instance);
     }
 
@@ -37,12 +36,7 @@ namespace Composable.Data.ORM
             throw new NotImplementedException();
         }
 
-        public T TryGet<T>(object id)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void SaveOrUpdate(object instance)
+        public void Save(object instance)
         {
             Contract.Requires(instance != null);
             throw new NotImplementedException();

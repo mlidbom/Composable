@@ -39,14 +39,9 @@ namespace Composable.Data.ORM.NHibernate
             return Session.Load<T>(id);
         }
 
-        public T TryGet<T>(object id)
+        public void Save(object instance)
         {
-            return Session.Get<T>(id);
-        }
-
-        public void SaveOrUpdate(object instance)
-        {
-            Session.SaveOrUpdate(instance);
+            Session.Save(instance);
         }
 
         public void Delete(object instance)

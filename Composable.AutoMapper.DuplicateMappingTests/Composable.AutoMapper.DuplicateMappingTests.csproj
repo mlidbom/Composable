@@ -77,9 +77,9 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\CQRS\CQRS\Composable.CQRS.csproj">
-      <Project>{3B776BD4-0EDD-4A83-BC9A-3A53D6649AB0}</Project>
-      <Name>CQRS %28CQRS\CQRS%29</Name>
+    <ProjectReference Include="..\AutoMapper\Composable.AutoMapper\Composable.AutoMapper.csproj">
+      <Project>{AA0A55FE-EA05-4A3B-9FB7-47E1D570F1CF}</Project>
+      <Name>Composable.AutoMapper</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

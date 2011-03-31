@@ -5,11 +5,11 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProductVersion>9.0.30729</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{42E6457A-2943-4D2B-A337-B1DE59AAD1EE}</ProjectGuid>
+    <ProjectGuid>{A858472F-F790-4A3B-8782-B7F4FDAECFA1}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Composable.Data.ORM</RootNamespace>
-    <AssemblyName>Composable.Data.ORM</AssemblyName>
+    <RootNamespace>Composable.Data.ORM.NHibernate</RootNamespace>
+    <AssemblyName>Composable.Data.ORM.NHibernateRepositories</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <FileUpgradeFlags>
@@ -42,8 +42,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <RegisterForComInterop>false</RegisterForComInterop>
-    <DocumentationFile>..\..\..\bin\Debug\Composable.Data.ORM.xml</DocumentationFile>
+    <DocumentationFile>..\..\..\bin\Debug\Composable.Data.ORM.NHibernateRepositories.xml</DocumentationFile>
     <NoWarn>1591</NoWarn>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
     <CodeContractsEnableRuntimeChecking>False</CodeContractsEnableRuntimeChecking>
@@ -77,7 +76,7 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <DocumentationFile>..\..\..\bin\Release\Composable.Data.ORM.xml</DocumentationFile>
+    <DocumentationFile>..\..\..\bin\Release\Composable.Data.ORM.NHibernateRepositories.xml</DocumentationFile>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <PropertyGroup>
@@ -90,14 +89,35 @@
     <RunPostBuildEvent>OnOutputUpdated</RunPostBuildEvent>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Antlr3.Runtime">
+      <HintPath>..\..\packages\Antlr.3.1.3.42154\lib\Antlr3.Runtime.dll</HintPath>
+    </Reference>
+    <Reference Include="Castle.Core">
+      <HintPath>..\..\packages\Castle.Core.2.5.1\lib\NET35\Castle.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="Iesi.Collections">
+      <HintPath>..\..\packages\Iesi.Collections.1.0.1\lib\Iesi.Collections.dll</HintPath>
+    </Reference>
+    <Reference Include="NHibernate">
+      <HintPath>..\..\packages\NHibernate.3.0.0.4000\lib\NHibernate.dll</HintPath>
+    </Reference>
+    <Reference Include="NHibernate.ByteCode.Castle">
+      <HintPath>..\..\packages\NHibernate.3.0.0.4000\lib\NHibernate.ByteCode.Castle.dll</HintPath>
+    </Reference>
+    <Reference Include="Remotion.Data.Linq">
+      <HintPath>..\..\packages\NHibernate.3.0.0.4000\lib\Remotion.Data.Linq.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
     </Reference>
-    <Reference Include="System.Transactions" />
+    <Reference Include="System.Data" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="InMemoryNHibernatePersistenceSession.cs" />
+    <Compile Include="NHibernatePersistenceSession.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SessionExtensions.cs" />
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include="Microsoft.Net.Client.3.5">
@@ -117,21 +137,23 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Composable.Repositories.nuspec">
+    <None Include="Composable.NHibernateRepositories.nuspec">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <SubType>Designer</SubType>
     </None>
+    <None Include="packages.config" />
     <None Include="Void.snk" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\..\System\System\Composable.Core.csproj">
-      <Project>{3632254D-0C4A-4EB8-B388-4C99F8939584}</Project>
-      <Name>Composable.Core</Name>
+    <ProjectReference Include="..\CQRS\Composable.CQRS.csproj">
+      <Project>{3B776BD4-0EDD-4A83-BC9A-3A53D6649AB0}</Project>
+      <Name>Composable.CQRS</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>mkdir packages
-"$(SolutionDir)tools\NuGet.exe" pack "Composable.Repositories.nuspec"  -o packages</PostBuildEvent>
+"$(SolutionDir)tools\NuGet.exe" pack "Composable.NHibernateRepositories.nuspec" -o packages</PostBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

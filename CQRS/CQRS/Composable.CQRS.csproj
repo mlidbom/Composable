@@ -68,7 +68,7 @@
     <Compile Include="CQRS\IEntityFetcher.cs" />
     <Compile Include="CQRS\Command\IEntityHandledCommand.cs" />
     <Compile Include="CQRS\NoRegisteredHandlersException.cs" />
-    <Compile Include="Data\IPersistenceSession.cs" />
+    <Compile Include="Persistence\IPersistenceSession.cs" />
     <Compile Include="DomainEvents\DomainEvent.cs" />
     <Compile Include="DomainEvents\IDomainEvent.cs" />
     <Compile Include="DomainEvents\IHandles.cs" />

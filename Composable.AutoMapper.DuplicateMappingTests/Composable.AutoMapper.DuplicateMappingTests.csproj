@@ -77,7 +77,7 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\CQRS\CQRS\CQRS.csproj">
+    <ProjectReference Include="..\CQRS\CQRS\Composable.CQRS.csproj">
       <Project>{3B776BD4-0EDD-4A83-BC9A-3A53D6649AB0}</Project>
       <Name>CQRS %28CQRS\CQRS%29</Name>
     </ProjectReference>

@@ -1,17 +1,16 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <package>
   <metadata>
-    <id>Composable.NHibernateRepositories</id>
-    <version>1.5.0.0</version>
+    <id>Composable.CQRS.NHibernate</id>
+    <version>1.0.0.0</version>
     <authors>Magnus Lidbom</authors>
     <description>Composable.NHibernateRepositories provide simple wrapper interfaces and classes around NHibernate to simplify usage and testing.</description>
     <language>en-US</language>
     <dependencies>
       <dependency id="NHibernate" version="3.0.0.4000" />
-      <dependency id="Composable.Repositories" version="1.5.0.0" />
     </dependencies>
   </metadata>
   <files>
-    <file src="Composable.Data.ORM.NHibernateRepositories.*" target="lib" />
+    <file src="Composable.CQRS.NHibernate.*" target="lib" />
   </files>
 </package>

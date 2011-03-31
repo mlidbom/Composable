@@ -7,7 +7,7 @@ using Composable.Persistence;
 
 #endregion
 
-namespace Composable.Data.ORM.NHibernate
+namespace Composable.CQRS.NHibernate
 {
     public class NHibernatePersistenceSession : IPersistenceSession
     {

@@ -97,13 +97,7 @@
     <Reference Include="System.Transactions" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Domain\PersistentEntityWithSurrogateKey.cs" />
-    <Compile Include="IPersistenceSession.cs" />
-    <Compile Include="IRepository.cs" />
-    <Compile Include="OptimisticConcurrencyException.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Repository.cs" />
-    <Compile Include="TransactionalRepository.cs" />
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include="Microsoft.Net.Client.3.5">

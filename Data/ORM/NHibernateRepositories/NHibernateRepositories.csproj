@@ -150,9 +150,9 @@
     <None Include="Void.snk" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Repositories\Composable.Data.ORM.csproj">
-      <Project>{42E6457A-2943-4D2B-A337-B1DE59AAD1EE}</Project>
-      <Name>Composable.Data.ORM</Name>
+    <ProjectReference Include="..\..\..\CQRS\CQRS\CQRS.csproj">
+      <Project>{3B776BD4-0EDD-4A83-BC9A-3A53D6649AB0}</Project>
+      <Name>CQRS %28CQRS\CQRS%29</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />

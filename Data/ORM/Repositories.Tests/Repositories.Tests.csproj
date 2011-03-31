@@ -111,19 +111,13 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Domain\TypeWithGeneratedId.cs" />
-    <Compile Include="Linq\SimpleQueries.cs" />
     <Compile Include="RepositoryTest.cs" />
-    <Compile Include="WhenFirstSaving\WithGeneratedId.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\..\CQRS\CQRS\CQRS.csproj">
       <Project>{3B776BD4-0EDD-4A83-BC9A-3A53D6649AB0}</Project>
       <Name>CQRS %28CQRS\CQRS%29</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\InMemoryRepositories\InMemoryRepositories.csproj">
-      <Project>{8B991155-BB3D-49EF-839F-CF6FD468AFDE}</Project>
-      <Name>InMemoryRepositories</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

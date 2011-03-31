@@ -13,21 +13,9 @@ namespace Composable.Data.ORM.NHibernate
         public NHibernatePersistenceSession(ISession session)
         {
             Session = session;
-            _instances++;
         }
 
         public ISession Session { get; private set; }
-
-        #region implementation of INHibernatePersistanceSession
-
-        public void Clear()
-        {
-            Session.Clear();
-        }
-
-        #endregion
-
-        #region implementation of IPersistenceSession
 
         public IQueryable<T> Query<T>()
         {
@@ -49,25 +37,27 @@ namespace Composable.Data.ORM.NHibernate
             Session.Delete(instance);
         }
 
-        #endregion
+        public void Clear()
+        {
+            Session.Clear();
+        }
+
 
         #region Implementation of IDisposable
 
-        private static int _instances;
 
         ~NHibernatePersistenceSession()
         {
             if(!_disposed)
             {
                 //todo:Log.For(this).ErrorMessage("{0} helper instance was not disposed!");
-            }
+            }   
         }
 
         private bool _disposed;
 
         public void Dispose()
         {
-            _instances--;
             _disposed = true;
             Session.Dispose();
         }

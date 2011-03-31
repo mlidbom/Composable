@@ -58,9 +58,10 @@
     <Compile Include="CQRS\Command\ICommandService.cs" />
     <Compile Include="CQRS\Command\IEntityCommandHandler.cs" />
     <Compile Include="CQRS\DuplicateHandlersException.cs" />
-    <Compile Include="CQRS\IEntityFetcher.cs" />
+    <Compile Include="Persistence\IEntityQueryer.cs" />
     <Compile Include="CQRS\Command\IEntityHandledCommand.cs" />
     <Compile Include="CQRS\NoRegisteredHandlersException.cs" />
+    <Compile Include="Persistence\IEntityPersister.cs" />
     <Compile Include="Persistence\IPersistenceSession.cs" />
     <Compile Include="DomainEvents\DomainEvent.cs" />
     <Compile Include="DomainEvents\IDomainEvent.cs" />

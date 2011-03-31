@@ -1,6 +1,7 @@
 ﻿#region usings
 
 using System.Diagnostics.Contracts;
+using Composable.Persistence;
 
 #endregion
 
@@ -10,9 +11,9 @@ namespace Composable.CQRS
         where TEntity : IEntityCommandHandler<TCommand>
         where TCommand : IEntityHandledCommand
     {
-        private readonly IEntityFetcher _session;
+        private readonly IEntityReader _session;
 
-        protected EntityCommandHandler(IEntityFetcher session)
+        protected EntityCommandHandler(IEntityReader session)
         {
             Contract.Requires(session != null);
             _session = session;

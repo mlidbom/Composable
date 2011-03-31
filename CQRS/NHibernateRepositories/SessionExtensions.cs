@@ -6,7 +6,7 @@ using NHibernate.Tool.hbm2ddl;
 
 #endregion
 
-namespace Composable.Data.ORM.NHibernate
+namespace Composable.CQRS.NHibernate
 {
     public static class SessionExtensions
     {

@@ -8,8 +8,8 @@
     <ProjectGuid>{A858472F-F790-4A3B-8782-B7F4FDAECFA1}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Composable.Data.ORM.NHibernate</RootNamespace>
-    <AssemblyName>Composable.Data.ORM.NHibernateRepositories</AssemblyName>
+    <RootNamespace>Composable.CQRS.NHibernate</RootNamespace>
+    <AssemblyName>Composable.CQRS.NHibernate</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <FileUpgradeFlags>
@@ -38,11 +38,11 @@
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>..\..\..\bin\Debug\</OutputPath>
+    <OutputPath>..\..\bin\Debug\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <DocumentationFile>..\..\..\bin\Debug\Composable.Data.ORM.NHibernateRepositories.xml</DocumentationFile>
+    <DocumentationFile>..\..\bin\Debug\Composable.CQRS.NHibernate.xml</DocumentationFile>
     <NoWarn>1591</NoWarn>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
     <CodeContractsEnableRuntimeChecking>False</CodeContractsEnableRuntimeChecking>
@@ -76,7 +76,7 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <DocumentationFile>..\..\..\bin\Release\Composable.Data.ORM.NHibernateRepositories.xml</DocumentationFile>
+    <DocumentationFile>..\..\..\bin\Release\Composable.CQRS.NHibernate.xml</DocumentationFile>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <PropertyGroup>
@@ -137,7 +137,7 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Composable.NHibernateRepositories.nuspec">
+    <None Include="Composable.CQRS.NHibernate.nuspec">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       <SubType>Designer</SubType>
     </None>
@@ -153,7 +153,7 @@
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>mkdir packages
-"$(SolutionDir)tools\NuGet.exe" pack "Composable.NHibernateRepositories.nuspec" -o packages</PostBuildEvent>
+"$(SolutionDir)tools\NuGet.exe" pack "Composable.CQRS.NHibernate.nuspec" -o packages</PostBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

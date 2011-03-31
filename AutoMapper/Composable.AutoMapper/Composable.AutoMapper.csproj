@@ -51,10 +51,6 @@
     <Reference Include="Microsoft.CSharp" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="DuplicateMappingException.cs" />
-    <Compile Include="IProvidesMappings.cs" />
-    <Compile Include="ComposableMapper.cs" />
-    <Compile Include="SafeConfiguration.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

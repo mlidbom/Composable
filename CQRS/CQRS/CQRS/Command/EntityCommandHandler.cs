@@ -11,9 +11,9 @@ namespace Composable.CQRS
         where TEntity : IEntityCommandHandler<TCommand>
         where TCommand : IEntityHandledCommand
     {
-        private readonly IEntityReader _session;
+        private readonly IEntityFetcher _session;
 
-        protected EntityCommandHandler(IEntityReader session)
+        protected EntityCommandHandler(IEntityFetcher session)
         {
             Contract.Requires(session != null);
             _session = session;

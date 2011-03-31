@@ -2,7 +2,7 @@
 
 namespace Composable.Persistence
 {
-    public interface IEntityReader
+    public interface IEntityFetcher
     {
         TEntity Get<TEntity>(object entityId);        
         IQueryable<T> Query<T>();

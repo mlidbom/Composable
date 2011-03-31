@@ -64,7 +64,5 @@ namespace Composable.System
         {
             return TimeSpan.FromDays(me);
         }
-
-
     }
 }

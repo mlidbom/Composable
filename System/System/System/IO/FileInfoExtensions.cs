@@ -1,8 +1,11 @@
-using System;
+#region usings
+
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using System.IO;
 using System.Linq;
+
+#endregion
 
 namespace Composable.System.IO
 {
@@ -12,7 +15,6 @@ namespace Composable.System.IO
     [Pure]
     public static class FileInfoExtensions
     {
-    
         /// <summary>
         /// Returns a sequnce where all files have <paramref name="extensions"/> as their extension
         /// </summary>

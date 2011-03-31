@@ -1,6 +1,10 @@
+#region usings
+
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
+
+#endregion
 
 namespace Composable.System.Linq
 {
@@ -19,11 +23,11 @@ namespace Composable.System.Linq
         public static IEnumerable<TResult> Zip<TFirst, TSecond, TResult>(this IEnumerable<TFirst> first, IEnumerable<TSecond> second,
                                                                          Func<TFirst, TSecond, TResult> selector)
         {
-            using (var firstEnum = first.GetEnumerator())
+            using(var firstEnum = first.GetEnumerator())
             {
-                using (var secondEnum = second.GetEnumerator())
+                using(var secondEnum = second.GetEnumerator())
                 {
-                    while (firstEnum.MoveNext() && secondEnum.MoveNext())
+                    while(firstEnum.MoveNext() && secondEnum.MoveNext())
                     {
                         yield return selector(firstEnum.Current, secondEnum.Current);
                     }

@@ -1,5 +1,9 @@
+#region usings
+
 using Composable.SpaceTime.Plane;
 using Composable.SpaceTime.Time;
+
+#endregion
 
 namespace Composable.SpaceTime.PlaneTime
 {
@@ -20,7 +24,8 @@ namespace Composable.SpaceTime.PlaneTime
 
     /// <summary>Something that can project a clone of itself to other positions in the plane and in time.</summary>
     /// <typeparam name="TProjection">The type of the projected clone.</typeparam>
-    public interface IPlaneTimeProjectable<TProjection> : IPlaneTimePositioned, IPlaneProjectable<TProjection>, ITimeProjectable<TProjection>
+    public interface IPlaneTimeProjectable<TProjection> : IPlaneTimePositioned, IPlaneProjectable<TProjection>,
+                                                          ITimeProjectable<TProjection>
         where TProjection : ITimeProjectable<TProjection>, IPlaneProjectable<TProjection>
     {
     }

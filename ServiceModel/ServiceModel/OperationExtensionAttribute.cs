@@ -1,8 +1,12 @@
+#region usings
+
 using System;
 using System.Runtime.Serialization;
 using System.ServiceModel.Channels;
 using System.ServiceModel.Description;
 using System.ServiceModel.Dispatcher;
+
+#endregion
 
 namespace Composable.System.ServiceModel
 {
@@ -21,7 +25,6 @@ namespace Composable.System.ServiceModel
     {
         public Options Options { get; set; }
         public Type[] ReferenceTypesToRegister { get; set; }
-
 
 
         public OperationExtensionAttribute()

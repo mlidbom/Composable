@@ -1,6 +1,4 @@
-﻿using AutoMapper;
-
-namespace Composable.AutoMapper
+﻿namespace Composable.AutoMapper
 {
     public interface IProvidesMappings
     {

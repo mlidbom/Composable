@@ -1,5 +1,9 @@
+#region usings
+
 using System;
 using System.Diagnostics.Contracts;
+
+#endregion
 
 namespace Composable.System
 {
@@ -10,7 +14,7 @@ namespace Composable.System
         public static void Times(this int times, Action action)
         {
             Contract.Requires(action != null);
-            for(int i = 0; i < times; i++)
+            for(var i = 0; i < times; i++)
             {
                 action();
             }

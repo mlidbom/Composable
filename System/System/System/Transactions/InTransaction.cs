@@ -1,6 +1,10 @@
+#region usings
+
 using System;
 using System.Diagnostics.Contracts;
 using System.Transactions;
+
+#endregion
 
 namespace Composable.System.Transactions
 {

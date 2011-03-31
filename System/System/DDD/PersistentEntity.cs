@@ -1,10 +1,14 @@
+#region usings
+
 using System;
 using System.Diagnostics;
+
+#endregion
 
 namespace Composable.DDD
 {
     /// <summary>
-    /// Simple base class for Entities that ensures a correct identity based <see cref="object.Equals(object)"/>, <see cref="object.GetHashCode"/>, and <see cref="IEquatable{TEntity}"/>.
+    /// Simple base class for Entities that ensures a correct identity based <see cref="object.Equals(object)"/>, <see cref="object.GetHashCode"/>, and <see cref="IEquatable{T}"/>.
     /// 
     /// This class uses <see cref="Guid"/>s as Ids because it is the only built in .Net type the developers are
     /// avare of which can, in practice, guarantee for a system that an PersistentEntity will have a globally unique immutable identity 
@@ -23,6 +27,7 @@ namespace Composable.DDD
         {
             Id = id;
         }
+
         /// <summary>
         /// Creates a new instance with an automatically generated Id
         /// </summary>
@@ -49,7 +54,7 @@ namespace Composable.DDD
         /// </summary>
         public override bool Equals(object other)
         {
-            return (other is TEntity) && Equals((TEntity) other);
+            return (other is TEntity) && Equals((TEntity)other);
         }
 
         /// <summary>Implements: <see cref="object.GetHashCode"/></summary>
@@ -59,10 +64,9 @@ namespace Composable.DDD
         }
 
         ///<summary>True if both instances have the same ID</summary>
-        public static bool operator==(PersistentEntity<TEntity> lhs, PersistentEntity<TEntity> rhs)
+        public static bool operator ==(PersistentEntity<TEntity> lhs, PersistentEntity<TEntity> rhs)
         {
-            //FIXME: Crashes when lhs == null
-            return lhs.Equals(rhs);
+            return !ReferenceEquals(null, lhs) && lhs.Equals(rhs);
         }
 
         ///<summary>True if both instances do not have the same ID</summary>

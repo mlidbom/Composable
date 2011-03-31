@@ -1,5 +1,9 @@
+#region usings
+
 using System;
 using System.Diagnostics.Contracts;
+
+#endregion
 
 namespace Composable.System
 {
@@ -17,7 +21,7 @@ namespace Composable.System
         {
             Contract.Requires(value != null && flag != null);
 
-            if (!value.GetType().Equals(flag.GetType()))
+            if(!value.GetType().Equals(flag.GetType()))
             {
                 throw new ArgumentOutOfRangeException();
             }

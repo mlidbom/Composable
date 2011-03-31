@@ -1,4 +1,8 @@
-﻿using NUnit.Framework;
+﻿#region usings
+
+using NUnit.Framework;
+
+#endregion
 
 namespace Void.SpaceTime.Tests
 {

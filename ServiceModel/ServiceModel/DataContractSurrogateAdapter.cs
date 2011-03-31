@@ -1,8 +1,12 @@
+#region usings
+
 using System;
 using System.CodeDom;
 using System.Collections.ObjectModel;
 using System.Reflection;
 using System.Runtime.Serialization;
+
+#endregion
 
 namespace Composable.System.ServiceModel
 {

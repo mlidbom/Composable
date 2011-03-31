@@ -1,6 +1,10 @@
+#region usings
+
 using System;
 using Composable.DDD;
 using NUnit.Framework;
+
+#endregion
 
 namespace Composable.Tests.DDD
 {
@@ -9,15 +13,20 @@ namespace Composable.Tests.DDD
     {
         public class Person : PersistentEntity<Person>
         {
-            public Person(){}
-            public Person(Guid id):base(id)
+            public Person()
+            {
+            }
+
+            public Person(Guid id) : base(id)
             {
             }
         }
 
         public class Toddler : Person
         {
-            public Toddler(){}
+            public Toddler()
+            {
+            }
 
             public Toddler(Guid id) : base(id)
             {
@@ -55,7 +64,6 @@ namespace Composable.Tests.DDD
             Assert.That(lhs.GetHashCode(), Is.EqualTo(rhs.GetHashCode()));
             Assert.That(lhs.GetHashCode() == rhs.GetHashCode(), Is.True);
         }
-
 
 
         private static void AssertAreEqual(Person lhs, Person rhs)

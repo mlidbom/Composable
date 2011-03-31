@@ -1,8 +1,12 @@
+#region usings
+
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using System.Linq;
 using System.Reflection;
+
+#endregion
 
 namespace Composable.System.Reflection
 {
@@ -12,7 +16,7 @@ namespace Composable.System.Reflection
         /// <returns>All the types in all <paramref name="assemblies"/></returns>
         public static IEnumerable<Type> Types(this IEnumerable<Assembly> assemblies)
         {
-            Contract.Requires(assemblies!=null);
+            Contract.Requires(assemblies != null);
             return assemblies.SelectMany(assembly => assembly.GetTypes());
         }
 

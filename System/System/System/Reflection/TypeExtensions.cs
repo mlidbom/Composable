@@ -15,8 +15,8 @@ namespace Composable.System.Reflection
         public static bool Implements<TImplemented>(this Type me)
         {
             Contract.Requires(me != null);
-            Contract.Requires(typeof (TImplemented).IsInterface);
-            return me.Implements(typeof (TImplemented));
+            Contract.Requires(typeof(TImplemented).IsInterface);
+            return me.Implements(typeof(TImplemented));
         }
 
         ///<returns>true if <paramref name="me"/> implements the interface: <paramref name="implemented"/></returns>
@@ -26,7 +26,7 @@ namespace Composable.System.Reflection
             Contract.Requires(implemented != null);
             Contract.Requires(implemented.IsInterface);
 
-            if (implemented.IsGenericTypeDefinition)
+            if(implemented.IsGenericTypeDefinition)
             {
                 return
                     me.GetInterfaces().Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == implemented);

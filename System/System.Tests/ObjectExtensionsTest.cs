@@ -1,8 +1,12 @@
+#region usings
+
 using System;
 using System.Linq;
-using NUnit.Framework;
 using Composable.System;
 using Composable.System.Linq;
+using NUnit.Framework;
+
+#endregion
 
 namespace Core.Tests
 {
@@ -18,7 +22,7 @@ namespace Core.Tests
         [Test]
         public void CallingTransformShouldBeEquivalentToCallingItsFunctionArgumentWithItsImplicitArgument()
         {
-            int i = 12;
+            var i = 12;
             Func<int, int> plusone = x => x + 1;
             var expected = plusone(i);
             var actual = i.Transform(plusone);

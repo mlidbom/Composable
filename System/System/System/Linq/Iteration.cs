@@ -1,6 +1,10 @@
+#region usings
+
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
+
+#endregion
 
 namespace Composable.System.Linq
 {
@@ -12,8 +16,8 @@ namespace Composable.System.Linq
         /// </summary>
         public static void ForEach<TSource, TReturn>(this IEnumerable<TSource> source, Func<TSource, TReturn> action)
         {
-            Contract.Requires(source != null && action != null);            
-            foreach (var item in source)
+            Contract.Requires(source != null && action != null);
+            foreach(var item in source)
             {
                 action(item);
             }
@@ -25,7 +29,7 @@ namespace Composable.System.Linq
         public static void ForEach<T>(this IEnumerable<T> source, Action<T> action)
         {
             Contract.Requires(source != null && action != null);
-            foreach (var item in source)
+            foreach(var item in source)
             {
                 action(item);
             }
@@ -38,7 +42,7 @@ namespace Composable.System.Linq
         {
             Contract.Requires(source != null && action != null);
             var index = 0;
-            foreach (var item in source)
+            foreach(var item in source)
             {
                 action(item, index++);
             }

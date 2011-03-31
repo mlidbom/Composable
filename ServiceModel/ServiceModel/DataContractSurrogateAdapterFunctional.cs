@@ -1,7 +1,11 @@
+#region usings
+
 using System;
 using System.CodeDom;
 using System.Collections.ObjectModel;
 using System.Reflection;
+
+#endregion
 
 namespace Composable.System.ServiceModel
 {
@@ -18,7 +22,7 @@ namespace Composable.System.ServiceModel
             GetReferencedTypeOnImportFunc = base.GetReferencedTypeOnImport;
             ProcessImportedTypeFunc = base.ProcessImportedType;
         }
-        
+
         public Func<Type, Type> GetDataContractTypeFunc { get; set; }
         public Func<MemberInfo, Type, object> GetCustomDataToExportFunc { get; set; }
         public Func<Type, Type, object> GetCustomDataToExportFunc2 { get; set; }

@@ -2,7 +2,6 @@
 
 using System;
 using System.Collections.Generic;
-using Composable.System.Collections.Collections;
 
 #endregion
 
@@ -17,7 +16,7 @@ namespace Composable.System.Collections.Collections
         public static TValue GetOrAdd<TKey, TValue>(this IDictionary<TKey, TValue> me, TKey key, Func<TValue> constructor)
         {
             TValue value;
-            if (me.TryGetValue(key, out value))
+            if(me.TryGetValue(key, out value))
             {
                 return value;
             }

@@ -1,4 +1,8 @@
-﻿using System.Diagnostics.Contracts;
+﻿#region usings
+
+using System.Diagnostics.Contracts;
+
+#endregion
 
 namespace Composable.GenericAbstractions.Wrappers
 {

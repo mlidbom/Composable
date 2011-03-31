@@ -1,6 +1,10 @@
+#region usings
+
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
+
+#endregion
 
 namespace Composable.System.Linq
 {
@@ -15,12 +19,13 @@ namespace Composable.System.Linq
         /// <param name="source">The source collection.</param>
         /// <param name="childrenSelector">A function that given a <typeparamref name="TSource"/> returns all the immediate descendent.</param>
         /// <returns>An <see cref="IEnumerable{TSource}"/> containing all the <typeparamref name="TSource"/> instances in the <paramref name="source"/>.</returns>
-        public static IEnumerable<TSource> FlattenHierarchy<TSource>(this IEnumerable<TSource> source, Func<TSource, IEnumerable<TSource>> childrenSelector)
+        public static IEnumerable<TSource> FlattenHierarchy<TSource>(this IEnumerable<TSource> source,
+                                                                     Func<TSource, IEnumerable<TSource>> childrenSelector)
         {
             Contract.Ensures(Contract.Result<IEnumerable<TSource>>() != null);
-            foreach (var item in source)
+            foreach(var item in source)
             {
-                foreach (var child in FlattenHierarchy(childrenSelector(item), childrenSelector))
+                foreach(var child in FlattenHierarchy(childrenSelector(item), childrenSelector))
                 {
                     yield return child;
                 }

@@ -1,9 +1,10 @@
-using System;
+#region usings
+
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
-using System.Text;
-using Composable.System.Linq;
 using System.Linq;
+
+#endregion
 
 namespace Composable.System
 {
@@ -34,7 +35,7 @@ namespace Composable.System
         /// <summary>Delegates to <see cref="string.Join(string,string[])"/> </summary>
         public static string Join(this IEnumerable<string> strings, string separator)
         {
-            Contract.Requires(strings!=null);
+            Contract.Requires(strings != null);
             Contract.Requires(separator != null);
             return string.Join(separator, strings.ToArray());
         }

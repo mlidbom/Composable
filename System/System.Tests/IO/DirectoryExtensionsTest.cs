@@ -1,9 +1,13 @@
+#region usings
+
 using System;
 using System.IO;
 using System.Linq;
-using NUnit.Framework;
 using Composable.System.IO;
 using Composable.System.Linq;
+using NUnit.Framework;
+
+#endregion
 
 namespace Core.Tests.IO
 {
@@ -37,7 +41,7 @@ namespace Core.Tests.IO
         [Test]
         public void SizeShouldCorrectlyCalculateSize()
         {
-            string directory = CreateUsableFolderPath();
+            var directory = CreateUsableFolderPath();
             var size = CreateDirectoryHierarchy(directory, 3);
 
             Assert.That(directory.AsDirectory().Size(), Is.EqualTo(size));
@@ -56,7 +60,7 @@ namespace Core.Tests.IO
 
         private static int CreateDirectoryHierarchy(string directoryPath, int depth)
         {
-            if (depth <= 0)
+            if(depth <= 0)
             {
                 return 0;
             }
@@ -67,14 +71,14 @@ namespace Core.Tests.IO
             var size = 0;
             directoryPath.Repeat(2).Select(dir => Path.Combine(dir, Guid.NewGuid().ToString())).ForEach(
                 file =>
-                {
-                    using (var stream = File.Create(file))
                     {
-                        stream.Write(fileContent, 0, fileContent.Length);
-                        size += fileContent.Length;
-                    }
-                    Console.WriteLine("created file {0}", file);
-                });
+                        using(var stream = File.Create(file))
+                        {
+                            stream.Write(fileContent, 0, fileContent.Length);
+                            size += fileContent.Length;
+                        }
+                        Console.WriteLine("created file {0}", file);
+                    });
 
             size += directoryPath.Repeat(2)
                 .Select(dir => Path.Combine(dir, Guid.NewGuid().ToString()))

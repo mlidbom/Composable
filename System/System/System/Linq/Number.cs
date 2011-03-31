@@ -1,6 +1,10 @@
+#region usings
+
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
+
+#endregion
 
 namespace Composable.System.Linq
 {
@@ -27,10 +31,10 @@ namespace Composable.System.Linq
         public static IterationSpecification By(this int me, int stepsize)
         {
             return new IterationSpecification
-                   {
-                       StartValue = me,
-                       StepSize = stepsize
-                   };
+                       {
+                           StartValue = me,
+                           StepSize = stepsize
+                       };
         }
 
 
@@ -40,7 +44,7 @@ namespace Composable.System.Linq
         /// </summary>
         public static IEnumerable<int> Through(this int me, int guard)
         {
-            while (me <= guard)
+            while(me <= guard)
             {
                 yield return me++;
             }
@@ -61,9 +65,9 @@ namespace Composable.System.Linq
         public static IEnumerable<int> Through(this IterationSpecification me, int guard)
         {
             var current = me.StartValue;
-            if (me.StepSize > 0)
+            if(me.StepSize > 0)
             {
-                while (current <= guard)
+                while(current <= guard)
                 {
                     yield return current;
                     current += me.StepSize;
@@ -71,7 +75,7 @@ namespace Composable.System.Linq
             }
             else
             {
-                while (current >= guard)
+                while(current >= guard)
                 {
                     yield return current;
                     current += me.StepSize;

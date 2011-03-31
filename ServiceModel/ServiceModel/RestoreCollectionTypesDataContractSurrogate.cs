@@ -1,5 +1,9 @@
+#region usings
+
 using System;
 using System.Collections.Generic;
+
+#endregion
 
 namespace Composable.System.ServiceModel
 {
@@ -8,14 +12,14 @@ namespace Composable.System.ServiceModel
         public override Type GetDataContractType(Type requestedType)
         {
             //Detect and serialize IList<T> as List<T>
-            if (requestedType.IsGenericType && requestedType.IsInterface)
+            if(requestedType.IsGenericType && requestedType.IsInterface)
             {
                 var genericArguments = requestedType.GetGenericArguments();
-                if (genericArguments.Length == 1)
+                if(genericArguments.Length == 1)
                 {
-                    Type genericList = typeof (List<>);
-                    Type specificType = genericList.MakeGenericType(new[] {genericArguments[0]});
-                    if (requestedType.IsAssignableFrom(specificType))
+                    var genericList = typeof(List<>);
+                    var specificType = genericList.MakeGenericType(new[] { genericArguments[0] });
+                    if(requestedType.IsAssignableFrom(specificType))
                     {
                         return specificType;
                     }

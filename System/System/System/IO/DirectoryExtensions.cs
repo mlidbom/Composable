@@ -6,7 +6,6 @@ using System.Diagnostics.Contracts;
 using System.IO;
 using System.Linq;
 using Composable.GenericAbstractions.Hierarchies;
-using Composable.System.Linq;
 
 #endregion
 
@@ -80,7 +79,7 @@ namespace Composable.System.IO
             Contract.Requires(me != null && !string.IsNullOrEmpty(me.FullName) && !string.IsNullOrEmpty(relativePath));
             Contract.Requires(me.FullName.Length > 0);
             Contract.Ensures(Contract.Result<DirectoryInfo>() != null);
-            if (relativePath.First() == '\\')
+            if(relativePath.First() == '\\')
             {
                 relativePath = relativePath.Remove(0, 1);
             }
@@ -99,13 +98,13 @@ namespace Composable.System.IO
         {
             Contract.Requires(me != null && !string.IsNullOrEmpty(filePath));
             Contract.Ensures(Contract.Result<FileInfo>() != null);
-            if (filePath.First() == '\\')
+            if(filePath.First() == '\\')
             {
                 filePath = filePath.Remove(0, 1);
             }
             return new FileInfo(Path.Combine(me.FullName, filePath));
         }
-        
+
         /// <summary>
         /// Returns all the files in the directory tree below <paramref name="directory"/>
         /// </summary>
@@ -114,7 +113,7 @@ namespace Composable.System.IO
         public static IEnumerable<FileInfo> GetFilesResursive(this DirectoryInfo directory)
         {
             Contract.Requires(directory != null);
-            Contract.Ensures(Contract.Result<IEnumerable<FileInfo>>() != null);            
+            Contract.Ensures(Contract.Result<IEnumerable<FileInfo>>() != null);
             //Contract.Ensures(Contract.Result<IEnumerable<FileInfo>>().None(file => file==null));
             return directory
                 .DirectoriesRecursive()

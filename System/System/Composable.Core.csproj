@@ -116,9 +116,6 @@
     <RunPostBuildEvent>OnOutputUpdated</RunPostBuildEvent>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Microsoft.Practices.ServiceLocation, Version=1.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\CommonServiceLocator.1.0\lib\NET35\Microsoft.Practices.ServiceLocation.dll</HintPath>
-    </Reference>
     <Reference Include="Microsoft.VisualBasic" />
     <Reference Include="Newtonsoft.Json, Version=4.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
@@ -128,53 +125,14 @@
     <Reference Include="System.Core">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
     </Reference>
-    <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.Transactions" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="CQRS\Command\CommandResult.cs" />
-    <Compile Include="CQRS\Command\CommandService.cs" />
-    <Compile Include="CQRS\Command\EntityCommandHandler.cs" />
-    <Compile Include="CQRS\Command\ICommandHandler.cs" />
-    <Compile Include="CQRS\Command\ICommandService.cs" />
-    <Compile Include="CQRS\Command\IEntityCommandHandler.cs" />
-    <Compile Include="CQRS\Command\IEntityHandledCommand.cs" />
-    <Compile Include="CQRS\DuplicateHandlersException.cs" />
-    <Compile Include="CQRS\IEntityFetcher.cs" />
-    <Compile Include="CQRS\NoRegisteredHandlersException.cs" />
-    <Compile Include="CQRS\PersistenceSessionExtensions.cs" />
-    <Compile Include="CQRS\Query\IQuery.cs" />
-    <Compile Include="CQRS\Query\IQueryHandler.cs" />
-    <Compile Include="CQRS\Query\IQueryService.cs" />
-    <Compile Include="CQRS\Query\QueryService.cs" />
-    <Compile Include="CQRS\ServiceLocatorExtensions.cs" />
-    <Compile Include="Data\ORM\InMemoryRepositories\GuidIdManager.cs" />
-    <Compile Include="Data\ORM\InMemoryRepositories\HashSetPersistanceSession.cs" />
-    <Compile Include="Data\ORM\InMemoryRepositories\IdManager.cs" />
-    <Compile Include="Data\ORM\InMemoryRepositories\IIdManager.cs" />
-    <Compile Include="Data\ORM\InMemoryRepositories\Int32IdManager.cs" />
-    <Compile Include="Data\ORM\InMemoryRepositories\Int64IdManager.cs" />
-    <Compile Include="DDD\DomainEvents\BeforeAndAfter.cs" />
-    <Compile Include="DDD\DomainEvents\DomainEvent.cs" />
-    <Compile Include="DDD\DomainEvents\IDomainEvent.cs" />
-    <Compile Include="DDD\DomainEvents\IHandles.cs" />
-    <Compile Include="DDD\DomainEvents\InternalIHandlesImplementationException.cs" />
     <Compile Include="DDD\IPersistentEntity.cs" />
     <Compile Include="DDD\PersistentEntity.cs" />
     <Compile Include="DDD\ValueObject.cs" />
     <Compile Include="DDD\VersionedPersistentEntity.cs" />
-    <Compile Include="Data\ORM\Domain\PersistentEntityWithSurrogateKey.cs" />
-    <Compile Include="Data\ORM\IRepository.cs" />
-    <Compile Include="Data\ORM\OptimisticConcurrencyException.cs" />
-    <Compile Include="Data\ORM\Repository.cs" />
-    <Compile Include="Data\ORM\TransactionalRepository.cs" />
     <Compile Include="System\Collections\Collections\DictionaryExtensions.cs" />
-    <Compile Include="System\ComponentModel\ExpressionUtil.cs" />
-    <Compile Include="System\ComponentModel\IProperty.cs" />
-    <Compile Include="System\ComponentModel\IPropertyOwner.cs" />
-    <Compile Include="System\ComponentModel\ISerializablePropertyOwner.cs" />
-    <Compile Include="System\ComponentModel\Property.cs" />
-    <Compile Include="System\ComponentModel\PropertyBase.cs" />
     <Compile Include="System\EnumExtensions.cs" />
     <Compile Include="GenericAbstractions\Hierarchies\HierarchyExtensions.cs" />
     <Compile Include="GenericAbstractions\Hierarchies\IHierarchy.cs" />
@@ -229,15 +187,7 @@
     <None Include="packages.config" />
     <None Include="Void.snk" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Data\ORM\NHibernateRepositories\" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\..\Data\ORM\Composable.Data.ORM.Repositories\Composable.Data.ORM.csproj">
-      <Project>{9B4B5C29-86A3-48CF-980A-FD5728AE3FAB}</Project>
-      <Name>Composable.Data.ORM</Name>
-    </ProjectReference>
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

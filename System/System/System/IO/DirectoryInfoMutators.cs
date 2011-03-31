@@ -1,9 +1,12 @@
-using System;
+#region usings
+
 using System.Diagnostics.Contracts;
 using System.IO;
 using System.Linq;
-using Microsoft.VisualBasic.FileIO;
 using Composable.System.Linq;
+using Microsoft.VisualBasic.FileIO;
+
+#endregion
 
 namespace Composable.System.IO
 {

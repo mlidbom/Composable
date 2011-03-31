@@ -1,6 +1,3 @@
-﻿using System;
-
-namespace Composable.SpaceTime.Time.Impl
+﻿namespace Composable.SpaceTime.Time.Impl
 {
-    
 }

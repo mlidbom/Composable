@@ -1,11 +1,13 @@
-using System;
+#region usings
+
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using Composable.System.Linq;
 using NUnit.Framework;
 using NUnit.Framework.Constraints;
-using Composable.System.ServiceModel;
-using System.Linq;
+
+#endregion
 
 namespace Composable.System.ServiceModel.Tests
 {
@@ -16,7 +18,7 @@ namespace Composable.System.ServiceModel.Tests
         public class CollectionsEqualConstraint : CollectionConstraint
         {
             public CollectionsEqualConstraint(IEnumerable actual) : base(actual)
-            {   
+            {
             }
 
             public override void WriteDescriptionTo(MessageWriter writer)
@@ -27,8 +29,8 @@ namespace Composable.System.ServiceModel.Tests
 
             protected override bool doMatch(IEnumerable collection)
             {
-                var zipped =((IEnumerable) actual).Cast<object>().Zip(collection.Cast<object>());
-                return !zipped.Any( current => !Equals(current.First, current.Second));
+                var zipped = ((IEnumerable)actual).Cast<object>().Zip(collection.Cast<object>());
+                return !zipped.Any(current => !Equals(current.First, current.Second));
             }
         }
 
@@ -39,21 +41,21 @@ namespace Composable.System.ServiceModel.Tests
 
             var result = new List<string>();
             var uut = new DataContractSurrogateLink(new DataContractSurrogateAdapterFunctional
-                                                    {
-                                                        GetCustomDataToExportFunc   = (_,__)=>
-                                                                                      {
-                                                                                          result.Add("first");
-                                                                                          return null;
-                                                                                      }
-                                                    },
+                                                        {
+                                                            GetCustomDataToExportFunc = (_, __) =>
+                                                                                            {
+                                                                                                result.Add("first");
+                                                                                                return null;
+                                                                                            }
+                                                        },
                                                     new DataContractSurrogateAdapterFunctional
-                                                    {
-                                                        GetCustomDataToExportFunc = (_, __) =>
-                                                                                    {
-                                                                                        result.Add("second");
-                                                                                        return null;
-                                                                                    }
-                                                    });
+                                                        {
+                                                            GetCustomDataToExportFunc = (_, __) =>
+                                                                                            {
+                                                                                                result.Add("second");
+                                                                                                return null;
+                                                                                            }
+                                                        });
 
             uut.GetCustomDataToExport(null, null);
             Assert.That(expected, new CollectionsEqualConstraint(result));

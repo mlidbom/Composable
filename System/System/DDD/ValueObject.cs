@@ -2,7 +2,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Diagnostics.Contracts;
 using System.Linq;
 using System.Linq.Expressions;
@@ -21,21 +20,21 @@ namespace Composable.DDD
         private static Func<object, object> BuildFieldGetter(FieldInfo field)
         {
             Contract.Requires(field != null);
-            var obj = Expression.Parameter(typeof (object), "obj");
+            var obj = Expression.Parameter(typeof(object), "obj");
 
             return Expression.Lambda<Func<object, object>>(
                 Expression.Convert(
                     Expression.Field(
                         Expression.Convert(obj, field.DeclaringType),
                         field),
-                    typeof (object)),
+                    typeof(object)),
                 obj).Compile();
         }
 
         /// <see cref="object.Equals(object)"/>
         public override bool Equals(object obj)
         {
-            if (ReferenceEquals(obj, null))
+            if(ReferenceEquals(obj, null))
                 return false;
 
             var other = obj as T;
@@ -53,13 +52,13 @@ namespace Composable.DDD
 
             var hashCode = startValue;
 
-            for (int i = 0; i < fields.Length; i++)
+            for(var i = 0; i < fields.Length; i++)
             {
                 Contract.Assume(fields[i] != null);
                 var value = fields[i](this);
 
-                if (value != null)
-                    hashCode = hashCode * multiplier + value.GetHashCode();   
+                if(value != null)
+                    hashCode = hashCode * multiplier + value.GetHashCode();
             }
 
             return hashCode;
@@ -68,38 +67,37 @@ namespace Composable.DDD
         /// <see cref="object.Equals(object)"/>
         public virtual bool Equals(T other)
         {
-            if (ReferenceEquals(other, null))
+            if(ReferenceEquals(other, null))
                 return false;
 
             var myType = GetType();
             var otherType = other.GetType();
 
-            if (myType != otherType)
+            if(myType != otherType)
                 return false;
 
             var fields = GetFields(GetType());
 
-            for (int i = 0; i < fields.Length; i++)
+            for(var i = 0; i < fields.Length; i++)
             {
                 Contract.Assume(fields[i] != null);
                 var value1 = fields[i](other);
                 var value2 = fields[i]((T)this);
 
-                if (ReferenceEquals(value1, null))
+                if(ReferenceEquals(value1, null))
                 {
-                    if (value2 != null)
+                    if(value2 != null)
                         return false;
                 }
-                else if (!value1.Equals(value2))
+                else if(!value1.Equals(value2))
                     return false;
-   
             }
 
             return true;
         }
 
 
-        private static readonly Func<Object, Object>[] Fields ;
+        private static readonly Func<Object, Object>[] Fields;
 
         private static readonly IDictionary<Type, Func<Object, Object>[]> TypeFields =
             new Dictionary<Type, Func<Object, Object>[]>();
@@ -112,12 +110,12 @@ namespace Composable.DDD
         private static Func<Object, Object>[] GetFields(Type type)
         {
             Contract.Ensures(Contract.Result<Func<Object, Object>[]>() != null);
-            if (type == typeof(T))
+            if(type == typeof(T))
             {
                 return Fields;
             }
 
-            lock (TypeFields)
+            lock(TypeFields)
             {
                 return InnerGetField(type);
             }
@@ -128,7 +126,7 @@ namespace Composable.DDD
             Contract.Requires(type != null);
             Contract.Ensures(Contract.Result<Func<object, object>[]>() != null);
             Func<Object, Object>[] fields;
-            if (!TypeFields.TryGetValue(type, out fields))
+            if(!TypeFields.TryGetValue(type, out fields))
             {
                 var newFields = new List<Func<Object, object>>();
                 newFields.AddRange(
@@ -136,7 +134,7 @@ namespace Composable.DDD
                         BuildFieldGetter));
 
                 var baseType = type.BaseType;
-                if (baseType != typeof (object))
+                if(baseType != typeof(object))
                 {
                     newFields.AddRange(GetFields(baseType));
                 }

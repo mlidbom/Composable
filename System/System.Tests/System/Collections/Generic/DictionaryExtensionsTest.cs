@@ -13,7 +13,7 @@ namespace Composable.Tests.System.Collections.Generic
     {
         private const int ExistingValue = 1;
         private const int InsertedValue = 2;
-        private readonly static Func<int> Constructor = () => InsertedValue;
+        private static readonly Func<int> Constructor = () => InsertedValue;
         private const string Key = "key";
         private const int ResultOfDefaultConstructor = new int();
 

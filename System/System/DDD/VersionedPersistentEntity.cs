@@ -1,4 +1,8 @@
+#region usings
+
 using System;
+
+#endregion
 
 namespace Composable.DDD
 {
@@ -7,10 +11,14 @@ namespace Composable.DDD
     public class VersionedPersistentEntity<T> : PersistentEntity<T> where T : VersionedPersistentEntity<T>
     {
         /// <summary>Creates an instance using the supplied <paramref name="id"/> as the Id.</summary>
-        protected VersionedPersistentEntity(Guid id):base(id){}
+        protected VersionedPersistentEntity(Guid id) : base(id)
+        {
+        }
 
         /// <summary> Creates an instance using a newly generated Id</summary>
-        protected VersionedPersistentEntity(){}
+        protected VersionedPersistentEntity()
+        {
+        }
 
         ///<summary>Contains the current version of the entity</summary>
         public virtual int Version { get; private set; }

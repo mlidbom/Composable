@@ -54,10 +54,6 @@
     <Reference Include="Microsoft.CSharp" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AutoMapper\ComposableMapper.cs" />
-    <Compile Include="AutoMapper\DuplicateMappingException.cs" />
-    <Compile Include="AutoMapper\IProvidesMappings.cs" />
-    <Compile Include="AutoMapper\SafeConfiguration.cs" />
     <Compile Include="CQRS\Command\CommandResult.cs" />
     <Compile Include="CQRS\Command\CommandService.cs" />
     <Compile Include="CQRS\Command\EntityCommandHandler.cs" />

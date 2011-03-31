@@ -2,7 +2,7 @@
 <package>
   <metadata>
     <id>Composable.Core</id>
-    <version>1.5.1.0</version>
+    <version>1.6.0.0</version>
     <authors>Magnus Lidbom</authors>
     <description>All the magic you might want ;)</description>
     <language>en-US</language>

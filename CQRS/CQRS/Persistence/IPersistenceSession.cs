@@ -6,7 +6,7 @@ using System.Linq;
 
 #endregion
 
-namespace Composable.Data
+namespace Composable.Persistence
 {
     [ContractClass(typeof(PersistenceSessionContract))]
     public interface IPersistenceSession : IDisposable

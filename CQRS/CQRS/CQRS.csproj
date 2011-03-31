@@ -35,6 +35,12 @@
   <PropertyGroup>
     <RunPostBuildEvent>OnOutputUpdated</RunPostBuildEvent>
   </PropertyGroup>
+  <PropertyGroup>
+    <SignAssembly>true</SignAssembly>
+  </PropertyGroup>
+  <PropertyGroup>
+    <AssemblyOriginatorKeyFile>Void.snk</AssemblyOriginatorKeyFile>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="AutoMapper, Version=1.1.0.188, Culture=neutral, PublicKeyToken=be96cd2c38ef1005, processorArchitecture=MSIL">
       <HintPath>..\..\packages\AutoMapper.1.1.0.118\lib\AutoMapper.dll</HintPath>
@@ -62,6 +68,12 @@
     <Compile Include="CQRS\IEntityFetcher.cs" />
     <Compile Include="CQRS\Command\IEntityHandledCommand.cs" />
     <Compile Include="CQRS\NoRegisteredHandlersException.cs" />
+    <Compile Include="Data\ORM\Domain\PersistentEntityWithSurrogateKey.cs" />
+    <Compile Include="Data\ORM\IPersistenceSession.cs" />
+    <Compile Include="Data\ORM\IRepository.cs" />
+    <Compile Include="Data\ORM\OptimisticConcurrencyException.cs" />
+    <Compile Include="Data\ORM\Repository.cs" />
+    <Compile Include="Data\ORM\TransactionalRepository.cs" />
     <Compile Include="DomainEvents\BeforeAndAfter.cs" />
     <Compile Include="DomainEvents\DomainEvent.cs" />
     <Compile Include="DomainEvents\IDomainEvent.cs" />
@@ -86,6 +98,7 @@
       <SubType>Designer</SubType>
     </None>
     <None Include="packages.config" />
+    <None Include="Void.snk" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

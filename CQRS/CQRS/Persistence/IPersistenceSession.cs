@@ -9,7 +9,6 @@ using Composable.CQRS;
 
 namespace Composable.Persistence
 {
-    [Obsolete("Please use either IEntityReader, or IEntityPersister")]
     public interface IPersistenceSession : IEntityFetcher, IEntityPersister, IDisposable
     {
     }

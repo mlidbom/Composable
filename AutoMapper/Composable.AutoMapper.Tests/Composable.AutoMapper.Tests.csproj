@@ -80,13 +80,13 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\CQRS\CQRS\CQRS.csproj">
+      <Project>{3B776BD4-0EDD-4A83-BC9A-3A53D6649AB0}</Project>
+      <Name>CQRS %28CQRS\CQRS%29</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\System\System\Composable.Core.csproj">
       <Project>{3632254D-0C4A-4EB8-B388-4C99F8939584}</Project>
       <Name>Composable.Core</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Composable.AutoMapper\Composable.AutoMapper.csproj">
-      <Project>{AA0A55FE-EA05-4A3B-9FB7-47E1D570F1CF}</Project>
-      <Name>Composable.AutoMapper</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

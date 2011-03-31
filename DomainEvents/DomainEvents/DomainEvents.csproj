@@ -49,11 +49,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="BeforeAndAfter.cs" />
-    <Compile Include="DomainEvent.cs" />
-    <Compile Include="IDomainEvent.cs" />
-    <Compile Include="IHandles.cs" />
-    <Compile Include="InternalIHandlesImplementationException.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

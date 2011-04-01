@@ -24,6 +24,9 @@ namespace Composable.Tests.DDD
                 _state = state;
             }
 
+            public Address()
+            {}
+
             public string Address1 { get { return _address1; } }
 
             public string City { get { return _city; } }
@@ -205,6 +208,30 @@ namespace Composable.Tests.DDD
             var address2 = new ExpandedAddress("Address1", "Apt 123", "Austin", "TX");
 
             Assert.AreNotEqual(address.GetHashCode(), address2.GetHashCode());
+        }
+
+        [Test]
+        public void ComparisonWithRhsNullReturnsFalse()
+        {
+            var lhs = new Address();
+            Address rhs = null;
+            Assert.That(lhs.Equals(null), Is.False);
+            Assert.That(lhs == null, Is.False);
+        }
+
+        [Test]
+        public void ComparisonWithLhsNullReturnsFalse()
+        {
+            var rhs = new Address();
+            Assert.That(null == rhs, Is.False);
+        }
+
+        [Test]
+        public void ComparisonWithLhsNullAndRhsNullReturnsTrue()
+        {
+            Address rhs = null;
+            Address lhs = null;
+            Assert.That(rhs == lhs, Is.True);
         }
     }
 }

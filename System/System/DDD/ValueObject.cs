@@ -146,15 +146,20 @@ namespace Composable.DDD
         }
 
         ///<summary>Compares the objects for equality using value semantics</summary>
-        public static bool operator ==(ValueObject<T> x, ValueObject<T> y)
+        public static bool operator ==(ValueObject<T> lhs, ValueObject<T> rhs)
         {
-            return x.Equals(y);
+            if(ReferenceEquals(lhs, rhs))
+            {
+                return true;
+            }
+
+            return !ReferenceEquals(lhs,null) && lhs.Equals(rhs);
         }
 
         ///<summary>Compares the objects for inequality using value semantics</summary>
-        public static bool operator !=(ValueObject<T> x, ValueObject<T> y)
+        public static bool operator !=(ValueObject<T> lhs, ValueObject<T> rhs)
         {
-            return !(x == y);
+            return !(lhs == rhs);
         }
 
 

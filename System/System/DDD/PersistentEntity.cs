@@ -66,6 +66,11 @@ namespace Composable.DDD
         ///<summary>True if both instances have the same ID</summary>
         public static bool operator ==(PersistentEntity<TEntity> lhs, PersistentEntity<TEntity> rhs)
         {
+            if (ReferenceEquals(lhs, rhs))
+            {
+                return true;
+            }
+
             return !ReferenceEquals(null, lhs) && lhs.Equals(rhs);
         }
 

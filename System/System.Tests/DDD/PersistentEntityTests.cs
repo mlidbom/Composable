@@ -66,6 +66,31 @@ namespace Composable.Tests.DDD
         }
 
 
+        [Test]
+        public void ComparisonWithRhsNullReturnsFalse()
+        {
+            var lhs = new Person();
+            Person rhs = null;
+            Assert.That(lhs.Equals(null), Is.False);
+            Assert.That(lhs == null, Is.False);
+        }
+
+        [Test]
+        public void ComparisonWithLhsNullReturnsFalse()
+        {
+            var rhs = new Person();
+            Assert.That(rhs.Equals(null), Is.False);
+            Assert.That(rhs == null, Is.False);
+        }
+
+        [Test]
+        public void ComparisonWithLhsNullAndRhsNullReturnsTrue()
+        {
+            Person rhs = null;
+            Person lhs = null;
+            Assert.That(rhs == lhs, Is.True);
+        }
+
         private static void AssertAreEqual(Person lhs, Person rhs)
         {
             Assert.That(lhs, Is.EqualTo(rhs));

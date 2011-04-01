@@ -79,8 +79,7 @@ namespace Composable.Tests.DDD
         public void ComparisonWithLhsNullReturnsFalse()
         {
             var rhs = new Person();
-            Assert.That(rhs.Equals(null), Is.False);
-            Assert.That(rhs == null, Is.False);
+            Assert.That(null == rhs, Is.False);
         }
 
         [Test]

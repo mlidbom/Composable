@@ -1,5 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
+  <UsingTask TaskName="InjectModuleInitializer" AssemblyFile="$(SolutionDir)\Tools\InjectModuleInitializer\InjectModuleInitializer.exe" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
@@ -115,6 +116,9 @@
   <PropertyGroup>
     <RunPostBuildEvent>OnOutputUpdated</RunPostBuildEvent>
   </PropertyGroup>
+  <PropertyGroup>
+    <DelaySign>true</DelaySign>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="Microsoft.VisualBasic" />
     <Reference Include="Newtonsoft.Json, Version=4.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
@@ -128,6 +132,9 @@
     <Reference Include="System.Transactions" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\..\ModuleInitializer.cs">
+      <Link>ModuleInitializer.cs</Link>
+    </Compile>
     <Compile Include="DDD\IPersistentEntity.cs" />
     <Compile Include="DDD\PersistentEntity.cs" />
     <Compile Include="DDD\ValueObject.cs" />
@@ -187,7 +194,14 @@
     <None Include="packages.config" />
     <None Include="Void.snk" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <EmbeddedResource Include="..\..\packages\Newtonsoft.Json.4.0.1\lib\40\Newtonsoft.Json.dll">
+      <Link>__EmbeddedAssemblies\Newtonsoft.Json.dll</Link>
+    </EmbeddedResource>
+    <EmbeddedResource Include="..\..\packages\Newtonsoft.Json.4.0.1\lib\40\Newtonsoft.Json.pdb">
+      <Link>__EmbeddedAssemblies\Newtonsoft.Json.pdb</Link>
+    </EmbeddedResource>
+  </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
@@ -200,4 +214,11 @@
     <PostBuildEvent>mkdir packages
 "$(SolutionDir)tools\NuGet.exe" pack "Composable.Core.nuspec"  -o packages</PostBuildEvent>
   </PropertyGroup>
+  <Target Name="AfterBuild">
+    <InjectModuleInitializer AssemblyFile="$(TargetPath)" />
+    <GetFrameworkSdkPath>
+      <Output TaskParameter="Path" PropertyName="SdkPath" />
+    </GetFrameworkSdkPath>
+    <Exec Command="&quot;$(SdkPath)bin\sn.exe&quot; -R $(TargetPath) $(SolutionDir)Void.snk" />
+  </Target>
 </Project>

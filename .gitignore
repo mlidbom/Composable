@@ -14,3 +14,6 @@ TestResult.xml
 
 *.pidb
 *.userprefs
+
+CQRS/CQRS/__EmbeddedAssemblies/*.dll
+CQRS/CQRS/__EmbeddedAssemblies/*.pdb

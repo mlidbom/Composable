@@ -13,27 +13,44 @@ internal class ModuleInitializer
         AppDomain.CurrentDomain.AssemblyResolve +=
             (sender, args) =>
             {
-                Console.WriteLine("Doing manual assembly loading in: {0}", typeof(ModuleInitializer).AssemblyQualifiedName);
-                Console.WriteLine("Looking for: {0}", args.Name);
+                string assemblyName = new AssemblyName(args.Name).Name;
+                var assemblyFileName = assemblyName + ".dll";
+                var pdbFileName = assemblyName + ".pdb";
 
-                var resourceName = new AssemblyName(args.Name).Name + ".dll";
+                var assemblyResources = Assembly.GetExecutingAssembly().GetManifestResourceNames();
 
-                var resourcePath =
-                    Assembly.GetExecutingAssembly().GetManifestResourceNames().Where(name => name.EndsWith(resourceName)).
-                        SingleOrDefault();
-                if (resourcePath == null)
+                var dllResource = assemblyResources.Where(name => name.EndsWith(assemblyFileName)).SingleOrDefault();
+                var symbolsResource = assemblyResources.Where(name => name.EndsWith(pdbFileName)).SingleOrDefault();
+
+                if (dllResource == null)
                 {
-                    Console.WriteLine("Could not find embedded assembly: {0}", resourceName);
                     return null;
                 }
 
-                Console.WriteLine("Loading assembly from resource: {0}", resourcePath);
-                using (var stream = Assembly.GetExecutingAssembly().GetManifestResourceStream(resourcePath))
+                byte[] assemblyData = ReadResourceByteArray(dllResource);
+                byte[] pdbData = null;
+
+                if(symbolsResource != null)
                 {
-                    var assemblyData = new Byte[stream.Length];
-                    stream.Read(assemblyData, 0, assemblyData.Length);
-                    return Assembly.Load(assemblyData);
+                    pdbData = ReadResourceByteArray(symbolsResource);
                 }
+
+                var loaded = Assembly.Load(assemblyData, pdbData);
+                if(loaded.GetName().FullName != args.Name)
+                {
+                    return null;
+                }
+                return loaded;
             };
+    }
+
+    private static Byte[] ReadResourceByteArray(string resource)
+    {
+        using (var resourceStream = Assembly.GetExecutingAssembly().GetManifestResourceStream(resource))
+        {
+            var resourceData = new Byte[resourceStream.Length];
+            resourceStream.Read(resourceData, 0, resourceData.Length);
+            return resourceData;
+        }
     }
 }

@@ -6,8 +6,6 @@
     <authors>Magnus Lidbom</authors>
     <description>All the magic you might want ;)</description>
     <language>en-US</language>
-    <dependencies>
-    </dependencies>
   </metadata>
   <files>
     <file src="Composable.Core.*" target="lib" />

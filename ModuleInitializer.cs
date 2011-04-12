@@ -1,6 +1,7 @@
 #region usings
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 
@@ -8,6 +9,8 @@ using System.Reflection;
 
 internal class ModuleInitializer
 {
+    private static readonly Dictionary<string, Assembly> LoadedAssemblies= new Dictionary<string, Assembly>();
+
     public static void Run()
     {
         AppDomain.CurrentDomain.AssemblyResolve +=
@@ -27,18 +30,23 @@ internal class ModuleInitializer
                     return null;
                 }
 
-                byte[] assemblyData = ReadResourceByteArray(dllResource);
-                byte[] pdbData = null;
-
-                if(symbolsResource != null)
+                Assembly loaded = null;
+                if (!LoadedAssemblies.TryGetValue(args.Name, out loaded))
                 {
-                    pdbData = ReadResourceByteArray(symbolsResource);
-                }
+                    byte[] assemblyData = ReadResourceByteArray(dllResource);
+                    byte[] pdbData = null;
 
-                var loaded = Assembly.Load(assemblyData, pdbData);
-                if(loaded.GetName().FullName != args.Name)
-                {
-                    return null;
+                    if(symbolsResource != null)
+                    {
+                        pdbData = ReadResourceByteArray(symbolsResource);
+                    }
+
+                    loaded = Assembly.Load(assemblyData, pdbData);
+                    LoadedAssemblies.Add(args.Name, loaded);
+                    if(loaded.GetName().FullName != args.Name)
+                    {
+                        return null;
+                    }
                 }
                 return loaded;
             };

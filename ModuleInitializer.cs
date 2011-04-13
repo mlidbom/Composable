@@ -1,7 +1,6 @@
 #region usings
 
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 
@@ -9,52 +8,59 @@ using System.Reflection;
 
 internal class ModuleInitializer
 {
-    private static readonly Dictionary<string, Assembly> LoadedAssemblies= new Dictionary<string, Assembly>();
+    private static bool _initialized;
 
     public static void Run()
     {
-        AppDomain.CurrentDomain.AssemblyResolve +=
-            (sender, args) =>
-            {
-                string assemblyName = new AssemblyName(args.Name).Name;
-                var assemblyFileName = assemblyName + ".dll";
-                var pdbFileName = assemblyName + ".pdb";
-
-                var assemblyResources = Assembly.GetExecutingAssembly().GetManifestResourceNames();
-
-                var dllResource = assemblyResources.Where(name => name.EndsWith(assemblyFileName)).SingleOrDefault();
-                var symbolsResource = assemblyResources.Where(name => name.EndsWith(pdbFileName)).SingleOrDefault();
-
-                if (dllResource == null)
-                {
-                    return null;
-                }
-
-                Assembly loaded = null;
-                if (!LoadedAssemblies.TryGetValue(args.Name, out loaded))
-                {
-                    byte[] assemblyData = ReadResourceByteArray(dllResource);
-                    byte[] pdbData = null;
-
-                    if(symbolsResource != null)
-                    {
-                        pdbData = ReadResourceByteArray(symbolsResource);
-                    }
-
-                    loaded = Assembly.Load(assemblyData, pdbData);
-                    LoadedAssemblies.Add(args.Name, loaded);
-                    if(loaded.GetName().FullName != args.Name)
-                    {
-                        return null;
-                    }
-                }
-                return loaded;
-            };
+        AppDomain.CurrentDomain.AssemblyResolve += ResolveAssembly;
     }
 
-    private static Byte[] ReadResourceByteArray(string resource)
+    private static Assembly ResolveAssembly(object sender, ResolveEventArgs args)
     {
-        using (var resourceStream = Assembly.GetExecutingAssembly().GetManifestResourceStream(resource))
+        if (!_initialized)
+        {
+            _initialized = true;
+
+            var embeddedAssemblies = Assembly.GetExecutingAssembly().GetManifestResourceNames().Where(name => name.EndsWith(".dll")).ToList();
+            foreach (var embeddedAssembly in embeddedAssemblies)
+            {
+                var assemblyData = ReadMatchingResourceByteArray(embeddedAssembly);
+                var pdbData = ReadMatchingResourceByteArray(embeddedAssembly.Replace(".dll", ".pdb"));
+
+                if (!IsLoaded(assemblyData))
+                {
+                    Assembly.Load(assemblyData, pdbData);
+                }
+            }
+        }
+
+        return AppDomain.CurrentDomain.GetAssemblies().SingleOrDefault(assembly => assembly.FullName == args.Name);
+    }
+
+    private static bool IsLoaded(byte[] assemblyData)
+    {
+        try
+        {
+            var name = Assembly.ReflectionOnlyLoad(assemblyData).FullName;
+            return AppDomain.CurrentDomain.GetAssemblies().Any(assembly => assembly.FullName == name);
+        }
+        catch (System.IO.FileLoadException)
+        {
+            //Believe it or not this is what is thrown if the assembly is already loaded in the ReflectionOnly context..
+            //We will simply assume that this means another assembly using this code has already loaded this assembly. 
+            //The risk that we are mistaken should be extremely low.
+            return true;
+        }
+    }
+
+    private static byte[] ReadMatchingResourceByteArray(string resourceName)
+    {
+        var resourcePath = Assembly.GetExecutingAssembly().GetManifestResourceNames().Where(name => name.EndsWith(resourceName)).SingleOrDefault();
+        if (resourcePath == null)
+        {
+            return null;
+        }
+        using (var resourceStream = Assembly.GetExecutingAssembly().GetManifestResourceStream(resourcePath))
         {
             var resourceData = new Byte[resourceStream.Length];
             resourceStream.Read(resourceData, 0, resourceData.Length);

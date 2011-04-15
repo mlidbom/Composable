@@ -57,10 +57,16 @@
     </Compile>
     <Compile Include="CQRS\Command\CommandResult.cs" />
     <Compile Include="CQRS\Command\CommandService.cs" />
+    <Compile Include="CQRS\Command\CommandValidationService.cs" />
+    <Compile Include="CQRS\Command\GlobalValidationFailure.cs" />
     <Compile Include="CQRS\Command\EntityCommandHandler.cs" />
     <Compile Include="CQRS\Command\ICommandHandler.cs" />
     <Compile Include="CQRS\Command\ICommandService.cs" />
+    <Compile Include="CQRS\Command\ICommandValidationService.cs" />
+    <Compile Include="CQRS\Command\ICommandValidator.cs" />
     <Compile Include="CQRS\Command\IEntityCommandHandler.cs" />
+    <Compile Include="CQRS\Command\IValidationFailure.cs" />
+    <Compile Include="CQRS\Command\MemberValidationFailure.cs" />
     <Compile Include="CQRS\DuplicateHandlersException.cs" />
     <Compile Include="Persistence\IEntityQueryer.cs" />
     <Compile Include="CQRS\Command\IEntityHandledCommand.cs" />

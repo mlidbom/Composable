@@ -108,8 +108,8 @@
 "$(ProjectDir)..\..\tools\NuGet.exe" pack "Composable.CQRS.nuspec" -o packages</PostBuildEvent>
   </PropertyGroup>
   <PropertyGroup>
-    <PreBuildEvent>copy "$(TargetDir)Composable.Core.dll" "$(ProjectDir)__EmbeddedAssemblies"
-copy "$(TargetDir)Composable.Core.pdb" "$(ProjectDir)__EmbeddedAssemblies"</PreBuildEvent>
+    <PreBuildEvent>REM copy "$(TargetDir)Composable.Core.dll" "$(ProjectDir)__EmbeddedAssemblies"
+REM copy "$(TargetDir)Composable.Core.pdb" "$(ProjectDir)__EmbeddedAssemblies"</PreBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

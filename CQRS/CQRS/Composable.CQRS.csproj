@@ -97,10 +97,8 @@
       <Name>Composable.Core</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup />
   <ItemGroup>
-    <EmbeddedResource Include="__EmbeddedAssemblies\Composable.Core.dll" />
-    <EmbeddedResource Include="__EmbeddedAssemblies\Composable.Core.pdb" />
+    <Folder Include="__EmbeddedAssemblies\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

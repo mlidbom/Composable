@@ -9,6 +9,6 @@
   </metadata>
   <files>
     <file src="Composable.Core.*" target="lib" />
-    <file src="CodeContracts/Composable.Core.*" target="lib/CodeContracts" />
+    <!--<file src="CodeContracts/Composable.Core.*" target="lib/CodeContracts" />-->
   </files>
 </package>

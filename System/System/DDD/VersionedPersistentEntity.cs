@@ -1,6 +1,7 @@
 #region usings
 
 using System;
+using System.Reflection;
 
 #endregion
 
@@ -18,6 +19,17 @@ namespace Composable.DDD
         /// <summary> Creates an instance using a newly generated Id</summary>
         protected VersionedPersistentEntity()
         {
+        }
+
+        //This is an ugly hack to keep nhibernate from choking when adding instance without going through an nhibernate session...
+        public static T FakePersistentInstance(Guid id)
+        {            
+            var result = (T)Activator.CreateInstance(typeof(T));
+            result.Version = 1;
+            //Really ugly, but we need to set the value of the Id property (it is not possible to constrain the generic argument to have a constructor that takes a Guid).
+            typeof(PersistentEntity<T>).GetProperty("Id").SetValue(result, id, BindingFlags.NonPublic, null, null, null);
+
+            return result;
         }
 
         ///<summary>Contains the current version of the entity</summary>

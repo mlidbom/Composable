@@ -56,9 +56,12 @@
       <Link>ModuleInitializer.cs</Link>
     </Compile>
     <Compile Include="CQRS\Command\Command.cs" />
+    <Compile Include="CQRS\Command\CommandFailedEvent.cs" />
     <Compile Include="CQRS\Command\CommandResult.cs" />
     <Compile Include="CQRS\Command\CommandService.cs" />
+    <Compile Include="CQRS\Command\CommandSucceededEvent.cs" />
     <Compile Include="CQRS\Command\CommandValidationService.cs" />
+    <Compile Include="CQRS\Command\ForceDistributedTransactionsCommandServiceDecorator.cs" />
     <Compile Include="CQRS\Command\GlobalValidationFailure.cs" />
     <Compile Include="CQRS\Command\EntityCommandHandler.cs" />
     <Compile Include="CQRS\Command\ICommandHandler.cs" />

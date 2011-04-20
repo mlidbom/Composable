@@ -68,7 +68,7 @@
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>mkdir packages
-"$(SolutionDir)tools\NuGet.exe" pack "Composable.AutoMapper.nuspec" -o packages</PostBuildEvent>
+"$(ProjectDir)..\..\tools\NuGet.exe" pack "Composable.AutoMapper.nuspec" -o packages</PostBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

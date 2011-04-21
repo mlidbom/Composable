@@ -15,7 +15,6 @@ namespace Composable.DomainEvents
 {
     public static class DomainEvent
     {
-        //fixme: This is not safe with the threadingmodel of asp.net. Needs to use clever storage that determines whether you are in a web request or better yet, just remove the need for this.
         private static readonly ThreadLocal<List<Delegate>> ManualSubscribersStorage =
             new ThreadLocal<List<Delegate>>(() => new List<Delegate>());
 
@@ -80,7 +79,8 @@ namespace Composable.DomainEvents
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="callback"></param>
-        public static IDisposable Register<T>(Action<T> callback) where T : IDomainEvent
+        [Obsolete("Only use if you are really sure you know what you are doing. Any use except to wrap synchronous calls in a using block may behave erratically with for instance the asp.net threading model...")]
+        public static IDisposable RegisterShortTermSynchronousListener<T>(Action<T> callback) where T : IDomainEvent
         {
             ManualSubscribers.Add(callback);
             return new RemoveRegistration(callback);

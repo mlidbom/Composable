@@ -17,7 +17,9 @@ namespace Composable.StuffThatDoesNotBelongHere
 
         public virtual void Persist<TEvent>(TEvent evt) where TEvent : IDomainEvent
         {
-            using (DomainEvent.Register<IDomainEvent>(x => {}))
+#pragma warning disable 612,618
+            using (DomainEvent.RegisterShortTermSynchronousListener<IDomainEvent>(x => {}))
+#pragma warning restore 612,618
             {
                 using (var transaction = new TransactionScope())
                 {

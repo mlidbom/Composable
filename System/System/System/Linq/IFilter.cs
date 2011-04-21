@@ -42,7 +42,7 @@ namespace Composable.System.Linq
             get
             {
                 Contract.Ensures(Contract.Result<IEnumerable<Expression<Func<T, bool>>>>() != null);
-                throw new NotImplementedException();
+                return null;
             }
         }
     }

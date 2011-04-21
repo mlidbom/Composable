@@ -6,8 +6,6 @@ using System.Linq;
 
 #endregion
 
-//Fixme: does not belong here. Move entire namespace and rename
-
 namespace Composable.GenericAbstractions.Wrappers
 {
     ///<summary/>

@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
-  <UsingTask TaskName="InjectModuleInitializer" AssemblyFile="$(SolutionDir)\Tools\InjectModuleInitializer\InjectModuleInitializer.exe" />
+  <UsingTask TaskName="InjectModuleInitializer" AssemblyFile="$(ProjectDir)..\..\Tools\InjectModuleInitializer\InjectModuleInitializer.exe" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
@@ -49,7 +49,7 @@
     <CodeContractsRuntimeOnlyPublicSurface>False</CodeContractsRuntimeOnlyPublicSurface>
     <CodeContractsRuntimeThrowOnFailure>True</CodeContractsRuntimeThrowOnFailure>
     <CodeContractsRuntimeCallSiteRequires>False</CodeContractsRuntimeCallSiteRequires>
-    <CodeContractsRunCodeAnalysis>True</CodeContractsRunCodeAnalysis>
+    <CodeContractsRunCodeAnalysis>False</CodeContractsRunCodeAnalysis>
     <CodeContractsNonNullObligations>False</CodeContractsNonNullObligations>
     <CodeContractsBoundsObligations>True</CodeContractsBoundsObligations>
     <CodeContractsArithmeticObligations>True</CodeContractsArithmeticObligations>
@@ -126,6 +126,7 @@
       <HintPath>..\..\packages\Newtonsoft.Json.4.0.1\lib\40\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="System" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Core">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
     </Reference>
@@ -140,6 +141,7 @@
     <Compile Include="DDD\ValueObject.cs" />
     <Compile Include="DDD\VersionedPersistentEntity.cs" />
     <Compile Include="System\Collections\Collections\DictionaryExtensions.cs" />
+    <Compile Include="System\ComponentModel\DataAnnotations\IValidatableObjectExtensions.cs" />
     <Compile Include="System\EnumExtensions.cs" />
     <Compile Include="GenericAbstractions\Hierarchies\HierarchyExtensions.cs" />
     <Compile Include="GenericAbstractions\Hierarchies\IHierarchy.cs" />
@@ -168,6 +170,7 @@
     <Compile Include="GenericAbstractions\Wrappers\GenericWrapper.cs" />
     <Compile Include="GenericAbstractions\Wrappers\IWrapper.cs" />
     <Compile Include="GenericAbstractions\Wrappers\WrapperExtensions.cs" />
+    <Compile Include="System\Transactions\TransactionScopeExtensions.cs" />
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include="Microsoft.Net.Client.3.5">
@@ -212,13 +215,13 @@
   -->
   <PropertyGroup>
     <PostBuildEvent>mkdir packages
-"$(SolutionDir)tools\NuGet.exe" pack "Composable.Core.nuspec"  -o packages</PostBuildEvent>
+"$(ProjectDir)..\..\tools\NuGet.exe" pack "Composable.Core.nuspec"  -o packages</PostBuildEvent>
   </PropertyGroup>
   <Target Name="AfterBuild">
     <InjectModuleInitializer AssemblyFile="$(TargetPath)" />
     <GetFrameworkSdkPath>
       <Output TaskParameter="Path" PropertyName="SdkPath" />
     </GetFrameworkSdkPath>
-    <Exec Command="&quot;$(SdkPath)bin\sn.exe&quot; -R $(TargetPath) $(SolutionDir)Void.snk" />
+    <Exec Command="&quot;$(SdkPath)bin\sn.exe&quot; -R $(TargetPath) $(ProjectDir)..\..\Void.snk" />
   </Target>
 </Project>

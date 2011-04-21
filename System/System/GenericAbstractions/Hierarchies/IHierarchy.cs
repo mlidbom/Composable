@@ -48,7 +48,7 @@ namespace Composable.GenericAbstractions.Hierarchies
             get
             {
                 Contract.Ensures(Contract.Result<IEnumerable<HierarchyContract<T>>>() != null);
-                throw new NotImplementedException();
+                return null;
             }
         }
     }

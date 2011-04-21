@@ -91,13 +91,9 @@ namespace Composable.System.Linq
                     yield return yielded == size ? next : next.Take(yielded);
                 }
             }
-
-            //todo: figure out why simple implementation based on Skip and Take had horrible performance
         }
 
 
-        //todo: Figure out why this method does not resolve as an extension method.
-        //is the type inference in C# to weak?
         /// <summary>
         /// Acting on an <see cref="IEnumerable{T}"/> <paramref name="me"/> where T is an <see cref="IEnumerable{TChild}"/>
         /// returns an <see cref="IEnumerable{TChild}"/> aggregating all the TChild instances
@@ -109,7 +105,7 @@ namespace Composable.System.Linq
         /// <typeparam name="TChild">The type contained in the nested enumerables.</typeparam>
         /// <param name="me">the collection to act upon</param>
         /// <returns>All the objects in all the nested collections </returns>
-        public static IEnumerable<TChild> Flatten<T, TChild>(IEnumerable<T> me) where T : IEnumerable<TChild>
+        public static IEnumerable<TChild> Flatten<T, TChild>(this IEnumerable<T> me) where T : IEnumerable<TChild>
         {
             Contract.Requires(me != null);
             return me.SelectMany(obj => obj);

@@ -37,7 +37,7 @@ namespace Composable.DDD
             get
             {
                 Contract.Ensures(!Equals(Contract.Result<T>(), default(T)));
-                throw new NotImplementedException();
+                return default(T);
             }
         }
     }

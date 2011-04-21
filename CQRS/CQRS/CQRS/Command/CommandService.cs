@@ -28,7 +28,9 @@ namespace Composable.CQRS.Command
         public virtual CommandResult Execute<TCommand>(TCommand command)
         {
             var result = new CommandResult();
-            using(DomainEvent.Register<IDomainEvent>(result.RegisterEvent))
+#pragma warning disable 612,618
+            using(DomainEvent.RegisterShortTermSynchronousListener<IDomainEvent>(result.RegisterEvent))
+#pragma warning restore 612,618
             {
                 using(var transaction = new TransactionScope())
                 {

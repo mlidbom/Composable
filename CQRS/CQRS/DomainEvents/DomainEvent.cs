@@ -15,7 +15,7 @@ namespace Composable.DomainEvents
 {
     public static class DomainEvent
     {
-        //fixme: This is not safe with the threadingmodel of asp.net. Needs to use clever storage that determines whether you are in a web request....
+        //fixme: This is not safe with the threadingmodel of asp.net. Needs to use clever storage that determines whether you are in a web request or better yet, just remove the need for this.
         private static readonly ThreadLocal<List<Delegate>> ManualSubscribersStorage =
             new ThreadLocal<List<Delegate>>(() => new List<Delegate>());
 
@@ -72,21 +72,6 @@ namespace Composable.DomainEvents
         public static void ResetOnlyUseFromTests()
         {
             _locator = null;
-        }
-
-
-        private static Type[] GetTypesSafely(Assembly assembly)
-        {
-            Contract.Requires(assembly != null);
-            try
-            {
-                return assembly.GetTypes();
-            }
-            catch(Exception)
-            {
-                //fixme: Swallowing exceptions is not that great....
-                return new Type[0];
-            }
         }
 
         /// <summary>

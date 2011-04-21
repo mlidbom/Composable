@@ -25,7 +25,7 @@ namespace Composable.GenericAbstractions.Wrappers
             get
             {
                 Contract.Ensures(Contract.Result<T>() != null);
-                throw new NotImplementedException();
+                return default(T);
             }
         }
     }

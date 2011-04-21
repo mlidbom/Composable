@@ -9,8 +9,6 @@ using Composable.System.Linq;
 
 #endregion
 
-//FIXME:Does not belong here. Extract entire namespace and rename
-
 namespace Composable.GenericAbstractions.Hierarchies
 {
     /// <summary>

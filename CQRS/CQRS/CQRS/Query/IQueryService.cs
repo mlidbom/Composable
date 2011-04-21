@@ -19,7 +19,7 @@ namespace Composable.CQRS.Query
         public TQueryResult Execute<TQuery, TQueryResult>(IQuery<TQuery, TQueryResult> query) where TQuery : IQuery<TQuery, TQueryResult>
         {
             Contract.Requires(query != null);
-            throw new NotImplementedException();
+            return default(TQueryResult);
         }
     }
 }

@@ -55,9 +55,13 @@
     <Compile Include="..\..\ModuleInitializer.cs">
       <Link>ModuleInitializer.cs</Link>
     </Compile>
+    <Compile Include="CQRS\Command\Command.cs" />
+    <Compile Include="CQRS\Command\CommandFailedEvent.cs" />
     <Compile Include="CQRS\Command\CommandResult.cs" />
     <Compile Include="CQRS\Command\CommandService.cs" />
+    <Compile Include="CQRS\Command\CommandSucceededEvent.cs" />
     <Compile Include="CQRS\Command\CommandValidationService.cs" />
+    <Compile Include="CQRS\Command\ForceDistributedTransactionsCommandServiceDecorator.cs" />
     <Compile Include="CQRS\Command\GlobalValidationFailure.cs" />
     <Compile Include="CQRS\Command\EntityCommandHandler.cs" />
     <Compile Include="CQRS\Command\ICommandHandler.cs" />
@@ -68,10 +72,17 @@
     <Compile Include="CQRS\Command\IValidationFailure.cs" />
     <Compile Include="CQRS\Command\MemberValidationFailure.cs" />
     <Compile Include="CQRS\DuplicateHandlersException.cs" />
+    <Compile Include="StuffThatDoesNotBelongHere\EventPersistenceService.cs" />
+    <Compile Include="CQRS\EventSourcing\EventStored.cs" />
+    <Compile Include="CQRS\EventSourcing\IEventApplier.cs" />
+    <Compile Include="StuffThatDoesNotBelongHere\IEventPersistenceService.cs" />
+    <Compile Include="StuffThatDoesNotBelongHere\IEventPersister.cs" />
+    <Compile Include="CQRS\EventSourcing\IServiceBus.cs" />
     <Compile Include="Persistence\IEntityQueryer.cs" />
     <Compile Include="CQRS\Command\IEntityHandledCommand.cs" />
     <Compile Include="CQRS\NoRegisteredHandlersException.cs" />
     <Compile Include="Persistence\IEntityPersister.cs" />
+    <Compile Include="Persistence\InMemoryPersistenceSession.cs" />
     <Compile Include="Persistence\IPersistenceSession.cs" />
     <Compile Include="DomainEvents\DomainEvent.cs" />
     <Compile Include="DomainEvents\IDomainEvent.cs" />

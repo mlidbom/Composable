@@ -47,19 +47,8 @@ namespace Composable.CQRS.NHibernate
         #region Implementation of IDisposable
 
 
-        ~NHibernatePersistenceSession()
-        {
-            if(!_disposed)
-            {
-                //todo:Log.For(this).ErrorMessage("{0} helper instance was not disposed!");
-            }   
-        }
-
-        private bool _disposed;
-
         public void Dispose()
         {
-            _disposed = true;
             Session.Dispose();
         }
 

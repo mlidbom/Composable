@@ -20,7 +20,7 @@ namespace Composable.CQRS
         {
             Contract.Requires(command != null);
             Contract.Ensures(Contract.Result<CommandResult>() != null);
-            throw new NotImplementedException();
+            return null;
         }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Composable.CQRS.EventSourcing;
 using Composable.DDD;
 using Composable.DomainEvents;
 using Composable.System.Linq;

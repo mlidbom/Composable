@@ -5,7 +5,7 @@ using Composable.DDD;
 using Composable.DomainEvents;
 using Composable.System.Linq;
 
-namespace Manpower.System.Web.Mvc.StuffThatDoesNotBelongHere
+namespace Composable.CQRS.EventSourcing
 {
     public class EventStored<TEntity> : VersionedPersistentEntity<TEntity> where TEntity : VersionedPersistentEntity<TEntity>, new()
     {

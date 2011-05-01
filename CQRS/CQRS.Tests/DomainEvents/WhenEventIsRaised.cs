@@ -47,7 +47,7 @@ namespace Composable.DomainEvents.Tests
         public void ManuallyRegisteredListenersAreCalled()
         {
             var called = false;
-            using(DomainEvent.Register<IDomainEvent>(i => { called = true; }))
+            using(DomainEvent.RegisterShortTermSynchronousListener<IDomainEvent>(i => { called = true; }))
             {
                 DomainEvent.Raise(new SomethingHappend());
             }
@@ -58,7 +58,7 @@ namespace Composable.DomainEvents.Tests
         public void ManuallyRegisteredListenersAreNotCalledWhenEventRaisedOnOtherThread()
         {
             var called = false;
-            using(DomainEvent.Register<IDomainEvent>(i => { called = true; }))
+            using (DomainEvent.RegisterShortTermSynchronousListener<IDomainEvent>(i => { called = true; }))
             {
                 var done = new ManualResetEvent(false);
                 using(var timer = new Timer((o) =>

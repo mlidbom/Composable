@@ -1,7 +1,6 @@
 ﻿using System.Transactions;
 using Composable.CQRS;
 using Composable.DomainEvents;
-using Manpower.System.Web.Mvc.StuffThatDoesNotBelongHere;
 using Microsoft.Practices.ServiceLocation;
 
 namespace Composable.StuffThatDoesNotBelongHere

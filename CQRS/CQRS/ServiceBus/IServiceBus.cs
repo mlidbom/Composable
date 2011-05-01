@@ -1,4 +1,4 @@
-﻿namespace Manpower.System.Web.Mvc.StuffThatDoesNotBelongHere
+﻿namespace Composable.ServiceBus
 {
     public interface IServiceBus
     {

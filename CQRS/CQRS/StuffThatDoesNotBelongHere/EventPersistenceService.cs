@@ -1,7 +1,11 @@
-﻿using System.Transactions;
+﻿#region usings
+
+using System.Transactions;
 using Composable.CQRS;
 using Composable.DomainEvents;
 using Microsoft.Practices.ServiceLocation;
+
+#endregion
 
 namespace Composable.StuffThatDoesNotBelongHere
 {
@@ -16,16 +20,11 @@ namespace Composable.StuffThatDoesNotBelongHere
 
         public virtual void Persist<TEvent>(TEvent evt) where TEvent : IDomainEvent
         {
-#pragma warning disable 612,618
-            using (DomainEvent.RegisterShortTermSynchronousListener<IDomainEvent>(x => {}))
-#pragma warning restore 612,618
+            using(var transaction = new TransactionScope())
             {
-                using (var transaction = new TransactionScope())
-                {
-                    var handler = _serviceLocator.GetSingleInstance<IEventPersister<TEvent>>();
-                    handler.Persist(evt);
-                    transaction.Complete();
-                }
+                var handler = _serviceLocator.GetSingleInstance<IEventPersister<TEvent>>();
+                handler.Persist(evt);
+                transaction.Complete();
             }
         }
     }

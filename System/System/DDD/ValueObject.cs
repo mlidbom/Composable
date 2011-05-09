@@ -167,7 +167,14 @@ namespace Composable.DDD
         ///<returns>A JSON serialized version of the instance.</returns>
         public override string ToString()
         {
-            return GetType().FullName + ":" + JsonConvert.SerializeObject(this, Formatting.Indented, new[] { new StringEnumConverter() });
+            try
+            {
+                return GetType().FullName + ":" + JsonConvert.SerializeObject(this, Formatting.Indented, new[] { new StringEnumConverter() });
+            }
+            catch (JsonSerializationException)
+            {
+                return GetType().FullName;
+            }
         }
     }
 }

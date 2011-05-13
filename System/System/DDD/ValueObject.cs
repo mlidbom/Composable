@@ -7,6 +7,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 
 #endregion
 
@@ -166,7 +167,14 @@ namespace Composable.DDD
         ///<returns>A JSON serialized version of the instance.</returns>
         public override string ToString()
         {
-            return GetType().FullName + ":" + JsonConvert.SerializeObject(this, Formatting.Indented);
+            try
+            {
+                return GetType().FullName + ":" + JsonConvert.SerializeObject(this, Formatting.Indented, new[] { new StringEnumConverter() });
+            }
+            catch (JsonSerializationException)
+            {
+                return GetType().FullName;
+            }
         }
     }
 }

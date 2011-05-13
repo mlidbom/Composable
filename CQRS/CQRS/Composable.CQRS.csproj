@@ -72,12 +72,12 @@
     <Compile Include="CQRS\Command\IValidationFailure.cs" />
     <Compile Include="CQRS\Command\MemberValidationFailure.cs" />
     <Compile Include="CQRS\DuplicateHandlersException.cs" />
+    <Compile Include="ServiceBus\IServiceBus.cs" />
     <Compile Include="StuffThatDoesNotBelongHere\EventPersistenceService.cs" />
     <Compile Include="CQRS\EventSourcing\EventStored.cs" />
     <Compile Include="CQRS\EventSourcing\IEventApplier.cs" />
     <Compile Include="StuffThatDoesNotBelongHere\IEventPersistenceService.cs" />
     <Compile Include="StuffThatDoesNotBelongHere\IEventPersister.cs" />
-    <Compile Include="CQRS\EventSourcing\IServiceBus.cs" />
     <Compile Include="Persistence\IEntityQueryer.cs" />
     <Compile Include="CQRS\Command\IEntityHandledCommand.cs" />
     <Compile Include="CQRS\NoRegisteredHandlersException.cs" />
@@ -113,8 +113,8 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>mkdir packages
-"$(ProjectDir)..\..\tools\NuGet.exe" pack "Composable.CQRS.nuspec" -o packages</PostBuildEvent>
+    <PostBuildEvent>REM mkdir packages
+REM "$(ProjectDir)..\..\tools\NuGet.exe" pack "Composable.CQRS.nuspec" -o packages</PostBuildEvent>
   </PropertyGroup>
   <PropertyGroup>
     <PreBuildEvent>REM copy "$(TargetDir)Composable.Core.dll" "$(ProjectDir)__EmbeddedAssemblies"
@@ -127,11 +127,11 @@ REM copy "$(TargetDir)Composable.Core.pdb" "$(ProjectDir)__EmbeddedAssemblies"</
   <Target Name="AfterBuild">
   </Target>
   -->
-  <Target Name="AfterBuild">
+  <!--<Target Name="AfterBuild">
     <InjectModuleInitializer AssemblyFile="$(TargetPath)" />
     <GetFrameworkSdkPath>
       <Output TaskParameter="Path" PropertyName="SdkPath" />
     </GetFrameworkSdkPath>
     <Exec Command="&quot;$(SdkPath)bin\sn.exe&quot; -R $(TargetPath) $(ProjectDir)..\..\Void.snk" />
-  </Target>
+  </Target>-->
 </Project>

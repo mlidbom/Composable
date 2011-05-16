@@ -41,7 +41,7 @@
       <HintPath>..\..\packages\Castle.Windsor.2.5.1\lib\NET40\Castle.Windsor.dll</HintPath>
     </Reference>
     <Reference Include="Castle.Windsor.Lifestyles">
-      <HintPath>..\..\..\..\packages-manual\Castle.Windsor.Lifestyles\Castle.Windsor.Lifestyles.dll</HintPath>
+      <HintPath>..\..\packages-manual\Castle.Windsor.Lifestyles\Castle.Windsor.Lifestyles.dll</HintPath>
     </Reference>
     <Reference Include="log4net">
       <HintPath>..\..\packages\nservicebus.2.5.0.1446\lib\net40\log4net.dll</HintPath>

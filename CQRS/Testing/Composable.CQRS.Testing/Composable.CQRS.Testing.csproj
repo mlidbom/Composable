@@ -5,7 +5,7 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProductVersion>8.0.30703</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{D7F30AB8-1C8F-4F0D-8E89-6E4DABF52941}</ProjectGuid>
+    <ProjectGuid>{315D447B-4FD5-4FBB-8475-2E4A0F853A0F}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Composable.CQRS.Testing</RootNamespace>

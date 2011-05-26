@@ -87,6 +87,9 @@
     <Compile Include="CQRS\EventSourcing\UserChangedPassword.cs" />
     <Compile Include="CQRS\EventSourcing\UserRegistered.cs" />
     <Compile Include="DomainEvents\WhenEventIsRaised.cs" />
+    <Compile Include="KeyValueStorage\InMemoryKeyValueStoreTests.cs" />
+    <Compile Include="KeyValueStorage\KeyValueStoreTests.cs" />
+    <Compile Include="KeyValueStorage\User.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Query\WhenExecutingQuery.cs" />
     <Compile Include="Query\WhenExecutingQueryStructuremap.cs" />

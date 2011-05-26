@@ -4,12 +4,10 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
-using System.IO;
 using System.Linq;
 using System.Reflection;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Bson;
 using Composable.System;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 
 #endregion
@@ -31,36 +29,37 @@ namespace Composable.CQRS.EventSourcing.SQLServer
         }
 
         public class SisoJsonDefaultContractResolver : DefaultContractResolver
-	{
-	    protected override JsonProperty CreateProperty(MemberInfo member, MemberSerialization memberSerialization)
-	    {
-	        var prop = base.CreateProperty(member, memberSerialization);
-	 
-	        if (!prop.Writable)
-	        {
-	            var property = member as PropertyInfo;
-	            if (property != null)
-	            {
-	                var hasPrivateSetter = property.GetSetMethod(true) != null;
-	                prop.Writable = hasPrivateSetter;
-	            }
-	        }
-	 
-	        return prop;
-	    }
-	}
+        {
+            protected override JsonProperty CreateProperty(MemberInfo member, MemberSerialization memberSerialization)
+            {
+                var prop = base.CreateProperty(member, memberSerialization);
+
+                if(!prop.Writable)
+                {
+                    var property = member as PropertyInfo;
+                    if(property != null)
+                    {
+                        var hasPrivateSetter = property.GetSetMethod(true) != null;
+                        prop.Writable = hasPrivateSetter;
+                    }
+                }
+
+                return prop;
+            }
+        }
 
         public class SQLServerEventStoreSession : EventStoreSession
         {
-            private static bool EventsTableVerifiedToExist = false;
+            private static bool EventsTableVerifiedToExist;
             private readonly SqlServerEventStore _store;
             private readonly SqlConnection _connection;
             private int SqlBatchSize = 10;
-            private readonly JsonSerializerSettings JsonSettings = new JsonSerializerSettings()
-                                                              {
-                                                                  TypeNameHandling = TypeNameHandling.Objects,
-                                                                  ContractResolver = new SisoJsonDefaultContractResolver()
-                                                              };
+
+            private readonly JsonSerializerSettings JsonSettings = new JsonSerializerSettings
+                                                                       {
+                                                                           TypeNameHandling = TypeNameHandling.Objects,
+                                                                           ContractResolver = new SisoJsonDefaultContractResolver()
+                                                                       };
 
             public SQLServerEventStoreSession(SqlServerEventStore store)
             {
@@ -72,7 +71,7 @@ namespace Composable.CQRS.EventSourcing.SQLServer
 
             private void EnsureEventsTableExists()
             {
-                if (!EventsTableVerifiedToExist)
+                if(!EventsTableVerifiedToExist)
                 {
                     var checkForTableCommand = _connection.CreateCommand();
                     checkForTableCommand.CommandText = "select count(*) from sys.tables where name = 'Events'";
@@ -80,7 +79,8 @@ namespace Composable.CQRS.EventSourcing.SQLServer
                     if(exists == 0)
                     {
                         var createTableCommand = _connection.CreateCommand();
-                        createTableCommand.CommandText = @"
+                        createTableCommand.CommandText =
+                            @"
 CREATE TABLE [dbo].[Events](
 	[AggregateId] [uniqueidentifier] NOT NULL,
     [AggregateVersion] [int] NOT NULL,
@@ -95,7 +95,6 @@ CREATE TABLE [dbo].[Events](
                         createTableCommand.ExecuteNonQuery();
                     }
                     EventsTableVerifiedToExist = true;
-
                 }
             }
 
@@ -105,9 +104,9 @@ CREATE TABLE [dbo].[Events](
                 loadCommand.CommandText = "SELECT Discriminator, Event FROM Events WHERE AggregateId = @AggregateId ORDER BY AggregateVersion ASC";
                 loadCommand.Parameters.Add(new SqlParameter("AggregateId", aggregateId));
 
-                using (var eventReader = loadCommand.ExecuteReader())
+                using(var eventReader = loadCommand.ExecuteReader())
                 {
-                    for (int version = 1; eventReader.Read(); version++ )
+                    for(var version = 1; eventReader.Read(); version++)
                     {
                         var @event = DeserializeEvent(eventReader.GetString(0), eventReader.GetString(1));
                         @event.AggregateRootVersion = version;

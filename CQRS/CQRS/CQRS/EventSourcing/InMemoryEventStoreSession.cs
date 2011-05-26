@@ -16,6 +16,7 @@ namespace Composable.CQRS.EventSourcing
 
         public override void Dispose()
         {
+            _idMap.Clear();
         }
 
         protected override IEnumerable<IAggregateRootEvent> GetHistoryUnSafe(Guid id)

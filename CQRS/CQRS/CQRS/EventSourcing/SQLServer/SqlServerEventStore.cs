@@ -99,11 +99,6 @@ CREATE TABLE [dbo].[Events](
                 }
             }
 
-            public override void Dispose()
-            {
-                _connection.Dispose();
-            }
-
             protected override IEnumerable<IAggregateRootEvent> GetHistoryUnSafe(Guid aggregateId)
             {
                 var loadCommand = _connection.CreateCommand();
@@ -150,6 +145,12 @@ CREATE TABLE [dbo].[Events](
                     }
                     command.ExecuteNonQuery();
                 }
+            }
+
+            public override void Dispose()
+            {
+                _connection.Dispose();
+                _idMap.Clear();
             }
         }
     }

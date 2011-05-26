@@ -86,6 +86,12 @@
     <Compile Include="CQRS\EventSourcing\InMemoryEventStore.cs" />
     <Compile Include="CQRS\EventSourcing\InMemoryEventStoreSession.cs" />
     <Compile Include="CQRS\EventSourcing\SQLServer\SqlServerEventStore.cs" />
+    <Compile Include="KeyValueStorage\AttemptToSaveAlreadyPersistedValueException.cs" />
+    <Compile Include="KeyValueStorage\IKeyValueSession.cs" />
+    <Compile Include="KeyValueStorage\IKeyValueStore.cs" />
+    <Compile Include="KeyValueStorage\InMemoryKeyValueStore.cs" />
+    <Compile Include="KeyValueStorage\InMemoryKeyValueStoreSession.cs" />
+    <Compile Include="KeyValueStorage\NoSuchKeyException.cs" />
     <Compile Include="ServiceBus\IServiceBus.cs" />
     <Compile Include="StuffThatDoesNotBelongHere\EventPersistenceService.cs" />
     <Compile Include="CQRS\EventSourcing\AggregateRoot.cs" />

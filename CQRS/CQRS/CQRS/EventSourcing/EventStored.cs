@@ -1,34 +1,59 @@
 ﻿using System;
 using System.Collections.Generic;
-using Composable.CQRS.EventSourcing;
 using Composable.DDD;
 using Composable.DomainEvents;
 using Composable.System.Linq;
 
 namespace Composable.CQRS.EventSourcing
 {
-    public class EventStored<TEntity> : VersionedPersistentEntity<TEntity> where TEntity : VersionedPersistentEntity<TEntity>, new()
+    public class EventStored<TEntity> : PersistentEntity<TEntity>, IEventStored where TEntity : PersistentEntity<TEntity>
     {
+        private readonly IList<IAggregateRootEvent> _appliedEvents = new List<IAggregateRootEvent>();
+        
         protected EventStored() { }
 
         public EventStored(Guid id) : base(id) { }
 
-        /// <param name="_this">Only used for our generic constraints to catch problems when trying to apply an unsupported event type. The actual instance is never used.</param>
-        protected void ApplyEvent<TThis, TEvent>(TThis _this, TEvent evt) where TThis : IEventApplier<TEvent> where TEvent : IDomainEvent
+        private readonly Dictionary<Type, Action<IDomainEvent>> _registeredEvents = new Dictionary<Type, Action<IDomainEvent>>();
+        protected void RegisterEventHandler<TEvent>(Action<TEvent> eventHandler) where TEvent : class, IDomainEvent
         {
-            _this.Apply(evt);
-            DomainEvent.Raise(evt);
+            _registeredEvents.Add(typeof(TEvent), theEvent => eventHandler(theEvent as TEvent));
         }
 
-        private void DoApply(dynamic evt)
+        protected void ApplyEvent(IAggregateRootEvent evt)
         {
-            dynamic me = this;
-            me.Apply(evt);
+            evt.Version = Version++;
+            evt.EntityId = Id;
+            DoApply(evt);
         }
 
-        public virtual void LoadStateFromEvents(IEnumerable<IDomainEvent> evts)
+        public int Version { get; set; }
+
+        private void DoApply(IAggregateRootEvent evt)
+        {
+            Action<IDomainEvent> handler;
+
+            if (!_registeredEvents.TryGetValue(evt.GetType(), out handler))
+                throw new Exception(string.Format("The requested domain event '{0}' is not registered in '{1}'", evt.GetType().FullName, GetType().FullName));
+
+            handler(evt);
+
+            _appliedEvents.Add(evt);
+        }
+
+        public virtual void LoadStateFromEvents(IEnumerable<IAggregateRootEvent> evts)
         {
             evts.ForEach(DoApply);
         }
+
+        public IEnumerable<IAggregateRootEvent> GetChanges()
+        {
+            return _appliedEvents;
+        }
+    }
+
+    public interface IEventStored
+    {
+        IEnumerable<IAggregateRootEvent> GetChanges();
     }
 }

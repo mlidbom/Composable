@@ -5,10 +5,9 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
 using System.Linq;
-using System.Reflection;
+using Composable.NewtonSoft;
 using Composable.System;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Serialization;
 
 #endregion
 
@@ -28,27 +27,7 @@ namespace Composable.CQRS.EventSourcing.SQLServer
             return new SQLServerEventStoreSession(this);
         }
 
-        public class SisoJsonDefaultContractResolver : DefaultContractResolver
-        {
-            protected override JsonProperty CreateProperty(MemberInfo member, MemberSerialization memberSerialization)
-            {
-                var prop = base.CreateProperty(member, memberSerialization);
-
-                if(!prop.Writable)
-                {
-                    var property = member as PropertyInfo;
-                    if(property != null)
-                    {
-                        var hasPrivateSetter = property.GetSetMethod(true) != null;
-                        prop.Writable = hasPrivateSetter;
-                    }
-                }
-
-                return prop;
-            }
-        }
-
-        public class SQLServerEventStoreSession : EventStoreSession
+        private class SQLServerEventStoreSession : EventStoreSession
         {
             private static bool EventsTableVerifiedToExist;
             private readonly SqlServerEventStore _store;
@@ -58,7 +37,7 @@ namespace Composable.CQRS.EventSourcing.SQLServer
             private readonly JsonSerializerSettings JsonSettings = new JsonSerializerSettings
                                                                        {
                                                                            TypeNameHandling = TypeNameHandling.Objects,
-                                                                           ContractResolver = new SisoJsonDefaultContractResolver()
+                                                                           ContractResolver = new IncludeMembersWithPrivateSettersResolver()
                                                                        };
 
             public SQLServerEventStoreSession(SqlServerEventStore store)

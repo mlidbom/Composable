@@ -1,7 +1,7 @@
 using System;
 using Composable.DDD;
 
-namespace Manpower.System.Web.Mvc
+namespace Composable.CQRS.Command
 {
     public class Command : ValueObject<Command>
     {

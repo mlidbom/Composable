@@ -39,6 +39,12 @@ namespace Composable.DDD
         /// <summary>Implements: <see cref="IPersistentEntity{TKeyType}.Id"/></summary>
         public virtual Guid Id { get; private set; }
 
+
+        protected void SetIdBeVerySureYouKnowWhatYouAreDoing(Guid id)
+        {
+            Id = id;
+        }
+
         /// <summary>
         /// Implements equals using persistent reference semantics.
         /// If two instances have the same Id, Equals will return true.

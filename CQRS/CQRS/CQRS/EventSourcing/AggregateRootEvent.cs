@@ -1,4 +1,5 @@
 ﻿using System;
+using Newtonsoft.Json;
 
 namespace Composable.CQRS.EventSourcing
 {
@@ -6,10 +7,11 @@ namespace Composable.CQRS.EventSourcing
     {
         protected AggregateRootEvent()
         {
-            Id = Guid.NewGuid();
+            ((IAggregateRootEvent)this).Id = Guid.NewGuid();
         }
-        public int Version { get; set; }
-        public Guid Id { get; set; }
-        public Guid EntityId { get; set; }
+
+        [JsonProperty] Guid IAggregateRootEvent.Id { get; set; }
+        int IAggregateRootEvent.AggregateRootVersion { get; set; }
+        Guid IAggregateRootEvent.AggregateRootId { get; set; }
     }
 }

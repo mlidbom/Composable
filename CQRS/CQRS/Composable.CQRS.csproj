@@ -46,8 +46,13 @@
     <Reference Include="Microsoft.Practices.ServiceLocation">
       <HintPath>..\..\packages\CommonServiceLocator.1.0\lib\NET35\Microsoft.Practices.ServiceLocation.dll</HintPath>
     </Reference>
+    <Reference Include="Newtonsoft.Json, Version=4.0.2.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\Newtonsoft.Json.4.0.2\lib\net40\Newtonsoft.Json.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
+    <Reference Include="System.configuration" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Data" />
     <Reference Include="System.Transactions" />
     <Reference Include="Microsoft.CSharp" />
   </ItemGroup>
@@ -72,13 +77,30 @@
     <Compile Include="CQRS\Command\IValidationFailure.cs" />
     <Compile Include="CQRS\Command\MemberValidationFailure.cs" />
     <Compile Include="CQRS\DuplicateHandlersException.cs" />
+    <Compile Include="CQRS\EventSourcing\AggregateRootEvent.cs" />
+    <Compile Include="CQRS\EventSourcing\AttemptToSaveAlreadyPersistedAggregateException.cs" />
+    <Compile Include="CQRS\EventSourcing\EventStoreSession.cs" />
+    <Compile Include="CQRS\EventSourcing\IAggregateRootEvent.cs" />
+    <Compile Include="CQRS\EventSourcing\IEventStore.cs" />
+    <Compile Include="CQRS\EventSourcing\IEventStoreSession.cs" />
+    <Compile Include="CQRS\EventSourcing\InMemoryEventStore.cs" />
+    <Compile Include="CQRS\EventSourcing\InMemoryEventStoreSession.cs" />
+    <Compile Include="NewtonSoft\IncludeMembersWithPrivateSettersResolver.cs" />
+    <Compile Include="CQRS\EventSourcing\SQLServer\SqlServerEventStore.cs" />
+    <Compile Include="KeyValueStorage\AttemptToSaveAlreadyPersistedValueException.cs" />
+    <Compile Include="KeyValueStorage\IKeyValueSession.cs" />
+    <Compile Include="KeyValueStorage\IKeyValueStore.cs" />
+    <Compile Include="KeyValueStorage\InMemoryKeyValueStore.cs" />
+    <Compile Include="KeyValueStorage\InMemoryKeyValueStoreSession.cs" />
+    <Compile Include="KeyValueStorage\NoSuchKeyException.cs" />
+    <Compile Include="KeyValueStorage\SqlServer\SqlServerKeyValueStore.cs" />
     <Compile Include="ServiceBus\IServiceBus.cs" />
     <Compile Include="StuffThatDoesNotBelongHere\EventPersistenceService.cs" />
-    <Compile Include="CQRS\EventSourcing\EventStored.cs" />
+    <Compile Include="CQRS\EventSourcing\AggregateRoot.cs" />
     <Compile Include="CQRS\EventSourcing\IEventApplier.cs" />
     <Compile Include="StuffThatDoesNotBelongHere\IEventPersistenceService.cs" />
     <Compile Include="StuffThatDoesNotBelongHere\IEventPersister.cs" />
-    <Compile Include="Persistence\IEntityQueryer.cs" />
+    <Compile Include="Persistence\IEntityFetcher.cs" />
     <Compile Include="CQRS\Command\IEntityHandledCommand.cs" />
     <Compile Include="CQRS\NoRegisteredHandlersException.cs" />
     <Compile Include="Persistence\IEntityPersister.cs" />
@@ -109,6 +131,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="EventStorage\" />
     <Folder Include="__EmbeddedAssemblies\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

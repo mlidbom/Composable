@@ -47,7 +47,9 @@ namespace Composable.DomainEvents.Tests
         public void ManuallyRegisteredListenersAreCalled()
         {
             var called = false;
+#pragma warning disable 612,618
             using(DomainEvent.RegisterShortTermSynchronousListener<IDomainEvent>(i => { called = true; }))
+#pragma warning restore 612,618
             {
                 DomainEvent.Raise(new SomethingHappend());
             }
@@ -58,7 +60,9 @@ namespace Composable.DomainEvents.Tests
         public void ManuallyRegisteredListenersAreNotCalledWhenEventRaisedOnOtherThread()
         {
             var called = false;
+#pragma warning disable 612,618
             using (DomainEvent.RegisterShortTermSynchronousListener<IDomainEvent>(i => { called = true; }))
+#pragma warning restore 612,618
             {
                 var done = new ManualResetEvent(false);
                 using(var timer = new Timer((o) =>

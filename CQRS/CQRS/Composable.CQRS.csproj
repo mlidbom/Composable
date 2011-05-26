@@ -72,13 +72,16 @@
     <Compile Include="CQRS\Command\IValidationFailure.cs" />
     <Compile Include="CQRS\Command\MemberValidationFailure.cs" />
     <Compile Include="CQRS\DuplicateHandlersException.cs" />
+    <Compile Include="CQRS\EventSourcing\AggregateRootEvent.cs" />
+    <Compile Include="CQRS\EventSourcing\IAggregateRootEvent.cs" />
+    <Compile Include="CQRS\EventSourcing\StoredEvent.cs" />
     <Compile Include="ServiceBus\IServiceBus.cs" />
     <Compile Include="StuffThatDoesNotBelongHere\EventPersistenceService.cs" />
     <Compile Include="CQRS\EventSourcing\EventStored.cs" />
     <Compile Include="CQRS\EventSourcing\IEventApplier.cs" />
     <Compile Include="StuffThatDoesNotBelongHere\IEventPersistenceService.cs" />
     <Compile Include="StuffThatDoesNotBelongHere\IEventPersister.cs" />
-    <Compile Include="Persistence\IEntityQueryer.cs" />
+    <Compile Include="Persistence\IEntityFetcher.cs" />
     <Compile Include="CQRS\Command\IEntityHandledCommand.cs" />
     <Compile Include="CQRS\NoRegisteredHandlersException.cs" />
     <Compile Include="Persistence\IEntityPersister.cs" />
@@ -109,6 +112,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="EventStorage\" />
     <Folder Include="__EmbeddedAssemblies\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

@@ -121,9 +121,9 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Microsoft.VisualBasic" />
-    <Reference Include="Newtonsoft.Json, Version=4.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+    <Reference Include="Newtonsoft.Json, Version=4.0.2.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\packages\Newtonsoft.Json.4.0.1\lib\40\Newtonsoft.Json.dll</HintPath>
+      <HintPath>..\..\packages\Newtonsoft.Json.4.0.2\lib\net40\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.DataAnnotations" />
@@ -198,10 +198,10 @@
     <None Include="Void.snk" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="..\..\packages\Newtonsoft.Json.4.0.1\lib\40\Newtonsoft.Json.dll">
+    <EmbeddedResource Include="..\..\packages\Newtonsoft.Json.4.0.2\lib\net40\Newtonsoft.Json.dll">
       <Link>__EmbeddedAssemblies\Newtonsoft.Json.dll</Link>
     </EmbeddedResource>
-    <EmbeddedResource Include="..\..\packages\Newtonsoft.Json.4.0.1\lib\40\Newtonsoft.Json.pdb">
+    <EmbeddedResource Include="..\..\packages\Newtonsoft.Json.4.0.2\lib\net40\Newtonsoft.Json.pdb">
       <Link>__EmbeddedAssemblies\Newtonsoft.Json.pdb</Link>
     </EmbeddedResource>
   </ItemGroup>

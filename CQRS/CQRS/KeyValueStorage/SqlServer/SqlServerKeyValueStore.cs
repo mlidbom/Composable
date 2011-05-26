@@ -4,6 +4,8 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
+using System.Transactions;
+using Composable.DDD;
 using Composable.NewtonSoft;
 using Composable.System;
 using Newtonsoft.Json;
@@ -27,7 +29,7 @@ namespace Composable.KeyValueStorage.SqlServer
             return new SqlServerKeyValueStoreSession(this);
         }
 
-        private class SqlServerKeyValueStoreSession : IKeyValueSession
+        private class SqlServerKeyValueStoreSession : IEnlistmentNotification, IKeyValueSession
         {
             private readonly JsonSerializerSettings JsonSettings = new JsonSerializerSettings
             {
@@ -40,6 +42,7 @@ namespace Composable.KeyValueStorage.SqlServer
             private readonly HashSet<Guid> _persistentValues = new HashSet<Guid>();
             private readonly SqlConnection _connection;
             private bool TableVerifiedToExist;
+            private bool _enlisted;
             private const int UniqueConstraintViolationErrorNumber= 2627;
             private const int SqlBatchSize = 10;
 
@@ -80,6 +83,8 @@ CREATE TABLE [dbo].[Store](
 
             public TValue Load<TValue>(Guid key)
             {
+                EnlistInAmbientTransaction();
+
                 object value;
                 if(_idMap.TryGetValue(key, out value))
                 {
@@ -91,6 +96,10 @@ CREATE TABLE [dbo].[Store](
                     loadCommand.CommandText = "SELECT Value FROM Store WHERE Id=@Id";
                     loadCommand.Parameters.Add(new SqlParameter("Id", key));
                     value = loadCommand.ExecuteScalar();
+                    if(value == null)
+                    {
+                        throw new NoSuchKeyException(key);
+                    }
                     value = JsonConvert.DeserializeObject((String)value, JsonSettings);
                 }
                 _persistentValues.Add(key);
@@ -100,6 +109,8 @@ CREATE TABLE [dbo].[Store](
 
             public void Save<TValue>(Guid key, TValue value)
             {
+                EnlistInAmbientTransaction();
+
                 object existing;
                 if (_idMap.TryGetValue(key, out existing))
                 {
@@ -108,10 +119,24 @@ CREATE TABLE [dbo].[Store](
                 _idMap.Add(key, value);
             }
 
+            public void Save<TEntity>(TEntity entity) where TEntity : IPersistentEntity<Guid>
+            {
+                Save(entity.Id, entity);
+            }
+
             public void SaveChanges()
             {
                 InsertValues(_idMap.Where(entry => !_persistentValues.Contains(entry.Key)));
                 UpdateValues(_idMap.Where(entry => _persistentValues.Contains(entry.Key)));
+            }
+
+            private void EnlistInAmbientTransaction()
+            {
+                if (Transaction.Current != null && !_enlisted)
+                {
+                    Transaction.Current.EnlistVolatile(this, EnlistmentOptions.None);
+                    _enlisted = true;
+                }
             }
 
             private void UpdateValues(IEnumerable<KeyValuePair<Guid, object>> values)
@@ -178,6 +203,29 @@ CREATE TABLE [dbo].[Store](
             {
                 _connection.Dispose();
                 _idMap.Clear();
+            }
+
+            void IEnlistmentNotification.Prepare(PreparingEnlistment preparingEnlistment)
+            {
+                SaveChanges();                
+                preparingEnlistment.Prepared();
+            }
+
+            void IEnlistmentNotification.Commit(Enlistment enlistment)
+            {
+                _enlisted = false;
+                enlistment.Done();
+            }
+
+            void IEnlistmentNotification.Rollback(Enlistment enlistment)
+            {
+                _enlisted = false;
+            }
+
+            public void InDoubt(Enlistment enlistment)
+            {
+                _enlisted = false;
+                enlistment.Done();
             }
         }
     }

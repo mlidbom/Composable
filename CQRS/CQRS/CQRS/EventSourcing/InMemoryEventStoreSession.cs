@@ -5,7 +5,7 @@ using Composable.System.Linq;
 
 namespace Composable.CQRS.EventSourcing
 {
-    public class InMemoryEventStoreSession : EventStoreSession, IEventStoreSession
+    public class InMemoryEventStoreSession : EventStoreSession
     {
         private readonly InMemoryEventStore _store;
 

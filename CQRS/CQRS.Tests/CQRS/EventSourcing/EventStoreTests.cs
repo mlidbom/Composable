@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Transactions;
 using Composable.CQRS.EventSourcing;
 using NUnit.Framework;
 
@@ -208,6 +209,36 @@ namespace CQRS.Tests.CQRS.EventSourcing
                                                                                        session.SaveChanges();
                                                                                    }
                                                                                });
+        }
+
+        [Test]
+        public void SaveChangesAndCommitWhenTransientTransactionDoesSo()
+        {
+            var store = CreateStore();
+            
+            var user = new User();
+            user.Register("email@email.se", "password", Guid.NewGuid());
+            user.ChangePassword("NewPassword");
+            user.ChangeEmail("NewEmail");
+
+            using(var session = store.OpenSession())
+            {
+                using (var transaction = new TransactionScope())
+                {
+                    session.Save(user);
+                    transaction.Complete();
+                }
+            }
+
+            using(var session = store.OpenSession())
+            {
+                var loadedUser = session.Load<User>(user.Id);
+
+                Assert.That(loadedUser.Id, Is.EqualTo(user.Id));
+                Assert.That(loadedUser.Email, Is.EqualTo(user.Email));
+                Assert.That(loadedUser.Password, Is.EqualTo(user.Password));
+
+            }
         }
     }
 }

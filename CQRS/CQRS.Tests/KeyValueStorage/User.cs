@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using Composable.DDD;
 
 namespace CQRS.Tests.KeyValueStorage
@@ -10,6 +11,8 @@ namespace CQRS.Tests.KeyValueStorage
         public string Password { get; set; }
 
         public Address Address { get; set; }
+
+        public HashSet<User> People { get; set; }
     }
 
     public class Address : ValueObject<Address>

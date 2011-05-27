@@ -35,6 +35,7 @@ namespace Composable.KeyValueStorage.SqlServer
         {
             private readonly JsonSerializerSettings JsonSettings = new JsonSerializerSettings
                                                                        {
+                                                                           TypeNameHandling = TypeNameHandling.Auto,
                                                                            ContractResolver = new IncludeMembersWithPrivateSettersResolver()
                                                                        };
 
@@ -116,7 +117,7 @@ CREATE TABLE [dbo].[Store](
                     {
                         throw new NoSuchKeyException(key, typeof(TValue));
                     }
-                    value = JsonConvert.DeserializeObject((String)value, typeof(TValue));
+                    value = JsonConvert.DeserializeObject((String)value, typeof(TValue), JsonSettings);
                 }
                 _persistentValues.Add(key);
                 _idMap.Add(key, value);
@@ -180,7 +181,7 @@ CREATE TABLE [dbo].[Store](
 
                             command.Parameters.Add(new SqlParameter("Id" + handledInBatch, entry.Key));
                             command.Parameters.Add(new SqlParameter("Value" + handledInBatch,
-                                                                    JsonConvert.SerializeObject(entry.Value, Formatting.None, JsonSettings)));
+                                                                    JsonConvert.SerializeObject(entry.Value, Formatting.Indented, JsonSettings)));
                         }
                         command.ExecuteNonQuery();
                     }

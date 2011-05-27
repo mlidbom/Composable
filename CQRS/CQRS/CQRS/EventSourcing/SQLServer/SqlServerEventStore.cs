@@ -47,6 +47,7 @@ namespace Composable.CQRS.EventSourcing.SQLServer
 
             private readonly JsonSerializerSettings JsonSettings = new JsonSerializerSettings
                                                                        {
+                                                                           TypeNameHandling = TypeNameHandling.Auto,
                                                                            ContractResolver = new IncludeMembersWithPrivateSettersResolver()
                                                                        };
 
@@ -180,7 +181,7 @@ ALTER TABLE [dbo].[Events] ADD  CONSTRAINT [DF_Events_TimeStamp]  DEFAULT (getda
                             command.Parameters.Add(new SqlParameter("AggregateId" + handledInBatch, @event.AggregateRootId));
                             command.Parameters.Add(new SqlParameter("AggregateVersion" + handledInBatch, @event.AggregateRootVersion));
                             command.Parameters.Add(new SqlParameter("EventType" + handledInBatch, @event.GetType().FullName));
-                            command.Parameters.Add(new SqlParameter("Event" + handledInBatch, JsonConvert.SerializeObject(@event, Formatting.None, JsonSettings)));
+                            command.Parameters.Add(new SqlParameter("Event" + handledInBatch, JsonConvert.SerializeObject(@event, Formatting.Indented, JsonSettings)));
                         }
                         command.ExecuteNonQuery();
                     }

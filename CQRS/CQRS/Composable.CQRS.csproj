@@ -80,6 +80,7 @@
     <Compile Include="CQRS\EventSourcing\AggregateRootEvent.cs" />
     <Compile Include="CQRS\EventSourcing\AttemptToSaveAlreadyPersistedAggregateException.cs" />
     <Compile Include="CQRS\EventSourcing\EventStoreSession.cs" />
+    <Compile Include="CQRS\EventSourcing\EventStoreSessionDisposeWrapper.cs" />
     <Compile Include="CQRS\EventSourcing\IAggregateRootEvent.cs" />
     <Compile Include="CQRS\EventSourcing\IEventStore.cs" />
     <Compile Include="CQRS\EventSourcing\IEventStoreSession.cs" />

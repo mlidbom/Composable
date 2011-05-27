@@ -168,5 +168,37 @@ namespace CQRS.Tests.KeyValueStorage
 
             }
         }
+
+        [Test]
+        public void SaveChangesAndCommitWhenTransientTransactionDoesSoWhenCreatedAndDisposedWithinTransaction()
+        {
+            var store = CreateStore();
+
+            var user = new User()
+            {
+                Id = Guid.NewGuid(),
+                Email = "email@email.se",
+                Password = "password"
+            };
+
+            using (var transaction = new TransactionScope())
+            {
+                using(var session = store.OpenSession())
+                {
+                    session.Save(user);
+                    transaction.Complete();
+                }
+            }
+
+            using (var session = store.OpenSession())
+            {
+                var loadedUser = session.Get<User>(user.Id);
+
+                Assert.That(loadedUser.Id, Is.EqualTo(user.Id));
+                Assert.That(loadedUser.Email, Is.EqualTo(user.Email));
+                Assert.That(loadedUser.Password, Is.EqualTo(user.Password));
+
+            }
+        }
     }
 }

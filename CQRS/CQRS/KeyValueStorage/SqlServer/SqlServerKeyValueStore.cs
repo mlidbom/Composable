@@ -26,7 +26,7 @@ namespace Composable.KeyValueStorage.SqlServer
 
         public IKeyValueSession OpenSession()
         {
-            return new SqlServerKeyValueSession(this);
+            return new SessionDisposeWrapper(new SqlServerKeyValueSession(this));
         }
 
         private class SqlServerKeyValueSession : IEnlistmentNotification, IKeyValueSession
@@ -42,8 +42,8 @@ namespace Composable.KeyValueStorage.SqlServer
             private readonly HashSet<Guid> _persistentValues = new HashSet<Guid>();
             private readonly SqlConnection _connection;
             private bool TableVerifiedToExist;
-            private bool _enlisted;
-            private const int UniqueConstraintViolationErrorNumber= 2627;
+            private bool _enlisted;            
+            private const int UniqueConstraintViolationErrorNumber = 2627;
             private const int SqlBatchSize = 10;
 
             public SqlServerKeyValueSession(SqlServerKeyValueStore store)
@@ -86,7 +86,7 @@ CREATE TABLE [dbo].[Store](
                 EnlistInAmbientTransaction();
 
                 object value;
-                if(_idMap.TryGetValue(key, out value))
+                if (_idMap.TryGetValue(key, out value))
                 {
                     return (TValue)value;
                 }
@@ -96,7 +96,7 @@ CREATE TABLE [dbo].[Store](
                     loadCommand.CommandText = "SELECT Value FROM Store WHERE Id=@Id";
                     loadCommand.Parameters.Add(new SqlParameter("Id", key));
                     value = loadCommand.ExecuteScalar();
-                    if(value == null)
+                    if (value == null)
                     {
                         throw new NoSuchKeyException(key);
                     }
@@ -148,7 +148,7 @@ CREATE TABLE [dbo].[Store](
                     using (var command = _connection.CreateCommand())
                     {
                         command.CommandType = CommandType.Text;
-                        for(var handledInBatch = 0; handledInBatch < SqlBatchSize && handled < eventCount; handledInBatch++, handled++)
+                        for (var handledInBatch = 0; handledInBatch < SqlBatchSize && handled < eventCount; handledInBatch++, handled++)
                         {
                             var entry = values.ElementAt(handledInBatch);
 
@@ -186,9 +186,10 @@ CREATE TABLE [dbo].[Store](
                         try
                         {
                             command.ExecuteNonQuery();
-                        }catch(SqlException e)
+                        }
+                        catch (SqlException e)
                         {
-                            if(e.Number == UniqueConstraintViolationErrorNumber)
+                            if (e.Number == UniqueConstraintViolationErrorNumber)
                             {
                                 throw new AttemptToSaveAlreadyPersistedValueException(Guid.Empty, "Batched insert cannot extract value...");
                             }
@@ -207,7 +208,7 @@ CREATE TABLE [dbo].[Store](
 
             void IEnlistmentNotification.Prepare(PreparingEnlistment preparingEnlistment)
             {
-                SaveChanges();                
+                SaveChanges();
                 preparingEnlistment.Prepared();
             }
 
@@ -215,17 +216,77 @@ CREATE TABLE [dbo].[Store](
             {
                 _enlisted = false;
                 enlistment.Done();
+                HandleScheduledDispose();
             }
 
             void IEnlistmentNotification.Rollback(Enlistment enlistment)
             {
                 _enlisted = false;
+                HandleScheduledDispose();
             }
 
             public void InDoubt(Enlistment enlistment)
             {
                 _enlisted = false;
                 enlistment.Done();
+                HandleScheduledDispose();
+            }
+
+
+            private void HandleScheduledDispose()
+            {
+                if(_scheduledForDisposeAfterTransactionDone)
+                {
+                    Dispose();
+                }
+            }
+
+            private bool _scheduledForDisposeAfterTransactionDone;
+            public void DisposeIfNotEnlisted()
+            {
+                if (_enlisted)
+                {
+                    _scheduledForDisposeAfterTransactionDone = true;
+                }
+                else
+                {
+                    Dispose();
+                }
+            }
+        }
+
+        private class SessionDisposeWrapper : IKeyValueSession
+        {
+            private readonly SqlServerKeyValueSession _session;
+
+            public SessionDisposeWrapper(SqlServerKeyValueSession session)
+            {
+                _session = session;
+            }
+
+            public void Dispose()
+            {
+                _session.DisposeIfNotEnlisted();
+            }
+
+            public TValue Get<TValue>(Guid key)
+            {
+                return _session.Get<TValue>(key);
+            }
+
+            public void Save<TValue>(Guid key, TValue value)
+            {
+                _session.Save(key, value);
+            }
+
+            public void Save<TEntity>(TEntity entity) where TEntity : IPersistentEntity<Guid>
+            {
+                _session.Save(entity);
+            }
+
+            public void SaveChanges()
+            {
+                _session.SaveChanges();
             }
         }
     }

@@ -14,6 +14,7 @@ namespace Composable.CQRS.EventSourcing
     {
         protected readonly IDictionary<Guid, IEventStored> _idMap = new Dictionary<Guid, IEventStored>();
         private bool _enlisted;
+        private bool _disposedScheduledForAfterTransactionDone;
 
         protected abstract IEnumerable<IAggregateRootEvent> GetHistoryUnSafe(Guid aggregateId);
 
@@ -92,17 +93,43 @@ namespace Composable.CQRS.EventSourcing
         {
             _enlisted = false;
             enlistment.Done();
-        }
+            DisposeIfScheduled();
+        }        
 
         void IEnlistmentNotification.Rollback(Enlistment enlistment)
         {
             _enlisted = false;
+            DisposeIfScheduled();
         }
 
         public void InDoubt(Enlistment enlistment)
         {
             _enlisted = false;
             enlistment.Done();
+        }
+
+        private void DisposeIfScheduled()
+        {
+            if (_disposedScheduledForAfterTransactionDone)
+            {
+                Dispose();
+            }
+        }
+
+        private void ScheduleForDisposeAfterTransactionDone()
+        {
+            _disposedScheduledForAfterTransactionDone = true;
+        }
+
+        public void DisposeIfNotEnlisted()
+        {
+            if(_enlisted)
+            {
+                ScheduleForDisposeAfterTransactionDone();
+            }else
+            {
+                Dispose();
+            }
         }
     }
 }

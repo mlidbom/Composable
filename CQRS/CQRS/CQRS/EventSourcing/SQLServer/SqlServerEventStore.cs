@@ -24,7 +24,7 @@ namespace Composable.CQRS.EventSourcing.SQLServer
 
         public IEventStoreSession OpenSession()
         {
-            return new SQLServerEventStoreSession(this);
+            return new EventStoreSessionDisposeWrapper(new SQLServerEventStoreSession(this));
         }
 
         private class SQLServerEventStoreSession : EventStoreSession

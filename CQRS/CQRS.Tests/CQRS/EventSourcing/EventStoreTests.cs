@@ -240,5 +240,35 @@ namespace CQRS.Tests.CQRS.EventSourcing
 
             }
         }
+
+        [Test]
+        public void SaveChangesAndCommitWhenTransientTransactionDoesSoWhenDisposedWithinTransaction()
+        {
+            var store = CreateStore();
+
+            var user = new User();
+            user.Register("email@email.se", "password", Guid.NewGuid());
+            user.ChangePassword("NewPassword");
+            user.ChangeEmail("NewEmail");
+
+            using (var transaction = new TransactionScope())
+            {
+                using(var session = store.OpenSession())
+                {
+                    session.Save(user);
+                    transaction.Complete();
+                }
+            }
+
+            using (var session = store.OpenSession())
+            {
+                var loadedUser = session.Get<User>(user.Id);
+
+                Assert.That(loadedUser.Id, Is.EqualTo(user.Id));
+                Assert.That(loadedUser.Email, Is.EqualTo(user.Email));
+                Assert.That(loadedUser.Password, Is.EqualTo(user.Password));
+
+            }
+        }
     }
 }

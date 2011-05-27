@@ -18,15 +18,17 @@ namespace Composable.KeyValueStorage.SqlServer
     public class SqlServerKeyValueStore : IKeyValueStore
     {
         private readonly string _connectionString;
+        private readonly SqlServerKeyValueStoreConfig _config;
 
-        public SqlServerKeyValueStore(string connectionString)
+        public SqlServerKeyValueStore(string connectionString, SqlServerKeyValueStoreConfig config = SqlServerKeyValueStoreConfig.Default)
         {
             _connectionString = connectionString;
+            _config = config;
         }
 
         public IKeyValueSession OpenSession()
         {
-            return new SessionDisposeWrapper(new SqlServerKeyValueSession(this));
+            return new SessionDisposeWrapper(new SqlServerKeyValueSession(this, _config));
         }
 
         private class SqlServerKeyValueSession : IEnlistmentNotification, IKeyValueSession
@@ -37,34 +39,46 @@ namespace Composable.KeyValueStorage.SqlServer
                                                                        };
 
             private readonly SqlServerKeyValueStore _store;
+            private readonly SqlServerKeyValueStoreConfig _config;
             private readonly Dictionary<Guid, object> _idMap = new Dictionary<Guid, object>();
             private readonly HashSet<Guid> _persistentValues = new HashSet<Guid>();
             private readonly SqlConnection _connection;
             private bool TableVerifiedToExist;
             private bool _enlisted;
             private const int UniqueConstraintViolationErrorNumber = 2627;
-            private const int SqlBatchSize = 10;
+            private int SqlBatchSize = 10;
 
-            public SqlServerKeyValueSession(SqlServerKeyValueStore store)
+            private static int instances;
+            public SqlServerKeyValueSession(SqlServerKeyValueStore store, SqlServerKeyValueStoreConfig config)
             {
+                Console.WriteLine("{0}: {1}", GetType().Name, ++instances);
                 _store = store;
+                _config = config;
                 _connection = new SqlConnection(store._connectionString);
                 _connection.Open();
                 EnsureTableExists();
+
+                if(config.HasFlag(SqlServerKeyValueStoreConfig.NoBatching))
+                {
+                    SqlBatchSize = 1;
+                }
             }
 
             private void EnsureTableExists()
             {
                 if(!TableVerifiedToExist)
                 {
-                    var checkForTableCommand = _connection.CreateCommand();
-                    checkForTableCommand.CommandText = "select count(*) from sys.tables where name = 'Store'";
-                    var exists = (int)checkForTableCommand.ExecuteScalar();
-                    if(exists == 0)
+                    using (var checkForTableCommand = _connection.CreateCommand())
                     {
-                        var createTableCommand = _connection.CreateCommand();
-                        createTableCommand.CommandText =
-                            @"
+                        checkForTableCommand.CommandText = "select count(*) from sys.tables where name = 'Store'";
+                        var exists = (int)checkForTableCommand.ExecuteScalar();
+                        if(exists == 0)
+                        {
+                            using (var createTableCommand = _connection.CreateCommand())
+                            {
+
+                                createTableCommand.CommandText =
+                                    @"
 CREATE TABLE [dbo].[Store](
 	[Id] [uniqueidentifier] NOT NULL,
     [ValueType] [varchar](500) NOT NULL,
@@ -75,9 +89,11 @@ CREATE TABLE [dbo].[Store](
 )WITH (PAD_INDEX  = OFF, STATISTICS_NORECOMPUTE  = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS  = ON, ALLOW_PAGE_LOCKS  = ON) ON [PRIMARY]
 ) ON [PRIMARY]
 ";
-                        createTableCommand.ExecuteNonQuery();
+                                createTableCommand.ExecuteNonQuery();
+                            }
+                        }
+                        TableVerifiedToExist = true;
                     }
-                    TableVerifiedToExist = true;
                 }
             }
 
@@ -98,7 +114,7 @@ CREATE TABLE [dbo].[Store](
                     value = loadCommand.ExecuteScalar();
                     if(value == null)
                     {
-                        throw new NoSuchKeyException(key);
+                        throw new NoSuchKeyException(key, typeof(TValue));
                     }
                     value = JsonConvert.DeserializeObject((String)value, typeof(TValue));
                 }
@@ -130,12 +146,16 @@ CREATE TABLE [dbo].[Store](
                 UpdateValues(_idMap.Where(entry => _persistentValues.Contains(entry.Key)));
             }
 
+            private Guid ManagerGuid = Guid.Parse("84165A58-1EAE-49DD-9324-EEFE5D7D00DD");
+            private readonly HashSet<Transaction> enlistedIn = new HashSet<Transaction>();
+
             private void EnlistInAmbientTransaction()
             {
-                if(Transaction.Current != null && !_enlisted)
+                //&& !enlistedIn.Contains(Transaction.Current)
+                if (Transaction.Current != null )
                 {
-                    Transaction.Current.EnlistVolatile(this, EnlistmentOptions.None);
-                    _enlisted = true;
+                    Transaction.Current.EnlistVolatile(this, EnlistmentOptions.EnlistDuringPrepareRequired);
+                    enlistedIn.Add(Transaction.Current);
                 }
             }
 
@@ -173,9 +193,10 @@ CREATE TABLE [dbo].[Store](
                     using(var command = _connection.CreateCommand())
                     {
                         command.CommandType = CommandType.Text;
+                        KeyValuePair<Guid, object> entry = new KeyValuePair<Guid, object>();
                         for(var handledInBatch = 0; handledInBatch < SqlBatchSize && handled < eventCount; handledInBatch++, handled++)
                         {
-                            var entry = values.ElementAt(handledInBatch);
+                            entry = values.ElementAt(handledInBatch);
 
                             command.CommandText += "INSERT Store(Id, ValueType, Value) VALUES(@Id{0}, @ValueType{0}, @Value{0})"
                                 .FormatWith(handledInBatch);
@@ -193,7 +214,12 @@ CREATE TABLE [dbo].[Store](
                         {
                             if(e.Number == UniqueConstraintViolationErrorNumber)
                             {
-                                throw new AttemptToSaveAlreadyPersistedValueException(Guid.Empty, "Batched insert cannot extract value...");
+                                if (SqlBatchSize == 1)
+                                {
+                                    throw new AttemptToSaveAlreadyPersistedValueException(entry.Key, entry.Value);
+                                }
+                                
+                                throw new AttemptToSaveAlreadyPersistedValueException(Guid.Empty, "Batched insert cannot extract value try with SqlServerKeyValueStoreConfig.NoBatching...");
                             }
                             throw;
                         }
@@ -203,6 +229,7 @@ CREATE TABLE [dbo].[Store](
 
             public void Dispose()
             {
+                Console.WriteLine("{0}: {1}", GetType().Name, --instances);
                 _connection.Dispose();
                 _idMap.Clear();
             }
@@ -238,6 +265,7 @@ CREATE TABLE [dbo].[Store](
             {
                 if(_scheduledForDisposeAfterTransactionDone)
                 {
+                    _scheduledForDisposeAfterTransactionDone = false;
                     Dispose();
                 }
             }
@@ -258,13 +286,15 @@ CREATE TABLE [dbo].[Store](
 
             public void PurgeDB()
             {
-                var dropCommand = _connection.CreateCommand();
-                dropCommand.CommandText =
-                    @"IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[Store]') AND type in (N'U'))
+                using (var dropCommand = _connection.CreateCommand())
+                {
+                    dropCommand.CommandText =
+                        @"IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[Store]') AND type in (N'U'))
 DROP TABLE [dbo].[Store]";
 
-                dropCommand.ExecuteNonQuery();
-                TableVerifiedToExist = false;
+                    dropCommand.ExecuteNonQuery();
+                    TableVerifiedToExist = false;
+                }
             }
         }
 
@@ -306,10 +336,17 @@ DROP TABLE [dbo].[Store]";
         public static void ResetDB(string connectionString)
         {
             var me = new SqlServerKeyValueStore(connectionString);
-            using(var session = new SqlServerKeyValueSession(me))
+            using (var session = new SqlServerKeyValueSession(me, SqlServerKeyValueStoreConfig.Default))
             {
                 session.PurgeDB();
             }
         }
+    }
+
+    [Flags]
+    public enum SqlServerKeyValueStoreConfig
+    {
+        Default = 0x0,
+        NoBatching = 0x2
     }
 }

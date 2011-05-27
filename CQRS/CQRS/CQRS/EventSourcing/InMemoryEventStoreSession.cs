@@ -16,8 +16,6 @@ namespace Composable.CQRS.EventSourcing
 
         public override void Dispose()
         {
-            //Can be called before the transaction commits....
-            //_idMap.Clear();
         }
 
         protected override IEnumerable<IAggregateRootEvent> GetHistoryUnSafe(Guid id)

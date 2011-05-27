@@ -114,18 +114,13 @@ namespace Composable.CQRS.EventSourcing
             {
                 Dispose();
             }
-        }
-
-        private void ScheduleForDisposeAfterTransactionDone()
-        {
-            _disposedScheduledForAfterTransactionDone = true;
-        }
+        }        
 
         public void DisposeIfNotEnlisted()
         {
             if(_enlisted)
             {
-                ScheduleForDisposeAfterTransactionDone();
+                _disposedScheduledForAfterTransactionDone = true;
             }else
             {
                 Dispose();

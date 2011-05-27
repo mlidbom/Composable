@@ -54,7 +54,7 @@ namespace Composable.KeyValueStorage.SqlServer
             private static int instances;
             public SqlServerKeyValueSession(SqlServerKeyValueStore store, SqlServerKeyValueStoreConfig config)
             {
-                Log("{0}: {1}", GetType().Name, ++instances);
+                Console.WriteLine("{0}: {1}", GetType().Name, ++instances);
                 _store = store;
                 _config = config;
                 _connection = new SqlConnection(store._connectionString);
@@ -233,12 +233,17 @@ CREATE TABLE [dbo].[Store](
                 }
             }
 
+            private bool _disposed;
             public void Dispose()
             {
-                Log("disposing {0}", Me);
-                Log("{0}: {1}", GetType().Name, --instances);
-                _connection.Dispose();
-                _idMap.Clear();
+                if (!_disposed)
+                {
+                    _disposed = true;
+                    Log("disposing {0}", Me);
+                    Console.WriteLine("{0}: {1}", GetType().Name, --instances);
+                    _connection.Dispose();
+                    _idMap.Clear();
+                }
             }
 
             void IEnlistmentNotification.Prepare(PreparingEnlistment preparingEnlistment)

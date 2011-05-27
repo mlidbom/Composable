@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Transactions;
 using Composable.KeyValueStorage;
 using NUnit.Framework;
+using System.Linq;
 
 namespace CQRS.Tests.KeyValueStorage
 {
@@ -106,6 +107,38 @@ namespace CQRS.Tests.KeyValueStorage
             {
                 var loadedUser = session.Get<HashSet<User>>(user.Id);
                 Assert.That(loadedUser.Count, Is.EqualTo(1));
+            }
+        }
+
+        [Test]
+        public void HandlesHashSetsInObjects()
+        {
+            var store = CreateStore();
+
+            var userInSet = new User()
+                                {
+                                    Id = Guid.NewGuid(),
+                                    Email = "Email"
+                                    
+                                };
+
+            var user = new User() { 
+                Id = Guid.NewGuid(),
+                People = new HashSet<User>() { userInSet }
+            };;
+
+            using (var session = store.OpenSession())
+            {
+                session.Save(user.Id, user);
+                session.SaveChanges();
+            }
+
+            using (var session = store.OpenSession())
+            {
+                var loadedUser = session.Get<User>(user.Id);
+                Assert.That(loadedUser.People.Count, Is.EqualTo(1));
+                var loadedUserInSet = loadedUser.People.Single();
+                Assert.That(loadedUserInSet.Id, Is.EqualTo(userInSet.Id));
             }
         }
 

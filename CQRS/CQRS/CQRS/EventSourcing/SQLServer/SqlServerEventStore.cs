@@ -36,7 +36,6 @@ namespace Composable.CQRS.EventSourcing.SQLServer
 
             private readonly JsonSerializerSettings JsonSettings = new JsonSerializerSettings
                                                                        {
-                                                                           TypeNameHandling = TypeNameHandling.Objects,
                                                                            ContractResolver = new IncludeMembersWithPrivateSettersResolver()
                                                                        };
 
@@ -97,7 +96,7 @@ CREATE TABLE [dbo].[Events](
 
             private IAggregateRootEvent DeserializeEvent(string discriminator, string eventData)
             {
-                return (IAggregateRootEvent)JsonConvert.DeserializeObject(eventData, JsonSettings);
+                return (IAggregateRootEvent)JsonConvert.DeserializeObject(eventData, Type.GetType(discriminator), JsonSettings);
             }
 
             protected override void SaveEvents(IEnumerable<IAggregateRootEvent> events)
@@ -118,7 +117,7 @@ CREATE TABLE [dbo].[Events](
 
                         command.Parameters.Add(new SqlParameter("AggregateId" + handledInBatch, @event.AggregateRootId));
                         command.Parameters.Add(new SqlParameter("AggregateVersion" + handledInBatch, @event.AggregateRootVersion));
-                        command.Parameters.Add(new SqlParameter("Discriminator" + handledInBatch, @event.GetType().FullName));
+                        command.Parameters.Add(new SqlParameter("Discriminator" + handledInBatch, @event.GetType().AssemblyQualifiedName));
                         command.Parameters.Add(new SqlParameter("Event" + handledInBatch, JsonConvert.SerializeObject(@event, Formatting.None, JsonSettings)));
                     }
                     command.ExecuteNonQuery();
@@ -129,6 +128,25 @@ CREATE TABLE [dbo].[Events](
             {
                 _connection.Dispose();
                 _idMap.Clear();
+            }
+
+            public void PurgeDB()
+            {
+                var dropCommand = _connection.CreateCommand();
+                dropCommand.CommandText =
+                    @"IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[Events]') AND type in (N'U'))
+DROP TABLE [dbo].[Events]";
+
+                dropCommand.ExecuteNonQuery();
+            }
+        }
+
+        public static void ResetDB(string connectionString)
+        {
+            var me = new SqlServerEventStore(connectionString);
+            using(var session = new SQLServerEventStoreSession(me))
+            {
+                session.PurgeDB();
             }
         }
     }

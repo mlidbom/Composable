@@ -4,12 +4,12 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
+using System.Linq;
 using System.Transactions;
 using Composable.DDD;
 using Composable.NewtonSoft;
 using Composable.System;
 using Newtonsoft.Json;
-using System.Linq;
 
 #endregion
 
@@ -32,17 +32,16 @@ namespace Composable.KeyValueStorage.SqlServer
         private class SqlServerKeyValueSession : IEnlistmentNotification, IKeyValueSession
         {
             private readonly JsonSerializerSettings JsonSettings = new JsonSerializerSettings
-            {
-                TypeNameHandling = TypeNameHandling.Objects,
-                ContractResolver = new IncludeMembersWithPrivateSettersResolver()
-            };
+                                                                       {
+                                                                           ContractResolver = new IncludeMembersWithPrivateSettersResolver()
+                                                                       };
 
             private readonly SqlServerKeyValueStore _store;
             private readonly Dictionary<Guid, object> _idMap = new Dictionary<Guid, object>();
             private readonly HashSet<Guid> _persistentValues = new HashSet<Guid>();
             private readonly SqlConnection _connection;
             private bool TableVerifiedToExist;
-            private bool _enlisted;            
+            private bool _enlisted;
             private const int UniqueConstraintViolationErrorNumber = 2627;
             private const int SqlBatchSize = 10;
 
@@ -56,18 +55,19 @@ namespace Composable.KeyValueStorage.SqlServer
 
             private void EnsureTableExists()
             {
-                if (!TableVerifiedToExist)
+                if(!TableVerifiedToExist)
                 {
                     var checkForTableCommand = _connection.CreateCommand();
                     checkForTableCommand.CommandText = "select count(*) from sys.tables where name = 'Store'";
                     var exists = (int)checkForTableCommand.ExecuteScalar();
-                    if (exists == 0)
+                    if(exists == 0)
                     {
                         var createTableCommand = _connection.CreateCommand();
                         createTableCommand.CommandText =
                             @"
 CREATE TABLE [dbo].[Store](
 	[Id] [uniqueidentifier] NOT NULL,
+    [TypeName] [varchar](500) NOT NULL,
 	[Value] [nvarchar](max) NOT NULL,
  CONSTRAINT [PK_Store] PRIMARY KEY CLUSTERED 
 (
@@ -86,21 +86,21 @@ CREATE TABLE [dbo].[Store](
                 EnlistInAmbientTransaction();
 
                 object value;
-                if (_idMap.TryGetValue(key, out value))
+                if(_idMap.TryGetValue(key, out value))
                 {
                     return (TValue)value;
                 }
 
-                using (var loadCommand = _connection.CreateCommand())
+                using(var loadCommand = _connection.CreateCommand())
                 {
                     loadCommand.CommandText = "SELECT Value FROM Store WHERE Id=@Id";
                     loadCommand.Parameters.Add(new SqlParameter("Id", key));
                     value = loadCommand.ExecuteScalar();
-                    if (value == null)
+                    if(value == null)
                     {
                         throw new NoSuchKeyException(key);
                     }
-                    value = JsonConvert.DeserializeObject((String)value, JsonSettings);
+                    value = JsonConvert.DeserializeObject((String)value, typeof(TValue));
                 }
                 _persistentValues.Add(key);
                 _idMap.Add(key, value);
@@ -112,7 +112,7 @@ CREATE TABLE [dbo].[Store](
                 EnlistInAmbientTransaction();
 
                 object existing;
-                if (_idMap.TryGetValue(key, out existing))
+                if(_idMap.TryGetValue(key, out existing))
                 {
                     throw new AttemptToSaveAlreadyPersistedValueException(key, value);
                 }
@@ -132,7 +132,7 @@ CREATE TABLE [dbo].[Store](
 
             private void EnlistInAmbientTransaction()
             {
-                if (Transaction.Current != null && !_enlisted)
+                if(Transaction.Current != null && !_enlisted)
                 {
                     Transaction.Current.EnlistVolatile(this, EnlistmentOptions.None);
                     _enlisted = true;
@@ -142,13 +142,13 @@ CREATE TABLE [dbo].[Store](
             private void UpdateValues(IEnumerable<KeyValuePair<Guid, object>> values)
             {
                 var handled = 0;
-                int eventCount = values.Count();
-                while (handled < eventCount)
+                var eventCount = values.Count();
+                while(handled < eventCount)
                 {
-                    using (var command = _connection.CreateCommand())
+                    using(var command = _connection.CreateCommand())
                     {
                         command.CommandType = CommandType.Text;
-                        for (var handledInBatch = 0; handledInBatch < SqlBatchSize && handled < eventCount; handledInBatch++, handled++)
+                        for(var handledInBatch = 0; handledInBatch < SqlBatchSize && handled < eventCount; handledInBatch++, handled++)
                         {
                             var entry = values.ElementAt(handledInBatch);
 
@@ -167,29 +167,31 @@ CREATE TABLE [dbo].[Store](
             private void InsertValues(IEnumerable<KeyValuePair<Guid, object>> values)
             {
                 var handled = 0;
-                int eventCount = values.Count();
-                while (handled < eventCount)
+                var eventCount = values.Count();
+                while(handled < eventCount)
                 {
-                    using (var command = _connection.CreateCommand())
+                    using(var command = _connection.CreateCommand())
                     {
                         command.CommandType = CommandType.Text;
-                        for (var handledInBatch = 0; handledInBatch < SqlBatchSize && handled < eventCount; handledInBatch++, handled++)
+                        for(var handledInBatch = 0; handledInBatch < SqlBatchSize && handled < eventCount; handledInBatch++, handled++)
                         {
                             var entry = values.ElementAt(handledInBatch);
 
-                            command.CommandText += "INSERT Store(Id, Value) VALUES(@Id{0}, @Value{0})"
+                            command.CommandText += "INSERT Store(Id, TypeName, Value) VALUES(@Id{0}, @TypeName{0}, @Value{0})"
                                 .FormatWith(handledInBatch);
 
                             command.Parameters.Add(new SqlParameter("Id" + handledInBatch, entry.Key));
-                            command.Parameters.Add(new SqlParameter("Value" + handledInBatch, JsonConvert.SerializeObject(entry.Value, Formatting.None, JsonSettings)));
+                            command.Parameters.Add(new SqlParameter("TypeName" + handledInBatch, entry.Value.GetType().FullName));
+                            command.Parameters.Add(new SqlParameter("Value" + handledInBatch,
+                                                                    JsonConvert.SerializeObject(entry.Value, Formatting.None, JsonSettings)));
                         }
                         try
                         {
                             command.ExecuteNonQuery();
                         }
-                        catch (SqlException e)
+                        catch(SqlException e)
                         {
-                            if (e.Number == UniqueConstraintViolationErrorNumber)
+                            if(e.Number == UniqueConstraintViolationErrorNumber)
                             {
                                 throw new AttemptToSaveAlreadyPersistedValueException(Guid.Empty, "Batched insert cannot extract value...");
                             }
@@ -197,7 +199,6 @@ CREATE TABLE [dbo].[Store](
                         }
                     }
                 }
-
             }
 
             public void Dispose()
@@ -242,9 +243,10 @@ CREATE TABLE [dbo].[Store](
             }
 
             private bool _scheduledForDisposeAfterTransactionDone;
+
             public void DisposeIfNotEnlisted()
             {
-                if (_enlisted)
+                if(_enlisted)
                 {
                     _scheduledForDisposeAfterTransactionDone = true;
                 }
@@ -252,6 +254,16 @@ CREATE TABLE [dbo].[Store](
                 {
                     Dispose();
                 }
+            }
+
+            public void PurgeDB()
+            {
+                var dropCommand = _connection.CreateCommand();
+                dropCommand.CommandText =
+                    @"IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[Store]') AND type in (N'U'))
+DROP TABLE [dbo].[Store]";
+
+                dropCommand.ExecuteNonQuery();
             }
         }
 
@@ -287,6 +299,15 @@ CREATE TABLE [dbo].[Store](
             public void SaveChanges()
             {
                 _session.SaveChanges();
+            }
+        }
+
+        public static void ResetDB(string connectionString)
+        {
+            var me = new SqlServerKeyValueStore(connectionString);
+            using(var session = new SqlServerKeyValueSession(me))
+            {
+                session.PurgeDB();
             }
         }
     }

@@ -67,7 +67,7 @@ namespace Composable.KeyValueStorage.SqlServer
                             @"
 CREATE TABLE [dbo].[Store](
 	[Id] [uniqueidentifier] NOT NULL,
-    [TypeName] [varchar](500) NOT NULL,
+    [ValueType] [varchar](500) NOT NULL,
 	[Value] [nvarchar](max) NOT NULL,
  CONSTRAINT [PK_Store] PRIMARY KEY CLUSTERED 
 (
@@ -93,7 +93,7 @@ CREATE TABLE [dbo].[Store](
 
                 using(var loadCommand = _connection.CreateCommand())
                 {
-                    loadCommand.CommandText = "SELECT Value FROM Store WHERE Id=@Id";
+                    loadCommand.CommandText = "SELECT Value, ValueType FROM Store WHERE Id=@Id";
                     loadCommand.Parameters.Add(new SqlParameter("Id", key));
                     value = loadCommand.ExecuteScalar();
                     if(value == null)
@@ -177,11 +177,11 @@ CREATE TABLE [dbo].[Store](
                         {
                             var entry = values.ElementAt(handledInBatch);
 
-                            command.CommandText += "INSERT Store(Id, TypeName, Value) VALUES(@Id{0}, @TypeName{0}, @Value{0})"
+                            command.CommandText += "INSERT Store(Id, ValueType, Value) VALUES(@Id{0}, @ValueType{0}, @Value{0})"
                                 .FormatWith(handledInBatch);
 
                             command.Parameters.Add(new SqlParameter("Id" + handledInBatch, entry.Key));
-                            command.Parameters.Add(new SqlParameter("TypeName" + handledInBatch, entry.Value.GetType().FullName));
+                            command.Parameters.Add(new SqlParameter("ValueType" + handledInBatch, entry.Value.GetType().FullName));
                             command.Parameters.Add(new SqlParameter("Value" + handledInBatch,
                                                                     JsonConvert.SerializeObject(entry.Value, Formatting.None, JsonSettings)));
                         }
@@ -264,6 +264,7 @@ CREATE TABLE [dbo].[Store](
 DROP TABLE [dbo].[Store]";
 
                 dropCommand.ExecuteNonQuery();
+                TableVerifiedToExist = false;
             }
         }
 

@@ -5,9 +5,11 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
 using System.Linq;
+using System.Reflection;
 using Composable.NewtonSoft;
 using Composable.System;
 using Newtonsoft.Json;
+using Composable.System.Linq;
 
 #endregion
 
@@ -61,14 +63,19 @@ namespace Composable.CQRS.EventSourcing.SQLServer
                             @"
 CREATE TABLE [dbo].[Events](
 	[AggregateId] [uniqueidentifier] NOT NULL,
-    [AggregateVersion] [int] NOT NULL,
-	[Discriminator] [varchar](300) NOT NULL,
+	[AggregateVersion] [int] NOT NULL,
+	[TimeStamp] [datetime] NOT NULL,
+	[EventType] [varchar](300) NOT NULL,
 	[Event] [nvarchar](max) NOT NULL,
  CONSTRAINT [PK_Events] PRIMARY KEY CLUSTERED 
 (
-	[AggregateId] ASC, [AggregateVersion] ASC
+	[AggregateId] ASC,
+	[AggregateVersion] ASC
 )WITH (PAD_INDEX  = OFF, STATISTICS_NORECOMPUTE  = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS  = ON, ALLOW_PAGE_LOCKS  = ON) ON [PRIMARY]
 ) ON [PRIMARY]
+
+ALTER TABLE [dbo].[Events] ADD  CONSTRAINT [DF_Events_TimeStamp]  DEFAULT (getdate()) FOR [TimeStamp]
+
 ";
                         createTableCommand.ExecuteNonQuery();
                     }
@@ -79,7 +86,7 @@ CREATE TABLE [dbo].[Events](
             protected override IEnumerable<IAggregateRootEvent> GetHistoryUnSafe(Guid aggregateId)
             {
                 var loadCommand = _connection.CreateCommand();
-                loadCommand.CommandText = "SELECT Discriminator, Event FROM Events WHERE AggregateId = @AggregateId ORDER BY AggregateVersion ASC";
+                loadCommand.CommandText = "SELECT EventType, Event FROM Events WHERE AggregateId = @AggregateId ORDER BY AggregateVersion ASC";
                 loadCommand.Parameters.Add(new SqlParameter("AggregateId", aggregateId));
 
                 using(var eventReader = loadCommand.ExecuteReader())
@@ -94,9 +101,38 @@ CREATE TABLE [dbo].[Events](
                 }
             }
 
-            private IAggregateRootEvent DeserializeEvent(string discriminator, string eventData)
+            private IAggregateRootEvent DeserializeEvent(string eventType, string eventData)
             {
-                return (IAggregateRootEvent)JsonConvert.DeserializeObject(eventData, Type.GetType(discriminator), JsonSettings);
+                return (IAggregateRootEvent)JsonConvert.DeserializeObject(eventData, FindType(eventType), JsonSettings);
+            }
+
+
+            private static readonly Dictionary<string,Type> _typeMap = new Dictionary<string, Type>();
+            private static Type FindType(string valueType)
+            {
+                Type type;
+                if(_typeMap.TryGetValue(valueType, out type))
+                {
+                    return type;
+                }
+
+                var types = AppDomain.CurrentDomain.GetAssemblies()
+                    .Select(assembly => assembly.GetType(valueType))
+                    .Where(t => t != null)
+                    .ToArray();
+                if(types.None())
+                {
+                    throw new FailedToFindTypeException(valueType);
+                }
+
+                if(types.Count() > 1)
+                {
+                    throw new MultipleMatchingTypesException(valueType);
+                }
+
+                type = types.Single();
+                _typeMap.Add(valueType, types.Single());
+                return type;
             }
 
             protected override void SaveEvents(IEnumerable<IAggregateRootEvent> events)
@@ -112,12 +148,12 @@ CREATE TABLE [dbo].[Events](
                     {
                         var @event = events.ElementAt(handledInBatch);
 
-                        command.CommandText += "INSERT Events(AggregateId, AggregateVersion, Discriminator, Event) VALUES(@AggregateId{0}, @AggregateVersion{0}, @Discriminator{0}, @Event{0})"
+                        command.CommandText += "INSERT Events(AggregateId, AggregateVersion, EventType, Event) VALUES(@AggregateId{0}, @AggregateVersion{0}, @EventType{0}, @Event{0})"
                             .FormatWith(handledInBatch);
 
                         command.Parameters.Add(new SqlParameter("AggregateId" + handledInBatch, @event.AggregateRootId));
                         command.Parameters.Add(new SqlParameter("AggregateVersion" + handledInBatch, @event.AggregateRootVersion));
-                        command.Parameters.Add(new SqlParameter("Discriminator" + handledInBatch, @event.GetType().AssemblyQualifiedName));
+                        command.Parameters.Add(new SqlParameter("EventType" + handledInBatch, @event.GetType().FullName));
                         command.Parameters.Add(new SqlParameter("Event" + handledInBatch, JsonConvert.SerializeObject(@event, Formatting.None, JsonSettings)));
                     }
                     command.ExecuteNonQuery();
@@ -138,6 +174,7 @@ CREATE TABLE [dbo].[Events](
 DROP TABLE [dbo].[Events]";
 
                 dropCommand.ExecuteNonQuery();
+                EventsTableVerifiedToExist = false;
             }
         }
 
@@ -148,6 +185,20 @@ DROP TABLE [dbo].[Events]";
             {
                 session.PurgeDB();
             }
+        }
+    }
+
+    internal class MultipleMatchingTypesException : Exception
+    {
+        public MultipleMatchingTypesException(string typeName):base(typeName)
+        {            
+        }
+    }
+
+    internal class FailedToFindTypeException : Exception
+    {
+        public FailedToFindTypeException(string typeName):base(typeName)
+        {            
         }
     }
 }

@@ -8,9 +8,16 @@ namespace CQRS.Tests.CQRS.EventSourcing.Sql
     [TestFixture]
     class SqlServerEventStoreTests : EventStoreTests
     {
+        private static string connectionString = ConfigurationManager.ConnectionStrings["EventStore"].ConnectionString;
+        [TestFixtureSetUp]
+        public static void Setup()
+        {
+            SqlServerEventStore.ResetDB(connectionString);            
+        }
+
         protected override IEventStore CreateStore()
         {
-            return new SqlServerEventStore(ConfigurationManager.ConnectionStrings["EventStore"].ConnectionString);
+            return new SqlServerEventStore(connectionString);
         }
     }
 }

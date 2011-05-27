@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Transactions;
 using Composable.KeyValueStorage;
 using NUnit.Framework;
@@ -86,6 +87,28 @@ namespace CQRS.Tests.KeyValueStorage
                 session.SaveChanges();
             }
         }
+
+        [Test]
+        public void HandlesHashSets()
+        {
+            var store = CreateStore();
+
+            var user = new User() { Id = Guid.NewGuid() };
+            var userSet = new HashSet<User>() { user };
+
+            using (var session = store.OpenSession())
+            {
+                session.Save(user.Id, userSet);
+                session.SaveChanges();
+            }
+
+            using (var session = store.OpenSession())
+            {
+                var loadedUser = session.Get<HashSet<User>>(user.Id);
+                Assert.That(loadedUser.Count, Is.EqualTo(1));
+            }
+        }
+
 
         [Test]
         public void TracksAndUpdatesLoadedAggregates()

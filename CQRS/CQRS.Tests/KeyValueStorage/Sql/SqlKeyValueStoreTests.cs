@@ -8,9 +8,16 @@ namespace CQRS.Tests.KeyValueStorage.Sql
     [TestFixture]
     class SqlKeyValueStoreTests : KeyValueStoreTests
     {
+        private static string connectionString = ConfigurationManager.ConnectionStrings["KeyValueStore"].ConnectionString;
+        [TestFixtureSetUp]
+        public static void Setup()
+        {
+            SqlServerKeyValueStore.ResetDB(connectionString);
+        }
+
         protected override IKeyValueStore CreateStore()
         {
-            return new SqlServerKeyValueStore(ConfigurationManager.ConnectionStrings["KeyValueStore"].ConnectionString);
+            return new SqlServerKeyValueStore(connectionString);
         }
     }
 }

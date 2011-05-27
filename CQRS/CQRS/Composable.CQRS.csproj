@@ -91,7 +91,7 @@
     <Compile Include="KeyValueStorage\IKeyValueSession.cs" />
     <Compile Include="KeyValueStorage\IKeyValueStore.cs" />
     <Compile Include="KeyValueStorage\InMemoryKeyValueStore.cs" />
-    <Compile Include="KeyValueStorage\InMemoryKeyValueStoreSession.cs" />
+    <Compile Include="KeyValueStorage\InMemoryKeyValueSession.cs" />
     <Compile Include="KeyValueStorage\NoSuchKeyException.cs" />
     <Compile Include="KeyValueStorage\SqlServer\SqlServerKeyValueStore.cs" />
     <Compile Include="ServiceBus\IServiceBus.cs" />

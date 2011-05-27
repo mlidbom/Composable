@@ -7,7 +7,7 @@ namespace Composable.CQRS.EventSourcing
         /// <summary>
         /// Loads an aggregate and tracks it for changes.
         /// </summary>
-        TAggregate Load<TAggregate>(Guid aggregateId) where TAggregate : IEventStored;
+        TAggregate Get<TAggregate>(Guid aggregateId) where TAggregate : IEventStored;
 
         /// <summary>
         /// Loads a specific version of the aggregate. 

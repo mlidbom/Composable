@@ -6,18 +6,18 @@ using Composable.System.Linq;
 
 namespace Composable.KeyValueStorage
 {
-    public class InMemoryKeyValueStoreSession : IEnlistmentNotification, IKeyValueSession
+    public class InMemoryKeyValueSession : IEnlistmentNotification, IKeyValueSession
     {
         private readonly InMemoryKeyValueStore _store;
         private Dictionary<Guid, object> _idMap = new Dictionary<Guid, object>();
         private bool _enlisted;
 
-        public InMemoryKeyValueStoreSession(InMemoryKeyValueStore store)
+        public InMemoryKeyValueSession(InMemoryKeyValueStore store)
         {
             _store = store;
         }
 
-        public TValue Load<TValue>(Guid key)
+        public TValue Get<TValue>(Guid key)
         {
             object value;
             if(_idMap.TryGetValue(key, out value))
@@ -67,7 +67,8 @@ namespace Composable.KeyValueStorage
 
         public void Dispose()
         {
-            _idMap.Clear();
+            //Can be called before the transaction commits....
+            //_idMap.Clear();
         }
 
         void IEnlistmentNotification.Prepare(PreparingEnlistment preparingEnlistment)

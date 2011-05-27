@@ -39,6 +39,8 @@ namespace Composable.DDD
         /// <summary>Implements: <see cref="IPersistentEntity{TKeyType}.Id"/></summary>
         public virtual Guid Id { get; private set; }
 
+        object IEntity.Id { get { return Id; } }
+
 
         protected void SetIdBeVerySureYouKnowWhatYouAreDoing(Guid id)
         {

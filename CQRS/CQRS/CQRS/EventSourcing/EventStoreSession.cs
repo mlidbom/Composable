@@ -12,7 +12,7 @@ namespace Composable.CQRS.EventSourcing
 {
     public abstract class EventStoreSession : IEventStoreSession, IEnlistmentNotification
     {
-        protected IDictionary<Guid, IEventStored> _idMap = new Dictionary<Guid, IEventStored>();
+        protected readonly IDictionary<Guid, IEventStored> _idMap = new Dictionary<Guid, IEventStored>();
         private bool _enlisted;
 
         protected abstract IEnumerable<IAggregateRootEvent> GetHistoryUnSafe(Guid aggregateId);
@@ -27,7 +27,7 @@ namespace Composable.CQRS.EventSourcing
             return history;
         }
 
-        public TAggregate Load<TAggregate>(Guid aggregateId) where TAggregate : IEventStored
+        public TAggregate Get<TAggregate>(Guid aggregateId) where TAggregate : IEventStored
         {
             EnlistInAmbientTransaction();
 

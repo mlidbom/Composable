@@ -187,11 +187,16 @@ ALTER TABLE [dbo].[Events] ADD  CONSTRAINT [DF_Events_TimeStamp]  DEFAULT (getda
                 }
             }
 
+            private bool _disposed;
             public override void Dispose()
             {
-                Console.WriteLine("{0}: {1}", GetType().Name, --instances);
-                _connection.Dispose();
-                _idMap.Clear();
+                if (!_disposed)
+                {
+                    _disposed = true;
+                    Console.WriteLine("{0}: {1}", GetType().Name, --instances);
+                    _connection.Dispose();
+                    _idMap.Clear();
+                }
             }
 
             public void PurgeDB()

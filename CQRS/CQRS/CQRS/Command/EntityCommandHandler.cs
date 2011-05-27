@@ -1,6 +1,8 @@
 ﻿#region usings
 
+using System;
 using System.Diagnostics.Contracts;
+using Composable.CQRS.EventSourcing;
 using Composable.Persistence;
 
 #endregion
@@ -8,12 +10,12 @@ using Composable.Persistence;
 namespace Composable.CQRS
 {
     public class EntityCommandHandler<TEntity, TCommand> : ICommandHandler<TCommand>
-        where TEntity : IEntityCommandHandler<TCommand>
+        where TEntity : AggregateRoot<TEntity>, IEntityCommandHandler<TCommand>
         where TCommand : IEntityHandledCommand
     {
-        private readonly IEntityFetcher _session;
+        private readonly IEventStoreSession _session;
 
-        protected EntityCommandHandler(IEntityFetcher session)
+        protected EntityCommandHandler(IEventStoreSession session)
         {
             Contract.Requires(session != null);
             _session = session;
@@ -27,7 +29,7 @@ namespace Composable.CQRS
 
         public void Execute(TCommand command)
         {
-            _session.Get<TEntity>(command.EntityId).Execute(command);
+            _session.Get<TEntity>((Guid)command.EntityId).Execute(command);
         }
     }
 }

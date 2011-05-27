@@ -5,7 +5,7 @@ namespace Composable.KeyValueStorage
 {
     public interface IKeyValueSession : IDisposable
     {
-        TValue Load<TValue>(Guid key);
+        TValue Get<TValue>(Guid key);
         void Save<TValue>(Guid key, TValue value);
         void Save<TEntity>(TEntity entity) where TEntity : IPersistentEntity<Guid>;
         void SaveChanges();

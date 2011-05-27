@@ -26,10 +26,10 @@ namespace Composable.KeyValueStorage.SqlServer
 
         public IKeyValueSession OpenSession()
         {
-            return new SqlServerKeyValueStoreSession(this);
+            return new SqlServerKeyValueSession(this);
         }
 
-        private class SqlServerKeyValueStoreSession : IEnlistmentNotification, IKeyValueSession
+        private class SqlServerKeyValueSession : IEnlistmentNotification, IKeyValueSession
         {
             private readonly JsonSerializerSettings JsonSettings = new JsonSerializerSettings
             {
@@ -46,7 +46,7 @@ namespace Composable.KeyValueStorage.SqlServer
             private const int UniqueConstraintViolationErrorNumber= 2627;
             private const int SqlBatchSize = 10;
 
-            public SqlServerKeyValueStoreSession(SqlServerKeyValueStore store)
+            public SqlServerKeyValueSession(SqlServerKeyValueStore store)
             {
                 _store = store;
                 _connection = new SqlConnection(store._connectionString);
@@ -81,7 +81,7 @@ CREATE TABLE [dbo].[Store](
                 }
             }
 
-            public TValue Load<TValue>(Guid key)
+            public TValue Get<TValue>(Guid key)
             {
                 EnlistInAmbientTransaction();
 

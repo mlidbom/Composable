@@ -17,10 +17,15 @@ namespace Composable.DDD
     /// </summary>
     /// <typeparam name="TKeyType"></typeparam>
     [ContractClass(typeof(PersistentEntityContract<>))]
-    public interface IPersistentEntity<TKeyType>
+    public interface IPersistentEntity<TKeyType> : IEntity
     {
         /// <summary>The unique identifier for this instance.</summary>
         TKeyType Id { get; }
+    }
+
+    public interface IEntity
+    {
+        object Id { get; }
     }
 
     [ContractClassFor(typeof(IPersistentEntity<>))]
@@ -38,6 +43,15 @@ namespace Composable.DDD
             {
                 Contract.Ensures(!Equals(Contract.Result<T>(), default(T)));
                 return default(T);
+            }
+        }
+
+        object IEntity.Id
+        {
+            get
+            {
+                Contract.Ensures(!Equals(Contract.Result<object>(), default(T)));
+                return default(T);                
             }
         }
     }

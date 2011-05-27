@@ -9,7 +9,7 @@ namespace Composable.KeyValueStorage
 
         public IKeyValueSession OpenSession()
         {
-            return new InMemoryKeyValueStoreSession(this);
+            return new InMemoryKeyValueSession(this);
         }
     }
 }

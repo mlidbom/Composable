@@ -53,7 +53,7 @@ namespace Composable.CQRS.EventSourcing.SQLServer
             private static int instances;
             public SQLServerEventStoreSession(SqlServerEventStore store, SqlServerEventStoreConfig config)
             {
-                Console.WriteLine("{0}: {1}", GetType().Name, ++instances);
+                //Console.WriteLine("{0}: {1}", GetType().Name, ++instances);
                 _store = store;
                 _config = config;
                 _connection = new SqlConnection(_store._connectionString);
@@ -193,7 +193,7 @@ ALTER TABLE [dbo].[Events] ADD  CONSTRAINT [DF_Events_TimeStamp]  DEFAULT (getda
                 if (!_disposed)
                 {
                     _disposed = true;
-                    Console.WriteLine("{0}: {1}", GetType().Name, --instances);
+                    //Console.WriteLine("{0}: {1}", GetType().Name, --instances);
                     _connection.Dispose();
                     _idMap.Clear();
                 }

@@ -9,9 +9,6 @@ using System.Transactions;
 using Composable.DDD;
 using Composable.NewtonSoft;
 using Composable.System;
-using Composable.System.Linq;
-using log4net;
-using log4net.Core;
 using Newtonsoft.Json;
 
 #endregion
@@ -54,7 +51,7 @@ namespace Composable.KeyValueStorage.SqlServer
             private static int instances;
             public SqlServerKeyValueSession(SqlServerKeyValueStore store, SqlServerKeyValueStoreConfig config)
             {
-                Console.WriteLine("{0}: {1}", GetType().Name, ++instances);
+                //Console.WriteLine("{0}: {1}", GetType().Name, ++instances);
                 _store = store;
                 _config = config;
                 _connection = new SqlConnection(store._connectionString);
@@ -240,7 +237,7 @@ CREATE TABLE [dbo].[Store](
                 {
                     _disposed = true;
                     Log("disposing {0}", Me);
-                    Console.WriteLine("{0}: {1}", GetType().Name, --instances);
+                    //Console.WriteLine("{0}: {1}", GetType().Name, --instances);
                     _connection.Dispose();
                     _idMap.Clear();
                 }
@@ -328,7 +325,7 @@ DROP TABLE [dbo].[Store]";
 
             private void Log(string message, params object[] @params)
             {
-                Console.WriteLine("{0} : ".FormatWith(GetType().Name) + " " + message, @params);
+                //Console.WriteLine("{0} : ".FormatWith(GetType().Name) + " " + message, @params);
             }
 
         }

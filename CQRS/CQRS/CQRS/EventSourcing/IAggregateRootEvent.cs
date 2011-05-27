@@ -5,7 +5,7 @@ namespace Composable.CQRS.EventSourcing
 {
     public interface IAggregateRootEvent : IDomainEvent
     {
-        Guid Id { get; set; }
+        Guid EventId { get; set; }
         int AggregateRootVersion { get; set; }        
         Guid AggregateRootId { get; set; }
     }

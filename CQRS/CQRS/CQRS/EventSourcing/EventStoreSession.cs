@@ -144,7 +144,7 @@ namespace Composable.CQRS.EventSourcing
 
         private void Log(string message, params object[] @params)
         {
-            Console.WriteLine("{0} : ".FormatWith(GetType().Name)  + " " + message, @params);
+            //Console.WriteLine("{0} : ".FormatWith(GetType().Name)  + " " + message, @params);
         }
     }
 }

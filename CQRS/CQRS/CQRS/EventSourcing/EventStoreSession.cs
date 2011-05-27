@@ -97,6 +97,7 @@ namespace Composable.CQRS.EventSourcing
             }catch(Exception e)
             {
                 Log("prepare failed with: {0}", e);
+                preparingEnlistment.ForceRollback(e);                
             }
         }
 

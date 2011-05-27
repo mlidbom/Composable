@@ -90,7 +90,7 @@ namespace Composable.AutoMapper
             var configuration = new Configuration(new TypeMapFactory(), MapperRegistry.AllMappers());
             var safeConfiguration = new SafeConfiguration(configuration);
 
-            foreach(var mappingCreator in _locator.GetAllInstances<IProvidesMappings>())
+            foreach(var mappingCreator in _locator.GetAllInstances<IProvidesMappings>().ToArray())
             {
                 mappingCreator.CreateMappings(safeConfiguration);
             }

@@ -20,7 +20,11 @@ namespace CQRS.Tests.KeyValueStorage
                            {
                                Id = Guid.NewGuid(),
                                Email = "email@email.se",
-                               Password = "password"
+                               Password = "password",
+                               Address = new Address()
+                                             {
+                                                 City = "Stockholm", Street = "Brännkyrkag", Streetnumber=234
+                                             }
                            };
 
             using (var session = store.OpenSession())
@@ -31,12 +35,13 @@ namespace CQRS.Tests.KeyValueStorage
 
             using (var session = store.OpenSession())
             {
-                var loadedUser = session.Load<User>(user.Id);
+                var loadedUser = session.Get<User>(user.Id);
 
                 Assert.That(loadedUser.Id, Is.EqualTo(user.Id));
                 Assert.That(loadedUser.Email, Is.EqualTo(user.Email));
                 Assert.That(loadedUser.Password, Is.EqualTo(user.Password));
 
+                Assert.That(loadedUser.Address, Is.EqualTo(user.Address));
             }
         }
 
@@ -56,8 +61,8 @@ namespace CQRS.Tests.KeyValueStorage
 
             using (var session = store.OpenSession())
             {
-                var loaded1 = session.Load<User>(user.Id);
-                var loaded2 = session.Load<User>(user.Id);
+                var loaded1 = session.Get<User>(user.Id);
+                var loaded2 = session.Get<User>(user.Id);
                 Assert.That(loaded1, Is.SameAs(loaded2));
             }
         }
@@ -73,8 +78,8 @@ namespace CQRS.Tests.KeyValueStorage
             {
                 session.Save(user.Id, user);
 
-                var loaded1 = session.Load<User>(user.Id);
-                var loaded2 = session.Load<User>(user.Id);
+                var loaded1 = session.Get<User>(user.Id);
+                var loaded2 = session.Get<User>(user.Id);
                 Assert.That(loaded1, Is.SameAs(loaded2));
                 Assert.That(loaded1, Is.SameAs(user));
 
@@ -97,14 +102,14 @@ namespace CQRS.Tests.KeyValueStorage
 
             using (var session = store.OpenSession())
             {
-                var loadedUser = session.Load<User>(user.Id);
+                var loadedUser = session.Get<User>(user.Id);
                 loadedUser.Password = "NewPassword";
                 session.SaveChanges();
             }
 
             using (var session = store.OpenSession())
             {
-                var loadedUser = session.Load<User>(user.Id);
+                var loadedUser = session.Get<User>(user.Id);
                 Assert.That(loadedUser.Password, Is.EqualTo("NewPassword"));
             }
         }
@@ -155,7 +160,7 @@ namespace CQRS.Tests.KeyValueStorage
 
             using (var session = store.OpenSession())
             {
-                var loadedUser = session.Load<User>(user.Id);
+                var loadedUser = session.Get<User>(user.Id);
 
                 Assert.That(loadedUser.Id, Is.EqualTo(user.Id));
                 Assert.That(loadedUser.Email, Is.EqualTo(user.Email));

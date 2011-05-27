@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Transactions;
 using Composable.System.Linq;
+using Composable.System;
 
 #endregion
 
@@ -67,6 +68,7 @@ namespace Composable.CQRS.EventSourcing
 
         public void SaveChanges()
         {
+            Log("saving changes with {0} changes from transaction", _idMap.Count);
             SaveEvents(_idMap.SelectMany(p => p.Value.GetChanges()));
             _idMap.Select(p => p.Value).ForEach(p => p.AcceptChanges());
         }
@@ -78,19 +80,29 @@ namespace Composable.CQRS.EventSourcing
         {
             if(Transaction.Current != null && !_enlisted)
             {
-                Transaction.Current.EnlistVolatile(this, EnlistmentOptions.None);
+                Transaction.Current.EnlistVolatile(this, EnlistmentOptions.EnlistDuringPrepareRequired);
                 _enlisted = true;
+                Log("enlisted in transaction {0}", Transaction.Current.TransactionInformation.LocalIdentifier);
             }
         }
 
         void IEnlistmentNotification.Prepare(PreparingEnlistment preparingEnlistment)
         {
-            SaveChanges();
-            preparingEnlistment.Prepared();
+            try
+            {
+                Log("prepare called with {0} changes from transaction", _idMap.Count);
+                SaveChanges();
+                preparingEnlistment.Prepared();
+                Log("prepare completed with {0} changes from transaction", _idMap.Count);
+            }catch(Exception e)
+            {
+                Log("prepare failed with: {0}", e);
+            }
         }
 
         void IEnlistmentNotification.Commit(Enlistment enlistment)
         {
+            Log("commit called with {0} changes from transaction", _idMap.Count);
             _enlisted = false;
             enlistment.Done();
             DisposeIfScheduled();
@@ -98,12 +110,14 @@ namespace Composable.CQRS.EventSourcing
 
         void IEnlistmentNotification.Rollback(Enlistment enlistment)
         {
+            Log("rollback called with {0} changes from transaction", _idMap.Count);
             _enlisted = false;
             DisposeIfScheduled();
         }
 
         public void InDoubt(Enlistment enlistment)
         {
+            Log("indoubt called with {0} changes from transaction", _idMap.Count);
             _enlisted = false;
             enlistment.Done();
         }
@@ -125,6 +139,11 @@ namespace Composable.CQRS.EventSourcing
             {
                 Dispose();
             }
+        }
+
+        private void Log(string message, params object[] @params)
+        {
+            Console.WriteLine("{0} : ".FormatWith(GetType().Name)  + " " + message, @params);
         }
     }
 }

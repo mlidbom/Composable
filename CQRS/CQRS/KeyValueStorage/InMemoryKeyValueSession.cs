@@ -31,7 +31,7 @@ namespace Composable.KeyValueStorage
                 return (TValue)value;
             }
 
-            throw new NoSuchKeyException(key);
+            throw new NoSuchKeyException(key, typeof(TValue));
         }
 
         public void Save<TValue>(Guid key, TValue value)

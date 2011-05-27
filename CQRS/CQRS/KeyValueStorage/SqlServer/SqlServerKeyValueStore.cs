@@ -9,6 +9,9 @@ using System.Transactions;
 using Composable.DDD;
 using Composable.NewtonSoft;
 using Composable.System;
+using Composable.System.Linq;
+using log4net;
+using log4net.Core;
 using Newtonsoft.Json;
 
 #endregion
@@ -31,7 +34,7 @@ namespace Composable.KeyValueStorage.SqlServer
             return new SessionDisposeWrapper(new SqlServerKeyValueSession(this, _config));
         }
 
-        private class SqlServerKeyValueSession : IEnlistmentNotification, IKeyValueSession
+        private class SqlServerKeyValueSession : IKeyValueSession, IEnlistmentNotification
         {
             private readonly JsonSerializerSettings JsonSettings = new JsonSerializerSettings
                                                                        {
@@ -51,7 +54,7 @@ namespace Composable.KeyValueStorage.SqlServer
             private static int instances;
             public SqlServerKeyValueSession(SqlServerKeyValueStore store, SqlServerKeyValueStoreConfig config)
             {
-                Console.WriteLine("{0}: {1}", GetType().Name, ++instances);
+                Log("{0}: {1}", GetType().Name, ++instances);
                 _store = store;
                 _config = config;
                 _connection = new SqlConnection(store._connectionString);
@@ -142,20 +145,23 @@ CREATE TABLE [dbo].[Store](
 
             public void SaveChanges()
             {
+                Log("saving changes in: {0}", Me);
                 InsertValues(_idMap.Where(entry => !_persistentValues.Contains(entry.Key)));
                 UpdateValues(_idMap.Where(entry => _persistentValues.Contains(entry.Key)));
             }
 
-            private Guid ManagerGuid = Guid.Parse("84165A58-1EAE-49DD-9324-EEFE5D7D00DD");
             private readonly HashSet<Transaction> enlistedIn = new HashSet<Transaction>();
-
+            private readonly Guid Me = Guid.NewGuid();
             private void EnlistInAmbientTransaction()
             {
-                //&& !enlistedIn.Contains(Transaction.Current)
-                if (Transaction.Current != null )
+                if (Transaction.Current != null && !enlistedIn.Contains(Transaction.Current))
                 {
                     Transaction.Current.EnlistVolatile(this, EnlistmentOptions.EnlistDuringPrepareRequired);
                     enlistedIn.Add(Transaction.Current);
+                    _connection.EnlistTransaction(Transaction.Current);
+                    Log("enlisting in local: {0} in {1}", Me, Transaction.Current.TransactionInformation.LocalIdentifier);
+                    Log("enlisting in distributed: {0} in {1}", Me, Transaction.Current.TransactionInformation.DistributedIdentifier);
+                    Log("enlistments: {0} for {1}", enlistedIn.Count, Me);                    
                 }
             }
 
@@ -229,19 +235,33 @@ CREATE TABLE [dbo].[Store](
 
             public void Dispose()
             {
-                Console.WriteLine("{0}: {1}", GetType().Name, --instances);
+                Log("disposing {0}", Me);
+                Log("{0}: {1}", GetType().Name, --instances);
                 _connection.Dispose();
                 _idMap.Clear();
             }
 
             void IEnlistmentNotification.Prepare(PreparingEnlistment preparingEnlistment)
             {
-                SaveChanges();
-                preparingEnlistment.Prepared();
+                try
+                {
+                    Log("prepare called on {0} with {1} changes from transaction", Me, _idMap.Count);
+                    
+                        SaveChanges();
+
+                    preparingEnlistment.Prepared();
+                    Log("prepare completed on {0}", Me);
+                }
+                catch (Exception e)
+                {
+                    Log("prepare failed on {0}", e);
+                    preparingEnlistment.ForceRollback(e);
+                }
             }
 
             void IEnlistmentNotification.Commit(Enlistment enlistment)
             {
+                Log("commit called on {0}", Me);
                 _enlisted = false;
                 enlistment.Done();
                 HandleScheduledDispose();
@@ -249,12 +269,14 @@ CREATE TABLE [dbo].[Store](
 
             void IEnlistmentNotification.Rollback(Enlistment enlistment)
             {
+                Log("rollback called on {0}", Me);
                 _enlisted = false;
                 HandleScheduledDispose();
             }
 
             public void InDoubt(Enlistment enlistment)
             {
+                Log("indoubt called on {0}", Me);
                 _enlisted = false;
                 enlistment.Done();
                 HandleScheduledDispose();
@@ -274,12 +296,14 @@ CREATE TABLE [dbo].[Store](
 
             public void DisposeIfNotEnlisted()
             {
-                if(_enlisted)
+                Log("attempting dispose for {0}", Me);
+                if(enlistedIn.Any())
                 {
+                    Log("scheduling dispose for {0}", Me);
                     _scheduledForDisposeAfterTransactionDone = true;
                 }
                 else
-                {
+                {                    
                     Dispose();
                 }
             }
@@ -296,6 +320,12 @@ DROP TABLE [dbo].[Store]";
                     TableVerifiedToExist = false;
                 }
             }
+
+            private void Log(string message, params object[] @params)
+            {
+                Console.WriteLine("{0} : ".FormatWith(GetType().Name) + " " + message, @params);
+            }
+
         }
 
         private class SessionDisposeWrapper : IKeyValueSession
@@ -308,7 +338,7 @@ DROP TABLE [dbo].[Store]";
             }
 
             public void Dispose()
-            {
+            {                
                 _session.DisposeIfNotEnlisted();
             }
 

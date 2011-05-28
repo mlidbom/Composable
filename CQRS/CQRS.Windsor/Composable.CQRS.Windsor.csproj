@@ -50,6 +50,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="WindsorConfigurationValidator.cs" />
     <Compile Include="WindsorExtensions.cs" />
   </ItemGroup>
   <ItemGroup>

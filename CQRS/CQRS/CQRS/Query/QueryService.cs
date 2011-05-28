@@ -26,13 +26,14 @@ namespace Composable.CQRS.Query
 
         public TQueryResult Execute<TQuery, TQueryResult>(IQuery<TQuery, TQueryResult> query) where TQuery : IQuery<TQuery, TQueryResult>
         {
-            using(var transaction = new TransactionScope())
-            {
+            //Todo: perhaps we do need a transaction here. But for now It's out since it causes new and funny transaction problems with IntegrationTests in CVManagement
+            //using(var transaction = new TransactionScope())
+            //{
                 var handler = _serviceLocator.GetSingleInstance<IQueryHandler<TQuery, TQueryResult>>();
                 var result = handler.Execute((TQuery)query);
-                transaction.Complete();
+              //  transaction.Complete();
                 return result;
-            }
+            //}
         }
     }
 }

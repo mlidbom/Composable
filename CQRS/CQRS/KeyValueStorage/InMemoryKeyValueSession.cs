@@ -18,18 +18,33 @@ namespace Composable.KeyValueStorage
             _store = store;
         }
 
-        public TValue Get<TValue>(Guid key)
+
+        public bool TryGet<TValue>(Guid key, out TValue value)
         {
-            object value;
-            if(_idMap.TryGetValue(key, out value))
+            object found;
+            if (_idMap.TryGetValue(key, out found))
             {
-                return (TValue)value;
+                value = (TValue)found;
+                return true;
             }
 
-            if(_store._store.TryGetValue(key, out value))
+            if (_store._store.TryGetValue(key, out found))
             {
-                _idMap.Add(key, value);
-                return (TValue)value;
+                _idMap.Add(key, found);
+                value = (TValue)found;
+                return true;
+            }
+
+            value = default(TValue);
+            return false;
+        }
+
+        public TValue Get<TValue>(Guid key)
+        {
+            TValue value;
+            if(TryGet(key, out value))
+            {
+                return value;
             }
 
             throw new NoSuchKeyException(key, typeof(TValue));

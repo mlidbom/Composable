@@ -79,6 +79,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Command\WhenExecutingIDomainCommand.cs" />
+    <Compile Include="CQRS\EntityReference.cs" />
     <Compile Include="CQRS\EventSourcing\AggregateRootTests.cs" />
     <Compile Include="CQRS\EventSourcing\EventStoreTests.cs" />
     <Compile Include="CQRS\EventSourcing\InMemoryEventStoreTests.cs" />
@@ -87,6 +88,8 @@
     <Compile Include="CQRS\EventSourcing\UserChangedEmail.cs" />
     <Compile Include="CQRS\EventSourcing\UserChangedPassword.cs" />
     <Compile Include="CQRS\EventSourcing\UserRegistered.cs" />
+    <Compile Include="CQRS\IEntityReference.cs" />
+    <Compile Include="CQRS\INamed.cs" />
     <Compile Include="DomainEvents\WhenEventIsRaised.cs" />
     <Compile Include="KeyValueStorage\InMemoryKeyValueStoreTests.cs" />
     <Compile Include="KeyValueStorage\KeyValueStoreTests.cs" />

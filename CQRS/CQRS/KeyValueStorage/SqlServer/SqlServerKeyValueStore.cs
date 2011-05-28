@@ -35,8 +35,6 @@ namespace Composable.KeyValueStorage.SqlServer
         {
             private readonly JsonSerializerSettings JsonSettings = new JsonSerializerSettings
                                                                        {
-                                                                           //PreserveReferencesHandling = PreserveReferencesHandling.All,
-                                                                           ReferenceLoopHandling = ReferenceLoopHandling.Serialize,
                                                                            TypeNameHandling = TypeNameHandling.Auto,
                                                                            ConstructorHandling = ConstructorHandling.AllowNonPublicDefaultConstructor,
                                                                            ContractResolver = new IncludeMembersWithPrivateSettersResolver()

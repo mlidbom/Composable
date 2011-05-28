@@ -35,6 +35,8 @@ namespace Composable.KeyValueStorage.SqlServer
         {
             private readonly JsonSerializerSettings JsonSettings = new JsonSerializerSettings
                                                                        {
+                                                                           //PreserveReferencesHandling = PreserveReferencesHandling.All,
+                                                                           ReferenceLoopHandling = ReferenceLoopHandling.Serialize,
                                                                            TypeNameHandling = TypeNameHandling.Auto,
                                                                            ConstructorHandling = ConstructorHandling.AllowNonPublicDefaultConstructor,
                                                                            ContractResolver = new IncludeMembersWithPrivateSettersResolver()
@@ -99,30 +101,46 @@ CREATE TABLE [dbo].[Store](
                 }
             }
 
-            public TValue Get<TValue>(Guid key)
+            public bool TryGet<TValue>(Guid key, out TValue value)
             {
+                value = default(TValue);
                 EnlistInAmbientTransaction();
 
-                object value;
-                if(_idMap.TryGetValue(key, out value))
+                object found;
+                if(_idMap.TryGetValue(key, out found))
                 {
-                    return (TValue)value;
+                    value = (TValue)found;
+                    return true;
                 }
 
                 using(var loadCommand = _connection.CreateCommand())
                 {
                     loadCommand.CommandText = "SELECT Value, ValueType FROM Store WHERE Id=@Id";
                     loadCommand.Parameters.Add(new SqlParameter("Id", key));
-                    value = loadCommand.ExecuteScalar();
-                    if(value == null)
+                    using (var reader = loadCommand.ExecuteReader())
                     {
-                        throw new NoSuchKeyException(key, typeof(TValue));
+                        if(!reader.Read())
+                        {
+                            return false;
+                        }
+                        found = JsonConvert.DeserializeObject(reader.GetString(0), typeof(TValue), JsonSettings);
                     }
-                    value = JsonConvert.DeserializeObject((String)value, typeof(TValue), JsonSettings);
                 }
                 _persistentValues.Add(key);
-                _idMap.Add(key, value);
-                return (TValue)value;
+                _idMap.Add(key, found);
+                value = (TValue)found;
+                return true;
+            }
+
+            public TValue Get<TValue>(Guid key)
+            {
+                TValue value;
+                if (TryGet(key, out value))
+                {
+                    return value;
+                }
+
+                throw new NoSuchKeyException(key, typeof(TValue));
             }
 
             public IEnumerable<T> GetAll<T>()
@@ -133,11 +151,13 @@ CREATE TABLE [dbo].[Store](
                 {
                     loadCommand.CommandText = "SELECT Value, ValueType FROM Store WHERE ValueType=@Type";
                     loadCommand.Parameters.Add(new SqlParameter("ValueType", typeof(T).FullName));
-                    var reader = loadCommand.ExecuteReader();
-                    while(reader.Read())
+                    using (var reader = loadCommand.ExecuteReader())
                     {
-                        yield return (T)JsonConvert.DeserializeObject((String)reader.GetString(0), typeof(T), JsonSettings);   
-                    }                    
+                        while(reader.Read())
+                        {
+                            yield return (T)JsonConvert.DeserializeObject((String)reader.GetString(0), typeof(T), JsonSettings);
+                        }
+                    }
                 }
             }
 
@@ -195,7 +215,7 @@ CREATE TABLE [dbo].[Store](
                         {
                             var entry = values.ElementAt(handledInBatch);
 
-                            command.CommandText += "UPDATE Store SET Value = @Value{0} WHERE Id = @Id{0}"
+                            command.CommandText += "UPDATE Store SET Value = @Value{0} WHERE Id = @Id{0}\n"
                                 .FormatWith(handledInBatch);
 
                             command.Parameters.Add(new SqlParameter("Id" + handledInBatch, entry.Key));
@@ -367,6 +387,11 @@ DROP TABLE [dbo].[Store]";
             public TValue Get<TValue>(Guid key)
             {
                 return _session.Get<TValue>(key);
+            }
+
+            public bool TryGet<TValue>(Guid key, out TValue value)
+            {
+                return _session.TryGet(key, out value);
             }
 
             public IEnumerable<T> GetAll<T>()

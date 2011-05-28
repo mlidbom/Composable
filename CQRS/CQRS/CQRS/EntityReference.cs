@@ -11,6 +11,13 @@ namespace Composable.CQRS
         IEntityReference<TReferencedType, TKey>
         where TReferencedType : IHasPersistentIdentity<TKey>
     {
+        protected EntityReference() {}
+
+        protected EntityReference(TKey id)
+        {
+            Id = id;
+        }
+
         public TKey Id { get; private set; }
     }
 
@@ -19,6 +26,10 @@ namespace Composable.CQRS
         INamedEntityReference<TReferencedType, TKey>
         where TReferencedType : IHasPersistentIdentity<TKey>, INamed
     {
+        protected NamedEntityReference(TKey id):base(id)
+        {            
+        }
+
         public string Name { get; private set; }
     }
 

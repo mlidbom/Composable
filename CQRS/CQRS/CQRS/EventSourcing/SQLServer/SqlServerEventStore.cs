@@ -48,6 +48,7 @@ namespace Composable.CQRS.EventSourcing.SQLServer
             private readonly JsonSerializerSettings JsonSettings = new JsonSerializerSettings
                                                                        {
                                                                            TypeNameHandling = TypeNameHandling.Auto,
+                                                                           ConstructorHandling = ConstructorHandling.AllowNonPublicDefaultConstructor,
                                                                            ContractResolver = new IncludeMembersWithPrivateSettersResolver()
                                                                        };
 

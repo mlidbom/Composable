@@ -1,4 +1,4 @@
-namespace CQRS.Tests.CQRS
+namespace Composable.CQRS
 {
     public interface INamed
     {

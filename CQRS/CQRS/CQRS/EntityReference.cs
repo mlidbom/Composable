@@ -5,11 +5,11 @@ using Composable.DDD;
 
 #endregion
 
-namespace CQRS.Tests.CQRS
+namespace Composable.CQRS
 {
     public class EntityReference<TReferencedType, TKey> :
         IEntityReference<TReferencedType, TKey>
-        where TReferencedType : EntityReference<TReferencedType, TKey>, IPersistentEntity<TKey>
+        where TReferencedType : IHasPersistentIdentity<TKey>
     {
         public TKey Id { get; private set; }
     }
@@ -17,7 +17,7 @@ namespace CQRS.Tests.CQRS
     public class NamedEntityReference<TReferencedType, TKey> :
         EntityReference<TReferencedType, TKey>,
         INamedEntityReference<TReferencedType, TKey>
-        where TReferencedType : NamedEntityReference<TReferencedType, TKey>, IPersistentEntity<TKey>
+        where TReferencedType : IHasPersistentIdentity<TKey>, INamed
     {
         public string Name { get; private set; }
     }
@@ -26,8 +26,7 @@ namespace CQRS.Tests.CQRS
         EntityReference<TReferencedType, TKeyType>,
         IMaterializableEntityReference<TReferencedType, TKeyType>
         where
-            TReferencedType : MaterializableEntityReference<TReferencedType, TKeyType>,
-            IPersistentEntity<TKeyType>
+            TReferencedType : IHasPersistentIdentity<TKeyType>
     {
         public TReferencedType Referenced { get { throw new NotImplementedException(); } }
     }
@@ -35,7 +34,7 @@ namespace CQRS.Tests.CQRS
     public class MaterializableNamedEntityReference<TReferencedType, TKeyType> :
         MaterializableEntityReference<TReferencedType, TKeyType>,
         IMaterializableNamedEntityReference<TReferencedType, TKeyType>
-        where TReferencedType : MaterializableEntityReference<TReferencedType, TKeyType>, IPersistentEntity<TKeyType>
+        where TReferencedType : IHasPersistentIdentity<TKeyType>, INamed
     {
         public string Name { get; private set; }
     }

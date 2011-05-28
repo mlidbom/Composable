@@ -77,6 +77,7 @@
     <Compile Include="CQRS\Command\IValidationFailure.cs" />
     <Compile Include="CQRS\Command\MemberValidationFailure.cs" />
     <Compile Include="CQRS\DuplicateHandlersException.cs" />
+    <Compile Include="CQRS\EntityReference.cs" />
     <Compile Include="CQRS\EventSourcing\AggregateRootEvent.cs" />
     <Compile Include="CQRS\EventSourcing\AttemptToSaveAlreadyPersistedAggregateException.cs" />
     <Compile Include="CQRS\EventSourcing\EventStored.cs" />
@@ -87,6 +88,8 @@
     <Compile Include="CQRS\EventSourcing\IEventStoreSession.cs" />
     <Compile Include="CQRS\EventSourcing\InMemoryEventStore.cs" />
     <Compile Include="CQRS\EventSourcing\InMemoryEventStoreSession.cs" />
+    <Compile Include="CQRS\IEntityReference.cs" />
+    <Compile Include="CQRS\INamed.cs" />
     <Compile Include="NewtonSoft\IncludeMembersWithPrivateSettersResolver.cs" />
     <Compile Include="CQRS\EventSourcing\SQLServer\SqlServerEventStore.cs" />
     <Compile Include="KeyValueStorage\AttemptToSaveAlreadyPersistedValueException.cs" />

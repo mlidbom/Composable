@@ -36,6 +36,7 @@ namespace Composable.KeyValueStorage.SqlServer
             private readonly JsonSerializerSettings JsonSettings = new JsonSerializerSettings
                                                                        {
                                                                            TypeNameHandling = TypeNameHandling.Auto,
+                                                                           ConstructorHandling = ConstructorHandling.AllowNonPublicDefaultConstructor,
                                                                            ContractResolver = new IncludeMembersWithPrivateSettersResolver()
                                                                        };
 
@@ -124,6 +125,22 @@ CREATE TABLE [dbo].[Store](
                 return (TValue)value;
             }
 
+            public IEnumerable<T> GetAll<T>()
+            {
+                EnlistInAmbientTransaction();
+
+                using (var loadCommand = _connection.CreateCommand())
+                {
+                    loadCommand.CommandText = "SELECT Value, ValueType FROM Store WHERE ValueType=@Type";
+                    loadCommand.Parameters.Add(new SqlParameter("ValueType", typeof(T).FullName));
+                    var reader = loadCommand.ExecuteReader();
+                    while(reader.Read())
+                    {
+                        yield return (T)JsonConvert.DeserializeObject((String)reader.GetString(0), typeof(T), JsonSettings);   
+                    }                    
+                }
+            }
+
             public void Save<TValue>(Guid key, TValue value)
             {
                 EnlistInAmbientTransaction();
@@ -136,7 +153,7 @@ CREATE TABLE [dbo].[Store](
                 _idMap.Add(key, value);
             }
 
-            public void Save<TEntity>(TEntity entity) where TEntity : IPersistentEntity<Guid>
+            public void Save<TEntity>(TEntity entity) where TEntity : IHasPersistentIdentity<Guid>
             {
                 Save(entity.Id, entity);
             }
@@ -147,6 +164,8 @@ CREATE TABLE [dbo].[Store](
                 InsertValues(_idMap.Where(entry => !_persistentValues.Contains(entry.Key)));
                 UpdateValues(_idMap.Where(entry => _persistentValues.Contains(entry.Key)));
             }
+
+
 
             private readonly HashSet<Transaction> enlistedIn = new HashSet<Transaction>();
             private readonly Guid Me = Guid.NewGuid();
@@ -350,12 +369,17 @@ DROP TABLE [dbo].[Store]";
                 return _session.Get<TValue>(key);
             }
 
+            public IEnumerable<T> GetAll<T>()
+            {
+                return _session.GetAll<T>();
+            }
+
             public void Save<TValue>(Guid key, TValue value)
             {
                 _session.Save(key, value);
             }
 
-            public void Save<TEntity>(TEntity entity) where TEntity : IPersistentEntity<Guid>
+            public void Save<TEntity>(TEntity entity) where TEntity : IHasPersistentIdentity<Guid>
             {
                 _session.Save(entity);
             }

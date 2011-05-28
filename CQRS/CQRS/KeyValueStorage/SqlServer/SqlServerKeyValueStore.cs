@@ -35,7 +35,7 @@ namespace Composable.KeyValueStorage.SqlServer
         {
             private readonly JsonSerializerSettings JsonSettings = new JsonSerializerSettings
                                                                        {
-                                                                           TypeNameHandling = TypeNameHandling.Auto,
+                                                                           TypeNameHandling = TypeNameHandling.All,
                                                                            ConstructorHandling = ConstructorHandling.AllowNonPublicDefaultConstructor,
                                                                            ContractResolver = new IncludeMembersWithPrivateSettersResolver()
                                                                        };
@@ -147,7 +147,7 @@ CREATE TABLE [dbo].[Store](
 
                 using (var loadCommand = _connection.CreateCommand())
                 {
-                    loadCommand.CommandText = "SELECT Value, ValueType FROM Store WHERE ValueType=@Type";
+                    loadCommand.CommandText = "SELECT Value, ValueType FROM Store WHERE ValueType=@ValueType";
                     loadCommand.Parameters.Add(new SqlParameter("ValueType", typeof(T).FullName));
                     using (var reader = loadCommand.ExecuteReader())
                     {

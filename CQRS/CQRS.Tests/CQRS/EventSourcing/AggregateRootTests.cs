@@ -1,5 +1,8 @@
 using System;
+using Castle.Windsor;
+using CommonServiceLocator.WindsorAdapter;
 using Composable.CQRS.EventSourcing;
+using Composable.DomainEvents;
 using NUnit.Framework;
 
 namespace CQRS.Tests.CQRS.EventSourcing
@@ -7,6 +10,13 @@ namespace CQRS.Tests.CQRS.EventSourcing
     [TestFixture]
     public class AggregateRootTests
     {
+        [SetUp]
+        public void Setup()
+        {
+            DomainEvent.ResetOnlyUseFromTests();
+            DomainEvent.Init(new WindsorServiceLocator(new WindsorContainer()));
+        }
+
         [Test]
         public void VersionIncreasesWithEachAppliedEvent()
         {

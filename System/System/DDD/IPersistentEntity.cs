@@ -17,10 +17,8 @@ namespace Composable.DDD
     /// </summary>
     /// <typeparam name="TKeyType"></typeparam>
     [ContractClass(typeof(PersistentEntityContract<>))]
-    public interface IPersistentEntity<out TKeyType>
-    {
-        /// <summary>The unique identifier for this instance.</summary>
-        TKeyType Id { get; }
+    public interface IPersistentEntity<out TKeyType> : IHasPersistentIdentity<TKeyType>
+    {        
     }
 
     [ContractClassFor(typeof(IPersistentEntity<>))]
@@ -32,7 +30,7 @@ namespace Composable.DDD
             Contract.Invariant(!Equals(((IPersistentEntity<T>)this).Id, default(T)));
         }
 
-        T IPersistentEntity<T>.Id
+        T IHasPersistentIdentity<T>.Id
         {
             get
             {

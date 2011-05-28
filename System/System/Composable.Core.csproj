@@ -136,6 +136,7 @@
     <Compile Include="..\..\ModuleInitializer.cs">
       <Link>ModuleInitializer.cs</Link>
     </Compile>
+    <Compile Include="DDD\IHasPersistentIdentity.cs" />
     <Compile Include="DDD\IPersistentEntity.cs" />
     <Compile Include="DDD\PersistentEntity.cs" />
     <Compile Include="DDD\ValueObject.cs" />

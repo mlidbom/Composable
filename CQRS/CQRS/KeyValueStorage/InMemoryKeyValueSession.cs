@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Transactions;
 using Composable.DDD;
 using Composable.System.Linq;
+using System.Linq;
 
 namespace Composable.KeyValueStorage
 {
@@ -45,7 +46,7 @@ namespace Composable.KeyValueStorage
             _idMap.Add(key, value);
         }
 
-        public void Save<TEntity>(TEntity entity) where TEntity : IPersistentEntity<Guid>
+        public void Save<TEntity>(TEntity entity) where TEntity : IHasPersistentIdentity<Guid>
         {
             Save(entity.Id, entity);
         }
@@ -54,6 +55,14 @@ namespace Composable.KeyValueStorage
         {
             EnlistInAmbientTransaction();
             _idMap.ForEach(entry => _store._store[entry.Key] = entry.Value);            
+        }
+
+        public IEnumerable<T> GetAll<T>()
+        {
+            return _idMap
+                .Select(pair => pair.Value)
+                .Concat(_store._store.Select(pair => pair.Value))
+                .OfType<T>().Distinct();
         }
 
         private void EnlistInAmbientTransaction()

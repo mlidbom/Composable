@@ -10,7 +10,7 @@ namespace Composable.System.Linq
     public static class HashSetExtensions
     {
         /// <returns>A set containing all the items in <paramref name="me"/></returns>
-        public static ISet<T> ToSet<T>(this IEnumerable<T> me)
+        public static HashSet<T> ToSet<T>(this IEnumerable<T> me)
         {
             return new HashSet<T>(me);
         }

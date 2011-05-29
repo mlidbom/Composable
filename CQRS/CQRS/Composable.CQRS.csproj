@@ -88,6 +88,7 @@
     <Compile Include="CQRS\EventSourcing\IEventStoreSession.cs" />
     <Compile Include="CQRS\EventSourcing\InMemoryEventStore.cs" />
     <Compile Include="CQRS\EventSourcing\InMemoryEventStoreSession.cs" />
+    <Compile Include="CQRS\EventSourcing\SQLServer\InvalidHistoryException.cs" />
     <Compile Include="CQRS\IEntityReference.cs" />
     <Compile Include="CQRS\INamed.cs" />
     <Compile Include="NewtonSoft\IncludeMembersWithPrivateSettersResolver.cs" />

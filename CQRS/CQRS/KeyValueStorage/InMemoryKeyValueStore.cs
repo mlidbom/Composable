@@ -7,7 +7,7 @@ namespace Composable.KeyValueStorage
     {
         public Dictionary<Guid, object > _store = new Dictionary<Guid, object>();
 
-        public IKeyValueSession OpenSession()
+        public IKeyValueStoreSession OpenSession()
         {
             return new InMemoryKeyValueSession(this);
         }

@@ -26,12 +26,12 @@ namespace Composable.KeyValueStorage.SqlServer
             _config = config;
         }
 
-        public IKeyValueSession OpenSession()
+        public IKeyValueStoreSession OpenSession()
         {
             return new SessionDisposeWrapper(new SqlServerKeyValueSession(this, _config));
         }
 
-        private class SqlServerKeyValueSession : IKeyValueSession, IEnlistmentNotification
+        private class SqlServerKeyValueSession : IKeyValueStoreSession, IEnlistmentNotification
         {
             private readonly JsonSerializerSettings JsonSettings = new JsonSerializerSettings
                                                                        {
@@ -391,7 +391,7 @@ DROP TABLE [dbo].[Store]";
 
         }
 
-        private class SessionDisposeWrapper : IKeyValueSession
+        private class SessionDisposeWrapper : IKeyValueStoreSession
         {
             private readonly SqlServerKeyValueSession _session;
 

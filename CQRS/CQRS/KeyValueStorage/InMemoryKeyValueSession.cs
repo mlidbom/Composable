@@ -7,7 +7,7 @@ using System.Linq;
 
 namespace Composable.KeyValueStorage
 {
-    public class InMemoryKeyValueSession : IEnlistmentNotification, IKeyValueSession
+    public class InMemoryKeyValueSession : IEnlistmentNotification, IKeyValueStoreSession
     {
         private readonly InMemoryKeyValueStore _store;
         private Dictionary<Guid, object> _idMap = new Dictionary<Guid, object>();

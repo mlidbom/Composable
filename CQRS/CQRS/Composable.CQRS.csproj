@@ -91,10 +91,11 @@
     <Compile Include="CQRS\EventSourcing\SQLServer\InvalidHistoryException.cs" />
     <Compile Include="CQRS\IEntityReference.cs" />
     <Compile Include="CQRS\INamed.cs" />
+    <Compile Include="KeyValueStorage\KeyValueStoreSessionProxy.cs" />
     <Compile Include="NewtonSoft\IncludeMembersWithPrivateSettersResolver.cs" />
     <Compile Include="CQRS\EventSourcing\SQLServer\SqlServerEventStore.cs" />
     <Compile Include="KeyValueStorage\AttemptToSaveAlreadyPersistedValueException.cs" />
-    <Compile Include="KeyValueStorage\IKeyValueSession.cs" />
+    <Compile Include="KeyValueStorage\IKeyValueStoreSession.cs" />
     <Compile Include="KeyValueStorage\IKeyValueStore.cs" />
     <Compile Include="KeyValueStorage\InMemoryKeyValueStore.cs" />
     <Compile Include="KeyValueStorage\InMemoryKeyValueSession.cs" />

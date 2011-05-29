@@ -35,7 +35,7 @@ namespace Composable.KeyValueStorage.SqlServer
         {
             private readonly JsonSerializerSettings JsonSettings = new JsonSerializerSettings
                                                                        {
-                                                                           TypeNameHandling = TypeNameHandling.All,
+                                                                           TypeNameHandling = TypeNameHandling.Auto,
                                                                            ConstructorHandling = ConstructorHandling.AllowNonPublicDefaultConstructor,
                                                                            ContractResolver = new IncludeMembersWithPrivateSettersResolver()
                                                                        };
@@ -45,7 +45,7 @@ namespace Composable.KeyValueStorage.SqlServer
             private readonly Dictionary<Guid, object> _idMap = new Dictionary<Guid, object>();
             private readonly HashSet<Guid> _persistentValues = new HashSet<Guid>();
             private readonly SqlConnection _connection;
-            private bool TableVerifiedToExist;
+            private static bool TableVerifiedToExist;
             private bool _enlisted;
             private const int UniqueConstraintViolationErrorNumber = 2627;
             private int SqlBatchSize = 10;

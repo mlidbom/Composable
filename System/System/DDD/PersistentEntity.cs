@@ -7,17 +7,17 @@ using System.Diagnostics;
 
 namespace Composable.DDD
 {
-    public class IdEqualityObject<TEntity> : IEquatable<TEntity> where TEntity : IdEqualityObject<TEntity>
+    public class IdEqualityObject<TEntity, TKEy> : IEquatable<TEntity> where TEntity : IdEqualityObject<TEntity, TKEy>
     {
-        protected IdEqualityObject(Guid id)
+        protected IdEqualityObject(TKEy id)
         {
             Id = id;
         }
 
         /// <summary>Implements: <see cref="IPersistentEntity{TKeyType}.Id"/></summary>
-        public virtual Guid Id { get; private set; }
+        public virtual TKEy Id { get; private set; }
 
-        protected void SetIdBeVerySureYouKnowWhatYouAreDoing(Guid id)
+        protected void SetIdBeVerySureYouKnowWhatYouAreDoing(TKEy id)
         {
             Id = id;
         }
@@ -37,7 +37,7 @@ namespace Composable.DDD
         /// </summary>
         public override bool Equals(object other)
         {
-            return (other is TEntity) && Equals((TEntity)((object)((TEntity)other)));
+            return (other is TEntity) && Equals((TEntity)((TEntity)other));
         }
 
         /// <summary>Implements: <see cref="object.GetHashCode"/></summary>
@@ -47,7 +47,7 @@ namespace Composable.DDD
         }
 
         ///<summary>True if both instances have the same ID</summary>
-        public static bool operator ==(IdEqualityObject<TEntity> lhs, IdEqualityObject<TEntity> rhs)
+        public static bool operator ==(IdEqualityObject<TEntity, TKEy> lhs, IdEqualityObject<TEntity, TKEy> rhs)
         {
             if (ReferenceEquals(lhs, rhs))
             {
@@ -58,10 +58,15 @@ namespace Composable.DDD
         }
 
         ///<summary>True if both instances do not have the same ID</summary>
-        public static bool operator !=(IdEqualityObject<TEntity> lhs, IdEqualityObject<TEntity> rhs)
+        public static bool operator !=(IdEqualityObject<TEntity, TKEy> lhs, IdEqualityObject<TEntity, TKEy> rhs)
         {
             return !(lhs == rhs);
         }
+    }
+
+    public class IdEqualityObject<TEntity> : IdEqualityObject<TEntity, Guid> where TEntity : IdEqualityObject<TEntity>
+    {
+        protected IdEqualityObject(Guid id) : base(id) {}
     }
 
     /// <summary>
@@ -75,7 +80,7 @@ namespace Composable.DDD
     /// </summary>
     [DebuggerDisplay("{GetType().Name} Id={Id}")]
     [Serializable]
-    public class PersistentEntity<TEntity> : IdEqualityObject<TEntity>, IPersistentEntity<Guid> where TEntity : PersistentEntity<TEntity>
+    public class PersistentEntity<TEntity> : IdEqualityObject<TEntity, Guid>, IPersistentEntity<Guid> where TEntity : PersistentEntity<TEntity>
     {
         /// <summary>
         /// Creates an instance using the supplied <paramref name="id"/> as the Id.

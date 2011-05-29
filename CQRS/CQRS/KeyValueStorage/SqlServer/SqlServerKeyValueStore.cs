@@ -199,6 +199,28 @@ CREATE TABLE [dbo].[Store](
                 Save(entity.Id, entity);
             }
 
+            public void Delete<TEntity>(TEntity entity) where TEntity : IHasPersistentIdentity<Guid>
+            {
+                EnlistInAmbientTransaction();
+                _idMap.Remove(entity.Id);
+
+                using (var command = _connection.CreateCommand())
+                {
+                    command.CommandType = CommandType.Text;                
+                    command.CommandText += "DELETE Store WHERE Id = @Id{0}".FormatWith(entity.Id);
+                    command.Parameters.Add(new SqlParameter("Id", entity.Id));
+                    var rowsAffected = command.ExecuteNonQuery();
+                    if(rowsAffected == 0)
+                    {
+                        throw new NoSuchKeyException(entity.Id, entity.GetType());
+                    }if(rowsAffected > 1)
+                    {
+                        throw new TooManyItemsDeletedException();
+                    }
+                }
+
+            }
+
             public void SaveChanges()
             {
                 Log("saving changes in: {0}", Me);
@@ -391,48 +413,17 @@ DROP TABLE [dbo].[Store]";
 
         }
 
-        private class SessionDisposeWrapper : IKeyValueStoreSession
+        private class SessionDisposeWrapper : KeyValueStoreSessionProxy
         {
             private readonly SqlServerKeyValueSession _session;
-
-            public SessionDisposeWrapper(SqlServerKeyValueSession session)
+            public SessionDisposeWrapper(SqlServerKeyValueSession session) : base(session)
             {
                 _session = session;
             }
 
-            public void Dispose()
+            public override void Dispose()
             {                
                 _session.DisposeIfNotEnlisted();
-            }
-
-            public TValue Get<TValue>(Guid key)
-            {
-                return _session.Get<TValue>(key);
-            }
-
-            public bool TryGet<TValue>(Guid key, out TValue value)
-            {
-                return _session.TryGet(key, out value);
-            }
-
-            public IEnumerable<T> GetAll<T>()
-            {
-                return _session.GetAll<T>();
-            }
-
-            public void Save<TValue>(Guid key, TValue value)
-            {
-                _session.Save(key, value);
-            }
-
-            public void Save<TEntity>(TEntity entity) where TEntity : IHasPersistentIdentity<Guid>
-            {
-                _session.Save(entity);
-            }
-
-            public void SaveChanges()
-            {
-                _session.SaveChanges();
             }
         }
 

@@ -44,11 +44,34 @@ namespace Composable.KeyValueStorage.SqlServer
             private readonly SqlServerKeyValueStoreConfig _config;
             private readonly Dictionary<Guid, object> _idMap = new Dictionary<Guid, object>();
             private readonly HashSet<Guid> _persistentValues = new HashSet<Guid>();
-            private readonly SqlConnection _connection;
-            private static bool TableVerifiedToExist;
+            private readonly SqlConnection _connection;            
             private bool _enlisted;
             private const int UniqueConstraintViolationErrorNumber = 2627;
             private int SqlBatchSize = 10;
+
+
+            private static readonly HashSet<String> VerifiedTables = new HashSet<String>();
+            private bool TableVerifiedToExist
+            {
+                get
+                {
+                    return VerifiedTables.Contains(_store._connectionString);
+                }
+
+                set
+                {
+                    if(value)
+                    {
+                        if(!TableVerifiedToExist)
+                        {
+                            VerifiedTables.Add(_store._connectionString);
+                        }
+                    }else if (TableVerifiedToExist)
+                    {
+                            VerifiedTables.Remove(_store._connectionString);
+                    }               
+                }
+            }
 
             private static int instances;
             public SqlServerKeyValueSession(SqlServerKeyValueStore store, SqlServerKeyValueStoreConfig config)

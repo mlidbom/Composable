@@ -49,7 +49,31 @@ namespace Composable.CQRS.EventSourcing.SQLServer
 
     public class SqlServerEventStoreSession : EventStoreSession
     {
-        private static bool EventsTableVerifiedToExist;
+        private static readonly HashSet<String> VerifiedTables = new HashSet<String>();
+        private bool EventsTableVerifiedToExist
+        {
+            get
+            {
+                return VerifiedTables.Contains(_store.ConnectionString);
+            }
+
+            set
+            {
+                if (value)
+                {
+                    if (!EventsTableVerifiedToExist)
+                    {
+                        VerifiedTables.Add(_store.ConnectionString);
+                    }
+                }
+                else if (EventsTableVerifiedToExist)
+                {
+                    VerifiedTables.Remove(_store.ConnectionString);
+                }
+            }
+        }
+
+
         private readonly SqlServerEventStore _store;
         private readonly SqlConnection _connection;
         private int SqlBatchSize = 10;
@@ -97,6 +121,7 @@ CREATE TABLE [dbo].[Events](
 	[AggregateVersion] [int] NOT NULL,
 	[TimeStamp] [datetime] NOT NULL,
 	[EventType] [varchar](300) NOT NULL,
+    [EventId] [uniqueidentifier] NOT NULL,
 	[Event] [nvarchar](max) NOT NULL,
  CONSTRAINT [PK_Events] PRIMARY KEY CLUSTERED 
 (
@@ -119,7 +144,7 @@ ALTER TABLE [dbo].[Events] ADD  CONSTRAINT [DF_Events_TimeStamp]  DEFAULT (getda
         {
             using(var loadCommand = _connection.CreateCommand())
             {
-                loadCommand.CommandText = "SELECT EventType, Event FROM Events WHERE AggregateId = @AggregateId ORDER BY AggregateVersion ASC";
+                loadCommand.CommandText = "SELECT EventType, Event, AggregateVersion, EventId FROM Events WHERE AggregateId = @AggregateId ORDER BY AggregateVersion ASC";
                 loadCommand.Parameters.Add(new SqlParameter("AggregateId", aggregateId));
 
                 using(var eventReader = loadCommand.ExecuteReader())
@@ -127,8 +152,10 @@ ALTER TABLE [dbo].[Events] ADD  CONSTRAINT [DF_Events_TimeStamp]  DEFAULT (getda
                     for(var version = 1; eventReader.Read(); version++)
                     {
                         var @event = DeserializeEvent(eventReader.GetString(0), eventReader.GetString(1));
-                        @event.AggregateRootVersion = version;
-                        @event.AggregateRootId = aggregateId;
+                        @event.AggregateRootVersion = eventReader.GetInt32(2);
+                        @event.EventId = eventReader.GetGuid(3);
+                        @event.AggregateRootId = aggregateId;                        
+
                         yield return @event;
                     }
                 }
@@ -184,12 +211,13 @@ ALTER TABLE [dbo].[Events] ADD  CONSTRAINT [DF_Events_TimeStamp]  DEFAULT (getda
                     {
                         var @event = events.ElementAt(handledInBatch);
 
-                        command.CommandText += "INSERT Events(AggregateId, AggregateVersion, EventType, Event) VALUES(@AggregateId{0}, @AggregateVersion{0}, @EventType{0}, @Event{0})"
+                        command.CommandText += "INSERT Events(AggregateId, AggregateVersion, EventType, EventId, Event) VALUES(@AggregateId{0}, @AggregateVersion{0}, @EventType{0}, @EventId{0}, @Event{0})"
                             .FormatWith(handledInBatch);
 
                         command.Parameters.Add(new SqlParameter("AggregateId" + handledInBatch, @event.AggregateRootId));
                         command.Parameters.Add(new SqlParameter("AggregateVersion" + handledInBatch, @event.AggregateRootVersion));
                         command.Parameters.Add(new SqlParameter("EventType" + handledInBatch, @event.GetType().FullName));
+                        command.Parameters.Add(new SqlParameter("EventId" + handledInBatch, @event.EventId));
                         command.Parameters.Add(new SqlParameter("Event" + handledInBatch, JsonConvert.SerializeObject(@event, Formatting.Indented, JsonSettings)));
                     }
                     command.ExecuteNonQuery();

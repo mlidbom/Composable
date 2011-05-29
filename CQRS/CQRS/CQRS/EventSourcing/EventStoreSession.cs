@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Transactions;
+using Composable.CQRS.EventSourcing.SQLServer;
 using Composable.System.Linq;
 using Composable.System;
 
@@ -26,6 +27,16 @@ namespace Composable.CQRS.EventSourcing
             {
                 throw new Exception(string.Format("Aggregate root with Id: {0} not found", aggregateId));
             }
+
+            int version = 1;
+            foreach(var aggregateRootEvent in history)
+            {
+                if(aggregateRootEvent.AggregateRootVersion != version++)
+                {
+                    throw new InvalidHistoryException();
+                }
+            }
+
             return history;
         }
 

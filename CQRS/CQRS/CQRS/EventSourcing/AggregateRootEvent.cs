@@ -10,7 +10,7 @@ namespace Composable.CQRS.EventSourcing
             ((IAggregateRootEvent)this).EventId = Guid.NewGuid();
         }
 
-        [JsonProperty] Guid IAggregateRootEvent.EventId { get; set; }
+        Guid IAggregateRootEvent.EventId { get; set; }
         int IAggregateRootEvent.AggregateRootVersion { get; set; }
         Guid IAggregateRootEvent.AggregateRootId { get; set; }
     }

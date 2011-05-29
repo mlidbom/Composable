@@ -66,6 +66,12 @@ namespace Composable.KeyValueStorage
             Save(entity.Id, entity);
         }
 
+        public void Delete<TEntity>(TEntity entity) where TEntity : IHasPersistentIdentity<Guid>
+        {
+            _idMap.Remove(entity.Id);
+            _store._store.Remove(entity.Id);
+        }
+
         public void SaveChanges()
         {
             EnlistInAmbientTransaction();
@@ -78,21 +84,6 @@ namespace Composable.KeyValueStorage
                 .Select(pair => pair.Value)
                 .Concat(_store._store.Select(pair => pair.Value))
                 .OfType<T>().Distinct();
-        }
-
-        private void EnlistInAmbientTransaction()
-        {
-            if (Transaction.Current != null && !_enlisted)
-            {
-                Transaction.Current.EnlistVolatile(this, EnlistmentOptions.None);
-                _enlisted = true;
-            }
-        }
-
-        public void Dispose()
-        {
-            //Can be called before the transaction commits....
-            //_idMap.Clear();
         }
 
         void IEnlistmentNotification.Prepare(PreparingEnlistment preparingEnlistment)
@@ -116,6 +107,21 @@ namespace Composable.KeyValueStorage
         {
             _enlisted = false;
             enlistment.Done();
+        }
+
+        private void EnlistInAmbientTransaction()
+        {
+            if (Transaction.Current != null && !_enlisted)
+            {
+                Transaction.Current.EnlistVolatile(this, EnlistmentOptions.None);
+                _enlisted = true;
+            }
+        }
+
+        public void Dispose()
+        {
+            //Can be called before the transaction commits....
+            //_idMap.Clear();
         }
     }
 }

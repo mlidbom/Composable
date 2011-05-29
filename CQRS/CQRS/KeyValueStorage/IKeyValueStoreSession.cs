@@ -11,7 +11,9 @@ namespace Composable.KeyValueStorage
         bool TryGet<TValue>(Guid key, out TValue value);
         void Save<TValue>(Guid key, TValue value);
         void Save<TEntity>(TEntity entity) where TEntity : IHasPersistentIdentity<Guid>;
+        void Delete<TEntity>(TEntity entity) where TEntity : IHasPersistentIdentity<Guid>;
+
         void SaveChanges();
-        IEnumerable<T> GetAll<T>();
+        IEnumerable<T> GetAll<T>();        
     }
 }

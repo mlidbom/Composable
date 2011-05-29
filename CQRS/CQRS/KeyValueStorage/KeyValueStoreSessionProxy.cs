@@ -1,51 +1,60 @@
+#region usings
+
 using System;
 using System.Collections.Generic;
 using Composable.DDD;
+
+#endregion
 
 namespace Composable.KeyValueStorage
 {
     public class KeyValueStoreSessionProxy : IKeyValueStoreSession
     {
-            private readonly IKeyValueStoreSession _session;
+        protected IKeyValueStoreSession Session { get; private set; }
 
-            protected KeyValueStoreSessionProxy(IKeyValueStoreSession session)
-            {
-                _session = session;
-            }
+        protected KeyValueStoreSessionProxy(IKeyValueStoreSession session)
+        {
+            Session = session;
+        }
 
-            public TValue Get<TValue>(Guid key)
-            {
-                return _session.Get<TValue>(key);
-            }
+        public virtual TValue Get<TValue>(Guid key)
+        {
+            return Session.Get<TValue>(key);
+        }
 
-            public bool TryGet<TValue>(Guid key, out TValue value)
-            {
-                return _session.TryGet(key, out value);
-            }
+        public virtual bool TryGet<TValue>(Guid key, out TValue value)
+        {
+            return Session.TryGet(key, out value);
+        }
 
-            public void Save<TValue>(Guid key, TValue value)
-            {
-                _session.Save(key, value);
-            }
+        public virtual void Save<TValue>(Guid key, TValue value)
+        {
+            Session.Save(key, value);
+        }
 
-            public void Save<TEntity>(TEntity entity) where TEntity : IHasPersistentIdentity<Guid>
-            {
-                _session.Save(entity);
-            }
+        public virtual void Save<TEntity>(TEntity entity) where TEntity : IHasPersistentIdentity<Guid>
+        {
+            Session.Save(entity);
+        }
 
-            public void SaveChanges()
-            {
-                _session.SaveChanges();
-            }
+        public virtual void Delete<TEntity>(TEntity entity) where TEntity : IHasPersistentIdentity<Guid>
+        {
+            Session.Delete(entity);
+        }
 
-            public IEnumerable<T> GetAll<T>()
-            {
-                return _session.GetAll<T>();
-            }
+        public virtual void SaveChanges()
+        {
+            Session.SaveChanges();
+        }
 
-            public void Dispose()
-            {
-                _session.Dispose();
-            }
-        }    
+        public virtual IEnumerable<T> GetAll<T>()
+        {
+            return Session.GetAll<T>();
+        }
+
+        public virtual void Dispose()
+        {
+            Session.Dispose();
+        }
+    }
 }

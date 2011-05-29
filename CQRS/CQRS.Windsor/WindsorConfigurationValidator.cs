@@ -29,15 +29,21 @@ namespace Composable.CQRS.Windsor
             message.AppendLine("\nThe following registered types are awaiting dependencies:");
             foreach(var handler in faulty)
             {
-                message.AppendFormat("\t" + handler.ComponentModel.Name + "\n");
-                message.AppendLine("\t\tMissing dependencies:");                
-                handler.ComponentModel.Constructors
+
+                var missing =                 handler.ComponentModel.Constructors
                     .SelectMany(constructor => constructor.Dependencies)
                     .Select(model => model.TargetItemType)
                     .Where(type => !container.Kernel.GetAssignableHandlers(type).Any())
-                    .Distinct()
-                    .ForEach(comp => message.AppendLine("\t\t\t" + comp));
-                message.AppendLine();
+                    .Distinct();
+                //Appently constructor.Dependencies will be empty when the reason this type is awaityng dependencies is that 
+                //a type it depends on is in its turn awaiting a dependency
+                if (missing.Any())
+                {
+                    message.AppendFormat("\t" + handler.ComponentModel.Name + "\n");
+                    message.AppendLine("\t\tMissing dependencies:");
+                    missing.ForEach(comp => message.AppendLine("\t\t\t" + comp));
+                    message.AppendLine();
+                }
             }
 
             message.AppendLine("\n\tAll Missing dependencies:");

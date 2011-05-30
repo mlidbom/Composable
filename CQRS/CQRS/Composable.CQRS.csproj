@@ -106,6 +106,7 @@
     <Compile Include="StuffThatDoesNotBelongHere\EventPersistenceService.cs" />
     <Compile Include="CQRS\EventSourcing\AggregateRoot.cs" />
     <Compile Include="CQRS\EventSourcing\IEventApplier.cs" />
+    <Compile Include="StuffThatDoesNotBelongHere\EventPersister.cs" />
     <Compile Include="StuffThatDoesNotBelongHere\IEventPersistenceService.cs" />
     <Compile Include="StuffThatDoesNotBelongHere\IEventPersister.cs" />
     <Compile Include="Persistence\IEntityFetcher.cs" />

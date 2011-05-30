@@ -207,7 +207,7 @@ CREATE TABLE [dbo].[Store](
                 using (var command = _connection.CreateCommand())
                 {
                     command.CommandType = CommandType.Text;                
-                    command.CommandText += "DELETE Store WHERE Id = @Id{0}".FormatWith(entity.Id);
+                    command.CommandText += "DELETE Store WHERE Id = @Id";
                     command.Parameters.Add(new SqlParameter("Id", entity.Id));
                     var rowsAffected = command.ExecuteNonQuery();
                     if(rowsAffected == 0)
@@ -332,7 +332,7 @@ CREATE TABLE [dbo].[Store](
                 {
                     Log("prepare called on {0} with {1} changes from transaction", Me, _idMap.Count);
                     
-                        SaveChanges();
+                    SaveChanges();
 
                     preparingEnlistment.Prepared();
                     Log("prepare completed on {0}", Me);
@@ -346,25 +346,46 @@ CREATE TABLE [dbo].[Store](
 
             void IEnlistmentNotification.Commit(Enlistment enlistment)
             {
-                Log("commit called on {0}", Me);
-                _enlisted = false;
-                enlistment.Done();
-                HandleScheduledDispose();
+                try
+                {
+                    Log("commit called on {0}", Me);
+                    _enlisted = false;
+                    enlistment.Done();
+                    HandleScheduledDispose();
+                }
+                catch (Exception e)
+                {
+                    Log("commit failed on {0}", e);
+                }
             }
 
             void IEnlistmentNotification.Rollback(Enlistment enlistment)
             {
-                Log("rollback called on {0}", Me);
-                _enlisted = false;
-                HandleScheduledDispose();
+                try
+                {
+                    Log("rollback called on {0}", Me);
+                    _enlisted = false;
+                    HandleScheduledDispose();
+                }
+                catch (Exception e)
+                {
+                    Log("rollback failed on {0}", e);
+                }
             }
 
             public void InDoubt(Enlistment enlistment)
             {
-                Log("indoubt called on {0}", Me);
-                _enlisted = false;
-                enlistment.Done();
-                HandleScheduledDispose();
+                try
+                {
+                    Log("indoubt called on {0}", Me);
+                    _enlisted = false;
+                    enlistment.Done();
+                    HandleScheduledDispose();
+                }
+                catch(Exception e)
+                {
+                    Log("Indoubt failed on {0}", e);
+                }
             }
 
 

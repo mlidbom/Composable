@@ -20,8 +20,12 @@ namespace Composable.KeyValueStorage.SqlServer
         private readonly string _connectionString;
         private readonly SqlServerKeyValueStoreConfig _config;
 
-        public SqlServerKeyValueStore(string connectionString, SqlServerKeyValueStoreConfig config = SqlServerKeyValueStoreConfig.Default)
+        public SqlServerKeyValueStore(string connectionString, SqlServerKeyValueStoreConfig config = null)
         {
+            if(config == null)
+            {
+                config = SqlServerKeyValueStoreConfig.Default;
+            }
             _connectionString = connectionString;
             _config = config;
         }
@@ -35,6 +39,7 @@ namespace Composable.KeyValueStorage.SqlServer
         {
             private readonly JsonSerializerSettings JsonSettings = new JsonSerializerSettings
                                                                        {
+                                                                           
                                                                            TypeNameHandling = TypeNameHandling.Auto,
                                                                            ConstructorHandling = ConstructorHandling.AllowNonPublicDefaultConstructor,
                                                                            ContractResolver = new IncludeMembersWithPrivateSettersResolver()
@@ -83,7 +88,7 @@ namespace Composable.KeyValueStorage.SqlServer
                 _connection.Open();
                 EnsureTableExists();
 
-                if(config.HasFlag(SqlServerKeyValueStoreConfig.NoBatching))
+                if(!config.Batching)
                 {
                     SqlBatchSize = 1;
                 }
@@ -263,7 +268,7 @@ CREATE TABLE [dbo].[Store](
 
                             command.Parameters.Add(new SqlParameter("Id" + handledInBatch, entry.Key));
                             command.Parameters.Add(new SqlParameter("Value" + handledInBatch,
-                                                                    JsonConvert.SerializeObject(entry.Value, Formatting.Indented, JsonSettings)));
+                                                                    JsonConvert.SerializeObject(entry.Value, _config.JSonFormatting, JsonSettings)));
                         }
                         command.ExecuteNonQuery();
                     }
@@ -290,7 +295,7 @@ CREATE TABLE [dbo].[Store](
                             command.Parameters.Add(new SqlParameter("Id" + handledInBatch, entry.Key));
                             command.Parameters.Add(new SqlParameter("ValueType" + handledInBatch, entry.Value.GetType().FullName));
                             command.Parameters.Add(new SqlParameter("Value" + handledInBatch,
-                                                                    JsonConvert.SerializeObject(entry.Value, Formatting.None, JsonSettings)));
+                                                                    JsonConvert.SerializeObject(entry.Value, _config.JSonFormatting, JsonSettings)));
                         }
                         try
                         {
@@ -458,10 +463,12 @@ DROP TABLE [dbo].[Store]";
         }
     }
 
-    [Flags]
-    public enum SqlServerKeyValueStoreConfig
+    public class SqlServerKeyValueStoreConfig
     {
-        Default = 0x0,
-        NoBatching = 0x2
+        public static readonly SqlServerKeyValueStoreConfig Default = new SqlServerKeyValueStoreConfig
+                                                                          {};
+
+        public bool Batching = true;
+        public Formatting JSonFormatting = Formatting.None;
     }
 }

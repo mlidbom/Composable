@@ -10,7 +10,7 @@ namespace CQRS.Tests.CQRS.EventSourcing.Sql
     {
         private static string connectionString = ConfigurationManager.ConnectionStrings["EventStore"].ConnectionString;
         [TestFixtureSetUp]
-        public static void Setup()
+        public static void SetupFixture()
         {
             SqlServerEventStore.ResetDB(connectionString);            
         }

@@ -52,7 +52,7 @@ namespace Composable.StuffThatDoesNotBelongHere
             var implementor = (TImplementor)this;
             RunBeforeHandlers(implementor, evt);
             handler(implementor, evt);    
-            RunBeforeHandlers(implementor, evt);
+            RunAfterHandlers(implementor, evt);
         }
 
         private static Action<TImplementor, TEvent> GetHandler(TEvent evt) {

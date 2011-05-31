@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
 using System.Linq;
+using System.Transactions;
 using Composable.NewtonSoft;
 using Composable.System;
 using Composable.System.Linq;
@@ -36,7 +37,7 @@ namespace Composable.CQRS.EventSourcing.SQLServer
 
         public IEventStoreSession OpenSession()
         {
-            return new EventStoreSessionDisposeWrapper(new SqlServerEventStoreSession(this));
+            return new SqlServerEventStoreSession(this);
         }
 
         public static void ResetDB(string connectionString)
@@ -78,7 +79,6 @@ namespace Composable.CQRS.EventSourcing.SQLServer
 
 
         private readonly SqlServerEventStore _store;
-        private readonly SqlConnection _connection;
         private int SqlBatchSize = 10;
 
         private readonly JsonSerializerSettings JsonSettings = new JsonSerializerSettings
@@ -94,9 +94,7 @@ namespace Composable.CQRS.EventSourcing.SQLServer
             Log.Debug("Constructor called");
             //Console.WriteLine("{0}: {1}", GetType().Name, ++instances);
             _store = store;
-            _connection = new SqlConnection(_store.ConnectionString);
-            _connection.Open();
-            EnsureEventsTableExists();
+            EnsureEventsTableExists();            
 
             if(_store.Config.HasFlag(SqlServerEventStoreConfig.NoBatching))
             {
@@ -104,22 +102,31 @@ namespace Composable.CQRS.EventSourcing.SQLServer
             }
         }
 
+        private SqlConnection OpenSession()
+        {
+            var connection = new SqlConnection(_store.ConnectionString);
+            connection.Open();
+            return connection;
+        }
+
         private void EnsureEventsTableExists()
         {
             if(!EventsTableVerifiedToExist)
             {
                 int exists;
-                using(var checkForTableCommand = _connection.CreateCommand())
+                using (var _connection = OpenSession())
                 {
-                    checkForTableCommand.CommandText = "select count(*) from sys.tables where name = 'Events'";
-                    exists = (int)checkForTableCommand.ExecuteScalar();
-                }
-                if(exists == 0)
-                {
-                    using(var createTableCommand = _connection.CreateCommand())
+                    using(var checkForTableCommand = _connection.CreateCommand())
                     {
-                        createTableCommand.CommandText =
-                            @"
+                        checkForTableCommand.CommandText = "select count(*) from sys.tables where name = 'Events'";
+                        exists = (int)checkForTableCommand.ExecuteScalar();
+                    }
+                    if(exists == 0)
+                    {
+                        using(var createTableCommand = _connection.CreateCommand())
+                        {
+                            createTableCommand.CommandText =
+                                @"
 CREATE TABLE [dbo].[Events](
 	[AggregateId] [uniqueidentifier] NOT NULL,
 	[AggregateVersion] [int] NOT NULL,
@@ -137,30 +144,35 @@ CREATE TABLE [dbo].[Events](
 ALTER TABLE [dbo].[Events] ADD  CONSTRAINT [DF_Events_TimeStamp]  DEFAULT (getdate()) FOR [TimeStamp]
 
 ";
-                        createTableCommand.ExecuteNonQuery();
+                            createTableCommand.ExecuteNonQuery();
+                        }
+                        EventsTableVerifiedToExist = true;
                     }
-                    EventsTableVerifiedToExist = true;
                 }
             }
         }
 
         protected override IEnumerable<IAggregateRootEvent> GetHistoryUnSafe(Guid aggregateId)
         {
-            using(var loadCommand = _connection.CreateCommand())
+            using (var _connection = OpenSession())
             {
-                loadCommand.CommandText = "SELECT EventType, Event, AggregateVersion, EventId FROM Events WHERE AggregateId = @AggregateId ORDER BY AggregateVersion ASC";
-                loadCommand.Parameters.Add(new SqlParameter("AggregateId", aggregateId));
-
-                using(var eventReader = loadCommand.ExecuteReader())
+                using(var loadCommand = _connection.CreateCommand())
                 {
-                    for(var version = 1; eventReader.Read(); version++)
-                    {
-                        var @event = DeserializeEvent(eventReader.GetString(0), eventReader.GetString(1));
-                        @event.AggregateRootVersion = eventReader.GetInt32(2);
-                        @event.EventId = eventReader.GetGuid(3);
-                        @event.AggregateRootId = aggregateId;                        
+                    loadCommand.CommandText =
+                        "SELECT EventType, Event, AggregateVersion, EventId FROM Events WHERE AggregateId = @AggregateId ORDER BY AggregateVersion ASC";
+                    loadCommand.Parameters.Add(new SqlParameter("AggregateId", aggregateId));
 
-                        yield return @event;
+                    using(var eventReader = loadCommand.ExecuteReader())
+                    {
+                        for(var version = 1; eventReader.Read(); version++)
+                        {
+                            var @event = DeserializeEvent(eventReader.GetString(0), eventReader.GetString(1));
+                            @event.AggregateRootVersion = eventReader.GetInt32(2);
+                            @event.EventId = eventReader.GetGuid(3);
+                            @event.AggregateRootId = aggregateId;
+
+                            yield return @event;
+                        }
                     }
                 }
             }
@@ -203,28 +215,32 @@ ALTER TABLE [dbo].[Events] ADD  CONSTRAINT [DF_Events_TimeStamp]  DEFAULT (getda
 
         protected override void SaveEvents(IEnumerable<IAggregateRootEvent> events)
         {
-            var eventCount = events.Count();
-            var handled = 0;
-            while(handled < eventCount)
+            using (var _connection = OpenSession())
             {
-                //Console.WriteLine("Starting new sql batch");
-                using(var command = _connection.CreateCommand())
+                var eventCount = events.Count();
+                var handled = 0;
+                while(handled < eventCount)
                 {
-                    command.CommandType = CommandType.Text;
-                    for(var handledInBatch = 0; handledInBatch < SqlBatchSize && handled < eventCount; handledInBatch++, handled++)
+                    //Console.WriteLine("Starting new sql batch");
+                    using(var command = _connection.CreateCommand())
                     {
-                        var @event = events.ElementAt(handledInBatch);
+                        command.CommandType = CommandType.Text;
+                        for(var handledInBatch = 0; handledInBatch < SqlBatchSize && handled < eventCount; handledInBatch++, handled++)
+                        {
+                            var @event = events.ElementAt(handledInBatch);
 
-                        command.CommandText += "INSERT Events(AggregateId, AggregateVersion, EventType, EventId, Event) VALUES(@AggregateId{0}, @AggregateVersion{0}, @EventType{0}, @EventId{0}, @Event{0})"
-                            .FormatWith(handledInBatch);
+                            command.CommandText += "INSERT Events(AggregateId, AggregateVersion, EventType, EventId, Event) VALUES(@AggregateId{0}, @AggregateVersion{0}, @EventType{0}, @EventId{0}, @Event{0})"
+                                .FormatWith(handledInBatch);
 
-                        command.Parameters.Add(new SqlParameter("AggregateId" + handledInBatch, @event.AggregateRootId));
-                        command.Parameters.Add(new SqlParameter("AggregateVersion" + handledInBatch, @event.AggregateRootVersion));
-                        command.Parameters.Add(new SqlParameter("EventType" + handledInBatch, @event.GetType().FullName));
-                        command.Parameters.Add(new SqlParameter("EventId" + handledInBatch, @event.EventId));
-                        command.Parameters.Add(new SqlParameter("Event" + handledInBatch, JsonConvert.SerializeObject(@event, Formatting.Indented, JsonSettings)));
+                            command.Parameters.Add(new SqlParameter("AggregateId" + handledInBatch, @event.AggregateRootId));
+                            command.Parameters.Add(new SqlParameter("AggregateVersion" + handledInBatch, @event.AggregateRootVersion));
+                            command.Parameters.Add(new SqlParameter("EventType" + handledInBatch, @event.GetType().FullName));
+                            command.Parameters.Add(new SqlParameter("EventId" + handledInBatch, @event.EventId));
+                            command.Parameters.Add(new SqlParameter("Event" + handledInBatch,
+                                                                    JsonConvert.SerializeObject(@event, Formatting.Indented, JsonSettings)));
+                        }
+                        command.ExecuteNonQuery();
                     }
-                    command.ExecuteNonQuery();
                 }
             }
         }
@@ -236,21 +252,23 @@ ALTER TABLE [dbo].[Events] ADD  CONSTRAINT [DF_Events_TimeStamp]  DEFAULT (getda
             {
                 _disposed = true;
                 //Console.WriteLine("{0}: {1}", GetType().Name, --instances);
-                _connection.Dispose();
                 _idMap.Clear();
             }
         }
 
         public void PurgeDB()
         {
-            using (var dropCommand = _connection.CreateCommand())
+            using (var _connection = OpenSession())
             {
-                dropCommand.CommandText =
-                    @"IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[Events]') AND type in (N'U'))
+                using(var dropCommand = _connection.CreateCommand())
+                {
+                    dropCommand.CommandText =
+                        @"IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[Events]') AND type in (N'U'))
 DROP TABLE [dbo].[Events]";
 
-                dropCommand.ExecuteNonQuery();
-                EventsTableVerifiedToExist = false;
+                    dropCommand.ExecuteNonQuery();
+                    EventsTableVerifiedToExist = false;
+                }
             }
         }
     }

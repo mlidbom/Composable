@@ -33,10 +33,10 @@ namespace Composable.KeyValueStorage.SqlServer
 
         public IKeyValueStoreSession OpenSession()
         {
-            return new SessionDisposeWrapper(new SqlServerKeyValueSession(this, _config));
+            return new SqlServerKeyValueSession(this, _config);
         }
 
-        private class SqlServerKeyValueSession : IKeyValueStoreSession, IEnlistmentNotification
+        private class SqlServerKeyValueSession : IKeyValueStoreSession
         {
             private static readonly ILog Log = LogManager.GetLogger(typeof(SqlServerKeyValueSession));
 
@@ -52,9 +52,25 @@ namespace Composable.KeyValueStorage.SqlServer
             private readonly SqlServerKeyValueStoreConfig _config;
             private readonly Dictionary<Guid, object> _idMap = new Dictionary<Guid, object>();
             private readonly HashSet<Guid> _persistentValues = new HashSet<Guid>();
-            private readonly SqlConnection _connection;            
             private const int UniqueConstraintViolationErrorNumber = 2627;
             private readonly int SqlBatchSize = 10;
+
+            public SqlServerKeyValueSession(SqlServerKeyValueStore store, SqlServerKeyValueStoreConfig config)
+            {
+                Log.Debug("Constructor called");
+                _store = store;
+                _config = config;
+                //EnlistInAmbientTransaction();
+
+                EnsureTableExists();
+
+
+                if (!config.Batching)
+                {
+                    SqlBatchSize = 1;
+                }
+            }
+
 
 
             private static readonly HashSet<String> VerifiedTables = new HashSet<String>();
@@ -80,39 +96,30 @@ namespace Composable.KeyValueStorage.SqlServer
                 }
             }
 
-            public SqlServerKeyValueSession(SqlServerKeyValueStore store, SqlServerKeyValueStoreConfig config)
+            private SqlConnection OpenSession()
             {
-                Log.Debug("Constructor called");
-                _store = store;
-                _config = config;
-                _connection = new SqlConnection(store._connectionString);
-                _connection.Open();
-                EnlistInAmbientTransaction();
-                
-                EnsureTableExists();
-
-
-                if(!config.Batching)
-                {
-                    SqlBatchSize = 1;
-                }
+                var connection = new SqlConnection(_store._connectionString);
+                connection.Open();
+                return connection;
             }
 
             private void EnsureTableExists()
             {
-                if(!TableVerifiedToExist)
+                using (var _connection = OpenSession())
                 {
-                    using (var checkForTableCommand = _connection.CreateCommand())
+                    if(!TableVerifiedToExist)
                     {
-                        checkForTableCommand.CommandText = "select count(*) from sys.tables where name = 'Store'";
-                        var exists = (int)checkForTableCommand.ExecuteScalar();
-                        if(exists == 0)
+                        using(var checkForTableCommand = _connection.CreateCommand())
                         {
-                            using (var createTableCommand = _connection.CreateCommand())
+                            checkForTableCommand.CommandText = "select count(*) from sys.tables where name = 'Store'";
+                            var exists = (int)checkForTableCommand.ExecuteScalar();
+                            if(exists == 0)
                             {
+                                using(var createTableCommand = _connection.CreateCommand())
+                                {
 
-                                createTableCommand.CommandText =
-                                    @"
+                                    createTableCommand.CommandText =
+                                        @"
 CREATE TABLE [dbo].[Store](
 	[Id] [uniqueidentifier] NOT NULL,
     [ValueType] [varchar](500) NOT NULL,
@@ -123,10 +130,11 @@ CREATE TABLE [dbo].[Store](
 )WITH (PAD_INDEX  = OFF, STATISTICS_NORECOMPUTE  = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS  = ON, ALLOW_PAGE_LOCKS  = ON) ON [PRIMARY]
 ) ON [PRIMARY]
 ";
-                                createTableCommand.ExecuteNonQuery();
+                                    createTableCommand.ExecuteNonQuery();
+                                }
                             }
+                            TableVerifiedToExist = true;
                         }
-                        TableVerifiedToExist = true;
                     }
                 }
             }
@@ -134,7 +142,6 @@ CREATE TABLE [dbo].[Store](
             public bool TryGet<TValue>(Guid key, out TValue value)
             {
                 value = default(TValue);
-                EnlistInAmbientTransaction();
 
                 object found;
                 if(_idMap.TryGetValue(key, out found))
@@ -142,18 +149,20 @@ CREATE TABLE [dbo].[Store](
                     value = (TValue)found;
                     return true;
                 }
-
-                using(var loadCommand = _connection.CreateCommand())
+                using (var _connection = OpenSession())
                 {
-                    loadCommand.CommandText = "SELECT Value, ValueType FROM Store WHERE Id=@Id";
-                    loadCommand.Parameters.Add(new SqlParameter("Id", key));
-                    using (var reader = loadCommand.ExecuteReader())
+                    using(var loadCommand = _connection.CreateCommand())
                     {
-                        if(!reader.Read())
+                        loadCommand.CommandText = "SELECT Value, ValueType FROM Store WHERE Id=@Id";
+                        loadCommand.Parameters.Add(new SqlParameter("Id", key));
+                        using(var reader = loadCommand.ExecuteReader())
                         {
-                            return false;
+                            if(!reader.Read())
+                            {
+                                return false;
+                            }
+                            found = JsonConvert.DeserializeObject(reader.GetString(0), typeof(TValue), JsonSettings);
                         }
-                        found = JsonConvert.DeserializeObject(reader.GetString(0), typeof(TValue), JsonSettings);
                     }
                 }
                 _persistentValues.Add(key);
@@ -175,17 +184,18 @@ CREATE TABLE [dbo].[Store](
 
             public IEnumerable<T> GetAll<T>()
             {
-                EnlistInAmbientTransaction();
-
-                using (var loadCommand = _connection.CreateCommand())
+                using (var _connection = OpenSession())
                 {
-                    loadCommand.CommandText = "SELECT Value, ValueType FROM Store WHERE ValueType=@ValueType";
-                    loadCommand.Parameters.Add(new SqlParameter("ValueType", typeof(T).FullName));
-                    using (var reader = loadCommand.ExecuteReader())
+                    using(var loadCommand = _connection.CreateCommand())
                     {
-                        while(reader.Read())
+                        loadCommand.CommandText = "SELECT Value, ValueType FROM Store WHERE ValueType=@ValueType";
+                        loadCommand.Parameters.Add(new SqlParameter("ValueType", typeof(T).FullName));
+                        using(var reader = loadCommand.ExecuteReader())
                         {
-                            yield return (T)JsonConvert.DeserializeObject(reader.GetString(0), typeof(T), JsonSettings);
+                            while(reader.Read())
+                            {
+                                yield return (T)JsonConvert.DeserializeObject(reader.GetString(0), typeof(T), JsonSettings);
+                            }
                         }
                     }
                 }
@@ -193,8 +203,6 @@ CREATE TABLE [dbo].[Store](
 
             public void Save<TValue>(Guid key, TValue value)
             {
-                EnlistInAmbientTransaction();
-
                 object existing;
                 if(_idMap.TryGetValue(key, out existing))
                 {
@@ -210,21 +218,23 @@ CREATE TABLE [dbo].[Store](
 
             public void Delete<TEntity>(TEntity entity) where TEntity : IHasPersistentIdentity<Guid>
             {
-                EnlistInAmbientTransaction();
                 _idMap.Remove(entity.Id);
-
-                using (var command = _connection.CreateCommand())
+                using (var _connection = OpenSession())
                 {
-                    command.CommandType = CommandType.Text;                
-                    command.CommandText += "DELETE Store WHERE Id = @Id";
-                    command.Parameters.Add(new SqlParameter("Id", entity.Id));
-                    var rowsAffected = command.ExecuteNonQuery();
-                    if(rowsAffected == 0)
+                    using(var command = _connection.CreateCommand())
                     {
-                        throw new NoSuchKeyException(entity.Id, entity.GetType());
-                    }if(rowsAffected > 1)
-                    {
-                        throw new TooManyItemsDeletedException();
+                        command.CommandType = CommandType.Text;
+                        command.CommandText += "DELETE Store WHERE Id = @Id";
+                        command.Parameters.Add(new SqlParameter("Id", entity.Id));
+                        var rowsAffected = command.ExecuteNonQuery();
+                        if(rowsAffected == 0)
+                        {
+                            throw new NoSuchKeyException(entity.Id, entity.GetType());
+                        }
+                        if(rowsAffected > 1)
+                        {
+                            throw new TooManyItemsDeletedException();
+                        }
                     }
                 }
 
@@ -241,83 +251,77 @@ CREATE TABLE [dbo].[Store](
 
             private readonly Guid Me = Guid.NewGuid();
 
-            private bool _enlisted;
-            private void EnlistInAmbientTransaction()
-            {
-                if (!_enlisted && Transaction.Current != null)
-                {
-                    Transaction.Current.EnlistVolatile(this, EnlistmentOptions.EnlistDuringPrepareRequired);
-                    _enlisted = true;
-
-                    _connection.EnlistTransaction(Transaction.Current);
-                    Log.DebugFormat("enlisting in local: {0} in {1}", Me, Transaction.Current.TransactionInformation.LocalIdentifier);
-                    Log.DebugFormat("enlisting in distributed: {0} in {1}", Me, Transaction.Current.TransactionInformation.DistributedIdentifier);
-                }
-            }
 
             private void UpdateValues(IEnumerable<KeyValuePair<Guid, object>> values)
             {
-                var handled = 0;
-                var eventCount = values.Count();
-                while(handled < eventCount)
+                using (var _connection = OpenSession())
                 {
-                    using(var command = _connection.CreateCommand())
+                    var handled = 0;
+                    var eventCount = values.Count();
+                    while(handled < eventCount)
                     {
-                        command.CommandType = CommandType.Text;
-                        for(var handledInBatch = 0; handledInBatch < SqlBatchSize && handled < eventCount; handledInBatch++, handled++)
+                        using(var command = _connection.CreateCommand())
                         {
-                            var entry = values.ElementAt(handledInBatch);
+                            command.CommandType = CommandType.Text;
+                            for(var handledInBatch = 0; handledInBatch < SqlBatchSize && handled < eventCount; handledInBatch++, handled++)
+                            {
+                                var entry = values.ElementAt(handledInBatch);
 
-                            command.CommandText += "UPDATE Store SET Value = @Value{0} WHERE Id = @Id{0}\n"
-                                .FormatWith(handledInBatch);
+                                command.CommandText += "UPDATE Store SET Value = @Value{0} WHERE Id = @Id{0}\n"
+                                    .FormatWith(handledInBatch);
 
-                            command.Parameters.Add(new SqlParameter("Id" + handledInBatch, entry.Key));
-                            command.Parameters.Add(new SqlParameter("Value" + handledInBatch,
-                                                                    JsonConvert.SerializeObject(entry.Value, _config.JSonFormatting, JsonSettings)));
+                                command.Parameters.Add(new SqlParameter("Id" + handledInBatch, entry.Key));
+                                command.Parameters.Add(new SqlParameter("Value" + handledInBatch,
+                                                                        JsonConvert.SerializeObject(entry.Value, _config.JSonFormatting, JsonSettings)));
+                            }
+                            command.ExecuteNonQuery();
                         }
-                        command.ExecuteNonQuery();
                     }
                 }
             }
 
             private void InsertValues(IEnumerable<KeyValuePair<Guid, object>> values)
             {
-                var handled = 0;
-                var eventCount = values.Count();
-                while(handled < eventCount)
+                using (var _connection = OpenSession())
                 {
-                    using(var command = _connection.CreateCommand())
+                    var handled = 0;
+                    var eventCount = values.Count();
+                    while(handled < eventCount)
                     {
-                        command.CommandType = CommandType.Text;
-                        var entry = new KeyValuePair<Guid, object>();
-                        for(var handledInBatch = 0; handledInBatch < SqlBatchSize && handled < eventCount; handledInBatch++, handled++)
+                        using(var command = _connection.CreateCommand())
                         {
-                            entry = values.ElementAt(handledInBatch);
-
-                            command.CommandText += "INSERT Store(Id, ValueType, Value) VALUES(@Id{0}, @ValueType{0}, @Value{0})"
-                                .FormatWith(handledInBatch);
-
-                            command.Parameters.Add(new SqlParameter("Id" + handledInBatch, entry.Key));
-                            command.Parameters.Add(new SqlParameter("ValueType" + handledInBatch, entry.Value.GetType().FullName));
-                            command.Parameters.Add(new SqlParameter("Value" + handledInBatch,
-                                                                    JsonConvert.SerializeObject(entry.Value, _config.JSonFormatting, JsonSettings)));
-                        }
-                        try
-                        {
-                            command.ExecuteNonQuery();
-                        }
-                        catch(SqlException e)
-                        {
-                            if(e.Number == UniqueConstraintViolationErrorNumber)
+                            command.CommandType = CommandType.Text;
+                            var entry = new KeyValuePair<Guid, object>();
+                            for(var handledInBatch = 0; handledInBatch < SqlBatchSize && handled < eventCount; handledInBatch++, handled++)
                             {
-                                if (SqlBatchSize == 1)
-                                {
-                                    throw new AttemptToSaveAlreadyPersistedValueException(entry.Key, entry.Value);
-                                }
-                                
-                                throw new AttemptToSaveAlreadyPersistedValueException(Guid.Empty, "Batched insert cannot extract value try with SqlServerKeyValueStoreConfig.NoBatching...");
+                                entry = values.ElementAt(handledInBatch);
+
+                                command.CommandText += "INSERT Store(Id, ValueType, Value) VALUES(@Id{0}, @ValueType{0}, @Value{0})"
+                                    .FormatWith(handledInBatch);
+
+                                command.Parameters.Add(new SqlParameter("Id" + handledInBatch, entry.Key));
+                                command.Parameters.Add(new SqlParameter("ValueType" + handledInBatch, entry.Value.GetType().FullName));
+                                command.Parameters.Add(new SqlParameter("Value" + handledInBatch,
+                                                                        JsonConvert.SerializeObject(entry.Value, _config.JSonFormatting, JsonSettings)));
                             }
-                            throw;
+                            try
+                            {
+                                command.ExecuteNonQuery();
+                            }
+                            catch(SqlException e)
+                            {
+                                if(e.Number == UniqueConstraintViolationErrorNumber)
+                                {
+                                    if(SqlBatchSize == 1)
+                                    {
+                                        throw new AttemptToSaveAlreadyPersistedValueException(entry.Key, entry.Value);
+                                    }
+
+                                    throw new AttemptToSaveAlreadyPersistedValueException(Guid.Empty,
+                                                                                          "Batched insert cannot extract value try with SqlServerKeyValueStoreConfig.NoBatching...");
+                                }
+                                throw;
+                            }
                         }
                     }
                 }
@@ -331,131 +335,24 @@ CREATE TABLE [dbo].[Store](
                     _disposed = true;
                     Log.DebugFormat("disposing {0}", Me);
                     //Console.WriteLine("{0}: {1}", GetType().Name, --instances);
-                    _connection.Dispose();
                     _idMap.Clear();
                 }
-            }
-
-            void IEnlistmentNotification.Prepare(PreparingEnlistment preparingEnlistment)
-            {
-                try
-                {
-                    Log.DebugFormat("prepare called on {0} with {1} changes from transaction", Me, _idMap.Count());
-
-                    SaveChanges();
-
-                    preparingEnlistment.Prepared();
-                    Log.DebugFormat("prepare completed on {0}", Me);
-                }
-                catch (Exception e)
-                {
-                    Log.Error("prepare failed", e);
-                    preparingEnlistment.ForceRollback(e);
-                }
-            }
-
-            void IEnlistmentNotification.Commit(Enlistment enlistment)
-            {
-                try
-                {
-                    Log.DebugFormat("commit called on {0}", Me);
-                    _enlisted = false;                    
-                    HandleScheduledDispose();
-                }
-                catch (Exception e)
-                {
-                    Log.Error("commit failed", e);
-                }finally
-                {
-                    enlistment.Done();
-                }
-            }
-
-            void IEnlistmentNotification.Rollback(Enlistment enlistment)
-            {
-                try
-                {
-                    Log.DebugFormat("rollback called on {0}", Me);
-                    _enlisted = false;
-                    HandleScheduledDispose();                    
-                }
-                catch (Exception e)
-                {
-                    Log.Error("rollback failed", e);
-                }finally
-                {
-                    enlistment.Done();
-                }
-            }
-
-            public void InDoubt(Enlistment enlistment)
-            {
-                try
-                {
-                    Log.DebugFormat("indoubt called on {0}", Me);
-                    _enlisted = false;                    
-                    HandleScheduledDispose();
-                }
-                catch(Exception e)
-                {
-                    Log.Error("Indoubt failed", e);
-                }finally
-                {
-                    enlistment.Done();
-                }
-            }
-
-
-            private void HandleScheduledDispose()
-            {
-                if(_scheduledForDisposeAfterTransactionDone)
-                {
-                    _scheduledForDisposeAfterTransactionDone = false;
-                    Dispose();
-                }
-            }
-
-            private bool _scheduledForDisposeAfterTransactionDone;            
-
-            public void DisposeIfNotEnlisted()
-            {
-                Log.DebugFormat("attempting dispose for {0}", Me);
-                if(_enlisted)
-                {
-                    Log.DebugFormat("scheduling dispose for {0}", Me);
-                    _scheduledForDisposeAfterTransactionDone = true;
-                }
-                else
-                {                    
-                    Dispose();
-                }
-            }
+            }            
 
             public void PurgeDB()
             {
-                using (var dropCommand = _connection.CreateCommand())
+                using (var _connection = OpenSession())
                 {
-                    dropCommand.CommandText =
-                        @"IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[Store]') AND type in (N'U'))
+                    using(var dropCommand = _connection.CreateCommand())
+                    {
+                        dropCommand.CommandText =
+                            @"IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[Store]') AND type in (N'U'))
 DROP TABLE [dbo].[Store]";
 
-                    dropCommand.ExecuteNonQuery();
-                    TableVerifiedToExist = false;
+                        dropCommand.ExecuteNonQuery();
+                        TableVerifiedToExist = false;
+                    }
                 }
-            }
-        }
-
-        private class SessionDisposeWrapper : KeyValueStoreSessionProxy
-        {
-            private readonly SqlServerKeyValueSession _session;
-            public SessionDisposeWrapper(SqlServerKeyValueSession session) : base(session)
-            {
-                _session = session;
-            }
-
-            public override void Dispose()
-            {                
-                _session.DisposeIfNotEnlisted();
             }
         }
 

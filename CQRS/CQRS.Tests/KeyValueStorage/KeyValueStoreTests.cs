@@ -193,68 +193,69 @@ namespace CQRS.Tests.KeyValueStorage
             });
         }
 
-        [Test]
-        public void SaveChangesAndCommitWhenTransientTransactionDoesSo()
-        {
-            var store = CreateStore();
 
-            var user = new User()
-                           {
-                               Id = Guid.NewGuid(),
-                               Email = "email@email.se",
-                               Password = "password"
-                           };
+        //[Test]
+        //public void SaveChangesAndCommitWhenTransientTransactionDoesSo()
+        //{
+        //    var store = CreateStore();
 
-            using (var session = store.OpenSession())
-            {
-                using (var transaction = new TransactionScope())
-                {
-                    session.Save(user);
-                    transaction.Complete();
-                }
-            }
+        //    var user = new User()
+        //                   {
+        //                       Id = Guid.NewGuid(),
+        //                       Email = "email@email.se",
+        //                       Password = "password"
+        //                   };
 
-            using (var session = store.OpenSession())
-            {
-                var loadedUser = session.Get<User>(user.Id);
+        //    using (var session = store.OpenSession())
+        //    {
+        //        using (var transaction = new TransactionScope())
+        //        {
+        //            session.Save(user);
+        //            transaction.Complete();
+        //        }
+        //    }
 
-                Assert.That(loadedUser.Id, Is.EqualTo(user.Id));
-                Assert.That(loadedUser.Email, Is.EqualTo(user.Email));
-                Assert.That(loadedUser.Password, Is.EqualTo(user.Password));
+        //    using (var session = store.OpenSession())
+        //    {
+        //        var loadedUser = session.Get<User>(user.Id);
 
-            }
-        }
+        //        Assert.That(loadedUser.Id, Is.EqualTo(user.Id));
+        //        Assert.That(loadedUser.Email, Is.EqualTo(user.Email));
+        //        Assert.That(loadedUser.Password, Is.EqualTo(user.Password));
 
-        [Test]
-        public void SaveChangesAndCommitWhenTransientTransactionDoesSoWhenCreatedAndDisposedWithinTransaction()
-        {
-            var store = CreateStore();
+        //    }
+        //}
 
-            var user = new User()
-            {
-                Id = Guid.NewGuid(),
-                Email = "email@email.se",
-                Password = "password"
-            };
+        //[Test]
+        //public void SaveChangesAndCommitWhenTransientTransactionDoesSoWhenCreatedAndDisposedWithinTransaction()
+        //{
+        //    var store = CreateStore();
 
-            using (var transaction = new TransactionScope())
-            {
-                using(var session = store.OpenSession())
-                {
-                    session.Save(user);
-                    transaction.Complete();
-                }
-            }
+        //    var user = new User()
+        //    {
+        //        Id = Guid.NewGuid(),
+        //        Email = "email@email.se",
+        //        Password = "password"
+        //    };
 
-            using (var session = store.OpenSession())
-            {
-                var loadedUser = session.Get<User>(user.Id);
+        //    using (var transaction = new TransactionScope())
+        //    {
+        //        using(var session = store.OpenSession())
+        //        {
+        //            session.Save(user);
+        //            transaction.Complete();
+        //        }
+        //    }
 
-                Assert.That(loadedUser.Id, Is.EqualTo(user.Id));
-                Assert.That(loadedUser.Email, Is.EqualTo(user.Email));
-                Assert.That(loadedUser.Password, Is.EqualTo(user.Password));
+        //    using (var session = store.OpenSession())
+        //    {
+        //        var loadedUser = session.Get<User>(user.Id);
 
-            }
-        }
+        //        Assert.That(loadedUser.Id, Is.EqualTo(user.Id));
+        //        Assert.That(loadedUser.Email, Is.EqualTo(user.Email));
+        //        Assert.That(loadedUser.Password, Is.EqualTo(user.Password));
+
+        //    }
+        //}
     }
 }

@@ -9,8 +9,9 @@ using NUnit.Framework;
 namespace CQRS.Tests.CQRS.EventSourcing
 {
     [TestFixture]
-    public abstract class EventStoreTests
+    public abstract class EventStoreTests : NoSqlTest
     {
+
         [SetUp]
         public void Setup()
         {
@@ -221,64 +222,72 @@ namespace CQRS.Tests.CQRS.EventSourcing
                                                                                });
         }
 
-        [Test]
-        public void SaveChangesAndCommitWhenTransientTransactionDoesSo()
-        {
-            var store = CreateStore();
+        //[Test]
+        //public void SaveChangesAndCommitWhenTransientTransactionDoesSo()
+        //{
+        //    var store = CreateStore();
             
-            var user = new User();
-            user.Register("email@email.se", "password", Guid.NewGuid());
-            user.ChangePassword("NewPassword");
-            user.ChangeEmail("NewEmail");
+        //    var user = new User();
+        //    user.Register("email@email.se", "password", Guid.NewGuid());
+        //    user.ChangePassword("NewPassword");
+        //    user.ChangeEmail("NewEmail");
 
-            using(var session = store.OpenSession())
-            {
-                using (var transaction = new TransactionScope())
-                {
-                    session.Save(user);
-                    transaction.Complete();
-                }
-            }
+        //    using(var session = store.OpenSession())
+        //    {
+        //        using (var transaction = new TransactionScope())
+        //        {
+        //            session.Save(user);
+        //            transaction.Complete();
+        //        }
+        //    }
 
-            using(var session = store.OpenSession())
-            {
-                var loadedUser = session.Get<User>(user.Id);
+        //    using(var session = store.OpenSession())
+        //    {
+        //        var loadedUser = session.Get<User>(user.Id);
 
-                Assert.That(loadedUser.Id, Is.EqualTo(user.Id));
-                Assert.That(loadedUser.Email, Is.EqualTo(user.Email));
-                Assert.That(loadedUser.Password, Is.EqualTo(user.Password));
+        //        Assert.That(loadedUser.Id, Is.EqualTo(user.Id));
+        //        Assert.That(loadedUser.Email, Is.EqualTo(user.Email));
+        //        Assert.That(loadedUser.Password, Is.EqualTo(user.Password));
 
-            }
-        }
+        //    }
+        //}
 
-        [Test]
-        public void SaveChangesAndCommitWhenTransientTransactionDoesSoWhenDisposedWithinTransaction()
+        //[Test]
+        //public void SaveChangesAndCommitWhenTransientTransactionDoesSoWhenDisposedWithinTransaction()
+        //{
+        //    var store = CreateStore();
+
+        //    var user = new User();
+        //    user.Register("email@email.se", "password", Guid.NewGuid());
+        //    user.ChangePassword("NewPassword");
+        //    user.ChangeEmail("NewEmail");
+
+        //    using (var transaction = new TransactionScope())
+        //    {
+        //        using(var session = store.OpenSession())
+        //        {
+        //            session.Save(user);
+        //            transaction.Complete();
+        //        }
+        //    }
+
+        //    using (var session = store.OpenSession())
+        //    {
+        //        var loadedUser = session.Get<User>(user.Id);
+
+        //        Assert.That(loadedUser.Id, Is.EqualTo(user.Id));
+        //        Assert.That(loadedUser.Email, Is.EqualTo(user.Email));
+        //        Assert.That(loadedUser.Password, Is.EqualTo(user.Password));
+
+        //    }
+        //}
+    }
+
+    public class NoSqlTest
+    {
+        static NoSqlTest()
         {
-            var store = CreateStore();
-
-            var user = new User();
-            user.Register("email@email.se", "password", Guid.NewGuid());
-            user.ChangePassword("NewPassword");
-            user.ChangeEmail("NewEmail");
-
-            using (var transaction = new TransactionScope())
-            {
-                using(var session = store.OpenSession())
-                {
-                    session.Save(user);
-                    transaction.Complete();
-                }
-            }
-
-            using (var session = store.OpenSession())
-            {
-                var loadedUser = session.Get<User>(user.Id);
-
-                Assert.That(loadedUser.Id, Is.EqualTo(user.Id));
-                Assert.That(loadedUser.Email, Is.EqualTo(user.Email));
-                Assert.That(loadedUser.Password, Is.EqualTo(user.Password));
-
-            }
+            log4net.Config.XmlConfigurator.Configure();
         }
     }
 }

@@ -30,6 +30,7 @@ namespace Composable.CQRS
         public void Execute(TCommand command)
         {
             _session.Get<TEntity>((Guid)command.EntityId).Execute(command);
+            _session.SaveChanges();
         }
     }
 }

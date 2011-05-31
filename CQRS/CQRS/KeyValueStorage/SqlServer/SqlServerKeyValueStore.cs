@@ -9,6 +9,7 @@ using System.Transactions;
 using Composable.DDD;
 using Composable.NewtonSoft;
 using Composable.System;
+using log4net;
 using Newtonsoft.Json;
 
 #endregion
@@ -37,6 +38,8 @@ namespace Composable.KeyValueStorage.SqlServer
 
         private class SqlServerKeyValueSession : IKeyValueStoreSession, IEnlistmentNotification
         {
+            private static readonly ILog Log = LogManager.GetLogger(typeof(SqlServerKeyValueSession));
+
             private readonly JsonSerializerSettings JsonSettings = new JsonSerializerSettings
                                                                        {
                                                                            
@@ -50,9 +53,8 @@ namespace Composable.KeyValueStorage.SqlServer
             private readonly Dictionary<Guid, object> _idMap = new Dictionary<Guid, object>();
             private readonly HashSet<Guid> _persistentValues = new HashSet<Guid>();
             private readonly SqlConnection _connection;            
-            private bool _enlisted;
             private const int UniqueConstraintViolationErrorNumber = 2627;
-            private int SqlBatchSize = 10;
+            private readonly int SqlBatchSize = 10;
 
 
             private static readonly HashSet<String> VerifiedTables = new HashSet<String>();
@@ -78,15 +80,17 @@ namespace Composable.KeyValueStorage.SqlServer
                 }
             }
 
-            private static int instances;
             public SqlServerKeyValueSession(SqlServerKeyValueStore store, SqlServerKeyValueStoreConfig config)
             {
-                //Console.WriteLine("{0}: {1}", GetType().Name, ++instances);
+                Log.Debug("Constructor called");
                 _store = store;
                 _config = config;
                 _connection = new SqlConnection(store._connectionString);
                 _connection.Open();
+                EnlistInAmbientTransaction();
+                
                 EnsureTableExists();
+
 
                 if(!config.Batching)
                 {
@@ -181,7 +185,7 @@ CREATE TABLE [dbo].[Store](
                     {
                         while(reader.Read())
                         {
-                            yield return (T)JsonConvert.DeserializeObject((String)reader.GetString(0), typeof(T), JsonSettings);
+                            yield return (T)JsonConvert.DeserializeObject(reader.GetString(0), typeof(T), JsonSettings);
                         }
                     }
                 }
@@ -228,25 +232,26 @@ CREATE TABLE [dbo].[Store](
 
             public void SaveChanges()
             {
-                Log("saving changes in: {0}", Me);
+                Log.DebugFormat("saving changes in: {0}", Me);
                 InsertValues(_idMap.Where(entry => !_persistentValues.Contains(entry.Key)));
                 UpdateValues(_idMap.Where(entry => _persistentValues.Contains(entry.Key)));
             }
 
 
 
-            private readonly HashSet<Transaction> enlistedIn = new HashSet<Transaction>();
             private readonly Guid Me = Guid.NewGuid();
+
+            private bool _enlisted;
             private void EnlistInAmbientTransaction()
             {
-                if (Transaction.Current != null && !enlistedIn.Contains(Transaction.Current))
+                if (!_enlisted && Transaction.Current != null)
                 {
                     Transaction.Current.EnlistVolatile(this, EnlistmentOptions.EnlistDuringPrepareRequired);
-                    enlistedIn.Add(Transaction.Current);
+                    _enlisted = true;
+
                     _connection.EnlistTransaction(Transaction.Current);
-                    Log("enlisting in local: {0} in {1}", Me, Transaction.Current.TransactionInformation.LocalIdentifier);
-                    Log("enlisting in distributed: {0} in {1}", Me, Transaction.Current.TransactionInformation.DistributedIdentifier);
-                    Log("enlistments: {0} for {1}", enlistedIn.Count, Me);                    
+                    Log.DebugFormat("enlisting in local: {0} in {1}", Me, Transaction.Current.TransactionInformation.LocalIdentifier);
+                    Log.DebugFormat("enlisting in distributed: {0} in {1}", Me, Transaction.Current.TransactionInformation.DistributedIdentifier);
                 }
             }
 
@@ -284,7 +289,7 @@ CREATE TABLE [dbo].[Store](
                     using(var command = _connection.CreateCommand())
                     {
                         command.CommandType = CommandType.Text;
-                        KeyValuePair<Guid, object> entry = new KeyValuePair<Guid, object>();
+                        var entry = new KeyValuePair<Guid, object>();
                         for(var handledInBatch = 0; handledInBatch < SqlBatchSize && handled < eventCount; handledInBatch++, handled++)
                         {
                             entry = values.ElementAt(handledInBatch);
@@ -324,7 +329,7 @@ CREATE TABLE [dbo].[Store](
                 if (!_disposed)
                 {
                     _disposed = true;
-                    Log("disposing {0}", Me);
+                    Log.DebugFormat("disposing {0}", Me);
                     //Console.WriteLine("{0}: {1}", GetType().Name, --instances);
                     _connection.Dispose();
                     _idMap.Clear();
@@ -335,16 +340,16 @@ CREATE TABLE [dbo].[Store](
             {
                 try
                 {
-                    Log("prepare called on {0} with {1} changes from transaction", Me, _idMap.Count);
-                    
+                    Log.DebugFormat("prepare called on {0} with {1} changes from transaction", Me, _idMap.Count());
+
                     SaveChanges();
 
                     preparingEnlistment.Prepared();
-                    Log("prepare completed on {0}", Me);
+                    Log.DebugFormat("prepare completed on {0}", Me);
                 }
                 catch (Exception e)
                 {
-                    Log("prepare failed on {0}", e);
+                    Log.Error("prepare failed", e);
                     preparingEnlistment.ForceRollback(e);
                 }
             }
@@ -353,14 +358,16 @@ CREATE TABLE [dbo].[Store](
             {
                 try
                 {
-                    Log("commit called on {0}", Me);
-                    _enlisted = false;
-                    enlistment.Done();
+                    Log.DebugFormat("commit called on {0}", Me);
+                    _enlisted = false;                    
                     HandleScheduledDispose();
                 }
                 catch (Exception e)
                 {
-                    Log("commit failed on {0}", e);
+                    Log.Error("commit failed", e);
+                }finally
+                {
+                    enlistment.Done();
                 }
             }
 
@@ -368,13 +375,16 @@ CREATE TABLE [dbo].[Store](
             {
                 try
                 {
-                    Log("rollback called on {0}", Me);
+                    Log.DebugFormat("rollback called on {0}", Me);
                     _enlisted = false;
-                    HandleScheduledDispose();
+                    HandleScheduledDispose();                    
                 }
                 catch (Exception e)
                 {
-                    Log("rollback failed on {0}", e);
+                    Log.Error("rollback failed", e);
+                }finally
+                {
+                    enlistment.Done();
                 }
             }
 
@@ -382,14 +392,16 @@ CREATE TABLE [dbo].[Store](
             {
                 try
                 {
-                    Log("indoubt called on {0}", Me);
-                    _enlisted = false;
-                    enlistment.Done();
+                    Log.DebugFormat("indoubt called on {0}", Me);
+                    _enlisted = false;                    
                     HandleScheduledDispose();
                 }
                 catch(Exception e)
                 {
-                    Log("Indoubt failed on {0}", e);
+                    Log.Error("Indoubt failed", e);
+                }finally
+                {
+                    enlistment.Done();
                 }
             }
 
@@ -403,14 +415,14 @@ CREATE TABLE [dbo].[Store](
                 }
             }
 
-            private bool _scheduledForDisposeAfterTransactionDone;
+            private bool _scheduledForDisposeAfterTransactionDone;            
 
             public void DisposeIfNotEnlisted()
             {
-                Log("attempting dispose for {0}", Me);
-                if(enlistedIn.Any())
+                Log.DebugFormat("attempting dispose for {0}", Me);
+                if(_enlisted)
                 {
-                    Log("scheduling dispose for {0}", Me);
+                    Log.DebugFormat("scheduling dispose for {0}", Me);
                     _scheduledForDisposeAfterTransactionDone = true;
                 }
                 else
@@ -431,12 +443,6 @@ DROP TABLE [dbo].[Store]";
                     TableVerifiedToExist = false;
                 }
             }
-
-            private void Log(string message, params object[] @params)
-            {
-                //Console.WriteLine("{0} : ".FormatWith(GetType().Name) + " " + message, @params);
-            }
-
         }
 
         private class SessionDisposeWrapper : KeyValueStoreSessionProxy

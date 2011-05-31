@@ -7,6 +7,7 @@ using System.Transactions;
 using Composable.CQRS.EventSourcing.SQLServer;
 using Composable.System.Linq;
 using Composable.System;
+using log4net;
 
 #endregion
 
@@ -14,11 +15,17 @@ namespace Composable.CQRS.EventSourcing
 {
     public abstract class EventStoreSession : IEventStoreSession, IEnlistmentNotification
     {
+        private static ILog Log = LogManager.GetLogger(typeof(EventStoreSession));
         protected readonly IDictionary<Guid, IEventStored> _idMap = new Dictionary<Guid, IEventStored>();
         private bool _enlisted;
         private bool _disposedScheduledForAfterTransactionDone;
 
         protected abstract IEnumerable<IAggregateRootEvent> GetHistoryUnSafe(Guid aggregateId);
+
+        protected EventStoreSession()
+        {
+            EnlistInAmbientTransaction();
+        }
 
         private IEnumerable<IAggregateRootEvent> GetHistory(Guid aggregateId)
         {
@@ -79,7 +86,7 @@ namespace Composable.CQRS.EventSourcing
 
         public void SaveChanges()
         {
-            Log("saving changes with {0} changes from transaction", _idMap.Count);
+            Log.DebugFormat("saving changes with {0} changes from transaction", _idMap.Count);
             SaveEvents(_idMap.SelectMany(p => p.Value.GetChanges()));
             _idMap.Select(p => p.Value).ForEach(p => p.AcceptChanges());
         }
@@ -87,13 +94,16 @@ namespace Composable.CQRS.EventSourcing
         protected abstract void SaveEvents(IEnumerable<IAggregateRootEvent> events);
         public abstract void Dispose();
 
+        private readonly Guid Me = Guid.NewGuid();
         private void EnlistInAmbientTransaction()
         {
             if(Transaction.Current != null && !_enlisted)
             {
                 Transaction.Current.EnlistVolatile(this, EnlistmentOptions.EnlistDuringPrepareRequired);
                 _enlisted = true;
-                Log("enlisted in transaction {0}", Transaction.Current.TransactionInformation.LocalIdentifier);
+
+                Log.DebugFormat("enlisting in local: {0} in {1}", Me, Transaction.Current.TransactionInformation.LocalIdentifier);
+                Log.DebugFormat("enlisting in distributed: {0} in {1}", Me, Transaction.Current.TransactionInformation.DistributedIdentifier);
             }
         }
 
@@ -101,37 +111,64 @@ namespace Composable.CQRS.EventSourcing
         {
             try
             {
-                Log("prepare called with {0} changes from transaction", _idMap.Count);
+                Log.DebugFormat("prepare called with {0} changes from transaction", _idMap.Count);
                 SaveChanges();
                 preparingEnlistment.Prepared();
-                Log("prepare completed with {0} changes from transaction", _idMap.Count);
+                DisposeIfScheduled();
+                Log.DebugFormat("prepare completed with {0} changes from transaction", _idMap.Count);
             }catch(Exception e)
             {
-                Log("prepare failed with: {0}", e);
+                Log.Error("prepare failed", e);
                 preparingEnlistment.ForceRollback(e);                
             }
         }
 
         void IEnlistmentNotification.Commit(Enlistment enlistment)
         {
-            Log("commit called with {0} changes from transaction", _idMap.Count);
-            _enlisted = false;
-            enlistment.Done();
-            DisposeIfScheduled();
+            try
+            {
+                Log.DebugFormat("commit called with {0} changes from transaction", _idMap.Count);
+                _enlisted = false;                
+                DisposeIfScheduled();
+            }catch(Exception e)
+            {
+                Log.Error("Commit failed", e);
+            }finally
+            {
+                enlistment.Done();
+            }
         }        
 
         void IEnlistmentNotification.Rollback(Enlistment enlistment)
         {
-            Log("rollback called with {0} changes from transaction", _idMap.Count);
-            _enlisted = false;
-            DisposeIfScheduled();
+            try
+            {
+                Log.DebugFormat("rollback called with {0} changes from transaction", _idMap.Count);
+                _enlisted = false;
+                DisposeIfScheduled();
+            }catch(Exception e)
+            {
+                Log.Error("Rollback failed", e);
+            }finally
+            {
+                enlistment.Done();
+            }
         }
 
         public void InDoubt(Enlistment enlistment)
         {
-            Log("indoubt called with {0} changes from transaction", _idMap.Count);
-            _enlisted = false;
-            enlistment.Done();
+            try
+            {
+                Log.DebugFormat("indoubt called with {0} changes from transaction", _idMap.Count);
+                _enlisted = false;
+                DisposeIfScheduled();
+            }catch(Exception e)
+            {
+                Log.Error("Indoubt failed", e);
+            }finally
+            {
+                enlistment.Done();
+            }
         }
 
         private void DisposeIfScheduled()
@@ -151,11 +188,6 @@ namespace Composable.CQRS.EventSourcing
             {
                 Dispose();
             }
-        }
-
-        private void Log(string message, params object[] @params)
-        {
-            //Console.WriteLine("{0} : ".FormatWith(GetType().Name)  + " " + message, @params);
         }
     }
 }

@@ -14,5 +14,11 @@ namespace Composable.System.Linq
         {
             return new HashSet<T>(me);
         }
+
+        public static void AddOrReplace<T>(this HashSet<T> me, T value)
+        {
+            me.Remove(value);
+            me.Add(value);
+        }
     }
 }

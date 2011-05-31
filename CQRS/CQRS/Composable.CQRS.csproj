@@ -49,6 +49,9 @@
     <Reference Include="Newtonsoft.Json, Version=4.0.2.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\..\packages\Newtonsoft.Json.4.0.2\lib\net40\Newtonsoft.Json.dll</HintPath>
     </Reference>
+    <Reference Include="NServiceBus">
+      <HintPath>..\..\packages\nservicebus.2.5.0.1446\lib\net40\NServiceBus.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.configuration" />
     <Reference Include="System.Core" />
@@ -91,6 +94,9 @@
     <Compile Include="CQRS\EventSourcing\SQLServer\InvalidHistoryException.cs" />
     <Compile Include="CQRS\IEntityReference.cs" />
     <Compile Include="CQRS\INamed.cs" />
+    <Compile Include="CQRS\TypeExtensions.cs" />
+    <Compile Include="CQRS\ViewModels\IViewModelUpdater.cs" />
+    <Compile Include="CQRS\ViewModels\ViewModelUpdater.cs" />
     <Compile Include="KeyValueStorage\KeyValueStoreSessionProxy.cs" />
     <Compile Include="KeyValueStorage\SqlServer\TooManyItemsDeletedException.cs" />
     <Compile Include="NewtonSoft\IncludeMembersWithPrivateSettersResolver.cs" />

@@ -102,11 +102,6 @@ namespace Composable.AutoMapper
             return () => engine;
         }
 
-        public static TTarget MapTo<TSource, TTarget>(this TSource me)
-        {
-            return Engine.Map<TSource, TTarget>(me);
-        }
-
         public static TTarget MapTo<TTarget>(this object me)
         {
             return (TTarget)Engine.Map(me, me.GetType(), typeof(TTarget));

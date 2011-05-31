@@ -1,6 +1,7 @@
 #region usings
 
 using System;
+using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using System.Linq;
 
@@ -33,6 +34,21 @@ namespace Composable.System.Reflection
             }
 
             return implemented.IsAssignableFrom(me);
+        }
+
+        public static IEnumerable<Type> GetAllTypesInheritedOrImplemented(this Type me)
+        {
+            return me.GetClassInheritanceChain().Concat(me.GetInterfaces());
+        }
+
+        public static IEnumerable<Type> GetClassInheritanceChain(this Type me)
+        {
+            yield return me;
+            while (me.BaseType != null)
+            {
+                me = me.BaseType;
+                yield return me;
+            }
         }
     }
 }

@@ -5,10 +5,15 @@ using System.Linq;
 
 namespace Composable.StuffThatDoesNotBelongHere
 {
-    public class EventPersister<TImplementor, TEvent> : IEventPersister<TEvent> where TEvent : IDomainEvent
+    public class EventPersister<TImplementor, TEvent> : IEventPersister<TEvent> 
+        where TEvent : IDomainEvent
+        where TImplementor : EventPersister<TImplementor, TEvent>
     {
-        private static readonly Dictionary<Type, Action<TEvent>> Handlers = new Dictionary<Type, Action<TEvent>>();
+        private static readonly Dictionary<Type, Action<TImplementor, TEvent>> Handlers = new Dictionary<Type, Action<TImplementor, TEvent>>();
         private static bool ShouldIgnoreUnHandled;
+
+        private static Action<TImplementor, TEvent> RunBeforeHandlers = (_,__) => { };
+        private static Action<TImplementor, TEvent> RunAfterHandlers = (_, __) => { };
 
         protected static void IgnoreUnHandled()
         {
@@ -21,16 +26,36 @@ namespace Composable.StuffThatDoesNotBelongHere
         }
 
         public class RegistrationBuilder
-        {
-            public RegistrationBuilder For<THandledEvent>(Action<THandledEvent> handler) where THandledEvent : TEvent
+        {            
+            public RegistrationBuilder For<THandledEvent>(Action<TImplementor, THandledEvent> handler) where THandledEvent : TEvent
             {
-                Handlers.Add(typeof(THandledEvent), theEvent => handler((THandledEvent)theEvent));
+                Handlers.Add(typeof(THandledEvent), (me, @event) => handler(me, (THandledEvent)@event));
+                return this;
+            }
+
+            public RegistrationBuilder BeforeHandlers(Action<TImplementor, TEvent> runBeforeHandlers)
+            {
+                RunBeforeHandlers = runBeforeHandlers;
+                return this;
+            }
+
+            public RegistrationBuilder AfterHandlers(Action<TImplementor, TEvent> runAfterHandlers)
+            {
+                RunAfterHandlers = runAfterHandlers;
                 return this;
             }
         }
 
         public void Persist(TEvent evt)
         {
+            var handler = GetHandler(evt);
+            var implementor = (TImplementor)this;
+            RunBeforeHandlers(implementor, evt);
+            handler(implementor, evt);    
+            RunBeforeHandlers(implementor, evt);
+        }
+
+        private static Action<TImplementor, TEvent> GetHandler(TEvent evt) {
             var handlers = Handlers
                 .Where(registration => registration.Key.IsAssignableFrom(evt.GetType()))
                 .Select(registration => registration.Value);
@@ -42,17 +67,15 @@ namespace Composable.StuffThatDoesNotBelongHere
 
             var handler = handlers.SingleOrDefault();
 
-            if(handler != null)
+            if(handler == null)
             {
-                handler(evt);
+                if (ShouldIgnoreUnHandled)
+                {
+                    return handler;
+                }
+                throw new EventUnhandledException(evt);
             }
-
-            if(ShouldIgnoreUnHandled)
-            {
-                return;
-            }
-
-            throw new EventUnhandledException(evt);
+            return handler;
         }
     }
 

@@ -7,8 +7,9 @@ using System.Diagnostics;
 
 namespace Composable.DDD
 {
-    public class IdEqualityObject<TEntity, TKEy> : IEquatable<TEntity> where TEntity : IdEqualityObject<TEntity, TKEy>
+    public class IdEqualityObject<TEntity, TKEy> : IEquatable<TEntity>, IHasPersistentIdentity<TKEy> where TEntity : IdEqualityObject<TEntity, TKEy>
     {
+        protected IdEqualityObject(){}
         protected IdEqualityObject(TKEy id)
         {
             Id = id;
@@ -66,6 +67,7 @@ namespace Composable.DDD
 
     public class IdEqualityObject<TEntity> : IdEqualityObject<TEntity, Guid> where TEntity : IdEqualityObject<TEntity>
     {
+        protected IdEqualityObject(){}
         protected IdEqualityObject(Guid id) : base(id) {}
     }
 

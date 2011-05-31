@@ -8,6 +8,8 @@ using System.Linq;
 using Composable.NewtonSoft;
 using Composable.System;
 using Composable.System.Linq;
+using log4net;
+using log4net.Core;
 using Newtonsoft.Json;
 
 #endregion
@@ -49,6 +51,7 @@ namespace Composable.CQRS.EventSourcing.SQLServer
 
     public class SqlServerEventStoreSession : EventStoreSession
     {
+        private static ILog Log = LogManager.GetLogger(typeof(SqlServerEventStoreSession));
         private static readonly HashSet<String> VerifiedTables = new HashSet<String>();
         private bool EventsTableVerifiedToExist
         {
@@ -88,6 +91,7 @@ namespace Composable.CQRS.EventSourcing.SQLServer
         private static int instances;
         public SqlServerEventStoreSession(SqlServerEventStore store)
         {
+            Log.Debug("Constructor called");
             //Console.WriteLine("{0}: {1}", GetType().Name, ++instances);
             _store = store;
             _connection = new SqlConnection(_store.ConnectionString);

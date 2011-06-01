@@ -9,13 +9,13 @@ using Composable.Persistence;
 
 namespace Composable.CQRS
 {
-    public class EntityCommandHandler<TEntity, TCommand> : ICommandHandler<TCommand>
+    public class ForwardToEntityCommandHandler<TEntity, TCommand> : ICommandHandler<TCommand>
         where TEntity : AggregateRoot<TEntity>, IEntityCommandHandler<TCommand>
         where TCommand : IEntityHandledCommand
     {
         private readonly IEventStoreSession _session;
 
-        protected EntityCommandHandler(IEventStoreSession session)
+        protected ForwardToEntityCommandHandler(IEventStoreSession session)
         {
             Contract.Requires(session != null);
             _session = session;

@@ -74,7 +74,7 @@
     <Compile Include="CQRS\Command\CommandValidationService.cs" />
     <Compile Include="CQRS\Command\ForceDistributedTransactionsCommandServiceDecorator.cs" />
     <Compile Include="CQRS\Command\GlobalValidationFailure.cs" />
-    <Compile Include="CQRS\Command\EntityCommandHandler.cs" />
+    <Compile Include="CQRS\Command\ForwardToEntityCommandHandler.cs" />
     <Compile Include="CQRS\Command\ICommandHandler.cs" />
     <Compile Include="CQRS\Command\ICommandService.cs" />
     <Compile Include="CQRS\Command\ICommandValidationService.cs" />
@@ -114,7 +114,7 @@
     <Compile Include="StuffThatDoesNotBelongHere\EventPersistenceService.cs" />
     <Compile Include="CQRS\EventSourcing\AggregateRoot.cs" />
     <Compile Include="CQRS\EventSourcing\IEventApplier.cs" />
-    <Compile Include="StuffThatDoesNotBelongHere\EventPersister.cs" />
+    <Compile Include="StuffThatDoesNotBelongHere\MultiEventHandler.cs" />
     <Compile Include="StuffThatDoesNotBelongHere\IEventPersistenceService.cs" />
     <Compile Include="StuffThatDoesNotBelongHere\IEventPersister.cs" />
     <Compile Include="Persistence\IEntityFetcher.cs" />

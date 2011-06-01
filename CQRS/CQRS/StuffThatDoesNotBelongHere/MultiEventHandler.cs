@@ -5,9 +5,9 @@ using System.Linq;
 
 namespace Composable.StuffThatDoesNotBelongHere
 {
-    public class EventPersister<TImplementor, TEvent> : IEventPersister<TEvent> 
+    public class MultiEventHandler<TImplementor, TEvent>
         where TEvent : IDomainEvent
-        where TImplementor : EventPersister<TImplementor, TEvent>
+        where TImplementor : MultiEventHandler<TImplementor, TEvent>
     {
         private static readonly Dictionary<Type, Action<TImplementor, TEvent>> Handlers = new Dictionary<Type, Action<TImplementor, TEvent>>();
         private static bool ShouldIgnoreUnHandled;

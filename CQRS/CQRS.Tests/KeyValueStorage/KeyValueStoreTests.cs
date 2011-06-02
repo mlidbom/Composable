@@ -193,6 +193,60 @@ namespace CQRS.Tests.KeyValueStorage
             });
         }
 
+        [Test]
+        public void HandlesInstancesOfDifferentTypesWithTheSameId()
+        {
+            var store = CreateStore();
+
+            var user = new User()
+            {
+                Id = Guid.NewGuid(),
+                Email = "email"
+            };
+
+            var dog = new Dog() { Id = user.Id };
+
+            using (var session = store.OpenSession())
+            {
+                session.Save(user.Id, user);
+                session.Save(dog);
+                session.SaveChanges();
+            }
+
+            using (var session = store.OpenSession())
+            {
+                var loadedDog = session.Get<Dog>(dog.Id);
+                var loadedUser = session.Get<User>(dog.Id);
+
+                Assert.That(loadedDog.Name, Is.EqualTo(dog.Name));
+                Assert.That(loadedUser.Email, Is.EqualTo(user.Email));
+                Assert.That(loadedDog.Id, Is.EqualTo(user.Id));
+                Assert.That(loadedUser.Id, Is.EqualTo(user.Id));
+            }
+        }
+
+
+        [Test]
+        public void FetchesAllinstancesPerType()
+        {
+            var store = CreateStore();
+
+            using (var session = store.OpenSession())
+            {
+                session.Save(new User(){ Id = Guid.NewGuid() });
+                session.Save(new User() { Id = Guid.NewGuid() });
+                session.Save(new Dog() { Id = Guid.NewGuid() });
+                session.Save(new Dog() { Id = Guid.NewGuid() });
+                session.SaveChanges();
+            }
+
+            using (var session = store.OpenSession())
+            {
+                Assert.That(session.GetAll<Dog>().ToList(), Has.Count.EqualTo(2));
+                Assert.That(session.GetAll<User>().ToList(), Has.Count.EqualTo(2));
+            }
+        }
+
 
         //[Test]
         //public void SaveChangesAndCommitWhenTransientTransactionDoesSo()

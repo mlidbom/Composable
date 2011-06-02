@@ -31,6 +31,6 @@ namespace Composable.DDD
         }
 
         ///<summary>Contains the current version of the entity</summary>
-        public virtual int Version { get; private set; }
+        public virtual int Version { get; protected set; }
     }
 }

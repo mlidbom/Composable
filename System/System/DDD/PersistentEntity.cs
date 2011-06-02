@@ -7,6 +7,14 @@ using System.Diagnostics;
 
 namespace Composable.DDD
 {
+    /// <summary>
+    /// Base class for any class that considers equality to be that the Ids for two instances are the same.
+    /// 
+    /// It provides implementations of GetHashCode, Equals as well as the == and != operators
+    /// Equals is implemented as: return !ReferenceEquals(null, other) && other.Id.Equals(Id);
+    /// the operators simply uses Equals.
+    /// 
+    /// </summary>
     public class IdEqualityObject<TEntity, TKEy> : IEquatable<TEntity>, IHasPersistentIdentity<TKEy> where TEntity : IdEqualityObject<TEntity, TKEy>
     {
         protected IdEqualityObject(){}
@@ -38,7 +46,7 @@ namespace Composable.DDD
         /// </summary>
         public override bool Equals(object other)
         {
-            return (other is TEntity) && Equals((TEntity)((TEntity)other));
+            return Equals(other as TEntity);
         }
 
         /// <summary>Implements: <see cref="object.GetHashCode"/></summary>

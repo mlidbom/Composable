@@ -4,13 +4,14 @@ using System.Transactions;
 using Composable.DDD;
 using Composable.System.Linq;
 using System.Linq;
+using Composable.System.Collections.Collections;
 
 namespace Composable.KeyValueStorage
 {
     public class InMemoryKeyValueSession : IEnlistmentNotification, IKeyValueStoreSession
     {
         private readonly InMemoryKeyValueStore _store;
-        private Dictionary<Guid, object> _idMap = new Dictionary<Guid, object>();
+        private Dictionary<Type, Dictionary<Guid, object>> _idMap = new Dictionary<Type, Dictionary<Guid, object>>();
         private bool _enlisted;
 
         public InMemoryKeyValueSession(InMemoryKeyValueStore store)
@@ -22,15 +23,15 @@ namespace Composable.KeyValueStorage
         public bool TryGet<TValue>(Guid key, out TValue value)
         {
             object found;
-            if (_idMap.TryGetValue(key, out found))
+            if (_idMap.GetOrAddDefault(typeof(TValue)).TryGetValue(key, out found))
             {
                 value = (TValue)found;
                 return true;
             }
 
-            if (_store._store.TryGetValue(key, out found))
+            if (_store._store.GetOrAddDefault(typeof(TValue)).TryGetValue(key, out found))
             {
-                _idMap.Add(key, found);
+                _idMap.GetOrAddDefault(typeof(TValue)).Add(key, found);
                 value = (TValue)found;
                 return true;
             }
@@ -54,11 +55,11 @@ namespace Composable.KeyValueStorage
         {
             EnlistInAmbientTransaction();
 
-            if(_idMap.ContainsKey(key) || _store._store.ContainsKey(key))
+            if (_idMap.GetOrAddDefault(value.GetType()).ContainsKey(key) || _store._store.GetOrAddDefault(typeof(TValue)).ContainsKey(key))
             {
                 throw new AttemptToSaveAlreadyPersistedValueException(key, value);
             }
-            _idMap.Add(key, value);
+            _idMap.GetOrAddDefault(value.GetType()).Add(key, value);
         }
 
         public void Save<TEntity>(TEntity entity) where TEntity : IHasPersistentIdentity<Guid>
@@ -68,21 +69,23 @@ namespace Composable.KeyValueStorage
 
         public void Delete<TEntity>(TEntity entity) where TEntity : IHasPersistentIdentity<Guid>
         {
-            _idMap.Remove(entity.Id);
-            _store._store.Remove(entity.Id);
+            _idMap.GetOrAddDefault(typeof(TEntity)).Remove(entity.Id);
+            _store._store.GetOrAddDefault(typeof(TEntity)).Remove(entity.Id);
         }
 
         public void SaveChanges()
         {
             EnlistInAmbientTransaction();
-            _idMap.ForEach(entry => _store._store[entry.Key] = entry.Value);            
+            _idMap.ForEach(typeToContents => 
+                typeToContents.Value.ForEach(
+                    idToInsntance => _store._store.GetOrAddDefault(typeToContents.Key)[idToInsntance.Key] = idToInsntance.Value));            
         }
 
         public IEnumerable<T> GetAll<T>()
         {
-            return _idMap
+            return _idMap.GetOrAddDefault(typeof(T))
                 .Select(pair => pair.Value)
-                .Concat(_store._store.Select(pair => pair.Value))
+                .Concat(_store._store.GetOrAddDefault(typeof(T)).Select(pair => pair.Value))
                 .OfType<T>().Distinct();
         }
 

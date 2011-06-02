@@ -15,28 +15,8 @@ namespace Composable.DDD
     /// 
     /// * Classes that have a lifecycle longer than an application run. Often persisted in databases.
     /// </summary>
-    /// <typeparam name="TKeyType"></typeparam>
-    [ContractClass(typeof(PersistentEntityContract<>))]
+    /// <typeparam name="TKeyType"></typeparam>    
     public interface IPersistentEntity<out TKeyType> : IHasPersistentIdentity<TKeyType>
     {        
-    }
-
-    [ContractClassFor(typeof(IPersistentEntity<>))]
-    internal abstract class PersistentEntityContract<T> : IPersistentEntity<T>
-    {
-        [ContractInvariantMethod]
-        private void Invariants()
-        {
-            Contract.Invariant(!Equals(((IPersistentEntity<T>)this).Id, default(T)));
-        }
-
-        T IHasPersistentIdentity<T>.Id
-        {
-            get
-            {
-                Contract.Ensures(!Equals(Contract.Result<T>(), default(T)));
-                return default(T);
-            }
-        }
     }
 }

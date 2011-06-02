@@ -10,8 +10,9 @@ namespace Composable.DDD
     /// <summary>
     /// Base class for any class that considers equality to be that the Ids for two instances are the same.
     /// 
-    /// It provides implementations of GetHashCode, Equals as well as the == and != operators
-    /// Equals is implemented as: return !ReferenceEquals(null, other) && other.Id.Equals(Id);
+    /// It provides implementations of  <see cref="object.Equals(object)"/>, <see cref="object.GetHashCode"/>, and <see cref="IEquatable{T}"/>.
+    /// 
+    /// Equals is implemented as: return <code>!ReferenceEquals(null, other) && other.Id.Equals(Id)</code>
     /// the operators simply uses Equals.
     /// 
     /// </summary>
@@ -90,7 +91,9 @@ namespace Composable.DDD
     /// </summary>
     [DebuggerDisplay("{GetType().Name} Id={Id}")]
     [Serializable]
+#pragma warning disable 660,661
     public class PersistentEntity<TEntity> : IdEqualityObject<TEntity, Guid>, IPersistentEntity<Guid> where TEntity : PersistentEntity<TEntity>
+#pragma warning restore 660,661
     {
         /// <summary>
         /// Creates an instance using the supplied <paramref name="id"/> as the Id.

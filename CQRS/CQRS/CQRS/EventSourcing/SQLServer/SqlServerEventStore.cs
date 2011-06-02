@@ -88,7 +88,6 @@ namespace Composable.CQRS.EventSourcing.SQLServer
                                                                        ContractResolver = new IncludeMembersWithPrivateSettersResolver()
                                                                    };
 
-        private static int instances;
         public SqlServerEventStoreSession(SqlServerEventStore store)
         {
             Log.Debug("Constructor called");

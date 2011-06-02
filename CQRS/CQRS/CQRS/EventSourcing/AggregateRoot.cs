@@ -8,7 +8,7 @@ using Newtonsoft.Json;
 
 namespace Composable.CQRS.EventSourcing
 {
-    public class AggregateRoot<TEntity> : PersistentEntity<TEntity>, IEventStored where TEntity : PersistentEntity<TEntity>
+    public class AggregateRoot<TEntity> : VersionedPersistentEntity<TEntity>, IEventStored where TEntity : AggregateRoot<TEntity>
     {
         private readonly IList<IAggregateRootEvent> _unCommittedEvents = new List<IAggregateRootEvent>();
         
@@ -35,9 +35,7 @@ namespace Composable.CQRS.EventSourcing
             evt.AggregateRootId = Id;
             _unCommittedEvents.Add(evt);
             DomainEvent.Raise(evt);//Fixme: Don't do this synchronously!
-        }
-
-        public int Version { get; set; }
+        }        
 
         private void DoApply(IAggregateRootEvent evt)
         {

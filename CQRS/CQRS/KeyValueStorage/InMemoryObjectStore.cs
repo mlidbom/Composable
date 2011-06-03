@@ -7,16 +7,6 @@ using Composable.System.Linq;
 
 namespace Composable.KeyValueStorage
 {
-    public interface IObjectStore
-    {
-        bool TryGet<T>(Guid id, out T value);
-        void Add<T>(Guid id, T value);
-        bool Remove<T>(Guid id);
-        void Update(Guid key, object value);
-        IEnumerable<KeyValuePair<Guid, T>> GetAll<T>();
-        bool Contains(Type type, Guid id);
-    }
-
     public class InMemoryObjectStore : IEnumerable<KeyValuePair<Guid, object>>, IObjectStore
     {
         private List<KeyValuePair<Guid, object>> _db = new List<KeyValuePair<Guid, object>>();

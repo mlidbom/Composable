@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Composable.StuffThatDoesNotBelongHere
+namespace Composable.StuffThatDoesNotBelongHere.Translation
 {
     /// <summary>
     /// Put this attribute on a property of type string to make the <see cref="TranslationInterceptor"/> automatically translate the entity when it is loaded.

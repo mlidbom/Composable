@@ -77,7 +77,7 @@ namespace Composable.KeyValueStorage
 
         public void SaveChanges()
         {
-            _idMap.ForEach(typeToContents => _backingStore.Update(typeToContents.Key, typeToContents.Value));
+            _backingStore.Update(_idMap.AsEnumerable());
         }
 
         public IEnumerable<T> GetAll<T>()

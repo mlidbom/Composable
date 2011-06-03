@@ -79,6 +79,11 @@ namespace Composable.KeyValueStorage
             return GetEnumerator();
         }
 
+        public void Update(IEnumerable<KeyValuePair<Guid, object>> values)
+        {
+            values.ForEach( pair => Update(pair.Key, pair.Value));
+        }
+
         public void Update(Guid key, object value)
         {
             object existing;
@@ -98,6 +103,11 @@ namespace Composable.KeyValueStorage
                 .Where(pair => pair.Value.GetType().IsAssignableFrom(typeof(T)))
                 .Select(pair => new KeyValuePair<Guid, T>(pair.Key, (T) pair.Value))
                 .ToList();
+        }
+
+        public void Dispose()
+        {
+            //Not really anything much to do here....
         }
     }
 }

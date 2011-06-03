@@ -24,13 +24,13 @@ namespace Composable.KeyValueStorage.SqlServer
 
         public IKeyValueStoreSession OpenSession()
         {
-            return new SqlServerKeyValueSession(this);
+            return new KeyValueSession(new SqlServerObjectStore(this));
         }
 
         public static void ResetDB(string connectionString)
         {
             var me = new SqlServerKeyValueStore(connectionString);
-            using (var session = new SqlServerKeyValueSession(me))
+            using (var session = new SqlServerObjectStore(me))
             {
                 session.PurgeDB();
             }

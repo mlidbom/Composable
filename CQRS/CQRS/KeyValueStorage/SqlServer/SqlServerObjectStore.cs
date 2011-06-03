@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
 using System.Linq;
-using Composable.DDD;
 using Composable.NewtonSoft;
 using Composable.System;
 using Newtonsoft.Json;
@@ -15,7 +14,7 @@ namespace Composable.KeyValueStorage.SqlServer
     {
         private static readonly ILog Log = LogManager.GetLogger(typeof(SqlServerObjectStore));
 
-        private readonly JsonSerializerSettings JsonSettings = new JsonSerializerSettings
+        private readonly JsonSerializerSettings _jsonSettings = new JsonSerializerSettings
                                                                    {
                                                                            
                                                                        TypeNameHandling = TypeNameHandling.Auto,
@@ -28,7 +27,7 @@ namespace Composable.KeyValueStorage.SqlServer
 
         private readonly HashSet<Guid> _persistentValues = new HashSet<Guid>();
         private const int UniqueConstraintViolationErrorNumber = 2627;
-        private readonly int SqlBatchSize = 10;
+        private readonly int _sqlBatchSize = 10;
 
         public SqlServerObjectStore(SqlServerKeyValueStore store)
         {
@@ -41,7 +40,7 @@ namespace Composable.KeyValueStorage.SqlServer
 
             if (!_store.Config.Batching)
             {
-                SqlBatchSize = 1;
+                _sqlBatchSize = 1;
             }
         }
 
@@ -64,7 +63,7 @@ namespace Composable.KeyValueStorage.SqlServer
                         {
                             return false;
                         }
-                        found = JsonConvert.DeserializeObject(reader.GetString(0), typeof(TValue), JsonSettings);
+                        found = JsonConvert.DeserializeObject(reader.GetString(0), typeof(TValue), _jsonSettings);
                     }
                 }
             }
@@ -86,7 +85,7 @@ namespace Composable.KeyValueStorage.SqlServer
                     command.Parameters.Add(new SqlParameter("Id", id));
                     command.Parameters.Add(new SqlParameter("ValueType", value.GetType().FullName));
                     command.Parameters.Add(new SqlParameter("Value",
-                                                            JsonConvert.SerializeObject(value, _config.JSonFormatting, JsonSettings)));
+                                                            JsonConvert.SerializeObject(value, _config.JSonFormatting, _jsonSettings)));
                     try
                     {
                         command.ExecuteNonQuery();
@@ -105,9 +104,9 @@ namespace Composable.KeyValueStorage.SqlServer
 
         public bool Remove<T>(Guid id)
         {
-            using (var _connection = OpenSession())
+            using (var connection = OpenSession())
             {
-                using (var command = _connection.CreateCommand())
+                using (var command = connection.CreateCommand())
                 {
                     command.CommandType = CommandType.Text;
                     command.CommandText += "DELETE Store WHERE Id = @Id AND ValueType = @ValueType";
@@ -125,16 +124,17 @@ namespace Composable.KeyValueStorage.SqlServer
 
         public void Update(IEnumerable<KeyValuePair<Guid, object>> values)
         {
-            using (var _connection = OpenSession())
+            values = values.ToList();
+            using (var connection = OpenSession())
             {
                 var handled = 0;
                 var eventCount = values.Count();
                 while (handled < eventCount)
                 {
-                    using (var command = _connection.CreateCommand())
+                    using (var command = connection.CreateCommand())
                     {
                         command.CommandType = CommandType.Text;
-                        for (var handledInBatch = 0; handledInBatch < SqlBatchSize && handled < eventCount; handledInBatch++, handled++)
+                        for (var handledInBatch = 0; handledInBatch < _sqlBatchSize && handled < eventCount; handledInBatch++, handled++)
                         {
                             var entry = values.ElementAt(handledInBatch);
 
@@ -144,7 +144,7 @@ namespace Composable.KeyValueStorage.SqlServer
                             command.Parameters.Add(new SqlParameter("Id" + handledInBatch, entry.Key));
                             command.Parameters.Add(new SqlParameter("ValueType" + handledInBatch, entry.Value.GetType().FullName));
                             command.Parameters.Add(new SqlParameter("Value" + handledInBatch,
-                                                                    JsonConvert.SerializeObject(entry.Value, _config.JSonFormatting, JsonSettings)));
+                                                                    JsonConvert.SerializeObject(entry.Value, _config.JSonFormatting, _jsonSettings)));
                         }
                         command.ExecuteNonQuery();
                     }
@@ -155,9 +155,9 @@ namespace Composable.KeyValueStorage.SqlServer
 
         IEnumerable<KeyValuePair<Guid, T>> IObjectStore.GetAll<T>()
         {
-            using (var _connection = OpenSession())
+            using (var connection = OpenSession())
             {
-                using(var loadCommand = _connection.CreateCommand())
+                using(var loadCommand = connection.CreateCommand())
                 {
                     loadCommand.CommandText = "SELECT Id, Value, ValueType FROM Store WHERE ValueType=@ValueType";
                     loadCommand.Parameters.Add(new SqlParameter("ValueType", typeof(T).FullName));
@@ -167,14 +167,14 @@ namespace Composable.KeyValueStorage.SqlServer
                         {
                             yield return
                                 new KeyValuePair<Guid, T>(reader.GetGuid(0),
-                                (T)JsonConvert.DeserializeObject(reader.GetString(1), typeof(T), JsonSettings));
+                                (T)JsonConvert.DeserializeObject(reader.GetString(1), typeof(T), _jsonSettings));
                         }
                     }
                 }
             }
         }
 
-        private readonly Guid Me = Guid.NewGuid();
+        private readonly Guid _me = Guid.NewGuid();
 
         private bool _disposed;
         public void Dispose()
@@ -182,7 +182,7 @@ namespace Composable.KeyValueStorage.SqlServer
             if (!_disposed)
             {
                 _disposed = true;
-                Log.DebugFormat("disposing {0}", Me);
+                Log.DebugFormat("disposing {0}", _me);
             }
         }
 
@@ -195,17 +195,17 @@ namespace Composable.KeyValueStorage.SqlServer
 
         private void EnsureTableExists()
         {
-            using (var _connection = OpenSession())
+            using (var connection = OpenSession())
             {
                 if (!TableVerifiedToExist)
                 {
-                    using (var checkForTableCommand = _connection.CreateCommand())
+                    using (var checkForTableCommand = connection.CreateCommand())
                     {
                         checkForTableCommand.CommandText = "select count(*) from sys.tables where name = 'Store'";
                         var exists = (int)checkForTableCommand.ExecuteScalar();
                         if (exists == 0)
                         {
-                            using (var createTableCommand = _connection.CreateCommand())
+                            using (var createTableCommand = connection.CreateCommand())
                             {
 
                                 createTableCommand.CommandText =
@@ -255,9 +255,9 @@ CREATE TABLE [dbo].[Store](
 
         public void PurgeDb()
         {
-            using (var _connection = OpenSession())
+            using (var connection = OpenSession())
             {
-                using(var dropCommand = _connection.CreateCommand())
+                using(var dropCommand = connection.CreateCommand())
                 {
                     dropCommand.CommandText =
                         @"IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[Store]') AND type in (N'U'))

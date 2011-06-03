@@ -42,11 +42,12 @@ namespace Composable.CQRS
         public EntityReference(TReferencedType referenced) : base(referenced) {}
         public EntityReference(TReferencedType referenced, string name) : this(referenced.Id, name) {}
 
-        public string Name { get; private set; }
+        public virtual string Name { get; set; }
     }
 
-    public class EntityReference<TReferencedType> :
+    public class EntityReference<TReferencedType> :        
         EntityReference<TReferencedType, Guid>,
+        ITranslatableEntityReference,
         IEntityReference<TReferencedType>,
         IComparable<EntityReference<TReferencedType>> where TReferencedType : IHasPersistentIdentity<Guid>, INamed
     {
@@ -59,6 +60,12 @@ namespace Composable.CQRS
         {
             return String.Compare(Name, other.Name);
         }
+    }
+
+    public interface ITranslatableEntityReference
+    {
+        Guid Id { get; }
+        String Name { get; set; }
     }
 
     public class MaterializableUnNamedEntityReference<TReferencedType, TKeyType> :

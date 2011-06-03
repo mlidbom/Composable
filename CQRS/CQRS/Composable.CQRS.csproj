@@ -107,6 +107,8 @@
     <Compile Include="CQRS\ViewModels\IViewModelUpdater.cs" />
     <Compile Include="CQRS\ViewModels\ViewModelUpdater.cs" />
     <Compile Include="KeyValueStorage\KeyValueStoreSessionProxy.cs" />
+    <Compile Include="KeyValueStorage\InMemoryObjectStore.cs" />
+    <Compile Include="KeyValueStorage\SqlServer\SqlServerKeyValueSession.cs" />
     <Compile Include="KeyValueStorage\SqlServer\TooManyItemsDeletedException.cs" />
     <Compile Include="NewtonSoft\IncludeMembersWithPrivateSettersResolver.cs" />
     <Compile Include="CQRS\EventSourcing\SQLServer\SqlServerEventStore.cs" />

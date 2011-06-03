@@ -9,9 +9,11 @@ namespace Composable.KeyValueStorage
     {
         TValue Get<TValue>(Guid key);
         bool TryGet<TValue>(Guid key, out TValue value);
-        void Save<TValue>(Guid key, TValue value);
+        void Save<TValue>(Guid id, TValue value);
+        void Delete<TEntity>(Guid id);
+
         void Save<TEntity>(TEntity entity) where TEntity : IHasPersistentIdentity<Guid>;
-        void Delete<TEntity>(TEntity entity) where TEntity : IHasPersistentIdentity<Guid>;
+        void Delete<TEntity>(TEntity entity) where TEntity : IHasPersistentIdentity<Guid>;        
 
         void SaveChanges();
         IEnumerable<T> GetAll<T>();        

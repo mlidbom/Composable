@@ -141,6 +141,7 @@
     <Compile Include="DDD\PersistentEntity.cs" />
     <Compile Include="DDD\ValueObject.cs" />
     <Compile Include="DDD\VersionedPersistentEntity.cs" />
+    <Compile Include="System\Collections\Collections\CollectionExtensions.cs" />
     <Compile Include="System\Collections\Collections\DictionaryExtensions.cs" />
     <Compile Include="System\ComponentModel\DataAnnotations\IValidatableObjectExtensions.cs" />
     <Compile Include="System\EnumExtensions.cs" />

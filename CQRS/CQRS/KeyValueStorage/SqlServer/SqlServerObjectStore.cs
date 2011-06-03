@@ -211,21 +211,27 @@ namespace Composable.KeyValueStorage.SqlServer
 
         private void EnsureTypeRegistered(Type type)
         {
-            if(!KnownTypes.Contains(type))
+            lock (LockObject)
             {
-                KnownTypes.Add(type);
+                if (!KnownTypes.Contains(type))
+                {
+                    KnownTypes.Add(type);
+                }
             }
         }
 
         private void AddTypeCriteria(SqlCommand command, Type type)
         {
-            var acceptableTypeNames = KnownTypes.Where(type.IsAssignableFrom).Select(t => t.FullName).ToArray();
-            if(acceptableTypeNames.None())
+            lock (LockObject)
             {
-                throw new Exception("FUBAR");
-            }
+                var acceptableTypeNames = KnownTypes.Where(type.IsAssignableFrom).Select(t => t.FullName).ToArray();
+                if (acceptableTypeNames.None())
+                {
+                    throw new Exception("FUBAR");
+                }
 
-            command.CommandText += " IN( '" + acceptableTypeNames.Join("','") + "')";
+                command.CommandText += " IN( '" + acceptableTypeNames.Join("','") + "')";
+            }
         }
 
         private void EnsureInitialized()
@@ -256,6 +262,12 @@ CREATE TABLE [dbo].[Store](
 	[Id], [ValueType] ASC
 )WITH (PAD_INDEX  = OFF, STATISTICS_NORECOMPUTE  = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS  = ON, ALLOW_PAGE_LOCKS  = ON) ON [PRIMARY]
 ) ON [PRIMARY]
+
+CREATE NONCLUSTERED INDEX [IX_ValueType] ON [dbo].[Store] 
+(
+	[ValueType] ASC
+)WITH (PAD_INDEX  = OFF, STATISTICS_NORECOMPUTE  = OFF, SORT_IN_TEMPDB = OFF, IGNORE_DUP_KEY = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS  = ON, ALLOW_PAGE_LOCKS  = ON) ON [PRIMARY]
+
 ";
                                     createTableCommand.ExecuteNonQuery();
                                 }
@@ -308,16 +320,20 @@ CREATE TABLE [dbo].[Store](
 
         public void PurgeDb()
         {
-            using (var connection = OpenSession())
+            lock (LockObject)
             {
-                using(var dropCommand = connection.CreateCommand())
+                using (var connection = OpenSession())
                 {
-                    dropCommand.CommandText =
-                        @"IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[Store]') AND type in (N'U'))
+                    using (var dropCommand = connection.CreateCommand())
+                    {
+                        dropCommand.CommandText =
+                            @"IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[Store]') AND type in (N'U'))
 DROP TABLE [dbo].[Store]";
 
-                    dropCommand.ExecuteNonQuery();
-                    TableVerifiedToExist = false;
+                        dropCommand.ExecuteNonQuery();
+                        TableVerifiedToExist = false;
+                        EnsureInitialized();
+                    }
                 }
             }
         }

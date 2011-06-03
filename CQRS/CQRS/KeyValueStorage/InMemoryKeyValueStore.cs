@@ -8,7 +8,7 @@ namespace Composable.KeyValueStorage
 
         public IKeyValueStoreSession OpenSession()
         {
-            return new KeyValueSession(_store);
+            return new KeyValueSession(_store, NullOpKeyValueStoreInterceptor.Instance);
         }
     }
 }

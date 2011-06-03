@@ -30,6 +30,7 @@ namespace Composable.StuffThatDoesNotBelongHere.Translation
 
             result = me.GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.FlattenHierarchy).ToList()
                                  .Select(p => new { p, attr = p.GetCustomAttributes(typeof(TranslateAttribute), true).Cast<TranslateAttribute>().SingleOrDefault() })
+                                 .Where( p => p.attr != null)
                                  .Select(x => new TranslatedProperty(x.attr, x.p))
                                  .ToList();
 

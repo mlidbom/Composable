@@ -143,6 +143,7 @@
     <Compile Include="CQRS\Query\IQuery.cs" />
     <Compile Include="CQRS\Query\IQueryService.cs" />
     <Compile Include="CQRS\ServiceLocatorExtensions.cs" />
+    <Compile Include="StuffThatDoesNotBelongHere\TranslateAttribute.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Composable.CQRS.nuspec">

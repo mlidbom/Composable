@@ -25,7 +25,12 @@ namespace Composable.System.Reflection
                 obj).Compile();
         }
 
-        public static Func<Object, Object>[] GetFieldsAndProperties(Type type)
+        public static IEnumerable<object> GetFieldAndPropertyValues(object o)
+        {
+            return GetFieldsAndPropertyGetters(o.GetType()).Select(getter => getter(o));
+        } 
+
+        public static Func<Object, Object>[] GetFieldsAndPropertyGetters(Type type)
         {
             return InnerGetField(type);
         }
@@ -42,7 +47,7 @@ namespace Composable.System.Reflection
                 var baseType = type.BaseType;
                 if (baseType != typeof(object))
                 {
-                    newFields.AddRange(GetFieldsAndProperties(baseType));
+                    newFields.AddRange(GetFieldsAndPropertyGetters(baseType));
                 }
 
                 TypeFields[type] = fields = newFields.ToArray();
@@ -58,7 +63,7 @@ namespace Composable.System.Reflection
 
         static MemberAccessorHelper()
         {
-            Fields = MemberAccessorHelper.GetFieldsAndProperties(typeof(T));
+            Fields = MemberAccessorHelper.GetFieldsAndPropertyGetters(typeof(T));
         }
 
         public static Func<object, object>[] GetFieldsAndProperties(Type getType)
@@ -67,7 +72,7 @@ namespace Composable.System.Reflection
             {
                 return Fields;
             }
-            return MemberAccessorHelper.GetFieldsAndProperties(typeof (T));
+            return MemberAccessorHelper.GetFieldsAndPropertyGetters(typeof (T));
         }
     }
 }

@@ -4,9 +4,14 @@ using Composable.DDD;
 
 namespace CQRS.Tests.KeyValueStorage
 {
-    public class User : IPersistentEntity<Guid>
+    public class Person : ValueObject<Person>, IPersistentEntity<Guid>
     {
+        public string Name { get; set; }
         public Guid Id { get; set;  }
+    }
+
+    public class User : Person
+    {
         public string Email { get; set; }
         public string Password { get; set; }
 

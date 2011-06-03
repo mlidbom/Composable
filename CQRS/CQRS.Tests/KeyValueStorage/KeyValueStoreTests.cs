@@ -330,6 +330,54 @@ namespace CQRS.Tests.KeyValueStorage
             }
         }
 
+        [Test]
+        public void GetHandlesSubTyping()
+        {
+            var store = CreateStore();
+
+            var user1 = new User() { Id = Guid.NewGuid() };
+            var person1 = new Person() { Id = Guid.NewGuid() };
+
+            using (var session = store.OpenSession())
+            {                
+                session.Save(user1);                
+                session.Save(person1);
+                session.SaveChanges();
+            }
+
+            using (var session = store.OpenSession())
+            {
+                Assert.That(session.Get<Person>(user1.Id), Is.EqualTo(user1));
+                Assert.That(session.Get<Person>(person1.Id), Is.EqualTo(person1));
+            }
+        }
+
+        [Test]
+        public void GetAllHandlesSubTyping()
+        {
+            var store = CreateStore();
+
+            var user1 = new User() { Id = Guid.NewGuid() };
+            var person1 = new Person() { Id = Guid.NewGuid() };
+
+            using (var session = store.OpenSession())
+            {
+                session.Save(user1);
+                session.Save(person1);
+                session.SaveChanges();
+            }
+
+            using (var session = store.OpenSession())
+            {
+                var people = session.GetAll<Person>().ToList();
+
+                Assert.That(people, Has.Count.EqualTo(2));
+                Assert.That(people, Contains.Item(user1));
+                Assert.That(people, Contains.Item(person1));
+            }
+        }
+
+
 
         //[Test]
         //public void SaveChangesAndCommitWhenTransientTransactionDoesSo()

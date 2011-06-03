@@ -5,8 +5,10 @@ using System.Data.SqlClient;
 using System.Linq;
 using Composable.NewtonSoft;
 using Composable.System;
+using Composable.System.Linq;
 using Newtonsoft.Json;
 using log4net;
+using Composable.System.Reflection;
 
 namespace Composable.KeyValueStorage.SqlServer
 {
@@ -29,13 +31,15 @@ namespace Composable.KeyValueStorage.SqlServer
         private const int UniqueConstraintViolationErrorNumber = 2627;
         private readonly int _sqlBatchSize = 10;
 
+        private static ISet<Type> _knownTypes = new HashSet<Type>(); 
+
         public SqlServerObjectStore(SqlServerKeyValueStore store)
         {
             Log.Debug("Constructor called");
             _store = store;
             _config = _store.Config;
 
-            EnsureTableExists();
+            EnsureInitialized();
 
 
             if (!_store.Config.Batching)
@@ -54,16 +58,18 @@ namespace Composable.KeyValueStorage.SqlServer
             {
                 using(var command = connection.CreateCommand())
                 {
-                    command.CommandText = "SELECT Value, ValueType FROM Store WHERE Id=@Id AND ValueType=@ValueType";
+                    command.CommandText = "SELECT Value, ValueType FROM Store WHERE Id=@Id AND ValueType ";
                     command.Parameters.Add(new SqlParameter("Id", key));
-                    command.Parameters.Add(new SqlParameter("ValueType", typeof(TValue).FullName));
+                    
+                    AddTypeCriteria(command, typeof(TValue));
+
                     using(var reader = command.ExecuteReader())
                     {
                         if(!reader.Read())
                         {
                             return false;
                         }
-                        found = JsonConvert.DeserializeObject(reader.GetString(0), typeof(TValue), _jsonSettings);
+                        found = JsonConvert.DeserializeObject(reader.GetString(0), reader.GetString(1).AsType(), _jsonSettings);
                     }
                 }
             }
@@ -74,6 +80,7 @@ namespace Composable.KeyValueStorage.SqlServer
 
         public void Add<T>(Guid id, T value)
         {
+            EnsureTypeRegistered(value.GetType());
             using (var connection = OpenSession())
             {
                 using (var command = connection.CreateCommand())
@@ -84,6 +91,7 @@ namespace Composable.KeyValueStorage.SqlServer
 
                     command.Parameters.Add(new SqlParameter("Id", id));
                     command.Parameters.Add(new SqlParameter("ValueType", value.GetType().FullName));
+
                     command.Parameters.Add(new SqlParameter("Value",
                                                             JsonConvert.SerializeObject(value, _config.JSonFormatting, _jsonSettings)));
                     try
@@ -109,9 +117,11 @@ namespace Composable.KeyValueStorage.SqlServer
                 using (var command = connection.CreateCommand())
                 {
                     command.CommandType = CommandType.Text;
-                    command.CommandText += "DELETE Store WHERE Id = @Id AND ValueType = @ValueType";
+                    command.CommandText += "DELETE Store WHERE Id = @Id AND ValueType ";
                     command.Parameters.Add(new SqlParameter("Id", id));
-                    command.Parameters.Add(new SqlParameter("ValueType", typeof (T).FullName));
+                    
+                    AddTypeCriteria(command, typeof(T));
+                    
                     var rowsAffected = command.ExecuteNonQuery();
                     if (rowsAffected > 1)
                     {
@@ -138,11 +148,12 @@ namespace Composable.KeyValueStorage.SqlServer
                         {
                             var entry = values.ElementAt(handledInBatch);
 
-                            command.CommandText += "UPDATE Store SET Value = @Value{0} WHERE Id = @Id{0} AND ValueType=@ValueType{0}\n"
+                            command.CommandText += "UPDATE Store SET Value = @Value{0} WHERE Id = @Id{0} AND ValueType \n"
                                 .FormatWith(handledInBatch);
-
                             command.Parameters.Add(new SqlParameter("Id" + handledInBatch, entry.Key));
-                            command.Parameters.Add(new SqlParameter("ValueType" + handledInBatch, entry.Value.GetType().FullName));
+                            
+                            AddTypeCriteria(command, entry.Value.GetType());
+
                             command.Parameters.Add(new SqlParameter("Value" + handledInBatch,
                                                                     JsonConvert.SerializeObject(entry.Value, _config.JSonFormatting, _jsonSettings)));
                         }
@@ -159,15 +170,17 @@ namespace Composable.KeyValueStorage.SqlServer
             {
                 using(var loadCommand = connection.CreateCommand())
                 {
-                    loadCommand.CommandText = "SELECT Id, Value, ValueType FROM Store WHERE ValueType=@ValueType";
-                    loadCommand.Parameters.Add(new SqlParameter("ValueType", typeof(T).FullName));
+                    loadCommand.CommandText = "SELECT Id, Value, ValueType FROM Store WHERE ValueType ";
+                    
+                    AddTypeCriteria(loadCommand, typeof(T));
+
                     using(var reader = loadCommand.ExecuteReader())
                     {
                         while(reader.Read())
                         {
                             yield return
                                 new KeyValuePair<Guid, T>(reader.GetGuid(0),
-                                (T)JsonConvert.DeserializeObject(reader.GetString(1), typeof(T), _jsonSettings));
+                                (T)JsonConvert.DeserializeObject(reader.GetString(1), reader.GetString(2).AsType(), _jsonSettings));
                         }
                     }
                 }
@@ -193,7 +206,26 @@ namespace Composable.KeyValueStorage.SqlServer
             return connection;
         }
 
-        private void EnsureTableExists()
+        private void EnsureTypeRegistered(Type type)
+        {
+            if(!_knownTypes.Contains(type))
+            {
+                _knownTypes.Add(type);
+            }
+        }
+
+        private void AddTypeCriteria(SqlCommand command, Type type)
+        {
+            var acceptableTypeNames = _knownTypes.Where(type.IsAssignableFrom).Select(t => t.FullName).ToArray();
+            if(acceptableTypeNames.None())
+            {
+                throw new Exception("FUBAR");
+            }
+
+            command.CommandText += " IN( '" + acceptableTypeNames.Join("','") + "')";
+        }
+
+        private void EnsureInitialized()
         {
             using (var connection = OpenSession())
             {
@@ -216,7 +248,7 @@ CREATE TABLE [dbo].[Store](
 	[Value] [nvarchar](max) NOT NULL,
  CONSTRAINT [PK_Store] PRIMARY KEY CLUSTERED 
 (
-	[ValueType], [Id] ASC
+	[Id], [ValueType] ASC
 )WITH (PAD_INDEX  = OFF, STATISTICS_NORECOMPUTE  = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS  = ON, ALLOW_PAGE_LOCKS  = ON) ON [PRIMARY]
 ) ON [PRIMARY]
 ";
@@ -225,9 +257,23 @@ CREATE TABLE [dbo].[Store](
                         }
                         TableVerifiedToExist = true;
                     }
+
+                    using(var findTypesCommand = connection.CreateCommand())
+                    {
+                        findTypesCommand.CommandText = "SELECT DISTINCT ValueType FROM Store";
+                        using(var reader = findTypesCommand.ExecuteReader())
+                        {
+                            while (reader.Read())
+                            {
+                                _knownTypes.Add(reader.GetString(0).AsType());
+                            }
+                        }
+                    }
                 }
             }
         }
+
+
 
         private static readonly HashSet<String> VerifiedTables = new HashSet<String>();
         private bool TableVerifiedToExist

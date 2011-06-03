@@ -39,7 +39,7 @@ namespace Composable.KeyValueStorage
             var found = _db
                 .Where(pair => pair.Key == id)
                 .Select(pair => pair.Value)
-                .Where(obj => obj.GetType().IsAssignableFrom(typeOfValue))
+                .Where(obj => typeOfValue.IsAssignableFrom(obj.GetType()))
                 .ToList();
             if(found.Any())
             {
@@ -100,7 +100,7 @@ namespace Composable.KeyValueStorage
         public IEnumerable<KeyValuePair<Guid, T>> GetAll<T>()
         {
             return _db
-                .Where(pair => pair.Value.GetType().IsAssignableFrom(typeof(T)))
+                .Where(pair => typeof(T).IsAssignableFrom(pair.Value.GetType()))
                 .Select(pair => new KeyValuePair<Guid, T>(pair.Key, (T) pair.Value))
                 .ToList();
         }

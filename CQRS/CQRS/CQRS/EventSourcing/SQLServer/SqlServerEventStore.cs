@@ -12,6 +12,7 @@ using Composable.System.Linq;
 using log4net;
 using log4net.Core;
 using Newtonsoft.Json;
+using Composable.System.Reflection;
 
 #endregion
 
@@ -179,37 +180,7 @@ ALTER TABLE [dbo].[Events] ADD  CONSTRAINT [DF_Events_TimeStamp]  DEFAULT (getda
 
         private IAggregateRootEvent DeserializeEvent(string eventType, string eventData)
         {
-            return (IAggregateRootEvent)JsonConvert.DeserializeObject(eventData, FindType(eventType), JsonSettings);
-        }
-
-
-        private static readonly Dictionary<string, Type> _typeMap = new Dictionary<string, Type>();
-
-        private static Type FindType(string valueType)
-        {
-            Type type;
-            if(_typeMap.TryGetValue(valueType, out type))
-            {
-                return type;
-            }
-
-            var types = AppDomain.CurrentDomain.GetAssemblies()
-                .Select(assembly => assembly.GetType(valueType))
-                .Where(t => t != null)
-                .ToArray();
-            if(types.None())
-            {
-                throw new FailedToFindTypeException(valueType);
-            }
-
-            if(types.Count() > 1)
-            {
-                throw new MultipleMatchingTypesException(valueType);
-            }
-
-            type = types.Single();
-            _typeMap.Add(valueType, types.Single());
-            return type;
+            return (IAggregateRootEvent)JsonConvert.DeserializeObject(eventData, eventType.AsType(), JsonSettings);
         }
 
         protected override void SaveEvents(IEnumerable<IAggregateRootEvent> events)
@@ -245,6 +216,7 @@ ALTER TABLE [dbo].[Events] ADD  CONSTRAINT [DF_Events_TimeStamp]  DEFAULT (getda
         }
 
         private bool _disposed;
+
         public override void Dispose()
         {
             if (!_disposed)
@@ -269,20 +241,6 @@ DROP TABLE [dbo].[Events]";
                     EventsTableVerifiedToExist = false;
                 }
             }
-        }
-    }
-
-    internal class MultipleMatchingTypesException : Exception
-    {
-        public MultipleMatchingTypesException(string typeName) : base(typeName)
-        {
-        }
-    }
-
-    internal class FailedToFindTypeException : Exception
-    {
-        public FailedToFindTypeException(string typeName) : base(typeName)
-        {
         }
     }
 }

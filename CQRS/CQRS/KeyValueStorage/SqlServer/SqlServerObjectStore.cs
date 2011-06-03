@@ -31,7 +31,9 @@ namespace Composable.KeyValueStorage.SqlServer
         private const int UniqueConstraintViolationErrorNumber = 2627;
         private readonly int _sqlBatchSize = 10;
 
-        private static ISet<Type> _knownTypes = new HashSet<Type>(); 
+        private static readonly ISet<Type> KnownTypes = new HashSet<Type>();
+
+        private static readonly object LockObject = new object();
 
         public SqlServerObjectStore(SqlServerKeyValueStore store)
         {
@@ -51,6 +53,7 @@ namespace Composable.KeyValueStorage.SqlServer
 
         public bool TryGet<TValue>(Guid key, out TValue value)
         {
+            EnsureTypeRegistered(typeof(TValue));
             value = default(TValue);
 
             object found;
@@ -208,15 +211,15 @@ namespace Composable.KeyValueStorage.SqlServer
 
         private void EnsureTypeRegistered(Type type)
         {
-            if(!_knownTypes.Contains(type))
+            if(!KnownTypes.Contains(type))
             {
-                _knownTypes.Add(type);
+                KnownTypes.Add(type);
             }
         }
 
         private void AddTypeCriteria(SqlCommand command, Type type)
         {
-            var acceptableTypeNames = _knownTypes.Where(type.IsAssignableFrom).Select(t => t.FullName).ToArray();
+            var acceptableTypeNames = KnownTypes.Where(type.IsAssignableFrom).Select(t => t.FullName).ToArray();
             if(acceptableTypeNames.None())
             {
                 throw new Exception("FUBAR");
@@ -227,21 +230,23 @@ namespace Composable.KeyValueStorage.SqlServer
 
         private void EnsureInitialized()
         {
-            using (var connection = OpenSession())
+            lock (LockObject)
             {
-                if (!TableVerifiedToExist)
+                using (var connection = OpenSession())
                 {
-                    using (var checkForTableCommand = connection.CreateCommand())
+                    if (!TableVerifiedToExist)
                     {
-                        checkForTableCommand.CommandText = "select count(*) from sys.tables where name = 'Store'";
-                        var exists = (int)checkForTableCommand.ExecuteScalar();
-                        if (exists == 0)
+                        using (var checkForTableCommand = connection.CreateCommand())
                         {
-                            using (var createTableCommand = connection.CreateCommand())
+                            checkForTableCommand.CommandText = "select count(*) from sys.tables where name = 'Store'";
+                            var exists = (int) checkForTableCommand.ExecuteScalar();
+                            if (exists == 0)
                             {
+                                using (var createTableCommand = connection.CreateCommand())
+                                {
 
-                                createTableCommand.CommandText =
-                                    @"
+                                    createTableCommand.CommandText =
+                                        @"
 CREATE TABLE [dbo].[Store](
 	[Id] [uniqueidentifier] NOT NULL,
     [ValueType] [varchar](500) NOT NULL,
@@ -252,20 +257,21 @@ CREATE TABLE [dbo].[Store](
 )WITH (PAD_INDEX  = OFF, STATISTICS_NORECOMPUTE  = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS  = ON, ALLOW_PAGE_LOCKS  = ON) ON [PRIMARY]
 ) ON [PRIMARY]
 ";
-                                createTableCommand.ExecuteNonQuery();
+                                    createTableCommand.ExecuteNonQuery();
+                                }
                             }
+                            TableVerifiedToExist = true;
                         }
-                        TableVerifiedToExist = true;
-                    }
 
-                    using(var findTypesCommand = connection.CreateCommand())
-                    {
-                        findTypesCommand.CommandText = "SELECT DISTINCT ValueType FROM Store";
-                        using(var reader = findTypesCommand.ExecuteReader())
+                        using (var findTypesCommand = connection.CreateCommand())
                         {
-                            while (reader.Read())
+                            findTypesCommand.CommandText = "SELECT DISTINCT ValueType FROM Store";
+                            using (var reader = findTypesCommand.ExecuteReader())
                             {
-                                _knownTypes.Add(reader.GetString(0).AsType());
+                                while (reader.Read())
+                                {
+                                    KnownTypes.Add(reader.GetString(0).AsType());
+                                }
                             }
                         }
                     }
@@ -275,7 +281,8 @@ CREATE TABLE [dbo].[Store](
 
 
 
-        private static readonly HashSet<String> VerifiedTables = new HashSet<String>();
+        private static readonly HashSet<String> VerifiedTables = new HashSet<String>();        
+
         private bool TableVerifiedToExist
         {
             get

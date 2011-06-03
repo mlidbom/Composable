@@ -9,13 +9,15 @@ namespace Composable.KeyValueStorage
     public class KeyValueSession : IKeyValueStoreSession
     {
         private readonly IObjectStore _backingStore;
+        private readonly IKeyValueStoreInterceptor _interceptor;
 
         private readonly InMemoryObjectStore _idMap = new InMemoryObjectStore();
 
 
-        public KeyValueSession(IObjectStore backingStore)
+        public KeyValueSession(IObjectStore backingStore, IKeyValueStoreInterceptor interceptor)
         {
             _backingStore = backingStore;
+            _interceptor = interceptor;
         }
 
 
@@ -29,6 +31,7 @@ namespace Composable.KeyValueStorage
             if (_backingStore.TryGet(key, out value))
             {
                 _idMap.Add(key, value);
+                _interceptor.AfterLoad(value);
                 return true;
             }
 

@@ -24,7 +24,7 @@ namespace Composable.KeyValueStorage.SqlServer
 
         public IKeyValueStoreSession OpenSession()
         {
-            return new KeyValueSession(new SqlServerObjectStore(this));
+            return new KeyValueSession(new SqlServerObjectStore(this), Config.Interceptor);
         }
 
         public static void ResetDB(string connectionString)
@@ -40,9 +40,15 @@ namespace Composable.KeyValueStorage.SqlServer
     public class SqlServerKeyValueStoreConfig
     {
         public static readonly SqlServerKeyValueStoreConfig Default = new SqlServerKeyValueStoreConfig
-                                                                          {};
+                                                                          {                                                                              
+                                                                          };
 
+        public SqlServerKeyValueStoreConfig()
+        {
+            Interceptor = NullOpKeyValueStoreInterceptor.Instance;
+        }
         public bool Batching = true;
         public Formatting JSonFormatting = Formatting.None;
+        public IKeyValueStoreInterceptor Interceptor { get; set; }
     }
 }

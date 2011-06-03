@@ -6,6 +6,7 @@ using System.Diagnostics.Contracts;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using Composable.System.Reflection;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 
@@ -18,20 +19,6 @@ namespace Composable.DDD
     ///<typeparam name="T"></typeparam>
     public abstract class ValueObject<T> : IEquatable<T> where T : ValueObject<T>
     {
-        private static Func<object, object> BuildFieldGetter(FieldInfo field)
-        {
-            Contract.Requires(field != null);
-            var obj = Expression.Parameter(typeof(object), "obj");
-
-            return Expression.Lambda<Func<object, object>>(
-                Expression.Convert(
-                    Expression.Field(
-                        Expression.Convert(obj, field.DeclaringType),
-                        field),
-                    typeof(object)),
-                obj).Compile();
-        }
-
         /// <see cref="object.Equals(object)"/>
         public override bool Equals(object obj)
         {
@@ -46,7 +33,7 @@ namespace Composable.DDD
         /// <see cref="object.GetHashCode"/>
         public override int GetHashCode()
         {
-            var fields = GetFields(GetType());
+            var fields = MemberAccessorHelper<T>.GetFields(GetType());
 
             const int startValue = 17;
             const int multiplier = 59;
@@ -77,7 +64,7 @@ namespace Composable.DDD
             if(myType != otherType)
                 return false;
 
-            var fields = GetFields(GetType());
+            var fields = MemberAccessorHelper<T>.GetFields(GetType());
 
             for(var i = 0; i < fields.Length; i++)
             {
@@ -97,54 +84,6 @@ namespace Composable.DDD
             return true;
         }
 
-
-        private static readonly Func<Object, Object>[] Fields;
-
-        private static readonly IDictionary<Type, Func<Object, Object>[]> TypeFields =
-            new Dictionary<Type, Func<Object, Object>[]>();
-
-        static ValueObject()
-        {
-            Fields = InnerGetField(typeof(T));
-        }
-
-        private static Func<Object, Object>[] GetFields(Type type)
-        {
-            Contract.Ensures(Contract.Result<Func<Object, Object>[]>() != null);
-            if(type == typeof(T))
-            {
-                return Fields;
-            }
-
-            lock(TypeFields)
-            {
-                return InnerGetField(type);
-            }
-        }
-
-        private static Func<object, object>[] InnerGetField(Type type)
-        {
-            Contract.Requires(type != null);
-            Contract.Ensures(Contract.Result<Func<object, object>[]>() != null);
-            Func<Object, Object>[] fields;
-            if(!TypeFields.TryGetValue(type, out fields))
-            {
-                var newFields = new List<Func<Object, object>>();
-                newFields.AddRange(
-                    type.GetFields(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public).Select(
-                        BuildFieldGetter));
-
-                var baseType = type.BaseType;
-                if(baseType != typeof(object))
-                {
-                    newFields.AddRange(GetFields(baseType));
-                }
-
-                TypeFields[type] = fields = newFields.ToArray();
-            }
-            Contract.Assume(fields != null);
-            return fields;
-        }
 
         ///<summary>Compares the objects for equality using value semantics</summary>
         public static bool operator ==(ValueObject<T> lhs, ValueObject<T> rhs)

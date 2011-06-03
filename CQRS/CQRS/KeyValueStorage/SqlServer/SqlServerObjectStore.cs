@@ -243,12 +243,6 @@ CREATE TABLE [dbo].[Store](
 
         private readonly Guid Me = Guid.NewGuid();
 
-
-        private void InsertValues(IEnumerable<KeyValuePair<Guid, object>> values)
-        {
-            
-        }
-
         private bool _disposed;
         public void Dispose()
         {
@@ -256,7 +250,6 @@ CREATE TABLE [dbo].[Store](
             {
                 _disposed = true;
                 Log.DebugFormat("disposing {0}", Me);
-                //Console.WriteLine("{0}: {1}", GetType().Name, --instances);
             }
         }            
 

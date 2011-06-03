@@ -106,6 +106,7 @@
     <Compile Include="CQRS\TypeExtensions.cs" />
     <Compile Include="CQRS\ViewModels\IViewModelUpdater.cs" />
     <Compile Include="CQRS\ViewModels\ViewModelUpdater.cs" />
+    <Compile Include="KeyValueStorage\IKeyValueStoreInterceptor.cs" />
     <Compile Include="KeyValueStorage\IObjectStore.cs" />
     <Compile Include="KeyValueStorage\KeyValueStoreSessionProxy.cs" />
     <Compile Include="KeyValueStorage\InMemoryObjectStore.cs" />

@@ -1,11 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using Composable.System.Linq;
 
 namespace Composable.KeyValueStorage
 {
     public class InMemoryKeyValueStore : IKeyValueStore
     {
-        internal Dictionary<Type, Dictionary<Guid, object>> _store = new Dictionary<Type, Dictionary<Guid, object>>();
+        internal readonly InMemoryObjectStore Db = new InMemoryObjectStore();
 
         public IKeyValueStoreSession OpenSession()
         {

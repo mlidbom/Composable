@@ -27,9 +27,14 @@ namespace Composable.KeyValueStorage
             return Session.TryGet(key, out value);
         }
 
-        public virtual void Save<TValue>(Guid key, TValue value)
+        public virtual void Save<TValue>(Guid id, TValue value)
         {
-            Session.Save(key, value);
+            Session.Save(id, value);
+        }
+
+        public void Delete<TEntity>(Guid id)
+        {
+            Session.Delete<TEntity>(id);
         }
 
         public virtual void Save<TEntity>(TEntity entity) where TEntity : IHasPersistentIdentity<Guid>

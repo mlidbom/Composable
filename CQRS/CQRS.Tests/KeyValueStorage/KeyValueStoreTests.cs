@@ -144,6 +144,89 @@ namespace CQRS.Tests.KeyValueStorage
 
 
         [Test]
+        public void ThrowsExceptionWhenAttemptingToDeleteNonExistingValue()
+        {
+            var store = CreateStore();
+            using(var session = store.OpenSession())
+            {
+                Assert.Throws<NoSuchKeyException>(() => session.Delete(new Dog()));
+            }            
+        }
+
+        [Test]
+        public void HandlesDeletesOfInstancesAlreadyLoaded()
+        {
+            var store = CreateStore();
+            var user = new User() {Id = Guid.NewGuid()};
+            
+            using(var session = store.OpenSession())
+            {
+                session.Save(user);
+                session.SaveChanges();
+            }
+
+            using(var session = store.OpenSession())
+            {
+                var loadedUser = session.Get<User>(user.Id);
+                session.Delete(user);
+                session.SaveChanges();
+
+                Assert.Throws<NoSuchKeyException>(() => session.Get<User>(user.Id));
+            }
+
+            using (var session = store.OpenSession())
+            {
+                Assert.Throws<NoSuchKeyException>(() => session.Get<User>(user.Id));
+            }
+        }
+
+        [Test]
+        public void HandlesDeletesOfInstancesNotYetLoaded()
+        {
+            var store = CreateStore();
+            var user = new User() { Id = Guid.NewGuid() };
+
+            using (var session = store.OpenSession())
+            {
+                session.Save(user);
+                session.SaveChanges();
+            }
+
+            using (var session = store.OpenSession())
+            {
+                session.Delete(user);
+                session.SaveChanges();
+
+                Assert.Throws<NoSuchKeyException>(() => session.Get<User>(user.Id));
+            }
+
+            using (var session = store.OpenSession())
+            {
+                Assert.Throws<NoSuchKeyException>(() => session.Get<User>(user.Id));
+            }
+        }
+
+        [Test]
+        public void HandlesAValueBeingAddedAndDeletedDuringTheSameSession()
+        {
+            var store = CreateStore();
+            var user = new User() { Id = Guid.NewGuid() };
+
+            using (var session = store.OpenSession())
+            {
+                session.Save(user);
+                session.Delete(user);
+                session.SaveChanges();
+                Assert.Throws<NoSuchKeyException>(() => session.Get<User>(user.Id));
+            }
+
+            using (var session = store.OpenSession())
+            {
+                Assert.Throws<NoSuchKeyException>(() => session.Get<User>(user.Id));
+            }
+        }
+
+        [Test]
         public void TracksAndUpdatesLoadedAggregates()
         {
             var store = CreateStore();
@@ -208,7 +291,7 @@ namespace CQRS.Tests.KeyValueStorage
 
             using (var session = store.OpenSession())
             {
-                session.Save(user.Id, user);
+                session.Save(user);
                 session.Save(dog);
                 session.SaveChanges();
             }

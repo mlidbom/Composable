@@ -8,35 +8,36 @@ using Composable.System.Collections.Collections;
 
 namespace Composable.KeyValueStorage
 {
-    public class InMemoryKeyValueSession : IEnlistmentNotification, IKeyValueStoreSession
+    public class InMemoryKeyValueSession : IKeyValueStoreSession
     {
         private readonly InMemoryKeyValueStore _store;
-        private Dictionary<Type, Dictionary<Guid, object>> _idMap = new Dictionary<Type, Dictionary<Guid, object>>();
+
+        private readonly IObjectStore _backingStore;
+
+        private readonly InMemoryObjectStore _idMap = new InMemoryObjectStore();
+
         private bool _enlisted;
 
         public InMemoryKeyValueSession(InMemoryKeyValueStore store)
         {
             _store = store;
+            _backingStore = _store.Db;
         }
 
 
         public bool TryGet<TValue>(Guid key, out TValue value)
         {
-            object found;
-            if (_idMap.GetOrAddDefault(typeof(TValue)).TryGetValue(key, out found))
+            if (_idMap.TryGet(key, out value))
             {
-                value = (TValue)found;
                 return true;
             }
 
-            if (_store._store.GetOrAddDefault(typeof(TValue)).TryGetValue(key, out found))
+            if (_backingStore.TryGet(key, out value))
             {
-                _idMap.GetOrAddDefault(typeof(TValue)).Add(key, found);
-                value = (TValue)found;
+                _idMap.Add(key, value);
                 return true;
             }
 
-            value = default(TValue);
             return false;
         }
 
@@ -51,15 +52,14 @@ namespace Composable.KeyValueStorage
             throw new NoSuchKeyException(key, typeof(TValue));
         }
 
-        public void Save<TValue>(Guid key, TValue value)
+        public void Save<TValue>(Guid id, TValue value)
         {
-            EnlistInAmbientTransaction();
-
-            if (_idMap.GetOrAddDefault(value.GetType()).ContainsKey(key) || _store._store.GetOrAddDefault(typeof(TValue)).ContainsKey(key))
+            if (_idMap.Contains<TValue>(id))
             {
-                throw new AttemptToSaveAlreadyPersistedValueException(key, value);
+                throw new AttemptToSaveAlreadyPersistedValueException(id, value);
             }
-            _idMap.GetOrAddDefault(value.GetType()).Add(key, value);
+            _backingStore.Add(id, value);
+            _idMap.Add(id, value);
         }
 
         public void Save<TEntity>(TEntity entity) where TEntity : IHasPersistentIdentity<Guid>
@@ -69,57 +69,33 @@ namespace Composable.KeyValueStorage
 
         public void Delete<TEntity>(TEntity entity) where TEntity : IHasPersistentIdentity<Guid>
         {
-            _idMap.GetOrAddDefault(typeof(TEntity)).Remove(entity.Id);
-            _store._store.GetOrAddDefault(typeof(TEntity)).Remove(entity.Id);
+            Delete<TEntity>(entity.Id);
+        }
+
+        public void Delete<T>(Guid id)
+        {
+            if (!_backingStore.Remove<T>(id))
+            {
+                throw new NoSuchKeyException(id, typeof(T));
+            }
+            _idMap.Remove<T>(id);
         }
 
         public void SaveChanges()
         {
-            EnlistInAmbientTransaction();
-            _idMap.ForEach(typeToContents => 
-                typeToContents.Value.ForEach(
-                    idToInsntance => _store._store.GetOrAddDefault(typeToContents.Key)[idToInsntance.Key] = idToInsntance.Value));            
+            _idMap.ForEach(typeToContents => _backingStore.Update(typeToContents.Key, typeToContents.Value));
         }
 
         public IEnumerable<T> GetAll<T>()
         {
-            return _idMap.GetOrAddDefault(typeof(T))
-                .Select(pair => pair.Value)
-                .Concat(_store._store.GetOrAddDefault(typeof(T)).Select(pair => pair.Value))
-                .OfType<T>().Distinct();
+            var stored = _backingStore.GetAll<T>();
+            stored.Where(pair => !_idMap.Contains(typeof (T), pair.Key))
+                .ForEach(pair => _idMap.Add(pair.Key, pair.Value));
+
+            return _idMap.Select(pair => pair.Value).OfType<T>();
         }
 
-        void IEnlistmentNotification.Prepare(PreparingEnlistment preparingEnlistment)
-        {
-            SaveChanges();
-            preparingEnlistment.Prepared();
-        }
-
-        void IEnlistmentNotification.Commit(Enlistment enlistment)
-        {
-            _enlisted = false;
-            enlistment.Done();
-        }
-
-        void IEnlistmentNotification.Rollback(Enlistment enlistment)
-        {
-            _enlisted = false;
-        }
-
-        public void InDoubt(Enlistment enlistment)
-        {
-            _enlisted = false;
-            enlistment.Done();
-        }
-
-        private void EnlistInAmbientTransaction()
-        {
-            if (Transaction.Current != null && !_enlisted)
-            {
-                Transaction.Current.EnlistVolatile(this, EnlistmentOptions.None);
-                _enlisted = true;
-            }
-        }
+        
 
         public void Dispose()
         {

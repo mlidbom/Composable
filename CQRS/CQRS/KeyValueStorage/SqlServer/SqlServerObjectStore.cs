@@ -25,7 +25,7 @@ namespace Composable.KeyValueStorage.SqlServer
 
         private readonly SqlServerKeyValueStore _store;
         private readonly SqlServerKeyValueStoreConfig _config;
-        private readonly Dictionary<Guid, object> _idMap = new Dictionary<Guid, object>();
+
         private readonly HashSet<Guid> _persistentValues = new HashSet<Guid>();
         private const int UniqueConstraintViolationErrorNumber = 2627;
         private readonly int SqlBatchSize = 10;
@@ -100,7 +100,7 @@ CREATE TABLE [dbo].[Store](
 	[Value] [nvarchar](max) NOT NULL,
  CONSTRAINT [PK_Store] PRIMARY KEY CLUSTERED 
 (
-	[Id] ASC
+	[ValueType], [Id] ASC
 )WITH (PAD_INDEX  = OFF, STATISTICS_NORECOMPUTE  = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS  = ON, ALLOW_PAGE_LOCKS  = ON) ON [PRIMARY]
 ) ON [PRIMARY]
 ";
@@ -118,18 +118,14 @@ CREATE TABLE [dbo].[Store](
             value = default(TValue);
 
             object found;
-            if(_idMap.TryGetValue(key, out found))
+            using (var connection = OpenSession())
             {
-                value = (TValue)found;
-                return true;
-            }
-            using (var _connection = OpenSession())
-            {
-                using(var loadCommand = _connection.CreateCommand())
+                using(var command = connection.CreateCommand())
                 {
-                    loadCommand.CommandText = "SELECT Value, ValueType FROM Store WHERE Id=@Id";
-                    loadCommand.Parameters.Add(new SqlParameter("Id", key));
-                    using(var reader = loadCommand.ExecuteReader())
+                    command.CommandText = "SELECT Value, ValueType FROM Store WHERE Id=@Id AND ValueType=@ValueType";
+                    command.Parameters.Add(new SqlParameter("Id", key));
+                    command.Parameters.Add(new SqlParameter("ValueType", typeof(TValue).FullName));
+                    using(var reader = command.ExecuteReader())
                     {
                         if(!reader.Read())
                         {
@@ -140,136 +136,80 @@ CREATE TABLE [dbo].[Store](
                 }
             }
             _persistentValues.Add(key);
-            _idMap.Add(key, found);
             value = (TValue)found;
             return true;
         }
 
         public void Add<T>(Guid id, T value)
         {
-            throw new NotImplementedException();
+            using (var connection = OpenSession())
+            {
+                using (var command = connection.CreateCommand())
+                {
+                    command.CommandType = CommandType.Text;
+
+                    command.CommandText += "INSERT Store(Id, ValueType, Value) VALUES(@Id, @ValueType, @Value)";
+
+                    command.Parameters.Add(new SqlParameter("Id", id));
+                    command.Parameters.Add(new SqlParameter("ValueType", value.GetType().FullName));
+                    command.Parameters.Add(new SqlParameter("Value",
+                                                            JsonConvert.SerializeObject(value, _config.JSonFormatting, JsonSettings)));
+                    try
+                    {
+                        command.ExecuteNonQuery();
+                    }
+                    catch (SqlException e)
+                    {
+                        if (e.Number == UniqueConstraintViolationErrorNumber)
+                        {
+                            throw new AttemptToSaveAlreadyPersistedValueException(id, value);
+                        }
+                        throw;
+                    }
+                }
+            }
         }
 
         public bool Remove<T>(Guid id)
         {
-            throw new NotImplementedException();
-        }
-
-        public void Update(IEnumerable<KeyValuePair<Guid, object>> values)
-        {
-            throw new NotImplementedException();
-        }
-
-        IEnumerable<KeyValuePair<Guid, T>> IObjectStore.GetAll<T>()
-        {
-            throw new NotImplementedException();
-        }
-
-        public TValue Get<TValue>(Guid key)
-        {
-            TValue value;
-            if (TryGet(key, out value))
-            {
-                return value;
-            }
-
-            throw new NoSuchKeyException(key, typeof(TValue));
-        }
-
-        public IEnumerable<T> GetAll<T>()
-        {
             using (var _connection = OpenSession())
             {
-                using(var loadCommand = _connection.CreateCommand())
-                {
-                    loadCommand.CommandText = "SELECT Value, ValueType FROM Store WHERE ValueType=@ValueType";
-                    loadCommand.Parameters.Add(new SqlParameter("ValueType", typeof(T).FullName));
-                    using(var reader = loadCommand.ExecuteReader())
-                    {
-                        while(reader.Read())
-                        {
-                            yield return (T)JsonConvert.DeserializeObject(reader.GetString(0), typeof(T), JsonSettings);
-                        }
-                    }
-                }
-            }
-        }
-
-        public void Save<TValue>(Guid id, TValue value)
-        {
-            object existing;
-            if(_idMap.TryGetValue(id, out existing))
-            {
-                throw new AttemptToSaveAlreadyPersistedValueException(id, value);
-            }
-            _idMap.Add(id, value);
-        }
-
-        public void Save<TEntity>(TEntity entity) where TEntity : IHasPersistentIdentity<Guid>
-        {
-            Save(entity.Id, entity);
-        }
-
-        public void Delete<TEntity>(Guid id)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void Delete<TEntity>(TEntity entity) where TEntity : IHasPersistentIdentity<Guid>
-        {
-            _idMap.Remove(entity.Id);
-            using (var _connection = OpenSession())
-            {
-                using(var command = _connection.CreateCommand())
+                using (var command = _connection.CreateCommand())
                 {
                     command.CommandType = CommandType.Text;
-                    command.CommandText += "DELETE Store WHERE Id = @Id";
-                    command.Parameters.Add(new SqlParameter("Id", entity.Id));
+                    command.CommandText += "DELETE Store WHERE Id = @Id AND ValueType = @ValueType";
+                    command.Parameters.Add(new SqlParameter("Id", id));
+                    command.Parameters.Add(new SqlParameter("ValueType", typeof (T).FullName));
                     var rowsAffected = command.ExecuteNonQuery();
-                    if(rowsAffected == 0)
-                    {
-                        throw new NoSuchKeyException(entity.Id, entity.GetType());
-                    }
-                    if(rowsAffected > 1)
+                    if (rowsAffected > 1)
                     {
                         throw new TooManyItemsDeletedException();
                     }
+                    return rowsAffected > 0;
                 }
             }
-
         }
 
-        public void SaveChanges()
-        {
-            Log.DebugFormat("saving changes in: {0}", Me);
-            InsertValues(_idMap.Where(entry => !_persistentValues.Contains(entry.Key)));
-            UpdateValues(_idMap.Where(entry => _persistentValues.Contains(entry.Key)));
-        }
-
-
-
-        private readonly Guid Me = Guid.NewGuid();
-
-
-        private void UpdateValues(IEnumerable<KeyValuePair<Guid, object>> values)
+        public void Update(IEnumerable<KeyValuePair<Guid, object>> values)
         {
             using (var _connection = OpenSession())
             {
                 var handled = 0;
                 var eventCount = values.Count();
-                while(handled < eventCount)
+                while (handled < eventCount)
                 {
-                    using(var command = _connection.CreateCommand())
+                    using (var command = _connection.CreateCommand())
                     {
                         command.CommandType = CommandType.Text;
-                        for(var handledInBatch = 0; handledInBatch < SqlBatchSize && handled < eventCount; handledInBatch++, handled++)
+                        for (var handledInBatch = 0; handledInBatch < SqlBatchSize && handled < eventCount; handledInBatch++, handled++)
                         {
                             var entry = values.ElementAt(handledInBatch);
 
-                            command.CommandText += "UPDATE Store SET Value = @Value{0} WHERE Id = @Id{0}\n"
+                            command.CommandText += "UPDATE Store SET Value = @Value{0} WHERE Id = @Id{0} AND ValueType=@ValueType{0}\n"
                                 .FormatWith(handledInBatch);
 
                             command.Parameters.Add(new SqlParameter("Id" + handledInBatch, entry.Key));
+                            command.Parameters.Add(new SqlParameter("ValueType" + handledInBatch, entry.Value.GetType().FullName));
                             command.Parameters.Add(new SqlParameter("Value" + handledInBatch,
                                                                     JsonConvert.SerializeObject(entry.Value, _config.JSonFormatting, JsonSettings)));
                         }
@@ -279,51 +219,34 @@ CREATE TABLE [dbo].[Store](
             }
         }
 
-        private void InsertValues(IEnumerable<KeyValuePair<Guid, object>> values)
+
+        IEnumerable<KeyValuePair<Guid, T>> IObjectStore.GetAll<T>()
         {
             using (var _connection = OpenSession())
             {
-                var handled = 0;
-                var eventCount = values.Count();
-                while(handled < eventCount)
+                using(var loadCommand = _connection.CreateCommand())
                 {
-                    using(var command = _connection.CreateCommand())
+                    loadCommand.CommandText = "SELECT Id, Value, ValueType FROM Store WHERE ValueType=@ValueType";
+                    loadCommand.Parameters.Add(new SqlParameter("ValueType", typeof(T).FullName));
+                    using(var reader = loadCommand.ExecuteReader())
                     {
-                        command.CommandType = CommandType.Text;
-                        var entry = new KeyValuePair<Guid, object>();
-                        for(var handledInBatch = 0; handledInBatch < SqlBatchSize && handled < eventCount; handledInBatch++, handled++)
+                        while(reader.Read())
                         {
-                            entry = values.ElementAt(handledInBatch);
-
-                            command.CommandText += "INSERT Store(Id, ValueType, Value) VALUES(@Id{0}, @ValueType{0}, @Value{0})"
-                                .FormatWith(handledInBatch);
-
-                            command.Parameters.Add(new SqlParameter("Id" + handledInBatch, entry.Key));
-                            command.Parameters.Add(new SqlParameter("ValueType" + handledInBatch, entry.Value.GetType().FullName));
-                            command.Parameters.Add(new SqlParameter("Value" + handledInBatch,
-                                                                    JsonConvert.SerializeObject(entry.Value, _config.JSonFormatting, JsonSettings)));
-                        }
-                        try
-                        {
-                            command.ExecuteNonQuery();
-                        }
-                        catch(SqlException e)
-                        {
-                            if(e.Number == UniqueConstraintViolationErrorNumber)
-                            {
-                                if(SqlBatchSize == 1)
-                                {
-                                    throw new AttemptToSaveAlreadyPersistedValueException(entry.Key, entry.Value);
-                                }
-
-                                throw new AttemptToSaveAlreadyPersistedValueException(Guid.Empty,
-                                                                                      "Batched insert cannot extract value try with SqlServerKeyValueStoreConfig.NoBatching...");
-                            }
-                            throw;
+                            yield return
+                                new KeyValuePair<Guid, T>(reader.GetGuid(0),
+                                (T)JsonConvert.DeserializeObject(reader.GetString(1), typeof(T), JsonSettings));
                         }
                     }
                 }
             }
+        }
+
+        private readonly Guid Me = Guid.NewGuid();
+
+
+        private void InsertValues(IEnumerable<KeyValuePair<Guid, object>> values)
+        {
+            
         }
 
         private bool _disposed;
@@ -334,7 +257,6 @@ CREATE TABLE [dbo].[Store](
                 _disposed = true;
                 Log.DebugFormat("disposing {0}", Me);
                 //Console.WriteLine("{0}: {1}", GetType().Name, --instances);
-                _idMap.Clear();
             }
         }            
 

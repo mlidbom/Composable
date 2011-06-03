@@ -46,73 +46,6 @@ namespace Composable.KeyValueStorage.SqlServer
         }
 
 
-
-        private static readonly HashSet<String> VerifiedTables = new HashSet<String>();
-        private bool TableVerifiedToExist
-        {
-            get
-            {
-                return VerifiedTables.Contains(_store.ConnectionString);
-            }
-
-            set
-            {
-                if(value)
-                {
-                    if(!TableVerifiedToExist)
-                    {
-                        VerifiedTables.Add(_store.ConnectionString);
-                    }
-                }else if (TableVerifiedToExist)
-                {
-                    VerifiedTables.Remove(_store.ConnectionString);
-                }               
-            }
-        }
-
-        private SqlConnection OpenSession()
-        {
-            var connection = new SqlConnection(_store.ConnectionString);
-            connection.Open();
-            return connection;
-        }
-
-        private void EnsureTableExists()
-        {
-            using (var _connection = OpenSession())
-            {
-                if(!TableVerifiedToExist)
-                {
-                    using(var checkForTableCommand = _connection.CreateCommand())
-                    {
-                        checkForTableCommand.CommandText = "select count(*) from sys.tables where name = 'Store'";
-                        var exists = (int)checkForTableCommand.ExecuteScalar();
-                        if(exists == 0)
-                        {
-                            using(var createTableCommand = _connection.CreateCommand())
-                            {
-
-                                createTableCommand.CommandText =
-                                    @"
-CREATE TABLE [dbo].[Store](
-	[Id] [uniqueidentifier] NOT NULL,
-    [ValueType] [varchar](500) NOT NULL,
-	[Value] [nvarchar](max) NOT NULL,
- CONSTRAINT [PK_Store] PRIMARY KEY CLUSTERED 
-(
-	[ValueType], [Id] ASC
-)WITH (PAD_INDEX  = OFF, STATISTICS_NORECOMPUTE  = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS  = ON, ALLOW_PAGE_LOCKS  = ON) ON [PRIMARY]
-) ON [PRIMARY]
-";
-                                createTableCommand.ExecuteNonQuery();
-                            }
-                        }
-                        TableVerifiedToExist = true;
-                    }
-                }
-            }
-        }
-
         public bool TryGet<TValue>(Guid key, out TValue value)
         {
             value = default(TValue);
@@ -251,9 +184,76 @@ CREATE TABLE [dbo].[Store](
                 _disposed = true;
                 Log.DebugFormat("disposing {0}", Me);
             }
-        }            
+        }
 
-        public void PurgeDB()
+        private SqlConnection OpenSession()
+        {
+            var connection = new SqlConnection(_store.ConnectionString);
+            connection.Open();
+            return connection;
+        }
+
+        private void EnsureTableExists()
+        {
+            using (var _connection = OpenSession())
+            {
+                if (!TableVerifiedToExist)
+                {
+                    using (var checkForTableCommand = _connection.CreateCommand())
+                    {
+                        checkForTableCommand.CommandText = "select count(*) from sys.tables where name = 'Store'";
+                        var exists = (int)checkForTableCommand.ExecuteScalar();
+                        if (exists == 0)
+                        {
+                            using (var createTableCommand = _connection.CreateCommand())
+                            {
+
+                                createTableCommand.CommandText =
+                                    @"
+CREATE TABLE [dbo].[Store](
+	[Id] [uniqueidentifier] NOT NULL,
+    [ValueType] [varchar](500) NOT NULL,
+	[Value] [nvarchar](max) NOT NULL,
+ CONSTRAINT [PK_Store] PRIMARY KEY CLUSTERED 
+(
+	[ValueType], [Id] ASC
+)WITH (PAD_INDEX  = OFF, STATISTICS_NORECOMPUTE  = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS  = ON, ALLOW_PAGE_LOCKS  = ON) ON [PRIMARY]
+) ON [PRIMARY]
+";
+                                createTableCommand.ExecuteNonQuery();
+                            }
+                        }
+                        TableVerifiedToExist = true;
+                    }
+                }
+            }
+        }
+
+        private static readonly HashSet<String> VerifiedTables = new HashSet<String>();
+        private bool TableVerifiedToExist
+        {
+            get
+            {
+                return VerifiedTables.Contains(_store.ConnectionString);
+            }
+
+            set
+            {
+                if (value)
+                {
+                    if (!TableVerifiedToExist)
+                    {
+                        VerifiedTables.Add(_store.ConnectionString);
+                    }
+                }
+                else if (TableVerifiedToExist)
+                {
+                    VerifiedTables.Remove(_store.ConnectionString);
+                }
+            }
+        }
+
+        public void PurgeDb()
         {
             using (var _connection = OpenSession())
             {

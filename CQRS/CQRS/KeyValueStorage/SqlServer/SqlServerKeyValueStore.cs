@@ -32,7 +32,7 @@ namespace Composable.KeyValueStorage.SqlServer
             var me = new SqlServerKeyValueStore(connectionString);
             using (var session = new SqlServerObjectStore(me))
             {
-                session.PurgeDB();
+                session.PurgeDb();
             }
         }
     }

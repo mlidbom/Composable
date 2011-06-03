@@ -53,6 +53,7 @@ namespace Composable.StuffThatDoesNotBelongHere.Translation
             {
                 throw new InvalidOperationException("The property " + propertyInfo.DeclaringType.FullName + "." + propertyInfo.Name + " can not be translated because it does not have type string.");
             }
+            Name = _propertyInfo.Name;
         }
 
         public string Name { get; set; }

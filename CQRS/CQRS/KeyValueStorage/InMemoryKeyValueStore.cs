@@ -4,11 +4,11 @@ namespace Composable.KeyValueStorage
 {
     public class InMemoryKeyValueStore : IKeyValueStore
     {
-        internal readonly InMemoryObjectStore Db = new InMemoryObjectStore();
+        private readonly IObjectStore _store = new InMemoryObjectStore();
 
         public IKeyValueStoreSession OpenSession()
         {
-            return new InMemoryKeyValueSession(this);
+            return new KeyValueSession(_store);
         }
     }
 }

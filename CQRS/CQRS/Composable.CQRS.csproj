@@ -106,8 +106,10 @@
     <Compile Include="CQRS\TypeExtensions.cs" />
     <Compile Include="CQRS\ViewModels\IViewModelUpdater.cs" />
     <Compile Include="CQRS\ViewModels\ViewModelUpdater.cs" />
+    <Compile Include="KeyValueStorage\IObjectStore.cs" />
     <Compile Include="KeyValueStorage\KeyValueStoreSessionProxy.cs" />
     <Compile Include="KeyValueStorage\InMemoryObjectStore.cs" />
+    <Compile Include="KeyValueStorage\SqlServer\SqlServerObjectStore.cs" />
     <Compile Include="KeyValueStorage\SqlServer\SqlServerKeyValueSession.cs" />
     <Compile Include="KeyValueStorage\SqlServer\TooManyItemsDeletedException.cs" />
     <Compile Include="NewtonSoft\IncludeMembersWithPrivateSettersResolver.cs" />
@@ -116,7 +118,7 @@
     <Compile Include="KeyValueStorage\IKeyValueStoreSession.cs" />
     <Compile Include="KeyValueStorage\IKeyValueStore.cs" />
     <Compile Include="KeyValueStorage\InMemoryKeyValueStore.cs" />
-    <Compile Include="KeyValueStorage\InMemoryKeyValueSession.cs" />
+    <Compile Include="KeyValueStorage\KeyValueSession.cs" />
     <Compile Include="KeyValueStorage\NoSuchKeyException.cs" />
     <Compile Include="KeyValueStorage\SqlServer\SqlServerKeyValueStore.cs" />
     <Compile Include="ServiceBus\IServiceBus.cs" />

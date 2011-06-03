@@ -1,27 +1,21 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Transactions;
 using Composable.DDD;
 using Composable.System.Linq;
 using System.Linq;
-using Composable.System.Collections.Collections;
 
 namespace Composable.KeyValueStorage
 {
-    public class InMemoryKeyValueSession : IKeyValueStoreSession
+    public class KeyValueSession : IKeyValueStoreSession
     {
-        private readonly InMemoryKeyValueStore _store;
-
         private readonly IObjectStore _backingStore;
 
         private readonly InMemoryObjectStore _idMap = new InMemoryObjectStore();
 
-        private bool _enlisted;
 
-        public InMemoryKeyValueSession(InMemoryKeyValueStore store)
+        public KeyValueSession(IObjectStore backingStore)
         {
-            _store = store;
-            _backingStore = _store.Db;
+            _backingStore = backingStore;
         }
 
 

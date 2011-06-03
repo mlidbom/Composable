@@ -16,6 +16,7 @@ namespace Composable.DDD
     /// the operators simply uses Equals.
     /// 
     /// </summary>
+    [DebuggerDisplay("{GetType().Name} Id={Id}")]
     public class IdEqualityObject<TEntity, TKEy> : IEquatable<TEntity>, IHasPersistentIdentity<TKEy> where TEntity : IdEqualityObject<TEntity, TKEy>
     {
         protected IdEqualityObject(){}

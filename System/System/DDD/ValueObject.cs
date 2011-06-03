@@ -33,7 +33,7 @@ namespace Composable.DDD
         /// <see cref="object.GetHashCode"/>
         public override int GetHashCode()
         {
-            var fields = MemberAccessorHelper<T>.GetFields(GetType());
+            var fields = MemberAccessorHelper<T>.GetFieldsAndProperties(GetType());
 
             const int startValue = 17;
             const int multiplier = 59;
@@ -64,7 +64,7 @@ namespace Composable.DDD
             if(myType != otherType)
                 return false;
 
-            var fields = MemberAccessorHelper<T>.GetFields(GetType());
+            var fields = MemberAccessorHelper<T>.GetFieldsAndProperties(GetType());
 
             for(var i = 0; i < fields.Length; i++)
             {

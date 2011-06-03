@@ -9,7 +9,8 @@ namespace CQRS.Tests.KeyValueStorage.Sql
     class SqlKeyValueStoreTests : KeyValueStoreTests
     {
         private static string connectionString = ConfigurationManager.ConnectionStrings["KeyValueStore"].ConnectionString;
-        [TestFixtureSetUp]
+        
+        [SetUp]
         public static void Setup()
         {
             SqlServerKeyValueStore.ResetDB(connectionString);

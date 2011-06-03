@@ -52,7 +52,7 @@ namespace Composable.KeyValueStorage
 
         public void Add<T>(Guid id, T value)
         {
-            if(Contains<T>(id))
+            if(Contains(value.GetType(), id))
             {
                 throw new AttemptToSaveAlreadyPersistedValueException(id, value);
             }

@@ -48,7 +48,7 @@ namespace Composable.KeyValueStorage
 
         public void Save<TValue>(Guid id, TValue value)
         {
-            if (_idMap.Contains<TValue>(id))
+            if (_idMap.Contains(value.GetType(), id))
             {
                 throw new AttemptToSaveAlreadyPersistedValueException(id, value);
             }

@@ -67,7 +67,7 @@ namespace Composable.StuffThatDoesNotBelongHere
             }
         }
 
-        public void Handle(TEvent evt)
+        public virtual void Handle(TEvent evt)
         {
             var handler = GetHandler(evt);
             _runBeforeHandlers(evt);
@@ -93,7 +93,7 @@ namespace Composable.StuffThatDoesNotBelongHere
                 {
                     return handler;
                 }
-                throw new EventUnhandledException(evt);
+                throw new EventUnhandledException(this.GetType(), evt, typeof(TEvent));
             }
             return handler;
         }
@@ -109,7 +109,10 @@ namespace Composable.StuffThatDoesNotBelongHere
 
     public class EventUnhandledException : Exception
     {
-        public EventUnhandledException(IDomainEvent evt):base(evt.GetType().AssemblyQualifiedName)
+        public EventUnhandledException(Type handlerType, IDomainEvent evt, Type listenedFor)
+            : base(
+  @"{0} does not handle nor ignore incoming event {1} matching listened for type {2}
+It should either listen for more specific events or call IgnoreUnHandled".FormatWith(handlerType, evt.GetType(), listenedFor))
         {
             
         }

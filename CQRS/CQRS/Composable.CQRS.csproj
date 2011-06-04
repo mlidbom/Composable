@@ -104,7 +104,6 @@
     <Compile Include="CQRS\IUnNamedEntityReference.cs" />
     <Compile Include="CQRS\INamed.cs" />
     <Compile Include="CQRS\TypeExtensions.cs" />
-    <Compile Include="CQRS\ViewModels\IViewModelUpdater.cs" />
     <Compile Include="CQRS\ViewModels\ViewModelUpdater.cs" />
     <Compile Include="KeyValueStorage\IKeyValueStoreInterceptor.cs" />
     <Compile Include="KeyValueStorage\IObjectStore.cs" />
@@ -122,6 +121,7 @@
     <Compile Include="KeyValueStorage\NoSuchKeyException.cs" />
     <Compile Include="KeyValueStorage\SqlServer\SqlServerKeyValueStore.cs" />
     <Compile Include="ServiceBus\IServiceBus.cs" />
+    <Compile Include="StuffThatDoesNotBelongHere\MultiEventPersister.cs" />
     <Compile Include="StuffThatDoesNotBelongHere\EventPersistenceService.cs" />
     <Compile Include="CQRS\EventSourcing\AggregateRoot.cs" />
     <Compile Include="CQRS\EventSourcing\IEventApplier.cs" />

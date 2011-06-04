@@ -4,6 +4,7 @@ using Composable.CQRS.EventSourcing;
 using Composable.DomainEvents;
 using System.Linq;
 using NServiceBus;
+using Composable.System;
 
 namespace Composable.StuffThatDoesNotBelongHere
 {
@@ -39,6 +40,17 @@ namespace Composable.StuffThatDoesNotBelongHere
             public RegistrationBuilder For<THandledEvent>(Action<THandledEvent> handler) where THandledEvent : TEvent
             {
                 _owner._handlers.Add(typeof(THandledEvent), (@event) => handler((THandledEvent)@event));
+                return this;
+            }
+
+            public RegistrationBuilder For(Type eventType, Action<TEvent> handler)
+            {
+                if(!typeof(TEvent).IsAssignableFrom(eventType))
+                {
+                    throw new Exception("{0} Does not implement {1}. \nYou cannot register a handler for an event type that does not implement the listened for event".FormatWith(eventType, typeof(TEvent)));
+                }
+
+                _owner._handlers.Add(eventType, handler);
                 return this;
             }
 

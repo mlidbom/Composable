@@ -1,15 +1,14 @@
 using System;
 using System.Collections.Generic;
-using Composable.CQRS.EventSourcing;
 using Composable.DomainEvents;
 using System.Linq;
-using NServiceBus;
 
 namespace Composable.StuffThatDoesNotBelongHere
 {
-    public class MultiEventHandler<TImplementor, TEvent> : IHandleMessages<TEvent> 
-        where TEvent : IAggregateRootEvent
-        where TImplementor : MultiEventHandler<TImplementor, TEvent>
+    [Obsolete("This class is here to help us through the transition to getting rid if IEvent persinters in preference of IHandleEvents and the MultiEventHandler class")]
+    public class MultiEventPersister<TImplementor, TEvent>
+        where TEvent : IDomainEvent
+        where TImplementor : MultiEventPersister<TImplementor, TEvent>
     {
         private static readonly Dictionary<Type, Action<TImplementor, TEvent>> Handlers = new Dictionary<Type, Action<TImplementor, TEvent>>();
         private static bool ShouldIgnoreUnHandled;
@@ -48,7 +47,7 @@ namespace Composable.StuffThatDoesNotBelongHere
             }
         }
 
-        public void Handle(TEvent evt)
+        public void Persist(TEvent evt)
         {
             var handler = GetHandler(evt);
             var implementor = (TImplementor)this;
@@ -78,22 +77,6 @@ namespace Composable.StuffThatDoesNotBelongHere
                 throw new EventUnhandledException(evt);
             }
             return handler;
-        }
-    }
-
-    public class AmbigousHandlerException : Exception
-    {
-        public AmbigousHandlerException(IDomainEvent evt) : base(evt.GetType().AssemblyQualifiedName)
-        {
-            
-        }
-    }
-
-    public class EventUnhandledException : Exception
-    {
-        public EventUnhandledException(IDomainEvent evt):base(evt.GetType().AssemblyQualifiedName)
-        {
-            
         }
     }
 }

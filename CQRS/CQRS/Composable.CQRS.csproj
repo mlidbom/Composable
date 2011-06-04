@@ -121,7 +121,6 @@
     <Compile Include="KeyValueStorage\NoSuchKeyException.cs" />
     <Compile Include="KeyValueStorage\SqlServer\SqlServerKeyValueStore.cs" />
     <Compile Include="ServiceBus\IServiceBus.cs" />
-    <Compile Include="StuffThatDoesNotBelongHere\MultiEventPersister.cs" />
     <Compile Include="StuffThatDoesNotBelongHere\EventPersistenceService.cs" />
     <Compile Include="CQRS\EventSourcing\AggregateRoot.cs" />
     <Compile Include="CQRS\EventSourcing\IEventApplier.cs" />

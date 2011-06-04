@@ -11,39 +11,46 @@ namespace Composable.StuffThatDoesNotBelongHere
         where TEvent : IAggregateRootEvent
         where TImplementor : MultiEventHandler<TImplementor, TEvent>
     {
-        private static readonly Dictionary<Type, Action<TImplementor, TEvent>> Handlers = new Dictionary<Type, Action<TImplementor, TEvent>>();
-        private static bool ShouldIgnoreUnHandled;
+        private readonly Dictionary<Type, Action<TEvent>> _handlers = new Dictionary<Type, Action<TEvent>>();
+        private bool _shouldIgnoreUnHandled;
 
-        private static Action<TImplementor, TEvent> RunBeforeHandlers = (_,__) => { };
-        private static Action<TImplementor, TEvent> RunAfterHandlers = (_, __) => { };
+        private Action<TEvent> _runBeforeHandlers = _ => { };
+        private Action<TEvent> _runAfterHandlers = _ => { };
 
-        protected static void IgnoreUnHandled()
+        protected void IgnoreUnHandled()
         {
-            ShouldIgnoreUnHandled = true;
+            _shouldIgnoreUnHandled = true;
         }
 
-        protected static RegistrationBuilder RegisterHandlers()
+        protected RegistrationBuilder RegisterHandlers()
         {
-            return new RegistrationBuilder();
+            return new RegistrationBuilder(this);
         }
 
         public class RegistrationBuilder
-        {            
-            public RegistrationBuilder For<THandledEvent>(Action<TImplementor, THandledEvent> handler) where THandledEvent : TEvent
+        {
+            private readonly MultiEventHandler<TImplementor, TEvent> _owner;
+
+            public RegistrationBuilder(MultiEventHandler<TImplementor, TEvent> owner )
             {
-                Handlers.Add(typeof(THandledEvent), (me, @event) => handler(me, (THandledEvent)@event));
+                _owner = owner;
+            }
+
+            public RegistrationBuilder For<THandledEvent>(Action<THandledEvent> handler) where THandledEvent : TEvent
+            {
+                _owner._handlers.Add(typeof(THandledEvent), (@event) => handler((THandledEvent)@event));
                 return this;
             }
 
-            public RegistrationBuilder BeforeHandlers(Action<TImplementor, TEvent> runBeforeHandlers)
+            public RegistrationBuilder BeforeHandlers(Action<TEvent> runBeforeHandlers)
             {
-                RunBeforeHandlers = runBeforeHandlers;
+                _owner._runBeforeHandlers = runBeforeHandlers;
                 return this;
             }
 
-            public RegistrationBuilder AfterHandlers(Action<TImplementor, TEvent> runAfterHandlers)
+            public RegistrationBuilder AfterHandlers(Action<TEvent> runAfterHandlers)
             {
-                RunAfterHandlers = runAfterHandlers;
+                _owner._runAfterHandlers = runAfterHandlers;
                 return this;
             }
         }
@@ -51,14 +58,13 @@ namespace Composable.StuffThatDoesNotBelongHere
         public void Handle(TEvent evt)
         {
             var handler = GetHandler(evt);
-            var implementor = (TImplementor)this;
-            RunBeforeHandlers(implementor, evt);
-            handler(implementor, evt);    
-            RunAfterHandlers(implementor, evt);
+            _runBeforeHandlers(evt);
+            handler(evt);    
+            _runAfterHandlers(evt);
         }
 
-        private static Action<TImplementor, TEvent> GetHandler(TEvent evt) {
-            var handlers = Handlers
+        private Action<TEvent> GetHandler(TEvent evt) {
+            var handlers = _handlers
                 .Where(registration => registration.Key.IsAssignableFrom(evt.GetType()))
                 .Select(registration => registration.Value);
 
@@ -71,7 +77,7 @@ namespace Composable.StuffThatDoesNotBelongHere
 
             if(handler == null)
             {
-                if (ShouldIgnoreUnHandled)
+                if (_shouldIgnoreUnHandled)
                 {
                     return handler;
                 }

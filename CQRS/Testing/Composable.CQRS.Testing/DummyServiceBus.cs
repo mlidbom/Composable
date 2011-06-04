@@ -10,9 +10,9 @@ namespace Composable.CQRS.Testing
 {
     public class DummyServiceBus : IServiceBus
     {
-        private readonly IServiceLocator _serviceLocator;
+        private readonly IWindsorContainer _serviceLocator;
 
-        public DummyServiceBus(IServiceLocator serviceLocator)
+        public DummyServiceBus(IWindsorContainer serviceLocator)
         {
             _serviceLocator = serviceLocator;
         }
@@ -43,7 +43,7 @@ namespace Composable.CQRS.Testing
             var handlers = new List<object>();
             foreach(var handlerType in handlerTypes)
             {
-                handlers.AddRange(new List<object>( _serviceLocator.GetAllInstances(handlerType)));
+                handlers.AddRange(_serviceLocator.ResolveAll(handlerType).Cast<object>());
             }
 
             //var handlers = handlerTypes.SelectMany(type =>_serviceLocator.GetAllInstances(type)).ToArray();

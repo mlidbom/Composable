@@ -49,7 +49,7 @@ namespace Composable.CQRS.Testing
             //var handlers = handlerTypes.SelectMany(type =>_serviceLocator.GetAllInstances(type)).ToArray();
             foreach(dynamic handler in handlers)
             {
-                handler.Handle(message);
+                handler.Handle((dynamic)message);
             }
         }
     }

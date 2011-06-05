@@ -109,6 +109,10 @@
     <Compile Include="KeyValueStorage\IObjectStore.cs" />
     <Compile Include="KeyValueStorage\KeyValueStoreSessionProxy.cs" />
     <Compile Include="KeyValueStorage\InMemoryObjectStore.cs" />
+    <Compile Include="KeyValueStorage\SqlServer\CannotSetBothInterceptorAndFactoryMethodForInterceptor.cs" />
+    <Compile Include="KeyValueStorage\SqlServer\InMemoryKeyValueStoreConfig.cs" />
+    <Compile Include="KeyValueStorage\SqlServer\KeyValueStoreConfig.cs" />
+    <Compile Include="KeyValueStorage\SqlServer\SqlServerKeyValueStoreConfig.cs" />
     <Compile Include="KeyValueStorage\SqlServer\SqlServerObjectStore.cs" />
     <Compile Include="KeyValueStorage\SqlServer\TooManyItemsDeletedException.cs" />
     <Compile Include="NewtonSoft\IncludeMembersWithPrivateSettersResolver.cs" />

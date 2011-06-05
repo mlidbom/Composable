@@ -1,7 +1,6 @@
 #region usings
 
 using System.Transactions;
-using Newtonsoft.Json;
 
 #endregion
 
@@ -12,6 +11,11 @@ namespace Composable.KeyValueStorage.SqlServer
         public string ConnectionString { get; private set; }
         public SqlServerKeyValueStoreConfig Config { get; private set; }
 
+        public IObjectStore CreateStore()
+        {
+            return new SqlServerObjectStore(this);
+        }
+
         public SqlServerKeyValueStore(string connectionString, SqlServerKeyValueStoreConfig config = null)
         {
             if(config == null)
@@ -20,11 +24,11 @@ namespace Composable.KeyValueStorage.SqlServer
             }
             ConnectionString = connectionString;
             Config = config;
-        }
+        }        
 
         public IKeyValueStoreSession OpenSession()
         {
-            return new KeyValueSession(new SqlServerObjectStore(this), Config.Interceptor);
+            return new KeyValueSession(this, Config);
         }
 
         public static void ResetDB(string connectionString)
@@ -35,20 +39,5 @@ namespace Composable.KeyValueStorage.SqlServer
                 session.PurgeDb();
             }
         }
-    }
-
-    public class SqlServerKeyValueStoreConfig
-    {
-        public static readonly SqlServerKeyValueStoreConfig Default = new SqlServerKeyValueStoreConfig
-                                                                          {                                                                              
-                                                                          };
-
-        public SqlServerKeyValueStoreConfig()
-        {
-            Interceptor = NullOpKeyValueStoreInterceptor.Instance;
-        }
-        public bool Batching = true;
-        public Formatting JSonFormatting = Formatting.None;
-        public IKeyValueStoreInterceptor Interceptor { get; set; }
     }
 }

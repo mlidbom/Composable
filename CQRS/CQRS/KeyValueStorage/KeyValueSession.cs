@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Composable.DDD;
+using Composable.KeyValueStorage.SqlServer;
 using Composable.System.Linq;
 using System.Linq;
 
@@ -14,10 +15,14 @@ namespace Composable.KeyValueStorage
         private readonly InMemoryObjectStore _idMap = new InMemoryObjectStore();
 
 
-        public KeyValueSession(IObjectStore backingStore, IKeyValueStoreInterceptor interceptor)
+        public KeyValueSession(IKeyValueStore store, KeyValueStoreConfig config = null)
         {
-            _backingStore = backingStore;
-            _interceptor = interceptor;
+            if(config == null)
+            {
+                config = KeyValueStoreConfig.Default;
+            }
+            _backingStore = store.CreateStore();
+            _interceptor = config.Interceptor;
         }
 
 

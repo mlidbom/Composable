@@ -5,7 +5,7 @@
         void AfterLoad(object instance);
     }
 
-    class NullOpKeyValueStoreInterceptor : IKeyValueStoreInterceptor
+    public class NullOpKeyValueStoreInterceptor : IKeyValueStoreInterceptor
     {
         public static IKeyValueStoreInterceptor Instance = new NullOpKeyValueStoreInterceptor();
 

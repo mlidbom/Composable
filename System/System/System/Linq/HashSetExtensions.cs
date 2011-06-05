@@ -1,5 +1,6 @@
 #region usings
 
+using System.Collections;
 using System.Collections.Generic;
 
 #endregion
@@ -19,6 +20,11 @@ namespace Composable.System.Linq
         {
             me.Remove(value);
             me.Add(value);
+        }
+
+        public static void AddRange<T>(this ICollection<T> me, IEnumerable<T> value)
+        {
+            value.ForEach(me.Add);
         }
     }
 }

@@ -8,6 +8,7 @@ namespace Composable.System.Reflection
     {
         public static IEnumerable<object> GetGraph(object o)
         {
+            yield return o;
             if(o is IEnumerable)
             {
                 foreach (var value in (o as IEnumerable).Cast<object>().SelectMany(GetGraph))
@@ -21,8 +22,7 @@ namespace Composable.System.Reflection
                     yield return value;
                 }
             }
-           
-            
+                        
         }
     }
 }

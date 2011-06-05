@@ -89,7 +89,7 @@ namespace Composable.KeyValueStorage
             object existing;
             if(!TryGet(value.GetType(), key, out existing))
             {
-                throw new NoSuchKeyException(key, value.GetType());
+                throw new NoSuchDocumentException(key, value.GetType());
             }
             if(!ReferenceEquals(value, existing))
             {

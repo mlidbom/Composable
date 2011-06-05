@@ -8,11 +8,11 @@ using Composable.DDD;
 
 namespace Composable.KeyValueStorage
 {
-    public class KeyValueStoreSessionProxy : IKeyValueStoreSession
+    public class DocumentDbSessionProxy : IDocumentDbSession
     {
-        protected IKeyValueStoreSession Session { get; private set; }
+        protected IDocumentDbSession Session { get; private set; }
 
-        protected KeyValueStoreSessionProxy(IKeyValueStoreSession session)
+        protected DocumentDbSessionProxy(IDocumentDbSession session)
         {
             Session = session;
         }

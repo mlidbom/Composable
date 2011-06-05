@@ -2,14 +2,14 @@ using System;
 
 namespace Composable.KeyValueStorage.SqlServer
 {
-    public class KeyValueStoreConfig
+    public class DocumentDbConfig
     {
-        public static readonly KeyValueStoreConfig Default = new KeyValueStoreConfig();
+        public static readonly DocumentDbConfig Default = new DocumentDbConfig();
 
-        private IKeyValueStoreInterceptor _interceptor;
-        private Func<IKeyValueStoreInterceptor> _interceptorFactory;        
+        private IDocumentDbSessionInterceptor _interceptor;
+        private Func<IDocumentDbSessionInterceptor> _interceptorFactory;        
 
-        public Func<IKeyValueStoreInterceptor> InterceptorFactory
+        public Func<IDocumentDbSessionInterceptor> InterceptorFactory
         {
             get { return _interceptorFactory; }
             set
@@ -22,7 +22,7 @@ namespace Composable.KeyValueStorage.SqlServer
             }
         }
 
-        public IKeyValueStoreInterceptor Interceptor
+        public IDocumentDbSessionInterceptor Interceptor
         {
             get
             {
@@ -34,7 +34,7 @@ namespace Composable.KeyValueStorage.SqlServer
                 {
                     return InterceptorFactory();
                 }
-                return NullOpKeyValueStoreInterceptor.Instance;
+                return NullOpDocumentDbSessionInterceptor.Instance;
             }
             set
             {

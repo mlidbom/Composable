@@ -3,21 +3,21 @@ using Composable.System.Linq;
 
 namespace Composable.KeyValueStorage
 {
-    public class InMemoryKeyValueStore : IKeyValueStore
+    public class InMemoryDocumentDb : IDocumentDb
     {
         private readonly IObjectStore _store = new InMemoryObjectStore();
-        protected InMemoryKeyValueStoreConfig Config { get; private set; }
+        protected InMemoryDocumentDbConfig Config { get; private set; }
 
         public IObjectStore CreateStore()
         {
             return _store;
         }
 
-        public InMemoryKeyValueStore(InMemoryKeyValueStoreConfig config = null)
+        public InMemoryDocumentDb(InMemoryDocumentDbConfig config = null)
         {
             if (config == null)
             {
-                Config = InMemoryKeyValueStoreConfig.Default;
+                Config = InMemoryDocumentDbConfig.Default;
             }
             else
             {
@@ -25,9 +25,9 @@ namespace Composable.KeyValueStorage
             }
         }
 
-        public IKeyValueStoreSession OpenSession()
+        public IDocumentDbSession OpenSession()
         {
-            return new KeyValueSession(this, this.Config);
+            return new DocumentDbSession(this, this.Config);
         }
     }
 }

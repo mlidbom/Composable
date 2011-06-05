@@ -2,9 +2,9 @@ using Composable.KeyValueStorage.SqlServer;
 
 namespace Composable.KeyValueStorage
 {
-    public interface IKeyValueStore
+    public interface IDocumentDb
     {
         IObjectStore CreateStore();
-        IKeyValueStoreSession OpenSession();
+        IDocumentDbSession OpenSession();
     }
 }

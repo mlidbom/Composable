@@ -7,19 +7,19 @@ using System.Linq;
 
 namespace Composable.KeyValueStorage
 {
-    public class KeyValueSession : IKeyValueStoreSession
+    public class DocumentDbSession : IDocumentDbSession
     {
         private readonly IObjectStore _backingStore;
-        private readonly IKeyValueStoreInterceptor _interceptor;
+        private readonly IDocumentDbSessionInterceptor _interceptor;
 
         private readonly InMemoryObjectStore _idMap = new InMemoryObjectStore();
 
 
-        public KeyValueSession(IKeyValueStore store, KeyValueStoreConfig config = null)
+        public DocumentDbSession(IDocumentDb store, DocumentDbConfig config = null)
         {
             if(config == null)
             {
-                config = KeyValueStoreConfig.Default;
+                config = DocumentDbConfig.Default;
             }
             _backingStore = store.CreateStore();
             _interceptor = config.Interceptor;
@@ -51,7 +51,7 @@ namespace Composable.KeyValueStorage
                 return value;
             }
 
-            throw new NoSuchKeyException(key, typeof(TValue));
+            throw new NoSuchDocumentException(key, typeof(TValue));
         }
 
         public void Save<TValue>(Guid id, TValue value)
@@ -78,7 +78,7 @@ namespace Composable.KeyValueStorage
         {
             if (!_backingStore.Remove<T>(id))
             {
-                throw new NoSuchKeyException(id, typeof(T));
+                throw new NoSuchDocumentException(id, typeof(T));
             }
             _idMap.Remove<T>(id);
         }

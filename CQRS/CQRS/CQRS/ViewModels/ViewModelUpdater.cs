@@ -16,7 +16,7 @@ namespace Composable.CQRS.ViewModels
     public class ViewModelUpdater<TImplementor, TViewModel, TEvent, TSession> :
         MultiEventHandler<TImplementor, TEvent>
         where TImplementor : ViewModelUpdater<TImplementor, TViewModel, TEvent, TSession>
-        where TSession : IKeyValueStoreSession
+        where TSession : IDocumentDbSession
         where TEvent : IAggregateRootEvent
         where TViewModel : IHasPersistentIdentity<Guid>
     {

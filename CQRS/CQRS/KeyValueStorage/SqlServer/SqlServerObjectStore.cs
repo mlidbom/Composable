@@ -24,8 +24,8 @@ namespace Composable.KeyValueStorage.SqlServer
                                                                        ContractResolver = new IncludeMembersWithPrivateSettersResolver()
                                                                    };
 
-        private readonly SqlServerKeyValueStore _store;
-        private readonly SqlServerKeyValueStoreConfig _config;
+        private readonly SqlServerDocumentDb _store;
+        private readonly SqlServerDocumentDbConfig _config;
 
         private readonly HashSet<Guid> _persistentValues = new HashSet<Guid>();
         private const int UniqueConstraintViolationErrorNumber = 2627;
@@ -35,7 +35,7 @@ namespace Composable.KeyValueStorage.SqlServer
 
         private static readonly object LockObject = new object();
 
-        public SqlServerObjectStore(SqlServerKeyValueStore store)
+        public SqlServerObjectStore(SqlServerDocumentDb store)
         {
             Log.Debug("Constructor called");
             _store = store;

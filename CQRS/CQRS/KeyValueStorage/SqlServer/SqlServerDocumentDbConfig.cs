@@ -6,9 +6,9 @@ using Newtonsoft.Json;
 
 namespace Composable.KeyValueStorage.SqlServer
 {
-    public class SqlServerKeyValueStoreConfig : KeyValueStoreConfig
+    public class SqlServerDocumentDbConfig : DocumentDbConfig
     {
-        public static readonly SqlServerKeyValueStoreConfig Default = new SqlServerKeyValueStoreConfig();
+        public static readonly SqlServerDocumentDbConfig Default = new SqlServerDocumentDbConfig();
 
         public bool Batching = true;
         public Formatting JSonFormatting = Formatting.None;

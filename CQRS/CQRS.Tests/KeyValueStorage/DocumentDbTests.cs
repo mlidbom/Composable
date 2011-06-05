@@ -8,9 +8,9 @@ using System.Linq;
 namespace CQRS.Tests.KeyValueStorage
 {
     [TestFixture]
-    public abstract class KeyValueStoreTests
+    public abstract class DocumentDbTests
     {
-        protected abstract IKeyValueStore CreateStore();
+        protected abstract IDocumentDb CreateStore();
 
 
         [Test]
@@ -149,7 +149,7 @@ namespace CQRS.Tests.KeyValueStorage
             var store = CreateStore();
             using(var session = store.OpenSession())
             {
-                Assert.Throws<NoSuchKeyException>(() => session.Delete(new Dog()));
+                Assert.Throws<NoSuchDocumentException>(() => session.Delete(new Dog()));
             }            
         }
 
@@ -171,12 +171,12 @@ namespace CQRS.Tests.KeyValueStorage
                 session.Delete(user);
                 session.SaveChanges();
 
-                Assert.Throws<NoSuchKeyException>(() => session.Get<User>(user.Id));
+                Assert.Throws<NoSuchDocumentException>(() => session.Get<User>(user.Id));
             }
 
             using (var session = store.OpenSession())
             {
-                Assert.Throws<NoSuchKeyException>(() => session.Get<User>(user.Id));
+                Assert.Throws<NoSuchDocumentException>(() => session.Get<User>(user.Id));
             }
         }
 
@@ -197,12 +197,12 @@ namespace CQRS.Tests.KeyValueStorage
                 session.Delete(user);
                 session.SaveChanges();
 
-                Assert.Throws<NoSuchKeyException>(() => session.Get<User>(user.Id));
+                Assert.Throws<NoSuchDocumentException>(() => session.Get<User>(user.Id));
             }
 
             using (var session = store.OpenSession())
             {
-                Assert.Throws<NoSuchKeyException>(() => session.Get<User>(user.Id));
+                Assert.Throws<NoSuchDocumentException>(() => session.Get<User>(user.Id));
             }
         }
 
@@ -217,12 +217,12 @@ namespace CQRS.Tests.KeyValueStorage
                 session.Save(user);
                 session.Delete(user);
                 session.SaveChanges();
-                Assert.Throws<NoSuchKeyException>(() => session.Get<User>(user.Id));
+                Assert.Throws<NoSuchDocumentException>(() => session.Get<User>(user.Id));
             }
 
             using (var session = store.OpenSession())
             {
-                Assert.Throws<NoSuchKeyException>(() => session.Get<User>(user.Id));
+                Assert.Throws<NoSuchDocumentException>(() => session.Get<User>(user.Id));
             }
         }
 

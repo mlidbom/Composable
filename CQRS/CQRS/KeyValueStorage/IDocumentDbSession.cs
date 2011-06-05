@@ -5,7 +5,7 @@ using Composable.DDD;
 
 namespace Composable.KeyValueStorage
 {
-    public interface IKeyValueStoreSession : IDisposable
+    public interface IDocumentDbSession : IDisposable
     {
         TValue Get<TValue>(Guid key);
         bool TryGet<TValue>(Guid key, out TValue value);

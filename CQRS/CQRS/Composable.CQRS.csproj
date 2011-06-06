@@ -90,6 +90,7 @@
     <Compile Include="CQRS\Command\IValidationFailure.cs" />
     <Compile Include="CQRS\Command\MemberValidationFailure.cs" />
     <Compile Include="CQRS\DuplicateHandlersException.cs" />
+    <Compile Include="CQRS\EntityToReferenceConverter.cs" />
     <Compile Include="CQRS\UnNamedEntityReference.cs" />
     <Compile Include="CQRS\EventSourcing\AggregateRootEvent.cs" />
     <Compile Include="CQRS\EventSourcing\AttemptToSaveAlreadyPersistedAggregateException.cs" />

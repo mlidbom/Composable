@@ -8,11 +8,11 @@ using Composable.DDD;
 
 namespace Composable.KeyValueStorage
 {
-    public class KeyValueStoreSessionProxy : IKeyValueStoreSession
+    public class DocumentDbSessionProxy : IDocumentDbSession
     {
-        protected IKeyValueStoreSession Session { get; private set; }
+        protected IDocumentDbSession Session { get; private set; }
 
-        protected KeyValueStoreSessionProxy(IKeyValueStoreSession session)
+        protected DocumentDbSessionProxy(IDocumentDbSession session)
         {
             Session = session;
         }
@@ -27,9 +27,14 @@ namespace Composable.KeyValueStorage
             return Session.TryGet(key, out value);
         }
 
-        public virtual void Save<TValue>(Guid key, TValue value)
+        public virtual void Save<TValue>(Guid id, TValue value)
         {
-            Session.Save(key, value);
+            Session.Save(id, value);
+        }
+
+        public void Delete<TEntity>(Guid id)
+        {
+            Session.Delete<TEntity>(id);
         }
 
         public virtual void Save<TEntity>(TEntity entity) where TEntity : IHasPersistentIdentity<Guid>

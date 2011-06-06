@@ -2,6 +2,7 @@
 
 using System;
 using System.Diagnostics;
+using Composable.System;
 
 #endregion
 
@@ -16,6 +17,7 @@ namespace Composable.DDD
     /// the operators simply uses Equals.
     /// 
     /// </summary>
+    [DebuggerDisplay("{ToString()}")]
     public class IdEqualityObject<TEntity, TKEy> : IEquatable<TEntity>, IHasPersistentIdentity<TKEy> where TEntity : IdEqualityObject<TEntity, TKEy>
     {
         protected IdEqualityObject(){}
@@ -71,6 +73,11 @@ namespace Composable.DDD
         public static bool operator !=(IdEqualityObject<TEntity, TKEy> lhs, IdEqualityObject<TEntity, TKEy> rhs)
         {
             return !(lhs == rhs);
+        }
+
+        public override string ToString()
+        {
+            return "{0}:{1}".FormatWith(GetType().Name, Id);
         }
     }
 

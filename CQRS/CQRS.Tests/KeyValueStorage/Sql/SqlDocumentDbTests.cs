@@ -6,18 +6,19 @@ using NUnit.Framework;
 namespace CQRS.Tests.KeyValueStorage.Sql
 {
     [TestFixture]
-    class SqlKeyValueStoreTests : KeyValueStoreTests
+    class SqlDocumentDbTests : DocumentDbTests
     {
         private static string connectionString = ConfigurationManager.ConnectionStrings["KeyValueStore"].ConnectionString;
-        [TestFixtureSetUp]
+        
+        [SetUp]
         public static void Setup()
         {
-            SqlServerKeyValueStore.ResetDB(connectionString);
+            SqlServerDocumentDb.ResetDB(connectionString);
         }
 
-        protected override IKeyValueStore CreateStore()
+        protected override IDocumentDb CreateStore()
         {
-            return new SqlServerKeyValueStore(connectionString);
+            return new SqlServerDocumentDb(connectionString);
         }
     }
 }

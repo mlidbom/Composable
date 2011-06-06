@@ -1,6 +1,7 @@
 ﻿#region usings
 
 using System.Transactions;
+using Castle.Windsor;
 using Composable.CQRS;
 using Composable.DomainEvents;
 using Microsoft.Practices.ServiceLocation;
@@ -11,9 +12,9 @@ namespace Composable.StuffThatDoesNotBelongHere
 {
     public class EventPersistenceService : IEventPersistenceService
     {
-        private readonly IServiceLocator _serviceLocator;
+        private readonly IWindsorContainer _serviceLocator;
 
-        public EventPersistenceService(IServiceLocator serviceLocator)
+        public EventPersistenceService(IWindsorContainer serviceLocator)
         {
             _serviceLocator = serviceLocator;
         }
@@ -22,7 +23,7 @@ namespace Composable.StuffThatDoesNotBelongHere
         {
             using(var transaction = new TransactionScope())
             {
-                var handler = _serviceLocator.GetSingleInstance<IEventPersister<TEvent>>();
+                var handler = _serviceLocator.Resolve<IEventPersister<TEvent>>();
                 handler.Persist(evt);
                 transaction.Complete();
             }

@@ -141,6 +141,7 @@
     <Compile Include="DDD\PersistentEntity.cs" />
     <Compile Include="DDD\ValueObject.cs" />
     <Compile Include="DDD\VersionedPersistentEntity.cs" />
+    <Compile Include="System\Collections\Collections\CollectionExtensions.cs" />
     <Compile Include="System\Collections\Collections\DictionaryExtensions.cs" />
     <Compile Include="System\ComponentModel\DataAnnotations\IValidatableObjectExtensions.cs" />
     <Compile Include="System\EnumExtensions.cs" />
@@ -164,6 +165,8 @@
     <Compile Include="System\ObjectExtensions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="System\Reflection\AssemblyExtensions.cs" />
+    <Compile Include="System\Reflection\MemberAccessorHelper.cs" />
+    <Compile Include="System\Reflection\ObjectGraphWalker.cs" />
     <Compile Include="System\Reflection\TypeExtensions.cs" />
     <Compile Include="System\StringExtensions.cs" />
     <Compile Include="System\TimeSpanExtensions.cs" />

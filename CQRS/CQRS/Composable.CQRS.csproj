@@ -43,6 +43,13 @@
     <AssemblyOriginatorKeyFile>Void.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Castle.Core, Version=2.5.1.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\packages\Castle.Core.2.5.1\lib\NET40ClientProfile\Castle.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="Castle.Windsor">
+      <HintPath>..\..\packages\Castle.Windsor.2.5.1\lib\NET40\Castle.Windsor.dll</HintPath>
+    </Reference>
     <Reference Include="log4net, Version=1.2.10.0, Culture=neutral, PublicKeyToken=1b44e1d426115821, processorArchitecture=MSIL">
       <HintPath>..\..\..\..\packages\log4net.1.2.10\lib\2.0\log4net.dll</HintPath>
     </Reference>
@@ -83,6 +90,7 @@
     <Compile Include="CQRS\Command\IValidationFailure.cs" />
     <Compile Include="CQRS\Command\MemberValidationFailure.cs" />
     <Compile Include="CQRS\DuplicateHandlersException.cs" />
+    <Compile Include="CQRS\EntityToReferenceConverter.cs" />
     <Compile Include="CQRS\UnNamedEntityReference.cs" />
     <Compile Include="CQRS\EventSourcing\AggregateRootEvent.cs" />
     <Compile Include="CQRS\EventSourcing\AttemptToSaveAlreadyPersistedAggregateException.cs" />
@@ -97,19 +105,26 @@
     <Compile Include="CQRS\IUnNamedEntityReference.cs" />
     <Compile Include="CQRS\INamed.cs" />
     <Compile Include="CQRS\TypeExtensions.cs" />
-    <Compile Include="CQRS\ViewModels\IViewModelUpdater.cs" />
     <Compile Include="CQRS\ViewModels\ViewModelUpdater.cs" />
-    <Compile Include="KeyValueStorage\KeyValueStoreSessionProxy.cs" />
+    <Compile Include="KeyValueStorage\IDocumentDbSessionInterceptor.cs" />
+    <Compile Include="KeyValueStorage\IObjectStore.cs" />
+    <Compile Include="KeyValueStorage\DocumentDbSessionProxy.cs" />
+    <Compile Include="KeyValueStorage\InMemoryObjectStore.cs" />
+    <Compile Include="KeyValueStorage\SqlServer\CannotSetBothInterceptorAndFactoryMethodForInterceptor.cs" />
+    <Compile Include="KeyValueStorage\SqlServer\InMemoryDocumentDbConfig.cs" />
+    <Compile Include="KeyValueStorage\SqlServer\DocumentDbConfig.cs" />
+    <Compile Include="KeyValueStorage\SqlServer\SqlServerDocumentDbConfig.cs" />
+    <Compile Include="KeyValueStorage\SqlServer\SqlServerObjectStore.cs" />
     <Compile Include="KeyValueStorage\SqlServer\TooManyItemsDeletedException.cs" />
     <Compile Include="NewtonSoft\IncludeMembersWithPrivateSettersResolver.cs" />
     <Compile Include="CQRS\EventSourcing\SQLServer\SqlServerEventStore.cs" />
     <Compile Include="KeyValueStorage\AttemptToSaveAlreadyPersistedValueException.cs" />
-    <Compile Include="KeyValueStorage\IKeyValueStoreSession.cs" />
-    <Compile Include="KeyValueStorage\IKeyValueStore.cs" />
-    <Compile Include="KeyValueStorage\InMemoryKeyValueStore.cs" />
-    <Compile Include="KeyValueStorage\InMemoryKeyValueSession.cs" />
-    <Compile Include="KeyValueStorage\NoSuchKeyException.cs" />
-    <Compile Include="KeyValueStorage\SqlServer\SqlServerKeyValueStore.cs" />
+    <Compile Include="KeyValueStorage\IDocumentDbSession.cs" />
+    <Compile Include="KeyValueStorage\IDocumentDb.cs" />
+    <Compile Include="KeyValueStorage\InMemoryDocumentDb.cs" />
+    <Compile Include="KeyValueStorage\DocumentDbSession.cs" />
+    <Compile Include="KeyValueStorage\NoSuchDocumentException.cs" />
+    <Compile Include="KeyValueStorage\SqlServer\SqlServerDocumentDb.cs" />
     <Compile Include="ServiceBus\IServiceBus.cs" />
     <Compile Include="StuffThatDoesNotBelongHere\EventPersistenceService.cs" />
     <Compile Include="CQRS\EventSourcing\AggregateRoot.cs" />
@@ -132,6 +147,8 @@
     <Compile Include="CQRS\Query\IQuery.cs" />
     <Compile Include="CQRS\Query\IQueryService.cs" />
     <Compile Include="CQRS\ServiceLocatorExtensions.cs" />
+    <Compile Include="StuffThatDoesNotBelongHere\Translation\TranslateAttribute.cs" />
+    <Compile Include="StuffThatDoesNotBelongHere\Translation\TranslationTypeExtensions.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Composable.CQRS.nuspec">

@@ -1,62 +1,82 @@
 using System;
 using System.Collections.Generic;
+using Composable.CQRS.EventSourcing;
 using Composable.DomainEvents;
 using System.Linq;
+using NServiceBus;
+using Composable.System;
 
 namespace Composable.StuffThatDoesNotBelongHere
 {
-    public class MultiEventHandler<TImplementor, TEvent>
-        where TEvent : IDomainEvent
+    public class MultiEventHandler<TImplementor, TEvent> : IHandleMessages<TEvent> 
+        where TEvent : IAggregateRootEvent
         where TImplementor : MultiEventHandler<TImplementor, TEvent>
     {
-        private static readonly Dictionary<Type, Action<TImplementor, TEvent>> Handlers = new Dictionary<Type, Action<TImplementor, TEvent>>();
-        private static bool ShouldIgnoreUnHandled;
+        private readonly Dictionary<Type, Action<TEvent>> _handlers = new Dictionary<Type, Action<TEvent>>();
+        private bool _shouldIgnoreUnHandled;
 
-        private static Action<TImplementor, TEvent> RunBeforeHandlers = (_,__) => { };
-        private static Action<TImplementor, TEvent> RunAfterHandlers = (_, __) => { };
+        private Action<TEvent> _runBeforeHandlers = _ => { };
+        private Action<TEvent> _runAfterHandlers = _ => { };
 
-        protected static void IgnoreUnHandled()
+        protected void IgnoreUnHandled()
         {
-            ShouldIgnoreUnHandled = true;
+            _shouldIgnoreUnHandled = true;
         }
 
-        protected static RegistrationBuilder RegisterHandlers()
+        protected RegistrationBuilder RegisterHandlers()
         {
-            return new RegistrationBuilder();
+            return new RegistrationBuilder(this);
         }
 
         public class RegistrationBuilder
-        {            
-            public RegistrationBuilder For<THandledEvent>(Action<TImplementor, THandledEvent> handler) where THandledEvent : TEvent
+        {
+            private readonly MultiEventHandler<TImplementor, TEvent> _owner;
+
+            public RegistrationBuilder(MultiEventHandler<TImplementor, TEvent> owner )
             {
-                Handlers.Add(typeof(THandledEvent), (me, @event) => handler(me, (THandledEvent)@event));
+                _owner = owner;
+            }
+
+            public RegistrationBuilder For<THandledEvent>(Action<THandledEvent> handler) where THandledEvent : TEvent
+            {
+                _owner._handlers.Add(typeof(THandledEvent), (@event) => handler((THandledEvent)@event));
                 return this;
             }
 
-            public RegistrationBuilder BeforeHandlers(Action<TImplementor, TEvent> runBeforeHandlers)
+            public RegistrationBuilder For(Type eventType, Action<TEvent> handler)
             {
-                RunBeforeHandlers = runBeforeHandlers;
+                if(!typeof(TEvent).IsAssignableFrom(eventType))
+                {
+                    throw new Exception("{0} Does not implement {1}. \nYou cannot register a handler for an event type that does not implement the listened for event".FormatWith(eventType, typeof(TEvent)));
+                }
+
+                _owner._handlers.Add(eventType, handler);
                 return this;
             }
 
-            public RegistrationBuilder AfterHandlers(Action<TImplementor, TEvent> runAfterHandlers)
+            public RegistrationBuilder BeforeHandlers(Action<TEvent> runBeforeHandlers)
             {
-                RunAfterHandlers = runAfterHandlers;
+                _owner._runBeforeHandlers = runBeforeHandlers;
+                return this;
+            }
+
+            public RegistrationBuilder AfterHandlers(Action<TEvent> runAfterHandlers)
+            {
+                _owner._runAfterHandlers = runAfterHandlers;
                 return this;
             }
         }
 
-        public void Persist(TEvent evt)
+        public virtual void Handle(TEvent evt)
         {
             var handler = GetHandler(evt);
-            var implementor = (TImplementor)this;
-            RunBeforeHandlers(implementor, evt);
-            handler(implementor, evt);    
-            RunAfterHandlers(implementor, evt);
+            _runBeforeHandlers(evt);
+            handler(evt);    
+            _runAfterHandlers(evt);
         }
 
-        private static Action<TImplementor, TEvent> GetHandler(TEvent evt) {
-            var handlers = Handlers
+        private Action<TEvent> GetHandler(TEvent evt) {
+            var handlers = _handlers
                 .Where(registration => registration.Key.IsAssignableFrom(evt.GetType()))
                 .Select(registration => registration.Value);
 
@@ -69,11 +89,11 @@ namespace Composable.StuffThatDoesNotBelongHere
 
             if(handler == null)
             {
-                if (ShouldIgnoreUnHandled)
+                if (_shouldIgnoreUnHandled)
                 {
                     return handler;
                 }
-                throw new EventUnhandledException(evt);
+                throw new EventUnhandledException(this.GetType(), evt, typeof(TEvent));
             }
             return handler;
         }
@@ -89,7 +109,10 @@ namespace Composable.StuffThatDoesNotBelongHere
 
     public class EventUnhandledException : Exception
     {
-        public EventUnhandledException(IDomainEvent evt):base(evt.GetType().AssemblyQualifiedName)
+        public EventUnhandledException(Type handlerType, IDomainEvent evt, Type listenedFor)
+            : base(
+  @"{0} does not handle nor ignore incoming event {1} matching listened for type {2}
+It should either listen for more specific events or call IgnoreUnHandled".FormatWith(handlerType, evt.GetType(), listenedFor))
         {
             
         }

@@ -8,9 +8,9 @@ using System.Linq;
 namespace CQRS.Tests.KeyValueStorage
 {
     [TestFixture]
-    public abstract class KeyValueStoreTests
+    public abstract class DocumentDbTests
     {
-        protected abstract IKeyValueStore CreateStore();
+        protected abstract IDocumentDb CreateStore();
 
 
         [Test]
@@ -144,6 +144,89 @@ namespace CQRS.Tests.KeyValueStorage
 
 
         [Test]
+        public void ThrowsExceptionWhenAttemptingToDeleteNonExistingValue()
+        {
+            var store = CreateStore();
+            using(var session = store.OpenSession())
+            {
+                Assert.Throws<NoSuchDocumentException>(() => session.Delete(new Dog()));
+            }            
+        }
+
+        [Test]
+        public void HandlesDeletesOfInstancesAlreadyLoaded()
+        {
+            var store = CreateStore();
+            var user = new User() {Id = Guid.NewGuid()};
+            
+            using(var session = store.OpenSession())
+            {
+                session.Save(user);
+                session.SaveChanges();
+            }
+
+            using(var session = store.OpenSession())
+            {
+                var loadedUser = session.Get<User>(user.Id);
+                session.Delete(user);
+                session.SaveChanges();
+
+                Assert.Throws<NoSuchDocumentException>(() => session.Get<User>(user.Id));
+            }
+
+            using (var session = store.OpenSession())
+            {
+                Assert.Throws<NoSuchDocumentException>(() => session.Get<User>(user.Id));
+            }
+        }
+
+        [Test]
+        public void HandlesDeletesOfInstancesNotYetLoaded()
+        {
+            var store = CreateStore();
+            var user = new User() { Id = Guid.NewGuid() };
+
+            using (var session = store.OpenSession())
+            {
+                session.Save(user);
+                session.SaveChanges();
+            }
+
+            using (var session = store.OpenSession())
+            {
+                session.Delete(user);
+                session.SaveChanges();
+
+                Assert.Throws<NoSuchDocumentException>(() => session.Get<User>(user.Id));
+            }
+
+            using (var session = store.OpenSession())
+            {
+                Assert.Throws<NoSuchDocumentException>(() => session.Get<User>(user.Id));
+            }
+        }
+
+        [Test]
+        public void HandlesAValueBeingAddedAndDeletedDuringTheSameSession()
+        {
+            var store = CreateStore();
+            var user = new User() { Id = Guid.NewGuid() };
+
+            using (var session = store.OpenSession())
+            {
+                session.Save(user);
+                session.Delete(user);
+                session.SaveChanges();
+                Assert.Throws<NoSuchDocumentException>(() => session.Get<User>(user.Id));
+            }
+
+            using (var session = store.OpenSession())
+            {
+                Assert.Throws<NoSuchDocumentException>(() => session.Get<User>(user.Id));
+            }
+        }
+
+        [Test]
         public void TracksAndUpdatesLoadedAggregates()
         {
             var store = CreateStore();
@@ -192,6 +275,108 @@ namespace CQRS.Tests.KeyValueStorage
                 }
             });
         }
+
+        [Test]
+        public void HandlesInstancesOfDifferentTypesWithTheSameId()
+        {
+            var store = CreateStore();
+
+            var user = new User()
+            {
+                Id = Guid.NewGuid(),
+                Email = "email"
+            };
+
+            var dog = new Dog() { Id = user.Id };
+
+            using (var session = store.OpenSession())
+            {
+                session.Save(user);
+                session.Save(dog);
+                session.SaveChanges();
+            }
+
+            using (var session = store.OpenSession())
+            {
+                var loadedDog = session.Get<Dog>(dog.Id);
+                var loadedUser = session.Get<User>(dog.Id);
+
+                Assert.That(loadedDog.Name, Is.EqualTo(dog.Name));
+                Assert.That(loadedUser.Email, Is.EqualTo(user.Email));
+                Assert.That(loadedDog.Id, Is.EqualTo(user.Id));
+                Assert.That(loadedUser.Id, Is.EqualTo(user.Id));
+            }
+        }
+
+
+        [Test]
+        public void FetchesAllinstancesPerType()
+        {
+            var store = CreateStore();
+
+            using (var session = store.OpenSession())
+            {
+                session.Save(new User(){ Id = Guid.NewGuid() });
+                session.Save(new User() { Id = Guid.NewGuid() });
+                session.Save(new Dog() { Id = Guid.NewGuid() });
+                session.Save(new Dog() { Id = Guid.NewGuid() });
+                session.SaveChanges();
+            }
+
+            using (var session = store.OpenSession())
+            {
+                Assert.That(session.GetAll<Dog>().ToList(), Has.Count.EqualTo(2));
+                Assert.That(session.GetAll<User>().ToList(), Has.Count.EqualTo(2));
+            }
+        }
+
+        [Test]
+        public void GetHandlesSubTyping()
+        {
+            var store = CreateStore();
+
+            var user1 = new User() { Id = Guid.NewGuid() };
+            var person1 = new Person() { Id = Guid.NewGuid() };
+
+            using (var session = store.OpenSession())
+            {                
+                session.Save(user1);                
+                session.Save(person1);
+                session.SaveChanges();
+            }
+
+            using (var session = store.OpenSession())
+            {
+                Assert.That(session.Get<Person>(user1.Id), Is.EqualTo(user1));
+                Assert.That(session.Get<Person>(person1.Id), Is.EqualTo(person1));
+            }
+        }
+
+        [Test]
+        public void GetAllHandlesSubTyping()
+        {
+            var store = CreateStore();
+
+            var user1 = new User() { Id = Guid.NewGuid() };
+            var person1 = new Person() { Id = Guid.NewGuid() };
+
+            using (var session = store.OpenSession())
+            {
+                session.Save(user1);
+                session.Save(person1);
+                session.SaveChanges();
+            }
+
+            using (var session = store.OpenSession())
+            {
+                var people = session.GetAll<Person>().ToList();
+
+                Assert.That(people, Has.Count.EqualTo(2));
+                Assert.That(people, Contains.Item(user1));
+                Assert.That(people, Contains.Item(person1));
+            }
+        }
+
 
 
         //[Test]

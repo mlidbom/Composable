@@ -4,6 +4,7 @@ using System;
 using Composable.DDD;
 using Composable.StuffThatDoesNotBelongHere;
 using Composable.StuffThatDoesNotBelongHere.Translation;
+using Composable.System;
 
 #endregion
 
@@ -18,6 +19,11 @@ namespace Composable.CQRS
 
         public UnNamedEntityReference(TKey id) : base(id){}
         public UnNamedEntityReference(TReferencedType referenced) : base(referenced.Id){}
+
+        public override string ToString()
+        {
+            return "RefTo:{0}, Id:{1}".FormatWith(typeof (TReferencedType).Name, Id);
+        }
     }
 
     public class UnNamedEntityReference<TReferencedType> :
@@ -46,6 +52,11 @@ namespace Composable.CQRS
 
         [Translate]
         public virtual string Name { get; protected set; }
+
+        public override string ToString()
+        {
+            return "{0}, Name:{1}".FormatWith(base.ToString(), Name);
+        }
     }
 
     public class EntityReference<TReferencedType> :        

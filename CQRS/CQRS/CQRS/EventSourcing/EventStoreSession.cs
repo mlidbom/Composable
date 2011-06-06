@@ -72,6 +72,10 @@ namespace Composable.CQRS.EventSourcing
             {
                 throw new AttemptToSaveAlreadyPersistedAggregateException(aggregate);
             }
+            if(aggregate.Version == 0 && changes.None())
+            {
+                throw new AttemptToSaveEmptyAggregate(aggregate);
+            }
             _idMap.Add(aggregate.Id, aggregate);
         }
 
@@ -87,5 +91,12 @@ namespace Composable.CQRS.EventSourcing
 
         private readonly Guid Me = Guid.NewGuid();
       
+    }
+
+    public class AttemptToSaveEmptyAggregate : Exception
+    {
+        public AttemptToSaveEmptyAggregate(object value):base("Attempting to save an: {0} that Version=0 and no history to persist.".FormatWith(value.GetType().FullName))
+        {
+        }
     }
 }

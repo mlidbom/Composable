@@ -122,7 +122,7 @@ namespace Composable.DomainEvents
         public static void Raise<T>(T args) where T : IDomainEvent
         {
             Contract.Requires(args != null);
-            ServiceLocator.GetAllInstances<IHandles<T>>().ForEach(handler => handler.Handle(args));
+            ServiceLocator.GetAllInstances<IHandles<T>>().ToArray().ForEach(handler => handler.Handle(args));
 
             ManualSubscribers.OfType<Action<T>>()
                 .ForEach(action => action(args));

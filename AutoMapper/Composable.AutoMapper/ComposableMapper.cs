@@ -87,10 +87,10 @@ namespace Composable.AutoMapper
 
         private static Func<IMappingEngine> CreateDefaultProvider()
         {
-            var configuration = new Configuration(new TypeMapFactory(), MapperRegistry.AllMappers());
+            var configuration = new ConfigurationStore(new TypeMapFactory(), MapperRegistry.AllMappers());
             var safeConfiguration = new SafeConfiguration(configuration);
 
-            foreach(var mappingCreator in _locator.GetAllInstances<IProvidesMappings>())
+            foreach(var mappingCreator in _locator.GetAllInstances<IProvidesMappings>().ToArray())
             {
                 mappingCreator.CreateMappings(safeConfiguration);
             }

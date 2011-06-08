@@ -16,7 +16,7 @@ namespace Composable.CQRS
         {
             Contract.Requires(me != null);
             Contract.Ensures(Contract.Result<T>() != null);
-            var instances = me.GetAllInstances<T>();
+            var instances = me.GetAllInstances<T>().ToArray();
             Contract.Assume(instances != null);
             if(instances.Count() > 1)
             {

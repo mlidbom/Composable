@@ -11,9 +11,9 @@ namespace Composable.AutoMapper
     public class SafeConfiguration
     {
         private readonly IDictionary<Type, ISet<Type>> _mapping = new Dictionary<Type, ISet<Type>>();
-        private readonly Configuration _configuration;
+        private readonly ConfigurationStore _configuration;
 
-        public SafeConfiguration(Configuration configuration)
+        public SafeConfiguration(ConfigurationStore configuration)
         {
             _configuration = configuration;
         }

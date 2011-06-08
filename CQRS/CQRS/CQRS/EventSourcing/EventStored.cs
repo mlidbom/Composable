@@ -7,6 +7,7 @@ using Composable.System.Linq;
 
 namespace Composable.CQRS.EventSourcing
 {
+    [Obsolete("Inheritors should migrate to either AggregateRoot or ReferenceObject")]
     public class EventStored<TEntity> : VersionedPersistentEntity<TEntity> where TEntity : VersionedPersistentEntity<TEntity>, new()
     {
         protected EventStored() { }

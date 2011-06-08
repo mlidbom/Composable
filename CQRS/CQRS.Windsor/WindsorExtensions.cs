@@ -1,11 +1,9 @@
 ﻿using Castle.MicroKernel.Registration;
 using Composable.AutoMapper;
-using Composable.CQRS;
 using Composable.CQRS.Query;
 using Composable.StuffThatDoesNotBelongHere;
 
-
-namespace Manpower.System.Web.Mvc.StuffThatDoesNotBelongHere
+namespace Composable.CQRS.Windsor
 {
     public static class WindsorExtensions
     {

@@ -23,7 +23,7 @@ namespace Composable.CQRS.Command
             IEnumerable<IValidationFailure> failures;
             using(var transaction = new TransactionScope())
             {
-                var handlers = _serviceLocator.GetAllInstances<ICommandValidator<TCommand>>();
+                var handlers = _serviceLocator.GetAllInstances<ICommandValidator<TCommand>>().ToArray();
                 failures = handlers.SelectMany(handler => handler.Validate(command));
 
                 transaction.Complete();

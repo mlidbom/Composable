@@ -92,6 +92,8 @@
     <Compile Include="CQRS\DuplicateHandlersException.cs" />
     <Compile Include="CQRS\EntityToReferenceConverter.cs" />
     <Compile Include="CQRS\IReferenceObject.cs" />
+    <Compile Include="CQRS\ReferenceObject.cs" />
+    <Compile Include="CQRS\TranslatedReferenceObject.cs" />
     <Compile Include="CQRS\UnNamedEntityReference.cs" />
     <Compile Include="CQRS\EventSourcing\AggregateRootEvent.cs" />
     <Compile Include="CQRS\EventSourcing\AttemptToSaveAlreadyPersistedAggregateException.cs" />
@@ -106,6 +108,7 @@
     <Compile Include="CQRS\IUnNamedEntityReference.cs" />
     <Compile Include="CQRS\INamed.cs" />
     <Compile Include="CQRS\TypeExtensions.cs" />
+    <Compile Include="CQRS\UnNamedReferenceObject.cs" />
     <Compile Include="CQRS\ViewModels\ViewModelUpdater.cs" />
     <Compile Include="KeyValueStorage\IDocumentDbSessionInterceptor.cs" />
     <Compile Include="KeyValueStorage\IObjectStore.cs" />

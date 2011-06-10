@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Transactions;
 using Composable.CQRS.EventSourcing.SQLServer;
+using Composable.ServiceBus;
 using Composable.System.Linq;
 using Composable.System;
 using log4net;
@@ -15,13 +16,15 @@ namespace Composable.CQRS.EventSourcing
 {
     public abstract class EventStoreSession : IEventStoreSession
     {
+        private readonly IServiceBus _bus;
         private static ILog Log = LogManager.GetLogger(typeof(EventStoreSession));
         protected readonly IDictionary<Guid, IEventStored> _idMap = new Dictionary<Guid, IEventStored>();
 
         protected abstract IEnumerable<IAggregateRootEvent> GetHistoryUnSafe(Guid aggregateId);
 
-        protected EventStoreSession()
+        protected EventStoreSession(IServiceBus bus)
         {
+            _bus = bus;
         }
 
         private IEnumerable<IAggregateRootEvent> GetHistory(Guid aggregateId)
@@ -82,7 +85,9 @@ namespace Composable.CQRS.EventSourcing
         public void SaveChanges()
         {
             Log.DebugFormat("saving changes with {0} changes from transaction", _idMap.Count);
-            SaveEvents(_idMap.SelectMany(p => p.Value.GetChanges()));
+            var newEvents = _idMap.SelectMany(p => p.Value.GetChanges());
+            SaveEvents(newEvents);
+            newEvents.ForEach(_bus.Publish);
             _idMap.Select(p => p.Value).ForEach(p => p.AcceptChanges());
         }
 

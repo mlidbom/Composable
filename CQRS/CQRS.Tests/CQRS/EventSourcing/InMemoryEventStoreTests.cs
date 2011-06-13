@@ -1,4 +1,6 @@
+using Castle.Windsor;
 using Composable.CQRS.EventSourcing;
+using Composable.CQRS.Testing;
 using NUnit.Framework;
 
 namespace CQRS.Tests.CQRS.EventSourcing
@@ -8,7 +10,7 @@ namespace CQRS.Tests.CQRS.EventSourcing
     {
         protected override IEventStore CreateStore()
         {
-            return new InMemoryEventStore();
+            return new InMemoryEventStore(new DummyServiceBus(new WindsorContainer()));
         }
     }
 }

@@ -241,6 +241,7 @@ DROP TABLE [dbo].[Events]";
                     EventsTableVerifiedToExist = false;
                 }
             }
+            EnsureEventsTableExists();
         }
     }
 }

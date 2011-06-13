@@ -200,7 +200,7 @@ ALTER TABLE [dbo].[Events] ADD  CONSTRAINT [DF_Events_TimeStamp]  DEFAULT (getda
                         command.CommandType = CommandType.Text;
                         for(var handledInBatch = 0; handledInBatch < SqlBatchSize && handled < eventCount; handledInBatch++, handled++)
                         {
-                            var @event = events.ElementAt(handledInBatch);
+                            var @event = events.ElementAt(handled);
 
                             command.CommandText += "INSERT Events(AggregateId, AggregateVersion, EventType, EventId, Event) VALUES(@AggregateId{0}, @AggregateVersion{0}, @EventType{0}, @EventId{0}, @Event{0})"
                                 .FormatWith(handledInBatch);

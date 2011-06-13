@@ -237,8 +237,6 @@ namespace CQRS.Tests.CQRS.EventSourcing
                 session.Save(user);
                 session.SaveChanges();
             }
-
-            Assert.Inconclusive();
         }
 
         //[Test]

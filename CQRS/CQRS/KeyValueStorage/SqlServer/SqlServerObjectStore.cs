@@ -227,7 +227,7 @@ namespace Composable.KeyValueStorage.SqlServer
                 var acceptableTypeNames = KnownTypes.Where(type.IsAssignableFrom).Select(t => t.FullName).ToArray();
                 if (acceptableTypeNames.None())
                 {
-                    throw new Exception("FUBAR");
+                    throw new Exception("Type: {0} is not among the known types".FormatWith(type.FullName));
                 }
 
                 command.CommandText += " IN( '" + acceptableTypeNames.Join("','") + "')";

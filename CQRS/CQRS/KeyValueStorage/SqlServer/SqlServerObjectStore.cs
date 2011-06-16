@@ -122,7 +122,7 @@ namespace Composable.KeyValueStorage.SqlServer
                 {
                     command.CommandType = CommandType.Text;
                     command.CommandText += "DELETE Store WHERE Id = @Id AND ValueType ";
-                    command.Parameters.Add(new SqlParameter("Id", id));
+                    command.Parameters.Add(new SqlParameter("Id", id.ToString()));
                     
                     AddTypeCriteria(command, typeof(T));
                     
@@ -154,7 +154,7 @@ namespace Composable.KeyValueStorage.SqlServer
 
                             command.CommandText += "UPDATE Store SET Value = @Value{0} WHERE Id = @Id{0} AND ValueType \n"
                                 .FormatWith(handledInBatch);
-                            command.Parameters.Add(new SqlParameter("Id" + handledInBatch, entry.Key));
+                            command.Parameters.Add(new SqlParameter("Id" + handledInBatch, entry.Key.ToString()));
                             
                             AddTypeCriteria(command, entry.Value.GetType());
 

@@ -50,8 +50,8 @@
     <Reference Include="Castle.Windsor">
       <HintPath>..\..\packages\Castle.Windsor.2.5.1\lib\NET40\Castle.Windsor.dll</HintPath>
     </Reference>
-    <Reference Include="log4net, Version=1.2.10.0, Culture=neutral, PublicKeyToken=1b44e1d426115821, processorArchitecture=MSIL">
-      <HintPath>..\..\..\..\packages\log4net.1.2.10\lib\2.0\log4net.dll</HintPath>
+    <Reference Include="log4net">
+      <HintPath>..\..\packages\log4net.1.2.10\lib\2.0\log4net.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.Practices.ServiceLocation">
       <HintPath>..\..\packages\CommonServiceLocator.1.0\lib\NET35\Microsoft.Practices.ServiceLocation.dll</HintPath>
@@ -92,6 +92,8 @@
     <Compile Include="CQRS\DuplicateHandlersException.cs" />
     <Compile Include="CQRS\EntityToReferenceConverter.cs" />
     <Compile Include="CQRS\IReferenceObject.cs" />
+    <Compile Include="CQRS\ReferenceObject.cs" />
+    <Compile Include="CQRS\TranslatedReferenceObject.cs" />
     <Compile Include="CQRS\UnNamedEntityReference.cs" />
     <Compile Include="CQRS\EventSourcing\AggregateRootEvent.cs" />
     <Compile Include="CQRS\EventSourcing\AttemptToSaveAlreadyPersistedAggregateException.cs" />
@@ -106,6 +108,7 @@
     <Compile Include="CQRS\IUnNamedEntityReference.cs" />
     <Compile Include="CQRS\INamed.cs" />
     <Compile Include="CQRS\TypeExtensions.cs" />
+    <Compile Include="CQRS\UnNamedReferenceObject.cs" />
     <Compile Include="CQRS\ViewModels\ViewModelUpdater.cs" />
     <Compile Include="KeyValueStorage\IDocumentDbSessionInterceptor.cs" />
     <Compile Include="KeyValueStorage\IObjectStore.cs" />

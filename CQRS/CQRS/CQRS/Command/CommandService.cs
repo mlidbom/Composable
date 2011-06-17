@@ -34,7 +34,7 @@ namespace Composable.CQRS.Command
             {
                 using(var transaction = new TransactionScope())
                 {
-                    var handler = _serviceLocator.GetSingleInstance<ICommandHandler<TCommand>>();
+                    var handler = _serviceLocator.GetInstance<ICommandHandler<TCommand>>();
                     handler.Execute(command);
                     transaction.Complete();
                 }

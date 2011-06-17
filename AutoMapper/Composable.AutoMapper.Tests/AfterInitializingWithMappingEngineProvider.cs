@@ -27,7 +27,7 @@ namespace Composable.AutoMapper.Tests
         [TestFixtureSetUp]
         public void Setup()
         {
-            var configuration = new Configuration(new TypeMapFactory(), MapperRegistry.AllMappers());
+            var configuration = new ConfigurationStore(new TypeMapFactory(), MapperRegistry.AllMappers());
             configuration.AssertConfigurationIsValid();
             configuration.CreateMap<A, B>();
             configuration.CreateMap<B, A>();

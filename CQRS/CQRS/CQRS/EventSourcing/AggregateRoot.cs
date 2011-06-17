@@ -12,9 +12,8 @@ namespace Composable.CQRS.EventSourcing
     {
         private readonly IList<IAggregateRootEvent> _unCommittedEvents = new List<IAggregateRootEvent>();
         
-        protected AggregateRoot() { }
-
-        public AggregateRoot(Guid id) : base(id) { }
+        //Yes empty. Id should be assigned by action and it should be obvious that the aggregate in invalid until that happens
+        protected AggregateRoot():base(Guid.Empty) { }
 
         private readonly Dictionary<Type, Action<IAggregateRootEvent>> _registeredEvents = new Dictionary<Type, Action<IAggregateRootEvent>>();
         protected void RegisterEventHandler<TEvent>(Action<TEvent> eventHandler) where TEvent : class, IDomainEvent
@@ -34,7 +33,7 @@ namespace Composable.CQRS.EventSourcing
             evt.AggregateRootVersion = ++Version;
             evt.AggregateRootId = Id;
             _unCommittedEvents.Add(evt);
-            DomainEvent.Raise(evt);//Fixme: Don't do this synchronously!
+            //DomainEvent.Raise(evt);//Fixme: Don't do this synchronously!
         }        
 
         private void DoApply(IAggregateRootEvent evt)

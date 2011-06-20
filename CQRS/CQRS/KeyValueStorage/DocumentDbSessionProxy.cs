@@ -17,22 +17,22 @@ namespace Composable.KeyValueStorage
             Session = session;
         }
 
-        public virtual TValue Get<TValue>(Guid key)
+        public virtual TValue Get<TValue>(object key)
         {
             return Session.Get<TValue>(key);
         }
 
-        public virtual bool TryGet<TValue>(Guid key, out TValue value)
+        public virtual bool TryGet<TValue>(object key, out TValue value)
         {
             return Session.TryGet(key, out value);
         }
 
-        public virtual void Save<TValue>(Guid id, TValue value)
+        public virtual void Save<TValue>(object id, TValue value)
         {
             Session.Save(id, value);
         }
 
-        public void Delete<TEntity>(Guid id)
+        public void Delete<TEntity>(object id)
         {
             Session.Delete<TEntity>(id);
         }
@@ -52,7 +52,7 @@ namespace Composable.KeyValueStorage
             Session.SaveChanges();
         }
 
-        public virtual IEnumerable<T> GetAll<T>()
+        public virtual IEnumerable<T> GetAll<T>() where T : IHasPersistentIdentity<Guid>
         {
             return Session.GetAll<T>();
         }

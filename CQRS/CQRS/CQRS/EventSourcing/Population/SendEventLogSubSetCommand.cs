@@ -14,6 +14,19 @@ namespace Composable.CQRS.EventSourcing.Population
     /// </summary>
     public class SendEventLogSubSetCommand : ICommandMessage
     {
+        public SendEventLogSubSetCommand()
+        {}
+
+
+        /// <summary>Copy constructor</summary>
+        public SendEventLogSubSetCommand(SendEventLogSubSetCommand command)
+        {
+            EventTypes = command.EventTypes;
+            MaxEventsPerMessage = command.MaxEventsPerMessage;
+            NumberOfEventsToSend = command.NumberOfEventsToSend;
+            StartAfterEventId = command.StartAfterEventId;
+        }
+
         /// <summary>The returned list of events should start with the first event in chronological order AFTER this event 
         /// in the source systems event log.
         /// 
@@ -39,13 +52,12 @@ namespace Composable.CQRS.EventSourcing.Population
     /// </summary>
     public class MoreEventsAvailable : IMessage
     {
-        public Guid LastEventSent { get; set; }
-        public Type[] EventTypes { get; set; }
+        public SendEventLogSubSetCommand ContinuationCommand { get; set; }
     }
 
     /// <summary>Signals to the requesting party that all events in the log have been sent.</summary>
     public class NoMoreEventsAvailable:IMessage
     {
-        
+        public SendEventLogSubSetCommand Command { get; set; }
     }
 }

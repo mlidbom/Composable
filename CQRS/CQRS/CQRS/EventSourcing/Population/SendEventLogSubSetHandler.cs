@@ -1,4 +1,5 @@
-﻿using NServiceBus;
+﻿using System;
+using NServiceBus;
 using Composable.System.Linq;
 using System.Linq;
 
@@ -35,14 +36,43 @@ namespace Composable.CQRS.EventSourcing.Population
                 {
                     _bus.Reply(new MoreEventsAvailable()
                                    {
-                                       LastEventSent = lastEvent.EventId,
-                                       EventTypes = command.EventTypes
+                                        ContinuationCommand = new SendEventLogSubSetCommand(command)
+                                                                  {
+                                                                      StartAfterEventId = lastEvent.EventId
+                                                                  }
                                    });
                     return;
                 }
             }
 
-            _bus.Reply(new NoMoreEventsAvailable());
+            _bus.Reply(new NoMoreEventsAvailable()
+                           {
+                               Command = command
+                           });
+        }
+    }
+
+    public class MoreEventsAvailableHandler : IHandleMessages<MoreEventsAvailable>
+    {
+        private readonly IBus _bus;
+
+        public MoreEventsAvailableHandler(IBus bus)
+        {
+            _bus = bus;
+        }
+
+        public void Handle(MoreEventsAvailable message)
+        {
+            _bus.Reply(message.ContinuationCommand);
+        }
+    }
+
+    public class NoMoreEventsAvailableHandler : IHandleMessages<NoMoreEventsAvailable>
+    {
+        public event Action<NoMoreEventsAvailable> NoMoreEvents = _ => { }; 
+        public void Handle(NoMoreEventsAvailable message)
+        {
+            NoMoreEvents(message);
         }
     }
 }

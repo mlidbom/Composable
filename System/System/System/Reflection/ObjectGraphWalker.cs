@@ -8,6 +8,11 @@ namespace Composable.System.Reflection
     {
         public static IEnumerable<object> GetGraph(object o)
         {
+            if(o == null)
+            {
+                yield break;
+            }
+
             yield return o;
             if(o is IEnumerable)
             {
@@ -17,12 +22,11 @@ namespace Composable.System.Reflection
                 }
             }else
             {
-                foreach (var value in MemberAccessorHelper.GetFieldAndPropertyValues(o))
+                foreach (var value in MemberAccessorHelper.GetFieldAndPropertyValues(o).SelectMany(GetGraph))
                 {
                     yield return value;
                 }
-            }
-                        
+            }                        
         }
     }
 }

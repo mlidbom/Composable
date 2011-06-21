@@ -41,13 +41,6 @@ namespace CQRS.Tests.Command
             locator = new StructureMapServiceLocator(container);
             ModifyCandidateHandler.ExecuteCalled = false;
 
-            DomainEvent.Init(locator);
-        }
-
-        [TearDown]
-        public void TearDown()
-        {
-            DomainEvent.ResetOnlyUseFromTests();
         }
 
         [Test]

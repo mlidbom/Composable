@@ -12,14 +12,6 @@ namespace CQRS.Tests.CQRS.EventSourcing
     [TestFixture]
     public abstract class EventStoreTests : NoSqlTest
     {
-
-        [SetUp]
-        public void Setup()
-        {
-            DomainEvent.ResetOnlyUseFromTests();
-            DomainEvent.Init(new WindsorServiceLocator(new WindsorContainer()));
-        }
-
         [Test]
         public void CanSaveAndLoadAggregate()
         {

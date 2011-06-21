@@ -27,5 +27,15 @@ namespace Composable.CQRS.EventSourcing
         {
             events.ForEach(e => _store.Events.Add(e));
         }
+
+        public IEnumerable<IAggregateRootEvent> StreamEventsAfterEventWithId(Guid? startAfterEventId)
+        {
+            IEnumerable<IAggregateRootEvent> events = _store.Events.OrderBy(e => e.TimeStamp);
+            if(startAfterEventId.HasValue)
+            {
+                events = events.SkipWhile(e => e.EventId != startAfterEventId).Skip(1);
+            }
+            return events;
+        }
     }
 }

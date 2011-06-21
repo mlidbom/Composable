@@ -18,6 +18,7 @@ namespace Composable.CQRS.EventSourcing
     {
         IEnumerable<IAggregateRootEvent> GetHistoryUnSafe(Guid id);
         void SaveEvents(IEnumerable<IAggregateRootEvent> events);
+        IEnumerable<IAggregateRootEvent> StreamEventsAfterEventWithId(Guid? startAfterEventId);
     }
 
     public class EventStoreSession : IEventStoreSession

@@ -47,6 +47,9 @@
     <Reference Include="CommonServiceLocator.WindsorAdapter">
       <HintPath>..\..\packages\CommonServiceLocator.WindsorAdapter.1.0\lib\NET35\CommonServiceLocator.WindsorAdapter.dll</HintPath>
     </Reference>
+    <Reference Include="FluentAssertions">
+      <HintPath>..\..\..\..\packages\FluentAssertions.1.4.0.0\Lib\.NetFramework 4.0\FluentAssertions.dll</HintPath>
+    </Reference>
     <Reference Include="log4net">
       <HintPath>..\..\packages\log4net.1.2.10\lib\2.0\log4net.dll</HintPath>
     </Reference>
@@ -88,6 +91,7 @@
   <ItemGroup>
     <Compile Include="Command\WhenExecutingIDomainCommand.cs" />
     <Compile Include="CQRS\EventSourcing\AggregateRootTests.cs" />
+    <Compile Include="CQRS\EventSourcing\EventSomethingOrOtherTest.cs" />
     <Compile Include="CQRS\EventSourcing\EventStoreTests.cs" />
     <Compile Include="CQRS\EventSourcing\InMemoryEventStoreTests.cs" />
     <Compile Include="CQRS\EventSourcing\Sql\SqlServerEventStoreTests.cs" />

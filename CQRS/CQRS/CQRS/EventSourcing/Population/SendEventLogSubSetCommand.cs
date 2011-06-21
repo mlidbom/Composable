@@ -30,7 +30,7 @@ namespace Composable.CQRS.EventSourcing.Population
         /// <summary>Specifies that only events of this type or subtypes should be included in the list sent.
         /// If you want to get all events use null;
         /// </summary>
-        public Type EventType { get; set; }
+        public Type[] EventTypes { get; set; }
     }
 
     /// <summary>Signals to the requesting party that there are more events left in the log.
@@ -40,6 +40,7 @@ namespace Composable.CQRS.EventSourcing.Population
     public class MoreEventsAvailable : IMessage
     {
         public Guid LastEventSent { get; set; }
+        public Type[] EventTypes { get; set; }
     }
 
     /// <summary>Signals to the requesting party that all events in the log have been sent.</summary>

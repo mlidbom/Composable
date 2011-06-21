@@ -5,6 +5,7 @@ using CommonServiceLocator.WindsorAdapter;
 using Composable.CQRS.EventSourcing;
 using Composable.DomainEvents;
 using NUnit.Framework;
+using Composable.System.Linq;
 
 namespace CQRS.Tests.CQRS.EventSourcing
 {
@@ -220,6 +221,22 @@ namespace CQRS.Tests.CQRS.EventSourcing
                                                                                        session.SaveChanges();
                                                                                    }
                                                                                });
+        }
+
+        [Test]
+        public void DoesNotExplodeWhenSavingMoreThan10Events()
+        {
+            var store = CreateStore();
+
+            var user = new User();
+            user.Register("OriginalEmail", "password", Guid.NewGuid());
+            1.Through(100).ForEach(index => user.ChangeEmail("email" + index));
+
+            using (var session = store.OpenSession())
+            {
+                session.Save(user);
+                session.SaveChanges();
+            }
         }
 
         //[Test]

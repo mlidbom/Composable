@@ -7,6 +7,7 @@ using System.Data.SqlClient;
 using System.Linq;
 using System.Transactions;
 using Composable.NewtonSoft;
+using Composable.ServiceBus;
 using Composable.System;
 using Composable.System.Linq;
 using log4net;
@@ -29,10 +30,12 @@ namespace Composable.CQRS.EventSourcing.SQLServer
     {
         public string ConnectionString { get; private set; }
         public SqlServerEventStoreConfig Config {get;private set;}
+        public IServiceBus Bus { get; private set; }
 
-        public SqlServerEventStore(string connectionString, SqlServerEventStoreConfig config = SqlServerEventStoreConfig.Default)
+        public SqlServerEventStore(string connectionString, IServiceBus bus, SqlServerEventStoreConfig config = SqlServerEventStoreConfig.Default)
         {
             ConnectionString = connectionString;
+            Bus = bus;
             Config = config;
         }
 
@@ -43,10 +46,10 @@ namespace Composable.CQRS.EventSourcing.SQLServer
 
         public static void ResetDB(string connectionString)
         {
-            var me = new SqlServerEventStore(connectionString);
+            var me = new SqlServerEventStore(connectionString, null);
             using(var session = new SqlServerEventStoreSession(me))
             {
-                session.PurgeDB();
+                session.ResetDB();
             }
         }
     }
@@ -89,7 +92,7 @@ namespace Composable.CQRS.EventSourcing.SQLServer
                                                                        ContractResolver = new IncludeMembersWithPrivateSettersResolver()
                                                                    };
 
-        public SqlServerEventStoreSession(SqlServerEventStore store)
+        public SqlServerEventStoreSession(SqlServerEventStore store) : base(store.Bus)
         {
             Log.Debug("Constructor called");
             //Console.WriteLine("{0}: {1}", GetType().Name, ++instances);
@@ -227,7 +230,7 @@ ALTER TABLE [dbo].[Events] ADD  CONSTRAINT [DF_Events_TimeStamp]  DEFAULT (getda
             }
         }
 
-        public void PurgeDB()
+        public void ResetDB()
         {
             using (var _connection = OpenSession())
             {

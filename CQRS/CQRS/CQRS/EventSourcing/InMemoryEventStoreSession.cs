@@ -9,7 +9,7 @@ namespace Composable.CQRS.EventSourcing
     {
         private readonly InMemoryEventStore _store;
 
-        public InMemoryEventStoreSession(InMemoryEventStore store)
+        public InMemoryEventStoreSession(InMemoryEventStore store) : base(store.Bus)
         {
             _store = store;
         }

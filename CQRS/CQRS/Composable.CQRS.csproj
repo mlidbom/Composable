@@ -76,6 +76,7 @@
     </Compile>
     <Compile Include="CQRS\Command\Command.cs" />
     <Compile Include="CQRS\Command\CommandFailedEvent.cs" />
+    <Compile Include="CQRS\Command\CommandFailedException.cs" />
     <Compile Include="CQRS\Command\CommandResult.cs" />
     <Compile Include="CQRS\Command\CommandService.cs" />
     <Compile Include="CQRS\Command\CommandSucceededEvent.cs" />

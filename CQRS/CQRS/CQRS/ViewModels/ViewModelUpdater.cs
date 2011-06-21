@@ -18,12 +18,14 @@ namespace Composable.CQRS.ViewModels
         where TImplementor : ViewModelUpdater<TImplementor, TViewModel, TEvent, TSession>
         where TSession : IDocumentDbSession
         where TEvent : IAggregateRootEvent
-        where TViewModel : IHasPersistentIdentity<Guid>
+        where TViewModel : class, IHasPersistentIdentity<Guid>
     {
         protected readonly TSession Session;
 
         protected TViewModel Model { get; set; }
 
+        private bool _doAdd;
+ 
         protected ViewModelUpdater(TSession session, Type creationEvent):this(session, Seq.Create(creationEvent), Seq.Create<Type>())
         {
 
@@ -47,14 +49,22 @@ namespace Composable.CQRS.ViewModels
 
             registrar.BeforeHandlers(e =>
                                          {
-                                             if (!creationEvents.Any(eventType => eventType.IsAssignableFrom(e.GetType())))
+                                             if (creationEvents.Any(eventType => eventType.IsAssignableFrom(e.GetType())))
+                                             {
+                                                TViewModel m;
+                                                Session.TryGet(e.AggregateRootId, out m);
+                                                Model = m;
+                                                this._doAdd = (m == null);
+                                             }
+                                             else
                                              {
                                                  Model = Session.Get<TViewModel>(e.AggregateRootId);
+                                                 this._doAdd = false;
                                              }
                                          })
                 .AfterHandlers(e =>
                                    {
-                                       if (creationEvents.Any(eventType => eventType.IsAssignableFrom(e.GetType())))
+                                       if (this._doAdd)
                                        {
                                            Session.Save(Model);
                                        }

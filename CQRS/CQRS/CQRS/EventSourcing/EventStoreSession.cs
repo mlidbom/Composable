@@ -14,22 +14,28 @@ using log4net;
 
 namespace Composable.CQRS.EventSourcing
 {
-    public abstract class EventStoreSession : IEventStoreSession
+    public interface IEventSomethingOrOther : IDisposable
+    {
+        IEnumerable<IAggregateRootEvent> GetHistoryUnSafe(Guid id);
+        void SaveEvents(IEnumerable<IAggregateRootEvent> events);
+    }
+
+    public class EventStoreSession : IEventStoreSession
     {
         private readonly IServiceBus _bus;
+        private readonly IEventSomethingOrOther _storage;
         private static ILog Log = LogManager.GetLogger(typeof(EventStoreSession));
         protected readonly IDictionary<Guid, IEventStored> _idMap = new Dictionary<Guid, IEventStored>();
 
-        protected abstract IEnumerable<IAggregateRootEvent> GetHistoryUnSafe(Guid aggregateId);
-
-        protected EventStoreSession(IServiceBus bus)
+        public EventStoreSession(IServiceBus bus, IEventSomethingOrOther storage)
         {
             _bus = bus;
+            _storage = storage;
         }
 
         private IEnumerable<IAggregateRootEvent> GetHistory(Guid aggregateId)
         {
-            var history = GetHistoryUnSafe(aggregateId);
+            var history = _storage.GetHistoryUnSafe(aggregateId);
             if(history.None())
             {
                 throw new Exception(string.Format("Aggregate root with Id: {0} not found", aggregateId));
@@ -85,17 +91,18 @@ namespace Composable.CQRS.EventSourcing
         public void SaveChanges()
         {
             Log.DebugFormat("saving changes with {0} changes from transaction", _idMap.Count);
-            var newEvents = _idMap.SelectMany(p => p.Value.GetChanges());
-            SaveEvents(newEvents);
+            var newEvents = _idMap.SelectMany(p => p.Value.GetChanges()).ToList();
+            _storage.SaveEvents(newEvents);
             newEvents.ForEach(_bus.Publish);
             _idMap.Select(p => p.Value).ForEach(p => p.AcceptChanges());
         }
 
-        protected abstract void SaveEvents(IEnumerable<IAggregateRootEvent> events);
-        public abstract void Dispose();
-
         private readonly Guid Me = Guid.NewGuid();
-      
+
+        public void Dispose()
+        {
+            _storage.Dispose();
+        }
     }
 
     public class AttemptToSaveEmptyAggregate : Exception

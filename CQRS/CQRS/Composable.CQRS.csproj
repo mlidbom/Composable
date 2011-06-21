@@ -92,6 +92,7 @@
     <Compile Include="CQRS\DuplicateHandlersException.cs" />
     <Compile Include="CQRS\EntityToReferenceConverter.cs" />
     <Compile Include="CQRS\EventSourcing\Population\SendEventLogSubSetCommand.cs" />
+    <Compile Include="CQRS\EventSourcing\SQLServer\SqlServerEventSomethingOrOther.cs" />
     <Compile Include="CQRS\ICommandMessage.cs" />
     <Compile Include="CQRS\IReferenceObject.cs" />
     <Compile Include="CQRS\ReferenceObject.cs" />
@@ -105,7 +106,7 @@
     <Compile Include="CQRS\EventSourcing\IEventStore.cs" />
     <Compile Include="CQRS\EventSourcing\IEventStoreSession.cs" />
     <Compile Include="CQRS\EventSourcing\InMemoryEventStore.cs" />
-    <Compile Include="CQRS\EventSourcing\InMemoryEventStoreSession.cs" />
+    <Compile Include="CQRS\EventSourcing\InMemoryEventSomethingOrOther.cs" />
     <Compile Include="CQRS\EventSourcing\SQLServer\InvalidHistoryException.cs" />
     <Compile Include="CQRS\IUnNamedEntityReference.cs" />
     <Compile Include="CQRS\INamed.cs" />

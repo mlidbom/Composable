@@ -41,15 +41,16 @@ namespace Composable.System.Reflection
             if (!TypeFields.TryGetValue(type, out fields))
             {
                 var newFields = new List<Func<Object, object>>();
-                newFields.AddRange(
-                    type.GetFields(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public).Select(BuildFieldGetter));
-
-                var baseType = type.BaseType;
-                if (baseType != typeof(object))
+                if (!type.IsPrimitive)
                 {
-                    newFields.AddRange(GetFieldsAndPropertyGetters(baseType));
-                }
+                    newFields.AddRange(type.GetFields(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public).Select(BuildFieldGetter));
 
+                    var baseType = type.BaseType;
+                    if (baseType != typeof (object))
+                    {
+                        newFields.AddRange(GetFieldsAndPropertyGetters(baseType));
+                    }
+                }
                 TypeFields[type] = fields = newFields.ToArray();
             }
             Contract.Assume(fields != null);

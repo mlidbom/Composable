@@ -1,6 +1,8 @@
 ﻿using System.Configuration;
+using Castle.Windsor;
 using Composable.CQRS.EventSourcing;
 using Composable.CQRS.EventSourcing.SQLServer;
+using Composable.CQRS.Testing;
 using NUnit.Framework;
 
 namespace CQRS.Tests.CQRS.EventSourcing.Sql
@@ -17,7 +19,7 @@ namespace CQRS.Tests.CQRS.EventSourcing.Sql
 
         protected override IEventStore CreateStore()
         {
-            return new SqlServerEventStore(connectionString);
+            return new SqlServerEventStore(connectionString, new DummyServiceBus(new WindsorContainer()));
         }
     }
 }

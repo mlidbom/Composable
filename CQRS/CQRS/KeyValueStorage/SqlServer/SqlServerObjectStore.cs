@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
 using System.Linq;
+using Composable.DDD;
 using Composable.NewtonSoft;
 using Composable.System;
 using Composable.System.Linq;
@@ -27,7 +28,7 @@ namespace Composable.KeyValueStorage.SqlServer
         private readonly SqlServerDocumentDb _store;
         private readonly SqlServerDocumentDbConfig _config;
 
-        private readonly HashSet<Guid> _persistentValues = new HashSet<Guid>();
+        private readonly HashSet<string> _persistentValues = new HashSet<string>();
         private const int UniqueConstraintViolationErrorNumber = 2627;
         private readonly int _sqlBatchSize = 10;
 
@@ -51,7 +52,7 @@ namespace Composable.KeyValueStorage.SqlServer
         }
 
 
-        public bool TryGet<TValue>(Guid key, out TValue value)
+        public bool TryGet<TValue>(object key, out TValue value)
         {
             EnsureTypeRegistered(typeof(TValue));
             value = default(TValue);
@@ -62,7 +63,7 @@ namespace Composable.KeyValueStorage.SqlServer
                 using(var command = connection.CreateCommand())
                 {
                     command.CommandText = "SELECT Value, ValueType FROM Store WHERE Id=@Id AND ValueType ";
-                    command.Parameters.Add(new SqlParameter("Id", key));
+                    command.Parameters.Add(new SqlParameter("Id", key.ToString()));
                     
                     AddTypeCriteria(command, typeof(TValue));
 
@@ -76,12 +77,12 @@ namespace Composable.KeyValueStorage.SqlServer
                     }
                 }
             }
-            _persistentValues.Add(key);
+            _persistentValues.Add(key.ToString());
             value = (TValue)found;
             return true;
         }
 
-        public void Add<T>(Guid id, T value)
+        public void Add<T>(object id, T value)
         {
             EnsureTypeRegistered(value.GetType());
             using (var connection = OpenSession())
@@ -92,7 +93,7 @@ namespace Composable.KeyValueStorage.SqlServer
 
                     command.CommandText += "INSERT Store(Id, ValueType, Value) VALUES(@Id, @ValueType, @Value)";
 
-                    command.Parameters.Add(new SqlParameter("Id", id));
+                    command.Parameters.Add(new SqlParameter("Id", id.ToString()));
                     command.Parameters.Add(new SqlParameter("ValueType", value.GetType().FullName));
 
                     command.Parameters.Add(new SqlParameter("Value",
@@ -113,7 +114,7 @@ namespace Composable.KeyValueStorage.SqlServer
             }
         }
 
-        public bool Remove<T>(Guid id)
+        public bool Remove<T>(object id)
         {
             using (var connection = OpenSession())
             {
@@ -135,7 +136,7 @@ namespace Composable.KeyValueStorage.SqlServer
             }
         }
 
-        public void Update(IEnumerable<KeyValuePair<Guid, object>> values)
+        public void Update(IEnumerable<KeyValuePair<object, object>> values)
         {
             values = values.ToList();
             using (var connection = OpenSession())
@@ -182,7 +183,7 @@ namespace Composable.KeyValueStorage.SqlServer
                         while(reader.Read())
                         {
                             yield return
-                                new KeyValuePair<Guid, T>(reader.GetGuid(0),
+                                new KeyValuePair<Guid, T>(Guid.Parse(reader.GetString(0)),
                                 (T)JsonConvert.DeserializeObject(reader.GetString(1), reader.GetString(2).AsType(), _jsonSettings));
                         }
                     }
@@ -227,7 +228,7 @@ namespace Composable.KeyValueStorage.SqlServer
                 var acceptableTypeNames = KnownTypes.Where(type.IsAssignableFrom).Select(t => t.FullName).ToArray();
                 if (acceptableTypeNames.None())
                 {
-                    throw new Exception("FUBAR");
+                    throw new Exception("Type: {0} is not among the known types".FormatWith(type.FullName));
                 }
 
                 command.CommandText += " IN( '" + acceptableTypeNames.Join("','") + "')";
@@ -254,7 +255,7 @@ namespace Composable.KeyValueStorage.SqlServer
                                     createTableCommand.CommandText =
                                         @"
 CREATE TABLE [dbo].[Store](
-	[Id] [uniqueidentifier] NOT NULL,
+	[Id] [nvarchar](500) NOT NULL,
     [ValueType] [varchar](500) NOT NULL,
 	[Value] [nvarchar](max) NOT NULL,
  CONSTRAINT [PK_Store] PRIMARY KEY CLUSTERED 

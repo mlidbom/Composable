@@ -12,7 +12,7 @@ using Composable.System.Linq;
 #endregion
 
 namespace Composable.CQRS.ViewModels
-{
+{ 
     public class ViewModelUpdater<TImplementor, TViewModel, TEvent, TSession> :
         MultiEventHandler<TImplementor, TEvent>
         where TImplementor : ViewModelUpdater<TImplementor, TViewModel, TEvent, TSession>
@@ -49,7 +49,7 @@ namespace Composable.CQRS.ViewModels
 
             registrar.BeforeHandlers(e =>
                                          {
-                                             if (creationEvents.Contains(e.GetType()))
+                                             if (!creationEvents.Any(eventType => eventType.IsAssignableFrom(e.GetType())))
                                              {
                                                 TViewModel m;
                                                 Session.TryGet(e.AggregateRootId, out m);

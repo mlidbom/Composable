@@ -25,7 +25,7 @@ namespace Composable.CQRS.ViewModels
         protected TViewModel Model { get; set; }
 
         private bool _doAdd;
-
+ 
         protected ViewModelUpdater(TSession session, Type creationEvent):this(session, Seq.Create(creationEvent), Seq.Create<Type>())
         {
 

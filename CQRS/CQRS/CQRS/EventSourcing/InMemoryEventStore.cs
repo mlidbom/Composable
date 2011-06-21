@@ -17,7 +17,7 @@ namespace Composable.CQRS.EventSourcing
 
         public IEventStoreSession OpenSession()
         {
-            return new InMemoryEventStoreSession(this);
+            return new EventStoreSession(Bus, new InMemoryEventSomethingOrOther(this));
         }
     }
 }

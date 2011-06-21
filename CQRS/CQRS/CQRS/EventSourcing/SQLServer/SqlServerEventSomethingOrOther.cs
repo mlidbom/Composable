@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
+using System.Data.SqlTypes;
 using System.Linq;
 using Composable.NewtonSoft;
 using Composable.System;
@@ -47,7 +48,7 @@ namespace Composable.CQRS.EventSourcing.SQLServer
                                                                        TypeNameHandling = TypeNameHandling.Auto,
                                                                        ConstructorHandling = ConstructorHandling.AllowNonPublicDefaultConstructor,
                                                                        ContractResolver = new IncludeMembersWithPrivateSettersResolver()
-                                                                   };
+                                                                   };        
 
         public SqlServerEventSomethingOrOther(SqlServerEventStore store)
         {
@@ -91,6 +92,7 @@ CREATE TABLE [dbo].[Events](
 	[AggregateId] [uniqueidentifier] NOT NULL,
 	[AggregateVersion] [int] NOT NULL,
 	[TimeStamp] [datetime] NOT NULL,
+    [SqlTimeStamp] [TIMESTAMP] NOT NULL,
 	[EventType] [varchar](300) NOT NULL,
     [EventId] [uniqueidentifier] NOT NULL,
 	[Event] [nvarchar](max) NOT NULL,
@@ -100,9 +102,6 @@ CREATE TABLE [dbo].[Events](
 	[AggregateVersion] ASC
 )WITH (PAD_INDEX  = OFF, STATISTICS_NORECOMPUTE  = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS  = ON, ALLOW_PAGE_LOCKS  = ON) ON [PRIMARY]
 ) ON [PRIMARY]
-
-ALTER TABLE [dbo].[Events] ADD  CONSTRAINT [DF_Events_TimeStamp]  DEFAULT (getdate()) FOR [TimeStamp]
-
 ";
                             createTableCommand.ExecuteNonQuery();
                         }
@@ -112,30 +111,76 @@ ALTER TABLE [dbo].[Events] ADD  CONSTRAINT [DF_Events_TimeStamp]  DEFAULT (getda
             }
         }
 
+
+        private const string EventSelectClause = "SELECT EventType, Event, AggregateId, AggregateVersion, EventId, TimeStamp FROM Events ";
         public IEnumerable<IAggregateRootEvent> GetHistoryUnSafe(Guid aggregateId)
         {
-            using (var _connection = OpenSession())
+            using (var connection = OpenSession())
             {
-                using(var loadCommand = _connection.CreateCommand())
+                using(var loadCommand = connection.CreateCommand())
                 {
-                    loadCommand.CommandText =
-                        "SELECT EventType, Event, AggregateVersion, EventId FROM Events WHERE AggregateId = @AggregateId ORDER BY AggregateVersion ASC";
+                    loadCommand.CommandText = EventSelectClause + "WHERE AggregateId = @AggregateId ORDER BY AggregateVersion ASC";
                     loadCommand.Parameters.Add(new SqlParameter("AggregateId", aggregateId));
 
-                    using(var eventReader = loadCommand.ExecuteReader())
+                    using(var reader = loadCommand.ExecuteReader())
                     {
-                        for(var version = 1; eventReader.Read(); version++)
+                        while(reader.Read())
                         {
-                            var @event = DeserializeEvent(eventReader.GetString(0), eventReader.GetString(1));
-                            @event.AggregateRootVersion = eventReader.GetInt32(2);
-                            @event.EventId = eventReader.GetGuid(3);
-                            @event.AggregateRootId = aggregateId;
-
-                            yield return @event;
+                            yield return ReadEvent(reader);
                         }
                     }
                 }
             }
+        }
+
+        private Byte[] GetEventTimestamp(Guid eventId)
+        {
+            using (var connection = OpenSession())
+            {
+                using (var loadCommand = connection.CreateCommand())
+                {
+                    loadCommand.CommandText = "SELECT SqlTimeStamp FROM Events WHERE EventId = @EventId";
+                    loadCommand.Parameters.Add(new SqlParameter("EventId", eventId));
+                    return (byte[]) loadCommand.ExecuteScalar();
+                }
+            }
+        }
+
+        public IEnumerable<IAggregateRootEvent> StreamEventsAfterEventWithId(Guid? startAfterEventId)
+        {
+            using (var connection = OpenSession())
+            {
+                using (var loadCommand = connection.CreateCommand())
+                {
+                    if (startAfterEventId.HasValue)
+                    {
+                        loadCommand.CommandText = EventSelectClause + "WHERE SqlTimeStamp > @TimeStamp ORDER BY AggregateVersion ASC";
+                        loadCommand.Parameters.Add(new SqlParameter("TimeStamp", new SqlBinary(GetEventTimestamp(startAfterEventId.Value))));
+                    }else
+                    {
+                        loadCommand.CommandText = EventSelectClause + " ORDER BY AggregateVersion ASC";
+                    }
+
+                    using (var reader = loadCommand.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            yield return ReadEvent(reader);
+                        }
+                    }
+                }
+            }
+        }
+
+        private IAggregateRootEvent ReadEvent(SqlDataReader eventReader)
+        {
+            var @event = DeserializeEvent(eventReader.GetString(0), eventReader.GetString(1));
+            @event.AggregateRootId = eventReader.GetGuid(2);
+            @event.AggregateRootVersion = eventReader.GetInt32(3);
+            @event.EventId = eventReader.GetGuid(4);
+            @event.TimeStamp = eventReader.GetDateTime(5);
+
+            return @event;
         }
 
         private IAggregateRootEvent DeserializeEvent(string eventType, string eventData)
@@ -159,13 +204,15 @@ ALTER TABLE [dbo].[Events] ADD  CONSTRAINT [DF_Events_TimeStamp]  DEFAULT (getda
                         {
                             var @event = events.ElementAt(handled);
 
-                            command.CommandText += "INSERT Events(AggregateId, AggregateVersion, EventType, EventId, Event) VALUES(@AggregateId{0}, @AggregateVersion{0}, @EventType{0}, @EventId{0}, @Event{0})"
+                            command.CommandText += "INSERT Events(AggregateId, AggregateVersion, EventType, EventId, TimeStamp, Event) VALUES(@AggregateId{0}, @AggregateVersion{0}, @EventType{0}, @EventId{0}, @TimeStamp{0}, @Event{0})"
                                 .FormatWith(handledInBatch);
 
                             command.Parameters.Add(new SqlParameter("AggregateId" + handledInBatch, @event.AggregateRootId));
                             command.Parameters.Add(new SqlParameter("AggregateVersion" + handledInBatch, @event.AggregateRootVersion));
                             command.Parameters.Add(new SqlParameter("EventType" + handledInBatch, @event.GetType().FullName));
                             command.Parameters.Add(new SqlParameter("EventId" + handledInBatch, @event.EventId));
+                            command.Parameters.Add(new SqlParameter("TimeStamp" + handledInBatch, @event.TimeStamp));
+
                             command.Parameters.Add(new SqlParameter("Event" + handledInBatch,
                                                                     JsonConvert.SerializeObject(@event, Formatting.Indented, JsonSettings)));
                         }

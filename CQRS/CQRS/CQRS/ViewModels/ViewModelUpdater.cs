@@ -49,7 +49,7 @@ namespace Composable.CQRS.ViewModels
 
             registrar.BeforeHandlers(e =>
                                          {
-                                             if (creationEvents.Any(ce => ce.IsAssignableFrom(e.GetType())))
+                                             if (creationEvents.Any(eventType => eventType.IsAssignableFrom(e.GetType())))
                                              {
                                                 TViewModel m;
                                                 Session.TryGet(e.AggregateRootId, out m);

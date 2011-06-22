@@ -64,5 +64,14 @@ namespace Composable.System
             Contract.Requires(me != null && action != null);
             action(me);
         }
+
+        /// <summary>
+        /// Executes <paramref name="modifier"/> on <paramref name="objectToModify"/> and returns <paramref name="objectToModify"/>
+        /// </summary>
+        public static T Modify<T>(this T objectToModify, Action<T> modifier)
+        {
+            modifier(objectToModify);
+            return objectToModify;
+        }
     }
 }

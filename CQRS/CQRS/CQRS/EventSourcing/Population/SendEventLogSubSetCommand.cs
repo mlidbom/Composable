@@ -1,5 +1,7 @@
 ﻿using System;
+using Composable.System.Linq;
 using NServiceBus;
+using System.Linq;
 
 namespace Composable.CQRS.EventSourcing.Population
 {
@@ -15,7 +17,11 @@ namespace Composable.CQRS.EventSourcing.Population
     public class SendEventLogSubSetCommand : ICommandMessage
     {
         public SendEventLogSubSetCommand()
-        {}
+        {
+            EventTypes = Seq.OfTypes<IAggregateRootEvent>().ToArray();
+            MaxEventsPerMessage = 50;
+            NumberOfEventsToSend = 10000;
+        }
 
 
         /// <summary>Copy constructor</summary>

@@ -38,7 +38,7 @@ namespace Composable.CQRS.EventSourcing
             evt.AggregateRootVersion = ++Version;
             evt.AggregateRootId = Id;
             _unCommittedEvents.Add(evt);
-            //DomainEvent.Raise(evt);//Fixme: Don't do this synchronously!
+            DomainEvent.Raise(evt);//Fixme: Don't do this synchronously!
         }        
 
         private void DoApply(IAggregateRootEvent evt)

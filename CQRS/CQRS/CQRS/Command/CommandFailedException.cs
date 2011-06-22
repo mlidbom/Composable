@@ -32,6 +32,7 @@ namespace Composable.CQRS.Command
         {
         }
 
+        [Obsolete("Fix nested access")]
         private static string ExtractMemberName(LambdaExpression expr)
         {
             var body = expr.Body;

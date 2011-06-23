@@ -52,5 +52,10 @@ namespace Composable.CQRS.Testing
                 handler.Handle((dynamic)message);
             }
         }
+
+        public void SendLocal(object message)
+        {
+            Publish(message);
+        }
     }
 }

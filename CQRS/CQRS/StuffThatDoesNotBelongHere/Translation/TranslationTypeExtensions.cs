@@ -61,5 +61,10 @@ namespace Composable.StuffThatDoesNotBelongHere.Translation
         {
             _propertyInfo.GetSetMethod(true).Invoke(instance, new[]{ value});
         }
+
+        public string GetValue(object instance)
+        {
+            return (string) _propertyInfo.GetValue(instance, null);
+        }
     }
 }

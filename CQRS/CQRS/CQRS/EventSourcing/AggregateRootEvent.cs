@@ -9,10 +9,12 @@ namespace Composable.CQRS.EventSourcing
     {
         protected AggregateRootEvent()
         {
-            ((IAggregateRootEvent)this).EventId = Guid.NewGuid();
+            EventId = Guid.NewGuid();
+            TimeStamp = DateTime.UtcNow;
         }
 
-        protected AggregateRootEvent(Guid aggregateRootId):this()
+        protected AggregateRootEvent(Guid aggregateRootId)
+            : this()
         {
             AggregateRootId = aggregateRootId;
         }
@@ -20,5 +22,6 @@ namespace Composable.CQRS.EventSourcing
         public Guid EventId { get; set; }
         public int AggregateRootVersion { get; set; }
         public Guid AggregateRootId { get; set; }
+        public DateTime TimeStamp { get; set; }
     }
 }

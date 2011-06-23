@@ -15,31 +15,8 @@ namespace Composable.DomainEvents.Tests
     [TestFixture]
     public class WhenEventIsRaised
     {
-        [SetUp]
-        public void Setup()
-        {
-            var container = new WindsorContainer();
-            container.Register(AllTypes.FromThisAssembly().BasedOn(typeof(IHandles<>)).Configure(cfg => cfg.LifeStyle.Transient));
-            DomainEvent.Init(new WindsorServiceLocator(container));
-        }
-
-        [TearDown]
-        public void TearDown()
-        {
-            DomainEvent.ResetOnlyUseFromTests();
-        }
-
         public class SomethingHappend : IDomainEvent
         {
-        }
-
-        [Test]
-        public void SubscribersAreNotified()
-        {
-            var calls = 0;
-            HandlesSomethingHappened.IWasNotified += () => calls++;
-            DomainEvent.Raise(new SomethingHappend());
-            Assert.That(calls, Is.EqualTo(1));
         }
 
 

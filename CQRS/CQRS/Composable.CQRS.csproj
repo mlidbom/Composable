@@ -68,6 +68,7 @@
     <Reference Include="System.Data" />
     <Reference Include="System.Transactions" />
     <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="..\..\ModuleInitializer.cs">
@@ -75,6 +76,7 @@
     </Compile>
     <Compile Include="CQRS\Command\Command.cs" />
     <Compile Include="CQRS\Command\CommandFailedEvent.cs" />
+    <Compile Include="CQRS\Command\CommandFailedException.cs" />
     <Compile Include="CQRS\Command\CommandResult.cs" />
     <Compile Include="CQRS\Command\CommandService.cs" />
     <Compile Include="CQRS\Command\CommandSucceededEvent.cs" />
@@ -91,6 +93,10 @@
     <Compile Include="CQRS\Command\MemberValidationFailure.cs" />
     <Compile Include="CQRS\DuplicateHandlersException.cs" />
     <Compile Include="CQRS\EntityToReferenceConverter.cs" />
+    <Compile Include="CQRS\EventSourcing\Population\SendEventLogSubSetCommand.cs" />
+    <Compile Include="CQRS\EventSourcing\Population\SendEventLogSubSetHandler.cs" />
+    <Compile Include="CQRS\EventSourcing\SQLServer\SqlServerEventSomethingOrOther.cs" />
+    <Compile Include="CQRS\ICommandMessage.cs" />
     <Compile Include="CQRS\IReferenceObject.cs" />
     <Compile Include="CQRS\ReferenceObject.cs" />
     <Compile Include="CQRS\TranslatedReferenceObject.cs" />
@@ -103,7 +109,7 @@
     <Compile Include="CQRS\EventSourcing\IEventStore.cs" />
     <Compile Include="CQRS\EventSourcing\IEventStoreSession.cs" />
     <Compile Include="CQRS\EventSourcing\InMemoryEventStore.cs" />
-    <Compile Include="CQRS\EventSourcing\InMemoryEventStoreSession.cs" />
+    <Compile Include="CQRS\EventSourcing\InMemoryEventSomethingOrOther.cs" />
     <Compile Include="CQRS\EventSourcing\SQLServer\InvalidHistoryException.cs" />
     <Compile Include="CQRS\IUnNamedEntityReference.cs" />
     <Compile Include="CQRS\INamed.cs" />

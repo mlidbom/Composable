@@ -52,17 +52,27 @@ namespace Composable.System
         }
 
         /// <summary>
-        /// Performes the <paramref name="action"/> using <paramref name="me"/> as the parameter.
+        /// Performs the <paramref name="action"/> using <paramref name="me"/> as the parameter.
         /// 
         /// see <see cref="Transform{TSource,TReturn}"/> for usage.
         /// </summary>
+        /// <returns><paramref name="me"/>To allow for chaining.</returns>
         /// <typeparam name="T">the type of the object being acted upon</typeparam>
         /// <param name="me">the object haveing something done to it</param>
         /// <param name="action">what should be done to the object</param>
-        public static void Do<T>(this T me, Action<T> action)
+        public static T Do<T>(this T me, Action<T> action)
         {
             Contract.Requires(me != null && action != null);
             action(me);
+            return me;
+        }
+
+        /// <summary>
+        /// Modifies the instance using the supplied <paramref name="modifier"/> and then returns the instance.
+        /// </summary>
+        public static T Modify<T>(this T objectToModify, Action<T> modifier)
+        {
+            return objectToModify.Do(modifier);
         }
     }
 }

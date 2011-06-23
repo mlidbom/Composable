@@ -54,6 +54,8 @@ namespace Composable.CQRS.EventSourcing.Population
 
     public class MoreEventsAvailableHandler : IHandleMessages<MoreEventsAvailable>
     {
+        public static event Action<MoreEventsAvailable> MoreEvents = _ => { }; 
+
         private readonly IBus _bus;
 
         public MoreEventsAvailableHandler(IBus bus)
@@ -64,12 +66,13 @@ namespace Composable.CQRS.EventSourcing.Population
         public void Handle(MoreEventsAvailable message)
         {
             _bus.Reply(message.ContinuationCommand);
+            MoreEvents(message);
         }
     }
 
     public class NoMoreEventsAvailableHandler : IHandleMessages<NoMoreEventsAvailable>
     {
-        public event Action<NoMoreEventsAvailable> NoMoreEvents = _ => { }; 
+        public static event Action<NoMoreEventsAvailable> NoMoreEvents = _ => { }; 
         public void Handle(NoMoreEventsAvailable message)
         {
             NoMoreEvents(message);

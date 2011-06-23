@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Runtime.CompilerServices;
+using Composable.System;
 
 namespace Composable.CQRS.Command
 {
@@ -35,12 +37,30 @@ namespace Composable.CQRS.Command
         private static string ExtractMemberName(LambdaExpression expr)
         {
             var body = expr.Body;
-            // Because our constructor takes a Func<object>, we might have a boxing conversion after the member access.
-            while (body.NodeType == ExpressionType.Convert || body.NodeType == ExpressionType.ConvertChecked)
-                body = ((UnaryExpression)body).Operand;
-            if (!(body is MemberExpression))
-                throw new ArgumentException("Expression must be a member expression", "expr");
-            return ((MemberExpression)body).Member.Name;
+            var parts = new List<string>();
+            for (;;)
+            {
+                switch (body.NodeType)
+                {
+                    case ExpressionType.Convert:
+                    case ExpressionType.ConvertChecked:
+                        body = ((UnaryExpression)body).Operand;
+                        break;
+                    case ExpressionType.MemberAccess:
+                        var member = ((MemberExpression)body).Member;
+                        if (!member.DeclaringType.IsDefined(typeof(CompilerGeneratedAttribute), true))  // Don't add access to compiler-generated classes to our path because an expression such as () => command.Member.SubMember will contain an access to the "command" member of an anonymous type.
+                            parts.Add(member.Name);
+                        body = ((MemberExpression)body).Expression;
+                        break;
+                    case ExpressionType.Constant:
+                    case ExpressionType.Parameter:
+                        goto breakOuter;
+                    default:
+                        throw new ArgumentException("Expression must be a member expression, eg () => command.InvalidMember", "expr");
+                }
+            }
+breakOuter:
+            return ((IEnumerable<string>)parts).Reverse().Join(".");
         }
     }
 }

@@ -1,4 +1,5 @@
 using System;
+using System.Data;
 using Composable.DomainEvents;
 using NServiceBus;
 
@@ -9,5 +10,6 @@ namespace Composable.CQRS.EventSourcing
         Guid EventId { get; set; }
         int AggregateRootVersion { get; set; }        
         Guid AggregateRootId { get; set; }
+        DateTime TimeStamp { get; set; }
     }
 }

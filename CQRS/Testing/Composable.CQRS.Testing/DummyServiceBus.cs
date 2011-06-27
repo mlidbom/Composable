@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using Castle.Windsor;
 using Composable.ServiceBus;
+using Composable.System.Transactions;
 using Microsoft.Practices.ServiceLocation;
 using NServiceBus;
 using System.Linq;
@@ -49,7 +50,7 @@ namespace Composable.CQRS.Testing
             //var handlers = handlerTypes.SelectMany(type =>_serviceLocator.GetAllInstances(type)).ToArray();
             foreach(dynamic handler in handlers)
             {
-                handler.Handle((dynamic)message);
+                InTransaction.Execute(() => handler.Handle((dynamic)message));
             }
         }
 

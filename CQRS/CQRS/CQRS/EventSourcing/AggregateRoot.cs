@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using Composable.DDD;
 using Composable.DomainEvents;
+using Composable.StuffThatDoesNotBelongHere;
 using Composable.System.Linq;
 using System.Linq;
 using Newtonsoft.Json;
@@ -15,6 +16,8 @@ namespace Composable.CQRS.EventSourcing
 
     public class AggregateRoot<TEntity> : VersionedPersistentEntity<TEntity>, IEventStored, ISharedOwnershipAggregateRoot where TEntity : AggregateRoot<TEntity>
     {
+        protected virtual bool IgnoreUnhandledEvents { get { return false; } }
+
         private readonly IList<IAggregateRootEvent> _unCommittedEvents = new List<IAggregateRootEvent>();
         
         //Yes empty. Id should be assigned by action and it should be obvious that the aggregate in invalid until that happens
@@ -40,6 +43,11 @@ namespace Composable.CQRS.EventSourcing
             _unCommittedEvents.Add(evt);
             DomainEvent.Raise(evt);//Fixme: Don't do this synchronously!
         }        
+
+        public void Apply(IAggregateRootEvent evt) {
+            if (!IgnoreUnhandledEvents)
+                throw new EventUnhandledException(this.GetType(), evt, typeof(IAggregateRootEvent));
+        }
 
         private void DoApply(IAggregateRootEvent evt)
         {

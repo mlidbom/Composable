@@ -92,8 +92,6 @@
     <Compile Include="CQRS\Command\MemberValidationFailure.cs" />
     <Compile Include="CQRS\DuplicateHandlersException.cs" />
     <Compile Include="CQRS\EntityToReferenceConverter.cs" />
-    <Compile Include="CQRS\EventSourcing\Population\SendEventLogSubSetCommand.cs" />
-    <Compile Include="CQRS\EventSourcing\Population\SendEventLogSubSetHandler.cs" />
     <Compile Include="CQRS\EventSourcing\SQLServer\SqlServerEventSomethingOrOther.cs" />
     <Compile Include="CQRS\ICommandMessage.cs" />
     <Compile Include="CQRS\IReferenceObject.cs" />

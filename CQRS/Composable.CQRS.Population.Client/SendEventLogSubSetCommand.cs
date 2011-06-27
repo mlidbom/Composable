@@ -1,9 +1,10 @@
 ﻿using System;
+using System.Linq;
+using Composable.CQRS.EventSourcing;
 using Composable.System.Linq;
 using NServiceBus;
-using System.Linq;
 
-namespace Composable.CQRS.EventSourcing.Population
+namespace Composable.CQRS.Population.Client
 {
     /// <summary>
     /// When recieving this command the system recieving the command will reply by with messages batching 
@@ -18,7 +19,7 @@ namespace Composable.CQRS.EventSourcing.Population
     {
         public SendEventLogSubSetCommand()
         {
-            EventTypes = Seq.OfTypes<IAggregateRootEvent>().ToArray();
+            //EventTypes = Seq.OfTypes<IAggregateRootEvent>().ToArray();
             MaxEventsPerMessage = 50;
             NumberOfEventsToSend = 10000;
         }
@@ -27,7 +28,7 @@ namespace Composable.CQRS.EventSourcing.Population
         /// <summary>Copy constructor</summary>
         public SendEventLogSubSetCommand(SendEventLogSubSetCommand command)
         {
-            EventTypes = command.EventTypes;
+            //EventTypes = command.EventTypes;
             MaxEventsPerMessage = command.MaxEventsPerMessage;
             NumberOfEventsToSend = command.NumberOfEventsToSend;
             StartAfterEventId = command.StartAfterEventId;
@@ -49,7 +50,7 @@ namespace Composable.CQRS.EventSourcing.Population
         /// <summary>Specifies that only events of this type or subtypes should be included in the list sent.
         /// If you want to get all events use null;
         /// </summary>
-        public Type[] EventTypes { get; set; }
+        //public Type[] EventTypes { get; set; }
     }
 
     /// <summary>Signals to the requesting party that there are more events left in the log.

@@ -1,9 +1,10 @@
-﻿using System;
+﻿using Composable.CQRS.EventSourcing;
+using Composable.CQRS.Population.Client;
 using NServiceBus;
 using Composable.System.Linq;
 using System.Linq;
 
-namespace Composable.CQRS.EventSourcing.Population
+namespace Composable.CQRS.Population.Server
 {
     public class SendEventLogSubSetHandler : IHandleMessages<SendEventLogSubSetCommand>
     {
@@ -20,7 +21,7 @@ namespace Composable.CQRS.EventSourcing.Population
         {
             var events = _eventStore
                             .StreamEventsAfterEventWithId(command.StartAfterEventId)
-                            .Where(evt => command.EventTypes.Any(requestedType => requestedType.IsAssignableFrom(evt.GetType())))
+                            //.Where(evt => command.EventTypes.Any(requestedType => requestedType.IsAssignableFrom(evt.GetType())))
                             .Take(command.NumberOfEventsToSend)
                             .ToList();
 
@@ -49,33 +50,6 @@ namespace Composable.CQRS.EventSourcing.Population
                            {
                                Command = command
                            });
-        }
-    }
-
-    public class MoreEventsAvailableHandler : IHandleMessages<MoreEventsAvailable>
-    {
-        public static event Action<MoreEventsAvailable> MoreEvents = _ => { }; 
-
-        private readonly IBus _bus;
-
-        public MoreEventsAvailableHandler(IBus bus)
-        {
-            _bus = bus;
-        }
-
-        public void Handle(MoreEventsAvailable message)
-        {
-            _bus.Reply(message.ContinuationCommand);
-            MoreEvents(message);
-        }
-    }
-
-    public class NoMoreEventsAvailableHandler : IHandleMessages<NoMoreEventsAvailable>
-    {
-        public static event Action<NoMoreEventsAvailable> NoMoreEvents = _ => { }; 
-        public void Handle(NoMoreEventsAvailable message)
-        {
-            NoMoreEvents(message);
         }
     }
 }

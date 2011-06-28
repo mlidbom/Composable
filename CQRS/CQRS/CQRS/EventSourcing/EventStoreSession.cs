@@ -37,10 +37,6 @@ namespace Composable.CQRS.EventSourcing
         private IEnumerable<IAggregateRootEvent> GetHistory(Guid aggregateId)
         {
             var history = _storage.GetHistoryUnSafe(aggregateId);
-            if(history.None())
-            {
-                throw new Exception(string.Format("Aggregate root with Id: {0} not found", aggregateId));
-            }
 
             int version = 1;
             foreach(var aggregateRootEvent in history)
@@ -54,24 +50,55 @@ namespace Composable.CQRS.EventSourcing
             return history;
         }
 
-        public TAggregate Get<TAggregate>(Guid aggregateId) where TAggregate : IEventStored
+        private void ThrowAggregateMissingException(Guid aggregateId)
         {
-            IEventStored existing;
-            if(_idMap.TryGetValue(aggregateId, out existing))
+            throw new Exception(string.Format("Aggregate root with Id: {0} not found", aggregateId));
+        }
+
+        private bool DoTryGet<TAggregate>(Guid aggregateId, out TAggregate aggregate) where TAggregate : IEventStored
+        {
+            IEventStored es;
+            if (_idMap.TryGetValue(aggregateId, out es))
             {
-                return (TAggregate)existing;
+                aggregate = (TAggregate)es;
+                return true;
             }
 
-            var aggregate = Activator.CreateInstance<TAggregate>();
-            aggregate.LoadFromHistory(GetHistory(aggregateId));
-            _idMap.Add(aggregateId, aggregate);
-            return aggregate;
+            var history = GetHistory(aggregateId);
+            if (history.Any())
+            {
+                aggregate = Activator.CreateInstance<TAggregate>();
+                aggregate.LoadFromHistory(GetHistory(aggregateId));
+                _idMap.Add(aggregateId, aggregate);
+                return true;
+            }
+            else
+            {
+                aggregate = default(TAggregate);
+                return false;
+            }
+        }
+
+        public TAggregate Get<TAggregate>(Guid aggregateId) where TAggregate : IEventStored
+        {
+            TAggregate result;
+            if (!DoTryGet(aggregateId, out result))
+                ThrowAggregateMissingException(aggregateId);
+            return result;
+        }
+
+        public bool TryGet<TAggregate>(Guid aggregateId, out TAggregate aggregate) where TAggregate : IEventStored
+        {
+            return DoTryGet(aggregateId, out aggregate);
         }
 
         public TAggregate LoadSpecificVersion<TAggregate>(Guid aggregateId, int version) where TAggregate : IEventStored
         {
             var aggregate = Activator.CreateInstance<TAggregate>();
-            aggregate.LoadFromHistory(GetHistory(aggregateId).Where(e => e.AggregateRootVersion <= version));
+            var history = GetHistory(aggregateId);
+            if (history.None())
+                ThrowAggregateMissingException(aggregateId);
+            aggregate.LoadFromHistory(history.Where(e => e.AggregateRootVersion <= version));
             return aggregate;
         }
 
@@ -82,17 +109,18 @@ namespace Composable.CQRS.EventSourcing
             {
                 throw new AttemptToSaveAlreadyPersistedAggregateException(aggregate);
             }
-            if(aggregate.Version == 0 && changes.None())
-            {
-                throw new AttemptToSaveEmptyAggregate(aggregate);
-            }
             _idMap.Add(aggregate.Id, aggregate);
         }
 
         public void SaveChanges()
         {
             Log.DebugFormat("saving changes with {0} changes from transaction", _idMap.Count);
-            var newEvents = _idMap.SelectMany(p => p.Value.GetChanges()).ToList();
+
+            var eventsByAggregate = _idMap.Select(x => new { Aggregate = x.Value, Changes = x.Value.GetChanges().ToList() }).ToList();
+            eventsByAggregate.Where(x => x.Aggregate.Version == 0 && !x.Changes.Any())
+                .ForEach(x => { throw new AttemptToSaveEmptyAggregate(x); });
+
+            var newEvents = eventsByAggregate.SelectMany(x => x.Changes).ToList();
             _storage.SaveEvents(newEvents);
             newEvents.ForEach(_bus.Publish);
             _idMap.Select(p => p.Value).ForEach(p => p.AcceptChanges());

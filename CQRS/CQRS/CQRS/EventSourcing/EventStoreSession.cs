@@ -109,18 +109,17 @@ namespace Composable.CQRS.EventSourcing
             {
                 throw new AttemptToSaveAlreadyPersistedAggregateException(aggregate);
             }
+            if(aggregate.Version == 0 && changes.None())
+            {
+                throw new AttemptToSaveEmptyAggregate(aggregate);
+            }
             _idMap.Add(aggregate.Id, aggregate);
         }
 
         public void SaveChanges()
         {
             Log.DebugFormat("saving changes with {0} changes from transaction", _idMap.Count);
-
-            var eventsByAggregate = _idMap.Select(x => new { Aggregate = x.Value, Changes = x.Value.GetChanges().ToList() }).ToList();
-            eventsByAggregate.Where(x => x.Aggregate.Version == 0 && !x.Changes.Any())
-                .ForEach(x => { throw new AttemptToSaveEmptyAggregate(x); });
-
-            var newEvents = eventsByAggregate.SelectMany(x => x.Changes).ToList();
+            var newEvents = _idMap.SelectMany(p => p.Value.GetChanges()).ToList();
             _storage.SaveEvents(newEvents);
             newEvents.ForEach(_bus.Publish);
             _idMap.Select(p => p.Value).ForEach(p => p.AcceptChanges());

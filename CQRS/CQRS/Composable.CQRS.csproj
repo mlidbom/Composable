@@ -80,6 +80,7 @@
     <Compile Include="CQRS\Command\CommandService.cs" />
     <Compile Include="CQRS\Command\CommandSucceededEvent.cs" />
     <Compile Include="CQRS\Command\CommandValidationService.cs" />
+    <Compile Include="CQRS\Command\CompositeCommand.cs" />
     <Compile Include="CQRS\Command\ForceDistributedTransactionsCommandServiceDecorator.cs" />
     <Compile Include="CQRS\Command\GlobalValidationFailure.cs" />
     <Compile Include="CQRS\Command\ForwardToEntityCommandHandler.cs" />

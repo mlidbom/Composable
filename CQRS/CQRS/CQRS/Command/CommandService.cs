@@ -1,8 +1,10 @@
 #region usings
 
+using System;
 using System.Diagnostics.Contracts;
 using System.Transactions;
 using Composable.DomainEvents;
+using Composable.System.Linq;
 using Microsoft.Practices.ServiceLocation;
 
 #endregion
@@ -25,6 +27,11 @@ namespace Composable.CQRS.Command
             Contract.Invariant(_serviceLocator != null);
         }
 
+        private void ExecuteSingle<TCommand>(TCommand command) {
+            var handler = _serviceLocator.GetInstance<ICommandHandler<TCommand>>();
+            handler.Execute(command);
+        }
+
         public virtual CommandResult Execute<TCommand>(TCommand command)
         {
             var result = new CommandResult();
@@ -34,8 +41,12 @@ namespace Composable.CQRS.Command
             {
                 using(var transaction = new TransactionScope())
                 {
-                    var handler = _serviceLocator.GetInstance<ICommandHandler<TCommand>>();
-                    handler.Execute(command);
+                    if (command is CompositeCommand) {
+                        (command as CompositeCommand).GetContainedCommands().ForEach(c => { ExecuteSingle((dynamic)c); });
+                    }
+                    else
+                        ExecuteSingle(command);
+
                     transaction.Complete();
                 }
                 return result;

@@ -73,6 +73,7 @@
     <Compile Include="..\..\ModuleInitializer.cs">
       <Link>ModuleInitializer.cs</Link>
     </Compile>
+    <Compile Include="CQRS\Command\BatchCommand.cs" />
     <Compile Include="CQRS\Command\Command.cs" />
     <Compile Include="CQRS\Command\CommandFailedEvent.cs" />
     <Compile Include="CQRS\Command\CommandFailedException.cs" />

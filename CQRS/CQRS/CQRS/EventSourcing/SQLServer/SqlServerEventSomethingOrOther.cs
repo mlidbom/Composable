@@ -154,11 +154,11 @@ CREATE TABLE [dbo].[Events](
                 {
                     if (startAfterEventId.HasValue)
                     {
-                        loadCommand.CommandText = EventSelectClause + "WHERE SqlTimeStamp > @TimeStamp ORDER BY AggregateVersion ASC";
+                        loadCommand.CommandText = EventSelectClause + "WHERE SqlTimeStamp > @TimeStamp ORDER BY SqlTimeStamp ASC";
                         loadCommand.Parameters.Add(new SqlParameter("TimeStamp", new SqlBinary(GetEventTimestamp(startAfterEventId.Value))));
                     }else
                     {
-                        loadCommand.CommandText = EventSelectClause + " ORDER BY AggregateVersion ASC";
+                        loadCommand.CommandText = EventSelectClause + " ORDER BY SqlTimeStamp ASC";
                     }
 
                     using (var reader = loadCommand.ExecuteReader())

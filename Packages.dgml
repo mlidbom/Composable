@@ -1,0 +1,141 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<DirectedGraph GraphDirection="LeftToRight" xmlns="http://schemas.microsoft.com/vs/2009/dgml">
+  <Nodes>
+    <Node Id="AutoMapper\Composable.AutoMapper" Label="Composable.AutoMapper" Category="Project" />
+    <Node Id="CommonServiceLocator 1.0" Label="CommonServiceLocator 1.0" Category="Package" />
+    <Node Id="AutoMapper 2.0.0.118" Label="AutoMapper 2.0.0.118" Category="Package" />
+    <Node Id="AutoMapper\Composable.AutoMapper.Tests" Label="Composable.AutoMapper.Tests" Category="Project" />
+    <Node Id="CommonServiceLocator 1.0" Label="CommonServiceLocator 1.0" Category="Package" />
+    <Node Id="CommonServiceLocator.WindsorAdapter 1.0" Label="CommonServiceLocator.WindsorAdapter 1.0" Category="Package" />
+    <Node Id="AutoMapper 2.0.0.118" Label="AutoMapper 2.0.0.118" Category="Package" />
+    <Node Id="Castle.Core 2.5.2" Label="Castle.Core 2.5.2" Category="Package" />
+    <Node Id="Castle.Windsor 2.5.3" Label="Castle.Windsor 2.5.3" Category="Package" />
+    <Node Id="AutoMapper\Composable.AutoMapper.DuplicateMappingTests" Label="Composable.AutoMapper.DuplicateMappingTests" Category="Project" />
+    <Node Id="CommonServiceLocator 1.0" Label="CommonServiceLocator 1.0" Category="Package" />
+    <Node Id="CommonServiceLocator.WindsorAdapter 1.0" Label="CommonServiceLocator.WindsorAdapter 1.0" Category="Package" />
+    <Node Id="AutoMapper 2.0.0.118" Label="AutoMapper 2.0.0.118" Category="Package" />
+    <Node Id="Castle.Core 2.5.2" Label="Castle.Core 2.5.2" Category="Package" />
+    <Node Id="Castle.Windsor 2.5.3" Label="Castle.Windsor 2.5.3" Category="Package" />
+    <Node Id="CQRS\Composable.CQRS.Testing" Label="Composable.CQRS.Testing" Category="Project" />
+    <Node Id="NUnit 2.5.10.11092" Label="NUnit 2.5.10.11092" Category="Package" />
+    <Node Id="Castle.Core 2.5.2" Label="Castle.Core 2.5.2" Category="Package" />
+    <Node Id="Castle.Windsor 2.5.3" Label="Castle.Windsor 2.5.3" Category="Package" />
+    <Node Id="CQRS\Composable.CQRS.ServiceBus.NServiceBus.ObjectBuilder.CastleWindsor" Label="Composable.CQRS.ServiceBus.NServiceBus.ObjectBuilder.CastleWindsor" Category="Project" />
+    <Node Id="log4net 1.2.10" Label="log4net 1.2.10" Category="Package" />
+    <Node Id="Castle.Core 2.5.2" Label="Castle.Core 2.5.2" Category="Package" />
+    <Node Id="Castle.Windsor 2.5.3" Label="Castle.Windsor 2.5.3" Category="Package" />
+    <Node Id="CQRS\Composable.CQRS.ServiceBus.NServiceBus" Label="Composable.CQRS.ServiceBus.NServiceBus" Category="Project" />
+    <Node Id="nservicebus 2.5.0.1446" Label="nservicebus 2.5.0.1446" Category="Package" />
+    <Node Id="Castle.Core 2.5.2" Label="Castle.Core 2.5.2" Category="Package" />
+    <Node Id="Castle.Windsor 2.5.3" Label="Castle.Windsor 2.5.3" Category="Package" />
+    <Node Id="CQRS\Composable.CQRS.NHibernate" Label="Composable.CQRS.NHibernate" Category="Project" />
+    <Node Id="Iesi.Collections 3.1.0.4000" Label="Iesi.Collections 3.1.0.4000" Category="Package" />
+    <Node Id="NHibernate 3.1.0.4000" Label="NHibernate 3.1.0.4000" Category="Package" />
+    <Node Id="Castle.Core 2.5.2" Label="Castle.Core 2.5.2" Category="Package" />
+    <Node Id="NHibernate.Castle 3.1.0.4000" Label="NHibernate.Castle 3.1.0.4000" Category="Package" />
+    <Node Id="FluentNHibernate 1.2.0.712" Label="FluentNHibernate 1.2.0.712" Category="Package" />
+    <Node Id="CQRS\CQRS.Tests" Label="CQRS.Tests" Category="Project" />
+    <Node Id="structuremap 2.6.1.0" Label="structuremap 2.6.1.0" Category="Package" />
+    <Node Id="CommonServiceLocator 1.0" Label="CommonServiceLocator 1.0" Category="Package" />
+    <Node Id="CommonServiceLocator.StructureMapAdapter 1.1" Label="CommonServiceLocator.StructureMapAdapter 1.1" Category="Package" />
+    <Node Id="CommonServiceLocator.WindsorAdapter 1.0" Label="CommonServiceLocator.WindsorAdapter 1.0" Category="Package" />
+    <Node Id="log4net 1.2.10" Label="log4net 1.2.10" Category="Package" />
+    <Node Id="AutoMapper 2.0.0.118" Label="AutoMapper 2.0.0.118" Category="Package" />
+    <Node Id="NUnit 2.5.10.11092" Label="NUnit 2.5.10.11092" Category="Package" />
+    <Node Id="Castle.Core 2.5.2" Label="Castle.Core 2.5.2" Category="Package" />
+    <Node Id="Castle.Windsor 2.5.3" Label="Castle.Windsor 2.5.3" Category="Package" />
+    <Node Id="FluentAssertions 1.4.0.0" Label="FluentAssertions 1.4.0.0" Category="Package" />
+    <Node Id="CQRS\Composable.CQRS" Label="Composable.CQRS" Category="Project" />
+    <Node Id="CommonServiceLocator 1.0" Label="CommonServiceLocator 1.0" Category="Package" />
+    <Node Id="Newtonsoft.Json 4.0.2" Label="Newtonsoft.Json 4.0.2" Category="Package" />
+    <Node Id="log4net 1.2.10" Label="log4net 1.2.10" Category="Package" />
+    <Node Id="Composable.Core.Tests" Label="Composable.Core.Tests" Category="Project" />
+    <Node Id="CommonServiceLocator 1.0" Label="CommonServiceLocator 1.0" Category="Package" />
+    <Node Id="CommonServiceLocator.WindsorAdapter 1.0" Label="CommonServiceLocator.WindsorAdapter 1.0" Category="Package" />
+    <Node Id="structuremap 2.6.1.0" Label="structuremap 2.6.1.0" Category="Package" />
+    <Node Id="CommonServiceLocator.StructureMapAdapter 1.1" Label="CommonServiceLocator.StructureMapAdapter 1.1" Category="Package" />
+    <Node Id="AutoMapper 2.0.0.118" Label="AutoMapper 2.0.0.118" Category="Package" />
+    <Node Id="Castle.Core 2.5.2" Label="Castle.Core 2.5.2" Category="Package" />
+    <Node Id="Castle.Windsor 2.5.3" Label="Castle.Windsor 2.5.3" Category="Package" />
+    <Node Id="Composable.Core" Label="Composable.Core" Category="Project" />
+    <Node Id="CommonServiceLocator 1.0" Label="CommonServiceLocator 1.0" Category="Package" />
+    <Node Id="Newtonsoft.Json 4.0.2" Label="Newtonsoft.Json 4.0.2" Category="Package" />
+    <Node Id="ServiceModel\ServiceModel" Label="ServiceModel" Category="Project" />
+    <Node Id="Iesi.Collections 3.1.0.4000" Label="Iesi.Collections 3.1.0.4000" Category="Package" />
+    <Node Id="NHibernate 3.1.0.4000" Label="NHibernate 3.1.0.4000" Category="Package" />
+    <Node Id="Castle.Core 2.5.2" Label="Castle.Core 2.5.2" Category="Package" />
+    <Node Id="NHibernate.Castle 3.1.0.4000" Label="NHibernate.Castle 3.1.0.4000" Category="Package" />
+    <Node Id="FluentNHibernate 1.2.0.712" Label="FluentNHibernate 1.2.0.712" Category="Package" />
+  </Nodes>
+  <Links>
+    <Link Source="AutoMapper\Composable.AutoMapper" Target="CommonServiceLocator 1.0" Category="Installed Package" />
+    <Link Source="AutoMapper\Composable.AutoMapper" Target="AutoMapper 2.0.0.118" Category="Installed Package" />
+    <Link Source="CommonServiceLocator.WindsorAdapter 1.0" Target="Castle.Windsor 2.5.3" Category="Package Dependency" />
+    <Link Source="CommonServiceLocator.WindsorAdapter 1.0" Target="CommonServiceLocator 1.0" Category="Package Dependency" />
+    <Link Source="Castle.Windsor 2.5.3" Target="Castle.Core 2.5.2" Category="Package Dependency" />
+    <Link Source="AutoMapper\Composable.AutoMapper.Tests" Target="CommonServiceLocator.WindsorAdapter 1.0" Category="Installed Package" />
+    <Link Source="AutoMapper\Composable.AutoMapper.Tests" Target="AutoMapper 2.0.0.118" Category="Installed Package" />
+    <Link Source="CommonServiceLocator.WindsorAdapter 1.0" Target="Castle.Windsor 2.5.3" Category="Package Dependency" />
+    <Link Source="CommonServiceLocator.WindsorAdapter 1.0" Target="CommonServiceLocator 1.0" Category="Package Dependency" />
+    <Link Source="Castle.Windsor 2.5.3" Target="Castle.Core 2.5.2" Category="Package Dependency" />
+    <Link Source="AutoMapper\Composable.AutoMapper.DuplicateMappingTests" Target="CommonServiceLocator.WindsorAdapter 1.0" Category="Installed Package" />
+    <Link Source="AutoMapper\Composable.AutoMapper.DuplicateMappingTests" Target="AutoMapper 2.0.0.118" Category="Installed Package" />
+    <Link Source="Castle.Windsor 2.5.3" Target="Castle.Core 2.5.2" Category="Package Dependency" />
+    <Link Source="CQRS\Composable.CQRS.Testing" Target="NUnit 2.5.10.11092" Category="Installed Package" />
+    <Link Source="CQRS\Composable.CQRS.Testing" Target="Castle.Windsor 2.5.3" Category="Installed Package" />
+    <Link Source="Castle.Windsor 2.5.3" Target="Castle.Core 2.5.2" Category="Package Dependency" />
+    <Link Source="CQRS\Composable.CQRS.ServiceBus.NServiceBus.ObjectBuilder.CastleWindsor" Target="log4net 1.2.10" Category="Installed Package" />
+    <Link Source="CQRS\Composable.CQRS.ServiceBus.NServiceBus.ObjectBuilder.CastleWindsor" Target="Castle.Windsor 2.5.3" Category="Installed Package" />
+    <Link Source="Castle.Windsor 2.5.3" Target="Castle.Core 2.5.2" Category="Package Dependency" />
+    <Link Source="CQRS\Composable.CQRS.ServiceBus.NServiceBus" Target="nservicebus 2.5.0.1446" Category="Installed Package" />
+    <Link Source="CQRS\Composable.CQRS.ServiceBus.NServiceBus" Target="Castle.Windsor 2.5.3" Category="Installed Package" />
+    <Link Source="NHibernate 3.1.0.4000" Target="Iesi.Collections 3.1.0.4000" Category="Package Dependency" />
+    <Link Source="NHibernate.Castle 3.1.0.4000" Target="NHibernate 3.1.0.4000" Category="Package Dependency" />
+    <Link Source="NHibernate.Castle 3.1.0.4000" Target="Castle.Core 2.5.2" Category="Package Dependency" />
+    <Link Source="FluentNHibernate 1.2.0.712" Target="NHibernate.Castle 3.1.0.4000" Category="Package Dependency" />
+    <Link Source="CQRS\Composable.CQRS.NHibernate" Target="FluentNHibernate 1.2.0.712" Category="Installed Package" />
+    <Link Source="CommonServiceLocator.StructureMapAdapter 1.1" Target="structuremap 2.6.1.0" Category="Package Dependency" />
+    <Link Source="CommonServiceLocator.StructureMapAdapter 1.1" Target="CommonServiceLocator 1.0" Category="Package Dependency" />
+    <Link Source="CommonServiceLocator.WindsorAdapter 1.0" Target="Castle.Windsor 2.5.3" Category="Package Dependency" />
+    <Link Source="CommonServiceLocator.WindsorAdapter 1.0" Target="CommonServiceLocator 1.0" Category="Package Dependency" />
+    <Link Source="Castle.Windsor 2.5.3" Target="Castle.Core 2.5.2" Category="Package Dependency" />
+    <Link Source="CQRS\CQRS.Tests" Target="CommonServiceLocator.StructureMapAdapter 1.1" Category="Installed Package" />
+    <Link Source="CQRS\CQRS.Tests" Target="CommonServiceLocator.WindsorAdapter 1.0" Category="Installed Package" />
+    <Link Source="CQRS\CQRS.Tests" Target="log4net 1.2.10" Category="Installed Package" />
+    <Link Source="CQRS\CQRS.Tests" Target="AutoMapper 2.0.0.118" Category="Installed Package" />
+    <Link Source="CQRS\CQRS.Tests" Target="NUnit 2.5.10.11092" Category="Installed Package" />
+    <Link Source="CQRS\CQRS.Tests" Target="FluentAssertions 1.4.0.0" Category="Installed Package" />
+    <Link Source="CQRS\Composable.CQRS" Target="CommonServiceLocator 1.0" Category="Installed Package" />
+    <Link Source="CQRS\Composable.CQRS" Target="Newtonsoft.Json 4.0.2" Category="Installed Package" />
+    <Link Source="CQRS\Composable.CQRS" Target="log4net 1.2.10" Category="Installed Package" />
+    <Link Source="CommonServiceLocator.WindsorAdapter 1.0" Target="Castle.Windsor 2.5.3" Category="Package Dependency" />
+    <Link Source="CommonServiceLocator.WindsorAdapter 1.0" Target="CommonServiceLocator 1.0" Category="Package Dependency" />
+    <Link Source="CommonServiceLocator.StructureMapAdapter 1.1" Target="structuremap 2.6.1.0" Category="Package Dependency" />
+    <Link Source="CommonServiceLocator.StructureMapAdapter 1.1" Target="CommonServiceLocator 1.0" Category="Package Dependency" />
+    <Link Source="Castle.Windsor 2.5.3" Target="Castle.Core 2.5.2" Category="Package Dependency" />
+    <Link Source="Composable.Core.Tests" Target="CommonServiceLocator.WindsorAdapter 1.0" Category="Installed Package" />
+    <Link Source="Composable.Core.Tests" Target="CommonServiceLocator.StructureMapAdapter 1.1" Category="Installed Package" />
+    <Link Source="Composable.Core.Tests" Target="AutoMapper 2.0.0.118" Category="Installed Package" />
+    <Link Source="Composable.Core" Target="CommonServiceLocator 1.0" Category="Installed Package" />
+    <Link Source="Composable.Core" Target="Newtonsoft.Json 4.0.2" Category="Installed Package" />
+    <Link Source="NHibernate 3.1.0.4000" Target="Iesi.Collections 3.1.0.4000" Category="Package Dependency" />
+    <Link Source="NHibernate.Castle 3.1.0.4000" Target="NHibernate 3.1.0.4000" Category="Package Dependency" />
+    <Link Source="NHibernate.Castle 3.1.0.4000" Target="Castle.Core 2.5.2" Category="Package Dependency" />
+    <Link Source="FluentNHibernate 1.2.0.712" Target="NHibernate.Castle 3.1.0.4000" Category="Package Dependency" />
+    <Link Source="ServiceModel\ServiceModel" Target="FluentNHibernate 1.2.0.712" Category="Installed Package" />
+  </Links>
+  <Categories>
+    <Category Id="Project" />
+    <Category Id="Package" />
+  </Categories>
+  <Styles>
+    <Style TargetType="Node" GroupLabel="Project" ValueLabel="True">
+      <Condition Expression="HasCategory('Project')" />
+      <Setter Property="Background" Value="Blue" />
+    </Style>
+    <Style TargetType="Link" GroupLabel="Package Dependency" ValueLabel="True">
+      <Condition Expression="HasCategory('Package Dependency')" />
+      <Setter Property="Background" Value="Yellow" />
+    </Style>
+  </Styles>
+</DirectedGraph>

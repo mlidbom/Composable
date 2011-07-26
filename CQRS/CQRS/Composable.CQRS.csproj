@@ -44,11 +44,10 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Castle.Core, Version=2.5.1.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\packages\Castle.Core.2.5.1\lib\NET40ClientProfile\Castle.Core.dll</HintPath>
+      <HintPath>..\..\packages\Castle.Core.2.5.2\lib\NET35\Castle.Core.dll</HintPath>
     </Reference>
-    <Reference Include="Castle.Windsor">
-      <HintPath>..\..\packages\Castle.Windsor.2.5.1\lib\NET40\Castle.Windsor.dll</HintPath>
+    <Reference Include="Castle.Windsor, Version=2.5.1.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\Castle.Windsor.2.5.3\lib\NET40\Castle.Windsor.dll</HintPath>
     </Reference>
     <Reference Include="log4net">
       <HintPath>..\..\packages\log4net.1.2.10\lib\2.0\log4net.dll</HintPath>
@@ -74,6 +73,7 @@
     <Compile Include="..\..\ModuleInitializer.cs">
       <Link>ModuleInitializer.cs</Link>
     </Compile>
+    <Compile Include="CQRS\Command\BatchCommand.cs" />
     <Compile Include="CQRS\Command\Command.cs" />
     <Compile Include="CQRS\Command\CommandFailedEvent.cs" />
     <Compile Include="CQRS\Command\CommandFailedException.cs" />
@@ -81,6 +81,7 @@
     <Compile Include="CQRS\Command\CommandService.cs" />
     <Compile Include="CQRS\Command\CommandSucceededEvent.cs" />
     <Compile Include="CQRS\Command\CommandValidationService.cs" />
+    <Compile Include="CQRS\Command\CompositeCommand.cs" />
     <Compile Include="CQRS\Command\ForceDistributedTransactionsCommandServiceDecorator.cs" />
     <Compile Include="CQRS\Command\GlobalValidationFailure.cs" />
     <Compile Include="CQRS\Command\ForwardToEntityCommandHandler.cs" />
@@ -93,8 +94,6 @@
     <Compile Include="CQRS\Command\MemberValidationFailure.cs" />
     <Compile Include="CQRS\DuplicateHandlersException.cs" />
     <Compile Include="CQRS\EntityToReferenceConverter.cs" />
-    <Compile Include="CQRS\EventSourcing\Population\SendEventLogSubSetCommand.cs" />
-    <Compile Include="CQRS\EventSourcing\Population\SendEventLogSubSetHandler.cs" />
     <Compile Include="CQRS\EventSourcing\SQLServer\SqlServerEventSomethingOrOther.cs" />
     <Compile Include="CQRS\ICommandMessage.cs" />
     <Compile Include="CQRS\IReferenceObject.cs" />
@@ -136,12 +135,9 @@
     <Compile Include="KeyValueStorage\NoSuchDocumentException.cs" />
     <Compile Include="KeyValueStorage\SqlServer\SqlServerDocumentDb.cs" />
     <Compile Include="ServiceBus\IServiceBus.cs" />
-    <Compile Include="StuffThatDoesNotBelongHere\EventPersistenceService.cs" />
     <Compile Include="CQRS\EventSourcing\AggregateRoot.cs" />
     <Compile Include="CQRS\EventSourcing\IEventApplier.cs" />
     <Compile Include="StuffThatDoesNotBelongHere\MultiEventHandler.cs" />
-    <Compile Include="StuffThatDoesNotBelongHere\IEventPersistenceService.cs" />
-    <Compile Include="StuffThatDoesNotBelongHere\IEventPersister.cs" />
     <Compile Include="Persistence\IEntityFetcher.cs" />
     <Compile Include="CQRS\Command\IEntityHandledCommand.cs" />
     <Compile Include="CQRS\NoRegisteredHandlersException.cs" />

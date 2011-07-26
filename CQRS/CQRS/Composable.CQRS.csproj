@@ -135,12 +135,9 @@
     <Compile Include="KeyValueStorage\NoSuchDocumentException.cs" />
     <Compile Include="KeyValueStorage\SqlServer\SqlServerDocumentDb.cs" />
     <Compile Include="ServiceBus\IServiceBus.cs" />
-    <Compile Include="StuffThatDoesNotBelongHere\EventPersistenceService.cs" />
     <Compile Include="CQRS\EventSourcing\AggregateRoot.cs" />
     <Compile Include="CQRS\EventSourcing\IEventApplier.cs" />
     <Compile Include="StuffThatDoesNotBelongHere\MultiEventHandler.cs" />
-    <Compile Include="StuffThatDoesNotBelongHere\IEventPersistenceService.cs" />
-    <Compile Include="StuffThatDoesNotBelongHere\IEventPersister.cs" />
     <Compile Include="Persistence\IEntityFetcher.cs" />
     <Compile Include="CQRS\Command\IEntityHandledCommand.cs" />
     <Compile Include="CQRS\NoRegisteredHandlersException.cs" />

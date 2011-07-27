@@ -136,7 +136,7 @@ namespace Composable.KeyValueStorage.SqlServer
             }
         }
 
-        public void Update(IEnumerable<KeyValuePair<object, object>> values)
+        public void Update(IEnumerable<KeyValuePair<string, object>> values)
         {
             values = values.ToList();
             using (var connection = OpenSession())
@@ -154,7 +154,7 @@ namespace Composable.KeyValueStorage.SqlServer
 
                             command.CommandText += "UPDATE Store SET Value = @Value{0} WHERE Id = @Id{0} AND ValueType \n"
                                 .FormatWith(handledInBatch);
-                            command.Parameters.Add(new SqlParameter("Id" + handledInBatch, entry.Key.ToString()));
+                            command.Parameters.Add(new SqlParameter("Id" + handledInBatch, entry.Key));
                             
                             AddTypeCriteria(command, entry.Value.GetType());
 

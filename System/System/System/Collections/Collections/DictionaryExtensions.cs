@@ -31,7 +31,16 @@ namespace Composable.System.Collections.Collections
         /// </summary>
         public static TValue GetOrAddDefault<TKey, TValue>(this IDictionary<TKey, TValue> me, TKey key) where TValue : new()
         {
-            return me.GetOrAdd(key, () => new TValue());
+            //Originally written to delegate to the above method. Belive it or not this causes a performancedecrease that is actually significant in tight loops.
+            TValue value;
+            if (me.TryGetValue(key, out value))
+            {
+                return value;
+            }
+
+            value = new TValue();
+            me.Add(key, value);
+            return value;
         }
     }
 }

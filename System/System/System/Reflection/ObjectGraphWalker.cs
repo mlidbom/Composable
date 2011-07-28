@@ -9,48 +9,38 @@ namespace Composable.System.Reflection
     {
         public static IEnumerable<object> GetGraph(object o)
         {
-            return InternalGetGraph(o);
+            var collected = new List<object>();
+            InternalGetGraph(o, collected);
+            return collected;
         }
 
-        private static IEnumerable<object> InternalGetGraph(object o, Func<object, object>[] potentialGetters = null, Type getterType = null)
+        private static void InternalGetGraph(object o, List<Object> collected)
         {
             if (o == null)
             {
-                yield break;
+                return;
             }
             
-            yield return o;
+            collected.Add(o);
 
             var objectType = o.GetType();
             if (objectType.IsPrimitive || o is string || o is DateTime || o is Guid)
             {
-                yield break;
+                return;
             }
 
             if (o is IEnumerable)
             {
-                var enumerable = (o as IEnumerable).Cast<object>().ToList();
-                if (enumerable.Any())
+                foreach (var value in (o as IEnumerable))
                 {
-                    var firstType = enumerable.First().GetType();
-                    var firstGetters = MemberAccessorHelper.GetFieldsAndPropertyGetters(firstType);
-
-                    foreach (var value in enumerable.SelectMany(k => InternalGetGraph(k, firstGetters, firstType)))
-                    {
-                        yield return value;
-                    }
+                    InternalGetGraph(value, collected);
                 }
             }
             else
             {
-                if(potentialGetters == null || objectType != getterType)
+                foreach (var value in MemberAccessorHelper.GetFieldAndPropertyValues(o))
                 {
-                    potentialGetters = MemberAccessorHelper.GetFieldsAndPropertyGetters(objectType);
-                }
-
-                foreach (var value in potentialGetters.Select(getter => getter(o)).SelectMany(GetGraph))
-                {
-                    yield return value;
+                    InternalGetGraph(value, collected);
                 }
             }
         }

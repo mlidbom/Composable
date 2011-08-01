@@ -19,19 +19,25 @@ namespace Composable.DDD
     /// </summary>
     [DebuggerDisplay("{ToString()}")]
     public class IdEqualityObject<TEntity, TKEy> : IEquatable<TEntity>, IHasPersistentIdentity<TKEy> where TEntity : IdEqualityObject<TEntity, TKEy>
-    {
+    {        
         protected IdEqualityObject(){}
         protected IdEqualityObject(TKEy id)
         {
             Id = id;
         }
 
+        private TKEy _id;
         /// <summary>Implements: <see cref="IPersistentEntity{TKeyType}.Id"/></summary>
-        public virtual TKEy Id { get; private set; }
+        public virtual TKEy Id { get { return _id; } private set { _id = value; } }
 
         protected void SetIdBeVerySureYouKnowWhatYouAreDoing(TKEy id)
         {
             Id = id;
+        }
+
+        protected TKEy GetIdBypassContractValidation()
+        {
+            return _id;
         }
 
         /// <summary>

@@ -170,6 +170,11 @@ namespace Composable.KeyValueStorage.SqlServer
 
         IEnumerable<KeyValuePair<Guid, T>> IObjectStore.GetAll<T>()
         {
+            if(KnownTypes.None( t => typeof(T).IsAssignableFrom(t)))
+            {
+                yield break;    
+            }
+
             using (var connection = OpenSession())
             {
                 using(var loadCommand = connection.CreateCommand())

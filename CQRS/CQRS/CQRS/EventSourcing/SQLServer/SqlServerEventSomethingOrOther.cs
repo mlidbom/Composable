@@ -19,7 +19,7 @@ namespace Composable.CQRS.EventSourcing.SQLServer
         private class EventsCache
         {
             //todo: this way of doing cache expiration is unlikely to be acceptable in the long run....
-            private static readonly MemoryCache InternalCache = new MemoryCache("name");
+            private static MemoryCache InternalCache = new MemoryCache("name");
 
             private static readonly CacheItemPolicy Policy = new CacheItemPolicy()
                                                                  {
@@ -40,7 +40,13 @@ namespace Composable.CQRS.EventSourcing.SQLServer
 
             public void Store(Guid id, IEnumerable<IAggregateRootEvent> events)
             {
+             
                 InternalCache.Set(key: id.ToString(), policy: Policy, value: events.ToList());
+            }
+            public void Clear()
+            {
+                InternalCache.Dispose();
+                InternalCache = new MemoryCache("name");
             }
         }
 
@@ -277,6 +283,7 @@ CREATE TABLE [dbo].[Events](
 
         public void ResetDB()
         {
+            cache.Clear();
             using (var _connection = OpenSession())
             {
                 using(var dropCommand = _connection.CreateCommand())

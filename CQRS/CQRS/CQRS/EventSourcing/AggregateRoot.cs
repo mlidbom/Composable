@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using Composable.DDD;
 using Composable.DomainEvents;
+using Composable.StuffThatDoesNotBelongHere;
 using Composable.System.Linq;
 using System.Linq;
 using Newtonsoft.Json;
@@ -40,6 +41,10 @@ namespace Composable.CQRS.EventSourcing
             _unCommittedEvents.Add(evt);
             DomainEvent.Raise(evt);//Fixme: Don't do this synchronously!
         }        
+
+        public virtual void Apply(IAggregateRootEvent evt) {
+            throw new EventUnhandledException(this.GetType(), evt, typeof(IAggregateRootEvent));
+        }
 
         private void DoApply(IAggregateRootEvent evt)
         {

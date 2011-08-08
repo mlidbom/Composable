@@ -70,9 +70,12 @@ namespace Composable.StuffThatDoesNotBelongHere
         public virtual void Handle(TEvent evt)
         {
             var handler = GetHandler(evt);
-            _runBeforeHandlers(evt);
-            handler(evt);    
-            _runAfterHandlers(evt);
+            if (handler != null)
+            {
+                _runBeforeHandlers(evt);
+                handler(evt);
+                _runAfterHandlers(evt);
+            }
         }
 
         private Action<TEvent> GetHandler(TEvent evt) {

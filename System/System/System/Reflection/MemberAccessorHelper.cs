@@ -67,13 +67,13 @@ namespace Composable.System.Reflection
             Fields = MemberAccessorHelper.GetFieldsAndPropertyGetters(typeof(T));
         }
 
-        public static Func<object, object>[] GetFieldsAndProperties(Type getType)
+        public static Func<object, object>[] GetFieldsAndProperties(Type type)
         {
-            if(getType == typeof(T))
+            if(type == typeof(T))
             {
                 return Fields;
             }
-            return MemberAccessorHelper.GetFieldsAndPropertyGetters(typeof (T));
+            return MemberAccessorHelper.GetFieldsAndPropertyGetters(type);
         }
     }
 }

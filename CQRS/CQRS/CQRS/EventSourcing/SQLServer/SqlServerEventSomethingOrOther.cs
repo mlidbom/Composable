@@ -4,6 +4,7 @@ using System.Data;
 using System.Data.SqlClient;
 using System.Data.SqlTypes;
 using System.Linq;
+using System.Runtime.Caching;
 using Composable.NewtonSoft;
 using Composable.System;
 using Composable.System.Reflection;
@@ -14,6 +15,46 @@ namespace Composable.CQRS.EventSourcing.SQLServer
 {
     public class SqlServerEventSomethingOrOther : IEventSomethingOrOther
     {
+ 
+        private class EventsCache
+        {
+            //todo: this way of doing cache expiration is unlikely to be acceptable in the long run....
+            private static MemoryCache InternalCache = new MemoryCache("name");
+
+            private static readonly CacheItemPolicy Policy = new CacheItemPolicy()
+                                                                 {
+                                                                     SlidingExpiration = 20.Minutes()
+                                                                 };
+
+            public List<IAggregateRootEvent> Get(Guid id)
+            {
+                var cached = InternalCache.Get(id.ToString());
+                if(cached == null)
+                {
+                    return new List<IAggregateRootEvent>();
+                }
+                //Make sure each caller gets their own copy.
+                return ((List<IAggregateRootEvent>)cached).ToList();
+
+            }
+
+            public void Store(Guid id, IEnumerable<IAggregateRootEvent> events)
+            {
+             
+                InternalCache.Set(key: id.ToString(), policy: Policy, value: events.ToList());
+            }
+            public void Clear()
+            {
+                InternalCache.Dispose();
+                InternalCache = new MemoryCache("name");
+            }
+        }
+
+        private static readonly EventsCache cache = new EventsCache();
+
+
+
+
         private static ILog Log = LogManager.GetLogger(typeof(SqlServerEventSomethingOrOther));
         private static readonly HashSet<string> VerifiedTables = new HashSet<string>();
         private bool EventsTableVerifiedToExist
@@ -104,9 +145,9 @@ CREATE TABLE [dbo].[Events](
 ) ON [PRIMARY]
 ";
                             createTableCommand.ExecuteNonQuery();
-                        }
-                        EventsTableVerifiedToExist = true;
+                        }                        
                     }
+                    EventsTableVerifiedToExist = true;
                 }
             }
         }
@@ -115,20 +156,32 @@ CREATE TABLE [dbo].[Events](
         private const string EventSelectClause = "SELECT EventType, Event, AggregateId, AggregateVersion, EventId, TimeStamp FROM Events ";
         public IEnumerable<IAggregateRootEvent> GetHistoryUnSafe(Guid aggregateId)
         {
+            var result = cache.Get(aggregateId);
+
             using (var connection = OpenSession())
             {
                 using(var loadCommand = connection.CreateCommand())
                 {
-                    loadCommand.CommandText = EventSelectClause + "WHERE AggregateId = @AggregateId ORDER BY AggregateVersion ASC";
+                    loadCommand.CommandText = EventSelectClause + "WHERE AggregateId = @AggregateId";
                     loadCommand.Parameters.Add(new SqlParameter("AggregateId", aggregateId));
+
+                    if (result.Any())
+                    {
+                        loadCommand.CommandText += " AND AggregateVersion > @CachedVersion";
+                        loadCommand.Parameters.Add(new SqlParameter("CachedVersion", result.Last().AggregateRootVersion));
+                    }
+
+                    loadCommand.CommandText += " ORDER BY AggregateVersion ASC";
 
                     using(var reader = loadCommand.ExecuteReader())
                     {
                         while(reader.Read())
                         {
-                            yield return ReadEvent(reader);
+                            result.Add(ReadEvent(reader));
                         }
                     }
+                    cache.Store(aggregateId, result);
+                    return result;
                 }
             }
         }
@@ -188,6 +241,8 @@ CREATE TABLE [dbo].[Events](
             return (IAggregateRootEvent)JsonConvert.DeserializeObject(eventData, eventType.AsType(), JsonSettings);
         }
 
+
+        //!!!!DO NOT TRY ADDING TO THE CACHE HERE SINCE THE TRANSACTION MAY FAIL WHILE YOUR ADDITION TO THE CACHE WILL NOT BE ROLLED BACK!!!!
         public void SaveEvents(IEnumerable<IAggregateRootEvent> events)
         {
             using (var _connection = OpenSession())
@@ -228,6 +283,7 @@ CREATE TABLE [dbo].[Events](
 
         public void ResetDB()
         {
+            cache.Clear();
             using (var _connection = OpenSession())
             {
                 using(var dropCommand = _connection.CreateCommand())

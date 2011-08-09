@@ -38,7 +38,6 @@ namespace Composable.KeyValueStorage.SqlServer
 
         public SqlServerObjectStore(SqlServerDocumentDb store)
         {
-            Log.Debug("Constructor called");
             _store = store;
             _config = _store.Config;
 
@@ -191,15 +190,12 @@ namespace Composable.KeyValueStorage.SqlServer
             }
         }
 
-        private readonly Guid _me = Guid.NewGuid();
-
         private bool _disposed;
         public void Dispose()
         {
             if (!_disposed)
             {
                 _disposed = true;
-                Log.DebugFormat("disposing {0}", _me);
             }
         }
 

@@ -5,6 +5,7 @@ using Composable.DomainEvents;
 using System.Linq;
 using NServiceBus;
 using Composable.System;
+using log4net;
 
 namespace Composable.StuffThatDoesNotBelongHere
 {
@@ -12,6 +13,7 @@ namespace Composable.StuffThatDoesNotBelongHere
         where TEvent : IAggregateRootEvent
         where TImplementor : MultiEventHandler<TImplementor, TEvent>
     {
+        private static readonly ILog Log = LogManager.GetLogger(typeof (MultiEventHandler<TImplementor, TEvent>));
         private readonly Dictionary<Type, Action<TEvent>> _handlers = new Dictionary<Type, Action<TEvent>>();
         private bool _shouldIgnoreUnHandled;
 
@@ -72,9 +74,13 @@ namespace Composable.StuffThatDoesNotBelongHere
             var handler = GetHandler(evt);
             if (handler != null)
             {
+                Log.DebugFormat("Handling event:{0}", evt);
                 _runBeforeHandlers(evt);
                 handler(evt);
                 _runAfterHandlers(evt);
+            }else
+            {
+                Log.DebugFormat("Ignored event: {0}", evt);
             }
         }
 

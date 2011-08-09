@@ -283,7 +283,14 @@ CREATE NONCLUSTERED INDEX [IX_ValueType] ON [dbo].[Store]
                             {
                                 while (reader.Read())
                                 {
-                                    KnownTypes.Add(reader.GetString(0).AsType());
+                                    try
+                                    {
+                                        KnownTypes.Add(reader.GetString(0).AsType());
+                                    }
+                                    catch (TypeExtensions.FailedToFindTypeException)
+                                    {
+                                        // This exception might occur if the types in the database does not correspond to the loaded assemblies. Happens often during development.
+                                    }
                                 }
                             }
                         }

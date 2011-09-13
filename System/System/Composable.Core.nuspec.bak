@@ -6,8 +6,5 @@
     <authors>Magnus Lidbom</authors>
     <description>All the magic you might want ;)</description>
     <language>en-US</language>
-     <dependencies>
-        <dependency id="Newtonsoft.Json" version="4.0.2" />
-     </dependencies>
   </metadata>
 </package>

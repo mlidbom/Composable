@@ -1,16 +1,10 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <package>
   <metadata>
-    <id>Composable.AutoMapper</id>
-    <version>1.7.0.0</version>
-    <authors>Magnus Lidbom</authors>
-    <description>Composable.CQRS is a minimalistic wrapper around AutoMapper to make it easier to integrate with your solution.</description>
+     <id>$id$</id>
+     <version>$version$</version>
+     <authors>Magnus Lidbom</authors>
+     <description>Todo.</description>
     <language>en-US</language>
-    <dependencies>
-      <dependency id="AutoMapper" version="1.1.0.118" />
-    </dependencies>
   </metadata>
-  <files>
-    <file src="Composable.AutoMapper.*" target="lib" />
-  </files>
 </package>

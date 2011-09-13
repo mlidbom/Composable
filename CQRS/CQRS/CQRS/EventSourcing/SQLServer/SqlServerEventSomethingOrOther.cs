@@ -133,11 +133,15 @@ CREATE TABLE [dbo].[Events](
 	[AggregateId] [uniqueidentifier] NOT NULL,
 	[AggregateVersion] [int] NOT NULL,
 	[TimeStamp] [datetime] NOT NULL,
-    [SqlTimeStamp] [TIMESTAMP] NOT NULL,
+	[SqlTimeStamp] [timestamp] NOT NULL,
 	[EventType] [varchar](300) NOT NULL,
-    [EventId] [uniqueidentifier] NOT NULL,
+	[EventId] [uniqueidentifier] NOT NULL,
 	[Event] [nvarchar](max) NOT NULL,
- CONSTRAINT [PK_Events] PRIMARY KEY CLUSTERED 
+CONSTRAINT [IX_Uniq_EventId] UNIQUE
+(
+	EventId
+),
+CONSTRAINT [PK_Events] PRIMARY KEY CLUSTERED 
 (
 	[AggregateId] ASC,
 	[AggregateVersion] ASC

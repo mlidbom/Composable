@@ -58,8 +58,12 @@
     <Reference Include="Newtonsoft.Json, Version=4.0.2.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\..\packages\Newtonsoft.Json.4.0.2\lib\net40\Newtonsoft.Json.dll</HintPath>
     </Reference>
-    <Reference Include="NServiceBus">
-      <HintPath>..\..\packages\nservicebus.2.5.0.1446\lib\net40\NServiceBus.dll</HintPath>
+    <Reference Include="NServiceBus, Version=2.6.0.1504, Culture=neutral, PublicKeyToken=9fc386479f8a226c, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\packages\NServiceBus.2.6.0.1504\lib\net40\NServiceBus.dll</HintPath>
+    </Reference>
+    <Reference Include="NServiceBus.Core">
+      <HintPath>..\..\packages\NServiceBus.2.6.0.1504\lib\net40\NServiceBus.Core.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.configuration" />
@@ -71,6 +75,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\..\CommonAssemblyInfo.cs">
+      <Link>Properties\CommonAssemblyInfo.cs</Link>
+    </Compile>
     <Compile Include="..\..\ModuleInitializer.cs">
       <Link>ModuleInitializer.cs</Link>
     </Compile>
@@ -171,9 +178,10 @@
       <Name>Composable.Core</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
-    <Folder Include="EventStorage\" />
-    <Folder Include="__EmbeddedAssemblies\" />
+    <EmbeddedResource Include="__EmbeddedAssemblies\Composable.Core.dll" />
+    <EmbeddedResource Include="__EmbeddedAssemblies\Composable.Core.pdb" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
@@ -181,8 +189,8 @@
 REM "$(ProjectDir)..\..\tools\NuGet.exe" pack "Composable.CQRS.nuspec" -o packages</PostBuildEvent>
   </PropertyGroup>
   <PropertyGroup>
-    <PreBuildEvent>REM copy "$(TargetDir)Composable.Core.dll" "$(ProjectDir)__EmbeddedAssemblies"
-REM copy "$(TargetDir)Composable.Core.pdb" "$(ProjectDir)__EmbeddedAssemblies"</PreBuildEvent>
+    <PreBuildEvent>copy "$(TargetDir)Composable.Core.dll" "$(ProjectDir)__EmbeddedAssemblies"
+copy "$(TargetDir)Composable.Core.pdb" "$(ProjectDir)__EmbeddedAssemblies"</PreBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
@@ -191,11 +199,11 @@ REM copy "$(TargetDir)Composable.Core.pdb" "$(ProjectDir)__EmbeddedAssemblies"</
   <Target Name="AfterBuild">
   </Target>
   -->
-  <!--<Target Name="AfterBuild">
+  <Target Name="AfterBuild">
     <InjectModuleInitializer AssemblyFile="$(TargetPath)" />
     <GetFrameworkSdkPath>
       <Output TaskParameter="Path" PropertyName="SdkPath" />
     </GetFrameworkSdkPath>
     <Exec Command="&quot;$(SdkPath)bin\sn.exe&quot; -R $(TargetPath) $(ProjectDir)..\..\Void.snk" />
-  </Target>-->
+  </Target>
 </Project>

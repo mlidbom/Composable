@@ -1,16 +1,10 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <package>
    <metadata>
-      <id>Composable.CQRS</id>
-      <version>2.0.0.0</version>
+      <id>$id$</id>
+      <version>$version$</version>
       <authors>Magnus Lidbom</authors>
       <description>Composable.CQRS is a minimalistic framework for working according to the CQRS design principle.</description>
       <language>en-US</language>
-      <dependencies>
-         <dependency id="CommonServiceLocator" version="1.0" />
-      </dependencies>
    </metadata>
-   <files>
-      <file src="Composable.CQRS.*" target="lib" />
-   </files>
 </package>

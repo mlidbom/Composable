@@ -1,11 +1,11 @@
 ﻿using System;
 using Composable.DDD;
-using Newtonsoft.Json;
+using Composable.DomainEvents;
 
 namespace Composable.CQRS.EventSourcing
 {
     //TODO: Not sure about making valueobject the base class, but about a gazillion tests in some parts of the code apparently depends on several subclasses being ValueObjects
-    public class AggregateRootEvent : ValueObject<AggregateRootEvent>, IAggregateRootEvent
+    public class AggregateRootEvent : ValueEqualityEvent<AggregateRootEvent>, IAggregateRootEvent
     {
         protected AggregateRootEvent()
         {

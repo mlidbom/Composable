@@ -1,5 +1,4 @@
 using System;
-using System.Data;
 using Composable.DomainEvents;
 using NServiceBus;
 

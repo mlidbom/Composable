@@ -118,7 +118,7 @@ namespace Composable.StuffThatDoesNotBelongHere
 
     public class EventUnhandledException : Exception
     {
-        public EventUnhandledException(Type handlerType, IDomainEvent evt, Type listenedFor)
+        public EventUnhandledException(Type handlerType, IAggregateRootEvent evt, Type listenedFor)
             : base(
   @"{0} does not handle nor ignore incoming event {1} matching listened for type {2}
 It should either listen for more specific events or call IgnoreUnHandled".FormatWith(handlerType, evt.GetType(), listenedFor))

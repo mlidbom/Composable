@@ -6,5 +6,8 @@
     <authors>Magnus Lidbom</authors>
     <description>Todo.</description>
     <language>en-US</language>
+     <dependencies>
+        <dependency id="Composable.CQRS" version="$version$" />
+     </dependencies>
   </metadata>
 </package>

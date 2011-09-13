@@ -9,4 +9,5 @@ Build-Pkg pack ".\CQRS\CQRS\Composable.CQRS.csproj" -OutputDirectory "..\NuGetFe
 Build-Pkg pack ".\CQRS\NHibernateRepositories\Composable.CQRS.NHibernate.csproj" -OutputDirectory "..\NuGetFeed" -Prop Configuration=$Configuration
 Build-Pkg pack ".\CQRS\Composable.CQRS.ServiceBus.NServiceBus\Composable.CQRS.ServiceBus.NServiceBus.csproj" -OutputDirectory "..\NuGetFeed" -Prop Configuration=$Configuration
 Build-Pkg pack ".\CQRS\Composable.CQRS.ServiceBus.NServiceBus.ObjectBuilder.CastleWindsor\Composable.CQRS.ServiceBus.NServiceBus.ObjectBuilder.CastleWindsor.csproj" -OutputDirectory "..\NuGetFeed" -Prop Configuration=$Configuration
+Build-Pkg pack ".\Composable.DomainEvents\Composable.DomainEvents.csproj" -OutputDirectory "..\NuGetFeed" -Prop Configuration=$Configuration
 

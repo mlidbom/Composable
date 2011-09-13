@@ -13,3 +13,6 @@ Build-Pkg pack ".\Composable.DomainEvents\Composable.DomainEvents.csproj" -Outpu
 Build-Pkg pack ".\AutoMapper\Composable.AutoMapper\Composable.AutoMapper.csproj" -OutputDirectory "..\NuGetFeed" -Prop Configuration=$Configuration
 Build-Pkg pack ".\CQRS\CQRS.Windsor\Composable.CQRS.Windsor.csproj" -OutputDirectory "..\NuGetFeed" -Prop Configuration=$Configuration
 Build-Pkg pack ".\CQRS\Testing\Composable.CQRS.Testing\Composable.CQRS.Testing.csproj" -OutputDirectory "..\NuGetFeed" -Prop Configuration=$Configuration
+Build-Pkg pack ".\CQRS\Composable.CQRS.Population.Client\Composable.CQRS.Population.Client.csproj" -OutputDirectory "..\NuGetFeed" -Prop Configuration=$Configuration
+Build-Pkg pack ".\CQRS\Composable.CQRS.Population.Server\Composable.CQRS.Population.Server.csproj" -OutputDirectory "..\NuGetFeed" -Prop Configuration=$Configuration
+

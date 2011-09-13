@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <UsingTask TaskName="InjectModuleInitializer" AssemblyFile="$(ProjectDir)..\..\Tools\InjectModuleInitializer\InjectModuleInitializer.exe" />
+  <!--<UsingTask TaskName="InjectModuleInitializer" AssemblyFile="$(ProjectDir)..\..\Tools\InjectModuleInitializer\InjectModuleInitializer.exe" />-->
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
@@ -189,8 +189,9 @@
 REM "$(ProjectDir)..\..\tools\NuGet.exe" pack "Composable.CQRS.nuspec" -o packages</PostBuildEvent>
   </PropertyGroup>
   <PropertyGroup>
-    <PreBuildEvent>copy "$(TargetDir)Composable.Core.dll" "$(ProjectDir)__EmbeddedAssemblies"
-copy "$(TargetDir)Composable.Core.pdb" "$(ProjectDir)__EmbeddedAssemblies"</PreBuildEvent>
+    <PreBuildEvent>REM Doing this will not really help since valueobject is inherited from causing all kinds of issues should several versions be loaded....
+REM copy "$(TargetDir)Composable.Core.dll" "$(ProjectDir)__EmbeddedAssemblies"
+REM copy "$(TargetDir)Composable.Core.pdb" "$(ProjectDir)__EmbeddedAssemblies"</PreBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
@@ -199,11 +200,11 @@ copy "$(TargetDir)Composable.Core.pdb" "$(ProjectDir)__EmbeddedAssemblies"</PreB
   <Target Name="AfterBuild">
   </Target>
   -->
-  <Target Name="AfterBuild">
+  <!--<Target Name="AfterBuild">
     <InjectModuleInitializer AssemblyFile="$(TargetPath)" />
     <GetFrameworkSdkPath>
       <Output TaskParameter="Path" PropertyName="SdkPath" />
     </GetFrameworkSdkPath>
     <Exec Command="&quot;$(SdkPath)bin\sn.exe&quot; -R $(TargetPath) $(ProjectDir)..\..\Void.snk" />
-  </Target>
+  </Target>-->
 </Project>

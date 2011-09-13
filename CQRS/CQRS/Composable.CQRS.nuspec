@@ -6,5 +6,8 @@
       <authors>Magnus Lidbom</authors>
       <description>Composable.CQRS is a minimalistic framework for working according to the CQRS design principle.</description>
       <language>en-US</language>
+      <dependencies>
+         <dependency id="Composable.Core" version="$version$" />
+      </dependencies>
    </metadata>
 </package>

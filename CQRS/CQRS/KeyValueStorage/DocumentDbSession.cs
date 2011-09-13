@@ -26,7 +26,7 @@ namespace Composable.KeyValueStorage
         }
 
 
-        public bool TryGet<TValue>(Guid key, out TValue value)
+        public bool TryGet<TValue>(object key, out TValue value)
         {
             if (_idMap.TryGet(key, out value))
             {
@@ -36,14 +36,15 @@ namespace Composable.KeyValueStorage
             if (_backingStore.TryGet(key, out value))
             {
                 _idMap.Add(key, value);
-                _interceptor.AfterLoad(value);
+                if (_interceptor != null)
+                    _interceptor.AfterLoad(value);
                 return true;
             }
 
             return false;
         }
 
-        public TValue Get<TValue>(Guid key)
+        public TValue Get<TValue>(object key)
         {
             TValue value;
             if(TryGet(key, out value))
@@ -54,7 +55,7 @@ namespace Composable.KeyValueStorage
             throw new NoSuchDocumentException(key, typeof(TValue));
         }
 
-        public void Save<TValue>(Guid id, TValue value)
+        public void Save<TValue>(object id, TValue value)
         {
             if (_idMap.Contains(value.GetType(), id))
             {
@@ -74,7 +75,7 @@ namespace Composable.KeyValueStorage
             Delete<TEntity>(entity.Id);
         }
 
-        public void Delete<T>(Guid id)
+        public void Delete<T>(object id)
         {
             if (!_backingStore.Remove<T>(id))
             {
@@ -88,7 +89,7 @@ namespace Composable.KeyValueStorage
             _backingStore.Update(_idMap.AsEnumerable());
         }
 
-        public IEnumerable<T> GetAll<T>()
+        public IEnumerable<T> GetAll<T>() where T : IHasPersistentIdentity<Guid>
         {
             var stored = _backingStore.GetAll<T>();
             stored.Where(pair => !_idMap.Contains(typeof (T), pair.Key))

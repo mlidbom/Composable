@@ -2,13 +2,19 @@
 using System.Collections.Generic;
 using Composable.DDD;
 using Composable.DomainEvents;
+using Composable.StuffThatDoesNotBelongHere;
 using Composable.System.Linq;
 using System.Linq;
 using Newtonsoft.Json;
 
 namespace Composable.CQRS.EventSourcing
 {
-    public class AggregateRoot<TEntity> : VersionedPersistentEntity<TEntity>, IEventStored where TEntity : AggregateRoot<TEntity>
+    public interface ISharedOwnershipAggregateRoot
+    {
+        void IntegrateExternallyRaisedEvent(IAggregateRootEvent evt);
+    }
+
+    public class AggregateRoot<TEntity> : VersionedPersistentEntity<TEntity>, IEventStored, ISharedOwnershipAggregateRoot where TEntity : AggregateRoot<TEntity>
     {
         private readonly IList<IAggregateRootEvent> _unCommittedEvents = new List<IAggregateRootEvent>();
         
@@ -33,8 +39,12 @@ namespace Composable.CQRS.EventSourcing
             evt.AggregateRootVersion = ++Version;
             evt.AggregateRootId = Id;
             _unCommittedEvents.Add(evt);
-            //DomainEvent.Raise(evt);//Fixme: Don't do this synchronously!
+            DomainEvent.Raise(evt);//Fixme: Don't do this synchronously!
         }        
+
+        public virtual void Apply(IAggregateRootEvent evt) {
+            throw new EventUnhandledException(this.GetType(), evt, typeof(IAggregateRootEvent));
+        }
 
         private void DoApply(IAggregateRootEvent evt)
         {
@@ -65,6 +75,11 @@ namespace Composable.CQRS.EventSourcing
         IEnumerable<IAggregateRootEvent> IEventStored.GetChanges()
         {
             return _unCommittedEvents;
+        }
+
+        void ISharedOwnershipAggregateRoot.IntegrateExternallyRaisedEvent(IAggregateRootEvent evt)
+        {
+            ApplyEvent(evt);
         }
     }
 

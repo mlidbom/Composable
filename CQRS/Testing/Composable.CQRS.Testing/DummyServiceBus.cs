@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Castle.Windsor;
 using Composable.ServiceBus;
 using Composable.System.Transactions;
@@ -11,6 +12,8 @@ namespace Composable.CQRS.Testing
 {
     public class DummyServiceBus : IServiceBus
     {
+        private List<Tuple<Type, Func<object, IEnumerable<IMessage>>>> _localHandlers = new List<Tuple<Type, Func<object, IEnumerable<IMessage>>>>();
+
         private readonly IWindsorContainer _serviceLocator;
 
         public DummyServiceBus(IWindsorContainer serviceLocator)
@@ -24,6 +27,7 @@ namespace Composable.CQRS.Testing
 
         public void Reset()
         {
+            _localHandlers.Clear();
             _published.Clear();
         }
 
@@ -47,16 +51,41 @@ namespace Composable.CQRS.Testing
                 handlers.AddRange(_serviceLocator.ResolveAll(handlerType).Cast<object>());
             }
 
-            //var handlers = handlerTypes.SelectMany(type =>_serviceLocator.GetAllInstances(type)).ToArray();
-            foreach(dynamic handler in handlers)
+            var transformedMessages = new List<IMessage>();
+
+            InTransaction.Execute(() =>
             {
-                InTransaction.Execute(() => handler.Handle((dynamic)message));
-            }
+                //var handlers = handlerTypes.SelectMany(type =>_serviceLocator.GetAllInstances(type)).ToArray();
+                foreach(dynamic handler in handlers)
+                {
+                    handler.Handle((dynamic)message);
+                }
+
+                foreach (var handler in _localHandlers.Where(t => t.Item1.IsAssignableFrom(typeof(TMessage))))
+                    transformedMessages.AddRange(handler.Item2(message));
+            });
+
+            transformedMessages.ForEach(Publish);
         }
 
         public void SendLocal(object message)
         {
             Publish(message);
+        }
+
+        public void AddHandler<TMessage>(Func<TMessage, IMessage> handler) where TMessage : IMessage
+        {
+            _localHandlers.Add(Tuple.Create(typeof(TMessage), (Func<object, IEnumerable<IMessage>>)(o => new[] { handler((TMessage)o) })));
+        }
+
+        public void AddHandler<TMessage>(Func<TMessage, IEnumerable<IMessage>> handler) where TMessage : IMessage
+        {
+            _localHandlers.Add(Tuple.Create(typeof(TMessage), (Func<object, IEnumerable<IMessage>>)(o => handler((TMessage)o))));
+        }
+
+        public void AddHandler<TMessage>(Action<TMessage> handler) where TMessage : IMessage
+        {
+            _localHandlers.Add(Tuple.Create(typeof(TMessage), (Func<object, IEnumerable<IMessage>>)(o => { handler((TMessage)o); return new IMessage[0]; })));
         }
     }
 }

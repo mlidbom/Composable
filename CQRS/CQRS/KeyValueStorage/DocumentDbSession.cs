@@ -36,7 +36,8 @@ namespace Composable.KeyValueStorage
             if (_backingStore.TryGet(key, out value))
             {
                 _idMap.Add(key, value);
-                _interceptor.AfterLoad(value);
+                if (_interceptor != null)
+                    _interceptor.AfterLoad(value);
                 return true;
             }
 

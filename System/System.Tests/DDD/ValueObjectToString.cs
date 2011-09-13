@@ -1,5 +1,6 @@
 #region usings
 
+using System;
 using Composable.DDD;
 using NUnit.Framework;
 
@@ -69,7 +70,7 @@ namespace Composable.Tests.DDD
       ""Name"": ""Leaf2Name""
     }
   }
-}"));
+}".Replace("\r\n", "\n").Replace("\n", Environment.NewLine)));//Hack to get things working regardless of checkout line endings
         }
     }
 }

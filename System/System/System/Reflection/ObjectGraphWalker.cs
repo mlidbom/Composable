@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -8,21 +9,40 @@ namespace Composable.System.Reflection
     {
         public static IEnumerable<object> GetGraph(object o)
         {
-            yield return o;
-            if(o is IEnumerable)
+            var collected = new List<object>();
+            InternalGetGraph(o, collected);
+            return collected;
+        }
+
+        private static void InternalGetGraph(object o, List<Object> collected)
+        {
+            if (o == null)
             {
-                foreach (var value in (o as IEnumerable).Cast<object>().SelectMany(GetGraph))
+                return;
+            }
+            
+            collected.Add(o);
+
+            var objectType = o.GetType();
+            if (objectType.IsPrimitive || o is string || o is DateTime || o is Guid)
+            {
+                return;
+            }
+
+            if (o is IEnumerable)
+            {
+                foreach (var value in (o as IEnumerable))
                 {
-                    yield return value;
+                    InternalGetGraph(value, collected);
                 }
-            }else
+            }
+            else
             {
                 foreach (var value in MemberAccessorHelper.GetFieldAndPropertyValues(o))
                 {
-                    yield return value;
+                    InternalGetGraph(value, collected);
                 }
             }
-                        
         }
     }
 }

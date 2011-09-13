@@ -28,51 +28,14 @@ namespace Composable.DomainEvents
             }
         }
 
-        private static IServiceLocator _locator;
         private static readonly object LockObject = new object();
-
-        private static IServiceLocator ServiceLocator
-        {
-            get
-            {
-                if(_locator == null)
-                {
-                    throw new Exception(
-                        "Domain event class has not been initialized. Please make sure to call Init during your application bootstrapping");
-                }
-                return _locator;
-            }
-        }
 
         [ContractInvariantMethod]
         private static void Invariants()
         {
             Contract.Invariant(ManualSubscribers != null);
-            Contract.Invariant(ServiceLocator != null);
         }
-
-        public static void Init(IServiceLocator locator)
-        {
-            if(locator == null)
-            {
-                throw new ArgumentNullException("locator");
-            }
-
-            lock(LockObject)
-            {
-                if(_locator != null)
-                {
-                    throw new Exception("You may only call init once!");
-                }
-                _locator = locator;
-            }
-        }
-
-        public static void ResetOnlyUseFromTests()
-        {
-            _locator = null;
-        }
-
+       
         /// <summary>
         /// Registers a callback for the given domain event.
         /// Should only be used for testing. Implement <see cref="IHandles{TEvent}"/> for normal usage
@@ -102,15 +65,6 @@ namespace Composable.DomainEvents
         }
 
 
-        private static IHandles<T> CreateInstance<T>(Type type) where T : IDomainEvent
-        {
-            if(ServiceLocator != null)
-            {
-                return (IHandles<T>)ServiceLocator.GetInstance(type);
-            }
-            return (IHandles<T>)Activator.CreateInstance(type, false);
-        }
-
         /// <summary>
         /// Raises the given domain event
         /// All implementors of <see cref="IHandles{T}"/> will be instantiated and called.
@@ -122,7 +76,6 @@ namespace Composable.DomainEvents
         public static void Raise<T>(T args) where T : IDomainEvent
         {
             Contract.Requires(args != null);
-            ServiceLocator.GetAllInstances<IHandles<T>>().ToArray().ForEach(handler => handler.Handle(args));
 
             ManualSubscribers.OfType<Action<T>>()
                 .ForEach(action => action(args));

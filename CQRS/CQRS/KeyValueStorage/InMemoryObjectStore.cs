@@ -2,27 +2,28 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using Composable.DDD;
 using Composable.System.Collections.Collections;
 using Composable.System.Linq;
 
 namespace Composable.KeyValueStorage
 {
-    public class InMemoryObjectStore : IEnumerable<KeyValuePair<Guid, object>>, IObjectStore
+    public class InMemoryObjectStore : IEnumerable<KeyValuePair<string, object>>, IObjectStore
     {
-        private List<KeyValuePair<Guid, object>> _db = new List<KeyValuePair<Guid, object>>();
-        public bool Contains<T>(Guid id)
+        private Dictionary<string, List<Object>> _db = new Dictionary<string, List<object>>();
+        public bool Contains<T>(object id)
         {
             T value;
             return TryGet(id, out value);
         }
 
-        public bool Contains(Type type, Guid id)
+        public bool Contains(Type type, object id)
         {
             object value;
             return TryGet(type, id, out value);
         }
 
-        public bool TryGet<T>(Guid id, out T value)
+        public bool TryGet<T>(object id, out T value)
         {
             object found;
             if(TryGet(typeof(T), id, out found))
@@ -34,34 +35,40 @@ namespace Composable.KeyValueStorage
             return false;
         }
 
-        private bool TryGet(Type typeOfValue, Guid id, out object value)
+        private bool TryGet(Type typeOfValue, object id, out object value)
         {
-            var found = _db
-                .Where(pair => pair.Key == id)
-                .Select(pair => pair.Value)
-                .Where(obj => typeOfValue.IsAssignableFrom(obj.GetType()))
-                .ToList();
+            var idstring = id.ToString();
+            value = null;
+
+            List<Object> matchesId = null;
+            if(!_db.TryGetValue(idstring, out matchesId))
+            {                
+                return false;
+            }
+
+            var found = matchesId.Where(obj => typeOfValue.IsAssignableFrom(obj.GetType())).ToList();
             if(found.Any())
             {
                 value = found.Single();
                 return true;
             }
-            value = null;
             return false;
         }
 
-        public void Add<T>(Guid id, T value)
+        public void Add<T>(object id, T value)
         {
-            if(Contains(value.GetType(), id))
+            var idString = id.ToString();
+            if(Contains(value.GetType(), idString))
             {
                 throw new AttemptToSaveAlreadyPersistedValueException(id, value);
             }
-            _db.Add(new KeyValuePair<Guid, object>(id, value));
+            _db.GetOrAddDefault(idString).Add(value);
         }
 
-        public bool Remove<T>(Guid id)
+        public bool Remove<T>(object id)
         {
-            var removed = _db.RemoveWhere(pair => pair.Key == id && pair.Value is T);
+            var idstring = id.ToString();
+            var removed = _db.GetOrAddDefault(idstring).RemoveWhere(value => value is T);
             if(removed > 1)
             {
                 throw new Exception("FUBAR");
@@ -69,9 +76,9 @@ namespace Composable.KeyValueStorage
             return removed == 1;
         }
 
-        public IEnumerator<KeyValuePair<Guid, object>> GetEnumerator()
+        public IEnumerator<KeyValuePair<string, object>> GetEnumerator()
         {
-            return _db.GetEnumerator();
+            return _db.SelectMany(m => m.Value.Select(inner => new KeyValuePair<string,object>(m.Key, inner))).GetEnumerator();
         }
 
         IEnumerator IEnumerable.GetEnumerator()
@@ -79,12 +86,12 @@ namespace Composable.KeyValueStorage
             return GetEnumerator();
         }
 
-        public void Update(IEnumerable<KeyValuePair<Guid, object>> values)
+        public void Update(IEnumerable<KeyValuePair<string, object>> values)
         {
             values.ForEach( pair => Update(pair.Key, pair.Value));
         }
 
-        public void Update(Guid key, object value)
+        public void Update(object key, object value)
         {
             object existing;
             if(!TryGet(value.GetType(), key, out existing))
@@ -97,11 +104,11 @@ namespace Composable.KeyValueStorage
             }
         }
 
-        public IEnumerable<KeyValuePair<Guid, T>> GetAll<T>()
+        public IEnumerable<KeyValuePair<Guid, T>> GetAll<T>() where T : IHasPersistentIdentity<Guid>
         {
-            return _db
-                .Where(pair => typeof(T).IsAssignableFrom(pair.Value.GetType()))
-                .Select(pair => new KeyValuePair<Guid, T>(pair.Key, (T) pair.Value))
+            return this.
+                Where(pair => typeof(T).IsAssignableFrom(pair.Value.GetType()))
+                .Select(pair => new KeyValuePair<Guid, T>(Guid.Parse(pair.Key), (T) pair.Value))
                 .ToList();
         }
 

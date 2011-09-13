@@ -17,11 +17,6 @@ namespace Composable.CQRS.Windsor
             return me.BasedOn(typeof(IQueryHandler<,>)).WithService.Base().Configure(cfg => cfg.LifeStyle.Transient);
         }
 
-        public static BasedOnDescriptor RegisterEventPersisters(this FromAssemblyDescriptor me)
-        {
-            return me.BasedOn(typeof(IEventPersister<>)).WithService.Base().Configure(cfg => cfg.LifeStyle.Transient);
-        }
-
         public static BasedOnDescriptor RegisterMappingProviders(this FromAssemblyDescriptor me)
         {
             return me.BasedOn<IProvidesMappings>().WithService.Base();

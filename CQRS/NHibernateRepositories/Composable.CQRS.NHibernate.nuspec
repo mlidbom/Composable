@@ -6,5 +6,8 @@
     <authors>Magnus Lidbom</authors>
     <description>Composable.NHibernateRepositories provide simple wrapper interfaces and classes around NHibernate to simplify usage and testing.</description>
     <language>en-US</language>
+     <dependencies>
+        <dependency id="Composable.CQRS" version="$version$" />
+     </dependencies>
   </metadata>
 </package>

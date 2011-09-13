@@ -8,6 +8,7 @@
       <language>en-US</language>
       <dependencies>
          <dependency id="Composable.Core" version="$version$" />
+         <dependency id="Composable.DomainEvents" version="1.0.0.0" />
       </dependencies>
    </metadata>
 </package>

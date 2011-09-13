@@ -22,7 +22,7 @@ namespace Composable.CQRS.EventSourcing
         protected AggregateRoot():base(Guid.Empty) { }
 
         private readonly Dictionary<Type, Action<IAggregateRootEvent>> _registeredEvents = new Dictionary<Type, Action<IAggregateRootEvent>>();
-        protected void RegisterEventHandler<TEvent>(Action<TEvent> eventHandler) where TEvent : class, IDomainEvent
+        protected void RegisterEventHandler<TEvent>(Action<TEvent> eventHandler) where TEvent : class, IAggregateRootEvent
         {
             _registeredEvents.Add(typeof(TEvent), theEvent => eventHandler(theEvent as TEvent));
         }

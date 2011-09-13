@@ -144,6 +144,7 @@
     <Compile Include="ServiceBus\IServiceBus.cs" />
     <Compile Include="CQRS\EventSourcing\AggregateRoot.cs" />
     <Compile Include="CQRS\EventSourcing\IEventApplier.cs" />
+    <Compile Include="ServiceBus\SynchronousBus.cs" />
     <Compile Include="StuffThatDoesNotBelongHere\MultiEventHandler.cs" />
     <Compile Include="Persistence\IEntityFetcher.cs" />
     <Compile Include="CQRS\Command\IEntityHandledCommand.cs" />

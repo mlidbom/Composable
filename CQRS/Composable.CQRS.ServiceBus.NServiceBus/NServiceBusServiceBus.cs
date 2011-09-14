@@ -22,5 +22,10 @@ namespace Composable.CQRS.ServiceBus.NServiceBus
         {
             _bus.SendLocal((IMessage)message);
         }
+
+        public void Send(object message)
+        {
+            _bus.Send((IMessage) message);
+        }
     }
 }

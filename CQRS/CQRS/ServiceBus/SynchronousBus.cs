@@ -48,6 +48,10 @@ namespace Composable.ServiceBus
             {
                 Publish(message);
             }
-       
+
+            public void Send(object message)
+            {
+                Publish(message);
+            }
         } 
     }

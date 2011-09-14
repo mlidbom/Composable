@@ -4,5 +4,6 @@
     {
         void Publish(object message);
         void SendLocal(object message);
+        void Send(object message);
     }
 }

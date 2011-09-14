@@ -24,5 +24,11 @@ namespace Composable.CQRS.ServiceBus.NServiceBus
         {
             throw new NotImplementedException("No sane way to implement dual dispatch for sendlocal that I can come up with. Same registrations will be called sync and then via the bus...");
         }
+
+        public void Send(object message)
+        {
+            _local.Send(message);
+            _realBus.Send(message);
+        }
     }
 }

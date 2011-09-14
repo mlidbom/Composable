@@ -10,4 +10,7 @@
         <dependency id="Composable.CQRS" version="$version$" />
      </dependencies>
   </metadata>
+   <files>
+      <file src="bin\$configuration$\Castle.Windsor.Lifestyles.dll" target="lib\net40" />
+   </files>
 </package>

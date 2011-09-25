@@ -67,7 +67,7 @@
     <Compile Include="DualDispatchBus.cs" />
     <Compile Include="IMessageInterceptor.cs" />
     <Compile Include="INservicebusServicebus.cs" />
-    <Compile Include="NullOpMessageInterceptor.cs" />
+    <Compile Include="EmptyMessageInterceptor.cs" />
     <Compile Include="Web\HybridPerWebRequestPerNserviceBusMessageLifestyleManager.cs" />
     <Compile Include="Web\LifestyleRegistrationExtensions.cs" />
     <Compile Include="NServiceBusServiceBus.cs" />

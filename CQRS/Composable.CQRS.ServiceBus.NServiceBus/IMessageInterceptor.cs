@@ -2,8 +2,8 @@ namespace Composable.CQRS.ServiceBus.NServiceBus
 {
     public interface IMessageInterceptor
     {
-        void BeforePublish();
-        void BeforeSend();
-        void BeforeSendLocal();
+        void BeforePublish(object message);
+        void BeforeSend(object message);
+        void BeforeSendLocal(object message);
     }
 }

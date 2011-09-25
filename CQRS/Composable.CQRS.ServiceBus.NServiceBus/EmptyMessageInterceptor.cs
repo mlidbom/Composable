@@ -4,7 +4,7 @@ namespace Composable.CQRS.ServiceBus.NServiceBus
     {
         public static readonly  EmptyMessageInterceptor Instance = new EmptyMessageInterceptor();
 
-        private EmptyMessageInterceptor(){}
+        public EmptyMessageInterceptor(){}
         public virtual void BeforePublish(object message)
         {}
 

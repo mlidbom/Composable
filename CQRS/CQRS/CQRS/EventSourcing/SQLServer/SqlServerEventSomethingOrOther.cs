@@ -10,6 +10,7 @@ using Composable.System;
 using Composable.System.Reflection;
 using Newtonsoft.Json;
 using log4net;
+using Composable.System.Linq;
 
 namespace Composable.CQRS.EventSourcing.SQLServer
 {
@@ -116,7 +117,11 @@ namespace Composable.CQRS.EventSourcing.SQLServer
                             result.Add(ReadEvent(reader));
                         }
                     }
-                    cache.Store(aggregateId, result);
+                    //Should within a transaction a process write events, read them, then fail to commit we will have cached events that are not persisted
+                    if (!_aggregatesWithEventsAddedByThisInstance.Contains(aggregateId))
+                    {
+                        cache.Store(aggregateId, result);
+                    }
                     return result;
                 }
             }
@@ -178,17 +183,19 @@ namespace Composable.CQRS.EventSourcing.SQLServer
         }
 
 
-        //!!!!DO NOT TRY ADDING TO THE CACHE HERE SINCE THE TRANSACTION MAY FAIL WHILE YOUR ADDITION TO THE CACHE WILL NOT BE ROLLED BACK!!!!
+        private readonly HashSet<Guid> _aggregatesWithEventsAddedByThisInstance = new HashSet<Guid>(); 
         public void SaveEvents(IEnumerable<IAggregateRootEvent> events)
         {
-            using (var _connection = OpenSession())
+            events = events.ToList();
+            _aggregatesWithEventsAddedByThisInstance.AddRange(events.Select(e => e.AggregateRootId));
+            using (var connection = OpenSession())
             {
                 var eventCount = events.Count();
                 var handled = 0;
                 while(handled < eventCount)
                 {
                     //Console.WriteLine("Starting new sql batch");
-                    using(var command = _connection.CreateCommand())
+                    using(var command = connection.CreateCommand())
                     {
                         command.CommandType = CommandType.Text;
                         for(var handledInBatch = 0; handledInBatch < SqlBatchSize && handled < eventCount; handledInBatch++, handled++)

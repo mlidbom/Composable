@@ -8,7 +8,7 @@ namespace Composable.CQRS.ServiceBus.NServiceBus.Web.WindsorNServicebusWeb
     public class WindsorLifestyleMessageModule : IMessageModule
     {
         [ThreadStatic] private static IDictionary<PerNserviceBusMessageLifestyleManager, object> perThreadEvict;
-        private ILog Log = LogManager.GetLogger(typeof (WindsorLifestyleMessageModule));
+        private static readonly ILog Log = LogManager.GetLogger(typeof (WindsorLifestyleMessageModule));
 
         public static void RegisterForEviction(PerNserviceBusMessageLifestyleManager manager, object instance)
         {

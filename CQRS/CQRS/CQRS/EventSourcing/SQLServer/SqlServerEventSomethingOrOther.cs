@@ -55,30 +55,7 @@ namespace Composable.CQRS.EventSourcing.SQLServer
 
 
 
-        private static ILog Log = LogManager.GetLogger(typeof(SqlServerEventSomethingOrOther));
-        private static readonly HashSet<string> VerifiedTables = new HashSet<string>();
-        private bool EventsTableVerifiedToExist
-        {
-            get
-            {
-                return VerifiedTables.Contains(_store.ConnectionString);
-            }
-
-            set
-            {
-                if (value)
-                {
-                    if (!EventsTableVerifiedToExist)
-                    {
-                        VerifiedTables.Add(_store.ConnectionString);
-                    }
-                }
-                else if (EventsTableVerifiedToExist)
-                {
-                    VerifiedTables.Remove(_store.ConnectionString);
-                }
-            }
-        }
+        private static ILog Log = LogManager.GetLogger(typeof(SqlServerEventSomethingOrOther));        
 
 
         private readonly SqlServerEventStore _store;
@@ -109,51 +86,6 @@ namespace Composable.CQRS.EventSourcing.SQLServer
             var connection = new SqlConnection(_store.ConnectionString);
             connection.Open();
             return connection;
-        }
-
-        private void EnsureEventsTableExists()
-        {
-            if(!EventsTableVerifiedToExist)
-            {
-                int exists;
-                using (var _connection = OpenSession())
-                {
-                    using(var checkForTableCommand = _connection.CreateCommand())
-                    {
-                        checkForTableCommand.CommandText = "select count(*) from sys.tables where name = 'Events'";
-                        exists = (int)checkForTableCommand.ExecuteScalar();
-                    }
-                    if(exists == 0)
-                    {
-                        using(var createTableCommand = _connection.CreateCommand())
-                        {
-                            createTableCommand.CommandText =
-                                @"
-CREATE TABLE [dbo].[Events](
-	[AggregateId] [uniqueidentifier] NOT NULL,
-	[AggregateVersion] [int] NOT NULL,
-	[TimeStamp] [datetime] NOT NULL,
-	[SqlTimeStamp] [timestamp] NOT NULL,
-	[EventType] [varchar](300) NOT NULL,
-	[EventId] [uniqueidentifier] NOT NULL,
-	[Event] [nvarchar](max) NOT NULL,
-CONSTRAINT [IX_Uniq_EventId] UNIQUE
-(
-	EventId
-),
-CONSTRAINT [PK_Events] PRIMARY KEY CLUSTERED 
-(
-	[AggregateId] ASC,
-	[AggregateVersion] ASC
-)WITH (PAD_INDEX  = OFF, STATISTICS_NORECOMPUTE  = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS  = ON, ALLOW_PAGE_LOCKS  = ON) ON [PRIMARY]
-) ON [PRIMARY]
-";
-                            createTableCommand.ExecuteNonQuery();
-                        }                        
-                    }
-                    EventsTableVerifiedToExist = true;
-                }
-            }
         }
 
 
@@ -281,26 +213,79 @@ CONSTRAINT [PK_Events] PRIMARY KEY CLUSTERED
             }
         }
 
-        public void Dispose()
+        private static readonly HashSet<string> VerifiedTables = new HashSet<string>();
+        private void EnsureEventsTableExists()
         {
+            lock (VerifiedTables)
+            {
+                if (!VerifiedTables.Contains(_store.ConnectionString))
+                {
+                    int exists;
+                    using (var _connection = OpenSession())
+                    {
+                        using (var checkForTableCommand = _connection.CreateCommand())
+                        {
+                            checkForTableCommand.CommandText = "select count(*) from sys.tables where name = 'Events'";
+                            exists = (int)checkForTableCommand.ExecuteScalar();
+                        }
+                        if (exists == 0)
+                        {
+                            using (var createTableCommand = _connection.CreateCommand())
+                            {
+                                createTableCommand.CommandText =
+                                    @"
+CREATE TABLE [dbo].[Events](
+	[AggregateId] [uniqueidentifier] NOT NULL,
+	[AggregateVersion] [int] NOT NULL,
+	[TimeStamp] [datetime] NOT NULL,
+	[SqlTimeStamp] [timestamp] NOT NULL,
+	[EventType] [varchar](300) NOT NULL,
+	[EventId] [uniqueidentifier] NOT NULL,
+	[Event] [nvarchar](max) NOT NULL,
+CONSTRAINT [IX_Uniq_EventId] UNIQUE
+(
+	EventId
+),
+CONSTRAINT [PK_Events] PRIMARY KEY CLUSTERED 
+(
+	[AggregateId] ASC,
+	[AggregateVersion] ASC
+)WITH (PAD_INDEX  = OFF, STATISTICS_NORECOMPUTE  = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS  = ON, ALLOW_PAGE_LOCKS  = ON) ON [PRIMARY]
+) ON [PRIMARY]
+";
+                                createTableCommand.ExecuteNonQuery();
+                            }
+                        }
+                        VerifiedTables.Add(_store.ConnectionString);
+                    }
+                }
+            }
         }
 
         public void ResetDB()
         {
             cache.Clear();
-            using (var _connection = OpenSession())
+            using (var connection = OpenSession())
             {
-                using(var dropCommand = _connection.CreateCommand())
+                using(var dropCommand = connection.CreateCommand())
                 {
                     dropCommand.CommandText =
                         @"IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[Events]') AND type in (N'U'))
 DROP TABLE [dbo].[Events]";
 
                     dropCommand.ExecuteNonQuery();
-                    EventsTableVerifiedToExist = false;
+                    lock (VerifiedTables)
+                    {
+                        VerifiedTables.Remove(_store.ConnectionString);
+                    }                    
                 }
             }
             EnsureEventsTableExists();
+        }
+
+
+        public void Dispose()
+        {
         }
     }
 }

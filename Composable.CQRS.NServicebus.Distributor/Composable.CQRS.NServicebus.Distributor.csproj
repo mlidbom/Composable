@@ -49,8 +49,9 @@
     <Reference Include="NServiceBus.Distributor">
       <HintPath>..\packages\NServiceBus.Distributor.2.6.0.1505\lib\net40\NServiceBus.Distributor.dll</HintPath>
     </Reference>
-    <Reference Include="NServiceBus.Host">
-      <HintPath>..\packages\NServiceBus.Host.2.6.0.1505\lib\net40\x86\NServiceBus.Host.exe</HintPath>
+    <Reference Include="NServiceBus.Host, Version=2.6.0.1505, Culture=neutral, PublicKeyToken=9fc386479f8a226c, processorArchitecture=MSIL">
+      <ExecutableExtension>.exe</ExecutableExtension>
+      <HintPath>..\packages\NServiceBus.Host.2.6.0.1505\lib\net40\NServiceBus.Host.exe</HintPath>
     </Reference>
     <Reference Include="NServiceBus.Unicast.Distributor">
       <HintPath>..\packages\NServiceBus.Distributor.2.6.0.1505\lib\net40\NServiceBus.Unicast.Distributor.dll</HintPath>

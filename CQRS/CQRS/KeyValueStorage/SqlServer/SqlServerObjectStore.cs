@@ -242,7 +242,7 @@ namespace Composable.KeyValueStorage.SqlServer
             {
                 using (var connection = OpenSession())
                 {
-                    if (!TableVerifiedToExist)
+                    if (!VerifiedTables.Contains(_store.ConnectionString))
                     {
                         using (var checkForTableCommand = connection.CreateCommand())
                         {
@@ -274,7 +274,7 @@ CREATE NONCLUSTERED INDEX [IX_ValueType] ON [dbo].[Store]
                                     createTableCommand.ExecuteNonQuery();
                                 }
                             }
-                            TableVerifiedToExist = true;
+                            VerifiedTables.Add(_store.ConnectionString);
                         }
 
                         using (var findTypesCommand = connection.CreateCommand())
@@ -304,29 +304,6 @@ CREATE NONCLUSTERED INDEX [IX_ValueType] ON [dbo].[Store]
 
         private static readonly HashSet<String> VerifiedTables = new HashSet<String>();        
 
-        private bool TableVerifiedToExist
-        {
-            get
-            {
-                return VerifiedTables.Contains(_store.ConnectionString);
-            }
-
-            set
-            {
-                if (value)
-                {
-                    if (!TableVerifiedToExist)
-                    {
-                        VerifiedTables.Add(_store.ConnectionString);
-                    }
-                }
-                else if (TableVerifiedToExist)
-                {
-                    VerifiedTables.Remove(_store.ConnectionString);
-                }
-            }
-        }
-
         public void PurgeDb()
         {
             lock (LockObject)
@@ -340,7 +317,11 @@ CREATE NONCLUSTERED INDEX [IX_ValueType] ON [dbo].[Store]
 DROP TABLE [dbo].[Store]";
 
                         dropCommand.ExecuteNonQuery();
-                        TableVerifiedToExist = false;
+
+                        lock (LockObject)
+                        {
+                            VerifiedTables.Remove(_store.ConnectionString);
+                        }
                         EnsureInitialized();
                     }
                 }

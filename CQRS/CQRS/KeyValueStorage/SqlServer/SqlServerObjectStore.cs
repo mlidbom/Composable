@@ -10,6 +10,7 @@ using Composable.System.Linq;
 using Newtonsoft.Json;
 using log4net;
 using Composable.System.Reflection;
+using Composable.System.Collections.Collections;
 
 namespace Composable.KeyValueStorage.SqlServer
 {
@@ -28,7 +29,7 @@ namespace Composable.KeyValueStorage.SqlServer
         private readonly SqlServerDocumentDb _store;
         private readonly SqlServerDocumentDbConfig _config;
 
-        private readonly HashSet<string> _persistentValues = new HashSet<string>();
+        private readonly Dictionary<Type, Dictionary<string, string>> _persistentValues = new Dictionary<Type, Dictionary<string,string>>();
         private const int UniqueConstraintViolationErrorNumber = 2627;
         private readonly int _sqlBatchSize = 10;
 
@@ -72,11 +73,13 @@ namespace Composable.KeyValueStorage.SqlServer
                         {
                             return false;
                         }
-                        found = JsonConvert.DeserializeObject(reader.GetString(0), reader.GetString(1).AsType(), _jsonSettings);
+                        var stringValue = reader.GetString(0);
+                        found = JsonConvert.DeserializeObject(stringValue, reader.GetString(1).AsType(), _jsonSettings);
+                        _persistentValues.GetOrAddDefault(found.GetType())[key.ToString()] = stringValue;
                     }
                 }
             }
-            _persistentValues.Add(key.ToString());
+            
             value = (TValue)found;
             return true;
         }
@@ -147,20 +150,31 @@ namespace Composable.KeyValueStorage.SqlServer
                     using (var command = connection.CreateCommand())
                     {
                         command.CommandType = CommandType.Text;
-                        for (var handledInBatch = 0; handledInBatch < _sqlBatchSize && handled < eventCount; handledInBatch++, handled++)
+                        for (var handledInBatch = 0; handledInBatch < _sqlBatchSize && handled < eventCount; handled++)
                         {
-                            var entry = values.ElementAt(handledInBatch);
+                            var entry = values.ElementAt(handled);
 
-                            command.CommandText += "UPDATE Store SET Value = @Value{0} WHERE Id = @Id{0} AND ValueType \n"
-                                .FormatWith(handledInBatch);
-                            command.Parameters.Add(new SqlParameter("Id" + handledInBatch, entry.Key));
-                            
-                            AddTypeCriteria(command, entry.Value.GetType());
+                            var stringValue = JsonConvert.SerializeObject(entry.Value, _config.JSonFormatting, _jsonSettings);
 
-                            command.Parameters.Add(new SqlParameter("Value" + handledInBatch,
-                                                                    JsonConvert.SerializeObject(entry.Value, _config.JSonFormatting, _jsonSettings)));
+                            //Try to avoid unneccessary updates that cause a whole lot of locks. And sometimes basically forces single threaded operation
+                            string oldValue;
+                            var needsUpdate = !_persistentValues.GetOrAddDefault(entry.Value.GetType()).TryGetValue(entry.Key, out oldValue) || stringValue != oldValue;
+                            if (needsUpdate)
+                            {
+                                handledInBatch++;
+                                command.CommandText += "UPDATE Store SET Value = @Value{0} WHERE Id = @Id{0} AND ValueType \n"
+                                    .FormatWith(handledInBatch);
+                                command.Parameters.Add(new SqlParameter("Id" + handledInBatch, entry.Key));
+
+                                AddTypeCriteria(command, entry.Value.GetType());
+
+                                command.Parameters.Add(new SqlParameter("Value" + handledInBatch, stringValue));
+                            }
                         }
-                        command.ExecuteNonQuery();
+                        if (!command.CommandText.IsNullOrWhiteSpace())
+                        {
+                            command.ExecuteNonQuery();
+                        }
                     }
                 }
             }
@@ -232,7 +246,7 @@ namespace Composable.KeyValueStorage.SqlServer
                     throw new Exception("Type: {0} is not among the known types".FormatWith(type.FullName));
                 }
 
-                command.CommandText += " IN( '" + acceptableTypeNames.Join("','") + "')";
+                command.CommandText += " IN( '" + acceptableTypeNames.Join("','") + "')\n";
             }
         }
 

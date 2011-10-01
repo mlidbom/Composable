@@ -161,6 +161,7 @@ namespace Composable.KeyValueStorage.SqlServer
                             var needsUpdate = !_persistentValues.GetOrAddDefault(entry.Value.GetType()).TryGetValue(entry.Key, out oldValue) || stringValue != oldValue;
                             if (needsUpdate)
                             {
+                                _persistentValues.GetOrAddDefault(entry.Value.GetType())[entry.Key] = stringValue;
                                 handledInBatch++;
                                 command.CommandText += "UPDATE Store SET Value = @Value{0} WHERE Id = @Id{0} AND ValueType \n"
                                     .FormatWith(handledInBatch);

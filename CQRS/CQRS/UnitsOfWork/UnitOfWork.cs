@@ -12,6 +12,7 @@ namespace Composable.UnitsOfWork
     {
         private static readonly ILog Log = LogManager.GetLogger(typeof (UnitOfWork));
         private readonly HashSet<IUnitOfWorkParticipant> _participants = new HashSet<IUnitOfWorkParticipant>();
+        public const int MaxCascadeLevel = 10;
 
         public Guid Id { get; private set; }
 
@@ -43,9 +44,16 @@ namespace Composable.UnitsOfWork
         {
             Log.Debug("Commit");
             var cascadingParticipants = _participants.OfType<IUnitOfWorkParticipantWhoseCommitMayTriggerChangesInOtherParticipantsMustImplementIdemponentCommit>().ToList();
-            
+
+            var cascadeLevel = 0;
             while(cascadingParticipants.Select(s => s.CommitAndReportIfCommitMayHaveCausedChangesInOtherParticipantsExpectAnotherCommitSoDoNotLeaveUnitOfWork())
-                .Where(result => result).Any()){} //Loop until no changes may have occured
+                .Where(result => result).Any())
+            {
+                if(++cascadeLevel > MaxCascadeLevel)
+                {
+                    throw new TooDeepCascadeLevelDetected(MaxCascadeLevel);
+                }
+            } //Loop until no changes may have occured
 
             _participants.ForEach(participant => participant.Commit(this));
         }
@@ -58,7 +66,7 @@ namespace Composable.UnitsOfWork
         public void Rollback()
         {
             Log.Debug("Rollback");
-            _participants.Cast<IUnitOfWorkParticipant>().ForEach(
+            _participants.ForEach(
                 participant =>
                     {
                         try

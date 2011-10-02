@@ -23,7 +23,7 @@ namespace Composable.CQRS.EventSourcing
         IEnumerable<IAggregateRootEvent> StreamEventsAfterEventWithId(Guid? startAfterEventId);
     }
 
-    public class EventStoreSession : IEventStoreSession, IUnitOfWorkParticipant
+    public class EventStoreSession : IEventStoreSession, IUnitOfWorkParticipantWhoseCommitMayTriggerChangesInOtherParticipantsMustImplementIdemponentCommit
     {
         private readonly IServiceBus _bus;
         private readonly IEventSomethingOrOther _storage;

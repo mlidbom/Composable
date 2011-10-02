@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Composable.CQRS.EventSourcing;
 using Composable.System.Linq;
 using log4net;
 using Composable.System;
@@ -10,7 +11,8 @@ namespace Composable.UnitsOfWork
     public class UnitOfWork : IUnitOfWork
     {
         private static readonly ILog Log = LogManager.GetLogger(typeof (UnitOfWork));
-        private readonly HashSet<object> _participants = new HashSet<object>();
+        private readonly HashSet<IUnitOfWorkParticipant> _participants = new HashSet<IUnitOfWorkParticipant>();
+
         public Guid Id { get; private set; }
 
         public UnitOfWork()
@@ -27,7 +29,7 @@ namespace Composable.UnitsOfWork
 
         public void AddParticipant(IUnitOfWorkParticipant participant)
         {
-            Log.DebugFormat("Adding participant {0}", participant.Id);
+            Log.DebugFormat("Adding participant {0} {1}", participant.GetType(), participant.Id);
             if(participant.UnitOfWork != null && participant.UnitOfWork != this)
             {
                 throw new AttemptingToJoinSecondUnitOfWorkException(participant, this);
@@ -40,12 +42,15 @@ namespace Composable.UnitsOfWork
         public void Commit()
         {
             Log.Debug("Commit");
-            _participants.Cast<IUnitOfWorkParticipant>().ForEach(participant => participant.Commit(this));
+            var cascadingParticipants = _participants.OfType<IUnitOfWorkParticipantWhoseCommitMayTriggerChangesInOtherParticipantsMustImplementIdemponentCommit>().ToList();
+            cascadingParticipants.ForEach(s => s.Commit(this));
+
+            _participants.ForEach(participant => participant.Commit(this));
         }
 
         public override string ToString()
         {
-            return String.Format("Unit of work {0} with participants: {1}", Id, _participants.Select(p => p.ToString()).Join("\n\t"));
+            return String.Format("Unit of work {0} with participants: {1}", Id, _participants.Select(p => String.Format("{0} {1}", p.GetType(), p.Id)).Join("\n\t"));
         }
 
         public void Rollback()
@@ -59,7 +64,7 @@ namespace Composable.UnitsOfWork
                             participant.Rollback(this);
                         }catch(Exception e)
                         {
-                            Log.Error("Swallowing exception thrown by participant {0}.".FormatWith(participant.Id), e);
+                            Log.Error("Swallowing exception thrown by participant {0} {1}.".FormatWith(participant.GetType(), participant.Id), e);
                         }
                     }
                 );

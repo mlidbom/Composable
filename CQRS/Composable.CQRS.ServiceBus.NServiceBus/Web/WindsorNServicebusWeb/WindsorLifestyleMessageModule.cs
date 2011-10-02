@@ -1,7 +1,11 @@
-﻿using System;
+﻿#region usings
+
+using System;
 using System.Collections.Generic;
 using NServiceBus;
 using log4net;
+
+#endregion
 
 namespace Composable.CQRS.ServiceBus.NServiceBus.Web.WindsorNServicebusWeb
 {
@@ -12,7 +16,7 @@ namespace Composable.CQRS.ServiceBus.NServiceBus.Web.WindsorNServicebusWeb
 
         public static void RegisterForEviction(PerNserviceBusMessageLifestyleManager manager, object instance)
         {
-            if(perThreadEvict == null)
+            if (perThreadEvict == null)
             {
                 perThreadEvict = new Dictionary<PerNserviceBusMessageLifestyleManager, object>();
             }
@@ -22,32 +26,43 @@ namespace Composable.CQRS.ServiceBus.NServiceBus.Web.WindsorNServicebusWeb
 
         public void HandleBeginMessage()
         {
-            if(perThreadEvict != null)
-            {
-                Log.Warn("Post message cleanup failed. Cleaning up during start");
-                EvictInstancesCreatedDuringMessageHandling();
-            }            
         }
 
 
         public void HandleEndMessage()
         {
-            EvictInstancesCreatedDuringMessageHandling();
+            try
+            {
+                EvictInstancesCreatedDuringMessageHandling();
+            }
+            catch (Exception e)
+            {
+                Log.Error("HandleEndMessage failed", e);
+                throw;
+            }
         }
 
 
         public void HandleError()
         {
-            EvictInstancesCreatedDuringMessageHandling();
+            try
+            {
+                EvictInstancesCreatedDuringMessageHandling();
+            }
+            catch (Exception e)
+            {
+                Log.Error("HandleEndMessage failed", e);
+                throw;
+            }
         }
 
 
         private static void EvictInstancesCreatedDuringMessageHandling()
         {
-            if(perThreadEvict == null)
+            if (perThreadEvict == null)
                 return;
 
-            foreach(var itemToEvict in perThreadEvict)
+            foreach (var itemToEvict in perThreadEvict)
             {
                 var manager = itemToEvict.Key;
                 manager.Evict(itemToEvict.Value);

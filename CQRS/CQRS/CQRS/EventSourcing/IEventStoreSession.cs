@@ -1,4 +1,5 @@
 ﻿using System;
+using Composable.UnitsOfWork;
 
 namespace Composable.CQRS.EventSourcing
 {

@@ -68,6 +68,7 @@
     <Compile Include="IMessageInterceptor.cs" />
     <Compile Include="INservicebusServicebus.cs" />
     <Compile Include="EmptyMessageInterceptor.cs" />
+    <Compile Include="NserviceBusUnitOfWorkManagerMessageModule.cs" />
     <Compile Include="Web\HybridPerWebRequestPerNserviceBusMessageLifestyleManager.cs" />
     <Compile Include="Web\LifestyleRegistrationExtensions.cs" />
     <Compile Include="NServiceBusServiceBus.cs" />
@@ -78,6 +79,10 @@
     <Compile Include="Web\WindsorNServicebusWeb\WindsorLifestyleMessageModule.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\System\System\Composable.Core.csproj">
+      <Project>{3632254D-0C4A-4EB8-B388-4C99F8939584}</Project>
+      <Name>Composable.Core</Name>
+    </ProjectReference>
     <ProjectReference Include="..\CQRS\Composable.CQRS.csproj">
       <Project>{3B776BD4-0EDD-4A83-BC9A-3A53D6649AB0}</Project>
       <Name>Composable.CQRS</Name>

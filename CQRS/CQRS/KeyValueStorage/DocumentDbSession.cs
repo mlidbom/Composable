@@ -4,16 +4,20 @@ using Composable.DDD;
 using Composable.KeyValueStorage.SqlServer;
 using Composable.System.Linq;
 using System.Linq;
+using Composable.UnitsOfWork;
+using log4net;
 
 namespace Composable.KeyValueStorage
 {
-    public class DocumentDbSession : IDocumentDbSession
+    public class DocumentDbSession : IDocumentDbSession, IUnitOfWorkParticipant
     {
         private readonly IObjectStore _backingStore;
         private readonly IDocumentDbSessionInterceptor _interceptor;
 
         private readonly InMemoryObjectStore _idMap = new InMemoryObjectStore();
+        private readonly InMemoryObjectStore _newlyAdded = new InMemoryObjectStore();
 
+        private static ILog Log = LogManager.GetLogger(typeof(DocumentDbSession));
 
         public DocumentDbSession(IDocumentDb store, DocumentDbConfig config = null)
         {
@@ -61,7 +65,14 @@ namespace Composable.KeyValueStorage
             {
                 throw new AttemptToSaveAlreadyPersistedValueException(id, value);
             }
-            _backingStore.Add(id, value);
+            if(_unitOfWork == null)
+            {                
+                _backingStore.Add(id, value); 
+            }else
+            {
+                Log.DebugFormat("{0} postponed persisting object from call to Save since participating in a unit of work", _id);
+                _newlyAdded.Add(id, value);
+            }
             _idMap.Add(id, value);
         }
 
@@ -86,6 +97,20 @@ namespace Composable.KeyValueStorage
 
         public void SaveChanges()
         {
+            if (_unitOfWork == null)
+            {                
+                InternalSaveChanges();
+            }else
+            {
+                Log.DebugFormat("{0} Ignored call to SaveChanges since participating in a unit of work", _id);
+            }
+        }
+
+        private void InternalSaveChanges()
+        {
+            Log.DebugFormat("{0} saving changes. Unit of work: {1}",_id, _unitOfWork ?? (object)"null");
+            _newlyAdded.ForEach(p => _backingStore.Add(p.Key, p.Value));
+            _newlyAdded.Clear();
             _backingStore.Update(_idMap.AsEnumerable());
         }
 
@@ -104,6 +129,29 @@ namespace Composable.KeyValueStorage
         {
             //Can be called before the transaction commits....
             //_idMap.Clear();
+        }
+
+        private IUnitOfWork _unitOfWork;
+        private readonly Guid _id = Guid.NewGuid();
+
+
+        IUnitOfWork IUnitOfWorkParticipant.UnitOfWork { get { return _unitOfWork; } }
+        Guid IUnitOfWorkParticipant.Id { get { return _id; } }
+
+        void IUnitOfWorkParticipant.Join(IUnitOfWork unit)
+        {
+            _unitOfWork = unit;
+        }
+
+        void IUnitOfWorkParticipant.Commit(IUnitOfWork unit)
+        {
+            InternalSaveChanges();
+            _unitOfWork = null;
+        }
+
+        void IUnitOfWorkParticipant.Rollback(IUnitOfWork unit)
+        {
+            _unitOfWork = null;
         }
     }
 }

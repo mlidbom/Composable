@@ -3,14 +3,16 @@
 using System;
 using System.Collections.Generic;
 using Composable.DDD;
+using Composable.UnitsOfWork;
 
 #endregion
 
 namespace Composable.KeyValueStorage
 {
-    public class DocumentDbSessionProxy : IDocumentDbSession
+    public class DocumentDbSessionProxy : IDocumentDbSession, IUnitOfWorkParticipant
     {
         protected IDocumentDbSession Session { get; private set; }
+        private IUnitOfWorkParticipant Participant { get { return (IUnitOfWorkParticipant) Session; } }
 
         protected DocumentDbSessionProxy(IDocumentDbSession session)
         {
@@ -61,5 +63,28 @@ namespace Composable.KeyValueStorage
         {
             Session.Dispose();
         }
+
+        #region Implementation of IUnitOfWorkParticipant
+
+        IUnitOfWork IUnitOfWorkParticipant.UnitOfWork { get { return Participant.UnitOfWork; } }
+
+        Guid IUnitOfWorkParticipant.Id { get { return Participant.Id; } }
+
+        void IUnitOfWorkParticipant.Join(IUnitOfWork unit)
+        {
+            Participant.Join(unit);
+        }
+
+        void IUnitOfWorkParticipant.Commit(IUnitOfWork unit)
+        {
+            Participant.Commit(unit);
+        }
+
+        void IUnitOfWorkParticipant.Rollback(IUnitOfWork unit)
+        {
+            Participant.Rollback(unit);
+        }
+
+        #endregion
     }
 }

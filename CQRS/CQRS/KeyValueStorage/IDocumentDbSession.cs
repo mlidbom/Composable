@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using Composable.DDD;
+using Composable.UnitsOfWork;
 
 namespace Composable.KeyValueStorage
 {

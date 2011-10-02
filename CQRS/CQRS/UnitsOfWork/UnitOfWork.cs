@@ -17,9 +17,9 @@ namespace Composable.UnitsOfWork
         public Guid Id { get; private set; }
 
         public UnitOfWork()
-        {
-            Log.Debug("Constructed");
+        {            
             Id = Guid.NewGuid();
+            Log.DebugFormat("Constructed {0}", Id);
         }
 
         public void AddParticipants(IEnumerable<IUnitOfWorkParticipant> unitOfWorkParticipants)
@@ -60,7 +60,7 @@ namespace Composable.UnitsOfWork
 
         public override string ToString()
         {
-            return String.Format("Unit of work {0} with participants: {1}", Id, _participants.Select(p => String.Format("{0} {1}", p.GetType(), p.Id)).Join("\n\t"));
+            return String.Format("Unit of work {0} with participants:\n {1}", Id, _participants.Select(p => String.Format("{0} {1}", p.GetType(), p.Id)).Join("\n\t"));
         }
 
         public void Rollback()

@@ -162,6 +162,10 @@
     <Compile Include="CQRS\ServiceLocatorExtensions.cs" />
     <Compile Include="StuffThatDoesNotBelongHere\Translation\TranslateAttribute.cs" />
     <Compile Include="StuffThatDoesNotBelongHere\Translation\TranslationTypeExtensions.cs" />
+    <Compile Include="UnitsOfWork\AttemptingToJoinSecondUnitOfWorkException.cs" />
+    <Compile Include="UnitsOfWork\IUnitOfWork.cs" />
+    <Compile Include="UnitsOfWork\IUnitOfWorkParticipant.cs" />
+    <Compile Include="UnitsOfWork\UnitOfWork.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Composable.CQRS.nuspec">

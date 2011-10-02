@@ -116,5 +116,10 @@ namespace Composable.KeyValueStorage
         {
             //Not really anything much to do here....
         }
+
+        public void Clear()
+        {
+            _db = new Dictionary<string, List<object>>();
+        }
     }
 }

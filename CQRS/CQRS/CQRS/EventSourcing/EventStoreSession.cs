@@ -6,8 +6,10 @@ using System.Linq;
 using System.Transactions;
 using Composable.CQRS.EventSourcing.SQLServer;
 using Composable.ServiceBus;
+using Composable.StuffThatDoesNotBelongHere;
 using Composable.System.Linq;
 using Composable.System;
+using Composable.UnitsOfWork;
 using log4net;
 
 #endregion
@@ -21,7 +23,7 @@ namespace Composable.CQRS.EventSourcing
         IEnumerable<IAggregateRootEvent> StreamEventsAfterEventWithId(Guid? startAfterEventId);
     }
 
-    public class EventStoreSession : IEventStoreSession
+    public class EventStoreSession : IEventStoreSession, IUnitOfWorkParticipant
     {
         private readonly IServiceBus _bus;
         private readonly IEventSomethingOrOther _storage;
@@ -118,18 +120,49 @@ namespace Composable.CQRS.EventSourcing
 
         public void SaveChanges()
         {
-            Log.DebugFormat("saving changes with {0} changes from transaction", _idMap.Count);
+            if(_unitOfWork == null)
+            {                
+                InternalSaveChanges();
+            }else
+            {
+                Log.DebugFormat("{0} ignored call to SaveChanges since participating in a unit of work", _id);
+            }
+        }
+
+        private void InternalSaveChanges()
+        {
+            Log.DebugFormat("{0} saving changes with {1} changes from transaction within unit of work {2}", _id, _idMap.Count, _unitOfWork ?? (object)"null");
             var newEvents = _idMap.SelectMany(p => p.Value.GetChanges()).ToList();
             _storage.SaveEvents(newEvents);
             newEvents.ForEach(_bus.Publish);
             _idMap.Select(p => p.Value).ForEach(p => p.AcceptChanges());
         }
 
-        private readonly Guid Me = Guid.NewGuid();
-
         public void Dispose()
         {
             _storage.Dispose();
+        }
+
+        private IUnitOfWork _unitOfWork;
+        private readonly Guid _id = Guid.NewGuid();
+
+        IUnitOfWork IUnitOfWorkParticipant.UnitOfWork { get { return _unitOfWork; } }
+        Guid IUnitOfWorkParticipant.Id { get { return _id; }  }
+
+        void IUnitOfWorkParticipant.Join(IUnitOfWork unit)
+        {
+            _unitOfWork = unit;
+        }
+
+        void IUnitOfWorkParticipant.Commit(IUnitOfWork unit)
+        {
+            InternalSaveChanges();
+            _unitOfWork = null;
+        }
+
+        void IUnitOfWorkParticipant.Rollback(IUnitOfWork unit)
+        {
+            _unitOfWork = null;
         }
     }
 

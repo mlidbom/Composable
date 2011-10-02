@@ -165,6 +165,7 @@
     <Compile Include="UnitsOfWork\AttemptingToJoinSecondUnitOfWorkException.cs" />
     <Compile Include="UnitsOfWork\IUnitOfWork.cs" />
     <Compile Include="UnitsOfWork\IUnitOfWorkParticipant.cs" />
+    <Compile Include="UnitsOfWork\IUnitOfWorkParticipantWhoseCommitMayTriggerChangesInOtherParticipantsMustImplementIdemponentCommit.cs" />
     <Compile Include="UnitsOfWork\UnitOfWork.cs" />
   </ItemGroup>
   <ItemGroup>

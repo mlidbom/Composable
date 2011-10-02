@@ -17,7 +17,7 @@ namespace Composable.KeyValueStorage
         private readonly InMemoryObjectStore _idMap = new InMemoryObjectStore();
         private readonly InMemoryObjectStore _newlyAdded = new InMemoryObjectStore();
 
-        private static ILog Log = LogManager.GetLogger(typeof(DocumentDbSession));
+        private static readonly ILog Log = LogManager.GetLogger(typeof(DocumentDbSession));
 
         public DocumentDbSession(IDocumentDb store, DocumentDbConfig config = null)
         {

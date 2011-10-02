@@ -43,7 +43,9 @@ namespace Composable.UnitsOfWork
         {
             Log.Debug("Commit");
             var cascadingParticipants = _participants.OfType<IUnitOfWorkParticipantWhoseCommitMayTriggerChangesInOtherParticipantsMustImplementIdemponentCommit>().ToList();
-            cascadingParticipants.ForEach(s => s.Commit(this));
+            
+            while(cascadingParticipants.Select(s => s.CommitAndReportIfCommitMayHaveCausedChangesInOtherParticipantsExpectAnotherCommitSoDoNotLeaveUnitOfWork())
+                .Where(result => result).Any()){} //Loop until no changes may have occured
 
             _participants.ForEach(participant => participant.Commit(this));
         }

@@ -129,13 +129,14 @@ namespace Composable.CQRS.EventSourcing
             }
         }
 
-        private void InternalSaveChanges()
+        private bool InternalSaveChanges()
         {
             Log.DebugFormat("{0} saving changes with {1} changes from transaction within unit of work {2}", _id, _idMap.Count, _unitOfWork ?? (object)"null");
             var newEvents = _idMap.SelectMany(p => p.Value.GetChanges()).ToList();
             _storage.SaveEvents(newEvents);
             newEvents.ForEach(_bus.Publish);
             _idMap.Select(p => p.Value).ForEach(p => p.AcceptChanges());
+            return newEvents.Any();
         }
 
         public void Dispose()
@@ -156,13 +157,18 @@ namespace Composable.CQRS.EventSourcing
 
         void IUnitOfWorkParticipant.Commit(IUnitOfWork unit)
         {
-            InternalSaveChanges();
+            ((IUnitOfWorkParticipantWhoseCommitMayTriggerChangesInOtherParticipantsMustImplementIdemponentCommit) this).CommitAndReportIfCommitMayHaveCausedChangesInOtherParticipantsExpectAnotherCommitSoDoNotLeaveUnitOfWork();
             _unitOfWork = null;
         }
 
         void IUnitOfWorkParticipant.Rollback(IUnitOfWork unit)
         {
             _unitOfWork = null;
+        }
+
+         bool IUnitOfWorkParticipantWhoseCommitMayTriggerChangesInOtherParticipantsMustImplementIdemponentCommit.CommitAndReportIfCommitMayHaveCausedChangesInOtherParticipantsExpectAnotherCommitSoDoNotLeaveUnitOfWork()
+        {            
+            return InternalSaveChanges();
         }
     }
 

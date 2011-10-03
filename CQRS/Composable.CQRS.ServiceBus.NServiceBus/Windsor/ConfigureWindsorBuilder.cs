@@ -1,8 +1,8 @@
-﻿using NServiceBus.ObjectBuilder.CastleWindsor;
-using NServiceBus.ObjectBuilder.Common.Config;
 using Castle.Windsor;
+using NServiceBus;
+using NServiceBus.ObjectBuilder.Common.Config;
 
-namespace NServiceBus
+namespace Composable.CQRS.ServiceBus.NServiceBus.Windsor
 {
     /// <summary>
     /// Contains extension methods to NServiceBus.Configure.
@@ -32,6 +32,6 @@ namespace NServiceBus
             ConfigureCommon.With(config, new WindsorObjectBuilder(container));
 
             return config;
-        } 
+        }
     }
 }

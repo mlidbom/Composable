@@ -51,7 +51,11 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\packages\NServiceBus.2.6.0.1505\lib\net40\NServiceBus.Core.dll</HintPath>
     </Reference>
+    <Reference Include="NServiceBus.Host">
+      <HintPath>..\..\packages\NServiceBus.Host.2.6.0.1505\lib\net40\NServiceBus.Host.exe</HintPath>
+    </Reference>
     <Reference Include="System" />
+    <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
     <Reference Include="System.Transactions" />
     <Reference Include="System.Web" />
@@ -66,6 +70,7 @@
       <Link>Properties\CommonAssemblyInfo.cs</Link>
     </Compile>
     <Compile Include="DualDispatchBus.cs" />
+    <Compile Include="EndpointConfiguration\EndpointConfigurationBase.cs" />
     <Compile Include="IMessageInterceptor.cs" />
     <Compile Include="INservicebusServicebus.cs" />
     <Compile Include="EmptyMessageInterceptor.cs" />
@@ -78,11 +83,17 @@
     <Compile Include="Web\WindsorNServicebusWeb\MessageContext.cs" />
     <Compile Include="Web\WindsorNServicebusWeb\PerNserviceBusMessageLifestyleManager.cs" />
     <Compile Include="Web\WindsorNServicebusWeb\WindsorLifestyleMessageModule.cs" />
+    <Compile Include="Windsor\ConfigureWindsorBuilder.cs" />
+    <Compile Include="Windsor\WindsorObjectBuilder.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\System\System\Composable.Core.csproj">
       <Project>{3632254D-0C4A-4EB8-B388-4C99F8939584}</Project>
       <Name>Composable.Core</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\CQRS.Windsor\Composable.CQRS.Windsor.csproj">
+      <Project>{E1705F7A-936C-49E1-9418-9AB2FA34678E}</Project>
+      <Name>Composable.CQRS.Windsor</Name>
     </ProjectReference>
     <ProjectReference Include="..\CQRS\Composable.CQRS.csproj">
       <Project>{3B776BD4-0EDD-4A83-BC9A-3A53D6649AB0}</Project>
@@ -96,6 +107,7 @@
     </None>
     <None Include="packages.config" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

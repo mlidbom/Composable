@@ -9,6 +9,7 @@
       <dependencies>
          <dependency id="Composable.Core" version="$version$" />
          <dependency id="Composable.CQRS" version="$version$" />
+         <dependency id="Composable.AutoMapper" version="$version$" />
       </dependencies>
    </metadata>
 </package>

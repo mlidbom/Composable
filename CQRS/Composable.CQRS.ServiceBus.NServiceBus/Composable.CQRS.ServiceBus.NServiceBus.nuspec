@@ -8,6 +8,7 @@
     <language>en-US</language>
      <dependencies>
         <dependency id="Composable.CQRS" version="$version$" />
+        <dependency id="Composable.CQRS.Windsor" version="$version$" />
      </dependencies>
   </metadata>
    <files>

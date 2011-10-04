@@ -1,10 +1,16 @@
-﻿using System.Configuration;
+﻿#region usings
+
+using System.Configuration;
 using Castle.MicroKernel.Releasers;
 using Castle.Windsor;
 using Composable.CQRS.ServiceBus.NServiceBus.Windsor;
 using Composable.CQRS.Windsor;
 using NServiceBus;
+using NServiceBus.Unicast.Config;
+using NServiceBus.Unicast.Subscriptions.NHibernate;
 using log4net.Config;
+
+#endregion
 
 namespace Composable.CQRS.ServiceBus.NServiceBus.EndpointConfiguration
 {
@@ -13,21 +19,37 @@ namespace Composable.CQRS.ServiceBus.NServiceBus.EndpointConfiguration
     {
         private WindsorContainer _container;
 
-        private void StartNServiceBus(WindsorContainer windsorContainer)
+        protected virtual void StartNServiceBus(WindsorContainer windsorContainer)
         {
-            Configure.With()
+            var config = Configure.With()
                 .CastleWindsorBuilder(container: windsorContainer)
-                .Log4Net()
-                .DBSubcriptionStorage()
-                .XmlSerializer()
+                .Log4Net();
+
+            var config2 = ConfigureSubscriptionStorage(config);
+
+
+            var busConfig = config2.XmlSerializer()
                 .MsmqTransport()
                 .IsTransactional(true)
                 .PurgeOnStartup(false)
-                .UnicastBus()
-                .LoadMessageHandlers()
-                .ImpersonateSender(false)
+                .UnicastBus();
+
+            var busConfig2 = LoadMessageHandlers(busConfig);
+
+            busConfig2.ImpersonateSender(false)
                 .CreateBus()
                 .Start();
+        }
+
+        protected virtual ConfigUnicastBus LoadMessageHandlers(ConfigUnicastBus busConfig)
+        {
+            var busConfig2 = busConfig.LoadMessageHandlers();
+            return busConfig2;
+        }
+
+        protected virtual Configure ConfigureSubscriptionStorage(Configure config)
+        {
+            return config.DBSubcriptionStorage();
         }
 
 
@@ -44,7 +66,6 @@ namespace Composable.CQRS.ServiceBus.NServiceBus.EndpointConfiguration
             StartNServiceBus(_container);
 
             _container.AssertConfigurationValid();
-
         }
 
         protected abstract void ConfigureContainer(IWindsorContainer container);

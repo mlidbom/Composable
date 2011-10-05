@@ -56,29 +56,32 @@ namespace Composable.System.Reflection
         private static readonly Dictionary<string, Type> _typeMap = new Dictionary<string, Type>();
         public static Type AsType(this string valueType)
         {
-            Type type;
-            if (_typeMap.TryGetValue(valueType, out type))
+            lock (_typeMap)
             {
+                Type type;
+                if (_typeMap.TryGetValue(valueType, out type))
+                {
+                    return type;
+                }
+
+                var types = AppDomain.CurrentDomain.GetAssemblies()
+                    .Select(assembly => assembly.GetType(valueType))
+                    .Where(t => t != null)
+                    .ToArray();
+                if (types.None())
+                {
+                    throw new FailedToFindTypeException(valueType);
+                }
+
+                if (types.Count() > 1)
+                {
+                    throw new MultipleMatchingTypesException(valueType);
+                }
+
+                type = types.Single();
+                _typeMap.Add(valueType, types.Single());
                 return type;
             }
-
-            var types = AppDomain.CurrentDomain.GetAssemblies()
-                .Select(assembly => assembly.GetType(valueType))
-                .Where(t => t != null)
-                .ToArray();
-            if (types.None())
-            {
-                throw new FailedToFindTypeException(valueType);
-            }
-
-            if (types.Count() > 1)
-            {
-                throw new MultipleMatchingTypesException(valueType);
-            }
-
-            type = types.Single();
-            _typeMap.Add(valueType, types.Single());
-            return type;
         }
 
         public class MultipleMatchingTypesException : Exception

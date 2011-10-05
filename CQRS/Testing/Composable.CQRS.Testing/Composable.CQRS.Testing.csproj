@@ -44,13 +44,13 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\packages\CommonServiceLocator.1.0\lib\NET35\Microsoft.Practices.ServiceLocation.dll</HintPath>
     </Reference>
-    <Reference Include="NServiceBus, Version=2.6.0.1505, Culture=neutral, PublicKeyToken=9fc386479f8a226c, processorArchitecture=MSIL">
+    <Reference Include="NServiceBus, Version=2.6.0.1506, Culture=neutral, PublicKeyToken=9fc386479f8a226c, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\packages\NServiceBus.2.6.0.1505\lib\net40\NServiceBus.dll</HintPath>
+      <HintPath>..\..\..\packages\NServiceBus.2.6.0.1506\lib\net40\NServiceBus.dll</HintPath>
     </Reference>
-    <Reference Include="NServiceBus.Core, Version=2.6.0.1505, Culture=neutral, PublicKeyToken=9fc386479f8a226c, processorArchitecture=MSIL">
+    <Reference Include="NServiceBus.Core, Version=2.6.0.1506, Culture=neutral, PublicKeyToken=9fc386479f8a226c, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\packages\NServiceBus.2.6.0.1505\lib\net40\NServiceBus.Core.dll</HintPath>
+      <HintPath>..\..\..\packages\NServiceBus.2.6.0.1506\lib\net40\NServiceBus.Core.dll</HintPath>
     </Reference>
     <Reference Include="nunit.framework">
       <HintPath>..\..\..\packages\NUnit.2.5.10.11092\lib\nunit.framework.dll</HintPath>

@@ -100,9 +100,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\..\CommonAssemblyInfo.cs">
-      <Link>Properties\CommonAssemblyInfo.cs</Link>
-    </Compile>
     <Compile Include="ISerializablePropertyOwner.cs" />
     <Compile Include="Property.cs" />
     <Compile Include="ExpressionUtil.cs" />

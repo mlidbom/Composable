@@ -7,7 +7,7 @@
     <description>Todo.</description>
     <language>en-US</language>
      <dependencies>
-        <dependency id="Composable.CQRS.ServiceBus.NServiceBus" version="$version$" />
+        <dependency id="Composable.CQRS.ServiceBus.NServiceBus" version="$NServiceBusVersion$" />
      </dependencies>
   </metadata>
 </package>

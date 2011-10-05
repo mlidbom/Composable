@@ -7,7 +7,7 @@
     <description>Todo.</description>
     <language>en-US</language>
      <dependencies>
-        <dependency id="Composable.CQRS" version="$version$" />
+        <dependency id="Composable.CQRS" version="$CqrsVersion$" />
      </dependencies>
   </metadata>
 </package>

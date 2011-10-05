@@ -7,9 +7,8 @@
       <description>TODO</description>
       <language>en-US</language>
       <dependencies>
-         <dependency id="Composable.Core" version="$version$" />
-         <dependency id="Composable.CQRS" version="$version$" />
-         <dependency id="Composable.AutoMapper" version="$version$" />
+         <dependency id="Composable.CQRS" version="$CqrsVersion$" />
+         <dependency id="Composable.AutoMapper" version="$AutoMapperVersion$" />
       </dependencies>
    </metadata>
 </package>

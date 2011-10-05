@@ -1,6 +1,7 @@
 ﻿#region usings
 
 using System.Configuration;
+using Castle.MicroKernel.Registration;
 using Castle.MicroKernel.Releasers;
 using Castle.Windsor;
 using Composable.CQRS.ServiceBus.NServiceBus.Windsor;
@@ -14,7 +15,7 @@ using log4net.Config;
 
 namespace Composable.CQRS.ServiceBus.NServiceBus.EndpointConfiguration
 {
-    public abstract class NservicebusEndpointConfigurationBase<TInheritor> : IWantCustomInitialization
+    public abstract class NServicebusEndpointConfigurationBase<TInheritor> : IWantCustomInitialization
         where TInheritor : IConfigureThisEndpoint
     {
         private WindsorContainer _container;
@@ -57,6 +58,8 @@ namespace Composable.CQRS.ServiceBus.NServiceBus.EndpointConfiguration
         {
             XmlConfigurator.Configure();
             _container = new WindsorContainer();
+
+            _container.Register(Component.For<IWindsorContainer, WindsorContainer>().Instance(_container));
 
             //Forget this and you leak memory like CRAZY!
             _container.Kernel.ReleasePolicy = new NoTrackingReleasePolicy();

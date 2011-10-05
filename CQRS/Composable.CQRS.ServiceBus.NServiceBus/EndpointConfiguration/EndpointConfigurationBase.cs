@@ -43,7 +43,7 @@ namespace Composable.CQRS.ServiceBus.NServiceBus.EndpointConfiguration
                 .Start();
         }
 
-        protected virtual ConfigUnicastBus LoadMessageHandlers<T>(ConfigUnicastBus busConfig, First<T> required)
+        protected virtual ConfigUnicastBus LoadMessageHandlers(ConfigUnicastBus busConfig, First<EmptyHandler> required)
         {
             var busConfig2 = busConfig.LoadMessageHandlers(required);
             return busConfig2;

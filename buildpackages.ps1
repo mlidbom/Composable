@@ -18,8 +18,8 @@ function GetAssemblyVersion($assembly)
    return $Aver
 }
 
-$CoreVersion = GetAssemblyVersion("\System\System\bin\" + $Configuration + "\Composable.Core.dll")
-$WindsorVersion = GetAssemblyVersion("\CQRS\CQRS.Windsor\bin\" + $Configuration + "\Composable.CQRS.Windsor.dll")
+$CoreVersion = GetAssemblyVersion("\Bin\" + $Configuration + "\Composable.Core.dll")
+$WindsorVersion = GetAssemblyVersion("\Bin\" + $Configuration + "\Composable.CQRS.Windsor.dll")
 
 
 Build-Pkg pack ".\System\System\Composable.Core.csproj" -OutputDirectory "..\NuGetFeed" -Prop Configuration=$Configuration

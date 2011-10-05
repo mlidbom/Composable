@@ -1,14 +1,15 @@
 ﻿#region usings
 
 using System.Configuration;
+using System.Runtime.Serialization;
 using Castle.MicroKernel.Registration;
 using Castle.MicroKernel.Releasers;
 using Castle.Windsor;
+using Composable.CQRS.EventSourcing;
 using Composable.CQRS.ServiceBus.NServiceBus.Windsor;
 using Composable.CQRS.Windsor;
 using NServiceBus;
 using NServiceBus.Unicast.Config;
-using NServiceBus.Unicast.Subscriptions.NHibernate;
 using log4net.Config;
 
 #endregion
@@ -35,16 +36,16 @@ namespace Composable.CQRS.ServiceBus.NServiceBus.EndpointConfiguration
                 .PurgeOnStartup(false)
                 .UnicastBus();
 
-            var busConfig2 = LoadMessageHandlers(busConfig);
+            var busConfig2 = LoadMessageHandlers(busConfig, First<EmptyHandler>.Then<CatchSerializationErrors>());
 
             busConfig2.ImpersonateSender(false)
                 .CreateBus()
                 .Start();
         }
 
-        protected virtual ConfigUnicastBus LoadMessageHandlers(ConfigUnicastBus busConfig)
+        protected virtual ConfigUnicastBus LoadMessageHandlers<T>(ConfigUnicastBus busConfig, First<T> required)
         {
-            var busConfig2 = busConfig.LoadMessageHandlers();
+            var busConfig2 = busConfig.LoadMessageHandlers(required);
             return busConfig2;
         }
 
@@ -79,6 +80,35 @@ namespace Composable.CQRS.ServiceBus.NServiceBus.EndpointConfiguration
             if (connectionString == null)
                 throw new ConfigurationErrorsException(string.Format("Missing connectionstring for '{0}'", key));
             return connectionString.ConnectionString;
+        }
+    }
+
+    public class WillNeverBeUsed : IMessage
+    {
+    }
+
+    public class EmptyHandler : IMessageHandler<WillNeverBeUsed>
+    {
+        public void Handle(WillNeverBeUsed message)
+        {
+        }
+    }
+
+    public class CatchSerializationErrors : IMessageHandler<IMessage>
+    {
+        private readonly IBus _bus;
+
+        public CatchSerializationErrors(IBus bus)
+        {
+            _bus = bus;
+        }
+
+        public void Handle(IMessage message)
+        {
+            if (message.GetType() == typeof (IMessage) || message.GetType() == typeof (AggregateRootEvent))
+            {
+                throw new SerializationException("Message failed to serialize correctly");
+            }
         }
     }
 }

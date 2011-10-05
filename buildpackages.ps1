@@ -6,11 +6,12 @@ $ErrorActionPreference="Stop"
 
 Set-Alias Build-Pkg .\packages\NuGet.CommandLine.1.5.20905.5\tools\NuGet.exe
 
-$scriptRoot = Split-Path (Resolve-Path $myInvocation.MyCommand.Path)
+$scriptRoot = Split-Path (Resolve-Path $myInvocation.MyCommand.Path) 
+$scriptRoot = $scriptRoot + "\"
 
 function GetAssemblyVersion($assembly)
 {   
-   $assembly = $scriptRoot + "\Bin\" + $Configuration + "\" + $assembly
+   $assembly = $scriptRoot + $assembly
    write-host $assembly
    $Myasm = [System.Reflection.Assembly]::Loadfile($assembly)   
    $Aname = $Myasm.GetName()
@@ -18,12 +19,12 @@ function GetAssemblyVersion($assembly)
    return $Aver
 }
 
-$CoreVersion = GetAssemblyVersion("Composable.Core.dll")
-$WindsorVersion = GetAssemblyVersion("Composable.CQRS.Windsor.dll")
-$NServiceBusVersion = GetAssemblyVersion("Composable.CQRS.ServiceBus.NServiceBus.dll")
-$CqrsVersion = GetAssemblyVersion("Composable.CQRS.dll")
-$DomainEventsVersion = GetAssemblyVersion("Composable.DomainEvents.dll")
-$AutoMapperVersion = GetAssemblyVersion("Composable.AutoMapper.dll")
+$CoreVersion = GetAssemblyVersion("System\System\Bin\" + $Configuration + "\Composable.Core.dll")
+$WindsorVersion = GetAssemblyVersion("CQRS\CQRS.Windsor\Bin\" + $Configuration + "\Composable.CQRS.Windsor.dll")
+$NServiceBusVersion = GetAssemblyVersion("CQRS\Composable.CQRS.ServiceBus.NServiceBus\Bin\" + $Configuration + "\Composable.CQRS.ServiceBus.NServiceBus.dll")
+$CqrsVersion = GetAssemblyVersion("CQRS\CQRS\Bin\" + $Configuration + "\Composable.CQRS.dll")
+$DomainEventsVersion = GetAssemblyVersion("Composable.DomainEvents\Bin\" + $Configuration + "\Composable.DomainEvents.dll")
+$AutoMapperVersion = GetAssemblyVersion("AutoMapper\Composable.AutoMapper\Bin\" + $Configuration + "\Composable.AutoMapper.dll")
 
 
 Build-Pkg pack ".\System\System\Composable.Core.csproj" -OutputDirectory "..\NuGetFeed" -Prop Configuration=$Configuration

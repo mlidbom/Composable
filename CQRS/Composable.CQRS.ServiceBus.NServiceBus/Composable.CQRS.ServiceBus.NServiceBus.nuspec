@@ -7,8 +7,8 @@
     <description>Todo.</description>
     <language>en-US</language>
      <dependencies>
-        <dependency id="Composable.CQRS" version="$version$" />
-        <dependency id="Composable.CQRS.Windsor" version="$version$" />
+        <dependency id="Composable.CQRS" version="$CoreVersion$" />
+        <dependency id="Composable.CQRS.Windsor" version="$WindsorVersion$" />
      </dependencies>
   </metadata>
    <files>

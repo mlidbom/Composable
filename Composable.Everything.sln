@@ -53,6 +53,11 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Composable.CQRS.Population.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Composable.CQRS.NServicebus.Distributor", "Composable.CQRS.NServicebus.Distributor\Composable.CQRS.NServicebus.Distributor.csproj", "{60887913-88E2-48E5-8EEB-FF72CD2CB17F}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Packaging", "Packaging", "{691518D4-146C-43DA-95A0-F8BFB0283AFC}"
+	ProjectSection(SolutionItems) = preProject
+		buildpackages.ps1 = buildpackages.ps1
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU

@@ -218,8 +218,8 @@
 REM "$(ProjectDir)..\..\tools\NuGet.exe" pack "Composable.Core.nuspec"  -o packages</PostBuildEvent>
   </PropertyGroup>
   <PropertyGroup>
-    <PreBuildEvent>copy "$(TargetDir)..\..\packages\Newtonsoft.Json.4.0.2\lib\net40\Newtonsoft.Json.dll" "$(ProjectDir)__EmbeddedAssemblies"
-copy "$(TargetDir)..\..\packages\Newtonsoft.Json.4.0.2\lib\net40\Newtonsoft.Json.pdb" "$(ProjectDir)__EmbeddedAssemblies"</PreBuildEvent>
+    <PreBuildEvent>REM copy "$(TargetDir)..\..\packages\Newtonsoft.Json.4.0.2\lib\net40\Newtonsoft.Json.dll" "$(ProjectDir)__EmbeddedAssemblies"
+REM copy "$(TargetDir)..\..\packages\Newtonsoft.Json.4.0.2\lib\net40\Newtonsoft.Json.pdb" "$(ProjectDir)__EmbeddedAssemblies"</PreBuildEvent>
   </PropertyGroup>
   <Target Name="AfterBuild">
     <InjectModuleInitializer AssemblyFile="$(TargetPath)" />

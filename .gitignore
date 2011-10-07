@@ -14,6 +14,6 @@ TestResult.xml
 
 *.pidb
 *.userprefs
-
+_Resharper*
 CQRS/CQRS/__EmbeddedAssemblies/*.dll
 CQRS/CQRS/__EmbeddedAssemblies/*.pdb

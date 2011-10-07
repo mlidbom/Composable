@@ -29,6 +29,7 @@ namespace Composable.CQRS.EventSourcing
         private readonly IEventSomethingOrOther _storage;
         private static ILog Log = LogManager.GetLogger(typeof(EventStoreSession));
         protected readonly IDictionary<Guid, IEventStored> _idMap = new Dictionary<Guid, IEventStored>();
+        protected readonly HashSet<Guid> _publishedEvents = new HashSet<Guid>();
 
         public EventStoreSession(IServiceBus bus, IEventSomethingOrOther storage)
         {
@@ -118,6 +119,15 @@ namespace Composable.CQRS.EventSourcing
             _idMap.Add(aggregate.Id, aggregate);
         }
 
+        private void PublishUnpublishedEvents(IEnumerable<IAggregateRootEvent> events)
+        {
+            var unpublishedEvents = events.Where(e => !_publishedEvents.Contains(e.EventId))
+                                          .ToList();
+                
+            unpublishedEvents.ForEach(_bus.Publish);
+            _publishedEvents.AddRange(unpublishedEvents.Select(e => e.EventId));
+        }
+
         public void SaveChanges()
         {
             if(_unitOfWork == null)
@@ -125,6 +135,8 @@ namespace Composable.CQRS.EventSourcing
                 InternalSaveChanges();
             }else
             {
+                var newEvents = _idMap.SelectMany(p => p.Value.GetChanges());
+                PublishUnpublishedEvents(newEvents);
                 Log.DebugFormat("{0} ignored call to SaveChanges since participating in a unit of work", _id);
             }
         }
@@ -134,7 +146,7 @@ namespace Composable.CQRS.EventSourcing
             Log.DebugFormat("{0} saving changes with {1} changes from transaction within unit of work {2}", _id, _idMap.Count, _unitOfWork ?? (object)"null");
             var newEvents = _idMap.SelectMany(p => p.Value.GetChanges()).ToList();
             _storage.SaveEvents(newEvents);
-            newEvents.ForEach(_bus.Publish);
+            PublishUnpublishedEvents(newEvents);
             _idMap.Select(p => p.Value).ForEach(p => p.AcceptChanges());
             return newEvents.Any();
         }

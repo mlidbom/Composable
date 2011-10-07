@@ -1,11 +1,15 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Transactions;
 using Castle.Windsor;
 using CommonServiceLocator.WindsorAdapter;
 using Composable.CQRS.EventSourcing;
 using Composable.DomainEvents;
+using Composable.ServiceBus;
+using Composable.UnitsOfWork;
 using NUnit.Framework;
 using Composable.System.Linq;
+using System.Linq;
 
 namespace CQRS.Tests.CQRS.EventSourcing
 {
@@ -228,6 +232,56 @@ namespace CQRS.Tests.CQRS.EventSourcing
             {
                 session.Save(user);
                 session.SaveChanges();
+            }
+        }
+
+        private class MockServiceBus : IServiceBus {
+            public List<IAggregateRootEvent> Published = new List<IAggregateRootEvent>();
+
+            public void Publish(object message) { Published.Add((IAggregateRootEvent)message); }
+            public void SendLocal(object message) { throw new NotSupportedException(); }
+            public void Send(object message) { throw new NotSupportedException(); }
+        }
+
+        private class MockEventSomethingOrOther : IEventSomethingOrOther {
+            public List<IAggregateRootEvent> SavedEvents = new List<IAggregateRootEvent>();
+
+            public void Dispose() {}
+            public IEnumerable<IAggregateRootEvent> GetHistoryUnSafe(Guid id) { throw new NotSupportedException(); }
+            public void SaveEvents(IEnumerable<IAggregateRootEvent> events) { SavedEvents.AddRange(events); }
+            public IEnumerable<IAggregateRootEvent> StreamEventsAfterEventWithId(Guid? startAfterEventId) { throw new NotSupportedException(); }
+        }
+
+        [Test]
+        public void EventsArePublishedOnSaveChangesAndThisInteractsWithUnitOfWorkParticipations() {
+            var bus = new MockServiceBus();
+            var store = new MockEventSomethingOrOther();
+
+            var users = 1.Through(9).Select(i => { var u = new User(); u.Register(i + "@test.com", "abcd", Guid.NewGuid()); u.ChangeEmail("new" + i + "@test.com"); return u; }).ToList();
+
+            using (var session = new EventStoreSession(bus, store)) {
+                var uow = new UnitOfWork();
+                uow.AddParticipant(session);
+
+                users.Take(3).ForEach(u => session.Save(u));
+                Assert.That(bus.Published.Count, Is.EqualTo(0));
+                session.SaveChanges();
+                Assert.That(bus.Published.Count, Is.EqualTo(6));
+
+                users.Skip(3).Take(3).ForEach(u => session.Save(u));
+                Assert.That(bus.Published.Count, Is.EqualTo(6));
+                session.SaveChanges();
+                Assert.That(bus.Published.Count, Is.EqualTo(12));
+
+                users.Skip(6).Take(3).ForEach(u => session.Save(u));
+
+                Assert.That(bus.Published.Count, Is.EqualTo(12));
+                Assert.That(store.SavedEvents.Count, Is.EqualTo(0));
+                uow.Commit();
+                Assert.That(bus.Published.Count, Is.EqualTo(18));
+
+                Assert.That(bus.Published.Select(e => e.EventId).Distinct().Count(), Is.EqualTo(18));
+                Assert.That(bus.Published, Is.EquivalentTo(store.SavedEvents));
             }
         }
 

@@ -46,7 +46,7 @@ namespace Composable.System.Reflection
                     newFields.AddRange(type.GetFields(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public).Select(BuildFieldGetter));
 
                     var baseType = type.BaseType;
-                    if (baseType != typeof (object))
+                    if (baseType != null && baseType != typeof (object))
                     {
                         newFields.AddRange(GetFieldsAndPropertyGetters(baseType));
                     }

@@ -5,6 +5,7 @@ using System.Data.SqlClient;
 using System.Data.SqlTypes;
 using System.Linq;
 using System.Runtime.Caching;
+using System.Transactions;
 using Composable.NewtonSoft;
 using Composable.System;
 using Composable.System.Reflection;
@@ -86,6 +87,13 @@ namespace Composable.CQRS.EventSourcing.SQLServer
         {
             var connection = new SqlConnection(_store.ConnectionString);
             connection.Open();
+            if(Transaction.Current != null)
+            {
+                connection.EnlistTransaction(Transaction.Current);
+            }else
+            {
+                Log.Warn("No ambient transaction. This is dangerous");
+            }
             return connection;
         }
 

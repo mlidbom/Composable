@@ -87,10 +87,7 @@ namespace Composable.CQRS.EventSourcing.SQLServer
         {
             var connection = new SqlConnection(_store.ConnectionString);
             connection.Open();
-            if(Transaction.Current != null)
-            {
-                connection.EnlistTransaction(Transaction.Current);
-            }else
+            if(Transaction.Current == null)
             {
                 Log.Warn("No ambient transaction. This is dangerous");
             }

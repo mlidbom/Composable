@@ -49,6 +49,7 @@ namespace Composable.CQRS.ServiceBus.NServiceBus
 
             try
             {
+                AssertAmbientTransactionPresent();
                 _unit.Commit();
             }
             catch (Exception e)

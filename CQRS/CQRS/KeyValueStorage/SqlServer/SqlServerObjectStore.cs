@@ -42,7 +42,7 @@ namespace Composable.KeyValueStorage.SqlServer
             _store = store;
             _config = _store.Config;
 
-            EnsureInitialized();
+            EnsureInitialized(_store.ConnectionString);
 
 
             if (!_store.Config.Batching)
@@ -221,7 +221,12 @@ namespace Composable.KeyValueStorage.SqlServer
 
         private SqlConnection OpenSession()
         {
-            var connection = new SqlConnection(_store.ConnectionString);
+            return OpenSession(_store.ConnectionString);
+        }
+
+        private static SqlConnection OpenSession(string connectionString)
+        {
+            var connection = new SqlConnection(connectionString);
             connection.Open();
             return connection;
         }
@@ -251,13 +256,13 @@ namespace Composable.KeyValueStorage.SqlServer
             }
         }
 
-        private void EnsureInitialized()
+        private static void EnsureInitialized(string connectionString)
         {
             lock (LockObject)
             {
-                using (var connection = OpenSession())
+                if (!VerifiedTables.Contains(connectionString))
                 {
-                    if (!VerifiedTables.Contains(_store.ConnectionString))
+                    using (var connection = OpenSession(connectionString))
                     {
                         using (var checkForTableCommand = connection.CreateCommand())
                         {
@@ -289,7 +294,7 @@ CREATE NONCLUSTERED INDEX [IX_ValueType] ON [dbo].[Store]
                                     createTableCommand.ExecuteNonQuery();
                                 }
                             }
-                            VerifiedTables.Add(_store.ConnectionString);
+                            VerifiedTables.Add(connectionString);
                         }
 
                         using (var findTypesCommand = connection.CreateCommand())
@@ -299,14 +304,7 @@ CREATE NONCLUSTERED INDEX [IX_ValueType] ON [dbo].[Store]
                             {
                                 while (reader.Read())
                                 {
-                                    try
-                                    {
-                                        KnownTypes.Add(reader.GetString(0).AsType());
-                                    }
-                                    catch (TypeExtensions.FailedToFindTypeException)
-                                    {
-                                        // This exception might occur if the types in the database does not correspond to the loaded assemblies. Happens often during development.
-                                    }
+                                    KnownTypes.Add(reader.GetString(0).AsType());
                                 }
                             }
                         }
@@ -319,11 +317,11 @@ CREATE NONCLUSTERED INDEX [IX_ValueType] ON [dbo].[Store]
 
         private static readonly HashSet<String> VerifiedTables = new HashSet<String>();        
 
-        public void PurgeDb()
+        public static void PurgeDb(string connectionString)
         {
             lock (LockObject)
             {
-                using (var connection = OpenSession())
+                using (var connection = OpenSession(connectionString))
                 {
                     using (var dropCommand = connection.CreateCommand())
                     {
@@ -333,11 +331,8 @@ DROP TABLE [dbo].[Store]";
 
                         dropCommand.ExecuteNonQuery();
 
-                        lock (LockObject)
-                        {
-                            VerifiedTables.Remove(_store.ConnectionString);
-                        }
-                        EnsureInitialized();
+                        VerifiedTables.Remove(connectionString);
+                        EnsureInitialized(connectionString);
                     }
                 }
             }

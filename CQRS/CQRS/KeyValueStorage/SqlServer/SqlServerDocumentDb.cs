@@ -33,11 +33,7 @@ namespace Composable.KeyValueStorage.SqlServer
 
         public static void ResetDB(string connectionString)
         {
-            var me = new SqlServerDocumentDb(connectionString);
-            using (var session = new SqlServerObjectStore(me))
-            {
-                session.PurgeDb();
-            }
+            SqlServerObjectStore.PurgeDb(connectionString);
         }
     }
 }

@@ -107,7 +107,7 @@ namespace Composable.CQRS.EventSourcing
 
         public void Save<TAggregate>(TAggregate aggregate) where TAggregate : IEventStored
         {
-            var changes = aggregate.GetChanges();
+            var changes = aggregate.GetChanges().ToList();
             if(aggregate.Version > 0 && changes.None() || changes.Any() && changes.Min(e => e.AggregateRootVersion) > 1)
             {
                 throw new AttemptToSaveAlreadyPersistedAggregateException(aggregate);
@@ -135,7 +135,7 @@ namespace Composable.CQRS.EventSourcing
                 InternalSaveChanges();
             }else
             {
-                var newEvents = _idMap.SelectMany(p => p.Value.GetChanges());
+                var newEvents = _idMap.SelectMany(p => p.Value.GetChanges()).ToList();
                 PublishUnpublishedEvents(newEvents);
                 Log.DebugFormat("{0} ignored call to SaveChanges since participating in a unit of work", _id);
             }

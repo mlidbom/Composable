@@ -29,6 +29,11 @@ namespace Composable.CQRS.ServiceBus.NServiceBus
         {
             Log.Debug("HandleBeginMessage called");
 
+            if(_unit != null)
+            {
+                throw new UnitOfWorkNotDisposedException();
+            }
+
             try
             {
                 AssertAmbientTransactionPresent();
@@ -46,6 +51,11 @@ namespace Composable.CQRS.ServiceBus.NServiceBus
         public void HandleEndMessage()
         {
             Log.Debug("HandleEndMessage called");
+            if (_unit == null)
+            {
+                Log.Debug("No unit present, bailing out.");
+                return;
+            }
 
             try
             {
@@ -54,14 +64,33 @@ namespace Composable.CQRS.ServiceBus.NServiceBus
             }
             catch (Exception e)
             {
-                Log.Error("HandleEndMessage failed", e);
+                Log.Error("HandleEndMessage failed rolling back", e);
+                try
+                {
+                    _unit.Rollback();
+                }catch(Exception e2)
+                {
+                    Log.Error("rolling back failed", e2);
+                    throw;
+                }
                 throw;
+            }
+            finally
+            {
+                //The overly complex song and dance above is really to get safely to this line since nservicebus may call HandleEndMessage again without having called HandleBeginMessage.
+                _unit = null;
             }
         }
 
         public void HandleError()
         {
             Log.Debug("HandleError called");
+            if(_unit == null)
+            {
+                Log.Debug("No unit present, bailing out.");
+                return;
+            }
+
             try
             {
                 _unit.Rollback();
@@ -71,6 +100,11 @@ namespace Composable.CQRS.ServiceBus.NServiceBus
                 Log.Error("HandleError failed", e);
                 throw;
             }
+            finally
+            {
+                //The overly complex song and dance above is really to get safely to this line since nservicebus may call HandleEndMessage method again without having called HandleBeginMessage.
+                _unit = null;
+            }
         }
 
         private static void AssertAmbientTransactionPresent()
@@ -79,6 +113,14 @@ namespace Composable.CQRS.ServiceBus.NServiceBus
             {
                 throw new NoAmbientTransactionException();
             }
+        }
+    }
+
+    public class UnitOfWorkNotDisposedException : Exception
+    {
+        public UnitOfWorkNotDisposedException():base("The unit of work was not correctly disposed. Since NServicebus makes strange repeated calls to HandleEndMessage this may be fatal for transactionality")
+        {
+            
         }
     }
 

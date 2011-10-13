@@ -9,19 +9,19 @@ namespace Composable.ServiceBus
 {
     public class SynchronousBus : IServiceBus
         {
-            private readonly IWindsorContainer _serviceLocator;
+            protected readonly IWindsorContainer ServiceLocator;
 
             public SynchronousBus(IWindsorContainer serviceLocator)
             {
-                _serviceLocator = serviceLocator;
+                ServiceLocator = serviceLocator;
             }
 
-            public void Publish(object message)
+            public virtual void Publish(object message)
             {
                 ((dynamic)this).Publish((dynamic)message);
             }
 
-            private void Publish<TMessage>(TMessage message) where TMessage : IMessage
+            protected virtual void Publish<TMessage>(TMessage message) where TMessage : IMessage
             {
                 var handlerTypes = message.GetType().GetAllTypesInheritedOrImplemented()
                     .Where(t => t.Implements(typeof(IMessage)))
@@ -32,7 +32,7 @@ namespace Composable.ServiceBus
                 var handlers = new List<object>();
                 foreach (var handlerType in handlerTypes)
                 {
-                    handlers.AddRange(_serviceLocator.ResolveAll(handlerType).Cast<object>());
+                    handlers.AddRange(ServiceLocator.ResolveAll(handlerType).Cast<object>());
                 }
 
                 InTransaction.Execute(() =>
@@ -44,12 +44,12 @@ namespace Composable.ServiceBus
                 });
             }
 
-            public void SendLocal(object message)
+            public virtual void SendLocal(object message)
             {
                 Publish(message);
             }
 
-            public void Send(object message)
+            public virtual void Send(object message)
             {
                 Publish(message);
             }

@@ -195,30 +195,22 @@ namespace Composable.CQRS.EventSourcing.SQLServer
             _aggregatesWithEventsAddedByThisInstance.AddRange(events.Select(e => e.AggregateRootId));
             using (var connection = OpenSession())
             {
-                var eventCount = events.Count();
-                var handled = 0;
-                while(handled < eventCount)
+                foreach (var @event in events)
                 {
-                    //Console.WriteLine("Starting new sql batch");
                     using(var command = connection.CreateCommand())
                     {
                         command.CommandType = CommandType.Text;
-                        for(var handledInBatch = 0; handledInBatch < SqlBatchSize && handled < eventCount; handledInBatch++, handled++)
-                        {
-                            var @event = events.ElementAt(handled);
 
-                            command.CommandText += "INSERT Events(AggregateId, AggregateVersion, EventType, EventId, TimeStamp, Event) VALUES(@AggregateId{0}, @AggregateVersion{0}, @EventType{0}, @EventId{0}, @TimeStamp{0}, @Event{0})"
-                                .FormatWith(handledInBatch);
+                        command.CommandText += "INSERT Events(AggregateId, AggregateVersion, EventType, EventId, TimeStamp, Event) VALUES(@AggregateId, @AggregateVersion, @EventType, @EventId, @TimeStamp, @Event)";
 
-                            command.Parameters.Add(new SqlParameter("AggregateId" + handledInBatch, @event.AggregateRootId));
-                            command.Parameters.Add(new SqlParameter("AggregateVersion" + handledInBatch, @event.AggregateRootVersion));
-                            command.Parameters.Add(new SqlParameter("EventType" + handledInBatch, @event.GetType().FullName));
-                            command.Parameters.Add(new SqlParameter("EventId" + handledInBatch, @event.EventId));
-                            command.Parameters.Add(new SqlParameter("TimeStamp" + handledInBatch, @event.TimeStamp));
+                        command.Parameters.Add(new SqlParameter("AggregateId", @event.AggregateRootId));
+                        command.Parameters.Add(new SqlParameter("AggregateVersion", @event.AggregateRootVersion));
+                        command.Parameters.Add(new SqlParameter("EventType", @event.GetType().FullName));
+                        command.Parameters.Add(new SqlParameter("EventId", @event.EventId));
+                        command.Parameters.Add(new SqlParameter("TimeStamp", @event.TimeStamp));
 
-                            command.Parameters.Add(new SqlParameter("Event" + handledInBatch,
-                                                                    JsonConvert.SerializeObject(@event, Formatting.Indented, JsonSettings)));
-                        }
+                        command.Parameters.Add(new SqlParameter("Event", JsonConvert.SerializeObject(@event, Formatting.Indented, JsonSettings)));
+
                         command.ExecuteNonQuery();
                     }
                 }
@@ -262,7 +254,7 @@ CONSTRAINT [PK_Events] PRIMARY KEY CLUSTERED
 (
 	[AggregateId] ASC,
 	[AggregateVersion] ASC
-)WITH (PAD_INDEX  = OFF, STATISTICS_NORECOMPUTE  = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS  = ON, ALLOW_PAGE_LOCKS  = ON) ON [PRIMARY]
+)WITH (PAD_INDEX  = OFF, STATISTICS_NORECOMPUTE  = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS  = ON, ALLOW_PAGE_LOCKS  = OFF) ON [PRIMARY]
 ) ON [PRIMARY]
 ";
                                 createTableCommand.ExecuteNonQuery();

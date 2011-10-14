@@ -31,7 +31,6 @@ namespace Composable.KeyValueStorage.SqlServer
 
         private readonly Dictionary<Type, Dictionary<string, string>> _persistentValues = new Dictionary<Type, Dictionary<string,string>>();
         private const int UniqueConstraintViolationErrorNumber = 2627;
-        private readonly int _sqlBatchSize = 10;
 
         private static readonly ISet<Type> KnownTypes = new HashSet<Type>();
 
@@ -43,12 +42,6 @@ namespace Composable.KeyValueStorage.SqlServer
             _config = _store.Config;
 
             EnsureInitialized(_store.ConnectionString);
-
-
-            if (!_store.Config.Batching)
-            {
-                _sqlBatchSize = 1;
-            }
         }
 
 
@@ -143,34 +136,24 @@ namespace Composable.KeyValueStorage.SqlServer
             values = values.ToList();
             using (var connection = OpenSession())
             {
-                var handled = 0;
-                var eventCount = values.Count();
-                while (handled < eventCount)
+                foreach (var entry in values)
                 {
                     using (var command = connection.CreateCommand())
                     {
                         command.CommandType = CommandType.Text;
-                        for (var handledInBatch = 0; handledInBatch < _sqlBatchSize && handled < eventCount; handled++)
+                        var stringValue = JsonConvert.SerializeObject(entry.Value, _config.JSonFormatting, _jsonSettings);
+
+                        string oldValue;
+                        var needsUpdate = !_persistentValues.GetOrAddDefault(entry.Value.GetType()).TryGetValue(entry.Key, out oldValue) || stringValue != oldValue;
+                        if (needsUpdate)
                         {
-                            var entry = values.ElementAt(handled);
+                            _persistentValues.GetOrAddDefault(entry.Value.GetType())[entry.Key] = stringValue;
+                            command.CommandText += "UPDATE Store SET Value = @Value WHERE Id = @Id AND ValueType \n";
+                            command.Parameters.Add(new SqlParameter("Id", entry.Key));
 
-                            var stringValue = JsonConvert.SerializeObject(entry.Value, _config.JSonFormatting, _jsonSettings);
+                            AddTypeCriteria(command, entry.Value.GetType());
 
-                            //Try to avoid unneccessary updates that cause a whole lot of locks. And sometimes basically forces single threaded operation
-                            string oldValue;
-                            var needsUpdate = !_persistentValues.GetOrAddDefault(entry.Value.GetType()).TryGetValue(entry.Key, out oldValue) || stringValue != oldValue;
-                            if (needsUpdate)
-                            {
-                                _persistentValues.GetOrAddDefault(entry.Value.GetType())[entry.Key] = stringValue;
-                                handledInBatch++;
-                                command.CommandText += "UPDATE Store SET Value = @Value{0} WHERE Id = @Id{0} AND ValueType \n"
-                                    .FormatWith(handledInBatch);
-                                command.Parameters.Add(new SqlParameter("Id" + handledInBatch, entry.Key));
-
-                                AddTypeCriteria(command, entry.Value.GetType());
-
-                                command.Parameters.Add(new SqlParameter("Value" + handledInBatch, stringValue));
-                            }
+                            command.Parameters.Add(new SqlParameter("Value", stringValue));
                         }
                         if (!command.CommandText.IsNullOrWhiteSpace())
                         {
@@ -282,7 +265,7 @@ CREATE TABLE [dbo].[Store](
  CONSTRAINT [PK_Store] PRIMARY KEY CLUSTERED 
 (
 	[Id], [ValueType] ASC
-)WITH (PAD_INDEX  = OFF, STATISTICS_NORECOMPUTE  = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS  = ON, ALLOW_PAGE_LOCKS  = ON) ON [PRIMARY]
+)WITH (PAD_INDEX  = OFF, STATISTICS_NORECOMPUTE  = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS  = ON, ALLOW_PAGE_LOCKS  = OFF) ON [PRIMARY]
 ) ON [PRIMARY]
 
 CREATE NONCLUSTERED INDEX [IX_ValueType] ON [dbo].[Store] 

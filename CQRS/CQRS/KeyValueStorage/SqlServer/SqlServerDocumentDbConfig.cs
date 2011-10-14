@@ -10,7 +10,6 @@ namespace Composable.KeyValueStorage.SqlServer
     {
         public new static readonly SqlServerDocumentDbConfig Default = new SqlServerDocumentDbConfig();
 
-        public bool Batching = true;
         public Formatting JSonFormatting = Formatting.None;
     }
 }

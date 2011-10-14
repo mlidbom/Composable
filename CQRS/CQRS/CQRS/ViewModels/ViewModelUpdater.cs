@@ -52,13 +52,13 @@ namespace Composable.CQRS.ViewModels
                                              if (creationEvents.Any(eventType => eventType.IsAssignableFrom(e.GetType())))
                                              {
                                                 TViewModel m;
-                                                Session.TryGet(e.AggregateRootId, out m);
+                                                Session.TryGetForUpdate(e.AggregateRootId, out m);
                                                 Model = m;
                                                 this._doAdd = (m == null);
                                              }
                                              else
                                              {
-                                                 Model = Session.Get<TViewModel>(e.AggregateRootId);
+                                                 Model = Session.GetForUpdate<TViewModel>(e.AggregateRootId);
                                                  this._doAdd = false;
                                              }
                                          })

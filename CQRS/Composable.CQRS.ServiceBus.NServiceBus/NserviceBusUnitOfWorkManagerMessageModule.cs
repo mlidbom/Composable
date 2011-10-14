@@ -29,13 +29,13 @@ namespace Composable.CQRS.ServiceBus.NServiceBus
         {
             Log.Debug("HandleBeginMessage called");
 
-            if(_unit != null)
-            {
-                throw new UnitOfWorkNotDisposedException();
-            }
-
             try
             {
+                if (_unit != null)
+                {
+                    throw new UnitOfWorkNotDisposedException();
+                }
+
                 AssertAmbientTransactionPresent();
                 _unit = new UnitOfWork();
 
@@ -79,6 +79,7 @@ namespace Composable.CQRS.ServiceBus.NServiceBus
             {
                 //The overly complex song and dance above is really to get safely to this line since nservicebus may call HandleEndMessage again without having called HandleBeginMessage.
                 _unit = null;
+                Log.Debug("Nulled out _unit");
             }
         }
 
@@ -104,6 +105,7 @@ namespace Composable.CQRS.ServiceBus.NServiceBus
             {
                 //The overly complex song and dance above is really to get safely to this line since nservicebus may call HandleEndMessage method again without having called HandleBeginMessage.
                 _unit = null;
+                Log.Debug("Nulled out _unit");
             }
         }
 

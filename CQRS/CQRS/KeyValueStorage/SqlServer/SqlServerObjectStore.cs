@@ -55,7 +55,8 @@ namespace Composable.KeyValueStorage.SqlServer
             {
                 using(var command = connection.CreateCommand())
                 {
-                    command.CommandText = "SELECT Value, ValueType FROM Store WHERE Id=@Id AND ValueType ";
+                    string lockHint = DocumentDbSession.UseUpdateLock ? "With(XLOCK)" : "";
+                    command.CommandText = "SELECT Value, ValueType FROM Store {0} WHERE Id=@Id AND ValueType ".FormatWith(lockHint);
                     command.Parameters.Add(new SqlParameter("Id", key.ToString()));
                     
                     AddTypeCriteria(command, typeof(TValue));

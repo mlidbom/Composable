@@ -16,6 +16,7 @@ namespace Composable.CQRS.ServiceBus.NServiceBus.Web.WindsorNServicebusWeb
 
         public static void RegisterForEviction(PerNserviceBusMessageLifestyleManager manager, object instance)
         {
+            Log.Debug("RegisterForEviction called");
             if (perThreadEvict == null)
             {
                 perThreadEvict = new Dictionary<PerNserviceBusMessageLifestyleManager, object>();
@@ -26,11 +27,13 @@ namespace Composable.CQRS.ServiceBus.NServiceBus.Web.WindsorNServicebusWeb
 
         public void HandleBeginMessage()
         {
+            Log.Debug("HandleBeginMessage called");
         }
 
 
         public void HandleEndMessage()
         {
+            Log.Debug("HandleEndMessage called");
             try
             {
                 EvictInstancesCreatedDuringMessageHandling();
@@ -45,6 +48,7 @@ namespace Composable.CQRS.ServiceBus.NServiceBus.Web.WindsorNServicebusWeb
 
         public void HandleError()
         {
+            Log.Debug("HandleError called");
             try
             {
                 EvictInstancesCreatedDuringMessageHandling();

@@ -9,6 +9,7 @@ using System.Transactions;
 using Composable.NewtonSoft;
 using Composable.System;
 using Composable.System.Reflection;
+using Composable.SystemExtensions.Threading;
 using Newtonsoft.Json;
 using log4net;
 using Composable.System.Linq;
@@ -61,7 +62,7 @@ namespace Composable.CQRS.EventSourcing.SQLServer
 
 
         private readonly SqlServerEventStore _store;
-        private int SqlBatchSize = 10;
+        private SingleThreadedUseGuard _threadingGuard;
 
         private readonly JsonSerializerSettings JsonSettings = new JsonSerializerSettings
                                                                    {
@@ -72,6 +73,7 @@ namespace Composable.CQRS.EventSourcing.SQLServer
 
         public SqlServerEventSomethingOrOther(SqlServerEventStore store)
         {
+            _threadingGuard = new SingleThreadedUseGuard(this);
             Log.Debug("Constructor called");
             //Console.WriteLine("{0}: {1}", GetType().Name, ++instances);
             _store = store;
@@ -79,7 +81,6 @@ namespace Composable.CQRS.EventSourcing.SQLServer
 
             if(_store.Config.HasFlag(SqlServerEventStoreConfig.NoBatching))
             {
-                SqlBatchSize = 1;
             }
         }
 
@@ -98,6 +99,7 @@ namespace Composable.CQRS.EventSourcing.SQLServer
         private const string EventSelectClause = "SELECT EventType, Event, AggregateId, AggregateVersion, EventId, TimeStamp FROM Events ";
         public IEnumerable<IAggregateRootEvent> GetHistoryUnSafe(Guid aggregateId)
         {
+            _threadingGuard.AssertNoThreadChangeOccurred();
             var result = cache.Get(aggregateId);
 
             using (var connection = OpenSession())
@@ -147,6 +149,7 @@ namespace Composable.CQRS.EventSourcing.SQLServer
 
         public IEnumerable<IAggregateRootEvent> StreamEventsAfterEventWithId(Guid? startAfterEventId)
         {
+            _threadingGuard.AssertNoThreadChangeOccurred();
             using (var connection = OpenSession())
             {
                 using (var loadCommand = connection.CreateCommand())
@@ -191,6 +194,7 @@ namespace Composable.CQRS.EventSourcing.SQLServer
         private readonly HashSet<Guid> _aggregatesWithEventsAddedByThisInstance = new HashSet<Guid>(); 
         public void SaveEvents(IEnumerable<IAggregateRootEvent> events)
         {
+            _threadingGuard.AssertNoThreadChangeOccurred();
             events = events.ToList();
             _aggregatesWithEventsAddedByThisInstance.AddRange(events.Select(e => e.AggregateRootId));
             using (var connection = OpenSession())
@@ -217,7 +221,8 @@ namespace Composable.CQRS.EventSourcing.SQLServer
             }
         }
 
-        private static readonly HashSet<string> VerifiedTables = new HashSet<string>();
+        private static readonly HashSet<string> VerifiedTables = new HashSet<string>();        
+
         private void EnsureEventsTableExists()
         {
             lock (VerifiedTables)
@@ -268,6 +273,7 @@ CONSTRAINT [PK_Events] PRIMARY KEY CLUSTERED
 
         public void ResetDB()
         {
+            _threadingGuard.AssertNoThreadChangeOccurred();
             cache.Clear();
             using (var connection = OpenSession())
             {
@@ -290,6 +296,7 @@ DROP TABLE [dbo].[Events]";
 
         public void Dispose()
         {
+            _threadingGuard.AssertNoThreadChangeOccurred();
         }
     }
 }

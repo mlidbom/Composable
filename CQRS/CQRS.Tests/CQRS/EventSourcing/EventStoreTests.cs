@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading;
 using System.Transactions;
 using Castle.Windsor;
 using CommonServiceLocator.WindsorAdapter;
 using Composable.CQRS.EventSourcing;
 using Composable.DomainEvents;
 using Composable.ServiceBus;
+using Composable.SystemExtensions.Threading;
 using Composable.UnitsOfWork;
 using NUnit.Framework;
 using Composable.System.Linq;
@@ -41,6 +43,30 @@ namespace CQRS.Tests.CQRS.EventSourcing
                 Assert.That(loadedUser.Password, Is.EqualTo(user.Password));
 
             }
+        }
+
+        [Test]
+        public void ThrowsIfUsedByMultipleThreads()
+        {
+            var store = CreateStore();
+            IEventStoreSession session = null;
+            var wait = new ManualResetEvent(false);
+            ThreadPool.QueueUserWorkItem((state) =>
+                                             {
+                                                 session = store.OpenSession();
+                                                 wait.Set();
+                                             });
+            wait.WaitOne();
+
+            User user;
+
+            Assert.Throws<MultiThreadedUseException>(() => session.Get<User>(Guid.NewGuid()));
+            Assert.Throws<MultiThreadedUseException>(() => session.Dispose());
+            Assert.Throws<MultiThreadedUseException>(() => session.LoadSpecificVersion<User>(Guid.NewGuid(), 1));
+            Assert.Throws<MultiThreadedUseException>(() => session.Save(new User()));
+            Assert.Throws<MultiThreadedUseException>(() => session.SaveChanges());            
+            Assert.Throws<MultiThreadedUseException>(() => session.TryGet(Guid.NewGuid(), out user));
+
         }
 
         protected abstract IEventStore CreateStore();

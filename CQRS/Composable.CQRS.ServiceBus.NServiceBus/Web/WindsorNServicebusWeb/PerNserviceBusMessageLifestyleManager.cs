@@ -14,7 +14,7 @@ namespace Composable.CQRS.ServiceBus.NServiceBus.Web.WindsorNServicebusWeb
     {
         private bool _evicting;
 
-        private readonly string perMessageKey = "PerMessageKey_" + Guid.NewGuid();
+        private readonly string _perMessageKey = "PerMessageKey_" + Guid.NewGuid();
 
         private static readonly ILog Log = LogManager.GetLogger(typeof(PerNserviceBusMessageLifestyleManager));
         private static int _instances;
@@ -22,46 +22,72 @@ namespace Composable.CQRS.ServiceBus.NServiceBus.Web.WindsorNServicebusWeb
         public PerNserviceBusMessageLifestyleManager()
         {
             Interlocked.Increment(ref _instances);
-            Log.DebugFormat("{0} instances after construction", _instances);
+            Log.DebugFormat("{0}: {1} instances after construction", _perMessageKey, _instances);
         }
 
         public override object Resolve(CreationContext context)
         {
-            var instance = MessageContext.Current[perMessageKey];
-
-            if(instance == null)
+            lock (_perMessageKey)
             {
-                instance = base.Resolve(context);
-                MessageContext.Current.Add(perMessageKey, instance);
-                WindsorLifestyleMessageModule.RegisterForEviction(this, instance);
-            }
+                var instance = MessageContext.Current[_perMessageKey];
 
-            return instance;
+                if (instance == null)
+                {
+                    instance = base.Resolve(context);
+                    Log.DebugFormat("{0}: base resolved: {1}: {2}", _perMessageKey, instance.GetType(), instance);
+                    MessageContext.Current.Add(_perMessageKey, instance);
+                    WindsorLifestyleMessageModule.RegisterForEviction(this, instance);
+                }
+                Log.DebugFormat("{0}: resolved from context: {1}: {2}", _perMessageKey, instance.GetType(), instance);
+                return instance;
+            }
         }
 
 
         public override bool Release(object instance)
         {
-            if(!_evicting) return false;
-            var released = base.Release(instance);
-            MessageContext.Current.Remove(perMessageKey);
-            return released;
+            lock (_perMessageKey)
+            {
+                // Since this method is called by the kernel when an external
+                // request to release the component is made, it must do nothing
+                // to ensure the component is available during the duration of 
+                // the web request.  An internal Evict method is provided to
+                // allow the actual releasing of the component at the end of
+                // the web request.
+
+                if (!_evicting)
+                {
+                    Log.DebugFormat("{0}: not evicting, bailing out of release of {1}", _perMessageKey, instance);
+                    return false;
+                }
+                var released = base.Release(instance);
+                Log.DebugFormat("{0}: base released: {1}: {2} with result: {3}", _perMessageKey, instance.GetType(), instance, released);
+                MessageContext.Current.Remove(_perMessageKey);
+                return released;
+            }
         }
 
 
         public void Evict(object instance)
         {
-            using(new EvictionScope(this))
+            lock (_perMessageKey)
             {
-                Release(instance);
+                Log.DebugFormat("{0}: evict called on: {1}", _perMessageKey, instance);
+                using (new EvictionScope(this))
+                {
+                    Release(instance);
+                }
             }
         }
 
 
         public override void Dispose()
         {
-            Interlocked.Decrement(ref _instances);
-            Log.DebugFormat("{0} instances after dispose", _instances);
+            lock (_perMessageKey)
+            {
+                Interlocked.Decrement(ref _instances);
+                Log.DebugFormat("{0} instances after dispose", _instances);
+            }
         }
 
 

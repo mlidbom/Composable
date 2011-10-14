@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Configuration;
+using System.Threading;
 using Castle.Windsor;
 using Composable.CQRS.EventSourcing;
 using Composable.CQRS.EventSourcing.SQLServer;
 using Composable.CQRS.Testing;
 using Composable.System;
+using Composable.SystemExtensions.Threading;
 using FluentAssertions;
 using NUnit.Framework;
 using Composable.System.Linq;
@@ -59,6 +61,23 @@ namespace CQRS.Tests.CQRS.EventSourcing
             }
         }
 
+        [Test]
+        public void ThrowsIfUsedByMultipleThreads()
+        {
+            IEventSomethingOrOther session = null;
+            var wait = new ManualResetEvent(false);
+            ThreadPool.QueueUserWorkItem((state) =>
+            {
+                session = CreateSomethingOrOther();
+                wait.Set();
+            });
+            wait.WaitOne();
+            
+            Assert.Throws<MultiThreadedUseException>(() => session.Dispose());
+            Assert.Throws<MultiThreadedUseException>(() => session.GetHistoryUnSafe(Guid.NewGuid()));
+            Assert.Throws<MultiThreadedUseException>(() => session.SaveEvents(null));
+            Assert.Throws<MultiThreadedUseException>(() => session.StreamEventsAfterEventWithId(Guid.NewGuid()).ToList());
+        }
 
     }
 

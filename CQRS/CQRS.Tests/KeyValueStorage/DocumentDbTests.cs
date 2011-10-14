@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
+using System.Threading;
 using System.Transactions;
 using Composable.KeyValueStorage;
+using Composable.SystemExtensions.Threading;
 using NUnit.Framework;
 using System.Linq;
 
@@ -38,6 +40,42 @@ namespace CQRS.Tests.KeyValueStorage
             using (var session = store.OpenSession())
             {
                 var loadedUser = session.Get<User>(user.Id);
+
+                Assert.That(loadedUser.Id, Is.EqualTo(user.Id));
+                Assert.That(loadedUser.Email, Is.EqualTo(user.Email));
+                Assert.That(loadedUser.Password, Is.EqualTo(user.Password));
+
+                Assert.That(loadedUser.Address, Is.EqualTo(user.Address));
+            }
+        }
+
+        [Test]
+        public void CanSaveAndLoadAggregateForUpdate()
+        {
+            var store = CreateStore();
+
+            var user = new User()
+            {
+                Id = Guid.NewGuid(),
+                Email = "email@email.se",
+                Password = "password",
+                Address = new Address()
+                {
+                    City = "Stockholm",
+                    Street = "Brännkyrkag",
+                    Streetnumber = 234
+                }
+            };
+
+            using (var session = store.OpenSession())
+            {
+                session.Save(user.Id, user);
+                session.SaveChanges();
+            }
+
+            using (var session = store.OpenSession())
+            {
+                var loadedUser = session.GetForUpdate<User>(user.Id);
 
                 Assert.That(loadedUser.Id, Is.EqualTo(user.Id));
                 Assert.That(loadedUser.Email, Is.EqualTo(user.Email));
@@ -329,6 +367,34 @@ namespace CQRS.Tests.KeyValueStorage
                 Assert.That(session.GetAll<User>().ToList(), Has.Count.EqualTo(2));
             }
         }
+
+        [Test]
+        public void ThrowsIfUsedByMultipleThreads()
+        {
+            var store = CreateStore();
+            IDocumentDbSession session = null;
+            var wait = new ManualResetEvent(false);
+            ThreadPool.QueueUserWorkItem((state) =>
+            {
+                session = store.OpenSession();
+                wait.Set();
+            });
+            wait.WaitOne();
+
+            User user = new User();
+
+            Assert.Throws<MultiThreadedUseException>(() => session.Get<User>(Guid.NewGuid()));
+            Assert.Throws<MultiThreadedUseException>(() => session.GetAll<User>());
+            Assert.Throws<MultiThreadedUseException>(() => session.Save(user, user.Id));            
+            Assert.Throws<MultiThreadedUseException>(() => session.Delete(user));
+            Assert.Throws<MultiThreadedUseException>(() => session.Dispose());            
+            Assert.Throws<MultiThreadedUseException>(() => session.Save(new User()));
+            Assert.Throws<MultiThreadedUseException>(() => session.SaveChanges());
+            Assert.Throws<MultiThreadedUseException>(() => session.TryGet(Guid.NewGuid(), out user));
+            Assert.Throws<MultiThreadedUseException>(() => session.TryGetForUpdate(user.Id, out user));
+
+        }
+
 
         [Test]
         public void GetHandlesSubTyping()

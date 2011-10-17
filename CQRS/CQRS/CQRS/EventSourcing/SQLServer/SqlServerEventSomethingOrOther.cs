@@ -96,7 +96,7 @@ namespace Composable.CQRS.EventSourcing.SQLServer
         }
 
 
-        private const string EventSelectClause = "SELECT EventType, Event, AggregateId, AggregateVersion, EventId, TimeStamp FROM Events ";
+        private const string EventSelectClause = "SELECT EventType, Event, AggregateId, AggregateVersion, EventId, TimeStamp FROM Events With(UPDLOCK) ";
         public IEnumerable<IAggregateRootEvent> GetHistoryUnSafe(Guid aggregateId)
         {
             _threadingGuard.AssertNoThreadChangeOccurred();

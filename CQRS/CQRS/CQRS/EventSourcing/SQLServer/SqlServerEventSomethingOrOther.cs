@@ -96,7 +96,7 @@ namespace Composable.CQRS.EventSourcing.SQLServer
         }
 
 
-        private const string EventSelectClause = "SELECT EventType, Event, AggregateId, AggregateVersion, EventId, TimeStamp FROM Events With(UPDLOCK) ";
+        private const string EventSelectClause = "SELECT EventType, Event, AggregateId, AggregateVersion, EventId, TimeStamp FROM Events With(READCOMMITTED, ROWLOCK) ";
         public IEnumerable<IAggregateRootEvent> GetHistoryUnSafe(Guid aggregateId)
         {
             _threadingGuard.AssertNoThreadChangeOccurred();
@@ -205,7 +205,7 @@ namespace Composable.CQRS.EventSourcing.SQLServer
                     {
                         command.CommandType = CommandType.Text;
 
-                        command.CommandText += "INSERT Events(AggregateId, AggregateVersion, EventType, EventId, TimeStamp, Event) VALUES(@AggregateId, @AggregateVersion, @EventType, @EventId, @TimeStamp, @Event)";
+                        command.CommandText += "INSERT Events With(READCOMMITTED, ROWLOCK) (AggregateId, AggregateVersion, EventType, EventId, TimeStamp, Event) VALUES(@AggregateId, @AggregateVersion, @EventType, @EventId, @TimeStamp, @Event)";
 
                         command.Parameters.Add(new SqlParameter("AggregateId", @event.AggregateRootId));
                         command.Parameters.Add(new SqlParameter("AggregateVersion", @event.AggregateRootVersion));

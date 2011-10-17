@@ -92,8 +92,10 @@ namespace Composable.KeyValueStorage.SqlServer
                     command.Parameters.Add(new SqlParameter("Id", id.ToString()));
                     command.Parameters.Add(new SqlParameter("ValueType", value.GetType().FullName));
 
-                    command.Parameters.Add(new SqlParameter("Value",
-                                                            JsonConvert.SerializeObject(value, _config.JSonFormatting, _jsonSettings)));
+                    var stringValue = JsonConvert.SerializeObject(value, _config.JSonFormatting, _jsonSettings);
+                    command.Parameters.Add(new SqlParameter("Value", stringValue));
+
+                    _persistentValues.GetOrAddDefault(value.GetType())[id.ToString()] = stringValue;
                     try
                     {
                         command.ExecuteNonQuery();

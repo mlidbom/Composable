@@ -26,6 +26,7 @@ namespace Composable.CQRS.EventSourcing
         private readonly IDictionary<Guid, IEventStored> _idMap = new Dictionary<Guid, IEventStored>();
         private readonly HashSet<Guid> _publishedEvents = new HashSet<Guid>();
         private readonly SingleThreadedUseGuard _threadGuard;
+        private readonly List<Guid> _pendingDeletes = new List<Guid>();
 
         public EventStoreSession(IServiceBus bus, IEventSomethingOrOther storage)
         {
@@ -89,6 +90,12 @@ namespace Composable.CQRS.EventSourcing
             }
         }
 
+        public void Delete(Guid aggregateId)
+        {
+            _threadGuard.AssertNoThreadChangeOccurred();
+            _pendingDeletes.Add(aggregateId);
+        }
+
         public void Dispose()
         {
             _threadGuard.AssertNoThreadChangeOccurred();
@@ -99,7 +106,8 @@ namespace Composable.CQRS.EventSourcing
         public override string ToString()
         {
             return "{0}: {1}".FormatWith(_id, GetType().FullName);
-        }
+        }
+
 
         #region Implementation of IUnitOfWorkParticipant
 
@@ -161,6 +169,12 @@ namespace Composable.CQRS.EventSourcing
 
         private bool DoTryGet<TAggregate>(Guid aggregateId, out TAggregate aggregate) where TAggregate : IEventStored
         {
+            if (_pendingDeletes.Contains(aggregateId))
+            {
+                aggregate = default(TAggregate);
+                return false;
+            }
+
             IEventStored es;
             if (_idMap.TryGetValue(aggregateId, out es))
             {
@@ -201,7 +215,16 @@ namespace Composable.CQRS.EventSourcing
             _storage.SaveEvents(newEvents);
             PublishUnpublishedEvents(newEvents);
 
-            return newEvents.Any();
+            bool result = newEvents.Any() || _pendingDeletes.Any();
+
+            foreach (var toDelete in _pendingDeletes)
+            {
+                _storage.DeleteEvents(toDelete);
+                _idMap.Remove(toDelete);
+            }
+            _pendingDeletes.Clear();
+            
+            return result;
         }
     }
 }

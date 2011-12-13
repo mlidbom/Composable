@@ -271,11 +271,13 @@ namespace CQRS.Tests.CQRS.EventSourcing
 
         private class MockEventSomethingOrOther : IEventSomethingOrOther {
             public List<IAggregateRootEvent> SavedEvents = new List<IAggregateRootEvent>();
+            public List<Guid> DeletedAggregates = new List<Guid>();
 
             public void Dispose() {}
             public IEnumerable<IAggregateRootEvent> GetHistoryUnSafe(Guid id) { throw new NotSupportedException(); }
             public void SaveEvents(IEnumerable<IAggregateRootEvent> events) { SavedEvents.AddRange(events); }
             public IEnumerable<IAggregateRootEvent> StreamEventsAfterEventWithId(Guid? startAfterEventId) { throw new NotSupportedException(); }
+            public void DeleteEvents(Guid aggregateId) { DeletedAggregates.Add(aggregateId); }
         }
 
         [Test]
@@ -308,6 +310,86 @@ namespace CQRS.Tests.CQRS.EventSourcing
 
                 Assert.That(bus.Published.Select(e => e.EventId).Distinct().Count(), Is.EqualTo(18));
                 Assert.That(bus.Published, Is.EquivalentTo(store.SavedEvents));
+            }
+        }
+
+        [Test]
+        public void EventsAreDeletedWhenNotAUnitOfWorkParticipant()
+        {
+            var bus = new MockServiceBus();
+            var store = new MockEventSomethingOrOther();
+
+            using (var session = new EventStoreSession(bus, store))
+            {
+                var aggregate1 = new Guid("92EC4FE2-26A8-4274-8674-DC5D95513C83");
+                var aggregate2 = new Guid("F08200E4-8790-4ECC-9F06-A3D3BAC9E21C");
+
+                session.Delete(aggregate1);
+                session.Delete(aggregate2);
+
+                session.SaveChanges();
+                session.SaveChanges();  // Verify that SaveChanges() does not delete the events twice.
+
+                Assert.That(store.DeletedAggregates, Is.EquivalentTo(new[] { aggregate1, aggregate2 }));
+            }
+        }
+
+        [Test]
+        public void EventsAreDeletedWhenUnitOfWorkIsCommitted()
+        {
+            var bus = new MockServiceBus();
+            var store = new MockEventSomethingOrOther();
+
+            using (var session = new EventStoreSession(bus, store))
+            {
+                var uow = new UnitOfWork();
+                uow.AddParticipant(session);
+
+                var aggregate1 = new Guid("92EC4FE2-26A8-4274-8674-DC5D95513C83");
+                var aggregate2 = new Guid("F08200E4-8790-4ECC-9F06-A3D3BAC9E21C");
+
+                session.Delete(aggregate1);
+                session.Delete(aggregate2);
+
+                session.SaveChanges();
+
+                Assert.That(store.DeletedAggregates, Is.Empty);
+
+                uow.Commit();
+
+                Assert.That(store.DeletedAggregates, Is.EquivalentTo(new[] { aggregate1, aggregate2 }));
+            }
+        }
+
+        [Test]
+        public void AggregateCannotBeRetreivedAfterBeingDeleted()
+        {
+            var store = CreateStore();
+            
+            var user1 = new User();
+            user1.Register("email1@email.se", "password", Guid.NewGuid());
+
+            var user2 = new User();
+            user2.Register("email2@email.se", "password", Guid.NewGuid());
+
+            using(var session = store.OpenSession())
+            {                
+                session.Save(user1);
+                session.Save(user2);
+                session.SaveChanges();
+            }
+
+            using(var session = store.OpenSession())
+            {
+                session.Delete(user1.Id);
+
+                User loadedUser1;
+                Assert.IsFalse(session.TryGet(user1.Id, out loadedUser1));
+
+                var loadedUser2 = session.Get<User>(user2.Id);
+                Assert.That(loadedUser2.Id, Is.EqualTo(user2.Id));
+                Assert.That(loadedUser2.Email, Is.EqualTo(user2.Email));
+                Assert.That(loadedUser2.Password, Is.EqualTo(user2.Password));
             }
         }
 

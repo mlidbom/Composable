@@ -221,6 +221,21 @@ namespace Composable.CQRS.EventSourcing.SQLServer
             }
         }
 
+        public void DeleteEvents(Guid aggregateId)
+        {
+            _threadingGuard.AssertNoThreadChangeOccurred();
+            using (var connection = OpenSession())
+            {
+                using(var command = connection.CreateCommand())
+                {
+                    command.CommandType = CommandType.Text;
+                    command.CommandText += "DELETE Events With(ROWLOCK) WHERE AggregateId = @AggregateId";
+                    command.Parameters.Add(new SqlParameter("AggregateId", aggregateId));
+                    command.ExecuteNonQuery();
+                }
+            }
+        }
+
         private static readonly HashSet<string> VerifiedTables = new HashSet<string>();        
 
         private void EnsureEventsTableExists()

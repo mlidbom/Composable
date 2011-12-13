@@ -44,5 +44,18 @@ namespace Composable.CQRS.EventSourcing
             }
             return events;
         }
+
+        public void DeleteEvents(Guid aggregateId)
+        {
+            _threadingGuard.AssertNoThreadChangeOccurred();
+            for (int i = 0; i < _store.Events.Count; i++)
+            {
+                if (_store.Events[i].AggregateRootId == aggregateId)
+                {
+                    _store.Events.RemoveAt(i);
+                    i--;
+                }
+            }
+        }
     }
 }

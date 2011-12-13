@@ -392,7 +392,7 @@ namespace CQRS.Tests.KeyValueStorage
             Assert.Throws<MultiThreadedUseException>(() => session.SaveChanges());
             Assert.Throws<MultiThreadedUseException>(() => session.TryGet(Guid.NewGuid(), out user));
             Assert.Throws<MultiThreadedUseException>(() => session.TryGetForUpdate(user.Id, out user));
-
+            Assert.Throws<MultiThreadedUseException>(() => session.Delete(user));
         }
 
 

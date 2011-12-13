@@ -31,5 +31,10 @@ namespace Composable.CQRS.EventSourcing
         /// Tries to get the specified instance. Returns false and sets the result to null if the aggregate did not exist.
         /// </summary>
         bool TryGet<TAggregate>(Guid aggregateId, out TAggregate result) where TAggregate : IEventStored;
+
+        /// <summary>
+        /// Deletes all traces of an aggregate from the store.
+        /// </summary>
+        void Delete(Guid aggregateId);
     }
 }

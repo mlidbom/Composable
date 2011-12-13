@@ -77,8 +77,34 @@ namespace CQRS.Tests.CQRS.EventSourcing
             Assert.Throws<MultiThreadedUseException>(() => session.GetHistoryUnSafe(Guid.NewGuid()));
             Assert.Throws<MultiThreadedUseException>(() => session.SaveEvents(null));
             Assert.Throws<MultiThreadedUseException>(() => session.StreamEventsAfterEventWithId(Guid.NewGuid()).ToList());
+            Assert.Throws<MultiThreadedUseException>(() => session.DeleteEvents(Guid.NewGuid()));
         }
 
+        [Test]
+        public void DeleteEventsDeletesTheEventsForOnlyTheSpecifiedAggregate()
+        {
+            var aggregatesWithEvents = 1.Through(10).ToDictionary(i => i, i => 1.Through(10).Select(j => new SomeEvent(i, j)).ToList());
+
+            using (var somethingOrOther = CreateSomethingOrOther())
+            {                
+                somethingOrOther.SaveEvents(aggregatesWithEvents.SelectMany(x => x.Value));
+            }
+
+            using (var somethingOrOther = CreateSomethingOrOther())
+            {
+                var toRemove = aggregatesWithEvents[2][0].AggregateRootId;
+                aggregatesWithEvents.Remove(2);
+
+                somethingOrOther.DeleteEvents(toRemove);
+
+                foreach (var kvp in aggregatesWithEvents)
+                {
+                    var stream = somethingOrOther.GetHistoryUnSafe(kvp.Value[0].AggregateRootId);
+                    stream.Should().HaveCount(10);
+                }
+                somethingOrOther.GetHistoryUnSafe(toRemove).Should().BeEmpty();
+            }
+        }
     }
 
 

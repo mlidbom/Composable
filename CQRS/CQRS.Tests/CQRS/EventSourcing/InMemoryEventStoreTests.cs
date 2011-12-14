@@ -10,7 +10,7 @@ namespace CQRS.Tests.CQRS.EventSourcing
     {
         protected override IEventStore CreateStore()
         {
-            return new InMemoryEventStore(new DummyServiceBus(new WindsorContainer()));
+            return new InMemoryEventStore(Bus);
         }
     }
 }

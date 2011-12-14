@@ -5,6 +5,7 @@ using System.Transactions;
 using Castle.Windsor;
 using CommonServiceLocator.WindsorAdapter;
 using Composable.CQRS.EventSourcing;
+using Composable.CQRS.Testing;
 using Composable.DomainEvents;
 using Composable.ServiceBus;
 using Composable.SystemExtensions.Threading;
@@ -18,6 +19,13 @@ namespace CQRS.Tests.CQRS.EventSourcing
     [TestFixture]
     public abstract class EventStoreTests : NoSqlTest
     {
+        protected DummyServiceBus Bus { get; private set; }
+
+        [SetUp]
+        public void Setup() {
+            Bus = new DummyServiceBus(new WindsorContainer());
+        }
+
         [Test]
         public void CanSaveAndLoadAggregate()
         {
@@ -390,6 +398,42 @@ namespace CQRS.Tests.CQRS.EventSourcing
                 Assert.That(loadedUser2.Id, Is.EqualTo(user2.Id));
                 Assert.That(loadedUser2.Email, Is.EqualTo(user2.Email));
                 Assert.That(loadedUser2.Password, Is.EqualTo(user2.Password));
+            }
+        }
+
+        [Test]
+        public void DeletingAnAggregateDoesNotPreventEventsForItFromBeingRaised()
+        {
+            var store = CreateStore();
+            
+            var user1 = new User();
+            user1.Register("email1@email.se", "password", Guid.NewGuid());
+
+            var user2 = new User();
+            user2.Register("email2@email.se", "password", Guid.NewGuid());
+
+            using(var session = store.OpenSession())
+            {                
+                session.Save(user1);
+                session.Save(user2);
+                session.SaveChanges();
+            }
+
+            Bus.Reset();
+
+            using(var session = store.OpenSession())
+            {
+                user1 = session.Get<User>(user1.Id);
+
+                user1.ChangeEmail("new_email");
+
+                session.Delete(user1.Id);
+
+                session.SaveChanges();
+
+                var published = Bus.Published.ToList();
+                Assert.That(published.Count, Is.EqualTo(1));
+                Assert.That(published[0], Is.InstanceOf<UserChangedEmail>());
             }
         }
 

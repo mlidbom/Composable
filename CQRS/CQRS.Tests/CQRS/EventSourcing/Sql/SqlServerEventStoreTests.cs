@@ -19,7 +19,7 @@ namespace CQRS.Tests.CQRS.EventSourcing.Sql
 
         protected override IEventStore CreateStore()
         {
-            return new SqlServerEventStore(connectionString, new DummyServiceBus(new WindsorContainer()));
+            return new SqlServerEventStore(connectionString, Bus);
         }
     }
 }

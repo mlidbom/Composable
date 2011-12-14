@@ -51,6 +51,11 @@ namespace Composable.CQRS.EventSourcing.SQLServer
                 InternalCache.Dispose();
                 InternalCache = new MemoryCache("name");
             }
+
+            public void Remove(Guid id)
+            {
+                InternalCache.Remove(key: id.ToString());
+            }
         }
 
         private static readonly EventsCache cache = new EventsCache();
@@ -223,6 +228,7 @@ namespace Composable.CQRS.EventSourcing.SQLServer
 
         public void DeleteEvents(Guid aggregateId)
         {
+            cache.Remove(aggregateId);
             _threadingGuard.AssertNoThreadChangeOccurred();
             using (var connection = OpenSession())
             {

@@ -56,8 +56,60 @@ namespace Composable.CQRS.EventSourcing
             }
             else
             {
-                dynamic me = this;
-                me.Apply((dynamic)evt);
+                try
+                {
+                    dynamic me = this;
+                    me.Apply((dynamic)evt);
+                }
+                catch (global::System.Exception)
+                {
+                    // TODO: Kinda ugly hack to test if dynamic is causing wierd (we know it is) issues
+                    var eventType = evt.GetType();
+                    var applyMethod = this.GetType().GetMethods()
+                        .Where(method =>
+                               {
+                                   if( method.Name == "Apply")
+                                   {
+                                       var parameters = method.GetParameters();
+                                       if( parameters.Count() == 1)
+                                       {
+                                           var parameter = parameters.FirstOrDefault();
+                                           return parameter.ParameterType == eventType;
+                                       }
+                                   }
+                                   return false;
+                               })
+                        .FirstOrDefault();
+                    if (applyMethod == null)
+                    {
+                        var eventInterfaceTypes = eventType.GetInterfaces();
+                        foreach (var eventInterfaceType in eventInterfaceTypes)
+                        {
+                            var interfaceType = eventInterfaceType;
+                            applyMethod = this.GetType().GetMethods()
+                                .Where(method =>
+                                {
+                                    if (method.Name == "Apply")
+                                    {
+                                        var parameters = method.GetParameters();
+                                        if (parameters.Count() == 1)
+                                        {
+                                            var parameter = parameters.FirstOrDefault();
+                                            return parameter.ParameterType == interfaceType;
+                                        }
+                                    }
+                                    return false;
+                                })
+                                .FirstOrDefault();
+                            if (applyMethod != null)
+                                break;
+                        }
+                    }
+                    if (applyMethod != null)
+                        applyMethod.Invoke(this, new[] { evt });
+                    else
+                        this.Apply(evt);
+                }
             }            
         }
 
@@ -91,4 +143,5 @@ namespace Composable.CQRS.EventSourcing
         void AcceptChanges();
         void LoadFromHistory(IEnumerable<IAggregateRootEvent> evts);
     }
+
 }

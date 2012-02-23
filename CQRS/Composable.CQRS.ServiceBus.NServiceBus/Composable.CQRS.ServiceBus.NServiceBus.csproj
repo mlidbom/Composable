@@ -67,6 +67,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DualDispatchBus.cs" />
+    <Compile Include="EndpointConfiguration\EndpointCfg.cs" />
     <Compile Include="EndpointConfiguration\EndpointConfigurationBase.cs" />
     <Compile Include="IMessageInterceptor.cs" />
     <Compile Include="INservicebusServicebus.cs" />

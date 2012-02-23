@@ -1,5 +1,6 @@
 ﻿#region usings
 
+using System;
 using System.Configuration;
 using System.Runtime.Serialization;
 using Castle.MicroKernel.Registration;
@@ -8,8 +9,10 @@ using Castle.Windsor;
 using Composable.CQRS.EventSourcing;
 using Composable.CQRS.ServiceBus.NServiceBus.Windsor;
 using Composable.CQRS.Windsor;
+using Composable.System;
 using NServiceBus;
 using NServiceBus.Unicast.Config;
+using log4net;
 using log4net.Config;
 
 #endregion
@@ -18,7 +21,7 @@ namespace Composable.CQRS.ServiceBus.NServiceBus.EndpointConfiguration
 {
     public abstract class NServicebusEndpointConfigurationBase<TInheritor> : IWantCustomInitialization
         where TInheritor : IConfigureThisEndpoint
-    {
+    {        
         private WindsorContainer _container;
 
         protected virtual void StartNServiceBus(WindsorContainer windsorContainer)
@@ -36,7 +39,7 @@ namespace Composable.CQRS.ServiceBus.NServiceBus.EndpointConfiguration
                 .PurgeOnStartup(false)
                 .UnicastBus();
 
-            var busConfig2 = LoadMessageHandlers(busConfig, First<EmptyHandler>.Then<CatchSerializationErrors>());
+            var busConfig2 = LoadMessageHandlers(busConfig, First<EmptyHandler>.Then<MessageSourceValidator>().AndThen<CatchSerializationErrors>());
 
             busConfig2.ImpersonateSender(false)
                 .CreateBus()
@@ -80,6 +83,33 @@ namespace Composable.CQRS.ServiceBus.NServiceBus.EndpointConfiguration
             if (connectionString == null)
                 throw new ConfigurationErrorsException(string.Format("Missing connectionstring for '{0}'", key));
             return connectionString.ConnectionString;
+        }
+    }
+
+    public class MessageSourceValidator : IMessageHandler<IMessage>
+    {
+        private static ILog Log = LogManager.GetLogger(typeof(MessageSourceValidator));
+
+        private readonly IBus _bus;
+        public MessageSourceValidator(IBus bus)
+        {
+            _bus = bus;
+        }
+
+        public void Handle(IMessage message)
+        {
+            string environmentName;
+            if (!_bus.CurrentMessageContext.Headers.TryGetValue(EndpointCfg.EnvironmentName, out environmentName))
+            {
+                //todo:Throw here as soon as no messages without the header remain on error queues.
+                Log.Error("Recived message without an environment header. Accepting for now. REMOVE THIS CODE ASAP.");
+                return;
+            }
+
+            if (environmentName != EndpointCfg.EnvironmentName)
+            {
+                throw new Exception("Recieved message from other environment: {0}".FormatWith(environmentName));
+            }
         }
     }
 

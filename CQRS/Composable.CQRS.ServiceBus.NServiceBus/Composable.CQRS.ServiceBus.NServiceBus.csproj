@@ -31,28 +31,37 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Castle.Core, Version=2.5.1.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\Castle.Core.2.5.2\lib\NET35\Castle.Core.dll</HintPath>
+    <Reference Include="Castle.Core, Version=3.0.0.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\packages\Castle.Core.3.0.0.4001\lib\net40-client\Castle.Core.dll</HintPath>
     </Reference>
-    <Reference Include="Castle.Windsor, Version=2.5.1.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\Castle.Windsor.2.5.3\lib\NET40\Castle.Windsor.dll</HintPath>
+    <Reference Include="Castle.Windsor, Version=3.0.0.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\packages\Castle.Windsor.3.0.0.4001\lib\net40\Castle.Windsor.dll</HintPath>
     </Reference>
-    <Reference Include="Castle.Windsor.Lifestyles">
-      <HintPath>..\..\packages-manual\Castle.Windsor.Lifestyles\Castle.Windsor.Lifestyles.dll</HintPath>
+    <Reference Include="Iesi.Collections">
+      <HintPath>..\..\packages\Iesi.Collections.3.2.0.4000\lib\Net35\Iesi.Collections.dll</HintPath>
     </Reference>
     <Reference Include="log4net, Version=1.2.10.0, Culture=neutral, PublicKeyToken=1b44e1d426115821, processorArchitecture=MSIL">
       <HintPath>..\..\packages\log4net.1.2.10\lib\2.0\log4net.dll</HintPath>
     </Reference>
-    <Reference Include="NServiceBus, Version=2.6.0.1509, Culture=neutral, PublicKeyToken=9fc386479f8a226c, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\packages\NServiceBus.2.6.0.1509\lib\net40\NServiceBus.dll</HintPath>
+    <Reference Include="NHibernate">
+      <HintPath>..\..\packages\NHibernate.3.2.0.4000\lib\Net35\NHibernate.dll</HintPath>
     </Reference>
-    <Reference Include="NServiceBus.Core, Version=2.6.0.1509, Culture=neutral, PublicKeyToken=9fc386479f8a226c, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\packages\NServiceBus.2.6.0.1509\lib\net40\NServiceBus.Core.dll</HintPath>
+    <Reference Include="NServiceBus">
+      <HintPath>..\..\packages\NServiceBus.3.0.2\lib\net40\NServiceBus.dll</HintPath>
+    </Reference>
+    <Reference Include="NServiceBus.Core">
+      <HintPath>..\..\packages\NServiceBus.3.0.2\lib\net40\NServiceBus.Core.dll</HintPath>
     </Reference>
     <Reference Include="NServiceBus.Host">
-      <HintPath>..\..\packages\NServiceBus.Host.2.6.0.1505\lib\net40\NServiceBus.Host.exe</HintPath>
+      <HintPath>..\..\packages\NServiceBus.Host.3.0.2\lib\net40\NServiceBus.Host.exe</HintPath>
+    </Reference>
+    <Reference Include="NServiceBus.NHibernate">
+      <HintPath>..\..\packages\NServiceBus.NHibernate.3.0.2\lib\net40\NServiceBus.NHibernate.dll</HintPath>
+    </Reference>
+    <Reference Include="NServiceBus.ObjectBuilder.CastleWindsor">
+      <HintPath>..\..\packages\NServiceBus.CastleWindsor.3.0.2\lib\net40\NServiceBus.ObjectBuilder.CastleWindsor.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Configuration" />
@@ -73,16 +82,8 @@
     <Compile Include="INservicebusServicebus.cs" />
     <Compile Include="EmptyMessageInterceptor.cs" />
     <Compile Include="NserviceBusUnitOfWorkManagerMessageModule.cs" />
-    <Compile Include="Web\HybridPerWebRequestPerNserviceBusMessageLifestyleManager.cs" />
-    <Compile Include="Web\LifestyleRegistrationExtensions.cs" />
     <Compile Include="NServiceBusServiceBus.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Web\WindsorNServicebusWeb\HybridPerWebRequestLifestyleManager.cs" />
-    <Compile Include="Web\WindsorNServicebusWeb\MessageContext.cs" />
-    <Compile Include="Web\WindsorNServicebusWeb\PerNserviceBusMessageLifestyleManager.cs" />
-    <Compile Include="Web\WindsorNServicebusWeb\WindsorLifestyleMessageModule.cs" />
-    <Compile Include="Windsor\ConfigureWindsorBuilder.cs" />
-    <Compile Include="Windsor\WindsorObjectBuilder.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\Composable.DomainEvents\Composable.DomainEvents.csproj">
@@ -103,6 +104,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <None Include="app.config" />
     <None Include="Composable.CQRS.ServiceBus.NServiceBus.nuspec">
       <SubType>Designer</SubType>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>

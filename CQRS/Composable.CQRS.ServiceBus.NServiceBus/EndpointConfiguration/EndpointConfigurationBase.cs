@@ -7,7 +7,6 @@ using Castle.MicroKernel.Registration;
 using Castle.MicroKernel.Releasers;
 using Castle.Windsor;
 using Composable.CQRS.EventSourcing;
-using Composable.CQRS.ServiceBus.NServiceBus.Windsor;
 using Composable.CQRS.Windsor;
 using Composable.System;
 using NServiceBus;
@@ -27,6 +26,7 @@ namespace Composable.CQRS.ServiceBus.NServiceBus.EndpointConfiguration
         protected virtual void StartNServiceBus(WindsorContainer windsorContainer)
         {
             var config = Configure.With()
+                .DefineEndpointName(InputQueueName)
                 .CastleWindsorBuilder(container: windsorContainer)
                 .Log4Net();
 
@@ -45,6 +45,8 @@ namespace Composable.CQRS.ServiceBus.NServiceBus.EndpointConfiguration
                 .CreateBus()
                 .Start();
         }
+
+        protected abstract string InputQueueName { get; }
 
         protected virtual ConfigUnicastBus LoadMessageHandlers(ConfigUnicastBus busConfig, First<EmptyHandler> required)
         {

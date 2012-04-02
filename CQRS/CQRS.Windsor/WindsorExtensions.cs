@@ -9,12 +9,12 @@ namespace Composable.CQRS.Windsor
     {
         public static BasedOnDescriptor RegisterCommandHandlers(this FromAssemblyDescriptor me)
         {
-            return me.BasedOn(typeof(ICommandHandler<>)).WithService.Base().Configure(cfg => cfg.LifeStyle.Transient);
+            return me.BasedOn(typeof(ICommandHandler<>)).WithService.Base().LifestyleTransient();
         }
 
         public static BasedOnDescriptor RegisterQueryHandlers(this FromAssemblyDescriptor me)
         {
-            return me.BasedOn(typeof(IQueryHandler<,>)).WithService.Base().Configure(cfg => cfg.LifeStyle.Transient);
+            return me.BasedOn(typeof(IQueryHandler<,>)).WithService.Base().LifestyleTransient();
         }
 
         public static BasedOnDescriptor RegisterMappingProviders(this FromAssemblyDescriptor me)

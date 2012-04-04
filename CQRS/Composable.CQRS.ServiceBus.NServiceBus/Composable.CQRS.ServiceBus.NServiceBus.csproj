@@ -81,6 +81,7 @@
     <Compile Include="IMessageInterceptor.cs" />
     <Compile Include="INservicebusServicebus.cs" />
     <Compile Include="EmptyMessageInterceptor.cs" />
+    <Compile Include="Windsor\LifestyleRegistrationExtensions.cs" />
     <Compile Include="NserviceBusUnitOfWorkManagerMessageModule.cs" />
     <Compile Include="NServiceBusServiceBus.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

@@ -7,6 +7,7 @@ using Castle.MicroKernel.Registration;
 using Castle.MicroKernel.Releasers;
 using Castle.Windsor;
 using Composable.CQRS.EventSourcing;
+using Composable.CQRS.ServiceBus.NServiceBus.Windsor;
 using Composable.CQRS.Windsor;
 using Composable.System;
 using NServiceBus;
@@ -62,6 +63,8 @@ namespace Composable.CQRS.ServiceBus.NServiceBus.EndpointConfiguration
 
         public void Init()
         {
+            WindsorLifestyleRegistrationExtensions.InitAsRealProject();
+
             XmlConfigurator.Configure();
             _container = new WindsorContainer();
 

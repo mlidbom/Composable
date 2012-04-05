@@ -4,7 +4,7 @@ using NServiceBus;
 
 namespace Composable.CQRS.EventSourcing
 {
-    public interface IAggregateRootEvent : IMessage, IDomainEvent
+    public interface IAggregateRootEvent : IEvent, IDomainEvent
     {
         Guid EventId { get; set; }
         int AggregateRootVersion { get; set; }        

@@ -10,8 +10,8 @@ namespace Composable.CQRS.ServiceBus.NServiceBus.EndpointConfiguration
 {
     public static class EndpointCfg
     {
-        public const string EnvironmentNameMessageHeaderName = EnvironmentNameConfigParamName;
         public const string EnvironmentNameConfigParamName = "EnvironmentName";
+        public const string EnvironmentNameMessageHeaderName = EnvironmentNameConfigParamName;        
 
         private static void Init()
         {

@@ -11,7 +11,7 @@ namespace Composable.CQRS.ServiceBus.NServiceBus
         
         private void AddEnvironmentNameHeader()
         {
-            _bus.OutgoingHeaders[EndpointCfg.EnvironmentNameMessageHeaderName] = "1";
+            _bus.OutgoingHeaders[EndpointCfg.EnvironmentNameMessageHeaderName] = EndpointCfg.EnvironmentName;
         }
 
 

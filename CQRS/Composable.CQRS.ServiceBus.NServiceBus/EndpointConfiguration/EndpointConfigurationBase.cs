@@ -103,16 +103,14 @@ namespace Composable.CQRS.ServiceBus.NServiceBus.EndpointConfiguration
         public void Handle(IMessage message)
         {
             string environmentName;
-            if (!_bus.CurrentMessageContext.Headers.TryGetValue(EndpointCfg.EnvironmentName, out environmentName))
+            if (!_bus.CurrentMessageContext.Headers.TryGetValue(EndpointCfg.EnvironmentNameMessageHeaderName, out environmentName))
             {
-                //todo:Throw here as soon as no messages without the header remain on error queues.
-                Log.Error("Recived message without an environment header. Accepting for now. REMOVE THIS CODE ASAP.");
-                return;
+                throw new Exception("Recived message without an environment header.");
             }
 
             if (environmentName != EndpointCfg.EnvironmentName)
             {
-                throw new Exception("Recieved message from other environment: {0}".FormatWith(environmentName));
+                throw new Exception("Recieved message from other environment: {0} in environment {1}".FormatWith(environmentName, EndpointCfg.EnvironmentName));
             }
         }
     }

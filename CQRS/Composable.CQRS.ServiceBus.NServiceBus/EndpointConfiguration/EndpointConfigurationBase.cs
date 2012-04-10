@@ -43,7 +43,7 @@ namespace Composable.CQRS.ServiceBus.NServiceBus.EndpointConfiguration
 
             busConfig2.ImpersonateSender(false)
                 .CreateBus()
-                .Start();
+                .Start(() => Configure.Instance.ForInstallationOn<global::NServiceBus.Installation.Environments.Windows>().Install());
         }
 
         protected abstract string InputQueueName { get; }

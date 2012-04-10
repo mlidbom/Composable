@@ -2,6 +2,7 @@
 
 using System;
 using System.Transactions;
+using Castle.MicroKernel.Lifestyle;
 using Castle.Windsor;
 using Composable.UnitsOfWork;
 using NServiceBus;
@@ -16,6 +17,7 @@ namespace Composable.CQRS.ServiceBus.NServiceBus
         private readonly IWindsorContainer _container;
 
         [ThreadStatic] private static UnitOfWork _unit;
+        [ThreadStatic] private static IDisposable _disposableScope;
 
         private static readonly ILog Log = LogManager.GetLogger(typeof (NServiceBusUnitOfWorkManagerMessageModule));
 
@@ -28,6 +30,9 @@ namespace Composable.CQRS.ServiceBus.NServiceBus
         public void HandleBeginMessage()
         {
             Log.Debug("HandleBeginMessage called");
+
+            Log.Debug("Creating windsor scope");
+            _disposableScope = _container.Kernel.BeginScope();
 
             try
             {
@@ -80,6 +85,7 @@ namespace Composable.CQRS.ServiceBus.NServiceBus
                 //The overly complex song and dance above is really to get safely to this line since nservicebus may call HandleEndMessage again without having called HandleBeginMessage.
                 _unit = null;
                 Log.Debug("Nulled out _unit");
+                DisposeWindsorScope();
             }
         }
 
@@ -106,6 +112,21 @@ namespace Composable.CQRS.ServiceBus.NServiceBus
                 //The overly complex song and dance above is really to get safely to this line since nservicebus may call HandleEndMessage method again without having called HandleBeginMessage.
                 _unit = null;
                 Log.Debug("Nulled out _unit");
+                DisposeWindsorScope();
+            }
+        }
+
+        private void DisposeWindsorScope()
+        {
+            if (_disposableScope != null)
+            {
+                Log.Debug("Disposing windsor scope");
+                _disposableScope.Dispose();
+                _disposableScope = null;
+            }
+            else
+            {
+                Log.Debug("No windsor scope to dispose");
             }
         }
 

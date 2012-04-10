@@ -39,7 +39,7 @@ namespace Composable.CQRS.Windsor
             {
                 throw new Exception("You must initialize WindsorLifestyleRegistrationExtensions first. Call one of the InitAs... methods");
             }
-            return _projectType == RuntimeType.RealProject ? lifetLifestyleGroup.Transient : lifetLifestyleGroup.Singleton;
+            return _projectType == RuntimeType.RealProject ? lifetLifestyleGroup.Scoped() : lifetLifestyleGroup.Singleton;
         }
     }
 }

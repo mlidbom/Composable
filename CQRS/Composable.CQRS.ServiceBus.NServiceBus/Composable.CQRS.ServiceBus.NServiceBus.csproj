@@ -76,13 +76,13 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ComposableCqrsUnitOfWorkManager.cs" />
     <Compile Include="DualDispatchBus.cs" />
     <Compile Include="EndpointConfiguration\EndpointCfg.cs" />
     <Compile Include="EndpointConfiguration\EndpointConfigurationBase.cs" />
     <Compile Include="IMessageInterceptor.cs" />
     <Compile Include="INservicebusServicebus.cs" />
     <Compile Include="EmptyMessageInterceptor.cs" />
-    <Compile Include="NserviceBusUnitOfWorkManagerMessageModule.cs" />
     <Compile Include="NServiceBusServiceBus.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

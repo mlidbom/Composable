@@ -11,6 +11,7 @@ using Composable.CQRS.Windsor;
 using Composable.System;
 using NServiceBus;
 using NServiceBus.Unicast.Config;
+using NServiceBus.UnitOfWork;
 using log4net;
 using log4net.Config;
 
@@ -67,7 +68,10 @@ namespace Composable.CQRS.ServiceBus.NServiceBus.EndpointConfiguration
             XmlConfigurator.Configure();
             _container = new WindsorContainer();
 
-            _container.Register(Component.For<IWindsorContainer, WindsorContainer>().Instance(_container));
+            _container.Register(
+                Component.For<IWindsorContainer, WindsorContainer>().Instance(_container),
+                Component.For<IManageUnitsOfWork>().ImplementedBy<ComposableCqrsUnitOfWorkManager>().LifeStyle.PerNserviceBusMessage()
+                );
 
             //Forget this and you leak memory like CRAZY!
             _container.Kernel.ReleasePolicy = new NoTrackingReleasePolicy();
@@ -76,6 +80,11 @@ namespace Composable.CQRS.ServiceBus.NServiceBus.EndpointConfiguration
 
             StartNServiceBus(_container);
 
+            AssertContainerConfigurationValid();
+        }
+
+        protected virtual void AssertContainerConfigurationValid()
+        {
             _container.AssertConfigurationValid();
         }
 

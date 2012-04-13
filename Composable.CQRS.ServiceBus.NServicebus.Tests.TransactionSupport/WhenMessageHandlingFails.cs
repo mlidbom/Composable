@@ -11,7 +11,6 @@ using Composable.CQRS.EventSourcing;
 using Composable.CQRS.EventSourcing.SQLServer;
 using Composable.CQRS.ServiceBus.NServiceBus;
 using Composable.CQRS.ServiceBus.NServiceBus.EndpointConfiguration;
-using Composable.CQRS.ServiceBus.NServiceBus.Web;
 using Composable.CQRS.Testing;
 using Composable.KeyValueStorage;
 using Composable.KeyValueStorage.SqlServer;
@@ -35,7 +34,7 @@ namespace Composable.CQRS.ServiceBus.NServicebus.Tests.TransactionSupport
         [Test]
         public void StoredEventsAreRemoved()
         {
-            var endpointConfigurer = new EndPointConfigurer();
+            var endpointConfigurer = new EndPointConfigurer("Composable.Testing");
 
             var eventStoreReader = new SqlServerEventSomethingOrOther(new SqlServerEventStore(EventStoreConnectionString, new DummyServiceBus(new WindsorContainer())));
 
@@ -103,6 +102,12 @@ namespace Composable.CQRS.ServiceBus.NServicebus.Tests.TransactionSupport
     public class EndPointConfigurer : NServicebusEndpointConfigurationBase<EndPointConfigurer>, IConfigureThisEndpoint
     {
         public IWindsorContainer Container;
+        private string _queueName;
+
+        public EndPointConfigurer(string queueName)
+        {
+            _queueName = queueName;
+        }
 
         protected override void ConfigureContainer(IWindsorContainer container)
         {
@@ -117,11 +122,13 @@ namespace Composable.CQRS.ServiceBus.NServicebus.Tests.TransactionSupport
                 Component.For<IServiceBus>().ImplementedBy<NServiceBusServiceBus>(),
                 Component.For<IEventStore, SqlServerEventStore>().UsingFactoryMethod(() => new SqlServerEventStore(WhenMessageHandlingFails.EventStoreConnectionString, container.Resolve<IServiceBus>())),
                 Component.For<IDocumentDb>().Instance(new SqlServerDocumentDb(WhenMessageHandlingFails.DocumentDbConnectionString)),
-                Component.For<IEventStoreSession, IUnitOfWorkParticipant>().UsingFactoryMethod(() => container.Resolve<IEventStore>().OpenSession()).LifeStyle.PerNserviceBusMessage(),
-                Component.For<IEventSomethingOrOther, SqlServerEventSomethingOrOther>().ImplementedBy<SqlServerEventSomethingOrOther>().LifeStyle.PerNserviceBusMessage(),
-                Component.For<IDocumentDbSession, IUnitOfWorkParticipant>().UsingFactoryMethod(() => container.Resolve<IDocumentDb>().OpenSession()).LifeStyle.PerNserviceBusMessage()
+                Component.For<IEventStoreSession, IUnitOfWorkParticipant>().UsingFactoryMethod(() => container.Resolve<IEventStore>().OpenSession()).LifeStyle.Transient,
+                Component.For<IEventSomethingOrOther, SqlServerEventSomethingOrOther>().ImplementedBy<SqlServerEventSomethingOrOther>().LifeStyle.Transient,
+                Component.For<IDocumentDbSession, IUnitOfWorkParticipant>().UsingFactoryMethod(() => container.Resolve<IDocumentDb>().OpenSession()).LifeStyle.Transient
                 );
         }
+
+        protected override string InputQueueName { get { return _queueName; } }
 
         protected override Configure ConfigureSubscriptionStorage(Configure config)
         {

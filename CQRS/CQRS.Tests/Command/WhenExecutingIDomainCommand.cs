@@ -6,6 +6,7 @@ using Composable.CQRS;
 using Composable.CQRS.Command;
 using Composable.DDD;
 using Composable.DomainEvents;
+using Composable.System.Linq;
 using Microsoft.Practices.ServiceLocation;
 using NUnit.Framework;
 using StructureMap;

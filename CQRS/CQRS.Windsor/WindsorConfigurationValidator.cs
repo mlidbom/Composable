@@ -6,6 +6,7 @@ using System.Text;
 using Castle.Core;
 using Castle.MicroKernel;
 using Castle.Windsor;
+using Composable.System.Linq;
 
 #endregion
 

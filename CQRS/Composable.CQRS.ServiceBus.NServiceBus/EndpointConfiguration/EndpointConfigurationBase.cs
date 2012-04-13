@@ -1,15 +1,18 @@
 ﻿#region usings
 
+using System;
 using System.Configuration;
 using System.Runtime.Serialization;
 using Castle.MicroKernel.Registration;
 using Castle.MicroKernel.Releasers;
 using Castle.Windsor;
 using Composable.CQRS.EventSourcing;
-using Composable.CQRS.ServiceBus.NServiceBus.Windsor;
 using Composable.CQRS.Windsor;
+using Composable.System;
 using NServiceBus;
 using NServiceBus.Unicast.Config;
+using NServiceBus.UnitOfWork;
+using log4net;
 using log4net.Config;
 
 #endregion
@@ -18,12 +21,13 @@ namespace Composable.CQRS.ServiceBus.NServiceBus.EndpointConfiguration
 {
     public abstract class NServicebusEndpointConfigurationBase<TInheritor> : IWantCustomInitialization
         where TInheritor : IConfigureThisEndpoint
-    {
+    {        
         private WindsorContainer _container;
 
         protected virtual void StartNServiceBus(WindsorContainer windsorContainer)
         {
             var config = Configure.With()
+                .DefineEndpointName(InputQueueName)
                 .CastleWindsorBuilder(container: windsorContainer)
                 .Log4Net();
 
@@ -36,12 +40,14 @@ namespace Composable.CQRS.ServiceBus.NServiceBus.EndpointConfiguration
                 .PurgeOnStartup(false)
                 .UnicastBus();
 
-            var busConfig2 = LoadMessageHandlers(busConfig, First<EmptyHandler>.Then<CatchSerializationErrors>());
+            var busConfig2 = LoadMessageHandlers(busConfig, First<EmptyHandler>.Then<MessageSourceValidator>().AndThen<CatchSerializationErrors>());
 
             busConfig2.ImpersonateSender(false)
                 .CreateBus()
-                .Start();
+                .Start(() => Configure.Instance.ForInstallationOn<global::NServiceBus.Installation.Environments.Windows>().Install());
         }
+
+        protected abstract string InputQueueName { get; }
 
         protected virtual ConfigUnicastBus LoadMessageHandlers(ConfigUnicastBus busConfig, First<EmptyHandler> required)
         {
@@ -57,10 +63,15 @@ namespace Composable.CQRS.ServiceBus.NServiceBus.EndpointConfiguration
 
         public void Init()
         {
+            WindsorLifestyleRegistrationExtensions.InitAsRealProject();
+
             XmlConfigurator.Configure();
             _container = new WindsorContainer();
 
-            _container.Register(Component.For<IWindsorContainer, WindsorContainer>().Instance(_container));
+            _container.Register(
+                Component.For<IWindsorContainer, WindsorContainer>().Instance(_container),
+                Component.For<IManageUnitsOfWork>().ImplementedBy<ComposableCqrsUnitOfWorkManager>().LifeStyle.PerNserviceBusMessage()
+                );
 
             //Forget this and you leak memory like CRAZY!
             _container.Kernel.ReleasePolicy = new NoTrackingReleasePolicy();
@@ -69,6 +80,11 @@ namespace Composable.CQRS.ServiceBus.NServiceBus.EndpointConfiguration
 
             StartNServiceBus(_container);
 
+            AssertContainerConfigurationValid();
+        }
+
+        protected virtual void AssertContainerConfigurationValid()
+        {
             _container.AssertConfigurationValid();
         }
 
@@ -80,6 +96,31 @@ namespace Composable.CQRS.ServiceBus.NServiceBus.EndpointConfiguration
             if (connectionString == null)
                 throw new ConfigurationErrorsException(string.Format("Missing connectionstring for '{0}'", key));
             return connectionString.ConnectionString;
+        }
+    }
+
+    public class MessageSourceValidator : IMessageHandler<IMessage>
+    {
+        private static ILog Log = LogManager.GetLogger(typeof(MessageSourceValidator));
+
+        private readonly IBus _bus;
+        public MessageSourceValidator(IBus bus)
+        {
+            _bus = bus;
+        }
+
+        public void Handle(IMessage message)
+        {
+            string environmentName;
+            if (!_bus.CurrentMessageContext.Headers.TryGetValue(EndpointCfg.EnvironmentNameMessageHeaderName, out environmentName))
+            {
+                throw new Exception("Recived message without an environment header.");
+            }
+
+            if (environmentName != EndpointCfg.EnvironmentName)
+            {
+                throw new Exception("Recieved message from other environment: {0} in environment {1}".FormatWith(environmentName, EndpointCfg.EnvironmentName));
+            }
         }
     }
 

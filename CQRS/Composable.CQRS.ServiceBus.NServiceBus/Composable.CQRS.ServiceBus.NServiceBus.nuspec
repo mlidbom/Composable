@@ -11,7 +11,4 @@
         <dependency id="Composable.CQRS.Windsor" version="$WindsorVersion$" />
      </dependencies>
   </metadata>
-   <files>
-      <file src="bin\$configuration$\Castle.Windsor.Lifestyles.dll" target="lib\net40" />
-   </files>
 </package>

@@ -1,4 +1,5 @@
 using System;
+using Composable.CQRS.ServiceBus.NServiceBus.EndpointConfiguration;
 using NServiceBus;
 
 namespace Composable.CQRS.ServiceBus.NServiceBus
@@ -7,6 +8,12 @@ namespace Composable.CQRS.ServiceBus.NServiceBus
     {
         private IBus _bus;
         private IMessageInterceptor _interceptor;
+        
+        private void AddEnvironmentNameHeader()
+        {
+            _bus.OutgoingHeaders[EndpointCfg.EnvironmentNameMessageHeaderName] = EndpointCfg.EnvironmentName;
+        }
+
 
         public NServiceBusServiceBus(IBus bus, IMessageInterceptor interceptor = null)
         {
@@ -17,18 +24,21 @@ namespace Composable.CQRS.ServiceBus.NServiceBus
         public virtual void Publish(Object message)
         {
             _interceptor.BeforePublish(message);
+            AddEnvironmentNameHeader();
             _bus.Publish((IMessage)message);
         }
 
         public virtual void SendLocal(object message)
         {
             _interceptor.BeforeSendLocal(message);
+            AddEnvironmentNameHeader();
             _bus.SendLocal((IMessage)message);
         }
 
         public virtual void Send(object message)
         {
             _interceptor.BeforeSend(message);
+            AddEnvironmentNameHeader();
             _bus.Send((IMessage) message);
         }
     }

@@ -5,6 +5,11 @@ Param(
 
 $ErrorActionPreference="Stop"
 
+trap {
+	Write-Host "trapped error bailing out"
+	exit 1
+}
+
 $scriptRoot = Split-Path (Resolve-Path $myInvocation.MyCommand.Path) 
 $OutputDirectory = Resolve-Path "$scriptRoot\$OutputDirectory"
 
@@ -16,8 +21,7 @@ function Build-Pkg ($ProjectFile)
 	Build-Pkg-Internal pack $ProjectFile -OutputDirectory $OutputDirectory -Prop Configuration=$Configuration -Prop CoreVersion=$CoreVersion -Prop CqrsVersion=$CqrsVersion -Prop WindsorVersion=$WindsorVersion -Prop DomainEventsVersion=$DomainEventsVersion -Prop NServiceBusVersion=$NServiceBusVersion -Prop AutoMapperVersion=$AutoMapperVersion
 	if($LASTEXITCODE -ne 0)
 	{
-		Write-Warning "Bailing out because nuget.exe exited with code $LASTEXITCODE"
-		exit $LASTEXITCODE
+		Write-Error "Bailing out because nuget.exe exited with code $LASTEXITCODE"
 	}
 	Write-Host
 }

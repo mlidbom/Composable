@@ -6,7 +6,7 @@ Param(
 $ErrorActionPreference="Stop"
 
 trap {
-	Write-Error "trapped error bailing out" -ErrorAction:Continue
+	Write-Output $_
 	exit 1
 }
 

@@ -5,7 +5,7 @@ Param(
 
 $ErrorActionPreference="Stop"
 
-Set-Alias Build-Pkg .\packages\NuGet.CommandLine.1.7.0\tools\NuGet.exe
+Set-Alias Build-Pkg .\packages\NuGet.CommandLine.1.5.20905.5\tools\NuGet.exe
 
 $scriptRoot = Split-Path (Resolve-Path $myInvocation.MyCommand.Path) 
 $scriptRoot = $scriptRoot + "\"

@@ -6,7 +6,7 @@ Param(
 $ErrorActionPreference="Stop"
 
 trap {
-	Write-Host "trapped error bailing out"
+	Write-Error "trapped error bailing out" -ErrorAction:Continue
 	exit 1
 }
 

@@ -25,7 +25,7 @@ using NUnit.Framework;
 
 namespace Composable.CQRS.ServiceBus.NServicebus.Tests.TransactionSupport
 {
-    [TestFixture]
+    [TestFixture, Category("NSBFullSetupTests")]
     public class WhenMessageHandlingFails
     {
         public static readonly string DocumentDbConnectionString = ConfigurationManager.ConnectionStrings["KeyValueStore"].ConnectionString;

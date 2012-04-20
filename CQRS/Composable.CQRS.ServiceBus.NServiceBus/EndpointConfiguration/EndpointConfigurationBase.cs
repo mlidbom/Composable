@@ -1,18 +1,13 @@
 ﻿#region usings
 
-using System;
 using System.Configuration;
-using System.Runtime.Serialization;
 using Castle.MicroKernel.Registration;
 using Castle.MicroKernel.Releasers;
 using Castle.Windsor;
-using Composable.CQRS.EventSourcing;
 using Composable.CQRS.Windsor;
-using Composable.System;
 using NServiceBus;
 using NServiceBus.Unicast.Config;
 using NServiceBus.UnitOfWork;
-using log4net;
 using log4net.Config;
 
 #endregion
@@ -99,31 +94,6 @@ namespace Composable.CQRS.ServiceBus.NServiceBus.EndpointConfiguration
         }
     }
 
-    public class MessageSourceValidator : IMessageHandler<IMessage>
-    {
-        private static ILog Log = LogManager.GetLogger(typeof(MessageSourceValidator));
-
-        private readonly IBus _bus;
-        public MessageSourceValidator(IBus bus)
-        {
-            _bus = bus;
-        }
-
-        public void Handle(IMessage message)
-        {
-            string environmentName;
-            if (!_bus.CurrentMessageContext.Headers.TryGetValue(EndpointCfg.EnvironmentNameMessageHeaderName, out environmentName))
-            {
-                throw new Exception("Recived message without an environment header.");
-            }
-
-            if (environmentName != EndpointCfg.EnvironmentName)
-            {
-                throw new Exception("Recieved message from other environment: {0} in environment {1}".FormatWith(environmentName, EndpointCfg.EnvironmentName));
-            }
-        }
-    }
-
     public class WillNeverBeUsed : IMessage
     {
     }
@@ -132,24 +102,6 @@ namespace Composable.CQRS.ServiceBus.NServiceBus.EndpointConfiguration
     {
         public void Handle(WillNeverBeUsed message)
         {
-        }
-    }
-
-    public class CatchSerializationErrors : IMessageHandler<IMessage>
-    {
-        private readonly IBus _bus;
-
-        public CatchSerializationErrors(IBus bus)
-        {
-            _bus = bus;
-        }
-
-        public void Handle(IMessage message)
-        {
-            if (message.GetType() == typeof (IMessage) || message.GetType() == typeof (AggregateRootEvent))
-            {
-                throw new SerializationException("Message failed to serialize correctly");
-            }
         }
     }
 }

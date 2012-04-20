@@ -78,8 +78,10 @@
   <ItemGroup>
     <Compile Include="ComposableCqrsUnitOfWorkManager.cs" />
     <Compile Include="DualDispatchBus.cs" />
+    <Compile Include="EndpointConfiguration\CatchSerializationErrors.cs" />
     <Compile Include="EndpointConfiguration\EndpointCfg.cs" />
     <Compile Include="EndpointConfiguration\EndpointConfigurationBase.cs" />
+    <Compile Include="EndpointConfiguration\MessageSourceValidator.cs" />
     <Compile Include="IMessageInterceptor.cs" />
     <Compile Include="INservicebusServicebus.cs" />
     <Compile Include="EmptyMessageInterceptor.cs" />

@@ -6,6 +6,7 @@ using Castle.MicroKernel.Releasers;
 using Castle.Windsor;
 using Composable.CQRS.Windsor;
 using NServiceBus;
+using NServiceBus.Faults;
 using NServiceBus.Unicast.Config;
 using NServiceBus.UnitOfWork;
 using log4net.Config;
@@ -65,7 +66,8 @@ namespace Composable.CQRS.ServiceBus.NServiceBus.EndpointConfiguration
 
             _container.Register(
                 Component.For<IWindsorContainer, WindsorContainer>().Instance(_container),
-                Component.For<IManageUnitsOfWork>().ImplementedBy<ComposableCqrsUnitOfWorkManager>().LifeStyle.PerNserviceBusMessage()
+                Component.For<IManageUnitsOfWork>().ImplementedBy<ComposableCqrsUnitOfWorkManager>().LifeStyle.PerNserviceBusMessage(),
+                Component.For<IProvideFailureHeaders>().ImplementedBy<ComposableFailureHeadersProvider>()
                 );
 
             //Forget this and you leak memory like CRAZY!

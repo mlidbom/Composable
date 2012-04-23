@@ -35,7 +35,7 @@ namespace Composable.CQRS.ServiceBus.NServicebus.Tests.TransactionSupport
         [Test]
         public void StoredEventsAreRemoved()
         {
-            var endpointConfigurer = new EndPointConfigurer("Composable.Testing");
+            var endpointConfigurer = new EndPointConfigurer("Composable.CQRS.ServiceBus.NServicebus.Tests.TransactionSupport");
 
             var eventStoreReader = new SqlServerEventSomethingOrOther(new SqlServerEventStore(EventStoreConnectionString, new DummyServiceBus(new WindsorContainer())));
 

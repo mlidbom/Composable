@@ -20,6 +20,7 @@ using Composable.System.Linq;
 using Composable.UnitsOfWork;
 using NServiceBus;
 using NUnit.Framework;
+using Composable.CQRS.Windsor;
 
 #endregion
 
@@ -44,7 +45,7 @@ namespace Composable.CQRS.ServiceBus.NServicebus.Tests.TransactionSupport
             eventStoreReader.SaveEvents(((IEventStored) new Aggregate(2)).GetChanges());
 
             endpointConfigurer.Init();
-            var bus = endpointConfigurer.Container.Resolve<IBus>();
+            var bus = endpointConfigurer.Container.Resolve<IServiceBus>();
 
             var messageHandled = new ManualResetEvent(false);
             TestingSupportMessageModule.OnHandleBeginMessage += transaction =>
@@ -122,9 +123,9 @@ namespace Composable.CQRS.ServiceBus.NServicebus.Tests.TransactionSupport
                 Component.For<IServiceBus>().ImplementedBy<NServiceBusServiceBus>(),
                 Component.For<IEventStore, SqlServerEventStore>().UsingFactoryMethod(() => new SqlServerEventStore(WhenMessageHandlingFails.EventStoreConnectionString, container.Resolve<IServiceBus>())),
                 Component.For<IDocumentDb>().Instance(new SqlServerDocumentDb(WhenMessageHandlingFails.DocumentDbConnectionString)),
-                Component.For<IEventStoreSession, IUnitOfWorkParticipant>().UsingFactoryMethod(() => container.Resolve<IEventStore>().OpenSession()).LifeStyle.Transient,
-                Component.For<IEventSomethingOrOther, SqlServerEventSomethingOrOther>().ImplementedBy<SqlServerEventSomethingOrOther>().LifeStyle.Transient,
-                Component.For<IDocumentDbSession, IUnitOfWorkParticipant>().UsingFactoryMethod(() => container.Resolve<IDocumentDb>().OpenSession()).LifeStyle.Transient
+                Component.For<IEventStoreSession, IUnitOfWorkParticipant>().UsingFactoryMethod(() => container.Resolve<IEventStore>().OpenSession()).LifeStyle.PerNserviceBusMessage(),
+                Component.For<IEventSomethingOrOther, SqlServerEventSomethingOrOther>().ImplementedBy<SqlServerEventSomethingOrOther>().LifeStyle.PerNserviceBusMessage(),
+                Component.For<IDocumentDbSession, IUnitOfWorkParticipant>().UsingFactoryMethod(() => container.Resolve<IDocumentDb>().OpenSession()).LifeStyle.PerNserviceBusMessage()
                 );
         }
 

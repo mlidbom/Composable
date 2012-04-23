@@ -57,6 +57,11 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Composable.CQRS.ServiceBus.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Composable.CQRS.ServiceBus.NServicebus.Tests.UowTests", "Composable.CQRS.ServiceBus.NServicebus.Tests.UowTests\Composable.CQRS.ServiceBus.NServicebus.Tests.UowTests.csproj", "{050809B2-AFFD-487E-989F-BF9E470C0DB6}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{B17EB9B8-E0E4-4B18-B7BD-3375FADE64C5}"
+	ProjectSection(SolutionItems) = preProject
+		.nuget\packages.config = .nuget\packages.config
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU

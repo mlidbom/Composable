@@ -25,24 +25,13 @@ namespace Composable.CQRS.ServiceBus.NServiceBus.EndpointConfiguration
 
         private string CreateStackTrace(Exception exception)
         {
-            string indent = "";
-            var stackTrace = new StringBuilder();
-            var exceptions = GetNestedExceptionsList(exception).ToList();
-            foreach (var currentException in exceptions)
-            {
-                stackTrace.AppendFormat("{0}{1} : {2}{3}", indent, currentException.GetType().Name, currentException.Message, Environment.NewLine);
-                indent += "   ";
-            }
-            stackTrace.AppendLine();
-
-            var combinedStacks = exceptions.AsEnumerable().Reverse()
-                .Select(currentException => "{1} : {2}{0}{3}".FormatWith(Environment.NewLine, currentException.GetType().Name, currentException.Message, currentException.StackTrace))
-                .Join("{0}   ---End of inner stack trace---{0}".FormatWith(Environment.NewLine));
-
-            stackTrace.Append(combinedStacks);
-
-            return stackTrace.ToString();
-
+            return GetNestedExceptionsList(exception)
+                    .Reverse()
+                    .Select(currentException => string.Format("Exception:{1}{0}Message:{2}{0}{0}{3}", 
+                                                              Environment.NewLine, 
+                                                              currentException.GetType().Name, 
+                                                              currentException.Message, currentException.StackTrace))
+                    .Join(string.Format("{0}   ---End of inner stack trace---{0}{0}", Environment.NewLine));
         }
 
         private XElement CreateExceptionNodes(Exception exception)

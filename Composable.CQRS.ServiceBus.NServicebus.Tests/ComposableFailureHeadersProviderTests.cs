@@ -9,22 +9,26 @@ namespace Composable.CQRS.ServiceBus.NServicebus.Tests.UowTests
     public class ComposableFailureHeadersProviderTests
     {
         private const string ExpectedStackTrace =
- @"RootException : Root exception message
-   NestedException1 : NestedException1 exception message
-      NestedException2 : NestedException2 exception message
+ @"Exception:NestedException2
+Message:NestedException2 exception message
 
-NestedException2 : NestedException2 exception message
-   at Composable.CQRS.ServiceBus.NServicebus.Tests.UowTests.ComposableFailureHeadersProviderTests.ThrowNestedLevel3() in ThisCodeFile.cs:line 81
-   at Composable.CQRS.ServiceBus.NServicebus.Tests.UowTests.ComposableFailureHeadersProviderTests.ThrowNestedLevel2() in ThisCodeFile.cs:line 71
+   at Composable.CQRS.ServiceBus.NServicebus.Tests.UowTests.ComposableFailureHeadersProviderTests.ThrowNestedLevel3() in ThisCodeFile.cs:line 85
+   at Composable.CQRS.ServiceBus.NServicebus.Tests.UowTests.ComposableFailureHeadersProviderTests.ThrowNestedLevel2() in ThisCodeFile.cs:line 75
    ---End of inner stack trace---
-NestedException1 : NestedException1 exception message
-   at Composable.CQRS.ServiceBus.NServicebus.Tests.UowTests.ComposableFailureHeadersProviderTests.ThrowNestedLevel2() in ThisCodeFile.cs:line 77
-   at Composable.CQRS.ServiceBus.NServicebus.Tests.UowTests.ComposableFailureHeadersProviderTests.ThrowNestedLevel1() in ThisCodeFile.cs:line 64
-   at Composable.CQRS.ServiceBus.NServicebus.Tests.UowTests.ComposableFailureHeadersProviderTests.GenerateNestedException() in ThisCodeFile.cs:line 54
+
+Exception:NestedException1
+Message:NestedException1 exception message
+
+   at Composable.CQRS.ServiceBus.NServicebus.Tests.UowTests.ComposableFailureHeadersProviderTests.ThrowNestedLevel2() in ThisCodeFile.cs:line 81
+   at Composable.CQRS.ServiceBus.NServicebus.Tests.UowTests.ComposableFailureHeadersProviderTests.ThrowNestedLevel1() in ThisCodeFile.cs:line 68
+   at Composable.CQRS.ServiceBus.NServicebus.Tests.UowTests.ComposableFailureHeadersProviderTests.GenerateNestedException() in ThisCodeFile.cs:line 58
    ---End of inner stack trace---
-RootException : Root exception message
-   at Composable.CQRS.ServiceBus.NServicebus.Tests.UowTests.ComposableFailureHeadersProviderTests.GenerateNestedException() in ThisCodeFile.cs:line 60
-   at Composable.CQRS.ServiceBus.NServicebus.Tests.UowTests.ComposableFailureHeadersProviderTests.FormatsNestedExceptionAsIntended() in ThisCodeFile.cs:line 35";
+
+Exception:RootException
+Message:Root exception message
+
+   at Composable.CQRS.ServiceBus.NServicebus.Tests.UowTests.ComposableFailureHeadersProviderTests.GenerateNestedException() in ThisCodeFile.cs:line 64
+   at Composable.CQRS.ServiceBus.NServicebus.Tests.UowTests.ComposableFailureHeadersProviderTests.FormatsNestedExceptionAsIntended() in ThisCodeFile.cs:line 39";
 
         [Test]
         public void FormatsNestedExceptionAsIntended()

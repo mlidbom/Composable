@@ -1,6 +1,7 @@
 Param(
 	[string]$Configuration="Debug",
-	[string]$OutputDirectory="..\NuGetFeed"
+	[string]$OutputDirectory="..\NuGetFeed",
+	[string]$PreVersion="-rc"
 )
 
 $ErrorActionPreference="Stop"
@@ -18,7 +19,7 @@ Set-Alias Build-Pkg-Internal $scriptRoot\tools\NuGet\NuGet.exe
 function Build-Pkg ($ProjectFile)
 {
 	Write-Host -ForegroundColor Cyan "Packaging $ProjectFile into $OutputDirectory"
-	Build-Pkg-Internal pack $ProjectFile -OutputDirectory $OutputDirectory -Prop Configuration=$Configuration -Prop CoreVersion=$CoreVersion -Prop CqrsVersion=$CqrsVersion -Prop WindsorVersion=$WindsorVersion -Prop DomainEventsVersion=$DomainEventsVersion -Prop NServiceBusVersion=$NServiceBusVersion -Prop AutoMapperVersion=$AutoMapperVersion
+	Build-Pkg-Internal pack $ProjectFile -OutputDirectory $OutputDirectory -Prop PreVersion=$PreVersion -Prop Configuration=$Configuration -Prop CoreVersion=$CoreVersion -Prop CqrsVersion=$CqrsVersion -Prop WindsorVersion=$WindsorVersion -Prop DomainEventsVersion=$DomainEventsVersion -Prop NServiceBusVersion=$NServiceBusVersion -Prop AutoMapperVersion=$AutoMapperVersion
 	if($LASTEXITCODE -ne 0)
 	{
 		Write-Error "Bailing out because nuget.exe exited with code $LASTEXITCODE"
@@ -33,7 +34,7 @@ function GetAssemblyVersion($assembly)
    $Myasm = [System.Reflection.Assembly]::Loadfile($assembly)   
    $Aname = $Myasm.GetName()
    $Aver =  $Aname.version
-   return $Aver
+   return "$Aver$PreVersion"
 }
 
 $CoreVersion = GetAssemblyVersion("System\System\Bin\$Configuration\Composable.Core.dll")

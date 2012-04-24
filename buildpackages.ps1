@@ -13,7 +13,7 @@ trap {
 $scriptRoot = Split-Path (Resolve-Path $myInvocation.MyCommand.Path) 
 $OutputDirectory = Resolve-Path "$scriptRoot\$OutputDirectory"
 
-Set-Alias Build-Pkg-Internal $scriptRoot\tools\NuGet.CommandLine.1.5.20905.5\NuGet.exe
+Set-Alias Build-Pkg-Internal $scriptRoot\tools\NuGet\NuGet.exe
 
 function Build-Pkg ($ProjectFile)
 {

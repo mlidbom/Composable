@@ -29,7 +29,7 @@ namespace Composable.CQRS.ServiceBus.NServiceBus.EndpointConfiguration
                     .Reverse()
                     .Select(currentException => string.Format("Exception:{1}{0}Message:{2}{0}{0}{3}", 
                                                               Environment.NewLine, 
-                                                              currentException.GetType().Name, 
+                                                              currentException.GetType().FullName, 
                                                               currentException.Message, currentException.StackTrace))
                     .Join(string.Format("{0}   ---End of inner stack trace---{0}{0}", Environment.NewLine));
         }

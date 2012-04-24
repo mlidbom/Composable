@@ -9,14 +9,14 @@ namespace Composable.CQRS.ServiceBus.NServicebus.Tests.UowTests
     public class ComposableFailureHeadersProviderTests
     {
         private const string ExpectedStackTrace =
- @"Exception:NestedException2
+ @"Exception:Composable.CQRS.ServiceBus.NServicebus.Tests.UowTests.NestedException2
 Message:NestedException2 exception message
 
    at Composable.CQRS.ServiceBus.NServicebus.Tests.UowTests.ComposableFailureHeadersProviderTests.ThrowNestedLevel3() in ThisCodeFile.cs:line 85
    at Composable.CQRS.ServiceBus.NServicebus.Tests.UowTests.ComposableFailureHeadersProviderTests.ThrowNestedLevel2() in ThisCodeFile.cs:line 75
    ---End of inner stack trace---
 
-Exception:NestedException1
+Exception:Composable.CQRS.ServiceBus.NServicebus.Tests.UowTests.NestedException1
 Message:NestedException1 exception message
 
    at Composable.CQRS.ServiceBus.NServicebus.Tests.UowTests.ComposableFailureHeadersProviderTests.ThrowNestedLevel2() in ThisCodeFile.cs:line 81
@@ -24,7 +24,7 @@ Message:NestedException1 exception message
    at Composable.CQRS.ServiceBus.NServicebus.Tests.UowTests.ComposableFailureHeadersProviderTests.GenerateNestedException() in ThisCodeFile.cs:line 58
    ---End of inner stack trace---
 
-Exception:RootException
+Exception:Composable.CQRS.ServiceBus.NServicebus.Tests.UowTests.RootException
 Message:Root exception message
 
    at Composable.CQRS.ServiceBus.NServicebus.Tests.UowTests.ComposableFailureHeadersProviderTests.GenerateNestedException() in ThisCodeFile.cs:line 64

@@ -18,9 +18,8 @@ $OutputDirectory = Resolve-Path "$scriptRoot\$OutputDirectory"
 Set-Alias Build-Pkg-Internal $scriptRoot\tools\NuGet\NuGet.exe
 
 if($BuildNumber -eq -1 -and $env:BUILD_NUMBER -ne $null) {
- 	$BuildNumber = $env:BUILD_NUMBER
+ 	$BuildNumber = $env:BUILD_NUMBER	
 }
-Write-Output "Build Number: $BuildNumber"
 
 $Version = [System.Diagnostics.FileVersionInfo]::GetVersionInfo("$scriptRoot\System\System\Bin\$Configuration\Composable.Core.dll").ProductVersion
 if($PreVersion -ne '' -and $PreVersion -ne $null)
@@ -30,6 +29,7 @@ if($PreVersion -ne '' -and $PreVersion -ne $null)
 {
 	$Version = $Version -replace '.0$', ".$BuildNumber"
 }
+Write-Output "##teamcity[buildNumber '$Version']"
 
 
 function Build-Pkg ($ProjectFile)

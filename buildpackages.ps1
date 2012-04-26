@@ -1,7 +1,7 @@
 Param(
 	[string]$Configuration="Debug",
 	[string]$OutputDirectory="..\NuGetFeed",
-	[string]$PreVersion="-rc"
+	[string]$PreVersion=""
 )
 
 $ErrorActionPreference="Stop"

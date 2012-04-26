@@ -2,7 +2,7 @@
 <package>
    <metadata>
       <id>$id$</id>
-      <version>$version$</version>
+      <version>$version$$PreVersion$</version>
       <authors>Magnus Lidbom</authors>
       <description>Composable.CQRS is a minimalistic framework for working according to the CQRS design principle.</description>
       <language>en-US</language>

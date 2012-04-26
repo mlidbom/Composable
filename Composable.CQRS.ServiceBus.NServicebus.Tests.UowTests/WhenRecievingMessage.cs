@@ -19,7 +19,7 @@ using Component = Castle.MicroKernel.Registration.Component;
 
 namespace Composable.CQRS.ServiceBus.NServicebus.Tests.UowTests
 {
-    [TestFixture]
+    [TestFixture, Category("NSBFullSetupTests")]
     public class WhenReceivingMessage
     {
         private IServiceBus _bus;

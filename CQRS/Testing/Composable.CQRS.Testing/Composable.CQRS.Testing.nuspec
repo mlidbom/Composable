@@ -2,12 +2,12 @@
 <package>
   <metadata>
      <id>$id$</id>
-     <version>$version$$PreVersion$</version>
+     <version>$ComposableVersion$</version>
     <authors>Magnus Lidbom</authors>
     <description>Todo.</description>
     <language>en-US</language>
      <dependencies>
-        <dependency id="Composable.CQRS.ServiceBus.NServiceBus" version="$NServiceBusVersion$" />
+        <dependency id="Composable.CQRS.ServiceBus.NServiceBus" version="$ComposableVersion$" />
      </dependencies>
   </metadata>
 </package>

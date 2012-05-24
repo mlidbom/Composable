@@ -145,6 +145,7 @@
     <Compile Include="DDD\PersistentEntity.cs" />
     <Compile Include="DDD\ValueObject.cs" />
     <Compile Include="DDD\VersionedPersistentEntity.cs" />
+    <Compile Include="SystemExtensions\ExceptionExtensions.cs" />
     <Compile Include="SystemExtensions\Threading\MultiThreadedUseException.cs" />
     <Compile Include="SystemExtensions\Threading\SingleThreadedUseGuard.cs" />
     <Compile Include="System\Collections\Collections\CollectionExtensions.cs" />

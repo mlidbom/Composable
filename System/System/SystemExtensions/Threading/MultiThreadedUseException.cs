@@ -6,7 +6,8 @@ namespace Composable.SystemExtensions.Threading
     public class MultiThreadedUseException : InvalidOperationException
     {
         public MultiThreadedUseException(object guarded, Thread owningThread, Thread currentThread)
-            : base(string.Format("Atttempt to use {0} from thread {1} when owning thread was {2}", guarded, currentThread, owningThread))
+            : base(string.Format("Atttempt to use {0} from thread Id:{1}, Name: {2} when owning thread was Id: {3} Name: {4}", 
+                                guarded, currentThread.ManagedThreadId, currentThread.Name, owningThread.ManagedThreadId, owningThread.Name))
         {
 
         }

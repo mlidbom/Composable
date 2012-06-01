@@ -47,13 +47,18 @@ namespace Composable.KeyValueStorage
 
             if (_backingStore.TryGet(key, out value))
             {
-                _idMap.Add(key, value);
-                if (_interceptor != null)
-                    _interceptor.AfterLoad(value);
+                OnInitialLoad(key, value);
                 return true;
             }
 
             return false;
+        }
+
+        private void OnInitialLoad<TValue>(object key, TValue value)
+        {
+            _idMap.Add(key, value);
+            if (_interceptor != null)
+                _interceptor.AfterLoad(value);
         }
 
         public TValue GetForUpdate<TValue>(object key)
@@ -164,7 +169,7 @@ namespace Composable.KeyValueStorage
             _threadingGuard.AssertNoThreadChangeOccurred();
             var stored = _backingStore.GetAll<T>();
             stored.Where(pair => !_idMap.Contains(typeof (T), pair.Key))
-                .ForEach(pair => _idMap.Add(pair.Key, pair.Value));
+                .ForEach(pair => OnInitialLoad(pair.Key, pair.Value));
 
             return _idMap.Select(pair => pair.Value).OfType<T>();
         }

@@ -15,6 +15,11 @@ namespace Composable.CQRS.Windsor
 
         private static RuntimeType _projectType = RuntimeType.Unknown;
 
+        public static void ResetCallOnlyFromTests()
+        {
+            _projectType = RuntimeType.Unknown;
+        }
+
         public static void InitAsTestProjectOnlyUseFromTests()
         {
             if(_projectType == RuntimeType.RealProject)

@@ -8,7 +8,6 @@
       <language>en-US</language>
       <dependencies>
          <dependency id="Composable.CQRS" version="$ComposableVersion$" />
-         <dependency id="Composable.AutoMapper" version="$ComposableVersion$" />
       </dependencies>
    </metadata>
 </package>

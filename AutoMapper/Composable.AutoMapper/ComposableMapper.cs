@@ -12,8 +12,11 @@ using Microsoft.Practices.ServiceLocation;
 
 namespace Composable.AutoMapper
 {
+    [Obsolete(ComposableAutomapperIsBeingRetiredDueToCausingABadCaseOfStaticitis, true)]
     public static class ComposableMapper
     {
+        private const string ComposableAutomapperIsBeingRetiredDueToCausingABadCaseOfStaticitis = "Composable.AutoMapper is being retired due to causing a bad case of staticitis";
+
         public static void Init(Func<IMappingEngine> engineProvider)
         {
             lock(LockObject)
@@ -102,31 +105,37 @@ namespace Composable.AutoMapper
             return () => engine;
         }
 
+        [Obsolete(ComposableAutomapperIsBeingRetiredDueToCausingABadCaseOfStaticitis, true)]
         public static TTarget MapTo<TTarget>(this object me)
         {
             return (TTarget)Engine.Map(me, me.GetType(), typeof(TTarget));
         }
 
+        [Obsolete(ComposableAutomapperIsBeingRetiredDueToCausingABadCaseOfStaticitis, true)]
         public static IEnumerable<TTarget> MapTo<TTarget>(this IEnumerable me)
         {
             return me.Cast<object>().Select(MapTo<TTarget>);
         }
 
+        [Obsolete(ComposableAutomapperIsBeingRetiredDueToCausingABadCaseOfStaticitis, true)]
         public static object MapTo(this object me, Type targetType)
         {
             return Engine.Map(me, me.GetType(), targetType);
         }
 
+        [Obsolete(ComposableAutomapperIsBeingRetiredDueToCausingABadCaseOfStaticitis, true)]
         public static IEnumerable<object> MapTo(this IEnumerable me, Type targetType)
         {
             return me.Cast<object>().Select(obj => obj.MapTo(targetType));
         }
 
+        [Obsolete(ComposableAutomapperIsBeingRetiredDueToCausingABadCaseOfStaticitis, true)]
         public static void MapOnto<TSource, TTarget>(this TSource source, TTarget target)
         {
             Engine.Map(source, target);
         }
 
+        [Obsolete(ComposableAutomapperIsBeingRetiredDueToCausingABadCaseOfStaticitis, true)]
         public static void MapDynamicOnto<TSource, TTarget>(this TSource source, TTarget target)
         {
             Engine.DynamicMap(source, target);

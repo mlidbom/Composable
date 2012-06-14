@@ -64,10 +64,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AfterImplementingIProvidesMappings.cs" />
-    <Compile Include="AfterInitializingWithMappingEngineProvider.cs" />
-    <Compile Include="MappingTest.cs" />
+    <Compile Include="WhenMappingValueObjects.cs" />
+    <Compile Include="WhenMappingStructs.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="WhenMoreThanOneDefinitionOfAMappingExists.cs" />
     <Compile Include="WithoutConfiguration.cs" />
   </ItemGroup>
   <ItemGroup>

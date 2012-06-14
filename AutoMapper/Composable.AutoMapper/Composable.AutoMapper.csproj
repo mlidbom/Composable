@@ -59,6 +59,7 @@
     </Compile>
     <Compile Include="ComposableMapper.cs" />
     <Compile Include="DuplicateMappingException.cs" />
+    <Compile Include="ComposableMappingEngine.cs" />
     <Compile Include="IProvidesMappings.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SafeConfiguration.cs" />

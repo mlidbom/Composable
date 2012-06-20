@@ -37,7 +37,7 @@ namespace Composable.KeyValueStorage
         }
 
 
-        public bool TryGet<TValue>(object key, out TValue value)
+        public virtual bool TryGet<TValue>(object key, out TValue value)
         {
             _threadingGuard.AssertNoThreadChangeOccurred();
             if (_idMap.TryGet(key, out value))
@@ -61,7 +61,7 @@ namespace Composable.KeyValueStorage
                 _interceptor.AfterLoad(value);
         }
 
-        public TValue GetForUpdate<TValue>(object key)
+        public virtual TValue GetForUpdate<TValue>(object key)
         {
             _threadingGuard.AssertNoThreadChangeOccurred();
             using(new UpdateLock())
@@ -70,7 +70,7 @@ namespace Composable.KeyValueStorage
             }
         }
 
-        public bool TryGetForUpdate<TValue>(object key, out TValue value)
+        public virtual bool TryGetForUpdate<TValue>(object key, out TValue value)
         {
             _threadingGuard.AssertNoThreadChangeOccurred();
             using (new UpdateLock())
@@ -92,7 +92,7 @@ namespace Composable.KeyValueStorage
             }
         }
 
-        public TValue Get<TValue>(object key)
+        public virtual TValue Get<TValue>(object key)
         {
             _threadingGuard.AssertNoThreadChangeOccurred();
             TValue value;
@@ -104,7 +104,7 @@ namespace Composable.KeyValueStorage
             throw new NoSuchDocumentException(key, typeof(TValue));
         }
 
-        public void Save<TValue>(object id, TValue value)
+        public virtual void Save<TValue>(object id, TValue value)
         {
             _threadingGuard.AssertNoThreadChangeOccurred();
             if (_idMap.Contains(value.GetType(), id))
@@ -122,19 +122,19 @@ namespace Composable.KeyValueStorage
             _idMap.Add(id, value);
         }
 
-        public void Save<TEntity>(TEntity entity) where TEntity : IHasPersistentIdentity<Guid>
+        public virtual void Save<TEntity>(TEntity entity) where TEntity : IHasPersistentIdentity<Guid>
         {
             _threadingGuard.AssertNoThreadChangeOccurred();
             Save(entity.Id, entity);
         }
 
-        public void Delete<TEntity>(TEntity entity) where TEntity : IHasPersistentIdentity<Guid>
+        public virtual void Delete<TEntity>(TEntity entity) where TEntity : IHasPersistentIdentity<Guid>
         {
             _threadingGuard.AssertNoThreadChangeOccurred();
             Delete<TEntity>(entity.Id);
         }
 
-        public void Delete<T>(object id)
+        public virtual void Delete<T>(object id)
         {
             _threadingGuard.AssertNoThreadChangeOccurred();
             if (!_backingStore.Remove<T>(id))
@@ -144,7 +144,7 @@ namespace Composable.KeyValueStorage
             _idMap.Remove<T>(id);
         }
 
-        public void SaveChanges()
+        public virtual void SaveChanges()
         {
             _threadingGuard.AssertNoThreadChangeOccurred();
             if (_unitOfWork == null)
@@ -164,7 +164,7 @@ namespace Composable.KeyValueStorage
             _backingStore.Update(_idMap.AsEnumerable());
         }
 
-        public IEnumerable<T> GetAll<T>() where T : IHasPersistentIdentity<Guid>
+        public virtual IEnumerable<T> GetAll<T>() where T : IHasPersistentIdentity<Guid>
         {
             _threadingGuard.AssertNoThreadChangeOccurred();
             var stored = _backingStore.GetAll<T>();
@@ -174,9 +174,9 @@ namespace Composable.KeyValueStorage
             return _idMap.Select(pair => pair.Value).OfType<T>();
         }
 
-        
 
-        public void Dispose()
+
+        public virtual void Dispose()
         {
             _threadingGuard.AssertNoThreadChangeOccurred();
             //Can be called before the transaction commits....

@@ -25,11 +25,16 @@ namespace Composable.AutoMapper.Tests
         [Test]
         public void MappingToSameTypeWorks()
         {
+            var engine = ComposableMappingEngine.BuildEngine(_ => { });
+
             var structA = new StructA { Title = "A" };
             var classA = new ClassA { Val1 = "1", Val2 = "2" };
 
-            Assert.That(structA.MapTo<StructA>(), Is.EqualTo(structA));
-            Assert.That(classA.MapTo<ClassA>(), Is.EqualTo(classA));
+            Assert.That(structA.MapTo<StructA>(engine), Is.EqualTo(structA));
+            Assert.That(engine.Map(structA).To<StructA>(), Is.EqualTo(structA));
+
+            Assert.That(classA.MapTo<ClassA>(engine), Is.EqualTo(classA));
+            Assert.That(engine.Map(classA).To<ClassA>(), Is.EqualTo(classA));
         }
     }
 }

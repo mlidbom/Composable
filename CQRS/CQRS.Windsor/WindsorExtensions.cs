@@ -1,7 +1,5 @@
 ﻿using Castle.MicroKernel.Registration;
-using Composable.AutoMapper;
 using Composable.CQRS.Query;
-using Composable.StuffThatDoesNotBelongHere;
 
 namespace Composable.CQRS.Windsor
 {
@@ -15,11 +13,6 @@ namespace Composable.CQRS.Windsor
         public static BasedOnDescriptor RegisterQueryHandlers(this FromAssemblyDescriptor me)
         {
             return me.BasedOn(typeof(IQueryHandler<,>)).WithService.Base().LifestyleTransient();
-        }
-
-        public static BasedOnDescriptor RegisterMappingProviders(this FromAssemblyDescriptor me)
-        {
-            return me.BasedOn<IProvidesMappings>().WithService.Base();
         }
     }
 }

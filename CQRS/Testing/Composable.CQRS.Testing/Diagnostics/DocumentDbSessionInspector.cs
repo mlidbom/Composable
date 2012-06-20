@@ -49,9 +49,9 @@ namespace Composable.CQRS.Testing.Diagnostics
         private const string DocumentDbSessionBackingStoreField = "_backingStore";
         private const string DocumentDbSessionSessionProperty = "_backingStore";
 
-        private readonly IDocumentDb _documentDb;
+        private readonly IDocumentDbSession _documentDb;
 
-        public DocumentDbSessionInspector(IDocumentDb documentDb)
+        public DocumentDbSessionInspector(IDocumentDbSession documentDb)
         {
             _documentDb = documentDb;
         }

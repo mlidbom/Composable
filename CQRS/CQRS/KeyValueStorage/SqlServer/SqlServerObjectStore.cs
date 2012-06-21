@@ -26,8 +26,8 @@ namespace Composable.KeyValueStorage.SqlServer
                                                                        ContractResolver = new IncludeMembersWithPrivateSettersResolver()
                                                                    };
 
-        private readonly SqlServerDocumentDb _store;
-        private readonly SqlServerDocumentDbConfig _config;
+        internal readonly SqlServerDocumentDb _store;
+        internal readonly SqlServerDocumentDbConfig _config;
 
         private readonly Dictionary<Type, Dictionary<string, string>> _persistentValues = new Dictionary<Type, Dictionary<string,string>>();
         private const int UniqueConstraintViolationErrorNumber = 2627;

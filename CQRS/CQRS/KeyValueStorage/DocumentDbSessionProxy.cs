@@ -11,8 +11,8 @@ namespace Composable.KeyValueStorage
 {
     public class DocumentDbSessionProxy : IDocumentDbSession, IUnitOfWorkParticipant
     {
-        protected IDocumentDbSession Session { get; private set; }
-        private IUnitOfWorkParticipant Participant { get { return (IUnitOfWorkParticipant) Session; } }
+        protected internal IDocumentDbSession Session { get; private set; }
+        internal IUnitOfWorkParticipant Participant { get { return (IUnitOfWorkParticipant) Session; } }
 
         protected DocumentDbSessionProxy(IDocumentDbSession session)
         {

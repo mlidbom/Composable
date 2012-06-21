@@ -16,8 +16,8 @@ namespace Composable.KeyValueStorage
         [ThreadStatic]
         internal static bool UseUpdateLock;
 
-        private readonly IObjectStore _backingStore;
-        private readonly IDocumentDbSessionInterceptor _interceptor;
+        internal readonly IObjectStore _backingStore;
+        internal readonly IDocumentDbSessionInterceptor _interceptor;
 
         private readonly InMemoryObjectStore _idMap = new InMemoryObjectStore();
         private readonly InMemoryObjectStore _newlyAdded = new InMemoryObjectStore();

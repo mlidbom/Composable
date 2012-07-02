@@ -54,6 +54,7 @@
       <Link>Properties\CommonAssemblyInfo.cs</Link>
     </Compile>
     <Compile Include="CreationContextExtensions.cs" />
+    <Compile Include="DefaultToKeyHandlerSelector.cs" />
     <Compile Include="KeyReplacementHandlerSelector.cs" />
     <Compile Include="LifestyleRegistrationExtensions.cs" />
     <Compile Include="LifestyleRegistrationMutator.cs" />

@@ -15,12 +15,12 @@ namespace Composable.CQRS.Windsor
             _keyToDefaultTo = keyToDefaultTo;
         }
 
-        public bool HasOpinionAbout(string key, Type service)
+        public virtual bool HasOpinionAbout(string key, Type service)
         {
             return service == _type;
         }
 
-        public IHandler SelectHandler(string key, Type service, IHandler[] handlers)
+        public virtual IHandler SelectHandler(string key, Type service, IHandler[] handlers)
         {
             var handlerForDefaultKey = handlers.FirstOrDefault(handler => handler.ComponentModel.Name == _keyToDefaultTo);
             if (handlerForDefaultKey == null)

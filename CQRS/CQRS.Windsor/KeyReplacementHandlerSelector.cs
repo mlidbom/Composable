@@ -22,7 +22,7 @@ namespace Composable.CQRS.Windsor
             return key == _originalKey;
         }
 
-        public IHandler SelectHandler(string key, Type service, IHandler[] handlers)
+        public virtual IHandler SelectHandler(string key, Type service, IHandler[] handlers)
         {
             if (key == _originalKey)
             {

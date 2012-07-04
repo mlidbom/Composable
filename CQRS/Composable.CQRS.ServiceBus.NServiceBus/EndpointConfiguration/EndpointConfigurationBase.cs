@@ -1,6 +1,7 @@
 ﻿#region usings
 
 using System.Configuration;
+using Castle.Core;
 using Castle.MicroKernel.Registration;
 using Castle.MicroKernel.Releasers;
 using Castle.Windsor;
@@ -63,6 +64,11 @@ namespace Composable.CQRS.ServiceBus.NServiceBus.EndpointConfiguration
 
             XmlConfigurator.Configure();
             _container = new WindsorContainer();
+
+            _container.Kernel.ComponentModelBuilder.AddContributor(
+                new LifestyleRegistrationMutator(
+                    LifestyleType.PerWebRequest,
+                    LifestyleType.Scoped));
 
             _container.Register(
                 Component.For<IWindsorContainer, WindsorContainer>().Instance(_container),

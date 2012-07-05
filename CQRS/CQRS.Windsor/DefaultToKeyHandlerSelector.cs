@@ -4,6 +4,11 @@ using Castle.MicroKernel;
 
 namespace Composable.CQRS.Windsor
 {
+    /// <summary>
+    /// When multiple registrations to the same type are made this HandlerSelector defaults selection to the one with the specified key 
+    /// (instead of the default Windsor behavior of defaulting to the first registered service)
+    /// Use it by adding it to the container at wire-up with container.Kernel.AddHandlerSelector(new DefaultToKeyHandlerSelector(typeof([ComponentType]),"defaultKey"));
+    /// </summary>
     public class DefaultToKeyHandlerSelector : IHandlerSelector
     {
         private readonly Type _type;

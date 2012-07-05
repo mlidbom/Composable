@@ -38,6 +38,7 @@ namespace Composable.CQRS.Windsor
             _projectType = RuntimeType.RealProject;
         }
 
+        [Obsolete("Register Components as Lifestyle.PerWebRequest instead and then add the LifestyleRegistrationMutator to the container in order to mutate all PerWebRequest lifestyled Components into Scoped.")]
         public static ComponentRegistration<S> PerNserviceBusMessage<S>(this LifestyleGroup<S> lifetLifestyleGroup) where S : class
         {
             if(_projectType == RuntimeType.Unknown)

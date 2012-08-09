@@ -26,6 +26,7 @@ namespace Composable.System
         }
 
         ///<summary>Allows more fluent use of String.Format by exposing it as an extension method.</summary>
+        [JetBrains.Annotations.StringFormatMethod("me")]
         public static string FormatWith(this string me, params object[] values)
         {
             Contract.Requires(me != null && values != null);

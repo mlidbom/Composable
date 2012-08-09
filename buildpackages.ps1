@@ -53,4 +53,5 @@ Build-Pkg "$scriptRoot\CQRS\CQRS.Windsor\Composable.CQRS.Windsor.csproj" $Windso
 Build-Pkg "$scriptRoot\CQRS\Testing\Composable.CQRS.Testing\Composable.CQRS.Testing.csproj"
 Build-Pkg "$scriptRoot\CQRS\Composable.CQRS.Population.Client\Composable.CQRS.Population.Client.csproj"
 Build-Pkg "$scriptRoot\CQRS\Composable.CQRS.Population.Server\Composable.CQRS.Population.Server.csproj"
+Build-Pkg "$scriptRoot\NSpecNUnit\NSpecNUnit.csproj"
 

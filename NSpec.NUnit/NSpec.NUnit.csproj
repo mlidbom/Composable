@@ -53,7 +53,7 @@
     <Compile Include="TestRunnerTests.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="NSpecNUnit.nuspec">
+    <None Include="NSpec.NUnit.nuspec">
       <SubType>Designer</SubType>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

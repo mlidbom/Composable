@@ -8,7 +8,7 @@ using System.Linq;
 namespace NSpecNUnit
 {
     [TestFixture]
-    public class NSpecTestBase : nspec
+    public abstract class NSpecTestBase : nspec
     {
         [Test]
         public void ValidateSpec()

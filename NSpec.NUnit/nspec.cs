@@ -25,12 +25,18 @@ namespace NSpec.NUnit
 
             if (result.Failures() == null)
             {
-                Assert.Fail("Failed to execute some tests");
+                Assert.Fail("*****   Failed to execute some tests   *****");
             }
 
             if (result.Failures().Any())
             {
-                throw new Exception("The stacktrace for the first failure", result.Failures().First().Exception);
+                Example failure = result.Failures().First();
+                var position = failure.FullName().Substring(7)
+                    .Split('.')
+                    .Select((name, level) => "\t".Times(level) + name )
+                    .Aggregate(Environment.NewLine + "at: ", (agg, curr) => agg + curr + Environment.NewLine);
+
+                throw new SpecificationException(position, failure.Exception);
             }
         }
 
@@ -38,8 +44,13 @@ namespace NSpec.NUnit
         {
             void IFormatter.Write(ContextCollection contexts)
             {
-                //Writing nothing here gets rid of the error summary that we don't want anyway since we replace it with the thrown info.
-                //base.Write(contexts);
+                //Not calling base here lets us get rid of its noisy stack trace output so it does not obscure our thrown exceptions stacktrace.
+                Console.WriteLine();
+                if(contexts.Failures().Any())
+                {
+                    Console.WriteLine("*****   RUN SUMMARY   *****");
+                }
+                Console.WriteLine(base.Summary(contexts));
             }
 
             void ILiveFormatter.Write(Context context)
@@ -51,6 +62,13 @@ namespace NSpec.NUnit
             {
                 base.Write(example, level);
             }
+        }
+    }
+
+    public class SpecificationException : Exception
+    {
+        public SpecificationException(string position, Exception exception):base(position, exception)
+        {            
         }
     }
 }

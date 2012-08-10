@@ -50,6 +50,7 @@
   <ItemGroup>
     <Compile Include="NSpecTestBase.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="TestRunnerTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="NSpecNUnit.nuspec">

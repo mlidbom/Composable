@@ -1,13 +1,10 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <package>
   <metadata>
-    <id>NSpecNUnit</id>
+    <id>NSpec.NUnit</id>
     <version>$version$</version>
     <authors>Magnus Lidbom</authors>
-    <description>
-      Just inherit NSpecTestBase and the NUnit test runner will execute your nspec test class for you.
-      The first failures exception is rethrown after running the whole spec so that navigating to code works in Resharper.    
-    </description>
+    <description>      Just inherit NSpec.NUnit.nspec and the NUnit test runner will execute your nspec test class for you. The first failure exception is rethrown after running the whole spec so that navigating to code works in Resharper. Hopefully something similar will be included in NSpec proper and this can go away eventually.</description>
     <language>en-US</language>
   </metadata>
 </package>

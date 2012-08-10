@@ -1,8 +1,8 @@
 ﻿using System;
-using NSpec;
 using NUnit.Framework;
 
-namespace NSpecNUnit
+// ReSharper disable InconsistentNaming
+namespace NSpec.NUnit
 {
     [TestFixture]
     public class TestRunnerTests
@@ -15,7 +15,8 @@ namespace NSpecNUnit
     }
 
     [Ignore]
-    public class failing_spec : NSpecTestBase
+
+    public class failing_spec : NSpec.NUnit.nspec
     {
         public void strange_math()
         {

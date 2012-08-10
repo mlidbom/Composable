@@ -5,10 +5,15 @@ using NSpec.Domain;
 using NSpec;
 using System.Linq;
 
-namespace NSpecNUnit
+namespace NSpec.NUnit
 {
+    /// <summary>
+    /// This class acts as as shim between NSpec and NUnit. If you inherit it instead of <see cref="NSpec.nspec"/> you can work as usual with nspec and nunit will execute your tests for you.
+    /// </summary>
     [TestFixture]
-    public abstract class NSpecTestBase : nspec
+// ReSharper disable InconsistentNaming
+    public abstract class nspec : NSpec.nspec
+// ReSharper restore InconsistentNaming
     {
         [Test]
         public void ValidateSpec()

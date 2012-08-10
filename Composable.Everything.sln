@@ -70,7 +70,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Composable.CQRS.ServiceBus.
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Testing", "Testing", "{BE584942-0A3C-4445-82F7-2C05C0438819}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NSpec.NUnit", "NSpecNUnit\NSpec.NUnit.csproj", "{1CD466E7-48CF-45EF-BE1F-29C17F705B39}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NSpec.NUnit", "NSpec.NUnit\NSpec.NUnit.csproj", "{1CD466E7-48CF-45EF-BE1F-29C17F705B39}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

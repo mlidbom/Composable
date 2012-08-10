@@ -14,8 +14,7 @@ namespace NSpec.NUnit
             }
     }
 
-    [Ignore]
-
+  [Ignore]
     public class failing_spec : NSpec.NUnit.nspec
     {
         public void strange_math()

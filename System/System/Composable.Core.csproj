@@ -128,6 +128,7 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.DataAnnotations" />
+    <Reference Include="System.configuration" />
     <Reference Include="System.Core">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
     </Reference>
@@ -152,6 +153,10 @@
     <Compile Include="System\Collections\Collections\CollectionExtensions.cs" />
     <Compile Include="System\Collections\Collections\DictionaryExtensions.cs" />
     <Compile Include="System\ComponentModel\DataAnnotations\IValidatableObjectExtensions.cs" />
+    <Compile Include="System\Configuration\AppConfigConfigurationParameterProvider.cs" />
+    <Compile Include="System\Configuration\ConnectionStringConfigurationParameterProvider.cs" />
+    <Compile Include="System\Configuration\IConfigurationParameterProvider.cs" />
+    <Compile Include="System\Configuration\IConnectionStringProvider.cs" />
     <Compile Include="System\EnumExtensions.cs" />
     <Compile Include="GenericAbstractions\Hierarchies\HierarchyExtensions.cs" />
     <Compile Include="GenericAbstractions\Hierarchies\IHierarchy.cs" />

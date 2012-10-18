@@ -103,6 +103,7 @@
     <Compile Include="CQRS\Command\IEntityCommandHandler.cs" />
     <Compile Include="CQRS\Command\IValidationFailure.cs" />
     <Compile Include="CQRS\Command\MemberValidationFailure.cs" />
+    <Compile Include="CQRS\Command\SubCommand.cs" />
     <Compile Include="CQRS\DuplicateHandlersException.cs" />
     <Compile Include="CQRS\EntityToReferenceConverter.cs" />
     <Compile Include="CQRS\EventSourcing\AttemptToSaveEmptyAggregate.cs" />

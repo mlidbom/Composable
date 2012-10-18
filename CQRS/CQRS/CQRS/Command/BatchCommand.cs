@@ -6,6 +6,7 @@ using System.Text;
 
 namespace Composable.CQRS.Command
 {
+    //TODO: remove. Needed until CVM is cleaned up 
     public class BatchCommand : CompositeCommand
     {
         private ReadOnlyCollection<Command> _commands;
@@ -14,7 +15,12 @@ namespace Composable.CQRS.Command
             _commands = new List<Command>(commands).AsReadOnly();
         }
 
-        public override IEnumerable<Command> GetContainedCommands()
+        override public IEnumerable<SubCommand> GetContainedCommands()
+        {
+            throw new NotImplementedException();
+        }
+
+        public override IEnumerable<Command> GetContainedCommandsOld()
         {
             return _commands;
         }

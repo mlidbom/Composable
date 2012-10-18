@@ -41,8 +41,21 @@ namespace Composable.CQRS.Command
             {
                 using(var transaction = new TransactionScope())
                 {
-                    if (command is CompositeCommand) {
-                        (command as CompositeCommand).GetContainedCommands().ForEach(c => { ExecuteSingle((dynamic)c); });
+                    if (command is CompositeCommand) 
+                    {
+                        foreach(var subCommand in (command as CompositeCommand).GetContainedCommands())
+                        {
+                            try
+                            {
+                                ExecuteSingle((dynamic)subCommand);
+                            }
+                            catch(CommandFailedException exception)
+                            {
+                                //TODO: Fix Path and message
+                                exception.Data.Clear();
+                                throw;
+                            }
+                        }
                     }
                     else
                         ExecuteSingle(command);

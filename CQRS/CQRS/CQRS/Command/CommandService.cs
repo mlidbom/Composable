@@ -6,6 +6,7 @@ using System.Transactions;
 using Composable.DomainEvents;
 using Composable.System.Linq;
 using Microsoft.Practices.ServiceLocation;
+using System.Linq;
 
 #endregion
 
@@ -47,13 +48,15 @@ namespace Composable.CQRS.Command
                         {
                             try
                             {
-                                ExecuteSingle((dynamic)subCommand);
+                                ExecuteSingle((dynamic)subCommand.Command);
                             }
                             catch(CommandFailedException exception)
                             {
-                                //TODO: Fix Path and message
-                                exception.Data.Clear();
-                                throw;
+                                var failedException = new CommandFailedException(exception.Message, 
+                                    exception.InvalidMembers
+                                        .Select(invalidMember => subCommand.Name + "." + invalidMember)
+                                        .ToList());
+                                throw failedException;
                             }
                         }
                     }

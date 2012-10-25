@@ -4,7 +4,7 @@ using Composable.System.Linq;
 
 namespace Composable.CQRS.Command
 {
-    public class SubCommand
+    public class SubCommand : ISubCommand
     {
         private Func<Command> _accessor;
         

@@ -8,9 +8,6 @@ namespace Composable.CQRS.Command
     {
         public abstract IEnumerable<SubCommand> GetContainedCommands();
 
-        //TODO: remove. Needed until CVM is cleaned up 
-        public abstract IEnumerable<Command> GetContainedCommandsOld();
-
         protected CompositeCommand() : this(Guid.NewGuid())
         {
         }

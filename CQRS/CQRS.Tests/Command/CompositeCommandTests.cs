@@ -105,12 +105,6 @@ namespace CQRS.Tests.Command
                            new SubCommand(() => SomethingCommand)
                        };
             }
-
-            override public IEnumerable<Composable.CQRS.Command.Command> GetContainedCommandsOld()
-            {
-                //TODO: remove when BatchCommand is deleted
-                throw new NotImplementedException();
-            }
         }
 
         public class EditCommand : Composable.CQRS.Command.Command

@@ -13,7 +13,12 @@
   <AnalyseExecutionTimes>true</AnalyseExecutionTimes>
   <IncludeStaticReferencesInWorkspace>true</IncludeStaticReferencesInWorkspace>
   <DefaultTestTimeout>60000</DefaultTestTimeout>
-  <UseBuildConfiguration />
-  <ProxyProcessPath />
+  <UseBuildConfiguration></UseBuildConfiguration>
+  <ProxyProcessPath></ProxyProcessPath>
   <UseCPUArchitecture>AutoDetect</UseCPUArchitecture>
+  <IgnoredTests>
+    <NamedTestSelector>
+      <TestName>Composable.CQRS.ServiceBus.NServiceBus.ErrorMessagesTests.WhenReceivingMessage.ExceptionPassedToStackTraceFormatterContainsOriginalException</TestName>
+    </NamedTestSelector>
+  </IgnoredTests>
 </ProjectConfiguration>

@@ -85,7 +85,6 @@
     <Compile Include="..\..\ModuleInitializer.cs">
       <Link>ModuleInitializer.cs</Link>
     </Compile>
-    <Compile Include="CQRS\Command\BatchCommand.cs" />
     <Compile Include="CQRS\Command\Command.cs" />
     <Compile Include="CQRS\Command\CommandFailedEvent.cs" />
     <Compile Include="CQRS\Command\CommandFailedException.cs" />
@@ -102,8 +101,10 @@
     <Compile Include="CQRS\Command\ICommandValidationService.cs" />
     <Compile Include="CQRS\Command\ICommandValidator.cs" />
     <Compile Include="CQRS\Command\IEntityCommandHandler.cs" />
+    <Compile Include="CQRS\Command\ISubCommand.cs" />
     <Compile Include="CQRS\Command\IValidationFailure.cs" />
     <Compile Include="CQRS\Command\MemberValidationFailure.cs" />
+    <Compile Include="CQRS\Command\SubCommand.cs" />
     <Compile Include="CQRS\DuplicateHandlersException.cs" />
     <Compile Include="CQRS\EntityToReferenceConverter.cs" />
     <Compile Include="CQRS\EventSourcing\AttemptToSaveEmptyAggregate.cs" />

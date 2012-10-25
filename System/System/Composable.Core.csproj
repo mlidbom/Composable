@@ -161,6 +161,7 @@
     <Compile Include="System\IO\DirectoryInfoMutators.cs" />
     <Compile Include="System\IO\FileInfoExtensions.cs" />
     <Compile Include="System\IO\DirectoryExtensions.cs" />
+    <Compile Include="System\Linq\ExpressionUtil.cs" />
     <Compile Include="System\Linq\Filter.cs" />
     <Compile Include="System\Linq\HashSetExtensions.cs" />
     <Compile Include="System\Linq\Iteration.cs" />

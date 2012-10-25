@@ -1,14 +1,12 @@
 #region usings
 
-using System;
 using System.Diagnostics.Contracts;
 using System.Linq.Expressions;
 
 #endregion
 
-namespace Composable.System.ComponentModel.Properties
+namespace Composable.System.Linq
 {
-    [Obsolete("Please use the class in Composable.System.Linq.Expressions.ExpressionUtil instead.")]
     public static class ExpressionUtil
     {
         public static string ExtractMemberName(LambdaExpression lambda)

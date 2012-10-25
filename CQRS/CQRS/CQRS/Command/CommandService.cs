@@ -6,6 +6,7 @@ using System.Transactions;
 using Composable.DomainEvents;
 using Composable.System.Linq;
 using Microsoft.Practices.ServiceLocation;
+using System.Linq;
 
 #endregion
 
@@ -41,8 +42,23 @@ namespace Composable.CQRS.Command
             {
                 using(var transaction = new TransactionScope())
                 {
-                    if (command is CompositeCommand) {
-                        (command as CompositeCommand).GetContainedCommands().ForEach(c => { ExecuteSingle((dynamic)c); });
+                    if (command is CompositeCommand) 
+                    {
+                        foreach(var subCommand in (command as CompositeCommand).GetContainedCommands())
+                        {
+                            try
+                            {
+                                ExecuteSingle((dynamic)subCommand.Command);
+                            }
+                            catch(CommandFailedException exception)
+                            {
+                                var failedException = new CommandFailedException(exception.Message, 
+                                    exception.InvalidMembers
+                                        .Select(invalidMember => subCommand.Name + "." + invalidMember)
+                                        .ToList());
+                                throw failedException;
+                            }
+                        }
                     }
                     else
                         ExecuteSingle(command);

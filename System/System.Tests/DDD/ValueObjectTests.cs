@@ -15,13 +15,13 @@ namespace Composable.Tests.DDD
         {
             private readonly string _address1;
             private readonly string _city;
-            private readonly string _state;
+            private readonly string[] _states;
 
-            public Address(string address1, string city, string state)
+            public Address(string address1, string city, params string[] states)
             {
                 _address1 = address1;
                 _city = city;
-                _state = state;
+                _states = states;
             }
 
             public Address()
@@ -33,7 +33,7 @@ namespace Composable.Tests.DDD
 
             public string Guid { get; set; }
 
-            public string State { get { return _state; } }
+            public string[] States { get { return _states; } }
         }
 
         private class GuidHolder : ValueObject<GuidHolder>
@@ -50,8 +50,8 @@ namespace Composable.Tests.DDD
         {
             private readonly string _address2;
 
-            public ExpandedAddress(string address1, string address2, string city, string state)
-                : base(address1, city, state)
+            public ExpandedAddress(string address1, string address2, string city, params string[] states)
+                : base(address1, city, states)
             {
                 _address2 = address2;
             }
@@ -172,6 +172,51 @@ namespace Composable.Tests.DDD
             var address2 = new Address("Address1", "Austin", "TX");
 
             Assert.AreEqual(address.GetHashCode(), address2.GetHashCode());
+        }
+
+        [Test]
+        public void EqualValuesInEnumerableObjectsHaveSameHashCode()
+        {
+            var address = new Address("Address1", "Austin", "TX", "BB");
+            var address2 = new Address("Address1", "Austin", "TX", "BB");
+
+            Assert.AreEqual(address.GetHashCode(), address2.GetHashCode());
+        }
+
+        [Test]
+        public void DifferentNumberOfEntriesInArrayMeansObjectAreNotEqual()
+        {
+            var address = new Address("Address1", "Austin", "TX");
+            var address2 = new Address("Address1", "Austin", "TX", "TX");
+
+            Assert.AreNotEqual(address, address2);
+        }
+
+        [Test]
+        public void DifferentNumberOfEntriesInArrayMeansHashAreNotEqual()
+        {
+            var address = new Address("Address1", "Austin", "TX");
+            var address2 = new Address("Address1", "Austin", "TX", "TX");
+
+            Assert.AreNotEqual(address.GetHashCode(), address2.GetHashCode());
+        }
+
+        [Test]
+        public void MultipleValuesInEnumerableAreStillEqual()
+        {
+            var address = new Address("Address1", "Austin", "TX", "TX");
+            var address2 = new Address("Address1", "Austin", "TX", "TX");
+
+            Assert.AreEqual(address, address2);
+        }
+
+        [Test]
+        public void EnumerablesHandleNulls()
+        {
+            var address = new Address("Address1", "Austin", "TX", null, "TX");
+            var address2 = new Address("Address1", "Austin", "TX", null, "TX");
+
+            Assert.AreEqual(address, address2);
         }
 
         [Test]

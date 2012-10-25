@@ -1,12 +1,12 @@
 using System;
 using System.Collections.Generic;
-using Composable.DDD;
+using System.Collections.ObjectModel;
 
 namespace Composable.CQRS.Command
 {
     public abstract class CompositeCommand : Command
     {
-        public abstract IEnumerable<Command> GetContainedCommands();
+        public abstract IEnumerable<SubCommand> GetContainedCommands();
 
         protected CompositeCommand() : this(Guid.NewGuid())
         {

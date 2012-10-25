@@ -1,8 +1,10 @@
 ﻿using System;
 using Composable.UnitsOfWork;
+using JetBrains.Annotations;
 
 namespace Composable.CQRS.EventSourcing
 {
+    [UsedImplicitly]
     public interface IEventStoreSession : IDisposable
     {
         /// <summary>

@@ -2,11 +2,13 @@
 
 using System;
 using System.Diagnostics.Contracts;
+using JetBrains.Annotations;
 
 #endregion
 
 namespace Composable.CQRS
 {
+    [UsedImplicitly]
     [ContractClass(typeof(CommandServiceContract))]
     public interface ICommandService
     {

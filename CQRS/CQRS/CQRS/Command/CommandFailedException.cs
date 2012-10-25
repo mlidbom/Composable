@@ -9,9 +9,7 @@ namespace Composable.CQRS.Command
 {
     public class CommandFailedException : Exception
     {
-        private List<string> _invalidMembers;
-
-        public IEnumerable<string> InvalidMembers { get { return _invalidMembers.Select(x => x); } }
+        public IEnumerable<string> InvalidMembers { get; private set; }
 
         public CommandFailedException(string message) : this(message, new string[0])
         {
@@ -19,7 +17,7 @@ namespace Composable.CQRS.Command
 
         public CommandFailedException(string message, IEnumerable<string> invalidMembers) : base(message)
         {
-            this._invalidMembers = invalidMembers.ToList();
+            this.InvalidMembers = invalidMembers.ToList();
         }
 
         public CommandFailedException(string message, params string[] invalidMembers) : this(message, (IEnumerable<string>)invalidMembers)

@@ -29,7 +29,7 @@ namespace Composable.CQRS.ServiceBus.NServiceBus.EndpointConfiguration
                 .Log4Net();
 
             var config2 = ConfigureSubscriptionStorage(config);
-
+            config2 = ConfigureSaga(config2);
 
             var busConfig = config2.XmlSerializer()
                 .MsmqTransport()
@@ -55,6 +55,11 @@ namespace Composable.CQRS.ServiceBus.NServiceBus.EndpointConfiguration
         protected virtual Configure ConfigureSubscriptionStorage(Configure config)
         {
             return config.DBSubcriptionStorage();
+        }
+
+        protected virtual Configure ConfigureSaga(Configure config)
+        {
+            return config.Sagas().RavenSagaPersister();
         }
 
 

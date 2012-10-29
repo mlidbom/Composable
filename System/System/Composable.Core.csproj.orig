@@ -230,12 +230,15 @@
     <PreBuildEvent>
     </PreBuildEvent>
   </PropertyGroup>
+<<<<<<< HEAD
   <Target Name="AfterBuild">
     <InjectModuleInitializer AssemblyFile="$(TargetPath)" />
     <GetFrameworkSdkPath>
       <Output TaskParameter="Path" PropertyName="SdkPath" />
     </GetFrameworkSdkPath>
-    <Exec Command="&quot;$(SdkPath)bin\sn.exe&quot; -R $(TargetPath) $(ProjectDir)..\..\Void.snk" />
+    <Exec Command="&quot;$(SdkPath)bin\NETFX 4.0 Tools\sn.exe&quot; -R $(TargetPath) $(ProjectDir)..\..\Void.snk" />
   </Target>
+=======
+>>>>>>> origin/develop
   <Import Project="$(SolutionDir)\.nuget\nuget.targets" />
 </Project>

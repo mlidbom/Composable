@@ -1,6 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
-  <UsingTask TaskName="InjectModuleInitializer" AssemblyFile="$(ProjectDir)..\..\Tools\InjectModuleInitializer\InjectModuleInitializer.exe" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
@@ -123,8 +122,9 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Microsoft.VisualBasic" />
-    <Reference Include="Newtonsoft.Json">
-      <HintPath>..\..\packages\Newtonsoft.Json.4.0.5\lib\net40\Newtonsoft.Json.dll</HintPath>
+    <Reference Include="Newtonsoft.Json, Version=4.5.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\packages\Newtonsoft.Json.4.5.9\lib\net40\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.DataAnnotations" />
@@ -137,9 +137,6 @@
   <ItemGroup>
     <Compile Include="..\..\CommonAssemblyInfo.cs">
       <Link>Properties\CommonAssemblyInfo.cs</Link>
-    </Compile>
-    <Compile Include="..\..\ModuleInitializer.cs">
-      <Link>ModuleInitializer.cs</Link>
     </Compile>
     <Compile Include="DDD\IHasPersistentIdentity.cs" />
     <Compile Include="DDD\IPersistentEntity.cs" />
@@ -164,6 +161,7 @@
     <Compile Include="System\IO\DirectoryInfoMutators.cs" />
     <Compile Include="System\IO\FileInfoExtensions.cs" />
     <Compile Include="System\IO\DirectoryExtensions.cs" />
+    <Compile Include="System\Linq\ExpressionUtil.cs" />
     <Compile Include="System\Linq\Filter.cs" />
     <Compile Include="System\Linq\HashSetExtensions.cs" />
     <Compile Include="System\Linq\Iteration.cs" />
@@ -216,10 +214,6 @@
     <None Include="Void.snk" />
   </ItemGroup>
   <ItemGroup />
-  <ItemGroup>
-    <EmbeddedResource Include="__EmbeddedAssemblies\Newtonsoft.Json.dll" />
-    <EmbeddedResource Include="__EmbeddedAssemblies\Newtonsoft.Json.pdb" />
-  </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
@@ -229,19 +223,19 @@
   </Target>
   -->
   <PropertyGroup>
-    <PostBuildEvent>REM mkdir packages
-REM "$(ProjectDir)..\..\tools\NuGet.exe" pack "Composable.Core.nuspec"  -o packages</PostBuildEvent>
+    <PostBuildEvent>
+    </PostBuildEvent>
   </PropertyGroup>
   <PropertyGroup>
-    <PreBuildEvent>REM copy "$(TargetDir)..\..\packages\Newtonsoft.Json.4.0.2\lib\net40\Newtonsoft.Json.dll" "$(ProjectDir)__EmbeddedAssemblies"
-REM copy "$(TargetDir)..\..\packages\Newtonsoft.Json.4.0.2\lib\net40\Newtonsoft.Json.pdb" "$(ProjectDir)__EmbeddedAssemblies"</PreBuildEvent>
+    <PreBuildEvent>
+    </PreBuildEvent>
   </PropertyGroup>
   <Target Name="AfterBuild">
     <InjectModuleInitializer AssemblyFile="$(TargetPath)" />
     <GetFrameworkSdkPath>
       <Output TaskParameter="Path" PropertyName="SdkPath" />
     </GetFrameworkSdkPath>
-    <Exec Command="&quot;$(SdkPath)bin\NETFX 4.0 Tools\sn.exe&quot; -R $(TargetPath) $(ProjectDir)..\..\Void.snk" />
+    <Exec Command="&quot;$(SdkPath)bin\sn.exe&quot; -R $(TargetPath) $(ProjectDir)..\..\Void.snk" />
   </Target>
   <Import Project="$(SolutionDir)\.nuget\nuget.targets" />
 </Project>

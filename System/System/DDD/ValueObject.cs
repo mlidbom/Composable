@@ -1,6 +1,7 @@
 #region usings
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using System.Linq;
@@ -42,10 +43,18 @@ namespace Composable.DDD
 
             for(var i = 0; i < fields.Length; i++)
             {
-                Contract.Assume(fields[i] != null);
+                Contract.Assume(!ReferenceEquals(fields[i], null));
                 var value = fields[i](this);
 
-                if(value != null)
+                if (value is IEnumerable && !(value is string))
+                {
+                    var value1Array = ((IEnumerable)value).Cast<object>().Where(me => !ReferenceEquals(me, null)).ToArray();
+                    foreach(var something in value1Array)
+                    {
+                        hashCode = hashCode * multiplier + something.GetHashCode();    
+                    }
+                }
+                else if(!ReferenceEquals(value, null))
                     hashCode = hashCode * multiplier + value.GetHashCode();
             }
 
@@ -68,15 +77,36 @@ namespace Composable.DDD
 
             for(var i = 0; i < fields.Length; i++)
             {
-                Contract.Assume(fields[i] != null);
+                Contract.Assume(!ReferenceEquals(fields[i], null));
                 var value1 = fields[i](other);
                 var value2 = fields[i]((T)this);
 
                 if(ReferenceEquals(value1, null))
                 {
-                    if(value2 != null)
+                    if(!ReferenceEquals(value2 , null))
                         return false;
                 }
+                else if (value1 is IEnumerable && !(value1 is string))
+                {
+                    if (ReferenceEquals(value2, null))
+                    {
+                        return false;
+                    }
+                    var value1Array = ((IEnumerable)value1).Cast<object>().ToArray();
+                    var value2Array = ((IEnumerable)value2).Cast<object>().ToArray();
+                    if (value1Array.Length != value2Array.Length)
+                    {
+                        return false;
+                    }
+                    for (int j = 0; j < value1Array.Length - 1; j++)
+                    {
+                        if (!Equals(value1Array[j], value2Array[j]))
+                        {
+                            return false;
+                        }
+                    }
+                    return true;
+                } 
                 else if(!value1.Equals(value2))
                     return false;
             }

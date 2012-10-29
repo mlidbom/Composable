@@ -241,7 +241,7 @@ REM copy "$(TargetDir)..\..\packages\Newtonsoft.Json.4.0.2\lib\net40\Newtonsoft.
     <GetFrameworkSdkPath>
       <Output TaskParameter="Path" PropertyName="SdkPath" />
     </GetFrameworkSdkPath>
-    <Exec Command="&quot;$(SdkPath)bin\sn.exe&quot; -R $(TargetPath) $(ProjectDir)..\..\Void.snk" />
+    <Exec Command="&quot;$(SdkPath)bin\NETFX 4.0 Tools\sn.exe&quot; -R $(TargetPath) $(ProjectDir)..\..\Void.snk" />
   </Target>
   <Import Project="$(SolutionDir)\.nuget\nuget.targets" />
 </Project>

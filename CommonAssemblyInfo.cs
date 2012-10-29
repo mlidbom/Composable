@@ -1,4 +1,4 @@
-#region usings
+﻿#region usings
 
 using System.Reflection;
 using System.Runtime.CompilerServices;
@@ -26,4 +26,4 @@ using System.Runtime.InteropServices;
 
 [assembly: ComVisible(false)]
 
-[assembly: AssemblyVersion("1.7.8.0")]
+[assembly: AssemblyVersion("1.7.9.0")]

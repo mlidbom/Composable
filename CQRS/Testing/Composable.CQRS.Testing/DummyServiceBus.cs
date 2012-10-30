@@ -78,6 +78,11 @@ namespace Composable.CQRS.Testing
             Publish(message);
         }
 
+        public void Reply(object message)
+        {
+            Publish(message);
+        }
+
         public void AddHandler<TMessage>(Func<TMessage, IMessage> handler) where TMessage : IMessage
         {
             _localHandlers.Add(Tuple.Create(typeof(TMessage), (Func<object, IEnumerable<IMessage>>)(o => new[] { handler((TMessage)o) })));

@@ -41,5 +41,12 @@ namespace Composable.CQRS.ServiceBus.NServiceBus
             AddEnvironmentNameHeader();
             _bus.Send((IMessage) message);
         }
+
+        public void Reply(object message)
+        {
+            _interceptor.BeforeSend(message);
+            AddEnvironmentNameHeader();
+            _bus.Reply((IMessage)message);
+        }
     }
 }

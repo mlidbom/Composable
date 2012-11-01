@@ -28,7 +28,7 @@ namespace Composable.CQRS.Command
             Contract.Invariant(_serviceLocator != null);
         }
 
-        private void ExecuteSingle<TCommand>(TCommand command) {
+        protected virtual void ExecuteSingle<TCommand>(TCommand command) {
             var handler = _serviceLocator.GetInstance<ICommandHandler<TCommand>>();
             handler.Execute(command);
         }

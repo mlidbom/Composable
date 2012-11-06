@@ -149,6 +149,7 @@
     <Compile Include="KeyValueStorage\DocumentDbSession.cs" />
     <Compile Include="KeyValueStorage\NoSuchDocumentException.cs" />
     <Compile Include="KeyValueStorage\SqlServer\SqlServerDocumentDb.cs" />
+    <Compile Include="NewtonSoft\JsonSettings.cs" />
     <Compile Include="ServiceBus\IServiceBus.cs" />
     <Compile Include="CQRS\EventSourcing\AggregateRoot.cs" />
     <Compile Include="CQRS\EventSourcing\IEventApplier.cs" />

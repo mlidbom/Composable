@@ -17,6 +17,7 @@ using Composable.KeyValueStorage.SqlServer;
 using Composable.ServiceBus;
 using Composable.System;
 using Composable.System.Linq;
+using Composable.SystemExtensions.Threading;
 using Composable.UnitsOfWork;
 using NServiceBus;
 using NUnit.Framework;
@@ -37,7 +38,7 @@ namespace Composable.CQRS.ServiceBus.NServicebus.Tests.TransactionSupport
         {
             var endpointConfigurer = new EndPointConfigurer("Composable.CQRS.ServiceBus.NServicebus.Tests.TransactionSupport");
 
-            var eventStoreReader = new SqlServerEventSomethingOrOther(new SqlServerEventStore(EventStoreConnectionString, new DummyServiceBus(new WindsorContainer())));
+            var eventStoreReader = new SqlServerEventSomethingOrOther(new SqlServerEventStore(EventStoreConnectionString, new DummyServiceBus(new WindsorContainer())), new SingleThreadUseGuard());
 
             SqlServerEventStore.ResetDB(EventStoreConnectionString);
             SqlServerDocumentDb.ResetDB(DocumentDbConnectionString);
@@ -125,7 +126,7 @@ namespace Composable.CQRS.ServiceBus.NServicebus.Tests.TransactionSupport
                 Component.For<IDocumentDb>().Instance(new SqlServerDocumentDb(WhenMessageHandlingFails.DocumentDbConnectionString)),
                 Component.For<IEventStoreSession, IUnitOfWorkParticipant>().UsingFactoryMethod(() => container.Resolve<IEventStore>().OpenSession()).LifeStyle.PerNserviceBusMessage(),
                 Component.For<IEventSomethingOrOther, SqlServerEventSomethingOrOther>().ImplementedBy<SqlServerEventSomethingOrOther>().LifeStyle.PerNserviceBusMessage(),
-                Component.For<IDocumentDbSession, IUnitOfWorkParticipant>().UsingFactoryMethod(() => container.Resolve<IDocumentDb>().OpenSession()).LifeStyle.PerNserviceBusMessage()
+                Component.For<IDocumentDbSession, IUnitOfWorkParticipant>().UsingFactoryMethod(() => container.Resolve<IDocumentDb>().OpenSession(new SingleThreadUseGuard())).LifeStyle.PerNserviceBusMessage()
                 );
         }
 

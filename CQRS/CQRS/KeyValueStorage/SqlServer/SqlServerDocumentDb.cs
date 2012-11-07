@@ -1,6 +1,7 @@
 #region usings
 
 using System.Transactions;
+using Composable.SystemExtensions.Threading;
 
 #endregion
 
@@ -24,11 +25,11 @@ namespace Composable.KeyValueStorage.SqlServer
             }
             ConnectionString = connectionString;
             Config = config;
-        }        
+        }
 
-        public IDocumentDbSession OpenSession()
+        public IDocumentDbSession OpenSession(ISingleContextUseGuard guard)
         {
-            return new DocumentDbSession(this, Config);
+            return new DocumentDbSession(this, guard, Config);
         }
 
         public static void ResetDB(string connectionString)

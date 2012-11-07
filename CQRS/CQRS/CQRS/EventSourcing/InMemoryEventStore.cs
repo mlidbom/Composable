@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Composable.ServiceBus;
+using Composable.SystemExtensions.Threading;
 
 namespace Composable.CQRS.EventSourcing
 {
@@ -17,7 +18,8 @@ namespace Composable.CQRS.EventSourcing
 
         public IEventStoreSession OpenSession()
         {
-            return new EventStoreSession(Bus, new InMemoryEventSomethingOrOther(this));
+            var singleThreadedUseGuard = new SingleThreadUseGuard();
+            return new EventStoreSession(Bus, new InMemoryEventSomethingOrOther(this, singleThreadedUseGuard), singleThreadedUseGuard);
         }
     }
 }

@@ -7,6 +7,7 @@ using Castle.Windsor;
 using Composable.CQRS.EventSourcing;
 using Composable.CQRS.EventSourcing.SQLServer;
 using Composable.CQRS.Testing;
+using Composable.SystemExtensions.Threading;
 using NUnit.Framework;
 using System.Linq;
 
@@ -23,7 +24,8 @@ namespace CQRS.Tests.CQRS.EventSourcing.Sql
             var something = new SqlServerEventSomethingOrOther(
                 new SqlServerEventStore(
                     ConfigurationManager.ConnectionStrings["EventStore"].ConnectionString,
-                    new DummyServiceBus(new WindsorContainer())));
+                    new DummyServiceBus(new WindsorContainer())), 
+                    new SingleThreadUseGuard());
 
             var user = new User();
             user.Register("email@email.se", "password", Guid.NewGuid());
@@ -45,7 +47,7 @@ namespace CQRS.Tests.CQRS.EventSourcing.Sql
                 ConfigurationManager.ConnectionStrings["EventStore"].ConnectionString,
                 new DummyServiceBus(new WindsorContainer()));
 
-            var something = new SqlServerEventSomethingOrOther(store);
+            var something = new SqlServerEventSomethingOrOther(store, new SingleThreadUseGuard());
 
             var user = new User();
             user.Register("email@email.se", "password", Guid.NewGuid());
@@ -59,10 +61,10 @@ namespace CQRS.Tests.CQRS.EventSourcing.Sql
                 tran.Complete();
             }
 
-            something = new SqlServerEventSomethingOrOther(store);
+            something = new SqlServerEventSomethingOrOther(store, new SingleThreadUseGuard());
             var firstRead = something.GetHistoryUnSafe(user.Id).Single();
 
-            something = new SqlServerEventSomethingOrOther(store);
+            something = new SqlServerEventSomethingOrOther(store, new SingleThreadUseGuard());
             var secondRead = something.GetHistoryUnSafe(user.Id).Single();
 
             Assert.That(firstRead, Is.SameAs(secondRead));

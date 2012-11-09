@@ -8,50 +8,55 @@ using NServiceBus;
 namespace Composable.ServiceBus
 {
     public class SynchronousBus : IServiceBus
+    {
+        protected readonly IWindsorContainer ServiceLocator;
+
+        public SynchronousBus(IWindsorContainer serviceLocator)
         {
-            protected readonly IWindsorContainer ServiceLocator;
+            ServiceLocator = serviceLocator;
+        }
 
-            public SynchronousBus(IWindsorContainer serviceLocator)
+        public virtual void Publish(object message)
+        {
+            ((dynamic)this).Publish((dynamic)message);
+        }
+
+        protected virtual void Publish<TMessage>(TMessage message) where TMessage : IMessage
+        {
+            var handlerTypes = message.GetType().GetAllTypesInheritedOrImplemented()
+                .Where(t => t.Implements(typeof(IMessage)))
+                .Select(t => typeof(IHandleMessages<>).MakeGenericType(t))
+                .ToArray();
+
+
+            var handlers = new List<object>();
+            foreach (var handlerType in handlerTypes)
             {
-                ServiceLocator = serviceLocator;
+                handlers.AddRange(ServiceLocator.ResolveAll(handlerType).Cast<object>());
             }
 
-            public virtual void Publish(object message)
+            InTransaction.Execute(() =>
             {
-                ((dynamic)this).Publish((dynamic)message);
-            }
-
-            protected virtual void Publish<TMessage>(TMessage message) where TMessage : IMessage
-            {
-                var handlerTypes = message.GetType().GetAllTypesInheritedOrImplemented()
-                    .Where(t => t.Implements(typeof(IMessage)))
-                    .Select(t => typeof(IHandleMessages<>).MakeGenericType(t))
-                    .ToArray();
-
-
-                var handlers = new List<object>();
-                foreach (var handlerType in handlerTypes)
+                foreach (dynamic handler in handlers)
                 {
-                    handlers.AddRange(ServiceLocator.ResolveAll(handlerType).Cast<object>());
+                    handler.Handle((dynamic)message);
                 }
+            });
+        }
 
-                InTransaction.Execute(() =>
-                {
-                    foreach (dynamic handler in handlers)
-                    {
-                        handler.Handle((dynamic)message);
-                    }
-                });
-            }
+        public virtual void SendLocal(object message)
+        {
+            Publish(message);
+        }
 
-            public virtual void SendLocal(object message)
-            {
-                Publish(message);
-            }
+        public virtual void Send(object message)
+        {
+            Publish(message);
+        }
 
-            public virtual void Send(object message)
-            {
-                Publish(message);
-            }
-        } 
+        public virtual void Reply(object message)
+        {
+            Reply(message);
+        }
     }
+}

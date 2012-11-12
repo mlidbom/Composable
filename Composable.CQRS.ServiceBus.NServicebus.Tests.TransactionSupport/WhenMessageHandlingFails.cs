@@ -126,7 +126,8 @@ namespace Composable.CQRS.ServiceBus.NServicebus.Tests.TransactionSupport
                 Component.For<IDocumentDb>().Instance(new SqlServerDocumentDb(WhenMessageHandlingFails.DocumentDbConnectionString)),
                 Component.For<IEventStoreSession, IUnitOfWorkParticipant>().UsingFactoryMethod(() => container.Resolve<IEventStore>().OpenSession()).LifeStyle.PerNserviceBusMessage(),
                 Component.For<IEventSomethingOrOther, SqlServerEventSomethingOrOther>().ImplementedBy<SqlServerEventSomethingOrOther>().LifeStyle.PerNserviceBusMessage(),
-                Component.For<IDocumentDbSession, IUnitOfWorkParticipant>().UsingFactoryMethod(() => container.Resolve<IDocumentDb>().OpenSession(new SingleThreadUseGuard())).LifeStyle.PerNserviceBusMessage()
+                Component.For<IDocumentDbSession, IUnitOfWorkParticipant>().UsingFactoryMethod(() => container.Resolve<IDocumentDb>().OpenSession(new SingleThreadUseGuard())).LifeStyle.PerNserviceBusMessage(),
+                Component.For<ISingleContextUseGuard>()
                 );
         }
 

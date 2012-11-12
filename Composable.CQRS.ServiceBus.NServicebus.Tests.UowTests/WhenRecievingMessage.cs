@@ -9,6 +9,7 @@ using Composable.CQRS.ServiceBus.NServiceBus.EndpointConfiguration;
 using Composable.CQRS.Testing;
 using Composable.ServiceBus;
 using Composable.System;
+using Composable.SystemExtensions.Threading;
 using Composable.UnitsOfWork;
 using NServiceBus;
 using NUnit.Framework;
@@ -157,6 +158,7 @@ namespace Composable.CQRS.ServiceBus.NServicebus.Tests.UowTests
         {
             Container = container;
             container.Register(Component.For<IServiceBus>().ImplementedBy<NServiceBusServiceBus>(),
+                Component.For<ISingleContextUseGuard>().ImplementedBy<SingleThreadUseGuard>().LifeStyle.Transient,
                 Component.For<IUnitOfWorkParticipant, MyUOWParticipant>().ImplementedBy<MyUOWParticipant>().LifeStyle.PerNserviceBusMessage());
         }
 

@@ -1,12 +1,12 @@
 <ProjectConfiguration>
-  <CopyReferencedAssembliesToWorkspace>false</CopyReferencedAssembliesToWorkspace>
+  <CopyReferencedAssembliesToWorkspace>true</CopyReferencedAssembliesToWorkspace>
   <ConsiderInconclusiveTestsAsPassing>false</ConsiderInconclusiveTestsAsPassing>
   <PreloadReferencedAssemblies>false</PreloadReferencedAssemblies>
   <AllowDynamicCodeContractChecking>true</AllowDynamicCodeContractChecking>
   <AllowStaticCodeContractChecking>false</AllowStaticCodeContractChecking>
   <IgnoreThisComponentCompletely>false</IgnoreThisComponentCompletely>
-  <RunPreBuildEvents>false</RunPreBuildEvents>
-  <RunPostBuildEvents>false</RunPostBuildEvents>
+  <RunPreBuildEvents>true</RunPreBuildEvents>
+  <RunPostBuildEvents>true</RunPostBuildEvents>
   <PreviouslyBuiltSuccessfully>true</PreviouslyBuiltSuccessfully>
   <InstrumentAssembly>true</InstrumentAssembly>
   <PreventSigningOfAssembly>false</PreventSigningOfAssembly>
@@ -14,11 +14,8 @@
   <IncludeStaticReferencesInWorkspace>true</IncludeStaticReferencesInWorkspace>
   <DefaultTestTimeout>60000</DefaultTestTimeout>
   <UseBuildConfiguration></UseBuildConfiguration>
+  <UseBuildPlatform></UseBuildPlatform>
   <ProxyProcessPath></ProxyProcessPath>
   <UseCPUArchitecture>AutoDetect</UseCPUArchitecture>
-  <IgnoredTests>
-    <NamedTestSelector>
-      <TestName>Composable.CQRS.ServiceBus.NServiceBus.ErrorMessagesTests.WhenReceivingMessage.ExceptionPassedToStackTraceFormatterContainsOriginalException</TestName>
-    </NamedTestSelector>
-  </IgnoredTests>
+  <HiddenWarnings>CopyReferencedAssembliesToWorkspaceIsOn</HiddenWarnings>
 </ProjectConfiguration>

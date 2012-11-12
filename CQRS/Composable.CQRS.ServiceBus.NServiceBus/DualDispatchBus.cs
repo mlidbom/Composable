@@ -30,5 +30,11 @@ namespace Composable.CQRS.ServiceBus.NServiceBus
             _local.Send(message);
             _realBus.Send(message);
         }
+
+        public void Reply(object message)
+        {
+            _local.Reply(message);
+            _realBus.Reply(message);
+        }
     }
 }

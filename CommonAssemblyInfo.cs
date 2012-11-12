@@ -1,4 +1,4 @@
-#region usings
+﻿#region usings
 
 using System.Reflection;
 using System.Runtime.CompilerServices;

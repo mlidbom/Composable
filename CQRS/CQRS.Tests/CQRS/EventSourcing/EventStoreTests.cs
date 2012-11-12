@@ -275,6 +275,7 @@ namespace CQRS.Tests.CQRS.EventSourcing
             public void Publish(object message) { Published.Add((IAggregateRootEvent)message); }
             public void SendLocal(object message) { throw new NotSupportedException(); }
             public void Send(object message) { throw new NotSupportedException(); }
+            public void Reply(object message){throw new NotImplementedException();}
         }
 
         private class MockEventSomethingOrOther : IEventSomethingOrOther {

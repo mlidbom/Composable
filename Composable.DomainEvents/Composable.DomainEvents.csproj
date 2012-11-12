@@ -58,6 +58,7 @@
     <Compile Include="CQRS\EventSourcing\IAggregateRootEvent.cs" />
     <Compile Include="DomainEvents\IDomainEvent.cs" />
     <Compile Include="DomainEvents\IHandles.cs" />
+    <Compile Include="DomainEvents\JsonDomainEvent.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="CQRS\EventSourcing\ValueObject.cs" />
   </ItemGroup>

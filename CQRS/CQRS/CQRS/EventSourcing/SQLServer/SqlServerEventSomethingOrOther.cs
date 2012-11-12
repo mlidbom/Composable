@@ -69,12 +69,7 @@ namespace Composable.CQRS.EventSourcing.SQLServer
         private readonly SqlServerEventStore _store;
         private readonly ISingleContextUseGuard _threadingGuard;
 
-        private readonly JsonSerializerSettings JsonSettings = new JsonSerializerSettings
-                                                                   {
-                                                                       TypeNameHandling = TypeNameHandling.Auto,
-                                                                       ConstructorHandling = ConstructorHandling.AllowNonPublicDefaultConstructor,
-                                                                       ContractResolver = new IncludeMembersWithPrivateSettersResolver()
-                                                                   };        
+        public readonly JsonSerializerSettings JsonSettings = NewtonSoft.JsonSettings.JsonSerializerSettings;
 
         public SqlServerEventSomethingOrOther(SqlServerEventStore store, ISingleContextUseGuard threadingGuard)
         {

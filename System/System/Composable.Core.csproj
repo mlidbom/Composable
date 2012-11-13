@@ -133,6 +133,7 @@
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
     </Reference>
     <Reference Include="System.Transactions" />
+    <Reference Include="System.Web" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="..\..\CommonAssemblyInfo.cs">
@@ -145,8 +146,9 @@
     <Compile Include="DDD\VersionedPersistentEntity.cs" />
     <Compile Include="JetBrainsCodeAnnotations.cs" />
     <Compile Include="SystemExtensions\ExceptionExtensions.cs" />
+    <Compile Include="SystemExtensions\Threading\ISingleContextUseGuard.cs" />
     <Compile Include="SystemExtensions\Threading\MultiThreadedUseException.cs" />
-    <Compile Include="SystemExtensions\Threading\SingleThreadedUseGuard.cs" />
+    <Compile Include="SystemExtensions\Threading\SingleThreadUseGuard.cs" />
     <Compile Include="System\Collections\Collections\CollectionExtensions.cs" />
     <Compile Include="System\Collections\Collections\DictionaryExtensions.cs" />
     <Compile Include="System\ComponentModel\DataAnnotations\IValidatableObjectExtensions.cs" />
@@ -187,6 +189,11 @@
     <Compile Include="GenericAbstractions\Wrappers\WrapperExtensions.cs" />
     <Compile Include="System\Transactions\TransactionScopeExtensions.cs" />
     <Compile Include="System\Transactions\TransactionExtensions.cs" />
+    <Compile Include="System\Web\HttpRequestExtensions.cs" />
+    <Compile Include="System\Web\HttpRequestIdFetcher.cs" />
+    <Compile Include="System\Web\IHttpRequestIdFetcher.cs" />
+    <Compile Include="System\Web\MultiRequestAccessDetected.cs" />
+    <Compile Include="System\Web\SingleHttpRequestUseGuard.cs" />
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include="Microsoft.Net.Client.3.5">

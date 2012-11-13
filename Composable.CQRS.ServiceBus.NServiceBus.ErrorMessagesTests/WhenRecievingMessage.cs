@@ -10,6 +10,7 @@ using Composable.CQRS.ServiceBus.NServiceBus.EndpointConfiguration;
 using Composable.CQRS.Testing;
 using Composable.ServiceBus;
 using Composable.System;
+using Composable.SystemExtensions.Threading;
 using Composable.UnitsOfWork;
 using NServiceBus;
 using NServiceBus.Faults;
@@ -102,8 +103,9 @@ namespace Composable.CQRS.ServiceBus.NServiceBus.ErrorMessagesTests
         protected override void ConfigureContainer(IWindsorContainer container)
         {
             Container = container;
-            container.Register(Component.For<IServiceBus>().ImplementedBy<NServiceBusServiceBus>()
-                    ,Component.For<IProvideFailureHeaders>().Instance(Extractor)
+            container.Register(Component.For<IServiceBus>().ImplementedBy<NServiceBusServiceBus>(),
+                    Component.For<ISingleContextUseGuard>().ImplementedBy<SingleThreadUseGuard>().LifeStyle.Transient,
+                    Component.For<IProvideFailureHeaders>().Instance(Extractor)
                 );
         }
 

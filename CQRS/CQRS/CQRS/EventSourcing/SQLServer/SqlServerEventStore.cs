@@ -4,6 +4,7 @@ using System;
 using System.Transactions;
 using Composable.ServiceBus;
 using Composable.System.Linq;
+using Composable.SystemExtensions.Threading;
 using log4net.Core;
 
 #endregion
@@ -32,13 +33,15 @@ namespace Composable.CQRS.EventSourcing.SQLServer
 
         public IEventStoreSession OpenSession()
         {
-            return new EventStoreSession(Bus, new SqlServerEventSomethingOrOther(this));
+            var singleThreadedUseGuard = new SingleThreadUseGuard();
+            return new EventStoreSession(Bus, new SqlServerEventSomethingOrOther(this, singleThreadedUseGuard), singleThreadedUseGuard);
         }
 
         public static void ResetDB(string connectionString)
         {
             var me = new SqlServerEventStore(connectionString, null);
-            using(var session = new SqlServerEventSomethingOrOther(me))
+            var singleThreadedUseGuard = new SingleThreadUseGuard();
+            using(var session = new SqlServerEventSomethingOrOther(me, singleThreadedUseGuard))
             {
                 session.ResetDB();
             }

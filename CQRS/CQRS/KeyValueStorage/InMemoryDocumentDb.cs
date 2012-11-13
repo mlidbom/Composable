@@ -1,5 +1,6 @@
 ﻿using Composable.KeyValueStorage.SqlServer;
 using Composable.System.Linq;
+using Composable.SystemExtensions.Threading;
 
 namespace Composable.KeyValueStorage
 {
@@ -25,9 +26,9 @@ namespace Composable.KeyValueStorage
             }
         }
 
-        public IDocumentDbSession OpenSession()
+        public IDocumentDbSession OpenSession(ISingleContextUseGuard guard)
         {
-            return new DocumentDbSession(this, this.Config);
+            return new DocumentDbSession(this, guard, this.Config);
         }
     }
 }

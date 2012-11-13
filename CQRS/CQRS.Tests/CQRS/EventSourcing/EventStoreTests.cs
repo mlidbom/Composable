@@ -296,8 +296,9 @@ namespace CQRS.Tests.CQRS.EventSourcing
 
             var users = 1.Through(9).Select(i => { var u = new User(); u.Register(i + "@test.com", "abcd", Guid.NewGuid()); u.ChangeEmail("new" + i + "@test.com"); return u; }).ToList();
 
-            using (var session = new EventStoreSession(bus, store)) {
-                var uow = new UnitOfWork();
+            using (var session = new EventStoreSession(bus, store, new SingleThreadUseGuard()))
+            {
+                var uow = new UnitOfWork(new SingleThreadUseGuard());
                 uow.AddParticipant(session);
 
                 users.Take(3).ForEach(u => session.Save(u));
@@ -328,7 +329,7 @@ namespace CQRS.Tests.CQRS.EventSourcing
             var bus = new MockServiceBus();
             var store = new MockEventSomethingOrOther();
 
-            using (var session = new EventStoreSession(bus, store))
+            using (var session = new EventStoreSession(bus, store, new SingleThreadUseGuard()))
             {
                 var aggregate1 = new Guid("92EC4FE2-26A8-4274-8674-DC5D95513C83");
                 var aggregate2 = new Guid("F08200E4-8790-4ECC-9F06-A3D3BAC9E21C");
@@ -349,9 +350,9 @@ namespace CQRS.Tests.CQRS.EventSourcing
             var bus = new MockServiceBus();
             var store = new MockEventSomethingOrOther();
 
-            using (var session = new EventStoreSession(bus, store))
+            using (var session = new EventStoreSession(bus, store, new SingleThreadUseGuard()))
             {
-                var uow = new UnitOfWork();
+                var uow = new UnitOfWork(new SingleThreadUseGuard());
                 uow.AddParticipant(session);
 
                 var aggregate1 = new Guid("92EC4FE2-26A8-4274-8674-DC5D95513C83");

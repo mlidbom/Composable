@@ -2,6 +2,7 @@
 using System.Transactions;
 using Castle.MicroKernel.Lifestyle;
 using Castle.Windsor;
+using Composable.SystemExtensions.Threading;
 using Composable.UnitsOfWork;
 using NServiceBus.UnitOfWork;
 using Remotion.Linq.Parsing.Structure.IntermediateModel;
@@ -32,7 +33,7 @@ namespace Composable.CQRS.ServiceBus.NServiceBus
                 }
 
                 AssertAmbientTransactionPresent();
-                _unit = new UnitOfWork();
+                _unit = new UnitOfWork(_container.Resolve<ISingleContextUseGuard>());
                 _unit.AddParticipants(_container.ResolveAll<IUnitOfWorkParticipant>());
             }
             catch (Exception e)

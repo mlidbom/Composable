@@ -25,19 +25,19 @@ namespace Composable.CQRS.EventSourcing
         private static ILog Log = LogManager.GetLogger(typeof(EventStoreSession));
         private readonly IDictionary<Guid, IEventStored> _idMap = new Dictionary<Guid, IEventStored>();
         private readonly HashSet<Guid> _publishedEvents = new HashSet<Guid>();
-        private readonly SingleThreadedUseGuard _threadGuard;
+        private readonly ISingleContextUseGuard _threadGuard;
         private readonly List<Guid> _pendingDeletes = new List<Guid>();
 
-        public EventStoreSession(IServiceBus bus, IEventSomethingOrOther storage)
+        public EventStoreSession(IServiceBus bus, IEventSomethingOrOther storage, ISingleContextUseGuard threadingGuard)
         {
-            _threadGuard = new SingleThreadedUseGuard(this);
+            _threadGuard = threadingGuard;
             _bus = bus;
             _storage = storage;
         }
 
         public TAggregate Get<TAggregate>(Guid aggregateId) where TAggregate : IEventStored
         {
-            _threadGuard.AssertNoThreadChangeOccurred();
+            _threadGuard.AssertNoThreadChangeOccurred(this);
             TAggregate result;
             if (!DoTryGet(aggregateId, out result))
                 ThrowAggregateMissingException(aggregateId);
@@ -46,13 +46,13 @@ namespace Composable.CQRS.EventSourcing
 
         public bool TryGet<TAggregate>(Guid aggregateId, out TAggregate aggregate) where TAggregate : IEventStored
         {
-            _threadGuard.AssertNoThreadChangeOccurred();
+            _threadGuard.AssertNoThreadChangeOccurred(this);
             return DoTryGet(aggregateId, out aggregate);
         }
 
         public TAggregate LoadSpecificVersion<TAggregate>(Guid aggregateId, int version) where TAggregate : IEventStored
         {
-            _threadGuard.AssertNoThreadChangeOccurred();
+            _threadGuard.AssertNoThreadChangeOccurred(this);
             var aggregate = Activator.CreateInstance<TAggregate>();
             var history = GetHistory(aggregateId);
             if (history.None())
@@ -63,7 +63,7 @@ namespace Composable.CQRS.EventSourcing
 
         public void Save<TAggregate>(TAggregate aggregate) where TAggregate : IEventStored
         {
-            _threadGuard.AssertNoThreadChangeOccurred();
+            _threadGuard.AssertNoThreadChangeOccurred(this);
             var changes = aggregate.GetChanges().ToList();
             if(aggregate.Version > 0 && changes.None() || changes.Any() && changes.Min(e => e.AggregateRootVersion) > 1)
             {
@@ -78,7 +78,7 @@ namespace Composable.CQRS.EventSourcing
 
         public void SaveChanges()
         {
-            _threadGuard.AssertNoThreadChangeOccurred();
+            _threadGuard.AssertNoThreadChangeOccurred(this);
             if(_unitOfWork == null)
             {                
                 InternalSaveChanges();
@@ -92,13 +92,13 @@ namespace Composable.CQRS.EventSourcing
 
         public void Delete(Guid aggregateId)
         {
-            _threadGuard.AssertNoThreadChangeOccurred();
+            _threadGuard.AssertNoThreadChangeOccurred(this);
             _pendingDeletes.Add(aggregateId);
         }
 
         public void Dispose()
         {
-            _threadGuard.AssertNoThreadChangeOccurred();
+            _threadGuard.AssertNoThreadChangeOccurred(this);
             _storage.Dispose();
         }
 
@@ -119,7 +119,7 @@ namespace Composable.CQRS.EventSourcing
 
         void IUnitOfWorkParticipant.Join(IUnitOfWork unit)
         {
-            _threadGuard.AssertNoThreadChangeOccurred();
+            _threadGuard.AssertNoThreadChangeOccurred(this);
             if (_unitOfWork != null)
             {
                 throw new ReuseOfEventStoreSessionException(_unitOfWork, unit);
@@ -129,18 +129,18 @@ namespace Composable.CQRS.EventSourcing
 
         void IUnitOfWorkParticipant.Commit(IUnitOfWork unit)
         {
-            _threadGuard.AssertNoThreadChangeOccurred();
+            _threadGuard.AssertNoThreadChangeOccurred(this);
             ((IUnitOfWorkParticipantWhoseCommitMayTriggerChangesInOtherParticipantsMustImplementIdemponentCommit)this).CommitAndReportIfCommitMayHaveCausedChangesInOtherParticipantsExpectAnotherCommitSoDoNotLeaveUnitOfWork();
         }
 
         void IUnitOfWorkParticipant.Rollback(IUnitOfWork unit)
         {
-            _threadGuard.AssertNoThreadChangeOccurred();
+            _threadGuard.AssertNoThreadChangeOccurred(this);
         }
 
         bool IUnitOfWorkParticipantWhoseCommitMayTriggerChangesInOtherParticipantsMustImplementIdemponentCommit.CommitAndReportIfCommitMayHaveCausedChangesInOtherParticipantsExpectAnotherCommitSoDoNotLeaveUnitOfWork()
         {
-            _threadGuard.AssertNoThreadChangeOccurred();
+            _threadGuard.AssertNoThreadChangeOccurred(this);
             return InternalSaveChanges();
         }
 

@@ -2,13 +2,13 @@
 <package>
    <metadata>
       <id>$id$</id>
-      <version>$ComposableVersion$</version>
+      <version>$version$</version>
       <authors>Magnus Lidbom</authors>
       <description>Composable.CQRS is a minimalistic framework for working according to the CQRS design principle.</description>
       <language>en-US</language>
       <dependencies>
-         <dependency id="Composable.Core" version="$ComposableVersion$" />
-         <dependency id="Composable.DomainEvents" version="$ComposableVersion$" />
+         <dependency id="Composable.Core" version="$CoreVersion$" />
+         <dependency id="Composable.DomainEvents" version="$DomainEventsVersion$" />
       </dependencies>
    </metadata>
 </package>

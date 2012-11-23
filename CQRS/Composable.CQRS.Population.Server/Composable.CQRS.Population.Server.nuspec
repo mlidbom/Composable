@@ -2,12 +2,12 @@
 <package>
   <metadata>
      <id>$id$</id>
-     <version>$ComposableVersion$</version>
+     <version>$version$</version>
     <authors>Magnus Lidbom</authors>
     <description>Todo.</description>
     <language>en-US</language>
      <dependencies>
-        <dependency id="Composable.CQRS.Population.Client" version="$ComposableVersion$" />        
+        <dependency id="Composable.CQRS.Population.Client" version="$CQRSPopulationClientVersion$" />        
      </dependencies>
   </metadata>
 </package>

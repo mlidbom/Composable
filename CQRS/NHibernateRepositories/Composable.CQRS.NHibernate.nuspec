@@ -2,12 +2,12 @@
 <package>
   <metadata>
      <id>$id$</id>
-     <version>$ComposableVersion$</version>
+     <version>$version$</version>
     <authors>Magnus Lidbom</authors>
     <description>Composable.NHibernateRepositories provide simple wrapper interfaces and classes around NHibernate to simplify usage and testing.</description>
     <language>en-US</language>
      <dependencies>
-        <dependency id="Composable.CQRS" version="$ComposableVersion$" />
+        <dependency id="Composable.CQRS" version="$CQRSVersion$" />
      </dependencies>
   </metadata>
 </package>

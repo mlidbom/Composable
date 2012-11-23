@@ -66,8 +66,6 @@ namespace Composable.CQRS.ServiceBus.NServiceBus.EndpointConfiguration
 
         public void Init()
         {
-            WindsorLifestyleRegistrationExtensions.InitAsRealProject();
-
             XmlConfigurator.Configure();
             _container = new WindsorContainer();
 

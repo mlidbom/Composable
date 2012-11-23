@@ -104,7 +104,6 @@ namespace Composable.CQRS.ServiceBus.NServiceBus.ErrorMessagesTests
         {
             Container = container;
             container.Register(Component.For<IServiceBus>().ImplementedBy<NServiceBusServiceBus>(),
-                    Component.For<ISingleContextUseGuard>().ImplementedBy<SingleThreadUseGuard>().LifeStyle.Transient,
                     Component.For<IProvideFailureHeaders>().Instance(Extractor)
                 );
         }

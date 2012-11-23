@@ -2,13 +2,13 @@
 <package>
   <metadata>
      <id>$id$</id>
-     <version>$ComposableVersion$</version>
+     <version>$version$</version>
     <authors>Magnus Lidbom</authors>
     <description>Todo.</description>
     <language>en-US</language>
      <dependencies>
-        <dependency id="Composable.CQRS" version="$ComposableVersion$" />
-        <dependency id="Composable.CQRS.Windsor" version="$ComposableVersion$" />
+        <dependency id="Composable.CQRS" version="$CQRSVersion$" />
+        <dependency id="Composable.CQRS.Windsor" version="$CQRSVersion$" />
      </dependencies>
   </metadata>
 </package>

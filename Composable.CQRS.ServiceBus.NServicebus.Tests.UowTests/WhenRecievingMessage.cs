@@ -50,6 +50,13 @@ namespace Composable.CQRS.ServiceBus.NServicebus.Tests.UowTests
             _bus.SendLocal(new InvokeUOWCommandMessage());
 
             Assert.That(messageHandled.WaitOne(30.Seconds()), Is.True, "Timed out waiting for message");
+
+            for(int i = 0; i < 100 && status != TransactionStatus.Committed; i++)
+            {
+                Console.Write("Awaiting completion");
+                Thread.Sleep(10.Milliseconds());
+            }
+
             Assert.That(status, Is.EqualTo(TransactionStatus.Committed), "Message handling did not complete successfully");
         }
 
@@ -158,7 +165,6 @@ namespace Composable.CQRS.ServiceBus.NServicebus.Tests.UowTests
         {
             Container = container;
             container.Register(Component.For<IServiceBus>().ImplementedBy<NServiceBusServiceBus>(),
-                Component.For<ISingleContextUseGuard>().ImplementedBy<SingleThreadUseGuard>().LifeStyle.Transient,
                 Component.For<IUnitOfWorkParticipant, MyUOWParticipant>().ImplementedBy<MyUOWParticipant>().LifeStyle.PerNserviceBusMessage());
         }
 

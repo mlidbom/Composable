@@ -6,6 +6,7 @@ using Castle.MicroKernel.Registration;
 using Castle.MicroKernel.Releasers;
 using Castle.Windsor;
 using Composable.CQRS.Windsor;
+using Composable.SystemExtensions.Threading;
 using NServiceBus;
 using NServiceBus.Faults;
 using NServiceBus.Unicast.Config;
@@ -78,7 +79,8 @@ namespace Composable.CQRS.ServiceBus.NServiceBus.EndpointConfiguration
             _container.Register(
                 Component.For<IWindsorContainer, WindsorContainer>().Instance(_container),
                 Component.For<IManageUnitsOfWork>().ImplementedBy<ComposableCqrsUnitOfWorkManager>().LifeStyle.PerNserviceBusMessage(),
-                Component.For<IProvideFailureHeaders>().ImplementedBy<ComposableFailureHeadersProvider>()
+                Component.For<IProvideFailureHeaders>().ImplementedBy<ComposableFailureHeadersProvider>().LifeStyle.Singleton,
+                Component.For<ISingleContextUseGuard>().ImplementedBy<SingleThreadUseGuard>().LifeStyle.PerNserviceBusMessage()
                 );
 
             //Forget this and you leak memory like CRAZY!

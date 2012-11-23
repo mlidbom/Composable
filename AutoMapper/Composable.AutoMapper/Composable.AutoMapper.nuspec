@@ -2,7 +2,7 @@
 <package>
   <metadata>
      <id>$id$</id>
-     <version>$ComposableVersion$</version>
+     <version>$version$</version>
      <authors>Magnus Lidbom</authors>
      <description>Todo.</description>
     <language>en-US</language>

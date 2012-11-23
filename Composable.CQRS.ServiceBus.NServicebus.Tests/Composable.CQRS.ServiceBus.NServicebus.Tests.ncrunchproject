@@ -17,10 +17,5 @@
   <UseBuildPlatform></UseBuildPlatform>
   <ProxyProcessPath></ProxyProcessPath>
   <UseCPUArchitecture>AutoDetect</UseCPUArchitecture>
-  <IgnoredTests>
-    <NamedTestSelector>
-      <TestName>Composable.CQRS.ServiceBus.NServicebus.Tests.UowTests.ComposableFailureHeadersProviderTests.FormatsNestedExceptionAsIntended</TestName>
-    </NamedTestSelector>
-  </IgnoredTests>
-  <HiddenWarnings>CopyReferencedAssembliesToWorkspaceIsOn</HiddenWarnings>
+  <HiddenWarnings>CopyReferencedAssembliesToWorkspaceIsOn;LongTestTimesWithoutParallelExecution</HiddenWarnings>
 </ProjectConfiguration>

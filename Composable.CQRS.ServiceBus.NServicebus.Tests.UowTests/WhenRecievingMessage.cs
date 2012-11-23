@@ -158,7 +158,6 @@ namespace Composable.CQRS.ServiceBus.NServicebus.Tests.UowTests
         {
             Container = container;
             container.Register(Component.For<IServiceBus>().ImplementedBy<NServiceBusServiceBus>(),
-                Component.For<ISingleContextUseGuard>().ImplementedBy<SingleThreadUseGuard>().LifeStyle.Transient,
                 Component.For<IUnitOfWorkParticipant, MyUOWParticipant>().ImplementedBy<MyUOWParticipant>().LifeStyle.PerNserviceBusMessage());
         }
 

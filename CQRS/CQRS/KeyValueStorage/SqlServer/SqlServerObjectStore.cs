@@ -199,7 +199,7 @@ INSERT INTO Store(Id, ValueTypeId, Value) VALUES(@Id, @ValueTypeId, @Value)";
 SELECT Store.Id, Value, ValueType 
 FROM Store INNER JOIN
 ValueType ON Store.ValueTypeId = ValueType.Id
-WHERE ValueType ";
+WHERE ValueTypeId ";
 
                     AddTypeCriteria(loadCommand, typeof(T));
 

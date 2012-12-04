@@ -31,7 +31,7 @@ namespace Composable.KeyValueStorage.SqlServer
         private readonly Dictionary<Type, Dictionary<string, string>> _persistentValues = new Dictionary<Type, Dictionary<string, string>>();
         private const int UniqueConstraintViolationErrorNumber = 2627;
 
-        private static readonly ISet<Type> KnownTypes = new HashSet<Type>();
+        private Dictionary<Type, int> _knownTypes;
 
         private static readonly object LockObject = new object();
 
@@ -43,10 +43,41 @@ namespace Composable.KeyValueStorage.SqlServer
             EnsureInitialized(_store.ConnectionString);
         }
 
+        public Dictionary<Type, int> KnownTypes
+        {
+            get
+            {
+                if(_knownTypes == null)
+                {
+                    _knownTypes = new Dictionary<Type, int>();
+                    using(var connection = OpenSession())
+                    {
+                        using(var findTypesCommand = connection.CreateCommand())
+                        {
+                            findTypesCommand.CommandText = "SELECT DISTINCT ValueType, Id FROM ValueType";
+                            using(var reader = findTypesCommand.ExecuteReader())
+                            {
+                                while(reader.Read())
+                                {
+                                    KnownTypes.Add(reader.GetString(0).AsType(), reader.GetInt32(1));
+                                }
+                            }
+                        }
+                    }
+                }
+                return _knownTypes;
+            }
+        }
+
 
         public bool TryGet<TValue>(object key, out TValue value)
         {
-            EnsureTypeRegistered(typeof(TValue));
+            if(!KnownTypes.ContainsKey(typeof(TValue)))
+            {
+                value = default(TValue);
+                return false;
+            }
+
             value = default(TValue);
 
             object found;
@@ -90,23 +121,10 @@ WHERE Store.Id=@Id AND ValueTypeId
                 {
                     command.CommandType = CommandType.Text;
 
-                    command.CommandText += @"
-DECLARE @ValueTypeId int
-
-IF NOT EXISTS(SELECT Id FROM ValueType WHERE ValueType = @ValueType)
-	BEGIN
-		INSERT INTO ValueType(ValueType)Values(@ValueType)
-		SET @ValueTypeId = @@IDENTITY
-	END
-ELSE
-	BEGIN
-		SELECT @ValueTypeId = Id FROM ValueType WHERE ValueType = @ValueType
-	END
-	
-INSERT INTO Store(Id, ValueTypeId, Value) VALUES(@Id, @ValueTypeId, @Value)";
+                    command.CommandText += @"INSERT INTO Store(Id, ValueTypeId, Value) VALUES(@Id, @ValueTypeId, @Value)";
 
                     command.Parameters.Add(new SqlParameter("Id", id.ToString()));
-                    command.Parameters.Add(new SqlParameter("ValueType", value.GetType().FullName));
+                    command.Parameters.Add(new SqlParameter("ValueTypeId", KnownTypes[value.GetType()]));
 
                     var stringValue = JsonConvert.SerializeObject(value, _config.JSonFormatting, _jsonSettings);
                     command.Parameters.Add(new SqlParameter("Value", stringValue));
@@ -186,7 +204,7 @@ INSERT INTO Store(Id, ValueTypeId, Value) VALUES(@Id, @ValueTypeId, @Value)";
 
         IEnumerable<KeyValuePair<Guid, T>> IObjectStore.GetAll<T>()
         {
-            if (KnownTypes.None(t => typeof(T).IsAssignableFrom(t)))
+            if (KnownTypes.None(t => typeof(T).IsAssignableFrom(t.Key)))
             {
                 yield break;
             }
@@ -241,9 +259,31 @@ WHERE ValueTypeId ";
         {
             lock (LockObject)
             {
-                if (!KnownTypes.Contains(type))
+                if (!KnownTypes.ContainsKey(type))
                 {
-                    KnownTypes.Add(type);
+                    using (var connection = OpenSession())
+                    {
+                        using (var command = connection.CreateCommand())
+                        {
+                            command.CommandText = @"
+
+IF NOT EXISTS(SELECT Id FROM ValueType WHERE ValueType = @ValueType)
+	BEGIN
+		INSERT INTO ValueType(ValueType)Values(@ValueType)
+		SET @ValueTypeId = @@IDENTITY
+	END
+ELSE
+	BEGIN
+		SELECT @ValueTypeId = Id FROM ValueType WHERE ValueType = @ValueType
+	END
+";
+                            command.Parameters.Add(new SqlParameter("ValueTypeId", SqlDbType.Int) { Direction = ParameterDirection.Output });
+                            command.Parameters.Add(new SqlParameter("ValueType", type.FullName));
+                            command.ExecuteNonQuery();
+                            KnownTypes.Add(type, (int)command.Parameters["ValueTypeId"].Value);
+                        }
+                    }
+
                 }
             }
         }
@@ -252,7 +292,7 @@ WHERE ValueTypeId ";
         {
             lock (LockObject)
             {
-                var acceptableTypeNames = KnownTypes.Where(type.IsAssignableFrom).Select(t => t.FullName).ToArray();
+                var acceptableTypeNames = KnownTypes.Where(x => type.IsAssignableFrom(x.Key)).Select(t => t.Key.FullName).ToArray();
                 if (acceptableTypeNames.None())
                 {
                     throw new Exception("Type: {0} is not among the known types".FormatWith(type.FullName));
@@ -297,9 +337,9 @@ CREATE TABLE [dbo].[ValueType](
                                     var exists = (int)checkForStoreCommand.ExecuteScalar();
                                     if (exists > 0)
                                     {
-                                        using(var alterStoreCommand = connection.CreateCommand())
+                                        using (var alterStoreCommand = connection.CreateCommand())
                                         {
-                                            alterStoreCommand.CommandTimeout = 60*30; //30 Minutes ;-)
+                                            alterStoreCommand.CommandTimeout = 60 * 30; //30 Minutes ;-)
                                             alterStoreCommand.CommandText = @"
 --Create Keys
 INSERT INTO ValueType(ValueType) 
@@ -307,6 +347,10 @@ SELECT DISTINCT ValueType FROM Store;
 --Add column
 ALTER TABLE Store
 ADD ValueTypeId int;
+";
+                                            alterStoreCommand.ExecuteNonQuery();
+                                            alterStoreCommand.CommandText = @"
+
 --Insert Keys
 UPDATE Store
 SET ValueTypeId = (SELECT Id FROM ValueType WHERE ValueType = Store.ValueType)
@@ -373,17 +417,6 @@ ALTER TABLE [dbo].[Store] CHECK CONSTRAINT [FK_ValueType_Store]
                                 }
                             }
                             VerifiedTables.Add(connectionString);
-                        }
-                        using (var findTypesCommand = connection.CreateCommand())
-                        {
-                            findTypesCommand.CommandText = "SELECT DISTINCT ValueType FROM ValueType";
-                            using (var reader = findTypesCommand.ExecuteReader())
-                            {
-                                while (reader.Read())
-                                {
-                                    KnownTypes.Add(reader.GetString(0).AsType());
-                                }
-                            }
                         }
                     }
                 }

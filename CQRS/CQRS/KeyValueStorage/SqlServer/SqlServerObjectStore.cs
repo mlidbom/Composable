@@ -89,7 +89,7 @@ namespace Composable.KeyValueStorage.SqlServer
                     command.CommandText = @"
 SELECT Value, ValueType FROM Store {0} INNER JOIN
 ValueType ON Store.ValueTypeId = ValueType.Id
-WHERE Store.Id=@Id AND ValueTypeId 
+WHERE Store.Id=@Id AND ValueType.Id
 ".FormatWith(lockHint);
                     command.Parameters.Add(new SqlParameter("Id", key.ToString()));
 
@@ -217,7 +217,7 @@ WHERE Store.Id=@Id AND ValueTypeId
 SELECT Store.Id, Value, ValueType 
 FROM Store INNER JOIN
 ValueType ON Store.ValueTypeId = ValueType.Id
-WHERE ValueTypeId ";
+WHERE ValueType.Id ";
 
                     AddTypeCriteria(loadCommand, typeof(T));
 
@@ -292,13 +292,12 @@ ELSE
         {
             lock (LockObject)
             {
-                var acceptableTypeNames = KnownTypes.Where(x => type.IsAssignableFrom(x.Key)).Select(t => t.Key.FullName).ToArray();
-                if (acceptableTypeNames.None())
+                var acceptableTypeIds = KnownTypes.Where(x => type.IsAssignableFrom(x.Key)).Select(t => t.Value.ToString()).ToArray();
+                if (acceptableTypeIds.None())
                 {
                     throw new Exception("Type: {0} is not among the known types".FormatWith(type.FullName));
                 }
-
-                command.CommandText += "IN(Select Id from ValueType where ValueType IN( '" + acceptableTypeNames.Join("','") + "'))\n";
+                command.CommandText += "IN( " + acceptableTypeIds.Join(",") + ")\n";
             }
         }
 

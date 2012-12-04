@@ -192,7 +192,12 @@ namespace CQRS.Tests.KeyValueStorage
             var store = CreateStore();
             using(var session = store.OpenSession(new SingleThreadUseGuard()))
             {
-                Assert.Throws<NoSuchDocumentException>(() => session.Delete(new Dog()));
+                var lassie = new Dog() {Id = Guid.NewGuid()};
+                var buster = new Dog() {Id = Guid.NewGuid()};
+                session.Save(lassie);
+                session.SaveChanges();
+
+                Assert.Throws<NoSuchDocumentException>(() => session.Delete(buster));
             }
         }
 

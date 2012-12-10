@@ -283,7 +283,6 @@ ELSE
                             KnownTypes.Add(type, (int)command.Parameters["ValueTypeId"].Value);
                         }
                     }
-
                 }
             }
         }
@@ -329,59 +328,7 @@ CREATE TABLE [dbo].[ValueType](
 ";
                                     createValueTypeCommand.ExecuteNonQuery();
                                 }
-                                //Check if Store Exists without dbo.ValueType then we need to modify the Store table
-                                using (var checkForStoreCommand = connection.CreateCommand())
-                                {
-                                    checkForStoreCommand.CommandText = "select count(*) from sys.tables where name = 'Store'";
-                                    var exists = (int)checkForStoreCommand.ExecuteScalar();
-                                    if (exists > 0)
-                                    {
-                                        using (var alterStoreCommand = connection.CreateCommand())
-                                        {
-                                            alterStoreCommand.CommandTimeout = 60 * 30; //30 Minutes ;-)
-                                            alterStoreCommand.CommandText = @"
---Create Keys
-INSERT INTO ValueType(ValueType) 
-SELECT DISTINCT ValueType FROM Store;
---Add column
-ALTER TABLE Store
-ADD ValueTypeId int;
-";
-                                            alterStoreCommand.ExecuteNonQuery();
-                                            alterStoreCommand.CommandText = @"
-
---Insert Keys
-UPDATE Store
-SET ValueTypeId = (SELECT Id FROM ValueType WHERE ValueType = Store.ValueType)
---Add Constraints
-ALTER TABLE [dbo].[Store]
-ALTER COLUMN [ValueTypeId] INT NOT NULL
-
-ALTER TABLE [dbo].[Store]  WITH CHECK ADD  CONSTRAINT [FK_ValueType_Store] FOREIGN KEY([ValueTypeId])
-REFERENCES [dbo].[ValueType] ([Id])
-
-ALTER TABLE [dbo].[Store] CHECK CONSTRAINT [FK_ValueType_Store]
---Change PK
-ALTER TABLE [dbo].[Store]
-DROP CONSTRAINT PK_Store
-
-DROP INDEX IX_ValueType
-ON [dbo].[Store]
-
-ALTER TABLE [dbo].[Store] 
-ADD CONSTRAINT [PK_Store] PRIMARY KEY CLUSTERED 
-(
-	[Id] ASC,
-	[ValueTypeId] ASC)
-	WITH (PAD_INDEX  = OFF, STATISTICS_NORECOMPUTE  = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS  = ON, ALLOW_PAGE_LOCKS  = OFF) ON [PRIMARY]
---Drop column
-ALTER TABLE [dbo].[Store]
-DROP COLUMN ValueType
-";
-                                            alterStoreCommand.ExecuteNonQuery();
-                                        }
-                                    }
-                                }
+                                
                             }
                         }
                         using (var checkForStoreCommand = connection.CreateCommand())

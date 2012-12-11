@@ -47,35 +47,44 @@ namespace Composable.KeyValueStorage.SqlServer
         {
             get
             {
-                if(_knownTypes == null)
+                if (_knownTypes == null)
                 {
-                    _knownTypes = new Dictionary<Type, int>();
-                    using(var connection = OpenSession())
+                    InitializeExistingKnownTypes();
+                }
+                return _knownTypes;
+            }
+        }
+
+        private void InitializeExistingKnownTypes()
+        {
+            _knownTypes = new Dictionary<Type, int>();
+            using (var connection = OpenSession())
+            {
+                using (var findTypesCommand = connection.CreateCommand())
+                {
+                    findTypesCommand.CommandText = "SELECT DISTINCT ValueType, Id FROM ValueType";
+                    using (var reader = findTypesCommand.ExecuteReader())
                     {
-                        using(var findTypesCommand = connection.CreateCommand())
+                        while (reader.Read())
                         {
-                            findTypesCommand.CommandText = "SELECT DISTINCT ValueType, Id FROM ValueType";
-                            using(var reader = findTypesCommand.ExecuteReader())
-                            {
-                                while(reader.Read())
-                                {
-                                    KnownTypes.Add(reader.GetString(0).AsType(), reader.GetInt32(1));
-                                }
-                            }
+                            KnownTypes.Add(reader.GetString(0).AsType(), reader.GetInt32(1));
                         }
                     }
                 }
-                return _knownTypes;
             }
         }
 
 
         public bool TryGet<TValue>(object key, out TValue value)
         {
-            if(!KnownTypes.ContainsKey(typeof(TValue)))
+            if (!KnownTypes.ContainsKey(typeof(TValue)))
             {
-                value = default(TValue);
-                return false;
+                InitializeExistingKnownTypes();
+                if (!KnownTypes.ContainsKey(typeof(TValue)))
+                {
+                    value = default(TValue);
+                    return false;
+                }
             }
 
             value = default(TValue);
@@ -206,7 +215,11 @@ WHERE Store.Id=@Id AND ValueType.Id
         {
             if (KnownTypes.None(t => typeof(T).IsAssignableFrom(t.Key)))
             {
-                yield break;
+                InitializeExistingKnownTypes();
+                if (KnownTypes.None(t => typeof(T).IsAssignableFrom(t.Key)))
+                {
+                    yield break;
+                }
             }
 
             using (var connection = OpenSession())
@@ -328,7 +341,7 @@ CREATE TABLE [dbo].[ValueType](
 ";
                                     createValueTypeCommand.ExecuteNonQuery();
                                 }
-                                
+
                             }
                         }
                         using (var checkForStoreCommand = connection.CreateCommand())
@@ -363,6 +376,7 @@ ALTER TABLE [dbo].[Store] CHECK CONSTRAINT [FK_ValueType_Store]
                                 }
                             }
                             VerifiedTables.Add(connectionString);
+
                         }
                     }
                 }

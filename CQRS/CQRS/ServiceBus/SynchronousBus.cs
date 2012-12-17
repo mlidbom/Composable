@@ -18,10 +18,10 @@ namespace Composable.ServiceBus
 
         public virtual void Publish(object message)
         {
-            ((dynamic)this).Publish((dynamic)message);
+            ((dynamic)this).SyncSendLocal((dynamic)message);
         }
 
-        protected virtual void Publish<TMessage>(TMessage message) where TMessage : IMessage
+        protected virtual void SyncSendLocal<TMessage>(TMessage message) where TMessage : IMessage
         {
             var handlerTypes = message.GetType().GetAllTypesInheritedOrImplemented()
                 .Where(t => t.Implements(typeof(IMessage)))
@@ -46,17 +46,17 @@ namespace Composable.ServiceBus
 
         public virtual void SendLocal(object message)
         {
-            Publish(message);
+            ((dynamic)this).SyncSendLocal((dynamic)message);
         }
 
         public virtual void Send(object message)
         {
-            Publish(message);
+            ((dynamic)this).SyncSendLocal((dynamic)message);
         }
 
         public virtual void Reply(object message)
         {
-            Reply(message);
+            ((dynamic)this).SyncSendLocal((dynamic)message);
         }
     }
 }

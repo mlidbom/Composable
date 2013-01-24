@@ -60,7 +60,7 @@ namespace Composable.CQRS.ServiceBus.NServiceBus.EndpointConfiguration
 
         protected virtual Configure ConfigureSaga(Configure config)
         {
-            return config.Sagas().RavenSagaPersister().RunTimeoutManager();
+            return config;
         }
 
 

@@ -57,5 +57,11 @@ namespace Composable.CQRS.EventSourcing
                 }
             }
         }
+
+        public IEnumerable<Guid> GetAggregateIds()
+        {
+            _threadingGuard.AssertNoThreadChangeOccurred(this);
+            return _store.Events.Select(e => e.AggregateRootId).Distinct();
+        }
     }
 }

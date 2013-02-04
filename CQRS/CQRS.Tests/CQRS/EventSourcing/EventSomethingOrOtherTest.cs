@@ -78,6 +78,7 @@ namespace CQRS.Tests.CQRS.EventSourcing
             Assert.Throws<MultiThreadedUseException>(() => session.SaveEvents(null));
             Assert.Throws<MultiThreadedUseException>(() => session.StreamEventsAfterEventWithId(Guid.NewGuid()).ToList());
             Assert.Throws<MultiThreadedUseException>(() => session.DeleteEvents(Guid.NewGuid()));
+            Assert.Throws<MultiThreadedUseException>(() => session.GetAggregateIds().ToList());
         }
 
         [Test]
@@ -103,6 +104,23 @@ namespace CQRS.Tests.CQRS.EventSourcing
                     stream.Should().HaveCount(10);
                 }
                 somethingOrOther.GetHistoryUnSafe(toRemove).Should().BeEmpty();
+            }
+        }
+
+        [Test]
+        public void GetListOfAggregateIds()
+        {
+            var aggregatesWithEvents = 1.Through(10).ToDictionary(i => i, i => 1.Through(10).Select(j => new SomeEvent(i, j)).ToList());
+
+            using (var somethingOrOther = CreateSomethingOrOther())
+            {
+                somethingOrOther.SaveEvents(aggregatesWithEvents.SelectMany(x => x.Value));
+            }
+
+            using(var somethingOrOther = CreateSomethingOrOther())
+            {
+                var allAggretateIds = somethingOrOther.GetAggregateIds().ToList();
+                Assert.AreEqual(aggregatesWithEvents.Count, allAggretateIds.Count());
             }
         }
     }

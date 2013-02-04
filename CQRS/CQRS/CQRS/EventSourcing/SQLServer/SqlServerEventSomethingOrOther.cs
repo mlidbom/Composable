@@ -237,6 +237,29 @@ namespace Composable.CQRS.EventSourcing.SQLServer
             }
         }
 
+        public IEnumerable<Guid> GetAggregateIds()
+        {
+            _threadingGuard.AssertNoThreadChangeOccurred(this);
+            var result = new List<Guid>();
+
+            using (var connection = OpenSession())
+            {
+                using (var loadCommand = connection.CreateCommand())
+                {
+                    loadCommand.CommandText = EventSelectClause + "WHERE AggregateVersion = 1";
+
+                    using (var reader = loadCommand.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            result.Add((Guid)reader[2]);
+                        }
+                    }
+                    return result;
+                }
+            }
+        }
+
         private static readonly HashSet<string> VerifiedTables = new HashSet<string>();        
 
         private void EnsureEventsTableExists()

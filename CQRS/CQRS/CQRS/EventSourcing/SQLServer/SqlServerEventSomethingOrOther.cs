@@ -240,7 +240,6 @@ namespace Composable.CQRS.EventSourcing.SQLServer
         public IEnumerable<Guid> GetAggregateIds()
         {
             _threadingGuard.AssertNoThreadChangeOccurred(this);
-            var result = new List<Guid>();
 
             using (var connection = OpenSession())
             {
@@ -252,10 +251,9 @@ namespace Composable.CQRS.EventSourcing.SQLServer
                     {
                         while (reader.Read())
                         {
-                            result.Add((Guid)reader[2]);
+                            yield return (Guid)reader[2];
                         }
                     }
-                    return result;
                 }
             }
         }

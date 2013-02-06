@@ -86,11 +86,14 @@
       <Link>ModuleInitializer.cs</Link>
     </Compile>
     <Compile Include="CQRS\Command\Command.cs" />
+    <Compile Include="CQRS\Command\CommandFailed.cs" />
     <Compile Include="CQRS\Command\CommandFailedEvent.cs" />
     <Compile Include="CQRS\Command\CommandFailedException.cs" />
+    <Compile Include="CQRS\Command\CommandHandlerBase.cs" />
     <Compile Include="CQRS\Command\CommandResult.cs" />
     <Compile Include="CQRS\Command\CommandService.cs" />
     <Compile Include="CQRS\Command\CommandSucceededEvent.cs" />
+    <Compile Include="CQRS\Command\CommandSuccess.cs" />
     <Compile Include="CQRS\Command\CommandValidationService.cs" />
     <Compile Include="CQRS\Command\CompositeCommand.cs" />
     <Compile Include="CQRS\Command\ForceDistributedTransactionsCommandServiceDecorator.cs" />
@@ -104,17 +107,34 @@
     <Compile Include="CQRS\Command\ISubCommand.cs" />
     <Compile Include="CQRS\Command\IValidationFailure.cs" />
     <Compile Include="CQRS\Command\MemberValidationFailure.cs" />
+    <Compile Include="CQRS\Command\SagaBase.cs" />
     <Compile Include="CQRS\Command\SubCommand.cs" />
     <Compile Include="CQRS\DuplicateHandlersException.cs" />
     <Compile Include="CQRS\EntityToReferenceConverter.cs" />
+    <Compile Include="CQRS\Event.cs" />
     <Compile Include="CQRS\EventSourcing\AttemptToSaveEmptyAggregate.cs" />
     <Compile Include="CQRS\EventSourcing\IEventSomethingOrOther.cs" />
+    <Compile Include="CQRS\EventSourcing\RegisteredHandlerMissingException.cs" />
     <Compile Include="CQRS\EventSourcing\ReuseOfEventStoreSessionException.cs" />
+    <Compile Include="CQRS\EventSourcing\EventStoredAggregateRoot.cs" />
     <Compile Include="CQRS\EventSourcing\SQLServer\SqlServerEventSomethingOrOther.cs" />
     <Compile Include="CQRS\ICommandMessage.cs" />
     <Compile Include="CQRS\IReferenceObject.cs" />
     <Compile Include="CQRS\ReferenceObject.cs" />
     <Compile Include="CQRS\TranslatedReferenceObject.cs" />
+    <Compile Include="CQRS\UI\Command\CommandExecutionError.cs" />
+    <Compile Include="CQRS\UI\Command\IHandleUICommand.cs" />
+    <Compile Include="CQRS\UI\Command\IUICommand.cs" />
+    <Compile Include="CQRS\UI\Command\IUIValidationError.cs" />
+    <Compile Include="CQRS\UI\Command\PropertyValidationError.cs" />
+    <Compile Include="CQRS\UI\Command\PropertyValidationErrorExtensions.cs" />
+    <Compile Include="CQRS\UI\Command\UIClientCommand.cs" />
+    <Compile Include="CQRS\UI\Command\UICommandBase.cs" />
+    <Compile Include="CQRS\UI\Event\IHandleUIEvent.cs" />
+    <Compile Include="CQRS\UI\Event\IUIEvent.cs" />
+    <Compile Include="CQRS\UI\Event\UIEventBase.cs" />
+    <Compile Include="CQRS\UI\CommandService\IUICommandService.cs" />
+    <Compile Include="CQRS\UI\CommandService\UICommandService.cs" />
     <Compile Include="CQRS\UnNamedEntityReference.cs" />
     <Compile Include="CQRS\EventSourcing\AttemptToSaveAlreadyPersistedAggregateException.cs" />
     <Compile Include="CQRS\EventSourcing\EventStored.cs" />
@@ -176,6 +196,7 @@
     <Compile Include="UnitsOfWork\IUnitOfWorkParticipantWhoseCommitMayTriggerChangesInOtherParticipantsMustImplementIdemponentCommit.cs" />
     <Compile Include="UnitsOfWork\TooDeepCascadeLevelDetected.cs" />
     <Compile Include="UnitsOfWork\UnitOfWork.cs" />
+    <Compile Include="Windsor\UICommandServiceInstaller.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Composable.CQRS.nuspec">
@@ -195,11 +216,9 @@
       <Name>Composable.Core</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
-    <Folder Include="__EmbeddedAssemblies\" />
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="KeyValueStorage\SqlServer\ChangeScript.sql" />
+    <None Include="KeyValueStorage\SqlServer\ChangeScript.sql" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

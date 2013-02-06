@@ -3,12 +3,13 @@ using NServiceBus;
 
 namespace Composable.CQRS
 {
-    public class Event : IEvent
+    public abstract class Event : IEvent
     {
-        public Event()
+        protected Event()
         {
-            Id = Guid.NewGuid();
+            EventId = Guid.NewGuid();
         }
-        public Guid Id { get; set; }
+        
+        public Guid EventId { get; set; }
     }
 }

@@ -55,12 +55,14 @@
     </Compile>
     <Compile Include="CreationContextExtensions.cs" />
     <Compile Include="DefaultToKeyHandlerSelector.cs" />
+    <Compile Include="DisposableComponent.cs" />
     <Compile Include="KeyReplacementHandlerSelector.cs" />
     <Compile Include="LifestyleRegistrationExtensions.cs" />
     <Compile Include="LifestyleRegistrationMutator.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TypedCollectionResolver.cs" />
     <Compile Include="WindsorConfigurationValidator.cs" />
+    <Compile Include="WindsorDisposableExtensions.cs" />
     <Compile Include="WindsorExtensions.cs" />
   </ItemGroup>
   <ItemGroup>

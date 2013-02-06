@@ -216,11 +216,9 @@
       <Name>Composable.Core</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
-    <Folder Include="__EmbeddedAssemblies\" />
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="KeyValueStorage\SqlServer\ChangeScript.sql" />
+    <None Include="KeyValueStorage\SqlServer\ChangeScript.sql" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

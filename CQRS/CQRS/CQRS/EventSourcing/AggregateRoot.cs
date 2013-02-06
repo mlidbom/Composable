@@ -5,7 +5,6 @@ using Composable.DomainEvents;
 using Composable.StuffThatDoesNotBelongHere;
 using Composable.System.Linq;
 using System.Linq;
-using Newtonsoft.Json;
 
 namespace Composable.CQRS.EventSourcing
 {
@@ -13,7 +12,7 @@ namespace Composable.CQRS.EventSourcing
     {
         void IntegrateExternallyRaisedEvent(IAggregateRootEvent evt);
     }
-
+    [Obsolete("Use class EventStoredAggregateRoot instead")]
     public class AggregateRoot<TEntity> : VersionedPersistentEntity<TEntity>, IEventStored, ISharedOwnershipAggregateRoot where TEntity : AggregateRoot<TEntity>
     {
         private readonly IList<IAggregateRootEvent> _unCommittedEvents = new List<IAggregateRootEvent>();

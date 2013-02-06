@@ -110,6 +110,7 @@
   <ItemGroup>
     <Compile Include="Command\CompositeCommandTests.cs" />
     <Compile Include="Command\WhenExecutingIDomainCommand.cs" />
+    <Compile Include="CQRS\CommandHandlerBaseTests.cs" />
     <Compile Include="CQRS\EventSourcing\AggregateRootTests.cs" />
     <Compile Include="CQRS\EventSourcing\EventSomethingOrOtherTest.cs" />
     <Compile Include="CQRS\EventSourcing\EventStoreTests.cs" />
@@ -120,6 +121,7 @@
     <Compile Include="CQRS\EventSourcing\UserChangedEmail.cs" />
     <Compile Include="CQRS\EventSourcing\UserChangedPassword.cs" />
     <Compile Include="CQRS\EventSourcing\UserRegistered.cs" />
+    <Compile Include="CQRS\SagaCommandHandlerBaseTests.cs" />
     <Compile Include="DomainEvents\WhenEventIsRaised.cs" />
     <Compile Include="KeyValueStorage\Dog.cs" />
     <Compile Include="KeyValueStorage\InMemoryDocumentDbTests.cs" />

@@ -141,6 +141,7 @@
     <Compile Include="System\Collections\Generic\DictionaryExtensionsTest.cs" />
     <Compile Include="System\Configuration\AppConfigConfigurationParameterProviderTests.cs" />
     <Compile Include="System\Configuration\ConnectionStringConfigurationParameterProviderTests.cs" />
+    <Compile Include="System\Linq\ExpressionUtilTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include="Microsoft.Net.Client.3.5">

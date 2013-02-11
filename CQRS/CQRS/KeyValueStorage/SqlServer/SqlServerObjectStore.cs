@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
@@ -31,8 +32,6 @@ namespace Composable.KeyValueStorage.SqlServer
         private readonly Dictionary<Type, Dictionary<string, string>> _persistentValues = new Dictionary<Type, Dictionary<string, string>>();
         private const int UniqueConstraintViolationErrorNumber = 2627;
 
-        private Dictionary<Type, int> _knownTypes;
-
         private static readonly object LockObject = new object();
 
         public SqlServerObjectStore(SqlServerDocumentDb store)
@@ -43,48 +42,25 @@ namespace Composable.KeyValueStorage.SqlServer
             EnsureInitialized(_store.ConnectionString);
         }
 
-        public Dictionary<Type, int> KnownTypes
+        public IDictionary<Type, int> KnownTypes
         {
             get
             {
-                if (_knownTypes == null)
-                {
-                    InitializeExistingKnownTypes();
-                }
-                return _knownTypes;
+                return VerifiedConnections[_store.ConnectionString];
             }
         }
 
-        private void InitializeExistingKnownTypes()
+        private Type GetTypeFromId(int id)
         {
-            _knownTypes = new Dictionary<Type, int>();
-            using (var connection = OpenSession())
-            {
-                using (var findTypesCommand = connection.CreateCommand())
-                {
-                    findTypesCommand.CommandText = "SELECT DISTINCT ValueType, Id FROM ValueType";
-                    using (var reader = findTypesCommand.ExecuteReader())
-                    {
-                        while (reader.Read())
-                        {
-                            KnownTypes.Add(reader.GetString(0).AsType(), reader.GetInt32(1));
-                        }
-                    }
-                }
-            }
+            return KnownTypes.Single(pair => pair.Value == id).Key;
         }
-
 
         public bool TryGet<TValue>(object key, out TValue value)
         {
             if (!KnownTypes.ContainsKey(typeof(TValue)))
             {
-                InitializeExistingKnownTypes();
-                if (!KnownTypes.ContainsKey(typeof(TValue)))
-                {
-                    value = default(TValue);
-                    return false;
-                }
+                value = default(TValue);
+                return false;
             }
 
             value = default(TValue);
@@ -96,9 +72,8 @@ namespace Composable.KeyValueStorage.SqlServer
                 {
                     string lockHint = DocumentDbSession.UseUpdateLock ? "With(UPDLOCK, ROWLOCK)" : "";
                     command.CommandText = @"
-SELECT Value, ValueType FROM Store {0} INNER JOIN
-ValueType ON Store.ValueTypeId = ValueType.Id
-WHERE Store.Id=@Id AND ValueType.Id
+SELECT Value, ValueTypeId FROM Store {0} 
+WHERE Id=@Id AND ValueTypeId
 ".FormatWith(lockHint);
                     command.Parameters.Add(new SqlParameter("Id", key.ToString()));
 
@@ -111,7 +86,7 @@ WHERE Store.Id=@Id AND ValueType.Id
                             return false;
                         }
                         var stringValue = reader.GetString(0);
-                        found = JsonConvert.DeserializeObject(stringValue, reader.GetString(1).AsType(), _jsonSettings);
+                        found = JsonConvert.DeserializeObject(stringValue, GetTypeFromId(reader.GetInt32(1)), _jsonSettings);
                         _persistentValues.GetOrAddDefault(found.GetType())[key.ToString()] = stringValue;
                     }
                 }
@@ -215,7 +190,6 @@ WHERE Store.Id=@Id AND ValueType.Id
         {
             if (KnownTypes.None(t => typeof(T).IsAssignableFrom(t.Key)))
             {
-                InitializeExistingKnownTypes();
                 if (KnownTypes.None(t => typeof(T).IsAssignableFrom(t.Key)))
                 {
                     yield break;
@@ -227,10 +201,9 @@ WHERE Store.Id=@Id AND ValueType.Id
                 using (var loadCommand = connection.CreateCommand())
                 {
                     loadCommand.CommandText = @"
-SELECT Store.Id, Value, ValueType 
-FROM Store INNER JOIN
-ValueType ON Store.ValueTypeId = ValueType.Id
-WHERE ValueType.Id ";
+SELECT Id, Value, ValueTypeId 
+FROM Store 
+WHERE ValueTypeId ";
 
                     AddTypeCriteria(loadCommand, typeof(T));
 
@@ -240,7 +213,7 @@ WHERE ValueType.Id ";
                         {
                             yield return
                                 new KeyValuePair<Guid, T>(Guid.Parse(reader.GetString(0)),
-                                (T)JsonConvert.DeserializeObject(reader.GetString(1), reader.GetString(2).AsType(), _jsonSettings));
+                                (T)JsonConvert.DeserializeObject(reader.GetString(1), GetTypeFromId(reader.GetInt32(2)), _jsonSettings));
                         }
                     }
                 }
@@ -317,7 +290,7 @@ ELSE
         {
             lock (LockObject)
             {
-                if (!VerifiedTables.Contains(connectionString))
+                if (!VerifiedConnections.ContainsKey(connectionString))
                 {
                     using (var connection = OpenSession(connectionString))
                     {
@@ -374,10 +347,23 @@ ALTER TABLE [dbo].[Store] CHECK CONSTRAINT [FK_ValueType_Store]
 ";
                                     createStoreCommand.ExecuteNonQuery();
                                 }
-                            }
-                            VerifiedTables.Add(connectionString);
-
+                            }                            
                         }
+
+                        IDictionary<Type, int> knownTypes = new ConcurrentDictionary<Type, int>();
+                        using (var findTypesCommand = connection.CreateCommand())
+                        {
+                            findTypesCommand.CommandText = "SELECT DISTINCT ValueType, Id FROM ValueType";
+                            using (var reader = findTypesCommand.ExecuteReader())
+                            {
+                                while (reader.Read())
+                                {
+                                    knownTypes.Add(reader.GetString(0).AsType(), reader.GetInt32(1));
+                                }
+                            }
+                        }
+
+                        VerifiedConnections.Add(connectionString, knownTypes);
                     }
                 }
             }
@@ -385,7 +371,7 @@ ALTER TABLE [dbo].[Store] CHECK CONSTRAINT [FK_ValueType_Store]
 
 
 
-        private static readonly HashSet<String> VerifiedTables = new HashSet<String>();
+        private static readonly IDictionary<String, IDictionary<Type, int>> VerifiedConnections = new ConcurrentDictionary<string, IDictionary<Type, int>>();
 
         public static void PurgeDb(string connectionString)
         {
@@ -405,7 +391,7 @@ DROP TABLE [dbo].[ValueType];
 
                         dropCommand.ExecuteNonQuery();
 
-                        VerifiedTables.Remove(connectionString);
+                        VerifiedConnections.Remove(connectionString);
                         EnsureInitialized(connectionString);
                     }
                 }

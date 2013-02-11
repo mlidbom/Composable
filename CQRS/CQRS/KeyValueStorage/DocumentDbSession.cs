@@ -8,9 +8,24 @@ using Composable.SystemExtensions.Threading;
 using Composable.UnitsOfWork;
 using log4net;
 using Composable.System;
+using Composable.System.Collections.Collections;
 
 namespace Composable.KeyValueStorage
 {
+        internal static class DocumentKeyDictExtensions
+    {
+        public static DocumentDbSession.DocumentItem GetOrAddDefault<TDocument>(this IDictionary<DocumentDbSession.DocumentKey, DocumentDbSession.DocumentItem> me, DocumentDbSession.DocumentKey<TDocument> key)
+        {
+            DocumentDbSession.DocumentItem doc;
+            if(!me.TryGetValue(key, out doc))
+            {
+                return doc = new DocumentDbSession.DocumentItem(key);
+                me.Add(key, doc);
+            }
+            return doc;
+        }
+    }
+
     public class DocumentDbSession : IDocumentDbSession, IUnitOfWorkParticipant
     {
         [ThreadStatic]
@@ -20,18 +35,19 @@ namespace Composable.KeyValueStorage
         internal readonly IDocumentDbSessionInterceptor _interceptor;
 
         private readonly InMemoryObjectStore _idMap = new InMemoryObjectStore();
-        private readonly InMemoryObjectStore _added = new InMemoryObjectStore();
         private readonly ISingleContextUseGuard _threadingGuard;
 
-        private abstract class DocumentItem
+        private readonly IDictionary<DocumentKey, DocumentItem> _knownDocuments = new Dictionary<DocumentKey, DocumentItem>(); 
+
+        internal abstract class DocumentKey
         {
-            public DocumentItem(object id, Type type)
+            public DocumentKey(object id, Type type)
             {
                 Id = id;
                 Type = type;
             }
 
-            public bool Equals(DocumentItem other)
+            public bool Equals(DocumentKey other)
             {
                 return Equals(Id.ToString(), other.Id.ToString()) && Equals(Type, other.Type);
             }
@@ -50,7 +66,7 @@ namespace Composable.KeyValueStorage
                 {
                     return false;
                 }
-                return Equals((DocumentItem)obj);
+                return Equals((DocumentKey)obj);
             }
 
             public override int GetHashCode()
@@ -65,18 +81,79 @@ namespace Composable.KeyValueStorage
 
             public object Id { get; private set; }
             public Type Type { get; private set; }
-            public bool DeleteRequested { get; set; }
-            public bool IsPersistent { get; set; }
 
             public abstract void DeleteFromObjectStore(IObjectStore store);
-        }
+        }      
 
-        private class DocumentItem<TDocument> : DocumentItem
+        internal class DocumentKey<TDocument> : DocumentKey
         {
-            public DocumentItem(object id) : base(id, typeof(TDocument)) {}
+            public DocumentKey(object id) : base(id, typeof(TDocument)) {}
             override public void DeleteFromObjectStore(IObjectStore store)
             {
                 store.Remove<TDocument>(Id);
+            }
+        }
+
+        internal class DocumentItem
+        {
+            public DocumentKey Key { get; private set; }
+            private Action<IObjectStore> _removalAction;
+
+            public DocumentItem(DocumentKey key)
+            {
+                Key = key;
+            }
+
+            public Object Document { get; private set; }
+            public bool IsDeleteRequested { get { return _removalAction != null; } }
+            public bool IsInBackingStore { get; set; }
+
+            public bool ScheduledForAdding { get { return !IsInBackingStore && !IsDeleteRequested; } }
+            public bool ScheduledForRemoval { get { return IsInBackingStore && IsDeleteRequested; } }
+            public bool ScheduledForUpdate { get { return IsInBackingStore && !IsDeleteRequested; } }
+
+            public void RemoveFrom(IObjectStore backingStore)
+            {
+                if(!ScheduledForRemoval)
+                {
+                    throw new InvalidOperationException("Not scheduled for removal");
+                }
+                _removalAction(backingStore);
+                HasBeenRemovedFromBackingStore();
+            }
+
+            public void RequestDeletion<T>(object id)
+            {
+                _removalAction = (IObjectStore store) =>
+                                 {
+                                     if(!store.Remove<T>(id))
+                                     {
+                                         throw new NoSuchDocumentException(id, typeof(T));
+                                     }
+                                 };
+            }
+
+            public void SaveRequestedForDocument<TDocument>(TDocument document)
+            {
+                Document = document;
+                _removalAction = null;
+            }
+
+            public void DocumentLoadedFromBackingStore(object document)
+            {
+                Document = document;
+            }
+
+            public void HasBeenRemovedFromBackingStore()
+            {
+                _removalAction = _ => { };
+                IsInBackingStore = false;
+            }
+
+            public void AddTo(IObjectStore backingStore)
+            {
+                backingStore.Add(Key, Document);
+                IsInBackingStore = true;
             }
         }
 
@@ -103,9 +180,15 @@ namespace Composable.KeyValueStorage
                 return true;
             }
 
-            if (_backingStore.TryGet(key, out value))
+            var documentItem = _knownDocuments.GetOrAddDefault(new DocumentKey<TValue>(key));
+            if (_backingStore.TryGet(key, out value) && !documentItem.IsDeleteRequested)
             {
-                OnInitialLoad(key, value);
+                documentItem.DocumentLoadedFromBackingStore(value);
+                if (!documentItem.IsInBackingStore)
+                {
+                    documentItem.IsInBackingStore = true;
+                    OnInitialLoad(key, value);
+                }
                 return true;
             }
 
@@ -115,6 +198,7 @@ namespace Composable.KeyValueStorage
         private void OnInitialLoad<TValue>(object key, TValue value)
         {
             _idMap.Add(key, value);
+            _knownDocuments.GetOrAddDefault(new DocumentKey<TValue>(key)).IsInBackingStore = true;
             if (_interceptor != null)
                 _interceptor.AfterLoad(value);
         }
@@ -169,14 +253,18 @@ namespace Composable.KeyValueStorage
             {
                 throw new AttemptToSaveAlreadyPersistedValueException(id, value);
             }
+            
+            var documentItem = _knownDocuments.GetOrAddDefault(new DocumentKey<TValue>(id));
+            documentItem.SaveRequestedForDocument(value);
+
             if(_unitOfWork == null)
             {                
-                _backingStore.Add(id, value); 
+                _backingStore.Add(id, value);
+                documentItem.IsInBackingStore = true;
             }else
             {
                 Log.DebugFormat("{0} postponed persisting object from call to Save since participating in a unit of work", _id);
-                _added.Add(id, value);
-            }            
+            }
             _idMap.Add(id, value);
         }
 
@@ -195,16 +283,18 @@ namespace Composable.KeyValueStorage
         public virtual void Delete<T>(object id)
         {
             _threadingGuard.AssertNoThreadChangeOccurred(this);
+            T ignored;
+            if(!TryGet(id, out ignored))
+            {
+                throw new NoSuchDocumentException(id, typeof(T));
+            }
+
+            var documentItem = _knownDocuments.GetOrAddDefault(new DocumentKey<T>(id));
+            documentItem.RequestDeletion<T>(id);
+
             if(_unitOfWork == null)
             {
-                if(!_backingStore.Remove<T>(id))
-                {
-                    throw new NoSuchDocumentException(id, typeof(T));
-                }
-            }
-            else
-            {
-                _added.Remove<T>(id);
+                documentItem.RemoveFrom(_backingStore);
             }
             _idMap.Remove<T>(id);
         }
@@ -224,9 +314,16 @@ namespace Composable.KeyValueStorage
         private void InternalSaveChanges()
         {
             Log.DebugFormat("{0} saving changes. Unit of work: {1}",_id, _unitOfWork ?? (object)"null");
-            _added.ForEach(p => _backingStore.Add(p.Key, p.Value));
-            _added.Clear();
-            _backingStore.Update(_idMap.AsEnumerable());
+            _knownDocuments.Where(pair => pair.Value.ScheduledForAdding).ForEach(p =>
+                                                                                 {
+                                                                                     p.Value.AddTo(_backingStore);
+                                                                                 });
+
+            _knownDocuments.Where(pair => pair.Value.ScheduledForRemoval).ForEach(p => p.Value.RemoveFrom(_backingStore));
+
+            _backingStore.Update(
+                _knownDocuments.Where(pair => pair.Value.ScheduledForUpdate)
+                               .Select(p => new KeyValuePair<string, object>(p.Key.Id.ToString(), p.Value.Document)));
         }
 
         public virtual IEnumerable<T> GetAll<T>() where T : IHasPersistentIdentity<Guid>

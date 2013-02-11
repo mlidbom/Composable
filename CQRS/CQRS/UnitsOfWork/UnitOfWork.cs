@@ -66,7 +66,6 @@ namespace Composable.UnitsOfWork
 
         public override string ToString()
         {
-            _threadGuard.AssertNoThreadChangeOccurred(this);
             return String.Format("Unit of work {0} with participants:\n {1}", Id, _participants.Select(p => String.Format("{0} {1}", p.GetType(), p.Id)).Join("\n\t"));
         }
 

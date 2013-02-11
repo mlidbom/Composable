@@ -20,8 +20,65 @@ namespace Composable.KeyValueStorage
         internal readonly IDocumentDbSessionInterceptor _interceptor;
 
         private readonly InMemoryObjectStore _idMap = new InMemoryObjectStore();
-        private readonly InMemoryObjectStore _newlyAdded = new InMemoryObjectStore();
+        private readonly InMemoryObjectStore _added = new InMemoryObjectStore();
         private readonly ISingleContextUseGuard _threadingGuard;
+
+        private abstract class DocumentItem
+        {
+            public DocumentItem(object id, Type type)
+            {
+                Id = id;
+                Type = type;
+            }
+
+            public bool Equals(DocumentItem other)
+            {
+                return Equals(Id.ToString(), other.Id.ToString()) && Equals(Type, other.Type);
+            }
+
+            public override bool Equals(object obj)
+            {
+                if(ReferenceEquals(null, obj))
+                {
+                    return false;
+                }
+                if(ReferenceEquals(this, obj))
+                {
+                    return true;
+                }
+                if(obj.GetType() != this.GetType())
+                {
+                    return false;
+                }
+                return Equals((DocumentItem)obj);
+            }
+
+            public override int GetHashCode()
+            {
+                return Id.ToString().GetHashCode();
+            }
+
+            override public string ToString()
+            {
+                return "Id: {0}, Type: {1}".FormatWith(Id, Type);
+            }
+
+            public object Id { get; private set; }
+            public Type Type { get; private set; }
+            public bool DeleteRequested { get; set; }
+            public bool IsPersistent { get; set; }
+
+            public abstract void DeleteFromObjectStore(IObjectStore store);
+        }
+
+        private class DocumentItem<TDocument> : DocumentItem
+        {
+            public DocumentItem(object id) : base(id, typeof(TDocument)) {}
+            override public void DeleteFromObjectStore(IObjectStore store)
+            {
+                store.Remove<TDocument>(Id);
+            }
+        }
 
         private static readonly ILog Log = LogManager.GetLogger(typeof(DocumentDbSession));
 
@@ -40,6 +97,7 @@ namespace Composable.KeyValueStorage
         public virtual bool TryGet<TValue>(object key, out TValue value)
         {
             _threadingGuard.AssertNoThreadChangeOccurred(this);
+
             if (_idMap.TryGet(key, out value))
             {
                 return true;
@@ -117,8 +175,8 @@ namespace Composable.KeyValueStorage
             }else
             {
                 Log.DebugFormat("{0} postponed persisting object from call to Save since participating in a unit of work", _id);
-                _newlyAdded.Add(id, value);
-            }
+                _added.Add(id, value);
+            }            
             _idMap.Add(id, value);
         }
 
@@ -137,9 +195,16 @@ namespace Composable.KeyValueStorage
         public virtual void Delete<T>(object id)
         {
             _threadingGuard.AssertNoThreadChangeOccurred(this);
-            if (!_backingStore.Remove<T>(id))
+            if(_unitOfWork == null)
             {
-                throw new NoSuchDocumentException(id, typeof(T));
+                if(!_backingStore.Remove<T>(id))
+                {
+                    throw new NoSuchDocumentException(id, typeof(T));
+                }
+            }
+            else
+            {
+                _added.Remove<T>(id);
             }
             _idMap.Remove<T>(id);
         }
@@ -159,8 +224,8 @@ namespace Composable.KeyValueStorage
         private void InternalSaveChanges()
         {
             Log.DebugFormat("{0} saving changes. Unit of work: {1}",_id, _unitOfWork ?? (object)"null");
-            _newlyAdded.ForEach(p => _backingStore.Add(p.Key, p.Value));
-            _newlyAdded.Clear();
+            _added.ForEach(p => _backingStore.Add(p.Key, p.Value));
+            _added.Clear();
             _backingStore.Update(_idMap.AsEnumerable());
         }
 

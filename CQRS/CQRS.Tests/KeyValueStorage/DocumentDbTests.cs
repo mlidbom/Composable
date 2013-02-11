@@ -6,8 +6,10 @@ using System.Web.Routing;
 using Composable.KeyValueStorage;
 using Composable.System.Web;
 using Composable.SystemExtensions.Threading;
+using Composable.UnitsOfWork;
 using Moq;
 using NUnit.Framework;
+using FluentAssertions;
 
 namespace CQRS.Tests.KeyValueStorage
 {
@@ -89,6 +91,124 @@ namespace CQRS.Tests.KeyValueStorage
             }
         }
 
+        [Test]
+        public void AddingAndRemovingObjectResultsInNoObjectBeingSaved()
+        {
+            var store = CreateStore();
+
+            var user = new User() { Id = Guid.NewGuid() };
+
+            using (var session = store.OpenSession(new SingleThreadUseGuard()))
+            {
+                session.Save(user.Id, user);
+                session.Delete(user);
+                session.SaveChanges();
+            }
+
+            using (var session = store.OpenSession(new SingleThreadUseGuard()))
+            {
+                session.TryGet(user.Id, out user).Should().BeFalse();
+            }
+        }
+
+        [Test]
+        public void RepeatedlyAddingAndRemovingObjectResultsInNoObjectBeingSaved()
+        {
+            var store = CreateStore();
+
+            var user = new User() { Id = Guid.NewGuid() };
+
+            using (var session = store.OpenSession(new SingleThreadUseGuard()))
+            {
+                session.Save(user.Id, user);
+                session.Delete(user);
+                session.Save(user.Id, user);
+                session.Delete(user);
+                session.Save(user.Id, user);
+                session.Delete(user);
+                session.SaveChanges();
+            }
+
+            using (var session = store.OpenSession(new SingleThreadUseGuard()))
+            {
+                session.TryGet(user.Id, out user).Should().BeFalse();
+            }
+        }
+
+        [Test]
+        public void LoadingRemovingAndAddingObjectInUnitOfWorkResultsInObjectBeingSaved()
+        {
+            var store = CreateStore();
+
+            var user = new User() { Id = Guid.NewGuid() };
+            User tmpUser = null;
+
+            using (var session = store.OpenSession(new SingleThreadUseGuard()))
+            {
+                session.Save(user.Id, user);
+                session.SaveChanges();
+            }
+
+            using (var session = store.OpenSession(new SingleThreadUseGuard()))
+            {
+                var uow = new UnitOfWork(new SingleThreadUseGuard());
+                uow.AddParticipant((IUnitOfWorkParticipant)session);
+
+                user = session.Get<User>(user.Id);
+                session.Delete(user);
+                session.TryGet(user.Id, out tmpUser).Should().Be(false);
+                session.Save(user);
+                session.TryGet(user.Id, out tmpUser).Should().Be(true);
+                session.Delete(user);
+                session.TryGet(user.Id, out tmpUser).Should().Be(false);
+                session.Save(user);
+                session.TryGet(user.Id, out tmpUser).Should().Be(true);
+
+                uow.Commit();
+
+            }
+
+            using (var session = store.OpenSession(new SingleThreadUseGuard()))
+            {
+                session.TryGet(user.Id, out user).Should().Be(true);
+            }
+        }
+
+        public void HandlesLoadingAndRepeatedlyRemovingAndAddingObject()
+        {
+            var store = CreateStore();
+
+            var user = new User() { Id = Guid.NewGuid() };
+            User tmpUser = null;
+
+            using (var session = store.OpenSession(new SingleThreadUseGuard()))
+            {
+                session.Save(user.Id, user);
+                session.SaveChanges();
+            }
+
+            using (var session = store.OpenSession(new SingleThreadUseGuard()))
+            {
+                user = session.Get<User>(user.Id);
+                session.Delete(user);
+                session.TryGet(user.Id, out tmpUser).Should().Be(false);
+                session.Save(user);
+                session.TryGet(user.Id, out tmpUser).Should().Be(true);
+
+                session.Delete(user);
+                session.TryGet(user.Id, out tmpUser).Should().Be(false);
+                session.Save(user);
+                session.TryGet(user.Id, out tmpUser).Should().Be(true);
+
+
+                session.SaveChanges();
+            }
+
+            using (var session = store.OpenSession(new SingleThreadUseGuard()))
+            {
+                session.TryGet(user.Id, out user).Should().Be(true);
+            }
+        }
 
         [Test]
         public void ReturnsSameInstanceOnRepeatedLoads()
@@ -197,7 +317,11 @@ namespace CQRS.Tests.KeyValueStorage
                 session.Save(lassie);
                 session.SaveChanges();
 
-                Assert.Throws<NoSuchDocumentException>(() => session.Delete(buster));
+                Assert.Throws<NoSuchDocumentException>(() =>
+                                                       {
+                                                           session.Delete(buster);
+                                                           session.SaveChanges();
+                                                       });
             }
         }
 

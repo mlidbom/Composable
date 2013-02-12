@@ -19,7 +19,7 @@ namespace Composable.KeyValueStorage
             DocumentDbSession.DocumentItem doc;
             if(!me.TryGetValue(key, out doc))
             {
-                return doc = new DocumentDbSession.DocumentItem(key);
+                doc = new DocumentDbSession.DocumentItem(key);
                 me.Add(key, doc);
             }
             return doc;
@@ -114,9 +114,9 @@ namespace Composable.KeyValueStorage
 
             public void RemoveFrom(IObjectStore backingStore)
             {
-                if(!ScheduledForRemoval)
+                if(!IsDeleteRequested)
                 {
-                    throw new InvalidOperationException("Not scheduled for removal");
+                    throw new InvalidOperationException("Deletion is not requested");
                 }
                 _removalAction(backingStore);
                 HasBeenRemovedFromBackingStore();
@@ -124,7 +124,7 @@ namespace Composable.KeyValueStorage
 
             public void RequestDeletion<T>(object id)
             {
-                _removalAction = (IObjectStore store) =>
+                _removalAction = store =>
                                  {
                                      if(!store.Remove<T>(id))
                                      {

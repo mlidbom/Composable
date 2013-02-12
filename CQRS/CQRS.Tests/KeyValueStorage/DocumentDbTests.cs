@@ -182,9 +182,19 @@ namespace CQRS.Tests.KeyValueStorage
 
             using(var session = store.OpenSession(new SingleThreadUseGuard()))
             {
+                var uow = new UnitOfWork(new SingleThreadUseGuard());
+                uow.AddParticipant((IUnitOfWorkParticipant)session);
+
                 Assert.Throws<AttemptToSaveAlreadyPersistedValueException>(() => session.Save(upperCase.TheEmail, upperCase));
                 session.Get<Email>(upperCase.TheEmail).TheEmail.Should().Be(lowerCase.TheEmail);
                 session.Get<Email>(lowerCase.TheEmail).Should().Be(session.Get<Email>(upperCase.TheEmail));
+
+                session.Delete<Email>(upperCase.TheEmail);
+                Assert.Throws<NoSuchDocumentException>(() => session.Delete<Email>(upperCase.TheEmail));
+                Assert.Throws<NoSuchDocumentException>(() => session.Delete<Email>(lowerCase.TheEmail));
+                
+
+                uow.Commit();
             }
         }
 

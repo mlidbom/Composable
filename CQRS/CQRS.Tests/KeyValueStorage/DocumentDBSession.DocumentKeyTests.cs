@@ -17,13 +17,14 @@ namespace CQRS.Tests.KeyValueStorage
 
 
         [Test]
-        public void TwoInstancesOfTheSameTypeWithTheSameIdAreEqual()
+        public void TwoInstancesOfTheSameTypeWithTheSameIdAreEqualAndHaveTheSameHashCode()
         {
             var lhs = new DocumentDbSession.DocumentKey<Base>("theId");
             var rhs = new DocumentDbSession.DocumentKey<Base>("theId");
 
             lhs.Should().Be(rhs);
             rhs.Should().Be(lhs);
+            lhs.GetHashCode().Should().Be(rhs.GetHashCode());
         }
 
         [Test]
@@ -34,6 +35,7 @@ namespace CQRS.Tests.KeyValueStorage
 
             lhs.Should().Be(rhs);
             rhs.Should().Be(lhs);
+            lhs.GetHashCode().Should().Be(rhs.GetHashCode());
         }
 
         [Test]
@@ -54,6 +56,7 @@ namespace CQRS.Tests.KeyValueStorage
 
             lhs.Should().Be(rhs);
             rhs.Should().Be(lhs);
+            lhs.GetHashCode().Should().Be(rhs.GetHashCode());
         }
 
         [Test]

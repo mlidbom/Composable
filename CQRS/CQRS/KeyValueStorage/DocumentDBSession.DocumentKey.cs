@@ -15,7 +15,7 @@ namespace Composable.KeyValueStorage
 
             public bool Equals(DocumentKey other)
             {
-                if(!Equals(Id.ToString(), other.Id.ToString()))
+                if(!Equals(Id.ToString().ToLower(), other.Id.ToString().ToLower()))
                 {
                     return false;
                 }

@@ -18,13 +18,7 @@ namespace Composable.KeyValueStorage.SqlServer
     {
         private static readonly ILog Log = LogManager.GetLogger(typeof(SqlServerObjectStore));
 
-        private readonly JsonSerializerSettings _jsonSettings = new JsonSerializerSettings
-                                                                   {
-
-                                                                       TypeNameHandling = TypeNameHandling.Auto,
-                                                                       ConstructorHandling = ConstructorHandling.AllowNonPublicDefaultConstructor,
-                                                                       ContractResolver = new IncludeMembersWithPrivateSettersResolver()
-                                                                   };
+        private static readonly JsonSerializerSettings _jsonSettings = JsonSettings.JsonSerializerSettings;
 
         internal readonly SqlServerDocumentDb _store;
         internal readonly SqlServerDocumentDbConfig _config;

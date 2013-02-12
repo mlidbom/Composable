@@ -160,6 +160,35 @@ namespace CQRS.Tests.KeyValueStorage
         }
 
         [Test]
+        public void ObjectsWhoseKeysDifferOnlyByCaseAreConsideredTheSameObject()
+        {
+            var store = CreateStore();
+
+            var lowerCase = new Email("theemail");
+            var upperCase = new Email(lowerCase.TheEmail.ToUpper());
+
+            using (var session = store.OpenSession(new SingleThreadUseGuard()))
+            {
+                var uow = new UnitOfWork(new SingleThreadUseGuard());
+                uow.AddParticipant((IUnitOfWorkParticipant)session);
+
+                session.Save(lowerCase.TheEmail, lowerCase);
+                Assert.Throws<AttemptToSaveAlreadyPersistedValueException>(() => session.Save(upperCase.TheEmail, upperCase));
+
+                session.Get<Email>(lowerCase.TheEmail).Should().Be(session.Get<Email>(upperCase.TheEmail));
+
+                uow.Commit();                
+            }
+
+            using(var session = store.OpenSession(new SingleThreadUseGuard()))
+            {
+                Assert.Throws<AttemptToSaveAlreadyPersistedValueException>(() => session.Save(upperCase.TheEmail, upperCase));
+                session.Get<Email>(upperCase.TheEmail).TheEmail.Should().Be(lowerCase.TheEmail);
+                session.Get<Email>(lowerCase.TheEmail).Should().Be(session.Get<Email>(upperCase.TheEmail));
+            }
+        }
+
+        [Test]
         public void TryingToFetchNonExistentItemDoesNotCauseSessionToTryAndAddItWithANullInstance()
         {
             var store = CreateStore();

@@ -10,7 +10,7 @@ namespace Composable.KeyValueStorage
 {
     public class InMemoryObjectStore : IEnumerable<KeyValuePair<string, object>>, IObjectStore
     {
-        private Dictionary<string, List<Object>> _db = new Dictionary<string, List<object>>();
+        private Dictionary<string, List<Object>> _db = new Dictionary<string, List<object>>(StringComparer.InvariantCultureIgnoreCase);
         public bool Contains<T>(object id)
         {
             T value;

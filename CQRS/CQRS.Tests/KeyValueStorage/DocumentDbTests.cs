@@ -112,6 +112,55 @@ namespace CQRS.Tests.KeyValueStorage
         }
 
         [Test]
+        public void AddingAndRemovingObjectInUnitOfWorkResultsInNoObjectBeingSaved()
+        {
+            var store = CreateStore();
+
+            var user = new User() { Id = Guid.NewGuid() };
+
+            using (var session = store.OpenSession(new SingleThreadUseGuard()))
+            {
+                var uow = new UnitOfWork(new SingleThreadUseGuard());
+                uow.AddParticipant((IUnitOfWorkParticipant)session);
+
+                session.Save(user.Id, user);
+                session.Delete(user);
+
+                uow.Commit();
+            }
+
+            using (var session = store.OpenSession(new SingleThreadUseGuard()))
+            {
+                session.TryGet(user.Id, out user).Should().BeFalse();
+            }
+        }
+
+        [Test]
+        public void AddingRemovingAndAddingObjectInUnitOfWorkResultsInNoObjectBeingSaved()
+        {
+            var store = CreateStore();
+
+            var user = new User() { Id = Guid.NewGuid() };
+
+            using (var session = store.OpenSession(new SingleThreadUseGuard()))
+            {
+                var uow = new UnitOfWork(new SingleThreadUseGuard());
+                uow.AddParticipant((IUnitOfWorkParticipant)session);
+
+                session.Save(user.Id, user);
+                session.Delete(user);
+                session.Save(user.Id, user);
+
+                uow.Commit();
+            }
+
+            using (var session = store.OpenSession(new SingleThreadUseGuard()))
+            {
+                session.TryGet(user.Id, out user).Should().BeTrue();
+            }
+        }
+
+        [Test]
         public void RepeatedlyAddingAndRemovingObjectResultsInNoObjectBeingSaved()
         {
             var store = CreateStore();
@@ -174,42 +223,7 @@ namespace CQRS.Tests.KeyValueStorage
             }
         }
 
-        public void HandlesLoadingAndRepeatedlyRemovingAndAddingObject()
-        {
-            var store = CreateStore();
-
-            var user = new User() { Id = Guid.NewGuid() };
-            User tmpUser = null;
-
-            using (var session = store.OpenSession(new SingleThreadUseGuard()))
-            {
-                session.Save(user.Id, user);
-                session.SaveChanges();
-            }
-
-            using (var session = store.OpenSession(new SingleThreadUseGuard()))
-            {
-                user = session.Get<User>(user.Id);
-                session.Delete(user);
-                session.TryGet(user.Id, out tmpUser).Should().Be(false);
-                session.Save(user);
-                session.TryGet(user.Id, out tmpUser).Should().Be(true);
-
-                session.Delete(user);
-                session.TryGet(user.Id, out tmpUser).Should().Be(false);
-                session.Save(user);
-                session.TryGet(user.Id, out tmpUser).Should().Be(true);
-
-
-                session.SaveChanges();
-            }
-
-            using (var session = store.OpenSession(new SingleThreadUseGuard()))
-            {
-                session.TryGet(user.Id, out user).Should().Be(true);
-            }
-        }
-
+      
         [Test]
         public void ReturnsSameInstanceOnRepeatedLoads()
         {

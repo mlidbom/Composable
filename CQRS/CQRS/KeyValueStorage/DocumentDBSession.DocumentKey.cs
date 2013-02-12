@@ -42,7 +42,7 @@ namespace Composable.KeyValueStorage
 
             public override int GetHashCode()
             {
-                return Id.ToString().GetHashCode();
+                return Id.ToString().ToLower().GetHashCode();
             }
 
             override public string ToString()

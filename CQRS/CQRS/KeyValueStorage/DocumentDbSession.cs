@@ -126,7 +126,8 @@ namespace Composable.KeyValueStorage
         public virtual void Save<TValue>(object id, TValue value)
         {
             _usageGuard.AssertNoContextChangeOccurred(this);
-            if (_idMap.Contains(value.GetType(), id))
+            TValue ignored;
+            if (TryGet(id, out ignored))
             {
                 throw new AttemptToSaveAlreadyPersistedValueException(id, value);
             }

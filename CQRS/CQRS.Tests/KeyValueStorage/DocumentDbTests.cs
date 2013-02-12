@@ -214,7 +214,6 @@ namespace CQRS.Tests.KeyValueStorage
                 session.TryGet(user.Id, out tmpUser).Should().Be(true);
 
                 uow.Commit();
-
             }
 
             using (var session = store.OpenSession(new SingleThreadUseGuard()))

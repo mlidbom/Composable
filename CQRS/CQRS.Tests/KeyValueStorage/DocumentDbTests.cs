@@ -160,7 +160,7 @@ namespace CQRS.Tests.KeyValueStorage
         }
 
         [Test]
-        public void ObjectsWhoseKeysDifferOnlyByCaseAreConsideredTheSameObject()
+        public void ObjectsWhoseKeysDifferOnlyByCaseAreConsideredTheSameObjectForCompatabilityWithSqlServer()
         {
             var store = CreateStore();
 
@@ -193,6 +193,45 @@ namespace CQRS.Tests.KeyValueStorage
                 Assert.Throws<NoSuchDocumentException>(() => session.Delete<Email>(upperCase.TheEmail));
                 Assert.Throws<NoSuchDocumentException>(() => session.Delete<Email>(lowerCase.TheEmail));
                 
+
+                uow.Commit();
+            }
+        }
+
+        [Test]
+        public void ObjectsWhoseKeysDifferOnlyByTrailingSpacesTrailingWhiteSpaceCaseAreConsideredTheSameObjectForCompatabilityWithSqlServer()
+        {
+            var store = CreateStore();
+
+            var noWhitespace = new Email("theemail");
+            var withWhitespace = new Email(noWhitespace.TheEmail + "  ");
+
+            using (var session = store.OpenSession(new SingleThreadUseGuard()))
+            {
+                var uow = new UnitOfWork(new SingleThreadUseGuard());
+                uow.AddParticipant((IUnitOfWorkParticipant)session);
+
+                session.Save(noWhitespace.TheEmail, noWhitespace);
+                Assert.Throws<AttemptToSaveAlreadyPersistedValueException>(() => session.Save(withWhitespace.TheEmail, withWhitespace));
+
+                session.Get<Email>(noWhitespace.TheEmail).Should().Be(session.Get<Email>(withWhitespace.TheEmail));
+
+                uow.Commit();
+            }
+
+            using (var session = store.OpenSession(new SingleThreadUseGuard()))
+            {
+                var uow = new UnitOfWork(new SingleThreadUseGuard());
+                uow.AddParticipant((IUnitOfWorkParticipant)session);
+
+                Assert.Throws<AttemptToSaveAlreadyPersistedValueException>(() => session.Save(withWhitespace.TheEmail, withWhitespace));
+                session.Get<Email>(withWhitespace.TheEmail).TheEmail.Should().Be(noWhitespace.TheEmail);
+                session.Get<Email>(noWhitespace.TheEmail).Should().Be(session.Get<Email>(withWhitespace.TheEmail));
+
+                session.Delete<Email>(withWhitespace.TheEmail);
+                Assert.Throws<NoSuchDocumentException>(() => session.Delete<Email>(withWhitespace.TheEmail));
+                Assert.Throws<NoSuchDocumentException>(() => session.Delete<Email>(noWhitespace.TheEmail));
+
 
                 uow.Commit();
             }

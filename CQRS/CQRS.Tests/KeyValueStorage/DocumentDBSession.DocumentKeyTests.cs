@@ -39,6 +39,17 @@ namespace CQRS.Tests.KeyValueStorage
         }
 
         [Test]
+        public void TwoInstancesOfTheSameTypeWithIdsDifferingOnlyInTrailingSpacesAreEqual()
+        {
+            var lhs = new DocumentDbSession.DocumentKey<Base>("theid  ");
+            var rhs = new DocumentDbSession.DocumentKey<Base>("theid");
+
+            lhs.Should().Be(rhs);
+            rhs.Should().Be(lhs);
+            lhs.GetHashCode().Should().Be(rhs.GetHashCode());
+        }
+
+        [Test]
         public void TwoInstancesOfTheSameTypeWithDifferentIdsAreNotEqual()
         {
             var lhs = new DocumentDbSession.DocumentKey<Base>("theFirstId");

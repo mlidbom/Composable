@@ -9,13 +9,13 @@ namespace Composable.KeyValueStorage
         {
             protected DocumentKey(object id, Type type)
             {
-                Id = id;
+                Id = id.ToString().ToLower().TrimEnd(' ');
                 Type = type;
             }
 
             public bool Equals(DocumentKey other)
             {
-                if(!Equals(Id.ToString().ToLower(), other.Id.ToString().ToLower()))
+                if(!Equals(Id, other.Id))
                 {
                     return false;
                 }
@@ -42,7 +42,7 @@ namespace Composable.KeyValueStorage
 
             public override int GetHashCode()
             {
-                return Id.ToString().ToLower().GetHashCode();
+                return Id.GetHashCode();
             }
 
             override public string ToString()
@@ -50,7 +50,7 @@ namespace Composable.KeyValueStorage
                 return "Id: {0}, Type: {1}".FormatWith(Id, Type);
             }
 
-            public object Id { get; private set; }
+            public string Id { get; private set; }
             public Type Type { get; private set; }
 
             public abstract void RemoveFromStore(IObjectStore store);

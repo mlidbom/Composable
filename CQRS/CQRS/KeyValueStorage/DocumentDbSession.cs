@@ -22,15 +22,15 @@ namespace Composable.KeyValueStorage
 // ReSharper restore InconsistentNaming
 
         private readonly InMemoryObjectStore _idMap = new InMemoryObjectStore();
-        private readonly ISingleContextUseGuard _threadingGuard;
+        private readonly ISingleContextUseGuard _usageGuard;
 
         private readonly IDictionary<DocumentKey, DocumentItem> _handledDocuments = new Dictionary<DocumentKey, DocumentItem>(); 
 
         private static readonly ILog Log = LogManager.GetLogger(typeof(DocumentDbSession));
 
-        public DocumentDbSession(IDocumentDb store, ISingleContextUseGuard singleContextUseGuard, DocumentDbConfig config = null)
+        public DocumentDbSession(IDocumentDb store, ISingleContextUseGuard usageGuard, DocumentDbConfig config = null)
         {
-            _threadingGuard = singleContextUseGuard;
+            _usageGuard = usageGuard;
             if(config == null)
             {
                 config = DocumentDbConfig.Default;
@@ -42,7 +42,7 @@ namespace Composable.KeyValueStorage
 
         public virtual bool TryGet<TValue>(object key, out TValue value)
         {
-            _threadingGuard.AssertNoThreadChangeOccurred(this);
+            _usageGuard.AssertNoContextChangeOccurred(this);
 
             if (_idMap.TryGet(key, out value))
             {
@@ -82,7 +82,7 @@ namespace Composable.KeyValueStorage
 
         public virtual TValue GetForUpdate<TValue>(object key)
         {
-            _threadingGuard.AssertNoThreadChangeOccurred(this);
+            _usageGuard.AssertNoContextChangeOccurred(this);
             using(new UpdateLock())
             {
                 return Get<TValue>(key);
@@ -91,7 +91,7 @@ namespace Composable.KeyValueStorage
 
         public virtual bool TryGetForUpdate<TValue>(object key, out TValue value)
         {
-            _threadingGuard.AssertNoThreadChangeOccurred(this);
+            _usageGuard.AssertNoContextChangeOccurred(this);
             using (new UpdateLock())
             {
                 return TryGet(key, out value);
@@ -113,7 +113,7 @@ namespace Composable.KeyValueStorage
 
         public virtual TValue Get<TValue>(object key)
         {
-            _threadingGuard.AssertNoThreadChangeOccurred(this);
+            _usageGuard.AssertNoContextChangeOccurred(this);
             TValue value;
             if(TryGet(key, out value))
             {
@@ -125,7 +125,7 @@ namespace Composable.KeyValueStorage
 
         public virtual void Save<TValue>(object id, TValue value)
         {
-            _threadingGuard.AssertNoThreadChangeOccurred(this);
+            _usageGuard.AssertNoContextChangeOccurred(this);
             if (_idMap.Contains(value.GetType(), id))
             {
                 throw new AttemptToSaveAlreadyPersistedValueException(id, value);
@@ -146,19 +146,19 @@ namespace Composable.KeyValueStorage
 
         public virtual void Save<TEntity>(TEntity entity) where TEntity : IHasPersistentIdentity<Guid>
         {
-            _threadingGuard.AssertNoThreadChangeOccurred(this);
+            _usageGuard.AssertNoContextChangeOccurred(this);
             Save(entity.Id, entity);
         }
 
         public virtual void Delete<TEntity>(TEntity entity) where TEntity : IHasPersistentIdentity<Guid>
         {
-            _threadingGuard.AssertNoThreadChangeOccurred(this);
+            _usageGuard.AssertNoContextChangeOccurred(this);
             Delete<TEntity>(entity.Id);
         }
 
         public virtual void Delete<T>(object id)
         {
-            _threadingGuard.AssertNoThreadChangeOccurred(this);
+            _usageGuard.AssertNoContextChangeOccurred(this);
             T ignored;
             if(!TryGet(id, out ignored))
             {
@@ -181,7 +181,7 @@ namespace Composable.KeyValueStorage
 
         public virtual void SaveChanges()
         {
-            _threadingGuard.AssertNoThreadChangeOccurred(this);
+            _usageGuard.AssertNoContextChangeOccurred(this);
             if (_unitOfWork == null)
             {                
                 InternalSaveChanges();
@@ -199,7 +199,7 @@ namespace Composable.KeyValueStorage
 
         public virtual IEnumerable<T> GetAll<T>() where T : IHasPersistentIdentity<Guid>
         {
-            _threadingGuard.AssertNoThreadChangeOccurred(this);
+            _usageGuard.AssertNoContextChangeOccurred(this);
             var stored = _backingStore.GetAll<T>();
             stored.Where(pair => !_idMap.Contains(typeof (T), pair.Key))
                 .ForEach(pair => OnInitialLoad(pair.Key, pair.Value));
@@ -211,7 +211,7 @@ namespace Composable.KeyValueStorage
 
         public virtual void Dispose()
         {
-            _threadingGuard.AssertNoThreadChangeOccurred(this);
+            _usageGuard.AssertNoContextChangeOccurred(this);
             //Can be called before the transaction commits....
             //_idMap.Clear();
         }

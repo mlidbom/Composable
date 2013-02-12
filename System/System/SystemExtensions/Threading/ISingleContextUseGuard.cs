@@ -2,6 +2,6 @@
 {
     public interface ISingleContextUseGuard
     {
-        void AssertNoThreadChangeOccurred(object guarded);
+        void AssertNoContextChangeOccurred(object guarded);
     }
 }

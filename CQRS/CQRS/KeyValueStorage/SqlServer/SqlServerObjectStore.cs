@@ -69,7 +69,8 @@ namespace Composable.KeyValueStorage.SqlServer
 SELECT Value, ValueTypeId FROM Store {0} 
 WHERE Id=@Id AND ValueTypeId
 ".FormatWith(lockHint);
-                    command.Parameters.Add(new SqlParameter("Id", key.ToString()));
+                    string idString = GetIdString(key);
+                    command.Parameters.Add(new SqlParameter("Id", idString));
 
                     AddTypeCriteria(command, typeof(TValue));
 
@@ -81,7 +82,7 @@ WHERE Id=@Id AND ValueTypeId
                         }
                         var stringValue = reader.GetString(0);
                         found = JsonConvert.DeserializeObject(stringValue, GetTypeFromId(reader.GetInt32(1)), _jsonSettings);
-                        _persistentValues.GetOrAddDefault(found.GetType())[key.ToString()] = stringValue;
+                        _persistentValues.GetOrAddDefault(found.GetType())[idString] = stringValue;
                     }
                 }
             }
@@ -92,6 +93,7 @@ WHERE Id=@Id AND ValueTypeId
 
         public void Add<T>(object id, T value)
         {
+            string idString = GetIdString(id);
             EnsureTypeRegistered(value.GetType());
             using (var connection = OpenSession())
             {
@@ -101,13 +103,13 @@ WHERE Id=@Id AND ValueTypeId
 
                     command.CommandText += @"INSERT INTO Store(Id, ValueTypeId, Value) VALUES(@Id, @ValueTypeId, @Value)";
 
-                    command.Parameters.Add(new SqlParameter("Id", id.ToString()));
+                    command.Parameters.Add(new SqlParameter("Id", idString));
                     command.Parameters.Add(new SqlParameter("ValueTypeId", KnownTypes[value.GetType()]));
 
                     var stringValue = JsonConvert.SerializeObject(value, _config.JSonFormatting, _jsonSettings);
                     command.Parameters.Add(new SqlParameter("Value", stringValue));
-
-                    _persistentValues.GetOrAddDefault(value.GetType())[id.ToString()] = stringValue;
+                    
+                    _persistentValues.GetOrAddDefault(value.GetType())[idString] = stringValue;
                     try
                     {
                         command.ExecuteNonQuery();
@@ -124,6 +126,11 @@ WHERE Id=@Id AND ValueTypeId
             }
         }
 
+        private static string GetIdString(object id)
+        {
+            return id.ToString().ToLower().TrimEnd(' ');
+        }
+
         public bool Remove<T>(object id)
         {
             using (var connection = OpenSession())
@@ -132,7 +139,7 @@ WHERE Id=@Id AND ValueTypeId
                 {
                     command.CommandType = CommandType.Text;
                     command.CommandText += "DELETE Store WHERE Id = @Id AND ValueTypeId ";
-                    command.Parameters.Add(new SqlParameter("Id", id.ToString()));
+                    command.Parameters.Add(new SqlParameter("Id", GetIdString(id)));
 
                     AddTypeCriteria(command, typeof(T));
 
@@ -159,10 +166,11 @@ WHERE Id=@Id AND ValueTypeId
                         var stringValue = JsonConvert.SerializeObject(entry.Value, _config.JSonFormatting, _jsonSettings);
 
                         string oldValue;
-                        var needsUpdate = !_persistentValues.GetOrAddDefault(entry.Value.GetType()).TryGetValue(entry.Key, out oldValue) || stringValue != oldValue;
+                        string idString = GetIdString(entry.Key);
+                        var needsUpdate = !_persistentValues.GetOrAddDefault(entry.Value.GetType()).TryGetValue(idString, out oldValue) || stringValue != oldValue;
                         if (needsUpdate)
                         {
-                            _persistentValues.GetOrAddDefault(entry.Value.GetType())[entry.Key] = stringValue;
+                            _persistentValues.GetOrAddDefault(entry.Value.GetType())[idString] = stringValue;
                             command.CommandText += "UPDATE Store SET Value = @Value WHERE Id = @Id AND ValueTypeId \n";
                             command.Parameters.Add(new SqlParameter("Id", entry.Key));
 

@@ -21,7 +21,7 @@ namespace Composable.KeyValueStorage
             public bool IsDeleted { get; private set; }
             private bool IsInBackingStore { get; set; }
 
-            private bool ScheduledForAdding { get { return !IsInBackingStore && !IsDeleted; } }
+            private bool ScheduledForAdding { get { return !IsInBackingStore && !IsDeleted && Document != null; } }
             private bool ScheduledForRemoval { get { return IsInBackingStore && IsDeleted; } }
             private bool ScheduledForUpdate { get { return IsInBackingStore && !IsDeleted; } }
 
@@ -32,12 +32,20 @@ namespace Composable.KeyValueStorage
 
             public void Save(object document)
             {
+                if(document == null)
+                {
+                    throw new ArgumentNullException("document");
+                }
                 Document = document;
                 IsDeleted = false;
             }
 
             public void DocumentLoadedFromBackingStore(object document)
             {
+                if (document == null)
+                {
+                    throw new ArgumentNullException("document");
+                }
                 Document = document;
                 IsInBackingStore = true;
             }

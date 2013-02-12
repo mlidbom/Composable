@@ -37,7 +37,7 @@ namespace Composable.KeyValueStorage
 
         private bool TryGet(Type typeOfValue, object id, out object value)
         {
-            var idstring = id.ToString();
+            var idstring = GetIdString(id);
             value = null;
 
             List<Object> matchesId = null;
@@ -55,9 +55,14 @@ namespace Composable.KeyValueStorage
             return false;
         }
 
+        private static string GetIdString(object id)
+        {
+            return id.ToString().ToLower().TrimEnd(' ');
+        }
+
         public void Add<T>(object id, T value)
         {
-            var idString = id.ToString();
+            var idString = GetIdString(id);
             if(Contains(value.GetType(), idString))
             {
                 throw new AttemptToSaveAlreadyPersistedValueException(id, value);
@@ -67,7 +72,7 @@ namespace Composable.KeyValueStorage
 
         public bool Remove<T>(object id)
         {
-            var idstring = id.ToString();
+            var idstring = GetIdString(id);
             var removed = _db.GetOrAddDefault(idstring).RemoveWhere(value => value is T);
             if(removed > 1)
             {

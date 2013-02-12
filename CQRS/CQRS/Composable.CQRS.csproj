@@ -150,6 +150,7 @@
     <Compile Include="CQRS\UnNamedReferenceObject.cs" />
     <Compile Include="CQRS\ViewModels\ViewModelUpdater.cs" />
     <Compile Include="DomainEvents\DomainEvent.cs" />
+    <Compile Include="KeyValueStorage\DocumentDBSession.DocumentKey.cs" />
     <Compile Include="KeyValueStorage\IDocumentDbSessionInterceptor.cs" />
     <Compile Include="KeyValueStorage\IObjectStore.cs" />
     <Compile Include="KeyValueStorage\DocumentDbSessionProxy.cs" />
@@ -203,6 +204,7 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       <SubType>Designer</SubType>
     </None>
+    <Compile Include="KeyValueStorage\DocumentDBSession.DocumentItem.cs" />
     <None Include="packages.config" />
     <None Include="Void.snk" />
   </ItemGroup>

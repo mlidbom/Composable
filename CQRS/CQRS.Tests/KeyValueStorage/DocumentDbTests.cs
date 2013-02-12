@@ -160,6 +160,20 @@ namespace CQRS.Tests.KeyValueStorage
         }
 
         [Test]
+        public void TryingToFetchNonExistentItemDoesNotCauseSessionToTryAndAddItWithANullInstance()
+        {
+            var store = CreateStore();
+
+            var user = new User { Id = Guid.NewGuid() };
+
+            using (var session = store.OpenSession(new SingleThreadUseGuard()))
+            {
+                session.TryGet(user.Id, out user);
+                session.SaveChanges();
+            }
+        }
+
+        [Test]
         public void RepeatedlyAddingAndRemovingObjectResultsInNoObjectBeingSaved()
         {
             var store = CreateStore();

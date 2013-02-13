@@ -26,4 +26,13 @@ namespace CQRS.Tests.KeyValueStorage
         public int Streetnumber { get; set; }
         public string City { get; set; }
     }
+
+    public class Email : ValueObject<Email>
+    {
+        public Email(string email)
+        {
+            TheEmail = email;
+        }
+        public string TheEmail { get; set; }
+    }
 }

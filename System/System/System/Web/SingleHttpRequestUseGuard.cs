@@ -14,7 +14,7 @@ namespace Composable.System.Web
             _initialRequestId = httpRequestIdFetcher.GetCurrent();
         }
 
-        public void AssertNoThreadChangeOccurred(object guarded)
+        public void AssertNoContextChangeOccurred(object guarded)
         {
             var currentRequestId = _httpRequestIdFetcher.GetCurrent();
             if(_initialRequestId != currentRequestId)

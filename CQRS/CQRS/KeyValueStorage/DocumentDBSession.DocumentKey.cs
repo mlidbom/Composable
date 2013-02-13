@@ -5,10 +5,14 @@ namespace Composable.KeyValueStorage
 {
     public partial class DocumentDbSession
     {
-        public abstract class DocumentKey : IEquatable<DocumentKey>
+        public class DocumentKey : IEquatable<DocumentKey>
         {
-            protected DocumentKey(object id, Type type)
+            public DocumentKey(object id, Type type)
             {
+                if(type.IsInterface)
+                {
+                    throw new ArgumentException("Since a type can implement multiple interfaces using it to uniquely identify an instance is impossible");
+                }
                 Id = id.ToString().ToLower().TrimEnd(' ');
                 Type = type;
             }
@@ -53,17 +57,11 @@ namespace Composable.KeyValueStorage
             public string Id { get; private set; }
             public Type Type { get; private set; }
 
-            public abstract void RemoveFromStore(IObjectStore store);
-
         }
 
         public class DocumentKey<TDocument> : DocumentKey
         {
             public DocumentKey(object id) : base(id, typeof(TDocument)) { }
-            override public void RemoveFromStore(IObjectStore store)
-            {
-                store.Remove<TDocument>(Id);
-            }
         }
 
     }

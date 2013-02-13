@@ -59,8 +59,9 @@ namespace Composable.KeyValueStorage
                 }
                 else if (ScheduledForRemoval)
                 {
-                    Key.RemoveFromStore(_backingStore);
+                    _backingStore.Remove(Key.Id, Document.GetType());
                     IsInBackingStore = false;
+                    Document = null;
                 }
                 else if (ScheduledForUpdate)
                 {

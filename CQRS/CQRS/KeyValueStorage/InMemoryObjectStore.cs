@@ -72,9 +72,14 @@ namespace Composable.KeyValueStorage
 
         public bool Remove<T>(object id)
         {
+            return Remove(id, typeof(T));
+        }
+
+        public bool Remove(object id, Type documentType)
+        {
             var idstring = GetIdString(id);
-            var removed = _db.GetOrAddDefault(idstring).RemoveWhere(value => value is T);
-            if(removed > 1)
+            var removed = _db.GetOrAddDefault(idstring).RemoveWhere(value => documentType.IsAssignableFrom(value.GetType()));
+            if (removed > 1)
             {
                 throw new Exception("FUBAR");
             }

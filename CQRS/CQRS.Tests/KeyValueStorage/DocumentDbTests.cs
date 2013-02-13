@@ -595,8 +595,8 @@ namespace CQRS.Tests.KeyValueStorage
 
             using(var session = store.OpenSession(new SingleThreadUseGuard()))
             {
-                session.Save(user);
-                session.Save(dog);
+                session.Save<IPersistentEntity<Guid>>(user);
+                session.Save<IPersistentEntity<Guid>>(dog);
                 session.SaveChanges();
             }
 

@@ -53,13 +53,13 @@ namespace Composable.KeyValueStorage
             }
             _usageGuard.AssertNoContextChangeOccurred(this);
 
-            if(_idMap.TryGet(key, out value))
+            if (_idMap.TryGet(key, out value) && documentType.IsAssignableFrom(value.GetType()))
             {
                 return true;
             }
 
             var documentItem = GetDocumentItem(key, documentType);
-            if(!documentItem.IsDeleted && _backingStore.TryGet(key, out value))
+            if(!documentItem.IsDeleted && _backingStore.TryGet(key, out value) && documentType.IsAssignableFrom(value.GetType()))
             {
                 OnInitialLoad(key, value);
                 return true;

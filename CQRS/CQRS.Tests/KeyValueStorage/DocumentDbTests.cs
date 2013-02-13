@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
+using Composable.DDD;
 using Composable.KeyValueStorage;
 using Composable.System.Web;
 using Composable.SystemExtensions.Threading;
@@ -91,6 +92,31 @@ namespace CQRS.Tests.KeyValueStorage
         }
 
         [Test]
+        public void CallingSaveWithAnInteraceAsTypeParameterDoesNotExplode()
+        {
+            var store = CreateStore();
+
+            IPersistentEntity<Guid> user1 = new User { Id = Guid.NewGuid(), Email = "user1"};
+            IPersistentEntity<Guid> user2 = new User { Id = Guid.NewGuid(), Email = "user2"};
+
+            using (var session = store.OpenSession(new SingleThreadUseGuard()))
+            {
+                session.Save(user2);
+                session.Save(user1.Id, user1);
+                session.Get<User>(user1.Id).Should().Be(user1);
+                session.Get<User>(user2.Id).Should().Be(user2);
+                session.SaveChanges();
+            }
+
+            using (var session = store.OpenSession(new SingleThreadUseGuard()))
+            {
+                session.Get<User>(user1.Id).Id.Should().Be(user1.Id);
+                session.Get<User>(user2.Id).Id.Should().Be(user2.Id);
+                session.SaveChanges();
+            }
+        }
+
+        [Test]
         public void AddingAndRemovingObjectResultsInNoObjectBeingSaved()
         {
             var store = CreateStore();
@@ -109,6 +135,7 @@ namespace CQRS.Tests.KeyValueStorage
                 session.TryGet(user.Id, out user).Should().BeFalse();
             }
         }
+
 
         [Test]
         public void AddingAndRemovingObjectInUnitOfWorkResultsInNoObjectBeingSaved()

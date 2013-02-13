@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using Composable.DDD;
 using Composable.KeyValueStorage.SqlServer;
@@ -42,14 +42,23 @@ namespace Composable.KeyValueStorage
 
         public virtual bool TryGet<TValue>(object key, out TValue value)
         {
+            return TryGetInternal(key, typeof(TValue), out value);
+        }
+
+        private bool TryGetInternal<TValue>(object key, Type documentType, out TValue value)
+        {
+            if(documentType.IsInterface)
+            {
+                throw new ArgumentException("You cannot query by id for an interface type. There is no guarantee of uniqueness");
+            }
             _usageGuard.AssertNoContextChangeOccurred(this);
 
-            if (_idMap.TryGet(key, out value))
+            if(_idMap.TryGet(key, out value))
             {
                 return true;
             }
 
-            var documentItem = GetDocumentItem<TValue>(key);
+            var documentItem = GetDocumentItem(key, documentType);
             if(!documentItem.IsDeleted && _backingStore.TryGet(key, out value))
             {
                 OnInitialLoad(key, value);
@@ -59,10 +68,10 @@ namespace Composable.KeyValueStorage
             return false;
         }
 
-        private DocumentItem GetDocumentItem<TValue>(object key)
+        private DocumentItem GetDocumentItem(object key, Type documentType)
         {
             DocumentItem doc;
-            var documentKey = new DocumentKey<TValue>(key);
+            var documentKey = new DocumentKey(key, documentType);
 
             if (!_handledDocuments.TryGetValue(documentKey, out doc))
             {                
@@ -72,10 +81,10 @@ namespace Composable.KeyValueStorage
             return doc;
         }
 
-        private void OnInitialLoad<TValue>(object key, TValue value)
+        private void OnInitialLoad(object key, object value)
         {
             _idMap.Add(key, value);
-            GetDocumentItem<TValue>(key).DocumentLoadedFromBackingStore(value);
+            GetDocumentItem(key, value.GetType()).DocumentLoadedFromBackingStore(value);
             if (_interceptor != null)
                 _interceptor.AfterLoad(value);
         }
@@ -125,14 +134,15 @@ namespace Composable.KeyValueStorage
 
         public virtual void Save<TValue>(object id, TValue value)
         {
-            _usageGuard.AssertNoContextChangeOccurred(this);
+            _usageGuard.AssertNoContextChangeOccurred(this);            
+
             TValue ignored;
-            if (TryGet(id, out ignored))
+            if (TryGetInternal(id, value.GetType(), out ignored))
             {
                 throw new AttemptToSaveAlreadyPersistedValueException(id, value);
             }
 
-            var documentItem = GetDocumentItem<TValue>(id);
+            var documentItem = GetDocumentItem(id, value.GetType());
             documentItem.Save(value);
 
             if(_unitOfWork == null)
@@ -166,7 +176,7 @@ namespace Composable.KeyValueStorage
                 throw new NoSuchDocumentException(id, typeof(T));
             }
 
-            var documentItem = GetDocumentItem<T>(id);
+            var documentItem = GetDocumentItem(id, typeof(T));
             documentItem.Delete();
 
             if(_unitOfWork == null)

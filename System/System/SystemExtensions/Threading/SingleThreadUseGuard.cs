@@ -11,7 +11,7 @@ namespace Composable.SystemExtensions.Threading
             _owningThread = Thread.CurrentThread;
         }
 
-        public void AssertNoThreadChangeOccurred(object guarded)
+        public void AssertNoContextChangeOccurred(object guarded)
         {
             if (Thread.CurrentThread != _owningThread)
             {

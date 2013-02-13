@@ -19,24 +19,24 @@ namespace Composable.CQRS.EventSourcing
 
         public void Dispose()
         {
-            _threadingGuard.AssertNoThreadChangeOccurred(this);
+            _threadingGuard.AssertNoContextChangeOccurred(this);
         }
 
         public IEnumerable<IAggregateRootEvent> GetHistoryUnSafe(Guid id)
         {
-            _threadingGuard.AssertNoThreadChangeOccurred(this);
+            _threadingGuard.AssertNoContextChangeOccurred(this);
             return _store.Events.Where(e => e.AggregateRootId == id);
         }
 
         public void SaveEvents(IEnumerable<IAggregateRootEvent> events)
         {
-            _threadingGuard.AssertNoThreadChangeOccurred(this);
+            _threadingGuard.AssertNoContextChangeOccurred(this);
             events.ForEach(e => _store.Events.Add(e));
         }
 
         public IEnumerable<IAggregateRootEvent> StreamEventsAfterEventWithId(Guid? startAfterEventId)
         {
-            _threadingGuard.AssertNoThreadChangeOccurred(this);
+            _threadingGuard.AssertNoContextChangeOccurred(this);
             IEnumerable<IAggregateRootEvent> events = _store.Events.OrderBy(e => e.TimeStamp);
             if(startAfterEventId.HasValue)
             {
@@ -47,7 +47,7 @@ namespace Composable.CQRS.EventSourcing
 
         public void DeleteEvents(Guid aggregateId)
         {
-            _threadingGuard.AssertNoThreadChangeOccurred(this);
+            _threadingGuard.AssertNoContextChangeOccurred(this);
             for (int i = 0; i < _store.Events.Count; i++)
             {
                 if (_store.Events[i].AggregateRootId == aggregateId)
@@ -60,7 +60,7 @@ namespace Composable.CQRS.EventSourcing
 
         public IEnumerable<Guid> GetAggregateIds()
         {
-            _threadingGuard.AssertNoThreadChangeOccurred(this);
+            _threadingGuard.AssertNoContextChangeOccurred(this);
             return _store.Events.Select(e => e.AggregateRootId).Distinct();
         }
     }

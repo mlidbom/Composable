@@ -6,6 +6,11 @@ namespace Composable.NewtonSoft
 {
     internal class IncludeMembersWithPrivateSettersResolver : DefaultContractResolver
     {
+        public static readonly IncludeMembersWithPrivateSettersResolver Instance = new IncludeMembersWithPrivateSettersResolver();
+        private IncludeMembersWithPrivateSettersResolver():base(shareCache:true)
+        {            
+        }
+
         protected override JsonProperty CreateProperty(MemberInfo member, MemberSerialization memberSerialization)
         {
             var prop = base.CreateProperty(member, memberSerialization);

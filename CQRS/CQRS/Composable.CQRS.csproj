@@ -132,9 +132,13 @@
     <Compile Include="CQRS\UI\Command\UICommandBase.cs" />
     <Compile Include="CQRS\UI\Event\IHandleUIEvent.cs" />
     <Compile Include="CQRS\UI\Event\IUIEvent.cs" />
+    <Compile Include="CQRS\UI\Event\UICommandResult.cs" />
+    <Compile Include="CQRS\UI\Event\UICommandStart.cs" />
+    <Compile Include="CQRS\UI\Event\UICommandStatus.cs" />
     <Compile Include="CQRS\UI\Event\UIEventBase.cs" />
     <Compile Include="CQRS\UI\CommandService\IUICommandService.cs" />
     <Compile Include="CQRS\UI\CommandService\UICommandService.cs" />
+    <Compile Include="CQRS\UI\Event\UIViewModelStatus.cs" />
     <Compile Include="CQRS\UnNamedEntityReference.cs" />
     <Compile Include="CQRS\EventSourcing\AttemptToSaveAlreadyPersistedAggregateException.cs" />
     <Compile Include="CQRS\EventSourcing\EventStored.cs" />

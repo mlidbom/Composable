@@ -23,8 +23,6 @@ $DomainEventsVersion = [System.Diagnostics.FileVersionInfo]::GetVersionInfo("$sc
 $AutomapperVersion = [System.Diagnostics.FileVersionInfo]::GetVersionInfo("$scriptRoot\AutoMapper\Composable.AutoMapper\Bin\$Configuration\Composable.AutoMapper.dll").ProductVersion
 $CQRSWindsorVersion = [System.Diagnostics.FileVersionInfo]::GetVersionInfo("$scriptRoot\CQRS\CQRS.Windsor\Bin\$Configuration\Composable.CQRS.Windsor.dll").ProductVersion
 $CQRSTestingVersion = [System.Diagnostics.FileVersionInfo]::GetVersionInfo("$scriptRoot\CQRS\Testing\Composable.CQRS.Testing\Bin\$Configuration\Composable.CQRS.Testing.dll").ProductVersion
-$CQRSPopulationClientVersion = [System.Diagnostics.FileVersionInfo]::GetVersionInfo("$scriptRoot\CQRS\Composable.CQRS.Population.Client\Bin\$Configuration\Composable.CQRS.Population.Client.dll").ProductVersion
-$CJRSPopulationServerVersion = [System.Diagnostics.FileVersionInfo]::GetVersionInfo("$scriptRoot\CQRS\Composable.CQRS.Population.Server\Bin\$Configuration\Composable.CQRS.Population.Server.dll").ProductVersion
 $NSpecNUnitVersion = [System.Diagnostics.FileVersionInfo]::GetVersionInfo("$scriptRoot\NSpec.NUnit\Bin\$Configuration\NSpec.NUnit.dll").ProductVersion
 
 function Build-Pkg ($ProjectFile)
@@ -57,7 +55,5 @@ Build-Pkg "$scriptRoot\Composable.DomainEvents\Composable.DomainEvents.csproj"
 Build-Pkg "$scriptRoot\AutoMapper\Composable.AutoMapper\Composable.AutoMapper.csproj"
 Build-Pkg "$scriptRoot\CQRS\CQRS.Windsor\Composable.CQRS.Windsor.csproj"
 Build-Pkg "$scriptRoot\CQRS\Testing\Composable.CQRS.Testing\Composable.CQRS.Testing.csproj"
-Build-Pkg "$scriptRoot\CQRS\Composable.CQRS.Population.Client\Composable.CQRS.Population.Client.csproj"
-Build-Pkg "$scriptRoot\CQRS\Composable.CQRS.Population.Server\Composable.CQRS.Population.Server.csproj"
 Build-Pkg "$scriptRoot\NSpec.NUnit\NSpec.NUnit.csproj"
 

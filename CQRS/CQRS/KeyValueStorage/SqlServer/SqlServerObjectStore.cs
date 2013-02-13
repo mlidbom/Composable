@@ -133,18 +133,23 @@ WHERE Id=@Id AND ValueTypeId
 
         public bool Remove<T>(object id)
         {
-            using (var connection = OpenSession())
+            return Remove(id, typeof(T));
+        }
+
+        public bool Remove(object id, Type documentType)
+        {
+            using(var connection = OpenSession())
             {
-                using (var command = connection.CreateCommand())
+                using(var command = connection.CreateCommand())
                 {
                     command.CommandType = CommandType.Text;
                     command.CommandText += "DELETE Store WHERE Id = @Id AND ValueTypeId ";
                     command.Parameters.Add(new SqlParameter("Id", GetIdString(id)));
 
-                    AddTypeCriteria(command, typeof(T));
+                    AddTypeCriteria(command, documentType);
 
                     var rowsAffected = command.ExecuteNonQuery();
-                    if (rowsAffected > 1)
+                    if(rowsAffected > 1)
                     {
                         throw new TooManyItemsDeletedException();
                     }

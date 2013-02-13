@@ -154,10 +154,21 @@
     <Compile Include="CQRS\UnNamedReferenceObject.cs" />
     <Compile Include="CQRS\ViewModels\ViewModelUpdater.cs" />
     <Compile Include="DomainEvents\DomainEvent.cs" />
+    <Compile Include="KeyValueStorage\DocumentDBSession.DocumentKey.cs" />
     <Compile Include="KeyValueStorage\IDocumentDbSessionInterceptor.cs" />
     <Compile Include="KeyValueStorage\IObjectStore.cs" />
     <Compile Include="KeyValueStorage\DocumentDbSessionProxy.cs" />
     <Compile Include="KeyValueStorage\InMemoryObjectStore.cs" />
+    <Compile Include="KeyValueStorage\Population\AggregateIdFetcher.cs" />
+    <Compile Include="KeyValueStorage\Population\ConsolePopulationBatchLogger.cs" />
+    <Compile Include="KeyValueStorage\Population\IPopulationBatchLogger.cs" />
+    <Compile Include="KeyValueStorage\Population\IViewModelBatchPopulator.cs" />
+    <Compile Include="KeyValueStorage\Population\IViewModelPopulator.cs" />
+    <Compile Include="KeyValueStorage\Population\NullOperationLogger.cs" />
+    <Compile Include="KeyValueStorage\Population\PopulationProgramRunner.cs" />
+    <Compile Include="KeyValueStorage\Population\ViewModelBatchPopulator.cs" />
+    <Compile Include="KeyValueStorage\Population\ViewModelPopulatorBase.cs" />
+    <Compile Include="KeyValueStorage\Population\WindsorUnitOfWorkExtensions.cs" />
     <Compile Include="KeyValueStorage\SqlServer\CannotSetBothInterceptorAndFactoryMethodForInterceptor.cs" />
     <Compile Include="KeyValueStorage\SqlServer\InMemoryDocumentDbConfig.cs" />
     <Compile Include="KeyValueStorage\SqlServer\DocumentDbConfig.cs" />
@@ -207,6 +218,7 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       <SubType>Designer</SubType>
     </None>
+    <Compile Include="KeyValueStorage\DocumentDBSession.DocumentItem.cs" />
     <None Include="packages.config" />
     <None Include="Void.snk" />
   </ItemGroup>

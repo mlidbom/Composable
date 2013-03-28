@@ -2,8 +2,9 @@
 
 namespace Composable.CQRS.Command
 {
-    public class CommandSuccess : Event
+    public abstract class CommandSuccess : Event
     {
         public Guid CommandId { get; set; }
+        public string Message { get; set; }
     }
 }

@@ -10,9 +10,11 @@ namespace Composable.CQRS.Command
     /// </summary>
     /// <typeparam name="TSagaData">Saga data storage class</typeparam>
     /// <typeparam name="TCommand">The command that should start the saga</typeparam>
-    public abstract class SagaBase<TSagaData, TCommand> : Saga<TSagaData>, IAmStartedByMessages<TCommand>
+    /// <typeparam name="TCommandFailed">The failure message to be sent if command fails</typeparam>
+    public abstract class SagaBase<TSagaData, TCommand, TCommandFailed> : Saga<TSagaData>, IAmStartedByMessages<TCommand>
         where TSagaData : ISagaEntity
         where TCommand : Command
+        where TCommandFailed: CommandFailed, new()
     {
         private readonly IServiceBus _bus;
 
@@ -34,7 +36,7 @@ namespace Composable.CQRS.Command
             {
                 using (new TransactionScope(TransactionScopeOption.Suppress))
                 {
-                    var evt = new CommandFailed
+                    var evt = new TCommandFailed
                     {
                         CommandId = message.Id,
                         Message = e.Message,

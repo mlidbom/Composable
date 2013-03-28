@@ -5,10 +5,13 @@ using NServiceBus;
 
 namespace Composable.CQRS.Command
 {
-    public abstract class CommandHandlerBase<TCommand> : IHandleMessages<TCommand>
+    public abstract class CommandHandlerBase<TCommand, TCommandSuccess, TCommandFailed> : IHandleMessages<TCommand>
         where TCommand : Command
+        where TCommandSuccess : CommandSuccess, new() 
+        where TCommandFailed : CommandFailed, new ()
     {
         private readonly IServiceBus _bus;
+        public string SuccessMessage { set; get; }
 
         protected CommandHandlerBase(IServiceBus bus)
         {
@@ -20,9 +23,10 @@ namespace Composable.CQRS.Command
             try
             {
                 HandleCommand(message);
-                var evt = new CommandSuccess
+                var evt = new TCommandSuccess
                 {
                     CommandId = message.Id,
+                    Message = SuccessMessage,
                 };
                 _bus.Publish(evt);
             }
@@ -30,7 +34,7 @@ namespace Composable.CQRS.Command
             {
                 using (new TransactionScope(TransactionScopeOption.Suppress))
                 {
-                    var evt = new CommandFailed
+                    var evt = new TCommandFailed
                     {
                         CommandId = message.Id,
                         Message = e.Message,

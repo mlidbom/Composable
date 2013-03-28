@@ -2,7 +2,7 @@
 
 namespace Composable.CQRS.Command
 {
-    public class CommandFailed : Event
+    public abstract class CommandFailed : Event
     {
         public Guid CommandId { get; set; }
         public string Message { get; set; }

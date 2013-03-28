@@ -49,7 +49,7 @@ namespace CQRS.Tests.CQRS
             public string OriginalMessageId { get; set; }
         }
 
-        private class SagaDummy : SagaBase<SagaDataDummy, CommandDummy> 
+        private class SagaDummy : SagaBase<SagaDataDummy, CommandDummy, CommandFailedDummy> 
         {
             public SagaDummy(IServiceBus bus) : base(bus) { }
 
@@ -58,5 +58,9 @@ namespace CQRS.Tests.CQRS
                 throw new NotImplementedException();
             }
         }
+
+        public class CommandFailedDummy : CommandFailed
+        { }
+        
     }
 }

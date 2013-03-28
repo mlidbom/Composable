@@ -9,6 +9,7 @@ namespace Composable.CQRS.Command
         where TCommand : Command
     {
         private readonly IServiceBus _bus;
+        public string SuccessMessage { set; get; }
 
         protected CommandHandlerBase(IServiceBus bus)
         {
@@ -23,6 +24,7 @@ namespace Composable.CQRS.Command
                 var evt = new CommandSuccess
                 {
                     CommandId = message.Id,
+                    Message = SuccessMessage,
                 };
                 _bus.Publish(evt);
             }

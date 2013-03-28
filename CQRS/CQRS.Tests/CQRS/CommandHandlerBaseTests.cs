@@ -34,7 +34,7 @@ namespace CQRS.Tests.CQRS
 
         public class CommandDummy : Composable.CQRS.Command.Command
         { }
-        public class CommandHandlerDummy : CommandHandlerBase<CommandDummy>
+        public class CommandHandlerDummy : CommandHandlerBase<CommandDummy, CommandSuccessDummy, CommandFailedDummy>
         {
             public CommandHandlerDummy(IServiceBus bus) : base(bus) { }
 
@@ -43,5 +43,9 @@ namespace CQRS.Tests.CQRS
                 throw new NotImplementedException();
             }
         }
+        public class CommandFailedDummy:CommandFailed
+        {}
+        public class CommandSuccessDummy:CommandSuccess
+        {}
     }
 }

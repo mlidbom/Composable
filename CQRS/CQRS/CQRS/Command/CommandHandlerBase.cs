@@ -11,7 +11,7 @@ namespace Composable.CQRS.Command
         where TCommandFailed : CommandFailed, new()
     {
         private readonly IServiceBus _bus;
-        private TCommandSuccess evt;
+        private TCommandSuccess _evt;
 
         protected CommandHandlerBase(IServiceBus bus)
         {
@@ -24,15 +24,15 @@ namespace Composable.CQRS.Command
             {
                 HandleCommand(message);
 
-                if (evt == null)
-                {       
-                    evt = new TCommandSuccess
+                if (_evt == null)
+                {
+                    _evt = new TCommandSuccess
                     {
                         CommandId = message.Id,
                     };
                 }
 
-                _bus.Publish(evt);
+                _bus.Publish(_evt);
             }
 
 
@@ -57,7 +57,7 @@ namespace Composable.CQRS.Command
 
         protected  void SetSuccessEvent(TCommandSuccess _event)
         {
-            evt = _event;
+            _evt = _event;
         }
 
         protected abstract void HandleCommand(TCommand command);

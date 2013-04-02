@@ -41,7 +41,7 @@ namespace Composable.CQRS.Command
                         CommandId = message.Id,
                         Message = e.Message,
                     };
-                    _bus.Publish(evt);
+                    _bus.Reply(evt);
                     MarkAsComplete();
                 }
                 throw;

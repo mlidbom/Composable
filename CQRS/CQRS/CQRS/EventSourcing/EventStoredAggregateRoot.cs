@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Composable.DDD;
+using Composable.DomainEvents;
 using Composable.System.Linq;
 
 namespace Composable.CQRS.EventSourcing
@@ -38,6 +39,7 @@ namespace Composable.CQRS.EventSourcing
             evt.AggregateRootVersion = ++Version;
             evt.AggregateRootId = Id;
             _unCommittedEvents.Add(evt);
+            DomainEvent.Raise(evt);//Fixme: Don't do this synchronously!
         }
 
         private void DoApply(IAggregateRootEvent evt)

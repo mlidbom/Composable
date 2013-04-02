@@ -28,16 +28,21 @@ namespace Composable.CQRS.Command
             {
                 using (new TransactionScope(TransactionScopeOption.Suppress))
                 {
-                    var commandFailed = new TCommandFailed
-                    {
-                        CommandId = message.Id,
-                        Message = e.Message,
-                    };
+                    var commandFailed = CreateCommandFailedException(e, message);
                     _bus.Reply(commandFailed);
                 }
                 //Always throw uncaught Exceptions so that surrounding infrastructure can handle it
                 throw;
             }
+        }
+
+        protected virtual TCommandFailed CreateCommandFailedException(Exception e, TCommand message)
+        {
+            return new TCommandFailed
+            {
+                CommandId = message.Id,
+                Message = e.Message,
+            };
         }
         protected abstract TCommandSuccess HandleCommand(TCommand command);
     }

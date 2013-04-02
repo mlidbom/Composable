@@ -7,7 +7,7 @@ namespace Composable.CQRS.Command
 {
     public abstract class CommandHandlerBase<TCommand, TCommandSuccess, TCommandFailed> : IHandleMessages<TCommand>
         where TCommand : Command
-        where TCommandSuccess : CommandSuccess, new()
+        where TCommandSuccess : CommandSuccess
         where TCommandFailed : CommandFailed, new()
     {
         private readonly IServiceBus _bus;

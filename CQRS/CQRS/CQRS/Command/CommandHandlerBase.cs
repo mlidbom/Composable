@@ -29,7 +29,7 @@ namespace Composable.CQRS.Command
                 using (new TransactionScope(TransactionScopeOption.Suppress))
                 {
                     var commandFailed = CreateCommandFailedException(e, message);
-                    _bus.Reply(commandFailed);
+                    _bus.Publish(commandFailed);
                 }
                 //Always throw uncaught Exceptions so that surrounding infrastructure can handle it
                 throw;

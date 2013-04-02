@@ -18,7 +18,7 @@ namespace CQRS.Tests.CQRS
         {
             //Arrange
             var busMock = new Mock<IServiceBus>(MockBehavior.Strict);
-            busMock.Setup(bus => bus.Reply(It.IsAny<CommandFailed>()));
+            busMock.Setup(bus => bus.Publish(It.IsAny<CommandFailed>()));
 
             var saga = new SagaDummy(busMock.Object);
             
@@ -33,7 +33,7 @@ namespace CQRS.Tests.CQRS
             finally
             {
                 //Assert
-                busMock.Verify(bus => bus.Reply(It.IsAny<CommandFailed>()), Times.Once());
+                busMock.Verify(bus => bus.Publish(It.IsAny<CommandFailed>()), Times.Once());
                 saga.Completed.Should().Be(true);
             }
         }

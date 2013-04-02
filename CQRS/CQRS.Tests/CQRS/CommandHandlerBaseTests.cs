@@ -38,7 +38,7 @@ namespace CQRS.Tests.CQRS
         {
             public CommandHandlerDummy(IServiceBus bus) : base(bus) { }
 
-            override protected void HandleCommand(CommandDummy command)
+            override protected CommandSuccessDummy HandleCommand(CommandDummy command)
             {
                 throw new NotImplementedException();
             }

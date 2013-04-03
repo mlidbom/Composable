@@ -22,7 +22,10 @@ namespace Composable.CQRS.Command
             try
             {
                 var commandSuccess = HandleCommand(message);
-                _bus.Reply(commandSuccess);
+                using(new TransactionScope(TransactionScopeOption.Suppress))
+                {
+                    _bus.Publish(commandSuccess);
+                }
             }
             catch (Exception e)
             {

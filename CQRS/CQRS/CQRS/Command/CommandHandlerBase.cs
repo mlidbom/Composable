@@ -21,11 +21,7 @@ namespace Composable.CQRS.Command
         {
             try
             {
-                var commandSuccess = HandleCommand(message);
-                using(new TransactionScope(TransactionScopeOption.Suppress))
-                {
-                    _bus.Publish(commandSuccess);
-                }
+                HandleCommand(message);
             }
             catch (Exception e)
             {
@@ -47,7 +43,7 @@ namespace Composable.CQRS.Command
                 Message = e.Message,
             };
         }
-        protected abstract TCommandSuccess HandleCommand(TCommand command);
+        protected abstract void HandleCommand(TCommand command);
     }
 
 

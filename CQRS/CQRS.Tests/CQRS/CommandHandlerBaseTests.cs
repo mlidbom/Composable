@@ -34,18 +34,17 @@ namespace CQRS.Tests.CQRS
 
         public class CommandDummy : Composable.CQRS.Command.Command
         { }
-        public class CommandHandlerDummy : CommandHandlerBase<CommandDummy, CommandSuccessDummy, CommandFailedDummy>
+        public class CommandHandlerDummy : CommandHandlerBase<CommandDummy, CommandFailedDummy>
         {
             public CommandHandlerDummy(IServiceBus bus) : base(bus) { }
 
-            override protected CommandSuccessDummy HandleCommand(CommandDummy command)
+            override protected void HandleCommand(CommandDummy command)
             {
                 throw new NotImplementedException();
             }
         }
         public class CommandFailedDummy:CommandFailed
         {}
-        public class CommandSuccessDummy:CommandSuccess
-        {}
+        
     }
 }

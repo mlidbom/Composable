@@ -99,6 +99,7 @@
     <Compile Include="CQRS\Command\ForceDistributedTransactionsCommandServiceDecorator.cs" />
     <Compile Include="CQRS\Command\GlobalValidationFailure.cs" />
     <Compile Include="CQRS\Command\ForwardToEntityCommandHandler.cs" />
+    <Compile Include="CQRS\Command\ICommand.cs" />
     <Compile Include="CQRS\Command\ICommandHandler.cs" />
     <Compile Include="CQRS\Command\ICommandService.cs" />
     <Compile Include="CQRS\Command\ICommandValidationService.cs" />

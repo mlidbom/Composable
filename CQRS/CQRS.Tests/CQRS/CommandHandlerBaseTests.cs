@@ -2,6 +2,7 @@
 using Composable.CQRS.Command;
 using Composable.ServiceBus;
 using Moq;
+using NServiceBus.Unicast.Transport;
 using NUnit.Framework;
 
 namespace CQRS.Tests.CQRS
@@ -10,8 +11,7 @@ namespace CQRS.Tests.CQRS
     class CommandHandlerBaseTests
     {
         [Test]
-        [ExpectedException (typeof(NotImplementedException))]
-        public void CommanHandlerBase_should_send_commandFailedEvent_and_throw_underlying_Exceptions()
+        public void CommanHandlerBase_should_send_commandFailedEvent_and_throw_AbortHandlingCurrentMessageException_Exceptions()
         {
             //Arrange
             var busMock = new Mock<IServiceBus>(MockBehavior.Strict);
@@ -21,15 +21,10 @@ namespace CQRS.Tests.CQRS
             var command = new CommandDummy();
 
             //Act
-            try
-            {
-                commandHandler.Handle(command);
-            }
-            finally
-            {
-                //Assert
-                busMock.Verify(bus => bus.Publish(It.IsAny<CommandFailed>()), Times.Once());    
-            }
+            Assert.Throws<AbortHandlingCurrentMessageException>(() => commandHandler.Handle(command));
+
+            //Assert
+            busMock.Verify(bus => bus.Publish(It.IsAny<CommandFailed>()), Times.Once());    
         }
 
         public class CommandDummy : Composable.CQRS.Command.Command
@@ -44,7 +39,11 @@ namespace CQRS.Tests.CQRS
             }
         }
         public class CommandFailedDummy:CommandFailed
-        {}
+        {
+            [Obsolete("This is only for serialization", true)]
+            public CommandFailedDummy()
+            {}
+        }
         
     }
 }

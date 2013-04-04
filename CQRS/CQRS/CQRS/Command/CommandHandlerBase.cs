@@ -2,11 +2,12 @@
 using System.Transactions;
 using Composable.ServiceBus;
 using NServiceBus;
+using NServiceBus.Unicast.Transport;
 
 namespace Composable.CQRS.Command
 {
     public abstract class CommandHandlerBase<TCommand, TCommandFailed> : IHandleMessages<TCommand>
-        where TCommand : Command
+        where TCommand : ICommand
         where TCommandFailed : CommandFailed, new()
     {
         private readonly IServiceBus _bus;
@@ -18,6 +19,7 @@ namespace Composable.CQRS.Command
 
         public void Handle(TCommand message)
         {
+            IBus bus = null;
             try
             {
                 HandleCommand(message);
@@ -29,8 +31,8 @@ namespace Composable.CQRS.Command
                     var commandFailed = CreateCommandFailedException(e, message);
                     _bus.Publish(commandFailed);
                 }
-                //Always throw uncaught Exceptions so that surrounding infrastructure can handle it
-                throw;
+                //Make sure that NServiceBus will roll back the transaction and throw this message away rather than move it to the error queue.
+                throw new AbortHandlingCurrentMessageException();
             }
         }
 

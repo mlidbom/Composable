@@ -1,8 +1,11 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Transactions;
 using Composable.ServiceBus;
+using Composable.System.Linq;
 using NServiceBus;
 using NServiceBus.Unicast.Transport;
+using System.Linq;
 
 namespace Composable.CQRS.Command
 {
@@ -28,7 +31,7 @@ namespace Composable.CQRS.Command
                 using (new TransactionScope(TransactionScopeOption.Suppress))
                 {
                     var commandFailed = CreateCommandFailedException(e, message);
-                    _bus.Publish(commandFailed);
+                    _bus.Reply(commandFailed);
                 }
                 //Make sure that NServiceBus will roll back the transaction and throw this message away rather than move it to the error queue.
                 throw new AbortHandlingCurrentMessageException();

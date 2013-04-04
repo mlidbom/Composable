@@ -15,7 +15,7 @@ namespace CQRS.Tests.CQRS
         {
             //Arrange
             var busMock = new Mock<IServiceBus>(MockBehavior.Strict);
-            busMock.Setup(bus => bus.Publish(It.IsAny<CommandFailed>()));
+            busMock.Setup(bus => bus.Reply(It.IsAny<CommandFailed>()));
 
             var commandHandler = new CommandHandlerDummy(busMock.Object);
             var command = new CommandDummy();
@@ -24,7 +24,7 @@ namespace CQRS.Tests.CQRS
             Assert.Throws<AbortHandlingCurrentMessageException>(() => commandHandler.Handle(command));
 
             //Assert
-            busMock.Verify(bus => bus.Publish(It.IsAny<CommandFailed>()), Times.Once());    
+            busMock.Verify(bus => bus.Reply(It.IsAny<CommandFailed>()), Times.Once());    
         }
 
         public class CommandDummy : Composable.CQRS.Command.Command
@@ -40,9 +40,6 @@ namespace CQRS.Tests.CQRS
         }
         public class CommandFailedDummy:CommandFailed
         {
-            [Obsolete("This is only for serialization", true)]
-            public CommandFailedDummy()
-            {}
         }
         
     }

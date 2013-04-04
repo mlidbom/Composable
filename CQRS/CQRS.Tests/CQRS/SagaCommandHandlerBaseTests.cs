@@ -60,7 +60,11 @@ namespace CQRS.Tests.CQRS
         }
 
         public class CommandFailedDummy : CommandFailed
-        { }
+        {
+            [Obsolete("This is only for serialization", true)]
+            public CommandFailedDummy()
+            { }
+        }
         
     }
 }

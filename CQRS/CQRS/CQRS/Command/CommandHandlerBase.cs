@@ -19,7 +19,6 @@ namespace Composable.CQRS.Command
 
         public void Handle(TCommand message)
         {
-            IBus bus = null;
             try
             {
                 HandleCommand(message);

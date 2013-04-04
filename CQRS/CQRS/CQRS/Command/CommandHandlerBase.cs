@@ -40,10 +40,17 @@ namespace Composable.CQRS.Command
 
         protected virtual TCommandFailed CreateCommandFailedException(Exception e, TCommand message)
         {
+            IEnumerable<string> invalidMembers = Seq.Create<string>();
+            if(e is CommandFailedException)
+            {
+                invalidMembers = ((CommandFailedException)e).InvalidMembers;
+            }
+
             return new TCommandFailed
             {
                 CommandId = message.Id,
                 Message = e.Message,
+                InvalidMembers = invalidMembers.ToArray()
             };
         }
         protected abstract void HandleCommand(TCommand command);

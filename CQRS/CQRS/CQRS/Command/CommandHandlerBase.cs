@@ -24,13 +24,9 @@ namespace Composable.CQRS.Command
             {
                 //Mmmm. Dynamic is not usually OK, but here we want the inheritor to be able to specify an interface or base class, as the 
                 //message to be listened to, while still correctly dispatching the command to the correct handler...
-                var commandResult = _commandService.Execute((dynamic)command);
+                var commandResult = (CommandResult)_commandService.Execute((dynamic)command);
 
-                _bus.Reply(new CommandSuccessResponse
-                           {
-                               CommandId = command.Id,
-                               Events = commandResult.Events.ToArray()
-                           });
+                _bus.Reply(new CommandSuccessResponse(commandId:command.Id, events: commandResult.Events.ToArray()));
             }
             catch(Exception e)
             {

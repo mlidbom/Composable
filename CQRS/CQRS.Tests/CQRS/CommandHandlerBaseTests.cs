@@ -1,21 +1,21 @@
 ﻿using System;
+using Composable.CQRS;
 using Composable.CQRS.Command;
 using Composable.ServiceBus;
 using Moq;
-using NServiceBus.Unicast.Transport;
 using NUnit.Framework;
 
 namespace CQRS.Tests.CQRS
 {
     [TestFixture]
-    class CommandHandlerBaseTests
+    internal class CommandHandlerBaseTests
     {
         [Test]
         public void CommanHandlerBase_should_send_commandFailedEvent_and_rethrows_the_exception_thrown_by_the_inheritor()
         {
             //Arrange
             var busMock = new Mock<IServiceBus>(MockBehavior.Strict);
-            busMock.Setup(bus => bus.Reply(It.IsAny<CommandFailedResponse>()));
+            busMock.Setup(bus => bus.Reply(It.IsAny<CommandExecutionExceptionResponse>()));
 
             var commandHandler = new CommandHandlerDummy(busMock.Object);
             var command = new CommandDummy();
@@ -24,23 +24,23 @@ namespace CQRS.Tests.CQRS
             Assert.Throws<NotImplementedException>(() => commandHandler.Handle(command));
 
             //Assert
-            busMock.Verify(bus => bus.Reply(It.IsAny<CommandFailedResponse>()), Times.Once());    
+            busMock.Verify(bus => bus.Reply(It.IsAny<CommandExecutionExceptionResponse>()), Times.Once());
         }
 
-        public class CommandDummy : Composable.CQRS.Command.Command
-        { }
-        public class CommandHandlerDummy : CommandHandlerBase<CommandDummy, CommandFailedResponseDummy>
-        {
-            public CommandHandlerDummy(IServiceBus bus) : base(bus) { }
+        public class CommandDummy : Composable.CQRS.Command.Command {}
 
-            override protected void HandleCommand(CommandDummy command)
+        public class CommandHandlerDummy : CommandHandlerBase<CommandDummy>
+        {
+            public CommandHandlerDummy(IServiceBus bus) : base(bus, new MyCommandService()) {}
+        }
+
+
+        internal class MyCommandService : ICommandService
+        {
+            public CommandResult Execute<TCommand>(TCommand command)
             {
                 throw new NotImplementedException();
             }
         }
-        public class CommandFailedResponseDummy:CommandFailedResponse
-        {
-        }
-        
     }
 }

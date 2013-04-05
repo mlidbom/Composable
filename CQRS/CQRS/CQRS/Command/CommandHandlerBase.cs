@@ -1,59 +1,59 @@
 ﻿using System;
-using System.Collections.Generic;
+using System.Linq;
 using System.Transactions;
 using Composable.ServiceBus;
-using Composable.System.Linq;
 using NServiceBus;
-using NServiceBus.Unicast.Transport;
-using System.Linq;
 
 namespace Composable.CQRS.Command
 {
-    public abstract class CommandHandlerBase<TCommand, TCommandFailed> : IHandleMessages<TCommand>
+    public abstract class CommandHandlerBase<TCommand> : IHandleMessages<TCommand>
         where TCommand : ICommand
-        where TCommandFailed : CommandFailedResponse, new()
     {
         private readonly IServiceBus _bus;
+        private readonly ICommandService _commandService;
 
-        protected CommandHandlerBase(IServiceBus bus)
+        protected CommandHandlerBase(IServiceBus bus, ICommandService commandService)
         {
             _bus = bus;
+            _commandService = commandService;
         }
 
-        public void Handle(TCommand message)
+        public void Handle(TCommand command)
         {
             try
             {
-                HandleCommand(message);
+                //Mmmm. Dynamic is not usually OK, but here we want the inheritor to be able to specify an interface or base class, as the 
+                //message to be listened to, while still correctly dispatching the command to the correct handler...
+                var commandResult = _commandService.Execute((dynamic)command);
+
+                _bus.Reply(new CommandSuccessResponse
+                           {
+                               CommandId = command.Id,
+                               Events = commandResult.Events.ToArray()
+                           });
             }
-            catch (Exception e)
+            catch(Exception e)
             {
-                using (new TransactionScope(TransactionScopeOption.Suppress))
+                using(new TransactionScope(TransactionScopeOption.Suppress))
                 {
-                    var commandFailed = CreateCommandFailedException(e, message);
-                    _bus.Reply(commandFailed);
+                    if(e is DomainCommandValidationException)
+                    {
+                        var commandFailedException = e as DomainCommandValidationException;
+                        _bus.Reply(new CommandDomainValidationExceptionResponse
+                                   {
+                                       CommandId = command.Id,
+                                       Message = commandFailedException.Message,
+                                       InvalidMembers = commandFailedException.InvalidMembers.ToArray()
+                                   });
+                    }
+                    //todo:Try to get retries working sanely here since it may be an intermittent error such as a timeout or deadlock etc...
+                    _bus.Reply(new CommandExecutionExceptionResponse
+                               {
+                                   CommandId = command.Id
+                               });
                 }
-                throw;//This currently requires that retries is set to 0 to behave correctly.
+                throw; //This currently requires that retries is set to 0 to behave correctly.
             }
         }
-
-        protected virtual TCommandFailed CreateCommandFailedException(Exception e, TCommand message)
-        {
-            IEnumerable<string> invalidMembers = Seq.Create<string>();
-            if(e is CommandFailedException)
-            {
-                invalidMembers = ((CommandFailedException)e).InvalidMembers;
-            }
-
-            return new TCommandFailed
-            {
-                CommandId = message.Id,
-                Message = e.Message,
-                InvalidMembers = invalidMembers.ToArray()
-            };
-        }
-        protected abstract void HandleCommand(TCommand command);
     }
-
-
 }

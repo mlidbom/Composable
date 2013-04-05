@@ -11,7 +11,7 @@ namespace Composable.CQRS.Command
 {
     public abstract class CommandHandlerBase<TCommand, TCommandFailed> : IHandleMessages<TCommand>
         where TCommand : ICommand
-        where TCommandFailed : CommandFailed, new()
+        where TCommandFailed : CommandFailedResponse, new()
     {
         private readonly IServiceBus _bus;
 
@@ -33,8 +33,7 @@ namespace Composable.CQRS.Command
                     var commandFailed = CreateCommandFailedException(e, message);
                     _bus.Reply(commandFailed);
                 }
-                //Make sure that NServiceBus will roll back the transaction and throw this message away rather than move it to the error queue.
-                throw new AbortHandlingCurrentMessageException();
+                throw;//This currently requires that retries is set to 0 to behave correctly.
             }
         }
 

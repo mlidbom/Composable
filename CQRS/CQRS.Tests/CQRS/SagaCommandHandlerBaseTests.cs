@@ -18,7 +18,7 @@ namespace CQRS.Tests.CQRS
         {
             //Arrange
             var busMock = new Mock<IServiceBus>(MockBehavior.Strict);
-            busMock.Setup(bus => bus.Publish(It.IsAny<CommandFailed>()));
+            busMock.Setup(bus => bus.Publish(It.IsAny<CommandFailedResponse>()));
 
             var saga = new SagaDummy(busMock.Object);
             
@@ -33,7 +33,7 @@ namespace CQRS.Tests.CQRS
             finally
             {
                 //Assert
-                busMock.Verify(bus => bus.Publish(It.IsAny<CommandFailed>()), Times.Once());
+                busMock.Verify(bus => bus.Publish(It.IsAny<CommandFailedResponse>()), Times.Once());
                 saga.Completed.Should().Be(true);
             }
         }
@@ -49,7 +49,7 @@ namespace CQRS.Tests.CQRS
             public string OriginalMessageId { get; set; }
         }
 
-        private class SagaDummy : SagaBase<SagaDataDummy, CommandDummy, CommandFailedDummy> 
+        private class SagaDummy : SagaBase<SagaDataDummy, CommandDummy, CommandFailedResponseDummy> 
         {
             public SagaDummy(IServiceBus bus) : base(bus) { }
 
@@ -59,10 +59,10 @@ namespace CQRS.Tests.CQRS
             }
         }
 
-        public class CommandFailedDummy : CommandFailed
+        public class CommandFailedResponseDummy : CommandFailedResponse
         {
             [Obsolete("This is only for serialization", true)]
-            public CommandFailedDummy()
+            public CommandFailedResponseDummy()
             { }
         }
         

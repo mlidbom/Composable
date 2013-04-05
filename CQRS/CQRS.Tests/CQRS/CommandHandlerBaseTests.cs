@@ -11,7 +11,7 @@ namespace CQRS.Tests.CQRS
     class CommandHandlerBaseTests
     {
         [Test]
-        public void CommanHandlerBase_should_send_commandFailedEvent_and_throw_AbortHandlingCurrentMessageException_Exceptions()
+        public void CommanHandlerBase_should_send_commandFailedEvent_and_rethrows_the_exception_thrown_by_the_inheritor()
         {
             //Arrange
             var busMock = new Mock<IServiceBus>(MockBehavior.Strict);
@@ -21,7 +21,7 @@ namespace CQRS.Tests.CQRS
             var command = new CommandDummy();
 
             //Act
-            Assert.Throws<AbortHandlingCurrentMessageException>(() => commandHandler.Handle(command));
+            Assert.Throws<NotImplementedException>(() => commandHandler.Handle(command));
 
             //Assert
             busMock.Verify(bus => bus.Reply(It.IsAny<CommandFailed>()), Times.Once());    

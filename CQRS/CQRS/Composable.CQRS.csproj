@@ -86,7 +86,7 @@
       <Link>ModuleInitializer.cs</Link>
     </Compile>
     <Compile Include="CQRS\Command\Command.cs" />
-    <Compile Include="CQRS\Command\CommandFailed.cs" />
+    <Compile Include="CQRS\Command\CommandFailedResponse.cs" />
     <Compile Include="CQRS\Command\CommandFailedEvent.cs" />
     <Compile Include="CQRS\Command\CommandFailedException.cs" />
     <Compile Include="CQRS\Command\CommandHandlerBase.cs" />
@@ -101,6 +101,7 @@
     <Compile Include="CQRS\Command\ForwardToEntityCommandHandler.cs" />
     <Compile Include="CQRS\Command\ICommand.cs" />
     <Compile Include="CQRS\Command\ICommandHandler.cs" />
+    <Compile Include="CQRS\Command\ICommandResponseMessage.cs" />
     <Compile Include="CQRS\Command\ICommandService.cs" />
     <Compile Include="CQRS\Command\ICommandValidationService.cs" />
     <Compile Include="CQRS\Command\ICommandValidator.cs" />

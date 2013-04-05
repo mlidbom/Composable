@@ -86,7 +86,8 @@
       <Link>ModuleInitializer.cs</Link>
     </Compile>
     <Compile Include="CQRS\Command\Command.cs" />
-    <Compile Include="CQRS\Command\CommandFailedResponse.cs" />
+    <Compile Include="CQRS\Command\CommandDomainValidationExceptionResponse.cs" />
+    <Compile Include="CQRS\Command\CommandExecutionExceptionResponse.cs" />
     <Compile Include="CQRS\Command\CommandFailedEvent.cs" />
     <Compile Include="CQRS\Command\CommandFailedException.cs" />
     <Compile Include="CQRS\Command\CommandHandlerBase.cs" />
@@ -96,13 +97,16 @@
     <Compile Include="CQRS\Command\CommandSuccess.cs" />
     <Compile Include="CQRS\Command\CommandValidationService.cs" />
     <Compile Include="CQRS\Command\CompositeCommand.cs" />
+    <Compile Include="CQRS\Command\DomainCommandValidationException.cs" />
     <Compile Include="CQRS\Command\ForceDistributedTransactionsCommandServiceDecorator.cs" />
     <Compile Include="CQRS\Command\GlobalValidationFailure.cs" />
     <Compile Include="CQRS\Command\ForwardToEntityCommandHandler.cs" />
     <Compile Include="CQRS\Command\ICommand.cs" />
+    <Compile Include="CQRS\Command\ICommandFailedResponse.cs" />
     <Compile Include="CQRS\Command\ICommandHandler.cs" />
     <Compile Include="CQRS\Command\ICommandResponseMessage.cs" />
     <Compile Include="CQRS\Command\ICommandService.cs" />
+    <Compile Include="CQRS\Command\ICommandSuccessResponse.cs" />
     <Compile Include="CQRS\Command\ICommandValidationService.cs" />
     <Compile Include="CQRS\Command\ICommandValidator.cs" />
     <Compile Include="CQRS\Command\IEntityCommandHandler.cs" />

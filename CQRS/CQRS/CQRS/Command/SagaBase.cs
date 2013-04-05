@@ -14,7 +14,7 @@ namespace Composable.CQRS.Command
     public abstract class SagaBase<TSagaData, TCommand, TCommandFailed> : Saga<TSagaData>, IAmStartedByMessages<TCommand>
         where TSagaData : ISagaEntity
         where TCommand : Command
-        where TCommandFailed: CommandFailedResponse, new()
+        where TCommandFailed: CommandDomainValidationExceptionResponse, new()
     {
         private readonly IServiceBus _bus;
 

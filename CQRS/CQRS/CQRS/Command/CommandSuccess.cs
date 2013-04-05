@@ -2,9 +2,8 @@
 
 namespace Composable.CQRS.Command
 {
-    public abstract class CommandSuccess : ICommandMessage
+    public class CommandSuccessResponse : ICommandResponseMessage
     {
         public Guid CommandId { get; set; }
-        public string Message { get; set; }
     }
 }

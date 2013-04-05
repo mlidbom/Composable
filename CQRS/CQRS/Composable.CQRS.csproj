@@ -94,7 +94,7 @@
     <Compile Include="CQRS\Command\CommandResult.cs" />
     <Compile Include="CQRS\Command\CommandService.cs" />
     <Compile Include="CQRS\Command\CommandSucceededEvent.cs" />
-    <Compile Include="CQRS\Command\CommandSuccess.cs" />
+    <Compile Include="CQRS\Command\CommandSuccessResponse.cs" />
     <Compile Include="CQRS\Command\CommandValidationService.cs" />
     <Compile Include="CQRS\Command\CompositeCommand.cs" />
     <Compile Include="CQRS\Command\DomainCommandValidationException.cs" />

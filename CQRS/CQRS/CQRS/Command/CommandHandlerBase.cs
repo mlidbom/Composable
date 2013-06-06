@@ -39,7 +39,7 @@ namespace Composable.CQRS.Command
                                    {
                                        CommandId = command.Id,
                                        Message = commandFailedException.Message,
-                                       InvalidMembers = commandFailedException.InvalidMembers.ToArray()
+                                       InvalidMembers = commandFailedException.InvalidMembers.ToList()
                                    });
                     }
                     //todo:Try to get retries working sanely here since it may be an intermittent error such as a timeout or deadlock etc...

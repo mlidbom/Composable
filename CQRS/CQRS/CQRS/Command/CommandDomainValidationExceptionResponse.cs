@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace Composable.CQRS.Command
 {
@@ -6,6 +7,6 @@ namespace Composable.CQRS.Command
     {
         public Guid CommandId { get; set; }
         public string Message { get; set; }
-        public string[] InvalidMembers { get; set; }
+        public List<string> InvalidMembers { get; set; }
     }
 }

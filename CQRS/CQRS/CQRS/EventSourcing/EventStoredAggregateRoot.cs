@@ -42,7 +42,17 @@ namespace Composable.CQRS.EventSourcing
             DomainEvent.Raise(evt);//Fixme: Don't do this synchronously!
         }
 
-        protected void ApplyAs(IAggregateRootEvent evt, Type applyAs)
+        /// <summary>
+        /// Dispatches an event to handlers as if it was the type specified.
+        /// It is intended to let inheriting classes use the base class code to handle an event while 
+        /// still mainining the ability to easily modify the logic and choose when to run the base class. (Usually before or after the subclass code..) 
+        /// </summary>
+        protected void ApplyAs<TApplyAs>(IAggregateRootEvent evt)
+        {
+            ApplyAs(evt, typeof(TApplyAs));
+        }
+        
+        private void ApplyAs(IAggregateRootEvent evt, Type applyAs)
         {
             Action<IAggregateRootEvent> handler;
 

@@ -35,30 +35,30 @@ namespace Composable.CQRS.EventSourcing
 
         protected void ApplyEvent(IAggregateRootEvent evt)
         {
-            DoApply(evt);
+            ApplyAs(evt, evt.GetType());
             evt.AggregateRootVersion = ++Version;
             evt.AggregateRootId = Id;
             _unCommittedEvents.Add(evt);
             DomainEvent.Raise(evt);//Fixme: Don't do this synchronously!
         }
 
-        private void DoApply(IAggregateRootEvent evt)
+        protected void ApplyAs(IAggregateRootEvent evt, Type applyAs)
         {
             Action<IAggregateRootEvent> handler;
 
-            if (_registeredEvents.TryGetValue(evt.GetType(), out handler))
+            if (_registeredEvents.TryGetValue(applyAs, out handler))
             {
                 handler(evt);
             }
             else
             {
-                throw new RegisteredHandlerMissingException(this.GetType(), evt);
+                throw new RegisteredHandlerMissingException(this.GetType(), evt, applyAs);
             }
         }
 
         void IEventStored.LoadFromHistory(IEnumerable<IAggregateRootEvent> evts)
         {
-            evts.ForEach(DoApply);
+            evts.ForEach(evt => ApplyAs(evt, evt.GetType()));
             Version = evts.Max(e => e.AggregateRootVersion);
         }
 

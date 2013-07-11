@@ -6,6 +6,37 @@ using NUnit.Framework;
 
 namespace CQRS.Tests.CQRS.EventSourcing
 {
+    public class EventStoredAggregateRootTests
+    {
+        [Test]
+        public void ApplyAs_should_apply_by_base_event_handler()
+        {
+            // Arrange
+            var admin = new Administrator();
+
+            // Act
+            admin.Register("admin@gmail.com");
+
+            // Assert
+            admin.Email.Should().Be("admin@gmail.com");
+        }
+
+        [Test]
+        public void ApplyAs_should_just_add_actual_event_to_changes_list()
+        {
+            // Arrange
+            var admin = new Administrator();
+
+            // Act
+            admin.Register("admin@gmail.com");
+            var evnetStore = admin as IEventStored;
+
+            // Assert
+            evnetStore.GetChanges().First().Should().BeOfType<AdministratorRegisteredEvent>();
+            evnetStore.GetChanges().Count().Should().Be(1);
+        }
+    }
+
     public interface IAccountRegisteredEvent : IAggregateRootEvent
     {
         string Email { get; }
@@ -47,37 +78,6 @@ namespace CQRS.Tests.CQRS.EventSourcing
         protected override IAccountRegisteredEvent CreateRegisteredEvent(string email)
         {
             return new AdministratorRegisteredEvent { Email = email };
-        }
-    }
-
-    public class EventStoredAggregateRootTests
-    {
-        [Test]
-        public void ApplyAs_should_apply_by_base_event_handler()
-        {
-            // Arrange
-            var admin = new Administrator();
-
-            // Act
-            admin.Register("admin@gmail.com");
-
-            // Assert
-            admin.Email.Should().Be("admin@gmail.com");
-        }
-
-        [Test]
-        public void ApplyAs_should_just_add_actual_event_to_changes_list()
-        {
-            // Arrange
-            var admin = new Administrator();
-
-            // Act
-            admin.Register("admin@gmail.com");
-            var evnetStore = admin as IEventStored;
-
-            // Assert
-            evnetStore.GetChanges().First().Should().BeOfType<AdministratorRegisteredEvent>();
-            evnetStore.GetChanges().Count().Should().Be(1);
         }
     }
 }

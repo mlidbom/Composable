@@ -119,6 +119,7 @@
     <Compile Include="CQRS\CommandHandlerBaseTests.cs" />
     <Compile Include="CQRS\EventSourcing\AggregateRootTests.cs" />
     <Compile Include="CQRS\EventSourcing\EventSomethingOrOtherTest.cs" />
+    <Compile Include="CQRS\EventSourcing\EventStoredAggregateRootTests.cs" />
     <Compile Include="CQRS\EventSourcing\EventStoreTests.cs" />
     <Compile Include="CQRS\EventSourcing\InMemoryEventStoreTests.cs" />
     <Compile Include="CQRS\EventSourcing\Sql\SQLServerEventSomethingOrOtherTest.cs" />

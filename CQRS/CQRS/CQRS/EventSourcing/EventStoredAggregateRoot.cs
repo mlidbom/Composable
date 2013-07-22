@@ -35,30 +35,40 @@ namespace Composable.CQRS.EventSourcing
 
         protected void ApplyEvent(IAggregateRootEvent evt)
         {
-            DoApply(evt);
+            ApplyAs(evt, evt.GetType());
             evt.AggregateRootVersion = ++Version;
             evt.AggregateRootId = Id;
             _unCommittedEvents.Add(evt);
             DomainEvent.Raise(evt);//Fixme: Don't do this synchronously!
         }
 
-        private void DoApply(IAggregateRootEvent evt)
+        /// <summary>
+        /// Dispatches an event to handlers as if it was the type specified.
+        /// It is intended to let inheriting classes use the base class code to handle an event while 
+        /// still mainining the ability to easily modify the logic and choose when to run the base class. (Usually before or after the subclass code..) 
+        /// </summary>
+        protected void ApplyAs<TApplyAs>(IAggregateRootEvent evt)
+        {
+            ApplyAs(evt, typeof(TApplyAs));
+        }
+        
+        private void ApplyAs(IAggregateRootEvent evt, Type applyAs)
         {
             Action<IAggregateRootEvent> handler;
 
-            if (_registeredEvents.TryGetValue(evt.GetType(), out handler))
+            if (_registeredEvents.TryGetValue(applyAs, out handler))
             {
                 handler(evt);
             }
             else
             {
-                throw new RegisteredHandlerMissingException(this.GetType(), evt);
+                throw new RegisteredHandlerMissingException(this.GetType(), evt, applyAs);
             }
         }
 
         void IEventStored.LoadFromHistory(IEnumerable<IAggregateRootEvent> evts)
         {
-            evts.ForEach(DoApply);
+            evts.ForEach(evt => ApplyAs(evt, evt.GetType()));
             Version = evts.Max(e => e.AggregateRootVersion);
         }
 

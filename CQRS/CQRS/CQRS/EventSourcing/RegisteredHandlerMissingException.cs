@@ -5,12 +5,12 @@ namespace Composable.CQRS.EventSourcing
 {
     public class RegisteredHandlerMissingException : Exception
     {
-        public RegisteredHandlerMissingException(Type handlerType, IAggregateRootEvent evt)
+        public RegisteredHandlerMissingException(Type handlerType, IAggregateRootEvent evt, Type applyAs)
             : base(
                 // ReSharper disable FormatStringProblem
-            @"{0} does not have a registered handler action for incoming event {1}. " +
+            @"{0} does not have a registered handler action for incoming event {1} being handled as {2}. " +
             "Add one in the constructor for the AggregateRootEntity by calling " +
-            "Register(Handler.For<{1}>().OnApply(e => {{}})".FormatWith(handlerType, evt.GetType()))
+            "Register(Handler.For<{1}>().OnApply(e => {{}})".FormatWith(handlerType, evt.GetType(), applyAs))
                 // ReSharper restore FormatStringProblem
         {
 

@@ -22,11 +22,30 @@ namespace CQRS.Tests.KeyValueStorage.Sql
                     IDocumentUpdated documentUpdated = null;
                     IDocumentUpdated<string> typedDocumentUpdated = null;
                     IDisposable subscription = null;
+                    IDisposable typedSubscription = null;
+                    IDisposable documentSubscription = null;
+                    string receivedDocument = null;
+                    Action removeSubscriptions = () =>
+                                                 {
+                                                     // ReSharper disable PossibleNullReferenceException
+                                                     subscription.Dispose();
+                                                     typedSubscription.Dispose();
+                                                     documentSubscription.Dispose();
+                                                     // ReSharper restore PossibleNullReferenceException
+                                                 };
+
+                    Action nullOutReceived = () =>
+                                             {
+                                                 documentUpdated = null;
+                                                 typedDocumentUpdated = null;
+                                                 receivedDocument = null;
+                                             };
                     before = () =>
                              {
-                                 documentUpdated = null;
-                                 typedDocumentUpdated = null;
+                                 nullOutReceived();
                                  subscription = _store.Subscribe(updated => { documentUpdated = updated; });
+                                 typedSubscription = _store.WithDocumentType<string>().Subscribe(updated => typedDocumentUpdated = updated);
+                                 documentSubscription = _store.DocumentsOfType<string>().Subscribe(document => receivedDocument = document);
                              };
                     context["when adding a document with the id \"the_id\" and the value \"the_value\""] =
                         () =>
@@ -41,59 +60,71 @@ namespace CQRS.Tests.KeyValueStorage.Sql
                         () =>
                         {
                             before = () =>
-                                     {                                         
+                                     {
                                          _store.Add("the_id", "the_value");
-                                         documentUpdated = null;
+                                         nullOutReceived();
                                      };
 
                             context["when updating the object using the value \"the value\""] =
                                 () =>
                                 {
                                     act = () => _store.Update(new Dictionary<string, object>()
-                                                             {
-                                                                 {"the_id", "the_value"}
-                                                             });
+                                                              {
+                                                                  {"the_id", "the_value"}
+                                                              });
 
                                     it["subscriber is not notified"] = () => documentUpdated.Should().BeNull();
+                                    it["typed subscriber is not notified"] = () => typedDocumentUpdated.Should().BeNull();
+                                    it["no document is received"] = () => receivedDocument.Should().BeNull();
                                 };
 
                             context["when updating the object using the value \"another_value\""] =
                                 () =>
                                 {
                                     act = () => _store.Update(new Dictionary<string, object>()
-                                                             {
-                                                                 {"the_id", "another_value"}
-                                                             });
+                                                              {
+                                                                  {"the_id", "another_value"}
+                                                              });
 
                                     it["DocumentUpdated is received"] = () => documentUpdated.Should().NotBeNull();
                                     it["documentUpdated.Key is the_id"] = () => documentUpdated.Key.Should().Be("the_id");
                                     it["documentUpdated.DocumentType is \"another_value\""] = () => documentUpdated.Document.Should().Be("another_value");
+
+                                    it["typedDocumentUpdated is received"] = () => typedDocumentUpdated.Should().NotBeNull();
+                                    it["typedDocumentUpdated.Key is the_id"] = () => typedDocumentUpdated.Key.Should().Be("the_id");
+                                    it["documentUpdated.DocumentType is \"another_value\""] = () => typedDocumentUpdated.Document.Should().Be("another_value");
+
+                                    it["receivedDocument is \"another_value\""] = () => receivedDocument.Should().Be("another_value");
                                 };
                             context["after unsubscribing"] =
                                 () =>
                                 {
-                                    before = () => subscription.Dispose();
+                                    before = removeSubscriptions;
                                     context["when updating the object using the value \"another value\""] =
                                         () =>
                                         {
                                             act = () => _store.Update(new Dictionary<string, object>()
-                                                                     {
-                                                                         {"the_id", "another_value"}
-                                                                     });
+                                                                      {
+                                                                          {"the_id", "another_value"}
+                                                                      });
 
                                             it["DocumentUpdated is not received"] = () => documentUpdated.Should().BeNull();
+                                            it["typedDocumentUpdated is not received"] = () => typedDocumentUpdated.Should().BeNull();
+                                            it["no document is received"] = () => receivedDocument.Should().BeNull();
                                         };
                                 };
                         };
                     context["after unsubscribing"] =
                         () =>
                         {
-                            before = () => subscription.Dispose();
+                            before = removeSubscriptions;
                             context["when adding a document with the id \"the_id\" and the value \"the_value\""] =
                                 () =>
                                 {
                                     act = () => _store.Add("the_id", "the_value");
                                     it["DocumentUpdated is not received"] = () => documentUpdated.Should().BeNull();
+                                    it["typedDocumentUpdated is not received"] = () => typedDocumentUpdated.Should().BeNull();
+                                    it["no document is received"] = () => receivedDocument.Should().BeNull();
                                 };
                         };
                 };
@@ -105,7 +136,7 @@ namespace CQRS.Tests.KeyValueStorage.Sql
             {
                 var db = new SqlServerDocumentDb(ConnectionString, SqlServerDocumentDbConfig.Default);
                 SqlServerDocumentDb.ResetDB(ConnectionString);
-                _store = new SqlServerObjectStore(db);            
+                _store = new SqlServerObjectStore(db);
             }
         }
 

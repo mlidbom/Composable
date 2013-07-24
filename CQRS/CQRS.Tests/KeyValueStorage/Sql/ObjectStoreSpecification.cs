@@ -43,9 +43,9 @@ namespace CQRS.Tests.KeyValueStorage.Sql
                     before = () =>
                              {
                                  nullOutReceived();
-                                 subscription = _store.Subscribe(updated => { documentUpdated = updated; });
-                                 typedSubscription = _store.WithDocumentType<string>().Subscribe(updated => typedDocumentUpdated = updated);
-                                 documentSubscription = _store.DocumentsOfType<string>().Subscribe(document => receivedDocument = document);
+                                 subscription = _store.DocumentUpdated.Subscribe(updated => { documentUpdated = updated; });
+                                 typedSubscription = _store.DocumentUpdated.WithDocumentType<string>().Subscribe(updated => typedDocumentUpdated = updated);
+                                 documentSubscription = _store.DocumentUpdated.DocumentsOfType<string>().Subscribe(document => receivedDocument = document);
                              };
                     context["when adding a document with the id \"the_id\" and the value \"the_value\""] =
                         () =>

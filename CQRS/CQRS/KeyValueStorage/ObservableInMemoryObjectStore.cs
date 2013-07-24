@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
-using Composable.KeyValueStorage.SqlServer;
 using Composable.NewtonSoft;
 using Composable.System.Collections.Collections;
 using Composable.System.Linq;

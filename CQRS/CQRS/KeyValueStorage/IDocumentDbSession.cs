@@ -6,7 +6,7 @@ using Composable.UnitsOfWork;
 
 namespace Composable.KeyValueStorage
 {
-    public interface IDocumentDbSession : IDisposable
+    public interface IDocumentDbSession : IDisposable, IObservable<IDocumentUpdated>
     {
         TValue Get<TValue>(object key);
         bool TryGet<TValue>(object key, out TValue value);

@@ -96,5 +96,10 @@ namespace Composable.KeyValueStorage
         }
 
         #endregion
+
+        public IDisposable Subscribe(IObserver<IDocumentUpdated> observer)
+        {
+            return Session.Subscribe(observer);
+        }
     }
 }

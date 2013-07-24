@@ -5,7 +5,7 @@ namespace Composable.KeyValueStorage
 {
     public interface IDocumentDb
     {
-        IObjectStore CreateStore();
+        IObservableObjectStore CreateStore();
         IDocumentDbSession OpenSession(ISingleContextUseGuard guard);
     }
 }

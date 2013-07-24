@@ -6,10 +6,10 @@ namespace Composable.KeyValueStorage
 {
     public class InMemoryDocumentDb : IDocumentDb
     {
-        private readonly IObjectStore _store = new InMemoryObjectStore();
+        private readonly IObservableObjectStore _store = new ObservableInMemoryObjectStore();
         protected InMemoryDocumentDbConfig Config { get; private set; }
 
-        public IObjectStore CreateStore()
+        public IObservableObjectStore CreateStore()
         {
             return _store;
         }

@@ -1,5 +1,3 @@
-using System;
-
 namespace Composable.KeyValueStorage
 {
     public interface IDocumentUpdated<out TDocument>

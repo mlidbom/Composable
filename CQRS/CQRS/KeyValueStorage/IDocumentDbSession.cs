@@ -1,12 +1,10 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using Composable.DDD;
-using Composable.UnitsOfWork;
 
 namespace Composable.KeyValueStorage
 {
-    public interface IDocumentDbSession : IDisposable, IObservable<IDocumentUpdated>
+    public interface IDocumentDbSession : IDisposable, IDocumentUpdatedNotifier
     {
         TValue Get<TValue>(object key);
         bool TryGet<TValue>(object key, out TValue value);

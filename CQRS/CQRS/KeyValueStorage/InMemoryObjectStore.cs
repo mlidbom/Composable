@@ -60,7 +60,7 @@ namespace Composable.KeyValueStorage
             return id.ToString().ToLower().TrimEnd(' ');
         }
 
-        public void Add<T>(object id, T value)
+        public virtual void Add<T>(object id, T value)
         {
             var idString = GetIdString(id);
             if(Contains(value.GetType(), idString))
@@ -101,16 +101,12 @@ namespace Composable.KeyValueStorage
             values.ForEach( pair => Update(pair.Key, pair.Value));
         }
 
-        public void Update(object key, object value)
+        public virtual void Update(object key, object value)
         {
             object existing;
             if(!TryGet(value.GetType(), key, out existing))
             {
                 throw new NoSuchDocumentException(key, value.GetType());
-            }
-            if(!ReferenceEquals(value, existing))
-            {
-                throw new Exception("FUBAR");
             }
         }
 

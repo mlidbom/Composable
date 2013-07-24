@@ -151,7 +151,7 @@
     <Compile Include="KeyValueStorage\InMemoryDocumentDbTests.cs" />
     <Compile Include="KeyValueStorage\DocumentDbTests.cs" />
     <Compile Include="KeyValueStorage\Sql\SqlDocumentDbTests.cs" />
-    <Compile Include="KeyValueStorage\Sql\SqlServerObjectStoreTests.cs" />
+    <Compile Include="KeyValueStorage\Sql\ObjectStoreSpecification.cs" />
     <Compile Include="KeyValueStorage\User.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Query\WhenExecutingQuery.cs" />

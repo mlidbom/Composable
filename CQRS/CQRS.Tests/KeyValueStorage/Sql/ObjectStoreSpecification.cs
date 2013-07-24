@@ -1,27 +1,21 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Configuration;
+using Composable.KeyValueStorage;
 using Composable.KeyValueStorage.SqlServer;
 using FluentAssertions;
 
 namespace CQRS.Tests.KeyValueStorage.Sql
 {
-    public class SqlServerObjectStoreSpecification : NSpec.NUnit.nspec
+    public abstract class ObjectStoreSpecification : NSpec.NUnit.nspec
     {
         private static readonly string ConnectionString = ConfigurationManager.ConnectionStrings["KeyValueStore"].ConnectionString;
+        private IObservableObjectStore _store = null;
 
+        public abstract void before_each();
 
         public void starting_from_empty()
         {
-            SqlServerObjectStore store = null;
-            before = () =>
-                     {
-                         var db = new SqlServerDocumentDb(ConnectionString, SqlServerDocumentDbConfig.Default);
-                         SqlServerDocumentDb.ResetDB(ConnectionString);
-                         store = new SqlServerObjectStore(db);
-                     };
-
-
             context["after subscribing to document updates"] =
                 () =>
                 {
@@ -30,12 +24,12 @@ namespace CQRS.Tests.KeyValueStorage.Sql
                     before = () =>
                              {
                                  documentUpdated = null;
-                                 subscription = store.Subscribe(updated => { documentUpdated = updated; });
+                                 subscription = _store.Subscribe(updated => { documentUpdated = updated; });
                              };
                     context["when adding a document with the id \"the_id\" and the value \"the_value\""] =
                         () =>
                         {
-                            act = () => store.Add("the_id", "the_value");
+                            act = () => _store.Add("the_id", "the_value");
                             it["DocumentUpdated is received"] = () => documentUpdated.Should().NotBeNull();
                             it["documentUpdated.Key is the_id"] = () => documentUpdated.Key.Should().Be("the_id");
                             it["documentUpdated.DocumentType is string"] = () => documentUpdated.DocumentType.Should().Be<string>();
@@ -46,14 +40,14 @@ namespace CQRS.Tests.KeyValueStorage.Sql
                         {
                             before = () =>
                                      {                                         
-                                         store.Add("the_id", "the_value");
+                                         _store.Add("the_id", "the_value");
                                          documentUpdated = null;
                                      };
 
                             context["when updating the object using the value \"the value\""] =
                                 () =>
                                 {
-                                    act = () => store.Update(new Dictionary<string, object>()
+                                    act = () => _store.Update(new Dictionary<string, object>()
                                                              {
                                                                  {"the_id", "the_value"}
                                                              });
@@ -64,7 +58,7 @@ namespace CQRS.Tests.KeyValueStorage.Sql
                             context["when updating the object using the value \"another value\""] =
                                 () =>
                                 {
-                                    act = () => store.Update(new Dictionary<string, object>()
+                                    act = () => _store.Update(new Dictionary<string, object>()
                                                              {
                                                                  {"the_id", "another_value"}
                                                              });
@@ -80,7 +74,7 @@ namespace CQRS.Tests.KeyValueStorage.Sql
                                     context["when updating the object using the value \"another value\""] =
                                         () =>
                                         {
-                                            act = () => store.Update(new Dictionary<string, object>()
+                                            act = () => _store.Update(new Dictionary<string, object>()
                                                                      {
                                                                          {"the_id", "another_value"}
                                                                      });
@@ -96,11 +90,29 @@ namespace CQRS.Tests.KeyValueStorage.Sql
                             context["when adding a document with the id \"the_id\" and the value \"the_value\""] =
                                 () =>
                                 {
-                                    act = () => store.Add("the_id", "the_value");
+                                    act = () => _store.Add("the_id", "the_value");
                                     it["DocumentUpdated is not received"] = () => documentUpdated.Should().BeNull();
                                 };
                         };
                 };
+        }
+
+        public class SqlServerObjectStoreSpecification : ObjectStoreSpecification
+        {
+            override public void before_each()
+            {
+                var db = new SqlServerDocumentDb(ConnectionString, SqlServerDocumentDbConfig.Default);
+                SqlServerDocumentDb.ResetDB(ConnectionString);
+                _store = new SqlServerObjectStore(db);            
+            }
+        }
+
+        public class SerializingInMemoryObjectStoreSpecification : ObjectStoreSpecification
+        {
+            override public void before_each()
+            {
+                _store = new ObservableInMemoryObjectStore();
+            }
         }
     }
 }

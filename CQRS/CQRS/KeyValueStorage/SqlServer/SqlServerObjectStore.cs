@@ -37,7 +37,7 @@ namespace Composable.KeyValueStorage.SqlServer
 
             EnsureInitialized(_store.ConnectionString);
 
-            _observable = Observable.Create<IDocumentUpdated>(
+            DocumentUpdated = Observable.Create<IDocumentUpdated>(
                 obs =>
                 {
                     _observers.Add(obs);
@@ -45,20 +45,14 @@ namespace Composable.KeyValueStorage.SqlServer
                 });
         }
 
+        public IObservable<IDocumentUpdated> DocumentUpdated { get; private set; }
+
         private void NotifySubscribersDocumentUpdated(string key, object document)
         {
             _observers.ForEach( observer => observer.OnNext(new DocumentUpdated(key, document)));
         }
 
         private readonly ISet<IObserver<IDocumentUpdated>> _observers = new HashSet<IObserver<IDocumentUpdated>>();
-
-        private readonly IObservable<IDocumentUpdated> _observable;
-
-
-        public IDisposable Subscribe(IObserver<IDocumentUpdated> observer)
-        {
-            return _observable.Subscribe(observer);
-        }
 
         public IDictionary<Type, int> KnownTypes { get { return VerifiedConnections[_store.ConnectionString]; } }
 

@@ -39,10 +39,7 @@ namespace Composable.KeyValueStorage
             _interceptor = config.Interceptor;
         }
 
-        public IDisposable Subscribe(IObserver<IDocumentUpdated> observer)
-        {
-            return _backingStore.Subscribe(observer);
-        }
+        public IObservable<IDocumentUpdated> DocumentUpdated { get { return _backingStore.DocumentUpdated; } }
 
         public virtual bool TryGet<TValue>(object key, out TValue value)
         {

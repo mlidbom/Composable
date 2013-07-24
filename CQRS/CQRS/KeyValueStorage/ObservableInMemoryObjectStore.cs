@@ -11,12 +11,11 @@ namespace Composable.KeyValueStorage
 {
     public class ObservableInMemoryObjectStore : InMemoryObjectStore, IObservableObjectStore
     {
-        private readonly IObservable<IDocumentUpdated> _observable;
         private readonly ISet<IObserver<IDocumentUpdated>> _observers = new HashSet<IObserver<IDocumentUpdated>>();
 
         public ObservableInMemoryObjectStore()
         {
-            _observable = Observable.Create<IDocumentUpdated>(
+            DocumentUpdated = Observable.Create<IDocumentUpdated>(
                 obs =>
                 {
                     _observers.Add(obs);
@@ -24,10 +23,7 @@ namespace Composable.KeyValueStorage
                 });
         }
 
-        public IDisposable Subscribe(IObserver<IDocumentUpdated> observer)
-        {
-            return _observable.Subscribe(observer);
-        }
+        public IObservable<IDocumentUpdated> DocumentUpdated { get; private set; }
 
         private void NotifySubscribersDocumentUpdated(string key, object document)
         {

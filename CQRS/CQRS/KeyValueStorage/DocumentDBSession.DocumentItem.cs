@@ -65,7 +65,7 @@ namespace Composable.KeyValueStorage
                 }
                 else if (ScheduledForUpdate)
                 {
-                    _backingStore.Update(Seq.Create(new KeyValuePair<object, object>(Key.Id, Document)));
+                    _backingStore.Update(Seq.Create(new KeyValuePair<string, object>(Key.Id, Document)));
                 }
             }
         }

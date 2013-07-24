@@ -20,10 +20,12 @@ namespace CQRS.Tests.KeyValueStorage.Sql
                 () =>
                 {
                     IDocumentUpdated documentUpdated = null;
+                    IDocumentUpdated<string> typedDocumentUpdated = null;
                     IDisposable subscription = null;
                     before = () =>
                              {
                                  documentUpdated = null;
+                                 typedDocumentUpdated = null;
                                  subscription = _store.Subscribe(updated => { documentUpdated = updated; });
                              };
                     context["when adding a document with the id \"the_id\" and the value \"the_value\""] =
@@ -47,7 +49,7 @@ namespace CQRS.Tests.KeyValueStorage.Sql
                             context["when updating the object using the value \"the value\""] =
                                 () =>
                                 {
-                                    act = () => _store.Update(new Dictionary<object, object>()
+                                    act = () => _store.Update(new Dictionary<string, object>()
                                                              {
                                                                  {"the_id", "the_value"}
                                                              });
@@ -58,7 +60,7 @@ namespace CQRS.Tests.KeyValueStorage.Sql
                             context["when updating the object using the value \"another_value\""] =
                                 () =>
                                 {
-                                    act = () => _store.Update(new Dictionary<object, object>()
+                                    act = () => _store.Update(new Dictionary<string, object>()
                                                              {
                                                                  {"the_id", "another_value"}
                                                              });
@@ -74,7 +76,7 @@ namespace CQRS.Tests.KeyValueStorage.Sql
                                     context["when updating the object using the value \"another value\""] =
                                         () =>
                                         {
-                                            act = () => _store.Update(new Dictionary<object, object>()
+                                            act = () => _store.Update(new Dictionary<string, object>()
                                                                      {
                                                                          {"the_id", "another_value"}
                                                                      });

@@ -2,9 +2,13 @@ using System;
 
 namespace Composable.KeyValueStorage
 {
-    public interface IDocumentUpdated
+    public interface IDocumentUpdated<out TDocument>
     {
-        object Document { get; }
-        object Key { get; }
+        string Key { get; }
+        TDocument Document { get; }
+    }
+
+    public interface IDocumentUpdated : IDocumentUpdated<object>
+    {
     }
 }

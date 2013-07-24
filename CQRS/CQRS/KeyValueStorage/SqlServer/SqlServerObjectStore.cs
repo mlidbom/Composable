@@ -47,7 +47,7 @@ namespace Composable.KeyValueStorage.SqlServer
 
         private void NotifySubscribersDocumentUpdated(string key, object document)
         {
-            _observers.ForEach( observer => observer.OnNext(new DocumentUpdated(document.GetType(), key)));
+            _observers.ForEach( observer => observer.OnNext(new DocumentUpdated(document, key)));
         }
 
         private readonly ISet<IObserver<IDocumentUpdated>> _observers = new HashSet<IObserver<IDocumentUpdated>>();
@@ -178,7 +178,7 @@ WHERE Id=@Id AND ValueTypeId
             }
         }
 
-        public void Update(IEnumerable<KeyValuePair<string, object>> values)
+        public void Update(IEnumerable<KeyValuePair<object, object>> values)
         {
             values = values.ToList();
             using(var connection = OpenSession())

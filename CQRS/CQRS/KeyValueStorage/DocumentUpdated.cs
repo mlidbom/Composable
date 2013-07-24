@@ -4,12 +4,12 @@ namespace Composable.KeyValueStorage
 {
     public class DocumentUpdated : IDocumentUpdated
     {
-        public Type DocumentType { get; private set; }
-        public string Key { get; private set; }
+        public object Document { get; private set; }
+        public object Key { get; private set; }
 
-        public DocumentUpdated(Type documentType, string key)
+        public DocumentUpdated(object document, string key)
         {
-            DocumentType = documentType;
+            Document = document;
             Key = key;
         }
     }

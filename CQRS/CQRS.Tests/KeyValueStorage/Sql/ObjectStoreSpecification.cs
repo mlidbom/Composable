@@ -32,7 +32,7 @@ namespace CQRS.Tests.KeyValueStorage.Sql
                             act = () => _store.Add("the_id", "the_value");
                             it["DocumentUpdated is received"] = () => documentUpdated.Should().NotBeNull();
                             it["documentUpdated.Key is the_id"] = () => documentUpdated.Key.Should().Be("the_id");
-                            it["documentUpdated.DocumentType is string"] = () => documentUpdated.DocumentType.Should().Be<string>();
+                            it["documentUpdated.Document is \"the_value\""] = () => documentUpdated.Document.Should().Be("the_value");
                         };
 
                     context["after adding a document with the id \"the_id\" and the value \"the value\""] =
@@ -47,7 +47,7 @@ namespace CQRS.Tests.KeyValueStorage.Sql
                             context["when updating the object using the value \"the value\""] =
                                 () =>
                                 {
-                                    act = () => _store.Update(new Dictionary<string, object>()
+                                    act = () => _store.Update(new Dictionary<object, object>()
                                                              {
                                                                  {"the_id", "the_value"}
                                                              });
@@ -55,17 +55,17 @@ namespace CQRS.Tests.KeyValueStorage.Sql
                                     it["subscriber is not notified"] = () => documentUpdated.Should().BeNull();
                                 };
 
-                            context["when updating the object using the value \"another value\""] =
+                            context["when updating the object using the value \"another_value\""] =
                                 () =>
                                 {
-                                    act = () => _store.Update(new Dictionary<string, object>()
+                                    act = () => _store.Update(new Dictionary<object, object>()
                                                              {
                                                                  {"the_id", "another_value"}
                                                              });
 
                                     it["DocumentUpdated is received"] = () => documentUpdated.Should().NotBeNull();
                                     it["documentUpdated.Key is the_id"] = () => documentUpdated.Key.Should().Be("the_id");
-                                    it["documentUpdated.DocumentType is string"] = () => documentUpdated.DocumentType.Should().Be<string>();
+                                    it["documentUpdated.DocumentType is \"another_value\""] = () => documentUpdated.Document.Should().Be("another_value");
                                 };
                             context["after unsubscribing"] =
                                 () =>
@@ -74,7 +74,7 @@ namespace CQRS.Tests.KeyValueStorage.Sql
                                     context["when updating the object using the value \"another value\""] =
                                         () =>
                                         {
-                                            act = () => _store.Update(new Dictionary<string, object>()
+                                            act = () => _store.Update(new Dictionary<object, object>()
                                                                      {
                                                                          {"the_id", "another_value"}
                                                                      });

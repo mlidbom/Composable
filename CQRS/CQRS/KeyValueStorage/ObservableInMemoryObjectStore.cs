@@ -32,7 +32,7 @@ namespace Composable.KeyValueStorage
 
         private void NotifySubscribersDocumentUpdated(string key, object document)
         {
-            _observers.ForEach(observer => observer.OnNext(new DocumentUpdated(document.GetType(), key)));
+            _observers.ForEach(observer => observer.OnNext(new DocumentUpdated(document, key)));
         }
 
         private static string GetIdString(object id)

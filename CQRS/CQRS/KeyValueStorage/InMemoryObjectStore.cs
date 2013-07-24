@@ -96,7 +96,7 @@ namespace Composable.KeyValueStorage
             return GetEnumerator();
         }
 
-        public void Update(IEnumerable<KeyValuePair<string, object>> values)
+        public void Update(IEnumerable<KeyValuePair<object, object>> values)
         {
             values.ForEach( pair => Update(pair.Key, pair.Value));
         }

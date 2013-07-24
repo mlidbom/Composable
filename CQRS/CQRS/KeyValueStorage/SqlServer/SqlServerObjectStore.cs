@@ -4,17 +4,19 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
 using System.Linq;
+using System.Reactive.Disposables;
+using System.Reactive.Linq;
 using Composable.NewtonSoft;
 using Composable.System;
+using Composable.System.Collections.Collections;
 using Composable.System.Linq;
+using Composable.System.Reflection;
 using Newtonsoft.Json;
 using log4net;
-using Composable.System.Reflection;
-using Composable.System.Collections.Collections;
 
 namespace Composable.KeyValueStorage.SqlServer
 {
-    public class SqlServerObjectStore : IObjectStore
+    public class SqlServerObjectStore : IObjectStore, IObservable<IDocumentUpdated>
     {
         private static readonly ILog Log = LogManager.GetLogger(typeof(SqlServerObjectStore));
 
@@ -34,15 +36,31 @@ namespace Composable.KeyValueStorage.SqlServer
             _config = _store.Config;
 
             EnsureInitialized(_store.ConnectionString);
+
+            _observable = Observable.Create<IDocumentUpdated>(
+                obs =>
+                {
+                    _observers.Add(obs);
+                    return Disposable.Create(() => _observers.Remove(obs));
+                });
         }
 
-        public IDictionary<Type, int> KnownTypes
+        private void NotifySubscribersDocumentUpdated(string key, object document)
         {
-            get
-            {
-                return VerifiedConnections[_store.ConnectionString];
-            }
+            _observers.ForEach( observer => observer.OnNext(new DocumentUpdated(document.GetType(), key)));
         }
+
+        private readonly ISet<IObserver<IDocumentUpdated>> _observers = new HashSet<IObserver<IDocumentUpdated>>();
+
+        private readonly IObservable<IDocumentUpdated> _observable;
+
+
+        public IDisposable Subscribe(IObserver<IDocumentUpdated> observer)
+        {
+            return _observable.Subscribe(observer);
+        }
+
+        public IDictionary<Type, int> KnownTypes { get { return VerifiedConnections[_store.ConnectionString]; } }
 
         private Type GetTypeFromId(int id)
         {
@@ -51,7 +69,7 @@ namespace Composable.KeyValueStorage.SqlServer
 
         public bool TryGet<TValue>(object key, out TValue value)
         {
-            if (!KnownTypes.ContainsKey(typeof(TValue)))
+            if(!KnownTypes.ContainsKey(typeof(TValue)))
             {
                 value = default(TValue);
                 return false;
@@ -60,9 +78,9 @@ namespace Composable.KeyValueStorage.SqlServer
             value = default(TValue);
 
             object found;
-            using (var connection = OpenSession())
+            using(var connection = OpenSession())
             {
-                using (var command = connection.CreateCommand())
+                using(var command = connection.CreateCommand())
                 {
                     string lockHint = DocumentDbSession.UseUpdateLock ? "With(UPDLOCK, ROWLOCK)" : "";
                     command.CommandText = @"
@@ -74,9 +92,9 @@ WHERE Id=@Id AND ValueTypeId
 
                     AddTypeCriteria(command, typeof(TValue));
 
-                    using (var reader = command.ExecuteReader())
+                    using(var reader = command.ExecuteReader())
                     {
-                        if (!reader.Read())
+                        if(!reader.Read())
                         {
                             return false;
                         }
@@ -95,9 +113,9 @@ WHERE Id=@Id AND ValueTypeId
         {
             string idString = GetIdString(id);
             EnsureTypeRegistered(value.GetType());
-            using (var connection = OpenSession())
+            using(var connection = OpenSession())
             {
-                using (var command = connection.CreateCommand())
+                using(var command = connection.CreateCommand())
                 {
                     command.CommandType = CommandType.Text;
 
@@ -108,15 +126,17 @@ WHERE Id=@Id AND ValueTypeId
 
                     var stringValue = JsonConvert.SerializeObject(value, _config.JSonFormatting, _jsonSettings);
                     command.Parameters.Add(new SqlParameter("Value", stringValue));
-                    
+
+                    NotifySubscribersDocumentUpdated(idString, value);
+
                     _persistentValues.GetOrAddDefault(value.GetType())[idString] = stringValue;
                     try
                     {
                         command.ExecuteNonQuery();
                     }
-                    catch (SqlException e)
+                    catch(SqlException e)
                     {
-                        if (e.Number == UniqueConstraintViolationErrorNumber)
+                        if(e.Number == UniqueConstraintViolationErrorNumber)
                         {
                             throw new AttemptToSaveAlreadyPersistedValueException(id, value);
                         }
@@ -161,11 +181,11 @@ WHERE Id=@Id AND ValueTypeId
         public void Update(IEnumerable<KeyValuePair<string, object>> values)
         {
             values = values.ToList();
-            using (var connection = OpenSession())
+            using(var connection = OpenSession())
             {
-                foreach (var entry in values)
+                foreach(var entry in values)
                 {
-                    using (var command = connection.CreateCommand())
+                    using(var command = connection.CreateCommand())
                     {
                         command.CommandType = CommandType.Text;
                         var stringValue = JsonConvert.SerializeObject(entry.Value, _config.JSonFormatting, _jsonSettings);
@@ -173,7 +193,7 @@ WHERE Id=@Id AND ValueTypeId
                         string oldValue;
                         string idString = GetIdString(entry.Key);
                         var needsUpdate = !_persistentValues.GetOrAddDefault(entry.Value.GetType()).TryGetValue(idString, out oldValue) || stringValue != oldValue;
-                        if (needsUpdate)
+                        if(needsUpdate)
                         {
                             _persistentValues.GetOrAddDefault(entry.Value.GetType())[idString] = stringValue;
                             command.CommandText += "UPDATE Store SET Value = @Value WHERE Id = @Id AND ValueTypeId \n";
@@ -183,9 +203,10 @@ WHERE Id=@Id AND ValueTypeId
 
                             command.Parameters.Add(new SqlParameter("Value", stringValue));
                         }
-                        if (!command.CommandText.IsNullOrWhiteSpace())
+                        if(!command.CommandText.IsNullOrWhiteSpace())
                         {
                             command.ExecuteNonQuery();
+                            NotifySubscribersDocumentUpdated(idString, entry.Value);
                         }
                     }
                 }
@@ -195,17 +216,17 @@ WHERE Id=@Id AND ValueTypeId
 
         IEnumerable<KeyValuePair<Guid, T>> IObjectStore.GetAll<T>()
         {
-            if (KnownTypes.None(t => typeof(T).IsAssignableFrom(t.Key)))
+            if(KnownTypes.None(t => typeof(T).IsAssignableFrom(t.Key)))
             {
-                if (KnownTypes.None(t => typeof(T).IsAssignableFrom(t.Key)))
+                if(KnownTypes.None(t => typeof(T).IsAssignableFrom(t.Key)))
                 {
                     yield break;
                 }
             }
 
-            using (var connection = OpenSession())
+            using(var connection = OpenSession())
             {
-                using (var loadCommand = connection.CreateCommand())
+                using(var loadCommand = connection.CreateCommand())
                 {
                     loadCommand.CommandText = @"
 SELECT Id, Value, ValueTypeId 
@@ -214,13 +235,13 @@ WHERE ValueTypeId ";
 
                     AddTypeCriteria(loadCommand, typeof(T));
 
-                    using (var reader = loadCommand.ExecuteReader())
+                    using(var reader = loadCommand.ExecuteReader())
                     {
-                        while (reader.Read())
+                        while(reader.Read())
                         {
                             yield return
                                 new KeyValuePair<Guid, T>(Guid.Parse(reader.GetString(0)),
-                                (T)JsonConvert.DeserializeObject(reader.GetString(1), GetTypeFromId(reader.GetInt32(2)), _jsonSettings));
+                                                          (T)JsonConvert.DeserializeObject(reader.GetString(1), GetTypeFromId(reader.GetInt32(2)), _jsonSettings));
                         }
                     }
                 }
@@ -228,9 +249,10 @@ WHERE ValueTypeId ";
         }
 
         private bool _disposed;
+
         public void Dispose()
         {
-            if (!_disposed)
+            if(!_disposed)
             {
                 _disposed = true;
             }
@@ -250,13 +272,13 @@ WHERE ValueTypeId ";
 
         private void EnsureTypeRegistered(Type type)
         {
-            lock (LockObject)
+            lock(LockObject)
             {
-                if (!KnownTypes.ContainsKey(type))
+                if(!KnownTypes.ContainsKey(type))
                 {
-                    using (var connection = OpenSession())
+                    using(var connection = OpenSession())
                     {
-                        using (var command = connection.CreateCommand())
+                        using(var command = connection.CreateCommand())
                         {
                             command.CommandText = @"
 
@@ -270,7 +292,7 @@ ELSE
 		SELECT @ValueTypeId = Id FROM ValueType WHERE ValueType = @ValueType
 	END
 ";
-                            command.Parameters.Add(new SqlParameter("ValueTypeId", SqlDbType.Int) { Direction = ParameterDirection.Output });
+                            command.Parameters.Add(new SqlParameter("ValueTypeId", SqlDbType.Int) {Direction = ParameterDirection.Output});
                             command.Parameters.Add(new SqlParameter("ValueType", type.FullName));
                             command.ExecuteNonQuery();
                             KnownTypes.Add(type, (int)command.Parameters["ValueTypeId"].Value);
@@ -282,10 +304,10 @@ ELSE
 
         private void AddTypeCriteria(SqlCommand command, Type type)
         {
-            lock (LockObject)
+            lock(LockObject)
             {
                 var acceptableTypeIds = KnownTypes.Where(x => type.IsAssignableFrom(x.Key)).Select(t => t.Value.ToString()).ToArray();
-                if (acceptableTypeIds.None())
+                if(acceptableTypeIds.None())
                 {
                     throw new Exception("Type: {0} is not among the known types".FormatWith(type.FullName));
                 }
@@ -295,19 +317,19 @@ ELSE
 
         private static void EnsureInitialized(string connectionString)
         {
-            lock (LockObject)
+            lock(LockObject)
             {
-                if (!VerifiedConnections.ContainsKey(connectionString))
+                if(!VerifiedConnections.ContainsKey(connectionString))
                 {
-                    using (var connection = OpenSession(connectionString))
+                    using(var connection = OpenSession(connectionString))
                     {
-                        using (var checkForValueTypeCommand = connection.CreateCommand())
+                        using(var checkForValueTypeCommand = connection.CreateCommand())
                         {
                             checkForValueTypeCommand.CommandText = "select count(*) from sys.tables where name = 'ValueType'";
                             var valueTypeExists = (int)checkForValueTypeCommand.ExecuteScalar();
-                            if (valueTypeExists == 0)
+                            if(valueTypeExists == 0)
                             {
-                                using (var createValueTypeCommand = connection.CreateCommand())
+                                using(var createValueTypeCommand = connection.CreateCommand())
                                 {
                                     createValueTypeCommand.CommandText = @"
 CREATE TABLE [dbo].[ValueType](
@@ -321,18 +343,16 @@ CREATE TABLE [dbo].[ValueType](
 ";
                                     createValueTypeCommand.ExecuteNonQuery();
                                 }
-
                             }
                         }
-                        using (var checkForStoreCommand = connection.CreateCommand())
+                        using(var checkForStoreCommand = connection.CreateCommand())
                         {
                             checkForStoreCommand.CommandText = "select count(*) from sys.tables where name = 'Store'";
                             var exists = (int)checkForStoreCommand.ExecuteScalar();
-                            if (exists == 0)
+                            if(exists == 0)
                             {
-                                using (var createStoreCommand = connection.CreateCommand())
+                                using(var createStoreCommand = connection.CreateCommand())
                                 {
-
                                     createStoreCommand.CommandText =
                                         @"
 CREATE TABLE [dbo].[Store](
@@ -354,16 +374,16 @@ ALTER TABLE [dbo].[Store] CHECK CONSTRAINT [FK_ValueType_Store]
 ";
                                     createStoreCommand.ExecuteNonQuery();
                                 }
-                            }                            
+                            }
                         }
 
                         IDictionary<Type, int> knownTypes = new ConcurrentDictionary<Type, int>();
-                        using (var findTypesCommand = connection.CreateCommand())
+                        using(var findTypesCommand = connection.CreateCommand())
                         {
                             findTypesCommand.CommandText = "SELECT DISTINCT ValueType, Id FROM ValueType";
-                            using (var reader = findTypesCommand.ExecuteReader())
+                            using(var reader = findTypesCommand.ExecuteReader())
                             {
-                                while (reader.Read())
+                                while(reader.Read())
                                 {
                                     knownTypes.Add(reader.GetString(0).AsType(), reader.GetInt32(1));
                                 }
@@ -377,16 +397,16 @@ ALTER TABLE [dbo].[Store] CHECK CONSTRAINT [FK_ValueType_Store]
         }
 
 
-
         private static readonly IDictionary<String, IDictionary<Type, int>> VerifiedConnections = new ConcurrentDictionary<string, IDictionary<Type, int>>();
+        
 
         public static void PurgeDb(string connectionString)
         {
-            lock (LockObject)
+            lock(LockObject)
             {
-                using (var connection = OpenSession(connectionString))
+                using(var connection = OpenSession(connectionString))
                 {
-                    using (var dropCommand = connection.CreateCommand())
+                    using(var dropCommand = connection.CreateCommand())
                     {
                         dropCommand.CommandText =
                             @"
@@ -403,6 +423,26 @@ DROP TABLE [dbo].[ValueType];
                     }
                 }
             }
+        }
+
+
+    }
+
+    public interface IDocumentUpdated
+    {
+        Type DocumentType { get; }
+        string Key { get; }
+    }
+
+    public class DocumentUpdated : IDocumentUpdated
+    {
+        public Type DocumentType { get; private set; }
+        public string Key { get; private set; }
+
+        public DocumentUpdated(Type documentType, string key)
+        {
+            DocumentType = documentType;
+            Key = key;
         }
     }
 }

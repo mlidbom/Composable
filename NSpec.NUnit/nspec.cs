@@ -29,6 +29,12 @@ namespace NSpec.NUnit
                 Assert.Fail("*****   Failed to execute some tests   *****");
             }
 
+            var crashes = result.AllContexts().Where(context => context.Exception != null).ToList();
+            if (crashes.Any())
+            {
+                throw new SpecificationException("unknown", crashes.First().Exception);
+            }
+
             if (result.Failures().Any())
             {
                 Example failure = result.Failures().First();
@@ -53,12 +59,6 @@ namespace NSpec.NUnit
 
 
                 throw new SpecificationException(message, failure.Exception);
-            }
-
-            var crashes = result.AllContexts().Where(context => context.Exception != null).ToList();
-            if(crashes.Any())
-            {
-                throw new SpecificationException("unknown", crashes.First().Exception);
             }
         }
 

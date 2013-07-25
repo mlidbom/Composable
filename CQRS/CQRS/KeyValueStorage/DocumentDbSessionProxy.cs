@@ -96,5 +96,7 @@ namespace Composable.KeyValueStorage
         }
 
         #endregion
+
+        public IObservable<IDocumentUpdated> DocumentUpdated { get { return Session.DocumentUpdated; } }
     }
 }

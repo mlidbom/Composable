@@ -23,7 +23,20 @@ namespace NSpec.NUnit
         [Test]
         public void throws_on_failing_before_each()
         {
+            Assert.Throws<SpecificationException>(() => new fails_in_before_each().ValidateSpec());
+        }
+
+        [Test]
+        public void throws_on_failing_before_all()
+        {
             Assert.Throws<SpecificationException>(() => new fails_in_before_all().ValidateSpec());
+        }
+
+        [Test]
+        public void reports_first_error()
+        {
+            var exception= Assert.Throws<SpecificationException>(() => new reports_first_failure().ValidateSpec());
+            exception.InnerException.Message.should_be("first error");
         }
 
         [Test]
@@ -62,9 +75,42 @@ at: dots
     [Ignore]
     public class fails_in_before_all : NSpec.NUnit.nspec
     {
+        public void before_all()
+        {
+            throw new Exception("first error");
+        }
+
+        public void this_works()
+        {
+            it["true is true"] = () => true.should_be(true);
+        }
+    }
+
+    [Ignore]
+    public class fails_in_before_each : NSpec.NUnit.nspec
+    {
         public void before_each()
         {
-            throw new Exception();
+            throw new Exception("second error");
+        }
+
+        public void this_works()
+        {
+            it["true is true"] = () => true.should_be(true);
+        }
+    }
+
+    [Ignore]
+    public class reports_first_failure : NSpec.NUnit.nspec
+    {
+        public void before_all()
+        {
+            throw new Exception("first error");
+        }
+
+        public void before_each()
+        {
+            throw new Exception("second error");
         }
 
         public void this_works()

@@ -6,20 +6,14 @@ using System.Linq;
 using Composable.CQRS.EventSourcing;
 using Composable.DDD;
 using Composable.KeyValueStorage;
-using Composable.StuffThatDoesNotBelongHere;
 using Composable.System.Linq;
 
 #endregion
 
-namespace Composable.CQRS.ViewModels
-{
-    [Obsolete(@"Please switch to using Composable.CQRS.EventHandling.QueryModelUpdater
-      This class is mantained only for backwards compatibility and you should migrate as soon as you get the channce.
-      The semantics of this class are wrong when an event inherits multiple other registered events.
-     ")]
-    public class ViewModelUpdater<TImplementor, TViewModel, TEvent, TSession> :
-        MultiEventHandler<TImplementor, TEvent>
-        where TImplementor : ViewModelUpdater<TImplementor, TViewModel, TEvent, TSession>
+namespace Composable.CQRS.EventHandling
+{ 
+    public class QueryModelUpdater<TImplementor, TViewModel, TEvent, TSession> : MultiEventHandler<TImplementor, TEvent>
+        where TImplementor : QueryModelUpdater<TImplementor, TViewModel, TEvent, TSession>
         where TSession : IDocumentDbSession
         where TEvent : IAggregateRootEvent
         where TViewModel : class, IHasPersistentIdentity<Guid>
@@ -30,17 +24,17 @@ namespace Composable.CQRS.ViewModels
 
         private bool _doAdd;
 
-        protected ViewModelUpdater(TSession session, Type creationEvent):this(session, Seq.Create(creationEvent), Seq.Create<Type>())
+        protected QueryModelUpdater(TSession session, Type creationEvent):this(session, Seq.Create(creationEvent), Seq.Create<Type>())
         {
 
         }
 
-        protected ViewModelUpdater(TSession session, Type creationEvent, Type deletionEvent)
+        protected QueryModelUpdater(TSession session, Type creationEvent, Type deletionEvent)
             : this(session, Seq.Create(creationEvent), Seq.Create(deletionEvent))
         {
         }
 
-        protected ViewModelUpdater(TSession session, IEnumerable<Type> creationEvents, IEnumerable<Type> deletionEvents)
+        protected QueryModelUpdater(TSession session, IEnumerable<Type> creationEvents, IEnumerable<Type> deletionEvents)
         {
             Session = session;
 

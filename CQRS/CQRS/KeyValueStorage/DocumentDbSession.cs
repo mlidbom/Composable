@@ -17,7 +17,7 @@ namespace Composable.KeyValueStorage
         internal static bool UseUpdateLock;
 
 // ReSharper disable InconsistentNaming
-        internal readonly IObjectStore _backingStore;
+        internal readonly IObservableObjectStore _backingStore;
         internal readonly IDocumentDbSessionInterceptor _interceptor;
 // ReSharper restore InconsistentNaming
 
@@ -39,6 +39,7 @@ namespace Composable.KeyValueStorage
             _interceptor = config.Interceptor;
         }
 
+        public IObservable<IDocumentUpdated> DocumentUpdated { get { return _backingStore.DocumentUpdated; } }
 
         public virtual bool TryGet<TValue>(object key, out TValue value)
         {

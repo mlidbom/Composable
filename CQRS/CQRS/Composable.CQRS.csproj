@@ -73,6 +73,15 @@
     <Reference Include="System.configuration" />
     <Reference Include="System.Core" />
     <Reference Include="System.Data" />
+    <Reference Include="System.Reactive.Core">
+      <HintPath>..\..\packages\Rx-Core.2.1.30214.0\lib\Net40\System.Reactive.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Reactive.Interfaces">
+      <HintPath>..\..\packages\Rx-Interfaces.2.1.30214.0\lib\Net40\System.Reactive.Interfaces.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Reactive.Linq">
+      <HintPath>..\..\packages\Rx-Linq.2.1.30214.0\lib\Net40\System.Reactive.Linq.dll</HintPath>
+    </Reference>
     <Reference Include="System.Runtime.Caching" />
     <Reference Include="System.Transactions" />
     <Reference Include="Microsoft.CSharp" />
@@ -162,6 +171,7 @@
     <Compile Include="DomainEvents\DomainEvent.cs" />
     <Compile Include="KeyValueStorage\DocumentDBSession.DocumentKey.cs" />
     <Compile Include="KeyValueStorage\IDocumentDbSessionInterceptor.cs" />
+    <Compile Include="KeyValueStorage\IDocumentUpdatedNotifier.cs" />
     <Compile Include="KeyValueStorage\IObjectStore.cs" />
     <Compile Include="KeyValueStorage\DocumentDbSessionProxy.cs" />
     <Compile Include="KeyValueStorage\InMemoryObjectStore.cs" />
@@ -175,9 +185,13 @@
     <Compile Include="KeyValueStorage\Population\ViewModelBatchPopulator.cs" />
     <Compile Include="KeyValueStorage\Population\ViewModelPopulatorBase.cs" />
     <Compile Include="KeyValueStorage\Population\WindsorUnitOfWorkExtensions.cs" />
+    <Compile Include="KeyValueStorage\ObservableInMemoryObjectStore.cs" />
     <Compile Include="KeyValueStorage\SqlServer\CannotSetBothInterceptorAndFactoryMethodForInterceptor.cs" />
+    <Compile Include="KeyValueStorage\DocumentUpdated.cs" />
+    <Compile Include="KeyValueStorage\IDocumentUpdated.cs" />
     <Compile Include="KeyValueStorage\SqlServer\InMemoryDocumentDbConfig.cs" />
     <Compile Include="KeyValueStorage\SqlServer\DocumentDbConfig.cs" />
+    <Compile Include="KeyValueStorage\IObservableObjectStore.cs" />
     <Compile Include="KeyValueStorage\SqlServer\SqlServerDocumentDbConfig.cs" />
     <Compile Include="KeyValueStorage\SqlServer\SqlServerObjectStore.cs" />
     <Compile Include="KeyValueStorage\SqlServer\TooManyItemsDeletedException.cs" />

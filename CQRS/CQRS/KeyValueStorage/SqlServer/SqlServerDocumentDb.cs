@@ -12,7 +12,7 @@ namespace Composable.KeyValueStorage.SqlServer
         public string ConnectionString { get; private set; }
         public SqlServerDocumentDbConfig Config { get; private set; }
 
-        public IObjectStore CreateStore()
+        public IObservableObjectStore CreateStore()
         {
             return new SqlServerObjectStore(this);
         }

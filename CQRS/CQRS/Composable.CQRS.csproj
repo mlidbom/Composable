@@ -135,6 +135,7 @@
     <Compile Include="CQRS\EventSourcing\SQLServer\SqlServerEventSomethingOrOther.cs" />
     <Compile Include="CQRS\ICommandMessage.cs" />
     <Compile Include="CQRS\IReferenceObject.cs" />
+    <Compile Include="CQRS\QueryModels\ViewModelUpdater.cs" />
     <Compile Include="CQRS\ReferenceObject.cs" />
     <Compile Include="CQRS\TranslatedReferenceObject.cs" />
     <Compile Include="CQRS\UI\Command\CommandExecutionError.cs" />
@@ -210,7 +211,7 @@
     <Compile Include="CQRS\EventSourcing\IEventApplier.cs" />
     <Compile Include="ServiceBus\SynchronousBus.cs" />
     <Compile Include="CQRS\SetExtensions.cs" />
-    <Compile Include="StuffThatDoesNotBelongHere\MultiEventHandler.cs" />
+    <Compile Include="CQRS\EventHandling\MultiEventHandler.cs" />
     <Compile Include="Persistence\IEntityFetcher.cs" />
     <Compile Include="CQRS\Command\IEntityHandledCommand.cs" />
     <Compile Include="CQRS\NoRegisteredHandlersException.cs" />
@@ -223,6 +224,7 @@
     <Compile Include="CQRS\Query\IQuery.cs" />
     <Compile Include="CQRS\Query\IQueryService.cs" />
     <Compile Include="CQRS\ServiceLocatorExtensions.cs" />
+    <Compile Include="StuffThatDoesNotBelongHere\MultiEventHandler.cs" />
     <Compile Include="StuffThatDoesNotBelongHere\Translation\TranslateAttribute.cs" />
     <Compile Include="StuffThatDoesNotBelongHere\Translation\TranslationTypeExtensions.cs" />
     <Compile Include="UnitsOfWork\AttemptingToJoinSecondUnitOfWorkException.cs" />

@@ -1,29 +1,23 @@
 using System;
 using System.Collections.Generic;
-using Composable.CQRS.EventSourcing;
-using Composable.DomainEvents;
 using System.Linq;
-using NServiceBus;
+using Composable.CQRS.EventSourcing;
 using Composable.System;
+using Composable.System.Linq;
+using NServiceBus;
 using log4net;
 
 namespace Composable.CQRS.EventHandling
 {
-    public class MultiEventHandler<TImplementor, TEvent> : IHandleMessages<TEvent> 
+    public class MultiEventHandler<TImplementor, TEvent> : IHandleMessages<TEvent>
         where TEvent : IAggregateRootEvent
         where TImplementor : MultiEventHandler<TImplementor, TEvent>
     {
-        private static readonly ILog Log = LogManager.GetLogger(typeof (MultiEventHandler<TImplementor, TEvent>));
-        private readonly Dictionary<Type, Action<TEvent>> _handlers = new Dictionary<Type, Action<TEvent>>();
-        private bool _shouldIgnoreUnHandled;
+        private static readonly ILog Log = LogManager.GetLogger(typeof(MultiEventHandler<TImplementor, TEvent>));
+        private readonly List<KeyValuePair<Type, Action<TEvent>>> _handlers = new List<KeyValuePair<Type, Action<TEvent>>>();
 
-        private Action<TEvent> _runBeforeHandlers = _ => { };
-        private Action<TEvent> _runAfterHandlers = _ => { };
-
-        protected void IgnoreUnHandled()
-        {
-            _shouldIgnoreUnHandled = true;
-        }
+        private List<Action<TEvent>> _runBeforeHandlers = new List<Action<TEvent>>();
+        private List<Action<TEvent>> _runAfterHandlers =  new List<Action<TEvent>>();
 
         protected RegistrationBuilder RegisterHandlers()
         {
@@ -34,96 +28,89 @@ namespace Composable.CQRS.EventHandling
         {
             private readonly MultiEventHandler<TImplementor, TEvent> _owner;
 
-            public RegistrationBuilder(MultiEventHandler<TImplementor, TEvent> owner )
+            public RegistrationBuilder(MultiEventHandler<TImplementor, TEvent> owner)
             {
                 _owner = owner;
             }
 
             public RegistrationBuilder For<THandledEvent>(Action<THandledEvent> handler) where THandledEvent : TEvent
             {
-                _owner._handlers.Add(typeof(THandledEvent), (@event) => handler((THandledEvent)@event));
-                return this;
-            }
+                var eventType = typeof(THandledEvent);
 
-            public RegistrationBuilder For(Type eventType, Action<TEvent> handler)
-            {
-                if(!typeof(TEvent).IsAssignableFrom(eventType))
+                if (!typeof(TEvent).IsAssignableFrom(eventType))
                 {
-                    throw new Exception("{0} Does not implement {1}. \nYou cannot register a handler for an event type that does not implement the listened for event".FormatWith(eventType, typeof(TEvent)));
+                    throw new Exception(
+                        "{0} Does not implement {1}. \nYou cannot register a handler for an event type that does not implement the listened for event"
+                            .FormatWith(eventType, typeof(TEvent)));
                 }
 
-                _owner._handlers.Add(eventType, handler);
+                if (_owner._handlers.Any(registration => registration.Key == eventType))
+                {
+                    throw new DuplicateHandlerRegistrationAttemptedException(eventType);
+                }
+
+                _owner._handlers.Add(new KeyValuePair<Type, Action<TEvent>>(eventType, e =>  handler((THandledEvent)e)));
                 return this;
             }
+
+
 
             public RegistrationBuilder BeforeHandlers(Action<TEvent> runBeforeHandlers)
             {
-                _owner._runBeforeHandlers = runBeforeHandlers;
+                _owner._runBeforeHandlers.Add(runBeforeHandlers);
                 return this;
             }
 
             public RegistrationBuilder AfterHandlers(Action<TEvent> runAfterHandlers)
             {
-                _owner._runAfterHandlers = runAfterHandlers;
+                _owner._runAfterHandlers.Add(runAfterHandlers);
                 return this;
             }
         }
 
         public virtual void Handle(TEvent evt)
         {
-            var handler = GetHandler(evt);
-            if (handler != null)
+            Log.DebugFormat("Handling event:{0}", evt);
+
+            var handlers = GetHandler(evt).ToList();
+
+            if(handlers.None())
             {
-                Log.DebugFormat("Handling event:{0}", evt);
-                _runBeforeHandlers(evt);
+                throw new EventUnhandledException(this.GetType(), evt);
+            }
+
+            foreach(var runBeforeHandler in _runBeforeHandlers)
+            {
+                runBeforeHandler(evt);
+            }
+
+            foreach(var handler in handlers)
+            {
                 handler(evt);
-                _runAfterHandlers(evt);
-            }else
+            }
+
+            foreach (var runBeforeHandler in _runAfterHandlers)
             {
-                Log.DebugFormat("Ignored event: {0}", evt);
+                runBeforeHandler(evt);
             }
         }
 
-        private Action<TEvent> GetHandler(TEvent evt) {
-            var handlers = _handlers
+        private IEnumerable<Action<TEvent>> GetHandler(TEvent evt)
+        {
+            return _handlers
                 .Where(registration => registration.Key.IsAssignableFrom(evt.GetType()))
                 .Select(registration => registration.Value);
-
-            if(handlers.Count() > 1)
-            {
-                throw new AmbigousHandlerException(evt);
-            }
-
-            var handler = handlers.SingleOrDefault();
-
-            if(handler == null)
-            {
-                if (_shouldIgnoreUnHandled)
-                {
-                    return handler;
-                }
-                throw new EventUnhandledException(this.GetType(), evt, typeof(TEvent));
-            }
-            return handler;
         }
     }
 
-    public class AmbigousHandlerException : Exception
+    public class DuplicateHandlerRegistrationAttemptedException : Exception
     {
-        public AmbigousHandlerException(IDomainEvent evt) : base(evt.GetType().AssemblyQualifiedName)
-        {
-            
-        }
+        public DuplicateHandlerRegistrationAttemptedException(Type eventType) : base(eventType.AssemblyQualifiedName) {}
     }
 
     public class EventUnhandledException : Exception
     {
-        public EventUnhandledException(Type handlerType, IAggregateRootEvent evt, Type listenedFor)
-            : base(
-  @"{0} does not handle nor ignore incoming event {1} matching listened for type {2}
-It should either listen for more specific events or call IgnoreUnHandled".FormatWith(handlerType, evt.GetType(), listenedFor))
-        {
-            
-        }
+        public EventUnhandledException(Type handlerType, IAggregateRootEvent evt)
+            : base(@"{0} does not handle nor ignore incoming event {1}".FormatWith(handlerType, evt.GetType())) {}
     }
 }

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using NSpec.Domain.Formatters;
 using NUnit.Framework;
 using NSpec.Domain;
@@ -28,15 +29,36 @@ namespace NSpec.NUnit
                 Assert.Fail("*****   Failed to execute some tests   *****");
             }
 
+            var crashes = result.AllContexts().Where(context => context.Exception != null).ToList();
+            if (crashes.Any())
+            {
+                throw new SpecificationException("unknown", crashes.First().Exception);
+            }
+
             if (result.Failures().Any())
             {
                 Example failure = result.Failures().First();
-                var position = failure.FullName().Substring(7)
-                    .Split('.')
-                    .Select((name, level) => "\t".Times(level) + name )
+
+                var message = "";
+
+                var current = failure.Context;
+                var contexts = new List<Context>() { current };
+                while(null != (current = current.Parent))
+                {
+                    contexts.Add(current);
+                }
+
+                var levels = contexts.Select(me => me.Name)
+                    .Reverse()
+                    .Skip(1)
+                    .Concat(new string[] {failure.Spec});
+
+                message = levels
+                    .Select((name, level) => "\t".Times(level) + name)
                     .Aggregate(Environment.NewLine + "at: ", (agg, curr) => agg + curr + Environment.NewLine);
 
-                throw new SpecificationException(position, failure.Exception);
+
+                throw new SpecificationException(message, failure.Exception);
             }
         }
 
@@ -51,6 +73,8 @@ namespace NSpec.NUnit
                     Console.WriteLine("*****   RUN SUMMARY   *****");
                 }
                 Console.WriteLine(base.Summary(contexts));
+
+                Console.WriteLine(base.FailureSummary(contexts));
             }
 
             void ILiveFormatter.Write(Context context)

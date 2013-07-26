@@ -12,7 +12,11 @@ using Composable.System.Linq;
 #endregion
 
 namespace Composable.CQRS.ViewModels
-{ 
+{
+    [Obsolete(@"Please switch to using Composable.CQRS.EventHandling.SingleAggregateQueryModelUpdater
+      This class is mantained only for backwards compatibility and you should migrate as soon as you get the channce.
+      The semantics of this class are wrong when an event inherits multiple other registered events.
+     ")]
     public class ViewModelUpdater<TImplementor, TViewModel, TEvent, TSession> :
         MultiEventHandler<TImplementor, TEvent>
         where TImplementor : ViewModelUpdater<TImplementor, TViewModel, TEvent, TSession>

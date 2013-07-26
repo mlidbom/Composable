@@ -3,4 +3,4 @@
 [assembly: AssemblyTitle("Composable.DomainEvents")]
 [assembly: AssemblyProduct("Composable.DomainEvents")]
 
-[assembly: AssemblyVersion("1.8.4.0")]
+[assembly: AssemblyVersion("1.8.5.0")]

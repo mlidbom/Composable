@@ -38,20 +38,6 @@ namespace NSpec.NUnit
             var exception= Assert.Throws<SpecificationException>(() => new reports_first_failure().ValidateSpec());
             exception.InnerException.Message.should_be("first error");
         }
-
-        [Test]
-        public void handles_dots_without_crazy_formatting()
-        {
-            var exception = Assert.Throws<SpecificationException>(() => new dots().ValidateSpec());
-            exception.Message.should_be(
-@"
-at: dots
-	any time
-		level1 . level1 .
-			level2 . level2 .
-				I . Use . Three . Dots
-");
-        }
     }
 
     [Ignore]

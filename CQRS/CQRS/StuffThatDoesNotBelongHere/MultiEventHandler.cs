@@ -9,6 +9,11 @@ using log4net;
 
 namespace Composable.StuffThatDoesNotBelongHere
 {
+    [Obsolete(@"This class is maintained without changes for backwards compatibility. 
+                It is to start using Composable.CQRS.EventHandling.MultiEventHandler. 
+                It implements the dispatch of multiple events more correctly.
+
+                This class cannot handle if an event inherits two registered events.")]
     public class MultiEventHandler<TImplementor, TEvent> : IHandleMessages<TEvent> 
         where TEvent : IAggregateRootEvent
         where TImplementor : MultiEventHandler<TImplementor, TEvent>

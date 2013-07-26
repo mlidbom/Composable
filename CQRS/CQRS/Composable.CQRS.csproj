@@ -127,6 +127,7 @@
     <Compile Include="CQRS\DuplicateHandlersException.cs" />
     <Compile Include="CQRS\EntityToReferenceConverter.cs" />
     <Compile Include="CQRS\Event.cs" />
+    <Compile Include="CQRS\EventHandling\SingleAggregateQueryModelUpdater.cs" />
     <Compile Include="CQRS\EventSourcing\AttemptToSaveEmptyAggregate.cs" />
     <Compile Include="CQRS\EventSourcing\IEventSomethingOrOther.cs" />
     <Compile Include="CQRS\EventSourcing\RegisteredHandlerMissingException.cs" />
@@ -210,7 +211,7 @@
     <Compile Include="CQRS\EventSourcing\IEventApplier.cs" />
     <Compile Include="ServiceBus\SynchronousBus.cs" />
     <Compile Include="CQRS\SetExtensions.cs" />
-    <Compile Include="StuffThatDoesNotBelongHere\MultiEventHandler.cs" />
+    <Compile Include="CQRS\EventHandling\MultiEventHandler.cs" />
     <Compile Include="Persistence\IEntityFetcher.cs" />
     <Compile Include="CQRS\Command\IEntityHandledCommand.cs" />
     <Compile Include="CQRS\NoRegisteredHandlersException.cs" />
@@ -223,6 +224,7 @@
     <Compile Include="CQRS\Query\IQuery.cs" />
     <Compile Include="CQRS\Query\IQueryService.cs" />
     <Compile Include="CQRS\ServiceLocatorExtensions.cs" />
+    <Compile Include="StuffThatDoesNotBelongHere\MultiEventHandler.cs" />
     <Compile Include="StuffThatDoesNotBelongHere\Translation\TranslateAttribute.cs" />
     <Compile Include="StuffThatDoesNotBelongHere\Translation\TranslationTypeExtensions.cs" />
     <Compile Include="UnitsOfWork\AttemptingToJoinSecondUnitOfWorkException.cs" />

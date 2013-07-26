@@ -13,7 +13,7 @@ using Composable.System.Linq;
 
 namespace Composable.CQRS.ViewModels
 {
-    [Obsolete(@"Please switch to using Composable.CQRS.EventHandling.QueryModelUpdater
+    [Obsolete(@"Please switch to using Composable.CQRS.EventHandling.SingleAggregateQueryModelUpdater
       This class is mantained only for backwards compatibility and you should migrate as soon as you get the channce.
       The semantics of this class are wrong when an event inherits multiple other registered events.
      ")]

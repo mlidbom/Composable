@@ -41,11 +41,11 @@ namespace CQRS.Tests.CQRS.EventHandling
             context["when receiving a UserEditedSkills event"] =
                 () =>
                 {
-                    before = () => listener.Handle(new UserEditedSkills());
+                    before = () => listener.Handle(new UserEditedSkill());
                     it["BeforeHandlers1 should be called first"] = () => listener.BeforeHandlers1CallOrder.Should().Be(1);
                     it["BeforeHandlers2 should be called second"] = () => listener.BeforeHandlers2CallOrder.Should().Be(2);
-                    it["SkillRemoved should be called third"] = () => listener.SkillRemovedCallOrder.Should().Be(3);
-                    it["SkillAdded should be called fourth"] = () => listener.SkillAddedCallOrder.Should().Be(4);
+                    it["SkillsRemoved should be called third"] = () => listener.SkillsRemovedCallOrder.Should().Be(3);
+                    it["SkillsAdded should be called fourth"] = () => listener.SkillsAddedCallOrder.Should().Be(4);
                     it["AfterHandlers1 should be called fifth"] = () => listener.AfterHandlers1CallOrder.Should().Be(5);
                     it["AftereHandlers2 should be called sixth"] = () => listener.AfterHandlers2CallOrder.Should().Be(6);
                     it["6 calls should have been made"] = () => listener.CallsMade.Should().Be(6);
@@ -80,8 +80,8 @@ namespace CQRS.Tests.CQRS.EventHandling
 
             public int? UserCreatedCallOrder;
             public int? UserRegisteredCallOrder;
-            public int? SkillAddedCallOrder;
-            public int? SkillRemovedCallOrder;
+            public int? SkillsAddedCallOrder;
+            public int? SkillsRemovedCallOrder;
 
 
             public int? AfterHandlers1CallOrder;
@@ -96,46 +96,26 @@ namespace CQRS.Tests.CQRS.EventHandling
                     .AfterHandlers(e => AfterHandlers2CallOrder = ++CallsMade)
                     .For<IUserCreatedEvent>(e => UserCreatedCallOrder = ++CallsMade)
                     .For<IUserRegistered>(e => UserRegisteredCallOrder = ++CallsMade)
-                    .For<IUserSkillRemoved>(e => SkillRemovedCallOrder = ++CallsMade)
-                    .For<IUserSkillAdded>(e => SkillAddedCallOrder = ++CallsMade);
+                    .For<IUserSkillsRemoved>(e => SkillsRemovedCallOrder = ++CallsMade)
+                    .For<IUserSkillsAdded>(e => SkillsAddedCallOrder = ++CallsMade);
             }
         }
 
         public interface IUserEvent : IAggregateRootEvent {}
+        public interface IUserCreatedEvent : IUserEvent {}        
+        public interface IUserRegistered : IUserCreatedEvent, IAggregateRootCreatedEvent {}
+        public interface IUserDeleted : IUserEvent, IAggregateRootDeletedEvent { }
 
-        public interface IUserCreatedEvent : IUserEvent {}
+        public interface IUserSkillsEvent : IUserEvent {}
+        public interface IUserSkillsAdded : IUserSkillsEvent {}
+        public interface IUserSkillsRemoved : IUserSkillsEvent {}
+        public interface IUserAddedSkills : IUserSkillsAdded {}
+        public interface IUserRemovedSkills : IUserSkillsRemoved {}
+        public interface IUserEditedSkill : IUserAddedSkills, IUserRemovedSkills {}
 
-        private class UserCreatedEvent : AggregateRootEvent, IUserCreatedEvent {}
-
-        public interface IUserRegistered : IUserCreatedEvent, IAggregateRootCreatedEvent
-        {
-            string Email { get; set; }
-            string Password { get; set; }
-        }
-
-        public interface IUserSkillEvent : MultiEventHandlerSpecification.IUserEvent {}
-
-        public interface IUserSkillAdded : IUserSkillEvent {}
-
-        public interface IUserSkillRemoved : IUserSkillEvent {}
-
-        public interface IUserAddedSkill : IUserSkillAdded {}
-
-        public interface IUserRemovedSkill : IUserSkillRemoved {}
-
-        public interface IUserEditedSkills : IUserAddedSkill, IUserRemovedSkill {}
-
-        public class UserEditedSkills : AggregateRootEvent, IUserEditedSkills {}
-
-
-        public interface IUserDeleted : IUserEvent, IAggregateRootDeletedEvent {}
-
-        private class UserDeleted : AggregateRootEvent, IUserDeleted {}
-
-        public class UserRegistered : AggregateRootEvent, IUserRegistered
-        {
-            public string Email { get; set; }
-            public string Password { get; set; }
-        }
+        private class UserCreatedEvent : AggregateRootEvent, IUserCreatedEvent { }
+        private class UserDeleted : AggregateRootEvent, IUserDeleted { }
+        public class UserEditedSkill : AggregateRootEvent, IUserEditedSkill { }
+        public class UserRegistered : AggregateRootEvent, IUserRegistered{}
     }
 }

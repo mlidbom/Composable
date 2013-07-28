@@ -9,11 +9,11 @@ using log4net;
 
 namespace Composable.CQRS.EventHandling
 {
-    public class MultiEventHandler<TImplementor, TEvent> : IHandleMessages<TEvent>
+    public class EventHierarchyHandler<TImplementor, TEvent> : IHandleMessages<TEvent>
         where TEvent : IAggregateRootEvent
-        where TImplementor : MultiEventHandler<TImplementor, TEvent>
+        where TImplementor : EventHierarchyHandler<TImplementor, TEvent>
     {
-        private static readonly ILog Log = LogManager.GetLogger(typeof(MultiEventHandler<TImplementor, TEvent>));
+        private static readonly ILog Log = LogManager.GetLogger(typeof(EventHierarchyHandler<TImplementor, TEvent>));
         private readonly List<KeyValuePair<Type, Action<IAggregateRootEvent>>> _handlers = new List<KeyValuePair<Type, Action<IAggregateRootEvent>>>();
 
         private List<Action<IAggregateRootEvent>> _runBeforeHandlers = new List<Action<IAggregateRootEvent>>();
@@ -27,9 +27,9 @@ namespace Composable.CQRS.EventHandling
 
         public class RegistrationBuilder
         {
-            private readonly MultiEventHandler<TImplementor, TEvent> _owner;
+            private readonly EventHierarchyHandler<TImplementor, TEvent> _owner;
 
-            public RegistrationBuilder(MultiEventHandler<TImplementor, TEvent> owner)
+            public RegistrationBuilder(EventHierarchyHandler<TImplementor, TEvent> owner)
             {
                 _owner = owner;
             }

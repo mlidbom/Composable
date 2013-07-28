@@ -138,7 +138,7 @@
     <Compile Include="CQRS\CommandHandlerBaseTests.cs" />
     <Compile Include="CQRS\EventHandling\PropertyUpdatedEventsSpecification.cs" />
     <Compile Include="CQRS\EventHandling\SingleAggregateQueryModelUpdaterSpecification.cs" />
-    <Compile Include="CQRS\EventHandling\MultiEventHandlerSpecification.cs" />
+    <Compile Include="CQRS\EventHandling\EventHierarchyHandlerSpecification.cs" />
     <Compile Include="CQRS\EventSourcing\AggregateRootTests.cs" />
     <Compile Include="CQRS\EventSourcing\EventSomethingOrOtherTest.cs" />
     <Compile Include="CQRS\EventSourcing\EventStoredAggregateRootTests.cs" />

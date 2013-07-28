@@ -85,6 +85,10 @@
     <Reference Include="Moq">
       <HintPath>..\..\packages\Moq.4.0.10827\lib\NET40\Moq.dll</HintPath>
     </Reference>
+    <Reference Include="Newtonsoft.Json, Version=4.5.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <Private>True</Private>
+      <HintPath>..\..\packages\Newtonsoft.Json.4.5.11\lib\net40\Newtonsoft.Json.dll</HintPath>
+    </Reference>
     <Reference Include="NServiceBus, Version=3.0.0.0, Culture=neutral, PublicKeyToken=9fc386479f8a226c, processorArchitecture=MSIL">
       <HintPath>..\..\packages\NServiceBus.3.0.3.32\lib\net40\NServiceBus.dll</HintPath>
     </Reference>
@@ -132,6 +136,7 @@
     <Compile Include="Command\CompositeCommandTests.cs" />
     <Compile Include="Command\WhenExecutingIDomainCommand.cs" />
     <Compile Include="CQRS\CommandHandlerBaseTests.cs" />
+    <Compile Include="CQRS\EventHandling\PropertyUpdatedEventsSpecification.cs" />
     <Compile Include="CQRS\EventHandling\SingleAggregateQueryModelUpdaterSpecification.cs" />
     <Compile Include="CQRS\EventHandling\MultiEventHandlerSpecification.cs" />
     <Compile Include="CQRS\EventSourcing\AggregateRootTests.cs" />

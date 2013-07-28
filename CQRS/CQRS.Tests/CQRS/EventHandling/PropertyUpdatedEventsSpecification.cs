@@ -4,14 +4,13 @@ using Composable.CQRS.EventHandling;
 using Composable.CQRS.EventSourcing;
 using Composable.DDD;
 using Composable.KeyValueStorage;
-using Composable.NewtonSoft;
 using Composable.System.Linq;
 using CQRS.Tests.CQRS.EventHandling.CVManagement;
 using CQRS.Tests.CQRS.EventHandling.CVManagement.GlobalEvents;
 using CQRS.Tests.CQRS.EventHandling.CVManagement.InternalEvents.InternalImplementations;
+using CQRS.Tests.CQRS.EventHandling.CVManagement.QueryModelUpdaters;
 using FluentAssertions;
 using Moq;
-using Newtonsoft.Json;
 using NUnit.Framework;
 
 namespace CQRS.Tests.CQRS.EventHandling
@@ -20,8 +19,9 @@ namespace CQRS.Tests.CQRS.EventHandling
     {
         namespace GlobalEvents
         {
+
             #region Generic events intended to be inherited. None of these should ever be raised. Only inheritors should be raised.
-            
+
             //Every single CV event should inherit this one. Directly or indirectly.
             public interface ICVEvent : IAggregateRootEvent {}
 
@@ -70,31 +70,22 @@ namespace CQRS.Tests.CQRS.EventHandling
             #endregion
 
             public interface ICVRegistered : ICVCreated, PropertyUpdated.ICVEmailPropertyUpdated, PropertyUpdated.ICVPasswordPropertyUpdated {}
+
             public interface ICVSkillsEditedByCandidate : PropertyUpdated.ICVSkillsPropertyUpdated, ICVUpdatedByOwner {}
-            public interface ICVSkillsEditedByRecruiter : PropertyUpdated.ICVSkillsPropertyUpdated, ICVUpdatedByRecruiter {}         
+
+            public interface ICVSkillsEditedByRecruiter : PropertyUpdated.ICVSkillsPropertyUpdated, ICVUpdatedByRecruiter {}
         }
 
-        public class UserQueryModel : ValueObject<UserQueryModel>, IHasPersistentIdentity<Guid>
+        public class CVQueryModel : ValueObject<CVQueryModel>, IHasPersistentIdentity<Guid>
         {
             public Guid Id { get; private set; }
             public string Email { get; set; }
             public string Password { get; set; }
             public HashSet<string> Skills { get; set; }
-        }
 
-        public class UserQueryModelUpdater : SingleAggregateQueryModelUpdater<UserQueryModelUpdater, UserQueryModel, ICVEvent, IDocumentDbSession>
-        {
-            public UserQueryModelUpdater(IDocumentDbSession session)
-                : base(session)
+            public CVQueryModel()
             {
-                RegisterHandlers()
-                    .For<CVManagement.GlobalEvents.PropertyUpdated.ICVEmailPropertyUpdated>(e => Model.Email = e.Email)
-                    .For<CVManagement.GlobalEvents.PropertyUpdated.ICVPasswordPropertyUpdated>(e => Model.Password = e.Password)
-                    .For<CVManagement.GlobalEvents.PropertyUpdated.ICVSkillsPropertyUpdated>(e =>
-                    {
-                        Model.Skills.RemoveRange(e.RemovedSkills);
-                        Model.Skills.AddRange(e.AddedSkills);
-                    });
+                Skills = new HashSet<string>();
             }
         }
 
@@ -115,37 +106,44 @@ namespace CQRS.Tests.CQRS.EventHandling
                 }
             }
         }
+
+        namespace QueryModelUpdaters
+        {
+            public class CVQueryModelUpdater : SingleAggregateQueryModelUpdater<CVQueryModelUpdater, CVQueryModel, ICVEvent, IDocumentDbSession>
+            {
+                public CVQueryModelUpdater(IDocumentDbSession session)
+                    : base(session)
+                {
+                    RegisterHandlers()
+                        .For<GlobalEvents.PropertyUpdated.ICVEmailPropertyUpdated>(e => Model.Email = e.Email)
+                        .For<GlobalEvents.PropertyUpdated.ICVPasswordPropertyUpdated>(e => Model.Password = e.Password)
+                        .For<GlobalEvents.PropertyUpdated.ICVSkillsPropertyUpdated>(e =>
+                                                                                    {
+                                                                                        Model.Skills.RemoveRange(e.RemovedSkills);
+                                                                                        Model.Skills.AddRange(e.AddedSkills);
+                                                                                    });
+                }
+            }
+        }
     }
 
     public class PropertyUpdatedEventsSpecification : NSpec.NUnit.nspec
     {
-        [Test]
-        public void TestSerilizationOfCollectionPropertyUpdatedEvents()
-        {
-            var skillsEdited = new CVSkillsEdited()
-                               {
-                                   AddedSkills = new List<string>() {"AddedSkill1", "AddedSkill2", "AddedSkill3"},
-                                   RemovedSkills = new List<string>() {}
-                               };
-
-            Console.WriteLine(JsonConvert.SerializeObject(skillsEdited, JsonSettings.JsonSerializerSettings));
-        }
-
         public void starting_from_empty()
         {
-            UserQueryModel userQueryModel = null;
-            UserQueryModelUpdater userQueryModelUpdater = null;
+            CVQueryModel cvQueryModel = null;
+            CVQueryModelUpdater cvQueryModelUpdater = null;
             Mock<IDocumentDbSession> documentDbSessionMock = null;
             Guid cvId = Guid.Parse("00000000-0000-0000-0000-000000000001");
 
             before = () =>
                      {
-                         userQueryModel = null;
+                         cvQueryModel = null;
                          documentDbSessionMock = new Mock<IDocumentDbSession>(MockBehavior.Strict);
-                         userQueryModelUpdater = new UserQueryModelUpdater(documentDbSessionMock.Object);
+                         cvQueryModelUpdater = new CVQueryModelUpdater(documentDbSessionMock.Object);
                      };
 
-            context["after receiving UserRegisteredAvent"] =
+            context["after receiving CVRegisteredAvent"] =
                 () =>
                 {
                     CVRegisteredEvent registeredEvent = null;
@@ -156,13 +154,32 @@ namespace CQRS.Tests.CQRS.EventHandling
                                                        Email = "Eail",
                                                        Password = "Password",
                                                    };
-                                 documentDbSessionMock.Setup(session => session.Save(It.IsAny<UserQueryModel>())).Callback<UserQueryModel>(saved => userQueryModel = saved);
-                                 userQueryModelUpdater.Handle(registeredEvent);
+                                 documentDbSessionMock.Setup(session => session.Save(It.IsAny<CVQueryModel>())).Callback<CVQueryModel>(saved => cvQueryModel = saved);
+                                 cvQueryModelUpdater.Handle(registeredEvent);
                              };
                     it["does not crash :)"] = () => Assert.True(true);
-                    it["_resultingModel.Id is template.id"] = () => userQueryModel.Id.Should().Be(registeredEvent.AggregateRootId);
-                    it["_resultingModel.Email is template.Email"] = () => userQueryModel.Email.Should().Be(registeredEvent.Email);
-                    it["_resultingModel.Password is template.Password"] = () => userQueryModel.Password.Should().Be(registeredEvent.Password);
+                    it["_resultingModel.Id is template.id"] = () => cvQueryModel.Id.Should().Be(registeredEvent.AggregateRootId);
+                    it["_resultingModel.Email is template.Email"] = () => cvQueryModel.Email.Should().Be(registeredEvent.Email);
+                    it["_resultingModel.Password is template.Password"] = () => cvQueryModel.Password.Should().Be(registeredEvent.Password);
+                    context["after receiving CVSkillsEditedEvent"] =
+                        () =>
+                        {
+                            CVSkillsEdited skillsEdited = null;
+                            before = () =>
+                                     {
+                                         skillsEdited = new CVSkillsEdited()
+                                                        {
+                                                            AggregateRootId = registeredEvent.AggregateRootId,
+                                                            AddedSkills = new List<string> {"AddedSkill1", "AddedSkill2", "AddedSkill3"},
+                                                            RemovedSkills = new List<string> {"RemovedSkill1"}
+                                                        };
+                                         documentDbSessionMock.Setup(session => session.GetForUpdate<CVQueryModel>(registeredEvent.AggregateRootId)).Returns(() => cvQueryModel);
+                                         documentDbSessionMock.Setup(session => session.SaveChanges());
+                                         cvQueryModelUpdater.Handle(skillsEdited);
+                                     };
+
+                            it["CVQueryModel.Skills is event.AddedSkills "] = () => cvQueryModel.Skills.Should().Equal(skillsEdited.AddedSkills);
+                        };
                 };
         }
     }

@@ -10,11 +10,11 @@ using NUnit.Framework;
 
 namespace CQRS.Tests.CQRS.EventHandling
 {
-    public class MultiEventHandlerSpecification : NSpec.NUnit.nspec
+    public class EventHierarchyHandlerSpecification : NSpec.NUnit.nspec
     {
         public void before_each()
         {
-            listener = new HandlesIUserEvents();
+            listener = new HandlesIUserEventsHierarchy();
         }
 
         protected IHandlesIUserEvents listener;
@@ -77,7 +77,7 @@ namespace CQRS.Tests.CQRS.EventHandling
             it["throws DuplicateRegistrationAttemptedException"] = () => Assert.Throws<DuplicateHandlerRegistrationAttemptedException>(() => new RegisterUserRegisteredTwice());
         }
 
-        public class RegisterUserRegisteredTwice : MultiEventHandler<RegisterUserRegisteredTwice, IUserEvent>
+        public class RegisterUserRegisteredTwice : EventHierarchyHandler<RegisterUserRegisteredTwice, IUserEvent>
         {
             public RegisterUserRegisteredTwice()
             {
@@ -100,7 +100,7 @@ namespace CQRS.Tests.CQRS.EventHandling
             int? AfterHandlers2CallOrder { get; set; }
         }
 
-        public class HandlesIUserEvents : MultiEventHandler<HandlesIUserEvents, IUserEvent>, IHandlesIUserEvents
+        public class HandlesIUserEventsHierarchy : EventHierarchyHandler<HandlesIUserEventsHierarchy, IUserEvent>, IHandlesIUserEvents
         {
             public int CallsMade { get; set; }
 
@@ -116,7 +116,7 @@ namespace CQRS.Tests.CQRS.EventHandling
             public int? AfterHandlers1CallOrder { get; set; }
             public int? AfterHandlers2CallOrder { get; set; }
 
-            public HandlesIUserEvents()
+            public HandlesIUserEventsHierarchy()
             {
                 RegisterHandlers()
                     .IgnoreUnhandled<IIgnoredUserEvent>()

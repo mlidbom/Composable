@@ -12,11 +12,11 @@ namespace Composable.CQRS.EventHandling
     /// <summary>
     /// Calls all matching handlers in the order they were registered when an event i received.
     /// </summary>
-    public class CallAllMatchingHandlersInRegistrationOrderEventHandler<TImplementor, TEvent> : IHandleMessages<TEvent>
+    public class CallsMatchingHandlersInRegistrationOrderEventHandler<TImplementor, TEvent> : IHandleMessages<TEvent>
         where TEvent : IAggregateRootEvent
-        where TImplementor : CallAllMatchingHandlersInRegistrationOrderEventHandler<TImplementor, TEvent>
+        where TImplementor : CallsMatchingHandlersInRegistrationOrderEventHandler<TImplementor, TEvent>
     {
-        private static readonly ILog Log = LogManager.GetLogger(typeof(CallAllMatchingHandlersInRegistrationOrderEventHandler<TImplementor, TEvent>));
+        private static readonly ILog Log = LogManager.GetLogger(typeof(CallsMatchingHandlersInRegistrationOrderEventHandler<TImplementor, TEvent>));
         private readonly List<KeyValuePair<Type, Action<IAggregateRootEvent>>> _handlers = new List<KeyValuePair<Type, Action<IAggregateRootEvent>>>();
 
         private readonly List<Action<IAggregateRootEvent>> _runBeforeHandlers = new List<Action<IAggregateRootEvent>>();
@@ -31,9 +31,9 @@ namespace Composable.CQRS.EventHandling
 
         public class RegistrationBuilder
         {
-            private readonly CallAllMatchingHandlersInRegistrationOrderEventHandler<TImplementor, TEvent> _owner;
+            private readonly CallsMatchingHandlersInRegistrationOrderEventHandler<TImplementor, TEvent> _owner;
 
-            public RegistrationBuilder(CallAllMatchingHandlersInRegistrationOrderEventHandler<TImplementor, TEvent> owner)
+            public RegistrationBuilder(CallsMatchingHandlersInRegistrationOrderEventHandler<TImplementor, TEvent> owner)
             {
                 _owner = owner;
             }

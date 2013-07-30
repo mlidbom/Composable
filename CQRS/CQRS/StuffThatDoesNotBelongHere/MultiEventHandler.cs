@@ -1,112 +1,16 @@
 using System;
-using System.Collections.Generic;
+using Composable.CQRS.EventHandling;
 using Composable.CQRS.EventSourcing;
 using Composable.DomainEvents;
-using System.Linq;
-using NServiceBus;
 using Composable.System;
-using log4net;
 
 namespace Composable.StuffThatDoesNotBelongHere
 {
-    public class MultiEventHandler<TImplementor, TEvent> : IHandleMessages<TEvent> 
+    [Obsolete("Please use UniqueMatchEventHandler to make the semantics clear. No change except changing the class you inherit is necessary")]
+    public class MultiEventHandler<TImplementor, TEvent> : UniqueMatchEventHierarchyHandler<TImplementor, TEvent> 
         where TEvent : IAggregateRootEvent
         where TImplementor : MultiEventHandler<TImplementor, TEvent>
-    {
-        private static readonly ILog Log = LogManager.GetLogger(typeof (MultiEventHandler<TImplementor, TEvent>));
-        private readonly Dictionary<Type, Action<TEvent>> _handlers = new Dictionary<Type, Action<TEvent>>();
-        private bool _shouldIgnoreUnHandled;
-
-        private Action<TEvent> _runBeforeHandlers = _ => { };
-        private Action<TEvent> _runAfterHandlers = _ => { };
-
-        protected void IgnoreUnHandled()
-        {
-            _shouldIgnoreUnHandled = true;
-        }
-
-        protected RegistrationBuilder RegisterHandlers()
-        {
-            return new RegistrationBuilder(this);
-        }
-
-        public class RegistrationBuilder
-        {
-            private readonly MultiEventHandler<TImplementor, TEvent> _owner;
-
-            public RegistrationBuilder(MultiEventHandler<TImplementor, TEvent> owner )
-            {
-                _owner = owner;
-            }
-
-            public RegistrationBuilder For<THandledEvent>(Action<THandledEvent> handler) where THandledEvent : TEvent
-            {
-                _owner._handlers.Add(typeof(THandledEvent), (@event) => handler((THandledEvent)@event));
-                return this;
-            }
-
-            public RegistrationBuilder For(Type eventType, Action<TEvent> handler)
-            {
-                if(!typeof(TEvent).IsAssignableFrom(eventType))
-                {
-                    throw new Exception("{0} Does not implement {1}. \nYou cannot register a handler for an event type that does not implement the listened for event".FormatWith(eventType, typeof(TEvent)));
-                }
-
-                _owner._handlers.Add(eventType, handler);
-                return this;
-            }
-
-            public RegistrationBuilder BeforeHandlers(Action<TEvent> runBeforeHandlers)
-            {
-                _owner._runBeforeHandlers = runBeforeHandlers;
-                return this;
-            }
-
-            public RegistrationBuilder AfterHandlers(Action<TEvent> runAfterHandlers)
-            {
-                _owner._runAfterHandlers = runAfterHandlers;
-                return this;
-            }
-        }
-
-        public virtual void Handle(TEvent evt)
-        {
-            var handler = GetHandler(evt);
-            if (handler != null)
-            {
-                Log.DebugFormat("Handling event:{0}", evt);
-                _runBeforeHandlers(evt);
-                handler(evt);
-                _runAfterHandlers(evt);
-            }else
-            {
-                Log.DebugFormat("Ignored event: {0}", evt);
-            }
-        }
-
-        private Action<TEvent> GetHandler(TEvent evt) {
-            var handlers = _handlers
-                .Where(registration => registration.Key.IsAssignableFrom(evt.GetType()))
-                .Select(registration => registration.Value);
-
-            if(handlers.Count() > 1)
-            {
-                throw new AmbigousHandlerException(evt);
-            }
-
-            var handler = handlers.SingleOrDefault();
-
-            if(handler == null)
-            {
-                if (_shouldIgnoreUnHandled)
-                {
-                    return handler;
-                }
-                throw new EventUnhandledException(this.GetType(), evt, typeof(TEvent));
-            }
-            return handler;
-        }
-    }
+    {}
 
     public class AmbigousHandlerException : Exception
     {

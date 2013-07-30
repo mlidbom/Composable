@@ -9,17 +9,21 @@ using log4net;
 
 namespace Composable.CQRS.EventHandling
 {
-    public class EventHierarchyHandler<TImplementor, TEvent> : IHandleMessages<TEvent>
+    /// <summary>
+    /// Calls all matching handlers in the order they were registered when an event i received.
+    /// </summary>
+    public class CallAllMatchingHandlersInRegistrationOrderEventHandler<TImplementor, TEvent> : IHandleMessages<TEvent>
         where TEvent : IAggregateRootEvent
-        where TImplementor : EventHierarchyHandler<TImplementor, TEvent>
+        where TImplementor : CallAllMatchingHandlersInRegistrationOrderEventHandler<TImplementor, TEvent>
     {
-        private static readonly ILog Log = LogManager.GetLogger(typeof(EventHierarchyHandler<TImplementor, TEvent>));
+        private static readonly ILog Log = LogManager.GetLogger(typeof(CallAllMatchingHandlersInRegistrationOrderEventHandler<TImplementor, TEvent>));
         private readonly List<KeyValuePair<Type, Action<IAggregateRootEvent>>> _handlers = new List<KeyValuePair<Type, Action<IAggregateRootEvent>>>();
 
-        private List<Action<IAggregateRootEvent>> _runBeforeHandlers = new List<Action<IAggregateRootEvent>>();
-        private List<Action<IAggregateRootEvent>> _runAfterHandlers = new List<Action<IAggregateRootEvent>>();
-        private HashSet<Type> _ignoredEvents = new HashSet<Type>();
+        private readonly List<Action<IAggregateRootEvent>> _runBeforeHandlers = new List<Action<IAggregateRootEvent>>();
+        private readonly List<Action<IAggregateRootEvent>> _runAfterHandlers = new List<Action<IAggregateRootEvent>>();
+        private readonly HashSet<Type> _ignoredEvents = new HashSet<Type>();
 
+        ///<summary>Registers handlers for the incoming events. All matching handlers will be called in the order they were registered.</summary>
         protected RegistrationBuilder RegisterHandlers()
         {
             return new RegistrationBuilder(this);
@@ -27,28 +31,23 @@ namespace Composable.CQRS.EventHandling
 
         public class RegistrationBuilder
         {
-            private readonly EventHierarchyHandler<TImplementor, TEvent> _owner;
+            private readonly CallAllMatchingHandlersInRegistrationOrderEventHandler<TImplementor, TEvent> _owner;
 
-            public RegistrationBuilder(EventHierarchyHandler<TImplementor, TEvent> owner)
+            public RegistrationBuilder(CallAllMatchingHandlersInRegistrationOrderEventHandler<TImplementor, TEvent> owner)
             {
                 _owner = owner;
             }
 
+            ///<summary>Registers a for any event that implements THandledEvent. All matching handlers will be called in the order they were registered.</summary>
             public RegistrationBuilder For<THandledEvent>(Action<THandledEvent> handler) where THandledEvent : TEvent
             {
-                var eventType = typeof(THandledEvent);
-
-                if (!typeof(TEvent).IsAssignableFrom(eventType))
-                {
-                    throw new Exception(
-                        "{0} Does not implement {1}. \nYou cannot register a handler for an event type that does not implement the listened for event"
-                            .FormatWith(eventType, typeof(TEvent)));
-                }
-
-                return InternalUnsafeFor(handler);
+                return ForGenericEvent(handler);
             }
 
-            internal RegistrationBuilder InternalUnsafeFor<THandledEvent>(Action<THandledEvent> handler) where THandledEvent : IAggregateRootEvent
+            ///<summary>Lets you register handlers for event interfaces that may be defined outside of the eventhierarchy of you aggregate.
+            /// Useful for listening to generic events such as IAggregateRootCreatedEvent or IAggregateRootDeletedEvent
+            /// </summary>
+            public RegistrationBuilder ForGenericEvent<THandledEvent>(Action<THandledEvent> handler) where THandledEvent : IAggregateRootEvent
             {
                 var eventType = typeof(THandledEvent);
                 if(_owner._handlers.Any(registration => registration.Key == eventType))
@@ -88,7 +87,7 @@ namespace Composable.CQRS.EventHandling
 
             if(handlers.None())
             {
-                if(_ignoredEvents.Any(ignoredEvent => ignoredEvent.IsAssignableFrom(evt.GetType())))
+                if(_ignoredEvents.Any(ignoredEventType => ignoredEventType.IsInstanceOfType(evt)))
                 {
                     return;
                 }
@@ -114,7 +113,7 @@ namespace Composable.CQRS.EventHandling
         private IEnumerable<Action<IAggregateRootEvent>> GetHandler(TEvent evt)
         {
             return _handlers
-                .Where(registration => registration.Key.IsAssignableFrom(evt.GetType()))
+                .Where(registration => registration.Key.IsInstanceOfType(evt))
                 .Select(registration => registration.Value);
         }
     }

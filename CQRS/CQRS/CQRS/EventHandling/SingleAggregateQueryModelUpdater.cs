@@ -9,7 +9,7 @@ using Composable.KeyValueStorage;
 
 namespace Composable.CQRS.EventHandling
 {
-    public class SingleAggregateQueryModelUpdater<TImplementor, TViewModel, TEvent, TSession> : EventHierarchyHandler<TImplementor, TEvent>
+    public class SingleAggregateQueryModelUpdater<TImplementor, TViewModel, TEvent, TSession> : CallAllMatchingHandlersInRegistrationOrderEventHandler<TImplementor, TEvent>
         where TImplementor : SingleAggregateQueryModelUpdater<TImplementor, TViewModel, TEvent, TSession>
         where TSession : IDocumentDbSession
         where TEvent : IAggregateRootEvent
@@ -23,7 +23,7 @@ namespace Composable.CQRS.EventHandling
             Session = session;
 
             RegisterHandlers()
-                .InternalUnsafeFor<IAggregateRootDeletedEvent>(e =>  Session.Delete<TViewModel>(e.AggregateRootId))
+                .ForGenericEvent<IAggregateRootDeletedEvent>(e =>  Session.Delete<TViewModel>(e.AggregateRootId))
                 .BeforeHandlers(e =>
                                 {
                                     if(e is IAggregateRootCreatedEvent)

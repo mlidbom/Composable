@@ -212,7 +212,7 @@
     <Compile Include="CQRS\EventSourcing\IEventApplier.cs" />
     <Compile Include="ServiceBus\SynchronousBus.cs" />
     <Compile Include="CQRS\SetExtensions.cs" />
-    <Compile Include="CQRS\EventHandling\CallAllMatchingHandlersInRegistrationOrderEventHandler.cs" />
+    <Compile Include="CQRS\EventHandling\CallsMatchingHandlersInRegistrationOrderEventHandler.cs" />
     <Compile Include="Persistence\IEntityFetcher.cs" />
     <Compile Include="CQRS\Command\IEntityHandledCommand.cs" />
     <Compile Include="CQRS\NoRegisteredHandlersException.cs" />

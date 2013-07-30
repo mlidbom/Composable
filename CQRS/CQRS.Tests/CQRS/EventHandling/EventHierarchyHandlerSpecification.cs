@@ -77,7 +77,7 @@ namespace CQRS.Tests.CQRS.EventHandling
             it["throws DuplicateRegistrationAttemptedException"] = () => Assert.Throws<DuplicateHandlerRegistrationAttemptedException>(() => new RegisterUserRegisteredTwice());
         }
 
-        public class RegisterUserRegisteredTwice : CallAllMatchingHandlersInRegistrationOrderEventHandler<RegisterUserRegisteredTwice, IUserEvent>
+        public class RegisterUserRegisteredTwice : CallsMatchingHandlersInRegistrationOrderEventHandler<RegisterUserRegisteredTwice, IUserEvent>
         {
             public RegisterUserRegisteredTwice()
             {
@@ -100,7 +100,7 @@ namespace CQRS.Tests.CQRS.EventHandling
             int? AfterHandlers2CallOrder { get; set; }
         }
 
-        public class HandlesIUserEventsHierarchy : CallAllMatchingHandlersInRegistrationOrderEventHandler<HandlesIUserEventsHierarchy, IUserEvent>, IHandlesIUserEvents
+        public class HandlesIUserEventsHierarchy : CallsMatchingHandlersInRegistrationOrderEventHandler<HandlesIUserEventsHierarchy, IUserEvent>, IHandlesIUserEvents
         {
             public int CallsMade { get; set; }
 

@@ -9,7 +9,7 @@ using Composable.KeyValueStorage;
 
 namespace Composable.CQRS.EventHandling
 {
-    public class SingleAggregateQueryModelUpdater<TImplementor, TViewModel, TEvent, TSession> : CallAllMatchingHandlersInRegistrationOrderEventHandler<TImplementor, TEvent>
+    public class SingleAggregateQueryModelUpdater<TImplementor, TViewModel, TEvent, TSession> : CallsMatchingHandlersInRegistrationOrderEventHandler<TImplementor, TEvent>
         where TImplementor : SingleAggregateQueryModelUpdater<TImplementor, TViewModel, TEvent, TSession>
         where TSession : IDocumentDbSession
         where TEvent : IAggregateRootEvent

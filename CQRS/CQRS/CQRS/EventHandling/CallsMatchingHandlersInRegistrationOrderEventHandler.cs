@@ -10,7 +10,8 @@ using log4net;
 namespace Composable.CQRS.EventHandling
 {
     /// <summary>
-    /// Calls all matching handlers in the order they were registered when an event i received.
+    /// Calls all matching handlers in the order they were registered when an event is received.
+    /// Handlers should be registered using the RegisterHandlers method in the constructor of the inheritor.
     /// </summary>
     public class CallsMatchingHandlersInRegistrationOrderEventHandler<TImplementor, TEvent> : IHandleMessages<TEvent>
         where TEvent : IAggregateRootEvent

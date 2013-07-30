@@ -9,6 +9,11 @@ using NServiceBus;
 
 namespace Composable.CQRS.EventHandling
 {
+    /// <summary>
+    /// Dispatches handled events to a single matching handler only.
+    /// If there is more than one matching handler an AmbigousHandlerException is thrown. 
+    /// Use this base class when you are interested in exactly what has happened.
+    /// </summary>
     public class UniqueMatchEventHierarchyHandler<TImplementor, TEvent> : IHandleMessages<TEvent> where TImplementor : UniqueMatchEventHierarchyHandler<TImplementor, TEvent>
         where TEvent : IAggregateRootEvent
     {

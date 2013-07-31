@@ -12,14 +12,14 @@ namespace CQRS.Tests.CQRS.EventHandling
     public class SingleAggregateQueryModelUpdaterSpecification : NSpec.NUnit.nspec
     {
         private Mock<IDocumentDbSession> _sessionMock;
-        private UserQueryModelUdater _listener;
+        private UserQueryModelUpdater _listener;
         private readonly Guid _userId = Guid.Parse("00000000-0000-0000-0000-000000000001");
         private UserQueryModel _queryModel;
 
         public void before_each()
         {
             _sessionMock = new Mock<IDocumentDbSession>(MockBehavior.Strict);
-            _listener = new UserQueryModelUdater(_sessionMock.Object);
+            _listener = new UserQueryModelUpdater(_sessionMock.Object);
         }
 
         public void after_each() {}
@@ -133,7 +133,7 @@ namespace CQRS.Tests.CQRS.EventHandling
             public Guid Id { get; set; }
         }
 
-        public class UserQueryModelUdater : SingleAggregateQueryModelUpdater<UserQueryModelUdater, UserQueryModel, IUserEvent, IDocumentDbSession>
+        public class UserQueryModelUpdater : SingleAggregateQueryModelUpdater<UserQueryModelUpdater, UserQueryModel, IUserEvent, IDocumentDbSession>
         {
             public int CallsMade { get; set; }
 
@@ -151,7 +151,7 @@ namespace CQRS.Tests.CQRS.EventHandling
 
             public UserQueryModel TheModel { get { return Model; } }
 
-            public UserQueryModelUdater(IDocumentDbSession session)
+            public UserQueryModelUpdater(IDocumentDbSession session)
                 : base(session)
             {
                 RegisterHandlers()

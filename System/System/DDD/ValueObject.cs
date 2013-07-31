@@ -98,14 +98,13 @@ namespace Composable.DDD
                     {
                         return false;
                     }
-                    for (int j = 0; j < value1Array.Length - 1; j++)
+                    for (int j = 0; j < value1Array.Length ; ++j)
                     {
                         if (!Equals(value1Array[j], value2Array[j]))
                         {
                             return false;
                         }
                     }
-                    return true;
                 } 
                 else if(!value1.Equals(value2))
                     return false;

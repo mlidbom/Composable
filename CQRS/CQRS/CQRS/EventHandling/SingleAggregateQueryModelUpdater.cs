@@ -1,8 +1,6 @@
 #region usings
 
-using System;
 using Composable.CQRS.EventSourcing;
-using Composable.DDD;
 using Composable.KeyValueStorage;
 
 #endregion
@@ -13,7 +11,7 @@ namespace Composable.CQRS.EventHandling
         where TImplementor : SingleAggregateQueryModelUpdater<TImplementor, TViewModel, TEvent, TSession>
         where TSession : IDocumentDbSession
         where TEvent : IAggregateRootEvent
-        where TViewModel : class, IHasPersistentIdentity<Guid>, new()
+        where TViewModel : class, ISingleAggregateQueryModel, new()
     {
         protected readonly TSession Session;
         protected TViewModel Model { get; set; }
@@ -29,6 +27,7 @@ namespace Composable.CQRS.EventHandling
                                     if(e is IAggregateRootCreatedEvent)
                                     {
                                         Model = new TViewModel();
+                                        Model.SetId(e.AggregateRootId);
                                     }else if (!(e is IAggregateRootDeletedEvent))
                                     {
                                         Model = Session.GetForUpdate<TViewModel>(e.AggregateRootId);

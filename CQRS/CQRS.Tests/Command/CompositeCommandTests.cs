@@ -60,10 +60,10 @@ namespace CQRS.Tests.Command
                                           };
 
             //Execute command
-            var result = Assert.Throws<CommandFailedException>(() => _container.Resolve<ICommandService>().Execute(somethingAndEditCommand));
+            var result = Assert.Throws<DomainCommandValidationException>(() => _container.Resolve<ICommandService>().Execute(somethingAndEditCommand));
 
-            //CommandService should now rethrow a CommandFailedException with correct member path
-            result.Should().BeOfType<CommandFailedException>();
+            //CommandService should now rethrow a DomainCommandValidationException with correct member path
+            result.Should().BeOfType<DomainCommandValidationException>();
             result.Message.Should().Be("EditedField is invalid");
             result.InvalidMembers.Should().HaveCount(1);
             result.InvalidMembers.First().Should().Be("EditCommand.EditedField");
@@ -82,10 +82,8 @@ namespace CQRS.Tests.Command
                                           };
 
             //Execute command
-            var result = Assert.Throws<CommandFailedException>(() => _container.Resolve<ICommandService>().Execute(somethingAndEditCommand));
+            var result = Assert.Throws<DomainCommandValidationException>(() => _container.Resolve<ICommandService>().Execute(somethingAndEditCommand));
 
-            //CommandService should now rethrow a CommandFailedException with correct member path
-            result.Should().BeOfType<CommandFailedException>();
             result.Message.Should().Be("EditedField and otherfield is invalid");
             result.InvalidMembers.Should().HaveCount(2);
             result.InvalidMembers.First().Should().Be("EditCommand.EditedField");
@@ -125,13 +123,13 @@ namespace CQRS.Tests.Command
                 ExecuteCalled = true;
                 if(command.BothInvalid)
                 {
-                    throw new CommandFailedException("EditedField and otherfield is invalid",
+                    throw new DomainCommandValidationException("EditedField and otherfield is invalid",
                                                      () => command.EditedField,
                                                      () => command.OtherEditedField);
                 }
                 else
                 {
-                    throw new CommandFailedException("EditedField is invalid", () => command.EditedField);
+                    throw new DomainCommandValidationException("EditedField is invalid", () => command.EditedField);
                 }
             }
         }

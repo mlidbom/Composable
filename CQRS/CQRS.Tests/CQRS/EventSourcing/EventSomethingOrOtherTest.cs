@@ -7,7 +7,9 @@ using Composable.CQRS.EventSourcing.SQLServer;
 using Composable.CQRS.Testing;
 using Composable.System;
 using Composable.SystemExtensions.Threading;
+using CQRS.Tests.KeyValueStorage.Sql;
 using FluentAssertions;
+using NCrunch.Framework;
 using NUnit.Framework;
 using Composable.System.Linq;
 using System.Linq;
@@ -144,6 +146,7 @@ namespace CQRS.Tests.CQRS.EventSourcing
     }
 
     [TestFixture]
+    [ExclusivelyUses(NCrunchExlusivelyUsesResources.EventStoreDbMdf)]
     public class SqlServerEventSomethingOrOtherTest : EventSomethingOrOtherTest
     {
         private static string connectionString = ConfigurationManager.ConnectionStrings["EventStore"].ConnectionString;

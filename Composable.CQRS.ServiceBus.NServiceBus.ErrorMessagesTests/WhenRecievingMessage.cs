@@ -12,6 +12,7 @@ using Composable.ServiceBus;
 using Composable.System;
 using Composable.SystemExtensions.Threading;
 using Composable.UnitsOfWork;
+using NCrunch.Framework;
 using NServiceBus;
 using NServiceBus.Faults;
 using NServiceBus.Unicast.Transport;
@@ -25,7 +26,9 @@ using FluentAssertions;
 
 namespace Composable.CQRS.ServiceBus.NServiceBus.ErrorMessagesTests
 {
-    [TestFixture, Category("NSBFullSetupTests")]
+    [TestFixture, NUnit.Framework.Category("NSBFullSetupTests")]
+    [ExclusivelyUses(NCrunchExlusivelyUsesResources.NServiceBus)]
+    [NCrunch.Framework.Isolated]
     public class WhenReceivingMessage
     {
         [Test]

@@ -19,6 +19,9 @@ using Composable.System;
 using Composable.System.Linq;
 using Composable.SystemExtensions.Threading;
 using Composable.UnitsOfWork;
+using CQRS.Tests;
+using JetBrains.Annotations;
+using NCrunch.Framework;
 using NServiceBus;
 using NUnit.Framework;
 using Composable.CQRS.Windsor;
@@ -27,13 +30,16 @@ using Composable.CQRS.Windsor;
 
 namespace Composable.CQRS.ServiceBus.NServicebus.Tests.TransactionSupport
 {
-    [TestFixture, Category("NSBFullSetupTests")]
+    [TestFixture, NUnit.Framework.Category("NSBFullSetupTests")]
+    [ExclusivelyUses(NCrunchExlusivelyUsesResources.DocumentDbMdf, NCrunchExlusivelyUsesResources.EventStoreDbMdf, NCrunchExlusivelyUsesResources.NServiceBus)]
+    [NCrunch.Framework.Isolated]
     public class WhenMessageHandlingFails
     {
         public static readonly string DocumentDbConnectionString = ConfigurationManager.ConnectionStrings["KeyValueStore"].ConnectionString;
         public static readonly string EventStoreConnectionString = ConfigurationManager.ConnectionStrings["EventStore"].ConnectionString;
 
         [Test]
+        [NCrunch.Framework.Isolated]
         public void StoredEventsAreRemoved()
         {
             var endpointConfigurer = new EndPointConfigurer("Composable.CQRS.ServiceBus.NServicebus.Tests.TransactionSupport");
@@ -86,6 +92,7 @@ namespace Composable.CQRS.ServiceBus.NServicebus.Tests.TransactionSupport
     {
     }
 
+    [UsedImplicitly]
     public class InseartEventsMessageHandler : IHandleMessages<InsertEventsMessage>
     {
         private readonly IEventStoreSession _session;
@@ -104,7 +111,7 @@ namespace Composable.CQRS.ServiceBus.NServicebus.Tests.TransactionSupport
     public class EndPointConfigurer : NServicebusEndpointConfigurationBase<EndPointConfigurer>, IConfigureThisEndpoint
     {
         public IWindsorContainer Container;
-        private string _queueName;
+        private readonly string _queueName;
 
         public EndPointConfigurer(string queueName)
         {

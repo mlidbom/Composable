@@ -11,6 +11,7 @@ using Composable.ServiceBus;
 using Composable.System;
 using Composable.SystemExtensions.Threading;
 using Composable.UnitsOfWork;
+using NCrunch.Framework;
 using NServiceBus;
 using NUnit.Framework;
 using Composable.CQRS.Windsor;
@@ -20,7 +21,9 @@ using Component = Castle.MicroKernel.Registration.Component;
 
 namespace Composable.CQRS.ServiceBus.NServicebus.Tests.UowTests
 {
-    [TestFixture, Category("NSBFullSetupTests")]
+    [TestFixture, NUnit.Framework.Category("NSBFullSetupTests")]
+    [ExclusivelyUses(NCrunchExlusivelyUsesResources.NServiceBus)]
+    [NCrunch.Framework.Isolated]
     public class WhenReceivingMessage
     {
         private IServiceBus _bus;

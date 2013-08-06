@@ -8,6 +8,8 @@ using Composable.CQRS.EventSourcing;
 using Composable.CQRS.EventSourcing.SQLServer;
 using Composable.CQRS.Testing;
 using Composable.SystemExtensions.Threading;
+using CQRS.Tests.KeyValueStorage.Sql;
+using NCrunch.Framework;
 using NUnit.Framework;
 using System.Linq;
 
@@ -16,6 +18,7 @@ using System.Linq;
 namespace CQRS.Tests.CQRS.EventSourcing.Sql
 {
     [TestFixture]
+    [ExclusivelyUses(NCrunchExlusivelyUsesResources.EventStoreDbMdf)]
     public class SQLServerEventSomethingOrOtherTest
     {
         [Test]

@@ -116,7 +116,7 @@ namespace CQRS.Tests.CQRS.EventHandling
                     : base(session)
                 {
                     RegisterHandlers()
-                        .ForGenericEvent<IAggregateRootCreatedEvent>(e => Model.Id = e.AggregateRootId)
+                        .For<ICVCreated>(e => Model.Id = e.AggregateRootId)
                         .For<GlobalEvents.PropertyUpdated.ICVEmailPropertyUpdated>(e => Model.Email = e.Email)
                         .For<GlobalEvents.PropertyUpdated.ICVPasswordPropertyUpdated>(e => Model.Password = e.Password)
                         .For<GlobalEvents.PropertyUpdated.ICVSkillsPropertyUpdated>(e =>

@@ -6,6 +6,7 @@ using NUnit.Framework;
 namespace CQRS.Tests.KeyValueStorage.Sql
 {
     [TestFixture]
+    [NCrunch.Framework.ExclusivelyUses(NCrunchExlusivelyUsesResources.DocumentDbMdf)]
     class SqlDocumentDbTests : DocumentDbTests
     {
         private static string connectionString = ConfigurationManager.ConnectionStrings["KeyValueStore"].ConnectionString;

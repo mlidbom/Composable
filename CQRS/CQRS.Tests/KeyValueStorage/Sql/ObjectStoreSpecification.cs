@@ -4,6 +4,7 @@ using System.Configuration;
 using Composable.KeyValueStorage;
 using Composable.KeyValueStorage.SqlServer;
 using FluentAssertions;
+using NCrunch.Framework;
 
 namespace CQRS.Tests.KeyValueStorage.Sql
 {
@@ -130,6 +131,7 @@ namespace CQRS.Tests.KeyValueStorage.Sql
                 };
         }
 
+        [ExclusivelyUses(NCrunchExlusivelyUsesResources.DocumentDbMdf)]
         public class SqlServerObjectStoreSpecification : ObjectStoreSpecification
         {
             override public void before_each()

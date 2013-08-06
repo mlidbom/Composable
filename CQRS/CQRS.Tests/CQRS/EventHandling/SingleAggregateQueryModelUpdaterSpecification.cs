@@ -128,9 +128,13 @@ namespace CQRS.Tests.CQRS.EventHandling
         }
 
 
-        public class UserQueryModel : IHasPersistentIdentity<Guid>
+        public class UserQueryModel : ISingleAggregateQueryModel
         {
             public Guid Id { get; set; }
+            public void SetId(Guid id)
+            {
+                Id = id;
+            }
         }
 
         public class UserQueryModelUpdater : SingleAggregateQueryModelUpdater<UserQueryModelUpdater, UserQueryModel, IUserEvent, IDocumentDbSession>

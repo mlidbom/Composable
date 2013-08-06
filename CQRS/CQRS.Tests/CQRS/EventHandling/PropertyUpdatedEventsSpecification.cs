@@ -77,9 +77,14 @@ namespace CQRS.Tests.CQRS.EventHandling
             public interface ICVSkillsEditedByRecruiter : PropertyUpdated.ICVSkillsPropertyUpdated, ICVUpdatedByRecruiter {}
         }
 
-        public class CVQueryModel : ValueObject<CVQueryModel>, IHasPersistentIdentity<Guid>
+        public class CVQueryModel : ValueObject<CVQueryModel>, ISingleAggregateQueryModel
         {
-            public Guid Id { get; internal set; }
+            public Guid Id { get; private set; }
+            public void SetId(Guid id)
+            {
+                Id = id;
+            }
+
             public string Email { get; set; }
             public string Password { get; set; }
             public HashSet<string> Skills { get; set; }
@@ -116,7 +121,6 @@ namespace CQRS.Tests.CQRS.EventHandling
                     : base(session)
                 {
                     RegisterHandlers()
-                        .For<ICVCreated>(e => Model.Id = e.AggregateRootId)
                         .For<GlobalEvents.PropertyUpdated.ICVEmailPropertyUpdated>(e => Model.Email = e.Email)
                         .For<GlobalEvents.PropertyUpdated.ICVPasswordPropertyUpdated>(e => Model.Password = e.Password)
                         .For<GlobalEvents.PropertyUpdated.ICVSkillsPropertyUpdated>(e =>

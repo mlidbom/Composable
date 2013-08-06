@@ -176,6 +176,7 @@
     <Compile Include="KeyValueStorage\IObjectStore.cs" />
     <Compile Include="KeyValueStorage\DocumentDbSessionProxy.cs" />
     <Compile Include="KeyValueStorage\InMemoryObjectStore.cs" />
+    <Compile Include="KeyValueStorage\DocumentIdIsEmptyGuidException.cs" />
     <Compile Include="KeyValueStorage\Population\AggregateIdFetcher.cs" />
     <Compile Include="KeyValueStorage\Population\ConsolePopulationBatchLogger.cs" />
     <Compile Include="KeyValueStorage\Population\IPopulationBatchLogger.cs" />

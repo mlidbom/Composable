@@ -734,5 +734,18 @@ namespace CQRS.Tests.KeyValueStorage
                 Assert.That(people, Contains.Item(person1));
             }
         }
+
+        [Test]
+        public void ThrowsExceptionIfYouTryToSaveAnIHasPersistentIdentityWithNoId()
+        {
+            var store = CreateStore();
+
+            var user1 = new User { Id = Guid.Empty };
+
+            using (var session = store.OpenSession(new SingleThreadUseGuard()))
+            {
+                Assert.Throws<DocumentIdIsEmptyGuidException>(() => session.Save(user1));
+            }
+        }
     }
 }

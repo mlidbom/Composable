@@ -159,6 +159,10 @@ namespace Composable.KeyValueStorage
         public virtual void Save<TEntity>(TEntity entity) where TEntity : IHasPersistentIdentity<Guid>
         {
             _usageGuard.AssertNoContextChangeOccurred(this);
+            if(entity.Id.Equals(Guid.Empty))
+            {
+                throw new DocumentIdIsEmptyGuidException();
+            }
             Save(entity.Id, entity);
         }
 

@@ -5,6 +5,7 @@ using Composable.CQRS.EventSourcing;
 using Composable.DDD;
 using Composable.KeyValueStorage;
 using Composable.System.Linq;
+using Composable.SystemExtensions.Threading;
 using CQRS.Tests.CQRS.EventHandling.CVManagement;
 using CQRS.Tests.CQRS.EventHandling.CVManagement.GlobalEvents;
 using CQRS.Tests.CQRS.EventHandling.CVManagement.InternalEvents.InternalImplementations;
@@ -78,7 +79,7 @@ namespace CQRS.Tests.CQRS.EventHandling
 
         public class CVQueryModel : ValueObject<CVQueryModel>, IHasPersistentIdentity<Guid>
         {
-            public Guid Id { get; private set; }
+            public Guid Id { get; internal set; }
             public string Email { get; set; }
             public string Password { get; set; }
             public HashSet<string> Skills { get; set; }
@@ -115,6 +116,7 @@ namespace CQRS.Tests.CQRS.EventHandling
                     : base(session)
                 {
                     RegisterHandlers()
+                        .ForGenericEvent<IAggregateRootCreatedEvent>(e => Model.Id = e.AggregateRootId)
                         .For<GlobalEvents.PropertyUpdated.ICVEmailPropertyUpdated>(e => Model.Email = e.Email)
                         .For<GlobalEvents.PropertyUpdated.ICVPasswordPropertyUpdated>(e => Model.Password = e.Password)
                         .For<GlobalEvents.PropertyUpdated.ICVSkillsPropertyUpdated>(e =>
@@ -133,14 +135,14 @@ namespace CQRS.Tests.CQRS.EventHandling
         {
             CVQueryModel cvQueryModel = null;
             CVQueryModelUpdater cvQueryModelUpdater = null;
-            Mock<IDocumentDbSession> documentDbSessionMock = null;
+            IDocumentDbSession documentDbSession = null;
             Guid cvId = Guid.Parse("00000000-0000-0000-0000-000000000001");
 
             before = () =>
                      {
                          cvQueryModel = null;
-                         documentDbSessionMock = new Mock<IDocumentDbSession>(MockBehavior.Strict);
-                         cvQueryModelUpdater = new CVQueryModelUpdater(documentDbSessionMock.Object);
+                         documentDbSession = new DocumentDbSession(new InMemoryDocumentDb(), new SingleThreadUseGuard());
+                         cvQueryModelUpdater = new CVQueryModelUpdater(documentDbSession);
                      };
 
             context["after receiving CVRegisteredAvent"] =
@@ -151,11 +153,12 @@ namespace CQRS.Tests.CQRS.EventHandling
                              {
                                  registeredEvent = new CVRegisteredEvent()
                                                    {
-                                                       Email = "Eail",
+                                                       AggregateRootId = cvId,
+                                                       Email = "Email",
                                                        Password = "Password",
                                                    };
-                                 documentDbSessionMock.Setup(session => session.Save(It.IsAny<CVQueryModel>())).Callback<CVQueryModel>(saved => cvQueryModel = saved);
                                  cvQueryModelUpdater.Handle(registeredEvent);
+                                 cvQueryModel = documentDbSession.Get<CVQueryModel>(cvId);
                              };
                     it["does not crash :)"] = () => Assert.True(true);
                     it["_resultingModel.Id is template.id"] = () => cvQueryModel.Id.Should().Be(registeredEvent.AggregateRootId);
@@ -173,8 +176,6 @@ namespace CQRS.Tests.CQRS.EventHandling
                                                             AddedSkills = new List<string> {"AddedSkill1", "AddedSkill2", "AddedSkill3"},
                                                             RemovedSkills = new List<string> {"RemovedSkill1"}
                                                         };
-                                         documentDbSessionMock.Setup(session => session.GetForUpdate<CVQueryModel>(registeredEvent.AggregateRootId)).Returns(() => cvQueryModel);
-                                         documentDbSessionMock.Setup(session => session.SaveChanges());
                                          cvQueryModelUpdater.Handle(skillsEdited);
                                      };
 

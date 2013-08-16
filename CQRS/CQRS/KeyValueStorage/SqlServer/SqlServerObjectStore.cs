@@ -215,6 +215,7 @@ WHERE Id=@Id AND ValueTypeId
 
         IEnumerable<KeyValuePair<Guid, T>> IObjectStore.GetAll<T>()
         {
+            EnsureInitialized();
             if(KnownTypes.None(t => typeof(T).IsAssignableFrom(t.Key)))
             {
                 if(KnownTypes.None(t => typeof(T).IsAssignableFrom(t.Key)))

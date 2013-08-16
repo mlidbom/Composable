@@ -18,12 +18,15 @@ namespace Composable.CQRS.Windsor.Testing
             }
         }
 
-        public static void ConfigureWiringForTests(this IWindsorContainer container)
+        public static void ConfigureWiringForTestsCallBeforeAllOtherWiring(this IWindsorContainer container)
         {
             container.Kernel.ComponentModelBuilder.AddContributor(
                 new LifestyleRegistrationMutator(originalLifestyle: LifestyleType.PerWebRequest, newLifestyleType: LifestyleType.Scoped)
                 );
+        }
 
+        public static void ConfigureWiringForTestsCallAfterAllOtherWiring(this IWindsorContainer container)
+        {
             foreach(var configurer in container.ResolveAll<IConfigureWiringForTests>())
             {
                 configurer.ConfigureWiringForTesting();

@@ -1,6 +1,8 @@
 ﻿using Castle.Core;
 using Castle.MicroKernel.Lifestyle;
+using Castle.MicroKernel.Registration;
 using Castle.Windsor;
+using Composable.SystemExtensions.Threading;
 
 namespace Composable.CQRS.Windsor.Testing
 {
@@ -23,6 +25,8 @@ namespace Composable.CQRS.Windsor.Testing
             container.Kernel.ComponentModelBuilder.AddContributor(
                 new LifestyleRegistrationMutator(originalLifestyle: LifestyleType.PerWebRequest, newLifestyleType: LifestyleType.Scoped)
                 );
+
+            container.Register(Component.For<ISingleContextUseGuard>().ImplementedBy<SingleThreadUseGuard>());
         }
 
         public static void ConfigureWiringForTestsCallAfterAllOtherWiring(this IWindsorContainer container)

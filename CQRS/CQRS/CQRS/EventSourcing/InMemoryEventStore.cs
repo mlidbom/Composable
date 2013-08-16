@@ -13,6 +13,11 @@ namespace Composable.CQRS.EventSourcing
         }
 
         public IList<IAggregateRootEvent> Events = new List<IAggregateRootEvent>();
+
+        public void Reset()
+        {
+            Events = new List<IAggregateRootEvent>();
+        }
         
         public IServiceBus Bus { get; private set; }
 

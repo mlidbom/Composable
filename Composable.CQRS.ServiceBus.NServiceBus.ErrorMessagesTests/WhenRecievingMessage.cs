@@ -103,6 +103,11 @@ namespace Composable.CQRS.ServiceBus.NServiceBus.ErrorMessagesTests
             Extractor = new ExceptionExtractor();
         }
 
+        override protected Configure ConfigureLogging(Configure config)
+        {
+            return config;
+        }
+
         protected override void ConfigureContainer(IWindsorContainer container)
         {
             Container = container;

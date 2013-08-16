@@ -164,6 +164,11 @@ namespace Composable.CQRS.ServiceBus.NServicebus.Tests.UowTests
             _queueName = queueName;
         }
 
+        override protected Configure ConfigureLogging(Configure config)
+        {
+            return config;
+        }
+
         protected override void ConfigureContainer(IWindsorContainer container)
         {
             Container = container;

@@ -27,7 +27,7 @@ namespace CQRS.Tests.CQRS.EventSourcing
     [TestFixture]
     public abstract class EventSomethingOrOtherTest
     {
-        protected abstract IEventSomethingOrOther CreateSomethingOrOther();
+        protected abstract IEventStore CreateSomethingOrOther();
 
         [Test]
         public void StreamEventsSinceReturnsWholEventLogWhenFromEventIdIsNull()
@@ -35,10 +35,6 @@ namespace CQRS.Tests.CQRS.EventSourcing
             using (var somethingOrOther = CreateSomethingOrOther())
             {
                 somethingOrOther.SaveEvents(1.Through(10).Select(i => new SomeEvent(1, i)));
-            }
-
-            using (var somethingOrOther = CreateSomethingOrOther())
-            {
                 var stream = somethingOrOther.StreamEventsAfterEventWithId(null);
 
                 stream.Should().HaveCount(10);
@@ -53,10 +49,6 @@ namespace CQRS.Tests.CQRS.EventSourcing
             using (var somethingOrOther = CreateSomethingOrOther())
             {                
                 somethingOrOther.SaveEvents(someEvents);
-            }
-
-            using (var somethingOrOther = CreateSomethingOrOther())
-            {
                 var stream = somethingOrOther.StreamEventsAfterEventWithId(someEvents.ElementAt(4).EventId);
 
                 stream.Should().HaveCount(5);
@@ -66,7 +58,7 @@ namespace CQRS.Tests.CQRS.EventSourcing
         [Test]
         public void ThrowsIfUsedByMultipleThreads()
         {
-            IEventSomethingOrOther session = null;
+            IEventStore session = null;
             var wait = new ManualResetEvent(false);
             ThreadPool.QueueUserWorkItem((state) =>
             {
@@ -91,10 +83,6 @@ namespace CQRS.Tests.CQRS.EventSourcing
             using (var somethingOrOther = CreateSomethingOrOther())
             {                
                 somethingOrOther.SaveEvents(aggregatesWithEvents.SelectMany(x => x.Value));
-            }
-
-            using (var somethingOrOther = CreateSomethingOrOther())
-            {
                 var toRemove = aggregatesWithEvents[2][0].AggregateRootId;
                 aggregatesWithEvents.Remove(2);
 
@@ -117,10 +105,6 @@ namespace CQRS.Tests.CQRS.EventSourcing
             using (var somethingOrOther = CreateSomethingOrOther())
             {
                 somethingOrOther.SaveEvents(aggregatesWithEvents.SelectMany(x => x.Value));
-            }
-
-            using(var somethingOrOther = CreateSomethingOrOther())
-            {
                 var allAggretateIds = somethingOrOther.GetAggregateIds().ToList();
                 Assert.AreEqual(aggregatesWithEvents.Count, allAggretateIds.Count());
             }
@@ -131,17 +115,9 @@ namespace CQRS.Tests.CQRS.EventSourcing
     [TestFixture]
     public class InMemoryEventSomethingOrOtherTest : EventSomethingOrOtherTest
     {
-        private InMemoryEventStore _store;
-
-        [SetUp]
-        public void Setup()
+        protected override IEventStore CreateSomethingOrOther()
         {
-            _store = new InMemoryEventStore(new DummyServiceBus(new WindsorContainer()));
-        }
-
-        protected override IEventSomethingOrOther CreateSomethingOrOther()
-        {
-            return new InMemoryEventSomethingOrOther(_store, new SingleThreadUseGuard());
+            return new InMemoryEventStore(new SingleThreadUseGuard());
         }
     }
 
@@ -156,9 +132,9 @@ namespace CQRS.Tests.CQRS.EventSourcing
             SqlServerEventStore.ResetDB(connectionString);
         }
 
-        protected override IEventSomethingOrOther CreateSomethingOrOther()
+        protected override IEventStore CreateSomethingOrOther()
         {
-            return new SqlServerEventSomethingOrOther(new SingleThreadUseGuard(), connectionString);
+            return new SqlServerEventStore(new SingleThreadUseGuard(), connectionString);
         }
     }
 

@@ -146,10 +146,10 @@
     <Compile Include="CQRS\EventSourcing\AggregateRootTests.cs" />
     <Compile Include="CQRS\EventSourcing\EventSomethingOrOtherTest.cs" />
     <Compile Include="CQRS\EventSourcing\EventStoredAggregateRootTests.cs" />
-    <Compile Include="CQRS\EventSourcing\EventStoreTests.cs" />
-    <Compile Include="CQRS\EventSourcing\InMemoryEventStoreTests.cs" />
+    <Compile Include="CQRS\EventSourcing\EventStoreSessionTests.cs" />
+    <Compile Include="CQRS\EventSourcing\InMemoryEventStoreSessionTests.cs" />
     <Compile Include="CQRS\EventSourcing\Sql\SQLServerEventSomethingOrOtherTest.cs" />
-    <Compile Include="CQRS\EventSourcing\Sql\SqlServerEventStoreTests.cs" />
+    <Compile Include="CQRS\EventSourcing\Sql\SqlServerEventStoreSessionTests.cs" />
     <Compile Include="CQRS\EventSourcing\User.cs" />
     <Compile Include="CQRS\EventSourcing\UserChangedEmail.cs" />
     <Compile Include="CQRS\EventSourcing\UserChangedPassword.cs" />

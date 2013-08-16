@@ -60,6 +60,9 @@
     <Compile Include="LifestyleRegistrationExtensions.cs" />
     <Compile Include="LifestyleRegistrationMutator.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Testing\Windsor\IConfigureWiringForTests.cs" />
+    <Compile Include="Testing\Windsor\IResetTestDatabases.cs" />
+    <Compile Include="Testing\Windsor\TestingWindsorExtensions.cs" />
     <Compile Include="TypedCollectionResolver.cs" />
     <Compile Include="WindsorConfigurationValidator.cs" />
     <Compile Include="WindsorDisposableExtensions.cs" />

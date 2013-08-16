@@ -6,7 +6,7 @@ namespace Composable.KeyValueStorage
 {
     public class InMemoryDocumentDb : IDocumentDb
     {
-        private readonly ObservableInMemoryObjectStore _store = new ObservableInMemoryObjectStore();
+        private readonly ObservableInMemoryObjectStore _store;
         protected InMemoryDocumentDbConfig Config { get; private set; }
 
         public IObservableObjectStore CreateStore()
@@ -19,16 +19,10 @@ namespace Composable.KeyValueStorage
             _store.Clear();
         }
 
-        public InMemoryDocumentDb(InMemoryDocumentDbConfig config = null)
+        public InMemoryDocumentDb(InMemoryDocumentDbConfig config = null, ObservableInMemoryObjectStore store = null)
         {
-            if (config == null)
-            {
-                Config = InMemoryDocumentDbConfig.Default;
-            }
-            else
-            {
-                Config = config;
-            }
+            Config = config ?? InMemoryDocumentDbConfig.Default;
+            _store = store ?? new ObservableInMemoryObjectStore();
         }
 
         public IDocumentDbSession OpenSession(ISingleContextUseGuard guard)

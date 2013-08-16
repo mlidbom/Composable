@@ -22,6 +22,16 @@ namespace CQRS.Tests.CQRS.EventSourcing.Sql
     public class SQLServerEventSomethingOrOtherTest
     {
         [Test]
+        public void Does_not_call_db_in_constructor()
+        {
+            var something = new SqlServerEventSomethingOrOther(
+                new SqlServerEventStore(
+                    "SomeStringThatDoesNotPointToARealSqlServer",
+                    new DummyServiceBus(new WindsorContainer())),
+                new SingleThreadUseGuard());
+        }
+
+        [Test]
         public void ShouldNotCacheEventsSavedDuringFailedTransactionEvenIfReadDuringSameTransaction()
         {
             var something = new SqlServerEventSomethingOrOther(

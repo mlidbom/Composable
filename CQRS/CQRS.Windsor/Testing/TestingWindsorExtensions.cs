@@ -31,7 +31,11 @@ namespace Composable.CQRS.Windsor.Testing
                 new LifestyleRegistrationMutator(originalLifestyle: LifestyleType.PerWebRequest, newLifestyleType: LifestyleType.Scoped)
                 );
 
-            container.Register(Component.For<ISingleContextUseGuard>().ImplementedBy<SingleThreadUseGuard>());
+            container.Register(
+                Component.For<ISingleContextUseGuard>()
+                    .ImplementedBy<SingleThreadUseGuard>()
+                    .LifestyleScoped()
+                );
         }
 
         public static void ConfigureWiringForTestsCallAfterAllOtherWiring(this IWindsorContainer container)
@@ -46,13 +50,13 @@ namespace Composable.CQRS.Windsor.Testing
         public static void AssertCanResolveAllComponents(this IWindsorContainer container, IEnumerable<Type> ignoredServices = null, IEnumerable<string> ignoredComponents = null)
         {
             var errorsOccured = false;
-            ignoredServices = (ignoredServices ?? new Type[] { }).ToList();
-            ignoredComponents = (ignoredComponents ?? new string[] { }).ToList();
-            using (container.BeginScope())
+            ignoredServices = (ignoredServices ?? new Type[] {}).ToList();
+            ignoredComponents = (ignoredComponents ?? new string[] {}).ToList();
+            using(container.BeginScope())
             {
-                foreach (var handler in container.Kernel.GetAssignableHandlers(typeof(object)).Distinct())
+                foreach(var handler in container.Kernel.GetAssignableHandlers(typeof(object)).Distinct())
                 {
-                    if (ignoredComponents.Any(ignored => handler.ComponentModel.ComponentName.Name == ignored))
+                    if(ignoredComponents.Any(ignored => handler.ComponentModel.ComponentName.Name == ignored))
                     {
                         Console.WriteLine(@"Ignoring component: {0}", ignoredComponents.Single(ignored => handler.ComponentModel.ComponentName.Name == ignored));
                         continue;
@@ -60,9 +64,9 @@ namespace Composable.CQRS.Windsor.Testing
 
                     Console.WriteLine("Resolving services for component: {0}", handler.ComponentModel.Name);
 
-                    foreach (var service in handler.ComponentModel.Services)
+                    foreach(var service in handler.ComponentModel.Services)
                     {
-                        if (ignoredServices.Any(ignored => ignored == service))
+                        if(ignoredServices.Any(ignored => ignored == service))
                         {
                             Console.WriteLine(@"    Ignoring service: {0}", ignoredServices.Single(ignored => ignored == service));
                             continue;
@@ -74,7 +78,7 @@ namespace Composable.CQRS.Windsor.Testing
                             var resolved = container.ResolveAll(service).Cast<Object>().Select(s => s.GetType().FullName).OrderBy(s => s);
                             resolved.ForEach((name, index) => Console.WriteLine(@"	Resolved {0} {1}", index + 1, name));
                         }
-                        catch (Exception e)
+                        catch(Exception e)
                         {
                             Console.WriteLine();
                             Console.WriteLine(@"############################## {0} ##########################", @"Failed to resolve component");
@@ -87,7 +91,7 @@ namespace Composable.CQRS.Windsor.Testing
                     }
                 }
             }
-            if (errorsOccured)
+            if(errorsOccured)
             {
                 throw new Exception("There were errors resolving components. Please see the printed call stacks above this one.");
             }
@@ -108,7 +112,7 @@ namespace Composable.CQRS.Windsor.Testing
         private static IEnumerable<Exception> GetNestedExceptionsList(Exception exception)
         {
             yield return exception;
-            while (exception.InnerException != null)
+            while(exception.InnerException != null)
             {
                 yield return exception.InnerException;
                 exception = exception.InnerException;

@@ -22,7 +22,7 @@ namespace Composable.CQRS.EventSourcing.SQLServer
         private class EventsCache
         {
             //todo: this way of doing cache expiration is unlikely to be acceptable in the long run....
-            private static MemoryCache InternalCache = new MemoryCache("name");
+            private static MemoryCache InternalCache = new MemoryCache("eventsCache_06B4FF4E-14A2-498C-8277-02895B81BE72");
 
             private static readonly CacheItemPolicy Policy = new CacheItemPolicy()
                                                                  {
@@ -77,11 +77,6 @@ namespace Composable.CQRS.EventSourcing.SQLServer
             Log.Debug("Constructor called");
             
             _store = store;
-            EnsureEventsTableExists();            
-
-            if(_store.Config.HasFlag(SqlServerEventStoreConfig.NoBatching))
-            {
-            }
         }
 
         private SqlConnection OpenSession()
@@ -98,8 +93,9 @@ namespace Composable.CQRS.EventSourcing.SQLServer
 
         private const string EventSelectClause = "SELECT EventType, Event, AggregateId, AggregateVersion, EventId, TimeStamp FROM Events With(READCOMMITTED, ROWLOCK) ";
         public IEnumerable<IAggregateRootEvent> GetHistoryUnSafe(Guid aggregateId)
-        {
+        {            
             _usageGuard.AssertNoContextChangeOccurred(this);
+            EnsureEventsTableExists();
             var result = cache.Get(aggregateId);
 
             using (var connection = OpenSession())
@@ -150,6 +146,8 @@ namespace Composable.CQRS.EventSourcing.SQLServer
         public IEnumerable<IAggregateRootEvent> StreamEventsAfterEventWithId(Guid? startAfterEventId)
         {
             _usageGuard.AssertNoContextChangeOccurred(this);
+            EnsureEventsTableExists();
+
             using (var connection = OpenSession())
             {
                 using (var loadCommand = connection.CreateCommand())
@@ -195,6 +193,8 @@ namespace Composable.CQRS.EventSourcing.SQLServer
         public void SaveEvents(IEnumerable<IAggregateRootEvent> events)
         {
             _usageGuard.AssertNoContextChangeOccurred(this);
+            EnsureEventsTableExists();
+
             events = events.ToList();
             _aggregatesWithEventsAddedByThisInstance.AddRange(events.Select(e => e.AggregateRootId));
             using (var connection = OpenSession())
@@ -223,8 +223,10 @@ namespace Composable.CQRS.EventSourcing.SQLServer
 
         public void DeleteEvents(Guid aggregateId)
         {
-            cache.Remove(aggregateId);
             _usageGuard.AssertNoContextChangeOccurred(this);
+            EnsureEventsTableExists();
+
+            cache.Remove(aggregateId);
             using (var connection = OpenSession())
             {
                 using(var command = connection.CreateCommand())
@@ -240,6 +242,7 @@ namespace Composable.CQRS.EventSourcing.SQLServer
         public IEnumerable<Guid> GetAggregateIds()
         {
             _usageGuard.AssertNoContextChangeOccurred(this);
+            EnsureEventsTableExists();
 
             using (var connection = OpenSession())
             {

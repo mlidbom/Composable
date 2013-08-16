@@ -33,9 +33,7 @@ namespace Composable.KeyValueStorage.SqlServer
         public SqlServerObjectStore(SqlServerDocumentDb store)
         {
             _store = store;
-            _config = _store.Config;
-
-            EnsureInitialized(_store.ConnectionString);
+            _config = _store.Config;            
 
             DocumentUpdated = Observable.Create<IDocumentUpdated>(
                 obs =>
@@ -63,6 +61,8 @@ namespace Composable.KeyValueStorage.SqlServer
 
         public bool TryGet<TValue>(object key, out TValue value)
         {
+            EnsureInitialized();
+
             if(!KnownTypes.ContainsKey(typeof(TValue)))
             {
                 value = default(TValue);
@@ -105,6 +105,8 @@ WHERE Id=@Id AND ValueTypeId
 
         public void Add<T>(object id, T value)
         {
+            EnsureInitialized();
+
             string idString = GetIdString(id);
             EnsureTypeRegistered(value.GetType());
             using(var connection = OpenSession())
@@ -147,11 +149,13 @@ WHERE Id=@Id AND ValueTypeId
 
         public bool Remove<T>(object id)
         {
+            EnsureInitialized();
             return Remove(id, typeof(T));
         }
 
         public bool Remove(object id, Type documentType)
         {
+            EnsureInitialized();
             using(var connection = OpenSession())
             {
                 using(var command = connection.CreateCommand())
@@ -174,6 +178,7 @@ WHERE Id=@Id AND ValueTypeId
 
         public void Update(IEnumerable<KeyValuePair<string, object>> values)
         {
+            EnsureInitialized();
             values = values.ToList();
             using(var connection = OpenSession())
             {
@@ -307,6 +312,11 @@ ELSE
                 }
                 command.CommandText += "IN( " + acceptableTypeIds.Join(",") + ")\n";
             }
+        }
+
+        private void EnsureInitialized()
+        {
+            EnsureInitialized(_store.ConnectionString);
         }
 
         private static void EnsureInitialized(string connectionString)

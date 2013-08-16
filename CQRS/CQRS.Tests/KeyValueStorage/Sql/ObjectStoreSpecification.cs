@@ -140,6 +140,12 @@ namespace CQRS.Tests.KeyValueStorage.Sql
                 SqlServerDocumentDb.ResetDB(ConnectionString);
                 _store = new SqlServerObjectStore(db);
             }
+
+            public void Does_not_call_db_in_constructor()
+            {
+                var db = new SqlServerDocumentDb("ANonsensStringThatDoesNotResultInASqlConnection", SqlServerDocumentDbConfig.Default);
+                _store = new SqlServerObjectStore(db);
+            }
         }
 
         public class SerializingInMemoryObjectStoreSpecification : ObjectStoreSpecification

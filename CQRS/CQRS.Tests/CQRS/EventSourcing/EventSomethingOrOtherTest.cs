@@ -158,7 +158,7 @@ namespace CQRS.Tests.CQRS.EventSourcing
 
         protected override IEventSomethingOrOther CreateSomethingOrOther()
         {
-            return new SqlServerEventSomethingOrOther(new SqlServerEventStore(connectionString, new DummyServiceBus(new WindsorContainer())), new SingleThreadUseGuard());
+            return new SqlServerEventSomethingOrOther(new SingleThreadUseGuard(), connectionString);
         }
     }
 

@@ -6,9 +6,9 @@ namespace CQRS.Tests.KeyValueStorage
     [TestFixture]
     class InMemoryDocumentDbTests : DocumentDbTests
     {
-        protected override IDocumentDb CreateStore()
+        protected override IObservableObjectStore CreateStore()
         {
-            return new InMemoryDocumentDb();
-        }
+            return new ObservableInMemoryObjectStore();
+        }        
     }
 }

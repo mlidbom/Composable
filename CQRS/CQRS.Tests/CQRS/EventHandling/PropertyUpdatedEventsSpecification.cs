@@ -145,7 +145,7 @@ namespace CQRS.Tests.CQRS.EventHandling
             before = () =>
                      {
                          cvQueryModel = null;
-                         documentDbSession = new DocumentDbSession(new InMemoryDocumentDb(), new SingleThreadUseGuard());
+                         documentDbSession = new DocumentDbSession(new ObservableInMemoryObjectStore(), new SingleThreadUseGuard(), NullOpDocumentDbSessionInterceptor.Instance);
                          cvQueryModelUpdater = new CVQueryModelUpdater(documentDbSession);
                      };
 

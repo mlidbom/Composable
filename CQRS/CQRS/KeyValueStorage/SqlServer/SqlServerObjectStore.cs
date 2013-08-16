@@ -18,22 +18,18 @@ namespace Composable.KeyValueStorage.SqlServer
 {
     public class SqlServerObjectStore : IObservableObjectStore
     {
-        private static readonly ILog Log = LogManager.GetLogger(typeof(SqlServerObjectStore));
+        private readonly string _connectionString;
 
         private static readonly JsonSerializerSettings _jsonSettings = JsonSettings.JsonSerializerSettings;
-
-        internal readonly SqlServerDocumentDb _store;
-        internal readonly SqlServerDocumentDbConfig _config;
 
         private readonly Dictionary<Type, Dictionary<string, string>> _persistentValues = new Dictionary<Type, Dictionary<string, string>>();
         private const int UniqueConstraintViolationErrorNumber = 2627;
 
         private static readonly object LockObject = new object();
 
-        public SqlServerObjectStore(SqlServerDocumentDb store)
+        public SqlServerObjectStore(string connectionString)
         {
-            _store = store;
-            _config = _store.Config;            
+            _connectionString = connectionString;
 
             DocumentUpdated = Observable.Create<IDocumentUpdated>(
                 obs =>
@@ -52,7 +48,7 @@ namespace Composable.KeyValueStorage.SqlServer
 
         private readonly ISet<IObserver<IDocumentUpdated>> _observers = new HashSet<IObserver<IDocumentUpdated>>();
 
-        public IDictionary<Type, int> KnownTypes { get { return VerifiedConnections[_store.ConnectionString]; } }
+        public IDictionary<Type, int> KnownTypes { get { return VerifiedConnections[_connectionString]; } }
 
         private Type GetTypeFromId(int id)
         {
@@ -120,7 +116,7 @@ WHERE Id=@Id AND ValueTypeId
                     command.Parameters.Add(new SqlParameter("Id", idString));
                     command.Parameters.Add(new SqlParameter("ValueTypeId", KnownTypes[value.GetType()]));
 
-                    var stringValue = JsonConvert.SerializeObject(value, _config.JSonFormatting, _jsonSettings);
+                    var stringValue = JsonConvert.SerializeObject(value, Formatting.None, _jsonSettings);
                     command.Parameters.Add(new SqlParameter("Value", stringValue));
 
                     NotifySubscribersDocumentUpdated(idString, value);
@@ -187,7 +183,7 @@ WHERE Id=@Id AND ValueTypeId
                     using(var command = connection.CreateCommand())
                     {
                         command.CommandType = CommandType.Text;
-                        var stringValue = JsonConvert.SerializeObject(entry.Value, _config.JSonFormatting, _jsonSettings);
+                        var stringValue = JsonConvert.SerializeObject(entry.Value, Formatting.None, _jsonSettings);
 
                         string oldValue;
                         string idString = GetIdString(entry.Key);
@@ -260,7 +256,7 @@ WHERE ValueTypeId ";
 
         private SqlConnection OpenSession()
         {
-            return OpenSession(_store.ConnectionString);
+            return OpenSession(_connectionString);
         }
 
         private static SqlConnection OpenSession(string connectionString)
@@ -317,7 +313,7 @@ ELSE
 
         private void EnsureInitialized()
         {
-            EnsureInitialized(_store.ConnectionString);
+            EnsureInitialized(_connectionString);
         }
 
         private static void EnsureInitialized(string connectionString)
@@ -403,15 +399,14 @@ ALTER TABLE [dbo].[Store] CHECK CONSTRAINT [FK_ValueType_Store]
 
 
         private static readonly IDictionary<String, IDictionary<Type, int>> VerifiedConnections = new ConcurrentDictionary<string, IDictionary<Type, int>>();
-        
 
-        public static void PurgeDb(string connectionString)
+        public static void ResetDB(string connectionString)
         {
-            lock(LockObject)
+            lock (LockObject)
             {
-                using(var connection = OpenSession(connectionString))
+                using (var connection = OpenSession(connectionString))
                 {
-                    using(var dropCommand = connection.CreateCommand())
+                    using (var dropCommand = connection.CreateCommand())
                     {
                         dropCommand.CommandText =
                             @"
@@ -428,6 +423,12 @@ DROP TABLE [dbo].[ValueType];
                     }
                 }
             }
+        }
+        
+        [Obsolete("Use ResetDB", true)]
+        public static void PurgeDb(string connectionString)
+        {
+            ResetDB(connectionString);
         }
 
 

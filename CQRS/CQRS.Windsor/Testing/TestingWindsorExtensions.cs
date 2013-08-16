@@ -1,4 +1,5 @@
-﻿using Castle.MicroKernel.Lifestyle;
+﻿using Castle.Core;
+using Castle.MicroKernel.Lifestyle;
 using Castle.Windsor;
 
 namespace Composable.CQRS.Windsor.Testing
@@ -7,9 +8,9 @@ namespace Composable.CQRS.Windsor.Testing
     {
         public static void ResetTestDataBases(this IWindsorContainer container)
         {
-            using (container.BeginScope())
+            using(container.BeginScope())
             {
-                foreach (var dbResetter in container.ResolveAll<IResetTestDatabases>())
+                foreach(var dbResetter in container.ResolveAll<IResetTestDatabases>())
                 {
                     dbResetter.ResetDatabase();
                     container.Release(dbResetter);
@@ -19,7 +20,11 @@ namespace Composable.CQRS.Windsor.Testing
 
         public static void ConfigureWiringForTests(this IWindsorContainer container)
         {
-            foreach (var configurer in container.ResolveAll<IConfigureWiringForTests>())
+            container.Kernel.ComponentModelBuilder.AddContributor(
+                new LifestyleRegistrationMutator(originalLifestyle: LifestyleType.PerWebRequest, newLifestyleType: LifestyleType.Scoped)
+                );
+
+            foreach(var configurer in container.ResolveAll<IConfigureWiringForTests>())
             {
                 configurer.ConfigureWiringForTesting();
                 container.Release(configurer);

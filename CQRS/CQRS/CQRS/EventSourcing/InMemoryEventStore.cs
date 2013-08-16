@@ -62,5 +62,11 @@ namespace Composable.CQRS.EventSourcing
             _threadingGuard.AssertNoContextChangeOccurred(this);
             return _events.Select(e => e.AggregateRootId).Distinct();
         }
+
+        public void Reset()
+        {
+            _threadingGuard.AssertNoContextChangeOccurred(this);
+            _events = new List<IAggregateRootEvent>();
+        }
     }
 }

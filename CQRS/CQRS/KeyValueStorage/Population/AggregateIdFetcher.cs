@@ -11,9 +11,9 @@ namespace Composable.KeyValueStorage.Population
     [UsedImplicitly]
     public class AggregateIdFetcher
     {
-        private readonly IEventSomethingOrOther _events;
+        private readonly IEventStore _events;
 
-        public AggregateIdFetcher(IEventSomethingOrOther events)
+        public AggregateIdFetcher(IEventStore events)
         {
             _events = events;
         }

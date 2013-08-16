@@ -130,11 +130,11 @@
     <Compile Include="CQRS\EventHandling\SingleAggregateQueryModelUpdater.cs" />
     <Compile Include="CQRS\EventHandling\UniqueMatchEventHierarchyHandler.cs" />
     <Compile Include="CQRS\EventSourcing\AttemptToSaveEmptyAggregate.cs" />
-    <Compile Include="CQRS\EventSourcing\IEventSomethingOrOther.cs" />
+    <Compile Include="CQRS\EventSourcing\IEventStore.cs" />
     <Compile Include="CQRS\EventSourcing\RegisteredHandlerMissingException.cs" />
     <Compile Include="CQRS\EventSourcing\ReuseOfEventStoreSessionException.cs" />
     <Compile Include="CQRS\EventSourcing\EventStoredAggregateRoot.cs" />
-    <Compile Include="CQRS\EventSourcing\SQLServer\SqlServerEventSomethingOrOther.cs" />
+    <Compile Include="CQRS\EventSourcing\SQLServer\SqlServerEventStore.cs" />
     <Compile Include="CQRS\ICommandMessage.cs" />
     <Compile Include="CQRS\IReferenceObject.cs" />
     <Compile Include="CQRS\ReferenceObject.cs" />
@@ -160,10 +160,8 @@
     <Compile Include="CQRS\EventSourcing\AttemptToSaveAlreadyPersistedAggregateException.cs" />
     <Compile Include="CQRS\EventSourcing\EventStored.cs" />
     <Compile Include="CQRS\EventSourcing\EventStoreSession.cs" />
-    <Compile Include="CQRS\EventSourcing\IEventStore.cs" />
     <Compile Include="CQRS\EventSourcing\IEventStoreSession.cs" />
     <Compile Include="CQRS\EventSourcing\InMemoryEventStore.cs" />
-    <Compile Include="CQRS\EventSourcing\InMemoryEventSomethingOrOther.cs" />
     <Compile Include="CQRS\EventSourcing\SQLServer\InvalidHistoryException.cs" />
     <Compile Include="CQRS\IUnNamedEntityReference.cs" />
     <Compile Include="CQRS\INamed.cs" />
@@ -197,7 +195,6 @@
     <Compile Include="KeyValueStorage\SqlServer\SqlServerObjectStore.cs" />
     <Compile Include="KeyValueStorage\SqlServer\TooManyItemsDeletedException.cs" />
     <Compile Include="NewtonSoft\IncludeMembersWithPrivateSettersResolver.cs" />
-    <Compile Include="CQRS\EventSourcing\SQLServer\SqlServerEventStore.cs" />
     <Compile Include="KeyValueStorage\AttemptToSaveAlreadyPersistedValueException.cs" />
     <Compile Include="KeyValueStorage\IDocumentDbSession.cs" />
     <Compile Include="KeyValueStorage\DocumentDbSession.cs" />

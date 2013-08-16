@@ -4,46 +4,14 @@ namespace Composable.KeyValueStorage.SqlServer
 {
     public class DocumentDbConfig
     {
-        public static readonly DocumentDbConfig Default = new DocumentDbConfig();
+        public static readonly DocumentDbConfig Default = new DocumentDbConfig(NullOpDocumentDbSessionInterceptor.Instance);
 
-        private IDocumentDbSessionInterceptor _interceptor;
-        private Func<IDocumentDbSessionInterceptor> _interceptorFactory;        
-
-        public Func<IDocumentDbSessionInterceptor> InterceptorFactory
+        public DocumentDbConfig(IDocumentDbSessionInterceptor interceptor = null)
         {
-            get { return _interceptorFactory; }
-            set
-            {
-                if (InterceptorFactory != null)
-                {
-                    throw new CannotSetBothInterceptorAndFactoryMethodForInterceptor();
-                }
-                _interceptorFactory = value;
-            }
+            Interceptor = interceptor ?? NullOpDocumentDbSessionInterceptor.Instance;
         }
 
-        public IDocumentDbSessionInterceptor Interceptor
-        {
-            get
-            {
-                if (_interceptor != null)
-                {
-                    return _interceptor;
-                }
-                if (InterceptorFactory != null)
-                {
-                    return InterceptorFactory();
-                }
-                return NullOpDocumentDbSessionInterceptor.Instance;
-            }
-            set
-            {
-                if (InterceptorFactory != null)
-                {
-                    throw new CannotSetBothInterceptorAndFactoryMethodForInterceptor();
-                }
-                _interceptor = value;
-            }
-        }
+        public IDocumentDbSessionInterceptor Interceptor { get; private set; }
+
     }
 }

@@ -6,7 +6,6 @@ using System.Data.SqlTypes;
 using System.Linq;
 using System.Runtime.Caching;
 using System.Transactions;
-using Composable.NewtonSoft;
 using Composable.System;
 using Composable.System.Reflection;
 using Composable.SystemExtensions.Threading;
@@ -60,28 +59,23 @@ namespace Composable.CQRS.EventSourcing.SQLServer
 
         private static readonly EventsCache cache = new EventsCache();
 
+        private static readonly ILog Log = LogManager.GetLogger(typeof(SqlServerEventSomethingOrOther));
 
-
-
-        private static ILog Log = LogManager.GetLogger(typeof(SqlServerEventSomethingOrOther));        
-
-
-        private readonly SqlServerEventStore _store;
-        private readonly ISingleContextUseGuard _usageGuard;
+        public readonly ISingleContextUseGuard UsageGuard;
 
         public static readonly JsonSerializerSettings JsonSettings = NewtonSoft.JsonSettings.JsonSerializerSettings;
+        public readonly string ConnectionString;
 
-        public SqlServerEventSomethingOrOther(SqlServerEventStore store, ISingleContextUseGuard usageGuard)
+        public SqlServerEventSomethingOrOther(ISingleContextUseGuard usageGuard, string connectionString)
         {
-            _usageGuard = usageGuard;
             Log.Debug("Constructor called");
-            
-            _store = store;
+            UsageGuard = usageGuard;           
+            ConnectionString = connectionString;
         }
 
         private SqlConnection OpenSession()
         {
-            var connection = new SqlConnection(_store.ConnectionString);
+            var connection = new SqlConnection(ConnectionString);
             connection.Open();
             if(Transaction.Current == null)
             {
@@ -94,7 +88,7 @@ namespace Composable.CQRS.EventSourcing.SQLServer
         private const string EventSelectClause = "SELECT EventType, Event, AggregateId, AggregateVersion, EventId, TimeStamp FROM Events With(READCOMMITTED, ROWLOCK) ";
         public IEnumerable<IAggregateRootEvent> GetHistoryUnSafe(Guid aggregateId)
         {            
-            _usageGuard.AssertNoContextChangeOccurred(this);
+            UsageGuard.AssertNoContextChangeOccurred(this);
             EnsureEventsTableExists();
             var result = cache.Get(aggregateId);
 
@@ -145,7 +139,7 @@ namespace Composable.CQRS.EventSourcing.SQLServer
 
         public IEnumerable<IAggregateRootEvent> StreamEventsAfterEventWithId(Guid? startAfterEventId)
         {
-            _usageGuard.AssertNoContextChangeOccurred(this);
+            UsageGuard.AssertNoContextChangeOccurred(this);
             EnsureEventsTableExists();
 
             using (var connection = OpenSession())
@@ -192,7 +186,7 @@ namespace Composable.CQRS.EventSourcing.SQLServer
         private readonly HashSet<Guid> _aggregatesWithEventsAddedByThisInstance = new HashSet<Guid>(); 
         public void SaveEvents(IEnumerable<IAggregateRootEvent> events)
         {
-            _usageGuard.AssertNoContextChangeOccurred(this);
+            UsageGuard.AssertNoContextChangeOccurred(this);
             EnsureEventsTableExists();
 
             events = events.ToList();
@@ -223,7 +217,7 @@ namespace Composable.CQRS.EventSourcing.SQLServer
 
         public void DeleteEvents(Guid aggregateId)
         {
-            _usageGuard.AssertNoContextChangeOccurred(this);
+            UsageGuard.AssertNoContextChangeOccurred(this);
             EnsureEventsTableExists();
 
             cache.Remove(aggregateId);
@@ -241,7 +235,7 @@ namespace Composable.CQRS.EventSourcing.SQLServer
 
         public IEnumerable<Guid> GetAggregateIds()
         {
-            _usageGuard.AssertNoContextChangeOccurred(this);
+            UsageGuard.AssertNoContextChangeOccurred(this);
             EnsureEventsTableExists();
 
             using (var connection = OpenSession())
@@ -267,7 +261,7 @@ namespace Composable.CQRS.EventSourcing.SQLServer
         {
             lock (VerifiedTables)
             {
-                if (!VerifiedTables.Contains(_store.ConnectionString))
+                if (!VerifiedTables.Contains(ConnectionString))
                 {
                     int exists;
                     using (var _connection = OpenSession())
@@ -305,7 +299,7 @@ CONSTRAINT [PK_Events] PRIMARY KEY CLUSTERED
                                 createTableCommand.ExecuteNonQuery();
                             }
                         }
-                        VerifiedTables.Add(_store.ConnectionString);
+                        VerifiedTables.Add(ConnectionString);
                     }
                 }
             }
@@ -313,7 +307,7 @@ CONSTRAINT [PK_Events] PRIMARY KEY CLUSTERED
 
         public void ResetDB()
         {
-            _usageGuard.AssertNoContextChangeOccurred(this);
+            UsageGuard.AssertNoContextChangeOccurred(this);
             cache.Clear();
             using (var connection = OpenSession())
             {
@@ -326,7 +320,7 @@ DROP TABLE [dbo].[Events]";
                     dropCommand.ExecuteNonQuery();
                     lock (VerifiedTables)
                     {
-                        VerifiedTables.Remove(_store.ConnectionString);
+                        VerifiedTables.Remove(ConnectionString);
                     }                    
                 }
             }
@@ -336,7 +330,7 @@ DROP TABLE [dbo].[Events]";
 
         public void Dispose()
         {
-            _usageGuard.AssertNoContextChangeOccurred(this);
+            UsageGuard.AssertNoContextChangeOccurred(this);
         }
     }
 }

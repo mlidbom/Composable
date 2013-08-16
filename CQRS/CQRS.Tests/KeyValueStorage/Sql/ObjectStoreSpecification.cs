@@ -136,15 +136,13 @@ namespace CQRS.Tests.KeyValueStorage.Sql
         {
             override public void before_each()
             {
-                var db = new SqlServerDocumentDb(ConnectionString, SqlServerDocumentDbConfig.Default);
-                SqlServerDocumentDb.ResetDB(ConnectionString);
-                _store = new SqlServerObjectStore(db);
+                SqlServerObjectStore.ResetDB(ConnectionString);
+                _store = new SqlServerObjectStore(ConnectionString);
             }
 
             public void Does_not_call_db_in_constructor()
             {
-                var db = new SqlServerDocumentDb("ANonsensStringThatDoesNotResultInASqlConnection", SqlServerDocumentDbConfig.Default);
-                _store = new SqlServerObjectStore(db);
+                _store = new SqlServerObjectStore("ANonsensStringThatDoesNotResultInASqlConnection");
             }
         }
 

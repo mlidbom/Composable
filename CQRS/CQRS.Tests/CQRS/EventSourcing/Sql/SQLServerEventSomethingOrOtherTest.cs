@@ -24,21 +24,16 @@ namespace CQRS.Tests.CQRS.EventSourcing.Sql
         [Test]
         public void Does_not_call_db_in_constructor()
         {
-            var something = new SqlServerEventSomethingOrOther(
-                new SqlServerEventStore(
-                    "SomeStringThatDoesNotPointToARealSqlServer",
-                    new DummyServiceBus(new WindsorContainer())),
-                new SingleThreadUseGuard());
+            var something = new SqlServerEventSomethingOrOther(new SingleThreadUseGuard(),
+                "SomeStringThatDoesNotPointToARealSqlServer"
+                );
         }
 
         [Test]
         public void ShouldNotCacheEventsSavedDuringFailedTransactionEvenIfReadDuringSameTransaction()
         {
-            var something = new SqlServerEventSomethingOrOther(
-                new SqlServerEventStore(
-                    ConfigurationManager.ConnectionStrings["EventStore"].ConnectionString,
-                    new DummyServiceBus(new WindsorContainer())), 
-                    new SingleThreadUseGuard());
+            var something = new SqlServerEventSomethingOrOther(new SingleThreadUseGuard(),
+                    ConfigurationManager.ConnectionStrings["EventStore"].ConnectionString);
 
             var user = new User();
             user.Register("email@email.se", "password", Guid.NewGuid());
@@ -56,11 +51,12 @@ namespace CQRS.Tests.CQRS.EventSourcing.Sql
         [Test]
         public void ShouldCacheEventsBetweenInstancesTransaction()
         {
+            string connectionString = ConfigurationManager.ConnectionStrings["EventStore"].ConnectionString;
             var store = new SqlServerEventStore(
-                ConfigurationManager.ConnectionStrings["EventStore"].ConnectionString,
+                connectionString,
                 new DummyServiceBus(new WindsorContainer()));
 
-            var something = new SqlServerEventSomethingOrOther(store, new SingleThreadUseGuard());
+            var something = new SqlServerEventSomethingOrOther(new SingleThreadUseGuard(), connectionString);
 
             var user = new User();
             user.Register("email@email.se", "password", Guid.NewGuid());
@@ -74,10 +70,10 @@ namespace CQRS.Tests.CQRS.EventSourcing.Sql
                 tran.Complete();
             }
 
-            something = new SqlServerEventSomethingOrOther(store, new SingleThreadUseGuard());
+            something = new SqlServerEventSomethingOrOther(new SingleThreadUseGuard(), connectionString);
             var firstRead = something.GetHistoryUnSafe(user.Id).Single();
 
-            something = new SqlServerEventSomethingOrOther(store, new SingleThreadUseGuard());
+            something = new SqlServerEventSomethingOrOther(new SingleThreadUseGuard(), connectionString);
             var secondRead = something.GetHistoryUnSafe(user.Id).Single();
 
             Assert.That(firstRead, Is.SameAs(secondRead));

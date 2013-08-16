@@ -16,8 +16,12 @@ namespace CQRS.Tests.KeyValueStorage
     [TestFixture]
     public abstract class DocumentDbTests
     {
-        protected abstract IDocumentDb CreateStore();
+        protected abstract IObservableObjectStore CreateStore();
 
+        private static IDocumentDbSession OpenSession(IObservableObjectStore store, ISingleContextUseGuard guard = null)
+        {
+            return new DocumentDbSession(store, guard ?? new SingleThreadUseGuard(), NullOpDocumentDbSessionInterceptor.Instance);
+        }
 
         [Test]
         public void CanSaveAndLoadAggregate()
@@ -37,13 +41,13 @@ namespace CQRS.Tests.KeyValueStorage
                                      }
                        };
 
-            using(var session = store.OpenSession(new SingleThreadUseGuard()))
+            using(var session = OpenSession(store))
             {
                 session.Save(user.Id, user);
                 session.SaveChanges();
             }
 
-            using(var session = store.OpenSession(new SingleThreadUseGuard()))
+            using(var session = OpenSession(store))
             {
                 var loadedUser = session.Get<User>(user.Id);
 
@@ -73,13 +77,13 @@ namespace CQRS.Tests.KeyValueStorage
                                      }
                        };
 
-            using(var session = store.OpenSession(new SingleThreadUseGuard()))
+            using(var session = OpenSession(store))
             {
                 session.Save(user.Id, user);
                 session.SaveChanges();
             }
 
-            using(var session = store.OpenSession(new SingleThreadUseGuard()))
+            using(var session = OpenSession(store))
             {
                 var loadedUser = session.GetForUpdate<User>(user.Id);
 
@@ -99,7 +103,7 @@ namespace CQRS.Tests.KeyValueStorage
             IPersistentEntity<Guid> user1 = new User { Id = Guid.NewGuid(), Email = "user1"};
             IPersistentEntity<Guid> user2 = new User { Id = Guid.NewGuid(), Email = "user2"};
 
-            using (var session = store.OpenSession(new SingleThreadUseGuard()))
+            using (var session = OpenSession(store))
             {
                 session.Save(user2);
                 session.Save(user1.Id, user1);
@@ -108,7 +112,7 @@ namespace CQRS.Tests.KeyValueStorage
                 session.SaveChanges();
             }
 
-            using (var session = store.OpenSession(new SingleThreadUseGuard()))
+            using (var session = OpenSession(store))
             {
                 session.Get<User>(user1.Id).Id.Should().Be(user1.Id);
                 session.Get<User>(user2.Id).Id.Should().Be(user2.Id);
@@ -123,14 +127,14 @@ namespace CQRS.Tests.KeyValueStorage
 
             var user = new User { Id = Guid.NewGuid() };
 
-            using (var session = store.OpenSession(new SingleThreadUseGuard()))
+            using (var session = OpenSession(store))
             {
                 session.Save(user.Id, user);
                 session.Delete(user);
                 session.SaveChanges();
             }
 
-            using (var session = store.OpenSession(new SingleThreadUseGuard()))
+            using (var session = OpenSession(store))
             {
                 session.TryGet(user.Id, out user).Should().BeFalse();
             }
@@ -144,7 +148,7 @@ namespace CQRS.Tests.KeyValueStorage
 
             var user = new User { Id = Guid.NewGuid() };
 
-            using (var session = store.OpenSession(new SingleThreadUseGuard()))
+            using (var session = OpenSession(store))
             {
                 var uow = new UnitOfWork(new SingleThreadUseGuard());
                 uow.AddParticipant((IUnitOfWorkParticipant)session);
@@ -155,7 +159,7 @@ namespace CQRS.Tests.KeyValueStorage
                 uow.Commit();
             }
 
-            using (var session = store.OpenSession(new SingleThreadUseGuard()))
+            using (var session = OpenSession(store))
             {
                 session.TryGet(user.Id, out user).Should().BeFalse();
             }
@@ -168,7 +172,7 @@ namespace CQRS.Tests.KeyValueStorage
 
             var user = new User { Id = Guid.NewGuid() };
 
-            using (var session = store.OpenSession(new SingleThreadUseGuard()))
+            using (var session = OpenSession(store))
             {
                 var uow = new UnitOfWork(new SingleThreadUseGuard());
                 uow.AddParticipant((IUnitOfWorkParticipant)session);
@@ -180,7 +184,7 @@ namespace CQRS.Tests.KeyValueStorage
                 uow.Commit();
             }
 
-            using (var session = store.OpenSession(new SingleThreadUseGuard()))
+            using (var session = OpenSession(store))
             {
                 session.TryGet(user.Id, out user).Should().BeTrue();
             }
@@ -194,7 +198,7 @@ namespace CQRS.Tests.KeyValueStorage
             var lowerCase = new Email("theemail");
             var upperCase = new Email(lowerCase.TheEmail.ToUpper());
 
-            using (var session = store.OpenSession(new SingleThreadUseGuard()))
+            using (var session = OpenSession(store))
             {
                 var uow = new UnitOfWork(new SingleThreadUseGuard());
                 uow.AddParticipant((IUnitOfWorkParticipant)session);
@@ -207,7 +211,7 @@ namespace CQRS.Tests.KeyValueStorage
                 uow.Commit();                
             }
 
-            using(var session = store.OpenSession(new SingleThreadUseGuard()))
+            using(var session = OpenSession(store))
             {
                 var uow = new UnitOfWork(new SingleThreadUseGuard());
                 uow.AddParticipant((IUnitOfWorkParticipant)session);
@@ -233,7 +237,7 @@ namespace CQRS.Tests.KeyValueStorage
             var noWhitespace = new Email("theemail");
             var withWhitespace = new Email(noWhitespace.TheEmail + "  ");
 
-            using (var session = store.OpenSession(new SingleThreadUseGuard()))
+            using (var session = OpenSession(store))
             {
                 var uow = new UnitOfWork(new SingleThreadUseGuard());
                 uow.AddParticipant((IUnitOfWorkParticipant)session);
@@ -246,7 +250,7 @@ namespace CQRS.Tests.KeyValueStorage
                 uow.Commit();
             }
 
-            using (var session = store.OpenSession(new SingleThreadUseGuard()))
+            using (var session = OpenSession(store))
             {
                 var uow = new UnitOfWork(new SingleThreadUseGuard());
                 uow.AddParticipant((IUnitOfWorkParticipant)session);
@@ -271,7 +275,7 @@ namespace CQRS.Tests.KeyValueStorage
 
             var user = new User { Id = Guid.NewGuid() };
 
-            using (var session = store.OpenSession(new SingleThreadUseGuard()))
+            using (var session = OpenSession(store))
             {
                 session.TryGet(user.Id, out user);
                 session.SaveChanges();
@@ -285,7 +289,7 @@ namespace CQRS.Tests.KeyValueStorage
 
             var user = new User { Id = Guid.NewGuid() };
 
-            using (var session = store.OpenSession(new SingleThreadUseGuard()))
+            using (var session = OpenSession(store))
             {
                 session.Save(user.Id, user);
                 session.Delete(user);
@@ -296,7 +300,7 @@ namespace CQRS.Tests.KeyValueStorage
                 session.SaveChanges();
             }
 
-            using (var session = store.OpenSession(new SingleThreadUseGuard()))
+            using (var session = OpenSession(store))
             {
                 session.TryGet(user.Id, out user).Should().BeFalse();
             }
@@ -309,13 +313,13 @@ namespace CQRS.Tests.KeyValueStorage
 
             var user = new User { Id = Guid.NewGuid() };
 
-            using (var session = store.OpenSession(new SingleThreadUseGuard()))
+            using (var session = OpenSession(store))
             {
                 session.Save(user.Id, user);
                 session.SaveChanges();
             }
 
-            using (var session = store.OpenSession(new SingleThreadUseGuard()))
+            using (var session = OpenSession(store))
             {
                 var uow = new UnitOfWork(new SingleThreadUseGuard());
                 uow.AddParticipant((IUnitOfWorkParticipant)session);
@@ -335,7 +339,7 @@ namespace CQRS.Tests.KeyValueStorage
                 uow.Commit();
             }
 
-            using (var session = store.OpenSession(new SingleThreadUseGuard()))
+            using (var session = OpenSession(store))
             {
                 session.TryGet(user.Id, out user).Should().Be(true);
             }
@@ -349,13 +353,13 @@ namespace CQRS.Tests.KeyValueStorage
 
             var user = new User {Id = Guid.NewGuid()};
 
-            using(var session = store.OpenSession(new SingleThreadUseGuard()))
+            using(var session = OpenSession(store))
             {
                 session.Save(user.Id, user);
                 session.SaveChanges();
             }
 
-            using(var session = store.OpenSession(new SingleThreadUseGuard()))
+            using(var session = OpenSession(store))
             {
                 var loaded1 = session.Get<User>(user.Id);
                 var loaded2 = session.Get<User>(user.Id);
@@ -370,7 +374,7 @@ namespace CQRS.Tests.KeyValueStorage
 
             var user = new User {Id = Guid.NewGuid()};
 
-            using(var session = store.OpenSession(new SingleThreadUseGuard()))
+            using(var session = OpenSession(store))
             {
                 session.Save(user.Id, user);
 
@@ -391,13 +395,13 @@ namespace CQRS.Tests.KeyValueStorage
             var user = new User {Id = Guid.NewGuid()};
             var userSet = new HashSet<User> {user};
 
-            using(var session = store.OpenSession(new SingleThreadUseGuard()))
+            using(var session = OpenSession(store))
             {
                 session.Save(user.Id, userSet);
                 session.SaveChanges();
             }
 
-            using(var session = store.OpenSession(new SingleThreadUseGuard()))
+            using(var session = OpenSession(store))
             {
                 var loadedUser = session.Get<HashSet<User>>(user.Id);
                 Assert.That(loadedUser.Count, Is.EqualTo(1));
@@ -421,13 +425,13 @@ namespace CQRS.Tests.KeyValueStorage
                            People = new HashSet<User> {userInSet}
                        };
 
-            using(var session = store.OpenSession(new SingleThreadUseGuard()))
+            using(var session = OpenSession(store))
             {
                 session.Save(user.Id, user);
                 session.SaveChanges();
             }
 
-            using(var session = store.OpenSession(new SingleThreadUseGuard()))
+            using(var session = OpenSession(store))
             {
                 var loadedUser = session.Get<User>(user.Id);
                 Assert.That(loadedUser.People.Count, Is.EqualTo(1));
@@ -441,7 +445,7 @@ namespace CQRS.Tests.KeyValueStorage
         public void ThrowsExceptionWhenAttemptingToDeleteNonExistingValue()
         {
             var store = CreateStore();
-            using(var session = store.OpenSession(new SingleThreadUseGuard()))
+            using(var session = OpenSession(store))
             {
                 var lassie = new Dog {Id = Guid.NewGuid()};
                 var buster = new Dog {Id = Guid.NewGuid()};
@@ -462,13 +466,13 @@ namespace CQRS.Tests.KeyValueStorage
             var store = CreateStore();
             var user = new User {Id = Guid.NewGuid()};
 
-            using(var session = store.OpenSession(new SingleThreadUseGuard()))
+            using(var session = OpenSession(store))
             {
                 session.Save(user);
                 session.SaveChanges();
             }
 
-            using(var session = store.OpenSession(new SingleThreadUseGuard()))
+            using(var session = OpenSession(store))
             {
                 var loadedUser = session.Get<User>(user.Id);
                 loadedUser.Should().NotBeNull();
@@ -478,7 +482,7 @@ namespace CQRS.Tests.KeyValueStorage
                 Assert.Throws<NoSuchDocumentException>(() => session.Get<User>(user.Id));
             }
 
-            using(var session = store.OpenSession(new SingleThreadUseGuard()))
+            using(var session = OpenSession(store))
             {
                 Assert.Throws<NoSuchDocumentException>(() => session.Get<User>(user.Id));
             }
@@ -490,13 +494,13 @@ namespace CQRS.Tests.KeyValueStorage
             var store = CreateStore();
             var user = new User {Id = Guid.NewGuid()};
 
-            using(var session = store.OpenSession(new SingleThreadUseGuard()))
+            using(var session = OpenSession(store))
             {
                 session.Save(user);
                 session.SaveChanges();
             }
 
-            using(var session = store.OpenSession(new SingleThreadUseGuard()))
+            using(var session = OpenSession(store))
             {
                 session.Delete(user);
                 session.SaveChanges();
@@ -504,7 +508,7 @@ namespace CQRS.Tests.KeyValueStorage
                 Assert.Throws<NoSuchDocumentException>(() => session.Get<User>(user.Id));
             }
 
-            using(var session = store.OpenSession(new SingleThreadUseGuard()))
+            using(var session = OpenSession(store))
             {
                 Assert.Throws<NoSuchDocumentException>(() => session.Get<User>(user.Id));
             }
@@ -516,7 +520,7 @@ namespace CQRS.Tests.KeyValueStorage
             var store = CreateStore();
             var user = new User {Id = Guid.NewGuid()};
 
-            using(var session = store.OpenSession(new SingleThreadUseGuard()))
+            using(var session = OpenSession(store))
             {
                 session.Save(user);
                 session.Delete(user);
@@ -524,7 +528,7 @@ namespace CQRS.Tests.KeyValueStorage
                 Assert.Throws<NoSuchDocumentException>(() => session.Get<User>(user.Id));
             }
 
-            using(var session = store.OpenSession(new SingleThreadUseGuard()))
+            using(var session = OpenSession(store))
             {
                 Assert.Throws<NoSuchDocumentException>(() => session.Get<User>(user.Id));
             }
@@ -537,20 +541,20 @@ namespace CQRS.Tests.KeyValueStorage
 
             var user = new User {Id = Guid.NewGuid()};
 
-            using(var session = store.OpenSession(new SingleThreadUseGuard()))
+            using(var session = OpenSession(store))
             {
                 session.Save(user.Id, user);
                 session.SaveChanges();
             }
 
-            using(var session = store.OpenSession(new SingleThreadUseGuard()))
+            using(var session = OpenSession(store))
             {
                 var loadedUser = session.Get<User>(user.Id);
                 loadedUser.Password = "NewPassword";
                 session.SaveChanges();
             }
 
-            using(var session = store.OpenSession(new SingleThreadUseGuard()))
+            using(var session = OpenSession(store))
             {
                 var loadedUser = session.Get<User>(user.Id);
                 Assert.That(loadedUser.Password, Is.EqualTo("NewPassword"));
@@ -564,7 +568,7 @@ namespace CQRS.Tests.KeyValueStorage
 
             var user = new User {Id = Guid.NewGuid()};
 
-            using(var session = store.OpenSession(new SingleThreadUseGuard()))
+            using(var session = OpenSession(store))
             {
                 session.Save(user.Id, user);
                 session.SaveChanges();
@@ -572,7 +576,7 @@ namespace CQRS.Tests.KeyValueStorage
 
             Assert.Throws<AttemptToSaveAlreadyPersistedValueException>(() =>
                                                                        {
-                                                                           using(var session = store.OpenSession(new SingleThreadUseGuard()))
+                                                                           using(var session = OpenSession(store))
                                                                            {
                                                                                session.Save(user.Id, user);
                                                                                session.SaveChanges();
@@ -593,14 +597,14 @@ namespace CQRS.Tests.KeyValueStorage
 
             var dog = new Dog {Id = user.Id};
 
-            using(var session = store.OpenSession(new SingleThreadUseGuard()))
+            using(var session = OpenSession(store))
             {
                 session.Save<IPersistentEntity<Guid>>(user);
                 session.Save<IPersistentEntity<Guid>>(dog);
                 session.SaveChanges();
             }
 
-            using(var session = store.OpenSession(new SingleThreadUseGuard()))
+            using(var session = OpenSession(store))
             {
                 var loadedDog = session.Get<Dog>(dog.Id);
                 var loadedUser = session.Get<User>(dog.Id);
@@ -618,7 +622,7 @@ namespace CQRS.Tests.KeyValueStorage
         {
             var store = CreateStore();
 
-            using(var session = store.OpenSession(new SingleThreadUseGuard()))
+            using(var session = OpenSession(store))
             {
                 session.Save(new User {Id = Guid.NewGuid()});
                 session.Save(new User {Id = Guid.NewGuid()});
@@ -627,7 +631,7 @@ namespace CQRS.Tests.KeyValueStorage
                 session.SaveChanges();
             }
 
-            using(var session = store.OpenSession(new SingleThreadUseGuard()))
+            using(var session = OpenSession(store))
             {
                 Assert.That(session.GetAll<Dog>().ToList(), Has.Count.EqualTo(2));
                 Assert.That(session.GetAll<User>().ToList(), Has.Count.EqualTo(2));
@@ -642,7 +646,7 @@ namespace CQRS.Tests.KeyValueStorage
             var wait = new ManualResetEvent(false);
             ThreadPool.QueueUserWorkItem(state =>
                                          {
-                                             session = store.OpenSession(new SingleThreadUseGuard());
+                                             session = OpenSession(store);
                                              wait.Set();
                                          });
             wait.WaitOne();
@@ -671,7 +675,7 @@ namespace CQRS.Tests.KeyValueStorage
 
             var guard = new SingleHttpRequestUseGuard(requestContextMock.Object);
 
-            var session = store.OpenSession(guard);
+            var session = OpenSession(store, guard);
 
             var user = new User();
 
@@ -696,14 +700,14 @@ namespace CQRS.Tests.KeyValueStorage
             var user1 = new User {Id = Guid.NewGuid()};
             var person1 = new Person {Id = Guid.NewGuid()};
 
-            using(var session = store.OpenSession(new SingleThreadUseGuard()))
+            using(var session = OpenSession(store))
             {
                 session.Save(user1);
                 session.Save(person1);
                 session.SaveChanges();
             }
 
-            using(var session = store.OpenSession(new SingleThreadUseGuard()))
+            using(var session = OpenSession(store))
             {
                 Assert.That(session.Get<Person>(user1.Id), Is.EqualTo(user1));
                 Assert.That(session.Get<Person>(person1.Id), Is.EqualTo(person1));
@@ -718,14 +722,14 @@ namespace CQRS.Tests.KeyValueStorage
             var user1 = new User {Id = Guid.NewGuid()};
             var person1 = new Person {Id = Guid.NewGuid()};
 
-            using(var session = store.OpenSession(new SingleThreadUseGuard()))
+            using(var session = OpenSession(store))
             {
                 session.Save(user1);
                 session.Save(person1);
                 session.SaveChanges();
             }
 
-            using(var session = store.OpenSession(new SingleThreadUseGuard()))
+            using(var session = OpenSession(store))
             {
                 var people = session.GetAll<Person>().ToList();
 
@@ -742,7 +746,7 @@ namespace CQRS.Tests.KeyValueStorage
 
             var user1 = new User { Id = Guid.Empty };
 
-            using (var session = store.OpenSession(new SingleThreadUseGuard()))
+            using (var session = OpenSession(store))
             {
                 Assert.Throws<DocumentIdIsEmptyGuidException>(() => session.Save(user1));
             }

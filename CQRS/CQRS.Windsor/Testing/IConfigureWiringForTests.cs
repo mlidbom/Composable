@@ -1,4 +1,4 @@
-﻿namespace Composable.CQRS.Windsor.Testing.Windsor
+﻿namespace Composable.CQRS.Windsor.Testing
 {
     public interface IConfigureWiringForTests
     {

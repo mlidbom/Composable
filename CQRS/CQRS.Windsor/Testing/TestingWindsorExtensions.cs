@@ -1,7 +1,7 @@
 ﻿using Castle.MicroKernel.Lifestyle;
 using Castle.Windsor;
 
-namespace Composable.CQRS.Windsor.Testing.Windsor
+namespace Composable.CQRS.Windsor.Testing
 {
     public static class TestingWindsorExtensions
     {

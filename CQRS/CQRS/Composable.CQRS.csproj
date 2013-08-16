@@ -190,7 +190,6 @@
     <Compile Include="KeyValueStorage\SqlServer\CannotSetBothInterceptorAndFactoryMethodForInterceptor.cs" />
     <Compile Include="KeyValueStorage\DocumentUpdated.cs" />
     <Compile Include="KeyValueStorage\IDocumentUpdated.cs" />
-    <Compile Include="KeyValueStorage\SqlServer\DocumentDbConfig.cs" />
     <Compile Include="KeyValueStorage\IObservableObjectStore.cs" />
     <Compile Include="KeyValueStorage\SqlServer\SqlServerObjectStore.cs" />
     <Compile Include="KeyValueStorage\SqlServer\TooManyItemsDeletedException.cs" />

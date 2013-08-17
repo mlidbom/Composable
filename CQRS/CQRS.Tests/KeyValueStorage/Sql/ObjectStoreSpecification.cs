@@ -89,7 +89,13 @@ namespace CQRS.Tests.KeyValueStorage.Sql
 
                                     it["DocumentUpdated is received"] = () => documentUpdated.Should().NotBeNull();
                                     it["documentUpdated.Key is the_id"] = () => documentUpdated.Key.Should().Be("the_id");
-                                    it["documentUpdated.DocumentType is \"another_value\""] = () => documentUpdated.Document.Should().Be("another_value");
+                                    it["documentUpdated.Document is \"another_value\""] = () => documentUpdated.Document.Should().Be("another_value");
+                                    it["stored value is \"another_value\""] = () =>
+                                                                              {
+                                                                                  string storedValue;
+                                                                                  _store.TryGet<string>("the_id", out storedValue);
+                                                                                  storedValue.Should().Be("another_value");
+                                                                              };
 
                                     it["typedDocumentUpdated is received"] = () => typedDocumentUpdated.Should().NotBeNull();
                                     it["typedDocumentUpdated.Key is the_id"] = () => typedDocumentUpdated.Key.Should().Be("the_id");

@@ -8,7 +8,6 @@ using System.Runtime.Caching;
 using System.Transactions;
 using Composable.System;
 using Composable.System.Reflection;
-using Composable.SystemExtensions.Threading;
 using Newtonsoft.Json;
 using log4net;
 using Composable.System.Linq;
@@ -61,15 +60,12 @@ namespace Composable.CQRS.EventSourcing.SQLServer
 
         private static readonly ILog Log = LogManager.GetLogger(typeof(SqlServerEventStore));
 
-        public readonly ISingleContextUseGuard UsageGuard;
-
         public static readonly JsonSerializerSettings JsonSettings = NewtonSoft.JsonSettings.JsonSerializerSettings;
         public readonly string ConnectionString;
 
-        public SqlServerEventStore(ISingleContextUseGuard usageGuard, string connectionString)
+        public SqlServerEventStore(string connectionString)
         {
             Log.Debug("Constructor called");
-            UsageGuard = usageGuard;           
             ConnectionString = connectionString;
         }
 
@@ -88,7 +84,6 @@ namespace Composable.CQRS.EventSourcing.SQLServer
         private const string EventSelectClause = "SELECT EventType, Event, AggregateId, AggregateVersion, EventId, TimeStamp FROM Events With(READCOMMITTED, ROWLOCK) ";
         public IEnumerable<IAggregateRootEvent> GetHistoryUnSafe(Guid aggregateId)
         {            
-            UsageGuard.AssertNoContextChangeOccurred(this);
             EnsureEventsTableExists();
             var result = cache.Get(aggregateId);
 
@@ -139,7 +134,6 @@ namespace Composable.CQRS.EventSourcing.SQLServer
 
         public IEnumerable<IAggregateRootEvent> StreamEventsAfterEventWithId(Guid? startAfterEventId)
         {
-            UsageGuard.AssertNoContextChangeOccurred(this);
             EnsureEventsTableExists();
 
             using (var connection = OpenSession())
@@ -186,7 +180,6 @@ namespace Composable.CQRS.EventSourcing.SQLServer
         private readonly HashSet<Guid> _aggregatesWithEventsAddedByThisInstance = new HashSet<Guid>(); 
         public void SaveEvents(IEnumerable<IAggregateRootEvent> events)
         {
-            UsageGuard.AssertNoContextChangeOccurred(this);
             EnsureEventsTableExists();
 
             events = events.ToList();
@@ -217,7 +210,6 @@ namespace Composable.CQRS.EventSourcing.SQLServer
 
         public void DeleteEvents(Guid aggregateId)
         {
-            UsageGuard.AssertNoContextChangeOccurred(this);
             EnsureEventsTableExists();
 
             cache.Remove(aggregateId);
@@ -235,7 +227,6 @@ namespace Composable.CQRS.EventSourcing.SQLServer
 
         public IEnumerable<Guid> GetAggregateIds()
         {
-            UsageGuard.AssertNoContextChangeOccurred(this);
             EnsureEventsTableExists();
 
             using (var connection = OpenSession())
@@ -307,7 +298,7 @@ CONSTRAINT [PK_Events] PRIMARY KEY CLUSTERED
 
         public static void ResetDB(string connectionString)
         {
-            using (var session = new SqlServerEventStore(new SingleThreadUseGuard(), connectionString))
+            using (var session = new SqlServerEventStore(connectionString))
             {
                 session.ResetDB();
             }
@@ -315,7 +306,6 @@ CONSTRAINT [PK_Events] PRIMARY KEY CLUSTERED
 
         public void ResetDB()
         {
-            UsageGuard.AssertNoContextChangeOccurred(this);
             cache.Clear();
             using (var connection = OpenSession())
             {
@@ -338,7 +328,6 @@ DROP TABLE [dbo].[Events]";
 
         public void Dispose()
         {
-            UsageGuard.AssertNoContextChangeOccurred(this);
         }
     }
 }

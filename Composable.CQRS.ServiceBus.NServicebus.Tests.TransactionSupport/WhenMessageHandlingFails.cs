@@ -44,7 +44,7 @@ namespace Composable.CQRS.ServiceBus.NServicebus.Tests.TransactionSupport
         {
             var endpointConfigurer = new EndPointConfigurer("Composable.CQRS.ServiceBus.NServicebus.Tests.TransactionSupport");
 
-            var eventStoreReader = new SqlServerEventStore(new SingleThreadUseGuard(), EventStoreConnectionString);
+            var eventStoreReader = new SqlServerEventStore(EventStoreConnectionString);
 
             eventStoreReader.ResetDB();
             SqlServerObjectStore.ResetDB(EventStoreConnectionString);

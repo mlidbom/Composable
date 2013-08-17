@@ -3,7 +3,6 @@ using Castle.Windsor;
 using Composable.CQRS.EventSourcing;
 using Composable.CQRS.EventSourcing.SQLServer;
 using Composable.CQRS.Testing;
-using Composable.SystemExtensions.Threading;
 using CQRS.Tests.KeyValueStorage.Sql;
 using NCrunch.Framework;
 using NUnit.Framework;
@@ -23,7 +22,7 @@ namespace CQRS.Tests.CQRS.EventSourcing.Sql
 
         protected override IEventStore CreateStore()
         {
-            return new SqlServerEventStore(new SingleThreadUseGuard(), ConnectionString);
+            return new SqlServerEventStore(ConnectionString);
         }
     }
 }

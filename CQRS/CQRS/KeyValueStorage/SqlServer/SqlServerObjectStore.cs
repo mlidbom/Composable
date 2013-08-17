@@ -18,7 +18,7 @@ namespace Composable.KeyValueStorage.SqlServer
 {
     public class SqlServerObjectStore : IObservableObjectStore
     {
-        private readonly string _connectionString;
+        public readonly string ConnectionString;
 
         private static readonly JsonSerializerSettings _jsonSettings = JsonSettings.JsonSerializerSettings;
 
@@ -29,7 +29,7 @@ namespace Composable.KeyValueStorage.SqlServer
 
         public SqlServerObjectStore(string connectionString)
         {
-            _connectionString = connectionString;
+            ConnectionString = connectionString;
 
             DocumentUpdated = Observable.Create<IDocumentUpdated>(
                 obs =>
@@ -48,7 +48,7 @@ namespace Composable.KeyValueStorage.SqlServer
 
         private readonly ISet<IObserver<IDocumentUpdated>> _observers = new HashSet<IObserver<IDocumentUpdated>>();
 
-        public IDictionary<Type, int> KnownTypes { get { return VerifiedConnections[_connectionString]; } }
+        public IDictionary<Type, int> KnownTypes { get { return VerifiedConnections[ConnectionString]; } }
 
         private Type GetTypeFromId(int id)
         {
@@ -256,7 +256,7 @@ WHERE ValueTypeId ";
 
         private SqlConnection OpenSession()
         {
-            return OpenSession(_connectionString);
+            return OpenSession(ConnectionString);
         }
 
         private static SqlConnection OpenSession(string connectionString)
@@ -313,7 +313,7 @@ ELSE
 
         private void EnsureInitialized()
         {
-            EnsureInitialized(_connectionString);
+            EnsureInitialized(ConnectionString);
         }
 
         private static void EnsureInitialized(string connectionString)

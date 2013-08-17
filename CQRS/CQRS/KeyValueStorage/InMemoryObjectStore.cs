@@ -55,7 +55,7 @@ namespace Composable.KeyValueStorage
             return false;
         }
 
-        private static string GetIdString(object id)
+        protected static string GetIdString(object id)
         {
             return id.ToString().ToLower().TrimEnd(' ');
         }

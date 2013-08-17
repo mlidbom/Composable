@@ -30,27 +30,25 @@ namespace Composable.KeyValueStorage
             _observers.ForEach(observer => observer.OnNext(new DocumentUpdated(key, document)));
         }
 
-        private static string GetIdString(object id)
-        {
-            return id.ToString().ToLower().TrimEnd(' ');
-        }
-
         private readonly Dictionary<Type, Dictionary<string, string>> _persistentValues = new Dictionary<Type, Dictionary<string, string>>();
-        public override void Add<T>(object id, T value)
+
+        override public void Add<T>(object id, T value)
         {
-            var idString = GetIdString(id);            
+            var idString = GetIdString(id);
             var stringValue = JsonConvert.SerializeObject(value, JsonSettings.JsonSerializerSettings);
             _persistentValues.GetOrAddDefault(value.GetType())[idString] = stringValue;
             base.Add(id, value);
             NotifySubscribersDocumentUpdated(idString, value);
         }
 
-        public override void Update(object key, object value)
+        override public void Update(object key, object value)
         {
             string oldValue;
             string idString = GetIdString(key);
             var stringValue = JsonConvert.SerializeObject(value, JsonSettings.JsonSerializerSettings);
-            var needsUpdate = !_persistentValues.GetOrAddDefault(value.GetType()).TryGetValue(idString, out oldValue) || stringValue != oldValue;
+            var needsUpdate = !_persistentValues
+                .GetOrAdd(value.GetType(), () => new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase))
+                .TryGetValue(idString, out oldValue) || stringValue != oldValue;
             if(needsUpdate)
             {
                 base.Update(key, value);

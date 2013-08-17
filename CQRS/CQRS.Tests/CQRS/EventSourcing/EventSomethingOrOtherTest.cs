@@ -56,26 +56,6 @@ namespace CQRS.Tests.CQRS.EventSourcing
         }
 
         [Test]
-        public void ThrowsIfUsedByMultipleThreads()
-        {
-            IEventStore session = null;
-            var wait = new ManualResetEvent(false);
-            ThreadPool.QueueUserWorkItem((state) =>
-            {
-                session = CreateSomethingOrOther();
-                wait.Set();
-            });
-            wait.WaitOne();
-            
-            Assert.Throws<MultiThreadedUseException>(() => session.Dispose());
-            Assert.Throws<MultiThreadedUseException>(() => session.GetHistoryUnSafe(Guid.NewGuid()));
-            Assert.Throws<MultiThreadedUseException>(() => session.SaveEvents(null));
-            Assert.Throws<MultiThreadedUseException>(() => session.StreamEventsAfterEventWithId(Guid.NewGuid()).ToList());
-            Assert.Throws<MultiThreadedUseException>(() => session.DeleteEvents(Guid.NewGuid()));
-            Assert.Throws<MultiThreadedUseException>(() => session.GetAggregateIds().ToList());
-        }
-
-        [Test]
         public void DeleteEventsDeletesTheEventsForOnlyTheSpecifiedAggregate()
         {
             var aggregatesWithEvents = 1.Through(10).ToDictionary(i => i, i => 1.Through(10).Select(j => new SomeEvent(i, j)).ToList());
@@ -134,7 +114,7 @@ namespace CQRS.Tests.CQRS.EventSourcing
 
         protected override IEventStore CreateSomethingOrOther()
         {
-            return new SqlServerEventStore(new SingleThreadUseGuard(), connectionString);
+            return new SqlServerEventStore(connectionString);
         }
     }
 

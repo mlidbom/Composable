@@ -108,6 +108,11 @@ namespace Composable.KeyValueStorage
             {
                 throw new NoSuchDocumentException(key, value.GetType());
             }
+            if (!ReferenceEquals(existing, value))
+            {
+                Remove(key, value.GetType());
+                Add(key, value);
+            }
         }
 
         public IEnumerable<KeyValuePair<Guid, T>> GetAll<T>() where T : IHasPersistentIdentity<Guid>

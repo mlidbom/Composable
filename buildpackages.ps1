@@ -58,6 +58,7 @@ function Build-Pkg ($ProjectFile, $Version)
 		-Prop CQRSPopulationClientVersion=$CQRSPopulationClientVersion `
 		-Prop CJRSPopulationServerVersion=$CJRSPopulationServerVersion `
 		-Prop NSpecNUnitVersion=$NSpecNUnitVersion `
+		 -Symbols
 	
 	if($LASTEXITCODE -ne 0)
 	{

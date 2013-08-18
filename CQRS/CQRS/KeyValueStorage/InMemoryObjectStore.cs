@@ -11,28 +11,38 @@ namespace Composable.KeyValueStorage
     public class InMemoryObjectStore : IEnumerable<KeyValuePair<string, object>>, IObjectStore
     {
         private Dictionary<string, List<Object>> _db = new Dictionary<string, List<object>>(StringComparer.InvariantCultureIgnoreCase);
+        protected object _lockObject = new object();
         public bool Contains<T>(object id)
         {
-            T value;
-            return TryGet(id, out value);
+            lock(_lockObject)
+            {
+                T value;
+                return TryGet(id, out value);   
+            }
         }
 
         public bool Contains(Type type, object id)
         {
-            object value;
-            return TryGet(type, id, out value);
+            lock(_lockObject)
+            {
+                object value;
+                return TryGet(type, id, out value);
+            }
         }
 
         public bool TryGet<T>(object id, out T value)
         {
-            object found;
-            if(TryGet(typeof(T), id, out found))
+            lock(_lockObject)
             {
-                value = (T) found;
-                return true;
+                object found;
+                if(TryGet(typeof(T), id, out found))
+                {
+                    value = (T)found;
+                    return true;
+                }
+                value = default(T);
+                return false;
             }
-            value = default(T);
-            return false;
         }
 
         protected bool TryGet(Type typeOfValue, object id, out object value)
@@ -62,33 +72,47 @@ namespace Composable.KeyValueStorage
 
         public virtual void Add<T>(object id, T value)
         {
-            var idString = GetIdString(id);
-            if(Contains(value.GetType(), idString))
+            lock(_lockObject)
             {
-                throw new AttemptToSaveAlreadyPersistedValueException(id, value);
+                var idString = GetIdString(id);
+                if(Contains(value.GetType(), idString))
+                {
+                    throw new AttemptToSaveAlreadyPersistedValueException(id, value);
+                }
+                _db.GetOrAddDefault(idString).Add(value);
             }
-            _db.GetOrAddDefault(idString).Add(value);
         }
 
         public bool Remove<T>(object id)
         {
-            return Remove(id, typeof(T));
+            lock(_lockObject)
+            {
+                return Remove(id, typeof(T));
+            }
         }
 
         public bool Remove(object id, Type documentType)
         {
-            var idstring = GetIdString(id);
-            var removed = _db.GetOrAddDefault(idstring).RemoveWhere(value => documentType.IsAssignableFrom(value.GetType()));
-            if (removed > 1)
+            lock(_lockObject)
             {
-                throw new Exception("FUBAR");
+                var idstring = GetIdString(id);
+                var removed = _db.GetOrAddDefault(idstring).RemoveWhere(value => documentType.IsAssignableFrom(value.GetType()));
+                if(removed > 1)
+                {
+                    throw new Exception("FUBAR");
+                }
+                return removed == 1;
             }
-            return removed == 1;
         }
 
         public IEnumerator<KeyValuePair<string, object>> GetEnumerator()
         {
-            return _db.SelectMany(m => m.Value.Select(inner => new KeyValuePair<string,object>(m.Key, inner))).GetEnumerator();
+            lock(_lockObject)
+            {
+                return _db.SelectMany(m => m.Value.Select(inner => new KeyValuePair<string, object>(m.Key, inner)))
+                    .ToList()//ToList is to make it thread safe...
+                    .GetEnumerator();
+            }
         }
 
         IEnumerator IEnumerable.GetEnumerator()
@@ -98,29 +122,38 @@ namespace Composable.KeyValueStorage
 
         public void Update(IEnumerable<KeyValuePair<string, object>> values)
         {
-            values.ForEach( pair => Update(pair.Key, pair.Value));
+            lock(_lockObject)
+            {
+                values.ForEach(pair => Update(pair.Key, pair.Value));
+            }
         }
 
         public virtual void Update(object key, object value)
         {
-            object existing;
-            if(!TryGet(value.GetType(), key, out existing))
+            lock(_lockObject)
             {
-                throw new NoSuchDocumentException(key, value.GetType());
-            }
-            if (!ReferenceEquals(existing, value))
-            {
-                Remove(key, value.GetType());
-                Add(key, value);
+                object existing;
+                if(!TryGet(value.GetType(), key, out existing))
+                {
+                    throw new NoSuchDocumentException(key, value.GetType());
+                }
+                if(!ReferenceEquals(existing, value))
+                {
+                    Remove(key, value.GetType());
+                    Add(key, value);
+                }
             }
         }
 
         public IEnumerable<KeyValuePair<Guid, T>> GetAll<T>() where T : IHasPersistentIdentity<Guid>
         {
-            return this.
-                Where(pair => typeof(T).IsAssignableFrom(pair.Value.GetType()))
-                .Select(pair => new KeyValuePair<Guid, T>(Guid.Parse(pair.Key), (T) pair.Value))
-                .ToList();
+            lock(_lockObject)
+            {
+                return this.
+                    Where(pair => typeof(T).IsAssignableFrom(pair.Value.GetType()))
+                    .Select(pair => new KeyValuePair<Guid, T>(Guid.Parse(pair.Key), (T)pair.Value))
+                    .ToList();
+            }
         }
 
         public void Dispose()
@@ -130,7 +163,10 @@ namespace Composable.KeyValueStorage
 
         public void Clear()
         {
-            _db = new Dictionary<string, List<object>>();
+            lock(_lockObject)
+            {
+                _db = new Dictionary<string, List<object>>();
+            }
         }
     }
 }

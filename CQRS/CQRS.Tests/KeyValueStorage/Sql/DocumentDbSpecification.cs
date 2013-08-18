@@ -9,10 +9,10 @@ using NUnit.Framework;
 
 namespace CQRS.Tests.KeyValueStorage.Sql
 {
-    public abstract class ObjectStoreSpecification : NSpec.NUnit.nspec
+    public abstract class DocumentDbSpecification : NSpec.NUnit.nspec
     {
         private static readonly string ConnectionString = ConfigurationManager.ConnectionStrings["KeyValueStore"].ConnectionString;
-        private IObservableObjectStore _store = null;
+        private IDocumentDb _store = null;
         private string _ignoredString;
 
         public abstract void before_each();
@@ -149,25 +149,25 @@ namespace CQRS.Tests.KeyValueStorage.Sql
         }
 
         [ExclusivelyUses(NCrunchExlusivelyUsesResources.DocumentDbMdf)]
-        public class SqlServerObjectStoreSpecification : ObjectStoreSpecification
+        public class SqlServerDocumentDbSpecification : DocumentDbSpecification
         {
             override public void before_each()
             {
-                SqlServerObjectStore.ResetDB(ConnectionString);
-                _store = new SqlServerObjectStore(ConnectionString);
+                SqlServerDocumentDb.ResetDB(ConnectionString);
+                _store = new SqlServerDocumentDb(ConnectionString);
             }
 
             public void Does_not_call_db_in_constructor()
             {
-                _store = new SqlServerObjectStore("ANonsensStringThatDoesNotResultInASqlConnection");
+                _store = new SqlServerDocumentDb("ANonsensStringThatDoesNotResultInASqlConnection");
             }
         }
 
-        public class SerializingInMemoryObjectStoreSpecification : ObjectStoreSpecification
+        public class InMemoryDocumentDbSpecification : DocumentDbSpecification
         {
             override public void before_each()
             {
-                _store = new ObservableInMemoryObjectStore();
+                _store = new InMemoryDocumentDb();
             }
         }
     }

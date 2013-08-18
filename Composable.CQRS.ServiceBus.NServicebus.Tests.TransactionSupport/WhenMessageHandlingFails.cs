@@ -47,8 +47,8 @@ namespace Composable.CQRS.ServiceBus.NServicebus.Tests.TransactionSupport
             var eventStoreReader = new SqlServerEventStore(EventStoreConnectionString);
 
             eventStoreReader.ResetDB();
-            SqlServerObjectStore.ResetDB(EventStoreConnectionString);
-            SqlServerObjectStore.ResetDB(DocumentDbConnectionString);
+            SqlServerDocumentDb.ResetDB(EventStoreConnectionString);
+            SqlServerDocumentDb.ResetDB(DocumentDbConnectionString);
 
             eventStoreReader.SaveEvents(((IEventStored) new Aggregate(2)).GetChanges());
 
@@ -144,7 +144,7 @@ namespace Composable.CQRS.ServiceBus.NServicebus.Tests.TransactionSupport
                     .DependsOn(Dependency.OnValue(typeof(string), WhenMessageHandlingFails.DocumentDbConnectionString))
                     .LifestyleSingleton(),
 
-                Component.For<IObservableObjectStore>().ImplementedBy<SqlServerObjectStore>()
+                Component.For<IDocumentDb>().ImplementedBy<SqlServerDocumentDb>()
                     .DependsOn(Dependency.OnValue(typeof(string), WhenMessageHandlingFails.EventStoreConnectionString))
                     .LifestyleSingleton(),
 

@@ -9,11 +9,11 @@ using Newtonsoft.Json;
 
 namespace Composable.KeyValueStorage
 {
-    public class ObservableInMemoryObjectStore : InMemoryObjectStore, IObservableObjectStore
+    public class InMemoryDocumentDb : InMemoryObjectStore, IDocumentDb
     {
         private readonly ISet<IObserver<IDocumentUpdated>> _observers = new HashSet<IObserver<IDocumentUpdated>>();
 
-        public ObservableInMemoryObjectStore()
+        public InMemoryDocumentDb()
         {
             lock(_lockObject)
             {

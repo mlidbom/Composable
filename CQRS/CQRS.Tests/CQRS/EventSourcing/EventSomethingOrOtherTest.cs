@@ -6,7 +6,6 @@ using Composable.CQRS.EventSourcing;
 using Composable.CQRS.EventSourcing.SQLServer;
 using Composable.CQRS.Testing;
 using Composable.System;
-using Composable.SystemExtensions.Threading;
 using CQRS.Tests.KeyValueStorage.Sql;
 using FluentAssertions;
 using NCrunch.Framework;
@@ -97,7 +96,7 @@ namespace CQRS.Tests.CQRS.EventSourcing
     {
         protected override IEventStore CreateSomethingOrOther()
         {
-            return new InMemoryEventStore(new SingleThreadUseGuard());
+            return new InMemoryEventStore();
         }
     }
 

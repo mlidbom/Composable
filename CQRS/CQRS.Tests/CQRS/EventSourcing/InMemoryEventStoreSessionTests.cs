@@ -1,7 +1,6 @@
 using Castle.Windsor;
 using Composable.CQRS.EventSourcing;
 using Composable.CQRS.Testing;
-using Composable.SystemExtensions.Threading;
 using NUnit.Framework;
 
 namespace CQRS.Tests.CQRS.EventSourcing
@@ -11,7 +10,7 @@ namespace CQRS.Tests.CQRS.EventSourcing
     {
         protected override IEventStore CreateStore()
         {
-            return new InMemoryEventStore(new SingleThreadUseGuard());
+            return new InMemoryEventStore();
         }
     }
 }

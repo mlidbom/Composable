@@ -9,9 +9,9 @@ namespace Composable.KeyValueStorage.Population
     public abstract class ViewModelPopulatorBase : IViewModelPopulator
     {
         protected IServiceBus _bus;
-        protected IEventSomethingOrOther _events;
+        protected IEventStore _events;
 
-        protected ViewModelPopulatorBase(IServiceBus bus, IEventSomethingOrOther events)
+        protected ViewModelPopulatorBase(IServiceBus bus, IEventStore events)
         {
             _bus = bus;
             _events = events;

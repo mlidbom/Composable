@@ -19,6 +19,9 @@ using Composable.System;
 using Composable.System.Linq;
 using Composable.SystemExtensions.Threading;
 using Composable.UnitsOfWork;
+using CQRS.Tests;
+using JetBrains.Annotations;
+using NCrunch.Framework;
 using NServiceBus;
 using NUnit.Framework;
 using Composable.CQRS.Windsor;
@@ -27,20 +30,24 @@ using Composable.CQRS.Windsor;
 
 namespace Composable.CQRS.ServiceBus.NServicebus.Tests.TransactionSupport
 {
-    [TestFixture, Category("NSBFullSetupTests")]
+    [TestFixture, NUnit.Framework.Category("NSBFullSetupTests")]
+    [ExclusivelyUses(NCrunchExlusivelyUsesResources.DocumentDbMdf, NCrunchExlusivelyUsesResources.EventStoreDbMdf, NCrunchExlusivelyUsesResources.NServiceBus)]
+    [NCrunch.Framework.Isolated]
     public class WhenMessageHandlingFails
     {
         public static readonly string DocumentDbConnectionString = ConfigurationManager.ConnectionStrings["KeyValueStore"].ConnectionString;
         public static readonly string EventStoreConnectionString = ConfigurationManager.ConnectionStrings["EventStore"].ConnectionString;
 
         [Test]
+        [NCrunch.Framework.Isolated]
         public void StoredEventsAreRemoved()
         {
             var endpointConfigurer = new EndPointConfigurer("Composable.CQRS.ServiceBus.NServicebus.Tests.TransactionSupport");
 
-            var eventStoreReader = new SqlServerEventSomethingOrOther(new SqlServerEventStore(EventStoreConnectionString, new DummyServiceBus(new WindsorContainer())), new SingleThreadUseGuard());
+            var eventStoreReader = new SqlServerEventStore(EventStoreConnectionString);
 
-            SqlServerEventStore.ResetDB(EventStoreConnectionString);
+            eventStoreReader.ResetDB();
+            SqlServerDocumentDb.ResetDB(EventStoreConnectionString);
             SqlServerDocumentDb.ResetDB(DocumentDbConnectionString);
 
             eventStoreReader.SaveEvents(((IEventStored) new Aggregate(2)).GetChanges());
@@ -86,6 +93,7 @@ namespace Composable.CQRS.ServiceBus.NServicebus.Tests.TransactionSupport
     {
     }
 
+    [UsedImplicitly]
     public class InseartEventsMessageHandler : IHandleMessages<InsertEventsMessage>
     {
         private readonly IEventStoreSession _session;
@@ -104,7 +112,7 @@ namespace Composable.CQRS.ServiceBus.NServicebus.Tests.TransactionSupport
     public class EndPointConfigurer : NServicebusEndpointConfigurationBase<EndPointConfigurer>, IConfigureThisEndpoint
     {
         public IWindsorContainer Container;
-        private string _queueName;
+        private readonly string _queueName;
 
         public EndPointConfigurer(string queueName)
         {
@@ -117,16 +125,32 @@ namespace Composable.CQRS.ServiceBus.NServicebus.Tests.TransactionSupport
             ConfigureContainerTest(container);
         }
 
+        override protected Configure ConfigureLogging(Configure config)
+        {
+            return config;
+        }
+
         public static void ConfigureContainerTest(IWindsorContainer container)
         {
             container.Register(
                 Component.For<IMessageInterceptor>().Instance(EmptyMessageInterceptor.Instance),
                 Component.For<IServiceBus>().ImplementedBy<NServiceBusServiceBus>(),
-                Component.For<IEventStore, SqlServerEventStore>().UsingFactoryMethod(() => new SqlServerEventStore(WhenMessageHandlingFails.EventStoreConnectionString, container.Resolve<IServiceBus>())),
-                Component.For<IDocumentDb>().Instance(new SqlServerDocumentDb(WhenMessageHandlingFails.DocumentDbConnectionString)),
-                Component.For<IEventStoreSession, IUnitOfWorkParticipant>().UsingFactoryMethod(() => container.Resolve<IEventStore>().OpenSession()).LifeStyle.PerNserviceBusMessage(),
-                Component.For<IEventSomethingOrOther, SqlServerEventSomethingOrOther>().ImplementedBy<SqlServerEventSomethingOrOther>().LifeStyle.PerNserviceBusMessage(),
-                Component.For<IDocumentDbSession, IUnitOfWorkParticipant>().UsingFactoryMethod(() => container.Resolve<IDocumentDb>().OpenSession(new SingleThreadUseGuard())).LifeStyle.PerNserviceBusMessage(),
+               
+                Component.For<IEventStoreSession, IUnitOfWorkParticipant>()
+                    .ImplementedBy<EventStoreSession>()
+                    .LifeStyle.PerNserviceBusMessage(),
+
+                Component.For<IEventStore, SqlServerEventStore>().ImplementedBy<SqlServerEventStore>()
+                    .DependsOn(Dependency.OnValue(typeof(string), WhenMessageHandlingFails.DocumentDbConnectionString))
+                    .LifestyleSingleton(),
+
+                Component.For<IDocumentDb>().ImplementedBy<SqlServerDocumentDb>()
+                    .DependsOn(Dependency.OnValue(typeof(string), WhenMessageHandlingFails.EventStoreConnectionString))
+                    .LifestyleSingleton(),
+
+                Component.For<IDocumentDbSession, IUnitOfWorkParticipant>().ImplementedBy<DocumentDbSession>()
+                    .DependsOn(Dependency.OnValue(typeof(IDocumentDbSessionInterceptor), NullOpDocumentDbSessionInterceptor.Instance))
+                    .LifeStyle.PerNserviceBusMessage(),
                 Component.For<ISingleContextUseGuard>()
                 );
         }

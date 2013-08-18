@@ -21,18 +21,18 @@ namespace Composable.CQRS.EventSourcing
     public class EventStoreSession : IEventStoreSession, IUnitOfWorkParticipantWhoseCommitMayTriggerChangesInOtherParticipantsMustImplementIdemponentCommit
     {
         private readonly IServiceBus _bus;
-        private readonly IEventSomethingOrOther _storage;
+        private readonly IEventStore _store;
         private static ILog Log = LogManager.GetLogger(typeof(EventStoreSession));
         private readonly IDictionary<Guid, IEventStored> _idMap = new Dictionary<Guid, IEventStored>();
         private readonly HashSet<Guid> _publishedEvents = new HashSet<Guid>();
         private readonly ISingleContextUseGuard _usageGuard;
         private readonly List<Guid> _pendingDeletes = new List<Guid>();
 
-        public EventStoreSession(IServiceBus bus, IEventSomethingOrOther storage, ISingleContextUseGuard usageGuard)
+        public EventStoreSession(IServiceBus bus, IEventStore store, ISingleContextUseGuard usageGuard)
         {
             _usageGuard = usageGuard;
             _bus = bus;
-            _storage = storage;
+            _store = store;
         }
 
         public TAggregate Get<TAggregate>(Guid aggregateId) where TAggregate : IEventStored
@@ -99,7 +99,7 @@ namespace Composable.CQRS.EventSourcing
         public void Dispose()
         {
             _usageGuard.AssertNoContextChangeOccurred(this);
-            _storage.Dispose();
+            _store.Dispose();
         }
 
 
@@ -148,7 +148,7 @@ namespace Composable.CQRS.EventSourcing
 
         private IEnumerable<IAggregateRootEvent> GetHistory(Guid aggregateId)
         {
-            var history = _storage.GetHistoryUnSafe(aggregateId);
+            var history = _store.GetHistoryUnSafe(aggregateId);
 
             int version = 1;
             foreach (var aggregateRootEvent in history)
@@ -212,14 +212,14 @@ namespace Composable.CQRS.EventSourcing
             var aggregates = _idMap.Select(p => p.Value).ToList();
             var newEvents = aggregates.SelectMany(a => a.GetChanges()).ToList();
             aggregates.ForEach(a => a.AcceptChanges());
-            _storage.SaveEvents(newEvents);
+            _store.SaveEvents(newEvents);
             PublishUnpublishedEvents(newEvents);
 
             bool result = newEvents.Any() || _pendingDeletes.Any();
 
             foreach (var toDelete in _pendingDeletes)
             {
-                _storage.DeleteEvents(toDelete);
+                _store.DeleteEvents(toDelete);
                 _idMap.Remove(toDelete);
             }
             _pendingDeletes.Clear();

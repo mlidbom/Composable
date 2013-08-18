@@ -10,6 +10,7 @@ using Composable.DomainEvents;
 using Composable.ServiceBus;
 using Composable.SystemExtensions.Threading;
 using Composable.UnitsOfWork;
+using NCrunch.Framework;
 using NUnit.Framework;
 using Composable.System.Linq;
 using System.Linq;
@@ -17,13 +18,19 @@ using System.Linq;
 namespace CQRS.Tests.CQRS.EventSourcing
 {
     [TestFixture]
-    public abstract class EventStoreTests : NoSqlTest
+    [ExclusivelyUses(NCrunchExlusivelyUsesResources.EventStoreDbMdf)]
+    public abstract class EventStoreSessionTests : NoSqlTest
     {
         protected DummyServiceBus Bus { get; private set; }
 
         [SetUp]
         public void Setup() {
             Bus = new DummyServiceBus(new WindsorContainer());
+        }
+
+        private IEventStoreSession OpenSession(IEventStore store)
+        {
+            return new EventStoreSession(Bus, store, new SingleThreadUseGuard());
         }
 
         [Test]
@@ -36,13 +43,13 @@ namespace CQRS.Tests.CQRS.EventSourcing
             user.ChangePassword("NewPassword");
             user.ChangeEmail("NewEmail");
 
-            using(var session = store.OpenSession())
+            using(var session = OpenSession(store))
             {                
                 session.Save(user);
                 session.SaveChanges();
             }
 
-            using(var session = store.OpenSession())
+            using(var session = OpenSession(store))
             {
                 var loadedUser = session.Get<User>(user.Id);
 
@@ -61,7 +68,7 @@ namespace CQRS.Tests.CQRS.EventSourcing
             var wait = new ManualResetEvent(false);
             ThreadPool.QueueUserWorkItem((state) =>
                                              {
-                                                 session = store.OpenSession();
+                                                 session = OpenSession(store);
                                                  wait.Set();
                                              });
             wait.WaitOne();
@@ -89,13 +96,13 @@ namespace CQRS.Tests.CQRS.EventSourcing
             user.ChangePassword("NewPassword");
             user.ChangeEmail("NewEmail");
 
-            using (var session = store.OpenSession())
+            using (var session = OpenSession(store))
             {
                 session.Save(user);
                 session.SaveChanges();
             }
 
-            using (var session = store.OpenSession())
+            using (var session = OpenSession(store))
             {
                 var loadedUser = session.LoadSpecificVersion<User>(user.Id, 1);
                 Assert.That(loadedUser.Id, Is.EqualTo(user.Id));
@@ -122,13 +129,13 @@ namespace CQRS.Tests.CQRS.EventSourcing
             var user = new User();
             user.Register("email@email.se", "password", Guid.NewGuid());
 
-            using (var session = store.OpenSession())
+            using (var session = OpenSession(store))
             {
                 session.Save(user);
                 session.SaveChanges();
             }
 
-            using (var session = store.OpenSession())
+            using (var session = OpenSession(store))
             {
                 var loaded1 = session.Get<User>(user.Id);
                 var loaded2 = session.Get<User>(user.Id);
@@ -144,7 +151,7 @@ namespace CQRS.Tests.CQRS.EventSourcing
             var user = new User();
             user.Register("email@email.se", "password", Guid.NewGuid());
 
-            using (var session = store.OpenSession())
+            using (var session = OpenSession(store))
             {
                 session.Save(user);
 
@@ -165,20 +172,20 @@ namespace CQRS.Tests.CQRS.EventSourcing
             var user = new User();
             user.Register("email@email.se", "password", Guid.NewGuid());
 
-            using (var session = store.OpenSession())
+            using (var session = OpenSession(store))
             {
                 session.Save(user);
                 session.SaveChanges();
             }
 
-            using (var session = store.OpenSession())
+            using (var session = OpenSession(store))
             {
                 var loadedUser = session.Get<User>(user.Id);
                 loadedUser.ChangePassword("NewPassword");
                 session.SaveChanges();
             }
 
-            using (var session = store.OpenSession())
+            using (var session = OpenSession(store))
             {
                 var loadedUser = session.Get<User>(user.Id);
                 Assert.That(loadedUser.Password, Is.EqualTo("NewPassword"));
@@ -193,20 +200,20 @@ namespace CQRS.Tests.CQRS.EventSourcing
             var user = new User();
             user.Register("OriginalEmail", "password", Guid.NewGuid());
 
-            using (var session = store.OpenSession())
+            using (var session = OpenSession(store))
             {
                 session.Save(user);
                 session.SaveChanges();
             }
 
-            using (var session = store.OpenSession())
+            using (var session = OpenSession(store))
             {
                 var loadedUser = session.LoadSpecificVersion<User>(user.Id, 1);                
                 loadedUser.ChangeEmail("NewEmail");
                 session.SaveChanges();
             }
 
-            using (var session = store.OpenSession())
+            using (var session = OpenSession(store))
             {
                 var loadedUser = session.Get<User>(user.Id);
                 Assert.That(loadedUser.Email, Is.EqualTo("OriginalEmail"));
@@ -221,7 +228,7 @@ namespace CQRS.Tests.CQRS.EventSourcing
             var user = new User();
             user.Register("OriginalEmail", "password", Guid.NewGuid());
 
-            using (var session = store.OpenSession())
+            using (var session = OpenSession(store))
             {
                 session.Save(user);
                 session.SaveChanges();
@@ -237,7 +244,7 @@ namespace CQRS.Tests.CQRS.EventSourcing
             var user = new User();
             user.Register("OriginalEmail", "password", Guid.NewGuid());
 
-            using (var session = store.OpenSession())
+            using (var session = OpenSession(store))
             {
                 session.Save(user);
                 session.SaveChanges();
@@ -245,7 +252,7 @@ namespace CQRS.Tests.CQRS.EventSourcing
 
             Assert.Throws<AttemptToSaveAlreadyPersistedAggregateException>(() =>
                                                                                {
-                                                                                   using(var session = store.OpenSession())
+                                                                                   using(var session = OpenSession(store))
                                                                                    {
                                                                                        session.Save(user);
                                                                                        session.SaveChanges();
@@ -262,7 +269,7 @@ namespace CQRS.Tests.CQRS.EventSourcing
             user.Register("OriginalEmail", "password", Guid.NewGuid());
             1.Through(100).ForEach(index => user.ChangeEmail("email" + index));
 
-            using (var session = store.OpenSession())
+            using (var session = OpenSession(store))
             {
                 session.Save(user);
                 session.SaveChanges();
@@ -278,7 +285,7 @@ namespace CQRS.Tests.CQRS.EventSourcing
             public void Reply(object message){throw new NotImplementedException();}
         }
 
-        private class MockEventSomethingOrOther : IEventSomethingOrOther {
+        private class MockEventStore : IEventStore {
             public List<IAggregateRootEvent> SavedEvents = new List<IAggregateRootEvent>();
             public List<Guid> DeletedAggregates = new List<Guid>();
 
@@ -293,7 +300,7 @@ namespace CQRS.Tests.CQRS.EventSourcing
         [Test]
         public void EventsArePublishedOnSaveChangesAndThisInteractsWithUnitOfWorkParticipations() {
             var bus = new MockServiceBus();
-            var store = new MockEventSomethingOrOther();
+            var store = new MockEventStore();
 
             var users = 1.Through(9).Select(i => { var u = new User(); u.Register(i + "@test.com", "abcd", Guid.NewGuid()); u.ChangeEmail("new" + i + "@test.com"); return u; }).ToList();
 
@@ -328,7 +335,7 @@ namespace CQRS.Tests.CQRS.EventSourcing
         public void EventsAreDeletedWhenNotAUnitOfWorkParticipant()
         {
             var bus = new MockServiceBus();
-            var store = new MockEventSomethingOrOther();
+            var store = new MockEventStore();
 
             using (var session = new EventStoreSession(bus, store, new SingleThreadUseGuard()))
             {
@@ -349,7 +356,7 @@ namespace CQRS.Tests.CQRS.EventSourcing
         public void EventsAreDeletedWhenUnitOfWorkIsCommitted()
         {
             var bus = new MockServiceBus();
-            var store = new MockEventSomethingOrOther();
+            var store = new MockEventStore();
 
             using (var session = new EventStoreSession(bus, store, new SingleThreadUseGuard()))
             {
@@ -383,14 +390,14 @@ namespace CQRS.Tests.CQRS.EventSourcing
             var user2 = new User();
             user2.Register("email2@email.se", "password", Guid.NewGuid());
 
-            using(var session = store.OpenSession())
+            using(var session = OpenSession(store))
             {                
                 session.Save(user1);
                 session.Save(user2);
                 session.SaveChanges();
             }
 
-            using(var session = store.OpenSession())
+            using(var session = OpenSession(store))
             {
                 session.Delete(user1.Id);
 
@@ -415,7 +422,7 @@ namespace CQRS.Tests.CQRS.EventSourcing
             var user2 = new User();
             user2.Register("email2@email.se", "password", Guid.NewGuid());
 
-            using(var session = store.OpenSession())
+            using(var session = OpenSession(store))
             {                
                 session.Save(user1);
                 session.Save(user2);
@@ -424,7 +431,7 @@ namespace CQRS.Tests.CQRS.EventSourcing
 
             Bus.Reset();
 
-            using(var session = store.OpenSession())
+            using(var session = OpenSession(store))
             {
                 user1 = session.Get<User>(user1.Id);
 
@@ -450,7 +457,7 @@ namespace CQRS.Tests.CQRS.EventSourcing
         //    user.ChangePassword("NewPassword");
         //    user.ChangeEmail("NewEmail");
 
-        //    using(var session = store.OpenSession())
+        //    using(var session = OpenSession(store))
         //    {
         //        using (var transaction = new TransactionScope())
         //        {
@@ -459,7 +466,7 @@ namespace CQRS.Tests.CQRS.EventSourcing
         //        }
         //    }
 
-        //    using(var session = store.OpenSession())
+        //    using(var session = OpenSession(store))
         //    {
         //        var loadedUser = session.Get<User>(user.Id);
 
@@ -482,14 +489,14 @@ namespace CQRS.Tests.CQRS.EventSourcing
 
         //    using (var transaction = new TransactionScope())
         //    {
-        //        using(var session = store.OpenSession())
+        //        using(var session = OpenSession(store))
         //        {
         //            session.Save(user);
         //            transaction.Complete();
         //        }
         //    }
 
-        //    using (var session = store.OpenSession())
+        //    using (var session = OpenSession(store))
         //    {
         //        var loadedUser = session.Get<User>(user.Id);
 

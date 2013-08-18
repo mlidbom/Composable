@@ -12,7 +12,7 @@ using Composable.System.Linq;
 #endregion
 
 namespace Composable.CQRS.ViewModels
-{ 
+{
     public class ViewModelUpdater<TImplementor, TViewModel, TEvent, TSession> :
         MultiEventHandler<TImplementor, TEvent>
         where TImplementor : ViewModelUpdater<TImplementor, TViewModel, TEvent, TSession>

@@ -31,44 +31,11 @@ namespace Composable.CQRS.Testing.Diagnostics
 
         public IDocumentDbSessionInterceptor Interceptor
         {
-            get { return ((DocumentDbSession) GetSessionIfProxy().Session)._interceptor; }
+            get { return ((DocumentDbSession) GetSessionIfProxy().Session).Interceptor; }
         }
 
-        public SqlServerObjectStoreInspector SqlBackingStore
-        {
-            get
-            {
-                if (Session is DocumentDbSession)
-                {
-                    return new SqlServerObjectStoreInspector((SqlServerObjectStore) ((DocumentDbSession) Session)._backingStore);
-                }
-
-                throw new DiagnosticsException(
-                    string.Format("Session must be of type {0} for Diagnostics to be able get backingStore field",
-                                  typeof (DocumentDbSession)));
-            }
-        }
     }
 
-    public class SqlServerObjectStoreInspector
-    {
-        public readonly SqlServerObjectStore ObjectStore;
-
-        public SqlServerObjectStoreInspector(SqlServerObjectStore objectStore)
-        {
-            ObjectStore = objectStore;
-        }
-
-        public SqlServerDocumentDb DocumentDb
-        {
-            get { return ObjectStore._store; }
-        }
-
-        public SqlServerDocumentDbConfig DocumentDbConfig
-        {
-            get { return ObjectStore._config; }
-        }
-    }
 
     public static class DocumentDbSessionInspectorExtensions
     {

@@ -26,8 +26,10 @@ namespace Composable.CQRS.ServiceBus.NServiceBus.EndpointConfiguration
         {
             var config = Configure.With()
                 .DefineEndpointName(InputQueueName)
-                .CastleWindsorBuilder(container: windsorContainer)
-                .Log4Net();
+                .CastleWindsorBuilder(container: windsorContainer);
+
+            config = ConfigureLogging(config);
+                
 
             var config2 = ConfigureSubscriptionStorage(config);
             config2 = ConfigureSaga(config2);
@@ -43,6 +45,11 @@ namespace Composable.CQRS.ServiceBus.NServiceBus.EndpointConfiguration
             busConfig2.ImpersonateSender(false)
                 .CreateBus()
                 .Start(() => Configure.Instance.ForInstallationOn<global::NServiceBus.Installation.Environments.Windows>().Install());
+        }
+
+        protected virtual Configure ConfigureLogging(Configure config)
+        {
+            return config.Log4Net();
         }
 
         protected abstract string InputQueueName { get; }

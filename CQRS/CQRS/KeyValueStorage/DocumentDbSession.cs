@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using Composable.DDD;
-using Composable.KeyValueStorage.SqlServer;
 using Composable.System.Linq;
 using System.Linq;
 using Composable.SystemExtensions.Threading;
@@ -16,29 +15,24 @@ namespace Composable.KeyValueStorage
         [ThreadStatic]
         internal static bool UseUpdateLock;
 
-// ReSharper disable InconsistentNaming
-        internal readonly IObjectStore _backingStore;
-        internal readonly IDocumentDbSessionInterceptor _interceptor;
-// ReSharper restore InconsistentNaming
-
         private readonly InMemoryObjectStore _idMap = new InMemoryObjectStore();
-        private readonly ISingleContextUseGuard _usageGuard;
+
+        public readonly IDocumentDb BackingStore;
+        public readonly IDocumentDbSessionInterceptor Interceptor;        
+        public readonly ISingleContextUseGuard UsageGuard;
 
         private readonly IDictionary<DocumentKey, DocumentItem> _handledDocuments = new Dictionary<DocumentKey, DocumentItem>(); 
 
         private static readonly ILog Log = LogManager.GetLogger(typeof(DocumentDbSession));
 
-        public DocumentDbSession(IDocumentDb store, ISingleContextUseGuard usageGuard, DocumentDbConfig config = null)
+        public DocumentDbSession(IDocumentDb backingStore, ISingleContextUseGuard usageGuard, IDocumentDbSessionInterceptor interceptor)
         {
-            _usageGuard = usageGuard;
-            if(config == null)
-            {
-                config = DocumentDbConfig.Default;
-            }
-            _backingStore = store.CreateStore();
-            _interceptor = config.Interceptor;
+            UsageGuard = usageGuard;
+            BackingStore = backingStore;
+            Interceptor = interceptor;
         }
 
+        public IObservable<IDocumentUpdated> DocumentUpdated { get { return BackingStore.DocumentUpdated; } }
 
         public virtual bool TryGet<TValue>(object key, out TValue value)
         {
@@ -51,7 +45,7 @@ namespace Composable.KeyValueStorage
             {
                 throw new ArgumentException("You cannot query by id for an interface type. There is no guarantee of uniqueness");
             }
-            _usageGuard.AssertNoContextChangeOccurred(this);
+            UsageGuard.AssertNoContextChangeOccurred(this);
 
             if (_idMap.TryGet(key, out value) && documentType.IsAssignableFrom(value.GetType()))
             {
@@ -59,7 +53,7 @@ namespace Composable.KeyValueStorage
             }
 
             var documentItem = GetDocumentItem(key, documentType);
-            if(!documentItem.IsDeleted && _backingStore.TryGet(key, out value) && documentType.IsAssignableFrom(value.GetType()))
+            if(!documentItem.IsDeleted && BackingStore.TryGet(key, out value) && documentType.IsAssignableFrom(value.GetType()))
             {
                 OnInitialLoad(key, value);
                 return true;
@@ -75,7 +69,7 @@ namespace Composable.KeyValueStorage
 
             if (!_handledDocuments.TryGetValue(documentKey, out doc))
             {                
-                doc = new DocumentItem(documentKey, _backingStore);
+                doc = new DocumentItem(documentKey, BackingStore);
                 _handledDocuments.Add(documentKey, doc);
             }
             return doc;
@@ -85,13 +79,13 @@ namespace Composable.KeyValueStorage
         {
             _idMap.Add(key, value);
             GetDocumentItem(key, value.GetType()).DocumentLoadedFromBackingStore(value);
-            if (_interceptor != null)
-                _interceptor.AfterLoad(value);
+            if (Interceptor != null)
+                Interceptor.AfterLoad(value);
         }
 
         public virtual TValue GetForUpdate<TValue>(object key)
         {
-            _usageGuard.AssertNoContextChangeOccurred(this);
+            UsageGuard.AssertNoContextChangeOccurred(this);
             using(new UpdateLock())
             {
                 return Get<TValue>(key);
@@ -100,7 +94,7 @@ namespace Composable.KeyValueStorage
 
         public virtual bool TryGetForUpdate<TValue>(object key, out TValue value)
         {
-            _usageGuard.AssertNoContextChangeOccurred(this);
+            UsageGuard.AssertNoContextChangeOccurred(this);
             using (new UpdateLock())
             {
                 return TryGet(key, out value);
@@ -122,7 +116,7 @@ namespace Composable.KeyValueStorage
 
         public virtual TValue Get<TValue>(object key)
         {
-            _usageGuard.AssertNoContextChangeOccurred(this);
+            UsageGuard.AssertNoContextChangeOccurred(this);
             TValue value;
             if(TryGet(key, out value))
             {
@@ -134,7 +128,7 @@ namespace Composable.KeyValueStorage
 
         public virtual void Save<TValue>(object id, TValue value)
         {
-            _usageGuard.AssertNoContextChangeOccurred(this);            
+            UsageGuard.AssertNoContextChangeOccurred(this);            
 
             TValue ignored;
             if (TryGetInternal(id, value.GetType(), out ignored))
@@ -157,19 +151,23 @@ namespace Composable.KeyValueStorage
 
         public virtual void Save<TEntity>(TEntity entity) where TEntity : IHasPersistentIdentity<Guid>
         {
-            _usageGuard.AssertNoContextChangeOccurred(this);
+            UsageGuard.AssertNoContextChangeOccurred(this);
+            if(entity.Id.Equals(Guid.Empty))
+            {
+                throw new DocumentIdIsEmptyGuidException();
+            }
             Save(entity.Id, entity);
         }
 
         public virtual void Delete<TEntity>(TEntity entity) where TEntity : IHasPersistentIdentity<Guid>
         {
-            _usageGuard.AssertNoContextChangeOccurred(this);
+            UsageGuard.AssertNoContextChangeOccurred(this);
             Delete<TEntity>(entity.Id);
         }
 
         public virtual void Delete<T>(object id)
         {
-            _usageGuard.AssertNoContextChangeOccurred(this);
+            UsageGuard.AssertNoContextChangeOccurred(this);
             T ignored;
             if(!TryGet(id, out ignored))
             {
@@ -192,7 +190,7 @@ namespace Composable.KeyValueStorage
 
         public virtual void SaveChanges()
         {
-            _usageGuard.AssertNoContextChangeOccurred(this);
+            UsageGuard.AssertNoContextChangeOccurred(this);
             if (_unitOfWork == null)
             {                
                 InternalSaveChanges();
@@ -210,8 +208,8 @@ namespace Composable.KeyValueStorage
 
         public virtual IEnumerable<T> GetAll<T>() where T : IHasPersistentIdentity<Guid>
         {
-            _usageGuard.AssertNoContextChangeOccurred(this);
-            var stored = _backingStore.GetAll<T>();
+            UsageGuard.AssertNoContextChangeOccurred(this);
+            var stored = BackingStore.GetAll<T>();
             stored.Where(pair => !_idMap.Contains(typeof (T), pair.Key))
                 .ForEach(pair => OnInitialLoad(pair.Key, pair.Value));
 
@@ -222,7 +220,7 @@ namespace Composable.KeyValueStorage
 
         public virtual void Dispose()
         {
-            _usageGuard.AssertNoContextChangeOccurred(this);
+            UsageGuard.AssertNoContextChangeOccurred(this);
             //Can be called before the transaction commits....
             //_idMap.Clear();
         }

@@ -11,6 +11,7 @@ using Composable.ServiceBus;
 using Composable.System;
 using Composable.SystemExtensions.Threading;
 using Composable.UnitsOfWork;
+using NCrunch.Framework;
 using NServiceBus;
 using NUnit.Framework;
 using Composable.CQRS.Windsor;
@@ -20,7 +21,9 @@ using Component = Castle.MicroKernel.Registration.Component;
 
 namespace Composable.CQRS.ServiceBus.NServicebus.Tests.UowTests
 {
-    [TestFixture, Category("NSBFullSetupTests")]
+    [TestFixture, NUnit.Framework.Category("NSBFullSetupTests")]
+    [ExclusivelyUses(NCrunchExlusivelyUsesResources.NServiceBus)]
+    [NCrunch.Framework.Isolated]
     public class WhenReceivingMessage
     {
         private IServiceBus _bus;
@@ -159,6 +162,11 @@ namespace Composable.CQRS.ServiceBus.NServicebus.Tests.UowTests
         public MyEndPointConfigurer(string queueName)
         {
             _queueName = queueName;
+        }
+
+        override protected Configure ConfigureLogging(Configure config)
+        {
+            return config;
         }
 
         protected override void ConfigureContainer(IWindsorContainer container)

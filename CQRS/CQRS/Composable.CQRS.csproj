@@ -91,9 +91,6 @@
     <Compile Include="..\..\CommonAssemblyInfo.cs">
       <Link>Properties\CommonAssemblyInfo.cs</Link>
     </Compile>
-    <Compile Include="..\..\ModuleInitializer.cs">
-      <Link>ModuleInitializer.cs</Link>
-    </Compile>
     <Compile Include="CQRS\Command\Command.cs" />
     <Compile Include="CQRS\Command\CommandDomainValidationExceptionResponse.cs" />
     <Compile Include="CQRS\Command\CommandExecutionExceptionResponse.cs" />

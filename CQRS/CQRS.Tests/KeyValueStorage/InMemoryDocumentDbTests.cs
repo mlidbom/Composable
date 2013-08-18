@@ -9,6 +9,6 @@ namespace CQRS.Tests.KeyValueStorage
         protected override IDocumentDb CreateStore()
         {
             return new InMemoryDocumentDb();
-        }
+        }        
     }
 }

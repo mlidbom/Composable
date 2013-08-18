@@ -22,9 +22,17 @@ namespace Composable.System.Linq
             me.Add(value);
         }
 
-        public static void AddRange<T>(this ICollection<T> me, IEnumerable<T> value)
+        ///<summary>
+        /// Removes all of the items in the supplied enumerable from the set.
+        /// Simply forwards to ExceptWith but providing a name that is not utterly unreadable </summary>
+        public static void RemoveRange<T>(this ISet<T> me, IEnumerable<T> value)
         {
-            value.ForEach(me.Add);
+            me.ExceptWith(value);
+        }
+
+        public static void AddRange<T>(this ISet<T> me, IEnumerable<T> value)
+        {
+            value.ForEach(toAdd => me.Add(toAdd));
         }
     }
 }

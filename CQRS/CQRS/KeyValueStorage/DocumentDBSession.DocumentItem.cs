@@ -8,10 +8,10 @@ namespace Composable.KeyValueStorage
     {        
         internal class DocumentItem
         {
-            private readonly IObjectStore _backingStore;
+            private readonly IDocumentDb _backingStore;
             private DocumentKey Key { get; set; }
 
-            public DocumentItem(DocumentKey key, IObjectStore backingStore)
+            public DocumentItem(DocumentKey key, IDocumentDb backingStore)
             {
                 _backingStore = backingStore;
                 Key = key;
@@ -65,7 +65,7 @@ namespace Composable.KeyValueStorage
                 }
                 else if (ScheduledForUpdate)
                 {
-                    _backingStore.Update(Seq.Create(new KeyValuePair<string, object>(Key.Id.ToString(), Document)));
+                    _backingStore.Update(Seq.Create(new KeyValuePair<string, object>(Key.Id, Document)));
                 }
             }
         }

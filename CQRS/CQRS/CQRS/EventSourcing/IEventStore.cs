@@ -1,10 +1,14 @@
-using JetBrains.Annotations;
+using System;
+using System.Collections.Generic;
 
 namespace Composable.CQRS.EventSourcing
 {
-    [UsedImplicitly]
-    public interface IEventStore
+    public interface IEventStore : IDisposable
     {
-        IEventStoreSession OpenSession();
+        IEnumerable<IAggregateRootEvent> GetHistoryUnSafe(Guid id);
+        void SaveEvents(IEnumerable<IAggregateRootEvent> events);
+        IEnumerable<IAggregateRootEvent> StreamEventsAfterEventWithId(Guid? startAfterEventId);
+        void DeleteEvents(Guid aggregateId);
+        IEnumerable<Guid> GetAggregateIds();
     }
 }

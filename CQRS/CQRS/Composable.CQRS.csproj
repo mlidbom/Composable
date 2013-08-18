@@ -73,6 +73,15 @@
     <Reference Include="System.configuration" />
     <Reference Include="System.Core" />
     <Reference Include="System.Data" />
+    <Reference Include="System.Reactive.Core">
+      <HintPath>..\..\packages\Rx-Core.2.1.30214.0\lib\Net40\System.Reactive.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Reactive.Interfaces">
+      <HintPath>..\..\packages\Rx-Interfaces.2.1.30214.0\lib\Net40\System.Reactive.Interfaces.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Reactive.Linq">
+      <HintPath>..\..\packages\Rx-Linq.2.1.30214.0\lib\Net40\System.Reactive.Linq.dll</HintPath>
+    </Reference>
     <Reference Include="System.Runtime.Caching" />
     <Reference Include="System.Transactions" />
     <Reference Include="Microsoft.CSharp" />
@@ -89,7 +98,6 @@
     <Compile Include="CQRS\Command\CommandDomainValidationExceptionResponse.cs" />
     <Compile Include="CQRS\Command\CommandExecutionExceptionResponse.cs" />
     <Compile Include="CQRS\Command\CommandFailedEvent.cs" />
-    <Compile Include="CQRS\Command\CommandFailedException.cs" />
     <Compile Include="CQRS\Command\CommandHandlerBase.cs" />
     <Compile Include="CQRS\Command\CommandResult.cs" />
     <Compile Include="CQRS\Command\CommandService.cs" />
@@ -118,12 +126,15 @@
     <Compile Include="CQRS\DuplicateHandlersException.cs" />
     <Compile Include="CQRS\EntityToReferenceConverter.cs" />
     <Compile Include="CQRS\Event.cs" />
+    <Compile Include="CQRS\EventHandling\ISingleAggregateQueryModel.cs" />
+    <Compile Include="CQRS\EventHandling\SingleAggregateQueryModelUpdater.cs" />
+    <Compile Include="CQRS\EventHandling\UniqueMatchEventHierarchyHandler.cs" />
     <Compile Include="CQRS\EventSourcing\AttemptToSaveEmptyAggregate.cs" />
-    <Compile Include="CQRS\EventSourcing\IEventSomethingOrOther.cs" />
+    <Compile Include="CQRS\EventSourcing\IEventStore.cs" />
     <Compile Include="CQRS\EventSourcing\RegisteredHandlerMissingException.cs" />
     <Compile Include="CQRS\EventSourcing\ReuseOfEventStoreSessionException.cs" />
     <Compile Include="CQRS\EventSourcing\EventStoredAggregateRoot.cs" />
-    <Compile Include="CQRS\EventSourcing\SQLServer\SqlServerEventSomethingOrOther.cs" />
+    <Compile Include="CQRS\EventSourcing\SQLServer\SqlServerEventStore.cs" />
     <Compile Include="CQRS\ICommandMessage.cs" />
     <Compile Include="CQRS\IReferenceObject.cs" />
     <Compile Include="CQRS\ReferenceObject.cs" />
@@ -149,10 +160,8 @@
     <Compile Include="CQRS\EventSourcing\AttemptToSaveAlreadyPersistedAggregateException.cs" />
     <Compile Include="CQRS\EventSourcing\EventStored.cs" />
     <Compile Include="CQRS\EventSourcing\EventStoreSession.cs" />
-    <Compile Include="CQRS\EventSourcing\IEventStore.cs" />
     <Compile Include="CQRS\EventSourcing\IEventStoreSession.cs" />
     <Compile Include="CQRS\EventSourcing\InMemoryEventStore.cs" />
-    <Compile Include="CQRS\EventSourcing\InMemoryEventSomethingOrOther.cs" />
     <Compile Include="CQRS\EventSourcing\SQLServer\InvalidHistoryException.cs" />
     <Compile Include="CQRS\IUnNamedEntityReference.cs" />
     <Compile Include="CQRS\INamed.cs" />
@@ -162,9 +171,11 @@
     <Compile Include="DomainEvents\DomainEvent.cs" />
     <Compile Include="KeyValueStorage\DocumentDBSession.DocumentKey.cs" />
     <Compile Include="KeyValueStorage\IDocumentDbSessionInterceptor.cs" />
+    <Compile Include="KeyValueStorage\IDocumentUpdatedNotifier.cs" />
     <Compile Include="KeyValueStorage\IObjectStore.cs" />
     <Compile Include="KeyValueStorage\DocumentDbSessionProxy.cs" />
     <Compile Include="KeyValueStorage\InMemoryObjectStore.cs" />
+    <Compile Include="KeyValueStorage\DocumentIdIsEmptyGuidException.cs" />
     <Compile Include="KeyValueStorage\Population\AggregateIdFetcher.cs" />
     <Compile Include="KeyValueStorage\Population\ConsolePopulationBatchLogger.cs" />
     <Compile Include="KeyValueStorage\Population\IPopulationBatchLogger.cs" />
@@ -175,28 +186,25 @@
     <Compile Include="KeyValueStorage\Population\ViewModelBatchPopulator.cs" />
     <Compile Include="KeyValueStorage\Population\ViewModelPopulatorBase.cs" />
     <Compile Include="KeyValueStorage\Population\WindsorUnitOfWorkExtensions.cs" />
+    <Compile Include="KeyValueStorage\InMemoryDocumentDB.cs" />
     <Compile Include="KeyValueStorage\SqlServer\CannotSetBothInterceptorAndFactoryMethodForInterceptor.cs" />
-    <Compile Include="KeyValueStorage\SqlServer\InMemoryDocumentDbConfig.cs" />
-    <Compile Include="KeyValueStorage\SqlServer\DocumentDbConfig.cs" />
-    <Compile Include="KeyValueStorage\SqlServer\SqlServerDocumentDbConfig.cs" />
-    <Compile Include="KeyValueStorage\SqlServer\SqlServerObjectStore.cs" />
+    <Compile Include="KeyValueStorage\DocumentUpdated.cs" />
+    <Compile Include="KeyValueStorage\IDocumentUpdated.cs" />
+    <Compile Include="KeyValueStorage\IDocumentDB.cs" />
+    <Compile Include="KeyValueStorage\SqlServer\SqlServerDocumentDB.cs" />
     <Compile Include="KeyValueStorage\SqlServer\TooManyItemsDeletedException.cs" />
     <Compile Include="NewtonSoft\IncludeMembersWithPrivateSettersResolver.cs" />
-    <Compile Include="CQRS\EventSourcing\SQLServer\SqlServerEventStore.cs" />
     <Compile Include="KeyValueStorage\AttemptToSaveAlreadyPersistedValueException.cs" />
     <Compile Include="KeyValueStorage\IDocumentDbSession.cs" />
-    <Compile Include="KeyValueStorage\IDocumentDb.cs" />
-    <Compile Include="KeyValueStorage\InMemoryDocumentDb.cs" />
     <Compile Include="KeyValueStorage\DocumentDbSession.cs" />
     <Compile Include="KeyValueStorage\NoSuchDocumentException.cs" />
-    <Compile Include="KeyValueStorage\SqlServer\SqlServerDocumentDb.cs" />
     <Compile Include="NewtonSoft\JsonSettings.cs" />
     <Compile Include="ServiceBus\IServiceBus.cs" />
     <Compile Include="CQRS\EventSourcing\AggregateRoot.cs" />
     <Compile Include="CQRS\EventSourcing\IEventApplier.cs" />
     <Compile Include="ServiceBus\SynchronousBus.cs" />
     <Compile Include="CQRS\SetExtensions.cs" />
-    <Compile Include="StuffThatDoesNotBelongHere\MultiEventHandler.cs" />
+    <Compile Include="CQRS\EventHandling\CallsMatchingHandlersInRegistrationOrderEventHandler.cs" />
     <Compile Include="Persistence\IEntityFetcher.cs" />
     <Compile Include="CQRS\Command\IEntityHandledCommand.cs" />
     <Compile Include="CQRS\NoRegisteredHandlersException.cs" />
@@ -209,6 +217,7 @@
     <Compile Include="CQRS\Query\IQuery.cs" />
     <Compile Include="CQRS\Query\IQueryService.cs" />
     <Compile Include="CQRS\ServiceLocatorExtensions.cs" />
+    <Compile Include="StuffThatDoesNotBelongHere\MultiEventHandler.cs" />
     <Compile Include="StuffThatDoesNotBelongHere\Translation\TranslateAttribute.cs" />
     <Compile Include="StuffThatDoesNotBelongHere\Translation\TranslationTypeExtensions.cs" />
     <Compile Include="UnitsOfWork\AttemptingToJoinSecondUnitOfWorkException.cs" />

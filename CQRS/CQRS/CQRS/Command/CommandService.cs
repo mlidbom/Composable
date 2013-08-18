@@ -50,9 +50,9 @@ namespace Composable.CQRS.Command
                             {
                                 ExecuteSingle((dynamic)subCommand.Command);
                             }
-                            catch(CommandFailedException exception)
+                            catch (DomainCommandValidationException exception)
                             {
-                                var failedException = new CommandFailedException(exception.Message, 
+                                var failedException = new DomainCommandValidationException(exception.Message, 
                                     exception.InvalidMembers
                                         .Select(invalidMember => subCommand.Name + "." + invalidMember)
                                         .ToList());

@@ -5,6 +5,7 @@ using Composable.KeyValueStorage;
 using Composable.KeyValueStorage.SqlServer;
 using FluentAssertions;
 using NCrunch.Framework;
+using NUnit.Framework;
 
 namespace CQRS.Tests.KeyValueStorage.Sql
 {
@@ -12,6 +13,7 @@ namespace CQRS.Tests.KeyValueStorage.Sql
     {
         private static readonly string ConnectionString = ConfigurationManager.ConnectionStrings["KeyValueStore"].ConnectionString;
         private IObservableObjectStore _store = null;
+        private string _ignoredString;
 
         public abstract void before_each();
 
@@ -77,6 +79,7 @@ namespace CQRS.Tests.KeyValueStorage.Sql
                                     it["subscriber is not notified"] = () => documentUpdated.Should().BeNull();
                                     it["typed subscriber is not notified"] = () => typedDocumentUpdated.Should().BeNull();
                                     it["no document is received"] = () => receivedDocument.Should().BeNull();
+                                    it["stored value is \"the_value\""] = () => GetStoredValue("the_id").Should().Be("the_value");
                                 };
 
                             context["when updating the object using the value \"another_value\""] =
@@ -90,18 +93,19 @@ namespace CQRS.Tests.KeyValueStorage.Sql
                                     it["DocumentUpdated is received"] = () => documentUpdated.Should().NotBeNull();
                                     it["documentUpdated.Key is the_id"] = () => documentUpdated.Key.Should().Be("the_id");
                                     it["documentUpdated.Document is \"another_value\""] = () => documentUpdated.Document.Should().Be("another_value");
-                                    it["stored value is \"another_value\""] = () =>
-                                                                              {
-                                                                                  string storedValue;
-                                                                                  _store.TryGet<string>("the_id", out storedValue);
-                                                                                  storedValue.Should().Be("another_value");
-                                                                              };
+                                    it["stored value is \"another_value\""] = () => GetStoredValue("the_id").Should().Be("another_value");
 
                                     it["typedDocumentUpdated is received"] = () => typedDocumentUpdated.Should().NotBeNull();
                                     it["typedDocumentUpdated.Key is the_id"] = () => typedDocumentUpdated.Key.Should().Be("the_id");
                                     it["documentUpdated.DocumentType is \"another_value\""] = () => typedDocumentUpdated.Document.Should().Be("another_value");
 
                                     it["receivedDocument is \"another_value\""] = () => receivedDocument.Should().Be("another_value");
+                                };
+                            context["after deleting document with key \"the_id\""] =
+                                () =>
+                                {
+                                    act = () => _store.Remove<string>("the_id");
+                                    it["store does not contain document with id \"the_id\""] = () => _store.TryGet("the_id", out _ignoredString).Should().BeFalse();
                                 };
                             context["after unsubscribing"] =
                                 () =>
@@ -135,6 +139,13 @@ namespace CQRS.Tests.KeyValueStorage.Sql
                                 };
                         };
                 };
+        }
+
+        private string GetStoredValue(string theID)
+        {
+            string storedValue;
+            _store.TryGet<string>(theID, out storedValue);
+            return storedValue;
         }
 
         [ExclusivelyUses(NCrunchExlusivelyUsesResources.DocumentDbMdf)]

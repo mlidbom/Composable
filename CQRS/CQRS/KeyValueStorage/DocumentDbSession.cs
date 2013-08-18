@@ -17,7 +17,7 @@ namespace Composable.KeyValueStorage
 
         private readonly InMemoryObjectStore _idMap = new InMemoryObjectStore();
 
-        public readonly IObservableObjectStore BackingStore;
+        public readonly IDocumentDb BackingStore;
         public readonly IDocumentDbSessionInterceptor Interceptor;        
         public readonly ISingleContextUseGuard UsageGuard;
 
@@ -25,7 +25,7 @@ namespace Composable.KeyValueStorage
 
         private static readonly ILog Log = LogManager.GetLogger(typeof(DocumentDbSession));
 
-        public DocumentDbSession(IObservableObjectStore backingStore, ISingleContextUseGuard usageGuard, IDocumentDbSessionInterceptor interceptor)
+        public DocumentDbSession(IDocumentDb backingStore, ISingleContextUseGuard usageGuard, IDocumentDbSessionInterceptor interceptor)
         {
             UsageGuard = usageGuard;
             BackingStore = backingStore;

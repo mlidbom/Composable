@@ -186,12 +186,12 @@
     <Compile Include="KeyValueStorage\Population\ViewModelBatchPopulator.cs" />
     <Compile Include="KeyValueStorage\Population\ViewModelPopulatorBase.cs" />
     <Compile Include="KeyValueStorage\Population\WindsorUnitOfWorkExtensions.cs" />
-    <Compile Include="KeyValueStorage\ObservableInMemoryObjectStore.cs" />
+    <Compile Include="KeyValueStorage\InMemoryDocumentDB.cs" />
     <Compile Include="KeyValueStorage\SqlServer\CannotSetBothInterceptorAndFactoryMethodForInterceptor.cs" />
     <Compile Include="KeyValueStorage\DocumentUpdated.cs" />
     <Compile Include="KeyValueStorage\IDocumentUpdated.cs" />
-    <Compile Include="KeyValueStorage\IObservableObjectStore.cs" />
-    <Compile Include="KeyValueStorage\SqlServer\SqlServerObjectStore.cs" />
+    <Compile Include="KeyValueStorage\IDocumentDB.cs" />
+    <Compile Include="KeyValueStorage\SqlServer\SqlServerDocumentDB.cs" />
     <Compile Include="KeyValueStorage\SqlServer\TooManyItemsDeletedException.cs" />
     <Compile Include="NewtonSoft\IncludeMembersWithPrivateSettersResolver.cs" />
     <Compile Include="KeyValueStorage\AttemptToSaveAlreadyPersistedValueException.cs" />

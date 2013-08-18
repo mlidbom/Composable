@@ -16,9 +16,9 @@ namespace CQRS.Tests.KeyValueStorage
     [TestFixture]
     public abstract class DocumentDbTests
     {
-        protected abstract IObservableObjectStore CreateStore();
+        protected abstract IDocumentDb CreateStore();
 
-        private static IDocumentDbSession OpenSession(IObservableObjectStore store, ISingleContextUseGuard guard = null)
+        private static IDocumentDbSession OpenSession(IDocumentDb store, ISingleContextUseGuard guard = null)
         {
             return new DocumentDbSession(store, guard ?? new SingleThreadUseGuard(), NullOpDocumentDbSessionInterceptor.Instance);
         }

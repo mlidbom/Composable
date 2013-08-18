@@ -16,7 +16,7 @@ using log4net;
 
 namespace Composable.KeyValueStorage.SqlServer
 {
-    public class SqlServerObjectStore : IObservableObjectStore
+    public class SqlServerDocumentDb : IDocumentDb
     {
         public readonly string ConnectionString;
 
@@ -27,7 +27,7 @@ namespace Composable.KeyValueStorage.SqlServer
 
         private static readonly object LockObject = new object();
 
-        public SqlServerObjectStore(string connectionString)
+        public SqlServerDocumentDb(string connectionString)
         {
             ConnectionString = connectionString;
 
@@ -209,7 +209,7 @@ WHERE Id=@Id AND ValueTypeId
         }
 
 
-        IEnumerable<KeyValuePair<Guid, T>> IObjectStore.GetAll<T>()
+        IEnumerable<KeyValuePair<Guid, T>> IDocumentDb.GetAll<T>()
         {
             EnsureInitialized();
             if(KnownTypes.None(t => typeof(T).IsAssignableFrom(t.Key)))

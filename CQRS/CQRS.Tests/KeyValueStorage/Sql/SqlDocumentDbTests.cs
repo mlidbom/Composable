@@ -14,12 +14,12 @@ namespace CQRS.Tests.KeyValueStorage.Sql
         [SetUp]
         public static void Setup()
         {
-            SqlServerObjectStore.ResetDB(connectionString);
+            SqlServerDocumentDb.ResetDB(connectionString);
         }
 
-        protected override IObservableObjectStore CreateStore()
+        protected override IDocumentDb CreateStore()
         {
-            return new SqlServerObjectStore(connectionString);
+            return new SqlServerDocumentDb(connectionString);
         }
     }
 }

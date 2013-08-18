@@ -8,10 +8,10 @@ namespace Composable.KeyValueStorage
     {        
         internal class DocumentItem
         {
-            private readonly IObjectStore _backingStore;
+            private readonly IDocumentDb _backingStore;
             private DocumentKey Key { get; set; }
 
-            public DocumentItem(DocumentKey key, IObjectStore backingStore)
+            public DocumentItem(DocumentKey key, IDocumentDb backingStore)
             {
                 _backingStore = backingStore;
                 Key = key;

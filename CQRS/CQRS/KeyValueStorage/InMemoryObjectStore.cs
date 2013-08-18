@@ -35,7 +35,7 @@ namespace Composable.KeyValueStorage
             return false;
         }
 
-        private bool TryGet(Type typeOfValue, object id, out object value)
+        protected bool TryGet(Type typeOfValue, object id, out object value)
         {
             var idstring = GetIdString(id);
             value = null;

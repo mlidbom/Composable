@@ -36,9 +36,14 @@ namespace Composable.KeyValueStorage
         {
             var idString = GetIdString(id);
             var stringValue = JsonConvert.SerializeObject(value, JsonSettings.JsonSerializerSettings);
-            _persistentValues.GetOrAddDefault(value.GetType())[idString] = stringValue;
+            SetPersistedValue(value, idString, stringValue);
             base.Add(id, value);
             NotifySubscribersDocumentUpdated(idString, value);
+        }
+
+        private void SetPersistedValue<T>(T value, string idString, string stringValue)
+        {
+            _persistentValues.GetOrAddDefault(value.GetType())[idString] = stringValue;
         }
 
         override public void Update(object key, object value)
@@ -49,9 +54,18 @@ namespace Composable.KeyValueStorage
             var needsUpdate = !_persistentValues
                 .GetOrAdd(value.GetType(), () => new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase))
                 .TryGetValue(idString, out oldValue) || stringValue != oldValue;
+
+            if(!needsUpdate)
+            {
+                object existingValue;
+                base.TryGet(value.GetType(), key, out existingValue);
+                needsUpdate = !(ReferenceEquals(existingValue, value));
+            }
+
             if(needsUpdate)
             {
                 base.Update(key, value);
+                SetPersistedValue(value, idString, stringValue);
                 NotifySubscribersDocumentUpdated(idString, value);
             }
         }

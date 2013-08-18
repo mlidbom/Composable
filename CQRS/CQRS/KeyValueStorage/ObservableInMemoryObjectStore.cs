@@ -15,12 +15,15 @@ namespace Composable.KeyValueStorage
 
         public ObservableInMemoryObjectStore()
         {
-            DocumentUpdated = Observable.Create<IDocumentUpdated>(
-                obs =>
-                {
-                    _observers.Add(obs);
-                    return Disposable.Create(() => _observers.Remove(obs));
-                });
+            lock(_lockObject)
+            {
+                DocumentUpdated = Observable.Create<IDocumentUpdated>(
+                    obs =>
+                    {
+                        _observers.Add(obs);
+                        return Disposable.Create(() => _observers.Remove(obs));
+                    });
+            }
         }
 
         public IObservable<IDocumentUpdated> DocumentUpdated { get; private set; }
@@ -34,11 +37,14 @@ namespace Composable.KeyValueStorage
 
         override public void Add<T>(object id, T value)
         {
-            var idString = GetIdString(id);
-            var stringValue = JsonConvert.SerializeObject(value, JsonSettings.JsonSerializerSettings);
-            SetPersistedValue(value, idString, stringValue);
-            base.Add(id, value);
-            NotifySubscribersDocumentUpdated(idString, value);
+            lock(_lockObject)
+            {
+                var idString = GetIdString(id);
+                var stringValue = JsonConvert.SerializeObject(value, JsonSettings.JsonSerializerSettings);
+                SetPersistedValue(value, idString, stringValue);
+                base.Add(id, value);
+                NotifySubscribersDocumentUpdated(idString, value);
+            }
         }
 
         private void SetPersistedValue<T>(T value, string idString, string stringValue)
@@ -48,25 +54,28 @@ namespace Composable.KeyValueStorage
 
         override public void Update(object key, object value)
         {
-            string oldValue;
-            string idString = GetIdString(key);
-            var stringValue = JsonConvert.SerializeObject(value, JsonSettings.JsonSerializerSettings);
-            var needsUpdate = !_persistentValues
-                .GetOrAdd(value.GetType(), () => new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase))
-                .TryGetValue(idString, out oldValue) || stringValue != oldValue;
-
-            if(!needsUpdate)
+            lock(_lockObject)
             {
-                object existingValue;
-                base.TryGet(value.GetType(), key, out existingValue);
-                needsUpdate = !(ReferenceEquals(existingValue, value));
-            }
+                string oldValue;
+                string idString = GetIdString(key);
+                var stringValue = JsonConvert.SerializeObject(value, JsonSettings.JsonSerializerSettings);
+                var needsUpdate = !_persistentValues
+                    .GetOrAdd(value.GetType(), () => new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase))
+                    .TryGetValue(idString, out oldValue) || stringValue != oldValue;
 
-            if(needsUpdate)
-            {
-                base.Update(key, value);
-                SetPersistedValue(value, idString, stringValue);
-                NotifySubscribersDocumentUpdated(idString, value);
+                if(!needsUpdate)
+                {
+                    object existingValue;
+                    base.TryGet(value.GetType(), key, out existingValue);
+                    needsUpdate = !(ReferenceEquals(existingValue, value));
+                }
+
+                if(needsUpdate)
+                {
+                    base.Update(key, value);
+                    SetPersistedValue(value, idString, stringValue);
+                    NotifySubscribersDocumentUpdated(idString, value);
+                }
             }
         }
     }

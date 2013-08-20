@@ -3,4 +3,4 @@
 [assembly: AssemblyTitle("Composable.Core")]
 [assembly: AssemblyProduct("Composable.Core")]
 
-[assembly: AssemblyVersion("1.8.9.0")]
+[assembly: AssemblyVersion("1.8.10.0")]

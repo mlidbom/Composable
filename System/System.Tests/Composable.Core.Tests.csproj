@@ -129,6 +129,8 @@
     <Compile Include="DDD\ValueObjectTests.cs" />
     <Compile Include="DDD\ValueObjectToString.cs" />
     <Compile Include="EnumExtensionsTest.cs" />
+    <Compile Include="GenericAbstractions\Time\DateTimeNowTimeSourceTests.cs" />
+    <Compile Include="GenericAbstractions\Time\DummyTimeSourceTests.cs" />
     <Compile Include="IO\DirectoryExtensionsTest.cs" />
     <Compile Include="Linq\HierarchyTests.cs" />
     <Compile Include="Linq\LinqExtensionsTests.cs" />

@@ -209,7 +209,7 @@ WHERE Id=@Id AND ValueTypeId
         }
 
 
-        IEnumerable<KeyValuePair<Guid, T>> IDocumentDb.GetAll<T>()
+        IEnumerable<T> IDocumentDb.GetAll<T>()
         {
             EnsureInitialized();
             if(KnownTypes.None(t => typeof(T).IsAssignableFrom(t.Key)))
@@ -235,9 +235,7 @@ WHERE ValueTypeId ";
                     {
                         while(reader.Read())
                         {
-                            yield return
-                                new KeyValuePair<Guid, T>(Guid.Parse(reader.GetString(0)),
-                                                          (T)JsonConvert.DeserializeObject(reader.GetString(1), GetTypeFromId(reader.GetInt32(2)), _jsonSettings));
+                            yield return (T)JsonConvert.DeserializeObject(reader.GetString(1), GetTypeFromId(reader.GetInt32(2)), _jsonSettings);
                         }
                     }
                 }

@@ -8,7 +8,7 @@ using Composable.System.Linq;
 
 namespace Composable.KeyValueStorage
 {
-    public class InMemoryObjectStore : IEnumerable<KeyValuePair<string, object>>, IObjectStore
+    public class InMemoryObjectStore : IEnumerable<KeyValuePair<string, object>>
     {
         private Dictionary<string, List<Object>> _db = new Dictionary<string, List<object>>(StringComparer.InvariantCultureIgnoreCase);
         protected object _lockObject = new object();
@@ -145,13 +145,13 @@ namespace Composable.KeyValueStorage
             }
         }
 
-        public IEnumerable<KeyValuePair<Guid, T>> GetAll<T>() where T : IHasPersistentIdentity<Guid>
+        public IEnumerable<T> GetAll<T>() where T : IHasPersistentIdentity<Guid>
         {
             lock(_lockObject)
             {
                 return this.
                     Where(pair => typeof(T).IsAssignableFrom(pair.Value.GetType()))
-                    .Select(pair => new KeyValuePair<Guid, T>(Guid.Parse(pair.Key), (T)pair.Value))
+                    .Select(pair => (T)pair.Value)
                     .ToList();
             }
         }

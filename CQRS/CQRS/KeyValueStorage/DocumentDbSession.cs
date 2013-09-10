@@ -116,6 +116,8 @@ namespace Composable.KeyValueStorage
 
         public IEnumerable<TValue> GetAll<TValue>(IEnumerable<Guid> ids) where TValue : IHasPersistentIdentity<Guid>
         {
+            UsageGuard.AssertNoContextChangeOccurred(this);
+
             return ids.Select(id => Get<TValue>(id));
         }
 
@@ -215,9 +217,8 @@ namespace Composable.KeyValueStorage
         {
             UsageGuard.AssertNoContextChangeOccurred(this);
             var stored = BackingStore.GetAll<T>();
-            stored.Where(pair => !_idMap.Contains(typeof (T), pair.Key))
-                .ForEach(pair => OnInitialLoad(pair.Key, pair.Value));
-
+            stored.Where(document => !_idMap.Contains(typeof (T), document.Id))
+                .ForEach(unloadedDocument => OnInitialLoad(unloadedDocument.Id, unloadedDocument));
             return _idMap.Select(pair => pair.Value).OfType<T>();
         }
 

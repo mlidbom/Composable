@@ -4,10 +4,13 @@ using System.Linq;
 using System.Threading;
 using Composable.DDD;
 using Composable.KeyValueStorage;
+using Composable.System;
+using Composable.System.Linq;
 using Composable.System.Web;
 using Composable.SystemExtensions.Threading;
 using Composable.UnitsOfWork;
 using Moq;
+using NSpec;
 using NUnit.Framework;
 using FluentAssertions;
 
@@ -58,6 +61,76 @@ namespace CQRS.Tests.KeyValueStorage
                 Assert.That(loadedUser.Address, Is.EqualTo(user.Address));
             }
         }
+
+        [Test]
+        public void GetAllWithIdsReturnsAsManyResultsAsPassedIds()
+        {
+            var store = CreateStore();
+
+            var ids = 1.Through(9).Select(index => Guid.Parse("00000000-0000-0000-0000-00000000000{0}".FormatWith(index))).ToArray();
+
+            var users = ids.Select(id => new User() { Id = id }).ToArray();
+
+            using(var session = OpenSession(store))
+            {
+                users.ForEach(user => session.Save(user));
+                session.SaveChanges();
+            }
+
+            using (var session = OpenSession(store))
+            {
+                var fetchedById = session.GetAll<User>(ids.Take(5));
+                fetchedById.Select(fetched => fetched.Id).Should().Equal(ids.Take(5));
+            }
+        }
+
+        [Test]
+        public void GetAllWithIdsThrowsNoSuchDocumentExceptionExceptionIfAnyIdIsMissing()
+        {
+            var store = CreateStore();
+
+            var ids = 1.Through(9).Select(index => Guid.Parse("00000000-0000-0000-0000-00000000000{0}".FormatWith(index))).ToArray();
+
+            var users = ids.Select(id => new User() { Id = id }).ToArray();
+
+            using (var session = OpenSession(store))
+            {
+                users.ForEach(user => session.Save(user));
+                session.SaveChanges();
+            }
+
+            using (var session = OpenSession(store))
+            {
+                Assert.Throws<NoSuchDocumentException>(() => session.GetAll<User>(ids.Take(5).Append(Guid.Parse("00000000-0000-0000-0000-000000000099")).ToArray()).ToArray());
+            }
+        }
+
+
+        [Test]
+        public void GetAllWithIdsReturnsTheSameInstanceForAnyPreviouslyFetchedDocuments()
+        {
+            var store = CreateStore();
+
+            var ids = 1.Through(9).Select(index => Guid.Parse("00000000-0000-0000-0000-00000000000{0}".FormatWith(index))).ToArray();
+
+            var users = ids.Select(id => new User() { Id = id }).ToArray();
+
+            using (var session = OpenSession(store))
+            {
+                users.ForEach(user => session.Save(user));
+                session.SaveChanges();
+            }
+
+            using (var session = OpenSession(store))
+            {
+                var fetchedIndividually = ids.Select(id => session.Get<User>(id)).ToArray();
+                var fetchedWithGetAll = session.GetAll<User>(ids).ToArray();
+
+                fetchedIndividually.ForEach((user, index) => Assert.That(user, Is.SameAs(fetchedWithGetAll[index])));
+            }
+        }
+
+
 
         [Test]
         public void CanSaveAndLoadAggregateForUpdate()

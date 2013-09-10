@@ -114,6 +114,11 @@ namespace Composable.KeyValueStorage
             }
         }
 
+        public IEnumerable<TValue> GetAll<TValue>(IEnumerable<Guid> ids) where TValue : IHasPersistentIdentity<Guid>
+        {
+            return ids.Select(id => Get<TValue>(id));
+        }
+
         public virtual TValue Get<TValue>(object key)
         {
             UsageGuard.AssertNoContextChangeOccurred(this);

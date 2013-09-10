@@ -20,6 +20,7 @@ namespace Composable.KeyValueStorage
         void Delete<TEntity>(TEntity entity) where TEntity : IHasPersistentIdentity<Guid>;        
 
         void SaveChanges();
-        IEnumerable<T> GetAll<T>() where T : IHasPersistentIdentity<Guid>;       
+        IEnumerable<T> GetAll<T>() where T : IHasPersistentIdentity<Guid>;
+        IEnumerable<T> GetAll<T>(IEnumerable<Guid> ids ) where T : IHasPersistentIdentity<Guid>;       
     }
 }

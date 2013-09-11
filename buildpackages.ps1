@@ -27,7 +27,7 @@ function FixVersion
 	if($PreVersion -ne ""){
 		"$Major.$Minor.$Patch-$PreVersion"
 	}else{
-	    "$Major.$Minor.$Patch.$Build"
+	    "$Major.$Minor.$Patch"
 	}	
 }
 

@@ -35,7 +35,6 @@ Set-Alias Build-Pkg-Internal $scriptRoot\tools\NuGet\NuGet.exe
 
 $CoreVersion = (FixVersion ([System.Diagnostics.FileVersionInfo]::GetVersionInfo("$scriptRoot\System\System\Bin\$Configuration\Composable.Core.dll")) $PreVersion)
 $CQRSVersion = (FixVersion ([System.Diagnostics.FileVersionInfo]::GetVersionInfo("$scriptRoot\CQRS\CQRS\Bin\$Configuration\Composable.CQRS.dll")) $PreVersion)
-Write-Host -ForegroundColor Cyan $CQRSVersion
 $CQRSNHibernateVersion = (FixVersion ([System.Diagnostics.FileVersionInfo]::GetVersionInfo("$scriptRoot\CQRS\NHibernateRepositories\Bin\$Configuration\Composable.CQRS.NHibernate.dll")) $PreVersion)
 $CQRSServiceBusNServicebusVersion = (FixVersion ([System.Diagnostics.FileVersionInfo]::GetVersionInfo("$scriptRoot\CQRS\Composable.CQRS.ServiceBus.NServiceBus\Bin\$Configuration\Composable.CQRS.ServiceBus.NServiceBus.dll")) $PreVersion)
 $DomainEventsVersion = (FixVersion ([System.Diagnostics.FileVersionInfo]::GetVersionInfo("$scriptRoot\Composable.DomainEvents\Bin\$Configuration\Composable.DomainEvents.dll")) $PreVersion)

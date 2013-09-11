@@ -22,7 +22,7 @@ function FixVersion
 	$Major = $Version.Split(".")[0]
 	$Minor = $Version.Split(".")[1]
 	$Patch = $Version.Split(".")[2]
-	$Build = $Version.Split(".")[2]
+	$Build = $Version.Split(".")[3]
 
 	if($PreVersion -ne ""){
 		"$Major.$Minor.$Patch-$PreVersion"
@@ -35,6 +35,7 @@ Set-Alias Build-Pkg-Internal $scriptRoot\tools\NuGet\NuGet.exe
 
 $CoreVersion = (FixVersion ([System.Diagnostics.FileVersionInfo]::GetVersionInfo("$scriptRoot\System\System\Bin\$Configuration\Composable.Core.dll")) $PreVersion)
 $CQRSVersion = (FixVersion ([System.Diagnostics.FileVersionInfo]::GetVersionInfo("$scriptRoot\CQRS\CQRS\Bin\$Configuration\Composable.CQRS.dll")) $PreVersion)
+Write-Host -ForegroundColor Cyan $CQRSVersion
 $CQRSNHibernateVersion = (FixVersion ([System.Diagnostics.FileVersionInfo]::GetVersionInfo("$scriptRoot\CQRS\NHibernateRepositories\Bin\$Configuration\Composable.CQRS.NHibernate.dll")) $PreVersion)
 $CQRSServiceBusNServicebusVersion = (FixVersion ([System.Diagnostics.FileVersionInfo]::GetVersionInfo("$scriptRoot\CQRS\Composable.CQRS.ServiceBus.NServiceBus\Bin\$Configuration\Composable.CQRS.ServiceBus.NServiceBus.dll")) $PreVersion)
 $DomainEventsVersion = (FixVersion ([System.Diagnostics.FileVersionInfo]::GetVersionInfo("$scriptRoot\Composable.DomainEvents\Bin\$Configuration\Composable.DomainEvents.dll")) $PreVersion)
@@ -45,10 +46,11 @@ $NSpecNUnitVersion = (FixVersion ([System.Diagnostics.FileVersionInfo]::GetVersi
 
 function Build-Pkg ($ProjectFile, $Version)
 {
-	Write-Host -ForegroundColor Cyan "Packaging $ProjectFile into $OutputDirectory"
+	Write-Host -ForegroundColor Cyan "Packaging $ProjectFile into $OutputDirectory Version: $Version"
 	Build-Pkg-Internal pack $ProjectFile -OutputDirectory $OutputDirectory `
 	    -Version $Version `
-		-Prop CoreVersion=$CoreVersion -Prop CQRSVersion=$CQRSVersion `
+		-Prop CoreVersion=$CoreVersion `
+		-Prop CQRSVersion=$CQRSVersion `
 		-Prop CQRSNHibernateVersion=$CQRSNHibernateVersion `
 		-Prop CQRSServiceBusNServicebusVersion=$CQRSServiceBusNServicebusVersion `
 		-Prop DomainEventsVersion=$DomainEventsVersion `

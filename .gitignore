@@ -21,3 +21,4 @@ CQRS/CQRS/__EmbeddedAssemblies/*.pdb
 packages/*
 !repositories.config
 _NCrunch_Composable.Everything/StoredText/*
+*.favdoc

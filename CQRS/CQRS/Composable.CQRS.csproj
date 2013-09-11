@@ -169,7 +169,6 @@
     <Compile Include="KeyValueStorage\DocumentDBSession.DocumentKey.cs" />
     <Compile Include="KeyValueStorage\IDocumentDbSessionInterceptor.cs" />
     <Compile Include="KeyValueStorage\IDocumentUpdatedNotifier.cs" />
-    <Compile Include="KeyValueStorage\IObjectStore.cs" />
     <Compile Include="KeyValueStorage\DocumentDbSessionProxy.cs" />
     <Compile Include="KeyValueStorage\InMemoryObjectStore.cs" />
     <Compile Include="KeyValueStorage\DocumentIdIsEmptyGuidException.cs" />

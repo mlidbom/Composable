@@ -376,7 +376,7 @@ ALTER TABLE [dbo].[Store] CHECK CONSTRAINT [FK_ValueType_Store]
                             }
                         }
 
-                        IDictionary<Type, int> knownTypes = new ConcurrentDictionary<Type, int>();
+                        var knownTypes = new ConcurrentDictionary<Type, int>();
                         using(var findTypesCommand = connection.CreateCommand())
                         {
                             findTypesCommand.CommandText = "SELECT DISTINCT ValueType, Id FROM ValueType";
@@ -384,19 +384,19 @@ ALTER TABLE [dbo].[Store] CHECK CONSTRAINT [FK_ValueType_Store]
                             {
                                 while(reader.Read())
                                 {
-                                    knownTypes.Add(reader.GetString(0).AsType(), reader.GetInt32(1));
+                                    ((IDictionary<Type,int>)knownTypes).Add(reader.GetString(0).AsType(), reader.GetInt32(1));
                                 }
                             }
                         }
 
-                        VerifiedConnections.Add(connectionString, knownTypes);
+                        VerifiedConnections.TryAdd(connectionString, knownTypes);
                     }
                 }
             }
         }
 
 
-        private static readonly IDictionary<String, IDictionary<Type, int>> VerifiedConnections = new ConcurrentDictionary<string, IDictionary<Type, int>>();
+        private static readonly ConcurrentDictionary<String, ConcurrentDictionary<Type, int>> VerifiedConnections = new ConcurrentDictionary<string, ConcurrentDictionary<Type, int>>();
 
         public static void ResetDB(string connectionString)
         {
@@ -416,7 +416,8 @@ DROP TABLE [dbo].[ValueType];
 
                         dropCommand.ExecuteNonQuery();
 
-                        VerifiedConnections.Remove(connectionString);
+                        ConcurrentDictionary<Type, int> ignored;
+                        VerifiedConnections.TryRemove(connectionString, out ignored);
                         EnsureInitialized(connectionString);
                     }
                 }

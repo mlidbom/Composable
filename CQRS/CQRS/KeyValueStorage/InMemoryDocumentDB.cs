@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
+using Composable.DDD;
 using Composable.NewtonSoft;
 using Composable.System.Collections.Collections;
 using Composable.System.Linq;
@@ -45,6 +47,11 @@ namespace Composable.KeyValueStorage
                 base.Add(id, value);
                 NotifySubscribersDocumentUpdated(idString, value);
             }
+        }
+
+        public IEnumerable<T> GetAll<T>(IEnumerable<Guid> ids) where T : IHasPersistentIdentity<Guid>
+        {
+            return GetAll<T>().Where(document => ids.Contains(document.Id));
         }
 
         private void SetPersistedValue<T>(T value, string idString, string stringValue)

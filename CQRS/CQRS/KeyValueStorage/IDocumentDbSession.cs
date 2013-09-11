@@ -21,6 +21,6 @@ namespace Composable.KeyValueStorage
 
         void SaveChanges();
         IEnumerable<T> GetAll<T>() where T : IHasPersistentIdentity<Guid>;
-        IEnumerable<T> GetAll<T>(IEnumerable<Guid> ids ) where T : IHasPersistentIdentity<Guid>;       
+        IEnumerable<T> Get<T>(IEnumerable<Guid> ids ) where T : IHasPersistentIdentity<Guid>;       
     }
 }

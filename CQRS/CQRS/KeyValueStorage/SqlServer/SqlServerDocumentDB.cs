@@ -6,6 +6,7 @@ using System.Data.SqlClient;
 using System.Linq;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
+using Composable.DDD;
 using Composable.NewtonSoft;
 using Composable.System;
 using Composable.System.Collections.Collections;
@@ -231,6 +232,38 @@ WHERE ValueTypeId ";
                     using(var reader = loadCommand.ExecuteReader())
                     {
                         while(reader.Read())
+                        {
+                            yield return (T)JsonConvert.DeserializeObject(reader.GetString(1), GetTypeFromId(reader.GetInt32(2)), _jsonSettings);
+                        }
+                    }
+                }
+            }
+        }
+
+        public IEnumerable<T> GetAll<T>(IEnumerable<Guid> ids) where T : IHasPersistentIdentity<Guid>
+        {
+            EnsureInitialized();
+            if (!IsKnownType(typeof(T)))
+            {
+                yield break;
+            }
+
+            using (var connection = OpenSession())
+            {
+                using (var loadCommand = connection.CreateCommand())
+                {
+                    loadCommand.CommandText = @"
+SELECT Id, Value, ValueTypeId 
+FROM Store 
+WHERE ValueTypeId ";
+
+                    AddTypeCriteria(loadCommand, typeof(T));
+
+                    loadCommand.CommandText += " AND Id IN('" + ids.Select(id => id.ToString()).Join("','") + "')";
+
+                    using (var reader = loadCommand.ExecuteReader())
+                    {
+                        while (reader.Read())
                         {
                             yield return (T)JsonConvert.DeserializeObject(reader.GetString(1), GetTypeFromId(reader.GetInt32(2)), _jsonSettings);
                         }

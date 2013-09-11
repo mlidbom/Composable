@@ -21,7 +21,7 @@ namespace CQRS.Tests.KeyValueStorage
     {
         protected abstract IDocumentDb CreateStore();
 
-        private static IDocumentDbSession OpenSession(IDocumentDb store, ISingleContextUseGuard guard = null)
+        protected static IDocumentDbSession OpenSession(IDocumentDb store, ISingleContextUseGuard guard = null)
         {
             return new DocumentDbSession(store, guard ?? new SingleThreadUseGuard(), NullOpDocumentDbSessionInterceptor.Instance);
         }
@@ -60,7 +60,8 @@ namespace CQRS.Tests.KeyValueStorage
 
                 Assert.That(loadedUser.Address, Is.EqualTo(user.Address));
             }
-        }
+        }       
+
 
         [Test]
         public void GetAllWithIdsReturnsAsManyResultsAsPassedIds()

@@ -114,11 +114,22 @@ namespace Composable.KeyValueStorage
             }
         }
 
-        public IEnumerable<TValue> GetAll<TValue>(IEnumerable<Guid> ids) where TValue : IHasPersistentIdentity<Guid>
+        public IEnumerable<TValue> Get<TValue>(IEnumerable<Guid> ids) where TValue : IHasPersistentIdentity<Guid>
         {
             UsageGuard.AssertNoContextChangeOccurred(this);
 
-            return ids.Select(id => Get<TValue>(id));
+            var stored = BackingStore.GetAll<TValue>(ids);
+            
+            stored.Where(document => !_idMap.Contains(typeof(TValue), document.Id))
+                .ForEach(unloadedDocument => OnInitialLoad(unloadedDocument.Id, unloadedDocument));
+            
+            var results = _idMap.Select(pair => pair.Value).OfType<TValue>();
+            var missingDocuments = ids.Where(id => !results.Any(result => result.Id == id)).ToArray();
+            if (missingDocuments.Any())
+            {
+                throw new NoSuchDocumentException(missingDocuments.First(), typeof(TValue));
+            }
+            return results;
         }
 
         public virtual TValue Get<TValue>(object key)

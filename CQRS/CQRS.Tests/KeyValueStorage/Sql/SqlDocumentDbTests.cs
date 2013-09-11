@@ -98,7 +98,7 @@ namespace CQRS.Tests.KeyValueStorage.Sql
 
             using (var session = OpenSession(readingDocumentDb))
             {
-                session.GetAll<User>(Seq.Create(userId)).Count().Should().Be(1);
+                session.Get<User>(Seq.Create(userId)).Count().Should().Be(1);
             }
         }
     }

@@ -80,7 +80,7 @@ namespace CQRS.Tests.KeyValueStorage
 
             using (var session = OpenSession(store))
             {
-                var fetchedById = session.GetAll<User>(ids.Take(5));
+                var fetchedById = session.Get<User>(ids.Take(5));
                 fetchedById.Select(fetched => fetched.Id).Should().Equal(ids.Take(5));
             }
         }
@@ -102,7 +102,7 @@ namespace CQRS.Tests.KeyValueStorage
 
             using (var session = OpenSession(store))
             {
-                Assert.Throws<NoSuchDocumentException>(() => session.GetAll<User>(ids.Take(5).Append(Guid.Parse("00000000-0000-0000-0000-000000000099")).ToArray()).ToArray());
+                Assert.Throws<NoSuchDocumentException>(() => session.Get<User>(ids.Take(5).Append(Guid.Parse("00000000-0000-0000-0000-000000000099")).ToArray()).ToArray());
             }
         }
 
@@ -125,7 +125,7 @@ namespace CQRS.Tests.KeyValueStorage
             using (var session = OpenSession(store))
             {
                 var fetchedIndividually = ids.Select(id => session.Get<User>(id)).ToArray();
-                var fetchedWithGetAll = session.GetAll<User>(ids).ToArray();
+                var fetchedWithGetAll = session.Get<User>(ids).ToArray();
 
                 fetchedIndividually.ForEach((user, index) => Assert.That(user, Is.SameAs(fetchedWithGetAll[index])));
             }

@@ -114,6 +114,24 @@ namespace Composable.KeyValueStorage
             }
         }
 
+        public IEnumerable<TValue> Get<TValue>(IEnumerable<Guid> ids) where TValue : IHasPersistentIdentity<Guid>
+        {
+            UsageGuard.AssertNoContextChangeOccurred(this);
+
+            var stored = BackingStore.GetAll<TValue>(ids);
+            
+            stored.Where(document => !_idMap.Contains(typeof(TValue), document.Id))
+                .ForEach(unloadedDocument => OnInitialLoad(unloadedDocument.Id, unloadedDocument));
+            
+            var results = _idMap.Select(pair => pair.Value).OfType<TValue>();
+            var missingDocuments = ids.Where(id => !results.Any(result => result.Id == id)).ToArray();
+            if (missingDocuments.Any())
+            {
+                throw new NoSuchDocumentException(missingDocuments.First(), typeof(TValue));
+            }
+            return results;
+        }
+
         public virtual TValue Get<TValue>(object key)
         {
             UsageGuard.AssertNoContextChangeOccurred(this);
@@ -210,9 +228,8 @@ namespace Composable.KeyValueStorage
         {
             UsageGuard.AssertNoContextChangeOccurred(this);
             var stored = BackingStore.GetAll<T>();
-            stored.Where(pair => !_idMap.Contains(typeof (T), pair.Key))
-                .ForEach(pair => OnInitialLoad(pair.Key, pair.Value));
-
+            stored.Where(document => !_idMap.Contains(typeof (T), document.Id))
+                .ForEach(unloadedDocument => OnInitialLoad(unloadedDocument.Id, unloadedDocument));
             return _idMap.Select(pair => pair.Value).OfType<T>();
         }
 

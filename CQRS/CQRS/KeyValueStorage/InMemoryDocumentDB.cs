@@ -32,7 +32,7 @@ namespace Composable.KeyValueStorage
 
         private void NotifySubscribersDocumentUpdated(string key, object document)
         {
-            _observers.ForEach(observer => observer.OnNext(new DocumentUpdated(key, document)));
+            _observers.ToArray().ForEach(observer => observer.OnNext(new DocumentUpdated(key, document)));
         }
 
         private readonly Dictionary<Type, Dictionary<string, string>> _persistentValues = new Dictionary<Type, Dictionary<string, string>>();

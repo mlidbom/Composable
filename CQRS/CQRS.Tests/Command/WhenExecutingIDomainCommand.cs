@@ -2,11 +2,14 @@
 
 using System.Collections.Generic;
 using Castle.Core;
+using Castle.MicroKernel.Registration;
+using Castle.Windsor;
 using Composable.CQRS;
 using Composable.CQRS.Command;
 using Composable.DDD;
 using Composable.DomainEvents;
 using Composable.System.Linq;
+using Composable.SystemExtensions.Threading;
 using Microsoft.Practices.ServiceLocation;
 using NUnit.Framework;
 using StructureMap;
@@ -20,7 +23,7 @@ namespace CQRS.Tests.Command
     [TestFixture]
     public class WhenExecutingIDomainCommand
     {
-        private StructureMapServiceLocator locator;
+        private IWindsorContainer _container;
 
         private static readonly IList<SomethingHappened> _raisedEvents =
             new List<SomethingHappened>
@@ -32,29 +35,29 @@ namespace CQRS.Tests.Command
         [SetUp]
         public void Setup()
         {
-            var registry = new Registry();
-            var handler = new ModifyCandidateHandler();
-            registry.For<ICommandService>().Use<CommandService>();
-            registry.For<ICommandHandler<ModifyCandidateCommand>>().Use<ModifyCandidateHandler>();
-            registry.For<IServiceLocator>().Use(() => locator);
 
-            var container = new Container(registry);
-            locator = new StructureMapServiceLocator(container);
+            _container = new WindsorContainer();
+            _container.Register(
+                Component.For<ICommandService>().ImplementedBy<CommandService>(),
+                Component.For<ISingleContextUseGuard>().ImplementedBy<SingleThreadUseGuard>(),
+                Component.For<ICommandHandler<ModifyCandidateCommand>>().ImplementedBy<ModifyCandidateHandler>(),
+                Component.For<IWindsorContainer>().Instance(_container)
+                );           
+
             ModifyCandidateHandler.ExecuteCalled = false;
-
         }
 
         [Test]
         public void CorrectCommandHandlerIsUsed()
         {
-            locator.GetInstance<ICommandService>().Execute(new ModifyCandidateCommand());
+            _container.Resolve<ICommandService>().Execute(new ModifyCandidateCommand());
             Assert.That(ModifyCandidateHandler.ExecuteCalled, Is.True, "ModifyCandidateHandler.Execute should have been called");
         }
 
         [Test]
         public void RaisedEventsAreReturnedInOrder()
         {
-            var result = locator.GetInstance<ICommandService>().Execute(new ModifyCandidateCommand());
+            var result = _container.Resolve<ICommandService>().Execute(new ModifyCandidateCommand());
             Assert.That(result.Events, Is.EqualTo(_raisedEvents));
         }
 

@@ -3,7 +3,9 @@
 using System;
 using System.Diagnostics.Contracts;
 using System.Transactions;
+using Castle.Windsor;
 using Composable.DomainEvents;
+using Composable.KeyValueStorage.Population;
 using Composable.System.Linq;
 using Microsoft.Practices.ServiceLocation;
 using System.Linq;
@@ -14,22 +16,22 @@ namespace Composable.CQRS.Command
 {
     public class CommandService : ICommandService
     {
-        private readonly IServiceLocator _serviceLocator;
+        private readonly IWindsorContainer _container;
 
-        public CommandService(IServiceLocator serviceLocator)
+        public CommandService(IWindsorContainer container)
         {
-            Contract.Requires(serviceLocator != null);
-            _serviceLocator = serviceLocator;
+            Contract.Requires(container != null);
+            _container = container;
         }
 
         [ContractInvariantMethod]
         private void Invariant()
         {
-            Contract.Invariant(_serviceLocator != null);
+            Contract.Invariant(_container != null);
         }
 
         protected virtual void ExecuteSingle<TCommand>(TCommand command) {
-            var handler = _serviceLocator.GetInstance<ICommandHandler<TCommand>>();
+            var handler = _container.Resolve<ICommandHandler<TCommand>>();
             handler.Execute(command);
         }
 
@@ -40,7 +42,7 @@ namespace Composable.CQRS.Command
             using(DomainEvent.RegisterShortTermSynchronousListener<IDomainEvent>(result.RegisterEvent))
 #pragma warning restore 612,618
             {
-                using(var transaction = new TransactionScope())
+                using(var transaction = _container.BeginTransactionalUnitOfWorkScope())
                 {
                     if (command is CompositeCommand) 
                     {
@@ -63,7 +65,7 @@ namespace Composable.CQRS.Command
                     else
                         ExecuteSingle(command);
 
-                    transaction.Complete();
+                    transaction.Commit();
                 }
                 return result;
             }

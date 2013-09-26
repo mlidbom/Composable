@@ -6,6 +6,7 @@ using Castle.Windsor;
 using CommonServiceLocator.WindsorAdapter;
 using Composable.CQRS;
 using Composable.CQRS.Command;
+using Composable.SystemExtensions.Threading;
 using FluentAssertions;
 using Microsoft.Practices.ServiceLocation;
 using NUnit.Framework;
@@ -17,17 +18,16 @@ namespace CQRS.Tests.Command
     public class CompositeCommandTests
     {
         private WindsorContainer _container;
-        private WindsorServiceLocator _locator;
-        private IServiceLocator Locator { get { return _locator; } }
+
 
         [SetUp]
         public void Setup()
         {
             _container = new WindsorContainer();
-            _locator = new WindsorServiceLocator(_container);
             _container.Register(
                 Component.For<ICommandService>().ImplementedBy<CommandService>(),
-                Component.For<IServiceLocator>().Instance(Locator),
+                Component.For<ISingleContextUseGuard>().ImplementedBy<SingleThreadUseGuard>(),
+                Component.For<IWindsorContainer>().Instance(_container),
                 Component.For<ICommandHandler<EditCommand>>().ImplementedBy<EditCommandHandler>()
                 );
 

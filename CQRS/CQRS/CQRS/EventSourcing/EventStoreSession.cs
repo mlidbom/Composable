@@ -129,13 +129,23 @@ namespace Composable.CQRS.EventSourcing
 
         void IUnitOfWorkParticipant.Commit(IUnitOfWork unit)
         {
+            if(unit != _unitOfWork)
+            {
+                throw new ParticipantAccessedByWrongUnitOfWork();
+            }
             _usageGuard.AssertNoContextChangeOccurred(this);
             ((IUnitOfWorkParticipantWhoseCommitMayTriggerChangesInOtherParticipantsMustImplementIdemponentCommit)this).CommitAndReportIfCommitMayHaveCausedChangesInOtherParticipantsExpectAnotherCommitSoDoNotLeaveUnitOfWork();
+            _unitOfWork = null;
         }
 
         void IUnitOfWorkParticipant.Rollback(IUnitOfWork unit)
         {
+            if (unit != _unitOfWork)
+            {
+                throw new ParticipantAccessedByWrongUnitOfWork();
+            }
             _usageGuard.AssertNoContextChangeOccurred(this);
+            _unitOfWork = null;
         }
 
         bool IUnitOfWorkParticipantWhoseCommitMayTriggerChangesInOtherParticipantsMustImplementIdemponentCommit.CommitAndReportIfCommitMayHaveCausedChangesInOtherParticipantsExpectAnotherCommitSoDoNotLeaveUnitOfWork()
@@ -227,4 +237,6 @@ namespace Composable.CQRS.EventSourcing
             return result;
         }
     }
+
+    internal class ParticipantAccessedByWrongUnitOfWork : Exception {}
 }

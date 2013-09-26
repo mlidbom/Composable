@@ -2,6 +2,7 @@
 using System.Transactions;
 using Castle.MicroKernel.Lifestyle;
 using Castle.Windsor;
+using Composable.KeyValueStorage.Population;
 using Composable.SystemExtensions.Threading;
 using Composable.UnitsOfWork;
 using NServiceBus.UnitOfWork;
@@ -14,7 +15,7 @@ namespace Composable.CQRS.ServiceBus.NServiceBus
     {
         private static readonly ILog Log = LogManager.GetLogger(typeof(ComposableCqrsUnitOfWorkManager));
         private readonly IWindsorContainer _container;
-        private UnitOfWork _unit;
+        private ITransactionalUnitOfWork _unit;
 
         public ComposableCqrsUnitOfWorkManager(IWindsorContainer container)
         {
@@ -33,8 +34,7 @@ namespace Composable.CQRS.ServiceBus.NServiceBus
                 }
 
                 AssertAmbientTransactionPresent();
-                _unit = new UnitOfWork(_container.Resolve<ISingleContextUseGuard>());
-                _unit.AddParticipants(_container.ResolveAll<IUnitOfWorkParticipant>());
+                _unit = _container.BeginTransactionalUnitOfWorkScope();
             }
             catch (Exception e)
             {
@@ -76,7 +76,7 @@ namespace Composable.CQRS.ServiceBus.NServiceBus
                 Log.Error("HandleEndMessage failed rolling back", e);
                 try
                 {
-                    _unit.Rollback();
+                    _unit.Dispose();
                 }catch(Exception e2)
                 {
                     Log.Error("rolling back failed", e2);
@@ -92,7 +92,7 @@ namespace Composable.CQRS.ServiceBus.NServiceBus
 
             try
             {
-                _unit.Rollback();
+                _unit.Dispose();
             }
             catch (Exception e)
             {

@@ -1,6 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Dynamic;
 using System.Linq;
 using Castle.Windsor;
+using Composable.KeyValueStorage.Population;
 using Composable.System.Reflection;
 using Composable.System.Transactions;
 using NServiceBus;
@@ -37,13 +40,15 @@ namespace Composable.ServiceBus
                 handlers.AddRange(ServiceLocator.ResolveAll(handlerType).Cast<object>());
             }
 
-            InTransaction.Execute(() =>
+            using(var transactionalScope = ServiceLocator.BeginTransactionalUnitOfWorkScope())
             {
-                foreach (dynamic handler in handlers)
+                foreach(dynamic handler in handlers)
                 {
                     handler.Handle((dynamic)message);
                 }
-            });
+                transactionalScope.Commit();
+            }
+        }
 
         private static IEnumerable<Type> GetHandlerTypes<TMessage>(TMessage message) where TMessage : IMessage
         {

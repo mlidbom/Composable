@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.Remoting.Messaging;
 using System.Transactions;
 using Castle.Windsor;
 using Castle.MicroKernel.Lifestyle;
@@ -11,7 +12,18 @@ namespace Composable.KeyValueStorage.Population
     {
         public static ITransactionalUnitOfWork BeginTransactionalUnitOfWorkScope(this IWindsorContainer me)
         {
-            return new TransactionalUnitOfWorkWindsorScope(me);
+            var currentScope = CurrentScope;
+            if(currentScope == null)
+            {
+                return CurrentScope = new TransactionalUnitOfWorkWindsorScope(me);    
+            }
+            return new InnerTransactionalUnitOfWorkWindsorScope(CurrentScope);
+        }
+
+        private static ITransactionalUnitOfWork CurrentScope
+        {
+            get { return (ITransactionalUnitOfWork)CallContext.GetData("TransactionalUnitOfWorkWindsorScope_Current"); }
+            set { CallContext.SetData("TransactionalUnitOfWorkWindsorScope_Current", value); }
         }
 
         private class TransactionalUnitOfWorkWindsorScope : ITransactionalUnitOfWork
@@ -24,24 +36,9 @@ namespace Composable.KeyValueStorage.Population
             public TransactionalUnitOfWorkWindsorScope(IWindsorContainer container)
             {
                 _windsorScope = container.BeginScope();
-                _transaction = CreateTransactionScope();
+                _transaction = new TransactionScope();
                 _unitOfWork = new UnitOfWork(container.Resolve<ISingleContextUseGuard>());
                 _unitOfWork.AddParticipants(container.ResolveAll<IUnitOfWorkParticipant>());
-            }
-
-            /// <summary>
-            /// Return a default TransActionScope with correct parameters
-            /// </summary>
-            /// <returns>TransactionScope</returns>
-            /// <remarks>See http://blogs.msdn.com/b/dbrowne/archive/2010/06/03/using-new-transactionscope-considered-harmful.aspx </remarks>
-            private static TransactionScope CreateTransactionScope()
-            {
-                var transactionOptions = new TransactionOptions
-                {
-                    IsolationLevel = IsolationLevel.ReadCommitted,
-                    Timeout = TransactionManager.MaximumTimeout
-                };
-                return new TransactionScope(TransactionScopeOption.Required, transactionOptions);
             }
 
             public void Dispose()
@@ -61,6 +58,22 @@ namespace Composable.KeyValueStorage.Population
                 _committed = true;
             }
         }
+    }
+
+    public class InnerTransactionalUnitOfWorkWindsorScope : ITransactionalUnitOfWork
+    {
+        private readonly ITransactionalUnitOfWork _outer;
+
+        public InnerTransactionalUnitOfWorkWindsorScope(ITransactionalUnitOfWork outer)
+        {
+            _outer = outer;
+        }
+
+        public void Dispose()
+        {}
+
+        public void Commit()
+        {}
     }
 
 

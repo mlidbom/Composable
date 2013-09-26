@@ -1,5 +1,6 @@
 ﻿using System;
 using Composable.ServiceBus;
+using NServiceBus;
 
 namespace Composable.CQRS.ServiceBus.NServiceBus
 {
@@ -27,14 +28,28 @@ namespace Composable.CQRS.ServiceBus.NServiceBus
 
         public void Send(object message)
         {
-            _local.Send(message);
-            _realBus.Send(message);
+            //There can only be one handler in a send scenario and we let the synchronous bus get the first pick.
+            if(_local.Handles((IMessage)message))
+            {
+                _local.Send(message);
+            }
+            else
+            {
+                _realBus.Send(message);
+            }
         }
 
         public void Reply(object message)
         {
-            _local.Reply(message);
-            _realBus.Reply(message);
+            //I cannot come up with a way to decide whether to dispatch to the real bus or the sync bus except for just giving it to the sync bus if it wants it...
+            if(_local.Handles((IMessage)message))
+            {
+                _local.Reply(message);
+            }
+            else
+            {
+                _realBus.Reply(message);
+            }
         }
     }
 }

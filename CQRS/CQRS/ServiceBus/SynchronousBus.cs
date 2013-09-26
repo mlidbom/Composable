@@ -21,13 +21,15 @@ namespace Composable.ServiceBus
             ((dynamic)this).SyncSendLocal((dynamic)message);
         }
 
+        public virtual bool Handles<TMessage>(TMessage message) where TMessage : IMessage
+        {
+            return GetHandlerTypes(message).Any();
+        }
+
         protected virtual void SyncSendLocal<TMessage>(TMessage message) where TMessage : IMessage
         {
-            var handlerTypes = message.GetType().GetAllTypesInheritedOrImplemented()
-                .Where(t => t.Implements(typeof(IMessage)))
-                .Select(t => typeof(IHandleMessages<>).MakeGenericType(t))
-                .ToArray();
 
+            var handlerTypes = GetHandlerTypes(message);
 
             var handlers = new List<object>();
             foreach (var handlerType in handlerTypes)
@@ -42,6 +44,13 @@ namespace Composable.ServiceBus
                     handler.Handle((dynamic)message);
                 }
             });
+
+        private static IEnumerable<Type> GetHandlerTypes<TMessage>(TMessage message) where TMessage : IMessage
+        {
+            return message.GetType().GetAllTypesInheritedOrImplemented()
+                .Where(t => t.Implements(typeof(IMessage)))
+                .Select(t => typeof(IHandleMessages<>).MakeGenericType(t))
+                .ToArray();
         }
 
         public virtual void SendLocal(object message)

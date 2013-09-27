@@ -4,6 +4,7 @@ using System.Runtime.Remoting.Messaging;
 using System.Transactions;
 using Castle.Windsor;
 using Castle.MicroKernel.Lifestyle;
+using Composable.System;
 using Composable.System.Transactions;
 using Composable.SystemExtensions.Threading;
 using Composable.UnitsOfWork;
@@ -45,13 +46,16 @@ namespace Composable.KeyValueStorage.Population
 
         private class TransactionalUnitOfWorkWindsorScope : TransactionalUnitOfWorkWindsorScopeBase, IEnlistmentNotification
         {
-            private readonly TransactionScope _transaction;
+            private readonly TransactionScope _transactionScopeWeCreatedAndOwn;
             private readonly IUnitOfWork _unitOfWork;
             private bool _committed;
+            private readonly Transaction _ambientTransactionAfterCreation;
 
             public TransactionalUnitOfWorkWindsorScope(IWindsorContainer container)
             {
-                _transaction = new TransactionScope();
+                _transactionScopeWeCreatedAndOwn = new TransactionScope();
+                _ambientTransactionAfterCreation = Transaction.Current;
+                _ambientTransactionAfterCreation.EnlistVolatile(this, EnlistmentOptions.None);
                 _unitOfWork = new UnitOfWork(container.Resolve<ISingleContextUseGuard>());
                 _unitOfWork.AddParticipants(container.ResolveAll<IUnitOfWorkParticipant>());
             }
@@ -63,19 +67,21 @@ namespace Composable.KeyValueStorage.Population
                 {
                     _unitOfWork.Rollback();
                 }
-                _transaction.Dispose();
+                _transactionScopeWeCreatedAndOwn.Dispose();
             }
 
             override public void Commit()
             {
                 _unitOfWork.Commit();
-                _transaction.Complete();
+                _transactionScopeWeCreatedAndOwn.Complete();
                 _committed = true;
             }
 
             public void Prepare(PreparingEnlistment preparingEnlistment)
             {
+                Console.WriteLine("_ambientTransactionAfterCreation == Transaction.Current->{0}", _ambientTransactionAfterCreation != Transaction.Current);
                 PrepareCalled = true;
+                preparingEnlistment.Done();
             }
 
             override public bool IsActive {get { return !CommitCalled && !RollBackCalled && !InDoubtCalled; }}
@@ -85,19 +91,22 @@ namespace Composable.KeyValueStorage.Population
             public bool RollBackCalled { get; private set; }
             public bool InDoubtCalled { get; private set; }
 
-            public void Commit(Enlistment enlistment)
+            void IEnlistmentNotification.Commit(Enlistment enlistment)
             {
                 CommitCalled = true;
+                enlistment.Done();
             }
-            
-            public void Rollback(Enlistment enlistment)
+
+            void IEnlistmentNotification.Rollback(Enlistment enlistment)
             {
                 RollBackCalled = true;
+                enlistment.Done();
             }
-            
-            public void InDoubt(Enlistment enlistment)
+
+            void IEnlistmentNotification.InDoubt(Enlistment enlistment)
             {
                 InDoubtCalled = true;
+                enlistment.Done();
             }            
         }
 

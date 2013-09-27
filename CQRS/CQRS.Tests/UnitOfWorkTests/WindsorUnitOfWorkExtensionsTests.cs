@@ -43,6 +43,38 @@ namespace CQRS.Tests.UnitOfWorkTests
             unitOfWorkSpy.UnitOfWork.Should().Be(null);
             unitOfWorkSpy.Committed.Should().Be(false);
             unitOfWorkSpy.RolledBack.Should().Be(true);
+        }    
+
+        [Test]
+        public void CommittingTheOuterScopeCommitsDuh()
+        {
+            var container = new WindsorContainer();
+            var unitOfWorkSpy = new UnitOfWorkSpy();
+            container.Register(
+                Component.For<ISingleContextUseGuard>().ImplementedBy<SingleThreadUseGuard>(),
+                Component.For<IUnitOfWorkParticipant>().Instance(unitOfWorkSpy)
+                );
+
+            using(var outerScope = container.BeginTransactionalUnitOfWorkScope())
+            {
+                unitOfWorkSpy.UnitOfWork.Should().NotBe(null);
+                unitOfWorkSpy.Committed.Should().Be(false);
+                unitOfWorkSpy.RolledBack.Should().Be(false);
+                using (var innerScope = container.BeginTransactionalUnitOfWorkScope())
+                {
+                    innerScope.Commit();
+                    unitOfWorkSpy.UnitOfWork.Should().NotBe(null);
+                    unitOfWorkSpy.Committed.Should().Be(false);
+                    unitOfWorkSpy.RolledBack.Should().Be(false);
+                }
+                unitOfWorkSpy.UnitOfWork.Should().NotBe(null);
+                unitOfWorkSpy.Committed.Should().Be(false);
+                unitOfWorkSpy.RolledBack.Should().Be(false);
+                outerScope.Commit();
+            }
+            unitOfWorkSpy.UnitOfWork.Should().Be(null);
+            unitOfWorkSpy.Committed.Should().Be(true);
+            unitOfWorkSpy.RolledBack.Should().Be(false);
         }
     }
 

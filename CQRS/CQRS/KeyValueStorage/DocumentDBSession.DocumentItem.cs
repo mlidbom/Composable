@@ -54,14 +54,16 @@ namespace Composable.KeyValueStorage
             {
                 if (ScheduledForAdding)
                 {
-                    _backingStore.Add(Key.Id, Document);
                     IsInBackingStore = true;
+                    _backingStore.Add(Key.Id, Document);                    
                 }
                 else if (ScheduledForRemoval)
                 {
-                    _backingStore.Remove(Key.Id, Document.GetType());
-                    IsInBackingStore = false;
+                    var docType = Document.GetType();
                     Document = null;
+                    IsInBackingStore = false;                    
+                    _backingStore.Remove(Key.Id, docType);
+                    
                 }
                 else if (ScheduledForUpdate)
                 {

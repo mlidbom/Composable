@@ -157,14 +157,14 @@ namespace Composable.KeyValueStorage
             var documentItem = GetDocumentItem(id, value.GetType());
             documentItem.Save(value);
 
+            _idMap.Add(id, value);
             if(_unitOfWork == null)
             {                
                 documentItem.CommitChangesToBackingStore();
             }else
             {
                 Log.DebugFormat("{0} postponed persisting object from call to Save since participating in a unit of work", _id);
-            }
-            _idMap.Add(id, value);
+            }            
         }
 
         public virtual void Save<TEntity>(TEntity entity) where TEntity : IHasPersistentIdentity<Guid>
@@ -195,6 +195,7 @@ namespace Composable.KeyValueStorage
             var documentItem = GetDocumentItem(id, typeof(T));
             documentItem.Delete();
 
+            _idMap.Remove<T>(id);
             if(_unitOfWork == null)
             {
                 documentItem.CommitChangesToBackingStore();
@@ -202,8 +203,7 @@ namespace Composable.KeyValueStorage
             else
             {
                 Log.DebugFormat("{0} postponed deleting object since participating in a unit of work", _id);
-            }
-            _idMap.Remove<T>(id);
+            }            
         }
 
         public virtual void SaveChanges()

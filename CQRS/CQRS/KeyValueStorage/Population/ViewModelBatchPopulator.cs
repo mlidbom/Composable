@@ -1,4 +1,5 @@
-﻿using Castle.Windsor;
+﻿using Castle.MicroKernel.Lifestyle;
+using Castle.Windsor;
 using System;
 using System.Threading.Tasks;
 using Composable.System.Linq;
@@ -29,12 +30,15 @@ namespace Composable.KeyValueStorage.Population
                 {
                     try
                     {
-                        using(var unitOfWork = _container.BeginTransactionalUnitOfWorkScope())
+                        using(_container.BeginScope())
                         {
-                            _container.ResolveAll<IViewModelPopulator>()
-                                      .ForEach(populator => populator.Populate(entityId));
-                            
-                            unitOfWork.Commit();                            
+                            using(var unitOfWork = _container.BeginTransactionalUnitOfWorkScope())
+                            {
+                                _container.ResolveAll<IViewModelPopulator>()
+                                    .ForEach(populator => populator.Populate(entityId));
+
+                                unitOfWork.Commit();
+                            }
                         }
                         _logger.LogAggregateHandled(entityId);
                     }

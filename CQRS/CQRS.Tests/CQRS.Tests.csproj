@@ -170,6 +170,7 @@
     <Compile Include="Query\WhenExecutingQueryStructuremap.cs" />
     <Compile Include="Query\WhenExecutingQueryWindsor.cs" />
     <Compile Include="StubMain.cs" />
+    <Compile Include="UnitOfWorkTests\WindsorUnitOfWorkExtensionsTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\Composable.DomainEvents\Composable.DomainEvents.csproj">

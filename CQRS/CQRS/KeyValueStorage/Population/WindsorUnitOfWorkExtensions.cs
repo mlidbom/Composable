@@ -1,8 +1,10 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Runtime.Remoting.Messaging;
 using System.Transactions;
 using Castle.Windsor;
 using Castle.MicroKernel.Lifestyle;
+using Composable.System.Transactions;
 using Composable.SystemExtensions.Threading;
 using Composable.UnitsOfWork;
 
@@ -20,60 +22,105 @@ namespace Composable.KeyValueStorage.Population
             return new InnerTransactionalUnitOfWorkWindsorScope(CurrentScope);
         }
 
-        private static ITransactionalUnitOfWork CurrentScope
+        private static TransactionalUnitOfWorkWindsorScopeBase CurrentScope
         {
-            get { return (ITransactionalUnitOfWork)CallContext.GetData("TransactionalUnitOfWorkWindsorScope_Current"); }
+            get
+            {
+                var result = (TransactionalUnitOfWorkWindsorScopeBase)CallContext.GetData("TransactionalUnitOfWorkWindsorScope_Current");
+                if (result != null && result.IsActive)
+                {
+                    return result;   
+                }
+                return CurrentScope = null;
+            }
             set { CallContext.SetData("TransactionalUnitOfWorkWindsorScope_Current", value); }
         }
 
-        private class TransactionalUnitOfWorkWindsorScope : ITransactionalUnitOfWork
+        private abstract class TransactionalUnitOfWorkWindsorScopeBase : ITransactionalUnitOfWork
+        {
+            public abstract void Dispose();
+            public abstract void Commit();
+            public abstract bool IsActive { get; }
+        }
+
+        private class TransactionalUnitOfWorkWindsorScope : TransactionalUnitOfWorkWindsorScopeBase, IEnlistmentNotification
         {
             private readonly TransactionScope _transaction;
             private readonly IUnitOfWork _unitOfWork;
-            private readonly IDisposable _windsorScope;
-            private bool _committed = false;
+            private bool _committed;
 
             public TransactionalUnitOfWorkWindsorScope(IWindsorContainer container)
             {
-                _windsorScope = container.BeginScope();
                 _transaction = new TransactionScope();
                 _unitOfWork = new UnitOfWork(container.Resolve<ISingleContextUseGuard>());
                 _unitOfWork.AddParticipants(container.ResolveAll<IUnitOfWorkParticipant>());
             }
 
-            public void Dispose()
+            override public void Dispose()
             {
+                CurrentScope = null;
                 if(!_committed)
                 {
                     _unitOfWork.Rollback();
                 }
                 _transaction.Dispose();
-                _windsorScope.Dispose();
             }
 
-            public void Commit()
+            override public void Commit()
             {
                 _unitOfWork.Commit();
                 _transaction.Complete();
                 _committed = true;
             }
+
+            public void Prepare(PreparingEnlistment preparingEnlistment)
+            {
+                PrepareCalled = true;
+            }
+
+            override public bool IsActive {get { return !CommitCalled && !RollBackCalled && !InDoubtCalled; }}
+
+            public bool PrepareCalled { get; private set; }
+            public bool CommitCalled { get; private set; }
+            public bool RollBackCalled { get; private set; }
+            public bool InDoubtCalled { get; private set; }
+
+            public void Commit(Enlistment enlistment)
+            {
+                CommitCalled = true;
+            }
+            
+            public void Rollback(Enlistment enlistment)
+            {
+                RollBackCalled = true;
+            }
+            
+            public void InDoubt(Enlistment enlistment)
+            {
+                InDoubtCalled = true;
+            }            
         }
-    }
 
-    public class InnerTransactionalUnitOfWorkWindsorScope : ITransactionalUnitOfWork
-    {
-        private readonly ITransactionalUnitOfWork _outer;
 
-        public InnerTransactionalUnitOfWorkWindsorScope(ITransactionalUnitOfWork outer)
+        private class InnerTransactionalUnitOfWorkWindsorScope : TransactionalUnitOfWorkWindsorScopeBase, ITransactionalUnitOfWork
         {
-            _outer = outer;
+            private readonly TransactionalUnitOfWorkWindsorScopeBase _outer;
+
+            public InnerTransactionalUnitOfWorkWindsorScope(TransactionalUnitOfWorkWindsorScopeBase outer)
+            {
+                _outer = outer;
+            }
+
+            override public void Dispose()
+            { }
+
+            override public void Commit()
+            { }
+
+            override public bool IsActive { get { return _outer.IsActive; } }
         }
 
-        public void Dispose()
-        {}
 
-        public void Commit()
-        {}
     }
 
 

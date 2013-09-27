@@ -194,7 +194,6 @@
     <Compile Include="GenericAbstractions\Wrappers\GenericWrapper.cs" />
     <Compile Include="GenericAbstractions\Wrappers\IWrapper.cs" />
     <Compile Include="GenericAbstractions\Wrappers\WrapperExtensions.cs" />
-    <Compile Include="System\Transactions\TransactionScopeExtensions.cs" />
     <Compile Include="System\Transactions\TransactionExtensions.cs" />
     <Compile Include="System\Web\HttpRequestExtensions.cs" />
     <Compile Include="System\Web\HttpRequestIdFetcher.cs" />

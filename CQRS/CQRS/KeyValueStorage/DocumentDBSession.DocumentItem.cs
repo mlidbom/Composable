@@ -50,24 +50,50 @@ namespace Composable.KeyValueStorage
                 IsInBackingStore = true;
             }
 
+            private bool IsCommitting { get; set; }
             public void CommitChangesToBackingStore()
             {
-                if (ScheduledForAdding)
+                //Avoid reentrancy issues.
+                if(IsCommitting)
                 {
-                    IsInBackingStore = true;
-                    _backingStore.Add(Key.Id, Document);                    
+                    return;
                 }
-                else if (ScheduledForRemoval)
+                IsCommitting = true;
+                using(new DisposeAction(() => IsCommitting = false))//Reset IsCommitting to false once we are done committing.
                 {
-                    var docType = Document.GetType();
-                    Document = null;
-                    IsInBackingStore = false;                    
-                    _backingStore.Remove(Key.Id, docType);
-                    
+                    if(ScheduledForAdding)
+                    {
+                        IsInBackingStore = true;
+                        _backingStore.Add(Key.Id, Document);
+                    }
+                    else if(ScheduledForRemoval)
+                    {
+                        var docType = Document.GetType();
+                        Document = null;
+                        IsInBackingStore = false;
+                        _backingStore.Remove(Key.Id, docType);
+
+                    }
+                    else if(ScheduledForUpdate)
+                    {
+                        _backingStore.Update(Seq.Create(new KeyValuePair<string, object>(Key.Id, Document)));
+                    }
                 }
-                else if (ScheduledForUpdate)
+            }            
+
+            //todo: (Rename?) and move to somewhere where it is usable for everyone. Not done now to avoid bumping everything that uses composable.core.
+            private class DisposeAction : IDisposable
+            {
+                private readonly Action _action;
+
+                public DisposeAction(Action action)
                 {
-                    _backingStore.Update(Seq.Create(new KeyValuePair<string, object>(Key.Id, Document)));
+                    _action = action;
+                }
+
+                public void Dispose()
+                {
+                    _action();
                 }
             }
         }

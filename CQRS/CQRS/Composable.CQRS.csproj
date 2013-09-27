@@ -103,7 +103,6 @@
     <Compile Include="CQRS\Command\CommandValidationService.cs" />
     <Compile Include="CQRS\Command\CompositeCommand.cs" />
     <Compile Include="CQRS\Command\DomainCommandValidationException.cs" />
-    <Compile Include="CQRS\Command\ForceDistributedTransactionsCommandServiceDecorator.cs" />
     <Compile Include="CQRS\Command\GlobalValidationFailure.cs" />
     <Compile Include="CQRS\Command\ForwardToEntityCommandHandler.cs" />
     <Compile Include="CQRS\Command\ICommand.cs" />

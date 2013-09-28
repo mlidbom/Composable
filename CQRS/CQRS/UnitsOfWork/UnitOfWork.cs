@@ -59,7 +59,7 @@ namespace Composable.UnitsOfWork
                 {
                     throw new TooDeepCascadeLevelDetected(MaxCascadeLevel);
                 }
-            } //Loop until no changes may have occured
+            } //Loop until no changes may have occurred
 
             _participants.ForEach(participant => participant.Commit(this));
         }

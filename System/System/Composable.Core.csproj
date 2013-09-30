@@ -154,6 +154,7 @@
     <Compile Include="SystemExtensions\Threading\ISingleContextUseGuard.cs" />
     <Compile Include="SystemExtensions\Threading\MultiThreadedUseException.cs" />
     <Compile Include="SystemExtensions\Threading\SingleThreadUseGuard.cs" />
+    <Compile Include="SystemExtensions\Threading\UsageGuard.cs" />
     <Compile Include="System\Collections\Collections\CollectionExtensions.cs" />
     <Compile Include="System\Collections\Collections\DictionaryExtensions.cs" />
     <Compile Include="System\ComponentModel\DataAnnotations\IValidatableObjectExtensions.cs" />

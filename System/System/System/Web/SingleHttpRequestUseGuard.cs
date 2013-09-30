@@ -3,7 +3,7 @@ using Composable.SystemExtensions.Threading;
 
 namespace Composable.System.Web
 {
-    public class SingleHttpRequestUseGuard : ISingleContextUseGuard
+    public class SingleHttpRequestUseGuard : UsageGuard
     {
         private readonly IHttpRequestIdFetcher _httpRequestIdFetcher;
         private readonly Guid _initialRequestId;
@@ -14,7 +14,7 @@ namespace Composable.System.Web
             _initialRequestId = httpRequestIdFetcher.GetCurrent();
         }
 
-        public void AssertNoContextChangeOccurred(object guarded)
+        override protected void InternalAssertNoChangeOccurred(object guarded)
         {
             var currentRequestId = _httpRequestIdFetcher.GetCurrent();
             if(_initialRequestId != currentRequestId)

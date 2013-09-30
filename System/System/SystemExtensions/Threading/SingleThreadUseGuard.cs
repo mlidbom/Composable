@@ -2,7 +2,7 @@ using System.Threading;
 
 namespace Composable.SystemExtensions.Threading
 {
-    public class SingleThreadUseGuard : ISingleContextUseGuard
+    public class SingleThreadUseGuard : UsageGuard
     {
         private readonly Thread _owningThread;
 
@@ -11,7 +11,7 @@ namespace Composable.SystemExtensions.Threading
             _owningThread = Thread.CurrentThread;
         }
 
-        public void AssertNoContextChangeOccurred(object guarded)
+        override protected void InternalAssertNoChangeOccurred(object guarded)
         {
             if (Thread.CurrentThread != _owningThread)
             {

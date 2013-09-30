@@ -70,6 +70,7 @@ namespace Composable.CQRS.ServiceBus.NServiceBus
             {
                 AssertAmbientTransactionPresent();
                 _unit.Commit();
+                _unit.Dispose();
             }
             catch (Exception e)
             {

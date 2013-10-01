@@ -59,7 +59,7 @@ namespace Composable.KeyValueStorage.Population
                     _unitOfWork.AddParticipants(container.ResolveAll<IUnitOfWorkParticipant>());
                     Transaction.Current.EnlistVolatile(this, EnlistmentOptions.None);
                 }
-                catch(Exception e)
+                catch(Exception)
                 {
                     _transactionScopeWeCreatedAndOwn.Dispose();//Under no circumstances leave transactions scopes hanging around unmanaged!
                     throw;

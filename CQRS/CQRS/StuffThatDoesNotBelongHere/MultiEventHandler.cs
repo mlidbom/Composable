@@ -6,7 +6,7 @@ using Composable.System;
 
 namespace Composable.StuffThatDoesNotBelongHere
 {
-    [Obsolete("Please use UniqueMatchEventHandler to make the semantics clear. No change except changing the class you inherit is necessary")]
+    [Obsolete("Please use UniqueMatchEventHierarchyHandler to make the semantics clear. No change except changing the class you inherit is necessary")]
     public class MultiEventHandler<TImplementor, TEvent> : UniqueMatchEventHierarchyHandler<TImplementor, TEvent> 
         where TEvent : IAggregateRootEvent
         where TImplementor : MultiEventHandler<TImplementor, TEvent>

@@ -44,7 +44,7 @@ namespace Composable.KeyValueStorage.Population
             public abstract bool IsActive { get; }
         }
 
-        private class TransactionalUnitOfWorkWindsorScope : TransactionalUnitOfWorkWindsorScopeBase
+        private class TransactionalUnitOfWorkWindsorScope : TransactionalUnitOfWorkWindsorScopeBase, IEnlistmentNotification
         {
             private readonly TransactionScope _transactionScopeWeCreatedAndOwn;
             private readonly IUnitOfWork _unitOfWork;
@@ -53,8 +53,17 @@ namespace Composable.KeyValueStorage.Population
             public TransactionalUnitOfWorkWindsorScope(IWindsorContainer container)
             {
                 _transactionScopeWeCreatedAndOwn = new TransactionScope();
-                _unitOfWork = new UnitOfWork(container.Resolve<ISingleContextUseGuard>());
-                _unitOfWork.AddParticipants(container.ResolveAll<IUnitOfWorkParticipant>());
+                try
+                {
+                    _unitOfWork = new UnitOfWork(container.Resolve<ISingleContextUseGuard>());
+                    _unitOfWork.AddParticipants(container.ResolveAll<IUnitOfWorkParticipant>());
+                    Transaction.Current.EnlistVolatile(this, EnlistmentOptions.None);
+                }
+                catch(Exception e)
+                {
+                    _transactionScopeWeCreatedAndOwn.Dispose();//Under no circumstances leave transactions scopes hanging around unmanaged!
+                    throw;
+                }                
             }
 
             override public void Dispose()
@@ -79,7 +88,30 @@ namespace Composable.KeyValueStorage.Population
             public bool PrepareCalled { get; private set; }
             public bool CommitCalled { get; private set; }
             public bool RollBackCalled { get; private set; }
-            public bool InDoubtCalled { get; private set; }           
+            public bool InDoubtCalled { get; private set; }
+            public void Prepare(PreparingEnlistment preparingEnlistment)
+            {
+                PrepareCalled = true;
+                preparingEnlistment.Prepared();
+            }
+
+            public void Commit(Enlistment enlistment)
+            {
+                CommitCalled = true;
+                enlistment.Done();
+            }
+
+            public void Rollback(Enlistment enlistment)
+            {
+                RollBackCalled = true;
+                enlistment.Done();
+            }
+
+            public void InDoubt(Enlistment enlistment)
+            {
+                InDoubtCalled = true;
+                enlistment.Done();
+            }
         }
 
 

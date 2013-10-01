@@ -10,7 +10,6 @@ namespace Composable.KeyValueStorage.Population
     public class PopulationProgramRunner
     {
         private readonly IWindsorContainer _container;
-        private static IViewModelBatchPopulator _batchPopulator;
 
         public PopulationProgramRunner(IWindsorContainer container)
         {

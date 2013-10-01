@@ -13,7 +13,7 @@ using Composable.System.Linq;
 
 namespace Composable.CQRS.ViewModels
 {
-    public class ViewModelUpdater<TImplementor, TViewModel, TEvent, TSession> :
+    public abstract class ViewModelUpdater<TImplementor, TViewModel, TEvent, TSession> :
         MultiEventHandler<TImplementor, TEvent>
         where TImplementor : ViewModelUpdater<TImplementor, TViewModel, TEvent, TSession>
         where TSession : IDocumentDbSession

@@ -42,7 +42,7 @@ namespace Composable.KeyValueStorage.Population
                     {
                         entityIds = ExtractGuids(args.First());
                     }
-                    catch(Exception e)
+                    catch(Exception)
                     {
                         Usage();
                         return;

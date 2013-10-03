@@ -1,12 +1,10 @@
 ﻿using System;
 using System.Transactions;
-using Castle.MicroKernel.Lifestyle;
 using Castle.Windsor;
 using Composable.KeyValueStorage.Population;
-using Composable.SystemExtensions.Threading;
-using Composable.UnitsOfWork;
+using NServiceBus;
+using NServiceBus.Unicast;
 using NServiceBus.UnitOfWork;
-using Remotion.Linq.Parsing.Structure.IntermediateModel;
 using log4net;
 
 namespace Composable.CQRS.ServiceBus.NServiceBus
@@ -15,12 +13,14 @@ namespace Composable.CQRS.ServiceBus.NServiceBus
     {
         private static readonly ILog Log = LogManager.GetLogger(typeof(ComposableCqrsUnitOfWorkManager));
         private readonly IWindsorContainer _container;
+        private readonly IBus _bus;
         private ITransactionalUnitOfWork _unit;
 
-        public ComposableCqrsUnitOfWorkManager(IWindsorContainer container)
+        public ComposableCqrsUnitOfWorkManager(IWindsorContainer container, IBus bus)
         {
             Log.Debug("Constructor called");
             _container = container;
+            _bus = bus;
         }
 
         public void Begin()
@@ -34,6 +34,13 @@ namespace Composable.CQRS.ServiceBus.NServiceBus
                 }
 
                 AssertAmbientTransactionPresent();
+
+                if (_bus.CurrentMessageContext.Headers.ContainsKey(UnicastBus.SubscriptionMessageType))
+                {
+                    Log.Debug("Bailing out of creating unit of work since this is a subscription message that nservicebus tells us that processing has started but never tells us when it completes");
+                    return;
+                }
+
                 _unit = _container.BeginTransactionalUnitOfWorkScope();
             }
             catch (Exception e)
@@ -70,6 +77,7 @@ namespace Composable.CQRS.ServiceBus.NServiceBus
             {
                 AssertAmbientTransactionPresent();
                 _unit.Commit();
+                _unit.Dispose();
             }
             catch (Exception e)
             {

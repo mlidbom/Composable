@@ -144,6 +144,7 @@
     <Compile Include="DDD\PersistentEntity.cs" />
     <Compile Include="DDD\ValueObject.cs" />
     <Compile Include="DDD\VersionedPersistentEntity.cs" />
+    <Compile Include="DisposeAction.cs" />
     <Compile Include="GenericAbstractions\Time\DummyTimeTimeSource.cs" />
     <Compile Include="GenericAbstractions\Time\ILocalTimeTimeSource.cs" />
     <Compile Include="GenericAbstractions\Time\DateTimeNowTimeSource.cs" />
@@ -154,6 +155,7 @@
     <Compile Include="SystemExtensions\Threading\ISingleContextUseGuard.cs" />
     <Compile Include="SystemExtensions\Threading\MultiThreadedUseException.cs" />
     <Compile Include="SystemExtensions\Threading\SingleThreadUseGuard.cs" />
+    <Compile Include="SystemExtensions\Threading\UsageGuard.cs" />
     <Compile Include="System\Collections\Collections\CollectionExtensions.cs" />
     <Compile Include="System\Collections\Collections\DictionaryExtensions.cs" />
     <Compile Include="System\ComponentModel\DataAnnotations\IValidatableObjectExtensions.cs" />

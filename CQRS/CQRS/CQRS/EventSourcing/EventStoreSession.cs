@@ -40,7 +40,9 @@ namespace Composable.CQRS.EventSourcing
             _usageGuard.AssertNoContextChangeOccurred(this);
             TAggregate result;
             if (!DoTryGet(aggregateId, out result))
-                ThrowAggregateMissingException(aggregateId);
+            {
+                throw new AggregateRootNotFoundException(aggregateId);
+            }
             return result;
         }
 
@@ -56,7 +58,9 @@ namespace Composable.CQRS.EventSourcing
             var aggregate = Activator.CreateInstance<TAggregate>();
             var history = GetHistory(aggregateId);
             if (history.None())
-                ThrowAggregateMissingException(aggregateId);
+            {
+                throw new AggregateRootNotFoundException(aggregateId);
+            }
             aggregate.LoadFromHistory(history.Where(e => e.AggregateRootVersion <= version));
             return aggregate;
         }
@@ -170,11 +174,6 @@ namespace Composable.CQRS.EventSourcing
             }
 
             return history;
-        }
-
-        private void ThrowAggregateMissingException(Guid aggregateId)
-        {
-            throw new Exception(string.Format("Aggregate root with Id: {0} not found", aggregateId));
         }
 
         private bool DoTryGet<TAggregate>(Guid aggregateId, out TAggregate aggregate) where TAggregate : IEventStored

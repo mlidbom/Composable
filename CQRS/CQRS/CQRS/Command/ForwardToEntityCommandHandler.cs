@@ -10,6 +10,7 @@ using Composable.Persistence;
 namespace Composable.CQRS
 {
     public class ForwardToEntityCommandHandler<TEntity, TCommand> : ICommandHandler<TCommand>
+        // ReSharper disable once CSharpWarnings::CS0618
         where TEntity : AggregateRoot<TEntity>, IEntityCommandHandler<TCommand>
         where TCommand : IEntityHandledCommand
     {

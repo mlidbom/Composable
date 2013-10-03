@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Composable.CQRS.EventHandling;
 using Composable.CQRS.EventSourcing;
 using Composable.DDD;
 using Composable.KeyValueStorage;
@@ -13,8 +14,8 @@ using Composable.System.Linq;
 
 namespace Composable.CQRS.ViewModels
 {
-    public class ViewModelUpdater<TImplementor, TViewModel, TEvent, TSession> :
-        MultiEventHandler<TImplementor, TEvent>
+    public abstract class ViewModelUpdater<TImplementor, TViewModel, TEvent, TSession> :
+        UniqueMatchEventHierarchyHandler<TImplementor, TEvent>
         where TImplementor : ViewModelUpdater<TImplementor, TViewModel, TEvent, TSession>
         where TSession : IDocumentDbSession
         where TEvent : IAggregateRootEvent

@@ -79,22 +79,6 @@ namespace Composable.KeyValueStorage
                         _backingStore.Update(Seq.Create(new KeyValuePair<string, object>(Key.Id, Document)));
                     }
                 }
-            }            
-
-            //todo: (Rename?) and move to somewhere where it is usable for everyone. Not done now to avoid bumping everything that uses composable.core.
-            private class DisposeAction : IDisposable
-            {
-                private readonly Action _action;
-
-                public DisposeAction(Action action)
-                {
-                    _action = action;
-                }
-
-                public void Dispose()
-                {
-                    _action();
-                }
             }
         }
 

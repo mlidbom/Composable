@@ -145,7 +145,7 @@
     <Compile Include="DDD\ValueObject.cs" />
     <Compile Include="DDD\VersionedPersistentEntity.cs" />
     <Compile Include="DisposeAction.cs" />
-    <Compile Include="GenericAbstractions\Time\DummyTimeTimeSource.cs" />
+    <Compile Include="GenericAbstractions\Time\DummyTimeSource.cs" />
     <Compile Include="GenericAbstractions\Time\ILocalTimeTimeSource.cs" />
     <Compile Include="GenericAbstractions\Time\DateTimeNowTimeSource.cs" />
     <Compile Include="GenericAbstractions\Time\ITimeSource.cs" />

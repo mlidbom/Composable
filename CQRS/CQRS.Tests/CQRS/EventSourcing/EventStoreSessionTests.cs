@@ -34,6 +34,15 @@ namespace CQRS.Tests.CQRS.EventSourcing
         }
 
         [Test]
+        public void WhenFetchingAggregateThatDoesNotExistNoSuchAggregateExceptionIsThrown()
+        {
+            using(var session = OpenSession(CreateStore()))
+            {
+                Assert.Throws<AggregateRootNotFoundException>( () => session.Get<User>(Guid.NewGuid()));
+            }
+        }
+
+        [Test]
         public void CanSaveAndLoadAggregate()
         {
             var store = CreateStore();

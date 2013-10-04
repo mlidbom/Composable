@@ -14,6 +14,13 @@ namespace Composable.SystemExtensions.Threading
 
         public static void RunInContextExcludedFromSingleUseRule(Action action)
         {
+            //Make sure that we do not loose the context if this is called again from within such a context
+            if(IsInIgnoredContextDueToInfrastructureSuchAsTransaction)
+            {
+                action();
+                return;
+            }
+
             try
             {
                 IsInIgnoredContextDueToInfrastructureSuchAsTransaction = true;

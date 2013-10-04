@@ -23,7 +23,7 @@ namespace Composable.CQRS.ServiceBus.NServiceBus
         private void DispatchOnSynchronousBus(Action action)
         {
             _usageGuard.AssertNoContextChangeOccurred(this);
-            if(_dispatchingOnSynchronousBus)
+            if (_dispatchingOnSynchronousBus)
             {
                 action();
                 return;

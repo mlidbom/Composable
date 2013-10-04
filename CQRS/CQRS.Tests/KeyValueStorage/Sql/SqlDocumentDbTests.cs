@@ -55,6 +55,8 @@ namespace CQRS.Tests.KeyValueStorage.Sql
             var userInserter = otherDomain.CreateInstanceAndUnwrap(otherType.Assembly.FullName,otherType.FullName) as InsertSomething;
 
             userInserter.InsertSomeUsers(ConnectionString, userIds);
+
+            AppDomain.Unload(otherDomain);
         }
 
         [Test]

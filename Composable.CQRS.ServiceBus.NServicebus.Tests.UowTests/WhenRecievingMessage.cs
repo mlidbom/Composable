@@ -1,6 +1,8 @@
 ﻿#region usings
 
 using System;
+using System.Configuration;
+using System.Reflection;
 using System.Threading;
 using System.Transactions;
 using Castle.Windsor;
@@ -26,47 +28,64 @@ namespace Composable.CQRS.ServiceBus.NServicebus.Tests.UowTests
     [NCrunch.Framework.Isolated]
     public class WhenReceivingMessage
     {
-        private IServiceBus _bus;
-        private IBus _nsbBus;
-
         [TestFixtureSetUp]
         public void SendMessageToNewEndpoint()
         {
-            var endpointConfigurer = new MyEndPointConfigurer("Composable.CQRS.ServiceBus.NServicebus.Tests.UowTests");
+            var myDomain = AppDomain.CurrentDomain;
+            var otherDomain = AppDomain.CreateDomain("other domain", myDomain.Evidence, myDomain.BaseDirectory, myDomain.RelativeSearchPath, false);
 
+            
+            var otherType = typeof(ReceivingMessageScenario);
+            var executor = otherDomain.CreateInstanceAndUnwrap(otherType.Assembly.FullName, otherType.FullName) as ReceivingMessageScenario;
 
-            endpointConfigurer.Init();
-            _bus = endpointConfigurer.Container.Resolve<IServiceBus>();
-            _nsbBus = endpointConfigurer.Container.Resolve<IBus>();
+            executor.Execute(AppDomain.CurrentDomain);
 
-            var messageHandled = new ManualResetEvent(false);
-            TransactionStatus status = TransactionStatus.Active;
-            TestingSupportMessageModule.OnHandleBeginMessage += transaction =>
-                                                                    {
-                                                                        transaction.TransactionCompleted += (_, __) =>
-                                                                                                                {
-                                                                                                                    messageHandled.Set();
-                                                                                                                    status = __.Transaction.TransactionInformation.Status;
-                                                                                                                };
-                                                                    };
-
-            _bus.SendLocal(new InvokeUOWCommandMessage());
-
-            Assert.That(messageHandled.WaitOne(30.Seconds()), Is.True, "Timed out waiting for message");
-
-            for(int i = 0; i < 100 && status != TransactionStatus.Committed; i++)
-            {
-                Console.Write("Awaiting completion");
-                Thread.Sleep(10.Milliseconds());
-            }
-
-            Assert.That(status, Is.EqualTo(TransactionStatus.Committed), "Message handling did not complete successfully");
+            AppDomain.Unload(otherDomain);
         }
 
-        [TestFixtureTearDown]
-        public void CleanUpBus()
+        public class ReceivingMessageScenario : MarshalByRefObject
         {
-            ((IDisposable)_nsbBus).Dispose();
+            private IServiceBus _bus;
+            private IBus _nsbBus;
+
+            public void Execute(AppDomain currentDomain)
+            {
+                var endpointConfigurer = new MyEndPointConfigurer("Composable.CQRS.ServiceBus.NServicebus.Tests.UowTests");
+
+                 
+
+                ConfigurationManager.OpenExeConfiguration(currentDomain.SetupInformation.ConfigurationFile);
+
+
+                endpointConfigurer.Init();
+                _bus = endpointConfigurer.Container.Resolve<IServiceBus>();
+                _nsbBus = endpointConfigurer.Container.Resolve<IBus>();
+
+                var messageHandled = new ManualResetEvent(false);
+                TransactionStatus status = TransactionStatus.Active;
+                TestingSupportMessageModule.OnHandleBeginMessage += transaction =>
+                {
+                    transaction.TransactionCompleted += (_, __) =>
+                    {
+                        messageHandled.Set();
+                        status = __.Transaction.TransactionInformation.Status;
+                    };
+                };
+
+                _bus.SendLocal(new InvokeUOWCommandMessage());
+
+                Assert.That(messageHandled.WaitOne(30.Seconds()), Is.True, "Timed out waiting for message");
+
+                for (int i = 0; i < 100 && status != TransactionStatus.Committed; i++)
+                {
+                    Console.Write("Awaiting completion");
+                    Thread.Sleep(10.Milliseconds());
+                }
+
+                Assert.That(status, Is.EqualTo(TransactionStatus.Committed), "Message handling did not complete successfully");
+
+                ((IDisposable)_nsbBus).Dispose();
+            }
         }
 
         [Test]
@@ -99,7 +118,7 @@ namespace Composable.CQRS.ServiceBus.NServicebus.Tests.UowTests
     {
     }
 
-    public class MyUOWParticipant : IUnitOfWorkParticipant
+    public class MyUOWParticipant : MarshalByRefObject, IUnitOfWorkParticipant
     {
         public static int Instances;        
         public static int TimesCommitted;

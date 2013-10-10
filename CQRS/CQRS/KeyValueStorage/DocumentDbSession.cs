@@ -117,6 +117,7 @@ namespace Composable.KeyValueStorage
         public IEnumerable<TValue> Get<TValue>(IEnumerable<Guid> ids) where TValue : IHasPersistentIdentity<Guid>
         {
             UsageGuard.AssertNoContextChangeOccurred(this);
+            ids = ids.ToList();//Avoid multiple enumerations.            
 
             var stored = BackingStore.GetAll<TValue>(ids);
             

@@ -2,132 +2,134 @@
 
 using System;
 using System.Configuration;
-using System.Reflection;
 using System.Threading;
 using System.Transactions;
+using Castle.MicroKernel.Registration;
 using Castle.Windsor;
 using Composable.CQRS.ServiceBus.NServiceBus;
 using Composable.CQRS.ServiceBus.NServiceBus.EndpointConfiguration;
 using Composable.CQRS.Testing;
+using Composable.CQRS.Windsor;
 using Composable.ServiceBus;
 using Composable.System;
-using Composable.SystemExtensions.Threading;
 using Composable.UnitsOfWork;
+using JetBrains.Annotations;
 using NCrunch.Framework;
 using NServiceBus;
 using NUnit.Framework;
-using Composable.CQRS.Windsor;
-using Component = Castle.MicroKernel.Registration.Component;
 
 #endregion
 
 namespace Composable.CQRS.ServiceBus.NServicebus.Tests.UowTests
 {
     [TestFixture, NUnit.Framework.Category("NSBFullSetupTests")]
-    [ExclusivelyUses(NCrunchExlusivelyUsesResources.NServiceBus)]
+    [ExclusivelyUses(NCrunchExclusivelyUsesResources.NServiceBus)]
     [NCrunch.Framework.Isolated]
     public class WhenReceivingMessage
     {
+        private TestResults _results;
+
         [TestFixtureSetUp]
         public void SendMessageToNewEndpoint()
         {
-            var myDomain = AppDomain.CurrentDomain;
-            var otherDomain = AppDomain.CreateDomain("other domain", myDomain.Evidence, myDomain.BaseDirectory, myDomain.RelativeSearchPath, false);
-
-            
-            var otherType = typeof(ReceivingMessageScenario);
-            var executor = otherDomain.CreateInstanceAndUnwrap(otherType.Assembly.FullName, otherType.FullName) as ReceivingMessageScenario;
-
-            executor.Execute(AppDomain.CurrentDomain);
-
-            AppDomain.Unload(otherDomain);
+            using(var cloneDomainScope = AppDomain.CurrentDomain.CloneScope())
+            {
+                _results = cloneDomainScope.CreateType<ReceivingMessageScenario>().Execute();
+            }
         }
 
+        [UsedImplicitly]
         public class ReceivingMessageScenario : MarshalByRefObject
         {
             private IServiceBus _bus;
             private IBus _nsbBus;
 
-            public void Execute(AppDomain currentDomain)
+            public TestResults Execute()
             {
-                var endpointConfigurer = new MyEndPointConfigurer("Composable.CQRS.ServiceBus.NServicebus.Tests.UowTests");
+                var endpointConfigurator = new UOWTestEndpointConfigurator("Composable.CQRS.ServiceBus.NServicebus.Tests.UowTests");               
 
-                 
-
-                ConfigurationManager.OpenExeConfiguration(currentDomain.SetupInformation.ConfigurationFile);
-
-
-                endpointConfigurer.Init();
-                _bus = endpointConfigurer.Container.Resolve<IServiceBus>();
-                _nsbBus = endpointConfigurer.Container.Resolve<IBus>();
+                endpointConfigurator.Init();
+                _bus = endpointConfigurator.Container.Resolve<IServiceBus>();
+                _nsbBus = endpointConfigurator.Container.Resolve<IBus>();
 
                 var messageHandled = new ManualResetEvent(false);
-                TransactionStatus status = TransactionStatus.Active;
+                var status = TransactionStatus.Active;
                 TestingSupportMessageModule.OnHandleBeginMessage += transaction =>
                 {
-                    transaction.TransactionCompleted += (_, __) =>
+                    transaction.TransactionCompleted += (_, transactionEventArgs) =>
                     {
                         messageHandled.Set();
-                        status = __.Transaction.TransactionInformation.Status;
+                        status = transactionEventArgs.Transaction.TransactionInformation.Status;
                     };
                 };
 
-                _bus.SendLocal(new InvokeUOWCommandMessage());
+                _bus.SendLocal(new InvokeUnitOfWorkCommandMessage());
 
                 Assert.That(messageHandled.WaitOne(30.Seconds()), Is.True, "Timed out waiting for message");
-
-                for (int i = 0; i < 100 && status != TransactionStatus.Committed; i++)
-                {
-                    Console.Write("Awaiting completion");
-                    Thread.Sleep(10.Milliseconds());
-                }
 
                 Assert.That(status, Is.EqualTo(TransactionStatus.Committed), "Message handling did not complete successfully");
 
                 ((IDisposable)_nsbBus).Dispose();
+                return new TestResults()
+                       {
+                           Instances = MyUnitOfWorkParticipant.Instances,
+                           TimesCommitted = MyUnitOfWorkParticipant.TimesCommitted,
+                           TimesJoined = MyUnitOfWorkParticipant.TimesJoined,
+                           TimesRolledBack = MyUnitOfWorkParticipant.TimesRolledBack
+                       };
             }
         }
 
         [Test]
         public void ExactlyOneInstanceOfParticipantIsCreated()
         {
-            Assert.That(MyUOWParticipant.Instances, Is.EqualTo(1));
+            Assert.That(_results.Instances, Is.EqualTo(1));
         }
 
         [Test]
         public void ParticipantIsCommittedExactlyOnce()
         {
-            Assert.That(MyUOWParticipant.TimesCommitted, Is.EqualTo(1));
+            Assert.That(_results.TimesCommitted, Is.EqualTo(1));
         }
 
         [Test]
         public void ParticipantJoinsUowExaclyOnce()
         {
-            Assert.That(MyUOWParticipant.TimesJoined, Is.EqualTo(1));
+            Assert.That(_results.TimesJoined, Is.EqualTo(1));
         }
 
         [Test]
         public void ParticipantIsNeverRolledBack()
         {
-            Assert.That(MyUOWParticipant.TimesRollbacked, Is.EqualTo(0));
+            Assert.That(_results.TimesRolledBack, Is.EqualTo(0));
         }
 
     }
 
-    public class InvokeUOWCommandMessage : ICommand
+    [Serializable]
+    public class TestResults
+    {
+        public int Instances;
+        public int TimesCommitted;
+        public int TimesRolledBack;
+        public int TimesJoined;
+    }
+
+    public class InvokeUnitOfWorkCommandMessage : ICommand
     {
     }
 
-    public class MyUOWParticipant : MarshalByRefObject, IUnitOfWorkParticipant
+    [UsedImplicitly]
+    public class MyUnitOfWorkParticipant : IUnitOfWorkParticipant
     {
         public static int Instances;        
         public static int TimesCommitted;
-        public static int TimesRollbacked;
+        public static int TimesRolledBack;
         public static int TimesJoined;
 
         private IUnitOfWork _unit;
 
-        public MyUOWParticipant()
+        public MyUnitOfWorkParticipant()
         {
             Instances++;
         }
@@ -153,7 +155,7 @@ namespace Composable.CQRS.ServiceBus.NServicebus.Tests.UowTests
 
         public void Rollback(IUnitOfWork unit)
         {
-            TimesRollbacked++;
+            TimesRolledBack++;
             if (_unit != unit)
             {
                 throw new Exception("wrong unit!");
@@ -162,23 +164,23 @@ namespace Composable.CQRS.ServiceBus.NServicebus.Tests.UowTests
     }
 
    
-    public class InvokeUOWCommandMessageMessageHandler : IHandleMessages<InvokeUOWCommandMessage>
+    public class InvokeUOWCommandMessageMessageHandler : IHandleMessages<InvokeUnitOfWorkCommandMessage>
     {
-        public InvokeUOWCommandMessageMessageHandler(MyUOWParticipant session)
+        public InvokeUOWCommandMessageMessageHandler(MyUnitOfWorkParticipant session)
         {
             
         }
 
-        public void Handle(InvokeUOWCommandMessage message)
+        public void Handle(InvokeUnitOfWorkCommandMessage message)
         {
         }
     }
 
-    public class MyEndPointConfigurer : NServicebusEndpointConfigurationBase<MyEndPointConfigurer>, IConfigureThisEndpoint
+    public class UOWTestEndpointConfigurator : NServicebusEndpointConfigurationBase<UOWTestEndpointConfigurator>, IConfigureThisEndpoint
     {
         private readonly string _queueName;
 
-        public MyEndPointConfigurer(string queueName)
+        public UOWTestEndpointConfigurator(string queueName)
         {
             _queueName = queueName;
         }
@@ -192,7 +194,7 @@ namespace Composable.CQRS.ServiceBus.NServicebus.Tests.UowTests
         {
             Container = container;
             container.Register(Component.For<IServiceBus>().ImplementedBy<NServiceBusServiceBus>(),
-                Component.For<IUnitOfWorkParticipant, MyUOWParticipant>().ImplementedBy<MyUOWParticipant>().LifeStyle.PerNserviceBusMessage());
+                Component.For<IUnitOfWorkParticipant, MyUnitOfWorkParticipant>().ImplementedBy<MyUnitOfWorkParticipant>().LifeStyle.PerNserviceBusMessage());
         }
 
         public IWindsorContainer Container { get; set; }

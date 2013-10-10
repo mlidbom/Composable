@@ -54,7 +54,7 @@ namespace Composable.KeyValueStorage
             }
 
             var documentItem = GetDocumentItem(key, documentType);
-            if(!documentItem.IsDeleted && BackingStore.TryGet(key, out value) && documentType.IsAssignableFrom(value.GetType()))
+            if(!documentItem.IsDeleted && BackingStore.TryGet(key, out value, _persistentValues) && documentType.IsAssignableFrom(value.GetType()))
             {
                 OnInitialLoad(key, value);
                 return true;
@@ -70,7 +70,7 @@ namespace Composable.KeyValueStorage
 
             if (!_handledDocuments.TryGetValue(documentKey, out doc))
             {                
-                doc = new DocumentItem(documentKey, BackingStore);
+                doc = new DocumentItem(documentKey, BackingStore, this._persistentValues);
                 _handledDocuments.Add(documentKey, doc);
             }
             return doc;
@@ -250,7 +250,8 @@ namespace Composable.KeyValueStorage
         }
 
         private IUnitOfWork _unitOfWork;
-        private readonly Guid _id = Guid.NewGuid();        
+        private readonly Guid _id = Guid.NewGuid();
+        private Dictionary<Type, Dictionary<string, string>> _persistentValues = new Dictionary<Type, Dictionary<string, string>>();
 
 
         IUnitOfWork IUnitOfWorkParticipant.UnitOfWork { get { return _unitOfWork; } }

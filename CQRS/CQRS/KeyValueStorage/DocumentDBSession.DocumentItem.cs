@@ -9,11 +9,13 @@ namespace Composable.KeyValueStorage
         internal class DocumentItem
         {
             private readonly IDocumentDb _backingStore;
+            private readonly Dictionary<Type, Dictionary<string, string>> _persistentValues;
             private DocumentKey Key { get; set; }
 
-            public DocumentItem(DocumentKey key, IDocumentDb backingStore)
+            public DocumentItem(DocumentKey key, IDocumentDb backingStore, Dictionary<Type, Dictionary<string, string>> persistentValues)
             {
                 _backingStore = backingStore;
+                _persistentValues = persistentValues;
                 Key = key;
             }
 
@@ -64,7 +66,7 @@ namespace Composable.KeyValueStorage
                     if(ScheduledForAdding)
                     {
                         IsInBackingStore = true;
-                        _backingStore.Add(Key.Id, Document);
+                        _backingStore.Add(Key.Id, Document, _persistentValues);
                     }
                     else if(ScheduledForRemoval)
                     {
@@ -76,7 +78,7 @@ namespace Composable.KeyValueStorage
                     }
                     else if(ScheduledForUpdate)
                     {
-                        _backingStore.Update(Seq.Create(new KeyValuePair<string, object>(Key.Id, Document)));
+                        _backingStore.Update(Seq.Create(new KeyValuePair<string, object>(Key.Id, Document)), _persistentValues);
                     }
                 }
             }

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
+using Castle.Components.DictionaryAdapter.Xml;
 using Composable.DDD;
 using Composable.NewtonSoft;
 using Composable.System.Collections.Collections;
@@ -37,7 +38,12 @@ namespace Composable.KeyValueStorage
 
         private readonly Dictionary<Type, Dictionary<string, string>> _persistentValues = new Dictionary<Type, Dictionary<string, string>>();
 
-        override public void Add<T>(object id, T value)
+        public bool TryGet<T>(object id, out T value, Dictionary<Type, Dictionary<string, string>> persistentValues)
+        {
+            return TryGet<T>(id, out value);
+        }
+
+        public void Add<T>(object id, T value, Dictionary<Type, Dictionary<string, string>> persistentValues)
         {
             lock(_lockObject)
             {

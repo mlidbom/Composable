@@ -14,8 +14,12 @@ namespace CQRS.Tests.KeyValueStorage.Sql
         private static readonly string ConnectionString = ConfigurationManager.ConnectionStrings["KeyValueStore"].ConnectionString;
         private IDocumentDb _store = null;
         private string _ignoredString;
+        private Dictionary<Type, Dictionary<string, string>> _persistentValues;
 
-        public abstract void before_each();
+        public virtual void before_each()
+        {
+            _persistentValues = new Dictionary<Type, Dictionary<string, string>>();
+        }
 
         public void starting_from_empty()
         {
@@ -53,7 +57,7 @@ namespace CQRS.Tests.KeyValueStorage.Sql
                     context["when adding a document with the id \"the_id\" and the value \"the_value\""] =
                         () =>
                         {
-                            act = () => _store.Add("the_id", "the_value");
+                            act = () => _store.Add("the_id", "the_value", _persistentValues);
                             it["DocumentUpdated is received"] = () => documentUpdated.Should().NotBeNull();
                             it["documentUpdated.Key is the_id"] = () => documentUpdated.Key.Should().Be("the_id");
                             it["documentUpdated.Document is \"the_value\""] = () => documentUpdated.Document.Should().Be("the_value");
@@ -64,7 +68,7 @@ namespace CQRS.Tests.KeyValueStorage.Sql
                         {
                             before = () =>
                                      {
-                                         _store.Add("the_id", "the_value");
+                                         _store.Add("the_id", "the_value", _persistentValues);
                                          nullOutReceived();
                                      };
 
@@ -74,7 +78,7 @@ namespace CQRS.Tests.KeyValueStorage.Sql
                                     act = () => _store.Update(new Dictionary<string, object>()
                                                               {
                                                                   {"the_id", "the_value"}
-                                                              });
+                                                              }, _persistentValues);
 
                                     it["subscriber is not notified"] = () => documentUpdated.Should().BeNull();
                                     it["typed subscriber is not notified"] = () => typedDocumentUpdated.Should().BeNull();
@@ -88,7 +92,7 @@ namespace CQRS.Tests.KeyValueStorage.Sql
                                     act = () => _store.Update(new Dictionary<string, object>()
                                                               {
                                                                   {"the_id", "another_value"}
-                                                              });
+                                                              }, _persistentValues);
 
                                     it["DocumentUpdated is received"] = () => documentUpdated.Should().NotBeNull();
                                     it["documentUpdated.Key is the_id"] = () => documentUpdated.Key.Should().Be("the_id");
@@ -105,7 +109,7 @@ namespace CQRS.Tests.KeyValueStorage.Sql
                                 () =>
                                 {
                                     act = () => _store.Remove<string>("the_id");
-                                    it["store does not contain document with id \"the_id\""] = () => _store.TryGet("the_id", out _ignoredString).Should().BeFalse();
+                                    it["store does not contain document with id \"the_id\""] = () => _store.TryGet("the_id", out _ignoredString, _persistentValues).Should().BeFalse();
                                 };
                             context["after unsubscribing"] =
                                 () =>
@@ -117,7 +121,7 @@ namespace CQRS.Tests.KeyValueStorage.Sql
                                             act = () => _store.Update(new Dictionary<string, object>()
                                                                       {
                                                                           {"the_id", "another_value"}
-                                                                      });
+                                                                      }, _persistentValues);
 
                                             it["DocumentUpdated is not received"] = () => documentUpdated.Should().BeNull();
                                             it["typedDocumentUpdated is not received"] = () => typedDocumentUpdated.Should().BeNull();
@@ -132,7 +136,7 @@ namespace CQRS.Tests.KeyValueStorage.Sql
                             context["when adding a document with the id \"the_id\" and the value \"the_value\""] =
                                 () =>
                                 {
-                                    act = () => _store.Add("the_id", "the_value");
+                                    act = () => _store.Add("the_id", "the_value", _persistentValues);
                                     it["DocumentUpdated is not received"] = () => documentUpdated.Should().BeNull();
                                     it["typedDocumentUpdated is not received"] = () => typedDocumentUpdated.Should().BeNull();
                                     it["no document is received"] = () => receivedDocument.Should().BeNull();
@@ -144,7 +148,7 @@ namespace CQRS.Tests.KeyValueStorage.Sql
         private string GetStoredValue(string theID)
         {
             string storedValue;
-            _store.TryGet<string>(theID, out storedValue);
+            _store.TryGet<string>(theID, out storedValue, _persistentValues);
             return storedValue;
         }
 
@@ -153,6 +157,7 @@ namespace CQRS.Tests.KeyValueStorage.Sql
         {
             override public void before_each()
             {
+                base.before_each();
                 SqlServerDocumentDb.ResetDB(ConnectionString);
                 _store = new SqlServerDocumentDb(ConnectionString);
             }
@@ -167,6 +172,7 @@ namespace CQRS.Tests.KeyValueStorage.Sql
         {
             override public void before_each()
             {
+                base.before_each();
                 _store = new InMemoryDocumentDb();
             }
         }

@@ -103,6 +103,8 @@ namespace Composable.CQRS.ServiceBus.NServiceBus.ErrorMessagesTests
             Extractor = new ExceptionExtractor();
         }
 
+        override protected bool PurgeOnStartUp { get { return true; } }
+
         override protected Configure ConfigureLogging(Configure config)
         {
             return config;

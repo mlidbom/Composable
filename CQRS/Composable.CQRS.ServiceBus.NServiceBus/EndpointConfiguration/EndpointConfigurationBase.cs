@@ -37,7 +37,7 @@ namespace Composable.CQRS.ServiceBus.NServiceBus.EndpointConfiguration
             var busConfig = config2.XmlSerializer()
                 .MsmqTransport()
                 .IsTransactional(true)
-                .PurgeOnStartup(false)
+                .PurgeOnStartup(PurgeOnStartUp)
                 .UnicastBus();
 
             var busConfig2 = LoadMessageHandlers(busConfig, First<EmptyHandler>.Then<MessageSourceValidator>().AndThen<CatchSerializationErrors>());
@@ -46,6 +46,8 @@ namespace Composable.CQRS.ServiceBus.NServiceBus.EndpointConfiguration
                 .CreateBus()
                 .Start(() => Configure.Instance.ForInstallationOn<global::NServiceBus.Installation.Environments.Windows>().Install());
         }
+
+        protected virtual bool PurgeOnStartUp { get { return false; } }
 
         protected virtual Configure ConfigureLogging(Configure config)
         {

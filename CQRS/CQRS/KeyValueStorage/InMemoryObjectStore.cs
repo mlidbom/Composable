@@ -120,7 +120,7 @@ namespace Composable.KeyValueStorage
             return GetEnumerator();
         }
 
-        public void Update(IEnumerable<KeyValuePair<string, object>> values)
+        public void Update(IEnumerable<KeyValuePair<string, object>> values, Dictionary<Type, Dictionary<string, string>> persistentValues)
         {
             lock(_lockObject)
             {

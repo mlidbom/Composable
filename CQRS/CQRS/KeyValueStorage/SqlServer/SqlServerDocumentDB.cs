@@ -23,7 +23,6 @@ namespace Composable.KeyValueStorage.SqlServer
 
         private static readonly JsonSerializerSettings _jsonSettings = JsonSettings.JsonSerializerSettings;
 
-        private readonly Dictionary<Type, Dictionary<string, string>> _persistentValues = new Dictionary<Type, Dictionary<string, string>>();
         private const int UniqueConstraintViolationErrorNumber = 2627;
 
         private static readonly object LockObject = new object();
@@ -56,8 +55,8 @@ namespace Composable.KeyValueStorage.SqlServer
             return KnownTypes.Single(pair => pair.Value == id).Key;
         }
 
-        public bool TryGet<TValue>(object key, out TValue value)
-        {
+        public bool TryGet<TValue>(object key, out TValue value, Dictionary<Type, Dictionary<string, string>> persistentValues)
+        {           
             EnsureInitialized();
 
             if (!IsKnownType(typeof(TValue)))
@@ -91,7 +90,7 @@ WHERE Id=@Id AND ValueTypeId
                         }
                         var stringValue = reader.GetString(0);
                         found = JsonConvert.DeserializeObject(stringValue, GetTypeFromId(reader.GetInt32(1)), _jsonSettings);
-                        _persistentValues.GetOrAddDefault(found.GetType())[idString] = stringValue;
+                        persistentValues.GetOrAddDefault(found.GetType())[idString] = stringValue;
                     }
                 }
             }
@@ -100,7 +99,7 @@ WHERE Id=@Id AND ValueTypeId
             return true;
         }
 
-        public void Add<T>(object id, T value)
+        public void Add<T>(object id, T value, Dictionary<Type, Dictionary<string, string>> persistentValues)
         {
             EnsureInitialized();
 
@@ -122,7 +121,7 @@ WHERE Id=@Id AND ValueTypeId
 
                     NotifySubscribersDocumentUpdated(idString, value);
 
-                    _persistentValues.GetOrAddDefault(value.GetType())[idString] = stringValue;
+                    persistentValues.GetOrAddDefault(value.GetType())[idString] = stringValue;
                     try
                     {
                         command.ExecuteNonQuery();
@@ -173,7 +172,7 @@ WHERE Id=@Id AND ValueTypeId
             }
         }
 
-        public void Update(IEnumerable<KeyValuePair<string, object>> values)
+        public void Update(IEnumerable<KeyValuePair<string, object>> values, Dictionary<Type, Dictionary<string, string>> persistentValues)
         {
             EnsureInitialized();
             values = values.ToList();
@@ -188,10 +187,10 @@ WHERE Id=@Id AND ValueTypeId
 
                         string oldValue;
                         string idString = GetIdString(entry.Key);
-                        var needsUpdate = !_persistentValues.GetOrAddDefault(entry.Value.GetType()).TryGetValue(idString, out oldValue) || stringValue != oldValue;
+                        var needsUpdate = !persistentValues.GetOrAddDefault(entry.Value.GetType()).TryGetValue(idString, out oldValue) || stringValue != oldValue;
                         if(needsUpdate)
                         {
-                            _persistentValues.GetOrAddDefault(entry.Value.GetType())[idString] = stringValue;
+                            persistentValues.GetOrAddDefault(entry.Value.GetType())[idString] = stringValue;
                             command.CommandText += "UPDATE Store SET Value = @Value WHERE Id = @Id AND ValueTypeId \n";
                             command.Parameters.Add(new SqlParameter("Id", entry.Key));
 

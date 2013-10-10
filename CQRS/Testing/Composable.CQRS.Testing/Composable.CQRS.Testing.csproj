@@ -78,6 +78,7 @@
     <Compile Include="..\..\..\CommonAssemblyInfo.cs">
       <Link>Properties\CommonAssemblyInfo.cs</Link>
     </Compile>
+    <Compile Include="AppDomainExtensions.cs" />
     <Compile Include="Diagnostics\DocumentDbSessionInspector.cs" />
     <Compile Include="CollectionAssertions.cs" />
     <Compile Include="DatabaseHelpers.cs" />

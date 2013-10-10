@@ -12,6 +12,7 @@ using Composable.ServiceBus;
 using Composable.System;
 using Composable.SystemExtensions.Threading;
 using Composable.UnitsOfWork;
+using JetBrains.Annotations;
 using NCrunch.Framework;
 using NServiceBus;
 using NServiceBus.Faults;
@@ -34,46 +35,55 @@ namespace Composable.CQRS.ServiceBus.NServiceBus.ErrorMessagesTests
         [Test]
         public void ExceptionPassedToStackTraceFormatterContainsOriginalException()
         {
-            var endpointConfigurer = new MyEndPointConfigurer("Composable.CQRS.ServiceBus.NServicebus.Tests.ErrorMessages");
+            AppDomainExtensions.ExecuteInCloneDomainScope<ScenarioExecutor>(
+                executor => executor.Execute(), 
+                disposeDelay:50.Milliseconds());
+        }
+    }
+
+    [UsedImplicitly]
+    public class ScenarioExecutor : MarshalByRefObject
+    {
+        public void Execute()
+        {
+            var endpointConfigurator = new MyEndPointConfigurer("Composable.CQRS.ServiceBus.NServicebus.Tests.ErrorMessages");
 
 
-            endpointConfigurer.Init();
-            var bus = endpointConfigurer.Container.Resolve<IServiceBus>();
-            var nsbBus = endpointConfigurer.Container.Resolve<IBus>();
+            endpointConfigurator.Init();
+            var bus = endpointConfigurator.Container.Resolve<IServiceBus>();
+            var nsbBus = endpointConfigurator.Container.Resolve<IBus>();
 
             var messageHandled = new ManualResetEvent(false);
-            TransactionStatus status = TransactionStatus.Active;
+            var status = TransactionStatus.Active;
             TestingSupportMessageModule.OnHandleBeginMessage += transaction =>
             {
-                transaction.TransactionCompleted += (_, __) =>
+                transaction.TransactionCompleted += (_, transactionEventArgs) =>
                 {
                     messageHandled.Set();
-                    status = __.Transaction.TransactionInformation.Status;
+                    status = transactionEventArgs.Transaction.TransactionInformation.Status;
                 };
             };
 
             Exception exceptionPassedToFailureHeaderProvider = null;
-            ManualResetEvent messageErrorHandlingInvoked = new ManualResetEvent(false);
+            var messageErrorHandlingInvoked = new ManualResetEvent(false);
 
-            endpointConfigurer.Extractor.RecievedException += e =>
+            endpointConfigurator.Extractor.RecievedException += e =>
             {
                 exceptionPassedToFailureHeaderProvider = e;
                 messageErrorHandlingInvoked.Set();
             };
+            
 
-            bus.SendLocal(new ErrorGeneratingMessage());            
+            bus.SendLocal(new ErrorGeneratingMessage());
 
             Assert.That(messageHandled.WaitOne(30.Seconds()), Is.True, "Timed out waiting for message");
 
-            Thread.Sleep(3000);
-
             Assert.That(messageErrorHandlingInvoked.WaitOne(30.Seconds()), Is.True, "Timed out waiting for error handling to be invoked");
-            
-            exceptionPassedToFailureHeaderProvider.GetRootCauseException().Should().BeOfType<RootCauseException>();            
+
+            exceptionPassedToFailureHeaderProvider.GetRootCauseException().Should().BeOfType<RootCauseException>();
 
             ((IDisposable)nsbBus).Dispose();
-
-        }     
+        }
     }
 
     public class ErrorGeneratingMessage : ICommand

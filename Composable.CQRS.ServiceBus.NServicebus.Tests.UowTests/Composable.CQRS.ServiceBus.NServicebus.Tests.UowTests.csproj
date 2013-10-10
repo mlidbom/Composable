@@ -87,9 +87,12 @@
     <Compile Include="NCrunchExlusivelyUsesResources.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="StubMain.cs" />
-    <Compile Include="WhenRecievingMessage.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Composable.DomainEvents\Composable.DomainEvents.csproj">
+      <Project>{cd7ecab7-ad05-43a6-a13e-74340838ddde}</Project>
+      <Name>Composable.DomainEvents</Name>
+    </ProjectReference>
     <ProjectReference Include="..\CQRS\Composable.CQRS.ServiceBus.NServiceBus\Composable.CQRS.ServiceBus.NServiceBus.csproj">
       <Project>{8E02A33A-FFE5-4484-B279-E00F86D5999B}</Project>
       <Name>Composable.CQRS.ServiceBus.NServiceBus</Name>

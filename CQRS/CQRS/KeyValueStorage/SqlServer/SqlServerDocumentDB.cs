@@ -34,8 +34,11 @@ namespace Composable.KeyValueStorage.SqlServer
             DocumentUpdated = Observable.Create<IDocumentUpdated>(
                 obs =>
                 {
-                    _observers.Add(obs);
-                    return Disposable.Create(() => _observers.Remove(obs));
+                    lock(LockObject)
+                    {
+                        _observers.Add(obs);
+                        return Disposable.Create(() => _observers.Remove(obs));
+                    }
                 });
         }
 
@@ -43,7 +46,12 @@ namespace Composable.KeyValueStorage.SqlServer
 
         private void NotifySubscribersDocumentUpdated(string key, object document)
         {
-            _observers.ForEach(observer => observer.OnNext(new DocumentUpdated(key, document)));
+            IObserver<IDocumentUpdated>[] observers;            
+            lock(LockObject)
+            {
+                observers = _observers.ToArray();                
+            }
+            observers.ForEach(observer => observer.OnNext(new DocumentUpdated(key, document)));
         }
 
         private readonly ISet<IObserver<IDocumentUpdated>> _observers = new HashSet<IObserver<IDocumentUpdated>>();

@@ -4,6 +4,7 @@ using System.Dynamic;
 using System.Linq;
 using Castle.Windsor;
 using Composable.KeyValueStorage.Population;
+using Composable.System.Linq;
 using Composable.System.Reflection;
 using Composable.System.Transactions;
 using NServiceBus;
@@ -50,11 +51,12 @@ namespace Composable.ServiceBus
             }
         }
 
-        private static IEnumerable<Type> GetHandlerTypes<TMessage>(TMessage message) where TMessage : IMessage
+        private IEnumerable<Type> GetHandlerTypes<TMessage>(TMessage message) where TMessage : IMessage
         {
             return message.GetType().GetAllTypesInheritedOrImplemented()
                 .Where(t => t.Implements(typeof(IMessage)))
                 .Select(t => typeof(IHandleMessages<>).MakeGenericType(t))
+                .Where(t => ServiceLocator.Kernel.HasComponent(t))
                 .ToArray();
         }
 

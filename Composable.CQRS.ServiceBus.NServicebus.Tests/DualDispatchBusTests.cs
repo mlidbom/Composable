@@ -16,22 +16,17 @@ namespace Composable.CQRS.ServiceBus.NServicebus.Tests
 {
     [TestFixture]
     public class DualDispatchBusTests
-    {
+    {   
         [Test]
         public void WhenSendingMessageThatHasNoWiredHandlerInContainerMessageIsSentOnNServiceBusBus()
         {
-            var container = new WindsorContainer();
+            var container = SetupContainerWithBusesRegisteredButNoHandlersAndAMockForIBus();
+
+            var busMock = container.Resolve<Mock<IBus>>();
+
             var message = new Message();
-            var busMock = new Mock<IBus>(MockBehavior.Strict);
             busMock.Setup(bus => bus.Send(message)).Returns(new Callback(null)).Verifiable();
             busMock.Setup(bus => bus.OutgoingHeaders).Returns(new Dictionary<string, string>());
-            container.Register(
-                Component.For<IBus>().Instance(busMock.Object),
-                Component.For<ISingleContextUseGuard>().ImplementedBy<SingleThreadUseGuard>(),
-                Component.For<SynchronousBus>(),
-                Component.For<NServiceBusServiceBus>(),
-                Component.For<IServiceBus>().ImplementedBy<DualDispatchBus>().LifestyleScoped()
-                );
 
             container.Register(Component.For<IWindsorContainer>().Instance(container));
 
@@ -46,15 +41,8 @@ namespace Composable.CQRS.ServiceBus.NServicebus.Tests
         [Test]
         public void WhenSendingMessageThatHasAWiredHandlerInContainerMessageIsSentOnSynchronousBus()
         {
-            var container = new WindsorContainer();
-            container.Register(
-                Component.For<IBus>().Instance(new Mock<IBus>(MockBehavior.Strict).Object),
-                Component.For<ISingleContextUseGuard>().ImplementedBy<SingleThreadUseGuard>(),
-                Component.For<SynchronousBus>(),
-                Component.For<NServiceBusServiceBus>(),
-                Component.For<IServiceBus>().ImplementedBy<DualDispatchBus>().LifestyleScoped(),
-                Component.For<AMessageHandler, IHandleMessages<Message>>().ImplementedBy<AMessageHandler>()
-                );
+            var container = SetupContainerWithBusesRegisteredButNoHandlersAndAMockForIBus();
+            container.Register(Component.For<AMessageHandler, IHandleMessages<Message>>().ImplementedBy<AMessageHandler>());
 
             container.Register(Component.For<IWindsorContainer>().Instance(container));
 
@@ -148,15 +136,25 @@ namespace Composable.CQRS.ServiceBus.NServicebus.Tests
 
         public class SendAMessageAndThenReplyCommand : IMessage { }
 
-        private static WindsorContainer WireUpDualDispatchBusWithAllLocalMessageHandlersRegisteredAndAStrictMockForTheRealIBus()
+        private static WindsorContainer SetupContainerWithBusesRegisteredButNoHandlersAndAMockForIBus()
         {
             var container = new WindsorContainer();
+            var busMock1 = new Mock<IBus>(MockBehavior.Strict);
             container.Register(
-                Component.For<IBus>().Instance(new Mock<IBus>(MockBehavior.Strict).Object),
+                Component.For<Mock<IBus>>().Instance(busMock1),
+                Component.For<IBus>().Instance(busMock1.Object),
                 Component.For<ISingleContextUseGuard>().ImplementedBy<SingleThreadUseGuard>(),
                 Component.For<SynchronousBus>(),
                 Component.For<NServiceBusServiceBus>(),
-                Component.For<IServiceBus>().ImplementedBy<DualDispatchBus>().LifestyleScoped(),
+                Component.For<IServiceBus>().ImplementedBy<DualDispatchBus>()
+                );
+            return container;
+        }
+
+        private static WindsorContainer WireUpDualDispatchBusWithAllLocalMessageHandlersRegisteredAndAStrictMockForTheRealIBus()
+        {
+            var container = SetupContainerWithBusesRegisteredButNoHandlersAndAMockForIBus();
+            container.Register(
                 Component.For<IHandleMessages<ReplyCommand>>().ImplementedBy<ACommandHandler>(),
                 Component.For<ACommandReplyHandler, IHandleMessages<ReplyMessage>>().ImplementedBy<ACommandReplyHandler>(),
                 Component.For<IHandleMessages<SendAMessageAndThenReplyCommand>>().ImplementedBy<SendAMessageAndThenReplyCommandCommandHandler>(),

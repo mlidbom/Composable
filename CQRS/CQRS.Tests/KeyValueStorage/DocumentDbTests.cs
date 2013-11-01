@@ -845,7 +845,7 @@ namespace CQRS.Tests.KeyValueStorage
             {
                 var people = session.Get<User>(new[] { user1.Id });
 
-                Assert.That(people, Has.Count.EqualTo(1));
+                Assert.That(people.ToList(), Has.Count.EqualTo(1));
                 Assert.That(people, Contains.Item(user1));
             }
         }

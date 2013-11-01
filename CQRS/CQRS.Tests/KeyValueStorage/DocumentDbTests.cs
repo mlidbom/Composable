@@ -827,22 +827,18 @@ namespace CQRS.Tests.KeyValueStorage
         }
 
         [Test]
-        public void GetByIdsShouldReturnCorrectResult()
+        public void GetByIdsShouldReturnOnlyMatchingResultEvenWhenMoreResultsAreInTheCache()
         {
             var store = CreateStore();
 
-            var user1 = new User { Id = Guid.NewGuid() };
-            var user2 = new User { Id = Guid.NewGuid() };
+            var user1 = new User { Id = Guid.Parse("00000000-0000-0000-0000-000000000001") };
+            var user2 = new User { Id = Guid.Parse("00000000-0000-0000-0000-000000000002") };
 
             using (var session = OpenSession(store))
             {
                 session.Save(user1);
                 session.Save(user2);
-                session.SaveChanges();
-            }
 
-            using (var session = OpenSession(store))
-            {
                 var people = session.Get<User>(new[] { user1.Id });
 
                 Assert.That(people.ToList(), Has.Count.EqualTo(1));

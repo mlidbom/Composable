@@ -12,9 +12,11 @@ namespace Composable.CQRS.ServiceBus.NServiceBus
 
         private bool _dispatchingOnSynchronousBus = false;
         private readonly SingleThreadUseGuard _usageGuard;
+        private IDualDispatchBusRouter _router;
 
-        public DualDispatchBus(SynchronousBus local, NServiceBusServiceBus realBus)
+        public DualDispatchBus(SynchronousBus local, NServiceBusServiceBus realBus, IDualDispatchBusRouter router = null)
         {
+            _router = router ?? DefaultDualDispatchBusRouter.Instance;
             _usageGuard = new SingleThreadUseGuard();
             _local = local;
             _realBus = realBus;
@@ -52,7 +54,7 @@ namespace Composable.CQRS.ServiceBus.NServiceBus
         {
             _usageGuard.AssertNoContextChangeOccurred(this);
             //There can only be one handler in a send scenario and we let the synchronous bus get the first pick.
-            if(_local.Handles((IMessage)message))
+            if(_router.SendToSynchronousBus((IMessage)message, _local))
             {
                 DispatchOnSynchronousBus(() => _local.Send(message));
             }

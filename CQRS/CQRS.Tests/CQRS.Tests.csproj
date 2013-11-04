@@ -169,6 +169,7 @@
     <Compile Include="Query\WhenExecutingQuery.cs" />
     <Compile Include="Query\WhenExecutingQueryStructuremap.cs" />
     <Compile Include="Query\WhenExecutingQueryWindsor.cs" />
+    <Compile Include="ServiceBus\SynchronousBusSpecification.cs" />
     <Compile Include="StubMain.cs" />
     <Compile Include="UnitOfWorkTests\WindsorUnitOfWorkExtensionsTests.cs" />
   </ItemGroup>

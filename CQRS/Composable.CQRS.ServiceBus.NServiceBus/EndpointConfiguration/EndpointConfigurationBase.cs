@@ -1,11 +1,16 @@
 ﻿#region usings
 
+using System;
+using System.Collections.Generic;
 using System.Configuration;
+using System.Linq;
+using System.Reflection;
 using Castle.Core;
 using Castle.MicroKernel.Registration;
 using Castle.MicroKernel.Releasers;
 using Castle.Windsor;
 using Composable.CQRS.Windsor;
+using Composable.System.Linq;
 using Composable.SystemExtensions.Threading;
 using NServiceBus;
 using NServiceBus.Faults;
@@ -22,9 +27,19 @@ namespace Composable.CQRS.ServiceBus.NServiceBus.EndpointConfiguration
     {        
         private WindsorContainer _container;
 
+        protected static readonly IEnumerable<Assembly> AssembliesItIsRequiredThatYouScan = Seq.OfTypes<
+                global::NServiceBus.IMessage,//NServiceBus.Interfaces
+                global::NServiceBus.Hosting.IHost,//NServiceBus.Host
+                global::NServiceBus.Licensing.SystemInfo,//NServiceBus.Core
+                Composable.DomainEvents.IDomainEvent,//Composable.DomainEvents
+                Composable.CQRS.Command.ICommand,//Composable.CQRS
+                Composable.DisposeAction>()
+                .Select(type => type.Assembly)
+                .ToList();//Composable.Core
+
         protected virtual void StartNServiceBus(WindsorContainer windsorContainer)
         {
-            var config = Configure.With()
+            var config = InitializeConfigurationAndDecideOnScanningPolicy()
                 .DefineEndpointName(InputQueueName)
                 .CastleWindsorBuilder(container: windsorContainer);
 
@@ -45,6 +60,21 @@ namespace Composable.CQRS.ServiceBus.NServiceBus.EndpointConfiguration
             busConfig2.ImpersonateSender(false)
                 .CreateBus()
                 .Start(() => Configure.Instance.ForInstallationOn<global::NServiceBus.Installation.Environments.Windows>().Install());
+        }
+
+        protected virtual Configure InitializeConfigurationAndDecideOnScanningPolicy()
+        {
+            return Configure.With();
+        }
+
+        protected virtual Configure InitializeConfigurationScanningAssembliesContainingTheseTypes(IEnumerable<Type> typesThatSelectAssemblies)
+        {
+            return InitializeConfigurationScanningTheseAssemblies(typesThatSelectAssemblies.Select(type => type.Assembly).ToSet());
+        }
+
+        protected virtual Configure InitializeConfigurationScanningTheseAssemblies(IEnumerable<Assembly> assembliesToScan)
+        {
+            return Configure.With(AssembliesItIsRequiredThatYouScan.Concat(assembliesToScan).ToSet());
         }
 
         protected virtual bool PurgeOnStartUp { get { return false; } }

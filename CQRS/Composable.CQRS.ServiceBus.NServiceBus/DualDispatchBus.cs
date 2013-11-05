@@ -5,6 +5,18 @@ using NServiceBus;
 
 namespace Composable.CQRS.ServiceBus.NServiceBus
 {
+    /// <summary>
+    /// <para>
+    /// Publishes messages to both the <see cref="NServiceBusServiceBus"/> and the <see cref="SynchronousBus"/>.
+    /// An <see cref="ISynchronousBusSubscriberFilter"/> can be registered in the container to avoid dispatching to some handlers.
+    /// </para>
+    /// 
+    /// <para> 
+    /// Send and SendLocal dispatches to either the <see cref="NServiceBusServiceBus"/> or the <see cref="SynchronousBus"/>.
+    /// Which is decided by a <see cref="DefaultDualDispatchBusRouter"/>. If no instance is registered in the container the <see cref="DefaultDualDispatchBusRouter"/> is used.
+    /// It routes messages to the <see cref="SynchronousBus"/> if it has a handler for it, and to the <see cref="NServiceBusServiceBus"/> otherwise. 
+    /// </para>
+    /// </summary>
     public class DualDispatchBus : IServiceBus
     {
         private readonly SynchronousBus _local;
@@ -47,7 +59,16 @@ namespace Composable.CQRS.ServiceBus.NServiceBus
 
         public void SendLocal(object message)
         {
-            throw new NotImplementedException("No sane way to implement dual dispatch for sendlocal that I can come up with. Same registrations will be called sync and then via the bus...");
+            _usageGuard.AssertNoContextChangeOccurred(this);
+            //There can only be one handler in a send scenario and we let the synchronous bus get the first pick.
+            if (_router.SendToSynchronousBus((IMessage)message, _local))
+            {
+                DispatchOnSynchronousBus(() => _local.SendLocal(message));
+            }
+            else
+            {
+                _realBus.SendLocal(message);
+            }
         }
 
         public void Send(object message)

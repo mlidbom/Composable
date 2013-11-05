@@ -14,6 +14,13 @@ using NServiceBus;
 
 namespace Composable.ServiceBus
 {
+    /// <summary>
+    /// Sends/Publishes messages to <see cref="IHandleMessages{T}"/> implementations registered in the <see cref="IWindsorContainer"/>.
+    /// 
+    /// <para>
+    ///     An <see cref="ISynchronousBusSubscriberFilter"/> can be registered in the container to avoid dispatching to some handlers.
+    /// </para>
+    /// </summary>
     public class SynchronousBus : IServiceBus
     {
         protected readonly IWindsorContainer ServiceLocator;
@@ -145,10 +152,5 @@ namespace Composable.ServiceBus
         {
             return true;
         }
-    }
-
-    public interface ISynchronousBusSubscriberFilter
-    {
-        bool PublishMessageToHandler(object message, object handler);
     }
 }

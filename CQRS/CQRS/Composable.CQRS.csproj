@@ -189,6 +189,7 @@
     <Compile Include="KeyValueStorage\IDocumentDB.cs" />
     <Compile Include="KeyValueStorage\SqlServer\SqlServerDocumentDB.cs" />
     <Compile Include="KeyValueStorage\SqlServer\TooManyItemsDeletedException.cs" />
+    <Compile Include="Logging\Log4Net\Log4NetExtensions.cs" />
     <Compile Include="NewtonSoft\IncludeMembersWithPrivateSettersResolver.cs" />
     <Compile Include="KeyValueStorage\AttemptToSaveAlreadyPersistedValueException.cs" />
     <Compile Include="KeyValueStorage\IDocumentDbSession.cs" />

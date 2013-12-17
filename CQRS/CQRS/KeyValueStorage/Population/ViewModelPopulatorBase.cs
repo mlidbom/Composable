@@ -29,6 +29,6 @@ namespace Composable.KeyValueStorage.Population
             }            
         }
 
-        protected abstract void InitializeRepopulation(List<IAggregateRootEvent> entityId);
+        protected abstract void InitializeRepopulation(List<IAggregateRootEvent> aggregateRootEvents);
     }
 }

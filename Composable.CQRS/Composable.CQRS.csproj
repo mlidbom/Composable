@@ -123,6 +123,7 @@
     <Compile Include="CQRS\DuplicateHandlersException.cs" />
     <Compile Include="CQRS\EntityToReferenceConverter.cs" />
     <Compile Include="CQRS\Event.cs" />
+    <Compile Include="CQRS\EventHandling\CallMatchingHandlersInRegistrationOrderEventDispatcher.cs" />
     <Compile Include="CQRS\EventHandling\ISingleAggregateQueryModel.cs" />
     <Compile Include="CQRS\EventHandling\SingleAggregateQueryModelUpdater.cs" />
     <Compile Include="CQRS\EventHandling\UniqueMatchEventHierarchyHandler.cs" />

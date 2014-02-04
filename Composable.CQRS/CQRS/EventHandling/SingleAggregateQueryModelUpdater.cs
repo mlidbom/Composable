@@ -7,8 +7,8 @@ using Composable.KeyValueStorage;
 
 namespace Composable.CQRS.EventHandling
 {
-    public abstract class SingleAggregateQueryModelUpdater<TImplementor, TViewModel, TEvent, TSession> : CallsMatchingHandlersInRegistrationOrderEventHandler<TImplementor, TEvent>
-        where TImplementor : SingleAggregateQueryModelUpdater<TImplementor, TViewModel, TEvent, TSession>
+    public abstract class SingleAggregateQueryModelUpdater<TImplementer, TViewModel, TEvent, TSession> : CallsMatchingHandlersInRegistrationOrderEventHandler<TEvent>
+        where TImplementer : SingleAggregateQueryModelUpdater<TImplementer, TViewModel, TEvent, TSession>
         where TSession : IDocumentDbSession
         where TEvent : IAggregateRootEvent
         where TViewModel : class, ISingleAggregateQueryModel, new()

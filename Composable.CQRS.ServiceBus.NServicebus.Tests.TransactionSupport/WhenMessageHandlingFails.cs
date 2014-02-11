@@ -77,15 +77,15 @@ namespace Composable.CQRS.ServiceBus.NServicebus.Tests.TransactionSupport
     {
     }
 
-    public class Aggregate : AggregateRoot<Aggregate>
+    public class Aggregate : AggregateRoot<Aggregate, IAggregateRootEvent>
     {
         //always the same in order to cause an exception while saving multiple instances. 
         private readonly Guid _aggregateId = Guid.Parse("EFEF768C-F37B-426F-A53B-BF28A254C55E");
 
         public Aggregate(int events)
         {
-            RegisterEventHandler<SomeEvent>(e => SetIdBeVerySureYouKnowWhatYouAreDoing(_aggregateId));
-            1.Through(events).ForEach(i => ApplyEvent(new SomeEvent()));
+            RegisterEventAppliers().For<SomeEvent>(e => SetIdBeVerySureYouKnowWhatYouAreDoing(_aggregateId));
+            1.Through(events).ForEach(i => RaiseEvent(new SomeEvent()));
         }
     }
 

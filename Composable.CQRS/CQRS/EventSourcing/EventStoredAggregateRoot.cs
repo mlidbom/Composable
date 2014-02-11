@@ -66,10 +66,10 @@ namespace Composable.CQRS.EventSourcing
             }
         }
 
-        void IEventStored.LoadFromHistory(IEnumerable<IAggregateRootEvent> evts)
+        void IEventStored.LoadFromHistory(IEnumerable<IAggregateRootEvent> history)
         {
-            evts.ForEach(evt => ApplyAs(evt, evt.GetType()));
-            Version = evts.Max(e => e.AggregateRootVersion);
+            history.ForEach(evt => ApplyAs(evt, evt.GetType()));
+            Version = history.Max(e => e.AggregateRootVersion);
         }
 
         void IEventStored.AcceptChanges()

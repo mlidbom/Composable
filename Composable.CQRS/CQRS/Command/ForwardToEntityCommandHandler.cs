@@ -9,10 +9,11 @@ using Composable.Persistence;
 
 namespace Composable.CQRS
 {
-    public class ForwardToEntityCommandHandler<TEntity, TCommand> : ICommandHandler<TCommand>
+    public class ForwardToEntityCommandHandler<TEntity, TCommand, TBaseEvent> : ICommandHandler<TCommand>
         // ReSharper disable once CSharpWarnings::CS0618
-        where TEntity : AggregateRoot<TEntity>, IEntityCommandHandler<TCommand>
+        where TEntity : AggregateRoot<TEntity, TBaseEvent>, IEntityCommandHandler<TCommand>
         where TCommand : IEntityHandledCommand
+        where TBaseEvent : IAggregateRootEvent
     {
         private readonly IEventStoreSession _session;
 

@@ -130,6 +130,8 @@
     <Compile Include="CQRS\EventSourcing\AttemptToSaveEmptyAggregate.cs" />
     <Compile Include="CQRS\EventSourcing\IEventStore.cs" />
     <Compile Include="CQRS\EventSourcing\AggregateRootNotFoundException.cs" />
+    <Compile Include="CQRS\EventSourcing\IEventStored.cs" />
+    <Compile Include="CQRS\EventSourcing\ISharedOwnershipAggregateRoot.cs" />
     <Compile Include="CQRS\EventSourcing\RegisteredHandlerMissingException.cs" />
     <Compile Include="CQRS\EventSourcing\ReuseOfEventStoreSessionException.cs" />
     <Compile Include="CQRS\EventSourcing\EventStoredAggregateRoot.cs" />
@@ -157,7 +159,6 @@
     <Compile Include="CQRS\UI\Event\UIViewModelStatus.cs" />
     <Compile Include="CQRS\UnNamedEntityReference.cs" />
     <Compile Include="CQRS\EventSourcing\AttemptToSaveAlreadyPersistedAggregateException.cs" />
-    <Compile Include="CQRS\EventSourcing\EventStored.cs" />
     <Compile Include="CQRS\EventSourcing\EventStoreSession.cs" />
     <Compile Include="CQRS\EventSourcing\IEventStoreSession.cs" />
     <Compile Include="CQRS\EventSourcing\InMemoryEventStore.cs" />
@@ -200,7 +201,6 @@
     <Compile Include="NewtonSoft\JsonSettings.cs" />
     <Compile Include="ServiceBus\IServiceBus.cs" />
     <Compile Include="CQRS\EventSourcing\AggregateRoot.cs" />
-    <Compile Include="CQRS\EventSourcing\IEventApplier.cs" />
     <Compile Include="ServiceBus\ISynchronousBusMessageSpy.cs" />
     <Compile Include="ServiceBus\ISynchronousBusSubscriberFilter.cs" />
     <Compile Include="ServiceBus\SynchronousBus.cs" />

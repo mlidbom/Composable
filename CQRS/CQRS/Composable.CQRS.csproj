@@ -199,6 +199,7 @@
     <Compile Include="ServiceBus\IServiceBus.cs" />
     <Compile Include="CQRS\EventSourcing\AggregateRoot.cs" />
     <Compile Include="CQRS\EventSourcing\IEventApplier.cs" />
+    <Compile Include="ServiceBus\ISynchronousBusMessageSpy.cs" />
     <Compile Include="ServiceBus\ISynchronousBusSubscriberFilter.cs" />
     <Compile Include="ServiceBus\SynchronousBus.cs" />
     <Compile Include="CQRS\SetExtensions.cs" />

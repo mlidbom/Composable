@@ -16,7 +16,7 @@ namespace Composable.AutoMapper
 
         public static IConfigurationProvider BuildConfiguration(Action<SafeConfiguration> configureMappings)
         {
-            var configuration = new ConfigurationStore(new TypeMapFactory(), MapperRegistry.AllMappers());
+            var configuration = new ConfigurationStore(new TypeMapFactory(), MapperRegistry.Mappers);
             var config = new SafeConfiguration(configuration);
 
             configureMappings(config);

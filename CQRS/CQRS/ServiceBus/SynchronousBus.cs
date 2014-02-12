@@ -76,21 +76,30 @@ namespace Composable.ServiceBus
             {
                 handlers.AddRange(ServiceLocator.ResolveAll(handlerType).Cast<object>());
             }
-
-            if(handlers.Count() > 1)
-            {
-                throw new MultipleMessageHandlersRegisteredException(message, handlers);
-            }
-
+            
             if(handlers.None())
             {
                 throw new NoHandlerException(message.GetType());
             }
 
+            AssertOnlyOneHandlerRegistered(message, handlers);
+
             using(var transactionalScope = ServiceLocator.BeginTransactionalUnitOfWorkScope())
             {
-                ((dynamic)handlers.Single()).Handle((dynamic)message);
+                foreach(var handler in handlers)
+                {
+                    ((dynamic)handler).Handle((dynamic)message);   
+                }                
                 transactionalScope.Commit();
+            }
+        }
+
+        private static void AssertOnlyOneHandlerRegistered<TMessage>(TMessage message, List<object> handlers) where TMessage : IMessage
+        {
+            var realHandlers = handlers.Except(handlers.OfType<ISynchronousBusMessageSpy>()).ToList();
+            if (realHandlers.Count() > 1)
+            {
+                throw new MultipleMessageHandlersRegisteredException(message, realHandlers);
             }
         }
 
@@ -135,7 +144,8 @@ namespace Composable.ServiceBus
 
         private static string CreateMessage(object message, List<object> handlers)
         {
-            var exceptionMessage = "There are multiple handlers registered for the message type:{0}".FormatWith(message.GetType());
+            var exceptionMessage = "There are multiple handlers registered for the message type:{0}.\nIf you are getting this because you have registered a listener as a test spy have your listener implement ISynchronousBusMessageSpy and the exception will disappear"
+                .FormatWith(message.GetType());
             handlers.Select(handler => handler.GetType())
                 .ForEach(handlerType => exceptionMessage += "{0}{1}".FormatWith(Environment.NewLine, handlerType.FullName)                
                 );

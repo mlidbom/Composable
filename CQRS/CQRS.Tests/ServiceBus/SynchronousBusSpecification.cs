@@ -5,6 +5,7 @@ using Composable.ServiceBus;
 using Composable.SystemExtensions.Threading;
 using FluentAssertions;
 using NServiceBus;
+using NUnit.Framework;
 
 namespace CQRS.Tests.ServiceBus
 {
@@ -84,6 +85,42 @@ namespace CQRS.Tests.ServiceBus
                 };
         }
 
+        public void when_there_is_one_handler_registered_for_a_message()
+        {
+            WindsorContainer container = null;
+            before = () =>
+            {
+                container = new WindsorContainer();
+                container.Register(
+                    Component.For<ISingleContextUseGuard>().ImplementedBy<SingleThreadUseGuard>(),
+                    Component.For<SynchronousBus>(),
+                    Component.For<IWindsorContainer>().Instance(container),
+
+                    Component.For<AMessageHandler, IHandleMessages<AMessage>>().ImplementedBy<AMessageHandler>()
+                    
+                    );
+            };
+            Func<SynchronousBus> getBus = () => container.Resolve<SynchronousBus>();
+
+            context["when you add another handler for that message that does not implement ISynchronousBusMessageSpy"] = () =>
+                           {
+                               before = () => container.Register(Component.For<AnotherMessageHandler, IHandleMessages<AMessage>>().ImplementedBy<AnotherMessageHandler>());
+                               it["sending the message throws a duplicate handler registrations exception"] =  expect<MultipleMessageHandlersRegisteredException>( () => getBus().Send(new AMessage()));
+                           };
+            
+            context["when you add a handler that does implement ISynchronousBusMessageSpy"] = () =>
+                           {
+                               before = () => container.Register(Component.For<ASpy, IHandleMessages<AMessage>>().ImplementedBy<ASpy>());
+                               context["when you Send the message"] = () =>
+                                              {
+                                                  act =  () => getBus().Send(new AMessage());
+                                                  it["the handler received the message"] = () => container.Resolve<AMessageHandler>().ReceivedMessage.Should().Be(true);
+                                                  it["the spy received the message"] = () => container.Resolve<ASpy>().ReceivedMessage.Should().Be(true);
+                                              };
+                           };
+
+        }
+
         public class AMessage : IMessage {}
 
         public class AMessageHandler : IHandleMessages<AMessage>
@@ -95,6 +132,9 @@ namespace CQRS.Tests.ServiceBus
                 ReceivedMessage = true;
             }
         }
+
+        public class AnotherMessageHandler : AMessageHandler{}
+        public class ASpy : AMessageHandler, ISynchronousBusMessageSpy { }
     }
 
     public class FilterAMessageHandlerSubscriberFilter : ISynchronousBusSubscriberFilter

@@ -27,6 +27,8 @@ using FluentAssertions;
 
 namespace Composable.CQRS.ServiceBus.NServiceBus.ErrorMessagesTests
 {
+    using Composable.System;
+
     [TestFixture, NUnit.Framework.Category("NSBFullSetupTests")]
     [ExclusivelyUses(NCrunchExlusivelyUsesResources.NServiceBus)]
     [NCrunch.Framework.Isolated]

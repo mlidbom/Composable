@@ -84,8 +84,8 @@ namespace CQRS.Tests.CQRS.EventSourcing
             using (var somethingOrOther = CreateSomethingOrOther())
             {
                 somethingOrOther.SaveEvents(aggregatesWithEvents.SelectMany(x => x.Value));
-                var allAggretateIds = somethingOrOther.GetAggregateIds().ToList();
-                Assert.AreEqual(aggregatesWithEvents.Count, allAggretateIds.Count());
+                var allAggregateIds = somethingOrOther.StreamAggregateIdsInCreationOrder().ToList();
+                Assert.AreEqual(aggregatesWithEvents.Count, allAggregateIds.Count());
             }
         }
     }

@@ -33,14 +33,14 @@ function FixVersion
 
 Set-Alias Build-Pkg-Internal $scriptRoot\tools\NuGet\NuGet.exe
 
-$CoreVersion = (FixVersion ([System.Diagnostics.FileVersionInfo]::GetVersionInfo("$scriptRoot\System\System\Bin\$Configuration\Composable.Core.dll")) $PreVersion)
-$CQRSVersion = (FixVersion ([System.Diagnostics.FileVersionInfo]::GetVersionInfo("$scriptRoot\CQRS\CQRS\Bin\$Configuration\Composable.CQRS.dll")) $PreVersion)
-$CQRSNHibernateVersion = (FixVersion ([System.Diagnostics.FileVersionInfo]::GetVersionInfo("$scriptRoot\CQRS\NHibernateRepositories\Bin\$Configuration\Composable.CQRS.NHibernate.dll")) $PreVersion)
-$CQRSServiceBusNServicebusVersion = (FixVersion ([System.Diagnostics.FileVersionInfo]::GetVersionInfo("$scriptRoot\CQRS\Composable.CQRS.ServiceBus.NServiceBus\Bin\$Configuration\Composable.CQRS.ServiceBus.NServiceBus.dll")) $PreVersion)
+$CoreVersion = (FixVersion ([System.Diagnostics.FileVersionInfo]::GetVersionInfo("$scriptRoot\Composable.System\Bin\$Configuration\Composable.Core.dll")) $PreVersion)
+$CQRSVersion = (FixVersion ([System.Diagnostics.FileVersionInfo]::GetVersionInfo("$scriptRoot\Composable.CQRS\Bin\$Configuration\Composable.CQRS.dll")) $PreVersion)
+$CQRSNHibernateVersion = (FixVersion ([System.Diagnostics.FileVersionInfo]::GetVersionInfo("$scriptRoot\Composable.CQRS.NHibernate\Bin\$Configuration\Composable.CQRS.NHibernate.dll")) $PreVersion)
+$CQRSServiceBusNServicebusVersion = (FixVersion ([System.Diagnostics.FileVersionInfo]::GetVersionInfo("$scriptRoot\Composable.CQRS.ServiceBus.NServiceBus\Bin\$Configuration\Composable.CQRS.ServiceBus.NServiceBus.dll")) $PreVersion)
 $DomainEventsVersion = (FixVersion ([System.Diagnostics.FileVersionInfo]::GetVersionInfo("$scriptRoot\Composable.DomainEvents\Bin\$Configuration\Composable.DomainEvents.dll")) $PreVersion)
-$AutomapperVersion = (FixVersion ([System.Diagnostics.FileVersionInfo]::GetVersionInfo("$scriptRoot\AutoMapper\Composable.AutoMapper\Bin\$Configuration\Composable.AutoMapper.dll")) $PreVersion)
-$CQRSWindsorVersion = (FixVersion ([System.Diagnostics.FileVersionInfo]::GetVersionInfo("$scriptRoot\CQRS\CQRS.Windsor\Bin\$Configuration\Composable.CQRS.Windsor.dll")) $PreVersion)
-$CQRSTestingVersion = (FixVersion ([System.Diagnostics.FileVersionInfo]::GetVersionInfo("$scriptRoot\CQRS\Testing\Composable.CQRS.Testing\Bin\$Configuration\Composable.CQRS.Testing.dll")) $PreVersion)
+$AutomapperVersion = (FixVersion ([System.Diagnostics.FileVersionInfo]::GetVersionInfo("$scriptRoot\Composable.AutoMapper\Bin\$Configuration\Composable.AutoMapper.dll")) $PreVersion)
+$CQRSWindsorVersion = (FixVersion ([System.Diagnostics.FileVersionInfo]::GetVersionInfo("$scriptRoot\Composable.CQRS.Windsor\Bin\$Configuration\Composable.CQRS.Windsor.dll")) $PreVersion)
+$CQRSTestingVersion = (FixVersion ([System.Diagnostics.FileVersionInfo]::GetVersionInfo("$scriptRoot\Composable.CQRS.Testing\Bin\$Configuration\Composable.CQRS.Testing.dll")) $PreVersion)
 $NSpecNUnitVersion = (FixVersion ([System.Diagnostics.FileVersionInfo]::GetVersionInfo("$scriptRoot\NSpec.NUnit\Bin\$Configuration\NSpec.NUnit.dll")) $PreVersion)
 
 function Build-Pkg ($ProjectFile, $Version)
@@ -68,12 +68,12 @@ function Build-Pkg ($ProjectFile, $Version)
 	Write-Host
 }
 
-Build-Pkg "$scriptRoot\System\System\Composable.Core.csproj" $CoreVersion
-Build-Pkg "$scriptRoot\CQRS\CQRS\Composable.CQRS.csproj" $CQRSVersion
-Build-Pkg "$scriptRoot\CQRS\NHibernateRepositories\Composable.CQRS.NHibernate.csproj" $CQRSNHibernateVersion
-Build-Pkg "$scriptRoot\CQRS\Composable.CQRS.ServiceBus.NServiceBus\Composable.CQRS.ServiceBus.NServiceBus.csproj" $CQRSServiceBusNServicebusVersion
+Build-Pkg "$scriptRoot\Composable.System\Composable.Core.csproj" $CoreVersion
+Build-Pkg "$scriptRoot\Composable.CQRS\Composable.CQRS.csproj" $CQRSVersion
+Build-Pkg "$scriptRoot\Composable.CQRS.NHibernate\Composable.CQRS.NHibernate.csproj" $CQRSNHibernateVersion
+Build-Pkg "$scriptRoot\Composable.CQRS.ServiceBus.NServiceBus\Composable.CQRS.ServiceBus.NServiceBus.csproj" $CQRSServiceBusNServicebusVersion
 Build-Pkg "$scriptRoot\Composable.DomainEvents\Composable.DomainEvents.csproj" $DomainEventsVersion
-Build-Pkg "$scriptRoot\AutoMapper\Composable.AutoMapper\Composable.AutoMapper.csproj" $AutomapperVersion
-Build-Pkg "$scriptRoot\CQRS\CQRS.Windsor\Composable.CQRS.Windsor.csproj" $CQRSWindsorVersion
-Build-Pkg "$scriptRoot\CQRS\Testing\Composable.CQRS.Testing\Composable.CQRS.Testing.csproj" $CQRSTestingVersion
+Build-Pkg "$scriptRoot\Composable.AutoMapper\Composable.AutoMapper.csproj" $AutomapperVersion
+Build-Pkg "$scriptRoot\Composable.CQRS.Windsor\Composable.CQRS.Windsor.csproj" $CQRSWindsorVersion
+Build-Pkg "$scriptRoot\Composable.CQRS.Testing\Composable.CQRS.Testing.csproj" $CQRSTestingVersion
 Build-Pkg "$scriptRoot\NSpec.NUnit\NSpec.NUnit.csproj" $NSpecNUnitVersion

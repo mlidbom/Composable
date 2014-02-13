@@ -5,45 +5,45 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ComponentModel", "Component
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ServiceModel", "ServiceModel", "{9F9C4C11-3E50-4AFF-A2FC-47B69D301B2A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Properties", "ComponentModel\Properties\Properties.csproj", "{D7C1DC0F-8436-46A5-9EB6-6ACB5CDB3F14}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Properties", "Composable.System.ComponentModel.Properties\Properties.csproj", "{D7C1DC0F-8436-46A5-9EB6-6ACB5CDB3F14}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Properties.Tests", "ComponentModel\Properties.Tests\Properties.Tests.csproj", "{722C146D-4670-4F38-B3F0-8E150F504175}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Properties.Tests", "Composable.System.ComponentModel.Properties.Tests\Properties.Tests.csproj", "{722C146D-4670-4F38-B3F0-8E150F504175}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Composable.Core", "System\System\Composable.Core.csproj", "{3632254D-0C4A-4EB8-B388-4C99F8939584}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Composable.Core", "Composable.System\Composable.Core.csproj", "{3632254D-0C4A-4EB8-B388-4C99F8939584}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Composable.Core.Tests", "System\System.Tests\Composable.Core.Tests.csproj", "{4C78131D-DD7B-4C3E-B931-D4C6436EE09E}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Composable.Core.Tests", "Composable.System.Tests\Composable.Core.Tests.csproj", "{4C78131D-DD7B-4C3E-B931-D4C6436EE09E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ServiceModel", "ServiceModel\ServiceModel\ServiceModel.csproj", "{5CCD8EC5-BC03-475F-83AB-0B21B978B06F}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ServiceModel", "Composable.System.ServiceModel\ServiceModel.csproj", "{5CCD8EC5-BC03-475F-83AB-0B21B978B06F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ServiceModel.Tests", "ServiceModel\ServiceModel.Tests\ServiceModel.Tests.csproj", "{309FC0B1-D190-47EF-97FA-6F9B13759ACF}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ServiceModel.Tests", "Composable.System.ServiceModel.Tests\ServiceModel.Tests.csproj", "{309FC0B1-D190-47EF-97FA-6F9B13759ACF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Void.SpaceTime", "SpaceTime\SpaceTime\Void.SpaceTime.csproj", "{FA1CE09A-37EA-4D3F-BF5C-F34E2F968CF5}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Void.SpaceTime", "Void.SpaceTime\Void.SpaceTime.csproj", "{FA1CE09A-37EA-4D3F-BF5C-F34E2F968CF5}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SpaceTime", "SpaceTime", "{FEA64E09-3112-4D0A-BFA4-94C07102C7A4}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Void.SpaceTime.Tests", "SpaceTime\SpaceTime.Tests\Void.SpaceTime.Tests.csproj", "{17365D06-300A-48F9-BE6E-732480F08B41}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Void.SpaceTime.Tests", "Void.SpaceTime.Tests\Void.SpaceTime.Tests.csproj", "{17365D06-300A-48F9-BE6E-732480F08B41}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "CQRS", "CQRS", "{F6C1DEDE-DA88-4FC7-B727-0E5E6CE015AA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Composable.CQRS", "CQRS\CQRS\Composable.CQRS.csproj", "{3B776BD4-0EDD-4A83-BC9A-3A53D6649AB0}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Composable.CQRS", "Composable.CQRS\Composable.CQRS.csproj", "{3B776BD4-0EDD-4A83-BC9A-3A53D6649AB0}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CQRS.Tests", "CQRS\CQRS.Tests\CQRS.Tests.csproj", "{67B7945C-CCBE-43CC-B302-4EFE87DD9DF5}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CQRS.Tests", "Composable.CQRS.Tests\CQRS.Tests.csproj", "{67B7945C-CCBE-43CC-B302-4EFE87DD9DF5}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "AutoMapper", "AutoMapper", "{348D8CDB-7A1D-47F6-8680-4292DC3FF6AB}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Composable.CQRS.NHibernate", "CQRS\NHibernateRepositories\Composable.CQRS.NHibernate.csproj", "{A858472F-F790-4A3B-8782-B7F4FDAECFA1}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Composable.CQRS.NHibernate", "Composable.CQRS.NHibernate\Composable.CQRS.NHibernate.csproj", "{A858472F-F790-4A3B-8782-B7F4FDAECFA1}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Composable.AutoMapper.Tests", "AutoMapper\Composable.AutoMapper.Tests\Composable.AutoMapper.Tests.csproj", "{675CDA2B-05D2-4330-A782-294C9EF12A4F}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Composable.AutoMapper.Tests", "Composable.AutoMapper.Tests\Composable.AutoMapper.Tests.csproj", "{675CDA2B-05D2-4330-A782-294C9EF12A4F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Composable.AutoMapper", "AutoMapper\Composable.AutoMapper\Composable.AutoMapper.csproj", "{AA0A55FE-EA05-4A3B-9FB7-47E1D570F1CF}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Composable.AutoMapper", "Composable.AutoMapper\Composable.AutoMapper.csproj", "{AA0A55FE-EA05-4A3B-9FB7-47E1D570F1CF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Composable.CQRS.ServiceBus.NServiceBus", "CQRS\Composable.CQRS.ServiceBus.NServiceBus\Composable.CQRS.ServiceBus.NServiceBus.csproj", "{8E02A33A-FFE5-4484-B279-E00F86D5999B}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Composable.CQRS.ServiceBus.NServiceBus", "Composable.CQRS.ServiceBus.NServiceBus\Composable.CQRS.ServiceBus.NServiceBus.csproj", "{8E02A33A-FFE5-4484-B279-E00F86D5999B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Composable.CQRS.Testing", "CQRS\Testing\Composable.CQRS.Testing\Composable.CQRS.Testing.csproj", "{D7F30AB8-1C8F-4F0D-8E89-6E4DABF52941}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Composable.CQRS.Testing", "Composable.CQRS.Testing\Composable.CQRS.Testing.csproj", "{D7F30AB8-1C8F-4F0D-8E89-6E4DABF52941}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Composable.DomainEvents", "Composable.DomainEvents\Composable.DomainEvents.csproj", "{CD7ECAB7-AD05-43A6-A13E-74340838DDDE}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Composable.CQRS.Windsor", "CQRS\CQRS.Windsor\Composable.CQRS.Windsor.csproj", "{E1705F7A-936C-49E1-9418-9AB2FA34678E}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Composable.CQRS.Windsor", "Composable.CQRS.Windsor\Composable.CQRS.Windsor.csproj", "{E1705F7A-936C-49E1-9418-9AB2FA34678E}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Packaging", "Packaging", "{691518D4-146C-43DA-95A0-F8BFB0283AFC}"
 	ProjectSection(SolutionItems) = preProject

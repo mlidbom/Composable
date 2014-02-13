@@ -225,7 +225,7 @@ namespace Composable.CQRS.EventSourcing.SQLServer
             }
         }
 
-        public IEnumerable<Guid> GetAggregateIds()
+        public IEnumerable<Guid> StreamAggregateIdsInCreationOrder()
         {
             EnsureEventsTableExists();
 
@@ -233,7 +233,7 @@ namespace Composable.CQRS.EventSourcing.SQLServer
             {
                 using (var loadCommand = connection.CreateCommand())
                 {
-                    loadCommand.CommandText = EventSelectClause + "WHERE AggregateVersion = 1";
+                    loadCommand.CommandText = EventSelectClause + "WHERE AggregateVersion = 1 ORDER BY SqlTimeStamp ASC";
 
                     using (var reader = loadCommand.ExecuteReader())
                     {

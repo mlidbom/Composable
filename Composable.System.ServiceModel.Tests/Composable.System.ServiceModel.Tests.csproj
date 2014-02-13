@@ -114,9 +114,9 @@
       <Project>{3632254D-0C4A-4EB8-B388-4C99F8939584}</Project>
       <Name>Composable.Core</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Composable.System.ServiceModel\ServiceModel.csproj">
+    <ProjectReference Include="..\Composable.System.ServiceModel\Composable.System.ServiceModel.csproj">
       <Project>{5CCD8EC5-BC03-475F-83AB-0B21B978B06F}</Project>
-      <Name>ServiceModel %28ServiceModel\ServiceModel%29</Name>
+      <Name>Composable.System.ServiceModel</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

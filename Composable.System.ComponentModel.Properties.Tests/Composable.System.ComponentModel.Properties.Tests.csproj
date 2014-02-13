@@ -112,9 +112,9 @@
     <Compile Include="AutoProperty\WhenPropertyValueChangesAfterSerialization.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Composable.System.ComponentModel.Properties\Properties.csproj">
+    <ProjectReference Include="..\Composable.System.ComponentModel.Properties\Composable.System.ComponentModel.Properties.csproj">
       <Project>{D7C1DC0F-8436-46A5-9EB6-6ACB5CDB3F14}</Project>
-      <Name>Properties</Name>
+      <Name>Composable.System.ComponentModel.Properties</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup />

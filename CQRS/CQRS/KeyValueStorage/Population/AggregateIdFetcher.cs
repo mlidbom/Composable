@@ -20,7 +20,7 @@ namespace Composable.KeyValueStorage.Population
 
         public Guid[] GetAll()
         {
-            return _events.GetAggregateIds().ToArray();
+            return _events.StreamAggregateIdsInCreationOrder().ToArray();
         }
 
 

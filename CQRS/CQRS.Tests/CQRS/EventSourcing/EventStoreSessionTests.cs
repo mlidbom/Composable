@@ -303,7 +303,7 @@ namespace CQRS.Tests.CQRS.EventSourcing
             public void SaveEvents(IEnumerable<IAggregateRootEvent> events) { SavedEvents.AddRange(events); }
             public IEnumerable<IAggregateRootEvent> StreamEventsAfterEventWithId(Guid? startAfterEventId) { throw new NotSupportedException(); }
             public void DeleteEvents(Guid aggregateId) { DeletedAggregates.Add(aggregateId); }
-            public IEnumerable<Guid> GetAggregateIds() { throw new NotImplementedException(); }
+            public IEnumerable<Guid> StreamAggregateIdsInCreationOrder() { throw new NotImplementedException(); }
         }
 
         [Test]

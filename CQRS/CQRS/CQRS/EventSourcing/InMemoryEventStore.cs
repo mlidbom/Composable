@@ -58,11 +58,11 @@ namespace Composable.CQRS.EventSourcing
             }
         }
 
-        public IEnumerable<Guid> GetAggregateIds()
+        public IEnumerable<Guid> StreamAggregateIdsInCreationOrder()
         {
             lock(_lockObject)
             {
-                return _events.Select(e => e.AggregateRootId).Distinct();
+                return _events.OrderBy(e => e.TimeStamp).Select(e => e.AggregateRootId).Distinct();
             }
         }
 

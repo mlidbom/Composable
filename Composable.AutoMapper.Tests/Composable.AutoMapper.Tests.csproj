@@ -5,11 +5,11 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProductVersion>8.0.30703</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{59C86A43-D962-4596-A22D-5D956CE0A0DD}</ProjectGuid>
-    <OutputType>Exe</OutputType>
+    <ProjectGuid>{675CDA2B-05D2-4330-A782-294C9EF12A4F}</ProjectGuid>
+    <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Composable.CQRS.ServiceBus.NServiceBus.ErrorMessagesTests</RootNamespace>
-    <AssemblyName>Composable.CQRS.ServiceBus.NServiceBus.ErrorMessagesTests</AssemblyName>
+    <RootNamespace>Composable.AutoMapper.Tests</RootNamespace>
+    <AssemblyName>Composable.AutoMapper.Tests</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
@@ -32,10 +32,14 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
-  <PropertyGroup>
-    <StartupObject />
-  </PropertyGroup>
   <ItemGroup>
+    <Reference Include="AutoMapper, Version=3.1.1.0, Culture=neutral, PublicKeyToken=be96cd2c38ef1005, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\AutoMapper.3.1.1\lib\net40\AutoMapper.dll</HintPath>
+    </Reference>
+    <Reference Include="AutoMapper.Net4">
+      <HintPath>..\packages\AutoMapper.3.1.1\lib\net40\AutoMapper.Net4.dll</HintPath>
+    </Reference>
     <Reference Include="Castle.Core, Version=3.2.0.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\Castle.Core.3.2.2\lib\net40-client\Castle.Core.dll</HintPath>
@@ -44,30 +48,11 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\Castle.Windsor.3.2.1\lib\net40\Castle.Windsor.dll</HintPath>
     </Reference>
-    <Reference Include="FluentAssertions, Version=2.2.0.0, Culture=neutral, PublicKeyToken=33f2691a05b67b6a, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\FluentAssertions.2.2.0.0\lib\net40\FluentAssertions.dll</HintPath>
+    <Reference Include="CommonServiceLocator.WindsorAdapter">
+      <HintPath>..\packages\CommonServiceLocator.WindsorAdapter.1.0.1\lib\CommonServiceLocator.WindsorAdapter.dll</HintPath>
     </Reference>
-    <Reference Include="log4net, Version=1.2.10.0, Culture=neutral, PublicKeyToken=1b44e1d426115821, processorArchitecture=MSIL">
-      <Private>True</Private>
-      <HintPath>..\packages\log4net.1.2.10\lib\2.0\log4net.dll</HintPath>
-    </Reference>
-    <Reference Include="NCrunch.Framework, Version=2.4.0.2, Culture=neutral, PublicKeyToken=01d101bf6f3e0aea, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\NCrunch.Framework.2.4.0.2\lib\NCrunch.Framework.dll</HintPath>
-    </Reference>
-    <Reference Include="NServiceBus, Version=3.0.0.0, Culture=neutral, PublicKeyToken=9fc386479f8a226c, processorArchitecture=MSIL">
-      <HintPath>..\packages\NServiceBus.3.0.3.32\lib\net40\NServiceBus.dll</HintPath>
-    </Reference>
-    <Reference Include="NServiceBus.Core, Version=3.0.0.0, Culture=neutral, PublicKeyToken=9fc386479f8a226c, processorArchitecture=MSIL">
-      <HintPath>..\packages\NServiceBus.3.0.3.32\lib\net40\NServiceBus.Core.dll</HintPath>
-    </Reference>
-    <Reference Include="NServiceBus.Host, Version=3.0.0.0, Culture=neutral, PublicKeyToken=9fc386479f8a226c, processorArchitecture=MSIL">
-      <ExecutableExtension>.exe</ExecutableExtension>
-      <HintPath>..\packages\NServiceBus.Host.3.0.3.32\lib\net40\NServiceBus.Host.exe</HintPath>
-    </Reference>
-    <Reference Include="NServiceBus.ObjectBuilder.CastleWindsor, Version=3.0.0.0, Culture=neutral, PublicKeyToken=9fc386479f8a226c, processorArchitecture=MSIL">
-      <HintPath>..\packages\NServiceBus.CastleWindsor.3.0.3.32\lib\net40\NServiceBus.ObjectBuilder.CastleWindsor.dll</HintPath>
+    <Reference Include="Microsoft.Practices.ServiceLocation">
+      <HintPath>..\packages\CommonServiceLocator.1.0\lib\NET35\Microsoft.Practices.ServiceLocation.dll</HintPath>
     </Reference>
     <Reference Include="nunit.framework, Version=2.6.3.13283, Culture=neutral, PublicKeyToken=96d09a1eb7f44a77, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
@@ -75,7 +60,6 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
-    <Reference Include="System.Transactions" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -83,36 +67,31 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="NCrunchExlusivelyUsesResources.cs" />
+    <Compile Include="WhenMappingValueObjects.cs" />
+    <Compile Include="WhenMappingStructs.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="StubMain.cs" />
-    <Compile Include="WhenRecievingMessage.cs" />
+    <Compile Include="WhenMoreThanOneDefinitionOfAMappingExists.cs" />
+    <Compile Include="WithoutConfiguration.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Composable.CQRS.ServiceBus.NServiceBus\Composable.CQRS.ServiceBus.NServiceBus.csproj">
-      <Project>{8E02A33A-FFE5-4484-B279-E00F86D5999B}</Project>
-      <Name>Composable.CQRS.ServiceBus.NServiceBus</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Composable.CQRS.Windsor\Composable.CQRS.Windsor.csproj">
-      <Project>{E1705F7A-936C-49E1-9418-9AB2FA34678E}</Project>
-      <Name>Composable.CQRS.Windsor</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Composable.CQRS\Composable.CQRS.csproj">
-      <Project>{3B776BD4-0EDD-4A83-BC9A-3A53D6649AB0}</Project>
-      <Name>Composable.CQRS</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Composable.CQRS.Testing\Composable.CQRS.Testing.csproj">
-      <Project>{D7F30AB8-1C8F-4F0D-8E89-6E4DABF52941}</Project>
-      <Name>Composable.CQRS.Testing</Name>
-    </ProjectReference>
     <ProjectReference Include="..\Composable.System\Composable.Core.csproj">
       <Project>{3632254D-0C4A-4EB8-B388-4C99F8939584}</Project>
       <Name>Composable.Core</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Composable.AutoMapper\Composable.AutoMapper.csproj">
+      <Project>{AA0A55FE-EA05-4A3B-9FB7-47E1D570F1CF}</Project>
+      <Name>Composable.AutoMapper</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="..\packages\AutoMapper.3.1.1\lib\net40\AutoMapper.Net4.dll">
+      <Link>AutoMapper.Net4.dll</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(SolutionDir)\.nuget\nuget.targets" />

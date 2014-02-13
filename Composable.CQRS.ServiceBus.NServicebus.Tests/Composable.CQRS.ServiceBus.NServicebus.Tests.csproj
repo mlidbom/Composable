@@ -92,23 +92,23 @@
     <Compile Include="UowTests\WhenRecievingMessage.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\CQRS\Composable.CQRS.ServiceBus.NServiceBus\Composable.CQRS.ServiceBus.NServiceBus.csproj">
+    <ProjectReference Include="..\Composable.CQRS.ServiceBus.NServiceBus\Composable.CQRS.ServiceBus.NServiceBus.csproj">
       <Project>{8E02A33A-FFE5-4484-B279-E00F86D5999B}</Project>
       <Name>Composable.CQRS.ServiceBus.NServiceBus</Name>
     </ProjectReference>
-    <ProjectReference Include="..\CQRS\CQRS.Windsor\Composable.CQRS.Windsor.csproj">
+    <ProjectReference Include="..\Composable.CQRS.Windsor\Composable.CQRS.Windsor.csproj">
       <Project>{E1705F7A-936C-49E1-9418-9AB2FA34678E}</Project>
       <Name>Composable.CQRS.Windsor</Name>
     </ProjectReference>
-    <ProjectReference Include="..\CQRS\CQRS\Composable.CQRS.csproj">
+    <ProjectReference Include="..\Composable.CQRS\Composable.CQRS.csproj">
       <Project>{3B776BD4-0EDD-4A83-BC9A-3A53D6649AB0}</Project>
       <Name>Composable.CQRS</Name>
     </ProjectReference>
-    <ProjectReference Include="..\CQRS\Testing\Composable.CQRS.Testing\Composable.CQRS.Testing.csproj">
+    <ProjectReference Include="..\Composable.CQRS.Testing\Composable.CQRS.Testing.csproj">
       <Project>{D7F30AB8-1C8F-4F0D-8E89-6E4DABF52941}</Project>
       <Name>Composable.CQRS.Testing</Name>
     </ProjectReference>
-    <ProjectReference Include="..\System\System\Composable.Core.csproj">
+    <ProjectReference Include="..\Composable.System\Composable.Core.csproj">
       <Project>{3632254d-0c4a-4eb8-b388-4c99f8939584}</Project>
       <Name>Composable.Core</Name>
     </ProjectReference>

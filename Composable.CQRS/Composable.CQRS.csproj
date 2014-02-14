@@ -235,7 +235,9 @@
       <SubType>Designer</SubType>
     </None>
     <Compile Include="KeyValueStorage\DocumentDBSession.DocumentItem.cs" />
-    <None Include="packages.config" />
+    <None Include="packages.config">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="Void.snk" />
   </ItemGroup>
   <ItemGroup>

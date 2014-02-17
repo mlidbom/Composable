@@ -35,9 +35,9 @@ namespace Composable.KeyValueStorage
 
         public IObservable<IDocumentUpdated> DocumentUpdated { get { return BackingStore.DocumentUpdated; } }
 
-        public virtual bool TryGet<TValue>(object key, out TValue value)
+        public virtual bool TryGet<TValue>(object key, out TValue document)
         {
-            return TryGetInternal(key, typeof(TValue), out value);
+            return TryGetInternal(key, typeof(TValue), out document);
         }
 
         private bool TryGetInternal<TValue>(object key, Type documentType, out TValue value)

@@ -14,7 +14,7 @@ namespace Composable.CQRS.EventSourcing
         }
 
         private object _lockObject = new object();
-        public IEnumerable<IAggregateRootEvent> GetHistoryUnSafe(Guid id)
+        public IEnumerable<IAggregateRootEvent> GetAggregateHistory(Guid id)
         {
             lock(_lockObject)
             {

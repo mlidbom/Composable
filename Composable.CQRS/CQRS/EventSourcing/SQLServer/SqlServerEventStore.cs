@@ -69,11 +69,11 @@ namespace Composable.CQRS.EventSourcing.SQLServer
             ConnectionString = connectionString;
         }
 
-        private SqlConnection OpenSession()
+        private SqlConnection OpenSession(bool suppressTransactionWarning = false)
         {
             var connection = new SqlConnection(ConnectionString);
             connection.Open();
-            if(Transaction.Current == null)
+            if(!suppressTransactionWarning && Transaction.Current == null)
             {
                 Log.Warn("No ambient transaction. This is dangerous");
             }
@@ -82,12 +82,12 @@ namespace Composable.CQRS.EventSourcing.SQLServer
 
 
         private const string EventSelectClause = "SELECT EventType, Event, AggregateId, AggregateVersion, EventId, TimeStamp FROM Events With(UPDLOCK,READCOMMITTED, ROWLOCK) ";
-        public IEnumerable<IAggregateRootEvent> GetHistoryUnSafe(Guid aggregateId)
+        public IEnumerable<IAggregateRootEvent> GetAggregateHistory(Guid aggregateId)
         {            
             EnsureEventsTableExists();
             var result = cache.Get(aggregateId);
 
-            using (var connection = OpenSession())
+            using (var connection = OpenSession(suppressTransactionWarning:true))
             {
                 using(var loadCommand = connection.CreateCommand())
                 {

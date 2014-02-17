@@ -19,7 +19,7 @@ namespace Composable.KeyValueStorage.Population
 
         public void Populate(Guid entityId)
         {
-            var aggregateRootEvents = _events.GetHistoryUnSafe(entityId).ToList();
+            var aggregateRootEvents = _events.GetAggregateHistory(entityId).ToList();
             
             InitializeRepopulation(aggregateRootEvents);
 

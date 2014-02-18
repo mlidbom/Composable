@@ -127,7 +127,9 @@
     <Compile Include="CQRS\EventHandling\ISingleAggregateQueryModel.cs" />
     <Compile Include="CQRS\EventHandling\SingleAggregateQueryModelUpdater.cs" />
     <Compile Include="CQRS\EventHandling\UniqueMatchEventHierarchyHandler.cs" />
+    <Compile Include="CQRS\EventSourcing\ObsoleteAggregateRoot.cs" />
     <Compile Include="CQRS\EventSourcing\AttemptToSaveEmptyAggregate.cs" />
+    <Compile Include="CQRS\EventSourcing\IEventApplier.cs" />
     <Compile Include="CQRS\EventSourcing\IEventStore.cs" />
     <Compile Include="CQRS\EventSourcing\AggregateRootNotFoundException.cs" />
     <Compile Include="CQRS\EventSourcing\IEventStored.cs" />

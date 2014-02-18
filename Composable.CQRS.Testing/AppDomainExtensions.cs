@@ -56,7 +56,7 @@ namespace Composable.CQRS.Testing
             {
                 AppDomain.Unload(CloneDomain);
             }
-            catch(Exception e)
+            catch(Exception)
             {
                 if(_suppressUnloadErrors)
                 {

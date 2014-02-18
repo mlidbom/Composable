@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Composable.CQRS.EventHandling;
 using Composable.DDD;
 using Composable.DomainEvents;
+using Composable.System;
 using Composable.System.Linq;
 
 namespace Composable.CQRS.EventSourcing
@@ -22,6 +23,11 @@ namespace Composable.CQRS.EventSourcing
             theEvent.AggregateRootVersion = ++Version;
             if (!(theEvent is IAggregateRootCreatedEvent))
             {
+                if(theEvent.AggregateRootId != Guid.Empty && theEvent.AggregateRootId != Id)
+                {
+                    throw new ArgumentOutOfRangeException("Tried to raise event for AggregateRootId: {0} from AggregateRoot with Id: {1}."
+                        .FormatWith(theEvent.AggregateRootId, Id));
+                }
                 theEvent.AggregateRootId = Id;
             }
             ApplyEvent(theEvent);

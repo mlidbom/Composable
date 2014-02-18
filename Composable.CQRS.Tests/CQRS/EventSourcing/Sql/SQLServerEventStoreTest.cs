@@ -35,11 +35,11 @@ namespace CQRS.Tests.CQRS.EventSourcing.Sql
             using (new TransactionScope())
             {
                 something.SaveEvents(((IEventStored) user).GetChanges());
-                something.GetHistoryUnSafe(user.Id);
-                Assert.That(something.GetHistoryUnSafe(user.Id), Is.Not.Empty);
+                something.GetAggregateHistory(user.Id);
+                Assert.That(something.GetAggregateHistory(user.Id), Is.Not.Empty);
             }
 
-            Assert.That(something.GetHistoryUnSafe(user.Id), Is.Empty);
+            Assert.That(something.GetAggregateHistory(user.Id), Is.Empty);
         }
 
         [Test]
@@ -56,16 +56,16 @@ namespace CQRS.Tests.CQRS.EventSourcing.Sql
             using (var tran = new TransactionScope())
             {
                 something.SaveEvents(stored.GetChanges());
-                something.GetHistoryUnSafe(user.Id);
-                Assert.That(something.GetHistoryUnSafe(user.Id), Is.Not.Empty);
+                something.GetAggregateHistory(user.Id);
+                Assert.That(something.GetAggregateHistory(user.Id), Is.Not.Empty);
                 tran.Complete();
             }
 
             something = new SqlServerEventStore(connectionString);
-            var firstRead = something.GetHistoryUnSafe(user.Id).Single();
+            var firstRead = something.GetAggregateHistory(user.Id).Single();
 
             something = new SqlServerEventStore(connectionString);
-            var secondRead = something.GetHistoryUnSafe(user.Id).Single();
+            var secondRead = something.GetAggregateHistory(user.Id).Single();
 
             Assert.That(firstRead, Is.SameAs(secondRead));
         }

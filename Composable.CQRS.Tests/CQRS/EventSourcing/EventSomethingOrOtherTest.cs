@@ -69,10 +69,10 @@ namespace CQRS.Tests.CQRS.EventSourcing
 
                 foreach (var kvp in aggregatesWithEvents)
                 {
-                    var stream = somethingOrOther.GetHistoryUnSafe(kvp.Value[0].AggregateRootId);
+                    var stream = somethingOrOther.GetAggregateHistory(kvp.Value[0].AggregateRootId);
                     stream.Should().HaveCount(10);
                 }
-                somethingOrOther.GetHistoryUnSafe(toRemove).Should().BeEmpty();
+                somethingOrOther.GetAggregateHistory(toRemove).Should().BeEmpty();
             }
         }
 

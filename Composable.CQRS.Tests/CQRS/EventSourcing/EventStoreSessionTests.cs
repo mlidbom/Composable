@@ -299,7 +299,7 @@ namespace CQRS.Tests.CQRS.EventSourcing
             public List<Guid> DeletedAggregates = new List<Guid>();
 
             public void Dispose() {}
-            public IEnumerable<IAggregateRootEvent> GetHistoryUnSafe(Guid id) { throw new NotSupportedException(); }
+            public IEnumerable<IAggregateRootEvent> GetAggregateHistory(Guid id) { throw new NotSupportedException(); }
             public void SaveEvents(IEnumerable<IAggregateRootEvent> events) { SavedEvents.AddRange(events); }
             public IEnumerable<IAggregateRootEvent> StreamEventsAfterEventWithId(Guid? startAfterEventId) { throw new NotSupportedException(); }
             public void DeleteEvents(Guid aggregateId) { DeletedAggregates.Add(aggregateId); }

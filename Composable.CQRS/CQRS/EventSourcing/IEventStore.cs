@@ -5,7 +5,7 @@ namespace Composable.CQRS.EventSourcing
 {
     public interface IEventStore : IDisposable
     {
-        IEnumerable<IAggregateRootEvent> GetHistoryUnSafe(Guid id);
+        IEnumerable<IAggregateRootEvent> GetAggregateHistory(Guid id);
         void SaveEvents(IEnumerable<IAggregateRootEvent> events);
         IEnumerable<IAggregateRootEvent> StreamEventsAfterEventWithId(Guid? startAfterEventId);
         void DeleteEvents(Guid aggregateId);

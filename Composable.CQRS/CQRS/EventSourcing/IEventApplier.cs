@@ -1,4 +1,4 @@
-﻿namespace Composable.CQRS.EventSourcing
+namespace Composable.CQRS.EventSourcing
 {
     public interface IEventApplier<in TEvent>
     {

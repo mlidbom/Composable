@@ -162,7 +162,7 @@ namespace Composable.CQRS.EventSourcing
 
         private IEnumerable<IAggregateRootEvent> GetHistory(Guid aggregateId)
         {
-            var history = _store.GetHistoryUnSafe(aggregateId);
+            var history = _store.GetAggregateHistory(aggregateId);
 
             int version = 1;
             foreach (var aggregateRootEvent in history)

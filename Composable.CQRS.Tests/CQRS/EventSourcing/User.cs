@@ -3,7 +3,7 @@ using Composable.CQRS.EventSourcing;
 
 namespace CQRS.Tests.CQRS.EventSourcing
 {
-    internal class User: AggregateRoot<User>
+    internal class User : AggregateRoot<User, AggregateRootEvent>
     {
         public string Email { get; private set; }
         public string Password { get; private set; }
@@ -11,29 +11,29 @@ namespace CQRS.Tests.CQRS.EventSourcing
 
         public User()
         {
-            RegisterEventHandler<UserRegistered>(e =>
-                                                     {
-                                                         SetIdBeVerySureYouKnowWhatYouAreDoing(e.UserId);
-                                                         Email = e.Email;
-                                                         Password = e.Password;
-                                                     });
-            RegisterEventHandler<UserChangedEmail>(e => Email = e.Email);
-            RegisterEventHandler<UserChangedPassword>(e => Password = e.Password);
+            RegisterEventAppliers()
+                .For<UserRegistered>(e =>
+                                     {
+                                         Email = e.Email;
+                                         Password = e.Password;
+                                     })
+                .For<UserChangedEmail>(e => Email = e.Email)
+                .For<UserChangedPassword>(e => Password = e.Password);
         }
 
         public void Register(string email, string password, Guid id)
         {
-            ApplyEvent(new UserRegistered() { UserId = id, Email = email, Password = password});
+            RaiseEvent(new UserRegistered() { AggregateRootId = Guid.NewGuid(), UserId = id, Email = email, Password = password});
         }
 
         public void ChangePassword(string password)
         {
-            ApplyEvent(new UserChangedPassword(){Password = password});
+            RaiseEvent(new UserChangedPassword() { Password = password });
         }
 
         public void ChangeEmail(string email)
         {
-            ApplyEvent(new UserChangedEmail(email));
+            RaiseEvent(new UserChangedEmail(email));
         }
     }
 }

@@ -24,9 +24,9 @@ namespace Composable.KeyValueStorage
             return Session.Get<TValue>(key);
         }
 
-        public virtual bool TryGet<TValue>(object key, out TValue value)
+        public virtual bool TryGet<TValue>(object key, out TValue document)
         {
-            return Session.TryGet(key, out value);
+            return Session.TryGet(key, out document);
         }
 
         public TValue GetForUpdate<TValue>(object key)

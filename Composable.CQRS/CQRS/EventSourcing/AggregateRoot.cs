@@ -11,11 +11,8 @@ namespace Composable.CQRS.EventSourcing
         where TEntity : AggregateRoot<TEntity, TBaseEvent>
         where TBaseEvent : IAggregateRootEvent
     {       
-        //Yes empty. Id should be assigned by action and it should be obvious that the aggregate in invalid until that happens
+        //Yes empty. Id should be assigned by an action and it should be obvious that the aggregate in invalid until that happens
         protected AggregateRoot():base(Guid.Empty) { }
-
-        public Guid Id { get; private set; }
-        public int Version { get; private set; }
 
         private readonly IList<IAggregateRootEvent> _unCommittedEvents = new List<IAggregateRootEvent>();
         private readonly CallMatchingHandlersInRegistrationOrderEventDispatcher<TBaseEvent> _eventDispatcher = new CallMatchingHandlersInRegistrationOrderEventDispatcher<TBaseEvent>();
@@ -42,7 +39,7 @@ namespace Composable.CQRS.EventSourcing
         {
             if (theEvent is IAggregateRootCreatedEvent)
             {
-                Id = theEvent.AggregateRootId;
+                SetIdBeVerySureYouKnowWhatYouAreDoing(theEvent.AggregateRootId);
             }
             Version = theEvent.AggregateRootVersion;
             _eventDispatcher.Dispatch(theEvent);

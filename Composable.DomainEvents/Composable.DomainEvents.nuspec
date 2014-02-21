@@ -6,5 +6,8 @@
       <authors>Magnus Lidbom</authors>
       <description>TODO</description>
       <language>en-US</language>
+     <dependencies>
+       <dependency id="Composable.Core" version="$CoreVersion$" />
+     </dependencies>
    </metadata>
 </package>

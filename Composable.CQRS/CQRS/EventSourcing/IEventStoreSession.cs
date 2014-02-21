@@ -1,9 +1,15 @@
 ﻿using System;
+using System.Collections.Generic;
 using Composable.UnitsOfWork;
 using JetBrains.Annotations;
 
 namespace Composable.CQRS.EventSourcing
 {
+    public interface IEventStoreReader
+    {
+        IEnumerable<IAggregateRootEvent> GetHistory(Guid aggregateId);
+    }
+
     [UsedImplicitly]
     public interface IEventStoreSession : IDisposable
     {

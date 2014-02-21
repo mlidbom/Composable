@@ -18,12 +18,16 @@ using log4net;
 
 namespace Composable.CQRS.EventSourcing
 {
-    public class EventStoreSession : IEventStoreSession, IUnitOfWorkParticipantWhoseCommitMayTriggerChangesInOtherParticipantsMustImplementIdemponentCommit
+    public class EventStoreSession : 
+        IEventStoreReader,
+        IEventStoreSession,
+        IUnitOfWorkParticipantWhoseCommitMayTriggerChangesInOtherParticipantsMustImplementIdemponentCommit
     {
         private readonly IServiceBus _bus;
         private readonly IEventStore _store;
         private static ILog Log = LogManager.GetLogger(typeof(EventStoreSession));
         private readonly IDictionary<Guid, IEventStored> _idMap = new Dictionary<Guid, IEventStored>();
+        private readonly IDictionary<Guid, IList<IAggregateRootEvent>> _historyCache = new Dictionary<Guid, IList<IAggregateRootEvent>>();
         private readonly HashSet<Guid> _publishedEvents = new HashSet<Guid>();
         private readonly ISingleContextUseGuard _usageGuard;
         private readonly List<Guid> _pendingDeletes = new List<Guid>();
@@ -160,11 +164,16 @@ namespace Composable.CQRS.EventSourcing
 
         #endregion
 
-        private IEnumerable<IAggregateRootEvent> GetHistory(Guid aggregateId)
+        public IEnumerable<IAggregateRootEvent> GetHistory(Guid aggregateId)
         {
-            var history = _store.GetAggregateHistory(aggregateId);
+            IList<IAggregateRootEvent> history;
+            if(_historyCache.TryGetValue(aggregateId, out history))
+            {
+                return history;
+            }            
+            history = _store.GetAggregateHistory(aggregateId).ToList();
 
-            int version = 1;
+            var version = 1;
             foreach (var aggregateRootEvent in history)
             {
                 if (aggregateRootEvent.AggregateRootVersion != version++)
@@ -172,7 +181,7 @@ namespace Composable.CQRS.EventSourcing
                     throw new InvalidHistoryException();
                 }
             }
-
+            _historyCache.Add(aggregateId, history);
             return history;
         }
 
@@ -191,11 +200,11 @@ namespace Composable.CQRS.EventSourcing
                 return true;
             }
 
-            var history = GetHistory(aggregateId);
+            var history = GetHistory(aggregateId).ToList();
             if (history.Any())
             {
                 aggregate = Activator.CreateInstance<TAggregate>();
-                aggregate.LoadFromHistory(GetHistory(aggregateId));
+                aggregate.LoadFromHistory(history);
                 _idMap.Add(aggregateId, aggregate);
                 return true;
             }

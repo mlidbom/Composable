@@ -63,7 +63,6 @@
     <Compile Include="DomainEvents\IHandles.cs" />
     <Compile Include="DomainEvents\JsonDomainEvent.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="CQRS\EventSourcing\ValueObject.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Composable.DomainEvents.nuspec">
@@ -72,6 +71,12 @@
     </None>
     <None Include="packages.config" />
     <None Include="Void.snk" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Composable.System\Composable.Core.csproj">
+      <Project>{3632254d-0c4a-4eb8-b388-4c99f8939584}</Project>
+      <Name>Composable.Core</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(SolutionDir)\.nuget\nuget.targets" />

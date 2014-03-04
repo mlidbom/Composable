@@ -42,11 +42,14 @@ namespace Composable.CQRS.Command
                                        InvalidMembers = commandFailedException.InvalidMembers.ToList()
                                    });
                     }
-                    //todo:Try to get retries working sanely here since it may be an intermittent error such as a timeout or deadlock etc...
-                    _bus.Reply(new CommandExecutionExceptionResponse
-                               {
-                                   CommandId = command.Id
-                               });
+                    else
+                    {
+                        //todo:Try to get retries working sanely here since it may be an intermittent error such as a timeout or deadlock etc...
+                        _bus.Reply(new CommandExecutionExceptionResponse
+                                   {
+                                       CommandId = command.Id
+                                   });
+                    }
                 }
                 throw; //This currently requires that retries is set to 0 to behave correctly.
             }

@@ -143,6 +143,7 @@
     <Compile Include="Command\CompositeCommandTests.cs" />
     <Compile Include="Command\WhenExecutingIDomainCommand.cs" />
     <Compile Include="CQRS\CommandHandlerBaseTests.cs" />
+    <Compile Include="CQRS\CommandHandlerBaseSpecification.cs" />
     <Compile Include="CQRS\EventHandling\PropertyUpdatedEventsSpecification.cs" />
     <Compile Include="CQRS\EventHandling\SingleAggregateQueryModelUpdaterSpecification.cs" />
     <Compile Include="CQRS\EventHandling\EventHierarchyHandlerSpecification.cs" />

@@ -30,6 +30,9 @@ namespace AccountManagement.Domain.Shared.Tests
                             it["the HashedPassword members are different"] = () => password.HashedPassword.Should().NotEqual(otherPassword.HashedPassword);
                         };
                 };
+            it["from the string '' an exception is thrown"] = expect<InvalidPasswordException>(() => new Password(""));
+            it["from the string ' ' an exception is thrown"] = expect<InvalidPasswordException>(() => new Password(" "));
+            it["from the string 'a' no exception is thrown"] = () => new Password("a");
         }
     }
 }

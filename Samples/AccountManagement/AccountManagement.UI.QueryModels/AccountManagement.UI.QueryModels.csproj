@@ -7,8 +7,8 @@
     <ProjectGuid>{5D9F2751-088C-422F-B251-0852E890A3E2}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>AccountManagement.QueryModels</RootNamespace>
-    <AssemblyName>AccountManagement.QueryModels</AssemblyName>
+    <RootNamespace>AccountManagement.UI.QueryModels</RootNamespace>
+    <AssemblyName>AccountManagement.UI.QueryModels</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>

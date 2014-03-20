@@ -100,7 +100,7 @@
       <Project>{dabba9b3-cd83-4995-83c4-efcdf388c353}</Project>
       <Name>AccountManagement.Domain.Events</Name>
     </ProjectReference>
-    <ProjectReference Include="..\AccountManagement.Shared\AccountManagement.Domain.Shared.csproj">
+    <ProjectReference Include="..\AccountManagement.Domain.Shared\AccountManagement.Domain.Shared.csproj">
       <Project>{CA31649D-A11B-45F6-9D17-2E716F11ADFA}</Project>
       <Name>AccountManagement.Domain.Shared</Name>
     </ProjectReference>

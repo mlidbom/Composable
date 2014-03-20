@@ -3,15 +3,15 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
 VisualStudioVersion = 12.0.21005.1
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Composable.CQRS.Sample.AccountManagement.Commands", "Composable.CQRS.Sample.AccountManagement.Commands\Composable.CQRS.Sample.AccountManagement.Commands.csproj", "{19B23E13-70E8-4E18-A2FA-F0C3F37313FE}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AccountManagement.Commands", "Composable.CQRS.Sample.AccountManagement.Commands\AccountManagement.Commands.csproj", "{19B23E13-70E8-4E18-A2FA-F0C3F37313FE}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Composable.CQRS.Sample.AccountManagement.Domain", "Composable.CQRS.Sample.AccountManagement.Domain\Composable.CQRS.Sample.AccountManagement.Domain.csproj", "{F40E3779-B691-44B9-A820-577C5C11035F}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AccountManagement.Domain", "Composable.CQRS.Sample.AccountManagement.Domain\AccountManagement.Domain.csproj", "{F40E3779-B691-44B9-A820-577C5C11035F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Composable.CQRS.Sample.AccountManagement.Domain.Events", "Composable.CQRS.Sample.AccountManagement.Domain.Events\Composable.CQRS.Sample.AccountManagement.Domain.Events.csproj", "{DABBA9B3-CD83-4995-83C4-EFCDF388C353}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AccountManagement.Domain.Events", "Composable.CQRS.Sample.AccountManagement.Domain.Events\AccountManagement.Domain.Events.csproj", "{DABBA9B3-CD83-4995-83C4-EFCDF388C353}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Composable.CQRS.Sample.AccountManagement.QueryModels", "Composable.CQRS.Sample.AccountManagement.QueryModels\Composable.CQRS.Sample.AccountManagement.QueryModels.csproj", "{5D9F2751-088C-422F-B251-0852E890A3E2}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AccountManagement.QueryModels", "Composable.CQRS.Sample.AccountManagement.QueryModels\AccountManagement.QueryModels.csproj", "{5D9F2751-088C-422F-B251-0852E890A3E2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Composable.CQRS.Sample.AccountManagement.Shared", "Composable.CQRS.Sample.AccountManagement.Shared\Composable.CQRS.Sample.AccountManagement.Shared.csproj", "{CA31649D-A11B-45F6-9D17-2E716F11ADFA}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AccountManagement.Domain.Shared", "Composable.CQRS.Sample.AccountManagement.Shared\AccountManagement.Domain.Shared.csproj", "{CA31649D-A11B-45F6-9D17-2E716F11ADFA}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -1,6 +1,6 @@
-﻿using Composable.CQRS.Sample.AccountManagement.Shared;
+﻿using AccountManagement.Domain.Shared;
 
-namespace Composable.CQRS.Sample.AccountManagement.Domain.Events.PropertyUpdated
+namespace AccountManagement.Domain.Events.PropertyUpdated
 {
     public interface IAccountPasswordPropertyUpdateEvent : IAccountEvent
     {

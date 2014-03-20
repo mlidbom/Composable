@@ -1,4 +1,4 @@
-﻿namespace Composable.CQRS.Sample.AccountManagement.Shared
+﻿namespace AccountManagement.Domain.Shared
 {
     public class Password
     {

@@ -1,8 +1,8 @@
-﻿using Composable.CQRS.EventSourcing;
-using Composable.CQRS.Sample.AccountManagement.Domain.Events.PropertyUpdated;
-using Composable.CQRS.Sample.AccountManagement.Shared;
+﻿using AccountManagement.Domain.Events.PropertyUpdated;
+using AccountManagement.Domain.Shared;
+using Composable.CQRS.EventSourcing;
 
-namespace Composable.CQRS.Sample.AccountManagement.Domain.Events.Impl
+namespace AccountManagement.Domain.Events.Impl
 {
     public class UserChangedAccountPassword : AggregateRootEvent, IAccountPasswordPropertyUpdateEvent
     {

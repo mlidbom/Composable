@@ -2,11 +2,11 @@
 using Composable.CQRS.EventSourcing;
 using Composable.CQRS.Sample.AccountManagement.Shared;
 
-namespace Composable.CQRS.Sample.AccountManagement.Domain.Events
+namespace Composable.CQRS.Sample.AccountManagement.Domain.Events.Impl
 {
-    public class AccountRegisteredEvent : AggregateRootEvent, IAggregateRootCreatedEvent, IAccountRegisteredEvent
+    public class AccountRegisteredEvent : AggregateRootEvent, IAccountRegisteredEvent
     {
-        protected AccountRegisteredEvent(Guid accountId, Email email, Password password):base(accountId)
+        public AccountRegisteredEvent(Guid accountId, Email email, Password password):base(accountId)
         {
             Email = email;
             Password = password;

@@ -51,13 +51,13 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AccountChangedPassword.cs" />
-    <Compile Include="AccountRegisteredEvent.cs" />
+    <Compile Include="Impl\UserChangedAccountPassword.cs" />
+    <Compile Include="Impl\AccountRegisteredEvent.cs" />
     <Compile Include="IAccountEvent.cs" />
     <Compile Include="IUserRegisteredAccount.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="PropertyUpdated\PropertyUpdatedEvents.cs" />
-    <Compile Include="UserChangedAccountEmail.cs" />
+    <Compile Include="Impl\UserChangedAccountEmail.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Composable.CQRS.Sample.AccountManagement.Shared\Composable.CQRS.Sample.AccountManagement.Shared.csproj">

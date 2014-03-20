@@ -6,7 +6,7 @@ using System.Text;
 namespace AccountManagement.Domain.Shared
 {
     /// <summary>
-    /// Note how all the business logic of a secure password is encapsulated.
+    /// Note how all the business logic of a secure password is encapsulated and the instance is immutable after being created.
     /// </summary>
     public struct Password
     {

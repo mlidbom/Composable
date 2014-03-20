@@ -1,7 +1,7 @@
-﻿using Composable.CQRS.EventSourcing;
-using Composable.CQRS.Sample.AccountManagement.Domain.Events.PropertyUpdated;
+﻿using AccountManagement.Domain.Events.PropertyUpdated;
+using Composable.CQRS.EventSourcing;
 
-namespace Composable.CQRS.Sample.AccountManagement.Domain.Events
+namespace AccountManagement.Domain.Events
 {
     public interface IAccountEvent : IAggregateRootEvent { }
 

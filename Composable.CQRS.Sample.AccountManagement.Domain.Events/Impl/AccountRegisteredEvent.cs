@@ -1,8 +1,8 @@
 ﻿using System;
+using AccountManagement.Domain.Shared;
 using Composable.CQRS.EventSourcing;
-using Composable.CQRS.Sample.AccountManagement.Shared;
 
-namespace Composable.CQRS.Sample.AccountManagement.Domain.Events.Impl
+namespace AccountManagement.Domain.Events.Impl
 {
     public class AccountRegisteredEvent : AggregateRootEvent, IAccountRegisteredEvent
     {

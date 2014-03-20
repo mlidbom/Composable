@@ -1,17 +1,16 @@
 ﻿using System;
+using AccountManagement.Domain.Events;
+using AccountManagement.Domain.Events.Impl;
+using AccountManagement.Domain.Events.PropertyUpdated;
+using AccountManagement.Domain.Shared;
 using Composable.CQRS.EventSourcing;
-using Composable.CQRS.Sample.AccountManagement.Domain.Events;
-using Composable.CQRS.Sample.AccountManagement.Domain.Events.Impl;
-using Composable.CQRS.Sample.AccountManagement.Domain.Events.PropertyUpdated;
-using Composable.CQRS.Sample.AccountManagement.Shared;
 
-namespace Composable.CQRS.Sample.AccountManagement.Domain
+namespace AccountManagement.Domain
 {
     internal class Account : AggregateRoot<Account, IAccountEvent>
     {
         public Email Email { get; private set; }
         public Password Password { get; private set; }
-
 
         public Account()
         {

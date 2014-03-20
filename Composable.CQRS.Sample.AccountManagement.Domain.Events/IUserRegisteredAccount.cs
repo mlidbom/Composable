@@ -1,4 +1,4 @@
-﻿namespace Composable.CQRS.Sample.AccountManagement.Domain.Events
+﻿namespace AccountManagement.Domain.Events
 {
     public interface IUserRegisteredAccount
     {

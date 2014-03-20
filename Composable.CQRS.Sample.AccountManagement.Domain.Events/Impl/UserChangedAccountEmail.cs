@@ -1,7 +1,7 @@
-﻿using Composable.CQRS.EventSourcing;
-using Composable.CQRS.Sample.AccountManagement.Shared;
+﻿using AccountManagement.Domain.Shared;
+using Composable.CQRS.EventSourcing;
 
-namespace Composable.CQRS.Sample.AccountManagement.Domain.Events.Impl
+namespace AccountManagement.Domain.Events.Impl
 {
 
     public class UserChangedAccountEmailEvent : AggregateRootEvent, IUserChangedAccountEmailEvent

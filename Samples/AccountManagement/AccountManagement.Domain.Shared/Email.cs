@@ -1,6 +1,6 @@
 ﻿namespace AccountManagement.Domain.Shared
 {
-    public class Email 
+    public struct Email 
     {
         public Email(string email)
         {

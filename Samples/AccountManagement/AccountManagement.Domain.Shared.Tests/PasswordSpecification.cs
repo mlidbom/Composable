@@ -20,11 +20,11 @@ namespace AccountManagement.Domain.Shared.Tests
                     it["IsCorrectPassword('password') ==  true"] = () => password.IsCorrectPassword("password").Should().BeTrue();
                     it["IsCorrectPassword('Password') !=  true"] = () => password.IsCorrectPassword("Password").Should().BeFalse();
                     it["IsCorrectPassword('password ') !=  true"] = () => password.IsCorrectPassword("password ").Should().BeFalse();
-                    it["IsCorrectPassword(' password') !=  true"] = () => password.IsCorrectPassword(" password").Should().BeFalse();
-                    var otherPassword = new Password(Guid.NewGuid().ToString());
+                    it["IsCorrectPassword(' password') !=  true"] = () => password.IsCorrectPassword(" password").Should().BeFalse();                    
                     context["when comparing to another password created from the string 'otherPassword'"] = 
                         () =>
                         {
+                            var otherPassword = new Password(Guid.NewGuid().ToString());
                             before = () => otherPassword = new Password("otherPassword");
                             it["the Salt members are different"] = () => password.Salt.Should().NotEqual(otherPassword.Salt);
                             it["the HashedPassword members are different"] = () => password.HashedPassword.Should().NotEqual(otherPassword.HashedPassword);

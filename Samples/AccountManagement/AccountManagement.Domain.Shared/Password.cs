@@ -13,6 +13,10 @@ namespace AccountManagement.Domain.Shared
         public byte[] HashedPassword { get; private set; }
         public byte[] Salt { get; private set; }
         
+        /// <summary>
+        /// Returns true if the supplied password parameter is the same string that was used to create this password.
+        /// In other words if the user should succeed in logging in using that password.
+        /// </summary>
         public bool IsCorrectPassword(string password)
         {
             return HashedPassword.SequenceEqual(HashPassword(Salt, password));
@@ -22,6 +26,7 @@ namespace AccountManagement.Domain.Shared
         {
             if(string.IsNullOrWhiteSpace(password))
             {
+                //Don't throw a generic exception or ArgumentException. Throw a specific type that let's clients make use of it easily and safely.
                 throw new InvalidPasswordException();
             }
             Salt = Guid.NewGuid().ToByteArray();
@@ -41,7 +46,7 @@ namespace AccountManagement.Domain.Shared
         }
     }
 
-    public class InvalidPasswordException : Exception
+    public class InvalidPasswordException : ArgumentException
     {
         
     }

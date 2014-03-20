@@ -6,6 +6,9 @@ using System.Text;
 namespace AccountManagement.Domain.Shared
 {
     /// <summary>
+    /// A struct is often the best choice for a value object. 
+    /// All those argument tests to ensure that things are not null are no longer needed. Nice.
+    /// 
     /// Note how all the business logic of a secure password is encapsulated and the instance is immutable after being created.
     /// </summary>
     public struct Password

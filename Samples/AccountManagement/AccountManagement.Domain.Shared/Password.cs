@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 
@@ -14,7 +15,7 @@ namespace AccountManagement.Domain.Shared
         
         public bool IsCorrectPassword(string password)
         {
-            return HashedPassword == HashPassword(Salt, password);
+            return HashedPassword.SequenceEqual(HashPassword(Salt, password));
         }
 
         public Password(string password) : this()

@@ -3,15 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
 VisualStudioVersion = 12.0.21005.1
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AccountManagement.Commands", "AccountManagement.Commands\AccountManagement.Commands.csproj", "{19B23E13-70E8-4E18-A2FA-F0C3F37313FE}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AccountManagement.Domain", "AccountManagement.Domain\AccountManagement.Domain.csproj", "{F40E3779-B691-44B9-A820-577C5C11035F}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AccountManagement.Domain.Events", "AccountManagement.Domain.Events\AccountManagement.Domain.Events.csproj", "{DABBA9B3-CD83-4995-83C4-EFCDF388C353}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AccountManagement.QueryModels", "AccountManagement.QueryModels\AccountManagement.QueryModels.csproj", "{5D9F2751-088C-422F-B251-0852E890A3E2}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AccountManagement.Domain.Shared", "AccountManagement.Shared\AccountManagement.Domain.Shared.csproj", "{CA31649D-A11B-45F6-9D17-2E716F11ADFA}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{A975CB1E-7677-4D6F-A69A-B9851BF0C495}"
 	ProjectSection(SolutionItems) = preProject
@@ -20,16 +14,22 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{A975CB
 		.nuget\NuGet.targets = .nuget\NuGet.targets
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AccountManagement.Domain.Shared", "AccountManagement.Domain.Shared\AccountManagement.Domain.Shared.csproj", "{CA31649D-A11B-45F6-9D17-2E716F11ADFA}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AccountManagement.UI.Commands", "AccountManagement.UI.Commands\AccountManagement.UI.Commands.csproj", "{19B23E13-70E8-4E18-A2FA-F0C3F37313FE}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AccountManagement.UI.QueryModels", "AccountManagement.UI.QueryModels\AccountManagement.UI.QueryModels.csproj", "{5D9F2751-088C-422F-B251-0852E890A3E2}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AccountManagement.UI.QueryModelUpdaters", "AccountManagement.UI.QueryModelUpdaters\AccountManagement.UI.QueryModelUpdaters.csproj", "{D0C22390-0BD6-4837-8CE5-149F80E6BA4E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AccountManagement.UI.QueryModelGenerators", "AccountManagement.UI.QueryModelGenerators\AccountManagement.UI.QueryModelGenerators.csproj", "{ACCAD488-7866-4F77-A541-ECDA61923F57}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{19B23E13-70E8-4E18-A2FA-F0C3F37313FE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{19B23E13-70E8-4E18-A2FA-F0C3F37313FE}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{19B23E13-70E8-4E18-A2FA-F0C3F37313FE}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{19B23E13-70E8-4E18-A2FA-F0C3F37313FE}.Release|Any CPU.Build.0 = Release|Any CPU
 		{F40E3779-B691-44B9-A820-577C5C11035F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{F40E3779-B691-44B9-A820-577C5C11035F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F40E3779-B691-44B9-A820-577C5C11035F}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -38,14 +38,26 @@ Global
 		{DABBA9B3-CD83-4995-83C4-EFCDF388C353}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DABBA9B3-CD83-4995-83C4-EFCDF388C353}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DABBA9B3-CD83-4995-83C4-EFCDF388C353}.Release|Any CPU.Build.0 = Release|Any CPU
-		{5D9F2751-088C-422F-B251-0852E890A3E2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{5D9F2751-088C-422F-B251-0852E890A3E2}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{5D9F2751-088C-422F-B251-0852E890A3E2}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{5D9F2751-088C-422F-B251-0852E890A3E2}.Release|Any CPU.Build.0 = Release|Any CPU
 		{CA31649D-A11B-45F6-9D17-2E716F11ADFA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{CA31649D-A11B-45F6-9D17-2E716F11ADFA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CA31649D-A11B-45F6-9D17-2E716F11ADFA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CA31649D-A11B-45F6-9D17-2E716F11ADFA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{19B23E13-70E8-4E18-A2FA-F0C3F37313FE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{19B23E13-70E8-4E18-A2FA-F0C3F37313FE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{19B23E13-70E8-4E18-A2FA-F0C3F37313FE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{19B23E13-70E8-4E18-A2FA-F0C3F37313FE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5D9F2751-088C-422F-B251-0852E890A3E2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5D9F2751-088C-422F-B251-0852E890A3E2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5D9F2751-088C-422F-B251-0852E890A3E2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5D9F2751-088C-422F-B251-0852E890A3E2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D0C22390-0BD6-4837-8CE5-149F80E6BA4E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D0C22390-0BD6-4837-8CE5-149F80E6BA4E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D0C22390-0BD6-4837-8CE5-149F80E6BA4E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D0C22390-0BD6-4837-8CE5-149F80E6BA4E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{ACCAD488-7866-4F77-A541-ECDA61923F57}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{ACCAD488-7866-4F77-A541-ECDA61923F57}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{ACCAD488-7866-4F77-A541-ECDA61923F57}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{ACCAD488-7866-4F77-A541-ECDA61923F57}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

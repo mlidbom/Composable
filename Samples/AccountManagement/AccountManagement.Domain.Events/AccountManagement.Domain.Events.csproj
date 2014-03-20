@@ -101,13 +101,13 @@
     <Compile Include="Impl\UserChangedAccountEmail.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\AccountManagement.Shared\AccountManagement.Domain.Shared.csproj">
-      <Project>{ca31649d-a11b-45f6-9d17-2e716f11adfa}</Project>
-      <Name>AccountManagement.Domain.Shared</Name>
-    </ProjectReference>
+    <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="packages.config" />
+    <ProjectReference Include="..\AccountManagement.Domain.Shared\AccountManagement.Domain.Shared.csproj">
+      <Project>{CA31649D-A11B-45F6-9D17-2E716F11ADFA}</Project>
+      <Name>AccountManagement.Domain.Shared</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />

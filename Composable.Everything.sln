@@ -44,6 +44,18 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Composable.CQRS.ServiceBus.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NSpec.NUnit", "NSpec.NUnit\NSpec.NUnit.csproj", "{1CD466E7-48CF-45EF-BE1F-29C17F705B39}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Demo", "Demo", "{D9C321B2-FE6D-4455-A22A-A19E9AC93191}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Composable.CQRS.Sample.AccountManagement.Domain", "Composable.CQRS.Sample.AccountManagement.Domain\Composable.CQRS.Sample.AccountManagement.Domain.csproj", "{F40E3779-B691-44B9-A820-577C5C11035F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Composable.CQRS.Sample.AccountManagement.Domain.Events", "Composable.CQRS.Sample.AccountManagement.Domain.Events\Composable.CQRS.Sample.AccountManagement.Domain.Events.csproj", "{DABBA9B3-CD83-4995-83C4-EFCDF388C353}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Composable.CQRS.Sample.AccountManagement.QueryModels", "Composable.CQRS.Sample.AccountManagement.QueryModels\Composable.CQRS.Sample.AccountManagement.QueryModels.csproj", "{5D9F2751-088C-422F-B251-0852E890A3E2}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Composable.CQRS.Sample.AccountManagement.Commands", "Composable.CQRS.Sample.AccountManagement.Commands\Composable.CQRS.Sample.AccountManagement.Commands.csproj", "{19B23E13-70E8-4E18-A2FA-F0C3F37313FE}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Composable.CQRS.Sample.AccountManagement.Shared", "Composable.CQRS.Sample.AccountManagement.Shared\Composable.CQRS.Sample.AccountManagement.Shared.csproj", "{CA31649D-A11B-45F6-9D17-2E716F11ADFA}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -114,8 +126,35 @@ Global
 		{1CD466E7-48CF-45EF-BE1F-29C17F705B39}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1CD466E7-48CF-45EF-BE1F-29C17F705B39}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1CD466E7-48CF-45EF-BE1F-29C17F705B39}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F40E3779-B691-44B9-A820-577C5C11035F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F40E3779-B691-44B9-A820-577C5C11035F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F40E3779-B691-44B9-A820-577C5C11035F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F40E3779-B691-44B9-A820-577C5C11035F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DABBA9B3-CD83-4995-83C4-EFCDF388C353}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DABBA9B3-CD83-4995-83C4-EFCDF388C353}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DABBA9B3-CD83-4995-83C4-EFCDF388C353}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DABBA9B3-CD83-4995-83C4-EFCDF388C353}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5D9F2751-088C-422F-B251-0852E890A3E2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5D9F2751-088C-422F-B251-0852E890A3E2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5D9F2751-088C-422F-B251-0852E890A3E2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5D9F2751-088C-422F-B251-0852E890A3E2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{19B23E13-70E8-4E18-A2FA-F0C3F37313FE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{19B23E13-70E8-4E18-A2FA-F0C3F37313FE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{19B23E13-70E8-4E18-A2FA-F0C3F37313FE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{19B23E13-70E8-4E18-A2FA-F0C3F37313FE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CA31649D-A11B-45F6-9D17-2E716F11ADFA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CA31649D-A11B-45F6-9D17-2E716F11ADFA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CA31649D-A11B-45F6-9D17-2E716F11ADFA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CA31649D-A11B-45F6-9D17-2E716F11ADFA}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{F40E3779-B691-44B9-A820-577C5C11035F} = {D9C321B2-FE6D-4455-A22A-A19E9AC93191}
+		{DABBA9B3-CD83-4995-83C4-EFCDF388C353} = {D9C321B2-FE6D-4455-A22A-A19E9AC93191}
+		{5D9F2751-088C-422F-B251-0852E890A3E2} = {D9C321B2-FE6D-4455-A22A-A19E9AC93191}
+		{19B23E13-70E8-4E18-A2FA-F0C3F37313FE} = {D9C321B2-FE6D-4455-A22A-A19E9AC93191}
+		{CA31649D-A11B-45F6-9D17-2E716F11ADFA} = {D9C321B2-FE6D-4455-A22A-A19E9AC93191}
 	EndGlobalSection
 EndGlobal

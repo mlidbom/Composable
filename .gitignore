@@ -19,6 +19,7 @@ CQRS/CQRS/__EmbeddedAssemblies/*.dll
 CQRS/CQRS/__EmbeddedAssemblies/*.pdb
 
 packages/*
+Samples/AccountManagement/packages/*
 !repositories.config
 _NCrunch_Composable.Everything/StoredText/*
 *.favdoc

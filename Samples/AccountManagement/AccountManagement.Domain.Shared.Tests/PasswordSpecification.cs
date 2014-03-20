@@ -19,8 +19,8 @@ namespace AccountManagement.Domain.Shared.Tests
                     it["Salt is not empty"] = () => password.Salt.Should().NotBeEmpty();
                     it["IsCorrectPassword('password') ==  true"] = () => password.IsCorrectPassword("password").Should().BeTrue();
                     it["IsCorrectPassword('Password') !=  true"] = () => password.IsCorrectPassword("Password").Should().BeFalse();
-                    it["IsCorrectPassword('password ') !=  true"] = () => password.IsCorrectPassword("Password").Should().BeFalse();
-                    it["IsCorrectPassword(' password') !=  true"] = () => password.IsCorrectPassword("Password").Should().BeFalse();
+                    it["IsCorrectPassword('password ') !=  true"] = () => password.IsCorrectPassword("password ").Should().BeFalse();
+                    it["IsCorrectPassword(' password') !=  true"] = () => password.IsCorrectPassword(" password").Should().BeFalse();
                     var otherPassword = new Password(Guid.NewGuid().ToString());
                     context["when comparing to another password created from the string 'otherPassword'"] = 
                         () =>

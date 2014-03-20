@@ -32,18 +32,59 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Castle.Core">
+      <HintPath>..\packages\Castle.Core.3.2.2\lib\net45\Castle.Core.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Castle.Windsor">
+      <HintPath>..\packages\Castle.Windsor.3.2.1\lib\net45\Castle.Windsor.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Composable.Core">
+      <HintPath>..\packages\Composable.Core.2.2.0\lib\net40\Composable.Core.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Composable.CQRS">
+      <HintPath>..\packages\Composable.CQRS.2.2.1\lib\net40\Composable.CQRS.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Composable.DomainEvents">
+      <HintPath>..\packages\Composable.DomainEvents.2.2.0\lib\net40\Composable.DomainEvents.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="log4net, Version=1.2.10.0, Culture=neutral, PublicKeyToken=1b44e1d426115821, processorArchitecture=MSIL">
       <Private>True</Private>
       <HintPath>..\packages\log4net.1.2.10\lib\2.0\log4net.dll</HintPath>
     </Reference>
+    <Reference Include="Microsoft.Practices.ServiceLocation">
+      <HintPath>..\packages\CommonServiceLocator.1.0\lib\NET35\Microsoft.Practices.ServiceLocation.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>..\packages\Newtonsoft.Json.5.0.8\lib\net45\Newtonsoft.Json.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="NServiceBus">
-      <HintPath>..\packages\NServiceBus.3.0.3.32\lib\net40\NServiceBus.dll</HintPath>
+      <HintPath>..\packages\NServiceBus.Interfaces.3.0.3.32\lib\net40\NServiceBus.dll</HintPath>
+      <Private>True</Private>
     </Reference>
     <Reference Include="NServiceBus.Core">
       <HintPath>..\packages\NServiceBus.3.0.3.32\lib\net40\NServiceBus.Core.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Reactive.Core">
+      <HintPath>..\packages\Rx-Core.2.2.2\lib\net45\System.Reactive.Core.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Reactive.Interfaces">
+      <HintPath>..\packages\Rx-Interfaces.2.2.2\lib\net45\System.Reactive.Interfaces.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Reactive.Linq">
+      <HintPath>..\packages\Rx-Linq.2.2.2\lib\net45\System.Reactive.Linq.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -60,17 +101,9 @@
     <Compile Include="Impl\UserChangedAccountEmail.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Composable.CQRS.Sample.AccountManagement.Shared\AccountManagement.Domain.Shared.csproj">
+    <ProjectReference Include="..\AccountManagement.Shared\AccountManagement.Domain.Shared.csproj">
       <Project>{ca31649d-a11b-45f6-9d17-2e716f11adfa}</Project>
       <Name>AccountManagement.Domain.Shared</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Composable.DomainEvents\Composable.DomainEvents.csproj">
-      <Project>{CD7ECAB7-AD05-43A6-A13E-74340838DDDE}</Project>
-      <Name>Composable.DomainEvents</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Composable.System\Composable.Core.csproj">
-      <Project>{3632254D-0C4A-4EB8-B388-4C99F8939584}</Project>
-      <Name>Composable.Core</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

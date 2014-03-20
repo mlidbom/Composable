@@ -24,6 +24,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AccountManagement.UI.QueryM
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AccountManagement.UI.QueryModelGenerators", "AccountManagement.UI.QueryModelGenerators\AccountManagement.UI.QueryModelGenerators.csproj", "{ACCAD488-7866-4F77-A541-ECDA61923F57}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AccountManagement.Domain.Shared.Tests", "AccountManagement.Domain.Shared.Tests\AccountManagement.Domain.Shared.Tests.csproj", "{0BBC38E5-3BC9-4CFE-A9E8-48A9D0F9BF2A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -58,6 +60,10 @@ Global
 		{ACCAD488-7866-4F77-A541-ECDA61923F57}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{ACCAD488-7866-4F77-A541-ECDA61923F57}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{ACCAD488-7866-4F77-A541-ECDA61923F57}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0BBC38E5-3BC9-4CFE-A9E8-48A9D0F9BF2A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0BBC38E5-3BC9-4CFE-A9E8-48A9D0F9BF2A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0BBC38E5-3BC9-4CFE-A9E8-48A9D0F9BF2A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0BBC38E5-3BC9-4CFE-A9E8-48A9D0F9BF2A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

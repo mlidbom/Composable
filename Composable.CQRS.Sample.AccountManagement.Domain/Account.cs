@@ -1,6 +1,7 @@
 ﻿using System;
 using Composable.CQRS.EventSourcing;
 using Composable.CQRS.Sample.AccountManagement.Domain.Events;
+using Composable.CQRS.Sample.AccountManagement.Domain.Events.Impl;
 using Composable.CQRS.Sample.AccountManagement.Domain.Events.PropertyUpdated;
 using Composable.CQRS.Sample.AccountManagement.Shared;
 

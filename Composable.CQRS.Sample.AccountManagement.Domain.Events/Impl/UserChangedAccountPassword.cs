@@ -2,11 +2,11 @@
 using Composable.CQRS.Sample.AccountManagement.Domain.Events.PropertyUpdated;
 using Composable.CQRS.Sample.AccountManagement.Shared;
 
-namespace Composable.CQRS.Sample.AccountManagement.Domain.Events
+namespace Composable.CQRS.Sample.AccountManagement.Domain.Events.Impl
 {
-    public class AccountChangedPassword : AggregateRootEvent, IAccountPasswordPropertyUpdateEvent
+    public class UserChangedAccountPassword : AggregateRootEvent, IAccountPasswordPropertyUpdateEvent
     {
-        public AccountChangedPassword(Password password)
+        public UserChangedAccountPassword(Password password)
         {
             Password = password;
         }

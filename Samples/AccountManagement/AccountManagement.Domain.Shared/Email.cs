@@ -27,7 +27,7 @@ namespace AccountManagement.Domain.Shared
         private static void Validate(string emailAddress)
         {
             if (string.IsNullOrWhiteSpace(emailAddress))
-                throw new InvalidEmailException("Email address is null empty or whitespace");
+                throw new InvalidEmailException(emailAddress ?? "[null]");
 
             var regex = new Regex(@"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$");
             var isMatch = regex.IsMatch(emailAddress);
@@ -36,10 +36,10 @@ namespace AccountManagement.Domain.Shared
                 throw new InvalidEmailException("Email address {0} does not match pattern for email address.".FormatWith(emailAddress));
 
             if (emailAddress.Contains(".."))
-                throw new InvalidEmailException("Double dot ('..') in email adress {0} is not allowed.".FormatWith(emailAddress));
+                throw new InvalidEmailException("Double dot ('..') in email address {0} is not allowed.".FormatWith(emailAddress));
 
             if (emailAddress.Contains("@.") || emailAddress.Contains(".@"))
-                throw new InvalidEmailException("Dot with @ in email adress {0} is not allowed.".FormatWith(emailAddress));
+                throw new InvalidEmailException("Dot with @ in email address {0} is not allowed.".FormatWith(emailAddress));
         }
     }
 

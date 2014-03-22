@@ -48,12 +48,13 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Contracts\GuidInspector.cs" />
     <Compile Include="Contracts\GuidIsEmptyException.cs" />
-    <Compile Include="Contracts\ObjectNullInspector.cs" />
+    <Compile Include="Contracts\ObjectNullOrDefaultInspector.cs" />
     <Compile Include="Contracts\Contract.cs" />
     <Compile Include="Contracts\ContractException.cs" />
     <Compile Include="Contracts\Inspected.cs" />
-    <Compile Include="Contracts\Tests\ArgumentNotNullTests.cs" />
+    <Compile Include="Contracts\Tests\NotNullOrDefaultTests.cs" />
     <Compile Include="Contracts\StringTester.cs" />
     <Compile Include="Contracts\StringIsEmptyException.cs" />
     <Compile Include="Contracts\StringIsWhitespaceException.cs" />

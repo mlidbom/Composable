@@ -1,10 +1,16 @@
 ﻿using System;
 using System.Text.RegularExpressions;
+using Composable.DDD;
 using Composable.System;
 
 namespace AccountManagement.Domain.Shared
 {
-    public struct Email
+    ///<summary>
+    /// A small value object that ensures that it is impossible to create an invalid email.
+    /// This frees all users of the class from ever having to validated an email.
+    /// As long as it is not null it is guaranteed to be valid.
+    /// </summary>
+    public class Email : ValueObject<Email>
     {
         private string Value { get; set; }
 
@@ -13,7 +19,7 @@ namespace AccountManagement.Domain.Shared
             return Value;
         }
 
-        private Email(string emailAddress): this()
+        private Email(string emailAddress)
         {
             Validate(emailAddress);
             Value = emailAddress;
@@ -47,7 +53,6 @@ namespace AccountManagement.Domain.Shared
     {
         public InvalidEmailException(string message):base(message)
         {
-            
         }
     }
 }

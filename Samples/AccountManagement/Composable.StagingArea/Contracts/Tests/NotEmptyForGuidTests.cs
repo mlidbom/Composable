@@ -1,4 +1,5 @@
 ﻿using System;
+using FluentAssertions;
 using NUnit.Framework;
 
 namespace Composable.Contracts.Tests
@@ -9,7 +10,9 @@ namespace Composable.Contracts.Tests
         [Test]
         public void NotEmptyThrowsArgumentExceptionForEmptyGuid()
         {
-            Assert.Throws<ArgumentException>(() => Contract.Argument(Guid.Empty).NotEmpty());
+            Assert.Throws<GuidIsEmptyException>(() => Contract.Arguments(Guid.Empty).NotEmpty());
+            Assert.Throws<GuidIsEmptyException>(() => Contract.Argument(Guid.Empty, "aGuid").NotEmpty())
+                .Message.Should().Be("aGuid");
         }
     }
 }

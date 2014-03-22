@@ -1,37 +1,29 @@
 using System;
-using System.Linq;
 
 namespace Composable.Contracts
 {
     public static class StringTester
     {
-        public static InspectionTarget<string> NotEmpty(this InspectionTarget<string> me)
+        public static Inspected<string> NotEmpty(this Inspected<string> me)
         {
-            if (me.Arguments.Any(value => value == String.Empty))
-            {
-                throw new StringIsEmptyException();
-            }
-            return me;
+            return me.Inspect(
+                inspected => inspected == String.Empty,
+                badValue => new StringIsEmptyException(badValue.Name));
         }
 
-        public static InspectionTarget<string> NotNullOrEmpty(this InspectionTarget<string> me)
+        public static Inspected<string> NotNullOrEmpty(this Inspected<string> me)
         {
             me.NotNull();//We want the proper exceptions
-            if (me.Arguments.Any(value => value == String.Empty))
-            {
-                throw new StringIsEmptyException();
-            }
-            return me;
+            return me.Inspect(inspected => inspected == String.Empty,
+                badValue => new StringIsEmptyException(badValue.Name));
         }
 
-        public static InspectionTarget<String> NotNullEmptyOrWhiteSpace(this InspectionTarget<String> me)
+        public static Inspected<String> NotNullEmptyOrWhiteSpace(this Inspected<String> me)
         {
             me.NotNullOrEmpty();//We want the proper exceptions
-            if (me.Arguments.Any(value => value.Trim() == String.Empty))
-            {
-                throw new StringIsWhitespaceException();
-            }
-            return me;
+            return me.Inspect(
+                inspected => inspected.Trim() == String.Empty,
+                badValue => new StringIsWhitespaceException(badValue.Name));
         }
     }
 }

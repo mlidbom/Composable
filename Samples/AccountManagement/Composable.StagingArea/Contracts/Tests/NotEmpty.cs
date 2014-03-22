@@ -1,4 +1,5 @@
-﻿using NUnit.Framework;
+﻿using FluentAssertions;
+using NUnit.Framework;
 
 namespace Composable.Contracts.Tests
 {
@@ -8,7 +9,14 @@ namespace Composable.Contracts.Tests
         [Test]
         public void NotEmptyThrowsStringIsEmptyArgumentExceptionForEmptyString()
         {
-            Assert.Throws<StringIsEmptyException>(() => Contract.Argument("").NotEmpty());
+            Assert.Throws<StringIsEmptyException>(() => Contract.Arguments("").NotEmpty());
+        }
+
+        [Test]
+        public void UsesArgumentNameForExceptionMessage()
+        {
+            Assert.Throws<StringIsEmptyException>(() => Contract.Argument("", "name").NotEmpty())
+                .Message.Should().Be("name");
         }
     }
 }

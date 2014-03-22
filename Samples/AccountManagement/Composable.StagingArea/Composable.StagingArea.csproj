@@ -48,22 +48,24 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Contracts\EnumerableInspector.cs" />
     <Compile Include="Contracts\GuidInspector.cs" />
     <Compile Include="Contracts\GuidIsEmptyException.cs" />
-    <Compile Include="Contracts\ObjectNullOrDefaultInspector.cs" />
+    <Compile Include="Contracts\ObjectIsNullException.cs" />
+    <Compile Include="Contracts\ObjectInspector.cs" />
     <Compile Include="Contracts\Contract.cs" />
     <Compile Include="Contracts\ContractException.cs" />
     <Compile Include="Contracts\Inspected.cs" />
-    <Compile Include="Contracts\Tests\NotNullOrDefaultTests.cs" />
-    <Compile Include="Contracts\StringTester.cs" />
+    <Compile Include="Contracts\Tests\EnumerableEmptyTests.cs" />
+    <Compile Include="Contracts\Tests\ObjectNotNullOrDefaultTests.cs" />
+    <Compile Include="Contracts\StringInspector.cs" />
     <Compile Include="Contracts\StringIsEmptyException.cs" />
     <Compile Include="Contracts\StringIsWhitespaceException.cs" />
     <Compile Include="Contracts\Tests\ManualInspectionTests.cs" />
-    <Compile Include="Contracts\Tests\NotEmpty.cs" />
-    <Compile Include="Contracts\Tests\NotEmptyForGuidTests.cs" />
+    <Compile Include="Contracts\Tests\StringNotNullOrEmptyTests.cs" />
+    <Compile Include="Contracts\Tests\GuidNotEmptyTests.cs" />
     <Compile Include="Contracts\Tests\NotNullOrEmptyOrWhitespaceTests.cs" />
-    <Compile Include="Contracts\Tests\NotNullTests.cs" />
-    <Compile Include="Contracts\Tests\ObjectIsNullException.cs" />
+    <Compile Include="Contracts\Tests\ObjectNotNullTests.cs" />
     <Compile Include="Contracts\Tests\ReturnTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

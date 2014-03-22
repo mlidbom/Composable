@@ -4,7 +4,7 @@ using NUnit.Framework;
 namespace Composable.Contracts.Tests
 {
     [TestFixture]
-    public class NotNullTests
+    public class ObjectNotNullTests
     {
         [Test]
         public void UsesArgumentNameForExceptionmessage()

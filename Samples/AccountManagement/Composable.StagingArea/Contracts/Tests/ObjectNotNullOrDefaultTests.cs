@@ -10,7 +10,8 @@ namespace Composable.Contracts.Tests
         [Test]
         public void ThrowsArgumentNullExceptionIfAnyValueIsNull()
         {
-            Assert.Throws<ObjectIsNullException>(() => Contract.Argument<string>(null).NotNullOrDefault());
+            const string theNull = (string)null;
+            Assert.Throws<ObjectIsNullException>(() => Contract.Argument(theNull).NotNullOrDefault());
             Assert.Throws<ObjectIsNullException>(() => Contract.Arguments(new object(), null).NotNullOrDefault());
             Assert.Throws<ObjectIsNullException>(() => Contract.Arguments("", null, new object()).NotNullOrDefault());
         }

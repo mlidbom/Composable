@@ -15,14 +15,19 @@ namespace Composable.Contracts
             }
         }
 
-        public static InspectionTarget<TParameter> Argument<TParameter>(params TParameter[] param)
+        public static Inspected<TParameter> Argument<TParameter>(TParameter argument, string name = "")
         {
-            return new InspectionTarget<TParameter>(param);
+            return new Inspected<TParameter>(argument, name);
         }
 
-        public static TReturnValue Return<TReturnValue>(TReturnValue returnValue, Action<InspectionTarget<TReturnValue>> assert)
+        public static Inspected<TParameter> Arguments<TParameter>(params TParameter[] @params)
         {
-            assert(new InspectionTarget<TReturnValue>(returnValue));
+            return new Inspected<TParameter>(@params.Select(param => new InspectedValue<TParameter>(param)).ToArray());
+        }
+
+        public static TReturnValue Return<TReturnValue>(TReturnValue returnValue, Action<Inspected<TReturnValue>> assert)
+        {
+            assert(new Inspected<TReturnValue>(new InspectedValue<TReturnValue>(returnValue, "ReturnValue")));
             return returnValue;
         }
     }

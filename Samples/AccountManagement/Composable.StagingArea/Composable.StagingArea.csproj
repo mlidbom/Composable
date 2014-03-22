@@ -11,6 +11,8 @@
     <AssemblyName>Composable</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
+    <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
+    <RestorePackages>true</RestorePackages>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -30,6 +32,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="FluentAssertions">
+      <HintPath>..\packages\FluentAssertions.2.2.0.0\lib\net45\FluentAssertions.dll</HintPath>
+    </Reference>
     <Reference Include="nunit.framework, Version=2.6.3.13283, Culture=neutral, PublicKeyToken=96d09a1eb7f44a77, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\NUnit.2.6.3\lib\nunit.framework.dll</HintPath>
@@ -43,10 +48,11 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Contracts\ArgumentTester.cs" />
+    <Compile Include="Contracts\GuidIsEmptyException.cs" />
+    <Compile Include="Contracts\ObjectNullInspector.cs" />
     <Compile Include="Contracts\Contract.cs" />
     <Compile Include="Contracts\ContractException.cs" />
-    <Compile Include="Contracts\InspectionTarget.cs" />
+    <Compile Include="Contracts\Inspected.cs" />
     <Compile Include="Contracts\Tests\ArgumentNotNullTests.cs" />
     <Compile Include="Contracts\StringTester.cs" />
     <Compile Include="Contracts\StringIsEmptyException.cs" />
@@ -54,7 +60,8 @@
     <Compile Include="Contracts\Tests\NotEmpty.cs" />
     <Compile Include="Contracts\Tests\NotEmptyForGuidTests.cs" />
     <Compile Include="Contracts\Tests\NotNullOrEmptyOrWhitespaceTests.cs" />
-    <Compile Include="Contracts\Tests\NullValueException.cs" />
+    <Compile Include="Contracts\Tests\NotNullTests.cs" />
+    <Compile Include="Contracts\Tests\ObjectIsNullException.cs" />
     <Compile Include="Contracts\Tests\ReturnTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
@@ -62,6 +69,7 @@
     <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

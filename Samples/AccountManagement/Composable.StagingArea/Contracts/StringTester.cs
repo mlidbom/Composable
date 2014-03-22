@@ -7,14 +7,14 @@ namespace Composable.Contracts
         public static Inspected<string> NotEmpty(this Inspected<string> me)
         {
             return me.Inspect(
-                inspected => inspected == String.Empty,
+                inspected => inspected != String.Empty,
                 badValue => new StringIsEmptyException(badValue.Name));
         }
 
         public static Inspected<string> NotNullOrEmpty(this Inspected<string> me)
         {
             me.NotNull();//We want the proper exceptions
-            return me.Inspect(inspected => inspected == String.Empty,
+            return me.Inspect(inspected => inspected != String.Empty,
                 badValue => new StringIsEmptyException(badValue.Name));
         }
 
@@ -22,7 +22,7 @@ namespace Composable.Contracts
         {
             me.NotNullOrEmpty();//We want the proper exceptions
             return me.Inspect(
-                inspected => inspected.Trim() == String.Empty,
+                inspected => inspected.Trim() != String.Empty,
                 badValue => new StringIsWhitespaceException(badValue.Name));
         }
     }

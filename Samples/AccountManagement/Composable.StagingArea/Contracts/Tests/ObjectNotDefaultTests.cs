@@ -10,13 +10,18 @@ namespace Composable.Contracts.Tests
         [Test]
         public void ThrowsObjectIsDefaultExceptionIfAnyValueIsDefault()
         {
-            Assert.That(new MyStructure(), Is.EqualTo(new MyStructure()));
-            Assert.That(new MyStructure(), Is.Not.EqualTo(new MyStructure(1)));
+            var myStructure = new MyStructure();
+            var zero = 0;
 
-            Assert.Throws<ObjectIsDefaultException>(() => Contract.Optimized.Argument(0).NotDefault());
-            Assert.Throws<ObjectIsDefaultException>(() => Contract.Optimized.Arguments(0).NotDefault());
-            Assert.Throws<ObjectIsDefaultException>(() => Contract.Optimized.Argument(new MyStructure()).NotDefault());
-            Assert.Throws<ObjectIsDefaultException>(() => Contract.Optimized.Arguments(new MyStructure()).NotDefault());
+            Assert.Throws<ObjectIsDefaultException>(() => Contract.Optimized.Argument(zero).NotDefault());
+            Assert.Throws<ObjectIsDefaultException>(() => Contract.Optimized.Arguments(zero).NotDefault());
+            Assert.Throws<ObjectIsDefaultException>(() => Contract.Optimized.Argument(myStructure).NotDefault());
+            Assert.Throws<ObjectIsDefaultException>(() => Contract.Optimized.Arguments(myStructure).NotDefault());
+
+            Assert.Throws<ObjectIsDefaultException>(() => Contract.Argument(() => zero).NotDefault());
+            Assert.Throws<ObjectIsDefaultException>(() => Contract.Arguments(() => zero).NotDefault());
+            Assert.Throws<ObjectIsDefaultException>(() => Contract.Argument(() => myStructure).NotDefault());
+            Assert.Throws<ObjectIsDefaultException>(() => Contract.Arguments(() => myStructure).NotDefault());
         }
 
         [Test]

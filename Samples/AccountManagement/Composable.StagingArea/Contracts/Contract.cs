@@ -15,7 +15,7 @@ namespace Composable.Contracts
         ///</summary>
         public static Inspected<TParameter> Argument<TParameter>(Expression<Func<TParameter>> argument)
         {
-            return new Inspected<TParameter>(argument.Compile().Invoke(), ExtractMemberName(argument));
+            return new Inspected<TParameter>(argument.Compile().Invoke(), ExtractArgumentName(argument));
         }
 
         ///<summary>
@@ -28,7 +28,7 @@ namespace Composable.Contracts
             return new Inspected<TParameter>(
                 arguments.Select(argument => new InspectedValue<TParameter>(
                    value: argument.Compile().Invoke(),
-                   name: ExtractMemberName(argument))).ToArray()
+                   name: ExtractArgumentName(argument))).ToArray()
                 );
         }
 
@@ -42,7 +42,7 @@ namespace Composable.Contracts
             return new Inspected<object>(
                 arguments.Select(argument => new InspectedValue<object>(
                    value: argument.Compile().Invoke(),
-                   name: ExtractMemberName(argument))).ToArray()
+                   name: ExtractArgumentName(argument))).ToArray()
                 );
         }
 
@@ -60,19 +60,40 @@ namespace Composable.Contracts
             return OptimizedContract.Return(returnValue, assert);
         }
 
-        private static string ExtractMemberName<TValue>(Expression<Func<TValue>> func)
+        private static string ExtractArgumentName<TValue>(Expression<Func<TValue>> func)
         {
-            return ExtractMemberName((LambdaExpression)func);
+            return ExtractArgumentName((LambdaExpression)func);
         }
 
-        private static string ExtractMemberName(LambdaExpression lambda)
+        private static string ExtractArgumentName(LambdaExpression lambda)
         {
-            var body = lambda.Body as MemberExpression;
-            if (body != null)
+             var body = lambda.Body;
+
+            var unaryExpression = body as UnaryExpression;
+            if(unaryExpression != null)
             {
-                return body.Member.Name;
+                var innerMemberExpression = unaryExpression.Operand as MemberExpression;
+                if (innerMemberExpression != null)
+                {
+                    Console.WriteLine(innerMemberExpression.Member.MemberType);
+                    return innerMemberExpression.Member.Name;
+                }                
             }
-            throw new Exception("The lambda passed must be exactly of this form: () => parameterName");
+
+            var memberExpression = body as MemberExpression;
+            if(memberExpression != null)
+            {
+                return memberExpression.Member.Name;
+            }
+
+            throw new InvalidArgumentAccessorLambda();
+        }
+    }
+
+    internal class InvalidArgumentAccessorLambda : Exception
+    {
+        public InvalidArgumentAccessorLambda(): base("The lambda passed must be exactly of this form: () => parameterName")
+        {            
         }
     }
 }

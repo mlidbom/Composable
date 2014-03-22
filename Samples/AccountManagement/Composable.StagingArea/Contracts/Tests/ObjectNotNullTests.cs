@@ -9,8 +9,12 @@ namespace Composable.Contracts.Tests
         [Test]
         public void UsesArgumentNameForExceptionmessage()
         {
-            Assert.Throws<ObjectIsNullException>(() => Contract.Optimized.Argument<string>(null, "argument").NotNull())
-                .Message.Should().Contain("argument");
+            string nullString = null;
+            Assert.Throws<ObjectIsNullException>(() => Contract.Optimized.Argument(nullString, "nullString").NotNull())
+                .Message.Should().Contain("nullString");
+
+            Assert.Throws<ObjectIsNullException>(() => Contract.Argument(() => nullString).NotNull())
+                .Message.Should().Contain("nullString");
         }
     }
 }

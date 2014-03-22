@@ -67,6 +67,7 @@
     <Compile Include="Contracts\Contract.cs" />
     <Compile Include="Contracts\ContractException.cs" />
     <Compile Include="Contracts\Inspected.cs" />
+    <Compile Include="Contracts\OptimizedContract.cs" />
     <Compile Include="Contracts\Tests\EnumerableEmptyTests.cs" />
     <Compile Include="Contracts\Tests\LambdaBasedArgumentSpecsTests.cs" />
     <Compile Include="Contracts\Tests\ObjectNotDefaultTests.cs" />

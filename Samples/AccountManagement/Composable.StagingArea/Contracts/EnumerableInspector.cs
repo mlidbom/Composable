@@ -5,8 +5,8 @@ namespace Composable.Contracts
 {
     public static class EnumerableInspector
     {
-        public static Inspected<TArgument> NotNullOrEmpty<TArgument>(this Inspected<TArgument> me)
-            where TArgument : IEnumerable
+        public static Inspected<TValue> NotNullOrEmpty<TValue>(this Inspected<TValue> me)
+            where TValue : IEnumerable
         {
             me.Inspect(
                 inspected => !ReferenceEquals(inspected, null),

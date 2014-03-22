@@ -5,23 +5,38 @@ namespace Composable.Contracts
 {
     public static class ObjectInspector
     {
-        public static Inspected<TArgument> NotNull<TArgument>(this Inspected<TArgument> me)
-            where TArgument : class
+        /// <summary>
+        /// <para>Throws <see cref="ObjectIsNullException"/> if any inspected value is null</para>
+        /// <para>Consider using <see cref="NotNullOrDefault{TArgument}"/> instead as it works for value types as well and is only marginally slower.</para>
+        /// </summary>
+        public static Inspected<TValue> NotNull<TValue>(this Inspected<TValue> me)
+            where TValue : class
         {
             return me.Inspect(
                 inspected => !ReferenceEquals(inspected, null),
                 badValue => new ObjectIsNullException(badValue.Name));
         }
 
-        public static Inspected<TArgument> NotDefault<TArgument>(this Inspected<TArgument> me)
-            where TArgument : struct
+
+        /// <summary>
+        /// <para>Throws <see cref="ObjectIsDefaultException"/> if any inspected value is default(TValue). Such as 0 for integer, Guid.Empty for Guid, new MyStruct() for any struct.</para>
+        /// <para>Consider using <see cref="NotNullOrDefault{TValue}"/> instead as it works for reference types as well and is only marginally slower.</para>
+        /// </summary>
+        public static Inspected<TValue> NotDefault<TValue>(this Inspected<TValue> me)
+            where TValue : struct
         {
             return me.Inspect(
                 inspected => !Equals(inspected, Activator.CreateInstance(inspected.GetType())),
                 badValue => new ObjectIsDefaultException(badValue.Name));
         }
 
-        public static Inspected<TArgument> NotNullOrDefault<TArgument>(this Inspected<TArgument> me)
+
+        /// <summary>
+        /// <para>Bakes <see cref="NotNull{TArgument}"/> and <see cref="NotDefault{TArgument}"/> into one inspection and runs only slightly slower. Recommended unless you are really paranoid about performance.</para>
+        /// <para>Throws <see cref="ObjectIsNullException"/> if any inspected value is null</para>
+        /// <para>Throws <see cref="ObjectIsDefaultException"/> if any inspected value is default(TValue). Such as 0 for integer, Guid.Empty for Guid, new MyStruct() for any struct.</para>
+        /// </summary>
+        public static Inspected<TValue> NotNullOrDefault<TValue>(this Inspected<TValue> me)
         {
             me.Inspect(
                 inspected => !ReferenceEquals(inspected, null),

@@ -4,6 +4,11 @@ namespace Composable.Contracts
 {
     public static class StringInspector
     {
+        ///<summary>
+        /// <para>Throws <see cref="ObjectIsNullException"/> if any expected value is null.</para>
+        /// <para>Throws <see cref="StringIsEmptyException"/> if any inspected value is an empty string.</para>
+        /// <para>Throws <see cref="StringIsWhitespaceException"/> if any inspected value is a string containing only whitespace.</para>
+        /// </summary>
         public static Inspected<string> NotNullOrEmpty(this Inspected<string> me)
         {
             me.NotNull(); //We want the proper exceptions

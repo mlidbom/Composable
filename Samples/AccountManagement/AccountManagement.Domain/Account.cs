@@ -5,7 +5,6 @@ using AccountManagement.Domain.Events.PropertyUpdated;
 using AccountManagement.Domain.Shared;
 using Composable.Contracts;
 using Composable.CQRS.EventSourcing;
-using Composable.StagingArea;
 
 namespace AccountManagement.Domain
 {

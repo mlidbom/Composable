@@ -22,8 +22,7 @@ namespace AccountManagement.Domain
 
         public void Register(Email email, Password password, Guid accountId)
         {
-            Contract.Arguments(email, password).NotNull();
-            Contract.Argument(accountId).NotEmpty();
+            Contract.Arguments(email, password, accountId).NotNullOrDefault();
 
             RaiseEvent(new UserRegisteredAccountEvent(accountId:accountId, email: email, password: password ));
         }

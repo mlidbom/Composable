@@ -5,7 +5,7 @@ using NUnit.Framework;
 namespace Composable.Contracts.Tests
 {
     [TestFixture]
-    public class NotNullOrDefaultTests
+    public class ObjectNotNullOrDefaultTests
     {
         [Test]
         public void ThrowsArgumentNullExceptionIfAnyValueIsNull()

@@ -5,7 +5,7 @@ using NUnit.Framework;
 namespace Composable.Contracts.Tests
 {
     [TestFixture]
-    public class NotEmptyForGuidTests
+    public class GuidNotEmptyTests
     {
         [Test]
         public void NotEmptyThrowsArgumentExceptionForEmptyGuid()

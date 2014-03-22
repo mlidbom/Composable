@@ -6,8 +6,8 @@ using System.Linq;
 namespace Composable.Contracts
 {
     public static class Contract
-    {       
-        public static void ArgumentNotNull(params object[] arguments)            
+    {
+        public static void ArgumentNotNull(params object[] arguments)
         {
             if(arguments.Any(argument => argument == null))
             {
@@ -37,4 +37,5 @@ namespace Composable.Contracts
         }
     }
 }
+
 // ReSharper restore UnusedParameter.Global

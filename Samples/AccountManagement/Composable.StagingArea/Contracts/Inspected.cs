@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 
 namespace Composable.Contracts
 {
@@ -20,7 +19,7 @@ namespace Composable.Contracts
                 {
                     throw buildException(inspected);
                 }
-            }            
+            }
             return this;
         }
 
@@ -28,7 +27,7 @@ namespace Composable.Contracts
         {
             _inspectedValues = new[] {new InspectedValue<TValue>(value, name)};
         }
-    
+
         public Inspected(params InspectedValue<TValue>[] inspectedValues)
         {
             _inspectedValues = inspectedValues;

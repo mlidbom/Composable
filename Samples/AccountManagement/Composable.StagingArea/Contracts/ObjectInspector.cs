@@ -3,7 +3,7 @@ using Composable.Contracts.Tests;
 
 namespace Composable.Contracts
 {
-    public static class ObjectNullOrDefaultInspector
+    public static class ObjectInspector
     {
         public static Inspected<TArgument> NotNull<TArgument>(this Inspected<TArgument> me)
             where TArgument : class

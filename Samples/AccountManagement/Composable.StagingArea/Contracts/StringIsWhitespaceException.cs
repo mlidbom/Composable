@@ -1,8 +1,7 @@
-﻿using System;
-
-namespace Composable.Contracts
+﻿namespace Composable.Contracts
 {
-    public class StringIsWhitespaceException : ContractException {
+    public class StringIsWhitespaceException : ContractException
+    {
         public StringIsWhitespaceException(string valueName) : base(valueName) {}
     }
 }

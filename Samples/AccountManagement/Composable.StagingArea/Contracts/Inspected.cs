@@ -7,9 +7,14 @@ namespace Composable.Contracts
     {
         private readonly InspectedValue<TValue>[] _inspectedValues;
 
-        public Inspected<TValue> Inspect(Func<TValue, bool> isValueInValid, Func<InspectedValue<TValue>, Exception> buildException)
+        public Inspected<TValue> Inspect(Func<TValue, bool> isValueValid, Func<InspectedValue<TValue>, Exception> buildException = null)
         {
-            foreach(var badValue in _inspectedValues.Where(inspected => isValueInValid(inspected.Value)))
+            if(buildException == null)
+            {
+                buildException = badValue => new ContractException(badValue.Name);
+            }
+
+            foreach(var badValue in _inspectedValues.Where(inspected => !isValueValid(inspected.Value)))
             {
                 throw buildException(badValue);
             }            

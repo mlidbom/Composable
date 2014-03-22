@@ -57,6 +57,7 @@
     <Compile Include="Contracts\StringTester.cs" />
     <Compile Include="Contracts\StringIsEmptyException.cs" />
     <Compile Include="Contracts\StringIsWhitespaceException.cs" />
+    <Compile Include="Contracts\Tests\ManualInspectionTests.cs" />
     <Compile Include="Contracts\Tests\NotEmpty.cs" />
     <Compile Include="Contracts\Tests\NotEmptyForGuidTests.cs" />
     <Compile Include="Contracts\Tests\NotNullOrEmptyOrWhitespaceTests.cs" />

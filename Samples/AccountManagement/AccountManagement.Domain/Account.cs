@@ -30,7 +30,7 @@ namespace AccountManagement.Domain
 
         public void ChangePassword(Password password)
         {
-            Contract.Argument(password).NotNullOrDefaultValue();
+            Contract.Argument(password).NotNullOrDefault();
             RaiseEvent(new UserChangedAccountPassword(password));
         }
 

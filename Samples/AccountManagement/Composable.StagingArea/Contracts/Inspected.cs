@@ -14,9 +14,12 @@ namespace Composable.Contracts
                 buildException = badValue => new ContractException(badValue.Name);
             }
 
-            foreach(var badValue in _inspectedValues.Where(inspected => !isValueValid(inspected.Value)))
+            foreach(var inspected in _inspectedValues)
             {
-                throw buildException(badValue);
+                if(!isValueValid(inspected.Value))
+                {
+                    throw buildException(inspected);
+                }
             }            
             return this;
         }

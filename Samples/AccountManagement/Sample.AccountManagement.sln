@@ -26,6 +26,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AccountManagement.UI.QueryM
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AccountManagement.Domain.Shared.Tests", "AccountManagement.Domain.Shared.Tests\AccountManagement.Domain.Shared.Tests.csproj", "{0BBC38E5-3BC9-4CFE-A9E8-48A9D0F9BF2A}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AccountManagement.Domain.Tests", "AccountManagement.Domain.Tests\AccountManagement.Domain.Tests.csproj", "{15EE4C6D-8DA3-487C-B0CD-17777214D7FA}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -64,6 +66,10 @@ Global
 		{0BBC38E5-3BC9-4CFE-A9E8-48A9D0F9BF2A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0BBC38E5-3BC9-4CFE-A9E8-48A9D0F9BF2A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0BBC38E5-3BC9-4CFE-A9E8-48A9D0F9BF2A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{15EE4C6D-8DA3-487C-B0CD-17777214D7FA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{15EE4C6D-8DA3-487C-B0CD-17777214D7FA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{15EE4C6D-8DA3-487C-B0CD-17777214D7FA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{15EE4C6D-8DA3-487C-B0CD-17777214D7FA}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

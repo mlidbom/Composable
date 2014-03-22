@@ -8,6 +8,7 @@ namespace Composable.Contracts.Tests
         [Test]
         public void TestName()
         {
+            Assert.Throws<NullValueException>(() => ReturnInputStringAndRefuseToReturnNull(null));
             Assert.Throws<StringIsEmptyException>(() => ReturnInputStringAndRefuseToReturnNull(""));
             Assert.Throws<StringIsWhitespaceException>(() => ReturnInputStringAndRefuseToReturnNull(" "));
         }

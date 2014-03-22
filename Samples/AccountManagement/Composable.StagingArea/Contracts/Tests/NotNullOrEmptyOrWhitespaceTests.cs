@@ -11,7 +11,7 @@ namespace Composable.Contracts.Tests
         {
             String aNullString = null;
             // ReSharper disable ExpressionIsAlwaysNull
-            Assert.Throws<ArgumentNullException>(() => Contract.Argument(aNullString).NotNullEmptyOrWhiteSpace());
+            Assert.Throws<NullValueException>(() => Contract.Argument(aNullString).NotNullEmptyOrWhiteSpace());
             // ReSharper restore ExpressionIsAlwaysNull
         }
 

@@ -10,7 +10,7 @@ namespace Composable.Contracts.Tests
         public void UsesArgumentNameForExceptionmessage()
         {
             Assert.Throws<ObjectIsNullException>(() => Contract.Argument<string>(null, "argument").NotNull())
-                .Message.Should().Be("argument");
+                .Message.Should().Contain("argument");
         }
     }
 }

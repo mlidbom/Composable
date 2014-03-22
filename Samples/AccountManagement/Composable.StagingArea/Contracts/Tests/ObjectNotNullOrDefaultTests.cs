@@ -10,21 +10,37 @@ namespace Composable.Contracts.Tests
         [Test]
         public void ThrowsArgumentNullExceptionIfAnyValueIsNull()
         {
-            const string theNull = (string)null;
-            Assert.Throws<ObjectIsNullException>(() => Contract.Optimized.Argument(theNull).NotNullOrDefault());
-            Assert.Throws<ObjectIsNullException>(() => Contract.Optimized.Arguments(new object(), null).NotNullOrDefault());
-            Assert.Throws<ObjectIsNullException>(() => Contract.Optimized.Arguments("", null, new object()).NotNullOrDefault());
+            var anObject = new object();
+            object nullObject = null;
+            string emptyString = "";
+
+            Assert.Throws<ObjectIsNullException>(() => Contract.Optimized.Argument(nullObject).NotNullOrDefault());            
+            Assert.Throws<ObjectIsNullException>(() => Contract.Optimized.Arguments(anObject, nullObject).NotNullOrDefault());            
+            Assert.Throws<ObjectIsNullException>(() => Contract.Optimized.Arguments(emptyString, nullObject, anObject).NotNullOrDefault());
+
+            Assert.Throws<ObjectIsNullException>(() => Contract.Argument(() => nullObject).NotNullOrDefault());
+            Assert.Throws<ObjectIsNullException>(() => Contract.Arguments(() => anObject, () => nullObject).NotNullOrDefault());
+            Assert.Throws<ObjectIsNullException>(() => Contract.Arguments(() => emptyString, () => nullObject, () => anObject).NotNullOrDefault());
         }
 
         [Test]
         public void ThrowsObjectIsDefaultExceptionIfAnyValueIsDefault()
         {
-            Assert.That(new MyStructure(), Is.EqualTo(new MyStructure()));
-            Assert.That(new MyStructure(), Is.Not.EqualTo(new MyStructure(1)));
+            var anObject = new object();
+            string emptyString = "";
+            var zero = 0;
+            var defaultMyStructure = new MyStructure();
+            var aMyStructure = new MyStructure(1);
 
-            Assert.Throws<ObjectIsDefaultException>(() => Contract.Optimized.Argument(0).NotNullOrDefault());
-            Assert.Throws<ObjectIsDefaultException>(() => Contract.Optimized.Arguments(new object(), 0).NotNullOrDefault());
-            Assert.Throws<ObjectIsDefaultException>(() => Contract.Optimized.Arguments("", new object(), new MyStructure()).NotNullOrDefault());
+            Assert.Throws<ObjectIsDefaultException>(() => Contract.Optimized.Argument(zero).NotNullOrDefault());
+            Assert.Throws<ObjectIsDefaultException>(() => Contract.Optimized.Arguments(anObject, zero).NotNullOrDefault());
+            Assert.Throws<ObjectIsDefaultException>(() => Contract.Optimized.Arguments(emptyString, anObject, defaultMyStructure).NotNullOrDefault());
+            Contract.Optimized.Arguments(emptyString, anObject, aMyStructure).NotNullOrDefault();
+
+            Assert.Throws<ObjectIsDefaultException>(() => Contract.Argument(() => zero).NotNullOrDefault());
+            Assert.Throws<ObjectIsDefaultException>(() => Contract.Arguments(() => anObject, () => zero).NotNullOrDefault());
+            Assert.Throws<ObjectIsDefaultException>(() => Contract.Arguments(() => emptyString, () => anObject, () => defaultMyStructure).NotNullOrDefault());
+            Contract.Arguments(() => emptyString, () => anObject, () => aMyStructure).NotNullOrDefault();
         }
 
         [Test]

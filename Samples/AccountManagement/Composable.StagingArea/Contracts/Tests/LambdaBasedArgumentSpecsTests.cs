@@ -38,6 +38,13 @@ namespace Composable.Contracts.Tests
         }
 
         [Test]
+        public void ThrowsIllegalArgumentAccessLambdaIfTheLambdaAcessesALiteral()
+        {
+            Assert.Throws < InvalidArgumentAccessorLambda>(() => Contract.Argument(() => ""));
+            Assert.Throws<InvalidArgumentAccessorLambda>(() => Contract.Argument(() => 0));
+        }
+
+        [Test]
         public void ShouldRunAtLeast3TestsIn1Millisecond() //The expression compilation stuff was worrying but this should be OK except for very tight loops.
         {
             var notNullOrDefault = new object();

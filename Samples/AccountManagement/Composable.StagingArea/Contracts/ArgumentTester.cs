@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using Composable.Contracts.Tests;
 
 namespace Composable.Contracts
 {
@@ -19,7 +20,7 @@ namespace Composable.Contracts
         {
             if (me.Arguments.Any(parameter => parameter == null))
             {
-                throw new ArgumentNullException();
+                throw new NullValueException();
             }
             return me;
         }

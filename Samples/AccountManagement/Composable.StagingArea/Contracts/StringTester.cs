@@ -26,7 +26,7 @@ namespace Composable.Contracts
 
         public static InspectionTarget<String> NotNullEmptyOrWhiteSpace(this InspectionTarget<String> me)
         {
-            me.NotNullOrEmpty();
+            me.NotNullOrEmpty();//We want the proper exceptions
             if (me.Arguments.Any(value => value.Trim() == String.Empty))
             {
                 throw new StringIsWhitespaceException();

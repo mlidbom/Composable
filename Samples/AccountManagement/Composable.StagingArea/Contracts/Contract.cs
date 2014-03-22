@@ -1,12 +1,18 @@
 ﻿using System;
+using System.Linq;
+
+// ReSharper disable UnusedParameter.Global
 
 namespace Composable.Contracts
 {
     public static class Contract
-    {
-        public static void ArgumentNotNull(params object[] arguments)
+    {       
+        public static void ArgumentNotNull(params object[] arguments)            
         {
-            Argument(arguments).NotNull();
+            if(arguments.Any(argument => argument == null))
+            {
+                throw new ArgumentNullException();
+            }
         }
 
         public static InspectionTarget<TParameter> Argument<TParameter>(params TParameter[] param)
@@ -20,15 +26,5 @@ namespace Composable.Contracts
             return returnValue;
         }
     }
-
-
-    public class InspectionTarget<TArgument>
-    {
-        public readonly TArgument[] Arguments;
-
-        public InspectionTarget(params TArgument[] arguments)
-        {
-            Arguments = arguments;
-        }
-    }
 }
+// ReSharper restore UnusedParameter.Global

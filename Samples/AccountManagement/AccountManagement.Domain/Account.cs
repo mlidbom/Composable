@@ -28,13 +28,13 @@ namespace AccountManagement.Domain
 
         public void ChangePassword(Password password)
         {
-            Contract.ArgumentsOptimized(password).NotNullOrDefault();
+            Contract.Arguments(() => password).NotNullOrDefault();
             RaiseEvent(new UserChangedAccountPassword(password));
         }
 
         public void ChangeEmail(Email email)
         {
-            Contract.ArgumentsOptimized(email).NotNullOrDefault();
+            Contract.Arguments(() => email).NotNullOrDefault();
             RaiseEvent(new UserChangedAccountEmailEvent(email));
         }
     }

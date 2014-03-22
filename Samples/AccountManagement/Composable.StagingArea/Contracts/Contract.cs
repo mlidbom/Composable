@@ -45,39 +45,19 @@ namespace Composable.Contracts
                    name: ExtractMemberName(argument))).ToArray()
                 );
         }
- 
-        /// <summary>
-        /// <para>Start inspecting a single argument and optionally pass its name as a string.</para>
-        /// <para>Consider using the version that takes a lamba for brevity and refactoring safety unless performance is paramount.</para>
-        /// </summary>
-        public static Inspected<TParameter> ArgumentOptimized<TParameter>(TParameter argument, string name = "")
-        {
-            return new Inspected<TParameter>(argument, name);
-        }
 
         /// <summary>
-        /// <para>Start inspecting a multiple unnamed arguments.</para>
-        /// <para>Consider using the version that takes a lamba for named arguments in exceptions unless performance is paramount.</para>
+        /// Returns a less SOLID and less convenient, but faster, interface for performing contract validation.
         /// </summary>
-        public static Inspected<object> ArgumentsOptimized(params object[] @params)
+        public static OptimizedContract Optimized
         {
-            return new Inspected<object>(@params.Select(param => new InspectedValue<object>(param)).ToArray());
-        }
-
-        /// <summary>
-        /// <para>Start inspecting a multiple unnamed arguments.</para>
-        /// <para>Consider using the version that takes a lamba for named arguments in exceptions unless performance is paramount.</para>
-        /// </summary>
-        public static Inspected<TParameter> ArgumentsOptimized<TParameter>(params TParameter[] @params)
-        {
-            return new Inspected<TParameter>(@params.Select(param => new InspectedValue<TParameter>(param)).ToArray());
+            get { return new OptimizedContract(); }
         }
 
         ///<summary>Inspect a return value by passing in a Lambda that performs the inspections the same way you would for an argument.</summary>
         public static TReturnValue Return<TReturnValue>(TReturnValue returnValue, Action<Inspected<TReturnValue>> assert)
         {
-            assert(new Inspected<TReturnValue>(new InspectedValue<TReturnValue>(returnValue, "ReturnValue")));
-            return returnValue;
+            return OptimizedContract.Return(returnValue, assert);
         }
 
         private static string ExtractMemberName<TValue>(Expression<Func<TValue>> func)

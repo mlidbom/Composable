@@ -36,7 +36,7 @@ namespace Composable.Contracts.Tests
         public void ShouldUseArgumentNameForException()
         {
             Assert.Throws<StringIsWhitespaceException>(() => Contract.Argument(Environment.NewLine,"name").NotNullEmptyOrWhiteSpace())
-                .Message.Should().Be("name");
+                .Message.Should().Contain("name");
         }
     }
 }

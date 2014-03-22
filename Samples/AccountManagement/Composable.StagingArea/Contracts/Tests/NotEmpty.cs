@@ -16,7 +16,7 @@ namespace Composable.Contracts.Tests
         public void UsesArgumentNameForExceptionMessage()
         {
             Assert.Throws<StringIsEmptyException>(() => Contract.Argument("", "name").NotEmpty())
-                .Message.Should().Be("name");
+                .Message.Should().Contain("name");
         }
     }
 }

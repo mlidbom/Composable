@@ -12,7 +12,7 @@ namespace Composable.Contracts.Tests
         {
             Assert.Throws<GuidIsEmptyException>(() => Contract.Arguments(Guid.Empty).NotEmpty());
             Assert.Throws<GuidIsEmptyException>(() => Contract.Argument(Guid.Empty, "aGuid").NotEmpty())
-                .Message.Should().Be("aGuid");
+                .Message.Should().Contain("aGuid");
         }
     }
 }

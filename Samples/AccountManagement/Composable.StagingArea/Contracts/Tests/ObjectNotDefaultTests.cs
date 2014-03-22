@@ -13,10 +13,10 @@ namespace Composable.Contracts.Tests
             Assert.That(new MyStructure(), Is.EqualTo(new MyStructure()));
             Assert.That(new MyStructure(), Is.Not.EqualTo(new MyStructure(1)));
 
-            Assert.Throws<ObjectIsDefaultException>(() => Contract.ArgumentOptimized(0).NotDefault());
-            Assert.Throws<ObjectIsDefaultException>(() => Contract.ArgumentsOptimized(0).NotDefault());
-            Assert.Throws<ObjectIsDefaultException>(() => Contract.ArgumentOptimized(new MyStructure()).NotDefault());
-            Assert.Throws<ObjectIsDefaultException>(() => Contract.ArgumentsOptimized(new MyStructure()).NotDefault());
+            Assert.Throws<ObjectIsDefaultException>(() => Contract.Optimized.Argument(0).NotDefault());
+            Assert.Throws<ObjectIsDefaultException>(() => Contract.Optimized.Arguments(0).NotDefault());
+            Assert.Throws<ObjectIsDefaultException>(() => Contract.Optimized.Argument(new MyStructure()).NotDefault());
+            Assert.Throws<ObjectIsDefaultException>(() => Contract.Optimized.Arguments(new MyStructure()).NotDefault());
         }
 
         [Test]
@@ -26,7 +26,7 @@ namespace Composable.Contracts.Tests
             stopWatch.Start();
             for(int i = 0; i < 100; i++)
             {
-                Contract.ArgumentOptimized(1).NotDefault();
+                Contract.Optimized.Argument(1).NotDefault();
             }
             stopWatch.Elapsed.Should().BeLessOrEqualTo(10.Milliseconds());
         }

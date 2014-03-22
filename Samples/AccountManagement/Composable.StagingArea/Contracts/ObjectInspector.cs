@@ -13,6 +13,14 @@ namespace Composable.Contracts
                 badValue => new ObjectIsNullException(badValue.Name));
         }
 
+        public static Inspected<TArgument> NotDefault<TArgument>(this Inspected<TArgument> me)
+            where TArgument : struct
+        {
+            return me.Inspect(
+                inspected => !Equals(inspected, Activator.CreateInstance(inspected.GetType())),
+                badValue => new ObjectIsDefaultException(badValue.Name));
+        }
+
         public static Inspected<TArgument> NotNullOrDefault<TArgument>(this Inspected<TArgument> me)
         {
             me.Inspect(

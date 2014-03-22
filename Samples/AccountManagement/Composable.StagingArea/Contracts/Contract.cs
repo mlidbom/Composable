@@ -20,6 +20,11 @@ namespace Composable.Contracts
             return new Inspected<TParameter>(argument, name);
         }
 
+        public static Inspected<object> Arguments(params object[] @params)
+        {
+            return new Inspected<object>(@params.Select(param => new InspectedValue<object>(param)).ToArray());
+        }
+
         public static Inspected<TParameter> Arguments<TParameter>(params TParameter[] @params)
         {
             return new Inspected<TParameter>(@params.Select(param => new InspectedValue<TParameter>(param)).ToArray());

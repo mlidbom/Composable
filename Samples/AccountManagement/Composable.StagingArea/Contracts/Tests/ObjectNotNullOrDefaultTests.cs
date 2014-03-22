@@ -11,9 +11,9 @@ namespace Composable.Contracts.Tests
         public void ThrowsArgumentNullExceptionIfAnyValueIsNull()
         {
             const string theNull = (string)null;
-            Assert.Throws<ObjectIsNullException>(() => Contract.Argument(theNull).NotNullOrDefault());
-            Assert.Throws<ObjectIsNullException>(() => Contract.Arguments(new object(), null).NotNullOrDefault());
-            Assert.Throws<ObjectIsNullException>(() => Contract.Arguments("", null, new object()).NotNullOrDefault());
+            Assert.Throws<ObjectIsNullException>(() => Contract.ArgumentOptimized(theNull).NotNullOrDefault());
+            Assert.Throws<ObjectIsNullException>(() => Contract.ArgumentsOptimized(new object(), null).NotNullOrDefault());
+            Assert.Throws<ObjectIsNullException>(() => Contract.ArgumentsOptimized("", null, new object()).NotNullOrDefault());
         }
 
         [Test]
@@ -22,9 +22,9 @@ namespace Composable.Contracts.Tests
             Assert.That(new MyStructure(), Is.EqualTo(new MyStructure()));
             Assert.That(new MyStructure(), Is.Not.EqualTo(new MyStructure(1)));
 
-            Assert.Throws<ObjectIsDefaultException>(() => Contract.Argument(0).NotNullOrDefault());
-            Assert.Throws<ObjectIsDefaultException>(() => Contract.Arguments(new object(), 0).NotNullOrDefault());
-            Assert.Throws<ObjectIsDefaultException>(() => Contract.Arguments("", new object(), new MyStructure()).NotNullOrDefault());
+            Assert.Throws<ObjectIsDefaultException>(() => Contract.ArgumentOptimized(0).NotNullOrDefault());
+            Assert.Throws<ObjectIsDefaultException>(() => Contract.ArgumentsOptimized(new object(), 0).NotNullOrDefault());
+            Assert.Throws<ObjectIsDefaultException>(() => Contract.ArgumentsOptimized("", new object(), new MyStructure()).NotNullOrDefault());
         }
 
         [Test]
@@ -34,7 +34,7 @@ namespace Composable.Contracts.Tests
             stopWatch.Start();
             for(int i = 0; i < 100; i++)
             {
-                Contract.Argument(1).NotNullOrDefault();
+                Contract.ArgumentOptimized(1).NotNullOrDefault();
             }
             stopWatch.Elapsed.Should().BeLessOrEqualTo(10.Milliseconds());
         }

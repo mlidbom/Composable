@@ -11,13 +11,14 @@ namespace Composable.Contracts.Tests
         [Test]
         public void CorrectlyExtractsParameterNamesAndValues()
         {
+            var notNullObject = new object();
             string okString = "okString";
             string emptyString = "";
             string nullString = null;
             Assert.Throws<ObjectIsNullException>(() => Contract.Argument(() => nullString).NotNull())
                 .Message.Should().Contain("nullString");
 
-            Assert.Throws<ObjectIsNullException>(() => Contract.Arguments(() => okString, () => nullString).NotNull())
+            Assert.Throws<ObjectIsNullException>(() => Contract.Arguments(() => okString, () => nullString, () => notNullObject).NotNull())
                 .Message.Should().Contain("nullString");
 
             Assert.Throws<StringIsEmptyException>(() => Contract.Arguments(() => okString, () => emptyString).NotNullOrEmpty())

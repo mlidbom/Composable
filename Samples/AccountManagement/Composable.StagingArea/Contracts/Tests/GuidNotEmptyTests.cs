@@ -10,8 +10,8 @@ namespace Composable.Contracts.Tests
         [Test]
         public void NotEmptyThrowsArgumentExceptionForEmptyGuid()
         {
-            Assert.Throws<GuidIsEmptyException>(() => Contract.Arguments(Guid.Empty).NotEmpty());
-            Assert.Throws<GuidIsEmptyException>(() => Contract.Argument(Guid.Empty, "aGuid").NotEmpty())
+            Assert.Throws<GuidIsEmptyException>(() => Contract.ArgumentsOptimized(Guid.Empty).NotEmpty());
+            Assert.Throws<GuidIsEmptyException>(() => Contract.ArgumentOptimized(Guid.Empty, "aGuid").NotEmpty())
                 .Message.Should().Contain("aGuid");
         }
     }

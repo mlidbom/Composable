@@ -5,26 +5,18 @@ using NUnit.Framework;
 namespace Composable.Contracts.Tests
 {
     [TestFixture]
-    public class ObjectNotNullOrDefaultTests
+    public class ObjectNotDefaultTests
     {
-        [Test]
-        public void ThrowsArgumentNullExceptionIfAnyValueIsNull()
-        {
-            const string theNull = (string)null;
-            Assert.Throws<ObjectIsNullException>(() => Contract.Argument(theNull).NotNullOrDefault());
-            Assert.Throws<ObjectIsNullException>(() => Contract.Arguments(new object(), null).NotNullOrDefault());
-            Assert.Throws<ObjectIsNullException>(() => Contract.Arguments("", null, new object()).NotNullOrDefault());
-        }
-
         [Test]
         public void ThrowsObjectIsDefaultExceptionIfAnyValueIsDefault()
         {
             Assert.That(new MyStructure(), Is.EqualTo(new MyStructure()));
             Assert.That(new MyStructure(), Is.Not.EqualTo(new MyStructure(1)));
 
-            Assert.Throws<ObjectIsDefaultException>(() => Contract.Argument(0).NotNullOrDefault());
-            Assert.Throws<ObjectIsDefaultException>(() => Contract.Arguments(new object(), 0).NotNullOrDefault());
-            Assert.Throws<ObjectIsDefaultException>(() => Contract.Arguments("", new object(), new MyStructure()).NotNullOrDefault());
+            Assert.Throws<ObjectIsDefaultException>(() => Contract.Argument(0).NotDefault());
+            Assert.Throws<ObjectIsDefaultException>(() => Contract.Arguments(0).NotDefault());
+            Assert.Throws<ObjectIsDefaultException>(() => Contract.Argument(new MyStructure()).NotDefault());
+            Assert.Throws<ObjectIsDefaultException>(() => Contract.Arguments(new MyStructure()).NotDefault());
         }
 
         [Test]
@@ -34,7 +26,7 @@ namespace Composable.Contracts.Tests
             stopWatch.Start();
             for(int i = 0; i < 100; i++)
             {
-                Contract.Argument(1).NotNullOrDefault();
+                Contract.Argument(1).NotDefault();
             }
             stopWatch.Elapsed.Should().BeLessOrEqualTo(10.Milliseconds());
         }

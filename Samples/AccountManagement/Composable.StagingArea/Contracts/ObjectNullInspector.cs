@@ -8,7 +8,7 @@ namespace Composable.Contracts
         public static Inspected<Guid> NotEmpty(this Inspected<Guid> me)
         {
             return me.Inspect(
-                inspected => inspected == Guid.Empty,
+                inspected => inspected != Guid.Empty,
                 badValue => new GuidIsEmptyException(badValue.Name));
         }
     }
@@ -19,8 +19,8 @@ namespace Composable.Contracts
             where TArgument : class
         {
             return me.Inspect(
-                isValueInValid: inspected => inspected == null,
-                buildException: badValue => new ObjectIsNullException(badValue.Name));
+                inspected => inspected != null,
+                badValue => new ObjectIsNullException(badValue.Name));
         }
     }
 }

@@ -110,6 +110,10 @@
       <Project>{CA31649D-A11B-45F6-9D17-2E716F11ADFA}</Project>
       <Name>AccountManagement.Domain.Shared</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Composable.StagingArea\Composable.StagingArea.csproj">
+      <Project>{d1024299-495b-4f81-b182-6336f1d30210}</Project>
+      <Name>Composable.StagingArea</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

@@ -1,9 +1,11 @@
 ﻿using System;
 using AccountManagement.Domain.Events;
-using AccountManagement.Domain.Events.Impl;
+using AccountManagement.Domain.Events.Implementation;
 using AccountManagement.Domain.Events.PropertyUpdated;
 using AccountManagement.Domain.Shared;
+using Composable.Contracts;
 using Composable.CQRS.EventSourcing;
+using Composable.StagingArea;
 
 namespace AccountManagement.Domain
 {
@@ -21,7 +23,10 @@ namespace AccountManagement.Domain
 
         public void Register(Email email, Password password, Guid accountId)
         {
-            RaiseEvent(new AccountRegisteredEvent(accountId:accountId, email: email, password: password ));
+            Contract.ArgumentNotNull(email, password);
+            Contract.Argument(accountId).NotEmpty();
+
+            RaiseEvent(new UserRegisteredAccountEvent(accountId:accountId, email: email, password: password ));
         }
 
         public void ChangePassword(Password password)

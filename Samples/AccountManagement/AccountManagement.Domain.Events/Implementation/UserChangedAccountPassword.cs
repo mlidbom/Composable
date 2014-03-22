@@ -2,7 +2,7 @@
 using AccountManagement.Domain.Shared;
 using Composable.CQRS.EventSourcing;
 
-namespace AccountManagement.Domain.Events.Impl
+namespace AccountManagement.Domain.Events.Implementation
 {
     public class UserChangedAccountPassword : AggregateRootEvent, IAccountPasswordPropertyUpdateEvent
     {
@@ -13,6 +13,4 @@ namespace AccountManagement.Domain.Events.Impl
 
         public Password Password { get; private set; }
     }
-
-
 }

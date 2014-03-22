@@ -12,30 +12,30 @@ namespace Composable.Contracts.Tests
         {
             String aNullString = null;
             // ReSharper disable ExpressionIsAlwaysNull
-            Assert.Throws<ObjectIsNullException>(() => Contract.Arguments(aNullString).NotNullEmptyOrWhiteSpace());
+            Assert.Throws<ObjectIsNullException>(() => Contract.ArgumentsOptimized(aNullString).NotNullEmptyOrWhiteSpace());
             // ReSharper restore ExpressionIsAlwaysNull
         }
 
         [Test]
         public void ThrowsStringIsEmptyArgumentExceptionForEmptyStrings()
         {
-            Assert.Throws<StringIsEmptyException>(() => Contract.Arguments(string.Empty).NotNullEmptyOrWhiteSpace());
+            Assert.Throws<StringIsEmptyException>(() => Contract.ArgumentsOptimized(string.Empty).NotNullEmptyOrWhiteSpace());
         }
 
         [Test]
         public void ThrowsStringIsWhiteSpaceExceptionForStringConsistingOfTabsSpacesOrLineBreaks()
         {
-            Assert.Throws<StringIsWhitespaceException>(() => Contract.Arguments(" ").NotNullEmptyOrWhiteSpace());
-            Assert.Throws<StringIsWhitespaceException>(() => Contract.Arguments("\t").NotNullEmptyOrWhiteSpace());
-            Assert.Throws<StringIsWhitespaceException>(() => Contract.Arguments("\n").NotNullEmptyOrWhiteSpace());
-            Assert.Throws<StringIsWhitespaceException>(() => Contract.Arguments("\r\n").NotNullEmptyOrWhiteSpace());
-            Assert.Throws<StringIsWhitespaceException>(() => Contract.Arguments(Environment.NewLine).NotNullEmptyOrWhiteSpace());
+            Assert.Throws<StringIsWhitespaceException>(() => Contract.ArgumentsOptimized(" ").NotNullEmptyOrWhiteSpace());
+            Assert.Throws<StringIsWhitespaceException>(() => Contract.ArgumentsOptimized("\t").NotNullEmptyOrWhiteSpace());
+            Assert.Throws<StringIsWhitespaceException>(() => Contract.ArgumentsOptimized("\n").NotNullEmptyOrWhiteSpace());
+            Assert.Throws<StringIsWhitespaceException>(() => Contract.ArgumentsOptimized("\r\n").NotNullEmptyOrWhiteSpace());
+            Assert.Throws<StringIsWhitespaceException>(() => Contract.ArgumentsOptimized(Environment.NewLine).NotNullEmptyOrWhiteSpace());
         }
 
         [Test]
         public void ShouldUseArgumentNameForException()
         {
-            Assert.Throws<StringIsWhitespaceException>(() => Contract.Argument(Environment.NewLine, "name").NotNullEmptyOrWhiteSpace())
+            Assert.Throws<StringIsWhitespaceException>(() => Contract.ArgumentOptimized(Environment.NewLine, "name").NotNullEmptyOrWhiteSpace())
                 .Message.Should().Contain("name");
         }
     }

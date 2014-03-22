@@ -10,7 +10,7 @@ namespace Composable.Contracts.Tests
         public void ThrowsEnumerableIsEmptyException()
         {
             var list = new List<string>();
-            Assert.Throws<EnumerableIsEmptyException>(() => Contract.Argument(list).NotNullOrEmpty());
+            Assert.Throws<EnumerableIsEmptyException>(() => Contract.ArgumentOptimized(list).NotNullOrEmpty());
         }
     }
 }

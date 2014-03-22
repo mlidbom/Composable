@@ -9,13 +9,13 @@ namespace Composable.Contracts.Tests
         [Test]
         public void ThrownContractExceptionIfTestDoesNotPass()
         {
-            Assert.Throws<ContractException>(() => Contract.Argument("bad", "nameargument").Inspect(value => value != "bad"));
+            Assert.Throws<ContractException>(() => Contract.ArgumentOptimized("bad", "nameargument").Inspect(value => value != "bad"));
         }
 
         [Test]
         public void ThrowsExceptionMatchingParameterNameIfTestDoesNotPass()
         {
-            Assert.Throws<ContractException>(() => Contract.Argument("bad", "nameargument").Inspect(value => value != "bad"))
+            Assert.Throws<ContractException>(() => Contract.ArgumentOptimized("bad", "nameargument").Inspect(value => value != "bad"))
                 .Message.Should().Contain("nameargument");
         }
     }

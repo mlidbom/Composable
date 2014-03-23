@@ -30,6 +30,7 @@ namespace AccountManagement.Domain.Shared
             return new Email(emailAddress);
         }
 
+        //Note how all the exceptions contain the invalid email address. Always make sure that exceptions contain the relevant information.
         private static void Validate(string emailAddress)
         {
             if (string.IsNullOrWhiteSpace(emailAddress))

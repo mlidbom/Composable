@@ -117,6 +117,10 @@
       <Project>{f40e3779-b691-44b9-a820-577c5c11035f}</Project>
       <Name>AccountManagement.Domain</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Composable.StagingArea\Composable.StagingArea.csproj">
+      <Project>{d1024299-495b-4f81-b182-6336f1d30210}</Project>
+      <Name>Composable.StagingArea</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />

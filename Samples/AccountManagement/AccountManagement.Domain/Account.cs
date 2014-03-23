@@ -42,6 +42,8 @@ namespace AccountManagement.Domain
             //Ensure that it is impossible to call with invalid arguments. 
             //Since these types all ensure that it is impossible to create a non-default value that is invalid we only have to disallow default values.
             Contract.Arguments(() => email, () => password, () => accountId).NotNullOrDefault();
+            
+            //The email is the unique identifier for logging into the account so obviously duplicates are forbidden.
             if(duplicateAccountChecker.AccountExists(email))
             {
                 throw new DuplicateAccountException(email);

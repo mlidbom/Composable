@@ -23,18 +23,21 @@ namespace AccountManagement.Domain
         public void Register(Email email, Password password, Guid accountId)
         {
             Contract.Arguments(() => email, () => password, () => accountId).NotNullOrDefault();
+
             RaiseEvent(new UserRegisteredAccountEvent(accountId:accountId, email: email, password: password ));
         }
 
         public void ChangePassword(Password password)
         {
             Contract.Arguments(() => password).NotNullOrDefault();
+
             RaiseEvent(new UserChangedAccountPassword(password));
         }
 
         public void ChangeEmail(Email email)
         {
             Contract.Arguments(() => email).NotNullOrDefault();
+
             RaiseEvent(new UserChangedAccountEmailEvent(email));
         }
     }

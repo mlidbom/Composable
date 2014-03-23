@@ -31,9 +31,8 @@ namespace Composable.Contracts
 
 
         /// <summary>
-        /// <para>Bakes <see cref="NotNull{TArgument}"/> and <see cref="NotDefault{TArgument}"/> into one inspection and runs only slightly slower. Recommended unless you are really paranoid about performance.</para>
         /// <para>Throws <see cref="ObjectIsNullException"/> if any inspected value is null</para>
-        /// <para>Throws <see cref="ObjectIsDefaultException"/> if any inspected value is default(TValue). Such as 0 for integer, Guid.Empty for Guid, new MyStruct() for any struct.</para>
+        /// <para>Throws <see cref="ObjectIsDefaultException"/> if any inspected value is default(TValue). Such as 0 for integer, Guid.Empty for Guid, new SomeStruct().</para>
         /// </summary>
         public static Inspected<TValue> NotNullOrDefault<TValue>(this Inspected<TValue> me)
         {

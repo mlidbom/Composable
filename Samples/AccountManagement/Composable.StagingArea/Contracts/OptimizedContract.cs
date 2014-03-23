@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 
 namespace Composable.Contracts
 {
@@ -18,7 +17,7 @@ namespace Composable.Contracts
         /// </summary>
         public Inspected<object> Arguments(params object[] @params)
         {
-            return new Inspected<object>(@params.Select(param => new InspectedValue<object>(param)).ToArray());
+            return Arguments<object>(@params);
         }
 
         /// <summary>
@@ -26,7 +25,13 @@ namespace Composable.Contracts
         /// </summary>
         public Inspected<TParameter> Arguments<TParameter>(params TParameter[] @params)
         {
-            return new Inspected<TParameter>(@params.Select(param => new InspectedValue<TParameter>(param)).ToArray());
+            //Yes the loops are not as pretty as a linq expression but this is performance critical code that might run in tight loops. If it was not I would be using linq.
+            var inspected = new InspectedValue<TParameter>[@params.Length];
+            for (var i = 0; i < @params.Length; i++)
+            {
+                inspected[i] = new InspectedValue<TParameter>(@params[i]);
+            }
+            return new Inspected<TParameter>(inspected);
         }
 
         ///<summary>Inspect a return value by passing in a Lambda that performs the inspections the same way you would for an argument.</summary>

@@ -15,7 +15,7 @@ namespace Composable.Contracts.Tests
             string okString = "okString";
             string emptyString = "";
             string nullString = null;
-            Assert.Throws<ObjectIsNullException>(() => Contract.Argument(() => nullString).NotNull())
+            Assert.Throws<ObjectIsNullException>(() => Contract.Arguments(() => nullString).NotNull())
                 .Message.Should().Contain("nullString");
 
             Assert.Throws<ObjectIsNullException>(() => Contract.Arguments(() => okString, () => nullString, () => notNullObject).NotNull())
@@ -40,8 +40,8 @@ namespace Composable.Contracts.Tests
         [Test]
         public void ThrowsIllegalArgumentAccessLambdaIfTheLambdaAcessesALiteral()
         {
-            Assert.Throws < InvalidArgumentAccessorLambda>(() => Contract.Argument(() => ""));
-            Assert.Throws<InvalidArgumentAccessorLambda>(() => Contract.Argument(() => 0));
+            Assert.Throws < InvalidArgumentAccessorLambda>(() => Contract.Arguments(() => ""));
+            Assert.Throws<InvalidArgumentAccessorLambda>(() => Contract.Arguments(() => 0));
         }
 
         [Test]
@@ -52,7 +52,7 @@ namespace Composable.Contracts.Tests
             stopWatch.Start();
             for (int i = 0; i < 300; i++)
             {
-                Contract.Argument(() => notNullOrDefault).NotNull();
+                Contract.Arguments(() => notNullOrDefault).NotNull();
             }
             stopWatch.Elapsed.Should().BeLessOrEqualTo(100.Milliseconds());
         }
@@ -60,7 +60,7 @@ namespace Composable.Contracts.Tests
 
         static void TestStringsForNullOrEmpty(string singleString)
         {
-            Contract.Argument(() => singleString).NotNullOrEmpty();
+            Contract.Arguments(() => singleString).NotNullOrEmpty();
         }
 
 

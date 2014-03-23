@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq.Expressions;
 
 namespace Composable.Contracts
 {
@@ -14,6 +13,7 @@ namespace Composable.Contracts
                 buildException = badValue => new ContractException(badValue.Name);
             }
 
+            //Yes the loops are not as pretty as a linq expression but this is performance critical code that might run in tight loops. If it was not I would be using linq.
             foreach(var inspected in _inspectedValues)
             {
                 if(!isValueValid(inspected.Value))

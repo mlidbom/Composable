@@ -15,10 +15,10 @@ namespace AccountManagement.Domain.Tests.AccountTests
     public class RegisterAccountSuccess
     {
         private IAccountManagementEventStoreSession _repository;
-        private const string ValidPasswordString = "Password1";
-        private readonly Password _password = new Password(ValidPasswordString);
-        private readonly Email _validEmail = Email.Parse("test.test@test.se");
-        private readonly Guid _validAccountId = Guid.NewGuid();
+        private const string _registrationPasswordAsString = "Password1";
+        private readonly Password _registrationPassword = new Password(_registrationPasswordAsString);
+        private readonly Email _registrationEmail = Email.Parse("test.test@test.se");
+        private readonly Guid _registrationAccountId = Guid.NewGuid();
         private MessageSpy _messageSpy;
         private Account _registered;
 
@@ -33,7 +33,7 @@ namespace AccountManagement.Domain.Tests.AccountTests
                     _messageSpy = container.Resolve<MessageSpy>();
                     var duplicateAccountChecker = container.Resolve<IDuplicateAccountChecker>();
                     _repository = container.Resolve<IAccountManagementEventStoreSession>();
-                    _registered = Account.Register(_validEmail, _password, _validAccountId, _repository, duplicateAccountChecker);
+                    _registered = Account.Register(_registrationEmail, _registrationPassword, _registrationAccountId, _repository, duplicateAccountChecker);
                     transaction.Commit();
                 }
             }
@@ -43,6 +43,18 @@ namespace AccountManagement.Domain.Tests.AccountTests
         public void AnIUserRegisteredAccountEventIsPublished()
         {
             _messageSpy.ReceivedMessages.OfType<IUserRegisteredAccountEvent>().ToList().Should().HaveCount(1);
+        }
+
+        [Test]
+        public void AccountEmailIsTheOneUsedForRegistration()
+        {
+            Assert.That(_registrationEmail, Is.EqualTo(_registered.Email));
+        }
+
+        [Test]
+        public void AccountPasswordIsTheOnUsedForRegistration()
+        {
+            Assert.True(_registered.Password.IsCorrectPassword(_registrationPasswordAsString));
         }
     }
 }

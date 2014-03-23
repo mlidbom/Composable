@@ -53,9 +53,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Extensions\CollectionExtensions.cs" />
     <Compile Include="Email.cs" />
     <Compile Include="Password.cs" />
+    <Compile Include="PasswordDoesNotMatchPolicyException.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="WrongPasswordException.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

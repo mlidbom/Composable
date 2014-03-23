@@ -55,7 +55,9 @@ namespace AccountManagement.Domain
         public void ChangePassword(string oldPassword, Password newPassword)
         {
             Contract.Arguments(() => newPassword).NotNullOrDefault();
-            Contract.Arguments(() => oldPassword).NotNullEmptyOrWhiteSpace();            
+            Contract.Arguments(() => oldPassword).NotNullEmptyOrWhiteSpace();
+
+            Password.AssertIsCorrectPassword(oldPassword);
 
             RaiseEvent(new UserChangedAccountPassword(newPassword));
         }

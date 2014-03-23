@@ -1,4 +1,5 @@
-﻿using FluentAssertions;
+﻿using System.Collections.Generic;
+using FluentAssertions;
 using NUnit.Framework;
 
 namespace Composable.Contracts.Tests
@@ -24,6 +25,24 @@ namespace Composable.Contracts.Tests
 
             Assert.Throws<StringIsEmptyException>(() => Contract.Arguments(() => emptyString).NotNullOrEmpty())
                 .Message.Should().Contain("emptyString");
+        }
+
+        [Test]
+        public void ThrowsStringIsEmptyForEmptyStrings()
+        {
+            InspectionTestHelper.BatchTestInspection<StringIsEmptyException, string>(
+                inspected => inspected.NotNullOrEmpty(),
+                badValues: new List<string> { "", ""},
+                goodValues: new List<string> { "a", "aa", "aaa" });
+        }
+
+        [Test]
+        public void ThrowsObjectIsNullForNullStrings()
+        {
+            InspectionTestHelper.BatchTestInspection<ObjectIsNullException, string>(
+                inspected => inspected.NotNullOrEmpty(),
+                badValues: new List<string> {null, null},
+                goodValues: new List<string> {"a", "aa", "aaa"});
         }
     }
 }

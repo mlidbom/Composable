@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using FluentAssertions;
 using NUnit.Framework;
 
@@ -25,6 +26,15 @@ namespace Composable.Contracts.Tests
             Assert.Throws<GuidIsEmptyException>(() => Contract.Arguments(() => aGuid, () => emptyGuid).NotEmpty())
                 .Message.Should().Contain("emptyGuid");
 
+        }
+
+        [Test]
+        public void NotEmptyThrowsArgumentExceptionForEmptyGuidNew()
+        {
+            InspectionTestHelper.BatchTestInspection<GuidIsEmptyException, Guid>(
+                assert: inspected => inspected.NotEmpty(),
+                badValues: new Guid[] { Guid.Empty, new Guid()  },
+                goodValues: new Guid[] {Guid.NewGuid(), Guid.NewGuid()});
         }
     }
 }

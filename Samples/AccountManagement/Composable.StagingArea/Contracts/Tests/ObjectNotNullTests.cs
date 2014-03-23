@@ -1,3 +1,5 @@
+using System;
+using System.Collections.Generic;
 using FluentAssertions;
 using NUnit.Framework;
 
@@ -8,6 +10,15 @@ namespace Composable.Contracts.Tests
     [TestFixture]
     public class ObjectNotNullTests
     {
+        [Test]
+        public void ThrowsObjectNullExceptionForNullValues()
+        {
+            InspectionTestHelper.BatchTestInspection<ObjectIsNullException, object>(
+                inspected => inspected.NotNull(),
+                badValues: new List<object> { null, null },
+                goodValues: new List<object> { new object(), "", Guid.NewGuid() });
+        }
+
         [Test]
         public void UsesArgumentNameForExceptionmessage()
         {

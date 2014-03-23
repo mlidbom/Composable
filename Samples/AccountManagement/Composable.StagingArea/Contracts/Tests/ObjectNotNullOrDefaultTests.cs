@@ -1,4 +1,6 @@
-﻿using System.Diagnostics;
+﻿using System;
+using System.Collections.Generic;
+using System.Diagnostics;
 using FluentAssertions;
 using NUnit.Framework;
 
@@ -44,6 +46,12 @@ namespace Composable.Contracts.Tests
             Assert.Throws<ObjectIsDefaultException>(() => Contract.Arguments(() => anObject, () => zero).NotNullOrDefault());
             Assert.Throws<ObjectIsDefaultException>(() => Contract.Arguments(() => emptyString, () => anObject, () => defaultMyStructure).NotNullOrDefault());
             Contract.Arguments(() => emptyString, () => anObject, () => aMyStructure).NotNullOrDefault();
+
+
+            InspectionTestHelper.BatchTestInspection<ObjectIsDefaultException, object>(
+                inspected => inspected.NotNullOrDefault(),
+                badValues: new List<object> { zero, defaultMyStructure },
+                goodValues: new List<object> { new object(), "", Guid.NewGuid() });
         }
 
         [Test]

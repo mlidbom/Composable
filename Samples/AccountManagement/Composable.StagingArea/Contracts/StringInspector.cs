@@ -13,7 +13,7 @@ namespace Composable.Contracts
         {
             me.NotNull(); //We want the proper exceptions
             return me.Inspect(inspected => inspected != String.Empty,
-                badValue => new StringIsEmptyException(badValue.Name));
+                badValue => new StringIsEmptyException(badValue));
         }
 
         public static Inspected<String> NotNullEmptyOrWhiteSpace(this Inspected<String> me)
@@ -21,7 +21,7 @@ namespace Composable.Contracts
             me.NotNullOrEmpty(); //We want the proper exceptions
             return me.Inspect(
                 inspected => inspected.Trim() != String.Empty,
-                badValue => new StringIsWhitespaceException(badValue.Name));
+                badValue => new StringIsWhitespaceException(badValue));
         }
     }
 }

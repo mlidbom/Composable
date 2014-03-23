@@ -2,6 +2,6 @@
 {
     public class ObjectIsNullException : ContractException
     {
-        public ObjectIsNullException(string valueName) : base(valueName) {}
+        public ObjectIsNullException(InspectedValue badValue) : base(badValue) { }
     }
 }

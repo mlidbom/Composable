@@ -18,9 +18,9 @@ namespace Composable.Contracts.Tests
             Assert.Throws<ObjectIsDefaultException>(() => Contract.Optimized.Argument(myStructure).NotDefault());
             Assert.Throws<ObjectIsDefaultException>(() => Contract.Optimized.Arguments(myStructure).NotDefault());
 
-            Assert.Throws<ObjectIsDefaultException>(() => Contract.Argument(() => zero).NotDefault());
             Assert.Throws<ObjectIsDefaultException>(() => Contract.Arguments(() => zero).NotDefault());
-            Assert.Throws<ObjectIsDefaultException>(() => Contract.Argument(() => myStructure).NotDefault());
+            Assert.Throws<ObjectIsDefaultException>(() => Contract.Arguments(() => zero).NotDefault());
+            Assert.Throws<ObjectIsDefaultException>(() => Contract.Arguments(() => myStructure).NotDefault());
             Assert.Throws<ObjectIsDefaultException>(() => Contract.Arguments(() => myStructure).NotDefault());
         }
 

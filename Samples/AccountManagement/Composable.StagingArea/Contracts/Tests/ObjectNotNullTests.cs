@@ -13,7 +13,7 @@ namespace Composable.Contracts.Tests
             Assert.Throws<ObjectIsNullException>(() => Contract.Optimized.Argument(nullString, "nullString").NotNull())
                 .Message.Should().Contain("nullString");
 
-            Assert.Throws<ObjectIsNullException>(() => Contract.Argument(() => nullString).NotNull())
+            Assert.Throws<ObjectIsNullException>(() => Contract.Arguments(() => nullString).NotNull())
                 .Message.Should().Contain("nullString");
         }
     }

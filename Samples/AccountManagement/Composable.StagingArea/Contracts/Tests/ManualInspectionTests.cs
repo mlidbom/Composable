@@ -12,7 +12,7 @@ namespace Composable.Contracts.Tests
             var nameArgument = "bad";
             Assert.Throws<ContractException>(() => Contract.Optimized.Argument(nameArgument, "nameargument").Inspect(value => value != nameArgument));
 
-            Assert.Throws<ContractException>(() => Contract.Argument(() => nameArgument).Inspect(value => value != nameArgument));
+            Assert.Throws<ContractException>(() => Contract.Arguments(() => nameArgument).Inspect(value => value != nameArgument));
         }
 
         [Test]
@@ -22,7 +22,7 @@ namespace Composable.Contracts.Tests
             Assert.Throws<ContractException>(() => Contract.Optimized.Argument(nameargument, "nameargument").Inspect(value => value != nameargument))
                 .Message.Should().Contain("nameargument");
 
-            Assert.Throws<ContractException>(() => Contract.Argument(() => nameargument).Inspect(value => value != nameargument))
+            Assert.Throws<ContractException>(() => Contract.Arguments(() => nameargument).Inspect(value => value != nameargument))
                 .Message.Should().Contain("nameargument");
         }
     }

@@ -27,7 +27,7 @@ namespace AccountManagement.Domain.Shared
             if(string.IsNullOrWhiteSpace(password))
             {
                 //Don't throw a generic exception or ArgumentException. Throw a specific type that let's clients make use of it easily and safely.
-                throw new InvalidPasswordException();
+                throw new InvalidPasswordException();//Normally we would include the value to make debugging easier but not for passwords since that would be a security issue.
             }
             Salt = Guid.NewGuid().ToByteArray();
             HashedPassword = HashPassword(salt: Salt, password: password);

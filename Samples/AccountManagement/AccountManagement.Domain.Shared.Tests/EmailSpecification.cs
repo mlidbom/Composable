@@ -1,4 +1,5 @@
 ﻿using FluentAssertions;
+using NUnit.Framework;
 
 namespace AccountManagement.Domain.Shared.Tests
 {
@@ -19,6 +20,13 @@ namespace AccountManagement.Domain.Shared.Tests
                     it["'test.test@..test.dk' (Repeated .. and @.)"] = expect<InvalidEmailException>(() => Email.Parse("test.test@..test.dk"));
                     it["'test.test..@test.dk' (Repeated .. and .@)"] = expect<InvalidEmailException>(() => Email.Parse("test.test..@test.dk"));
                     it["'test.test.@test.dk' (.@)"] = expect<InvalidEmailException>(() => Email.Parse("test.test.@test.dk"));
+                };
+
+            context["from the string 'brokenEmail'"] =
+                () =>
+                {
+                    it["the exception message contains the text 'brokenEmail'"] =
+                        () => Assert.Throws<InvalidEmailException>(() => Email.Parse("brokenEmail")).Message.Should().Contain("brokenEmail");
                 };
             context["with string: 'test@test.dk'"] =
                 () =>

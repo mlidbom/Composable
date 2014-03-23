@@ -38,7 +38,7 @@ namespace AccountManagement.Domain.Shared
             HashedPassword = HashPassword(salt: Salt, password: password);
         }
 
-        private static byte[] HashPassword(byte[] salt, string password)
+        private static byte[] HashPassword(byte[] salt, string password)//Extract to a private nested PasswordHasher class if this class gets uncomfortably long.
         {
             var encodedPassword = Encoding.Unicode.GetBytes(password);
             var saltedPassword = new byte[salt.Length + encodedPassword.Length];
@@ -50,8 +50,9 @@ namespace AccountManagement.Domain.Shared
             }
         }
 
-        public static class Policy
+        public static class Policy//Nest the class in order to enable easy discovery from the parent abstraction Password. Should the file become uncomfortably long make it partial and split the nested class out.
         {
+            ///<summary><para>returns a list of the ways in which a specific password fails to fulfill the policy. If the list is empty the password is matches the policy.</para> </summary>
             public static IEnumerable<Failures> GetPolicyFailures(string password)
             {                
                 if(password == null)

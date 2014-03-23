@@ -1,14 +1,13 @@
 using AccountManagement.Domain.Shared;
 
-namespace AccountManagement.Domain
+namespace AccountManagement.Domain.Services
 {
-    public interface IDuplicateAccountChecker
-    {
-        bool AccountExists(Email email);
-    }
-
     public class DuplicateAccountChecker : IDuplicateAccountChecker
     {
+        public DuplicateAccountChecker()
+        {
+            
+        }
         public bool AccountExists(Email email)
         {
             return false;//Todo: real implementation please!

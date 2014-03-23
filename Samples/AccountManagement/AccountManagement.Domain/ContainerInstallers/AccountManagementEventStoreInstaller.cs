@@ -21,12 +21,14 @@ namespace AccountManagement.Domain.ContainerInstallers
             public const string EventStoreSession = "AccountManagement.Domain.EventStoreSession";
         }
 
+        public static readonly string ConnectionStringName = "AccountManagementDomain";
+
         public void Install(IWindsorContainer container,IConfigurationStore store)
         {
             container.Register(
                 Component.For<IEventStore, SqlServerEventStore>()
                     .ImplementedBy<SqlServerEventStore>()
-                    .DependsOn(new Dependency[] {Dependency.OnValue(typeof(string), GetConnectionStringFromConfiguration("AccountManagementDomain"))})
+                    .DependsOn(new Dependency[] { Dependency.OnValue(typeof(string), GetConnectionStringFromConfiguration(ConnectionStringName)) })
                     .Named(ComponentKeys.EventStore)
                     .LifestyleSingleton(),
                 //Don't forget to register database components as IUnitOfWorkParticipant so that they work automatically with the framework management of units of work.

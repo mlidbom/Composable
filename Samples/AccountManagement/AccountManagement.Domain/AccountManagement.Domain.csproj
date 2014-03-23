@@ -97,8 +97,19 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Account.cs" />
+    <Compile Include="ContainerInstallers\AccountManagementDomainQuerymodelsSessionInstaller.cs" />
     <Compile Include="ContainerInstallers\AccountManagementEventStoreInstaller.cs" />
+    <Compile Include="ContainerInstallers\DuplicateAccountCheckerInstaller.cs" />
+    <Compile Include="ContainerInstallers\EventHandlersInstaller.cs" />
+    <Compile Include="DuplicateAccountException.cs" />
+    <Compile Include="QueryModels\EmailToAccountMap.cs" />
+    <Compile Include="Services\AccountManagementDomainQueryModelSession.cs" />
+    <Compile Include="Services\AccountManagementEventStoreSession.cs" />
+    <Compile Include="Services\DuplicateAccountChecker.cs" />
+    <Compile Include="Services\IDuplicateAccountChecker.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="QueryModels\Updaters\EmailToAccountUpdater.cs" />
+    <Compile Include="Services\IAccountManagementDomainQueryModelSession.cs" />
     <Compile Include="Services\IAccountManagementEventStoreSession.cs" />
   </ItemGroup>
   <ItemGroup>

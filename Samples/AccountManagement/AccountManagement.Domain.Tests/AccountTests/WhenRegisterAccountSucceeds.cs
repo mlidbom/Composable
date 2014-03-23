@@ -31,8 +31,9 @@ namespace AccountManagement.Domain.Tests.AccountTests
                 using(var transaction = container.BeginTransactionalUnitOfWorkScope())
                 {
                     _messageSpy = container.Resolve<MessageSpy>();
+                    var duplicateAccountChecker = container.Resolve<IDuplicateAccountChecker>();
                     _repository = container.Resolve<IAccountManagementEventStoreSession>();
-                    _registered = Account.Register(_validEmail, _password, _validAccountId, _repository);
+                    _registered = Account.Register(_validEmail, _password, _validAccountId, _repository, duplicateAccountChecker);
                     transaction.Commit();
                 }
             }

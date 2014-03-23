@@ -31,7 +31,7 @@ namespace Composable.Contracts
                 return memberExpression.Member.Name;
             }
 
-            throw new InvalidArgumentAccessorLambda();
+            throw new InvalidAccessorLambdaException();
         }
     }
 }

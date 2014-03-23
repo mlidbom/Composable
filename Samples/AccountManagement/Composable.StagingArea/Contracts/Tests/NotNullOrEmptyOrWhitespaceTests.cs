@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using FluentAssertions;
 using NUnit.Framework;
 
@@ -31,7 +32,6 @@ namespace Composable.Contracts.Tests
             var lineBreak = "\n";
             var newLine = "\r\n";
             var environmentNewLine = Environment.NewLine;
-
             Assert.Throws<StringIsWhitespaceException>(() => Contract.Optimized.Arguments(space).NotNullEmptyOrWhiteSpace());            
             Assert.Throws<StringIsWhitespaceException>(() => Contract.Optimized.Arguments(tab).NotNullEmptyOrWhiteSpace());            
             Assert.Throws<StringIsWhitespaceException>(() => Contract.Optimized.Arguments(lineBreak).NotNullEmptyOrWhiteSpace());            
@@ -45,6 +45,16 @@ namespace Composable.Contracts.Tests
             Assert.Throws<StringIsWhitespaceException>(() => Contract.Arguments(() => environmentNewLine).NotNullEmptyOrWhiteSpace());
 
             Assert.Throws<StringIsWhitespaceException>(() => Contract.Arguments(() => environmentNewLine, () => space).NotNullEmptyOrWhiteSpace());
+
+
+
+            var badValues = new List<string> { space, tab, lineBreak, newLine, environmentNewLine };
+            var goodValues = new List<string> { "aoeu", "lorem" };
+
+            InspectionTestHelper.BatchTestInspection<StringIsWhitespaceException, string>(
+                assert: inspected => inspected.NotNullEmptyOrWhiteSpace(),
+                badValues: badValues,
+                goodValues: goodValues);
 
         }
 

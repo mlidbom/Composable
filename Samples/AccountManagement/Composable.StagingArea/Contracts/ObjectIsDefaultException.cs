@@ -2,6 +2,6 @@
 {
     public class ObjectIsDefaultException : ContractException
     {
-        public ObjectIsDefaultException(string valueName) : base(valueName) { }
+        public ObjectIsDefaultException(InspectedValue badValue) : base(badValue) { }
     }
 }

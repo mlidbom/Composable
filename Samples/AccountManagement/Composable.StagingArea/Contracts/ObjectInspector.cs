@@ -13,7 +13,7 @@ namespace Composable.Contracts
         {
             return me.Inspect(
                 inspected => !ReferenceEquals(inspected, null),
-                badValue => new ObjectIsNullException(badValue.Name));
+                badValue => new ObjectIsNullException(badValue));
         }
 
 
@@ -26,7 +26,7 @@ namespace Composable.Contracts
         {
             return me.Inspect(
                 inspected => !Equals(inspected, Activator.CreateInstance(inspected.GetType())),
-                badValue => new ObjectIsDefaultException(badValue.Name));
+                badValue => new ObjectIsDefaultException(badValue));
         }
 
 
@@ -38,7 +38,7 @@ namespace Composable.Contracts
         {
             me.Inspect(
                 inspected => !ReferenceEquals(inspected, null),
-                badValue => new ObjectIsNullException(badValue.Name));
+                badValue => new ObjectIsNullException(badValue));
 
             return me.Inspect(
                 inspected =>
@@ -50,7 +50,7 @@ namespace Composable.Contracts
                     var valueTypeDefault = Activator.CreateInstance(inspected.GetType());
                     return !Equals(inspected, valueTypeDefault);
                 },
-                badValue => new ObjectIsDefaultException(badValue.Name));
+                badValue => new ObjectIsDefaultException(badValue));
         }
     }
 }

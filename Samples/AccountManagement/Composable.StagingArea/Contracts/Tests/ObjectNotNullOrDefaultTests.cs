@@ -4,6 +4,8 @@ using NUnit.Framework;
 
 namespace Composable.Contracts.Tests
 {
+    // ReSharper disable ConvertToConstant.Local
+    // ReSharper disable ExpressionIsAlwaysNull
     [TestFixture]
     public class ObjectNotNullOrDefaultTests
     {
@@ -14,7 +16,8 @@ namespace Composable.Contracts.Tests
             object nullObject = null;
             string emptyString = "";
 
-            Assert.Throws<ObjectIsNullException>(() => Contract.Optimized.Argument(nullObject).NotNullOrDefault());            
+            
+            Assert.Throws<ObjectIsNullException>(() => Contract.Optimized.Argument(nullObject).NotNullOrDefault());                        
             Assert.Throws<ObjectIsNullException>(() => Contract.Optimized.Arguments(anObject, nullObject).NotNullOrDefault());            
             Assert.Throws<ObjectIsNullException>(() => Contract.Optimized.Arguments(emptyString, nullObject, anObject).NotNullOrDefault());
 
@@ -26,9 +29,9 @@ namespace Composable.Contracts.Tests
         [Test]
         public void ThrowsObjectIsDefaultExceptionIfAnyValueIsDefault()
         {
-            var anObject = new object();
-            string emptyString = "";
-            var zero = 0;
+            var anObject = new object();            
+            string emptyString = "";            
+            var zero = 0;            
             var defaultMyStructure = new MyStructure();
             var aMyStructure = new MyStructure(1);
 
@@ -57,12 +60,16 @@ namespace Composable.Contracts.Tests
 
         private struct MyStructure
         {
-            public int Value;
+            // ReSharper disable NotAccessedField.Local
+            private int _value;
+            // ReSharper restore NotAccessedField.Local
 
             public MyStructure(int value)
             {
-                Value = value;
+                _value = value;
             }
         }
     }
+    // ReSharper restore ConvertToConstant.Local
+    // ReSharper restore ExpressionIsAlwaysNull
 }

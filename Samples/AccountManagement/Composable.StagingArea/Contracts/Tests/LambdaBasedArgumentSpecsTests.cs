@@ -41,8 +41,8 @@ namespace Composable.Contracts.Tests
         [Test]
         public void ThrowsIllegalArgumentAccessLambdaIfTheLambdaAcessesALiteral()
         {
-            Assert.Throws < InvalidArgumentAccessorLambda>(() => Contract.Arguments(() => ""));
-            Assert.Throws<InvalidArgumentAccessorLambda>(() => Contract.Arguments(() => 0));
+            Assert.Throws < InvalidAccessorLambdaException>(() => Contract.Arguments(() => ""));
+            Assert.Throws<InvalidAccessorLambdaException>(() => Contract.Arguments(() => 0));
         }
 
         [Test]

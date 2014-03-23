@@ -102,6 +102,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AccountTests\DomainTestWiringHelper.cs" />
+    <Compile Include="AccountTests\MessageSpy.cs" />
+    <Compile Include="AccountTests\RegisterAccountSuccess.cs" />
+    <Compile Include="AccountTests\RegisterAccountFailureTests.cs" />
     <Compile Include="ContainerInstallers\AccountManagementWiringTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
@@ -113,6 +117,10 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\AccountManagement.Domain.Shared\AccountManagement.Domain.Shared.csproj">
+      <Project>{CA31649D-A11B-45F6-9D17-2E716F11ADFA}</Project>
+      <Name>AccountManagement.Domain.Shared</Name>
+    </ProjectReference>
     <ProjectReference Include="..\AccountManagement.Domain\AccountManagement.Domain.csproj">
       <Project>{f40e3779-b691-44b9-a820-577c5c11035f}</Project>
       <Name>AccountManagement.Domain</Name>

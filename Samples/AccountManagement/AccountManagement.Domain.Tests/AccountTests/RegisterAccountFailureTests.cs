@@ -43,7 +43,7 @@ namespace AccountManagement.Domain.Tests.AccountTests
                 Account.Register(_validEmail, _validPassword, _validAccountId, _repository, _duplicateAccountChecker);
                 transaction.Commit();
             }
-            //Assert.Throws<DuplicateAccountException>(() => Account.Register(_validEmail, _validPassword, _validAccountId, _repository));
+            Assert.Throws<DuplicateAccountException>(() => Account.Register(_validEmail, _validPassword, _validAccountId, _repository, _duplicateAccountChecker));
         }
 
         [Test]

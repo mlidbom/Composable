@@ -25,6 +25,10 @@ namespace Composable.CQRS.Windsor.Testing
             }
         }
 
+        /// <summary>
+        ///<para>Components registered as PerWebRequest will be remapped to Scoped.</para>
+        /// <para>SingleThreadUseGuard is registered for the component ISingleContextUseGuard</para>
+        /// </summary>
         public static void ConfigureWiringForTestsCallBeforeAllOtherWiring(this IWindsorContainer container)
         {
             container.Kernel.ComponentModelBuilder.AddContributor(
@@ -38,6 +42,7 @@ namespace Composable.CQRS.Windsor.Testing
                 );
         }
 
+        
         public static void ConfigureWiringForTestsCallAfterAllOtherWiring(this IWindsorContainer container)
         {
             foreach(var configurer in container.ResolveAll<IConfigureWiringForTests>())

@@ -21,7 +21,7 @@ namespace Composable.Contracts
         }
 
         /// <summary>
-        /// <para>Start inspecting a multiple unnamed arguments.</para>
+        /// <para>Start inspecting one or more unnamed arguments.</para>
         /// </summary>
         public Inspected<TParameter> Arguments<TParameter>(params TParameter[] @params)
         {

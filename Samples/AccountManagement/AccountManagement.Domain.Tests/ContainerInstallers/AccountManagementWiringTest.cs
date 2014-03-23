@@ -11,16 +11,16 @@ namespace AccountManagement.Domain.Tests.ContainerInstallers
     public abstract class AccountManagementWiringTest
     {
         //Note that we do NOT test individual classes. We verify that when used as it will really be used things work as expected. 
-        //Should we change which installers exist, split installers, merge installers, 
-        //etc this test will keep working because it does not care about which installers exist or how exactly they work. 
-        //It only cares that things works correctly.
+        //If we change which installers exist, split installers, merge installers etc this test will keep working. 
+        //We also make a base class that is abstract and inherit it twice in order to reuse the tests for both production and test wiring
         protected IWindsorContainer Container;
 
         [SetUp]
         public void WireContainer()
         {
             Container = new WindsorContainer();
-            Container.ConfigureWiringForTestsCallBeforeAllOtherWiring();            
+            Container.ConfigureWiringForTestsCallBeforeAllOtherWiring();
+            
             Container.Install(
                 FromAssembly.Containing<AccountManagement.Domain.ContainerInstallers.AccountManagementDomainEventStoreInstaller>()
             );
@@ -48,12 +48,12 @@ namespace AccountManagement.Domain.Tests.ContainerInstallers
         }
     }
 
-    [TestFixture]
+    [TestFixture]//The production wiring test does not modify the wiring at all
     public class AccountManagementProductionWiringTest : AccountManagementWiringTest
     {
     }
 
-    [TestFixture]
+    [TestFixture]//The Test wiring test invokes all IConfigureWiringForTest instances in the container so that the wiring is now appropriate for running tests.
     public class AccountManagementTestWiringTest : AccountManagementWiringTest
     {
         [SetUp]

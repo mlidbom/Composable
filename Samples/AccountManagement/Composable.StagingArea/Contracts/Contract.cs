@@ -8,8 +8,8 @@ namespace Composable.Contracts
     public static class Contract
     {
         ///<summary>
-        ///<para>Start inspecting a multiple arguments and extract the name and value of the arguments from a lambda expression</para> 
-        /// <para>Using an expression removes the need for an extra string to specify the parameter name and ensures that it is always correct but runs a bit slower.</para>
+        ///<para>Start inspecting one or more arguments and extract the name and value of the arguments from a lambda expression</para> 
+        ///<para>Using an expression removes the need for an extra string to specify the parameter name and ensures that  the name is always correct.</para>
         ///</summary>
         public static Inspected<TParameter> Arguments<TParameter>(params Expression<Func<TParameter>>[] arguments)
         {
@@ -25,8 +25,8 @@ namespace Composable.Contracts
         }
 
         ///<summary>
-        ///<para>Start inspecting a multiple arguments and extract the name and value of the arguments from a lambda expression</para> 
-        /// <para>Using an expression removes the need for an extra string to specify the parameter name and ensures that it is always correct but runs a bit slower.</para>
+        ///<para>Start inspecting one or more arguments and extract the name and value of the arguments from a lambda expression</para> 
+        /// <para>Using an expression removes the need for an extra string to specify the parameter name and ensures that  the name is always correct.</para>
         ///</summary>
         public static Inspected<object> Arguments(params Expression<Func<object>>[] arguments)
         {

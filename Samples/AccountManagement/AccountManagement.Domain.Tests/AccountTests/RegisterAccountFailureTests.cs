@@ -49,13 +49,13 @@ namespace AccountManagement.Domain.Tests.AccountTests
         [Test]
         public void WhenPasswordIsNullObjectIsNullExceptionIsThrown()
         {
-            Assert.Throws<ObjectIsNullException>(() => Account.Register(null, _validPassword, _validAccountId, _repository, _duplicateAccountChecker));
+            Assert.Throws<ObjectIsNullException>(() => Account.Register(_validEmail, null, _validAccountId, _repository, _duplicateAccountChecker));
         }
 
         [Test]
         public void WhenEmailIsNullObjectIsNullExceptionIsThrown()
         {
-            Assert.Throws<ObjectIsNullException>(() => Account.Register(_validEmail, null, _validAccountId, _repository, _duplicateAccountChecker));
+            Assert.Throws<ObjectIsNullException>(() => Account.Register(null, _validPassword, _validAccountId, _repository, _duplicateAccountChecker));
         }
 
         [Test]

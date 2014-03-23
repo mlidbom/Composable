@@ -35,6 +35,8 @@ namespace AccountManagement.Domain.Shared.Tests
             context["allThesePasswordsAreInvalid with the mentioned failures"] =
                 () =>
                 {
+                    it["[[null]]"] = () => Assert.Throws<PasswordDoesNotMatchPolicyException>(() => new Password(null))
+                        .Failures.Should().Contain(Password.Policy.Failures.Null);
                     it["'' too short"] = () => Assert.Throws<PasswordDoesNotMatchPolicyException>(() => new Password(""))
                         .Failures.Should().Contain(Password.Policy.Failures.ShorterThanFourCharacters);
                     it["' ' whitespace and too short"] = () => Assert.Throws<PasswordDoesNotMatchPolicyException>(() => new Password(" "))

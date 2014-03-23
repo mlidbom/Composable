@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
+using AccountManagement.Domain.Shared.Extensions;
 using Composable.System.Linq;
 
 namespace AccountManagement.Domain.Shared
@@ -30,7 +31,7 @@ namespace AccountManagement.Domain.Shared
             if(passwordPolicyFailures.Any())
             {
                 //Don't throw a generic exception or ArgumentException. Throw a specific type that let's clients make use of it easily and safely.
-                throw new InvalidPasswordException(passwordPolicyFailures);//Normally we would include the value to make debugging easier but not for passwords since that would be a security issue. We do make sure to include HOW it was invalid.
+                throw new PasswordDoesNotMatchPolicyException(passwordPolicyFailures);//Normally we would include the value to make debugging easier but not for passwords since that would be a security issue. We do make sure to include HOW it was invalid.
             }
 
             Salt = Guid.NewGuid().ToByteArray();
@@ -55,31 +56,24 @@ namespace AccountManagement.Domain.Shared
             {                
                 if(password == null)
                 {
-                    return Seq.Create(Failures.Null);
+                    return Seq.Create(Failures.Null);//Everything else will fail with null reference exception if we don't return here...
                 }
 
                 var failures = new List<Failures>();
-                if(password.Length < 4)
-                {
-                    failures.Add(Failures.ShorterThanFourCharacters);
-                }
-
-                if(password.Trim() != password)
-                {
-                    failures.Add(Failures.ContainsWhitespace);
-                }
-
-                if(password.ToLower() == password)
-                {
-                    failures.Add(Failures.MissingUppercaseCharacter);
-                }
-
-                if (password.ToUpper() == password)
-                {
-                    failures.Add(Failures.MissingLowerCaseCharacter);
-                }
-
+                //Create a simple extension to keep the code short an expressive and DRY. If AddIf is unclear just hover your pointer over the method and the documentation comment should clear everything up.
+                failures.AddIf(password.Length < 4, Failures.ShorterThanFourCharacters);
+                failures.AddIf(password.Trim() != password, Failures.ContainsWhitespace);
+                failures.AddIf(password.ToLower() == password, Failures.MissingUppercaseCharacter);
+                failures.AddIf(password.ToUpper() == password, Failures.MissingLowerCaseCharacter);                
                 return failures;
+            }
+
+            private static void AddIf(List<Failures> failures, bool condition, Failures toAdd)
+            {
+                if(condition)
+                {
+                    failures.Add(toAdd);
+                }
             }
 
             [Flags]
@@ -92,20 +86,13 @@ namespace AccountManagement.Domain.Shared
                 ContainsWhitespace = 16
             }
         }
-    }
 
-    public class InvalidPasswordException : ArgumentException
-    {
-        public InvalidPasswordException(IEnumerable<Password.Policy.Failures> passwordPolicyFailures):base(BuildMessage(passwordPolicyFailures))
+        public void AssertIsCorrectPassword(string attemptedPassword)
         {
-            Failures = passwordPolicyFailures;
-        }
-
-        public IEnumerable<Password.Policy.Failures> Failures { get; private set; }
-
-        private static string BuildMessage(IEnumerable<Password.Policy.Failures> passwordPolicyFailures)
-        {
-            return string.Join(",", passwordPolicyFailures.Select(failure => failure.ToString()));
+            if(!IsCorrectPassword(attemptedPassword))
+            {
+                throw new WrongPasswordException();
+            }
         }
     }
 }

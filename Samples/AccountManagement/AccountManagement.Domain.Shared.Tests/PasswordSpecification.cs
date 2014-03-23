@@ -35,23 +35,23 @@ namespace AccountManagement.Domain.Shared.Tests
             context["allThesePasswordsAreInvalid with the mentioned failures"] =
                 () =>
                 {
-                    it["'' too short"] = () => Assert.Throws<InvalidPasswordException>(() => new Password(""))
+                    it["'' too short"] = () => Assert.Throws<PasswordDoesNotMatchPolicyException>(() => new Password(""))
                         .Failures.Should().Contain(Password.Policy.Failures.ShorterThanFourCharacters);
-                    it["' ' whitespace and too short"] = () => Assert.Throws<InvalidPasswordException>(() => new Password(" "))
+                    it["' ' whitespace and too short"] = () => Assert.Throws<PasswordDoesNotMatchPolicyException>(() => new Password(" "))
                         .Failures.Should()
                             .Contain(Password.Policy.Failures.ShorterThanFourCharacters)
                             .And
                             .Contain(Password.Policy.Failures.ContainsWhitespace);
-                    it["'Urdu ' whitespace"] = () => Assert.Throws<InvalidPasswordException>(() => new Password("Urdu "))
+                    it["'Urdu ' whitespace"] = () => Assert.Throws<PasswordDoesNotMatchPolicyException>(() => new Password("Urdu "))
                             .Failures.Should()
                             .Contain(Password.Policy.Failures.ContainsWhitespace);
-                    it["' Urdu' whitespace"] = () => Assert.Throws<InvalidPasswordException>(() => new Password(" Urdu"))
+                    it["' Urdu' whitespace"] = () => Assert.Throws<PasswordDoesNotMatchPolicyException>(() => new Password(" Urdu"))
                             .Failures.Should()
                             .Contain(Password.Policy.Failures.ContainsWhitespace);
-                    it["'urdu' lowercase"] = () => Assert.Throws<InvalidPasswordException>(() => new Password("urdu"))
+                    it["'urdu' lowercase"] = () => Assert.Throws<PasswordDoesNotMatchPolicyException>(() => new Password("urdu"))
                             .Failures.Should()
                             .Contain(Password.Policy.Failures.MissingUppercaseCharacter);
-                    it["'URDU' uppercase"] = () => Assert.Throws<InvalidPasswordException>(() => new Password("URDU"))
+                    it["'URDU' uppercase"] = () => Assert.Throws<PasswordDoesNotMatchPolicyException>(() => new Password("URDU"))
                             .Failures.Should()
                             .Contain(Password.Policy.Failures.MissingLowerCaseCharacter);
                 };

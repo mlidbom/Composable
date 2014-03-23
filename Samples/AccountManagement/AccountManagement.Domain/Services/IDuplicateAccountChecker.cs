@@ -4,6 +4,6 @@ namespace AccountManagement.Domain
 {
     public interface IDuplicateAccountChecker
     {
-        bool AccountExists(Email email);
+        void AssertAccountDoesNotExist(Email email);
     }
 }

@@ -12,10 +12,13 @@ namespace AccountManagement.Domain.Services
             _querymodels = querymodels;
         }
 
-        public bool AccountExists(Email email)
+        public void AssertAccountDoesNotExist(Email email)
         {
             EmailToAccountMap ignored;
-            return _querymodels.TryGet<EmailToAccountMap>(email, out ignored);
+            if(_querymodels.TryGet<EmailToAccountMap>(email, out ignored))
+            {
+                throw new DuplicateAccountException(email);
+            }
         }
     }
 }

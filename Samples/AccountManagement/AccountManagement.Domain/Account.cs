@@ -31,7 +31,7 @@ namespace AccountManagement.Domain
             Contract.Invariant(() => Email, () => Password, () => Id).NotNullOrDefault();
         }
 
-        /// <summary><para>Usen when a user manually creates an account themselves.</para>
+        /// <summary><para>Used when a user manually creates an account themselves.</para>
         /// <para>Note how this design with a named static creation method: </para>
         /// <para> * makes it clearear what the caller intends.</para>
         /// <para> * makes it impossible to use the class incorrectly, such as forgetting to save the new instance in the event store.</para>
@@ -44,10 +44,7 @@ namespace AccountManagement.Domain
             Contract.Arguments(() => email, () => password, () => accountId).NotNullOrDefault();
             
             //The email is the unique identifier for logging into the account so obviously duplicates are forbidden.
-            if(duplicateAccountChecker.AccountExists(email))
-            {
-                throw new DuplicateAccountException(email);
-            }
+            duplicateAccountChecker.AssertAccountDoesNotExist(email);
 
             var created = new Account();            
             created.RaiseEvent(new UserRegisteredAccountEvent(accountId: accountId, email: email, password: password));

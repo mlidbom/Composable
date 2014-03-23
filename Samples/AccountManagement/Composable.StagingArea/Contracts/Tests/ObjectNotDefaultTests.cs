@@ -11,7 +11,9 @@ namespace Composable.Contracts.Tests
         public void ThrowsObjectIsDefaultExceptionIfAnyValueIsDefault()
         {
             var myStructure = new MyStructure();
+            // ReSharper disable ConvertToConstant.Local
             var zero = 0;
+            // ReSharper restore ConvertToConstant.Local
 
             Assert.Throws<ObjectIsDefaultException>(() => Contract.Optimized.Argument(zero).NotDefault());
             Assert.Throws<ObjectIsDefaultException>(() => Contract.Optimized.Arguments(zero).NotDefault());
@@ -37,13 +39,7 @@ namespace Composable.Contracts.Tests
         }
 
         private struct MyStructure
-        {
-            public int Value;
-
-            public MyStructure(int value)
-            {
-                Value = value;
-            }
+        {           
         }
     }
 }

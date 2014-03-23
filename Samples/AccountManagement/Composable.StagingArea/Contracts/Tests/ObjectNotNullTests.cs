@@ -3,6 +3,8 @@ using NUnit.Framework;
 
 namespace Composable.Contracts.Tests
 {
+    // ReSharper disable ConvertToConstant.Local
+    // ReSharper disable ExpressionIsAlwaysNull
     [TestFixture]
     public class ObjectNotNullTests
     {
@@ -17,4 +19,6 @@ namespace Composable.Contracts.Tests
                 .Message.Should().Contain("nullString");
         }
     }
+    // ReSharper restore ConvertToConstant.Local
+    // ReSharper restore ExpressionIsAlwaysNull
 }

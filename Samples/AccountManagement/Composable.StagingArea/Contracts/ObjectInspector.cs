@@ -1,5 +1,4 @@
 ﻿using System;
-using Composable.Contracts.Tests;
 
 namespace Composable.Contracts
 {

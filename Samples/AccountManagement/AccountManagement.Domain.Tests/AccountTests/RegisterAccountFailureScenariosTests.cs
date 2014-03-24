@@ -10,7 +10,7 @@ using NUnit.Framework;
 namespace AccountManagement.Domain.Tests.AccountTests
 {
     [TestFixture]
-    public class RegisterAccountFailureTests
+    public class RegisterAccountFailureScenariosTests
     {
         private IDisposable _scope;
         private IAccountManagementEventStoreSession _repository;

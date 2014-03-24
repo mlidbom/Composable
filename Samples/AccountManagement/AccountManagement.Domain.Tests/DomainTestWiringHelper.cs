@@ -1,11 +1,12 @@
-﻿using Castle.MicroKernel.Registration;
+﻿using AccountManagement.Domain.Tests.AccountTests;
+using Castle.MicroKernel.Registration;
 using Castle.Windsor;
 using Castle.Windsor.Installer;
 using Composable.CQRS.Windsor.Testing;
 using Composable.ServiceBus;
 using NServiceBus;
 
-namespace AccountManagement.Domain.Tests.AccountTests
+namespace AccountManagement.Domain.Tests
 {
     public static class DomainTestWiringHelper
     {

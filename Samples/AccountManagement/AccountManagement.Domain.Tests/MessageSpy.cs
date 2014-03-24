@@ -2,7 +2,7 @@
 using Composable.ServiceBus;
 using NServiceBus;
 
-namespace AccountManagement.Domain.Tests.AccountTests
+namespace AccountManagement.Domain.Tests
 {
     public class MessageSpy : IHandleMessages<IMessage>, 
         ISynchronousBusMessageSpy//Keeps the bus from getting angry when more than one listener exists when invoking "Send". A hack that will be changed.

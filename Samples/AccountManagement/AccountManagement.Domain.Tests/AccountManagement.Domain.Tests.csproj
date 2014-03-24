@@ -102,10 +102,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AccountTests\DomainTestWiringHelper.cs" />
-    <Compile Include="AccountTests\MessageSpy.cs" />
+    <Compile Include="DomainTestWiringHelper.cs" />
+    <Compile Include="MessageSpy.cs" />
     <Compile Include="AccountTests\WhenRegisterAccountSucceeds.cs" />
-    <Compile Include="AccountTests\RegisterAccountFailureTests.cs" />
+    <Compile Include="AccountTests\RegisterAccountFailureScenariosTests.cs" />
     <Compile Include="ContainerInstallers\AccountManagementWiringTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

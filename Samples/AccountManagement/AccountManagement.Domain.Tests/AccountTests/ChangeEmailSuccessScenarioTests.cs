@@ -27,7 +27,8 @@ namespace AccountManagement.Domain.Tests.AccountTests
         [Test]
         public void AnIUserChangedAccountEmailEventIsRaised()
         {
-            MessageSpy.ReceivedMessages.OfType<IUserChangedAccountEmailEvent>().ToList()
+            MessageSpy.ReceivedMessages
+                .OfType<IUserChangedAccountEmailEvent>()
                 .Should().HaveCount(1);
         }
 

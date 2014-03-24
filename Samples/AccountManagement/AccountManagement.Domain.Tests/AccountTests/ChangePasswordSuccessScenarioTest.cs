@@ -29,8 +29,9 @@ namespace AccountManagement.Domain.Tests.AccountTests
         [Test]
         public void AnIUserChangedAccountPasswordEventIsRaised()
         {
-            MessageSpy.ReceivedMessages.OfType<IUserChangedAccountPasswordEvent>()
-                .ToList().Should().HaveCount(1);
+            MessageSpy.ReceivedMessages
+                .OfType<IUserChangedAccountPasswordEvent>()
+                .Should().HaveCount(1);
         }
 
         [Test]

@@ -20,9 +20,9 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AccountManagement.UI.Comman
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AccountManagement.UI.QueryModels", "AccountManagement.UI.QueryModels\AccountManagement.UI.QueryModels.csproj", "{5D9F2751-088C-422F-B251-0852E890A3E2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AccountManagement.UI.QueryModels.Updaters", "AccountManagement.UI.QueryModelUpdaters\AccountManagement.UI.QueryModels.Updaters.csproj", "{D0C22390-0BD6-4837-8CE5-149F80E6BA4E}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AccountManagement.UI.QueryModels.Updaters", "AccountManagement.UI.QueryModels.Updaters\AccountManagement.UI.QueryModels.Updaters.csproj", "{D0C22390-0BD6-4837-8CE5-149F80E6BA4E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AccountManagement.UI.QueryModels.Generators", "AccountManagement.UI.QueryModelGenerators\AccountManagement.UI.QueryModels.Generators.csproj", "{ACCAD488-7866-4F77-A541-ECDA61923F57}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AccountManagement.UI.QueryModels.Generators", "AccountManagement.UI.QueryModels.Generators\AccountManagement.UI.QueryModels.Generators.csproj", "{ACCAD488-7866-4F77-A541-ECDA61923F57}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AccountManagement.Domain.Shared.Tests", "AccountManagement.Domain.Shared.Tests\AccountManagement.Domain.Shared.Tests.csproj", "{0BBC38E5-3BC9-4CFE-A9E8-48A9D0F9BF2A}"
 EndProject

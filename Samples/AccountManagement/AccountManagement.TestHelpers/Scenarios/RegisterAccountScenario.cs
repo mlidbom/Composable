@@ -5,21 +5,27 @@ using AccountManagement.Domain.Shared;
 using Castle.Windsor;
 using Composable.KeyValueStorage.Population;
 
-namespace AccountManagement.TestHelpers.Fixtures
+namespace AccountManagement.TestHelpers.Scenarios
 {
-    public class AccountRegisteredFixture
+    public class RegisterAccountScenario
     {
+        private readonly IWindsorContainer _container;
         public string PasswordAsString = "Password1";
         public Password Password = new Password("Password1");
         public Email Email = Email.Parse("test.test@test.se");
-        public readonly Guid AccountId = Guid.NewGuid();        
+        public Guid AccountId = Guid.NewGuid();
 
-        public Account Setup(IWindsorContainer container)
+        public RegisterAccountScenario(IWindsorContainer container)
         {
-            using (var transaction = container.BeginTransactionalUnitOfWorkScope())
+            _container = container;
+        }
+
+        public Account Execute()
+        {
+            using (var transaction = _container.BeginTransactionalUnitOfWorkScope())
             {
-                var repository = container.Resolve<IAccountManagementEventStoreSession>();
-                var duplicateAccountChecker = container.Resolve<IDuplicateAccountChecker>();
+                var repository = _container.Resolve<IAccountManagementEventStoreSession>();
+                var duplicateAccountChecker = _container.Resolve<IDuplicateAccountChecker>();
                 var registered = Account.Register(Email, Password, AccountId, repository, duplicateAccountChecker);
                 transaction.Commit();
                 return registered;

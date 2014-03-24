@@ -1,6 +1,6 @@
 ﻿using System.Linq;
 using AccountManagement.Domain.Events;
-using AccountManagement.TestHelpers.Fixtures;
+using AccountManagement.TestHelpers.Scenarios;
 using FluentAssertions;
 using NUnit.Framework;
 
@@ -10,13 +10,13 @@ namespace AccountManagement.Domain.Tests.AccountTests
     public class RegisterAccountSuccessScenarioTests : DomainTestBase
     {
         private Account _registeredAccount;
-        private AccountRegisteredFixture _accountFixture;
+        private RegisterAccountScenario _registerAccountScenario;
 
         [SetUp]
         public void RegisterAccount()
         {
-            _accountFixture = new AccountRegisteredFixture();
-            _registeredAccount = _accountFixture.Setup(Container);
+            _registerAccountScenario = new RegisterAccountScenario(Container);
+            _registeredAccount = _registerAccountScenario.Execute();
         }
 
         [Test]
@@ -28,13 +28,13 @@ namespace AccountManagement.Domain.Tests.AccountTests
         [Test]
         public void AccountEmailIsTheOneUsedForRegistration()
         {
-            Assert.That(_registeredAccount.Email, Is.EqualTo(_accountFixture.Email));
+            Assert.That(_registeredAccount.Email, Is.EqualTo(_registerAccountScenario.Email));
         }
 
         [Test]
         public void AccountPasswordIsTheOnUsedForRegistration()
         {
-            Assert.True(_registeredAccount.Password.IsCorrectPassword(_accountFixture.PasswordAsString));
+            Assert.True(_registeredAccount.Password.IsCorrectPassword(_registerAccountScenario.PasswordAsString));
         }
     }
 }

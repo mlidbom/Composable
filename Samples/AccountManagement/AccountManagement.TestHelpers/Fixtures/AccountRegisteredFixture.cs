@@ -11,7 +11,7 @@ namespace AccountManagement.TestHelpers.Fixtures
     {
         public string PasswordAsString = "Password1";
         public readonly Password Password = new Password("Password1");
-        public readonly Email Email = Email.Parse("test.test@test.se");
+        public Email Email = Email.Parse("test.test@test.se");
         public readonly Guid AccountId = Guid.NewGuid();        
 
         public Account Setup(IWindsorContainer container)

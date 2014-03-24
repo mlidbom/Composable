@@ -1,6 +1,7 @@
 ﻿using AccountManagement.Domain.Shared;
 using AccountManagement.TestHelpers.Fixtures;
 using Composable.Contracts;
+using FluentAssertions;
 using NUnit.Framework;
 
 namespace AccountManagement.Domain.Tests.AccountTests
@@ -22,6 +23,18 @@ namespace AccountManagement.Domain.Tests.AccountTests
         public void WhenNewPasswordIsNullObjectNullExceptionIsThrown()
         {
             Assert.Throws<ObjectIsNullException>(() => _account.ChangePassword(_registeredAccountFixture.PasswordAsString, null));
+        }
+
+        [Test]
+        public void WhenOldPasswordIsNullObjectNullExceptionIsThrown()
+        {
+            Assert.Throws<ObjectIsNullException>(() => _account.ChangePassword(null, new Password("SomeComplexPassword1!")));
+        }
+
+        [Test]
+        public void WhenOldPasswordIsEmptyStringIsEmptyExceptionIsThrown()
+        {
+            Assert.Throws<StringIsEmptyException>(() => _account.ChangePassword("", new Password("SomeComplexPassword1!")));
         }
 
         [Test]

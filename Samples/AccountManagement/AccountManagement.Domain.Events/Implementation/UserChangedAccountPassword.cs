@@ -4,7 +4,7 @@ using Composable.CQRS.EventSourcing;
 
 namespace AccountManagement.Domain.Events.Implementation
 {
-    public class UserChangedAccountPassword : AggregateRootEvent, IAccountPasswordPropertyUpdateEvent
+    public class UserChangedAccountPassword : AggregateRootEvent, IUserChangedAccountPasswordEvent
     {
         public UserChangedAccountPassword(Password password)
         {

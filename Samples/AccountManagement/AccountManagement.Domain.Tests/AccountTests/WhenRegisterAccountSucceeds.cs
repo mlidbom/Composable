@@ -14,7 +14,6 @@ namespace AccountManagement.Domain.Tests.AccountTests
     [TestFixture]
     public class RegisterAccountSuccess
     {
-        private IAccountManagementEventStoreSession _repository;
         private const string _registrationPasswordAsString = "Password1";
         private readonly Password _registrationPassword = new Password(_registrationPasswordAsString);
         private readonly Email _registrationEmail = Email.Parse("test.test@test.se");
@@ -23,7 +22,7 @@ namespace AccountManagement.Domain.Tests.AccountTests
         private Account _registered;
 
         [SetUp]
-        public void ExecuteSuccessScenario()
+        public void RegisterAccount()
         {
             var container = DomainTestWiringHelper.SetupContainerForTesting();
             using(container.BeginScope())
@@ -32,8 +31,8 @@ namespace AccountManagement.Domain.Tests.AccountTests
                 {
                     _messageSpy = container.Resolve<MessageSpy>();
                     var duplicateAccountChecker = container.Resolve<IDuplicateAccountChecker>();
-                    _repository = container.Resolve<IAccountManagementEventStoreSession>();
-                    _registered = Account.Register(_registrationEmail, _registrationPassword, _registrationAccountId, _repository, duplicateAccountChecker);
+                    var accountRepository = container.Resolve<IAccountManagementEventStoreSession>();
+                    _registered = Account.Register(_registrationEmail, _registrationPassword, _registrationAccountId, accountRepository, duplicateAccountChecker);
                     transaction.Commit();
                 }
             }

@@ -1,26 +1,25 @@
 ﻿using Castle.MicroKernel.Registration;
 using Castle.MicroKernel.SubSystems.Configuration;
 using Castle.Windsor;
-using Castle.Windsor.Installer;
-using Composable.CQRS.Windsor.Testing;
 using NServiceBus;
 
-namespace AccountManagement.Domain.ContainerInstallers
+namespace Composable.CQRS.Windsor.Testing
 {
-    public class EventHandlersInstaller:IWindsorInstaller
+    public abstract class ForTestsEventHandlerInstallerBase<TInheritor> : IWindsorInstaller
     {
         public void Install(IWindsorContainer container, IConfigurationStore store)
         {
             container.Register(
-                Component.For<IConfigureWiringForTests>().ImplementedBy<RegisterEventHandlersForTest>()
+                Component.For<IConfigureWiringForTests>().ImplementedBy<RegisterEventHandlersForTest<TInheritor>>()
                 );
         }
     }
 
-    public class RegisterEventHandlersForTest : IConfigureWiringForTests
+    public class RegisterEventHandlersForTest<TInheritor> : IConfigureWiringForTests
     {
         private readonly IWindsorContainer _container;
-        public RegisterEventHandlersForTest(IWindsorContainer container )
+
+        public RegisterEventHandlersForTest(IWindsorContainer container)
         {
             _container = container;
         }
@@ -28,7 +27,7 @@ namespace AccountManagement.Domain.ContainerInstallers
         public void ConfigureWiringForTesting()
         {
             _container.Register(
-                Classes.FromThisAssembly()
+                Classes.FromAssemblyContaining<TInheritor>()
                     .BasedOn(typeof(IHandleMessages<>))
                     .WithServiceBase()
                     .LifestyleScoped());

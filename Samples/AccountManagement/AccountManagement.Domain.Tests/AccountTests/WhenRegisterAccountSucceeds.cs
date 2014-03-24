@@ -4,7 +4,6 @@ using AccountManagement.Domain.Events;
 using AccountManagement.Domain.Services;
 using AccountManagement.Domain.Shared;
 using Castle.MicroKernel.Lifestyle;
-using Composable.Contracts;
 using Composable.KeyValueStorage.Population;
 using FluentAssertions;
 using NUnit.Framework;
@@ -12,7 +11,7 @@ using NUnit.Framework;
 namespace AccountManagement.Domain.Tests.AccountTests
 {
     [TestFixture]
-    public class RegisterAccountSuccess
+    public class RegisterAccountSuccessScenarioTests
     {
         private const string _registrationPasswordAsString = "Password1";
         private readonly Password _registrationPassword = new Password(_registrationPasswordAsString);

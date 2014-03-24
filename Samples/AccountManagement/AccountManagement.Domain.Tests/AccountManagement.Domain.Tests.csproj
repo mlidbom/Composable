@@ -102,9 +102,11 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AccountTests\ChangeEmailSuccessScenarioTests.cs" />
+    <Compile Include="AccountTests\ChangeEmailFailureScenariosTests.cs" />
     <Compile Include="AccountTests\ChangePasswordFailureScenariosTests.cs" />
     <Compile Include="AccountTests\ChangePasswordSuccessScenarioTest.cs" />
-    <Compile Include="AccountTests\WhenRegisterAccountSucceeds.cs" />
+    <Compile Include="AccountTests\RegisterAccountSuccessScenarioTests.cs" />
     <Compile Include="AccountTests\RegisterAccountFailureScenariosTests.cs" />
     <Compile Include="ContainerInstallers\AccountManagementWiringTest.cs" />
     <Compile Include="DomainTestBase.cs" />

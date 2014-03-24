@@ -20,7 +20,7 @@ namespace AccountManagement.Domain.ContainerInstallers
             public const string EventStoreSession = "AccountManagement.Domain.EventStoreSession";
         }
 
-        public static readonly string ConnectionStringName = "AccountManagementDomain";
+        public const string ConnectionStringName = "AccountManagementDomain";
 
         public void Install(IWindsorContainer container, IConfigurationStore store)
         {

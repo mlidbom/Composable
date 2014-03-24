@@ -2,9 +2,11 @@
 using AccountManagement.Domain.Events.PropertyUpdated;
 using AccountManagement.UI.QueryModels.Updaters.Services;
 using Composable.CQRS.EventHandling;
+using JetBrains.Annotations;
 
 namespace AccountManagement.UI.QueryModels.Updaters
 {
+    [UsedImplicitly]
     public class AccountQueryModelUpdater : SingleAggregateQueryModelUpdater<AccountQueryModelUpdater, AccountQueryModel, IAccountEvent, IAccountManagementQueryModelUpdaterSession>
     {
         public AccountQueryModelUpdater(IAccountManagementQueryModelUpdaterSession session) : base(session)

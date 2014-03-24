@@ -1,9 +1,11 @@
 ﻿using AccountManagement.Domain.Events.PropertyUpdated;
 using AccountManagement.Domain.Services;
+using JetBrains.Annotations;
 using NServiceBus;
 
 namespace AccountManagement.Domain.QueryModels.Updaters
 {
+    [UsedImplicitly]
     public class EmailToAccountUpdater : IHandleMessages<IAccountEmailPropertyUpdatedEvent>
     {
         private readonly IAccountManagementDomainQueryModelSession _querymodels;

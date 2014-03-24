@@ -23,7 +23,7 @@ namespace Composable.Contracts.Tests
 
             foreach(var goodValue in goodValues)
             {
-                InspectGoodValues<TInspected>(assert, goodValue);
+                InspectGoodValues(assert, goodValue);
             }
         }
 
@@ -47,7 +47,7 @@ namespace Composable.Contracts.Tests
             inspected = Contract.Invariant(() => goodValue);
             assert(inspected);
 
-            var returned = Return(goodValue, assert);
+            Return(goodValue, assert);
         }
 
         public static void InspectBadValue<TException, TInspected>(Action<Inspected<TInspected>> assert, TInspected inspectedValue)

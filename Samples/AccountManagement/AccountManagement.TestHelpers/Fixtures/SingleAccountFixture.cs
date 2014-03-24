@@ -10,7 +10,7 @@ namespace AccountManagement.TestHelpers.Fixtures
 
         public static SingleAccountFixture Setup(IWindsorContainer container)
         {
-            return new SingleAccountFixture()
+            return new SingleAccountFixture
                    {
                        Account = new RegisterAccountScenario(container).Execute()
                    };

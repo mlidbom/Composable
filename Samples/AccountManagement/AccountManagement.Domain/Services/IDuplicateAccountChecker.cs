@@ -1,6 +1,6 @@
 using AccountManagement.Domain.Shared;
 
-namespace AccountManagement.Domain
+namespace AccountManagement.Domain.Services
 {
     public interface IDuplicateAccountChecker
     {

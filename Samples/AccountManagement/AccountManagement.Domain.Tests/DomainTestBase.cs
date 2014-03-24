@@ -9,8 +9,8 @@ namespace AccountManagement.Domain.Tests
     [TestFixture]
     public abstract class DomainTestBase
     {
-        protected WindsorContainer Container { get; set; }
-        protected IDisposable Scope { get; set; }
+        protected WindsorContainer Container { get; private set; }
+        private IDisposable Scope { get; set; }
         protected MessageSpy MessageSpy { get { return Container.Resolve<MessageSpy>(); } }
 
         [SetUp]

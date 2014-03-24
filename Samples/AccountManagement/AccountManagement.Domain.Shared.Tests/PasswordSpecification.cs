@@ -1,16 +1,18 @@
 ﻿using FluentAssertions;
+using JetBrains.Annotations;
 using NUnit.Framework;
 
 namespace AccountManagement.Domain.Shared.Tests
 {
     public class PasswordSpecification : NSpec.NUnit.nspec
     {
+        [UsedImplicitly]
         public void when_creating_a_new_password()
         {
             context["from_the_string 'Pass'"] =
                 () =>
                 {
-                    var password = new Password("Urou");
+                    var password = new Password("SomePassword1!");
                     before = () => { password = new Password("Pass"); };
 
                     it["HashedPassword is not null"] = () => password.HashedPassword.Should().NotBeNull();
@@ -24,7 +26,7 @@ namespace AccountManagement.Domain.Shared.Tests
                     context["when comparing to another password created from the string 'otherPassword'"] =
                         () =>
                         {
-                            var otherPassword = new Password("Eaoeulcr");
+                            var otherPassword = new Password("AnotherPassword1!");
                             before = () => otherPassword = new Password("otherPassword");
                             it["the Salt members are different"] = () => password.Salt.Should().NotEqual(otherPassword.Salt);
                             it["the HashedPassword members are different"] = () => password.HashedPassword.Should().NotEqual(otherPassword.HashedPassword);

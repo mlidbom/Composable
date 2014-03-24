@@ -22,7 +22,7 @@ namespace AccountManagement.Domain.Tests.ContainerInstallers
             Container.ConfigureWiringForTestsCallBeforeAllOtherWiring();
 
             Container.Install(
-                FromAssembly.Containing<AccountManagement.Domain.ContainerInstallers.AccountManagementDomainEventStoreInstaller>()
+                FromAssembly.Containing<Domain.ContainerInstallers.AccountManagementDomainEventStoreInstaller>()
                 );
 
             Container.Register(

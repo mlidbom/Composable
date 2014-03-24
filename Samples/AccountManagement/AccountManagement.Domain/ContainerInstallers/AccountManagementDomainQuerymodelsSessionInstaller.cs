@@ -5,9 +5,11 @@ using Castle.Windsor;
 using Composable.KeyValueStorage;
 using Composable.KeyValueStorage.SqlServer;
 using Composable.System.Configuration;
+using JetBrains.Annotations;
 
 namespace AccountManagement.Domain.ContainerInstallers
 {
+    [UsedImplicitly]
     public class AccountManagementDomainQuerymodelsSessionInstaller : IWindsorInstaller
     {
         public static class ComponentKeys

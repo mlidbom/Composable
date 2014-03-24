@@ -4,9 +4,11 @@ using Castle.Windsor;
 using Composable.CQRS.Windsor;
 using Composable.CQRS.Windsor.Testing;
 using Composable.KeyValueStorage;
+using JetBrains.Annotations;
 
 namespace AccountManagement.UI.QueryModels.ContainerInstallers.Testing
 {
+    [UsedImplicitly]
     public class InMemoryAccountManagementQuerymodelSessionInstaller : IWindsorInstaller
     {
         public void Install(IWindsorContainer container, IConfigurationStore store)

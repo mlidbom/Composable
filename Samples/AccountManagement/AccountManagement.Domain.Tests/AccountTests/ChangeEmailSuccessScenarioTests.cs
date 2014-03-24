@@ -2,7 +2,6 @@
 using AccountManagement.Domain.Events;
 using AccountManagement.Domain.Shared;
 using AccountManagement.TestHelpers.Fixtures;
-using Composable.Contracts;
 using Composable.KeyValueStorage.Population;
 using FluentAssertions;
 using NUnit.Framework;

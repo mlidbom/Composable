@@ -2,6 +2,6 @@
 {
     public class StringIsWhitespaceException : ContractException
     {
-        public StringIsWhitespaceException(InspectedValue badValue) : base(badValue) { }
+        public StringIsWhitespaceException(InspectedValue badValue) : base(badValue) {}
     }
 }

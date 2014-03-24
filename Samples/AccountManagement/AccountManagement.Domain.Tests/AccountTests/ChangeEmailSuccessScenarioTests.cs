@@ -19,7 +19,7 @@ namespace AccountManagement.Domain.Tests.AccountTests
         {
             _account = SingleAccountFixture.Setup(Container).Account;
             using(var transaction = Container.BeginTransactionalUnitOfWorkScope())
-            {                
+            {
                 _account.ChangeEmail(_newEmail);
                 transaction.Commit();
             }

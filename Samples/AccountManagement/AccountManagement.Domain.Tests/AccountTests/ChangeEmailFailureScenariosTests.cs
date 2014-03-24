@@ -1,5 +1,4 @@
 ﻿using AccountManagement.TestHelpers.Fixtures;
-using AccountManagement.TestHelpers.Scenarios;
 using Composable.Contracts;
 using NUnit.Framework;
 

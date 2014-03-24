@@ -20,6 +20,5 @@ namespace AccountManagement.Domain.Shared
                 }
             }
         }
-
     }
 }

@@ -41,7 +41,7 @@ namespace Composable.Contracts.Tests
         [Test]
         public void ThrowsIllegalArgumentAccessLambdaIfTheLambdaAcessesALiteral()
         {
-            Assert.Throws < InvalidAccessorLambdaException>(() => Contract.Arguments(() => ""));
+            Assert.Throws<InvalidAccessorLambdaException>(() => Contract.Arguments(() => ""));
             Assert.Throws<InvalidAccessorLambdaException>(() => Contract.Arguments(() => 0));
         }
 
@@ -51,7 +51,7 @@ namespace Composable.Contracts.Tests
             var notNullOrDefault = new object();
             var stopWatch = new Stopwatch();
             stopWatch.Start();
-            for (int i = 0; i < 300; i++)
+            for(int i = 0; i < 300; i++)
             {
                 Contract.Arguments(() => notNullOrDefault).NotNull();
             }
@@ -59,17 +59,18 @@ namespace Composable.Contracts.Tests
         }
 
 
-        static void TestStringsForNullOrEmpty(string singleString)
+        private static void TestStringsForNullOrEmpty(string singleString)
         {
             Contract.Arguments(() => singleString).NotNullOrEmpty();
         }
 
 
-        static void TestStringsForNullOrEmpty(string firstString, string secondString, string thirdString)
+        private static void TestStringsForNullOrEmpty(string firstString, string secondString, string thirdString)
         {
             Contract.Arguments(() => firstString, () => secondString, () => thirdString).NotNullOrEmpty();
         }
     }
+
     // ReSharper restore ConvertToConstant.Local
     // ReSharper restore ExpressionIsAlwaysNull
 }

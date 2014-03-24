@@ -2,6 +2,6 @@
 {
     public class StringIsEmptyException : ContractException
     {
-        public StringIsEmptyException(InspectedValue badValue) : base(badValue) { }
+        public StringIsEmptyException(InspectedValue badValue) : base(badValue) {}
     }
 }

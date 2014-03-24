@@ -27,8 +27,8 @@ namespace Composable.Contracts.Tests
             Assert.Throws<ObjectIsDefaultException>(() => Contract.Arguments(() => myStructure).NotDefault());
             Assert.Throws<ObjectIsDefaultException>(() => Contract.Arguments(() => myStructure).NotDefault());
 
-            var badValues = new List<object> { zero, myStructure };
-            var goodValues = new List<object> { new Object(), "", Guid.NewGuid() };
+            var badValues = new List<object> {zero, myStructure};
+            var goodValues = new List<object> {new Object(), "", Guid.NewGuid()};
 
             InspectionTestHelper.InspectBadValue<ObjectIsDefaultException, MyStructure>(
                 inspected => inspected.NotDefault(),
@@ -36,8 +36,8 @@ namespace Composable.Contracts.Tests
 
             InspectionTestHelper.BatchTestInspection<ObjectIsDefaultException, int>(
                 inspected => inspected.NotDefault(),
-                badValues : new List<int>{0},
-                goodValues: new List<int> { 1,2,3 });
+                badValues: new List<int> {0},
+                goodValues: new List<int> {1, 2, 3});
         }
 
         [Test]
@@ -52,8 +52,6 @@ namespace Composable.Contracts.Tests
             stopWatch.Elapsed.Should().BeLessOrEqualTo(10.Milliseconds());
         }
 
-        private struct MyStructure
-        {           
-        }
+        private struct MyStructure {}
     }
 }

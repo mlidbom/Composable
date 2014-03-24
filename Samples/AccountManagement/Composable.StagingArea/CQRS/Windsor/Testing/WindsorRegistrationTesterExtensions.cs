@@ -11,6 +11,7 @@ namespace Composable.CQRS.Windsor.Testing
         public class WindsorRegistrationAssertionHelper
         {
             private readonly IWindsorContainer _container;
+
             public WindsorRegistrationAssertionHelper(IWindsorContainer container)
             {
                 _container = container;
@@ -30,13 +31,13 @@ namespace Composable.CQRS.Windsor.Testing
                 TComponent firstComponentFromSecondScope;
                 TComponent secondComponentFromSecondScope;
 
-                using (_container.BeginScope())
+                using(_container.BeginScope())
                 {
                     firstComponentFromFirstScope = _container.Resolve<TComponent>();
                     secondComponentFromFirstScope = _container.Resolve<TComponent>();
                 }
 
-                using (_container.BeginScope())
+                using(_container.BeginScope())
                 {
                     firstComponentFromSecondScope = _container.Resolve<TComponent>();
                     secondComponentFromSecondScope = _container.Resolve<TComponent>();
@@ -45,7 +46,7 @@ namespace Composable.CQRS.Windsor.Testing
 
                 firstComponentFromFirstScope.Should().Be(secondComponentFromFirstScope, "Two components resolved in the same scope should be the same instance");
                 firstComponentFromSecondScope.Should().Be(secondComponentFromSecondScope, "Two components resolved in the same scope should be the same instance");
-                
+
                 firstComponentFromFirstScope.Should().NotBe(firstComponentFromSecondScope, "Two components resolved in different scopes should be different instances");
                 return this;
             }

@@ -31,7 +31,8 @@ namespace Composable.Contracts
         ///</summary>
         public static Inspected<TParameter> Invariant<TParameter>(params Expression<Func<TParameter>>[] members)
         {
-            return CreateInspected(members, InspectionType.Invariant); //For now it just delegates to arguments since they do the same thing. Eventually we will want different exceptions(At least messages) for argument vs invariant verifications.
+            return CreateInspected(members, InspectionType.Invariant);
+                //For now it just delegates to arguments since they do the same thing. Eventually we will want different exceptions(At least messages) for argument vs invariant verifications.
         }
 
         ///<summary>
@@ -58,7 +59,7 @@ namespace Composable.Contracts
         private static Inspected<TParameter> CreateInspected<TParameter>(Expression<Func<TParameter>>[] arguments, InspectionType inspectionType)
         { //Yes the loop is not as pretty as a linq expression but this is performance critical code that might run in tight loops. If it was not I would be using linq.
             var inspected = new InspectedValue<TParameter>[arguments.Length];
-            for (var i = 0; i < arguments.Length; i++)
+            for(var i = 0; i < arguments.Length; i++)
             {
                 inspected[i] = new InspectedValue<TParameter>(
                     value: arguments[i].Compile().Invoke(),

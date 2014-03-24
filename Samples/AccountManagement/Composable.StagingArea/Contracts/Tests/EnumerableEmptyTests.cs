@@ -19,14 +19,14 @@ namespace Composable.Contracts.Tests
             exception = Assert.Throws<EnumerableIsEmptyException>(() => Contract.Invariant(() => list).NotNullOrEmpty());
             exception.BadValue.Type.Should().Be(InspectionType.Invariant);
 
-            exception = Assert.Throws<EnumerableIsEmptyException>(() =>  ReturnValueContractHelper.Return(list, inspected => inspected.NotNullOrEmpty()));
+            exception = Assert.Throws<EnumerableIsEmptyException>(() => ReturnValueContractHelper.Return(list, inspected => inspected.NotNullOrEmpty()));
             exception.BadValue.Type.Should().Be(InspectionType.ReturnValue);
 
 
             InspectionTestHelper.BatchTestInspection<EnumerableIsEmptyException, IEnumerable<string>>(
                 assert: inspected => inspected.NotNullOrEmpty(),
                 badValues: new List<IEnumerable<string>>() {new List<string>(), new List<string>()},
-                goodValues: new List<IEnumerable<string>>() {new List<string>() {""}, new List<string>() {""} });
+                goodValues: new List<IEnumerable<string>>() {new List<string>() {""}, new List<string>() {""}});
         }
     }
 }

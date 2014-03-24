@@ -6,7 +6,7 @@ using NUnit.Framework;
 namespace AccountManagement.UI.QueryModels.Updaters.Tests.AccountQueryModelTests
 {
     [TestFixture]
-    public class AfterUserChangesAccountPassword :  RegistersAccountDuringSetupAccountQueryModelTestBase
+    public class AfterUserChangesAccountPassword : RegistersAccountDuringSetupAccountQueryModelTestBase
     {
         private readonly Password _newPassword = new Password("ComplexPassword!1");
 

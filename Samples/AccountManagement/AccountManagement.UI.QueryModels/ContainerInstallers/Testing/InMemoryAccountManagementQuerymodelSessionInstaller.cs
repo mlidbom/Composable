@@ -12,8 +12,8 @@ namespace AccountManagement.UI.QueryModels.ContainerInstallers.Testing
         public void Install(IWindsorContainer container, IConfigurationStore store)
         {
             container.Register(
-                    Component.For<IConfigureWiringForTests, IResetTestDatabases>()
-                        .Instance(new DocumentDbTestConfigurer(container))
+                Component.For<IConfigureWiringForTests, IResetTestDatabases>()
+                    .Instance(new DocumentDbTestConfigurer(container))
                 );
         }
 
@@ -30,7 +30,7 @@ namespace AccountManagement.UI.QueryModels.ContainerInstallers.Testing
             {
                 //The ViewModelUpdatersSession and the ViewModelsSession must use the same document db for things to be sane.
                 //Sometimes only the wiring for one is used. Sometimes the wiring for both. This if clause takes care of that issue.
-                if (!_container.Kernel.HasComponent(AccountManagementQuerymodelsSessionInstaller.ComponentKeys.KeyForInMemoryDocumentDb))
+                if(!_container.Kernel.HasComponent(AccountManagementQuerymodelsSessionInstaller.ComponentKeys.KeyForInMemoryDocumentDb))
                 {
                     _container.Register(
                         Component.For<IDocumentDb>()

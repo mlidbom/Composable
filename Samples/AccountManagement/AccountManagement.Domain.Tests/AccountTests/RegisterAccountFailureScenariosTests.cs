@@ -52,7 +52,8 @@ namespace AccountManagement.Domain.Tests.AccountTests
         [Test]
         public void WhenRepositoryIsNullObjectIsNullExceptionIsThrown()
         {
-            Assert.Throws<ObjectIsDefaultException>(() => Account.Register(_registerAccountScenario.Email, _registerAccountScenario.Password, Guid.Empty, _repository, _duplicateAccountChecker));
+            Assert.Throws<ObjectIsDefaultException>(
+                () => Account.Register(_registerAccountScenario.Email, _registerAccountScenario.Password, Guid.Empty, _repository, _duplicateAccountChecker));
         }
     }
 }

@@ -5,8 +5,6 @@ namespace AccountManagement.Domain
 {
     public class DuplicateAccountException : Exception
     {
-        public DuplicateAccountException(Email email):base(email.ToString())
-        {
-        }
+        public DuplicateAccountException(Email email) : base(email.ToString()) {}
     }
 }

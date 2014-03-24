@@ -10,7 +10,7 @@ namespace AccountManagement.TestHelpers.Fixtures
     public class AccountRegisteredFixture
     {
         public string PasswordAsString = "Password1";
-        public readonly Password Password = new Password("Password1");
+        public Password Password = new Password("Password1");
         public Email Email = Email.Parse("test.test@test.se");
         public readonly Guid AccountId = Guid.NewGuid();        
 

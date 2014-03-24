@@ -1,6 +1,5 @@
 ﻿using System.Linq;
 using AccountManagement.Domain.Events;
-using AccountManagement.Domain.Services;
 using AccountManagement.Domain.Shared;
 using AccountManagement.TestHelpers.Fixtures;
 using Composable.KeyValueStorage.Population;

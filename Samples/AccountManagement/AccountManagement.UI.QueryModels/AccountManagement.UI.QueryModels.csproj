@@ -87,6 +87,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ContainerInstallers\AccountManagementQuerymodelsSessionInstaller.cs" />
+    <Compile Include="ContainerInstallers\Testing\InMemoryAccountManagementQuerymodelSessionInstaller.cs" />
     <Compile Include="Services\AccountManagementQueryModelSession.cs" />
     <Compile Include="AccountQueryModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

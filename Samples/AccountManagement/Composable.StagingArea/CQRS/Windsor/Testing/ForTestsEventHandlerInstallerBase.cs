@@ -1,10 +1,12 @@
 ﻿using Castle.MicroKernel.Registration;
 using Castle.MicroKernel.SubSystems.Configuration;
 using Castle.Windsor;
+using JetBrains.Annotations;
 using NServiceBus;
 
 namespace Composable.CQRS.Windsor.Testing
 {
+    [UsedImplicitly]
     public abstract class ForTestsEventHandlerInstallerBase<TInheritor> : IWindsorInstaller
     {
         public void Install(IWindsorContainer container, IConfigurationStore store)

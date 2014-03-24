@@ -100,7 +100,9 @@
     <Compile Include="ContainerInstallers\AccountManagementDomainQuerymodelsSessionInstaller.cs" />
     <Compile Include="ContainerInstallers\AccountManagementEventStoreInstaller.cs" />
     <Compile Include="ContainerInstallers\DuplicateAccountCheckerInstaller.cs" />
-    <Compile Include="ContainerInstallers\ForTestsDomainEventHandlersInstaller.cs" />
+    <Compile Include="ContainerInstallers\Testing\InMemoryDomainEventStoreInstaller.cs" />
+    <Compile Include="ContainerInstallers\Testing\ForTestsDomainEventHandlersInstaller.cs" />
+    <Compile Include="ContainerInstallers\Testing\InMemoryDomainQueryModelsSessionInstaller.cs" />
     <Compile Include="DuplicateAccountException.cs" />
     <Compile Include="QueryModels\EmailToAccountMap.cs" />
     <Compile Include="Services\AccountManagementDomainQueryModelSession.cs" />

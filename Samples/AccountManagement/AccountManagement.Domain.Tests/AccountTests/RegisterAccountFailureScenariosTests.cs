@@ -11,14 +11,14 @@ namespace AccountManagement.Domain.Tests.AccountTests
     {
         private IAccountManagementEventStoreSession _repository;
         private IDuplicateAccountChecker _duplicateAccountChecker;
-        private ValidAccountRegisteredFixture _accountFixture;
+        private AccountRegisteredFixture _accountFixture;
 
         [SetUp]
         public void SetupWiringAndCreateRepositoryAndScope()
         {
             _repository = Container.Resolve<IAccountManagementEventStoreSession>();
             _duplicateAccountChecker = Container.Resolve<IDuplicateAccountChecker>();
-            _accountFixture = new ValidAccountRegisteredFixture();
+            _accountFixture = new AccountRegisteredFixture();
         }
 
         [Test]

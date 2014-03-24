@@ -10,12 +10,12 @@ namespace AccountManagement.Domain.Tests.AccountTests
     public class RegisterAccountSuccessScenarioTests : DomainTestBase
     {
         private Account _registeredAccount;
-        private ValidAccountRegisteredFixture _accountFixture;
+        private AccountRegisteredFixture _accountFixture;
 
         [SetUp]
         public void RegisterAccount()
         {
-            _accountFixture = new ValidAccountRegisteredFixture();
+            _accountFixture = new AccountRegisteredFixture();
             _registeredAccount = _accountFixture.Setup(Container);
         }
 

@@ -96,6 +96,11 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AccountQueryModelTests\RegistersAccountDuringSetupAccountQueryModelTestBase.cs" />
+    <Compile Include="AccountQueryModelTests\AfterUserChangesAccountPassword.cs" />
+    <Compile Include="AccountQueryModelTests\AfterUserChangesAccountEmail.cs" />
+    <Compile Include="AccountQueryModelTests\AfterAccountIsRegistered.cs" />
+    <Compile Include="QueryModelsUpdatersTestsBase.cs" />
     <Compile Include="ContainerInstallers\AccountManagementWiringTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
@@ -104,6 +109,22 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\AccountManagement.Domain.Events\AccountManagement.Domain.Events.csproj">
+      <Project>{DABBA9B3-CD83-4995-83C4-EFCDF388C353}</Project>
+      <Name>AccountManagement.Domain.Events</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\AccountManagement.Domain.Shared\AccountManagement.Domain.Shared.csproj">
+      <Project>{CA31649D-A11B-45F6-9D17-2E716F11ADFA}</Project>
+      <Name>AccountManagement.Domain.Shared</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\AccountManagement.Domain\AccountManagement.Domain.csproj">
+      <Project>{F40E3779-B691-44B9-A820-577C5C11035F}</Project>
+      <Name>AccountManagement.Domain</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\AccountManagement.TestHelpers\AccountManagement.TestHelpers.csproj">
+      <Project>{688DE4C0-690E-4EF5-AF36-A16BD2D9E930}</Project>
+      <Name>AccountManagement.TestHelpers</Name>
+    </ProjectReference>
     <ProjectReference Include="..\AccountManagement.UI.QueryModels\AccountManagement.UI.QueryModels.csproj">
       <Project>{5d9f2751-088c-422f-b251-0852e890a3e2}</Project>
       <Name>AccountManagement.UI.QueryModels</Name>

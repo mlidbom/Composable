@@ -25,8 +25,8 @@ namespace Composable.Contracts.Tests
 
             InspectionTestHelper.BatchTestInspection<EnumerableIsEmptyException, IEnumerable<string>>(
                 assert: inspected => inspected.NotNullOrEmpty(),
-                badValues: new List<IEnumerable<string>>() {new List<string>(), new List<string>()},
-                goodValues: new List<IEnumerable<string>>() {new List<string>() {""}, new List<string>() {""}});
+                badValues: new List<IEnumerable<string>> {new List<string>(), new List<string>()},
+                goodValues: new List<IEnumerable<string>> {new List<string> {""}, new List<string> {""}});
         }
     }
 }

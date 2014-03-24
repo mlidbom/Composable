@@ -1,10 +1,12 @@
 ﻿using FluentAssertions;
+using JetBrains.Annotations;
 using NUnit.Framework;
 
 namespace AccountManagement.Domain.Shared.Tests
 {
     public class EmailSpecification : NSpec.NUnit.nspec
     {
+        [UsedImplicitly]
         public void creating_new_email()
         {
             context["throws InvalidEmailException for all of these strings"] =

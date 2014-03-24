@@ -31,8 +31,8 @@ namespace Composable.Contracts.Tests
         {
             InspectionTestHelper.BatchTestInspection<GuidIsEmptyException, Guid>(
                 assert: inspected => inspected.NotEmpty(),
-                badValues: new Guid[] {Guid.Empty, new Guid()},
-                goodValues: new Guid[] {Guid.NewGuid(), Guid.NewGuid()});
+                badValues: new[] {Guid.Empty, new Guid()},
+                goodValues: new[] {Guid.NewGuid(), Guid.NewGuid()});
         }
     }
 }

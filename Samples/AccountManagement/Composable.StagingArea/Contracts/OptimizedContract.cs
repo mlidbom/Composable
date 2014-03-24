@@ -50,7 +50,7 @@ namespace Composable.Contracts
         public Inspected<TMember> Invariant<TMember>(params TMember[] members)
         {
             return CreateInspected(members, InspectionType.Invariant);
-        }        
+        }
 
         ///<summary>Inspect a return value by passing in a Lambda that performs the inspections the same way you would for an argument.</summary>
         public static TReturnValue Return<TReturnValue>(TReturnValue returnValue, Action<Inspected<TReturnValue>> assert)
@@ -62,7 +62,7 @@ namespace Composable.Contracts
         private static Inspected<TValue> CreateInspected<TValue>(TValue[] @params, InspectionType inspectionType)
         { //Yes the loop is not as pretty as a linq expression but this is performance critical code that might run in tight loops. If it was not I would be using linq.
             var inspected = new InspectedValue<TValue>[@params.Length];
-            for (var i = 0; i < @params.Length; i++)
+            for(var i = 0; i < @params.Length; i++)
             {
                 inspected[i] = new InspectedValue<TValue>(value: @params[i], type: inspectionType);
             }

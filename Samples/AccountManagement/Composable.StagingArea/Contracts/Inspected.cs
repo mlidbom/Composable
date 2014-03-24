@@ -55,10 +55,10 @@ namespace Composable.Contracts
     }
 
     public class InspectedValue<TValue> : InspectedValue
-    {       
+    {
         public TValue Value { get; private set; }
 
-        public InspectedValue(TValue value, InspectionType type, string name = ""):base(type, name)
+        public InspectedValue(TValue value, InspectionType type, string name = "") : base(type, name)
         {
             Value = value;
         }

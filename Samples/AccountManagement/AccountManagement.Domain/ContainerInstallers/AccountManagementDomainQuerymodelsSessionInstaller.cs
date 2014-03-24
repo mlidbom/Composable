@@ -27,15 +27,13 @@ namespace AccountManagement.Domain.ContainerInstallers
             container.Register(
                 Component.For<IDocumentDb>()
                     .ImplementedBy<SqlServerDocumentDb>()
-                    .DependsOn(new { connectionString = GetConnectionStringFromConfiguration(ConnectionStringName) })
+                    .DependsOn(new {connectionString = GetConnectionStringFromConfiguration(ConnectionStringName)})
                     .Named(ComponentKeys.KeyForDocumentDb)
                     .LifestylePerWebRequest(),
-
                 Component.For<IDocumentDbSessionInterceptor>()
                     .Instance(NullOpDocumentDbSessionInterceptor.Instance)
                     .Named(ComponentKeys.KeyForNullOpSessionInterceptor)
                     .LifestyleSingleton(),
-
                 Component.For<IDocumentDbSession, IAccountManagementDomainQueryModelSession>()
                     .ImplementedBy<AccountManagementDomainQueryModelSession>()
                     .DependsOn(

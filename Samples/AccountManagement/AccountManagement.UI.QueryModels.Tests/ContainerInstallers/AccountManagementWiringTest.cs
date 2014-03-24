@@ -7,7 +7,7 @@ using Composable.ServiceBus;
 using NUnit.Framework;
 
 namespace AccountManagement.UI.QueryModels.Tests.ContainerInstallers
-{     
+{
     public abstract class AccountManagementWiringTest
     {
         //Note that we do NOT test individual classes. We verify that when used as it will really be used things work as expected. 
@@ -20,10 +20,10 @@ namespace AccountManagement.UI.QueryModels.Tests.ContainerInstallers
         {
             Container = new WindsorContainer();
             Container.ConfigureWiringForTestsCallBeforeAllOtherWiring();
-            
+
             Container.Install(
                 FromAssembly.Containing<QueryModels.ContainerInstallers.AccountManagementQuerymodelsSessionInstaller>()
-            );
+                );
 
             Container.Register(
                 Component.For<IServiceBus>().ImplementedBy<SynchronousBus>().LifestylePerWebRequest(),
@@ -48,12 +48,10 @@ namespace AccountManagement.UI.QueryModels.Tests.ContainerInstallers
         }
     }
 
-    [TestFixture]//The production wiring test does not modify the wiring at all
-    public class AccountManagementProductionWiringTest : AccountManagementWiringTest
-    {
-    }
+    [TestFixture] //The production wiring test does not modify the wiring at all
+    public class AccountManagementProductionWiringTest : AccountManagementWiringTest {}
 
-    [TestFixture]//The Test wiring test invokes all IConfigureWiringForTest instances in the container so that the wiring is now appropriate for running tests.
+    [TestFixture] //The Test wiring test invokes all IConfigureWiringForTest instances in the container so that the wiring is now appropriate for running tests.
     public class AccountManagementTestWiringTest : AccountManagementWiringTest
     {
         [SetUp]

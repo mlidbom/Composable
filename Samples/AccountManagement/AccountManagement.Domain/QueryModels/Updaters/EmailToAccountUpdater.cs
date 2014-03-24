@@ -1,6 +1,5 @@
 ﻿using AccountManagement.Domain.Events.PropertyUpdated;
 using AccountManagement.Domain.Services;
-using AccountManagement.Domain.Shared;
 using NServiceBus;
 
 namespace AccountManagement.Domain.QueryModels.Updaters

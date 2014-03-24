@@ -2,7 +2,5 @@
 
 namespace AccountManagement.Domain.ContainerInstallers.Testing
 {
-    public class ForTestsDomainEventHandlersInstaller:ForTestsEventHandlerInstallerBase<ForTestsDomainEventHandlersInstaller>
-    {       
-    }
+    public class ForTestsDomainEventHandlersInstaller : ForTestsEventHandlerInstallerBase<ForTestsDomainEventHandlersInstaller> {}
 }

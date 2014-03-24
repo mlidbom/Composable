@@ -22,7 +22,7 @@ namespace AccountManagement.Domain.ContainerInstallers
 
         public static readonly string ConnectionStringName = "AccountManagementDomain";
 
-        public void Install(IWindsorContainer container,IConfigurationStore store)
+        public void Install(IWindsorContainer container, IConfigurationStore store)
         {
             container.Register(
                 Component.For<IEventStore, SqlServerEventStore>()
@@ -36,7 +36,7 @@ namespace AccountManagement.Domain.ContainerInstallers
                     .DependsOn(new Dependency[] {Dependency.OnComponent(typeof(IEventStore), ComponentKeys.EventStore)})
                     .LifestylePerWebRequest()
                     .Named(ComponentKeys.EventStoreSession));
-        }        
+        }
 
         private static string GetConnectionStringFromConfiguration(string key)
         {

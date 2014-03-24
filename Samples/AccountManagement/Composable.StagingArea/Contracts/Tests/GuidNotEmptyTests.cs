@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using FluentAssertions;
 using NUnit.Framework;
 
@@ -19,13 +18,12 @@ namespace Composable.Contracts.Tests
             Assert.Throws<GuidIsEmptyException>(() => Contract.Optimized.Argument(emptyGuid, "emptyGuid").NotEmpty())
                 .Message.Should().Contain("emptyGuid");
 
-            Assert.Throws<GuidIsEmptyException>(() => Contract.Arguments(()=> emptyGuid).NotEmpty());
+            Assert.Throws<GuidIsEmptyException>(() => Contract.Arguments(() => emptyGuid).NotEmpty());
             Assert.Throws<GuidIsEmptyException>(() => Contract.Arguments(() => emptyGuid).NotEmpty())
                 .Message.Should().Contain("emptyGuid");
 
             Assert.Throws<GuidIsEmptyException>(() => Contract.Arguments(() => aGuid, () => emptyGuid).NotEmpty())
                 .Message.Should().Contain("emptyGuid");
-
         }
 
         [Test]
@@ -33,7 +31,7 @@ namespace Composable.Contracts.Tests
         {
             InspectionTestHelper.BatchTestInspection<GuidIsEmptyException, Guid>(
                 assert: inspected => inspected.NotEmpty(),
-                badValues: new Guid[] { Guid.Empty, new Guid()  },
+                badValues: new Guid[] {Guid.Empty, new Guid()},
                 goodValues: new Guid[] {Guid.NewGuid(), Guid.NewGuid()});
         }
     }

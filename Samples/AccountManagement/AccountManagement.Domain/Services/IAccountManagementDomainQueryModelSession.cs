@@ -2,8 +2,5 @@
 
 namespace AccountManagement.Domain.Services
 {
-    public interface IAccountManagementDomainQueryModelSession : IDocumentDbSession
-    {
-         
-    }
+    public interface IAccountManagementDomainQueryModelSession : IDocumentDbSession {}
 }

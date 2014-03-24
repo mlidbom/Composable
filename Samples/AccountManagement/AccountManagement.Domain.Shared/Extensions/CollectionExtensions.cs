@@ -9,7 +9,7 @@ namespace AccountManagement.Domain.Shared.Extensions
         /// </summary>
         public static void AddIf<TValue>(this ICollection<TValue> me, bool condition, TValue toAdd)
         {
-            if (condition)
+            if(condition)
             {
                 me.Add(toAdd);
             }

@@ -22,7 +22,7 @@ namespace AccountManagement.TestHelpers.Scenarios
 
         public Account Execute()
         {
-            using (var transaction = _container.BeginTransactionalUnitOfWorkScope())
+            using(var transaction = _container.BeginTransactionalUnitOfWorkScope())
             {
                 var repository = _container.Resolve<IAccountManagementEventStoreSession>();
                 var duplicateAccountChecker = _container.Resolve<IDuplicateAccountChecker>();

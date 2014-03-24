@@ -15,8 +15,8 @@ namespace Composable.Contracts.Tests
         {
             InspectionTestHelper.BatchTestInspection<ObjectIsNullException, object>(
                 inspected => inspected.NotNull(),
-                badValues: new List<object> { null, null },
-                goodValues: new List<object> { new object(), "", Guid.NewGuid() });
+                badValues: new List<object> {null, null},
+                goodValues: new List<object> {new object(), "", Guid.NewGuid()});
         }
 
         [Test]
@@ -30,6 +30,7 @@ namespace Composable.Contracts.Tests
                 .Message.Should().Contain("nullString");
         }
     }
+
     // ReSharper restore ConvertToConstant.Local
     // ReSharper restore ExpressionIsAlwaysNull
 }

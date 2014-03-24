@@ -18,9 +18,9 @@ namespace Composable.Contracts.Tests
             object nullObject = null;
             string emptyString = "";
 
-            
-            Assert.Throws<ObjectIsNullException>(() => Contract.Optimized.Argument(nullObject).NotNullOrDefault());                        
-            Assert.Throws<ObjectIsNullException>(() => Contract.Optimized.Arguments(anObject, nullObject).NotNullOrDefault());            
+
+            Assert.Throws<ObjectIsNullException>(() => Contract.Optimized.Argument(nullObject).NotNullOrDefault());
+            Assert.Throws<ObjectIsNullException>(() => Contract.Optimized.Arguments(anObject, nullObject).NotNullOrDefault());
             Assert.Throws<ObjectIsNullException>(() => Contract.Optimized.Arguments(emptyString, nullObject, anObject).NotNullOrDefault());
 
             Assert.Throws<ObjectIsNullException>(() => Contract.Arguments(() => nullObject).NotNullOrDefault());
@@ -31,9 +31,9 @@ namespace Composable.Contracts.Tests
         [Test]
         public void ThrowsObjectIsDefaultExceptionIfAnyValueIsDefault()
         {
-            var anObject = new object();            
-            string emptyString = "";            
-            var zero = 0;            
+            var anObject = new object();
+            string emptyString = "";
+            var zero = 0;
             var defaultMyStructure = new MyStructure();
             var aMyStructure = new MyStructure(1);
 
@@ -50,8 +50,8 @@ namespace Composable.Contracts.Tests
 
             InspectionTestHelper.BatchTestInspection<ObjectIsDefaultException, object>(
                 inspected => inspected.NotNullOrDefault(),
-                badValues: new List<object> { zero, defaultMyStructure },
-                goodValues: new List<object> { new object(), "", Guid.NewGuid() });
+                badValues: new List<object> {zero, defaultMyStructure},
+                goodValues: new List<object> {new object(), "", Guid.NewGuid()});
         }
 
         [Test]
@@ -78,6 +78,7 @@ namespace Composable.Contracts.Tests
             }
         }
     }
+
     // ReSharper restore ConvertToConstant.Local
     // ReSharper restore ExpressionIsAlwaysNull
 }

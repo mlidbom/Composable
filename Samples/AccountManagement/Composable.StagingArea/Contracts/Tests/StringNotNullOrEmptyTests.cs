@@ -32,8 +32,8 @@ namespace Composable.Contracts.Tests
         {
             InspectionTestHelper.BatchTestInspection<StringIsEmptyException, string>(
                 inspected => inspected.NotNullOrEmpty(),
-                badValues: new List<string> { "", ""},
-                goodValues: new List<string> { "a", "aa", "aaa" });
+                badValues: new List<string> {"", ""},
+                goodValues: new List<string> {"a", "aa", "aaa"});
         }
 
         [Test]

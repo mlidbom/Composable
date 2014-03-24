@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Linq.Expressions;
 using Composable.System.Linq;
 using FluentAssertions;
@@ -54,15 +53,14 @@ namespace Composable.Contracts.Tests
         public static void InspectBadValue<TException, TInspected>(Action<Inspected<TInspected>> assert, TInspected inspectedValue)
             where TException : ContractException
         {
-
             Expression<Func<TInspected>> fetchInspected = () => inspectedValue;
             var inspectedName = ExpressionUtil.ExtractMemberName(fetchInspected);
 
             var inspected = Contract.Optimized.Argument(inspectedValue, inspectedName);
             AssertThrows<TException, TInspected>(
-                inspected: inspected, 
-                assert: assert, 
-                inspectionType: InspectionType.Argument, 
+                inspected: inspected,
+                assert: assert,
+                inspectionType: InspectionType.Argument,
                 badValueName: inspectedName);
 
             inspected = Contract.Optimized.Arguments(inspectedValue);
@@ -119,11 +117,14 @@ namespace Composable.Contracts.Tests
             exception.BadValue.Name.Should().Be("ReturnValue");
         }
 
-        private static void AssertThrows<TException, TInspected>(Inspected<TInspected> inspected, Action<Inspected<TInspected>> assert,InspectionType inspectionType,  string badValueName)
+        private static void AssertThrows<TException, TInspected>(Inspected<TInspected> inspected,
+            Action<Inspected<TInspected>> assert,
+            InspectionType inspectionType,
+            string badValueName)
             where TException : ContractException
         {
             var exception = Assert.Throws<TException>(() => assert(inspected));
-            
+
             exception.BadValue.Type.Should().Be(inspectionType);
             exception.BadValue.Name.Should().Be(badValueName);
         }

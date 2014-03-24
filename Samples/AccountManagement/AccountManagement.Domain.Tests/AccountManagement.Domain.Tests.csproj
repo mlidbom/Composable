@@ -106,6 +106,7 @@
     <Compile Include="AccountTests\WhenRegisterAccountSucceeds.cs" />
     <Compile Include="AccountTests\RegisterAccountFailureScenariosTests.cs" />
     <Compile Include="ContainerInstallers\AccountManagementWiringTest.cs" />
+    <Compile Include="DomainTestBase.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

@@ -45,5 +45,19 @@ namespace AccountManagement.Domain.Tests.AccountTests
         {
             _account.Email.Should().Be(_newEmail);
         }
+
+        [Test]
+        public void RegisteringAnAccountWithTheOldEmailIsPossible()
+        {
+            var anotherAccount = new AccountRegisteredFixture().Setup(Container);
+        }
+
+        [Test]
+        public void RegisteringAnAccountWithTheNewEmailThrowsDuplicateAccountException()
+        {
+            var registerAccountFixture = new AccountRegisteredFixture();
+            registerAccountFixture.Email = _newEmail;
+            Assert.Throws<DuplicateAccountException>(() => registerAccountFixture.Setup(Container));
+        }
     }
 }

@@ -24,23 +24,9 @@ namespace AccountManagement.Domain.QueryModels.Updaters
 
             if(previousEmail != null)
             {
-                GetOrCreateAccountToEmailMap(previousEmail).RemoveAccount(message.AggregateRootId);
+                _querymodels.Delete<EmailToAccountMap>(previousEmail);
             }
-            GetOrCreateAccountToEmailMap(newEmail).AddAccount(message.AggregateRootId);
-        }
-
-        private EmailToAccountMap GetOrCreateAccountToEmailMap(Email email)
-        {
-            EmailToAccountMap found;
-            if(_querymodels.TryGet(email, out found))
-            {
-                return found;
-            }
-            
-            found = new EmailToAccountMap(email);
-            _querymodels.Save(email, found);
-
-            return found;
+            _querymodels.Save(newEmail, new EmailToAccountMap(newEmail, message.AggregateRootId));
         }
     }
 }

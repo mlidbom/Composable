@@ -1,7 +1,7 @@
 ﻿using System.Linq;
 using AccountManagement.Domain.Events;
 using AccountManagement.Domain.Shared;
-using AccountManagement.TestHelpers.Fixtures;
+using AccountManagement.TestHelpers.Scenarios;
 using Composable.KeyValueStorage.Population;
 using FluentAssertions;
 using NUnit.Framework;
@@ -11,17 +11,17 @@ namespace AccountManagement.Domain.Tests.AccountTests
     public class ChangePasswordSuccessScenarioTest : DomainTestBase
     {
         private Account _registeredAccount;
-        private AccountRegisteredFixture _accountRegisteredFixture;
+        private RegisterAccountScenario _registerAccountScenario;
         private const string NewPassword = "SomeComplexNewPassword1!";
 
         [SetUp]
         public void RegisterAccount()
         {
-            _accountRegisteredFixture = new AccountRegisteredFixture();
-            _registeredAccount = _accountRegisteredFixture.Setup(Container);
+            _registerAccountScenario = new RegisterAccountScenario(Container);
+            _registeredAccount = _registerAccountScenario.Execute();
             using(var transaction = Container.BeginTransactionalUnitOfWorkScope())
             {
-                _registeredAccount.ChangePassword(_accountRegisteredFixture.PasswordAsString, new Password(NewPassword));
+                _registeredAccount.ChangePassword(_registerAccountScenario.PasswordAsString, new Password(NewPassword));
                 transaction.Commit();
             }
         }

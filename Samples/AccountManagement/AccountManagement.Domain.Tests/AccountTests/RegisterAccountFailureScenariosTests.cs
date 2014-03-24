@@ -1,6 +1,6 @@
 ﻿using System;
 using AccountManagement.Domain.Services;
-using AccountManagement.TestHelpers.Fixtures;
+using AccountManagement.TestHelpers.Scenarios;
 using Composable.Contracts;
 using NUnit.Framework;
 
@@ -11,45 +11,48 @@ namespace AccountManagement.Domain.Tests.AccountTests
     {
         private IAccountManagementEventStoreSession _repository;
         private IDuplicateAccountChecker _duplicateAccountChecker;
-        private AccountRegisteredFixture _accountFixture;
+        private RegisterAccountScenario _registerAccountScenario;
 
         [SetUp]
         public void SetupWiringAndCreateRepositoryAndScope()
         {
             _repository = Container.Resolve<IAccountManagementEventStoreSession>();
             _duplicateAccountChecker = Container.Resolve<IDuplicateAccountChecker>();
-            _accountFixture = new AccountRegisteredFixture();
+            _registerAccountScenario = new RegisterAccountScenario(Container);
         }
 
         [Test]
         public void WhenEmailIsAlreadyRegisteredADuplicateAccountExceptionIsThrown()
         {
-            _accountFixture.Setup(Container);
-            Assert.Throws<DuplicateAccountException>(() => Account.Register(_accountFixture.Email, _accountFixture.Password, _accountFixture.AccountId, _repository, _duplicateAccountChecker));
+            _registerAccountScenario.Execute();
+            Assert.Throws<DuplicateAccountException>(() => _registerAccountScenario.Execute());
         }
 
         [Test]
         public void WhenPasswordIsNullObjectIsNullExceptionIsThrown()
         {
-            Assert.Throws<ObjectIsNullException>(() => Account.Register(_accountFixture.Email, null, _accountFixture.AccountId, _repository, _duplicateAccountChecker));
+            _registerAccountScenario.Password = null;
+            Assert.Throws<ObjectIsNullException>(() => _registerAccountScenario.Execute());
         }
 
         [Test]
         public void WhenEmailIsNullObjectIsNullExceptionIsThrown()
         {
-            Assert.Throws<ObjectIsNullException>(() => Account.Register(null, _accountFixture.Password, _accountFixture.AccountId, _repository, _duplicateAccountChecker));
+            _registerAccountScenario.Email = null;
+            Assert.Throws<ObjectIsNullException>(() => _registerAccountScenario.Execute());
         }
 
         [Test]
         public void WhenAccountIdIsEmptyObjectIsDefaultExceptionIsThrown()
         {
-            Assert.Throws<ObjectIsDefaultException>(() => Account.Register(_accountFixture.Email, _accountFixture.Password, Guid.Empty, _repository, _duplicateAccountChecker));
+            _registerAccountScenario.AccountId = Guid.Empty;
+            Assert.Throws<ObjectIsDefaultException>(() => _registerAccountScenario.Execute());
         }
 
         [Test]
         public void WhenRepositoryIsNullObjectIsNullExceptionIsThrown()
         {
-            Assert.Throws<ObjectIsDefaultException>(() => Account.Register(_accountFixture.Email, _accountFixture.Password, Guid.Empty, _repository, _duplicateAccountChecker));
+            Assert.Throws<ObjectIsDefaultException>(() => Account.Register(_registerAccountScenario.Email, _registerAccountScenario.Password, Guid.Empty, _repository, _duplicateAccountChecker));
         }
     }
 }

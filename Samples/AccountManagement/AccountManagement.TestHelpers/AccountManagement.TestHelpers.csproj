@@ -85,9 +85,10 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DomainTestWiringHelper.cs" />
-    <Compile Include="Fixtures\AccountRegisteredFixture.cs" />
+    <Compile Include="Fixtures\SingleAccountFixture.cs" />
     <Compile Include="MessageSpy.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Scenarios\RegisterAccountScenario.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\AccountManagement.Domain.Shared\AccountManagement.Domain.Shared.csproj">

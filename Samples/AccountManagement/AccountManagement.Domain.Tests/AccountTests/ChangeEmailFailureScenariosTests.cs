@@ -1,4 +1,5 @@
 ﻿using AccountManagement.TestHelpers.Fixtures;
+using AccountManagement.TestHelpers.Scenarios;
 using Composable.Contracts;
 using NUnit.Framework;
 
@@ -11,7 +12,7 @@ namespace AccountManagement.Domain.Tests.AccountTests
         [SetUp]
         public void RegisterAccount()
         {
-            _account = new AccountRegisteredFixture().Setup(Container);
+            _account = SingleAccountFixture.Setup(Container).Account;
         }
 
         [Test]

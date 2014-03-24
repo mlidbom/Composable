@@ -2,6 +2,7 @@
 using AccountManagement.Domain.Events;
 using AccountManagement.Domain.Shared;
 using AccountManagement.TestHelpers.Fixtures;
+using AccountManagement.TestHelpers.Scenarios;
 using Composable.KeyValueStorage.Population;
 using FluentAssertions;
 using NUnit.Framework;
@@ -16,7 +17,7 @@ namespace AccountManagement.Domain.Tests.AccountTests
         [SetUp]
         public void ChangeEmail()
         {
-            _account = new AccountRegisteredFixture().Setup(Container);
+            _account = SingleAccountFixture.Setup(Container).Account;
             using(var transaction = Container.BeginTransactionalUnitOfWorkScope())
             {                
                 _account.ChangeEmail(_newEmail);
@@ -49,15 +50,17 @@ namespace AccountManagement.Domain.Tests.AccountTests
         [Test]
         public void RegisteringAnAccountWithTheOldEmailIsPossible()
         {
-            var anotherAccount = new AccountRegisteredFixture().Setup(Container);
+            new RegisterAccountScenario(Container).Execute();
         }
 
         [Test]
         public void RegisteringAnAccountWithTheNewEmailThrowsDuplicateAccountException()
         {
-            var registerAccountFixture = new AccountRegisteredFixture();
-            registerAccountFixture.Email = _newEmail;
-            Assert.Throws<DuplicateAccountException>(() => registerAccountFixture.Setup(Container));
+            var registerAccountScenario = new RegisterAccountScenario(Container)
+                                          {
+                                              Email = _newEmail
+                                          };
+            Assert.Throws<DuplicateAccountException>(() => registerAccountScenario.Execute());
         }
     }
 }

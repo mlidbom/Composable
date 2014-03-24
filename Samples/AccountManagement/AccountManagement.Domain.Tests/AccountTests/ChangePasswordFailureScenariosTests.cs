@@ -1,5 +1,5 @@
 ﻿using AccountManagement.Domain.Shared;
-using AccountManagement.TestHelpers.Fixtures;
+using AccountManagement.TestHelpers.Scenarios;
 using Composable.Contracts;
 using NUnit.Framework;
 
@@ -8,20 +8,20 @@ namespace AccountManagement.Domain.Tests.AccountTests
     [TestFixture]
     public class ChangePasswordFailureScenariosTests : DomainTestBase
     {
-        private AccountRegisteredFixture _registeredAccountFixture;
+        private RegisterAccountScenario _registerAccountScenario;
         private Account _account;
 
         [SetUp]
         public void RegisterAccount()
         {
-            _registeredAccountFixture = new AccountRegisteredFixture();
-            _account = _registeredAccountFixture.Setup(Container);
+            _registerAccountScenario = new RegisterAccountScenario(Container);
+            _account = _registerAccountScenario.Execute();
         }
 
         [Test]
         public void WhenNewPasswordIsNullObjectNullExceptionIsThrown()
         {
-            Assert.Throws<ObjectIsNullException>(() => _account.ChangePassword(_registeredAccountFixture.PasswordAsString, null));
+            Assert.Throws<ObjectIsNullException>(() => _account.ChangePassword(_registerAccountScenario.PasswordAsString, null));
         }
 
         [Test]

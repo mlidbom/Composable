@@ -1,7 +1,6 @@
 ﻿using AccountManagement.Domain.Shared;
 using AccountManagement.TestHelpers.Fixtures;
 using Composable.Contracts;
-using FluentAssertions;
 using NUnit.Framework;
 
 namespace AccountManagement.Domain.Tests.AccountTests

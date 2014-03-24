@@ -1,5 +1,4 @@
-﻿using AccountManagement.Domain.Events.PropertyUpdated;
-using AccountManagement.Domain.Shared;
+﻿using AccountManagement.Domain.Shared;
 using Composable.CQRS.EventSourcing;
 
 namespace AccountManagement.Domain.Events.Implementation

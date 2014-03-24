@@ -4,11 +4,11 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{15EE4C6D-8DA3-487C-B0CD-17777214D7FA}</ProjectGuid>
+    <ProjectGuid>{688DE4C0-690E-4EF5-AF36-A16BD2D9E930}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>AccountManagement.Domain.Tests</RootNamespace>
-    <AssemblyName>AccountManagement.Domain.Tests</AssemblyName>
+    <RootNamespace>AccountManagement.TestHelpers</RootNamespace>
+    <AssemblyName>AccountManagement.TestHelpers</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
@@ -37,11 +37,9 @@
       <HintPath>..\packages\Castle.Core.3.2.2\lib\net45\Castle.Core.dll</HintPath>
     </Reference>
     <Reference Include="Castle.Windsor, Version=3.2.0.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\Castle.Windsor.3.2.1\lib\net45\Castle.Windsor.dll</HintPath>
     </Reference>
     <Reference Include="Composable.Core, Version=2.2.0.0, Culture=neutral, PublicKeyToken=0c6b2c03e4c91d22, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\Composable.Core.2.2.0\lib\net40\Composable.Core.dll</HintPath>
     </Reference>
     <Reference Include="Composable.CQRS">
@@ -50,11 +48,9 @@
     <Reference Include="Composable.CQRS.Windsor">
       <HintPath>..\packages\Composable.CQRS.Windsor.2.2.0\lib\net40\Composable.CQRS.Windsor.dll</HintPath>
     </Reference>
-    <Reference Include="Composable.DomainEvents">
+    <Reference Include="Composable.DomainEvents, Version=2.2.0.0, Culture=neutral, PublicKeyToken=0c6b2c03e4c91d22, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\Composable.DomainEvents.2.2.0\lib\net40\Composable.DomainEvents.dll</HintPath>
-    </Reference>
-    <Reference Include="FluentAssertions">
-      <HintPath>..\packages\FluentAssertions.2.2.0.0\lib\net45\FluentAssertions.dll</HintPath>
     </Reference>
     <Reference Include="log4net, Version=1.2.10.0, Culture=neutral, PublicKeyToken=1b44e1d426115821, processorArchitecture=MSIL">
       <Private>True</Private>
@@ -63,26 +59,12 @@
     <Reference Include="Microsoft.Practices.ServiceLocation">
       <HintPath>..\packages\CommonServiceLocator.1.0\lib\NET35\Microsoft.Practices.ServiceLocation.dll</HintPath>
     </Reference>
-    <Reference Include="NCrunch.Framework, Version=2.4.0.2, Culture=neutral, PublicKeyToken=01d101bf6f3e0aea, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\NCrunch.Framework.2.4.0.2\lib\portable-windows8+net45\NCrunch.Framework.dll</HintPath>
-    </Reference>
     <Reference Include="Newtonsoft.Json, Version=4.5.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <Private>True</Private>
       <HintPath>..\packages\Newtonsoft.Json.5.0.8\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="NServiceBus">
       <HintPath>..\packages\NServiceBus.Interfaces.3.0.3.32\lib\net40\NServiceBus.dll</HintPath>
-    </Reference>
-    <Reference Include="NSpec">
-      <HintPath>..\packages\nspec.0.9.67\lib\NSpec.dll</HintPath>
-    </Reference>
-    <Reference Include="NSpec.NUnit">
-      <HintPath>..\packages\NSpec.NUnit.0.7.0\lib\net40\NSpec.NUnit.dll</HintPath>
-    </Reference>
-    <Reference Include="nunit.framework, Version=2.6.3.13283, Culture=neutral, PublicKeyToken=96d09a1eb7f44a77, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\NUnit.2.6.3\lib\nunit.framework.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -102,44 +84,33 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AccountTests\ChangePasswordFailureScenariosTests.cs" />
-    <Compile Include="AccountTests\WhenRegisterAccountSucceeds.cs" />
-    <Compile Include="AccountTests\RegisterAccountFailureScenariosTests.cs" />
-    <Compile Include="ContainerInstallers\AccountManagementWiringTest.cs" />
+    <Compile Include="DomainTestWiringHelper.cs" />
+    <Compile Include="Fixtures\ValidAccountRegisteredFixture.cs" />
+    <Compile Include="MessageSpy.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="AccountTests\Fixtures\" />
-    <Folder Include="Services\" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="App.config" />
-    <None Include="packages.config" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\AccountManagement.Domain.Events\AccountManagement.Domain.Events.csproj">
-      <Project>{DABBA9B3-CD83-4995-83C4-EFCDF388C353}</Project>
-      <Name>AccountManagement.Domain.Events</Name>
-    </ProjectReference>
     <ProjectReference Include="..\AccountManagement.Domain.Shared\AccountManagement.Domain.Shared.csproj">
-      <Project>{CA31649D-A11B-45F6-9D17-2E716F11ADFA}</Project>
+      <Project>{ca31649d-a11b-45f6-9d17-2e716f11adfa}</Project>
       <Name>AccountManagement.Domain.Shared</Name>
     </ProjectReference>
     <ProjectReference Include="..\AccountManagement.Domain\AccountManagement.Domain.csproj">
       <Project>{f40e3779-b691-44b9-a820-577c5c11035f}</Project>
       <Name>AccountManagement.Domain</Name>
     </ProjectReference>
-    <ProjectReference Include="..\AccountManagement.TestHelpers\AccountManagement.TestHelpers.csproj">
-      <Project>{688de4c0-690e-4ef5-af36-a16bd2d9e930}</Project>
-      <Name>AccountManagement.TestHelpers</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Composable.StagingArea\Composable.StagingArea.csproj">
-      <Project>{d1024299-495b-4f81-b182-6336f1d30210}</Project>
-      <Name>Composable.StagingArea</Name>
-    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="app.config" />
+    <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Enable NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('$(SolutionDir)\.nuget\NuGet.targets')" Text="$([System.String]::Format('$(ErrorText)', '$(SolutionDir)\.nuget\NuGet.targets'))" />
+  </Target>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

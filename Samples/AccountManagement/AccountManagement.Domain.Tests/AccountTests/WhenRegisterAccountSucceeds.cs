@@ -1,10 +1,9 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
 using AccountManagement.Domain.Events;
-using AccountManagement.Domain.Services;
 using AccountManagement.Domain.Shared;
+using AccountManagement.TestHelpers;
+using AccountManagement.TestHelpers.Fixtures;
 using Castle.MicroKernel.Lifestyle;
-using Composable.KeyValueStorage.Population;
 using FluentAssertions;
 using NUnit.Framework;
 
@@ -13,27 +12,20 @@ namespace AccountManagement.Domain.Tests.AccountTests
     [TestFixture]
     public class RegisterAccountSuccessScenarioTests
     {
-        private const string _registrationPasswordAsString = "Password1";
-        private readonly Password _registrationPassword = new Password(_registrationPasswordAsString);
         private readonly Email _registrationEmail = Email.Parse("test.test@test.se");
-        private readonly Guid _registrationAccountId = Guid.NewGuid();
         private MessageSpy _messageSpy;
-        private Account _registered;
+        private Account _registeredAccount;
+        private ValidAccountRegisteredFixture _validAccountRegisteredFixture;
 
         [SetUp]
         public void RegisterAccount()
         {
+            _validAccountRegisteredFixture = new ValidAccountRegisteredFixture();
             var container = DomainTestWiringHelper.SetupContainerForTesting();
             using(container.BeginScope())
             {
-                using(var transaction = container.BeginTransactionalUnitOfWorkScope())
-                {
-                    _messageSpy = container.Resolve<MessageSpy>();
-                    var duplicateAccountChecker = container.Resolve<IDuplicateAccountChecker>();
-                    var accountRepository = container.Resolve<IAccountManagementEventStoreSession>();
-                    _registered = Account.Register(_registrationEmail, _registrationPassword, _registrationAccountId, accountRepository, duplicateAccountChecker);
-                    transaction.Commit();
-                }
+              _messageSpy = container.Resolve<MessageSpy>();
+              _registeredAccount = _validAccountRegisteredFixture.Setup(container);
             }
         }
 
@@ -46,13 +38,13 @@ namespace AccountManagement.Domain.Tests.AccountTests
         [Test]
         public void AccountEmailIsTheOneUsedForRegistration()
         {
-            Assert.That(_registrationEmail, Is.EqualTo(_registered.Email));
+            Assert.That(_registrationEmail, Is.EqualTo(_validAccountRegisteredFixture.Email));
         }
 
         [Test]
         public void AccountPasswordIsTheOnUsedForRegistration()
         {
-            Assert.True(_registered.Password.IsCorrectPassword(_registrationPasswordAsString));
+            Assert.True(_registeredAccount.Password.IsCorrectPassword(_validAccountRegisteredFixture.PasswordAsString));
         }
     }
 }

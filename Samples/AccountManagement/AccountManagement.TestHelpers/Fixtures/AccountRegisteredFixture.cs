@@ -7,7 +7,7 @@ using Composable.KeyValueStorage.Population;
 
 namespace AccountManagement.TestHelpers.Fixtures
 {
-    public class ValidAccountRegisteredFixture
+    public class AccountRegisteredFixture
     {
         public string PasswordAsString = "Password1";
         public readonly Password Password = new Password("Password1");

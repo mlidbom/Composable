@@ -85,7 +85,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DomainTestWiringHelper.cs" />
-    <Compile Include="Fixtures\ValidAccountRegisteredFixture.cs" />
+    <Compile Include="Fixtures\AccountRegisteredFixture.cs" />
     <Compile Include="MessageSpy.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

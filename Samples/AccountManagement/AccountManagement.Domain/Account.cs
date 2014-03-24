@@ -34,7 +34,7 @@ namespace AccountManagement.Domain
         /// <summary><para>Used when a user manually creates an account themselves.</para>
         /// <para>Note how this design with a named static creation method: </para>
         /// <para> * makes it clearear what the caller intends.</para>
-        /// <para> * makes it impossible to use the class incorrectly, such as forgetting to save the new instance in the event store.</para>
+        /// <para> * makes it impossible to use the class incorrectly, such as forgetting to save the new instance in the repository.</para>
         /// <para> * reduces code duplication since multiple callers are not burdened with saving the instance.</para>
         /// </summary>
         public static Account Register(Email email, Password password, Guid accountId, IAccountManagementEventStoreSession repository, IDuplicateAccountChecker duplicateAccountChecker)

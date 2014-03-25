@@ -5,7 +5,7 @@ namespace Composable.Contracts
 {
     public static class EnumerableInspector
     {
-        public static Inspected<TValue> NotNullOrEmpty<TValue>(this Inspected<TValue> me)
+        public static Inspected<TValue> NotNullOrEmptyEnumerable<TValue>(this Inspected<TValue> me)
             where TValue : IEnumerable
         {
             me.Inspect(

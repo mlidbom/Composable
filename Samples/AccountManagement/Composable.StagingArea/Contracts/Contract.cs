@@ -44,10 +44,16 @@ namespace Composable.Contracts
             return CreateInspected(arguments, InspectionType.Invariant);
         }
 
+        ///<summary>Start inspecting a return value</summary>
+        public static Inspected<TReturnValue> ReturnValue<TReturnValue>(TReturnValue returnValue)
+        {
+            return Optimized.ReturnValue(returnValue);
+        }
+
         ///<summary>Inspect a return value by passing in a Lambda that performs the inspections the same way you would for an argument.</summary>
         public static TReturnValue Return<TReturnValue>(TReturnValue returnValue, Action<Inspected<TReturnValue>> assert)
         {
-            return OptimizedContract.Return(returnValue, assert);
+            return Optimized.Return(returnValue, assert);
         }
 
         /// <summary>

@@ -112,9 +112,28 @@ namespace Composable.Contracts.Tests
                 inspectionType: InspectionType.Invariant,
                 badValueName: inspectedName);
 
+            const string returnvalueName = "ReturnValue";
+            inspected = Contract.ReturnValue(inspectedValue);
+            AssertThrows<TException, TInspected>(
+                inspected: inspected,
+                assert: assert,
+                inspectionType: InspectionType.ReturnValue,
+                badValueName: returnvalueName);
+
+            inspected = Contract.Optimized.ReturnValue(inspectedValue);
+            AssertThrows<TException, TInspected>(
+                inspected: inspected,
+                assert: assert,
+                inspectionType: InspectionType.ReturnValue,
+                badValueName: returnvalueName);
+
             var exception = Assert.Throws<TException>(() => Return(inspectedValue, assert));
+            exception.BadValue.Type.Should().Be(InspectionType.ReturnValue);            
+            exception.BadValue.Name.Should().Be(returnvalueName);
+
+            exception = Assert.Throws<TException>(() => ReturnOptimized(inspectedValue, assert));
             exception.BadValue.Type.Should().Be(InspectionType.ReturnValue);
-            exception.BadValue.Name.Should().Be("ReturnValue");
+            exception.BadValue.Name.Should().Be(returnvalueName);
         }
 
         private static void AssertThrows<TException, TInspected>(Inspected<TInspected> inspected,
@@ -133,6 +152,11 @@ namespace Composable.Contracts.Tests
         public static TReturnValue Return<TReturnValue>(TReturnValue returnValue, Action<Inspected<TReturnValue>> assert)
         {
             return Contract.Return(returnValue, assert);
+        }
+
+        public static TReturnValue ReturnOptimized<TReturnValue>(TReturnValue returnValue, Action<Inspected<TReturnValue>> assert)
+        {
+            return Contract.Optimized.Return(returnValue, assert);
         }
     }
 }

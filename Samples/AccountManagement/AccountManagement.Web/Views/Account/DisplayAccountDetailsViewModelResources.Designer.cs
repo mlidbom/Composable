@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace AccountManagement.Web.Views.RegisterAccount {
+namespace AccountManagement.Web.Views.Account {
     using System;
     
     
@@ -22,14 +22,14 @@ namespace AccountManagement.Web.Views.RegisterAccount {
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "4.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    internal class DisplayAccountRegistrationViewModelResources {
+    internal class DisplayAccountDetailsViewModelResources {
         
         private static global::System.Resources.ResourceManager resourceMan;
         
         private static global::System.Globalization.CultureInfo resourceCulture;
         
         [global::System.Diagnostics.CodeAnalysis.SuppressMessageAttribute("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode")]
-        internal DisplayAccountRegistrationViewModelResources() {
+        internal DisplayAccountDetailsViewModelResources() {
         }
         
         /// <summary>
@@ -39,8 +39,7 @@ namespace AccountManagement.Web.Views.RegisterAccount {
         internal static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
-                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("AccountManagement.Web.Views.RegisterAccount.DisplayAccountRegistrationViewModelRe" +
-                            "sources", typeof(DisplayAccountRegistrationViewModelResources).Assembly);
+                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("AccountManagement.Web.Views.Account.DisplayAccountDetailsViewModelResources", typeof(DisplayAccountDetailsViewModelResources).Assembly);
                     resourceMan = temp;
                 }
                 return resourceMan;

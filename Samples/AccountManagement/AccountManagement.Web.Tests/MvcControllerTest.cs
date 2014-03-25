@@ -1,5 +1,4 @@
 ﻿using System;
-using AccountManagement.Web.Controllers;
 using Castle.MicroKernel.Lifestyle;
 using Castle.Windsor;
 using NUnit.Framework;

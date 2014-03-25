@@ -11,10 +11,6 @@ namespace AccountManagement.Web.Tests.AccountControllerTests
         [SetUp]
         public void CreateController()
         {            
-            Container.Register(
-                Component.For<TestAuthenticationContext, IAuthenticationContext>()
-                .Instance(AuthenticationContext)
-                );
             Controller = Container.Resolve<AccountController>();
         }        
     }

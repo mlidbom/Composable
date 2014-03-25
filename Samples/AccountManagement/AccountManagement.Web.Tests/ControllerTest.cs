@@ -6,7 +6,7 @@ using NUnit.Framework;
 namespace AccountManagement.Web.Tests
 {
     [TestFixture]
-    public abstract class MvcControllerTest 
+    public abstract class ControllerTest
     {
         protected WindsorContainer Container;        
         private IDisposable _scope;

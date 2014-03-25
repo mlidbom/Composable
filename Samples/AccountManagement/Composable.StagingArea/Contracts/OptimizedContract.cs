@@ -52,10 +52,16 @@ namespace Composable.Contracts
             return CreateInspected(members, InspectionType.Invariant);
         }
 
-        ///<summary>Inspect a return value by passing in a Lambda that performs the inspections the same way you would for an argument.</summary>
-        public static TReturnValue Return<TReturnValue>(TReturnValue returnValue, Action<Inspected<TReturnValue>> assert)
+        ///<summary>Start inspecting a return value</summary>
+        public Inspected<TReturnValue> ReturnValue<TReturnValue>(TReturnValue returnValue)
         {
-            assert(new Inspected<TReturnValue>(new InspectedValue<TReturnValue>(returnValue, InspectionType.ReturnValue, "ReturnValue")));
+            return new Inspected<TReturnValue>(new InspectedValue<TReturnValue>(returnValue, InspectionType.ReturnValue, "ReturnValue"));
+        }
+
+        ///<summary>Lets you inspect and return a value in one statement by passing in a Lambda that performs the inspections the same way you would for an argument.</summary>
+        public TReturnValue Return<TReturnValue>(TReturnValue returnValue, Action<Inspected<TReturnValue>> assert)
+        {
+            assert(ReturnValue(returnValue));
             return returnValue;
         }
 

@@ -1,16 +1,21 @@
 ﻿using AccountManagement.Web.Controllers;
+using Castle.MicroKernel.Registration;
 using NUnit.Framework;
 
 namespace AccountManagement.Web.Tests.AccountControllerTests
 {
-    public abstract class AccountControllerTest : MvcControllerTest
+    public abstract class AccountControllerTest : AuthenticatedControllerTest
     {
         protected AccountController Controller;
 
         [SetUp]
         public void CreateController()
-        {
+        {            
+            Container.Register(
+                Component.For<TestAuthenticationContext, IAuthenticationContext>()
+                .Instance(AuthenticationContext)
+                );
             Controller = Container.Resolve<AccountController>();
-        }
+        }        
     }
 }

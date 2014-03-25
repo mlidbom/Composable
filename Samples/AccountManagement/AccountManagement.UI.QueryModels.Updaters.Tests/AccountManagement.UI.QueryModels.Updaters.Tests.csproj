@@ -101,7 +101,7 @@
     <Compile Include="AccountQueryModelTests\AfterUserChangesAccountEmail.cs" />
     <Compile Include="AccountQueryModelTests\AfterAccountIsRegistered.cs" />
     <Compile Include="QueryModelsUpdatersTestsBase.cs" />
-    <Compile Include="ContainerInstallers\AccountManagementWiringTest.cs" />
+    <Compile Include="ContainerInstallers\QueryModelsUpdatersWiringTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

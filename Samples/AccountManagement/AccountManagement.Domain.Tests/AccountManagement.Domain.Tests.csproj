@@ -108,7 +108,7 @@
     <Compile Include="AccountTests\ChangePasswordSuccessScenarioTest.cs" />
     <Compile Include="AccountTests\RegisterAccountSuccessScenarioTests.cs" />
     <Compile Include="AccountTests\RegisterAccountFailureScenariosTests.cs" />
-    <Compile Include="ContainerInstallers\AccountManagementWiringTest.cs" />
+    <Compile Include="ContainerInstallers\DomainWiringTest.cs" />
     <Compile Include="DomainTestBase.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

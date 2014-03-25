@@ -1,13 +1,14 @@
-﻿using Castle.MicroKernel.Registration;
+﻿using AccountManagement.Domain.Services;
+using Castle.MicroKernel.Registration;
 using Castle.Windsor;
 using Castle.Windsor.Installer;
 using Composable.CQRS.Windsor.Testing;
 using Composable.ServiceBus;
 using NUnit.Framework;
 
-namespace AccountManagement.UI.QueryModels.Updaters.Tests.ContainerInstallers
+namespace AccountManagement.Domain.Tests.ContainerInstallers
 {
-    public abstract class AccountManagementWiringTest
+    public abstract class DomainWiringTest
     {
         //Note that we do NOT test individual classes. We verify that when used as it will really be used things work as expected. 
         //If we change which installers exist, split installers, merge installers etc this test will keep working. 
@@ -21,7 +22,7 @@ namespace AccountManagement.UI.QueryModels.Updaters.Tests.ContainerInstallers
             Container.ConfigureWiringForTestsCallBeforeAllOtherWiring();
 
             Container.Install(
-                FromAssembly.Containing<QueryModels.Updaters.Services.IAccountManagementQueryModelUpdaterSession>()
+                FromAssembly.Containing<Domain.ContainerInstallers.AccountManagementDomainEventStoreInstaller>()
                 );
 
             Container.Register(
@@ -43,15 +44,15 @@ namespace AccountManagement.UI.QueryModels.Updaters.Tests.ContainerInstallers
         {
             Container
                 .RegistrationAssertionHelper()
-                .LifestyleScoped<QueryModels.Updaters.Services.IAccountManagementQueryModelUpdaterSession>();
+                .LifestyleScoped<IAccountManagementEventStoreSession>();
         }
     }
 
     [TestFixture] //The production wiring test does not modify the wiring at all
-    public class AccountManagementProductionWiringTest : AccountManagementWiringTest {}
+    public class DomainProductionWiringTest : DomainWiringTest {}
 
     [TestFixture] //The Test wiring test invokes all IConfigureWiringForTest instances in the container so that the wiring is now appropriate for running tests.
-    public class AccountManagementTestWiringTest : AccountManagementWiringTest
+    public class DomainTestWiringTest : DomainWiringTest
     {
         [SetUp]
         public void SetupTask()

@@ -133,6 +133,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AccountControllerTests\AuthenticatedControllerTest.cs" />
     <Compile Include="ApplicationBootstrapperTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="AccountControllerTests\AccountControllerTest.cs" />

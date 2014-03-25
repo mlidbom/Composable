@@ -12,7 +12,7 @@ namespace AccountManagement.Web.Tests
         [SetUp]
         public void SetupContainer()
         {
-            _container = WebTestWiringHelper.CreateContainer();
+            _container = WebTestWiringHelper.CreateContainerWithAuthenticationContext();
         }
 
         [Test]

@@ -41,10 +41,63 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Castle.Core, Version=3.2.0.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\Castle.Core.3.2.2\lib\net45\Castle.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="Castle.Windsor, Version=3.2.0.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\Castle.Windsor.3.2.1\lib\net45\Castle.Windsor.dll</HintPath>
+    </Reference>
+    <Reference Include="Composable.Core">
+      <HintPath>..\packages\Composable.Core.2.2.0\lib\net40\Composable.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="Composable.CQRS">
+      <HintPath>..\packages\Composable.CQRS.2.2.1\lib\net40\Composable.CQRS.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Composable.CQRS.ServiceBus.NServiceBus">
+      <HintPath>..\packages\Composable.CQRS.ServiceBus.NServiceBus.2.2.0\lib\net40\Composable.CQRS.ServiceBus.NServiceBus.dll</HintPath>
+    </Reference>
+    <Reference Include="Composable.CQRS.Windsor, Version=2.2.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\Composable.CQRS.Windsor.2.2.0\lib\net40\Composable.CQRS.Windsor.dll</HintPath>
+    </Reference>
+    <Reference Include="Composable.DomainEvents">
+      <HintPath>..\packages\Composable.DomainEvents.2.2.0\lib\net40\Composable.DomainEvents.dll</HintPath>
+    </Reference>
+    <Reference Include="Iesi.Collections">
+      <HintPath>..\packages\Iesi.Collections.3.2.0.4000\lib\Net35\Iesi.Collections.dll</HintPath>
+    </Reference>
+    <Reference Include="log4net, Version=1.2.10.0, Culture=neutral, PublicKeyToken=1b44e1d426115821, processorArchitecture=MSIL">
+      <Private>True</Private>
+      <HintPath>..\packages\log4net.1.2.10\lib\2.0\log4net.dll</HintPath>
+    </Reference>
     <Reference Include="Microsoft.CSharp" />
+    <Reference Include="Microsoft.Practices.ServiceLocation">
+      <HintPath>..\packages\CommonServiceLocator.1.0\lib\NET35\Microsoft.Practices.ServiceLocation.dll</HintPath>
+    </Reference>
     <Reference Include="Newtonsoft.Json, Version=4.5.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <Private>True</Private>
       <HintPath>..\packages\Newtonsoft.Json.5.0.8\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="NHibernate">
+      <HintPath>..\packages\NHibernate.3.2.0.4000\lib\Net35\NHibernate.dll</HintPath>
+    </Reference>
+    <Reference Include="NServiceBus">
+      <HintPath>..\packages\NServiceBus.3.0.3.32\lib\net40\NServiceBus.dll</HintPath>
+    </Reference>
+    <Reference Include="NServiceBus.Core">
+      <HintPath>..\packages\NServiceBus.3.0.3.32\lib\net40\NServiceBus.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="NServiceBus.Host">
+      <HintPath>..\packages\NServiceBus.Host.3.0.3.32\lib\net40\NServiceBus.Host.exe</HintPath>
+    </Reference>
+    <Reference Include="NServiceBus.NHibernate">
+      <HintPath>..\packages\NServiceBus.NHibernate.3.0.3.32\lib\net40\NServiceBus.NHibernate.dll</HintPath>
+    </Reference>
+    <Reference Include="NServiceBus.ObjectBuilder.CastleWindsor">
+      <HintPath>..\packages\NServiceBus.CastleWindsor.3.0.3.32\lib\net40\NServiceBus.ObjectBuilder.CastleWindsor.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
@@ -53,6 +106,15 @@
     <Reference Include="System.Net.Http.Formatting, Version=5.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\Microsoft.AspNet.WebApi.Client.5.0.0\lib\net45\System.Net.Http.Formatting.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Reactive.Core">
+      <HintPath>..\packages\Rx-Core.2.2.2\lib\net45\System.Reactive.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Reactive.Interfaces">
+      <HintPath>..\packages\Rx-Interfaces.2.2.2\lib\net45\System.Reactive.Interfaces.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Reactive.Linq">
+      <HintPath>..\packages\Rx-Linq.2.2.2\lib\net45\System.Reactive.Linq.dll</HintPath>
     </Reference>
     <Reference Include="System.Web.DynamicData" />
     <Reference Include="System.Web.Entity" />
@@ -128,14 +190,22 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ApplicationBootstrapper.cs" />
     <Compile Include="App_Start\BundleConfig.cs" />
     <Compile Include="App_Start\FilterConfig.cs" />
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="App_Start\WebApiConfig.cs" />
+    <Compile Include="Views\RegisterAccount\DisplayAccountRegistrationViewModel.cs" />
+    <Compile Include="Controllers\RegisterAccountController.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Views\RegisterAccount\DisplayAccountRegistrationViewModelResources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>DisplayAccountRegistrationViewModelResources.resx</DependentUpon>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <Content Include="Content\themes\base\images\ui-bg_flat_0_aaaaaa_40x100.png" />
@@ -222,14 +292,46 @@
     <Content Include="Views\_ViewStart.cshtml" />
     <Content Include="Views\Shared\Error.cshtml" />
     <Content Include="Views\Shared\_Layout.cshtml" />
+    <Content Include="Views\RegisterAccount\DisplayAccountRegistrationView.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
-    <Folder Include="Controllers\" />
     <Folder Include="Models\" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\AccountManagement.Domain.Shared\AccountManagement.Domain.Shared.csproj">
+      <Project>{ca31649d-a11b-45f6-9d17-2e716f11adfa}</Project>
+      <Name>AccountManagement.Domain.Shared</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\AccountManagement.Domain\AccountManagement.Domain.csproj">
+      <Project>{f40e3779-b691-44b9-a820-577c5c11035f}</Project>
+      <Name>AccountManagement.Domain</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\AccountManagement.UI.Commands\AccountManagement.UI.Commands.csproj">
+      <Project>{19b23e13-70e8-4e18-a2fa-f0c3f37313fe}</Project>
+      <Name>AccountManagement.UI.Commands</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\AccountManagement.UI.QueryModels.Updaters\AccountManagement.UI.QueryModels.Updaters.csproj">
+      <Project>{d0c22390-0bd6-4837-8ce5-149f80e6ba4e}</Project>
+      <Name>AccountManagement.UI.QueryModels.Updaters</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\AccountManagement.UI.QueryModels\AccountManagement.UI.QueryModels.csproj">
+      <Project>{5d9f2751-088c-422f-b251-0852e890a3e2}</Project>
+      <Name>AccountManagement.UI.QueryModels</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Composable.StagingArea\Composable.StagingArea.csproj">
+      <Project>{d1024299-495b-4f81-b182-6336f1d30210}</Project>
+      <Name>Composable.StagingArea</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Views\RegisterAccount\DisplayAccountRegistrationViewModelResources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>DisplayAccountRegistrationViewModelResources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>

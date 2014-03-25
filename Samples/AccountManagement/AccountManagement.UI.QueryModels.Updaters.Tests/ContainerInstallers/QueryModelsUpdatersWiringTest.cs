@@ -1,14 +1,13 @@
-﻿using AccountManagement.UI.QueryModels.Services;
-using Castle.MicroKernel.Registration;
+﻿using Castle.MicroKernel.Registration;
 using Castle.Windsor;
 using Castle.Windsor.Installer;
 using Composable.CQRS.Windsor.Testing;
 using Composable.ServiceBus;
 using NUnit.Framework;
 
-namespace AccountManagement.UI.QueryModels.Tests.ContainerInstallers
+namespace AccountManagement.UI.QueryModels.Updaters.Tests.ContainerInstallers
 {
-    public abstract class AccountManagementWiringTest
+    public abstract class QueryModelsUpdatersWiringTest
     {
         //Note that we do NOT test individual classes. We verify that when used as it will really be used things work as expected. 
         //If we change which installers exist, split installers, merge installers etc this test will keep working. 
@@ -22,7 +21,7 @@ namespace AccountManagement.UI.QueryModels.Tests.ContainerInstallers
             Container.ConfigureWiringForTestsCallBeforeAllOtherWiring();
 
             Container.Install(
-                FromAssembly.Containing<QueryModels.ContainerInstallers.AccountManagementQuerymodelsSessionInstaller>()
+                FromAssembly.Containing<QueryModels.Updaters.Services.IAccountManagementQueryModelUpdaterSession>()
                 );
 
             Container.Register(
@@ -44,15 +43,15 @@ namespace AccountManagement.UI.QueryModels.Tests.ContainerInstallers
         {
             Container
                 .RegistrationAssertionHelper()
-                .LifestyleScoped<IAccountManagementQueryModelSession>();
+                .LifestyleScoped<QueryModels.Updaters.Services.IAccountManagementQueryModelUpdaterSession>();
         }
     }
 
     [TestFixture] //The production wiring test does not modify the wiring at all
-    public class AccountManagementProductionWiringTest : AccountManagementWiringTest {}
+    public class QueryModelsUpdatersProductionWiringTest : QueryModelsUpdatersWiringTest {}
 
     [TestFixture] //The Test wiring test invokes all IConfigureWiringForTest instances in the container so that the wiring is now appropriate for running tests.
-    public class AccountManagementTestWiringTest : AccountManagementWiringTest
+    public class QueryModelsUpdatersTestWiringTest : QueryModelsUpdatersWiringTest
     {
         [SetUp]
         public void SetupTask()

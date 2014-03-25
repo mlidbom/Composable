@@ -195,16 +195,16 @@
     <Compile Include="App_Start\FilterConfig.cs" />
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="App_Start\WebApiConfig.cs" />
-    <Compile Include="Views\RegisterAccount\DisplayAccountRegistrationViewModel.cs" />
-    <Compile Include="Controllers\RegisterAccountController.cs" />
+    <Compile Include="Views\Account\DisplayAccountDetailsViewModel.cs" />
+    <Compile Include="Controllers\AccountController.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Views\RegisterAccount\DisplayAccountRegistrationViewModelResources.Designer.cs">
+    <Compile Include="Views\Account\DisplayAccountDetailsViewModelResources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
-      <DependentUpon>DisplayAccountRegistrationViewModelResources.resx</DependentUpon>
+      <DependentUpon>DisplayAccountDetailsViewModelResources.resx</DependentUpon>
     </Compile>
   </ItemGroup>
   <ItemGroup>
@@ -292,7 +292,7 @@
     <Content Include="Views\_ViewStart.cshtml" />
     <Content Include="Views\Shared\Error.cshtml" />
     <Content Include="Views\Shared\_Layout.cshtml" />
-    <Content Include="Views\RegisterAccount\DisplayAccountRegistrationView.cshtml" />
+    <Content Include="Views\Account\DisplayAccountDetails.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
@@ -328,9 +328,9 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Views\RegisterAccount\DisplayAccountRegistrationViewModelResources.resx">
+    <EmbeddedResource Include="Views\Account\DisplayAccountDetailsViewModelResources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>DisplayAccountRegistrationViewModelResources.Designer.cs</LastGenOutput>
+      <LastGenOutput>DisplayAccountDetailsViewModelResources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>

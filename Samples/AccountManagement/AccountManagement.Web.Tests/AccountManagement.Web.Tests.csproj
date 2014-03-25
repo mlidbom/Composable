@@ -135,8 +135,8 @@
   <ItemGroup>
     <Compile Include="ApplicationBootstrapperTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="RegisterAccountControllerTests\RegisterAccountControllerTest.cs" />
-    <Compile Include="RegisterAccountControllerTests\DisplayRegisterAccountScreenTests.cs" />
+    <Compile Include="AccountControllerTests\AccountControllerTest.cs" />
+    <Compile Include="AccountControllerTests\DisplayAccountInformationTests.cs" />
     <Compile Include="MvcControllerTest.cs" />
     <Compile Include="WebTestWiringHelper.cs" />
   </ItemGroup>

@@ -3,7 +3,6 @@ using AccountManagement.Domain;
 using AccountManagement.TestHelpers.Scenarios;
 using AccountManagement.Web.Views.Account;
 using FluentAssertions;
-using Moq;
 using NUnit.Framework;
 
 namespace AccountManagement.Web.Tests.AccountControllerTests

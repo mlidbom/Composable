@@ -135,7 +135,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AuthenticatedControllerTest.cs" />
-    <Compile Include="ApplicationBootstrapperTests.cs" />
+    <Compile Include="WebApplicationBootstrapperTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="AccountControllerTests\AccountControllerTest.cs" />
     <Compile Include="AccountControllerTests\DisplayAccountInformationTests.cs" />

@@ -27,7 +27,6 @@ namespace AccountManagement.Web.Tests.AccountControllerTests
         [Test]
         public void EmailIsSameAsForTheAccount()
         {
-            Controller.ControllerContext = new ControllerContext();
             InvokeControllerAndGetViewModel()
                 .Email
                 .Should().Be(_registeredAccount.Email.ToString());

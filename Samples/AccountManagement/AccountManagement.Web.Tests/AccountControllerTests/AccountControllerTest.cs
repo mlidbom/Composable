@@ -1,5 +1,4 @@
 ﻿using AccountManagement.Web.Controllers;
-using Castle.MicroKernel.Registration;
 using NUnit.Framework;
 
 namespace AccountManagement.Web.Tests.AccountControllerTests

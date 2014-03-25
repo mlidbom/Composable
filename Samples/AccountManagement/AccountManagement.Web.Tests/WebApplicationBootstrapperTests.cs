@@ -5,7 +5,7 @@ using NUnit.Framework;
 namespace AccountManagement.Web.Tests
 {
     [TestFixture]
-    public class ApplicationBootstrapperTests
+    public class WebApplicationBootstrapperTests
     {
         private WindsorContainer _container;
 

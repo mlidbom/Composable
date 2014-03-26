@@ -18,11 +18,6 @@ namespace Composable.Contracts.Tests
             object nullObject = null;
             string emptyString = "";
 
-
-            Assert.Throws<ObjectIsNullContractViolationException>(() => Contract.Optimized.Argument(nullObject).NotNullOrDefault());
-            Assert.Throws<ObjectIsNullContractViolationException>(() => Contract.Optimized.Arguments(anObject, nullObject).NotNullOrDefault());
-            Assert.Throws<ObjectIsNullContractViolationException>(() => Contract.Optimized.Arguments(emptyString, nullObject, anObject).NotNullOrDefault());
-
             Assert.Throws<ObjectIsNullContractViolationException>(() => Contract.Arguments(() => nullObject).NotNullOrDefault());
             Assert.Throws<ObjectIsNullContractViolationException>(() => Contract.Arguments(() => anObject, () => nullObject).NotNullOrDefault());
             Assert.Throws<ObjectIsNullContractViolationException>(() => Contract.Arguments(() => emptyString, () => nullObject, () => anObject).NotNullOrDefault());
@@ -37,11 +32,6 @@ namespace Composable.Contracts.Tests
             var defaultMyStructure = new MyStructure();
             var aMyStructure = new MyStructure(1);
 
-            Assert.Throws<ObjectIsDefaultContractViolationException>(() => Contract.Optimized.Argument(zero).NotNullOrDefault());
-            Assert.Throws<ObjectIsDefaultContractViolationException>(() => Contract.Optimized.Arguments(anObject, zero).NotNullOrDefault());
-            Assert.Throws<ObjectIsDefaultContractViolationException>(() => Contract.Optimized.Arguments(emptyString, anObject, defaultMyStructure).NotNullOrDefault());
-            Contract.Optimized.Arguments(emptyString, anObject, aMyStructure).NotNullOrDefault();
-
             Assert.Throws<ObjectIsDefaultContractViolationException>(() => Contract.Arguments(() => zero).NotNullOrDefault());
             Assert.Throws<ObjectIsDefaultContractViolationException>(() => Contract.Arguments(() => anObject, () => zero).NotNullOrDefault());
             Assert.Throws<ObjectIsDefaultContractViolationException>(() => Contract.Arguments(() => emptyString, () => anObject, () => defaultMyStructure).NotNullOrDefault());
@@ -55,17 +45,18 @@ namespace Composable.Contracts.Tests
         }
 
         [Test]
-        public void ShouldRun100TestsInOneMillisecond() //The Activator.CreateInstance stuff in the default check had me a bit worried. Seems I had no reason to be.
+        public void ShouldRun50TestsInOneMillisecond() //The Activator.CreateInstance stuff in the default check had me a bit worried. Seems I had no reason to be.
         {
-            Contract.Optimized.Argument(1).NotNullOrDefault();//Warm things up.
+            var one = 1;
+            Contract.Arguments(() => one).NotNullOrDefault();//Warm things up.
 
             var stopWatch = new Stopwatch();
             stopWatch.Start();
-            for(int i = 0; i < 100; i++)
+            for(int i = 0; i < 500; i++)
             {
-                Contract.Optimized.Argument(1).NotNullOrDefault();
+                Contract.Arguments(() => one).NotNullOrDefault();
             }
-            stopWatch.Elapsed.Should().BeLessOrEqualTo(1.Milliseconds());
+            stopWatch.Elapsed.Should().BeLessOrEqualTo(10.Milliseconds());
         }
 
         private struct MyStructure

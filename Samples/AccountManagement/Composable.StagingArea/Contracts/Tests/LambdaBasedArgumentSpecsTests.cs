@@ -46,7 +46,7 @@ namespace Composable.Contracts.Tests
         }
 
         [Test]
-        public void ShouldRunAtLeast100TestsIn1Millisecond() //The expression compilation stuff was worrying but this should be OK except for tight loops.
+        public void ShouldRun50TestsIn1Millisecond() //The expression compilation stuff was worrying but this should be OK except for tight loops.
         {
             var notNullOrDefault = new object();
 
@@ -54,11 +54,11 @@ namespace Composable.Contracts.Tests
 
             var stopWatch = new Stopwatch();
             stopWatch.Start();
-            for(var i = 0; i < 100; i++)
+            for(var i = 0; i < 500; i++)
             {
                 Contract.Arguments(() => notNullOrDefault).NotNullOrDefault();
             }
-            stopWatch.Elapsed.Should().BeLessOrEqualTo(1.Milliseconds());
+            stopWatch.Elapsed.Should().BeLessOrEqualTo(10.Milliseconds());
         }
 
 

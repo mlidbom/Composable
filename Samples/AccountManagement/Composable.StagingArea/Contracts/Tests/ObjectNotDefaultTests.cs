@@ -17,11 +17,6 @@ namespace Composable.Contracts.Tests
             var zero = 0;
             // ReSharper restore ConvertToConstant.Local
 
-            Assert.Throws<ObjectIsDefaultContractViolationException>(() => Contract.Optimized.Argument(zero).NotDefault());
-            Assert.Throws<ObjectIsDefaultContractViolationException>(() => Contract.Optimized.Arguments(zero).NotDefault());
-            Assert.Throws<ObjectIsDefaultContractViolationException>(() => Contract.Optimized.Argument(myStructure).NotDefault());
-            Assert.Throws<ObjectIsDefaultContractViolationException>(() => Contract.Optimized.Arguments(myStructure).NotDefault());
-
             Assert.Throws<ObjectIsDefaultContractViolationException>(() => Contract.Arguments(() => zero).NotDefault());
             Assert.Throws<ObjectIsDefaultContractViolationException>(() => Contract.Arguments(() => zero).NotDefault());
             Assert.Throws<ObjectIsDefaultContractViolationException>(() => Contract.Arguments(() => myStructure).NotDefault());
@@ -41,17 +36,18 @@ namespace Composable.Contracts.Tests
         }
 
         [Test]
-        public void ShouldRun100TestsInOneMillisecond() //The Activator.CreateInstance stuff in the default check had me a bit worried. Seems I had no reason to be.
+        public void ShouldRun50TestsInOneMillisecond() //The Activator.CreateInstance stuff in the default check had me a bit worried. Seems I had no reason to be.
         {
-            Contract.Optimized.Argument(1).NotDefault();//Warm things up.
+            var one = 1;
+            Contract.Arguments(() => one).NotDefault();//Warm things up.
 
             var stopWatch = new Stopwatch();
             stopWatch.Start();
-            for(int i = 0; i < 100; i++)
+            for(int i = 0; i < 500; i++)
             {
-                Contract.Optimized.Argument(1).NotDefault();
+                Contract.Arguments(() =>one).NotDefault();
             }
-            stopWatch.Elapsed.Should().BeLessOrEqualTo(1.Milliseconds());
+            stopWatch.Elapsed.Should().BeLessOrEqualTo(10.Milliseconds());
         }
 
         private struct MyStructure {}

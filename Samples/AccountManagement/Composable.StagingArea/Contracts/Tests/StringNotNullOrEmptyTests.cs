@@ -11,8 +11,6 @@ namespace Composable.Contracts.Tests
         public void NotEmptyThrowsStringIsEmptyArgumentExceptionForEmptyString()
         {
             string emptyString = "";
-            Assert.Throws<StringIsEmptyContractViolationException>(() => Contract.Optimized.Arguments(emptyString).NotNullOrEmpty());
-
             Assert.Throws<StringIsEmptyContractViolationException>(() => Contract.Arguments(() => emptyString).NotNullOrEmpty());
         }
 
@@ -20,9 +18,6 @@ namespace Composable.Contracts.Tests
         public void UsesArgumentNameForExceptionMessage()
         {
             string emptyString = "";
-            Assert.Throws<StringIsEmptyContractViolationException>(() => Contract.Optimized.Argument(emptyString, "emptyString").NotNullOrEmpty())
-                .Message.Should().Contain("emptyString");
-
             Assert.Throws<StringIsEmptyContractViolationException>(() => Contract.Arguments(() => emptyString).NotNullOrEmpty())
                 .Message.Should().Contain("emptyString");
         }

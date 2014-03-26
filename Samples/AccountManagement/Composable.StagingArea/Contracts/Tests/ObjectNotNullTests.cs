@@ -17,6 +17,20 @@ namespace Composable.Contracts.Tests
                 inspected => inspected.NotNull(),
                 badValues: new List<object> {null, null},
                 goodValues: new List<object> {new object(), "", Guid.NewGuid()});
+
+
+            var nullString = (string)null;
+            var anObject = new object();
+
+            Assert.Throws<ObjectIsNullContractViolationException>(() => Contract.Optimized.Arguments(nullString).NotNull());
+            Assert.Throws<ObjectIsNullContractViolationException>(() => Contract.Optimized.Arguments(anObject, nullString).NotNull());
+            Assert.Throws<ObjectIsNullContractViolationException>(() => Contract.Optimized.Argument(nullString, "nullString").NotNull())
+                .Message.Should().Contain("nullString");
+
+            Assert.Throws<ObjectIsNullContractViolationException>(() => Contract.Optimized.Invariant(nullString).NotNull());
+            Assert.Throws<ObjectIsNullContractViolationException>(() => Contract.Optimized.Invariant(anObject, nullString).NotNull());
+            Assert.Throws<ObjectIsNullContractViolationException>(() => Contract.Optimized.NamedInvariant(nullString, "nullString").NotNull())
+                .Message.Should().Contain("nullString");
         }
 
         [Test]

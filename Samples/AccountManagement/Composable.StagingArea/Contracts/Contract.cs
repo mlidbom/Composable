@@ -5,16 +5,22 @@ using System.Linq.Expressions;
 
 namespace Composable.Contracts
 {
-    /// <summary>
+ /// <summary>
     /// Ensures that a class's contract is followed. 
-    /// <para>Inspects arguments, members and return values and throws a <see cref="ContractViolationException"/> if the inspection fails.</para>
-    /// <para>The returned type: <see cref="Inspected{TValue}"/> can be extended with extension methods to support generic inspections.</para>
+    /// <para>Inspects arguments, members and return values and throws different <see cref="ContractViolationException"/> if the inspection fails.</para>
+    /// <para><see cref="Arguments{TParameter}"/> inspects method arguments. Call at the very beginning of methods.</para>
+    /// <para><see cref="ReturnValue{TReturnValue}"/> and <see cref="Return{TReturnValue}"/> inspects the return value from a method. Call at the very end of a method.</para>
+    /// <para><see cref="Invariant"/> inspects class members(Fields and Properties). Call within a shared method called something like AssertInvariantsAreMet.</para>
+    /// <para>.</para>
+    /// <para>The returned type of all these methods: <see cref="Inspected{TValue}"/> can be easily extended with extension methods to support generic inspections.</para>
+    /// <code>public static Inspected&lt;Guid> NotEmpty(this Inspected&lt;Guid> me) { return me.Inspect(inspected => inspected != Guid.Empty, badValue => new GuidIsEmptyContractViolationException(badValue)); }
+    /// </code>
     /// </summary>
     public static class Contract
     {
         ///<summary>
-        ///<para>Start inspecting one or more arguments and extract the name and value of the arguments from a lambda expression</para> 
-        ///<para>Using an expression removes the need for an extra string to specify the parameter name and ensures that  the name is always correct.</para>
+        ///<para>Start inspecting one or more arguments for contract compliance.</para> 
+        ///<para>Using an expression removes the need for an extra string to specify the name and ensures that  the name is always correct in exceptions.</para>
         ///</summary>
         public static Inspected<TParameter> Arguments<TParameter>(params Expression<Func<TParameter>>[] arguments)
         {
@@ -22,8 +28,10 @@ namespace Composable.Contracts
         }
 
         ///<summary>
-        ///<para>Start inspecting one or more arguments and extract the name and value of the arguments from a lambda expression</para> 
-        /// <para>Using an expression removes the need for an extra string to specify the parameter name and ensures that  the name is always correct.</para>
+        ///<para>Start inspecting one or more arguments for contract compliance.</para> 
+        ///<para>Using an expression removes the need for an extra string to specify the name and ensures that  the name is always correct in exceptions.</para>
+        ///<para>The returned type : <see cref="Inspected{TValue}"/> can be easily extended with extension methods to support generic inspections.</para>
+        ///<code>public static Inspected&lt;Guid> NotEmpty(this Inspected&lt;Guid> me) { return me.Inspect(inspected => inspected != Guid.Empty, badValue => new GuidIsEmptyContractViolationException(badValue)); }</code>
         ///</summary>
         public static Inspected<object> Arguments(params Expression<Func<object>>[] arguments)
         {
@@ -31,8 +39,11 @@ namespace Composable.Contracts
         }
 
         ///<summary>
-        ///<para>Start inspecting one or more members and extract the name and value of the member from a lambda expression</para> 
-        ///<para>Using an expression removes the need for an extra string to specify the member name and ensures that  the name is always correct.</para>
+        ///<para>Start inspecting one or more members for contract compliance.</para>
+        /// <para>An invariant is something that must always be true for an object. Like email and password never being missing for an account.</para>
+        ///<para>Using an expression removes the need for an extra string to specify the name and ensures that  the name is always correct in exceptions.</para>
+        ///<para>The returned type : <see cref="Inspected{TValue}"/> can be easily extended with extension methods to support generic inspections.</para>
+        ///<code>public static Inspected&lt;Guid> NotEmpty(this Inspected&lt;Guid> me) { return me.Inspect(inspected => inspected != Guid.Empty, badValue => new GuidIsEmptyContractViolationException(badValue)); }</code>
         ///</summary>
         public static Inspected<TParameter> Invariant<TParameter>(params Expression<Func<TParameter>>[] members)
         {
@@ -41,15 +52,21 @@ namespace Composable.Contracts
         }
 
         ///<summary>
-        ///<para>Start inspecting one or more members and extract the name and value of the members from a lambda expression</para> 
-        /// <para>Using an expression removes the need for an extra string to specify the member name and ensures that  the name is always correct.</para>
+        ///<para>Start inspecting one or more members for contract compliance.</para>
+        /// <para>An invariant is something that must always be true for an object. Like email and password never being missing for an account.</para>
+        ///<para>Using an expression removes the need for an extra string to specify the name and ensures that  the name is always correct in exceptions.</para>
+        ///<para>The returned type : <see cref="Inspected{TValue}"/> can be easily extended with extension methods to support generic inspections.</para>
+        ///<code>public static Inspected&lt;Guid> NotEmpty(this Inspected&lt;Guid> me) { return me.Inspect(inspected => inspected != Guid.Empty, badValue => new GuidIsEmptyContractViolationException(badValue)); }</code>
         ///</summary>
         public static Inspected<object> Invariant(params Expression<Func<object>>[] arguments)
         {
             return CreateInspected(arguments, InspectionType.Invariant);
         }
 
-        ///<summary>Start inspecting a return value</summary>
+        ///<summary>Start inspecting a return value
+        ///<para>The returned type : <see cref="Inspected{TValue}"/> can be easily extended with extension methods to support generic inspections.</para>
+        ///<code>public static Inspected&lt;Guid> NotEmpty(this Inspected&lt;Guid> me) { return me.Inspect(inspected => inspected != Guid.Empty, badValue => new GuidIsEmptyContractViolationException(badValue)); }</code> 
+        ///</summary>
         public static Inspected<TReturnValue> ReturnValue<TReturnValue>(TReturnValue returnValue)
         {
             return Optimized.ReturnValue(returnValue);
@@ -61,9 +78,7 @@ namespace Composable.Contracts
             return Optimized.Return(returnValue, assert);
         }
 
-        /// <summary>
-        /// Returns a less SOLID and less convenient, but faster, interface for performing contract validation.
-        /// </summary>
+        /// <summary>Returns a less SOLID and less convenient, but faster, interface for performing contract validation.</summary>
         public static OptimizedContract Optimized { get { return new OptimizedContract(); } }
 
 

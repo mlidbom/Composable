@@ -3,6 +3,9 @@ using Composable.System;
 
 namespace Composable.Contracts
 {
+    /// <summary>
+    /// Exceptions raise by the inspectors should inherit this exception type.
+    /// </summary>
     public class ContractViolationException : Exception
     {
         public ContractViolationException(InspectedValue badValue)

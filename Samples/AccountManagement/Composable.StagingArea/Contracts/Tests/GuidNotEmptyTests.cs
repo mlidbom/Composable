@@ -18,6 +18,14 @@ namespace Composable.Contracts.Tests
             Assert.Throws<GuidIsEmptyContractViolationException>(() => Contract.Optimized.Argument(emptyGuid, "emptyGuid").NotEmpty())
                 .Message.Should().Contain("emptyGuid");
 
+            Assert.Throws<GuidIsEmptyContractViolationException>(() => Contract.Optimized.Invariant(emptyGuid).NotEmpty());
+            Assert.Throws<GuidIsEmptyContractViolationException>(() => Contract.Optimized.Invariant(aGuid, emptyGuid).NotEmpty());
+            Assert.Throws<GuidIsEmptyContractViolationException>(() => Contract.Optimized.NamedInvariant(emptyGuid, "emptyGuid").NotEmpty())
+                .Message.Should().Contain("emptyGuid");
+
+            Assert.Throws<GuidIsEmptyContractViolationException>(() => Contract.Optimized.ReturnValue(emptyGuid).NotEmpty())
+                .Message.Should().Contain("ReturnValue");
+
             Assert.Throws<GuidIsEmptyContractViolationException>(() => Contract.Arguments(() => emptyGuid).NotEmpty());
             Assert.Throws<GuidIsEmptyContractViolationException>(() => Contract.Arguments(() => emptyGuid).NotEmpty())
                 .Message.Should().Contain("emptyGuid");

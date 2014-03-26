@@ -7,7 +7,7 @@ namespace Composable.Contracts
 {
  /// <summary>
     /// Ensures that a class's contract is followed. 
-    /// <para>Inspects arguments, members and return values and throws different <see cref="ContractViolationException"/> if the inspection fails.</para>
+    /// <para>Inspects arguments, members and return values and throws different <see cref="ContractViolationException"/>s if the inspection fails.</para>
     /// <para><see cref="Argument{TParameter}"/> inspects method arguments. Call at the very beginning of methods.</para>
     /// <para><see cref="ReturnValue{TReturnValue}"/> and <see cref="Return{TReturnValue}"/> inspects the return value from a method. Call at the very end of a method.</para>
     /// <para><see cref="Invariant"/> inspects class members(Fields and Properties). Call within a shared method called something like AssertInvariantsAreMet.</para>

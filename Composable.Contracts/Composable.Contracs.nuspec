@@ -1,0 +1,10 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package>
+  <metadata>
+    <id>$id$</id>
+    <version>$version$</version>
+    <authors>Magnus Lidbom</authors>
+    <description>Simple, extensible, lambda based contract validation library.</description>
+    <language>en-US</language>
+  </metadata>
+</package>

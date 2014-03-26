@@ -69,17 +69,15 @@ namespace Composable.Contracts
         ///</summary>
         public static Inspected<TReturnValue> ReturnValue<TReturnValue>(TReturnValue returnValue)
         {
-            return Optimized.ReturnValue(returnValue);
+            return new Inspected<TReturnValue>(new InspectedValue<TReturnValue>(returnValue, InspectionType.ReturnValue, "ReturnValue"));
         }
 
         ///<summary>Inspect a return value by passing in a Lambda that performs the inspections the same way you would for an argument.</summary>
         public static TReturnValue Return<TReturnValue>(TReturnValue returnValue, Action<Inspected<TReturnValue>> assert)
         {
-            return Optimized.Return(returnValue, assert);
+            assert(ReturnValue(returnValue));
+            return returnValue;
         }
-
-        /// <summary>Returns a less SOLID and less convenient, but faster, interface for performing contract validation.</summary>
-        public static OptimizedContract Optimized { get { return new OptimizedContract(); } }
 
 
         private static Inspected<TParameter> CreateInspected<TParameter>(Expression<Func<TParameter>>[] arguments, InspectionType inspectionType)

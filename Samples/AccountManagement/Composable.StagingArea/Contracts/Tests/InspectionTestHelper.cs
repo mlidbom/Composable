@@ -31,16 +31,10 @@ namespace Composable.Contracts.Tests
             Expression<Func<TInspected>> fetchInspected = () => goodValue;
             var inspectedName = ExpressionUtil.ExtractName(fetchInspected);
 
-            var inspected = Contract.Optimized.Argument(goodValue, inspectedName);
-            assert(inspected);
-
-            inspected = Contract.Optimized.Arguments(goodValue);
+            var inspected = Contract.Arguments(() => goodValue);
             assert(inspected);
 
             inspected = Contract.Arguments(() => goodValue);
-            assert(inspected);
-
-            inspected = Contract.Optimized.Invariant(goodValue);
             assert(inspected);
 
             inspected = Contract.Invariant(() => goodValue);
@@ -55,28 +49,7 @@ namespace Composable.Contracts.Tests
             Expression<Func<TInspected>> fetchInspected = () => inspectedValue;
             var inspectedName = ExpressionUtil.ExtractName(fetchInspected);
 
-            var inspected = Contract.Optimized.Argument(inspectedValue, inspectedName);
-            AssertThrows<TException, TInspected>(
-                inspected: inspected,
-                assert: assert,
-                inspectionType: InspectionType.Argument,
-                badValueName: inspectedName);
-
-            inspected = Contract.Optimized.Arguments(inspectedValue);
-            AssertThrows<TException, TInspected>(
-                inspected: inspected,
-                assert: assert,
-                inspectionType: InspectionType.Argument,
-                badValueName: "");
-
-            inspected = Contract.Optimized.Arguments(inspectedValue, inspectedValue);
-            AssertThrows<TException, TInspected>(
-                inspected: inspected,
-                assert: assert,
-                inspectionType: InspectionType.Argument,
-                badValueName: "");
-
-            inspected = Contract.Arguments(() => inspectedValue);
+            var inspected = Contract.Arguments(() => inspectedValue);
             AssertThrows<TException, TInspected>(
                 inspected: inspected,
                 assert: assert,
@@ -89,20 +62,6 @@ namespace Composable.Contracts.Tests
                 assert: assert,
                 inspectionType: InspectionType.Argument,
                 badValueName: inspectedName);
-
-            inspected = Contract.Optimized.NamedInvariant(inspectedValue, name: "BadValue");
-            AssertThrows<TException, TInspected>(
-                inspected: inspected,
-                assert: assert,
-                inspectionType: InspectionType.Invariant,
-                badValueName: "BadValue");
-
-            inspected = Contract.Optimized.Invariant(inspectedValue, inspectedValue);
-            AssertThrows<TException, TInspected>(
-                inspected: inspected,
-                assert: assert,
-                inspectionType: InspectionType.Invariant,
-                badValueName: "");
 
             inspected = Contract.Invariant(() => inspectedValue);
             AssertThrows<TException, TInspected>(
@@ -120,13 +79,6 @@ namespace Composable.Contracts.Tests
 
             const string returnvalueName = "ReturnValue";
             inspected = Contract.ReturnValue(inspectedValue);
-            AssertThrows<TException, TInspected>(
-                inspected: inspected,
-                assert: assert,
-                inspectionType: InspectionType.ReturnValue,
-                badValueName: returnvalueName);
-
-            inspected = Contract.Optimized.ReturnValue(inspectedValue);
             AssertThrows<TException, TInspected>(
                 inspected: inspected,
                 assert: assert,
@@ -162,7 +114,7 @@ namespace Composable.Contracts.Tests
 
         public static TReturnValue ReturnOptimized<TReturnValue>(TReturnValue returnValue, Action<Inspected<TReturnValue>> assert)
         {
-            return Contract.Optimized.Return(returnValue, assert);
+            return Contract.Return(returnValue, assert);
         }
     }
 }

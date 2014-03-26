@@ -106,8 +106,6 @@
     <Compile Include="Contracts\Contract.cs" />
     <Compile Include="Contracts\ContractViolationException.cs" />
     <Compile Include="Contracts\Inspected.cs" />
-    <Compile Include="Contracts\OptimizedContract.cs" />
-    <Compile Include="Contracts\OptimizedContractMethods.cs" />
     <Compile Include="Contracts\Tests\EnumerableEmptyTests.cs" />
     <Compile Include="Contracts\Tests\ExpressionValueExtractor.cs" />
     <Compile Include="Contracts\Tests\InspectionTestHelper.cs" />

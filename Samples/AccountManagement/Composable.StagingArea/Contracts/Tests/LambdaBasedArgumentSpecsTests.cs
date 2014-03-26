@@ -46,16 +46,19 @@ namespace Composable.Contracts.Tests
         }
 
         [Test]
-        public void ShouldRunAtLeast2TestsIn1Millisecond() //The expression compilation stuff was worrying but this should be OK except for tight loops.
+        public void ShouldRunAtLeast100TestsIn1Millisecond() //The expression compilation stuff was worrying but this should be OK except for tight loops.
         {
             var notNullOrDefault = new object();
+
+            Contract.Arguments(() => notNullOrDefault).NotNullOrDefault();//Warm it up. various reflection things cost first time only...
+
             var stopWatch = new Stopwatch();
             stopWatch.Start();
-            for(int i = 0; i < 200; i++)
+            for(var i = 0; i < 100; i++)
             {
-                Contract.Arguments(() => notNullOrDefault).NotNull();
+                Contract.Arguments(() => notNullOrDefault).NotNullOrDefault();
             }
-            stopWatch.Elapsed.Should().BeLessOrEqualTo(100.Milliseconds());
+            stopWatch.Elapsed.Should().BeLessOrEqualTo(1.Milliseconds());
         }
 
 

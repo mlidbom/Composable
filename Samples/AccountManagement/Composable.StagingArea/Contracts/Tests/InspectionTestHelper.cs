@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
-using Composable.System.Linq;
 using FluentAssertions;
 using NUnit.Framework;
 
@@ -30,7 +29,7 @@ namespace Composable.Contracts.Tests
         public static void InspectGoodValues<TInspected>(Action<Inspected<TInspected>> assert, TInspected goodValue)
         {
             Expression<Func<TInspected>> fetchInspected = () => goodValue;
-            var inspectedName = ExpressionUtil.ExtractMemberName(fetchInspected);
+            var inspectedName = ExpressionUtil.ExtractName(fetchInspected);
 
             var inspected = Contract.Optimized.Argument(goodValue, inspectedName);
             assert(inspected);
@@ -54,7 +53,7 @@ namespace Composable.Contracts.Tests
             where TException : ContractViolationException
         {
             Expression<Func<TInspected>> fetchInspected = () => inspectedValue;
-            var inspectedName = ExpressionUtil.ExtractMemberName(fetchInspected);
+            var inspectedName = ExpressionUtil.ExtractName(fetchInspected);
 
             var inspected = Contract.Optimized.Argument(inspectedValue, inspectedName);
             AssertThrows<TException, TInspected>(

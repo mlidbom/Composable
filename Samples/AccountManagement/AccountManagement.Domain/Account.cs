@@ -53,7 +53,8 @@ namespace AccountManagement.Domain
             var created = new Account();
             created.RaiseEvent(new UserRegisteredAccountEvent(accountId: accountId, email: email, password: password));
             repository.Save(created);
-            return created;
+
+            return Contract.Return(created, inspect => inspect.NotNull());
         }
 
         public void ChangePassword(string oldPassword, Password newPassword)

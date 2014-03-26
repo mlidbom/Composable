@@ -8,7 +8,7 @@ namespace Composable.Contracts
  /// <summary>
     /// Ensures that a class's contract is followed. 
     /// <para>Inspects arguments, members and return values and throws different <see cref="ContractViolationException"/> if the inspection fails.</para>
-    /// <para><see cref="Arguments{TParameter}"/> inspects method arguments. Call at the very beginning of methods.</para>
+    /// <para><see cref="Argument{TParameter}"/> inspects method arguments. Call at the very beginning of methods.</para>
     /// <para><see cref="ReturnValue{TReturnValue}"/> and <see cref="Return{TReturnValue}"/> inspects the return value from a method. Call at the very end of a method.</para>
     /// <para><see cref="Invariant"/> inspects class members(Fields and Properties). Call within a shared method called something like AssertInvariantsAreMet.</para>
     /// <para>.</para>
@@ -22,7 +22,7 @@ namespace Composable.Contracts
         ///<para>Start inspecting one or more arguments for contract compliance.</para> 
         ///<para>Using an expression removes the need for an extra string to specify the name and ensures that  the name is always correct in exceptions.</para>
         ///</summary>
-        public static Inspected<TParameter> Arguments<TParameter>(params Expression<Func<TParameter>>[] arguments)
+        public static Inspected<TParameter> Argument<TParameter>(params Expression<Func<TParameter>>[] arguments)
         {
             return CreateInspected(arguments, InspectionType.Argument);
         }
@@ -33,7 +33,7 @@ namespace Composable.Contracts
         ///<para>The returned type : <see cref="Inspected{TValue}"/> can be easily extended with extension methods to support generic inspections.</para>
         ///<code>public static Inspected&lt;Guid> NotEmpty(this Inspected&lt;Guid> me) { return me.Inspect(inspected => inspected != Guid.Empty, badValue => new GuidIsEmptyContractViolationException(badValue)); }</code>
         ///</summary>
-        public static Inspected<object> Arguments(params Expression<Func<object>>[] arguments)
+        public static Inspected<object> Argument(params Expression<Func<object>>[] arguments)
         {
             return CreateInspected(arguments, InspectionType.Argument);
         }

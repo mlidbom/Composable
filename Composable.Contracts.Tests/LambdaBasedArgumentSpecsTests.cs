@@ -16,13 +16,13 @@ namespace Composable.Contracts.Tests
             string okString = "okString";
             string emptyString = "";
             string nullString = null;
-            Assert.Throws<ObjectIsNullContractViolationException>(() => Contract.Arguments(() => nullString).NotNull())
+            Assert.Throws<ObjectIsNullContractViolationException>(() => Contract.Argument(() => nullString).NotNull())
                 .Message.Should().Contain("nullString");
 
-            Assert.Throws<ObjectIsNullContractViolationException>(() => Contract.Arguments(() => okString, () => nullString, () => notNullObject).NotNull())
+            Assert.Throws<ObjectIsNullContractViolationException>(() => Contract.Argument(() => okString, () => nullString, () => notNullObject).NotNull())
                 .Message.Should().Contain("nullString");
 
-            Assert.Throws<StringIsEmptyContractViolationException>(() => Contract.Arguments(() => okString, () => emptyString).NotNullOrEmpty())
+            Assert.Throws<StringIsEmptyContractViolationException>(() => Contract.Argument(() => okString, () => emptyString).NotNullOrEmpty())
                 .Message.Should().Contain("emptyString");
 
             Assert.Throws<ObjectIsNullContractViolationException>(() => TestStringsForNullOrEmpty(nullString))
@@ -41,8 +41,8 @@ namespace Composable.Contracts.Tests
         [Test]
         public void ThrowsIllegalArgumentAccessLambdaIfTheLambdaAcessesALiteral()
         {
-            Assert.Throws<InvalidAccessorLambdaException>(() => Contract.Arguments(() => ""));
-            Assert.Throws<InvalidAccessorLambdaException>(() => Contract.Arguments(() => 0));
+            Assert.Throws<InvalidAccessorLambdaException>(() => Contract.Argument(() => ""));
+            Assert.Throws<InvalidAccessorLambdaException>(() => Contract.Argument(() => 0));
         }
 
         [Test]
@@ -50,13 +50,13 @@ namespace Composable.Contracts.Tests
         {
             var notNullOrDefault = new object();
 
-            Contract.Arguments(() => notNullOrDefault).NotNullOrDefault();//Warm it up. various reflection things cost first time only...
+            Contract.Argument(() => notNullOrDefault).NotNullOrDefault();//Warm it up. various reflection things cost first time only...
 
             var stopWatch = new Stopwatch();
             stopWatch.Start();
             for(var i = 0; i < 500; i++)
             {
-                Contract.Arguments(() => notNullOrDefault).NotNullOrDefault();
+                Contract.Argument(() => notNullOrDefault).NotNullOrDefault();
             }
             stopWatch.Elapsed.Should().BeLessOrEqualTo(10.Milliseconds());
         }
@@ -64,13 +64,13 @@ namespace Composable.Contracts.Tests
 
         private static void TestStringsForNullOrEmpty(string singleString)
         {
-            Contract.Arguments(() => singleString).NotNullOrEmpty();
+            Contract.Argument(() => singleString).NotNullOrEmpty();
         }
 
 
         private static void TestStringsForNullOrEmpty(string firstString, string secondString, string thirdString)
         {
-            Contract.Arguments(() => firstString, () => secondString, () => thirdString).NotNullOrEmpty();
+            Contract.Argument(() => firstString, () => secondString, () => thirdString).NotNullOrEmpty();
         }
     }
 

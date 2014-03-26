@@ -22,9 +22,9 @@ namespace Composable.Contracts.Tests
             var nullString = (string)null;
             var anObject = new object();
 
-            Assert.Throws<ObjectIsNullContractViolationException>(() => Contract.Arguments(() => nullString).NotNull());
-            Assert.Throws<ObjectIsNullContractViolationException>(() => Contract.Arguments(() => anObject, () => nullString).NotNull());
-            Assert.Throws<ObjectIsNullContractViolationException>(() => Contract.Arguments(() => nullString).NotNull())
+            Assert.Throws<ObjectIsNullContractViolationException>(() => Contract.Argument(() => nullString).NotNull());
+            Assert.Throws<ObjectIsNullContractViolationException>(() => Contract.Argument(() => anObject, () => nullString).NotNull());
+            Assert.Throws<ObjectIsNullContractViolationException>(() => Contract.Argument(() => nullString).NotNull())
                 .Message.Should().Contain("nullString");
 
             Assert.Throws<ObjectIsNullContractViolationException>(() => Contract.Invariant(() => nullString).NotNull());
@@ -38,7 +38,7 @@ namespace Composable.Contracts.Tests
         {
             string nullString = null;
 
-            Assert.Throws<ObjectIsNullContractViolationException>(() => Contract.Arguments(() => nullString).NotNull())
+            Assert.Throws<ObjectIsNullContractViolationException>(() => Contract.Argument(() => nullString).NotNull())
                 .Message.Should().Contain("nullString");
         }
     }

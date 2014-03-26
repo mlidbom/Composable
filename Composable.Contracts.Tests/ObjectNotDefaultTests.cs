@@ -17,10 +17,10 @@ namespace Composable.Contracts.Tests
             var zero = 0;
             // ReSharper restore ConvertToConstant.Local
 
-            Assert.Throws<ObjectIsDefaultContractViolationException>(() => Contract.Arguments(() => zero).NotDefault());
-            Assert.Throws<ObjectIsDefaultContractViolationException>(() => Contract.Arguments(() => zero).NotDefault());
-            Assert.Throws<ObjectIsDefaultContractViolationException>(() => Contract.Arguments(() => myStructure).NotDefault());
-            Assert.Throws<ObjectIsDefaultContractViolationException>(() => Contract.Arguments(() => myStructure).NotDefault());
+            Assert.Throws<ObjectIsDefaultContractViolationException>(() => Contract.Argument(() => zero).NotDefault());
+            Assert.Throws<ObjectIsDefaultContractViolationException>(() => Contract.Argument(() => zero).NotDefault());
+            Assert.Throws<ObjectIsDefaultContractViolationException>(() => Contract.Argument(() => myStructure).NotDefault());
+            Assert.Throws<ObjectIsDefaultContractViolationException>(() => Contract.Argument(() => myStructure).NotDefault());
 
             var badValues = new List<object> {zero, myStructure};
             var goodValues = new List<object> {new Object(), "", Guid.NewGuid()};
@@ -39,13 +39,13 @@ namespace Composable.Contracts.Tests
         public void ShouldRun50TestsInOneMillisecond() //The Activator.CreateInstance stuff in the default check had me a bit worried. Seems I had no reason to be.
         {
             var one = 1;
-            Contract.Arguments(() => one).NotDefault();//Warm things up.
+            Contract.Argument(() => one).NotDefault();//Warm things up.
 
             var stopWatch = new Stopwatch();
             stopWatch.Start();
             for(int i = 0; i < 500; i++)
             {
-                Contract.Arguments(() =>one).NotDefault();
+                Contract.Argument(() =>one).NotDefault();
             }
             stopWatch.Elapsed.Should().BeLessOrEqualTo(10.Milliseconds());
         }

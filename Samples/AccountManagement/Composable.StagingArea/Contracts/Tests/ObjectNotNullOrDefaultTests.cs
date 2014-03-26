@@ -55,15 +55,17 @@ namespace Composable.Contracts.Tests
         }
 
         [Test]
-        public void ShouldRun10TestsInOneMillisecond() //The Activator.CreateInstance stuff in the default check had me a bit worried. Seems I had no reason to be.
+        public void ShouldRun100TestsInOneMillisecond() //The Activator.CreateInstance stuff in the default check had me a bit worried. Seems I had no reason to be.
         {
+            Contract.Optimized.Argument(1).NotNullOrDefault();//Warm things up.
+
             var stopWatch = new Stopwatch();
             stopWatch.Start();
             for(int i = 0; i < 100; i++)
             {
                 Contract.Optimized.Argument(1).NotNullOrDefault();
             }
-            stopWatch.Elapsed.Should().BeLessOrEqualTo(10.Milliseconds());
+            stopWatch.Elapsed.Should().BeLessOrEqualTo(1.Milliseconds());
         }
 
         private struct MyStructure

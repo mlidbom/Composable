@@ -31,7 +31,7 @@ namespace Composable.Contracts
         /// <summary>
         /// <para>Start inspecting a single member and pass its name as a string.</para>
         /// </summary>
-        public static Inspected<TMember> Invariant<TMember>(this OptimizedContract me, TMember member, string name)
+        public static Inspected<TMember> NamedInvariant<TMember>(this OptimizedContract me, TMember member, string name)
         {
             return new Inspected<TMember>(member, InspectionType.Invariant, name);
         }

@@ -97,6 +97,8 @@
     <Compile Include="Contracts\EnumerableInspector.cs" />
     <Compile Include="Contracts\GuidInspector.cs" />
     <Compile Include="Contracts\GuidIsEmptyContractViolationException.cs" />
+    <Compile Include="Contracts\InspectedValue.cs" />
+    <Compile Include="Contracts\InspectionType.cs" />
     <Compile Include="Contracts\InvalidAccessorLambdaException.cs" />
     <Compile Include="Contracts\ObjectIsDefaultContractViolationException.cs" />
     <Compile Include="Contracts\ObjectIsNullContractViolationException.cs" />

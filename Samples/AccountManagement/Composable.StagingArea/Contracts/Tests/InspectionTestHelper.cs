@@ -91,7 +91,14 @@ namespace Composable.Contracts.Tests
                 inspectionType: InspectionType.Argument,
                 badValueName: inspectedName);
 
-            inspected = Contract.Optimized.Invariant(inspectedValue);
+            inspected = Contract.Optimized.NamedInvariant(inspectedValue, name: "BadValue");
+            AssertThrows<TException, TInspected>(
+                inspected: inspected,
+                assert: assert,
+                inspectionType: InspectionType.Invariant,
+                badValueName: "BadValue");
+
+            inspected = Contract.Optimized.Invariant(inspectedValue, inspectedValue);
             AssertThrows<TException, TInspected>(
                 inspected: inspected,
                 assert: assert,

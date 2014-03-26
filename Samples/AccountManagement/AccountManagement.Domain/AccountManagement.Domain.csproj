@@ -40,6 +40,9 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\Castle.Windsor.3.2.1\lib\net45\Castle.Windsor.dll</HintPath>
     </Reference>
+    <Reference Include="Composable.Contracts">
+      <HintPath>..\packages\Composable.Contracts.0.8.0-develop\lib\net40\Composable.Contracts.dll</HintPath>
+    </Reference>
     <Reference Include="Composable.Core, Version=2.2.0.0, Culture=neutral, PublicKeyToken=0c6b2c03e4c91d22, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\Composable.Core.2.2.0\lib\net40\Composable.Core.dll</HintPath>
@@ -115,10 +118,6 @@
     <Compile Include="Services\IAccountManagementEventStoreSession.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\..\Composable.Contracts\Composable.Contracts.csproj">
-      <Project>{579a5738-6b8a-41e4-b2f3-5fd4ca595786}</Project>
-      <Name>Composable.Contracts</Name>
-    </ProjectReference>
     <ProjectReference Include="..\AccountManagement.Domain.Events\AccountManagement.Domain.Events.csproj">
       <Project>{dabba9b3-cd83-4995-83c4-efcdf388c353}</Project>
       <Name>AccountManagement.Domain.Events</Name>

@@ -4,7 +4,7 @@ using System.Reflection;
 
 namespace Composable.Contracts
 {
-    internal static class ExpressionUtil
+    public static class ContractsExpression
     {
         public static string ExtractName<TValue>(Expression<Func<TValue>> func)
         {

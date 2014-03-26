@@ -120,6 +120,10 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\..\Composable.Contracts\Composable.Contracts.csproj">
+      <Project>{579a5738-6b8a-41e4-b2f3-5fd4ca595786}</Project>
+      <Name>Composable.Contracts</Name>
+    </ProjectReference>
     <ProjectReference Include="..\AccountManagement.Domain.Events\AccountManagement.Domain.Events.csproj">
       <Project>{DABBA9B3-CD83-4995-83C4-EFCDF388C353}</Project>
       <Name>AccountManagement.Domain.Events</Name>

@@ -29,7 +29,7 @@ namespace Composable.Contracts.Tests
         public static void InspectGoodValues<TInspected>(Action<Inspected<TInspected>> assert, TInspected goodValue)
         {
             Expression<Func<TInspected>> fetchInspected = () => goodValue;
-            var inspectedName = ExpressionUtil.ExtractName(fetchInspected);
+            var inspectedName = ContractsExpression.ExtractName(fetchInspected);
 
             var inspected = Contract.Arguments(() => goodValue);
             assert(inspected);
@@ -47,7 +47,7 @@ namespace Composable.Contracts.Tests
             where TException : ContractViolationException
         {
             Expression<Func<TInspected>> fetchInspected = () => inspectedValue;
-            var inspectedName = ExpressionUtil.ExtractName(fetchInspected);
+            var inspectedName = ContractsExpression.ExtractName(fetchInspected);
 
             var inspected = Contract.Arguments(() => inspectedValue);
             AssertThrows<TException, TInspected>(

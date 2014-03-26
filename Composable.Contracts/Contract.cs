@@ -86,9 +86,9 @@ namespace Composable.Contracts
             for(var i = 0; i < arguments.Length; i++)
             {
                 inspected[i] = new InspectedValue<TParameter>(
-                    value: ExpressionUtil.ExtractValue(arguments[i]),
+                    value: ContractsExpression.ExtractValue(arguments[i]),
                     type: inspectionType,
-                    name: ExpressionUtil.ExtractName(arguments[i]));
+                    name: ContractsExpression.ExtractName(arguments[i]));
             }
             return new Inspected<TParameter>(inspected);
         }

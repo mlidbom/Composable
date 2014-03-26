@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.ObjectModel;
-using System.Diagnostics;
-using System.Linq;
-using System.Linq.Expressions;
-using System.Reflection;
-using NUnit.Framework;
+﻿using NUnit.Framework;
 
 namespace Composable.Contracts.Tests
 {
@@ -20,17 +14,17 @@ namespace Composable.Contracts.Tests
         [Test]
         public void ExtractsValuesromFieldAccessingLambdas()
         {
-            var result = ExpressionUtil.ExtractValue(() => _testString);
+            var result = ContractsExpression.ExtractValue(() => _testString);
             Assert.That(result, Is.SameAs(_testString));
 
-            var result2 = ExpressionUtil.ExtractValue(() => WrappedIntOne);
+            var result2 = ContractsExpression.ExtractValue(() => WrappedIntOne);
             Assert.That(result2, Is.SameAs(WrappedIntOne));
         }
 
         [Test]
         public void ExtractsValueFromPropertyAccessLambda()
         {
-            var result = ExpressionUtil.ExtractValue(() => TestString);
+            var result = ContractsExpression.ExtractValue(() => TestString);
             Assert.That(result, Is.SameAs(_testString));
         }
 
@@ -45,7 +39,7 @@ namespace Composable.Contracts.Tests
 
         private TValue ReturnExtractedParameterValue<TValue>(TValue param)
         {
-            return ExpressionUtil.ExtractValue(() => param);
+            return ContractsExpression.ExtractValue(() => param);
         }
     }
 }

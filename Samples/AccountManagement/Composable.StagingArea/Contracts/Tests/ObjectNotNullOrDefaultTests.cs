@@ -19,13 +19,13 @@ namespace Composable.Contracts.Tests
             string emptyString = "";
 
 
-            Assert.Throws<ObjectIsNullException>(() => Contract.Optimized.Argument(nullObject).NotNullOrDefault());
-            Assert.Throws<ObjectIsNullException>(() => Contract.Optimized.Arguments(anObject, nullObject).NotNullOrDefault());
-            Assert.Throws<ObjectIsNullException>(() => Contract.Optimized.Arguments(emptyString, nullObject, anObject).NotNullOrDefault());
+            Assert.Throws<ObjectIsNullContractViolationException>(() => Contract.Optimized.Argument(nullObject).NotNullOrDefault());
+            Assert.Throws<ObjectIsNullContractViolationException>(() => Contract.Optimized.Arguments(anObject, nullObject).NotNullOrDefault());
+            Assert.Throws<ObjectIsNullContractViolationException>(() => Contract.Optimized.Arguments(emptyString, nullObject, anObject).NotNullOrDefault());
 
-            Assert.Throws<ObjectIsNullException>(() => Contract.Arguments(() => nullObject).NotNullOrDefault());
-            Assert.Throws<ObjectIsNullException>(() => Contract.Arguments(() => anObject, () => nullObject).NotNullOrDefault());
-            Assert.Throws<ObjectIsNullException>(() => Contract.Arguments(() => emptyString, () => nullObject, () => anObject).NotNullOrDefault());
+            Assert.Throws<ObjectIsNullContractViolationException>(() => Contract.Arguments(() => nullObject).NotNullOrDefault());
+            Assert.Throws<ObjectIsNullContractViolationException>(() => Contract.Arguments(() => anObject, () => nullObject).NotNullOrDefault());
+            Assert.Throws<ObjectIsNullContractViolationException>(() => Contract.Arguments(() => emptyString, () => nullObject, () => anObject).NotNullOrDefault());
         }
 
         [Test]
@@ -37,18 +37,18 @@ namespace Composable.Contracts.Tests
             var defaultMyStructure = new MyStructure();
             var aMyStructure = new MyStructure(1);
 
-            Assert.Throws<ObjectIsDefaultException>(() => Contract.Optimized.Argument(zero).NotNullOrDefault());
-            Assert.Throws<ObjectIsDefaultException>(() => Contract.Optimized.Arguments(anObject, zero).NotNullOrDefault());
-            Assert.Throws<ObjectIsDefaultException>(() => Contract.Optimized.Arguments(emptyString, anObject, defaultMyStructure).NotNullOrDefault());
+            Assert.Throws<ObjectIsDefaultContractViolationException>(() => Contract.Optimized.Argument(zero).NotNullOrDefault());
+            Assert.Throws<ObjectIsDefaultContractViolationException>(() => Contract.Optimized.Arguments(anObject, zero).NotNullOrDefault());
+            Assert.Throws<ObjectIsDefaultContractViolationException>(() => Contract.Optimized.Arguments(emptyString, anObject, defaultMyStructure).NotNullOrDefault());
             Contract.Optimized.Arguments(emptyString, anObject, aMyStructure).NotNullOrDefault();
 
-            Assert.Throws<ObjectIsDefaultException>(() => Contract.Arguments(() => zero).NotNullOrDefault());
-            Assert.Throws<ObjectIsDefaultException>(() => Contract.Arguments(() => anObject, () => zero).NotNullOrDefault());
-            Assert.Throws<ObjectIsDefaultException>(() => Contract.Arguments(() => emptyString, () => anObject, () => defaultMyStructure).NotNullOrDefault());
+            Assert.Throws<ObjectIsDefaultContractViolationException>(() => Contract.Arguments(() => zero).NotNullOrDefault());
+            Assert.Throws<ObjectIsDefaultContractViolationException>(() => Contract.Arguments(() => anObject, () => zero).NotNullOrDefault());
+            Assert.Throws<ObjectIsDefaultContractViolationException>(() => Contract.Arguments(() => emptyString, () => anObject, () => defaultMyStructure).NotNullOrDefault());
             Contract.Arguments(() => emptyString, () => anObject, () => aMyStructure).NotNullOrDefault();
 
 
-            InspectionTestHelper.BatchTestInspection<ObjectIsDefaultException, object>(
+            InspectionTestHelper.BatchTestInspection<ObjectIsDefaultContractViolationException, object>(
                 inspected => inspected.NotNullOrDefault(),
                 badValues: new List<object> {zero, defaultMyStructure},
                 goodValues: new List<object> {new object(), "", Guid.NewGuid()});

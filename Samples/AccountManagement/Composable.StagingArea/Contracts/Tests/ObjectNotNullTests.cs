@@ -13,7 +13,7 @@ namespace Composable.Contracts.Tests
         [Test]
         public void ThrowsObjectNullExceptionForNullValues()
         {
-            InspectionTestHelper.BatchTestInspection<ObjectIsNullException, object>(
+            InspectionTestHelper.BatchTestInspection<ObjectIsNullContractViolationException, object>(
                 inspected => inspected.NotNull(),
                 badValues: new List<object> {null, null},
                 goodValues: new List<object> {new object(), "", Guid.NewGuid()});
@@ -23,10 +23,10 @@ namespace Composable.Contracts.Tests
         public void UsesArgumentNameForExceptionmessage()
         {
             string nullString = null;
-            Assert.Throws<ObjectIsNullException>(() => Contract.Optimized.Argument(nullString, "nullString").NotNull())
+            Assert.Throws<ObjectIsNullContractViolationException>(() => Contract.Optimized.Argument(nullString, "nullString").NotNull())
                 .Message.Should().Contain("nullString");
 
-            Assert.Throws<ObjectIsNullException>(() => Contract.Arguments(() => nullString).NotNull())
+            Assert.Throws<ObjectIsNullContractViolationException>(() => Contract.Arguments(() => nullString).NotNull())
                 .Message.Should().Contain("nullString");
         }
     }

@@ -3,9 +3,9 @@ using Composable.System;
 
 namespace Composable.Contracts
 {
-    public class ContractException : Exception
+    public class ContractViolationException : Exception
     {
-        public ContractException(InspectedValue badValue)
+        public ContractViolationException(InspectedValue badValue)
         {
             BadValue = badValue;
         }

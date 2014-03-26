@@ -8,13 +8,14 @@ namespace Composable.Contracts.Tests
         [Test]
         public void TestName()
         {
-            Assert.Throws<ObjectIsNullException>(() => ReturnInputStringAndRefuseToReturnNull(null));
-            Assert.Throws<StringIsEmptyException>(() => ReturnInputStringAndRefuseToReturnNull(""));
-            Assert.Throws<StringIsWhitespaceException>(() => ReturnInputStringAndRefuseToReturnNull(" "));
+            Assert.Throws<ObjectIsNullContractViolationException>(() => ReturnInputStringAndRefuseToReturnNull(null));
+            Assert.Throws<StringIsEmptyContractViolationException>(() => ReturnInputStringAndRefuseToReturnNull(""));
+            Assert.Throws<StringIsWhitespaceContractViolationException>(() => ReturnInputStringAndRefuseToReturnNull(" "));
         }
 
         public string ReturnInputStringAndRefuseToReturnNull(string returnMe)
         {
+            Contract.ReturnValue(returnMe).NotNullEmptyOrWhiteSpace();
             return Contract.Return(returnMe, assert => assert.NotNullEmptyOrWhiteSpace());
         }
     }

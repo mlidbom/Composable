@@ -21,19 +21,19 @@ namespace AccountManagement.Domain.Tests.AccountTests
         [Test]
         public void WhenNewPasswordIsNullObjectNullExceptionIsThrown()
         {
-            Assert.Throws<ObjectIsNullException>(() => _account.ChangePassword(_registerAccountScenario.PasswordAsString, null));
+            Assert.Throws<ObjectIsNullContractViolationException>(() => _account.ChangePassword(_registerAccountScenario.PasswordAsString, null));
         }
 
         [Test]
         public void WhenOldPasswordIsNullObjectNullExceptionIsThrown()
         {
-            Assert.Throws<ObjectIsNullException>(() => _account.ChangePassword(null, new Password("SomeComplexPassword1!")));
+            Assert.Throws<ObjectIsNullContractViolationException>(() => _account.ChangePassword(null, new Password("SomeComplexPassword1!")));
         }
 
         [Test]
         public void WhenOldPasswordIsEmptyStringIsEmptyExceptionIsThrown()
         {
-            Assert.Throws<StringIsEmptyException>(() => _account.ChangePassword("", new Password("SomeComplexPassword1!")));
+            Assert.Throws<StringIsEmptyContractViolationException>(() => _account.ChangePassword("", new Password("SomeComplexPassword1!")));
         }
 
         [Test]

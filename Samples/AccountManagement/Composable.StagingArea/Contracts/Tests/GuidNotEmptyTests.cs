@@ -13,23 +13,23 @@ namespace Composable.Contracts.Tests
             var emptyGuid = Guid.Empty;
             var aGuid = Guid.NewGuid();
 
-            Assert.Throws<GuidIsEmptyException>(() => Contract.Optimized.Arguments(emptyGuid).NotEmpty());
-            Assert.Throws<GuidIsEmptyException>(() => Contract.Optimized.Arguments(aGuid, emptyGuid).NotEmpty());
-            Assert.Throws<GuidIsEmptyException>(() => Contract.Optimized.Argument(emptyGuid, "emptyGuid").NotEmpty())
+            Assert.Throws<GuidIsEmptyContractViolationException>(() => Contract.Optimized.Arguments(emptyGuid).NotEmpty());
+            Assert.Throws<GuidIsEmptyContractViolationException>(() => Contract.Optimized.Arguments(aGuid, emptyGuid).NotEmpty());
+            Assert.Throws<GuidIsEmptyContractViolationException>(() => Contract.Optimized.Argument(emptyGuid, "emptyGuid").NotEmpty())
                 .Message.Should().Contain("emptyGuid");
 
-            Assert.Throws<GuidIsEmptyException>(() => Contract.Arguments(() => emptyGuid).NotEmpty());
-            Assert.Throws<GuidIsEmptyException>(() => Contract.Arguments(() => emptyGuid).NotEmpty())
+            Assert.Throws<GuidIsEmptyContractViolationException>(() => Contract.Arguments(() => emptyGuid).NotEmpty());
+            Assert.Throws<GuidIsEmptyContractViolationException>(() => Contract.Arguments(() => emptyGuid).NotEmpty())
                 .Message.Should().Contain("emptyGuid");
 
-            Assert.Throws<GuidIsEmptyException>(() => Contract.Arguments(() => aGuid, () => emptyGuid).NotEmpty())
+            Assert.Throws<GuidIsEmptyContractViolationException>(() => Contract.Arguments(() => aGuid, () => emptyGuid).NotEmpty())
                 .Message.Should().Contain("emptyGuid");
         }
 
         [Test]
         public void NotEmptyThrowsArgumentExceptionForEmptyGuidNew()
         {
-            InspectionTestHelper.BatchTestInspection<GuidIsEmptyException, Guid>(
+            InspectionTestHelper.BatchTestInspection<GuidIsEmptyContractViolationException, Guid>(
                 assert: inspected => inspected.NotEmpty(),
                 badValues: new[] {Guid.Empty, new Guid()},
                 goodValues: new[] {Guid.NewGuid(), Guid.NewGuid()});

@@ -5,6 +5,11 @@ using System.Linq.Expressions;
 
 namespace Composable.Contracts
 {
+    /// <summary>
+    /// Ensures that a class's contract is followed. 
+    /// <para>Inspects arguments, members and return values and throws a <see cref="ContractViolationException"/> if the inspection fails.</para>
+    /// <para>The returned type: <see cref="Inspected{TValue}"/> can be extended with extension methods to support generic inspections.</para>
+    /// </summary>
     public static class Contract
     {
         ///<summary>

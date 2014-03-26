@@ -46,12 +46,12 @@ namespace Composable.Contracts.Tests
         }
 
         [Test]
-        public void ShouldRunAtLeast3TestsIn1Millisecond() //The expression compilation stuff was worrying but this should be OK except for very tight loops.
+        public void ShouldRunAtLeast2TestsIn1Millisecond() //The expression compilation stuff was worrying but this should be OK except for tight loops.
         {
             var notNullOrDefault = new object();
             var stopWatch = new Stopwatch();
             stopWatch.Start();
-            for(int i = 0; i < 300; i++)
+            for(int i = 0; i < 200; i++)
             {
                 Contract.Arguments(() => notNullOrDefault).NotNull();
             }

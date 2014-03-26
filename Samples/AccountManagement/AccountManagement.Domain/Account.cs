@@ -45,7 +45,7 @@ namespace AccountManagement.Domain
         {
             //Ensure that it is impossible to call with invalid arguments. 
             //Since these types all ensure that it is impossible to create a non-default value that is invalid we only have to disallow default values.
-            Contract.Arguments(() => email, () => password, () => accountId).NotNullOrDefault();
+            Contract.Argument(() => email, () => password, () => accountId).NotNullOrDefault();
 
             //The email is the unique identifier for logging into the account so obviously duplicates are forbidden.
             duplicateAccountChecker.AssertAccountDoesNotExist(email);
@@ -59,8 +59,8 @@ namespace AccountManagement.Domain
 
         public void ChangePassword(string oldPassword, Password newPassword)
         {
-            Contract.Arguments(() => newPassword).NotNullOrDefault();
-            Contract.Arguments(() => oldPassword).NotNullEmptyOrWhiteSpace();
+            Contract.Argument(() => newPassword).NotNullOrDefault();
+            Contract.Argument(() => oldPassword).NotNullEmptyOrWhiteSpace();
 
             Password.AssertIsCorrectPassword(oldPassword);
 
@@ -69,7 +69,7 @@ namespace AccountManagement.Domain
 
         public void ChangeEmail(Email email)
         {
-            Contract.Arguments(() => email).NotNullOrDefault();
+            Contract.Argument(() => email).NotNullOrDefault();
 
             RaiseEvent(new UserChangedAccountEmailEvent(email));
         }

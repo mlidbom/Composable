@@ -11,9 +11,9 @@ namespace Composable.Contracts.Tests
         public void ThrowsEnumerableIsEmptyException()
         {
             var emptyStringList = new List<string>();
-            Assert.Throws<EnumerableIsEmptyContractViolationException>(() => Contract.Arguments(() => emptyStringList).NotNullOrEmptyEnumerable());
+            Assert.Throws<EnumerableIsEmptyContractViolationException>(() => Contract.Argument(() => emptyStringList).NotNullOrEmptyEnumerable());
 
-            var exception = Assert.Throws<EnumerableIsEmptyContractViolationException>(() => Contract.Arguments(() => emptyStringList).NotNullOrEmptyEnumerable());
+            var exception = Assert.Throws<EnumerableIsEmptyContractViolationException>(() => Contract.Argument(() => emptyStringList).NotNullOrEmptyEnumerable());
             exception.BadValue.Type.Should().Be(InspectionType.Argument);
 
             exception = Assert.Throws<EnumerableIsEmptyContractViolationException>(() => Contract.Invariant(() => emptyStringList).NotNullOrEmptyEnumerable());

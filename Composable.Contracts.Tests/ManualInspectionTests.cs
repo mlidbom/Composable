@@ -11,7 +11,7 @@ namespace Composable.Contracts.Tests
         {
             var nameArgument = "bad";
 
-            Assert.Throws<ContractViolationException>(() => Contract.Arguments(() => nameArgument).Inspect(value => value != nameArgument));
+            Assert.Throws<ContractViolationException>(() => Contract.Argument(() => nameArgument).Inspect(value => value != nameArgument));
         }
 
         [Test]
@@ -19,7 +19,7 @@ namespace Composable.Contracts.Tests
         {
             var nameargument = "bad";
 
-            Assert.Throws<ContractViolationException>(() => Contract.Arguments(() => nameargument).Inspect(value => value != nameargument))
+            Assert.Throws<ContractViolationException>(() => Contract.Argument(() => nameargument).Inspect(value => value != nameargument))
                 .Message.Should().Contain("nameargument");
         }
     }

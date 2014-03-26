@@ -31,10 +31,10 @@ namespace Composable.Contracts.Tests
             Expression<Func<TInspected>> fetchInspected = () => goodValue;
             var inspectedName = ContractsExpression.ExtractName(fetchInspected);
 
-            var inspected = Contract.Arguments(() => goodValue);
+            var inspected = Contract.Argument(() => goodValue);
             assert(inspected);
 
-            inspected = Contract.Arguments(() => goodValue);
+            inspected = Contract.Argument(() => goodValue);
             assert(inspected);
 
             inspected = Contract.Invariant(() => goodValue);
@@ -49,14 +49,14 @@ namespace Composable.Contracts.Tests
             Expression<Func<TInspected>> fetchInspected = () => inspectedValue;
             var inspectedName = ContractsExpression.ExtractName(fetchInspected);
 
-            var inspected = Contract.Arguments(() => inspectedValue);
+            var inspected = Contract.Argument(() => inspectedValue);
             AssertThrows<TException, TInspected>(
                 inspected: inspected,
                 assert: assert,
                 inspectionType: InspectionType.Argument,
                 badValueName: inspectedName);
 
-            inspected = Contract.Arguments(() => inspectedValue, () => inspectedValue);
+            inspected = Contract.Argument(() => inspectedValue, () => inspectedValue);
             AssertThrows<TException, TInspected>(
                 inspected: inspected,
                 assert: assert,

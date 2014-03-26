@@ -17,7 +17,7 @@ namespace AccountManagement.Domain.Tests.AccountTests
         [Test]
         public void WhenEmailIsNullObjectIsNullExceptionIsThrown()
         {
-            Assert.Throws<ObjectIsNullException>(() => _account.ChangeEmail(null));
+            Assert.Throws<ObjectIsNullContractViolationException>(() => _account.ChangeEmail(null));
         }
     }
 }

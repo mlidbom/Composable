@@ -10,16 +10,16 @@ namespace Composable.Contracts
         {
             me.Inspect(
                 inspected => !ReferenceEquals(inspected, null),
-                badValue => new ObjectIsNullException(badValue));
+                badValue => new ObjectIsNullContractViolationException(badValue));
 
             return me.Inspect(
                 inspected => inspected.Cast<object>().Any(),
-                badValue => new EnumerableIsEmptyException(badValue));
+                badValue => new EnumerableIsEmptyContractViolationException(badValue));
         }
     }
 
-    public class EnumerableIsEmptyException : ContractException
+    public class EnumerableIsEmptyContractViolationException : ContractViolationException
     {
-        public EnumerableIsEmptyException(InspectedValue badValue) : base(badValue) {}
+        public EnumerableIsEmptyContractViolationException(InspectedValue badValue) : base(badValue) {}
     }
 }

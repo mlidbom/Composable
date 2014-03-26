@@ -32,27 +32,27 @@ namespace AccountManagement.Domain.Tests.AccountTests
         public void WhenPasswordIsNullObjectIsNullExceptionIsThrown()
         {
             _registerAccountScenario.Password = null;
-            Assert.Throws<ObjectIsNullException>(() => _registerAccountScenario.Execute());
+            Assert.Throws<ObjectIsNullContractViolationException>(() => _registerAccountScenario.Execute());
         }
 
         [Test]
         public void WhenEmailIsNullObjectIsNullExceptionIsThrown()
         {
             _registerAccountScenario.Email = null;
-            Assert.Throws<ObjectIsNullException>(() => _registerAccountScenario.Execute());
+            Assert.Throws<ObjectIsNullContractViolationException>(() => _registerAccountScenario.Execute());
         }
 
         [Test]
         public void WhenAccountIdIsEmptyObjectIsDefaultExceptionIsThrown()
         {
             _registerAccountScenario.AccountId = Guid.Empty;
-            Assert.Throws<ObjectIsDefaultException>(() => _registerAccountScenario.Execute());
+            Assert.Throws<ObjectIsDefaultContractViolationException>(() => _registerAccountScenario.Execute());
         }
 
         [Test]
         public void WhenRepositoryIsNullObjectIsNullExceptionIsThrown()
         {
-            Assert.Throws<ObjectIsDefaultException>(
+            Assert.Throws<ObjectIsDefaultContractViolationException>(
                 () => Account.Register(_registerAccountScenario.Email, _registerAccountScenario.Password, Guid.Empty, _repository, _duplicateAccountChecker));
         }
     }

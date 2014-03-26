@@ -8,7 +8,7 @@ namespace Composable.Contracts
         {
             return me.Inspect(
                 inspected => inspected != Guid.Empty,
-                badValue => new GuidIsEmptyException(badValue));
+                badValue => new GuidIsEmptyContractViolationException(badValue));
         }
     }
 }

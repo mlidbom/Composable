@@ -14,7 +14,7 @@ namespace Composable.Contracts.Tests
             IEnumerable<TInspected> badValues,
             IEnumerable<TInspected> goodValues
             )
-            where TException : ContractException
+            where TException : ContractViolationException
         {
             foreach(var badValue in badValues)
             {
@@ -51,7 +51,7 @@ namespace Composable.Contracts.Tests
         }
 
         public static void InspectBadValue<TException, TInspected>(Action<Inspected<TInspected>> assert, TInspected inspectedValue)
-            where TException : ContractException
+            where TException : ContractViolationException
         {
             Expression<Func<TInspected>> fetchInspected = () => inspectedValue;
             var inspectedName = ExpressionUtil.ExtractMemberName(fetchInspected);
@@ -140,7 +140,7 @@ namespace Composable.Contracts.Tests
             Action<Inspected<TInspected>> assert,
             InspectionType inspectionType,
             string badValueName)
-            where TException : ContractException
+            where TException : ContractViolationException
         {
             var exception = Assert.Throws<TException>(() => assert(inspected));
 

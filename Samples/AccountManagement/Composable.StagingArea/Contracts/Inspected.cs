@@ -10,7 +10,7 @@ namespace Composable.Contracts
         {
             if(buildException == null)
             {
-                buildException = badValue => new ContractException(badValue);
+                buildException = badValue => new ContractViolationException(badValue);
             }
 
             //Yes the loop is not as pretty as a linq expression but this is performance critical code that might run in tight loops. If it was not I would be using linq.

@@ -16,25 +16,25 @@ namespace Composable.Contracts.Tests
             string okString = "okString";
             string emptyString = "";
             string nullString = null;
-            Assert.Throws<ObjectIsNullException>(() => Contract.Arguments(() => nullString).NotNull())
+            Assert.Throws<ObjectIsNullContractViolationException>(() => Contract.Arguments(() => nullString).NotNull())
                 .Message.Should().Contain("nullString");
 
-            Assert.Throws<ObjectIsNullException>(() => Contract.Arguments(() => okString, () => nullString, () => notNullObject).NotNull())
+            Assert.Throws<ObjectIsNullContractViolationException>(() => Contract.Arguments(() => okString, () => nullString, () => notNullObject).NotNull())
                 .Message.Should().Contain("nullString");
 
-            Assert.Throws<StringIsEmptyException>(() => Contract.Arguments(() => okString, () => emptyString).NotNullOrEmpty())
+            Assert.Throws<StringIsEmptyContractViolationException>(() => Contract.Arguments(() => okString, () => emptyString).NotNullOrEmpty())
                 .Message.Should().Contain("emptyString");
 
-            Assert.Throws<ObjectIsNullException>(() => TestStringsForNullOrEmpty(nullString))
+            Assert.Throws<ObjectIsNullContractViolationException>(() => TestStringsForNullOrEmpty(nullString))
                 .Message.Should().Contain("singleString");
 
-            Assert.Throws<ObjectIsNullException>(() => TestStringsForNullOrEmpty(okString, nullString, emptyString))
+            Assert.Throws<ObjectIsNullContractViolationException>(() => TestStringsForNullOrEmpty(okString, nullString, emptyString))
                 .Message.Should().Contain("secondString");
 
-            Assert.Throws<StringIsEmptyException>(() => TestStringsForNullOrEmpty(okString, emptyString, okString))
+            Assert.Throws<StringIsEmptyContractViolationException>(() => TestStringsForNullOrEmpty(okString, emptyString, okString))
                 .Message.Should().Contain("secondString");
 
-            Assert.Throws<StringIsEmptyException>(() => TestStringsForNullOrEmpty(okString, okString, emptyString))
+            Assert.Throws<StringIsEmptyContractViolationException>(() => TestStringsForNullOrEmpty(okString, okString, emptyString))
                 .Message.Should().Contain("thirdString");
         }
 

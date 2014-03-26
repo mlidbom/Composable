@@ -11,26 +11,26 @@ namespace Composable.Contracts.Tests
         public void NotEmptyThrowsStringIsEmptyArgumentExceptionForEmptyString()
         {
             string emptyString = "";
-            Assert.Throws<StringIsEmptyException>(() => Contract.Optimized.Arguments(emptyString).NotNullOrEmpty());
+            Assert.Throws<StringIsEmptyContractViolationException>(() => Contract.Optimized.Arguments(emptyString).NotNullOrEmpty());
 
-            Assert.Throws<StringIsEmptyException>(() => Contract.Arguments(() => emptyString).NotNullOrEmpty());
+            Assert.Throws<StringIsEmptyContractViolationException>(() => Contract.Arguments(() => emptyString).NotNullOrEmpty());
         }
 
         [Test]
         public void UsesArgumentNameForExceptionMessage()
         {
             string emptyString = "";
-            Assert.Throws<StringIsEmptyException>(() => Contract.Optimized.Argument(emptyString, "emptyString").NotNullOrEmpty())
+            Assert.Throws<StringIsEmptyContractViolationException>(() => Contract.Optimized.Argument(emptyString, "emptyString").NotNullOrEmpty())
                 .Message.Should().Contain("emptyString");
 
-            Assert.Throws<StringIsEmptyException>(() => Contract.Arguments(() => emptyString).NotNullOrEmpty())
+            Assert.Throws<StringIsEmptyContractViolationException>(() => Contract.Arguments(() => emptyString).NotNullOrEmpty())
                 .Message.Should().Contain("emptyString");
         }
 
         [Test]
         public void ThrowsStringIsEmptyForEmptyStrings()
         {
-            InspectionTestHelper.BatchTestInspection<StringIsEmptyException, string>(
+            InspectionTestHelper.BatchTestInspection<StringIsEmptyContractViolationException, string>(
                 inspected => inspected.NotNullOrEmpty(),
                 badValues: new List<string> {"", ""},
                 goodValues: new List<string> {"a", "aa", "aaa"});
@@ -39,7 +39,7 @@ namespace Composable.Contracts.Tests
         [Test]
         public void ThrowsObjectIsNullForNullStrings()
         {
-            InspectionTestHelper.BatchTestInspection<ObjectIsNullException, string>(
+            InspectionTestHelper.BatchTestInspection<ObjectIsNullContractViolationException, string>(
                 inspected => inspected.NotNullOrEmpty(),
                 badValues: new List<string> {null, null},
                 goodValues: new List<string> {"a", "aa", "aaa"});

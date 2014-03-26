@@ -93,35 +93,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Contracts\ExpressionUtil.cs" />
-    <Compile Include="Contracts\EnumerableInspector.cs" />
-    <Compile Include="Contracts\GuidInspector.cs" />
-    <Compile Include="Contracts\GuidIsEmptyContractViolationException.cs" />
-    <Compile Include="Contracts\InspectedValue.cs" />
-    <Compile Include="Contracts\InspectionType.cs" />
-    <Compile Include="Contracts\InvalidAccessorLambdaException.cs" />
-    <Compile Include="Contracts\ObjectIsDefaultContractViolationException.cs" />
-    <Compile Include="Contracts\ObjectIsNullContractViolationException.cs" />
-    <Compile Include="Contracts\ObjectInspector.cs" />
-    <Compile Include="Contracts\Contract.cs" />
-    <Compile Include="Contracts\ContractViolationException.cs" />
-    <Compile Include="Contracts\Inspected.cs" />
-    <Compile Include="Contracts\Tests\EnumerableEmptyTests.cs" />
-    <Compile Include="Contracts\Tests\ExpressionValueExtractor.cs" />
-    <Compile Include="Contracts\Tests\InspectionTestHelper.cs" />
-    <Compile Include="Contracts\Tests\LambdaBasedArgumentSpecsTests.cs" />
-    <Compile Include="Contracts\Tests\ObjectNotDefaultTests.cs" />
-    <Compile Include="Contracts\Tests\ObjectNotNullOrDefaultTests.cs" />
-    <Compile Include="Contracts\StringInspector.cs" />
-    <Compile Include="Contracts\StringIsEmptyContractViolationException.cs" />
-    <Compile Include="Contracts\StringIsWhitespaceContractViolationException.cs" />
-    <Compile Include="Contracts\Tests\ManualInspectionTests.cs" />
-    <Compile Include="Contracts\Tests\ReturnValueContractHelper.cs" />
-    <Compile Include="Contracts\Tests\StringNotNullOrEmptyTests.cs" />
-    <Compile Include="Contracts\Tests\GuidNotEmptyTests.cs" />
-    <Compile Include="Contracts\Tests\NotNullOrEmptyOrWhitespaceTests.cs" />
-    <Compile Include="Contracts\Tests\ObjectNotNullTests.cs" />
-    <Compile Include="Contracts\Tests\ReturnTests.cs" />
     <Compile Include="CQRS\Windsor\Testing\ForTestsEventHandlerInstallerBase.cs" />
     <Compile Include="CQRS\Windsor\Testing\WindsorRegistrationTesterExtensions.cs" />
     <Compile Include="CQRS\Windsor\WindsorUnitOfWorkExtensions.cs" />

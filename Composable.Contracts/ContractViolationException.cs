@@ -1,5 +1,4 @@
 using System;
-using Composable.System;
 
 namespace Composable.Contracts
 {
@@ -15,6 +14,6 @@ namespace Composable.Contracts
 
         public InspectedValue BadValue { get; private set; }
 
-        override public string Message { get { return "{0}: {1}".FormatWith(BadValue.Type, BadValue.Name); } }
+        override public string Message { get { return string.Format("{0}: {1}", BadValue.Type, BadValue.Name); } }
     }
 }

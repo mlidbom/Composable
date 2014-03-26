@@ -6,9 +6,9 @@ namespace Composable.Contracts
 {
     public static class ContractsExpression
     {
-        public static string ExtractName<TValue>(Expression<Func<TValue>> func)
+        public static string ExtractName<TValue>(Expression<Func<TValue>> fetchValue)
         {
-            return ExtractName((LambdaExpression)func);
+            return ExtractName((LambdaExpression)fetchValue);
         }
 
         private static string ExtractName(LambdaExpression lambda)
@@ -34,9 +34,9 @@ namespace Composable.Contracts
             throw new InvalidAccessorLambdaException();
         }
 
-        public static TValue ExtractValue<TValue>(Expression<Func<TValue>> func)
+        public static TValue ExtractValue<TValue>(Expression<Func<TValue>> fetchValue)
         {
-            return (TValue)GetExpressionValue(func.Body);
+            return (TValue)GetExpressionValue(fetchValue.Body);
         }
 
         private static object GetExpressionValue(Expression expression)

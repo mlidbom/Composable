@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using AccountManagement.UI.Commands.UserCommands;
 using FluentAssertions;
@@ -17,7 +16,8 @@ namespace AccountManagement.UI.Commands.Tests.UserCommands
         {
             _registerAccountCommand = new RegisterAccountCommand()
                        {
-                           Email = "valid.email@google.com"
+                           Email = "valid.email@google.com",
+                           Password = "AComplex!1Password"
                        };
         }
         [Test]
@@ -34,12 +34,26 @@ namespace AccountManagement.UI.Commands.Tests.UserCommands
             Validate(_registerAccountCommand).Should().NotBeEmpty();
         }
 
+        [Test]
+        public void IsInvalidIfPasswordIsNull()
+        {
+            _registerAccountCommand.Password = null;
+            Validate(_registerAccountCommand).Should().NotBeEmpty();
+        }
+
+        [Test]
+        public void IsInvalidIfPasswordDoesNotMatchPolicy()
+        {
+            _registerAccountCommand.Password = "a";
+            Validate(_registerAccountCommand).Should().NotBeEmpty();
+        }
+
         private IEnumerable<ValidationResult> Validate(object command)
         {
             var context = new ValidationContext(command, serviceProvider: null, items: null);
             var results = new List<ValidationResult>();
 
-            var isValid = Validator.TryValidateObject(command, context, results, validateAllProperties: true);
+            Validator.TryValidateObject(command, context, results, validateAllProperties: true);
             return results;
         }
     }

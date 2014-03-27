@@ -72,6 +72,10 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\AccountManagement.Domain.Shared\AccountManagement.Domain.Shared.csproj">
+      <Project>{CA31649D-A11B-45F6-9D17-2E716F11ADFA}</Project>
+      <Name>AccountManagement.Domain.Shared</Name>
+    </ProjectReference>
     <ProjectReference Include="..\AccountManagement.UI.Commands\AccountManagement.UI.Commands.csproj">
       <Project>{19b23e13-70e8-4e18-a2fa-f0c3f37313fe}</Project>
       <Name>AccountManagement.UI.Commands</Name>

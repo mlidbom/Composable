@@ -54,6 +54,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="UserCommands\EmailAttribute.cs" />
+    <Compile Include="UserCommands\PasswordAttribute.cs" />
     <Compile Include="UserCommands\RegisterAccountCommand.cs" />
     <Compile Include="UserCommands\RegisterAccountCommandResources.Designer.cs">
       <AutoGen>True</AutoGen>

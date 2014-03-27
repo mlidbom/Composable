@@ -61,11 +61,38 @@ namespace AccountManagement.UI.Commands.UserCommands {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to .
+        ///   Looks up a localized string similar to The email is invalid..
         /// </summary>
-        internal static string InvalidEmail {
+        internal static string EmailInvalid {
             get {
-                return ResourceManager.GetString("InvalidEmail", resourceCulture);
+                return ResourceManager.GetString("EmailInvalid", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The email is missing..
+        /// </summary>
+        internal static string EmailMissing {
+            get {
+                return ResourceManager.GetString("EmailMissing", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The password is invalid..
+        /// </summary>
+        internal static string PasswordInvalid {
+            get {
+                return ResourceManager.GetString("PasswordInvalid", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The password is missing..
+        /// </summary>
+        internal static string PasswordMissing {
+            get {
+                return ResourceManager.GetString("PasswordMissing", resourceCulture);
             }
         }
     }

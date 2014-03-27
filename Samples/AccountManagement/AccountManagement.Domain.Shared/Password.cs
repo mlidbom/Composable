@@ -16,7 +16,7 @@ namespace AccountManagement.Domain.Shared
             Policy.AssertPasswordMatchesPolicy(password); //Use a nested class to make the policy easily discoverable while keeping this class short and expressive.
             Salt = Guid.NewGuid().ToByteArray();
             HashedPassword = PasswordHasher.HashPassword(salt: Salt, password: password);
-                //Use a private nested class to keep this class short and readable while keeping the hashing logic private.
+            //Use a private nested class to keep this class short and readable while keeping the hashing logic private.
         }
 
         /// <summary>
@@ -26,7 +26,7 @@ namespace AccountManagement.Domain.Shared
         public bool IsCorrectPassword(string password)
         {
             return HashedPassword.SequenceEqual(PasswordHasher.HashPassword(Salt, password));
-                //Use a private nested class to keep this class short and readable while keeping the hashing logic private.
+            //Use a private nested class to keep this class short and readable while keeping the hashing logic private.
         }
 
         public void AssertIsCorrectPassword(string attemptedPassword)

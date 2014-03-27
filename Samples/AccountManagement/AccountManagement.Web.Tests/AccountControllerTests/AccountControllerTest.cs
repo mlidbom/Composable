@@ -9,8 +9,8 @@ namespace AccountManagement.Web.Tests.AccountControllerTests
 
         [SetUp]
         public void CreateController()
-        {            
+        {
             Controller = Container.Resolve<AccountController>();
-        }        
+        }
     }
 }

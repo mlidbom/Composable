@@ -70,14 +70,14 @@ namespace AccountManagement.UI.QueryModels.Tests.ContainerInstallers
             var accountQueryModel = new AccountQueryModel();
             ((ISingleAggregateQueryModel)accountQueryModel).SetId(Guid.NewGuid());
 
-            using (Container.BeginScope())
+            using(Container.BeginScope())
             {
                 Container.Resolve<IAccountManagementQueryModelSession>().Save(accountQueryModel);
                 Container.Resolve<IAccountManagementQueryModelSession>().Get<AccountQueryModel>(accountQueryModel.Id);
             }
 
             Container.ResetTestDataBases();
-            using (Container.BeginScope())
+            using(Container.BeginScope())
             {
                 Assert.Throws<NoSuchDocumentException>(() => Container.Resolve<IAccountManagementQueryModelSession>().Get<AccountQueryModel>(accountQueryModel.Id));
             }

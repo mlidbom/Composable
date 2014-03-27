@@ -1,5 +1,4 @@
-﻿using System;
-using AccountManagement.Domain.Services;
+﻿using AccountManagement.Domain.Services;
 using AccountManagement.TestHelpers.Scenarios;
 using Castle.MicroKernel.Lifestyle;
 using Castle.MicroKernel.Registration;
@@ -77,7 +76,7 @@ namespace AccountManagement.Domain.Tests.ContainerInstallers
             using(Container.BeginScope())
             {
                 Assert.Throws<AggregateRootNotFoundException>(() => Container.Resolve<IAccountManagementEventStoreSession>().Get<Account>(account.Id));
-            }            
+            }
         }
     }
 }

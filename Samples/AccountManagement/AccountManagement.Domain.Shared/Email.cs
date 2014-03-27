@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Text.RegularExpressions;
 using Composable.DDD;
-using Composable.System;
 
 namespace AccountManagement.Domain.Shared
 {
@@ -27,7 +26,7 @@ namespace AccountManagement.Domain.Shared
 
         public static bool IsValidEmail(string emailAddress)
         {
-            if (string.IsNullOrWhiteSpace(emailAddress))
+            if(string.IsNullOrWhiteSpace(emailAddress))
             {
                 return false;
             }
@@ -35,17 +34,17 @@ namespace AccountManagement.Domain.Shared
             var regex = new Regex(@"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$");
             var isMatch = regex.IsMatch(emailAddress);
 
-            if (!isMatch)
+            if(!isMatch)
             {
                 return false;
             }
 
-            if (emailAddress.Contains(".."))
+            if(emailAddress.Contains(".."))
             {
                 return false;
             }
 
-            if (emailAddress.Contains("@.") || emailAddress.Contains(".@"))
+            if(emailAddress.Contains("@.") || emailAddress.Contains(".@"))
             {
                 return false;
             }
@@ -63,7 +62,7 @@ namespace AccountManagement.Domain.Shared
             if(!IsValidEmail(emailAddress))
             {
                 throw new InvalidEmailException(emailAddress ?? "[null]");
-            }           
+            }
         }
     }
 

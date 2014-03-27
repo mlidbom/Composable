@@ -7,8 +7,8 @@ namespace AccountManagement.Domain.Events.Implementation
 {
     public class UserChangedAccountPassword : AggregateRootEvent, IUserChangedAccountPasswordEvent
     {
-        [Obsolete("NServicebus requires this constructor to exist.", true), UsedImplicitly]//ncrunch: no coverage
-        public UserChangedAccountPassword() { }//ncrunch: no coverage
+        [Obsolete("NServicebus requires this constructor to exist.", true), UsedImplicitly] //ncrunch: no coverage
+        public UserChangedAccountPassword() {} //ncrunch: no coverage
 
         public UserChangedAccountPassword(Password password)
         {

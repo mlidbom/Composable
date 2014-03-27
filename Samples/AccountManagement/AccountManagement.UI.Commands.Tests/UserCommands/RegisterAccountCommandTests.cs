@@ -21,6 +21,7 @@ namespace AccountManagement.UI.Commands.Tests.UserCommands
                                           Email = "valid.email@google.com",
                                           Password = "AComplex!1Password"
                                       };
+            Validate(_registerAccountCommand).Should().BeEmpty();
         }
 
         [Test]

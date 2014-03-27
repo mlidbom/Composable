@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
+using AccountManagement.UI.Commands.ValidationAttributes;
 using Composable.DDD;
 
 namespace AccountManagement.UI.Commands.UserCommands

@@ -2,7 +2,7 @@
 using AccountManagement.Domain.Shared;
 using Composable.System.Linq;
 
-namespace AccountManagement.UI.Commands.UserCommands
+namespace AccountManagement.UI.Commands.ValidationAttributes
 {
     public class PasswordAttribute : ValidationAttribute
     {        

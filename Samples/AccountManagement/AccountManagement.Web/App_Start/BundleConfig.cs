@@ -1,6 +1,6 @@
 ﻿using System.Web.Optimization;
 
-namespace AccountManagement.Web
+namespace AccountManagement.UI.Web
 {
     public class BundleConfig
     {

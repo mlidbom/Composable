@@ -1,7 +1,7 @@
 ﻿using Castle.MicroKernel.Registration;
 using NUnit.Framework;
 
-namespace AccountManagement.Web.Tests
+namespace AccountManagement.UI.Web.Tests
 {
     public abstract class AuthenticatedControllerTest : ControllerTest
     {

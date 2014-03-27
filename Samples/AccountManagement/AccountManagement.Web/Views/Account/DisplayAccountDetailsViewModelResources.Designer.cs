@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace AccountManagement.Web.Views.Account {
+namespace AccountManagement.UI.Web.Views.Account {
     using System;
     
     
@@ -39,7 +39,7 @@ namespace AccountManagement.Web.Views.Account {
         internal static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
-                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("AccountManagement.Web.Views.Account.DisplayAccountDetailsViewModelResources", typeof(DisplayAccountDetailsViewModelResources).Assembly);
+                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("AccountManagement.UI.Web.Views.Account.DisplayAccountDetailsViewModelResources", typeof(DisplayAccountDetailsViewModelResources).Assembly);
                     resourceMan = temp;
                 }
                 return resourceMan;

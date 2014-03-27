@@ -1,9 +1,9 @@
 ﻿using System.Web.Mvc;
 using AccountManagement.UI.QueryModels;
 using AccountManagement.UI.QueryModels.Services;
-using AccountManagement.Web.Views.Account;
+using AccountManagement.UI.Web.Views.Account;
 
-namespace AccountManagement.Web.Controllers
+namespace AccountManagement.UI.Web.Controllers
 {
     public class AccountController : Controller
     {

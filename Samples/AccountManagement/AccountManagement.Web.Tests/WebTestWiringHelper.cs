@@ -2,7 +2,7 @@
 using Castle.Windsor;
 using Composable.CQRS.Windsor.Testing;
 
-namespace AccountManagement.Web.Tests
+namespace AccountManagement.UI.Web.Tests
 {
     public static class WebTestWiringHelper
     {

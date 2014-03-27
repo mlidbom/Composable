@@ -6,7 +6,7 @@ using Composable.CQRS.ServiceBus.NServiceBus;
 using Composable.ServiceBus;
 using JetBrains.Annotations;
 
-namespace AccountManagement.Web
+namespace AccountManagement.UI.Web
 {
     [UsedImplicitly]
     public class ApplicationBootstrapper

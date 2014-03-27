@@ -1,10 +1,10 @@
 ﻿using AccountManagement.Domain;
 using AccountManagement.TestHelpers.Scenarios;
-using AccountManagement.Web.Views.Account;
+using AccountManagement.UI.Web.Views.Account;
 using FluentAssertions;
 using NUnit.Framework;
 
-namespace AccountManagement.Web.Tests.AccountControllerTests
+namespace AccountManagement.UI.Web.Tests.AccountControllerTests
 {
     public class DisplayAccountInformationTests : AccountControllerTest
     {

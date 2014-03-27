@@ -7,8 +7,8 @@
     <ProjectGuid>{E369430C-BBF1-43C0-BC0F-073BD4F72C44}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>AccountManagement.Web.Tests</RootNamespace>
-    <AssemblyName>AccountManagement.Web.Tests</AssemblyName>
+    <RootNamespace>AccountManagement.UI.Web.Tests</RootNamespace>
+    <AssemblyName>AccountManagement.UI.Web.Tests</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
@@ -189,9 +189,9 @@
       <Project>{5d9f2751-088c-422f-b251-0852e890a3e2}</Project>
       <Name>AccountManagement.UI.QueryModels</Name>
     </ProjectReference>
-    <ProjectReference Include="..\AccountManagement.Web\AccountManagement.Web.csproj">
+    <ProjectReference Include="..\AccountManagement.Web\AccountManagement.UI.Web.csproj">
       <Project>{659a36c3-5645-4f93-bc42-0c9a09375660}</Project>
-      <Name>AccountManagement.Web</Name>
+      <Name>AccountManagement.UI.Web</Name>
     </ProjectReference>
     <ProjectReference Include="..\Composable.StagingArea\Composable.StagingArea.csproj">
       <Project>{D1024299-495B-4F81-B182-6336F1D30210}</Project>

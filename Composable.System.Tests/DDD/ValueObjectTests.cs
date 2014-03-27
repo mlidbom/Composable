@@ -27,13 +27,13 @@ namespace Composable.Tests.DDD
             public Address()
             {}
 
-            public string Address1 { get { return _address1; } }
+            public string Address1 { get { return _address1; } }//ncrunch: no coverage
 
-            public string City { get { return _city; } }
+            public string City { get { return _city; } }//ncrunch: no coverage
 
             public string Guid { get; set; }
 
-            public string[] States { get { return _states; } }
+            public string[] States { get { return _states; } }//ncrunch: no coverage
         }
 
         private class GuidHolder : ValueObject<GuidHolder>

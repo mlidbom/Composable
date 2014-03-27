@@ -36,9 +36,9 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AccountManagement.UI.QueryM
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AccountManagement.UI.QueryModels.Tests", "AccountManagement.UI.QueryModels.Tests\AccountManagement.UI.QueryModels.Tests.csproj", "{F662E60F-F2BA-4245-A405-9024A294C90D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AccountManagement.Web", "AccountManagement.Web\AccountManagement.Web.csproj", "{659A36C3-5645-4F93-BC42-0C9A09375660}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AccountManagement.UI.Web", "AccountManagement.Web\AccountManagement.UI.Web.csproj", "{659A36C3-5645-4F93-BC42-0C9A09375660}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AccountManagement.Web.Tests", "AccountManagement.Web.Tests\AccountManagement.Web.Tests.csproj", "{E369430C-BBF1-43C0-BC0F-073BD4F72C44}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AccountManagement.UI.Web.Tests", "AccountManagement.Web.Tests\AccountManagement.UI.Web.Tests.csproj", "{E369430C-BBF1-43C0-BC0F-073BD4F72C44}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AccountManagement.UI.Commands.Tests", "AccountManagement.UI.Commands.Tests\AccountManagement.UI.Commands.Tests.csproj", "{B09882BB-B432-411A-942E-E1E5C10C0509}"
 EndProject

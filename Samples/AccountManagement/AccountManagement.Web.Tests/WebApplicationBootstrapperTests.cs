@@ -6,7 +6,7 @@ using Composable.ServiceBus;
 using Composable.System.Linq;
 using NUnit.Framework;
 
-namespace AccountManagement.Web.Tests
+namespace AccountManagement.UI.Web.Tests
 {
     [TestFixture]
     public class WebApplicationBootstrapperTests

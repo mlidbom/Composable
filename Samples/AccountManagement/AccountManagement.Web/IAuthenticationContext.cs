@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace AccountManagement.Web
+namespace AccountManagement.UI.Web
 {
     public interface IAuthenticationContext
     {

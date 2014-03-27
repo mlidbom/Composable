@@ -1,7 +1,7 @@
-﻿using AccountManagement.Web.Controllers;
+﻿using AccountManagement.UI.Web.Controllers;
 using NUnit.Framework;
 
-namespace AccountManagement.Web.Tests.AccountControllerTests
+namespace AccountManagement.UI.Web.Tests.AccountControllerTests
 {
     public abstract class AccountControllerTest : AuthenticatedControllerTest
     {

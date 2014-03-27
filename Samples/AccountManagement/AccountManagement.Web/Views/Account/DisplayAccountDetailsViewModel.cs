@@ -1,6 +1,6 @@
 ﻿using Composable.DDD;
 
-namespace AccountManagement.Web.Views.Account
+namespace AccountManagement.UI.Web.Views.Account
 {
     public class DisplayAccountDetailsViewModel : ValueObject<DisplayAccountDetailsViewModel>
     {

@@ -3,7 +3,7 @@ using Castle.MicroKernel.Lifestyle;
 using Castle.Windsor;
 using NUnit.Framework;
 
-namespace AccountManagement.Web.Tests
+namespace AccountManagement.UI.Web.Tests
 {
     [TestFixture]
     public abstract class ControllerTest

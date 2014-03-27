@@ -44,13 +44,13 @@ namespace AccountManagement.Domain.Shared.Tests
                         .Failures.Should()
                         .Contain(Password.Policy.Failures.ShorterThanFourCharacters)
                         .And
-                        .Contain(Password.Policy.Failures.ContainsWhitespace);
+                        .Contain(Password.Policy.Failures.BorderedByWhitespace);
                     it["'Urdu ' whitespace"] = () => Assert.Throws<PasswordDoesNotMatchPolicyException>(() => new Password("Urdu "))
                         .Failures.Should()
-                        .Contain(Password.Policy.Failures.ContainsWhitespace);
+                        .Contain(Password.Policy.Failures.BorderedByWhitespace);
                     it["' Urdu' whitespace"] = () => Assert.Throws<PasswordDoesNotMatchPolicyException>(() => new Password(" Urdu"))
                         .Failures.Should()
-                        .Contain(Password.Policy.Failures.ContainsWhitespace);
+                        .Contain(Password.Policy.Failures.BorderedByWhitespace);
                     it["'urdu' lowercase"] = () => Assert.Throws<PasswordDoesNotMatchPolicyException>(() => new Password("urdu"))
                         .Failures.Should()
                         .Contain(Password.Policy.Failures.MissingUppercaseCharacter);

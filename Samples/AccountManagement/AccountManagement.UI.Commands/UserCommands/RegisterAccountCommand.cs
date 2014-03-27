@@ -8,7 +8,6 @@ namespace AccountManagement.UI.Commands.UserCommands
     public class RegisterAccountCommand : ValueObject<RegisterAccountCommand>
     {
         //Note the use of a custom validation attribute.
-        [Required(ErrorMessageResourceType = typeof(RegisterAccountCommandResources), ErrorMessageResourceName = "IdInvalid")]
         [EntityId(ErrorMessageResourceType = typeof(RegisterAccountCommandResources), ErrorMessageResourceName = "IdMissing")]
         public Guid AccountId { get; set; }
 

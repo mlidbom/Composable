@@ -15,7 +15,10 @@ namespace AccountManagement.Web
         {
             SharedWiring(container);
             container.Register(
-                Component.For<IServiceBus>().ImplementedBy<DualDispatchBus>().LifestylePerWebRequest()
+                Component.For<NServiceBusServiceBus>().LifestylePerWebRequest(),
+                Component.For<SynchronousBus>().ImplementedBy<SynchronousBus>().LifestylePerWebRequest(),
+                Component.For<IServiceBus>().ImplementedBy<DualDispatchBus>().LifestylePerWebRequest(),
+                Component.For<IAuthenticationContext>().ImplementedBy<AuthenticationContext>()
             );
         }
 

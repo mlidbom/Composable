@@ -1,7 +1,11 @@
-﻿using AccountManagement.Domain.Services;
+﻿using System;
+using AccountManagement.Domain.Services;
+using AccountManagement.TestHelpers.Scenarios;
+using Castle.MicroKernel.Lifestyle;
 using Castle.MicroKernel.Registration;
 using Castle.Windsor;
 using Castle.Windsor.Installer;
+using Composable.CQRS.EventSourcing;
 using Composable.CQRS.Windsor.Testing;
 using Composable.ServiceBus;
 using NUnit.Framework;
@@ -58,6 +62,22 @@ namespace AccountManagement.Domain.Tests.ContainerInstallers
         public void SetupTask()
         {
             Container.ConfigureWiringForTestsCallAfterAllOtherWiring();
+        }
+
+        [Test]
+        public void ResettingTestDatabasesRemovesAccounts()
+        {
+            Account account;
+            using(Container.BeginScope())
+            {
+                account = new RegisterAccountScenario(Container).Execute();
+                Container.Resolve<IAccountManagementEventStoreSession>().Get<Account>(account.Id);
+            }
+            Container.ResetTestDataBases();
+            using(Container.BeginScope())
+            {
+                Assert.Throws<AggregateRootNotFoundException>(() => Container.Resolve<IAccountManagementEventStoreSession>().Get<Account>(account.Id));
+            }            
         }
     }
 }

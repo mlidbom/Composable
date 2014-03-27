@@ -7,6 +7,11 @@
   <FrameworkUtilisationTypeForMSpec>UseStaticAnalysis</FrameworkUtilisationTypeForMSpec>
   <FrameworkUtilisationTypeForMSTest>UseStaticAnalysis</FrameworkUtilisationTypeForMSTest>
   <MetricsExclusionList>
+App_Start\BundleConfig.cs:AccountManagement.Web\AccountManagement.Web.csproj
+App_Start\FilterConfig.cs:AccountManagement.Web\AccountManagement.Web.csproj
+App_Start\RouteConfig.cs:AccountManagement.Web\AccountManagement.Web.csproj
+App_Start\WebApiConfig.cs:AccountManagement.Web\AccountManagement.Web.csproj
+Global.asax.cs:AccountManagement.Web\AccountManagement.Web.csproj
 Views\Account\DisplayAccountDetailsViewModelResources.Designer.cs:AccountManagement.Web\AccountManagement.Web.csproj
 </MetricsExclusionList>
 </SolutionConfiguration>

@@ -1,5 +1,9 @@
-﻿using Castle.Windsor;
+﻿using Castle.MicroKernel.Registration;
+using Castle.Windsor;
+using Composable.CQRS.ServiceBus.NServiceBus;
 using Composable.CQRS.Windsor.Testing;
+using Composable.ServiceBus;
+using Composable.System.Linq;
 using NUnit.Framework;
 
 namespace AccountManagement.Web.Tests
@@ -12,14 +16,28 @@ namespace AccountManagement.Web.Tests
         [SetUp]
         public void SetupContainer()
         {
-            _container = WebTestWiringHelper.CreateContainerWithAuthenticationContext();
+            _container = new WindsorContainer();
+            _container.ConfigureWiringForTestsCallBeforeAllOtherWiring();
+            ApplicationBootstrapper.ConfigureContainer(_container);
+
+            _container.Register(
+                Component.For<IServiceBus>().ImplementedBy<SynchronousBus>()
+                    .Named("TestReplacementServiceBus")
+                    .LifestylePerWebRequest()
+                    .IsDefault()
+                );
+
+            _container.ConfigureWiringForTestsCallAfterAllOtherWiring();
         }
 
         [Test]
         public void CanResolveAllComponents()
         {
             _container.RegistrationAssertionHelper()
-                .AllComponentsCanBeResolved();
+                .AllComponentsCanBeResolved(
+                    ignoredServices: Seq.OfTypes<
+                        NServiceBusServiceBus,
+                        IServiceBus>());
         }
     }
 }

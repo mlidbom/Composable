@@ -6,7 +6,6 @@ using Castle.Windsor;
 using Castle.Windsor.Installer;
 using Composable.CQRS.EventHandling;
 using Composable.CQRS.Windsor.Testing;
-using Composable.DDD;
 using Composable.KeyValueStorage;
 using Composable.ServiceBus;
 using NUnit.Framework;
@@ -78,7 +77,7 @@ namespace AccountManagement.UI.QueryModels.Updaters.Tests.ContainerInstallers
             }
 
             Container.ResetTestDataBases();
-            using (Container.BeginScope())
+            using(Container.BeginScope())
             {
                 Assert.Throws<NoSuchDocumentException>(() => Container.Resolve<IAccountManagementQueryModelUpdaterSession>().Get<AccountQueryModel>(accountQueryModel.Id));
             }

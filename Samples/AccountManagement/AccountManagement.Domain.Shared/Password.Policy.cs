@@ -34,14 +34,14 @@ namespace AccountManagement.Domain.Shared
                 {
                     //Don't throw a generic exception or ArgumentException. Throw a specific type that let's clients make use of it easily and safely.
                     throw new PasswordDoesNotMatchPolicyException(passwordPolicyFailures);
-                        //Normally we would include the value to make debugging easier but not for passwords since that would be a security issue. We do make sure to include HOW it was invalid.
+                    //Normally we would include the value to make debugging easier but not for passwords since that would be a security issue. We do make sure to include HOW it was invalid.
                 }
             }
 
             [Flags]
             public enum Failures
             {
-                Null = 1,//Make sure all values are powers of 2 so that the flags can be combined freely.
+                Null = 1, //Make sure all values are powers of 2 so that the flags can be combined freely.
                 MissingUppercaseCharacter = 2,
                 MissingLowerCaseCharacter = 4,
                 ShorterThanFourCharacters = 8,

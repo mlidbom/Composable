@@ -9,7 +9,7 @@ namespace AccountManagement.UI.Commands.ValidationAttributes
         {
             if(value == null)
             {
-                return true;//We validate that values are correct emails. Not that they are present. That is for the Required attribute.
+                return true; //We validate that values are correct emails. Not that they are present. That is for the Required attribute.
             }
             return Email.IsValidEmail((string)value);
         }

@@ -16,11 +16,11 @@ namespace AccountManagement.UI.Commands.Tests.UserCommands
         public void CreateValidCommand()
         {
             _registerAccountCommand = new RegisterAccountCommand()
-                       {
-                           AccountId = Guid.NewGuid(),
-                           Email = "valid.email@google.com",
-                           Password = "AComplex!1Password"
-                       };
+                                      {
+                                          AccountId = Guid.NewGuid(),
+                                          Email = "valid.email@google.com",
+                                          Password = "AComplex!1Password"
+                                      };
         }
 
         [Test]

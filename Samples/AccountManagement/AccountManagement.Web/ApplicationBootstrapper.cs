@@ -19,14 +19,13 @@ namespace AccountManagement.Web
                 Component.For<SynchronousBus>().ImplementedBy<SynchronousBus>().LifestylePerWebRequest(),
                 Component.For<IServiceBus>().ImplementedBy<DualDispatchBus>().LifestylePerWebRequest(),
                 Component.For<IAuthenticationContext>().ImplementedBy<AuthenticationContext>()
-            );
+                );
         }
 
         private static void SharedWiring(IWindsorContainer container)
         {
             container.Register(
                 Component.For<IWindsorContainer>().Instance(container),
-
                 Classes.FromThisAssembly().BasedOn<Controller>().WithServiceSelf().LifestyleTransient()
                 );
 

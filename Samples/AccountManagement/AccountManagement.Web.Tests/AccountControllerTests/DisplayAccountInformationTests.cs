@@ -1,5 +1,4 @@
-﻿using System.Web.Mvc;
-using AccountManagement.Domain;
+﻿using AccountManagement.Domain;
 using AccountManagement.TestHelpers.Scenarios;
 using AccountManagement.Web.Views.Account;
 using FluentAssertions;

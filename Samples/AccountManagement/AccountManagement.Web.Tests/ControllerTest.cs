@@ -8,7 +8,7 @@ namespace AccountManagement.Web.Tests
     [TestFixture]
     public abstract class ControllerTest
     {
-        protected WindsorContainer Container;        
+        protected WindsorContainer Container;
         private IDisposable _scope;
 
         [SetUp]

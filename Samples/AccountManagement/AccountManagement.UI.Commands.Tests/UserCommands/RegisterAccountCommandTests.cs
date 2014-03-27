@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using AccountManagement.UI.Commands.UserCommands;
 using FluentAssertions;
@@ -16,10 +17,19 @@ namespace AccountManagement.UI.Commands.Tests.UserCommands
         {
             _registerAccountCommand = new RegisterAccountCommand()
                        {
+                           AccountId = Guid.NewGuid(),
                            Email = "valid.email@google.com",
                            Password = "AComplex!1Password"
                        };
         }
+
+        [Test]
+        public void IsInvalidifAccountIdIsEmpty()
+        {
+            _registerAccountCommand.AccountId = Guid.Empty;
+            Validate(_registerAccountCommand).Should().NotBeEmpty();
+        }
+
         [Test]
         public void IsInvalidIfEmailIsNull()
         {

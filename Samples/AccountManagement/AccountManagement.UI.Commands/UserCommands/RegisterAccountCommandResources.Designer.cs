@@ -79,6 +79,24 @@ namespace AccountManagement.UI.Commands.UserCommands {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to The account id is invalid..
+        /// </summary>
+        internal static string IdInvalid {
+            get {
+                return ResourceManager.GetString("IdInvalid", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The account id is missing.
+        /// </summary>
+        internal static string IdMissing {
+            get {
+                return ResourceManager.GetString("IdMissing", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to The password is invalid..
         /// </summary>
         internal static string PasswordInvalid {

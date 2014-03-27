@@ -196,6 +196,7 @@
     <Compile Include="App_Start\FilterConfig.cs" />
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="App_Start\WebApiConfig.cs" />
+    <Compile Include="AuthenticationContext.cs" />
     <Compile Include="IAuthenticationContext.cs" />
     <Compile Include="Views\Account\DisplayAccountDetailsViewModel.cs" />
     <Compile Include="Controllers\AccountController.cs" />

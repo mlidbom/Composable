@@ -1,8 +1,12 @@
-﻿using AccountManagement.UI.QueryModels.Services;
+﻿using System;
+using AccountManagement.UI.QueryModels.Services;
+using Castle.MicroKernel.Lifestyle;
 using Castle.MicroKernel.Registration;
 using Castle.Windsor;
 using Castle.Windsor.Installer;
+using Composable.CQRS.EventHandling;
 using Composable.CQRS.Windsor.Testing;
+using Composable.KeyValueStorage;
 using Composable.ServiceBus;
 using NUnit.Framework;
 
@@ -58,6 +62,25 @@ namespace AccountManagement.UI.QueryModels.Tests.ContainerInstallers
         public void SetupTask()
         {
             Container.ConfigureWiringForTestsCallAfterAllOtherWiring();
+        }
+
+        [Test]
+        public void ResettingTestDatabasesRemovesAccountQueryModels()
+        {
+            var accountQueryModel = new AccountQueryModel();
+            ((ISingleAggregateQueryModel)accountQueryModel).SetId(Guid.NewGuid());
+
+            using (Container.BeginScope())
+            {
+                Container.Resolve<IAccountManagementQueryModelSession>().Save(accountQueryModel);
+                Container.Resolve<IAccountManagementQueryModelSession>().Get<AccountQueryModel>(accountQueryModel.Id);
+            }
+
+            Container.ResetTestDataBases();
+            using (Container.BeginScope())
+            {
+                Assert.Throws<NoSuchDocumentException>(() => Container.Resolve<IAccountManagementQueryModelSession>().Get<AccountQueryModel>(accountQueryModel.Id));
+            }
         }
     }
 }

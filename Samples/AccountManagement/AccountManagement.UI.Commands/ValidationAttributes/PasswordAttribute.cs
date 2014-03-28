@@ -10,7 +10,7 @@ namespace AccountManagement.UI.Commands.ValidationAttributes
         {
             if(value == null)
             {
-                return true; //We validate that values are correct emails. Not that they are present. That is for the Required attribute.
+                return true; //We validate that values are correct passwords. Not that they are present. That is the job of the Required attribute.
             }
             return Password.Policy.GetPolicyFailures((string)value).None();
         }

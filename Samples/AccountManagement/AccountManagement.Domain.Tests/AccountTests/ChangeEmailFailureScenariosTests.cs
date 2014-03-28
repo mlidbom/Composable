@@ -1,5 +1,7 @@
-﻿using AccountManagement.TestHelpers.Fixtures;
+﻿using System;
+using AccountManagement.TestHelpers.Fixtures;
 using Composable.Contracts;
+using FluentAssertions;
 using NUnit.Framework;
 
 namespace AccountManagement.Domain.Tests.AccountTests
@@ -17,7 +19,8 @@ namespace AccountManagement.Domain.Tests.AccountTests
         [Test]
         public void WhenEmailIsNullObjectIsNullExceptionIsThrown()
         {
-            Assert.Throws<ObjectIsNullContractViolationException>(() => _account.ChangeEmail(null));
+            _account.Invoking(account => account.ChangeEmail(null))
+                .ShouldThrow<Exception>();
         }
     }
 }

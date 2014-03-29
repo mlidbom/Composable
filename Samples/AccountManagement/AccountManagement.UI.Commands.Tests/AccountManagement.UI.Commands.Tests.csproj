@@ -76,6 +76,10 @@
       <Project>{CA31649D-A11B-45F6-9D17-2E716F11ADFA}</Project>
       <Name>AccountManagement.Domain.Shared</Name>
     </ProjectReference>
+    <ProjectReference Include="..\AccountManagement.TestHelpers\AccountManagement.TestHelpers.csproj">
+      <Project>{688DE4C0-690E-4EF5-AF36-A16BD2D9E930}</Project>
+      <Name>AccountManagement.TestHelpers</Name>
+    </ProjectReference>
     <ProjectReference Include="..\AccountManagement.UI.Commands\AccountManagement.UI.Commands.csproj">
       <Project>{19b23e13-70e8-4e18-a2fa-f0c3f37313fe}</Project>
       <Name>AccountManagement.UI.Commands</Name>

@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Linq;
+using AccountManagement.TestHelpers;
 using AccountManagement.UI.Commands.UserCommands;
 using FluentAssertions;
 using NUnit.Framework;
@@ -55,8 +57,33 @@ namespace AccountManagement.UI.Commands.Tests.UserCommands
         [Test]
         public void IsInvalidIfPasswordDoesNotMatchPolicy()
         {
-            _registerAccountCommand.Password = "a";
-            Validate(_registerAccountCommand).Should().NotBeEmpty();
+            foreach(var invalidPassword in TestData.Password.Invalid.All)
+            {
+                _registerAccountCommand.Password = invalidPassword;
+                Validate(_registerAccountCommand).Should().NotBeEmpty();   
+            }            
+        }
+
+        [Test]
+        public void WhenNotMatchingThePolicyTheFailureTellsHow()
+        {
+            _registerAccountCommand.Password = TestData.Password.Invalid.ShorterThanFourCharacters;
+            ValidateAndGetFirstMessage().Should().Be(RegisterAccountCommandResources.Password_ShorterThanFourCharacters);
+
+            _registerAccountCommand.Password = TestData.Password.Invalid.BorderedByWhiteSpaceAtEnd;
+            ValidateAndGetFirstMessage().Should().Be(RegisterAccountCommandResources.Password_BorderedByWhitespace);
+
+            _registerAccountCommand.Password = TestData.Password.Invalid.MissingLowercaseCharacter;
+            ValidateAndGetFirstMessage().Should().Be(RegisterAccountCommandResources.Password_MissingLowerCaseCharacter);
+
+            _registerAccountCommand.Password = TestData.Password.Invalid.MissingUpperCaseCharacter;
+            ValidateAndGetFirstMessage().Should().Be(RegisterAccountCommandResources.Password_MissingUpperCaseCharacter);
+
+        }
+
+        private string ValidateAndGetFirstMessage()
+        {
+            return Validate(_registerAccountCommand).First().ErrorMessage;
         }
 
         private IEnumerable<ValidationResult> Validate(object command)

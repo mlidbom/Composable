@@ -27,10 +27,15 @@ namespace AccountManagement.UI.Commands.UserCommands
 
         public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
         {
+            return ValidatePassword();
+        }
+
+        private IEnumerable<ValidationResult> ValidatePassword()
+        {
             var policyFailures = Domain.Shared.Password.Policy.GetPolicyFailures(Password).ToList();
             if(!policyFailures.None())
             {
-                switch (policyFailures.First())
+                switch(policyFailures.First())
                 {
                     case Domain.Shared.Password.Policy.Failures.BorderedByWhitespace:
                         yield return this.CreateValidationResult(RegisterAccountCommandResources.Password_BorderedByWhitespace, () => Password);

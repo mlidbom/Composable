@@ -135,4 +135,16 @@
   <data name="PasswordMissing" xml:space="preserve">
     <value>The password is missing.</value>
   </data>
+  <data name="Password_BorderedByWhitespace" xml:space="preserve">
+    <value>The password cannot start or end with a whitespace character.</value>
+  </data>
+  <data name="Password_MissingLowerCaseCharacter" xml:space="preserve">
+    <value>The password must contain a lowercase letter.</value>
+  </data>
+  <data name="Password_MissingUpperCaseCharacter" xml:space="preserve">
+    <value>The password must contain an uppercase letter.</value>
+  </data>
+  <data name="Password_ShorterThanFourCharacters" xml:space="preserve">
+    <value>The password is too short.</value>
+  </data>
 </root>

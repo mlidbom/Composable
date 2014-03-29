@@ -56,7 +56,6 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ValidationAttributes\EmailAttribute.cs" />
     <Compile Include="ValidationAttributes\EntityIdAttribute.cs" />
-    <Compile Include="ValidationAttributes\PasswordAttribute.cs" />
     <Compile Include="UserCommands\RegisterAccountCommand.cs" />
     <Compile Include="UserCommands\RegisterAccountCommandResources.Designer.cs">
       <AutoGen>True</AutoGen>
@@ -76,7 +75,7 @@
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="UserCommands\RegisterAccountCommandResources.resx">
-      <Generator>ResXFileCodeGenerator</Generator>
+      <Generator>PublicResXFileCodeGenerator</Generator>
       <LastGenOutput>RegisterAccountCommandResources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
   </ItemGroup>

@@ -22,7 +22,7 @@ namespace AccountManagement.UI.Commands.UserCommands {
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "4.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    internal class RegisterAccountCommandResources {
+    public class RegisterAccountCommandResources {
         
         private static global::System.Resources.ResourceManager resourceMan;
         
@@ -36,7 +36,7 @@ namespace AccountManagement.UI.Commands.UserCommands {
         ///   Returns the cached ResourceManager instance used by this class.
         /// </summary>
         [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Advanced)]
-        internal static global::System.Resources.ResourceManager ResourceManager {
+        public static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
                     global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("AccountManagement.UI.Commands.UserCommands.RegisterAccountCommandResources", typeof(RegisterAccountCommandResources).Assembly);
@@ -51,7 +51,7 @@ namespace AccountManagement.UI.Commands.UserCommands {
         ///   resource lookups using this strongly typed resource class.
         /// </summary>
         [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Advanced)]
-        internal static global::System.Globalization.CultureInfo Culture {
+        public static global::System.Globalization.CultureInfo Culture {
             get {
                 return resourceCulture;
             }
@@ -63,7 +63,7 @@ namespace AccountManagement.UI.Commands.UserCommands {
         /// <summary>
         ///   Looks up a localized string similar to The email is invalid..
         /// </summary>
-        internal static string EmailInvalid {
+        public static string EmailInvalid {
             get {
                 return ResourceManager.GetString("EmailInvalid", resourceCulture);
             }
@@ -72,7 +72,7 @@ namespace AccountManagement.UI.Commands.UserCommands {
         /// <summary>
         ///   Looks up a localized string similar to The email is missing..
         /// </summary>
-        internal static string EmailMissing {
+        public static string EmailMissing {
             get {
                 return ResourceManager.GetString("EmailMissing", resourceCulture);
             }
@@ -81,7 +81,7 @@ namespace AccountManagement.UI.Commands.UserCommands {
         /// <summary>
         ///   Looks up a localized string similar to The account id is invalid..
         /// </summary>
-        internal static string IdInvalid {
+        public static string IdInvalid {
             get {
                 return ResourceManager.GetString("IdInvalid", resourceCulture);
             }
@@ -90,16 +90,52 @@ namespace AccountManagement.UI.Commands.UserCommands {
         /// <summary>
         ///   Looks up a localized string similar to The account id is missing.
         /// </summary>
-        internal static string IdMissing {
+        public static string IdMissing {
             get {
                 return ResourceManager.GetString("IdMissing", resourceCulture);
             }
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to The password cannot start or end with a whitespace character..
+        /// </summary>
+        public static string Password_BorderedByWhitespace {
+            get {
+                return ResourceManager.GetString("Password_BorderedByWhitespace", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The password must contain a lowercase letter..
+        /// </summary>
+        public static string Password_MissingLowerCaseCharacter {
+            get {
+                return ResourceManager.GetString("Password_MissingLowerCaseCharacter", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The password must contain an uppercase letter..
+        /// </summary>
+        public static string Password_MissingUpperCaseCharacter {
+            get {
+                return ResourceManager.GetString("Password_MissingUpperCaseCharacter", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The password is too short..
+        /// </summary>
+        public static string Password_ShorterThanFourCharacters {
+            get {
+                return ResourceManager.GetString("Password_ShorterThanFourCharacters", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to The password is invalid..
         /// </summary>
-        internal static string PasswordInvalid {
+        public static string PasswordInvalid {
             get {
                 return ResourceManager.GetString("PasswordInvalid", resourceCulture);
             }
@@ -108,7 +144,7 @@ namespace AccountManagement.UI.Commands.UserCommands {
         /// <summary>
         ///   Looks up a localized string similar to The password is missing..
         /// </summary>
-        internal static string PasswordMissing {
+        public static string PasswordMissing {
             get {
                 return ResourceManager.GetString("PasswordMissing", resourceCulture);
             }

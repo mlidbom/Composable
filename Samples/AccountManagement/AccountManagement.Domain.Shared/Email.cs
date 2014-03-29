@@ -61,13 +61,13 @@ namespace AccountManagement.Domain.Shared
         {
             if(!IsValidEmail(emailAddress))
             {
-                throw new InvalidEmailException(emailAddress ?? "[null]");
+                throw new InvalidEmailException(emailAddress);
             }
         }
     }
 
     public class InvalidEmailException : ArgumentException
     {
-        public InvalidEmailException(string message) : base(message) {}
+        public InvalidEmailException(string message) : base(message ?? "[null]") {}
     }
 }

@@ -32,6 +32,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Composable.Contracts">
+      <HintPath>..\packages\Composable.Contracts.0.8.0-develop\lib\net40\Composable.Contracts.dll</HintPath>
+    </Reference>
     <Reference Include="Composable.Core, Version=2.2.0.0, Culture=neutral, PublicKeyToken=0c6b2c03e4c91d22, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\Composable.Core.2.2.0\lib\net40\Composable.Core.dll</HintPath>

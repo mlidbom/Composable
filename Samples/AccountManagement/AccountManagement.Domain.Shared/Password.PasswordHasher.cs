@@ -1,6 +1,7 @@
-﻿using System;
+﻿using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
+using Composable.Contracts;
 
 namespace AccountManagement.Domain.Shared
 {
@@ -10,10 +11,11 @@ namespace AccountManagement.Domain.Shared
         {
             public static byte[] HashPassword(byte[] salt, string password) //Extract to a private nested PasswordHasher class if this class gets uncomfortably long.
             {
+                Contract.Argument(() => salt, () => password).NotNullOrDefault();
+
                 var encodedPassword = Encoding.Unicode.GetBytes(password);
-                var saltedPassword = new byte[salt.Length + encodedPassword.Length];
-                Array.Copy(salt, 0, saltedPassword, 0, salt.Length);
-                Array.Copy(encodedPassword, 0, saltedPassword, salt.Length, encodedPassword.Length);
+                var saltedPassword = salt.Concat(encodedPassword).ToArray();
+
                 using(var algorithm = SHA256.Create())
                 {
                     return algorithm.ComputeHash(saltedPassword);

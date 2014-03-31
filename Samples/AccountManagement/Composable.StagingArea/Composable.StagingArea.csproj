@@ -93,6 +93,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CQRS\AggregateRepository.cs" />
+    <Compile Include="CQRS\IAggregateRepository.cs" />
     <Compile Include="CQRS\Windsor\Testing\ForTestsEventHandlerInstallerBase.cs" />
     <Compile Include="CQRS\Windsor\Testing\WindsorRegistrationTesterExtensions.cs" />
     <Compile Include="CQRS\Windsor\WindsorUnitOfWorkExtensions.cs" />

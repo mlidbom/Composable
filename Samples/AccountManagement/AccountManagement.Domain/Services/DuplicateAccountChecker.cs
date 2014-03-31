@@ -14,7 +14,7 @@ namespace AccountManagement.Domain.Services
 
         public void AssertAccountDoesNotExist(Email email)
         {
-            EmailToAccountMap ignored;
+            EmailToAccountMapQueryModel ignored;
             if(_querymodels.TryGet(email, out ignored))
             {
                 throw new DuplicateAccountException(email);

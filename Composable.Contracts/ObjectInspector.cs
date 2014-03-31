@@ -25,7 +25,7 @@ namespace Composable.Contracts
             where TValue : struct
         {
             return me.Inspect(
-                inspected => !Equals(inspected, Activator.CreateInstance(inspected.GetType())),
+                inspected => !Equals(inspected, default(TValue)),
                 badValue => new ObjectIsDefaultContractViolationException(badValue));
         }
 

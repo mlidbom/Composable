@@ -3,9 +3,9 @@ using AccountManagement.Domain.Shared;
 
 namespace AccountManagement.Domain.QueryModels
 {
-    public class EmailToAccountMap
+    public class EmailToAccountMapQueryModel
     {
-        public EmailToAccountMap(Email email, Guid accountId)
+        public EmailToAccountMapQueryModel(Email email, Guid accountId)
         {
             Email = email;
             AccountId = accountId;

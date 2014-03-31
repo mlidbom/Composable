@@ -70,12 +70,12 @@ namespace AccountManagement.Domain.Tests.ContainerInstallers
             using(Container.BeginScope())
             {
                 account = new RegisterAccountScenario(Container).Execute();
-                Container.Resolve<IAccountManagementEventStoreSession>().Get<Account>(account.Id);
+                Container.Resolve<IAccountRepository>().Get(account.Id);
             }
             Container.ResetTestDataBases();
             using(Container.BeginScope())
             {
-                Assert.Throws<AggregateRootNotFoundException>(() => Container.Resolve<IAccountManagementEventStoreSession>().Get<Account>(account.Id));
+                Assert.Throws<AggregateRootNotFoundException>(() => Container.Resolve<IAccountRepository>().Get(account.Id));
             }
         }
     }

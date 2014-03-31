@@ -37,22 +37,23 @@ namespace AccountManagement.Domain
         /// <para> * makes it impossible to use the class incorrectly, such as forgetting to save the new instance in the repository.</para>
         /// <para> * reduces code duplication since multiple callers are not burdened with saving the instance.</para>
         /// </summary>
-        public static Account Register(Email email,
+        public static Account Register(
+            Email email,
             Password password,
             Guid accountId,
-            IAccountManagementEventStoreSession repository,
+            IAccountRepository repository,
             IDuplicateAccountChecker duplicateAccountChecker)
         {
             //Ensure that it is impossible to call with invalid arguments. 
-            //Since these types all ensure that it is impossible to create a non-default value that is invalid we only have to disallow default values.
-            Contract.Argument(() => email, () => password, () => accountId).NotNullOrDefault();
+            //Since all domain types should ensure that it is impossible to create a non-default value that is invalid we only have to disallow default values.
+            Contract.Argument(() => email, () => password, () => accountId, () => repository, () => duplicateAccountChecker).NotNullOrDefault();
 
             //The email is the unique identifier for logging into the account so obviously duplicates are forbidden.
             duplicateAccountChecker.AssertAccountDoesNotExist(email);
 
             var created = new Account();
             created.RaiseEvent(new UserRegisteredAccountEvent(accountId: accountId, email: email, password: password));
-            repository.Save(created);
+            repository.Add(created);
 
             return Contract.Return(created, inspect => inspect.NotNull());
         }

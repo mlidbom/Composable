@@ -9,14 +9,14 @@ namespace AccountManagement.Domain.Tests.AccountTests
     [TestFixture]
     public class RegisterAccountFailureScenariosTests : DomainTestBase
     {
-        private IAccountManagementEventStoreSession _repository;
         private IDuplicateAccountChecker _duplicateAccountChecker;
         private RegisterAccountScenario _registerAccountScenario;
+        private IAccountRepository _repository;
 
         [SetUp]
         public void SetupWiringAndCreateRepositoryAndScope()
         {
-            _repository = Container.Resolve<IAccountManagementEventStoreSession>();
+            _repository = Container.Resolve<IAccountRepository>();
             _duplicateAccountChecker = Container.Resolve<IDuplicateAccountChecker>();
             _registerAccountScenario = new RegisterAccountScenario(Container);
         }

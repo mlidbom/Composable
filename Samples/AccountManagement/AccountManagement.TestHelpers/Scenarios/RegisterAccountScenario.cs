@@ -24,7 +24,7 @@ namespace AccountManagement.TestHelpers.Scenarios
         {
             using(var transaction = _container.BeginTransactionalUnitOfWorkScope())
             {
-                var repository = _container.Resolve<IAccountManagementEventStoreSession>();
+                var repository = _container.Resolve<IAccountRepository>();
                 var duplicateAccountChecker = _container.Resolve<IDuplicateAccountChecker>();
                 var registered = Account.Register(Email, Password, AccountId, repository, duplicateAccountChecker);
                 transaction.Commit();

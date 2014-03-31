@@ -64,6 +64,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="EntityIdAttributeTests.cs" />
+    <Compile Include="EmailAttributeTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="UserCommands\RegisterAccountCommandTests.cs" />
   </ItemGroup>

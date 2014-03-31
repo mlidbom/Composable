@@ -78,7 +78,13 @@ namespace AccountManagement.UI.Commands.Tests.UserCommands
 
             _registerAccountCommand.Password = TestData.Password.Invalid.MissingUpperCaseCharacter;
             ValidateAndGetFirstMessage().Should().Be(RegisterAccountCommandResources.Password_MissingUpperCaseCharacter);
+        }
 
+        [Test]
+        public void FailsIfUnHandledPolicyFailureIsDetected()
+        {
+            _registerAccountCommand.Password = null; //Null is normally caught by the Require attribute.
+            _registerAccountCommand.Invoking(command => command.Validate(null).ToArray()).ShouldThrow<Exception>();
         }
 
         private string ValidateAndGetFirstMessage()

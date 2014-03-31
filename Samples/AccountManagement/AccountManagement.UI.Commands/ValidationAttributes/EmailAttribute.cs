@@ -7,7 +7,7 @@ namespace AccountManagement.UI.Commands.ValidationAttributes
     {
         override public bool IsValid(object value)
         {
-            if(value == null)
+            if(string.IsNullOrEmpty((string)value))
             {
                 return true; //We validate that values are correct emails. Not that they are present. That is the job of the Required attribute.
             }

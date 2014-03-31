@@ -3,8 +3,9 @@ using System.ComponentModel.DataAnnotations;
 
 namespace AccountManagement.UI.Commands.Tests.UserCommands
 {
-    public class CommandValidator {
-        public static IEnumerable<ValidationResult> Validate(object command)
+    public static class CommandValidator
+    {
+        public static IEnumerable<ValidationResult> ValidationFailures(object command)
         {
             var context = new ValidationContext(command, serviceProvider: null, items: null);
             var results = new List<ValidationResult>();

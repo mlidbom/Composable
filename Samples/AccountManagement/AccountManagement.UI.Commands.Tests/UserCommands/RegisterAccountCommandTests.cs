@@ -23,35 +23,35 @@ namespace AccountManagement.UI.Commands.Tests.UserCommands
                                           Email = "valid.email@google.com",
                                           Password = "AComplex!1Password"
                                       };
-            CommandValidator.Validate(_registerAccountCommand).Should().BeEmpty();
+            CommandValidator.ValidationFailures(_registerAccountCommand).Should().BeEmpty();
         }
 
         [Test]
         public void IsInvalidifAccountIdIsEmpty()
         {
             _registerAccountCommand.AccountId = Guid.Empty;
-            CommandValidator.Validate(_registerAccountCommand).Should().NotBeEmpty();
+            CommandValidator.ValidationFailures(_registerAccountCommand).Should().NotBeEmpty();
         }
 
         [Test]
         public void IsInvalidIfEmailIsNull()
         {
             _registerAccountCommand.Email = null;
-            CommandValidator.Validate(_registerAccountCommand).Should().NotBeEmpty();
+            CommandValidator.ValidationFailures(_registerAccountCommand).Should().NotBeEmpty();
         }
 
         [Test]
         public void IsInvalidIfEmailIsIncorrectFormat()
         {
             _registerAccountCommand.Email = "invalid";
-            CommandValidator.Validate(_registerAccountCommand).Should().NotBeEmpty();
+            CommandValidator.ValidationFailures(_registerAccountCommand).Should().NotBeEmpty();
         }
 
         [Test]
         public void IsInvalidIfPasswordIsNull()
         {
             _registerAccountCommand.Password = null;
-            CommandValidator.Validate(_registerAccountCommand).Should().NotBeEmpty();
+            CommandValidator.ValidationFailures(_registerAccountCommand).Should().NotBeEmpty();
         }
 
         [Test]
@@ -60,7 +60,7 @@ namespace AccountManagement.UI.Commands.Tests.UserCommands
             foreach(var invalidPassword in TestData.Password.Invalid.All)
             {
                 _registerAccountCommand.Password = invalidPassword;
-                CommandValidator.Validate(_registerAccountCommand).Should().NotBeEmpty();   
+                CommandValidator.ValidationFailures(_registerAccountCommand).Should().NotBeEmpty();   
             }            
         }
 
@@ -89,7 +89,7 @@ namespace AccountManagement.UI.Commands.Tests.UserCommands
 
         private string ValidateAndGetFirstMessage()
         {
-            return CommandValidator.Validate(_registerAccountCommand).First().ErrorMessage;
+            return CommandValidator.ValidationFailures(_registerAccountCommand).First().ErrorMessage;
         }
     }
 }

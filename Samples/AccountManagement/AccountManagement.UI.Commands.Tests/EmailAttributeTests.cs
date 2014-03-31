@@ -1,4 +1,5 @@
-﻿using AccountManagement.UI.Commands.ValidationAttributes;
+﻿using AccountManagement.UI.Commands.Tests.UserCommands;
+using AccountManagement.UI.Commands.ValidationAttributes;
 using FluentAssertions;
 using NUnit.Framework;
 
@@ -10,19 +11,28 @@ namespace AccountManagement.UI.Commands.Tests
         [Test]
         public void IsValidIfEmailIsNull()
         {
-            new EmailAttribute().IsValid(null).Should().Be(true);
+            CommandValidator.Validate(new ACommand() {Email = null})
+                .Should().BeEmpty();
         }
 
         [Test]
         public void IsValidIfEmailIsEmpty()
         {
-            new EmailAttribute().IsValid("").Should().Be(true);
+            CommandValidator.Validate(new ACommand() {Email = ""})
+                .Should().BeEmpty();
         }
 
         [Test]
         public void IsNotValidIfEmailIsInvalid()
         {
-            new EmailAttribute().IsValid("aoeustnh").Should().Be(false);
+            CommandValidator.Validate(new ACommand() { Email = "aoeustnh" })
+                .Should().NotBeEmpty();
+        }
+
+        private class ACommand
+        {
+            [Email]
+            public string Email { get; set; }
         }
     }
 }

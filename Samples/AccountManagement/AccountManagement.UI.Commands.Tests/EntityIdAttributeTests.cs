@@ -1,4 +1,5 @@
 ﻿using System;
+using AccountManagement.UI.Commands.Tests.UserCommands;
 using AccountManagement.UI.Commands.ValidationAttributes;
 using FluentAssertions;
 using NUnit.Framework;
@@ -11,13 +12,21 @@ namespace AccountManagement.UI.Commands.Tests
         [Test]
         public void IsValidIfIdIsNull()
         {
-            new EntityIdAttribute().IsValid(null).Should().Be(true);
+            CommandValidator.Validate(new ACommand() {AnId = null})
+                .Should().BeEmpty();
         }
 
         [Test]
         public void IsNotValidIfIdIsEmpty()
         {
-            new EntityIdAttribute().IsValid(Guid.Empty).Should().Be(false);
+            CommandValidator.Validate(new ACommand() { AnId = Guid.Empty })
+                .Should().NotBeEmpty();
+        }
+
+        private class ACommand
+        {
+            [EntityId]
+            public Guid? AnId { get; set; }
         }
     }
 }

@@ -34,6 +34,7 @@ function FixVersion
 Set-Alias Build-Pkg-Internal $scriptRoot\tools\NuGet\NuGet.exe
 
 $CoreVersion = (FixVersion ([System.Diagnostics.FileVersionInfo]::GetVersionInfo("$scriptRoot\Composable.System\Bin\$Configuration\Composable.Core.dll")) $PreVersion)
+$ContractsVersion = (FixVersion ([System.Diagnostics.FileVersionInfo]::GetVersionInfo("$scriptRoot\Composable.Contracts\bin\$Configuration\Composable.Contracts.dll")) $PreVersion)
 $CQRSVersion = (FixVersion ([System.Diagnostics.FileVersionInfo]::GetVersionInfo("$scriptRoot\Composable.CQRS\Bin\$Configuration\Composable.CQRS.dll")) $PreVersion)
 $CQRSNHibernateVersion = (FixVersion ([System.Diagnostics.FileVersionInfo]::GetVersionInfo("$scriptRoot\Composable.CQRS.NHibernate\Bin\$Configuration\Composable.CQRS.NHibernate.dll")) $PreVersion)
 $CQRSServiceBusNServicebusVersion = (FixVersion ([System.Diagnostics.FileVersionInfo]::GetVersionInfo("$scriptRoot\Composable.CQRS.ServiceBus.NServiceBus\Bin\$Configuration\Composable.CQRS.ServiceBus.NServiceBus.dll")) $PreVersion)
@@ -68,6 +69,7 @@ function Build-Pkg ($ProjectFile, $Version)
 	Write-Host
 }
 
+Build-Pkg "$scriptRoot\Composable.Contracts\Composable.Contracts.csproj" $ContractsVersion
 Build-Pkg "$scriptRoot\Composable.System\Composable.Core.csproj" $CoreVersion
 Build-Pkg "$scriptRoot\Composable.CQRS\Composable.CQRS.csproj" $CQRSVersion
 Build-Pkg "$scriptRoot\Composable.CQRS.NHibernate\Composable.CQRS.NHibernate.csproj" $CQRSNHibernateVersion

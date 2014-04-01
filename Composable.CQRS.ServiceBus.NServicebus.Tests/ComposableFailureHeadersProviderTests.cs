@@ -5,7 +5,7 @@ using NUnit.Framework;
 
 namespace Composable.CQRS.ServiceBus.NServicebus.Tests.UowTests
 {
-    [TestFixture]
+    [TestFixture,Category("IgnoreOnTeamCity")]
     public class ComposableFailureHeadersProviderTests
     {
         private const string ExpectedStackTrace =

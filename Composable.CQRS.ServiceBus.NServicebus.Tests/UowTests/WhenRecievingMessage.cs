@@ -24,7 +24,7 @@ namespace Composable.CQRS.ServiceBus.NServicebus.Tests.UowTests
 {
     [TestFixture, NUnit.Framework.Category("NSBFullSetupTests")]
     [ExclusivelyUses(NCrunchExclusivelyUsesResources.NServiceBus)]
-    [NCrunch.Framework.Isolated]
+    [NCrunch.Framework.Isolated, NUnit.Framework.Category("IgnoreOnTeamCity")]
     public class WhenReceivingMessage
     {
         private TestResults _results;

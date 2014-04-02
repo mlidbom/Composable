@@ -107,6 +107,10 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\AccountManagement.UI.QueryModels.Updaters\AccountManagement.UI.QueryModels.Updaters.csproj">
+      <Project>{d0c22390-0bd6-4837-8ce5-149f80e6ba4e}</Project>
+      <Name>AccountManagement.UI.QueryModels.Updaters</Name>
+    </ProjectReference>
     <ProjectReference Include="..\AccountManagement.UI.QueryModels\AccountManagement.UI.QueryModels.csproj">
       <Project>{5d9f2751-088c-422f-b251-0852e890a3e2}</Project>
       <Name>AccountManagement.UI.QueryModels</Name>

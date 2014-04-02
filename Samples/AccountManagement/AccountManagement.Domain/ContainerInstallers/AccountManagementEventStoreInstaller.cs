@@ -31,7 +31,7 @@ namespace AccountManagement.Domain.ContainerInstallers
                     .Named(ComponentKeys.EventStore)
                     .LifestyleSingleton(),
                 //Don't forget to register database components as IUnitOfWorkParticipant so that they work automatically with the framework management of units of work.
-                Component.For<IAccountManagementEventStoreSession, IUnitOfWorkParticipant>()
+                Component.For<IAccountManagementEventStoreSession, IEventStoreReader, IUnitOfWorkParticipant>()
                     .ImplementedBy<AccountManagementEventStoreSession>()
                     .DependsOn(new Dependency[] {Dependency.OnComponent(typeof(IEventStore), ComponentKeys.EventStore)})
                     .LifestylePerWebRequest()

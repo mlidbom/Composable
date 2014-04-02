@@ -1,4 +1,5 @@
 ﻿using AccountManagement.Domain.Shared;
+using Castle.MicroKernel.Lifestyle;
 using Composable.CQRS.Windsor;
 using FluentAssertions;
 using NUnit.Framework;
@@ -19,7 +20,10 @@ namespace AccountManagement.UI.QueryModels.Updaters.Tests.AccountQueryModelTests
         [Test]
         public void PasswordIsTheNewOne()
         {
-            GetQueryModel().Password.Should().Be(_newPassword);
+            using(Container.BeginScope())
+            {
+                GetQueryModel().Password.Should().Be(_newPassword);   
+            }            
         }
     }
 }

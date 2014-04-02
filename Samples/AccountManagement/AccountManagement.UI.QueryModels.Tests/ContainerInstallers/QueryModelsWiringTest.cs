@@ -1,5 +1,6 @@
 ﻿using System;
 using AccountManagement.UI.QueryModels.Services;
+using AccountManagement.UI.QueryModels.Updaters.Services;
 using Castle.MicroKernel.Lifestyle;
 using Castle.MicroKernel.Registration;
 using Castle.Windsor;
@@ -26,7 +27,8 @@ namespace AccountManagement.UI.QueryModels.Tests.ContainerInstallers
             Container.ConfigureWiringForTestsCallBeforeAllOtherWiring();
 
             Container.Install(
-                FromAssembly.Containing<QueryModels.ContainerInstallers.AccountManagementQuerymodelsSessionInstaller>()
+                FromAssembly.Containing<QueryModels.ContainerInstallers.AccountManagementQuerymodelsSessionInstaller>(),
+                FromAssembly.Containing<QueryModels.Updaters.ContainerInstallers.AccountManagementQuerymodelsSessionInstaller>()
                 );
 
             Container.Register(
@@ -72,7 +74,7 @@ namespace AccountManagement.UI.QueryModels.Tests.ContainerInstallers
 
             using(Container.BeginScope())
             {
-                Container.Resolve<IAccountManagementQueryModelSession>().Save(accountQueryModel);
+                Container.Resolve<IAccountManagementQueryModelUpdaterSession>().Save(accountQueryModel);
                 Container.Resolve<IAccountManagementQueryModelSession>().Get<AccountQueryModel>(accountQueryModel.Id);
             }
 

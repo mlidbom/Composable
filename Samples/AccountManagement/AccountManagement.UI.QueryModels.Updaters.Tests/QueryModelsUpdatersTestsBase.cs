@@ -2,6 +2,7 @@
 using AccountManagement.UI.QueryModels.Services;
 using Castle.MicroKernel.Lifestyle;
 using Castle.MicroKernel.Registration;
+using Castle.MicroKernel.Resolvers.SpecializedResolvers;
 using Castle.Windsor;
 using Castle.Windsor.Installer;
 using Composable.CQRS.Windsor.Testing;
@@ -20,6 +21,7 @@ namespace AccountManagement.UI.QueryModels.Updaters.Tests
         public void SetupContainerAndScope()
         {
             Container = new WindsorContainer();
+            Container.Kernel.Resolver.AddSubResolver(new CollectionResolver(Container.Kernel));
             Container.ConfigureWiringForTestsCallBeforeAllOtherWiring();
             Container.Install(
                 FromAssembly.Containing<Domain.ContainerInstallers.AccountManagementDomainEventStoreInstaller>(),

@@ -1,4 +1,5 @@
 ﻿using AccountManagement.Domain.Shared;
+using Castle.MicroKernel.Lifestyle;
 using Composable.CQRS.Windsor;
 using FluentAssertions;
 using NUnit.Framework;
@@ -19,7 +20,10 @@ namespace AccountManagement.UI.QueryModels.Updaters.Tests.AccountQueryModelTests
         [Test]
         public void EmailIsTheOneFromTheEvent()
         {
-            GetQueryModel().Email.Should().Be(_newEmail);
+            using(Container.BeginScope())
+            {
+                GetQueryModel().Email.Should().Be(_newEmail);
+            }
         }
     }
 }

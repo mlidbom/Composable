@@ -14,10 +14,10 @@ namespace AccountManagement.UI.QueryModels.ContainerInstallers
     {
         public static class ComponentKeys
         {
-            public const string KeyForDocumentDb = "AccountManagement.QueryModels.IDocumentDb";
-            public const string KeyForInMemoryDocumentDb = "AccountManagement.QueryModels.IDocumentDb.InMemory";
-            public const string KeyForSession = "AccountManagement.QueryModels.IDocumentDbSession";
-            public const string KeyForNullOpSessionInterceptor = "AccountManagement.QueryModels.NullOpSessionInterceptor";
+            public const string DocumentDb = "AccountManagement.QueryModels.IDocumentDb";
+            public const string InMemoryDocumentDb = "AccountManagement.QueryModels.IDocumentDb.InMemory";
+            public const string DocumentDbReader = "AccountManagement.QueryModels.IDocumentDbReader";
+            public const string NullOpSessionInterceptor = "AccountManagement.QueryModels.NullOpSessionInterceptor";
         }
 
         public const string ConnectionStringName = "AccountManagementReadModels";
@@ -30,18 +30,18 @@ namespace AccountManagement.UI.QueryModels.ContainerInstallers
                 Component.For<IDocumentDb>()
                     .ImplementedBy<SqlServerDocumentDb>()
                     .DependsOn(new {connectionString = GetConnectionStringFromConfiguration(ConnectionStringName)})
-                    .Named(ComponentKeys.KeyForDocumentDb)
+                    .Named(ComponentKeys.DocumentDb)
                     .LifestylePerWebRequest(),
                 Component.For<IDocumentDbSessionInterceptor>()
                     .Instance(NullOpDocumentDbSessionInterceptor.Instance)
-                    .Named(ComponentKeys.KeyForNullOpSessionInterceptor)
+                    .Named(ComponentKeys.NullOpSessionInterceptor)
                     .LifestyleSingleton(),
-                Component.For<IDocumentDbSession, IAccountManagementQueryModelsReader>()
+                Component.For<IAccountManagementQueryModelsReader>()
                     .ImplementedBy<AccountManagementDocumentDbQueryModelsReader>()
                     .DependsOn(
-                        Dependency.OnComponent(typeof(IDocumentDb), ComponentKeys.KeyForDocumentDb),
-                        Dependency.OnComponent(typeof(IDocumentDbSessionInterceptor), ComponentKeys.KeyForNullOpSessionInterceptor))
-                    .Named(ComponentKeys.KeyForSession)
+                        Dependency.OnComponent(typeof(IDocumentDb), ComponentKeys.DocumentDb),
+                        Dependency.OnComponent(typeof(IDocumentDbSessionInterceptor), ComponentKeys.NullOpSessionInterceptor))
+                    .Named(ComponentKeys.DocumentDbReader)
                     .LifestylePerWebRequest()
                 );
         }

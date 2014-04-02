@@ -131,7 +131,7 @@ namespace CQRS.Tests.KeyValueStorage
 
         public class DogGenerator : IDocumentGenerator<Dog>
         {
-            public Dog TryGenerate(object id)
+            public Dog TryGenerate(Guid id)
             {
                 var intId = id.ToString().Last().Transform(value => int.Parse(new string(value, 1)));
                 if(intId > 4 || intId < 3)
@@ -144,7 +144,7 @@ namespace CQRS.Tests.KeyValueStorage
 
         public class CatGenerator : IDocumentGenerator<Cat>
         {
-            public Cat TryGenerate(object id)
+            public Cat TryGenerate(Guid id)
             {
                 var intId = id.ToString().Last().Transform(value => int.Parse(new string(value, 1)));
                 if(intId > 2)

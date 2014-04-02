@@ -50,7 +50,7 @@ namespace AccountManagement.UI.QueryModels.Tests.ContainerInstallers
         {
             Container
                 .RegistrationAssertionHelper()
-                .LifestyleScoped<IAccountManagementQueryModelSession>();
+                .LifestyleScoped<IAccountManagementQueryModelsReader>();
         }
     }
 
@@ -75,13 +75,13 @@ namespace AccountManagement.UI.QueryModels.Tests.ContainerInstallers
             using(Container.BeginScope())
             {
                 Container.Resolve<IAccountManagementQueryModelUpdaterSession>().Save(accountQueryModel);
-                Container.Resolve<IAccountManagementQueryModelSession>().Get<AccountQueryModel>(accountQueryModel.Id);
+                Container.Resolve<IAccountManagementQueryModelsReader>().Get<AccountQueryModel>(accountQueryModel.Id);
             }
 
             Container.ResetTestDataBases();
             using(Container.BeginScope())
             {
-                Assert.Throws<NoSuchDocumentException>(() => Container.Resolve<IAccountManagementQueryModelSession>().Get<AccountQueryModel>(accountQueryModel.Id));
+                Assert.Throws<NoSuchDocumentException>(() => Container.Resolve<IAccountManagementQueryModelsReader>().Get<AccountQueryModel>(accountQueryModel.Id));
             }
         }
     }

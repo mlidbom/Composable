@@ -2,5 +2,5 @@
 
 namespace AccountManagement.UI.QueryModels.Services
 {
-    public interface IAccountManagementQueryModelSession : IDocumentDbReader{}
+    public interface IAccountManagementQueryModelsReader : IDocumentDbReader{}
 }

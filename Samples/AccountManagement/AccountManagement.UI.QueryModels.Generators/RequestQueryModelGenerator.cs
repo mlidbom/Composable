@@ -1,10 +1,11 @@
 ﻿using AccountManagement.Domain.Events;
 using AccountManagement.Domain.Events.PropertyUpdated;
 using Composable.CQRS.EventSourcing;
+using Composable.CQRS.Query.Models.Generators;
 
 namespace AccountManagement.UI.QueryModels.Generators
 {
-    public class RequestQueryModelGenerator : SingleAggregateDocumentGenerator<RequestQueryModelGenerator,AccountQueryModel, IAccountEvent, IEventStoreReader>
+    public class RequestQueryModelGenerator : SingleAggregateQueryModelGenerator<RequestQueryModelGenerator,AccountQueryModel, IAccountEvent, IEventStoreReader>
     {
         public RequestQueryModelGenerator(IEventStoreReader session) : base(session)
         {

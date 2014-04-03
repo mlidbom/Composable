@@ -1,6 +1,5 @@
 ﻿using System.Web.Mvc;
 using AccountManagement.UI.QueryModels;
-using AccountManagement.UI.QueryModels.DocumentDB.Readers.Services;
 using AccountManagement.UI.QueryModels.Services;
 using AccountManagement.UI.Web.Views.Account;
 

@@ -115,10 +115,6 @@
       <Project>{CA31649D-A11B-45F6-9D17-2E716F11ADFA}</Project>
       <Name>AccountManagement.Domain.Shared</Name>
     </ProjectReference>
-    <ProjectReference Include="..\AccountManagement.UI.QueryModels.DocumentDB.Readers\AccountManagement.UI.QueryModels.DocumentDB.Readers.csproj">
-      <Project>{fc4a384b-cdff-4fb9-a3f8-78dceade0714}</Project>
-      <Name>AccountManagement.UI.QueryModels.DocumentDB.Readers</Name>
-    </ProjectReference>
     <ProjectReference Include="..\AccountManagement.UI.QueryModels\AccountManagement.UI.QueryModels.csproj">
       <Project>{5d9f2751-088c-422f-b251-0852e890a3e2}</Project>
       <Name>AccountManagement.UI.QueryModels</Name>

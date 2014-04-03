@@ -1,11 +1,10 @@
-﻿using AccountManagement.Domain;
-using AccountManagement.TestHelpers.Scenarios;
-using AccountManagement.UI.QueryModels.ContainerInstallers;
-using AccountManagement.UI.QueryModels.Services;
+﻿using System;
+using AccountManagement.UI.QueryModels.DocumentDB.Updaters.Services;
 using Castle.MicroKernel.Lifestyle;
 using Castle.MicroKernel.Registration;
 using Castle.Windsor;
 using Castle.Windsor.Installer;
+using Composable.CQRS.EventHandling;
 using Composable.CQRS.Windsor.Testing;
 using Composable.KeyValueStorage;
 using Composable.ServiceBus;
@@ -13,7 +12,7 @@ using NUnit.Framework;
 
 namespace AccountManagement.UI.QueryModels.Tests.ContainerInstallers
 {
-    public abstract class QueryModelsWiringTest
+    public abstract class QueryModelUpdatersWiringTest
     {
         //Note that we do NOT test individual classes. We verify that when used as it will really be used things work as expected. 
         //If we change which installers exist, split installers, merge installers etc this test will keep working. 
@@ -28,9 +27,8 @@ namespace AccountManagement.UI.QueryModels.Tests.ContainerInstallers
 
             Container.Install(
                 FromAssembly.Containing<Domain.Events.EventStore.ContainerInstallers.AccountManagementDomainEventStoreInstaller>(),
-                FromAssembly.Containing<Domain.ContainerInstallers.AccountManagementDomainQuerymodelsSessionInstaller>(),
-                FromAssembly.Containing<AccountManagementQuerymodelsSessionInstaller>(),                
-                FromAssembly.Containing<DocumentDB.Updaters.ContainerInstallers.AccountManagementQuerymodelsSessionInstaller>()
+                FromAssembly.Containing<UI.QueryModels.DocumentDB.Updaters.ContainerInstallers.AccountManagementQuerymodelsSessionInstaller>(),
+                FromAssembly.Containing<UI.QueryModels.ContainerInstallers.AccountManagementQuerymodelsSessionInstaller>()                
                 );
 
             Container.Register(
@@ -52,15 +50,15 @@ namespace AccountManagement.UI.QueryModels.Tests.ContainerInstallers
         {
             Container
                 .RegistrationAssertionHelper()
-                .LifestyleScoped<IAccountManagementQueryModelsReader>();
+                .LifestyleScoped<IAccountManagementQueryModelUpdaterSession>();
         }
     }
 
     [TestFixture] //The production wiring test does not modify the wiring at all
-    public class QueryModelsProductionWiringTest : QueryModelsWiringTest {}
+    public class QueryModelUpdatersProductionWiringTest : QueryModelUpdatersWiringTest {}
 
     [TestFixture] //The Test wiring test invokes all IConfigureWiringForTest instances in the container so that the wiring is now appropriate for running tests.
-    public class QueryModelsTestWiringTest : QueryModelsWiringTest
+    public class QueryModelUpdatersTestWiringTest : QueryModelUpdatersWiringTest
     {
         [SetUp]
         public void SetupTask()
@@ -71,21 +69,19 @@ namespace AccountManagement.UI.QueryModels.Tests.ContainerInstallers
         [Test]
         public void ResettingTestDatabasesRemovesAccountQueryModels()
         {
-            Account registerAccountScenario;
-            using(Container.BeginScope())
-            {
-                registerAccountScenario = new RegisterAccountScenario(Container).Execute();
-            }
+            var accountQueryModel = new AccountQueryModel();
+            ((ISingleAggregateQueryModel)accountQueryModel).SetId(Guid.NewGuid());
 
             using(Container.BeginScope())
             {
-                Container.Resolve<IAccountManagementQueryModelsReader>().GetAccount(registerAccountScenario.Id);
+                Container.Resolve<IAccountManagementQueryModelUpdaterSession>().Save(accountQueryModel);
+                Container.Resolve<IAccountManagementQueryModelUpdaterSession>().Get<AccountQueryModel>(accountQueryModel.Id);
             }
 
             Container.ResetTestDataBases();
             using(Container.BeginScope())
             {
-                Assert.Throws<NoSuchDocumentException>(() => Container.Resolve<IAccountManagementQueryModelsReader>().GetAccount(registerAccountScenario.Id));
+                Assert.Throws<NoSuchDocumentException>(() => Container.Resolve<IAccountManagementQueryModelUpdaterSession>().Get<AccountQueryModel>(accountQueryModel.Id));
             }
         }
     }

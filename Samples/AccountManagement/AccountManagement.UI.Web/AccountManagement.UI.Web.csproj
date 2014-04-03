@@ -325,14 +325,6 @@
       <Project>{19b23e13-70e8-4e18-a2fa-f0c3f37313fe}</Project>
       <Name>AccountManagement.UI.Commands</Name>
     </ProjectReference>
-    <ProjectReference Include="..\AccountManagement.UI.QueryModels.DocumentDB.Readers\AccountManagement.UI.QueryModels.DocumentDB.Readers.csproj">
-      <Project>{fc4a384b-cdff-4fb9-a3f8-78dceade0714}</Project>
-      <Name>AccountManagement.UI.QueryModels.DocumentDB.Readers</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\AccountManagement.UI.QueryModels.Generators\AccountManagement.UI.QueryModels.EventStore.Generators.csproj">
-      <Project>{accad488-7866-4f77-a541-ecda61923f57}</Project>
-      <Name>AccountManagement.UI.QueryModels.EventStore.Generators</Name>
-    </ProjectReference>
     <ProjectReference Include="..\AccountManagement.UI.QueryModels.Updaters\AccountManagement.UI.QueryModels.DocumentDB.Updaters.csproj">
       <Project>{d0c22390-0bd6-4837-8ce5-149f80e6ba4e}</Project>
       <Name>AccountManagement.UI.QueryModels.DocumentDB.Updaters</Name>

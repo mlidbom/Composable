@@ -99,8 +99,17 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AccountQueryModelTests\AfterAccountIsRegistered.cs" />
+    <Compile Include="AccountQueryModelTests\AfterUserChangesAccountEmail.cs" />
+    <Compile Include="AccountQueryModelTests\RegistersAccountDuringSetupAccountQueryModelTestBase.cs" />
     <Compile Include="ContainerInstallers\QueryModelsWiringTest.cs" />
+    <Compile Include="ContainerInstallers\QueryModelUpdatersWiringTest.cs" />
+    <Compile Include="EmailToAccountMapQueryModelTests\AfterAccountIsRegistered.cs" />
+    <Compile Include="EmailToAccountMapQueryModelTests\AfterUserChangesAccountEmail.cs" />
+    <Compile Include="EmailToAccountMapQueryModelTests\RegistersAccountDuringSetupTestBase.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="QueryModelsTestsBase.cs" />
+    <Compile Include="QueryModelsUpdatersTestsBase.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
@@ -115,6 +124,10 @@
       <Project>{dabba9b3-cd83-4995-83c4-efcdf388c353}</Project>
       <Name>AccountManagement.Domain.Events</Name>
     </ProjectReference>
+    <ProjectReference Include="..\AccountManagement.Domain.Shared\AccountManagement.Domain.Shared.csproj">
+      <Project>{ca31649d-a11b-45f6-9d17-2e716f11adfa}</Project>
+      <Name>AccountManagement.Domain.Shared</Name>
+    </ProjectReference>
     <ProjectReference Include="..\AccountManagement.Domain\AccountManagement.Domain.csproj">
       <Project>{F40E3779-B691-44B9-A820-577C5C11035F}</Project>
       <Name>AccountManagement.Domain</Name>
@@ -122,14 +135,6 @@
     <ProjectReference Include="..\AccountManagement.TestHelpers\AccountManagement.TestHelpers.csproj">
       <Project>{688DE4C0-690E-4EF5-AF36-A16BD2D9E930}</Project>
       <Name>AccountManagement.TestHelpers</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\AccountManagement.UI.QueryModels.DocumentDB.Readers\AccountManagement.UI.QueryModels.DocumentDB.Readers.csproj">
-      <Project>{fc4a384b-cdff-4fb9-a3f8-78dceade0714}</Project>
-      <Name>AccountManagement.UI.QueryModels.DocumentDB.Readers</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\AccountManagement.UI.QueryModels.Generators\AccountManagement.UI.QueryModels.EventStore.Generators.csproj">
-      <Project>{accad488-7866-4f77-a541-ecda61923f57}</Project>
-      <Name>AccountManagement.UI.QueryModels.EventStore.Generators</Name>
     </ProjectReference>
     <ProjectReference Include="..\AccountManagement.UI.QueryModels.Updaters\AccountManagement.UI.QueryModels.DocumentDB.Updaters.csproj">
       <Project>{d0c22390-0bd6-4837-8ce5-149f80e6ba4e}</Project>
@@ -144,6 +149,7 @@
       <Name>Composable.StagingArea</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

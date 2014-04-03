@@ -6,10 +6,10 @@ using Composable.CQRS.Windsor.Testing;
 using Composable.KeyValueStorage;
 using JetBrains.Annotations;
 
-namespace AccountManagement.UI.QueryModels.DocumentDB.Updaters.ContainerInstallers.Testing
+namespace AccountManagement.UI.QueryModels.ContainerInstallers.Testing
 {
     [UsedImplicitly]
-    public class InMemoryAccountManagementQuerymodelsSessionInstaller : IWindsorInstaller
+    public class InMemoryAccountManagementQuerymodelSessionInstaller : IWindsorInstaller
     {
         public void Install(IWindsorContainer container, IConfigurationStore store)
         {
@@ -32,12 +32,12 @@ namespace AccountManagement.UI.QueryModels.DocumentDB.Updaters.ContainerInstalle
             {
                 //The ViewModelUpdatersSession and the ViewModelsSession must use the same document db for things to be sane.
                 //Sometimes only the wiring for one is used. Sometimes the wiring for both. This if clause takes care of that issue.
-                if(!_container.Kernel.HasComponent(QueryModels.ContainerInstallers.AccountManagementQuerymodelsSessionInstaller.ComponentKeys.InMemoryDocumentDb))
+                if(!_container.Kernel.HasComponent(AccountManagementQuerymodelsSessionInstaller.ComponentKeys.InMemoryDocumentDb))
                 {
                     _container.Register(
                         Component.For<IDocumentDb>()
                             .ImplementedBy<InMemoryDocumentDb>()
-                            .Named(QueryModels.ContainerInstallers.AccountManagementQuerymodelsSessionInstaller.ComponentKeys.InMemoryDocumentDb)
+                            .Named(AccountManagementQuerymodelsSessionInstaller.ComponentKeys.InMemoryDocumentDb)
                             .IsDefault()
                             .LifestyleSingleton());
                 }
@@ -45,13 +45,13 @@ namespace AccountManagement.UI.QueryModels.DocumentDB.Updaters.ContainerInstalle
                 _container.Kernel.AddHandlerSelector(
                     new KeyReplacementHandlerSelector(
                         typeof(IDocumentDb),
-                        AccountManagementQuerymodelsSessionInstaller.ComponentKeys.KeyForDocumentDb,
-                        QueryModels.ContainerInstallers.AccountManagementQuerymodelsSessionInstaller.ComponentKeys.InMemoryDocumentDb));
+                        AccountManagementQuerymodelsSessionInstaller.ComponentKeys.DocumentDb,
+                        AccountManagementQuerymodelsSessionInstaller.ComponentKeys.InMemoryDocumentDb));
             }
 
             public void ResetDatabase()
             {
-                _container.Resolve<InMemoryDocumentDb>(QueryModels.ContainerInstallers.AccountManagementQuerymodelsSessionInstaller.ComponentKeys.InMemoryDocumentDb).Clear();
+                _container.Resolve<InMemoryDocumentDb>(AccountManagementQuerymodelsSessionInstaller.ComponentKeys.InMemoryDocumentDb).Clear();
             }
         }
     }

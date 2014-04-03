@@ -46,9 +46,9 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\Composable.Core.2.3.1-develop\lib\net40\Composable.Core.dll</HintPath>
     </Reference>
-    <Reference Include="Composable.CQRS, Version=2.3.0.0, Culture=neutral, PublicKeyToken=0c6b2c03e4c91d22, processorArchitecture=MSIL">
+    <Reference Include="Composable.CQRS, Version=2.3.2.0, Culture=neutral, PublicKeyToken=0c6b2c03e4c91d22, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\Composable.CQRS.2.3.1-develop\lib\net40\Composable.CQRS.dll</HintPath>
+      <HintPath>..\packages\Composable.CQRS.2.3.2-develop\lib\net40\Composable.CQRS.dll</HintPath>
     </Reference>
     <Reference Include="Composable.CQRS.Windsor, Version=2.3.1.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>

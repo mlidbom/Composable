@@ -2,7 +2,7 @@
 
 namespace AccountManagement.Domain.Shared.Extensions
 {
-    public static class CollectionExtensions
+    internal static class CollectionExtensions
     {
         /// <summary>
         /// Adds the second parameter to the collection if the first parameter is true.

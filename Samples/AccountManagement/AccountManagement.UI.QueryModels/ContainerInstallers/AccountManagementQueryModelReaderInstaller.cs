@@ -10,11 +10,11 @@ using JetBrains.Annotations;
 namespace AccountManagement.UI.QueryModels.ContainerInstallers
 {
     [UsedImplicitly]
-    public class AccountManagementQueryModelGeneratingQueryModelSessionInstaller : IWindsorInstaller
+    public class AccountManagementQueryModelReaderInstaller : IWindsorInstaller
     {
         public static class ComponentKeys
         {
-            public const string Session = "AccountManagement.QueryModels.Generated.IDocumentDbReader";
+            public const string QueryModelsReader = "AccountManagement.QueryModels.QueryModelsReader";
         }
 
         public void Install(IWindsorContainer container, IConfigurationStore store)
@@ -23,11 +23,11 @@ namespace AccountManagement.UI.QueryModels.ContainerInstallers
 
             container.Register(
                 Component.For<IAccountManagementQueryModelsReader>()
-                    .ImplementedBy<AccountManagementQueryModelGeneratingQueryModelSession>()
-                    .Named(ComponentKeys.Session)
+                    .ImplementedBy<AccountManagementQueryModelReader>()
                     .DependsOn(
-                            Dependency.OnValue<IDocumentDbSessionInterceptor>(NullOpDocumentDbSessionInterceptor.Instance)
-                        )
+                        Dependency.OnValue<IDocumentDbSessionInterceptor>(NullOpDocumentDbSessionInterceptor.Instance)
+                    )
+                    .Named(ComponentKeys.QueryModelsReader)
                     .LifestylePerWebRequest()
                     .IsDefault()
                 );

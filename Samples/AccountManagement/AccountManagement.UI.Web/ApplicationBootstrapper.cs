@@ -36,7 +36,7 @@ namespace AccountManagement.UI.Web
             container.Install(                
                 FromAssembly.Containing<Domain.ContainerInstallers.AccountRepositoryInstaller>(),
                 FromAssembly.Containing<Domain.Events.EventStore.ContainerInstallers.AccountManagementDomainEventStoreInstaller>(),
-                FromAssembly.Containing<AccountManagementQuerymodelsSessionInstaller>(),
+                FromAssembly.Containing<AccountManagementDocumentDbReaderInstaller>(),
                 FromAssembly.Containing<QueryModels.DocumentDB.Updaters.ContainerInstallers.AccountManagementQuerymodelsSessionInstaller>()
                 );
         }

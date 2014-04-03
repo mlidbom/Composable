@@ -18,7 +18,7 @@ namespace AccountManagement.UI.QueryModels.DocumentDB.Updaters.ContainerInstalle
             public const string KeyForSession = "AccountManagement.QueryModelUpdaters.IDocumentDbSession";
         }
 
-        public const string ConnectionStringName = QueryModels.ContainerInstallers.AccountManagementQuerymodelsSessionInstaller.ConnectionStringName;
+        public const string ConnectionStringName = QueryModels.ContainerInstallers.AccountManagementDocumentDbReaderInstaller.ConnectionStringName;
 
         public void Install(
             IWindsorContainer container,

@@ -92,17 +92,19 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AccountQueryModel.cs" />
-    <Compile Include="ContainerInstallers\AccountManagementQueryModelGeneratingQueryModelSessionInstaller.cs" />
-    <Compile Include="ContainerInstallers\AccountManagementQuerymodelsSessionInstaller.cs" />
+    <Compile Include="ContainerInstallers\AccountManagementQueryModelGeneratingDocumentDbReaderInstaller.cs" />
+    <Compile Include="ContainerInstallers\AccountManagementQueryModelReaderInstaller.cs" />
+    <Compile Include="ContainerInstallers\AccountManagementDocumentDbReaderInstaller.cs" />
     <Compile Include="ContainerInstallers\QueryModelGeneratorsInstaller.cs" />
     <Compile Include="ContainerInstallers\Testing\InMemoryAccountManagementQuerymodelSessionInstaller.cs" />
-    <Compile Include="DocumentDb\AccountManagementDocumentDBQueryModelsReader.cs" />
+    <Compile Include="DocumentDb\AccountManagementDocumentDbReader.cs" />
     <Compile Include="DocumentDb\IAccountManagementDocumentDBReader.cs" />
     <Compile Include="EmailToAccountMapQueryModel.cs" />
-    <Compile Include="Generators\AccountManagementQueryModelGeneratingQueryModelSession.cs" />
+    <Compile Include="Generators\AccountManagementQueryModelGeneratingDocumentDbReader.cs" />
     <Compile Include="Generators\IAccountManagementQueryModelGenerator.cs" />
     <Compile Include="Generators\RequestQueryModelGenerator.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Services\AccountManagementQueryModelReader.cs" />
     <Compile Include="Services\IAccountManagementQueryModelsReader.cs" />
   </ItemGroup>
   <ItemGroup>

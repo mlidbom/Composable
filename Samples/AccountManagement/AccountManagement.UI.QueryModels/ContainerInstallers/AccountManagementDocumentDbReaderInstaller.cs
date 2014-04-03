@@ -10,7 +10,7 @@ using JetBrains.Annotations;
 namespace AccountManagement.UI.QueryModels.ContainerInstallers
 {
     [UsedImplicitly]
-    public class AccountManagementQuerymodelsSessionInstaller : IWindsorInstaller
+    public class AccountManagementDocumentDbReaderInstaller : IWindsorInstaller
     {
         public static class ComponentKeys
         {
@@ -32,7 +32,7 @@ namespace AccountManagement.UI.QueryModels.ContainerInstallers
                     .Named(ComponentKeys.DocumentDb)
                     .LifestylePerWebRequest(),
                 Component.For<IAccountManagementDocumentDbReader>()
-                    .ImplementedBy<AccountManagementDocumentDbQueryModelsReader>()
+                    .ImplementedBy<AccountManagementDocumentDbReader>()
                     .DependsOn(
                         Dependency.OnComponent(typeof(IDocumentDb), ComponentKeys.DocumentDb),
                         Dependency.OnValue<IDocumentDbSessionInterceptor>(NullOpDocumentDbSessionInterceptor.Instance))

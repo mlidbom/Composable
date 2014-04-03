@@ -92,6 +92,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AccountQueryModel.cs" />
+    <Compile Include="EmailToAccountMapQueryModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Services\IAccountManagementQueryModelsReader.cs" />
   </ItemGroup>

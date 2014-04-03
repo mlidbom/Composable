@@ -16,7 +16,6 @@ namespace AccountManagement.UI.QueryModels.DocumentDB.Updaters.ContainerInstalle
         {
             public const string KeyForDocumentDb = "AccountManagement.QueryModelUpdaters.IDocumentDb";
             public const string KeyForSession = "AccountManagement.QueryModelUpdaters.IDocumentDbSession";
-            public const string KeyForNullOpSessionInterceptor = "AccountManagement.QueryModelUpdaters.NullOpSessionInterceptor";
         }
 
         public const string ConnectionStringName = Readers.ContainerInstallers.AccountManagementQuerymodelsSessionInstaller.ConnectionStringName;
@@ -31,15 +30,11 @@ namespace AccountManagement.UI.QueryModels.DocumentDB.Updaters.ContainerInstalle
                     .DependsOn(new {connectionString = GetConnectionStringFromConfiguration(ConnectionStringName)})
                     .Named(ComponentKeys.KeyForDocumentDb)
                     .LifestylePerWebRequest(),
-                Component.For<IDocumentDbSessionInterceptor>()
-                    .Instance(NullOpDocumentDbSessionInterceptor.Instance)
-                    .Named(ComponentKeys.KeyForNullOpSessionInterceptor)
-                    .LifestyleSingleton(),
                 Component.For<IDocumentDbSession, IAccountManagementQueryModelUpdaterSession>()
                     .ImplementedBy<AccountManagementQueryModelUpdaterSession>()
                     .DependsOn(
                         Dependency.OnComponent(typeof(IDocumentDb), ComponentKeys.KeyForDocumentDb),
-                        Dependency.OnComponent(typeof(IDocumentDbSessionInterceptor), ComponentKeys.KeyForNullOpSessionInterceptor))
+                        Dependency.OnValue<IDocumentDbSessionInterceptor>(NullOpDocumentDbSessionInterceptor.Instance))
                     .Named(ComponentKeys.KeyForSession)
                     .LifestylePerWebRequest()
                 );

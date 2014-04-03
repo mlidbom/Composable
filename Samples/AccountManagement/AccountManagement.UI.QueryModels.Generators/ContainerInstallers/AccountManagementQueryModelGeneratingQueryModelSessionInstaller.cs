@@ -15,7 +15,6 @@ namespace AccountManagement.UI.QueryModels.EventStore.Generators.ContainerInstal
         public static class ComponentKeys
         {
             public const string Session = "AccountManagement.QueryModels.Generated.IDocumentDbReader";
-            public const string NullOpSessionInterceptor = "AccountManagement.QueryModels.Generated.NullOpSessionInterceptor";
         }
 
         public void Install(IWindsorContainer container, IConfigurationStore store)
@@ -23,13 +22,12 @@ namespace AccountManagement.UI.QueryModels.EventStore.Generators.ContainerInstal
             container.Kernel.Resolver.AddSubResolver(new TypedCollectionResolver<IAccountManagementQueryModelGenerator>(container.Kernel));
 
             container.Register(
-                Component.For<IDocumentDbSessionInterceptor>()
-                    .Instance(NullOpDocumentDbSessionInterceptor.Instance)
-                    .Named(ComponentKeys.NullOpSessionInterceptor)
-                    .LifestyleSingleton(),
                 Component.For<IAccountManagementQueryModelsReader>()
                     .ImplementedBy<AccountManagementQueryModelGeneratingQueryModelSession>()
                     .Named(ComponentKeys.Session)
+                    .DependsOn(
+                            Dependency.OnValue<IDocumentDbSessionInterceptor>(NullOpDocumentDbSessionInterceptor.Instance)
+                        )
                     .LifestylePerWebRequest()
                     .IsDefault()
                 );

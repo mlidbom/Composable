@@ -15,7 +15,7 @@ namespace AccountManagement.UI.QueryModels.Tests
     {
         protected WindsorContainer Container;
         private IDisposable _scope;
-        protected IAccountManagementQueryModelsReader Session { get { return Container.Resolve<IAccountManagementQueryModelsReader>(); } }
+        protected IAccountManagementQueryModelsReader QueryModelsReader { get { return Container.Resolve<IAccountManagementQueryModelsReader>(); } }
 
         [SetUp]
         public void SetupContainerAndScope()

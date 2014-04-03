@@ -2,10 +2,11 @@
 using Castle.MicroKernel.Registration;
 using Castle.MicroKernel.SubSystems.Configuration;
 using Castle.Windsor;
-using Composable.CQRS.Query.Models.Generators;
+using JetBrains.Annotations;
 
 namespace AccountManagement.UI.QueryModels.EventStore.Generators.ContainerInstallers
 {
+    [UsedImplicitly]
     public class QueryModelGeneratorsInstaller : IWindsorInstaller
     {
         public void Install(IWindsorContainer container, IConfigurationStore store)

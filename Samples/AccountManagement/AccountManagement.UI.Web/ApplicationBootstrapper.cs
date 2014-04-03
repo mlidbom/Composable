@@ -25,7 +25,6 @@ namespace AccountManagement.UI.Web
 
         private static void SharedWiring(IWindsorContainer container)
         {
-            container.Kernel.Resolver.AddSubResolver(new CollectionResolver(container.Kernel));
             container.Register(
                 Component.For<IWindsorContainer>().Instance(container),
                 Classes.FromThisAssembly().BasedOn<Controller>().WithServiceSelf().LifestyleTransient()

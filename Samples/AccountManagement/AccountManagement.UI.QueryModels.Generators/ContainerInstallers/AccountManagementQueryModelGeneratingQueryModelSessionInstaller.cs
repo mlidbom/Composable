@@ -3,6 +3,7 @@ using AccountManagement.UI.QueryModels.Services;
 using Castle.MicroKernel.Registration;
 using Castle.MicroKernel.SubSystems.Configuration;
 using Castle.Windsor;
+using Composable.CQRS.Windsor;
 using Composable.KeyValueStorage;
 using JetBrains.Annotations;
 
@@ -19,6 +20,8 @@ namespace AccountManagement.UI.QueryModels.EventStore.Generators.ContainerInstal
 
         public void Install(IWindsorContainer container, IConfigurationStore store)
         {
+            container.Kernel.Resolver.AddSubResolver(new TypedCollectionResolver<IAccountManagementQueryModelGenerator>(container.Kernel));
+
             container.Register(
                 Component.For<IDocumentDbSessionInterceptor>()
                     .Instance(NullOpDocumentDbSessionInterceptor.Instance)

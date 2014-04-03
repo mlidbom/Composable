@@ -23,7 +23,6 @@ namespace AccountManagement.UI.QueryModels.EventStore.Generators.Tests
         public void SetupContainerAndScope()
         {
             Container = new WindsorContainer();
-            Container.Kernel.Resolver.AddSubResolver(new CollectionResolver(Container.Kernel));
             Container.ConfigureWiringForTestsCallBeforeAllOtherWiring();
             Container.Install(
                 FromAssembly.Containing<Domain.ContainerInstallers.AccountRepositoryInstaller>(),

@@ -24,7 +24,6 @@ namespace AccountManagement.UI.QueryModels.Tests.ContainerInstallers
         public void WireContainer()
         {
             Container = new WindsorContainer();
-            Container.Kernel.Resolver.AddSubResolver(new CollectionResolver(Container.Kernel));
             Container.ConfigureWiringForTestsCallBeforeAllOtherWiring();
 
             Container.Install(

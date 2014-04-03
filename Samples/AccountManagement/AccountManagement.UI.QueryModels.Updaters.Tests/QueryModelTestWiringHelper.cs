@@ -1,10 +1,12 @@
-﻿using AccountManagement.UI.QueryModels.Generators.ContainerInstallers;
+﻿using AccountManagement.UI.QueryModels.DocumentDB.Readers.Services;
+using AccountManagement.UI.QueryModels.DocumentDB.Updaters.ContainerInstallers;
+using AccountManagement.UI.QueryModels.EventStore.Generators.ContainerInstallers;
 using AccountManagement.UI.QueryModels.Services;
 using Castle.Windsor;
 using Castle.Windsor.Installer;
 using Composable.CQRS.Windsor;
 
-namespace AccountManagement.UI.QueryModels.Updaters.Tests
+namespace AccountManagement.UI.QueryModels.DocumentDB.Updaters.Tests
 {
     public static class QueryModelTestWiringHelper
     {
@@ -17,8 +19,8 @@ namespace AccountManagement.UI.QueryModels.Updaters.Tests
                 container.Kernel.AddHandlerSelector(
                     new KeyReplacementHandlerSelector(
                         typeof(IAccountManagementQueryModelsReader),
-                            QueryModels.Updaters.ContainerInstallers.AccountManagementQuerymodelsSessionInstaller.ComponentKeys.KeyForSession,
-                            QueryModels.Generators.ContainerInstallers.AccountManagementQueryModelGeneratingQueryModelSessionInstaller.ComponentKeys.Session));
+                            AccountManagementQuerymodelsSessionInstaller.ComponentKeys.KeyForSession,
+                            AccountManagementQueryModelGeneratingQueryModelSessionInstaller.ComponentKeys.Session));
         } 
     }
 }

@@ -2,7 +2,7 @@
 using Composable.SystemExtensions.Threading;
 using JetBrains.Annotations;
 
-namespace AccountManagement.UI.QueryModels.Updaters.Services
+namespace AccountManagement.UI.QueryModels.DocumentDB.Updaters.Services
 {
     [UsedImplicitly]
     public class AccountManagementQueryModelUpdaterSession : DocumentDbSession, IAccountManagementQueryModelUpdaterSession

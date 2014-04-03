@@ -4,11 +4,11 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{ACCAD488-7866-4F77-A541-ECDA61923F57}</ProjectGuid>
+    <ProjectGuid>{FC4A384B-CDFF-4FB9-A3F8-78DCEADE0714}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>AccountManagement.UI.QueryModels.Generators</RootNamespace>
-    <AssemblyName>AccountManagement.UI.QueryModels.Generators</AssemblyName>
+    <RootNamespace>AccountManagement.UI.QueryModels.DocumentDB.Readers</RootNamespace>
+    <AssemblyName>AccountManagement.UI.QueryModels.DocumentDB.Readers</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
@@ -41,44 +41,44 @@
       <HintPath>..\packages\Castle.Windsor.3.2.1\lib\net45\Castle.Windsor.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Composable.Core">
+    <Reference Include="Composable.Core, Version=2.3.0.0, Culture=neutral, PublicKeyToken=0c6b2c03e4c91d22, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\Composable.Core.2.3.0-develop\lib\net40\Composable.Core.dll</HintPath>
     </Reference>
     <Reference Include="Composable.CQRS">
       <HintPath>..\packages\Composable.CQRS.2.3.0-develop\lib\net40\Composable.CQRS.dll</HintPath>
     </Reference>
-    <Reference Include="Composable.DomainEvents, Version=2.3.0.0, Culture=neutral, PublicKeyToken=0c6b2c03e4c91d22, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
+    <Reference Include="Composable.CQRS.Windsor">
+      <HintPath>..\packages\Composable.CQRS.Windsor.2.3.0-develop\lib\net40\Composable.CQRS.Windsor.dll</HintPath>
+    </Reference>
+    <Reference Include="Composable.DomainEvents">
       <HintPath>..\packages\Composable.DomainEvents.2.3.0-develop\lib\net40\Composable.DomainEvents.dll</HintPath>
     </Reference>
     <Reference Include="log4net, Version=1.2.10.0, Culture=neutral, PublicKeyToken=1b44e1d426115821, processorArchitecture=MSIL">
       <Private>True</Private>
       <HintPath>..\packages\log4net.1.2.10\lib\2.0\log4net.dll</HintPath>
     </Reference>
-    <Reference Include="Microsoft.Practices.ServiceLocation, Version=1.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
+    <Reference Include="Microsoft.Practices.ServiceLocation">
       <HintPath>..\packages\CommonServiceLocator.1.0\lib\NET35\Microsoft.Practices.ServiceLocation.dll</HintPath>
     </Reference>
     <Reference Include="Newtonsoft.Json, Version=4.5.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <Private>True</Private>
       <HintPath>..\packages\Newtonsoft.Json.5.0.8\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
-    <Reference Include="NServiceBus, Version=3.0.0.0, Culture=neutral, PublicKeyToken=9fc386479f8a226c, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
+    <Reference Include="NServiceBus">
       <HintPath>..\packages\NServiceBus.Interfaces.3.0.3.32\lib\net40\NServiceBus.dll</HintPath>
     </Reference>
     <Reference Include="System" />
+    <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
     <Reference Include="System.Reactive.Core, Version=2.2.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\Rx-Core.2.2.2\lib\net45\System.Reactive.Core.dll</HintPath>
-      <Private>True</Private>
     </Reference>
     <Reference Include="System.Reactive.Interfaces">
       <HintPath>..\packages\Rx-Interfaces.2.2.2\lib\net45\System.Reactive.Interfaces.dll</HintPath>
     </Reference>
-    <Reference Include="System.Reactive.Linq, Version=2.2.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
+    <Reference Include="System.Reactive.Linq">
       <HintPath>..\packages\Rx-Linq.2.2.2\lib\net45\System.Reactive.Linq.dll</HintPath>
     </Reference>
     <Reference Include="System.Xml.Linq" />
@@ -88,36 +88,28 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ContainerInstallers\AccountManagementQueryModelGeneratingQueryModelSessionInstaller.cs" />
-    <Compile Include="ContainerInstallers\QueryModelGeneratorsInstaller.cs" />
+    <Compile Include="ContainerInstallers\AccountManagementQuerymodelsSessionInstaller.cs" />
+    <Compile Include="ContainerInstallers\Testing\InMemoryAccountManagementQuerymodelSessionInstaller.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="RequestQueryModelGenerator.cs" />
-    <Compile Include="Services\AccountManagementQueryModelGeneratingQueryModelSession.cs" />
+    <Compile Include="Services\AccountManagementDocumentDBQueryModelsReader.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\AccountManagement.Domain.Events\AccountManagement.Domain.Events.csproj">
-      <Project>{dabba9b3-cd83-4995-83c4-efcdf388c353}</Project>
-      <Name>AccountManagement.Domain.Events</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\AccountManagement.Domain.Shared\AccountManagement.Domain.Shared.csproj">
-      <Project>{CA31649D-A11B-45F6-9D17-2E716F11ADFA}</Project>
-      <Name>AccountManagement.Domain.Shared</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\AccountManagement.Domain\AccountManagement.Domain.csproj">
-      <Project>{f40e3779-b691-44b9-a820-577c5c11035f}</Project>
-      <Name>AccountManagement.Domain</Name>
-    </ProjectReference>
     <ProjectReference Include="..\AccountManagement.UI.QueryModels\AccountManagement.UI.QueryModels.csproj">
-      <Project>{5D9F2751-088C-422F-B251-0852E890A3E2}</Project>
+      <Project>{5d9f2751-088c-422f-b251-0852e890a3e2}</Project>
       <Name>AccountManagement.UI.QueryModels</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Enable NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('$(SolutionDir)\.nuget\NuGet.targets')" Text="$([System.String]::Format('$(ErrorText)', '$(SolutionDir)\.nuget\NuGet.targets'))" />
+  </Target>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

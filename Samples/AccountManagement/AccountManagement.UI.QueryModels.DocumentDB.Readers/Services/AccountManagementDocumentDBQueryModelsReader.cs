@@ -1,8 +1,9 @@
-﻿using Composable.KeyValueStorage;
+﻿using AccountManagement.UI.QueryModels.Services;
+using Composable.KeyValueStorage;
 using Composable.SystemExtensions.Threading;
 using JetBrains.Annotations;
 
-namespace AccountManagement.UI.QueryModels.Services
+namespace AccountManagement.UI.QueryModels.DocumentDB.Readers.Services
 {
     [UsedImplicitly]
     internal class AccountManagementDocumentDbQueryModelsReader : DocumentDbSession, IAccountManagementQueryModelsReader

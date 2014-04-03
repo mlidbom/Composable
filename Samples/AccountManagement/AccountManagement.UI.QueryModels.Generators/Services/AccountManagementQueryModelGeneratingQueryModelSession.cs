@@ -1,10 +1,11 @@
 ﻿using System.Collections.Generic;
+using AccountManagement.UI.QueryModels.DocumentDB.Readers.Services;
 using AccountManagement.UI.QueryModels.Services;
 using Composable.CQRS.Query.Models.Generators;
 using Composable.KeyValueStorage;
 using Composable.SystemExtensions.Threading;
 
-namespace AccountManagement.UI.QueryModels.Generators.Services
+namespace AccountManagement.UI.QueryModels.EventStore.Generators.Services
 {
     public class AccountManagementQueryModelGeneratingQueryModelSession : QueryModelGeneratingDocumentDbReader,  IAccountManagementQueryModelsReader
     {

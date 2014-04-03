@@ -3,7 +3,7 @@ using AccountManagement.Domain.Events.PropertyUpdated;
 using Composable.CQRS.EventSourcing;
 using Composable.CQRS.Query.Models.Generators;
 
-namespace AccountManagement.UI.QueryModels.Generators
+namespace AccountManagement.UI.QueryModels.EventStore.Generators
 {
     public class RequestQueryModelGenerator : SingleAggregateQueryModelGenerator<RequestQueryModelGenerator,AccountQueryModel, IAccountEvent, IEventStoreReader>
     {

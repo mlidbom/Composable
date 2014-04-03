@@ -1,4 +1,5 @@
-﻿using AccountManagement.UI.QueryModels.Services;
+﻿using AccountManagement.UI.QueryModels.DocumentDB.Readers.Services;
+using AccountManagement.UI.QueryModels.Services;
 using Castle.MicroKernel.Registration;
 using Castle.MicroKernel.SubSystems.Configuration;
 using Castle.Windsor;
@@ -7,7 +8,7 @@ using Composable.KeyValueStorage.SqlServer;
 using Composable.System.Configuration;
 using JetBrains.Annotations;
 
-namespace AccountManagement.UI.QueryModels.ContainerInstallers
+namespace AccountManagement.UI.QueryModels.DocumentDB.Readers.ContainerInstallers
 {
     [UsedImplicitly]
     public class AccountManagementQuerymodelsSessionInstaller : IWindsorInstaller

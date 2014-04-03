@@ -3,7 +3,7 @@ using Castle.MicroKernel.SubSystems.Configuration;
 using Castle.Windsor;
 using Composable.CQRS.Query.Models.Generators;
 
-namespace AccountManagement.UI.QueryModels.Generators.ContainerInstallers
+namespace AccountManagement.UI.QueryModels.EventStore.Generators.ContainerInstallers
 {
     public class QueryModelGeneratorsInstaller : IWindsorInstaller
     {

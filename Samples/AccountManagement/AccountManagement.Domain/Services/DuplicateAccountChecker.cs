@@ -3,7 +3,7 @@ using AccountManagement.Domain.Shared;
 
 namespace AccountManagement.Domain.Services
 {
-    public class DuplicateAccountChecker : IDuplicateAccountChecker
+    internal class DuplicateAccountChecker : IDuplicateAccountChecker
     {
         private readonly IAccountManagementDomainQueryModelSession _querymodels;
 

@@ -99,9 +99,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="EmailToAccountMapQueryModelTests\AfterAccountIsRegistered.cs" />
-    <Compile Include="EmailToAccountMapQueryModelTests\AfterUserChangesAccountEmail.cs" />
-    <Compile Include="EmailToAccountMapQueryModelTests\RegistersAccountDuringSetupAccountQueryModelTestBase.cs" />
+    <Compile Include="FetchingAccountByEmailTests\AfterAccountIsRegistered.cs" />
+    <Compile Include="FetchingAccountByEmailTests\AfterUserChangesAccountEmail.cs" />
+    <Compile Include="FetchingAccountByEmailTests\RegistersAccountDuringSetupAccountQueryModelTestBase.cs" />
     <Compile Include="ContainerInstallers\QueryModelsWiringTest.cs" />
     <Compile Include="ContainerInstallers\QueryModelUpdatersWiringTest.cs" />
     <Compile Include="AccountMapQueryModelTests\AfterAccountIsRegistered.cs" />

@@ -15,10 +15,5 @@ namespace AccountManagement.UI.QueryModels.DocumentDB.Updaters.Tests.AccountQuer
             RegisterAccountScenario = new RegisterAccountScenario(Container);
             RegisteredAccount = RegisterAccountScenario.Execute();
         }
-
-        protected AccountQueryModel GetQueryModel()
-        {
-            return Session.GetAccount(RegisteredAccount.Id);
-        }
     }
 }

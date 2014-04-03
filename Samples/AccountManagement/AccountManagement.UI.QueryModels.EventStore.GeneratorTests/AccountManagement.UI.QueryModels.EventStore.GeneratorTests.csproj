@@ -101,7 +101,6 @@
     <Compile Include="ContainerInstallers\QueryModelsUpdatersWiringTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="QueryModelsUpdatersTestsBase.cs" />
-    <Compile Include="QueryModelTestWiringHelper.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />

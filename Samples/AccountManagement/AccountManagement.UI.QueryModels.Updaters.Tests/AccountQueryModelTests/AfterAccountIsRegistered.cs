@@ -1,4 +1,5 @@
-﻿using FluentAssertions;
+﻿using AccountManagement.UI.QueryModels.DocumentDB.Readers.Services;
+using FluentAssertions;
 using NUnit.Framework;
 
 namespace AccountManagement.UI.QueryModels.DocumentDB.Updaters.Tests.AccountQueryModelTests
@@ -7,21 +8,12 @@ namespace AccountManagement.UI.QueryModels.DocumentDB.Updaters.Tests.AccountQuer
     public class AfterAccountIsRegistered : RegistersAccountDuringSetupAccountQueryModelTestBase
     {
         [Test]
-        public void QueryModelExists()
+        public void YouCanGetTheAccountViaTheEmail()
         {
-            GetQueryModel();
-        }
+            var reader = Container.Resolve<IAccountManagementDocumentDbReader>();
+            var emailToAccountMap = reader.Get<EmailToAccountMapQueryModel>(RegisteredAccount.Email);
 
-        [Test]
-        public void EmailIsTheSameAsTheOneInTheAccount()
-        {
-            GetQueryModel().Email.Should().Be(RegisteredAccount.Email);
-        }
-
-        [Test]
-        public void PasswordMatchesTheDomainObject()
-        {
-            GetQueryModel().Password.Should().Be(RegisteredAccount.Password);
+            emailToAccountMap.AccountId.Should().Be(RegisteredAccount.Id);
         }
     }
 }

@@ -1,5 +1,4 @@
 ﻿using AccountManagement.Domain.Events.PropertyUpdated;
-using AccountManagement.Domain.QueryModels;
 using AccountManagement.Domain.Shared;
 using AccountManagement.UI.QueryModels.DocumentDB.Readers.Services;
 using AccountManagement.UI.QueryModels.DocumentDB.Updaters.Services;

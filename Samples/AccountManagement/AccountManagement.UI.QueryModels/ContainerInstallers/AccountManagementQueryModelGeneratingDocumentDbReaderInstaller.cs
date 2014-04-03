@@ -12,6 +12,7 @@ namespace AccountManagement.UI.QueryModels.ContainerInstallers
         {
             public const string DocumentDbReader = "AccountManagement.QueryModels.DocumentDbReader";
         }
+
         public void Install(IWindsorContainer container, IConfigurationStore store)
         {
             container.Register(

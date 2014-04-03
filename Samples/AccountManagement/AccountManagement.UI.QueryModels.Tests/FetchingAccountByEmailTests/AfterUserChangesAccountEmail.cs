@@ -1,9 +1,7 @@
 ﻿using AccountManagement.Domain.Shared;
-using AccountManagement.UI.QueryModels.DocumentDb;
 using AccountManagement.UI.QueryModels.Services;
 using Castle.MicroKernel.Lifestyle;
 using Composable.CQRS.Windsor;
-using Composable.KeyValueStorage;
 using FluentAssertions;
 using NUnit.Framework;
 
@@ -39,7 +37,7 @@ namespace AccountManagement.UI.QueryModels.Tests.EmailToAccountMapQueryModelTest
         [Test]
         public void TryingToFetchViaTheOldEmailThrowsNoSuchDocumentException()
         {
-            using (Container.BeginScope())
+            using(Container.BeginScope())
             {
                 AccountQueryModel account;
                 Container.Resolve<IAccountManagementQueryModelsReader>()
@@ -47,7 +45,6 @@ namespace AccountManagement.UI.QueryModels.Tests.EmailToAccountMapQueryModelTest
                     .Should().Be(false);
 
                 account.Should().Be(null);
-
             }
         }
     }

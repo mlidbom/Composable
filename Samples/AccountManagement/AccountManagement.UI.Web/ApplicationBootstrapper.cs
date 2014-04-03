@@ -1,9 +1,6 @@
 ﻿using System.Web.Mvc;
 using AccountManagement.UI.QueryModels.ContainerInstallers;
-using AccountManagement.UI.QueryModels.DocumentDb;
-using AccountManagement.UI.QueryModels.Generators;
 using Castle.MicroKernel.Registration;
-using Castle.MicroKernel.Resolvers.SpecializedResolvers;
 using Castle.Windsor;
 using Castle.Windsor.Installer;
 using Composable.CQRS.ServiceBus.NServiceBus;
@@ -33,7 +30,7 @@ namespace AccountManagement.UI.Web
                 Classes.FromThisAssembly().BasedOn<Controller>().WithServiceSelf().LifestyleTransient()
                 );
 
-            container.Install(                
+            container.Install(
                 FromAssembly.Containing<Domain.ContainerInstallers.AccountRepositoryInstaller>(),
                 FromAssembly.Containing<Domain.Events.EventStore.ContainerInstallers.AccountManagementDomainEventStoreInstaller>(),
                 FromAssembly.Containing<AccountManagementDocumentDbReaderInstaller>(),

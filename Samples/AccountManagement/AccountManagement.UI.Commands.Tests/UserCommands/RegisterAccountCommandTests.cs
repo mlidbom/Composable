@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using AccountManagement.TestHelpers;
 using AccountManagement.UI.Commands.UserCommands;
@@ -60,8 +58,8 @@ namespace AccountManagement.UI.Commands.Tests.UserCommands
             foreach(var invalidPassword in TestData.Password.Invalid.All)
             {
                 _registerAccountCommand.Password = invalidPassword;
-                CommandValidator.ValidationFailures(_registerAccountCommand).Should().NotBeEmpty();   
-            }            
+                CommandValidator.ValidationFailures(_registerAccountCommand).Should().NotBeEmpty();
+            }
         }
 
         [Test]

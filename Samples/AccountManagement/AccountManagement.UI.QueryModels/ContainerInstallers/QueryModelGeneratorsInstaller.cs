@@ -1,5 +1,4 @@
-﻿using System;
-using AccountManagement.UI.QueryModels.Generators;
+﻿using AccountManagement.UI.QueryModels.Generators;
 using Castle.MicroKernel.Registration;
 using Castle.MicroKernel.SubSystems.Configuration;
 using Castle.Windsor;

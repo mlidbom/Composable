@@ -1,5 +1,4 @@
-﻿using AccountManagement.Domain.Events.EventStore;
-using AccountManagement.Domain.Events.EventStore.ContainerInstallers;
+﻿using AccountManagement.Domain.Events.EventStore.ContainerInstallers;
 using AccountManagement.Domain.Events.EventStore.Services;
 using AccountManagement.Domain.Services;
 using AccountManagement.TestHelpers.Scenarios;

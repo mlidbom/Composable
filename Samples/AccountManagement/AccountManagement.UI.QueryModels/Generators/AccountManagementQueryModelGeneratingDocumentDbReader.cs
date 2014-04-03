@@ -8,10 +8,9 @@ namespace AccountManagement.UI.QueryModels.Generators
     internal class AccountManagementQueryModelGeneratingDocumentDbReader : QueryModelGeneratingDocumentDbReader
     {
         public AccountManagementQueryModelGeneratingDocumentDbReader(
-            ISingleContextUseGuard usageGuard, 
+            ISingleContextUseGuard usageGuard,
             IDocumentDbSessionInterceptor interceptor,
-            IEnumerable<IAccountManagementQueryModelGenerator> documentGenerators) 
-            : base(usageGuard, interceptor, documentGenerators)
-        {}    
+            IEnumerable<IAccountManagementQueryModelGenerator> documentGenerators)
+            : base(usageGuard, interceptor, documentGenerators) {}
     }
 }

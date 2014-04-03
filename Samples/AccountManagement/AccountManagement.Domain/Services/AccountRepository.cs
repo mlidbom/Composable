@@ -1,5 +1,4 @@
-﻿using AccountManagement.Domain.Events.EventStore;
-using AccountManagement.Domain.Events.EventStore.Services;
+﻿using AccountManagement.Domain.Events.EventStore.Services;
 using Composable.CQRS;
 using JetBrains.Annotations;
 

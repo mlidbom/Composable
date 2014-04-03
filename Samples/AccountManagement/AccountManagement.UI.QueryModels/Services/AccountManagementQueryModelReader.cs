@@ -12,7 +12,7 @@ namespace AccountManagement.UI.QueryModels.Services
         private readonly AccountManagementQueryModelGeneratingDocumentDbReader _generatedModels;
         private readonly IAccountManagementDocumentDbReader _documentDbModels;
 
-        public AccountManagementQueryModelReader(AccountManagementQueryModelGeneratingDocumentDbReader generatedModels, IAccountManagementDocumentDbReader documentDbModels )
+        public AccountManagementQueryModelReader(AccountManagementQueryModelGeneratingDocumentDbReader generatedModels, IAccountManagementDocumentDbReader documentDbModels)
         {
             _generatedModels = generatedModels;
             _documentDbModels = documentDbModels;
@@ -26,7 +26,7 @@ namespace AccountManagement.UI.QueryModels.Services
         public bool TryGetAccountByEmail(Email accountEmail, out AccountQueryModel account)
         {
             EmailToAccountMapQueryModel accountMap;
-            if (_documentDbModels.TryGet(accountEmail.ToString(), out accountMap))
+            if(_documentDbModels.TryGet(accountEmail.ToString(), out accountMap))
             {
                 account = GetAccount(accountMap.AccountId);
                 return true;

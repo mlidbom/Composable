@@ -2,5 +2,5 @@
 
 namespace AccountManagement.Domain.Events.EventStore.Services
 {
-    public interface IAccountManagementEventStoreReader : IEventStoreReader { }
+    public interface IAccountManagementEventStoreReader : IEventStoreReader {}
 }

@@ -12,8 +12,8 @@ namespace AccountManagement.Domain
     ///Completely encapsulates all the business logic for an account.  Should make it impossible for clients to use the class incorrectly.
     public class Account : AggregateRoot<Account, IAccountEvent>
     {
-        public Email Email { get; private set; }//Never public setters on an aggregate.
-        public Password Password { get; private set; }//Never public setters on an aggregate.
+        public Email Email { get; private set; } //Never public setters on an aggregate.
+        public Password Password { get; private set; } //Never public setters on an aggregate.
 
         //No public constructors please. Aggregates are created through domain verbs. 
         //Expose named factory methods that ensure the instance is valid instead. See register method below.
@@ -57,7 +57,7 @@ namespace AccountManagement.Domain
             created.RaiseEvent(new UserRegisteredAccountEvent(accountId: accountId, email: email, password: password));
             repository.Add(created);
 
-            return Contract.Return(created, inspect => inspect.NotNull());//Promise and ensure that you will never return null.
+            return Contract.Return(created, inspect => inspect.NotNull()); //Promise and ensure that you will never return null.
         }
 
         public void ChangePassword(string oldPassword, Password newPassword)

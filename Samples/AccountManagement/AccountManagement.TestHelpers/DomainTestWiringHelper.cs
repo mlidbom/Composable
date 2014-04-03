@@ -1,5 +1,4 @@
-﻿using AccountManagement.Domain.Events.EventStore;
-using AccountManagement.Domain.Events.EventStore.ContainerInstallers;
+﻿using AccountManagement.Domain.Events.EventStore.ContainerInstallers;
 using Castle.MicroKernel.Registration;
 using Castle.Windsor;
 using Castle.Windsor.Installer;

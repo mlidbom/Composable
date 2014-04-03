@@ -1,6 +1,4 @@
-﻿using AccountManagement.Domain.Shared;
-using AccountManagement.UI.QueryModels.DocumentDb;
-using AccountManagement.UI.QueryModels.Services;
+﻿using AccountManagement.UI.QueryModels.Services;
 using AccountManagement.UI.QueryModels.Tests.EmailToAccountMapQueryModelTests;
 using FluentAssertions;
 using NUnit.Framework;

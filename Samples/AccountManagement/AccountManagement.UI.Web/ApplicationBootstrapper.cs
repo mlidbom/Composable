@@ -1,5 +1,4 @@
 ﻿using System.Web.Mvc;
-using AccountManagement.UI.QueryModels.ContainerInstallers;
 using Castle.MicroKernel.Registration;
 using Castle.Windsor;
 using Castle.Windsor.Installer;
@@ -33,8 +32,8 @@ namespace AccountManagement.UI.Web
             container.Install(
                 FromAssembly.Containing<Domain.ContainerInstallers.AccountRepositoryInstaller>(),
                 FromAssembly.Containing<Domain.Events.EventStore.ContainerInstallers.AccountManagementDomainEventStoreInstaller>(),
-                FromAssembly.Containing<AccountManagementDocumentDbReaderInstaller>(),
-                FromAssembly.Containing<QueryModels.DocumentDB.Updaters.ContainerInstallers.AccountManagementQuerymodelsSessionInstaller>()
+                FromAssembly.Containing<UI.QueryModels.ContainerInstallers.AccountManagementDocumentDbReaderInstaller>(),
+                FromAssembly.Containing<UI.QueryModels.DocumentDB.Updaters.ContainerInstallers.AccountManagementQuerymodelsSessionInstaller>()
                 );
         }
 

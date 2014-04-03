@@ -1,5 +1,4 @@
-﻿using AccountManagement.Domain.Events.EventStore.ContainerInstallers;
-using Castle.MicroKernel.Registration;
+﻿using Castle.MicroKernel.Registration;
 using Castle.Windsor;
 using Castle.Windsor.Installer;
 using Composable.CQRS.Windsor.Testing;
@@ -16,7 +15,7 @@ namespace AccountManagement.TestHelpers
             container.ConfigureWiringForTestsCallBeforeAllOtherWiring();
             container.Install(
                 FromAssembly.Containing<Domain.ContainerInstallers.AccountRepositoryInstaller>(),
-                FromAssembly.Containing<AccountManagementDomainEventStoreInstaller>()
+                FromAssembly.Containing<Domain.Events.EventStore.ContainerInstallers.AccountManagementDomainEventStoreInstaller>()
                 );
 
             container.Register(

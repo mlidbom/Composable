@@ -1,5 +1,4 @@
 ﻿using System;
-using AccountManagement.Domain.Events.EventStore.ContainerInstallers;
 using AccountManagement.UI.QueryModels.ContainerInstallers;
 using AccountManagement.UI.QueryModels.Services;
 using Castle.MicroKernel.Lifestyle;
@@ -25,9 +24,9 @@ namespace AccountManagement.UI.QueryModels.Tests
             Container.ConfigureWiringForTestsCallBeforeAllOtherWiring();
             Container.Install(
                 FromAssembly.Containing<Domain.ContainerInstallers.AccountRepositoryInstaller>(),
-                FromAssembly.Containing<AccountManagementDomainEventStoreInstaller>(),
-                FromAssembly.Containing<AccountManagementDocumentDbReaderInstaller>(),
-                FromAssembly.Containing<DocumentDB.Updaters.ContainerInstallers.AccountManagementQuerymodelsSessionInstaller>()
+                FromAssembly.Containing<Domain.Events.EventStore.ContainerInstallers.AccountManagementDomainEventStoreInstaller>(),
+                FromAssembly.Containing<UI.QueryModels.ContainerInstallers.AccountManagementDocumentDbReaderInstaller>(),
+                FromAssembly.Containing<UI.QueryModels.DocumentDB.Updaters.ContainerInstallers.AccountManagementQuerymodelsSessionInstaller>()
                 );
 
             Container.Register(

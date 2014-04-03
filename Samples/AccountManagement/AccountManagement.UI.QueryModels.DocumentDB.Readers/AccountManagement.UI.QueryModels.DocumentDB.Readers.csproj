@@ -95,6 +95,7 @@
     <Compile Include="ContainerInstallers\Testing\InMemoryAccountManagementQuerymodelSessionInstaller.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Services\AccountManagementDocumentDBQueryModelsReader.cs" />
+    <Compile Include="Services\IAccountManagementDocumentDBReader.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />

@@ -107,9 +107,29 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\AccountManagement.Domain.Events.EventStore\AccountManagement.Domain.Events.EventStore.csproj">
+      <Project>{16096142-6323-4032-b222-f9f60a79f042}</Project>
+      <Name>AccountManagement.Domain.Events.EventStore</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\AccountManagement.Domain.Events\AccountManagement.Domain.Events.csproj">
+      <Project>{dabba9b3-cd83-4995-83c4-efcdf388c353}</Project>
+      <Name>AccountManagement.Domain.Events</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\AccountManagement.Domain\AccountManagement.Domain.csproj">
+      <Project>{F40E3779-B691-44B9-A820-577C5C11035F}</Project>
+      <Name>AccountManagement.Domain</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\AccountManagement.TestHelpers\AccountManagement.TestHelpers.csproj">
+      <Project>{688DE4C0-690E-4EF5-AF36-A16BD2D9E930}</Project>
+      <Name>AccountManagement.TestHelpers</Name>
+    </ProjectReference>
     <ProjectReference Include="..\AccountManagement.UI.QueryModels.DocumentDB.Readers\AccountManagement.UI.QueryModels.DocumentDB.Readers.csproj">
       <Project>{fc4a384b-cdff-4fb9-a3f8-78dceade0714}</Project>
       <Name>AccountManagement.UI.QueryModels.DocumentDB.Readers</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\AccountManagement.UI.QueryModels.Generators\AccountManagement.UI.QueryModels.EventStore.Generators.csproj">
+      <Project>{accad488-7866-4f77-a541-ecda61923f57}</Project>
+      <Name>AccountManagement.UI.QueryModels.EventStore.Generators</Name>
     </ProjectReference>
     <ProjectReference Include="..\AccountManagement.UI.QueryModels.Updaters\AccountManagement.UI.QueryModels.DocumentDB.Updaters.csproj">
       <Project>{d0c22390-0bd6-4837-8ce5-149f80e6ba4e}</Project>

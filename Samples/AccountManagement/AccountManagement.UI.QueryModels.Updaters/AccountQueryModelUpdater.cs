@@ -6,8 +6,10 @@ using JetBrains.Annotations;
 
 namespace AccountManagement.UI.QueryModels.DocumentDB.Updaters
 {
+    ///<summary>Keeps a query model up to date by updating it whenever an IAccount event is raised</summary>
     [UsedImplicitly]
-    public class AccountQueryModelUpdater : SingleAggregateQueryModelUpdater<AccountQueryModelUpdater, AccountQueryModel, IAccountEvent, IAccountManagementQueryModelUpdaterSession>
+    public class AccountQueryModelUpdater : 
+        SingleAggregateQueryModelUpdater<AccountQueryModelUpdater, AccountQueryModel, IAccountEvent, IAccountManagementQueryModelUpdaterSession>
     {
         public AccountQueryModelUpdater(IAccountManagementQueryModelUpdaterSession session) : base(session)
         {

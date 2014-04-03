@@ -1,7 +1,7 @@
 ﻿using AccountManagement.Domain.Events.PropertyUpdated;
-using AccountManagement.Domain.Shared;
 using AccountManagement.UI.QueryModels.DocumentDb;
 using AccountManagement.UI.QueryModels.DocumentDB.Updaters.Services;
+using AccountManagement.UI.QueryModels.Generators;
 using JetBrains.Annotations;
 using NServiceBus;
 
@@ -11,9 +11,9 @@ namespace AccountManagement.UI.QueryModels.DocumentDB.Updaters
     public class EmailToAccountMapQueryModelUpdater : IHandleMessages<IAccountEmailPropertyUpdatedEvent>
     {
         private readonly IAccountManagementQueryModelUpdaterSession _documentDbModels;
-        private readonly IAccountManagementDocumentDbReader _generatedModels;
+        private readonly IAccountManagementQueryModelGeneratingDocumentDbReader _generatedModels;
 
-        public EmailToAccountMapQueryModelUpdater(IAccountManagementQueryModelUpdaterSession documentDbModels, IAccountManagementDocumentDbReader generatedModels)
+        public EmailToAccountMapQueryModelUpdater(IAccountManagementQueryModelUpdaterSession documentDbModels, IAccountManagementQueryModelGeneratingDocumentDbReader generatedModels)
         {
             _documentDbModels = documentDbModels;
             _generatedModels = generatedModels;
@@ -21,12 +21,10 @@ namespace AccountManagement.UI.QueryModels.DocumentDB.Updaters
 
         public void Handle(IAccountEmailPropertyUpdatedEvent message)
         {
-            Email previousEmail;
             if(message.AggregateRootVersion > 1)
             {
-                var previousAccountVersion = _generatedModels.Get<AccountQueryModel>(message.AggregateRootId);
-                previousEmail = previousAccountVersion.Email;
-                _documentDbModels.Delete<EmailToAccountMapQueryModel>(previousEmail);
+                var previousAccountVersion = _generatedModels.GetVersion<AccountQueryModel>(message.AggregateRootId, message.AggregateRootVersion -1);
+                _documentDbModels.Delete<EmailToAccountMapQueryModel>(previousAccountVersion.Email);
             }
             var newEmail = message.Email;
             _documentDbModels.Save(newEmail, new EmailToAccountMapQueryModel(newEmail, message.AggregateRootId));

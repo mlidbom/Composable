@@ -19,7 +19,6 @@ namespace AccountManagement.Domain.ContainerInstallers
             public const string KeyForDocumentDb = "AccountManagement.Domain.QueryModels.IDocumentDb";
             public const string KeyForInMemoryDocumentDb = "AccountManagement.Domain.QueryModels.IDocumentDb.InMemory";
             public const string KeyForSession = "AccountManagement.Domain.QueryModels.IDocumentDbSession";
-            public const string KeyForNullOpSessionInterceptor = "AccountManagement.Domain.QueryModels.NullOpSessionInterceptor";
         }
 
         public static string ConnectionStringName { get { return AccountManagementDomainEventStoreInstaller.ConnectionStringName; } }
@@ -34,15 +33,11 @@ namespace AccountManagement.Domain.ContainerInstallers
                     .DependsOn(new {connectionString = GetConnectionStringFromConfiguration(ConnectionStringName)})
                     .Named(ComponentKeys.KeyForDocumentDb)
                     .LifestylePerWebRequest(),
-                Component.For<IDocumentDbSessionInterceptor>()
-                    .Instance(NullOpDocumentDbSessionInterceptor.Instance)
-                    .Named(ComponentKeys.KeyForNullOpSessionInterceptor)
-                    .LifestyleSingleton(),
                 Component.For<IDocumentDbSession, IAccountManagementDomainQueryModelSession>()
                     .ImplementedBy<AccountManagementDomainQueryModelSession>()
                     .DependsOn(
                         Dependency.OnComponent(typeof(IDocumentDb), ComponentKeys.KeyForDocumentDb),
-                        Dependency.OnComponent(typeof(IDocumentDbSessionInterceptor), ComponentKeys.KeyForNullOpSessionInterceptor))
+                        Dependency.OnValue<IDocumentDbSessionInterceptor>(NullOpDocumentDbSessionInterceptor.Instance))
                     .Named(ComponentKeys.KeyForSession)
                     .LifestylePerWebRequest()
                 );

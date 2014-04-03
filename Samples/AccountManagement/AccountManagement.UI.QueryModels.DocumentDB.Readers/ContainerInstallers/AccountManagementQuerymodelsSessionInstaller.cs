@@ -17,7 +17,6 @@ namespace AccountManagement.UI.QueryModels.DocumentDB.Readers.ContainerInstaller
             public const string DocumentDb = "AccountManagement.QueryModels.IDocumentDb";
             public const string InMemoryDocumentDb = "AccountManagement.QueryModels.IDocumentDb.InMemory";
             public const string DocumentDbReader = "AccountManagement.QueryModels.IDocumentDbReader";
-            public const string NullOpSessionInterceptor = "AccountManagement.QueryModels.NullOpSessionInterceptor";
         }
 
         public const string ConnectionStringName = "AccountManagementReadModels";
@@ -32,15 +31,11 @@ namespace AccountManagement.UI.QueryModels.DocumentDB.Readers.ContainerInstaller
                     .DependsOn(new {connectionString = GetConnectionStringFromConfiguration(ConnectionStringName)})
                     .Named(ComponentKeys.DocumentDb)
                     .LifestylePerWebRequest(),
-                Component.For<IDocumentDbSessionInterceptor>()
-                    .Instance(NullOpDocumentDbSessionInterceptor.Instance)
-                    .Named(ComponentKeys.NullOpSessionInterceptor)
-                    .LifestyleSingleton(),
                 Component.For<IAccountManagementDocumentDbReader>()
                     .ImplementedBy<AccountManagementDocumentDbQueryModelsReader>()
                     .DependsOn(
                         Dependency.OnComponent(typeof(IDocumentDb), ComponentKeys.DocumentDb),
-                        Dependency.OnComponent(typeof(IDocumentDbSessionInterceptor), ComponentKeys.NullOpSessionInterceptor))
+                        Dependency.OnValue<IDocumentDbSessionInterceptor>(NullOpDocumentDbSessionInterceptor.Instance))
                     .Named(ComponentKeys.DocumentDbReader)
                     .LifestylePerWebRequest()
                 );

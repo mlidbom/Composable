@@ -107,9 +107,13 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\AccountManagement.UI.QueryModels.Updaters\AccountManagement.UI.QueryModels.Updaters.csproj">
+    <ProjectReference Include="..\AccountManagement.UI.QueryModels.DocumentDB.Readers\AccountManagement.UI.QueryModels.DocumentDB.Readers.csproj">
+      <Project>{fc4a384b-cdff-4fb9-a3f8-78dceade0714}</Project>
+      <Name>AccountManagement.UI.QueryModels.DocumentDB.Readers</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\AccountManagement.UI.QueryModels.Updaters\AccountManagement.UI.QueryModels.DocumentDB.Updaters.csproj">
       <Project>{d0c22390-0bd6-4837-8ce5-149f80e6ba4e}</Project>
-      <Name>AccountManagement.UI.QueryModels.Updaters</Name>
+      <Name>AccountManagement.UI.QueryModels.DocumentDB.Updaters</Name>
     </ProjectReference>
     <ProjectReference Include="..\AccountManagement.UI.QueryModels\AccountManagement.UI.QueryModels.csproj">
       <Project>{5d9f2751-088c-422f-b251-0852e890a3e2}</Project>

@@ -6,7 +6,7 @@ using Composable.CQRS.Windsor.Testing;
 using Composable.KeyValueStorage;
 using JetBrains.Annotations;
 
-namespace AccountManagement.UI.QueryModels.ContainerInstallers.Testing
+namespace AccountManagement.UI.QueryModels.DocumentDB.Readers.ContainerInstallers.Testing
 {
     [UsedImplicitly]
     public class InMemoryAccountManagementQuerymodelSessionInstaller : IWindsorInstaller

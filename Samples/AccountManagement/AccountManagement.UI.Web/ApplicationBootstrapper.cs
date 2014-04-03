@@ -1,10 +1,12 @@
 ﻿using System.Web.Mvc;
+using AccountManagement.UI.QueryModels.DocumentDB.Updaters.ContainerInstallers;
 using Castle.MicroKernel.Registration;
 using Castle.Windsor;
 using Castle.Windsor.Installer;
 using Composable.CQRS.ServiceBus.NServiceBus;
 using Composable.ServiceBus;
 using JetBrains.Annotations;
+using AccountManagementQuerymodelsSessionInstaller = AccountManagement.UI.QueryModels.DocumentDB.Readers.ContainerInstallers.AccountManagementQuerymodelsSessionInstaller;
 
 namespace AccountManagement.UI.Web
 {
@@ -31,8 +33,8 @@ namespace AccountManagement.UI.Web
 
             container.Install(
                 FromAssembly.Containing<Domain.ContainerInstallers.AccountManagementDomainEventStoreInstaller>(),
-                FromAssembly.Containing<UI.QueryModels.ContainerInstallers.AccountManagementQuerymodelsSessionInstaller>(),
-                FromAssembly.Containing<UI.QueryModels.Updaters.ContainerInstallers.AccountManagementQuerymodelsSessionInstaller>()
+                FromAssembly.Containing<AccountManagementQuerymodelsSessionInstaller>(),
+                FromAssembly.Containing<QueryModels.DocumentDB.Updaters.ContainerInstallers.AccountManagementQuerymodelsSessionInstaller>()
                 );
         }
 

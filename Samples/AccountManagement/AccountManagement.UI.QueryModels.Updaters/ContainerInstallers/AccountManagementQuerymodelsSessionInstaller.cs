@@ -1,4 +1,4 @@
-﻿using AccountManagement.UI.QueryModels.Updaters.Services;
+﻿using AccountManagement.UI.QueryModels.DocumentDB.Updaters.Services;
 using Castle.MicroKernel.Registration;
 using Castle.MicroKernel.SubSystems.Configuration;
 using Castle.Windsor;
@@ -7,7 +7,7 @@ using Composable.KeyValueStorage.SqlServer;
 using Composable.System.Configuration;
 using JetBrains.Annotations;
 
-namespace AccountManagement.UI.QueryModels.Updaters.ContainerInstallers
+namespace AccountManagement.UI.QueryModels.DocumentDB.Updaters.ContainerInstallers
 {
     [UsedImplicitly]
     public class AccountManagementQuerymodelsSessionInstaller : IWindsorInstaller
@@ -19,7 +19,7 @@ namespace AccountManagement.UI.QueryModels.Updaters.ContainerInstallers
             public const string KeyForNullOpSessionInterceptor = "AccountManagement.QueryModelUpdaters.NullOpSessionInterceptor";
         }
 
-        public const string ConnectionStringName = QueryModels.ContainerInstallers.AccountManagementQuerymodelsSessionInstaller.ConnectionStringName;
+        public const string ConnectionStringName = Readers.ContainerInstallers.AccountManagementQuerymodelsSessionInstaller.ConnectionStringName;
 
         public void Install(
             IWindsorContainer container,

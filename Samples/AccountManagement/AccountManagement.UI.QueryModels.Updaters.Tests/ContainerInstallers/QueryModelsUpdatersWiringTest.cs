@@ -1,5 +1,5 @@
 ﻿using System;
-using AccountManagement.UI.QueryModels.Updaters.Services;
+using AccountManagement.UI.QueryModels.DocumentDB.Updaters.Services;
 using Castle.MicroKernel.Lifestyle;
 using Castle.MicroKernel.Registration;
 using Castle.Windsor;
@@ -10,7 +10,7 @@ using Composable.KeyValueStorage;
 using Composable.ServiceBus;
 using NUnit.Framework;
 
-namespace AccountManagement.UI.QueryModels.Updaters.Tests.ContainerInstallers
+namespace AccountManagement.UI.QueryModels.DocumentDB.Updaters.Tests.ContainerInstallers
 {
     public abstract class QueryModelsUpdatersWiringTest
     {
@@ -26,7 +26,7 @@ namespace AccountManagement.UI.QueryModels.Updaters.Tests.ContainerInstallers
             Container.ConfigureWiringForTestsCallBeforeAllOtherWiring();
 
             Container.Install(
-                FromAssembly.Containing<QueryModels.Updaters.Services.IAccountManagementQueryModelUpdaterSession>()
+                FromAssembly.Containing<IAccountManagementQueryModelUpdaterSession>()
                 );
 
             Container.Register(
@@ -48,7 +48,7 @@ namespace AccountManagement.UI.QueryModels.Updaters.Tests.ContainerInstallers
         {
             Container
                 .RegistrationAssertionHelper()
-                .LifestyleScoped<QueryModels.Updaters.Services.IAccountManagementQueryModelUpdaterSession>();
+                .LifestyleScoped<IAccountManagementQueryModelUpdaterSession>();
         }
     }
 

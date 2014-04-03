@@ -1,6 +1,6 @@
 ﻿using NUnit.Framework;
 
-namespace AccountManagement.UI.QueryModels.Updaters.Tests.AccountQueryModelTests
+namespace AccountManagement.UI.QueryModels.DocumentDB.Updaters.Tests.AccountQueryModelTests
 {
     public class AfterUserChangesAccountPassword_Generators : AfterUserChangesAccountPassword
     {

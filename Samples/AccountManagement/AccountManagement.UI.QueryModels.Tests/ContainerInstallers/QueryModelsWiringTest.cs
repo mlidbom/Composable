@@ -1,6 +1,8 @@
 ﻿using System;
+using AccountManagement.UI.QueryModels.DocumentDB.Readers.Services;
+using AccountManagement.UI.QueryModels.DocumentDB.Updaters.ContainerInstallers;
+using AccountManagement.UI.QueryModels.DocumentDB.Updaters.Services;
 using AccountManagement.UI.QueryModels.Services;
-using AccountManagement.UI.QueryModels.Updaters.Services;
 using Castle.MicroKernel.Lifestyle;
 using Castle.MicroKernel.Registration;
 using Castle.Windsor;
@@ -10,6 +12,7 @@ using Composable.CQRS.Windsor.Testing;
 using Composable.KeyValueStorage;
 using Composable.ServiceBus;
 using NUnit.Framework;
+using AccountManagementQuerymodelsSessionInstaller = AccountManagement.UI.QueryModels.DocumentDB.Readers.ContainerInstallers.AccountManagementQuerymodelsSessionInstaller;
 
 namespace AccountManagement.UI.QueryModels.Tests.ContainerInstallers
 {
@@ -27,8 +30,8 @@ namespace AccountManagement.UI.QueryModels.Tests.ContainerInstallers
             Container.ConfigureWiringForTestsCallBeforeAllOtherWiring();
 
             Container.Install(
-                FromAssembly.Containing<QueryModels.ContainerInstallers.AccountManagementQuerymodelsSessionInstaller>(),
-                FromAssembly.Containing<QueryModels.Updaters.ContainerInstallers.AccountManagementQuerymodelsSessionInstaller>()
+                FromAssembly.Containing<AccountManagementQuerymodelsSessionInstaller>(),
+                FromAssembly.Containing<DocumentDB.Updaters.ContainerInstallers.AccountManagementQuerymodelsSessionInstaller>()
                 );
 
             Container.Register(

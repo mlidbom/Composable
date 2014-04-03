@@ -20,9 +20,9 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AccountManagement.UI.Comman
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AccountManagement.UI.QueryModels", "AccountManagement.UI.QueryModels\AccountManagement.UI.QueryModels.csproj", "{5D9F2751-088C-422F-B251-0852E890A3E2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AccountManagement.UI.QueryModels.Updaters", "AccountManagement.UI.QueryModels.Updaters\AccountManagement.UI.QueryModels.Updaters.csproj", "{D0C22390-0BD6-4837-8CE5-149F80E6BA4E}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AccountManagement.UI.QueryModels.DocumentDB.Updaters", "AccountManagement.UI.QueryModels.Updaters\AccountManagement.UI.QueryModels.DocumentDB.Updaters.csproj", "{D0C22390-0BD6-4837-8CE5-149F80E6BA4E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AccountManagement.UI.QueryModels.Generators", "AccountManagement.UI.QueryModels.Generators\AccountManagement.UI.QueryModels.Generators.csproj", "{ACCAD488-7866-4F77-A541-ECDA61923F57}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AccountManagement.UI.QueryModels.EventStore.Generators", "AccountManagement.UI.QueryModels.Generators\AccountManagement.UI.QueryModels.EventStore.Generators.csproj", "{ACCAD488-7866-4F77-A541-ECDA61923F57}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AccountManagement.Domain.Shared.Tests", "AccountManagement.Domain.Shared.Tests\AccountManagement.Domain.Shared.Tests.csproj", "{0BBC38E5-3BC9-4CFE-A9E8-48A9D0F9BF2A}"
 EndProject
@@ -32,7 +32,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Composable.StagingArea", "C
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AccountManagement.TestHelpers", "AccountManagement.TestHelpers\AccountManagement.TestHelpers.csproj", "{688DE4C0-690E-4EF5-AF36-A16BD2D9E930}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AccountManagement.UI.QueryModels.Updaters.Tests", "AccountManagement.UI.QueryModels.Updaters.Tests\AccountManagement.UI.QueryModels.Updaters.Tests.csproj", "{A59EA886-DF20-4324-9CEA-238CEA192F0A}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AccountManagement.UI.QueryModels.DocumentDB.Updaters.Tests", "AccountManagement.UI.QueryModels.Updaters.Tests\AccountManagement.UI.QueryModels.DocumentDB.Updaters.Tests.csproj", "{A59EA886-DF20-4324-9CEA-238CEA192F0A}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AccountManagement.UI.QueryModels.Tests", "AccountManagement.UI.QueryModels.Tests\AccountManagement.UI.QueryModels.Tests.csproj", "{F662E60F-F2BA-4245-A405-9024A294C90D}"
 EndProject
@@ -41,6 +41,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AccountManagement.UI.Web.Tests", "AccountManagement.UI.Web.Tests\AccountManagement.UI.Web.Tests.csproj", "{E369430C-BBF1-43C0-BC0F-073BD4F72C44}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AccountManagement.UI.Commands.Tests", "AccountManagement.UI.Commands.Tests\AccountManagement.UI.Commands.Tests.csproj", "{B09882BB-B432-411A-942E-E1E5C10C0509}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AccountManagement.UI.QueryModels.DocumentDB.Readers", "AccountManagement.UI.QueryModels.DocumentDB.Readers\AccountManagement.UI.QueryModels.DocumentDB.Readers.csproj", "{FC4A384B-CDFF-4FB9-A3F8-78DCEADE0714}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -112,6 +114,10 @@ Global
 		{B09882BB-B432-411A-942E-E1E5C10C0509}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B09882BB-B432-411A-942E-E1E5C10C0509}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B09882BB-B432-411A-942E-E1E5C10C0509}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FC4A384B-CDFF-4FB9-A3F8-78DCEADE0714}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FC4A384B-CDFF-4FB9-A3F8-78DCEADE0714}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FC4A384B-CDFF-4FB9-A3F8-78DCEADE0714}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FC4A384B-CDFF-4FB9-A3F8-78DCEADE0714}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

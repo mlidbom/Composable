@@ -1,7 +1,7 @@
 ﻿using FluentAssertions;
 using NUnit.Framework;
 
-namespace AccountManagement.UI.QueryModels.Updaters.Tests.AccountQueryModelTests
+namespace AccountManagement.UI.QueryModels.DocumentDB.Updaters.Tests.AccountQueryModelTests
 {
     [TestFixture]
     public class AfterAccountIsRegistered : RegistersAccountDuringSetupAccountQueryModelTestBase

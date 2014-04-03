@@ -2,7 +2,7 @@
 using AccountManagement.TestHelpers.Scenarios;
 using NUnit.Framework;
 
-namespace AccountManagement.UI.QueryModels.Updaters.Tests.AccountQueryModelTests
+namespace AccountManagement.UI.QueryModels.DocumentDB.Updaters.Tests.AccountQueryModelTests
 {
     public class RegistersAccountDuringSetupAccountQueryModelTestBase : QueryModelsUpdatersTestsBase
     {

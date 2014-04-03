@@ -46,6 +46,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AccountManagement.UI.QueryM
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AccountManagement.Domain.Events.EventStore", "AccountManagement.Domain.Events.EventStore\AccountManagement.Domain.Events.EventStore.csproj", "{16096142-6323-4032-B222-F9F60A79F042}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AccountManagement.UI.QueryModels.EventStore.GeneratorTests", "AccountManagement.UI.QueryModels.EventStore.GeneratorTests\AccountManagement.UI.QueryModels.EventStore.GeneratorTests.csproj", "{7E0E56EB-3536-4047-A5E0-56F1B2AE5844}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -124,6 +126,10 @@ Global
 		{16096142-6323-4032-B222-F9F60A79F042}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{16096142-6323-4032-B222-F9F60A79F042}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{16096142-6323-4032-B222-F9F60A79F042}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7E0E56EB-3536-4047-A5E0-56F1B2AE5844}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7E0E56EB-3536-4047-A5E0-56F1B2AE5844}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7E0E56EB-3536-4047-A5E0-56F1B2AE5844}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7E0E56EB-3536-4047-A5E0-56F1B2AE5844}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

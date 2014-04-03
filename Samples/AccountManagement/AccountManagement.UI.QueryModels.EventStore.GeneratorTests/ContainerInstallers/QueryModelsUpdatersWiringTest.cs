@@ -1,4 +1,6 @@
 ﻿using System;
+using AccountManagement.Domain;
+using AccountManagement.TestHelpers.Scenarios;
 using AccountManagement.UI.QueryModels.DocumentDB.Updaters.Services;
 using Castle.MicroKernel.Lifestyle;
 using Castle.MicroKernel.Registration;
@@ -11,7 +13,7 @@ using Composable.KeyValueStorage;
 using Composable.ServiceBus;
 using NUnit.Framework;
 
-namespace AccountManagement.UI.QueryModels.DocumentDB.Updaters.Tests.ContainerInstallers
+namespace AccountManagement.UI.QueryModels.EventStore.Generators.Tests.ContainerInstallers
 {
     public abstract class QueryModelsUpdatersWiringTest
     {
@@ -30,9 +32,7 @@ namespace AccountManagement.UI.QueryModels.DocumentDB.Updaters.Tests.ContainerIn
 
             Container.Install(
                 FromAssembly.Containing<Domain.Events.EventStore.ContainerInstallers.AccountManagementDomainEventStoreInstaller>(),
-                FromAssembly.Containing<UI.QueryModels.DocumentDB.Readers.ContainerInstallers.AccountManagementQuerymodelsSessionInstaller>(),
-                FromAssembly.Containing<UI.QueryModels.EventStore.Generators.ContainerInstallers.AccountManagementQueryModelGeneratingQueryModelSessionInstaller>(),
-                FromAssembly.Containing<UI.QueryModels.DocumentDB.Updaters.ContainerInstallers.AccountManagementQuerymodelsSessionInstaller>()
+                FromAssembly.Containing<UI.QueryModels.EventStore.Generators.ContainerInstallers.AccountManagementQueryModelGeneratingQueryModelSessionInstaller>()
                 );
 
             Container.Register(
@@ -48,14 +48,6 @@ namespace AccountManagement.UI.QueryModels.DocumentDB.Updaters.Tests.ContainerIn
                 .RegistrationAssertionHelper()
                 .AllComponentsCanBeResolved();
         }
-
-        [Test]
-        public void EventStoreIsRegisteredScoped()
-        {
-            Container
-                .RegistrationAssertionHelper()
-                .LifestyleScoped<IAccountManagementQueryModelUpdaterSession>();
-        }
     }
 
     [TestFixture] //The production wiring test does not modify the wiring at all
@@ -68,25 +60,6 @@ namespace AccountManagement.UI.QueryModels.DocumentDB.Updaters.Tests.ContainerIn
         public void SetupTask()
         {
             Container.ConfigureWiringForTestsCallAfterAllOtherWiring();
-        }
-
-        [Test]
-        public void ResettingTestDatabasesRemovesAccountQueryModels()
-        {
-            var accountQueryModel = new AccountQueryModel();
-            ((ISingleAggregateQueryModel)accountQueryModel).SetId(Guid.NewGuid());
-
-            using(Container.BeginScope())
-            {
-                Container.Resolve<IAccountManagementQueryModelUpdaterSession>().Save(accountQueryModel);
-                Container.Resolve<IAccountManagementQueryModelUpdaterSession>().Get<AccountQueryModel>(accountQueryModel.Id);
-            }
-
-            Container.ResetTestDataBases();
-            using(Container.BeginScope())
-            {
-                Assert.Throws<NoSuchDocumentException>(() => Container.Resolve<IAccountManagementQueryModelUpdaterSession>().Get<AccountQueryModel>(accountQueryModel.Id));
-            }
         }
     }
 }

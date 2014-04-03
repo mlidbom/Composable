@@ -16,7 +16,7 @@ namespace AccountManagement.UI.QueryModels.ContainerInstallers
         public void Install(IWindsorContainer container, IConfigurationStore store)
         {
             container.Register(
-                Component.For<AccountManagementQueryModelGeneratingDocumentDbReader>()
+                Component.For<IAccountManagementQueryModelGeneratingDocumentDbReader>()
                     .ImplementedBy<AccountManagementQueryModelGeneratingDocumentDbReader>()
                     .Named(ComponentKeys.DocumentDbReader)
                     .DependsOn(

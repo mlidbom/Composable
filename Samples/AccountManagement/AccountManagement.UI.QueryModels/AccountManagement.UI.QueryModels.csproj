@@ -101,6 +101,7 @@
     <Compile Include="DocumentDb\IAccountManagementDocumentDBReader.cs" />
     <Compile Include="EmailToAccountMapQueryModel.cs" />
     <Compile Include="Generators\AccountManagementQueryModelGeneratingDocumentDbReader.cs" />
+    <Compile Include="Generators\IAccountManagementQueryModelGeneratingDocumentDbReader.cs" />
     <Compile Include="Generators\IAccountManagementQueryModelGenerator.cs" />
     <Compile Include="Generators\RequestQueryModelGenerator.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

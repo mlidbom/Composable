@@ -9,10 +9,10 @@ namespace AccountManagement.UI.QueryModels.Services
     [UsedImplicitly]
     internal class AccountManagementQueryModelReader : IAccountManagementQueryModelsReader
     {
-        private readonly AccountManagementQueryModelGeneratingDocumentDbReader _generatedModels;
+        private readonly IAccountManagementQueryModelGeneratingDocumentDbReader _generatedModels;
         private readonly IAccountManagementDocumentDbReader _documentDbModels;
 
-        public AccountManagementQueryModelReader(AccountManagementQueryModelGeneratingDocumentDbReader generatedModels, IAccountManagementDocumentDbReader documentDbModels)
+        public AccountManagementQueryModelReader(IAccountManagementQueryModelGeneratingDocumentDbReader generatedModels, IAccountManagementDocumentDbReader documentDbModels)
         {
             _generatedModels = generatedModels;
             _documentDbModels = documentDbModels;

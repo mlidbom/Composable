@@ -5,7 +5,7 @@ using Composable.SystemExtensions.Threading;
 
 namespace AccountManagement.UI.QueryModels.Generators
 {
-    internal class AccountManagementQueryModelGeneratingDocumentDbReader : QueryModelGeneratingDocumentDbReader
+    public class AccountManagementQueryModelGeneratingDocumentDbReader : QueryModelGeneratingDocumentDbReader, IAccountManagementQueryModelGeneratingDocumentDbReader
     {
         public AccountManagementQueryModelGeneratingDocumentDbReader(
             ISingleContextUseGuard usageGuard,

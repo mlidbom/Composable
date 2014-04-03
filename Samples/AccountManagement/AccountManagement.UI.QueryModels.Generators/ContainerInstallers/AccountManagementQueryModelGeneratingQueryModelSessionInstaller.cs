@@ -3,9 +3,11 @@ using AccountManagement.UI.QueryModels.Services;
 using Castle.MicroKernel.Registration;
 using Castle.MicroKernel.SubSystems.Configuration;
 using Castle.Windsor;
+using JetBrains.Annotations;
 
 namespace AccountManagement.UI.QueryModels.EventStore.Generators.ContainerInstallers
 {
+    [UsedImplicitly]
     public class AccountManagementQueryModelGeneratingQueryModelSessionInstaller : IWindsorInstaller
     {
         public static class ComponentKeys

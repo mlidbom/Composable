@@ -12,8 +12,8 @@ namespace AccountManagement.Domain
     ///Completely encapsulates all the business logic for an account.  Should make it impossible for clients to use the class incorrectly.
     public class Account : AggregateRoot<Account, IAccountEvent>
     {
-        public Email Email { get; private set; }
-        public Password Password { get; private set; }
+        public Email Email { get; private set; }//Never public setters on an aggregate.
+        public Password Password { get; private set; }//Never public setters on an aggregate.
 
         //No public constructors please. Aggregates are created through domain verbs. 
         //Expose named factory methods that ensure the instance is valid instead. See register method below.
@@ -36,8 +36,8 @@ namespace AccountManagement.Domain
         /// <summary><para>Used when a user manually creates an account themselves.</para>
         /// <para>Note how this design with a named static creation method: </para>
         /// <para> * makes it clearear what the caller intends.</para>
-        /// <para> * makes it impossible to use the class incorrectly, such as forgetting to save the new instance in the repository.</para>
-        /// <para> * reduces code duplication since multiple callers are not burdened with saving the instance.</para>
+        /// <para> * makes it impossible to use the class incorrectly, such as forgetting to check for duplicates or save the new instance in the repository.</para>
+        /// <para> * reduces code duplication since multiple callers are not burdened with saving the instance, checking for duplicates etc.</para>
         /// </summary>
         public static Account Register(
             Email email,
@@ -57,7 +57,7 @@ namespace AccountManagement.Domain
             created.RaiseEvent(new UserRegisteredAccountEvent(accountId: accountId, email: email, password: password));
             repository.Add(created);
 
-            return Contract.Return(created, inspect => inspect.NotNull());
+            return Contract.Return(created, inspect => inspect.NotNull());//Promise and ensure that you will never return null.
         }
 
         public void ChangePassword(string oldPassword, Password newPassword)

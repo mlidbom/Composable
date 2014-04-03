@@ -42,21 +42,21 @@
       <HintPath>..\packages\Castle.Windsor.3.2.1\lib\net45\Castle.Windsor.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Composable.Core, Version=2.3.0.0, Culture=neutral, PublicKeyToken=0c6b2c03e4c91d22, processorArchitecture=MSIL">
+    <Reference Include="Composable.Core, Version=2.3.1.0, Culture=neutral, PublicKeyToken=0c6b2c03e4c91d22, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\Composable.Core.2.3.0-develop\lib\net40\Composable.Core.dll</HintPath>
+      <HintPath>..\packages\Composable.Core.2.3.1-develop\lib\net40\Composable.Core.dll</HintPath>
+      <Private>True</Private>
     </Reference>
-    <Reference Include="Composable.CQRS, Version=2.3.0.0, Culture=neutral, PublicKeyToken=0c6b2c03e4c91d22, processorArchitecture=MSIL">
+    <Reference Include="Composable.CQRS, Version=2.3.1.0, Culture=neutral, PublicKeyToken=0c6b2c03e4c91d22, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\Composable.CQRS.2.3.0-develop\lib\net40\Composable.CQRS.dll</HintPath>
+      <HintPath>..\packages\Composable.CQRS.2.3.1-develop\lib\net40\Composable.CQRS.dll</HintPath>
     </Reference>
-    <Reference Include="Composable.CQRS.Windsor, Version=2.3.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\Composable.CQRS.Windsor.2.3.0-develop\lib\net40\Composable.CQRS.Windsor.dll</HintPath>
+    <Reference Include="Composable.CQRS.Windsor">
+      <HintPath>..\packages\Composable.CQRS.Windsor.2.3.1-develop\lib\net40\Composable.CQRS.Windsor.dll</HintPath>
     </Reference>
-    <Reference Include="Composable.DomainEvents, Version=2.3.0.0, Culture=neutral, PublicKeyToken=0c6b2c03e4c91d22, processorArchitecture=MSIL">
+    <Reference Include="Composable.DomainEvents, Version=2.3.1.0, Culture=neutral, PublicKeyToken=0c6b2c03e4c91d22, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\Composable.DomainEvents.2.3.0-develop\lib\net40\Composable.DomainEvents.dll</HintPath>
+      <HintPath>..\packages\Composable.DomainEvents.2.3.1-develop\lib\net40\Composable.DomainEvents.dll</HintPath>
     </Reference>
     <Reference Include="FluentAssertions">
       <HintPath>..\packages\FluentAssertions.2.2.0.0\lib\net45\FluentAssertions.dll</HintPath>

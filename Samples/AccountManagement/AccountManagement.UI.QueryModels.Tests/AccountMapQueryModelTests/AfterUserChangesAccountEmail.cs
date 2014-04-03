@@ -22,7 +22,7 @@ namespace AccountManagement.UI.QueryModels.Tests.AccountMapQueryModelTests
         {
             using(Container.BeginScope())
             {
-                GetQueryModel().Email.Should().Be(_newEmail);
+                GetAccountQueryModel().Email.Should().Be(_newEmail);
             }
         }
     }

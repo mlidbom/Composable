@@ -9,19 +9,19 @@ namespace AccountManagement.UI.QueryModels.Tests.AccountMapQueryModelTests
         [Test]
         public void QueryModelExists()
         {
-            GetQueryModel();
+            GetAccountQueryModel();
         }
 
         [Test]
         public void EmailIsTheSameAsTheOneInTheAccount()
         {
-            GetQueryModel().Email.Should().Be(RegisteredAccount.Email);
+            GetAccountQueryModel().Email.Should().Be(RegisteredAccount.Email);
         }
 
         [Test]
         public void PasswordMatchesTheDomainObject()
         {
-            GetQueryModel().Password.Should().Be(RegisteredAccount.Password);
+            GetAccountQueryModel().Password.Should().Be(RegisteredAccount.Password);
         }
     }
 }

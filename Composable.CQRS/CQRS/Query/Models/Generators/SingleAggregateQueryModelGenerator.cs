@@ -6,7 +6,9 @@ using Composable.System.Linq;
 
 namespace Composable.CQRS.Query.Models.Generators
 {
-    public abstract class SingleAggregateQueryModelGenerator<TImplementer, TViewModel, TEvent, TSession> : IQueryModelGenerator<TViewModel>
+    public abstract class SingleAggregateQueryModelGenerator<TImplementer, TViewModel, TEvent, TSession> 
+        : IQueryModelGenerator<TViewModel>,
+        IVersioningQueryModelGenerator<TViewModel> 
         where TImplementer : SingleAggregateQueryModelGenerator<TImplementer, TViewModel, TEvent, TSession>
         where TSession : IEventStoreReader
         where TEvent : IAggregateRootEvent
@@ -32,8 +34,13 @@ namespace Composable.CQRS.Query.Models.Generators
 
         public TViewModel TryGenerate(Guid id)
         {
-            var history = Session.GetHistory(id).Cast<TEvent>().ToList();
-            if(history.None())
+            return TryGenerate(id, int.MaxValue);
+        }
+
+        public TViewModel TryGenerate(Guid id, int version)
+        {
+            var history = Session.GetHistory(id).Take(version).Cast<TEvent>().ToList();
+            if (history.None())
             {
                 return null;
             }

@@ -7,7 +7,8 @@ using Composable.SystemExtensions.Threading;
 
 namespace Composable.CQRS.Query.Models.Generators
 {
-    public class QueryModelGeneratingDocumentDbReader : IDocumentDbReader
+    // ReSharper disable once ClassWithVirtualMembersNeverInherited.Global
+    public class QueryModelGeneratingDocumentDbReader : IVersioningDocumentDbReader
     {
         private readonly ISingleContextUseGuard _usageGuard;
         private readonly IDocumentDbSessionInterceptor _interceptor;
@@ -36,50 +37,91 @@ namespace Composable.CQRS.Query.Models.Generators
             throw new NoSuchDocumentException(key, typeof(TValue));
         }
 
-        public virtual bool TryGet<TDocument>(object key, out TDocument document)
+        public virtual TValue GetVersion<TValue>(object key, int version)
         {
             _usageGuard.AssertNoContextChangeOccurred(this);
+            TValue value;
+            if (TryGetVersion(key, out value, version))
+            {
+                return value;
+            }
 
-            if (!HandlesDocumentType<TDocument>())
+            throw new NoSuchDocumentException(key, typeof(TValue));
+        }
+
+        public virtual bool TryGet<TDocument>(object key, out TDocument document)
+        {
+            return TryGetVersion(key, out document);
+        }
+
+        public virtual bool TryGetVersion<TDocument>(object key, out TDocument document, int version = -1)
+        {
+            var requiresVersioning = version > 0;
+            _usageGuard.AssertNoContextChangeOccurred(this);
+
+            if (!HandlesDocumentType<TDocument>(requireVersioningSupport: requiresVersioning))
             {
                 document = default(TDocument);
                 return false;
             }
 
-            var documentType = typeof(TDocument);            
+            var documentType = typeof(TDocument);
 
             if (documentType.IsInterface)
             {
                 throw new ArgumentException("You cannot query by id for an interface type. There is no guarantee of uniqueness");
-            }            
+            }
 
-            if (_idMap.TryGet(key, out document) && documentType.IsInstanceOfType(document))
+            if (!requiresVersioning && _idMap.TryGet(key, out document) && documentType.IsInstanceOfType(document))
             {
                 return true;
             }
-
-            document = GetGeneratorsForDocumentType<TDocument>()
-                .Select(generator => generator.TryGenerate((Guid)key))
-                .Where(foundDocument => !Equals(foundDocument, default(TDocument)))
-                .SingleOrDefault();
-            if(!Equals(document, default(TDocument)))
+            
+            document = TryGenerateModel<TDocument>(key, version);
+            if (!Equals(document, default(TDocument)))
             {
                 _interceptor.AfterLoad(document);
-                _idMap.Add(key, document);
+                if(!requiresVersioning)
+                {
+                    _idMap.Add(key, document);
+                }
                 return true;
             }
             return false;
         }
 
-        private bool HandlesDocumentType<TDocument>()
+        private TDocument TryGenerateModel<TDocument>(object key, int version)
         {
-            return GetGeneratorsForDocumentType<TDocument>().Any();
+            if(version < 0)
+            {
+                return GetGeneratorsForDocumentType<TDocument>()
+                    .Select(generator => generator.TryGenerate((Guid)key))
+                    .Where(foundDocument => !Equals(foundDocument, default(TDocument)))
+                    .SingleOrDefault();
+            }
+
+            return VersionedGeneratorsForDocumentType<TDocument>()
+                    .Select(generator => generator.TryGenerate((Guid)key, version))
+                    .Where(foundDocument => !Equals(foundDocument, default(TDocument)))
+                    .SingleOrDefault();
+        }
+
+        private bool HandlesDocumentType<TDocument>(bool requireVersioningSupport)
+        {
+            return requireVersioningSupport
+                ? VersionedGeneratorsForDocumentType<TDocument>().Any()
+                : GetGeneratorsForDocumentType<TDocument>().Any();
         }
 
         public virtual IEnumerable<TValue> Get<TValue>(IEnumerable<Guid> ids) where TValue : IHasPersistentIdentity<Guid>
         {
             _usageGuard.AssertNoContextChangeOccurred(this);
             return ids.Select(id => Get<TValue>(id)).ToList();
+        }
+
+        private IEnumerable<IVersioningQueryModelGenerator<TDocument>> VersionedGeneratorsForDocumentType<TDocument>()
+        {
+            return _documentGenerators.OfType<IVersioningQueryModelGenerator<TDocument>>().ToList();
         }
 
         private IEnumerable<IQueryModelGenerator<TDocument>> GetGeneratorsForDocumentType<TDocument>()

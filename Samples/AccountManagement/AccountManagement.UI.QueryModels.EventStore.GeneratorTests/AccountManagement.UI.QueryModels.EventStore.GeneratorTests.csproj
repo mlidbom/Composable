@@ -135,10 +135,6 @@
       <Project>{accad488-7866-4f77-a541-ecda61923f57}</Project>
       <Name>AccountManagement.UI.QueryModels.EventStore.Generators</Name>
     </ProjectReference>
-    <ProjectReference Include="..\AccountManagement.UI.QueryModels.Updaters.Tests\AccountManagement.UI.QueryModels.DocumentDB.Updaters.Tests.csproj">
-      <Project>{a59ea886-df20-4324-9cea-238cea192f0a}</Project>
-      <Name>AccountManagement.UI.QueryModels.DocumentDB.Updaters.Tests</Name>
-    </ProjectReference>
     <ProjectReference Include="..\AccountManagement.UI.QueryModels.Updaters\AccountManagement.UI.QueryModels.DocumentDB.Updaters.csproj">
       <Project>{d0c22390-0bd6-4837-8ce5-149f80e6ba4e}</Project>
       <Name>AccountManagement.UI.QueryModels.DocumentDB.Updaters</Name>

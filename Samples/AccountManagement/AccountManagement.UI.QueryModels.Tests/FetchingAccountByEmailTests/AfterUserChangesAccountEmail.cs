@@ -1,5 +1,6 @@
 ﻿using AccountManagement.Domain.Shared;
 using AccountManagement.UI.QueryModels.DocumentDb;
+using AccountManagement.UI.QueryModels.Services;
 using Castle.MicroKernel.Lifestyle;
 using Composable.CQRS.Windsor;
 using Composable.KeyValueStorage;
@@ -26,10 +27,12 @@ namespace AccountManagement.UI.QueryModels.Tests.EmailToAccountMapQueryModelTest
         {
             using(Container.BeginScope())
             {
-                var reader = Container.Resolve<IAccountManagementDocumentDbReader>();
-                var emailToAccountMap = reader.Get<EmailToAccountMapQueryModel>(_newEmail);
+                AccountQueryModel account;
+                Container.Resolve<IAccountManagementQueryModelsReader>()
+                    .TryGetAccountByEmail(_newEmail, out account)
+                    .Should().Be(true);
 
-                emailToAccountMap.AccountId.Should().Be(RegisteredAccount.Id);
+                account.Id.Should().Be(RegisteredAccount.Id);
             }
         }
 
@@ -38,9 +41,12 @@ namespace AccountManagement.UI.QueryModels.Tests.EmailToAccountMapQueryModelTest
         {
             using (Container.BeginScope())
             {
-                Container.Resolve<IAccountManagementDocumentDbReader>()
-                    .Invoking( me => me.Get<EmailToAccountMapQueryModel>(_oldEmail))
-                    .ShouldThrow<NoSuchDocumentException>();
+                AccountQueryModel account;
+                Container.Resolve<IAccountManagementQueryModelsReader>()
+                    .TryGetAccountByEmail(_oldEmail, out account)
+                    .Should().Be(false);
+
+                account.Should().Be(null);
 
             }
         }

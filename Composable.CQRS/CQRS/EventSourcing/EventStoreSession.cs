@@ -59,7 +59,7 @@ namespace Composable.CQRS.EventSourcing
         public TAggregate LoadSpecificVersion<TAggregate>(Guid aggregateId, int version) where TAggregate : IEventStored
         {
             _usageGuard.AssertNoContextChangeOccurred(this);
-            var aggregate = Activator.CreateInstance<TAggregate>();
+            var aggregate = CreateInstance<TAggregate>();
             var history = GetHistory(aggregateId);
             if (history.None())
             {
@@ -203,7 +203,7 @@ namespace Composable.CQRS.EventSourcing
             var history = GetHistory(aggregateId).ToList();
             if (history.Any())
             {
-                aggregate = Activator.CreateInstance<TAggregate>();
+                aggregate = CreateInstance<TAggregate>();
                 aggregate.LoadFromHistory(history);
                 _idMap.Add(aggregateId, aggregate);
                 return true;
@@ -213,6 +213,11 @@ namespace Composable.CQRS.EventSourcing
                 aggregate = default(TAggregate);
                 return false;
             }
+        }
+
+        private static TAggregate CreateInstance<TAggregate>() where TAggregate : IEventStored
+        {
+            return (TAggregate)Activator.CreateInstance(typeof(TAggregate), nonPublic: true);
         }
 
         private void PublishUnpublishedEvents(IEnumerable<IAggregateRootEvent> events)

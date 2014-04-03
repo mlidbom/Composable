@@ -24,7 +24,7 @@ namespace Composable.DDD
         //This is an ugly hack to keep nhibernate from choking when adding instance without going through an nhibernate session...
         public static T FakePersistentInstance(Guid id)
         {            
-            var result = (T)Activator.CreateInstance(typeof(T));
+            var result = (T)Activator.CreateInstance(typeof(T), nonPublic: true);
             result.Version = 1;
             result.SetIdBeVerySureYouKnowWhatYouAreDoing(id);
             return result;

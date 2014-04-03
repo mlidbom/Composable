@@ -1,5 +1,4 @@
 ﻿using System;
-using AccountManagement.UI.QueryModels.ContainerInstallers;
 using AccountManagement.UI.QueryModels.Services;
 using Castle.MicroKernel.Lifestyle;
 using Castle.MicroKernel.Registration;

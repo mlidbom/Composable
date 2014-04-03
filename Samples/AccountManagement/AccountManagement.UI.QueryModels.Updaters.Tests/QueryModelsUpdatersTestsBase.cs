@@ -30,6 +30,7 @@ namespace AccountManagement.UI.QueryModels.DocumentDB.Updaters.Tests
             Container.ConfigureWiringForTestsCallBeforeAllOtherWiring();
             Container.Install(
                 FromAssembly.Containing<Domain.ContainerInstallers.AccountRepositoryInstaller>(),
+                FromAssembly.Containing<UI.QueryModels.EventStore.Generators.ContainerInstallers.AccountManagementQueryModelGeneratingQueryModelSessionInstaller>(),
                 FromAssembly.Containing<AccountManagementDomainEventStoreInstaller>(),
                 FromAssembly.Containing<AccountManagementQuerymodelsSessionInstaller>(),
                 FromAssembly.Containing<Updaters.ContainerInstallers.AccountManagementQuerymodelsSessionInstaller>()

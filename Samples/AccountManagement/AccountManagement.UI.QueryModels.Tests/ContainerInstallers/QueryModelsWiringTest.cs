@@ -1,18 +1,15 @@
-﻿using System;
-using AccountManagement.UI.QueryModels.DocumentDB.Readers.Services;
-using AccountManagement.UI.QueryModels.DocumentDB.Updaters.ContainerInstallers;
-using AccountManagement.UI.QueryModels.DocumentDB.Updaters.Services;
+﻿using AccountManagement.Domain;
+using AccountManagement.TestHelpers.Scenarios;
 using AccountManagement.UI.QueryModels.Services;
 using Castle.MicroKernel.Lifestyle;
 using Castle.MicroKernel.Registration;
+using Castle.MicroKernel.Resolvers.SpecializedResolvers;
 using Castle.Windsor;
 using Castle.Windsor.Installer;
-using Composable.CQRS.EventHandling;
 using Composable.CQRS.Windsor.Testing;
 using Composable.KeyValueStorage;
 using Composable.ServiceBus;
 using NUnit.Framework;
-using AccountManagementQuerymodelsSessionInstaller = AccountManagement.UI.QueryModels.DocumentDB.Readers.ContainerInstallers.AccountManagementQuerymodelsSessionInstaller;
 
 namespace AccountManagement.UI.QueryModels.Tests.ContainerInstallers
 {
@@ -27,10 +24,14 @@ namespace AccountManagement.UI.QueryModels.Tests.ContainerInstallers
         public void WireContainer()
         {
             Container = new WindsorContainer();
+            Container.Kernel.Resolver.AddSubResolver(new CollectionResolver(Container.Kernel));
             Container.ConfigureWiringForTestsCallBeforeAllOtherWiring();
 
             Container.Install(
-                FromAssembly.Containing<AccountManagementQuerymodelsSessionInstaller>(),
+                FromAssembly.Containing<Domain.Events.EventStore.ContainerInstallers.AccountManagementDomainEventStoreInstaller>(),
+                FromAssembly.Containing<Domain.ContainerInstallers.AccountManagementDomainQuerymodelsSessionInstaller>(),
+                FromAssembly.Containing<UI.QueryModels.EventStore.Generators.ContainerInstallers.AccountManagementQueryModelGeneratingQueryModelSessionInstaller>(),
+                FromAssembly.Containing<UI.QueryModels.DocumentDB.Readers.ContainerInstallers.AccountManagementQuerymodelsSessionInstaller>(),                
                 FromAssembly.Containing<DocumentDB.Updaters.ContainerInstallers.AccountManagementQuerymodelsSessionInstaller>()
                 );
 
@@ -72,19 +73,21 @@ namespace AccountManagement.UI.QueryModels.Tests.ContainerInstallers
         [Test]
         public void ResettingTestDatabasesRemovesAccountQueryModels()
         {
-            var accountQueryModel = new AccountQueryModel();
-            ((ISingleAggregateQueryModel)accountQueryModel).SetId(Guid.NewGuid());
+            Account registerAccountScenario;
+            using(Container.BeginScope())
+            {
+                registerAccountScenario = new RegisterAccountScenario(Container).Execute();
+            }
 
             using(Container.BeginScope())
             {
-                Container.Resolve<IAccountManagementQueryModelUpdaterSession>().Save(accountQueryModel);
-                Container.Resolve<IAccountManagementQueryModelsReader>().Get<AccountQueryModel>(accountQueryModel.Id);
+                Container.Resolve<IAccountManagementQueryModelsReader>().Get<AccountQueryModel>(registerAccountScenario.Id);
             }
 
             Container.ResetTestDataBases();
             using(Container.BeginScope())
             {
-                Assert.Throws<NoSuchDocumentException>(() => Container.Resolve<IAccountManagementQueryModelsReader>().Get<AccountQueryModel>(accountQueryModel.Id));
+                Assert.Throws<NoSuchDocumentException>(() => Container.Resolve<IAccountManagementQueryModelsReader>().Get<AccountQueryModel>(registerAccountScenario.Id));
             }
         }
     }

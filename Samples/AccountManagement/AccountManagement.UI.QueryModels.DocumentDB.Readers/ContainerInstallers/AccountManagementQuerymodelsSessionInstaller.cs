@@ -37,7 +37,7 @@ namespace AccountManagement.UI.QueryModels.DocumentDB.Readers.ContainerInstaller
                     .Instance(NullOpDocumentDbSessionInterceptor.Instance)
                     .Named(ComponentKeys.NullOpSessionInterceptor)
                     .LifestyleSingleton(),
-                Component.For<IAccountManagementQueryModelsReader>()
+                Component.For<IAccountManagementDocumentDbReader>()
                     .ImplementedBy<AccountManagementDocumentDbQueryModelsReader>()
                     .DependsOn(
                         Dependency.OnComponent(typeof(IDocumentDb), ComponentKeys.DocumentDb),

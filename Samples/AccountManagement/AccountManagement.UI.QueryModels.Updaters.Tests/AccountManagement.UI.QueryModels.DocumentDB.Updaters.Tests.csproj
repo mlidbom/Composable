@@ -100,9 +100,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AccountQueryModelTests\AfterUserChangesAccountPassword_Generators.cs" />
-    <Compile Include="AccountQueryModelTests\AfterUserChangesAccountEmail_Generators.cs" />
-    <Compile Include="AccountQueryModelTests\AfterAccountIsRegistered_Generators.cs" />
     <Compile Include="AccountQueryModelTests\RegistersAccountDuringSetupAccountQueryModelTestBase.cs" />
     <Compile Include="AccountQueryModelTests\AfterUserChangesAccountPassword.cs" />
     <Compile Include="AccountQueryModelTests\AfterUserChangesAccountEmail.cs" />

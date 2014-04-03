@@ -1,5 +1,6 @@
 using AccountManagement.Domain.QueryModels;
 using AccountManagement.Domain.Shared;
+using Composable.Contracts;
 
 namespace AccountManagement.Domain.Services
 {
@@ -14,6 +15,8 @@ namespace AccountManagement.Domain.Services
 
         public void AssertAccountDoesNotExist(Email email)
         {
+            Contract.Argument(() => email).NotNull();
+
             EmailToAccountMapQueryModel ignored;
             if(_querymodels.TryGet(email, out ignored))
             {

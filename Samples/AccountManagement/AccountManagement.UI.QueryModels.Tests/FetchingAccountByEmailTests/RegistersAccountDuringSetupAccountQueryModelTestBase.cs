@@ -2,7 +2,7 @@
 using AccountManagement.TestHelpers.Scenarios;
 using NUnit.Framework;
 
-namespace AccountManagement.UI.QueryModels.Tests.EmailToAccountMapQueryModelTests
+namespace AccountManagement.UI.QueryModels.Tests.FetchingAccountByEmailTests
 {
     public class RegistersAccountDuringSetupAccountQueryModelTestBase : QueryModelsTestsBase
     {

@@ -5,7 +5,7 @@ using Composable.CQRS.Windsor;
 using FluentAssertions;
 using NUnit.Framework;
 
-namespace AccountManagement.UI.QueryModels.Tests.EmailToAccountMapQueryModelTests
+namespace AccountManagement.UI.QueryModels.Tests.FetchingAccountByEmailTests
 {
     [TestFixture]
     public class AfterUserChangesAccountEmail : RegistersAccountDuringSetupAccountQueryModelTestBase

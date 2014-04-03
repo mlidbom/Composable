@@ -1,5 +1,4 @@
 ﻿using AccountManagement.UI.QueryModels.Services;
-using AccountManagement.UI.QueryModels.Tests.EmailToAccountMapQueryModelTests;
 using FluentAssertions;
 using NUnit.Framework;
 

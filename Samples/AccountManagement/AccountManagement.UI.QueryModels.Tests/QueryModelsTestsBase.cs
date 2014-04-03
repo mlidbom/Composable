@@ -26,7 +26,7 @@ namespace AccountManagement.UI.QueryModels.Tests
             Container.Install(
                 FromAssembly.Containing<Domain.ContainerInstallers.AccountRepositoryInstaller>(),
                 FromAssembly.Containing<AccountManagementDomainEventStoreInstaller>(),
-                FromAssembly.Containing<AccountManagementQuerymodelsSessionInstaller>(),
+                FromAssembly.Containing<AccountManagementDocumentDbReaderInstaller>(),
                 FromAssembly.Containing<DocumentDB.Updaters.ContainerInstallers.AccountManagementQuerymodelsSessionInstaller>()
                 );
 

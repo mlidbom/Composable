@@ -1,4 +1,5 @@
-﻿using AccountManagement.UI.QueryModels.Generators;
+﻿using System;
+using AccountManagement.UI.QueryModels.Generators;
 using Castle.MicroKernel.Registration;
 using Castle.MicroKernel.SubSystems.Configuration;
 using Castle.Windsor;
@@ -13,7 +14,9 @@ namespace AccountManagement.UI.QueryModels.ContainerInstallers
         {
             container.Register(
                 //Note the use of a custom interface. This lets us keep query model generators for different systems apart in the wiring easily.
-                Classes.FromThisAssembly().BasedOn(typeof(IAccountManagementQueryModelGenerator))
+                Classes.FromThisAssembly()
+                    .IncludeNonPublicTypes()
+                    .BasedOn(typeof(IAccountManagementQueryModelGenerator))
                     .WithServiceBase()
                     .LifestylePerWebRequest()
                 );

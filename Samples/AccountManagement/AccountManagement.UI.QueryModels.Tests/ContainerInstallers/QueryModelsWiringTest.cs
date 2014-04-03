@@ -29,7 +29,7 @@ namespace AccountManagement.UI.QueryModels.Tests.ContainerInstallers
             Container.Install(
                 FromAssembly.Containing<Domain.Events.EventStore.ContainerInstallers.AccountManagementDomainEventStoreInstaller>(),
                 FromAssembly.Containing<Domain.ContainerInstallers.AccountManagementDomainQuerymodelsSessionInstaller>(),
-                FromAssembly.Containing<AccountManagementQuerymodelsSessionInstaller>(),                
+                FromAssembly.Containing<AccountManagementDocumentDbReaderInstaller>(),                
                 FromAssembly.Containing<DocumentDB.Updaters.ContainerInstallers.AccountManagementQuerymodelsSessionInstaller>()
                 );
 

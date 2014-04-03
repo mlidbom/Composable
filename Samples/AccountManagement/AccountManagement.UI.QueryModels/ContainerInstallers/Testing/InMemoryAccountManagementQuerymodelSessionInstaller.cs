@@ -32,12 +32,12 @@ namespace AccountManagement.UI.QueryModels.ContainerInstallers.Testing
             {
                 //The ViewModelUpdatersSession and the ViewModelsSession must use the same document db for things to be sane.
                 //Sometimes only the wiring for one is used. Sometimes the wiring for both. This if clause takes care of that issue.
-                if(!_container.Kernel.HasComponent(AccountManagementQuerymodelsSessionInstaller.ComponentKeys.InMemoryDocumentDb))
+                if(!_container.Kernel.HasComponent(AccountManagementDocumentDbReaderInstaller.ComponentKeys.InMemoryDocumentDb))
                 {
                     _container.Register(
                         Component.For<IDocumentDb>()
                             .ImplementedBy<InMemoryDocumentDb>()
-                            .Named(AccountManagementQuerymodelsSessionInstaller.ComponentKeys.InMemoryDocumentDb)
+                            .Named(AccountManagementDocumentDbReaderInstaller.ComponentKeys.InMemoryDocumentDb)
                             .IsDefault()
                             .LifestyleSingleton());
                 }
@@ -45,13 +45,13 @@ namespace AccountManagement.UI.QueryModels.ContainerInstallers.Testing
                 _container.Kernel.AddHandlerSelector(
                     new KeyReplacementHandlerSelector(
                         typeof(IDocumentDb),
-                        AccountManagementQuerymodelsSessionInstaller.ComponentKeys.DocumentDb,
-                        AccountManagementQuerymodelsSessionInstaller.ComponentKeys.InMemoryDocumentDb));
+                        AccountManagementDocumentDbReaderInstaller.ComponentKeys.DocumentDb,
+                        AccountManagementDocumentDbReaderInstaller.ComponentKeys.InMemoryDocumentDb));
             }
 
             public void ResetDatabase()
             {
-                _container.Resolve<InMemoryDocumentDb>(AccountManagementQuerymodelsSessionInstaller.ComponentKeys.InMemoryDocumentDb).Clear();
+                _container.Resolve<InMemoryDocumentDb>(AccountManagementDocumentDbReaderInstaller.ComponentKeys.InMemoryDocumentDb).Clear();
             }
         }
     }

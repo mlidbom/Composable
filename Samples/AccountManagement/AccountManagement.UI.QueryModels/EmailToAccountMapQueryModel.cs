@@ -1,7 +1,7 @@
 ﻿using System;
 using AccountManagement.Domain.Shared;
 
-namespace AccountManagement.Domain.QueryModels
+namespace AccountManagement.UI.QueryModels
 {
     public class EmailToAccountMapQueryModel
     {

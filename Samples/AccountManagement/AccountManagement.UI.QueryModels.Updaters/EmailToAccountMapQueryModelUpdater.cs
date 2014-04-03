@@ -1,5 +1,4 @@
 ﻿using AccountManagement.Domain.Events.PropertyUpdated;
-using AccountManagement.UI.QueryModels.DocumentDb;
 using AccountManagement.UI.QueryModels.DocumentDB.Updaters.Services;
 using AccountManagement.UI.QueryModels.Generators;
 using JetBrains.Annotations;
@@ -13,7 +12,8 @@ namespace AccountManagement.UI.QueryModels.DocumentDB.Updaters
         private readonly IAccountManagementQueryModelUpdaterSession _documentDbModels;
         private readonly IAccountManagementQueryModelGeneratingDocumentDbReader _generatedModels;
 
-        public EmailToAccountMapQueryModelUpdater(IAccountManagementQueryModelUpdaterSession documentDbModels, IAccountManagementQueryModelGeneratingDocumentDbReader generatedModels)
+        public EmailToAccountMapQueryModelUpdater(IAccountManagementQueryModelUpdaterSession documentDbModels,
+            IAccountManagementQueryModelGeneratingDocumentDbReader generatedModels)
         {
             _documentDbModels = documentDbModels;
             _generatedModels = generatedModels;
@@ -23,7 +23,7 @@ namespace AccountManagement.UI.QueryModels.DocumentDB.Updaters
         {
             if(message.AggregateRootVersion > 1)
             {
-                var previousAccountVersion = _generatedModels.GetVersion<AccountQueryModel>(message.AggregateRootId, message.AggregateRootVersion -1);
+                var previousAccountVersion = _generatedModels.GetVersion<AccountQueryModel>(message.AggregateRootId, message.AggregateRootVersion - 1);
                 _documentDbModels.Delete<EmailToAccountMapQueryModel>(previousAccountVersion.Email);
             }
             var newEmail = message.Email;

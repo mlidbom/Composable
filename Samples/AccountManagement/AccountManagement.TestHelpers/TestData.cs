@@ -8,10 +8,10 @@
             {
                 public static string[] All =
                 {
-                    Null, 
+                    Null,
                     ShorterThanFourCharacters,
-                    BorderedByWhiteSpaceAtBeginning, 
-                    BorderedByWhiteSpaceAtEnd, 
+                    BorderedByWhiteSpaceAtBeginning,
+                    BorderedByWhiteSpaceAtEnd,
                     MissingUpperCaseCharacter,
                     MissingLowercaseCharacter
                 };

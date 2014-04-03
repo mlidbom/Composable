@@ -81,13 +81,13 @@ namespace AccountManagement.UI.QueryModels.Tests.ContainerInstallers
 
             using(Container.BeginScope())
             {
-                Container.Resolve<IAccountManagementQueryModelsReader>().Get<AccountQueryModel>(registerAccountScenario.Id);
+                Container.Resolve<IAccountManagementQueryModelsReader>().GetAccount(registerAccountScenario.Id);
             }
 
             Container.ResetTestDataBases();
             using(Container.BeginScope())
             {
-                Assert.Throws<NoSuchDocumentException>(() => Container.Resolve<IAccountManagementQueryModelsReader>().Get<AccountQueryModel>(registerAccountScenario.Id));
+                Assert.Throws<NoSuchDocumentException>(() => Container.Resolve<IAccountManagementQueryModelsReader>().GetAccount(registerAccountScenario.Id));
             }
         }
     }

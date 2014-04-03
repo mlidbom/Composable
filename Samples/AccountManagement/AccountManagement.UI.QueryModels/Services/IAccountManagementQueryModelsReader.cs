@@ -1,6 +1,9 @@
-﻿using Composable.KeyValueStorage;
+﻿using System;
 
 namespace AccountManagement.UI.QueryModels.Services
 {
-    public interface IAccountManagementQueryModelsReader : IDocumentDbReader{}
+    public interface IAccountManagementQueryModelsReader
+    {
+        AccountQueryModel GetAccount(Guid accountId);
+    }
 }

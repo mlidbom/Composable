@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using AccountManagement.UI.QueryModels.Services;
 using Composable.CQRS.Query.Models.Generators;
 using Composable.KeyValueStorage;
@@ -13,5 +14,10 @@ namespace AccountManagement.UI.QueryModels.EventStore.Generators.Services
             IDocumentDbSessionInterceptor interceptor,
             IEnumerable<IAccountManagementQueryModelGenerator> documentGenerators) 
             : base(usageGuard, interceptor, documentGenerators) {}
+
+        public AccountQueryModel GetAccount(Guid accountId)
+        {
+            return Get<AccountQueryModel>(accountId);
+        }
     }
 }

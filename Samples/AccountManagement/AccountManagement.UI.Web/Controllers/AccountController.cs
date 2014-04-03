@@ -21,7 +21,7 @@ namespace AccountManagement.UI.Web.Controllers
         {
             return View(new DisplayAccountDetailsViewModel()
                         {
-                            Email = _queryModels.Get<AccountQueryModel>(_authenticationContext.AccountId).Email.ToString()
+                            Email = _queryModels.GetAccount(_authenticationContext.AccountId).Email.ToString()
                         });
         }
     }

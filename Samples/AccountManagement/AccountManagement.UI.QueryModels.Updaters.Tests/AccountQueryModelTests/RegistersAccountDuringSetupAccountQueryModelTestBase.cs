@@ -18,7 +18,7 @@ namespace AccountManagement.UI.QueryModels.DocumentDB.Updaters.Tests.AccountQuer
 
         protected AccountQueryModel GetQueryModel()
         {
-            return Session.Get<AccountQueryModel>(RegisteredAccount.Id);
+            return Session.GetAccount(RegisteredAccount.Id);
         }
     }
 }

@@ -28,8 +28,6 @@ namespace AccountManagement.UI.QueryModels.EventStore.Generators.Tests.Container
             Container = new WindsorContainer();
             Container.ConfigureWiringForTestsCallBeforeAllOtherWiring();
 
-            Container.Kernel.Resolver.AddSubResolver(new CollectionResolver(Container.Kernel));
-
             Container.Install(
                 FromAssembly.Containing<Domain.Events.EventStore.ContainerInstallers.AccountManagementDomainEventStoreInstaller>(),
                 FromAssembly.Containing<UI.QueryModels.EventStore.Generators.ContainerInstallers.AccountManagementQueryModelGeneratingQueryModelSessionInstaller>()

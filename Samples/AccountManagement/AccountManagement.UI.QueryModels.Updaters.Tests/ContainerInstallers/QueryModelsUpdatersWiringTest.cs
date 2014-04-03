@@ -26,8 +26,6 @@ namespace AccountManagement.UI.QueryModels.DocumentDB.Updaters.Tests.ContainerIn
             Container = new WindsorContainer();
             Container.ConfigureWiringForTestsCallBeforeAllOtherWiring();
 
-            Container.Kernel.Resolver.AddSubResolver(new CollectionResolver(Container.Kernel));
-
             Container.Install(
                 FromAssembly.Containing<Domain.Events.EventStore.ContainerInstallers.AccountManagementDomainEventStoreInstaller>(),
                 FromAssembly.Containing<UI.QueryModels.DocumentDB.Readers.ContainerInstallers.AccountManagementQuerymodelsSessionInstaller>(),

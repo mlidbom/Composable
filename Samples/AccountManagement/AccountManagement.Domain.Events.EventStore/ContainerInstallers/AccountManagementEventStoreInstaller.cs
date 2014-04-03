@@ -1,4 +1,4 @@
-﻿using AccountManagement.Domain.Services;
+﻿using AccountManagement.Domain.Events.EventStore.Services;
 using Castle.MicroKernel.Registration;
 using Castle.MicroKernel.SubSystems.Configuration;
 using Castle.Windsor;
@@ -8,7 +8,7 @@ using Composable.System.Configuration;
 using Composable.UnitsOfWork;
 using JetBrains.Annotations;
 
-namespace AccountManagement.Domain.ContainerInstallers
+namespace AccountManagement.Domain.Events.EventStore.ContainerInstallers
 {
     [UsedImplicitly]
     public class AccountManagementDomainEventStoreInstaller : IWindsorInstaller
@@ -16,7 +16,6 @@ namespace AccountManagement.Domain.ContainerInstallers
         public static class ComponentKeys
         {
             public const string EventStore = "AccountManagement.Domain.EventStore";
-            public const string InMemoryEventStore = "AccountManagement.Domain.EventStore.InMemory";
             public const string EventStoreSession = "AccountManagement.Domain.EventStoreSession";
         }
 
@@ -31,7 +30,7 @@ namespace AccountManagement.Domain.ContainerInstallers
                     .Named(ComponentKeys.EventStore)
                     .LifestyleSingleton(),
                 //Don't forget to register database components as IUnitOfWorkParticipant so that they work automatically with the framework management of units of work.
-                Component.For<IAccountManagementEventStoreSession, IEventStoreReader, IUnitOfWorkParticipant>()
+                Component.For<IAccountManagementEventStoreSession, IEventStoreReader, IAccountManagementEventStoreReader, IUnitOfWorkParticipant>()
                     .ImplementedBy<AccountManagementEventStoreSession>()
                     .DependsOn(new Dependency[] {Dependency.OnComponent(typeof(IEventStore), ComponentKeys.EventStore)})
                     .LifestylePerWebRequest()

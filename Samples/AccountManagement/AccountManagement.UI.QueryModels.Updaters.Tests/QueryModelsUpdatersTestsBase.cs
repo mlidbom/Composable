@@ -1,4 +1,6 @@
 ﻿using System;
+using AccountManagement.Domain.Events.EventStore;
+using AccountManagement.Domain.Events.EventStore.ContainerInstallers;
 using AccountManagement.UI.QueryModels.DocumentDB.Readers.Services;
 using AccountManagement.UI.QueryModels.DocumentDB.Updaters.ContainerInstallers;
 using AccountManagement.UI.QueryModels.Services;
@@ -27,7 +29,8 @@ namespace AccountManagement.UI.QueryModels.DocumentDB.Updaters.Tests
             Container.Kernel.Resolver.AddSubResolver(new CollectionResolver(Container.Kernel));
             Container.ConfigureWiringForTestsCallBeforeAllOtherWiring();
             Container.Install(
-                FromAssembly.Containing<Domain.ContainerInstallers.AccountManagementDomainEventStoreInstaller>(),
+                FromAssembly.Containing<Domain.ContainerInstallers.AccountRepositoryInstaller>(),
+                FromAssembly.Containing<AccountManagementDomainEventStoreInstaller>(),
                 FromAssembly.Containing<AccountManagementQuerymodelsSessionInstaller>(),
                 FromAssembly.Containing<Updaters.ContainerInstallers.AccountManagementQuerymodelsSessionInstaller>()
                 );

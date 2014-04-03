@@ -10,8 +10,8 @@ namespace AccountManagement.UI.QueryModels.EventStore.Generators.Services
     {
         public AccountManagementQueryModelGeneratingQueryModelSession(
             ISingleContextUseGuard usageGuard, 
-            IDocumentDbSessionInterceptor interceptor, 
-            IEnumerable<IQueryModelGenerator> documentGenerators) 
+            IDocumentDbSessionInterceptor interceptor,
+            IEnumerable<IAccountManagementQueryModelGenerator> documentGenerators) 
             : base(usageGuard, interceptor, documentGenerators) {}
     }
 }

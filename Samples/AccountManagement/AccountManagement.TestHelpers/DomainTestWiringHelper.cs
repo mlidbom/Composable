@@ -1,4 +1,6 @@
-﻿using Castle.MicroKernel.Registration;
+﻿using AccountManagement.Domain.Events.EventStore;
+using AccountManagement.Domain.Events.EventStore.ContainerInstallers;
+using Castle.MicroKernel.Registration;
 using Castle.Windsor;
 using Castle.Windsor.Installer;
 using Composable.CQRS.Windsor.Testing;
@@ -13,7 +15,10 @@ namespace AccountManagement.TestHelpers
         {
             var container = new WindsorContainer();
             container.ConfigureWiringForTestsCallBeforeAllOtherWiring();
-            container.Install(FromAssembly.Containing<Domain.ContainerInstallers.AccountManagementDomainEventStoreInstaller>());
+            container.Install(
+                FromAssembly.Containing<Domain.ContainerInstallers.AccountRepositoryInstaller>(),
+                FromAssembly.Containing<AccountManagementDomainEventStoreInstaller>()
+                );
 
             container.Register(
                 Component.For<MessageSpy, IHandleMessages<IMessage>>().Instance(new MessageSpy())

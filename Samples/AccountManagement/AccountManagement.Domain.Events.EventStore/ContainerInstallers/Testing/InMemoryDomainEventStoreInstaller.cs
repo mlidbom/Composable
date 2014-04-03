@@ -6,11 +6,16 @@ using Composable.CQRS.Windsor;
 using Composable.CQRS.Windsor.Testing;
 using JetBrains.Annotations;
 
-namespace AccountManagement.Domain.ContainerInstallers.Testing
+namespace AccountManagement.Domain.Events.EventStore.ContainerInstallers.Testing
 {
     [UsedImplicitly]
     public class InMemoryDomainEventStoreInstaller : IWindsorInstaller
     {
+        public static class ComponentKeys
+        {
+            public const string InMemoryEventStore = "AccountManagement.Domain.EventStore.InMemory";
+        }
+
         public void Install(IWindsorContainer container, IConfigurationStore store)
         {
             container.Register( //Provide a hook for tests to be able to use in-memory versions of the slow/hard to test database components.
@@ -34,7 +39,7 @@ namespace AccountManagement.Domain.ContainerInstallers.Testing
                 _container.Register(
                     Component.For<IEventStore, InMemoryEventStore>()
                         .ImplementedBy<InMemoryEventStore>()
-                        .Named(AccountManagementDomainEventStoreInstaller.ComponentKeys.InMemoryEventStore)
+                        .Named(ComponentKeys.InMemoryEventStore)
                         .LifestyleSingleton()
                         .IsDefault()
                     );
@@ -44,12 +49,12 @@ namespace AccountManagement.Domain.ContainerInstallers.Testing
                     new KeyReplacementHandlerSelector(
                         typeof(IEventStore),
                         AccountManagementDomainEventStoreInstaller.ComponentKeys.EventStore,
-                        AccountManagementDomainEventStoreInstaller.ComponentKeys.InMemoryEventStore));
+                        ComponentKeys.InMemoryEventStore));
             }
 
             public void ResetDatabase()
             {
-                var eventStore = _container.Resolve<InMemoryEventStore>(AccountManagementDomainEventStoreInstaller.ComponentKeys.InMemoryEventStore);
+                var eventStore = _container.Resolve<InMemoryEventStore>(ComponentKeys.InMemoryEventStore);
                 eventStore.Reset();
                 _container.Release(eventStore);
             }

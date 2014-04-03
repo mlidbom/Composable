@@ -308,6 +308,10 @@
     <Content Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\AccountManagement.Domain.Events.EventStore\AccountManagement.Domain.Events.EventStore.csproj">
+      <Project>{16096142-6323-4032-b222-f9f60a79f042}</Project>
+      <Name>AccountManagement.Domain.Events.EventStore</Name>
+    </ProjectReference>
     <ProjectReference Include="..\AccountManagement.Domain.Shared\AccountManagement.Domain.Shared.csproj">
       <Project>{ca31649d-a11b-45f6-9d17-2e716f11adfa}</Project>
       <Name>AccountManagement.Domain.Shared</Name>

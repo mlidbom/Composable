@@ -6,7 +6,7 @@ using Composable.CQRS.Query.Models.Generators;
 
 namespace AccountManagement.UI.QueryModels.Generators
 {
-    /// <summary>Ad hoc creates a query model by reading and applying the events from the event store reader</summary>
+    /// <summary>Ad hoc creates an <see cref="AccountQueryModel"/> by reading and applying the events from the event store reader</summary>
     internal class RequestQueryModelGenerator :
         SingleAggregateQueryModelGenerator<RequestQueryModelGenerator, AccountQueryModel, IAccountEvent, IEventStoreReader>,
         IAccountManagementQueryModelGenerator

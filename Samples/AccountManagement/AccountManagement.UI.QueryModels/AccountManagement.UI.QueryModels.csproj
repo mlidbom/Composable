@@ -97,11 +97,11 @@
     <Compile Include="ContainerInstallers\AccountManagementDocumentDbReaderInstaller.cs" />
     <Compile Include="ContainerInstallers\QueryModelGeneratorsInstaller.cs" />
     <Compile Include="ContainerInstallers\Testing\InMemoryAccountManagementQuerymodelSessionInstaller.cs" />
-    <Compile Include="DocumentDbStored\AccountManagementDocumentDbReader.cs" />
-    <Compile Include="DocumentDbStored\IAccountManagementDocumentDBReader.cs" />
+    <Compile Include="DocumentDbStored\AccountManagementDocumentDbQueryModelsReader.cs" />
+    <Compile Include="DocumentDbStored\IAccountManagementDocumentDbQueryModelsReader.cs" />
     <Compile Include="EmailToAccountMapQueryModel.cs" />
-    <Compile Include="EventStoreGenerated\AccountManagementQueryModelGeneratingDocumentDbReader.cs" />
-    <Compile Include="EventStoreGenerated\IAccountManagementQueryModelGeneratingDocumentDbReader.cs" />
+    <Compile Include="EventStoreGenerated\AccountManagementEventStoreGeneratedQueryModelsReader.cs" />
+    <Compile Include="EventStoreGenerated\IAccountManagementEventStoreGeneratedQueryModelsReader.cs" />
     <Compile Include="EventStoreGenerated\IAccountManagementQueryModelGenerator.cs" />
     <Compile Include="EventStoreGenerated\RequestQueryModelGenerator.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

@@ -5,9 +5,9 @@ using Composable.SystemExtensions.Threading;
 
 namespace AccountManagement.UI.QueryModels.EventStoreGenerated
 {
-    public class AccountManagementQueryModelGeneratingDocumentDbReader : QueryModelGeneratingDocumentDbReader, IAccountManagementQueryModelGeneratingDocumentDbReader
+    public class AccountManagementEventStoreGeneratedQueryModelsReader : QueryModelGeneratingDocumentDbReader, IAccountManagementEventStoreGeneratedQueryModelsReader
     {
-        public AccountManagementQueryModelGeneratingDocumentDbReader(
+        public AccountManagementEventStoreGeneratedQueryModelsReader(
             ISingleContextUseGuard usageGuard,
             IDocumentDbSessionInterceptor interceptor,
             IEnumerable<IAccountManagementQueryModelGenerator> documentGenerators)

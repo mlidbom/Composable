@@ -9,13 +9,13 @@ namespace AccountManagement.UI.QueryModels.Services.Implementation
     [UsedImplicitly]
     internal class AccountManagementQueryModelReader : IAccountManagementQueryModelsReader
     {
-        private readonly IAccountManagementQueryModelGeneratingDocumentDbReader _generatedModels;
-        private readonly IAccountManagementDocumentDbReader _documentDbModels;
+        private readonly IAccountManagementEventStoreGeneratedQueryModelsReader _generatedModels;
+        private readonly IAccountManagementDocumentDbQueryModelsReader _documentDbQueryModels;
 
-        public AccountManagementQueryModelReader(IAccountManagementQueryModelGeneratingDocumentDbReader generatedModels, IAccountManagementDocumentDbReader documentDbModels)
+        public AccountManagementQueryModelReader(IAccountManagementEventStoreGeneratedQueryModelsReader generatedModels, IAccountManagementDocumentDbQueryModelsReader documentDbQueryModels)
         {
             _generatedModels = generatedModels;
-            _documentDbModels = documentDbModels;
+            _documentDbQueryModels = documentDbQueryModels;
         }
 
         public AccountQueryModel GetAccount(Guid accountId)
@@ -26,7 +26,7 @@ namespace AccountManagement.UI.QueryModels.Services.Implementation
         public bool TryGetAccountByEmail(Email accountEmail, out AccountQueryModel account)
         {
             EmailToAccountMapQueryModel accountMap;
-            if(_documentDbModels.TryGet(accountEmail.ToString(), out accountMap))
+            if(_documentDbQueryModels.TryGet(accountEmail.ToString(), out accountMap))
             {
                 account = GetAccount(accountMap.AccountId);
                 return true;

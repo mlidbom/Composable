@@ -10,10 +10,10 @@ namespace AccountManagement.UI.QueryModels.DocumentDB.Updaters
     public class EmailToAccountMapQueryModelUpdater : IHandleMessages<IAccountEmailPropertyUpdatedEvent>
     {
         private readonly IAccountManagementQueryModelUpdaterSession _documentDbModels;
-        private readonly IAccountManagementQueryModelGeneratingDocumentDbReader _generatedModels;
+        private readonly IAccountManagementEventStoreGeneratedQueryModelsReader _generatedModels;
 
         public EmailToAccountMapQueryModelUpdater(IAccountManagementQueryModelUpdaterSession documentDbModels,
-            IAccountManagementQueryModelGeneratingDocumentDbReader generatedModels)
+            IAccountManagementEventStoreGeneratedQueryModelsReader generatedModels)
         {
             _documentDbModels = documentDbModels;
             _generatedModels = generatedModels;

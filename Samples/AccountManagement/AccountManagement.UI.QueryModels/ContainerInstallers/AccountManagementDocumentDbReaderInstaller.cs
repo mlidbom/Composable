@@ -1,4 +1,5 @@
 ﻿using AccountManagement.UI.QueryModels.DocumentDb;
+using AccountManagement.UI.QueryModels.DocumentDbStored;
 using Castle.MicroKernel.Registration;
 using Castle.MicroKernel.SubSystems.Configuration;
 using Castle.Windsor;

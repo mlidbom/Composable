@@ -2,7 +2,7 @@
 using Composable.SystemExtensions.Threading;
 using JetBrains.Annotations;
 
-namespace AccountManagement.UI.QueryModels.DocumentDb
+namespace AccountManagement.UI.QueryModels.DocumentDbStored
 {
     [UsedImplicitly]
     internal class AccountManagementDocumentDbReader : DocumentDbSession, IAccountManagementDocumentDbReader

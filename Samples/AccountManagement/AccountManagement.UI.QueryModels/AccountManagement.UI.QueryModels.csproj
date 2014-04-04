@@ -97,13 +97,13 @@
     <Compile Include="ContainerInstallers\AccountManagementDocumentDbReaderInstaller.cs" />
     <Compile Include="ContainerInstallers\QueryModelGeneratorsInstaller.cs" />
     <Compile Include="ContainerInstallers\Testing\InMemoryAccountManagementQuerymodelSessionInstaller.cs" />
-    <Compile Include="DocumentDb\AccountManagementDocumentDbReader.cs" />
-    <Compile Include="DocumentDb\IAccountManagementDocumentDBReader.cs" />
+    <Compile Include="DocumentDbStored\AccountManagementDocumentDbReader.cs" />
+    <Compile Include="DocumentDbStored\IAccountManagementDocumentDBReader.cs" />
     <Compile Include="EmailToAccountMapQueryModel.cs" />
-    <Compile Include="Generators\AccountManagementQueryModelGeneratingDocumentDbReader.cs" />
-    <Compile Include="Generators\IAccountManagementQueryModelGeneratingDocumentDbReader.cs" />
-    <Compile Include="Generators\IAccountManagementQueryModelGenerator.cs" />
-    <Compile Include="Generators\RequestQueryModelGenerator.cs" />
+    <Compile Include="EventStoreGenerated\AccountManagementQueryModelGeneratingDocumentDbReader.cs" />
+    <Compile Include="EventStoreGenerated\IAccountManagementQueryModelGeneratingDocumentDbReader.cs" />
+    <Compile Include="EventStoreGenerated\IAccountManagementQueryModelGenerator.cs" />
+    <Compile Include="EventStoreGenerated\RequestQueryModelGenerator.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Services\IAccountManagementQueryModelsReader.cs" />
     <Compile Include="Services\Implementation\AccountManagementQueryModelReader.cs" />
@@ -127,7 +127,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Generators\README.txt" />
+    <Content Include="EventStoreGenerated\README.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />

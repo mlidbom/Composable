@@ -3,7 +3,7 @@ using Composable.CQRS.Query.Models.Generators;
 using Composable.KeyValueStorage;
 using Composable.SystemExtensions.Threading;
 
-namespace AccountManagement.UI.QueryModels.Generators
+namespace AccountManagement.UI.QueryModels.EventStoreGenerated
 {
     public class AccountManagementQueryModelGeneratingDocumentDbReader : QueryModelGeneratingDocumentDbReader, IAccountManagementQueryModelGeneratingDocumentDbReader
     {

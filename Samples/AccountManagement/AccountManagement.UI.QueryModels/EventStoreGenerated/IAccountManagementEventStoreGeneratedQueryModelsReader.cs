@@ -2,5 +2,5 @@
 
 namespace AccountManagement.UI.QueryModels.EventStoreGenerated
 {
-    public interface IAccountManagementQueryModelGeneratingDocumentDbReader : IVersioningDocumentDbReader {}
+    public interface IAccountManagementEventStoreGeneratedQueryModelsReader : IVersioningDocumentDbReader {}
 }

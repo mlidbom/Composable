@@ -31,8 +31,8 @@ namespace AccountManagement.UI.QueryModels.ContainerInstallers
                     .DependsOn(new {connectionString = GetConnectionStringFromConfiguration(ConnectionStringName)})
                     .Named(ComponentKeys.DocumentDb)
                     .LifestylePerWebRequest(),
-                Component.For<IAccountManagementDocumentDbReader>()
-                    .ImplementedBy<AccountManagementDocumentDbReader>()
+                Component.For<IAccountManagementDocumentDbQueryModelsReader>()
+                    .ImplementedBy<AccountManagementDocumentDbQueryModelsReader>()
                     .DependsOn(
                         Dependency.OnComponent(typeof(IDocumentDb), ComponentKeys.DocumentDb),
                         Dependency.OnValue<IDocumentDbSessionInterceptor>(NullOpDocumentDbSessionInterceptor.Instance))

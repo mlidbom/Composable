@@ -1,6 +1,5 @@
 ﻿using System;
 using AccountManagement.Domain.Shared;
-using AccountManagement.UI.QueryModels.DocumentDb;
 using AccountManagement.UI.QueryModels.DocumentDbStored;
 using AccountManagement.UI.QueryModels.EventStoreGenerated;
 using JetBrains.Annotations;

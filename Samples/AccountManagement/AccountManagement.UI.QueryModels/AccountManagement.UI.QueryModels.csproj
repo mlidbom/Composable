@@ -105,8 +105,8 @@
     <Compile Include="Generators\IAccountManagementQueryModelGenerator.cs" />
     <Compile Include="Generators\RequestQueryModelGenerator.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Services\AccountManagementQueryModelReader.cs" />
     <Compile Include="Services\IAccountManagementQueryModelsReader.cs" />
+    <Compile Include="Services\Implementation\AccountManagementQueryModelReader.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />

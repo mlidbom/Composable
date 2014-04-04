@@ -4,7 +4,7 @@ using AccountManagement.UI.QueryModels.DocumentDb;
 using AccountManagement.UI.QueryModels.Generators;
 using JetBrains.Annotations;
 
-namespace AccountManagement.UI.QueryModels.Services
+namespace AccountManagement.UI.QueryModels.Services.Implementation
 {
     [UsedImplicitly]
     internal class AccountManagementQueryModelReader : IAccountManagementQueryModelsReader

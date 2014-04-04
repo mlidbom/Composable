@@ -1,4 +1,4 @@
-﻿using AccountManagement.UI.QueryModels.Generators;
+﻿using AccountManagement.UI.QueryModels.EventStoreGenerated;
 using AccountManagement.UI.QueryModels.Services;
 using AccountManagement.UI.QueryModels.Services.Implementation;
 using Castle.MicroKernel.Registration;

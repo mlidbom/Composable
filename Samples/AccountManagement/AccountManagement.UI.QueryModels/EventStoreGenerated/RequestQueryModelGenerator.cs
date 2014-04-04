@@ -4,7 +4,7 @@ using AccountManagement.Domain.Events.PropertyUpdated;
 using Composable.CQRS.EventSourcing;
 using Composable.CQRS.Query.Models.Generators;
 
-namespace AccountManagement.UI.QueryModels.Generators
+namespace AccountManagement.UI.QueryModels.EventStoreGenerated
 {
     /// <summary>Ad hoc creates an <see cref="AccountQueryModel"/> by reading and applying the events from the event store reader</summary>
     internal class RequestQueryModelGenerator :

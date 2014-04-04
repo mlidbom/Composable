@@ -1,6 +1,6 @@
 ﻿using AccountManagement.Domain.Events.PropertyUpdated;
 using AccountManagement.UI.QueryModels.DocumentDB.Updaters.Services;
-using AccountManagement.UI.QueryModels.Generators;
+using AccountManagement.UI.QueryModels.EventStoreGenerated;
 using JetBrains.Annotations;
 using NServiceBus;
 

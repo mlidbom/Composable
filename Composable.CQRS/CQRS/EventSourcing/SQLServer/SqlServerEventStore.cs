@@ -20,7 +20,7 @@ namespace Composable.CQRS.EventSourcing.SQLServer
         private class EventsCache
         {
             //todo: this way of doing cache expiration is unlikely to be acceptable in the long run....
-            private static MemoryCache InternalCache = new MemoryCache("eventsCache_06B4FF4E-14A2-498C-8277-02895B81BE72");
+            private static MemoryCache InternalCache = new MemoryCache("EventStore");
 
             private static readonly CacheItemPolicy Policy = new CacheItemPolicy()
                                                                  {

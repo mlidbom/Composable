@@ -11,6 +11,7 @@ using Composable.NewtonSoft;
 using Composable.System;
 using Composable.System.Collections.Collections;
 using Composable.System.Linq;
+using Composable.System.Reactive;
 using Composable.System.Reflection;
 using Newtonsoft.Json;
 using log4net;
@@ -25,36 +26,15 @@ namespace Composable.KeyValueStorage.SqlServer
 
         private const int UniqueConstraintViolationErrorNumber = 2627;
 
-        private static readonly object LockObject = new object();
+        private static readonly object StaticLockObject = new object();
 
         public SqlServerDocumentDb(string connectionString)
         {
             ConnectionString = connectionString;
-
-            DocumentUpdated = Observable.Create<IDocumentUpdated>(
-                obs =>
-                {
-                    lock(LockObject)
-                    {
-                        _observers.Add(obs);
-                        return Disposable.Create(() => _observers.Remove(obs));
-                    }
-                });
         }
 
-        public IObservable<IDocumentUpdated> DocumentUpdated { get; private set; }
-
-        private void NotifySubscribersDocumentUpdated(string key, object document)
-        {
-            IObserver<IDocumentUpdated>[] observers;            
-            lock(LockObject)
-            {
-                observers = _observers.ToArray();                
-            }
-            observers.ForEach(observer => observer.OnNext(new DocumentUpdated(key, document)));
-        }
-
-        private readonly ISet<IObserver<IDocumentUpdated>> _observers = new HashSet<IObserver<IDocumentUpdated>>();
+        private readonly ThreadSafeObservable<IDocumentUpdated> _documentUpdated = new ThreadSafeObservable<IDocumentUpdated>(); 
+        public IObservable<IDocumentUpdated> DocumentUpdated { get { return _documentUpdated; } }
 
         public ConcurrentDictionary<Type, int> KnownTypes { get { return VerifiedConnections[ConnectionString]; } }
 
@@ -127,7 +107,7 @@ WHERE Id=@Id AND ValueTypeId
                     var stringValue = JsonConvert.SerializeObject(value, Formatting.None, _jsonSettings);
                     command.Parameters.Add(new SqlParameter("Value", stringValue));
 
-                    NotifySubscribersDocumentUpdated(idString, value);
+                    _documentUpdated.OnNext(new DocumentUpdated(idString, value));
 
                     persistentValues.GetOrAddDefault(value.GetType())[idString] = stringValue;
                     try
@@ -209,7 +189,7 @@ WHERE Id=@Id AND ValueTypeId
                         if(!command.CommandText.IsNullOrWhiteSpace())
                         {
                             command.ExecuteNonQuery();
-                            NotifySubscribersDocumentUpdated(entry.Key, entry.Value);
+                            _documentUpdated.OnNext(new DocumentUpdated(entry.Key, entry.Value));
                         }
                     }
                 }
@@ -303,7 +283,7 @@ WHERE ValueTypeId ";
 
         private void EnsureTypeRegistered(Type type)
         {
-            lock(LockObject)
+            lock(StaticLockObject)
             {
                 if(!IsKnownType(type))
                 {
@@ -344,7 +324,7 @@ ELSE
 
         private void AddTypeCriteria(SqlCommand command, Type type)
         {
-            lock(LockObject)
+            lock(StaticLockObject)
             {
                 var acceptableTypeIds = KnownTypes.Where(x => type.IsAssignableFrom(x.Key)).Select(t => t.Value.ToString()).ToArray();
                 if(acceptableTypeIds.None())
@@ -362,7 +342,7 @@ ELSE
 
         private static void EnsureInitialized(string connectionString)
         {
-            lock(LockObject)
+            lock(StaticLockObject)
             {
                 if(!VerifiedConnections.ContainsKey(connectionString))
                 {
@@ -433,7 +413,7 @@ ALTER TABLE [dbo].[Store] CHECK CONSTRAINT [FK_ValueType_Store]
 
         private static void RefreshKnownTypes(String connectionString, ConcurrentDictionary<Type, int> knownTypes)
         {
-            lock(LockObject)
+            lock(StaticLockObject)
             {
                 using(var connection = OpenSession(connectionString))
                 {
@@ -457,7 +437,7 @@ ALTER TABLE [dbo].[Store] CHECK CONSTRAINT [FK_ValueType_Store]
 
         public static void ResetDB(string connectionString)
         {
-            lock (LockObject)
+            lock (StaticLockObject)
             {
                 using (var connection = OpenSession(connectionString))
                 {

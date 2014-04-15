@@ -25,7 +25,7 @@ namespace Composable.CQRS.EventSourcing.SQLServer
             return ConnectionStringToCacheMap.GetOrAdd(connectionString, new SqlServerEventStoreEventsCache());
         }
 
-        private readonly CacheItemPolicy Policy = new CacheItemPolicy()
+        private static readonly CacheItemPolicy Policy = new CacheItemPolicy()
                                                          {
                                                              //todo: this way of doing cache expiration is unlikely to be acceptable in the long run....
                                                              SlidingExpiration = 20.Minutes()

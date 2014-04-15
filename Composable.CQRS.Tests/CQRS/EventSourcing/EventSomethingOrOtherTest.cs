@@ -24,6 +24,7 @@ namespace CQRS.Tests.CQRS.EventSourcing
     }
 
     [TestFixture]
+    [ExclusivelyUses(NCrunchExlusivelyUsesResources.EventStoreDbMdf)]
     public abstract class EventSomethingOrOtherTest
     {
         protected abstract IEventStore CreateSomethingOrOther();

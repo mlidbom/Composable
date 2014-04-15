@@ -9,9 +9,11 @@ namespace Composable.CQRS.EventSourcing.SQLServer
 {
     public class SqlServerEventStoreEventsCache
     {
-        private static readonly ConcurrentDictionary<string, SqlServerEventStoreEventsCache> ConnectionStringToCacheMap = new ConcurrentDictionary<string, SqlServerEventStoreEventsCache>(); 
-        
-        private MemoryCache _internalCache = new MemoryCache("EventStore");
+        private static readonly ConcurrentDictionary<string, SqlServerEventStoreEventsCache> ConnectionStringToCacheMap = new ConcurrentDictionary<string, SqlServerEventStoreEventsCache>();
+
+        private const string CacheName = "EventStore";
+
+        private MemoryCache _internalCache = new MemoryCache(CacheName);
 
         public SqlServerEventStoreEventsCache()
         {
@@ -27,7 +29,7 @@ namespace Composable.CQRS.EventSourcing.SQLServer
                                                          {
                                                              //todo: this way of doing cache expiration is unlikely to be acceptable in the long run....
                                                              SlidingExpiration = 20.Minutes()
-                                                         };
+                                                         };        
 
         public List<IAggregateRootEvent> Get(Guid id)
         {
@@ -49,7 +51,7 @@ namespace Composable.CQRS.EventSourcing.SQLServer
         public void Clear()
         {
             _internalCache.Dispose();
-            _internalCache = new MemoryCache("name");
+            _internalCache = new MemoryCache(CacheName);
         }
 
         public void Remove(Guid id)

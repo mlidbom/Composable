@@ -15,7 +15,7 @@ namespace Composable.CQRS.EventSourcing.SQLServer
 
         private MemoryCache _internalCache = new MemoryCache(CacheName);
 
-        public SqlServerEventStoreEventsCache()
+        private SqlServerEventStoreEventsCache()
         {
             
         }

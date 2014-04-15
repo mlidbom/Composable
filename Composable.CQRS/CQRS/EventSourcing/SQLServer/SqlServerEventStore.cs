@@ -4,9 +4,7 @@ using System.Data;
 using System.Data.SqlClient;
 using System.Data.SqlTypes;
 using System.Linq;
-using System.Runtime.Caching;
 using System.Transactions;
-using Composable.System;
 using Composable.System.Reflection;
 using Newtonsoft.Json;
 using log4net;
@@ -16,57 +14,19 @@ namespace Composable.CQRS.EventSourcing.SQLServer
 {
     public class SqlServerEventStore : IEventStore
     {
- 
-        private class EventsCache
-        {
-            //todo: this way of doing cache expiration is unlikely to be acceptable in the long run....
-            private static MemoryCache InternalCache = new MemoryCache("EventStore");
-
-            private static readonly CacheItemPolicy Policy = new CacheItemPolicy()
-                                                                 {
-                                                                     SlidingExpiration = 20.Minutes()
-                                                                 };
-
-            public List<IAggregateRootEvent> Get(Guid id)
-            {
-                var cached = InternalCache.Get(id.ToString());
-                if(cached == null)
-                {
-                    return new List<IAggregateRootEvent>();
-                }
-                //Make sure each caller gets their own copy.
-                return ((List<IAggregateRootEvent>)cached).ToList();
-
-            }
-
-            public void Store(Guid id, IEnumerable<IAggregateRootEvent> events)
-            {
-             
-                InternalCache.Set(key: id.ToString(), policy: Policy, value: events.ToList());
-            }
-            public void Clear()
-            {
-                InternalCache.Dispose();
-                InternalCache = new MemoryCache("name");
-            }
-
-            public void Remove(Guid id)
-            {
-                InternalCache.Remove(key: id.ToString());
-            }
-        }
-
-        private static readonly EventsCache cache = new EventsCache();
+        
 
         private static readonly ILog Log = LogManager.GetLogger(typeof(SqlServerEventStore));
 
         public static readonly JsonSerializerSettings JsonSettings = NewtonSoft.JsonSettings.JsonSerializerSettings;
         public readonly string ConnectionString;
 
+        private readonly SqlServerEventStoreEventsCache _cache;
         public SqlServerEventStore(string connectionString)
         {
             Log.Debug("Constructor called");
             ConnectionString = connectionString;
+            _cache = SqlServerEventStoreEventsCache.ForConnectionString(connectionString);
         }
 
         private SqlConnection OpenSession(bool suppressTransactionWarning = false)
@@ -85,7 +45,7 @@ namespace Composable.CQRS.EventSourcing.SQLServer
         public IEnumerable<IAggregateRootEvent> GetAggregateHistory(Guid aggregateId)
         {            
             EnsureEventsTableExists();
-            var result = cache.Get(aggregateId);
+            var result = _cache.Get(aggregateId);
 
             using (var connection = OpenSession(suppressTransactionWarning:true))
             {
@@ -112,7 +72,7 @@ namespace Composable.CQRS.EventSourcing.SQLServer
                     //Should within a transaction a process write events, read them, then fail to commit we will have cached events that are not persisted
                     if (!_aggregatesWithEventsAddedByThisInstance.Contains(aggregateId))
                     {
-                        cache.Store(aggregateId, result);
+                        _cache.Store(aggregateId, result);
                     }
                     return result;
                 }
@@ -212,7 +172,7 @@ namespace Composable.CQRS.EventSourcing.SQLServer
         {
             EnsureEventsTableExists();
 
-            cache.Remove(aggregateId);
+            _cache.Remove(aggregateId);
             using (var connection = OpenSession())
             {
                 using(var command = connection.CreateCommand())
@@ -310,7 +270,7 @@ CREATE UNIQUE NONCLUSTERED INDEX [SqlTimeStamp] ON [dbo].[Events]
 
         public void ResetDB()
         {
-            cache.Clear();
+            _cache.Clear();
             using (var connection = OpenSession())
             {
                 using(var dropCommand = connection.CreateCommand())

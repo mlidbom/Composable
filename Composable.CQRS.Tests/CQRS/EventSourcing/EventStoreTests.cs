@@ -25,7 +25,7 @@ namespace CQRS.Tests.CQRS.EventSourcing
 
     [TestFixture]
     [ExclusivelyUses(NCrunchExlusivelyUsesResources.EventStoreDbMdf)]
-    public abstract class EventSomethingOrOtherTest
+    public abstract class EventStoreTests
     {
         protected abstract IEventStore CreateSomethingOrOther();
 
@@ -93,7 +93,7 @@ namespace CQRS.Tests.CQRS.EventSourcing
 
 
     [TestFixture]
-    public class InMemoryEventSomethingOrOtherTest : EventSomethingOrOtherTest
+    public class InMemoryEventStoreTests : EventStoreTests
     {
         protected override IEventStore CreateSomethingOrOther()
         {
@@ -103,7 +103,7 @@ namespace CQRS.Tests.CQRS.EventSourcing
 
     [TestFixture]
     [ExclusivelyUses(NCrunchExlusivelyUsesResources.EventStoreDbMdf)]
-    public class SqlServerEventSomethingOrOtherTest : EventSomethingOrOtherTest
+    public class SqlServerEventStoreTests : EventStoreTests
     {
         private static string connectionString = ConfigurationManager.ConnectionStrings["EventStore"].ConnectionString;
         [SetUp]

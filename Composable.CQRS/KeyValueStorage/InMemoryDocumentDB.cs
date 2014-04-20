@@ -3,38 +3,23 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
-using Castle.Components.DictionaryAdapter.Xml;
 using Composable.DDD;
 using Composable.NewtonSoft;
 using Composable.System.Collections.Collections;
-using Composable.System.Linq;
+using Composable.System.Reactive;
 using Newtonsoft.Json;
 
 namespace Composable.KeyValueStorage
 {
     public class InMemoryDocumentDb : InMemoryObjectStore, IDocumentDb
     {
-        private readonly ISet<IObserver<IDocumentUpdated>> _observers = new HashSet<IObserver<IDocumentUpdated>>();
+        private readonly ThreadSafeObservable<IDocumentUpdated> _documentUpdated = new ThreadSafeObservable<IDocumentUpdated>(); 
 
         public InMemoryDocumentDb()
         {
-            lock(_lockObject)
-            {
-                DocumentUpdated = Observable.Create<IDocumentUpdated>(
-                    obs =>
-                    {
-                        _observers.Add(obs);
-                        return Disposable.Create(() => _observers.Remove(obs));
-                    });
-            }
         }
 
-        public IObservable<IDocumentUpdated> DocumentUpdated { get; private set; }
-
-        private void NotifySubscribersDocumentUpdated(string key, object document)
-        {
-            _observers.ToArray().ForEach(observer => observer.OnNext(new DocumentUpdated(key, document)));
-        }
+        public IObservable<IDocumentUpdated> DocumentUpdated { get { return _documentUpdated; }}
 
         private readonly Dictionary<Type, Dictionary<string, string>> _persistentValues = new Dictionary<Type, Dictionary<string, string>>();
 
@@ -51,7 +36,7 @@ namespace Composable.KeyValueStorage
                 var stringValue = JsonConvert.SerializeObject(value, JsonSettings.JsonSerializerSettings);
                 SetPersistedValue(value, idString, stringValue);
                 base.Add(id, value);
-                NotifySubscribersDocumentUpdated(idString, value);
+                _documentUpdated.OnNext(new DocumentUpdated(idString, value));
             }
         }
 
@@ -87,7 +72,7 @@ namespace Composable.KeyValueStorage
                 {
                     base.Update(key, value);
                     SetPersistedValue(value, idString, stringValue);
-                    NotifySubscribersDocumentUpdated(idString, value);
+                    _documentUpdated.OnNext(new DocumentUpdated(idString, value));
                 }
             }
         }

@@ -18,9 +18,9 @@ namespace Composable.CQRS
             return _aggregates.Get<TAggregate>(id);
         }
 
-        public void Add(TAggregate account)
+        public void Add(TAggregate aggregate)
         {
-            _aggregates.Save(account);
+            _aggregates.Save(aggregate);
         }
 
         public TAggregate GetVersion(Guid aggregateRootId, int version)

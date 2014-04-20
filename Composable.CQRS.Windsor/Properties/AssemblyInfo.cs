@@ -3,4 +3,4 @@
 [assembly: AssemblyTitle("Composable.CQRS.Windsor")]
 [assembly: AssemblyProduct("Composable.CQRS.Windsor")]
 
-[assembly: AssemblyVersion("2.2.0.0")]
+[assembly: AssemblyVersion("2.3.1.0")]

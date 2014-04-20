@@ -27,7 +27,7 @@ namespace AccountManagement.Domain.Shared
                 return failures;
             }
 
-            public static void AssertPasswordMatchesPolicy(string password)
+            internal static void AssertPasswordMatchesPolicy(string password)
             {
                 var passwordPolicyFailures = GetPolicyFailures(password).ToList();
                 if(passwordPolicyFailures.Any())

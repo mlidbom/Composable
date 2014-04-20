@@ -1,5 +1,6 @@
 ﻿using System;
 using AccountManagement.Domain.Shared;
+using Composable.Contracts;
 
 namespace AccountManagement.Domain.QueryModels
 {
@@ -7,6 +8,8 @@ namespace AccountManagement.Domain.QueryModels
     {
         public EmailToAccountMapQueryModel(Email email, Guid accountId)
         {
+            Contract.Argument(() => email, () => accountId).NotNullOrDefault();
+
             Email = email;
             AccountId = accountId;
         }

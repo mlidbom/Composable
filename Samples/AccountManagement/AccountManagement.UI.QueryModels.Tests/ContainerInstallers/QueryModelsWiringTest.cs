@@ -1,10 +1,10 @@
-﻿using System;
+﻿using AccountManagement.Domain;
+using AccountManagement.TestHelpers.Scenarios;
 using AccountManagement.UI.QueryModels.Services;
 using Castle.MicroKernel.Lifestyle;
 using Castle.MicroKernel.Registration;
 using Castle.Windsor;
 using Castle.Windsor.Installer;
-using Composable.CQRS.EventHandling;
 using Composable.CQRS.Windsor.Testing;
 using Composable.KeyValueStorage;
 using Composable.ServiceBus;
@@ -26,7 +26,10 @@ namespace AccountManagement.UI.QueryModels.Tests.ContainerInstallers
             Container.ConfigureWiringForTestsCallBeforeAllOtherWiring();
 
             Container.Install(
-                FromAssembly.Containing<QueryModels.ContainerInstallers.AccountManagementQuerymodelsSessionInstaller>()
+                FromAssembly.Containing<Domain.Events.EventStore.ContainerInstallers.AccountManagementDomainEventStoreInstaller>(),
+                FromAssembly.Containing<Domain.ContainerInstallers.AccountManagementDomainQuerymodelsSessionInstaller>(),
+                FromAssembly.Containing<UI.QueryModels.ContainerInstallers.AccountManagementDocumentDbReaderInstaller>(),
+                FromAssembly.Containing<UI.QueryModels.DocumentDB.Updaters.ContainerInstallers.AccountManagementQuerymodelsSessionInstaller>()
                 );
 
             Container.Register(
@@ -48,7 +51,7 @@ namespace AccountManagement.UI.QueryModels.Tests.ContainerInstallers
         {
             Container
                 .RegistrationAssertionHelper()
-                .LifestyleScoped<IAccountManagementQueryModelSession>();
+                .LifestyleScoped<IAccountManagementQueryModelsReader>();
         }
     }
 
@@ -67,19 +70,21 @@ namespace AccountManagement.UI.QueryModels.Tests.ContainerInstallers
         [Test]
         public void ResettingTestDatabasesRemovesAccountQueryModels()
         {
-            var accountQueryModel = new AccountQueryModel();
-            ((ISingleAggregateQueryModel)accountQueryModel).SetId(Guid.NewGuid());
+            Account registerAccountScenario;
+            using(Container.BeginScope())
+            {
+                registerAccountScenario = new RegisterAccountScenario(Container).Execute();
+            }
 
             using(Container.BeginScope())
             {
-                Container.Resolve<IAccountManagementQueryModelSession>().Save(accountQueryModel);
-                Container.Resolve<IAccountManagementQueryModelSession>().Get<AccountQueryModel>(accountQueryModel.Id);
+                Container.Resolve<IAccountManagementQueryModelsReader>().GetAccount(registerAccountScenario.Id);
             }
 
             Container.ResetTestDataBases();
             using(Container.BeginScope())
             {
-                Assert.Throws<NoSuchDocumentException>(() => Container.Resolve<IAccountManagementQueryModelSession>().Get<AccountQueryModel>(accountQueryModel.Id));
+                Assert.Throws<NoSuchDocumentException>(() => Container.Resolve<IAccountManagementQueryModelsReader>().GetAccount(registerAccountScenario.Id));
             }
         }
     }

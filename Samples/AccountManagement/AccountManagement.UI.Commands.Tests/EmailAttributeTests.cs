@@ -25,7 +25,7 @@ namespace AccountManagement.UI.Commands.Tests
         [Test]
         public void IsNotValidIfEmailIsInvalid()
         {
-            CommandValidator.ValidationFailures(new ACommand() { Email = "aoeustnh" })
+            CommandValidator.ValidationFailures(new ACommand() {Email = "aoeustnh"})
                 .Should().NotBeEmpty();
         }
 

@@ -3,4 +3,4 @@
 [assembly: AssemblyTitle("Composable.AutoMapper")]
 [assembly: AssemblyProduct("Composable.AutoMapper")]
 
-[assembly: AssemblyVersion("2.1.4.0")]
+[assembly: AssemblyVersion("2.3.1.0")]

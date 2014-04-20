@@ -187,6 +187,9 @@
     <Compile Include="System\Linq\Zipping.cs" />
     <Compile Include="System\ObjectExtensions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="System\Reactive\SimpleObservable.cs" />
+    <Compile Include="System\Reactive\ThreadSafeObservable.cs" />
+    <Compile Include="System\Reactive\ThreadSafeObserverCollection.cs" />
     <Compile Include="System\Reflection\AssemblyExtensions.cs" />
     <Compile Include="System\Reflection\MemberAccessorHelper.cs" />
     <Compile Include="System\Reflection\ObjectGraphWalker.cs" />

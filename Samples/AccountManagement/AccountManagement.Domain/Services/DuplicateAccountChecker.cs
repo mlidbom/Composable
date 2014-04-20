@@ -1,9 +1,10 @@
 using AccountManagement.Domain.QueryModels;
 using AccountManagement.Domain.Shared;
+using Composable.Contracts;
 
 namespace AccountManagement.Domain.Services
 {
-    public class DuplicateAccountChecker : IDuplicateAccountChecker
+    internal class DuplicateAccountChecker : IDuplicateAccountChecker
     {
         private readonly IAccountManagementDomainQueryModelSession _querymodels;
 
@@ -14,6 +15,8 @@ namespace AccountManagement.Domain.Services
 
         public void AssertAccountDoesNotExist(Email email)
         {
+            Contract.Argument(() => email).NotNull();
+
             EmailToAccountMapQueryModel ignored;
             if(_querymodels.TryGet(email, out ignored))
             {

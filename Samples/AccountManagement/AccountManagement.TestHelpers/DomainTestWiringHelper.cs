@@ -13,7 +13,10 @@ namespace AccountManagement.TestHelpers
         {
             var container = new WindsorContainer();
             container.ConfigureWiringForTestsCallBeforeAllOtherWiring();
-            container.Install(FromAssembly.Containing<Domain.ContainerInstallers.AccountManagementDomainEventStoreInstaller>());
+            container.Install(
+                FromAssembly.Containing<Domain.ContainerInstallers.AccountRepositoryInstaller>(),
+                FromAssembly.Containing<Domain.Events.EventStore.ContainerInstallers.AccountManagementDomainEventStoreInstaller>()
+                );
 
             container.Register(
                 Component.For<MessageSpy, IHandleMessages<IMessage>>().Instance(new MessageSpy())

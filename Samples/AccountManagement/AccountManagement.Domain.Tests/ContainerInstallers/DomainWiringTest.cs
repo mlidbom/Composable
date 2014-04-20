@@ -1,4 +1,5 @@
-﻿using AccountManagement.Domain.Services;
+﻿using AccountManagement.Domain.Events.EventStore.Services;
+using AccountManagement.Domain.Services;
 using AccountManagement.TestHelpers.Scenarios;
 using Castle.MicroKernel.Lifestyle;
 using Castle.MicroKernel.Registration;
@@ -25,7 +26,8 @@ namespace AccountManagement.Domain.Tests.ContainerInstallers
             Container.ConfigureWiringForTestsCallBeforeAllOtherWiring();
 
             Container.Install(
-                FromAssembly.Containing<Domain.ContainerInstallers.AccountManagementDomainEventStoreInstaller>()
+                FromAssembly.Containing<Domain.ContainerInstallers.AccountRepositoryInstaller>(),
+                FromAssembly.Containing<Domain.Events.EventStore.ContainerInstallers.AccountManagementDomainEventStoreInstaller>()
                 );
 
             Container.Register(

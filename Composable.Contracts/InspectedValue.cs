@@ -6,6 +6,7 @@ namespace Composable.Contracts
         ///<summary>The actual value being inspected</summary>
         public TValue Value { get; private set; }
 
+        ///<summary>Standard constructor</summary>
         public InspectedValue(TValue value, InspectionType type, string name = "") : base(type, name)
         {
             Value = value;
@@ -15,6 +16,7 @@ namespace Composable.Contracts
     ///<summary>Represents a single value that is being inspected. Keeps track of the values name and the type of inspection </summary>
     public class InspectedValue
     {
+        ///<summary>Standard constructor</summary>
         protected InspectedValue(InspectionType type, string name)
         {
             Type = type;

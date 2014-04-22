@@ -12,6 +12,13 @@ namespace Composable.Contracts
     {
         private readonly InspectedValue<TValue>[] _inspectedValues;
 
+        /// <summary>
+        /// Performs the supplied inspection against each <see cref="InspectedValue"/> in the instance.
+        /// </summary>
+        /// <param name="isValueValid">Expression that should return true if the <see cref="InspectedValue{TValue}"/> is valid. </param>
+        /// <param name="buildException">Expression that should return an appropriate exception if the inspection fails. If not supplied a default <see cref="ContractViolationException"/> vill be created.</param>
+        /// <returns>The same instance (this) in order to enable fluent chaining style code.</returns>
+        /// <exception cref="Exception">The exception created by the buildException argument will be thrown if an <see cref="InspectedValue{TValue}"/> fails inspection.</exception>
         public Inspected<TValue> Inspect(Func<TValue, bool> isValueValid, Func<InspectedValue<TValue>, Exception> buildException = null)
         {
             if(buildException == null)
@@ -30,11 +37,13 @@ namespace Composable.Contracts
             return this;
         }
 
+        ///<summary>Standard constructor</summary>
         public Inspected(TValue value, InspectionType type, string name = "")
         {
             _inspectedValues = new[] {new InspectedValue<TValue>(value, type, name)};
         }
 
+        ///<summary>Standard constructor</summary>
         public Inspected(params InspectedValue<TValue>[] inspectedValues)
         {
             _inspectedValues = inspectedValues;

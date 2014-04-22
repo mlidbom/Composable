@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics.Contracts;
 using System.Globalization;
 using System.Threading;
 
@@ -16,6 +17,8 @@ namespace Composable.System.Globalization
 
         private ThreadCultureScope(CultureInfo cultureInfo)
         {
+            Contract.Requires(cultureInfo != null);
+
             _originalCulture = Thread.CurrentThread.CurrentCulture;
             _originalUICulture = Thread.CurrentThread.CurrentUICulture;
 

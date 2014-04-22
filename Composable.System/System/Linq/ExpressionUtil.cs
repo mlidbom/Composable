@@ -12,16 +12,19 @@ namespace Composable.System.Linq
     {
         public static string ExtractMemberName<TValue>(Expression<Func<TValue>> func)
         {
+            Contract.Requires(func != null);
             return ExtractMemberName((LambdaExpression)func);
         }
 
         public static string ExtractMemberName<TParam, TValue>(Expression<Func<TParam, TValue>> func)
         {
+            Contract.Requires(func != null);
             return ExtractMemberName((LambdaExpression)func);
         }
 
         public static string ExtractMemberName<TParam, TParam2, TValue>(Expression<Func<TParam, TParam2, TValue>> func)
         {
+            Contract.Requires(func != null);
             return ExtractMemberName((LambdaExpression)func);
         }
 

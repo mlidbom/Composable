@@ -2,6 +2,7 @@
 
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics.Contracts;
 
 #endregion
 
@@ -25,14 +26,16 @@ namespace Composable.System.Linq
         ///<summary>
         /// Removes all of the items in the supplied enumerable from the set.
         /// Simply forwards to ExceptWith but providing a name that is not utterly unreadable </summary>
-        public static void RemoveRange<T>(this ISet<T> me, IEnumerable<T> value)
+        public static void RemoveRange<T>(this ISet<T> me, IEnumerable<T> toRemove)
         {
-            me.ExceptWith(value);
+            Contract.Requires(me != null && toRemove != null);
+            me.ExceptWith(toRemove);
         }
 
-        public static void AddRange<T>(this ISet<T> me, IEnumerable<T> value)
+        public static void AddRange<T>(this ISet<T> me, IEnumerable<T> toAdd)
         {
-            value.ForEach(toAdd => me.Add(toAdd));
+            Contract.Requires(me != null && toAdd != null);
+            toAdd.ForEach(addMe => me.Add(addMe));
         }
     }
 }

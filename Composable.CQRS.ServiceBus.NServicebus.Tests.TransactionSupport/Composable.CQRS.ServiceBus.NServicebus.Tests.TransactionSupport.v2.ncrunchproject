@@ -22,5 +22,10 @@
   <UseCPUArchitecture>AutoDetect</UseCPUArchitecture>
   <MSTestThreadApartmentState>STA</MSTestThreadApartmentState>
   <BuildProcessArchitecture>x86</BuildProcessArchitecture>
+  <IgnoredTests>
+    <NamedTestSelector>
+      <TestName>Composable.CQRS.ServiceBus.NServicebus.Tests.TransactionSupport.WhenMessageHandlingFails.StoredEventsAreRemoved</TestName>
+    </NamedTestSelector>
+  </IgnoredTests>
   <HiddenWarnings>CopyReferencedAssembliesToWorkspaceIsOn</HiddenWarnings>
 </ProjectConfiguration>

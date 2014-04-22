@@ -5,6 +5,7 @@ using System.Configuration;
 using System.Linq;
 using System.Threading;
 using System.Transactions;
+using Castle.Components.DictionaryAdapter;
 using Castle.MicroKernel.Registration;
 using Castle.Windsor;
 using Composable.CQRS.EventSourcing;
@@ -84,13 +85,17 @@ namespace Composable.CQRS.ServiceBus.NServicebus.Tests.TransactionSupport
 
         public Aggregate(int events)
         {
-            RegisterEventAppliers().For<SomeEvent>(e => SetIdBeVerySureYouKnowWhatYouAreDoing(_aggregateId));
-            1.Through(events).ForEach(i => RaiseEvent(new SomeEvent()));
+            RegisterEventAppliers().For<SomeAggregateCreationEvent>(e => SetIdBeVerySureYouKnowWhatYouAreDoing(_aggregateId));
+            1.Through(events).ForEach(i => RaiseEvent(new SomeAggregateCreationEvent(Guid.Parse("00000000-0000-0000-0000-00000000000{0}".FormatWith(i)))));
         }
     }
 
-    public class SomeEvent : AggregateRootEvent
+    public class SomeAggregateCreationEvent : AggregateRootEvent, IAggregateRootCreatedEvent
     {
+        public SomeAggregateCreationEvent(Guid aggregateRootId):base(aggregateRootId)
+        {
+            
+        }
     }
 
     [UsedImplicitly]

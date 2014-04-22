@@ -26,7 +26,7 @@ namespace Composable.DDD
         {
             get
             {
-                Contract.Ensures(!Equals(Contract.Result<T>(), default(T)));
+                Contract.Ensures(!Equals(Contract.Result<T>(), default(T)), "IHasPersistentIdentity<T>.Id may must never be default(T)");
                 return default(T);
             }
         }

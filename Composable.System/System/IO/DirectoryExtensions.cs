@@ -77,7 +77,6 @@ namespace Composable.System.IO
         public static DirectoryInfo SubDir(this DirectoryInfo me, string relativePath)
         {
             Contract.Requires(me != null && !string.IsNullOrEmpty(me.FullName) && !string.IsNullOrEmpty(relativePath));
-            Contract.Requires(me.FullName.Length > 0);
             Contract.Ensures(Contract.Result<DirectoryInfo>() != null);
             if(relativePath.First() == '\\')
             {

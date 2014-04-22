@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.Contracts;
 using Composable.System.Linq;
 
 namespace Composable.System.Reactive

@@ -10,7 +10,7 @@ namespace Composable.System.Web
 
         public static Guid Id(this HttpRequest me)
         {
-            Contract.Requires(me != null);
+            Contract.Requires(me != null && me.RequestContext != null);
 
             if(!me.RequestContext.HttpContext.Items.Contains(UniqueReuestId))
             {

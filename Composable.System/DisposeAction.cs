@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics.Contracts;
 
 namespace Composable
 {
@@ -8,6 +9,7 @@ namespace Composable
 
         public DisposeAction(Action action)
         {
+            Contract.Requires(action != null);
             _action = action;
         }
 

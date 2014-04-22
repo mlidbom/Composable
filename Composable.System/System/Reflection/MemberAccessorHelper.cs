@@ -14,7 +14,7 @@ namespace Composable.System.Reflection
 
         private static Func<object, object> BuildFieldGetter(FieldInfo field)
         {
-            Contract.Requires(field != null);
+            Contract.Requires(field != null && field.DeclaringType != null);
 
             var obj = Expression.Parameter(typeof(object), "obj");
 
@@ -44,6 +44,8 @@ namespace Composable.System.Reflection
         private static Func<object, object>[] InnerGetField(Type type)
         {
             Func<Object, Object>[] fields;
+            Contract.Ensures(Contract.Result<Func<Object, Object>[]>() != null);
+
             if (!TypeFields.TryGetValue(type, out fields))
             {
                 var newFields = new List<Func<Object, object>>();
@@ -58,8 +60,7 @@ namespace Composable.System.Reflection
                     }
                 }
                 TypeFields[type] = fields = newFields.ToArray();
-            }
-            Contract.Assume(fields != null);
+            }            
             return fields;
         }
     }

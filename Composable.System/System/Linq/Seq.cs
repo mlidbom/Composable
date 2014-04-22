@@ -20,6 +20,8 @@ namespace Composable.System.Linq
         /// <returns></returns>
         public static IEnumerable<T> Create<T>(params T[] values)
         {
+            Contract.Requires(values != null);
+            Contract.Ensures(Contract.Result<IEnumerable<T>>() != null);
             return values;
         }
 

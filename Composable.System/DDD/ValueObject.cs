@@ -51,6 +51,7 @@ namespace Composable.DDD
                     var value1Array = ((IEnumerable)value).Cast<object>().Where(me => !ReferenceEquals(me, null)).ToArray();
                     foreach(var something in value1Array)
                     {
+                        Contract.Assume(something != null);
                         hashCode = hashCode * multiplier + something.GetHashCode();    
                     }
                 }

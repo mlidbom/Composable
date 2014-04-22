@@ -1,8 +1,10 @@
 ﻿using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace Composable.Contracts
 {
+    ///<summary>Performs inspections on <see cref="IEnumerable{T}"/> instances</summary>
     public static class EnumerableInspector
     {
         ///<summary>
@@ -22,8 +24,10 @@ namespace Composable.Contracts
         }
     }
 
+    ///<summary>Thrown if an enumerable is empty but is not allowed to be.</summary>
     public class EnumerableIsEmptyContractViolationException : ContractViolationException
     {
+        ///<summary>Standard constructor.</summary>
         public EnumerableIsEmptyContractViolationException(InspectedValue badValue) : base(badValue) {}
     }
 }

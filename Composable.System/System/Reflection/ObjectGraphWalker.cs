@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics.Contracts;
 using System.Linq;
 
 namespace Composable.System.Reflection
@@ -16,6 +17,8 @@ namespace Composable.System.Reflection
 
         private static void InternalGetGraph(object o, List<Object> collected)
         {
+            Contract.Requires(collected != null);
+
             if (o == null)
             {
                 return;

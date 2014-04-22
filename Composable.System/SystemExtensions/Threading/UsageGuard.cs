@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics.Contracts;
 
 namespace Composable.SystemExtensions.Threading
 {
@@ -14,6 +15,7 @@ namespace Composable.SystemExtensions.Threading
 
         public static void RunInContextExcludedFromSingleUseRule(Action action)
         {
+            Contract.Requires(action != null);
             //Make sure that we do not loose the context if this is called again from within such a context
             if(IsInIgnoredContextDueToInfrastructureSuchAsTransaction)
             {

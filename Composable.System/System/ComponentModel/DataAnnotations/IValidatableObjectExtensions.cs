@@ -11,6 +11,8 @@ namespace Composable.System.ComponentModel.DataAnnotations
     {
         private static string ExtractMemberName(Expression<Func<object>> accessor)
         {
+            Contract.Requires(accessor != null);
+
             Expression expr = accessor.Body;
             while (expr.NodeType == ExpressionType.Convert || expr.NodeType == ExpressionType.ConvertChecked)
                 expr = ((UnaryExpression)expr).Operand;

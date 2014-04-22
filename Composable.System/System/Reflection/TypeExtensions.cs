@@ -39,6 +39,7 @@ namespace Composable.System.Reflection
 
         public static IEnumerable<Type> GetAllTypesInheritedOrImplemented(this Type me)
         {
+            Contract.Requires(me != null);
             return me.GetClassInheritanceChain().Concat(me.GetInterfaces());
         }
 

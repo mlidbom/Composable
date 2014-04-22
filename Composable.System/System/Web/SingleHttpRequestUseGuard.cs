@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics.Contracts;
 using Composable.SystemExtensions.Threading;
 
 namespace Composable.System.Web
@@ -10,6 +11,8 @@ namespace Composable.System.Web
 
         public SingleHttpRequestUseGuard(IHttpRequestIdFetcher httpRequestIdFetcher)
         {
+            Contract.Requires(httpRequestIdFetcher != null);
+
             _httpRequestIdFetcher = httpRequestIdFetcher;
             _initialRequestId = httpRequestIdFetcher.GetCurrent();
         }

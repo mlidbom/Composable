@@ -14,11 +14,13 @@ namespace Composable.System.Linq
         /// <returns>A set containing all the items in <paramref name="me"/></returns>
         public static HashSet<T> ToSet<T>(this IEnumerable<T> me)
         {
+            Contract.Requires(me != null);
             return new HashSet<T>(me);
         }
 
         public static void AddOrReplace<T>(this ISet<T> me, T value)
         {
+            Contract.Requires(me != null);
             me.Remove(value);
             me.Add(value);
         }

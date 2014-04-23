@@ -5,8 +5,10 @@ using System.Transactions;
 
 namespace Composable.System.Transactions
 {
+    ///<summary>Extensions for working with transactions.</summary>
     public static class TransactionExtensions
     {
+        ///<summary>Blocks the current thread until the transaction completes or the timeout expires.</summary>
          public static bool WaitForTransactionToComplete(this Transaction me, TimeSpan timeout)
          {   
              Contract.Requires(me != null);

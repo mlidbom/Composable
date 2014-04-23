@@ -19,7 +19,7 @@ namespace Composable.DDD
         [ContractInvariantMethod]
         private void Invariants()
         {
-            Contract.Invariant(!Equals(((IPersistentEntity<T>) this).Id, default(T)));
+            Contract.Invariant(!Equals(((IHasPersistentIdentity<T>)this).Id, default(T)));
         }
 
         T IHasPersistentIdentity<T>.Id

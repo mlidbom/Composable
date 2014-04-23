@@ -13,28 +13,32 @@ namespace Composable.DDD
     /// 
     /// It provides implementations of  <see cref="object.Equals(object)"/>, <see cref="object.GetHashCode"/>, and <see cref="IEquatable{T}"/>.
     /// 
-    /// Equals is implemented as: return <code>!ReferenceEquals(null, other) && other.Id.Equals(Id)</code>
+    /// Equals is implemented as: return <code>!ReferenceEquals(null, other) &amp;&amp; other.Id.Equals(Id)</code>
     /// the operators simply uses Equals.
     /// 
     /// </summary>
     [DebuggerDisplay("{ToString()}")]
     public class IdEqualityObject<TEntity, TKEy> : IEquatable<TEntity>, IHasPersistentIdentity<TKEy> where TEntity : IdEqualityObject<TEntity, TKEy>
-    {        
+    {
+        ///<summary>Construct an instance with the default value as the Id.</summary>
         protected IdEqualityObject(){}
+        ///<summary>Construct an instance with <param name="id"> as the <see cref="Id"/></param>.</summary>
         protected IdEqualityObject(TKEy id)
         {
             Id = id;
         }
 
         private TKEy _id;
-        /// <summary>Implements: <see cref="IPersistentEntity{TKeyType}.Id"/></summary>
+        /// <summary>Implements: <see cref="IHasPersistentIdentity{TKeyType}.Id"/></summary>
         public virtual TKEy Id { get { return _id; } private set { _id = value; } }
 
+        ///<summary>Sets the id of the instance. Should probably never be used except by infrastructure code.</summary>
         protected void SetIdBeVerySureYouKnowWhatYouAreDoing(TKEy id)
         {
             Id = id;
         }
 
+        ///<summary>Gets the id of the instance bypassing contract validation. Should probably never be used except by infrastructure code.</summary>
         protected TKEy GetIdBypassContractValidation()
         {
             return _id;
@@ -81,15 +85,19 @@ namespace Composable.DDD
             return !(lhs == rhs);
         }
 
+        ///<summary>Returns a string similar to: MyType:MyId</summary>
         public override string ToString()
         {
             return "{0}:{1}".FormatWith(GetType().Name, Id);
         }
     }
 
+    ///<summary>Base class for <see cref="IdEqualityObject{TEntity,TKEy}" /> where the id type is Guid</summary>
     public class IdEqualityObject<TEntity> : IdEqualityObject<TEntity, Guid> where TEntity : IdEqualityObject<TEntity>
     {
+        ///<summary>Default constructor creating an instance with an empty Id</summary>
         protected IdEqualityObject(){}
+        ///<summary>Construct an instance with the supplied Id</summary>
         protected IdEqualityObject(Guid id) : base(id) {}
     }
 

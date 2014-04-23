@@ -18,6 +18,7 @@ namespace Composable.System.Linq
             return new HashSet<T>(me);
         }
 
+        ///<summary>Adds <paramref name="value"/> if not present. If it is present the current instance will be replaced by <paramref name="value"/></summary>
         public static void AddOrReplace<T>(this ISet<T> me, T value)
         {
             Contract.Requires(me != null);
@@ -34,6 +35,7 @@ namespace Composable.System.Linq
             me.ExceptWith(toRemove);
         }
 
+        ///<summary>Adds all the supplied <paramref name="toAdd"/> instances to the set.</summary>
         public static void AddRange<T>(this ISet<T> me, IEnumerable<T> toAdd)
         {
             Contract.Requires(me != null && toAdd != null);

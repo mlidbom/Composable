@@ -11,7 +11,7 @@ namespace Composable.Tests.SystemExtensions.Threading
         public void ThrowsIfUsedFromDifferentContext()
         {
             var alwaysInDifferentContext = new AlwayInDifferentContextUsageGuard();
-            Assert.Throws<Exception>(() => alwaysInDifferentContext.AssertNoContextChangeOccurred(null));
+            Assert.Throws<Exception>(() => alwaysInDifferentContext.AssertNoContextChangeOccurred(new object()));
         }
 
         [Test]
@@ -19,7 +19,7 @@ namespace Composable.Tests.SystemExtensions.Threading
         {
             var alwaysInDifferentContext = new AlwayInDifferentContextUsageGuard();
 
-            UsageGuard.RunInContextExcludedFromSingleUseRule(() => alwaysInDifferentContext.AssertNoContextChangeOccurred(null));
+            UsageGuard.RunInContextExcludedFromSingleUseRule(() => alwaysInDifferentContext.AssertNoContextChangeOccurred(new object()));
         }
 
         [Test]
@@ -31,7 +31,7 @@ namespace Composable.Tests.SystemExtensions.Threading
                 () =>
                 {
                     UsageGuard.RunInContextExcludedFromSingleUseRule(() => { });
-                    alwaysInDifferentContext.AssertNoContextChangeOccurred(null);
+                    alwaysInDifferentContext.AssertNoContextChangeOccurred(new object());
                 });
         }
 

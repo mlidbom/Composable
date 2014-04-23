@@ -7,6 +7,7 @@ using System.Linq.Expressions;
 
 namespace Composable.System.ComponentModel.DataAnnotations
 {
+    ///<summary>Extensions for <see cref="IValidatableObject"/> intended to make type safe implementations easy.</summary>
     public static class IValidatableObjectExtensions
     {
         private static string ExtractMemberName(Expression<Func<object>> accessor)
@@ -22,12 +23,14 @@ namespace Composable.System.ComponentModel.DataAnnotations
             return ((MemberExpression)expr).Member.Name;
         }
 
+        ///<summary>Creates an <see cref="ValidationResult"/> by extracting the invalid member(s) name from the supplied expression(s)</summary>///<summary>Enumerates the lines in a streamreader.</summary>
         public static ValidationResult CreateValidationResult(this IValidatableObject me, string message, IEnumerable<Expression<Func<object>>> members)
         {
             Contract.Requires(me != null && message != null && members != null);
             return new ValidationResult(message, members.Select(ExtractMemberName).ToList());
         }
 
+        ///<summary>Creates an <see cref="ValidationResult"/> by extracting the invalid member(s) name from the supplied expression(s)</summary>///<summary>Enumerates the lines in a streamreader.</summary>
         public static ValidationResult CreateValidationResult(this IValidatableObject me, string message, params Expression<Func<object>>[] members)
         {
             Contract.Requires(me != null && message != null && members != null);

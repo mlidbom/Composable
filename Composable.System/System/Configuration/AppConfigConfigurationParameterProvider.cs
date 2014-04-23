@@ -2,8 +2,10 @@
 
 namespace Composable.System.Configuration
 {
+    ///<summary>Fetches configuration variables from the application configuration file.</summary>
     public class AppConfigConfigurationParameterProvider : IConfigurationParameterProvider
     {
+        ///<summary>Gets a string configuration value.</summary>
         public string GetString(string parameterName)
         {
             var parameter = ConfigurationManager.AppSettings[parameterName];

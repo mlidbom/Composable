@@ -8,6 +8,7 @@ using System.Diagnostics.Contracts;
 
 namespace Composable.System.Collections.Collections
 {
+    ///<summary>Helpers for working with dictionaries</summary>
     public static class DictionaryExtensions
     {
         /// <summary>

@@ -6,8 +6,10 @@ using System.Linq;
 
 namespace Composable.System.Reflection
 {
+    ///<summary>Flattens an object graph into a sequence by walking instance members using reflection.</summary>
     public static class ObjectGraphWalker
     {
+        ///<summary>Flattens the supplied object graph into a sequence</summary>
         public static IEnumerable<object> GetGraph(object o)
         {
             var collected = new List<object>();

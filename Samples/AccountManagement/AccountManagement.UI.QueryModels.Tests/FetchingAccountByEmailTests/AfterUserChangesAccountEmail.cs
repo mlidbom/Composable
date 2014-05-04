@@ -1,7 +1,6 @@
-﻿using AccountManagement.Domain.Shared;
+﻿using AccountManagement.TestHelpers.Scenarios;
 using AccountManagement.UI.QueryModels.Services;
 using Castle.MicroKernel.Lifestyle;
-using Composable.CQRS.Windsor;
 using FluentAssertions;
 using NUnit.Framework;
 
@@ -10,14 +9,13 @@ namespace AccountManagement.UI.QueryModels.Tests.FetchingAccountByEmailTests
     [TestFixture]
     public class AfterUserChangesAccountEmail : RegistersAccountDuringSetupAccountQueryModelTestBase
     {
-        private readonly Email _newEmail = Email.Parse("valid.email@domain.com");
-        private Email _oldEmail;
+        private ChangeAccountEmailScenario _scenario;
 
         [SetUp]
-        public void RegisterAccountAndChangeEmail()
+        public void ChangeEmail()
         {
-            _oldEmail = RegisteredAccount.Email;
-            Container.ExecuteUnitOfWork(() => RegisteredAccount.ChangeEmail(_newEmail));
+            _scenario = new ChangeAccountEmailScenario(Container, RegisteredAccount);
+            _scenario.Execute();
         }
 
         [Test]
@@ -27,7 +25,7 @@ namespace AccountManagement.UI.QueryModels.Tests.FetchingAccountByEmailTests
             {
                 AccountQueryModel account;
                 Container.Resolve<IAccountManagementQueryModelsReader>()
-                    .TryGetAccountByEmail(_newEmail, out account)
+                    .TryGetAccountByEmail(_scenario.NewEmail, out account)
                     .Should().Be(true);
 
                 account.Id.Should().Be(RegisteredAccount.Id);
@@ -41,7 +39,7 @@ namespace AccountManagement.UI.QueryModels.Tests.FetchingAccountByEmailTests
             {
                 AccountQueryModel account;
                 Container.Resolve<IAccountManagementQueryModelsReader>()
-                    .TryGetAccountByEmail(_oldEmail, out account)
+                    .TryGetAccountByEmail(_scenario.OldEmail, out account)
                     .Should().Be(false);
 
                 account.Should().Be(null);

@@ -12,8 +12,9 @@ namespace AccountManagement.TestHelpers.Scenarios
         private readonly IWindsorContainer _container;
         public string PasswordAsString = "Password1";
         public Password Password = new Password("Password1");
-        public Email Email = Email.Parse("test.test@test.se");
+        public Email Email = TestData.Email.CreateValidEmail();
         public Guid AccountId = Guid.NewGuid();
+        private static int _registeredAccounts = 1;
 
         public RegisterAccountScenario(IWindsorContainer container)
         {

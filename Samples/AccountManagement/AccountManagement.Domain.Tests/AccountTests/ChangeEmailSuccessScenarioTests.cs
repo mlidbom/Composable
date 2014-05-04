@@ -1,9 +1,6 @@
 ﻿using System.Linq;
 using AccountManagement.Domain.Events;
-using AccountManagement.Domain.Shared;
-using AccountManagement.TestHelpers.Fixtures;
 using AccountManagement.TestHelpers.Scenarios;
-using Composable.KeyValueStorage.Population;
 using FluentAssertions;
 using NUnit.Framework;
 
@@ -11,22 +8,17 @@ namespace AccountManagement.Domain.Tests.AccountTests
 {
     public class ChangeEmailSuccessScenariosTests : DomainTestBase
     {
-        private Account _account;
-        private readonly Email _newEmail = Email.Parse("valid.email@google.com");
+        private ChangeAccountEmailScenario _changeEmailScenario;
 
         [SetUp]
         public void ChangeEmail()
         {
-            _account = SingleAccountFixture.Setup(Container).Account;
-            using(var transaction = Container.BeginTransactionalUnitOfWorkScope())
-            {
-                _account.ChangeEmail(_newEmail);
-                transaction.Commit();
-            }
+            _changeEmailScenario = new ChangeAccountEmailScenario(Container);
+            _changeEmailScenario.Execute();
         }
 
         [Test]
-        public void AnIUserChangedAccountEmailEventIsRaised()
+        public void ASingleIUserChangedAccountEmailEventIsRaised()
         {
             MessageSpy.ReceivedMessages
                 .OfType<IUserChangedAccountEmailEvent>()
@@ -36,31 +28,34 @@ namespace AccountManagement.Domain.Tests.AccountTests
         [Test]
         public void RaisedEventHasTheCorrectEmail()
         {
-            MessageSpy.ReceivedMessages.OfType<IUserChangedAccountEmailEvent>()
-                .Single()
-                .Email.Should().Be(_newEmail);
+            MessageSpy.ReceivedMessages
+                .OfType<IUserChangedAccountEmailEvent>().Single()
+                .Email.Should().Be(_changeEmailScenario.NewEmail);
         }
 
         [Test]
         public void AccountHasTheNewEmail()
         {
-            _account.Email.Should().Be(_newEmail);
+            _changeEmailScenario.Account.Email.Should().Be(_changeEmailScenario.NewEmail);
         }
 
         [Test]
         public void RegisteringAnAccountWithTheOldEmailIsPossible()
         {
-            new RegisterAccountScenario(Container).Execute();
+            new RegisterAccountScenario(Container)
+            {
+                Email = _changeEmailScenario.OldEmail
+            }.Execute();
         }
 
         [Test]
         public void RegisteringAnAccountWithTheNewEmailThrowsDuplicateAccountException()
         {
-            var registerAccountScenario = new RegisterAccountScenario(Container)
-                                          {
-                                              Email = _newEmail
-                                          };
-            Assert.Throws<DuplicateAccountException>(() => registerAccountScenario.Execute());
+            new RegisterAccountScenario(Container)
+                {
+                    Email = _changeEmailScenario.NewEmail
+                }.Invoking(me => me.Execute())
+                .ShouldThrow<DuplicateAccountException>();
         }
     }
 }

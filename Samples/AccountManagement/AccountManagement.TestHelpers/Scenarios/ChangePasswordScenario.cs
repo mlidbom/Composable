@@ -10,7 +10,7 @@ namespace AccountManagement.TestHelpers.Scenarios
         private readonly IWindsorContainer _container;
 
         public string OldPassword;
-        public readonly string NewPasswordAsString = TestData.Password.CreateValidPassword();
+        public readonly string NewPasswordAsString = TestData.Password.CreateValidPasswordString();
         public Password NewPassword;
         public readonly Account Account;
 

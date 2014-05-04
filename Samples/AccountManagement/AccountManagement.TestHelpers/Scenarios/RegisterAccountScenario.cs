@@ -10,14 +10,14 @@ namespace AccountManagement.TestHelpers.Scenarios
     public class RegisterAccountScenario
     {
         private readonly IWindsorContainer _container;
-        public string PasswordAsString = "Password1";
-        public Password Password = new Password("Password1");
+        public string PasswordAsString = TestData.Password.CreateValidPasswordString();
+        public Password Password;
         public Email Email = TestData.Email.CreateValidEmail();
         public Guid AccountId = Guid.NewGuid();
-        private static int _registeredAccounts = 1;
 
         public RegisterAccountScenario(IWindsorContainer container)
         {
+            Password = new Password(PasswordAsString);
             _container = container;
         }
 

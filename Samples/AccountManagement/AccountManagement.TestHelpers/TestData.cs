@@ -28,9 +28,14 @@ namespace AccountManagement.TestHelpers
             }
 
             private static int _passwordCount = 1;
-            public static string CreateValidPassword()
+            public static string CreateValidPasswordString()
             {
                 return "SomeComplexPassword" + _passwordCount++;
+            }
+
+            public static Domain.Shared.Password CreateValidPassword()
+            {
+                return new Domain.Shared.Password(CreateValidPasswordString());
             }
         }
 

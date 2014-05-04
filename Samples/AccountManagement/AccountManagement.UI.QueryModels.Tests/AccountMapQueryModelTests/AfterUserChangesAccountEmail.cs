@@ -15,15 +15,13 @@ namespace AccountManagement.UI.QueryModels.Tests.AccountMapQueryModelTests
         {
             _scenario = new ChangeAccountEmailScenario(Container, RegisteredAccount);
             _scenario.Execute();
+            ReplaceContainerScope();
         }
 
         [Test]
         public void EmailIsTheOneFromTheEvent()
         {
-            using(Container.BeginScope())
-            {
-                GetAccountQueryModel().Email.Should().Be(_scenario.NewEmail);
-            }
+            GetAccountQueryModel().Email.Should().Be(_scenario.NewEmail);
         }
     }
 }

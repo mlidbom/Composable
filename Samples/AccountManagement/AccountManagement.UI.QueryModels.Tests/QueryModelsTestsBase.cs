@@ -16,6 +16,12 @@ namespace AccountManagement.UI.QueryModels.Tests
         private IDisposable _scope;
         protected IAccountManagementQueryModelsReader QueryModelsReader { get { return Container.Resolve<IAccountManagementQueryModelsReader>(); } }
 
+        protected void ReplaceContainerScope()
+        {
+            _scope.Dispose();
+            _scope = Container.BeginScope();
+        }
+
         [SetUp]
         public void SetupContainerAndScope()
         {

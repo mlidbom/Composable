@@ -13,16 +13,15 @@ namespace AccountManagement.TestHelpers.Scenarios
         public readonly Email OldEmail;
         public readonly Account Account;
 
-        public ChangeAccountEmailScenario(IWindsorContainer container)
+        public ChangeAccountEmailScenario(IWindsorContainer container, Account account = null)
         {
             _container = container;
-            var registerAccountScenario = new RegisterAccountScenario(container);
-            Account = registerAccountScenario.Execute();
+            Account = account ?? new RegisterAccountScenario(container).Execute();
             OldEmail = Account.Email;
         }
 
         public void Execute()
-        {            
+        {      
             _container.ExecuteUnitOfWork(() => Account.ChangeEmail(NewEmail));
         }
     }

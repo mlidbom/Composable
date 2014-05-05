@@ -4,6 +4,7 @@ using NUnit.Framework;
 
 namespace AccountManagement.Domain.Shared.Tests
 {
+    //Review:mlidbo: Replace with standard nunit test.
     public class EmailSpecification : NSpec.NUnit.nspec
     {
         [UsedImplicitly]

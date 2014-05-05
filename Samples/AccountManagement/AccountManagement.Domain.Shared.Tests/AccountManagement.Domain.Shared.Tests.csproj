@@ -76,6 +76,10 @@
       <Project>{CA31649D-A11B-45F6-9D17-2E716F11ADFA}</Project>
       <Name>AccountManagement.Domain.Shared</Name>
     </ProjectReference>
+    <ProjectReference Include="..\AccountManagement.TestHelpers\AccountManagement.TestHelpers.csproj">
+      <Project>{688DE4C0-690E-4EF5-AF36-A16BD2D9E930}</Project>
+      <Name>AccountManagement.TestHelpers</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />

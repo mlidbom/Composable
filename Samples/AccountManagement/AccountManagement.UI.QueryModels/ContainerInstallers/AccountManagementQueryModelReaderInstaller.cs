@@ -19,9 +19,7 @@ namespace AccountManagement.UI.QueryModels.ContainerInstallers
         }
 
         public void Install(IWindsorContainer container, IConfigurationStore store)
-        {
-            container.Kernel.Resolver.AddSubResolver(new TypedCollectionResolver<IAccountManagementQueryModelGenerator>(container.Kernel));
-
+        {           
             container.Register(
                 Component.For<IAccountManagementQueryModelsReader>()
                     .ImplementedBy<AccountManagementQueryModelReader>()

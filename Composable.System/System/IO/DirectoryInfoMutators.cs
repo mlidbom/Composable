@@ -37,7 +37,7 @@ namespace Composable.System.IO
                 .Where(file => file.Exists)
                 .ForEach(file => file.IsReadOnly = false);
 
-            FileSystem.CopyDirectory(source.FullName, targetPath, true);
+            FileSystem.CopyDirectory(source.FullName, targetPath true);
         }
 
         /// <summary>

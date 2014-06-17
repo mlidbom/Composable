@@ -24,7 +24,7 @@ namespace AccountManagement.Domain.Events.EventStore.ContainerInstallers
         public void Install(IWindsorContainer container, IConfigurationStore store)
         {
             container.Register(
-                Component.For<IEventStore, SqlServerEventStore>()
+                Component.For<IEventStore>()
                     .ImplementedBy<SqlServerEventStore>()
                     .DependsOn(new Dependency[] {Dependency.OnValue(typeof(string), GetConnectionStringFromConfiguration(ConnectionStringName))})
                     .Named(ComponentKeys.EventStore)

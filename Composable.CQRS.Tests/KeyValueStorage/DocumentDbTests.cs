@@ -845,5 +845,23 @@ namespace CQRS.Tests.KeyValueStorage
                 Assert.That(people, Contains.Item(user1));
             }
         }
+
+
+        [Test]
+        public void CanGetAllIdsForACertainType()
+        {
+            var readingDocumentDb = CreateStore();
+
+            var user = new User {Id = Guid.Parse("00000000-0000-0000-0000-000000000001") };
+            var dog = new Dog {Id = Guid.Parse("00000000-0000-0000-0000-000000000002") };
+
+            using (var session = OpenSession(readingDocumentDb))
+            {
+                session.Save(user);
+                session.Save(dog);
+
+                session.GetAllIds<User>().Count().Should().Be(1);
+            }
+        }
     }
 }

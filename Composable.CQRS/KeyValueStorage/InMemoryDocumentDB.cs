@@ -45,6 +45,11 @@ namespace Composable.KeyValueStorage
             return GetAll<T>().Where(document => ids.Contains(document.Id));
         }
 
+        public IEnumerable<Guid> GetAllIds<T>() where T : IHasPersistentIdentity<Guid>
+        {
+            return GetAll<T>().Select(document => document.Id);
+        }
+
         private void SetPersistedValue<T>(T value, string idString, string stringValue)
         {
             _persistentValues.GetOrAddDefault(value.GetType())[idString] = stringValue;

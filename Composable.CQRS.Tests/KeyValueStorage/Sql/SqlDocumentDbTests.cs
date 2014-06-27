@@ -5,6 +5,7 @@ using Composable.KeyValueStorage;
 using Composable.KeyValueStorage.SqlServer;
 using Composable.System.Linq;
 using FluentAssertions;
+using NSpec;
 using NUnit.Framework;
 
 namespace CQRS.Tests.KeyValueStorage.Sql

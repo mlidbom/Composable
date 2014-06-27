@@ -69,6 +69,11 @@ namespace Composable.KeyValueStorage
             return Session.GetAll<T>();
         }
 
+        public IEnumerable<Guid> GetAllIds<T>() where T : IHasPersistentIdentity<Guid>
+        {
+            return Session.GetAllIds<T>();
+        }
+
         public IEnumerable<T> Get<T>(IEnumerable<Guid> ids) where T : IHasPersistentIdentity<Guid>
         {
             return Session.Get<T>(ids);

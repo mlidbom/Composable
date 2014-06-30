@@ -20,7 +20,7 @@ namespace CQRS.Tests.KeyValueStorage.Sql
             get { return ConfigurationManager.ConnectionStrings["KeyValueStore"].ConnectionString; }
         }
 
-            [SetUp]
+        [SetUp]
         public static void Setup()
         {
             SqlServerDocumentDb.ResetDB(ConnectionString);

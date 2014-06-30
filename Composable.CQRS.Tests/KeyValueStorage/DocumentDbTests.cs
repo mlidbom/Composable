@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
+using Composable.CQRS.Testing;
 using Composable.DDD;
 using Composable.KeyValueStorage;
 using Composable.System;
@@ -852,7 +853,9 @@ namespace CQRS.Tests.KeyValueStorage
         {
             var readingDocumentDb = CreateStore();
 
-            var user = new User {Id = Guid.Parse("00000000-0000-0000-0000-000000000001") };
+            var userid = Guid.Parse("00000000-0000-0000-0000-000000000001");
+            
+            var user = new User {Id = userid };
             var dog = new Dog {Id = Guid.Parse("00000000-0000-0000-0000-000000000002") };
 
             using (var session = OpenSession(readingDocumentDb))
@@ -860,7 +863,10 @@ namespace CQRS.Tests.KeyValueStorage
                 session.Save(user);
                 session.Save(dog);
 
-                session.GetAllIds<User>().Count().Should().Be(1);
+                var ids = session.GetAllIds<User>().ToSet();
+
+                ids.Count().Should().Be(1);
+                ids.Should().Contain(userid);
             }
         }
     }

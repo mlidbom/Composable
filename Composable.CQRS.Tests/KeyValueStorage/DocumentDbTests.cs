@@ -849,24 +849,28 @@ namespace CQRS.Tests.KeyValueStorage
 
 
         [Test]
-        public void CanGetAllIdsForACertainType()
+        public void GetAllIdsShouldOnlyReturnResultsWithTheGivenType()
         {
             var readingDocumentDb = CreateStore();
 
-            var userid = Guid.Parse("00000000-0000-0000-0000-000000000001");
+            var userid1 = Guid.Parse("00000000-0000-0000-0000-000000000001");
+            var userid2 = Guid.Parse("00000000-0000-0000-0000-000000000002");
             
-            var user = new User {Id = userid };
-            var dog = new Dog {Id = Guid.Parse("00000000-0000-0000-0000-000000000002") };
+            var user1 = new User {Id = userid1 };
+            var user2 = new User { Id = userid2 };
+            var dog = new Dog {Id = Guid.Parse("00000000-0000-0000-0000-000000000010") };
 
             using (var session = OpenSession(readingDocumentDb))
             {
-                session.Save(user);
+                session.Save(user1);
+                session.Save(user2);
                 session.Save(dog);
 
                 var ids = session.GetAllIds<User>().ToSet();
 
-                ids.Count().Should().Be(1);
-                ids.Should().Contain(userid);
+                ids.Count().Should().Be(2);
+                ids.Should().Contain(userid1);
+                ids.Should().Contain(userid2);
             }
         }
     }

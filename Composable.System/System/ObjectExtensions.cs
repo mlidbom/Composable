@@ -72,6 +72,7 @@ namespace Composable.System
         /// </summary>
         public static T Modify<T>(this T objectToModify, Action<T> modifier)
         {
+            Contract.Requires(objectToModify != null && modifier != null);
             return objectToModify.Do(modifier);
         }
     }

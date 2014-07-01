@@ -7,12 +7,12 @@ using Composable.CQRS.Query.Models.Generators;
 namespace AccountManagement.UI.QueryModels.EventStoreGenerated
 {
     /// <summary>Ad hoc creates an <see cref="AccountQueryModel"/> by reading and applying the events from the event store reader</summary>
-    internal class RequestQueryModelGenerator :
-        SingleAggregateQueryModelGenerator<RequestQueryModelGenerator, AccountQueryModel, IAccountEvent, IEventStoreReader>,
+    internal class AccountQueryModelGenerator :
+        SingleAggregateQueryModelGenerator<AccountQueryModelGenerator, AccountQueryModel, IAccountEvent, IEventStoreReader>,
         IAccountManagementQueryModelGenerator
     {
         //Note the use of a custom interface. This lets us keep query model generators for different systems apart in the wiring.
-        public RequestQueryModelGenerator(IAccountManagementEventStoreReader session) : base(session)
+        public AccountQueryModelGenerator(IAccountManagementEventStoreReader session) : base(session)
         {
             RegisterHandlers()
                 .For<IAccountEmailPropertyUpdatedEvent>(e => Model.Email = e.Email)

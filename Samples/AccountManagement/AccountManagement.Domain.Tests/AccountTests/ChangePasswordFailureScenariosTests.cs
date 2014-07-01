@@ -1,6 +1,8 @@
-﻿using AccountManagement.Domain.Shared;
+﻿using System;
+using AccountManagement.Domain.Shared;
 using AccountManagement.TestHelpers.Scenarios;
 using Composable.Contracts;
+using FluentAssertions;
 using NUnit.Framework;
 
 namespace AccountManagement.Domain.Tests.AccountTests
@@ -10,36 +12,50 @@ namespace AccountManagement.Domain.Tests.AccountTests
     {
         private RegisterAccountScenario _registerAccountScenario;
         private Account _account;
+        private ChangePasswordScenario _changePasswordScenario;
 
         [SetUp]
         public void RegisterAccount()
         {
             _registerAccountScenario = new RegisterAccountScenario(Container);
             _account = _registerAccountScenario.Execute();
+            _changePasswordScenario = new ChangePasswordScenario(Container);
         }
 
         [Test]
         public void WhenNewPasswordIsNullObjectNullExceptionIsThrown()
         {
-            Assert.Throws<ObjectIsNullContractViolationException>(() => _account.ChangePassword(_registerAccountScenario.PasswordAsString, null));
+            _changePasswordScenario.NewPassword = null;
+            _changePasswordScenario
+                .Invoking(scenario => scenario.Execute())
+                .ShouldThrow<Exception>();
         }
 
         [Test]
         public void WhenOldPasswordIsNullObjectNullExceptionIsThrown()
         {
-            Assert.Throws<ObjectIsNullContractViolationException>(() => _account.ChangePassword(null, new Password("SomeComplexPassword1!")));
+            _changePasswordScenario.OldPassword = null;
+            _changePasswordScenario
+                .Invoking(scenario => scenario.Execute())
+                .ShouldThrow<Exception>();
         }
 
         [Test]
         public void WhenOldPasswordIsEmptyStringIsEmptyExceptionIsThrown()
         {
-            Assert.Throws<StringIsEmptyContractViolationException>(() => _account.ChangePassword("", new Password("SomeComplexPassword1!")));
+            _changePasswordScenario.OldPassword = "";
+            _changePasswordScenario
+                .Invoking(scenario => scenario.Execute())
+                .ShouldThrow<Exception>();
         }
 
         [Test]
         public void WhenOldPasswordIsIncorrectWrongPasswordExceptionIsThrown()
         {
-            Assert.Throws<WrongPasswordException>(() => _account.ChangePassword("wrong", new Password("SomeComplexPassword1!")));
+            _changePasswordScenario.OldPassword = "Wrong";
+            _changePasswordScenario
+                .Invoking(scenario => scenario.Execute())
+                .ShouldThrow<Exception>();
         }
     }
 }

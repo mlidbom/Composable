@@ -8,6 +8,7 @@ namespace Composable.GenericAbstractions.Time
     /// </summary>
     public interface ILocalTimeTimeSource
     {
+        ///<summary>Returns the current time as local time.</summary>
         DateTime LocalNow { get; }
     }
 }

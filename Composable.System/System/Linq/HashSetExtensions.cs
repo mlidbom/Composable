@@ -2,6 +2,7 @@
 
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics.Contracts;
 
 #endregion
 
@@ -13,11 +14,14 @@ namespace Composable.System.Linq
         /// <returns>A set containing all the items in <paramref name="me"/></returns>
         public static HashSet<T> ToSet<T>(this IEnumerable<T> me)
         {
+            Contract.Requires(me != null);
             return new HashSet<T>(me);
         }
 
+        ///<summary>Adds <paramref name="value"/> if not present. If it is present the current instance will be replaced by <paramref name="value"/></summary>
         public static void AddOrReplace<T>(this ISet<T> me, T value)
         {
+            Contract.Requires(me != null);
             me.Remove(value);
             me.Add(value);
         }
@@ -25,14 +29,17 @@ namespace Composable.System.Linq
         ///<summary>
         /// Removes all of the items in the supplied enumerable from the set.
         /// Simply forwards to ExceptWith but providing a name that is not utterly unreadable </summary>
-        public static void RemoveRange<T>(this ISet<T> me, IEnumerable<T> value)
+        public static void RemoveRange<T>(this ISet<T> me, IEnumerable<T> toRemove)
         {
-            me.ExceptWith(value);
+            Contract.Requires(me != null && toRemove != null);
+            me.ExceptWith(toRemove);
         }
 
-        public static void AddRange<T>(this ISet<T> me, IEnumerable<T> value)
+        ///<summary>Adds all the supplied <paramref name="toAdd"/> instances to the set.</summary>
+        public static void AddRange<T>(this ISet<T> me, IEnumerable<T> toAdd)
         {
-            value.ForEach(toAdd => me.Add(toAdd));
+            Contract.Requires(me != null && toAdd != null);
+            toAdd.ForEach(addMe => me.Add(addMe));
         }
     }
 }

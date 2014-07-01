@@ -2,6 +2,7 @@
 
 namespace Composable.Contracts
 {
+    ///<summary>Performs inspections on objects</summary>
     public static class ObjectInspector
     {
         /// <summary>

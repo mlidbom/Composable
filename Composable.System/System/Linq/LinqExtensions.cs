@@ -13,6 +13,7 @@ namespace Composable.System.Linq
     [Pure]
     public static class LinqExtensions
     {
+        ///<summary>Returns the single instance that the enumerable contains and throws an exception if the instance is null.</summary>
         public static T SingleNotNull<T>(this IEnumerable<T> me)
         {
             Contract.Requires(me != null);

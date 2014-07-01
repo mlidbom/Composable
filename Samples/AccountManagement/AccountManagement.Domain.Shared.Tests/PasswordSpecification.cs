@@ -1,9 +1,11 @@
-﻿using FluentAssertions;
+﻿using AccountManagement.TestHelpers;
+using FluentAssertions;
 using JetBrains.Annotations;
 using NUnit.Framework;
 
 namespace AccountManagement.Domain.Shared.Tests
 {
+    //Review:mlidbo: Replace with standard nunit test.
     public class PasswordSpecification : NSpec.NUnit.nspec
     {
         [UsedImplicitly]
@@ -12,7 +14,7 @@ namespace AccountManagement.Domain.Shared.Tests
             context["from_the_string 'Pass'"] =
                 () =>
                 {
-                    var password = new Password("SomePassword1!");
+                    var password = TestData.Password.CreateValidPassword();
                     before = () => { password = new Password("Pass"); };
 
                     it["HashedPassword is not null"] = () => password.HashedPassword.Should().NotBeNull();

@@ -10,20 +10,13 @@ namespace AccountManagement.Domain.Tests.AccountTests
 {
     public class ChangePasswordSuccessScenarioTest : DomainTestBase
     {
-        private Account _registeredAccount;
-        private RegisterAccountScenario _registerAccountScenario;
-        private const string NewPassword = "SomeComplexNewPassword1!";
+        private ChangePasswordScenario _changePasswordScenario;
 
         [SetUp]
         public void RegisterAccount()
         {
-            _registerAccountScenario = new RegisterAccountScenario(Container);
-            _registeredAccount = _registerAccountScenario.Execute();
-            using(var transaction = Container.BeginTransactionalUnitOfWorkScope())
-            {
-                _registeredAccount.ChangePassword(_registerAccountScenario.PasswordAsString, new Password(NewPassword));
-                transaction.Commit();
-            }
+            _changePasswordScenario = new ChangePasswordScenario(Container);
+            _changePasswordScenario.Execute();
         }
 
         [Test]
@@ -38,13 +31,13 @@ namespace AccountManagement.Domain.Tests.AccountTests
         public void EventPasswordShouldAcceptTheUsedPasswordAsValid()
         {
             MessageSpy.ReceivedMessages.OfType<IUserChangedAccountPasswordEvent>()
-                .Single().Password.AssertIsCorrectPassword(NewPassword);
+                .Single().Password.AssertIsCorrectPassword(_changePasswordScenario.NewPasswordAsString);
         }
 
         [Test]
         public void AccountPasswordShouldAcceptTheNewPassword()
         {
-            _registeredAccount.Password.AssertIsCorrectPassword(NewPassword);
+            _changePasswordScenario.Account.Password.AssertIsCorrectPassword(_changePasswordScenario.NewPasswordAsString);
         }
     }
 }

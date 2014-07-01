@@ -5,6 +5,7 @@ using Composable.KeyValueStorage;
 using Composable.KeyValueStorage.SqlServer;
 using Composable.System.Linq;
 using FluentAssertions;
+using NSpec;
 using NUnit.Framework;
 
 namespace CQRS.Tests.KeyValueStorage.Sql
@@ -19,7 +20,7 @@ namespace CQRS.Tests.KeyValueStorage.Sql
             get { return ConfigurationManager.ConnectionStrings["KeyValueStore"].ConnectionString; }
         }
 
-            [SetUp]
+        [SetUp]
         public static void Setup()
         {
             SqlServerDocumentDb.ResetDB(ConnectionString);

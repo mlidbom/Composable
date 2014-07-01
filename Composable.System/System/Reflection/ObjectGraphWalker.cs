@@ -1,12 +1,15 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics.Contracts;
 using System.Linq;
 
 namespace Composable.System.Reflection
 {
+    ///<summary>Flattens an object graph into a sequence by walking instance members using reflection.</summary>
     public static class ObjectGraphWalker
     {
+        ///<summary>Flattens the supplied object graph into a sequence</summary>
         public static IEnumerable<object> GetGraph(object o)
         {
             var collected = new List<object>();
@@ -16,6 +19,8 @@ namespace Composable.System.Reflection
 
         private static void InternalGetGraph(object o, List<Object> collected)
         {
+            Contract.Requires(collected != null);
+
             if (o == null)
             {
                 return;

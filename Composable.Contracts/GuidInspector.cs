@@ -2,6 +2,7 @@
 
 namespace Composable.Contracts
 {
+    ///<summary>Performs inspections on Guid instances</summary>
     public static class GuidInspector
     {
         ///<summary>Throws a <see cref="GuidIsEmptyContractViolationException"/> if any inspected value is Guid.Empty</summary>

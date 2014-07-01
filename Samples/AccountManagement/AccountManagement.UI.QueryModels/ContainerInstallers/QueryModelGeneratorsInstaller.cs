@@ -2,6 +2,7 @@
 using Castle.MicroKernel.Registration;
 using Castle.MicroKernel.SubSystems.Configuration;
 using Castle.Windsor;
+using Composable.CQRS.Windsor;
 using JetBrains.Annotations;
 
 namespace AccountManagement.UI.QueryModels.ContainerInstallers
@@ -11,6 +12,8 @@ namespace AccountManagement.UI.QueryModels.ContainerInstallers
     {
         public void Install(IWindsorContainer container, IConfigurationStore store)
         {
+            container.Kernel.Resolver.AddSubResolver(new TypedCollectionResolver<IAccountManagementQueryModelGenerator>(container.Kernel));
+
             container.Register(
                 //Note the use of a custom interface. This lets us keep query model generators for different systems apart in the wiring easily.
                 Classes.FromThisAssembly()

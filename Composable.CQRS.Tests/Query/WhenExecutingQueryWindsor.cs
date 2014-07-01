@@ -24,7 +24,7 @@ namespace CQRS.Tests.Query
             _locator = new WindsorServiceLocator(container);
 
             container.Register(
-                AllTypes.FromThisAssembly().BasedOn(typeof(IQueryHandler<,>)).WithService.Base(),
+                Classes.FromThisAssembly().BasedOn(typeof(IQueryHandler<,>)).WithService.Base(),
                 Component.For<IQueryService>().ImplementedBy<QueryService>(),
                 Component.For<IServiceLocator>().Instance(Locator)
                 );

@@ -13,10 +13,15 @@ namespace Composable.GenericAbstractions.Time
             UtcNow = utcNow;
         }
 
+        ///<summary>Returns a timesource that will continually return the time that it was created at as the current time.</summary>
         public static DummyTimeSource Now { get{return new DummyTimeSource(DateTime.UtcNow);}}
+
+        ///<summary>Returns a timesource that will forever return <param name="localTime"> as the current time.</param></summary>
         public static DummyTimeSource FromLocalTime(DateTime localTime) { return new DummyTimeSource(localTime.ToUniversalTime());  }
+        ///<summary>Returns a timesource that will forever return <param name="utcTime"> as the current time.</param></summary>
         public static DummyTimeSource FromÚtcTime(DateTime utcTime) { return new DummyTimeSource(utcTime); }
 
+        ///<summary>Gets or sets the current UTC time.</summary>
         public DateTime UtcNow
         {
             get
@@ -30,6 +35,7 @@ namespace Composable.GenericAbstractions.Time
             }
         }
 
+        ///<summary>Gets or sets the current local time.</summary>
         public DateTime LocalNow
         {
             get

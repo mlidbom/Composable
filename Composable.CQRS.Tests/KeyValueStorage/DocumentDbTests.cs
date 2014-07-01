@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
+using Composable.CQRS.Testing;
 using Composable.DDD;
 using Composable.KeyValueStorage;
 using Composable.System;
@@ -843,6 +844,33 @@ namespace CQRS.Tests.KeyValueStorage
 
                 Assert.That(people.ToList(), Has.Count.EqualTo(1));
                 Assert.That(people, Contains.Item(user1));
+            }
+        }
+
+
+        [Test]
+        public void GetAllIdsShouldOnlyReturnResultsWithTheGivenType()
+        {
+            var readingDocumentDb = CreateStore();
+
+            var userid1 = Guid.Parse("00000000-0000-0000-0000-000000000001");
+            var userid2 = Guid.Parse("00000000-0000-0000-0000-000000000002");
+            
+            var user1 = new User {Id = userid1 };
+            var user2 = new User { Id = userid2 };
+            var dog = new Dog {Id = Guid.Parse("00000000-0000-0000-0000-000000000010") };
+
+            using (var session = OpenSession(readingDocumentDb))
+            {
+                session.Save(user1);
+                session.Save(user2);
+                session.Save(dog);
+
+                var ids = session.GetAllIds<User>().ToSet();
+
+                ids.Count().Should().Be(2);
+                ids.Should().Contain(userid1);
+                ids.Should().Contain(userid2);
             }
         }
     }

@@ -4,8 +4,10 @@ using System.Reflection;
 
 namespace Composable.Contracts
 {
+    ///<summary>Extracts values and names from the parts of a lambda expression</summary>
     public static class ContractsExpression
     {
+        ///<summary>Extracts the returned field,property,argument name from a lambda</summary>
         public static string ExtractName<TValue>(Expression<Func<TValue>> fetchValue)
         {
             return ExtractName((LambdaExpression)fetchValue);
@@ -34,6 +36,7 @@ namespace Composable.Contracts
             throw new InvalidAccessorLambdaException();
         }
 
+        ///<summary>Extracts the returned field,property,argument value from a lambda</summary>
         public static TValue ExtractValue<TValue>(Expression<Func<TValue>> fetchValue)
         {
             return (TValue)GetExpressionValue(fetchValue.Body);

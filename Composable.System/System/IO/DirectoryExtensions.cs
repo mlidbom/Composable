@@ -77,9 +77,8 @@ namespace Composable.System.IO
         public static DirectoryInfo SubDir(this DirectoryInfo me, string relativePath)
         {
             Contract.Requires(me != null && !string.IsNullOrEmpty(me.FullName) && !string.IsNullOrEmpty(relativePath));
-            Contract.Requires(me.FullName.Length > 0);
             Contract.Ensures(Contract.Result<DirectoryInfo>() != null);
-            if(relativePath.First() == '\\')
+            if(relativePath[0] == '\\')
             {
                 relativePath = relativePath.Remove(0, 1);
             }
@@ -98,7 +97,7 @@ namespace Composable.System.IO
         {
             Contract.Requires(me != null && !string.IsNullOrEmpty(filePath));
             Contract.Ensures(Contract.Result<FileInfo>() != null);
-            if(filePath.First() == '\\')
+            if(filePath[0] == '\\')
             {
                 filePath = filePath.Remove(0, 1);
             }

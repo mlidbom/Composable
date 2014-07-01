@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+#pragma warning disable 1591
+
 using System;
 
 // ReSharper disable CheckNamespace
@@ -111,6 +113,7 @@ namespace JetBrains.Annotations
     [AttributeUsage(AttributeTargets.Method, AllowMultiple = false, Inherited = true)]
     public sealed class NotifyPropertyChangedInvocatorAttribute : Attribute
     {
+
         public NotifyPropertyChangedInvocatorAttribute() { }
         public NotifyPropertyChangedInvocatorAttribute(string parameterName)
         {
@@ -453,3 +456,4 @@ namespace JetBrains.Annotations
     [AttributeUsage(AttributeTargets.Parameter | AttributeTargets.Method, Inherited = true)]
     public sealed class RazorSectionAttribute : Attribute { }
 }
+#pragma warning restore 1591

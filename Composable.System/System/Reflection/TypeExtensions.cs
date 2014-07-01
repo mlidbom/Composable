@@ -37,11 +37,14 @@ namespace Composable.System.Reflection
             return implemented.IsAssignableFrom(me);
         }
 
+        ///<summary>Returns a sequence containing all the classes and interfaces that this type inherits/implements</summary>
         public static IEnumerable<Type> GetAllTypesInheritedOrImplemented(this Type me)
         {
+            Contract.Requires(me != null);
             return me.GetClassInheritanceChain().Concat(me.GetInterfaces());
         }
 
+        ///<summary>Lists all classes that this class inherits prepended by the class of the instance itself.</summary>
         public static IEnumerable<Type> GetClassInheritanceChain(this Type me)
         {
             yield return me;
@@ -54,6 +57,8 @@ namespace Composable.System.Reflection
 
 
         private static readonly Dictionary<string, Type> _typeMap = new Dictionary<string, Type>();
+
+        ///<summary>Finds the class that the string represents within any loaded assembly. Calling with "MyNameSpace.MyObject" would return the same type as typeof(MyNameSpace.MyObject) etc.</summary>
         public static Type AsType(this string valueType)
         {
             lock (_typeMap)
@@ -84,18 +89,18 @@ namespace Composable.System.Reflection
             }
         }
 
+        ///<summary>Thrown if there is more than one type that matches the string passed to <see cref="TypeExtensions.AsType"/></summary>
         public class MultipleMatchingTypesException : Exception
         {
-            public MultipleMatchingTypesException(string typeName)
-                : base(typeName)
+            internal MultipleMatchingTypesException(string typeName): base(typeName)
             {
             }
         }
 
+        ///<summary>Thrown if there is no type that matches the string passed to <see cref="TypeExtensions.AsType"/> is found</summary>
         public class FailedToFindTypeException : Exception
         {
-            public FailedToFindTypeException(string typeName)
-                : base(typeName)
+            internal FailedToFindTypeException(string typeName): base(typeName)
             {
             }
         }

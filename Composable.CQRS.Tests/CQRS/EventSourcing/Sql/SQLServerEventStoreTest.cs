@@ -28,6 +28,7 @@ namespace CQRS.Tests.CQRS.EventSourcing.Sql
         public void ShouldNotCacheEventsSavedDuringFailedTransactionEvenIfReadDuringSameTransaction()
         {
             var something = new SqlServerEventStore(ConfigurationManager.ConnectionStrings["EventStore"].ConnectionString);
+            something.ResetDB();//Sometimes the test would fail on the last line with information that the table was missing. Probably because the table was created during the aborted transaction. I'm hoping this will fix it.
 
             var user = new User();
             user.Register("email@email.se", "password", Guid.NewGuid());

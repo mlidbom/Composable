@@ -2,6 +2,7 @@ using System;
 
 namespace Composable.Contracts
 {
+    ///<summary>Performs inspections on string instances</summary>
     public static class StringInspector
     {
         ///<summary>

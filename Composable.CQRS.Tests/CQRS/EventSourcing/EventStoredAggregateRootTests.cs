@@ -57,7 +57,11 @@ namespace CQRS.Tests.CQRS.EventSourcing
 
         protected Account()
         {
-            Register(Handler.For<IAccountRegisteredEvent>().OnApply(e => Email = e.Email));
+            Register(Handler.For<IAccountRegisteredEvent>().OnApply(e =>
+                                                                    {
+                                                                        SetIdBeVerySureYouKnowWhatYouAreDoing(e.AggregateRootId);
+                                                                        Email = e.Email;
+                                                                    }));
         }
 
         public void Register(string email)
@@ -77,7 +81,11 @@ namespace CQRS.Tests.CQRS.EventSourcing
 
         protected override IAccountRegisteredEvent CreateRegisteredEvent(string email)
         {
-            return new AdministratorRegisteredEvent { Email = email };
+            return new AdministratorRegisteredEvent
+                   {
+                       AggregateRootId = Guid.NewGuid(),
+                       Email = email
+                   };
         }
     }
 }

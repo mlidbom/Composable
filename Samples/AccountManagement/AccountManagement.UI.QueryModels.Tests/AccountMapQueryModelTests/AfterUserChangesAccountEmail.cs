@@ -1,6 +1,5 @@
-﻿using AccountManagement.Domain.Shared;
+﻿using AccountManagement.TestHelpers.Scenarios;
 using Castle.MicroKernel.Lifestyle;
-using Composable.CQRS.Windsor;
 using FluentAssertions;
 using NUnit.Framework;
 
@@ -9,21 +8,20 @@ namespace AccountManagement.UI.QueryModels.Tests.AccountMapQueryModelTests
     [TestFixture]
     public class AfterUserChangesAccountEmail : RegistersAccountDuringSetupTestBase
     {
-        private readonly Email _newEmail = Email.Parse("valid.email@domain.com");
+        private ChangeAccountEmailScenario _scenario;
 
         [SetUp]
-        public void RegisterAccountAndChangeEmail()
+        public void ChangeAccountEmail()
         {
-            Container.ExecuteUnitOfWork(() => RegisteredAccount.ChangeEmail(_newEmail));
+            _scenario = new ChangeAccountEmailScenario(Container, RegisteredAccount);
+            _scenario.Execute();
+            ReplaceContainerScope();
         }
 
         [Test]
         public void EmailIsTheOneFromTheEvent()
         {
-            using(Container.BeginScope())
-            {
-                GetAccountQueryModel().Email.Should().Be(_newEmail);
-            }
+            GetAccountQueryModel().Email.Should().Be(_scenario.NewEmail);
         }
     }
 }

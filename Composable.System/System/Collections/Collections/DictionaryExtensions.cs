@@ -2,11 +2,13 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.Contracts;
 
 #endregion
 
 namespace Composable.System.Collections.Collections
 {
+    ///<summary>Helpers for working with dictionaries</summary>
     public static class DictionaryExtensions
     {
         /// <summary>
@@ -15,6 +17,8 @@ namespace Composable.System.Collections.Collections
         /// </summary>
         public static TValue GetOrAdd<TKey, TValue>(this IDictionary<TKey, TValue> me, TKey key, Func<TValue> constructor)
         {
+            Contract.Requires(me != null && key != null && constructor != null);
+
             TValue value;
             if(me.TryGetValue(key, out value))
             {
@@ -31,6 +35,7 @@ namespace Composable.System.Collections.Collections
         /// </summary>
         public static TValue GetOrAddDefault<TKey, TValue>(this IDictionary<TKey, TValue> me, TKey key) where TValue : new()
         {
+            Contract.Requires(me != null && key != null);
             //Originally written to delegate to the above method. Belive it or not this causes a performancedecrease that is actually significant in tight loops.
             TValue value;
             if (me.TryGetValue(key, out value))

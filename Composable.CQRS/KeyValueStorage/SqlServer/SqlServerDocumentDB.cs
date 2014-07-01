@@ -259,6 +259,36 @@ WHERE ValueTypeId ";
             }
         }
 
+        public IEnumerable<Guid> GetAllIds<T>() where T : IHasPersistentIdentity<Guid>
+        {
+            EnsureInitialized();
+            if (!IsKnownType(typeof(T)))
+            {
+                yield break;
+            }
+
+            using (var connection = OpenSession())
+            {
+                using (var loadCommand = connection.CreateCommand())
+                {
+                    loadCommand.CommandText = @"
+SELECT Id 
+FROM Store 
+WHERE ValueTypeId ";
+
+                    AddTypeCriteria(loadCommand, typeof(T));
+
+                    using (var reader = loadCommand.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            yield return Guid.Parse(reader.GetString(0));
+                        }
+                    }
+                }
+            }
+        }
+
         private bool _disposed;
 
         public void Dispose()

@@ -236,6 +236,10 @@ namespace Composable.KeyValueStorage
             return _idMap.Select(pair => pair.Value).OfType<T>();
         }
 
+        public IEnumerable<Guid> GetAllIds<T>() where T : IHasPersistentIdentity<Guid>
+        {
+            return BackingStore.GetAllIds<T>();
+        }
 
 
         public virtual void Dispose()

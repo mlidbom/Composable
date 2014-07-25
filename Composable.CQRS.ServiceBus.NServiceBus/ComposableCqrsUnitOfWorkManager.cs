@@ -35,7 +35,7 @@ namespace Composable.CQRS.ServiceBus.NServiceBus
 
                 AssertAmbientTransactionPresent();
 
-                if (_bus.CurrentMessageContext.Headers.ContainsKey(UnicastBus.SubscriptionMessageType))
+                if (_bus.CurrentMessageContext.Headers.ContainsKey(Headers.SubscriptionMessageType))
                 {
                     Log.Debug("Bailing out of creating unit of work since this is a subscription message that nservicebus tells us that processing has started but never tells us when it completes");
                     return;

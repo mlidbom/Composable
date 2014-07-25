@@ -12,7 +12,7 @@ namespace Composable.CQRS.Command
     /// <typeparam name="TCommand">The command that should start the saga</typeparam>
     /// <typeparam name="TCommandFailed">The failure message to be sent if command fails</typeparam>
     public abstract class SagaBase<TSagaData, TCommand, TCommandFailed> : Saga<TSagaData>, IAmStartedByMessages<TCommand>
-        where TSagaData : ISagaEntity
+        where TSagaData : IContainSagaData
         where TCommand : Command
         where TCommandFailed: CommandDomainValidationExceptionResponse, new()
     {

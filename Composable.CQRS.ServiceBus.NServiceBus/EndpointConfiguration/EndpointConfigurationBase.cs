@@ -30,7 +30,7 @@ namespace Composable.CQRS.ServiceBus.NServiceBus.EndpointConfiguration
         protected static readonly IEnumerable<Assembly> AssembliesItIsRequiredThatYouScan = Seq.OfTypes<
                 global::NServiceBus.IMessage,//NServiceBus.Interfaces
                 global::NServiceBus.Hosting.IHost,//NServiceBus.Host
-                global::NServiceBus.Licensing.SystemInfo,//NServiceBus.Core
+
                 Composable.DomainEvents.IDomainEvent,//Composable.DomainEvents
                 Composable.CQRS.Command.ICommand,//Composable.CQRS
                 Composable.DisposeAction>()
@@ -94,7 +94,7 @@ namespace Composable.CQRS.ServiceBus.NServiceBus.EndpointConfiguration
 
         protected virtual Configure ConfigureSubscriptionStorage(Configure config)
         {
-            return config.DBSubcriptionStorage();
+            return config.UseNHibernateSubscriptionPersister();
         }
 
         protected virtual Configure ConfigureSaga(Configure config)
@@ -116,7 +116,6 @@ namespace Composable.CQRS.ServiceBus.NServiceBus.EndpointConfiguration
             _container.Register(
                 Component.For<IWindsorContainer, WindsorContainer>().Instance(_container),
                 Component.For<IManageUnitsOfWork>().ImplementedBy<ComposableCqrsUnitOfWorkManager>().LifeStyle.PerNserviceBusMessage(),
-                Component.For<IProvideFailureHeaders>().ImplementedBy<ComposableFailureHeadersProvider>().LifeStyle.Singleton,
                 Component.For<ISingleContextUseGuard>().ImplementedBy<SingleThreadUseGuard>().LifeStyle.PerNserviceBusMessage()
                 );
 
@@ -150,7 +149,7 @@ namespace Composable.CQRS.ServiceBus.NServiceBus.EndpointConfiguration
     {
     }
 
-    public class EmptyHandler : IMessageHandler<WillNeverBeUsed>
+    public class EmptyHandler : IHandleMessages<WillNeverBeUsed>
     {
         public void Handle(WillNeverBeUsed message)
         {

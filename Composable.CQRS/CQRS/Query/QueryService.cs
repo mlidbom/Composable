@@ -1,5 +1,6 @@
 #region usings
 
+using System;
 using System.Diagnostics.Contracts;
 using System.Transactions;
 using Microsoft.Practices.ServiceLocation;
@@ -8,6 +9,7 @@ using Microsoft.Practices.ServiceLocation;
 
 namespace Composable.CQRS.Query
 {
+    [Obsolete("Will be removed soon. Please switch to using another solution for queries.")]
     public class QueryService : IQueryService
     {
         private readonly IServiceLocator _serviceLocator;

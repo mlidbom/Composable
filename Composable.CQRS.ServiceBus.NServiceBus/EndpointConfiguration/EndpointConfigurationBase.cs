@@ -147,7 +147,8 @@ namespace Composable.CQRS.ServiceBus.NServiceBus.EndpointConfiguration
         }
     }
 
-    public class WillNeverBeUsed : IMessage
+    // ReSharper disable ClassNeverInstantiated.Global
+    public class WillNeverBeUsed : IMessage        
     {
     }
 
@@ -157,4 +158,5 @@ namespace Composable.CQRS.ServiceBus.NServiceBus.EndpointConfiguration
         {
         }
     }
+    // ReSharper restore ClassNeverInstantiated.Global
 }

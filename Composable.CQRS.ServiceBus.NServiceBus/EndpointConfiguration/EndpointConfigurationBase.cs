@@ -49,9 +49,8 @@ namespace Composable.CQRS.ServiceBus.NServiceBus.EndpointConfiguration
             var config2 = ConfigureSubscriptionStorage(config);
             config2 = ConfigureSaga(config2);
 
-            var busConfig = config2.XmlSerializer()
-                .MsmqTransport()
-                .IsTransactional(true)
+            var busConfig = config2
+                .UseTransport<Msmq>()
                 .PurgeOnStartup(PurgeOnStartUp)
                 .UnicastBus();
 
@@ -64,6 +63,9 @@ namespace Composable.CQRS.ServiceBus.NServiceBus.EndpointConfiguration
 
         protected virtual Configure InitializeConfigurationAndDecideOnScanningPolicy()
         {
+            Configure.Serialization.Xml();
+            Configure.Transactions.Enable();
+
             return Configure.With();
         }
 

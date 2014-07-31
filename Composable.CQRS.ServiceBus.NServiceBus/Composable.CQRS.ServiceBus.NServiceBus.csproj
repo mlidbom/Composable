@@ -95,7 +95,6 @@
     <Compile Include="ComposableCqrsUnitOfWorkManager.cs" />
     <Compile Include="DefaultDualDispatchBusRouter.cs" />
     <Compile Include="DualDispatchBus.cs" />
-    <Compile Include="EndpointConfig.cs" />
     <Compile Include="EndpointConfiguration\CatchSerializationErrors.cs" />
     <Compile Include="EndpointConfiguration\ComposableFailureHeadersProvider.cs" />
     <Compile Include="EndpointConfiguration\EndpointCfg.cs" />

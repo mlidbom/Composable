@@ -14,6 +14,7 @@ using Composable.System.Linq;
 using Composable.SystemExtensions.Threading;
 using NServiceBus;
 using NServiceBus.Faults;
+using NServiceBus.Hosting.Roles;
 using NServiceBus.Unicast.Config;
 using NServiceBus.UnitOfWork;
 using log4net.Config;
@@ -22,7 +23,9 @@ using log4net.Config;
 
 namespace Composable.CQRS.ServiceBus.NServiceBus.EndpointConfiguration
 {
-    public abstract class NServicebusEndpointConfigurationBase<TInheritor> : IWantCustomInitialization
+    public abstract class NServicebusEndpointConfigurationBase<TInheritor> : 
+        IWantCustomInitialization, 
+        AsA_NullOpRole
         where TInheritor : IConfigureThisEndpoint
     {        
         private WindsorContainer _container;
@@ -158,5 +161,22 @@ namespace Composable.CQRS.ServiceBus.NServiceBus.EndpointConfiguration
         {
         }
     }
+
+
+    // ReSharper disable InconsistentNaming
+    public interface AsA_NullOpRole : IRole //It is apparently now obligatory to use a role so use a fake one...
+    // ReSharper restore InconsistentNaming
+    {
+
+    }
+
+    public class DoNothingRoleConfigurer : IConfigureRole<AsA_NullOpRole>
+    {
+        public ConfigUnicastBus ConfigureRole(IConfigureThisEndpoint specifier)
+        {
+            return null;//Yes I know how this looks but it does work for some inexplicable reason.
+        }
+    }
+
     // ReSharper restore ClassNeverInstantiated.Global
 }

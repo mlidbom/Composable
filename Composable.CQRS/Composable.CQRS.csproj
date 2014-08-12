@@ -177,6 +177,9 @@
     <Compile Include="CQRS\TypeExtensions.cs" />
     <Compile Include="CQRS\UnNamedReferenceObject.cs" />
     <Compile Include="CQRS\ViewModels\ViewModelUpdater.cs" />
+    <Compile Include="CQRS\Windsor\DisposableComponent.cs" />
+    <Compile Include="CQRS\Windsor\DisposableComponentCollection.cs" />
+    <Compile Include="CQRS\Windsor\WindsorDisposableExtensions.cs" />
     <Compile Include="DomainEvents\DomainEvent.cs" />
     <Compile Include="CQRS\Query\Models\Generators\QueryModelGeneratingDocumentDbReader.cs" />
     <Compile Include="CQRS\Query\Models\Generators\IQueryModelGenerator.cs" />

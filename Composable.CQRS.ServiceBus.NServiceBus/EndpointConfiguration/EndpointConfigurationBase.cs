@@ -174,7 +174,7 @@ namespace Composable.CQRS.ServiceBus.NServiceBus.EndpointConfiguration
     {
         public ConfigUnicastBus ConfigureRole(IConfigureThisEndpoint specifier)
         {
-            return null;//Yes I know how this looks but it does work for some inexplicable reason.
+            return Configure.Instance.UnicastBus();
         }
     }
 

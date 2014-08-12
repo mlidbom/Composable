@@ -22,7 +22,11 @@ namespace Composable.CQRS.EventSourcing.SQLServer
 
         public static SqlServerEventStoreEventsCache ForConnectionString(string connectionString)
         {
-            return ConnectionStringToCacheMap.GetOrAdd(connectionString, new SqlServerEventStoreEventsCache());
+            if (!ConnectionStringToCacheMap.ContainsKey(connectionString))
+            {
+                ConnectionStringToCacheMap.GetOrAdd(connectionString, new SqlServerEventStoreEventsCache());
+            }
+            return ConnectionStringToCacheMap[connectionString];
         }
 
         private static readonly CacheItemPolicy Policy = new CacheItemPolicy()

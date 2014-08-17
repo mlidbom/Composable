@@ -30,18 +30,21 @@ namespace Composable.CQRS.ServiceBus.NServiceBus.EndpointConfiguration
     {        
         private WindsorContainer _container;
 
-        protected static readonly IEnumerable<Assembly> AssembliesItIsRequiredThatYouScan = Seq.OfTypes<
+        protected static readonly IEnumerable<Assembly> AssembliesItIsRequiredThatYouScan = 
+            Seq.OfTypes<
                 global::NServiceBus.IMessage,//NServiceBus.Interfaces
                 global::NServiceBus.Hosting.IHost,//NServiceBus.Host
-
                 Composable.DomainEvents.IDomainEvent,//Composable.DomainEvents
                 Composable.CQRS.Command.ICommand,//Composable.CQRS
-                Composable.DisposeAction>()
+                Composable.DisposeAction>()//Composable.Core
                 .Select(type => type.Assembly)
-                .ToList();//Composable.Core
+                .ToList();
 
         protected virtual void StartNServiceBus(WindsorContainer windsorContainer)
         {
+            Configure.Serialization.Xml();
+            Configure.Transactions.Enable();
+
             var config = InitializeConfigurationAndDecideOnScanningPolicy()
                 .DefineEndpointName(InputQueueName)
                 .CastleWindsorBuilder(container: windsorContainer);
@@ -66,9 +69,6 @@ namespace Composable.CQRS.ServiceBus.NServiceBus.EndpointConfiguration
 
         protected virtual Configure InitializeConfigurationAndDecideOnScanningPolicy()
         {
-            Configure.Serialization.Xml();
-            Configure.Transactions.Enable();
-
             return Configure.With();
         }
 

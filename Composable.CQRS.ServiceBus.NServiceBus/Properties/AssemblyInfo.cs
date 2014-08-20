@@ -3,4 +3,4 @@
 [assembly: AssemblyTitle("Composable.CQRS.ServiceBus.NServiceBus")]
 [assembly: AssemblyProduct("Composable.CQRS.ServiceBus.NServiceBus")]
 
-[assembly: AssemblyVersion("2.4.1.0")]
+[assembly: AssemblyVersion("3.0.0.0")]

@@ -6,7 +6,7 @@ using log4net;
 
 namespace Composable.CQRS.ServiceBus.NServiceBus.EndpointConfiguration
 {
-    public class MessageSourceValidator : IMessageHandler<IMessage>
+    public class MessageSourceValidator : IHandleMessages<IMessage>
     {
         private static ILog Log = LogManager.GetLogger(typeof(MessageSourceValidator));
 

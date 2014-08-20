@@ -41,21 +41,17 @@
       <HintPath>..\packages\Castle.Windsor.3.2.1\lib\net45\Castle.Windsor.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Composable.Core, Version=2.3.1.0, Culture=neutral, PublicKeyToken=0c6b2c03e4c91d22, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\Composable.Core.2.3.1-develop\lib\net40\Composable.Core.dll</HintPath>
+    <Reference Include="Composable.Core">
+      <HintPath>..\packages\Composable.Core.3.0.0\lib\net40\Composable.Core.dll</HintPath>
     </Reference>
-    <Reference Include="Composable.CQRS, Version=2.3.2.0, Culture=neutral, PublicKeyToken=0c6b2c03e4c91d22, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\Composable.CQRS.2.3.2-develop\lib\net40\Composable.CQRS.dll</HintPath>
+    <Reference Include="Composable.CQRS">
+      <HintPath>..\packages\Composable.CQRS.3.0.0\lib\net40\Composable.CQRS.dll</HintPath>
     </Reference>
-    <Reference Include="Composable.CQRS.Windsor, Version=2.3.1.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\Composable.CQRS.Windsor.2.3.1-develop\lib\net40\Composable.CQRS.Windsor.dll</HintPath>
+    <Reference Include="Composable.CQRS.Windsor">
+      <HintPath>..\packages\Composable.CQRS.Windsor.3.0.0\lib\net40\Composable.CQRS.Windsor.dll</HintPath>
     </Reference>
-    <Reference Include="Composable.DomainEvents, Version=2.3.1.0, Culture=neutral, PublicKeyToken=0c6b2c03e4c91d22, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\Composable.DomainEvents.2.3.1-develop\lib\net40\Composable.DomainEvents.dll</HintPath>
+    <Reference Include="Composable.DomainEvents">
+      <HintPath>..\packages\Composable.DomainEvents.3.0.0\lib\net40\Composable.DomainEvents.dll</HintPath>
     </Reference>
     <Reference Include="log4net, Version=1.2.10.0, Culture=neutral, PublicKeyToken=1b44e1d426115821, processorArchitecture=MSIL">
       <Private>True</Private>
@@ -69,7 +65,7 @@
       <HintPath>..\packages\Newtonsoft.Json.5.0.8\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="NServiceBus">
-      <HintPath>..\packages\NServiceBus.Interfaces.3.0.3.32\lib\net40\NServiceBus.dll</HintPath>
+      <HintPath>..\packages\NServiceBus.Interfaces.4.6.3\lib\net40\NServiceBus.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Configuration" />

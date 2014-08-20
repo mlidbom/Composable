@@ -4,6 +4,7 @@ using System;
 using System.Diagnostics.Contracts;
 using System.Transactions;
 using Castle.Windsor;
+using Composable.CQRS.Windsor;
 using Composable.DomainEvents;
 using Composable.KeyValueStorage.Population;
 using Composable.System.Linq;
@@ -31,8 +32,9 @@ namespace Composable.CQRS.Command
         }
 
         protected virtual void ExecuteSingle<TCommand>(TCommand command) {
-            var handler = _container.Resolve<ICommandHandler<TCommand>>();
-            handler.Execute(command);
+            _container.UseComponent<ICommandHandler<TCommand>>(
+                    handler => handler.Execute(command)
+                );
         }
 
         public virtual CommandResult Execute<TCommand>(TCommand command)

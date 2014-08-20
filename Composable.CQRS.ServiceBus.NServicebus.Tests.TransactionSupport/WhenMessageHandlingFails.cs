@@ -54,15 +54,15 @@ namespace Composable.CQRS.ServiceBus.NServicebus.Tests.TransactionSupport
             eventStoreReader.SaveEvents(((IEventStored) new Aggregate(2)).GetChanges());
 
             endpointConfigurer.Init();
-            var bus = endpointConfigurer.Container.Resolve<IServiceBus>();
-
             var messageHandled = new ManualResetEvent(false);
             TestingSupportMessageModule.OnHandleBeginMessage += transaction =>
                                                                     {
                                                                         transaction.TransactionCompleted += (_, __) => messageHandled.Set();
                                                                     };
 
-            bus.SendLocal(new InsertEventsMessage());
+            endpointConfigurer.Container.UseComponent<IServiceBus>(
+                    bus => bus.SendLocal(new InsertEventsMessage())
+                );
 
             Assert.That(messageHandled.WaitOne(30.Seconds()), Is.True, "Timed out waiting for message");
 

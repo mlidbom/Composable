@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <!--<UsingTask TaskName="InjectModuleInitializer" AssemblyFile="$(ProjectDir)..\..\Tools\InjectModuleInitializer\InjectModuleInitializer.exe" />-->
   <PropertyGroup>
@@ -67,10 +67,8 @@
       <Private>True</Private>
       <HintPath>..\packages\Newtonsoft.Json.5.0.8\lib\net40\Newtonsoft.Json.dll</HintPath>
     </Reference>
-    <Reference Include="NServiceBus, Version=3.0.0.0, Culture=neutral, PublicKeyToken=9fc386479f8a226c, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\NServiceBus.Interfaces.3.0.3.32\lib\net40\NServiceBus.dll</HintPath>
-      <Private>True</Private>
+    <Reference Include="NServiceBus">
+      <HintPath>..\packages\NServiceBus.Interfaces.4.6.3\lib\net40\NServiceBus.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.configuration" />
@@ -179,6 +177,9 @@
     <Compile Include="CQRS\TypeExtensions.cs" />
     <Compile Include="CQRS\UnNamedReferenceObject.cs" />
     <Compile Include="CQRS\ViewModels\ViewModelUpdater.cs" />
+    <Compile Include="CQRS\Windsor\DisposableComponent.cs" />
+    <Compile Include="CQRS\Windsor\DisposableComponentCollection.cs" />
+    <Compile Include="CQRS\Windsor\WindsorDisposableExtensions.cs" />
     <Compile Include="DomainEvents\DomainEvent.cs" />
     <Compile Include="CQRS\Query\Models\Generators\QueryModelGeneratingDocumentDbReader.cs" />
     <Compile Include="CQRS\Query\Models\Generators\IQueryModelGenerator.cs" />
@@ -230,10 +231,6 @@
     <Compile Include="Persistence\InMemoryPersistenceSession.cs" />
     <Compile Include="Persistence\IPersistenceSession.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="CQRS\Query\IQueryHandler.cs" />
-    <Compile Include="CQRS\Query\QueryService.cs" />
-    <Compile Include="CQRS\Query\IQuery.cs" />
-    <Compile Include="CQRS\Query\IQueryService.cs" />
     <Compile Include="CQRS\ServiceLocatorExtensions.cs" />
     <Compile Include="StuffThatDoesNotBelongHere\MultiEventHandler.cs" />
     <Compile Include="StuffThatDoesNotBelongHere\Translation\TranslateAttribute.cs" />

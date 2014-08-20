@@ -14,6 +14,7 @@ using Composable.System.Linq;
 using Composable.SystemExtensions.Threading;
 using NServiceBus;
 using NServiceBus.Faults;
+using NServiceBus.Hosting.Roles;
 using NServiceBus.Unicast.Config;
 using NServiceBus.UnitOfWork;
 using log4net.Config;
@@ -22,23 +23,28 @@ using log4net.Config;
 
 namespace Composable.CQRS.ServiceBus.NServiceBus.EndpointConfiguration
 {
-    public abstract class NServicebusEndpointConfigurationBase<TInheritor> : IWantCustomInitialization
+    public abstract class NServicebusEndpointConfigurationBase<TInheritor> : 
+        IWantCustomInitialization, 
+        AsA_NullOpRole
         where TInheritor : IConfigureThisEndpoint
     {        
         private WindsorContainer _container;
 
-        protected static readonly IEnumerable<Assembly> AssembliesItIsRequiredThatYouScan = Seq.OfTypes<
+        protected static readonly IEnumerable<Assembly> AssembliesItIsRequiredThatYouScan = 
+            Seq.OfTypes<
                 global::NServiceBus.IMessage,//NServiceBus.Interfaces
                 global::NServiceBus.Hosting.IHost,//NServiceBus.Host
-                global::NServiceBus.Licensing.SystemInfo,//NServiceBus.Core
                 Composable.DomainEvents.IDomainEvent,//Composable.DomainEvents
                 Composable.CQRS.Command.ICommand,//Composable.CQRS
-                Composable.DisposeAction>()
+                Composable.DisposeAction>()//Composable.Core
                 .Select(type => type.Assembly)
-                .ToList();//Composable.Core
+                .ToList();
 
         protected virtual void StartNServiceBus(WindsorContainer windsorContainer)
         {
+            Configure.Serialization.Xml();
+            Configure.Transactions.Enable();
+
             var config = InitializeConfigurationAndDecideOnScanningPolicy()
                 .DefineEndpointName(InputQueueName)
                 .CastleWindsorBuilder(container: windsorContainer);
@@ -49,9 +55,8 @@ namespace Composable.CQRS.ServiceBus.NServiceBus.EndpointConfiguration
             var config2 = ConfigureSubscriptionStorage(config);
             config2 = ConfigureSaga(config2);
 
-            var busConfig = config2.XmlSerializer()
-                .MsmqTransport()
-                .IsTransactional(true)
+            var busConfig = config2
+                .UseTransport<Msmq>()
                 .PurgeOnStartup(PurgeOnStartUp)
                 .UnicastBus();
 
@@ -94,7 +99,7 @@ namespace Composable.CQRS.ServiceBus.NServiceBus.EndpointConfiguration
 
         protected virtual Configure ConfigureSubscriptionStorage(Configure config)
         {
-            return config.DBSubcriptionStorage();
+            return config.UseNHibernateSubscriptionPersister();
         }
 
         protected virtual Configure ConfigureSaga(Configure config)
@@ -116,7 +121,6 @@ namespace Composable.CQRS.ServiceBus.NServiceBus.EndpointConfiguration
             _container.Register(
                 Component.For<IWindsorContainer, WindsorContainer>().Instance(_container),
                 Component.For<IManageUnitsOfWork>().ImplementedBy<ComposableCqrsUnitOfWorkManager>().LifeStyle.PerNserviceBusMessage(),
-                Component.For<IProvideFailureHeaders>().ImplementedBy<ComposableFailureHeadersProvider>().LifeStyle.Singleton,
                 Component.For<ISingleContextUseGuard>().ImplementedBy<SingleThreadUseGuard>().LifeStyle.PerNserviceBusMessage()
                 );
 
@@ -146,14 +150,33 @@ namespace Composable.CQRS.ServiceBus.NServiceBus.EndpointConfiguration
         }
     }
 
-    public class WillNeverBeUsed : IMessage
+    // ReSharper disable ClassNeverInstantiated.Global
+    public class WillNeverBeUsed : IMessage        
     {
     }
 
-    public class EmptyHandler : IMessageHandler<WillNeverBeUsed>
+    public class EmptyHandler : IHandleMessages<WillNeverBeUsed>
     {
         public void Handle(WillNeverBeUsed message)
         {
         }
     }
+
+
+    // ReSharper disable InconsistentNaming
+    public interface AsA_NullOpRole : IRole //It is apparently now obligatory to use a role so use a fake one...
+    // ReSharper restore InconsistentNaming
+    {
+
+    }
+
+    public class DoNothingRoleConfigurer : IConfigureRole<AsA_NullOpRole>
+    {
+        public ConfigUnicastBus ConfigureRole(IConfigureThisEndpoint specifier)
+        {
+            return Configure.Instance.UnicastBus();
+        }
+    }
+
+    // ReSharper restore ClassNeverInstantiated.Global
 }

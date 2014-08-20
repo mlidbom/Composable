@@ -42,7 +42,7 @@ namespace CQRS.Tests.CQRS
         { }
 
         [UsedImplicitly]
-        public class SagaDataDummy:ISagaEntity
+        public class SagaDataDummy:IContainSagaData
         {
             public Guid Id { get; set; }
             public string Originator { get; set; }

@@ -4,7 +4,7 @@ using NServiceBus;
 
 namespace Composable.CQRS.ServiceBus.NServiceBus.EndpointConfiguration
 {
-    public class CatchSerializationErrors : IMessageHandler<IMessage>
+    public class CatchSerializationErrors : IHandleMessages<IMessage>
     {
         private readonly IBus _bus;
 

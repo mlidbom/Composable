@@ -69,18 +69,19 @@ namespace Composable.CQRS.ServiceBus.NServiceBus.ErrorMessagesTests
             Exception exceptionPassedToFailureHeaderProvider = null;
             var messageErrorHandlingInvoked = new ManualResetEvent(false);
 
-            endpointConfigurator.Extractor.RecievedException += e =>
-            {
-                exceptionPassedToFailureHeaderProvider = e;
-                messageErrorHandlingInvoked.Set();
-            };
+            //endpointConfigurator.Extractor.RecievedException += e =>
+            //{
+            //    exceptionPassedToFailureHeaderProvider = e;
+            //    messageErrorHandlingInvoked.Set();
+            //};
             
 
             bus.SendLocal(new ErrorGeneratingMessage());
 
             Assert.That(messageHandled.WaitOne(30.Seconds()), Is.True, "Timed out waiting for message");
-
-            Assert.That(messageErrorHandlingInvoked.WaitOne(30.Seconds()), Is.True, "Timed out waiting for error handling to be invoked");
+            
+            //Assert.That(messageErrorHandlingInvoked.WaitOne(30.Seconds()), Is.True, "Timed out waiting for error handling to be invoked");
+            Thread.Sleep(15000);
 
             exceptionPassedToFailureHeaderProvider.GetRootCauseException().Should().BeOfType<RootCauseException>();
 
@@ -97,12 +98,76 @@ namespace Composable.CQRS.ServiceBus.NServiceBus.ErrorMessagesTests
     {
         public void Handle(ErrorGeneratingMessage message)
         {
-            throw new RootCauseException();
+            try
+            {
+                try
+                {
+                    try
+                    {
+                        ThrowAfterAFewCalls(new RootCauseException());
+                    }
+                    catch(RootCauseException e)
+                    {
+                        ThrowAfterAFewCalls(new FirstWrappingException("wrapping1", e));
+                    }
+                }
+                catch(FirstWrappingException e)
+                {
+                    ThrowAfterAFewCalls(new SecondWrappingException("wrapping1", e));
+                }
+            }
+            catch(SecondWrappingException e)
+            {
+                ThrowAfterAFewCalls(new ThirdWrappingException("wrapping3", e));
+            }
+        }
+
+        private static void ThrowAfterAFewCalls(Exception e) 
+        {
+            ThrowAfterACall(e);
+        }
+
+        private static void ThrowAfterACall(Exception e)
+        {
+            Throw(e);
+        }
+
+        private static void Throw(Exception e)
+        {
+            throw e;
+        }
+    }
+
+    public class ThirdWrappingException : Exception
+    {
+        public ThirdWrappingException(string wrapping3, SecondWrappingException secondWrappingException):base(wrapping3, secondWrappingException)
+        {
+            
+        }
+    }
+
+    public class SecondWrappingException : Exception
+    {
+        public SecondWrappingException(string secondWrapping, FirstWrappingException firstWrappingException):base(secondWrapping, firstWrappingException)
+        {
+            
+        }
+    }
+
+    public class FirstWrappingException : Exception
+    {
+        public FirstWrappingException(string outer, RootCauseException rootCauseException):base(outer, rootCauseException)
+        {
+            
         }
     }
 
     public class RootCauseException : Exception
     {
+        public RootCauseException():base("A root cause message")
+        {
+            
+        }
     }
 
     public class MyEndPointConfigurer : NServicebusEndpointConfigurationBase<MyEndPointConfigurer>, IConfigureThisEndpoint
@@ -112,7 +177,7 @@ namespace Composable.CQRS.ServiceBus.NServiceBus.ErrorMessagesTests
         public MyEndPointConfigurer(string queueName)
         {
             _queueName = queueName;
-            Extractor = new ExceptionExtractor();
+            //Extractor = new ExceptionExtractor();
         }
 
         override protected bool PurgeOnStartUp { get { return true; } }
@@ -125,12 +190,12 @@ namespace Composable.CQRS.ServiceBus.NServiceBus.ErrorMessagesTests
         protected override void ConfigureContainer(IWindsorContainer container)
         {
             Container = container;
-            container.Register(Component.For<IServiceBus>().ImplementedBy<NServiceBusServiceBus>(),
-                    Component.For<IProvideFailureHeaders>().Instance(Extractor)
+            container.Register(Component.For<IServiceBus>().ImplementedBy<NServiceBusServiceBus>()
+                //,Component.For<IProvideFailureHeaders>().Instance(Extractor)
                 );
         }
 
-        public ExceptionExtractor Extractor { get; private set; }
+        //public ExceptionExtractor Extractor { get; private set; }
 
         public IWindsorContainer Container { get; set; }
 
@@ -142,13 +207,13 @@ namespace Composable.CQRS.ServiceBus.NServiceBus.ErrorMessagesTests
         }
     }
 
-    public class ExceptionExtractor : IProvideFailureHeaders
-    {
-        public event Action<Exception> RecievedException;
-        public IDictionary<string, string> GetExceptionHeaders(TransportMessage message, Exception e)
-        {
-            RecievedException(e);
-            return  new Dictionary<string, string>();
-        }
-    }
+    //public class ExceptionExtractor : IProvideFailureHeaders
+    //{
+    //    public event Action<Exception> RecievedException;
+    //    public IDictionary<string, string> GetExceptionHeaders(TransportMessage message, Exception e)
+    //    {
+    //        RecievedException(e);
+    //        return  new Dictionary<string, string>();
+    //    }
+    //}
 }

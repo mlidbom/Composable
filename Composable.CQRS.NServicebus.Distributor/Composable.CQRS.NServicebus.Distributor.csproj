@@ -90,7 +90,7 @@
     <StartProgram>$(ProjectDir)$(OutputPath)NServiceBus.Host.exe</StartProgram>
   </PropertyGroup>
   <PropertyGroup>
-    <PostBuildEvent>copy /Y "$(ProjectDir)app.config" "$(TargetDir)NServicebus.Host.exe.config"
+    <PostBuildEvent>del $(TargetDir)NServicebus.Host.exe.config &amp; mklink  "$(TargetDir)NServicebus.Host.exe.config" $(TargetFileName).config
 copy /Y "$(ProjectDir)app.config" "$(TargetDir)NServiceBus.Distributor.dll.config</PostBuildEvent>
   </PropertyGroup>
   <PropertyGroup>

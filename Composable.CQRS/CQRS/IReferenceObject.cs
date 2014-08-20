@@ -7,4 +7,4 @@ namespace Composable.CQRS
     {
         
     }
-}
+}       

@@ -1,12 +1,14 @@
 #region usings
 
 using System;
+using System.Diagnostics.Contracts;
 
 #endregion
 
 namespace Composable.System
 {
     /// <summary>A collection of extensions to work with timespans</summary>
+    [Pure]
     public static class TimeSpanExtensions
     {
         /// <summary>Returns a TimeSpan <paramref name="me"/> milliseconds long.</summary>

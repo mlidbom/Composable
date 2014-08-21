@@ -1,12 +1,14 @@
 using System;
+using Composable.ServiceBus;
 using Composable.System;
 using NServiceBus;
+using NServiceBus.MessageMutator;
 using NServiceBus.Saga;
 using log4net;
 
 namespace Composable.CQRS.ServiceBus.NServiceBus.EndpointConfiguration
 {
-    public class MessageSourceValidator : IHandleMessages<IMessage>
+    public class MessageSourceValidator : IMutateIncomingMessages
     {
         private static ILog Log = LogManager.GetLogger(typeof(MessageSourceValidator));
 
@@ -16,20 +18,19 @@ namespace Composable.CQRS.ServiceBus.NServiceBus.EndpointConfiguration
             _bus = bus;
         }
 
-        public void Handle(IMessage message)
+        public object MutateIncoming(object message)
         {
             string environmentName;
 
-            if(message is IAmTimeoutMessage)
+            if (message is IAmTimeoutMessage)
             {
                 //Message is a timeout message that is sent internally from nServiceBus and therefore has no environmentheading
                 var timeout = (IAmTimeoutMessage)message;
-                if(timeout.EnvironmentName !=EndpointCfg.EnvironmentName)
+                if (timeout.EnvironmentName != EndpointCfg.EnvironmentName)
                 {
                     throw new Exception("Recieved message from other environment: {0} in environment {1}".FormatWith(timeout.EnvironmentName, EndpointCfg.EnvironmentName));
                 }
-                return;
-
+                return message;
             }
 
             if (!_bus.CurrentMessageContext.Headers.TryGetValue(EndpointCfg.EnvironmentNameMessageHeaderName, out environmentName))
@@ -41,6 +42,7 @@ namespace Composable.CQRS.ServiceBus.NServiceBus.EndpointConfiguration
             {
                 throw new Exception("Recieved message from other environment: {0} in environment {1}".FormatWith(environmentName, EndpointCfg.EnvironmentName));
             }
+            return message;
         }
     }
 }

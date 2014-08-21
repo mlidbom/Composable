@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Dynamic;
 using System.Linq;
+using Castle.MicroKernel.Lifestyle;
 using Castle.Windsor;
 using Composable.CQRS;
 using Composable.CQRS.EventSourcing;
@@ -23,13 +24,13 @@ namespace Composable.ServiceBus
     /// </summary>
     public class SynchronousBus : IServiceBus
     {
-        protected readonly IWindsorContainer ServiceLocator;
+        protected readonly IWindsorContainer Container;
         private ISynchronousBusSubscriberFilter _subscriberFilter;
 
-        public SynchronousBus(IWindsorContainer serviceLocator, ISynchronousBusSubscriberFilter subscriberFilter = null)
+        public SynchronousBus(IWindsorContainer container, ISynchronousBusSubscriberFilter subscriberFilter = null)
         {
             _subscriberFilter = subscriberFilter ?? PublishToAllSubscribersSubscriberFilter.Instance;
-            ServiceLocator = serviceLocator;
+            Container = container;
         }
 
         public virtual void Publish(object message)
@@ -47,22 +48,25 @@ namespace Composable.ServiceBus
 
             var handlerTypes = GetHandlerTypes(message);
 
-            var handlers = new List<object>();
-            foreach (var handlerType in handlerTypes)
+            using(Container.RequireScope()) //Use the existing scope when running in an endpoint and create a new one if running in the web
             {
-                handlers.AddRange(ServiceLocator.ResolveAll(handlerType).Cast<object>());
-            }
-
-            using (var transactionalScope = ServiceLocator.BeginTransactionalUnitOfWorkScope())
-            {
-                foreach (dynamic handler in handlers)
+                using(var transactionalScope = Container.BeginTransactionalUnitOfWorkScope())
                 {
-                    if(_subscriberFilter.PublishMessageToHandler(message, handler))
+                    var handlers = new List<object>();
+                    foreach(var handlerType in handlerTypes)
                     {
-                        handler.Handle((dynamic)message);
+                        handlers.AddRange(Container.ResolveAll(handlerType).Cast<object>());
                     }
+
+                    foreach(dynamic handler in handlers)
+                    {
+                        if(_subscriberFilter.PublishMessageToHandler(message, handler))
+                        {
+                            handler.Handle((dynamic)message);
+                        }
+                    }
+                    transactionalScope.Commit();
                 }
-                transactionalScope.Commit();
             }
         }
 
@@ -72,25 +76,29 @@ namespace Composable.ServiceBus
             var handlerTypes = GetHandlerTypes(message);
 
             var handlers = new List<object>();
-            foreach (var handlerType in handlerTypes)
+            using(Container.RequireScope()) //Use the existing scope when running in an endpoint and create a new one if running in the web
             {
-                handlers.AddRange(ServiceLocator.ResolveAll(handlerType).Cast<object>());
-            }
-            
-            if(handlers.None())
-            {
-                throw new NoHandlerException(message.GetType());
-            }
-
-            AssertOnlyOneHandlerRegistered(message, handlers);
-
-            using(var transactionalScope = ServiceLocator.BeginTransactionalUnitOfWorkScope())
-            {
-                foreach(var handler in handlers)
+                using(var transactionalScope = Container.BeginTransactionalUnitOfWorkScope())
                 {
-                    ((dynamic)handler).Handle((dynamic)message);   
-                }                
-                transactionalScope.Commit();
+
+                    foreach(var handlerType in handlerTypes)
+                    {
+                        handlers.AddRange(Container.ResolveAll(handlerType).Cast<object>());
+                    }
+
+                    if(handlers.None())
+                    {
+                        throw new NoHandlerException(message.GetType());
+                    }
+
+                    AssertOnlyOneHandlerRegistered(message, handlers);
+
+                    foreach(var handler in handlers)
+                    {
+                        ((dynamic)handler).Handle((dynamic)message);
+                    }
+                    transactionalScope.Commit();
+                }
             }
         }
 
@@ -108,7 +116,7 @@ namespace Composable.ServiceBus
             return message.GetType().GetAllTypesInheritedOrImplemented()
                 .Where(t => t.Implements(typeof(IMessage)))
                 .Select(t => typeof(IHandleMessages<>).MakeGenericType(t))
-                .Where(t => ServiceLocator.Kernel.HasComponent(t))
+                .Where(t => Container.Kernel.HasComponent(t))
                 .ToArray();
         }
 

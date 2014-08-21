@@ -60,7 +60,12 @@ namespace Composable.CQRS.ServiceBus.NServiceBus.EndpointConfiguration
                 .PurgeOnStartup(PurgeOnStartUp)
                 .UnicastBus();
 
-            var busConfig2 = LoadMessageHandlers(busConfig, First<EmptyHandler>.Then<MessageSourceValidator>().AndThen<CatchSerializationErrors>());
+            //The empty handlers are kept in order not to break existing overriders and to enable us to insert new handlers here if we need to.
+            var busConfig2 = LoadMessageHandlers(busConfig, First<EmptyHandler>.Then<SecondEmptyHandler>());
+
+            //Register our message inspectors
+            Configure.Instance.Configurer.ConfigureComponent<CatchSerializationErrorsMessageInspector>(DependencyLifecycle.InstancePerCall);
+            Configure.Instance.Configurer.ConfigureComponent<MessageSourceValidator>(DependencyLifecycle.InstancePerCall);
 
             busConfig2.ImpersonateSender(false)
                 .CreateBus()
@@ -156,6 +161,13 @@ namespace Composable.CQRS.ServiceBus.NServiceBus.EndpointConfiguration
     }
 
     public class EmptyHandler : IHandleMessages<WillNeverBeUsed>
+    {
+        public void Handle(WillNeverBeUsed message)
+        {
+        }
+    }
+
+    public class SecondEmptyHandler : IHandleMessages<WillNeverBeUsed>
     {
         public void Handle(WillNeverBeUsed message)
         {

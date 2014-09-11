@@ -255,6 +255,7 @@ namespace Composable.CQRS.EventSourcing.SQLServer
 
         private static readonly HashSet<string> VerifiedTables = new HashSet<string>();        
 
+        //todo:Move this and its cousins below into another abstraction, delegate to that abstraction, and obsolete these methods.
         private void EnsureEventsTableExists()
         {
             lock (VerifiedTables)

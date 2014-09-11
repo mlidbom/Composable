@@ -1,9 +1,11 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
 using System.Data.SqlTypes;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Transactions;
 using Composable.System.Reflection;
 using Newtonsoft.Json;
@@ -92,6 +94,48 @@ namespace Composable.CQRS.EventSourcing.SQLServer
             }
         }
 
+        //If the reader is disposed without the command either being cancelled or completed and every row having been read everything will hang waiting for that to happen. This enumerator makes sure that you can use Take(10) and such without major issues.
+        private class CancelTheCommandOnDisposeSoThatWeDoNotHangIfNotEnumeratingTheWholeResultSetEnumerator : IEnumerator<IAggregateRootEvent>
+        {
+            private readonly SqlDataReader _reader;
+            private readonly SqlCommand _command;
+            private readonly SqlServerEventStore _store;
+
+            public CancelTheCommandOnDisposeSoThatWeDoNotHangIfNotEnumeratingTheWholeResultSetEnumerator(SqlDataReader reader, SqlCommand command, SqlServerEventStore store)
+            {
+                _reader = reader;
+                _command = command;
+                _store = store;
+            }
+
+            public void Dispose()
+            {
+                _command.Cancel();
+            }
+
+            public bool MoveNext()
+            {
+                if(_reader.Read())
+                {
+                    Current = _store.ReadEvent(_reader);
+                    return true;
+                }
+                return false;
+            }
+
+            public void Reset()
+            {
+                throw new NotImplementedException();
+            }
+
+            public IAggregateRootEvent Current { get; private set; }
+
+            object IEnumerator.Current
+            {
+                get { return Current; } 
+            }
+        }
+
         public IEnumerable<IAggregateRootEvent> StreamEventsAfterEventWithId(Guid? startAfterEventId)
         {
             EnsureEventsTableExists();
@@ -111,9 +155,12 @@ namespace Composable.CQRS.EventSourcing.SQLServer
 
                     using (var reader = loadCommand.ExecuteReader())
                     {
-                        while (reader.Read())
+                        using(var enumerator = new CancelTheCommandOnDisposeSoThatWeDoNotHangIfNotEnumeratingTheWholeResultSetEnumerator(reader, loadCommand, this))
                         {
-                            yield return ReadEvent(reader);
+                            while(enumerator.MoveNext())
+                            {
+                                yield return enumerator.Current;
+                            }
                         }
                     }
                 }

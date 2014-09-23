@@ -7,6 +7,7 @@ using System.Data.SqlTypes;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Transactions;
+using Composable.System;
 using Composable.System.Reflection;
 using Newtonsoft.Json;
 using log4net;
@@ -42,6 +43,11 @@ namespace Composable.CQRS.EventSourcing.SQLServer
             return connection;
         }
 
+
+        private static string EventSelectClauseForTop(int top)
+        {
+            return "SELECT TOP {0} EventType, Event, AggregateId, AggregateVersion, EventId, TimeStamp FROM Events With(UPDLOCK,READCOMMITTED, ROWLOCK) ".FormatWith(top);
+        }
 
         private const string EventSelectClause = "SELECT EventType, Event, AggregateId, AggregateVersion, EventId, TimeStamp FROM Events With(UPDLOCK,READCOMMITTED, ROWLOCK) ";
         public IEnumerable<IAggregateRootEvent> GetAggregateHistory(Guid aggregateId)
@@ -94,74 +100,41 @@ namespace Composable.CQRS.EventSourcing.SQLServer
             }
         }
 
-        //If the reader is disposed without the command either being cancelled or completed and every row having been read everything will hang waiting for that to happen. This enumerator makes sure that you can use Take(10) and such without major issues.
-        private class CancelTheCommandOnDisposeSoThatWeDoNotHangIfNotEnumeratingTheWholeResultSetEnumerator : IEnumerator<IAggregateRootEvent>
-        {
-            private readonly SqlDataReader _reader;
-            private readonly SqlCommand _command;
-            private readonly SqlServerEventStore _store;
-
-            public CancelTheCommandOnDisposeSoThatWeDoNotHangIfNotEnumeratingTheWholeResultSetEnumerator(SqlDataReader reader, SqlCommand command, SqlServerEventStore store)
-            {
-                _reader = reader;
-                _command = command;
-                _store = store;
-            }
-
-            public void Dispose()
-            {
-                _command.Cancel();
-            }
-
-            public bool MoveNext()
-            {
-                if(_reader.Read())
-                {
-                    Current = _store.ReadEvent(_reader);
-                    return true;
-                }
-                return false;
-            }
-
-            public void Reset()
-            {
-                throw new NotImplementedException();
-            }
-
-            public IAggregateRootEvent Current { get; private set; }
-
-            object IEnumerator.Current
-            {
-                get { return Current; } 
-            }
-        }
-
+        public const int StreamEventsAfterEventWithIdBatchSize = 10000;
+       
         public IEnumerable<IAggregateRootEvent> StreamEventsAfterEventWithId(Guid? startAfterEventId)
         {
             EnsureEventsTableExists();
 
             using (var connection = OpenSession())
             {
-                using (var loadCommand = connection.CreateCommand())
+                var done = false;
+                while(!done)
                 {
-                    if (startAfterEventId.HasValue)
+                    using(var loadCommand = connection.CreateCommand())
                     {
-                        loadCommand.CommandText = EventSelectClause + "WHERE SqlTimeStamp > @TimeStamp ORDER BY SqlTimeStamp ASC";
-                        loadCommand.Parameters.Add(new SqlParameter("TimeStamp", new SqlBinary(GetEventTimestamp(startAfterEventId.Value))));
-                    }else
-                    {
-                        loadCommand.CommandText = EventSelectClause + " ORDER BY SqlTimeStamp ASC";
-                    }
-
-                    using (var reader = loadCommand.ExecuteReader())
-                    {
-                        using(var enumerator = new CancelTheCommandOnDisposeSoThatWeDoNotHangIfNotEnumeratingTheWholeResultSetEnumerator(reader, loadCommand, this))
+                        if(startAfterEventId.HasValue)
                         {
-                            while(enumerator.MoveNext())
+                            loadCommand.CommandText = EventSelectClauseForTop(StreamEventsAfterEventWithIdBatchSize) + "WHERE SqlTimeStamp > @TimeStamp ORDER BY SqlTimeStamp ASC";
+                            loadCommand.Parameters.Add(new SqlParameter("TimeStamp", new SqlBinary(GetEventTimestamp(startAfterEventId.Value))));
+                        }
+                        else
+                        {
+                            loadCommand.CommandText = EventSelectClauseForTop(StreamEventsAfterEventWithIdBatchSize) + " ORDER BY SqlTimeStamp ASC";
+                        }
+
+                        var fetchedInThisBatch = 0;
+                        using(var reader = loadCommand.ExecuteReader())
+                        {
+                            while (reader.Read())
                             {
-                                yield return enumerator.Current;
+                                var @event = ReadEvent(reader);
+                                startAfterEventId = @event.EventId;
+                                yield return @event;
+                                fetchedInThisBatch++;
                             }
                         }
+                        done = fetchedInThisBatch < StreamEventsAfterEventWithIdBatchSize;
                     }
                 }
             }

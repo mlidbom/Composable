@@ -32,7 +32,7 @@ namespace CQRS.Tests.CQRS.EventSourcing
         protected abstract IEventStore CreateEventStore2();
 
         [Test]
-        public void StreamEventsSinceReturnsWholEventLogWhenFromEventIdIsNull()
+        public void StreamEventsSinceReturnsWholeEventLogWhenFromEventIdIsNull()
         {
             using (var somethingOrOther = CreateEventStore())
             {
@@ -40,6 +40,25 @@ namespace CQRS.Tests.CQRS.EventSourcing
                 var stream = somethingOrOther.StreamEventsAfterEventWithId(null);
 
                 stream.Should().HaveCount(10);
+            }
+        }
+
+
+        [Test]
+        public void StreamEventsSinceReturnsWholeEventLogWhenFetchingALargeNumberOfEvents_EnsureBatchingDoesNotBreakThings()
+        {
+            using (var somethingOrOther = CreateEventStore())
+            {
+                const int moreEventsThanTheBatchSizeForStreamingEvents = SqlServerEventStore.StreamEventsAfterEventWithIdBatchSize * 3;
+                somethingOrOther.SaveEvents(1.Through(moreEventsThanTheBatchSizeForStreamingEvents).Select(i => new SomeEvent(1, i)));
+                var stream = somethingOrOther.StreamEventsAfterEventWithId(null).ToList();
+
+                var currentEventNumber = 0;
+                stream.Should().HaveCount(moreEventsThanTheBatchSizeForStreamingEvents);
+                foreach(var aggregateRootEvent in stream)
+                {
+                    aggregateRootEvent.AggregateRootVersion.Should().Be(++currentEventNumber, "Incorrect event version detected");
+                }
             }
         }
 

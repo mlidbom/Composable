@@ -6,6 +6,7 @@ using NServiceBus;
 
 namespace Composable.CQRS.Command
 {
+    //Review:mlidbo: Naming really needs to be improved. The name should reflect that inheriting this class causes commands to be dispatched via a commandservice to the handlers etc.
     public abstract class CommandHandlerBase<TCommand> : IHandleMessages<TCommand>
         where TCommand : ICommand
     {

@@ -81,7 +81,7 @@ WHERE Id=@Id AND ValueTypeId
 
                         //Things such as TimeZone etc can cause roundtripping serialization to result in different values from the original so don't cache the read string. Cache the result of serializing it again.
                         //Todo: Try to find a way to remove the need to do this so that we can get rid of the overhead of an extra serialization.
-                        persistentValues.GetOrAddDefault(found.GetType())[idString] = JsonConvert.SerializeObject(stringValue, Formatting.None, _jsonSettings);
+                        persistentValues.GetOrAddDefault(found.GetType())[idString] = JsonConvert.SerializeObject(found, Formatting.None, _jsonSettings);
                     }
                 }
             }

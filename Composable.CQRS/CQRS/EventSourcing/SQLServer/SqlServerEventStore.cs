@@ -1,10 +1,13 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
 using System.Data.SqlTypes;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Transactions;
+using Composable.System;
 using Composable.System.Reflection;
 using Newtonsoft.Json;
 using log4net;
@@ -40,6 +43,11 @@ namespace Composable.CQRS.EventSourcing.SQLServer
             return connection;
         }
 
+
+        private static string EventSelectClauseForTop(int top)
+        {
+            return "SELECT TOP {0} EventType, Event, AggregateId, AggregateVersion, EventId, TimeStamp FROM Events With(UPDLOCK,READCOMMITTED, ROWLOCK) ".FormatWith(top);
+        }
 
         private const string EventSelectClause = "SELECT EventType, Event, AggregateId, AggregateVersion, EventId, TimeStamp FROM Events With(UPDLOCK,READCOMMITTED, ROWLOCK) ";
         public IEnumerable<IAggregateRootEvent> GetAggregateHistory(Guid aggregateId)
@@ -92,29 +100,41 @@ namespace Composable.CQRS.EventSourcing.SQLServer
             }
         }
 
+        public const int StreamEventsAfterEventWithIdBatchSize = 10000;
+       
         public IEnumerable<IAggregateRootEvent> StreamEventsAfterEventWithId(Guid? startAfterEventId)
         {
             EnsureEventsTableExists();
 
             using (var connection = OpenSession())
             {
-                using (var loadCommand = connection.CreateCommand())
+                var done = false;
+                while(!done)
                 {
-                    if (startAfterEventId.HasValue)
+                    using(var loadCommand = connection.CreateCommand())
                     {
-                        loadCommand.CommandText = EventSelectClause + "WHERE SqlTimeStamp > @TimeStamp ORDER BY SqlTimeStamp ASC";
-                        loadCommand.Parameters.Add(new SqlParameter("TimeStamp", new SqlBinary(GetEventTimestamp(startAfterEventId.Value))));
-                    }else
-                    {
-                        loadCommand.CommandText = EventSelectClause + " ORDER BY SqlTimeStamp ASC";
-                    }
-
-                    using (var reader = loadCommand.ExecuteReader())
-                    {
-                        while (reader.Read())
+                        if(startAfterEventId.HasValue)
                         {
-                            yield return ReadEvent(reader);
+                            loadCommand.CommandText = EventSelectClauseForTop(StreamEventsAfterEventWithIdBatchSize) + "WHERE SqlTimeStamp > @TimeStamp ORDER BY SqlTimeStamp ASC";
+                            loadCommand.Parameters.Add(new SqlParameter("TimeStamp", new SqlBinary(GetEventTimestamp(startAfterEventId.Value))));
                         }
+                        else
+                        {
+                            loadCommand.CommandText = EventSelectClauseForTop(StreamEventsAfterEventWithIdBatchSize) + " ORDER BY SqlTimeStamp ASC";
+                        }
+
+                        var fetchedInThisBatch = 0;
+                        using(var reader = loadCommand.ExecuteReader())
+                        {
+                            while (reader.Read())
+                            {
+                                var @event = ReadEvent(reader);
+                                startAfterEventId = @event.EventId;
+                                yield return @event;
+                                fetchedInThisBatch++;
+                            }
+                        }
+                        done = fetchedInThisBatch < StreamEventsAfterEventWithIdBatchSize;
                     }
                 }
             }
@@ -208,6 +228,7 @@ namespace Composable.CQRS.EventSourcing.SQLServer
 
         private static readonly HashSet<string> VerifiedTables = new HashSet<string>();        
 
+        //todo:Move this and its cousins below into another abstraction, delegate to that abstraction, and obsolete these methods.
         private void EnsureEventsTableExists()
         {
             lock (VerifiedTables)

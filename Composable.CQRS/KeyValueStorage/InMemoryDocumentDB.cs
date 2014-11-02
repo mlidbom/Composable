@@ -11,6 +11,7 @@ using Newtonsoft.Json;
 
 namespace Composable.KeyValueStorage
 {
+    //todo: Refactor to use the same serialization code as the sql document db so that tests actually tests roundtrip serialization
     public class InMemoryDocumentDb : InMemoryObjectStore, IDocumentDb
     {
         private readonly ThreadSafeObservable<IDocumentUpdated> _documentUpdated = new ThreadSafeObservable<IDocumentUpdated>(); 

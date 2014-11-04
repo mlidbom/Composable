@@ -23,7 +23,7 @@ namespace CQRS.Tests.CQRS.EventSourcing
 
         public void Register(string email, string password, Guid id)
         {
-            RaiseEvent(new UserRegistered() { AggregateRootId = Guid.NewGuid(), UserId = id, Email = email, Password = password});
+            RaiseEvent(new UserRegistered() { AggregateRootId = id, UserId = id, Email = email, Password = password});
         }
 
         public void ChangePassword(string password)

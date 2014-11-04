@@ -456,6 +456,35 @@ namespace CQRS.Tests.CQRS.EventSourcing
             }
         }
 
+        [Test]
+        public void ShouldGetCorrectHistory()
+        {
+            var store = CreateStore();
+            var userId = Guid.NewGuid();
+            using (var session = OpenSession(store))
+            {
+                var user = new User();
+                user.Register("test@email.com", "Password1", userId);
+                session.Save(user);
+                session.SaveChanges();
+            }
+
+            using (var session = OpenSession(store))
+            {
+
+                var user = session.Get<User>(userId);
+                user.ChangeEmail("new_email@email.com");
+                session.SaveChanges();
+
+                var history = ((IEventStoreReader)session).GetHistory(user.Id);
+                Assert.That(history.Count(), Is.EqualTo(2));
+                //                var published = Bus.Published.ToList();
+                //                Assert.That(published.Count, Is.EqualTo(1));
+                //                Assert.That(published[0], Is.InstanceOf<UserChangedEmail>());
+            }
+
+        }
+
         //[Test]
         //public void SaveChangesAndCommitWhenTransientTransactionDoesSo()
         //{

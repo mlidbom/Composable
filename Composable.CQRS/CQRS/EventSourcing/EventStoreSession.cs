@@ -233,9 +233,13 @@ namespace Composable.CQRS.EventSourcing
             Log.DebugFormat("{0} saving changes with {1} changes from transaction within unit of work {2}", _id, _idMap.Count, _unitOfWork ?? (object)"null");
 
             var aggregates = _idMap.Select(p => p.Value).ToList();
+
+            aggregates.Where(x=> x.GetChanges().Any()).ForEach(x=> _historyCache.Remove(x.Id));
+
             var newEvents = aggregates.SelectMany(a => a.GetChanges()).ToList();
             aggregates.ForEach(a => a.AcceptChanges());
             _store.SaveEvents(newEvents);
+            
             PublishUnpublishedEvents(newEvents);
 
             bool result = newEvents.Any() || _pendingDeletes.Any();

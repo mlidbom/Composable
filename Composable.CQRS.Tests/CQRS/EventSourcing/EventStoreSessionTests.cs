@@ -486,7 +486,7 @@ namespace CQRS.Tests.CQRS.EventSourcing
         }
 
         [Test]
-        public void When_deleting_and_then_fetching_an_aggregates_history_the_history_should_gone()
+        public void When_deleting_and_then_fetching_an_aggregates_history_the_history_should_be_gone()
         {
             var store = CreateStore();
             var userId = Guid.NewGuid();

@@ -9,6 +9,7 @@ using Composable.CQRS.EventSourcing.SQLServer;
 using Composable.ServiceBus;
 using Composable.StuffThatDoesNotBelongHere;
 using Composable.System;
+using Composable.System.Collections.Collections;
 using Composable.System.Linq;
 using Composable.SystemExtensions.Threading;
 using Composable.UnitsOfWork;
@@ -18,7 +19,7 @@ using log4net;
 
 namespace Composable.CQRS.EventSourcing
 {
-    public class EventStoreSession : 
+    public class EventStoreSession :
         IEventStoreReader,
         IEventStoreSession,
         IUnitOfWorkParticipantWhoseCommitMayTriggerChangesInOtherParticipantsMustImplementIdemponentCommit
@@ -73,11 +74,11 @@ namespace Composable.CQRS.EventSourcing
         {
             _usageGuard.AssertNoContextChangeOccurred(this);
             var changes = aggregate.GetChanges().ToList();
-            if(aggregate.Version > 0 && changes.None() || changes.Any() && changes.Min(e => e.AggregateRootVersion) > 1)
+            if (aggregate.Version > 0 && changes.None() || changes.Any() && changes.Min(e => e.AggregateRootVersion) > 1)
             {
                 throw new AttemptToSaveAlreadyPersistedAggregateException(aggregate);
             }
-            if(aggregate.Version == 0 && changes.None())
+            if (aggregate.Version == 0 && changes.None())
             {
                 throw new AttemptToSaveEmptyAggregate(aggregate);
             }
@@ -87,10 +88,11 @@ namespace Composable.CQRS.EventSourcing
         public void SaveChanges()
         {
             _usageGuard.AssertNoContextChangeOccurred(this);
-            if(_unitOfWork == null)
-            {                
+            if (_unitOfWork == null)
+            {
                 InternalSaveChanges();
-            }else
+            }
+            else
             {
                 var newEvents = _idMap.SelectMany(p => p.Value.GetChanges()).ToList();
                 PublishUnpublishedEvents(newEvents);
@@ -137,7 +139,7 @@ namespace Composable.CQRS.EventSourcing
 
         void IUnitOfWorkParticipant.Commit(IUnitOfWork unit)
         {
-            if(unit != _unitOfWork)
+            if (unit != _unitOfWork)
             {
                 throw new ParticipantAccessedByWrongUnitOfWork();
             }
@@ -167,10 +169,10 @@ namespace Composable.CQRS.EventSourcing
         public IEnumerable<IAggregateRootEvent> GetHistory(Guid aggregateId)
         {
             IList<IAggregateRootEvent> history;
-            if(_historyCache.TryGetValue(aggregateId, out history))
+            if (_historyCache.TryGetValue(aggregateId, out history))
             {
                 return history;
-            }            
+            }
             history = _store.GetAggregateHistory(aggregateId).ToList();
 
             var version = 1;
@@ -233,9 +235,13 @@ namespace Composable.CQRS.EventSourcing
             Log.DebugFormat("{0} saving changes with {1} changes from transaction within unit of work {2}", _id, _idMap.Count, _unitOfWork ?? (object)"null");
 
             var aggregates = _idMap.Select(p => p.Value).ToList();
+
+            UpdateChangedAggregatesHistoryCache();
+
             var newEvents = aggregates.SelectMany(a => a.GetChanges()).ToList();
             aggregates.ForEach(a => a.AcceptChanges());
             _store.SaveEvents(newEvents);
+
             PublishUnpublishedEvents(newEvents);
 
             bool result = newEvents.Any() || _pendingDeletes.Any();
@@ -244,12 +250,24 @@ namespace Composable.CQRS.EventSourcing
             {
                 _store.DeleteEvents(toDelete);
                 _idMap.Remove(toDelete);
+                _historyCache.Remove(toDelete);
             }
             _pendingDeletes.Clear();
-            
+
             return result;
+        }
+
+        private void UpdateChangedAggregatesHistoryCache()
+        {
+            foreach (var key in _historyCache.Keys)
+            {
+                if (_idMap.ContainsKey(key))
+                {
+                    _historyCache[key].AddRange(_idMap[key].GetChanges());
+                }
+            }
         }
     }
 
-    internal class ParticipantAccessedByWrongUnitOfWork : Exception {}
+    internal class ParticipantAccessedByWrongUnitOfWork : Exception { }
 }

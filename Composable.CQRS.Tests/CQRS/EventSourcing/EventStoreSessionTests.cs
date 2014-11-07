@@ -24,7 +24,8 @@ namespace CQRS.Tests.CQRS.EventSourcing
         protected DummyServiceBus Bus { get; private set; }
 
         [SetUp]
-        public void Setup() {
+        public void Setup()
+        {
             Bus = new DummyServiceBus(new WindsorContainer());
         }
 
@@ -36,9 +37,9 @@ namespace CQRS.Tests.CQRS.EventSourcing
         [Test]
         public void WhenFetchingAggregateThatDoesNotExistNoSuchAggregateExceptionIsThrown()
         {
-            using(var session = OpenSession(CreateStore()))
+            using (var session = OpenSession(CreateStore()))
             {
-                Assert.Throws<AggregateRootNotFoundException>( () => session.Get<User>(Guid.NewGuid()));
+                Assert.Throws<AggregateRootNotFoundException>(() => session.Get<User>(Guid.NewGuid()));
             }
         }
 
@@ -46,19 +47,19 @@ namespace CQRS.Tests.CQRS.EventSourcing
         public void CanSaveAndLoadAggregate()
         {
             var store = CreateStore();
-            
+
             var user = new User();
             user.Register("email@email.se", "password", Guid.NewGuid());
             user.ChangePassword("NewPassword");
             user.ChangeEmail("NewEmail");
 
-            using(var session = OpenSession(store))
-            {                
+            using (var session = OpenSession(store))
+            {
                 session.Save(user);
                 session.SaveChanges();
             }
 
-            using(var session = OpenSession(store))
+            using (var session = OpenSession(store))
             {
                 var loadedUser = session.Get<User>(user.Id);
 
@@ -88,7 +89,7 @@ namespace CQRS.Tests.CQRS.EventSourcing
             Assert.Throws<MultiThreadedUseException>(() => session.Dispose());
             Assert.Throws<MultiThreadedUseException>(() => session.LoadSpecificVersion<User>(Guid.NewGuid(), 1));
             Assert.Throws<MultiThreadedUseException>(() => session.Save(new User()));
-            Assert.Throws<MultiThreadedUseException>(() => session.SaveChanges());            
+            Assert.Throws<MultiThreadedUseException>(() => session.SaveChanges());
             Assert.Throws<MultiThreadedUseException>(() => session.TryGet(Guid.NewGuid(), out user));
 
         }
@@ -99,7 +100,7 @@ namespace CQRS.Tests.CQRS.EventSourcing
         public void CanLoadSpecificVersionOfAggregate()
         {
             var store = CreateStore();
-            
+
             var user = new User();
             user.Register("email@email.se", "password", Guid.NewGuid());
             user.ChangePassword("NewPassword");
@@ -217,7 +218,7 @@ namespace CQRS.Tests.CQRS.EventSourcing
 
             using (var session = OpenSession(store))
             {
-                var loadedUser = session.LoadSpecificVersion<User>(user.Id, 1);                
+                var loadedUser = session.LoadSpecificVersion<User>(user.Id, 1);
                 loadedUser.ChangeEmail("NewEmail");
                 session.SaveChanges();
             }
@@ -261,7 +262,7 @@ namespace CQRS.Tests.CQRS.EventSourcing
 
             Assert.Throws<AttemptToSaveAlreadyPersistedAggregateException>(() =>
                                                                                {
-                                                                                   using(var session = OpenSession(store))
+                                                                                   using (var session = OpenSession(store))
                                                                                    {
                                                                                        session.Save(user);
                                                                                        session.SaveChanges();
@@ -285,20 +286,22 @@ namespace CQRS.Tests.CQRS.EventSourcing
             }
         }
 
-        private class MockServiceBus : IServiceBus {
+        private class MockServiceBus : IServiceBus
+        {
             public List<IAggregateRootEvent> Published = new List<IAggregateRootEvent>();
 
             public void Publish(object message) { Published.Add((IAggregateRootEvent)message); }
             public void SendLocal(object message) { throw new NotSupportedException(); }
             public void Send(object message) { throw new NotSupportedException(); }
-            public void Reply(object message){throw new NotImplementedException();}
+            public void Reply(object message) { throw new NotImplementedException(); }
         }
 
-        private class MockEventStore : IEventStore {
+        private class MockEventStore : IEventStore
+        {
             public List<IAggregateRootEvent> SavedEvents = new List<IAggregateRootEvent>();
             public List<Guid> DeletedAggregates = new List<Guid>();
 
-            public void Dispose() {}
+            public void Dispose() { }
             public IEnumerable<IAggregateRootEvent> GetAggregateHistory(Guid id) { throw new NotSupportedException(); }
             public void SaveEvents(IEnumerable<IAggregateRootEvent> events) { SavedEvents.AddRange(events); }
             public IEnumerable<IAggregateRootEvent> StreamEventsAfterEventWithId(Guid? startAfterEventId) { throw new NotSupportedException(); }
@@ -307,7 +310,8 @@ namespace CQRS.Tests.CQRS.EventSourcing
         }
 
         [Test]
-        public void EventsArePublishedOnSaveChangesAndThisInteractsWithUnitOfWorkParticipations() {
+        public void EventsArePublishedOnSaveChangesAndThisInteractsWithUnitOfWorkParticipations()
+        {
             var bus = new MockServiceBus();
             var store = new MockEventStore();
 
@@ -392,21 +396,21 @@ namespace CQRS.Tests.CQRS.EventSourcing
         public void AggregateCannotBeRetreivedAfterBeingDeleted()
         {
             var store = CreateStore();
-            
+
             var user1 = new User();
             user1.Register("email1@email.se", "password", Guid.NewGuid());
 
             var user2 = new User();
             user2.Register("email2@email.se", "password", Guid.NewGuid());
 
-            using(var session = OpenSession(store))
-            {                
+            using (var session = OpenSession(store))
+            {
                 session.Save(user1);
                 session.Save(user2);
                 session.SaveChanges();
             }
 
-            using(var session = OpenSession(store))
+            using (var session = OpenSession(store))
             {
                 session.Delete(user1.Id);
 
@@ -424,15 +428,15 @@ namespace CQRS.Tests.CQRS.EventSourcing
         public void DeletingAnAggregateDoesNotPreventEventsForItFromBeingRaised()
         {
             var store = CreateStore();
-            
+
             var user1 = new User();
             user1.Register("email1@email.se", "password", Guid.NewGuid());
 
             var user2 = new User();
             user2.Register("email2@email.se", "password", Guid.NewGuid());
 
-            using(var session = OpenSession(store))
-            {                
+            using (var session = OpenSession(store))
+            {
                 session.Save(user1);
                 session.Save(user2);
                 session.SaveChanges();
@@ -440,7 +444,7 @@ namespace CQRS.Tests.CQRS.EventSourcing
 
             Bus.Reset();
 
-            using(var session = OpenSession(store))
+            using (var session = OpenSession(store))
             {
                 user1 = session.Get<User>(user1.Id);
 
@@ -456,11 +460,83 @@ namespace CQRS.Tests.CQRS.EventSourcing
             }
         }
 
+        [Test]
+        public void When_fetching_history_from_the_same_instance_after_updating_an_aggregate_the_fetched_history_includes_the_new_events()
+        {
+            var store = CreateStore();
+            var userId = Guid.NewGuid();
+            using (var session = OpenSession(store))
+            {
+                var user = new User();
+                user.Register("test@email.com", "Password1", userId);
+                session.Save(user);
+                session.SaveChanges();
+            }
+
+            using (var session = OpenSession(store))
+            {
+
+                var user = session.Get<User>(userId);
+                user.ChangeEmail("new_email@email.com");
+                session.SaveChanges();
+
+                var history = ((IEventStoreReader)session).GetHistory(user.Id);
+                Assert.That(history.Count(), Is.EqualTo(2));
+            }
+        }
+
+        [Test]
+        public void When_deleting_and_then_fetching_an_aggregates_history_the_history_should_be_gone()
+        {
+            var store = CreateStore();
+            var userId = Guid.NewGuid();
+            using (var session = OpenSession(store))
+            {
+                var user = new User();
+                user.Register("test@email.com", "Password1", userId);
+                session.Save(user);
+                session.SaveChanges();
+            }
+
+            using (var session = OpenSession(store))
+            {
+                session.Delete(userId);
+                session.SaveChanges();
+
+                var history = ((IEventStoreReader)session).GetHistory(userId);
+                Assert.That(history.Count(), Is.EqualTo(0));
+            }
+        }
+
+        [Test]
+        public void When_fetching_and_deleting_an_aggregate_then_fetching_history_again_the_history_should_be_gone()
+        {
+            var store = CreateStore();
+            var userId = Guid.NewGuid();
+            using (var session = OpenSession(store))
+            {
+                var user = new User();
+                user.Register("test@email.com", "Password1", userId);
+                session.Save(user);
+                session.SaveChanges();
+            }
+
+            using (var session = OpenSession(store))
+            {
+                session.Get<User>(userId);
+                session.Delete(userId);
+                session.SaveChanges();
+
+                var history = ((IEventStoreReader)session).GetHistory(userId);
+                Assert.That(history.Count(), Is.EqualTo(0));
+            }
+        }
+
         //[Test]
         //public void SaveChangesAndCommitWhenTransientTransactionDoesSo()
         //{
         //    var store = CreateStore();
-            
+
         //    var user = new User();
         //    user.Register("email@email.se", "password", Guid.NewGuid());
         //    user.ChangePassword("NewPassword");

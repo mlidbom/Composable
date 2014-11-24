@@ -98,7 +98,6 @@
     <Compile Include="..\CommonAssemblyInfo.cs">
       <Link>Properties\CommonAssemblyInfo.cs</Link>
     </Compile>
-    <Compile Include="CQRS\AggregateRepository.cs" />
     <Compile Include="CQRS\Command\Command.cs" />
     <Compile Include="CQRS\Command\CommandDomainValidationExceptionResponse.cs" />
     <Compile Include="CQRS\Command\CommandExecutionExceptionResponse.cs" />
@@ -144,7 +143,6 @@
     <Compile Include="CQRS\EventSourcing\EventStoredAggregateRoot.cs" />
     <Compile Include="CQRS\EventSourcing\SQLServer\SqlServerEventStoreEventsCache.cs" />
     <Compile Include="CQRS\EventSourcing\SQLServer\SqlServerEventStore.cs" />
-    <Compile Include="CQRS\IAggregateRepository.cs" />
     <Compile Include="CQRS\ICommandMessage.cs" />
     <Compile Include="CQRS\IReferenceObject.cs" />
     <Compile Include="CQRS\Query\Models\Generators\IVersioningDocumentDbReader.cs" />
@@ -182,7 +180,6 @@
     <Compile Include="CQRS\Windsor\DisposableComponent.cs" />
     <Compile Include="CQRS\Windsor\DisposableComponentCollection.cs" />
     <Compile Include="CQRS\Windsor\WindsorDisposableExtensions.cs" />
-    <Compile Include="CQRS\Windsor\WindsorUnitOfWorkExtensions.cs" />
     <Compile Include="DomainEvents\DomainEvent.cs" />
     <Compile Include="CQRS\Query\Models\Generators\QueryModelGeneratingDocumentDbReader.cs" />
     <Compile Include="CQRS\Query\Models\Generators\IQueryModelGenerator.cs" />

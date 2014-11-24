@@ -188,6 +188,7 @@
     <Compile Include="KeyValueStorage\User.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ServiceBus\SynchronousBusSpecification.cs" />
+    <Compile Include="ServiceBus\WhenHandleBasedMessageTests.cs" />
     <Compile Include="StubMain.cs" />
     <Compile Include="UnitOfWorkTests\WindsorUnitOfWorkExtensionsTests.cs" />
   </ItemGroup>

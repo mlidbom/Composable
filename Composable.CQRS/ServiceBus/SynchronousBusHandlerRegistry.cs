@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,24 +11,28 @@ namespace Composable.ServiceBus
 {
     public class SynchronousBusHandlerRegistry
     {
-        private static readonly ConcurrentDictionary<Type, List<Action<object, object>>> _handlerMapper = new ConcurrentDictionary<Type, List<Action<object, object>>>();
-        public static IEnumerable<Action<object, object>> Register(object handler)
+        private static readonly ConcurrentDictionary<Type, List<MessageHandleHolder>> _handlerMapper = new ConcurrentDictionary<Type, List<MessageHandleHolder>>();
+        public static IEnumerable<Action<object, object>> Register<TMessage>(object handler, TMessage message)
         {
-            List<Action<object, object>> methodList;
+            List<MessageHandleHolder> messageHandleHolders;
             var handlerType = handler.GetType();
-            if (!_handlerMapper.TryGetValue(handlerType, out methodList))
+            if (!_handlerMapper.TryGetValue(handlerType, out messageHandleHolders))
             {
-                _handlerMapper[handlerType] = GetHandleMethods(handler);
+                _handlerMapper[handlerType] = GetMessageHandleHolders(handler);
             }
-            return _handlerMapper[handlerType];
+
+            var methodList = _handlerMapper[handlerType]
+                .Where(holder => holder.MessageType.IsInstanceOfType(message))
+                .Select(holder => holder.HandleMethod);
+            return methodList;
         }
 
-        private static List<Action<object, object>> GetHandleMethods(object handler)
+        private static List<MessageHandleHolder> GetMessageHandleHolders(object handler)
         {
-            var methodList = new List<Action<object, object>>();
+            var holders = new List<MessageHandleHolder>();
 
             var baseMessages = handler.GetType().GetInterfaces()
-                .Where(i =>i.IsGenericType&&i.GetGenericTypeDefinition() == typeof(IHandleMessages<>))
+                .Where(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IHandleMessages<>))
                 .Select(i => i.GetGenericArguments().First())
                 .ToList();
 
@@ -36,10 +41,12 @@ namespace Composable.ServiceBus
                                      var action = CreateMethod(handler.GetType(), message);
                                      if (action != null)
                                      {
-                                         methodList.Add(action);
+
+                                         holders.Add(new MessageHandleHolder(message, action));
                                      }
+
                                  });
-            return methodList;
+            return holders;
         }
 
 
@@ -63,6 +70,18 @@ namespace Composable.ServiceBus
             }
 
             return null;
+        }
+    }
+
+    internal class MessageHandleHolder
+    {
+        public Type MessageType { get; private set; }
+        public Action<object, object> HandleMethod { get; private set; }
+
+        public MessageHandleHolder(Type messageType, Action<object, object> handleMethod)
+        {
+            MessageType = messageType;
+            HandleMethod = handleMethod;
         }
     }
 }

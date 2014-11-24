@@ -31,7 +31,7 @@ namespace CQRS.Tests.ServiceBus
                 Component.For<IWindsorContainer>().Instance(_container).LifestyleScoped(),
                 Component.For<ISynchronousBusSubscriberFilter>().Instance(PublishToAllSubscribersSubscriberFilter.Instance).LifestyleScoped(),
                 Component.For<ISingleContextUseGuard>().ImplementedBy<SingleThreadUseGuard>(),
-                Component.For<CandidateUpdater, IHandleMessages<INamePropertyUpdatedMessage>,IHandleMessages<IAgePropertyUpdatedMessage>>()
+                Component.For<CandidateUpdater, IHandleMessages<INamePropertyUpdatedMessage>,IHandleMessages<IAgePropertyUpdatedMessage>,IHandleMessages<AnotherMessage>>()
                 .ImplementedBy<CandidateUpdater>().LifestyleScoped(),
                 Component.For<CandidateMessageSpy>().Instance(CandidateMessageSpy.Instance).LifestyleSingleton()
                 );
@@ -60,6 +60,7 @@ namespace CQRS.Tests.ServiceBus
             var candidate = _container.Resolve<CandidateMessageSpy>();
             candidate.Name.Should().Be(name);
             candidate.Age.Should().Be(age);
+            candidate.Email.Should().Be(null);
         }
 
         [Test]
@@ -77,6 +78,23 @@ namespace CQRS.Tests.ServiceBus
             var candidate = _container.Resolve<CandidateMessageSpy>();
             candidate.Name.Should().Be(name);
             candidate.Age.Should().Be(age);
+            candidate.Email.Should().Be(null);
+        }
+
+        [Test]
+        public void Should_only_handle_message_type_relevant()
+        {
+            //Arrange
+            var anotherMessage = new AnotherMessage("xx@xx.com");
+
+            //Act
+            _container.Resolve<IServiceBus>().Publish(anotherMessage);
+
+            //Assert
+            var candidate = _container.Resolve<CandidateMessageSpy>();
+            candidate.Email.Should().Be("xx@xx.com");
+            candidate.Name.Should().Be(null);
+            candidate.Age.Should().Be(0);
         }
 
         public interface INamePropertyUpdatedMessage:IMessage
@@ -108,7 +126,17 @@ namespace CQRS.Tests.ServiceBus
             public int Age { get; private set; }
         }
 
-        public class CandidateUpdater : IHandleMessages<INamePropertyUpdatedMessage>,IHandleMessages<IAgePropertyUpdatedMessage>
+        public class AnotherMessage:IMessage
+        {
+            public string Email { get; private set; }
+
+            public AnotherMessage(string email)
+            {
+                Email = email;
+            }
+        }
+
+        public class CandidateUpdater : IHandleMessages<INamePropertyUpdatedMessage>,IHandleMessages<IAgePropertyUpdatedMessage>,IHandleMessages<AnotherMessage>
         {
             private readonly CandidateMessageSpy _candidateMessage;
 
@@ -126,12 +154,18 @@ namespace CQRS.Tests.ServiceBus
             {
                 _candidateMessage.Age = message.Age;
             }
+
+            public void Handle(AnotherMessage message)
+            {
+                _candidateMessage.Email = message.Email;
+            }
         }
 
         public class CandidateMessageSpy
         {
             public string Name { get; set; }
             public int Age { get; set; }
+            public string Email { get; set; }
 
             private static CandidateMessageSpy _messageSpy;
 

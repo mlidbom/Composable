@@ -58,13 +58,20 @@ namespace Composable.ServiceBus
                         handlers.AddRange(Container.ResolveAll(handlerType).Cast<object>());
                     }
 
-                    foreach (var handler in handlers)
+                    try
                     {
-                        if (_subscriberFilter.PublishMessageToHandler(message, handler))
+                        foreach(var handler in handlers)
                         {
-                            var handlerMethods = SynchronousBusHandlerRegistry.Register(handler,message);
-                            handlerMethods.ForEach(method => method(handler, message));
+                            if(_subscriberFilter.PublishMessageToHandler(message, handler))
+                            {
+                                var handlerMethods = SynchronousBusHandlerRegistry.Register(handler, message);
+                                handlerMethods.ForEach(method => method(handler, message));
+                            }
                         }
+                    }
+                    finally
+                    {
+                        handlers.ForEach(Container.Release);
                     }
 
                     transactionalScope.Commit();
@@ -94,11 +101,19 @@ namespace Composable.ServiceBus
 
                     AssertOnlyOneHandlerRegistered(message, handlers);
 
-                    foreach (var handler in handlers)
+                    try
                     {
-                        var handlerMethods = SynchronousBusHandlerRegistry.Register(handler,message);
-                        handlerMethods.ForEach(method => method(handler, message));
+                        foreach(var handler in handlers)
+                        {
+                            var handlerMethods = SynchronousBusHandlerRegistry.Register(handler, message);
+                            handlerMethods.ForEach(method => method(handler, message));
+                        }
                     }
+                    finally
+                    {
+                        handlers.ForEach(Container.Release);
+                    }
+
                     transactionalScope.Commit();
                 }
             }

@@ -58,13 +58,15 @@ namespace Composable.ServiceBus
                         handlers.AddRange(Container.ResolveAll(handlerType).Cast<object>());
                     }
 
-                    foreach(dynamic handler in handlers)
+                    foreach (var handler in handlers)
                     {
-                        if(_subscriberFilter.PublishMessageToHandler(message, handler))
+                        if (_subscriberFilter.PublishMessageToHandler(message, handler))
                         {
-                            handler.Handle((dynamic)message);
+                            var handlerMethods = SynchronousBusHandlerRegistry.Register(handler);
+                            handlerMethods.ForEach(method => method(handler, message));
                         }
                     }
+
                     transactionalScope.Commit();
                 }
             }
@@ -72,7 +74,6 @@ namespace Composable.ServiceBus
 
         protected virtual void SyncSendLocal<TMessage>(TMessage message) where TMessage : IMessage
         {
-
             var handlerTypes = GetHandlerTypes(message);
 
             var handlers = new List<object>();
@@ -93,9 +94,10 @@ namespace Composable.ServiceBus
 
                     AssertOnlyOneHandlerRegistered(message, handlers);
 
-                    foreach(var handler in handlers)
+                    foreach (var handler in handlers)
                     {
-                        ((dynamic)handler).Handle((dynamic)message);
+                        var handlerMethods = SynchronousBusHandlerRegistry.Register(handler);
+                        handlerMethods.ForEach(method => method(handler, message));
                     }
                     transactionalScope.Commit();
                 }

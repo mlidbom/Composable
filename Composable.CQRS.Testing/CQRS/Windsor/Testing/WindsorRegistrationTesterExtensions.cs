@@ -6,7 +6,7 @@ using Castle.Windsor;
 using Composable.System.Linq;
 using FluentAssertions;
 
-namespace CQRS.Tests.CQRS.Windsor.Testing
+namespace Composable.CQRS.Testing.CQRS.Windsor.Testing
 {
     public static class WindsorRegistrationTesterExtensions
     {

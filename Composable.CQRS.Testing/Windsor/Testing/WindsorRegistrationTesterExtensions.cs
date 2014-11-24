@@ -4,7 +4,7 @@ using System.Linq;
 using Castle.MicroKernel.Lifestyle;
 using Castle.Windsor;
 using Composable.System.Linq;
-using FluentAssertions;
+using NUnit.Framework;
 
 namespace Composable.CQRS.Testing.Windsor.Testing
 {
@@ -51,11 +51,9 @@ namespace Composable.CQRS.Testing.Windsor.Testing
                     secondComponentFromSecondScope = _container.Resolve<TComponent>();
                 }
 
-
-                firstComponentFromFirstScope.Should().Be(secondComponentFromFirstScope, "Two components resolved in the same scope should be the same instance");
-                firstComponentFromSecondScope.Should().Be(secondComponentFromSecondScope, "Two components resolved in the same scope should be the same instance");
-
-                firstComponentFromFirstScope.Should().NotBe(firstComponentFromSecondScope, "Two components resolved in different scopes should be different instances");
+                Assert.That(firstComponentFromFirstScope, Is.SameAs(secondComponentFromFirstScope), "Two components resolved in the same scope should be the same instance");
+                Assert.That(firstComponentFromSecondScope, Is.SameAs(secondComponentFromSecondScope), "Two components resolved in the same scope should be the same instance");
+                Assert.That(firstComponentFromFirstScope, Is.Not.SameAs(firstComponentFromSecondScope), "Two components resolved in different scopes should be different instances");
                 return this;
             }
         }

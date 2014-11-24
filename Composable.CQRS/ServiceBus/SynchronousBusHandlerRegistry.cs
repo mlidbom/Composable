@@ -4,6 +4,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
 using System.Text;
 using NServiceBus;
 
@@ -11,77 +12,81 @@ namespace Composable.ServiceBus
 {
     public class SynchronousBusHandlerRegistry
     {
-        private static readonly Dictionary<Type, List<MessageHandleHolder>> _handlerMapper = new Dictionary<Type, List<MessageHandleHolder>>();
+        private static readonly Dictionary<Type, List<MessageHandler>> HandlerToMessageHandlersMap = new Dictionary<Type, List<MessageHandler>>();
         public static IEnumerable<Action<object, object>> Register<TMessage>(object handler, TMessage message)
         {
-            List<MessageHandleHolder> messageHandleHolders;
+            List<MessageHandler> messageHandleHolders;
             var handlerType = handler.GetType();
-            if (!_handlerMapper.TryGetValue(handlerType, out messageHandleHolders))
+            if (!HandlerToMessageHandlersMap.TryGetValue(handlerType, out messageHandleHolders))
             {
-                _handlerMapper[handlerType] = GetMessageHandleHolders(handler);
+                HandlerToMessageHandlersMap[handlerType] = GetIHandleMessageImplementations(handler.GetType());
             }
 
-            var methodList = _handlerMapper[handlerType]
-                .Where(holder => holder.MessageType.IsInstanceOfType(message))
-                .Select(holder => holder.HandleMethod);
+            var methodList = HandlerToMessageHandlersMap[handlerType]
+                .Where(messageHandler => messageHandler.HandledMessageType.IsInstanceOfType(message))
+                .Select(holder => holder.HandlerMethod);
             return methodList;
         }
 
-        private static List<MessageHandleHolder> GetMessageHandleHolders(object handler)
+        //Creates a list of handlers. One per implementation of IHandleMessages in the handlerType
+        private static List<MessageHandler> GetIHandleMessageImplementations(Type handlerType)
         {
-            var holders = new List<MessageHandleHolder>();
+            var holders = new List<MessageHandler>();
 
-            var baseMessages = handler.GetType().GetInterfaces()
+            var handledMessageTypes = handlerType.GetInterfaces()
                 .Where(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IHandleMessages<>))
                 .Select(i => i.GetGenericArguments().First())
                 .ToList();
 
-            baseMessages.ForEach(message =>
+            handledMessageTypes.ForEach(messageType =>
                                  {
-                                     var action = CreateMethod(handler.GetType(), message);
+                                     var action = TryGetImplementingMethod(handlerType, messageType);
                                      if (action != null)
                                      {
 
-                                         holders.Add(new MessageHandleHolder(message, action));
+                                         holders.Add(new MessageHandler(messageType, action));
                                      }
 
                                  });
             return holders;
         }
 
-
-        private static Action<object, object> CreateMethod(Type targetType, Type messageType)
+        //If messageHandlerType implements IHandleMessages<MessageType> then returns an action that can be used to invoke this implementation for a given handler instance.
+        private static Action<object, object> TryGetImplementingMethod(Type messageHandlerType, Type messageType)
         {
             var interfaceType = typeof(IHandleMessages<>).MakeGenericType(messageType);
-
-            if (interfaceType.IsAssignableFrom(targetType))
+            if(!interfaceType.IsAssignableFrom(messageHandlerType))
             {
-                var methodInfo = targetType.GetInterfaceMap(interfaceType).TargetMethods.FirstOrDefault();
-                if (methodInfo != null)
-                {
-                    var target = Expression.Parameter(typeof(object));
-                    var param = Expression.Parameter(typeof(object));
-
-                    var castTarget = Expression.Convert(target, targetType);
-                    var castParam = Expression.Convert(param, methodInfo.GetParameters().First().ParameterType);
-                    var execute = Expression.Call(castTarget, methodInfo, castParam);
-                    return Expression.Lambda<Action<object, object>>(execute, target, param).Compile();
-                }
+                return null;
             }
 
-            return null;
+            var methodInfo = messageHandlerType.GetInterfaceMap(interfaceType).TargetMethods.First();
+            //return OptimizeMethodCall(messageHandlerType, methodInfo); If we prove that using invoke is too slow switch to this line instead. If it is not a problem remove this permanently.
+            return (handler, message) => methodInfo.Invoke(handler, new []{ message });
+        }
+
+        private static Action<object, object> OptimizeMethodCall_remove_me_unless_big_performance_advantages_are_proven_to_exist(Type messageHandlerType, MethodInfo methodInfo)
+        {
+            var target = Expression.Parameter(typeof(object));
+            var param = Expression.Parameter(typeof(object));
+
+            var castTarget = Expression.Convert(target, messageHandlerType);
+            var castParam = Expression.Convert(param, methodInfo.GetParameters().First().ParameterType);
+            var execute = Expression.Call(castTarget, methodInfo, castParam);
+            return Expression.Lambda<Action<object, object>>(execute, target, param).Compile();
         }
     }
 
-    internal class MessageHandleHolder
+    ///<summary>Used to hold a single implementation of IHandleMessages</summary>
+    internal class MessageHandler
     {
-        public Type MessageType { get; private set; }
-        public Action<object, object> HandleMethod { get; private set; }
+        public Type HandledMessageType { get; private set; }
+        public Action<object, object> HandlerMethod { get; private set; }
 
-        public MessageHandleHolder(Type messageType, Action<object, object> handleMethod)
+        public MessageHandler(Type handledMessageType, Action<object, object> handlerMethod)
         {
-            MessageType = messageType;
-            HandleMethod = handleMethod;
+            HandledMessageType = handledMessageType;
+            HandlerMethod = handlerMethod;
         }
     }
 }

@@ -1,16 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Dynamic;
 using System.Linq;
 using Castle.MicroKernel.Lifestyle;
 using Castle.Windsor;
-using Composable.CQRS;
-using Composable.CQRS.EventSourcing;
 using Composable.KeyValueStorage.Population;
 using Composable.System;
 using Composable.System.Linq;
 using Composable.System.Reflection;
-using Composable.System.Transactions;
+using JetBrains.Annotations;
 using NServiceBus;
 
 namespace Composable.ServiceBus
@@ -22,6 +19,7 @@ namespace Composable.ServiceBus
     ///     An <see cref="ISynchronousBusSubscriberFilter"/> can be registered in the container to avoid dispatching to some handlers.
     /// </para>
     /// </summary>
+    [UsedImplicitly]
     public class SynchronousBus : IServiceBus
     {
         protected readonly IWindsorContainer Container;
@@ -35,15 +33,15 @@ namespace Composable.ServiceBus
 
         public virtual void Publish(object message)
         {
-            ((dynamic)this).PublishLocal((dynamic)message);
+            PublishLocal(message);
         }
 
-        public virtual bool Handles<TMessage>(TMessage message) where TMessage : IMessage
+        public virtual bool Handles(object message)
         {
             return GetHandlerTypes(message).Any();
         }
 
-        protected virtual void PublishLocal<TMessage>(TMessage message) where TMessage : IMessage
+        protected virtual void PublishLocal(object message)
         {
 
             var handlerTypes = GetHandlerTypes(message);
@@ -79,7 +77,7 @@ namespace Composable.ServiceBus
             }
         }
 
-        protected virtual void SyncSendLocal<TMessage>(TMessage message) where TMessage : IMessage
+        protected virtual void SyncSendLocal(object message)
         {
             var handlerTypes = GetHandlerTypes(message);
 
@@ -119,7 +117,7 @@ namespace Composable.ServiceBus
             }
         }
 
-        private static void AssertOnlyOneHandlerRegistered<TMessage>(TMessage message, List<object> handlers) where TMessage : IMessage
+        private static void AssertOnlyOneHandlerRegistered(object message, List<object> handlers)
         {
             var realHandlers = handlers.Except(handlers.OfType<ISynchronousBusMessageSpy>()).ToList();
             if (realHandlers.Count() > 1)
@@ -128,7 +126,7 @@ namespace Composable.ServiceBus
             }
         }
 
-        private IEnumerable<Type> GetHandlerTypes<TMessage>(TMessage message) where TMessage : IMessage
+        private IEnumerable<Type> GetHandlerTypes(object message) 
         {
             return message.GetType().GetAllTypesInheritedOrImplemented()
                 .Where(t => t.Implements(typeof(IMessage)))
@@ -139,17 +137,17 @@ namespace Composable.ServiceBus
 
         public virtual void SendLocal(object message)
         {
-            ((dynamic)this).SyncSendLocal((dynamic)message);
+            SyncSendLocal(message);
         }
 
         public virtual void Send(object message)
         {
-            ((dynamic)this).SyncSendLocal((dynamic)message);
+            SyncSendLocal(message);
         }
 
         public virtual void Reply(object message)
         {
-            ((dynamic)this).SyncSendLocal((dynamic)message);
+            SyncSendLocal(message);
         }
     }
 

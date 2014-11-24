@@ -21,18 +21,18 @@ namespace CQRS.Tests.ServiceBus
     {
         private IWindsorContainer _container;
         private IDisposable _scope;
-        
+
         [SetUp]
         public void SetupConatinerAndBeginScope()
         {
-            _container=new WindsorContainer();
+            _container = new WindsorContainer();
             _container.Register(
                 Component.For<IServiceBus>().ImplementedBy<SynchronousBus>().LifestyleScoped(),
                 Component.For<IWindsorContainer>().Instance(_container).LifestyleScoped(),
                 Component.For<ISynchronousBusSubscriberFilter>().Instance(PublishToAllSubscribersSubscriberFilter.Instance).LifestyleScoped(),
                 Component.For<ISingleContextUseGuard>().ImplementedBy<SingleThreadUseGuard>(),
-                Component.For<CandidateUpdater, IHandleMessages<INamePropertyUpdatedMessage>,IHandleMessages<IAgePropertyUpdatedMessage>,IHandleMessages<AnotherMessage>>()
-                .ImplementedBy<CandidateUpdater>().LifestyleScoped(),
+                Component.For<CandidateUpdater, IHandleMessages<INamePropertyUpdatedMessage>, IHandleMessages<IAgePropertyUpdatedMessage>, IHandleMessages<AnotherMessage>>()
+                    .ImplementedBy<CandidateUpdater>().LifestyleScoped(),
                 Component.For<CandidateMessageSpy>().Instance(CandidateMessageSpy.Instance).LifestyleSingleton()
                 );
 
@@ -43,6 +43,7 @@ namespace CQRS.Tests.ServiceBus
         public void TearDown()
         {
             _scope.Dispose();
+            _container.Resolve<CandidateMessageSpy>().Reset();
         }
 
         [Test]
@@ -180,6 +181,11 @@ namespace CQRS.Tests.ServiceBus
                     if(_messageSpy==null) _messageSpy=new CandidateMessageSpy();
                     return _messageSpy;
                 }
+            }
+
+            public void Reset()
+            {
+                _messageSpy = new CandidateMessageSpy();
             }
         }
     }

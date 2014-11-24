@@ -11,7 +11,7 @@ namespace Composable.ServiceBus
 {
     public class SynchronousBusHandlerRegistry
     {
-        private static readonly ConcurrentDictionary<Type, List<MessageHandleHolder>> _handlerMapper = new ConcurrentDictionary<Type, List<MessageHandleHolder>>();
+        private static readonly Dictionary<Type, List<MessageHandleHolder>> _handlerMapper = new Dictionary<Type, List<MessageHandleHolder>>();
         public static IEnumerable<Action<object, object>> Register<TMessage>(object handler, TMessage message)
         {
             List<MessageHandleHolder> messageHandleHolders;

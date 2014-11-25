@@ -1,31 +1,36 @@
 ﻿using System;
 using Composable.CQRS.EventSourcing;
+using Composable.GenericAbstractions.Time;
+using Composable.System;
 
 namespace Composable.CQRS
 {
-    public class AggregateRepository<TAggregate> : IAggregateRepository<TAggregate>
-        where TAggregate : IEventStored
+    public class AggregateRepository<TAggregate, TBaseEvent> : IAggregateRepository<TAggregate>
+        where TAggregate : TempAggregateRootWithTimeSourceSupport<TAggregate, TBaseEvent>, IEventStored
+        where TBaseEvent : IAggregateRootEvent
     {
-        private readonly IEventStoreSession _aggregates;
+        protected readonly IEventStoreSession Aggregates;
+        private readonly ITimeSource _timeSource;
 
-        public AggregateRepository(IEventStoreSession aggregates)
+        public AggregateRepository(IEventStoreSession aggregates, ITimeSource timeSource)
         {
-            _aggregates = aggregates;
+            Aggregates = aggregates;
+            _timeSource = timeSource;
         }
 
-        public TAggregate Get(Guid id)
+        public virtual TAggregate Get(Guid id)
         {
-            return _aggregates.Get<TAggregate>(id);
+            return Aggregates.Get<TAggregate>(id).Do(aggregate => aggregate.TimeSource = _timeSource);
         }
 
-        public void Add(TAggregate aggregate)
+        public virtual void Add(TAggregate aggregate)
         {
-            _aggregates.Save(aggregate);
+            Aggregates.Save(aggregate);
         }
 
-        public TAggregate GetVersion(Guid aggregateRootId, int version)
+        public virtual TAggregate GetVersion(Guid aggregateRootId, int version)
         {
-            return _aggregates.LoadSpecificVersion<TAggregate>(aggregateRootId, version);
+            return Aggregates.LoadSpecificVersion<TAggregate>(aggregateRootId, version);
         }
     }
 }

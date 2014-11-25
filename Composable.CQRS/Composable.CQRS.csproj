@@ -150,6 +150,7 @@
     <Compile Include="CQRS\Query\Models\Generators\IVersioningDocumentDbReader.cs" />
     <Compile Include="CQRS\Query\Models\Generators\IVersioningQueryModelGenerator.cs" />
     <Compile Include="CQRS\ReferenceObject.cs" />
+    <Compile Include="CQRS\TempAggregateRootWithTimeSourceSupport.cs" />
     <Compile Include="CQRS\TranslatedReferenceObject.cs" />
     <Compile Include="CQRS\UI\Command\CommandExecutionError.cs" />
     <Compile Include="CQRS\UI\Command\IHandleUICommand.cs" />

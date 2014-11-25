@@ -10,10 +10,10 @@ using NServiceBus;
 
 namespace Composable.ServiceBus
 {
-    public class SynchronousBusHandlerRegistry
+    internal class SynchronousBusHandlerRegistry
     {
-        private static readonly Dictionary<Type, List<MessageHandler>> HandlerToMessageHandlersMap = new Dictionary<Type, List<MessageHandler>>();
-        public static IEnumerable<Action<object, object>> Register<TMessage>(object handler, TMessage message)
+        private static readonly ConcurrentDictionary<Type, List<MessageHandler>> HandlerToMessageHandlersMap = new ConcurrentDictionary<Type, List<MessageHandler>>();
+        public static List<Action<object, object>> Register<TMessage>(object handler, TMessage message)
         {
             List<MessageHandler> messageHandleHolders;
             var handlerType = handler.GetType();
@@ -24,7 +24,8 @@ namespace Composable.ServiceBus
 
             var methodList = HandlerToMessageHandlersMap[handlerType]
                 .Where(messageHandler => messageHandler.HandledMessageType.IsInstanceOfType(message))
-                .Select(holder => holder.HandlerMethod);
+                .Select(holder => holder.HandlerMethod)
+                .ToList();
             return methodList;
         }
 
@@ -61,20 +62,9 @@ namespace Composable.ServiceBus
             }
 
             var methodInfo = messageHandlerType.GetInterfaceMap(interfaceType).TargetMethods.First();
-            //return OptimizeMethodCall(messageHandlerType, methodInfo); If we prove that using invoke is too slow switch to this line instead. If it is not a problem remove this permanently.
             return (handler, message) => methodInfo.Invoke(handler, new []{ message });
         }
-
-        private static Action<object, object> OptimizeMethodCall_remove_me_unless_big_performance_advantages_are_proven_to_exist(Type messageHandlerType, MethodInfo methodInfo)
-        {
-            var target = Expression.Parameter(typeof(object));
-            var param = Expression.Parameter(typeof(object));
-
-            var castTarget = Expression.Convert(target, messageHandlerType);
-            var castParam = Expression.Convert(param, methodInfo.GetParameters().First().ParameterType);
-            var execute = Expression.Call(castTarget, methodInfo, castParam);
-            return Expression.Lambda<Action<object, object>>(execute, target, param).Compile();
-        }
+    
     }
 
     ///<summary>Used to hold a single implementation of IHandleMessages</summary>

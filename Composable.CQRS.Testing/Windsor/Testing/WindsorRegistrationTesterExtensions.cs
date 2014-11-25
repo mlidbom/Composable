@@ -21,10 +21,11 @@ namespace Composable.CQRS.Testing.Windsor.Testing
 
             public WindsorRegistrationAssertionHelper AllComponentsCanBeResolved(IEnumerable<Type> ignoredServices = null, IEnumerable<string> ignoredComponents = null)
             {
+                ignoredServices = ignoredServices ?? new List<Type>();
                 // TODO: Just for make unit tests past, Need solve this issue in TestingWindsorExtensions in Composable.Core
-                ignoredServices = _container.Kernel.GetAssignableHandlers(typeof(object)).Distinct()
-                    .SelectMany(x => x.ComponentModel.Services).Where(x => x.IsGenericTypeDefinition);
-                
+                ignoredServices = ignoredServices.Concat(_container.Kernel.GetAssignableHandlers(typeof(object)).Distinct()
+                    .SelectMany(x => x.ComponentModel.Services).Where(x => x.IsGenericTypeDefinition));
+
                 _container.AssertCanResolveAllComponents1(ignoredServices, ignoredComponents);
                 return this;
             }
@@ -39,17 +40,18 @@ namespace Composable.CQRS.Testing.Windsor.Testing
                 TComponent firstComponentFromSecondScope;
                 TComponent secondComponentFromSecondScope;
 
-                using(_container.BeginScope())
+                using (_container.BeginScope())
                 {
                     firstComponentFromFirstScope = _container.Resolve<TComponent>();
                     secondComponentFromFirstScope = _container.Resolve<TComponent>();
                 }
 
-                using(_container.BeginScope())
+                using (_container.BeginScope())
                 {
                     firstComponentFromSecondScope = _container.Resolve<TComponent>();
                     secondComponentFromSecondScope = _container.Resolve<TComponent>();
                 }
+
 
                 Assert.That(firstComponentFromFirstScope, Is.SameAs(secondComponentFromFirstScope), "Two components resolved in the same scope should be the same instance");
                 Assert.That(firstComponentFromSecondScope, Is.SameAs(secondComponentFromSecondScope), "Two components resolved in the same scope should be the same instance");
@@ -94,14 +96,14 @@ namespace Composable.CQRS.Testing.Windsor.Testing
                             var resolved = container.ResolveAll(service).Cast<Object>().Select(s => s.GetType().FullName).OrderBy(s => s);
                             resolved.ForEach((name, index) => Console.WriteLine(@"	Resolved {0} {1}", index + 1, name));
                         }
-                        catch (Exception)
+                        catch (Exception e)
                         {
                             Console.WriteLine();
                             Console.WriteLine(@"############################## {0} ##########################", @"Failed to resolve component");
                             Console.WriteLine(@"##############################Component Name: {0} ##########################", handler.ComponentModel.Name);
                             Console.WriteLine(@"##############################Service Type: {0} ##########################", service.FullName);
 
-                            Console.WriteLine();
+                            Console.WriteLine(e.ToString());
                             errorsOccured = true;
                         }
                     }

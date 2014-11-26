@@ -79,16 +79,18 @@ namespace Composable.CQRS.ServiceBus.NServicebus.Tests
         }
 
         [Test]
-        public void WhenSendingMessageWillCauseTheExpectionThatShouldThrowOriginalException()
+        public void If_handler_throws_exception_that_exception_is_not_wrapped_so_it_can_still_be_caught()
         {
-            var container = SetupContainerWithBusesRegisteredButNoHandlersAndAMockForIBus();
-            container.Register(Component.For<MessageWillCauseExceptionHandler, IHandleMessages<MessageWillCauseException>>().ImplementedBy<MessageWillCauseExceptionHandler>());
-
-            container.Register(Component.For<IWindsorContainer>().Instance(container));
-
-            using (container.BeginScope())
+            using(var container = SetupContainerWithBusesRegisteredButNoHandlersAndAMockForIBus())
             {
-                Assert.Throws<ExpectException>(() => container.Resolve<IServiceBus>().Send(new MessageWillCauseException()));
+                container.Register(Component.For<ThrowExceptionCommandHandler, IHandleMessages<ThrowExceptionCommand>>().ImplementedBy<ThrowExceptionCommandHandler>());
+
+                container.Register(Component.For<IWindsorContainer>().Instance(container));
+
+                using(container.BeginScope())
+                {
+                    Assert.Throws<ExpectedException>(() => container.Resolve<IServiceBus>().Send(new ThrowExceptionCommand()));
+                }
             }
         }
 
@@ -143,14 +145,14 @@ namespace Composable.CQRS.ServiceBus.NServicebus.Tests
             public bool Handled { get; set; }
         }
 
-        public class MessageWillCauseExceptionHandler : IHandleMessages<MessageWillCauseException>
+        public class ThrowExceptionCommandHandler : IHandleMessages<ThrowExceptionCommand>
         {
-            public void Handle(MessageWillCauseException message)
+            public void Handle(ThrowExceptionCommand message)
             {
-                throw new ExpectException();
+                throw new ExpectedException();
             }
         }
-        public class ExpectException : Exception { }
+        public class ExpectedException : Exception { }
 
         public class Message : IMessage { }
 
@@ -160,7 +162,7 @@ namespace Composable.CQRS.ServiceBus.NServicebus.Tests
 
         public class SendAMessageAndThenReplyCommand : IMessage { }
 
-        public class MessageWillCauseException : IMessage { }
+        public class ThrowExceptionCommand : IMessage { }
 
         private static WindsorContainer SetupContainerWithBusesRegisteredButNoHandlersAndAMockForIBus()
         {

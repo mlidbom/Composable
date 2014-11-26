@@ -56,15 +56,20 @@ namespace Composable.ServiceBus
         private static Action<object, object> TryGetImplementingMethod(Type messageHandlerType, Type messageType)
         {
             var interfaceType = typeof(IHandleMessages<>).MakeGenericType(messageType);
-            if(!interfaceType.IsAssignableFrom(messageHandlerType))
+            if (!interfaceType.IsAssignableFrom(messageHandlerType))
             {
                 return null;
             }
 
             var methodInfo = messageHandlerType.GetInterfaceMap(interfaceType).TargetMethods.First();
-            return (handler, message) => methodInfo.Invoke(handler, new []{ message });
+            var messageHandlerParameter = Expression.Parameter(typeof(object));
+            var parameter = Expression.Parameter(typeof(object));
+
+            var convertMessageHandler = Expression.Convert(messageHandlerParameter, messageHandlerType);
+            var convertParameter = Expression.Convert(parameter, methodInfo.GetParameters().First().ParameterType);
+            var execute = Expression.Call(convertMessageHandler, methodInfo, convertParameter);
+            return Expression.Lambda<Action<object, object>>(execute, messageHandlerParameter, parameter).Compile();
         }
-    
     }
 
     ///<summary>Used to hold a single implementation of IHandleMessages</summary>

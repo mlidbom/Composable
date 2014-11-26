@@ -150,6 +150,7 @@
     <Compile Include="CQRS\Query\Models\Generators\IVersioningDocumentDbReader.cs" />
     <Compile Include="CQRS\Query\Models\Generators\IVersioningQueryModelGenerator.cs" />
     <Compile Include="CQRS\ReferenceObject.cs" />
+    <Compile Include="CQRS\TempAggregateRootWithTimeSourceSupport.cs" />
     <Compile Include="CQRS\TranslatedReferenceObject.cs" />
     <Compile Include="CQRS\UI\Command\CommandExecutionError.cs" />
     <Compile Include="CQRS\UI\Command\IHandleUICommand.cs" />
@@ -237,7 +238,7 @@
     <Compile Include="Persistence\IPersistenceSession.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="CQRS\ServiceLocatorExtensions.cs" />
-    <Compile Include="ServiceBus\SynchronousBusHandlerRegistry.cs" />
+    <Compile Include="ServiceBus\MessageHandlerInvoker.cs" />
     <Compile Include="StuffThatDoesNotBelongHere\MultiEventHandler.cs" />
     <Compile Include="StuffThatDoesNotBelongHere\Translation\TranslateAttribute.cs" />
     <Compile Include="StuffThatDoesNotBelongHere\Translation\TranslationTypeExtensions.cs" />

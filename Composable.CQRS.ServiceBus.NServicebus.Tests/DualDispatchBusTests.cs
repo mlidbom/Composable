@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Castle.MicroKernel.Lifestyle;
 using Castle.MicroKernel.Registration;
 using Castle.Windsor;
@@ -16,7 +17,7 @@ namespace Composable.CQRS.ServiceBus.NServicebus.Tests
 {
     [TestFixture]
     public class DualDispatchBusTests
-    {   
+    {
         [Test]
         public void WhenSendingMessageThatHasNoWiredHandlerInContainerMessageIsSentOnNServiceBusBus()
         {
@@ -31,7 +32,7 @@ namespace Composable.CQRS.ServiceBus.NServicebus.Tests
             container.Register(Component.For<IWindsorContainer>().Instance(container));
 
             using (container.BeginScope())
-            {                
+            {
                 container.Resolve<IServiceBus>().Send(message);
                 busMock.Verify();
             }
@@ -58,7 +59,7 @@ namespace Composable.CQRS.ServiceBus.NServicebus.Tests
         {
             var container = WireUpDualDispatchBusWithAllLocalMessageHandlersRegisteredAndAStrictMockForTheRealIBus();
 
-            using(container.BeginScope())
+            using (container.BeginScope())
             {
                 container.Resolve<IServiceBus>().Send(new ReplyCommand());
                 container.Resolve<ACommandReplyHandler>().ReplyReceived.Should().Be(true);
@@ -73,7 +74,23 @@ namespace Composable.CQRS.ServiceBus.NServicebus.Tests
             using (container.BeginScope())
             {
                 container.Resolve<IServiceBus>().Send(new SendAMessageAndThenReplyCommand());
-                container.Resolve<ACommandReplyHandler>().ReplyReceived.Should().Be(true);                
+                container.Resolve<ACommandReplyHandler>().ReplyReceived.Should().Be(true);
+            }
+        }
+
+        [Test]
+        public void If_handler_throws_exception_that_exception_is_not_wrapped_so_it_can_still_be_caught()
+        {
+            using(var container = SetupContainerWithBusesRegisteredButNoHandlersAndAMockForIBus())
+            {
+                container.Register(Component.For<ThrowExceptionCommandHandler, IHandleMessages<ThrowExceptionCommand>>().ImplementedBy<ThrowExceptionCommandHandler>());
+
+                container.Register(Component.For<IWindsorContainer>().Instance(container));
+
+                using(container.BeginScope())
+                {
+                    Assert.Throws<ExpectedException>(() => container.Resolve<IServiceBus>().Send(new ThrowExceptionCommand()));
+                }
             }
         }
 
@@ -128,13 +145,24 @@ namespace Composable.CQRS.ServiceBus.NServicebus.Tests
             public bool Handled { get; set; }
         }
 
-        public class Message : IMessage {}
+        public class ThrowExceptionCommandHandler : IHandleMessages<ThrowExceptionCommand>
+        {
+            public void Handle(ThrowExceptionCommand message)
+            {
+                throw new ExpectedException();
+            }
+        }
+        public class ExpectedException : Exception { }
+
+        public class Message : IMessage { }
 
         public class ReplyMessage : IMessage { }
 
         public class ReplyCommand : IMessage { }
 
         public class SendAMessageAndThenReplyCommand : IMessage { }
+
+        public class ThrowExceptionCommand : IMessage { }
 
         private static WindsorContainer SetupContainerWithBusesRegisteredButNoHandlersAndAMockForIBus()
         {
@@ -164,5 +192,5 @@ namespace Composable.CQRS.ServiceBus.NServicebus.Tests
             container.Register(Component.For<IWindsorContainer>().Instance(container));
             return container;
         }
-    }   
+    }
 }

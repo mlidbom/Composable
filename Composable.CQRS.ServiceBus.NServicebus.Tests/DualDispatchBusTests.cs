@@ -79,7 +79,7 @@ namespace Composable.CQRS.ServiceBus.NServicebus.Tests
         }
 
         [Test]
-        public void WhenSendingMessageThatWillCauseTheExpectionShouldRecevieOriginalException()
+        public void WhenSendingMessageWillCauseTheExpectionThatShouldThrowOriginalException()
         {
             var container = SetupContainerWithBusesRegisteredButNoHandlersAndAMockForIBus();
             container.Register(Component.For<MessageWillCauseExceptionHandler, IHandleMessages<MessageWillCauseException>>().ImplementedBy<MessageWillCauseExceptionHandler>());

@@ -1,19 +1,18 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Reflection;
-using System.Text;
+using Composable.System.Linq;
 using NServiceBus;
 
 namespace Composable.ServiceBus
 {
-    public class SynchronousBusHandlerRegistry
+    internal static class MessageHandlerInvoker
     {
-        private static readonly Dictionary<Type, List<MessageHandler>> HandlerToMessageHandlersMap = new Dictionary<Type, List<MessageHandler>>();
-        public static IEnumerable<Action<object, object>> Register<TMessage>(object handler, TMessage message)
+        private static readonly ConcurrentDictionary<Type, List<MessageHandler>> HandlerToMessageHandlersMap = new ConcurrentDictionary<Type, List<MessageHandler>>();
+        
+        public static void Invoke<TMessage>(object handler, TMessage message)
         {
             List<MessageHandler> messageHandleHolders;
             var handlerType = handler.GetType();
@@ -22,10 +21,11 @@ namespace Composable.ServiceBus
                 HandlerToMessageHandlersMap[handlerType] = GetIHandleMessageImplementations(handler.GetType());
             }
 
-            var methodList = HandlerToMessageHandlersMap[handlerType]
+            HandlerToMessageHandlersMap[handlerType]
                 .Where(messageHandler => messageHandler.HandledMessageType.IsInstanceOfType(message))
-                .Select(holder => holder.HandlerMethod);
-            return methodList;
+                .Select(holder => holder.HandlerMethod)
+                .ForEach(method => method(handler, message));
+
         }
 
         //Creates a list of handlers. One per implementation of IHandleMessages in the handlerType
@@ -55,25 +55,19 @@ namespace Composable.ServiceBus
         private static Action<object, object> TryGetImplementingMethod(Type messageHandlerType, Type messageType)
         {
             var interfaceType = typeof(IHandleMessages<>).MakeGenericType(messageType);
-            if(!interfaceType.IsAssignableFrom(messageHandlerType))
+            if (!interfaceType.IsAssignableFrom(messageHandlerType))
             {
                 return null;
             }
 
             var methodInfo = messageHandlerType.GetInterfaceMap(interfaceType).TargetMethods.First();
-            //return OptimizeMethodCall(messageHandlerType, methodInfo); If we prove that using invoke is too slow switch to this line instead. If it is not a problem remove this permanently.
-            return (handler, message) => methodInfo.Invoke(handler, new []{ message });
-        }
+            var messageHandlerParameter = Expression.Parameter(typeof(object));
+            var parameter = Expression.Parameter(typeof(object));
 
-        private static Action<object, object> OptimizeMethodCall_remove_me_unless_big_performance_advantages_are_proven_to_exist(Type messageHandlerType, MethodInfo methodInfo)
-        {
-            var target = Expression.Parameter(typeof(object));
-            var param = Expression.Parameter(typeof(object));
-
-            var castTarget = Expression.Convert(target, messageHandlerType);
-            var castParam = Expression.Convert(param, methodInfo.GetParameters().First().ParameterType);
-            var execute = Expression.Call(castTarget, methodInfo, castParam);
-            return Expression.Lambda<Action<object, object>>(execute, target, param).Compile();
+            var convertMessageHandler = Expression.Convert(messageHandlerParameter, messageHandlerType);
+            var convertParameter = Expression.Convert(parameter, methodInfo.GetParameters().First().ParameterType);
+            var execute = Expression.Call(convertMessageHandler, methodInfo, convertParameter);
+            return Expression.Lambda<Action<object, object>>(execute, messageHandlerParameter, parameter).Compile();
         }
     }
 

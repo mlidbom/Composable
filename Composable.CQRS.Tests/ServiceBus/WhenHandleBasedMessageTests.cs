@@ -98,17 +98,17 @@ namespace CQRS.Tests.ServiceBus
             candidate.Age.Should().Be(0);
         }
 
-        public interface INamePropertyUpdatedMessage:IMessage
+        internal interface INamePropertyUpdatedMessage:IMessage
         {
             string Name { get; }
         }
 
-        public interface IAgePropertyUpdatedMessage:IMessage
+        internal interface IAgePropertyUpdatedMessage : IMessage
         {
             int Age { get; }
         }
 
-        public interface ICandidateEditedMessage
+        internal interface ICandidateEditedMessage
             :INamePropertyUpdatedMessage,
             IAgePropertyUpdatedMessage
             
@@ -116,7 +116,7 @@ namespace CQRS.Tests.ServiceBus
 
         }
 
-        public class CandidateEditedMessage:ICandidateEditedMessage
+        internal class CandidateEditedMessage : ICandidateEditedMessage
         {
             public CandidateEditedMessage(string name,int age )
             {
@@ -127,7 +127,7 @@ namespace CQRS.Tests.ServiceBus
             public int Age { get; private set; }
         }
 
-        public class AnotherMessage:IMessage
+        internal class AnotherMessage : IMessage
         {
             public string Email { get; private set; }
 
@@ -137,7 +137,7 @@ namespace CQRS.Tests.ServiceBus
             }
         }
 
-        public class CandidateUpdater : IHandleMessages<INamePropertyUpdatedMessage>,IHandleMessages<IAgePropertyUpdatedMessage>,IHandleMessages<AnotherMessage>
+        internal class CandidateUpdater : IHandleMessages<INamePropertyUpdatedMessage>, IHandleMessages<IAgePropertyUpdatedMessage>, IHandleMessages<AnotherMessage>
         {
             private readonly CandidateMessageSpy _candidateMessage;
 
@@ -162,7 +162,7 @@ namespace CQRS.Tests.ServiceBus
             }
         }
 
-        public class CandidateMessageSpy
+        internal class CandidateMessageSpy
         {
             public string Name { get; set; }
             public int Age { get; set; }

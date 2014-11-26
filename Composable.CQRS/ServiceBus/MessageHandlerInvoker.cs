@@ -1,19 +1,18 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Reflection;
-using System.Text;
+using Composable.System.Linq;
 using NServiceBus;
 
 namespace Composable.ServiceBus
 {
-    internal class SynchronousBusHandlerRegistry
+    internal static class MessageHandlerInvoker
     {
         private static readonly ConcurrentDictionary<Type, List<MessageHandler>> HandlerToMessageHandlersMap = new ConcurrentDictionary<Type, List<MessageHandler>>();
-        public static List<Action<object, object>> Register<TMessage>(object handler, TMessage message)
+        
+        public static void Invoke<TMessage>(object handler, TMessage message)
         {
             List<MessageHandler> messageHandleHolders;
             var handlerType = handler.GetType();
@@ -22,11 +21,11 @@ namespace Composable.ServiceBus
                 HandlerToMessageHandlersMap[handlerType] = GetIHandleMessageImplementations(handler.GetType());
             }
 
-            var methodList = HandlerToMessageHandlersMap[handlerType]
+            HandlerToMessageHandlersMap[handlerType]
                 .Where(messageHandler => messageHandler.HandledMessageType.IsInstanceOfType(message))
                 .Select(holder => holder.HandlerMethod)
-                .ToList();
-            return methodList;
+                .ForEach(method => method(handler, message));
+
         }
 
         //Creates a list of handlers. One per implementation of IHandleMessages in the handlerType

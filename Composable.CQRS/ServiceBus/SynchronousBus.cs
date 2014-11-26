@@ -62,8 +62,7 @@ namespace Composable.ServiceBus
                         {
                             if(_subscriberFilter.PublishMessageToHandler(message, handler))
                             {
-                                var handlerMethods = SynchronousBusHandlerRegistry.Register(handler, message);
-                                handlerMethods.ForEach(method => method(handler, message));
+                                MessageHandlerInvoker.Invoke(handler, message);
                             }
                         }
                     }
@@ -103,8 +102,7 @@ namespace Composable.ServiceBus
                     {
                         foreach(var handler in handlers)
                         {
-                            var handlerMethods = SynchronousBusHandlerRegistry.Register(handler, message);
-                            handlerMethods.ForEach(method => method(handler, message));
+                            MessageHandlerInvoker.Invoke(handler, message);
                         }
                     }
                     finally

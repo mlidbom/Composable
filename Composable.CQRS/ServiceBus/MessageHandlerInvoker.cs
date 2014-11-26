@@ -1,19 +1,18 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Reflection;
-using System.Text;
+using Composable.System.Linq;
 using NServiceBus;
 
 namespace Composable.ServiceBus
 {
-    internal class SynchronousBusHandlerRegistry
+    internal static class MessageHandlerInvoker
     {
         private static readonly ConcurrentDictionary<Type, List<MessageHandler>> HandlerToMessageHandlersMap = new ConcurrentDictionary<Type, List<MessageHandler>>();
-        public static List<Action<object, object>> Register<TMessage>(object handler, TMessage message)
+        
+        public static void Invoke<TMessage>(object handler, TMessage message)
         {
             List<MessageHandler> messageHandleHolders;
             var handlerType = handler.GetType();
@@ -22,11 +21,11 @@ namespace Composable.ServiceBus
                 HandlerToMessageHandlersMap[handlerType] = GetIHandleMessageImplementations(handler.GetType());
             }
 
-            var methodList = HandlerToMessageHandlersMap[handlerType]
+            HandlerToMessageHandlersMap[handlerType]
                 .Where(messageHandler => messageHandler.HandledMessageType.IsInstanceOfType(message))
                 .Select(holder => holder.HandlerMethod)
-                .ToList();
-            return methodList;
+                .ForEach(method => method(handler, message));
+
         }
 
         //Creates a list of handlers. One per implementation of IHandleMessages in the handlerType
@@ -56,15 +55,20 @@ namespace Composable.ServiceBus
         private static Action<object, object> TryGetImplementingMethod(Type messageHandlerType, Type messageType)
         {
             var interfaceType = typeof(IHandleMessages<>).MakeGenericType(messageType);
-            if(!interfaceType.IsAssignableFrom(messageHandlerType))
+            if (!interfaceType.IsAssignableFrom(messageHandlerType))
             {
                 return null;
             }
 
             var methodInfo = messageHandlerType.GetInterfaceMap(interfaceType).TargetMethods.First();
-            return (handler, message) => methodInfo.Invoke(handler, new []{ message });
+            var messageHandlerParameter = Expression.Parameter(typeof(object));
+            var parameter = Expression.Parameter(typeof(object));
+
+            var convertMessageHandler = Expression.Convert(messageHandlerParameter, messageHandlerType);
+            var convertParameter = Expression.Convert(parameter, methodInfo.GetParameters().First().ParameterType);
+            var execute = Expression.Call(convertMessageHandler, methodInfo, convertParameter);
+            return Expression.Lambda<Action<object, object>>(execute, messageHandlerParameter, parameter).Compile();
         }
-    
     }
 
     ///<summary>Used to hold a single implementation of IHandleMessages</summary>

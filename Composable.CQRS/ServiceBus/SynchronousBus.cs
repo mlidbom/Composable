@@ -36,7 +36,7 @@ namespace Composable.ServiceBus
 
         public virtual bool Handles(object message)
         {
-            return MessageHandlerInvoker.GetHandlerTypes(Container, message).Any();
+            return Container.CanResolveMessageHandler(message);
         }
 
         protected virtual void PublishLocal(object message)
@@ -45,7 +45,16 @@ namespace Composable.ServiceBus
             {
                 using(var transactionalScope = Container.BeginTransactionalUnitOfWorkScope())
                 {
-                    MessageHandlerInvoker.Invoke(Container, message);
+                    var handlers = Container.ResolveMessageHandlers(message);
+
+                    try
+                    {
+                        MessageHandlerInvoker.Invoke(handlers, message);
+                    }
+                    finally
+                    {
+                        handlers.ForEach(Container.Release);
+                    }
 
                     transactionalScope.Commit();
                 }
@@ -58,7 +67,23 @@ namespace Composable.ServiceBus
             {
                 using(var transactionalScope = Container.BeginTransactionalUnitOfWorkScope())
                 {
-                    MessageHandlerInvoker.Invoke(Container, message, true);
+                    var handlers = Container.ResolveMessageHandlers(message);
+
+                    if(handlers.None())
+                    {
+                        throw new NoHandlerException(message.GetType());
+                    }
+
+                    AssertOnlyOneHandlerRegistered(message, handlers);
+
+                    try
+                    {
+                        MessageHandlerInvoker.Invoke(handlers, message);
+                    }
+                    finally
+                    {
+                        handlers.ForEach(Container.Release);
+                    }
 
                     transactionalScope.Commit();
                 }
@@ -78,6 +103,15 @@ namespace Composable.ServiceBus
         public virtual void Reply(object message)
         {
             SyncSendLocal(message);
+        }
+
+        private static void AssertOnlyOneHandlerRegistered(object message, List<object> handlers)
+        {
+            var realHandlers = handlers.Except(handlers.OfType<ISynchronousBusMessageSpy>()).ToList();
+            if (realHandlers.Count() > 1)
+            {
+                throw new MultipleMessageHandlersRegisteredException(message, realHandlers);
+            }
         }
     }
 

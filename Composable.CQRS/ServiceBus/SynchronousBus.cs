@@ -23,11 +23,9 @@ namespace Composable.ServiceBus
     public class SynchronousBus : IServiceBus
     {
         protected readonly IWindsorContainer Container;
-        private ISynchronousBusSubscriberFilter _subscriberFilter;
 
-        public SynchronousBus(IWindsorContainer container, ISynchronousBusSubscriberFilter subscriberFilter = null)
+        public SynchronousBus(IWindsorContainer container)
         {
-            _subscriberFilter = subscriberFilter ?? PublishToAllSubscribersSubscriberFilter.Instance;
             Container = container;
         }
 
@@ -38,38 +36,16 @@ namespace Composable.ServiceBus
 
         public virtual bool Handles(object message)
         {
-            return GetHandlerTypes(message).Any();
+            return MessageHandlerInvoker.GetHandlerTypes(Container, message).Any();
         }
 
         protected virtual void PublishLocal(object message)
         {
-
-            var handlerTypes = GetHandlerTypes(message);
-
             using(Container.RequireScope()) //Use the existing scope when running in an endpoint and create a new one if running in the web
             {
                 using(var transactionalScope = Container.BeginTransactionalUnitOfWorkScope())
                 {
-                    var handlers = new List<object>();
-                    foreach(var handlerType in handlerTypes)
-                    {
-                        handlers.AddRange(Container.ResolveAll(handlerType).Cast<object>());
-                    }
-
-                    try
-                    {
-                        foreach(var handler in handlers)
-                        {
-                            if(_subscriberFilter.PublishMessageToHandler(message, handler))
-                            {
-                                MessageHandlerInvoker.Invoke(handler, message);
-                            }
-                        }
-                    }
-                    finally
-                    {
-                        handlers.ForEach(Container.Release);
-                    }
+                    MessageHandlerInvoker.Invoke(Container, message);
 
                     transactionalScope.Commit();
                 }
@@ -78,59 +54,15 @@ namespace Composable.ServiceBus
 
         protected virtual void SyncSendLocal(object message)
         {
-            var handlerTypes = GetHandlerTypes(message);
-
-            var handlers = new List<object>();
             using(Container.RequireScope()) //Use the existing scope when running in an endpoint and create a new one if running in the web
             {
                 using(var transactionalScope = Container.BeginTransactionalUnitOfWorkScope())
                 {
-
-                    foreach(var handlerType in handlerTypes)
-                    {
-                        handlers.AddRange(Container.ResolveAll(handlerType).Cast<object>());
-                    }
-
-                    if(handlers.None())
-                    {
-                        throw new NoHandlerException(message.GetType());
-                    }
-
-                    AssertOnlyOneHandlerRegistered(message, handlers);
-
-                    try
-                    {
-                        foreach(var handler in handlers)
-                        {
-                            MessageHandlerInvoker.Invoke(handler, message);
-                        }
-                    }
-                    finally
-                    {
-                        handlers.ForEach(Container.Release);
-                    }
+                    MessageHandlerInvoker.Invoke(Container, message, true);
 
                     transactionalScope.Commit();
                 }
             }
-        }
-
-        private static void AssertOnlyOneHandlerRegistered(object message, List<object> handlers)
-        {
-            var realHandlers = handlers.Except(handlers.OfType<ISynchronousBusMessageSpy>()).ToList();
-            if (realHandlers.Count() > 1)
-            {
-                throw new MultipleMessageHandlersRegisteredException(message, realHandlers);
-            }
-        }
-
-        private IEnumerable<Type> GetHandlerTypes(object message) 
-        {
-            return message.GetType().GetAllTypesInheritedOrImplemented()
-                .Where(t => t.Implements(typeof(IMessage)))
-                .Select(t => typeof(IHandleMessages<>).MakeGenericType(t))
-                .Where(t => Container.Kernel.HasComponent(t))
-                .ToArray();
         }
 
         public virtual void SendLocal(object message)

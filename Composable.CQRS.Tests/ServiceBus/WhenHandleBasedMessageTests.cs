@@ -29,7 +29,7 @@ namespace CQRS.Tests.ServiceBus
             _container.Register(
                 Component.For<IServiceBus>().ImplementedBy<SynchronousBus>().LifestyleScoped(),
                 Component.For<IWindsorContainer>().Instance(_container).LifestyleScoped(),
-                Component.For<ISynchronousBusSubscriberFilter>().Instance(PublishToAllSubscribersSubscriberFilter.Instance).LifestyleScoped(),
+                //Component.For<ISynchronousBusSubscriberFilter>().Instance(PublishToAllSubscribersSubscriberFilter.Instance).LifestyleScoped(),
                 Component.For<ISingleContextUseGuard>().ImplementedBy<SingleThreadUseGuard>(),
                 Component.For<CandidateUpdater, IHandleMessages<INamePropertyUpdatedMessage>, IHandleMessages<IAgePropertyUpdatedMessage>, IHandleMessages<AnotherMessage>>()
                     .ImplementedBy<CandidateUpdater>().LifestyleScoped(),

@@ -141,13 +141,13 @@ namespace Composable.ServiceBus
         }
     }
 
-    public class PublishToAllSubscribersSubscriberFilter : ISynchronousBusSubscriberFilter
-    {
-        public static readonly ISynchronousBusSubscriberFilter Instance = new PublishToAllSubscribersSubscriberFilter();
+    //public class PublishToAllSubscribersSubscriberFilter : ISynchronousBusSubscriberFilter
+    //{
+    //    public static readonly ISynchronousBusSubscriberFilter Instance = new PublishToAllSubscribersSubscriberFilter();
 
-        public bool PublishMessageToHandler(object message, object handler)
-        {
-            return true;
-        }
-    }
+    //    public bool PublishMessageToHandler(object message, object handler)
+    //    {
+    //        return true;
+    //    }
+    //}
 }

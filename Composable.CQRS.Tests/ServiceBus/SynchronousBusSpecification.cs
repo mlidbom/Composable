@@ -60,28 +60,28 @@ namespace CQRS.Tests.ServiceBus
                     //Todo:reply should throw an exception telling us that you cannot reply except while handling a message
                     //it["Reply(new AMessage()) throws CantCallReplyWhenNotHandlingMessageException"] = expect<CantCallReplyWhenNotHandlingMessageException>(() => getBus().Reply(new AMessage()));
 
-                    context["after registering a SynchrounousBusSubscriberFilter that excludes AMessageHandler"] =
-                        () =>
-                        {
-                            before = () => container.Register(Component.For<ISynchronousBusSubscriberFilter>().ImplementedBy<FilterAMessageHandlerSubscriberFilter>());
-                            it["Handles(new AMessage()) returns true"] = () => getBus().Handles(new AMessage()).Should().Be(true);
-                            it["Publish(new AMessage()) does not dispatch to AMessageHandler"] = () =>
-                                                                                                 {
-                                                                                                     getBus().Publish(new AMessage());
-                                                                                                     container.Resolve<AMessageHandler>().ReceivedMessage.Should().Be(false);
-                                                                                                 };
-                            it["Send(new AMessage()) dispatches to AMessageHandler"] = () =>
-                                                                                       {
-                                                                                           getBus().Send(new AMessage());
-                                                                                           container.Resolve<AMessageHandler>().ReceivedMessage.Should().Be(true);
-                                                                                       };
+                    //context["after registering a SynchrounousBusSubscriberFilter that excludes AMessageHandler"] =
+                    //    () =>
+                    //    {
+                    //        before = () => container.Register(Component.For<ISynchronousBusSubscriberFilter>().ImplementedBy<FilterAMessageHandlerSubscriberFilter>());
+                    //        it["Handles(new AMessage()) returns true"] = () => getBus().Handles(new AMessage()).Should().Be(true);
+                    //        it["Publish(new AMessage()) does not dispatch to AMessageHandler"] = () =>
+                    //                                                                             {
+                    //                                                                                 getBus().Publish(new AMessage());
+                    //                                                                                 container.Resolve<AMessageHandler>().ReceivedMessage.Should().Be(false);
+                    //                                                                             };
+                    //        it["Send(new AMessage()) dispatches to AMessageHandler"] = () =>
+                    //                                                                   {
+                    //                                                                       getBus().Send(new AMessage());
+                    //                                                                       container.Resolve<AMessageHandler>().ReceivedMessage.Should().Be(true);
+                    //                                                                   };
 
-                            it["SendLocal(new AMessage()) dispatches to AMessageHandler"] = () =>
-                                                                                            {
-                                                                                                getBus().SendLocal(new AMessage());
-                                                                                                container.Resolve<AMessageHandler>().ReceivedMessage.Should().Be(true);
-                                                                                            };
-                        };
+                    //        it["SendLocal(new AMessage()) dispatches to AMessageHandler"] = () =>
+                    //                                                                        {
+                    //                                                                            getBus().SendLocal(new AMessage());
+                    //                                                                            container.Resolve<AMessageHandler>().ReceivedMessage.Should().Be(true);
+                    //                                                                        };
+                    //    };
                 };
         }
 

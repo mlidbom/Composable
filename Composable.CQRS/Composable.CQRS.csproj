@@ -223,6 +223,8 @@
     <Compile Include="KeyValueStorage\DocumentDbSession.cs" />
     <Compile Include="KeyValueStorage\NoSuchDocumentException.cs" />
     <Compile Include="NewtonSoft\JsonSettings.cs" />
+    <Compile Include="ServiceBus\IHandleInProcessMessages.cs" />
+    <Compile Include="ServiceBus\IHandleRemoteMessages.cs" />
     <Compile Include="ServiceBus\IServiceBus.cs" />
     <Compile Include="CQRS\EventSourcing\AggregateRoot.cs" />
     <Compile Include="ServiceBus\ISynchronousBusMessageSpy.cs" />

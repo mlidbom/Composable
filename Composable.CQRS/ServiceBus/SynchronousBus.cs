@@ -14,19 +14,17 @@ namespace Composable.ServiceBus
 {
     /// <summary>
     /// Sends/Publishes messages to <see cref="IHandleMessages{T}"/> implementations registered in the <see cref="IWindsorContainer"/>.
-    /// 
-    /// <para>
-    ///     An <see cref="ISynchronousBusSubscriberFilter"/> can be registered in the container to avoid dispatching to some handlers.
-    /// </para>
     /// </summary>
     [UsedImplicitly]
     public class SynchronousBus : IServiceBus
     {
         protected readonly IWindsorContainer Container;
+        private readonly List<IInvokeMessages> _invokers;
 
         public SynchronousBus(IWindsorContainer container)
         {
             Container = container;
+            _invokers = new List<IInvokeMessages> { new InProcessMessageHandlerInvoker(container), new DefaultMessageHandlerInvoker(container) };
         }
 
         public virtual void Publish(object message)
@@ -36,7 +34,7 @@ namespace Composable.ServiceBus
 
         public virtual bool Handles(object message)
         {
-            return Container.CanResolveMessageHandler(message);
+            return _invokers.Any(invoker => invoker.Invokes(message));
         }
 
         protected virtual void PublishLocal(object message)
@@ -45,17 +43,11 @@ namespace Composable.ServiceBus
             {
                 using(var transactionalScope = Container.BeginTransactionalUnitOfWorkScope())
                 {
-                    var handlers = Container.ResolveMessageHandlers(message);
-
-                    try
+                    foreach (var messageHandlerInvoker in _invokers.Where(invoker => invoker.Invokes(message)))
                     {
-                        MessageHandlerInvoker.Invoke(handlers, message);
+                        messageHandlerInvoker.Invoke(message);
                     }
-                    finally
-                    {
-                        handlers.ForEach(Container.Release);
-                    }
-
+                    
                     transactionalScope.Commit();
                 }
             }
@@ -67,24 +59,21 @@ namespace Composable.ServiceBus
             {
                 using(var transactionalScope = Container.BeginTransactionalUnitOfWorkScope())
                 {
-                    var handlers = Container.ResolveMessageHandlers(message);
-
-                    if(handlers.None())
+                    if (_invokers.None(invoker => invoker.Invokes(message)))
                     {
                         throw new NoHandlerException(message.GetType());
                     }
 
-                    AssertOnlyOneHandlerRegistered(message, handlers);
+                    //todo - needs to resolve handers here as well as in invoker.... :-(
+                    var list = new List<object>();
+                    _invokers.ForEach(invoker => list.AddRange(invoker.ResolveMessageHandlers(message)));
+                    AssertOnlyOneHandlerRegistered(message, list);
 
-                    try
+                    foreach (var messageHandlerInvoker in _invokers.Where(invoker => invoker.Invokes(message)))
                     {
-                        MessageHandlerInvoker.Invoke(handlers, message);
+                        messageHandlerInvoker.Invoke(message);
                     }
-                    finally
-                    {
-                        handlers.ForEach(Container.Release);
-                    }
-
+                    
                     transactionalScope.Commit();
                 }
             }

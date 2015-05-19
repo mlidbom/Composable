@@ -9,22 +9,31 @@ namespace Composable.ServiceBus
 {
     internal static class MessageHandlerInvoker
     {
-        private static readonly ConcurrentDictionary<string, List<MethodToInvokeForSpecificTypeOfMessage>> HandlerToMessageHandlersMap = new ConcurrentDictionary<string, List<MethodToInvokeForSpecificTypeOfMessage>>();
+        private static readonly ConcurrentDictionary<MapKey, List<MethodToInvokeForSpecificTypeOfMessage>> HandlerToMessageHandlersMap = new ConcurrentDictionary<MapKey, List<MethodToInvokeForSpecificTypeOfMessage>>();
 
         private class MapKey
         {
             public Type HandlerInstaceType { get; private set; }
             public Type HandlerInterfaceType { get; private set; }
 
-            public string Key
-            {
-                get { return HandlerInstaceType.FullName + HandlerInterfaceType.FullName; }
-            }
-
             public MapKey(Type handlerInstaceType,Type handlerInterfaceType)
             {
                 HandlerInstaceType = handlerInstaceType;
                 HandlerInterfaceType = handlerInterfaceType;
+            }
+
+            public override bool Equals(object obj)
+            {
+                if (obj == null || GetType() != obj.GetType())
+                    return false;
+
+                var key = obj as MapKey;
+                return key.HandlerInstaceType == HandlerInstaceType && key.HandlerInterfaceType == HandlerInterfaceType;
+            }
+
+            public override int GetHashCode()
+            {
+                return HandlerInstaceType.GetHashCode() + HandlerInterfaceType.GetHashCode();
             }
         }
 
@@ -34,7 +43,7 @@ namespace Composable.ServiceBus
         {
             List<MethodToInvokeForSpecificTypeOfMessage> messageHandleHolders;
 
-            if (!HandlerToMessageHandlersMap.TryGetValue(new MapKey(handlerInstanceType, handlerInterfaceType).Key, out messageHandleHolders))
+            if (!HandlerToMessageHandlersMap.TryGetValue(new MapKey(handlerInstanceType, handlerInterfaceType), out messageHandleHolders))
             {
                 var holders = new List<MethodToInvokeForSpecificTypeOfMessage>();
 
@@ -54,10 +63,10 @@ namespace Composable.ServiceBus
                     });
 
 
-                    HandlerToMessageHandlersMap[new MapKey(handlerInstanceType, handlerInterfaceType).Key] = holders;
+                    HandlerToMessageHandlersMap[new MapKey(handlerInstanceType, handlerInterfaceType)] = holders;
             }
 
-            return HandlerToMessageHandlersMap[new MapKey(handlerInstanceType, handlerInterfaceType).Key];
+            return HandlerToMessageHandlersMap[new MapKey(handlerInstanceType, handlerInterfaceType)];
         }
 
         //Returns an action that can be used to invoke this handler for a specific type of message.

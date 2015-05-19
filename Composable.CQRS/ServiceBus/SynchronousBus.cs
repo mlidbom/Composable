@@ -25,10 +25,10 @@ namespace Composable.ServiceBus
         {
             Container = container;
             _resolvers = new List<MessageHandlerResolver>
-                        {
-                            new InProcessMessageHandlerResolver(container), 
-                            new DefaultMessageHandlerResolver(container)
-                        };
+                         {
+                             new InProcessMessageHandlerResolver(container),
+                             new DefaultMessageHandlerResolver(container)
+                         };
         }
 
         public virtual void Publish(object message)
@@ -47,7 +47,7 @@ namespace Composable.ServiceBus
             {
                 using(var transactionalScope = Container.BeginTransactionalUnitOfWorkScope())
                 {
-                    foreach (var resolver in _resolvers.Where(resolver => resolver.HasHandlerFor(message)))
+                    foreach(var resolver in _resolvers.Where(resolver => resolver.HasHandlerFor(message)))
                     {
                         var handlers = resolver.ResolveMessageHandlers(message);
 
@@ -60,7 +60,7 @@ namespace Composable.ServiceBus
                             handlers.HandlerInstances.ForEach(Container.Release);
                         }
                     }
-                    
+
                     transactionalScope.Commit();
                 }
             }
@@ -76,19 +76,10 @@ namespace Composable.ServiceBus
                     {
                         throw new NoHandlerException(message.GetType());
                     }
-                    if(_resolvers.Count(r => r.HasHandlerFor(message)) > 1)
-                    {
-                        var multipleHandlers = _resolvers
-                            .Where(r => r.HasHandlerFor(message))
-                            .SelectMany(r => r.ResolveMessageHandlers(message).HandlerInstances);
-                        throw new MultipleMessageHandlersRegisteredException(message.GetType(), multipleHandlers.ToList()); 
-                    }
 
-                    var resolver = _resolvers.Single(r => r.HasHandlerFor(message));
-                    var handlers = resolver.ResolveMessageHandlers(message);
+                    AssertOnlyOneHandlerRegistered(message, _resolvers);
 
-                    AssertOnlyOneHandlerRegistered(message, handlers.HandlerInstances);
-
+                    var handlers = _resolvers.Single(r => r.HasHandlerFor(message)).ResolveMessageHandlers(message);
                     try
                     {
                         handlers.Invoke();
@@ -97,7 +88,7 @@ namespace Composable.ServiceBus
                     {
                         handlers.HandlerInstances.ForEach(Container.Release);
                     }
-                    
+
                     transactionalScope.Commit();
                 }
             }
@@ -119,10 +110,14 @@ namespace Composable.ServiceBus
             SyncSendLocal(message);
         }
 
-        private static void AssertOnlyOneHandlerRegistered(object message, List<object> handlers)
+        private static void AssertOnlyOneHandlerRegistered(object message, List<MessageHandlerResolver> resolvers)
         {
-            var realHandlers = handlers.Except(handlers.OfType<ISynchronousBusMessageSpy>()).ToList();
-            if (realHandlers.Count() > 1)
+            var realHandlers = resolvers
+                .Where(r => r.HasHandlerFor(message))
+                .SelectMany(r => r.ResolveMessageHandlers(message).HandlerInstances)
+                .ToList();
+
+            if(realHandlers.Except(realHandlers.OfType<ISynchronousBusMessageSpy>()).Count() > 1||resolvers.Count(re => re.HasHandlerFor(message)) > 1)
             {
                 throw new MultipleMessageHandlersRegisteredException(message, realHandlers);
             }

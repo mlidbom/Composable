@@ -8,7 +8,6 @@ namespace Composable.CQRS.ServiceBus.NServiceBus
     /// <summary>
     /// <para>
     /// Publishes messages to both the <see cref="NServiceBusServiceBus"/> and the <see cref="SynchronousBus"/>.
-    /// An <see cref="ISynchronousBusSubscriberFilter"/> can be registered in the container to avoid dispatching to some handlers.
     /// </para>
     /// 
     /// <para> 

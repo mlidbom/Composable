@@ -18,7 +18,7 @@ namespace Composable.ServiceBus
         override protected IEnumerable<Type> GetHandlerTypes(object message)
         {
             return base.GetHandlerTypes(message)
-                .Where(i => !typeof(IHandleRemoteMessages<>).IsAssignableFrom(i)) // we dont dispatch remote messages in the synchronous bus.
+                .Where(i => !typeof(IHandleRemoteMessages<>).IsAssignableFrom(i)) // we don't dispatch remote messages in the synchronous bus.
                 .ToArray();
         }
     }
@@ -35,9 +35,16 @@ namespace Composable.ServiceBus
     {
         public class MessageHandlers
         {
-            public Type HandlerInterfaceType { get; set; }
-            public object Message { get; set; }
-            public List<object> HandlerInstances { get; set; }
+            public Type HandlerInterfaceType { get;private set; }
+            public object Message { get; private set; }
+            public List<object> HandlerInstances { get;private set; }
+
+            public MessageHandlers(object message,Type handlerInterfaceType,List<object> handlerInstances )
+            {
+                Message = message;
+                HandlerInterfaceType = handlerInterfaceType;
+                HandlerInstances = handlerInstances;
+            }
         }
 
         protected readonly IWindsorContainer Container;
@@ -55,14 +62,14 @@ namespace Composable.ServiceBus
             {
                 foreach(var handlerInstance in Container.ResolveAll(handlerType).Cast<object>()) //if one handler implements many interfaces, it will be invoked many times.
                 {
-                    if(handlers.None(h => h.GetType() == handlerInstance.GetType()))
+                    if(!handlers.Contains(handlerInstance))
                     {
                         handlers.Add(handlerInstance);
                     }
                 }
             }
 
-            return new MessageHandlers {HandlerInterfaceType = InterfaceType, HandlerInstances = handlers, Message = message};
+            return new MessageHandlers(message,InterfaceType,handlers);
         }
 
         public bool HasHandlerFor<TMessage>(TMessage message)

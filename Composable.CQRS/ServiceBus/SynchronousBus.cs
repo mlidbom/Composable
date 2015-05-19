@@ -78,7 +78,10 @@ namespace Composable.ServiceBus
                     }
                     if(_resolvers.Count(r => r.HasHandlerFor(message)) > 1)
                     {
-                        throw new MultipleMessageHandlersRegisteredException(message.GetType(), new List<object>()); //Todo - exception
+                        var multipleHandlers = _resolvers
+                            .Where(r => r.HasHandlerFor(message))
+                            .SelectMany(r => r.ResolveMessageHandlers(message).HandlerInstances);
+                        throw new MultipleMessageHandlersRegisteredException(message.GetType(), multipleHandlers.ToList()); 
                     }
 
                     var resolver = _resolvers.Single(r => r.HasHandlerFor(message));
@@ -136,10 +139,10 @@ namespace Composable.ServiceBus
 
     public class MultipleMessageHandlersRegisteredException : Exception
     {
-        public MultipleMessageHandlersRegisteredException(object message, List<object> handlers) 
+        public MultipleMessageHandlersRegisteredException(object message, List<object> handlers)
             : base(CreateMessage(message, handlers))
         {
-            
+
         }
 
         private static string CreateMessage(object message, List<object> handlers)

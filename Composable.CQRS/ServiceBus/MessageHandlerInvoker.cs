@@ -28,19 +28,9 @@ namespace Composable.ServiceBus
             }
         }
 
-        public static void Invoke(this MessageHandlerResolver.MessageHandlers messageHandlers)
-        {
-            foreach (var handlerInstance in messageHandlers.HandlerInstances)
-            {
-                GetMethodsToInvoke(handlerInstance.GetType(), messageHandlers.HandlerInterfaceType)
-                    .Where(holder => holder.HandledMessageType.IsInstanceOfType(messageHandlers.Message))
-                    .Select(holder => holder.HandlerMethod)
-                    .ForEach(handlerMethod => handlerMethod(handlerInstance, messageHandlers.Message));
-            }
-        }
 
         //Creates a list of handlers, one per handler type. Each handler is a mapping between message type and what method to invoke when handling this specific type of message.
-        private static IEnumerable<MethodToInvokeForSpecificTypeOfMessage> GetMethodsToInvoke(Type handlerInstanceType, Type handlerInterfaceType)
+        internal static IEnumerable<MethodToInvokeForSpecificTypeOfMessage> GetMethodsToInvoke(Type handlerInstanceType, Type handlerInterfaceType)
         {
             List<MethodToInvokeForSpecificTypeOfMessage> messageHandleHolders;
 

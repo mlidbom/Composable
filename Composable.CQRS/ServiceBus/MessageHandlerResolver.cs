@@ -31,7 +31,7 @@ namespace Composable.ServiceBus
         override protected Type InterfaceType { get { return typeof(IHandleInProcessMessages<>); } }
     }
 
-    internal abstract class MessageHandlerResolver
+    public abstract class MessageHandlerResolver
     {
         public class MessageHandlers
         {

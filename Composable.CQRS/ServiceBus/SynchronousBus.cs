@@ -19,12 +19,16 @@ namespace Composable.ServiceBus
     public class SynchronousBus : IServiceBus
     {
         protected readonly IWindsorContainer Container;
-        private readonly List<IInvokeMessages> _invokers;
+        private readonly List<MessageHandlerResolver> _resolvers;
 
         public SynchronousBus(IWindsorContainer container)
         {
             Container = container;
-            _invokers = new List<IInvokeMessages> { new InProcessMessageHandlerInvoker(container), new DefaultMessageHandlerInvoker(container) };
+            _resolvers = new List<MessageHandlerResolver>
+                        {
+                            new InProcessMessageHandlerResolver(container), 
+                            new DefaultMessageHandlerResolver(container)
+                        };
         }
 
         public virtual void Publish(object message)
@@ -34,7 +38,7 @@ namespace Composable.ServiceBus
 
         public virtual bool Handles(object message)
         {
-            return _invokers.Any(invoker => invoker.Invokes(message));
+            return _resolvers.Any(invoker => invoker.HasHandlerFor(message));
         }
 
         protected virtual void PublishLocal(object message)
@@ -43,9 +47,18 @@ namespace Composable.ServiceBus
             {
                 using(var transactionalScope = Container.BeginTransactionalUnitOfWorkScope())
                 {
-                    foreach (var messageHandlerInvoker in _invokers.Where(invoker => invoker.Invokes(message)))
+                    foreach (var resolver in _resolvers.Where(resolver => resolver.HasHandlerFor(message)))
                     {
-                        messageHandlerInvoker.Invoke(message);
+                        var handlers = resolver.ResolveMessageHandlers(message);
+
+                        try
+                        {
+                            handlers.Invoke();
+                        }
+                        finally
+                        {
+                            handlers.HandlerInstances.ForEach(Container.Release);
+                        }
                     }
                     
                     transactionalScope.Commit();
@@ -59,25 +72,34 @@ namespace Composable.ServiceBus
             {
                 using(var transactionalScope = Container.BeginTransactionalUnitOfWorkScope())
                 {
-                    if (_invokers.None(invoker => invoker.Invokes(message)))
+                    if(_resolvers.None(r => r.HasHandlerFor(message)))
                     {
                         throw new NoHandlerException(message.GetType());
                     }
-
-                    //todo - needs to resolve handers here as well as in invoker.... :-(
-                    var list = new List<object>();
-                    _invokers.ForEach(invoker => list.AddRange(invoker.ResolveMessageHandlers(message)));
-                    AssertOnlyOneHandlerRegistered(message, list);
-
-                    foreach (var messageHandlerInvoker in _invokers.Where(invoker => invoker.Invokes(message)))
+                    if(_resolvers.Count(r => r.HasHandlerFor(message)) > 1)
                     {
-                        messageHandlerInvoker.Invoke(message);
+                        throw new MultipleMessageHandlersRegisteredException(message.GetType(), new List<object>()); //Todo - exception
+                    }
+
+                    var resolver = _resolvers.Single(r => r.HasHandlerFor(message));
+                    var handlers = resolver.ResolveMessageHandlers(message);
+
+                    AssertOnlyOneHandlerRegistered(message, handlers.HandlerInstances);
+
+                    try
+                    {
+                        handlers.Invoke();
+                    }
+                    finally
+                    {
+                        handlers.HandlerInstances.ForEach(Container.Release);
                     }
                     
                     transactionalScope.Commit();
                 }
             }
         }
+
 
         public virtual void SendLocal(object message)
         {
@@ -114,8 +136,10 @@ namespace Composable.ServiceBus
 
     public class MultipleMessageHandlersRegisteredException : Exception
     {
-        public MultipleMessageHandlersRegisteredException(object message, List<object> handlers):base(CreateMessage(message,handlers))
+        public MultipleMessageHandlersRegisteredException(object message, List<object> handlers) 
+            : base(CreateMessage(message, handlers))
         {
+            
         }
 
         private static string CreateMessage(object message, List<object> handlers)
@@ -128,7 +152,10 @@ namespace Composable.ServiceBus
             return exceptionMessage;
 
         }
+
+
     }
+
 
     //public class PublishToAllSubscribersSubscriberFilter : ISynchronousBusSubscriberFilter
     //{

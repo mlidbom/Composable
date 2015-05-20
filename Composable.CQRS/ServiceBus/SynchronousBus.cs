@@ -23,7 +23,11 @@ namespace Composable.ServiceBus
         public SynchronousBus(IWindsorContainer container)
         {
             Container = container;
-            _resolvers = new DefaultMessageHandlerResolversProvider(container).GetResolvers();
+            _resolvers = new List<MessageHandlerResolver>
+                         {
+                             new InProcessMessageHandlerResolver(container),
+                             new AllExceptRemoteMessageHandlersMessageHandlerResolver(container)
+                         };
         }
 
         public virtual void Publish(object message)

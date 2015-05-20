@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Castle.MicroKernel;
 using Castle.Windsor;
 using Composable.System.Linq;
 using Composable.System.Reflection;
@@ -8,101 +9,138 @@ using NServiceBus;
 
 namespace Composable.ServiceBus
 {
-    ///<summary>Resolves message handlers that inherits from <see cref="IHandleMessages{T}"/>.
-    /// <remarks>Does not return message handlers that implements <see cref="IHandleRemoteMessages{T}"/>.</remarks>
-    /// </summary>
-    public class AllExceptRemoteMessageHandlersMessageHandlerResolver : MessageHandlerResolver
+    internal static class MyMessageHandlerResolver
     {
-        public AllExceptRemoteMessageHandlersMessageHandlerResolver(IWindsorContainer container)
-            : base(container) {}
-
-        override public Type HandlerInterfaceType { get { return typeof(IHandleMessages<>); } }
-
-        override public bool HasHandlerFor<TMessage>(TMessage message)
+        internal class MessageHandlerReference
         {
-            var messageHandlerTypes = message.GetType().GetAllTypesInheritedOrImplemented()
-                .Where(typeInheritedByMessageInstance => typeInheritedByMessageInstance.Implements(typeof(IMessage)))
-                .Select(messageTypeInheritedByMessageInstance => typeof(IHandleMessages<>).MakeGenericType(messageTypeInheritedByMessageInstance));
-            foreach(var messageHandlerType in messageHandlerTypes)
+            public MessageHandlerReference(Type handlerInterfaceType, Type implementedInterfaceType, object instance)
             {
-                foreach (var component in Container.Kernel.GetAssignableHandlers(messageHandlerType))
+                HandlerInterfaceType = handlerInterfaceType;
+                Instance = instance;
+            }
+
+            public Type HandlerInterfaceType { get; private set; }
+            public object Instance { get; private set; }
+
+            private bool Equals(MessageHandlerReference other)
+            {
+                return HandlerInterfaceType == other.HandlerInterfaceType && Instance.Equals(other.Instance);
+            }
+
+            public override bool Equals(object other)
+            {
+                if(ReferenceEquals(null, other))
                 {
-                    var handlerInstanceType = component.ComponentModel.Implementation;
-                    var messageType = messageHandlerType.GetGenericArguments().First();
-                    if(!typeof(IHandleRemoteMessages<>).MakeGenericType(messageType).IsAssignableFrom(handlerInstanceType))
-                    {
-                        return true;
-                    }
+                    return false;
+                }
+                if(ReferenceEquals(this, other))
+                {
+                    return true;
+                }
+                if(other.GetType() != this.GetType())
+                {
+                    return false;
+                }
+                return Equals((MessageHandlerReference)other);
+            }
+
+            public override int GetHashCode()
+            {
+                unchecked
+                {
+                    return (HandlerInterfaceType.GetHashCode()*397) ^ Instance.GetHashCode();
                 }
             }
-            return false;
         }
 
-        override public List<object> ResolveMessageHandlers<TMessage>(TMessage message)
+        private class MessageHandlerTypeReference
         {
-            // We don't want to dispatch messages to a IHandleRemoteMessages handler.
-            // Get all combination of IHandleRemoteMessages and IMessages.
-            var remoteMessageHandlerTypes = message.GetType().GetAllTypesInheritedOrImplemented()
-                .Where(typeInheritedByMessageInstance => typeInheritedByMessageInstance.Implements(typeof(IMessage)))
-                .Select(messageTypeInheritedByMessageInstance => typeof(IHandleRemoteMessages<>).MakeGenericType(messageTypeInheritedByMessageInstance));
+            public MessageHandlerTypeReference(WindsorHandlerReference handler, Type handlerInterfaceType)
+            {
+                HandlerInterfaceType = handlerInterfaceType;
+                ImplementedInterfaceType = handler.ServiceType;
+                Handler = handler.Handler;
+            }
 
-            return base.ResolveMessageHandlers(message)
-                //Make sure not to dispatch message to an IHandleRemoteMessages instance.
-                .Where(h =>remoteMessageHandlerTypes.None(r=>r.IsInstanceOfType(h)))
+            public IHandler Handler { get; private set; }
+            public Type HandlerInterfaceType { get; private set; }
+            public Type ImplementedInterfaceType { get; private set; }
+        }
+
+
+        public static IEnumerable<MessageHandlerReference> GetHandlers(object message, IWindsorContainer container)
+        {
+            var handlers = GetHandlerTypes(message, container)
+                .SelectMany(
+                    handlerType => container
+                                        .ResolveAll(handlerType.ImplementedInterfaceType)
+                                        .Cast<object>()
+                                        .Select(handler => new MessageHandlerReference(
+                                            handlerInterfaceType: handlerType.HandlerInterfaceType, 
+                                            implementedInterfaceType:handlerType.ImplementedInterfaceType, 
+                                            instance: handler))
+                )
+                .Distinct()//Remove duplicates for classes that implement more than one interface. 
                 .ToList();
+
+            var remoteMessageHandlerTypes = RemoteMessageHandlerTypes(message);
+            var handlersToCall = handlers.Where(handler => remoteMessageHandlerTypes.None(remoteMessageHandlerType => remoteMessageHandlerType.IsInstanceOfType(handler.Instance)));
+
+            return handlersToCall;
         }
-    }
 
-    ///<summary>Resolves message handlers that inherits from <see cref="IHandleInProcessMessages{T}"/>.</summary>
-    public class InProcessMessageHandlerResolver : MessageHandlerResolver
-    {
-        public InProcessMessageHandlerResolver(IWindsorContainer container)
-            : base(container) {}
-
-        override public Type HandlerInterfaceType { get { return typeof(IHandleInProcessMessages<>); } }
-    }
-
-    public abstract class MessageHandlerResolver
-    {
-        protected readonly IWindsorContainer Container;
-        
-        public abstract Type HandlerInterfaceType { get; }
-
-        protected MessageHandlerResolver(IWindsorContainer container)
+        public static bool Handles(object message, IWindsorContainer container)
         {
-            Container = container;
+            return GetHandlerTypes(message, container).Any();
         }
 
-        public virtual List<object> ResolveMessageHandlers<TMessage>(TMessage message)
+        private static List<MessageHandlerTypeReference> GetHandlerTypes(object message, IWindsorContainer container)
         {
-            var handlers = new List<object>();
-            foreach(var handlerType in GetHandlerTypes(message, HandlerInterfaceType))
-            {
-                foreach(var handlerInstance in Container.ResolveAll(handlerType).Cast<object>())
-                {
-                    if(!handlers.Contains(handlerInstance))
-                    {
-                        handlers.Add(handlerInstance);
-                    }
-                }
-            }
+            var inMemoryHandlers = GetHandlerTypesForInterfaceType(message, container, typeof(IHandleInProcessMessages<>))
+                .Select(handler => new MessageHandlerTypeReference(handler, typeof(IHandleInProcessMessages<>)))
+                .ToList();
+            var standardHandlers = GetHandlerTypesForInterfaceType(message, container, typeof(IHandleMessages<>))
+                .Select(handler => new MessageHandlerTypeReference(handler, typeof(IHandleMessages<>)))
+                .ToList();
+            var allHandlers = inMemoryHandlers.Concat(standardHandlers).ToArray();
 
-            return handlers;
+            var remoteMessageHandlerTypes = RemoteMessageHandlerTypes(message);
+
+            var handlersToCall = allHandlers
+                .Where(handler => remoteMessageHandlerTypes.None( remoteHandlerType => handler.Handler.ComponentModel.Implementation.Implements(remoteHandlerType)))
+                .ToList();
+
+            return handlersToCall;
         }
 
-        public virtual bool HasHandlerFor<TMessage>(TMessage message)
-        {
-            return GetHandlerTypes(message, HandlerInterfaceType).Any();
-        }
-
-        protected IEnumerable<Type> GetHandlerTypes(object message, Type handlerInterfaceType)
+        private static List<Type> RemoteMessageHandlerTypes(object message)
         {
             return message.GetType().GetAllTypesInheritedOrImplemented()
-                .Where(m => m.Implements(typeof(IMessage)))
-                .Select(m => handlerInterfaceType.MakeGenericType(m))
-                .Where(i => Container.Kernel.HasComponent(i))
-                .ToArray();
+                .Where(typeInheritedByMessageInstance => typeInheritedByMessageInstance.Implements(typeof(IMessage)))
+                .Select(messageTypeInheritedByMessageInstance => typeof(IHandleRemoteMessages<>).MakeGenericType(messageTypeInheritedByMessageInstance))
+                .ToList();
+        }
 
+        private class WindsorHandlerReference
+        {
+            public IHandler Handler { get; private set; }
+            public Type ServiceType { get; private set; }
+            public WindsorHandlerReference(IHandler handler, Type serviceType)
+            {
+                Handler = handler;
+                ServiceType = serviceType;
+            }
+        }
+
+
+        private static WindsorHandlerReference[] GetHandlerTypesForInterfaceType(object message, IWindsorContainer container, Type handlerInterfaceType)
+        {
+            return message.GetType().GetAllTypesInheritedOrImplemented()
+                .Where(typeImplementedByMessage => typeImplementedByMessage.Implements(typeof(IMessage)))
+                .Select(typeImplementedByMessageThatImplementsIMessage => handlerInterfaceType.MakeGenericType(typeImplementedByMessageThatImplementsIMessage))
+                .SelectMany(implementedMessageHandlerInterface => container.Kernel.GetHandlers(implementedMessageHandlerInterface)
+                    .Select(component => new WindsorHandlerReference(component, implementedMessageHandlerInterface)))
+                .ToArray();
         }
     }
 }

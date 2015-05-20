@@ -8,12 +8,12 @@ using System.Linq;
 
 namespace Composable.ServiceBus
 {
-    internal class DefaultMessageHandlerResolver : MessageHandlerResolver
+    public class DefaultMessageHandlerResolver : MessageHandlerResolver
     {
         public DefaultMessageHandlerResolver(IWindsorContainer container)
             : base(container) {}
 
-        override protected Type InterfaceType { get { return typeof(IHandleMessages<>); } }
+        override public Type InterfaceType { get { return typeof(IHandleMessages<>); } }
 
         override protected IEnumerable<Type> GetHandlerTypes(object message)
         {
@@ -22,52 +22,36 @@ namespace Composable.ServiceBus
                 .ToArray();
         }
 
-        override public MessageHandlers ResolveMessageHandlers<TMessage>(TMessage message)
+        override public List<object> ResolveMessageHandlers<TMessage>(TMessage message)
         {
             var remoteMessageHandlerType = typeof(IHandleRemoteMessages<>).MakeGenericType(message.GetType());
-            var handlers = base.ResolveMessageHandlers(message).HandlerInstances
+            return base.ResolveMessageHandlers(message)
                 // ReSharper disable once UseIsOperator.2
-                    .Where(h => !remoteMessageHandlerType.IsInstanceOfType(h))
-                    .ToList()
-                    ;
-
-            return new MessageHandlers(message, InterfaceType, handlers);
+                .Where(h => !remoteMessageHandlerType.IsInstanceOfType(h))
+                .ToList();
         }
     }
 
-    internal class InProcessMessageHandlerResolver : MessageHandlerResolver
+    public class InProcessMessageHandlerResolver : MessageHandlerResolver
     {
         public InProcessMessageHandlerResolver(IWindsorContainer container)
             : base(container) {}
 
-        override protected Type InterfaceType { get { return typeof(IHandleInProcessMessages<>); } }
+        override public Type InterfaceType { get { return typeof(IHandleInProcessMessages<>); } }
     }
 
     public abstract class MessageHandlerResolver
     {
-        public class MessageHandlers
-        {
-            public Type HandlerInterfaceType { get;private set; }
-            public object Message { get; private set; }
-            public List<object> HandlerInstances { get;private set; }
-
-            public MessageHandlers(object message,Type handlerInterfaceType,List<object> handlerInstances )
-            {
-                Message = message;
-                HandlerInterfaceType = handlerInterfaceType;
-                HandlerInstances = handlerInstances;
-            }
-        }
-
         protected readonly IWindsorContainer Container;
-        protected abstract Type InterfaceType { get; }
+        
+        public abstract Type InterfaceType { get; }
 
         protected MessageHandlerResolver(IWindsorContainer container)
         {
             Container = container;
         }
 
-        public virtual MessageHandlers ResolveMessageHandlers<TMessage>(TMessage message)
+        public virtual List<object> ResolveMessageHandlers<TMessage>(TMessage message)
         {
             var handlers = new List<object>();
             foreach(var handlerType in GetHandlerTypes(message))
@@ -81,7 +65,7 @@ namespace Composable.ServiceBus
                 }
             }
 
-            return new MessageHandlers(message,InterfaceType,handlers);
+            return handlers;
         }
 
         public bool HasHandlerFor<TMessage>(TMessage message)

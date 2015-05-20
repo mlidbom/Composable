@@ -9,7 +9,18 @@ namespace Composable.ServiceBus
 {
     internal static class MessageHandlerInvoker
     {
-        private static readonly ConcurrentDictionary<MapKey, List<MethodToInvokeForSpecificTypeOfMessage>> HandlerToMessageHandlersMap = new ConcurrentDictionary<MapKey, List<MethodToInvokeForSpecificTypeOfMessage>>();
+        private static readonly ConcurrentDictionary<MapKey, List<MethodToInvokeOnMessageHandlerByMessageType>> HandlerToMessageHandlersMap = new ConcurrentDictionary<MapKey, List<MethodToInvokeOnMessageHandlerByMessageType>>();
+
+        internal static void Invoke<TMessage>(IEnumerable<object> handlerInstances, Type interfaceType, TMessage message)
+        {
+            foreach (var handlerInstance in handlerInstances)
+            {
+                GetMethodsToInvoke(handlerInstance.GetType(), interfaceType)
+                    .Where(holder => holder.HandledMessageType.IsInstanceOfType(message))
+                    .Select(holder => holder.HandlerMethod)
+                    .ForEach(handlerMethod => handlerMethod(handlerInstance, message));
+            }
+        }
 
         private class MapKey
         {
@@ -37,15 +48,14 @@ namespace Composable.ServiceBus
             }
         }
 
-
         //Creates a list of handlers, one per handler type. Each handler is a mapping between message type and what method to invoke when handling this specific type of message.
-        internal static IEnumerable<MethodToInvokeForSpecificTypeOfMessage> GetMethodsToInvoke(Type handlerInstanceType, Type handlerInterfaceType)
+        private static IEnumerable<MethodToInvokeOnMessageHandlerByMessageType> GetMethodsToInvoke(Type handlerInstanceType, Type handlerInterfaceType)
         {
-            List<MethodToInvokeForSpecificTypeOfMessage> messageHandleHolders;
+            List<MethodToInvokeOnMessageHandlerByMessageType> messageHandleHolders;
 
             if (!HandlerToMessageHandlersMap.TryGetValue(new MapKey(handlerInstanceType, handlerInterfaceType), out messageHandleHolders))
             {
-                var holders = new List<MethodToInvokeForSpecificTypeOfMessage>();
+                var holders = new List<MethodToInvokeOnMessageHandlerByMessageType>();
 
                     var handledMessageTypes = handlerInstanceType.GetInterfaces()
                     .Where(i => i.IsGenericType && i.GetGenericTypeDefinition() == handlerInterfaceType)
@@ -57,7 +67,7 @@ namespace Composable.ServiceBus
                         var action = TryGetMethodToInvokeWhenHandlingTypeOfMessage(handlerInstanceType, messageType, handlerInterfaceType);
                         if (action != null)
                         {
-                            holders.Add(new MethodToInvokeForSpecificTypeOfMessage(messageType, action));
+                            holders.Add(new MethodToInvokeOnMessageHandlerByMessageType(messageType, action));
                         }
 
                     });
@@ -85,18 +95,16 @@ namespace Composable.ServiceBus
         }
     }
 
-    ///<summary>Used to hold a single implementation of IHandleMessages</summary>
-    internal class MethodToInvokeForSpecificTypeOfMessage
+    ///<summary>Used to hold a single implementation of a message handler</summary>
+    internal class MethodToInvokeOnMessageHandlerByMessageType
     {
         public Type HandledMessageType { get; private set; }
         public Action<object, object> HandlerMethod { get; private set; }
 
-        public MethodToInvokeForSpecificTypeOfMessage(Type handledMessageType, Action<object, object> handlerMethod)
+        public MethodToInvokeOnMessageHandlerByMessageType(Type handledMessageType, Action<object, object> handlerMethod)
         {
             HandledMessageType = handledMessageType;
             HandlerMethod = handlerMethod;
         }
     }
-
-    
 }

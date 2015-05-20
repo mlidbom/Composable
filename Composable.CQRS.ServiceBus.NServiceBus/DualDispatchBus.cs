@@ -12,7 +12,6 @@ namespace Composable.CQRS.ServiceBus.NServiceBus
     /// 
     /// <para> 
     /// Send and SendLocal dispatches to either the <see cref="NServiceBusServiceBus"/> or the <see cref="SynchronousBus"/>.
-    /// Which is decided by a <see cref="DefaultDualDispatchBusRouter"/>. If no instance is registered in the container the <see cref="DefaultDualDispatchBusRouter"/> is used.
     /// It routes messages to the <see cref="SynchronousBus"/> if it has a handler for it, and to the <see cref="NServiceBusServiceBus"/> otherwise. 
     /// </para>
     /// </summary>
@@ -23,11 +22,9 @@ namespace Composable.CQRS.ServiceBus.NServiceBus
 
         private bool _dispatchingOnSynchronousBus = false;
         private readonly SingleThreadUseGuard _usageGuard;
-        private IDualDispatchBusRouter _router;
 
-        public DualDispatchBus(SynchronousBus local, NServiceBusServiceBus realBus, IDualDispatchBusRouter router = null)
+        public DualDispatchBus(SynchronousBus local, NServiceBusServiceBus realBus)
         {
-            _router = router ?? DefaultDualDispatchBusRouter.Instance;
             _usageGuard = new SingleThreadUseGuard();
             _local = local;
             _realBus = realBus;
@@ -60,7 +57,7 @@ namespace Composable.CQRS.ServiceBus.NServiceBus
         {
             _usageGuard.AssertNoContextChangeOccurred(this);
             //There can only be one handler in a send scenario and we let the synchronous bus get the first pick.
-            if (_router.SendToSynchronousBus((IMessage)message, _local))
+            if (_local.Handles(message))
             {
                 DispatchOnSynchronousBus(() => _local.SendLocal(message));
             }
@@ -74,7 +71,7 @@ namespace Composable.CQRS.ServiceBus.NServiceBus
         {
             _usageGuard.AssertNoContextChangeOccurred(this);
             //There can only be one handler in a send scenario and we let the synchronous bus get the first pick.
-            if(_router.SendToSynchronousBus((IMessage)message, _local))
+            if(_local.Handles(message))
             {
                 DispatchOnSynchronousBus(() => _local.Send(message));
             }

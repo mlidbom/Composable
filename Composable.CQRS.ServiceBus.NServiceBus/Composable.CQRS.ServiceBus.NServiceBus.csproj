@@ -93,7 +93,6 @@
       <Link>Properties\CommonAssemblyInfo.cs</Link>
     </Compile>
     <Compile Include="ComposableCqrsUnitOfWorkManager.cs" />
-    <Compile Include="DefaultDualDispatchBusRouter.cs" />
     <Compile Include="DualDispatchBus.cs" />
     <Compile Include="EndpointConfiguration\CatchSerializationErrorsMessageInspector.cs" />
     <Compile Include="EndpointConfiguration\ComposableFailureHeadersProvider.cs" />
@@ -101,7 +100,6 @@
     <Compile Include="EndpointConfiguration\EndpointConfigurationBase.cs" />
     <Compile Include="EndpointConfiguration\MessageSourceValidator.cs" />
     <Compile Include="IAmTimeoutMessage.cs" />
-    <Compile Include="IDualDispatchBusRouter.cs" />
     <Compile Include="IMessageInterceptor.cs" />
     <Compile Include="INservicebusServicebus.cs" />
     <Compile Include="EmptyMessageInterceptor.cs" />

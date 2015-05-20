@@ -22,9 +22,22 @@ namespace Composable.ServiceBus
 
         override public bool HasHandlerFor<TMessage>(TMessage message)
         {
-            var handlers = ResolveMessageHandlers(message);
-            handlers.ForEach(Container.Release);
-            return handlers.Any();
+            var messageHandlerTypes = message.GetType().GetAllTypesInheritedOrImplemented()
+                .Where(m => m.Implements(typeof(IMessage)))
+                .Select(m => typeof(IHandleMessages<>).MakeGenericType(m));
+            foreach(var messageHandlerType in messageHandlerTypes)
+            {
+                foreach (var component in Container.Kernel.GetAssignableHandlers(messageHandlerType))
+                {
+                    var handlerInstanceType = component.ComponentModel.Implementation;
+                    var messageType = messageHandlerType.GetGenericArguments().First();
+                    if(!typeof(IHandleRemoteMessages<>).MakeGenericType(messageType).IsAssignableFrom(handlerInstanceType))
+                    {
+                        return true;
+                    }
+                }
+            }
+            return false;
         }
 
         override public List<object> ResolveMessageHandlers<TMessage>(TMessage message)

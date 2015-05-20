@@ -19,14 +19,13 @@ namespace Composable.ServiceBus
     public class SynchronousBus : IServiceBus
     {
         protected readonly IWindsorContainer Container;
-        private readonly IMessageHandlerResolversProvider _resolversProvider;
         private readonly List<MessageHandlerResolver> _resolvers;
 
         public SynchronousBus(IWindsorContainer container,IMessageHandlerResolversProvider resolversProvider=null)
         {
             Container = container;
-            _resolversProvider = resolversProvider??new DefaultMessageHandlerResolversProvider(container);
-            _resolvers = _resolversProvider.GetResolvers();
+            resolversProvider = resolversProvider ?? new DefaultMessageHandlerResolversProvider(container);
+            _resolvers = resolversProvider.GetResolvers();
         }
 
         public virtual void Publish(object message)

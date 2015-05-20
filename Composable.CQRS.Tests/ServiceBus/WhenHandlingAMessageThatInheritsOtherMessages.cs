@@ -11,36 +11,26 @@ using NUnit.Framework;
 namespace CQRS.Tests.ServiceBus
 {
     [TestFixture]
-    public class SynchronousBusTests
+    public class WhenHandlingAMessageThatInheritsOtherMessages : MessageHandlersTestBase
     {
-        private IWindsorContainer _container;
-        private IDisposable _scope;
-
         [SetUp]
-        public void SetupContainerAndBeginScope()
+        public void RegisterHandlers()
         {
-            _container = new WindsorContainer();
-            _container.Register(
-                Component.For<IServiceBus>().ImplementedBy<SynchronousBus>().LifestyleScoped(),
-                Component.For<IWindsorContainer>().Instance(_container).LifestyleScoped(),
-                Component.For<ISingleContextUseGuard>().ImplementedBy<SingleThreadUseGuard>(),
+            Container.Register(
                 Component.For<CandidateUpdater, IHandleMessages<INamePropertyUpdatedMessage>, IHandleInProcessMessages<IAgePropertyUpdatedMessage>, IHandleRemoteMessages<IPhonePropertyUpdatedMessage>>()
                     .ImplementedBy<CandidateUpdater>().LifestyleScoped(),
                 Component.For<CandidateMessageSpy>().Instance(CandidateMessageSpy.Instance).LifestyleSingleton()
                 );
-
-            _scope = _container.BeginScope();
         }
 
         [TearDown]
-        public void TearDown()
+        public void ResetSpy()
         {
-            _scope.Dispose();
-            _container.Resolve<CandidateMessageSpy>().Reset();
+            Container.Resolve<CandidateMessageSpy>().Reset();
         }
 
         [Test]
-        public void When_publish_a_message_should_invoke_multiple_interface_handler()
+        public void When_publishing_a_message_Then_multiple_message_handlers_should_be_invoked()
         {
             //Arrange
             const string name = "Candidate1";
@@ -49,17 +39,17 @@ namespace CQRS.Tests.ServiceBus
             var editCandidateMessage = new CandidateEditedMessage(name: name, age: age, phone: phone);
 
             //Act
-            _container.Resolve<IServiceBus>().Publish(editCandidateMessage);
+            SynchronousBus.Publish(editCandidateMessage);
 
             //Assert
-            var candidate = _container.Resolve<CandidateMessageSpy>();
+            var candidate = Container.Resolve<CandidateMessageSpy>();
             candidate.Name.Should().Be(name);
             candidate.Age.Should().Be(age);
             candidate.Email.Should().Be(null);
         }
 
         [Test]
-        public void When_send_a_message_should_invoke_multiple_interface_handler()
+        public void When_sending_a_message_Then_should_throw_exception()
         {
             //Arrange
             const string name = "Candidate2";
@@ -68,15 +58,13 @@ namespace CQRS.Tests.ServiceBus
             var editCandidateMessage = new CandidateEditedMessage(name: name, age: age, phone: phone);
 
             //Act
-            Action send= () => _container.Resolve<IServiceBus>().Send(editCandidateMessage);
+            Action send = () => SynchronousBus.Send(editCandidateMessage);
 
             //Assert
             send.ShouldThrow<MultipleMessageHandlersRegisteredException>("multiple handlers registered for message");
         }
 
-      
-
-        internal interface INamePropertyUpdatedMessage:IMessage
+        internal interface INamePropertyUpdatedMessage : IMessage
         {
             string Name { get; }
         }
@@ -92,7 +80,7 @@ namespace CQRS.Tests.ServiceBus
         }
 
         internal interface ICandidateEditedMessage
-            :INamePropertyUpdatedMessage,
+            : INamePropertyUpdatedMessage,
             IAgePropertyUpdatedMessage,
             IPhonePropertyUpdatedMessage
             
@@ -114,7 +102,7 @@ namespace CQRS.Tests.ServiceBus
         }
 
 
-        internal class CandidateUpdater : 
+        private class CandidateUpdater : 
             IHandleMessages<INamePropertyUpdatedMessage>,
             IHandleInProcessMessages<IAgePropertyUpdatedMessage>, 
             IHandleRemoteMessages<IPhonePropertyUpdatedMessage>
@@ -139,11 +127,10 @@ namespace CQRS.Tests.ServiceBus
             public void Handle(IPhonePropertyUpdatedMessage message)
             {
                 _candidateMessage.Phone = message.Phone;
-            }
-            
+            }   
         }
 
-        internal class CandidateMessageSpy
+        private class CandidateMessageSpy : ISynchronousBusMessageSpy
         {
             public string Name { get; set; }
             public int Age { get; set; }

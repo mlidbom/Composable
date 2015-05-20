@@ -50,11 +50,11 @@ namespace Composable.ServiceBus
 
                         try
                         {
-                            handlers.Invoke();
+                            MessageHandlerInvoker.Invoke(handlers, resolver.InterfaceType, message);
                         }
                         finally
                         {
-                            handlers.HandlerInstances.ForEach(Container.Release);
+                            handlers.ForEach(Container.Release);
                         }
                     }
 
@@ -76,14 +76,16 @@ namespace Composable.ServiceBus
 
                     AssertOnlyOneHandlerRegistered(message, _resolvers);
 
-                    var handlers = _resolvers.Single(r => r.HasHandlerFor(message)).ResolveMessageHandlers(message);
+                    var resolver = _resolvers.Single(r => r.HasHandlerFor(message));
+                    var handlers = resolver.ResolveMessageHandlers(message);
+
                     try
                     {
-                        handlers.Invoke();
+                        MessageHandlerInvoker.Invoke(handlers, resolver.InterfaceType, message);
                     }
                     finally
                     {
-                        handlers.HandlerInstances.ForEach(Container.Release);
+                        handlers.ForEach(Container.Release);
                     }
 
                     transactionalScope.Commit();
@@ -111,7 +113,7 @@ namespace Composable.ServiceBus
         {
             var realHandlers = resolvers
                 .Where(r => r.HasHandlerFor(message))
-                .SelectMany(r => r.ResolveMessageHandlers(message).HandlerInstances)
+                .SelectMany(r => r.ResolveMessageHandlers(message))
                 .ToList();
 
             if(realHandlers.Except(realHandlers.OfType<ISynchronousBusMessageSpy>()).Count() > 1||resolvers.Count(re => re.HasHandlerFor(message)) > 1)
@@ -123,19 +125,13 @@ namespace Composable.ServiceBus
 
     public class NoHandlerException : Exception
     {
-        public NoHandlerException(Type messageType):base("No handler registered for message type: {0}".FormatWith(messageType.FullName))
-        {
-            
-        }
+        public NoHandlerException(Type messageType):base("No handler registered for message type: {0}".FormatWith(messageType.FullName)) { }
     }
 
     public class MultipleMessageHandlersRegisteredException : Exception
     {
         public MultipleMessageHandlersRegisteredException(object message, List<object> handlers)
-            : base(CreateMessage(message, handlers))
-        {
-
-        }
+            : base(CreateMessage(message, handlers)) { }
 
         private static string CreateMessage(object message, List<object> handlers)
         {
@@ -147,18 +143,5 @@ namespace Composable.ServiceBus
             return exceptionMessage;
 
         }
-
-
     }
-
-
-    //public class PublishToAllSubscribersSubscriberFilter : ISynchronousBusSubscriberFilter
-    //{
-    //    public static readonly ISynchronousBusSubscriberFilter Instance = new PublishToAllSubscribersSubscriberFilter();
-
-    //    public bool PublishMessageToHandler(object message, object handler)
-    //    {
-    //        return true;
-    //    }
-    //}
 }

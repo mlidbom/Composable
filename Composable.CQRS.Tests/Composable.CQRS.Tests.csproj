@@ -187,9 +187,11 @@
     <Compile Include="KeyValueStorage\Sql\DocumentDbSpecification.cs" />
     <Compile Include="KeyValueStorage\User.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ServiceBus\MessageHandlersTestBase.cs" />
     <Compile Include="ServiceBus\SynchronousBusSpecification.cs" />
-    <Compile Include="ServiceBus\SynchronousBusTests.cs" />
-    <Compile Include="ServiceBus\WhenDifferentTypesOfHandlersHandlesSameMessage.cs" />
+    <Compile Include="ServiceBus\WhenHandlingAMessageThatInheritsOtherMessages.cs" />
+    <Compile Include="ServiceBus\WhenDifferentTypesOfHandlersHandlesTheSameMessage.cs" />
+    <Compile Include="ServiceBus\WhenResolvingMessageHandlerResolversFromContainer.cs" />
     <Compile Include="StubMain.cs" />
     <Compile Include="UnitOfWorkTests\WindsorUnitOfWorkExtensionsTests.cs" />
   </ItemGroup>

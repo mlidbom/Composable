@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using Castle.Windsor;
 using Composable.System.Linq;
+using JetBrains.Annotations;
 
 namespace Composable.ServiceBus
 {
@@ -31,6 +32,7 @@ namespace Composable.ServiceBus
         }
     }
 
+    [UsedImplicitly]
     public class WindsorContainerizedMessageHandlerResolversProvider : IMessageHandlerResolversProvider
     {
         private readonly IWindsorContainer _container;

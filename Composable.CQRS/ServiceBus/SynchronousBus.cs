@@ -1,6 +1,8 @@
-﻿using Castle.MicroKernel.Lifestyle;
+﻿using System.Linq;
+using Castle.MicroKernel.Lifestyle;
 using Castle.Windsor;
 using Composable.KeyValueStorage.Population;
+using Composable.System.Linq;
 using JetBrains.Annotations;
 using NServiceBus;
 
@@ -12,13 +14,13 @@ namespace Composable.ServiceBus
     [UsedImplicitly]
     public class SynchronousBus : IServiceBus
     {
-        protected readonly IWindsorContainer Container;
-        private readonly MessageHandlerInvoker _messageInvoker;
+        private readonly IWindsorContainer _container;
+        private readonly MyMessageHandlerResolver _handlerResolver;
 
         public SynchronousBus(IWindsorContainer container)
         {
-            Container = container;
-            _messageInvoker = new MessageHandlerInvoker(container);
+            _container = container;
+            _handlerResolver = new MyMessageHandlerResolver(container);
         }
 
         public virtual void Publish(object message)
@@ -28,33 +30,18 @@ namespace Composable.ServiceBus
 
         public virtual bool Handles(object message)
         {
-            return _messageInvoker.Handles(message);
+            return _handlerResolver.HasHandlerFor(message);
         }
 
         protected virtual void PublishLocal(object message)
         {
-            using(Container.RequireScope()) //Use the existing scope when running in an endpoint and create a new one if running in the web
-            {
-                using(var transactionalScope = Container.BeginTransactionalUnitOfWorkScope())
-                {
-                    _messageInvoker.Publish(message);
-                    transactionalScope.Commit();
-                }
-            }
+            DispatchMessageToHandlers(message, MessageDispatchType.Publish);
         }
 
         protected virtual void SyncSendLocal(object message)
         {
-            using(Container.RequireScope()) //Use the existing scope when running in an endpoint and create a new one if running in the web
-            {
-                using(var transactionalScope = Container.BeginTransactionalUnitOfWorkScope())
-                {
-                    _messageInvoker.Send(message);
-                    transactionalScope.Commit();
-                }
-            }
+            DispatchMessageToHandlers(message, MessageDispatchType.Send);
         }
-
 
         public virtual void SendLocal(object message)
         {
@@ -69,6 +56,58 @@ namespace Composable.ServiceBus
         public virtual void Reply(object message)
         {
             SyncSendLocal(message);
+        }
+
+        private void DispatchMessageToHandlers<TMessage>(TMessage message, MessageDispatchType dispatchType)
+        {
+            using (_container.RequireScope()) //Use the existing scope when running in an endpoint and create a new one if running in the web
+            {
+                using (var transactionalScope = _container.BeginTransactionalUnitOfWorkScope())
+                {
+                    var handlers = _handlerResolver.GetHandlers(message).ToArray();
+                    try
+                    {
+                        if (dispatchType == MessageDispatchType.Send)
+                        {
+                            AssertThatThereIsExactlyOneRegisteredHandler(handlers, message);
+                        }
+
+                        foreach (var messageHandlerReference in handlers)
+                        {
+                            MessageHandlerMethodInvoker.InvokeHandlerMethods(messageHandlerReference.Instance, message, messageHandlerReference.HandlerInterfaceType);
+                        }
+                        transactionalScope.Commit();
+                    }
+                    finally
+                    {
+                        handlers.ForEach(_container.Release);
+                    }
+                }
+            }
+        }
+
+        private static void AssertThatThereIsExactlyOneRegisteredHandler(MyMessageHandlerResolver.MessageHandlerReference[] handlers, object message)
+        {
+            if (handlers.Length == 0)
+            {
+                throw new NoHandlerException(message.GetType());
+            }
+            if (handlers.Length > 1)
+            {
+                var realHandlers = handlers.Select(handler => handler.Instance)
+                    .Where(handler => !(handler is ISynchronousBusMessageSpy))
+                    .ToList();
+                if (realHandlers.Count > 1)
+                {
+                    throw new MultipleMessageHandlersRegisteredException(message, realHandlers);
+                }
+            }
+        }
+
+        private enum MessageDispatchType
+        {
+            Publish,
+            Send
         }
     }
 }

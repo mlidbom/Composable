@@ -74,7 +74,7 @@ namespace Composable.ServiceBus
 
                         foreach (var messageHandlerReference in handlers)
                         {
-                            MessageHandlerMethodInvoker.InvokeHandlerMethods(messageHandlerReference.Instance, message, messageHandlerReference.HandlerInterfaceType);
+                            MessageHandlerMethodInvoker.InvokeHandlerMethods(messageHandlerReference.Instance, message, messageHandlerReference.GenericInterfaceImplemented);
                         }
                         transactionalScope.Commit();
                     }

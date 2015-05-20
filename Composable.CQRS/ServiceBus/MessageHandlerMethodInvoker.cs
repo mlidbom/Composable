@@ -9,15 +9,15 @@ namespace Composable.ServiceBus
 {
     internal static class MessageHandlerMethodInvoker
     {
-        private static readonly ConcurrentDictionary<MessageHandlerClassId, List<MessageHandlerMethod>> MessageHandlerClassCache =
-            new ConcurrentDictionary<MessageHandlerClassId, List<MessageHandlerMethod>>();
+        private static readonly ConcurrentDictionary<MessageHandlerId, List<MessageHandlerMethod>> MessageHandlerClassCache =
+            new ConcurrentDictionary<MessageHandlerId, List<MessageHandlerMethod>>();
 
-        private class MessageHandlerClassId
+        private class MessageHandlerId
         {
             private Type InstanceType { get; set; }
             private Type HandlerInterfaceType { get; set; }
 
-            public MessageHandlerClassId(Type instanceType, Type handlerInterfaceType)
+            public MessageHandlerId(Type instanceType, Type handlerInterfaceType)
             {
                 InstanceType = instanceType;
                 HandlerInterfaceType = handlerInterfaceType;
@@ -30,10 +30,10 @@ namespace Composable.ServiceBus
                     return false;
                 }
 
-                return Equals((MessageHandlerClassId)other);
+                return Equals((MessageHandlerId)other);
             }
 
-            private bool Equals(MessageHandlerClassId other)
+            private bool Equals(MessageHandlerId other)
             {
                 return other.InstanceType == InstanceType && other.HandlerInterfaceType == HandlerInterfaceType;
             }
@@ -47,37 +47,44 @@ namespace Composable.ServiceBus
         ///<summary>Invokes all the handlers in messageHandler that implements handlerInterfaceType and handles a message matching the type of message.</summary>
         internal static void InvokeHandlerMethods(object messageHandler, object message, Type handlerInterfaceType)
         {
+            GetHandlerMethods(messageHandler, handlerInterfaceType, message)                
+                .ForEach(handlerMethod => handlerMethod.Invoke(handler: messageHandler, message: message));
+        }
+
+        private static List<MessageHandlerMethod> GetHandlerMethods(object messageHandler, Type handlerInterfaceType, object message)
+        {
             Type handlerInstanceType = messageHandler.GetType();
-            
+
             List<MessageHandlerMethod> messageHandlerMethods;
-            var messageHandlerClassId = new MessageHandlerClassId(handlerInstanceType, handlerInterfaceType);
+            var messageHandlerClassId = new MessageHandlerId(handlerInstanceType, handlerInterfaceType);
 
             if(!MessageHandlerClassCache.TryGetValue(messageHandlerClassId, out messageHandlerMethods))
             {
-                messageHandlerMethods = handlerInstanceType.GetInterfaces()
-                    .Where(i => i.IsGenericType && i.GetGenericTypeDefinition() == handlerInterfaceType)
-                    .Select(i => i.GetGenericArguments().Single())
-                    .Select(messageType => new MessageHandlerMethod(handlerInstanceType, messageType, handlerInterfaceType))
-                    .ToList();
-
+                messageHandlerMethods = CreateMessageHandlerMethods(handlerInterfaceType, handlerInstanceType);
                 MessageHandlerClassCache[messageHandlerClassId] = messageHandlerMethods;
             }
-
-            messageHandlerMethods
+            return messageHandlerMethods
                 .Where(messageHandlerMethodReference => messageHandlerMethodReference.HandledMessageType.IsInstanceOfType(message))
-                .ForEach(handlerMethod => handlerMethod.Invoke(handler: messageHandler, message: message));
+                .ToList();
         }
-       
+
+        private static List<MessageHandlerMethod> CreateMessageHandlerMethods(Type handlerInterfaceType, Type handlerInstanceType)
+        {
+            return handlerInstanceType.GetInterfaces()
+                .Where(@interface => @interface.IsGenericType && @interface.GetGenericTypeDefinition() == handlerInterfaceType)
+                .Select(foundHandlerInterface => foundHandlerInterface.GetGenericArguments().Single())
+                .Select(messageType => new MessageHandlerMethod(handlerInstanceType, messageType, handlerInterfaceType))
+                .ToList();
+        }
+
         ///<summary>Used to hold a single implementation of a message handler</summary>
         private class MessageHandlerMethod
         {
-            private readonly Type _handlerInstanceType;
             public Type HandledMessageType { get; private set; }
             public Action<object, object> HandlerMethod { get; private set; }
 
             public MessageHandlerMethod(Type handlerInstanceType, Type handledMessageType, Type handlerInterfaceType)
             {
-                _handlerInstanceType = handlerInstanceType;
                 HandledMessageType = handledMessageType;
                 HandlerMethod = CreateHandlerMethodInvoker(handlerInstanceType, handledMessageType, handlerInterfaceType);
             }

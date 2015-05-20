@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Castle.MicroKernel;
 using Castle.Windsor;
 using Composable.System.Linq;
 using Composable.System.Reflection;
@@ -10,8 +9,9 @@ using NServiceBus;
 namespace Composable.ServiceBus
 {
     internal class MyMessageHandlerResolver
-    {        
+    {
         private readonly IWindsorContainer _container;
+
         public MyMessageHandlerResolver(IWindsorContainer container)
         {
             _container = container;
@@ -27,13 +27,13 @@ namespace Composable.ServiceBus
             var handlers = GetHandlerTypes(message)
                 .SelectMany(
                     handlerType => _container
-                                        .ResolveAll(handlerType.ImplementedInterfaceType)
-                                        .Cast<object>()
-                                        .Select(handler => new MessageHandlerReference(
-                                            handlerInterfaceType: handlerType.HandlerInterfaceType,
-                                            instance: handler))
+                        .ResolveAll(handlerType.ServiceInterface)
+                        .Cast<object>()
+                        .Select(handler => new MessageHandlerReference(
+                            genericInterfaceImplemented: handlerType.GenericInterface,
+                            instance: handler))
                 )
-                .Distinct()//Remove duplicates for classes that implement more than one interface. 
+                .Distinct() //Remove duplicates for classes that implement more than one interface. 
                 .ToList();
 
             var remoteMessageHandlerTypes = RemoteMessageHandlerTypes(message);
@@ -45,75 +45,57 @@ namespace Composable.ServiceBus
 
         internal class MessageHandlerReference
         {
-            public MessageHandlerReference(Type handlerInterfaceType, object instance)
+            public MessageHandlerReference(Type genericInterfaceImplemented, object instance)
             {
-                HandlerInterfaceType = handlerInterfaceType;
+                GenericInterfaceImplemented = genericInterfaceImplemented;
                 Instance = instance;
             }
 
-            public Type HandlerInterfaceType { get; private set; }
+            public Type GenericInterfaceImplemented { get; private set; }
             public object Instance { get; private set; }
 
             private bool Equals(MessageHandlerReference other)
             {
-                return HandlerInterfaceType == other.HandlerInterfaceType && Instance.Equals(other.Instance);
+                return GenericInterfaceImplemented == other.GenericInterfaceImplemented && Instance.Equals(other.Instance);
             }
 
-            public override bool Equals(object other)
+            override public bool Equals(object other)
             {
-                if(ReferenceEquals(null, other))
-                {
-                    return false;
-                }
-                if(ReferenceEquals(this, other))
-                {
-                    return true;
-                }
-                if(other.GetType() != this.GetType())
-                {
-                    return false;
-                }
                 return Equals((MessageHandlerReference)other);
             }
 
-            public override int GetHashCode()
+            override public int GetHashCode()
             {
-                unchecked
-                {
-                    return (HandlerInterfaceType.GetHashCode()*397) ^ Instance.GetHashCode();
-                }
+                return Instance.GetHashCode();
             }
         }
 
         private class MessageHandlerTypeReference
         {
-            public MessageHandlerTypeReference(WindsorHandlerReference handler, Type handlerInterfaceType)
+            public MessageHandlerTypeReference(Type genericInterface, Type implementingClass, Type serviceInterface)
             {
-                HandlerInterfaceType = handlerInterfaceType;
-                ImplementedInterfaceType = handler.ServiceType;
-                Handler = handler.Handler;
+                GenericInterface = genericInterface;
+                ImplementingClass = implementingClass;
+                ServiceInterface = serviceInterface;
             }
 
-            public IHandler Handler { get; private set; }
-            public Type HandlerInterfaceType { get; private set; }
-            public Type ImplementedInterfaceType { get; private set; }
+            public Type ImplementingClass { get; private set; }
+            public Type GenericInterface { get; private set; }
+            public Type ServiceInterface { get; private set; }
         }
-        
+
 
         private List<MessageHandlerTypeReference> GetHandlerTypes(object message)
         {
-            var inMemoryHandlers = GetHandlerTypesForInterfaceType(message, typeof(IHandleInProcessMessages<>))
-                .Select(handler => new MessageHandlerTypeReference(handler, typeof(IHandleInProcessMessages<>)))
-                .ToList();
-            var standardHandlers = GetHandlerTypesForInterfaceType(message, typeof(IHandleMessages<>))
-                .Select(handler => new MessageHandlerTypeReference(handler, typeof(IHandleMessages<>)))
-                .ToList();
-            var allHandlers = inMemoryHandlers.Concat(standardHandlers).ToArray();
+            var inMemoryHandlerTypes = GetRegisteredHandlerTypesForMessageAndGenericInterfaceType(message, typeof(IHandleInProcessMessages<>));
+            var standardHandlerTypes = GetRegisteredHandlerTypesForMessageAndGenericInterfaceType(message, typeof(IHandleMessages<>));
+
+            var allHandlerTypes = inMemoryHandlerTypes.Concat(standardHandlerTypes).ToArray();
 
             var remoteMessageHandlerTypes = RemoteMessageHandlerTypes(message);
 
-            var handlersToCall = allHandlers
-                .Where(handler => remoteMessageHandlerTypes.None( remoteHandlerType => handler.Handler.ComponentModel.Implementation.Implements(remoteHandlerType)))
+            var handlersToCall = allHandlerTypes
+                .Where(handler => remoteMessageHandlerTypes.None(remoteHandlerType => handler.ImplementingClass.Implements(remoteHandlerType)))
                 .ToList();
 
             return handlersToCall;
@@ -127,25 +109,17 @@ namespace Composable.ServiceBus
                 .ToList();
         }
 
-        private class WindsorHandlerReference
-        {
-            public IHandler Handler { get; private set; }
-            public Type ServiceType { get; private set; }
-            public WindsorHandlerReference(IHandler handler, Type serviceType)
-            {
-                Handler = handler;
-                ServiceType = serviceType;
-            }
-        }
 
-
-        private WindsorHandlerReference[] GetHandlerTypesForInterfaceType(object message, Type handlerInterfaceType)
+        private MessageHandlerTypeReference[] GetRegisteredHandlerTypesForMessageAndGenericInterfaceType(object message, Type genericInterface)
         {
             return message.GetType().GetAllTypesInheritedOrImplemented()
                 .Where(typeImplementedByMessage => typeImplementedByMessage.Implements(typeof(IMessage)))
-                .Select(typeImplementedByMessageThatImplementsIMessage => handlerInterfaceType.MakeGenericType(typeImplementedByMessageThatImplementsIMessage))
-                .SelectMany(implementedMessageHandlerInterface => _container.Kernel.GetHandlers(implementedMessageHandlerInterface)
-                    .Select(component => new WindsorHandlerReference(component, implementedMessageHandlerInterface)))
+                .Select(typeImplementedByMessageThatImplementsIMessage => genericInterface.MakeGenericType(typeImplementedByMessageThatImplementsIMessage))
+                .SelectMany(serviceInterface => _container.Kernel.GetAssignableHandlers(serviceInterface)
+                    .Select(component => new MessageHandlerTypeReference(
+                        genericInterface: genericInterface,
+                        implementingClass: component.ComponentModel.Implementation,
+                        serviceInterface: serviceInterface)))
                 .ToArray();
         }
     }

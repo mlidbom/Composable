@@ -75,5 +75,11 @@ namespace Composable.System
             Contract.Requires(objectToModify != null && modifier != null);
             return objectToModify.Do(modifier);
         }
+
+        ///<summary>Returns true if <paramref name="this"/> is an instance of the type <paramref name="type"/></summary>
+        public static bool IsInstanceOf(this object @this, Type type)
+        {
+            return type.IsInstanceOfType(@this);
+        }
     }
 }

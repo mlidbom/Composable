@@ -60,19 +60,19 @@ namespace Composable.ServiceBus
 
         private void DispatchMessageToHandlers<TMessage>(TMessage message, MessageDispatchType dispatchType)
         {
-            using (_container.RequireScope()) //Use the existing scope when running in an endpoint and create a new one if running in the web
+            using(_container.RequireScope()) //Use the existing scope when running in an endpoint and create a new one if running in the web
             {
-                using (var transactionalScope = _container.BeginTransactionalUnitOfWorkScope())
+                using(var transactionalScope = _container.BeginTransactionalUnitOfWorkScope())
                 {
                     var handlers = _handlerResolver.GetHandlers(message).ToArray();
                     try
                     {
-                        if (dispatchType == MessageDispatchType.Send)
+                        if(dispatchType == MessageDispatchType.Send)
                         {
                             AssertThatThereIsExactlyOneRegisteredHandler(handlers, message);
                         }
 
-                        foreach (var messageHandlerReference in handlers)
+                        foreach(var messageHandlerReference in handlers)
                         {
                             messageHandlerReference.InvokeHandlers(message);
                         }
@@ -88,16 +88,16 @@ namespace Composable.ServiceBus
 
         private static void AssertThatThereIsExactlyOneRegisteredHandler(MessageHandlerResolver.MessageHandlerReference[] handlers, object message)
         {
-            if (handlers.Length == 0)
+            if(handlers.Length == 0)
             {
                 throw new NoHandlerException(message.GetType());
             }
-            if (handlers.Length > 1)
+            if(handlers.Length > 1)
             {
                 var realHandlers = handlers.Select(handler => handler.Instance)
                     .Where(handler => !(handler is ISynchronousBusMessageSpy))
                     .ToList();
-                if (realHandlers.Count > 1)
+                if(realHandlers.Count > 1)
                 {
                     throw new MultipleMessageHandlersRegisteredException(message, realHandlers);
                 }

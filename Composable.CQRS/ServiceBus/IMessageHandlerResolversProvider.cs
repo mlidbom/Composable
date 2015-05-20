@@ -32,7 +32,7 @@ namespace Composable.ServiceBus
             return new List<MessageHandlerResolver>
                          {
                              new InProcessMessageHandlerResolver(_container),
-                             new DefaultMessageHandlerResolver(_container)
+                             new AllExceptRemoteMessageHandlersMessageHandlerResolver(_container)
                          };
         }
     }

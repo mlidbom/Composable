@@ -13,9 +13,9 @@ namespace Composable.ServiceBus
     ///<summary>Resolves message handlers that inherits from <see cref="IHandleMessages{T}"/>.
     /// <remarks>Does not return message handlers that implements <see cref="IHandleRemoteMessages{T}"/>.</remarks>
     /// </summary>
-    public class DefaultMessageHandlerResolver : MessageHandlerResolver
+    public class AllExceptRemoteMessageHandlersMessageHandlerResolver : MessageHandlerResolver
     {
-        public DefaultMessageHandlerResolver(IWindsorContainer container)
+        public AllExceptRemoteMessageHandlersMessageHandlerResolver(IWindsorContainer container)
             : base(container) {}
 
         override public Type HandlerInterfaceType { get { return typeof(IHandleMessages<>); } }

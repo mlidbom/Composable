@@ -7,118 +7,125 @@ using Composable.System;
 
 namespace Composable.ServiceBus
 {
-    internal static class MessageHandlerInvoker
+    public partial class SynchronousBus
     {
-        private static readonly ConcurrentDictionary<MessageHandlerId, List<MessageHandlerMethod>> MessageHandlerClassCache =
-            new ConcurrentDictionary<MessageHandlerId, List<MessageHandlerMethod>>();
-
-        private class MessageHandlerId
+        private static class MessageHandlerInvoker
         {
-            private Type ImplementingClass { get; set; }
-            private Type GenericInterfaceImplemented { get; set; }
+            private static readonly ConcurrentDictionary<MessageHandlerId, List<MessageHandlerMethod>> MessageHandlerClassCache =
+                new ConcurrentDictionary<MessageHandlerId, List<MessageHandlerMethod>>();
 
-            public MessageHandlerId(Type implementingClass, Type genericInterfaceImplemented)
+            private class MessageHandlerId
             {
-                ImplementingClass = implementingClass;
-                GenericInterfaceImplemented = genericInterfaceImplemented;
-            }
+                private Type ImplementingClass { get; set; }
+                private Type GenericInterfaceImplemented { get; set; }
 
-            override public bool Equals(object other)
-            {
-                if(other == null || GetType() != other.GetType())
+                public MessageHandlerId(Type implementingClass, Type genericInterfaceImplemented)
                 {
-                    return false;
+                    ImplementingClass = implementingClass;
+                    GenericInterfaceImplemented = genericInterfaceImplemented;
                 }
 
-                return Equals((MessageHandlerId)other);
+                override public bool Equals(object other)
+                {
+                    if(other == null || GetType() != other.GetType())
+                    {
+                        return false;
+                    }
+
+                    return Equals((MessageHandlerId)other);
+                }
+
+                private bool Equals(MessageHandlerId other)
+                {
+                    return other.ImplementingClass == ImplementingClass && other.GenericInterfaceImplemented == GenericInterfaceImplemented;
+                }
+
+                override public int GetHashCode()
+                {
+                    return ImplementingClass.GetHashCode() + GenericInterfaceImplemented.GetHashCode();
+                }
             }
 
-            private bool Equals(MessageHandlerId other)
+            ///<summary>Invokes all the handlers in messageHandler that implements handlerInterfaceType and handles a message matching the type of message.</summary>
+            internal static void InvokeHandlerMethods(object messageHandler, object message, Type genericInterfaceImplemented)
             {
-                return other.ImplementingClass == ImplementingClass && other.GenericInterfaceImplemented == GenericInterfaceImplemented;
+                GetHandlerMethods(messageHandler, genericInterfaceImplemented, message)
+                    .ForEach(handlerMethod => handlerMethod.Invoke(handler: messageHandler, message: message));
             }
 
-            override public int GetHashCode()
+            private static List<MessageHandlerMethod> GetHandlerMethods(object messageHandler, Type genericInterfaceImplemented, object message)
             {
-                return ImplementingClass.GetHashCode() + GenericInterfaceImplemented.GetHashCode();
-            }
-        }
+                Type implementingClass = messageHandler.GetType();
 
-        ///<summary>Invokes all the handlers in messageHandler that implements handlerInterfaceType and handles a message matching the type of message.</summary>
-        internal static void InvokeHandlerMethods(object messageHandler, object message, Type genericInterfaceImplemented)
-        {
-            GetHandlerMethods(messageHandler, genericInterfaceImplemented, message)                
-                .ForEach(handlerMethod => handlerMethod.Invoke(handler: messageHandler, message: message));
-        }
+                List<MessageHandlerMethod> messageHandlerMethods;
+                var messageHandlerClassId = new MessageHandlerId(implementingClass: implementingClass, genericInterfaceImplemented: genericInterfaceImplemented);
 
-        private static List<MessageHandlerMethod> GetHandlerMethods(object messageHandler, Type genericInterfaceImplemented, object message)
-        {
-            Type implementingClass = messageHandler.GetType();
-
-            List<MessageHandlerMethod> messageHandlerMethods;
-            var messageHandlerClassId = new MessageHandlerId(implementingClass: implementingClass, genericInterfaceImplemented: genericInterfaceImplemented);
-
-            if(!MessageHandlerClassCache.TryGetValue(messageHandlerClassId, out messageHandlerMethods))
-            {
-                messageHandlerMethods = CreateMessageHandlerMethods(genericInterfaceImplemented: genericInterfaceImplemented,implementingClass: implementingClass);
-                MessageHandlerClassCache[messageHandlerClassId] = messageHandlerMethods;
-            }
-            return messageHandlerMethods
-                .Where(messageHandlerMethod => messageHandlerMethod.Handles(message))
-                .ToList();
-        }
-
-        private static List<MessageHandlerMethod> CreateMessageHandlerMethods(Type genericInterfaceImplemented, Type implementingClass)
-        {
-            return implementingClass.GetInterfaces()
-                .Where(@interface => @interface.IsGenericType && @interface.GetGenericTypeDefinition() == genericInterfaceImplemented)
-                .Select(genericInterfaceImplementation => genericInterfaceImplementation.GetGenericArguments().Single())
-                .Select(messageType => new MessageHandlerMethod(implementingClass: implementingClass, messageType: messageType, genericInterfaceImplemented: genericInterfaceImplemented))
-                .ToList();
-        }
-
-        ///<summary>Used to hold a single implementation of a message handler</summary>
-        private class MessageHandlerMethod
-        {
-            private Type MessageType { get; set; }
-            private Action<object, object> HandlerMethod { get; set; }
-
-            public MessageHandlerMethod(Type implementingClass, Type messageType, Type genericInterfaceImplemented)
-            {
-                MessageType = messageType;
-                HandlerMethod = CreateHandlerMethodInvoker(implementingClass: implementingClass, messageType: messageType, genericInterfaceImplemented: genericInterfaceImplemented);
+                if(!MessageHandlerClassCache.TryGetValue(messageHandlerClassId, out messageHandlerMethods))
+                {
+                    messageHandlerMethods = CreateMessageHandlerMethods(genericInterfaceImplemented: genericInterfaceImplemented, implementingClass: implementingClass);
+                    MessageHandlerClassCache[messageHandlerClassId] = messageHandlerMethods;
+                }
+                return messageHandlerMethods
+                    .Where(messageHandlerMethod => messageHandlerMethod.Handles(message))
+                    .ToList();
             }
 
-            public void Invoke(object handler, object message)
+            private static List<MessageHandlerMethod> CreateMessageHandlerMethods(Type genericInterfaceImplemented, Type implementingClass)
             {
-                HandlerMethod(handler, message);
+                return implementingClass.GetInterfaces()
+                    .Where(@interface => @interface.IsGenericType && @interface.GetGenericTypeDefinition() == genericInterfaceImplemented)
+                    .Select(genericInterfaceImplementation => genericInterfaceImplementation.GetGenericArguments().Single())
+                    .Select(
+                        messageType =>
+                            new MessageHandlerMethod(implementingClass: implementingClass, messageType: messageType, genericInterfaceImplemented: genericInterfaceImplemented))
+                    .ToList();
             }
 
-            public bool Handles(object message)
+            ///<summary>Used to hold a single implementation of a message handler</summary>
+            private class MessageHandlerMethod
             {
-                return message.IsInstanceOf(MessageType);
-            }
+                private Type MessageType { get; set; }
+                private Action<object, object> HandlerMethod { get; set; }
 
-            //Returns an action that can be used to invoke this handler for a specific type of message.
-            private static Action<object, object> CreateHandlerMethodInvoker(Type implementingClass, Type messageType, Type genericInterfaceImplemented)
-            {
-                var messageHandlerInterfaceType = genericInterfaceImplemented.MakeGenericType(messageType);
+                public MessageHandlerMethod(Type implementingClass, Type messageType, Type genericInterfaceImplemented)
+                {
+                    MessageType = messageType;
+                    HandlerMethod = CreateHandlerMethodInvoker(implementingClass: implementingClass,
+                        messageType: messageType,
+                        genericInterfaceImplemented: genericInterfaceImplemented);
+                }
 
-                var methodInfo = implementingClass.GetInterfaceMap(messageHandlerInterfaceType).TargetMethods.Single();
-                var messageHandlerParameter = Expression.Parameter(typeof(object));
-                var messageParameter = Expression.Parameter(typeof(object));
+                public void Invoke(object handler, object message)
+                {
+                    HandlerMethod(handler, message);
+                }
 
-                var convertMessageHandlerParameter = Expression.Convert(messageHandlerParameter, implementingClass);
-                var convertMessageParameter = Expression.Convert(messageParameter, methodInfo.GetParameters().Single().ParameterType);
-                var callMessageHandlerExpression = Expression.Call(instance: convertMessageHandlerParameter, method: methodInfo, arguments: convertMessageParameter);
+                public bool Handles(object message)
+                {
+                    return message.IsInstanceOf(MessageType);
+                }
 
-                return Expression.Lambda<Action<object, object>>(
-                    body: callMessageHandlerExpression,
-                    parameters: new[]
-                            {
-                                messageHandlerParameter,
-                                messageParameter
-                            }).Compile();
+                //Returns an action that can be used to invoke this handler for a specific type of message.
+                private static Action<object, object> CreateHandlerMethodInvoker(Type implementingClass, Type messageType, Type genericInterfaceImplemented)
+                {
+                    var messageHandlerInterfaceType = genericInterfaceImplemented.MakeGenericType(messageType);
+
+                    var methodInfo = implementingClass.GetInterfaceMap(messageHandlerInterfaceType).TargetMethods.Single();
+                    var messageHandlerParameter = Expression.Parameter(typeof(object));
+                    var messageParameter = Expression.Parameter(typeof(object));
+
+                    var convertMessageHandlerParameter = Expression.Convert(messageHandlerParameter, implementingClass);
+                    var convertMessageParameter = Expression.Convert(messageParameter, methodInfo.GetParameters().Single().ParameterType);
+                    var callMessageHandlerExpression = Expression.Call(instance: convertMessageHandlerParameter, method: methodInfo, arguments: convertMessageParameter);
+
+                    return Expression.Lambda<Action<object, object>>(
+                        body: callMessageHandlerExpression,
+                        parameters: new[]
+                                    {
+                                        messageHandlerParameter,
+                                        messageParameter
+                                    }).Compile();
+                }
             }
         }
     }

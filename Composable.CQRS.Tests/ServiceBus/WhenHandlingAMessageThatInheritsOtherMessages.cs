@@ -1,12 +1,9 @@
-﻿using System;
-using Castle.MicroKernel.Lifestyle;
-using Castle.MicroKernel.Registration;
-using Castle.Windsor;
+﻿using Castle.MicroKernel.Registration;
 using Composable.ServiceBus;
-using Composable.SystemExtensions.Threading;
 using FluentAssertions;
 using NServiceBus;
 using NUnit.Framework;
+using System;
 
 namespace CQRS.Tests.ServiceBus
 {

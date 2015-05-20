@@ -19,12 +19,12 @@ namespace Composable.ServiceBus
 
         public bool Handles(object message)
         {
-            return GetHandlerTypes(message, _container).Any();
+            return GetHandlerTypes(message).Any();
         }
 
         public IEnumerable<MessageHandlerReference> GetHandlers(object message)
         {
-            var handlers = GetHandlerTypes(message, _container)
+            var handlers = GetHandlerTypes(message)
                 .SelectMany(
                     handlerType => _container
                                         .ResolveAll(handlerType.ImplementedInterfaceType)
@@ -99,12 +99,12 @@ namespace Composable.ServiceBus
         }
         
 
-        private static List<MessageHandlerTypeReference> GetHandlerTypes(object message, IWindsorContainer container)
+        private List<MessageHandlerTypeReference> GetHandlerTypes(object message)
         {
-            var inMemoryHandlers = GetHandlerTypesForInterfaceType(message, container, typeof(IHandleInProcessMessages<>))
+            var inMemoryHandlers = GetHandlerTypesForInterfaceType(message, typeof(IHandleInProcessMessages<>))
                 .Select(handler => new MessageHandlerTypeReference(handler, typeof(IHandleInProcessMessages<>)))
                 .ToList();
-            var standardHandlers = GetHandlerTypesForInterfaceType(message, container, typeof(IHandleMessages<>))
+            var standardHandlers = GetHandlerTypesForInterfaceType(message, typeof(IHandleMessages<>))
                 .Select(handler => new MessageHandlerTypeReference(handler, typeof(IHandleMessages<>)))
                 .ToList();
             var allHandlers = inMemoryHandlers.Concat(standardHandlers).ToArray();
@@ -138,12 +138,12 @@ namespace Composable.ServiceBus
         }
 
 
-        private static WindsorHandlerReference[] GetHandlerTypesForInterfaceType(object message, IWindsorContainer container, Type handlerInterfaceType)
+        private WindsorHandlerReference[] GetHandlerTypesForInterfaceType(object message, Type handlerInterfaceType)
         {
             return message.GetType().GetAllTypesInheritedOrImplemented()
                 .Where(typeImplementedByMessage => typeImplementedByMessage.Implements(typeof(IMessage)))
                 .Select(typeImplementedByMessageThatImplementsIMessage => handlerInterfaceType.MakeGenericType(typeImplementedByMessageThatImplementsIMessage))
-                .SelectMany(implementedMessageHandlerInterface => container.Kernel.GetHandlers(implementedMessageHandlerInterface)
+                .SelectMany(implementedMessageHandlerInterface => _container.Kernel.GetHandlers(implementedMessageHandlerInterface)
                     .Select(component => new WindsorHandlerReference(component, implementedMessageHandlerInterface)))
                 .ToArray();
         }

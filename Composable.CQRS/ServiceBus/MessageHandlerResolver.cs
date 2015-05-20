@@ -17,7 +17,7 @@ namespace Composable.ServiceBus
             _container = container;
         }
 
-        public bool Handles(object message)
+        public bool HasHandlerFor(object message)
         {
             return GetHandlerTypes(message).Any();
         }

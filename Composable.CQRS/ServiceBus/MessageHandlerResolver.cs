@@ -22,16 +22,18 @@ namespace Composable.ServiceBus
                 .ToArray();
         }
 
-        override public MessageHandlers ResolveMessageHandlers<TMessage>(TMessage message)
-        {
-            var handlers = base.ResolveMessageHandlers(message).HandlerInstances
-                // ReSharper disable once UseIsOperator.2
-                    .Where(h=>!typeof(IHandleRemoteMessages<>).IsInstanceOfType(h))
-                    .ToList()
-                    ;
+        //override public MessageHandlers ResolveMessageHandlers<TMessage>(TMessage message)
+        //{
+        //    //var handlers = base.ResolveMessageHandlers(message).HandlerInstances
+        //    //    // ReSharper disable once UseIsOperator.2
+        //    //        .Where(h=>!typeof(IHandleRemoteMessages<>).IsInstanceOfType(h))
+        //    //        .ToList()
+        //    //        ;
 
-            return new MessageHandlers(message, InterfaceType, handlers);
-        }
+        //    //return new MessageHandlers(message, InterfaceType, handlers);
+
+        //    return base.ResolveMessageHandlers(message);
+        //}
     }
 
     internal class InProcessMessageHandlerResolver : MessageHandlerResolver

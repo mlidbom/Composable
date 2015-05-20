@@ -8,5 +8,5 @@ namespace Composable.ServiceBus
     /// </summary>
     public interface ISynchronousBusMessageSpy {}
 
-    public interface ISynchronousBusMessageSpy<TMessage> : IHandleInProcessMessages<TMessage> where TMessage : IMessage { }
+    public interface ISynchronousBusMessageSpy<TMessage> : IHandleInProcessMessages<TMessage> where TMessage : IMessage {}
 }

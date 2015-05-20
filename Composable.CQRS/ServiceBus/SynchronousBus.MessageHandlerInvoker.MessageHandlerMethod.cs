@@ -8,7 +8,7 @@ namespace Composable.ServiceBus
     public partial class SynchronousBus
     {
         private static partial class MessageHandlerInvoker
-        {           
+        {
             ///<summary>Used to hold a single implementation of a message handler</summary>
             private class MessageHandlerMethod
             {

@@ -1,12 +1,10 @@
-﻿using Castle.Windsor;
-using Composable.CQRS.EventSourcing;
-using Composable.CQRS.Windsor;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using Castle.Windsor;
 using Composable.System.Linq;
 using Composable.System.Reflection;
 using NServiceBus;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace Composable.ServiceBus
 {

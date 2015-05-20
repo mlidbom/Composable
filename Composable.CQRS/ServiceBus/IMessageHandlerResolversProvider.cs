@@ -14,7 +14,9 @@ namespace Composable.ServiceBus
     }
 
     /// <summary>
-    /// Provides resolvers for message handlers implementing <see cref="IHandleMessages{T}"/> and <see cref="IHandleInProcessMessages{T}"/>
+    /// Provides default resolvers for message handlers used with <see cref="SynchronousBus"/>. 
+    /// <seealso cref="IHandleMessages{T}"/> 
+    /// <seealso cref="IHandleInProcessMessages{T}"/>.
     /// </summary>
     public class DefaultMessageHandlerResolversProvider : IMessageHandlerResolversProvider
     {
@@ -35,6 +37,10 @@ namespace Composable.ServiceBus
         }
     }
 
+    /// <summary>
+    /// Provides resolvers that are wired in to the container.
+    /// <seealso cref="MessageHandlerResolver"/>
+    /// </summary>
     [UsedImplicitly]
     public class WindsorContainerizedMessageHandlerResolversProvider : IMessageHandlerResolversProvider
     {

@@ -28,7 +28,7 @@ namespace CQRS.Tests.ServiceBus
                 Component.For<SynchronousBus>(),
                 Component.For<IWindsorContainer>().Instance(_container),
                 Component.For<AMessageHandler, IHandleMessages<AMessage>>().ImplementedBy<AMessageHandler>(),
-                Component.For<ARemoteMessageHandler, IHandleRemoteMessages<AMessage>>().ImplementedBy<ARemoteMessageHandler>(),
+                Component.For<ARemoteMessageHandler, IHandleMessages<AMessage>>().ImplementedBy<ARemoteMessageHandler>(),
                 Component.For<AInProcessMessageHandler, IHandleInProcessMessages<AMessage>>().ImplementedBy<AInProcessMessageHandler>(),
                 Component.For<ASpy, IHandleMessages<AMessage>>().ImplementedBy<ASpy>()
                 );

@@ -174,11 +174,5 @@ namespace CQRS.Tests.ServiceBus
         }
     }
 
-    //public class FilterAMessageHandlerSubscriberFilter : ISynchronousBusSubscriberFilter
-    //{
-    //    public bool PublishMessageToHandler(object message, object handler)
-    //    {
-    //        return handler.GetType() != typeof(SynchronousBusSpecification.AMessageHandler);
-    //    }
-    //}
+    
 }

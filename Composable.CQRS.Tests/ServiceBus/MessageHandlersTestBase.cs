@@ -37,6 +37,24 @@ namespace CQRS.Tests.ServiceBus
         }
 
         public class AMessage : IMessage { }
+        public class InProcessMessageBase:IMessage
+        {
+             
+        }
+        public class InProcessMessage : InProcessMessageBase
+        {
+             
+        }
+        
+        public class RemoteMessageBase:IMessage
+        {
+             
+        }
+        public class RemoteMessage : RemoteMessageBase
+        {
+             
+        }
+
 
         public class AMessageHandler : IHandleMessages<AMessage>
         {
@@ -67,6 +85,35 @@ namespace CQRS.Tests.ServiceBus
             public void Handle(AMessage message)
             {
                 ReceivedMessage = true;
+            }
+        } 
+
+        public class MessageHandler:
+            IHandleMessages<AMessage>,
+            IHandleInProcessMessages<InProcessMessage>,
+            IHandleRemoteMessages<RemoteMessageBase>
+        {
+            public bool ReceiveAMessage = false;
+            public bool ReceiveInProcessMessage = false;
+            public bool ReceiveRemoteMessage = false;
+            public void Handle(AMessage message)
+            {
+                ReceiveAMessage = true;
+            }
+
+            public void Handle(InProcessMessage message)
+            {
+                ReceiveInProcessMessage = true;
+            }
+
+            public void Handle(RemoteMessage message)
+            {
+                ReceiveRemoteMessage = true;
+            }
+
+            public void Handle(RemoteMessageBase message)
+            {
+                ReceiveRemoteMessage = true;
             }
         }
     }

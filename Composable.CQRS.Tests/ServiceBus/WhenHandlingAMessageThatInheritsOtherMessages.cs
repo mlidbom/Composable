@@ -14,7 +14,7 @@ namespace CQRS.Tests.ServiceBus
         public void RegisterHandlers()
         {
             Container.Register(
-                Component.For<CandidateUpdater, IHandleMessages<INamePropertyUpdatedMessage>, IHandleInProcessMessages<IAgePropertyUpdatedMessage>, IHandleRemoteMessages<IPhonePropertyUpdatedMessage>>()
+                Component.For<CandidateUpdater, IHandleMessages<INamePropertyUpdatedMessage>, IHandleInProcessMessages<IAgePropertyUpdatedMessage>>()
                     .ImplementedBy<CandidateUpdater>().LifestyleScoped(),
                 Component.For<CandidateMessageSpy>().Instance(CandidateMessageSpy.Instance).LifestyleSingleton()
                 );
@@ -42,7 +42,6 @@ namespace CQRS.Tests.ServiceBus
             var candidate = Container.Resolve<CandidateMessageSpy>();
             candidate.Name.Should().Be(name);
             candidate.Age.Should().Be(age);
-            candidate.Email.Should().Be(null);
         }
 
         [Test]
@@ -71,15 +70,9 @@ namespace CQRS.Tests.ServiceBus
             int Age { get; }
         }
 
-        internal interface IPhonePropertyUpdatedMessage:IMessage
-        {
-            string Phone { get; }
-        }
-
         internal interface ICandidateEditedMessage
             : INamePropertyUpdatedMessage,
-            IAgePropertyUpdatedMessage,
-            IPhonePropertyUpdatedMessage
+            IAgePropertyUpdatedMessage
             
         {
 
@@ -101,8 +94,7 @@ namespace CQRS.Tests.ServiceBus
 
         private class CandidateUpdater : 
             IHandleMessages<INamePropertyUpdatedMessage>,
-            IHandleInProcessMessages<IAgePropertyUpdatedMessage>, 
-            IHandleRemoteMessages<IPhonePropertyUpdatedMessage>
+            IHandleInProcessMessages<IAgePropertyUpdatedMessage>
         {
             private readonly CandidateMessageSpy _candidateMessage;
 
@@ -120,18 +112,12 @@ namespace CQRS.Tests.ServiceBus
             {
                 _candidateMessage.Age = message.Age;
             }
-
-            public void Handle(IPhonePropertyUpdatedMessage message)
-            {
-                _candidateMessage.Phone = message.Phone;
-            }   
         }
 
         private class CandidateMessageSpy : ISynchronousBusMessageSpy
         {
             public string Name { get; set; }
             public int Age { get; set; }
-            public string Email { get; set; }
             public string Phone { get; set; }
 
             private static CandidateMessageSpy _messageSpy;

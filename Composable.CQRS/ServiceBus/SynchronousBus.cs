@@ -74,7 +74,7 @@ namespace Composable.ServiceBus
                         throw new NoHandlerException(message.GetType());
                     }
 
-                    AssertOnlyOneHandlerRegistered(message, _resolvers);
+                    AssertOnlyOneHandlerRegistered(message);
 
                     var resolver = _resolvers.Single(r => r.HasHandlerFor(message));
                     var handlers = resolver.ResolveMessageHandlers(message);
@@ -109,14 +109,14 @@ namespace Composable.ServiceBus
             SyncSendLocal(message);
         }
 
-        private static void AssertOnlyOneHandlerRegistered(object message, List<MessageHandlerResolver> resolvers)
+        private  void AssertOnlyOneHandlerRegistered(object message)
         {
-            var realHandlers = resolvers
+            var realHandlers = _resolvers
                 .Where(r => r.HasHandlerFor(message))
                 .SelectMany(r => r.ResolveMessageHandlers(message))
                 .ToList();
 
-            if(realHandlers.Except(realHandlers.OfType<ISynchronousBusMessageSpy>()).Count() > 1||resolvers.Count(re => re.HasHandlerFor(message)) > 1)
+            if (realHandlers.Except(realHandlers.OfType<ISynchronousBusMessageSpy>()).Count() > 1 || _resolvers.Count(re => re.HasHandlerFor(message)) > 1)
             {
                 throw new MultipleMessageHandlersRegisteredException(message, realHandlers);
             }

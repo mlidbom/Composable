@@ -1,4 +1,6 @@
 ﻿using Castle.Windsor;
+using Composable.CQRS.EventSourcing;
+using Composable.CQRS.Windsor;
 using Composable.System.Linq;
 using Composable.System.Reflection;
 using NServiceBus;
@@ -18,22 +20,24 @@ namespace Composable.ServiceBus
 
         override public Type HandlerInterfaceType { get { return typeof(IHandleMessages<>); } }
 
-        override protected IEnumerable<Type> GetHandlerTypes(object message)
+        override public bool HasHandlerFor<TMessage>(TMessage message)
         {
-            return base.GetHandlerTypes(message)
-                // We don't dispatch messages to a IHandleRemoteMessages handler in the synchronous bus.
-                .Where(i => !typeof(IHandleRemoteMessages<>).IsAssignableFrom(i))
-                .ToArray();
+            var handlers = ResolveMessageHandlers(message);
+            handlers.ForEach(Container.Release);
+            return handlers.Any();
         }
 
         override public List<object> ResolveMessageHandlers<TMessage>(TMessage message)
         {
-            var remoteMessageHandlerType = typeof(IHandleRemoteMessages<>).MakeGenericType(message.GetType());
+            // We don't want to dispatch messages to a IHandleRemoteMessages handler.
+            // Get all combination of IHandleRemoteMessages and IMessages.
+            var remoteMessageHandlerType = message.GetType().GetAllTypesInheritedOrImplemented()
+                .Where(m => m.Implements(typeof(IMessage)))
+                .Select(m => typeof(IHandleRemoteMessages<>).MakeGenericType(m));
+
             return base.ResolveMessageHandlers(message)
-                // ReSharper disable once UseIsOperator.2
-                // A IHandleRemoteMessages handler might be resolved in case someone wired in a IHandleMessages handler for the same IMessage because of the inheritence.
-                // We don't want to dispatch messages to a IHandleRemoteMessages handler.
-                .Where(h => !remoteMessageHandlerType.IsInstanceOfType(h)) 
+                //Make sure not to dispatch message to an IHandleRemoteMessages instance.
+                .Where(h =>remoteMessageHandlerType.None(r=>r.IsInstanceOfType(h)))
                 .ToList();
         }
     }
@@ -61,7 +65,7 @@ namespace Composable.ServiceBus
         public virtual List<object> ResolveMessageHandlers<TMessage>(TMessage message)
         {
             var handlers = new List<object>();
-            foreach(var handlerType in GetHandlerTypes(message))
+            foreach(var handlerType in GetHandlerTypes(message, HandlerInterfaceType))
             {
                 foreach(var handlerInstance in Container.ResolveAll(handlerType).Cast<object>())
                 {
@@ -75,16 +79,16 @@ namespace Composable.ServiceBus
             return handlers;
         }
 
-        public bool HasHandlerFor<TMessage>(TMessage message)
+        public virtual bool HasHandlerFor<TMessage>(TMessage message)
         {
-            return GetHandlerTypes(message).Any();
+            return GetHandlerTypes(message, HandlerInterfaceType).Any();
         }
 
-        protected virtual IEnumerable<Type> GetHandlerTypes(object message)
+        protected IEnumerable<Type> GetHandlerTypes(object message, Type handlerInterfaceType)
         {
             return message.GetType().GetAllTypesInheritedOrImplemented()
                 .Where(m => m.Implements(typeof(IMessage)))
-                .Select(m => HandlerInterfaceType.MakeGenericType(m))
+                .Select(m => handlerInterfaceType.MakeGenericType(m))
                 .Where(i => Container.Kernel.HasComponent(i))
                 .ToArray();
 

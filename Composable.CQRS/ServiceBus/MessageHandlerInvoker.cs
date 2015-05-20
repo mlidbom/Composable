@@ -64,7 +64,7 @@ namespace Composable.ServiceBus
                 MessageHandlerClassCache[messageHandlerClassId] = messageHandlerMethods;
             }
             return messageHandlerMethods
-                .Where(messageHandlerMethodReference => message.IsInstanceOf(messageHandlerMethodReference.MessageType))
+                .Where(messageHandlerMethod => messageHandlerMethod.Handles(message))
                 .ToList();
         }
 
@@ -80,8 +80,8 @@ namespace Composable.ServiceBus
         ///<summary>Used to hold a single implementation of a message handler</summary>
         private class MessageHandlerMethod
         {
-            public Type MessageType { get; private set; }
-            public Action<object, object> HandlerMethod { get; private set; }
+            private Type MessageType { get; set; }
+            private Action<object, object> HandlerMethod { get; set; }
 
             public MessageHandlerMethod(Type implementingClass, Type messageType, Type genericInterfaceImplemented)
             {
@@ -92,6 +92,11 @@ namespace Composable.ServiceBus
             public void Invoke(object handler, object message)
             {
                 HandlerMethod(handler, message);
+            }
+
+            public bool Handles(object message)
+            {
+                return message.IsInstanceOf(MessageType);
             }
 
             //Returns an action that can be used to invoke this handler for a specific type of message.

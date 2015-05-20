@@ -84,7 +84,7 @@ namespace Composable.CQRS.ServiceBus.NServiceBus
         public void Reply(object message)
         {
             _usageGuard.AssertNoContextChangeOccurred(this);
-            //I cannot come up with a way to decide whether to dispatch to the real bus or the sync bus except for just giving it to the sync bus if it wants it...
+            //If the synchronous bus is the one dispatching the message, we reply on the same bus.
             if(_dispatchingOnSynchronousBus)
             {
                 _local.Reply(message);

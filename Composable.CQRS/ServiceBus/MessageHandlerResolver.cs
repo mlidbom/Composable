@@ -37,7 +37,8 @@ namespace Composable.ServiceBus
                 .ToList();
 
             var remoteMessageHandlerTypes = RemoteMessageHandlerTypes(message);
-            var handlersToCall = handlers.Where(handler => remoteMessageHandlerTypes.None(remoteMessageHandlerType => remoteMessageHandlerType.IsInstanceOfType(handler.Instance)));
+            var handlersToCall = handlers.Where(handler => remoteMessageHandlerTypes.None(remoteMessageHandlerType => remoteMessageHandlerType.IsInstanceOfType(handler.Instance)))
+                .ToList();
 
             return handlersToCall;
         }

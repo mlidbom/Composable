@@ -42,8 +42,7 @@ namespace Composable.ServiceBus
 
                 foreach(var messageHandlerReference in handlers)
                 {
-                    IndividualHandlerInvocationMethodFactory.GetMethodsToInvoke(messageHandlerReference.Instance.GetType(), messageHandlerReference.HandlerInterfaceType, message)
-                        .ForEach(handlerMethod => handlerMethod(messageHandlerReference.Instance, message));
+                    MessageHandlerMethodInvoker.InvokeHandlerMethods(messageHandlerReference.Instance, message, messageHandlerReference.HandlerInterfaceType);
                 }
 
             }

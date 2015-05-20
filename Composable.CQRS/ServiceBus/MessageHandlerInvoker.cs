@@ -8,24 +8,37 @@ using Composable.System.Linq;
 
 namespace Composable.ServiceBus
 {
-    internal static class MessageHandlerInvoker
+    internal class MessageHandlerInvoker
     {
-        private static readonly ConcurrentDictionary<MapKey, List<MethodToInvokeOnMessageHandlerByMessageType>> HandlerToMessageHandlersMap = new ConcurrentDictionary<MapKey, List<MethodToInvokeOnMessageHandlerByMessageType>>();
+        private static readonly ConcurrentDictionary<HandlerId, List<MethodToInvokeOnMessageHandlerByMessageType>> HandlerToMessageHandlersMap = new ConcurrentDictionary<HandlerId, List<MethodToInvokeOnMessageHandlerByMessageType>>();
 
+        private readonly IWindsorContainer _container;
+        private readonly MyMessageHandlerResolver _handlerResolver;
 
-        internal static void Send<TMessage>(TMessage message, IWindsorContainer container)
+        public MessageHandlerInvoker(IWindsorContainer container)
         {
-            InternalInvoke(message, container, isSend:true);
+            _handlerResolver = new MyMessageHandlerResolver(container);
+            _container = container;
         }
 
-        internal static void Publish<TMessage>(TMessage message, IWindsorContainer container)
+        internal bool Handles(object message)
         {
-            InternalInvoke(message, container, isSend:false);
+            return _handlerResolver.Handles(message);
         }
 
-        private static void InternalInvoke<TMessage>(TMessage message, IWindsorContainer container, bool isSend = false)
+        internal void Send<TMessage>(TMessage message)
         {
-            var handlers = MyMessageHandlerResolver.GetHandlers(message, container).ToArray();
+            InternalInvoke(message, isSend:true);
+        }
+
+        internal void Publish<TMessage>(TMessage message)
+        {
+            InternalInvoke(message, isSend:false);
+        }
+
+        private void InternalInvoke<TMessage>(TMessage message, bool isSend = false)
+        {
+            var handlers = _handlerResolver.GetHandlers(message).ToArray();
             try
             {                
                 if(isSend)
@@ -48,30 +61,27 @@ namespace Composable.ServiceBus
 
                 foreach(var messageHandlerReference in handlers)
                 {
-                    var handlerMethods = GetMethodsToInvoke(messageHandlerReference.Instance.GetType(), messageHandlerReference.HandlerInterfaceType)
+                    GetMethodsToInvoke(messageHandlerReference.Instance.GetType(), messageHandlerReference.HandlerInterfaceType)
                         .Where(holder => holder.HandledMessageType.IsInstanceOfType(message))
                         .Select(holder => holder.HandlerMethod)
-                        .ToList();
-
-                    handlerMethods
                         .ForEach(handlerMethod => handlerMethod(messageHandlerReference.Instance, message));
                 }
 
             }
             finally
             {
-                handlers.ForEach(container.Release);
+                handlers.ForEach(_container.Release);
             }
         }
 
-        private class MapKey
+        private class HandlerId
         {
-            public Type HandlerInstaceType { get; private set; }
+            public Type InstanceType { get; private set; }
             public Type HandlerInterfaceType { get; private set; }
 
-            public MapKey(Type handlerInstaceType,Type handlerInterfaceType)
+            public HandlerId(Type instanceType,Type handlerInterfaceType)
             {
-                HandlerInstaceType = handlerInstaceType;
+                InstanceType = instanceType;
                 HandlerInterfaceType = handlerInterfaceType;
             }
 
@@ -80,13 +90,13 @@ namespace Composable.ServiceBus
                 if (obj == null || GetType() != obj.GetType())
                     return false;
 
-                var key = obj as MapKey;
-                return key.HandlerInstaceType == HandlerInstaceType && key.HandlerInterfaceType == HandlerInterfaceType;
+                var key = obj as HandlerId;
+                return key.InstanceType == InstanceType && key.HandlerInterfaceType == HandlerInterfaceType;
             }
 
             public override int GetHashCode()
             {
-                return HandlerInstaceType.GetHashCode() + HandlerInterfaceType.GetHashCode();
+                return InstanceType.GetHashCode() + HandlerInterfaceType.GetHashCode();
             }
         }
 
@@ -95,7 +105,7 @@ namespace Composable.ServiceBus
         {
             List<MethodToInvokeOnMessageHandlerByMessageType> messageHandleHolders;
 
-            if (!HandlerToMessageHandlersMap.TryGetValue(new MapKey(handlerInstanceType, handlerInterfaceType), out messageHandleHolders))
+            if (!HandlerToMessageHandlersMap.TryGetValue(new HandlerId(handlerInstanceType, handlerInterfaceType), out messageHandleHolders))
             {
                 var holders = new List<MethodToInvokeOnMessageHandlerByMessageType>();
 
@@ -115,10 +125,10 @@ namespace Composable.ServiceBus
                     });
 
 
-                    HandlerToMessageHandlersMap[new MapKey(handlerInstanceType, handlerInterfaceType)] = holders;
+                    HandlerToMessageHandlersMap[new HandlerId(handlerInstanceType, handlerInterfaceType)] = holders;
             }
 
-            return HandlerToMessageHandlersMap[new MapKey(handlerInstanceType, handlerInterfaceType)];
+            return HandlerToMessageHandlersMap[new HandlerId(handlerInstanceType, handlerInterfaceType)];
         }
 
         //Returns an action that can be used to invoke this handler for a specific type of message.

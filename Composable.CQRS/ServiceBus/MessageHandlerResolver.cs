@@ -9,11 +9,42 @@ using NServiceBus;
 
 namespace Composable.ServiceBus
 {
-    internal static class MyMessageHandlerResolver
-    {
+    internal class MyMessageHandlerResolver
+    {        
+        private readonly IWindsorContainer _container;
+        public MyMessageHandlerResolver(IWindsorContainer container)
+        {
+            _container = container;
+        }
+
+        public bool Handles(object message)
+        {
+            return GetHandlerTypes(message, _container).Any();
+        }
+
+        public IEnumerable<MessageHandlerReference> GetHandlers(object message)
+        {
+            var handlers = GetHandlerTypes(message, _container)
+                .SelectMany(
+                    handlerType => _container
+                                        .ResolveAll(handlerType.ImplementedInterfaceType)
+                                        .Cast<object>()
+                                        .Select(handler => new MessageHandlerReference(
+                                            handlerInterfaceType: handlerType.HandlerInterfaceType,
+                                            instance: handler))
+                )
+                .Distinct()//Remove duplicates for classes that implement more than one interface. 
+                .ToList();
+
+            var remoteMessageHandlerTypes = RemoteMessageHandlerTypes(message);
+            var handlersToCall = handlers.Where(handler => remoteMessageHandlerTypes.None(remoteMessageHandlerType => remoteMessageHandlerType.IsInstanceOfType(handler.Instance)));
+
+            return handlersToCall;
+        }
+
         internal class MessageHandlerReference
         {
-            public MessageHandlerReference(Type handlerInterfaceType, Type implementedInterfaceType, object instance)
+            public MessageHandlerReference(Type handlerInterfaceType, object instance)
             {
                 HandlerInterfaceType = handlerInterfaceType;
                 Instance = instance;
@@ -66,33 +97,7 @@ namespace Composable.ServiceBus
             public Type HandlerInterfaceType { get; private set; }
             public Type ImplementedInterfaceType { get; private set; }
         }
-
-
-        public static IEnumerable<MessageHandlerReference> GetHandlers(object message, IWindsorContainer container)
-        {
-            var handlers = GetHandlerTypes(message, container)
-                .SelectMany(
-                    handlerType => container
-                                        .ResolveAll(handlerType.ImplementedInterfaceType)
-                                        .Cast<object>()
-                                        .Select(handler => new MessageHandlerReference(
-                                            handlerInterfaceType: handlerType.HandlerInterfaceType, 
-                                            implementedInterfaceType:handlerType.ImplementedInterfaceType, 
-                                            instance: handler))
-                )
-                .Distinct()//Remove duplicates for classes that implement more than one interface. 
-                .ToList();
-
-            var remoteMessageHandlerTypes = RemoteMessageHandlerTypes(message);
-            var handlersToCall = handlers.Where(handler => remoteMessageHandlerTypes.None(remoteMessageHandlerType => remoteMessageHandlerType.IsInstanceOfType(handler.Instance)));
-
-            return handlersToCall;
-        }
-
-        public static bool Handles(object message, IWindsorContainer container)
-        {
-            return GetHandlerTypes(message, container).Any();
-        }
+        
 
         private static List<MessageHandlerTypeReference> GetHandlerTypes(object message, IWindsorContainer container)
         {

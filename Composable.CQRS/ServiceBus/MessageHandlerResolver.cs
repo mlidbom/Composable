@@ -71,7 +71,7 @@ namespace Composable.ServiceBus
 
             public void InvokeHandlers(object message)
             {
-                MessageHandlerMethodInvoker.InvokeHandlerMethods(
+                MessageHandlerInvoker.InvokeHandlerMethods(
                     messageHandler: Instance,
                     message: message,
                     genericInterfaceImplemented: GenericInterfaceImplemented);

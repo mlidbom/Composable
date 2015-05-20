@@ -7,7 +7,7 @@ using Composable.System;
 
 namespace Composable.ServiceBus
 {
-    internal static class MessageHandlerMethodInvoker
+    internal static class MessageHandlerInvoker
     {
         private static readonly ConcurrentDictionary<MessageHandlerId, List<MessageHandlerMethod>> MessageHandlerClassCache =
             new ConcurrentDictionary<MessageHandlerId, List<MessageHandlerMethod>>();

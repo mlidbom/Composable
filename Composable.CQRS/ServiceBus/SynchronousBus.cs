@@ -6,7 +6,6 @@ using Castle.Windsor;
 using Composable.KeyValueStorage.Population;
 using Composable.System;
 using Composable.System.Linq;
-using Composable.System.Reflection;
 using JetBrains.Annotations;
 using NServiceBus;
 
@@ -21,11 +20,10 @@ namespace Composable.ServiceBus
         protected readonly IWindsorContainer Container;
         private readonly List<MessageHandlerResolver> _resolvers;
 
-        public SynchronousBus(IWindsorContainer container,IMessageHandlerResolversProvider resolversProvider=null)
+        public SynchronousBus(IWindsorContainer container)
         {
             Container = container;
-            resolversProvider = resolversProvider ?? new DefaultMessageHandlerResolversProvider(container);
-            _resolvers = resolversProvider.GetResolvers();
+            _resolvers = new DefaultMessageHandlerResolversProvider(container).GetResolvers();
         }
 
         public virtual void Publish(object message)

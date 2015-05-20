@@ -12,7 +12,7 @@ namespace Composable.ServiceBus
     /// Sends/Publishes messages to <see cref="IHandleMessages{T}"/> implementations registered in the <see cref="IWindsorContainer"/>.
     /// </summary>
     [UsedImplicitly]
-    public class SynchronousBus : IServiceBus
+    public partial class SynchronousBus : IServiceBus
     {
         private readonly IWindsorContainer _container;
         private readonly MyMessageHandlerResolver _handlerResolver;

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Castle.Windsor;
+using Composable.System.Linq;
 
 namespace Composable.ServiceBus
 {
@@ -41,7 +42,20 @@ namespace Composable.ServiceBus
 
         public List<MessageHandlerResolver> GetResolvers()
         {
-            return _container.ResolveAll<MessageHandlerResolver>().ToList();
+            var resolvers=_container.ResolveAll<MessageHandlerResolver>().ToList();
+            if(resolvers.None())
+            {
+                throw new NoMessageHandlerResolverRegisteredInContainer();
+            }
+            return resolvers;
+        }
+    }
+
+    public class NoMessageHandlerResolverRegisteredInContainer : Exception
+    {
+        public NoMessageHandlerResolverRegisteredInContainer():base("No MessageHandlerResolver components registered in castle container")
+        {
+            
         }
     }
 }

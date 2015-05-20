@@ -21,6 +21,17 @@ namespace Composable.ServiceBus
                 .Where(i => !typeof(IHandleRemoteMessages<>).IsAssignableFrom(i)) // we don't dispatch remote messages in the synchronous bus.
                 .ToArray();
         }
+
+        override public MessageHandlers ResolveMessageHandlers<TMessage>(TMessage message)
+        {
+            var handlers = base.ResolveMessageHandlers(message).HandlerInstances
+                // ReSharper disable once UseIsOperator.2
+                    .Where(h=>!typeof(IHandleRemoteMessages<>).IsInstanceOfType(h))
+                    .ToList()
+                    ;
+
+            return new MessageHandlers(message, InterfaceType, handlers);
+        }
     }
 
     internal class InProcessMessageHandlerResolver : MessageHandlerResolver
@@ -55,7 +66,7 @@ namespace Composable.ServiceBus
             Container = container;
         }
 
-        public MessageHandlers ResolveMessageHandlers<TMessage>(TMessage message)
+        public virtual MessageHandlers ResolveMessageHandlers<TMessage>(TMessage message)
         {
             var handlers = new List<object>();
             foreach(var handlerType in GetHandlerTypes(message))

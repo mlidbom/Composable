@@ -15,12 +15,12 @@ namespace Composable.ServiceBus
     public partial class SynchronousBus : IServiceBus
     {
         private readonly IWindsorContainer _container;
-        private readonly MyMessageHandlerResolver _handlerResolver;
+        private readonly MessageHandlerResolver _handlerResolver;
 
         public SynchronousBus(IWindsorContainer container)
         {
             _container = container;
-            _handlerResolver = new MyMessageHandlerResolver(container);
+            _handlerResolver = new MessageHandlerResolver(container);
         }
 
         public virtual void Publish(object message)
@@ -86,7 +86,7 @@ namespace Composable.ServiceBus
             }
         }
 
-        private static void AssertThatThereIsExactlyOneRegisteredHandler(MyMessageHandlerResolver.MessageHandlerReference[] handlers, object message)
+        private static void AssertThatThereIsExactlyOneRegisteredHandler(MessageHandlerResolver.MessageHandlerReference[] handlers, object message)
         {
             if (handlers.Length == 0)
             {

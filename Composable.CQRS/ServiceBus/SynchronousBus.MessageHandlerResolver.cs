@@ -10,11 +10,11 @@ namespace Composable.ServiceBus
 {
     public partial class SynchronousBus
     {
-        private class MyMessageHandlerResolver
+        private class MessageHandlerResolver
         {
             private readonly IWindsorContainer _container;
 
-            public MyMessageHandlerResolver(IWindsorContainer container)
+            public MessageHandlerResolver(IWindsorContainer container)
             {
                 _container = container;
             }

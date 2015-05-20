@@ -18,16 +18,10 @@ namespace Composable.ServiceBus
     public class SynchronousBus : IServiceBus
     {
         protected readonly IWindsorContainer Container;
-        private readonly List<MessageHandlerResolver> _resolvers;
 
         public SynchronousBus(IWindsorContainer container)
         {
             Container = container;
-            _resolvers = new List<MessageHandlerResolver>
-                         {
-                             new InProcessMessageHandlerResolver(container),
-                             new AllExceptRemoteMessageHandlersMessageHandlerResolver(container)
-                         };
         }
 
         public virtual void Publish(object message)
@@ -37,7 +31,7 @@ namespace Composable.ServiceBus
 
         public virtual bool Handles(object message)
         {
-            return _resolvers.Any(invoker => invoker.HasHandlerFor(message));
+            return MyMessageHandlerResolver.Handles(message, Container);
         }
 
         protected virtual void PublishLocal(object message)
@@ -46,20 +40,7 @@ namespace Composable.ServiceBus
             {
                 using(var transactionalScope = Container.BeginTransactionalUnitOfWorkScope())
                 {
-                    foreach(var resolver in _resolvers.Where(resolver => resolver.HasHandlerFor(message)))
-                    {
-                        var handlers = resolver.ResolveMessageHandlers(message);
-
-                        try
-                        {
-                            MessageHandlerInvoker.Invoke(handlers, resolver.HandlerInterfaceType, message);
-                        }
-                        finally
-                        {
-                            handlers.ForEach(Container.Release);
-                        }
-                    }
-
+                    MessageHandlerInvoker.Publish(message, Container);
                     transactionalScope.Commit();
                 }
             }
@@ -71,25 +52,7 @@ namespace Composable.ServiceBus
             {
                 using(var transactionalScope = Container.BeginTransactionalUnitOfWorkScope())
                 {
-                    if(_resolvers.None(r => r.HasHandlerFor(message)))
-                    {
-                        throw new NoHandlerException(message.GetType());
-                    }
-
-                    AssertOnlyOneHandlerRegistered(message);
-
-                    var resolver = _resolvers.Single(r => r.HasHandlerFor(message));
-                    var handlers = resolver.ResolveMessageHandlers(message);
-
-                    try
-                    {
-                        MessageHandlerInvoker.Invoke(handlers, resolver.HandlerInterfaceType, message);
-                    }
-                    finally
-                    {
-                        handlers.ForEach(Container.Release);
-                    }
-
+                    MessageHandlerInvoker.Send(message, Container);
                     transactionalScope.Commit();
                 }
             }
@@ -109,19 +72,6 @@ namespace Composable.ServiceBus
         public virtual void Reply(object message)
         {
             SyncSendLocal(message);
-        }
-
-        private  void AssertOnlyOneHandlerRegistered(object message)
-        {
-            var realHandlers = _resolvers
-                .Where(r => r.HasHandlerFor(message))
-                .SelectMany(r => r.ResolveMessageHandlers(message))
-                .ToList();
-
-            if (realHandlers.Except(realHandlers.OfType<ISynchronousBusMessageSpy>()).Count() > 1 || _resolvers.Count(re => re.HasHandlerFor(message)) > 1)
-            {
-                throw new MultipleMessageHandlersRegisteredException(message, realHandlers);
-            }
         }
     }
 

@@ -3,6 +3,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using Castle.Windsor;
 using Composable.System.Linq;
 
 namespace Composable.ServiceBus
@@ -11,14 +12,55 @@ namespace Composable.ServiceBus
     {
         private static readonly ConcurrentDictionary<MapKey, List<MethodToInvokeOnMessageHandlerByMessageType>> HandlerToMessageHandlersMap = new ConcurrentDictionary<MapKey, List<MethodToInvokeOnMessageHandlerByMessageType>>();
 
-        internal static void Invoke<TMessage>(IEnumerable<object> handlerInstances, Type interfaceType, TMessage message)
+
+        internal static void Send<TMessage>(TMessage message, IWindsorContainer container)
         {
-            foreach (var handlerInstance in handlerInstances)
+            InternalInvoke(message, container, isSend:true);
+        }
+
+        internal static void Publish<TMessage>(TMessage message, IWindsorContainer container)
+        {
+            InternalInvoke(message, container, isSend:false);
+        }
+
+        private static void InternalInvoke<TMessage>(TMessage message, IWindsorContainer container, bool isSend = false)
+        {
+            var handlers = MyMessageHandlerResolver.GetHandlers(message, container).ToArray();
+            try
+            {                
+                if(isSend)
+                {
+                    if(handlers.Length == 0)
+                    {
+                        throw new NoHandlerException(message.GetType());
+                    }
+                    if(handlers.Length > 1)
+                    {
+                        var realHandlers = handlers.Select(handler => handler.Instance)
+                            .Where(handler => !(handler is ISynchronousBusMessageSpy))
+                            .ToList();
+                        if(realHandlers.Count > 1)
+                        {
+                            throw new MultipleMessageHandlersRegisteredException(message, realHandlers);
+                        }
+                    }
+                }
+
+                foreach(var messageHandlerReference in handlers)
+                {
+                    var handlerMethods = GetMethodsToInvoke(messageHandlerReference.Instance.GetType(), messageHandlerReference.HandlerInterfaceType)
+                        .Where(holder => holder.HandledMessageType.IsInstanceOfType(message))
+                        .Select(holder => holder.HandlerMethod)
+                        .ToList();
+
+                    handlerMethods
+                        .ForEach(handlerMethod => handlerMethod(messageHandlerReference.Instance, message));
+                }
+
+            }
+            finally
             {
-                GetMethodsToInvoke(handlerInstance.GetType(), interfaceType)
-                    .Where(holder => holder.HandledMessageType.IsInstanceOfType(message))
-                    .Select(holder => holder.HandlerMethod)
-                    .ForEach(handlerMethod => handlerMethod(handlerInstance, message));
+                handlers.ForEach(container.Release);
             }
         }
 

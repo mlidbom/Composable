@@ -51,7 +51,7 @@ namespace Composable.ServiceBus
                 Instance = instance;
             }
 
-            public Type GenericInterfaceImplemented { get; private set; }
+            private Type GenericInterfaceImplemented { get; set; }
             public object Instance { get; private set; }
 
             private bool Equals(MessageHandlerReference other)
@@ -67,6 +67,14 @@ namespace Composable.ServiceBus
             override public int GetHashCode()
             {
                 return Instance.GetHashCode();
+            }
+
+            public void InvokeHandlers(object message)
+            {
+                MessageHandlerMethodInvoker.InvokeHandlerMethods(
+                    messageHandler: Instance,
+                    message: message,
+                    genericInterfaceImplemented: GenericInterfaceImplemented);
             }
         }
 

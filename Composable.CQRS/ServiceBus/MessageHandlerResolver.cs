@@ -23,8 +23,8 @@ namespace Composable.ServiceBus
         override public bool HasHandlerFor<TMessage>(TMessage message)
         {
             var messageHandlerTypes = message.GetType().GetAllTypesInheritedOrImplemented()
-                .Where(m => m.Implements(typeof(IMessage)))
-                .Select(m => typeof(IHandleMessages<>).MakeGenericType(m));
+                .Where(typeInheritedByMessageInstance => typeInheritedByMessageInstance.Implements(typeof(IMessage)))
+                .Select(messageTypeInheritedByMessageInstance => typeof(IHandleMessages<>).MakeGenericType(messageTypeInheritedByMessageInstance));
             foreach(var messageHandlerType in messageHandlerTypes)
             {
                 foreach (var component in Container.Kernel.GetAssignableHandlers(messageHandlerType))
@@ -44,13 +44,13 @@ namespace Composable.ServiceBus
         {
             // We don't want to dispatch messages to a IHandleRemoteMessages handler.
             // Get all combination of IHandleRemoteMessages and IMessages.
-            var remoteMessageHandlerType = message.GetType().GetAllTypesInheritedOrImplemented()
-                .Where(m => m.Implements(typeof(IMessage)))
-                .Select(m => typeof(IHandleRemoteMessages<>).MakeGenericType(m));
+            var remoteMessageHandlerTypes = message.GetType().GetAllTypesInheritedOrImplemented()
+                .Where(typeInheritedByMessageInstance => typeInheritedByMessageInstance.Implements(typeof(IMessage)))
+                .Select(messageTypeInheritedByMessageInstance => typeof(IHandleRemoteMessages<>).MakeGenericType(messageTypeInheritedByMessageInstance));
 
             return base.ResolveMessageHandlers(message)
                 //Make sure not to dispatch message to an IHandleRemoteMessages instance.
-                .Where(h =>remoteMessageHandlerType.None(r=>r.IsInstanceOfType(h)))
+                .Where(h =>remoteMessageHandlerTypes.None(r=>r.IsInstanceOfType(h)))
                 .ToList();
         }
     }

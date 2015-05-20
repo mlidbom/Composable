@@ -1,10 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using Castle.Windsor;
+﻿using Castle.Windsor;
 using Composable.System.Linq;
 using JetBrains.Annotations;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using NServiceBus;
 
 namespace Composable.ServiceBus
 {
@@ -13,6 +13,9 @@ namespace Composable.ServiceBus
         List<MessageHandlerResolver> GetResolvers();
     }
 
+    /// <summary>
+    /// Provides resolvers for message handlers implementing <see cref="IHandleMessages{T}"/> and <see cref="IHandleInProcessMessages{T}"/>
+    /// </summary>
     public class DefaultMessageHandlerResolversProvider : IMessageHandlerResolversProvider
     {
         private readonly IWindsorContainer _container;

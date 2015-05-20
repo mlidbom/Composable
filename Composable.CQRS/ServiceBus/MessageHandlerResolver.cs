@@ -8,17 +8,21 @@ using System.Linq;
 
 namespace Composable.ServiceBus
 {
+    ///<summary>Resolves message handlers that inherits from <see cref="IHandleMessages{T}"/>.
+    /// <remarks>Does not return message handlers that implements <see cref="IHandleRemoteMessages{T}"/>.</remarks>
+    /// </summary>
     public class DefaultMessageHandlerResolver : MessageHandlerResolver
     {
         public DefaultMessageHandlerResolver(IWindsorContainer container)
             : base(container) {}
 
-        override public Type InterfaceType { get { return typeof(IHandleMessages<>); } }
+        override public Type HandlerInterfaceType { get { return typeof(IHandleMessages<>); } }
 
         override protected IEnumerable<Type> GetHandlerTypes(object message)
         {
             return base.GetHandlerTypes(message)
-                .Where(i => !typeof(IHandleRemoteMessages<>).IsAssignableFrom(i)) // we don't dispatch remote messages in the synchronous bus.
+                // We don't dispatch messages to a IHandleRemoteMessages handler in the synchronous bus.
+                .Where(i => !typeof(IHandleRemoteMessages<>).IsAssignableFrom(i))
                 .ToArray();
         }
 
@@ -27,24 +31,27 @@ namespace Composable.ServiceBus
             var remoteMessageHandlerType = typeof(IHandleRemoteMessages<>).MakeGenericType(message.GetType());
             return base.ResolveMessageHandlers(message)
                 // ReSharper disable once UseIsOperator.2
-                .Where(h => !remoteMessageHandlerType.IsInstanceOfType(h))
+                // A IHandleRemoteMessages handler might be resolved in case someone wired in a IHandleMessages handler for the same IMessage because of the inheritence.
+                // We don't want to dispatch messages to a IHandleRemoteMessages handler.
+                .Where(h => !remoteMessageHandlerType.IsInstanceOfType(h)) 
                 .ToList();
         }
     }
 
+    ///<summary>Resolves message handlers that inherits from <see cref="IHandleInProcessMessages{T}"/>.</summary>
     public class InProcessMessageHandlerResolver : MessageHandlerResolver
     {
         public InProcessMessageHandlerResolver(IWindsorContainer container)
             : base(container) {}
 
-        override public Type InterfaceType { get { return typeof(IHandleInProcessMessages<>); } }
+        override public Type HandlerInterfaceType { get { return typeof(IHandleInProcessMessages<>); } }
     }
 
     public abstract class MessageHandlerResolver
     {
         protected readonly IWindsorContainer Container;
         
-        public abstract Type InterfaceType { get; }
+        public abstract Type HandlerInterfaceType { get; }
 
         protected MessageHandlerResolver(IWindsorContainer container)
         {
@@ -56,7 +63,7 @@ namespace Composable.ServiceBus
             var handlers = new List<object>();
             foreach(var handlerType in GetHandlerTypes(message))
             {
-                foreach(var handlerInstance in Container.ResolveAll(handlerType).Cast<object>()) //if one handler implements many interfaces, it will be invoked many times.
+                foreach(var handlerInstance in Container.ResolveAll(handlerType).Cast<object>())
                 {
                     if(!handlers.Contains(handlerInstance))
                     {
@@ -77,7 +84,7 @@ namespace Composable.ServiceBus
         {
             return message.GetType().GetAllTypesInheritedOrImplemented()
                 .Where(m => m.Implements(typeof(IMessage)))
-                .Select(m => InterfaceType.MakeGenericType(m))
+                .Select(m => HandlerInterfaceType.MakeGenericType(m))
                 .Where(i => Container.Kernel.HasComponent(i))
                 .ToArray();
 

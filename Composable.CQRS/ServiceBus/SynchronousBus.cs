@@ -50,7 +50,7 @@ namespace Composable.ServiceBus
 
                         try
                         {
-                            MessageHandlerInvoker.Invoke(handlers, resolver.InterfaceType, message);
+                            MessageHandlerInvoker.Invoke(handlers, resolver.HandlerInterfaceType, message);
                         }
                         finally
                         {
@@ -81,7 +81,7 @@ namespace Composable.ServiceBus
 
                     try
                     {
-                        MessageHandlerInvoker.Invoke(handlers, resolver.InterfaceType, message);
+                        MessageHandlerInvoker.Invoke(handlers, resolver.HandlerInterfaceType, message);
                     }
                     finally
                     {

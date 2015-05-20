@@ -38,7 +38,7 @@ namespace CQRS.Tests.ServiceBus
         public class ACustomMessageHandlerResolver : MessageHandlerResolver
         {
             public ACustomMessageHandlerResolver(IWindsorContainer container) : base(container) { }
-            override public Type InterfaceType { get { return typeof(IHandleCustomMessage<>); } }
+            override public Type HandlerInterfaceType { get { return typeof(IHandleCustomMessage<>); } }
         }
 
         public interface IHandleCustomMessage<T>

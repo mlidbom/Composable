@@ -14,6 +14,7 @@ namespace Composable.CQRS.Query.Models.Generators
         private readonly IDocumentDbSessionInterceptor _interceptor;
         private readonly IEnumerable<IQueryModelGenerator> _documentGenerators;
         private readonly InMemoryObjectStore _idMap = new InMemoryObjectStore();
+        //Review:mlidbo: Always requiring an interceptor causes a lot of unneeded complexity for clients. Consider creating a virtual void OnFirstLoad(T document) method instead. This would allow for inheriting this class to create "interceptable" sessions. Alternatively maybe an observable/event could be used somehow.
         public QueryModelGeneratingDocumentDbReader(ISingleContextUseGuard usageGuard, IDocumentDbSessionInterceptor interceptor, IEnumerable<IQueryModelGenerator> documentGenerators )
         {
             _usageGuard = usageGuard;

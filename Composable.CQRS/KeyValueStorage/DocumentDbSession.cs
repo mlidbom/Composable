@@ -26,6 +26,7 @@ namespace Composable.KeyValueStorage
 
         private static readonly ILog Log = LogManager.GetLogger(typeof(DocumentDbSession));
 
+        //Review:mlidbo: Always requiring an interceptor causes a lot of unneeded complexity for clients. Consider creating a virtual void OnFirstLoad(T document) method instead. This would allow for inheriting this class to create "interceptable" sessions. Alternatively maybe an observable/event could be used somehow.
         public DocumentDbSession(IDocumentDb backingStore, ISingleContextUseGuard usageGuard, IDocumentDbSessionInterceptor interceptor)
         {
             UsageGuard = usageGuard;

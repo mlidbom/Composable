@@ -223,10 +223,18 @@
     <Compile Include="KeyValueStorage\DocumentDbSession.cs" />
     <Compile Include="KeyValueStorage\NoSuchDocumentException.cs" />
     <Compile Include="NewtonSoft\JsonSettings.cs" />
+    <Compile Include="ServiceBus\IHandleInProcessMessages.cs" />
+    <Compile Include="ServiceBus\IHandleRemoteMessages.cs" />
+    <Compile Include="ServiceBus\SynchronousBus.MessageHandlerInvoker.MessageHandlerId.cs" />
+    <Compile Include="ServiceBus\SynchronousBus.MessageHandlerInvoker.MessageHandlerMethod.cs" />
+    <Compile Include="ServiceBus\SynchronousBus.MessageHandlerInvoker.cs" />
     <Compile Include="ServiceBus\IServiceBus.cs" />
     <Compile Include="CQRS\EventSourcing\AggregateRoot.cs" />
     <Compile Include="ServiceBus\ISynchronousBusMessageSpy.cs" />
     <Compile Include="ServiceBus\ISynchronousBusSubscriberFilter.cs" />
+    <Compile Include="ServiceBus\SynchronousBus.MessageHandlerResolver.cs" />
+    <Compile Include="ServiceBus\MultipleMessageHandlersRegisteredException.cs" />
+    <Compile Include="ServiceBus\NoHandlerException.cs" />
     <Compile Include="ServiceBus\SynchronousBus.cs" />
     <Compile Include="CQRS\SetExtensions.cs" />
     <Compile Include="CQRS\EventHandling\CallsMatchingHandlersInRegistrationOrderEventHandler.cs" />
@@ -238,7 +246,6 @@
     <Compile Include="Persistence\IPersistenceSession.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="CQRS\ServiceLocatorExtensions.cs" />
-    <Compile Include="ServiceBus\MessageHandlerInvoker.cs" />
     <Compile Include="StuffThatDoesNotBelongHere\MultiEventHandler.cs" />
     <Compile Include="StuffThatDoesNotBelongHere\Translation\TranslateAttribute.cs" />
     <Compile Include="StuffThatDoesNotBelongHere\Translation\TranslationTypeExtensions.cs" />

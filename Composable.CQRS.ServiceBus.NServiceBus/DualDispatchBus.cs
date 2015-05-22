@@ -8,12 +8,10 @@ namespace Composable.CQRS.ServiceBus.NServiceBus
     /// <summary>
     /// <para>
     /// Publishes messages to both the <see cref="NServiceBusServiceBus"/> and the <see cref="SynchronousBus"/>.
-    /// An <see cref="ISynchronousBusSubscriberFilter"/> can be registered in the container to avoid dispatching to some handlers.
     /// </para>
     /// 
     /// <para> 
     /// Send and SendLocal dispatches to either the <see cref="NServiceBusServiceBus"/> or the <see cref="SynchronousBus"/>.
-    /// Which is decided by a <see cref="DefaultDualDispatchBusRouter"/>. If no instance is registered in the container the <see cref="DefaultDualDispatchBusRouter"/> is used.
     /// It routes messages to the <see cref="SynchronousBus"/> if it has a handler for it, and to the <see cref="NServiceBusServiceBus"/> otherwise. 
     /// </para>
     /// </summary>
@@ -24,11 +22,9 @@ namespace Composable.CQRS.ServiceBus.NServiceBus
 
         private bool _dispatchingOnSynchronousBus = false;
         private readonly SingleThreadUseGuard _usageGuard;
-        private IDualDispatchBusRouter _router;
 
-        public DualDispatchBus(SynchronousBus local, NServiceBusServiceBus realBus, IDualDispatchBusRouter router = null)
+        public DualDispatchBus(SynchronousBus local, NServiceBusServiceBus realBus)
         {
-            _router = router ?? DefaultDualDispatchBusRouter.Instance;
             _usageGuard = new SingleThreadUseGuard();
             _local = local;
             _realBus = realBus;
@@ -61,7 +57,7 @@ namespace Composable.CQRS.ServiceBus.NServiceBus
         {
             _usageGuard.AssertNoContextChangeOccurred(this);
             //There can only be one handler in a send scenario and we let the synchronous bus get the first pick.
-            if (_router.SendToSynchronousBus((IMessage)message, _local))
+            if (_local.Handles(message))
             {
                 DispatchOnSynchronousBus(() => _local.SendLocal(message));
             }
@@ -75,7 +71,7 @@ namespace Composable.CQRS.ServiceBus.NServiceBus
         {
             _usageGuard.AssertNoContextChangeOccurred(this);
             //There can only be one handler in a send scenario and we let the synchronous bus get the first pick.
-            if(_router.SendToSynchronousBus((IMessage)message, _local))
+            if(_local.Handles(message))
             {
                 DispatchOnSynchronousBus(() => _local.Send(message));
             }
@@ -88,7 +84,7 @@ namespace Composable.CQRS.ServiceBus.NServiceBus
         public void Reply(object message)
         {
             _usageGuard.AssertNoContextChangeOccurred(this);
-            //I cannot come up with a way to decide whether to dispatch to the real bus or the sync bus except for just giving it to the sync bus if it wants it...
+            //If the synchronous bus is the one dispatching the message, we reply on the same bus.
             if(_dispatchingOnSynchronousBus)
             {
                 _local.Reply(message);

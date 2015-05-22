@@ -38,7 +38,6 @@ namespace Composable.CQRS.ServiceBus.NServicebus.Tests
             }
         }
 
-
         [Test]
         public void WhenSendingMessageThatHasAWiredHandlerInContainerMessageIsSentOnSynchronousBus()
         {

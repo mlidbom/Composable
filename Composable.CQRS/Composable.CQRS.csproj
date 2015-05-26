@@ -223,8 +223,10 @@
     <Compile Include="KeyValueStorage\DocumentDbSession.cs" />
     <Compile Include="KeyValueStorage\NoSuchDocumentException.cs" />
     <Compile Include="NewtonSoft\JsonSettings.cs" />
+    <Compile Include="ServiceBus\IHandleAndReplayEvents.cs" />
     <Compile Include="ServiceBus\IHandleInProcessMessages.cs" />
     <Compile Include="ServiceBus\IHandleRemoteMessages.cs" />
+    <Compile Include="ServiceBus\IReplayEvents.cs" />
     <Compile Include="ServiceBus\SynchronousBus.MessageHandlerInvoker.MessageHandlerId.cs" />
     <Compile Include="ServiceBus\SynchronousBus.MessageHandlerInvoker.MessageHandlerMethod.cs" />
     <Compile Include="ServiceBus\SynchronousBus.MessageHandlerInvoker.cs" />

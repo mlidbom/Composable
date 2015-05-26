@@ -58,6 +58,11 @@ namespace Composable.ServiceBus
             SyncSendLocal(message);
         }
 
+        public virtual void Replay(object message)
+        {
+            
+        }
+
         private void DispatchMessageToHandlers<TMessage>(TMessage message, MessageDispatchType dispatchType)
         {
             using(_container.RequireScope()) //Use the existing scope when running in an endpoint and create a new one if running in the web
@@ -107,7 +112,8 @@ namespace Composable.ServiceBus
         private enum MessageDispatchType
         {
             Publish,
-            Send
+            Send,
+            Replay,
         }
     }
 }

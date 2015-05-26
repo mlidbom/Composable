@@ -48,5 +48,11 @@ namespace Composable.CQRS.ServiceBus.NServiceBus
             AddEnvironmentNameHeader();
             _bus.Reply((IMessage)message);
         }
+
+        public void Replay(object message)
+        {
+            //TODO: NServiceBus dose not support replay event
+            throw new NotImplementedException();
+        }
     }
 }

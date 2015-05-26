@@ -6,5 +6,6 @@
         void SendLocal(object message);
         void Send(object message);
         void Reply(object message);
+        void Replay(object message);
     }
 }

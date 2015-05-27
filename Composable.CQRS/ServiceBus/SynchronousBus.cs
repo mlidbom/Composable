@@ -18,7 +18,7 @@ namespace Composable.ServiceBus
     {
         private readonly IWindsorContainer _container;
         private readonly MessageHandlerResolver _handlerResolver;
-        private  bool _isReplaying = false;
+        private bool _isReplaying = false;
 
         public SynchronousBus(IWindsorContainer container)
         {
@@ -38,12 +38,56 @@ namespace Composable.ServiceBus
 
         protected virtual void PublishLocal(object message)
         {
-            DispatchMessageToHandlers(message, MessageDispatchType.Publish);
+            using (_container.RequireScope()) //Use the existing scope when running in an endpoint and create a new one if running in the web
+            {
+                using (var transactionalScope = _container.BeginTransactionalUnitOfWorkScope())
+                {
+                    var handlers = _handlerResolver.GetHandlers(message).ToArray();
+                    try
+                    {
+                        AssertItIsNotReplaying(message);
+
+                        foreach (var messageHandlerReference in handlers)
+                        {
+                            messageHandlerReference.InvokeHandlers(message);
+                        }
+                        transactionalScope.Commit();
+                    }
+                    finally
+                    {
+                        handlers.ForEach(_container.Release);
+                    }
+                }
+            }
         }
 
         protected virtual void SyncSendLocal(object message)
         {
-            DispatchMessageToHandlers(message, MessageDispatchType.Send);
+            using (_container.RequireScope()) //Use the existing scope when running in an endpoint and create a new one if running in the web
+            {
+                using (var transactionalScope = _container.BeginTransactionalUnitOfWorkScope())
+                {
+                    var handlers = _handlerResolver.GetHandlers(message).ToArray();
+                    try
+                    {
+                        AssertItIsNotReplaying(message);
+
+
+                        AssertThatThereIsExactlyOneRegisteredHandler(handlers, message);
+
+
+                        foreach (var messageHandlerReference in handlers)
+                        {
+                            messageHandlerReference.InvokeHandlers(message);
+                        }
+                        transactionalScope.Commit();
+                    }
+                    finally
+                    {
+                        handlers.ForEach(_container.Release);
+                    }
+                }
+            }
         }
 
         public virtual void SendLocal(object message)
@@ -63,46 +107,46 @@ namespace Composable.ServiceBus
 
         public virtual void Replay(object message)
         {
+//            using (_container.RequireScope()) //Use the existing scope when running in an endpoint and create a new one if running in the web
+//            {
+//                using (var transactionalScope = _container.BeginTransactionalUnitOfWorkScope())
+//                {
+//                    var handlers = _handlerResolver.GetHandlers(message).ToArray();
+//                    try
+//                    {
+//                        AssertItIsNotReplaying(message);
+//
+//
+//                        foreach (var messageHandlerReference in handlers)
+//                        {
+//                            messageHandlerReference.InvokeHandlers(message);
+//                        }
+//                        transactionalScope.Commit();
+//                    }
+//                    finally
+//                    {
+//                        handlers.ForEach(_container.Release);
+//                    }
+//                }
+//            }
+        }
+
+        private void DispatchMessageToHandlers<TMessage>(TMessage message)
+        {
             using (_container.RequireScope()) //Use the existing scope when running in an endpoint and create a new one if running in the web
             {
                 using (var transactionalScope = _container.BeginTransactionalUnitOfWorkScope())
                 {
-                    var handlers = _handlerResolver.GetHandlers(message, MessageDispatchType.Replay).ToArray();
-                    try
-                    {
-                        _isReplaying = true;
-                        foreach (var messageHandlerReference in handlers)
-                        {
-                            messageHandlerReference.InvokeHandlers(message);
-                        }
-                        transactionalScope.Commit();
-                    }
-                    finally
-                    {
-                        handlers.ForEach(_container.Release);
-                        _isReplaying = false;
-                    }
-                }
-            }
-        }
-
-        private void DispatchMessageToHandlers<TMessage>(TMessage message, MessageDispatchType dispatchType)
-        {
-            using(_container.RequireScope()) //Use the existing scope when running in an endpoint and create a new one if running in the web
-            {
-                using(var transactionalScope = _container.BeginTransactionalUnitOfWorkScope())
-                {
-                    var handlers = _handlerResolver.GetHandlers(message,dispatchType).ToArray();
+                    var handlers = _handlerResolver.GetHandlers(message).ToArray();
                     try
                     {
                         AssertItIsNotReplaying(message);
 
-                        if(dispatchType == MessageDispatchType.Send)
-                        {
-                            AssertThatThereIsExactlyOneRegisteredHandler(handlers, message);
-                        }
 
-                        foreach(var messageHandlerReference in handlers)
+                        AssertThatThereIsExactlyOneRegisteredHandler(handlers, message);
+
+
+                        foreach (var messageHandlerReference in handlers)
                         {
                             messageHandlerReference.InvokeHandlers(message);
                         }
@@ -118,33 +162,26 @@ namespace Composable.ServiceBus
 
         private static void AssertThatThereIsExactlyOneRegisteredHandler(MessageHandlerResolver.MessageHandlerReference[] handlers, object message)
         {
-            if(handlers.Length == 0)
+            if (handlers.Length == 0)
             {
                 throw new NoHandlerException(message.GetType());
             }
-            if(handlers.Length > 1)
+            if (handlers.Length > 1)
             {
                 var realHandlers = handlers.Select(handler => handler.Instance)
                     .Where(handler => !(handler is ISynchronousBusMessageSpy))
                     .ToList();
-                if(realHandlers.Count > 1)
+                if (realHandlers.Count > 1)
                 {
                     throw new MultipleMessageHandlersRegisteredException(message, realHandlers);
                 }
             }
         }
 
-        private  void AssertItIsNotReplaying(object message)
+        private void AssertItIsNotReplaying(object message)
         {
-            if(_isReplaying)
-                throw new CanNotPublishMessageWhenReplayingEventsOnBusException(message); 
-        }
-
-        private enum MessageDispatchType
-        {
-            Publish,
-            Send,
-            Replay,
+            if (_isReplaying)
+                throw new CanNotPublishMessageWhenReplayingEventsOnBusException(message);
         }
     }
 }

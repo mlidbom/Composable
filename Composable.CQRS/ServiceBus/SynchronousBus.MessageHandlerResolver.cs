@@ -26,9 +26,9 @@ namespace Composable.ServiceBus
                 return GetHandlerTypes(message).Any();
             }
 
-            public IEnumerable<MessageHandlerReference> GetHandlers(object message, MessageDispatchType dispatchType)
+            public IEnumerable<MessageHandlerReference> GetHandlers(object message)
             {
-                var handlers = GetHandlerTypes(message, dispatchType)
+                var handlers = GetHandlerTypes(message)
                     .SelectMany(
                         handlerType => _container.ResolveAll(handlerType.ServiceInterface)
                             .Cast<object>()
@@ -94,22 +94,8 @@ namespace Composable.ServiceBus
                 public Type ServiceInterface { get; private set; }
             }
 
-            private List<MessageHandlerTypeReference> GetHandlerTypes(object message, MessageDispatchType dispatchType)
-            {
-                switch (dispatchType)
-                {
-                    case MessageDispatchType.Publish:
-                    case MessageDispatchType.Send:
-                        return GetHandlerTypes(message);
-                    case MessageDispatchType.Replay:
-                        return GetHandlerTypesForReplay(message);
-                    default:
-                        throw new InvalidEnumArgumentException("Unsupported dispatch type: {0}".FormatWith(dispatchType.ToString()));
-                }
-            }
-
-
-            private List<MessageHandlerTypeReference> GetHandlerTypes(object message)
+         
+            private IEnumerable<MessageHandlerTypeReference> GetHandlerTypes(object message)
             {
                 var inMemoryHandlerTypes = GetRegisteredHandlerTypesForMessageAndGenericInterfaceType(message, typeof(IHandleInProcessMessages<>));
                 var standardHandlerTypes = GetRegisteredHandlerTypesForMessageAndGenericInterfaceType(message, typeof(IHandleMessages<>));
@@ -131,7 +117,7 @@ namespace Composable.ServiceBus
                 return replayHandlerTypes.ToList();
             }
 
-            private static List<Type> RemoteMessageHandlerTypes(object message)
+            private static IEnumerable<Type> RemoteMessageHandlerTypes(object message)
             {
                 return message.GetType().GetAllTypesInheritedOrImplemented()
                     .Where(typeInheritedByMessageInstance => typeInheritedByMessageInstance.Implements(typeof(IMessage)))
@@ -140,7 +126,7 @@ namespace Composable.ServiceBus
             }
 
 
-            private MessageHandlerTypeReference[] GetRegisteredHandlerTypesForMessageAndGenericInterfaceType(object message, Type genericInterface)
+            private IEnumerable<MessageHandlerTypeReference> GetRegisteredHandlerTypesForMessageAndGenericInterfaceType(object message, Type genericInterface)
             {
                 return message.GetType().GetAllTypesInheritedOrImplemented()
                     .Where(typeImplementedByMessage => typeImplementedByMessage.Implements(typeof(IMessage)))

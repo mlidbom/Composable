@@ -138,6 +138,7 @@
     <Compile Include="CQRS\EventSourcing\IEventStore.cs" />
     <Compile Include="CQRS\EventSourcing\AggregateRootNotFoundException.cs" />
     <Compile Include="CQRS\EventSourcing\IEventStored.cs" />
+    <Compile Include="CQRS\EventSourcing\IReplayEvents.cs" />
     <Compile Include="CQRS\EventSourcing\ISharedOwnershipAggregateRoot.cs" />
     <Compile Include="CQRS\EventSourcing\RegisteredHandlerMissingException.cs" />
     <Compile Include="CQRS\EventSourcing\ReuseOfEventStoreSessionException.cs" />

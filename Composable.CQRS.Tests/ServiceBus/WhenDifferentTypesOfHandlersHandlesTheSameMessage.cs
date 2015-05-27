@@ -14,6 +14,7 @@ namespace CQRS.Tests.ServiceBus
         {
             Container.Register(
                 Component.For<AMessageHandler, IHandleMessages<AMessage>>().ImplementedBy<AMessageHandler>(),
+                //Review:mlidbo: If you do not register it as IHandleRemoteMessages, of course that interface member will never be called.
                 Component.For<ARemoteMessageHandler, IHandleMessages<AMessage>>().ImplementedBy<ARemoteMessageHandler>(),
                 Component.For<AInProcessMessageHandler, IHandleInProcessMessages<AMessage>>().ImplementedBy<AInProcessMessageHandler>(),
                 Component.For<ASpy, IHandleMessages<AMessage>>().ImplementedBy<ASpy>()
@@ -35,6 +36,7 @@ namespace CQRS.Tests.ServiceBus
         {
             SynchronousBus.Publish(new AMessage());
 
+            //Review:mlidbo: What are you really trying to test here? Because what you are testing is impossible. AMessage does not inherit RemoteMessage. It is impossible for the runtime to cast it to that type. So it is impossible for that handler to be called by publishing that event.
             Container.Resolve<ARemoteMessageHandler>().ReceivedMessage.Should().Be(false);
         }
     }

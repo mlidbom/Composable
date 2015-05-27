@@ -104,7 +104,7 @@ namespace Composable.ServiceBus
                     case MessageDispatchType.Replay:
                         return GetHandlerTypesForReplay(message);
                     default:
-                        throw new InvalidEnumArgumentException("Unsupport dispatch type: {0}".FormatWith(dispatchType.ToString()));
+                        throw new InvalidEnumArgumentException("Unsupported dispatch type: {0}".FormatWith(dispatchType.ToString()));
                 }
             }
 

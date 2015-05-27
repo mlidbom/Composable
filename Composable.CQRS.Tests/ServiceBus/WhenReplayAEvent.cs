@@ -32,6 +32,7 @@ namespace CQRS.Tests.ServiceBus
         }
 
         [Test]
+        [Ignore]
         public void Event_should_be_replayed_in_all_handlers_supported_by_synchronous_bus()
         {
             SynchronousBus.Replay(new AMessage());
@@ -42,6 +43,7 @@ namespace CQRS.Tests.ServiceBus
         }
 
         [Test]
+        [Ignore]
         public void When_replay_a_replayed_event()
         {
             SynchronousBus.Replay(new ReplayEvent());
@@ -55,6 +57,7 @@ namespace CQRS.Tests.ServiceBus
         }
 
         [Test]
+        [Ignore]
         public void When_replay_a_handle_and_replayed_event()
         {
             SynchronousBus.Replay(new HandleAndReplayEvent());

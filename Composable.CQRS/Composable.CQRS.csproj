@@ -182,6 +182,7 @@
     <Compile Include="CQRS\ViewModels\ViewModelUpdater.cs" />
     <Compile Include="CQRS\Windsor\DisposableComponent.cs" />
     <Compile Include="CQRS\Windsor\DisposableComponentCollection.cs" />
+    <Compile Include="CQRS\Windsor\MessageHandlersInstallerBase.cs" />
     <Compile Include="CQRS\Windsor\Testing\ForTestsEventHandlerInstallerBase.cs" />
     <Compile Include="CQRS\Windsor\Testing\IConfigureWiringForTests.cs" />
     <Compile Include="CQRS\Windsor\WindsorDisposableExtensions.cs" />
@@ -223,6 +224,7 @@
     <Compile Include="KeyValueStorage\DocumentDbSession.cs" />
     <Compile Include="KeyValueStorage\NoSuchDocumentException.cs" />
     <Compile Include="NewtonSoft\JsonSettings.cs" />
+    <Compile Include="ServiceBus\CanNotPublishMessageWhenReplayingException.cs" />
     <Compile Include="ServiceBus\IHandleAndReplayEvents.cs" />
     <Compile Include="ServiceBus\IHandleInProcessMessages.cs" />
     <Compile Include="ServiceBus\IHandleRemoteMessages.cs" />
@@ -247,6 +249,7 @@
     <Compile Include="Persistence\IPersistenceSession.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="CQRS\ServiceLocatorExtensions.cs" />
+    <Compile Include="ServiceBus\UnsupportedByNServiceBusException.cs" />
     <Compile Include="StuffThatDoesNotBelongHere\MultiEventHandler.cs" />
     <Compile Include="StuffThatDoesNotBelongHere\Translation\TranslateAttribute.cs" />
     <Compile Include="StuffThatDoesNotBelongHere\Translation\TranslationTypeExtensions.cs" />

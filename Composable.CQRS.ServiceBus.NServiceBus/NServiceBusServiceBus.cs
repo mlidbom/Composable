@@ -1,5 +1,6 @@
 using System;
 using Composable.CQRS.ServiceBus.NServiceBus.EndpointConfiguration;
+using Composable.ServiceBus;
 using NServiceBus;
 
 namespace Composable.CQRS.ServiceBus.NServiceBus
@@ -51,8 +52,9 @@ namespace Composable.CQRS.ServiceBus.NServiceBus
 
         public void Replay(object message)
         {
-            //TODO: NServiceBus dose not support replay event
-            throw new NotImplementedException();
+            throw new UnsupportedByNServiceBusException();
         }
+
+        
     }
 }

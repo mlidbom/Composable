@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using Castle.MicroKernel.Registration;
+﻿using Castle.MicroKernel.Registration;
 using Composable.ServiceBus;
 using FluentAssertions;
 using NServiceBus;
@@ -11,7 +7,7 @@ using NUnit.Framework;
 namespace CQRS.Tests.ServiceBus
 {
     [TestFixture]
-    public class WhenReplayAEvent:MessageHandlersTestBase
+    public class WhenReplayAEvent : MessageHandlersTestBase
     {
         [SetUp]
         public void RegisterHandler()
@@ -35,39 +31,39 @@ namespace CQRS.Tests.ServiceBus
         [Ignore]
         public void Event_should_be_replayed_in_all_handlers_supported_by_synchronous_bus()
         {
-            SynchronousBus.Replay(new AMessage());
-
-            //Assert
-            Container.Resolve<AHandleReplayedEventsHandler>().ReceivedMessage.Should().Be(true);
-            Container.Resolve<AHandleReplayedAndPublishedEventsHandler>().ReceivedMessage.Should().Be(true);
+//            SynchronousBus.Replay(new AMessage());
+//
+//            //Assert
+//            Container.Resolve<AHandleReplayedEventsHandler>().ReceivedMessage.Should().Be(true);
+//            Container.Resolve<AHandleReplayedAndPublishedEventsHandler>().ReceivedMessage.Should().Be(true);
         }
 
         [Test]
         [Ignore]
         public void When_replay_a_replayed_event()
         {
-            SynchronousBus.Replay(new ReplayEvent());
-
-            //Assert
-            Container.Resolve<MessageHandler>().ReceivedAMessage.Should().Be(false);
-            Container.Resolve<MessageHandler>().ReceivedInProcessMessage.Should().Be(false);
-            Container.Resolve<MessageHandler>().ReceivedRemoteMessage.Should().Be(false);
-            Container.Resolve<MessageHandler>().ReceivedReplayEvent.Should().Be(true);
-            Container.Resolve<MessageHandler>().ReceivedHandleAndReplayEvent.Should().Be(false);
+//            SynchronousBus.Replay(new ReplayEvent());
+//
+//            //Assert
+//            Container.Resolve<MessageHandler>().ReceivedAMessage.Should().Be(false);
+//            Container.Resolve<MessageHandler>().ReceivedInProcessMessage.Should().Be(false);
+//            Container.Resolve<MessageHandler>().ReceivedRemoteMessage.Should().Be(false);
+//            Container.Resolve<MessageHandler>().ReceivedReplayEvent.Should().Be(true);
+//            Container.Resolve<MessageHandler>().ReceivedHandleAndReplayEvent.Should().Be(false);
         }
 
         [Test]
         [Ignore]
         public void When_replay_a_handle_and_replayed_event()
         {
-            SynchronousBus.Replay(new HandleAndReplayEvent());
-
-            //Assert
-            Container.Resolve<MessageHandler>().ReceivedAMessage.Should().Be(false);
-            Container.Resolve<MessageHandler>().ReceivedInProcessMessage.Should().Be(false);
-            Container.Resolve<MessageHandler>().ReceivedRemoteMessage.Should().Be(false);
-            Container.Resolve<MessageHandler>().ReceivedReplayEvent.Should().Be(false);
-            Container.Resolve<MessageHandler>().ReceivedHandleAndReplayEvent.Should().Be(true);
+//            SynchronousBus.Replay(new HandleAndReplayEvent());
+//
+//            //Assert
+//            Container.Resolve<MessageHandler>().ReceivedAMessage.Should().Be(false);
+//            Container.Resolve<MessageHandler>().ReceivedInProcessMessage.Should().Be(false);
+//            Container.Resolve<MessageHandler>().ReceivedRemoteMessage.Should().Be(false);
+//            Container.Resolve<MessageHandler>().ReceivedReplayEvent.Should().Be(false);
+//            Container.Resolve<MessageHandler>().ReceivedHandleAndReplayEvent.Should().Be(true);
         }
     }
 }

@@ -231,13 +231,12 @@
     <Compile Include="ServiceBus\IHandleInProcessMessages.cs" />
     <Compile Include="ServiceBus\IHandleRemoteMessages.cs" />
     <Compile Include="ServiceBus\IHandleReplayedEvents.cs" />
-    <Compile Include="ServiceBus\SynchronousBus.MessageHandlerInvoker.MessageHandlerId.cs" />
-    <Compile Include="ServiceBus\SynchronousBus.MessageHandlerInvoker.MessageHandlerMethod.cs" />
-    <Compile Include="ServiceBus\SynchronousBus.MessageHandlerInvoker.cs" />
+    <Compile Include="ServiceBus\MessageHandlerInvoker.MessageHandlerMethod.cs" />
+    <Compile Include="ServiceBus\MessageHandlerInvoker.cs" />
     <Compile Include="ServiceBus\IServiceBus.cs" />
     <Compile Include="CQRS\EventSourcing\AggregateRoot.cs" />
     <Compile Include="ServiceBus\ISynchronousBusMessageSpy.cs" />
-    <Compile Include="ServiceBus\SynchronousBus.MessageHandlerResolver.cs" />
+    <Compile Include="ServiceBus\MessageHandlerResolver.cs" />
     <Compile Include="ServiceBus\MultipleMessageHandlersRegisteredException.cs" />
     <Compile Include="ServiceBus\NoHandlerException.cs" />
     <Compile Include="ServiceBus\SynchronousBus.cs" />

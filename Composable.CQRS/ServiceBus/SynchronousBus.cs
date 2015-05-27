@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using Castle.MicroKernel.Lifestyle;
 using Castle.Windsor;
 using Composable.KeyValueStorage.Population;
@@ -16,6 +17,7 @@ namespace Composable.ServiceBus
     {
         private readonly IWindsorContainer _container;
         private readonly MessageHandlerResolver _handlerResolver;
+        private  bool _isReplaying = false;
 
         public SynchronousBus(IWindsorContainer container)
         {
@@ -60,7 +62,27 @@ namespace Composable.ServiceBus
 
         public virtual void Replay(object message)
         {
-            
+            using (_container.RequireScope()) //Use the existing scope when running in an endpoint and create a new one if running in the web
+            {
+                using (var transactionalScope = _container.BeginTransactionalUnitOfWorkScope())
+                {
+                    var handlers = _handlerResolver.GetHandlers(message, MessageDispatchType.Replay).ToArray();
+                    try
+                    {
+                        _isReplaying = true;
+                        foreach (var messageHandlerReference in handlers)
+                        {
+                            messageHandlerReference.InvokeHandlers(message);
+                        }
+                        transactionalScope.Commit();
+                    }
+                    finally
+                    {
+                        handlers.ForEach(_container.Release);
+                        _isReplaying = false;
+                    }
+                }
+            }
         }
 
         private void DispatchMessageToHandlers<TMessage>(TMessage message, MessageDispatchType dispatchType)
@@ -69,9 +91,10 @@ namespace Composable.ServiceBus
             {
                 using(var transactionalScope = _container.BeginTransactionalUnitOfWorkScope())
                 {
-                    var handlers = _handlerResolver.GetHandlers(message).ToArray();
+                    var handlers = _handlerResolver.GetHandlers(message,dispatchType).ToArray();
                     try
                     {
+                        AssertItIsNotReplaying();
                         if(dispatchType == MessageDispatchType.Send)
                         {
                             AssertThatThereIsExactlyOneRegisteredHandler(handlers, message);
@@ -107,6 +130,12 @@ namespace Composable.ServiceBus
                     throw new MultipleMessageHandlersRegisteredException(message, realHandlers);
                 }
             }
+        }
+
+        private  void AssertItIsNotReplaying()
+        {
+            if(_isReplaying)
+                throw new Exception("Can not send/publish message when replaying"); //TODO:use specific exception
         }
 
         private enum MessageDispatchType

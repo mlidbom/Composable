@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using Castle.Windsor;
 using Composable.System.Linq;
@@ -24,9 +25,9 @@ namespace Composable.ServiceBus
                 return GetHandlerTypes(message).Any();
             }
 
-            public IEnumerable<MessageHandlerReference> GetHandlers(object message)
+            public IEnumerable<MessageHandlerReference> GetHandlers(object message, MessageDispatchType dispatchType)
             {
-                var handlers = GetHandlerTypes(message)
+                var handlers = GetHandlerTypes(message, dispatchType)
                     .SelectMany(
                         handlerType => _container.ResolveAll(handlerType.ServiceInterface)
                             .Cast<object>()
@@ -92,6 +93,20 @@ namespace Composable.ServiceBus
                 public Type ServiceInterface { get; private set; }
             }
 
+            private List<MessageHandlerTypeReference> GetHandlerTypes(object message, MessageDispatchType dispatchType)
+            {
+                switch (dispatchType)
+                {
+                    case MessageDispatchType.Publish:
+                    case MessageDispatchType.Send:
+                        return GetHandlerTypes(message);
+                    case MessageDispatchType.Replay:
+                        return GetHandlerTypesForReplay(message);
+                    default:
+                        throw new InvalidEnumArgumentException("Unsupport dispatch type");//TODO: use specific exception
+                }
+            }
+
 
             private List<MessageHandlerTypeReference> GetHandlerTypes(object message)
             {
@@ -107,6 +122,12 @@ namespace Composable.ServiceBus
                     .ToList();
 
                 return handlersToCall;
+            }
+
+            private List<MessageHandlerTypeReference> GetHandlerTypesForReplay(object message)
+            {
+                var replayHandlerTypes = GetRegisteredHandlerTypesForMessageAndGenericInterfaceType(message, typeof(IReplayEvents<>));
+                return replayHandlerTypes.ToList();
             }
 
             private static List<Type> RemoteMessageHandlerTypes(object message)

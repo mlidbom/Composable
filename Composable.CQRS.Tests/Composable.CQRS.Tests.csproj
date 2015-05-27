@@ -193,6 +193,7 @@
     <Compile Include="ServiceBus\WhenHandlingAMessageThatInheritsOtherMessages.cs" />
     <Compile Include="ServiceBus\WhenDifferentTypesOfHandlersHandlesTheSameMessage.cs" />
     <Compile Include="ServiceBus\WhenOnlyHaveRemoteHandler.cs" />
+    <Compile Include="ServiceBus\WhenReplayAEvent.cs" />
     <Compile Include="StubMain.cs" />
     <Compile Include="UnitOfWorkTests\WindsorUnitOfWorkExtensionsTests.cs" />
   </ItemGroup>

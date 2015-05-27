@@ -8,6 +8,6 @@ namespace Composable.ServiceBus
 {
     public interface IReplayEvents<in TEvent> where TEvent:IMessage
     {
-        void Handle(TEvent @event);
+        void Handle(TEvent message);
     }
 }

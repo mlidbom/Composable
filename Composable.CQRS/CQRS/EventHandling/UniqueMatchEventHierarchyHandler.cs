@@ -15,7 +15,7 @@ namespace Composable.CQRS.EventHandling
     /// If there is more than one matching handler an AmbigousHandlerException is thrown. 
     /// Use this base class when you are interested in exactly what has happened.
     /// </summary>
-    public abstract class UniqueMatchEventHierarchyHandler<TImplementor, TEvent> : IHandleAndReplayEvents<TEvent>
+    public abstract class UniqueMatchEventHierarchyHandler<TImplementor, TEvent> : IHandleReplayedAndPublishedEvents<TEvent>
         where TImplementor : UniqueMatchEventHierarchyHandler<TImplementor, TEvent>
         where TEvent : IAggregateRootEvent
     {

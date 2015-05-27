@@ -109,7 +109,7 @@ namespace CQRS.Tests.ServiceBus
             }
         } 
 
-        public class AReplayEventsHandler:IReplayEvents<AMessage>
+        public class AHandleReplayedEventsHandler:IHandleReplayedEvents<AMessage>
         {
             public bool ReceivedMessage;
             public void Handle(AMessage @event)
@@ -118,7 +118,7 @@ namespace CQRS.Tests.ServiceBus
             }
         }
 
-        public class AHandleAndReplayEventsHandler : IHandleAndReplayEvents<AMessage>
+        public class AHandleReplayedAndPublishedEventsHandler : IHandleReplayedAndPublishedEvents<AMessage>
         {
             public bool ReceivedMessage;
             public void Handle(AMessage @event)
@@ -131,8 +131,8 @@ namespace CQRS.Tests.ServiceBus
             IHandleMessages<AMessage>,
             IHandleInProcessMessages<InProcessMessage>,
             IHandleRemoteMessages<RemoteMessageBase>,
-            IReplayEvents<ReplayEventBase>,
-            IHandleAndReplayEvents<HandleAndReplayEventBase>
+            IHandleReplayedEvents<ReplayEventBase>,
+            IHandleReplayedAndPublishedEvents<HandleAndReplayEventBase>
         {
             public bool ReceivedAMessage = false;
             public bool ReceivedInProcessMessage = false;

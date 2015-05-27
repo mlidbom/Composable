@@ -7,7 +7,7 @@ using NServiceBus;
 namespace Composable.ServiceBus
 {
     // ReSharper disable once PossibleInterfaceMemberAmbiguity
-    public  interface IHandleAndReplayEvents<TEvent>:IReplayEvents<TEvent>,IHandleMessages<TEvent> where TEvent:IMessage
+    public interface IHandleReplayedAndPublishedEvents<TEvent>:IHandleReplayedEvents<TEvent>,IHandleMessages<TEvent> where TEvent:IMessage
     {
        
     }

@@ -184,6 +184,7 @@
     <Compile Include="CQRS\Windsor\DisposableComponentCollection.cs" />
     <Compile Include="CQRS\Windsor\MessageHandlersInstallerBase.cs" />
     <Compile Include="CQRS\Windsor\Testing\ForTestsEventHandlerInstallerBase.cs" />
+    <Compile Include="CQRS\Windsor\Testing\ForTestsReplayEventsHandlersInstallerBase.cs" />
     <Compile Include="CQRS\Windsor\Testing\IConfigureWiringForTests.cs" />
     <Compile Include="CQRS\Windsor\WindsorDisposableExtensions.cs" />
     <Compile Include="CQRS\Windsor\WindsorUnitOfWorkExtensions.cs" />
@@ -225,10 +226,10 @@
     <Compile Include="KeyValueStorage\NoSuchDocumentException.cs" />
     <Compile Include="NewtonSoft\JsonSettings.cs" />
     <Compile Include="ServiceBus\CanNotPublishMessageWhenReplayingEventsOnBusException.cs" />
-    <Compile Include="ServiceBus\IHandleAndReplayEvents.cs" />
+    <Compile Include="ServiceBus\IHandleReplayedAndPublishedEvents.cs" />
     <Compile Include="ServiceBus\IHandleInProcessMessages.cs" />
     <Compile Include="ServiceBus\IHandleRemoteMessages.cs" />
-    <Compile Include="ServiceBus\IReplayEvents.cs" />
+    <Compile Include="ServiceBus\IHandleReplayedEvents.cs" />
     <Compile Include="ServiceBus\SynchronousBus.MessageHandlerInvoker.MessageHandlerId.cs" />
     <Compile Include="ServiceBus\SynchronousBus.MessageHandlerInvoker.MessageHandlerMethod.cs" />
     <Compile Include="ServiceBus\SynchronousBus.MessageHandlerInvoker.cs" />

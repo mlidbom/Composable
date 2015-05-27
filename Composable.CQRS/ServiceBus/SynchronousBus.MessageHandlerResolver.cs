@@ -127,7 +127,7 @@ namespace Composable.ServiceBus
 
             private List<MessageHandlerTypeReference> GetHandlerTypesForReplay(object message)
             {
-                var replayHandlerTypes = GetRegisteredHandlerTypesForMessageAndGenericInterfaceType(message, typeof(IReplayEvents<>));
+                var replayHandlerTypes = GetRegisteredHandlerTypesForMessageAndGenericInterfaceType(message, typeof(IHandleReplayedEvents<>));
                 return replayHandlerTypes.ToList();
             }
 

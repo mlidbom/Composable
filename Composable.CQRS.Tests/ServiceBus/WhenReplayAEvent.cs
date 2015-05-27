@@ -17,16 +17,16 @@ namespace CQRS.Tests.ServiceBus
         public void RegisterHandler()
         {
             Container.Register(
-                Component.For<AReplayEventsHandler, IReplayEvents<AMessage>>().ImplementedBy<AReplayEventsHandler>(),
-                Component.For<AHandleAndReplayEventsHandler, IReplayEvents<AMessage>>()
-                    .ImplementedBy<AHandleAndReplayEventsHandler>(),
+                Component.For<AHandleReplayedEventsHandler, IHandleReplayedEvents<AMessage>>().ImplementedBy<AHandleReplayedEventsHandler>(),
+                Component.For<AHandleReplayedAndPublishedEventsHandler, IHandleReplayedEvents<AMessage>>()
+                    .ImplementedBy<AHandleReplayedAndPublishedEventsHandler>(),
                     Component.For<ASpy, IHandleMessages<AMessage>>().ImplementedBy<ASpy>()
                 );
 
             Container.Register(
                 Component.For<MessageHandler,
-                IReplayEvents<ReplayEventBase>,
-                IReplayEvents<HandleAndReplayEventBase>
+                IHandleReplayedEvents<ReplayEventBase>,
+                IHandleReplayedEvents<HandleAndReplayEventBase>
                 >().ImplementedBy<MessageHandler>()
                 );
         }
@@ -37,8 +37,8 @@ namespace CQRS.Tests.ServiceBus
             SynchronousBus.Replay(new AMessage());
 
             //Assert
-            Container.Resolve<AReplayEventsHandler>().ReceivedMessage.Should().Be(true);
-            Container.Resolve<AHandleAndReplayEventsHandler>().ReceivedMessage.Should().Be(true);
+            Container.Resolve<AHandleReplayedEventsHandler>().ReceivedMessage.Should().Be(true);
+            Container.Resolve<AHandleReplayedAndPublishedEventsHandler>().ReceivedMessage.Should().Be(true);
         }
 
         [Test]

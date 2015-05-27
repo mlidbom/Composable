@@ -22,7 +22,7 @@ namespace Composable.CQRS.Windsor
     {
         public void Install(IWindsorContainer container, IConfigurationStore store)
         {
-            container.Register(Classes.FromAssemblyContaining<TInheritor>().BasedOn(typeof(IReplayEvents<>),typeof(IHandleMessages<>)).WithServiceBase().LifestylePerWebRequest());
+            container.Register(Classes.FromAssemblyContaining<TInheritor>().BasedOn(typeof(IHandleReplayedEvents<>)).WithServiceBase().LifestylePerWebRequest());
         }
     }
 }

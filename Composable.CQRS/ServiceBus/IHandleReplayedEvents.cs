@@ -6,7 +6,7 @@ using NServiceBus;
 
 namespace Composable.ServiceBus
 {
-    public interface IReplayEvents<in TEvent> where TEvent:IMessage
+    public interface IHandleReplayedEvents<in TEvent> where TEvent:IMessage
     {
         void Handle(TEvent message);
     }

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using Castle.Windsor;
+using Composable.System;
 using Composable.System.Linq;
 using Composable.System.Reflection;
 using NServiceBus;
@@ -103,7 +104,7 @@ namespace Composable.ServiceBus
                     case MessageDispatchType.Replay:
                         return GetHandlerTypesForReplay(message);
                     default:
-                        throw new InvalidEnumArgumentException("Unsupport dispatch type");//TODO: use specific exception
+                        throw new InvalidEnumArgumentException("Unsupport dispatch type: {0}".FormatWith(dispatchType.ToString()));
                 }
             }
 

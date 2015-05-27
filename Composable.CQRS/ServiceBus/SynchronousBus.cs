@@ -96,6 +96,7 @@ namespace Composable.ServiceBus
                     try
                     {
                         AssertItIsNotReplaying(message);
+
                         if(dispatchType == MessageDispatchType.Send)
                         {
                             AssertThatThereIsExactlyOneRegisteredHandler(handlers, message);

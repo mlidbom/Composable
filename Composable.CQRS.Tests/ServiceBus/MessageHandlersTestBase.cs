@@ -134,39 +134,39 @@ namespace CQRS.Tests.ServiceBus
             IReplayEvents<ReplayEventBase>,
             IHandleAndReplayEvents<HandleAndReplayEventBase>
         {
-            public bool ReceiveAMessage = false;
-            public bool ReceiveInProcessMessage = false;
-            public bool ReceiveRemoteMessage = false;
-            public bool ReceiveReplayEvent = false;
-            public bool ReceiveHandleAndReplayEvent = false;
+            public bool ReceivedAMessage = false;
+            public bool ReceivedInProcessMessage = false;
+            public bool ReceivedRemoteMessage = false;
+            public bool ReceivedReplayEvent = false;
+            public bool ReceivedHandleAndReplayEvent = false;
             public void Handle(AMessage message)
             {
-                ReceiveAMessage = true;
+                ReceivedAMessage = true;
             }
 
             public void Handle(InProcessMessage message)
             {
-                ReceiveInProcessMessage = true;
+                ReceivedInProcessMessage = true;
             }
 
             public void Handle(RemoteMessage message)
             {
-                ReceiveRemoteMessage = true;
+                ReceivedRemoteMessage = true;
             }
 
             public void Handle(RemoteMessageBase message)
             {
-                ReceiveRemoteMessage = true;
+                ReceivedRemoteMessage = true;
             }
 
             public void Handle(ReplayEventBase @event)
             {
-                ReceiveReplayEvent = true;
+                ReceivedReplayEvent = true;
             }
 
             public void Handle(HandleAndReplayEventBase message)
             {
-                ReceiveHandleAndReplayEvent = true;
+                ReceivedHandleAndReplayEvent = true;
             }
           
         }

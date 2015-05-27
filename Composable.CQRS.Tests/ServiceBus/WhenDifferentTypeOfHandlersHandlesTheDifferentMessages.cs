@@ -33,9 +33,9 @@ namespace CQRS.Tests.ServiceBus
 
             var handler = Container.Resolve<MessageHandler>();
 
-            handler.ReceiveAMessage.Should().Be(true);
-            handler.ReceiveInProcessMessage.Should().Be(false);
-            handler.ReceiveRemoteMessage.Should().Be(false);
+            handler.ReceivedAMessage.Should().Be(true);
+            handler.ReceivedInProcessMessage.Should().Be(false);
+            handler.ReceivedRemoteMessage.Should().Be(false);
         }  
         
         [Test]
@@ -45,9 +45,9 @@ namespace CQRS.Tests.ServiceBus
 
             var handler = Container.Resolve<MessageHandler>();
 
-            handler.ReceiveAMessage.Should().Be(false);
-            handler.ReceiveInProcessMessage.Should().Be(true);
-            handler.ReceiveRemoteMessage.Should().Be(false);
+            handler.ReceivedAMessage.Should().Be(false);
+            handler.ReceivedInProcessMessage.Should().Be(true);
+            handler.ReceivedRemoteMessage.Should().Be(false);
         }
 
        
@@ -58,9 +58,9 @@ namespace CQRS.Tests.ServiceBus
 
             var handler = Container.Resolve<MessageHandler>();
 
-            handler.ReceiveAMessage.Should().Be(false);
-            handler.ReceiveInProcessMessage.Should().Be(false);
-            handler.ReceiveRemoteMessage.Should().Be(false);
+            handler.ReceivedAMessage.Should().Be(false);
+            handler.ReceivedInProcessMessage.Should().Be(false);
+            handler.ReceivedRemoteMessage.Should().Be(false);
         }
 
 

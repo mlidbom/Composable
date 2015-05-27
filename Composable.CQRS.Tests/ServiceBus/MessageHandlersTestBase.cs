@@ -37,6 +37,14 @@ namespace CQRS.Tests.ServiceBus
             _scope.Dispose();
         }
 
+
+        //Review:mlidbo: I think all these messages and handlers here makes the test code confusing and hard to read because it all uses these abstract events and handlers instead of classes made specifically for that test. 
+        //Review:mlidbo:I suspect it is too much focus on DRY and not enough on SOLID and expressive code. 
+        //Review:mlidbo: I suspect this code being here instead of in the tests that use it is part of the reason for that test code being strange/wrong. 
+        //Review:mlidbo: You have to go here and look carefully at the inheritance hierarchy of these abstract classes to realize that the inheritance hierarchy makes what the tests "test" impossible...
+        //Review:mlidbo: If this code was in the tests instead it would be much easier to understand what they test, and to realize that it is wrong/impossible. 
+        //Review:mlidbo:I suggest creating specific concrete messages and handlers in the tests that need them instead of sharing abstract messages and handlers from here.
+        //Review:mlidbo: Remember: SOLID and expressive is much more important than DRY :)
         public class AMessage : IMessage { }
         public class InProcessMessageBase:IMessage
         {

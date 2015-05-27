@@ -136,7 +136,7 @@ namespace Composable.ServiceBus
         private  void AssertItIsNotReplaying(object message)
         {
             if(_isReplaying)
-                throw new CanNotPublishMessageWhenReplayingException(message); 
+                throw new CanNotPublishMessageWhenReplayingEventsOnBusException(message); 
         }
 
         private enum MessageDispatchType

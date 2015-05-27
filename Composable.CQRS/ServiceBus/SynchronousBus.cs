@@ -3,6 +3,7 @@ using System.Linq;
 using Castle.MicroKernel.Lifestyle;
 using Castle.Windsor;
 using Composable.KeyValueStorage.Population;
+using Composable.System;
 using Composable.System.Linq;
 using JetBrains.Annotations;
 using NServiceBus;
@@ -94,7 +95,7 @@ namespace Composable.ServiceBus
                     var handlers = _handlerResolver.GetHandlers(message,dispatchType).ToArray();
                     try
                     {
-                        AssertItIsNotReplaying();
+                        AssertItIsNotReplaying(message);
                         if(dispatchType == MessageDispatchType.Send)
                         {
                             AssertThatThereIsExactlyOneRegisteredHandler(handlers, message);
@@ -132,10 +133,10 @@ namespace Composable.ServiceBus
             }
         }
 
-        private  void AssertItIsNotReplaying()
+        private  void AssertItIsNotReplaying(object message)
         {
             if(_isReplaying)
-                throw new Exception("Can not send/publish message when replaying"); //TODO:use specific exception
+                throw new CanNotPublishMessageWhenReplayingException(message); 
         }
 
         private enum MessageDispatchType

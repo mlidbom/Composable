@@ -94,15 +94,6 @@ namespace Composable.CQRS.ServiceBus.NServiceBus
                 _realBus.Reply(message);
             }
         }
-
-        public void Replay(object message)
-        {
-            _usageGuard.AssertNoContextChangeOccurred(this);
-            //only synchronous bus can replay message
-            if (_local.Handles(message))
-            {
-                DispatchOnSynchronousBus(() => _local.Replay(message));
-            }
-        }
+        
     }
 }

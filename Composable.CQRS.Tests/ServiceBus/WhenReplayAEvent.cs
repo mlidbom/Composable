@@ -42,29 +42,29 @@ namespace CQRS.Tests.ServiceBus
         }
 
         [Test]
-        public void When_replay_a_replay_event()
+        public void When_replay_a_replayed_event()
         {
             SynchronousBus.Replay(new ReplayEvent());
 
             //Assert
-            Container.Resolve<MessageHandler>().ReceiveAMessage.Should().Be(false);
-            Container.Resolve<MessageHandler>().ReceiveInProcessMessage.Should().Be(false);
-            Container.Resolve<MessageHandler>().ReceiveRemoteMessage.Should().Be(false);
-            Container.Resolve<MessageHandler>().ReceiveReplayEvent.Should().Be(true);
-            Container.Resolve<MessageHandler>().ReceiveHandleAndReplayEvent.Should().Be(false);
+            Container.Resolve<MessageHandler>().ReceivedAMessage.Should().Be(false);
+            Container.Resolve<MessageHandler>().ReceivedInProcessMessage.Should().Be(false);
+            Container.Resolve<MessageHandler>().ReceivedRemoteMessage.Should().Be(false);
+            Container.Resolve<MessageHandler>().ReceivedReplayEvent.Should().Be(true);
+            Container.Resolve<MessageHandler>().ReceivedHandleAndReplayEvent.Should().Be(false);
         }
 
         [Test]
-        public void When_replay_a_handle_and_replay_event()
+        public void When_replay_a_handle_and_replayed_event()
         {
             SynchronousBus.Replay(new HandleAndReplayEvent());
 
             //Assert
-            Container.Resolve<MessageHandler>().ReceiveAMessage.Should().Be(false);
-            Container.Resolve<MessageHandler>().ReceiveInProcessMessage.Should().Be(false);
-            Container.Resolve<MessageHandler>().ReceiveRemoteMessage.Should().Be(false);
-            Container.Resolve<MessageHandler>().ReceiveReplayEvent.Should().Be(false);
-            Container.Resolve<MessageHandler>().ReceiveHandleAndReplayEvent.Should().Be(true);
+            Container.Resolve<MessageHandler>().ReceivedAMessage.Should().Be(false);
+            Container.Resolve<MessageHandler>().ReceivedInProcessMessage.Should().Be(false);
+            Container.Resolve<MessageHandler>().ReceivedRemoteMessage.Should().Be(false);
+            Container.Resolve<MessageHandler>().ReceivedReplayEvent.Should().Be(false);
+            Container.Resolve<MessageHandler>().ReceivedHandleAndReplayEvent.Should().Be(true);
         }
     }
 }

@@ -6,6 +6,7 @@ using Castle.MicroKernel.Registration;
 using Castle.MicroKernel.SubSystems.Configuration;
 using Castle.Windsor;
 using Composable.ServiceBus;
+using NServiceBus;
 
 namespace Composable.CQRS.Windsor
 {
@@ -21,7 +22,7 @@ namespace Composable.CQRS.Windsor
     {
         public void Install(IWindsorContainer container, IConfigurationStore store)
         {
-            container.Register(Classes.FromAssemblyContaining<TInheritor>().BasedOn(typeof(IReplayEvents<>)).WithServiceBase().LifestylePerWebRequest());
+            container.Register(Classes.FromAssemblyContaining<TInheritor>().BasedOn(typeof(IReplayEvents<>),typeof(IHandleMessages<>)).WithServiceBase().LifestylePerWebRequest());
         }
     }
 }

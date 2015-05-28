@@ -135,6 +135,7 @@
     <Compile Include="CQRS\EventHandling\SingleAggregateQueryModelUpdater.cs" />
     <Compile Include="CQRS\EventHandling\UniqueMatchEventHierarchyHandler.cs" />
     <Compile Include="CQRS\EventSourcing\AttemptToSaveEmptyAggregate.cs" />
+    <Compile Include="CQRS\EventSourcing\EventsReplayer.cs" />
     <Compile Include="CQRS\EventSourcing\IEventStore.cs" />
     <Compile Include="CQRS\EventSourcing\AggregateRootNotFoundException.cs" />
     <Compile Include="CQRS\EventSourcing\IEventStored.cs" />
@@ -231,9 +232,9 @@
     <Compile Include="ServiceBus\IHandleInProcessMessages.cs" />
     <Compile Include="ServiceBus\IHandleRemoteMessages.cs" />
     <Compile Include="ServiceBus\IHandleReplayedEvents.cs" />
-    <Compile Include="ServiceBus\IMessageHandlersInvoker.cs" />
+    <Compile Include="ServiceBus\MessageHandlersInvoker.cs" />
     <Compile Include="ServiceBus\MessageHandlerInvoker.MessageHandlerMethod.cs" />
-    <Compile Include="ServiceBus\MessageHandlerInvoker.cs" />
+    <Compile Include="ServiceBus\MessageHandlerReferenceExtensions.cs" />
     <Compile Include="ServiceBus\IServiceBus.cs" />
     <Compile Include="CQRS\EventSourcing\AggregateRoot.cs" />
     <Compile Include="ServiceBus\ISynchronousBusMessageSpy.cs" />

@@ -1,11 +1,12 @@
 ﻿using System.Linq;
+using CQRS.Tests.ServiceBus;
 using FluentAssertions;
 using NUnit.Framework;
 
-namespace CQRS.Tests.ServiceBus
+namespace CQRS.Tests.MessageHandlerWiringTests
 {
     [TestFixture]
-    public class WhenPublishingEventOnSynchronousBus : MessageHandlersTestBase
+    public class WhenPublishingEvent : MessageHandlerWiringTestBase
     {
         private AccountCreatedEvent _event;
 

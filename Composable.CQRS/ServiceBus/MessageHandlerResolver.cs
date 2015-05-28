@@ -93,12 +93,14 @@ namespace Composable.ServiceBus
                           .Where(type => type.Implements(typeof(IMessage)));
         }
 
+        private IEnumerable<Type> GenerateMessageHanderTypesByGenericInterface(object message, Type genericMessageHandlerInterface)
+        {
+            return GetCanBeHandledMessageTypes(message).Select(typeImplementedByMessageThatImplementsIMessage => genericMessageHandlerInterface.MakeGenericType(typeImplementedByMessageThatImplementsIMessage));
+        }
+
         private IEnumerable<MessageHandlerTypeReference> GetRegisteredHandlerTypesForMessageAndGenericInterfaceType(object message, Type genericInterface)
         {
-
-            var messageHandlerTypes = message.GetType().GetAllTypesInheritedOrImplemented()
-                .Where(typeImplementedByMessage => typeImplementedByMessage.Implements(typeof(IMessage)))
-                .Select(typeImplementedByMessageThatImplementsIMessage => genericInterface.MakeGenericType(typeImplementedByMessageThatImplementsIMessage));
+            var messageHandlerTypes = GenerateMessageHanderTypesByGenericInterface(message, genericInterface);
 
             foreach (var component in _container.Kernel.GetAssignableHandlers(typeof(object)))
             {

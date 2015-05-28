@@ -69,28 +69,23 @@ namespace Composable.ServiceBus
 
         private IEnumerable<MessageHandlerTypeReference> GetHandlerTypes(object message)
         {
-            var allHandlerTypes = _handlerInterfaces.SelectMany(handlerInterface => GetRegisteredHandlerTypesForMessageAndGenericInterfaceType(message, handlerInterface));
+            var handlerTypes = _handlerInterfaces.SelectMany(handlerInterface => GetRegisteredHandlerTypesForMessageAndGenericInterfaceType(message, handlerInterface));
 
             var excludedMessageHandlerTypes = GetExcludedHandlerTypes(message);
 
-            var handlersToCall = allHandlerTypes
-                .Where(handler => excludedMessageHandlerTypes.None(remoteHandlerType => handler.ImplementingClass.Implements(remoteHandlerType)))
-                .ToList();
+            handlerTypes = handlerTypes.Where(handler => excludedMessageHandlerTypes.None(remoteHandlerType => handler.ImplementingClass.Implements(remoteHandlerType)));
 
-            return handlersToCall;
+            return handlerTypes;
         }
 
         private IEnumerable<Type> GetExcludedHandlerTypes(object message)
         {
-            return GetCanBeHandledMessageTypes(message)
-                .SelectMany(messageType => _excludedHandlerInterfaces.Select(excludedHandlerInterface => excludedHandlerInterface.MakeGenericType(messageType)))
-                .ToList();
+            return _excludedHandlerInterfaces.SelectMany(excludedHandlerInterface => GenerateMessageHanderTypesByGenericInterface(message, excludedHandlerInterface));
         }
 
         private IEnumerable<Type> GetCanBeHandledMessageTypes(object message)
         {
-            return message.GetType().GetAllTypesInheritedOrImplemented()
-                          .Where(type => type.Implements(typeof(IMessage)));
+            return message.GetType().GetAllTypesInheritedOrImplemented().Where(type => type.Implements(typeof(IMessage)));
         }
 
         private IEnumerable<Type> GenerateMessageHanderTypesByGenericInterface(object message, Type genericMessageHandlerInterface)

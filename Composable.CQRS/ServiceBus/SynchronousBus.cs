@@ -1,5 +1,4 @@
-﻿using System.Linq;
-using Castle.MicroKernel.Lifestyle;
+﻿using Castle.MicroKernel.Lifestyle;
 using Castle.Windsor;
 using Composable.KeyValueStorage.Population;
 using Composable.System.Linq;
@@ -60,26 +59,6 @@ namespace Composable.ServiceBus
         public virtual void Reply(object message)
         {
             SyncSendLocal(message);
-        }
-
-
-        private static void AssertThatThereIsExactlyOneRegisteredHandler(MessageHandlersResolver.MessageHandlerReference[] handlers, object message)
-        {
-            if (handlers.Length == 0)
-            {
-                throw new NoHandlerException(message.GetType());
-            }
-            if (handlers.Length > 1)
-            {
-                //TODO: Maybe we can avoid these code.
-                var realHandlers = handlers.Select(handler => handler.Instance)
-                    .Where(handler => !(handler is ISynchronousBusMessageSpy))
-                    .ToList();
-                if (realHandlers.Count > 1)
-                {
-                    throw new MultipleMessageHandlersRegisteredException(message, realHandlers);
-                }
-            }
         }
     }
 }

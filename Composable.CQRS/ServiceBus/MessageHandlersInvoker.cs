@@ -33,7 +33,7 @@ namespace Composable.ServiceBus
 
                         foreach (var messageHandlerReference in handlers)
                         {
-                            messageHandlerReference.InvokeHandlers(message);
+                            messageHandlerReference.Invoke(message);
                         }
                         transactionalScope.Commit();
                     }

@@ -147,7 +147,7 @@
     <Compile Include="CQRS\EventSourcing\SQLServer\SqlServerEventStoreEventsCache.cs" />
     <Compile Include="CQRS\EventSourcing\SQLServer\SqlServerEventStore.cs" />
     <Compile Include="CQRS\IAggregateRepository.cs" />
-    <Compile Include="CQRS\ICommandMessage.cs" />
+    <Compile Include="CQRS\EventSourcing\ICommandMessage.cs" />
     <Compile Include="CQRS\IReferenceObject.cs" />
     <Compile Include="CQRS\Query\Models\Generators\IVersioningDocumentDbReader.cs" />
     <Compile Include="CQRS\Query\Models\Generators\IVersioningQueryModelGenerator.cs" />

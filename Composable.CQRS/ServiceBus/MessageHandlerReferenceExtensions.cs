@@ -11,16 +11,18 @@ namespace Composable.ServiceBus
             new ConcurrentDictionary<MessageHandlerId, List<MessageHandlerMethod>>();
 
         ///<summary>Invokes all the handlers in messageHandler that implements handlerInterfaceType and handles a message matching the type of message.</summary>
-        internal static void InvokeHandlers(this MessageHandlersResolver.MessageHandlerReference messageHandlerReference, object message)
+        internal static void Invoke(this MessageHandlersResolver.MessageHandlerReference messageHandlerReference, object message)
         {
-            var availableHandlerMethods = messageHandlerReference.GetAvailableMethodsFor(message);
-            availableHandlerMethods.ForEach(handlerMethod => handlerMethod.Invoke(handler: messageHandlerReference.Instance, message: message));
+            var handlerType = messageHandlerReference.Instance.GetType();
+            new MessageHandlerMethod(handlerType, messageHandlerReference.GenericInterfaceImplemented.GetGenericArguments()[0], messageHandlerReference.GenericInterfaceImplemented)
+            .Invoke(messageHandlerReference.Instance, message);
         }
 
         private static List<MessageHandlerMethod> GetAvailableMethodsFor(this MessageHandlersResolver.MessageHandlerReference messageHandlerReference, object message)
         {
-            var messageHandler = messageHandlerReference.Instance;
 
+
+            var messageHandler = messageHandlerReference.Instance;
             Type implementingClass = messageHandler.GetType();
 
             List<MessageHandlerMethod> messageHandlerMethods;

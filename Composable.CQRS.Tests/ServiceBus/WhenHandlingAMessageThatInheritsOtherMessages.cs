@@ -44,7 +44,7 @@ namespace CQRS.Tests.ServiceBus
         [UsedImplicitly]
         public class CandidateUpdater :
             IHandleMessages<INamePropertyUpdatedMessage>,
-            IHandleInProcessMessages<IAgePropertyUpdatedMessage>
+            IHandleMessages<IAgePropertyUpdatedMessage>
         {
             public bool NamePropertyUpdatedEventReceived;
             public bool AgePropertyUpdatedEventReceived;

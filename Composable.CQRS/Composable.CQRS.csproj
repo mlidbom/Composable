@@ -185,7 +185,6 @@
     <Compile Include="CQRS\Windsor\DisposableComponentCollection.cs" />
     <Compile Include="CQRS\Windsor\MessageHandlersInstallerBase.cs" />
     <Compile Include="CQRS\Windsor\Testing\ForTestsEventHandlerInstallerBase.cs" />
-    <Compile Include="CQRS\Windsor\Testing\ForTestsReplayEventsHandlersInstallerBase.cs" />
     <Compile Include="CQRS\Windsor\Testing\IConfigureWiringForTests.cs" />
     <Compile Include="CQRS\Windsor\WindsorDisposableExtensions.cs" />
     <Compile Include="CQRS\Windsor\WindsorUnitOfWorkExtensions.cs" />

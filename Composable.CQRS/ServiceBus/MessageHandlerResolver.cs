@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.InteropServices;
 using Castle.Windsor;
 using Composable.System.Linq;
 using Composable.System.Reflection;
@@ -33,7 +32,6 @@ namespace Composable.ServiceBus
             var handlers = GetHandlerTypes(message)
                 .SelectMany(handlerType => _container.ResolveAll(handlerType.ServiceInterface).Cast<object>()
                 .Select(handler => new MessageHandlerReference(handlerType.GenericInterfaceImplemented, instance: handler)))
-                .Distinct() //Remove duplicates for classes that implement more than one interface. 
                 .ToList();
 
 
@@ -42,7 +40,7 @@ namespace Composable.ServiceBus
                 handlers.Where(handler => excludedHandlerTypes.None(remoteMessageHandlerType => remoteMessageHandlerType.IsInstanceOfType(handler.Instance)))
                     .ToList();
 
-            return handlersToCall;
+            return handlers;
         }
 
 
@@ -56,21 +54,6 @@ namespace Composable.ServiceBus
 
             internal Type GenericInterfaceImplemented { get; private set; }
             public object Instance { get; private set; }
-
-            private bool Equals(MessageHandlerReference other)
-            {
-                return GenericInterfaceImplemented == other.GenericInterfaceImplemented && Instance.Equals(other.Instance);
-            }
-
-            override public bool Equals(object other)
-            {
-                return Equals((MessageHandlerReference)other);
-            }
-
-            override public int GetHashCode()
-            {
-                return Instance.GetHashCode();
-            }
 
             internal void Invoke(object message)
             {
@@ -91,8 +74,6 @@ namespace Composable.ServiceBus
             public Type ImplementingClass { get; private set; }
             public Type GenericInterfaceImplemented { get; private set; }
             public Type ServiceInterface { get; private set; }
-
-
         }
 
 
@@ -100,10 +81,10 @@ namespace Composable.ServiceBus
         {
             var allHandlerTypes = _handlerInterfaces.SelectMany(handlerInterface => GetRegisteredHandlerTypesForMessageAndGenericInterfaceType(message, handlerInterface));
 
-            var remoteMessageHandlerTypes = GetExcludedHandlerTypes(message);
+            var excludedMessageHandlerTypes = GetExcludedHandlerTypes(message);
 
             var handlersToCall = allHandlerTypes
-                .Where(handler => remoteMessageHandlerTypes.None(remoteHandlerType => handler.ImplementingClass.Implements(remoteHandlerType)))
+                .Where(handler => excludedMessageHandlerTypes.None(remoteHandlerType => handler.ImplementingClass.Implements(remoteHandlerType)))
                 .ToList();
 
             return handlersToCall;

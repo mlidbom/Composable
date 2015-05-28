@@ -1,6 +1,7 @@
 ﻿using Castle.MicroKernel.Registration;
 using Composable.ServiceBus;
 using FluentAssertions;
+using JetBrains.Annotations;
 using NServiceBus;
 using NUnit.Framework;
 
@@ -15,7 +16,8 @@ namespace CQRS.Tests.ServiceBus
             Container.Register(
                 Component.For<AMessageHandler, IHandleMessages<AMessage>>().ImplementedBy<AMessageHandler>(),
                 //Review:mlidbo: If you do not register it as IHandleRemoteMessages, of course that interface member will never be called.
-                Component.For<ARemoteMessageHandler, IHandleMessages<AMessage>>().ImplementedBy<ARemoteMessageHandler>(),
+                //Review:Rebutal:Richie:In the real scenario, NServiceBus will register IHandleRemoteMessages<AMessage> as IHandleMessages<AMessage>, of course we should register IHandleRemoteMessages<AMessage> as well
+                Component.For<ARemoteMessageHandler, IHandleMessages<AMessage>,IHandleRemoteMessages<AMessage>>().ImplementedBy<ARemoteMessageHandler>(),
                 Component.For<AInProcessMessageHandler, IHandleInProcessMessages<AMessage>>().ImplementedBy<AInProcessMessageHandler>(),
                 Component.For<ASpy, IHandleMessages<AMessage>>().ImplementedBy<ASpy>()
                 );
@@ -24,6 +26,7 @@ namespace CQRS.Tests.ServiceBus
         [Test]
         public void Message_should_be_handled_in_all_handlers_supported_by_synchronous_bus()
         {
+            //Act
             SynchronousBus.Publish(new AMessage());
 
             //Assert
@@ -34,10 +37,48 @@ namespace CQRS.Tests.ServiceBus
         [Test]
         public void Message_should_not_be_handled_in_remote_handler()
         {
+            //Act
             SynchronousBus.Publish(new AMessage());
 
-            //Review:mlidbo: What are you really trying to test here? Because what you are testing is impossible. AMessage does not inherit RemoteMessage. It is impossible for the runtime to cast it to that type. So it is impossible for that handler to be called by publishing that event.
+            //Assert
             Container.Resolve<ARemoteMessageHandler>().ReceivedMessage.Should().Be(false);
         }
+
+        public class AMessage : IMessage { }
+
+        public class AMessageHandler : IHandleMessages<AMessage>
+        {
+            public bool ReceivedMessage;
+
+            public void Handle(AMessage message)
+            {
+                ReceivedMessage = true;
+            }
+        }
+
+        [UsedImplicitly]
+        public class ASpy : AMessageHandler, ISynchronousBusMessageSpy { }
+
+        [UsedImplicitly]
+        public class AInProcessMessageHandler : IHandleInProcessMessages<AMessage>
+        {
+            public bool ReceivedMessage;
+
+            public void Handle(AMessage message)
+            {
+                ReceivedMessage = true;
+            }
+        }
+
+        [UsedImplicitly]
+        public class ARemoteMessageHandler : IHandleRemoteMessages<AMessage>
+        {
+            public bool ReceivedMessage;
+
+            public void Handle(AMessage message)
+            {
+                ReceivedMessage = true;
+            }
+        } 
     }
 }

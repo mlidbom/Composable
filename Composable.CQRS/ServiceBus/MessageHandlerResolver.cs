@@ -71,6 +71,12 @@ namespace Composable.ServiceBus
             {
                 return Instance.GetHashCode();
             }
+
+            internal void Invoke(object message)
+            {
+                var handlerType = Instance.GetType();
+                new MessageHandlerMethod(handlerType, this.GenericInterfaceImplemented.GetGenericArguments()[0], this.GenericInterfaceImplemented).Invoke(this.Instance, message);
+            }
         }
 
         private class MessageHandlerTypeReference
@@ -85,6 +91,8 @@ namespace Composable.ServiceBus
             public Type ImplementingClass { get; private set; }
             public Type GenericInterfaceImplemented { get; private set; }
             public Type ServiceInterface { get; private set; }
+
+
         }
 
 

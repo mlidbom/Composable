@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Linq;
 using System.Linq.Expressions;
-using Composable.System;
 
 namespace Composable.ServiceBus
 {
@@ -21,11 +20,6 @@ namespace Composable.ServiceBus
         public void Invoke(object handler, object message)
         {
             HandlerMethod(handler, message);
-        }
-
-        public bool Handles(object message)
-        {
-            return message.IsInstanceOf(MessageType);
         }
 
         //Returns an action that can be used to invoke this handler for a specific type of message.

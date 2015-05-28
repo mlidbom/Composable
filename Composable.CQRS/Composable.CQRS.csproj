@@ -233,7 +233,6 @@
     <Compile Include="ServiceBus\IHandleReplayedEvents.cs" />
     <Compile Include="ServiceBus\MessageHandlersInvoker.cs" />
     <Compile Include="ServiceBus\MessageHandlerInvoker.MessageHandlerMethod.cs" />
-    <Compile Include="ServiceBus\MessageHandlerReferenceExtensions.cs" />
     <Compile Include="ServiceBus\IServiceBus.cs" />
     <Compile Include="CQRS\EventSourcing\AggregateRoot.cs" />
     <Compile Include="ServiceBus\ISynchronousBusMessageSpy.cs" />

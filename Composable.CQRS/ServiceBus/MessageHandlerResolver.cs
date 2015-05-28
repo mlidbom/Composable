@@ -30,9 +30,7 @@ namespace Composable.ServiceBus
         {
             var handlers = GetHandlerTypes(message)
                 .SelectMany(
-                    handlerType => _container.ResolveAll(handlerType.ServiceInterface)
-                        .Cast<object>()
-                        .Select(handler => new MessageHandlerReference(genericInterfaceImplemented: handlerType.GenericInterfaceImplemented, instance: handler))
+                    handlerType => _container.ResolveAll(handlerType.HandlerInterface).Cast<object>().Select(handler => new MessageHandlerReference(genericInterfaceImplemented: handlerType.HandlerInterface.GetGenericTypeDefinition(), instance: handler))
                 )
                 .Distinct() //Remove duplicates for classes that implement more than one interface. 
                 .ToList();
@@ -44,6 +42,7 @@ namespace Composable.ServiceBus
 
             return handlersToCall;
         }
+
 
         internal class MessageHandlerReference
         {
@@ -72,32 +71,28 @@ namespace Composable.ServiceBus
             }
         }
 
-        private class MessageHandlerTypeReference
+        private class MessageHandlerTypeDescriptor
         {
-            public MessageHandlerTypeReference(Type genericInterfaceImplemented, Type implementingClass, Type serviceInterface)
+            public MessageHandlerTypeDescriptor(Type handlerConcreteType, Type handlerInterface)
             {
-                GenericInterfaceImplemented = genericInterfaceImplemented;
-                ImplementingClass = implementingClass;
-                ServiceInterface = serviceInterface;
+                HandlerConcreteType = handlerConcreteType;
+                HandlerInterface = handlerInterface;
             }
 
-            public Type ImplementingClass { get; private set; }
-            public Type GenericInterfaceImplemented { get; private set; }
-            public Type ServiceInterface { get; private set; }
+            public Type HandlerConcreteType { get; private set; }
+
+            public Type HandlerInterface { get; private set; }
         }
 
 
-        private IEnumerable<MessageHandlerTypeReference> GetHandlerTypes(object message)
+        private IEnumerable<MessageHandlerTypeDescriptor> GetHandlerTypes(object message)
         {
-            var allHandlerTypes = _handlerInterfaces.SelectMany(handlerInterface => GetRegisteredHandlerTypesForMessageAndGenericInterfaceType(message, handlerInterface));
+            var handlerTypes = _handlerInterfaces.SelectMany(handlerInterface => GetRegisteredHandlerTypesForMessageAndGenericInterfaceType(message, handlerInterface));
+            var excludedHandlerTypes = GetExcludedHandlerTypes(message);
 
-            var remoteMessageHandlerTypes = GetExcludedHandlerTypes(message);
+            handlerTypes = handlerTypes.Where(handler => excludedHandlerTypes.None(remoteHandlerType => handler.HandlerConcreteType.Implements(remoteHandlerType))).ToList();
 
-            var handlersToCall = allHandlerTypes
-                .Where(handler => remoteMessageHandlerTypes.None(remoteHandlerType => handler.ImplementingClass.Implements(remoteHandlerType)))
-                .ToList();
-
-            return handlersToCall;
+            return handlerTypes;
         }
 
         private IEnumerable<Type> GetExcludedHandlerTypes(object message)
@@ -113,16 +108,16 @@ namespace Composable.ServiceBus
                           .Where(type => type.Implements(typeof(IMessage)));
         }
 
-        private IEnumerable<MessageHandlerTypeReference> GetRegisteredHandlerTypesForMessageAndGenericInterfaceType(object message, Type genericInterface)
+        private IEnumerable<MessageHandlerTypeDescriptor> GetRegisteredHandlerTypesForMessageAndGenericInterfaceType(object message, Type handlerInterfaceGenericTypeDefinition)
         {
-            return message.GetType().GetAllTypesInheritedOrImplemented()
-                .Where(typeImplementedByMessage => typeImplementedByMessage.Implements(typeof(IMessage)))
-                .Select(typeImplementedByMessageThatImplementsIMessage => genericInterface.MakeGenericType(typeImplementedByMessageThatImplementsIMessage))
+            var messageTypes = GetCanBeHandledMessageTypes(message);
+
+            return messageTypes
+                .Select(messageType => handlerInterfaceGenericTypeDefinition.MakeGenericType(messageType))
                 .SelectMany(serviceInterface => _container.Kernel.GetAssignableHandlers(serviceInterface)
-                    .Select(component => new MessageHandlerTypeReference(
-                        genericInterfaceImplemented: genericInterface,
-                        implementingClass: component.ComponentModel.Implementation,
-                        serviceInterface: serviceInterface)))
+                    .Select(component => new MessageHandlerTypeDescriptor(
+                        handlerConcreteType: component.ComponentModel.Implementation,
+                        handlerInterface: serviceInterface)))
                 .ToArray();
         }
     }

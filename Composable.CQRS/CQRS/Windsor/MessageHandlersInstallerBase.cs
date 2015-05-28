@@ -17,12 +17,5 @@ namespace Composable.CQRS.Windsor
             container.Register(Classes.FromAssemblyContaining<TInheritor>().BasedOn(typeof(IHandleInProcessMessages<>)).WithServiceBase().LifestylePerWebRequest());
         }
     }
-
-    public class ReplayEventsHandlersInstallerBase<TInheritor> : IWindsorInstaller
-    {
-        public void Install(IWindsorContainer container, IConfigurationStore store)
-        {
-            container.Register(Classes.FromAssemblyContaining<TInheritor>().BasedOn(typeof(IHandleReplayedEvents<>)).WithServiceBase().LifestylePerWebRequest());
-        }
-    }
+    
 }

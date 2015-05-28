@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
 using Castle.Windsor;
 using Composable.System.Linq;
 using Composable.System.Reflection;
@@ -17,8 +18,8 @@ namespace Composable.ServiceBus
         public MessageHandlersResolver(IWindsorContainer container, IEnumerable<Type> handlerInterfaces, IEnumerable<Type> excludedHandlerInterfaces)
         {
             _container = container;
-            _handlerInterfaces = handlerInterfaces;
             _excludedHandlerInterfaces = excludedHandlerInterfaces;
+            _handlerInterfaces = handlerInterfaces;
         }
 
         public bool HasHandlerFor(object message)
@@ -28,12 +29,13 @@ namespace Composable.ServiceBus
 
         public IEnumerable<MessageHandlerReference> GetHandlers(object message)
         {
+
             var handlers = GetHandlerTypes(message)
-                .SelectMany(
-                    handlerType => _container.ResolveAll(handlerType.HandlerInterface).Cast<object>().Select(handler => new MessageHandlerReference(genericInterfaceImplemented: handlerType.HandlerInterface.GetGenericTypeDefinition(), instance: handler))
-                )
+                .SelectMany(handlerType => _container.ResolveAll(handlerType.ServiceInterface).Cast<object>()
+                .Select(handler => new MessageHandlerReference(handlerType.GenericInterfaceImplemented, instance: handler)))
                 .Distinct() //Remove duplicates for classes that implement more than one interface. 
                 .ToList();
+
 
             var excludedHandlerTypes = GetExcludedHandlerTypes(message);
             var handlersToCall =
@@ -71,28 +73,32 @@ namespace Composable.ServiceBus
             }
         }
 
-        private class MessageHandlerTypeDescriptor
+        private class MessageHandlerTypeReference
         {
-            public MessageHandlerTypeDescriptor(Type handlerConcreteType, Type handlerInterface)
+            public MessageHandlerTypeReference(Type genericInterfaceImplemented, Type implementingClass, Type serviceInterface)
             {
-                HandlerConcreteType = handlerConcreteType;
-                HandlerInterface = handlerInterface;
+                GenericInterfaceImplemented = genericInterfaceImplemented;
+                ImplementingClass = implementingClass;
+                ServiceInterface = serviceInterface;
             }
 
-            public Type HandlerConcreteType { get; private set; }
-
-            public Type HandlerInterface { get; private set; }
+            public Type ImplementingClass { get; private set; }
+            public Type GenericInterfaceImplemented { get; private set; }
+            public Type ServiceInterface { get; private set; }
         }
 
 
-        private IEnumerable<MessageHandlerTypeDescriptor> GetHandlerTypes(object message)
+        private IEnumerable<MessageHandlerTypeReference> GetHandlerTypes(object message)
         {
-            var handlerTypes = _handlerInterfaces.SelectMany(handlerInterface => GetRegisteredHandlerTypesForMessageAndGenericInterfaceType(message, handlerInterface));
-            var excludedHandlerTypes = GetExcludedHandlerTypes(message);
+            var allHandlerTypes = _handlerInterfaces.SelectMany(handlerInterface => GetRegisteredHandlerTypesForMessageAndGenericInterfaceType(message, handlerInterface));
 
-            handlerTypes = handlerTypes.Where(handler => excludedHandlerTypes.None(remoteHandlerType => handler.HandlerConcreteType.Implements(remoteHandlerType))).ToList();
+            var remoteMessageHandlerTypes = GetExcludedHandlerTypes(message);
 
-            return handlerTypes;
+            var handlersToCall = allHandlerTypes
+                .Where(handler => remoteMessageHandlerTypes.None(remoteHandlerType => handler.ImplementingClass.Implements(remoteHandlerType)))
+                .ToList();
+
+            return handlersToCall;
         }
 
         private IEnumerable<Type> GetExcludedHandlerTypes(object message)
@@ -108,17 +114,22 @@ namespace Composable.ServiceBus
                           .Where(type => type.Implements(typeof(IMessage)));
         }
 
-        private IEnumerable<MessageHandlerTypeDescriptor> GetRegisteredHandlerTypesForMessageAndGenericInterfaceType(object message, Type handlerInterfaceGenericTypeDefinition)
+        private IEnumerable<MessageHandlerTypeReference> GetRegisteredHandlerTypesForMessageAndGenericInterfaceType(object message, Type genericInterface)
         {
-            var messageTypes = GetCanBeHandledMessageTypes(message);
+            var messageHandlerTypes = message.GetType().GetAllTypesInheritedOrImplemented()
+                .Where(typeImplementedByMessage => typeImplementedByMessage.Implements(typeof(IMessage)))
+                .Select(typeImplementedByMessageThatImplementsIMessage => genericInterface.MakeGenericType(typeImplementedByMessageThatImplementsIMessage));
 
-            return messageTypes
-                .Select(messageType => handlerInterfaceGenericTypeDefinition.MakeGenericType(messageType))
-                .SelectMany(serviceInterface => _container.Kernel.GetAssignableHandlers(serviceInterface)
-                    .Select(component => new MessageHandlerTypeDescriptor(
-                        handlerConcreteType: component.ComponentModel.Implementation,
-                        handlerInterface: serviceInterface)))
-                .ToArray();
+            foreach (var component in _container.Kernel.GetAssignableHandlers(typeof(object)))
+            {
+                foreach (var messageHandlerType in messageHandlerTypes)
+                {
+                    if (messageHandlerType.IsAssignableFrom(component.ComponentModel.Implementation))
+                    {
+                        yield return new MessageHandlerTypeReference(genericInterfaceImplemented: messageHandlerType, implementingClass: component.ComponentModel.Implementation, serviceInterface: component.ComponentModel.Services.First());
+                    }
+                }
+            }
         }
     }
 }

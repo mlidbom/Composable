@@ -31,9 +31,7 @@ namespace Composable.ServiceBus
         //Returns an action that can be used to invoke this handler for a specific type of message.
         private static Action<object, object> CreateHandlerMethodInvoker(Type implementingClass, Type messageType, Type genericInterfaceImplemented)
         {
-            var messageHandlerInterfaceType = genericInterfaceImplemented.MakeGenericType(messageType);
-
-            var methodInfo = implementingClass.GetInterfaceMap(messageHandlerInterfaceType).TargetMethods.Single();
+            var methodInfo = implementingClass.GetInterfaceMap(genericInterfaceImplemented).TargetMethods.Single();
             var messageHandlerParameter = Expression.Parameter(typeof(object));
             var messageParameter = Expression.Parameter(typeof(object));
 

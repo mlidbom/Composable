@@ -11,9 +11,9 @@ namespace CQRS.Tests
         {
             container.Register(
                 //WithServiceSelf used for get component by concrete type
-                Classes.FromAssemblyContaining<T>().BasedOn(typeof(IHandleMessages<>)).WithServiceAllInterfaces().WithServiceSelf().LifestylePerWebRequest(),
-                Classes.FromAssemblyContaining<T>().BasedOn(typeof(IHandleInProcessMessages<>)).WithServiceAllInterfaces().WithServiceSelf().LifestylePerWebRequest(),
-                Classes.FromAssemblyContaining<T>().BasedOn(typeof(IHandleReplayedEvents<>)).WithServiceAllInterfaces().WithServiceSelf().LifestylePerWebRequest()
+                Classes.FromAssemblyContaining<T>().BasedOn(typeof(IHandleMessages<>)).WithServiceBase().WithServiceSelf().LifestylePerWebRequest(),
+                Classes.FromAssemblyContaining<T>().BasedOn(typeof(IHandleInProcessMessages<>)).WithServiceBase().WithServiceSelf().LifestylePerWebRequest(),
+                Classes.FromAssemblyContaining<T>().BasedOn(typeof(IHandleReplayedEvents<>)).WithServiceBase().WithServiceSelf().LifestylePerWebRequest()
             );
 
         }

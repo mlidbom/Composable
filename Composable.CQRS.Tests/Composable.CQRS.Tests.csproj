@@ -184,6 +184,7 @@
     <Compile Include="KeyValueStorage\InMemoryDocumentDbTests.cs" />
     <Compile Include="KeyValueStorage\DocumentDbTests.cs" />
     <Compile Include="MessageHandlersRegister.cs" />
+    <Compile Include="MessageHandlerWiringTests\MessageHandlerWiringTestBase.cs" />
     <Compile Include="NCrunchExlusivelyUsesResources.cs" />
     <Compile Include="KeyValueStorage\Sql\SqlDocumentDbTests.cs" />
     <Compile Include="KeyValueStorage\Sql\DocumentDbSpecification.cs" />
@@ -192,7 +193,8 @@
     <Compile Include="ServiceBus\MessageHandlersTestBase.cs" />
     <Compile Include="ServiceBus\SynchronousBusSpecification.cs" />
     <Compile Include="ServiceBus\WhenHandlingAMessageThatInheritsOtherMessages.cs" />
-    <Compile Include="ServiceBus\WhenPublishingEventOnSynchronousBus.cs" />
+    <Compile Include="MessageHandlerWiringTests\WhenReplayingEvent.cs" />
+    <Compile Include="MessageHandlerWiringTests\WhenPublishingEvent.cs" />
     <Compile Include="StubMain.cs" />
     <Compile Include="UnitOfWorkTests\WindsorUnitOfWorkExtensionsTests.cs" />
   </ItemGroup>

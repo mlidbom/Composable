@@ -1,5 +1,4 @@
 ﻿using System.Linq;
-using CQRS.Tests.ServiceBus;
 using FluentAssertions;
 using NUnit.Framework;
 

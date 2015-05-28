@@ -5,28 +5,30 @@ using System.Linq;
 
 namespace Composable.ServiceBus
 {
-    internal static class MessageHandlerInvoker
+    internal static class MessageHandlerReferenceExtensions
     {
         private static readonly ConcurrentDictionary<MessageHandlerId, List<MessageHandlerMethod>> MessageHandlerClassCache =
             new ConcurrentDictionary<MessageHandlerId, List<MessageHandlerMethod>>();
 
         ///<summary>Invokes all the handlers in messageHandler that implements handlerInterfaceType and handles a message matching the type of message.</summary>
-        internal static void InvokeHandlerMethods(object messageHandler, object message, Type genericInterfaceImplemented)
+        internal static void InvokeHandlers(this MessageHandlersResolver.MessageHandlerReference messageHandlerReference, object message)
         {
-            GetHandlerMethods(messageHandler, genericInterfaceImplemented, message)
-                .ForEach(handlerMethod => handlerMethod.Invoke(handler: messageHandler, message: message));
+            var availableHandlerMethods = messageHandlerReference.GetAvailableMethodsFor(message);
+            availableHandlerMethods.ForEach(handlerMethod => handlerMethod.Invoke(handler: messageHandlerReference.Instance, message: message));
         }
 
-        private static List<MessageHandlerMethod> GetHandlerMethods(object messageHandler, Type genericInterfaceImplemented, object message)
+        private static List<MessageHandlerMethod> GetAvailableMethodsFor(this MessageHandlersResolver.MessageHandlerReference messageHandlerReference, object message)
         {
+            var messageHandler = messageHandlerReference.Instance;
+
             Type implementingClass = messageHandler.GetType();
 
             List<MessageHandlerMethod> messageHandlerMethods;
-            var messageHandlerClassId = new MessageHandlerId(implementingClass: implementingClass, genericInterfaceImplemented: genericInterfaceImplemented);
+            var messageHandlerClassId = new MessageHandlerId(implementingClass: implementingClass, genericInterfaceImplemented: messageHandlerReference.GenericInterfaceImplemented);
 
             if (!MessageHandlerClassCache.TryGetValue(messageHandlerClassId, out messageHandlerMethods))
             {
-                messageHandlerMethods = CreateMessageHandlerMethods(genericInterfaceImplemented: genericInterfaceImplemented, implementingClass: implementingClass);
+                messageHandlerMethods = CreateMessageHandlerMethods(genericInterfaceImplemented: messageHandlerReference.GenericInterfaceImplemented, implementingClass: implementingClass);
                 MessageHandlerClassCache[messageHandlerClassId] = messageHandlerMethods;
             }
             return messageHandlerMethods
@@ -39,9 +41,7 @@ namespace Composable.ServiceBus
             return implementingClass.GetInterfaces()
                 .Where(@interface => @interface.IsGenericType && @interface.GetGenericTypeDefinition() == genericInterfaceImplemented)
                 .Select(genericInterfaceImplementation => genericInterfaceImplementation.GetGenericArguments().Single())
-                .Select(
-                    messageType =>
-                        new MessageHandlerMethod(implementingClass: implementingClass, messageType: messageType, genericInterfaceImplemented: genericInterfaceImplemented))
+                .Select(messageType => new MessageHandlerMethod(implementingClass: implementingClass, messageType: messageType, genericInterfaceImplemented: genericInterfaceImplemented))
                 .ToList();
         }
 

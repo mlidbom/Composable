@@ -53,7 +53,7 @@ namespace Composable.ServiceBus
                 Instance = instance;
             }
 
-            private Type GenericInterfaceImplemented { get; set; }
+            internal Type GenericInterfaceImplemented { get; private set; }
             public object Instance { get; private set; }
 
             private bool Equals(MessageHandlerReference other)
@@ -69,14 +69,6 @@ namespace Composable.ServiceBus
             override public int GetHashCode()
             {
                 return Instance.GetHashCode();
-            }
-
-            public void InvokeHandlers(object message)
-            {
-                MessageHandlerInvoker.InvokeHandlerMethods(
-                    messageHandler: Instance,
-                    message: message,
-                    genericInterfaceImplemented: GenericInterfaceImplemented);
             }
         }
 
@@ -108,12 +100,6 @@ namespace Composable.ServiceBus
             return handlersToCall;
         }
 
-        private List<MessageHandlerTypeReference> GetHandlerTypesForReplay(object message)
-        {
-            var replayHandlerTypes = GetRegisteredHandlerTypesForMessageAndGenericInterfaceType(message, typeof(IHandleReplayedEvents<>));
-            return replayHandlerTypes.ToList();
-        }
-
         private IEnumerable<Type> GetExcludedHandlerTypes(object message)
         {
             return GetCanBeHandledMessageTypes(message)
@@ -124,7 +110,7 @@ namespace Composable.ServiceBus
         private IEnumerable<Type> GetCanBeHandledMessageTypes(object message)
         {
             return message.GetType().GetAllTypesInheritedOrImplemented()
-                .Where(typeInheritedByMessageInstance => typeInheritedByMessageInstance.Implements(typeof(IMessage)));
+                          .Where(type => type.Implements(typeof(IMessage)));
         }
 
         private IEnumerable<MessageHandlerTypeReference> GetRegisteredHandlerTypesForMessageAndGenericInterfaceType(object message, Type genericInterface)

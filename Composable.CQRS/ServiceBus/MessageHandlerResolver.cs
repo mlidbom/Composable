@@ -29,7 +29,7 @@ namespace Composable.ServiceBus
         public IEnumerable<MessageHandlerReference> GetHandlers(object message)
         {
             return GetHandlerTypes(message)
-                .Select(handlerType => new MessageHandlerReference(handlerType.GenericInterfaceImplemented, instance: _container.Resolve(handlerType.Name, handlerType.ServiceInterface)));
+                .Select(handlerType => new MessageHandlerReference(handlerType.GenericInterfaceImplemented, instance: handlerType.HandlerCreator()));
         }
 
 
@@ -53,17 +53,15 @@ namespace Composable.ServiceBus
 
         private class MessageHandlerTypeReference
         {
-            public MessageHandlerTypeReference(Type genericInterfaceImplemented, Type implementingClass, Type serviceInterface, string name)
+            public MessageHandlerTypeReference(Type genericInterfaceImplemented, Type implementingClass, Func<object> handlerCreator)
             {
                 GenericInterfaceImplemented = genericInterfaceImplemented;
                 ImplementingClass = implementingClass;
-                ServiceInterface = serviceInterface;
-                Name = name;
+                HandlerCreator = handlerCreator;
             }
-            public string Name { get; private set; }
             public Type ImplementingClass { get; private set; }
             public Type GenericInterfaceImplemented { get; private set; }
-            public Type ServiceInterface { get; private set; }
+            public Func<object> HandlerCreator { get; private set; }
         }
 
 
@@ -103,7 +101,10 @@ namespace Composable.ServiceBus
                 {
                     if (messageHandlerType.IsAssignableFrom(component.ComponentModel.Implementation))
                     {
-                        yield return new MessageHandlerTypeReference(genericInterfaceImplemented: messageHandlerType, implementingClass: component.ComponentModel.Implementation, serviceInterface: component.ComponentModel.Services.First(), name: component.ComponentModel.Name);
+                        yield return new MessageHandlerTypeReference(
+                            genericInterfaceImplemented: messageHandlerType,
+                            implementingClass: component.ComponentModel.Implementation,
+                            handlerCreator: () => _container.Resolve(component.ComponentModel.Name, component.ComponentModel.Services.First()));
                     }
                 }
             }

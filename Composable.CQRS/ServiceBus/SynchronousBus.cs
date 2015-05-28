@@ -16,13 +16,14 @@ namespace Composable.ServiceBus
     {
         private readonly IWindsorContainer _container;
         private readonly MessageHandlersResolver _handlersResolver;
-
+        private readonly MessageHandlersInvoker _messageHandlersInvoker;
         public SynchronousBus(IWindsorContainer container)
         {
             _container = container;
             _handlersResolver = new MessageHandlersResolver(container: container,
                 handlerInterfaces: new[] { typeof(IHandleInProcessMessages<>), typeof(IHandleMessages<>) },
                 excludedHandlerInterfaces: new[] { typeof(IHandleRemoteMessages<>) });
+            _messageHandlersInvoker = new MessageHandlersInvoker(container, _handlersResolver);
         }
 
         public virtual void Publish(object message)
@@ -37,51 +38,13 @@ namespace Composable.ServiceBus
 
         protected virtual void PublishLocal(object message)
         {
-            using (_container.RequireScope()) //Use the existing scope when running in an endpoint and create a new one if running in the web
-            {
-                using (var transactionalScope = _container.BeginTransactionalUnitOfWorkScope())
-                {
-                    var handlers = _handlersResolver.GetHandlers(message).ToArray();
-                    try
-                    {
-                        foreach (var messageHandlerReference in handlers)
-                        {
-                            messageHandlerReference.InvokeHandlers(message);
-                        }
-                        transactionalScope.Commit();
-                    }
-                    finally
-                    {
-                        handlers.ForEach(_container.Release);
-                    }
-                }
-            }
+            _messageHandlersInvoker.InvokeHandlers(message, allowMultipleHandlers: true);
         }
+
 
         protected virtual void SyncSendLocal(object message)
         {
-            // TODO: Same as PublishLocal, try to remove repeated code.
-            using (_container.RequireScope()) //Use the existing scope when running in an endpoint and create a new one if running in the web
-            {
-                using (var transactionalScope = _container.BeginTransactionalUnitOfWorkScope())
-                {
-                    var handlers = _handlersResolver.GetHandlers(message).ToArray();
-                    try
-                    {
-                        AssertThatThereIsExactlyOneRegisteredHandler(handlers, message);
-
-                        foreach (var messageHandlerReference in handlers)
-                        {
-                            messageHandlerReference.InvokeHandlers(message);
-                        }
-                        transactionalScope.Commit();
-                    }
-                    finally
-                    {
-                        handlers.ForEach(_container.Release);
-                    }
-                }
-            }
+            _messageHandlersInvoker.InvokeHandlers(message, allowMultipleHandlers: false);
         }
 
         public virtual void SendLocal(object message)

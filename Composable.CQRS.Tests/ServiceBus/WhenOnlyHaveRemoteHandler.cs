@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using Castle.MicroKernel.Registration;
-using Composable.ServiceBus;
+﻿using Castle.MicroKernel.Registration;
 using FluentAssertions;
 using NServiceBus;
 using NUnit.Framework;

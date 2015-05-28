@@ -5,7 +5,6 @@ using Composable.ServiceBus;
 using Composable.SystemExtensions.Threading;
 using FluentAssertions;
 using NServiceBus;
-using NUnit.Framework;
 
 namespace CQRS.Tests.ServiceBus
 {

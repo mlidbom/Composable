@@ -10,16 +10,6 @@ namespace CQRS.Tests.ServiceBus
     [TestFixture]
     public class WhenHandlingAMessageThatInheritsOtherMessages : MessageHandlersTestBase
     {
-        [SetUp]
-        public void RegisterHandlers()
-        {
-            Container.Register(
-                Component.For<CandidateUpdater, IHandleMessages<INamePropertyUpdatedMessage>, IHandleInProcessMessages<IAgePropertyUpdatedMessage>>()
-                    .ImplementedBy<CandidateUpdater>()
-                    .LifestyleScoped()
-                );
-        }
-
         [Test]
         public void When_publishing_a_message_all_matching_handlers_should_be_invoked()
         {

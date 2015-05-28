@@ -164,6 +164,7 @@
     <Compile Include="CQRS\EventHandling\SingleAggregateQueryModelUpdaterSpecification.cs" />
     <Compile Include="CQRS\EventHandling\EventHierarchyHandlerSpecification.cs" />
     <Compile Include="CQRS\EventSourcing\AggregateRootTests.cs" />
+    <Compile Include="CQRS\EventSourcing\EventsReplayerTests.cs" />
     <Compile Include="CQRS\EventSourcing\EventStoreTests.cs" />
     <Compile Include="CQRS\EventSourcing\EventStoredAggregateRootTests.cs" />
     <Compile Include="CQRS\EventSourcing\EventStoreSessionTests.cs" />
@@ -182,6 +183,7 @@
     <Compile Include="KeyValueStorage\Dog.cs" />
     <Compile Include="KeyValueStorage\InMemoryDocumentDbTests.cs" />
     <Compile Include="KeyValueStorage\DocumentDbTests.cs" />
+    <Compile Include="MessageHandlersRegister.cs" />
     <Compile Include="NCrunchExlusivelyUsesResources.cs" />
     <Compile Include="KeyValueStorage\Sql\SqlDocumentDbTests.cs" />
     <Compile Include="KeyValueStorage\Sql\DocumentDbSpecification.cs" />
@@ -189,9 +191,8 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ServiceBus\MessageHandlersTestBase.cs" />
     <Compile Include="ServiceBus\SynchronousBusSpecification.cs" />
-    <Compile Include="ServiceBus\WhenDifferentTypeOfHandlersHandlesTheDifferentMessages.cs" />
     <Compile Include="ServiceBus\WhenHandlingAMessageThatInheritsOtherMessages.cs" />
-    <Compile Include="ServiceBus\WhenDifferentTypesOfHandlersHandlesTheSameMessage.cs" />
+    <Compile Include="ServiceBus\WhenPublishingEventOnSynchronousBus.cs" />
     <Compile Include="StubMain.cs" />
     <Compile Include="UnitOfWorkTests\WindsorUnitOfWorkExtensionsTests.cs" />
   </ItemGroup>

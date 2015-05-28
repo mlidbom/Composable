@@ -28,19 +28,8 @@ namespace Composable.ServiceBus
 
         public IEnumerable<MessageHandlerReference> GetHandlers(object message)
         {
-
-            var handlers = GetHandlerTypes(message)
-                .SelectMany(handlerType => _container.ResolveAll(handlerType.ServiceInterface).Cast<object>()
-                .Select(handler => new MessageHandlerReference(handlerType.GenericInterfaceImplemented, instance: handler)))
-                .ToList();
-
-
-            var excludedHandlerTypes = GetExcludedHandlerTypes(message);
-            var handlersToCall =
-                handlers.Where(handler => excludedHandlerTypes.None(remoteMessageHandlerType => remoteMessageHandlerType.IsInstanceOfType(handler.Instance)))
-                    .ToList();
-
-            return handlers;
+            return GetHandlerTypes(message)
+                .Select(handlerType => new MessageHandlerReference(handlerType.GenericInterfaceImplemented, instance: _container.Resolve(handlerType.Name, handlerType.ServiceInterface)));
         }
 
 
@@ -64,13 +53,14 @@ namespace Composable.ServiceBus
 
         private class MessageHandlerTypeReference
         {
-            public MessageHandlerTypeReference(Type genericInterfaceImplemented, Type implementingClass, Type serviceInterface)
+            public MessageHandlerTypeReference(Type genericInterfaceImplemented, Type implementingClass, Type serviceInterface, string name)
             {
                 GenericInterfaceImplemented = genericInterfaceImplemented;
                 ImplementingClass = implementingClass;
                 ServiceInterface = serviceInterface;
+                Name = name;
             }
-
+            public string Name { get; private set; }
             public Type ImplementingClass { get; private set; }
             public Type GenericInterfaceImplemented { get; private set; }
             public Type ServiceInterface { get; private set; }
@@ -105,6 +95,7 @@ namespace Composable.ServiceBus
 
         private IEnumerable<MessageHandlerTypeReference> GetRegisteredHandlerTypesForMessageAndGenericInterfaceType(object message, Type genericInterface)
         {
+
             var messageHandlerTypes = message.GetType().GetAllTypesInheritedOrImplemented()
                 .Where(typeImplementedByMessage => typeImplementedByMessage.Implements(typeof(IMessage)))
                 .Select(typeImplementedByMessageThatImplementsIMessage => genericInterface.MakeGenericType(typeImplementedByMessageThatImplementsIMessage));
@@ -115,7 +106,7 @@ namespace Composable.ServiceBus
                 {
                     if (messageHandlerType.IsAssignableFrom(component.ComponentModel.Implementation))
                     {
-                        yield return new MessageHandlerTypeReference(genericInterfaceImplemented: messageHandlerType, implementingClass: component.ComponentModel.Implementation, serviceInterface: component.ComponentModel.Services.First());
+                        yield return new MessageHandlerTypeReference(genericInterfaceImplemented: messageHandlerType, implementingClass: component.ComponentModel.Implementation, serviceInterface: component.ComponentModel.Services.First(), name: component.ComponentModel.Name);
                     }
                 }
             }

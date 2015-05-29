@@ -83,6 +83,11 @@ namespace Composable.CQRS.Testing
             Publish(message);
         }
 
+        public void Replay(object message)
+        {
+            throw new NotImplementedException();
+        }
+
         public void AddHandler<TMessage>(Func<TMessage, IMessage> handler) where TMessage : IMessage
         {
             _localHandlers.Add(Tuple.Create(typeof(TMessage), (Func<object, IEnumerable<IMessage>>)(o => new[] { handler((TMessage)o) })));

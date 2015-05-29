@@ -17,7 +17,7 @@ namespace CQRS.Tests.MessageHandlerWiringTests
         }
     }
 
-    public class WhenOneMessageHandler_implements_IHandleInProcessEvents_and_IHandleMessages_for_same_type : MessageHandlerWiringTestBase
+    public class WhenOneMessageHandler_implements_IHandleInProcessEvents_and_IHandleMessages_for_same_message : MessageHandlerWiringTestBase
     {
         [Test]
         public void That_should_be_handled_once()

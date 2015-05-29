@@ -23,14 +23,14 @@ using log4net.Config;
 
 namespace Composable.CQRS.ServiceBus.NServiceBus.EndpointConfiguration
 {
-    public abstract class NServicebusEndpointConfigurationBase<TInheritor> : 
-        IWantCustomInitialization, 
+    public abstract class NServicebusEndpointConfigurationBase<TInheritor> :
+        IWantCustomInitialization,
         AsA_NullOpRole
         where TInheritor : IConfigureThisEndpoint
-    {        
+    {
         private WindsorContainer _container;
-
-        protected static readonly IEnumerable<Assembly> AssembliesItIsRequiredThatYouScan = 
+        private ConfigUnicastBus _serviceBusconfiguration;
+        protected static readonly IEnumerable<Assembly> AssembliesItIsRequiredThatYouScan =
             Seq.OfTypes<
                 global::NServiceBus.IMessage,//NServiceBus.Interfaces
                 global::NServiceBus.Hosting.IHost,//NServiceBus.Host
@@ -40,7 +40,13 @@ namespace Composable.CQRS.ServiceBus.NServiceBus.EndpointConfiguration
                 .Select(type => type.Assembly)
                 .ToList();
 
-        protected virtual void StartNServiceBus(WindsorContainer windsorContainer)
+        private void StartNServiceBus()
+        {
+            _serviceBusconfiguration.CreateBus()
+                .Start(() => Configure.Instance.ForInstallationOn<global::NServiceBus.Installation.Environments.Windows>().Install());
+        }
+
+        protected virtual void ConfigureNServiceBus(WindsorContainer windsorContainer)
         {
             Configure.Serialization.Xml();
             Configure.Transactions.Enable();
@@ -50,7 +56,7 @@ namespace Composable.CQRS.ServiceBus.NServiceBus.EndpointConfiguration
                 .CastleWindsorBuilder(container: windsorContainer);
 
             config = ConfigureLogging(config);
-                
+
 
             var config2 = ConfigureSubscriptionStorage(config);
             config2 = ConfigureSaga(config2);
@@ -67,9 +73,7 @@ namespace Composable.CQRS.ServiceBus.NServiceBus.EndpointConfiguration
             Configure.Instance.Configurer.ConfigureComponent<CatchSerializationErrorsMessageInspector>(DependencyLifecycle.InstancePerCall);
             Configure.Instance.Configurer.ConfigureComponent<MessageSourceValidator>(DependencyLifecycle.InstancePerCall);
 
-            busConfig2.ImpersonateSender(false)
-                .CreateBus()
-                .Start(() => Configure.Instance.ForInstallationOn<global::NServiceBus.Installation.Environments.Windows>().Install());
+            _serviceBusconfiguration = busConfig2.ImpersonateSender(false);
         }
 
         protected virtual Configure InitializeConfigurationAndDecideOnScanningPolicy()
@@ -133,8 +137,11 @@ namespace Composable.CQRS.ServiceBus.NServiceBus.EndpointConfiguration
             _container.Kernel.ReleasePolicy = new NoTrackingReleasePolicy();
 
 
-            StartNServiceBus(_container);
+
+            ConfigureNServiceBus(_container);
             ConfigureContainer(_container);
+            StartNServiceBus();
+
             AssertContainerConfigurationValid();
         }
 
@@ -155,7 +162,7 @@ namespace Composable.CQRS.ServiceBus.NServiceBus.EndpointConfiguration
     }
 
     // ReSharper disable ClassNeverInstantiated.Global
-    public class WillNeverBeUsed : IMessage        
+    public class WillNeverBeUsed : IMessage
     {
     }
 

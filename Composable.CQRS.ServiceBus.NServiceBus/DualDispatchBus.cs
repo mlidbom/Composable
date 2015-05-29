@@ -94,5 +94,6 @@ namespace Composable.CQRS.ServiceBus.NServiceBus
                 _realBus.Reply(message);
             }
         }
+        
     }
 }

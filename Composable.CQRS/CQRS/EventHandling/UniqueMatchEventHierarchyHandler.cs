@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Composable.CQRS.EventSourcing;
+using Composable.ServiceBus;
 using Composable.StuffThatDoesNotBelongHere;
 using Composable.System;
 using log4net;
@@ -14,7 +15,8 @@ namespace Composable.CQRS.EventHandling
     /// If there is more than one matching handler an AmbigousHandlerException is thrown. 
     /// Use this base class when you are interested in exactly what has happened.
     /// </summary>
-    public abstract class UniqueMatchEventHierarchyHandler<TImplementor, TEvent> : IHandleMessages<TEvent> where TImplementor : UniqueMatchEventHierarchyHandler<TImplementor, TEvent>
+    public abstract class UniqueMatchEventHierarchyHandler<TImplementor, TEvent> : IHandleReplayedAndPublishedEvents<TEvent>
+        where TImplementor : UniqueMatchEventHierarchyHandler<TImplementor, TEvent>
         where TEvent : IAggregateRootEvent
     {
         private static readonly ILog Log = LogManager.GetLogger(typeof(UniqueMatchEventHierarchyHandler<TImplementor, TEvent>));

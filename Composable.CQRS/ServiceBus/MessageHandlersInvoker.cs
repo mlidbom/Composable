@@ -45,9 +45,9 @@ namespace Composable.ServiceBus
             }
         }
 
-     
 
-        private static void AssertThatThereIsExactlyOneRegisteredHandler(MessageHandlersResolver.MessageHandlerReference[] handlers, object message)
+
+        private static void AssertThatThereIsExactlyOneRegisteredHandler(MessageHandlersResolver.MessageHandlerTypeReference[] handlers, object message)
         {
             if (handlers.Length == 0)
             {
@@ -56,8 +56,8 @@ namespace Composable.ServiceBus
             if (handlers.Length > 1)
             {
                 //TODO: Maybe we can avoid these code.
-                var realHandlers = handlers.Select(handler => handler.Instance)
-                    .Where(handler => !(handler is IMessageSpy))
+                var realHandlers = handlers.Select(handler => handler.ImplementingClass)
+                    .Where(handlerType => !typeof(IMessageSpy).IsAssignableFrom(handlerType))
                     .ToList();
                 if (realHandlers.Count > 1)
                 {

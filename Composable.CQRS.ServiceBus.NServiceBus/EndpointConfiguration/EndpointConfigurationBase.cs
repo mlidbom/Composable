@@ -132,10 +132,9 @@ namespace Composable.CQRS.ServiceBus.NServiceBus.EndpointConfiguration
             //Forget this and you leak memory like CRAZY!
             _container.Kernel.ReleasePolicy = new NoTrackingReleasePolicy();
 
-            ConfigureContainer(_container);
 
             StartNServiceBus(_container);
-
+            ConfigureContainer(_container);
             AssertContainerConfigurationValid();
         }
 

@@ -185,6 +185,7 @@
     <Compile Include="KeyValueStorage\DocumentDbTests.cs" />
     <Compile Include="MessageHandlersRegister.cs" />
     <Compile Include="MessageHandlerWiringTests\MessageHandlerWiringTestBase.cs" />
+    <Compile Include="MessageHandlerWiringTests\WhenOneMessageHandler_implements_IHandleInProcessEvents_and_IHandleMessages_for_same_type.cs" />
     <Compile Include="NCrunchExlusivelyUsesResources.cs" />
     <Compile Include="KeyValueStorage\Sql\SqlDocumentDbTests.cs" />
     <Compile Include="KeyValueStorage\Sql\DocumentDbSpecification.cs" />

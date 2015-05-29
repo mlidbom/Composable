@@ -6,15 +6,11 @@ namespace Composable.ServiceBus
 {
     internal class MessageHandlerMethod
     {
-        private Type MessageType { get; set; }
         private Action<object, object> HandlerMethod { get; set; }
 
-        public MessageHandlerMethod(Type implementingClass, Type messageType, Type genericInterfaceImplemented)
+        public MessageHandlerMethod(Type implementingClass, Type genericInterfaceImplemented)
         {
-            MessageType = messageType;
-            HandlerMethod = CreateHandlerMethodInvoker(implementingClass: implementingClass,
-                messageType: messageType,
-                genericInterfaceImplemented: genericInterfaceImplemented);
+            HandlerMethod = CreateHandlerMethodInvoker(implementingClass, genericInterfaceImplemented);
         }
 
         public void Invoke(object handler, object message)
@@ -23,7 +19,7 @@ namespace Composable.ServiceBus
         }
 
         //Returns an action that can be used to invoke this handler for a specific type of message.
-        private static Action<object, object> CreateHandlerMethodInvoker(Type implementingClass, Type messageType, Type genericInterfaceImplemented)
+        private static Action<object, object> CreateHandlerMethodInvoker(Type implementingClass, Type genericInterfaceImplemented)
         {
             var methodInfo = implementingClass.GetInterfaceMap(genericInterfaceImplemented).TargetMethods.Single();
             var messageHandlerParameter = Expression.Parameter(typeof(object));

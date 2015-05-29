@@ -47,7 +47,7 @@ namespace Composable.ServiceBus
             internal void Invoke(object message)
             {
                 var handlerType = Instance.GetType();
-                new MessageHandlerMethod(handlerType, this.GenericInterfaceImplemented.GetGenericArguments()[0], this.GenericInterfaceImplemented).Invoke(this.Instance, message);
+                new MessageHandlerMethod(handlerType, this.GenericInterfaceImplemented).Invoke(this.Instance, message);
             }
         }
 

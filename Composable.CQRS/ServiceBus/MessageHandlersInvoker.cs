@@ -47,7 +47,7 @@ namespace Composable.ServiceBus
 
 
 
-        private static void AssertThatThereIsExactlyOneRegisteredHandler(MessageHandlersResolver.MessageHandlerTypeReference[] handlers, object message)
+        private static void AssertThatThereIsExactlyOneRegisteredHandler(MessageHandlersResolver.MessageHandlerReference[] handlers, object message)
         {
             if (handlers.Length == 0)
             {

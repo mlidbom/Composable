@@ -14,11 +14,11 @@ namespace Composable.ServiceBus
         private readonly IWindsorContainer _container;
         private readonly IEnumerable<Type> _handlerInterfaces;
         private readonly IEnumerable<Type> _excludedHandlerInterfaces;
-        private IDictionary<Type, IEnumerable<MessageHandlerTypeReference>> _cache;
+        private readonly IDictionary<Type, IEnumerable<MessageHandlerReference>> _cache;
 
         public MessageHandlersResolver(IWindsorContainer container, IEnumerable<Type> handlerInterfaces, IEnumerable<Type> excludedHandlerInterfaces)
         {
-            _cache = new ConcurrentDictionary<Type, IEnumerable<MessageHandlerTypeReference>>();
+            _cache = new ConcurrentDictionary<Type, IEnumerable<MessageHandlerReference>>();
             _container = container;
             _excludedHandlerInterfaces = excludedHandlerInterfaces;
             _handlerInterfaces = handlerInterfaces;
@@ -26,37 +26,10 @@ namespace Composable.ServiceBus
 
         public bool HasHandlerFor(object message)
         {
-            return GetHandlerTypes(message).Any();
+            return GetHandlers(message).Any();
         }
 
-        public IEnumerable<MessageHandlerTypeReference> GetHandlers(object message)
-        {
-            return GetHandlerTypes(message);
-        }
-
-
-
-        internal class MessageHandlerTypeReference
-        {
-            public MessageHandlerTypeReference(Type genericInterfaceImplemented, Type implementingClass, Func<object> handlerCreator)
-            {
-                GenericInterfaceImplemented = genericInterfaceImplemented;
-                ImplementingClass = implementingClass;
-                HandlerCreator = handlerCreator;
-            }
-            public Type ImplementingClass { get; private set; }
-            public Type GenericInterfaceImplemented { get; private set; }
-            public Func<object> HandlerCreator { get; private set; }
-
-            internal void Invoke(object message)
-            {
-                var handler = HandlerCreator();
-                new MessageHandlerMethod(ImplementingClass, this.GenericInterfaceImplemented).Invoke(handler, message);
-            }
-        }
-
-
-        private IEnumerable<MessageHandlerTypeReference> GetHandlerTypes(object message)
+        internal IEnumerable<MessageHandlerReference> GetHandlers(object message)
         {
             var messageType = message.GetType();
             if (!_cache.ContainsKey(messageType))
@@ -85,7 +58,7 @@ namespace Composable.ServiceBus
             return GetCanBeHandledMessageTypes(message).Select(typeImplementedByMessageThatImplementsIMessage => genericMessageHandlerInterface.MakeGenericType(typeImplementedByMessageThatImplementsIMessage));
         }
 
-        private IEnumerable<MessageHandlerTypeReference> GetRegisteredHandlerTypesForMessage(object message, Type genericInterface)
+        private IEnumerable<MessageHandlerReference> GetRegisteredHandlerTypesForMessage(object message, Type genericInterface)
         {
             var messageHandlerTypes = GenerateMessageHanderTypesByGenericInterface(message, genericInterface);
 
@@ -95,7 +68,7 @@ namespace Composable.ServiceBus
                 {
                     if (messageHandlerType.IsAssignableFrom(component.ComponentModel.Implementation))
                     {
-                        yield return new MessageHandlerTypeReference(
+                        yield return new MessageHandlerReference(
                             genericInterfaceImplemented: messageHandlerType,
                             implementingClass: component.ComponentModel.Implementation,
                             handlerCreator: () => _container.Resolve(component.ComponentModel.Name, component.ComponentModel.Services.First()));
@@ -103,5 +76,26 @@ namespace Composable.ServiceBus
                 }
             }
         }
+
+        internal class MessageHandlerReference
+        {
+            public MessageHandlerReference(Type genericInterfaceImplemented, Type implementingClass, Func<object> handlerCreator)
+            {
+                GenericInterfaceImplemented = genericInterfaceImplemented;
+                ImplementingClass = implementingClass;
+                HandlerCreator = handlerCreator;
+            }
+            public Type ImplementingClass { get; private set; }
+            public Type GenericInterfaceImplemented { get; private set; }
+            public Func<object> HandlerCreator { get; private set; }
+
+            internal void Invoke(object message)
+            {
+                var handler = HandlerCreator();
+                new MessageHandlerMethod(ImplementingClass, this.GenericInterfaceImplemented).Invoke(handler, message);
+            }
+        }
+
+
     }
 }

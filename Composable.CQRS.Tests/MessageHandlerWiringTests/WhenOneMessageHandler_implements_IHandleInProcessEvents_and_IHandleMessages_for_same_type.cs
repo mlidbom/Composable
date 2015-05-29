@@ -1,7 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using Composable.ServiceBus;
 using FluentAssertions;
 using NServiceBus;
@@ -22,7 +20,6 @@ namespace CQRS.Tests.MessageHandlerWiringTests
     public class WhenOneMessageHandler_implements_IHandleInProcessEvents_and_IHandleMessages_for_same_type : MessageHandlerWiringTestBase
     {
         [Test]
-        [Ignore("This is an uncommon case, we think we have not this scenario in common.")]
         public void That_should_be_handled_once()
         {
             var evt = new AccountCreatedEvent();

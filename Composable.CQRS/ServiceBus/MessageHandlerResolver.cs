@@ -2,6 +2,7 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using Castle.Windsor;
 using Composable.System.Linq;
 using Composable.System.Reflection;
@@ -34,7 +35,7 @@ namespace Composable.ServiceBus
             var messageType = message.GetType();
             if (!_cache.ContainsKey(messageType))
             {
-                var handlerTypes = _handlerInterfaces.SelectMany(handlerInterface => GetRegisteredHandlerTypesForMessage(message, handlerInterface));
+                var handlerTypes = FilterRepeatedHandlers(_handlerInterfaces.SelectMany(handlerInterface => GetRegisteredHandlerTypesForMessage(message, handlerInterface)));
                 var excludedMessageHandlerTypes = GetExcludedHandlerTypes(message);
                 handlerTypes = handlerTypes.Where(handler => excludedMessageHandlerTypes.None(remoteHandlerType => handler.ImplementingClass.Implements(remoteHandlerType))).ToList();
                 _cache[messageType] = handlerTypes;
@@ -42,6 +43,23 @@ namespace Composable.ServiceBus
 
             return _cache[messageType];
         }
+
+        private IEnumerable<MessageHandlerReference> FilterRepeatedHandlers(IEnumerable<MessageHandlerReference> handlers)
+        {
+            var methods = new List<MethodInfo>();
+            var filteredHandlers = new List<MessageHandlerReference>();
+            foreach (var handler in handlers)
+            {
+                var method = handler.GetHandlerMethod();
+                if (!methods.Contains(method))
+                {
+                    methods.Add(method);
+                    filteredHandlers.Add(handler);
+                }
+            }
+            return filteredHandlers;
+        }
+
 
         private IEnumerable<Type> GetExcludedHandlerTypes(object message)
         {
@@ -93,6 +111,11 @@ namespace Composable.ServiceBus
             {
                 var handler = HandlerCreator();
                 new MessageHandlerMethod(ImplementingClass, this.GenericInterfaceImplemented).Invoke(handler, message);
+            }
+
+            internal MethodInfo GetHandlerMethod()
+            {
+                return ImplementingClass.GetInterfaceMap(GenericInterfaceImplemented).TargetMethods.Single();
             }
         }
     }

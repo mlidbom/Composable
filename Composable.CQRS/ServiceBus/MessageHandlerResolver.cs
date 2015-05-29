@@ -95,7 +95,5 @@ namespace Composable.ServiceBus
                 new MessageHandlerMethod(ImplementingClass, this.GenericInterfaceImplemented).Invoke(handler, message);
             }
         }
-
-
     }
 }

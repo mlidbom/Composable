@@ -1,5 +1,6 @@
 using System;
 using Composable.CQRS.ServiceBus.NServiceBus.EndpointConfiguration;
+using Composable.ServiceBus;
 using NServiceBus;
 
 namespace Composable.CQRS.ServiceBus.NServiceBus
@@ -48,5 +49,6 @@ namespace Composable.CQRS.ServiceBus.NServiceBus
             AddEnvironmentNameHeader();
             _bus.Reply((IMessage)message);
         }
+        
     }
 }

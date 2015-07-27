@@ -146,6 +146,7 @@
     <Compile Include="CQRS\EventSourcing\EventStoredAggregateRoot.cs" />
     <Compile Include="CQRS\EventSourcing\SQLServer\SqlServerEventStoreEventsCache.cs" />
     <Compile Include="CQRS\EventSourcing\SQLServer\SqlServerEventStore.cs" />
+    <Compile Include="CQRS\EventSourcing\SQLServer\SqlServerEventStoreSchemaManager.cs" />
     <Compile Include="CQRS\IAggregateRepository.cs" />
     <Compile Include="CQRS\EventSourcing\ICommandMessage.cs" />
     <Compile Include="CQRS\IReferenceObject.cs" />

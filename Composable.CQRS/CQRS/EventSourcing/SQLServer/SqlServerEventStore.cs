@@ -25,10 +25,12 @@ namespace Composable.CQRS.EventSourcing.SQLServer
         public readonly string ConnectionString;
 
         private readonly SqlServerEventStoreEventsCache _cache;
+        private readonly SqlServerEventStoreSchemaManager _schemaManager;
         public SqlServerEventStore(string connectionString)
         {
             Log.Debug("Constructor called");
             ConnectionString = connectionString;
+            _schemaManager =  new SqlServerEventStoreSchemaManager(connectionString);
             _cache = SqlServerEventStoreEventsCache.ForConnectionString(connectionString);
         }
 
@@ -51,8 +53,8 @@ namespace Composable.CQRS.EventSourcing.SQLServer
 
         private const string EventSelectClause = "SELECT EventType, Event, AggregateId, AggregateVersion, EventId, TimeStamp FROM Events With(UPDLOCK,READCOMMITTED, ROWLOCK) ";
         public IEnumerable<IAggregateRootEvent> GetAggregateHistory(Guid aggregateId)
-        {            
-            EnsureEventsTableExists();
+        {
+            _schemaManager.EnsureEventsTableExists();
             var result = _cache.Get(aggregateId);
 
             using (var connection = OpenSession(suppressTransactionWarning:true))
@@ -104,7 +106,7 @@ namespace Composable.CQRS.EventSourcing.SQLServer
        
         public IEnumerable<IAggregateRootEvent> StreamEventsAfterEventWithId(Guid? startAfterEventId)
         {
-            EnsureEventsTableExists();
+            _schemaManager.EnsureEventsTableExists();
 
             using (var connection = OpenSession())
             {
@@ -160,7 +162,7 @@ namespace Composable.CQRS.EventSourcing.SQLServer
         private readonly HashSet<Guid> _aggregatesWithEventsAddedByThisInstance = new HashSet<Guid>(); 
         public void SaveEvents(IEnumerable<IAggregateRootEvent> events)
         {
-            EnsureEventsTableExists();
+            _schemaManager.EnsureEventsTableExists();
 
             events = events.ToList();
             _aggregatesWithEventsAddedByThisInstance.AddRange(events.Select(e => e.AggregateRootId));
@@ -190,7 +192,7 @@ namespace Composable.CQRS.EventSourcing.SQLServer
 
         public void DeleteEvents(Guid aggregateId)
         {
-            EnsureEventsTableExists();
+            _schemaManager.EnsureEventsTableExists();
 
             _cache.Remove(aggregateId);
             using (var connection = OpenSession())
@@ -207,7 +209,7 @@ namespace Composable.CQRS.EventSourcing.SQLServer
 
         public IEnumerable<Guid> StreamAggregateIdsInCreationOrder()
         {
-            EnsureEventsTableExists();
+            _schemaManager.EnsureEventsTableExists();
 
             using (var connection = OpenSession())
             {
@@ -224,90 +226,17 @@ namespace Composable.CQRS.EventSourcing.SQLServer
                     }
                 }
             }
-        }
-
-        private static readonly HashSet<string> VerifiedTables = new HashSet<string>();        
-
-        //todo:Move this and its cousins below into another abstraction, delegate to that abstraction, and obsolete these methods.
-        private void EnsureEventsTableExists()
-        {
-            lock (VerifiedTables)
-            {
-                if (!VerifiedTables.Contains(ConnectionString))
-                {
-                    int exists;
-                    using (var _connection = OpenSession())
-                    {
-                        using (var checkForTableCommand = _connection.CreateCommand())
-                        {
-                            checkForTableCommand.CommandText = "select count(*) from sys.tables where name = 'Events'";
-                            exists = (int)checkForTableCommand.ExecuteScalar();
-                        }
-                        if (exists == 0)
-                        {
-                            using (var createTableCommand = _connection.CreateCommand())
-                            {
-                                createTableCommand.CommandText =
-                                    @"
-CREATE TABLE [dbo].[Events](
-	[AggregateId] [uniqueidentifier] NOT NULL,
-	[AggregateVersion] [int] NOT NULL,
-	[TimeStamp] [datetime] NOT NULL,
-	[SqlTimeStamp] [timestamp] NOT NULL,
-	[EventType] [varchar](300) NOT NULL,
-	[EventId] [uniqueidentifier] NOT NULL,
-	[Event] [nvarchar](max) NOT NULL,
-CONSTRAINT [IX_Uniq_EventId] UNIQUE
-(
-	EventId
-),
-CONSTRAINT [PK_Events] PRIMARY KEY CLUSTERED 
-(
-	[AggregateId] ASC,
-	[AggregateVersion] ASC
-)WITH (PAD_INDEX  = OFF, STATISTICS_NORECOMPUTE  = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS  = ON, ALLOW_PAGE_LOCKS  = OFF) ON [PRIMARY]
-) ON [PRIMARY]
-CREATE UNIQUE NONCLUSTERED INDEX [SqlTimeStamp] ON [dbo].[Events]
-(
-	[SqlTimeStamp] ASC
-)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, IGNORE_DUP_KEY = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
-";
-                                createTableCommand.ExecuteNonQuery();
-                            }
-                        }
-                        VerifiedTables.Add(ConnectionString);
-                    }
-                }
-            }
-        }
+        }        
 
         public static void ResetDB(string connectionString)
         {
-            using (var session = new SqlServerEventStore(connectionString))
-            {
-                session.ResetDB();
-            }
+            new SqlServerEventStoreSchemaManager(connectionString).ResetDB();
         }
 
         public void ResetDB()
         {
             _cache.Clear();
-            using (var connection = OpenSession())
-            {
-                using(var dropCommand = connection.CreateCommand())
-                {
-                    dropCommand.CommandText =
-                        @"IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[Events]') AND type in (N'U'))
-DROP TABLE [dbo].[Events]";
-
-                    dropCommand.ExecuteNonQuery();
-                    lock (VerifiedTables)
-                    {
-                        VerifiedTables.Remove(ConnectionString);
-                    }                    
-                }
-            }
-            EnsureEventsTableExists();
+            _schemaManager.ResetDB();           
         }
 
 

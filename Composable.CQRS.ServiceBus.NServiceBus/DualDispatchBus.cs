@@ -1,7 +1,6 @@
 ﻿using System;
 using Composable.ServiceBus;
 using Composable.SystemExtensions.Threading;
-using NServiceBus;
 
 namespace Composable.CQRS.ServiceBus.NServiceBus
 {
@@ -21,11 +20,11 @@ namespace Composable.CQRS.ServiceBus.NServiceBus
         private readonly NServiceBusServiceBus _realBus;
 
         private bool _dispatchingOnSynchronousBus = false;
-        private readonly SingleThreadUseGuard _usageGuard;
+        private readonly ISingleContextUseGuard _usageGuard;
 
-        public DualDispatchBus(SynchronousBus local, NServiceBusServiceBus realBus)
+        public DualDispatchBus(SynchronousBus local, NServiceBusServiceBus realBus, ISingleContextUseGuard usageGuard)
         {
-            _usageGuard = new SingleThreadUseGuard();
+            _usageGuard = usageGuard;
             _local = local;
             _realBus = realBus;
         }

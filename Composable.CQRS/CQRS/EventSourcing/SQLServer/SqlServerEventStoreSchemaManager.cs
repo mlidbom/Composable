@@ -8,8 +8,8 @@ namespace Composable.CQRS.EventSourcing.SQLServer
     public class SqlServerEventStoreSchemaManager
     {
         private static readonly HashSet<string> VerifiedConnectionStrings = new HashSet<string>();
-        private static EventTable EventTable { get; } = new EventTable();
-        private static EventTypeTable EventTypeTable { get; } = new EventTypeTable();
+        private static EventTableSchemaManager EventTable { get; } = new EventTableSchemaManager();
+        private static EventTypeTableSchemaManager EventTypeTable { get; } = new EventTypeTableSchemaManager();
 
         public SqlServerEventStoreSchemaManager(string connectionString)
         {
@@ -33,17 +33,19 @@ namespace Composable.CQRS.EventSourcing.SQLServer
         {
             lock(VerifiedConnectionStrings)
             {
-                if(!VerifiedConnectionStrings.Contains(ConnectionString))
+                if(VerifiedConnectionStrings.Contains(ConnectionString))
                 {
-                    using(var connection = OpenConnection())
+                    return;
+                }
+
+                using(var connection = OpenConnection())
+                {
+                    if(!EventTable.Exists(connection))
                     {
-                        if(!EventTable.Exists(connection))
-                        {
-                            EventTable.Create(connection);
-                            EventTypeTable.Create(connection);
-                        }
-                        VerifiedConnectionStrings.Add(ConnectionString);
+                        EventTable.Create(connection);
+                        EventTypeTable.Create(connection);
                     }
+                    VerifiedConnectionStrings.Add(ConnectionString);
                 }
             }
         }        

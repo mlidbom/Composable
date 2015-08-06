@@ -11,25 +11,26 @@ namespace Composable.CQRS.EventSourcing.SQLServer
 {
     public class SqlServerEventStore : IEventStore
     {               
-        private static readonly ILog Log = LogManager.GetLogger(typeof(SqlServerEventStore));
-
-        private readonly SqlServerEvestStoreEventSerializer _eventSerializer = new SqlServerEvestStoreEventSerializer();
+        private static readonly ILog Log = LogManager.GetLogger(typeof(SqlServerEventStore));        
 
         public readonly string ConnectionString;
-        private SqlServerEventStoreEventReader EventReader = new SqlServerEventStoreEventReader();
-        private readonly SqlServerEventStoreConnectionManager _connectionMananger;
-        private readonly SqlServerEventStoreEventWriter _eventWriter;
 
+        private readonly SqlServerEventStoreConnectionManager _connectionMananger;
+        private readonly SqlServerEventStoreEventReader _eventReader;        
+        private readonly SqlServerEventStoreEventWriter _eventWriter;
         private readonly SqlServerEventStoreEventsCache _cache;
         private readonly SqlServerEventStoreSchemaManager _schemaManager;
+
         public SqlServerEventStore(string connectionString)
         {
             Log.Debug("Constructor called");
-            ConnectionString = connectionString;
+            ConnectionString = connectionString;            
+            var eventSerializer = new SqlServerEvestStoreEventSerializer();
             _schemaManager =  new SqlServerEventStoreSchemaManager(connectionString);
             _cache = SqlServerEventStoreEventsCache.ForConnectionString(connectionString);
             _connectionMananger = new SqlServerEventStoreConnectionManager(connectionString);
-            _eventWriter = new SqlServerEventStoreEventWriter(_connectionMananger, _eventSerializer);
+            _eventReader = new SqlServerEventStoreEventReader(_connectionMananger);
+            _eventWriter = new SqlServerEventStoreEventWriter(_connectionMananger, eventSerializer);
         }
 
 
@@ -38,33 +39,18 @@ namespace Composable.CQRS.EventSourcing.SQLServer
             _schemaManager.SetupSchemaIfDatabaseUnInitialized();
             var cachedAggregateHistory = _cache.Get(aggregateId);
 
-            _connectionMananger.UseCommand(
-                loadCommand =>
-                {
-                    loadCommand.CommandText = EventReader.SelectClause + $"WHERE {EventTable.Columns.AggregateId} = @{EventTable.Columns.AggregateId}";
-                    loadCommand.Parameters.Add(new SqlParameter($"{EventTable.Columns.AggregateId}", aggregateId));
+            cachedAggregateHistory.AddRange(
+                _eventReader.GetAggregateHistory(
+                    aggregateId: aggregateId,
+                    startAtVersion: cachedAggregateHistory.Count,
+                    suppressTransactionWarning: true));
 
-                    if(cachedAggregateHistory.Any())
-                    {
-                        loadCommand.CommandText += $" AND {EventTable.Columns.AggregateVersion} > @CachedVersion";
-                        loadCommand.Parameters.Add(new SqlParameter("CachedVersion", cachedAggregateHistory.Last().AggregateRootVersion));
-                    }
+            //Should within a transaction a process write events, read them, then fail to commit we will have cached events that are not persisted unless we refuse to cache them here.
+            if(!_aggregatesWithEventsAddedByThisInstance.Contains(aggregateId))
+            {
+                _cache.Store(aggregateId, cachedAggregateHistory);
+            }
 
-                    loadCommand.CommandText += $" ORDER BY {EventTable.Columns.AggregateVersion} ASC";
-
-                    using(var reader = loadCommand.ExecuteReader())
-                    {
-                        while(reader.Read())
-                        {
-                            cachedAggregateHistory.Add(EventReader.Read(reader));
-                        }
-                    }
-                    //Should within a transaction a process write events, read them, then fail to commit we will have cached events that are not persisted
-                    if(!_aggregatesWithEventsAddedByThisInstance.Contains(aggregateId))
-                    {
-                        _cache.Store(aggregateId, cachedAggregateHistory);
-                    }
-                }, suppressTransactionWarning: true);
             return cachedAggregateHistory;
         }
 
@@ -85,38 +71,7 @@ namespace Composable.CQRS.EventSourcing.SQLServer
         {
             _schemaManager.SetupSchemaIfDatabaseUnInitialized();
 
-            using (var connection = _connectionMananger.OpenConnection())
-            {
-                var done = false;
-                while(!done)
-                {
-                    using(var loadCommand = connection.CreateCommand())
-                    {
-                        if(startAfterEventId.HasValue)
-                        {
-                            loadCommand.CommandText = EventReader.SelectTopClause(StreamEventsAfterEventWithIdBatchSize) + $"WHERE {EventTable.Columns.SqlTimeStamp} > @{EventTable.Columns.SqlTimeStamp} ORDER BY {EventTable.Columns.SqlTimeStamp} ASC";
-                            loadCommand.Parameters.Add(new SqlParameter(EventTable.Columns.SqlTimeStamp, new SqlBinary(GetEventTimestamp(startAfterEventId.Value))));
-                        }
-                        else
-                        {
-                            loadCommand.CommandText = EventReader.SelectTopClause(StreamEventsAfterEventWithIdBatchSize) + $" ORDER BY {EventTable.Columns.SqlTimeStamp} ASC";
-                        }
-
-                        var fetchedInThisBatch = 0;
-                        using(var reader = loadCommand.ExecuteReader())
-                        {
-                            while (reader.Read())
-                            {
-                                var @event = EventReader.Read(reader);
-                                startAfterEventId = @event.EventId;
-                                fetchedInThisBatch++;
-                                yield return @event;                                
-                            }
-                        }
-                        done = fetchedInThisBatch < StreamEventsAfterEventWithIdBatchSize;
-                    }
-                }
-            }
+            return _eventReader.StreamEventsAfterEventWithId(startAfterEventId, StreamEventsAfterEventWithIdBatchSize);
         }
 
 
@@ -124,7 +79,6 @@ namespace Composable.CQRS.EventSourcing.SQLServer
         public void SaveEvents(IEnumerable<IAggregateRootEvent> events)
         {
             _schemaManager.SetupSchemaIfDatabaseUnInitialized();
-
             events = events.ToList();
             _aggregatesWithEventsAddedByThisInstance.AddRange(events.Select(e => e.AggregateRootId));
             _eventWriter.Insert(events);
@@ -134,14 +88,7 @@ namespace Composable.CQRS.EventSourcing.SQLServer
         {
             _schemaManager.SetupSchemaIfDatabaseUnInitialized();
             _cache.Remove(aggregateId);
-            _connectionMananger.UseCommand(command =>
-                                           {
-                                               command.CommandType = CommandType.Text;
-                                               command.CommandText +=
-                                                   $"DELETE {EventTable.Name} With(ROWLOCK) WHERE {EventTable.Columns.AggregateId} = @{EventTable.Columns.AggregateId}";
-                                               command.Parameters.Add(new SqlParameter(EventTable.Columns.AggregateId, aggregateId));
-                                               command.ExecuteNonQuery();
-                                           });
+            _eventWriter.DeleteEvents(aggregateId);            
         }
 
         public IEnumerable<Guid> StreamAggregateIdsInCreationOrder()

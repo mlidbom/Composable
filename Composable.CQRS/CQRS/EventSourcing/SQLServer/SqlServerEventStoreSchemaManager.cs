@@ -7,8 +7,9 @@ namespace Composable.CQRS.EventSourcing.SQLServer
 {
     public class SqlServerEventStoreSchemaManager
     {
-        private static readonly HashSet<string> VerifiedTables = new HashSet<string>();
-
+        private static readonly HashSet<string> VerifiedConnectionStrings = new HashSet<string>();
+        private static EventTable EventTable { get; } = new EventTable();
+        private static EventTypeTable EventTypeTable { get; } = new EventTypeTable();
 
         public SqlServerEventStoreSchemaManager(string connectionString)
         {
@@ -17,101 +18,35 @@ namespace Composable.CQRS.EventSourcing.SQLServer
 
         private string ConnectionString { get; set; }
 
-        private SqlConnection OpenConnection(bool suppressTransactionWarning = false)
+        private SqlConnection OpenConnection()
         {
             var connection = new SqlConnection(ConnectionString);
             connection.Open();
-            if(!suppressTransactionWarning && Transaction.Current == null)
+            if(Transaction.Current == null)
             {
                 this.Log().Warn("No ambient transaction. This is dangerous");
             }
             return connection;
         }
 
-        //todo:Move this and its cousins below into another abstraction, delegate to that abstraction, and obsolete these methods.
-        public void EnsureEventsTableExists()
+        public void SetupSchemaIfDatabaseUnInitialized()
         {
-            lock(VerifiedTables)
+            lock(VerifiedConnectionStrings)
             {
-                if(!VerifiedTables.Contains(ConnectionString))
+                if(!VerifiedConnectionStrings.Contains(ConnectionString))
                 {
                     using(var connection = OpenConnection())
                     {
-                        EnsureEventsTableExists(connection);
-                        EnsureEventTypesTableExists(connection);
-                        VerifiedTables.Add(ConnectionString);
+                        if(!EventTable.Exists(connection))
+                        {
+                            EventTable.Create(connection);
+                            EventTypeTable.Create(connection);
+                        }
+                        VerifiedConnectionStrings.Add(ConnectionString);
                     }
                 }
             }
-        }
-
-        private static void EnsureEventTypesTableExists(SqlConnection connection)
-        {
-            int exists;
-            using (var checkForTableCommand = connection.CreateCommand())
-            {
-                checkForTableCommand.CommandText = "select count(*) from sys.tables where name = 'EventTypes'";
-                exists = (int)checkForTableCommand.ExecuteScalar();
-            }
-            if (exists == 0)
-            {
-                using (var createTableCommand = connection.CreateCommand())
-                {
-                    createTableCommand.CommandText =
-@"
-    select identity(int, 1,1) as Id, EventType
-    into EventType
-    from Events
-    group by EventType
-    order by EventType
-";
-                    createTableCommand.ExecuteNonQuery();
-                }
-            }
-        }
-
-        private static void EnsureEventsTableExists(SqlConnection connection)
-        {
-            int exists;
-            using(var checkForTableCommand = connection.CreateCommand())
-            {
-                checkForTableCommand.CommandText = "select count(*) from sys.tables where name = 'Events'";
-                exists = (int)checkForTableCommand.ExecuteScalar();
-            }
-            if(exists == 0)
-            {
-                using(var createTableCommand = connection.CreateCommand())
-                {
-                    createTableCommand.CommandText =
-                        @"
-CREATE TABLE [dbo].[Events](
-	[AggregateId] [uniqueidentifier] NOT NULL,
-	[AggregateVersion] [int] NOT NULL,
-	[TimeStamp] [datetime] NOT NULL,
-	[SqlTimeStamp] [timestamp] NOT NULL,
-	[EventType] [varchar](300) NOT NULL,
-	[EventId] [uniqueidentifier] NOT NULL,
-	[Event] [nvarchar](max) NOT NULL,
-    [TestBlah] [nvarchar](50) NULL,
-CONSTRAINT [IX_Uniq_EventId] UNIQUE
-(
-	EventId
-),
-CONSTRAINT [PK_Events] PRIMARY KEY CLUSTERED 
-(
-	[AggregateId] ASC,
-	[AggregateVersion] ASC
-)WITH (PAD_INDEX  = OFF, STATISTICS_NORECOMPUTE  = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS  = ON, ALLOW_PAGE_LOCKS  = OFF) ON [PRIMARY]
-) ON [PRIMARY]
-CREATE UNIQUE NONCLUSTERED INDEX [SqlTimeStamp] ON [dbo].[Events]
-(
-	[SqlTimeStamp] ASC
-)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, IGNORE_DUP_KEY = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
-";
-                    createTableCommand.ExecuteNonQuery();
-                }
-            }
-        }
+        }        
 
         public static void ResetDB(string connectionString)
         {
@@ -120,41 +55,16 @@ CREATE UNIQUE NONCLUSTERED INDEX [SqlTimeStamp] ON [dbo].[Events]
 
         public void ResetDB()
         {
-            lock(VerifiedTables)
+            lock(VerifiedConnectionStrings)
             {
                 using(var connection = OpenConnection())
                 {
-                    DropEventsTable(connection);
-                    DropEventTypeTable(connection);
+                    EventTable.DropIfExists(connection);
+                    EventTypeTable.DropIfExists(connection);
                 }
-                EnsureEventsTableExists();
+                VerifiedConnectionStrings.Remove(ConnectionString);
+                SetupSchemaIfDatabaseUnInitialized();
             }
-        }
-
-        private void DropEventsTable(SqlConnection connection)
-        {
-            using(var dropCommand = connection.CreateCommand())
-            {
-                dropCommand.CommandText =
-                    @"IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[Events]') AND type in (N'U'))
-DROP TABLE [dbo].[Events]";
-
-                dropCommand.ExecuteNonQuery();
-                VerifiedTables.Remove(ConnectionString);
-            }
-        }
-
-        private void DropEventTypeTable(SqlConnection connection)
-        {
-            using (var dropCommand = connection.CreateCommand())
-            {
-                dropCommand.CommandText =
-                    @"IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[EventType]') AND type in (N'U'))
-DROP TABLE [dbo].[EventType]";
-
-                dropCommand.ExecuteNonQuery();
-                VerifiedTables.Remove(ConnectionString);
-            }
-        }
+        }               
     }
 }

@@ -17,12 +17,14 @@ namespace Composable.CQRS.EventSourcing.SQLServer
 {
     public class SqlServerEventStore : IEventStore
     {
-        
+               
 
         private static readonly ILog Log = LogManager.GetLogger(typeof(SqlServerEventStore));
 
         public static readonly JsonSerializerSettings JsonSettings = NewtonSoft.JsonSettings.JsonSerializerSettings;
         public readonly string ConnectionString;
+        private static EventTable EventTable { get; } = new EventTable();
+        private static EventTypeTable EventTypeTable { get; } = new EventTypeTable();
 
         private readonly SqlServerEventStoreEventsCache _cache;
         private readonly SqlServerEventStoreSchemaManager _schemaManager;
@@ -46,57 +48,51 @@ namespace Composable.CQRS.EventSourcing.SQLServer
         }
 
 
-        private static string EventSelectClauseForTop(int top)
-        {
-            return "SELECT TOP {0} EventType, Event, AggregateId, AggregateVersion, EventId, TimeStamp FROM Events With(UPDLOCK,READCOMMITTED, ROWLOCK) ".FormatWith(top);
-        }
-
-        private const string EventSelectClause = "SELECT EventType, Event, AggregateId, AggregateVersion, EventId, TimeStamp FROM Events With(UPDLOCK,READCOMMITTED, ROWLOCK) ";
         public IEnumerable<IAggregateRootEvent> GetAggregateHistory(Guid aggregateId)
         {
-            _schemaManager.EnsureEventsTableExists();
-            var result = _cache.Get(aggregateId);
+            _schemaManager.SetupSchemaIfDatabaseUnInitialized();
+            var cachedAggregateHistory = _cache.Get(aggregateId);
 
             using (var connection = OpenSession(suppressTransactionWarning:true))
             {
                 using(var loadCommand = connection.CreateCommand())
                 {
-                    loadCommand.CommandText = EventSelectClause + "WHERE AggregateId = @AggregateId";
-                    loadCommand.Parameters.Add(new SqlParameter("AggregateId", aggregateId));
+                    loadCommand.CommandText = EventTable.SelectClause + $"WHERE {EventTable.Columns.AggregateId} = @{EventTable.Columns.AggregateId}";
+                    loadCommand.Parameters.Add(new SqlParameter($"{EventTable.Columns.AggregateId}", aggregateId));
 
-                    if (result.Any())
+                    if (cachedAggregateHistory.Any())
                     {
-                        loadCommand.CommandText += " AND AggregateVersion > @CachedVersion";
-                        loadCommand.Parameters.Add(new SqlParameter("CachedVersion", result.Last().AggregateRootVersion));
+                        loadCommand.CommandText += $" AND {EventTable.Columns.AggregateVersion} > @CachedVersion";
+                        loadCommand.Parameters.Add(new SqlParameter("CachedVersion", cachedAggregateHistory.Last().AggregateRootVersion));
                     }
 
-                    loadCommand.CommandText += " ORDER BY AggregateVersion ASC";
+                    loadCommand.CommandText += $" ORDER BY {EventTable.Columns.AggregateVersion} ASC";
 
                     using(var reader = loadCommand.ExecuteReader())
                     {
                         while(reader.Read())
                         {
-                            result.Add(ReadEvent(reader));
+                            cachedAggregateHistory.Add(ReadEvent(reader));
                         }
                     }
                     //Should within a transaction a process write events, read them, then fail to commit we will have cached events that are not persisted
                     if (!_aggregatesWithEventsAddedByThisInstance.Contains(aggregateId))
                     {
-                        _cache.Store(aggregateId, result);
+                        _cache.Store(aggregateId, cachedAggregateHistory);
                     }
-                    return result;
+                    return cachedAggregateHistory;
                 }
             }
         }
 
-        private Byte[] GetEventTimestamp(Guid eventId)
+        private byte[] GetEventTimestamp(Guid eventId)
         {
             using (var connection = OpenSession())
             {
                 using (var loadCommand = connection.CreateCommand())
                 {
-                    loadCommand.CommandText = "SELECT SqlTimeStamp FROM Events WHERE EventId = @EventId";
-                    loadCommand.Parameters.Add(new SqlParameter("EventId", eventId));
+                    loadCommand.CommandText = $"SELECT {EventTable.Columns.SqlTimeStamp} FROM {EventTable.Name} WHERE {EventTable.Columns.EventId} = @{EventTable.Columns.EventId}";
+                    loadCommand.Parameters.Add(new SqlParameter(EventTable.Columns.EventId, eventId));
                     return (byte[]) loadCommand.ExecuteScalar();
                 }
             }
@@ -106,7 +102,7 @@ namespace Composable.CQRS.EventSourcing.SQLServer
        
         public IEnumerable<IAggregateRootEvent> StreamEventsAfterEventWithId(Guid? startAfterEventId)
         {
-            _schemaManager.EnsureEventsTableExists();
+            _schemaManager.SetupSchemaIfDatabaseUnInitialized();
 
             using (var connection = OpenSession())
             {
@@ -117,12 +113,12 @@ namespace Composable.CQRS.EventSourcing.SQLServer
                     {
                         if(startAfterEventId.HasValue)
                         {
-                            loadCommand.CommandText = EventSelectClauseForTop(StreamEventsAfterEventWithIdBatchSize) + "WHERE SqlTimeStamp > @TimeStamp ORDER BY SqlTimeStamp ASC";
-                            loadCommand.Parameters.Add(new SqlParameter("TimeStamp", new SqlBinary(GetEventTimestamp(startAfterEventId.Value))));
+                            loadCommand.CommandText = EventTable.SelectTopClause(StreamEventsAfterEventWithIdBatchSize) + $"WHERE {EventTable.Columns.SqlTimeStamp} > @{EventTable.Columns.TimeStamp} ORDER BY {EventTable.Columns.SqlTimeStamp} ASC";
+                            loadCommand.Parameters.Add(new SqlParameter(EventTable.Columns.TimeStamp, new SqlBinary(GetEventTimestamp(startAfterEventId.Value))));
                         }
                         else
                         {
-                            loadCommand.CommandText = EventSelectClauseForTop(StreamEventsAfterEventWithIdBatchSize) + " ORDER BY SqlTimeStamp ASC";
+                            loadCommand.CommandText = EventTable.SelectTopClause(StreamEventsAfterEventWithIdBatchSize) + $" ORDER BY {EventTable.Columns.SqlTimeStamp} ASC";
                         }
 
                         var fetchedInThisBatch = 0;
@@ -162,7 +158,7 @@ namespace Composable.CQRS.EventSourcing.SQLServer
         private readonly HashSet<Guid> _aggregatesWithEventsAddedByThisInstance = new HashSet<Guid>(); 
         public void SaveEvents(IEnumerable<IAggregateRootEvent> events)
         {
-            _schemaManager.EnsureEventsTableExists();
+            _schemaManager.SetupSchemaIfDatabaseUnInitialized();
 
             events = events.ToList();
             _aggregatesWithEventsAddedByThisInstance.AddRange(events.Select(e => e.AggregateRootId));
@@ -170,38 +166,42 @@ namespace Composable.CQRS.EventSourcing.SQLServer
             {
                 foreach (var @event in events)
                 {
-                    using(var command = connection.CreateCommand())
+                    using (var command = connection.CreateCommand())
                     {
                         command.CommandType = CommandType.Text;
 
-                        command.CommandText += "INSERT Events With(READCOMMITTED, ROWLOCK) (AggregateId, AggregateVersion, EventType, EventId, TimeStamp, Event) VALUES(@AggregateId, @AggregateVersion, @EventType, @EventId, @TimeStamp, @Event)";
+                        command.CommandText +=
+                            $@"
+INSERT {EventTable.Name} With(READCOMMITTED, ROWLOCK) 
+       ({EventTable.Columns.AggregateId},  {EventTable.Columns.AggregateVersion},  {EventTable.Columns.EventType},  {EventTable.Columns.EventId},  {EventTable.Columns.TimeStamp},  {EventTable.Columns.Event}) 
+VALUES(@{EventTable.Columns.AggregateId}, @{EventTable.Columns.AggregateVersion}, @{EventTable.Columns.EventType}, @{EventTable.Columns.EventId}, @{EventTable.Columns.TimeStamp}, @{EventTable.Columns.Event})";
 
-                        command.Parameters.Add(new SqlParameter("AggregateId", @event.AggregateRootId));
-                        command.Parameters.Add(new SqlParameter("AggregateVersion", @event.AggregateRootVersion));
-                        command.Parameters.Add(new SqlParameter("EventType", @event.GetType().FullName));
-                        command.Parameters.Add(new SqlParameter("EventId", @event.EventId));
-                        command.Parameters.Add(new SqlParameter("TimeStamp", @event.TimeStamp));
+                        command.Parameters.Add(new SqlParameter(EventTable.Columns.AggregateId, @event.AggregateRootId));
+                        command.Parameters.Add(new SqlParameter(EventTable.Columns.AggregateVersion, @event.AggregateRootVersion));
+                        command.Parameters.Add(new SqlParameter(EventTable.Columns.EventType, @event.GetType().FullName));
+                        command.Parameters.Add(new SqlParameter(EventTable.Columns.EventId, @event.EventId));
+                        command.Parameters.Add(new SqlParameter(EventTable.Columns.TimeStamp, @event.TimeStamp));
 
-                        command.Parameters.Add(new SqlParameter("Event", JsonConvert.SerializeObject(@event, Formatting.Indented, JsonSettings)));
+                        command.Parameters.Add(new SqlParameter(EventTable.Columns.Event, JsonConvert.SerializeObject(@event, Formatting.Indented, JsonSettings)));
 
                         command.ExecuteNonQuery();
                     }
                 }
             }
-        }
+        }       
 
         public void DeleteEvents(Guid aggregateId)
         {
-            _schemaManager.EnsureEventsTableExists();
+            _schemaManager.SetupSchemaIfDatabaseUnInitialized();
 
             _cache.Remove(aggregateId);
             using (var connection = OpenSession())
             {
-                using(var command = connection.CreateCommand())
+                using (var command = connection.CreateCommand())
                 {
                     command.CommandType = CommandType.Text;
-                    command.CommandText += "DELETE Events With(ROWLOCK) WHERE AggregateId = @AggregateId";
-                    command.Parameters.Add(new SqlParameter("AggregateId", aggregateId));
+                    command.CommandText += $"DELETE {EventTable.Name} With(ROWLOCK) WHERE {EventTable.Columns.AggregateId} = @{EventTable.Columns.AggregateId}";
+                    command.Parameters.Add(new SqlParameter(EventTable.Columns.AggregateId, aggregateId));
                     command.ExecuteNonQuery();
                 }
             }
@@ -209,13 +209,13 @@ namespace Composable.CQRS.EventSourcing.SQLServer
 
         public IEnumerable<Guid> StreamAggregateIdsInCreationOrder()
         {
-            _schemaManager.EnsureEventsTableExists();
+            _schemaManager.SetupSchemaIfDatabaseUnInitialized();
 
             using (var connection = OpenSession())
             {
                 using (var loadCommand = connection.CreateCommand())
                 {
-                    loadCommand.CommandText = "SELECT AggregateId FROM Events WHERE AggregateVersion = 1 ORDER BY SqlTimeStamp ASC";
+                    loadCommand.CommandText = EventTable.SelectAggregateIdsInCreationOrderSql;
 
                     using (var reader = loadCommand.ExecuteReader())
                     {

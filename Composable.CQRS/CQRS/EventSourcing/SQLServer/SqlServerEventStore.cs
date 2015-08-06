@@ -1,8 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Data;
-using System.Data.SqlClient;
-using System.Data.SqlTypes;
 using System.Linq;
 using Composable.System.Linq;
 using log4net;
@@ -54,17 +51,6 @@ namespace Composable.CQRS.EventSourcing.SQLServer
             return cachedAggregateHistory;
         }
 
-        private byte[] GetEventTimestamp(Guid eventId)
-        {
-            return _connectionMananger.UseCommand(
-                loadCommand =>
-                {
-                    loadCommand.CommandText = $"SELECT {EventTable.Columns.SqlTimeStamp} FROM {EventTable.Name} WHERE {EventTable.Columns.EventId} = @{EventTable.Columns.EventId}";
-                    loadCommand.Parameters.Add(new SqlParameter(EventTable.Columns.EventId, eventId));
-                    return (byte[])loadCommand.ExecuteScalar();
-                });
-        }
-
         public const int StreamEventsAfterEventWithIdBatchSize = 10000;
        
         public IEnumerable<IAggregateRootEvent> StreamEventsAfterEventWithId(Guid? startAfterEventId)
@@ -88,7 +74,7 @@ namespace Composable.CQRS.EventSourcing.SQLServer
         {
             _schemaManager.SetupSchemaIfDatabaseUnInitialized();
             _cache.Remove(aggregateId);
-            _eventWriter.DeleteEvents(aggregateId);            
+            _eventWriter.DeleteAggregate(aggregateId);            
         }
 
         public IEnumerable<Guid> StreamAggregateIdsInCreationOrder()

@@ -46,7 +46,7 @@ VALUES(@{EventTable.Columns.AggregateId}, @{EventTable.Columns.AggregateVersion}
             }
         }
 
-        public void DeleteEvents(Guid aggregateId)
+        public void DeleteAggregate(Guid aggregateId)
         {
             _connectionMananger.UseCommand(
                 command =>

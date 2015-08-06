@@ -76,8 +76,8 @@ FROM {EventTable.Name} With(UPDLOCK, READCOMMITTED, ROWLOCK) ";
                     {
                         if (startAfterEventId.HasValue)
                         {
-                            loadCommand.CommandText = SelectTopClause(batchSize) + $"WHERE {EventTable.Columns.SqlTimeStamp} > @{EventTable.Columns.SqlTimeStamp} {InsertionOrderSortOrder}";
-                            loadCommand.Parameters.Add(new SqlParameter(EventTable.Columns.SqlTimeStamp, new SqlBinary(GetEventTimestamp(startAfterEventId.Value))));
+                            loadCommand.CommandText = SelectTopClause(batchSize) + $"WHERE {EventTable.Columns.InsertionOrder} > @{EventTable.Columns.InsertionOrder} {InsertionOrderSortOrder}";
+                            loadCommand.Parameters.Add(new SqlParameter(EventTable.Columns.InsertionOrder, GetEventTimestamp(startAfterEventId.Value)));
                         }
                         else
                         {
@@ -101,14 +101,14 @@ FROM {EventTable.Name} With(UPDLOCK, READCOMMITTED, ROWLOCK) ";
             }
         }
 
-        private byte[] GetEventTimestamp(Guid eventId)
+        private long GetEventTimestamp(Guid eventId)
         {
             return _connectionMananger.UseCommand(
                 loadCommand =>
                 {
-                    loadCommand.CommandText = $"SELECT {EventTable.Columns.SqlTimeStamp} FROM {EventTable.Name} WHERE {EventTable.Columns.EventId} = @{EventTable.Columns.EventId}";
+                    loadCommand.CommandText = $"SELECT {EventTable.Columns.InsertionOrder} FROM {EventTable.Name} WHERE {EventTable.Columns.EventId} = @{EventTable.Columns.EventId}";
                     loadCommand.Parameters.Add(new SqlParameter(EventTable.Columns.EventId, eventId));
-                    return (byte[])loadCommand.ExecuteScalar();
+                    return (long)loadCommand.ExecuteScalar();
                 });
         }
 
@@ -132,6 +132,6 @@ FROM {EventTable.Name} With(UPDLOCK, READCOMMITTED, ROWLOCK) ";
         }
 
 
-        private static readonly string InsertionOrderSortOrder = $" ORDER BY {EventTable.Columns.SqlTimeStamp} ASC";
+        private static readonly string InsertionOrderSortOrder = $" ORDER BY {EventTable.Columns.InsertionOrder} ASC";
     }
 }

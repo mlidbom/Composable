@@ -80,22 +80,7 @@ namespace Composable.CQRS.EventSourcing.SQLServer
         public IEnumerable<Guid> StreamAggregateIdsInCreationOrder()
         {
             _schemaManager.SetupSchemaIfDatabaseUnInitialized();
-
-            using (var connection = _connectionMananger.OpenConnection())
-            {
-                using (var loadCommand = connection.CreateCommand())
-                {
-                    loadCommand.CommandText = $"SELECT {EventTable.Columns.AggregateId} FROM {EventTable.Name} WHERE {EventTable.Columns.AggregateVersion} = 1 ORDER BY {EventTable.Columns.SqlTimeStamp} ASC";
-
-                    using (var reader = loadCommand.ExecuteReader())
-                    {
-                        while (reader.Read())
-                        {
-                            yield return (Guid)reader[0];
-                        }
-                    }
-                }
-            }
+            return _eventReader.StreamAggregateIdsInCreationOrder();
         }        
 
         public static void ResetDB(string connectionString)

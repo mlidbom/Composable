@@ -28,7 +28,7 @@ FROM {EventTable.Name} With(UPDLOCK, READCOMMITTED, ROWLOCK) ";
 
         public IAggregateRootEvent Read(SqlDataReader eventReader)
         {
-            var @event = EventSerializer.Deserialize(eventReader.GetString(0), eventReader.GetString(1));
+            var @event = EventSerializer.Deserialize( eventType: eventReader.GetString(0), eventData: eventReader.GetString(1));
             @event.AggregateRootId = eventReader.GetGuid(2);
             @event.AggregateRootVersion = eventReader.GetInt32(3);
             @event.EventId = eventReader.GetGuid(4);
@@ -76,12 +76,12 @@ FROM {EventTable.Name} With(UPDLOCK, READCOMMITTED, ROWLOCK) ";
                     {
                         if (startAfterEventId.HasValue)
                         {
-                            loadCommand.CommandText = SelectTopClause(batchSize) + $"WHERE {EventTable.Columns.SqlTimeStamp} > @{EventTable.Columns.SqlTimeStamp} ORDER BY {EventTable.Columns.SqlTimeStamp} ASC";
+                            loadCommand.CommandText = SelectTopClause(batchSize) + $"WHERE {EventTable.Columns.SqlTimeStamp} > @{EventTable.Columns.SqlTimeStamp} {InsertionOrderSortOrder}";
                             loadCommand.Parameters.Add(new SqlParameter(EventTable.Columns.SqlTimeStamp, new SqlBinary(GetEventTimestamp(startAfterEventId.Value))));
                         }
                         else
                         {
-                            loadCommand.CommandText = SelectTopClause(batchSize) + $" ORDER BY {EventTable.Columns.SqlTimeStamp} ASC";
+                            loadCommand.CommandText = SelectTopClause(batchSize) + InsertionOrderSortOrder;
                         }
 
                         var fetchedInThisBatch = 0;
@@ -112,5 +112,26 @@ FROM {EventTable.Name} With(UPDLOCK, READCOMMITTED, ROWLOCK) ";
                 });
         }
 
+        public IEnumerable<Guid> StreamAggregateIdsInCreationOrder()
+        {
+            using (var connection = _connectionMananger.OpenConnection())
+            {
+                using (var loadCommand = connection.CreateCommand())
+                {
+                    loadCommand.CommandText = $"SELECT {EventTable.Columns.AggregateId} FROM {EventTable.Name} WHERE {EventTable.Columns.AggregateVersion} = 1 {InsertionOrderSortOrder}";
+
+                    using (var reader = loadCommand.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            yield return (Guid)reader[0];
+                        }
+                    }
+                }
+            }
+        }
+
+
+        private static readonly string InsertionOrderSortOrder = $" ORDER BY {EventTable.Columns.SqlTimeStamp} ASC";
     }
 }

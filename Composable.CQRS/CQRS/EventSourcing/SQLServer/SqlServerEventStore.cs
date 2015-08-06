@@ -4,7 +4,6 @@ using System.Data;
 using System.Data.SqlClient;
 using System.Data.SqlTypes;
 using System.Linq;
-using System.Transactions;
 using Composable.System.Linq;
 using log4net;
 
@@ -18,6 +17,7 @@ namespace Composable.CQRS.EventSourcing.SQLServer
 
         public readonly string ConnectionString;
         private SqlServerEventStoreEventReader EventReader { get; } = new SqlServerEventStoreEventReader();
+        private readonly SqlServerEventStoreConnectionManager _connectionMananger;
 
         private readonly SqlServerEventStoreEventsCache _cache;
         private readonly SqlServerEventStoreSchemaManager _schemaManager;
@@ -27,17 +27,7 @@ namespace Composable.CQRS.EventSourcing.SQLServer
             ConnectionString = connectionString;
             _schemaManager =  new SqlServerEventStoreSchemaManager(connectionString);
             _cache = SqlServerEventStoreEventsCache.ForConnectionString(connectionString);
-        }
-
-        private SqlConnection OpenSession(bool suppressTransactionWarning = false)
-        {
-            var connection = new SqlConnection(ConnectionString);
-            connection.Open();
-            if(!suppressTransactionWarning && Transaction.Current == null)
-            {
-                Log.Warn("No ambient transaction. This is dangerous");
-            }
-            return connection;
+            _connectionMananger = new SqlServerEventStoreConnectionManager(connectionString);
         }
 
 
@@ -46,14 +36,13 @@ namespace Composable.CQRS.EventSourcing.SQLServer
             _schemaManager.SetupSchemaIfDatabaseUnInitialized();
             var cachedAggregateHistory = _cache.Get(aggregateId);
 
-            using (var connection = OpenSession(suppressTransactionWarning:true))
-            {
-                using(var loadCommand = connection.CreateCommand())
+            _connectionMananger.UseCommand(
+                loadCommand =>
                 {
                     loadCommand.CommandText = EventReader.SelectClause + $"WHERE {EventTable.Columns.AggregateId} = @{EventTable.Columns.AggregateId}";
                     loadCommand.Parameters.Add(new SqlParameter($"{EventTable.Columns.AggregateId}", aggregateId));
 
-                    if (cachedAggregateHistory.Any())
+                    if(cachedAggregateHistory.Any())
                     {
                         loadCommand.CommandText += $" AND {EventTable.Columns.AggregateVersion} > @CachedVersion";
                         loadCommand.Parameters.Add(new SqlParameter("CachedVersion", cachedAggregateHistory.Last().AggregateRootVersion));
@@ -69,26 +58,23 @@ namespace Composable.CQRS.EventSourcing.SQLServer
                         }
                     }
                     //Should within a transaction a process write events, read them, then fail to commit we will have cached events that are not persisted
-                    if (!_aggregatesWithEventsAddedByThisInstance.Contains(aggregateId))
+                    if(!_aggregatesWithEventsAddedByThisInstance.Contains(aggregateId))
                     {
                         _cache.Store(aggregateId, cachedAggregateHistory);
                     }
-                    return cachedAggregateHistory;
-                }
-            }
+                }, suppressTransactionWarning: true);
+            return cachedAggregateHistory;
         }
 
         private byte[] GetEventTimestamp(Guid eventId)
         {
-            using (var connection = OpenSession())
-            {
-                using (var loadCommand = connection.CreateCommand())
+            return _connectionMananger.UseCommand(
+                loadCommand =>
                 {
                     loadCommand.CommandText = $"SELECT {EventTable.Columns.SqlTimeStamp} FROM {EventTable.Name} WHERE {EventTable.Columns.EventId} = @{EventTable.Columns.EventId}";
                     loadCommand.Parameters.Add(new SqlParameter(EventTable.Columns.EventId, eventId));
-                    return (byte[]) loadCommand.ExecuteScalar();
-                }
-            }
+                    return (byte[])loadCommand.ExecuteScalar();
+                });
         }
 
         public const int StreamEventsAfterEventWithIdBatchSize = 10000;
@@ -97,7 +83,7 @@ namespace Composable.CQRS.EventSourcing.SQLServer
         {
             _schemaManager.SetupSchemaIfDatabaseUnInitialized();
 
-            using (var connection = OpenSession())
+            using (var connection = _connectionMananger.OpenConnection())
             {
                 var done = false;
                 while(!done)
@@ -121,8 +107,8 @@ namespace Composable.CQRS.EventSourcing.SQLServer
                             {
                                 var @event = EventReader.Read(reader);
                                 startAfterEventId = @event.EventId;
-                                yield return @event;
                                 fetchedInThisBatch++;
+                                yield return @event;                                
                             }
                         }
                         done = fetchedInThisBatch < StreamEventsAfterEventWithIdBatchSize;
@@ -139,7 +125,7 @@ namespace Composable.CQRS.EventSourcing.SQLServer
 
             events = events.ToList();
             _aggregatesWithEventsAddedByThisInstance.AddRange(events.Select(e => e.AggregateRootId));
-            using (var connection = OpenSession())
+            using (var connection = _connectionMananger.OpenConnection())
             {
                 foreach (var @event in events)
                 {
@@ -170,25 +156,22 @@ VALUES(@{EventTable.Columns.AggregateId}, @{EventTable.Columns.AggregateVersion}
         public void DeleteEvents(Guid aggregateId)
         {
             _schemaManager.SetupSchemaIfDatabaseUnInitialized();
-
             _cache.Remove(aggregateId);
-            using (var connection = OpenSession())
-            {
-                using (var command = connection.CreateCommand())
-                {
-                    command.CommandType = CommandType.Text;
-                    command.CommandText += $"DELETE {EventTable.Name} With(ROWLOCK) WHERE {EventTable.Columns.AggregateId} = @{EventTable.Columns.AggregateId}";
-                    command.Parameters.Add(new SqlParameter(EventTable.Columns.AggregateId, aggregateId));
-                    command.ExecuteNonQuery();
-                }
-            }
+            _connectionMananger.UseCommand(command =>
+                                           {
+                                               command.CommandType = CommandType.Text;
+                                               command.CommandText +=
+                                                   $"DELETE {EventTable.Name} With(ROWLOCK) WHERE {EventTable.Columns.AggregateId} = @{EventTable.Columns.AggregateId}";
+                                               command.Parameters.Add(new SqlParameter(EventTable.Columns.AggregateId, aggregateId));
+                                               command.ExecuteNonQuery();
+                                           });
         }
 
         public IEnumerable<Guid> StreamAggregateIdsInCreationOrder()
         {
             _schemaManager.SetupSchemaIfDatabaseUnInitialized();
 
-            using (var connection = OpenSession())
+            using (var connection = _connectionMananger.OpenConnection())
             {
                 using (var loadCommand = connection.CreateCommand())
                 {

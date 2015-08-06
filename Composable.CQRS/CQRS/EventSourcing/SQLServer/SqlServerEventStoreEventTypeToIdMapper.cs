@@ -27,21 +27,7 @@ namespace Composable.CQRS.EventSourcing.SQLServer
                 EnsureInitialized();
                 return _idToTypeMap[id];
             }
-        }
-
-        private void EnsureInitialized()
-        {
-            if(_idToTypeMap == null)
-            {
-                _idToTypeMap = new Dictionary<int, Type>();
-                _typeToIdMap = new Dictionary<Type, int>();
-                foreach (var mapping in GetTypes())
-                {
-                    _idToTypeMap.Add(mapping.Id, mapping.Type);
-                    _typeToIdMap.Add(mapping.Type, mapping.Id);
-                }
-            }
-        }
+        }        
 
         public int GetId(Type type)
         {
@@ -59,7 +45,21 @@ namespace Composable.CQRS.EventSourcing.SQLServer
                 return value;
             }
         }
-    
+
+        private void EnsureInitialized()
+        {
+            if (_idToTypeMap == null)
+            {
+                _idToTypeMap = new Dictionary<int, Type>();
+                _typeToIdMap = new Dictionary<Type, int>();
+                foreach (var mapping in GetTypes())
+                {
+                    _idToTypeMap.Add(mapping.Id, mapping.Type);
+                    _typeToIdMap.Add(mapping.Type, mapping.Id);
+                }
+            }
+        }
+
 
         private IdTypeMapping InsertNewType(Type newType)
         {          

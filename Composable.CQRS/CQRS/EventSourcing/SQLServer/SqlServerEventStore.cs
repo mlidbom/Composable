@@ -6,19 +6,16 @@ using System.Data.SqlTypes;
 using System.Linq;
 using System.Transactions;
 using Composable.System.Linq;
-using Composable.System.Reflection;
 using log4net;
-using Newtonsoft.Json;
 
 namespace Composable.CQRS.EventSourcing.SQLServer
 {
     public class SqlServerEventStore : IEventStore
-    {
-               
-
+    {               
         private static readonly ILog Log = LogManager.GetLogger(typeof(SqlServerEventStore));
 
-        public static readonly JsonSerializerSettings JsonSettings = NewtonSoft.JsonSettings.JsonSerializerSettings;
+        private static readonly SqlServerEvestStoreEventSerializer EventSerializer = new SqlServerEvestStoreEventSerializer();
+
         public readonly string ConnectionString;
         private static EventTable EventTable { get; } = new EventTable();
         private static EventTypeTable EventTypeTable { get; } = new EventTypeTable();
@@ -148,7 +145,7 @@ namespace Composable.CQRS.EventSourcing.SQLServer
 
         private IAggregateRootEvent DeserializeEvent(string eventType, string eventData)
         {
-            return (IAggregateRootEvent)JsonConvert.DeserializeObject(eventData, eventType.AsType(), JsonSettings);
+            return EventSerializer.Deserialize(eventType, eventData);
         }
 
 
@@ -179,7 +176,7 @@ VALUES(@{EventTable.Columns.AggregateId}, @{EventTable.Columns.AggregateVersion}
                         command.Parameters.Add(new SqlParameter(EventTable.Columns.EventId, @event.EventId));
                         command.Parameters.Add(new SqlParameter(EventTable.Columns.TimeStamp, @event.TimeStamp));
 
-                        command.Parameters.Add(new SqlParameter(EventTable.Columns.Event, JsonConvert.SerializeObject(@event, Formatting.Indented, JsonSettings)));
+                        command.Parameters.Add(new SqlParameter(EventTable.Columns.Event, EventSerializer.Serialize(@event)));
 
                         command.ExecuteNonQuery();
                     }

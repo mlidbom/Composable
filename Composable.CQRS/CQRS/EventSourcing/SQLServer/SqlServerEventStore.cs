@@ -26,8 +26,9 @@ namespace Composable.CQRS.EventSourcing.SQLServer
             _schemaManager =  new SqlServerEventStoreSchemaManager(connectionString);
             _cache = SqlServerEventStoreEventsCache.ForConnectionString(connectionString);
             _connectionMananger = new SqlServerEventStoreConnectionManager(connectionString);
-            _eventReader = new SqlServerEventStoreEventReader(_connectionMananger);
-            _eventWriter = new SqlServerEventStoreEventWriter(_connectionMananger, eventSerializer);
+            var idMapper = new SqlServerEventStoreEventTypeToIdMapper(connectionString);
+            _eventReader = new SqlServerEventStoreEventReader(_connectionMananger, idMapper);
+            _eventWriter = new SqlServerEventStoreEventWriter(_connectionMananger, eventSerializer, idMapper);
         }
 
 
@@ -39,7 +40,7 @@ namespace Composable.CQRS.EventSourcing.SQLServer
             cachedAggregateHistory.AddRange(
                 _eventReader.GetAggregateHistory(
                     aggregateId: aggregateId,
-                    startAtVersion: cachedAggregateHistory.Count,
+                    startAfterVersion: cachedAggregateHistory.Count,
                     suppressTransactionWarning: true));
 
             //Should within a transaction a process write events, read them, then fail to commit we will have cached events that are not persisted unless we refuse to cache them here.

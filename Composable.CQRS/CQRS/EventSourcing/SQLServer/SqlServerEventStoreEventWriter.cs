@@ -9,11 +9,13 @@ namespace Composable.CQRS.EventSourcing.SQLServer
     {
         private readonly SqlServerEventStoreConnectionManager _connectionMananger;
         private readonly SqlServerEvestStoreEventSerializer _eventSerializer;
+        private readonly SqlServerEventStoreEventTypeToIdMapper _idMapper;
 
-        public SqlServerEventStoreEventWriter(SqlServerEventStoreConnectionManager connectionMananger, SqlServerEvestStoreEventSerializer eventSerializer)
+        public SqlServerEventStoreEventWriter(SqlServerEventStoreConnectionManager connectionMananger, SqlServerEvestStoreEventSerializer eventSerializer, SqlServerEventStoreEventTypeToIdMapper idMapper)
         {
             _connectionMananger = connectionMananger;
             _eventSerializer = eventSerializer;
+            _idMapper = idMapper;
         }
 
         public void Insert(IEnumerable<IAggregateRootEvent> events)
@@ -34,7 +36,7 @@ VALUES(@{EventTable.Columns.AggregateId}, @{EventTable.Columns.AggregateVersion}
 
                         command.Parameters.Add(new SqlParameter(EventTable.Columns.AggregateId, @event.AggregateRootId));
                         command.Parameters.Add(new SqlParameter(EventTable.Columns.AggregateVersion, @event.AggregateRootVersion));
-                        command.Parameters.Add(new SqlParameter(EventTable.Columns.EventType, @event.GetType().FullName));
+                        command.Parameters.Add(new SqlParameter(EventTable.Columns.EventType, _idMapper.GetId(@event.GetType())));
                         command.Parameters.Add(new SqlParameter(EventTable.Columns.EventId, @event.EventId));
                         command.Parameters.Add(new SqlParameter(EventTable.Columns.TimeStamp, @event.TimeStamp));
 

@@ -152,6 +152,7 @@
     <Compile Include="CQRS\EventSourcing\SQLServer\SqlServerEventStoreEventReader.cs" />
     <Compile Include="CQRS\EventSourcing\SQLServer\SqlServerEventStoreEventsCache.cs" />
     <Compile Include="CQRS\EventSourcing\SQLServer\SqlServerEventStore.cs" />
+    <Compile Include="CQRS\EventSourcing\SQLServer\SqlServerEventStoreEventTypeToIdMapper.cs" />
     <Compile Include="CQRS\EventSourcing\SQLServer\SqlServerEventStoreEventWriter.cs" />
     <Compile Include="CQRS\EventSourcing\SQLServer\SqlServerEventStoreSchemaManager.cs" />
     <Compile Include="CQRS\EventSourcing\SQLServer\SqlServerEvestStoreEventSerializer.cs" />

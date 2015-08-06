@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
-using System.Data.SqlTypes;
 
 namespace Composable.CQRS.EventSourcing.SQLServer
 {
@@ -21,14 +20,15 @@ FROM {EventTable.Name} With(UPDLOCK, READCOMMITTED, ROWLOCK) ";
 
         private static readonly SqlServerEvestStoreEventSerializer EventSerializer = new SqlServerEvestStoreEventSerializer();
 
-        public SqlServerEventStoreEventReader(SqlServerEventStoreConnectionManager connectionMananger)
+        public SqlServerEventStoreEventReader(SqlServerEventStoreConnectionManager connectionManager, SqlServerEventStoreEventTypeToIdMapper eventTypeToIdMapper)
         {
-            _connectionMananger = connectionMananger;
+            _eventTypeToIdMapper = eventTypeToIdMapper;
+            _connectionMananger = connectionManager;
         }
 
         public IAggregateRootEvent Read(SqlDataReader eventReader)
         {
-            var @event = EventSerializer.Deserialize( eventType: eventReader.GetString(0), eventData: eventReader.GetString(1));
+            var @event = EventSerializer.Deserialize( eventType: _eventTypeToIdMapper.GetType(eventReader.GetInt32(0)) , eventData: eventReader.GetString(1));
             @event.AggregateRootId = eventReader.GetGuid(2);
             @event.AggregateRootVersion = eventReader.GetInt32(3);
             @event.EventId = eventReader.GetGuid(4);
@@ -37,7 +37,7 @@ FROM {EventTable.Name} With(UPDLOCK, READCOMMITTED, ROWLOCK) ";
             return @event;
         }
 
-        public IEnumerable<IAggregateRootEvent> GetAggregateHistory(Guid aggregateId, int startAtVersion = 0, bool suppressTransactionWarning = false)
+        public IEnumerable<IAggregateRootEvent> GetAggregateHistory(Guid aggregateId, int startAfterVersion = 0, bool suppressTransactionWarning = false)
         {
             using(var connection = _connectionMananger.OpenConnection(suppressTransactionWarning: suppressTransactionWarning))
             {
@@ -46,10 +46,10 @@ FROM {EventTable.Name} With(UPDLOCK, READCOMMITTED, ROWLOCK) ";
                     loadCommand.CommandText = SelectClause + $"WHERE {EventTable.Columns.AggregateId} = @{EventTable.Columns.AggregateId}";
                     loadCommand.Parameters.Add(new SqlParameter($"{EventTable.Columns.AggregateId}", aggregateId));
 
-                    if (startAtVersion > 0)
+                    if (startAfterVersion > 0)
                     {
                         loadCommand.CommandText += $" AND {EventTable.Columns.AggregateVersion} > @CachedVersion";
-                        loadCommand.Parameters.Add(new SqlParameter("CachedVersion", startAtVersion));
+                        loadCommand.Parameters.Add(new SqlParameter("CachedVersion", startAfterVersion));
                     }
 
                     loadCommand.CommandText += $" ORDER BY {EventTable.Columns.AggregateVersion} ASC";
@@ -133,5 +133,6 @@ FROM {EventTable.Name} With(UPDLOCK, READCOMMITTED, ROWLOCK) ";
 
 
         private static readonly string InsertionOrderSortOrder = $" ORDER BY {EventTable.Columns.InsertionOrder} ASC";
+        private SqlServerEventStoreEventTypeToIdMapper _eventTypeToIdMapper;
     }
 }

@@ -1,3 +1,4 @@
+using System;
 using Composable.System.Reflection;
 using Newtonsoft.Json;
 
@@ -12,9 +13,9 @@ namespace Composable.CQRS.EventSourcing.SQLServer
             return JsonConvert.SerializeObject(@event, Formatting.Indented, JsonSettings);
         }
 
-        public IAggregateRootEvent Deserialize(string eventType, string eventData)
+        public IAggregateRootEvent Deserialize(Type eventType, string eventData)
         {
-            return (IAggregateRootEvent)JsonConvert.DeserializeObject(eventData, eventType.AsType(), JsonSettings);
+            return (IAggregateRootEvent)JsonConvert.DeserializeObject(eventData, eventType, JsonSettings);
         }
     }
 }

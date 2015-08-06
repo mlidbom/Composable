@@ -1,20 +1,8 @@
 ﻿namespace Composable.CQRS.EventSourcing.SQLServer
 {
-    internal class EventTable
+    internal static class EventTable
     {
-        public string Name { get; } = "Events";
-        public string SelectClause => InternalSelect();
-
-        public string SelectAggregateIdsInCreationOrderSql => $"SELECT {Columns.AggregateId} FROM {Name} WHERE {Columns.AggregateVersion} = 1 ORDER BY {Columns.SqlTimeStamp} ASC";
-
-        public string SelectTopClause(int top) => InternalSelect(top);        
-
-        private string InternalSelect(int? top = null)
-        {
-            var topClause = top.HasValue ? $"TOP {top.Value} " : "";
-            return $@"SELECT {topClause} {Columns.EventType}, {Columns.Event}, {Columns.AggregateId}, {Columns.AggregateVersion}, {Columns.EventId}, {Columns.TimeStamp} 
-FROM {Name} With(UPDLOCK, READCOMMITTED, ROWLOCK) ";
-    }
+        public static string Name { get; } = "Events";
 
         internal static class Columns
         {

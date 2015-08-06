@@ -1,8 +1,8 @@
 ﻿namespace Composable.CQRS.EventSourcing.SQLServer
 {
-    internal class EventTypeTable
+    internal static class EventTypeTable
     {
-        public string Name { get; } = "EventType";
+        public static string Name { get; } = "EventType";
         
         internal static class Columns
         {

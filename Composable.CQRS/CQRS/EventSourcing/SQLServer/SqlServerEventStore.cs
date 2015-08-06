@@ -17,8 +17,7 @@ namespace Composable.CQRS.EventSourcing.SQLServer
         private static readonly SqlServerEvestStoreEventSerializer EventSerializer = new SqlServerEvestStoreEventSerializer();
 
         public readonly string ConnectionString;
-        private static EventTable EventTable { get; } = new EventTable();
-        private static EventTypeTable EventTypeTable { get; } = new EventTypeTable();
+        private SqlServerEventStoreEventReader EventReader { get; } = new SqlServerEventStoreEventReader();
 
         private readonly SqlServerEventStoreEventsCache _cache;
         private readonly SqlServerEventStoreSchemaManager _schemaManager;
@@ -51,7 +50,7 @@ namespace Composable.CQRS.EventSourcing.SQLServer
             {
                 using(var loadCommand = connection.CreateCommand())
                 {
-                    loadCommand.CommandText = EventTable.SelectClause + $"WHERE {EventTable.Columns.AggregateId} = @{EventTable.Columns.AggregateId}";
+                    loadCommand.CommandText = EventReader.SelectClause + $"WHERE {EventTable.Columns.AggregateId} = @{EventTable.Columns.AggregateId}";
                     loadCommand.Parameters.Add(new SqlParameter($"{EventTable.Columns.AggregateId}", aggregateId));
 
                     if (cachedAggregateHistory.Any())
@@ -66,7 +65,7 @@ namespace Composable.CQRS.EventSourcing.SQLServer
                     {
                         while(reader.Read())
                         {
-                            cachedAggregateHistory.Add(ReadEvent(reader));
+                            cachedAggregateHistory.Add(EventReader.Read(reader));
                         }
                     }
                     //Should within a transaction a process write events, read them, then fail to commit we will have cached events that are not persisted
@@ -107,12 +106,12 @@ namespace Composable.CQRS.EventSourcing.SQLServer
                     {
                         if(startAfterEventId.HasValue)
                         {
-                            loadCommand.CommandText = EventTable.SelectTopClause(StreamEventsAfterEventWithIdBatchSize) + $"WHERE {EventTable.Columns.SqlTimeStamp} > @{EventTable.Columns.SqlTimeStamp} ORDER BY {EventTable.Columns.SqlTimeStamp} ASC";
+                            loadCommand.CommandText = EventReader.SelectTopClause(StreamEventsAfterEventWithIdBatchSize) + $"WHERE {EventTable.Columns.SqlTimeStamp} > @{EventTable.Columns.SqlTimeStamp} ORDER BY {EventTable.Columns.SqlTimeStamp} ASC";
                             loadCommand.Parameters.Add(new SqlParameter(EventTable.Columns.SqlTimeStamp, new SqlBinary(GetEventTimestamp(startAfterEventId.Value))));
                         }
                         else
                         {
-                            loadCommand.CommandText = EventTable.SelectTopClause(StreamEventsAfterEventWithIdBatchSize) + $" ORDER BY {EventTable.Columns.SqlTimeStamp} ASC";
+                            loadCommand.CommandText = EventReader.SelectTopClause(StreamEventsAfterEventWithIdBatchSize) + $" ORDER BY {EventTable.Columns.SqlTimeStamp} ASC";
                         }
 
                         var fetchedInThisBatch = 0;
@@ -120,7 +119,7 @@ namespace Composable.CQRS.EventSourcing.SQLServer
                         {
                             while (reader.Read())
                             {
-                                var @event = ReadEvent(reader);
+                                var @event = EventReader.Read(reader);
                                 startAfterEventId = @event.EventId;
                                 yield return @event;
                                 fetchedInThisBatch++;
@@ -130,22 +129,6 @@ namespace Composable.CQRS.EventSourcing.SQLServer
                     }
                 }
             }
-        }
-
-        private IAggregateRootEvent ReadEvent(SqlDataReader eventReader)
-        {
-            var @event = DeserializeEvent(eventReader.GetString(0), eventReader.GetString(1));
-            @event.AggregateRootId = eventReader.GetGuid(2);
-            @event.AggregateRootVersion = eventReader.GetInt32(3);
-            @event.EventId = eventReader.GetGuid(4);
-            @event.TimeStamp = eventReader.GetDateTime(5);
-
-            return @event;
-        }
-
-        private IAggregateRootEvent DeserializeEvent(string eventType, string eventData)
-        {
-            return EventSerializer.Deserialize(eventType, eventData);
         }
 
 
@@ -209,7 +192,7 @@ VALUES(@{EventTable.Columns.AggregateId}, @{EventTable.Columns.AggregateVersion}
             {
                 using (var loadCommand = connection.CreateCommand())
                 {
-                    loadCommand.CommandText = EventTable.SelectAggregateIdsInCreationOrderSql;
+                    loadCommand.CommandText = $"SELECT {EventTable.Columns.AggregateId} FROM {EventTable.Name} WHERE {EventTable.Columns.AggregateVersion} = 1 ORDER BY {EventTable.Columns.SqlTimeStamp} ASC";
 
                     using (var reader = loadCommand.ExecuteReader())
                     {

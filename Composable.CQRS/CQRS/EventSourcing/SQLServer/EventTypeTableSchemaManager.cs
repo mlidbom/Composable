@@ -2,9 +2,7 @@
 {
     internal class EventTypeTableSchemaManager : TableSchemaManager
     {
-        private EventTypeTable EventTypeTable { get; } = new EventTypeTable();
-
-        override public string Name { get; } = "EventType";
+        override public string Name { get; } = EventTypeTable.Name;
   
 
         override public string CreateTableSql => $@"

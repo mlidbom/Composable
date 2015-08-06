@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
@@ -43,6 +44,19 @@ VALUES(@{EventTable.Columns.AggregateId}, @{EventTable.Columns.AggregateVersion}
                     }
                 }
             }
+        }
+
+        public void DeleteEvents(Guid aggregateId)
+        {
+            _connectionMananger.UseCommand(
+                command =>
+                {
+                    command.CommandType = CommandType.Text;
+                    command.CommandText +=
+                        $"DELETE {EventTable.Name} With(ROWLOCK) WHERE {EventTable.Columns.AggregateId} = @{EventTable.Columns.AggregateId}";
+                    command.Parameters.Add(new SqlParameter(EventTable.Columns.AggregateId, aggregateId));
+                    command.ExecuteNonQuery();
+                });
         }
     }
 }

@@ -10,7 +10,7 @@ CREATE TABLE [dbo].[{Name}](
 	{EventTable.Columns.AggregateId} [uniqueidentifier] NOT NULL,
 	{EventTable.Columns.AggregateVersion} [int] NOT NULL,
 	{EventTable.Columns.TimeStamp} [datetime] NOT NULL,
-	{EventTable.Columns.EventType} [varchar](300) NOT NULL,
+	{EventTable.Columns.EventType} [int] NOT NULL,
     {EventTable.Columns.EventTypeId} int NULL,
 	{EventTable.Columns.EventId} [uniqueidentifier] NOT NULL,
 	{EventTable.Columns.Event} [nvarchar](max) NOT NULL

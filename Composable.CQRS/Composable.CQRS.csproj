@@ -144,12 +144,14 @@
     <Compile Include="CQRS\EventSourcing\RegisteredHandlerMissingException.cs" />
     <Compile Include="CQRS\EventSourcing\ReuseOfEventStoreSessionException.cs" />
     <Compile Include="CQRS\EventSourcing\EventStoredAggregateRoot.cs" />
+    <Compile Include="CQRS\EventSourcing\SQLServer\EventTableSchemaManager.cs" />
     <Compile Include="CQRS\EventSourcing\SQLServer\EventTypeTable.cs" />
     <Compile Include="CQRS\EventSourcing\SQLServer\EventTable.cs" />
+    <Compile Include="CQRS\EventSourcing\SQLServer\EventTypeTableSchemaManager.cs" />
     <Compile Include="CQRS\EventSourcing\SQLServer\SqlServerEventStoreEventsCache.cs" />
     <Compile Include="CQRS\EventSourcing\SQLServer\SqlServerEventStore.cs" />
     <Compile Include="CQRS\EventSourcing\SQLServer\SqlServerEventStoreSchemaManager.cs" />
-    <Compile Include="CQRS\EventSourcing\SQLServer\Table.cs" />
+    <Compile Include="CQRS\EventSourcing\SQLServer\TableSchemaManager.cs" />
     <Compile Include="CQRS\IAggregateRepository.cs" />
     <Compile Include="CQRS\EventSourcing\ICommandMessage.cs" />
     <Compile Include="CQRS\IReferenceObject.cs" />

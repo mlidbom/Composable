@@ -1,17 +1,14 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
 using System.Data.SqlTypes;
 using System.Linq;
-using System.Security.Cryptography;
 using System.Transactions;
-using Composable.System;
-using Composable.System.Reflection;
-using Newtonsoft.Json;
-using log4net;
 using Composable.System.Linq;
+using Composable.System.Reflection;
+using log4net;
+using Newtonsoft.Json;
 
 namespace Composable.CQRS.EventSourcing.SQLServer
 {
@@ -113,8 +110,8 @@ namespace Composable.CQRS.EventSourcing.SQLServer
                     {
                         if(startAfterEventId.HasValue)
                         {
-                            loadCommand.CommandText = EventTable.SelectTopClause(StreamEventsAfterEventWithIdBatchSize) + $"WHERE {EventTable.Columns.SqlTimeStamp} > @{EventTable.Columns.TimeStamp} ORDER BY {EventTable.Columns.SqlTimeStamp} ASC";
-                            loadCommand.Parameters.Add(new SqlParameter(EventTable.Columns.TimeStamp, new SqlBinary(GetEventTimestamp(startAfterEventId.Value))));
+                            loadCommand.CommandText = EventTable.SelectTopClause(StreamEventsAfterEventWithIdBatchSize) + $"WHERE {EventTable.Columns.SqlTimeStamp} > @{EventTable.Columns.SqlTimeStamp} ORDER BY {EventTable.Columns.SqlTimeStamp} ASC";
+                            loadCommand.Parameters.Add(new SqlParameter(EventTable.Columns.SqlTimeStamp, new SqlBinary(GetEventTimestamp(startAfterEventId.Value))));
                         }
                         else
                         {

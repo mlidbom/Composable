@@ -2,8 +2,7 @@ namespace Composable.CQRS.EventSourcing.SQLServer
 {
     internal class EventTableSchemaManager : TableSchemaManager
     {
-        private static EventTable EventTable { get; } = new EventTable();
-        override public string Name { get; } = "Events";
+        override public string Name { get; } = EventTable.Name;
 
         override public string CreateTableSql => $@"
 CREATE TABLE [dbo].[{Name}](

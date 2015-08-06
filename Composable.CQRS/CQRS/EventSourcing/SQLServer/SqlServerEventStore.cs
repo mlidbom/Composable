@@ -13,11 +13,12 @@ namespace Composable.CQRS.EventSourcing.SQLServer
     {               
         private static readonly ILog Log = LogManager.GetLogger(typeof(SqlServerEventStore));
 
-        private static readonly SqlServerEvestStoreEventSerializer EventSerializer = new SqlServerEvestStoreEventSerializer();
+        private readonly SqlServerEvestStoreEventSerializer _eventSerializer = new SqlServerEvestStoreEventSerializer();
 
         public readonly string ConnectionString;
-        private SqlServerEventStoreEventReader EventReader { get; } = new SqlServerEventStoreEventReader();
+        private SqlServerEventStoreEventReader EventReader = new SqlServerEventStoreEventReader();
         private readonly SqlServerEventStoreConnectionManager _connectionMananger;
+        private readonly SqlServerEventStoreEventWriter _eventWriter;
 
         private readonly SqlServerEventStoreEventsCache _cache;
         private readonly SqlServerEventStoreSchemaManager _schemaManager;
@@ -28,6 +29,7 @@ namespace Composable.CQRS.EventSourcing.SQLServer
             _schemaManager =  new SqlServerEventStoreSchemaManager(connectionString);
             _cache = SqlServerEventStoreEventsCache.ForConnectionString(connectionString);
             _connectionMananger = new SqlServerEventStoreConnectionManager(connectionString);
+            _eventWriter = new SqlServerEventStoreEventWriter(_connectionMananger, _eventSerializer);
         }
 
 
@@ -125,33 +127,8 @@ namespace Composable.CQRS.EventSourcing.SQLServer
 
             events = events.ToList();
             _aggregatesWithEventsAddedByThisInstance.AddRange(events.Select(e => e.AggregateRootId));
-            using (var connection = _connectionMananger.OpenConnection())
-            {
-                foreach (var @event in events)
-                {
-                    using (var command = connection.CreateCommand())
-                    {
-                        command.CommandType = CommandType.Text;
-
-                        command.CommandText +=
-                            $@"
-INSERT {EventTable.Name} With(READCOMMITTED, ROWLOCK) 
-       ({EventTable.Columns.AggregateId},  {EventTable.Columns.AggregateVersion},  {EventTable.Columns.EventType},  {EventTable.Columns.EventId},  {EventTable.Columns.TimeStamp},  {EventTable.Columns.Event}) 
-VALUES(@{EventTable.Columns.AggregateId}, @{EventTable.Columns.AggregateVersion}, @{EventTable.Columns.EventType}, @{EventTable.Columns.EventId}, @{EventTable.Columns.TimeStamp}, @{EventTable.Columns.Event})";
-
-                        command.Parameters.Add(new SqlParameter(EventTable.Columns.AggregateId, @event.AggregateRootId));
-                        command.Parameters.Add(new SqlParameter(EventTable.Columns.AggregateVersion, @event.AggregateRootVersion));
-                        command.Parameters.Add(new SqlParameter(EventTable.Columns.EventType, @event.GetType().FullName));
-                        command.Parameters.Add(new SqlParameter(EventTable.Columns.EventId, @event.EventId));
-                        command.Parameters.Add(new SqlParameter(EventTable.Columns.TimeStamp, @event.TimeStamp));
-
-                        command.Parameters.Add(new SqlParameter(EventTable.Columns.Event, EventSerializer.Serialize(@event)));
-
-                        command.ExecuteNonQuery();
-                    }
-                }
-            }
-        }       
+            _eventWriter.Insert(events);
+        }
 
         public void DeleteEvents(Guid aggregateId)
         {

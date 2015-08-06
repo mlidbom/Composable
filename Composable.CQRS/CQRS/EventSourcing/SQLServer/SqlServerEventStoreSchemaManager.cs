@@ -35,20 +35,55 @@ namespace Composable.CQRS.EventSourcing.SQLServer
             {
                 if(!VerifiedTables.Contains(ConnectionString))
                 {
-                    int exists;
                     using(var connection = OpenConnection())
                     {
-                        using(var checkForTableCommand = connection.CreateCommand())
-                        {
-                            checkForTableCommand.CommandText = "select count(*) from sys.tables where name = 'Events'";
-                            exists = (int)checkForTableCommand.ExecuteScalar();
-                        }
-                        if(exists == 0)
-                        {
-                            using(var createTableCommand = connection.CreateCommand())
-                            {
-                                createTableCommand.CommandText =
-                                    @"
+                        EnsureEventsTableExists(connection);
+                        EnsureEventTypesTableExists(connection);
+                        VerifiedTables.Add(ConnectionString);
+                    }
+                }
+            }
+        }
+
+        private static void EnsureEventTypesTableExists(SqlConnection connection)
+        {
+            int exists;
+            using (var checkForTableCommand = connection.CreateCommand())
+            {
+                checkForTableCommand.CommandText = "select count(*) from sys.tables where name = 'EventTypes'";
+                exists = (int)checkForTableCommand.ExecuteScalar();
+            }
+            if (exists == 0)
+            {
+                using (var createTableCommand = connection.CreateCommand())
+                {
+                    createTableCommand.CommandText =
+@"
+    select identity(int, 1,1) as Id, EventType
+    into EventType
+    from Events
+    group by EventType
+    order by EventType
+";
+                    createTableCommand.ExecuteNonQuery();
+                }
+            }
+        }
+
+        private static void EnsureEventsTableExists(SqlConnection connection)
+        {
+            int exists;
+            using(var checkForTableCommand = connection.CreateCommand())
+            {
+                checkForTableCommand.CommandText = "select count(*) from sys.tables where name = 'Events'";
+                exists = (int)checkForTableCommand.ExecuteScalar();
+            }
+            if(exists == 0)
+            {
+                using(var createTableCommand = connection.CreateCommand())
+                {
+                    createTableCommand.CommandText =
+                        @"
 CREATE TABLE [dbo].[Events](
 	[AggregateId] [uniqueidentifier] NOT NULL,
 	[AggregateVersion] [int] NOT NULL,
@@ -73,11 +108,7 @@ CREATE UNIQUE NONCLUSTERED INDEX [SqlTimeStamp] ON [dbo].[Events]
 	[SqlTimeStamp] ASC
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, IGNORE_DUP_KEY = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 ";
-                                createTableCommand.ExecuteNonQuery();
-                            }
-                        }
-                        VerifiedTables.Add(ConnectionString);
-                    }
+                    createTableCommand.ExecuteNonQuery();
                 }
             }
         }
@@ -93,17 +124,36 @@ CREATE UNIQUE NONCLUSTERED INDEX [SqlTimeStamp] ON [dbo].[Events]
             {
                 using(var connection = OpenConnection())
                 {
-                    using(var dropCommand = connection.CreateCommand())
-                    {
-                        dropCommand.CommandText =
-                            @"IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[Events]') AND type in (N'U'))
-DROP TABLE [dbo].[Events]";
-
-                        dropCommand.ExecuteNonQuery();
-                        VerifiedTables.Remove(ConnectionString);
-                    }
+                    DropEventsTable(connection);
+                    DropEventTypeTable(connection);
                 }
                 EnsureEventsTableExists();
+            }
+        }
+
+        private void DropEventsTable(SqlConnection connection)
+        {
+            using(var dropCommand = connection.CreateCommand())
+            {
+                dropCommand.CommandText =
+                    @"IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[Events]') AND type in (N'U'))
+DROP TABLE [dbo].[Events]";
+
+                dropCommand.ExecuteNonQuery();
+                VerifiedTables.Remove(ConnectionString);
+            }
+        }
+
+        private void DropEventTypeTable(SqlConnection connection)
+        {
+            using (var dropCommand = connection.CreateCommand())
+            {
+                dropCommand.CommandText =
+                    @"IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[EventType]') AND type in (N'U'))
+DROP TABLE [dbo].[EventType]";
+
+                dropCommand.ExecuteNonQuery();
+                VerifiedTables.Remove(ConnectionString);
             }
         }
     }

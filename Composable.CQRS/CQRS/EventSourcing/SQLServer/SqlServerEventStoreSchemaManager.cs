@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Transactions;
 using Composable.Logging.Log4Net;
@@ -8,8 +9,9 @@ namespace Composable.CQRS.EventSourcing.SQLServer
     public class SqlServerEventStoreSchemaManager
     {
         private static readonly HashSet<string> VerifiedConnectionStrings = new HashSet<string>();
-        private static EventTableSchemaManager EventTable { get; } = new EventTableSchemaManager();
-        private static EventTypeTableSchemaManager EventTypeTable { get; } = new EventTypeTableSchemaManager();
+        private static readonly EventTableSchemaManager EventTable  = new EventTableSchemaManager();
+        private static readonly EventTypeTableSchemaManager EventTypeTable  = new EventTypeTableSchemaManager();
+        private static readonly LegacyEventTableSchemaManager LegacyEventTable = new LegacyEventTableSchemaManager();
 
         public SqlServerEventStoreSchemaManager(string connectionString)
         {
@@ -40,11 +42,13 @@ namespace Composable.CQRS.EventSourcing.SQLServer
 
                 using(var connection = OpenConnection())
                 {
+                    LegacyEventTable.ThrowExceptionWithInstructionsIfSchemaIsOutOfDate(connection);
                     if(!EventTable.Exists(connection))
-                    {
-                        EventTable.Create(connection);
+                    {                        
                         EventTypeTable.Create(connection);
+                        EventTable.Create(connection);
                     }
+
                     VerifiedConnectionStrings.Add(ConnectionString);
                 }
             }

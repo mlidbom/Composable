@@ -1,8 +1,8 @@
 ﻿namespace Composable.CQRS.EventSourcing.SQLServer
 {
-    internal static class EventTable
+    internal static class LegacyEventTable
     {
-        public static string Name { get; } = "Event";
+        public static string Name { get; } = "Events";
 
         internal static class Columns
         {
@@ -11,8 +11,10 @@
             public const string TimeStamp = nameof(TimeStamp);
             public const string InsertionOrder = nameof(InsertionOrder);
             public const string EventType = nameof(EventType);
+            public const string EventTypeId = nameof(EventTypeId);
             public const string EventId = nameof(EventId);
             public const string Event = nameof(Event);
+            public static string SqlTimeStamp = nameof(SqlTimeStamp);
         }        
     }
 }

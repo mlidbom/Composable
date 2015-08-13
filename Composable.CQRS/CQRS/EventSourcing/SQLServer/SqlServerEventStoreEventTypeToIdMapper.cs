@@ -50,13 +50,15 @@ namespace Composable.CQRS.EventSourcing.SQLServer
         {
             if (_idToTypeMap == null)
             {
-                _idToTypeMap = new Dictionary<int, Type>();
-                _typeToIdMap = new Dictionary<Type, int>();
+                var idToTypeMap = new Dictionary<int, Type>();
+                var typeToIdMap = new Dictionary<Type, int>();
                 foreach (var mapping in GetTypes())
                 {
-                    _idToTypeMap.Add(mapping.Id, mapping.Type);
-                    _typeToIdMap.Add(mapping.Type, mapping.Id);
+                    idToTypeMap.Add(mapping.Id, mapping.Type);
+                    typeToIdMap.Add(mapping.Type, mapping.Id);
                 }
+                _idToTypeMap = idToTypeMap;//Only assign to the fields once we completely and successfully fetch all types. We do not want a half-way populated, and therefore corrupt, mapping table.
+                _typeToIdMap = typeToIdMap;
             }
         }
 

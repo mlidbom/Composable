@@ -43,7 +43,7 @@ FROM {EventTable.Name} With(UPDLOCK, READCOMMITTED, ROWLOCK) ";
             {
                 using (var loadCommand = connection.CreateCommand()) 
                 {
-                    loadCommand.CommandText = SelectClause + $"WHERE {EventTable.Columns.AggregateId} = @{EventTable.Columns.AggregateId}";
+                    loadCommand.CommandText = $"{SelectClause} WHERE {EventTable.Columns.AggregateId} = @{EventTable.Columns.AggregateId}";
                     loadCommand.Parameters.Add(new SqlParameter($"{EventTable.Columns.AggregateId}", aggregateId));
 
                     if (startAfterVersion > 0)
@@ -76,8 +76,8 @@ FROM {EventTable.Name} With(UPDLOCK, READCOMMITTED, ROWLOCK) ";
                     {
                         if (startAfterEventId.HasValue)
                         {
-                            loadCommand.CommandText = SelectTopClause(batchSize) + $"WHERE {EventTable.Columns.InsertionOrder} > @{EventTable.Columns.InsertionOrder} {InsertionOrderSortOrder}";
-                            loadCommand.Parameters.Add(new SqlParameter(EventTable.Columns.InsertionOrder, GetEventTimestamp(startAfterEventId.Value)));
+                            loadCommand.CommandText = $"{SelectTopClause(batchSize)} WHERE {EventTable.Columns.InsertionOrder} > @{EventTable.Columns.InsertionOrder} {InsertionOrderSortOrder}";
+                            loadCommand.Parameters.Add(new SqlParameter(EventTable.Columns.InsertionOrder, GetEventInsertionOrder(startAfterEventId.Value)));
                         }
                         else
                         {
@@ -101,7 +101,7 @@ FROM {EventTable.Name} With(UPDLOCK, READCOMMITTED, ROWLOCK) ";
             }
         }
 
-        private long GetEventTimestamp(Guid eventId)
+        private long GetEventInsertionOrder(Guid eventId)
         {
             return _connectionMananger.UseCommand(
                 loadCommand =>

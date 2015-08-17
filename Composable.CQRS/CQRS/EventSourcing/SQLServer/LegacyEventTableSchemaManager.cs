@@ -65,9 +65,9 @@ GROUP BY {EventTable.Columns.EventType}
 ";
 
         public string MigrateEventsSql => $@"
-    INSERT INTO {EventTableSchema.Name} 
-(      {EventTable.Columns.AggregateId}, {EventTable.Columns.AggregateVersion}, {EventTable.Columns.TimeStamp}, {EventTable.Columns.EventType}, {EventTable.Columns.EventId}, {EventTable.Columns.Event}, {LegacySqlTimeStamp})
-SELECT {LegacyEventTable.Columns.AggregateId}, {LegacyEventTable.Columns.AggregateVersion},{LegacyEventTable.Columns.TimeStamp}, {EventTypeTable.Name}.{EventTypeTable.Columns.Id}, {LegacyEventTable.Columns.EventId}, {LegacyEventTable.Columns.Event}, CAST({LegacyEventTable.Columns.SqlTimeStamp} AS BIGINT)
+INSERT INTO {EventTableSchema.Name} 
+(      {EventTable.Columns.AggregateId}, {EventTable.Columns.AggregateVersion}, {EventTable.Columns.TimeStamp}, {EventTable.Columns.EventType}, {EventTable.Columns.EventId}, {EventTable.Columns.Event}, {LegacySqlTimeStamp}, {EventTable.Columns.SqlTimeStamp})
+SELECT {LegacyEventTable.Columns.AggregateId}, {LegacyEventTable.Columns.AggregateVersion},{LegacyEventTable.Columns.TimeStamp}, {EventTypeTable.Name}.{EventTypeTable.Columns.Id}, {LegacyEventTable.Columns.EventId}, {LegacyEventTable.Columns.Event}, CAST({LegacyEventTable.Columns.SqlTimeStamp} AS BIGINT), {EventTable.Columns.TimeStamp}
 FROM {LegacyEventTable.Name}
 INNER JOIN {EventTypeTable.Name}
 ON {LegacyEventTable.Name}.{LegacyEventTable.Columns.EventType} = {EventTypeTable.Name}.{EventTypeTable.Columns.EventType}

@@ -14,6 +14,7 @@ using NCrunch.Framework;
 using NUnit.Framework;
 using Composable.System.Linq;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace CQRS.Tests.CQRS.EventSourcing
 {
@@ -29,7 +30,7 @@ namespace CQRS.Tests.CQRS.EventSourcing
             Bus = new DummyServiceBus(new WindsorContainer());
         }
 
-        private IEventStoreSession OpenSession(IEventStore store)
+        protected IEventStoreSession OpenSession(IEventStore store)
         {
             return new EventStoreSession(Bus, store, new SingleThreadUseGuard());
         }
@@ -41,7 +42,7 @@ namespace CQRS.Tests.CQRS.EventSourcing
             {
                 Assert.Throws<AggregateRootNotFoundException>(() => session.Get<User>(Guid.NewGuid()));
             }
-        }
+        }       
 
         [Test]
         public void CanSaveAndLoadAggregate()

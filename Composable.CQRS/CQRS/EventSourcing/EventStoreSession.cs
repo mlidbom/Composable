@@ -28,7 +28,6 @@ namespace Composable.CQRS.EventSourcing
         private readonly IEventStore _store;
         private static ILog Log = LogManager.GetLogger(typeof(EventStoreSession));
         private readonly IDictionary<Guid, IEventStored> _idMap = new Dictionary<Guid, IEventStored>();
-        private readonly IDictionary<Guid, IList<IAggregateRootEvent>> _historyCache = new Dictionary<Guid, IList<IAggregateRootEvent>>();
         private readonly HashSet<Guid> _publishedEvents = new HashSet<Guid>();
         private readonly ISingleContextUseGuard _usageGuard;
         private readonly List<Guid> _pendingDeletes = new List<Guid>();
@@ -168,12 +167,7 @@ namespace Composable.CQRS.EventSourcing
 
         public IEnumerable<IAggregateRootEvent> GetHistory(Guid aggregateId)
         {
-            IList<IAggregateRootEvent> history;
-            if (_historyCache.TryGetValue(aggregateId, out history))
-            {
-                return history;
-            }
-            history = _store.GetAggregateHistory(aggregateId).ToList();
+            IList<IAggregateRootEvent> history = _store.GetAggregateHistory(aggregateId).ToList();
 
             var version = 1;
             foreach (var aggregateRootEvent in history)
@@ -183,7 +177,6 @@ namespace Composable.CQRS.EventSourcing
                     throw new InvalidHistoryException();
                 }
             }
-            _historyCache.Add(aggregateId, history);
             return history;
         }
 
@@ -236,8 +229,6 @@ namespace Composable.CQRS.EventSourcing
 
             var aggregates = _idMap.Select(p => p.Value).ToList();
 
-            UpdateChangedAggregatesHistoryCache();
-
             var newEvents = aggregates.SelectMany(a => a.GetChanges()).ToList();
             aggregates.ForEach(a => a.AcceptChanges());
             _store.SaveEvents(newEvents);
@@ -250,23 +241,11 @@ namespace Composable.CQRS.EventSourcing
             {
                 _store.DeleteEvents(toDelete);
                 _idMap.Remove(toDelete);
-                _historyCache.Remove(toDelete);
             }
             _pendingDeletes.Clear();
 
             return result;
-        }
-
-        private void UpdateChangedAggregatesHistoryCache()
-        {
-            foreach (var key in _historyCache.Keys)
-            {
-                if (_idMap.ContainsKey(key))
-                {
-                    _historyCache[key].AddRange(_idMap[key].GetChanges());
-                }
-            }
-        }
+        }        
     }
 
     internal class ParticipantAccessedByWrongUnitOfWork : Exception { }

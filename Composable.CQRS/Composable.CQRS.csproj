@@ -131,7 +131,10 @@
     <Compile Include="CQRS\EntityToReferenceConverter.cs" />
     <Compile Include="CQRS\Event.cs" />
     <Compile Include="CQRS\EventHandling\CallMatchingHandlersInRegistrationOrderEventDispatcher.cs" />
+    <Compile Include="CQRS\EventHandling\IEventDispatcher.cs" />
+    <Compile Include="CQRS\EventHandling\IMutableEventDispatcher.cs" />
     <Compile Include="CQRS\EventHandling\ISingleAggregateQueryModel.cs" />
+    <Compile Include="CQRS\EventHandling\IEventHandlerRegistrar.cs" />
     <Compile Include="CQRS\EventHandling\SingleAggregateQueryModelUpdater.cs" />
     <Compile Include="CQRS\EventHandling\UniqueMatchEventHierarchyHandler.cs" />
     <Compile Include="CQRS\EventSourcing\AttemptToSaveEmptyAggregate.cs" />

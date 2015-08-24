@@ -1,9 +1,17 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace Composable.CQRS.EventHandling
 {
+    public static class EventHandlerRegistrarExtensions
+    {
+        public static IEventHandlerRegistrar<TRestricted> Restrict<TRestricted, TOriginal>(this IEventHandlerRegistrar<TOriginal> @this) 
+            where TRestricted : class, TOriginal
+            where TOriginal : class
+        {
+            return @this;
+        }
+    }
+
     public interface IEventHandlerRegistrar<in TBaseEvent>
     {
         ///<summary>Registers a handler for any event that implements THandledEvent. All matching handlers will be called in the order they were registered.</summary>

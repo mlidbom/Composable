@@ -13,7 +13,7 @@ namespace Composable.CQRS.EventHandling
     /// Calls all matching handlers in the order they were registered when an event is Dispatched.
     /// Handlers should be registered using the RegisterHandlers method in the constructor of the inheritor.
     /// </summary>
-    public class CallMatchingHandlersInRegistrationOrderEventDispatcher<TEvent>
+    public class CallMatchingHandlersInRegistrationOrderEventDispatcher<TEvent> : IMutableEventDispatcher<TEvent>
     {
         private static readonly ILog Log = LogManager.GetLogger(typeof(CallMatchingHandlersInRegistrationOrderEventDispatcher<TEvent>));
         private readonly List<KeyValuePair<Type, Action<object>>> _handlers = new List<KeyValuePair<Type, Action<object>>>();
@@ -28,7 +28,12 @@ namespace Composable.CQRS.EventHandling
             return new RegistrationBuilder(this);
         }
 
-        public class RegistrationBuilder
+        public IEventHandlerRegistrar<TEvent> Register()
+        {
+            return new RegistrationBuilder(this);
+        } 
+
+        public class RegistrationBuilder : IEventHandlerRegistrar<TEvent>
         {
             private readonly CallMatchingHandlersInRegistrationOrderEventDispatcher<TEvent> _owner;
 
@@ -77,6 +82,36 @@ namespace Composable.CQRS.EventHandling
                 _owner._ignoredEvents.Add(typeof(T));
                 return this;
             }
+
+            #region IEventHandlerRegistrar implementation.
+
+            IEventHandlerRegistrar<TEvent> IEventHandlerRegistrar<TEvent>.ForGenericEvent<THandledEvent>(Action<THandledEvent> handler)
+            {
+                return ForGenericEvent(handler);
+            }
+
+            IEventHandlerRegistrar<TEvent> IEventHandlerRegistrar<TEvent>.BeforeHandlers<THandledEvent>(Action<THandledEvent> runBeforeHandlers)
+            {
+                return BeforeHandlers(e => runBeforeHandlers((THandledEvent)e));
+            }
+
+            IEventHandlerRegistrar<TEvent> IEventHandlerRegistrar<TEvent>.AfterHandlers<THandledEvent>(Action<THandledEvent> runAfterHandlers)
+            {
+                return AfterHandlers(e => runAfterHandlers((THandledEvent)e));
+            }
+
+            IEventHandlerRegistrar<TEvent> IEventHandlerRegistrar<TEvent>.IgnoreUnhandled<T>()
+            {
+                return IgnoreUnhandled<TEvent>();
+            }
+
+            IEventHandlerRegistrar<TEvent> IEventHandlerRegistrar<TEvent>.For<THandledEvent>(Action<THandledEvent> handler)
+            {
+                return For(handler);
+            }
+
+            #endregion
+
         }
 
         public void Dispatch(TEvent evt)

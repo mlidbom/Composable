@@ -7,6 +7,7 @@ using System.Data.SqlTypes;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Transactions;
+using Composable.CQRS.EventSourcing.EventRefactoring;
 using Composable.System;
 using Composable.System.Reflection;
 using Newtonsoft.Json;
@@ -15,20 +16,22 @@ using Composable.System.Linq;
 
 namespace Composable.CQRS.EventSourcing.SQLServer
 {
-    public class SqlServerEventStore : IEventStore
-    {
-        
-
+    public partial class SqlServerEventStore : IEventStore
+    {        
         private static readonly ILog Log = LogManager.GetLogger(typeof(SqlServerEventStore));
 
         public static readonly JsonSerializerSettings JsonSettings = NewtonSoft.JsonSettings.JsonSerializerSettings;
         public readonly string ConnectionString;
 
         private readonly SqlServerEventStoreEventsCache _cache;
-        public SqlServerEventStore(string connectionString)
+        private readonly IEventNameMapper _eventNameMapper;
+
+        public SqlServerEventStore(string connectionString, IEventNameMapper nameMapper = null)
         {
             Log.Debug("Constructor called");
+
             ConnectionString = connectionString;
+            _eventNameMapper = nameMapper ?? new DefaultEventNameMapper();
             _cache = SqlServerEventStoreEventsCache.ForConnectionString(connectionString);
         }
 
@@ -153,7 +156,7 @@ namespace Composable.CQRS.EventSourcing.SQLServer
 
         private IAggregateRootEvent DeserializeEvent(string eventType, string eventData)
         {
-            return (IAggregateRootEvent)JsonConvert.DeserializeObject(eventData, eventType.AsType(), JsonSettings);
+            return (IAggregateRootEvent)JsonConvert.DeserializeObject(eventData, _eventNameMapper.GetType(eventType), JsonSettings);
         }
 
 
@@ -176,7 +179,7 @@ namespace Composable.CQRS.EventSourcing.SQLServer
 
                         command.Parameters.Add(new SqlParameter("AggregateId", @event.AggregateRootId));
                         command.Parameters.Add(new SqlParameter("AggregateVersion", @event.AggregateRootVersion));
-                        command.Parameters.Add(new SqlParameter("EventType", @event.GetType().FullName));
+                        command.Parameters.Add(new SqlParameter("EventType", _eventNameMapper.GetName(@event.GetType())));
                         command.Parameters.Add(new SqlParameter("EventId", @event.EventId));
                         command.Parameters.Add(new SqlParameter("TimeStamp", @event.TimeStamp));
 

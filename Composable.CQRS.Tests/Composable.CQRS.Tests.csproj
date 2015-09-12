@@ -164,6 +164,15 @@
     <Compile Include="CQRS\EventHandling\SingleAggregateQueryModelUpdaterSpecification.cs" />
     <Compile Include="CQRS\EventHandling\EventHierarchyHandlerSpecification.cs" />
     <Compile Include="CQRS\EventSourcing\AggregateRootTests.cs" />
+    <Compile Include="CQRS\EventSourcing\EventRefactoring\When_renaming_events\With_path_renamer.cs" />
+    <Compile Include="CQRS\EventSourcing\EventRefactoring\When_renaming_events\With_path_renamer_and_then_renaming_attribute_renamer.cs" />
+    <Compile Include="CQRS\EventSourcing\EventRefactoring\When_renaming_events\With_renaming_attribute_renamer_and_then_path_renamer.cs" />
+    <Compile Include="CQRS\EventSourcing\EventRefactoring\When_renaming_events\With_renaming_attribute\By_path_and_name.cs" />
+    <Compile Include="CQRS\EventSourcing\EventRefactoring\When_renaming_events\With_renaming_attribute\Nested_event_class_by_name.cs" />
+    <Compile Include="CQRS\EventSourcing\EventRefactoring\When_renaming_events\With_renaming_attribute\By_name.cs" />
+    <Compile Include="CQRS\EventSourcing\EventRefactoring\When_renaming_events\With_renaming_attribute\By_path.cs" />
+    <Compile Include="CQRS\EventSourcing\EventRefactoring\When_renaming_events\With_renaming_attribute\By_fullName.cs" />
+    <Compile Include="CQRS\EventSourcing\EventRefactoring\When_renaming_events\When_mapping_names_for_classes_with_no_renaming_attribute.cs" />
     <Compile Include="CQRS\EventSourcing\EventsReplayerTests.cs" />
     <Compile Include="CQRS\EventSourcing\EventStoreTests.cs" />
     <Compile Include="CQRS\EventSourcing\EventStoredAggregateRootTests.cs" />

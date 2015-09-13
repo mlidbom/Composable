@@ -9,14 +9,14 @@ namespace Composable.CQRS.EventSourcing.SQLServer
     {
         private readonly SqlServerEventStoreConnectionManager _connectionMananger;
         private readonly SqlServerEvestStoreEventSerializer _eventSerializer;
-        private IEventTypeToIdMapper IdMapper => _sqlServerEventStoreSchemaManager.IdMapper;
-        private readonly SqlServerEventStoreSchemaManager _sqlServerEventStoreSchemaManager;
+        private IEventTypeToIdMapper IdMapper => _schemaManager.IdMapper;
+        private readonly SqlServerEventStoreSchemaManager _schemaManager;
 
-        public SqlServerEventStoreEventWriter(SqlServerEventStoreConnectionManager connectionMananger, SqlServerEvestStoreEventSerializer eventSerializer, SqlServerEventStoreSchemaManager sqlServerEventStoreSchemaManager)
+        public SqlServerEventStoreEventWriter(SqlServerEventStoreConnectionManager connectionMananger, SqlServerEvestStoreEventSerializer eventSerializer, SqlServerEventStoreSchemaManager schemaManager)
         {
             _connectionMananger = connectionMananger;
             _eventSerializer = eventSerializer;
-            _sqlServerEventStoreSchemaManager = sqlServerEventStoreSchemaManager;
+            _schemaManager = schemaManager;
         }
 
         public void Insert(IEnumerable<IAggregateRootEvent> events)
@@ -31,7 +31,7 @@ namespace Composable.CQRS.EventSourcing.SQLServer
 
                         command.CommandText +=
                             $@"
-INSERT {EventTable.Name} With(READCOMMITTED, ROWLOCK) 
+INSERT {_schemaManager.EventTableName} With(READCOMMITTED, ROWLOCK) 
 (       {EventTable.Columns.AggregateId},  {EventTable.Columns.AggregateVersion},  {EventTable.Columns.EventType},  {EventTable.Columns.EventId},  {EventTable.Columns.TimeStamp},  {EventTable.Columns.Event}, {EventTable.Columns.SqlTimeStamp}) 
 VALUES(@{EventTable.Columns.AggregateId}, @{EventTable.Columns.AggregateVersion}, @{EventTable.Columns.EventType}, @{EventTable.Columns.EventId}, @{EventTable.Columns.TimeStamp}, @{EventTable.Columns.Event}, GETDATE())";
 
@@ -56,7 +56,7 @@ VALUES(@{EventTable.Columns.AggregateId}, @{EventTable.Columns.AggregateVersion}
                 {
                     command.CommandType = CommandType.Text;
                     command.CommandText +=
-                        $"DELETE {EventTable.Name} With(ROWLOCK) WHERE {EventTable.Columns.AggregateId} = @{EventTable.Columns.AggregateId}";
+                        $"DELETE {_schemaManager.EventTableName} With(ROWLOCK) WHERE {EventTable.Columns.AggregateId} = @{EventTable.Columns.AggregateId}";
                     command.Parameters.Add(new SqlParameter(EventTable.Columns.AggregateId, aggregateId));
                     command.ExecuteNonQuery();
                 });

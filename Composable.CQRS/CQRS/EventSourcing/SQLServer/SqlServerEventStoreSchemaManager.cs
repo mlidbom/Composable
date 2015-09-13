@@ -23,6 +23,10 @@ namespace Composable.CQRS.EventSourcing.SQLServer
 
         private readonly IEventNameMapper _nameMapper;
 
+        public string EventTableName => IdMapper is LegacySchemaSqlServerEventStoreEventTypeToIdMapper
+                                       ? LegacyEventTable.Name
+                                       : EventTable.Name;
+
         public IEventTypeToIdMapper IdMapper { get; private set; }
 
      

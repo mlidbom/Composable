@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Composable.CQRS.EventSourcing.EventRefactoring;
 using Composable.System.Linq;
 using log4net;
 
@@ -12,23 +13,25 @@ namespace Composable.CQRS.EventSourcing.SQLServer
 
         public readonly string ConnectionString;
 
-        private readonly SqlServerEventStoreConnectionManager _connectionMananger;
         private readonly SqlServerEventStoreEventReader _eventReader;        
         private readonly SqlServerEventStoreEventWriter _eventWriter;
         private readonly SqlServerEventStoreEventsCache _cache;
         private readonly SqlServerEventStoreSchemaManager _schemaManager;
 
-        public SqlServerEventStore(string connectionString)
+        public SqlServerEventStore(string connectionString, IEventNameMapper nameMapper = null)
         {
             Log.Debug("Constructor called");
+
+            nameMapper = nameMapper ?? new DefaultEventNameMapper();
+
             ConnectionString = connectionString;            
             var eventSerializer = new SqlServerEvestStoreEventSerializer();
             _schemaManager =  new SqlServerEventStoreSchemaManager(connectionString);
             _cache = SqlServerEventStoreEventsCache.ForConnectionString(connectionString);
-            _connectionMananger = new SqlServerEventStoreConnectionManager(connectionString);
-            var idMapper = new SqlServerEventStoreEventTypeToIdMapper(connectionString);
-            _eventReader = new SqlServerEventStoreEventReader(_connectionMananger, idMapper);
-            _eventWriter = new SqlServerEventStoreEventWriter(_connectionMananger, eventSerializer, idMapper);
+            var connectionMananger = new SqlServerEventStoreConnectionManager(connectionString);
+            var idMapper = new SqlServerEventStoreEventTypeToIdMapper(connectionString, nameMapper);
+            _eventReader = new SqlServerEventStoreEventReader(connectionMananger, idMapper);
+            _eventWriter = new SqlServerEventStoreEventWriter(connectionMananger, eventSerializer, idMapper);
         }
 
 

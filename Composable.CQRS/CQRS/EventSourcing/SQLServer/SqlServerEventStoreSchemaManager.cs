@@ -11,8 +11,8 @@ namespace Composable.CQRS.EventSourcing.SQLServer
     {
         private static readonly HashSet<string> VerifiedConnectionStrings = new HashSet<string>();
         private static readonly Dictionary<string, IEventTypeToIdMapper> ConnectionIdMapper = new Dictionary<string, IEventTypeToIdMapper>();
-        private static readonly EventTableSchemaManager EventTable  = new EventTableSchemaManager();
-        private static readonly EventTypeTableSchemaManager EventTypeTable  = new EventTypeTableSchemaManager();
+        private static readonly EventTableSchemaManager EventTable = new EventTableSchemaManager();
+        private static readonly EventTypeTableSchemaManager EventTypeTable = new EventTypeTableSchemaManager();
         private static readonly LegacyEventTableSchemaManager LegacyEventTable = new LegacyEventTableSchemaManager();
 
         public SqlServerEventStoreSchemaManager(string connectionString, IEventNameMapper nameMapper)
@@ -23,15 +23,21 @@ namespace Composable.CQRS.EventSourcing.SQLServer
 
         private readonly IEventNameMapper _nameMapper;
 
-        public string EventTableName => IdMapper is LegacySchemaSqlServerEventStoreEventTypeToIdMapper
-                                       ? LegacyEventTable.Name
-                                       : EventTable.Name;
+        public string EventTableName => UsingLegacySchema
+                                            ? LegacyEventTable.Name
+                                            : EventTable.Name;
+
+        private bool UsingLegacySchema => IdMapper is LegacySchemaSqlServerEventStoreEventTypeToIdMapper;
 
         public IEventTypeToIdMapper IdMapper { get; private set; }
 
-     
-
         private string ConnectionString { get; }
+        public string InsertColumnsAddendum => UsingLegacySchema ? "" : $", {SQLServer.EventTable.Columns.SqlTimeStamp}";
+        public string InsertValuesAddendum => UsingLegacySchema ? "" : ", GETDATE()";
+
+        public string InsertionOrderColumn => UsingLegacySchema
+                                                  ? SQLServer.LegacyEventTable.Columns.SqlTimeStamp
+                                                  : SQLServer.EventTable.Columns.InsertionOrder;
 
         private SqlConnection OpenConnection()
         {
@@ -51,7 +57,7 @@ AT:
         {
             lock(VerifiedConnectionStrings)
             {
-                if (VerifiedConnectionStrings.Contains(ConnectionString))
+                if(VerifiedConnectionStrings.Contains(ConnectionString))
                 {
                     IdMapper = ConnectionIdMapper[ConnectionString];
                     return;
@@ -62,14 +68,14 @@ AT:
                     LegacyEventTable.LogWarningIfUsingLegacySqlSchema(connection);
                     var usingLegacySchema = LegacyEventTable.IsUsingLegacySchema(connection);
 
-                    IdMapper = usingLegacySchema 
-                        ? (IEventTypeToIdMapper)new LegacySchemaSqlServerEventStoreEventTypeToIdMapper(_nameMapper) 
-                        : (IEventTypeToIdMapper)new SqlServerEventStoreEventTypeToIdMapper(ConnectionString, _nameMapper);
+                    IdMapper = usingLegacySchema
+                                   ? (IEventTypeToIdMapper)new LegacySchemaSqlServerEventStoreEventTypeToIdMapper(_nameMapper)
+                                   : (IEventTypeToIdMapper)new SqlServerEventStoreEventTypeToIdMapper(ConnectionString, _nameMapper);
 
                     ConnectionIdMapper[ConnectionString] = IdMapper;
 
-                    if (!usingLegacySchema && !EventTable.Exists(connection))
-                    {                        
+                    if(!usingLegacySchema && !EventTable.Exists(connection))
+                    {
                         EventTypeTable.Create(connection);
                         EventTable.Create(connection);
                     }
@@ -77,7 +83,7 @@ AT:
                     VerifiedConnectionStrings.Add(ConnectionString);
                 }
             }
-        }        
+        }
 
         public static void ResetDB(string connectionString)
         {
@@ -96,6 +102,6 @@ AT:
                 VerifiedConnectionStrings.Remove(ConnectionString);
                 SetupSchemaIfDatabaseUnInitialized();
             }
-        }               
+        }
     }
 }

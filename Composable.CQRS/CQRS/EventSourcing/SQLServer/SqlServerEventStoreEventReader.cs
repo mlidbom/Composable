@@ -79,8 +79,8 @@ FROM {_schemaManager.EventTableName} With(UPDLOCK, READCOMMITTED, ROWLOCK) ";
                     {
                         if (startAfterEventId.HasValue)
                         {
-                            loadCommand.CommandText = $"{SelectTopClause(batchSize)} WHERE {EventTable.Columns.InsertionOrder} > @{EventTable.Columns.InsertionOrder} {InsertionOrderSortOrder}";
-                            loadCommand.Parameters.Add(new SqlParameter(EventTable.Columns.InsertionOrder, GetEventInsertionOrder(startAfterEventId.Value)));
+                            loadCommand.CommandText = $"{SelectTopClause(batchSize)} WHERE {_schemaManager.InsertionOrderColumn} > @{_schemaManager.InsertionOrderColumn} {InsertionOrderSortOrder}";
+                            loadCommand.Parameters.Add(new SqlParameter(_schemaManager.InsertionOrderColumn, GetEventInsertionOrder(startAfterEventId.Value)));
                         }
                         else
                         {
@@ -104,14 +104,14 @@ FROM {_schemaManager.EventTableName} With(UPDLOCK, READCOMMITTED, ROWLOCK) ";
             }
         }
 
-        private long GetEventInsertionOrder(Guid eventId)
+        private object GetEventInsertionOrder(Guid eventId)
         {
             return _connectionMananger.UseCommand(
                 loadCommand =>
                 {
-                    loadCommand.CommandText = $"SELECT {EventTable.Columns.InsertionOrder} FROM {_schemaManager.EventTableName} WHERE {EventTable.Columns.EventId} = @{EventTable.Columns.EventId}";
+                    loadCommand.CommandText = $"SELECT {_schemaManager.InsertionOrderColumn} FROM {_schemaManager.EventTableName} WHERE {EventTable.Columns.EventId} = @{EventTable.Columns.EventId}";
                     loadCommand.Parameters.Add(new SqlParameter(EventTable.Columns.EventId, eventId));
-                    return (long)loadCommand.ExecuteScalar();
+                    return loadCommand.ExecuteScalar();
                 });
         }
 
@@ -135,6 +135,6 @@ FROM {_schemaManager.EventTableName} With(UPDLOCK, READCOMMITTED, ROWLOCK) ";
         }
 
 
-        private static readonly string InsertionOrderSortOrder = $" ORDER BY {EventTable.Columns.InsertionOrder} ASC";        
+        private string InsertionOrderSortOrder => $" ORDER BY {_schemaManager.InsertionOrderColumn} ASC";        
     }
 }

@@ -1,20 +1,13 @@
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Data.SqlClient;
 using Composable.CQRS.EventSourcing.EventRefactoring;
-using Composable.System.Reflection;
 
 namespace Composable.CQRS.EventSourcing.SQLServer
 {
-    internal class SqlServerEventStoreEventTypeToIdMapper
+    internal class SqlServerEventStoreEventTypeToIdMapper : IEventTypeToIdMapper
     {
         private readonly IEventNameMapper _nameMapper;
-        private static readonly ConcurrentDictionary<string, SqlServerEventStoreEventTypeToIdMapper> ConnectionStringToMapperDictionary = new ConcurrentDictionary<string, SqlServerEventStoreEventTypeToIdMapper>();
-        public static SqlServerEventStoreEventTypeToIdMapper ForConnectionString(string connectionString, IEventNameMapper nameMapper)
-        {
-            return ConnectionStringToMapperDictionary.GetOrAdd(connectionString, key => new SqlServerEventStoreEventTypeToIdMapper(connectionString, nameMapper));
-        }
 
         private readonly SqlServerEventStoreConnectionManager _connectionMananger;
         public SqlServerEventStoreEventTypeToIdMapper(string connectionString, IEventNameMapper nameMapper)
@@ -23,16 +16,17 @@ namespace Composable.CQRS.EventSourcing.SQLServer
             _connectionMananger = new SqlServerEventStoreConnectionManager(connectionString);
         }
 
-        public Type GetType(int id)
+        public Type GetType(object id)
         {            
             lock(_lockObject)
             {
-                EnsureInitialized();
-                return _idToTypeMap[id];
+                var integerId = (int)id;
+                EnsureInitialized();                
+                return _idToTypeMap[integerId];
             }
         }        
 
-        public int GetId(Type type)
+        public object GetId(Type type)
         {
             lock(_lockObject)
             {

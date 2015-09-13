@@ -155,12 +155,14 @@
     <Compile Include="CQRS\EventSourcing\RegisteredHandlerMissingException.cs" />
     <Compile Include="CQRS\EventSourcing\ReuseOfEventStoreSessionException.cs" />
     <Compile Include="CQRS\EventSourcing\EventStoredAggregateRoot.cs" />
+    <Compile Include="CQRS\EventSourcing\SQLServer\IEventTypeToIdMapper.cs" />
     <Compile Include="CQRS\EventSourcing\SQLServer\LegacyEventTable.cs" />
     <Compile Include="CQRS\EventSourcing\SQLServer\EventTableSchemaManager.cs" />
     <Compile Include="CQRS\EventSourcing\SQLServer\EventTypeTable.cs" />
     <Compile Include="CQRS\EventSourcing\SQLServer\EventTable.cs" />
     <Compile Include="CQRS\EventSourcing\SQLServer\EventTypeTableSchemaManager.cs" />
     <Compile Include="CQRS\EventSourcing\SQLServer\LegacyEventTableSchemaManager.cs" />
+    <Compile Include="CQRS\EventSourcing\SQLServer\LegacySchemaSqlServerEventStoreEventTypeToIdMapper.cs" />
     <Compile Include="CQRS\EventSourcing\SQLServer\SqlServerEventStoreConnectionManager.cs" />
     <Compile Include="CQRS\EventSourcing\SQLServer\SqlServerEventStoreEventReader.cs" />
     <Compile Include="CQRS\EventSourcing\SQLServer\SqlServerEventStoreEventsCache.cs" />

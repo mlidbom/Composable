@@ -2,22 +2,25 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Data.SqlClient;
+using Composable.CQRS.EventSourcing.EventRefactoring;
 using Composable.System.Reflection;
 
 namespace Composable.CQRS.EventSourcing.SQLServer
 {
     internal class SqlServerEventStoreEventTypeToIdMapper
     {
+        private readonly IEventNameMapper _nameMapper;
         private static readonly ConcurrentDictionary<string, SqlServerEventStoreEventTypeToIdMapper> ConnectionStringToMapperDictionary = new ConcurrentDictionary<string, SqlServerEventStoreEventTypeToIdMapper>();
-        public static SqlServerEventStoreEventTypeToIdMapper ForConnectionString(string connectionString)
+        public static SqlServerEventStoreEventTypeToIdMapper ForConnectionString(string connectionString, IEventNameMapper nameMapper)
         {
-            return ConnectionStringToMapperDictionary.GetOrAdd(connectionString, key => new SqlServerEventStoreEventTypeToIdMapper(connectionString));
+            return ConnectionStringToMapperDictionary.GetOrAdd(connectionString, key => new SqlServerEventStoreEventTypeToIdMapper(connectionString, nameMapper));
         }
 
         private readonly SqlServerEventStoreConnectionManager _connectionMananger;
-        public SqlServerEventStoreEventTypeToIdMapper(string connectionMananger)
+        public SqlServerEventStoreEventTypeToIdMapper(string connectionString, IEventNameMapper nameMapper)
         {
-            _connectionMananger = new SqlServerEventStoreConnectionManager(connectionMananger);            
+            _nameMapper = nameMapper;
+            _connectionMananger = new SqlServerEventStoreConnectionManager(connectionString);
         }
 
         public Type GetType(int id)
@@ -70,7 +73,7 @@ namespace Composable.CQRS.EventSourcing.SQLServer
                 using (var command = connection.CreateCommand())
                 {
                     command.CommandText = $@"INSERT {EventTypeTable.Name} ( {EventTypeTable.Columns.EventType} ) OUTPUT INSERTED.{EventTypeTable.Columns.Id} VALUES( @{EventTypeTable.Columns.EventType} )";
-                    command.Parameters.Add(new SqlParameter(EventTypeTable.Columns.EventType, newType.FullName));
+                    command.Parameters.Add(new SqlParameter(EventTypeTable.Columns.EventType, _nameMapper.GetName(newType)));
                     return new IdTypeMapping(id: (int)command.ExecuteScalar(), type: newType);
                 }
             }
@@ -89,7 +92,7 @@ namespace Composable.CQRS.EventSourcing.SQLServer
                         {
                             yield return new IdTypeMapping(
                                 id: reader.GetInt32(0),
-                                type: reader.GetString(1).AsType());
+                                type: _nameMapper.GetType(reader.GetString(1)));
                         }
                     }
                 }

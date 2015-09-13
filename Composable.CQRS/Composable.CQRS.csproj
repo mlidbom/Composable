@@ -138,6 +138,14 @@
     <Compile Include="CQRS\EventHandling\SingleAggregateQueryModelUpdater.cs" />
     <Compile Include="CQRS\EventHandling\UniqueMatchEventHierarchyHandler.cs" />
     <Compile Include="CQRS\EventSourcing\AttemptToSaveEmptyAggregate.cs" />
+    <Compile Include="CQRS\EventSourcing\EventRefactoring\EventNameMapping.cs" />
+    <Compile Include="CQRS\EventSourcing\EventRefactoring\EventPathRenamer.cs" />
+    <Compile Include="CQRS\EventSourcing\EventRefactoring\EventRenamedFromAttribute.cs" />
+    <Compile Include="CQRS\EventSourcing\EventRefactoring\RenamingEventNameMapper.cs" />
+    <Compile Include="CQRS\EventSourcing\EventRefactoring\IEventNameMapper.cs" />
+    <Compile Include="CQRS\EventSourcing\EventRefactoring\IRenameEvents.cs" />
+    <Compile Include="CQRS\EventSourcing\EventRefactoring\RenameEventsBasedOnEventRenamedAttributes.cs" />
+    <Compile Include="CQRS\EventSourcing\EventRefactoring\DefaultEventNameMapper.cs" />
     <Compile Include="CQRS\EventSourcing\EventsReplayer.cs" />
     <Compile Include="CQRS\EventSourcing\IEventStore.cs" />
     <Compile Include="CQRS\EventSourcing\AggregateRootNotFoundException.cs" />

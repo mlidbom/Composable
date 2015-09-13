@@ -25,13 +25,12 @@ namespace Composable.CQRS.EventSourcing.SQLServer
             nameMapper = nameMapper ?? new DefaultEventNameMapper();
 
             ConnectionString = connectionString;            
-            var eventSerializer = new SqlServerEvestStoreEventSerializer();
-            _schemaManager =  new SqlServerEventStoreSchemaManager(connectionString);
+            var eventSerializer = new SqlServerEvestStoreEventSerializer();            
             _cache = SqlServerEventStoreEventsCache.ForConnectionString(connectionString);
             var connectionMananger = new SqlServerEventStoreConnectionManager(connectionString);
-            var idMapper = new SqlServerEventStoreEventTypeToIdMapper(connectionString, nameMapper);
-            _eventReader = new SqlServerEventStoreEventReader(connectionMananger, idMapper);
-            _eventWriter = new SqlServerEventStoreEventWriter(connectionMananger, eventSerializer, idMapper);
+            _schemaManager = new SqlServerEventStoreSchemaManager(connectionString, nameMapper);
+            _eventReader = new SqlServerEventStoreEventReader(connectionMananger, _schemaManager);
+            _eventWriter = new SqlServerEventStoreEventWriter(connectionMananger, eventSerializer, _schemaManager);
         }
 
 
@@ -89,7 +88,7 @@ namespace Composable.CQRS.EventSourcing.SQLServer
 
         public static void ResetDB(string connectionString)
         {
-            new SqlServerEventStoreSchemaManager(connectionString).ResetDB();
+            new SqlServerEventStoreSchemaManager(connectionString, new DefaultEventNameMapper()).ResetDB();
         }
 
         public void ResetDB()

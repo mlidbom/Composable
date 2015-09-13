@@ -7,6 +7,9 @@ namespace Composable.CQRS.EventSourcing.SQLServer
     internal class SqlServerEventStoreEventReader
     {
         private readonly SqlServerEventStoreConnectionManager _connectionMananger;
+        private readonly SqlServerEventStoreSchemaManager _schemaManager;
+        public IEventTypeToIdMapper EventTypeToIdMapper => _schemaManager.IdMapper;
+
         public string SelectClause => InternalSelect();
         public string SelectTopClause(int top) => InternalSelect(top);
 
@@ -20,15 +23,15 @@ FROM {EventTable.Name} With(UPDLOCK, READCOMMITTED, ROWLOCK) ";
 
         private static readonly SqlServerEvestStoreEventSerializer EventSerializer = new SqlServerEvestStoreEventSerializer();
 
-        public SqlServerEventStoreEventReader(SqlServerEventStoreConnectionManager connectionManager, SqlServerEventStoreEventTypeToIdMapper eventTypeToIdMapper)
+        public SqlServerEventStoreEventReader(SqlServerEventStoreConnectionManager connectionManager, SqlServerEventStoreSchemaManager schemaManager)
         {
-            _eventTypeToIdMapper = eventTypeToIdMapper;
             _connectionMananger = connectionManager;
+            _schemaManager = schemaManager;
         }
 
         public IAggregateRootEvent Read(SqlDataReader eventReader)
         {
-            var @event = EventSerializer.Deserialize( eventType: _eventTypeToIdMapper.GetType(eventReader.GetInt32(0)) , eventData: eventReader.GetString(1));
+            var @event = EventSerializer.Deserialize( eventType: EventTypeToIdMapper.GetType(eventReader.GetInt32(0)) , eventData: eventReader.GetString(1));
             @event.AggregateRootId = eventReader.GetGuid(2);
             @event.AggregateRootVersion = eventReader.GetInt32(3);
             @event.EventId = eventReader.GetGuid(4);
@@ -132,7 +135,6 @@ FROM {EventTable.Name} With(UPDLOCK, READCOMMITTED, ROWLOCK) ";
         }
 
 
-        private static readonly string InsertionOrderSortOrder = $" ORDER BY {EventTable.Columns.InsertionOrder} ASC";
-        private SqlServerEventStoreEventTypeToIdMapper _eventTypeToIdMapper;
+        private static readonly string InsertionOrderSortOrder = $" ORDER BY {EventTable.Columns.InsertionOrder} ASC";        
     }
 }

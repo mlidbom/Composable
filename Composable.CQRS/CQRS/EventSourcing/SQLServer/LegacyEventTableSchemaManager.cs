@@ -1,5 +1,6 @@
 using System;
 using System.Data.SqlClient;
+using Composable.Logging.Log4Net;
 
 namespace Composable.CQRS.EventSourcing.SQLServer
 {
@@ -10,11 +11,11 @@ namespace Composable.CQRS.EventSourcing.SQLServer
         override public string Name { get; } = LegacyEventTable.Name;
         override public string CreateTableSql { get { throw new NotImplementedException(); } }
 
-        public void ThrowExceptionWithInstructionsIfSchemaIsOutOfDate(SqlConnection connection)
+        public void LogWarningIfUsingLegacySqlSchema(SqlConnection connection)
         {
-            if (Exists(connection))
+            if (IsUsingLegacySchema(connection))
             {
-                throw new Exception(
+                this.Log().Warn(
                     $@"
 /*Database is using a legacy schema. You need to migrate your data into the new schema.
 Paste this whole log mesage into a sql management studio window and it will uppgrade the database for you
@@ -56,6 +57,8 @@ DBCC SHRINKDATABASE ( {connection.Database} )
 ");
             }
         }
+
+        public bool IsUsingLegacySchema(SqlConnection connection) { return Exists(connection); }
 
         public string InsertEventTypesSql => $@"
 INSERT INTO {EventTypeTable.Name} ( {EventTypeTable.Columns.EventType} )

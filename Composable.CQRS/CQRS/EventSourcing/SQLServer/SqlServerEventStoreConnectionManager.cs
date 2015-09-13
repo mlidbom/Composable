@@ -57,7 +57,10 @@ namespace Composable.CQRS.EventSourcing.SQLServer
             connection.Open();
             if (!suppressTransactionWarning && Transaction.Current == null)
             {
-                this.Log().Warn("No ambient transaction. This is dangerous");
+                this.Log().Warn($@"No ambient transaction. This is dangerous:
+AT: 
+
+{Environment.StackTrace}");
             }
             return connection;
         }

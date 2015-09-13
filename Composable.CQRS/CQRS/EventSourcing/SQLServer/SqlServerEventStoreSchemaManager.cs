@@ -23,15 +23,19 @@ namespace Composable.CQRS.EventSourcing.SQLServer
 
         private readonly IEventNameMapper _nameMapper;
 
-        public string EventTableName => IdMapper is LegacySchemaSqlServerEventStoreEventTypeToIdMapper
+        public string EventTableName => UsingLegacySchema
                                        ? LegacyEventTable.Name
                                        : EventTable.Name;
+
+        private bool UsingLegacySchema => IdMapper is LegacySchemaSqlServerEventStoreEventTypeToIdMapper;
 
         public IEventTypeToIdMapper IdMapper { get; private set; }
 
      
 
         private string ConnectionString { get; }
+        public string InsertColumnsAddendum => UsingLegacySchema ? "" : $", {SQLServer.EventTable.Columns.SqlTimeStamp}";
+        public string InsertValuesAddendum => UsingLegacySchema ? "" : ", GETDATE()";
 
         private SqlConnection OpenConnection()
         {

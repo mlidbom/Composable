@@ -34,10 +34,10 @@ namespace CQRS.Tests.CQRS.EventSourcing
         [Test]
         public void StreamEventsSinceReturnsWholeEventLogWhenFromEventIdIsNull()
         {
-            using (var somethingOrOther = CreateEventStore())
+            using (var eventStore = CreateEventStore())
             {
-                somethingOrOther.SaveEvents(1.Through(10).Select(i => new SomeEvent(1, i)));
-                var stream = somethingOrOther.StreamEventsAfterEventWithId(null);
+                eventStore.SaveEvents(1.Through(10).Select(i => new SomeEvent(1, i)));
+                var stream = eventStore.StreamEventsAfterEventWithId(null);
 
                 stream.Should().HaveCount(10);
             }
@@ -47,11 +47,11 @@ namespace CQRS.Tests.CQRS.EventSourcing
         [Test]
         public void StreamEventsSinceReturnsWholeEventLogWhenFetchingALargeNumberOfEvents_EnsureBatchingDoesNotBreakThings()
         {
-            using (var somethingOrOther = CreateEventStore())
+            using (var eventStore = CreateEventStore())
             {
                 const int moreEventsThanTheBatchSizeForStreamingEvents = SqlServerEventStore.StreamEventsAfterEventWithIdBatchSize * 3;
-                somethingOrOther.SaveEvents(1.Through(moreEventsThanTheBatchSizeForStreamingEvents).Select(i => new SomeEvent(1, i)));
-                var stream = somethingOrOther.StreamEventsAfterEventWithId(null).ToList();
+                eventStore.SaveEvents(1.Through(moreEventsThanTheBatchSizeForStreamingEvents).Select(i => new SomeEvent(1, i)));
+                var stream = eventStore.StreamEventsAfterEventWithId(null).ToList();
 
                 var currentEventNumber = 0;
                 stream.Should().HaveCount(moreEventsThanTheBatchSizeForStreamingEvents);
@@ -67,10 +67,10 @@ namespace CQRS.Tests.CQRS.EventSourcing
         public void StreamEventsSinceReturnsNewerEventsWhenFromEventIdIsSpecified()
         {
             var someEvents = 1.Through(10).Select(i => new SomeEvent(1, i)).ToArray();
-            using (var somethingOrOther = CreateEventStore())
+            using (var eventStore = CreateEventStore())
             {                
-                somethingOrOther.SaveEvents(someEvents);
-                var stream = somethingOrOther.StreamEventsAfterEventWithId(someEvents.ElementAt(4).EventId);
+                eventStore.SaveEvents(someEvents);
+                var stream = eventStore.StreamEventsAfterEventWithId(someEvents.ElementAt(4).EventId);
 
                 stream.Should().HaveCount(5);
             }
@@ -81,20 +81,20 @@ namespace CQRS.Tests.CQRS.EventSourcing
         {
             var aggregatesWithEvents = 1.Through(10).ToDictionary(i => i, i => 1.Through(10).Select(j => new SomeEvent(i, j)).ToList());
 
-            using (var somethingOrOther = CreateEventStore())
+            using (var eventStore = CreateEventStore())
             {                
-                somethingOrOther.SaveEvents(aggregatesWithEvents.SelectMany(x => x.Value));
+                eventStore.SaveEvents(aggregatesWithEvents.SelectMany(x => x.Value));
                 var toRemove = aggregatesWithEvents[2][0].AggregateRootId;
                 aggregatesWithEvents.Remove(2);
 
-                somethingOrOther.DeleteEvents(toRemove);
+                eventStore.DeleteEvents(toRemove);
 
                 foreach (var kvp in aggregatesWithEvents)
                 {
-                    var stream = somethingOrOther.GetAggregateHistory(kvp.Value[0].AggregateRootId);
+                    var stream = eventStore.GetAggregateHistory(kvp.Value[0].AggregateRootId);
                     stream.Should().HaveCount(10);
                 }
-                somethingOrOther.GetAggregateHistory(toRemove).Should().BeEmpty();
+                eventStore.GetAggregateHistory(toRemove).Should().BeEmpty();
             }
         }
 
@@ -103,10 +103,10 @@ namespace CQRS.Tests.CQRS.EventSourcing
         {
             var aggregatesWithEvents = 1.Through(10).ToDictionary(i => i, i => 1.Through(10).Select(j => new SomeEvent(i, j)).ToList());
 
-            using (var somethingOrOther = CreateEventStore())
+            using (var eventStore = CreateEventStore())
             {
-                somethingOrOther.SaveEvents(aggregatesWithEvents.SelectMany(x => x.Value));
-                var allAggregateIds = somethingOrOther.StreamAggregateIdsInCreationOrder().ToList();
+                eventStore.SaveEvents(aggregatesWithEvents.SelectMany(x => x.Value));
+                var allAggregateIds = eventStore.StreamAggregateIdsInCreationOrder().ToList();
                 Assert.AreEqual(aggregatesWithEvents.Count, allAggregateIds.Count());
             }
         }       

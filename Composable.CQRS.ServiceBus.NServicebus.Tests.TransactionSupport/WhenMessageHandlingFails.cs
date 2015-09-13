@@ -45,13 +45,13 @@ namespace Composable.CQRS.ServiceBus.NServicebus.Tests.TransactionSupport
         {
             var endpointConfigurer = new EndPointConfigurer("Composable.CQRS.ServiceBus.NServicebus.Tests.TransactionSupport");
 
-            var eventStoreReader = new SqlServerEventStore(EventStoreConnectionString);
+            var eventStore = new SqlServerEventStore(EventStoreConnectionString);
 
-            eventStoreReader.ResetDB();
+            eventStore.ResetDB();
             SqlServerDocumentDb.ResetDB(EventStoreConnectionString);
             SqlServerDocumentDb.ResetDB(DocumentDbConnectionString);
 
-            eventStoreReader.SaveEvents(((IEventStored) new Aggregate(2)).GetChanges());
+            eventStore.SaveEvents(((IEventStored) new Aggregate(2)).GetChanges());
 
             endpointConfigurer.Init();
             var messageHandled = new ManualResetEvent(false);
@@ -68,7 +68,7 @@ namespace Composable.CQRS.ServiceBus.NServicebus.Tests.TransactionSupport
 
             using (var tx = new TransactionScope())
             {
-                var events = eventStoreReader.StreamEventsAfterEventWithId(null).ToList();
+                var events = eventStore.StreamEventsAfterEventWithId(null).ToList();
                 Assert.That(events, Has.Count.EqualTo(2));
             }
         }

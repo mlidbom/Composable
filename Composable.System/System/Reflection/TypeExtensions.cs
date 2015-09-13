@@ -13,7 +13,7 @@ namespace Composable.System.Reflection
     /// <summary>A collection of extensions to work with <see cref="Type"/></summary>
     public static class TypeExtensions
     {
-        ///<returns>true if <paramref name="me"/> implements the interface <typeparamref name="TImplemented"/></returns>
+        /// ///<returns>true if <paramref name="me"/> implements the interface: <typeparamref name="TImplemented"/>. By definition true if <paramref name="me"/> == <typeparamref name="TImplemented"/>.</returns>
         public static bool Implements<TImplemented>(this Type me)
         {
             Contract.Requires(me != null);
@@ -21,12 +21,14 @@ namespace Composable.System.Reflection
             return me.Implements(typeof(TImplemented));
         }
 
-        ///<returns>true if <paramref name="me"/> implements the interface: <paramref name="implemented"/></returns>
+        ///<returns>true if <paramref name="me"/> implements the interface: <paramref name="implemented"/>. By definition true if <paramref name="me"/> == <paramref name="implemented"/>.</returns>
         public static bool Implements(this Type me, Type implemented)
         {
             Contract.Requires(me != null);
             Contract.Requires(implemented != null);
             Contract.Requires(implemented.IsInterface);
+
+            if(me == implemented) { return true;}
 
             if(implemented.IsGenericTypeDefinition)
             {

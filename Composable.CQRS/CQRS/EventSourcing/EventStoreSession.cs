@@ -19,6 +19,7 @@ using log4net;
 
 namespace Composable.CQRS.EventSourcing
 {
+    //Review:mlidbo: Detect and warn about using the session within multiple transactions. That it is likely to result in optimistic concurrency exceptions.
     public class EventStoreSession :
         IEventStoreReader,
         IEventStoreSession,

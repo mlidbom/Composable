@@ -19,6 +19,7 @@ namespace Composable.CQRS.EventSourcing.SQLServer
             _schemaManager = schemaManager;
         }
 
+        //Review:catch primary key violation errors and rethrow in an optimistic concurrency failure exception.: 
         public void Insert(IEnumerable<IAggregateRootEvent> events)
         {
             using(var connection = _connectionMananger.OpenConnection())

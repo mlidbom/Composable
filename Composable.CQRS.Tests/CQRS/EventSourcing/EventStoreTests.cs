@@ -15,7 +15,9 @@ using System.Linq;
 
 namespace CQRS.Tests.CQRS.EventSourcing
 {
-    public class SomeEvent : AggregateRootEvent
+    public interface ISomeEvent : IAggregateRootEvent {}
+
+    public class SomeEvent : AggregateRootEvent, ISomeEvent
     {
         public SomeEvent(int aggreateRootId, int version): base(Guid.Parse("00000000-0000-0000-0000-{0:D12}".FormatWith(aggreateRootId)))
         {
@@ -109,7 +111,20 @@ namespace CQRS.Tests.CQRS.EventSourcing
                 var allAggregateIds = eventStore.StreamAggregateIdsInCreationOrder().ToList();
                 Assert.AreEqual(aggregatesWithEvents.Count, allAggregateIds.Count());
             }
-        }       
+        }
+
+        [Test]
+        public void GetListOfAggregateIdsUsingBaseEventType()
+        {
+            var aggregatesWithEvents = 1.Through(10).ToDictionary(i => i, i => 1.Through(10).Select(j => new SomeEvent(i, j)).ToList());
+
+            using (var eventStore = CreateEventStore())
+            {
+                eventStore.SaveEvents(aggregatesWithEvents.SelectMany(x => x.Value));
+                var allAggregateIds = eventStore.StreamAggregateIdsInCreationOrder(typeof(ISomeEvent)).ToList();
+                Assert.AreEqual(aggregatesWithEvents.Count, allAggregateIds.Count());
+            }
+        }
     }
 
 

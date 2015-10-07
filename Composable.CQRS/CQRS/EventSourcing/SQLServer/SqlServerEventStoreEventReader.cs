@@ -115,19 +115,22 @@ FROM {_schemaManager.EventTableName} With(UPDLOCK, READCOMMITTED, ROWLOCK) ";
                 });
         }
 
-        public IEnumerable<Guid> StreamAggregateIdsInCreationOrder()
+        public IEnumerable<Guid> StreamAggregateIdsInCreationOrder(Type eventBaseType = null)
         {
             using (var connection = _connectionMananger.OpenConnection())
             {
                 using (var loadCommand = connection.CreateCommand())
                 {
-                    loadCommand.CommandText = $"SELECT {EventTable.Columns.AggregateId} FROM {_schemaManager.EventTableName} WHERE {EventTable.Columns.AggregateVersion} = 1 {InsertionOrderSortOrder}";
+                    loadCommand.CommandText = $"SELECT {EventTable.Columns.AggregateId}, {EventTable.Columns.EventType} FROM {_schemaManager.EventTableName} WHERE {EventTable.Columns.AggregateVersion} = 1 {InsertionOrderSortOrder}";
 
                     using (var reader = loadCommand.ExecuteReader())
                     {
                         while (reader.Read())
                         {
-                            yield return (Guid)reader[0];
+                            if(eventBaseType == null || eventBaseType.IsAssignableFrom(EventTypeToIdMapper.GetType(reader.GetValue(1))))
+                            {
+                                yield return (Guid)reader[0];
+                            }
                         }
                     }
                 }

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.Contracts;
 using System.Linq;
 using Composable.CQRS.EventSourcing.EventRefactoring;
 using Composable.System.Linq;
@@ -80,10 +81,12 @@ namespace Composable.CQRS.EventSourcing.SQLServer
             _eventWriter.DeleteAggregate(aggregateId);            
         }
 
-        public IEnumerable<Guid> StreamAggregateIdsInCreationOrder()
+        public IEnumerable<Guid> StreamAggregateIdsInCreationOrder(Type eventBaseType = null)
         {
+            Contract.Requires(eventBaseType == null || (eventBaseType.IsInterface && typeof(IAggregateRootEvent).IsAssignableFrom(eventBaseType)));
+
             _schemaManager.SetupSchemaIfDatabaseUnInitialized();
-            return _eventReader.StreamAggregateIdsInCreationOrder();
+            return _eventReader.StreamAggregateIdsInCreationOrder(eventBaseType);
         }        
 
         public static void ResetDB(string connectionString)

@@ -11,6 +11,7 @@ namespace Composable.KeyValueStorage
         void Update(IEnumerable<KeyValuePair<string, object>> values, Dictionary<Type, Dictionary<string, string>> persistentValues);
 
         bool Remove<T>(object id);
+        int RemoveAll<T>();
         bool Remove(object id, Type documentType);
         IEnumerable<T> GetAll<T>() where T : IHasPersistentIdentity<Guid>;
         IEnumerable<T> GetAll<T>(IEnumerable<Guid> ids) where T : IHasPersistentIdentity<Guid>;

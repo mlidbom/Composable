@@ -139,6 +139,22 @@ WHERE Id=@Id AND ValueTypeId
             EnsureInitialized();
             return Remove(id, typeof(T));
         }
+        public int RemoveAll<T>()
+        {
+            EnsureInitialized();
+            using (var connection = OpenSession())
+            {
+                using (var command = connection.CreateCommand())
+                {
+                    command.CommandType = CommandType.Text;
+                    command.CommandText += "DELETE Store WHERE ValueTypeId ";
+
+                    AddTypeCriteria(command, typeof(T));
+
+                    return command.ExecuteNonQuery();
+                }
+            }
+        }
 
         public bool Remove(object id, Type documentType)
         {

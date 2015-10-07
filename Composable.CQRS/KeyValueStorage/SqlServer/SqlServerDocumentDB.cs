@@ -147,9 +147,9 @@ WHERE Id=@Id AND ValueTypeId
                 using (var command = connection.CreateCommand())
                 {
                     command.CommandType = CommandType.Text;
-                    command.CommandText += "DELETE Store WHERE ValueTypeId ";
+                    command.CommandText += "DELETE Store WHERE ValueTypeId = @TypeId";
 
-                    AddTypeCriteria(command, typeof(T));
+                    command.Parameters.Add(new SqlParameter("TypeId", KnownTypes[typeof(T)]));
 
                     return command.ExecuteNonQuery();
                 }

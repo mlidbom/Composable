@@ -91,6 +91,13 @@ namespace Composable.KeyValueStorage
             }
         }
 
+        public int RemoveAll<T>()
+        {
+            var toRemove = _db.Where(mapping => mapping.Value.OfType<T>().Any()).ToList();
+            toRemove.ForEach(removeMe => Remove(removeMe.Key, typeof(T)));
+            return toRemove.Count;
+        }
+
         public bool Remove(object id, Type documentType)
         {
             lock(_lockObject)

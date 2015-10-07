@@ -39,7 +39,7 @@ namespace Composable.KeyValueStorage
                 base.Add(id, value);
                 _documentUpdated.OnNext(new DocumentUpdated(idString, value));
             }
-        }
+        }        
 
         public IEnumerable<T> GetAll<T>(IEnumerable<Guid> ids) where T : IHasPersistentIdentity<Guid>
         {

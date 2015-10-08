@@ -4,8 +4,6 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
 using System.Linq;
-using System.Reactive.Disposables;
-using System.Reactive.Linq;
 using Composable.DDD;
 using Composable.NewtonSoft;
 using Composable.System;

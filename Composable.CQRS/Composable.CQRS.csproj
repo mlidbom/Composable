@@ -101,9 +101,6 @@
     <Reference Include="log4net">
       <HintPath>..\packages\log4net.2.0.3\lib\net40-full\log4net.dll</HintPath>
     </Reference>
-    <Reference Include="Microsoft.Practices.ServiceLocation">
-      <HintPath>..\packages\CommonServiceLocator.1.3\lib\portable-net4+sl5+netcore45+wpa81+wp8\Microsoft.Practices.ServiceLocation.dll</HintPath>
-    </Reference>
     <Reference Include="Newtonsoft.Json">
       <HintPath>..\packages\Newtonsoft.Json.6.0.8\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
@@ -134,7 +131,6 @@
     <Compile Include="CQRS\Command\CommandService.cs" />
     <Compile Include="CQRS\Command\CommandSucceededEvent.cs" />
     <Compile Include="CQRS\Command\CommandSuccessResponse.cs" />
-    <Compile Include="CQRS\Command\CommandValidationService.cs" />
     <Compile Include="CQRS\Command\CompositeCommand.cs" />
     <Compile Include="CQRS\Command\DomainCommandValidationException.cs" />
     <Compile Include="CQRS\Command\GlobalValidationFailure.cs" />
@@ -301,7 +297,6 @@
     <Compile Include="Persistence\InMemoryPersistenceSession.cs" />
     <Compile Include="Persistence\IPersistenceSession.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="CQRS\ServiceLocatorExtensions.cs" />
     <Compile Include="StuffThatDoesNotBelongHere\MultiEventHandler.cs" />
     <Compile Include="StuffThatDoesNotBelongHere\Translation\TranslateAttribute.cs" />
     <Compile Include="StuffThatDoesNotBelongHere\Translation\TranslationTypeExtensions.cs" />

@@ -8,8 +8,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using Composable.System.Reflection;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Converters;
+using System.Web.Script.Serialization;
 
 #endregion
 
@@ -138,9 +137,9 @@ namespace Composable.DDD
         {
             try
             {
-                return GetType().FullName + ":" + JsonConvert.SerializeObject(this, Formatting.Indented, new[] { new StringEnumConverter() });
+                return GetType().FullName + ":" + new JavaScriptSerializer().Serialize(this);
             }
-            catch (JsonSerializationException)
+            catch (Exception)
             {
                 return GetType().FullName;
             }

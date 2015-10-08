@@ -50,27 +50,8 @@ namespace Composable.Tests.DDD
                                                     }
                                   }.ToString();
             Assert.That(description, Is.EqualTo(
-                @"Composable.Tests.DDD.ValueObjectToString+Root:{
-  ""Name"": ""RootName"",
-  ""Branch1"": {
-    ""Name"": ""Branch1Name"",
-    ""Leaf1"": {
-      ""Name"": ""Leaf1Name""
-    },
-    ""Leaf2"": {
-      ""Name"": ""Leaf2Name""
-    }
-  },
-  ""Branch2"": {
-    ""Name"": ""Branch1Name"",
-    ""Leaf1"": {
-      ""Name"": ""Leaf1Name""
-    },
-    ""Leaf2"": {
-      ""Name"": ""Leaf2Name""
-    }
-  }
-}".Replace("\r\n", "\n").Replace("\n", Environment.NewLine)));//Hack to get things working regardless of checkout line endings
+                @"Composable.Tests.DDD.ValueObjectToString+Root:{""Name"":""RootName"",""Branch1"":{""Name"":""Branch1Name"",""Leaf1"":{""Name"":""Leaf1Name""},""Leaf2"":{""Name"":""Leaf2Name""}},""Branch2"":{""Name"":""Branch1Name"",""Leaf1"":{""Name"":""Leaf1Name""},""Leaf2"":{""Name"":""Leaf2Name""}}}".Replace("\r\n","\n")
+                .Replace("\n",Environment.NewLine)));//Hack to get things working regardless of checkout line endings
         }
     }
 }

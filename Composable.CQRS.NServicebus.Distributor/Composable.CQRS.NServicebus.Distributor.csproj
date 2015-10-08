@@ -38,7 +38,7 @@
       <HintPath>..\packages\NServiceBus.Distributor.2.6.0.1505\lib\net40\Common.Logging.dll</HintPath>
     </Reference>
     <Reference Include="log4net">
-      <HintPath>..\packages\log4net.1.2.10\lib\2.0\log4net.dll</HintPath>
+      <HintPath>..\packages\log4net.2.0.3\lib\net40-full\log4net.dll</HintPath>
     </Reference>
     <Reference Include="MsmqWorkerAvailabilityManager">
       <HintPath>..\packages\NServiceBus.Distributor.2.6.0.1505\lib\net40\MsmqWorkerAvailabilityManager.dll</HintPath>

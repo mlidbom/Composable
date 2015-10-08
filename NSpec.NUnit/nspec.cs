@@ -98,7 +98,7 @@ namespace NSpec.NUnit
                 base.Write(context);
             }
 
-            void ILiveFormatter.Write(Example e, int level)
+            void ILiveFormatter.Write(ExampleBase e, int level)
             {
                 base.Write(e, level);
             }

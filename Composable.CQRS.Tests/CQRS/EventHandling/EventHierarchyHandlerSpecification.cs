@@ -22,7 +22,7 @@ namespace CQRS.Tests.CQRS.EventHandling
 
         public void when_listening_for_IUserEvent()
         {
-            context["when receiving a IUserCreated"] =
+            context["when receiving an IUserCreated"] =
                 () =>
                 {
                     before = () => listener.Handle(new UserCreatedEvent(_userId));

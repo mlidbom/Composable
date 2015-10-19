@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reactive.Disposables;
-using System.Reactive.Linq;
 using Composable.DDD;
 using Composable.NewtonSoft;
 using Composable.System.Collections.Collections;
@@ -39,7 +37,7 @@ namespace Composable.KeyValueStorage
                 base.Add(id, value);
                 _documentUpdated.OnNext(new DocumentUpdated(idString, value));
             }
-        }
+        }        
 
         public IEnumerable<T> GetAll<T>(IEnumerable<Guid> ids) where T : IHasPersistentIdentity<Guid>
         {

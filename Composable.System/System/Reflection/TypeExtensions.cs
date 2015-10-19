@@ -13,7 +13,7 @@ namespace Composable.System.Reflection
     /// <summary>A collection of extensions to work with <see cref="Type"/></summary>
     public static class TypeExtensions
     {
-        ///<returns>true if <paramref name="me"/> implements the interface <typeparamref name="TImplemented"/></returns>
+        /// ///<returns>true if <paramref name="me"/> implements the interface: <typeparamref name="TImplemented"/>. By definition true if <paramref name="me"/> == <typeparamref name="TImplemented"/>.</returns>
         public static bool Implements<TImplemented>(this Type me)
         {
             Contract.Requires(me != null);
@@ -21,12 +21,14 @@ namespace Composable.System.Reflection
             return me.Implements(typeof(TImplemented));
         }
 
-        ///<returns>true if <paramref name="me"/> implements the interface: <paramref name="implemented"/></returns>
+        ///<returns>true if <paramref name="me"/> implements the interface: <paramref name="implemented"/>. By definition true if <paramref name="me"/> == <paramref name="implemented"/>.</returns>
         public static bool Implements(this Type me, Type implemented)
         {
             Contract.Requires(me != null);
             Contract.Requires(implemented != null);
             Contract.Requires(implemented.IsInterface);
+
+            if(me == implemented) { return true;}
 
             if(implemented.IsGenericTypeDefinition)
             {
@@ -34,7 +36,7 @@ namespace Composable.System.Reflection
                     me.GetInterfaces().Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == implemented);
             }
 
-            return implemented.IsAssignableFrom(me);
+            return me.GetInterfaces().Contains(implemented);
         }
 
         ///<summary>Returns a sequence containing all the classes and interfaces that this type inherits/implements</summary>
@@ -61,12 +63,22 @@ namespace Composable.System.Reflection
         ///<summary>Finds the class that the string represents within any loaded assembly. Calling with "MyNameSpace.MyObject" would return the same type as typeof(MyNameSpace.MyObject) etc.</summary>
         public static Type AsType(this string valueType)
         {
+            Type type;
+            if(valueType.TryGetType(out type))
+            {
+                return type;
+            }
+            throw new FailedToFindTypeException(valueType);
+        }
+
+        ///<summary>Finds the class that the string represents within any loaded assembly. Calling with "MyNameSpace.MyObject" would return the same type as typeof(MyNameSpace.MyObject) etc.</summary>
+        public static bool TryGetType(this string valueType, out Type type)
+        {
             lock (_typeMap)
             {
-                Type type;
                 if (_typeMap.TryGetValue(valueType, out type))
                 {
-                    return type;
+                    return true;
                 }
 
                 var types = AppDomain.CurrentDomain.GetAssemblies()
@@ -75,7 +87,7 @@ namespace Composable.System.Reflection
                     .ToArray();
                 if (types.None())
                 {
-                    throw new FailedToFindTypeException(valueType);
+                    return false;
                 }
 
                 if (types.Count() > 1)
@@ -85,7 +97,7 @@ namespace Composable.System.Reflection
 
                 type = types.Single();
                 _typeMap.Add(valueType, types.Single());
-                return type;
+                return true;
             }
         }
 

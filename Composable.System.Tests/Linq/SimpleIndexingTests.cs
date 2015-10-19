@@ -35,7 +35,7 @@ namespace Core.Tests.Linq
             List<int> indexesEqualValues = null;
 
             indexesEqualValues.Invoking( me => me.Second()).ShouldThrow<Exception>()
-                .WithMessage("Precondition failed*", ComparisonMode.Wildcard);
+                .WithMessage("Precondition failed*");
         }
     }
 }

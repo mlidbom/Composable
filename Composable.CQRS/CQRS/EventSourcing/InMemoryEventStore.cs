@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.Contracts;
 using System.Linq;
 using Composable.System.Linq;
 
@@ -59,11 +60,17 @@ namespace Composable.CQRS.EventSourcing
             }
         }
 
-        public IEnumerable<Guid> StreamAggregateIdsInCreationOrder()
+        public IEnumerable<Guid> StreamAggregateIdsInCreationOrder(Type eventBaseType = null)
         {
-            lock(_lockObject)
+            Contract.Requires(eventBaseType == null || (eventBaseType.IsInterface && typeof(IAggregateRootEvent).IsAssignableFrom(eventBaseType)));
+
+            lock (_lockObject)
             {
-                return _events.OrderBy(e => e.TimeStamp).Select(e => e.AggregateRootId).Distinct();
+                return _events
+                    .Where(e => eventBaseType == null || eventBaseType.IsInstanceOfType(e))
+                    .OrderBy(e => e.TimeStamp)
+                    .Select(e => e.AggregateRootId)
+                    .Distinct();
             }
         }
 

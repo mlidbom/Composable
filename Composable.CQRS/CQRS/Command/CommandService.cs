@@ -8,7 +8,6 @@ using Composable.CQRS.Windsor;
 using Composable.DomainEvents;
 using Composable.KeyValueStorage.Population;
 using Composable.System.Linq;
-using Microsoft.Practices.ServiceLocation;
 using System.Linq;
 
 #endregion

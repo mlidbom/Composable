@@ -52,8 +52,9 @@
     <Reference Include="NSpec">
       <HintPath>..\..\..\packages\nspec.1.0.1\lib\NSpec.dll</HintPath>
     </Reference>
-    <Reference Include="NSpec.NUnit">
-      <HintPath>..\packages\NSpec.NUnit.0.7.0\lib\net40\NSpec.NUnit.dll</HintPath>
+    <Reference Include="NSpec.NUnit, Version=0.8.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\NSpec.NUnit.0.8.0\lib\net451\NSpec.NUnit.dll</HintPath>
+      <Private>True</Private>
     </Reference>
     <Reference Include="nunit.framework">
       <HintPath>..\..\..\packages\NUnit.2.6.4\lib\nunit.framework.dll</HintPath>

@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reactive.Disposables;
-using System.Reactive.Linq;
 using Composable.DDD;
 using Composable.NewtonSoft;
 using Composable.System.Collections.Collections;

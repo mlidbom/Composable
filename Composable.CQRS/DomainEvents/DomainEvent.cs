@@ -7,7 +7,6 @@ using System.Linq;
 using System.Reflection;
 using System.Threading;
 using Composable.System.Linq;
-using Microsoft.Practices.ServiceLocation;
 
 #endregion
 

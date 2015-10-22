@@ -13,7 +13,8 @@ namespace Composable.CQRS.EventSourcing.SQLServer
 
         public void LogWarningIfUsingLegacySqlSchema(SqlConnection connection)
         {
-            if (IsUsingLegacySchema(connection))
+            //todo: restore this when the schema is finalized and the warning is correct.
+            if (false && IsUsingLegacySchema(connection))
             {
                 this.Log().Warn(
                     $@"

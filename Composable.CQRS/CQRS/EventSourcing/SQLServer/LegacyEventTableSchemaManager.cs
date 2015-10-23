@@ -11,11 +11,27 @@ namespace Composable.CQRS.EventSourcing.SQLServer
         override public string Name { get; } = LegacyEventTable.Name;
         override public string CreateTableSql { get { throw new NotImplementedException(); } }
 
+        private static readonly LegacyEventTableSchemaManager LegacyEventTableSchema = new LegacyEventTableSchemaManager();
+        private static readonly EventTableSchemaManager EventTableSchema = new EventTableSchemaManager();
+        private static readonly EventTypeTableSchemaManager EventTypeTableSchema = new EventTypeTableSchemaManager();
+        public bool IsUsingLegacySchema(SqlConnection connection) { return Exists(connection); }
+
+
+
         public void LogWarningIfUsingLegacySqlSchema(SqlConnection connection)
         {
             //todo: restore this when the schema is finalized and the warning is correct.
             if (false && IsUsingLegacySchema(connection))
             {
+
+                //References to read for more efficient ways of doing this:
+                //https://msdn.microsoft.com/en-us/library/ms190273.aspx (SWITCH section)
+                //http://www.sqlservercentral.com/articles/T-SQL/61979/
+                //http://stackoverflow.com/questions/1049210/adding-an-identity-to-an-existing-column
+                //http://blog.sqlauthority.com/2009/05/03/sql-server-add-or-remove-identity-property-on-column/
+                //https://technet.microsoft.com/en-us/library/ms176057.aspx
+                //https://social.msdn.microsoft.com/Forums/sqlserver/en-US/04d69ee6-d4f5-4f8f-a115-d89f7bcbc032/how-to-alter-column-to-identity11?forum=transactsql
+                //http://blogs.msdn.com/b/dfurman/archive/2010/04/20/adding-the-identity-property-to-a-column-of-an-existing-table.aspx
                 this.Log().Warn(
                     $@"
 /*Database is using a legacy schema. You need to migrate your data into the new schema.
@@ -57,9 +73,7 @@ DBCC SHRINKDATABASE ( {connection.Database} )
 
 ");
             }
-        }
-
-        public bool IsUsingLegacySchema(SqlConnection connection) { return Exists(connection); }
+        }        
 
         public string InsertEventTypesSql => $@"
 INSERT INTO {EventTypeTable.Name} ( {EventTypeTable.Columns.EventType} )
@@ -78,8 +92,6 @@ ON {LegacyEventTable.Name}.{LegacyEventTable.Columns.EventType} = {EventTypeTabl
 ORDER BY {LegacyEventTable.Columns.SqlTimeStamp} ASC
 ";
 
-        private static readonly LegacyEventTableSchemaManager LegacyEventTableSchema = new LegacyEventTableSchemaManager();
-        private static readonly EventTableSchemaManager EventTableSchema = new EventTableSchemaManager();
-        private static readonly EventTypeTableSchemaManager EventTypeTableSchema = new EventTypeTableSchemaManager();
+
     }
 }

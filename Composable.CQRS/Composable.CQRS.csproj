@@ -330,7 +330,9 @@
       <Name>Composable.Core</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Content Include="CQRS\EventSourcing\SQLServer\OptimizedTableMigrationScript.sql" />
+  </ItemGroup>
   <ItemGroup>
     <None Include="KeyValueStorage\SqlServer\ChangeScript.sql" />
   </ItemGroup>

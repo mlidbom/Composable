@@ -12,6 +12,7 @@ using NCrunch.Framework;
 using NUnit.Framework;
 using Composable.System.Linq;
 using System.Linq;
+using Composable.SystemExtensions.Threading;
 
 namespace CQRS.Tests.CQRS.EventSourcing
 {
@@ -157,12 +158,12 @@ namespace CQRS.Tests.CQRS.EventSourcing
 
         protected override IEventStore CreateEventStore()
         {
-            return new SqlServerEventStore(ConnectionString1);
+            return new SqlServerEventStore(ConnectionString1, new SingleThreadUseGuard());
         }
 
         override protected IEventStore CreateEventStore2()
         {
-            return new SqlServerEventStore(ConnectionString2);
+            return new SqlServerEventStore(ConnectionString2, new SingleThreadUseGuard());
         }
 
         [Test]

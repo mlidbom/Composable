@@ -20,7 +20,7 @@ namespace Composable.CQRS.EventSourcing
         {
             lock(_lockObject)
             {
-                return _events.Where(e => e.AggregateRootId == id);
+                return _events.Where(e => e.AggregateRootId == id).ToList();
             }
         }
 
@@ -41,7 +41,7 @@ namespace Composable.CQRS.EventSourcing
                 {
                     events = events.SkipWhile(e => e.EventId != startAfterEventId).Skip(1);
                 }
-                return events;
+                return events.ToList();
             }
         }
 
@@ -70,7 +70,8 @@ namespace Composable.CQRS.EventSourcing
                     .Where(e => eventBaseType == null || eventBaseType.IsInstanceOfType(e))
                     .OrderBy(e => e.TimeStamp)
                     .Select(e => e.AggregateRootId)
-                    .Distinct();
+                    .Distinct()
+                    .ToList();
             }
         }
 

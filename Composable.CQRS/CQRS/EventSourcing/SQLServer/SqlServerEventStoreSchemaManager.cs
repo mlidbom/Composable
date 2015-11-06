@@ -32,7 +32,7 @@ namespace Composable.CQRS.EventSourcing.SQLServer
         public IEventTypeToIdMapper IdMapper { get; private set; }
 
         private string ConnectionString { get; }
-        public string InsertColumnsAddendum => UsingLegacySchema ? "" : $", {SQLServer.EventTable.Columns.SqlTimeStamp}";
+        public string InsertColumnsAddendum => UsingLegacySchema ? "" : $", {SQLServer.EventTable.Columns.SqlInsertDateTime}";
         public string InsertValuesAddendum => UsingLegacySchema ? "" : ", GETDATE()";
 
         public string InsertionOrderColumn => UsingLegacySchema

@@ -68,11 +68,17 @@ CREATE UNIQUE NONCLUSTERED INDEX [{EventTable.Columns.InsertionOrder}] ON [dbo].
     [{EventTable.Columns.EventType}] ASC
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, IGNORE_DUP_KEY = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 
-CREATE UNIQUE NONCLUSTERED INDEX [{EventTable.Columns.Replaces}] ON [dbo].[{Name}]
-(
-	[{EventTable.Columns.Replaces}] ASC
-) WHERE [{EventTable.Columns.Replaces}] IS NOT NULL
-WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, IGNORE_DUP_KEY = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+CREATE NONCLUSTERED INDEX [IX_{EventTable.Columns.Replaces}]	ON [dbo].[{Name}] 
+	([{EventTable.Columns.Replaces}])
+	INCLUDE ([{EventTable.Columns.InsertionOrder}])
+
+CREATE NONCLUSTERED INDEX [IX_{EventTable.Columns.InsertAfter}]	ON [dbo].[{Name}] 
+	([{EventTable.Columns.InsertAfter}])
+	INCLUDE ([{EventTable.Columns.InsertionOrder}])
+
+CREATE NONCLUSTERED INDEX [IX_{EventTable.Columns.InsertBefore}]	ON [dbo].[{Name}] 
+	([{EventTable.Columns.InsertBefore}])
+	INCLUDE ([{EventTable.Columns.InsertionOrder}])
 
 ";
     }

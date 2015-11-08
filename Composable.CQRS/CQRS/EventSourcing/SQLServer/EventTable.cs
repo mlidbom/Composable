@@ -18,6 +18,7 @@
             public const string EventId = nameof(EventId);
             public const string Event = nameof(Event);
             public const string ReadOrder = nameof(ReadOrder);
+            public const string EffectiveReadOrder = nameof(EffectiveReadOrder);
         }        
     }
 }

@@ -331,6 +331,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="CQRS\EventSourcing\SQLServer\CreateReadOrders.sql" />
     <Content Include="CQRS\EventSourcing\SQLServer\OptimizedTableMigrationScript.sql" />
   </ItemGroup>
   <ItemGroup>

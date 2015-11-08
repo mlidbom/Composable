@@ -18,22 +18,48 @@ CREATE TABLE [dbo].[{Name}](
     {EventTable.Columns.EventType} [int] NOT NULL,
 	{EventTable.Columns.EventId} [uniqueidentifier] NOT NULL,
 	{EventTable.Columns.Event} [nvarchar](max) NOT NULL,
-CONSTRAINT [IX_Uniq2_{EventTable.Columns.EventId}] UNIQUE
-(
-	{EventTable.Columns.EventId}
-),
+	{EventTable.Columns.EffectiveReadOrder} as case 
+		when {EventTable.Columns.InsertAfter} is null and {EventTable.Columns.InsertBefore} is null and {EventTable.Columns.Replaces} is null then cast({EventTable.Columns.InsertionOrder} as decimal(38,19))
+		else {EventTable.Columns.ReadOrder}
+	end
 
-CONSTRAINT [IX_Uniq_{EventTable.Columns.InsertionOrder}] UNIQUE
-(
-	{EventTable.Columns.InsertionOrder}
-),
-CONSTRAINT [PK_{Name}] PRIMARY KEY CLUSTERED 
-(
-	{EventTable.Columns.AggregateId} ASC,
-	{EventTable.Columns.AggregateVersion} ASC
-)WITH (PAD_INDEX  = OFF, STATISTICS_NORECOMPUTE  = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS  = ON, ALLOW_PAGE_LOCKS  = OFF) ON [PRIMARY],
-CONSTRAINT FK_Events_{EventTable.Columns.EventType} FOREIGN KEY ({EventTable.Columns.EventType}) 
-    REFERENCES {EventTypeTable.Name} ({EventTypeTable.Columns.Id}) 
+    CONSTRAINT [IX_Uniq2_{EventTable.Columns.EventId}] UNIQUE
+    (
+	    {EventTable.Columns.EventId}
+    ),
+
+    CONSTRAINT [IX_Uniq_{EventTable.Columns.InsertionOrder}] UNIQUE
+    (
+	    {EventTable.Columns.InsertionOrder}
+    ),
+    CONSTRAINT CK_Only_one_reordering_column_specified
+    CHECK 
+    (
+	    ({EventTable.Columns.InsertAfter} is null and {EventTable.Columns.InsertBefore} is null)
+	    or
+	    ({EventTable.Columns.InsertAfter} is null and {EventTable.Columns.Replaces} is null)
+	    or
+	    ({EventTable.Columns.InsertBefore} is null and {EventTable.Columns.Replaces} is null) 
+    ),
+
+    CONSTRAINT [PK_{Name}] PRIMARY KEY CLUSTERED 
+    (
+	    {EventTable.Columns.AggregateId} ASC,
+	    {EventTable.Columns.AggregateVersion} ASC
+    )WITH (PAD_INDEX  = OFF, STATISTICS_NORECOMPUTE  = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS  = ON, ALLOW_PAGE_LOCKS  = OFF) ON [PRIMARY],
+
+    CONSTRAINT FK_Events_{EventTable.Columns.EventType} FOREIGN KEY ({EventTable.Columns.EventType}) 
+        REFERENCES {EventTypeTable.Name} ({EventTypeTable.Columns.Id}),
+
+    CONSTRAINT FK_{EventTable.Columns.Replaces} FOREIGN KEY ( {EventTable.Columns.Replaces} ) 
+        REFERENCES Event ({EventTable.Columns.InsertionOrder}),
+
+    CONSTRAINT FK_{EventTable.Columns.InsertBefore} FOREIGN KEY ( {EventTable.Columns.InsertBefore} )
+        REFERENCES Event ({EventTable.Columns.InsertionOrder}),
+
+    CONSTRAINT FK_{EventTable.Columns.InsertAfter} FOREIGN KEY ( {EventTable.Columns.InsertAfter} ) 
+        REFERENCES Event ({EventTable.Columns.InsertionOrder})
+ 
 ) ON [PRIMARY]
 
 CREATE UNIQUE NONCLUSTERED INDEX [{EventTable.Columns.InsertionOrder}] ON [dbo].[{Name}]

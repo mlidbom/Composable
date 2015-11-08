@@ -17,7 +17,7 @@
             public const string EventType = nameof(EventType);
             public const string EventId = nameof(EventId);
             public const string Event = nameof(Event);
-            public const string ReadOrder = nameof(ReadOrder);
+            public const string ManualReadOrder = nameof(ManualReadOrder);
             public const string EffectiveReadOrder = nameof(EffectiveReadOrder);
         }        
     }

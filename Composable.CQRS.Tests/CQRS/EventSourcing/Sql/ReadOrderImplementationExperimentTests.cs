@@ -12,7 +12,7 @@ using NUnit.Framework;
 namespace CQRS.Tests.CQRS.EventSourcing.Sql
 {
     [TestFixture]
-    public class PrintSchemaMigrationTest
+    public class ReadOrderImplementationExperimentTests
     {
         [Test]
         public void PrintMigrationScript()

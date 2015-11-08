@@ -10,7 +10,7 @@ CREATE TABLE [dbo].[{Name}](
     {EventTable.Columns.InsertAfter} [bigint] null,
     {EventTable.Columns.InsertBefore} [bigint] null,
     {EventTable.Columns.Replaces} [bigint] null,
-    {EventTable.Columns.ReadOrder} decimal(38,19) null,
+    {EventTable.Columns.ManualReadOrder} decimal(38,19) null,
 	{EventTable.Columns.AggregateId} [uniqueidentifier] NOT NULL,
 	{EventTable.Columns.AggregateVersion} [int] NOT NULL,
 	{EventTable.Columns.TimeStamp} [datetime] NOT NULL,
@@ -19,8 +19,9 @@ CREATE TABLE [dbo].[{Name}](
 	{EventTable.Columns.EventId} [uniqueidentifier] NOT NULL,
 	{EventTable.Columns.Event} [nvarchar](max) NOT NULL,
 	{EventTable.Columns.EffectiveReadOrder} as case 
-		when {EventTable.Columns.InsertAfter} is null and {EventTable.Columns.InsertBefore} is null and {EventTable.Columns.Replaces} is null then cast({EventTable.Columns.InsertionOrder} as decimal(38,19))
-		else {EventTable.Columns.ReadOrder}
+		when {EventTable.Columns.ManualReadOrder} is not null then {EventTable.Columns.ManualReadOrder}
+        when {EventTable.Columns.InsertAfter} is null and {EventTable.Columns.InsertBefore} is null and {EventTable.Columns.Replaces} is null then cast({EventTable.Columns.InsertionOrder} as decimal(38,19))
+		else null
 	end
 
     CONSTRAINT [IX_Uniq2_{EventTable.Columns.EventId}] UNIQUE

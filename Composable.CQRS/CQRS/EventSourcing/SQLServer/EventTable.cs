@@ -4,6 +4,8 @@
     {
         public static string Name { get; } = "Event";
 
+        public const string ReadOrderType = "decimal(38,19)";
+
         internal static class Columns
         {
             public const string AggregateId = nameof(AggregateId);

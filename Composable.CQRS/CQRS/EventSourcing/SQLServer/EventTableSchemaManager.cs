@@ -1,6 +1,6 @@
 namespace Composable.CQRS.EventSourcing.SQLServer
 {
-    internal class EventTableSchemaManager : TableSchemaManager
+    public partial class EventTableSchemaManager : TableSchemaManager
     {
         override public string Name { get; } = EventTable.Name;
 
@@ -81,6 +81,107 @@ CREATE NONCLUSTERED INDEX [IX_{EventTable.Columns.InsertBefore}]	ON [dbo].[{Name
 	([{EventTable.Columns.InsertBefore}])
 	INCLUDE ([{EventTable.Columns.InsertionOrder}])
 
+";
+
+        public string CreateManualOrderEntriesSql => $@"
+ALTER PROCEDURE CreateReadOrders
+AS
+
+set nocount on
+
+declare @{EventTable.Columns.InsertBefore} bigint
+declare @{EventTable.Columns.InsertAfter} bigint
+declare @{EventTable.Columns.Replaces} bigint
+declare @EventsToReorder bigint
+declare @BeforeReadOrder decimal(38,19)
+declare @AfterReadOrder decimal(38,19)
+declare @AvailableSpaceBetwenReadOrders decimal(38,19)
+declare @Increment decimal(38,19)
+declare @Done bit 
+set @Done = 0
+
+
+WHILE @Done = 0
+begin
+	set @{EventTable.Columns.InsertAfter} = null
+	set @{EventTable.Columns.InsertBefore} = null
+	set @{EventTable.Columns.Replaces} = null
+	select top 1 @{EventTable.Columns.InsertAfter} = {EventTable.Columns.InsertAfter},  @{EventTable.Columns.InsertBefore} = {EventTable.Columns.InsertBefore}, @{EventTable.Columns.Replaces} = {EventTable.Columns.Replaces}
+	from {Name} where {EventTable.Columns.EffectiveReadOrder} is null
+	order by {EventTable.Columns.InsertionOrder} asc
+
+	if @{EventTable.Columns.Replaces} is not null
+		begin 
+		   select @EventsToReorder = count(*) from {Name} where {EventTable.Columns.Replaces} = @{EventTable.Columns.Replaces}
+		   select @BeforeReadOrder = abs({EventTable.Columns.EffectiveReadOrder}) from {Name} where {EventTable.Columns.InsertionOrder} = @{EventTable.Columns.Replaces}
+
+
+		   select top 1 @AfterReadOrder = {EventTable.Columns.EffectiveReadOrder} from {Name} where {EventTable.Columns.EffectiveReadOrder} > @BeforeReadOrder and ({EventTable.Columns.Replaces} is null or {EventTable.Columns.Replaces} != @{EventTable.Columns.Replaces}) order by {EventTable.Columns.EffectiveReadOrder}
+
+		   set @AvailableSpaceBetwenReadOrders = @AfterReadOrder - @BeforeReadOrder
+		   set @Increment = @AvailableSpaceBetwenReadOrders / (@EventsToReorder + 1)
+
+		   update {Name} set ManualReadOrder = -{EventTable.Columns.EffectiveReadOrder} where {EventTable.Columns.InsertionOrder} = @{EventTable.Columns.Replaces} AND {EventTable.Columns.EffectiveReadOrder} > 0
+
+			update {Name}
+				set ManualReadOrder = ReadOrders.{EventTable.Columns.EffectiveReadOrder}
+			from {Name}
+			inner join 		
+				(select {EventTable.Columns.InsertionOrder}, (@BeforeReadOrder + ((ROW_NUMBER() over (order by {EventTable.Columns.InsertionOrder} asc)) -1) *  @Increment) as {EventTable.Columns.EffectiveReadOrder}
+				from {Name}
+				where {EventTable.Columns.Replaces} = @{EventTable.Columns.Replaces}) ReadOrders
+				on {Name}.{EventTable.Columns.InsertionOrder} = ReadOrders.{EventTable.Columns.InsertionOrder}
+		end 
+	else if @{EventTable.Columns.InsertAfter} is not null
+		begin 
+		   select @EventsToReorder = count(*) from {Name} where {EventTable.Columns.InsertAfter} = @{EventTable.Columns.InsertAfter}
+		   select @BeforeReadOrder = abs({EventTable.Columns.EffectiveReadOrder}) from {Name} where {EventTable.Columns.InsertionOrder} = @{EventTable.Columns.InsertAfter}
+		   select TOP 1 @AfterReadOrder = {EventTable.Columns.EffectiveReadOrder} from {Name} where {EventTable.Columns.EffectiveReadOrder} > @BeforeReadOrder and ({EventTable.Columns.InsertAfter} is null or {EventTable.Columns.InsertAfter} != @{EventTable.Columns.InsertAfter}) order by {EventTable.Columns.EffectiveReadOrder}
+
+		   set @AvailableSpaceBetwenReadOrders = @AfterReadOrder - @BeforeReadOrder
+		   set @Increment = @AvailableSpaceBetwenReadOrders / (@EventsToReorder + 1)
+
+			update {Name}
+				set ManualReadOrder = ReadOrders.{EventTable.Columns.EffectiveReadOrder}
+			from {Name}
+			inner join 		
+				(select {EventTable.Columns.InsertionOrder}, (@BeforeReadOrder + (ROW_NUMBER() over (order by {EventTable.Columns.InsertionOrder} asc)) *  @Increment) as {EventTable.Columns.EffectiveReadOrder}
+				from {Name}
+				where {EventTable.Columns.InsertAfter} = @{EventTable.Columns.InsertAfter}) ReadOrders
+				on {Name}.{EventTable.Columns.InsertionOrder} = ReadOrders.{EventTable.Columns.InsertionOrder}
+		end								
+	else if @{EventTable.Columns.InsertBefore} is not null
+		begin 
+		   select @EventsToReorder = count(*) from {Name} where InsertBefore = @{EventTable.Columns.InsertBefore}
+		   
+		   select @AfterReadOrder = abs({EventTable.Columns.EffectiveReadOrder}) from {Name} where {EventTable.Columns.InsertionOrder} = @{EventTable.Columns.InsertBefore}
+
+
+		   select TOP 1 @BeforeReadOrder = {EventTable.Columns.EffectiveReadOrder} from {Name} where {EventTable.Columns.EffectiveReadOrder} < @AfterReadOrder and ({EventTable.Columns.InsertBefore} is null or {EventTable.Columns.InsertBefore} != @{EventTable.Columns.InsertBefore}) order by {EventTable.Columns.EffectiveReadOrder} DESC
+		   if(@BeforeReadOrder is null or @BeforeReadOrder < 0)
+				set @BeforeReadOrder = cast(0 as decimal(38,19)) --We are inserting before the first event in the whole event store and possibly the original first event has been replace and thus has a negative {EventTable.Columns.EffectiveReadOrder}
+
+		   set @AvailableSpaceBetwenReadOrders = @AfterReadOrder - @BeforeReadOrder
+		   set @Increment = @AvailableSpaceBetwenReadOrders / (@EventsToReorder + 1)
+
+
+			update {Name}
+				set ManualReadOrder = ReadOrders.{EventTable.Columns.EffectiveReadOrder}
+			from {Name}
+			inner join 		
+				(select {EventTable.Columns.InsertionOrder}, (@BeforeReadOrder + (ROW_NUMBER() over (order by {EventTable.Columns.InsertionOrder} asc)) *  @Increment) As {EventTable.Columns.EffectiveReadOrder}
+				from {Name}
+				where {EventTable.Columns.InsertBefore} = @{EventTable.Columns.InsertBefore}) ReadOrders
+				on {Name}.{EventTable.Columns.InsertionOrder} = ReadOrders.{EventTable.Columns.InsertionOrder}
+		end
+
+	if @{EventTable.Columns.InsertAfter} is null and @{EventTable.Columns.InsertBefore} is null and @{EventTable.Columns.Replaces} is null
+	begin 
+	 set @Done = 1
+	end 
+end
+
+set nocount off
 ";
     }
 }

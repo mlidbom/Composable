@@ -22,6 +22,12 @@ namespace CQRS.Tests.CQRS.EventSourcing.Sql
         }
 
         [Test]
+        public void PrintCreateReadOrdersSql()
+        {
+            Console.WriteLine(new EventTableSchemaManager().CreateManualOrderEntriesSql);
+        }
+
+        [Test]
         public void AlternateAlgorithmRecursed()
         {
             var before = SqlDecimal.Parse("9223372036854775806.999999999999998");

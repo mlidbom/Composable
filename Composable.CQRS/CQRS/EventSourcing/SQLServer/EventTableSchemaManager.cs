@@ -82,7 +82,7 @@ CREATE TABLE dbo.{Name}(
 
 ";
 
-        public string CreateManualOrderEntriesSql => $@"
+        public string UpdateManualReadOrderValuesSql => $@"
 ALTER PROCEDURE CreateReadOrders
 AS
 
@@ -173,11 +173,10 @@ begin
 				where {EventTable.Columns.InsertBefore} = @{EventTable.Columns.InsertBefore}) ReadOrders
 				on {Name}.{EventTable.Columns.InsertionOrder} = ReadOrders.{EventTable.Columns.InsertionOrder}
 		end
-
-	if @{EventTable.Columns.InsertAfter} is null and @{EventTable.Columns.InsertBefore} is null and @{EventTable.Columns.Replaces} is null
-	begin 
-	 set @Done = 1
-	end 
+	else
+	    begin 
+	     set @Done = 1
+	    end 
 end
 
 set nocount off

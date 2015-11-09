@@ -24,7 +24,7 @@ namespace CQRS.Tests.CQRS.EventSourcing.Sql
         [Test]
         public void PrintCreateReadOrdersSql()
         {
-            Console.WriteLine(new EventTableSchemaManager().CreateManualOrderEntriesSql);
+            Console.WriteLine(new EventTableSchemaManager().UpdateManualReadOrderValuesSql);
         }
 
         [Test]

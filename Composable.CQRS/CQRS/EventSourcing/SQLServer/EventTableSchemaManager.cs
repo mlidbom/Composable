@@ -99,7 +99,6 @@ declare @Increment {EventTable.ReadOrderType}
 declare @Done bit 
 set @Done = 0
 
-
 WHILE @Done = 0
 begin
 	set @{EventTable.Columns.InsertAfter} = null
@@ -113,12 +112,10 @@ begin
 		begin 
 		   select @EventsToReorder = count(*) from {Name} where {EventTable.Columns.Replaces} = @{EventTable.Columns.Replaces}
 		   select @BeforeReadOrder = abs({EventTable.Columns.EffectiveReadOrder}) from {Name} where {EventTable.Columns.InsertionOrder} = @{EventTable.Columns.Replaces}
-
-
-		   select top 1 @AfterReadOrder = {EventTable.Columns.EffectiveReadOrder} from {Name} where {EventTable.Columns.EffectiveReadOrder} > @BeforeReadOrder and ({EventTable.Columns.Replaces} is null or {EventTable.Columns.Replaces} != @{EventTable.Columns.Replaces}) order by {EventTable.Columns.EffectiveReadOrder}
+		   select top 1 @AfterReadOrder = {EventTable.Columns.EffectiveReadOrder} from {Name} where {EventTable.Columns.EffectiveReadOrder} > @BeforeReadOrder and ({EventTable.Columns.Replaces} is null or {EventTable.Columns.Replaces} != @{EventTable.Columns.Replaces}) order by {EventTable.Columns.EffectiveReadOrder}          
 
 		   set @AvailableSpaceBetwenReadOrders = @AfterReadOrder - @BeforeReadOrder
-		   set @Increment = @AvailableSpaceBetwenReadOrders / (@EventsToReorder + 1)
+		   set @Increment = @AvailableSpaceBetwenReadOrders / @EventsToReorder
 
 		   update {Name} set ManualReadOrder = -{EventTable.Columns.EffectiveReadOrder} where {EventTable.Columns.InsertionOrder} = @{EventTable.Columns.Replaces} AND {EventTable.Columns.EffectiveReadOrder} > 0
 
@@ -134,7 +131,10 @@ begin
 	else if @{EventTable.Columns.InsertAfter} is not null
 		begin 
 		   select @EventsToReorder = count(*) from {Name} where {EventTable.Columns.InsertAfter} = @{EventTable.Columns.InsertAfter}
-		   select @BeforeReadOrder = abs({EventTable.Columns.EffectiveReadOrder}) from {Name} where {EventTable.Columns.InsertionOrder} = @{EventTable.Columns.InsertAfter}
+		   select @BeforeReadOrder = {EventTable.Columns.EffectiveReadOrder} from {Name} where {EventTable.Columns.InsertionOrder} = @{EventTable.Columns.InsertAfter}
+           if @BeforeReadOrder < 0 --The event we are inserting after has been replaced and it might be by multiple events, so get the highest of the replacing readorders
+              select @BeforeReadOrder = max({EventTable.Columns.EffectiveReadOrder}) from {Name} where {EventTable.Columns.Replaces} = @{EventTable.Columns.InsertAfter}
+
 		   select top 1 @AfterReadOrder = {EventTable.Columns.EffectiveReadOrder} from {Name} where {EventTable.Columns.EffectiveReadOrder} > @BeforeReadOrder and ({EventTable.Columns.InsertAfter} is null or {EventTable.Columns.InsertAfter} != @{EventTable.Columns.InsertAfter}) order by {EventTable.Columns.EffectiveReadOrder}
 
 		   set @AvailableSpaceBetwenReadOrders = @AfterReadOrder - @BeforeReadOrder

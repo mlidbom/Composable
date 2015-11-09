@@ -97,6 +97,7 @@ declare @AfterReadOrder {EventTable.ReadOrderType}
 declare @AvailableSpaceBetwenReadOrders {EventTable.ReadOrderType}
 declare @Increment {EventTable.ReadOrderType}
 declare @Done bit 
+declare @Error nvarchar(4000)
 set @Done = 0
 
 WHILE @Done = 0
@@ -113,6 +114,13 @@ begin
 		   select @EventsToReorder = count(*) from {Name} where {EventTable.Columns.Replaces} = @{EventTable.Columns.Replaces}
 		   select @BeforeReadOrder = abs({EventTable.Columns.EffectiveReadOrder}) from {Name} where {EventTable.Columns.InsertionOrder} = @{EventTable.Columns.Replaces}
 		   select top 1 @AfterReadOrder = {EventTable.Columns.EffectiveReadOrder} from {Name} where {EventTable.Columns.EffectiveReadOrder} > @BeforeReadOrder and ({EventTable.Columns.Replaces} is null or {EventTable.Columns.Replaces} != @{EventTable.Columns.Replaces}) order by {EventTable.Columns.EffectiveReadOrder}          
+
+           if @AfterReadOrder is null
+           begin 
+            set @Error = 'Failed to find AfterReadOrder during replacement of {EventTable.Columns.InsertionOrder}: ' + cast(@{EventTable.Columns.Replaces} as nvarchar) + ' you are probably trying to replace the last event in the event store. That is not supported.'
+            break
+           end
+           
 
 		   set @AvailableSpaceBetwenReadOrders = @AfterReadOrder - @BeforeReadOrder
 		   set @Increment = @AvailableSpaceBetwenReadOrders / @EventsToReorder
@@ -136,6 +144,11 @@ begin
               select @BeforeReadOrder = max({EventTable.Columns.EffectiveReadOrder}) from {Name} where {EventTable.Columns.Replaces} = @{EventTable.Columns.InsertAfter}
 
 		   select top 1 @AfterReadOrder = {EventTable.Columns.EffectiveReadOrder} from {Name} where {EventTable.Columns.EffectiveReadOrder} > @BeforeReadOrder and ({EventTable.Columns.InsertAfter} is null or {EventTable.Columns.InsertAfter} != @{EventTable.Columns.InsertAfter}) order by {EventTable.Columns.EffectiveReadOrder}
+           if @AfterReadOrder is null
+           begin 
+            set @Error = 'Failed to find AfterReadOrder inserting events after {EventTable.Columns.InsertionOrder}: ' + cast(@{EventTable.Columns.InsertAfter} as nvarchar) + ' you are probably trying to insert after the last event in the event store. That is not supported.'
+            break
+           end
 
 		   set @AvailableSpaceBetwenReadOrders = @AfterReadOrder - @BeforeReadOrder
 		   set @Increment = @AvailableSpaceBetwenReadOrders / (@EventsToReorder + 1)
@@ -156,7 +169,7 @@ begin
 		   select @AfterReadOrder = abs({EventTable.Columns.EffectiveReadOrder}) from {Name} where {EventTable.Columns.InsertionOrder} = @{EventTable.Columns.InsertBefore}
 
 
-		   select top 1 @BeforeReadOrder = {EventTable.Columns.EffectiveReadOrder} from {Name} where {EventTable.Columns.EffectiveReadOrder} < @AfterReadOrder and ({EventTable.Columns.InsertBefore} is null or {EventTable.Columns.InsertBefore} != @{EventTable.Columns.InsertBefore}) order by {EventTable.Columns.EffectiveReadOrder} DESC
+		   select top 1 @BeforeReadOrder = {EventTable.Columns.EffectiveReadOrder} from {Name} where {EventTable.Columns.EffectiveReadOrder} < @AfterReadOrder and ({EventTable.Columns.InsertBefore} is null or {EventTable.Columns.InsertBefore} != @{EventTable.Columns.InsertBefore}) order by {EventTable.Columns.EffectiveReadOrder} desc
 		   if(@BeforeReadOrder is null or @BeforeReadOrder < 0)
 				set @BeforeReadOrder = cast(0 as {EventTable.ReadOrderType}) --We are inserting before the first event in the whole event store and possibly the original first event has been replaced and thus has a negative {EventTable.Columns.EffectiveReadOrder}
 
@@ -180,6 +193,9 @@ begin
 end
 
 set nocount off
+
+if @Error is not null 
+    raiserror (@Error, 18, -1);
 ";
     }
 }

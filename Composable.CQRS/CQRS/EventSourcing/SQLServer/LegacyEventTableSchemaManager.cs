@@ -49,6 +49,8 @@ USE {connection.Database}
 
 GO
 
+BEGIN TRANSACTION
+
 {ActualMigrationScript}
 
 
@@ -61,13 +63,15 @@ DBCC SHRINKDATABASE ( {connection.Database} )
 ");
         }
 
-        public string ActualMigrationScript => $@"BEGIN TRANSACTION
+        public string ActualMigrationScript => $@"
 
 {EventTypeTableSchema.CreateTableSql}
 
 GO
 
 {EventTableSchema.CreateTableSql}
+
+GO
 
 ALTER TABLE {EventTable.Name} 
 Add {LegacySqlTimeStamp} Bigint NULL
@@ -82,7 +86,7 @@ GO
 
 GO
 
-DROP TABLE {Name}
+--DROP TABLE {Name}
 ";
 
         public string InsertEventTypesSql => $@"

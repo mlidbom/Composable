@@ -17,7 +17,7 @@ namespace Composable.CQRS.EventSourcing.SQLServer
         {
             var topClause = top.HasValue ? $"TOP {top.Value} " : "";
             return $@"
-SELECT {topClause} {EventTable.Columns.EventType}, {EventTable.Columns.Event}, {EventTable.Columns.AggregateId}, {EventTable.Columns.AggregateVersion}, {EventTable.Columns.EventId}, {EventTable.Columns.TimeStamp} 
+SELECT {topClause} {EventTable.Columns.EventType}, {EventTable.Columns.Event}, {EventTable.Columns.AggregateId}, {EventTable.Columns.InsertedVersion}, {EventTable.Columns.EventId}, {EventTable.Columns.TimeStamp} 
 FROM {_schemaManager.EventTableName} With(UPDLOCK, READCOMMITTED, ROWLOCK) ";
         }
 
@@ -51,11 +51,11 @@ FROM {_schemaManager.EventTableName} With(UPDLOCK, READCOMMITTED, ROWLOCK) ";
 
                     if (startAfterVersion > 0)
                     {
-                        loadCommand.CommandText += $" AND {EventTable.Columns.AggregateVersion} > @CachedVersion";
+                        loadCommand.CommandText += $" AND {EventTable.Columns.InsertedVersion} > @CachedVersion";
                         loadCommand.Parameters.Add(new SqlParameter("CachedVersion", startAfterVersion));
                     }
 
-                    loadCommand.CommandText += $" ORDER BY {EventTable.Columns.AggregateVersion} ASC";
+                    loadCommand.CommandText += $" ORDER BY {EventTable.Columns.InsertedVersion} ASC";
 
                     using (var reader = loadCommand.ExecuteReader())
                     {
@@ -121,7 +121,7 @@ FROM {_schemaManager.EventTableName} With(UPDLOCK, READCOMMITTED, ROWLOCK) ";
             {
                 using (var loadCommand = connection.CreateCommand())
                 {
-                    loadCommand.CommandText = $"SELECT {EventTable.Columns.AggregateId}, {EventTable.Columns.EventType} FROM {_schemaManager.EventTableName} WHERE {EventTable.Columns.AggregateVersion} = 1 {InsertionOrderSortOrder}";
+                    loadCommand.CommandText = $"SELECT {EventTable.Columns.AggregateId}, {EventTable.Columns.EventType} FROM {_schemaManager.EventTableName} WHERE {EventTable.Columns.InsertedVersion} = 1 {InsertionOrderSortOrder}";
 
                     using (var reader = loadCommand.ExecuteReader())
                     {

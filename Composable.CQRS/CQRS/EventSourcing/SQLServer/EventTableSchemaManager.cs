@@ -34,7 +34,7 @@ CREATE TABLE dbo.{Name}(
     (
         {EventTable.Columns.AggregateId} ASC,
         {EventTable.Columns.InsertedVersion} ASC
-    )WITH (PAD_INDEX  = OFF, STATISTICS_NORECOMPUTE  = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS  = ON, ALLOW_PAGE_LOCKS  = OFF) ON [PRIMARY],
+    )WITH (PAD_INDEX  = OFF, STATISTICS_NORECOMPUTE  = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS  = ON, ALLOW_PAGE_LOCKS  = OFF),
 
     CONSTRAINT IX_{Name}_Unique_{EventTable.Columns.EventId} UNIQUE
     (
@@ -66,9 +66,8 @@ CREATE TABLE dbo.{Name}(
         REFERENCES {Name} ({EventTable.Columns.InsertionOrder}),
 
     CONSTRAINT FK_{Name}_{EventTable.Columns.InsertAfter} FOREIGN KEY ( {EventTable.Columns.InsertAfter} ) 
-        REFERENCES {Name} ({EventTable.Columns.InsertionOrder})
- 
-    ) ON [PRIMARY]
+        REFERENCES {Name} ({EventTable.Columns.InsertionOrder}) 
+)
 
     CREATE NONCLUSTERED INDEX IX_{Name}_{EventTable.Columns.EffectiveReadOrder} ON dbo.{Name}
         ({EventTable.Columns.EffectiveReadOrder})
@@ -88,6 +87,7 @@ CREATE TABLE dbo.{Name}(
 
     CREATE NONCLUSTERED INDEX IX_{Name}_{EventTable.Columns.EffectiveVersion}	ON dbo.{Name} 
         ({EventTable.Columns.EffectiveVersion})
+
 ";
 
         public string UpdateManualReadOrderValuesSql => $@"

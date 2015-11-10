@@ -5,6 +5,7 @@ using System.Data.SqlTypes;
 using System.Globalization;
 using System.Linq;
 using System.Web.UI.WebControls;
+using Composable.CQRS.EventSourcing;
 using Composable.CQRS.EventSourcing.SQLServer;
 using Composable.System.Linq;
 using FluentAssertions;
@@ -15,6 +16,29 @@ namespace CQRS.Tests.CQRS.EventSourcing.Sql
     [TestFixture]
     public class ReadOrderImplementationExperimentTests
     {
+        public interface IEventMigration
+        {
+            Guid Id { get; }
+            string Name { get; }
+            string Description { get; }
+            bool Done { get; }
+            void InspectEvent(IAggregateRootEvent @event, IEventModifier modifier);
+        }
+
+        public interface IEventModifier
+        {
+            void Replace(IEnumerable<IAggregateRootEvent> events);
+            void InsertBefore(IEnumerable<IAggregateRootEvent> events);
+            void InsertAfter(IEnumerable<IAggregateRootEvent> events);
+            void Ignore();
+        }
+
+        public interface IReplaceMyself<TEvent>
+            where TEvent : IAggregateRootEvent, IReplaceMyself<TEvent>
+        {
+            IEnumerable<IAggregateRootEvent> ReplaceYourSelf();
+        }
+
         [Test]
         public void PrintMigrationScript()
         {

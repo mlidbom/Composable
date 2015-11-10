@@ -7,28 +7,28 @@ namespace Composable.CQRS.EventSourcing.SQLServer
         override public string CreateTableSql => $@"
 CREATE TABLE dbo.{Name}(
     {EventTable.Columns.InsertionOrder} bigint IDENTITY(1,1) NOT NULL,
-    {EventTable.Columns.InsertAfter} bigint null,
-    {EventTable.Columns.InsertBefore} bigint null,
-    {EventTable.Columns.Replaces} bigint null,
-    {EventTable.Columns.ManualReadOrder} {EventTable.ReadOrderType} null,
     {EventTable.Columns.AggregateId} uniqueidentifier NOT NULL,
-    {EventTable.Columns.InsertedVersion} int NOT NULL,
-    {EventTable.Columns.ManualVersion} int NULL,
-    {EventTable.Columns.TimeStamp} datetime NOT NULL,
-    {EventTable.Columns.SqlInsertDateTime} datetime2 default SYSUTCDATETIME(),
-    {EventTable.Columns.EventType} int NOT NULL,
-    {EventTable.Columns.EventId} uniqueidentifier NOT NULL,
+    {EventTable.Columns.EffectiveVersion} as case 
+        when {EventTable.Columns.ManualVersion} is not null then {EventTable.Columns.ManualVersion}
+        when {EventTable.Columns.InsertAfter} is null and {EventTable.Columns.InsertBefore} is null and {EventTable.Columns.Replaces} is null then {EventTable.Columns.InsertedVersion}
+        else null
+    end,    
+    {EventTable.Columns.TimeStamp} datetime NOT NULL,    
+    {EventTable.Columns.EventType} int NOT NULL,    
     {EventTable.Columns.Event} nvarchar(max) NOT NULL,
     {EventTable.Columns.EffectiveReadOrder} as case 
         when {EventTable.Columns.ManualReadOrder} is not null then {EventTable.Columns.ManualReadOrder}
         when {EventTable.Columns.InsertAfter} is null and {EventTable.Columns.InsertBefore} is null and {EventTable.Columns.Replaces} is null then cast({EventTable.Columns.InsertionOrder} as {EventTable.ReadOrderType})
         else null
     end,
-    {EventTable.Columns.EffectiveVersion} as case 
-        when {EventTable.Columns.ManualVersion} is not null then {EventTable.Columns.ManualVersion}
-        when {EventTable.Columns.InsertAfter} is null and {EventTable.Columns.InsertBefore} is null and {EventTable.Columns.Replaces} is null then {EventTable.Columns.InsertedVersion}
-        else null
-    end,
+    {EventTable.Columns.EventId} uniqueidentifier NOT NULL,
+    {EventTable.Columns.InsertedVersion} int NOT NULL,
+    {EventTable.Columns.SqlInsertDateTime} datetime2 default SYSUTCDATETIME(),
+    {EventTable.Columns.InsertAfter} bigint null,
+    {EventTable.Columns.InsertBefore} bigint null,
+    {EventTable.Columns.Replaces} bigint null,
+    {EventTable.Columns.ManualReadOrder} {EventTable.ReadOrderType} null,    
+    {EventTable.Columns.ManualVersion} int NULL,
 
     CONSTRAINT PK_{Name} PRIMARY KEY CLUSTERED 
     (
@@ -87,8 +87,8 @@ CREATE TABLE dbo.{Name}(
 
     CREATE NONCLUSTERED INDEX IX_{Name}_{EventTable.Columns.EffectiveVersion}	ON dbo.{Name} 
         ({EventTable.Columns.EffectiveVersion})
-
 ";
+
 
         public string UpdateManualReadOrderValuesSql => $@"
 ALTER PROCEDURE CreateReadOrders

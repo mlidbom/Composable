@@ -17,7 +17,7 @@
     (
 	    {EventTypeTable.Columns.EventType}
     )
-    ) ON [PRIMARY]
+    )
 ";
     }
 }

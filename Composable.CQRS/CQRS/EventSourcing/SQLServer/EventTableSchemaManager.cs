@@ -13,6 +13,7 @@ CREATE TABLE dbo.{Name}(
     {EventTable.Columns.ManualReadOrder} {EventTable.ReadOrderType} null,
     {EventTable.Columns.AggregateId} uniqueidentifier NOT NULL,
     {EventTable.Columns.AggregateVersion} int NOT NULL,
+    {EventTable.Columns.ManualVersion} int NULL,
     {EventTable.Columns.TimeStamp} datetime NOT NULL,
     {EventTable.Columns.SqlInsertDateTime} datetime2 default SYSUTCDATETIME(),
     {EventTable.Columns.EventType} int NOT NULL,
@@ -22,7 +23,12 @@ CREATE TABLE dbo.{Name}(
         when {EventTable.Columns.ManualReadOrder} is not null then {EventTable.Columns.ManualReadOrder}
         when {EventTable.Columns.InsertAfter} is null and {EventTable.Columns.InsertBefore} is null and {EventTable.Columns.Replaces} is null then cast({EventTable.Columns.InsertionOrder} as {EventTable.ReadOrderType})
         else null
-    end
+    end,
+    {EventTable.Columns.EffectiveVersion} as case 
+        when {EventTable.Columns.ManualVersion} is not null then {EventTable.Columns.ManualVersion}
+        when {EventTable.Columns.InsertAfter} is null and {EventTable.Columns.InsertBefore} is null and {EventTable.Columns.Replaces} is null then {EventTable.Columns.AggregateVersion}
+        else null
+    end,
 
     CONSTRAINT PK_{Name} PRIMARY KEY CLUSTERED 
     (
@@ -65,7 +71,7 @@ CREATE TABLE dbo.{Name}(
     ) ON [PRIMARY]
 
     CREATE NONCLUSTERED INDEX IX_{Name}_{EventTable.Columns.EffectiveReadOrder} ON dbo.{Name}
-        ({EventTable.Columns.EffectiveReadOrder} ASC)
+        ({EventTable.Columns.EffectiveReadOrder})
         INCLUDE ({EventTable.Columns.EventType}, {EventTable.Columns.InsertionOrder})
 
     CREATE NONCLUSTERED INDEX IX_{Name}_{EventTable.Columns.Replaces}	ON dbo.{Name}
@@ -79,6 +85,9 @@ CREATE TABLE dbo.{Name}(
     CREATE NONCLUSTERED INDEX IX_{Name}_{EventTable.Columns.InsertBefore}	ON dbo.{Name} 
         ({EventTable.Columns.InsertBefore})
         INCLUDE ({EventTable.Columns.InsertionOrder})
+
+    CREATE NONCLUSTERED INDEX IX_{Name}_{EventTable.Columns.EffectiveVersion}	ON dbo.{Name} 
+        ({EventTable.Columns.EffectiveVersion})
 
 ";
 

@@ -21,6 +21,8 @@
             public const string Event = nameof(Event);
             public const string ManualReadOrder = nameof(ManualReadOrder);
             public const string EffectiveReadOrder = nameof(EffectiveReadOrder);
+            public const string ManualVersion = nameof(ManualVersion);
+            public const string EffectiveVersion = nameof(EffectiveVersion);
         }        
     }
 }

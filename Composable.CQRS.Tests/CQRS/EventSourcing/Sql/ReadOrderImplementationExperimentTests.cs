@@ -29,7 +29,7 @@ namespace CQRS.Tests.CQRS.EventSourcing.Sql
         {
             void Replace(IEnumerable<IAggregateRootEvent> events);
             void InsertBefore(IEnumerable<IAggregateRootEvent> events);
-            void InsertAfter(IEnumerable<IAggregateRootEvent> events);
+            //void InsertAfter(IEnumerable<IAggregateRootEvent> events); //Will not support guaranteeing that the migration is stable
             void Ignore();
         }
 

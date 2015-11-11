@@ -202,6 +202,31 @@ set nocount off
 
 if @Error is not null 
     raiserror (@Error, 18, -1);
+else 
+begin
+
+    update {Name} 
+    set {EventTable.Columns.ManualVersion} = ChangedReadOrders.NewVersion
+    from {Name} 
+	    inner join 
+    (
+	    select * from
+	    (select e.{EventTable.Columns.AggregateId}, {EventTable.Columns.InsertedVersion}, row_number() over (partition by e.{EventTable.Columns.AggregateId} order by e.{EventTable.Columns.EffectiveReadOrder}) NewVersion, {EventTable.Columns.EffectiveVersion}
+	     from {Name} e
+	     inner join (select distinct {EventTable.Columns.AggregateId} from {Name} where {EventTable.Columns.EffectiveVersion} is null) NeedsFixing
+		    on e.{EventTable.Columns.AggregateId} = NeedsFixing.{EventTable.Columns.AggregateId}
+	     where e.{EventTable.Columns.EffectiveReadOrder} > 0) NewReadOrders
+	    where NewReadOrders.{EventTable.Columns.EffectiveVersion} is null or ( NewReadOrders.NewVersion != NewReadOrders.{EventTable.Columns.EffectiveVersion})
+    ) ChangedReadOrders
+
+    on {Name}.{EventTable.Columns.AggregateId} = ChangedReadOrders.{EventTable.Columns.AggregateId} and {Name}.{EventTable.Columns.InsertedVersion} = ChangedReadOrders.{EventTable.Columns.InsertedVersion}
+
+
+    update {Name}
+    set {EventTable.Columns.ManualVersion} = -{EventTable.Columns.InsertedVersion}
+    where ({EventTable.Columns.EffectiveVersion} > 0 or {EventTable.Columns.EffectiveVersion} is null) and {EventTable.Columns.EffectiveReadOrder} < 0
+
+end 
 ";
     }
 }

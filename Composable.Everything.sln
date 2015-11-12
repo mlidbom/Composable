@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2013
-VisualStudioVersion = 12.0.30723.0
+# Visual Studio 14
+VisualStudioVersion = 14.0.23107.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Composable.Core", "Composable.System\Composable.Core.csproj", "{3632254D-0C4A-4EB8-B388-4C99F8939584}"
 EndProject
@@ -44,6 +44,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Composable.Contracts", "Composable.Contracts\Composable.Contracts.csproj", "{579A5738-6B8A-41E4-B2F3-5FD4CA595786}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Composable.Contracts.Tests", "Composable.Contracts.Tests\Composable.Contracts.Tests.csproj", "{DE8C43D2-5DD6-4886-965E-50A47A942E4F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Composable.CQRS.Specs", "Composable.CQRS.Specs\Composable.CQRS.Specs.csproj", "{8F18F59C-CFE5-4AC4-8801-0639048DA080}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -115,6 +117,10 @@ Global
 		{DE8C43D2-5DD6-4886-965E-50A47A942E4F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DE8C43D2-5DD6-4886-965E-50A47A942E4F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DE8C43D2-5DD6-4886-965E-50A47A942E4F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8F18F59C-CFE5-4AC4-8801-0639048DA080}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8F18F59C-CFE5-4AC4-8801-0639048DA080}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8F18F59C-CFE5-4AC4-8801-0639048DA080}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8F18F59C-CFE5-4AC4-8801-0639048DA080}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

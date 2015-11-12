@@ -32,6 +32,6 @@ namespace Composable.CQRS.EventSourcing.EventRefactoring.Migrations
 
     internal class EventStreamMutator
     {
-                
+        public IEnumerable<IAggregateRootEvent> Mutate(IEnumerable<IAggregateRootEvent> @events) { return @events; } 
     }
 }

@@ -1,6 +1,6 @@
 namespace Composable.CQRS.EventSourcing.SQLServer
 {
-    public partial class EventTableSchemaManager : TableSchemaManager
+    internal class EventTableSchemaManager : TableSchemaManager
     {
         override public string Name { get; } = EventTable.Name;
 

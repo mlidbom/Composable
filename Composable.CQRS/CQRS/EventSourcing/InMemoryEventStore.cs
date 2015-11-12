@@ -30,8 +30,7 @@ namespace Composable.CQRS.EventSourcing
         {
             lock(_lockObject)
             {
-                return new SingleAggregateEventStreamMutator(id, _migrationFactories)
-                    .MutateCompleteAggregateHistory(_events.Where(e => e.AggregateRootId == id).ToList())
+                return SingleAggregateEventStreamMutator.MutateCompleteAggregateHistory(_migrationFactories, _events.Where(e => e.AggregateRootId == id).ToList())
                     .ToList();;
             }
         }
@@ -53,7 +52,7 @@ namespace Composable.CQRS.EventSourcing
         {
             lock(_lockObject)
             {
-                var streamMutator = new CompleteEventStoreStreamMutator(_migrationFactories);
+                var streamMutator = CompleteEventStoreStreamMutator.Create(_migrationFactories);
                 return _events.OrderBy(e => e.TimeStamp)
                     .SelectMany(streamMutator.Mutate)
                     .ToList();

@@ -4,6 +4,7 @@ using System.Linq;
 using Composable.CQRS.EventSourcing.EventRefactoring.Migrations;
 using Composable.System.Linq;
 using FluentAssertions;
+using NUnit.Framework;
 using TestAggregates;
 
 namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
@@ -24,14 +25,21 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
 
             var expected = TestAggregate.FromEvents(aggregateId, expectedHistory).History.ToList();
 
+            expected.ForEach(
+                (@event, index) =>
+                {
+                    if(@event.GetType() != mutatedHistory[index].GetType())
+                    {
+                        Assert.Fail($"Expected event at postion {index} to be of type {@event.GetType()} but it was of type: {mutatedHistory[index].GetType()}");
+                    }  
+                });
+
             mutatedHistory.ShouldAllBeEquivalentTo(
                 expected,
                 config => config.RespectingRuntimeTypes()
                                 .WithStrictOrdering()
                                 .Excluding(@event => @event.EventId)
-                                .Excluding(@event => @event.TimeStamp));
-
-            expected.ForEach((@event, index) => mutatedHistory[index].GetType().Should().Be(@event.GetType(), $"Event at index: {index}"));
+                                .Excluding(@event => @event.TimeStamp));            
 
         }
     }

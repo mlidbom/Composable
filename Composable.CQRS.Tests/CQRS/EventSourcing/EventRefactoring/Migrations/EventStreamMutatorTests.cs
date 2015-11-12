@@ -1,11 +1,12 @@
 ﻿using Composable.System.Linq;
+using NCrunch.Framework;
 using NUnit.Framework;
 using TestAggregates.Events;
 
 
 namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
 {
-    [TestFixture]
+    [TestFixture, ExclusivelyUses(NCrunchExlusivelyUsesResources.EventStoreDbMdf)]
     public class EventStreamMutatorTests : EventStreamMutatorTestsBase
     {
         [Test]

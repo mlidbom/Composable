@@ -21,6 +21,12 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
 {
     public class EventStreamMutatorTestsBase
     {
+        private static string ConnectionString => ConfigurationManager.ConnectionStrings["EventStore"].ConnectionString;
+        [SetUp]
+        public void SetupTask() {
+            SqlServerEventStore.ResetDB(ConnectionString);   
+        }
+
         protected void RunMigrationTest
             (
             IEnumerable<Type> originalHistory,
@@ -31,7 +37,7 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
             var aggregateId = Guid.NewGuid();
 
             RunScenarioWithEventStoreType(originalHistory, expectedHistory, manualMigrations, aggregateId, migrationInstances, typeof(InMemoryEventStore));
-            //RunScenarioWithEventStoreType(originalHistory, expectedHistory, manualMigrations, aggregateId, migrationInstances, typeof(SqlServerEventStore));
+            RunScenarioWithEventStoreType(originalHistory, expectedHistory, manualMigrations, aggregateId, migrationInstances, typeof(SqlServerEventStore));
         }
 
         private static void RunScenarioWithEventStoreType
@@ -53,7 +59,7 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
                 Component.For<IEventStore>()
                          .ImplementedBy(eventStoreType)
                          .DependsOn(Dependency.OnValue<IEnumerable<IEventMigration>>(manualMigrations))
-                         .DependsOn(Dependency.OnValue<string>(ConfigurationManager.ConnectionStrings["EventStore"].ConnectionString))
+                         .DependsOn(Dependency.OnValue<string>(ConnectionString))
                          .LifestyleSingleton(),
                 Component.For<IEventStoreSession, IUnitOfWorkParticipant>()
                          .ImplementedBy<EventStoreSession>()
@@ -79,7 +85,7 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
             Console.WriteLine($"   Expected: ");
             expected.ForEach(e => Console.WriteLine($"      {e}"));
             Console.WriteLine($"\n   Actual: ");
-            mutatedHistory.ForEach(e => Console.WriteLine($"      {e}"));
+            mutatedHistory.ForEach(e => Console.WriteLine($"      {e}"));            
 
             expected.ForEach(
                 (@event, index) =>
@@ -98,6 +104,8 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
                                 .Excluding(@event => @event.EventId)
                                 .Excluding(@event => @event.TimeStamp)
                                 .Excluding(@event => @event.InsertionOrder));
+
+            Console.WriteLine();
         }
 
     }

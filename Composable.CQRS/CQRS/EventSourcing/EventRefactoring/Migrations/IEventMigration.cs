@@ -74,10 +74,20 @@ namespace Composable.CQRS.EventSourcing.EventRefactoring.Migrations
             Contract.Assert(_insertedEvents == null, "You can only call InsertBefore once");
 
             _insertedEvents = events;
+
+            events.ForEach(
+                (e, index) =>
+                {
+                    e.AggregateRootVersion = Event.AggregateRootVersion + index;
+                    e.AggregateRootId = Event.AggregateRootId;
+                });
+
+            Event.AggregateRootVersion += events.Count();
+
             CurrentNode.AddBefore(events);
         }
 
-        public IEnumerable<IAggregateRootEvent> GetMutatedHistory() { return _events; }
+        public IEnumerable<IAggregateRootEvent> MutatedHistory => _events.ToList();
 
         public IEnumerable<EventModifier> GetHistory()
         {
@@ -99,7 +109,7 @@ namespace Composable.CQRS.EventSourcing.EventRefactoring.Migrations
         {
             var modifier = new EventModifier(@event);
             migration.InspectEvent(@event, modifier);
-            return modifier.GetMutatedHistory();
+            return modifier.MutatedHistory;
         }
 
         public IEnumerable<IAggregateRootEvent> Mutate(IAggregateRootEvent @event)
@@ -116,7 +126,7 @@ namespace Composable.CQRS.EventSourcing.EventRefactoring.Migrations
                 }
             }
 
-            return modifier.GetMutatedHistory();
+            return modifier.MutatedHistory;
         }
 
 

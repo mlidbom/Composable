@@ -55,5 +55,24 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
                 ReplaceEventType<E1>.With<E2,E3>(),
                 ReplaceEventType<E2>.With<E4>());
         }
+
+
+        [Test]
+        public void Inserting_E3_before_E1()
+        {
+            RunMigrationTest(
+                Seq.OfTypes<Ec1, E1>(),
+                Seq.OfTypes<Ec1, E3, E1>(),
+                BeforeEventType<E1>.Insert<E3>());
+        }
+
+        [Test]
+        public void Inserting_E3_E4_before_E1()
+        {
+            RunMigrationTest(
+                Seq.OfTypes<Ec1, E1>(),
+                Seq.OfTypes<Ec1, E3, E4, E1>(),
+                BeforeEventType<E1>.Insert<E3, E4>());
+        }
     }
 }

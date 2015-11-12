@@ -32,9 +32,7 @@ namespace Composable.System.Collections.Collections
         public static IReadOnlyList<LinkedListNode<T>> AddBefore<T>(this LinkedListNode<T> @this, IEnumerable<T> items)
         {
             return items
-                 .Reverse()
                  .Select(@event => @this.List.AddBefore(@this, @event))
-                 .Reverse()
                  .ToList();
         }
 

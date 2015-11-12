@@ -160,11 +160,14 @@
     <Compile Include="CQRS\EventHandling\SingleAggregateQueryModelUpdater.cs" />
     <Compile Include="CQRS\EventHandling\UniqueMatchEventHierarchyHandler.cs" />
     <Compile Include="CQRS\EventSourcing\AttemptToSaveEmptyAggregate.cs" />
+    <Compile Include="CQRS\EventSourcing\EventRefactoring\Migrations\CompleteEventStoreStreamMutator.cs" />
     <Compile Include="CQRS\EventSourcing\EventRefactoring\Migrations\EventMigration.cs" />
     <Compile Include="CQRS\EventSourcing\EventRefactoring\Migrations\EventModifier.cs" />
+    <Compile Include="CQRS\EventSourcing\EventRefactoring\Migrations\ICompleteEventStreamMutator.cs" />
     <Compile Include="CQRS\EventSourcing\EventRefactoring\Migrations\IEventMigration.cs" />
+    <Compile Include="CQRS\EventSourcing\EventRefactoring\Migrations\IEventModifier.cs" />
+    <Compile Include="CQRS\EventSourcing\EventRefactoring\Migrations\ISingleAggregateEventStreamMutator.cs" />
     <Compile Include="CQRS\EventSourcing\EventRefactoring\Migrations\SingleAggregateEventStreamMutator.cs" />
-    <Compile Include="CQRS\EventSourcing\EventRefactoring\Migrations\_Interfaces.cs" />
     <Compile Include="CQRS\EventSourcing\EventRefactoring\Naming\EventNameMapping.cs" />
     <Compile Include="CQRS\EventSourcing\EventRefactoring\Naming\EventPathRenamer.cs" />
     <Compile Include="CQRS\EventSourcing\EventRefactoring\Naming\EventRenamedFromAttribute.cs" />

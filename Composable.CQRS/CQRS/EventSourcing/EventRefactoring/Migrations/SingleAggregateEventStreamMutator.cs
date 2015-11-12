@@ -2,19 +2,27 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using System.Linq;
-using Composable.System.Collections.Collections;
 using Composable.System.Linq;
 
 namespace Composable.CQRS.EventSourcing.EventRefactoring.Migrations
 {
-    internal class SingleAggregateEventStreamMutator
+    internal class SingleAggregateEventStreamMutator : ISingleAggregateEventStreamMutator
     {
         private readonly Guid _aggregateId;
         private readonly IEventMigration[] _eventMigrations;
 
         private int AggregateVersion { get; set; } = 1;
 
-        public SingleAggregateEventStreamMutator(Guid aggregateId, IEnumerable<Func<IEventMigration>> eventMigrations)
+        public static ISingleAggregateEventStreamMutator Create(Guid aggregateId, IEnumerable<Func<IEventMigration>> eventMigrations)
+        {
+            if(@eventMigrations.None())
+            {
+                return NullOpMutator.Instance;
+            }
+            return new SingleAggregateEventStreamMutator(aggregateId, eventMigrations);
+        }
+
+        private SingleAggregateEventStreamMutator(Guid aggregateId, IEnumerable<Func<IEventMigration>> eventMigrations)
             : this(aggregateId, eventMigrations.Select(factory => factory())) {}
 
         private SingleAggregateEventStreamMutator(Guid aggregateId, IEnumerable<IEventMigration> eventMigrations)
@@ -42,42 +50,31 @@ namespace Composable.CQRS.EventSourcing.EventRefactoring.Migrations
             return newHistory;
         }
 
-        public IEnumerable<IAggregateRootEvent> MutateCompleteAggregateHistory(IReadOnlyList<IAggregateRootEvent> @events)
+        public static IEnumerable<IAggregateRootEvent> MutateCompleteAggregateHistory
+            (IEnumerable<Func<IEventMigration>> eventMigrations, IReadOnlyList<IAggregateRootEvent> @events)
         {
-            return @events.SelectMany(Mutate).Append(EndOfAggregate());
+            if(@events.None())
+            {
+                return Seq.Empty<IAggregateRootEvent>();
+            }
+
+            var mutator = Create(@events.First().AggregateRootId, eventMigrations);
+            return @events
+                .SelectMany(mutator.Mutate)
+                .Concat(mutator.EndOfAggregate())
+                .ToList();
         }
 
-        internal IAggregateRootEvent[] EndOfAggregate()
+        public IEnumerable<IAggregateRootEvent> EndOfAggregate()
         {
-            //throw new NotImplementedException();
             return new IAggregateRootEvent[0];
         }
     }
 
-    internal class CompleteEventStoreStreamMutator
+    internal class NullOpMutator : ISingleAggregateEventStreamMutator
     {
-        private readonly IEnumerable<Func<IEventMigration>> _eventMigrationFactories;
-        private Dictionary<Guid, SingleAggregateEventStreamMutator> _aggregateMigrationsCache =
-            new Dictionary<Guid, SingleAggregateEventStreamMutator>();
-
-        private int AggregateVersion { get; set; } = 1;
-
-        public CompleteEventStoreStreamMutator(IEnumerable<Func<IEventMigration>> eventMigrationFactories)
-        {
-            _eventMigrationFactories = eventMigrationFactories;
-        }
-
-        public IEnumerable<IAggregateRootEvent> Mutate(IAggregateRootEvent @event)
-        {
-            return _aggregateMigrationsCache.GetOrAdd(
-                @event.AggregateRootId,
-                () => new SingleAggregateEventStreamMutator(@event.AggregateRootId, _eventMigrationFactories))
-                                            .Mutate(@event);
-        }
-
-        private IEnumerable<IAggregateRootEvent> EndOfAggregate()
-        {
-            return _aggregateMigrationsCache.Values.SelectMany(mutator => mutator.EndOfAggregate());
-        }
+        public static ISingleAggregateEventStreamMutator Instance = new NullOpMutator();
+        public IEnumerable<IAggregateRootEvent> Mutate(IAggregateRootEvent @event) { yield return @event; }
+        public IEnumerable<IAggregateRootEvent> EndOfAggregate() { return Seq.Empty<IAggregateRootEvent>(); }
     }
 }

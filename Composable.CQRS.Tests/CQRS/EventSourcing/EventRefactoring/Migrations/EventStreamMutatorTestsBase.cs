@@ -71,13 +71,9 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
             Console.WriteLine($"Running scenario with {eventStoreType}");
 
             var initialAggregate = TestAggregate.FromEvents(aggregateId, originalHistory);
-            TestAggregate migratedAggregate = null;
 
             container.ExecuteUnitOfWorkInIsolatedScope(() => container.Resolve<IEventStoreSession>().Save(initialAggregate));
-            container.ExecuteUnitOfWorkInIsolatedScope(() => migratedAggregate = container.Resolve<IEventStoreSession>().Get<TestAggregate>(initialAggregate.Id));
-
-
-            var migratedHistory = migratedAggregate.History;
+            var migratedHistory = container.ExecuteUnitOfWorkInIsolatedScope(() => container.Resolve<IEventStoreSession>().Get<TestAggregate>(initialAggregate.Id)).History;
 
             var expected = TestAggregate.FromEvents(aggregateId, expectedHistory).History.ToList();
 
@@ -88,6 +84,7 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
 
             AssertStreamsAreIdentical(expected, streamedEvents);
         }
+
         private static void AssertStreamsAreIdentical(List<IAggregateRootEvent> expected, IReadOnlyList<IAggregateRootEvent> migratedHistory)
         {
             Console.WriteLine($"   Expected: ");

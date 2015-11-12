@@ -168,6 +168,7 @@
     <Compile Include="SystemExtensions\Threading\UsageGuard.cs" />
     <Compile Include="System\Collections\Collections\CollectionExtensions.cs" />
     <Compile Include="System\Collections\Collections\DictionaryExtensions.cs" />
+    <Compile Include="System\Collections\Collections\LinkedListExtensions.cs" />
     <Compile Include="System\ComponentModel\DataAnnotations\IValidatableObjectExtensions.cs" />
     <Compile Include="System\Configuration\AppConfigConfigurationParameterProvider.cs" />
     <Compile Include="System\Configuration\ConnectionStringConfigurationParameterProvider.cs" />

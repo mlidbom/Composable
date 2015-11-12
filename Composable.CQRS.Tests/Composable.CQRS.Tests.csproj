@@ -182,6 +182,7 @@
     <Compile Include="CQRS\CommandHandlerBaseTests.cs" />
     <Compile Include="CQRS\EventSourcing\AggregateRootTests.cs" />
     <Compile Include="CQRS\EventSourcing\EventRefactoring\Migrations\EventStreamMutatorTests.cs" />
+    <Compile Include="CQRS\EventSourcing\EventRefactoring\Migrations\TestAggregate.cs" />
     <Compile Include="CQRS\EventSourcing\EventRefactoring\When_renaming_events\With_path_renamer.cs" />
     <Compile Include="CQRS\EventSourcing\EventRefactoring\When_renaming_events\With_path_renamer_and_then_renaming_attribute_renamer.cs" />
     <Compile Include="CQRS\EventSourcing\EventRefactoring\When_renaming_events\With_renaming_attribute_renamer_and_then_path_renamer.cs" />

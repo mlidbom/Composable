@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using System.Linq;
+using Composable.System.Collections.Collections;
 using Composable.System.Linq;
 
 namespace Composable.CQRS.EventSourcing.EventRefactoring.Migrations
@@ -32,17 +33,40 @@ namespace Composable.CQRS.EventSourcing.EventRefactoring.Migrations
 
     internal class EventModifier : IEventModifier
     {
-        private IAggregateRootEvent _event;
+        private readonly LinkedList<IAggregateRootEvent> _events;
         private IEnumerable<IAggregateRootEvent> _replacementEvents;
         private IEnumerable<IAggregateRootEvent> _insertedEvents;
 
-        public EventModifier(IAggregateRootEvent @event) { _event = @event; }
+        public EventModifier(IAggregateRootEvent @event)
+        {
+            _events = new LinkedList<IAggregateRootEvent>();
+            CurrentNode = _events.AddFirst(@event);
+        }
+
+        private EventModifier(LinkedListNode<IAggregateRootEvent> currentNode)
+        {
+            CurrentNode = currentNode;
+            _events = currentNode.List;
+        }
+
+        public IAggregateRootEvent Event => CurrentNode.Value;
+
+        private LinkedListNode<IAggregateRootEvent> CurrentNode { get; set; }
 
         public void Replace(IEnumerable<IAggregateRootEvent> events)
         {
             Contract.Assert(_replacementEvents == null, "You can only call Replace once");
 
             _replacementEvents = events;
+
+            events.ForEach(
+                (e, index) =>
+                {
+                    e.AggregateRootVersion = Event.AggregateRootVersion + index;
+                    e.AggregateRootId = Event.AggregateRootId;
+                });
+
+            CurrentNode = CurrentNode.Replace(events).First();
         }
 
         public void InsertBefore(IEnumerable<IAggregateRootEvent> events)
@@ -50,47 +74,61 @@ namespace Composable.CQRS.EventSourcing.EventRefactoring.Migrations
             Contract.Assert(_insertedEvents == null, "You can only call InsertBefore once");
 
             _insertedEvents = events;
+            CurrentNode.AddBefore(events);
         }
 
-        public IEnumerable<IAggregateRootEvent> GetMutated()
-        {
-            if(_insertedEvents != null)
-            {
-                foreach(var inserted in _insertedEvents)
-                {
-                    yield return inserted;
-                }
-            }
+        public IEnumerable<IAggregateRootEvent> GetMutatedHistory() { return _events; }
 
-            if(_replacementEvents != null)
-            {
-                foreach(var inserted in _replacementEvents)
-                {
-                    yield return inserted;
-                }
-            }
-            else
-            {
-                yield return _event;
-            }
+        public IEnumerable<EventModifier> GetHistory()
+        {
+            return _events.Nodes().Select(@eventNode => new EventModifier(@eventNode)).ToList();
         }
     }
 
     internal class EventStreamMutator
     {
+        private readonly Guid _aggregateId;
         private readonly IEventMigration[] _eventMigrations;
-        public EventStreamMutator(params IEventMigration[] eventMigrations) { _eventMigrations = eventMigrations; }
+        public EventStreamMutator(Guid aggregateId,  params IEventMigration[] eventMigrations)
+        {
+            _aggregateId = aggregateId;
+            _eventMigrations = eventMigrations;
+        }
 
         private IEnumerable<IAggregateRootEvent> Mutate(IAggregateRootEvent @event, IEventMigration migration)
         {
             var modifier = new EventModifier(@event);
             migration.InspectEvent(@event, modifier);
-            return modifier.GetMutated();
+            return modifier.GetMutatedHistory();
         }
 
         public IEnumerable<IAggregateRootEvent> Mutate(IAggregateRootEvent @event)
         {
-            return Mutate(@event, _eventMigrations.Single());
+            Contract.Assert(_aggregateId == @event.AggregateRootId);
+
+            var modifier = new EventModifier(@event);
+
+            foreach(var migration in _eventMigrations)
+            {
+                foreach(var innerModifier in modifier.GetHistory())
+                {
+                    migration.InspectEvent(innerModifier.Event, innerModifier);
+                }
+            }
+
+            return modifier.GetMutatedHistory();
+        }
+
+
+        public IEnumerable<IAggregateRootEvent> MutateCompleteAggregateHistory(IReadOnlyList<IAggregateRootEvent> @events)
+        {
+            return @events.SelectMany(Mutate).Append(EndOfAggregate());
+        }
+
+        private IAggregateRootEvent[] EndOfAggregate()
+        {
+            //throw new NotImplementedException();
+            return new IAggregateRootEvent[0];
         }
     }
 }

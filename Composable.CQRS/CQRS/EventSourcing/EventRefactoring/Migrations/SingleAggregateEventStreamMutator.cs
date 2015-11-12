@@ -13,7 +13,7 @@ namespace Composable.CQRS.EventSourcing.EventRefactoring.Migrations
 
         private int AggregateVersion { get; set; } = 1;
 
-        public static ISingleAggregateEventStreamMutator Create(Guid aggregateId, IEnumerable<Func<IEventMigration>> eventMigrations)
+        public static ISingleAggregateEventStreamMutator Create(Guid aggregateId, IReadOnlyList<Func<IEventMigration>> eventMigrations)
         {
             return @eventMigrations.None()
                        ? NullOpMutator.Instance
@@ -49,9 +49,14 @@ namespace Composable.CQRS.EventSourcing.EventRefactoring.Migrations
         }
 
         public static IEnumerable<IAggregateRootEvent> MutateCompleteAggregateHistory
-            (IEnumerable<Func<IEventMigration>> eventMigrations,
+            (IReadOnlyList<Func<IEventMigration>> eventMigrations,
              IReadOnlyList<IAggregateRootEvent> @events)
         {
+            if (@eventMigrations.None())
+            {
+                return @events;
+            }
+
             if(@events.None())
             {
                 return Seq.Empty<IAggregateRootEvent>();

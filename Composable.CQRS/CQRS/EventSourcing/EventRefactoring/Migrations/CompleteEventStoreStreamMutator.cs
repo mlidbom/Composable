@@ -8,7 +8,7 @@ namespace Composable.CQRS.EventSourcing.EventRefactoring.Migrations
 {
     internal abstract class CompleteEventStoreStreamMutator
     {
-        public static ICompleteEventStreamMutator Create(IEnumerable<Func<IEventMigration>> eventMigrationFactories)
+        public static ICompleteEventStreamMutator Create(IReadOnlyList<Func<IEventMigration>> eventMigrationFactories)
         {
             return eventMigrationFactories.Any()
                        ? new RealMutator(eventMigrationFactories)
@@ -18,17 +18,17 @@ namespace Composable.CQRS.EventSourcing.EventRefactoring.Migrations
         private class NullOpStreamMutator : ICompleteEventStreamMutator
         {
             public static readonly ICompleteEventStreamMutator Instance = new NullOpStreamMutator();
-            public IEnumerable<IAggregateRootEvent> Mutate(IAggregateRootEvent @event) { yield return @event; }
-            public IEnumerable<IAggregateRootEvent> EndOfStream() => Seq.Empty<IAggregateRootEvent>();
+
+            public IEnumerable<IAggregateRootEvent> Mutate(IEnumerable<IAggregateRootEvent> eventStream) { return eventStream; }
         }
 
         private class RealMutator : ICompleteEventStreamMutator
         {
-            private readonly IEnumerable<Func<IEventMigration>> _eventMigrationFactories;
+            private readonly IReadOnlyList<Func<IEventMigration>> _eventMigrationFactories;
             private readonly Dictionary<Guid, ISingleAggregateEventStreamMutator> _aggregateMigrationsCache =
                 new Dictionary<Guid, ISingleAggregateEventStreamMutator>();
 
-            public RealMutator(IEnumerable<Func<IEventMigration>> eventMigrationFactories) { _eventMigrationFactories = eventMigrationFactories; }
+            public RealMutator(IReadOnlyList<Func<IEventMigration>> eventMigrationFactories) { _eventMigrationFactories = eventMigrationFactories; }
 
             public IEnumerable<IAggregateRootEvent> Mutate(IAggregateRootEvent @event)
             {
@@ -38,9 +38,28 @@ namespace Composable.CQRS.EventSourcing.EventRefactoring.Migrations
                                                 .Mutate(@event);
             }
 
-            public IEnumerable<IAggregateRootEvent> EndOfStream()
+            public IEnumerable<IAggregateRootEvent> Mutate(IEnumerable<IAggregateRootEvent> eventStream)
             {
-                return _aggregateMigrationsCache.Values.SelectMany(mutator => mutator.EndOfAggregate());
+                foreach(var @event in eventStream)
+                {
+                    var mutatedEvents = _aggregateMigrationsCache.GetOrAdd(
+                        @event.AggregateRootId,
+                        () => SingleAggregateEventStreamMutator.Create(@event.AggregateRootId, _eventMigrationFactories))
+                                             .Mutate(@event);
+
+                    foreach(var mutatedEvent in mutatedEvents)
+                    {
+                        yield return mutatedEvent;
+                    }
+                }
+
+                foreach(var singleAggregateEventStreamMutator in _aggregateMigrationsCache.Values)
+                {
+                    foreach(var @event in singleAggregateEventStreamMutator.EndOfAggregate())
+                    {
+                        yield return @event;
+                    }
+                }
             }
         }
     }

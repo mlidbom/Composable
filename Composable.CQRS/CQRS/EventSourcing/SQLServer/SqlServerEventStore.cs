@@ -69,13 +69,12 @@ namespace Composable.CQRS.EventSourcing.SQLServer
         public const int StreamEventsBatchSize = 10000;
        
         public IEnumerable<IAggregateRootEvent> StreamEvents()
-        {
-            var streamMutator = CompleteEventStoreStreamMutator.Create(_migrationFactories);
+        {            
             _usageGuard.AssertNoContextChangeOccurred(this);
             _schemaManager.SetupSchemaIfDatabaseUnInitialized();
 
-            return _eventReader.StreamEvents(StreamEventsBatchSize)
-                .SelectMany(streamMutator.Mutate);
+            var streamMutator = CompleteEventStoreStreamMutator.Create(_migrationFactories);
+            return streamMutator.Mutate(_eventReader.StreamEvents(StreamEventsBatchSize));
         }
 
 

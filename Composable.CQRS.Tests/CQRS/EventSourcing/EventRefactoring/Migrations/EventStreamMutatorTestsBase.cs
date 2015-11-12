@@ -81,17 +81,25 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
 
             var expected = TestAggregate.FromEvents(aggregateId, expectedHistory).History.ToList();
 
+            AssertStreamsAreIdentical(expected, migratedHistory);
+
+            Console.WriteLine("\n\nStreaming all events in store");
+            var streamedEvents = container.ExecuteUnitOfWorkInIsolatedScope(() => container.Resolve<IEventStore>().StreamEvents().ToList());
+
+            AssertStreamsAreIdentical(expected, streamedEvents);
+        }
+        private static void AssertStreamsAreIdentical(List<IAggregateRootEvent> expected, IReadOnlyList<IAggregateRootEvent> migratedHistory)
+        {
             Console.WriteLine($"   Expected: ");
             expected.ForEach(e => Console.WriteLine($"      {e}"));
             Console.WriteLine($"\n   Actual: ");
             migratedHistory.ForEach(e => Console.WriteLine($"      {e}"));
             Console.WriteLine("\n");
 
-
             expected.ForEach(
                 (@event, index) =>
                 {
-                    if (@event.GetType() != migratedHistory[index].GetType())
+                    if(@event.GetType() != migratedHistory[index].GetType())
                     {
                         Assert.Fail(
                             $"Expected event at postion {index} to be of type {@event.GetType()} but it was of type: {migratedHistory[index].GetType()}");
@@ -105,9 +113,6 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
                                 .Excluding(@event => @event.EventId)
                                 .Excluding(@event => @event.TimeStamp)
                                 .Excluding(@event => @event.InsertionOrder));
-
-            Console.WriteLine();
         }
-
     }
 }

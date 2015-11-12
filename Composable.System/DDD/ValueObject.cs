@@ -137,7 +137,7 @@ namespace Composable.DDD
         {
             try
             {
-                return new JavaScriptSerializer().Serialize(this);
+                return GetType().FullName + ":" + new JavaScriptSerializer().Serialize(this);
             }
             catch (Exception)
             {

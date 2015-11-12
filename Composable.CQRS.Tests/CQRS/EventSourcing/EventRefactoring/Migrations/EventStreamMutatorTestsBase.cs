@@ -20,10 +20,17 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
             var aggregateId = Guid.NewGuid();
             var aggregate = TestAggregate.FromEvents(aggregateId, originalHistory);
 
-            var mutatedHistory = new EventStreamMutator(aggregate.Id, migrationInstances)
+            var mutatedHistory = new SingleAggregateEventStreamMutator(aggregate.Id, migrationInstances)
                 .MutateCompleteAggregateHistory(aggregate.History).ToList();
 
             var expected = TestAggregate.FromEvents(aggregateId, expectedHistory).History.ToList();
+
+
+            Console.WriteLine($"Expected: ");
+            expected.ForEach(Console.WriteLine);
+            Console.WriteLine($"\nActual: ");
+            mutatedHistory.ForEach(Console.WriteLine);
+
 
             expected.ForEach(
                 (@event, index) =>

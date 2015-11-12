@@ -30,12 +30,6 @@ namespace CQRS.Tests.CQRS.EventSourcing.Sql
         }
 
         [Test]
-        public void TestInternalAccess()
-        {
-            Console.Write(new EventStreamMutator().Mutate(Seq.Empty<IAggregateRootEvent>()));
-        }
-
-        [Test]
         public void AlternateAlgorithmRecursed()
         {
             var before = SqlDecimal.Parse("9223372036854775806.999999999999998");

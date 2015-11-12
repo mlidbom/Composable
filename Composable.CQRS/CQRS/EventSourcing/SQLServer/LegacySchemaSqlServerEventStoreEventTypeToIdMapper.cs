@@ -1,5 +1,6 @@
 using System;
 using Composable.CQRS.EventSourcing.EventRefactoring;
+using Composable.CQRS.EventSourcing.EventRefactoring.Naming;
 
 namespace Composable.CQRS.EventSourcing.SQLServer
 {

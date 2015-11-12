@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using System.Linq;
 using Composable.CQRS.EventSourcing.EventRefactoring;
+using Composable.CQRS.EventSourcing.EventRefactoring.Naming;
 using Composable.System.Linq;
 using Composable.SystemExtensions.Threading;
 using log4net;

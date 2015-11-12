@@ -1,8 +1,6 @@
 using System;
-using System.Diagnostics.Contracts;
-using Composable.System;
 
-namespace Composable.CQRS.EventSourcing.EventRefactoring
+namespace Composable.CQRS.EventSourcing.EventRefactoring.Naming
 {
     [AttributeUsage(AttributeTargets.Class)]
     public class EventRenamedFromAttribute : Attribute

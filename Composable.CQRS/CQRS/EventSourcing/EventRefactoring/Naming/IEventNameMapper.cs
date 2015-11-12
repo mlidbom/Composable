@@ -1,6 +1,6 @@
 using System;
 
-namespace Composable.CQRS.EventSourcing.EventRefactoring
+namespace Composable.CQRS.EventSourcing.EventRefactoring.Naming
 {
     public interface IEventNameMapper
     {

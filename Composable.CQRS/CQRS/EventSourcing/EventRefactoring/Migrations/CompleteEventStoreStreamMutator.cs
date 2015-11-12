@@ -10,17 +10,14 @@ namespace Composable.CQRS.EventSourcing.EventRefactoring.Migrations
     {
         public static ICompleteEventStreamMutator Create(IEnumerable<Func<IEventMigration>> eventMigrationFactories)
         {
-            if(eventMigrationFactories.Any())
-            {
-                return new RealMutator(eventMigrationFactories);
-            }
-
-            return NullOpStreamMutator.Instance;
+            return eventMigrationFactories.Any()
+                       ? new RealMutator(eventMigrationFactories)
+                       : NullOpStreamMutator.Instance;
         }
 
         private class NullOpStreamMutator : ICompleteEventStreamMutator
         {
-            public static ICompleteEventStreamMutator Instance = new NullOpStreamMutator();
+            public static readonly ICompleteEventStreamMutator Instance = new NullOpStreamMutator();
             public IEnumerable<IAggregateRootEvent> Mutate(IAggregateRootEvent @event) { yield return @event; }
             public IEnumerable<IAggregateRootEvent> EndOfStream() => Seq.Empty<IAggregateRootEvent>();
         }
@@ -28,12 +25,10 @@ namespace Composable.CQRS.EventSourcing.EventRefactoring.Migrations
         private class RealMutator : ICompleteEventStreamMutator
         {
             private readonly IEnumerable<Func<IEventMigration>> _eventMigrationFactories;
-            private readonly Dictionary<Guid, ISingleAggregateEventStreamMutator> _aggregateMigrationsCache = new Dictionary<Guid, ISingleAggregateEventStreamMutator>();
+            private readonly Dictionary<Guid, ISingleAggregateEventStreamMutator> _aggregateMigrationsCache =
+                new Dictionary<Guid, ISingleAggregateEventStreamMutator>();
 
-            public RealMutator(IEnumerable<Func<IEventMigration>> eventMigrationFactories)
-            {
-                _eventMigrationFactories = eventMigrationFactories;
-            }
+            public RealMutator(IEnumerable<Func<IEventMigration>> eventMigrationFactories) { _eventMigrationFactories = eventMigrationFactories; }
 
             public IEnumerable<IAggregateRootEvent> Mutate(IAggregateRootEvent @event)
             {

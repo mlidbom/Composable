@@ -15,15 +15,13 @@ namespace Composable.CQRS.EventSourcing.EventRefactoring.Migrations
 
         public static ISingleAggregateEventStreamMutator Create(Guid aggregateId, IEnumerable<Func<IEventMigration>> eventMigrations)
         {
-            if(@eventMigrations.None())
-            {
-                return NullOpMutator.Instance;
-            }
-            return new SingleAggregateEventStreamMutator(aggregateId, eventMigrations);
+            return @eventMigrations.None()
+                       ? NullOpMutator.Instance
+                       : new SingleAggregateEventStreamMutator(aggregateId, eventMigrations);
         }
 
         private SingleAggregateEventStreamMutator(Guid aggregateId, IEnumerable<Func<IEventMigration>> eventMigrations)
-            : this(aggregateId, eventMigrations.Select(factory => factory())) {}
+            : this(aggregateId, eventMigrations.Select(factory => factory())) { }
 
         private SingleAggregateEventStreamMutator(Guid aggregateId, IEnumerable<IEventMigration> eventMigrations)
         {
@@ -51,7 +49,8 @@ namespace Composable.CQRS.EventSourcing.EventRefactoring.Migrations
         }
 
         public static IEnumerable<IAggregateRootEvent> MutateCompleteAggregateHistory
-            (IEnumerable<Func<IEventMigration>> eventMigrations, IReadOnlyList<IAggregateRootEvent> @events)
+            (IEnumerable<Func<IEventMigration>> eventMigrations,
+             IReadOnlyList<IAggregateRootEvent> @events)
         {
             if(@events.None())
             {
@@ -65,16 +64,13 @@ namespace Composable.CQRS.EventSourcing.EventRefactoring.Migrations
                 .ToList();
         }
 
-        public IEnumerable<IAggregateRootEvent> EndOfAggregate()
-        {
-            return new IAggregateRootEvent[0];
-        }
-    }
+        public IEnumerable<IAggregateRootEvent> EndOfAggregate() { return new IAggregateRootEvent[0]; }
 
-    internal class NullOpMutator : ISingleAggregateEventStreamMutator
-    {
-        public static ISingleAggregateEventStreamMutator Instance = new NullOpMutator();
-        public IEnumerable<IAggregateRootEvent> Mutate(IAggregateRootEvent @event) { yield return @event; }
-        public IEnumerable<IAggregateRootEvent> EndOfAggregate() { return Seq.Empty<IAggregateRootEvent>(); }
+        private class NullOpMutator : ISingleAggregateEventStreamMutator
+        {
+            public static readonly ISingleAggregateEventStreamMutator Instance = new NullOpMutator();
+            public IEnumerable<IAggregateRootEvent> Mutate(IAggregateRootEvent @event) { yield return @event; }
+            public IEnumerable<IAggregateRootEvent> EndOfAggregate() { return Seq.Empty<IAggregateRootEvent>(); }
+        }
     }
 }

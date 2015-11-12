@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
 using Composable.CQRS.EventSourcing.EventRefactoring;
+using Composable.CQRS.EventSourcing.EventRefactoring.Naming;
 
 namespace Composable.CQRS.EventSourcing.SQLServer
 {

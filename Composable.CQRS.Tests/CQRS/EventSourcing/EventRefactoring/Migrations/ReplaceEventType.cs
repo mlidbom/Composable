@@ -25,27 +25,4 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
             }
         }
     }
-
-
-    public class BeforeEventType<TEvent> : EventMigration
-    {
-        private readonly IEnumerable<Type> _insert;
-        private List<Type> _seenEventType = new List<Type>();
-
-        public static BeforeEventType<TEvent> Insert<T1>() => new BeforeEventType<TEvent>(Seq.OfTypes<T1>());
-        public static BeforeEventType<TEvent> Insert<T1, T2>() => new BeforeEventType<TEvent>(Seq.OfTypes<T1, T2>());
-        public static BeforeEventType<TEvent> Insert<T1, T2, T3>() => new BeforeEventType<TEvent>(Seq.OfTypes<T1, T2, T3>());
-
-        public BeforeEventType(IEnumerable<Type> insert) { _insert = insert; }
-
-        public override void InspectEvent(IAggregateRootEvent @event, IEventModifier modifier)
-        {
-            if (@event.GetType() == typeof(TEvent) && _seenEventType.Last() != _insert.Last())
-            {
-                modifier.InsertBefore(_insert.Select(Activator.CreateInstance).Cast<IAggregateRootEvent>().ToList());
-            }
-
-            _seenEventType.Add(@event.GetType());
-        }
-    }
 }

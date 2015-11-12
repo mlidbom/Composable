@@ -181,6 +181,7 @@
     <Compile Include="Command\WhenExecutingIDomainCommand.cs" />
     <Compile Include="CQRS\CommandHandlerBaseTests.cs" />
     <Compile Include="CQRS\EventSourcing\AggregateRootTests.cs" />
+    <Compile Include="CQRS\EventSourcing\EventRefactoring\Migrations\BeforeEventType.cs" />
     <Compile Include="CQRS\EventSourcing\EventRefactoring\Migrations\EventStreamMutatorTests.cs" />
     <Compile Include="CQRS\EventSourcing\EventRefactoring\Migrations\EventStreamMutatorTestsBase.cs" />
     <Compile Include="CQRS\EventSourcing\EventRefactoring\Migrations\ReplaceEventType.cs" />

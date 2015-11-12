@@ -5,7 +5,7 @@ namespace Composable.CQRS.EventSourcing.EventRefactoring.Migrations
     public interface IEventModifier
     {
         void Replace(IEnumerable<IAggregateRootEvent> events);
-        void InsertBefore(IEnumerable<IAggregateRootEvent> events);
+        void InsertBefore(IEnumerable<IAggregateRootEvent> insert);
         //void InsertAfter(IEnumerable<IAggregateRootEvent> events); //Will not support guaranteeing that the migration is stable(Does not recursively change the stream again and again.) and will therefore not be supported
     }
 

@@ -9,11 +9,11 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
     public class EventStreamMutatorTests : EventStreamMutatorTestsBase
     {
         [Test]
-        public void Replacing_one_event_with_one_event()
+        public void Replacing_E1_with_E2()
         {
             RunMigrationTest(
-                Seq.OfTypes<Ec1, E1, Ef>(),
-                Seq.OfTypes<Ec1, E2, Ef>(),
+                Seq.OfTypes<Ec1, E1, Ef, Ef>(),
+                Seq.OfTypes<Ec1, E2, Ef, Ef>(),
                 ReplaceEventType<E1>.With<E2>());
         }
 
@@ -23,6 +23,15 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
             RunMigrationTest(
                 Seq.OfTypes<Ec1, E1, Ef>(),
                 Seq.OfTypes<Ec1, E2, E3, Ef>(),
+                ReplaceEventType<E1>.With<E2, E3>());
+        }
+
+        [Test]
+        public void Replacing_E1_with_E2_E3_2()
+        {
+            RunMigrationTest(
+                Seq.OfTypes<Ec1, E1, Ef, Ef, Ef, Ef>(),
+                Seq.OfTypes<Ec1, E2, E3, Ef, Ef, Ef, Ef>(),
                 ReplaceEventType<E1>.With<E2, E3>());
         }
 
@@ -89,8 +98,28 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
         public void Inserting_E3_E4_before_E1_then_E5_before_E4()
         {
             RunMigrationTest(
-                Seq.OfTypes<Ec1, E1>(),
-                Seq.OfTypes<Ec1, E3, E5, E4, E1>(),
+                Seq.OfTypes<Ec1, E1, Ef>(),
+                Seq.OfTypes<Ec1, E3, E5, E4, E1, Ef>(),
+                BeforeEventType<E1>.Insert<E3, E4>(),
+                BeforeEventType<E4>.Insert<E5>());
+        }
+
+        [Test]
+        public void Inserting_E3_E4_before_E1_then_E5_before_E3_2()
+        {
+            RunMigrationTest(
+                Seq.OfTypes<Ec1, E1, Ef, Ef>(),
+                Seq.OfTypes<Ec1, E5, E3, E4, E1, Ef, Ef>(),
+                BeforeEventType<E1>.Insert<E3, E4>(),
+                BeforeEventType<E3>.Insert<E5>());
+        }
+
+        [Test]
+        public void Inserting_E3_E4_before_E1_then_E5_before_E4_2()
+        {
+            RunMigrationTest(
+                Seq.OfTypes<Ec1, E1, Ef, Ef>(),
+                Seq.OfTypes<Ec1, E3, E5, E4, E1, Ef, Ef>(),
                 BeforeEventType<E1>.Insert<E3, E4>(),
                 BeforeEventType<E4>.Insert<E5>());
         }

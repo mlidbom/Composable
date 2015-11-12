@@ -725,7 +725,7 @@ namespace CQRS.Tests.KeyValueStorage
                                          });
             wait.WaitOne();
 
-            var user = new User();
+            var user = new User() { Id = Guid.NewGuid() };
 
             Assert.Throws<MultiThreadedUseException>(() => session.Get<User>(Guid.NewGuid()));
             Assert.Throws<MultiThreadedUseException>(() => session.GetAll<User>());
@@ -751,7 +751,7 @@ namespace CQRS.Tests.KeyValueStorage
 
             var session = OpenSession(store, guard);
 
-            var user = new User();
+            var user = new User() {Id = Guid.NewGuid()};
 
             Assert.Throws<MultiRequestAccessDetected>(() => session.Get<User>(Guid.NewGuid()));
             Assert.Throws<MultiRequestAccessDetected>(() => session.GetAll<User>());
@@ -822,7 +822,8 @@ namespace CQRS.Tests.KeyValueStorage
 
             using (var session = OpenSession(store))
             {
-                Assert.Throws<DocumentIdIsEmptyGuidException>(() => session.Save(user1));
+                session.Invoking(sess => sess.Save(user1))
+                    .ShouldThrow<Exception>();
             }
         }
 

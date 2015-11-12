@@ -83,6 +83,15 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
             var streamedEvents = container.ExecuteUnitOfWorkInIsolatedScope(() => container.Resolve<IEventStore>().StreamEvents().ToList());
 
             AssertStreamsAreIdentical(expected, streamedEvents);
+
+
+            Console.WriteLine("\n\nPersisting migrations");
+            using(container.BeginScope())
+            {
+                container.Resolve<IEventStore>().PersistMigrations();
+            }
+
+
         }
 
         private static void AssertStreamsAreIdentical(List<IAggregateRootEvent> expected, IReadOnlyList<IAggregateRootEvent> migratedHistory)

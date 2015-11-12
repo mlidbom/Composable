@@ -64,11 +64,10 @@ namespace Composable.CQRS.EventSourcing.EventRefactoring.Migrations
                 {
                     e.AggregateRootVersion = Event.AggregateRootVersion + index;
                     e.AggregateRootId = Event.AggregateRootId;
-                });            
+                });
 
             CurrentNode = CurrentNode.Replace(_replacementEvents).First();
         }
-    
 
         public void InsertBefore(IEnumerable<IAggregateRootEvent> insert)
         {
@@ -85,16 +84,12 @@ namespace Composable.CQRS.EventSourcing.EventRefactoring.Migrations
 
             CurrentNode.ValuesFrom().ForEach((@event, index) => @event.AggregateRootVersion += _insertedEvents.Count);
 
-            CurrentNode.AddBefore(_insertedEvents);            
-
+            CurrentNode.AddBefore(_insertedEvents);
         }
 
         internal IReadOnlyList<IAggregateRootEvent> MutatedHistory => _events.ToList();
 
-        public IEnumerable<EventModifier> GetHistory()
-        {
-            return _events.Nodes().Select(@eventNode => new EventModifier(@eventNode)).ToList();
-        }
+        public IEnumerable<EventModifier> GetHistory() { return _events.Nodes().Select(@eventNode => new EventModifier(@eventNode)).ToList(); }
     }
 
     internal class SingleAggregateEventStreamMutator
@@ -103,7 +98,7 @@ namespace Composable.CQRS.EventSourcing.EventRefactoring.Migrations
         private readonly IEventMigration[] _eventMigrations;
 
         private int AggregateVersion { get; set; } = 1;
-        public SingleAggregateEventStreamMutator(Guid aggregateId,  params IEventMigration[] eventMigrations)
+        public SingleAggregateEventStreamMutator(Guid aggregateId, params IEventMigration[] eventMigrations)
         {
             _aggregateId = aggregateId;
             _eventMigrations = eventMigrations;
@@ -114,7 +109,6 @@ namespace Composable.CQRS.EventSourcing.EventRefactoring.Migrations
             Contract.Assert(_aggregateId == @event.AggregateRootId);
             @event.AggregateRootVersion = AggregateVersion;
             var modifier = new EventModifier(@event);
-
 
             foreach(var migration in _eventMigrations)
             {
@@ -127,7 +121,7 @@ namespace Composable.CQRS.EventSourcing.EventRefactoring.Migrations
             var newHistory = modifier.MutatedHistory;
             AggregateVersion += newHistory.Count;
             return newHistory;
-        }        
+        }
 
         public IEnumerable<IAggregateRootEvent> MutateCompleteAggregateHistory(IReadOnlyList<IAggregateRootEvent> @events)
         {

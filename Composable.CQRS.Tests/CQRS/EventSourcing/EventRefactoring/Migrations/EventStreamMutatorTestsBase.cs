@@ -31,21 +31,20 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
             (
             IEnumerable<Type> originalHistory,
             IEnumerable<Type> expectedHistory,
-            params IEventMigration[] manualMigrations)
+            params Func<IEventMigration>[] manualMigrations)
         {
             var migrationInstances = manualMigrations;
             var aggregateId = Guid.NewGuid();
 
-            RunScenarioWithEventStoreType(originalHistory, expectedHistory, manualMigrations, aggregateId, migrationInstances, typeof(SqlServerEventStore));
-            RunScenarioWithEventStoreType(originalHistory, expectedHistory, manualMigrations, aggregateId, migrationInstances, typeof(InMemoryEventStore));            
+            RunScenarioWithEventStoreType(originalHistory, expectedHistory, aggregateId, migrationInstances, typeof(SqlServerEventStore));
+            RunScenarioWithEventStoreType(originalHistory, expectedHistory, aggregateId, migrationInstances, typeof(InMemoryEventStore));            
         }
 
         private static void RunScenarioWithEventStoreType
             (IEnumerable<Type> originalHistory,
              IEnumerable<Type> expectedHistory,
-             IEventMigration[] manualMigrations,
              Guid aggregateId,
-             IEventMigration[] migrationInstances,
+             Func<IEventMigration>[] migrationFactories,
              Type eventStoreType)
         {
             var container = new WindsorContainer();
@@ -58,7 +57,7 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
                          .LifestylePerWebRequest(),
                 Component.For<IEventStore>()
                          .ImplementedBy(eventStoreType)
-                         .DependsOn(Dependency.OnValue<IEnumerable<IEventMigration>>(manualMigrations))
+                         .DependsOn(Dependency.OnValue<IEnumerable<Func<IEventMigration>>>(migrationFactories))
                          .DependsOn(Dependency.OnValue<string>(ConnectionString))
                          .LifestyleSingleton(),
                 Component.For<IEventStoreSession, IUnitOfWorkParticipant>()
@@ -77,7 +76,7 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
             container.ExecuteUnitOfWorkInIsolatedScope(() => aggregate = container.Resolve<IEventStoreSession>().Get<TestAggregate>(aggregate.Id));
 
 
-            var mutatedHistory = new SingleAggregateEventStreamMutator(aggregate.Id, migrationInstances)
+            var mutatedHistory = new SingleAggregateEventStreamMutator(aggregate.Id, migrationFactories.Select(factory => factory()).ToArray())
                 .MutateCompleteAggregateHistory(aggregate.History).ToList();
 
             var expected = TestAggregate.FromEvents(aggregateId, expectedHistory).History.ToList();

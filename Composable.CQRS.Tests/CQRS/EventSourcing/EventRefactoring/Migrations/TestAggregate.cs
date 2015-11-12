@@ -50,6 +50,7 @@ namespace TestAggregates
         public class E7 : RootEvent { }
         public class E8 : RootEvent { }
         public class E9 : RootEvent { }
+        public class Ef : RootEvent { }
     }
 
 

@@ -29,7 +29,7 @@ namespace Composable.CQRS.EventSourcing.SQLServer
                                                              SlidingExpiration = 20.Minutes()
                                                          };
 
-        public List<IAggregateRootEvent> Get(Guid id)
+        public List<IAggregateRootEvent> GetCopy(Guid id)
         {
             var cached = _internalCache.Get(id.ToString());
             if(cached == null)

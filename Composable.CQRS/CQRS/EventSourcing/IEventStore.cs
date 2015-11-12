@@ -7,7 +7,7 @@ namespace Composable.CQRS.EventSourcing
     {
         IEnumerable<IAggregateRootEvent> GetAggregateHistory(Guid id);
         void SaveEvents(IEnumerable<IAggregateRootEvent> events);
-        IEnumerable<IAggregateRootEvent> StreamEventsAfterEventWithId(Guid? startAfterEventId);
+        IEnumerable<IAggregateRootEvent> StreamEvents();
         void DeleteEvents(Guid aggregateId);
         IEnumerable<Guid> StreamAggregateIdsInCreationOrder(Type eventBaseType = null);
     }

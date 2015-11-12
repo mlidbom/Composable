@@ -42,7 +42,7 @@ namespace CQRS.Tests.CQRS.EventSourcing
             {
                 Guid aggregateId = Guid.NewGuid();
                 eventStore.SaveEvents(1.Through(10).Select(i => new SomeEvent(aggregateId, i)));
-                var stream = eventStore.StreamEventsAfterEventWithId(null);
+                var stream = eventStore.StreamEvents();
 
                 stream.Should().HaveCount(10);
             }
@@ -54,10 +54,10 @@ namespace CQRS.Tests.CQRS.EventSourcing
         {
             using (var eventStore = CreateEventStore())
             {
-                const int moreEventsThanTheBatchSizeForStreamingEvents = SqlServerEventStore.StreamEventsAfterEventWithIdBatchSize * 3;
+                const int moreEventsThanTheBatchSizeForStreamingEvents = SqlServerEventStore.StreamEventsBatchSize * 3;
                 var aggregateId = Guid.NewGuid();
                 eventStore.SaveEvents(1.Through(moreEventsThanTheBatchSizeForStreamingEvents).Select(i => new SomeEvent(aggregateId, i)));
-                var stream = eventStore.StreamEventsAfterEventWithId(null).ToList();
+                var stream = eventStore.StreamEvents().ToList();
 
                 var currentEventNumber = 0;
                 stream.Should().HaveCount(moreEventsThanTheBatchSizeForStreamingEvents);
@@ -68,20 +68,6 @@ namespace CQRS.Tests.CQRS.EventSourcing
             }
         }
 
-
-        [Test]
-        public void StreamEventsSinceReturnsNewerEventsWhenFromEventIdIsSpecified()
-        {
-            var aggregateId = Guid.NewGuid();
-            var someEvents = 1.Through(10).Select(i => new SomeEvent(aggregateId, i)).ToArray();
-            using (var eventStore = CreateEventStore())
-            {                
-                eventStore.SaveEvents(someEvents);
-                var stream = eventStore.StreamEventsAfterEventWithId(someEvents.ElementAt(4).EventId);
-
-                stream.Should().HaveCount(5);
-            }
-        }
 
         [Test]
         public void DeleteEventsDeletesTheEventsForOnlyTheSpecifiedAggregate()
@@ -202,8 +188,8 @@ namespace CQRS.Tests.CQRS.EventSourcing
         {
             //Two histories with the same in different event stores.
             var aggregateId = Guid.NewGuid();
-            var aggregate1Events = 1.Through(5).Select(j => new SomeEvent(aggregateRootId: aggregateId, version: j)).ToList();
-            var aggregate2Events = 6.Through(10).Select(j => new SomeEvent(aggregateRootId: aggregateId, version: j)).ToList();
+            var aggregate1Events = 1.Through(3).Select(j => new SomeEvent(aggregateRootId: aggregateId, version: j)).ToList();
+            var aggregate2Events = 1.Through(5).Select(j => new SomeEvent(aggregateRootId: aggregateId, version: j)).ToList();
 
             var store1Events = Seq.Empty<IAggregateRootEvent>();
             var store2Events = Seq.Empty<IAggregateRootEvent>();

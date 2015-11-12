@@ -69,32 +69,24 @@ FROM {_schemaManager.EventTableName} With(UPDLOCK, READCOMMITTED, ROWLOCK) ";
             }
         }
 
-        public IEnumerable<IAggregateRootEvent> StreamEventsAfterEventWithId(Guid? startAfterEventId, int batchSize)
+        public IEnumerable<IAggregateRootEvent> StreamEvents(int batchSize)
         {
-            using (var connection = _connectionMananger.OpenConnection())
+            using(var connection = _connectionMananger.OpenConnection())
             {
                 var done = false;
-                while (!done)
+                while(!done)
                 {
-                    using (var loadCommand = connection.CreateCommand())
+                    using(var loadCommand = connection.CreateCommand())
                     {
-                        if (startAfterEventId.HasValue)
-                        {
-                            loadCommand.CommandText = $"{SelectTopClause(batchSize)} WHERE {_schemaManager.InsertionOrderColumn} > @{_schemaManager.InsertionOrderColumn} {InsertionOrderSortOrder}";
-                            loadCommand.Parameters.Add(new SqlParameter(_schemaManager.InsertionOrderColumn, GetEventInsertionOrder(startAfterEventId.Value)));
-                        }
-                        else
-                        {
-                            loadCommand.CommandText = SelectTopClause(batchSize) + InsertionOrderSortOrder;
-                        }
+
+                        loadCommand.CommandText = SelectTopClause(batchSize) + InsertionOrderSortOrder;
 
                         var fetchedInThisBatch = 0;
-                        using (var reader = loadCommand.ExecuteReader())
+                        using(var reader = loadCommand.ExecuteReader())
                         {
-                            while (reader.Read())
+                            while(reader.Read())
                             {
                                 var @event = Read(reader);
-                                startAfterEventId = @event.EventId;
                                 fetchedInThisBatch++;
                                 yield return @event;
                             }

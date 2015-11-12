@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using System.Linq;
 using Composable.CQRS.EventSourcing.EventRefactoring;
+using Composable.CQRS.EventSourcing.EventRefactoring.Migrations;
 using Composable.CQRS.EventSourcing.EventRefactoring.Naming;
 using Composable.System.Linq;
 using Composable.SystemExtensions.Threading;
@@ -21,11 +22,13 @@ namespace Composable.CQRS.EventSourcing.SQLServer
         private readonly SqlServerEventStoreEventWriter _eventWriter;
         private readonly SqlServerEventStoreEventsCache _cache;
         private readonly SqlServerEventStoreSchemaManager _schemaManager;
+        private readonly IReadOnlyList<Func<IEventMigration>> _migrationFactories;
 
-        public SqlServerEventStore(string connectionString, ISingleContextUseGuard usageGuard, IEventNameMapper nameMapper = null)
+        public SqlServerEventStore(string connectionString, ISingleContextUseGuard usageGuard, IEventNameMapper nameMapper = null, IEnumerable<Func<IEventMigration>> migrationFactories = null)
         {
             Log.Debug("Constructor called");
 
+            _migrationFactories = migrationFactories?.ToList() ?? new List<Func<IEventMigration>>();
             nameMapper = nameMapper ?? new DefaultEventNameMapper();
 
             ConnectionString = connectionString;
@@ -43,13 +46,17 @@ namespace Composable.CQRS.EventSourcing.SQLServer
         {
             _usageGuard.AssertNoContextChangeOccurred(this);
             _schemaManager.SetupSchemaIfDatabaseUnInitialized();
-            var cachedAggregateHistory = _cache.Get(aggregateId);
+            var cachedAggregateHistory = _cache.GetCopy(aggregateId);
 
             cachedAggregateHistory.AddRange(
                 _eventReader.GetAggregateHistory(
                     aggregateId: aggregateId,
                     startAfterVersion: cachedAggregateHistory.Count,
                     suppressTransactionWarning: true));
+
+            cachedAggregateHistory = new SingleAggregateEventStreamMutator(aggregateId, _migrationFactories)
+                .MutateCompleteAggregateHistory(cachedAggregateHistory)
+                .ToList();
 
             //Should within a transaction a process write events, read them, then fail to commit we will have cached events that are not persisted unless we refuse to cache them here.
             if(!_aggregatesWithEventsAddedByThisInstance.Contains(aggregateId))
@@ -60,14 +67,16 @@ namespace Composable.CQRS.EventSourcing.SQLServer
             return cachedAggregateHistory;
         }
 
-        public const int StreamEventsAfterEventWithIdBatchSize = 10000;
+        public const int StreamEventsBatchSize = 10000;
        
-        public IEnumerable<IAggregateRootEvent> StreamEventsAfterEventWithId(Guid? startAfterEventId)
+        public IEnumerable<IAggregateRootEvent> StreamEvents()
         {
+            var streamMutator = new CompleteEventStoreStreamMutator(_migrationFactories);
             _usageGuard.AssertNoContextChangeOccurred(this);
             _schemaManager.SetupSchemaIfDatabaseUnInitialized();
 
-            return _eventReader.StreamEventsAfterEventWithId(startAfterEventId, StreamEventsAfterEventWithIdBatchSize);
+            return _eventReader.StreamEvents(StreamEventsBatchSize)
+                .SelectMany(streamMutator.Mutate);
         }
 
 

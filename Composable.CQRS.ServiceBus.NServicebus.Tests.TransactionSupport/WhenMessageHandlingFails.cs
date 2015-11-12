@@ -68,7 +68,7 @@ namespace Composable.CQRS.ServiceBus.NServicebus.Tests.TransactionSupport
 
             using (var tx = new TransactionScope())
             {
-                var events = eventStore.StreamEventsAfterEventWithId(null).ToList();
+                var events = eventStore.StreamEvents().ToList();
                 Assert.That(events, Has.Count.EqualTo(2));
             }
         }

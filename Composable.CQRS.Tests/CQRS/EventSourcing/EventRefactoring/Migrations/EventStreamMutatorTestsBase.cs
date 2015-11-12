@@ -70,33 +70,35 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
 
             Console.WriteLine($"Running scenario with {eventStoreType}");
 
-            var aggregate = TestAggregate.FromEvents(aggregateId, originalHistory);
+            var initialAggregate = TestAggregate.FromEvents(aggregateId, originalHistory);
+            TestAggregate migratedAggregate = null;
 
-            container.ExecuteUnitOfWorkInIsolatedScope(() => container.Resolve<IEventStoreSession>().Save(aggregate));
-            container.ExecuteUnitOfWorkInIsolatedScope(() => aggregate = container.Resolve<IEventStoreSession>().Get<TestAggregate>(aggregate.Id));
+            container.ExecuteUnitOfWorkInIsolatedScope(() => container.Resolve<IEventStoreSession>().Save(initialAggregate));
+            container.ExecuteUnitOfWorkInIsolatedScope(() => migratedAggregate = container.Resolve<IEventStoreSession>().Get<TestAggregate>(initialAggregate.Id));
 
 
-            var mutatedHistory = new SingleAggregateEventStreamMutator(aggregate.Id, migrationFactories.Select(factory => factory()).ToArray())
-                .MutateCompleteAggregateHistory(aggregate.History).ToList();
+            var migratedHistory = migratedAggregate.History;
 
             var expected = TestAggregate.FromEvents(aggregateId, expectedHistory).History.ToList();
 
             Console.WriteLine($"   Expected: ");
             expected.ForEach(e => Console.WriteLine($"      {e}"));
             Console.WriteLine($"\n   Actual: ");
-            mutatedHistory.ForEach(e => Console.WriteLine($"      {e}"));            
+            migratedHistory.ForEach(e => Console.WriteLine($"      {e}"));
+            Console.WriteLine("\n");
+
 
             expected.ForEach(
                 (@event, index) =>
                 {
-                    if (@event.GetType() != mutatedHistory[index].GetType())
+                    if (@event.GetType() != migratedHistory[index].GetType())
                     {
                         Assert.Fail(
-                            $"Expected event at postion {index} to be of type {@event.GetType()} but it was of type: {mutatedHistory[index].GetType()}");
+                            $"Expected event at postion {index} to be of type {@event.GetType()} but it was of type: {migratedHistory[index].GetType()}");
                     }
                 });
 
-            mutatedHistory.ShouldAllBeEquivalentTo(
+            migratedHistory.ShouldAllBeEquivalentTo(
                 expected,
                 config => config.RespectingRuntimeTypes()
                                 .WithStrictOrdering()

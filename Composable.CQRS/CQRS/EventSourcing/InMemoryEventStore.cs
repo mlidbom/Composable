@@ -30,7 +30,9 @@ namespace Composable.CQRS.EventSourcing
         {
             lock(_lockObject)
             {
-                return _events.Where(e => e.AggregateRootId == id).ToList();
+                return new SingleAggregateEventStreamMutator(id, _migrationFactories)
+                    .MutateCompleteAggregateHistory(_events.Where(e => e.AggregateRootId == id).ToList())
+                    .ToList();;
             }
         }
 
@@ -47,16 +49,14 @@ namespace Composable.CQRS.EventSourcing
             }
         }
 
-        public IEnumerable<IAggregateRootEvent> StreamEventsAfterEventWithId(Guid? startAfterEventId)
+        public IEnumerable<IAggregateRootEvent> StreamEvents()
         {
             lock(_lockObject)
             {
-                IEnumerable<IAggregateRootEvent> events = _events.OrderBy(e => e.TimeStamp);
-                if(startAfterEventId.HasValue)
-                {
-                    events = events.SkipWhile(e => e.EventId != startAfterEventId).Skip(1);
-                }
-                return events.ToList();
+                var streamMutator = new CompleteEventStoreStreamMutator(_migrationFactories);
+                return _events.OrderBy(e => e.TimeStamp)
+                    .SelectMany(streamMutator.Mutate)
+                    .ToList();
             }
         }
 

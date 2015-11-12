@@ -72,6 +72,8 @@ namespace Composable.CQRS.EventSourcing
             }
         }
 
+        public void PersistMigrations() { _events = StreamEvents().ToList(); }
+
         public IEnumerable<Guid> StreamAggregateIdsInCreationOrder(Type eventBaseType = null)
         {
             Contract.Requires(eventBaseType == null || (eventBaseType.IsInterface && typeof(IAggregateRootEvent).IsAssignableFrom(eventBaseType)));

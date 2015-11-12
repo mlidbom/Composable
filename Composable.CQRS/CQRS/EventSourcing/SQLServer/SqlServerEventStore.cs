@@ -2,9 +2,12 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using System.Linq;
+using System.Transactions;
 using Composable.CQRS.EventSourcing.EventRefactoring;
 using Composable.CQRS.EventSourcing.EventRefactoring.Migrations;
 using Composable.CQRS.EventSourcing.EventRefactoring.Naming;
+using Composable.Logging.Log4Net;
+using Composable.System;
 using Composable.System.Linq;
 using Composable.SystemExtensions.Threading;
 using log4net;
@@ -94,6 +97,49 @@ namespace Composable.CQRS.EventSourcing.SQLServer
             _schemaManager.SetupSchemaIfDatabaseUnInitialized();
             _cache.Remove(aggregateId);
             _eventWriter.DeleteAggregate(aggregateId);            
+        }
+
+
+        public void PersistMigrations()
+        {
+            this.Log().Warn($"Starting to persist migrations");
+
+            long migratedAggregates = 0;
+            long updatedAggregates = 0;
+            long newEventCount = 0;
+            var logInterval = 1.Minutes();
+            var lastLogTime = DateTime.Now;
+
+            foreach(var aggregateId in StreamAggregateIdsInCreationOrder())
+            {                
+                using(var transaction = new TransactionScope())
+                {
+                    var original = _eventReader.GetAggregateHistory(aggregateId: aggregateId).ToList();
+                    var mutated = SingleAggregateEventStreamMutator.MutateCompleteAggregateHistory(_migrationFactories, original);
+
+                    var existingEvents = original.Select(@event => @event.EventId).ToSet();
+                    var newEvents = mutated.Where(@event => !existingEvents.Contains(@event.EventId)).ToList();
+                    if(newEvents.Any())
+                    {
+                        var startInsertingWithVersion = original[original.Count - 1].AggregateRootVersion + 1;
+                        newEvents.ForEach((@event, index) => @event.AggregateRootVersion = startInsertingWithVersion + index);
+                        SaveEvents(newEvents);
+                        updatedAggregates++;
+                        newEventCount += newEvents.Count;
+                    }
+                    transaction.Complete();
+                    migratedAggregates++;
+                }
+
+                if(logInterval < DateTime.Now - lastLogTime)
+                {
+                    this.Log().Info($"Aggregates: {migratedAggregates}, Updated: {updatedAggregates}, New Events: {newEventCount}");
+                }
+            }
+
+            this.Log().Info($"Aggregates: {migratedAggregates}, Updated: {updatedAggregates}, New Events: {newEventCount}");
+
+            this.Log().Warn($"Done persisting migrations.");
         }
 
         public IEnumerable<Guid> StreamAggregateIdsInCreationOrder(Type eventBaseType = null)

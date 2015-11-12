@@ -160,6 +160,8 @@
     <Compile Include="CQRS\EventHandling\SingleAggregateQueryModelUpdater.cs" />
     <Compile Include="CQRS\EventHandling\UniqueMatchEventHierarchyHandler.cs" />
     <Compile Include="CQRS\EventSourcing\AttemptToSaveEmptyAggregate.cs" />
+    <Compile Include="CQRS\EventSourcing\EventRefactoring\Migrations\IEventMigration.cs" />
+    <Compile Include="CQRS\EventSourcing\EventRefactoring\Migrations\_Interfaces.cs" />
     <Compile Include="CQRS\EventSourcing\EventRefactoring\Naming\EventNameMapping.cs" />
     <Compile Include="CQRS\EventSourcing\EventRefactoring\Naming\EventPathRenamer.cs" />
     <Compile Include="CQRS\EventSourcing\EventRefactoring\Naming\EventRenamedFromAttribute.cs" />

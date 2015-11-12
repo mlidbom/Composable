@@ -3,15 +3,27 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
+using System.Linq;
 
 #endregion
 
 namespace Composable.System.Linq
 {
+
+
     /// <summary/>
     [Pure]
     public static class Seq
     {
+        [Pure]
+        private static class EmptySequence<T>
+        {
+            public static readonly IEnumerable<T> Instance = new T[0];
+        }
+
+        /// <summary>Returns an empty array of type T. Does not allocate any memory unless this is the first time it is called for T. </summary>
+        public static IEnumerable<T> Empty<T>() { return EmptySequence<T>.Instance; }
+
         /// <summary>
         /// Creates an enumerable consisting of the passed parameter values is order.
         /// </summary>
@@ -144,5 +156,5 @@ namespace Composable.System.Linq
         {
             return OfTypes<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19>().Append(typeof(T20));
         }
-    }
+    }    
 }

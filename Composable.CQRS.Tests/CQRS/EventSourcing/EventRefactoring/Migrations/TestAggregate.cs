@@ -70,12 +70,15 @@ namespace TestAggregates
             }
         }
 
-        public TestAggregate(params IRootEvent[] events)
+        private TestAggregate()
         {
-            Contract.Requires(events.First() is IAggregateRootCreatedEvent);
-
             RegisterEventAppliers()
                 .For<IRootEvent>(e => _history.Add(e));
+        }
+
+        public TestAggregate(params IRootEvent[] events):this()
+        {
+            Contract.Requires(events.First() is IAggregateRootCreatedEvent);
 
             RaiseEvents(events);
         }

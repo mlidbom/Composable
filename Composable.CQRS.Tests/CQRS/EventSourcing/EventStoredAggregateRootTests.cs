@@ -42,12 +42,8 @@ namespace CQRS.Tests.CQRS.EventSourcing
         string Email { get; }
     }
 
-    public class AdministratorRegisteredEvent : IAccountRegisteredEvent
+    public class AdministratorRegisteredEvent : AggregateRootEvent, IAccountRegisteredEvent
     {
-        public Guid EventId { get; set; }
-        public int AggregateRootVersion { get; set; }
-        public Guid AggregateRootId { get; set; }
-        public DateTime TimeStamp { get; set; }
         public string Email { get; set; }
     }
 

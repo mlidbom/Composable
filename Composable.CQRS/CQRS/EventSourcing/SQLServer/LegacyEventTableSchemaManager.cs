@@ -4,7 +4,7 @@ using Composable.Logging.Log4Net;
 
 namespace Composable.CQRS.EventSourcing.SQLServer
 {
-    public class LegacyEventTableSchemaManager : TableSchemaManager
+    internal class LegacyEventTableSchemaManager : TableSchemaManager
     {
         private static readonly string LegacySqlTimeStamp = nameof(LegacySqlTimeStamp);
 

@@ -6,6 +6,7 @@ using System.Globalization;
 using System.Linq;
 using System.Web.UI.WebControls;
 using Composable.CQRS.EventSourcing;
+using Composable.CQRS.EventSourcing.EventRefactoring.Migrations;
 using Composable.CQRS.EventSourcing.SQLServer;
 using Composable.System.Linq;
 using FluentAssertions;
@@ -26,6 +27,12 @@ namespace CQRS.Tests.CQRS.EventSourcing.Sql
         public void PrintCreateReadOrdersSql()
         {
             Console.WriteLine(new EventTableSchemaManager().UpdateManualReadOrderValuesSql);
+        }
+
+        [Test]
+        public void TestInternalAccess()
+        {
+            Console.Write(new EventStreamMutator().Mutate(Seq.Empty<IAggregateRootEvent>()));
         }
 
         [Test]

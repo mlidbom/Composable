@@ -2,7 +2,7 @@
 
 namespace Composable.CQRS.EventSourcing.SQLServer
 {
-    public abstract class TableSchemaManager
+    internal abstract class TableSchemaManager
     {
         public abstract string Name { get; }
         public abstract string CreateTableSql { get; }

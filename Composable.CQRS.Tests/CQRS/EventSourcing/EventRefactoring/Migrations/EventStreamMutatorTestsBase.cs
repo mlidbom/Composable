@@ -36,8 +36,8 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
             var migrationInstances = manualMigrations;
             var aggregateId = Guid.NewGuid();
 
-            RunScenarioWithEventStoreType(originalHistory, expectedHistory, manualMigrations, aggregateId, migrationInstances, typeof(InMemoryEventStore));
             RunScenarioWithEventStoreType(originalHistory, expectedHistory, manualMigrations, aggregateId, migrationInstances, typeof(SqlServerEventStore));
+            RunScenarioWithEventStoreType(originalHistory, expectedHistory, manualMigrations, aggregateId, migrationInstances, typeof(InMemoryEventStore));            
         }
 
         private static void RunScenarioWithEventStoreType

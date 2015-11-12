@@ -11,6 +11,6 @@ namespace Composable.CQRS.EventSourcing
         int AggregateRootVersion { get; set; }        
         Guid AggregateRootId { get; set; }
         DateTime TimeStamp { get; set; }
-        int InsertionOrder { get; set; }
+        long InsertionOrder { get; set; }
     }
 }

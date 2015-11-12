@@ -230,10 +230,11 @@ namespace CQRS.Tests.CQRS.EventSourcing
                     store2NewStoreEvents = store2.GetAggregateHistory(aggregateId);
                 }
 
-                store1Events.Should().Equal(aggregate1Events);
-                store2Events.Should().Equal(aggregate2Events);
-                store1NewStoreEvents.Should().Equal(aggregate1Events);
-                store2NewStoreEvents.Should().Equal(aggregate2Events);
+                store1Events.ShouldAllBeEquivalentTo(aggregate1Events, config  => config.Excluding(e => e.InsertionOrder).WithStrictOrdering());
+                store2Events.ShouldAllBeEquivalentTo(aggregate2Events, config => config.Excluding(e => e.InsertionOrder).WithStrictOrdering());
+                store1NewStoreEvents.ShouldAllBeEquivalentTo(aggregate1Events, config => config.Excluding(e => e.InsertionOrder).WithStrictOrdering());
+                store2NewStoreEvents.ShouldAllBeEquivalentTo(aggregate2Events, config => config.Excluding(e => e.InsertionOrder).WithStrictOrdering());
+
             }
             catch(Exception)
             {

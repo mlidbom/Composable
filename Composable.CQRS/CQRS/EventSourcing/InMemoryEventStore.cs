@@ -53,7 +53,7 @@ namespace Composable.CQRS.EventSourcing
             lock(_lockObject)
             {
                 var streamMutator = CompleteEventStoreStreamMutator.Create(_migrationFactories);
-                return streamMutator.Mutate(_events.OrderBy(e => e.TimeStamp).ToList());
+                return streamMutator.Mutate(_events).ToList();
             }
         }
 

@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Composable.System.Collections.Collections;
-using Composable.System.Linq;
 
 namespace Composable.CQRS.EventSourcing.EventRefactoring.Migrations
 {
@@ -44,8 +43,8 @@ namespace Composable.CQRS.EventSourcing.EventRefactoring.Migrations
                 {
                     var mutatedEvents = _aggregateMigrationsCache.GetOrAdd(
                         @event.AggregateRootId,
-                        () => SingleAggregateInstanceEventStreamMutator.Create(@event, _eventMigrationFactories))
-                                             .Mutate(@event);
+                        () => SingleAggregateInstanceEventStreamMutator.Create(@event, _eventMigrationFactories)
+                        ).Mutate(@event);
 
                     foreach(var mutatedEvent in mutatedEvents)
                     {

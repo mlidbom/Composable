@@ -25,13 +25,13 @@ namespace Composable.CQRS.EventSourcing.SQLServer
         private readonly SqlServerEventStoreEventWriter _eventWriter;
         private readonly SqlServerEventStoreEventsCache _cache;
         private readonly SqlServerEventStoreSchemaManager _schemaManager;
-        private readonly IReadOnlyList<Func<IEventMigration>> _migrationFactories;
+        private readonly IReadOnlyList<IEventMigration> _migrationFactories;
 
-        public SqlServerEventStore(string connectionString, ISingleContextUseGuard usageGuard, IEventNameMapper nameMapper = null, IEnumerable<Func<IEventMigration>> migrationFactories = null)
+        public SqlServerEventStore(string connectionString, ISingleContextUseGuard usageGuard, IEventNameMapper nameMapper = null, IEnumerable<IEventMigration> migrationFactories = null)
         {
             Log.Debug("Constructor called");
 
-            _migrationFactories = migrationFactories?.ToList() ?? new List<Func<IEventMigration>>();
+            _migrationFactories = migrationFactories?.ToList() ?? new List<IEventMigration>();
             nameMapper = nameMapper ?? new DefaultEventNameMapper();
 
             ConnectionString = connectionString;

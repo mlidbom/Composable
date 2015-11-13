@@ -10,7 +10,6 @@ namespace Composable.CQRS.EventSourcing.EventRefactoring.Migrations
         public string Name { get; }
         public string Description { get; }
         public bool Done { get; }
-        public virtual IEnumerable<IAggregateRootEvent> EndOfAggregateHistoryReached() { return Seq.Empty<IAggregateRootEvent>(); }
-        public abstract void InspectEvent(IAggregateRootEvent @event, IEventModifier modifier);
+        public abstract ISingleAggregateInstanceEventMigrator CreateMigrator();
     }
 }

@@ -8,7 +8,7 @@ namespace Composable.CQRS.EventSourcing.EventRefactoring.Migrations
 {
     internal abstract class CompleteEventStoreStreamMutator
     {
-        public static ICompleteEventStreamMutator Create(IReadOnlyList<Func<IEventMigration>> eventMigrationFactories)
+        public static ICompleteEventStreamMutator Create(IReadOnlyList<IEventMigration> eventMigrationFactories)
         {
             return eventMigrationFactories.Any()
                        ? new RealMutator(eventMigrationFactories)
@@ -24,11 +24,11 @@ namespace Composable.CQRS.EventSourcing.EventRefactoring.Migrations
 
         private class RealMutator : ICompleteEventStreamMutator
         {
-            private readonly IReadOnlyList<Func<IEventMigration>> _eventMigrationFactories;
+            private readonly IReadOnlyList<IEventMigration> _eventMigrationFactories;
             private readonly Dictionary<Guid, ISingleAggregateEventStreamMutator> _aggregateMigrationsCache =
                 new Dictionary<Guid, ISingleAggregateEventStreamMutator>();
 
-            public RealMutator(IReadOnlyList<Func<IEventMigration>> eventMigrationFactories) { _eventMigrationFactories = eventMigrationFactories; }
+            public RealMutator(IReadOnlyList<IEventMigration> eventMigrationFactories) { _eventMigrationFactories = eventMigrationFactories; }
 
             public IEnumerable<IAggregateRootEvent> Mutate(IAggregateRootEvent @event)
             {

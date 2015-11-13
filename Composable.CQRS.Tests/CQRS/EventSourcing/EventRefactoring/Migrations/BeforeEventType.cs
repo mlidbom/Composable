@@ -18,14 +18,26 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
 
         public BeforeEventType(IEnumerable<Type> insert) { _insert = insert; }
 
-        public override void InspectEvent(IAggregateRootEvent @event, IEventModifier modifier)
-        {
-            if (@event.GetType() == typeof(TEvent) && _seenEventTypes.Last() != _insert.Last())
-            {
-                modifier.InsertBefore(_insert.Select(Activator.CreateInstance).Cast<IAggregateRootEvent>().ToList());
-            }
+        public override ISingleAggregateInstanceEventMigrator CreateMigrator() => new Inspector(_insert);
 
-            _seenEventTypes.Add(@event.GetType());
+        private class Inspector : ISingleAggregateInstanceEventMigrator
+        {
+            private readonly IEnumerable<Type> _insert;
+            private readonly List<Type> _seenEventTypes = new List<Type>();
+
+            public Inspector(IEnumerable<Type> insert) { _insert = insert; }
+
+            public IEnumerable<IAggregateRootEvent> EndOfAggregateHistoryReached() { return Seq.Empty<IAggregateRootEvent>(); }
+
+            public void MigrateEvent(IAggregateRootEvent @event, IEventModifier modifier)
+            {
+                if (@event.GetType() == typeof(TEvent) && _seenEventTypes.Last() != _insert.Last())
+                {
+                    modifier.InsertBefore(_insert.Select(Activator.CreateInstance).Cast<IAggregateRootEvent>().ToList());
+                }
+
+                _seenEventTypes.Add(@event.GetType());
+            }
         }
     }
 }

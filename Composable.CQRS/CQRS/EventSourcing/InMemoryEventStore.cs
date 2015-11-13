@@ -10,7 +10,7 @@ namespace Composable.CQRS.EventSourcing
     //todo: Refactor to use the same serialization code as the sql server event store so that tests actually tests roundtrip serialization
     public class InMemoryEventStore : IEventStore
     {
-        private readonly IReadOnlyList<IEventMigration> _migrationFactories;
+        private IReadOnlyList<IEventMigration> _migrationFactories;
 
         private IList<IAggregateRootEvent> _events = new List<IAggregateRootEvent>();
         private int InsertionOrder;
@@ -96,5 +96,8 @@ namespace Composable.CQRS.EventSourcing
                 _events = new List<IAggregateRootEvent>();
             }
         }
+
+
+        internal void TestingOnlyReplaceMigrations(IReadOnlyList<IEventMigration> migrations) { _migrationFactories = migrations; }
     }
 }

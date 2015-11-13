@@ -8,6 +8,7 @@ using Composable.CQRS.EventSourcing.EventRefactoring.Migrations;
 using Composable.CQRS.EventSourcing.EventRefactoring.Naming;
 using Composable.Logging.Log4Net;
 using Composable.System;
+using Composable.System.Collections.Collections;
 using Composable.System.Linq;
 using Composable.SystemExtensions.Threading;
 using log4net;
@@ -57,16 +58,80 @@ namespace Composable.CQRS.EventSourcing.SQLServer
                     startAfterVersion: cachedAggregateHistory.Count,
                     suppressTransactionWarning: true));
 
-            cachedAggregateHistory = SingleAggregateInstanceEventStreamMutator.MutateCompleteAggregateHistory(_migrationFactories, cachedAggregateHistory)
-                .ToList();
+            var withSqlMigrationsApplied = ApplyOldMigrations(cachedAggregateHistory);
 
             //Should within a transaction a process write events, read them, then fail to commit we will have cached events that are not persisted unless we refuse to cache them here.
             if(!_aggregatesWithEventsAddedByThisInstance.Contains(aggregateId))
             {
-                _cache.Store(aggregateId, cachedAggregateHistory);
+                _cache.Store(aggregateId, withSqlMigrationsApplied);
             }
 
-            return cachedAggregateHistory;
+            var migratedAggregateHistory = SingleAggregateInstanceEventStreamMutator.MutateCompleteAggregateHistory(_migrationFactories, withSqlMigrationsApplied).ToList();
+
+            return migratedAggregateHistory;
+        }
+
+        private static IReadOnlyList<IAggregateRootEvent> ApplyOldMigrations(IReadOnlyList<IAggregateRootEvent> events)
+        {
+            var mutatedHistory = events.Cast<AggregateRootEvent>().OrderBy(@event => @event.InsertionOrder).ToList();
+            var mutations = mutatedHistory.Where(IsRefactoringEvent).ToList();
+
+            IAggregateRootEvent mutation;
+            while ((mutation = mutations.FirstOrDefault()) != null)
+            {
+                if(mutation.Replaces.HasValue)
+                {
+                    var replacements = mutations.RemoveIf(current => current.Replaces == mutation.Replaces);
+                    mutatedHistory.RemoveRange(replacements);
+                    var replaceIndex = mutatedHistory.FindIndex(@event => @event.InsertionOrder == mutation.Replaces.Value);
+                    var toReplace = mutatedHistory[replaceIndex];
+
+                    replacements.ForEach((@event, index) => @event.AggregateRootVersion = toReplace.AggregateRootVersion + index);                    
+
+                    mutatedHistory.SkipWhile(@event => @event!=toReplace).ForEach(@event => @event.AggregateRootVersion += replacements.Count -1);
+
+                    mutatedHistory.InsertRange(replaceIndex + 1, replacements);
+                    mutatedHistory.RemoveAt(replaceIndex);
+
+                }
+                else if(mutation.InsertAfter.HasValue)
+                {
+                    var inserted = mutations.RemoveIf(current => current.InsertBefore == mutation.InsertBefore);
+                    mutatedHistory.RemoveRange(inserted);
+                    var insertAfterIndex = mutatedHistory.FindIndex(@event => @event.InsertionOrder == mutation.InsertBefore.Value);
+                    var toInsertAfter = mutatedHistory[insertAfterIndex];
+
+                    inserted.ForEach((@event, index) => @event.AggregateRootVersion = toInsertAfter.AggregateRootVersion + index + 1);
+
+                    mutatedHistory.SkipWhile(@event => @event != toInsertAfter).ForEach(@event => @event.AggregateRootVersion += inserted.Count);
+
+                    mutatedHistory.InsertRange(insertAfterIndex + 1, inserted);
+                }
+                else if(mutation.InsertBefore.HasValue)
+                {
+                    var inserted = mutations.RemoveIf(current => current.InsertAfter == mutation.InsertBefore);
+                    mutatedHistory.RemoveRange(inserted);
+                    var insertBeforeIndex = mutatedHistory.FindIndex(@event => @event.InsertionOrder == mutation.InsertBefore.Value);
+                    var toInsertBefore = mutatedHistory[insertBeforeIndex];
+
+                    inserted.ForEach((@event, index) => @event.AggregateRootVersion = toInsertBefore.AggregateRootVersion - (index + 1));
+
+                    mutatedHistory.SkipWhile(@event => @event != toInsertBefore).ForEach(@event => @event.AggregateRootVersion += inserted.Count);
+
+                    mutatedHistory.InsertRange(insertBeforeIndex -1, inserted);
+                }
+                else
+                {
+                    throw new Exception("WTF?");
+                }
+            }
+
+            return mutatedHistory;
+        }
+
+        private static bool IsRefactoringEvent(IAggregateRootEvent @event)
+        {
+            return @event.InsertAfter != null && @event.InsertBefore != null || @event.Replaces != null;
         }
 
         public const int StreamEventsBatchSize = 10000;

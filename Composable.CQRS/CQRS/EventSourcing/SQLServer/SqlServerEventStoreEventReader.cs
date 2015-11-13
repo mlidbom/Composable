@@ -17,7 +17,7 @@ namespace Composable.CQRS.EventSourcing.SQLServer
         {
             var topClause = top.HasValue ? $"TOP {top.Value} " : "";
             return $@"
-SELECT {topClause} {EventTable.Columns.EventType}, {EventTable.Columns.Event}, {EventTable.Columns.AggregateId}, {EventTable.Columns.InsertedVersion}, {EventTable.Columns.EventId}, {EventTable.Columns.TimeStamp}, {EventTable.Columns.InsertionOrder}, {EventTable.Columns.InsertAfter}, {EventTable.Columns.InsertBefore}, {EventTable.Columns.Replaces} 
+SELECT {topClause} {EventTable.Columns.EventType}, {EventTable.Columns.Event}, {EventTable.Columns.AggregateId}, {EventTable.Columns.EffectiveVersion}, {EventTable.Columns.EventId}, {EventTable.Columns.TimeStamp}, {EventTable.Columns.InsertionOrder}, {EventTable.Columns.InsertAfter}, {EventTable.Columns.InsertBefore}, {EventTable.Columns.Replaces}, {EventTable.Columns.InsertedVersion}, {EventTable.Columns.ManualVersion}
 FROM {_schemaManager.EventTableName} With(UPDLOCK, READCOMMITTED, ROWLOCK) ";
         }
 
@@ -33,13 +33,15 @@ FROM {_schemaManager.EventTableName} With(UPDLOCK, READCOMMITTED, ROWLOCK) ";
         {
             var @event = (AggregateRootEvent)EventSerializer.Deserialize( eventType: EventTypeToIdMapper.GetType(eventReader.GetValue(0)) , eventData: eventReader.GetString(1));
             @event.AggregateRootId = eventReader.GetGuid(2);
-            @event.AggregateRootVersion = eventReader.GetInt32(3);
+            @event.AggregateRootVersion = eventReader[3] as int? ?? eventReader.GetInt32(10);
             @event.EventId = eventReader.GetGuid(4);
             @event.TimeStamp = eventReader.GetDateTime(5);
             @event.InsertionOrder = eventReader.GetInt64(6);
             @event.InsertAfter = eventReader[7] as long?;
             @event.InsertBefore = eventReader[8] as long?;
             @event.Replaces = eventReader[9] as long?;
+            @event.InsertedVersion = eventReader.GetInt32(10);
+            @event.ManualVersion = eventReader[11] as int?;
 
             return @event;
         }

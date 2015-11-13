@@ -14,5 +14,8 @@ namespace Composable.CQRS.EventSourcing
         long? Replaces { get; }
         long? InsertBefore { get; }
         long? InsertAfter { get; }
+        int? ManualVersion { get; }
+        int? EffectiveVersion { get; }
+        int InsertedVersion { get; }
     }
 }

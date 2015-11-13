@@ -30,7 +30,7 @@ namespace Composable.CQRS.EventSourcing
         {
             lock(_lockObject)
             {
-                return SingleAggregateEventStreamMutator.MutateCompleteAggregateHistory(_migrationFactories, _events.Where(e => e.AggregateRootId == id).ToList())
+                return SingleAggregateInstanceEventStreamMutator.MutateCompleteAggregateHistory(_migrationFactories, _events.Where(e => e.AggregateRootId == id).ToList())
                     .ToList();;
             }
         }

@@ -11,6 +11,7 @@ namespace Composable.CQRS.EventSourcing.EventRefactoring.Migrations
         string Name { get; }
         string Description { get; }
         bool Done { get; }
+        Type MigratedAggregateEventHierarchyRootInterface { get; }
 
         ISingleAggregateInstanceEventMigrator CreateMigrator();
     }

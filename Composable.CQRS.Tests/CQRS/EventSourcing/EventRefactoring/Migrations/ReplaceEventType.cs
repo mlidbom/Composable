@@ -4,10 +4,11 @@ using System.Linq;
 using Composable.CQRS.EventSourcing;
 using Composable.CQRS.EventSourcing.EventRefactoring.Migrations;
 using Composable.System.Linq;
+using TestAggregates;
 
 namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
 {
-    public class ReplaceEventType<TEvent> : EventMigration
+    public class ReplaceEventType<TEvent> : EventMigration<IRootEvent>
     {
         private readonly IEnumerable<Type> _replaceWith;
 

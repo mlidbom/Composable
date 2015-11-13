@@ -9,19 +9,19 @@ namespace Composable.CQRS.EventSourcing.EventRefactoring.Migrations
 {
     internal class EventModifier : IEventModifier
     {
-        private readonly Action<IEnumerable<IAggregateRootEvent>> _eventsAddedCallback;
+        private readonly Action<IReadOnlyList<IAggregateRootEvent>> _eventsAddedCallback;
         private readonly LinkedList<IAggregateRootEvent> _events;
         private List<IAggregateRootEvent> _replacementEvents;
         private List<IAggregateRootEvent> _insertedEvents;
 
-        public EventModifier(IAggregateRootEvent @event, Action<IEnumerable<IAggregateRootEvent>> eventsAddedCallback)
+        public EventModifier(IAggregateRootEvent @event, Action<IReadOnlyList<IAggregateRootEvent>> eventsAddedCallback)
         {
             _eventsAddedCallback = eventsAddedCallback;
             _events = new LinkedList<IAggregateRootEvent>();
             CurrentNode = _events.AddFirst(@event);
         }
 
-        private EventModifier(LinkedListNode<IAggregateRootEvent> currentNode, Action<IEnumerable<IAggregateRootEvent>> eventsAddedCallback)
+        private EventModifier(LinkedListNode<IAggregateRootEvent> currentNode, Action<IReadOnlyList<IAggregateRootEvent>> eventsAddedCallback)
         {
             _eventsAddedCallback = eventsAddedCallback;
             CurrentNode = currentNode;
@@ -47,7 +47,7 @@ namespace Composable.CQRS.EventSourcing.EventRefactoring.Migrations
                 });
 
             CurrentNode = CurrentNode.Replace(_replacementEvents).First();
-            _eventsAddedCallback?.Invoke(_replacementEvents);
+            _eventsAddedCallback.Invoke(_replacementEvents);
         }
 
         public void InsertBefore(IEnumerable<IAggregateRootEvent> insert)
@@ -67,7 +67,7 @@ namespace Composable.CQRS.EventSourcing.EventRefactoring.Migrations
             CurrentNode.ValuesFrom().ForEach((@event, index) => @event.AggregateRootVersion += _insertedEvents.Count);
 
             CurrentNode.AddBefore(_insertedEvents);
-            _eventsAddedCallback?.Invoke(_insertedEvents);
+            _eventsAddedCallback.Invoke(_insertedEvents);
         }
 
         internal IReadOnlyList<IAggregateRootEvent> MutatedHistory => _events.ToList();

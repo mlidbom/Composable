@@ -9,12 +9,12 @@ namespace Composable.CQRS.EventSourcing.EventRefactoring.Migrations
     internal class SingleAggregateEventStreamMutator : ISingleAggregateEventStreamMutator
     {
         private readonly Guid _aggregateId;
-        private readonly IEventMigration[] _eventMigrations;
-        private Action<IEnumerable<IAggregateRootEvent>> _eventsAddedCallback;
+        private readonly IReadOnlyList<ISingleAggregateInstanceEventMigrator> _eventMigrations;
+        private readonly Action<IReadOnlyList<IAggregateRootEvent>> _eventsAddedCallback;
 
         private int AggregateVersion { get; set; } = 1;
 
-        public static ISingleAggregateEventStreamMutator Create(Guid aggregateId, IReadOnlyList<Func<IEventMigration>> eventMigrations, Action<IEnumerable<IAggregateRootEvent>> eventsAddedCallback = null)
+        public static ISingleAggregateEventStreamMutator Create(Guid aggregateId, IReadOnlyList<IEventMigration> eventMigrations, Action<IReadOnlyList<IAggregateRootEvent>> eventsAddedCallback = null)
         {
             return @eventMigrations.None()
                        ? NullOpMutator.Instance
@@ -22,13 +22,11 @@ namespace Composable.CQRS.EventSourcing.EventRefactoring.Migrations
         }
 
         private SingleAggregateEventStreamMutator
-            (Guid aggregateId, IEnumerable<Func<IEventMigration>> eventMigrations, Action<IEnumerable<IAggregateRootEvent>> eventsAddedCallback = null)
-            : this(aggregateId, eventMigrations.Select(factory => factory())) { _eventsAddedCallback = eventsAddedCallback; }
-
-        private SingleAggregateEventStreamMutator(Guid aggregateId, IEnumerable<IEventMigration> eventMigrations)
+            (Guid aggregateId, IEnumerable<IEventMigration> eventMigrations, Action<IReadOnlyList<IAggregateRootEvent>> eventsAddedCallback)
         {
+            _eventsAddedCallback = eventsAddedCallback ?? (_ => {});
             _aggregateId = aggregateId;
-            _eventMigrations = eventMigrations.ToArray();
+            _eventMigrations = eventMigrations.Select(migration => migration.CreateMigrator()).ToList();
         }
 
         public IEnumerable<IAggregateRootEvent> Mutate(IAggregateRootEvent @event)
@@ -41,7 +39,7 @@ namespace Composable.CQRS.EventSourcing.EventRefactoring.Migrations
             {
                 foreach(var innerModifier in modifier.GetHistory())
                 {
-                    migration.InspectEvent(innerModifier.Event, innerModifier);
+                    migration.MigrateEvent(innerModifier.Event, innerModifier);
                 }
             }
 
@@ -51,9 +49,9 @@ namespace Composable.CQRS.EventSourcing.EventRefactoring.Migrations
         }
 
         public static IEnumerable<IAggregateRootEvent> MutateCompleteAggregateHistory
-            (IReadOnlyList<Func<IEventMigration>> eventMigrations,
+            (IReadOnlyList<IEventMigration> eventMigrations,
              IReadOnlyList<IAggregateRootEvent> @events,
-             Action<IEnumerable<IAggregateRootEvent>> eventsAddedCallback = null)
+             Action<IReadOnlyList<IAggregateRootEvent>> eventsAddedCallback = null)
         {
             if (@eventMigrations.None())
             {

@@ -32,7 +32,7 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
             (
             IEnumerable<Type> originalHistory,
             IEnumerable<Type> expectedHistory,
-            params Func<IEventMigration>[] manualMigrations)
+            params IEventMigration[] manualMigrations)
         {
             var migrationInstances = manualMigrations;
             var aggregateId = Guid.NewGuid();
@@ -50,7 +50,7 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
             (IEnumerable<Type> originalHistory,
              IEnumerable<Type> expectedHistory,
              Guid aggregateId,
-             Func<IEventMigration>[] migrationFactories,
+             IEventMigration[] migrationFactories,
              Type eventStoreType)
         {
             var container = new WindsorContainer();
@@ -61,7 +61,7 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
                 Component.For<IServiceBus>()
                          .ImplementedBy<SynchronousBus>()
                          .LifestylePerWebRequest(),
-                Component.For<IEnumerable<Func<IEventMigration>>>()
+                Component.For<IEnumerable<IEventMigration>>()
                     .UsingFactoryMethod(() => migrationFactories)
                     .LifestylePerWebRequest(),
                 SelectLifeStyle(
@@ -99,7 +99,7 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
                 container.Resolve<IEventStore>().PersistMigrations();
             }
 
-            migrationFactories = Seq.Empty<Func<IEventMigration>>().ToArray();
+            migrationFactories = Seq.Empty<IEventMigration>().ToArray();
 
             migratedHistory = container.ExecuteUnitOfWorkInIsolatedScope(() => container.Resolve<IEventStoreSession>().Get<TestAggregate>(initialAggregate.Id)).History;
 

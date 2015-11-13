@@ -6,7 +6,7 @@ namespace Composable.CQRS.EventSourcing.SQLServer
 {
     internal class SqlServerEvestStoreEventSerializer
     {
-        public static readonly JsonSerializerSettings JsonSettings = NewtonSoft.JsonSettings.JsonSerializerSettings;
+        public static readonly JsonSerializerSettings JsonSettings = NewtonSoft.JsonSettings.SqlEventStoreSerializerSettings;
 
         public string Serialize(object @event)
         {

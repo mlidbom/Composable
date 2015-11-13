@@ -101,8 +101,7 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
 
 
             migratedHistory = container.ExecuteUnitOfWorkInIsolatedScope(() => container.Resolve<IEventStoreSession>().Get<TestAggregate>(initialAggregate.Id)).History;
-
-            Console.WriteLine("  ##########################");
+            
 
             AssertStreamsAreIdentical(expected, migratedHistory);
 
@@ -112,13 +111,14 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
             //AssertStreamsAreIdentical(expected, streamedEvents);
 
 
-            Console.WriteLine("  Disable all migrations so that none are used when reading from the event stores");
+            //Console.WriteLine("  Disable all migrations so that none are used when reading from the event stores");
             //migrations = Seq.Empty<IEventMigration>().ToArray();//Disable all migrations so none are used when reading back the history...
             //if (eventStoreType == typeof(InMemoryEventStore))
             //{
             //    container.Resolve<InMemoryEventStore>().TestingOnlyReplaceMigrations(migrations);
             //}
 
+            Console.WriteLine(" ##########################");
         }
         private static IRegistration SelectLifeStyle(ComponentRegistration<IEventStore> dependsOn)
         {

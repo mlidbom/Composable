@@ -42,15 +42,15 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
             original.ForEach(e => Console.WriteLine($"      {e}"));
             Console.WriteLine();
 
-            RunScenarioWithEventStoreType(originalHistory, expectedHistory, aggregateId, migrationInstances, typeof(InMemoryEventStore));
-            RunScenarioWithEventStoreType(originalHistory, expectedHistory, aggregateId, migrationInstances, typeof(SqlServerEventStore));            
+            RunScenarioWithEventStoreType(originalHistory, expectedHistory, aggregateId, migrationInstances, typeof(SqlServerEventStore));
+            RunScenarioWithEventStoreType(originalHistory, expectedHistory, aggregateId, migrationInstances, typeof(InMemoryEventStore));                       
         }
 
         private static void RunScenarioWithEventStoreType
             (IEnumerable<Type> originalHistory,
              IEnumerable<Type> expectedHistory,
              Guid aggregateId,
-             IEventMigration[] migrationFactories,
+             IEventMigration[] migrations,
              Type eventStoreType)
         {
             var container = new WindsorContainer();
@@ -62,7 +62,7 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
                          .ImplementedBy<SynchronousBus>()
                          .LifestylePerWebRequest(),
                 Component.For<IEnumerable<IEventMigration>>()
-                    .UsingFactoryMethod(() => migrationFactories)
+                    .UsingFactoryMethod(() => migrations)
                     .LifestylePerWebRequest(),
                 SelectLifeStyle(
                 Component.For<IEventStore>()
@@ -87,33 +87,37 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
 
             AssertStreamsAreIdentical(expected, migratedHistory);
 
-            Console.WriteLine("Streaming all events in store");
+            Console.WriteLine("  Streaming all events in store");
             var streamedEvents = container.ExecuteUnitOfWorkInIsolatedScope(() => container.Resolve<IEventStore>().StreamEvents().ToList());
 
             AssertStreamsAreIdentical(expected, streamedEvents);
 
 
-            Console.WriteLine("Persisting migrations");
+            Console.WriteLine("  Persisting migrations");
             using(container.BeginScope())
             {
                 container.Resolve<IEventStore>().PersistMigrations();
             }
 
-            migrationFactories = Seq.Empty<IEventMigration>().ToArray();
 
             migratedHistory = container.ExecuteUnitOfWorkInIsolatedScope(() => container.Resolve<IEventStoreSession>().Get<TestAggregate>(initialAggregate.Id)).History;
 
-            Console.WriteLine($"   Reloaded: ");
-            migratedHistory.ForEach(e => Console.WriteLine($"      {e}"));
-
-            Console.WriteLine("##########################");
+            Console.WriteLine("  ##########################");
 
             //AssertStreamsAreIdentical(expected, migratedHistory);
 
             //Console.WriteLine("Streaming all events in store");
-            //streamedEvents = container.ExecuteUnitOfWorkInIsolatedScope(() => container.Resolve<IEventStore>().StreamEvents().ToList());            
+            //streamedEvents = container.ExecuteUnitOfWorkInIsolatedScope(() => container.Resolve<IEventStore>().StreamEvents().ToList());
 
             //AssertStreamsAreIdentical(expected, streamedEvents);
+
+
+            Console.WriteLine("  Disable all migrations so that none are used when reading from the event stores");
+            //migrations = Seq.Empty<IEventMigration>().ToArray();//Disable all migrations so none are used when reading back the history...
+            //if (eventStoreType == typeof(InMemoryEventStore))
+            //{
+            //    container.Resolve<InMemoryEventStore>().TestingOnlyReplaceMigrations(migrations);
+            //}
 
         }
         private static IRegistration SelectLifeStyle(ComponentRegistration<IEventStore> dependsOn)
@@ -158,7 +162,10 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
                                 .Excluding(@event => @event.InsertionOrder)
                                 .Excluding(@event => @event.InsertAfter)
                                 .Excluding(@event => @event.InsertBefore)
-                                .Excluding(@event => @event.Replaces));
+                                .Excluding(@event => @event.Replaces)
+                                .Excluding(@event => @event.InsertedVersion)
+                                .Excluding(@event => @event.ManualVersion)
+                                .Excluding(@event => @event.EffectiveVersion));
         }
     }
 }

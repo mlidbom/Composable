@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using System.Linq;
+using Composable.System.Collections.Collections;
 using Composable.System.Linq;
 
 namespace Composable.CQRS.EventSourcing.EventRefactoring.Migrations
@@ -16,13 +17,7 @@ namespace Composable.CQRS.EventSourcing.EventRefactoring.Migrations
 
         public static ISingleAggregateInstanceEventStreamMutator Create(IAggregateRootEvent creationEvent, IReadOnlyList<IEventMigration> eventMigrations, Action<IReadOnlyList<IAggregateRootEvent>> eventsAddedCallback = null)
         {
-            var pertinentMigrations = eventMigrations
-                .Where(migration => migration.MigratedAggregateEventHierarchyRootInterface.IsInstanceOfType(creationEvent))
-                .ToList();
-
-            return pertinentMigrations.None()
-                       ? NullOpMutator.Instance
-                       : new SingleAggregateInstanceEventStreamMutator(creationEvent, eventMigrations, eventsAddedCallback);
+            return new SingleAggregateInstanceEventStreamMutator(creationEvent, eventMigrations, eventsAddedCallback);
         }
 
         private SingleAggregateInstanceEventStreamMutator
@@ -30,7 +25,10 @@ namespace Composable.CQRS.EventSourcing.EventRefactoring.Migrations
         {
             _eventsAddedCallback = eventsAddedCallback ?? (_ => {});
             _aggregateId = creationEvent.AggregateRootId;
-            _eventMigrations = eventMigrations.Select(migration => migration.CreateMigrator()).ToList();
+            _eventMigrations = eventMigrations
+                .Where(migration => migration.MigratedAggregateEventHierarchyRootInterface.IsInstanceOfType(creationEvent))
+                .Select(migration => migration.CreateMigrator())
+                .ToList();
         }
 
         public IEnumerable<IAggregateRootEvent> Mutate(IAggregateRootEvent @event)
@@ -72,18 +70,11 @@ namespace Composable.CQRS.EventSourcing.EventRefactoring.Migrations
                 .SelectMany(mutator.Mutate)
                 .Concat(mutator.EndOfAggregate())
                 .ToList();
-        }
+        }        
 
         public IEnumerable<IAggregateRootEvent> EndOfAggregate()
         {
             return _eventMigrations.SelectMany(eventMigration => eventMigration.EndOfAggregateHistoryReached());
-        }
-
-        private class NullOpMutator : ISingleAggregateInstanceEventStreamMutator
-        {
-            public static readonly ISingleAggregateInstanceEventStreamMutator Instance = new NullOpMutator();
-            public IEnumerable<IAggregateRootEvent> Mutate(IAggregateRootEvent @event) { yield return @event; }
-            public IEnumerable<IAggregateRootEvent> EndOfAggregate() { return Seq.Empty<IAggregateRootEvent>(); }
-        }
+        }        
     }
 }

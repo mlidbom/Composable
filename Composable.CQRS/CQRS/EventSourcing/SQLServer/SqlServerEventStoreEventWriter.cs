@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
+using Composable.System;
 
 namespace Composable.CQRS.EventSourcing.SQLServer
 {
@@ -33,8 +34,9 @@ namespace Composable.CQRS.EventSourcing.SQLServer
                         command.CommandText +=
                             $@"
 INSERT {_schemaManager.EventTableName} With(READCOMMITTED, ROWLOCK) 
-(       {EventTable.Columns.AggregateId},  {EventTable.Columns.InsertedVersion},  {EventTable.Columns.EventType},  {EventTable.Columns.EventId},  {EventTable.Columns.TimeStamp},  {EventTable.Columns.Event}) 
-VALUES(@{EventTable.Columns.AggregateId}, @{EventTable.Columns.InsertedVersion}, @{EventTable.Columns.EventType}, @{EventTable.Columns.EventId}, @{EventTable.Columns.TimeStamp}, @{EventTable.Columns.Event})";
+(       {EventTable.Columns.AggregateId},  {EventTable.Columns.InsertedVersion},  {EventTable.Columns.EventType},  {EventTable.Columns.EventId},  {EventTable.Columns.TimeStamp},  {EventTable.Columns.Event},  {EventTable.Columns.InsertAfter}, {EventTable.Columns.InsertBefore},  {EventTable.Columns.Replaces}) 
+VALUES(@{EventTable.Columns.AggregateId}, @{EventTable.Columns.InsertedVersion}, @{EventTable.Columns.EventType}, @{EventTable.Columns.EventId}, @{EventTable.Columns.TimeStamp}, @{EventTable.Columns.Event}, @{EventTable.Columns.InsertAfter},@{EventTable.Columns.InsertBefore}, @{EventTable.Columns.Replaces})
+SET @{EventTable.Columns.InsertionOrder} = SCOPE_IDENTITY();";
 
                         command.Parameters.Add(new SqlParameter(EventTable.Columns.AggregateId, @event.AggregateRootId));
                         command.Parameters.Add(new SqlParameter(EventTable.Columns.InsertedVersion, @event.AggregateRootVersion));
@@ -44,10 +46,32 @@ VALUES(@{EventTable.Columns.AggregateId}, @{EventTable.Columns.InsertedVersion},
 
                         command.Parameters.Add(new SqlParameter(EventTable.Columns.Event, _eventSerializer.Serialize(@event)));
 
+                        command.Parameters.Add(Nullable(new SqlParameter(EventTable.Columns.InsertAfter, @event.InsertAfter)));
+                        command.Parameters.Add(Nullable(new SqlParameter(EventTable.Columns.InsertBefore, @event.InsertBefore)));
+                        command.Parameters.Add(Nullable(new SqlParameter(EventTable.Columns.Replaces, @event.Replaces)));
+
+                        var identityParameter = new SqlParameter(EventTable.Columns.InsertionOrder, SqlDbType.BigInt);
+                        identityParameter.Direction = ParameterDirection.Output;
+
+                        command.Parameters.Add(identityParameter);
+
                         command.ExecuteNonQuery();
+
+                        @event.InsertionOrder = (long)identityParameter.Value;
                     }
                 }
             }
+        }
+
+        private static SqlParameter Nullable(SqlParameter @this)
+        {
+            @this.IsNullable = true;
+            @this.Direction = ParameterDirection.Input;
+            if (@this.Value == null)
+            {
+                @this.Value = DBNull.Value;
+            }
+            return @this;
         }
 
         public void DeleteAggregate(Guid aggregateId)

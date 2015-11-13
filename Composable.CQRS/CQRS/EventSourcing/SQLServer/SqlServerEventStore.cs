@@ -115,18 +115,17 @@ namespace Composable.CQRS.EventSourcing.SQLServer
                 using(var transaction = new TransactionScope())
                 {
                     var original = _eventReader.GetAggregateHistory(aggregateId: aggregateId).ToList();
-                    var mutated = SingleAggregateEventStreamMutator.MutateCompleteAggregateHistory(_migrationFactories, original);
 
-                    var existingEvents = original.Select(@event => @event.EventId).ToSet();
-                    var newEvents = mutated.Where(@event => !existingEvents.Contains(@event.EventId)).ToList();
-                    if(newEvents.Any())
-                    {
-                        var startInsertingWithVersion = original[original.Count - 1].AggregateRootVersion + 1;
-                        newEvents.ForEach((@event, index) => @event.AggregateRootVersion = startInsertingWithVersion + index);
-                        SaveEvents(newEvents);
-                        updatedAggregates++;
-                        newEventCount += newEvents.Count;
-                    }
+                    var startInsertingWithVersion = original[original.Count - 1].AggregateRootVersion + 1;
+
+                    SingleAggregateEventStreamMutator.MutateCompleteAggregateHistory(_migrationFactories, original,
+                                                                                                   newEvents =>
+                                                                                                   {
+                                                                                                       newEvents.ForEach(@event => @event.AggregateRootVersion = startInsertingWithVersion++);
+                                                                                                       SaveEvents(newEvents);
+                                                                                                       updatedAggregates++;
+                                                                                                       newEventCount += newEvents.Count();
+                                                                                                   });
                     transaction.Complete();
                     migratedAggregates++;
                 }

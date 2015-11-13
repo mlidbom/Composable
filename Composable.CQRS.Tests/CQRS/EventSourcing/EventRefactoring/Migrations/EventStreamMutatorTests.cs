@@ -1,4 +1,7 @@
-﻿using Composable.System.Linq;
+﻿using System;
+using Composable.CQRS.EventSourcing;
+using Composable.CQRS.EventSourcing.SQLServer;
+using Composable.System.Linq;
 using NCrunch.Framework;
 using NUnit.Framework;
 using TestAggregates.Events;
@@ -6,9 +9,20 @@ using TestAggregates.Events;
 
 namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
 {
-    [TestFixture, ExclusivelyUses(NCrunchExlusivelyUsesResources.EventStoreDbMdf)]
-    public class EventStreamMutatorTests : EventStreamMutatorTestsBase
+    public class InMemoryEventStoreEventStreamMutatorTests : EventStreamMutatorTests
     {
+        public InMemoryEventStoreEventStreamMutatorTests() : base(typeof(InMemoryEventStore)) {}
+    }
+
+    public class SqlServerEventStoreEventStreamMutatorTests : EventStreamMutatorTests
+    {
+        public SqlServerEventStoreEventStreamMutatorTests() : base(typeof(SqlServerEventStore)) {}
+    }
+
+    [TestFixture, ExclusivelyUses(NCrunchExlusivelyUsesResources.EventStoreDbMdf)]
+    public abstract class EventStreamMutatorTests : EventStreamMutatorTestsBase
+    {
+        protected EventStreamMutatorTests(Type eventStoreType) : base(eventStoreType) {}
         [Test]
         public void Replacing_E1_with_E2()
         {

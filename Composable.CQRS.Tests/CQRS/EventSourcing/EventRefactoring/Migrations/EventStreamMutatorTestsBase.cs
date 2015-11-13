@@ -20,8 +20,13 @@ using TestAggregates;
 
 namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
 {
-    public class EventStreamMutatorTestsBase
+    public abstract class EventStreamMutatorTestsBase
     {
+        private readonly Type _eventStoreType;
+        protected EventStreamMutatorTestsBase(Type eventStoreType) {
+            _eventStoreType = eventStoreType;
+        }
+
         private static string ConnectionString => ConfigurationManager.ConnectionStrings["EventStore"].ConnectionString;
         [SetUp]
         public void SetupTask() {
@@ -42,8 +47,7 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
             original.ForEach(e => Console.WriteLine($"      {e}"));
             Console.WriteLine();
 
-            RunScenarioWithEventStoreType(originalHistory, expectedHistory, aggregateId, migrationInstances, typeof(InMemoryEventStore));
-            RunScenarioWithEventStoreType(originalHistory, expectedHistory, aggregateId, migrationInstances, typeof(SqlServerEventStore));
+            RunScenarioWithEventStoreType(originalHistory, expectedHistory, aggregateId, migrationInstances, _eventStoreType);
         }
 
         private static void RunScenarioWithEventStoreType

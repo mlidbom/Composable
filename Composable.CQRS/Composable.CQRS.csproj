@@ -166,8 +166,8 @@
     <Compile Include="CQRS\EventSourcing\EventRefactoring\Migrations\ICompleteEventStreamMutator.cs" />
     <Compile Include="CQRS\EventSourcing\EventRefactoring\Migrations\IEventMigration.cs" />
     <Compile Include="CQRS\EventSourcing\EventRefactoring\Migrations\IEventModifier.cs" />
-    <Compile Include="CQRS\EventSourcing\EventRefactoring\Migrations\ISingleAggregateEventStreamMutator.cs" />
-    <Compile Include="CQRS\EventSourcing\EventRefactoring\Migrations\SingleAggregateEventStreamMutator.cs" />
+    <Compile Include="CQRS\EventSourcing\EventRefactoring\Migrations\ISingleAggregateInstanceEventStreamMutator.cs" />
+    <Compile Include="CQRS\EventSourcing\EventRefactoring\Migrations\SingleAggregateInstanceEventStreamMutator.cs" />
     <Compile Include="CQRS\EventSourcing\EventRefactoring\Naming\EventNameMapping.cs" />
     <Compile Include="CQRS\EventSourcing\EventRefactoring\Naming\EventPathRenamer.cs" />
     <Compile Include="CQRS\EventSourcing\EventRefactoring\Naming\EventRenamedFromAttribute.cs" />

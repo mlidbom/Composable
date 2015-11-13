@@ -57,7 +57,7 @@ namespace Composable.CQRS.EventSourcing.SQLServer
                     startAfterVersion: cachedAggregateHistory.Count,
                     suppressTransactionWarning: true));
 
-            cachedAggregateHistory = SingleAggregateEventStreamMutator.MutateCompleteAggregateHistory(_migrationFactories, cachedAggregateHistory)
+            cachedAggregateHistory = SingleAggregateInstanceEventStreamMutator.MutateCompleteAggregateHistory(_migrationFactories, cachedAggregateHistory)
                 .ToList();
 
             //Should within a transaction a process write events, read them, then fail to commit we will have cached events that are not persisted unless we refuse to cache them here.
@@ -118,7 +118,7 @@ namespace Composable.CQRS.EventSourcing.SQLServer
 
                     var startInsertingWithVersion = original[original.Count - 1].AggregateRootVersion + 1;
 
-                    SingleAggregateEventStreamMutator.MutateCompleteAggregateHistory(_migrationFactories, original,
+                    SingleAggregateInstanceEventStreamMutator.MutateCompleteAggregateHistory(_migrationFactories, original,
                                                                                                    newEvents =>
                                                                                                    {
                                                                                                        newEvents.ForEach(@event => @event.AggregateRootVersion = startInsertingWithVersion++);

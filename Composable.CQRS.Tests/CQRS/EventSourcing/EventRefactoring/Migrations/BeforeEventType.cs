@@ -4,10 +4,11 @@ using System.Linq;
 using Composable.CQRS.EventSourcing;
 using Composable.CQRS.EventSourcing.EventRefactoring.Migrations;
 using Composable.System.Linq;
+using TestAggregates;
 
 namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
 {
-    public class BeforeEventType<TEvent> : EventMigration
+    public class BeforeEventType<TEvent> : EventMigration<IRootEvent>
     {
         private readonly IEnumerable<Type> _insert;
         private readonly List<Type> _seenEventTypes = new List<Type>();

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using System.Linq;
 using System.Transactions;
+using Castle.Core.Internal;
 using Composable.CQRS.EventSourcing.EventRefactoring;
 using Composable.CQRS.EventSourcing.EventRefactoring.Migrations;
 using Composable.CQRS.EventSourcing.EventRefactoring.Naming;
@@ -84,41 +85,26 @@ namespace Composable.CQRS.EventSourcing.SQLServer
                     var replacements = mutations.RemoveIf(current => current.Replaces == mutation.Replaces);
                     mutatedHistory.RemoveRange(replacements);
                     var replaceIndex = mutatedHistory.FindIndex(@event => @event.InsertionOrder == mutation.Replaces.Value);
-                    var toReplace = mutatedHistory[replaceIndex];
-
-                    replacements.ForEach((@event, index) => @event.AggregateRootVersion = toReplace.AggregateRootVersion + index);                    
-
-                    mutatedHistory.SkipWhile(@event => @event!=toReplace).ForEach(@event => @event.AggregateRootVersion += replacements.Count -1);
 
                     mutatedHistory.InsertRange(replaceIndex + 1, replacements);
                     mutatedHistory.RemoveAt(replaceIndex);
 
                 }
                 else if(mutation.InsertAfter.HasValue)
-                {
-                    var inserted = mutations.RemoveIf(current => current.InsertBefore == mutation.InsertBefore);
+                {                    
+                    var inserted = mutations.RemoveIf(current => current.InsertAfter == mutation.InsertAfter);
                     mutatedHistory.RemoveRange(inserted);
                     var insertAfterIndex = mutatedHistory.FindIndex(@event => @event.InsertionOrder == mutation.InsertBefore.Value);
-                    var toInsertAfter = mutatedHistory[insertAfterIndex];
-
-                    inserted.ForEach((@event, index) => @event.AggregateRootVersion = toInsertAfter.AggregateRootVersion + index + 1);
-
-                    mutatedHistory.SkipWhile(@event => @event != toInsertAfter).ForEach(@event => @event.AggregateRootVersion += inserted.Count);
 
                     mutatedHistory.InsertRange(insertAfterIndex + 1, inserted);
                 }
                 else if(mutation.InsertBefore.HasValue)
                 {
-                    var inserted = mutations.RemoveIf(current => current.InsertAfter == mutation.InsertBefore);
+                    var inserted = mutations.RemoveIf(current => current.InsertBefore == mutation.InsertBefore);
                     mutatedHistory.RemoveRange(inserted);
                     var insertBeforeIndex = mutatedHistory.FindIndex(@event => @event.InsertionOrder == mutation.InsertBefore.Value);
-                    var toInsertBefore = mutatedHistory[insertBeforeIndex];
 
-                    inserted.ForEach((@event, index) => @event.AggregateRootVersion = toInsertBefore.AggregateRootVersion - (index + 1));
-
-                    mutatedHistory.SkipWhile(@event => @event != toInsertBefore).ForEach(@event => @event.AggregateRootVersion += inserted.Count);
-
-                    mutatedHistory.InsertRange(insertBeforeIndex -1, inserted);
+                    mutatedHistory.InsertRange(insertBeforeIndex, inserted);
                 }
                 else
                 {
@@ -126,12 +112,14 @@ namespace Composable.CQRS.EventSourcing.SQLServer
                 }
             }
 
+            mutatedHistory.ForEach((@event, index) => @event.AggregateRootVersion = index + 1);
+
             return mutatedHistory;
         }
 
         private static bool IsRefactoringEvent(IAggregateRootEvent @event)
         {
-            return @event.InsertAfter != null && @event.InsertBefore != null || @event.Replaces != null;
+            return @event.InsertAfter != null || @event.InsertBefore != null || @event.Replaces != null;
         }
 
         public const int StreamEventsBatchSize = 10000;

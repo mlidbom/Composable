@@ -42,8 +42,8 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
             original.ForEach(e => Console.WriteLine($"      {e}"));
             Console.WriteLine();
 
-            RunScenarioWithEventStoreType(originalHistory, expectedHistory, aggregateId, migrationInstances, typeof(SqlServerEventStore));
-            RunScenarioWithEventStoreType(originalHistory, expectedHistory, aggregateId, migrationInstances, typeof(InMemoryEventStore));                       
+            RunScenarioWithEventStoreType(originalHistory, expectedHistory, aggregateId, migrationInstances, typeof(InMemoryEventStore));
+            RunScenarioWithEventStoreType(originalHistory, expectedHistory, aggregateId, migrationInstances, typeof(SqlServerEventStore));            
         }
 
         private static void RunScenarioWithEventStoreType
@@ -104,7 +104,7 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
 
             Console.WriteLine("  ##########################");
 
-            //AssertStreamsAreIdentical(expected, migratedHistory);
+            AssertStreamsAreIdentical(expected, migratedHistory);
 
             //Console.WriteLine("Streaming all events in store");
             //streamedEvents = container.ExecuteUnitOfWorkInIsolatedScope(() => container.Resolve<IEventStore>().StreamEvents().ToList());

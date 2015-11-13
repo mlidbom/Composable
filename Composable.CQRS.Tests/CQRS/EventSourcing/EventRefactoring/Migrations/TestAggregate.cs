@@ -61,7 +61,7 @@ namespace TestAggregates
             if (GetIdBypassContractValidation() == Guid.Empty && events.First().AggregateRootId == Guid.Empty)
             {
                 SetIdBeVerySureYouKnowWhatYouAreDoing(Guid.NewGuid());
-                events.First().AggregateRootId = Id;
+                events.Cast<AggregateRootEvent>().First().AggregateRootId = Id;
             }
 
             foreach (var @event in events)
@@ -87,7 +87,7 @@ namespace TestAggregates
         public static TestAggregate FromEvents(Guid? id, IEnumerable<Type> events)
         {
             var rootEvents = events.ToEvents();
-            rootEvents.First().AggregateRootId = id ?? Guid.NewGuid();
+            rootEvents.Cast<AggregateRootEvent>().First().AggregateRootId = id ?? Guid.NewGuid();
             return new TestAggregate(rootEvents);
         }
 

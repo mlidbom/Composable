@@ -81,5 +81,11 @@ namespace Composable.System
         {
             return type.IsInstanceOfType(@this);
         }
+
+        ///<summary>Returns true if <paramref name="this"/> is an instance of the type <paramref name="type"/></summary>
+        public static bool IsInstanceOf<T>(this object @this)
+        {
+            return @this is T;
+        }
     }
 }

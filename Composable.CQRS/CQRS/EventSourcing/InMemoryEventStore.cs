@@ -40,10 +40,10 @@ namespace Composable.CQRS.EventSourcing
             lock(_lockObject)
             {
                 events.ForEach(
-                    e =>
+                    @event =>
                     {
-                        e.InsertionOrder = ++InsertionOrder;
-                        _events.Add(e);
+                        ((AggregateRootEvent)@event).InsertionOrder = ++InsertionOrder;
+                        _events.Add(@event);
                     });
             }
         }

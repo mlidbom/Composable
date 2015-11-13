@@ -31,7 +31,7 @@ FROM {_schemaManager.EventTableName} With(UPDLOCK, READCOMMITTED, ROWLOCK) ";
 
         private IAggregateRootEvent Read(SqlDataReader eventReader)
         {
-            var @event = EventSerializer.Deserialize( eventType: EventTypeToIdMapper.GetType(eventReader.GetValue(0)) , eventData: eventReader.GetString(1));
+            var @event = (AggregateRootEvent)EventSerializer.Deserialize( eventType: EventTypeToIdMapper.GetType(eventReader.GetValue(0)) , eventData: eventReader.GetString(1));
             @event.AggregateRootId = eventReader.GetGuid(2);
             @event.AggregateRootVersion = eventReader.GetInt32(3);
             @event.EventId = eventReader.GetGuid(4);

@@ -21,10 +21,10 @@ namespace Composable.CQRS
             TimeSource = timeSource;
         }
 
-        new protected void RaiseEvent(TBaseEvent theEvent)
+        new protected void RaiseEvent(TBaseEvent @event)
         {
-            theEvent.TimeStamp = TimeSource.LocalNow;
-            base.RaiseEvent(theEvent);
+            ((AggregateRootEvent)(object)@event).TimeStamp = TimeSource.LocalNow;
+            base.RaiseEvent(@event);
         }
     }
 }

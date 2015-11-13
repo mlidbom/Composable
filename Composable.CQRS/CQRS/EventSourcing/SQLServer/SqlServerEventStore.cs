@@ -121,7 +121,7 @@ namespace Composable.CQRS.EventSourcing.SQLServer
                     SingleAggregateInstanceEventStreamMutator.MutateCompleteAggregateHistory(_migrationFactories, original,
                                                                                                    newEvents =>
                                                                                                    {
-                                                                                                       newEvents.ForEach(@event => @event.AggregateRootVersion = startInsertingWithVersion++);
+                                                                                                       newEvents.ForEach(@event => ((AggregateRootEvent)@event).AggregateRootVersion = startInsertingWithVersion++);
                                                                                                        SaveEvents(newEvents);
                                                                                                        updatedAggregates++;
                                                                                                        newEventCount += newEvents.Count();

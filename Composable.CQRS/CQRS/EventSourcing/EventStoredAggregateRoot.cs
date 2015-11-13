@@ -33,13 +33,13 @@ namespace Composable.CQRS.EventSourcing
             }
         }
 
-        protected void ApplyEvent(IAggregateRootEvent evt)
+        protected void ApplyEvent(IAggregateRootEvent @event)
         {
-            ApplyAs(evt, evt.GetType());
-            evt.AggregateRootVersion = ++Version;
-            evt.AggregateRootId = Id;
-            _unCommittedEvents.Add(evt);
-            DomainEvent.Raise(evt);//Fixme: Don't do this synchronously!
+            ApplyAs(@event, @event.GetType());
+            ((AggregateRootEvent)@event).AggregateRootVersion = ++Version;
+            ((AggregateRootEvent)@event).AggregateRootId = Id;
+            _unCommittedEvents.Add(@event);
+            DomainEvent.Raise(@event);//Fixme: Don't do this synchronously!
         }
 
         /// <summary>

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.Contracts;
 using Composable.CQRS.EventHandling;
 using Composable.DDD;
 using Composable.DomainEvents;
@@ -13,14 +14,19 @@ namespace Composable.CQRS.EventSourcing
         where TBaseEvent : IAggregateRootEvent
     {       
         //Yes empty. Id should be assigned by an action and it should be obvious that the aggregate in invalid until that happens
-        protected AggregateRoot():base(Guid.Empty) { }
+        protected AggregateRoot() : base(Guid.Empty)
+        {
+            Contract.Assert(typeof(TBaseEvent).IsInterface);
+        }
 
         private readonly IList<IAggregateRootEvent> _unCommittedEvents = new List<IAggregateRootEvent>();
         private readonly CallMatchingHandlersInRegistrationOrderEventDispatcher<TBaseEvent> _eventDispatcher = new CallMatchingHandlersInRegistrationOrderEventDispatcher<TBaseEvent>();
 
         protected void RaiseEvent(TBaseEvent theEvent)
         {
-            theEvent.AggregateRootVersion = ++Version;
+            Contract.Assert(theEvent.IsInstanceOf<AggregateRootEvent>());
+
+            ((AggregateRootEvent)(object)theEvent).AggregateRootVersion = ++Version;
             if (!(theEvent is IAggregateRootCreatedEvent))
             {
                 if(theEvent.AggregateRootId != Guid.Empty && theEvent.AggregateRootId != Id)
@@ -28,7 +34,7 @@ namespace Composable.CQRS.EventSourcing
                     throw new ArgumentOutOfRangeException("Tried to raise event for AggregateRootId: {0} from AggregateRoot with Id: {1}."
                         .FormatWith(theEvent.AggregateRootId, Id));
                 }
-                theEvent.AggregateRootId = Id;
+                ((AggregateRootEvent)(object)theEvent).AggregateRootId = Id;
             }
             ApplyEvent(theEvent);
             AssertInvariantsAreMet();

@@ -37,8 +37,13 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
             var migrationInstances = manualMigrations;
             var aggregateId = Guid.NewGuid();
 
-            RunScenarioWithEventStoreType(originalHistory, expectedHistory, aggregateId, migrationInstances, typeof(SqlServerEventStore));
-            RunScenarioWithEventStoreType(originalHistory, expectedHistory, aggregateId, migrationInstances, typeof(InMemoryEventStore));            
+            var original = TestAggregate.FromEvents(aggregateId, originalHistory).History.ToList();
+            Console.WriteLine($"Original History: ");
+            original.ForEach(e => Console.WriteLine($"      {e}"));
+            Console.WriteLine();
+
+            RunScenarioWithEventStoreType(originalHistory, expectedHistory, aggregateId, migrationInstances, typeof(InMemoryEventStore));
+            RunScenarioWithEventStoreType(originalHistory, expectedHistory, aggregateId, migrationInstances, typeof(SqlServerEventStore));            
         }
 
         private static void RunScenarioWithEventStoreType
@@ -57,15 +62,15 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
                          .ImplementedBy<SynchronousBus>()
                          .LifestylePerWebRequest(),
                 Component.For<IEnumerable<Func<IEventMigration>>>()
-                    .UsingFactoryMethod( () => migrationFactories)
+                    .UsingFactoryMethod(() => migrationFactories)
                     .LifestylePerWebRequest(),
+                SelectLifeStyle(
                 Component.For<IEventStore>()
                          .ImplementedBy(eventStoreType)
-                         .DependsOn(Dependency.OnValue<string>(ConnectionString))
-                         .LifestyleSingleton(),
+                         .DependsOn(Dependency.OnValue<string>(ConnectionString))),
                 Component.For<IEventStoreSession, IUnitOfWorkParticipant>()
                          .ImplementedBy<EventStoreSession>()
-                         .LifestyleScoped(),
+                         .LifestylePerWebRequest(),
                 Component.For<IWindsorContainer>().Instance(container)
                 );
 
@@ -88,23 +93,42 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
             AssertStreamsAreIdentical(expected, streamedEvents);
 
 
-            Console.WriteLine("Persisting migrations ####END####");
+            Console.WriteLine("Persisting migrations");
             using(container.BeginScope())
             {
                 container.Resolve<IEventStore>().PersistMigrations();
             }
 
-            //migrationFactories = Seq.Empty<Func<IEventMigration>>().ToArray();
+            migrationFactories = Seq.Empty<Func<IEventMigration>>().ToArray();
 
-            //migratedHistory = container.ExecuteUnitOfWorkInIsolatedScope(() => container.Resolve<IEventStoreSession>().Get<TestAggregate>(initialAggregate.Id)).History;
+            migratedHistory = container.ExecuteUnitOfWorkInIsolatedScope(() => container.Resolve<IEventStoreSession>().Get<TestAggregate>(initialAggregate.Id)).History;
+
+            Console.WriteLine($"   Reloaded: ");
+            migratedHistory.ForEach(e => Console.WriteLine($"      {e}"));
+
+            Console.WriteLine("##########################");
 
             //AssertStreamsAreIdentical(expected, migratedHistory);
 
             //Console.WriteLine("Streaming all events in store");
-            //streamedEvents = container.ExecuteUnitOfWorkInIsolatedScope(() => container.Resolve<IEventStore>().StreamEvents().ToList());
+            //streamedEvents = container.ExecuteUnitOfWorkInIsolatedScope(() => container.Resolve<IEventStore>().StreamEvents().ToList());            
 
             //AssertStreamsAreIdentical(expected, streamedEvents);
 
+        }
+        private static IRegistration SelectLifeStyle(ComponentRegistration<IEventStore> dependsOn)
+        {
+            if(dependsOn.Implementation == typeof(SqlServerEventStore))
+            {
+                return dependsOn.LifestylePerWebRequest();
+            }
+
+            if (dependsOn.Implementation == typeof(InMemoryEventStore))
+            {
+                return dependsOn.LifestyleSingleton();
+            }
+
+            throw new Exception($"Unsupported type of event store {dependsOn.Implementation}");
         }
 
         private static void AssertStreamsAreIdentical(List<IAggregateRootEvent> expected, IReadOnlyList<IAggregateRootEvent> migratedHistory)

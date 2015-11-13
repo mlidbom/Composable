@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
+using System.Data.SqlTypes;
 using Composable.Logging.Log4Net;
 
 namespace Composable.CQRS.EventSourcing.SQLServer
@@ -18,7 +19,7 @@ namespace Composable.CQRS.EventSourcing.SQLServer
         {
             var topClause = top.HasValue ? $"TOP {top.Value} " : "";
             return $@"
-SELECT {topClause} {EventTable.Columns.EventType}, {EventTable.Columns.Event}, {EventTable.Columns.AggregateId}, {EventTable.Columns.EffectiveVersion}, {EventTable.Columns.EventId}, {EventTable.Columns.TimeStamp}, {EventTable.Columns.InsertionOrder}, {EventTable.Columns.InsertAfter}, {EventTable.Columns.InsertBefore}, {EventTable.Columns.Replaces}, {EventTable.Columns.InsertedVersion}, {EventTable.Columns.ManualVersion}
+SELECT {topClause} {EventTable.Columns.EventType}, {EventTable.Columns.Event}, {EventTable.Columns.AggregateId}, {EventTable.Columns.EffectiveVersion}, {EventTable.Columns.EventId}, {EventTable.Columns.TimeStamp}, {EventTable.Columns.InsertionOrder}, {EventTable.Columns.InsertAfter}, {EventTable.Columns.InsertBefore}, {EventTable.Columns.Replaces}, {EventTable.Columns.InsertedVersion}, {EventTable.Columns.ManualVersion}, {EventTable.Columns.EffectiveReadOrder}
 FROM {EventTable.Name} With(UPDLOCK, READCOMMITTED, ROWLOCK) ";
         }
 
@@ -78,6 +79,7 @@ FROM {EventTable.Name} With(UPDLOCK, READCOMMITTED, ROWLOCK) ";
         public IEnumerable<IAggregateRootEvent> StreamEvents(int batchSize)
         {
             GarbageCollectPersistedMigrations();
+            SqlDecimal lastReadEventReadOrder = 0;
             using(var connection = _connectionMananger.OpenConnection())
             {
                 var done = false;
@@ -86,7 +88,7 @@ FROM {EventTable.Name} With(UPDLOCK, READCOMMITTED, ROWLOCK) ";
                     using(var loadCommand = connection.CreateCommand())
                     {
 
-                        loadCommand.CommandText = SelectTopClause(batchSize) + $"WHERE {EventTable.Columns.EffectiveReadOrder} > 0" + ReadSortOrder;
+                        loadCommand.CommandText = SelectTopClause(batchSize) + $"WHERE {EventTable.Columns.EffectiveReadOrder} > 0 AND {EventTable.Columns.EffectiveReadOrder}  > {lastReadEventReadOrder}" + ReadSortOrder;
 
                         var fetchedInThisBatch = 0;
                         using(var reader = loadCommand.ExecuteReader())
@@ -95,6 +97,7 @@ FROM {EventTable.Name} With(UPDLOCK, READCOMMITTED, ROWLOCK) ";
                             {
                                 var @event = Read(reader);
                                 fetchedInThisBatch++;
+                                lastReadEventReadOrder = reader.GetSqlDecimal(12);
                                 yield return @event;
                             }
                         }

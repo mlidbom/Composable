@@ -38,7 +38,7 @@ namespace Composable.CQRS.EventSourcing.EventRefactoring.Migrations
 
             _replacementEvents = events.ToList();
 
-            _replacementEvents.ForEach(
+            _replacementEvents.Cast<AggregateRootEvent>().ForEach(
                 (e, index) =>
                 {
                     e.AggregateRootVersion = Event.AggregateRootVersion + index;
@@ -56,7 +56,7 @@ namespace Composable.CQRS.EventSourcing.EventRefactoring.Migrations
 
             _insertedEvents = insert.ToList();
 
-            _insertedEvents.ForEach(
+            _insertedEvents.Cast<AggregateRootEvent>().ForEach(
                 (e, index) =>
                 {
                     e.InsertBefore = Event.InsertionOrder;
@@ -64,7 +64,7 @@ namespace Composable.CQRS.EventSourcing.EventRefactoring.Migrations
                     e.AggregateRootId = Event.AggregateRootId;
                 });
 
-            CurrentNode.ValuesFrom().ForEach((@event, index) => @event.AggregateRootVersion += _insertedEvents.Count);
+            CurrentNode.ValuesFrom().Cast<AggregateRootEvent>().ForEach((@event, index) => @event.AggregateRootVersion += _insertedEvents.Count);
 
             CurrentNode.AddBefore(_insertedEvents);
             _eventsAddedCallback.Invoke(_insertedEvents);

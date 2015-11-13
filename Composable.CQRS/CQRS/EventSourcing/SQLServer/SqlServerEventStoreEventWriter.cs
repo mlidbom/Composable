@@ -57,7 +57,7 @@ SET @{EventTable.Columns.InsertionOrder} = SCOPE_IDENTITY();";
 
                         command.ExecuteNonQuery();
 
-                        @event.InsertionOrder = (long)identityParameter.Value;
+                        ((AggregateRootEvent)@event).InsertionOrder = (long)identityParameter.Value;
                     }
                 }
             }

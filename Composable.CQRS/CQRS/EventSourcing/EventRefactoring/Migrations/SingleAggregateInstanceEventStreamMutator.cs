@@ -36,7 +36,7 @@ namespace Composable.CQRS.EventSourcing.EventRefactoring.Migrations
         public IEnumerable<IAggregateRootEvent> Mutate(IAggregateRootEvent @event)
         {
             Contract.Assert(_aggregateId == @event.AggregateRootId);
-            @event.AggregateRootVersion = AggregateVersion;
+            ((AggregateRootEvent)@event).AggregateRootVersion = AggregateVersion;
             var modifier = new EventModifier(@event, _eventsAddedCallback);
 
             foreach(var migration in _eventMigrations)

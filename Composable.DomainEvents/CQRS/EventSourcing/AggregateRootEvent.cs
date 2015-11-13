@@ -18,6 +18,7 @@ namespace Composable.CQRS.EventSourcing
             AggregateRootId = aggregateRootId;
         }
 
+        //review:mlidbo: Fix the serialization issues with NServicebus and make sure that all the setters are private.
         public Guid EventId { get; set; }
         public int AggregateRootVersion { get; set; }
         public Guid AggregateRootId { get; set; }

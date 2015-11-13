@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Linq;
@@ -55,9 +56,11 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
                 Component.For<IServiceBus>()
                          .ImplementedBy<SynchronousBus>()
                          .LifestylePerWebRequest(),
+                Component.For<IEnumerable<Func<IEventMigration>>>()
+                    .UsingFactoryMethod( () => migrationFactories)
+                    .LifestylePerWebRequest(),
                 Component.For<IEventStore>()
                          .ImplementedBy(eventStoreType)
-                         .DependsOn(Dependency.OnValue<IEnumerable<Func<IEventMigration>>>(migrationFactories))
                          .DependsOn(Dependency.OnValue<string>(ConnectionString))
                          .LifestyleSingleton(),
                 Component.For<IEventStoreSession, IUnitOfWorkParticipant>()
@@ -79,18 +82,28 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
 
             AssertStreamsAreIdentical(expected, migratedHistory);
 
-            Console.WriteLine("\n\nStreaming all events in store");
+            Console.WriteLine("Streaming all events in store");
             var streamedEvents = container.ExecuteUnitOfWorkInIsolatedScope(() => container.Resolve<IEventStore>().StreamEvents().ToList());
 
             AssertStreamsAreIdentical(expected, streamedEvents);
 
 
-            Console.WriteLine("\n\nPersisting migrations");
+            Console.WriteLine("Persisting migrations ####END####");
             using(container.BeginScope())
             {
                 container.Resolve<IEventStore>().PersistMigrations();
             }
 
+            //migrationFactories = Seq.Empty<Func<IEventMigration>>().ToArray();
+
+            //migratedHistory = container.ExecuteUnitOfWorkInIsolatedScope(() => container.Resolve<IEventStoreSession>().Get<TestAggregate>(initialAggregate.Id)).History;
+
+            //AssertStreamsAreIdentical(expected, migratedHistory);
+
+            //Console.WriteLine("Streaming all events in store");
+            //streamedEvents = container.ExecuteUnitOfWorkInIsolatedScope(() => container.Resolve<IEventStore>().StreamEvents().ToList());
+
+            //AssertStreamsAreIdentical(expected, streamedEvents);
 
         }
 
@@ -118,7 +131,10 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
                                 .WithStrictOrdering()
                                 .Excluding(@event => @event.EventId)
                                 .Excluding(@event => @event.TimeStamp)
-                                .Excluding(@event => @event.InsertionOrder));
+                                .Excluding(@event => @event.InsertionOrder)
+                                .Excluding(@event => @event.InsertAfter)
+                                .Excluding(@event => @event.InsertBefore)
+                                .Excluding(@event => @event.Replaces));
         }
     }
 }

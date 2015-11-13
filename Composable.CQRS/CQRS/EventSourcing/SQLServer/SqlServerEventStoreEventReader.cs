@@ -17,7 +17,7 @@ namespace Composable.CQRS.EventSourcing.SQLServer
         {
             var topClause = top.HasValue ? $"TOP {top.Value} " : "";
             return $@"
-SELECT {topClause} {EventTable.Columns.EventType}, {EventTable.Columns.Event}, {EventTable.Columns.AggregateId}, {EventTable.Columns.InsertedVersion}, {EventTable.Columns.EventId}, {EventTable.Columns.TimeStamp}, {EventTable.Columns.InsertionOrder}  
+SELECT {topClause} {EventTable.Columns.EventType}, {EventTable.Columns.Event}, {EventTable.Columns.AggregateId}, {EventTable.Columns.InsertedVersion}, {EventTable.Columns.EventId}, {EventTable.Columns.TimeStamp}, {EventTable.Columns.InsertionOrder}, {EventTable.Columns.InsertAfter}, {EventTable.Columns.InsertBefore}, {EventTable.Columns.Replaces} 
 FROM {_schemaManager.EventTableName} With(UPDLOCK, READCOMMITTED, ROWLOCK) ";
         }
 
@@ -37,6 +37,9 @@ FROM {_schemaManager.EventTableName} With(UPDLOCK, READCOMMITTED, ROWLOCK) ";
             @event.EventId = eventReader.GetGuid(4);
             @event.TimeStamp = eventReader.GetDateTime(5);
             @event.InsertionOrder = eventReader.GetInt64(6);
+            @event.InsertAfter = eventReader[7] as long?;
+            @event.InsertBefore = eventReader[8] as long?;
+            @event.Replaces = eventReader[9] as long?;
 
             return @event;
         }

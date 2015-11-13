@@ -11,7 +11,7 @@ namespace Composable.CQRS.EventSourcing.EventRefactoring.Migrations
         bool Done { get; }
 
         ///<summary>Given the already seen history, insert any events at the end of the stream that might be required</summary>
-        IEnumerable<IAggregateRootEvent> End();
+        IEnumerable<IAggregateRootEvent> EndOfAggregateHistoryReached();
 
         ///<summary>Inspect one event and if required mutate the event stream by replacing the event, or inserting event(s) before it</summary>
         void InspectEvent(IAggregateRootEvent @event, IEventModifier modifier);

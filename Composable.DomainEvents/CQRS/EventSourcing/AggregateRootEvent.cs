@@ -23,5 +23,8 @@ namespace Composable.CQRS.EventSourcing
         public Guid AggregateRootId { get; set; }
         public DateTime TimeStamp { get; set; }
         public long InsertionOrder { get; set; }
+        public long? Replaces { get; set; }
+        public long? InsertBefore { get; set; }
+        public long? InsertAfter { get; set; }
     }
 }

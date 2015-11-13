@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
+using Composable.Logging.Log4Net;
 
 namespace Composable.CQRS.EventSourcing.SQLServer
 {
@@ -76,6 +77,7 @@ FROM {EventTable.Name} With(UPDLOCK, READCOMMITTED, ROWLOCK) ";
 
         public IEnumerable<IAggregateRootEvent> StreamEvents(int batchSize)
         {
+            GarbageCollectPersistedMigrations();
             using(var connection = _connectionMananger.OpenConnection())
             {
                 var done = false;
@@ -84,7 +86,7 @@ FROM {EventTable.Name} With(UPDLOCK, READCOMMITTED, ROWLOCK) ";
                     using(var loadCommand = connection.CreateCommand())
                     {
 
-                        loadCommand.CommandText = SelectTopClause(batchSize) + InsertionOrderSortOrder;
+                        loadCommand.CommandText = SelectTopClause(batchSize) + $"WHERE {EventTable.Columns.EffectiveReadOrder} > 0" + ReadSortOrder;
 
                         var fetchedInThisBatch = 0;
                         using(var reader = loadCommand.ExecuteReader())
@@ -102,24 +104,28 @@ FROM {EventTable.Name} With(UPDLOCK, READCOMMITTED, ROWLOCK) ";
             }
         }
 
-        private object GetEventInsertionOrder(Guid eventId)
+        private void GarbageCollectPersistedMigrations()
         {
-            return _connectionMananger.UseCommand(
-                loadCommand =>
+            this.Log().Debug("Garbage collect persisted migrations: Starting");
+
+            _connectionMananger.UseCommand(
+                command =>
                 {
-                    loadCommand.CommandText = $"SELECT {EventTable.Columns.InsertionOrder} FROM {EventTable.Name} WHERE {EventTable.Columns.EventId} = @{EventTable.Columns.EventId}";
-                    loadCommand.Parameters.Add(new SqlParameter(EventTable.Columns.EventId, eventId));
-                    return loadCommand.ExecuteScalar();
+                    command.CommandText = new EventTableSchemaManager().UpdateManualReadOrderValuesSql;
+                    command.ExecuteNonQuery();
                 });
-        }
+
+            this.Log().Debug("Garbage collect persisted migrations: Done");
+        }       
 
         public IEnumerable<Guid> StreamAggregateIdsInCreationOrder(Type eventBaseType = null)
         {
+            GarbageCollectPersistedMigrations();
             using (var connection = _connectionMananger.OpenConnection())
             {
                 using (var loadCommand = connection.CreateCommand())
                 {
-                    loadCommand.CommandText = $"SELECT {EventTable.Columns.AggregateId}, {EventTable.Columns.EventType} FROM {EventTable.Name} WHERE {EventTable.Columns.InsertedVersion} = 1 {InsertionOrderSortOrder}";
+                    loadCommand.CommandText = $"SELECT {EventTable.Columns.AggregateId}, {EventTable.Columns.EventType} FROM {EventTable.Name} WHERE {EventTable.Columns.InsertedVersion} = 1 AND {EventTable.Columns.EffectiveReadOrder} > 0 {ReadSortOrder}";
 
                     using (var reader = loadCommand.ExecuteReader())
                     {
@@ -136,6 +142,6 @@ FROM {EventTable.Name} With(UPDLOCK, READCOMMITTED, ROWLOCK) ";
         }
 
 
-        private string InsertionOrderSortOrder => $" ORDER BY {EventTable.Columns.InsertionOrder} ASC";        
+        private string ReadSortOrder => $" ORDER BY {EventTable.Columns.EffectiveReadOrder} ASC";        
     }
 }

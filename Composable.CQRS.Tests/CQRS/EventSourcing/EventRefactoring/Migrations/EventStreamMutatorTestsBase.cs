@@ -104,15 +104,14 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
             }
 
 
-            migratedHistory = container.ExecuteUnitOfWorkInIsolatedScope(() => container.Resolve<IEventStoreSession>().Get<TestAggregate>(initialAggregate.Id)).History;
-            
+            migratedHistory = container.ExecuteUnitOfWorkInIsolatedScope(() => container.Resolve<IEventStoreSession>().Get<TestAggregate>(initialAggregate.Id)).History;            
 
             AssertStreamsAreIdentical(expected, migratedHistory);
 
             Console.WriteLine("Streaming all events in store");
             streamedEvents = container.ExecuteUnitOfWorkInIsolatedScope(() => container.Resolve<IEventStore>().StreamEvents().ToList());
 
-            //AssertStreamsAreIdentical(expected, streamedEvents);
+            AssertStreamsAreIdentical(expected, streamedEvents);
 
 
             //Console.WriteLine("  Disable all migrations so that none are used when reading from the event stores");

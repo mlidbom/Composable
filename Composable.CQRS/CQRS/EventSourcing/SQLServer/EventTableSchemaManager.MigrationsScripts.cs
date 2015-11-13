@@ -3,9 +3,6 @@ namespace Composable.CQRS.EventSourcing.SQLServer
 
     internal partial class EventTableSchemaManager { 
         public string UpdateManualReadOrderValuesSql => $@"
-ALTER PROCEDURE CreateReadOrders
-AS
-
 set nocount on
 
 declare @{EventTable.Columns.InsertBefore} bigint

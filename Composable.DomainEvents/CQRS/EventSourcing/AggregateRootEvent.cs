@@ -19,6 +19,7 @@ namespace Composable.CQRS.EventSourcing
         }
 
         //review:mlidbo: Fix the serialization issues with NServicebus and make sure that all the setters are private.
+        //Review:mlidbo: Find a way of ignoring these properties when json serializing 
         public Guid EventId { get; set; }
         public int AggregateRootVersion { get; set; }
         public Guid AggregateRootId { get; set; }

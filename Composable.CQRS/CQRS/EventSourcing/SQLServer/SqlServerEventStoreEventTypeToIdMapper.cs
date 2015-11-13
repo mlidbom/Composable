@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
-using Composable.CQRS.EventSourcing.EventRefactoring;
 using Composable.CQRS.EventSourcing.EventRefactoring.Naming;
 
 namespace Composable.CQRS.EventSourcing.SQLServer
@@ -17,17 +16,16 @@ namespace Composable.CQRS.EventSourcing.SQLServer
             _connectionMananger = new SqlServerEventStoreConnectionManager(connectionString);
         }
 
-        public Type GetType(object id)
+        public Type GetType(int id)
         {            
             lock(_lockObject)
             {
-                var integerId = (int)id;
                 EnsureInitialized();                
-                return _idToTypeMap[integerId];
+                return _idToTypeMap[id];
             }
         }        
 
-        public object GetId(Type type)
+        public int GetId(Type type)
         {
             lock(_lockObject)
             {

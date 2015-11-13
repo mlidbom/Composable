@@ -33,7 +33,7 @@ namespace Composable.CQRS.EventSourcing.SQLServer
 
                         command.CommandText +=
                             $@"
-INSERT {_schemaManager.EventTableName} With(READCOMMITTED, ROWLOCK) 
+INSERT {EventTable.Name} With(READCOMMITTED, ROWLOCK) 
 (       {EventTable.Columns.AggregateId},  {EventTable.Columns.InsertedVersion},  {EventTable.Columns.EventType},  {EventTable.Columns.EventId},  {EventTable.Columns.TimeStamp},  {EventTable.Columns.Event},  {EventTable.Columns.InsertAfter}, {EventTable.Columns.InsertBefore},  {EventTable.Columns.Replaces}) 
 VALUES(@{EventTable.Columns.AggregateId}, @{EventTable.Columns.InsertedVersion}, @{EventTable.Columns.EventType}, @{EventTable.Columns.EventId}, @{EventTable.Columns.TimeStamp}, @{EventTable.Columns.Event}, @{EventTable.Columns.InsertAfter},@{EventTable.Columns.InsertBefore}, @{EventTable.Columns.Replaces})
 SET @{EventTable.Columns.InsertionOrder} = SCOPE_IDENTITY();";
@@ -81,7 +81,7 @@ SET @{EventTable.Columns.InsertionOrder} = SCOPE_IDENTITY();";
                 {
                     command.CommandType = CommandType.Text;
                     command.CommandText +=
-                        $"DELETE {_schemaManager.EventTableName} With(ROWLOCK) WHERE {EventTable.Columns.AggregateId} = @{EventTable.Columns.AggregateId}";
+                        $"DELETE {EventTable.Name} With(ROWLOCK) WHERE {EventTable.Columns.AggregateId} = @{EventTable.Columns.AggregateId}";
                     command.Parameters.Add(new SqlParameter(EventTable.Columns.AggregateId, aggregateId));
                     command.ExecuteNonQuery();
                 });

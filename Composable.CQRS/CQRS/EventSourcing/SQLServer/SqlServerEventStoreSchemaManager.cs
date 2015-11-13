@@ -24,19 +24,10 @@ namespace Composable.CQRS.EventSourcing.SQLServer
 
         private readonly IEventNameMapper _nameMapper;
 
-        public string EventTableName => UsingLegacySchema
-                                            ? LegacyEventTable.Name
-                                            : EventTable.Name;
-
-        private bool UsingLegacySchema => IdMapper is LegacySchemaSqlServerEventStoreEventTypeToIdMapper;
 
         public IEventTypeToIdMapper IdMapper { get; private set; }
 
         private string ConnectionString { get; }
-
-        public string InsertionOrderColumn => UsingLegacySchema
-                                                  ? SQLServer.LegacyEventTable.Columns.SqlTimeStamp
-                                                  : SQLServer.EventTable.Columns.InsertionOrder;
 
         private SqlConnection OpenConnection()
         {
@@ -64,12 +55,10 @@ AT:
 
                 using(var connection = OpenConnection())
                 {
-                    LegacyEventTable.LogWarningIfUsingLegacySqlSchema(connection);
+                    LegacyEventTable.LogAndThrowIfUsingLegacySchema(connection);
                     var usingLegacySchema = LegacyEventTable.IsUsingLegacySchema(connection);
 
-                    IdMapper = usingLegacySchema
-                                   ? (IEventTypeToIdMapper)new LegacySchemaSqlServerEventStoreEventTypeToIdMapper(_nameMapper)
-                                   : (IEventTypeToIdMapper)new SqlServerEventStoreEventTypeToIdMapper(ConnectionString, _nameMapper);
+                    IdMapper = new SqlServerEventStoreEventTypeToIdMapper(ConnectionString, _nameMapper);
 
                     ConnectionIdMapper[ConnectionString] = IdMapper;
 

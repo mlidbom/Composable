@@ -18,7 +18,7 @@ namespace Composable.CQRS.EventSourcing.SQLServer
             var topClause = top.HasValue ? $"TOP {top.Value} " : "";
             return $@"
 SELECT {topClause} {EventTable.Columns.EventType}, {EventTable.Columns.Event}, {EventTable.Columns.AggregateId}, {EventTable.Columns.EffectiveVersion}, {EventTable.Columns.EventId}, {EventTable.Columns.TimeStamp}, {EventTable.Columns.InsertionOrder}, {EventTable.Columns.InsertAfter}, {EventTable.Columns.InsertBefore}, {EventTable.Columns.Replaces}, {EventTable.Columns.InsertedVersion}, {EventTable.Columns.ManualVersion}
-FROM {_schemaManager.EventTableName} With(UPDLOCK, READCOMMITTED, ROWLOCK) ";
+FROM {EventTable.Name} With(UPDLOCK, READCOMMITTED, ROWLOCK) ";
         }
 
         private static readonly SqlServerEvestStoreEventSerializer EventSerializer = new SqlServerEvestStoreEventSerializer();
@@ -31,7 +31,7 @@ FROM {_schemaManager.EventTableName} With(UPDLOCK, READCOMMITTED, ROWLOCK) ";
 
         private IAggregateRootEvent Read(SqlDataReader eventReader)
         {
-            var @event = (AggregateRootEvent)EventSerializer.Deserialize( eventType: EventTypeToIdMapper.GetType(eventReader.GetValue(0)) , eventData: eventReader.GetString(1));
+            var @event = (AggregateRootEvent)EventSerializer.Deserialize( eventType: EventTypeToIdMapper.GetType(eventReader.GetInt32(0)) , eventData: eventReader.GetString(1));
             @event.AggregateRootId = eventReader.GetGuid(2);
             @event.AggregateRootVersion = eventReader[3] as int? ?? eventReader.GetInt32(10);
             @event.EventId = eventReader.GetGuid(4);
@@ -107,7 +107,7 @@ FROM {_schemaManager.EventTableName} With(UPDLOCK, READCOMMITTED, ROWLOCK) ";
             return _connectionMananger.UseCommand(
                 loadCommand =>
                 {
-                    loadCommand.CommandText = $"SELECT {_schemaManager.InsertionOrderColumn} FROM {_schemaManager.EventTableName} WHERE {EventTable.Columns.EventId} = @{EventTable.Columns.EventId}";
+                    loadCommand.CommandText = $"SELECT {EventTable.Columns.InsertionOrder} FROM {EventTable.Name} WHERE {EventTable.Columns.EventId} = @{EventTable.Columns.EventId}";
                     loadCommand.Parameters.Add(new SqlParameter(EventTable.Columns.EventId, eventId));
                     return loadCommand.ExecuteScalar();
                 });
@@ -119,13 +119,13 @@ FROM {_schemaManager.EventTableName} With(UPDLOCK, READCOMMITTED, ROWLOCK) ";
             {
                 using (var loadCommand = connection.CreateCommand())
                 {
-                    loadCommand.CommandText = $"SELECT {EventTable.Columns.AggregateId}, {EventTable.Columns.EventType} FROM {_schemaManager.EventTableName} WHERE {EventTable.Columns.InsertedVersion} = 1 {InsertionOrderSortOrder}";
+                    loadCommand.CommandText = $"SELECT {EventTable.Columns.AggregateId}, {EventTable.Columns.EventType} FROM {EventTable.Name} WHERE {EventTable.Columns.InsertedVersion} = 1 {InsertionOrderSortOrder}";
 
                     using (var reader = loadCommand.ExecuteReader())
                     {
                         while (reader.Read())
                         {
-                            if(eventBaseType == null || eventBaseType.IsAssignableFrom(EventTypeToIdMapper.GetType(reader.GetValue(1))))
+                            if(eventBaseType == null || eventBaseType.IsAssignableFrom(EventTypeToIdMapper.GetType(reader.GetInt32(1))))
                             {
                                 yield return (Guid)reader[0];
                             }
@@ -136,6 +136,6 @@ FROM {_schemaManager.EventTableName} With(UPDLOCK, READCOMMITTED, ROWLOCK) ";
         }
 
 
-        private string InsertionOrderSortOrder => $" ORDER BY {_schemaManager.InsertionOrderColumn} ASC";        
+        private string InsertionOrderSortOrder => $" ORDER BY {EventTable.Columns.InsertionOrder} ASC";        
     }
 }

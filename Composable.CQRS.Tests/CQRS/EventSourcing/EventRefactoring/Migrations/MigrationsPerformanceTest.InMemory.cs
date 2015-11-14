@@ -19,10 +19,10 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
         public void A_ten_thousand_events_large_aggregate_with_four_migrations_should_load_cached_in_less_than_50_milliseconds()
         {
             var eventMigrations = Seq.Create<IEventMigration>(
-                BeforeEventType<E6>.Insert<E2>(),
-                BeforeEventType<E7>.Insert<E3>(),
-                BeforeEventType<E8>.Insert<E4>(),
-                BeforeEventType<E9>.Insert<E5>()
+                Before<E6>.Insert<E2>(),
+                Before<E7>.Insert<E3>(),
+                Before<E8>.Insert<E4>(),
+                Before<E9>.Insert<E5>()
                 ).ToArray();
 
             var container = CreateContainerForEventStoreType(eventMigrations, EventStoreType);

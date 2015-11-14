@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
+using System.IO;
 using System.Linq;
 using Composable.System.Collections.Collections;
 using Composable.System.Linq;
@@ -35,6 +36,7 @@ namespace Composable.CQRS.EventSourcing.EventRefactoring.Migrations
         public void Replace(IReadOnlyList<AggregateRootEvent> events)
         {
             Contract.Assert(_replacementEvents == null, $"You can only call {nameof(Replace)} once");
+            Contract.Assert(Event.GetType() != typeof(EventStreamEndedEvent), "You cannot call replace on the event that signifies the end of the stream");
 
             _replacementEvents = events;
 
@@ -63,6 +65,11 @@ namespace Composable.CQRS.EventSourcing.EventRefactoring.Migrations
                     e.AggregateRootVersion = Event.AggregateRootVersion + index;
                     e.AggregateRootId = Event.AggregateRootId;
                 });
+
+            if(Event.GetType() == typeof(EventStreamEndedEvent))
+            {
+                _insertedEvents.ForEach(@event => @event.InsertBefore = null);//We are at the end of the stream. Claiming to insert before it makes no sense
+            }
 
             CurrentNode.ValuesFrom().ForEach((@event, index) => @event.AggregateRootVersion += _insertedEvents.Count);
 

@@ -49,14 +49,14 @@ namespace Composable.CQRS.EventSourcing.EventRefactoring.Migrations
                     foreach(var mutatedEvent in mutatedEvents)
                     {
                         yield return mutatedEvent;
-                    }
+                    }                    
                 }
 
-                foreach(var singleAggregateEventStreamMutator in _aggregateMigrationsCache.Values)
+                foreach (var migrator in _aggregateMigrationsCache)
                 {
-                    foreach(var @event in singleAggregateEventStreamMutator.EndOfAggregate())
+                    foreach (var finalEvent in migrator.Value.EndOfAggregate())
                     {
-                        yield return @event;
+                        yield return finalEvent;
                     }
                 }
             }

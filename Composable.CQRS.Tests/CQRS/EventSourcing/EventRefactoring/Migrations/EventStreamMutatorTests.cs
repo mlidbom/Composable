@@ -35,13 +35,24 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
     public abstract class EventStreamMutatorTests : EventStreamMutatorTestsBase
     {
         protected EventStreamMutatorTests(Type eventStoreType) : base(eventStoreType) {}
+
+
         [Test]
         public void Replacing_E1_with_E2()
         {
             RunMigrationTest(
                 Seq.OfTypes<Ec1, E1, Ef, Ef>(),
                 Seq.OfTypes<Ec1, E2, Ef, Ef>(),
-                ReplaceEventType<E1>.With<E2>());
+                Replace<E1>.With<E2>());
+        }
+
+        [Test,Ignore("Replacing the last event in the event store is not currently supported...")]
+        public void Replacing_E1_with_E2_at_end_of_stream()
+        {
+            RunMigrationTest(
+                Seq.OfTypes<Ec1, E1>(),
+                Seq.OfTypes<Ec1, E2>(),
+                Replace<E1>.With<E2>());
         }
 
         [Test]
@@ -50,7 +61,7 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
             RunMigrationTest(
                 Seq.OfTypes<Ec1, E1, Ef>(),
                 Seq.OfTypes<Ec1, E2, E3, Ef>(),
-                ReplaceEventType<E1>.With<E2, E3>());
+                Replace<E1>.With<E2, E3>());
         }
 
         [Test]
@@ -59,7 +70,7 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
             RunMigrationTest(
                 Seq.OfTypes<Ec1, E1, Ef, Ef, Ef, Ef>(),
                 Seq.OfTypes<Ec1, E2, E3, Ef, Ef, Ef, Ef>(),
-                ReplaceEventType<E1>.With<E2, E3>());
+                Replace<E1>.With<E2, E3>());
         }
 
         [Test]
@@ -68,8 +79,8 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
             RunMigrationTest(
                 Seq.OfTypes<Ec1, E1, Ef>(),
                 Seq.OfTypes<Ec1, E2, Ef>(),
-                ReplaceEventType<E1>.With<E2>(),
-                ReplaceEventType<E1>.With<E5>());
+                Replace<E1>.With<E2>(),
+                Replace<E1>.With<E5>());
         }
 
         [Test]
@@ -78,8 +89,8 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
             RunMigrationTest(
                 Seq.OfTypes<Ec1, E1, Ef>(),
                 Seq.OfTypes<Ec1, E2, E3, Ef>(),
-                ReplaceEventType<E1>.With<E2, E3>(),
-                ReplaceEventType<E1>.With<E5>());
+                Replace<E1>.With<E2, E3>(),
+                Replace<E1>.With<E5>());
         }
 
         [Test]
@@ -88,8 +99,8 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
             RunMigrationTest(
                 Seq.OfTypes<Ec1, E1, Ef>(),
                 Seq.OfTypes<Ec1, E4, E3, Ef>(),
-                ReplaceEventType<E1>.With<E2,E3>(),
-                ReplaceEventType<E2>.With<E4>());
+                Replace<E1>.With<E2,E3>(),
+                Replace<E2>.With<E4>());
         }
 
 
@@ -99,7 +110,7 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
             RunMigrationTest(
                 Seq.OfTypes<Ec1, E1, Ef>(),
                 Seq.OfTypes<Ec1, E3, E1, Ef>(),
-                BeforeEventType<E1>.Insert<E3>());
+                Before<E1>.Insert<E3>());
         }
 
         [Test]
@@ -108,7 +119,7 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
             RunMigrationTest(
                 Seq.OfTypes<Ec1, E1, Ef>(),
                 Seq.OfTypes<Ec1, E3, E4, E1, Ef>(),
-                BeforeEventType<E1>.Insert<E3, E4>());
+                Before<E1>.Insert<E3, E4>());
         }
 
         [Test]
@@ -117,8 +128,8 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
             RunMigrationTest(
                 Seq.OfTypes<Ec1, E1>(),
                 Seq.OfTypes<Ec1, E5, E3, E4, E1>(),
-                BeforeEventType<E1>.Insert<E3, E4>(),
-                BeforeEventType<E3>.Insert<E5>());
+                Before<E1>.Insert<E3, E4>(),
+                Before<E3>.Insert<E5>());
         }
 
         [Test]
@@ -127,20 +138,20 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
             RunMigrationTest(
                 Seq.OfTypes<Ec1, E1, Ef>(),
                 Seq.OfTypes<Ec1, E3, E5, E4, E1, Ef>(),
-                BeforeEventType<E1>.Insert<E3, E4>(),
-                BeforeEventType<E4>.Insert<E5>());
+                Before<E1>.Insert<E3, E4>(),
+                Before<E4>.Insert<E5>());
         }
 
-        //[Test]
-        //public void Inserting_E3_E4_before_E1_then_E5_before_E4_then_replace_E4_with_E6()
-        //{
-        //    RunMigrationTest(
-        //        Seq.OfTypes<Ec1, E1, Ef>(),
-        //        Seq.OfTypes<Ec1, E3, E5, E6, E1, Ef>(),
-        //        BeforeEventType<E1>.Insert<E3, E4>(),
-        //        BeforeEventType<E4>.Insert<E5>(),
-        //        ReplaceEventType<E4>.With<E6>());
-        //}
+        [Test]
+        public void Inserting_E3_E4_before_E1_then_E5_before_E4_then_replace_E4_with_E6()
+        {
+            RunMigrationTest(
+                Seq.OfTypes<Ec1, E1, Ef>(),
+                Seq.OfTypes<Ec1, E3, E5, E6, E1, Ef>(),
+                Before<E1>.Insert<E3, E4>(),
+                Before<E4>.Insert<E5>(),
+                Replace<E3>.With<E6>());
+        }
 
         [Test]
         public void Inserting_E3_E4_before_E1_then_E5_before_E3_2()
@@ -148,8 +159,8 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
             RunMigrationTest(
                 Seq.OfTypes<Ec1, E1, Ef, Ef>(),
                 Seq.OfTypes<Ec1, E5, E3, E4, E1, Ef, Ef>(),
-                BeforeEventType<E1>.Insert<E3, E4>(),
-                BeforeEventType<E3>.Insert<E5>());
+                Before<E1>.Insert<E3, E4>(),
+                Before<E3>.Insert<E5>());
         }
 
         [Test]
@@ -158,9 +169,26 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
             RunMigrationTest(
                 Seq.OfTypes<Ec1, E1, Ef, Ef>(),
                 Seq.OfTypes<Ec1, E3, E5, E4, E1, Ef, Ef>(),
-                BeforeEventType<E1>.Insert<E3, E4>(),
-                BeforeEventType<E4>.Insert<E5>());
+                Before<E1>.Insert<E3, E4>(),
+                Before<E4>.Insert<E5>());
         }
-        
+
+        [Test]
+        public void Inserting_E2_after_E1()
+        {
+            RunMigrationTest(
+                Seq.OfTypes<Ec1, E1, Ef, Ef>(),
+                Seq.OfTypes<Ec1, E1, E2, Ef, Ef>(),
+                After<E1>.Insert<E2>());
+        }
+
+        [Test]
+        public void Inserting_E2_after_E1_at_end_of_stream()
+        {
+            RunMigrationTest(
+                Seq.OfTypes<Ec1, E1>(),
+                Seq.OfTypes<Ec1, E1, E2>(),
+                After<E1>.Insert<E2>());
+        }
     }
 }

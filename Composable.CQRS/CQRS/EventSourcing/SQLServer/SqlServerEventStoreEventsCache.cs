@@ -29,18 +29,18 @@ namespace Composable.CQRS.EventSourcing.SQLServer
                                                              SlidingExpiration = 20.Minutes()
                                                          };
 
-        public List<IAggregateRootEvent> GetCopy(Guid id)
+        public List<AggregateRootEvent> GetCopy(Guid id)
         {
             var cached = _internalCache.Get(id.ToString());
             if(cached == null)
             {
-                return new List<IAggregateRootEvent>();
+                return new List<AggregateRootEvent>();
             }
             //Make sure each caller gets their own copy.
-            return ((List<IAggregateRootEvent>)cached).ToList();
+            return ((List<AggregateRootEvent>)cached).ToList();
         }
 
-        public void Store(Guid id, IEnumerable<IAggregateRootEvent> events)
+        public void Store(Guid id, IEnumerable<AggregateRootEvent> events)
         {
             _internalCache.Set(key: id.ToString(), policy: Policy, value: events.ToList());
         }

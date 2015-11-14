@@ -9,30 +9,30 @@ namespace Composable.CQRS.EventSourcing.EventRefactoring.Migrations
 {
     internal class EventModifier : IEventModifier
     {
-        private readonly Action<IReadOnlyList<IAggregateRootEvent>> _eventsAddedCallback;
-        private readonly LinkedList<IAggregateRootEvent> _events;
-        private List<IAggregateRootEvent> _replacementEvents;
-        private List<IAggregateRootEvent> _insertedEvents;
+        private readonly Action<IReadOnlyList<AggregateRootEvent>> _eventsAddedCallback;
+        private readonly LinkedList<AggregateRootEvent> _events;
+        private List<AggregateRootEvent> _replacementEvents;
+        private List<AggregateRootEvent> _insertedEvents;
 
-        public EventModifier(IAggregateRootEvent @event, Action<IReadOnlyList<IAggregateRootEvent>> eventsAddedCallback)
+        public EventModifier(AggregateRootEvent @event, Action<IReadOnlyList<AggregateRootEvent>> eventsAddedCallback)
         {
             _eventsAddedCallback = eventsAddedCallback;
-            _events = new LinkedList<IAggregateRootEvent>();
+            _events = new LinkedList<AggregateRootEvent>();
             CurrentNode = _events.AddFirst(@event);
         }
 
-        private EventModifier(LinkedListNode<IAggregateRootEvent> currentNode, Action<IReadOnlyList<IAggregateRootEvent>> eventsAddedCallback)
+        private EventModifier(LinkedListNode<AggregateRootEvent> currentNode, Action<IReadOnlyList<AggregateRootEvent>> eventsAddedCallback)
         {
             _eventsAddedCallback = eventsAddedCallback;
             CurrentNode = currentNode;
             _events = currentNode.List;
         }
 
-        public IAggregateRootEvent Event => CurrentNode.Value;
+        public AggregateRootEvent Event => CurrentNode.Value;
 
-        private LinkedListNode<IAggregateRootEvent> CurrentNode { get; set; }
+        private LinkedListNode<AggregateRootEvent> CurrentNode { get; set; }
 
-        public void Replace(IEnumerable<IAggregateRootEvent> events)
+        public void Replace(IEnumerable<AggregateRootEvent> events)
         {
             Contract.Assert(_replacementEvents == null, $"You can only call {nameof(Replace)} once");
 
@@ -50,7 +50,7 @@ namespace Composable.CQRS.EventSourcing.EventRefactoring.Migrations
             _eventsAddedCallback.Invoke(_replacementEvents);
         }
 
-        public void InsertBefore(IEnumerable<IAggregateRootEvent> insert)
+        public void InsertBefore(IEnumerable<AggregateRootEvent> insert)
         {
             Contract.Assert(_insertedEvents == null, $"You can only call {nameof(InsertBefore)} once");
 
@@ -70,7 +70,7 @@ namespace Composable.CQRS.EventSourcing.EventRefactoring.Migrations
             _eventsAddedCallback.Invoke(_insertedEvents);
         }
 
-        internal IReadOnlyList<IAggregateRootEvent> MutatedHistory => _events.ToList();
+        internal IReadOnlyList<AggregateRootEvent> MutatedHistory => _events.ToList();
 
         public IEnumerable<EventModifier> GetHistory() { return _events.Nodes().Select(@eventNode => new EventModifier(@eventNode, _eventsAddedCallback)).ToList(); }
     }

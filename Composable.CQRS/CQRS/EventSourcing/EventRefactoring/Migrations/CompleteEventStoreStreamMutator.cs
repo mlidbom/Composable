@@ -18,7 +18,7 @@ namespace Composable.CQRS.EventSourcing.EventRefactoring.Migrations
         {
             public static readonly ICompleteEventStreamMutator Instance = new NullOpStreamMutator();
 
-            public IEnumerable<IAggregateRootEvent> Mutate(IEnumerable<IAggregateRootEvent> eventStream) { return eventStream; }
+            public IEnumerable<AggregateRootEvent> Mutate(IEnumerable<AggregateRootEvent> eventStream) { return eventStream; }
         }
 
         private class RealMutator : ICompleteEventStreamMutator
@@ -29,7 +29,7 @@ namespace Composable.CQRS.EventSourcing.EventRefactoring.Migrations
 
             public RealMutator(IReadOnlyList<IEventMigration> eventMigrationFactories) { _eventMigrationFactories = eventMigrationFactories; }
 
-            public IEnumerable<IAggregateRootEvent> Mutate(IAggregateRootEvent @event)
+            public IEnumerable<AggregateRootEvent> Mutate(AggregateRootEvent @event)
             {
                 return _aggregateMigrationsCache.GetOrAdd(
                     @event.AggregateRootId,
@@ -37,7 +37,7 @@ namespace Composable.CQRS.EventSourcing.EventRefactoring.Migrations
                                                 .Mutate(@event);
             }
 
-            public IEnumerable<IAggregateRootEvent> Mutate(IEnumerable<IAggregateRootEvent> eventStream)
+            public IEnumerable<AggregateRootEvent> Mutate(IEnumerable<AggregateRootEvent> eventStream)
             {
                 foreach(var @event in eventStream)
                 {

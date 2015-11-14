@@ -11,17 +11,17 @@ namespace Composable.CQRS.EventSourcing.EventRefactoring.Migrations
     {
         private readonly Guid _aggregateId;
         private readonly IReadOnlyList<ISingleAggregateInstanceEventMigrator> _eventMigrations;
-        private readonly Action<IReadOnlyList<IAggregateRootEvent>> _eventsAddedCallback;
+        private readonly Action<IReadOnlyList<AggregateRootEvent>> _eventsAddedCallback;
 
         private int AggregateVersion { get; set; } = 1;
 
-        public static ISingleAggregateInstanceEventStreamMutator Create(IAggregateRootEvent creationEvent, IReadOnlyList<IEventMigration> eventMigrations, Action<IReadOnlyList<IAggregateRootEvent>> eventsAddedCallback = null)
+        public static ISingleAggregateInstanceEventStreamMutator Create(IAggregateRootEvent creationEvent, IReadOnlyList<IEventMigration> eventMigrations, Action<IReadOnlyList<AggregateRootEvent>> eventsAddedCallback = null)
         {
             return new SingleAggregateInstanceEventStreamMutator(creationEvent, eventMigrations, eventsAddedCallback);
         }
 
         private SingleAggregateInstanceEventStreamMutator
-            (IAggregateRootEvent creationEvent, IEnumerable<IEventMigration> eventMigrations, Action<IReadOnlyList<IAggregateRootEvent>> eventsAddedCallback)
+            (IAggregateRootEvent creationEvent, IEnumerable<IEventMigration> eventMigrations, Action<IReadOnlyList<AggregateRootEvent>> eventsAddedCallback)
         {
             _eventsAddedCallback = eventsAddedCallback ?? (_ => {});
             _aggregateId = creationEvent.AggregateRootId;
@@ -31,7 +31,7 @@ namespace Composable.CQRS.EventSourcing.EventRefactoring.Migrations
                 .ToList();
         }
 
-        public IEnumerable<IAggregateRootEvent> Mutate(IAggregateRootEvent @event)
+        public IEnumerable<AggregateRootEvent> Mutate(AggregateRootEvent @event)
         {
             Contract.Assert(_aggregateId == @event.AggregateRootId);
             ((AggregateRootEvent)@event).AggregateRootVersion = AggregateVersion;
@@ -50,10 +50,10 @@ namespace Composable.CQRS.EventSourcing.EventRefactoring.Migrations
             return newHistory;
         }
 
-        public static IEnumerable<IAggregateRootEvent> MutateCompleteAggregateHistory
+        public static IEnumerable<AggregateRootEvent> MutateCompleteAggregateHistory
             (IReadOnlyList<IEventMigration> eventMigrations,
-             IReadOnlyList<IAggregateRootEvent> @events,
-             Action<IReadOnlyList<IAggregateRootEvent>> eventsAddedCallback = null)
+             IReadOnlyList<AggregateRootEvent> @events,
+             Action<IReadOnlyList<AggregateRootEvent>> eventsAddedCallback = null)
         {
             if (@eventMigrations.None())
             {
@@ -62,7 +62,7 @@ namespace Composable.CQRS.EventSourcing.EventRefactoring.Migrations
 
             if(@events.None())
             {
-                return Seq.Empty<IAggregateRootEvent>();
+                return Seq.Empty<AggregateRootEvent>();
             }
 
             var mutator = Create(@events.First(), eventMigrations, eventsAddedCallback);
@@ -72,9 +72,9 @@ namespace Composable.CQRS.EventSourcing.EventRefactoring.Migrations
                 .ToList();
         }        
 
-        public IEnumerable<IAggregateRootEvent> EndOfAggregate()
+        public IEnumerable<AggregateRootEvent> EndOfAggregate()
         {
-            return _eventMigrations.SelectMany(eventMigration => eventMigration.EndOfAggregateHistoryReached());
+            return _eventMigrations.SelectMany(eventMigration => eventMigration.EndOfAggregateHistoryReached().Cast<AggregateRootEvent>());
         }        
     }
 }

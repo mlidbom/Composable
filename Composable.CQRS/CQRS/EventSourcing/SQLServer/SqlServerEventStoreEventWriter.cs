@@ -21,7 +21,7 @@ namespace Composable.CQRS.EventSourcing.SQLServer
         }
 
         //Review:catch primary key violation errors and rethrow in an optimistic concurrency failure exception.: 
-        public void Insert(IEnumerable<IAggregateRootEvent> events)
+        public void Insert(IEnumerable<AggregateRootEvent> events)
         {
             using(var connection = _connectionMananger.OpenConnection())
             {

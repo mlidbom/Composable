@@ -42,5 +42,21 @@ namespace Composable.CQRS.Windsor
                 me.ExecuteUnitOfWork(action);
             }
         }
+
+        public static TResult ExecuteInIsolatedScope<TResult>(this IWindsorContainer me, Func<TResult> function)
+        {
+            using (me.BeginScope())
+            {
+                return function();
+            }
+        }
+
+        public static void ExecuteInIsolatedScope(this IWindsorContainer me, Action action)
+        {
+            using (me.BeginScope())
+            {
+                action();
+            }
+        }
     }
 }

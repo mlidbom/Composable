@@ -57,15 +57,15 @@ namespace Composable.CQRS.EventSourcing.SQLServer
                 _eventReader.GetAggregateHistory(
                     aggregateId: aggregateId,
                     startAfterVersion: cachedAggregateHistory.Count,
-                    suppressTransactionWarning: true));
-
-            var withSqlMigrationsApplied = ApplyOldMigrations(cachedAggregateHistory);
+                    suppressTransactionWarning: true));            
 
             //Should within a transaction a process write events, read them, then fail to commit we will have cached events that are not persisted unless we refuse to cache them here.
             if(!_aggregatesWithEventsAddedByThisInstance.Contains(aggregateId))
             {
-                _cache.Store(aggregateId, withSqlMigrationsApplied);
+                _cache.Store(aggregateId, cachedAggregateHistory);
             }
+
+            var withSqlMigrationsApplied = ApplyOldMigrations(cachedAggregateHistory);
 
             var migratedAggregateHistory = SingleAggregateInstanceEventStreamMutator.MutateCompleteAggregateHistory(_migrationFactories, withSqlMigrationsApplied).ToList();
 

@@ -1,21 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using Castle.MicroKernel.Registration;
-using Castle.Windsor;
 using Composable.CQRS.EventSourcing;
-using Composable.CQRS.EventSourcing.EventRefactoring.Migrations;
 using Composable.CQRS.EventSourcing.SQLServer;
-using Composable.CQRS.Windsor;
-using Composable.CQRS.Windsor.Testing;
-using Composable.ServiceBus;
 using Composable.System.Linq;
-using Composable.UnitsOfWork;
-using FluentAssertions;
 using NCrunch.Framework;
 using NUnit.Framework;
-using TestAggregates;
 using TestAggregates.Events;
 
 

@@ -70,7 +70,7 @@ CREATE TABLE dbo.{Name}(
 )
 
     CREATE NONCLUSTERED INDEX IX_{Name}_{EventTable.Columns.EffectiveReadOrder} ON dbo.{Name}
-        ({EventTable.Columns.EffectiveReadOrder})
+        ({EventTable.Columns.EffectiveReadOrder}, {EventTable.Columns.EffectiveVersion})
         INCLUDE ({EventTable.Columns.EventType}, {EventTable.Columns.InsertionOrder})
 
     CREATE NONCLUSTERED INDEX IX_{Name}_{EventTable.Columns.Replaces}	ON dbo.{Name}

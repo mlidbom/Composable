@@ -154,6 +154,19 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
         }
 
         [Test]
+        public void Inserting_E3_E4_before_E1_then_E5_before_E4_then_replace_E4_with_E6_then_replace_Ef_with_E7_then_insert_E8_after_E7()
+        {
+            RunMigrationTest(
+                Seq.OfTypes<Ec1, E1, Ef>(),
+                Seq.OfTypes<Ec1, E3, E5, E6, E1, E7, E8>(),
+                Before<E1>.Insert<E3, E4>(),
+                Before<E4>.Insert<E5>(),
+                Replace<E3>.With<E6>(),
+                Replace<Ef>.With<E7>(),
+                After<E7>.Insert<E8>());
+        }
+
+        [Test]
         public void Inserting_E3_E4_before_E1_then_E5_before_E3_2()
         {
             RunMigrationTest(

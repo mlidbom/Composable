@@ -211,8 +211,13 @@ namespace Composable.CQRS.EventSourcing.SQLServer
         public void ResetDB()
         {
             _usageGuard.AssertNoContextChangeOccurred(this);
-            _cache.Clear();
+            ClearCache();
             _schemaManager.ResetDB();           
+        }
+
+        public void ClearCache()
+        {
+            _cache.Clear();
         }
 
 

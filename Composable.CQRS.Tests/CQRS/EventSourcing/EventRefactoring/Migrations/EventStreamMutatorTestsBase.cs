@@ -130,6 +130,21 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
 
             AssertStreamsAreIdentical(expected, streamedEvents);
 
+            if(eventStoreType == typeof(SqlServerEventStore))
+            {
+                Console.WriteLine("Clearing sql server eventstore cache");
+                container.ExecuteUnitOfWorkInIsolatedScope(() => ((SqlServerEventStore)container.Resolve<IEventStore>()).ClearCache());
+
+                migratedHistory = container.ExecuteUnitOfWorkInIsolatedScope(() => container.Resolve<IEventStoreSession>().Get<TestAggregate>(initialAggregate.Id)).History;
+
+                AssertStreamsAreIdentical(expected, migratedHistory);
+
+                Console.WriteLine("Streaming all events in store");
+                streamedEvents = container.ExecuteUnitOfWorkInIsolatedScope(() => container.Resolve<IEventStore>().StreamEvents().ToList());
+
+                AssertStreamsAreIdentical(expected, streamedEvents);
+            }
+
         }
         private static IRegistration SelectLifeStyle(ComponentRegistration<IEventStore> dependsOn)
         {

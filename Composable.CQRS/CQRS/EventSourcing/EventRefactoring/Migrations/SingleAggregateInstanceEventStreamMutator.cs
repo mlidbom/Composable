@@ -34,7 +34,12 @@ namespace Composable.CQRS.EventSourcing.EventRefactoring.Migrations
         public IEnumerable<AggregateRootEvent> Mutate(AggregateRootEvent @event)
         {
             Contract.Assert(_aggregateId == @event.AggregateRootId);
-            ((AggregateRootEvent)@event).AggregateRootVersion = AggregateVersion;
+            if (_eventMigrations.None())
+            {
+                return Seq.Create(@event);
+            }            
+
+            @event.AggregateRootVersion = AggregateVersion;
             var modifier = new EventModifier(@event, _eventsAddedCallback);
 
             foreach(var migration in _eventMigrations)
@@ -55,7 +60,7 @@ namespace Composable.CQRS.EventSourcing.EventRefactoring.Migrations
              IReadOnlyList<AggregateRootEvent> @events,
              Action<IReadOnlyList<AggregateRootEvent>> eventsAddedCallback = null)
         {
-            if (@eventMigrations.None())
+            if (eventMigrations.None())
             {
                 return @events;
             }

@@ -22,12 +22,12 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
 {
     public abstract class EventStreamMutatorTestsBase
     {
-        private readonly Type _eventStoreType;
+        protected readonly Type EventStoreType;
         protected EventStreamMutatorTestsBase(Type eventStoreType) {
-            _eventStoreType = eventStoreType;
+            EventStoreType = eventStoreType;
         }
 
-        private static string ConnectionString => ConfigurationManager.ConnectionStrings["EventStore"].ConnectionString;
+        protected static string ConnectionString => ConfigurationManager.ConnectionStrings["EventStore"].ConnectionString;
         [SetUp]
         public void SetupTask() {
             SqlServerEventStore.ResetDB(ConnectionString);   
@@ -47,7 +47,7 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
             original.ForEach(e => Console.WriteLine($"      {e}"));
             Console.WriteLine();
 
-            RunScenarioWithEventStoreType(originalHistory, expectedHistory, aggregateId, migrationInstances, _eventStoreType);
+            RunScenarioWithEventStoreType(originalHistory, expectedHistory, aggregateId, migrationInstances, EventStoreType);
         }
 
         private static void RunScenarioWithEventStoreType
@@ -57,28 +57,7 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
              IEventMigration[] migrations,
              Type eventStoreType)
         {
-            var container = new WindsorContainer();
-
-            container.ConfigureWiringForTestsCallBeforeAllOtherWiring();
-
-            container.Register(
-                Component.For<IServiceBus>()
-                         .ImplementedBy<SynchronousBus>()
-                         .LifestylePerWebRequest(),
-                Component.For<IEnumerable<IEventMigration>>()
-                    .UsingFactoryMethod(() => migrations)
-                    .LifestylePerWebRequest(),
-                SelectLifeStyle(
-                Component.For<IEventStore>()
-                         .ImplementedBy(eventStoreType)
-                         .DependsOn(Dependency.OnValue<string>(ConnectionString))),
-                Component.For<IEventStoreSession, IUnitOfWorkParticipant>()
-                         .ImplementedBy<EventStoreSession>()
-                         .LifestylePerWebRequest(),
-                Component.For<IWindsorContainer>().Instance(container)
-                );
-
-            container.ConfigureWiringForTestsCallAfterAllOtherWiring();
+            var container = CreateContainerForEventStoreType(migrations, eventStoreType);
 
             Console.WriteLine($"###############$$$$$$$Running scenario with {eventStoreType}");
 
@@ -145,6 +124,33 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
                 AssertStreamsAreIdentical(expected, streamedEvents);
             }
 
+        }
+
+        protected static WindsorContainer CreateContainerForEventStoreType(IEventMigration[] migrations, Type eventStoreType)
+        {
+            var container = new WindsorContainer();
+
+            container.ConfigureWiringForTestsCallBeforeAllOtherWiring();
+
+            container.Register(
+                Component.For<IServiceBus>()
+                         .ImplementedBy<SynchronousBus>()
+                         .LifestylePerWebRequest(),
+                Component.For<IEnumerable<IEventMigration>>()
+                         .UsingFactoryMethod(() => migrations)
+                         .LifestylePerWebRequest(),
+                SelectLifeStyle(
+                    Component.For<IEventStore>()
+                             .ImplementedBy(eventStoreType)
+                             .DependsOn(Dependency.OnValue<string>(ConnectionString))),
+                Component.For<IEventStoreSession, IUnitOfWorkParticipant>()
+                         .ImplementedBy<EventStoreSession>()
+                         .LifestylePerWebRequest(),
+                Component.For<IWindsorContainer>().Instance(container)
+                );
+
+            container.ConfigureWiringForTestsCallAfterAllOtherWiring();
+            return container;
         }
         private static IRegistration SelectLifeStyle(ComponentRegistration<IEventStore> dependsOn)
         {

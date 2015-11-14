@@ -179,7 +179,7 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
                     }
                 });
 
-            migratedHistory.ShouldAllBeEquivalentTo(
+            migratedHistory.Cast<AggregateRootEvent>().ShouldAllBeEquivalentTo(
                 expected,
                 config => config.RespectingRuntimeTypes()
                                 .WithStrictOrdering()

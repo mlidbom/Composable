@@ -31,7 +31,7 @@ FROM {EventTable.Name} With(UPDLOCK, READCOMMITTED, ROWLOCK) ";
             _schemaManager = schemaManager;
         }
 
-        private IAggregateRootEvent Read(SqlDataReader eventReader)
+        private AggregateRootEvent Read(SqlDataReader eventReader)
         {
             var @event = (AggregateRootEvent)EventSerializer.Deserialize( eventType: EventTypeToIdMapper.GetType(eventReader.GetInt32(0)) , eventData: eventReader.GetString(1));
             @event.AggregateRootId = eventReader.GetGuid(2);
@@ -44,11 +44,12 @@ FROM {EventTable.Name} With(UPDLOCK, READCOMMITTED, ROWLOCK) ";
             @event.Replaces = eventReader[9] as long?;
             @event.InsertedVersion = eventReader.GetInt32(10);
             @event.ManualVersion = eventReader[11] as int?;
+            @event.EffectiveVersion = eventReader[3] as int?;
 
             return @event;
         }
 
-        public IEnumerable<IAggregateRootEvent> GetAggregateHistory(Guid aggregateId, int startAfterVersion = 0, bool suppressTransactionWarning = false)
+        public IEnumerable<AggregateRootEvent> GetAggregateHistory(Guid aggregateId, int startAfterVersion = 0, bool suppressTransactionWarning = false)
         {
             using(var connection = _connectionMananger.OpenConnection(suppressTransactionWarning: suppressTransactionWarning))
             {
@@ -76,7 +77,7 @@ FROM {EventTable.Name} With(UPDLOCK, READCOMMITTED, ROWLOCK) ";
             }
         }
 
-        public IEnumerable<IAggregateRootEvent> StreamEvents(int batchSize)
+        public IEnumerable<AggregateRootEvent> StreamEvents(int batchSize)
         {
             GarbageCollectPersistedMigrations();
             SqlDecimal lastReadEventReadOrder = 0;

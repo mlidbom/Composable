@@ -34,7 +34,7 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
             {
                 if (@event.GetType() == typeof(TEvent) && _seenEventTypes.Last() != _insert.Last())
                 {
-                    modifier.InsertBefore(_insert.Select(Activator.CreateInstance).Cast<IAggregateRootEvent>().ToList());
+                    modifier.InsertBefore(_insert.Select(Activator.CreateInstance).Cast<AggregateRootEvent>().ToList());
                 }
 
                 _seenEventTypes.Add(@event.GetType());

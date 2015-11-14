@@ -72,12 +72,12 @@ namespace Composable.CQRS.EventSourcing.SQLServer
             return migratedAggregateHistory;
         }
 
-        private static IReadOnlyList<IAggregateRootEvent> ApplyOldMigrations(IReadOnlyList<IAggregateRootEvent> events)
+        private static IReadOnlyList<AggregateRootEvent> ApplyOldMigrations(IReadOnlyList<AggregateRootEvent> events)
         {
-            var mutatedHistory = events.Cast<AggregateRootEvent>().OrderBy(@event => @event.InsertionOrder).ToList();
+            var mutatedHistory = events.OrderBy(@event => @event.InsertionOrder).ToList();
             var mutations = mutatedHistory.Where(IsRefactoringEvent).ToList();
 
-            IAggregateRootEvent mutation;
+            AggregateRootEvent mutation;
             while ((mutation = mutations.FirstOrDefault()) != null)
             {
                 if(mutation.Replaces.HasValue)
@@ -117,7 +117,7 @@ namespace Composable.CQRS.EventSourcing.SQLServer
             return mutatedHistory;
         }
 
-        private static bool IsRefactoringEvent(IAggregateRootEvent @event)
+        private static bool IsRefactoringEvent(AggregateRootEvent @event)
         {
             return @event.InsertAfter != null || @event.InsertBefore != null || @event.Replaces != null;
         }
@@ -141,7 +141,7 @@ namespace Composable.CQRS.EventSourcing.SQLServer
             _schemaManager.SetupSchemaIfDatabaseUnInitialized();
             events = events.ToList();
             _aggregatesWithEventsAddedByThisInstance.AddRange(events.Select(e => e.AggregateRootId));
-            _eventWriter.Insert(events);
+            _eventWriter.Insert(events.Cast<AggregateRootEvent>());
         }
 
         public void DeleteEvents(Guid aggregateId)

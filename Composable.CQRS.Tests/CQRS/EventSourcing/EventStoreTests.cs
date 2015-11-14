@@ -216,10 +216,10 @@ namespace CQRS.Tests.CQRS.EventSourcing
                     store2NewStoreEvents = store2.GetAggregateHistory(aggregateId);
                 }
 
-                store1Events.ShouldAllBeEquivalentTo(aggregate1Events, config  => config.Excluding(e => e.InsertionOrder).Excluding(e => e.InsertedVersion).WithStrictOrdering());
-                store2Events.ShouldAllBeEquivalentTo(aggregate2Events, config => config.Excluding(e => e.InsertionOrder).Excluding(e => e.InsertedVersion).WithStrictOrdering());
-                store1NewStoreEvents.ShouldAllBeEquivalentTo(aggregate1Events, config => config.Excluding(e => e.InsertionOrder).Excluding(e => e.InsertedVersion).WithStrictOrdering());
-                store2NewStoreEvents.ShouldAllBeEquivalentTo(aggregate2Events, config => config.Excluding(e => e.InsertionOrder).Excluding(e => e.InsertedVersion).WithStrictOrdering());
+                store1Events.ShouldAllBeEquivalentTo(aggregate1Events, config  => config.WithStrictOrdering());
+                store2Events.ShouldAllBeEquivalentTo(aggregate2Events, config => config.WithStrictOrdering());
+                store1NewStoreEvents.ShouldAllBeEquivalentTo(aggregate1Events, config => config.WithStrictOrdering());
+                store2NewStoreEvents.ShouldAllBeEquivalentTo(aggregate2Events, config => config.WithStrictOrdering());
 
             }
             catch(Exception)

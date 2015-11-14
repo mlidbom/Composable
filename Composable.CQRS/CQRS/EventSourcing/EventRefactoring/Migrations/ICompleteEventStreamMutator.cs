@@ -5,6 +5,6 @@ namespace Composable.CQRS.EventSourcing.EventRefactoring.Migrations
 {
     internal interface ICompleteEventStreamMutator
     {
-        IEnumerable<IAggregateRootEvent> Mutate(IEnumerable<IAggregateRootEvent> eventStream);
+        IEnumerable<AggregateRootEvent> Mutate(IEnumerable<AggregateRootEvent> eventStream);
     }
 }

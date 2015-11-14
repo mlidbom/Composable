@@ -12,7 +12,7 @@ namespace Composable.CQRS.EventSourcing
     {
         private IReadOnlyList<IEventMigration> _migrationFactories;
 
-        private IList<IAggregateRootEvent> _events = new List<IAggregateRootEvent>();
+        private IList<AggregateRootEvent> _events = new List<AggregateRootEvent>();
         private int InsertionOrder;
 
         public void Dispose()
@@ -39,7 +39,7 @@ namespace Composable.CQRS.EventSourcing
         {
             lock(_lockObject)
             {
-                events.ForEach(
+                events.Cast<AggregateRootEvent>().ForEach(
                     @event =>
                     {
                         ((AggregateRootEvent)@event).InsertionOrder = ++InsertionOrder;
@@ -72,7 +72,7 @@ namespace Composable.CQRS.EventSourcing
             }
         }
 
-        public void PersistMigrations() { _events = StreamEvents().ToList(); }
+        public void PersistMigrations() { _events = StreamEvents().Cast<AggregateRootEvent>().ToList(); }
 
         public IEnumerable<Guid> StreamAggregateIdsInCreationOrder(Type eventBaseType = null)
         {
@@ -93,7 +93,7 @@ namespace Composable.CQRS.EventSourcing
         {
             lock(_lockObject)
             {
-                _events = new List<IAggregateRootEvent>();
+                _events = new List<AggregateRootEvent>();
             }
         }
 

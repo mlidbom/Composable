@@ -5,6 +5,7 @@ namespace Composable.CQRS.EventSourcing.SQLServer
         public string UpdateManualReadOrderValuesSql => $@"
 set nocount on
 
+declare @{EventTable.Columns.InsertionOrder} bigint
 declare @{EventTable.Columns.InsertBefore} bigint
 declare @{EventTable.Columns.InsertAfter} bigint
 declare @{EventTable.Columns.Replaces} bigint
@@ -19,10 +20,11 @@ set @Done = 0
 
 WHILE @Done = 0
 begin
+    set @{EventTable.Columns.InsertionOrder} = null
     set @{EventTable.Columns.InsertAfter} = null
     set @{EventTable.Columns.InsertBefore} = null
     set @{EventTable.Columns.Replaces} = null
-    select top 1 @{EventTable.Columns.InsertAfter} = {EventTable.Columns.InsertAfter},  @{EventTable.Columns.InsertBefore} = {EventTable.Columns.InsertBefore}, @{EventTable.Columns.Replaces} = {EventTable.Columns.Replaces}
+    select top 1 @{EventTable.Columns.InsertAfter} = {EventTable.Columns.InsertAfter},  @{EventTable.Columns.InsertBefore} = {EventTable.Columns.InsertBefore}, @{EventTable.Columns.Replaces} = {EventTable.Columns.Replaces}, @{EventTable.Columns.InsertionOrder} = {EventTable.Columns.InsertionOrder}
     from {Name} where {EventTable.Columns.EffectiveReadOrder} is null
     order by {EventTable.Columns.InsertionOrder} asc
 
@@ -34,8 +36,15 @@ begin
 
             if @AfterReadOrder is null
             begin
-                set @Error = 'Failed to find AfterReadOrder during replacement of {EventTable.Columns.InsertionOrder}: ' + cast(@{EventTable.Columns.Replaces} as nvarchar) + ' you are probably trying to replace the last event in the event store. That is not supported.'
-                break
+                if (select max({EventTable.Columns.InsertionOrder}) from {Name} where {EventTable.Columns.Replaces} = @{EventTable.Columns.Replaces}) = (select max({EventTable.Columns.InsertionOrder}) from {Name}) --There are no other events in the whole store after the replaced event, except for the replacing events.
+                begin 
+                    set @AfterReadOrder = (select max({EventTable.Columns.InsertionOrder}) from {Name} where {EventTable.Columns.Replaces} = @{EventTable.Columns.Replaces})
+                end 
+                else
+                begin
+                    set @Error = 'Failed to find AfterReadOrder during replacement of {EventTable.Columns.InsertionOrder}: ' + cast(@{EventTable.Columns.Replaces} as nvarchar)
+                    break
+                end
             end
            
             set @AvailableSpaceBetwenReadOrders = @AfterReadOrder - @BeforeReadOrder
@@ -62,7 +71,7 @@ begin
             select top 1 @AfterReadOrder = {EventTable.Columns.EffectiveReadOrder} from {Name} where {EventTable.Columns.EffectiveReadOrder} > @BeforeReadOrder and ({EventTable.Columns.InsertAfter} is null or {EventTable.Columns.InsertAfter} != @{EventTable.Columns.InsertAfter}) order by {EventTable.Columns.EffectiveReadOrder}
             if @AfterReadOrder is null
             begin 
-                set @Error = 'Failed to find AfterReadOrder inserting events after {EventTable.Columns.InsertionOrder}: ' + cast(@{EventTable.Columns.InsertAfter} as nvarchar) + ' you are probably trying to insert after the last event in the event store. That is not supported.'
+                set @Error = 'Failed to find AfterReadOrder inserting events after {EventTable.Columns.InsertionOrder}: ' + cast(@{EventTable.Columns.InsertAfter} as nvarchar) + ' you are probably trying to insert after the last event in the event store. That is not supported. It is equivalent to just inserting a normal event, so just do that :)'
                 break
             end
 

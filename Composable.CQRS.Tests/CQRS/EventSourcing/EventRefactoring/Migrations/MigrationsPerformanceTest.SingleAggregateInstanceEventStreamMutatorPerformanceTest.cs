@@ -33,10 +33,10 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
         public void With_four_migrations_mutation_takes_less_than_200_milliseconds()
         {
             var eventMigrations = Seq.Create<IEventMigration>(
-                BeforeEventType<E6>.Insert<E2>(),
-                BeforeEventType<E7>.Insert<E3>(),
-                BeforeEventType<E8>.Insert<E4>(),
-                BeforeEventType<E9>.Insert<E5>()
+                Before<E6>.Insert<E2>(),
+                Before<E7>.Insert<E3>(),
+                Before<E8>.Insert<E4>(),
+                Before<E9>.Insert<E5>()
                 ).ToArray();
 
             TimeAsserter.Execute(

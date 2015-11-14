@@ -55,6 +55,13 @@ namespace Composable.CQRS.EventSourcing.EventRefactoring.Migrations
             return newHistory;
         }
 
+        public IEnumerable<AggregateRootEvent> EndOfAggregate()
+        {
+            return Seq.Create(new EventStreamEndedEvent(_aggregateId, AggregateVersion))
+                .SelectMany(Mutate)
+                .Where(@event => @event.GetType() != typeof(EventStreamEndedEvent));
+        }
+
         public static IReadOnlyList<AggregateRootEvent> MutateCompleteAggregateHistory
             (IReadOnlyList<IEventMigration> eventMigrations,
              IReadOnlyList<AggregateRootEvent> @events,
@@ -75,11 +82,13 @@ namespace Composable.CQRS.EventSourcing.EventRefactoring.Migrations
                 .SelectMany(mutator.Mutate)
                 .Concat(mutator.EndOfAggregate())
                 .ToList();
-        }        
+        }              
+    }
 
-        public IEnumerable<AggregateRootEvent> EndOfAggregate()
+    internal class EventStreamEndedEvent : AggregateRootEvent {
+        public EventStreamEndedEvent(Guid aggregateId, int i):base(aggregateId)
         {
-            return _eventMigrations.SelectMany(eventMigration => eventMigration.EndOfAggregateHistoryReached().Cast<AggregateRootEvent>());
-        }        
+            AggregateRootVersion = i;
+        }
     }
 }

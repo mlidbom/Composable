@@ -181,12 +181,13 @@
     <Compile Include="Command\WhenExecutingIDomainCommand.cs" />
     <Compile Include="CQRS\CommandHandlerBaseTests.cs" />
     <Compile Include="CQRS\EventSourcing\AggregateRootTests.cs" />
-    <Compile Include="CQRS\EventSourcing\EventRefactoring\Migrations\BeforeEventType.cs" />
+    <Compile Include="CQRS\EventSourcing\EventRefactoring\Migrations\After.cs" />
+    <Compile Include="CQRS\EventSourcing\EventRefactoring\Migrations\Before.cs" />
     <Compile Include="CQRS\EventSourcing\EventRefactoring\Migrations\EventStreamMutatorTests.cs" />
     <Compile Include="CQRS\EventSourcing\EventRefactoring\Migrations\EventStreamMutatorTestsBase.cs" />
     <Compile Include="CQRS\EventSourcing\EventRefactoring\Migrations\MigrationsPerformanceTest.SingleAggregateInstanceEventStreamMutatorPerformanceTest.cs" />
     <Compile Include="CQRS\EventSourcing\EventRefactoring\Migrations\MigrationsPerformanceTest.InMemory.cs" />
-    <Compile Include="CQRS\EventSourcing\EventRefactoring\Migrations\ReplaceEventType.cs" />
+    <Compile Include="CQRS\EventSourcing\EventRefactoring\Migrations\Replace.cs" />
     <Compile Include="CQRS\EventSourcing\EventRefactoring\Migrations\MigrationsPerformanceTest.SqlServer.cs" />
     <Compile Include="CQRS\EventSourcing\EventRefactoring\Migrations\TestAggregate.cs" />
     <Compile Include="CQRS\EventSourcing\EventRefactoring\Migrations\TimeAsserter.cs" />

@@ -8,15 +8,15 @@ using TestAggregates;
 
 namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
 {
-    public class ReplaceEventType<TEvent> : EventMigration<IRootEvent>
+    public class Replace<TEvent> : EventMigration<IRootEvent>
     {
         private readonly IEnumerable<Type> _replaceWith;
 
-        public static ReplaceEventType<TEvent> With<T1>() => new ReplaceEventType<TEvent>(Seq.OfTypes<T1>());
-        public static ReplaceEventType<TEvent> With<T1, T2>() => new ReplaceEventType<TEvent>(Seq.OfTypes<T1, T2>());
-        public static ReplaceEventType<TEvent> With<T1, T2, T3>() => new ReplaceEventType<TEvent>(Seq.OfTypes<T1, T2, T3>());
+        public static Replace<TEvent> With<T1>() => new Replace<TEvent>(Seq.OfTypes<T1>());
+        public static Replace<TEvent> With<T1, T2>() => new Replace<TEvent>(Seq.OfTypes<T1, T2>());
+        public static Replace<TEvent> With<T1, T2, T3>() => new Replace<TEvent>(Seq.OfTypes<T1, T2, T3>());
 
-        private ReplaceEventType(IEnumerable<Type> replaceWith) { _replaceWith = replaceWith; }
+        private Replace(IEnumerable<Type> replaceWith) { _replaceWith = replaceWith; }
 
         public override ISingleAggregateInstanceEventMigrator CreateMigrator() { return new Migrator(_replaceWith); }
 
@@ -25,8 +25,6 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
             private readonly IEnumerable<Type> _replaceWith;
 
             public Migrator(IEnumerable<Type> replaceWith) { _replaceWith = replaceWith; }
-
-            public IEnumerable<IAggregateRootEvent> EndOfAggregateHistoryReached() => Seq.Empty<IAggregateRootEvent>();
 
             public void MigrateEvent(IAggregateRootEvent @event, IEventModifier modifier)
             {

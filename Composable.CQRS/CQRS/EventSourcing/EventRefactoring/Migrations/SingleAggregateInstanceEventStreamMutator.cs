@@ -55,7 +55,7 @@ namespace Composable.CQRS.EventSourcing.EventRefactoring.Migrations
             return newHistory;
         }
 
-        public static IEnumerable<AggregateRootEvent> MutateCompleteAggregateHistory
+        public static IReadOnlyList<AggregateRootEvent> MutateCompleteAggregateHistory
             (IReadOnlyList<IEventMigration> eventMigrations,
              IReadOnlyList<AggregateRootEvent> @events,
              Action<IReadOnlyList<AggregateRootEvent>> eventsAddedCallback = null)
@@ -67,7 +67,7 @@ namespace Composable.CQRS.EventSourcing.EventRefactoring.Migrations
 
             if(@events.None())
             {
-                return Seq.Empty<AggregateRootEvent>();
+                return Seq.Empty<AggregateRootEvent>().ToList();
             }
 
             var mutator = Create(@events.First(), eventMigrations, eventsAddedCallback);

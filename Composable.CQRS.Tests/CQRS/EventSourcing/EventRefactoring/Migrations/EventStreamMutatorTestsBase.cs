@@ -62,18 +62,25 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
             Console.WriteLine($"###############$$$$$$$Running scenario with {eventStoreType}");
 
             var initialAggregate = TestAggregate.FromEvents(aggregateId, originalHistory);
-
-            container.ExecuteUnitOfWorkInIsolatedScope(() => container.Resolve<IEventStoreSession>().Save(initialAggregate));
-            var migratedHistory = container.ExecuteUnitOfWorkInIsolatedScope(() => container.Resolve<IEventStoreSession>().Get<TestAggregate>(initialAggregate.Id)).History;
-
             var expected = TestAggregate.FromEvents(aggregateId, expectedHistory).History.ToList();
 
-            AssertStreamsAreIdentical(expected, migratedHistory);
+            Console.WriteLine("Doing pure in memory ");
+            var initialAggregate2 = TestAggregate.FromEvents(aggregateId, originalHistory);
+            IReadOnlyList<IAggregateRootEvent> otherHistory = SingleAggregateInstanceEventStreamMutator.MutateCompleteAggregateHistory(
+                migrations,
+                initialAggregate2.History.Cast<AggregateRootEvent>().ToList());
+
+            AssertStreamsAreIdentical(expected, otherHistory, $"Direct call to SingleAggregateInstanceEventStreamMutator.MutateCompleteAggregateHistory");
+
+            container.ExecuteUnitOfWorkInIsolatedScope(() => container.Resolve<IEventStoreSession>().Save(initialAggregate));
+            var migratedHistory = container.ExecuteUnitOfWorkInIsolatedScope(() => container.Resolve<IEventStoreSession>().Get<TestAggregate>(initialAggregate.Id)).History;            
+
+            AssertStreamsAreIdentical(expected, migratedHistory, "Loaded aggregate");
+
 
             Console.WriteLine("  Streaming all events in store");
             var streamedEvents = container.ExecuteUnitOfWorkInIsolatedScope(() => container.Resolve<IEventStore>().StreamEvents().ToList());
-
-            AssertStreamsAreIdentical(expected, streamedEvents);
+            AssertStreamsAreIdentical(expected, streamedEvents, "Streaming all events in store");
 
 
             Console.WriteLine("  Persisting migrations");
@@ -82,15 +89,12 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
                 container.Resolve<IEventStore>().PersistMigrations();
             }
 
-
             migratedHistory = container.ExecuteUnitOfWorkInIsolatedScope(() => container.Resolve<IEventStoreSession>().Get<TestAggregate>(initialAggregate.Id)).History;            
-
-            AssertStreamsAreIdentical(expected, migratedHistory);
+            AssertStreamsAreIdentical(expected, migratedHistory, "Loaded aggregate");
 
             Console.WriteLine("Streaming all events in store");
             streamedEvents = container.ExecuteUnitOfWorkInIsolatedScope(() => container.Resolve<IEventStore>().StreamEvents().ToList());
-
-            AssertStreamsAreIdentical(expected, streamedEvents);
+            AssertStreamsAreIdentical(expected, streamedEvents, "Streaming all events in store");
 
 
             Console.WriteLine("  Disable all migrations so that none are used when reading from the event stores");
@@ -101,27 +105,22 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
             }
 
             migratedHistory = container.ExecuteUnitOfWorkInIsolatedScope(() => container.Resolve<IEventStoreSession>().Get<TestAggregate>(initialAggregate.Id)).History;
-
-            AssertStreamsAreIdentical(expected, migratedHistory);
+            AssertStreamsAreIdentical(expected, migratedHistory, "loaded aggregate");
 
             Console.WriteLine("Streaming all events in store");
             streamedEvents = container.ExecuteUnitOfWorkInIsolatedScope(() => container.Resolve<IEventStore>().StreamEvents().ToList());
-
-            AssertStreamsAreIdentical(expected, streamedEvents);
+            AssertStreamsAreIdentical(expected, streamedEvents, "Streaming all events in store");
 
             if(eventStoreType == typeof(SqlServerEventStore))
             {
                 Console.WriteLine("Clearing sql server eventstore cache");
                 container.ExecuteUnitOfWorkInIsolatedScope(() => ((SqlServerEventStore)container.Resolve<IEventStore>()).ClearCache());
-
                 migratedHistory = container.ExecuteUnitOfWorkInIsolatedScope(() => container.Resolve<IEventStoreSession>().Get<TestAggregate>(initialAggregate.Id)).History;
-
-                AssertStreamsAreIdentical(expected, migratedHistory);
+                AssertStreamsAreIdentical(expected, migratedHistory, "Loaded aggregate");
 
                 Console.WriteLine("Streaming all events in store");
                 streamedEvents = container.ExecuteUnitOfWorkInIsolatedScope(() => container.Resolve<IEventStore>().StreamEvents().ToList());
-
-                AssertStreamsAreIdentical(expected, streamedEvents);
+                AssertStreamsAreIdentical(expected, streamedEvents, "Streaming all events in store");
             }
 
         }
@@ -167,37 +166,46 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
             throw new Exception($"Unsupported type of event store {dependsOn.Implementation}");
         }
 
-        private static void AssertStreamsAreIdentical(List<IAggregateRootEvent> expected, IReadOnlyList<IAggregateRootEvent> migratedHistory)
+        private static void AssertStreamsAreIdentical(List<IAggregateRootEvent> expected, IReadOnlyList<IAggregateRootEvent> migratedHistory, string descriptionOfHistory)
         {
-            Console.WriteLine($"   Expected: ");
-            expected.ForEach(e => Console.WriteLine($"      {e}"));
-            Console.WriteLine($"\n   Actual: ");
-            migratedHistory.ForEach(e => Console.WriteLine($"      {e}"));
-            Console.WriteLine("\n");
 
-            expected.ForEach(
-                (@event, index) =>
-                {
-                    if(@event.GetType() != migratedHistory[index].GetType())
+            try
+            {
+                migratedHistory.Cast<AggregateRootEvent>().ShouldAllBeEquivalentTo(
+                    expected,
+                    config => config.RespectingRuntimeTypes()
+                                    .WithStrictOrdering()
+                                    .Excluding(@event => @event.EventId)
+                                    .Excluding(@event => @event.TimeStamp)
+                                    .Excluding(@event => @event.InsertionOrder)
+                                    .Excluding(@event => @event.InsertAfter)
+                                    .Excluding(@event => @event.InsertBefore)
+                                    .Excluding(@event => @event.Replaces)
+                                    .Excluding(@event => @event.InsertedVersion)
+                                    .Excluding(@event => @event.ManualVersion)
+                                    .Excluding(@event => @event.EffectiveVersion));
+            }
+            catch(Exception)
+            {
+                Console.WriteLine($"   Failed comparing with {descriptionOfHistory}");
+                Console.WriteLine($"   Expected: ");
+                expected.ForEach(e => Console.WriteLine($"      {e}"));
+                Console.WriteLine($"\n   Actual: ");
+                migratedHistory.ForEach(e => Console.WriteLine($"      {e}"));
+                Console.WriteLine("\n");
+
+                expected.ForEach(
+                    (@event, index) =>
                     {
-                        Assert.Fail(
-                            $"Expected event at postion {index} to be of type {@event.GetType()} but it was of type: {migratedHistory[index].GetType()}");
-                    }
-                });
+                        if (@event.GetType() != migratedHistory[index].GetType())
+                        {
+                            Assert.Fail(
+                                $"Expected event at postion {index} to be of type {@event.GetType()} but it was of type: {migratedHistory[index].GetType()}");
+                        }
+                    });
 
-            migratedHistory.Cast<AggregateRootEvent>().ShouldAllBeEquivalentTo(
-                expected,
-                config => config.RespectingRuntimeTypes()
-                                .WithStrictOrdering()
-                                .Excluding(@event => @event.EventId)
-                                .Excluding(@event => @event.TimeStamp)
-                                .Excluding(@event => @event.InsertionOrder)
-                                .Excluding(@event => @event.InsertAfter)
-                                .Excluding(@event => @event.InsertBefore)
-                                .Excluding(@event => @event.Replaces)
-                                .Excluding(@event => @event.InsertedVersion)
-                                .Excluding(@event => @event.ManualVersion)
-                                .Excluding(@event => @event.EffectiveVersion));
+                throw;
+            }
         }
     }
 }

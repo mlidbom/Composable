@@ -46,7 +46,7 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
                 Replace<E1>.With<E2>());
         }
 
-        [Test,Ignore("Replacing the last event in the event store is not currently supported...")]
+        [Test]
         public void Replacing_E1_with_E2_at_end_of_stream()
         {
             RunMigrationTest(

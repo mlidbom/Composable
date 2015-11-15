@@ -26,7 +26,7 @@ namespace CQRS.Tests.CQRS.EventSourcing.Sql
         [Test]
         public void PrintCreateReadOrdersSql()
         {
-            Console.WriteLine(new EventTableSchemaManager().UpdateManualReadOrderValuesSql);
+            Console.WriteLine(SqlServerEventStore.EnsurePersistedMigrationsHaveConsistentReadOrdersAndEffectiveVersionsSql);
         }
 
         [Test]

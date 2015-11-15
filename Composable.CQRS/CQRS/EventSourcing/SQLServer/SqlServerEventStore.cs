@@ -16,7 +16,7 @@ using log4net;
 
 namespace Composable.CQRS.EventSourcing.SQLServer
 {
-    public class SqlServerEventStore : IEventStore
+    public partial class SqlServerEventStore : IEventStore
     {               
         private static readonly ILog Log = LogManager.GetLogger(typeof(SqlServerEventStore));        
 
@@ -29,6 +29,9 @@ namespace Composable.CQRS.EventSourcing.SQLServer
         private readonly SqlServerEventStoreSchemaManager _schemaManager;
         private readonly IReadOnlyList<IEventMigration> _migrationFactories;
 
+        private readonly HashSet<Guid> _aggregatesWithEventsAddedByThisInstance = new HashSet<Guid>();
+        private readonly SqlServerEventStoreConnectionManager _connectionMananger;
+
         public SqlServerEventStore(string connectionString, ISingleContextUseGuard usageGuard, IEventNameMapper nameMapper = null, IEnumerable<IEventMigration> migrationFactories = null)
         {
             Log.Debug("Constructor called");
@@ -40,10 +43,10 @@ namespace Composable.CQRS.EventSourcing.SQLServer
             _usageGuard = usageGuard;
             var eventSerializer = new SqlServerEvestStoreEventSerializer();            
             _cache = SqlServerEventStoreEventsCache.ForConnectionString(connectionString);
-            var connectionMananger = new SqlServerEventStoreConnectionManager(connectionString);
+            _connectionMananger = new SqlServerEventStoreConnectionManager(connectionString);
             _schemaManager = new SqlServerEventStoreSchemaManager(connectionString, nameMapper);
-            _eventReader = new SqlServerEventStoreEventReader(connectionMananger, _schemaManager);
-            _eventWriter = new SqlServerEventStoreEventWriter(connectionMananger, eventSerializer, _schemaManager);
+            _eventReader = new SqlServerEventStoreEventReader(_connectionMananger, _schemaManager);
+            _eventWriter = new SqlServerEventStoreEventWriter(_connectionMananger, eventSerializer, _schemaManager);
         }
 
 
@@ -129,12 +132,12 @@ namespace Composable.CQRS.EventSourcing.SQLServer
             _usageGuard.AssertNoContextChangeOccurred(this);
             _schemaManager.SetupSchemaIfDatabaseUnInitialized();
 
+            EnsurePersistedMigrationsHaveConsistentReadOrdersAndEffectiveVersions();
+
             var streamMutator = CompleteEventStoreStreamMutator.Create(_migrationFactories);
             return streamMutator.Mutate(_eventReader.StreamEvents(StreamEventsBatchSize));
         }
 
-
-        private readonly HashSet<Guid> _aggregatesWithEventsAddedByThisInstance = new HashSet<Guid>(); 
         public void SaveEvents(IEnumerable<IAggregateRootEvent> events)
         {
             _usageGuard.AssertNoContextChangeOccurred(this);
@@ -191,6 +194,8 @@ namespace Composable.CQRS.EventSourcing.SQLServer
 
             this.Log().Info($"Aggregates: {migratedAggregates}, Updated: {updatedAggregates}, New Events: {newEventCount}");
 
+            EnsurePersistedMigrationsHaveConsistentReadOrdersAndEffectiveVersions();
+
             this.Log().Warn($"Done persisting migrations.");
         }
 
@@ -200,8 +205,24 @@ namespace Composable.CQRS.EventSourcing.SQLServer
             Contract.Requires(eventBaseType == null || (eventBaseType.IsInterface && typeof(IAggregateRootEvent).IsAssignableFrom(eventBaseType)));
 
             _schemaManager.SetupSchemaIfDatabaseUnInitialized();
+
+            EnsurePersistedMigrationsHaveConsistentReadOrdersAndEffectiveVersions();
             return _eventReader.StreamAggregateIdsInCreationOrder(eventBaseType);
-        }        
+        }
+
+        private void EnsurePersistedMigrationsHaveConsistentReadOrdersAndEffectiveVersions()
+        {
+            this.Log().Debug("EnsurePersistedMigrationsHaveConsistentReadOrdersAndEffectiveVersions: Starting");
+
+            _connectionMananger.UseCommand(
+                command =>
+                {
+                    command.CommandText = EnsurePersistedMigrationsHaveConsistentReadOrdersAndEffectiveVersionsSql;
+                    command.ExecuteNonQuery();
+                });
+
+            this.Log().Debug("EnsurePersistedMigrationsHaveConsistentReadOrdersAndEffectiveVersions: Done");
+        }
 
         public static void ResetDB(string connectionString)
         {

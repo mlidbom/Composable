@@ -79,7 +79,6 @@ FROM {EventTable.Name} With(UPDLOCK, READCOMMITTED, ROWLOCK) ";
 
         public IEnumerable<AggregateRootEvent> StreamEvents(int batchSize)
         {
-            GarbageCollectPersistedMigrations();
             SqlDecimal lastReadEventReadOrder = 0;
             using(var connection = _connectionMananger.OpenConnection())
             {
@@ -108,25 +107,10 @@ FROM {EventTable.Name} With(UPDLOCK, READCOMMITTED, ROWLOCK) ";
                     }
                 }
             }
-        }
-
-        private void GarbageCollectPersistedMigrations()
-        {
-            this.Log().Debug("Garbage collect persisted migrations: Starting");
-
-            _connectionMananger.UseCommand(
-                command =>
-                {
-                    command.CommandText = new EventTableSchemaManager().UpdateManualReadOrderValuesSql;
-                    command.ExecuteNonQuery();
-                });
-
-            this.Log().Debug("Garbage collect persisted migrations: Done");
-        }       
+        }   
 
         public IEnumerable<Guid> StreamAggregateIdsInCreationOrder(Type eventBaseType = null)
         {
-            GarbageCollectPersistedMigrations();
             using (var connection = _connectionMananger.OpenConnection())
             {
                 using (var loadCommand = connection.CreateCommand())

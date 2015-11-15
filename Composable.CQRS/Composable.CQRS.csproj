@@ -134,7 +134,6 @@
     <Compile Include="CQRS\Command\CompositeCommand.cs" />
     <Compile Include="CQRS\Command\DomainCommandValidationException.cs" />
     <Compile Include="CQRS\Command\GlobalValidationFailure.cs" />
-    <Compile Include="CQRS\Command\ForwardToEntityCommandHandler.cs" />
     <Compile Include="CQRS\Command\ICommand.cs" />
     <Compile Include="CQRS\Command\ICommandFailedResponse.cs" />
     <Compile Include="CQRS\Command\ICommandHandler.cs" />

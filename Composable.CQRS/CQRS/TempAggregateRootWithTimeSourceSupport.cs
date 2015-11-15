@@ -4,9 +4,10 @@ using Composable.GenericAbstractions.Time;
 
 namespace Composable.CQRS
 {
-    public abstract class TempAggregateRootWithTimeSourceSupport<TEntity, TBaseEvent> : AggregateRoot<TEntity, TBaseEvent>
-        where TEntity : AggregateRoot<TEntity, TBaseEvent>
-        where TBaseEvent : IAggregateRootEvent
+    public abstract class TempAggregateRootWithTimeSourceSupport<TEntity, TBaseEventClass, TBaseEventInterface> : AggregateRoot<TEntity, TBaseEventClass, TBaseEventInterface>
+        where TEntity : TempAggregateRootWithTimeSourceSupport<TEntity, TBaseEventClass, TBaseEventInterface>
+        where TBaseEventInterface : IAggregateRootEvent
+        where TBaseEventClass : AggregateRootEvent, TBaseEventInterface
     {
         protected internal ITimeSource TimeSource { get; set; }
 
@@ -21,9 +22,9 @@ namespace Composable.CQRS
             TimeSource = timeSource;
         }
 
-        new protected void RaiseEvent(TBaseEvent @event)
+        new protected void RaiseEvent(TBaseEventClass @event)
         {
-            ((AggregateRootEvent)(object)@event).TimeStamp = TimeSource.LocalNow;
+            @event.TimeStamp = TimeSource.LocalNow;
             base.RaiseEvent(@event);
         }
     }

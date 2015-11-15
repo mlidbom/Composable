@@ -54,9 +54,9 @@ namespace TestAggregates
     }
 
 
-    public class TestAggregate : AggregateRoot<TestAggregate, IRootEvent>
+    public class TestAggregate : AggregateRoot<TestAggregate, RootEvent, IRootEvent>
     {
-        public void RaiseEvents(params IRootEvent[] events)
+        public void RaiseEvents(params RootEvent[] events)
         {
             if (GetIdBypassContractValidation() == Guid.Empty && events.First().AggregateRootId == Guid.Empty)
             {
@@ -76,14 +76,14 @@ namespace TestAggregates
                 .For<IRootEvent>(e => _history.Add(e));
         }
 
-        public TestAggregate(params IRootEvent[] events):this()
+        public TestAggregate(params RootEvent[] events):this()
         {
             Contract.Requires(events.First() is IAggregateRootCreatedEvent);
 
             RaiseEvents(events);
         }
 
-        public static TestAggregate FromEvents(params IRootEvent[] events) { return new TestAggregate(events); }
+        public static TestAggregate FromEvents(params RootEvent[] events) { return new TestAggregate(events); }
         public static TestAggregate FromEvents(Guid? id, IEnumerable<Type> events)
         {
             var rootEvents = events.ToEvents();
@@ -120,9 +120,9 @@ namespace TestAggregates
 
     public static class EventSequenceGenerator
     {
-        public static IRootEvent[] ToEvents(this IEnumerable<Type> types)
+        public static RootEvent[] ToEvents(this IEnumerable<Type> types)
         {
-            return types.Select(type => (IRootEvent)Activator.CreateInstance(type)).ToArray();
+            return types.Select(Activator.CreateInstance).Cast<RootEvent>().ToArray();
         }
     }
 }

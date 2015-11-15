@@ -3,7 +3,7 @@ using Composable.CQRS.EventSourcing;
 
 namespace CQRS.Tests.CQRS.EventSourcing
 {
-    internal class User : AggregateRoot<User, IUserEvent>
+    internal class User : AggregateRoot<User,UserEvent, IUserEvent>
     {
         public string Email { get; private set; }
         public string Password { get; private set; }
@@ -39,11 +39,15 @@ namespace CQRS.Tests.CQRS.EventSourcing
 
 
     public interface IUserEvent : IAggregateRootEvent
+    {}
+
+    public abstract class UserEvent : AggregateRootEvent, IUserEvent
     {
-        
+        protected UserEvent() {}
+        protected UserEvent(Guid aggregateRootId) : base(aggregateRootId) {}
     }
 
-    public class UserChangedEmail : AggregateRootEvent, IUserEvent
+    public class UserChangedEmail : UserEvent, IUserEvent
     {
         public UserChangedEmail(string email)
         {
@@ -52,12 +56,12 @@ namespace CQRS.Tests.CQRS.EventSourcing
         public string Email { get; private set; }
     }
 
-    public class UserChangedPassword : AggregateRootEvent, IUserEvent
+    public class UserChangedPassword : UserEvent, IUserEvent
     {
         public string Password { get; set; }
     }
 
-    public class UserRegistered : AggregateRootEvent, IUserEvent, IAggregateRootCreatedEvent
+    public class UserRegistered : UserEvent, IAggregateRootCreatedEvent
     {
         public Guid UserId { get; set; }
         public string Email { get; set; }

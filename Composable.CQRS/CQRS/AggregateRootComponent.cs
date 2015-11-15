@@ -6,19 +6,21 @@ using Composable.GenericAbstractions.Time;
 
 namespace Composable.CQRS
 {
-    public abstract class AggregateRootComponent<TAggregateRoot, TBaseEvent, TAggregateRootBaseEvent>
-        where TBaseEvent : TAggregateRootBaseEvent
-        where TAggregateRoot : AggregateRoot<TAggregateRoot, TAggregateRootBaseEvent>
-        where TAggregateRootBaseEvent : IAggregateRootEvent
+    public abstract class AggregateRootComponent<TAggregateRoot, TComponentBaseEventClass, TComponentBaseEventInterface, TAggregateRootBaseEventClass, TAggregateRootBaseEventInterface>        
+        where TAggregateRoot : AggregateRoot<TAggregateRoot, TAggregateRootBaseEventClass, TAggregateRootBaseEventInterface>
+        where TAggregateRootBaseEventInterface : IAggregateRootEvent
+        where TAggregateRootBaseEventClass : AggregateRootEvent, TAggregateRootBaseEventInterface
+        where TComponentBaseEventInterface : TAggregateRootBaseEventInterface
+        where TComponentBaseEventClass : TAggregateRootBaseEventClass, TComponentBaseEventInterface
     {
-        private readonly Action<TBaseEvent> _raiseEvent;
+        private readonly Action<TComponentBaseEventClass> _raiseEvent;
         protected readonly Func<ITimeSource> TimeSourceFetcher;
-        private readonly CallMatchingHandlersInRegistrationOrderEventDispatcher<TBaseEvent> _eventAppliersEventDispatcher = new CallMatchingHandlersInRegistrationOrderEventDispatcher<TBaseEvent>();
-        private readonly CallMatchingHandlersInRegistrationOrderEventDispatcher<TBaseEvent> _eventHandlersEventDispatcher = new CallMatchingHandlersInRegistrationOrderEventDispatcher<TBaseEvent>();
+        private readonly CallMatchingHandlersInRegistrationOrderEventDispatcher<TComponentBaseEventClass> _eventAppliersEventDispatcher = new CallMatchingHandlersInRegistrationOrderEventDispatcher<TComponentBaseEventClass>();
+        private readonly CallMatchingHandlersInRegistrationOrderEventDispatcher<TComponentBaseEventClass> _eventHandlersEventDispatcher = new CallMatchingHandlersInRegistrationOrderEventDispatcher<TComponentBaseEventClass>();
 
         protected AggregateRootComponent(
             TAggregateRoot aggregateRoot,
-            Action<TBaseEvent> raiseEvent,
+            Action<TComponentBaseEventClass> raiseEvent,
             Func<ITimeSource> timeSourceFetcher)
         {
             Contract.Requires(aggregateRoot != null);
@@ -26,7 +28,7 @@ namespace Composable.CQRS
             Contract.Requires(timeSourceFetcher != null);
 
             _eventHandlersEventDispatcher.RegisterHandlers()
-                .IgnoreUnhandled<TBaseEvent>();
+                .IgnoreUnhandled<TComponentBaseEventClass>();
 
             AggregateRoot = aggregateRoot;
             _raiseEvent = raiseEvent;
@@ -36,23 +38,23 @@ namespace Composable.CQRS
         protected TAggregateRoot AggregateRoot { get; private set; }
         protected ITimeSource TimeSource => TimeSourceFetcher();
 
-        protected void ApplyEvent(TBaseEvent @event)
+        protected void ApplyEvent(TComponentBaseEventClass @event)
         {
             _eventAppliersEventDispatcher.Dispatch(@event);
         }
 
-        protected void RaiseEvent(TBaseEvent @event)
+        protected void RaiseEvent(TComponentBaseEventClass @event)
         {
             _raiseEvent(@event);
             _eventHandlersEventDispatcher.Dispatch(@event);
         }
 
-        protected CallMatchingHandlersInRegistrationOrderEventDispatcher<TBaseEvent>.RegistrationBuilder RegisterEventAppliers()
+        protected CallMatchingHandlersInRegistrationOrderEventDispatcher<TComponentBaseEventClass>.RegistrationBuilder RegisterEventAppliers()
         {
             return _eventAppliersEventDispatcher.RegisterHandlers();
         }
 
-        protected CallMatchingHandlersInRegistrationOrderEventDispatcher<TBaseEvent>.RegistrationBuilder RegisterEventHandlers()
+        protected CallMatchingHandlersInRegistrationOrderEventDispatcher<TComponentBaseEventClass>.RegistrationBuilder RegisterEventHandlers()
         {
             return _eventHandlersEventDispatcher.RegisterHandlers();
         }

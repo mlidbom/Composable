@@ -9,32 +9,38 @@ using Composable.System.Linq;
 
 namespace Composable.CQRS.EventSourcing
 {
-    public class AggregateRoot<TEntity, TBaseEvent> : VersionedPersistentEntity<TEntity>, IEventStored, ISharedOwnershipAggregateRoot
-        where TEntity : AggregateRoot<TEntity, TBaseEvent>
-        where TBaseEvent : IAggregateRootEvent
+    public class AggregateRoot<TEntity, TBaseEventClass, TBaseEventInterface> : VersionedPersistentEntity<TEntity>, IEventStored, ISharedOwnershipAggregateRoot
+        where TEntity : AggregateRoot<TEntity, TBaseEventClass, TBaseEventInterface>
+        where TBaseEventInterface : IAggregateRootEvent
+        where TBaseEventClass : AggregateRootEvent, TBaseEventInterface
     {       
         //Yes empty. Id should be assigned by an action and it should be obvious that the aggregate in invalid until that happens
         protected AggregateRoot() : base(Guid.Empty)
         {
-            Contract.Assert(typeof(TBaseEvent).IsInterface);
+            Contract.Assert(typeof(TBaseEventInterface).IsInterface && typeof(TBaseEventInterface) != typeof(IAggregateRootEvent));
         }
 
         private readonly IList<IAggregateRootEvent> _unCommittedEvents = new List<IAggregateRootEvent>();
-        private readonly CallMatchingHandlersInRegistrationOrderEventDispatcher<TBaseEvent> _eventDispatcher = new CallMatchingHandlersInRegistrationOrderEventDispatcher<TBaseEvent>();
+        private readonly CallMatchingHandlersInRegistrationOrderEventDispatcher<TBaseEventInterface> _eventDispatcher = new CallMatchingHandlersInRegistrationOrderEventDispatcher<TBaseEventInterface>();
 
-        protected void RaiseEvent(TBaseEvent theEvent)
+        protected void RaiseEvent(TBaseEventClass theEvent)
         {
-            Contract.Assert(theEvent.IsInstanceOf<AggregateRootEvent>());
-
-            ((AggregateRootEvent)(object)theEvent).AggregateRootVersion = ++Version;
-            if (!(theEvent is IAggregateRootCreatedEvent))
+            theEvent.AggregateRootVersion = Version + 1;
+            if(Version == 0)
+            {
+                if(!theEvent.IsInstanceOf<IAggregateRootCreatedEvent>())
+                {
+                    throw new Exception($"The first raised event type {theEvent.GetType()} did not inherit {nameof(IAggregateRootCreatedEvent)}");
+                }
+                theEvent.AggregateRootVersion = 1;
+            }else
             {
                 if(theEvent.AggregateRootId != Guid.Empty && theEvent.AggregateRootId != Id)
                 {
                     throw new ArgumentOutOfRangeException("Tried to raise event for AggregateRootId: {0} from AggregateRoot with Id: {1}."
                         .FormatWith(theEvent.AggregateRootId, Id));
                 }
-                ((AggregateRootEvent)(object)theEvent).AggregateRootId = Id;
+                theEvent.AggregateRootId = Id;
             }
             ApplyEvent(theEvent);
             AssertInvariantsAreMet();
@@ -42,12 +48,12 @@ namespace Composable.CQRS.EventSourcing
             DomainEvent.Raise(theEvent);
         }
 
-        protected CallMatchingHandlersInRegistrationOrderEventDispatcher<TBaseEvent>.RegistrationBuilder RegisterEventAppliers()
+        protected CallMatchingHandlersInRegistrationOrderEventDispatcher<TBaseEventInterface>.RegistrationBuilder RegisterEventAppliers()
         {
             return _eventDispatcher.RegisterHandlers();
         }
 
-        private void ApplyEvent(TBaseEvent theEvent)
+        private void ApplyEvent(TBaseEventInterface theEvent)
         {
             if (theEvent is IAggregateRootCreatedEvent)
             {
@@ -73,12 +79,12 @@ namespace Composable.CQRS.EventSourcing
 
         void IEventStored.LoadFromHistory(IEnumerable<IAggregateRootEvent> history)
         {
-            history.ForEach(theEvent => ApplyEvent((TBaseEvent)theEvent));
+            history.ForEach(theEvent => ApplyEvent((TBaseEventInterface)theEvent));
         }
 
         void ISharedOwnershipAggregateRoot.IntegrateExternallyRaisedEvent(IAggregateRootEvent theEvent)
         {
-            RaiseEvent((TBaseEvent)theEvent);
+            RaiseEvent((TBaseEventClass)theEvent);
         }
     }
 }

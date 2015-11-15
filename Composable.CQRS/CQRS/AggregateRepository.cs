@@ -5,9 +5,10 @@ using Composable.System;
 
 namespace Composable.CQRS
 {
-    public class AggregateRepository<TAggregate, TBaseEvent> : IAggregateRepository<TAggregate>
-        where TAggregate : TempAggregateRootWithTimeSourceSupport<TAggregate, TBaseEvent>, IEventStored
-        where TBaseEvent : IAggregateRootEvent
+    public class AggregateRepository<TAggregate, TBaseEventClass, TBaseEventInterface> : IAggregateRepository<TAggregate>
+        where TAggregate : TempAggregateRootWithTimeSourceSupport<TAggregate, TBaseEventClass, TBaseEventInterface>, IEventStored
+        where TBaseEventClass : AggregateRootEvent, TBaseEventInterface
+        where TBaseEventInterface : IAggregateRootEvent
     {
         protected readonly IEventStoreSession Aggregates;
         private readonly ITimeSource _timeSource;

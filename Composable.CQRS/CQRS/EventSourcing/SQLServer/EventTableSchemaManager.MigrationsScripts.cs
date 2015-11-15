@@ -9,7 +9,7 @@ declare @{EventTable.Columns.InsertionOrder} bigint
 declare @{EventTable.Columns.InsertBefore} bigint
 declare @{EventTable.Columns.InsertAfter} bigint
 declare @{EventTable.Columns.Replaces} bigint
-declare @EventsToReorder bigint
+declare @NumberOfEventsToReorder bigint
 declare @BeforeReadOrder {EventTable.ReadOrderType}
 declare @AfterReadOrder {EventTable.ReadOrderType}
 declare @AvailableSpaceBetwenReadOrders {EventTable.ReadOrderType}
@@ -30,7 +30,7 @@ begin
 
     if @{EventTable.Columns.Replaces} is not null
         begin 
-            select @EventsToReorder = count(*) from {Name} where {EventTable.Columns.Replaces} = @{EventTable.Columns.Replaces}
+            select @NumberOfEventsToReorder = count(*) from {Name} where {EventTable.Columns.Replaces} = @{EventTable.Columns.Replaces}
             select @BeforeReadOrder = abs({EventTable.Columns.EffectiveReadOrder}) from {Name} where {EventTable.Columns.InsertionOrder} = @{EventTable.Columns.Replaces}
             select top 1 @AfterReadOrder = {EventTable.Columns.EffectiveReadOrder} from {Name} where {EventTable.Columns.EffectiveReadOrder} > @BeforeReadOrder and ({EventTable.Columns.Replaces} is null or {EventTable.Columns.Replaces} != @{EventTable.Columns.Replaces}) order by {EventTable.Columns.EffectiveReadOrder}          
 
@@ -48,7 +48,7 @@ begin
             end
            
             set @AvailableSpaceBetwenReadOrders = @AfterReadOrder - @BeforeReadOrder
-            set @Increment = @AvailableSpaceBetwenReadOrders / @EventsToReorder
+            set @Increment = @AvailableSpaceBetwenReadOrders / @NumberOfEventsToReorder
 
             update {Name} set ManualReadOrder = -{EventTable.Columns.EffectiveReadOrder} where {EventTable.Columns.InsertionOrder} = @{EventTable.Columns.Replaces} AND {EventTable.Columns.EffectiveReadOrder} > 0
 
@@ -63,7 +63,7 @@ begin
         end 
     else if @{EventTable.Columns.InsertAfter} is not null
         begin 
-            select @EventsToReorder = count(*) from {Name} where {EventTable.Columns.InsertAfter} = @{EventTable.Columns.InsertAfter}
+            select @NumberOfEventsToReorder = count(*) from {Name} where {EventTable.Columns.InsertAfter} = @{EventTable.Columns.InsertAfter}
             select @BeforeReadOrder = {EventTable.Columns.EffectiveReadOrder} from {Name} where {EventTable.Columns.InsertionOrder} = @{EventTable.Columns.InsertAfter}
             if @BeforeReadOrder < 0 --The event we are inserting after has been replaced and it might be by multiple events, so get the highest of the replacing readorders
                 select @BeforeReadOrder = max({EventTable.Columns.EffectiveReadOrder}) from {Name} where {EventTable.Columns.Replaces} = @{EventTable.Columns.InsertAfter}
@@ -76,7 +76,7 @@ begin
             end
 
             set @AvailableSpaceBetwenReadOrders = @AfterReadOrder - @BeforeReadOrder
-            set @Increment = @AvailableSpaceBetwenReadOrders / (@EventsToReorder + 1)
+            set @Increment = @AvailableSpaceBetwenReadOrders / (@NumberOfEventsToReorder + 1)
 
             update {Name}
                 set ManualReadOrder = ReadOrders.{EventTable.Columns.EffectiveReadOrder}
@@ -89,7 +89,7 @@ begin
         end								
     else if @{EventTable.Columns.InsertBefore} is not null
         begin 
-            select @EventsToReorder = count(*) from {Name} where InsertBefore = @{EventTable.Columns.InsertBefore}
+            select @NumberOfEventsToReorder = count(*) from {Name} where InsertBefore = @{EventTable.Columns.InsertBefore}
 		   
             select @AfterReadOrder = abs({EventTable.Columns.EffectiveReadOrder}) from {Name} where {EventTable.Columns.InsertionOrder} = @{EventTable.Columns.InsertBefore}
 
@@ -98,7 +98,7 @@ begin
                 set @BeforeReadOrder = cast(0 as {EventTable.ReadOrderType}) --We are inserting before the first event in the whole event store and possibly the original first event has been replaced and thus has a negative {EventTable.Columns.EffectiveReadOrder}
 
             set @AvailableSpaceBetwenReadOrders = @AfterReadOrder - @BeforeReadOrder
-            set @Increment = @AvailableSpaceBetwenReadOrders / (@EventsToReorder + 1)
+            set @Increment = @AvailableSpaceBetwenReadOrders / (@NumberOfEventsToReorder + 1)
 
 
             update {Name}

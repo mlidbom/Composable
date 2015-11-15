@@ -4,7 +4,7 @@ using Composable.GenericAbstractions.Time;
 
 namespace Composable.CQRS
 {
-    public abstract class TempAggregateRootWithTimeSourceSupport<TEntity, TBaseEventClass, TBaseEventInterface> : AggregateRoot<TEntity, TBaseEventClass, TBaseEventInterface>
+    public abstract class TempAggregateRootWithTimeSourceSupport<TEntity, TBaseEventClass, TBaseEventInterface> : AggregateRootV2<TEntity, TBaseEventClass, TBaseEventInterface>
         where TEntity : TempAggregateRootWithTimeSourceSupport<TEntity, TBaseEventClass, TBaseEventInterface>
         where TBaseEventInterface : IAggregateRootEvent
         where TBaseEventClass : AggregateRootEvent, TBaseEventInterface

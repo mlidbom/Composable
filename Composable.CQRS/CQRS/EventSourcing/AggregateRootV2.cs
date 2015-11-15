@@ -9,19 +9,20 @@ using Composable.System.Linq;
 
 namespace Composable.CQRS.EventSourcing
 {
-    public class AggregateRoot<TEntity, TBaseEventClass, TBaseEventInterface> : VersionedPersistentEntity<TEntity>, IEventStored, ISharedOwnershipAggregateRoot
-        where TEntity : AggregateRoot<TEntity, TBaseEventClass, TBaseEventInterface>
+    public class AggregateRootV2<TEntity, TBaseEventClass, TBaseEventInterface> : VersionedPersistentEntity<TEntity>, IEventStored, ISharedOwnershipAggregateRoot
+        where TEntity : AggregateRootV2<TEntity, TBaseEventClass, TBaseEventInterface>
         where TBaseEventInterface : IAggregateRootEvent
         where TBaseEventClass : AggregateRootEvent, TBaseEventInterface
     {       
         //Yes empty. Id should be assigned by an action and it should be obvious that the aggregate in invalid until that happens
-        protected AggregateRoot() : base(Guid.Empty)
+        protected AggregateRootV2() : base(Guid.Empty)
         {
             Contract.Assert(typeof(TBaseEventInterface).IsInterface && typeof(TBaseEventInterface) != typeof(IAggregateRootEvent));
         }
 
         private readonly IList<IAggregateRootEvent> _unCommittedEvents = new List<IAggregateRootEvent>();
         private readonly CallMatchingHandlersInRegistrationOrderEventDispatcher<TBaseEventInterface> _eventDispatcher = new CallMatchingHandlersInRegistrationOrderEventDispatcher<TBaseEventInterface>();
+        private readonly CallMatchingHandlersInRegistrationOrderEventDispatcher<TBaseEventInterface> _eventHandlersEventDispatcher = new CallMatchingHandlersInRegistrationOrderEventDispatcher<TBaseEventInterface>();
 
         protected void RaiseEvent(TBaseEventClass theEvent)
         {
@@ -51,6 +52,11 @@ namespace Composable.CQRS.EventSourcing
         protected CallMatchingHandlersInRegistrationOrderEventDispatcher<TBaseEventInterface>.RegistrationBuilder RegisterEventAppliers()
         {
             return _eventDispatcher.RegisterHandlers();
+        }
+
+        protected CallMatchingHandlersInRegistrationOrderEventDispatcher<TBaseEventInterface>.RegistrationBuilder RegisterEventHandlers()
+        {
+            return _eventHandlersEventDispatcher.RegisterHandlers();
         }
 
         private void ApplyEvent(TBaseEventInterface theEvent)

@@ -89,7 +89,9 @@ FROM {EventTable.Name} With(UPDLOCK, READCOMMITTED, ROWLOCK) ";
                     using(var loadCommand = connection.CreateCommand())
                     {
 
-                        loadCommand.CommandText = SelectTopClause(batchSize) + $"WHERE {EventTable.Columns.EffectiveReadOrder} > 0 AND {EventTable.Columns.EffectiveReadOrder}  > {lastReadEventReadOrder}" + ReadSortOrder;
+                        loadCommand.CommandText = SelectTopClause(batchSize) + $"WHERE {EventTable.Columns.EffectiveReadOrder} > 0 AND {EventTable.Columns.EffectiveReadOrder}  > @{EventTable.Columns.EffectiveReadOrder}" + ReadSortOrder;
+
+                        loadCommand.Parameters.Add(new SqlParameter(EventTable.Columns.EffectiveReadOrder, lastReadEventReadOrder));
 
                         var fetchedInThisBatch = 0;
                         using(var reader = loadCommand.ExecuteReader())

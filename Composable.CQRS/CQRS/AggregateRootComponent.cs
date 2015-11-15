@@ -7,7 +7,7 @@ using Composable.GenericAbstractions.Time;
 namespace Composable.CQRS
 {
     public abstract class AggregateRootComponent<TAggregateRoot, TComponentBaseEventClass, TComponentBaseEventInterface, TAggregateRootBaseEventClass, TAggregateRootBaseEventInterface>        
-        where TAggregateRoot : AggregateRoot<TAggregateRoot, TAggregateRootBaseEventClass, TAggregateRootBaseEventInterface>
+        where TAggregateRoot : AggregateRootV2<TAggregateRoot, TAggregateRootBaseEventClass, TAggregateRootBaseEventInterface>
         where TAggregateRootBaseEventInterface : IAggregateRootEvent
         where TAggregateRootBaseEventClass : AggregateRootEvent, TAggregateRootBaseEventInterface
         where TComponentBaseEventInterface : TAggregateRootBaseEventInterface
@@ -15,8 +15,8 @@ namespace Composable.CQRS
     {
         private readonly Action<TComponentBaseEventClass> _raiseEvent;
         protected readonly Func<ITimeSource> TimeSourceFetcher;
-        private readonly CallMatchingHandlersInRegistrationOrderEventDispatcher<TComponentBaseEventClass> _eventAppliersEventDispatcher = new CallMatchingHandlersInRegistrationOrderEventDispatcher<TComponentBaseEventClass>();
-        private readonly CallMatchingHandlersInRegistrationOrderEventDispatcher<TComponentBaseEventClass> _eventHandlersEventDispatcher = new CallMatchingHandlersInRegistrationOrderEventDispatcher<TComponentBaseEventClass>();
+        private readonly CallMatchingHandlersInRegistrationOrderEventDispatcher<TComponentBaseEventInterface> _eventAppliersEventDispatcher = new CallMatchingHandlersInRegistrationOrderEventDispatcher<TComponentBaseEventInterface>();
+        private readonly CallMatchingHandlersInRegistrationOrderEventDispatcher<TComponentBaseEventInterface> _eventHandlersEventDispatcher = new CallMatchingHandlersInRegistrationOrderEventDispatcher<TComponentBaseEventInterface>();
 
         protected AggregateRootComponent(
             TAggregateRoot aggregateRoot,
@@ -38,7 +38,7 @@ namespace Composable.CQRS
         protected TAggregateRoot AggregateRoot { get; private set; }
         protected ITimeSource TimeSource => TimeSourceFetcher();
 
-        protected void ApplyEvent(TComponentBaseEventClass @event)
+        protected void ApplyEvent(TComponentBaseEventInterface @event)
         {
             _eventAppliersEventDispatcher.Dispatch(@event);
         }
@@ -49,12 +49,12 @@ namespace Composable.CQRS
             _eventHandlersEventDispatcher.Dispatch(@event);
         }
 
-        protected CallMatchingHandlersInRegistrationOrderEventDispatcher<TComponentBaseEventClass>.RegistrationBuilder RegisterEventAppliers()
+        protected CallMatchingHandlersInRegistrationOrderEventDispatcher<TComponentBaseEventInterface>.RegistrationBuilder RegisterEventAppliers()
         {
             return _eventAppliersEventDispatcher.RegisterHandlers();
         }
 
-        protected CallMatchingHandlersInRegistrationOrderEventDispatcher<TComponentBaseEventClass>.RegistrationBuilder RegisterEventHandlers()
+        protected CallMatchingHandlersInRegistrationOrderEventDispatcher<TComponentBaseEventInterface>.RegistrationBuilder RegisterEventHandlers()
         {
             return _eventHandlersEventDispatcher.RegisterHandlers();
         }

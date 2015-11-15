@@ -54,7 +54,7 @@ namespace TestAggregates
     }
 
 
-    public class TestAggregate : AggregateRoot<TestAggregate, RootEvent, IRootEvent>
+    public class TestAggregate : AggregateRootV2<TestAggregate, RootEvent, IRootEvent>
     {
         public void RaiseEvents(params RootEvent[] events)
         {

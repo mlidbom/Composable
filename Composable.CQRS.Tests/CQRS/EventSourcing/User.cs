@@ -3,7 +3,7 @@ using Composable.CQRS.EventSourcing;
 
 namespace CQRS.Tests.CQRS.EventSourcing
 {
-    internal class User : AggregateRoot<User,UserEvent, IUserEvent>
+    internal class User : AggregateRootV2<User,UserEvent, IUserEvent>
     {
         public string Email { get; private set; }
         public string Password { get; private set; }

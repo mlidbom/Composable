@@ -290,7 +290,7 @@
     <Compile Include="ServiceBus\MessageHandlersInvoker.cs" />
     <Compile Include="ServiceBus\MessageHandlerInvoker.MessageHandlerMethod.cs" />
     <Compile Include="ServiceBus\IServiceBus.cs" />
-    <Compile Include="CQRS\EventSourcing\AggregateRoot.cs" />
+    <Compile Include="CQRS\EventSourcing\AggregateRootV2.cs" />
     <Compile Include="ServiceBus\ISynchronousBusMessageSpy.cs" />
     <Compile Include="ServiceBus\MessageHandlerResolver.cs" />
     <Compile Include="ServiceBus\MultipleMessageHandlersRegisteredException.cs" />

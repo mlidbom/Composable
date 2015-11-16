@@ -96,5 +96,19 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
                 timeFormat: "ss\\.fff",
                 action: () => { SingleAggregateInstanceEventStreamMutator.MutateCompleteAggregateHistory(eventMigrations, _history); });
         }
+
+        [Test]
+        public void CreatingLinkedListsTime()
+        {
+            int iterations = 1000000;
+            TimeAsserter.Execute(iterations: iterations, action: () => { new LinkedList<AggregateRootEvent>(); });
+
+            var aggregateRootEvent = new E1();
+            TimeAsserter.Execute(iterations: iterations, action: () =>
+                                                                 {
+                                                                    var list = new LinkedList<AggregateRootEvent>();
+                                                                     list.AddFirst(aggregateRootEvent);
+                                                                 });
+        }
     }
 }

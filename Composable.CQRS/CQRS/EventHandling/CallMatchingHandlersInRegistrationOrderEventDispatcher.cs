@@ -1,10 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Composable.CQRS.EventSourcing;
 using Composable.System;
-using Composable.System.Linq;
-using NServiceBus;
 using log4net;
 
 namespace Composable.CQRS.EventHandling
@@ -118,9 +115,9 @@ namespace Composable.CQRS.EventHandling
         {
             Log.DebugFormat("Handling event:{0}", evt);
 
-            var handlers = GetHandler(evt).ToList();
+            var handlers = GetHandler(evt).ToArray();
 
-            if(handlers.None())
+            if(handlers.Length == 0)
             {
                 if(_ignoredEvents.Any(ignoredEventType => ignoredEventType.IsInstanceOfType(evt)))
                 {
@@ -129,19 +126,19 @@ namespace Composable.CQRS.EventHandling
                 throw new EventUnhandledException(this.GetType(), evt);
             }
 
-            foreach(var runBeforeHandler in _runBeforeHandlers)
+            for(var i = 0; i < _runBeforeHandlers.Count; i++)
             {
-                runBeforeHandler(evt);
+                _runBeforeHandlers[i](evt);
             }
 
-            foreach(var handler in handlers)
+            for (var i = 0; i < handlers.Length; i++)
             {
-                handler(evt);
+                handlers[i](evt);
             }
 
-            foreach(var runBeforeHandler in _runAfterHandlers)
+            for (var i = 0; i < _runAfterHandlers.Count; i++)
             {
-                runBeforeHandler(evt);
+                _runAfterHandlers[i](evt);
             }
         }
 

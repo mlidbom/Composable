@@ -19,7 +19,7 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
         {
             var historyTypes = Seq.OfTypes<Ec1>()
                                   .Concat(
-                                      1.Through(10)
+                                      1.Through(100)
                                        .SelectMany(
                                            index => 1.Through(996)
                                                      .Select(_ => typeof(E1))
@@ -40,7 +40,7 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
                 ).ToArray();
 
             TimeAsserter.Execute(
-                maxAverage: 200.Milliseconds(),
+                maxAverage: 1000.Milliseconds(),
                 iterations: 10,
                 description: "load aggregate in isolated scope",
                 timeFormat: "ss\\.fff",
@@ -59,7 +59,7 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
                 ).ToArray();
 
             TimeAsserter.Execute(
-                maxAverage: 200.Milliseconds(),
+                maxAverage: 1000.Milliseconds(),
                 iterations: 10,
                 description: "load aggregate in isolated scope",
                 timeFormat: "ss\\.fff",

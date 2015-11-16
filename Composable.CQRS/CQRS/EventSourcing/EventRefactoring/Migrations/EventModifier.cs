@@ -11,15 +11,14 @@ namespace Composable.CQRS.EventSourcing.EventRefactoring.Migrations
     internal class EventModifier : IEventModifier
     {
         private readonly Action<IReadOnlyList<AggregateRootEvent>> _eventsAddedCallback;
-        private readonly LinkedList<AggregateRootEvent> _events;
+        private LinkedList<AggregateRootEvent> _events;
         private IReadOnlyList<AggregateRootEvent> _replacementEvents;
         private IReadOnlyList<AggregateRootEvent> _insertedEvents;
 
         public EventModifier(AggregateRootEvent @event, Action<IReadOnlyList<AggregateRootEvent>> eventsAddedCallback)
         {
+            Event = @event;
             _eventsAddedCallback = eventsAddedCallback;
-            _events = new LinkedList<AggregateRootEvent>();
-            CurrentNode = _events.AddFirst(@event);
         }
 
         private EventModifier(LinkedListNode<AggregateRootEvent> currentNode, Action<IReadOnlyList<AggregateRootEvent>> eventsAddedCallback)
@@ -29,9 +28,26 @@ namespace Composable.CQRS.EventSourcing.EventRefactoring.Migrations
             _events = currentNode.List;
         }
 
-        public AggregateRootEvent Event => CurrentNode.Value;
+        public AggregateRootEvent Event { get; private set; }
 
-        private LinkedListNode<AggregateRootEvent> CurrentNode { get; set; }
+        private LinkedListNode<AggregateRootEvent> _currentNode;
+        private LinkedListNode<AggregateRootEvent> CurrentNode
+        {
+            get
+            {
+                if (_events == null)
+                {
+                    _events = new LinkedList<AggregateRootEvent>();
+                    _currentNode = _events.AddFirst(Event);
+                }
+                return _currentNode;
+            }
+            set
+            {
+                _currentNode = value;
+                Event = _currentNode.Value;
+            }
+        }
 
         public void Replace(IReadOnlyList<AggregateRootEvent> events)
         {
@@ -66,7 +82,7 @@ namespace Composable.CQRS.EventSourcing.EventRefactoring.Migrations
                     e.AggregateRootId = Event.AggregateRootId;
                 });
 
-            if(Event.GetType() == typeof(EventStreamEndedEvent))
+            if (Event.GetType() == typeof(EventStreamEndedEvent))
             {
                 _insertedEvents.ForEach(@event => @event.InsertBefore = null);//We are at the end of the stream. Claiming to insert before it makes no sense
             }
@@ -77,12 +93,12 @@ namespace Composable.CQRS.EventSourcing.EventRefactoring.Migrations
             _eventsAddedCallback.Invoke(_insertedEvents);
         }
 
-        internal IReadOnlyList<AggregateRootEvent> MutatedHistory => _events.ToList();
+        internal IReadOnlyList<AggregateRootEvent> MutatedHistory => _events != null ? _events.ToList() : new List<AggregateRootEvent> { Event };
 
         //Yes, doing this optimization her does make a very significant performance improvement proven throught actual profiling and benchmarking. Do NOT replace this code with a linq expression!
         public IEnumerable<EventModifier> GetHistory()
         {
-            if (_events.Count == 1)
+            if (_events == null)
             {
                 yield return this;
                 yield break;

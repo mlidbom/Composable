@@ -144,9 +144,13 @@ namespace Composable.CQRS.EventHandling
 
         private IEnumerable<Action<object>> GetHandler(TEvent evt)
         {
-            return _handlers
-                .Where(registration => registration.Key.IsInstanceOfType(evt))
-                .Select(registration => registration.Value);
+            for(var index = 0; index < _handlers.Count; index++)
+            {
+                if(_handlers[index].Key.IsInstanceOfType(evt))
+                {
+                    yield return _handlers[index].Value;
+                }
+            }
         }
     }
 

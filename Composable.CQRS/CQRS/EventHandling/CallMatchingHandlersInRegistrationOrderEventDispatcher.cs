@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Composable.System;
 using log4net;
+// ReSharper disable ForCanBeConvertedToForeach this file needs these optimizations...
 
 namespace Composable.CQRS.EventHandling
 {
@@ -115,7 +116,7 @@ namespace Composable.CQRS.EventHandling
         {
             Log.DebugFormat("Handling event:{0}", evt);
 
-            bool hasDispatchedEvent = false;
+            var hasDispatchedEvent = false;
             for (var index = 0; index < _handlers.Count; index++)
             {
                 if (_handlers[index].Key.IsInstanceOfType(evt))
@@ -137,6 +138,13 @@ namespace Composable.CQRS.EventHandling
                 for(var i = 0; i < _runAfterHandlers.Count; i++)
                 {
                     _runAfterHandlers[i](evt);
+                }
+            }
+            else
+            {
+                if(!_ignoredEvents.Any(ignoredEventType => ignoredEventType.IsInstanceOfType(evt)))
+                {
+                    throw new EventUnhandledException(this.GetType(), evt);
                 }
             }
         }

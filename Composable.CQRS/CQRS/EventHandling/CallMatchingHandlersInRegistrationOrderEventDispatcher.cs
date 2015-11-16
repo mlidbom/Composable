@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Composable.System;
+using Composable.System.Linq;
 using log4net;
 // ReSharper disable ForCanBeConvertedToForeach this file needs these optimizations...
 
@@ -19,6 +20,7 @@ namespace Composable.CQRS.EventHandling
         private readonly List<Action<object>> _runBeforeHandlers = new List<Action<object>>();
         private readonly List<Action<object>> _runAfterHandlers = new List<Action<object>>();
         private readonly HashSet<Type> _ignoredEvents = new HashSet<Type>();
+        private int _totalHandlers = 0;
 
         ///<summary>Registers handlers for the incoming events. All matching handlers will be called in the order they were registered.</summary>
         public RegistrationBuilder RegisterHandlers()
@@ -59,6 +61,7 @@ namespace Composable.CQRS.EventHandling
                 }
 
                 _owner._handlers.Add(new KeyValuePair<Type, Action<object>>(eventType, e => handler((THandledEvent)e)));
+                _owner._totalHandlers++;
                 return this;
             }
 
@@ -66,6 +69,7 @@ namespace Composable.CQRS.EventHandling
             public RegistrationBuilder BeforeHandlers(Action<TEvent> runBeforeHandlers)
             {
                 _owner._runBeforeHandlers.Add(e => runBeforeHandlers((TEvent)e));
+                _owner._totalHandlers++;
                 return this;
             }
 
@@ -78,6 +82,7 @@ namespace Composable.CQRS.EventHandling
             public RegistrationBuilder IgnoreUnhandled<T>()
             {
                 _owner._ignoredEvents.Add(typeof(T));
+                _owner._totalHandlers++;
                 return this;
             }
 
@@ -112,38 +117,60 @@ namespace Composable.CQRS.EventHandling
 
         }
 
-        public void Dispatch(TEvent evt)
+
+        private Dictionary<Type, Action<object>[]> _typeToHandlerCache;
+        private int _cachedTotalHandlers = 0;
+        private Action<object>[] GetHandlers(Type type)
         {
+            if(_cachedTotalHandlers != _totalHandlers)
+            {
+                _cachedTotalHandlers = _totalHandlers;
+                _typeToHandlerCache = new Dictionary<Type, Action<object>[]>();
+            }
+
+            Action<object>[] arrayResult;
+            if(_typeToHandlerCache.TryGetValue(type, out arrayResult))
+            {
+                return arrayResult;
+            }
+
+            var result = new List<Action<object>>(); 
             var hasDispatchedEvent = false;
+
+            result.AddRange(_runBeforeHandlers);
+
             for (var index = 0; index < _handlers.Count; index++)
             {
-                if (_handlers[index].Key.IsInstanceOfType(evt))
+                if (_handlers[index].Key.IsAssignableFrom(type))
                 {
-                    if(!hasDispatchedEvent)
-                    {
-                        hasDispatchedEvent = true;
-                        for (var i = 0; i < _runBeforeHandlers.Count; i++)
-                        {
-                            _runBeforeHandlers[i](evt);
-                        }
-                    }
-                    _handlers[index].Value(evt);
+                   hasDispatchedEvent = true;
+                   result.Add(_handlers[index].Value);
                 }
             }
 
             if(hasDispatchedEvent)
             {
-                for(var i = 0; i < _runAfterHandlers.Count; i++)
-                {
-                    _runAfterHandlers[i](evt);
-                }
+                result.AddRange(_runAfterHandlers);
             }
             else
             {
-                if(!_ignoredEvents.Any(ignoredEventType => ignoredEventType.IsInstanceOfType(evt)))
+                if(!_ignoredEvents.Any(ignoredEventType => ignoredEventType.IsAssignableFrom(type)))
                 {
-                    throw new EventUnhandledException(this.GetType(), evt);
+                    throw new EventUnhandledException(this.GetType(), type);
                 }
+                return new Action<object>[0];
+            }
+            arrayResult = result.ToArray();
+            _typeToHandlerCache[type] = arrayResult;
+            return arrayResult;
+        }
+
+        public void Dispatch(TEvent evt)
+        {
+            var handlers = GetHandlers(evt.GetType());
+            for(var i = 0; i < handlers.Length; i++)
+            {
+                handlers[i](evt);
             }
         }
     }

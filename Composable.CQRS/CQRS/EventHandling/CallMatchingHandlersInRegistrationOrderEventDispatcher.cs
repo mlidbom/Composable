@@ -114,8 +114,6 @@ namespace Composable.CQRS.EventHandling
 
         public void Dispatch(TEvent evt)
         {
-            Log.DebugFormat("Handling event:{0}", evt);
-
             var hasDispatchedEvent = false;
             for (var index = 0; index < _handlers.Count; index++)
             {

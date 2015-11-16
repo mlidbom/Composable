@@ -12,7 +12,7 @@ using TestAggregates.Events;
 namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
 {   
     //Everything in here actually runs much faster than this when executed normally, but with ncrunch instrumentation it runs much slower and the test gives leeway for that.....
-    public class SingleAggregateInstanceEventStreamMutatorPerformanceTest
+    public class SingleAggregateInstanceEventStreamMutatorPerformanceTest_Given_a_10000_events_large_aggregate
     {
         private List<AggregateRootEvent> _history;        
         [SetUp]
@@ -31,7 +31,7 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
         }
 
         [Test]
-        public void With_four_migrations_mutation_that_all_actually_changes_things_migration_takes_less_than_10_milliseconds()
+        public void With_four_migrations_mutation_that_all_actually_changes_things_migration_takes_less_than_15_milliseconds()
         {
             var eventMigrations = Seq.Create<IEventMigration>(
                 Before<E2>.Insert<E3>(),
@@ -40,7 +40,7 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
                 Before<E8>.Insert<E9>()
                 ).ToArray();
 
-            var maxAverage = NCrunchPerformance.AdjustRuntime(10.Milliseconds());
+            var maxAverage = NCrunchPerformance.AdjustRuntime(15.Milliseconds());
 
             TimeAsserter.Execute(
                 maxAverage: maxAverage,

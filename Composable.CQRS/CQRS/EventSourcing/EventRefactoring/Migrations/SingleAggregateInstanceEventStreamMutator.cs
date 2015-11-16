@@ -44,9 +44,18 @@ namespace Composable.CQRS.EventSourcing.EventRefactoring.Migrations
 
             foreach(var migration in _eventMigrations)
             {
-                foreach(var innerModifier in modifier.GetHistory())
+                if(modifier.Events == null)
                 {
-                    migration.MigrateEvent(innerModifier.Event, innerModifier);
+                    migration.MigrateEvent(@event, modifier);
+                }else
+                {
+                    var node = modifier.Events.First;
+                    while (node != null)
+                    {
+                        var innerModifier = new EventModifier(node, _eventsAddedCallback);
+                        migration.MigrateEvent(innerModifier.Event, innerModifier);
+                        node = node.Next;
+                    }
                 }
             }
 

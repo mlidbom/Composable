@@ -115,40 +115,28 @@ namespace Composable.CQRS.EventHandling
         {
             Log.DebugFormat("Handling event:{0}", evt);
 
-            var handlers = GetHandler(evt).ToArray();
-
-            if(handlers.Length == 0)
+            bool hasDispatchedEvent = false;
+            for (var index = 0; index < _handlers.Count; index++)
             {
-                if(_ignoredEvents.Any(ignoredEventType => ignoredEventType.IsInstanceOfType(evt)))
+                if (_handlers[index].Key.IsInstanceOfType(evt))
                 {
-                    return;
+                    if(!hasDispatchedEvent)
+                    {
+                        hasDispatchedEvent = true;
+                        for (var i = 0; i < _runBeforeHandlers.Count; i++)
+                        {
+                            _runBeforeHandlers[i](evt);
+                        }
+                    }
+                    _handlers[index].Value(evt);
                 }
-                throw new EventUnhandledException(this.GetType(), evt);
             }
 
-            for(var i = 0; i < _runBeforeHandlers.Count; i++)
+            if(hasDispatchedEvent)
             {
-                _runBeforeHandlers[i](evt);
-            }
-
-            for (var i = 0; i < handlers.Length; i++)
-            {
-                handlers[i](evt);
-            }
-
-            for (var i = 0; i < _runAfterHandlers.Count; i++)
-            {
-                _runAfterHandlers[i](evt);
-            }
-        }
-
-        private IEnumerable<Action<object>> GetHandler(TEvent evt)
-        {
-            for(var index = 0; index < _handlers.Count; index++)
-            {
-                if(_handlers[index].Key.IsInstanceOfType(evt))
+                for(var i = 0; i < _runAfterHandlers.Count; i++)
                 {
-                    yield return _handlers[index].Value;
+                    _runAfterHandlers[i](evt);
                 }
             }
         }

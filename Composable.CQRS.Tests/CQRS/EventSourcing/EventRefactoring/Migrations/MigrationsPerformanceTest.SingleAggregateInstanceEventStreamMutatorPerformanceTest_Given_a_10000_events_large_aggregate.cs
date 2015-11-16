@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.Contracts;
 using System.Linq;
 using Composable.CQRS.EventSourcing;
 using Composable.CQRS.EventSourcing.EventRefactoring.Migrations;
@@ -39,7 +40,7 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
 
             TimeAsserter.Execute(
                 maxTotal: 150.Milliseconds().AdjustRuntimeForNCrunch(),
-                action: () => TestAggregate.FromEvents(history));
+                action: () => new TestAggregate2(history));
         }
 
         [Test]
@@ -123,5 +124,46 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
                 timeFormat: "ss\\.fff",
                 action: () => { SingleAggregateInstanceEventStreamMutator.MutateCompleteAggregateHistory(eventMigrations, _history); });
         }
+    }
+
+    public class TestAggregate2 : AggregateRootV2<TestAggregate, RootEvent, IRootEvent>
+    {
+        public void RaiseEvents(params RootEvent[] events)
+        {
+            if (GetIdBypassContractValidation() == Guid.Empty && events.First().AggregateRootId == Guid.Empty)
+            {
+                SetIdBeVerySureYouKnowWhatYouAreDoing(Guid.NewGuid());
+                events.Cast<AggregateRootEvent>().First().AggregateRootId = Id;
+            }
+
+            foreach (var @event in events)
+            {
+                RaiseEvent(@event);
+            }
+        }
+
+        private TestAggregate2()
+        {
+            RegisterEventAppliers()
+                .For<IRootEvent>(e => {})
+                .For<E1>(e => { })
+                .For<E2>(e => { })
+                .For<E3>(e => { })
+                .For<E4>(e => { })
+                .For<E5>(e => { })
+                .For<E6>(e => { })
+                .For<E7>(e => { })
+                .For<E8>(e => { })
+                .For<E9>(e => { })
+                .For<Ef>(e => { });
+        }
+
+        public TestAggregate2(params RootEvent[] events) : this()
+        {
+            Contract.Requires(events.First() is IAggregateRootCreatedEvent);
+
+            RaiseEvents(events);
+        }
+
     }
 }

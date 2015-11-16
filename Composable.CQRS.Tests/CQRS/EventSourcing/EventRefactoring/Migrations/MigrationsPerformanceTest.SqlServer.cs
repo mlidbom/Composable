@@ -19,7 +19,7 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
         public SqlServerMigrationsPerformanceTest() : base(typeof(SqlServerEventStore)) { }
 
         [Test]//Do not worry about it if this test fails when running in ncrunch. It runs it much slower for some reason. Probably due to intrumenting the assembly. Just ignore it in ncrunch.
-        public void A_ten_thousand_events_large_aggregate_with_four_migrations_should_load_cached_in_less_than_50_milliseconds()
+        public void A_ten_thousand_events_large_aggregate_with_four_migrations_should_load_cached_in_less_than_25_milliseconds()
         {
             var eventMigrations = Seq.Create<IEventMigration>(
                 Before<E6>.Insert<E2>(),
@@ -38,7 +38,7 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
             container.ExecuteUnitOfWorkInIsolatedScope(() => container.Resolve<IEventStoreSession>().Get<TestAggregate>(aggregate.Id));
 
             TimeAsserter.Execute(
-                maxAverage: 50.Milliseconds(), iterations: 10, description: "load aggregate in isolated scope", timeFormat: "fff",
+                maxAverage: 25.Milliseconds().AdjustRuntimeForNCrunch(), iterations: 10, description: "load aggregate in isolated scope", timeFormat: "fff",
                 action: () => container.ExecuteInIsolatedScope(() => container.Resolve<IEventStoreSession>().Get<TestAggregate>(aggregate.Id)));
         }
     }

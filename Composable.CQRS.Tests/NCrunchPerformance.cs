@@ -26,4 +26,11 @@ namespace CQRS.Tests
             return original;
         }
     }
+
+    public static class NCrunchPerformanceExtensions
+    {
+        
+        public static TimeSpan AdjustRuntimeForNCrunch(this TimeSpan @this) => NCrunchPerformance.AdjustRuntime(@this);        
+        public static int AdjustIterationsForNCrunch(this int @this) => NCrunchPerformance.AdjustIterations(@this);
+    }
 }

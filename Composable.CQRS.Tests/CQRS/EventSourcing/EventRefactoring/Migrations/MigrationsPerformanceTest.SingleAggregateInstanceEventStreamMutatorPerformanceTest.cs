@@ -10,16 +10,17 @@ using TestAggregates;
 using TestAggregates.Events;
 
 namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
-{
+{   
+    //Everything in here actually runs much faster than this when executed normally, but with ncrunch instrumentation it runs much slower and the test gives leeway for that.....
     public class SingleAggregateInstanceEventStreamMutatorPerformanceTest
     {
-        private List<AggregateRootEvent> _history;
+        private List<AggregateRootEvent> _history;        
         [SetUp]
         public void Given_a_10000_events_large_aggregate()
         {
             var historyTypes = Seq.OfTypes<Ec1>()
                                   .Concat(
-                                      1.Through(100)
+                                      1.Through(10)
                                        .SelectMany(
                                            index => 1.Through(996)
                                                      .Select(_ => typeof(E1))
@@ -30,7 +31,7 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
         }
 
         [Test]
-        public void With_four_migrations_mutation_that_all_actually_changes_things_migration_takes_less_than_200_milliseconds()
+        public void With_four_migrations_mutation_that_all_actually_changes_things_migration_takes_less_than_10_milliseconds()
         {
             var eventMigrations = Seq.Create<IEventMigration>(
                 Before<E2>.Insert<E3>(),
@@ -39,8 +40,10 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
                 Before<E8>.Insert<E9>()
                 ).ToArray();
 
+            var maxAverage = NCrunchPerformance.AdjustRuntime(10.Milliseconds());
+
             TimeAsserter.Execute(
-                maxAverage: 1000.Milliseconds(),
+                maxAverage: maxAverage,
                 iterations: 10,
                 description: "load aggregate in isolated scope",
                 timeFormat: "ss\\.fff",
@@ -49,7 +52,7 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
         }
 
         [Test]
-        public void With_four_migrations_that_change_nothing_mutation_takes_less_than_200_milliseconds()
+        public void With_four_migrations_that_change_nothing_mutation_takes_less_than_10_milliseconds()
         {
             var eventMigrations = Seq.Create<IEventMigration>(
                 Before<E3>.Insert<E1>(),
@@ -58,8 +61,10 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
                 Before<E9>.Insert<E1>()
                 ).ToArray();
 
+            var maxAverage = NCrunchPerformance.AdjustRuntime(10.Milliseconds());
+
             TimeAsserter.Execute(
-                maxAverage: 1000.Milliseconds(),
+                maxAverage: maxAverage,
                 iterations: 10,
                 description: "load aggregate in isolated scope",
                 timeFormat: "ss\\.fff",
@@ -68,7 +73,7 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
         }
 
         [Test]
-        public void Calling_before_after_or_replace_1000000_times_takes_less_than_30_milliseconds()
+        public void Calling_before_after_or_replace_1000000_times_takes_less_than_50_milliseconds()
         {
             var before = Before<E3>.Insert<E2>().CreateMigrator();
             var replace = Replace<E3>.With<E2>().CreateMigrator();
@@ -77,7 +82,7 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
             var eventModifier = new EventModifier(@event, _ => { });
 
             var numberOfEventsToInspect = 1000000;
-            var maxtime = 800.Seconds();
+            var maxtime = NCrunchPerformance.AdjustRuntime(50.Milliseconds(), boost: 8.0);
 
             TimeAsserter.Execute(maxTotal: maxtime, description: $"{nameof(before)}", iterations: numberOfEventsToInspect, action: () => before.MigrateEvent(@event, @eventModifier));
             TimeAsserter.Execute(maxTotal: maxtime, description: $"{nameof(replace)}", iterations: numberOfEventsToInspect, action: () => replace.MigrateEvent(@event, @eventModifier));
@@ -95,20 +100,6 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
                 description: "load aggregate in isolated scope",
                 timeFormat: "ss\\.fff",
                 action: () => { SingleAggregateInstanceEventStreamMutator.MutateCompleteAggregateHistory(eventMigrations, _history); });
-        }
-
-        [Test]
-        public void CreatingLinkedListsTime()
-        {
-            int iterations = 1000000;
-            TimeAsserter.Execute(iterations: iterations, action: () => { new LinkedList<AggregateRootEvent>(); });
-
-            var aggregateRootEvent = new E1();
-            TimeAsserter.Execute(iterations: iterations, action: () =>
-                                                                 {
-                                                                    var list = new LinkedList<AggregateRootEvent>();
-                                                                     list.AddFirst(aggregateRootEvent);
-                                                                 });
         }
     }
 }

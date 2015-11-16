@@ -79,6 +79,22 @@ namespace Composable.CQRS.EventSourcing.EventRefactoring.Migrations
 
         internal IReadOnlyList<AggregateRootEvent> MutatedHistory => _events.ToList();
 
-        public IEnumerable<EventModifier> GetHistory() { return _events.Nodes().Select(@eventNode => new EventModifier(@eventNode, _eventsAddedCallback)); }
+        //Yes, doing this optimization her does make a very significant performance improvement proven throught actual profiling and benchmarking. Do NOT replace this code with a linq expression!
+        public IEnumerable<EventModifier> GetHistory()
+        {
+            if (_events.Count == 1)
+            {
+                yield return this;
+                yield break;
+            }
+
+            var node = _events.First;
+            while (node != null)
+            {
+                yield return new EventModifier(node, _eventsAddedCallback);
+                node = node.Next;
+            }
+
+        }
     }
 }

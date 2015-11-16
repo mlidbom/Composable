@@ -21,22 +21,22 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
                                   .Concat(
                                       1.Through(10)
                                        .SelectMany(
-                                           index => 1.Through(900)
+                                           index => 1.Through(996)
                                                      .Select(_ => typeof(E1))
-                                                     .Append(typeof(E9))));
+                                                     .Concat(Seq.OfTypes<E2,E4,E6,E8>())));
 
             var aggregate = TestAggregate.FromEvents(Guid.NewGuid(), historyTypes);
             _history = aggregate.History.Cast<AggregateRootEvent>().ToList();
         }
 
         [Test]
-        public void With_four_migrations_mutation_takes_less_than_200_milliseconds()
+        public void With_four_migrations_mutation_that_all_actually_changes_things_migration_takes_less_than_200_milliseconds()
         {
             var eventMigrations = Seq.Create<IEventMigration>(
-                Before<E6>.Insert<E2>(),
-                Before<E7>.Insert<E3>(),
-                Before<E8>.Insert<E4>(),
-                Before<E9>.Insert<E5>()
+                Before<E2>.Insert<E3>(),
+                Before<E4>.Insert<E5>(),
+                Before<E6>.Insert<E7>(),
+                Before<E8>.Insert<E9>()
                 ).ToArray();
 
             TimeAsserter.Execute(
@@ -46,6 +46,42 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
                 timeFormat: "ss\\.fff",
                 action: () => { SingleAggregateInstanceEventStreamMutator.MutateCompleteAggregateHistory(eventMigrations, _history); });
 
+        }
+
+        [Test]
+        public void With_four_migrations_that_change_nothing_mutation_takes_less_than_200_milliseconds()
+        {
+            var eventMigrations = Seq.Create<IEventMigration>(
+                Before<E3>.Insert<E1>(),
+                Before<E5>.Insert<E1>(),
+                Before<E7>.Insert<E1>(),
+                Before<E9>.Insert<E1>()
+                ).ToArray();
+
+            TimeAsserter.Execute(
+                maxAverage: 200.Milliseconds(),
+                iterations: 10,
+                description: "load aggregate in isolated scope",
+                timeFormat: "ss\\.fff",
+                action: () => { SingleAggregateInstanceEventStreamMutator.MutateCompleteAggregateHistory(eventMigrations, _history); });
+
+        }
+
+        [Test]
+        public void Calling_before_after_or_replace_1000000_times_takes_less_than_30_milliseconds()
+        {
+            var before = Before<E3>.Insert<E2>().CreateMigrator();
+            var replace = Replace<E3>.With<E2>().CreateMigrator();
+            var after = After<E3>.Insert<E2>().CreateMigrator();
+            var @event = new E2();
+            var eventModifier = new EventModifier(@event, _ => { });
+
+            var numberOfEventsToInspect = 1000000;
+            var maxtime = 800.Seconds();
+
+            TimeAsserter.Execute(maxTotal: maxtime, description: $"{nameof(before)}", iterations: numberOfEventsToInspect, action: () => before.MigrateEvent(@event, @eventModifier));
+            TimeAsserter.Execute(maxTotal: maxtime, description: $"{nameof(replace)}", iterations: numberOfEventsToInspect, action: () => replace.MigrateEvent(@event, @eventModifier));
+            TimeAsserter.Execute(maxTotal: maxtime, description: $"{nameof(after)}", iterations: numberOfEventsToInspect, action: () => after.MigrateEvent(@event, @eventModifier));
         }
 
         [Test]

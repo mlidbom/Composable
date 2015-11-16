@@ -7,14 +7,18 @@ using Composable.System.Linq;
 
 namespace Composable.CQRS.EventSourcing.EventRefactoring.Migrations
 {
+    //Yes this class has quite a bit of code that looks overly complex. Like it could be simplified a lot. 
+    //What you are seeing is likely optimizations. Please do not change this class for reasons of readability unless you do thorough performance testing and verify that no performance is lost.
+    //The performance of this class is extremely important since it is called at least once for every event that is loaded from the event store when you have any migrations activated. It is called A LOT.
+    //This is one of those central classes for which optimization is actually vitally important.
+    //Each of the optimizations were done with the help of a profiler and running benchmarks on the tested performance improvements time and time again.  
     internal class SingleAggregateInstanceEventStreamMutator : ISingleAggregateInstanceEventStreamMutator
     {
         private readonly Guid _aggregateId;
         private readonly ISingleAggregateInstanceEventMigrator[] _eventMigrations;
-        private readonly Action<IReadOnlyList<AggregateRootEvent>> _eventsAddedCallback;
         private readonly EventModifier _eventModifier;
 
-        private int AggregateVersion { get; set; } = 1;
+        private int _aggregateVersion = 1;
 
         public static ISingleAggregateInstanceEventStreamMutator Create(IAggregateRootEvent creationEvent, IReadOnlyList<IEventMigration> eventMigrations, Action<IReadOnlyList<AggregateRootEvent>> eventsAddedCallback = null)
         {
@@ -24,8 +28,7 @@ namespace Composable.CQRS.EventSourcing.EventRefactoring.Migrations
         private SingleAggregateInstanceEventStreamMutator
             (IAggregateRootEvent creationEvent, IEnumerable<IEventMigration> eventMigrations, Action<IReadOnlyList<AggregateRootEvent>> eventsAddedCallback)
         {
-            _eventsAddedCallback = eventsAddedCallback ?? (_ => {});
-            _eventModifier = new EventModifier(_eventsAddedCallback);
+            _eventModifier = new EventModifier(eventsAddedCallback ?? (_ => { }));
             _aggregateId = creationEvent.AggregateRootId;
             _eventMigrations = eventMigrations
                 .Where(migration => migration.MigratedAggregateEventHierarchyRootInterface.IsInstanceOfType(creationEvent))
@@ -41,7 +44,7 @@ namespace Composable.CQRS.EventSourcing.EventRefactoring.Migrations
                 return Seq.Create(@event);
             }            
 
-            @event.AggregateRootVersion = AggregateVersion;
+            @event.AggregateRootVersion = _aggregateVersion;
             _eventModifier.Reset(@event);
 
             for(var index = 0; index < _eventMigrations.Length; index++)
@@ -63,13 +66,13 @@ namespace Composable.CQRS.EventSourcing.EventRefactoring.Migrations
             }
 
             var newHistory = _eventModifier.MutatedHistory;
-            AggregateVersion += newHistory.Count;
+            _aggregateVersion += newHistory.Length;
             return newHistory;
         }
 
         public IEnumerable<AggregateRootEvent> EndOfAggregate()
         {
-            return Seq.Create(new EventStreamEndedEvent(_aggregateId, AggregateVersion))
+            return Seq.Create(new EventStreamEndedEvent(_aggregateId, _aggregateVersion))
                 .SelectMany(Mutate)
                 .Where(@event => @event.GetType() != typeof(EventStreamEndedEvent));
         }

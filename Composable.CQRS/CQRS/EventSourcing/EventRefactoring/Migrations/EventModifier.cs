@@ -31,14 +31,7 @@ namespace Composable.CQRS.EventSourcing.EventRefactoring.Migrations
             _eventsAddedCallback = eventsAddedCallback;
         }
 
-        internal EventModifier(LinkedListNode<AggregateRootEvent> currentNode, Action<IReadOnlyList<AggregateRootEvent>> eventsAddedCallback)
-        {
-            _eventsAddedCallback = eventsAddedCallback;
-            CurrentNode = currentNode;
-            Events = currentNode.List;
-        }
-
-        public AggregateRootEvent Event { get; private set; }
+        public AggregateRootEvent Event;
 
         private LinkedListNode<AggregateRootEvent> _currentNode;
         private LinkedListNode<AggregateRootEvent> CurrentNode
@@ -97,7 +90,7 @@ namespace Composable.CQRS.EventSourcing.EventRefactoring.Migrations
         {
             Contract.Assert(_insertedEvents == null, $"You can only call {nameof(InsertBefore)} once");
 
-            _insertedEvents = insert.ToList();
+            _insertedEvents = insert;
 
             _insertedEvents.ForEach(
                 (e, index) =>
@@ -118,6 +111,6 @@ namespace Composable.CQRS.EventSourcing.EventRefactoring.Migrations
             _eventsAddedCallback.Invoke(_insertedEvents);
         }
 
-        internal IReadOnlyList<AggregateRootEvent> MutatedHistory => Events?.ToList() ?? new List<AggregateRootEvent> { Event };
+        internal AggregateRootEvent[] MutatedHistory => Events?.ToArray() ?? new[] { Event };
     }
 }

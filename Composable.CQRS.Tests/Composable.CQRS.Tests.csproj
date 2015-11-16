@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
-    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>  
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProductVersion>8.0.30703</ProductVersion>
@@ -186,7 +186,7 @@
     <Compile Include="CQRS\EventSourcing\EventRefactoring\Migrations\Before.cs" />
     <Compile Include="CQRS\EventSourcing\EventRefactoring\Migrations\EventStreamMutatorTests.cs" />
     <Compile Include="CQRS\EventSourcing\EventRefactoring\Migrations\EventStreamMutatorTestsBase.cs" />
-    <Compile Include="CQRS\EventSourcing\EventRefactoring\Migrations\MigrationsPerformanceTest.SingleAggregateInstanceEventStreamMutatorPerformanceTest.cs" />
+    <Compile Include="CQRS\EventSourcing\EventRefactoring\Migrations\MigrationsPerformanceTest.SingleAggregateInstanceEventStreamMutatorPerformanceTest_Given_a_10000_events_large_aggregate.cs" />
     <Compile Include="CQRS\EventSourcing\EventRefactoring\Migrations\MigrationsPerformanceTest.InMemory.cs" />
     <Compile Include="CQRS\EventSourcing\EventRefactoring\Migrations\Replace.cs" />
     <Compile Include="CQRS\EventSourcing\EventRefactoring\Migrations\MigrationsPerformanceTest.SqlServer.cs" />

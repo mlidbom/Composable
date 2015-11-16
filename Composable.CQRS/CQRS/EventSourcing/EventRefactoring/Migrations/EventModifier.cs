@@ -16,7 +16,7 @@ namespace Composable.CQRS.EventSourcing.EventRefactoring.Migrations
     internal class EventModifier : IEventModifier
     {
         private readonly Action<IReadOnlyList<AggregateRootEvent>> _eventsAddedCallback;
-        private LinkedList<AggregateRootEvent> _events;
+        internal LinkedList<AggregateRootEvent> Events;
         private IReadOnlyList<AggregateRootEvent> _replacementEvents;
         private IReadOnlyList<AggregateRootEvent> _insertedEvents;
 
@@ -26,11 +26,11 @@ namespace Composable.CQRS.EventSourcing.EventRefactoring.Migrations
             _eventsAddedCallback = eventsAddedCallback;
         }
 
-        private EventModifier(LinkedListNode<AggregateRootEvent> currentNode, Action<IReadOnlyList<AggregateRootEvent>> eventsAddedCallback)
+        internal EventModifier(LinkedListNode<AggregateRootEvent> currentNode, Action<IReadOnlyList<AggregateRootEvent>> eventsAddedCallback)
         {
             _eventsAddedCallback = eventsAddedCallback;
             CurrentNode = currentNode;
-            _events = currentNode.List;
+            Events = currentNode.List;
         }
 
         public AggregateRootEvent Event { get; private set; }
@@ -40,10 +40,10 @@ namespace Composable.CQRS.EventSourcing.EventRefactoring.Migrations
         {
             get
             {
-                if (_events == null)
+                if (Events == null)
                 {
-                    _events = new LinkedList<AggregateRootEvent>();
-                    _currentNode = _events.AddFirst(Event);
+                    Events = new LinkedList<AggregateRootEvent>();
+                    _currentNode = Events.AddFirst(Event);
                 }
                 return _currentNode;
             }
@@ -98,24 +98,6 @@ namespace Composable.CQRS.EventSourcing.EventRefactoring.Migrations
             _eventsAddedCallback.Invoke(_insertedEvents);
         }
 
-        internal IReadOnlyList<AggregateRootEvent> MutatedHistory => _events != null ? _events.ToList() : new List<AggregateRootEvent> { Event };
-
-        //Yes, doing this optimization her does make a very significant performance improvement proven throught actual profiling and benchmarking. Do NOT replace this code with a linq expression!
-        public IEnumerable<EventModifier> GetHistory()
-        {
-            if (_events == null)
-            {
-                yield return this;
-                yield break;
-            }
-
-            var node = _events.First;
-            while (node != null)
-            {
-                yield return new EventModifier(node, _eventsAddedCallback);
-                node = node.Next;
-            }
-
-        }
+        internal IReadOnlyList<AggregateRootEvent> MutatedHistory => Events != null ? Events.ToList() : new List<AggregateRootEvent> { Event };
     }
 }

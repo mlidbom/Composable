@@ -1,5 +1,4 @@
-﻿using System;
-using Castle.Core;
+﻿using Castle.Core;
 using Castle.MicroKernel;
 using Castle.MicroKernel.ModelBuilder;
 
@@ -9,7 +8,6 @@ namespace Composable.CQRS.Windsor
     /// Add this mutator to the Container using container.Kernel.ComponentModelBuilder.AddContributor(new LifestyleRegistrationMutator());
     /// in order to allow PerWebRequest lifestyled Components to be treated as Scoped instead (this makes it work with NServiceBus and unit test)
     /// </summary>
-    [Obsolete("Please remove your Composable.CQRS.Windsor nuget package. These methods are now directly in the Composable.CQRS package", error: true)]
     public class LifestyleRegistrationMutator : IContributeComponentModelConstruction
     {
         private readonly LifestyleType _originalLifestyle;

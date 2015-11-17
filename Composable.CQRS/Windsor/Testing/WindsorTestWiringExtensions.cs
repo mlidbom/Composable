@@ -9,7 +9,6 @@ namespace Composable.CQRS.Windsor.Testing
 {
     public static class WindsorTestWiringExtensions
     {
-        [Obsolete("Please remove your Composable.CQRS.Windsor nuget package. These methods are now directly in the Composable.CQRS package", error: true)]
         public static RewiringHelper WhenTesting(this IWindsorContainer @this)
         {
             return new RewiringHelper(@this);
@@ -24,7 +23,6 @@ namespace Composable.CQRS.Windsor.Testing
                 _container = container;
             }
 
-            [Obsolete("Please remove your Composable.CQRS.Windsor nuget package. These methods are now directly in the Composable.CQRS package", error: true)]
             public RewiringHelper ReplaceDocumentDb(string dbToReplace, string replacementName = null)
             {
                 return ReplaceComponent(
@@ -35,7 +33,6 @@ namespace Composable.CQRS.Windsor.Testing
                     replacementName: replacementName);
             }
 
-            [Obsolete("Please remove your Composable.CQRS.Windsor nuget package. These methods are now directly in the Composable.CQRS package", error: true)]
             public RewiringHelper ReplaceEventStore(string name, string replacementName = null)
             {
                 return ReplaceComponent(
@@ -46,24 +43,22 @@ namespace Composable.CQRS.Windsor.Testing
                         replacementName: replacementName);
             }
 
-            [Obsolete("Please remove your Composable.CQRS.Windsor nuget package. These methods are now directly in the Composable.CQRS package", error: true)]
             public RewiringHelper ReplaceComponent<TServiceType>(string componentName, ComponentRegistration<TServiceType> replacement, string replacementName = null) where TServiceType : class
             {
                 _container.Register(
                     Component.For<IConfigureWiringForTests>()
-                        .Instance(new LambdaBasedTestRewirer(() => WindsorComponentReplacer.ReplaceComponent(_container, componentName, replacement, replacementName)))
+                        .Instance(new LambdaBasedTestRewirer(() => _container.ReplaceComponent(componentName, replacement, replacementName)))
                         .Named(Guid.NewGuid().ToString())
                     );
 
                 return this;
             }
 
-            [Obsolete("Please remove your Composable.CQRS.Windsor nuget package. These methods are now directly in the Composable.CQRS package", error: true)]
             public RewiringHelper ReplaceDefault<TServiceType>(ComponentRegistration<TServiceType> replacement) where TServiceType : class
             {
                 _container.Register(
                     Component.For<IConfigureWiringForTests>()
-                        .Instance(new LambdaBasedTestRewirer(() => WindsorComponentReplacer.ReplaceDefault(_container, replacement)))
+                        .Instance(new LambdaBasedTestRewirer(() => _container.ReplaceDefault(replacement)))
                         .Named(Guid.NewGuid().ToString())
                     );
 

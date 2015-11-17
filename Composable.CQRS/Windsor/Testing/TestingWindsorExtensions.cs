@@ -11,7 +11,6 @@ using Composable.SystemExtensions.Threading;
 
 namespace Composable.CQRS.Windsor.Testing
 {
-    [Obsolete("Please remove your Composable.CQRS.Windsor nuget package. These methods are now directly in the Composable.CQRS package", error: true)]
     public static class TestingWindsorExtensions
     {
         public static void ResetTestDataBases(this IWindsorContainer container)

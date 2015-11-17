@@ -14,29 +14,24 @@ namespace Composable.CQRS
         where TComponentBaseEventClass : TAggregateRootBaseEventClass, TComponentBaseEventInterface
     {
         private readonly Action<TComponentBaseEventClass> _raiseEvent;
-        protected readonly Func<ITimeSource> TimeSourceFetcher;
         private readonly CallMatchingHandlersInRegistrationOrderEventDispatcher<TComponentBaseEventInterface> _eventAppliersEventDispatcher = new CallMatchingHandlersInRegistrationOrderEventDispatcher<TComponentBaseEventInterface>();
         private readonly CallMatchingHandlersInRegistrationOrderEventDispatcher<TComponentBaseEventInterface> _eventHandlersEventDispatcher = new CallMatchingHandlersInRegistrationOrderEventDispatcher<TComponentBaseEventInterface>();
 
         protected AggregateRootComponent(
             TAggregateRoot aggregateRoot,
-            Action<TComponentBaseEventClass> raiseEvent,
-            Func<ITimeSource> timeSourceFetcher)
+            Action<TComponentBaseEventClass> raiseEvent)
         {
             Contract.Requires(aggregateRoot != null);
             Contract.Requires(raiseEvent != null);
-            Contract.Requires(timeSourceFetcher != null);
 
             _eventHandlersEventDispatcher.RegisterHandlers()
                 .IgnoreUnhandled<TComponentBaseEventClass>();
 
             AggregateRoot = aggregateRoot;
             _raiseEvent = raiseEvent;
-            TimeSourceFetcher = timeSourceFetcher;
         }
 
         protected TAggregateRoot AggregateRoot { get; private set; }
-        protected ITimeSource TimeSource => TimeSourceFetcher();
 
         protected void ApplyEvent(TComponentBaseEventInterface @event)
         {

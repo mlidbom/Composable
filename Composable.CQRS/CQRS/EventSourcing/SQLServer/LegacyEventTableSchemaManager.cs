@@ -87,7 +87,7 @@ GO
 
 GO
 
---DROP TABLE {Name}
+DROP TABLE {Name}
 ";
 
         public string InsertEventTypesSql => $@"

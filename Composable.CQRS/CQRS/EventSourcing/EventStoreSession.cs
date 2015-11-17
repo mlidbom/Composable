@@ -35,7 +35,7 @@ namespace Composable.CQRS.EventSourcing
         private readonly HashSet<Guid> _publishedEvents = new HashSet<Guid>();
         private readonly ISingleContextUseGuard _usageGuard;
         private readonly List<Guid> _pendingDeletes = new List<Guid>();
-        protected internal ITimeSource TimeSource { get; set; }
+        protected internal IUtcTimeTimeSource TimeSource { get; set; }
 
 
         [Obsolete("The sessions now absolutely require a time source. This is only here for binary backwards compatability and will be removed SOON.", error:true)]
@@ -44,7 +44,7 @@ namespace Composable.CQRS.EventSourcing
             this.Log().Warn($"Using obsolete method in {nameof(EventStoreSession)}. This might cause inconsistencies in date time values. please upgrade Composable.Cqrs ASAP. This method will be removed SOON");
         }
 
-        public EventStoreSession(IServiceBus bus, IEventStore store, ISingleContextUseGuard usageGuard, ITimeSource timeSource)
+        public EventStoreSession(IServiceBus bus, IEventStore store, ISingleContextUseGuard usageGuard, IUtcTimeTimeSource timeSource)
         {
             Contract.Requires(bus != null);
             Contract.Requires(store != null);

@@ -37,14 +37,14 @@ FROM {EventTable.Name} With(UPDLOCK, READCOMMITTED, ROWLOCK) ";
             @event.AggregateRootId = eventReader.GetGuid(2);
             @event.AggregateRootVersion = eventReader[3] as int? ?? eventReader.GetInt32(10);
             @event.EventId = eventReader.GetGuid(4);
-            @event.UtcTimeStamp = DateTime.SpecifyKind(eventReader.GetDateTime(5), DateTimeKind.Utc);
+            @event.UtcTimeStamp = DateTime.SpecifyKind(eventReader.GetDateTime(5), DateTimeKind.Utc);//Without this the datetime will be DateTimeKind.Unspecified and will not convert correctly into Local time....
             @event.InsertionOrder = eventReader.GetInt64(6);
             @event.InsertAfter = eventReader[7] as long?;
             @event.InsertBefore = eventReader[8] as long?;
             @event.Replaces = eventReader[9] as long?;
             @event.InsertedVersion = eventReader.GetInt32(10);
             @event.ManualVersion = eventReader[11] as int?;
-            @event.EffectiveVersion = eventReader[3] as int?;
+            @event.EffectiveVersion = eventReader[3] as int?;            
 
             return @event;
         }

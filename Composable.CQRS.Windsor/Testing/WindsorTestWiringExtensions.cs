@@ -4,12 +4,13 @@ using Castle.Windsor;
 using Composable.CQRS.EventSourcing;
 using Composable.KeyValueStorage;
 using Composable.Windsor;
+using Composable.Windsor.Testing;
 
 namespace Composable.CQRS.Windsor.Testing
 {
     public static class WindsorTestWiringExtensions
     {
-        [Obsolete("Please remove your Composable.CQRS.Windsor nuget package. These methods are now directly in the Composable.CQRS package", error: true)]
+        [Obsolete("'These extensions are now in the Composable.CQRS package. Search and replace: 'using Composable.CQRS.Windsor.Testing;' with 'using Composable.Windsor.Testing;' and 'using Composable.CQRS.Windsor;' with 'using Composable.Windsor;'", error: true)]
         public static RewiringHelper WhenTesting(this IWindsorContainer @this)
         {
             return new RewiringHelper(@this);
@@ -24,7 +25,7 @@ namespace Composable.CQRS.Windsor.Testing
                 _container = container;
             }
 
-            [Obsolete("Please remove your Composable.CQRS.Windsor nuget package. These methods are now directly in the Composable.CQRS package", error: true)]
+            [Obsolete("'These extensions are now in the Composable.CQRS package. Search and replace: 'using Composable.CQRS.Windsor.Testing;' with 'using Composable.Windsor.Testing;' and 'using Composable.CQRS.Windsor;' with 'using Composable.Windsor;'", error: true)]
             public RewiringHelper ReplaceDocumentDb(string dbToReplace, string replacementName = null)
             {
                 return ReplaceComponent(
@@ -35,7 +36,7 @@ namespace Composable.CQRS.Windsor.Testing
                     replacementName: replacementName);
             }
 
-            [Obsolete("Please remove your Composable.CQRS.Windsor nuget package. These methods are now directly in the Composable.CQRS package", error: true)]
+            [Obsolete("'These extensions are now in the Composable.CQRS package. Search and replace: 'using Composable.CQRS.Windsor.Testing;' with 'using Composable.Windsor.Testing;' and 'using Composable.CQRS.Windsor;' with 'using Composable.Windsor;'", error: true)]
             public RewiringHelper ReplaceEventStore(string name, string replacementName = null)
             {
                 return ReplaceComponent(
@@ -46,7 +47,7 @@ namespace Composable.CQRS.Windsor.Testing
                         replacementName: replacementName);
             }
 
-            [Obsolete("Please remove your Composable.CQRS.Windsor nuget package. These methods are now directly in the Composable.CQRS package", error: true)]
+            [Obsolete("'These extensions are now in the Composable.CQRS package. Search and replace: 'using Composable.CQRS.Windsor.Testing;' with 'using Composable.Windsor.Testing;' and 'using Composable.CQRS.Windsor;' with 'using Composable.Windsor;'", error: true)]
             public RewiringHelper ReplaceComponent<TServiceType>(string componentName, ComponentRegistration<TServiceType> replacement, string replacementName = null) where TServiceType : class
             {
                 _container.Register(
@@ -58,7 +59,7 @@ namespace Composable.CQRS.Windsor.Testing
                 return this;
             }
 
-            [Obsolete("Please remove your Composable.CQRS.Windsor nuget package. These methods are now directly in the Composable.CQRS package", error: true)]
+            [Obsolete("'These extensions are now in the Composable.CQRS package. Search and replace: 'using Composable.CQRS.Windsor.Testing;' with 'using Composable.Windsor.Testing;' and 'using Composable.CQRS.Windsor;' with 'using Composable.Windsor;'", error: true)]
             public RewiringHelper ReplaceDefault<TServiceType>(ComponentRegistration<TServiceType> replacement) where TServiceType : class
             {
                 _container.Register(

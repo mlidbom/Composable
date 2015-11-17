@@ -4,13 +4,13 @@ using Castle.MicroKernel.Registration.Lifestyle;
 
 namespace Composable.CQRS.Windsor
 {
-    [Obsolete("Please remove your Composable.CQRS.Windsor nuget package. These methods are now directly in the Composable.CQRS package", error: true)]
+    [Obsolete("'These extensions are now in the Composable.CQRS package. Search and replace: 'using Composable.CQRS.Windsor.Testing;' with 'using Composable.Windsor.Testing;' and 'using Composable.CQRS.Windsor;' with 'using Composable.Windsor;'", error: true)]
     public static class WindsorLifestyleRegistrationExtensions
     {
         /// <summary>
         /// Currently just an alias for Scoped since that is how we implement per message lifestyle in nservicebus.
         /// </summary>
-        [Obsolete("Please remove your Composable.CQRS.Windsor nuget package. These methods are now directly in the Composable.CQRS package", error: true)]
+        [Obsolete("'These extensions are now in the Composable.CQRS package. Search and replace: 'using Composable.CQRS.Windsor.Testing;' with 'using Composable.Windsor.Testing;' and 'using Composable.CQRS.Windsor;' with 'using Composable.Windsor;'", error: true)]
         public static ComponentRegistration<TComponent> PerNserviceBusMessage<TComponent>(this LifestyleGroup<TComponent> lifestyleGroup) where TComponent : class
         {
             return lifestyleGroup.Scoped();

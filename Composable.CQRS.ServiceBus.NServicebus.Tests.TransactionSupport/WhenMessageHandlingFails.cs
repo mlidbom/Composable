@@ -25,8 +25,8 @@ using JetBrains.Annotations;
 using NCrunch.Framework;
 using NServiceBus;
 using NUnit.Framework;
-using Composable.CQRS.Windsor;
 using Composable.GenericAbstractions.Time;
+using Composable.Windsor;
 
 #endregion
 

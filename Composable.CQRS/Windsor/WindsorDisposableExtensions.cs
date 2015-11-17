@@ -1,12 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using Castle.Windsor;
 
-namespace Composable.CQRS.Windsor
+namespace Composable.Windsor
 {
-    [Obsolete("'Now in the Composable.Windsor namespace. Search and replace: 'using Composable.CQRS.Windsor.Testing;' with 'using Composable.Windsor.Testing;' and 'using Composable.CQRS.Windsor;' with 'using Composable.Windsor;'", error: true)]
     public static class WindsorDisposableExtensions
     {
         public static DisposableComponent<TComponent> ResolveDisposable<TComponent>(this IWindsorContainer me)

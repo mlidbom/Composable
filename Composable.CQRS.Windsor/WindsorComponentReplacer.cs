@@ -4,10 +4,10 @@ using Castle.Windsor;
 
 namespace Composable.CQRS.Windsor
 {
-    [Obsolete("Please remove your Composable.CQRS.Windsor nuget package. These methods are now directly in the Composable.CQRS package", error: true)]
+    [Obsolete("'These extensions are now in the Composable.CQRS package. Search and replace: 'using Composable.CQRS.Windsor.Testing;' with 'using Composable.Windsor.Testing;' and 'using Composable.CQRS.Windsor;' with 'using Composable.Windsor;'", error: true)]
     public static class WindsorComponentReplacer
     {
-        [Obsolete("Please remove your Composable.CQRS.Windsor nuget package. These methods are now directly in the Composable.CQRS package", error: true)]
+        [Obsolete("'These extensions are now in the Composable.CQRS package. Search and replace: 'using Composable.CQRS.Windsor.Testing;' with 'using Composable.Windsor.Testing;' and 'using Composable.CQRS.Windsor;' with 'using Composable.Windsor;'", error: true)]
         public static IWindsorContainer ReplaceComponent<TServiceType>(this IWindsorContainer @this, string componentName, ComponentRegistration<TServiceType> replacement, string replacementName = null) where TServiceType : class
         {
             replacementName = replacementName ?? Guid.NewGuid().ToString();
@@ -25,7 +25,7 @@ namespace Composable.CQRS.Windsor
             return @this;
         }
 
-        [Obsolete("Please remove your Composable.CQRS.Windsor nuget package. These methods are now directly in the Composable.CQRS package", error: true)]
+        [Obsolete("'These extensions are now in the Composable.CQRS package. Search and replace: 'using Composable.CQRS.Windsor.Testing;' with 'using Composable.Windsor.Testing;' and 'using Composable.CQRS.Windsor;' with 'using Composable.Windsor;'", error: true)]
         public static IWindsorContainer ReplaceDefault<TServiceType>(this IWindsorContainer @this, ComponentRegistration<TServiceType> replacement) where TServiceType : class
         {
             var replacementName = Guid.NewGuid().ToString();

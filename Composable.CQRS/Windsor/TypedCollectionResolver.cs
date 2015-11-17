@@ -4,7 +4,7 @@ using Castle.Core.Internal;
 using Castle.MicroKernel;
 using Castle.MicroKernel.Context;
 
-namespace Composable.CQRS.Windsor
+namespace Composable.Windsor
 {
     /// <summary>
     /// A collection resolver based of the default CollectionResolver in Castle Windsor but it only resolves collections of the specified type (T)

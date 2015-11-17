@@ -1,4 +1,4 @@
-namespace Composable.CQRS.Windsor.Testing
+namespace Composable.Windsor.Testing
 {
     public interface IResetTestDatabases
     {

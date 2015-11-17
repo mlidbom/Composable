@@ -2,7 +2,7 @@ using System;
 using System.Reflection;
 using Castle.MicroKernel.Context;
 
-namespace Composable.CQRS.Windsor
+namespace Composable.Windsor
 {
     public static  class CreationContextExtensions
     {

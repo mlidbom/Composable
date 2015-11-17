@@ -1,7 +1,7 @@
 ﻿using Castle.MicroKernel.Registration;
-using Composable.CQRS.Query;
+using Composable.CQRS;
 
-namespace Composable.CQRS.Windsor
+namespace Composable.Windsor
 {
     public static class WindsorExtensions
     {

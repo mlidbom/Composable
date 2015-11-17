@@ -2,8 +2,8 @@
 using System.Linq;
 using Composable.CQRS.EventSourcing;
 using Composable.CQRS.EventSourcing.EventRefactoring.Migrations;
-using Composable.CQRS.Windsor;
 using Composable.System.Linq;
+using Composable.Windsor;
 using FluentAssertions;
 using NUnit.Framework;
 using TestAggregates;

@@ -3,9 +3,8 @@ using Castle.MicroKernel.Registration;
 using Castle.Windsor;
 using Composable.CQRS.EventSourcing;
 using Composable.KeyValueStorage;
-using Composable.Windsor;
 
-namespace Composable.CQRS.Windsor.Testing
+namespace Composable.Windsor.Testing
 {
     public static class WindsorTestWiringExtensions
     {

@@ -5,10 +5,9 @@ using Castle.Windsor;
 using JetBrains.Annotations;
 using NServiceBus;
 
-namespace Composable.CQRS.Windsor.Testing
+namespace Composable.Windsor.Testing
 {
     [UsedImplicitly]
-    [Obsolete("This class is obsolete and will soon be removed. Please use Composable.Windsor.Testing.ForTestsEventHandlerInstallerBase instead. Search and replace 'using Composable.CQRS.Windsor.Testing;' with 'using Composable.Windsor.Testing;'", error:true)]
     public abstract class ForTestsEventHandlerInstallerBase<TInheritor> : IWindsorInstaller
     {
         public void Install(IWindsorContainer container, IConfigurationStore store)

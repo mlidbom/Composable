@@ -314,7 +314,19 @@
     <Compile Include="UnitsOfWork\IUnitOfWorkParticipantWhoseCommitMayTriggerChangesInOtherParticipantsMustImplementIdemponentCommit.cs" />
     <Compile Include="UnitsOfWork\TooDeepCascadeLevelDetected.cs" />
     <Compile Include="UnitsOfWork\UnitOfWork.cs" />
+    <Compile Include="Windsor\CreationContextExtensions.cs" />
+    <Compile Include="Windsor\DefaultToKeyHandlerSelector.cs" />
+    <Compile Include="Windsor\KeyReplacementHandlerSelector.cs" />
+    <Compile Include="Windsor\LifestyleRegistrationExtensions.cs" />
+    <Compile Include="Windsor\LifestyleRegistrationMutator.cs" />
+    <Compile Include="Windsor\Testing\IResetTestDatabases.cs" />
+    <Compile Include="Windsor\Testing\TestingWindsorExtensions.cs" />
+    <Compile Include="Windsor\Testing\WindsorTestWiringExtensions.cs" />
+    <Compile Include="Windsor\TypedCollectionResolver.cs" />
     <Compile Include="Windsor\UICommandServiceInstaller.cs" />
+    <Compile Include="Windsor\WindsorComponentReplacer.cs" />
+    <Compile Include="Windsor\WindsorConfigurationValidator.cs" />
+    <Compile Include="Windsor\WindsorExtensions.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
@@ -327,6 +339,12 @@
       <SubType>Designer</SubType>
     </None>
     <None Include="Void.snk" />
+    <None Include="Windsor\app.config" />
+    <None Include="Windsor\Composable.CQRS.Windsor.nuspec">
+      <SubType>Designer</SubType>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Windsor\packages.config" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Composable.DomainEvents\Composable.DomainEvents.csproj">

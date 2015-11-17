@@ -12,10 +12,8 @@ using Composable.System.Linq;
 
 namespace Composable.CQRS.Windsor
 {
-    [Obsolete("Please remove your Composable.CQRS.Windsor nuget package. These methods are now directly in the Composable.CQRS package", error: true)]
     public static class WindsorConfigurationValidator
     {
-        [Obsolete("Please remove your Composable.CQRS.Windsor nuget package. These methods are now directly in the Composable.CQRS package", error: true)]
         public static void AssertConfigurationValid(this IWindsorContainer container)
         {
             var assignableHandlers = container.Kernel.GetAssignableHandlers(typeof(object)).ToArray();

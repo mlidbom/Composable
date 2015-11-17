@@ -11,7 +11,6 @@ namespace Composable.CQRS.Windsor
     /// Use it by adding it to the container at wire-up with container.Kernel.Resolver.AddSubResolver(new TypedCollectionResolver&lt;CollectionItemType&gt;(container.Kernel));
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    [Obsolete("Please remove your Composable.CQRS.Windsor nuget package. These methods are now directly in the Composable.CQRS package", error: true)]
     public class TypedCollectionResolver<T> : ISubDependencyResolver
     {
         private readonly bool _allowEmptyCollections;

@@ -9,7 +9,6 @@ namespace Composable.CQRS.Windsor
     /// (instead of the default Windsor behavior of defaulting to the first registered service)
     /// Use it by adding it to the container at wire-up with container.Kernel.AddHandlerSelector(new DefaultToKeyHandlerSelector(typeof([ComponentType]),"defaultKey"));
     /// </summary>
-    [Obsolete("Please remove your Composable.CQRS.Windsor nuget package. These methods are now directly in the Composable.CQRS package", error: true)]
     public class DefaultToKeyHandlerSelector : IHandlerSelector
     {
         private readonly Type _type;

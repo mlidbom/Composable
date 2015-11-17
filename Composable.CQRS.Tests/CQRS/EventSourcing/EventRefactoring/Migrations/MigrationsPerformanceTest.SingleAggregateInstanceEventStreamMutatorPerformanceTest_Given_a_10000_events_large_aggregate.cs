@@ -94,7 +94,7 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
         }
 
         [Test]
-        public void Calling_before_after_or_replace_1000000_times_takes_less_than_50_milliseconds()
+        public void Calling_before_after_or_replace_1000000_times_takes_less_than_60_milliseconds()
         {
             var before = Before<E3>.Insert<E2>().CreateMigrator();
             var replace = Replace<E3>.With<E2>().CreateMigrator();
@@ -103,7 +103,7 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
             var eventModifier = new EventModifier(@event, _ => { });
 
             var numberOfEventsToInspect = 1000000;
-            var maxtime = NCrunchPerformance.AdjustRuntime(50.Milliseconds(), boost: 8.0);
+            var maxtime = NCrunchPerformance.AdjustRuntime(60.Milliseconds(), boost: 8.0);
 
             TimeAsserter.Execute(
                 maxTotal: maxtime,

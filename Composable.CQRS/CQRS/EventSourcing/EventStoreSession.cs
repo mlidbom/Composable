@@ -34,10 +34,10 @@ namespace Composable.CQRS.EventSourcing
         private readonly HashSet<Guid> _publishedEvents = new HashSet<Guid>();
         private readonly ISingleContextUseGuard _usageGuard;
         private readonly List<Guid> _pendingDeletes = new List<Guid>();
-        protected internal IUtcTimeTimeSource TimeSource { get; set; }
+        protected internal ITimeSource TimeSource { get; set; }
 
 
-        public EventStoreSession(IServiceBus bus, IEventStore store, ISingleContextUseGuard usageGuard, IUtcTimeTimeSource timeSource=null)
+        public EventStoreSession(IServiceBus bus, IEventStore store, ISingleContextUseGuard usageGuard, ITimeSource timeSource=null)
         {
             Contract.Requires(bus != null);
             Contract.Requires(store != null);

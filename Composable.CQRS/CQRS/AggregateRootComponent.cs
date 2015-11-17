@@ -31,6 +31,7 @@ namespace Composable.CQRS
             _raiseEvent = raiseEvent;
         }
 
+        protected ITimeSource TimeSource => AggregateRoot.TimeSource;
         protected TAggregateRoot AggregateRoot { get; private set; }
 
         protected void ApplyEvent(TComponentBaseEventInterface @event)

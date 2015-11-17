@@ -1,4 +1,5 @@
 ﻿using System;
+using Composable.System.Reactive;
 
 namespace Composable.GenericAbstractions.Time
 {
@@ -21,6 +22,21 @@ namespace Composable.GenericAbstractions.Time
         ///<summary>Returns a timesource that will forever return <param name="utcTime"> as the current time.</param></summary>
         public static DummyTimeSource FromÚtcTime(DateTime utcTime) { return new DummyTimeSource(utcTime); }
 
+
+        ///<summary>Allows for subscribing to notifications about <see cref="UtcNow"/> changing.</summary>
+        public IObservable<DateTime> UtcChanged { get { return _utcChanged; } }
+        ///<summary>Allows for subscribing to notifications about <see cref="LocalNow"/> changing.</summary>
+        public IObservable<DateTime> LocalChanged { get { return _localChanged; } }
+
+        private readonly SimpleObservable<DateTime> _utcChanged = new SimpleObservable<DateTime>();
+        private readonly SimpleObservable<DateTime> _localChanged = new SimpleObservable<DateTime>();
+
+        private void NotifyListeners()
+        {
+            _utcChanged.OnNext(UtcNow);
+            _localChanged.OnNext(LocalNow);
+        }
+
         ///<summary>Gets or sets the current UTC time.</summary>
         public DateTime UtcNow
         {
@@ -32,6 +48,7 @@ namespace Composable.GenericAbstractions.Time
             {
                 _utcNow = value.ToUniversalTime();
                 _localNow = _utcNow.ToLocalTime();
+                NotifyListeners();
             }
         }
 
@@ -46,6 +63,7 @@ namespace Composable.GenericAbstractions.Time
             {
                 _localNow = value.ToLocalTime();
                 _utcNow = _localNow.ToUniversalTime();
+                NotifyListeners();
             }
         }
     }

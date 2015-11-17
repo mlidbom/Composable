@@ -18,14 +18,15 @@ namespace Composable.CQRS.EventSourcing
         protected internal ITimeSource TimeSource { get; private set; }
 
         [Obsolete("Only for infrastructure", true)]
-        public AggregateRoot(){ }
+        public AggregateRoot():this(DateTimeNowTimeSource.Instance){ }
 
         //Yes empty. Id should be assigned by an action and it should be obvious that the aggregate in invalid until that happens
         protected AggregateRoot(ITimeSource timeSource) : base(Guid.Empty)
         {
             Contract.Assert(timeSource != null);
             Contract.Assert(typeof(TBaseEventInterface).IsInterface);
-            TimeSource = timeSource;            
+            TimeSource = timeSource;
+            _eventHandlersEventDispatcher.Register().IgnoreUnhandled<IAggregateRootEvent>();
         }
 
         private readonly IList<IAggregateRootEvent> _unCommittedEvents = new List<IAggregateRootEvent>();

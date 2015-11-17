@@ -120,6 +120,8 @@ namespace Composable.CQRS.EventHandling
 
         private Dictionary<Type, Action<object>[]> _typeToHandlerCache;
         private int _cachedTotalHandlers = 0;
+
+
         private Action<object>[] GetHandlers(Type type)
         {
             if(_cachedTotalHandlers != _totalHandlers)
@@ -156,7 +158,7 @@ namespace Composable.CQRS.EventHandling
             {
                 if(!_ignoredEvents.Any(ignoredEventType => ignoredEventType.IsAssignableFrom(type)))
                 {
-                    throw new EventUnhandledException(this.GetType(), type);
+                    throw new EventUnhandledException(GetType(), type);
                 }
                 return new Action<object>[0];
             }
@@ -167,6 +169,11 @@ namespace Composable.CQRS.EventHandling
 
         public void Dispatch(TEvent evt)
         {
+            if(_totalHandlers == 0)
+            {
+                throw new EventUnhandledException(GetType(), evt.GetType());
+            }
+
             var handlers = GetHandlers(evt.GetType());
             for(var i = 0; i < handlers.Length; i++)
             {

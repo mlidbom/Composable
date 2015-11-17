@@ -26,6 +26,7 @@ using NCrunch.Framework;
 using NServiceBus;
 using NUnit.Framework;
 using Composable.CQRS.Windsor;
+using Composable.GenericAbstractions.Time;
 
 #endregion
 
@@ -78,12 +79,12 @@ namespace Composable.CQRS.ServiceBus.NServicebus.Tests.TransactionSupport
     {
     }
 
-    public class Aggregate : AggregateRoot<Aggregate, IAggregateRootEvent>
+    public class Aggregate : AggregateRoot<Aggregate, AggregateRootEvent, IAggregateRootEvent>
     {
         //always the same in order to cause an exception while saving multiple instances. 
         private readonly Guid _aggregateId = Guid.Parse("EFEF768C-F37B-426F-A53B-BF28A254C55E");
 
-        public Aggregate(int events)
+        public Aggregate(int events):base(new DateTimeNowTimeSource())
         {
             RegisterEventAppliers().For<SomeAggregateCreationEvent>(e => SetIdBeVerySureYouKnowWhatYouAreDoing(_aggregateId));
             1.Through(events).ForEach(i => RaiseEvent(new SomeAggregateCreationEvent(Guid.Parse("00000000-0000-0000-0000-00000000000{0}".FormatWith(i)))));

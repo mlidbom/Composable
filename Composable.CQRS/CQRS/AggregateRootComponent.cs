@@ -7,7 +7,7 @@ using Composable.GenericAbstractions.Time;
 namespace Composable.CQRS
 {
     public abstract class AggregateRootComponent<TAggregateRoot, TComponentBaseEventClass, TComponentBaseEventInterface, TAggregateRootBaseEventClass, TAggregateRootBaseEventInterface>        
-        where TAggregateRoot : AggregateRootV2<TAggregateRoot, TAggregateRootBaseEventClass, TAggregateRootBaseEventInterface>
+        where TAggregateRoot : AggregateRoot<TAggregateRoot, TAggregateRootBaseEventClass, TAggregateRootBaseEventInterface>
         where TAggregateRootBaseEventInterface : IAggregateRootEvent
         where TAggregateRootBaseEventClass : AggregateRootEvent, TAggregateRootBaseEventInterface
         where TComponentBaseEventInterface : TAggregateRootBaseEventInterface

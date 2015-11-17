@@ -4,6 +4,7 @@ using System.Diagnostics.Contracts;
 using System.Linq;
 using Composable.CQRS.EventSourcing;
 using Composable.CQRS.EventSourcing.EventRefactoring.Migrations;
+using Composable.GenericAbstractions.Time;
 using Composable.System.Linq;
 using FluentAssertions;
 using NUnit.Framework;
@@ -135,7 +136,7 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
         }
     }
 
-    public class TestAggregate2 : AggregateRootV2<TestAggregate, RootEvent, IRootEvent>
+    public class TestAggregate2 : AggregateRoot<TestAggregate, RootEvent, IRootEvent>
     {
         public void RaiseEvents(params RootEvent[] events)
         {
@@ -151,7 +152,7 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
             }
         }
 
-        private TestAggregate2()
+        private TestAggregate2():base(new DateTimeNowTimeSource())
         {
             RegisterEventAppliers()
                 .For<IRootEvent>(e => {})

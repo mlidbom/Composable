@@ -2,10 +2,12 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.Contracts;
 using System.Linq;
 using System.Threading;
 using System.Transactions;
 using Composable.CQRS.EventSourcing.SQLServer;
+using Composable.GenericAbstractions.Time;
 using Composable.ServiceBus;
 using Composable.StuffThatDoesNotBelongHere;
 using Composable.System;
@@ -32,12 +34,19 @@ namespace Composable.CQRS.EventSourcing
         private readonly HashSet<Guid> _publishedEvents = new HashSet<Guid>();
         private readonly ISingleContextUseGuard _usageGuard;
         private readonly List<Guid> _pendingDeletes = new List<Guid>();
+        protected internal IUtcTimeTimeSource TimeSource { get; set; }
 
-        public EventStoreSession(IServiceBus bus, IEventStore store, ISingleContextUseGuard usageGuard)
+
+        public EventStoreSession(IServiceBus bus, IEventStore store, ISingleContextUseGuard usageGuard, IUtcTimeTimeSource timeSource=null)
         {
+            Contract.Requires(bus != null);
+            Contract.Requires(store != null);
+            Contract.Requires(usageGuard != null);
+
             _usageGuard = usageGuard;
             _bus = bus;
             _store = store;
+            TimeSource = timeSource ?? DateTimeNowTimeSource.Instance;
         }
 
         public TAggregate Get<TAggregate>(Guid aggregateId) where TAggregate : IEventStored
@@ -211,10 +220,12 @@ namespace Composable.CQRS.EventSourcing
             }
         }
 
-        private static TAggregate CreateInstance<TAggregate>() where TAggregate : IEventStored
+        private TAggregate CreateInstance<TAggregate>() where TAggregate : IEventStored
         {
-            return (TAggregate)Activator.CreateInstance(typeof(TAggregate), nonPublic: true);
-        }
+            var aggregate = (TAggregate)Activator.CreateInstance(typeof(TAggregate), nonPublic: true);
+            aggregate.SetTimeSource(TimeSource);
+            return aggregate;
+        }        
 
         private void PublishUnpublishedEvents(IEnumerable<IAggregateRootEvent> events)
         {

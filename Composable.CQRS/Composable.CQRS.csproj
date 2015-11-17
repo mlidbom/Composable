@@ -158,7 +158,7 @@
     <Compile Include="CQRS\EventHandling\IEventHandlerRegistrar.cs" />
     <Compile Include="CQRS\EventHandling\SingleAggregateQueryModelUpdater.cs" />
     <Compile Include="CQRS\EventHandling\UniqueMatchEventHierarchyHandler.cs" />
-    <Compile Include="CQRS\EventSourcing\AggregateRoot.cs" />
+    <Compile Include="CQRS\EventSourcing\AggregateRoot.Old.cs" />
     <Compile Include="CQRS\EventSourcing\AttemptToSaveEmptyAggregate.cs" />
     <Compile Include="CQRS\EventSourcing\EventRefactoring\Migrations\CompleteEventStoreStreamMutator.cs" />
     <Compile Include="CQRS\EventSourcing\EventRefactoring\Migrations\EventMigration.cs" />
@@ -208,7 +208,6 @@
     <Compile Include="CQRS\Query\Models\Generators\IVersioningDocumentDbReader.cs" />
     <Compile Include="CQRS\Query\Models\Generators\IVersioningQueryModelGenerator.cs" />
     <Compile Include="CQRS\ReferenceObject.cs" />
-    <Compile Include="CQRS\TempAggregateRootWithTimeSourceSupport.cs" />
     <Compile Include="CQRS\TranslatedReferenceObject.cs" />
     <Compile Include="CQRS\UI\Command\CommandExecutionError.cs" />
     <Compile Include="CQRS\UI\Command\IHandleUICommand.cs" />
@@ -291,7 +290,7 @@
     <Compile Include="ServiceBus\MessageHandlersInvoker.cs" />
     <Compile Include="ServiceBus\MessageHandlerInvoker.MessageHandlerMethod.cs" />
     <Compile Include="ServiceBus\IServiceBus.cs" />
-    <Compile Include="CQRS\EventSourcing\AggregateRootV2.cs" />
+    <Compile Include="CQRS\EventSourcing\AggregateRoot.cs" />
     <Compile Include="ServiceBus\ISynchronousBusMessageSpy.cs" />
     <Compile Include="ServiceBus\MessageHandlerResolver.cs" />
     <Compile Include="ServiceBus\MultipleMessageHandlersRegisteredException.cs" />

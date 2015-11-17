@@ -14,6 +14,8 @@ namespace Composable.CQRS.EventSourcing
         where TEntity : AggregateRoot<TEntity, TBaseEvent>
         where TBaseEvent : IAggregateRootEvent
     {
+
+        protected AggregateRoot():this(DateTimeNowTimeSource.Instance) { }
         //Yes empty. Id should be assigned by an action and it should be obvious that the aggregate in invalid until that happens
         protected AggregateRoot(ITimeSource timeSource = null) : base(Guid.Empty)
         {

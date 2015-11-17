@@ -17,6 +17,11 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
     public class SqlServerEventStoreEventStreamMutatorTests : EventStreamMutatorTests
     {
         public SqlServerEventStoreEventStreamMutatorTests() : base(typeof(SqlServerEventStore)) { }
+        [SetUp]
+        public void SetupTask()
+        {
+            SqlServerEventStore.ResetDB(ConnectionString);
+        }
     }
 
     [TestFixture, ExclusivelyUses(NCrunchExlusivelyUsesResources.EventStoreDbMdf)]

@@ -18,6 +18,12 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
     {
         public SqlServerMigrationsPerformanceTest() : base(typeof(SqlServerEventStore)) { }
 
+        [SetUp]
+        public void SetupTask()
+        {
+            SqlServerEventStore.ResetDB(ConnectionString);
+        }
+
         [Test]
         public void A_ten_thousand_events_large_aggregate_with_four_migrations_should_load_cached_in_less_than_20_milliseconds()
         {

@@ -31,10 +31,6 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
         }
 
         protected static string ConnectionString => ConfigurationManager.ConnectionStrings["EventStore"].ConnectionString;
-        [SetUp]
-        public void SetupTask() {
-            SqlServerEventStore.ResetDB(ConnectionString);   
-        }
 
         protected void RunMigrationTest
             (

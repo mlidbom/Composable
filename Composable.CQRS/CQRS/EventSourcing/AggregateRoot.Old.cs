@@ -17,7 +17,7 @@ namespace Composable.CQRS.EventSourcing
 
         protected AggregateRoot():this(DateTimeNowTimeSource.Instance) { }
         //Yes empty. Id should be assigned by an action and it should be obvious that the aggregate in invalid until that happens
-        protected AggregateRoot(ITimeSource timeSource = null) : base(Guid.Empty)
+        protected AggregateRoot(IUtcTimeTimeSource timeSource = null) : base(Guid.Empty)
         {
             TimeSource = timeSource ?? DateTimeNowTimeSource.Instance;
         }
@@ -63,6 +63,9 @@ namespace Composable.CQRS.EventSourcing
         {
         }
 
+
+        IUtcTimeTimeSource IEventStored.TimeSource => TimeSource;
+
         void IEventStored.AcceptChanges()
         {
             _unCommittedEvents.Clear();
@@ -78,8 +81,8 @@ namespace Composable.CQRS.EventSourcing
             history.ForEach(theEvent => ApplyEvent((TBaseEvent)theEvent));
         }
 
-        protected internal ITimeSource TimeSource { get; set; }
-        void IEventStored.SetTimeSource(ITimeSource timeSource)
+        protected IUtcTimeTimeSource TimeSource { get; private set; }
+        void IEventStored.SetTimeSource(IUtcTimeTimeSource timeSource)
         {
             TimeSource = timeSource;
         }

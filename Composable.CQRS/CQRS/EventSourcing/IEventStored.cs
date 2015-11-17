@@ -12,6 +12,7 @@ namespace Composable.CQRS.EventSourcing
         IEnumerable<IAggregateRootEvent> GetChanges();
         void AcceptChanges();
         void LoadFromHistory(IEnumerable<IAggregateRootEvent> history);
-        void SetTimeSource(ITimeSource timeSource);
+        void SetTimeSource(IUtcTimeTimeSource timeSource);
+        IUtcTimeTimeSource TimeSource { get; }
     }
 }

@@ -15,7 +15,7 @@ namespace Composable.CQRS.EventSourcing
         private readonly IList<IAggregateRootEvent> _unCommittedEvents = new List<IAggregateRootEvent>();
 
         //Yes empty. Id should be assigned by action and it should be obvious that the aggregate in invalid until that happens
-        protected EventStoredAggregateRoot(IUtcTimeTimeSource timeSource = null) : base(Guid.Empty)
+        protected EventStoredAggregateRoot(ITimeSource timeSource = null) : base(Guid.Empty)
         {
             TimeSource = timeSource ?? new DateTimeNowTimeSource();
         }
@@ -77,8 +77,8 @@ namespace Composable.CQRS.EventSourcing
             Version = history.Max(e => e.AggregateRootVersion);
         }
 
-        protected internal IUtcTimeTimeSource TimeSource { get; set; }
-        void IEventStored.SetTimeSource(IUtcTimeTimeSource timeSource)
+        protected internal ITimeSource TimeSource { get; set; }
+        void IEventStored.SetTimeSource(ITimeSource timeSource)
         {
             TimeSource = timeSource;
         }

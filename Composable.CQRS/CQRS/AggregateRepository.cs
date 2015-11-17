@@ -1,7 +1,5 @@
 ﻿using System;
 using Composable.CQRS.EventSourcing;
-using Composable.GenericAbstractions.Time;
-using Composable.System;
 
 namespace Composable.CQRS
 {
@@ -11,17 +9,15 @@ namespace Composable.CQRS
         where TBaseEventInterface : IAggregateRootEvent
     {
         protected readonly IEventStoreSession Aggregates;
-        private readonly IUtcTimeTimeSource _timeSource;
 
-        public AggregateRepository(IEventStoreSession aggregates, IUtcTimeTimeSource timeSource)
+        public AggregateRepository(IEventStoreSession aggregates)
         {
             Aggregates = aggregates;
-            _timeSource = timeSource;
         }
 
         public virtual TAggregate Get(Guid id)
         {
-            return Aggregates.Get<TAggregate>(id).Do(aggregate => aggregate.TimeSource = _timeSource);
+            return Aggregates.Get<TAggregate>(id);
         }
 
         public virtual void Add(TAggregate aggregate)

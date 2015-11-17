@@ -15,13 +15,13 @@ namespace Composable.CQRS.EventSourcing
         where TBaseEventInterface : IAggregateRootEvent
         where TBaseEventClass : AggregateRootEvent, TBaseEventInterface
     {
-        protected internal IUtcTimeTimeSource TimeSource { get; set; }
+        protected internal ITimeSource TimeSource { get; private set; }
 
         [Obsolete("Only for infrastructure", true)]
         public AggregateRoot(){ }
 
         //Yes empty. Id should be assigned by an action and it should be obvious that the aggregate in invalid until that happens
-        protected AggregateRoot(IUtcTimeTimeSource timeSource) : base(Guid.Empty)
+        protected AggregateRoot(ITimeSource timeSource) : base(Guid.Empty)
         {
             Contract.Assert(timeSource != null);
             Contract.Assert(typeof(TBaseEventInterface).IsInterface);
@@ -55,6 +55,7 @@ namespace Composable.CQRS.EventSourcing
             ApplyEvent(theEvent);
             AssertInvariantsAreMet();
             _unCommittedEvents.Add(theEvent);
+            _eventHandlersEventDispatcher.Dispatch(theEvent);
             DomainEvent.Raise(theEvent);
         }
 
@@ -92,7 +93,7 @@ namespace Composable.CQRS.EventSourcing
             return _unCommittedEvents;
         }
 
-        void IEventStored.SetTimeSource(IUtcTimeTimeSource timeSource)
+        void IEventStored.SetTimeSource(ITimeSource timeSource)
         {
             TimeSource = timeSource;
         }

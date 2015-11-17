@@ -6,14 +6,14 @@ using Composable.System;
 namespace Composable.CQRS
 {
     public class AggregateRepository<TAggregate, TBaseEventClass, TBaseEventInterface> : IAggregateRepository<TAggregate>
-        where TAggregate : TempAggregateRootWithTimeSourceSupport<TAggregate, TBaseEventClass, TBaseEventInterface>, IEventStored
+        where TAggregate : AggregateRoot<TAggregate, TBaseEventClass, TBaseEventInterface>, IEventStored
         where TBaseEventClass : AggregateRootEvent, TBaseEventInterface
         where TBaseEventInterface : IAggregateRootEvent
     {
         protected readonly IEventStoreSession Aggregates;
-        private readonly ITimeSource _timeSource;
+        private readonly IUtcTimeTimeSource _timeSource;
 
-        public AggregateRepository(IEventStoreSession aggregates, ITimeSource timeSource)
+        public AggregateRepository(IEventStoreSession aggregates, IUtcTimeTimeSource timeSource)
         {
             Aggregates = aggregates;
             _timeSource = timeSource;

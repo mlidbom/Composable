@@ -3,17 +3,22 @@ using System.Collections.Generic;
 using System.Linq;
 using Composable.DDD;
 using Composable.DomainEvents;
+using Composable.GenericAbstractions.Time;
 using Composable.System.Linq;
 
 namespace Composable.CQRS.EventSourcing
 {
+    [Obsolete("No longer supported. please use AggregateRoot<TEntity, TBaseEventClass, TBaseEventInterface>")]
     public class EventStoredAggregateRoot<TEntity> : VersionedPersistentEntity<TEntity>, IEventStored
         where TEntity : EventStoredAggregateRoot<TEntity>
     {
         private readonly IList<IAggregateRootEvent> _unCommittedEvents = new List<IAggregateRootEvent>();
 
         //Yes empty. Id should be assigned by action and it should be obvious that the aggregate in invalid until that happens
-        protected EventStoredAggregateRoot() : base(Guid.Empty) { }
+        protected EventStoredAggregateRoot(IUtcTimeTimeSource timeSource = null) : base(Guid.Empty)
+        {
+            TimeSource = timeSource ?? new DateTimeNowTimeSource();
+        }
 
         private readonly Dictionary<Type, Action<IAggregateRootEvent>> _registeredEvents = new Dictionary<Type, Action<IAggregateRootEvent>>();
         private void RegisterEventHandler<TEvent>(Action<TEvent> eventHandler) where TEvent : class, IAggregateRootEvent
@@ -70,6 +75,12 @@ namespace Composable.CQRS.EventSourcing
         {
             history.ForEach(evt => ApplyAs(evt, evt.GetType()));
             Version = history.Max(e => e.AggregateRootVersion);
+        }
+
+        protected internal IUtcTimeTimeSource TimeSource { get; set; }
+        void IEventStored.SetTimeSource(IUtcTimeTimeSource timeSource)
+        {
+            TimeSource = timeSource;
         }
 
         void IEventStored.AcceptChanges()

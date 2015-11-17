@@ -24,7 +24,7 @@ namespace CQRS.Tests.CQRS.EventSourcing
         public SomeEvent(Guid aggregateRootId, int version): base(aggregateRootId)
         {
             AggregateRootVersion = version;
-            TimeStamp = new DateTime(TimeStamp.Year, TimeStamp.Month, TimeStamp.Day, TimeStamp.Hour, TimeStamp.Minute, TimeStamp.Second);
+            UtcTimeStamp = new DateTime(UtcTimeStamp.Year, UtcTimeStamp.Month, UtcTimeStamp.Day, UtcTimeStamp.Hour, UtcTimeStamp.Minute, UtcTimeStamp.Second);
         }
     }
 

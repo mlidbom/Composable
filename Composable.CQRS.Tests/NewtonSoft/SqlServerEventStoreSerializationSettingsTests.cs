@@ -35,12 +35,12 @@ namespace CQRS.Tests.NewtonSoft
                                             InsertBefore = 20,
                                             Replaces = 30,
                                             InsertionOrder = 40,
-                                            TimeStamp = DateTime.Now + 1.Minutes()};
+                                            UtcTimeStamp = DateTime.Now + 1.Minutes()};
 
             var eventWithOnlySubclassValues = new TestEvent("Test1", "Test2")
                                               {
                                                   EventId = Guid.Empty,
-                                                  TimeStamp = DateTime.MinValue
+                                                  UtcTimeStamp = DateTime.MinValue
                                               };
 
             var eventWithAllValuesJson = JsonConvert.SerializeObject(eventWithAllValuesSet, JsonSettings.SqlEventStoreSerializerSettings);
@@ -53,8 +53,9 @@ namespace CQRS.Tests.NewtonSoft
             eventWithAllValuesJson.Should().Be(eventWithOnlySubclassValuesJson);
 
             roundTripped.ShouldBeEquivalentTo(eventWithOnlySubclassValues,
-                config => config.Excluding(@event => @event.TimeStamp)//Timestamp is defaulted in the constructor used by serialization.
-                        .Excluding(@event => @event.EventId)//Also defaulted in the constructor
+                config => config.Excluding(@event => @event.UtcTimeStamp)//Timestamp is defaulted in the constructor used by serialization.
+                        .Excluding(@event => @event.EventId)
+                        .Excluding(subjectInfo => subjectInfo.SelectedMemberPath.EndsWith("TimeStamp"))//Obsoleted property that will be removed and cannot be refered to because of the error: true attribute.
                 );
         }
     }

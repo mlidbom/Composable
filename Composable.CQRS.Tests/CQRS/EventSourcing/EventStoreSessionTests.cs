@@ -15,6 +15,7 @@ using NUnit.Framework;
 using Composable.System.Linq;
 using System.Linq;
 using System.Threading.Tasks;
+using Composable.GenericAbstractions.Time;
 
 namespace CQRS.Tests.CQRS.EventSourcing
 {
@@ -32,7 +33,7 @@ namespace CQRS.Tests.CQRS.EventSourcing
 
         protected IEventStoreSession OpenSession(IEventStore store)
         {
-            return new EventStoreSession(Bus, store, new SingleThreadUseGuard());
+            return new EventStoreSession(Bus, store, new SingleThreadUseGuard(), DateTimeNowTimeSource.Instance);
         }
 
         [Test]
@@ -324,7 +325,7 @@ namespace CQRS.Tests.CQRS.EventSourcing
 
             var users = 1.Through(9).Select(i => { var u = new User(); u.Register(i + "@test.com", "abcd", Guid.NewGuid()); u.ChangeEmail("new" + i + "@test.com"); return u; }).ToList();
 
-            using (var session = new EventStoreSession(bus, store, new SingleThreadUseGuard()))
+            using (var session = new EventStoreSession(bus, store, new SingleThreadUseGuard(), DateTimeNowTimeSource.Instance))
             {
                 var uow = new UnitOfWork(new SingleThreadUseGuard());
                 uow.AddParticipant(session);
@@ -357,7 +358,7 @@ namespace CQRS.Tests.CQRS.EventSourcing
             var bus = new MockServiceBus();
             var store = new MockEventStore();
 
-            using (var session = new EventStoreSession(bus, store, new SingleThreadUseGuard()))
+            using (var session = new EventStoreSession(bus, store, new SingleThreadUseGuard(), DateTimeNowTimeSource.Instance))
             {
                 var aggregate1 = new Guid("92EC4FE2-26A8-4274-8674-DC5D95513C83");
                 var aggregate2 = new Guid("F08200E4-8790-4ECC-9F06-A3D3BAC9E21C");
@@ -378,7 +379,7 @@ namespace CQRS.Tests.CQRS.EventSourcing
             var bus = new MockServiceBus();
             var store = new MockEventStore();
 
-            using (var session = new EventStoreSession(bus, store, new SingleThreadUseGuard()))
+            using (var session = new EventStoreSession(bus, store, new SingleThreadUseGuard(), DateTimeNowTimeSource.Instance))
             {
                 var uow = new UnitOfWork(new SingleThreadUseGuard());
                 uow.AddParticipant(session);

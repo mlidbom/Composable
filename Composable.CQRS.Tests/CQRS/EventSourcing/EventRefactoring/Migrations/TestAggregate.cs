@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using System.Linq;
 using Composable.CQRS.EventSourcing;
+using Composable.GenericAbstractions.Time;
 using Composable.System.Linq;
 
 namespace TestAggregates
@@ -54,7 +55,7 @@ namespace TestAggregates
     }
 
 
-    public class TestAggregate : AggregateRootV2<TestAggregate, RootEvent, IRootEvent>
+    public class TestAggregate : AggregateRoot<TestAggregate, RootEvent, IRootEvent>
     {
         public void RaiseEvents(params RootEvent[] events)
         {
@@ -70,7 +71,7 @@ namespace TestAggregates
             }
         }
 
-        private TestAggregate()
+        private TestAggregate():base(new DateTimeNowTimeSource())
         {
             RegisterEventAppliers()
                 .For<IRootEvent>(e => _history.Add(e));

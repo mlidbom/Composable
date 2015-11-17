@@ -13,7 +13,7 @@ CREATE TABLE dbo.{Name}(
         when {EventTable.Columns.InsertAfter} is null and {EventTable.Columns.InsertBefore} is null and {EventTable.Columns.Replaces} is null then {EventTable.Columns.InsertedVersion}
         else null
     end,    
-    {EventTable.Columns.TimeStamp} datetime NOT NULL,    
+    {EventTable.Columns.UtcTimeStamp} datetime NOT NULL,    
     {EventTable.Columns.EventType} int NOT NULL,    
     {EventTable.Columns.Event} nvarchar(max) NOT NULL,
     {EventTable.Columns.EffectiveReadOrder} as case 
@@ -23,7 +23,7 @@ CREATE TABLE dbo.{Name}(
     end,
     {EventTable.Columns.EventId} uniqueidentifier NOT NULL,
     {EventTable.Columns.InsertedVersion} int NOT NULL,
-    {EventTable.Columns.SqlInsertDateTime} datetime2 default SYSUTCDATETIME(),
+    {EventTable.Columns.SqlInsertTimeStamp} datetime2 default SYSUTCDATETIME(),
     {EventTable.Columns.InsertAfter} bigint null,
     {EventTable.Columns.InsertBefore} bigint null,
     {EventTable.Columns.Replaces} bigint null,

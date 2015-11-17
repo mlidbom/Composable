@@ -18,8 +18,8 @@
             public const string InsertAfter = nameof(InsertAfter);
             public const string InsertBefore = nameof(InsertBefore);
             public const string Replaces = nameof(Replaces);
-            public const string TimeStamp = nameof(TimeStamp);
-            public const string SqlInsertDateTime = nameof(SqlInsertDateTime);
+            public const string UtcTimeStamp = nameof(UtcTimeStamp);
+            public const string SqlInsertTimeStamp = nameof(SqlInsertTimeStamp);
             public const string EventType = nameof(EventType);
             public const string EventId = nameof(EventId);
             public const string Event = nameof(Event);

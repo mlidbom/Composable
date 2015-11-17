@@ -13,7 +13,7 @@ namespace Composable.CQRS.EventSourcing
         protected AggregateRootEvent()
         {
             EventId = Guid.NewGuid();
-            TimeStamp = DateTime.UtcNow;
+            UtcTimeStamp = DateTime.UtcNow;
         }
 
         protected AggregateRootEvent(Guid aggregateRootId) : this() { AggregateRootId = aggregateRootId; }
@@ -23,7 +23,10 @@ namespace Composable.CQRS.EventSourcing
         public int AggregateRootVersion { get; set; }
 
         public Guid AggregateRootId { get; set; }
-        public DateTime TimeStamp { get; set; }
+        public DateTime UtcTimeStamp { get; set; }
+
+        [Obsolete("Please use UtcTimeStamp which is clear about what it is supposed to be. This propert will be removed soon. It is only here to provide runtime compatibility", error:true)]
+        public DateTime TimeStamp { get {return UtcTimeStamp;} set { UtcTimeStamp = value; } }
 
         internal int InsertedVersion { get; set; }
         internal int? EffectiveVersion { get; set; }

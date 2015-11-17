@@ -1,15 +1,16 @@
 ﻿using System;
 using Composable.CQRS.EventSourcing;
+using Composable.GenericAbstractions.Time;
 
 namespace CQRS.Tests.CQRS.EventSourcing
 {
-    internal class User : AggregateRootV2<User,UserEvent, IUserEvent>
+    internal class User : AggregateRoot<User,UserEvent, IUserEvent>
     {
         public string Email { get; private set; }
         public string Password { get; private set; }
 
 
-        public User()
+        public User():base(new DateTimeNowTimeSource())
         {
             RegisterEventAppliers()
                 .For<UserRegistered>(e =>

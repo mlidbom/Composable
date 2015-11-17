@@ -82,7 +82,7 @@ namespace Composable.CQRS.EventSourcing
             {
                 return _events
                     .Where(e => eventBaseType == null || eventBaseType.IsInstanceOfType(e))
-                    .OrderBy(e => e.TimeStamp)
+                    .OrderBy(e => e.UtcTimeStamp)
                     .Select(e => e.AggregateRootId)
                     .Distinct()
                     .ToList();

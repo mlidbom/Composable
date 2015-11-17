@@ -35,7 +35,7 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
             container.ExecuteUnitOfWorkInIsolatedScope(() => container.Resolve<IEventStoreSession>().Get<TestAggregate>(aggregate.Id));
 
             TimeAsserter.Execute(
-                maxAverage: 100.Milliseconds().AdjustRuntimeForNCrunch(boost:2), iterations: 10, description: "load aggregate in isolated scope", timeFormat: "fff",
+                maxAverage: 100.Milliseconds().AdjustRuntimeForNCrunch(boost:3), iterations: 10, description: "load aggregate in isolated scope", timeFormat: "fff",
                 action: () => container.ExecuteInIsolatedScope(() => container.Resolve<IEventStoreSession>().Get<TestAggregate>(aggregate.Id)));
         }
     }

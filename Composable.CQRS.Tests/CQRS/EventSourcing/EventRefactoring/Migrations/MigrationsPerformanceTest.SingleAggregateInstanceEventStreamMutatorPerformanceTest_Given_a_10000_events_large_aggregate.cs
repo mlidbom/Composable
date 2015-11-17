@@ -35,7 +35,16 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
         public void TestSetupPerformance()
         {
             var history = Seq.OfTypes<Ec1>()
-                             .Concat(1.Through(100000).Select(_ => typeof(E1)))
+                                  .Concat(1.Through(10000).Select(_ => typeof(E1)))
+                                  .Concat(1.Through(10000).Select(_ => typeof(E2)))
+                                  .Concat(1.Through(10000).Select(_ => typeof(E3)))
+                                  .Concat(1.Through(10000).Select(_ => typeof(E4)))
+                                  .Concat(1.Through(10000).Select(_ => typeof(E5)))
+                                  .Concat(1.Through(10000).Select(_ => typeof(E6)))
+                                  .Concat(1.Through(10000).Select(_ => typeof(E7)))
+                                  .Concat(1.Through(10000).Select(_ => typeof(E8)))
+                                  .Concat(1.Through(10000).Select(_ => typeof(E9)))
+                                  .Concat(1.Through(10000).Select(_ => typeof(Ef)))
                              .ToEvents();
 
             TimeAsserter.Execute(
@@ -146,6 +155,9 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
         {
             RegisterEventAppliers()
                 .For<IRootEvent>(e => {})
+                .For<Ec1>(e => { })
+                .For<Ec2>(e => { })
+                .For<Ec3>(e => { })
                 .For<E1>(e => { })
                 .For<E2>(e => { })
                 .For<E3>(e => { })

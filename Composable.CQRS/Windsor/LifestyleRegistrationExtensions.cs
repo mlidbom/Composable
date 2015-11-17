@@ -1,8 +1,7 @@
-using System;
 using Castle.MicroKernel.Registration;
 using Castle.MicroKernel.Registration.Lifestyle;
 
-namespace Composable.CQRS.Windsor
+namespace Composable.Windsor
 {
     public static class WindsorLifestyleRegistrationExtensions
     {

@@ -2,7 +2,7 @@
 using Castle.MicroKernel.Registration;
 using Castle.Windsor;
 
-namespace Composable.CQRS.Windsor
+namespace Composable.Windsor
 {
     public static class WindsorComponentReplacer
     {

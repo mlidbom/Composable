@@ -316,9 +316,14 @@
     <Compile Include="UnitsOfWork\UnitOfWork.cs" />
     <Compile Include="Windsor\CreationContextExtensions.cs" />
     <Compile Include="Windsor\DefaultToKeyHandlerSelector.cs" />
+    <Compile Include="Windsor\DisposableComponent.cs" />
+    <Compile Include="Windsor\DisposableComponentCollection.cs" />
     <Compile Include="Windsor\KeyReplacementHandlerSelector.cs" />
     <Compile Include="Windsor\LifestyleRegistrationExtensions.cs" />
     <Compile Include="Windsor\LifestyleRegistrationMutator.cs" />
+    <Compile Include="Windsor\MessageHandlersInstallerBase.cs" />
+    <Compile Include="Windsor\Testing\ForTestsEventHandlerInstallerBase.cs" />
+    <Compile Include="Windsor\Testing\IConfigureWiringForTests.cs" />
     <Compile Include="Windsor\Testing\IResetTestDatabases.cs" />
     <Compile Include="Windsor\Testing\TestingWindsorExtensions.cs" />
     <Compile Include="Windsor\Testing\WindsorTestWiringExtensions.cs" />
@@ -326,7 +331,9 @@
     <Compile Include="Windsor\UICommandServiceInstaller.cs" />
     <Compile Include="Windsor\WindsorComponentReplacer.cs" />
     <Compile Include="Windsor\WindsorConfigurationValidator.cs" />
+    <Compile Include="Windsor\WindsorDisposableExtensions.cs" />
     <Compile Include="Windsor\WindsorExtensions.cs" />
+    <Compile Include="Windsor\WindsorUnitOfWorkExtensions.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />

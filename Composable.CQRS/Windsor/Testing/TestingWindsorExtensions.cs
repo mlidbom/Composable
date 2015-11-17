@@ -9,7 +9,7 @@ using Composable.System;
 using Composable.System.Linq;
 using Composable.SystemExtensions.Threading;
 
-namespace Composable.CQRS.Windsor.Testing
+namespace Composable.Windsor.Testing
 {
     public static class TestingWindsorExtensions
     {
@@ -46,6 +46,12 @@ namespace Composable.CQRS.Windsor.Testing
         public static void ConfigureWiringForTestsCallAfterAllOtherWiring(this IWindsorContainer container)
         {
             foreach(var configurer in container.ResolveAll<IConfigureWiringForTests>())
+            {
+                configurer.ConfigureWiringForTesting();
+                container.Release(configurer);
+            }
+
+            foreach (var configurer in container.ResolveAll<CQRS.Windsor.Testing.IConfigureWiringForTests>())
             {
                 configurer.ConfigureWiringForTesting();
                 container.Release(configurer);

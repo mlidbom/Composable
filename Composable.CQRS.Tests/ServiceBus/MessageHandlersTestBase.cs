@@ -7,6 +7,7 @@ using Composable.CQRS.EventSourcing;
 using Composable.CQRS.Windsor.Testing;
 using Composable.ServiceBus;
 using Composable.SystemExtensions.Threading;
+using Composable.Windsor.Testing;
 using NServiceBus;
 using NUnit.Framework;
 

@@ -3,14 +3,13 @@
 using System;
 using System.Linq;
 using System.Text;
-using Castle.Core;
 using Castle.MicroKernel;
 using Castle.Windsor;
 using Composable.System.Linq;
 
 #endregion
 
-namespace Composable.CQRS.Windsor
+namespace Composable.Windsor
 {
     public static class WindsorConfigurationValidator
     {

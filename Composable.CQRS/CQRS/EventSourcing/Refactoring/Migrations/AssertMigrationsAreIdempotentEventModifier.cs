@@ -7,8 +7,8 @@ namespace Composable.CQRS.EventSourcing.Refactoring.Migrations
         public static readonly IEventModifier Instance = new AssertMigrationsAreIdempotentEventModifier();
         private AssertMigrationsAreIdempotentEventModifier() { }
 
-        public void Replace(IReadOnlyList<AggregateRootEvent> events) { throw new NonIdempotentMigrationDetectedException(); }
+        public void Replace(params AggregateRootEvent[] events) { throw new NonIdempotentMigrationDetectedException(); }
 
-        public void InsertBefore(IReadOnlyList<AggregateRootEvent> insert) { throw new NonIdempotentMigrationDetectedException(); }
+        public void InsertBefore(params AggregateRootEvent[] insert) { throw new NonIdempotentMigrationDetectedException(); }
     }
 }

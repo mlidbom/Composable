@@ -50,12 +50,8 @@ USE {connection.Database}
 
 GO
 
-BEGIN TRANSACTION
-
 {ActualMigrationScript}
 
-
-COMMIT TRANSACTION
 
 GO
 

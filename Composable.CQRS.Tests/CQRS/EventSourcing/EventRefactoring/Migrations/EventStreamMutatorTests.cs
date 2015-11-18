@@ -18,11 +18,11 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
 
     public class SqlServerEventStoreEventStreamMutatorTests : EventStreamMutatorTests
     {
-        public SqlServerEventStoreEventStreamMutatorTests() : base(typeof(SqlServerEventStore)) { }
+        public SqlServerEventStoreEventStreamMutatorTests() : base(typeof(MicrosoftSqlServerEventStore)) { }
         [SetUp]
         public void SetupTask()
         {
-            SqlServerEventStore.ResetDB(ConnectionString);
+            MicrosoftSqlServerEventStore.ResetDB(ConnectionString);
         }
     }
 

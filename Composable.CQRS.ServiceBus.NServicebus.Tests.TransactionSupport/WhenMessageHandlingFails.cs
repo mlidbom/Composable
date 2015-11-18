@@ -46,7 +46,7 @@ namespace Composable.CQRS.ServiceBus.NServicebus.Tests.TransactionSupport
         {
             var endpointConfigurer = new EndPointConfigurer("Composable.CQRS.ServiceBus.NServicebus.Tests.TransactionSupport");
 
-            var eventStore = new SqlServerEventStore(EventStoreConnectionString, new SingleThreadUseGuard());
+            var eventStore = new MicrosoftSqlServerEventStore(EventStoreConnectionString, new SingleThreadUseGuard());
 
             eventStore.ResetDB();
             SqlServerDocumentDb.ResetDB(EventStoreConnectionString);
@@ -146,13 +146,13 @@ namespace Composable.CQRS.ServiceBus.NServicebus.Tests.TransactionSupport
                     .ImplementedBy<EventStoreSession>()
                     .LifeStyle.PerNserviceBusMessage(),
 
-                Component.For<IEventStore, SqlServerEventStore>().ImplementedBy<SqlServerEventStore>()
+                Component.For<IEventStore, MicrosoftSqlServerEventStore>().ImplementedBy<MicrosoftSqlServerEventStore>()
                     .DependsOn(Dependency.OnValue(typeof(string), WhenMessageHandlingFails.DocumentDbConnectionString))
-                    .LifestyleSingleton(),
+                    .LifestyleScoped(),
 
                 Component.For<IDocumentDb>().ImplementedBy<SqlServerDocumentDb>()
                     .DependsOn(Dependency.OnValue(typeof(string), WhenMessageHandlingFails.EventStoreConnectionString))
-                    .LifestyleSingleton(),
+                    .LifestyleScoped(),
 
                 Component.For<IDocumentDbSession, IUnitOfWorkParticipant>().ImplementedBy<DocumentDbSession>()
                     .DependsOn(Dependency.OnValue(typeof(IDocumentDbSessionInterceptor), NullOpDocumentDbSessionInterceptor.Instance))

@@ -16,12 +16,12 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
     [ExclusivelyUses(NCrunchExlusivelyUsesResources.EventStoreDbMdf)]
     public class SqlServerMigrationsPerformanceTest : EventStreamMutatorTestsBase
     {
-        public SqlServerMigrationsPerformanceTest() : base(typeof(SqlServerEventStore)) { }
+        public SqlServerMigrationsPerformanceTest() : base(typeof(MicrosoftSqlServerEventStore)) { }
 
         [SetUp]
         public void SetupTask()
         {
-            SqlServerEventStore.ResetDB(ConnectionString);
+            MicrosoftSqlServerEventStore.ResetDB(ConnectionString);
         }
 
         [Test]

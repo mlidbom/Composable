@@ -1,13 +1,18 @@
 using System;
 using System.Diagnostics.Contracts;
+using Composable.System;
 
 namespace Composable.CQRS.EventSourcing.Refactoring.Migrations
 {
     public abstract class EventMigration<TMigratedAggregateEventHierarchyRootInterface> : IEventMigration
         where TMigratedAggregateEventHierarchyRootInterface : IAggregateRootEvent
     {
-        protected EventMigration()
+        protected EventMigration(Guid id, string name, string description)
         {
+            Contract.Requires(id != Guid.Empty);
+            Contract.Requires(!name.IsNullOrWhiteSpace());
+            Contract.Requires(!description.IsNullOrWhiteSpace());
+
             Contract.Assert(typeof(TMigratedAggregateEventHierarchyRootInterface).IsInterface, $"{nameof(TMigratedAggregateEventHierarchyRootInterface)} must be an interface.");
         }
 

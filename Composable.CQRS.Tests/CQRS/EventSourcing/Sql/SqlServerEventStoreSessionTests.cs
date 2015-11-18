@@ -23,12 +23,12 @@ namespace CQRS.Tests.CQRS.EventSourcing.Sql
         [TestFixtureSetUp]
         public static void SetupFixture()
         {
-            SqlServerEventStore.ResetDB(ConnectionString);
+            MicrosoftSqlServerEventStore.ResetDB(ConnectionString);
         }
 
         protected override IEventStore CreateStore()
         {
-            return new SqlServerEventStore(ConnectionString, new SingleThreadUseGuard());
+            return new MicrosoftSqlServerEventStore(ConnectionString, new SingleThreadUseGuard());
         }
 
         [Test]

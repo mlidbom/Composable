@@ -110,10 +110,10 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
             streamedEvents = container.ExecuteUnitOfWorkInIsolatedScope(() => container.Resolve<IEventStore>().StreamEvents().ToList());
             AssertStreamsAreIdentical(expected, streamedEvents, "Streaming all events in store");
 
-            if(eventStoreType == typeof(SqlServerEventStore))
+            if(eventStoreType == typeof(MicrosoftSqlServerEventStore))
             {
                 Console.WriteLine("Clearing sql server eventstore cache");
-                container.ExecuteUnitOfWorkInIsolatedScope(() => ((SqlServerEventStore)container.Resolve<IEventStore>()).ClearCache());
+                container.ExecuteUnitOfWorkInIsolatedScope(() => ((MicrosoftSqlServerEventStore)container.Resolve<IEventStore>()).ClearCache());
                 migratedHistory = container.ExecuteUnitOfWorkInIsolatedScope(() => container.Resolve<IEventStoreSession>().Get<TestAggregate>(initialAggregate.Id)).History;
                 AssertStreamsAreIdentical(expected, migratedHistory, "Loaded aggregate");
 
@@ -152,7 +152,7 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
         }
         private static IRegistration SelectLifeStyle(ComponentRegistration<IEventStore> dependsOn)
         {
-            if(dependsOn.Implementation == typeof(SqlServerEventStore))
+            if(dependsOn.Implementation == typeof(MicrosoftSqlServerEventStore))
             {
                 return dependsOn.LifestylePerWebRequest();
             }

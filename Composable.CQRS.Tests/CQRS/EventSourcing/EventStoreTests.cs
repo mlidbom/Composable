@@ -54,7 +54,7 @@ namespace CQRS.Tests.CQRS.EventSourcing
         {
             using (var eventStore = CreateEventStore())
             {
-                const int moreEventsThanTheBatchSizeForStreamingEvents = SqlServerEventStore.StreamEventsBatchSize * 3;
+                const int moreEventsThanTheBatchSizeForStreamingEvents = MicrosoftSqlServerEventStore.StreamEventsBatchSize * 3;
                 var aggregateId = Guid.NewGuid();
                 eventStore.SaveEvents(1.Through(moreEventsThanTheBatchSizeForStreamingEvents).Select(i => new SomeEvent(aggregateId, i)));
                 var stream = eventStore.StreamEvents().ToList();
@@ -169,18 +169,18 @@ namespace CQRS.Tests.CQRS.EventSourcing
 
         private static void ResetDataBases()
         {
-            SqlServerEventStore.ResetDB(ConnectionString1);
-            SqlServerEventStore.ResetDB(ConnectionString2);
+            MicrosoftSqlServerEventStore.ResetDB(ConnectionString1);
+            MicrosoftSqlServerEventStore.ResetDB(ConnectionString2);
         }
 
         protected override IEventStore CreateEventStore()
         {
-            return new SqlServerEventStore(ConnectionString1, new SingleThreadUseGuard());
+            return new MicrosoftSqlServerEventStore(ConnectionString1, new SingleThreadUseGuard());
         }
 
         override protected IEventStore CreateEventStore2()
         {
-            return new SqlServerEventStore(ConnectionString2, new SingleThreadUseGuard());
+            return new MicrosoftSqlServerEventStore(ConnectionString2, new SingleThreadUseGuard());
         }
 
         [Test]

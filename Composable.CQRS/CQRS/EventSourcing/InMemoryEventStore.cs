@@ -88,6 +88,7 @@ namespace Composable.CQRS.EventSourcing
                     .ToList();
             }
         }
+        public IEnumerable<IAggregateRootEvent> StreamEventsAfterEventWithId(Guid? startAfterEventId) { throw new NotImplementedException(); }
 
         public void Reset()
         {

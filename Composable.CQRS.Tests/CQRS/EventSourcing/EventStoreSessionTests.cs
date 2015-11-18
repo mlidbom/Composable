@@ -314,6 +314,7 @@ namespace CQRS.Tests.CQRS.EventSourcing
             public void DeleteEvents(Guid aggregateId) { DeletedAggregates.Add(aggregateId); }
             public void PersistMigrations() { throw new NotImplementedException(); }
             public IEnumerable<Guid> StreamAggregateIdsInCreationOrder(Type eventBaseType = null) { throw new NotImplementedException(); }
+            public IEnumerable<IAggregateRootEvent> StreamEventsAfterEventWithId(Guid? startAfterEventId) { throw new NotImplementedException(); }
             public IEnumerable<Guid> StreamAggregateIdsInCreationOrder() { throw new NotImplementedException(); }
         }
 

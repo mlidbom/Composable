@@ -187,23 +187,23 @@
     <Compile Include="CQRS\EventSourcing\RegisteredHandlerMissingException.cs" />
     <Compile Include="CQRS\EventSourcing\ReuseOfEventStoreSessionException.cs" />
     <Compile Include="CQRS\EventSourcing\EventStoredAggregateRoot.cs" />
-    <Compile Include="CQRS\EventSourcing\SQLServer\SqlServerEventStore.MigrationsScripts.cs" />
-    <Compile Include="CQRS\EventSourcing\SQLServer\IEventTypeToIdMapper.cs" />
-    <Compile Include="CQRS\EventSourcing\SQLServer\LegacyEventTable.cs" />
-    <Compile Include="CQRS\EventSourcing\SQLServer\EventTableSchemaManager.cs" />
-    <Compile Include="CQRS\EventSourcing\SQLServer\EventTypeTable.cs" />
-    <Compile Include="CQRS\EventSourcing\SQLServer\EventTable.cs" />
-    <Compile Include="CQRS\EventSourcing\SQLServer\EventTypeTableSchemaManager.cs" />
-    <Compile Include="CQRS\EventSourcing\SQLServer\LegacyEventTableSchemaManager.cs" />
-    <Compile Include="CQRS\EventSourcing\SQLServer\SqlServerEventStoreConnectionManager.cs" />
-    <Compile Include="CQRS\EventSourcing\SQLServer\SqlServerEventStoreEventReader.cs" />
-    <Compile Include="CQRS\EventSourcing\SQLServer\SqlServerEventStoreEventsCache.cs" />
-    <Compile Include="CQRS\EventSourcing\SQLServer\MicrosoftSqlServerEventStore.cs" />
-    <Compile Include="CQRS\EventSourcing\SQLServer\SqlServerEventStoreEventTypeToIdMapper.cs" />
-    <Compile Include="CQRS\EventSourcing\SQLServer\SqlServerEventStoreEventWriter.cs" />
-    <Compile Include="CQRS\EventSourcing\SQLServer\SqlServerEventStoreSchemaManager.cs" />
-    <Compile Include="CQRS\EventSourcing\SQLServer\SqlServerEvestStoreEventSerializer.cs" />
-    <Compile Include="CQRS\EventSourcing\SQLServer\TableSchemaManager.cs" />
+    <Compile Include="CQRS\EventSourcing\MicrosoftSQLServer\SqlServerEventStore.MigrationsScripts.cs" />
+    <Compile Include="CQRS\EventSourcing\MicrosoftSQLServer\IEventTypeToIdMapper.cs" />
+    <Compile Include="CQRS\EventSourcing\MicrosoftSQLServer\LegacyEventTable.cs" />
+    <Compile Include="CQRS\EventSourcing\MicrosoftSQLServer\EventTableSchemaManager.cs" />
+    <Compile Include="CQRS\EventSourcing\MicrosoftSQLServer\EventTypeTable.cs" />
+    <Compile Include="CQRS\EventSourcing\MicrosoftSQLServer\EventTable.cs" />
+    <Compile Include="CQRS\EventSourcing\MicrosoftSQLServer\EventTypeTableSchemaManager.cs" />
+    <Compile Include="CQRS\EventSourcing\MicrosoftSQLServer\LegacyEventTableSchemaManager.cs" />
+    <Compile Include="CQRS\EventSourcing\MicrosoftSQLServer\SqlServerEventStoreConnectionManager.cs" />
+    <Compile Include="CQRS\EventSourcing\MicrosoftSQLServer\SqlServerEventStoreEventReader.cs" />
+    <Compile Include="CQRS\EventSourcing\MicrosoftSQLServer\SqlServerEventStoreEventsCache.cs" />
+    <Compile Include="CQRS\EventSourcing\MicrosoftSQLServer\SqlServerEventStore.cs" />
+    <Compile Include="CQRS\EventSourcing\MicrosoftSQLServer\SqlServerEventStoreEventTypeToIdMapper.cs" />
+    <Compile Include="CQRS\EventSourcing\MicrosoftSQLServer\SqlServerEventStoreEventWriter.cs" />
+    <Compile Include="CQRS\EventSourcing\MicrosoftSQLServer\SqlServerEventStoreSchemaManager.cs" />
+    <Compile Include="CQRS\EventSourcing\MicrosoftSQLServer\SqlServerEvestStoreEventSerializer.cs" />
+    <Compile Include="CQRS\EventSourcing\MicrosoftSQLServer\TableSchemaManager.cs" />
     <Compile Include="CQRS\IAggregateRepository.cs" />
     <Compile Include="CQRS\EventSourcing\ICommandMessage.cs" />
     <Compile Include="CQRS\IReferenceObject.cs" />
@@ -233,7 +233,7 @@
     <Compile Include="CQRS\EventSourcing\EventStoreSession.cs" />
     <Compile Include="CQRS\EventSourcing\IEventStoreSession.cs" />
     <Compile Include="CQRS\EventSourcing\InMemoryEventStore.cs" />
-    <Compile Include="CQRS\EventSourcing\SQLServer\InvalidHistoryException.cs" />
+    <Compile Include="CQRS\EventSourcing\MicrosoftSQLServer\InvalidHistoryException.cs" />
     <Compile Include="CQRS\IUnNamedEntityReference.cs" />
     <Compile Include="CQRS\INamed.cs" />
     <Compile Include="CQRS\TypeExtensions.cs" />
@@ -366,7 +366,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="CQRS\EventSourcing\SQLServer\OptimizedTableMigrationScript.sql" />
+    <Content Include="CQRS\EventSourcing\MicrosoftSQLServer\OptimizedTableMigrationScript.sql" />
   </ItemGroup>
   <ItemGroup>
     <None Include="KeyValueStorage\SqlServer\ChangeScript.sql" />

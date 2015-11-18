@@ -5,7 +5,7 @@ using System.Linq;
 using System.Runtime.Caching;
 using Composable.System;
 
-namespace Composable.CQRS.EventSourcing.SQLServer
+namespace Composable.CQRS.EventSourcing.MicrosoftSQLServer
 {
     public class SqlServerEventStoreEventsCache
     {

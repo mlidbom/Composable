@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Data.SqlClient;
 using Composable.CQRS.EventSourcing.EventRefactoring.Naming;
 
-namespace Composable.CQRS.EventSourcing.SQLServer
+namespace Composable.CQRS.EventSourcing.MicrosoftSQLServer
 {
     internal class SqlServerEventStoreEventTypeToIdMapper : IEventTypeToIdMapper
     {

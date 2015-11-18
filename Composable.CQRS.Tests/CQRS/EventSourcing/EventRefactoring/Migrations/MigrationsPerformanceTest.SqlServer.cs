@@ -2,7 +2,7 @@
 using System.Linq;
 using Composable.CQRS.EventSourcing;
 using Composable.CQRS.EventSourcing.EventRefactoring.Migrations;
-using Composable.CQRS.EventSourcing.SQLServer;
+using Composable.CQRS.EventSourcing.MicrosoftSQLServer;
 using Composable.System.Linq;
 using Composable.Windsor;
 using FluentAssertions;
@@ -16,12 +16,12 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
     [ExclusivelyUses(NCrunchExlusivelyUsesResources.EventStoreDbMdf)]
     public class SqlServerMigrationsPerformanceTest : EventStreamMutatorTestsBase
     {
-        public SqlServerMigrationsPerformanceTest() : base(typeof(MicrosoftSqlServerEventStore)) { }
+        public SqlServerMigrationsPerformanceTest() : base(typeof(SqlServerEventStore)) { }
 
         [SetUp]
         public void SetupTask()
         {
-            MicrosoftSqlServerEventStore.ResetDB(ConnectionString);
+            SqlServerEventStore.ResetDB(ConnectionString);
         }
 
         [Test]

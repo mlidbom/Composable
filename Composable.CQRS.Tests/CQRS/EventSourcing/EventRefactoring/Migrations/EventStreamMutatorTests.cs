@@ -1,7 +1,7 @@
 ﻿using System;
 using Composable.CQRS.EventSourcing;
 using Composable.CQRS.EventSourcing.EventRefactoring.Migrations;
-using Composable.CQRS.EventSourcing.SQLServer;
+using Composable.CQRS.EventSourcing.MicrosoftSQLServer;
 using Composable.System.Linq;
 using FluentAssertions;
 using NCrunch.Framework;
@@ -18,11 +18,11 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
 
     public class SqlServerEventStoreEventStreamMutatorTests : EventStreamMutatorTests
     {
-        public SqlServerEventStoreEventStreamMutatorTests() : base(typeof(MicrosoftSqlServerEventStore)) { }
+        public SqlServerEventStoreEventStreamMutatorTests() : base(typeof(SqlServerEventStore)) { }
         [SetUp]
         public void SetupTask()
         {
-            MicrosoftSqlServerEventStore.ResetDB(ConnectionString);
+            SqlServerEventStore.ResetDB(ConnectionString);
         }
     }
 

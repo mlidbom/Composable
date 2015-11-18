@@ -9,7 +9,7 @@ using Castle.Components.DictionaryAdapter;
 using Castle.MicroKernel.Registration;
 using Castle.Windsor;
 using Composable.CQRS.EventSourcing;
-using Composable.CQRS.EventSourcing.SQLServer;
+using Composable.CQRS.EventSourcing.MicrosoftSQLServer;
 using Composable.CQRS.ServiceBus.NServiceBus;
 using Composable.CQRS.ServiceBus.NServiceBus.EndpointConfiguration;
 using Composable.CQRS.Testing;
@@ -46,7 +46,7 @@ namespace Composable.CQRS.ServiceBus.NServicebus.Tests.TransactionSupport
         {
             var endpointConfigurer = new EndPointConfigurer("Composable.CQRS.ServiceBus.NServicebus.Tests.TransactionSupport");
 
-            var eventStore = new MicrosoftSqlServerEventStore(EventStoreConnectionString, new SingleThreadUseGuard());
+            var eventStore = new SqlServerEventStore(EventStoreConnectionString, new SingleThreadUseGuard());
 
             eventStore.ResetDB();
             SqlServerDocumentDb.ResetDB(EventStoreConnectionString);
@@ -146,7 +146,7 @@ namespace Composable.CQRS.ServiceBus.NServicebus.Tests.TransactionSupport
                     .ImplementedBy<EventStoreSession>()
                     .LifeStyle.PerNserviceBusMessage(),
 
-                Component.For<IEventStore, MicrosoftSqlServerEventStore>().ImplementedBy<MicrosoftSqlServerEventStore>()
+                Component.For<IEventStore, SqlServerEventStore>().ImplementedBy<SqlServerEventStore>()
                     .DependsOn(Dependency.OnValue(typeof(string), WhenMessageHandlingFails.DocumentDbConnectionString))
                     .LifestyleScoped(),
 

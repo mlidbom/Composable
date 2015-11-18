@@ -6,7 +6,7 @@ using System.Diagnostics.Contracts;
 using System.Linq;
 using System.Threading;
 using System.Transactions;
-using Composable.CQRS.EventSourcing.SQLServer;
+using Composable.CQRS.EventSourcing.MicrosoftSQLServer;
 using Composable.GenericAbstractions.Time;
 using Composable.Logging.Log4Net;
 using Composable.ServiceBus;

@@ -24,14 +24,14 @@ namespace Composable.CQRS.EventSourcing.EventRefactoring.Migrations
         private class RealMutator : ICompleteEventStreamMutator
         {
             private readonly IReadOnlyList<IEventMigration> _eventMigrationFactories;
-            private readonly Dictionary<Guid, ISingleAggregateInstanceEventStreamMutator> _aggregateMigrationsCache =
+            private readonly Dictionary<Guid, ISingleAggregateInstanceEventStreamMutator> _aggregateMutatorsCache =
                 new Dictionary<Guid, ISingleAggregateInstanceEventStreamMutator>();
 
             public RealMutator(IReadOnlyList<IEventMigration> eventMigrationFactories) { _eventMigrationFactories = eventMigrationFactories; }
 
             public IEnumerable<AggregateRootEvent> Mutate(AggregateRootEvent @event)
             {
-                return _aggregateMigrationsCache.GetOrAdd(
+                return _aggregateMutatorsCache.GetOrAdd(
                     @event.AggregateRootId,
                     () => SingleAggregateInstanceEventStreamMutator.Create(@event, _eventMigrationFactories))
                                                 .Mutate(@event);
@@ -41,7 +41,7 @@ namespace Composable.CQRS.EventSourcing.EventRefactoring.Migrations
             {
                 foreach(var @event in eventStream)
                 {
-                    var mutatedEvents = _aggregateMigrationsCache.GetOrAdd(
+                    var mutatedEvents = _aggregateMutatorsCache.GetOrAdd(
                         @event.AggregateRootId,
                         () => SingleAggregateInstanceEventStreamMutator.Create(@event, _eventMigrationFactories)
                         ).Mutate(@event);
@@ -52,9 +52,9 @@ namespace Composable.CQRS.EventSourcing.EventRefactoring.Migrations
                     }                    
                 }
 
-                foreach (var migrator in _aggregateMigrationsCache)
+                foreach (var mutator in _aggregateMutatorsCache)
                 {
-                    foreach (var finalEvent in migrator.Value.EndOfAggregate())
+                    foreach (var finalEvent in mutator.Value.EndOfAggregate())
                     {
                         yield return finalEvent;
                     }

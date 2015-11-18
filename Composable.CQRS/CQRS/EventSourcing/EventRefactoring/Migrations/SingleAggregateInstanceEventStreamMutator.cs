@@ -4,6 +4,7 @@ using System.Diagnostics.Contracts;
 using System.Linq;
 using Composable.System.Collections.Collections;
 using Composable.System.Linq;
+// ReSharper disable ForCanBeConvertedToForeach
 
 namespace Composable.CQRS.EventSourcing.EventRefactoring.Migrations
 {
@@ -93,11 +94,35 @@ namespace Composable.CQRS.EventSourcing.EventRefactoring.Migrations
             }
 
             var mutator = Create(@events.First(), eventMigrations, eventsAddedCallback);
-            return @events
+
+            var result = @events
                 .SelectMany(mutator.Mutate)
                 .Concat(mutator.EndOfAggregate())
-                .ToList();
-        }              
+                .ToArray();
+
+            AssertMigrationsDoChangeAlreadyMigratedHistory(eventMigrations, result);
+
+            return result;
+        }
+
+        private static void AssertMigrationsDoChangeAlreadyMigratedHistory(IReadOnlyList<IEventMigration> eventMigrations, AggregateRootEvent[] result)
+        {
+            var creationEvent = result.First();
+
+            var migrators = eventMigrations
+                .Where(migration => migration.MigratedAggregateEventHierarchyRootInterface.IsInstanceOfType(creationEvent))
+                .Select(migration => migration.CreateMigrator())
+                .ToArray();
+
+            for(var eventIndex = 0; eventIndex < result.Length; eventIndex++)
+            {
+                var @event = result[eventIndex];
+                for(var migratorIndex = 0; migratorIndex < migrators.Length; migratorIndex++)
+                {
+                    migrators[migratorIndex].MigrateEvent(@event, AssertMigrationsAreIdempotentEventModifier.Instance);
+                }
+            }
+        }
     }
 
     internal class EventStreamEndedEvent : AggregateRootEvent {

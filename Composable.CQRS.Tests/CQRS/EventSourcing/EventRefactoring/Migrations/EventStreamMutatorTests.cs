@@ -1,7 +1,9 @@
 ﻿using System;
 using Composable.CQRS.EventSourcing;
+using Composable.CQRS.EventSourcing.EventRefactoring.Migrations;
 using Composable.CQRS.EventSourcing.SQLServer;
 using Composable.System.Linq;
+using FluentAssertions;
 using NCrunch.Framework;
 using NUnit.Framework;
 using TestAggregates.Events;
@@ -195,6 +197,19 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
                 Seq.OfTypes<Ec1, E1>(),
                 Seq.OfTypes<Ec1, E1, E2>(),
                 After<E1>.Insert<E2>());
+        }
+
+
+        [Test]
+        public void Given_Ec1_E1_before_E1_E2_after_E2_E3_throws_NonIdempotentMigrationDetectedException()
+        {
+            this.Invoking( me => 
+            RunMigrationTest(
+                Seq.OfTypes<Ec1, E1>(),
+                Seq.OfTypes<Ec1, E2, E3, E1>(),
+                Before<E1>.Insert<E2>(),
+                After<E2>.Insert<E3>()))
+                .ShouldThrow<NonIdempotentMigrationDetectedException>();
         }
     }
 }

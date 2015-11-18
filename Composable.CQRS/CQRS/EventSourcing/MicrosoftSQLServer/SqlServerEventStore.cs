@@ -97,7 +97,7 @@ namespace Composable.CQRS.EventSourcing.MicrosoftSQLServer
                 {                    
                     var inserted = mutations.RemoveIf(current => current.InsertAfter == mutation.InsertAfter);
                     mutatedHistory.RemoveRange(inserted);
-                    var insertAfterIndex = mutatedHistory.FindIndex(@event => @event.InsertionOrder == mutation.InsertBefore.Value);
+                    var insertAfterIndex = mutatedHistory.FindIndex(@event => @event.InsertionOrder == mutation.InsertAfter.Value);
 
                     mutatedHistory.InsertRange(insertAfterIndex + 1, inserted);
                 }

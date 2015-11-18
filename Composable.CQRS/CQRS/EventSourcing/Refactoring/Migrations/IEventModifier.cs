@@ -4,7 +4,7 @@ namespace Composable.CQRS.EventSourcing.Refactoring.Migrations
 {
     public interface IEventModifier
     {
-        void Replace(IReadOnlyList<AggregateRootEvent> events);
-        void InsertBefore(IReadOnlyList<AggregateRootEvent> insert);
+        void Replace(params AggregateRootEvent[] events);
+        void InsertBefore(params AggregateRootEvent[] insert);
     }
 }

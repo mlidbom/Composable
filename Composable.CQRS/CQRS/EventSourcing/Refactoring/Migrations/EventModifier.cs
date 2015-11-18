@@ -16,8 +16,8 @@ namespace Composable.CQRS.EventSourcing.Refactoring.Migrations
     {
         private readonly Action<IReadOnlyList<AggregateRootEvent>> _eventsAddedCallback;
         internal LinkedList<AggregateRootEvent> Events;
-        private IReadOnlyList<AggregateRootEvent> _replacementEvents;
-        private IReadOnlyList<AggregateRootEvent> _insertedEvents;
+        private AggregateRootEvent[] _replacementEvents;
+        private AggregateRootEvent[] _insertedEvents;
 
         public EventModifier(AggregateRootEvent @event, Action<IReadOnlyList<AggregateRootEvent>> eventsAddedCallback)
         {
@@ -51,7 +51,7 @@ namespace Composable.CQRS.EventSourcing.Refactoring.Migrations
             }
         }
 
-        public void Replace(IReadOnlyList<AggregateRootEvent> events)
+        public void Replace(params AggregateRootEvent[] events)
         {
             Contract.Assert(_replacementEvents == null, $"You can only call {nameof(Replace)} once");
             Contract.Assert(Event.GetType() != typeof(EndOfAggregateHistoryEventPlaceHolder), "You cannot call replace on the event that signifies the end of the stream");
@@ -85,7 +85,7 @@ namespace Composable.CQRS.EventSourcing.Refactoring.Migrations
             _replacementEvents = null;
         }
 
-        public void InsertBefore(IReadOnlyList<AggregateRootEvent> insert)
+        public void InsertBefore(params AggregateRootEvent[] insert)
         {
             Contract.Assert(_insertedEvents == null, $"You can only call {nameof(InsertBefore)} once");
 
@@ -105,7 +105,7 @@ namespace Composable.CQRS.EventSourcing.Refactoring.Migrations
                 _insertedEvents.ForEach(@event => @event.InsertBefore = null);//We are at the end of the stream. Claiming to insert before it makes no sense
             }
 
-            CurrentNode.ValuesFrom().ForEach((@event, index) => @event.AggregateRootVersion += _insertedEvents.Count);
+            CurrentNode.ValuesFrom().ForEach((@event, index) => @event.AggregateRootVersion += _insertedEvents.Length);
 
             CurrentNode.AddBefore(_insertedEvents);
             _eventsAddedCallback.Invoke(_insertedEvents);

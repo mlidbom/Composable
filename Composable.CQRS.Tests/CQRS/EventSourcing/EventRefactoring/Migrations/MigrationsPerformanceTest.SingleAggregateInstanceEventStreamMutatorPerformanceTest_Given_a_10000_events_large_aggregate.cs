@@ -83,7 +83,7 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
                 Before<E9>.Insert<E1>()
                 ).ToArray();
 
-            var maxAverage = NCrunchPerformance.AdjustRuntime(10.Milliseconds());
+            var maxAverage = 10.Milliseconds().AdjustRuntimeForNCrunch(boost: 2);
 
             TimeAsserter.Execute(
                 maxAverage: maxAverage,

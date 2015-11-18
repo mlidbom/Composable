@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using System.Transactions;
 using Castle.Windsor;
 using Composable.CQRS.EventSourcing;
-using Composable.CQRS.EventSourcing.SQLServer;
+using Composable.CQRS.EventSourcing.MicrosoftSQLServer;
 using Composable.CQRS.Testing;
 using Composable.SystemExtensions.Threading;
 using CQRS.Tests.KeyValueStorage.Sql;
@@ -23,12 +23,12 @@ namespace CQRS.Tests.CQRS.EventSourcing.Sql
         [TestFixtureSetUp]
         public static void SetupFixture()
         {
-            MicrosoftSqlServerEventStore.ResetDB(ConnectionString);
+            SqlServerEventStore.ResetDB(ConnectionString);
         }
 
         protected override IEventStore CreateStore()
         {
-            return new MicrosoftSqlServerEventStore(ConnectionString, new SingleThreadUseGuard());
+            return new SqlServerEventStore(ConnectionString, new SingleThreadUseGuard());
         }
 
         [Test]

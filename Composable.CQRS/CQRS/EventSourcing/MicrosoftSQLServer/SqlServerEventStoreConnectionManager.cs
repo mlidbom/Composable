@@ -3,7 +3,7 @@ using System.Data.SqlClient;
 using System.Transactions;
 using Composable.Logging.Log4Net;
 
-namespace Composable.CQRS.EventSourcing.SQLServer
+namespace Composable.CQRS.EventSourcing.MicrosoftSQLServer
 {
     internal class SqlServerEventStoreConnectionManager
     {

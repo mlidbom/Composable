@@ -4,7 +4,6 @@ using System.Configuration;
 using System.Threading;
 using Castle.Windsor;
 using Composable.CQRS.EventSourcing;
-using Composable.CQRS.EventSourcing.SQLServer;
 using Composable.CQRS.Testing;
 using Composable.System;
 using CQRS.Tests.KeyValueStorage.Sql;
@@ -13,6 +12,7 @@ using NCrunch.Framework;
 using NUnit.Framework;
 using Composable.System.Linq;
 using System.Linq;
+using Composable.CQRS.EventSourcing.MicrosoftSQLServer;
 using Composable.SystemExtensions.Threading;
 
 namespace CQRS.Tests.CQRS.EventSourcing
@@ -54,7 +54,7 @@ namespace CQRS.Tests.CQRS.EventSourcing
         {
             using (var eventStore = CreateEventStore())
             {
-                const int moreEventsThanTheBatchSizeForStreamingEvents = MicrosoftSqlServerEventStore.StreamEventsBatchSize * 3;
+                const int moreEventsThanTheBatchSizeForStreamingEvents = SqlServerEventStore.StreamEventsBatchSize * 3;
                 var aggregateId = Guid.NewGuid();
                 eventStore.SaveEvents(1.Through(moreEventsThanTheBatchSizeForStreamingEvents).Select(i => new SomeEvent(aggregateId, i)));
                 var stream = eventStore.StreamEvents().ToList();
@@ -169,18 +169,18 @@ namespace CQRS.Tests.CQRS.EventSourcing
 
         private static void ResetDataBases()
         {
-            MicrosoftSqlServerEventStore.ResetDB(ConnectionString1);
-            MicrosoftSqlServerEventStore.ResetDB(ConnectionString2);
+            SqlServerEventStore.ResetDB(ConnectionString1);
+            SqlServerEventStore.ResetDB(ConnectionString2);
         }
 
         protected override IEventStore CreateEventStore()
         {
-            return new MicrosoftSqlServerEventStore(ConnectionString1, new SingleThreadUseGuard());
+            return new SqlServerEventStore(ConnectionString1, new SingleThreadUseGuard());
         }
 
         override protected IEventStore CreateEventStore2()
         {
-            return new MicrosoftSqlServerEventStore(ConnectionString2, new SingleThreadUseGuard());
+            return new SqlServerEventStore(ConnectionString2, new SingleThreadUseGuard());
         }
 
         [Test]

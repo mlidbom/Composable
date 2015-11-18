@@ -8,7 +8,7 @@ using Castle.MicroKernel.Registration;
 using Castle.Windsor;
 using Composable.CQRS.EventSourcing;
 using Composable.CQRS.EventSourcing.EventRefactoring.Migrations;
-using Composable.CQRS.EventSourcing.SQLServer;
+using Composable.CQRS.EventSourcing.MicrosoftSQLServer;
 using Composable.ServiceBus;
 using Composable.System.Linq;
 using Composable.UnitsOfWork;
@@ -110,10 +110,10 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
             streamedEvents = container.ExecuteUnitOfWorkInIsolatedScope(() => container.Resolve<IEventStore>().StreamEvents().ToList());
             AssertStreamsAreIdentical(expected, streamedEvents, "Streaming all events in store");
 
-            if(eventStoreType == typeof(MicrosoftSqlServerEventStore))
+            if(eventStoreType == typeof(SqlServerEventStore))
             {
                 Console.WriteLine("Clearing sql server eventstore cache");
-                container.ExecuteUnitOfWorkInIsolatedScope(() => ((MicrosoftSqlServerEventStore)container.Resolve<IEventStore>()).ClearCache());
+                container.ExecuteUnitOfWorkInIsolatedScope(() => ((SqlServerEventStore)container.Resolve<IEventStore>()).ClearCache());
                 migratedHistory = container.ExecuteUnitOfWorkInIsolatedScope(() => container.Resolve<IEventStoreSession>().Get<TestAggregate>(initialAggregate.Id)).History;
                 AssertStreamsAreIdentical(expected, migratedHistory, "Loaded aggregate");
 
@@ -152,7 +152,7 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
         }
         private static IRegistration SelectLifeStyle(ComponentRegistration<IEventStore> dependsOn)
         {
-            if(dependsOn.Implementation == typeof(MicrosoftSqlServerEventStore))
+            if(dependsOn.Implementation == typeof(SqlServerEventStore))
             {
                 return dependsOn.LifestylePerWebRequest();
             }

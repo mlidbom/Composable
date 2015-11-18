@@ -3,8 +3,6 @@ using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using System.Linq;
 using System.Transactions;
-using Castle.Core.Internal;
-using Composable.CQRS.EventSourcing.EventRefactoring;
 using Composable.CQRS.EventSourcing.EventRefactoring.Migrations;
 using Composable.CQRS.EventSourcing.EventRefactoring.Naming;
 using Composable.Logging.Log4Net;
@@ -14,13 +12,13 @@ using Composable.System.Linq;
 using Composable.SystemExtensions.Threading;
 using log4net;
 
-namespace Composable.CQRS.EventSourcing.SQLServer
+namespace Composable.CQRS.EventSourcing.MicrosoftSQLServer
 {
-    public partial class MicrosoftSqlServerEventStore : IEventStore
+    public partial class SqlServerEventStore : IEventStore
     {
         public IEnumerable<IAggregateRootEvent> StreamEventsAfterEventWithId(Guid? startAfterEventId) { throw new NotImplementedException(); }
 
-        private static readonly ILog Log = LogManager.GetLogger(typeof(MicrosoftSqlServerEventStore));        
+        private static readonly ILog Log = LogManager.GetLogger(typeof(SqlServerEventStore));        
 
         public readonly string ConnectionString;
         private readonly ISingleContextUseGuard _usageGuard;
@@ -34,7 +32,7 @@ namespace Composable.CQRS.EventSourcing.SQLServer
         private readonly HashSet<Guid> _aggregatesWithEventsAddedByThisInstance = new HashSet<Guid>();
         private readonly SqlServerEventStoreConnectionManager _connectionMananger;
 
-        public MicrosoftSqlServerEventStore(string connectionString, ISingleContextUseGuard usageGuard, IEventNameMapper nameMapper = null, IEnumerable<IEventMigration> migrationFactories = null)
+        public SqlServerEventStore(string connectionString, ISingleContextUseGuard usageGuard, IEventNameMapper nameMapper = null, IEnumerable<IEventMigration> migrationFactories = null)
         {
             Log.Debug("Constructor called");
 

@@ -1,7 +1,7 @@
-namespace Composable.CQRS.EventSourcing.SQLServer
+namespace Composable.CQRS.EventSourcing.MicrosoftSQLServer
 {
 
-    public partial class MicrosoftSqlServerEventStore
+    public partial class SqlServerEventStore
     { 
         internal static string EnsurePersistedMigrationsHaveConsistentReadOrdersAndEffectiveVersionsSql => $@"
 set nocount on

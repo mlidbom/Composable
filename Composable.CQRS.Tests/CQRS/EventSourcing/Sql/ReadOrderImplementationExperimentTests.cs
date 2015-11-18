@@ -7,7 +7,7 @@ using System.Linq;
 using System.Web.UI.WebControls;
 using Composable.CQRS.EventSourcing;
 using Composable.CQRS.EventSourcing.EventRefactoring.Migrations;
-using Composable.CQRS.EventSourcing.SQLServer;
+using Composable.CQRS.EventSourcing.MicrosoftSQLServer;
 using Composable.System.Linq;
 using FluentAssertions;
 using NUnit.Framework;
@@ -26,7 +26,7 @@ namespace CQRS.Tests.CQRS.EventSourcing.Sql
         [Test]
         public void PrintCreateReadOrdersSql()
         {
-            Console.WriteLine(MicrosoftSqlServerEventStore.EnsurePersistedMigrationsHaveConsistentReadOrdersAndEffectiveVersionsSql);
+            Console.WriteLine(SqlServerEventStore.EnsurePersistedMigrationsHaveConsistentReadOrdersAndEffectiveVersionsSql);
         }
 
         [Test]

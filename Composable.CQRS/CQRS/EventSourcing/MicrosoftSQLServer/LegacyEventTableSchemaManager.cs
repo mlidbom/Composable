@@ -2,7 +2,7 @@ using System;
 using System.Data.SqlClient;
 using Composable.Logging.Log4Net;
 
-namespace Composable.CQRS.EventSourcing.SQLServer
+namespace Composable.CQRS.EventSourcing.MicrosoftSQLServer
 {
     internal class LegacyEventTableSchemaManager : TableSchemaManager
     {

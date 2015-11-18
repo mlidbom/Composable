@@ -2,9 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Data.SqlTypes;
-using Composable.Logging.Log4Net;
 
-namespace Composable.CQRS.EventSourcing.SQLServer
+namespace Composable.CQRS.EventSourcing.MicrosoftSQLServer
 {
     internal class SqlServerEventStoreEventReader
     {

@@ -41,7 +41,6 @@ namespace Composable.CQRS.EventSourcing
         [Obsolete("The sessions now absolutely require a time source. This is only here for binary backwards compatability and will be removed SOON.", error:true)]
         public EventStoreSession(IServiceBus bus, IEventStore store, ISingleContextUseGuard usageGuard) : this(bus, store, usageGuard, DateTimeNowTimeSource.Instance)
         {
-            this.Log().Warn($"Using obsolete method in {nameof(EventStoreSession)}. This might cause inconsistencies in date time values. please upgrade Composable.Cqrs ASAP. This method will be removed SOON");
         }
 
         public EventStoreSession(IServiceBus bus, IEventStore store, ISingleContextUseGuard usageGuard, IUtcTimeTimeSource timeSource)

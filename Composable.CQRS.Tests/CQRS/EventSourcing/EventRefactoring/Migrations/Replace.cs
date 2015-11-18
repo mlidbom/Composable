@@ -16,7 +16,10 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
         public static Replace<TEvent> With<T1, T2>() => new Replace<TEvent>(Seq.OfTypes<T1, T2>());
         public static Replace<TEvent> With<T1, T2, T3>() => new Replace<TEvent>(Seq.OfTypes<T1, T2, T3>());
 
-        private Replace(IEnumerable<Type> replaceWith) { _replaceWith = replaceWith; }
+        private Replace(IEnumerable<Type> replaceWith) : base(Guid.Parse("9B51F7BC-D9B3-43C7-A183-76CA5E662091"), "Replace", "Long description of Replace")
+        {
+            _replaceWith = replaceWith;
+        }
 
         public override ISingleAggregateInstanceEventMigrator CreateMigrator() { return new Migrator(_replaceWith); }
 

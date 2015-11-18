@@ -16,7 +16,10 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
         public static After<TEvent> Insert<T1, T2>() => new After<TEvent>(Seq.OfTypes<T1, T2>());
         public static After<TEvent> Insert<T1, T2, T3>() => new After<TEvent>(Seq.OfTypes<T1, T2, T3>());
 
-        private After(IEnumerable<Type> insert) { _insert = insert; }
+        private After(IEnumerable<Type> insert) : base(Guid.Parse("544C6694-7B29-4CC0-8DAA-6C50A5F28B70"), "After", "Long description of After")
+        {
+            _insert = insert;
+        }
 
         public override ISingleAggregateInstanceEventMigrator CreateMigrator() => new Inspector(_insert);
 

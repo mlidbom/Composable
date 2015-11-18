@@ -68,7 +68,7 @@ namespace Composable.CQRS.EventSourcing.SQLServer
                 _cache.Store(aggregateId, cachedAggregateHistory);
             }
 
-            var withSqlMigrationsApplied = ApplyOldMigrations(cachedAggregateHistory);            
+            var withSqlMigrationsApplied = ApplyOldMigrations(cachedAggregateHistory);
 
             var migratedAggregateHistory = SingleAggregateInstanceEventStreamMutator.MutateCompleteAggregateHistory(_migrationFactories, withSqlMigrationsApplied);
 

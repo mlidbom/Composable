@@ -55,7 +55,7 @@ namespace Composable.CQRS.EventSourcing.EventRefactoring.Migrations
         public void Replace(IReadOnlyList<AggregateRootEvent> events)
         {
             Contract.Assert(_replacementEvents == null, $"You can only call {nameof(Replace)} once");
-            Contract.Assert(Event.GetType() != typeof(EventStreamEndedEvent), "You cannot call replace on the event that signifies the end of the stream");
+            Contract.Assert(Event.GetType() != typeof(EndOfAggregateHistoryEventPlaceHolder), "You cannot call replace on the event that signifies the end of the stream");
 
             _replacementEvents = events;
 
@@ -100,8 +100,9 @@ namespace Composable.CQRS.EventSourcing.EventRefactoring.Migrations
                     e.AggregateRootId = Event.AggregateRootId;
                 });
 
-            if (Event.GetType() == typeof(EventStreamEndedEvent))
+            if (Event.GetType() == typeof(EndOfAggregateHistoryEventPlaceHolder))
             {
+                //Review:mlidbo: Do some more thinking about this. Should we insert after the previous event? Will this always give the expected behaviour for the client implementing the migrator?
                 _insertedEvents.ForEach(@event => @event.InsertBefore = null);//We are at the end of the stream. Claiming to insert before it makes no sense
             }
 

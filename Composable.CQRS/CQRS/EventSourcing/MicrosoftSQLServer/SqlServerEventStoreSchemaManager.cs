@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Transactions;
-using Composable.CQRS.EventSourcing.EventRefactoring.Naming;
+using Composable.CQRS.EventSourcing.Refactoring.Naming;
 using Composable.Logging.Log4Net;
 
 namespace Composable.CQRS.EventSourcing.MicrosoftSQLServer

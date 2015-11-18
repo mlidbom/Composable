@@ -1,12 +1,11 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
-using System.IO;
 using System.Linq;
 using Composable.System.Collections.Collections;
 using Composable.System.Linq;
 
-namespace Composable.CQRS.EventSourcing.EventRefactoring.Migrations
+namespace Composable.CQRS.EventSourcing.Refactoring.Migrations
 {
     //Yes this class has quite a bit of code that looks overly complex. Like it could be simplified a lot. 
     //What you are seeing is likely optimizations. Please do not change this class for reasons of readability unless you do thorough performance testing and verify that no performance is lost.

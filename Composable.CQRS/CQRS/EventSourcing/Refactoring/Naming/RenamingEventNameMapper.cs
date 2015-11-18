@@ -5,7 +5,7 @@ using Composable.System;
 using Composable.System.Linq;
 using Composable.System.Reflection;
 
-namespace Composable.CQRS.EventSourcing.EventRefactoring.Naming
+namespace Composable.CQRS.EventSourcing.Refactoring.Naming
 {
     public class RenamingEventNameMapper : IEventNameMapper
     {

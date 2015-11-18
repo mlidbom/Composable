@@ -1,7 +1,7 @@
 using System;
 using System.Diagnostics.Contracts;
 
-namespace Composable.CQRS.EventSourcing.EventRefactoring.Migrations
+namespace Composable.CQRS.EventSourcing.Refactoring.Migrations
 {
     public abstract class EventMigration<TMigratedAggregateEventHierarchyRootInterface> : IEventMigration
         where TMigratedAggregateEventHierarchyRootInterface : IAggregateRootEvent

@@ -6,7 +6,6 @@ using System.Globalization;
 using System.Linq;
 using System.Web.UI.WebControls;
 using Composable.CQRS.EventSourcing;
-using Composable.CQRS.EventSourcing.EventRefactoring.Migrations;
 using Composable.CQRS.EventSourcing.MicrosoftSQLServer;
 using Composable.System.Linq;
 using FluentAssertions;

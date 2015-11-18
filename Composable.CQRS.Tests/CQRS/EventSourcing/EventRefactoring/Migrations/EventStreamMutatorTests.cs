@@ -1,7 +1,7 @@
 ﻿using System;
 using Composable.CQRS.EventSourcing;
-using Composable.CQRS.EventSourcing.EventRefactoring.Migrations;
 using Composable.CQRS.EventSourcing.MicrosoftSQLServer;
+using Composable.CQRS.EventSourcing.Refactoring.Migrations;
 using Composable.System.Linq;
 using FluentAssertions;
 using NCrunch.Framework;

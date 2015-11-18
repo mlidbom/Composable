@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace Composable.CQRS.EventSourcing.EventRefactoring.Migrations
+namespace Composable.CQRS.EventSourcing.Refactoring.Migrations
 {
     internal class AssertMigrationsAreIdempotentEventModifier : IEventModifier
     {

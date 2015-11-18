@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Composable.System.Collections.Collections;
 
-namespace Composable.CQRS.EventSourcing.EventRefactoring.Migrations
+namespace Composable.CQRS.EventSourcing.Refactoring.Migrations
 {
     internal abstract class CompleteEventStoreStreamMutator
     {

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using System.Linq;
 using Composable.CQRS.EventSourcing;
-using Composable.CQRS.EventSourcing.EventRefactoring.Migrations;
+using Composable.CQRS.EventSourcing.Refactoring.Migrations;
 using Composable.GenericAbstractions.Time;
 using Composable.System.Linq;
 using FluentAssertions;

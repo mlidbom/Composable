@@ -1,4 +1,4 @@
-namespace Composable.CQRS.EventSourcing.EventRefactoring.Naming
+namespace Composable.CQRS.EventSourcing.Refactoring.Naming
 {
     public interface IRenameEvents
     {

@@ -1,6 +1,6 @@
 using System;
 
-namespace Composable.CQRS.EventSourcing.EventRefactoring.Naming
+namespace Composable.CQRS.EventSourcing.Refactoring.Naming
 {
     [AttributeUsage(AttributeTargets.Class)]
     public class EventRenamedFromAttribute : Attribute

@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Composable.CQRS.EventSourcing;
-using Composable.CQRS.EventSourcing.EventRefactoring.Migrations;
+using Composable.CQRS.EventSourcing.Refactoring.Migrations;
 using Composable.System.Linq;
 using TestAggregates;
 

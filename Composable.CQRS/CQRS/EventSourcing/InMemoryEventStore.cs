@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using System.Linq;
-using Composable.CQRS.EventSourcing.EventRefactoring.Migrations;
+using Composable.CQRS.EventSourcing.Refactoring.Migrations;
 using Composable.System.Linq;
 
 namespace Composable.CQRS.EventSourcing

@@ -1,8 +1,6 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
 
-namespace Composable.CQRS.EventSourcing.EventRefactoring.Migrations
+namespace Composable.CQRS.EventSourcing.Refactoring.Migrations
 {
     ///<summary>Defines an identity for migration of events into other events. Creates </summary>
     public interface IEventMigration

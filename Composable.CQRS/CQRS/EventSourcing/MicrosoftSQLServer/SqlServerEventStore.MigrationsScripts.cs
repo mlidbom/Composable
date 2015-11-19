@@ -2,8 +2,31 @@ namespace Composable.CQRS.EventSourcing.MicrosoftSQLServer
 {
 
     public partial class SqlServerEventStore
-    { 
-        internal static string EnsurePersistedMigrationsHaveConsistentReadOrdersAndEffectiveVersionsSql => $@"
+    {
+        internal class SqlStatements { 
+        internal static string EnsurePersistedMigrationsHaveConsistentReadOrdersAndEffectiveVersionsSqlStoredProcedure => $@"
+IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[{nameof(EnsurePersistedMigrationsHaveConsistentEffectiveReadOrdersAndEffectiveVersions)}]') AND type in (N'P', N'PC'))
+BEGIN
+EXEC dbo.sp_executesql @statement = N'CREATE PROCEDURE [dbo].[{nameof(EnsurePersistedMigrationsHaveConsistentEffectiveReadOrdersAndEffectiveVersions)}] AS' 
+END
+
+go
+
+alter procedure {nameof(EnsurePersistedMigrationsHaveConsistentEffectiveReadOrdersAndEffectiveVersions)} @ClearExisting bit = 0
+as
+
+if @ClearExisting > 0
+begin 
+	update {EventTable.Name}
+	set {EventTable.Columns.ManualReadOrder} = null,
+		{EventTable.Columns.ManualVersion} = null
+	where {EventTable.Columns.ManualReadOrder} is not null or {EventTable.Columns.ManualVersion} is not null
+end 
+
+{EnsurePersistedMigrationsHaveConsistentEffectiveReadOrdersAndEffectiveVersions}
+";
+
+            internal static string EnsurePersistedMigrationsHaveConsistentEffectiveReadOrdersAndEffectiveVersions => $@"
 set nocount on
 
 declare @{EventTable.Columns.InsertionOrder} bigint
@@ -129,10 +152,10 @@ begin
     (
 	    select * from
 	    (select e.{EventTable.Columns.AggregateId}, {EventTable.Columns.InsertedVersion}, row_number() over (partition by e.{EventTable.Columns.AggregateId} order by e.{EventTable.Columns.EffectiveReadOrder}) NewVersion, {EventTable.Columns.EffectiveVersion}
-	     from {EventTable.Name} e
-	     inner join (select distinct {EventTable.Columns.AggregateId} from {EventTable.Name} where {EventTable.Columns.EffectiveVersion} is null) NeedsFixing
+	        from {EventTable.Name} e
+	        inner join (select distinct {EventTable.Columns.AggregateId} from {EventTable.Name} where {EventTable.Columns.EffectiveVersion} is null) NeedsFixing
 		    on e.{EventTable.Columns.AggregateId} = NeedsFixing.{EventTable.Columns.AggregateId}
-	     where e.{EventTable.Columns.EffectiveReadOrder} > 0) NewReadOrders
+	        where e.{EventTable.Columns.EffectiveReadOrder} > 0) NewReadOrders
 	    where NewReadOrders.{EventTable.Columns.EffectiveVersion} is null or ( NewReadOrders.NewVersion != NewReadOrders.{EventTable.Columns.EffectiveVersion})
     ) ChangedReadOrders
 
@@ -145,8 +168,7 @@ begin
 
 end 
 
-set nocount off
-
-";
+set nocount off";
+        }
     }
 }

@@ -46,16 +46,15 @@ namespace Composable.CQRS.EventSourcing.MicrosoftSQLServer
 Paste this whole log mesage into a sql management studio window and it will uppgrade the database for you
 1: Create new tables: */
 
-USE {connection.Database}
+use {connection.Database}
 
-GO
+go
 
 {ActualMigrationScript}
 
+go
 
-GO
-
-DBCC SHRINKDATABASE ( {connection.Database} )
+dbcc shrinkdatabase ( {connection.Database} )
 
 ";
         }
@@ -64,43 +63,47 @@ DBCC SHRINKDATABASE ( {connection.Database} )
 
 {EventTypeTableSchema.CreateTableSql}
 
-GO
+go
 
 {EventTableSchema.CreateTableSql}
 
-GO
+go
 
-ALTER TABLE {EventTable.Name} 
-Add {LegacySqlTimeStamp} Bigint NULL
+alter table {EventTable.Name} 
+add {LegacySqlTimeStamp} Bigint null
 
-GO
+go
+
+{SqlServerEventStore.SqlStatements.EnsurePersistedMigrationsHaveConsistentReadOrdersAndEffectiveVersionsSqlStoredProcedure}
+
+go
 
 {InsertEventTypesSql}
 
-GO
+go
 
 {MigrateEventsSql}
 
-GO
+go
 
-DROP TABLE {Name}
+drop table {Name}
 ";
 
         public string InsertEventTypesSql => $@"
-INSERT INTO {EventTypeTable.Name} ( {EventTypeTable.Columns.EventType} )
-SELECT {LegacyEventTable.Columns.EventType} 
-FROM {LegacyEventTable.Name}
-GROUP BY {EventTable.Columns.EventType} 
+insert into {EventTypeTable.Name} ( {EventTypeTable.Columns.EventType} )
+select {LegacyEventTable.Columns.EventType} 
+from {LegacyEventTable.Name}
+group by {EventTable.Columns.EventType} 
 ";
 
         public string MigrateEventsSql => $@"
-INSERT INTO {EventTableSchema.Name} 
+insert into {EventTableSchema.Name} 
 (      {EventTable.Columns.AggregateId}, {EventTable.Columns.InsertedVersion}, {EventTable.Columns.UtcTimeStamp}, {EventTable.Columns.EventType}, {EventTable.Columns.EventId}, {EventTable.Columns.Event}, {LegacySqlTimeStamp}, {EventTable.Columns.SqlInsertTimeStamp})
-SELECT {LegacyEventTable.Columns.AggregateId}, {LegacyEventTable.Columns.AggregateVersion},{LegacyEventTable.Columns.TimeStamp}, {EventTypeTable.Name}.{EventTypeTable.Columns.Id}, {LegacyEventTable.Columns.EventId}, {LegacyEventTable.Columns.Event}, CAST({LegacyEventTable.Columns.SqlTimeStamp} AS BIGINT), {LegacyEventTable.Columns.TimeStamp}
-FROM {LegacyEventTable.Name}
-INNER JOIN {EventTypeTable.Name}
-ON {LegacyEventTable.Name}.{LegacyEventTable.Columns.EventType} = {EventTypeTable.Name}.{EventTypeTable.Columns.EventType}
-ORDER BY {LegacyEventTable.Columns.SqlTimeStamp} ASC
+select {LegacyEventTable.Columns.AggregateId}, {LegacyEventTable.Columns.AggregateVersion},{LegacyEventTable.Columns.TimeStamp}, {EventTypeTable.Name}.{EventTypeTable.Columns.Id}, {LegacyEventTable.Columns.EventId}, {LegacyEventTable.Columns.Event}, CAST({LegacyEventTable.Columns.SqlTimeStamp} AS BIGINT), {LegacyEventTable.Columns.TimeStamp}
+from {LegacyEventTable.Name}
+inner join {EventTypeTable.Name}
+on {LegacyEventTable.Name}.{LegacyEventTable.Columns.EventType} = {EventTypeTable.Name}.{EventTypeTable.Columns.EventType}
+order by {LegacyEventTable.Columns.SqlTimeStamp} asc
 ";
 
 

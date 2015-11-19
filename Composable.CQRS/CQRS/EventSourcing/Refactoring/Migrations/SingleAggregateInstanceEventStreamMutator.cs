@@ -16,7 +16,7 @@ namespace Composable.CQRS.EventSourcing.Refactoring.Migrations
     internal class SingleAggregateInstanceEventStreamMutator : ISingleAggregateInstanceEventStreamMutator
     {
         private readonly Guid _aggregateId;
-        private readonly ISingleAggregateInstanceEventMigrator[] _eventMigrators;
+        private readonly ISingleAggregateInstanceHandlingEventMigrator[] _eventMigrators;
         private readonly EventModifier _eventModifier;
 
         private int _aggregateVersion = 1;
@@ -33,7 +33,7 @@ namespace Composable.CQRS.EventSourcing.Refactoring.Migrations
             _aggregateId = creationEvent.AggregateRootId;
             _eventMigrators = eventMigrations
                 .Where(migration => migration.MigratedAggregateEventHierarchyRootInterface.IsInstanceOfType(creationEvent))
-                .Select(migration => migration.CreateMigrator())
+                .Select(migration => migration.CreateSingleAggregateInstanceHandlingMigrator())
                 .ToArray();
         }
 
@@ -111,7 +111,7 @@ namespace Composable.CQRS.EventSourcing.Refactoring.Migrations
 
             var migrators = eventMigrations
                 .Where(migration => migration.MigratedAggregateEventHierarchyRootInterface.IsInstanceOfType(creationEvent))
-                .Select(migration => migration.CreateMigrator())
+                .Select(migration => migration.CreateSingleAggregateInstanceHandlingMigrator())
                 .ToArray();
 
             for(var eventIndex = 0; eventIndex < result.Length; eventIndex++)
@@ -125,7 +125,7 @@ namespace Composable.CQRS.EventSourcing.Refactoring.Migrations
         }
     }
 
-    internal class EndOfAggregateHistoryEventPlaceHolder : AggregateRootEvent {
+    public class EndOfAggregateHistoryEventPlaceHolder : AggregateRootEvent {
         public EndOfAggregateHistoryEventPlaceHolder(Guid aggregateId, int i):base(aggregateId)
         {
             AggregateRootVersion = i;

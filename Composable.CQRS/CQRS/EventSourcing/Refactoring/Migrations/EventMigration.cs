@@ -21,6 +21,6 @@ namespace Composable.CQRS.EventSourcing.Refactoring.Migrations
         public string Description { get; }
         public bool Done { get; }
         public Type MigratedAggregateEventHierarchyRootInterface => typeof(TMigratedAggregateEventHierarchyRootInterface);
-        public abstract ISingleAggregateInstanceEventMigrator CreateMigrator();
+        public abstract ISingleAggregateInstanceHandlingEventMigrator CreateSingleAggregateInstanceHandlingMigrator();
     }
 }

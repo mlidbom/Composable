@@ -153,12 +153,12 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
         {
             RunMigrationTest(
                 Seq.OfTypes<Ec1, E1, Ef>(),
-                Seq.OfTypes<Ec1, E3, E5, E6, E1, E7, E8>(),
-                Before<E1>.Insert<E3, E4>(),
-                Before<E4>.Insert<E5>(),
-                Replace<E3>.With<E6>(),
-                Replace<Ef>.With<E7>(),
-                After<E7>.Insert<E8>());
+                Seq.OfTypes<Ec1, E6, E5, E4, E1, E7, E8>(),
+                Before<E1>.Insert<E3, E4>(),//Ec1, E3, E4, E1, Ef
+                Before<E4>.Insert<E5>(),    //Ec1, E3, E5, E4, E1, Ef
+                Replace<E3>.With<E6>(),     //Ec1, E6, E5, E4, E1, Ef
+                Replace<Ef>.With<E7>(),     //Ec1, E6, E5, E4, E1, E7
+                After<E7>.Insert<E8>());    //Ec1, E6, E5, E4, E1, E7, E8
         }
 
         [Test]

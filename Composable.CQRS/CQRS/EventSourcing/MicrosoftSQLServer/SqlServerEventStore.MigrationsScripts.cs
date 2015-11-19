@@ -44,6 +44,11 @@ set @Done = 0
 
 WHILE @Done = 0
 begin
+/* Uncomment this to debug 
+    select * from {EventTable.Name}
+    order by {EventTable.Columns.EffectiveReadOrder}
+*/
+
     set @{EventTable.Columns.InsertionOrder} = null
     set @{EventTable.Columns.InsertAfter} = null
     set @{EventTable.Columns.InsertBefore} = null
@@ -54,16 +59,20 @@ begin
 
     if @{EventTable.Columns.Replaces} is not null
         begin 
-            select @NumberOfEventsToReorder = count(*) from {EventTable.Name} where {EventTable.Columns.Replaces} = @{EventTable.Columns.Replaces}
-            select @BeforeReadOrder = abs({EventTable.Columns.EffectiveReadOrder}) from {EventTable.Name} where {EventTable.Columns.InsertionOrder} = @{EventTable.Columns.Replaces}
-            select top 1 @AfterReadOrder = {EventTable.Columns.EffectiveReadOrder} from {EventTable.Name} where {EventTable.Columns.EffectiveReadOrder} > @BeforeReadOrder and ({EventTable.Columns.Replaces} is null or {EventTable.Columns.Replaces} != @{EventTable.Columns.Replaces}) order by {EventTable.Columns.EffectiveReadOrder}          
+            set @NumberOfEventsToReorder = (select count(*) from {EventTable.Name} where {EventTable.Columns.Replaces} = @{EventTable.Columns.Replaces})
+            set @BeforeReadOrder = (select abs({EventTable.Columns.EffectiveReadOrder}) from {EventTable.Name} where {EventTable.Columns.InsertionOrder} = @{EventTable.Columns.Replaces})
+            set @AfterReadOrder = (select top 1 {EventTable.Columns.EffectiveReadOrder} from {EventTable.Name} where {EventTable.Columns.EffectiveReadOrder} > @BeforeReadOrder and ({EventTable.Columns.Replaces} is null or {EventTable.Columns.Replaces} != @{EventTable.Columns.Replaces}) order by {EventTable.Columns.EffectiveReadOrder})
 
             if @AfterReadOrder is null
             begin
                 if (select max({EventTable.Columns.InsertionOrder}) from {EventTable.Name} where {EventTable.Columns.Replaces} = @{EventTable.Columns.Replaces}) = (select max({EventTable.Columns.InsertionOrder}) from {EventTable.Name}) --There are no other events in the whole store after the replaced event, except for the replacing events.
                 begin 
                     set @AfterReadOrder = (select max({EventTable.Columns.InsertionOrder}) from {EventTable.Name} where {EventTable.Columns.Replaces} = @{EventTable.Columns.Replaces})
-                end 
+                end
+				else if @BeforeReadOrder = (select max({EventTable.Columns.EffectiveReadOrder}) from {EventTable.Name}) --There are no other events in the whole store after the event we are replacing
+                begin 
+                    set @AfterReadOrder = cast((@BeforeReadOrder + 1) as int) --Future events will be inserted at an index no lower than the next integer
+                end
                 else
                 begin
                     set @Error = 'Failed to find AfterReadOrder during replacement of {EventTable.Columns.InsertionOrder}: ' + cast(@{EventTable.Columns.Replaces} as nvarchar)
@@ -87,16 +96,27 @@ begin
         end 
     else if @{EventTable.Columns.InsertAfter} is not null
         begin 
-            select @NumberOfEventsToReorder = count(*) from {EventTable.Name} where {EventTable.Columns.InsertAfter} = @{EventTable.Columns.InsertAfter}
-            select @BeforeReadOrder = {EventTable.Columns.EffectiveReadOrder} from {EventTable.Name} where {EventTable.Columns.InsertionOrder} = @{EventTable.Columns.InsertAfter}
+            set @NumberOfEventsToReorder = (select count(*) from {EventTable.Name} where {EventTable.Columns.InsertAfter} = @{EventTable.Columns.InsertAfter})
+            set @BeforeReadOrder = (select {EventTable.Columns.EffectiveReadOrder} from {EventTable.Name} where {EventTable.Columns.InsertionOrder} = @{EventTable.Columns.InsertAfter})
             if @BeforeReadOrder < 0 --The event we are inserting after has been replaced and it might be by multiple events, so get the highest of the replacing readorders
-                select @BeforeReadOrder = max({EventTable.Columns.EffectiveReadOrder}) from {EventTable.Name} where {EventTable.Columns.Replaces} = @{EventTable.Columns.InsertAfter}
+                set @BeforeReadOrder = (select max({EventTable.Columns.EffectiveReadOrder}) from {EventTable.Name} where {EventTable.Columns.Replaces} = @{EventTable.Columns.InsertAfter})
 
-            select top 1 @AfterReadOrder = {EventTable.Columns.EffectiveReadOrder} from {EventTable.Name} where {EventTable.Columns.EffectiveReadOrder} > @BeforeReadOrder and ({EventTable.Columns.InsertAfter} is null or {EventTable.Columns.InsertAfter} != @{EventTable.Columns.InsertAfter}) order by {EventTable.Columns.EffectiveReadOrder}
+            set @AfterReadOrder = (select top 1 {EventTable.Columns.EffectiveReadOrder} from {EventTable.Name} where {EventTable.Columns.EffectiveReadOrder} > @BeforeReadOrder and ({EventTable.Columns.InsertAfter} is null or {EventTable.Columns.InsertAfter} != @{EventTable.Columns.InsertAfter}) order by {EventTable.Columns.EffectiveReadOrder})
             if @AfterReadOrder is null
-            begin 
-                set @Error = 'Failed to find AfterReadOrder inserting events after {EventTable.Columns.InsertionOrder}: ' + cast(@{EventTable.Columns.InsertAfter} as nvarchar) + ' you are probably trying to insert after the last event in the event store. That is not supported. It is equivalent to just inserting a normal event, so just do that :)'
-                break
+            begin
+                if (select max({EventTable.Columns.InsertionOrder}) from {EventTable.Name} where {EventTable.Columns.InsertAfter} = @{EventTable.Columns.InsertAfter}) = (select max({EventTable.Columns.InsertionOrder}) from {EventTable.Name}) --There are no other events in the whole store after the event we are inserting after.
+                begin 
+                    set @AfterReadOrder = (select max({EventTable.Columns.InsertionOrder}) from {EventTable.Name} where {EventTable.Columns.InsertAfter} = @{EventTable.Columns.InsertAfter})
+                end
+				else if @BeforeReadOrder = (select max({EventTable.Columns.EffectiveReadOrder}) from {EventTable.Name}) --There are no other events in the whole store after the event we are inserting after
+                begin 
+                    set @AfterReadOrder = cast((@BeforeReadOrder + 1) as int) --Future events will be inserted at an effective readorder no lower than the next integer
+                end 
+                else
+                begin
+                    set @Error = 'Failed to find AfterReadOrder while inserting after {EventTable.Columns.InsertionOrder}: ' + cast(@{EventTable.Columns.InsertAfter} as nvarchar)
+                    break
+                end
             end
 
             set @AvailableSpaceBetwenReadOrders = @AfterReadOrder - @BeforeReadOrder

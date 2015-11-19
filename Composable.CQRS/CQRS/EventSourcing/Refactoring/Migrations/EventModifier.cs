@@ -33,6 +33,8 @@ namespace Composable.CQRS.EventSourcing.Refactoring.Migrations
         public AggregateRootEvent Event;
 
         private LinkedListNode<AggregateRootEvent> _currentNode;
+        private AggregateRootEvent _lastEventInActualStream;
+
         private LinkedListNode<AggregateRootEvent> CurrentNode
         {
             get
@@ -72,6 +74,10 @@ namespace Composable.CQRS.EventSourcing.Refactoring.Migrations
 
         public void Reset(AggregateRootEvent @event)
         {
+            if(@event is EndOfAggregateHistoryEventPlaceHolder && !(Event is EndOfAggregateHistoryEventPlaceHolder))
+            {
+                _lastEventInActualStream = Event;
+            }
             Event = @event;
             Events = null;
             _insertedEvents = null;
@@ -80,6 +86,10 @@ namespace Composable.CQRS.EventSourcing.Refactoring.Migrations
 
         public void MoveTo(LinkedListNode<AggregateRootEvent> current)
         {
+            if (current.Value is EndOfAggregateHistoryEventPlaceHolder && !(Event is EndOfAggregateHistoryEventPlaceHolder))
+            {
+                _lastEventInActualStream = Event;
+            }
             CurrentNode = current;
             _insertedEvents = null;
             _replacementEvents = null;
@@ -91,18 +101,25 @@ namespace Composable.CQRS.EventSourcing.Refactoring.Migrations
 
             _insertedEvents = insert;
 
-            _insertedEvents.ForEach(
-                (e, index) =>
-                {
-                    e.InsertBefore = Event.InsertionOrder;
-                    e.AggregateRootVersion = Event.AggregateRootVersion + index;
-                    e.AggregateRootId = Event.AggregateRootId;
-                });
-
-            if (Event.GetType() == typeof(EndOfAggregateHistoryEventPlaceHolder))
+            if(Event.GetType() == typeof(EndOfAggregateHistoryEventPlaceHolder))
             {
-                //Review:mlidbo: Do some more thinking about this. Should we insert after the previous event? Will this always give the expected behaviour for the client implementing the migrator?
-                _insertedEvents.ForEach(@event => @event.InsertBefore = null);//We are at the end of the stream. Claiming to insert before it makes no sense
+                _insertedEvents.ForEach(
+                    (e, index) =>
+                    {
+                        e.InsertAfter = _lastEventInActualStream.InsertionOrder;
+                        e.AggregateRootVersion = Event.AggregateRootVersion + index;
+                        e.AggregateRootId = Event.AggregateRootId;
+                    });                
+            }
+            else
+            {
+                _insertedEvents.ForEach(
+                    (e, index) =>
+                    {
+                        e.InsertBefore = Event.InsertionOrder;
+                        e.AggregateRootVersion = Event.AggregateRootVersion + index;
+                        e.AggregateRootId = Event.AggregateRootId;
+                    });
             }
 
             CurrentNode.ValuesFrom().ForEach((@event, index) => @event.AggregateRootVersion += _insertedEvents.Length);

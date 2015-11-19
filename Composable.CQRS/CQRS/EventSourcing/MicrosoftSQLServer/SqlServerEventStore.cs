@@ -132,7 +132,7 @@ namespace Composable.CQRS.EventSourcing.MicrosoftSQLServer
             _usageGuard.AssertNoContextChangeOccurred(this);
             _schemaManager.SetupSchemaIfDatabaseUnInitialized();
 
-            EnsurePersistedMigrationsHaveConsistentReadOrdersAndEffectiveVersions();
+            EnsurePersistedMigrationsHaveConsistentEffectiveReadOrdersAndEffectiveVersions();
 
             var streamMutator = CompleteEventStoreStreamMutator.Create(_migrationFactories);
             return streamMutator.Mutate(_eventReader.StreamEvents(StreamEventsBatchSize));
@@ -194,7 +194,7 @@ namespace Composable.CQRS.EventSourcing.MicrosoftSQLServer
 
             this.Log().Info($"Aggregates: {migratedAggregates}, Updated: {updatedAggregates}, New Events: {newEventCount}");
 
-            EnsurePersistedMigrationsHaveConsistentReadOrdersAndEffectiveVersions();
+            EnsurePersistedMigrationsHaveConsistentEffectiveReadOrdersAndEffectiveVersions();
 
             this.Log().Warn($"Done persisting migrations.");
         }
@@ -206,22 +206,22 @@ namespace Composable.CQRS.EventSourcing.MicrosoftSQLServer
 
             _schemaManager.SetupSchemaIfDatabaseUnInitialized();
 
-            EnsurePersistedMigrationsHaveConsistentReadOrdersAndEffectiveVersions();
+            EnsurePersistedMigrationsHaveConsistentEffectiveReadOrdersAndEffectiveVersions();
             return _eventReader.StreamAggregateIdsInCreationOrder(eventBaseType);
         }        
 
-        private void EnsurePersistedMigrationsHaveConsistentReadOrdersAndEffectiveVersions()
+        private void EnsurePersistedMigrationsHaveConsistentEffectiveReadOrdersAndEffectiveVersions()
         {
-            this.Log().Debug("EnsurePersistedMigrationsHaveConsistentReadOrdersAndEffectiveVersions: Starting");
+            this.Log().Debug($"{nameof(EnsurePersistedMigrationsHaveConsistentEffectiveReadOrdersAndEffectiveVersions)}: Starting");
 
             _connectionMananger.UseCommand(
                 command =>
                 {
-                    command.CommandText = EnsurePersistedMigrationsHaveConsistentReadOrdersAndEffectiveVersionsSql;
+                    command.CommandText = SqlStatements.EnsurePersistedMigrationsHaveConsistentEffectiveReadOrdersAndEffectiveVersions;
                     command.ExecuteNonQuery();
                 });
 
-            this.Log().Debug("EnsurePersistedMigrationsHaveConsistentReadOrdersAndEffectiveVersions: Done");
+            this.Log().Debug($"{nameof(EnsurePersistedMigrationsHaveConsistentEffectiveReadOrdersAndEffectiveVersions)}: Done");
         }
 
         public static void ResetDB(string connectionString)

@@ -5,6 +5,7 @@ using Composable.KeyValueStorage.Population;
 
 namespace Composable.CQRS.Windsor
 {
+    [Obsolete("'Now in the Composable.Windsor namespace. Search and replace: 'using Composable.CQRS.Windsor.Testing;' with 'using Composable.Windsor.Testing;' and 'using Composable.CQRS.Windsor;' with 'using Composable.Windsor;'", error: true)]
     public static class WindsorUnitOfWorkExtensions
     {
         public static TResult ExecuteUnitOfWork<TResult>(this IWindsorContainer me, Func<TResult> function)
@@ -40,6 +41,22 @@ namespace Composable.CQRS.Windsor
             using (me.BeginScope())
             {
                 me.ExecuteUnitOfWork(action);
+            }
+        }
+
+        public static TResult ExecuteInIsolatedScope<TResult>(this IWindsorContainer me, Func<TResult> function)
+        {
+            using (me.BeginScope())
+            {
+                return function();
+            }
+        }
+
+        public static void ExecuteInIsolatedScope(this IWindsorContainer me, Action action)
+        {
+            using (me.BeginScope())
+            {
+                action();
             }
         }
     }

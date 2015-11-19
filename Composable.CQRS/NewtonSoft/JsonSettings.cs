@@ -4,9 +4,7 @@ namespace Composable.NewtonSoft
 {
     public static class JsonSettings
     {
-// ReSharper disable InconsistentNaming
-        private static readonly JsonSerializerSettings _jsonSerializerSettings =
-// ReSharper restore InconsistentNaming
+        public static readonly JsonSerializerSettings JsonSerializerSettings =
             new JsonSerializerSettings
             {
                 TypeNameHandling = TypeNameHandling.Auto,
@@ -14,6 +12,13 @@ namespace Composable.NewtonSoft
                 ContractResolver = IncludeMembersWithPrivateSettersResolver.Instance
             };
 
-        public static JsonSerializerSettings JsonSerializerSettings { get { return _jsonSerializerSettings; } }
+        public static readonly JsonSerializerSettings SqlEventStoreSerializerSettings =
+            new JsonSerializerSettings
+            {
+                TypeNameHandling = TypeNameHandling.Auto,
+                ConstructorHandling = ConstructorHandling.AllowNonPublicDefaultConstructor,
+                ContractResolver = IgnoreAggregateRootEventDeclaredPropertiesBecauseTheyAreAlreadyStoredInSql.Instance
+            };
+
     }
 }

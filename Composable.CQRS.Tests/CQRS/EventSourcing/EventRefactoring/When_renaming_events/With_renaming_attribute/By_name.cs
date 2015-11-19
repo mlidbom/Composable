@@ -1,5 +1,5 @@
 ﻿using Composable.CQRS.EventSourcing;
-using Composable.CQRS.EventSourcing.EventRefactoring;
+using Composable.CQRS.EventSourcing.Refactoring.Naming;
 using Composable.System.Linq;
 using FluentAssertions;
 using NUnit.Framework;

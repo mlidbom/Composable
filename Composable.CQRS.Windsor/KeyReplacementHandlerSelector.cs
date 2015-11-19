@@ -9,6 +9,7 @@ namespace Composable.CQRS.Windsor
     /// when the container is asked for a service with 'originalKey'
     /// Use it by adding it to the container at wire-up with container.Kernel.AddHandlerSelector(new KeyReplacementHandlerSelector(typeof([ComponentType]),"originalKey", "replacementKey"));
     /// </summary>
+    [Obsolete("'These extensions are now in the Composable.CQRS package. Search and replace: 'using Composable.CQRS.Windsor.Testing;' with 'using Composable.Windsor.Testing;' and 'using Composable.CQRS.Windsor;' with 'using Composable.Windsor;'", error: true)]
     public class KeyReplacementHandlerSelector : IHandlerSelector
     {
         private readonly Type _serviceType;

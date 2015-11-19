@@ -4,11 +4,11 @@ using System;
 using System.Configuration;
 using System.Transactions;
 using Composable.CQRS.EventSourcing;
-using Composable.CQRS.EventSourcing.SQLServer;
 using CQRS.Tests.KeyValueStorage.Sql;
 using NCrunch.Framework;
 using NUnit.Framework;
 using System.Linq;
+using Composable.CQRS.EventSourcing.MicrosoftSQLServer;
 using Composable.SystemExtensions.Threading;
 
 #endregion

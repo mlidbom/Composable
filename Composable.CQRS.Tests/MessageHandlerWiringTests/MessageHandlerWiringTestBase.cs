@@ -6,6 +6,7 @@ using Castle.Windsor;
 using Composable.CQRS.EventSourcing;
 using Composable.CQRS.Windsor.Testing;
 using Composable.ServiceBus;
+using Composable.Windsor.Testing;
 using CQRS.Tests.ServiceBus;
 using NServiceBus;
 using NUnit.Framework;

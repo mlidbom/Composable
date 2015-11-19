@@ -13,6 +13,7 @@ using Composable.CQRS.Windsor;
 using Composable.ServiceBus;
 using Composable.System;
 using Composable.UnitsOfWork;
+using Composable.Windsor;
 using JetBrains.Annotations;
 using NCrunch.Framework;
 using NServiceBus;

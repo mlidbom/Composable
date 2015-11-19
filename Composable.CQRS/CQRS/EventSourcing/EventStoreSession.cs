@@ -2,10 +2,13 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.Contracts;
 using System.Linq;
 using System.Threading;
 using System.Transactions;
-using Composable.CQRS.EventSourcing.SQLServer;
+using Composable.CQRS.EventSourcing.MicrosoftSQLServer;
+using Composable.GenericAbstractions.Time;
+using Composable.Logging.Log4Net;
 using Composable.ServiceBus;
 using Composable.StuffThatDoesNotBelongHere;
 using Composable.System;
@@ -32,12 +35,25 @@ namespace Composable.CQRS.EventSourcing
         private readonly HashSet<Guid> _publishedEvents = new HashSet<Guid>();
         private readonly ISingleContextUseGuard _usageGuard;
         private readonly List<Guid> _pendingDeletes = new List<Guid>();
+        protected internal IUtcTimeTimeSource TimeSource { get; set; }
 
-        public EventStoreSession(IServiceBus bus, IEventStore store, ISingleContextUseGuard usageGuard)
+
+        [Obsolete("The sessions now absolutely require a time source. This is only here for binary backwards compatability and will be removed SOON.", error:true)]
+        public EventStoreSession(IServiceBus bus, IEventStore store, ISingleContextUseGuard usageGuard) : this(bus, store, usageGuard, DateTimeNowTimeSource.Instance)
         {
+        }
+
+        public EventStoreSession(IServiceBus bus, IEventStore store, ISingleContextUseGuard usageGuard, IUtcTimeTimeSource timeSource)
+        {
+            Contract.Requires(bus != null);
+            Contract.Requires(store != null);
+            Contract.Requires(usageGuard != null);
+            Contract.Requires(timeSource != null);
+
             _usageGuard = usageGuard;
             _bus = bus;
             _store = store;
+            TimeSource = timeSource ?? DateTimeNowTimeSource.Instance;
         }
 
         public TAggregate Get<TAggregate>(Guid aggregateId) where TAggregate : IEventStored
@@ -211,10 +227,12 @@ namespace Composable.CQRS.EventSourcing
             }
         }
 
-        private static TAggregate CreateInstance<TAggregate>() where TAggregate : IEventStored
+        private TAggregate CreateInstance<TAggregate>() where TAggregate : IEventStored
         {
-            return (TAggregate)Activator.CreateInstance(typeof(TAggregate), nonPublic: true);
-        }
+            var aggregate = (TAggregate)Activator.CreateInstance(typeof(TAggregate), nonPublic: true);
+            aggregate.SetTimeSource(TimeSource);
+            return aggregate;
+        }        
 
         private void PublishUnpublishedEvents(IEnumerable<IAggregateRootEvent> events)
         {

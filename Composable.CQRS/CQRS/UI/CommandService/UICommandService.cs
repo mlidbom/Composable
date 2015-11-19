@@ -1,6 +1,6 @@
 ﻿using Castle.Windsor;
 using Composable.CQRS.UI.Command;
-using Composable.CQRS.Windsor;
+using Composable.Windsor;
 
 namespace Composable.CQRS.UI.CommandService
 {

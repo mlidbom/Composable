@@ -3,17 +3,22 @@ using System.Collections.Generic;
 using System.Linq;
 using Composable.DDD;
 using Composable.DomainEvents;
+using Composable.GenericAbstractions.Time;
 using Composable.System.Linq;
 
 namespace Composable.CQRS.EventSourcing
 {
+    [Obsolete("No longer supported. please use AggregateRoot<TEntity, TBaseEventClass, TBaseEventInterface>")]
     public class EventStoredAggregateRoot<TEntity> : VersionedPersistentEntity<TEntity>, IEventStored
         where TEntity : EventStoredAggregateRoot<TEntity>
     {
         private readonly IList<IAggregateRootEvent> _unCommittedEvents = new List<IAggregateRootEvent>();
 
         //Yes empty. Id should be assigned by action and it should be obvious that the aggregate in invalid until that happens
-        protected EventStoredAggregateRoot() : base(Guid.Empty) { }
+        protected EventStoredAggregateRoot(IUtcTimeTimeSource timeSource = null) : base(Guid.Empty)
+        {
+            TimeSource = timeSource ?? new DateTimeNowTimeSource();
+        }
 
         private readonly Dictionary<Type, Action<IAggregateRootEvent>> _registeredEvents = new Dictionary<Type, Action<IAggregateRootEvent>>();
         private void RegisterEventHandler<TEvent>(Action<TEvent> eventHandler) where TEvent : class, IAggregateRootEvent
@@ -33,13 +38,13 @@ namespace Composable.CQRS.EventSourcing
             }
         }
 
-        protected void ApplyEvent(IAggregateRootEvent evt)
+        protected void ApplyEvent(IAggregateRootEvent @event)
         {
-            ApplyAs(evt, evt.GetType());
-            evt.AggregateRootVersion = ++Version;
-            evt.AggregateRootId = Id;
-            _unCommittedEvents.Add(evt);
-            DomainEvent.Raise(evt);//Fixme: Don't do this synchronously!
+            ApplyAs(@event, @event.GetType());
+            ((AggregateRootEvent)@event).AggregateRootVersion = ++Version;
+            ((AggregateRootEvent)@event).AggregateRootId = Id;
+            _unCommittedEvents.Add(@event);
+            DomainEvent.Raise(@event);//Fixme: Don't do this synchronously!
         }
 
         /// <summary>
@@ -70,6 +75,15 @@ namespace Composable.CQRS.EventSourcing
         {
             history.ForEach(evt => ApplyAs(evt, evt.GetType()));
             Version = history.Max(e => e.AggregateRootVersion);
+        }
+
+        protected IUtcTimeTimeSource TimeSource { get; private set; }
+
+        IUtcTimeTimeSource IEventStored.TimeSource => TimeSource;
+
+        void IEventStored.SetTimeSource(IUtcTimeTimeSource timeSource)
+        {
+            TimeSource = timeSource;
         }
 
         void IEventStored.AcceptChanges()

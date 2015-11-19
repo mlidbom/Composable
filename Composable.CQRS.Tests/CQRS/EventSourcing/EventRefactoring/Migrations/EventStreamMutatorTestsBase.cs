@@ -170,6 +170,16 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
 
             try
             {
+                expected.ForEach(
+                   (@event, index) =>
+                   {
+                       if (@event.GetType() != migratedHistory[index].GetType())
+                       {
+                           Assert.Fail(
+                               $"Expected event at postion {index} to be of type {@event.GetType()} but it was of type: {migratedHistory[index].GetType()}");
+                       }
+                   });
+
                 migratedHistory.Cast<AggregateRootEvent>().ShouldAllBeEquivalentTo(
                     expected,
                     config => config.RespectingRuntimeTypes()
@@ -192,17 +202,7 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
                 expected.ForEach(e => Console.WriteLine($"      {e}"));
                 Console.WriteLine($"\n   Actual: ");
                 migratedHistory.ForEach(e => Console.WriteLine($"      {e}"));
-                Console.WriteLine("\n");
-
-                expected.ForEach(
-                    (@event, index) =>
-                    {
-                        if (@event.GetType() != migratedHistory[index].GetType())
-                        {
-                            Assert.Fail(
-                                $"Expected event at postion {index} to be of type {@event.GetType()} but it was of type: {migratedHistory[index].GetType()}");
-                        }
-                    });
+                Console.WriteLine("\n");               
 
                 throw;
             }

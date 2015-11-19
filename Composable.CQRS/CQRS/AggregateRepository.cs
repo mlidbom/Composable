@@ -1,26 +1,23 @@
 ﻿using System;
 using Composable.CQRS.EventSourcing;
-using Composable.GenericAbstractions.Time;
-using Composable.System;
 
 namespace Composable.CQRS
 {
-    public class AggregateRepository<TAggregate, TBaseEvent> : IAggregateRepository<TAggregate>
-        where TAggregate : TempAggregateRootWithTimeSourceSupport<TAggregate, TBaseEvent>, IEventStored
-        where TBaseEvent : IAggregateRootEvent
+    public class AggregateRepository<TAggregate, TBaseEventClass, TBaseEventInterface> : IAggregateRepository<TAggregate>
+        where TAggregate : AggregateRoot<TAggregate, TBaseEventClass, TBaseEventInterface>, IEventStored
+        where TBaseEventClass : AggregateRootEvent, TBaseEventInterface
+        where TBaseEventInterface : IAggregateRootEvent
     {
         protected readonly IEventStoreSession Aggregates;
-        private readonly ITimeSource _timeSource;
 
-        public AggregateRepository(IEventStoreSession aggregates, ITimeSource timeSource)
+        public AggregateRepository(IEventStoreSession aggregates)
         {
             Aggregates = aggregates;
-            _timeSource = timeSource;
         }
 
         public virtual TAggregate Get(Guid id)
         {
-            return Aggregates.Get<TAggregate>(id).Do(aggregate => aggregate.TimeSource = _timeSource);
+            return Aggregates.Get<TAggregate>(id);
         }
 
         public virtual void Add(TAggregate aggregate)

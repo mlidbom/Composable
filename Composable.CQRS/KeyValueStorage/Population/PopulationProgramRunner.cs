@@ -50,14 +50,6 @@ namespace Composable.KeyValueStorage.Population
                     ids = entityIds.ToArray();
 
                 }
-                else if(args.First().ToLower().StartsWith("-allafter:"))
-                {
-                    Guid eventId;
-                    if(Guid.TryParse(ExtractSwitchArgument(args.First()), out eventId))
-                        ids = idFetcher.GetEntitiesCreatedAfter(eventId);
-                    else
-                        Usage();
-                }
                 else if (args.First().ToLower().StartsWith("-fromfile:"))
                 {
                     string filePath = ExtractSwitchArgument(args.First()).Trim();
@@ -93,7 +85,6 @@ namespace Composable.KeyValueStorage.Population
             Console.WriteLine(@"
 -All                   --> Repopulates all viewmodels for all entities
 -Entities:{entityid},{entityid}.... --> Repopulates ViewModel for selected entities
--AllAfter:{eventid}    --> Repopulate all ViewModels after selected event
 -FromFile:{filepath} --> Repopulate all viewmodels from the file with an aggregateid per row.
             ");
         }

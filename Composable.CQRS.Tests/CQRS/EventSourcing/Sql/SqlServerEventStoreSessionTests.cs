@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using System.Transactions;
 using Castle.Windsor;
 using Composable.CQRS.EventSourcing;
-using Composable.CQRS.EventSourcing.SQLServer;
+using Composable.CQRS.EventSourcing.MicrosoftSQLServer;
 using Composable.CQRS.Testing;
 using Composable.SystemExtensions.Threading;
 using CQRS.Tests.KeyValueStorage.Sql;

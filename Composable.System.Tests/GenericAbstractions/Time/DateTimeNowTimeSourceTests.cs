@@ -12,14 +12,14 @@ namespace Composable.Tests.GenericAbstractions.Time
         public void LocalNow_should_return_within_100_milliseconds_of_DateTimeNow()
         {
             ITimeSource uut = new DateTimeNowTimeSource();
-            Math.Abs((uut.LocalNow - DateTime.Now).TotalMilliseconds).Should().BeLessThan(100);
+            uut.LocalNow.Should().BeWithin(100.Milliseconds()).Before(DateTime.Now);
         }
 
         [Test]
         public void UtcNow_should_return_within_100_milliseconds_of_DateTimeNow()
         {
             ITimeSource uut = new DateTimeNowTimeSource();
-            Math.Abs((uut.UtcNow - DateTime.UtcNow).TotalMilliseconds).Should().BeLessThan(100);
+            uut.UtcNow.Should().BeWithin(100.Milliseconds()).Before(DateTime.UtcNow);
         }
     }
 }

@@ -12,8 +12,10 @@ using Composable.System.Linq;
 
 namespace Composable.CQRS.Windsor
 {
+    [Obsolete("'These extensions are now in the Composable.CQRS package. Search and replace: 'using Composable.CQRS.Windsor.Testing;' with 'using Composable.Windsor.Testing;' and 'using Composable.CQRS.Windsor;' with 'using Composable.Windsor;'", error: true)]
     public static class WindsorConfigurationValidator
     {
+        [Obsolete("'These extensions are now in the Composable.CQRS package. Search and replace: 'using Composable.CQRS.Windsor.Testing;' with 'using Composable.Windsor.Testing;' and 'using Composable.CQRS.Windsor;' with 'using Composable.Windsor;'", error: true)]
         public static void AssertConfigurationValid(this IWindsorContainer container)
         {
             var assignableHandlers = container.Kernel.GetAssignableHandlers(typeof(object)).ToArray();

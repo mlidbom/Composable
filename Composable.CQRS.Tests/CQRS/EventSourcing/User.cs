@@ -1,15 +1,16 @@
 ﻿using System;
 using Composable.CQRS.EventSourcing;
+using Composable.GenericAbstractions.Time;
 
 namespace CQRS.Tests.CQRS.EventSourcing
 {
-    internal class User : AggregateRoot<User, AggregateRootEvent>
+    internal class User : AggregateRoot<User,UserEvent, IUserEvent>
     {
         public string Email { get; private set; }
         public string Password { get; private set; }
 
 
-        public User()
+        public User():base(new DateTimeNowTimeSource())
         {
             RegisterEventAppliers()
                 .For<UserRegistered>(e =>
@@ -35,5 +36,36 @@ namespace CQRS.Tests.CQRS.EventSourcing
         {
             RaiseEvent(new UserChangedEmail(email));
         }
+    }
+
+
+    public interface IUserEvent : IAggregateRootEvent
+    {}
+
+    public abstract class UserEvent : AggregateRootEvent, IUserEvent
+    {
+        protected UserEvent() {}
+        protected UserEvent(Guid aggregateRootId) : base(aggregateRootId) {}
+    }
+
+    public class UserChangedEmail : UserEvent, IUserEvent
+    {
+        public UserChangedEmail(string email)
+        {
+            Email = email;
+        }
+        public string Email { get; private set; }
+    }
+
+    public class UserChangedPassword : UserEvent, IUserEvent
+    {
+        public string Password { get; set; }
+    }
+
+    public class UserRegistered : UserEvent, IAggregateRootCreatedEvent
+    {
+        public Guid UserId { get; set; }
+        public string Email { get; set; }
+        public string Password { get; set; }
     }
 }

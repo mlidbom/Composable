@@ -96,7 +96,8 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <DocumentationFile>..\..\bin\Release\Composable.Core.xml</DocumentationFile>
+    <DocumentationFile>
+    </DocumentationFile>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
     <CodeContractsEnableRuntimeChecking>True</CodeContractsEnableRuntimeChecking>
     <CodeContractsRuntimeOnlyPublicSurface>False</CodeContractsRuntimeOnlyPublicSurface>
@@ -168,6 +169,7 @@
     <Compile Include="SystemExtensions\Threading\UsageGuard.cs" />
     <Compile Include="System\Collections\Collections\CollectionExtensions.cs" />
     <Compile Include="System\Collections\Collections\DictionaryExtensions.cs" />
+    <Compile Include="System\Collections\Collections\LinkedListExtensions.cs" />
     <Compile Include="System\ComponentModel\DataAnnotations\IValidatableObjectExtensions.cs" />
     <Compile Include="System\Configuration\AppConfigConfigurationParameterProvider.cs" />
     <Compile Include="System\Configuration\ConnectionStringConfigurationParameterProvider.cs" />

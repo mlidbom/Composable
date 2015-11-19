@@ -61,8 +61,16 @@
     <Reference Include="Castle.Windsor">
       <HintPath>..\packages\Castle.Windsor.3.3.0\lib\net45\Castle.Windsor.dll</HintPath>
     </Reference>
+    <Reference Include="Iesi.Collections, Version=1.0.1.0, Culture=neutral, PublicKeyToken=aa95f207798dfdb4, processorArchitecture=MSIL">
+      <HintPath>..\packages\Iesi.Collections.3.4.1.4000\lib\Net35\Iesi.Collections.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="NCrunch.Framework">
       <HintPath>..\packages\NCrunch.Framework.2.16.0.13\lib\portable-windows8+net45\NCrunch.Framework.dll</HintPath>
+    </Reference>
+    <Reference Include="NHibernate, Version=3.4.0.0, Culture=neutral, PublicKeyToken=aa95f207798dfdb4, processorArchitecture=MSIL">
+      <HintPath>..\packages\NHibernate.3.4.1.4000\lib\Net35\NHibernate.dll</HintPath>
+      <Private>True</Private>
     </Reference>
     <Reference Include="NServiceBus">
       <HintPath>..\packages\NServiceBus.Interfaces.4.7.6\lib\net40\NServiceBus.dll</HintPath>
@@ -72,6 +80,10 @@
     </Reference>
     <Reference Include="NServiceBus.Host">
       <HintPath>..\packages\NServiceBus.Host.4.7.6\lib\net40\NServiceBus.Host.exe</HintPath>
+    </Reference>
+    <Reference Include="NServiceBus.NHibernate, Version=4.5.0.0, Culture=neutral, PublicKeyToken=9fc386479f8a226c, processorArchitecture=MSIL">
+      <HintPath>..\packages\NServiceBus.NHibernate.4.5.4\lib\net40\NServiceBus.NHibernate.dll</HintPath>
+      <Private>True</Private>
     </Reference>
     <Reference Include="nunit.framework">
       <HintPath>..\packages\NUnit.2.6.4\lib\nunit.framework.dll</HintPath>
@@ -104,10 +116,6 @@
     <ProjectReference Include="..\Composable.CQRS.ServiceBus.NServiceBus\Composable.CQRS.ServiceBus.NServiceBus.csproj">
       <Project>{8E02A33A-FFE5-4484-B279-E00F86D5999B}</Project>
       <Name>Composable.CQRS.ServiceBus.NServiceBus</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Composable.CQRS.Windsor\Composable.CQRS.Windsor.csproj">
-      <Project>{E1705F7A-936C-49E1-9418-9AB2FA34678E}</Project>
-      <Name>Composable.CQRS.Windsor</Name>
     </ProjectReference>
     <ProjectReference Include="..\Composable.CQRS\Composable.CQRS.csproj">
       <Project>{3B776BD4-0EDD-4A83-BC9A-3A53D6649AB0}</Project>

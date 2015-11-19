@@ -21,9 +21,9 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
             _replaceWith = replaceWith;
         }
 
-        public override ISingleAggregateInstanceEventMigrator CreateMigrator() { return new Migrator(_replaceWith); }
+        public override ISingleAggregateInstanceHandlingEventMigrator CreateSingleAggregateInstanceHandlingMigrator() { return new Migrator(_replaceWith); }
 
-        private class Migrator : ISingleAggregateInstanceEventMigrator
+        private class Migrator : ISingleAggregateInstanceHandlingEventMigrator
         {
             private readonly IEnumerable<Type> _replaceWith;
 

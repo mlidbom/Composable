@@ -21,9 +21,9 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
             _insert = insert;             
         }
 
-        public override ISingleAggregateInstanceEventMigrator CreateMigrator() => new Inspector(_insert);
+        public override ISingleAggregateInstanceHandlingEventMigrator CreateSingleAggregateInstanceHandlingMigrator() => new Inspector(_insert);
 
-        private class Inspector : ISingleAggregateInstanceEventMigrator
+        private class Inspector : ISingleAggregateInstanceHandlingEventMigrator
         {
             private readonly IEnumerable<Type> _insert;
             private Type _lastSeenEventType;

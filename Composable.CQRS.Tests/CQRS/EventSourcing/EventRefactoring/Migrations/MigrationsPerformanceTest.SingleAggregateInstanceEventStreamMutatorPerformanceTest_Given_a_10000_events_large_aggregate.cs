@@ -96,9 +96,9 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
         [Test]
         public void Calling_before_after_or_replace_1000_000_times_takes_less_than_60_milliseconds()
         {
-            var before = Before<E3>.Insert<E2>().CreateMigrator();
-            var replace = Replace<E3>.With<E2>().CreateMigrator();
-            var after = After<E3>.Insert<E2>().CreateMigrator();
+            var before = Before<E3>.Insert<E2>().CreateSingleAggregateInstanceHandlingMigrator();
+            var replace = Replace<E3>.With<E2>().CreateSingleAggregateInstanceHandlingMigrator();
+            var after = After<E3>.Insert<E2>().CreateSingleAggregateInstanceHandlingMigrator();
             var @event = new E2();
             var eventModifier = new EventModifier(@event, _ => { });
 

@@ -13,13 +13,13 @@ namespace Composable.CQRS.EventSourcing.Refactoring.Migrations
         ///<summary>The event interface that is the root of the event hierarchy for the aggregate whose events this migration modifies</summary>
         Type MigratedAggregateEventHierarchyRootInterface { get; }
 
-        ISingleAggregateInstanceEventMigrator CreateMigrator();
+        ISingleAggregateInstanceHandlingEventMigrator CreateSingleAggregateInstanceHandlingMigrator();
     }
 
     ///<summary>
     /// <para>Responsible for migrating the events of a single instance of an aggregate.</para>
     /// </summary>
-    public interface ISingleAggregateInstanceEventMigrator
+    public interface ISingleAggregateInstanceHandlingEventMigrator
     {
         ///<summary>
         /// <para>Inspect one event and if required mutate the event stream by calling methods on the modifier</para>

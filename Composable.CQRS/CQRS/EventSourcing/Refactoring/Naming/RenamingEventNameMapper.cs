@@ -28,7 +28,7 @@ namespace Composable.CQRS.EventSourcing.Refactoring.Naming
                 return type;
             }
 
-            throw new Exception($"Failed to find a type for: {eventTypeName}");
+            throw new CouldNotFindTypeBasedOnName(eventTypeName);
         }
 
         public RenamingEventNameMapper(IEnumerable<Type> eventTypes, params IRenameEvents[] renamers)

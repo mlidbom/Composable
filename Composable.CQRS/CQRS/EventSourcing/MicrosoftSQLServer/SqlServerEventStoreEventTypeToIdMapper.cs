@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
 using Composable.CQRS.EventSourcing.Refactoring.Naming;
+using Composable.Logging.Log4Net;
 
 namespace Composable.CQRS.EventSourcing.MicrosoftSQLServer
 {
@@ -20,8 +21,21 @@ namespace Composable.CQRS.EventSourcing.MicrosoftSQLServer
         {            
             lock(_lockObject)
             {
-                EnsureInitialized();                
-                return _idToTypeMap[id];
+                EnsureInitialized();
+                IIdTypeMapping result;
+                if(_idToTypeMap.TryGetValue(id, out result))
+                {
+                    return result.Type;
+                }
+
+                LoadTypesFromDatabase();
+
+                if (!_idToTypeMap.TryGetValue(id, out result))
+                {
+                    throw new Exception($"Failed to load type information Id: {id} from the eventstore");
+                }
+
+                return result.Type;
             }
         }        
 
@@ -34,7 +48,7 @@ namespace Composable.CQRS.EventSourcing.MicrosoftSQLServer
                 if(!_typeToIdMap.TryGetValue(type, out value))
                 {
                     var mapping = InsertNewType(type);
-                    _idToTypeMap.Add(mapping.Id, mapping.Type);
+                    _idToTypeMap.Add(mapping.Id, mapping);
                     _typeToIdMap.Add(mapping.Type, mapping.Id);
                     value = mapping.Id;
                 }
@@ -46,18 +60,28 @@ namespace Composable.CQRS.EventSourcing.MicrosoftSQLServer
         {
             if (_idToTypeMap == null)
             {
-                var idToTypeMap = new Dictionary<int, Type>();
+                LoadTypesFromDatabase();
+            }
+        }
+        private void LoadTypesFromDatabase()
+        {
+            lock(_lockObject)
+            {
+                var idToTypeMap = new Dictionary<int, IIdTypeMapping>();
                 var typeToIdMap = new Dictionary<Type, int>();
-                foreach (var mapping in GetTypes())
+                foreach(var mapping in GetTypes())
                 {
-                    idToTypeMap.Add(mapping.Id, mapping.Type);
-                    typeToIdMap.Add(mapping.Type, mapping.Id);
+                    idToTypeMap.Add(mapping.Id, mapping);
+                    if(!(mapping is BrokenIdTypeMapping))
+                    {
+                        typeToIdMap.Add(mapping.Type, mapping.Id);
+                    }
                 }
-                _idToTypeMap = idToTypeMap;//Only assign to the fields once we completely and successfully fetch all types. We do not want a half-way populated, and therefore corrupt, mapping table.
+                _idToTypeMap = idToTypeMap;
+                //Only assign to the fields once we completely and successfully fetch all types. We do not want a half-way populated, and therefore corrupt, mapping table.
                 _typeToIdMap = typeToIdMap;
             }
         }
-
 
         private IdTypeMapping InsertNewType(Type newType)
         {          
@@ -72,7 +96,7 @@ namespace Composable.CQRS.EventSourcing.MicrosoftSQLServer
             }
         }       
 
-        private IEnumerable<IdTypeMapping> GetTypes()
+        private IEnumerable<IIdTypeMapping> GetTypes()
         {
             using(var connection = _connectionMananger.OpenConnection())
             {
@@ -83,9 +107,27 @@ namespace Composable.CQRS.EventSourcing.MicrosoftSQLServer
                     {
                         while (reader.Read())
                         {
-                            yield return new IdTypeMapping(
-                                id: reader.GetInt32(0),
-                                type: _nameMapper.GetType(reader.GetString(1)));
+                            var eventTypeName = reader.GetString(1);
+                            var eventTypeId = reader.GetInt32(0);
+                            Type foundEventType = null;
+
+                            try
+                            {
+                                foundEventType = _nameMapper.GetType(eventTypeName);
+                            }
+                            catch (CouldNotFindTypeBasedOnName)
+                            {
+                                this.Log().Warn($"The type of event: Id: {eventTypeId}, Name: {eventTypeName} that exists in the database could not be found in the loaded assemblies. No mapping will be created for this class. If an event of this type is read from the store an ecx");
+                            }
+
+                            if(foundEventType != null)
+                            {
+                                yield return new IdTypeMapping(id: eventTypeId, type: foundEventType);
+                            }
+                            else
+                            {
+                                yield return new BrokenIdTypeMapping(id: eventTypeId, typeName: eventTypeName);
+                            }
                         }
                     }
                 }
@@ -93,11 +135,28 @@ namespace Composable.CQRS.EventSourcing.MicrosoftSQLServer
         }
 
 
-        private Dictionary<int, Type> _idToTypeMap;
+        private Dictionary<int, IIdTypeMapping> _idToTypeMap;
         private Dictionary<Type, int> _typeToIdMap;
-        private readonly object _lockObject = new object();        
+        private readonly object _lockObject = new object();
 
-        private class IdTypeMapping
+        private interface IIdTypeMapping {
+            int Id { get; }
+            Type Type { get; }
+        }
+
+        private class BrokenIdTypeMapping : IIdTypeMapping
+        {
+            private readonly string _typeName;
+            public BrokenIdTypeMapping(int id, string typeName)
+            {
+                _typeName = typeName;
+                Id = id;
+            }
+            public int Id { get; }
+            public Type Type { get { throw new TryingToReadEventOfTypeThatNoMappingCouldBeFoundForException(_typeName, Id);} }
+        }
+
+        private class IdTypeMapping : IIdTypeMapping
         {
             public int Id { get; }
             public Type Type { get; }
@@ -107,5 +166,10 @@ namespace Composable.CQRS.EventSourcing.MicrosoftSQLServer
                 Type = type;
             }
         }
+    }
+
+    public class TryingToReadEventOfTypeThatNoMappingCouldBeFoundForException : Exception
+    {
+        public TryingToReadEventOfTypeThatNoMappingCouldBeFoundForException(string typeName, int id):base($"Event type Id: {id}, Name: {typeName} could not be mapped to a type.") {  }
     }
 }

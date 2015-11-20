@@ -1,6 +1,7 @@
 ﻿using System;
 using Castle.MicroKernel.Registration;
 using Castle.Windsor;
+using NServiceBus;
 
 namespace Composable.Windsor
 {
@@ -35,6 +36,6 @@ namespace Composable.Windsor
                     keyToDefaultTo: replacementName));
 
             return @this;
-        }          
+        }        
     }
 }

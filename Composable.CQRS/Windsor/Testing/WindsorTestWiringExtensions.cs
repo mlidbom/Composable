@@ -13,7 +13,7 @@ namespace Composable.Windsor.Testing
    
     public static class WindsorTestWiringExtensions
     {
-        public static ExecuteActionsWhenRewiringForTests WhenTesting(this IWindsorContainer @this)
+        public static IExecuteActionsWhenRewiringForTesting WhenTesting(this IWindsorContainer @this)
         {
             return new ExecuteActionsWhenRewiringForTests(@this);
         }
@@ -80,6 +80,7 @@ namespace Composable.Windsor.Testing
             Container.Register(
                 Component.For<IConfigureWiringForTests>()
                          .Instance(new LambdaBasedTestRewirer(() => action(Container)))
+                         .Named(Guid.NewGuid().ToString())
                          .LifestyleSingleton());
             return this;
         }

@@ -196,6 +196,7 @@
     <Compile Include="CQRS\EventSourcing\Refactoring\Migrations\ISingleAggregateInstanceEventStreamMutator.cs" />
     <Compile Include="CQRS\EventSourcing\Refactoring\Migrations\NonIdempotentMigrationDetectedException.cs" />
     <Compile Include="CQRS\EventSourcing\Refactoring\Migrations\SingleAggregateInstanceEventStreamMutator.cs" />
+    <Compile Include="CQRS\EventSourcing\Refactoring\Naming\CouldNotFindTypeBasedOnName.cs" />
     <Compile Include="CQRS\EventSourcing\Refactoring\Naming\EventNameMapping.cs" />
     <Compile Include="CQRS\EventSourcing\Refactoring\Naming\EventPathRenamer.cs" />
     <Compile Include="CQRS\EventSourcing\Refactoring\Naming\EventRenamedFromAttribute.cs" />

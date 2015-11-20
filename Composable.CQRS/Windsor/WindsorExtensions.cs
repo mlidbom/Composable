@@ -1,5 +1,7 @@
 ﻿using Castle.MicroKernel.Registration;
+using Castle.Windsor;
 using Composable.CQRS;
+using NServiceBus;
 
 namespace Composable.Windsor
 {
@@ -8,6 +10,17 @@ namespace Composable.Windsor
         public static BasedOnDescriptor RegisterCommandHandlers(this FromAssemblyDescriptor me)
         {
             return me.BasedOn(typeof(ICommandHandler<>)).WithService.Base().LifestyleTransient();
+        }
+
+        public static IWindsorContainer RegisterMessageHandlersFromAssemblyContainingType<TAssemblyIdentifier>(this IWindsorContainer @this)
+        {
+            @this.Register(
+                Classes.FromAssemblyContaining<TAssemblyIdentifier>()
+                       .BasedOn(typeof(IHandleMessages<>))
+                       .WithServiceBase()
+                       .LifestyleScoped());
+
+            return @this;
         }
     }
 }

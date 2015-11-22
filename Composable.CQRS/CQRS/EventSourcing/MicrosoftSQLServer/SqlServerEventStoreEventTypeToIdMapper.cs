@@ -117,7 +117,7 @@ namespace Composable.CQRS.EventSourcing.MicrosoftSQLServer
                             }
                             catch (CouldNotFindTypeBasedOnName)
                             {
-                                this.Log().Warn($"The type of event: Id: {eventTypeId}, Name: {eventTypeName} that exists in the database could not be found in the loaded assemblies. No mapping will be created for this class. If an event of this type is read from the store an ecx");
+                                this.Log().Warn($"The type of event: Id: {eventTypeId}, Name: {eventTypeName} that exists in the database could not be found in the loaded assemblies. No mapping will be created for this class. If an event of this type is read from the store an exception will be thrown");
                             }
 
                             if(foundEventType != null)

@@ -25,7 +25,7 @@ namespace Composable.CQRS.EventSourcing
         public Guid AggregateRootId { get; set; }
         public DateTime UtcTimeStamp { get; set; }
 
-        [Obsolete("Use UtcTimeStamp which is clear about what it is supposed to be. This propert will be removed soon. It is only here to provide runtime compatibility")]
+        [Obsolete("Use UtcTimeStamp which is clear about what it is supposed to be. This property will be removed soon. It is only here to provide runtime compatibility")]
         public DateTime TimeStamp { get {return UtcTimeStamp;} set { UtcTimeStamp = value; } }
 
         internal int InsertedVersion { get; set; }

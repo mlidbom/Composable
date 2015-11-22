@@ -189,7 +189,7 @@ namespace Composable.CQRS.EventHandling
 
     public class EventUnhandledException : Exception
     {
-        public EventUnhandledException(Type handlerType, object evt)
-            : base(@"{0} does not handle nor ignore incoming event {1}".FormatWith(handlerType, evt.GetType())) {}
+        public EventUnhandledException(Type handlerType, Type eventType)
+            : base($@"{handlerType} does not handle nor ignore incoming event {eventType}") {}
     }
 }

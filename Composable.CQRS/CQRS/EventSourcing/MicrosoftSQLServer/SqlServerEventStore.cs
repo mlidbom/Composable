@@ -32,11 +32,11 @@ namespace Composable.CQRS.EventSourcing.MicrosoftSQLServer
         private readonly HashSet<Guid> _aggregatesWithEventsAddedByThisInstance = new HashSet<Guid>();
         private readonly SqlServerEventStoreConnectionManager _connectionMananger;
 
-        public SqlServerEventStore(string connectionString, ISingleContextUseGuard usageGuard, IEventNameMapper nameMapper = null, IEnumerable<IEventMigration> migrationFactories = null)
+        public SqlServerEventStore(string connectionString, ISingleContextUseGuard usageGuard, IEventNameMapper nameMapper = null, IEnumerable<IEventMigration> migrations = null)
         {
             Log.Debug("Constructor called");
 
-            _migrationFactories = migrationFactories?.ToList() ?? new List<IEventMigration>();
+            _migrationFactories = migrations?.ToList() ?? new List<IEventMigration>();
             nameMapper = nameMapper ?? new DefaultEventNameMapper();
 
             ConnectionString = connectionString;

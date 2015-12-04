@@ -120,32 +120,6 @@
     <Compile Include="..\CommonAssemblyInfo.cs">
       <Link>Properties\CommonAssemblyInfo.cs</Link>
     </Compile>
-    <Compile Include="BinaryCompatibility_REMOVE\CQRS\EventSourcing\EventRefactoring\DefaultEventNameMapper.cs" />
-    <Compile Include="BinaryCompatibility_REMOVE\CQRS\EventSourcing\EventRefactoring\EventNameMapping.cs" />
-    <Compile Include="BinaryCompatibility_REMOVE\CQRS\EventSourcing\EventRefactoring\EventPathRenamer.cs" />
-    <Compile Include="BinaryCompatibility_REMOVE\CQRS\EventSourcing\EventRefactoring\EventRenamedFromAttribute.cs" />
-    <Compile Include="BinaryCompatibility_REMOVE\CQRS\EventSourcing\EventRefactoring\IEventNameMapper.cs" />
-    <Compile Include="BinaryCompatibility_REMOVE\CQRS\EventSourcing\EventRefactoring\IRenameEvents.cs" />
-    <Compile Include="BinaryCompatibility_REMOVE\CQRS\EventSourcing\EventRefactoring\RenameEventsBasedOnEventRenamedAttributes.cs" />
-    <Compile Include="BinaryCompatibility_REMOVE\CQRS\EventSourcing\EventRefactoring\RenamingEventNameMapper.cs" />
-    <Compile Include="BinaryCompatibility_REMOVE\CQRS\EventSourcing\SQLServer\EventTable.cs" />
-    <Compile Include="BinaryCompatibility_REMOVE\CQRS\EventSourcing\SQLServer\EventTableSchemaManager.cs" />
-    <Compile Include="BinaryCompatibility_REMOVE\CQRS\EventSourcing\SQLServer\EventTypeTable.cs" />
-    <Compile Include="BinaryCompatibility_REMOVE\CQRS\EventSourcing\SQLServer\EventTypeTableSchemaManager.cs" />
-    <Compile Include="BinaryCompatibility_REMOVE\CQRS\EventSourcing\SQLServer\IEventTypeToIdMapper.cs" />
-    <Compile Include="BinaryCompatibility_REMOVE\CQRS\EventSourcing\SQLServer\InvalidHistoryException.cs" />
-    <Compile Include="BinaryCompatibility_REMOVE\CQRS\EventSourcing\SQLServer\LegacyEventTable.cs" />
-    <Compile Include="BinaryCompatibility_REMOVE\CQRS\EventSourcing\SQLServer\LegacyEventTableSchemaManager.cs" />
-    <Compile Include="BinaryCompatibility_REMOVE\CQRS\EventSourcing\SQLServer\LegacySchemaSqlServerEventStoreEventTypeToIdMapper.cs" />
-    <Compile Include="BinaryCompatibility_REMOVE\CQRS\EventSourcing\SQLServer\SqlServerEventStore.cs" />
-    <Compile Include="BinaryCompatibility_REMOVE\CQRS\EventSourcing\SQLServer\SqlServerEventStoreConnectionManager.cs" />
-    <Compile Include="BinaryCompatibility_REMOVE\CQRS\EventSourcing\SQLServer\SqlServerEventStoreEventReader.cs" />
-    <Compile Include="BinaryCompatibility_REMOVE\CQRS\EventSourcing\SQLServer\SqlServerEventStoreEventsCache.cs" />
-    <Compile Include="BinaryCompatibility_REMOVE\CQRS\EventSourcing\SQLServer\SqlServerEventStoreEventTypeToIdMapper.cs" />
-    <Compile Include="BinaryCompatibility_REMOVE\CQRS\EventSourcing\SQLServer\SqlServerEventStoreEventWriter.cs" />
-    <Compile Include="BinaryCompatibility_REMOVE\CQRS\EventSourcing\SQLServer\SqlServerEventStoreSchemaManager.cs" />
-    <Compile Include="BinaryCompatibility_REMOVE\CQRS\EventSourcing\SQLServer\SqlServerEvestStoreEventSerializer.cs" />
-    <Compile Include="BinaryCompatibility_REMOVE\CQRS\EventSourcing\SQLServer\TableSchemaManager.cs" />
     <Compile Include="CQRS\AggregateRepository.cs" />
     <Compile Include="CQRS\AggregateRootComponent.cs" />
     <Compile Include="CQRS\Command\Command.cs" />
@@ -266,13 +240,9 @@
     <Compile Include="CQRS\TypeExtensions.cs" />
     <Compile Include="CQRS\UnNamedReferenceObject.cs" />
     <Compile Include="CQRS\ViewModels\ViewModelUpdater.cs" />
-    <Compile Include="CQRS\Windsor\DisposableComponent.cs" />
     <Compile Include="CQRS\Windsor\DisposableComponentCollection.cs" />
-    <Compile Include="CQRS\Windsor\MessageHandlersInstallerBase.cs" />
     <Compile Include="CQRS\Windsor\Testing\ForTestsEventHandlerInstallerBase.cs" />
     <Compile Include="CQRS\Windsor\Testing\IConfigureWiringForTests.cs" />
-    <Compile Include="CQRS\Windsor\WindsorDisposableExtensions.cs" />
-    <Compile Include="CQRS\Windsor\WindsorUnitOfWorkExtensions.cs" />
     <Compile Include="DomainEvents\DomainEvent.cs" />
     <Compile Include="CQRS\Query\Models\Generators\QueryModelGeneratingDocumentDbReader.cs" />
     <Compile Include="CQRS\Query\Models\Generators\IQueryModelGenerator.cs" />

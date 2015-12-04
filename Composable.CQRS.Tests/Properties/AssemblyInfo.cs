@@ -2,7 +2,6 @@
 
 using System.Reflection;
 using System.Runtime.InteropServices;
-using Composable.CQRS.EventSourcing.EventRefactoring;
 
 #endregion
 

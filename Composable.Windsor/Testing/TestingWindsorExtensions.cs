@@ -50,12 +50,6 @@ namespace Composable.Windsor.Testing
                 configurer.ConfigureWiringForTesting();
                 container.Release(configurer);
             }
-
-            foreach (var configurer in container.ResolveAll<CQRS.Windsor.Testing.IConfigureWiringForTests>())
-            {
-                configurer.ConfigureWiringForTesting();
-                container.Release(configurer);
-            }
         }
 
         public static void AssertCanResolveAllComponents(this IWindsorContainer container, IEnumerable<Type> ignoredServices = null, IEnumerable<string> ignoredComponents = null)

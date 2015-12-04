@@ -340,24 +340,11 @@
     <Compile Include="UnitsOfWork\IUnitOfWorkParticipantWhoseCommitMayTriggerChangesInOtherParticipantsMustImplementIdemponentCommit.cs" />
     <Compile Include="UnitsOfWork\TooDeepCascadeLevelDetected.cs" />
     <Compile Include="UnitsOfWork\UnitOfWork.cs" />
-    <Compile Include="Windsor\CreationContextExtensions.cs" />
-    <Compile Include="Windsor\DefaultToKeyHandlerSelector.cs" />
-    <Compile Include="Windsor\DisposableComponent.cs" />
-    <Compile Include="Windsor\DisposableComponentCollection.cs" />
-    <Compile Include="Windsor\KeyReplacementHandlerSelector.cs" />
     <Compile Include="Windsor\LifestyleRegistrationExtensions.cs" />
-    <Compile Include="Windsor\LifestyleRegistrationMutator.cs" />
     <Compile Include="Windsor\MessageHandlersInstallerBase.cs" />
     <Compile Include="Windsor\Testing\ForTestsEventHandlerInstallerBase.cs" />
-    <Compile Include="Windsor\Testing\IConfigureWiringForTests.cs" />
-    <Compile Include="Windsor\Testing\IResetTestDatabases.cs" />
-    <Compile Include="Windsor\Testing\TestingWindsorExtensions.cs" />
     <Compile Include="Windsor\Testing\WindsorTestWiringExtensions.cs" />
-    <Compile Include="Windsor\TypedCollectionResolver.cs" />
     <Compile Include="Windsor\UICommandServiceInstaller.cs" />
-    <Compile Include="Windsor\WindsorComponentReplacer.cs" />
-    <Compile Include="Windsor\WindsorConfigurationValidator.cs" />
-    <Compile Include="Windsor\WindsorDisposableExtensions.cs" />
     <Compile Include="Windsor\WindsorExtensions.cs" />
     <Compile Include="Windsor\WindsorUnitOfWorkExtensions.cs" />
   </ItemGroup>
@@ -372,12 +359,6 @@
       <SubType>Designer</SubType>
     </None>
     <None Include="Void.snk" />
-    <None Include="Windsor\app.config" />
-    <None Include="Windsor\Composable.CQRS.Windsor.nuspec">
-      <SubType>Designer</SubType>
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Windsor\packages.config" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Composable.DomainEvents\Composable.DomainEvents.csproj">
@@ -387,6 +368,10 @@
     <ProjectReference Include="..\Composable.System\Composable.Core.csproj">
       <Project>{3632254D-0C4A-4EB8-B388-4C99F8939584}</Project>
       <Name>Composable.Core</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Composable.Windsor\Composable.Windsor.csproj">
+      <Project>{646dce1f-a503-4158-80fb-aaa219c4ceff}</Project>
+      <Name>Composable.Windsor</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

@@ -9,7 +9,6 @@ using Castle.Windsor;
 using Composable.CQRS.ServiceBus.NServiceBus;
 using Composable.CQRS.ServiceBus.NServiceBus.EndpointConfiguration;
 using Composable.CQRS.Testing;
-using Composable.CQRS.Windsor;
 using Composable.ServiceBus;
 using Composable.System;
 using Composable.UnitsOfWork;

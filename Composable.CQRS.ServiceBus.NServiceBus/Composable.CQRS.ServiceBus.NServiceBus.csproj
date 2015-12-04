@@ -111,6 +111,10 @@
       <Project>{3B776BD4-0EDD-4A83-BC9A-3A53D6649AB0}</Project>
       <Name>Composable.CQRS</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Composable.Windsor\Composable.Windsor.csproj">
+      <Project>{646dce1f-a503-4158-80fb-aaa219c4ceff}</Project>
+      <Name>Composable.Windsor</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />

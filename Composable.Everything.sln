@@ -49,6 +49,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Composable.CQRS.Specs", "Co
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Composable.Persistence.ORM.NHibernate", "Composable.Persistence.ORM.NHibernate\Composable.Persistence.ORM.NHibernate.csproj", "{39D263A4-CD18-4B6B-9531-1D335DFF72DC}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Composable.Windsor", "Composable.Windsor\Composable.Windsor.csproj", "{646DCE1F-A503-4158-80FB-AAA219C4CEFF}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -127,6 +129,10 @@ Global
 		{39D263A4-CD18-4B6B-9531-1D335DFF72DC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{39D263A4-CD18-4B6B-9531-1D335DFF72DC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{39D263A4-CD18-4B6B-9531-1D335DFF72DC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{646DCE1F-A503-4158-80FB-AAA219C4CEFF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{646DCE1F-A503-4158-80FB-AAA219C4CEFF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{646DCE1F-A503-4158-80FB-AAA219C4CEFF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{646DCE1F-A503-4158-80FB-AAA219C4CEFF}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

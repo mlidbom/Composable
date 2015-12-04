@@ -1,7 +1,6 @@
 ﻿using System;
 using Castle.MicroKernel.Registration;
 using Castle.Windsor;
-using NServiceBus;
 
 namespace Composable.Windsor
 {

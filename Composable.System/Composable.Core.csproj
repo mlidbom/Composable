@@ -162,6 +162,12 @@
     <Compile Include="GenericAbstractions\Time\ITimeSource.cs" />
     <Compile Include="GenericAbstractions\Time\IUtcTimeTimeSource.cs" />
     <Compile Include="JetBrainsCodeAnnotations.cs" />
+    <Compile Include="Persistence\IEntityFetcher.cs" />
+    <Compile Include="Persistence\IEntityPersister.cs" />
+    <Compile Include="Persistence\IQueryableEntities.cs" />
+    <Compile Include="Persistence\IQueryableEntityFetcher.cs" />
+    <Compile Include="Persistence\Testing\InMemoryPersistenceSession.cs" />
+    <Compile Include="Persistence\IPersistenceSession.cs" />
     <Compile Include="SystemExtensions\ExceptionExtensions.cs" />
     <Compile Include="SystemExtensions\Threading\ISingleContextUseGuard.cs" />
     <Compile Include="SystemExtensions\Threading\MultiThreadedUseException.cs" />

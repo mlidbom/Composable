@@ -1,5 +1,6 @@
 #region usings
 
+using System;
 using System.Linq;
 using NHibernate;
 using NHibernate.Linq;
@@ -9,6 +10,7 @@ using Composable.Persistence;
 
 namespace Composable.CQRS.NHibernate
 {
+    [Obsolete("This entire Nuget package is obsolete. Please uninstall and install Composable.Persistence.ORM.NHibernate instead", error:true)]
     public class NHibernatePersistenceSession : IPersistenceSession
     {
         public NHibernatePersistenceSession(ISession session)
@@ -27,6 +29,7 @@ namespace Composable.CQRS.NHibernate
         {
             return Session.Load<T>(id);
         }
+        public bool TryGet<TEntity>(object id, out TEntity entity) { throw new global::System.NotImplementedException(); }
 
         public void Save(object instance)
         {
@@ -53,5 +56,10 @@ namespace Composable.CQRS.NHibernate
         }
 
         #endregion
+
+        public TEntity GetForUpdate<TEntity>(object id) { throw new global::System.NotImplementedException(); }
+        public bool TryGetForUpdate<TEntity>(object id, out TEntity model) { throw new global::System.NotImplementedException(); }
+        public void Save<TEntity>(TEntity entity) { throw new global::System.NotImplementedException(); }
+        public void Delete<TEntity>(object id) { throw new global::System.NotImplementedException(); }
     }
 }

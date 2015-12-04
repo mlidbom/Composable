@@ -55,7 +55,6 @@ namespace CQRS.Tests.NewtonSoft
             roundTripped.ShouldBeEquivalentTo(eventWithOnlySubclassValues,
                 config => config.Excluding(@event => @event.UtcTimeStamp)//Timestamp is defaulted in the constructor used by serialization.
                         .Excluding(@event => @event.EventId)
-                        .Excluding(subjectInfo => subjectInfo.SelectedMemberPath.EndsWith("TimeStamp"))//Obsoleted property that will be removed and cannot be refered to because of the error: true attribute.
                 );
         }
     }

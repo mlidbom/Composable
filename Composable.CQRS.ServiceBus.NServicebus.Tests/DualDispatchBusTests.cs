@@ -4,7 +4,6 @@ using Castle.MicroKernel.Lifestyle;
 using Castle.MicroKernel.Registration;
 using Castle.Windsor;
 using Composable.CQRS.ServiceBus.NServiceBus;
-using Composable.CQRS.Windsor;
 using Composable.ServiceBus;
 using Composable.SystemExtensions.Threading;
 using FluentAssertions;

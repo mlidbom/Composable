@@ -9,6 +9,7 @@ using Castle.Windsor;
 using Composable.CQRS.EventSourcing;
 using Composable.CQRS.EventSourcing.MicrosoftSQLServer;
 using Composable.CQRS.EventSourcing.Refactoring.Migrations;
+using Composable.GenericAbstractions.Time;
 using Composable.ServiceBus;
 using Composable.System.Linq;
 using Composable.UnitsOfWork;
@@ -131,6 +132,9 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
             container.ConfigureWiringForTestsCallBeforeAllOtherWiring();
 
             container.Register(
+                Component.For<IUtcTimeTimeSource>()
+                    .ImplementedBy<DateTimeNowTimeSource>()
+                    .LifestyleSingleton(),
                 Component.For<IServiceBus>()
                          .ImplementedBy<SynchronousBus>()
                          .LifestylePerWebRequest(),

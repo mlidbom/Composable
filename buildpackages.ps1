@@ -37,6 +37,7 @@ $CoreVersion = (FixVersion ([System.Diagnostics.FileVersionInfo]::GetVersionInfo
 $ContractsVersion = (FixVersion ([System.Diagnostics.FileVersionInfo]::GetVersionInfo("$scriptRoot\Composable.Contracts\bin\$Configuration\Composable.Contracts.dll")) $PreVersion)
 $CQRSVersion = (FixVersion ([System.Diagnostics.FileVersionInfo]::GetVersionInfo("$scriptRoot\Composable.CQRS\Bin\$Configuration\Composable.CQRS.dll")) $PreVersion)
 $CQRSNHibernateVersion = (FixVersion ([System.Diagnostics.FileVersionInfo]::GetVersionInfo("$scriptRoot\Composable.CQRS.NHibernate\Bin\$Configuration\Composable.CQRS.NHibernate.dll")) $PreVersion)
+$PersistenceNHibernateVersion = (FixVersion ([System.Diagnostics.FileVersionInfo]::GetVersionInfo("$scriptRoot\Composable.Persistence.ORM.NHibernate\Bin\$Configuration\Composable.Persistence.ORM.NHibernate.dll")) $PreVersion)
 $CQRSServiceBusNServicebusVersion = (FixVersion ([System.Diagnostics.FileVersionInfo]::GetVersionInfo("$scriptRoot\Composable.CQRS.ServiceBus.NServiceBus\Bin\$Configuration\Composable.CQRS.ServiceBus.NServiceBus.dll")) $PreVersion)
 $DomainEventsVersion = (FixVersion ([System.Diagnostics.FileVersionInfo]::GetVersionInfo("$scriptRoot\Composable.DomainEvents\Bin\$Configuration\Composable.DomainEvents.dll")) $PreVersion)
 $AutomapperVersion = (FixVersion ([System.Diagnostics.FileVersionInfo]::GetVersionInfo("$scriptRoot\Composable.AutoMapper\Bin\$Configuration\Composable.AutoMapper.dll")) $PreVersion)
@@ -73,6 +74,7 @@ Build-Pkg "$scriptRoot\Composable.Contracts\Composable.Contracts.csproj" $Contra
 Build-Pkg "$scriptRoot\Composable.System\Composable.Core.csproj" $CoreVersion
 Build-Pkg "$scriptRoot\Composable.CQRS\Composable.CQRS.csproj" $CQRSVersion
 Build-Pkg "$scriptRoot\Composable.CQRS.NHibernate\Composable.CQRS.NHibernate.csproj" $CQRSNHibernateVersion
+Build-Pkg "$scriptRoot\Composable.Persistence.ORM.NHibernate\Composable.Persistence.ORM.NHibernate.csproj" $PersistenceNHibernateVersion
 Build-Pkg "$scriptRoot\Composable.CQRS.ServiceBus.NServiceBus\Composable.CQRS.ServiceBus.NServiceBus.csproj" $CQRSServiceBusNServicebusVersion
 Build-Pkg "$scriptRoot\Composable.DomainEvents\Composable.DomainEvents.csproj" $DomainEventsVersion
 Build-Pkg "$scriptRoot\Composable.AutoMapper\Composable.AutoMapper.csproj" $AutomapperVersion

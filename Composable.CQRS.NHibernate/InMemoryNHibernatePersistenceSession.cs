@@ -1,16 +1,19 @@
 #region usings
 
+using System;
 using System.Reflection;
 using NHibernate;
 using NHibernate.Cfg;
 using NHibernate.Dialect;
 using NHibernate.Driver;
 using NHibernate.Tool.hbm2ddl;
+using Environment = NHibernate.Cfg.Environment;
 
 #endregion
 
 namespace Composable.CQRS.NHibernate
 {
+    [Obsolete("This entire Nuget package is obsolete. Please uninstall and install Composable.Persistence.ORM.NHibernate instead", error: true)]
     public class InMemoryNHibernatePersistenceSession<TProxyFactory> : NHibernatePersistenceSession
     {
         public InMemoryNHibernatePersistenceSession() : base(CreateDataBaseAndOpenSession())

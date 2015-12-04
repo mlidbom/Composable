@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Linq;
-using Composable.KeyValueStorage;
 using Composable.Persistence.Testing;
 using JetBrains.Annotations;
 using NHibernate;

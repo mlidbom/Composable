@@ -343,7 +343,6 @@
     <None Include="KeyValueStorage\SqlServer\ChangeScript.sql" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="CQRS\Windsor\Testing\" />
     <Folder Include="Persistence\Testing\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

@@ -12,7 +12,7 @@ namespace Composable.CQRS.EventSourcing
         void PersistMigrations();
         IEnumerable<Guid> StreamAggregateIdsInCreationOrder(Type eventBaseType = null);
 
-        [Obsolete("No longer supported. Use StreamEvents()", error: true)]
+        [Obsolete("No longer supported. Use StreamEvents()")]
         IEnumerable<IAggregateRootEvent> StreamEventsAfterEventWithId(Guid? startAfterEventId);
     }
 }

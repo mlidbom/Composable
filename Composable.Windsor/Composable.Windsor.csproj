@@ -71,6 +71,10 @@
     <Compile Include="WindsorDisposableExtensions.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Composable.Windsor.nuspec">
+      <SubType>Designer</SubType>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="packages.config" />
     <None Include="Void.snk" />
   </ItemGroup>

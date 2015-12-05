@@ -42,6 +42,7 @@ $CQRSServiceBusNServicebusVersion = (FixVersion ([System.Diagnostics.FileVersion
 $DomainEventsVersion = (FixVersion ([System.Diagnostics.FileVersionInfo]::GetVersionInfo("$scriptRoot\Composable.DomainEvents\Bin\$Configuration\Composable.DomainEvents.dll")) $PreVersion)
 $AutomapperVersion = (FixVersion ([System.Diagnostics.FileVersionInfo]::GetVersionInfo("$scriptRoot\Composable.AutoMapper\Bin\$Configuration\Composable.AutoMapper.dll")) $PreVersion)
 $CQRSWindsorVersion = (FixVersion ([System.Diagnostics.FileVersionInfo]::GetVersionInfo("$scriptRoot\Composable.CQRS.Windsor\Bin\$Configuration\Composable.CQRS.Windsor.dll")) $PreVersion)
+$WindsorVersion = (FixVersion ([System.Diagnostics.FileVersionInfo]::GetVersionInfo("$scriptRoot\Composable.Windsor\Bin\$Configuration\Composable.Windsor.dll")) $PreVersion)
 $CQRSTestingVersion = (FixVersion ([System.Diagnostics.FileVersionInfo]::GetVersionInfo("$scriptRoot\Composable.CQRS.Testing\Bin\$Configuration\Composable.CQRS.Testing.dll")) $PreVersion)
 $NSpecNUnitVersion = (FixVersion ([System.Diagnostics.FileVersionInfo]::GetVersionInfo("$scriptRoot\NSpec.NUnit\Bin\$Configuration\NSpec.NUnit.dll")) $PreVersion)
 
@@ -79,5 +80,6 @@ Build-Pkg "$scriptRoot\Composable.CQRS.ServiceBus.NServiceBus\Composable.CQRS.Se
 Build-Pkg "$scriptRoot\Composable.DomainEvents\Composable.DomainEvents.csproj" $DomainEventsVersion
 Build-Pkg "$scriptRoot\Composable.AutoMapper\Composable.AutoMapper.csproj" $AutomapperVersion
 Build-Pkg "$scriptRoot\Composable.CQRS.Windsor\Composable.CQRS.Windsor.csproj" $CQRSWindsorVersion
+Build-Pkg "$scriptRoot\Composable.Windsor\Composable.Windsor.csproj" $WindsorVersion
 Build-Pkg "$scriptRoot\Composable.CQRS.Testing\Composable.CQRS.Testing.csproj" $CQRSTestingVersion
 Build-Pkg "$scriptRoot\NSpec.NUnit\NSpec.NUnit.csproj" $NSpecNUnitVersion

@@ -11,5 +11,7 @@ namespace Composable.CQRS.EventSourcing
         void DeleteEvents(Guid aggregateId);
         void PersistMigrations();
         IEnumerable<Guid> StreamAggregateIdsInCreationOrder(Type eventBaseType = null);
+        [Obsolete("No longer supported. Use StreamEvents()")]
+        IEnumerable<IAggregateRootEvent> StreamEventsAfterEventWithId(Guid? startAfterEventId);
     }
 }

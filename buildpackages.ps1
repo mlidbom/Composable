@@ -62,6 +62,8 @@ function Build-Pkg ($ProjectFile, $Version)
 		-Prop CQRSPopulationClientVersion=$CQRSPopulationClientVersion `
 		-Prop CJRSPopulationServerVersion=$CJRSPopulationServerVersion `
 		-Prop NSpecNUnitVersion=$NSpecNUnitVersion `
+		-Prop WindsorVersion=$WindsorVersion `
+		-Prop PersistenceNHibernateVersion=$PersistenceNHibernateVersion `
 		 -Symbols
 	
 	if($LASTEXITCODE -ne 0)

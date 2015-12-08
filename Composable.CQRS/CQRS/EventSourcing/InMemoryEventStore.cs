@@ -48,12 +48,23 @@ namespace Composable.CQRS.EventSourcing
             }
         }
 
-        public IEnumerable<IAggregateRootEvent> StreamEvents()
+        private IEnumerable<IAggregateRootEvent> StreamEvents()
         {
             lock(_lockObject)
             {
                 var streamMutator = CompleteEventStoreStreamMutator.Create(_migrationFactories);
                 return streamMutator.Mutate(_events).ToList();
+            }
+        }
+
+        public void StreamEvents(int batchSize, Action<IReadOnlyList<IAggregateRootEvent>> handleEvents)
+        {
+            var batches = StreamEvents()
+                .ChopIntoSizesOf(batchSize)
+                .Select(batch => batch.ToList());
+            foreach(var batch in batches)
+            {
+                handleEvents(batch);
             }
         }
 
@@ -88,7 +99,6 @@ namespace Composable.CQRS.EventSourcing
                     .ToList();
             }
         }
-        public IEnumerable<IAggregateRootEvent> StreamEventsAfterEventWithId(Guid? startAfterEventId) { throw new NotImplementedException(); }
 
         public void Reset()
         {

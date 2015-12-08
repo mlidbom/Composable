@@ -42,7 +42,7 @@ namespace CQRS.Tests.CQRS.EventSourcing
             {
                 Guid aggregateId = Guid.NewGuid();
                 eventStore.SaveEvents(1.Through(10).Select(i => new SomeEvent(aggregateId, i)));
-                var stream = eventStore.StreamEvents();
+                var stream = eventStore.ListAllEventsForTestingPurposesAbsolutelyNotUsableForARealEventStoreOfAnySize();
 
                 stream.Should().HaveCount(10);
             }
@@ -57,7 +57,7 @@ namespace CQRS.Tests.CQRS.EventSourcing
                 const int moreEventsThanTheBatchSizeForStreamingEvents = SqlServerEventStore.StreamEventsBatchSize * 3;
                 var aggregateId = Guid.NewGuid();
                 eventStore.SaveEvents(1.Through(moreEventsThanTheBatchSizeForStreamingEvents).Select(i => new SomeEvent(aggregateId, i)));
-                var stream = eventStore.StreamEvents().ToList();
+                var stream = eventStore.ListAllEventsForTestingPurposesAbsolutelyNotUsableForARealEventStoreOfAnySize().ToList();
 
                 var currentEventNumber = 0;
                 stream.Should().HaveCount(moreEventsThanTheBatchSizeForStreamingEvents);

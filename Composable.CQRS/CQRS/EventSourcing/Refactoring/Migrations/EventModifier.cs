@@ -62,10 +62,11 @@ namespace Composable.CQRS.EventSourcing.Refactoring.Migrations
 
             _replacementEvents.ForEach(
                 (e, index) =>
-                {
+                {                    
                     e.AggregateRootVersion = Event.AggregateRootVersion + index;
                     e.Replaces = Event.InsertionOrder;
                     e.AggregateRootId = Event.AggregateRootId;
+                    e.UtcTimeStamp = Event.UtcTimeStamp;
                 });
 
             CurrentNode = CurrentNode.Replace(_replacementEvents).First();
@@ -109,6 +110,7 @@ namespace Composable.CQRS.EventSourcing.Refactoring.Migrations
                         e.InsertAfter = _lastEventInActualStream.InsertionOrder;
                         e.AggregateRootVersion = Event.AggregateRootVersion + index;
                         e.AggregateRootId = Event.AggregateRootId;
+                        e.UtcTimeStamp = _lastEventInActualStream.UtcTimeStamp;
                     });                
             }
             else
@@ -119,6 +121,7 @@ namespace Composable.CQRS.EventSourcing.Refactoring.Migrations
                         e.InsertBefore = Event.InsertionOrder;
                         e.AggregateRootVersion = Event.AggregateRootVersion + index;
                         e.AggregateRootId = Event.AggregateRootId;
+                        e.UtcTimeStamp = Event.UtcTimeStamp;
                     });
             }
 

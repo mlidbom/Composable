@@ -3,6 +3,7 @@ using System.Linq;
 using Composable.CQRS.EventSourcing;
 using Composable.CQRS.EventSourcing.MicrosoftSQLServer;
 using Composable.CQRS.EventSourcing.Refactoring.Migrations;
+using Composable.GenericAbstractions.Time;
 using Composable.System.Linq;
 using Composable.Windsor;
 using FluentAssertions;
@@ -35,9 +36,10 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
                 ).ToArray();
 
             var container = CreateContainerForEventStoreType(eventMigrations, EventStoreType);
+            var timeSource = container.Resolve<DummyTimeSource>();
 
             var history = Seq.OfTypes<Ec1>().Concat(1.Through(10000).Select(index => typeof(E1))).ToArray();
-            var aggregate = TestAggregate.FromEvents(Guid.NewGuid(), history);
+            var aggregate = TestAggregate.FromEvents(timeSource, Guid.NewGuid(), history);
             container.ExecuteUnitOfWorkInIsolatedScope(() => container.Resolve<IEventStoreSession>().Save(aggregate));
 
             //Warm up cache..

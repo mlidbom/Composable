@@ -7,11 +7,19 @@ namespace Composable.CQRS.EventSourcing
     {
         IEnumerable<IAggregateRootEvent> GetAggregateHistory(Guid id);
         void SaveEvents(IEnumerable<IAggregateRootEvent> events);
-        IEnumerable<IAggregateRootEvent> StreamEvents();
+        void StreamEvents(int batchSize, Action<IReadOnlyList<IAggregateRootEvent>> handleEvents);
         void DeleteEvents(Guid aggregateId);
         void PersistMigrations();
         IEnumerable<Guid> StreamAggregateIdsInCreationOrder(Type eventBaseType = null);
-        [Obsolete("No longer supported. Use StreamEvents()")]
-        IEnumerable<IAggregateRootEvent> StreamEventsAfterEventWithId(Guid? startAfterEventId);
+    }
+
+    public static class EventStoreTestingExtensions
+    {
+        public static IReadOnlyList<IAggregateRootEvent> ListAllEventsForTestingPurposesAbsolutelyNotUsableForARealEventStoreOfAnySize(this IEventStore @this)
+        {
+            var events = new List<IAggregateRootEvent>();
+            @this.StreamEvents(10000, events.AddRange);
+            return events;
+        }
     }
 }

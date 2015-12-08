@@ -16,8 +16,6 @@ namespace Composable.CQRS.EventSourcing.MicrosoftSQLServer
 {
     public partial class SqlServerEventStore : IEventStore
     {
-        public IEnumerable<IAggregateRootEvent> StreamEventsAfterEventWithId(Guid? startAfterEventId) { throw new NotImplementedException(); }
-
         private static readonly ILog Log = LogManager.GetLogger(typeof(SqlServerEventStore));        
 
         public readonly string ConnectionString;
@@ -127,7 +125,7 @@ namespace Composable.CQRS.EventSourcing.MicrosoftSQLServer
 
         public const int StreamEventsBatchSize = 10000;
        
-        public IEnumerable<IAggregateRootEvent> StreamEvents()
+        private IEnumerable<IAggregateRootEvent> StreamEvents()
         {            
             _usageGuard.AssertNoContextChangeOccurred(this);
             _schemaManager.SetupSchemaIfDatabaseUnInitialized();
@@ -136,6 +134,17 @@ namespace Composable.CQRS.EventSourcing.MicrosoftSQLServer
 
             var streamMutator = CompleteEventStoreStreamMutator.Create(_migrationFactories);
             return streamMutator.Mutate(_eventReader.StreamEvents(StreamEventsBatchSize));
+        }
+
+        public void StreamEvents(int batchSize, Action<IReadOnlyList<IAggregateRootEvent>> handleEvents)
+        {
+            var batches = StreamEvents()
+                .ChopIntoSizesOf(batchSize)
+                .Select(batch => batch.ToList());
+            foreach (var batch in batches)
+            {
+                handleEvents(batch);
+            }
         }
 
         public void SaveEvents(IEnumerable<IAggregateRootEvent> events)

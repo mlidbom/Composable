@@ -23,6 +23,7 @@ using TestAggregates;
 
 namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
 {
+    //Todo: Refactor this test. It is to monolithic and hard to read and extend.
     [ExclusivelyUses(NCrunchExlusivelyUsesResources.EventStoreDbMdf)]
     public abstract class EventStreamMutatorTestsBase
     {
@@ -42,7 +43,7 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
             var migrationInstances = manualMigrations;
             var aggregateId = Guid.NewGuid();
 
-            var original = TestAggregate.FromEvents(aggregateId, originalHistory).History.ToList();
+            var original = TestAggregate.FromEvents(DummyTimeSource.Now, aggregateId, originalHistory).History.ToList();
             Console.WriteLine($"Original History: ");
             original.ForEach(e => Console.WriteLine($"      {e}"));
             Console.WriteLine();
@@ -58,14 +59,19 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
              Type eventStoreType)
         {
             var container = CreateContainerForEventStoreType(migrations, eventStoreType);
+            var timeSource = container.Resolve<DummyTimeSource>();
+            timeSource.UtcNow = DateTime.Parse("2001-01-01 01:01:01.01");
 
             Console.WriteLine($"###############$$$$$$$Running scenario with {eventStoreType}");
 
-            var initialAggregate = TestAggregate.FromEvents(aggregateId, originalHistory);
-            var expected = TestAggregate.FromEvents(aggregateId, expectedHistory).History.ToList();
+            var initialAggregate = TestAggregate.FromEvents(timeSource, aggregateId, originalHistory);
+            var expected = TestAggregate.FromEvents(timeSource, aggregateId, expectedHistory).History.ToList();
 
-            Console.WriteLine("Doing pure in memory ");
-            var initialAggregate2 = TestAggregate.FromEvents(aggregateId, originalHistory);
+            var initialAggregate2 = TestAggregate.FromEvents(timeSource, aggregateId, originalHistory);
+
+            timeSource.UtcNow += 1.Hours();//Bump clock to ensure that times will be be wrong unless the time from the original events are used..
+
+            Console.WriteLine("Doing pure in memory ");            
             IReadOnlyList<IAggregateRootEvent> otherHistory = SingleAggregateInstanceEventStreamMutator.MutateCompleteAggregateHistory(
                 migrations,
                 initialAggregate2.History.Cast<AggregateRootEvent>().ToList());
@@ -79,7 +85,7 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
 
 
             Console.WriteLine("  Streaming all events in store");
-            var streamedEvents = container.ExecuteUnitOfWorkInIsolatedScope(() => container.Resolve<IEventStore>().StreamEvents().ToList());
+            var streamedEvents = container.ExecuteUnitOfWorkInIsolatedScope(() => container.Resolve<IEventStore>().ListAllEventsForTestingPurposesAbsolutelyNotUsableForARealEventStoreOfAnySize().ToList());
             AssertStreamsAreIdentical(expected, streamedEvents, "Streaming all events in store");
 
 
@@ -93,7 +99,7 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
             AssertStreamsAreIdentical(expected, migratedHistory, "Loaded aggregate");
 
             Console.WriteLine("Streaming all events in store");
-            streamedEvents = container.ExecuteUnitOfWorkInIsolatedScope(() => container.Resolve<IEventStore>().StreamEvents().ToList());
+            streamedEvents = container.ExecuteUnitOfWorkInIsolatedScope(() => container.Resolve<IEventStore>().ListAllEventsForTestingPurposesAbsolutelyNotUsableForARealEventStoreOfAnySize().ToList());
             AssertStreamsAreIdentical(expected, streamedEvents, "Streaming all events in store");
 
 
@@ -108,7 +114,7 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
             AssertStreamsAreIdentical(expected, migratedHistory, "loaded aggregate");
 
             Console.WriteLine("Streaming all events in store");
-            streamedEvents = container.ExecuteUnitOfWorkInIsolatedScope(() => container.Resolve<IEventStore>().StreamEvents().ToList());
+            streamedEvents = container.ExecuteUnitOfWorkInIsolatedScope(() => container.Resolve<IEventStore>().ListAllEventsForTestingPurposesAbsolutelyNotUsableForARealEventStoreOfAnySize().ToList());
             AssertStreamsAreIdentical(expected, streamedEvents, "Streaming all events in store");
 
             if(eventStoreType == typeof(SqlServerEventStore))
@@ -119,7 +125,7 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
                 AssertStreamsAreIdentical(expected, migratedHistory, "Loaded aggregate");
 
                 Console.WriteLine("Streaming all events in store");
-                streamedEvents = container.ExecuteUnitOfWorkInIsolatedScope(() => container.Resolve<IEventStore>().StreamEvents().ToList());
+                streamedEvents = container.ExecuteUnitOfWorkInIsolatedScope(() => container.Resolve<IEventStore>().ListAllEventsForTestingPurposesAbsolutelyNotUsableForARealEventStoreOfAnySize().ToList());
                 AssertStreamsAreIdentical(expected, streamedEvents, "Streaming all events in store");
             }
 
@@ -132,8 +138,8 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
             container.ConfigureWiringForTestsCallBeforeAllOtherWiring();
 
             container.Register(
-                Component.For<IUtcTimeTimeSource>()
-                    .ImplementedBy<DateTimeNowTimeSource>()
+                Component.For<IUtcTimeTimeSource, DummyTimeSource>()
+                    .Instance(DummyTimeSource.Now)
                     .LifestyleSingleton(),
                 Component.For<IServiceBus>()
                          .ImplementedBy<SynchronousBus>()
@@ -189,7 +195,7 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
                     config => config.RespectingRuntimeTypes()
                                     .WithStrictOrdering()
                                     .Excluding(@event => @event.EventId)
-                                    .Excluding(@event => @event.UtcTimeStamp)
+                                    //.Excluding(@event => @event.UtcTimeStamp)
                                     .Excluding(@event => @event.InsertionOrder)
                                     .Excluding(@event => @event.InsertAfter)
                                     .Excluding(@event => @event.InsertBefore)

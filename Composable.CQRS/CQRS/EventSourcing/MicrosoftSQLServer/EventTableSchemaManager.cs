@@ -13,7 +13,7 @@ CREATE TABLE dbo.{Name}(
         when {EventTable.Columns.InsertAfter} is null and {EventTable.Columns.InsertBefore} is null and {EventTable.Columns.Replaces} is null then {EventTable.Columns.InsertedVersion}
         else null
     end,    
-    {EventTable.Columns.UtcTimeStamp} datetime NOT NULL,    
+    {EventTable.Columns.UtcTimeStamp} datetime2 NOT NULL,   
     {EventTable.Columns.EventType} int NOT NULL,    
     {EventTable.Columns.Event} nvarchar(max) NOT NULL,
     {EventTable.Columns.EffectiveReadOrder} as case 

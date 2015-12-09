@@ -203,7 +203,6 @@
     <Compile Include="CQRS\EventSourcing\EventRefactoring\When_renaming_events\When_mapping_names_for_classes_with_no_renaming_attribute.cs" />
     <Compile Include="CQRS\EventSourcing\EventsReplayerTests.cs" />
     <Compile Include="CQRS\EventSourcing\EventStoreTests.cs" />
-    <Compile Include="CQRS\EventSourcing\EventStoredAggregateRootTests.cs" />
     <Compile Include="CQRS\EventSourcing\EventStoreSessionTests.cs" />
     <Compile Include="CQRS\EventSourcing\InMemoryEventStoreSessionTests.cs" />
     <Compile Include="CQRS\EventSourcing\Sql\ReadOrderImplementationExperimentTests.cs" />
@@ -250,6 +249,10 @@
     <ProjectReference Include="..\Composable.CQRS.Testing\Composable.CQRS.Testing.csproj">
       <Project>{D7F30AB8-1C8F-4F0D-8E89-6E4DABF52941}</Project>
       <Name>Composable.CQRS.Testing</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Composable.Windsor\Composable.Windsor.csproj">
+      <Project>{646dce1f-a503-4158-80fb-aaa219c4ceff}</Project>
+      <Name>Composable.Windsor</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

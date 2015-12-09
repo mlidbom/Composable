@@ -28,7 +28,7 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
                                                      .Select(_ => typeof(E1))
                                                      .Concat(Seq.OfTypes<E2, E4, E6, E8>())));
 
-            var aggregate = TestAggregate.FromEvents(Guid.NewGuid(), historyTypes);
+            var aggregate = TestAggregate.FromEvents(DummyTimeSource.Now, Guid.NewGuid(), historyTypes);
             _history = aggregate.History.Cast<AggregateRootEvent>().ToList();
         }
 

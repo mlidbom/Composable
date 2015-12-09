@@ -38,11 +38,6 @@ namespace Composable.CQRS.EventSourcing
         protected internal IUtcTimeTimeSource TimeSource { get; set; }
 
 
-        [Obsolete("The sessions now absolutely require a time source. This is only here for binary backwards compatability and will be removed SOON.", error:true)]
-        public EventStoreSession(IServiceBus bus, IEventStore store, ISingleContextUseGuard usageGuard) : this(bus, store, usageGuard, DateTimeNowTimeSource.Instance)
-        {
-        }
-
         public EventStoreSession(IServiceBus bus, IEventStore store, ISingleContextUseGuard usageGuard, IUtcTimeTimeSource timeSource)
         {
             Contract.Requires(bus != null);

@@ -8,11 +8,9 @@ using Castle.Windsor;
 using Composable.System;
 using Composable.System.Linq;
 using Composable.SystemExtensions.Threading;
-using Composable.Windsor.Testing;
 
-namespace Composable.CQRS.Windsor.Testing
+namespace Composable.Windsor.Testing
 {
-    [Obsolete("'These extensions are now in the Composable.CQRS package. Search and replace: 'using Composable.CQRS.Windsor.Testing;' with 'using Composable.Windsor.Testing;' and 'using Composable.CQRS.Windsor;' with 'using Composable.Windsor;'", error: true)]
     public static class TestingWindsorExtensions
     {
         public static void ResetTestDataBases(this IWindsorContainer container)
@@ -48,12 +46,6 @@ namespace Composable.CQRS.Windsor.Testing
         public static void ConfigureWiringForTestsCallAfterAllOtherWiring(this IWindsorContainer container)
         {
             foreach(var configurer in container.ResolveAll<IConfigureWiringForTests>())
-            {
-                configurer.ConfigureWiringForTesting();
-                container.Release(configurer);
-            }
-
-            foreach (var configurer in container.ResolveAll<Composable.Windsor.Testing.IConfigureWiringForTests>())
             {
                 configurer.ConfigureWiringForTesting();
                 container.Release(configurer);

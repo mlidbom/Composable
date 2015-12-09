@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Data.SqlTypes;
+using System.Linq;
 
 namespace Composable.CQRS.EventSourcing.MicrosoftSQLServer
 {
@@ -29,27 +30,56 @@ FROM {EventTable.Name} With(UPDLOCK, READCOMMITTED, ROWLOCK) ";
             _connectionMananger = connectionManager;
             _schemaManager = schemaManager;
         }
-
-        private AggregateRootEvent Read(SqlDataReader eventReader)
+        
+        private AggregateRootEvent HydrateEvent(EventDataRow eventDataRowRow)
         {
-            var @event = (AggregateRootEvent)EventSerializer.Deserialize( eventType: EventTypeToIdMapper.GetType(eventReader.GetInt32(0)) , eventData: eventReader.GetString(1));
-            @event.AggregateRootId = eventReader.GetGuid(2);
-            @event.AggregateRootVersion = eventReader[3] as int? ?? eventReader.GetInt32(10);
-            @event.EventId = eventReader.GetGuid(4);
-            @event.UtcTimeStamp = DateTime.SpecifyKind(eventReader.GetDateTime(5), DateTimeKind.Utc);//Without this the datetime will be DateTimeKind.Unspecified and will not convert correctly into Local time....
-            @event.InsertionOrder = eventReader.GetInt64(6);
-            @event.InsertAfter = eventReader[7] as long?;
-            @event.InsertBefore = eventReader[8] as long?;
-            @event.Replaces = eventReader[9] as long?;
-            @event.InsertedVersion = eventReader.GetInt32(10);
-            @event.ManualVersion = eventReader[11] as int?;
-            @event.EffectiveVersion = eventReader[3] as int?;            
+            var @event = (AggregateRootEvent)EventSerializer.Deserialize(eventType: EventTypeToIdMapper.GetType(eventDataRowRow.EventType), eventData: eventDataRowRow.EventJson);
+            @event.AggregateRootId = eventDataRowRow.AggregateRootId;
+            @event.AggregateRootVersion = eventDataRowRow.AggregateRootVersion;
+            @event.EventId = eventDataRowRow.EventId;
+            @event.UtcTimeStamp = eventDataRowRow.UtcTimeStamp;
+            @event.InsertionOrder = eventDataRowRow.InsertionOrder;
+            @event.InsertAfter = eventDataRowRow.InsertAfter;
+            @event.InsertBefore = eventDataRowRow.InsertBefore;
+            @event.Replaces = eventDataRowRow.Replaces;
+            @event.InsertedVersion = eventDataRowRow.InsertedVersion;
+            @event.ManualVersion = eventDataRowRow.ManualVersion;
+            @event.EffectiveVersion = eventDataRowRow.EffectiveVersion;
 
             return @event;
         }
 
+
+        private EventDataRow ReadDataRow(SqlDataReader eventReader)
+        {
+            return new EventDataRow
+                   {
+                       EventJson = eventReader.GetString(1),
+                       EventType = eventReader.GetInt32(0),
+                       AggregateRootId = eventReader.GetGuid(2),
+                       AggregateRootVersion = eventReader[3] as int? ?? eventReader.GetInt32(10),
+                       EventId = eventReader.GetGuid(4),
+                       UtcTimeStamp = DateTime.SpecifyKind(eventReader.GetDateTime(5), DateTimeKind.Utc),
+                       //Without this the datetime will be DateTimeKind.Unspecified and will not convert correctly into Local time....
+                       InsertionOrder = eventReader.GetInt64(6),
+                       InsertAfter = eventReader[7] as long?,
+                       InsertBefore = eventReader[8] as long?,
+                       Replaces = eventReader[9] as long?,
+                       InsertedVersion = eventReader.GetInt32(10),
+                       ManualVersion = eventReader[11] as int?,
+                       EffectiveVersion = eventReader[3] as int?
+                   };
+        }
+
+        private class EventDataRow : AggregateRootEvent
+        {
+            public int EventType { get; set; }
+            public string EventJson { get; set; }
+        }
+
         public IEnumerable<AggregateRootEvent> GetAggregateHistory(Guid aggregateId, int startAfterVersion = 0, bool suppressTransactionWarning = false)
         {
+            var historyData = new List<EventDataRow>();
             using(var connection = _connectionMananger.OpenConnection(suppressTransactionWarning: suppressTransactionWarning))
             {
                 using (var loadCommand = connection.CreateCommand()) 
@@ -69,22 +99,26 @@ FROM {EventTable.Name} With(UPDLOCK, READCOMMITTED, ROWLOCK) ";
                     {
                         while (reader.Read())
                         {
-                            yield return Read(reader);
+                            historyData.Add(ReadDataRow(reader));
                         }
                     }
                 }
             }
+
+            return historyData.Select(HydrateEvent).ToList();
         }
 
         public IEnumerable<AggregateRootEvent> StreamEvents(int batchSize)
         {
+
             SqlDecimal lastReadEventReadOrder = 0;
             using(var connection = _connectionMananger.OpenConnection())
             {
                 var done = false;
                 while(!done)
                 {
-                    using(var loadCommand = connection.CreateCommand())
+                    var historyData = new List<EventDataRow>();
+                    using (var loadCommand = connection.CreateCommand())
                     {
 
                         loadCommand.CommandText = SelectTopClause(batchSize) + $"WHERE {EventTable.Columns.EffectiveReadOrder} > 0 AND {EventTable.Columns.EffectiveReadOrder}  > @{EventTable.Columns.EffectiveReadOrder}" + ReadSortOrder;
@@ -96,13 +130,17 @@ FROM {EventTable.Name} With(UPDLOCK, READCOMMITTED, ROWLOCK) ";
                         {
                             while(reader.Read())
                             {
-                                var @event = Read(reader);
+                                historyData.Add(ReadDataRow(reader));
                                 fetchedInThisBatch++;
                                 lastReadEventReadOrder = reader.GetSqlDecimal(12);
-                                yield return @event;
                             }
                         }
                         done = fetchedInThisBatch < batchSize;
+                    }
+
+                    foreach(var eventDataRow in historyData)
+                    {
+                        yield return HydrateEvent(eventDataRow);
                     }
                 }
             }

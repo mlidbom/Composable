@@ -9,7 +9,7 @@ using Castle.Components.DictionaryAdapter;
 using Castle.MicroKernel.Registration;
 using Castle.Windsor;
 using Composable.CQRS.EventSourcing;
-using Composable.CQRS.EventSourcing.SQLServer;
+using Composable.CQRS.EventSourcing.MicrosoftSQLServer;
 using Composable.CQRS.ServiceBus.NServiceBus;
 using Composable.CQRS.ServiceBus.NServiceBus.EndpointConfiguration;
 using Composable.CQRS.Testing;
@@ -25,7 +25,8 @@ using JetBrains.Annotations;
 using NCrunch.Framework;
 using NServiceBus;
 using NUnit.Framework;
-using Composable.CQRS.Windsor;
+using Composable.GenericAbstractions.Time;
+using Composable.Windsor;
 
 #endregion
 
@@ -45,13 +46,13 @@ namespace Composable.CQRS.ServiceBus.NServicebus.Tests.TransactionSupport
         {
             var endpointConfigurer = new EndPointConfigurer("Composable.CQRS.ServiceBus.NServicebus.Tests.TransactionSupport");
 
-            var eventStore = new SqlServerEventStore(EventStoreConnectionString);
+            var eventStore = new SqlServerEventStore(EventStoreConnectionString, new SingleThreadUseGuard());
 
             eventStore.ResetDB();
             SqlServerDocumentDb.ResetDB(EventStoreConnectionString);
             SqlServerDocumentDb.ResetDB(DocumentDbConnectionString);
 
-            eventStore.SaveEvents(((IEventStored) new Aggregate(2)).GetChanges());
+            eventStore.SaveEvents(Aggregate.Create(2).Cast<IEventStored>().SelectMany( agg => agg.GetChanges()));
 
             endpointConfigurer.Init();
             var messageHandled = new ManualResetEvent(false);
@@ -68,7 +69,7 @@ namespace Composable.CQRS.ServiceBus.NServicebus.Tests.TransactionSupport
 
             using (var tx = new TransactionScope())
             {
-                var events = eventStore.StreamEventsAfterEventWithId(null).ToList();
+                var events = eventStore.ListAllEventsForTestingPurposesAbsolutelyNotUsableForARealEventStoreOfAnySize().ToList();
                 Assert.That(events, Has.Count.EqualTo(2));
             }
         }
@@ -78,15 +79,18 @@ namespace Composable.CQRS.ServiceBus.NServicebus.Tests.TransactionSupport
     {
     }
 
-    public class Aggregate : AggregateRoot<Aggregate, IAggregateRootEvent>
+    public class Aggregate : AggregateRoot<Aggregate, AggregateRootEvent, IAggregateRootEvent>
     {
         //always the same in order to cause an exception while saving multiple instances. 
         private readonly Guid _aggregateId = Guid.Parse("EFEF768C-F37B-426F-A53B-BF28A254C55E");
 
-        public Aggregate(int events)
+        public static Aggregate[] Create(int instances) { return 1.Through(instances).Select(_ => new Aggregate(_)).ToArray(); }
+
+        public Aggregate(int id):base(new DateTimeNowTimeSource())
         {
             RegisterEventAppliers().For<SomeAggregateCreationEvent>(e => SetIdBeVerySureYouKnowWhatYouAreDoing(_aggregateId));
-            1.Through(events).ForEach(i => RaiseEvent(new SomeAggregateCreationEvent(Guid.Parse("00000000-0000-0000-0000-00000000000{0}".FormatWith(i)))));
+
+            RaiseEvent(new SomeAggregateCreationEvent(Guid.Parse("00000000-0000-0000-0000-00000000000{0}".FormatWith(id))));
         }
     }
 
@@ -147,11 +151,11 @@ namespace Composable.CQRS.ServiceBus.NServicebus.Tests.TransactionSupport
 
                 Component.For<IEventStore, SqlServerEventStore>().ImplementedBy<SqlServerEventStore>()
                     .DependsOn(Dependency.OnValue(typeof(string), WhenMessageHandlingFails.DocumentDbConnectionString))
-                    .LifestyleSingleton(),
+                    .LifestyleScoped(),
 
                 Component.For<IDocumentDb>().ImplementedBy<SqlServerDocumentDb>()
                     .DependsOn(Dependency.OnValue(typeof(string), WhenMessageHandlingFails.EventStoreConnectionString))
-                    .LifestyleSingleton(),
+                    .LifestyleScoped(),
 
                 Component.For<IDocumentDbSession, IUnitOfWorkParticipant>().ImplementedBy<DocumentDbSession>()
                     .DependsOn(Dependency.OnValue(typeof(IDocumentDbSessionInterceptor), NullOpDocumentDbSessionInterceptor.Instance))

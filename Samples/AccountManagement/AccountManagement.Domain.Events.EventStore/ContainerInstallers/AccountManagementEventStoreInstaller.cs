@@ -28,7 +28,7 @@ namespace AccountManagement.Domain.Events.EventStore.ContainerInstallers
                     .ImplementedBy<SqlServerEventStore>()
                     .DependsOn(new Dependency[] {Dependency.OnValue(typeof(string), GetConnectionStringFromConfiguration(ConnectionStringName))})
                     .Named(ComponentKeys.EventStore)
-                    .LifestyleSingleton(),
+                    .LifestylePerWebRequest(),
                 //Don't forget to register database components as IUnitOfWorkParticipant so that they work automatically with the framework management of units of work.
                 Component.For<IAccountManagementEventStoreSession, IEventStoreReader, IAccountManagementEventStoreReader, IUnitOfWorkParticipant>()
                     .ImplementedBy<AccountManagementEventStoreSession>()

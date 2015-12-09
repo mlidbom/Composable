@@ -507,13 +507,5 @@ DROP TABLE [dbo].[ValueType];
                 }
             }
         }
-        
-        [Obsolete("Use ResetDB", true)]
-        public static void PurgeDb(string connectionString)
-        {
-            ResetDB(connectionString);
-        }
-
-
     }
 }

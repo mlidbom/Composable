@@ -75,9 +75,15 @@ namespace Composable.DomainEvents
         public static void Raise<T>(T args) where T : IDomainEvent
         {
             Contract.Requires(args != null);
+            //THis is called in tight loops occationally. Do not waste cycles on linq
 
-            ManualSubscribers.OfType<Action<T>>()
-                .ForEach(action => action(args));
+            for(var index = 0; index < ManualSubscribers.Count; index++)
+            {
+                if(ManualSubscribers[index] is Action<T>)
+                {
+                    ((Action<T>)ManualSubscribers[index])(args);
+                }
+            }
         }
     }
 }

@@ -4,11 +4,12 @@ using System;
 using System.Configuration;
 using System.Transactions;
 using Composable.CQRS.EventSourcing;
-using Composable.CQRS.EventSourcing.SQLServer;
 using CQRS.Tests.KeyValueStorage.Sql;
 using NCrunch.Framework;
 using NUnit.Framework;
 using System.Linq;
+using Composable.CQRS.EventSourcing.MicrosoftSQLServer;
+using Composable.SystemExtensions.Threading;
 
 #endregion
 
@@ -21,13 +22,13 @@ namespace CQRS.Tests.CQRS.EventSourcing.Sql
         [Test]
         public void Does_not_call_db_in_constructor()
         {
-            var eventStore = new SqlServerEventStore("SomeStringThatDoesNotPointToARealSqlServer");
+            var eventStore = new SqlServerEventStore("SomeStringThatDoesNotPointToARealSqlServer", new SingleThreadUseGuard());
         }
 
         [Test]
         public void ShouldNotCacheEventsSavedDuringFailedTransactionEvenIfReadDuringSameTransaction()
         {
-            var something = new SqlServerEventStore(ConfigurationManager.ConnectionStrings["EventStore"].ConnectionString);
+            var something = new SqlServerEventStore(ConfigurationManager.ConnectionStrings["EventStore"].ConnectionString, new SingleThreadUseGuard());
             something.ResetDB();//Sometimes the test would fail on the last line with information that the table was missing. Probably because the table was created during the aborted transaction. I'm hoping this will fix it.
 
             var user = new User();
@@ -48,7 +49,7 @@ namespace CQRS.Tests.CQRS.EventSourcing.Sql
         {
             string connectionString = ConfigurationManager.ConnectionStrings["EventStore"].ConnectionString;
 
-            var something = new SqlServerEventStore(connectionString);
+            var something = new SqlServerEventStore(connectionString, new SingleThreadUseGuard());
 
             var user = new User();
             user.Register("email@email.se", "password", Guid.NewGuid());
@@ -62,10 +63,10 @@ namespace CQRS.Tests.CQRS.EventSourcing.Sql
                 tran.Complete();
             }
 
-            something = new SqlServerEventStore(connectionString);
+            something = new SqlServerEventStore(connectionString, new SingleThreadUseGuard());
             var firstRead = something.GetAggregateHistory(user.Id).Single();
 
-            something = new SqlServerEventStore(connectionString);
+            something = new SqlServerEventStore(connectionString, new SingleThreadUseGuard());
             var secondRead = something.GetAggregateHistory(user.Id).Single();
 
             Assert.That(firstRead, Is.SameAs(secondRead));

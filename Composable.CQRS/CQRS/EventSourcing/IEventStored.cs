@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using Composable.GenericAbstractions.Time;
+using JetBrains.Annotations;
 
 namespace Composable.CQRS.EventSourcing
 {
@@ -10,5 +12,7 @@ namespace Composable.CQRS.EventSourcing
         IEnumerable<IAggregateRootEvent> GetChanges();
         void AcceptChanges();
         void LoadFromHistory(IEnumerable<IAggregateRootEvent> history);
+        void SetTimeSource(IUtcTimeTimeSource timeSource);
+        IUtcTimeTimeSource TimeSource { get; }
     }
 }

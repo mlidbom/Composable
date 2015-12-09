@@ -4,11 +4,11 @@ using System;
 using System.Diagnostics.Contracts;
 using System.Transactions;
 using Castle.Windsor;
-using Composable.CQRS.Windsor;
 using Composable.DomainEvents;
 using Composable.KeyValueStorage.Population;
 using Composable.System.Linq;
 using System.Linq;
+using Composable.Windsor;
 
 #endregion
 

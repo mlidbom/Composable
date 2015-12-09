@@ -6,8 +6,9 @@ using System.Threading.Tasks;
 using System.Transactions;
 using Castle.Windsor;
 using Composable.CQRS.EventSourcing;
-using Composable.CQRS.EventSourcing.SQLServer;
+using Composable.CQRS.EventSourcing.MicrosoftSQLServer;
 using Composable.CQRS.Testing;
+using Composable.SystemExtensions.Threading;
 using CQRS.Tests.KeyValueStorage.Sql;
 using NCrunch.Framework;
 using NUnit.Framework;
@@ -27,17 +28,15 @@ namespace CQRS.Tests.CQRS.EventSourcing.Sql
 
         protected override IEventStore CreateStore()
         {
-            return new SqlServerEventStore(ConnectionString);
+            return new SqlServerEventStore(ConnectionString, new SingleThreadUseGuard());
         }
 
         [Test]
         public void Serializes_access_to_an_aggregate_so_that_concurrent_transactions_succeed_even_if_history_has_been_read_outside_of_modifying_transactions()
         {
-            var store = CreateStore();
-
             var user = new User();
             user.Register("email@email.se", "password", Guid.NewGuid());
-            using (var session = OpenSession(store))
+            using (var session = OpenSession(CreateStore()))
             {
                 session.Save(user);
                 session.SaveChanges();
@@ -45,7 +44,7 @@ namespace CQRS.Tests.CQRS.EventSourcing.Sql
 
             Action updateEmail = () =>
             {
-                using (var session = OpenSession(store))
+                using (var session = OpenSession(CreateStore()))
                 {
                     var prereadHistory = ((IEventStoreReader)session).GetHistory(user.Id);
                     using (var transaction = new TransactionScope())
@@ -65,7 +64,7 @@ namespace CQRS.Tests.CQRS.EventSourcing.Sql
 
             Task.WaitAll(task1, task2, task3);
 
-            using (var session = OpenSession(store))
+            using (var session = OpenSession(CreateStore()))
             {
                 var userHistory = ((IEventStoreReader)session).GetHistory(user.Id).ToArray();//Reading the aggregate will throw an exception if the history is invalid.
             }
@@ -74,11 +73,9 @@ namespace CQRS.Tests.CQRS.EventSourcing.Sql
         [Test]
         public void Serializes_access_to_an_aggregate_so_that_concurrent_transactions_succeed()
         {
-            var store = CreateStore();
-
             var user = new User();
             user.Register("email@email.se", "password", Guid.NewGuid());
-            using (var session = OpenSession(store))
+            using (var session = OpenSession(CreateStore()))
             {
                 session.Save(user);
                 session.SaveChanges();
@@ -86,7 +83,7 @@ namespace CQRS.Tests.CQRS.EventSourcing.Sql
 
             Action updateEmail = () =>
             {
-                using (var session = OpenSession(store))
+                using (var session = OpenSession(CreateStore()))
                 {
                     using (var transaction = new TransactionScope())
                     {
@@ -105,7 +102,7 @@ namespace CQRS.Tests.CQRS.EventSourcing.Sql
 
             Task.WaitAll(task1, task2, task3);
 
-            using (var session = OpenSession(store))
+            using (var session = OpenSession(CreateStore()))
             {
                 var userHistory = ((IEventStoreReader)session).GetHistory(user.Id).ToArray();//Reading the aggregate will throw an exception if the history is invalid.
             }

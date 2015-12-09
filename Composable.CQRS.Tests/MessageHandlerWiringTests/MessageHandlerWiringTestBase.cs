@@ -4,7 +4,6 @@ using Castle.MicroKernel.Lifestyle;
 using Castle.MicroKernel.Registration;
 using Castle.Windsor;
 using Composable.CQRS.EventSourcing;
-using Composable.CQRS.Windsor.Testing;
 using Composable.ServiceBus;
 using Composable.Windsor.Testing;
 using CQRS.Tests.ServiceBus;

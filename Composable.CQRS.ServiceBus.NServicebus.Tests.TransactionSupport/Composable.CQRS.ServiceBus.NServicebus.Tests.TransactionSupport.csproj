@@ -129,6 +129,10 @@
       <Project>{3632254D-0C4A-4EB8-B388-4C99F8939584}</Project>
       <Name>Composable.Core</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Composable.Windsor\Composable.Windsor.csproj">
+      <Project>{646dce1f-a503-4158-80fb-aaa219c4ceff}</Project>
+      <Name>Composable.Windsor</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Content Include="DocumentDB.mdf">

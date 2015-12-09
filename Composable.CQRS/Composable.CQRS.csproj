@@ -120,32 +120,6 @@
     <Compile Include="..\CommonAssemblyInfo.cs">
       <Link>Properties\CommonAssemblyInfo.cs</Link>
     </Compile>
-    <Compile Include="BinaryCompatibility_REMOVE\CQRS\EventSourcing\EventRefactoring\DefaultEventNameMapper.cs" />
-    <Compile Include="BinaryCompatibility_REMOVE\CQRS\EventSourcing\EventRefactoring\EventNameMapping.cs" />
-    <Compile Include="BinaryCompatibility_REMOVE\CQRS\EventSourcing\EventRefactoring\EventPathRenamer.cs" />
-    <Compile Include="BinaryCompatibility_REMOVE\CQRS\EventSourcing\EventRefactoring\EventRenamedFromAttribute.cs" />
-    <Compile Include="BinaryCompatibility_REMOVE\CQRS\EventSourcing\EventRefactoring\IEventNameMapper.cs" />
-    <Compile Include="BinaryCompatibility_REMOVE\CQRS\EventSourcing\EventRefactoring\IRenameEvents.cs" />
-    <Compile Include="BinaryCompatibility_REMOVE\CQRS\EventSourcing\EventRefactoring\RenameEventsBasedOnEventRenamedAttributes.cs" />
-    <Compile Include="BinaryCompatibility_REMOVE\CQRS\EventSourcing\EventRefactoring\RenamingEventNameMapper.cs" />
-    <Compile Include="BinaryCompatibility_REMOVE\CQRS\EventSourcing\SQLServer\EventTable.cs" />
-    <Compile Include="BinaryCompatibility_REMOVE\CQRS\EventSourcing\SQLServer\EventTableSchemaManager.cs" />
-    <Compile Include="BinaryCompatibility_REMOVE\CQRS\EventSourcing\SQLServer\EventTypeTable.cs" />
-    <Compile Include="BinaryCompatibility_REMOVE\CQRS\EventSourcing\SQLServer\EventTypeTableSchemaManager.cs" />
-    <Compile Include="BinaryCompatibility_REMOVE\CQRS\EventSourcing\SQLServer\IEventTypeToIdMapper.cs" />
-    <Compile Include="BinaryCompatibility_REMOVE\CQRS\EventSourcing\SQLServer\InvalidHistoryException.cs" />
-    <Compile Include="BinaryCompatibility_REMOVE\CQRS\EventSourcing\SQLServer\LegacyEventTable.cs" />
-    <Compile Include="BinaryCompatibility_REMOVE\CQRS\EventSourcing\SQLServer\LegacyEventTableSchemaManager.cs" />
-    <Compile Include="BinaryCompatibility_REMOVE\CQRS\EventSourcing\SQLServer\LegacySchemaSqlServerEventStoreEventTypeToIdMapper.cs" />
-    <Compile Include="BinaryCompatibility_REMOVE\CQRS\EventSourcing\SQLServer\SqlServerEventStore.cs" />
-    <Compile Include="BinaryCompatibility_REMOVE\CQRS\EventSourcing\SQLServer\SqlServerEventStoreConnectionManager.cs" />
-    <Compile Include="BinaryCompatibility_REMOVE\CQRS\EventSourcing\SQLServer\SqlServerEventStoreEventReader.cs" />
-    <Compile Include="BinaryCompatibility_REMOVE\CQRS\EventSourcing\SQLServer\SqlServerEventStoreEventsCache.cs" />
-    <Compile Include="BinaryCompatibility_REMOVE\CQRS\EventSourcing\SQLServer\SqlServerEventStoreEventTypeToIdMapper.cs" />
-    <Compile Include="BinaryCompatibility_REMOVE\CQRS\EventSourcing\SQLServer\SqlServerEventStoreEventWriter.cs" />
-    <Compile Include="BinaryCompatibility_REMOVE\CQRS\EventSourcing\SQLServer\SqlServerEventStoreSchemaManager.cs" />
-    <Compile Include="BinaryCompatibility_REMOVE\CQRS\EventSourcing\SQLServer\SqlServerEvestStoreEventSerializer.cs" />
-    <Compile Include="BinaryCompatibility_REMOVE\CQRS\EventSourcing\SQLServer\TableSchemaManager.cs" />
     <Compile Include="CQRS\AggregateRepository.cs" />
     <Compile Include="CQRS\AggregateRootComponent.cs" />
     <Compile Include="CQRS\Command\Command.cs" />
@@ -184,7 +158,6 @@
     <Compile Include="CQRS\EventHandling\IEventHandlerRegistrar.cs" />
     <Compile Include="CQRS\EventHandling\SingleAggregateQueryModelUpdater.cs" />
     <Compile Include="CQRS\EventHandling\UniqueMatchEventHierarchyHandler.cs" />
-    <Compile Include="CQRS\EventSourcing\AggregateRoot.Old.cs" />
     <Compile Include="CQRS\EventSourcing\AttemptToSaveEmptyAggregate.cs" />
     <Compile Include="CQRS\EventSourcing\Refactoring\Migrations\AssertMigrationsAreIdempotentEventModifier.cs" />
     <Compile Include="CQRS\EventSourcing\Refactoring\Migrations\CompleteEventStoreStreamMutator.cs" />
@@ -213,7 +186,6 @@
     <Compile Include="CQRS\EventSourcing\ISharedOwnershipAggregateRoot.cs" />
     <Compile Include="CQRS\EventSourcing\RegisteredHandlerMissingException.cs" />
     <Compile Include="CQRS\EventSourcing\ReuseOfEventStoreSessionException.cs" />
-    <Compile Include="CQRS\EventSourcing\EventStoredAggregateRoot.cs" />
     <Compile Include="CQRS\EventSourcing\MicrosoftSQLServer\SqlServerEventStore.MigrationsScripts.cs" />
     <Compile Include="CQRS\EventSourcing\MicrosoftSQLServer\IEventTypeToIdMapper.cs" />
     <Compile Include="CQRS\EventSourcing\MicrosoftSQLServer\LegacyEventTable.cs" />
@@ -266,13 +238,8 @@
     <Compile Include="CQRS\TypeExtensions.cs" />
     <Compile Include="CQRS\UnNamedReferenceObject.cs" />
     <Compile Include="CQRS\ViewModels\ViewModelUpdater.cs" />
-    <Compile Include="CQRS\Windsor\DisposableComponent.cs" />
-    <Compile Include="CQRS\Windsor\DisposableComponentCollection.cs" />
-    <Compile Include="CQRS\Windsor\MessageHandlersInstallerBase.cs" />
-    <Compile Include="CQRS\Windsor\Testing\ForTestsEventHandlerInstallerBase.cs" />
-    <Compile Include="CQRS\Windsor\Testing\IConfigureWiringForTests.cs" />
-    <Compile Include="CQRS\Windsor\WindsorDisposableExtensions.cs" />
-    <Compile Include="CQRS\Windsor\WindsorUnitOfWorkExtensions.cs" />
+    <Compile Include="CQRS\Windsor\SqlServerDocumentDbRegistrationExtensions.cs" />
+    <Compile Include="CQRS\Windsor\SqlServerEventStoreRegistrationExtensions.cs" />
     <Compile Include="DomainEvents\DomainEvent.cs" />
     <Compile Include="CQRS\Query\Models\Generators\QueryModelGeneratingDocumentDbReader.cs" />
     <Compile Include="CQRS\Query\Models\Generators\IQueryModelGenerator.cs" />
@@ -340,24 +307,11 @@
     <Compile Include="UnitsOfWork\IUnitOfWorkParticipantWhoseCommitMayTriggerChangesInOtherParticipantsMustImplementIdemponentCommit.cs" />
     <Compile Include="UnitsOfWork\TooDeepCascadeLevelDetected.cs" />
     <Compile Include="UnitsOfWork\UnitOfWork.cs" />
-    <Compile Include="Windsor\CreationContextExtensions.cs" />
-    <Compile Include="Windsor\DefaultToKeyHandlerSelector.cs" />
-    <Compile Include="Windsor\DisposableComponent.cs" />
-    <Compile Include="Windsor\DisposableComponentCollection.cs" />
-    <Compile Include="Windsor\KeyReplacementHandlerSelector.cs" />
     <Compile Include="Windsor\LifestyleRegistrationExtensions.cs" />
-    <Compile Include="Windsor\LifestyleRegistrationMutator.cs" />
     <Compile Include="Windsor\MessageHandlersInstallerBase.cs" />
     <Compile Include="Windsor\Testing\ForTestsEventHandlerInstallerBase.cs" />
-    <Compile Include="Windsor\Testing\IConfigureWiringForTests.cs" />
-    <Compile Include="Windsor\Testing\IResetTestDatabases.cs" />
-    <Compile Include="Windsor\Testing\TestingWindsorExtensions.cs" />
     <Compile Include="Windsor\Testing\WindsorTestWiringExtensions.cs" />
-    <Compile Include="Windsor\TypedCollectionResolver.cs" />
     <Compile Include="Windsor\UICommandServiceInstaller.cs" />
-    <Compile Include="Windsor\WindsorComponentReplacer.cs" />
-    <Compile Include="Windsor\WindsorConfigurationValidator.cs" />
-    <Compile Include="Windsor\WindsorDisposableExtensions.cs" />
     <Compile Include="Windsor\WindsorExtensions.cs" />
     <Compile Include="Windsor\WindsorUnitOfWorkExtensions.cs" />
   </ItemGroup>
@@ -372,12 +326,6 @@
       <SubType>Designer</SubType>
     </None>
     <None Include="Void.snk" />
-    <None Include="Windsor\app.config" />
-    <None Include="Windsor\Composable.CQRS.Windsor.nuspec">
-      <SubType>Designer</SubType>
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Windsor\packages.config" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Composable.DomainEvents\Composable.DomainEvents.csproj">
@@ -387,6 +335,10 @@
     <ProjectReference Include="..\Composable.System\Composable.Core.csproj">
       <Project>{3632254D-0C4A-4EB8-B388-4C99F8939584}</Project>
       <Name>Composable.Core</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Composable.Windsor\Composable.Windsor.csproj">
+      <Project>{646dce1f-a503-4158-80fb-aaa219c4ceff}</Project>
+      <Name>Composable.Windsor</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

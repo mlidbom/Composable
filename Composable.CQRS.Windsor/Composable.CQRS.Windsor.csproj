@@ -60,19 +60,7 @@
     <Compile Include="..\CommonAssemblyInfo.cs">
       <Link>Properties\CommonAssemblyInfo.cs</Link>
     </Compile>
-    <Compile Include="CreationContextExtensions.cs" />
-    <Compile Include="DefaultToKeyHandlerSelector.cs" />
-    <Compile Include="KeyReplacementHandlerSelector.cs" />
-    <Compile Include="LifestyleRegistrationExtensions.cs" />
-    <Compile Include="LifestyleRegistrationMutator.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Testing\IResetTestDatabases.cs" />
-    <Compile Include="Testing\TestingWindsorExtensions.cs" />
-    <Compile Include="Testing\WindsorTestWiringExtensions.cs" />
-    <Compile Include="TypedCollectionResolver.cs" />
-    <Compile Include="WindsorComponentReplacer.cs" />
-    <Compile Include="WindsorConfigurationValidator.cs" />
-    <Compile Include="WindsorExtensions.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Composable.System\Composable.Core.csproj">
@@ -83,6 +71,10 @@
       <Project>{3B776BD4-0EDD-4A83-BC9A-3A53D6649AB0}</Project>
       <Name>Composable.CQRS</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Composable.Windsor\Composable.Windsor.csproj">
+      <Project>{646dce1f-a503-4158-80fb-aaa219c4ceff}</Project>
+      <Name>Composable.Windsor</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
@@ -90,7 +82,6 @@
       <SubType>Designer</SubType>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="packages.config" />
     <None Include="Void.snk" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

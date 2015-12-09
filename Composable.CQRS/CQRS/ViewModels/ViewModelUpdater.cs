@@ -7,7 +7,6 @@ using Composable.CQRS.EventHandling;
 using Composable.CQRS.EventSourcing;
 using Composable.DDD;
 using Composable.KeyValueStorage;
-using Composable.StuffThatDoesNotBelongHere;
 using Composable.System.Linq;
 
 #endregion

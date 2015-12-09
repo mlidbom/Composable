@@ -7,7 +7,7 @@
     <description>Composable.Persistence.ORM.NHibernate provides simplified wiring and VEST test support for NHibernate.</description>
     <language>en-US</language>
      <dependencies>
-        <dependency id="Composable.CQRS" version="$CQRSVersion$" />
+        <dependency id="Composable.Windsor" version="$WindsorVersion$" />
      </dependencies>
   </metadata>
 </package>

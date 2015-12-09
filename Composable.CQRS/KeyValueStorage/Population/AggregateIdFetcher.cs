@@ -26,7 +26,7 @@ namespace Composable.KeyValueStorage.Population
 
         public Guid[] GetEntitiesCreatedAfter()
         {
-            return _events.StreamEvents().Select(e => e.AggregateRootId).Distinct().ToArray();
+            return _events.ListAllEventsForTestingPurposesAbsolutelyNotUsableForARealEventStoreOfAnySize().Select(e => e.AggregateRootId).Distinct().ToArray();
         }
 
         public Guid[] GetEntitiesFromFile(FileStream file)

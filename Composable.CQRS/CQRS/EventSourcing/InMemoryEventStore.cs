@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using System.Linq;
+using Composable.CQRS.EventSourcing.Refactoring.Migrations;
 using Composable.System.Linq;
 
 namespace Composable.CQRS.EventSourcing
@@ -9,18 +10,28 @@ namespace Composable.CQRS.EventSourcing
     //todo: Refactor to use the same serialization code as the sql server event store so that tests actually tests roundtrip serialization
     public class InMemoryEventStore : IEventStore
     {
-        private IList<IAggregateRootEvent> _events = new List<IAggregateRootEvent>();
+        private IReadOnlyList<IEventMigration> _migrationFactories;
+
+        private IList<AggregateRootEvent> _events = new List<AggregateRootEvent>();
+        private int InsertionOrder;
 
         public void Dispose()
         {
         }
 
         private object _lockObject = new object();
+
+        public InMemoryEventStore(IEnumerable<IEventMigration> migrationFactories = null )
+        {
+            _migrationFactories = migrationFactories?.ToList() ?? new List<IEventMigration>();
+        }
+
         public IEnumerable<IAggregateRootEvent> GetAggregateHistory(Guid id)
         {
             lock(_lockObject)
             {
-                return _events.Where(e => e.AggregateRootId == id);
+                return SingleAggregateInstanceEventStreamMutator.MutateCompleteAggregateHistory(_migrationFactories, _events.Where(e => e.AggregateRootId == id).ToList())
+                    .ToList();;
             }
         }
 
@@ -28,20 +39,32 @@ namespace Composable.CQRS.EventSourcing
         {
             lock(_lockObject)
             {
-                events.ForEach(e => _events.Add(e));
+                events.Cast<AggregateRootEvent>().ForEach(
+                    @event =>
+                    {
+                        ((AggregateRootEvent)@event).InsertionOrder = ++InsertionOrder;
+                        _events.Add(@event);
+                    });
             }
         }
 
-        public IEnumerable<IAggregateRootEvent> StreamEventsAfterEventWithId(Guid? startAfterEventId)
+        private IEnumerable<IAggregateRootEvent> StreamEvents()
         {
             lock(_lockObject)
             {
-                IEnumerable<IAggregateRootEvent> events = _events.OrderBy(e => e.TimeStamp);
-                if(startAfterEventId.HasValue)
-                {
-                    events = events.SkipWhile(e => e.EventId != startAfterEventId).Skip(1);
-                }
-                return events;
+                var streamMutator = CompleteEventStoreStreamMutator.Create(_migrationFactories);
+                return streamMutator.Mutate(_events).ToList();
+            }
+        }
+
+        public void StreamEvents(int batchSize, Action<IReadOnlyList<IAggregateRootEvent>> handleEvents)
+        {
+            var batches = StreamEvents()
+                .ChopIntoSizesOf(batchSize)
+                .Select(batch => batch.ToList());
+            foreach(var batch in batches)
+            {
+                handleEvents(batch);
             }
         }
 
@@ -60,6 +83,8 @@ namespace Composable.CQRS.EventSourcing
             }
         }
 
+        public void PersistMigrations() { _events = StreamEvents().Cast<AggregateRootEvent>().ToList(); }
+
         public IEnumerable<Guid> StreamAggregateIdsInCreationOrder(Type eventBaseType = null)
         {
             Contract.Requires(eventBaseType == null || (eventBaseType.IsInterface && typeof(IAggregateRootEvent).IsAssignableFrom(eventBaseType)));
@@ -68,9 +93,10 @@ namespace Composable.CQRS.EventSourcing
             {
                 return _events
                     .Where(e => eventBaseType == null || eventBaseType.IsInstanceOfType(e))
-                    .OrderBy(e => e.TimeStamp)
+                    .OrderBy(e => e.UtcTimeStamp)
                     .Select(e => e.AggregateRootId)
-                    .Distinct();
+                    .Distinct()
+                    .ToList();
             }
         }
 
@@ -78,8 +104,11 @@ namespace Composable.CQRS.EventSourcing
         {
             lock(_lockObject)
             {
-                _events = new List<IAggregateRootEvent>();
+                _events = new List<AggregateRootEvent>();
             }
         }
+
+
+        internal void TestingOnlyReplaceMigrations(IReadOnlyList<IEventMigration> migrations) { _migrationFactories = migrations; }
     }
 }

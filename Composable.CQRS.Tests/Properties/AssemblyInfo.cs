@@ -2,8 +2,6 @@
 
 using System.Reflection;
 using System.Runtime.InteropServices;
-using Composable.CQRS.EventSourcing.EventRefactoring;
-using Composable.CQRS.EventSourcing.SQLServer;
 
 #endregion
 

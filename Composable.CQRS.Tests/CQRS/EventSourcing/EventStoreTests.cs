@@ -1,9 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Configuration;
 using System.Threading;
 using Castle.Windsor;
 using Composable.CQRS.EventSourcing;
-using Composable.CQRS.EventSourcing.SQLServer;
 using Composable.CQRS.Testing;
 using Composable.System;
 using CQRS.Tests.KeyValueStorage.Sql;
@@ -12,6 +12,8 @@ using NCrunch.Framework;
 using NUnit.Framework;
 using Composable.System.Linq;
 using System.Linq;
+using Composable.CQRS.EventSourcing.MicrosoftSQLServer;
+using Composable.SystemExtensions.Threading;
 
 namespace CQRS.Tests.CQRS.EventSourcing
 {
@@ -19,10 +21,10 @@ namespace CQRS.Tests.CQRS.EventSourcing
 
     public class SomeEvent : AggregateRootEvent, ISomeEvent
     {
-        public SomeEvent(int aggreateRootId, int version): base(Guid.Parse("00000000-0000-0000-0000-{0:D12}".FormatWith(aggreateRootId)))
+        public SomeEvent(Guid aggregateRootId, int version): base(aggregateRootId)
         {
             AggregateRootVersion = version;
-            TimeStamp = new DateTime(TimeStamp.Year, TimeStamp.Month, TimeStamp.Day, TimeStamp.Hour, TimeStamp.Minute, TimeStamp.Second);
+            UtcTimeStamp = new DateTime(UtcTimeStamp.Year, UtcTimeStamp.Month, UtcTimeStamp.Day, UtcTimeStamp.Hour, UtcTimeStamp.Minute, UtcTimeStamp.Second);
         }
     }
 
@@ -38,8 +40,9 @@ namespace CQRS.Tests.CQRS.EventSourcing
         {
             using (var eventStore = CreateEventStore())
             {
-                eventStore.SaveEvents(1.Through(10).Select(i => new SomeEvent(1, i)));
-                var stream = eventStore.StreamEventsAfterEventWithId(null);
+                Guid aggregateId = Guid.NewGuid();
+                eventStore.SaveEvents(1.Through(10).Select(i => new SomeEvent(aggregateId, i)));
+                var stream = eventStore.ListAllEventsForTestingPurposesAbsolutelyNotUsableForARealEventStoreOfAnySize();
 
                 stream.Should().HaveCount(10);
             }
@@ -51,9 +54,10 @@ namespace CQRS.Tests.CQRS.EventSourcing
         {
             using (var eventStore = CreateEventStore())
             {
-                const int moreEventsThanTheBatchSizeForStreamingEvents = SqlServerEventStore.StreamEventsAfterEventWithIdBatchSize * 3;
-                eventStore.SaveEvents(1.Through(moreEventsThanTheBatchSizeForStreamingEvents).Select(i => new SomeEvent(1, i)));
-                var stream = eventStore.StreamEventsAfterEventWithId(null).ToList();
+                const int moreEventsThanTheBatchSizeForStreamingEvents = SqlServerEventStore.StreamEventsBatchSize * 3;
+                var aggregateId = Guid.NewGuid();
+                eventStore.SaveEvents(1.Through(moreEventsThanTheBatchSizeForStreamingEvents).Select(i => new SomeEvent(aggregateId, i)));
+                var stream = eventStore.ListAllEventsForTestingPurposesAbsolutelyNotUsableForARealEventStoreOfAnySize().ToList();
 
                 var currentEventNumber = 0;
                 stream.Should().HaveCount(moreEventsThanTheBatchSizeForStreamingEvents);
@@ -66,22 +70,14 @@ namespace CQRS.Tests.CQRS.EventSourcing
 
 
         [Test]
-        public void StreamEventsSinceReturnsNewerEventsWhenFromEventIdIsSpecified()
-        {
-            var someEvents = 1.Through(10).Select(i => new SomeEvent(1, i)).ToArray();
-            using (var eventStore = CreateEventStore())
-            {                
-                eventStore.SaveEvents(someEvents);
-                var stream = eventStore.StreamEventsAfterEventWithId(someEvents.ElementAt(4).EventId);
-
-                stream.Should().HaveCount(5);
-            }
-        }
-
-        [Test]
         public void DeleteEventsDeletesTheEventsForOnlyTheSpecifiedAggregate()
-        {
-            var aggregatesWithEvents = 1.Through(10).ToDictionary(i => i, i => 1.Through(10).Select(j => new SomeEvent(i, j)).ToList());
+        {            
+            var aggregatesWithEvents = 1.Through(10).ToDictionary(i => i,
+                                                                  i =>
+                                                                  {
+                                                                      var aggregateId = Guid.NewGuid();
+                                                                      return 1.Through(10).Select(j => new SomeEvent(aggregateId, j)).ToList();
+                                                                  });
 
             using (var eventStore = CreateEventStore())
             {                
@@ -103,7 +99,12 @@ namespace CQRS.Tests.CQRS.EventSourcing
         [Test]
         public void GetListOfAggregateIds()
         {
-            var aggregatesWithEvents = 1.Through(10).ToDictionary(i => i, i => 1.Through(10).Select(j => new SomeEvent(i, j)).ToList());
+            var aggregatesWithEvents = 1.Through(10).ToDictionary(i => i,
+                                                                  i =>
+                                                                  {
+                                                                      var aggregateId = Guid.NewGuid();
+                                                                      return 1.Through(10).Select(j => new SomeEvent(aggregateId, j)).ToList();
+                                                                  });
 
             using (var eventStore = CreateEventStore())
             {
@@ -116,7 +117,12 @@ namespace CQRS.Tests.CQRS.EventSourcing
         [Test]
         public void GetListOfAggregateIdsUsingBaseEventType()
         {
-            var aggregatesWithEvents = 1.Through(10).ToDictionary(i => i, i => 1.Through(10).Select(j => new SomeEvent(i, j)).ToList());
+            var aggregatesWithEvents = 1.Through(10).ToDictionary(i => i,
+                                                                  i =>
+                                                                  {
+                                                                      var aggregateId = Guid.NewGuid();
+                                                                      return 1.Through(10).Select(j => new SomeEvent(aggregateId, j)).ToList();
+                                                                  });
 
             using (var eventStore = CreateEventStore())
             {
@@ -148,8 +154,20 @@ namespace CQRS.Tests.CQRS.EventSourcing
     {
         private static readonly string ConnectionString1 = ConfigurationManager.ConnectionStrings["EventStore"].ConnectionString;
         private static readonly string ConnectionString2 = ConfigurationManager.ConnectionStrings["EventStore2"].ConnectionString;
+
         [SetUp]
         public static void SetupFixture()
+        {
+            ResetDataBases();
+        }
+
+        [TearDown]
+        public void TearDownTask()
+        {
+            ResetDataBases();
+        }
+
+        private static void ResetDataBases()
         {
             SqlServerEventStore.ResetDB(ConnectionString1);
             SqlServerEventStore.ResetDB(ConnectionString2);
@@ -157,43 +175,75 @@ namespace CQRS.Tests.CQRS.EventSourcing
 
         protected override IEventStore CreateEventStore()
         {
-            return new SqlServerEventStore(ConnectionString1);
+            return new SqlServerEventStore(ConnectionString1, new SingleThreadUseGuard());
         }
 
         override protected IEventStore CreateEventStore2()
         {
-            return new SqlServerEventStore(ConnectionString2);
+            return new SqlServerEventStore(ConnectionString2, new SingleThreadUseGuard());
         }
 
         [Test]
         public void DoesNotMixUpEventsFromDifferentStores()
         {
             //Two histories with the same in different event stores.
-            var aggregate1Events = 1.Through(1).Select(j => new SomeEvent(aggreateRootId: 1, version: j)).ToList();
-            var aggregate2Events = 1.Through(1).Select(j => new SomeEvent(aggreateRootId: 1, version: j)).ToList();
-            var aggregateId = aggregate1Events.First().AggregateRootId;
+            var aggregateId = Guid.NewGuid();
+            var aggregate1Events = 1.Through(3).Select(j => new SomeEvent(aggregateRootId: aggregateId, version: j)).ToList();
+            var aggregate2Events = 1.Through(5).Select(j => new SomeEvent(aggregateRootId: aggregateId, version: j)).ToList();
 
-            using (var store1 = CreateEventStore())
-            using (var store2 = CreateEventStore2())
+            var store1Events = Seq.Empty<IAggregateRootEvent>();
+            var store2Events = Seq.Empty<IAggregateRootEvent>();
+            var store1NewStoreEvents = Seq.Empty<IAggregateRootEvent>();
+            var store2NewStoreEvents = Seq.Empty<IAggregateRootEvent>();
+
+
+            try
             {
-                store1.SaveEvents(aggregate1Events);
-                store2.SaveEvents(aggregate2Events);
+                using (var store1 = CreateEventStore())
+                using(var store2 = CreateEventStore2())
+                {
+                    store1.SaveEvents(aggregate1Events);
+                    store2.SaveEvents(aggregate2Events);
 
-                store1.GetAggregateHistory(aggregateId)
-                    .Should().Equal(aggregate1Events);
+                    store1Events = store1.GetAggregateHistory(aggregateId);
+                    store2Events = store2.GetAggregateHistory(aggregateId);
+                }                
 
-                store2.GetAggregateHistory(aggregateId)
-                    .Should().Equal(aggregate2Events);
+                using(var store1 = CreateEventStore())
+                using(var store2 = CreateEventStore2())
+                {
+                    store1NewStoreEvents = store1.GetAggregateHistory(aggregateId);
+                    store2NewStoreEvents = store2.GetAggregateHistory(aggregateId);
+                }
+
+                store1Events.ShouldAllBeEquivalentTo(aggregate1Events, config  => config.WithStrictOrdering());
+                store2Events.ShouldAllBeEquivalentTo(aggregate2Events, config => config.WithStrictOrdering());
+                store1NewStoreEvents.ShouldAllBeEquivalentTo(aggregate1Events, config => config.WithStrictOrdering());
+                store2NewStoreEvents.ShouldAllBeEquivalentTo(aggregate2Events, config => config.WithStrictOrdering());
+
             }
-
-            using (var store1 = CreateEventStore())
-            using (var store2 = CreateEventStore2())
+            catch(Exception)
             {
-                store1.GetAggregateHistory(aggregateId)
-                    .Should().Equal(aggregate1Events);
+                Console.WriteLine("aggregate1 events");
+                aggregate1Events.ForEach(e => Console.WriteLine($"   {e}"));
 
-                store2.GetAggregateHistory(aggregateId)
-                    .Should().Equal(aggregate2Events);
+                Console.WriteLine("\n\naggregate2 events");
+                aggregate2Events.ForEach(e => Console.WriteLine($"   {e}"));
+
+                Console.WriteLine("\n\nloaded events from eventstore 1");
+                store1Events.ForEach(e => Console.WriteLine($"   {e}"));
+
+                Console.WriteLine("\n\nloaded events from eventstore 2");
+                store2Events.ForEach(e => Console.WriteLine($"   {e}"));
+
+
+                Console.WriteLine("\n\nloaded events from new eventstore 1");
+                store1NewStoreEvents.ForEach(e => Console.WriteLine($"   {e}"));
+
+                Console.WriteLine("\n\nloaded events from new eventstore 2");
+                store2NewStoreEvents.ForEach(e => Console.WriteLine($"   {e}"));
+
+                throw;
             }
         }
     }

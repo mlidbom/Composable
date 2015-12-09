@@ -2,6 +2,7 @@
 
 namespace Composable.GenericAbstractions.Time
 {
+    [Obsolete("Please switch to using IUtcTimeTimeSource")]
     ///<summary>
     /// Provides the service of telling what the current time is using the timezone of the local computer. 
     /// In order to make things testable calling DateTime.Now or DateTime.UtcNow directly is discouraged.

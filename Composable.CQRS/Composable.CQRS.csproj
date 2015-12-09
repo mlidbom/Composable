@@ -134,7 +134,6 @@
     <Compile Include="CQRS\Command\CompositeCommand.cs" />
     <Compile Include="CQRS\Command\DomainCommandValidationException.cs" />
     <Compile Include="CQRS\Command\GlobalValidationFailure.cs" />
-    <Compile Include="CQRS\Command\ForwardToEntityCommandHandler.cs" />
     <Compile Include="CQRS\Command\ICommand.cs" />
     <Compile Include="CQRS\Command\ICommandFailedResponse.cs" />
     <Compile Include="CQRS\Command\ICommandHandler.cs" />
@@ -160,14 +159,25 @@
     <Compile Include="CQRS\EventHandling\SingleAggregateQueryModelUpdater.cs" />
     <Compile Include="CQRS\EventHandling\UniqueMatchEventHierarchyHandler.cs" />
     <Compile Include="CQRS\EventSourcing\AttemptToSaveEmptyAggregate.cs" />
-    <Compile Include="CQRS\EventSourcing\EventRefactoring\EventNameMapping.cs" />
-    <Compile Include="CQRS\EventSourcing\EventRefactoring\EventPathRenamer.cs" />
-    <Compile Include="CQRS\EventSourcing\EventRefactoring\EventRenamedFromAttribute.cs" />
-    <Compile Include="CQRS\EventSourcing\EventRefactoring\RenamingEventNameMapper.cs" />
-    <Compile Include="CQRS\EventSourcing\EventRefactoring\IEventNameMapper.cs" />
-    <Compile Include="CQRS\EventSourcing\EventRefactoring\IRenameEvents.cs" />
-    <Compile Include="CQRS\EventSourcing\EventRefactoring\RenameEventsBasedOnEventRenamedAttributes.cs" />
-    <Compile Include="CQRS\EventSourcing\EventRefactoring\DefaultEventNameMapper.cs" />
+    <Compile Include="CQRS\EventSourcing\Refactoring\Migrations\AssertMigrationsAreIdempotentEventModifier.cs" />
+    <Compile Include="CQRS\EventSourcing\Refactoring\Migrations\CompleteEventStoreStreamMutator.cs" />
+    <Compile Include="CQRS\EventSourcing\Refactoring\Migrations\EventMigration.cs" />
+    <Compile Include="CQRS\EventSourcing\Refactoring\Migrations\EventModifier.cs" />
+    <Compile Include="CQRS\EventSourcing\Refactoring\Migrations\ICompleteEventStreamMutator.cs" />
+    <Compile Include="CQRS\EventSourcing\Refactoring\Migrations\IEventMigration.cs" />
+    <Compile Include="CQRS\EventSourcing\Refactoring\Migrations\IEventModifier.cs" />
+    <Compile Include="CQRS\EventSourcing\Refactoring\Migrations\ISingleAggregateInstanceEventStreamMutator.cs" />
+    <Compile Include="CQRS\EventSourcing\Refactoring\Migrations\NonIdempotentMigrationDetectedException.cs" />
+    <Compile Include="CQRS\EventSourcing\Refactoring\Migrations\SingleAggregateInstanceEventStreamMutator.cs" />
+    <Compile Include="CQRS\EventSourcing\Refactoring\Naming\CouldNotFindTypeBasedOnName.cs" />
+    <Compile Include="CQRS\EventSourcing\Refactoring\Naming\EventNameMapping.cs" />
+    <Compile Include="CQRS\EventSourcing\Refactoring\Naming\EventPathRenamer.cs" />
+    <Compile Include="CQRS\EventSourcing\Refactoring\Naming\EventRenamedFromAttribute.cs" />
+    <Compile Include="CQRS\EventSourcing\Refactoring\Naming\RenamingEventNameMapper.cs" />
+    <Compile Include="CQRS\EventSourcing\Refactoring\Naming\IEventNameMapper.cs" />
+    <Compile Include="CQRS\EventSourcing\Refactoring\Naming\IRenameEvents.cs" />
+    <Compile Include="CQRS\EventSourcing\Refactoring\Naming\RenameEventsBasedOnEventRenamedAttributes.cs" />
+    <Compile Include="CQRS\EventSourcing\Refactoring\Naming\DefaultEventNameMapper.cs" />
     <Compile Include="CQRS\EventSourcing\EventsReplayer.cs" />
     <Compile Include="CQRS\EventSourcing\IEventStore.cs" />
     <Compile Include="CQRS\EventSourcing\AggregateRootNotFoundException.cs" />
@@ -176,31 +186,29 @@
     <Compile Include="CQRS\EventSourcing\ISharedOwnershipAggregateRoot.cs" />
     <Compile Include="CQRS\EventSourcing\RegisteredHandlerMissingException.cs" />
     <Compile Include="CQRS\EventSourcing\ReuseOfEventStoreSessionException.cs" />
-    <Compile Include="CQRS\EventSourcing\EventStoredAggregateRoot.cs" />
-    <Compile Include="CQRS\EventSourcing\SQLServer\IEventTypeToIdMapper.cs" />
-    <Compile Include="CQRS\EventSourcing\SQLServer\LegacyEventTable.cs" />
-    <Compile Include="CQRS\EventSourcing\SQLServer\EventTableSchemaManager.cs" />
-    <Compile Include="CQRS\EventSourcing\SQLServer\EventTypeTable.cs" />
-    <Compile Include="CQRS\EventSourcing\SQLServer\EventTable.cs" />
-    <Compile Include="CQRS\EventSourcing\SQLServer\EventTypeTableSchemaManager.cs" />
-    <Compile Include="CQRS\EventSourcing\SQLServer\LegacyEventTableSchemaManager.cs" />
-    <Compile Include="CQRS\EventSourcing\SQLServer\LegacySchemaSqlServerEventStoreEventTypeToIdMapper.cs" />
-    <Compile Include="CQRS\EventSourcing\SQLServer\SqlServerEventStoreConnectionManager.cs" />
-    <Compile Include="CQRS\EventSourcing\SQLServer\SqlServerEventStoreEventReader.cs" />
-    <Compile Include="CQRS\EventSourcing\SQLServer\SqlServerEventStoreEventsCache.cs" />
-    <Compile Include="CQRS\EventSourcing\SQLServer\SqlServerEventStore.cs" />
-    <Compile Include="CQRS\EventSourcing\SQLServer\SqlServerEventStoreEventTypeToIdMapper.cs" />
-    <Compile Include="CQRS\EventSourcing\SQLServer\SqlServerEventStoreEventWriter.cs" />
-    <Compile Include="CQRS\EventSourcing\SQLServer\SqlServerEventStoreSchemaManager.cs" />
-    <Compile Include="CQRS\EventSourcing\SQLServer\SqlServerEvestStoreEventSerializer.cs" />
-    <Compile Include="CQRS\EventSourcing\SQLServer\TableSchemaManager.cs" />
+    <Compile Include="CQRS\EventSourcing\MicrosoftSQLServer\SqlServerEventStore.MigrationsScripts.cs" />
+    <Compile Include="CQRS\EventSourcing\MicrosoftSQLServer\IEventTypeToIdMapper.cs" />
+    <Compile Include="CQRS\EventSourcing\MicrosoftSQLServer\LegacyEventTable.cs" />
+    <Compile Include="CQRS\EventSourcing\MicrosoftSQLServer\EventTableSchemaManager.cs" />
+    <Compile Include="CQRS\EventSourcing\MicrosoftSQLServer\EventTypeTable.cs" />
+    <Compile Include="CQRS\EventSourcing\MicrosoftSQLServer\EventTable.cs" />
+    <Compile Include="CQRS\EventSourcing\MicrosoftSQLServer\EventTypeTableSchemaManager.cs" />
+    <Compile Include="CQRS\EventSourcing\MicrosoftSQLServer\LegacyEventTableSchemaManager.cs" />
+    <Compile Include="CQRS\EventSourcing\MicrosoftSQLServer\SqlServerEventStoreConnectionManager.cs" />
+    <Compile Include="CQRS\EventSourcing\MicrosoftSQLServer\SqlServerEventStoreEventReader.cs" />
+    <Compile Include="CQRS\EventSourcing\MicrosoftSQLServer\SqlServerEventStoreEventsCache.cs" />
+    <Compile Include="CQRS\EventSourcing\MicrosoftSQLServer\SqlServerEventStore.cs" />
+    <Compile Include="CQRS\EventSourcing\MicrosoftSQLServer\SqlServerEventStoreEventTypeToIdMapper.cs" />
+    <Compile Include="CQRS\EventSourcing\MicrosoftSQLServer\SqlServerEventStoreEventWriter.cs" />
+    <Compile Include="CQRS\EventSourcing\MicrosoftSQLServer\SqlServerEventStoreSchemaManager.cs" />
+    <Compile Include="CQRS\EventSourcing\MicrosoftSQLServer\SqlServerEvestStoreEventSerializer.cs" />
+    <Compile Include="CQRS\EventSourcing\MicrosoftSQLServer\TableSchemaManager.cs" />
     <Compile Include="CQRS\IAggregateRepository.cs" />
     <Compile Include="CQRS\EventSourcing\ICommandMessage.cs" />
     <Compile Include="CQRS\IReferenceObject.cs" />
     <Compile Include="CQRS\Query\Models\Generators\IVersioningDocumentDbReader.cs" />
     <Compile Include="CQRS\Query\Models\Generators\IVersioningQueryModelGenerator.cs" />
     <Compile Include="CQRS\ReferenceObject.cs" />
-    <Compile Include="CQRS\TempAggregateRootWithTimeSourceSupport.cs" />
     <Compile Include="CQRS\TranslatedReferenceObject.cs" />
     <Compile Include="CQRS\UI\Command\CommandExecutionError.cs" />
     <Compile Include="CQRS\UI\Command\IHandleUICommand.cs" />
@@ -224,19 +232,14 @@
     <Compile Include="CQRS\EventSourcing\EventStoreSession.cs" />
     <Compile Include="CQRS\EventSourcing\IEventStoreSession.cs" />
     <Compile Include="CQRS\EventSourcing\InMemoryEventStore.cs" />
-    <Compile Include="CQRS\EventSourcing\SQLServer\InvalidHistoryException.cs" />
+    <Compile Include="CQRS\EventSourcing\MicrosoftSQLServer\InvalidHistoryException.cs" />
     <Compile Include="CQRS\IUnNamedEntityReference.cs" />
     <Compile Include="CQRS\INamed.cs" />
     <Compile Include="CQRS\TypeExtensions.cs" />
     <Compile Include="CQRS\UnNamedReferenceObject.cs" />
     <Compile Include="CQRS\ViewModels\ViewModelUpdater.cs" />
-    <Compile Include="CQRS\Windsor\DisposableComponent.cs" />
-    <Compile Include="CQRS\Windsor\DisposableComponentCollection.cs" />
-    <Compile Include="CQRS\Windsor\MessageHandlersInstallerBase.cs" />
-    <Compile Include="CQRS\Windsor\Testing\ForTestsEventHandlerInstallerBase.cs" />
-    <Compile Include="CQRS\Windsor\Testing\IConfigureWiringForTests.cs" />
-    <Compile Include="CQRS\Windsor\WindsorDisposableExtensions.cs" />
-    <Compile Include="CQRS\Windsor\WindsorUnitOfWorkExtensions.cs" />
+    <Compile Include="CQRS\Windsor\SqlServerDocumentDbRegistrationExtensions.cs" />
+    <Compile Include="CQRS\Windsor\SqlServerEventStoreRegistrationExtensions.cs" />
     <Compile Include="DomainEvents\DomainEvent.cs" />
     <Compile Include="CQRS\Query\Models\Generators\QueryModelGeneratingDocumentDbReader.cs" />
     <Compile Include="CQRS\Query\Models\Generators\IQueryModelGenerator.cs" />
@@ -268,12 +271,14 @@
     <Compile Include="KeyValueStorage\SqlServer\SqlServerDocumentDB.cs" />
     <Compile Include="KeyValueStorage\SqlServer\TooManyItemsDeletedException.cs" />
     <Compile Include="Logging\Log4Net\Log4NetExtensions.cs" />
+    <Compile Include="NewtonSoft\IgnoreAggregateRootEventDeclaredPropertiesBecauseTheyAreAlreadyStoredInSql.cs" />
     <Compile Include="NewtonSoft\IncludeMembersWithPrivateSettersResolver.cs" />
     <Compile Include="KeyValueStorage\AttemptToSaveAlreadyPersistedValueException.cs" />
     <Compile Include="KeyValueStorage\IDocumentDbSession.cs" />
     <Compile Include="KeyValueStorage\DocumentDbSession.cs" />
     <Compile Include="KeyValueStorage\NoSuchDocumentException.cs" />
     <Compile Include="NewtonSoft\JsonSettings.cs" />
+    <Compile Include="Persistence\SingleAggregateRelationalQueryModelUpdater.cs" />
     <Compile Include="ServiceBus\CanNotPublishMessageWhenReplayingEventsOnBusException.cs" />
     <Compile Include="ServiceBus\IHandleReplayedAndPublishedEvents.cs" />
     <Compile Include="ServiceBus\IHandleInProcessMessages.cs" />
@@ -290,12 +295,8 @@
     <Compile Include="ServiceBus\SynchronousBus.cs" />
     <Compile Include="CQRS\SetExtensions.cs" />
     <Compile Include="CQRS\EventHandling\CallsMatchingHandlersInRegistrationOrderEventHandler.cs" />
-    <Compile Include="Persistence\IEntityFetcher.cs" />
     <Compile Include="CQRS\Command\IEntityHandledCommand.cs" />
     <Compile Include="CQRS\NoRegisteredHandlersException.cs" />
-    <Compile Include="Persistence\IEntityPersister.cs" />
-    <Compile Include="Persistence\InMemoryPersistenceSession.cs" />
-    <Compile Include="Persistence\IPersistenceSession.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="StuffThatDoesNotBelongHere\MultiEventHandler.cs" />
     <Compile Include="StuffThatDoesNotBelongHere\Translation\TranslateAttribute.cs" />
@@ -306,7 +307,13 @@
     <Compile Include="UnitsOfWork\IUnitOfWorkParticipantWhoseCommitMayTriggerChangesInOtherParticipantsMustImplementIdemponentCommit.cs" />
     <Compile Include="UnitsOfWork\TooDeepCascadeLevelDetected.cs" />
     <Compile Include="UnitsOfWork\UnitOfWork.cs" />
+    <Compile Include="Windsor\LifestyleRegistrationExtensions.cs" />
+    <Compile Include="Windsor\MessageHandlersInstallerBase.cs" />
+    <Compile Include="Windsor\Testing\ForTestsEventHandlerInstallerBase.cs" />
+    <Compile Include="Windsor\Testing\WindsorTestWiringExtensions.cs" />
     <Compile Include="Windsor\UICommandServiceInstaller.cs" />
+    <Compile Include="Windsor\WindsorExtensions.cs" />
+    <Compile Include="Windsor\WindsorUnitOfWorkExtensions.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
@@ -329,10 +336,16 @@
       <Project>{3632254D-0C4A-4EB8-B388-4C99F8939584}</Project>
       <Name>Composable.Core</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Composable.Windsor\Composable.Windsor.csproj">
+      <Project>{646dce1f-a503-4158-80fb-aaa219c4ceff}</Project>
+      <Name>Composable.Windsor</Name>
+    </ProjectReference>
   </ItemGroup>
-  <ItemGroup />
   <ItemGroup>
     <None Include="KeyValueStorage\SqlServer\ChangeScript.sql" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Persistence\Testing\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

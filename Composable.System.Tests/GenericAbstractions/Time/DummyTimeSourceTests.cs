@@ -42,6 +42,7 @@ namespace Composable.Tests.GenericAbstractions.Time
             DateTime now = DateTime.Now;
             ITimeSource uut = DummyTimeSource.FromLocalTime(now);
             uut.LocalNow.Should().Be(now);
+            uut.UtcNow.Should().Be(now.ToUniversalTime());
         }
 
         [Test]
@@ -50,6 +51,14 @@ namespace Composable.Tests.GenericAbstractions.Time
             DateTime utcNow = DateTime.UtcNow;
             ITimeSource uut = DummyTimeSource.FromÚtcTime(utcNow);
             uut.UtcNow.Should().Be(utcNow);
+        }
+
+        [Test]
+        public void Passing_a_parsed_date_to_FromUtcTime_results_in_UtcNow_being_that_date()
+        {
+            var dateTime = DateTime.Parse("2001-01-01 00:00");
+            var source = DummyTimeSource.FromÚtcTime(dateTime);
+            source.UtcNow.Should().Be(dateTime);
         }
     }
 }

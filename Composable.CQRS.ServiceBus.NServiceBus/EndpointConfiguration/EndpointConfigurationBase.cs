@@ -9,9 +9,10 @@ using Castle.Core;
 using Castle.MicroKernel.Registration;
 using Castle.MicroKernel.Releasers;
 using Castle.Windsor;
-using Composable.CQRS.Windsor;
+using Composable.GenericAbstractions.Time;
 using Composable.System.Linq;
 using Composable.SystemExtensions.Threading;
+using Composable.Windsor;
 using NServiceBus;
 using NServiceBus.Faults;
 using NServiceBus.Hosting.Roles;
@@ -128,7 +129,8 @@ namespace Composable.CQRS.ServiceBus.NServiceBus.EndpointConfiguration
                     LifestyleType.Scoped));
 
             _container.Register(
-                Component.For<IWindsorContainer, WindsorContainer>().Instance(_container),
+                Component.For<IUtcTimeTimeSource>().ImplementedBy<DateTimeNowTimeSource>().LifestylePerWebRequest(),
+                Component.For<IWindsorContainer, WindsorContainer>().Instance(_container).LifestyleSingleton(),
                 Component.For<IManageUnitsOfWork>().ImplementedBy<ComposableCqrsUnitOfWorkManager>().LifeStyle.PerNserviceBusMessage(),
                 Component.For<ISingleContextUseGuard>().ImplementedBy<SingleThreadUseGuard>().LifeStyle.PerNserviceBusMessage()
                 );

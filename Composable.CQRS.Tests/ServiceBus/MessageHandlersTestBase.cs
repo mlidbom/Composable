@@ -1,13 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
 using Castle.MicroKernel.Lifestyle;
 using Castle.MicroKernel.Registration;
 using Castle.Windsor;
 using Composable.CQRS.EventSourcing;
-using Composable.CQRS.Windsor.Testing;
 using Composable.ServiceBus;
-using Composable.SystemExtensions.Threading;
-using NServiceBus;
+using Composable.Windsor.Testing;
 using NUnit.Framework;
 
 namespace CQRS.Tests.ServiceBus

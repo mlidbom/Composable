@@ -9,16 +9,9 @@ namespace Composable.Tests.GenericAbstractions.Time
     public class DateTimeNowTimeSourceTests
     {
         [Test]
-        public void LocalNow_should_return_within_100_milliseconds_of_DateTimeNow()
-        {
-            ITimeSource uut = new DateTimeNowTimeSource();
-            uut.LocalNow.Should().BeWithin(100.Milliseconds()).Before(DateTime.Now);
-        }
-
-        [Test]
         public void UtcNow_should_return_within_100_milliseconds_of_DateTimeNow()
         {
-            ITimeSource uut = new DateTimeNowTimeSource();
+            var uut = new DateTimeNowTimeSource();
             uut.UtcNow.Should().BeWithin(100.Milliseconds()).Before(DateTime.UtcNow);
         }
     }

@@ -2,12 +2,12 @@
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using System.Linq;
+using System.Reflection;
 using Composable.CQRS.EventHandling;
 using Composable.GenericAbstractions.Time;
 
 namespace Composable.CQRS.EventSourcing
 {
-
     public interface IGetAggregateRootEntityEventEntityId<TEventInterface>
     {
         Guid GetId(TEventInterface @event);
@@ -15,7 +15,7 @@ namespace Composable.CQRS.EventSourcing
 
     public interface IGetSetAggregateRootEntityEventEntityId<TEventClass, TEventInterface> : IGetAggregateRootEntityEventEntityId<TEventInterface>
     {
-        void SetEntityId(TEventClass @event, Guid id);        
+        void SetEntityId(TEventClass @event, Guid id);
     }
 
     public abstract partial class AggregateRoot<TAggregateRoot, TAggregateRootBaseEventClass, TAggregateRootBaseEventInterface>
@@ -31,21 +31,25 @@ namespace Composable.CQRS.EventSourcing
                 new CallMatchingHandlersInRegistrationOrderEventDispatcher<TComponentBaseEventInterface>();
 
             protected IUtcTimeTimeSource TimeSource => AggregateRoot.TimeSource;
-            protected TAggregateRoot AggregateRoot { get; set; }
+            private TAggregateRoot AggregateRoot { get; set; }
 
             internal void ApplyEvent(TComponentBaseEventInterface @event) { _eventAppliersEventDispatcher.Dispatch(@event); }
 
-            protected Component(TAggregateRoot aggregateRoot) : this()
+            protected Component(TAggregateRoot aggregateRoot) : this(aggregateRoot: aggregateRoot, registerEventAppliers: true)
             {
-                AggregateRoot = aggregateRoot;
-                AggregateRoot.RegisterEventAppliers()
-                             .For<TComponentBaseEventInterface>(ApplyEvent);
             }
 
-            internal Component()
+            internal Component(TAggregateRoot aggregateRoot, bool registerEventAppliers)
             {
+                AggregateRoot = aggregateRoot;
                 EventHandlersEventDispatcher.Register()
                                             .IgnoreUnhandled<TComponentBaseEventInterface>();
+
+                if(registerEventAppliers)
+                {
+                    AggregateRoot.RegisterEventAppliers()
+                                 .For<TComponentBaseEventInterface>(ApplyEvent);
+                }
             }
 
             protected void RaiseEvent(TComponentBaseEventClass @event)
@@ -64,20 +68,21 @@ namespace Composable.CQRS.EventSourcing
                 return EventHandlersEventDispatcher.RegisterHandlers();
             }
 
-            public abstract class NestedEntity<TEntity, TEntityBaseEventClass, TEntityBaseEventInterface, TEntityCreatedEventInterface, TEventEntityIdSetterGetter> :
-            Component<TEntity, TEntityBaseEventClass, TEntityBaseEventInterface>
-            where TEntityBaseEventInterface : TComponentBaseEventInterface
-            where TEntityBaseEventClass : TComponentBaseEventClass, TEntityBaseEventInterface
-            where TEntityCreatedEventInterface : TEntityBaseEventInterface
-            where TEntity : NestedEntity<TEntity, TEntityBaseEventClass, TEntityBaseEventInterface, TEntityCreatedEventInterface, TEventEntityIdSetterGetter>
-            where TEventEntityIdSetterGetter : IGetSetAggregateRootEntityEventEntityId<TEntityBaseEventClass, TEntityBaseEventInterface>, new()
+            public abstract class NestedEntity<TEntity, TEntityBaseEventClass, TEntityBaseEventInterface, TEntityCreatedEventInterface,
+                                               TEventEntityIdSetterGetter> :
+                                                   Component<TEntity, TEntityBaseEventClass, TEntityBaseEventInterface>
+                where TEntityBaseEventInterface : TComponentBaseEventInterface
+                where TEntityBaseEventClass : TComponentBaseEventClass, TEntityBaseEventInterface
+                where TEntityCreatedEventInterface : TEntityBaseEventInterface
+                where TEntity :
+                    NestedEntity<TEntity, TEntityBaseEventClass, TEntityBaseEventInterface, TEntityCreatedEventInterface, TEventEntityIdSetterGetter>
+                where TEventEntityIdSetterGetter : IGetSetAggregateRootEntityEventEntityId<TEntityBaseEventClass, TEntityBaseEventInterface>, new()
             {
                 private static readonly TEventEntityIdSetterGetter IdGetterSetter = new TEventEntityIdSetterGetter();
 
                 public Guid Id { get; private set; }
-                protected TComponent Component { get; private set; }
 
-                protected NestedEntity()
+                protected NestedEntity(TComponent component):base(aggregateRoot: component.AggregateRoot, registerEventAppliers: false)
                 {
                     RegisterEventAppliers()
                         .For<TEntityCreatedEventInterface>(e => Id = IdGetterSetter.GetId(e))
@@ -96,10 +101,26 @@ namespace Composable.CQRS.EventSourcing
                                   .For<TEntityCreatedEventInterface>(
                                       e =>
                                       {
-                                          var entity = (TEntity)Activator.CreateInstance(typeof(TEntity), nonPublic: true);
-                                          entity.AggregateRoot = _component.AggregateRoot;
-                                          entity.Component = _component;
-                                          _entities.Add(IdGetterSetter.GetId((TEntityBaseEventClass)(object)e), entity);
+                                          TEntity entity;
+                                          try
+                                          {
+                                              entity =
+                                                  (TEntity)
+                                                  Activator.CreateInstance(
+                                                      type: typeof(TEntity),
+                                                      bindingAttr: BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Public,
+                                                      binder: null,
+                                                      args: new object[] { _component },
+                                                      culture: null);
+                                          }
+                                          catch (MissingMethodException exception)
+                                          {
+                                              throw new Exception(
+                                                  $"Type: {typeof(TEntity).FullName} must have a constructor taking a single argument of type: {typeof(TComponent).FullName}",
+                                                  exception);
+                                          }
+
+                                          _entities.Add(IdGetterSetter.GetId(e), entity);
                                           _entitiesInCreationOrder.Add(entity);
                                       })
                                   .For<TEntityBaseEventInterface>(e => _entities[IdGetterSetter.GetId(e)].ApplyEvent(e));
@@ -133,23 +154,25 @@ namespace Composable.CQRS.EventSourcing
                 where TNestedComponentBaseEventClass : TComponentBaseEventClass, TNestedComponentBaseEventInterface
                 where TNestedComponent : NestedComponent<TNestedComponent, TNestedComponentBaseEventClass, TNestedComponentBaseEventInterface>
             {
-                
+                protected NestedComponent(TAggregateRoot aggregateRoot) : base(aggregateRoot) {}
             }
         }
 
-        public abstract class Entity<TEntity, TEntityBaseEventClass, TEntityBaseEventInterface, TEntityCreatedEventInterface, TEventEntityIdSetterGetter> :
-            Component<TEntity, TEntityBaseEventClass, TEntityBaseEventInterface>
+        public abstract class Entity<TEntity, TEntityBaseEventClass, TEntityBaseEventInterface, TEntityCreatedEventInterface,
+                                     TEventEntityIdSetterGetter> :
+                                         Component<TEntity, TEntityBaseEventClass, TEntityBaseEventInterface>
             where TEntityBaseEventInterface : TAggregateRootBaseEventInterface
             where TEntityBaseEventClass : TAggregateRootBaseEventClass, TEntityBaseEventInterface
             where TEntityCreatedEventInterface : TEntityBaseEventInterface
-            where TEntity : Entity<TEntity, TEntityBaseEventClass, TEntityBaseEventInterface, TEntityCreatedEventInterface, TEventEntityIdSetterGetter>
+            where TEntity :
+                Entity<TEntity, TEntityBaseEventClass, TEntityBaseEventInterface, TEntityCreatedEventInterface, TEventEntityIdSetterGetter>
             where TEventEntityIdSetterGetter : IGetSetAggregateRootEntityEventEntityId<TEntityBaseEventClass, TEntityBaseEventInterface>, new()
         {
             private static readonly TEventEntityIdSetterGetter IdGetterSetter = new TEventEntityIdSetterGetter();
 
             public Guid Id { get; private set; }
 
-            protected Entity()
+            protected Entity(TAggregateRoot aggregateRoot) : base(aggregateRoot: aggregateRoot, registerEventAppliers: false)
             {
                 RegisterEventAppliers()
                     .For<TEntityCreatedEventInterface>(e => Id = IdGetterSetter.GetId((TEntityBaseEventClass)(object)e))
@@ -168,8 +191,24 @@ namespace Composable.CQRS.EventSourcing
                               .For<TEntityCreatedEventInterface>(
                                   e =>
                                   {
-                                      var entity = (TEntity)Activator.CreateInstance(typeof(TEntity), nonPublic: true);
-                                      entity.AggregateRoot = _aggregate;
+                                      TEntity entity;
+                                      try
+                                      {
+                                          entity =
+                                              (TEntity)
+                                              Activator.CreateInstance(
+                                                  type: typeof(TEntity),
+                                                  bindingAttr: BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Public,
+                                                  binder: null,
+                                                  args: new object[] {_aggregate},
+                                                  culture: null);
+                                      }
+                                      catch(MissingMethodException exception)
+                                      {
+                                          throw new Exception(
+                                              $"Type: {typeof(TEntity).FullName} must have a constructor taking a single argument of type: {typeof(TAggregateRoot).FullName}",
+                                              exception);
+                                      }
 
                                       _entities.Add(IdGetterSetter.GetId(e), entity);
                                       _entitiesInCreationOrder.Add(entity);

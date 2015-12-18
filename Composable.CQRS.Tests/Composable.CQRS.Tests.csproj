@@ -186,6 +186,7 @@
     <Compile Include="CQRS\EventSourcing\AggregateRoot\Root.cs" />
     <Compile Include="CQRS\EventSourcing\AggregateRoot\RootEvent.Component.Entity.cs" />
     <Compile Include="CQRS\EventSourcing\AggregateRoot\RootEvent.Component.cs" />
+    <Compile Include="CQRS\EventSourcing\AggregateRoot\RootEvent.Entity.Entity.cs" />
     <Compile Include="CQRS\EventSourcing\AggregateRoot\RootEvent.Entity.cs" />
     <Compile Include="CQRS\EventSourcing\AggregateRoot\RootEvent.cs" />
     <Compile Include="CQRS\EventSourcing\EventRefactoring\Migrations\After.cs" />

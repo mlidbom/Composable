@@ -7,6 +7,17 @@ using Composable.GenericAbstractions.Time;
 
 namespace Composable.CQRS.EventSourcing
 {
+
+    public interface IGetAggregateRootEntityEventEntityId<TEventInterface>
+    {
+        Guid GetId(TEventInterface @event);
+    }
+
+    public interface IGetSetAggregateRootEntityEventEntityId<TEventClass, TEventInterface> : IGetAggregateRootEntityEventEntityId<TEventInterface>
+    {
+        void SetEntityId(TEventClass @event, Guid id);        
+    }
+
     public abstract partial class AggregateRoot<TAggregateRoot, TAggregateRootBaseEventClass, TAggregateRootBaseEventInterface>
     {
         public abstract class Component<TComponent, TComponentBaseEventClass, TComponentBaseEventInterface>
@@ -53,20 +64,23 @@ namespace Composable.CQRS.EventSourcing
                 return EventHandlersEventDispatcher.RegisterHandlers();
             }
 
-            public abstract class NestedEntity<TEntity, TEntityBaseEventClass, TEntityBaseEventInterface, TEntityCreatedEventInterface> :
+            public abstract class NestedEntity<TEntity, TEntityBaseEventClass, TEntityBaseEventInterface, TEntityCreatedEventInterface, TEventEntityIdSetterGetter> :
             Component<TEntity, TEntityBaseEventClass, TEntityBaseEventInterface>
-            where TEntityBaseEventInterface : TComponentBaseEventInterface, IAggregateRootEntityEvent
+            where TEntityBaseEventInterface : TComponentBaseEventInterface
             where TEntityBaseEventClass : TComponentBaseEventClass, TEntityBaseEventInterface
-            where TEntityCreatedEventInterface : TEntityBaseEventInterface, IAggregateRootEntityCreatedEvent
-            where TEntity : NestedEntity<TEntity, TEntityBaseEventClass, TEntityBaseEventInterface, TEntityCreatedEventInterface>
+            where TEntityCreatedEventInterface : TEntityBaseEventInterface
+            where TEntity : NestedEntity<TEntity, TEntityBaseEventClass, TEntityBaseEventInterface, TEntityCreatedEventInterface, TEventEntityIdSetterGetter>
+            where TEventEntityIdSetterGetter : IGetSetAggregateRootEntityEventEntityId<TEntityBaseEventClass, TEntityBaseEventInterface>, new()
             {
+                private static readonly TEventEntityIdSetterGetter IdGetterSetter = new TEventEntityIdSetterGetter();
+
                 public Guid Id { get; private set; }
                 protected TComponent Component { get; private set; }
 
                 protected NestedEntity()
                 {
                     RegisterEventAppliers()
-                        .For<TEntityCreatedEventInterface>(e => Id = e.EntityId)
+                        .For<TEntityCreatedEventInterface>(e => Id = IdGetterSetter.GetId(e))
                         .IgnoreUnhandled<TEntityBaseEventInterface>();
                 }
 
@@ -85,10 +99,10 @@ namespace Composable.CQRS.EventSourcing
                                           var entity = (TEntity)Activator.CreateInstance(typeof(TEntity), nonPublic: true);
                                           entity.AggregateRoot = _component.AggregateRoot;
                                           entity.Component = _component;
-                                          _entities.Add(e.EntityId, entity);
+                                          _entities.Add(IdGetterSetter.GetId((TEntityBaseEventClass)(object)e), entity);
                                           _entitiesInCreationOrder.Add(entity);
                                       })
-                                  .For<TEntityBaseEventInterface>(e => _entities[e.EntityId].ApplyEvent(e));
+                                  .For<TEntityBaseEventInterface>(e => _entities[IdGetterSetter.GetId(e)].ApplyEvent(e));
                     }
 
                     public TEntity Add<TCreationEvent>(TCreationEvent creationEvent)
@@ -123,19 +137,22 @@ namespace Composable.CQRS.EventSourcing
             }
         }
 
-        public abstract class Entity<TEntity, TEntityBaseEventClass, TEntityBaseEventInterface, TEntityCreatedEventInterface> :
+        public abstract class Entity<TEntity, TEntityBaseEventClass, TEntityBaseEventInterface, TEntityCreatedEventInterface, TEventEntityIdSetterGetter> :
             Component<TEntity, TEntityBaseEventClass, TEntityBaseEventInterface>
-            where TEntityBaseEventInterface : TAggregateRootBaseEventInterface, IAggregateRootEntityEvent
+            where TEntityBaseEventInterface : TAggregateRootBaseEventInterface
             where TEntityBaseEventClass : TAggregateRootBaseEventClass, TEntityBaseEventInterface
-            where TEntityCreatedEventInterface : TEntityBaseEventInterface, IAggregateRootEntityCreatedEvent
-            where TEntity : Entity<TEntity, TEntityBaseEventClass, TEntityBaseEventInterface, TEntityCreatedEventInterface>
+            where TEntityCreatedEventInterface : TEntityBaseEventInterface
+            where TEntity : Entity<TEntity, TEntityBaseEventClass, TEntityBaseEventInterface, TEntityCreatedEventInterface, TEventEntityIdSetterGetter>
+            where TEventEntityIdSetterGetter : IGetSetAggregateRootEntityEventEntityId<TEntityBaseEventClass, TEntityBaseEventInterface>, new()
         {
+            private static readonly TEventEntityIdSetterGetter IdGetterSetter = new TEventEntityIdSetterGetter();
+
             public Guid Id { get; private set; }
 
             protected Entity()
             {
                 RegisterEventAppliers()
-                    .For<TEntityCreatedEventInterface>(e => Id = e.EntityId)
+                    .For<TEntityCreatedEventInterface>(e => Id = IdGetterSetter.GetId((TEntityBaseEventClass)(object)e))
                     .IgnoreUnhandled<TEntityBaseEventInterface>();
             }
 
@@ -154,10 +171,10 @@ namespace Composable.CQRS.EventSourcing
                                       var entity = (TEntity)Activator.CreateInstance(typeof(TEntity), nonPublic: true);
                                       entity.AggregateRoot = _aggregate;
 
-                                      _entities.Add(e.EntityId, entity);
+                                      _entities.Add(IdGetterSetter.GetId(e), entity);
                                       _entitiesInCreationOrder.Add(entity);
                                   })
-                              .For<TEntityBaseEventInterface>(e => _entities[e.EntityId].ApplyEvent(e));
+                              .For<TEntityBaseEventInterface>(e => _entities[IdGetterSetter.GetId(e)].ApplyEvent(e));
                 }
 
                 public TEntity Add<TCreationEvent>(TCreationEvent creationEvent)

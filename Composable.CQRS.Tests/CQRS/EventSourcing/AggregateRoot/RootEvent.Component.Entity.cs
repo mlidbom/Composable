@@ -12,9 +12,12 @@ namespace CQRS.Tests.CQRS.EventSourcing.AggregateRoot
         {           
             public static class Entity
             {
-                public interface IRoot : IAggregateRootEntityEvent, RootEvent.Component.IRoot { }
+                public interface IRoot : RootEvent.Component.IRoot
+                {
+                    Guid EntityId { get; }
+                }
 
-                public interface Created : IRoot, IAggregateRootEntityCreatedEvent, PropertyUpdated.Name { }
+                public interface Created : IRoot, PropertyUpdated.Name { }
 
                 public interface Renamed : IRoot, PropertyUpdated.Name { }
 
@@ -30,7 +33,8 @@ namespace CQRS.Tests.CQRS.EventSourcing.AggregateRoot
                 {
                     public abstract class Root : RootEvent.Component.Implementation.Root, Entity.IRoot
                     {
-                        protected Root(Guid entityId) :base(entityId) {}
+                        protected Root(Guid entityId) { EntityId = entityId; }
+                        public Guid EntityId { get; set; }
                     }
 
                     public class Created : Root, Entity.Created
@@ -43,6 +47,12 @@ namespace CQRS.Tests.CQRS.EventSourcing.AggregateRoot
                     {
                         public Renamed(string name, Guid l1Id) : base(l1Id) { Name = name; }
                         public string Name { get; }
+                    }
+
+                    public class IdGetterSetter : IGetSetAggregateRootEntityEventEntityId<Root, IRoot>
+                    {
+                        public void SetEntityId(Root @event, Guid id) => @event.EntityId = id;
+                        public Guid GetId(IRoot @event) => @event.EntityId;
                     }
                 }
             }

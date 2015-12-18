@@ -32,14 +32,16 @@ namespace Composable.CQRS.EventSourcing
         }
 
 
-        public abstract class Entity<TComponent, TComponentBaseEventInterface, TComponentCreatedEventInterface>
-            where TComponentBaseEventInterface : TAggregateRootBaseEventInterface, IAggregateRootEntityEvent
-            where TComponentCreatedEventInterface : TComponentBaseEventInterface, IAggregateRootEntityCreatedEvent
-            where TComponent : Entity<TComponent, TComponentBaseEventInterface, TComponentCreatedEventInterface>
+        public abstract class Entity<TComponent, TComponentBaseEventInterface, TComponentCreatedEventInterface, TEventEntityIdGetter>
+            where TComponentBaseEventInterface : TAggregateRootBaseEventInterface
+            where TComponentCreatedEventInterface : TComponentBaseEventInterface
+            where TComponent : Entity<TComponent, TComponentBaseEventInterface, TComponentCreatedEventInterface, TEventEntityIdGetter>
+            where TEventEntityIdGetter : IGetAggregateRootEntityEventEntityId<TComponentBaseEventInterface>, new()
         {
             private readonly CallMatchingHandlersInRegistrationOrderEventDispatcher<TComponentBaseEventInterface> _eventAppliersEventDispatcher =
                 new CallMatchingHandlersInRegistrationOrderEventDispatcher<TComponentBaseEventInterface>();
 
+            private static readonly TEventEntityIdGetter IdGetter = new TEventEntityIdGetter();
 
             protected TRootQueryModel RootQueryModel { get; private set; }
 
@@ -65,10 +67,10 @@ namespace Composable.CQRS.EventSourcing
                                 var component = (TComponent)Activator.CreateInstance(typeof(TComponent), nonPublic:true);
                                 component.RootQueryModel = _aggregate;
 
-                                _components.Add(e.EntityId, component);
+                                _components.Add(IdGetter.GetId(e), component);
                                 _componentsInCreationOrder.Add(component);
                             })
-                        .For<TComponentBaseEventInterface>(e => _components[e.EntityId].ApplyEvent(e));
+                        .For<TComponentBaseEventInterface>(e => _components[IdGetter.GetId(e)].ApplyEvent(e));
                 }
 
 

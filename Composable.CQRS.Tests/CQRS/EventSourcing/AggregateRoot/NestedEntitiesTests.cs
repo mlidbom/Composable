@@ -33,5 +33,16 @@ namespace CQRS.Tests.CQRS.EventSourcing.AggregateRoot
             l1_2.Name.Should().Be("newName2");
             l1_1.Name.Should().Be("newName");
         }
+
+        [Test]
+        public void ComponentPropertiesAreSetcorrectly() {
+            var root = new Root("root");
+
+            var component = root.L1Component;
+            component.Name.Should().BeNullOrEmpty();
+
+            component.Rename("newName");
+            component.Name.Should().Be("newName");
+        }
     }
 }

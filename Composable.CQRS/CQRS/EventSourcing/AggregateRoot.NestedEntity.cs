@@ -24,6 +24,13 @@ namespace Composable.CQRS.EventSourcing
 
             internal void ApplyEvent(TComponentBaseEventInterface @event) { _eventAppliersEventDispatcher.Dispatch(@event); }
 
+            protected Component(TAggregateRoot aggregateRoot):this()
+            {
+                AggregateRoot = aggregateRoot;
+                AggregateRoot.RegisterEventAppliers()
+                             .For<TComponentBaseEventInterface>(ApplyEvent);
+            }
+
             protected Component()
             {
                 EventHandlersEventDispatcher.Register()

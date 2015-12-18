@@ -1,9 +1,9 @@
 using System;
 using Composable.CQRS.EventSourcing;
+
 // ReSharper disable MemberHidesStaticFromOuterClass
 // ReSharper disable RedundantNameQualifier
 // ReSharper disable InconsistentNaming
-
 namespace CQRS.Tests.CQRS.EventSourcing.AggregateRoot
 {
     public static class RootEvent
@@ -41,7 +41,7 @@ namespace CQRS.Tests.CQRS.EventSourcing.AggregateRoot
 
             public interface Created : IRoot, IAggregateRootEntityCreatedEvent, PropertyUpdated.Name {}
 
-            public interface Renamed : IRoot, PropertyUpdated.Name { }
+            public interface Renamed : IRoot, PropertyUpdated.Name {}
 
             public static class PropertyUpdated
             {
@@ -67,7 +67,36 @@ namespace CQRS.Tests.CQRS.EventSourcing.AggregateRoot
 
                 public class Renamed : Root, L1Entity.Renamed
                 {
-                    public Renamed(string name, Guid l1Id):base(l1Id) { Name = name; }
+                    public Renamed(string name, Guid l1Id) : base(l1Id) { Name = name; }
+                    public string Name { get; }
+                }
+            }
+        }
+
+        public static class L1Component
+        {
+            public interface IRoot : IAggregateRootComponentEvent, RootEvent.IRoot {}
+
+            public interface Renamed : IRoot, PropertyUpdated.Name {}
+
+            public static class PropertyUpdated
+            {
+                public interface Name : IRoot
+                {
+                    string Name { get; }
+                }
+            }
+
+            public static class Implementation
+            {
+                public abstract class Root : RootEvent.Implementation.Root, L1Component.IRoot
+                {
+                    public Guid EntityId { get; }
+                }
+
+                public class Renamed : Root, L1Component.Renamed
+                {
+                    public Renamed(string name) { Name = name; }
                     public string Name { get; }
                 }
             }

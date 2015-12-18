@@ -1,19 +1,20 @@
 using System;
 using Composable.CQRS.EventSourcing;
 using Composable.GenericAbstractions.Time;
+using JetBrains.Annotations;
 
 namespace CQRS.Tests.CQRS.EventSourcing.AggregateRoot
 {
     public class Root : AggregateRoot<Root, RootEvent.Implementation.Root, RootEvent.IRoot>
     {
         public string Name { get; private set; }
-        public L1Entity.Collection L1Entities { get; }
-        public L1Component L1Component { get; set; }
+        public Entity.Collection Entities { get; }
+        public new Component Component { get; private set; }
 
         public Root(string name) : base(new DateTimeNowTimeSource())
         {
-            L1Component = new L1Component(this);
-            L1Entities = L1Entity.CreateSelfManagingCollection(this);
+            Component = new Component(this);
+            Entities = Entity.CreateSelfManagingCollection(this);
 
             RegisterEventAppliers()
                 .For<RootEvent.PropertyUpdated.Name>(e => Name = e.Name);
@@ -21,54 +22,52 @@ namespace CQRS.Tests.CQRS.EventSourcing.AggregateRoot
             RaiseEvent(new RootEvent.Implementation.Created(Guid.NewGuid(), name));
         }
 
-        public L1Entity AddL1(string name) { return L1Entities.Add(new RootEvent.L1Entity.Implementation.Created(Guid.NewGuid(), name)); }
+        public Entity AddEntity(string name) { return Entities.Add(new RootEvent.Entity.Implementation.Created(Guid.NewGuid(), name)); }
     }
 
-    public class L1Component : Root.Component<L1Component, RootEvent.L1Component.Implementation.Root, RootEvent.L1Component.IRoot>
+    public class Component : Root.Component<Component, RootEvent.Component.Implementation.Root, RootEvent.Component.IRoot>
     {
         public string Name { get; private set; }
-        public L1Component(Root root) : base(root)
+        public Component(Root root) : base(root)
         {
-            L2Entities = L2Entity.CreateSelfManagingCollection(this);
+            Entities = Entity.CreateSelfManagingCollection(this);
 
             RegisterEventAppliers()
-                .For<RootEvent.L1Component.PropertyUpdated.Name>(e => Name = e.Name);
+                .For<RootEvent.Component.PropertyUpdated.Name>(e => Name = e.Name);
         }
 
-        public L2Entity.Collection L2Entities { get; set; }
+        public Entity.Collection Entities { get; private set; }
 
-        public void Rename(string name) { RaiseEvent(new RootEvent.L1Component.Implementation.Renamed(name)); }
-        public L2Entity AddL1(string name) { return L2Entities.Add(new RootEvent.L1Component.L2Entity.Implementation.Created(Guid.NewGuid(), name)); }
-    }
+        public void Rename(string name) { RaiseEvent(new RootEvent.Component.Implementation.Renamed(name)); }
+        public Entity AddEntity(string name) { return Entities.Add(new RootEvent.Component.Entity.Implementation.Created(Guid.NewGuid(), name)); }
 
-    public class L2Entity :
-        L1Component.NestedEntity<L2Entity,
-            RootEvent.L1Component.L2Entity.Implementation.Root,
-            RootEvent.L1Component.L2Entity.IRoot,
-            RootEvent.L1Component.L2Entity.Created>
-    {
-        public  string Name { get; private set; }
-        public L2Entity()
+        [UsedImplicitly]
+        public class Entity : NestedEntity<Entity,
+                                  RootEvent.Component.Entity.Implementation.Root,
+                                  RootEvent.Component.Entity.IRoot,
+                                  RootEvent.Component.Entity.Created>
         {
-            RegisterEventAppliers()
-                .For<RootEvent.L1Component.L2Entity.PropertyUpdated.Name>(e => Name = e.Name);
-        }
+            public string Name { get; private set; }
+            public Entity()
+            {
+                RegisterEventAppliers()
+                    .For<RootEvent.Component.Entity.PropertyUpdated.Name>(e => Name = e.Name);
+            }
 
-        public void Rename(string name)
-        {
-            RaiseEvent(new RootEvent.L1Component.L2Entity.Implementation.Renamed(name, Id));
+            public void Rename(string name) { RaiseEvent(new RootEvent.Component.Entity.Implementation.Renamed(name, Id)); }
         }
     }
 
-    public class L1Entity : Root.Entity<L1Entity, RootEvent.L1Entity.Implementation.Root, RootEvent.L1Entity.IRoot, RootEvent.L1Entity.Created>
+    [UsedImplicitly]
+    public class Entity : Root.Entity<Entity, RootEvent.Entity.Implementation.Root, RootEvent.Entity.IRoot, RootEvent.Entity.Created>
     {
         public string Name { get; private set; }
-        public L1Entity()
+        public Entity()
         {
             RegisterEventAppliers()
-                .For<RootEvent.L1Entity.PropertyUpdated.Name>(e => Name = e.Name);
+                .For<RootEvent.Entity.PropertyUpdated.Name>(e => Name = e.Name);
         }
 
-        public void Rename(string name) { RaiseEvent(new RootEvent.L1Entity.Implementation.Renamed(name, Id)); }
+        public void Rename(string name) { RaiseEvent(new RootEvent.Entity.Implementation.Renamed(name, Id)); }
     }
 }

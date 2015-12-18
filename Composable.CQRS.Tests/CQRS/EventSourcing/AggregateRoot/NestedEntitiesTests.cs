@@ -16,14 +16,14 @@ namespace CQRS.Tests.CQRS.EventSourcing.AggregateRoot
         public void Createing_nested_entities_works_and_events_dispatch_correctly()
         {
             var root = new Root("root");
-            var l1_1 = root.AddL1("l1_1");
+            var l1_1 = root.AddEntity("l1_1");
             l1_1.Name.Should().Be("l1_1");
 
-            root.L1Entities.Get(l1_1.Id).Should().Be(l1_1);
+            root.Entities.Get(l1_1.Id).Should().Be(l1_1);
 
-            var l1_2 = root.AddL1("l1_2");
+            var l1_2 = root.AddEntity("l1_2");
             l1_2.Name.Should().Be("l1_2");
-            root.L1Entities.Get(l1_2.Id).Should().Be(l1_2);
+            root.Entities.Get(l1_2.Id).Should().Be(l1_2);
 
             l1_1.Rename("newName");
             l1_1.Name.Should().Be("newName");
@@ -38,7 +38,7 @@ namespace CQRS.Tests.CQRS.EventSourcing.AggregateRoot
         public void ComponentPropertiesAreSetcorrectly() {
             var root = new Root("root");
 
-            var component = root.L1Component;
+            var component = root.Component;
             component.Name.Should().BeNullOrEmpty();
 
             component.Rename("newName");
@@ -48,16 +48,16 @@ namespace CQRS.Tests.CQRS.EventSourcing.AggregateRoot
         [Test]
         public void EntityNestedInComponentWorks()
         {
-            var root = new Root("root").L1Component;
+            var root = new Root("root").Component;
 
-            var l1_1 = root.AddL1("l1_1");
+            var l1_1 = root.AddEntity("l1_1");
             l1_1.Name.Should().Be("l1_1");
 
-            root.L2Entities.Get(l1_1.Id).Should().Be(l1_1);
+            root.Entities.Get(l1_1.Id).Should().Be(l1_1);
 
-            var l1_2 = root.AddL1("l1_2");
+            var l1_2 = root.AddEntity("l1_2");
             l1_2.Name.Should().Be("l1_2");
-            root.L2Entities.Get(l1_2.Id).Should().Be(l1_2);
+            root.Entities.Get(l1_2.Id).Should().Be(l1_2);
 
             l1_1.Rename("newName");
             l1_1.Name.Should().Be("newName");

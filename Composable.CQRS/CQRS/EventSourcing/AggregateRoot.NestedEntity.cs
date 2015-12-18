@@ -9,45 +9,58 @@ namespace Composable.CQRS.EventSourcing
 {   
     public abstract partial class AggregateRoot<TAggregateRoot, TAggregateRootBaseEventClass, TAggregateRootBaseEventInterface>
     {
-        public abstract class NestedEntity<TEntity, TEntityBaseEventClass, TEntityBaseEventInterface, TEntityCreatedEventInterface>
+        public abstract class Component<TComponent, TComponentBaseEventClass, TComponentBaseEventInterface>
+           where TComponentBaseEventInterface : TAggregateRootBaseEventInterface, IAggregateRootComponentEvent
+           where TComponentBaseEventClass : TAggregateRootBaseEventClass, TComponentBaseEventInterface
+           where TComponent : Component<TComponent, TComponentBaseEventClass, TComponentBaseEventInterface>
+        {
+            private readonly CallMatchingHandlersInRegistrationOrderEventDispatcher<TComponentBaseEventInterface> _eventAppliersEventDispatcher =
+                new CallMatchingHandlersInRegistrationOrderEventDispatcher<TComponentBaseEventInterface>();
+            internal readonly CallMatchingHandlersInRegistrationOrderEventDispatcher<TComponentBaseEventInterface> EventHandlersEventDispatcher =
+                new CallMatchingHandlersInRegistrationOrderEventDispatcher<TComponentBaseEventInterface>();
+
+            protected IUtcTimeTimeSource TimeSource => AggregateRoot.TimeSource;
+            protected TAggregateRoot AggregateRoot { get; set; }
+
+            internal void ApplyEvent(TComponentBaseEventInterface @event) { _eventAppliersEventDispatcher.Dispatch(@event); }
+
+            protected Component()
+            {
+                EventHandlersEventDispatcher.Register()
+                                             .IgnoreUnhandled<TComponentBaseEventInterface>();
+            }
+
+            protected void RaiseEvent(TComponentBaseEventClass @event)
+            {
+                AggregateRoot.RaiseEvent(@event);
+                EventHandlersEventDispatcher.Dispatch(@event);
+            }
+
+            protected CallMatchingHandlersInRegistrationOrderEventDispatcher<TComponentBaseEventInterface>.RegistrationBuilder RegisterEventAppliers()
+            {
+                return _eventAppliersEventDispatcher.RegisterHandlers();
+            }
+
+            protected CallMatchingHandlersInRegistrationOrderEventDispatcher<TComponentBaseEventInterface>.RegistrationBuilder RegisterEventHandlers()
+            {
+                return EventHandlersEventDispatcher.RegisterHandlers();
+            }
+        }
+
+        public abstract class NestedEntity<TEntity, TEntityBaseEventClass, TEntityBaseEventInterface, TEntityCreatedEventInterface> : Component<TEntity, TEntityBaseEventClass, TEntityBaseEventInterface>
             where TEntityBaseEventInterface : TAggregateRootBaseEventInterface, IAggregateRootComponentEvent
             where TEntityBaseEventClass : TAggregateRootBaseEventClass, TEntityBaseEventInterface
             where TEntityCreatedEventInterface : TEntityBaseEventInterface, IAggregateRootEntityCreatedEvent
             where TEntity : NestedEntity<TEntity, TEntityBaseEventClass, TEntityBaseEventInterface, TEntityCreatedEventInterface>
         {
-            private readonly CallMatchingHandlersInRegistrationOrderEventDispatcher<TEntityBaseEventInterface> _eventAppliersEventDispatcher =
-                new CallMatchingHandlersInRegistrationOrderEventDispatcher<TEntityBaseEventInterface>();
-            private readonly CallMatchingHandlersInRegistrationOrderEventDispatcher<TEntityBaseEventInterface> _eventHandlersEventDispatcher =
-                new CallMatchingHandlersInRegistrationOrderEventDispatcher<TEntityBaseEventInterface>();
-
-            protected IUtcTimeTimeSource TimeSource => AggregateRoot.TimeSource;
-            protected TAggregateRoot AggregateRoot { get; private set; }
             public Guid Id { get; private set; }
-
-            private void ApplyEvent(TEntityBaseEventInterface @event) { _eventAppliersEventDispatcher.Dispatch(@event); }
 
             protected NestedEntity()
             {
-                _eventHandlersEventDispatcher.Register()
-                                             .For<TEntityCreatedEventInterface>(e => Id = e.EntityId)
-                                             .IgnoreUnhandled<TEntityBaseEventInterface>();
-            }
-
-            protected void RaiseEvent(TEntityBaseEventClass @event)
-            {
-                AggregateRoot.RaiseEvent(@event);
-                _eventHandlersEventDispatcher.Dispatch(@event);
-            }
-
-            protected CallMatchingHandlersInRegistrationOrderEventDispatcher<TEntityBaseEventInterface>.RegistrationBuilder RegisterEventAppliers()
-            {
-                return _eventAppliersEventDispatcher.RegisterHandlers();
-            }
-
-            protected CallMatchingHandlersInRegistrationOrderEventDispatcher<TEntityBaseEventInterface>.RegistrationBuilder RegisterEventHandlers()
-            {
-                return _eventHandlersEventDispatcher.RegisterHandlers();
-            }
+                RegisterEventAppliers()
+                    .For<TEntityCreatedEventInterface>(e => Id = e.EntityId)
+                    .IgnoreUnhandled<TEntityBaseEventInterface>();
+            }            
 
 
             public static Collection CreateSelfManagingCollection(TAggregateRoot aggregate) => new Collection(aggregate);
@@ -77,7 +90,7 @@ namespace Composable.CQRS.EventSourcing
                 {
                     _aggregate.RaiseEvent(creationEvent);
                     var result = _entitiesInCreationOrder.Last();
-                    result._eventHandlersEventDispatcher.Dispatch(creationEvent);
+                    result.EventHandlersEventDispatcher.Dispatch(creationEvent);
                     return result;
                 }
 

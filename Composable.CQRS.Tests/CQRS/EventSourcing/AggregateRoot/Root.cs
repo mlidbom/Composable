@@ -22,6 +22,7 @@ namespace CQRS.Tests.CQRS.EventSourcing.AggregateRoot
         public L1Entity AddL1(string name) { return L1Entities.Add(new RootEvent.L1Entity.Implementation.Created(Guid.NewGuid(), name)); }      
     }
 
+
     public class L1Entity : Root.NestedEntity<L1Entity, RootEvent.L1Entity.Implementation.Root, RootEvent.L1Entity.IRoot, RootEvent.L1Entity.Created>
     {
         public string Name { get; private set; }

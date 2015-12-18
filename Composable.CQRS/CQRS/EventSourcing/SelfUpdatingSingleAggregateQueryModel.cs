@@ -34,7 +34,7 @@ namespace Composable.CQRS.EventSourcing
 
         public abstract class Component<TComponent, TComponentBaseEventInterface, TComponentCreatedEventInterface>
             where TComponentBaseEventInterface : TAggregateRootBaseEventInterface, IAggregateRootComponentEvent
-            where TComponentCreatedEventInterface : TComponentBaseEventInterface, IAggregateRootComponentCreatedEvent
+            where TComponentCreatedEventInterface : TComponentBaseEventInterface, IAggregateRootEntityCreatedEvent
             where TComponent : Component<TComponent, TComponentBaseEventInterface, TComponentCreatedEventInterface>
         {
             private readonly CallMatchingHandlersInRegistrationOrderEventDispatcher<TComponentBaseEventInterface> _eventAppliersEventDispatcher =
@@ -65,10 +65,10 @@ namespace Composable.CQRS.EventSourcing
                                 var component = (TComponent)Activator.CreateInstance(typeof(TComponent), nonPublic:true);
                                 component.RootQueryModel = _aggregate;
 
-                                _components.Add(e.ComponentId, component);
+                                _components.Add(e.EntityId, component);
                                 _componentsInCreationOrder.Add(component);
                             })
-                        .For<TComponentBaseEventInterface>(e => _components[e.ComponentId].ApplyEvent(e));
+                        .For<TComponentBaseEventInterface>(e => _components[e.EntityId].ApplyEvent(e));
                 }
 
 

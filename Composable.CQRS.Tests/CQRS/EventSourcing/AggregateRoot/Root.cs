@@ -49,7 +49,7 @@ namespace CQRS.Tests.CQRS.EventSourcing.AggregateRoot
                                   RootEvent.Component.Entity.Implementation.IdGetterSetter>
         {
             public string Name { get; private set; }
-            public Entity()
+            public Entity(Component component) : base(component)
             {
                 RegisterEventAppliers()
                     .For<RootEvent.Component.Entity.PropertyUpdated.Name>(e => Name = e.Name);
@@ -63,8 +63,10 @@ namespace CQRS.Tests.CQRS.EventSourcing.AggregateRoot
     public class Entity : Root.Entity<Entity, RootEvent.Entity.Implementation.Root, RootEvent.Entity.IRoot, RootEvent.Entity.Created, RootEvent.Entity.Implementation.IdGetterSetter>
     {
         public string Name { get; private set; }
-        public Entity()
+        public Root Root { get; }
+        public Entity(Root root):base(root)
         {
+            Root = root;
             Entities = NestedEntity.CreateSelfManagingCollection(this);
             RegisterEventAppliers()
                 .For<RootEvent.Entity.PropertyUpdated.Name>(e => Name = e.Name);
@@ -77,13 +79,15 @@ namespace CQRS.Tests.CQRS.EventSourcing.AggregateRoot
         public class NestedEntity : NestedEntity<NestedEntity, RootEvent.Entity.NestedEntity.Implementation.Root, RootEvent.Entity.NestedEntity.IRoot, RootEvent.Entity.NestedEntity.Created, RootEvent.Entity.NestedEntity.Implementation.IdGetterSetter>
         {
             public string Name { get; private set; }
-            public NestedEntity()
+            public Entity Entity { get; }
+            public NestedEntity(Entity entity):base(entity)
             {
+                Entity = entity;
                 RegisterEventAppliers()
                     .For<RootEvent.Entity.NestedEntity.PropertyUpdated.Name>(e => Name = e.Name);
             }
 
-            public void Rename(string name) { RaiseEvent(new RootEvent.Entity.NestedEntity.Implementation.Renamed(nestedEntityId: Id, entityId: Component.Id, name: name)); }
+            public void Rename(string name) { RaiseEvent(new RootEvent.Entity.NestedEntity.Implementation.Renamed(nestedEntityId: Id, entityId: Entity.Id, name: name)); }
         }
 
         public NestedEntity AddEntity(string name) => Entities.Add(new RootEvent.Entity.NestedEntity.Implementation.Created(nestedEntityId: Guid.NewGuid(), entityId: Id, name: name));

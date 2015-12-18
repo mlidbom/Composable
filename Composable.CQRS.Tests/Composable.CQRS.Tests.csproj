@@ -183,6 +183,8 @@
     <Compile Include="CQRS\CommandHandlerBaseTests.cs" />
     <Compile Include="CQRS\EventSourcing\AggregateRootTests.cs" />
     <Compile Include="CQRS\EventSourcing\AggregateRoot\NestedEntitiesTests.cs" />
+    <Compile Include="CQRS\EventSourcing\AggregateRoot\Root.cs" />
+    <Compile Include="CQRS\EventSourcing\AggregateRoot\RootEvent.cs" />
     <Compile Include="CQRS\EventSourcing\EventRefactoring\Migrations\After.cs" />
     <Compile Include="CQRS\EventSourcing\EventRefactoring\Migrations\Before.cs" />
     <Compile Include="CQRS\EventSourcing\EventRefactoring\Migrations\EventStreamMutatorTests.cs" />

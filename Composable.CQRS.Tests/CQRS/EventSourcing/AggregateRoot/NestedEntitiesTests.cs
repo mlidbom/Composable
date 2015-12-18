@@ -1,6 +1,7 @@
 ﻿using System;
 using Composable.CQRS.EventSourcing;
 using Composable.GenericAbstractions.Time;
+using FluentAssertions;
 using NUnit.Framework;
 
 // ReSharper disable InconsistentNaming
@@ -12,35 +13,64 @@ namespace CQRS.Tests.CQRS.EventSourcing.AggregateRoot
     public class NestedEntitiesTests
     {
         [Test]
-        public void ConstructorWorks() {
-            var root = new Root();
+        public void ConstructorWorks() { new Root("root").Name.Should().Be("root"); }
+
+        [Test]
+        public void Createing_nested_entities_works()
+        {
+            var root = new Root("root");
+            var l1_1 = root.AddL1("l1_1");
+            l1_1.Name.Should().Be("l1_1");
+
+            root.L1Entities.Get(l1_1.Id).Should().Be(l1_1);
+
+            var l1_2 = root.AddL1("l1_2");
+            l1_2.Name.Should().Be("l1_2");
+            root.L1Entities.Get(l1_2.Id).Should().Be(l1_2);
         }
     }
 
     public class Root : AggregateRoot<Root, RootEvent.Implementation.Root, RootEvent.IRoot>
     {
+        public string Name { get; private set; }
         public L1Entity.Collection L1Entities { get; }
 
-        public Root() : base(new DateTimeNowTimeSource())
+        public Root(string name) : base(new DateTimeNowTimeSource())
         {
             L1Entities = L1Entity.CreateSelfManagingCollection(this);
 
-            RegisterEventAppliers().IgnoreUnhandled<RootEvent.IRoot>();
+            RegisterEventAppliers()
+                .For<RootEvent.PropertyUpdated.Name>(e => Name = e.Name);
 
-            RaiseEvent(new RootEvent.Implementation.Created(Guid.NewGuid()));
+            RaiseEvent(new RootEvent.Implementation.Created(Guid.NewGuid(), name));
         }
 
-        public L1Entity AddL1() { return L1Entities.Add(new RootEvent.L1Entity.Implementation.Created(Guid.NewGuid())); }
+        public L1Entity AddL1(string name) { return L1Entities.Add(new RootEvent.L1Entity.Implementation.Created(Guid.NewGuid(), name)); }
     }
 
-    public class L1Entity : Root.NestedEntity<L1Entity, RootEvent.L1Entity.Implementation.Root, RootEvent.L1Entity.IRoot, RootEvent.L1Entity.Created> {}
-
+    public class L1Entity : Root.NestedEntity<L1Entity, RootEvent.L1Entity.Implementation.Root, RootEvent.L1Entity.IRoot, RootEvent.L1Entity.Created>
+    {
+        public string Name { get; private set; }
+        public L1Entity()
+        {
+            RegisterEventAppliers()
+                .For<RootEvent.L1Entity.PropertyUpdated.Name>(e => Name = e.Name);
+        }
+    }
 
     public static class RootEvent
     {
         public interface IRoot : IAggregateRootEvent {}
 
-        public interface Created : IRoot, IAggregateRootCreatedEvent {}
+        public interface Created : IRoot, IAggregateRootCreatedEvent, PropertyUpdated.Name {}
+
+        public static class PropertyUpdated
+        {
+            public interface Name : RootEvent.IRoot
+            {
+                string Name { get; }
+            }
+        }
 
         public static class Implementation
         {
@@ -52,7 +82,8 @@ namespace CQRS.Tests.CQRS.EventSourcing.AggregateRoot
 
             public class Created : Root, RootEvent.Created
             {
-                public Created(Guid id) : base(id) { }
+                public Created(Guid id, string name) : base(id) { Name = name; }
+                public string Name { get; }
             }
         }
 
@@ -60,19 +91,28 @@ namespace CQRS.Tests.CQRS.EventSourcing.AggregateRoot
         {
             public interface IRoot : IAggregateRootComponentEvent, RootEvent.IRoot {}
 
-            public interface Created : IRoot, IAggregateRootComponentCreatedEvent {}
+            public interface Created : IRoot, IAggregateRootEntityCreatedEvent, PropertyUpdated.Name {}
+
+            public static class PropertyUpdated
+            {
+                public interface Name : IRoot
+                {
+                    string Name { get; }
+                }
+            }
 
             public static class Implementation
             {
-                public abstract class Root : AggregateRoot.RootEvent.Implementation.Root, L1Entity.IRoot
+                public abstract class Root : RootEvent.Implementation.Root, L1Entity.IRoot
                 {
-                    protected Root(Guid componentId) { ComponentId = componentId; }
-                    public Guid ComponentId { get; }
+                    protected Root(Guid entityId) { EntityId = entityId; }
+                    public Guid EntityId { get; }
                 }
 
                 public class Created : Root, L1Entity.Created
                 {
-                    public Created(Guid componentId) : base(componentId) { }
+                    public Created(Guid entityId, string name) : base(entityId) { Name = name; }
+                    public string Name { get; }
                 }
             }
         }

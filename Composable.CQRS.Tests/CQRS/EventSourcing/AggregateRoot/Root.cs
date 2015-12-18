@@ -83,9 +83,9 @@ namespace CQRS.Tests.CQRS.EventSourcing.AggregateRoot
                     .For<RootEvent.Entity.NestedEntity.PropertyUpdated.Name>(e => Name = e.Name);
             }
 
-            public void Rename(string name) { RaiseEvent(new RootEvent.Entity.NestedEntity.Implementation.Renamed(name, Id)); }
+            public void Rename(string name) { RaiseEvent(new RootEvent.Entity.NestedEntity.Implementation.Renamed(nestedEntityId: Id, entityId: Component.Id, name: name)); }
         }
 
-        public NestedEntity AddEntity(string name) => Entities.Add(new RootEvent.Entity.NestedEntity.Implementation.Created(innerEntityId: Guid.NewGuid(), outerEntityId: Id, name: name));
+        public NestedEntity AddEntity(string name) => Entities.Add(new RootEvent.Entity.NestedEntity.Implementation.Created(nestedEntityId: Guid.NewGuid(), entityId: Id, name: name));
     }
 }

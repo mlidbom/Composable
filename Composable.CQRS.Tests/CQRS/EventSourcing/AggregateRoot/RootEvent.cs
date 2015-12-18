@@ -100,6 +100,44 @@ namespace CQRS.Tests.CQRS.EventSourcing.AggregateRoot
                     public string Name { get; }
                 }
             }
+
+            public static class L2Entity
+            {
+                public interface IRoot : IAggregateRootComponentEvent, RootEvent.L1Component.IRoot { }
+
+                public interface Created : IRoot, IAggregateRootEntityCreatedEvent, PropertyUpdated.Name { }
+
+                public interface Renamed : IRoot, PropertyUpdated.Name { }
+
+                public static class PropertyUpdated
+                {
+                    public interface Name : IRoot
+                    {
+                        string Name { get; }
+                    }
+                }
+
+                public static class Implementation
+                {
+                    public abstract class Root : RootEvent.L1Component.Implementation.Root, L2Entity.IRoot
+                    {
+                        protected Root(Guid entityId) { EntityId = entityId; }
+                        public Guid EntityId { get; }
+                    }
+
+                    public class Created : Root, L2Entity.Created
+                    {
+                        public Created(Guid entityId, string name) : base(entityId) { Name = name; }
+                        public string Name { get; }
+                    }
+
+                    public class Renamed : Root, L2Entity.Renamed
+                    {
+                        public Renamed(string name, Guid l1Id) : base(l1Id) { Name = name; }
+                        public string Name { get; }
+                    }
+                }
+            }
         }
     }
 }

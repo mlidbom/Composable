@@ -58,8 +58,10 @@
       <Link>Properties\CommonAssemblyInfo.cs</Link>
     </Compile>
     <Compile Include="CQRS\EventSourcing\AggregateRootEvent.cs" />
+    <Compile Include="CQRS\EventSourcing\IAggregateRootEntityEvent.cs" />
     <Compile Include="CQRS\EventSourcing\IAggregateRootCreatedEvent.cs" />
     <Compile Include="CQRS\EventSourcing\IAggregateRootDeletedEvent.cs" />
+    <Compile Include="CQRS\EventSourcing\IAggregateRootEntityCreatedEvent.cs" />
     <Compile Include="CQRS\EventSourcing\IAggregateRootEvent.cs" />
     <Compile Include="CQRS\EventSourcing\IPropertyUpdatedEvent.cs" />
     <Compile Include="DomainEvents\IDomainEvent.cs" />

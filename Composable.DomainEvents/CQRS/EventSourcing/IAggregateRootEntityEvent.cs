@@ -2,7 +2,7 @@
 
 namespace Composable.CQRS.EventSourcing
 {
-    public interface IAggregateRootComponentEvent
+    public interface IAggregateRootEntityEvent
     {
         Guid EntityId { get; }
     }

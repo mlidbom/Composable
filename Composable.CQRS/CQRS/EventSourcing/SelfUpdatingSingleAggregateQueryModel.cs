@@ -32,10 +32,10 @@ namespace Composable.CQRS.EventSourcing
         }
 
 
-        public abstract class Component<TComponent, TComponentBaseEventInterface, TComponentCreatedEventInterface>
-            where TComponentBaseEventInterface : TAggregateRootBaseEventInterface, IAggregateRootComponentEvent
+        public abstract class Entity<TComponent, TComponentBaseEventInterface, TComponentCreatedEventInterface>
+            where TComponentBaseEventInterface : TAggregateRootBaseEventInterface, IAggregateRootEntityEvent
             where TComponentCreatedEventInterface : TComponentBaseEventInterface, IAggregateRootEntityCreatedEvent
-            where TComponent : Component<TComponent, TComponentBaseEventInterface, TComponentCreatedEventInterface>
+            where TComponent : Entity<TComponent, TComponentBaseEventInterface, TComponentCreatedEventInterface>
         {
             private readonly CallMatchingHandlersInRegistrationOrderEventDispatcher<TComponentBaseEventInterface> _eventAppliersEventDispatcher =
                 new CallMatchingHandlersInRegistrationOrderEventDispatcher<TComponentBaseEventInterface>();

@@ -160,8 +160,6 @@
     <Compile Include="CQRS\EventHandling\UniqueMatchEventHierarchyHandler.cs" />
     <Compile Include="CQRS\EventSourcing\AggregateRoot.NestedEntity.cs" />
     <Compile Include="CQRS\EventSourcing\AttemptToSaveEmptyAggregate.cs" />
-    <Compile Include="CQRS\EventSourcing\IAggregateRootEntityCreatedEvent.cs" />
-    <Compile Include="CQRS\EventSourcing\IAggregateRootComponentEvent.cs" />
     <Compile Include="CQRS\EventSourcing\IQueryModelComponentCollection.cs" />
     <Compile Include="CQRS\EventSourcing\IReadOnlyAggregateRootEntityCollection.cs" />
     <Compile Include="CQRS\EventSourcing\Refactoring\Migrations\AssertMigrationsAreIdempotentEventModifier.cs" />

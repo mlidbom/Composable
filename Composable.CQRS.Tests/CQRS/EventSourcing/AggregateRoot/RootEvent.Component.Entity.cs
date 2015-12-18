@@ -12,7 +12,7 @@ namespace CQRS.Tests.CQRS.EventSourcing.AggregateRoot
         {           
             public static class Entity
             {
-                public interface IRoot : IAggregateRootComponentEvent, RootEvent.Component.IRoot { }
+                public interface IRoot : IAggregateRootEntityEvent, RootEvent.Component.IRoot { }
 
                 public interface Created : IRoot, IAggregateRootEntityCreatedEvent, PropertyUpdated.Name { }
 

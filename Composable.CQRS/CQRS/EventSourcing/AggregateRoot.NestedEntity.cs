@@ -10,7 +10,7 @@ namespace Composable.CQRS.EventSourcing
     public abstract partial class AggregateRoot<TAggregateRoot, TAggregateRootBaseEventClass, TAggregateRootBaseEventInterface>
     {
         public abstract class Component<TComponent, TComponentBaseEventClass, TComponentBaseEventInterface>
-            where TComponentBaseEventInterface : TAggregateRootBaseEventInterface, IAggregateRootComponentEvent
+            where TComponentBaseEventInterface : TAggregateRootBaseEventInterface
             where TComponentBaseEventClass : TAggregateRootBaseEventClass, TComponentBaseEventInterface
             where TComponent : Component<TComponent, TComponentBaseEventClass, TComponentBaseEventInterface>
         {
@@ -55,7 +55,7 @@ namespace Composable.CQRS.EventSourcing
 
             public abstract class NestedEntity<TEntity, TEntityBaseEventClass, TEntityBaseEventInterface, TEntityCreatedEventInterface> :
             Component<TEntity, TEntityBaseEventClass, TEntityBaseEventInterface>
-            where TEntityBaseEventInterface : TComponentBaseEventInterface, IAggregateRootComponentEvent
+            where TEntityBaseEventInterface : TComponentBaseEventInterface, IAggregateRootEntityEvent
             where TEntityBaseEventClass : TComponentBaseEventClass, TEntityBaseEventInterface
             where TEntityCreatedEventInterface : TEntityBaseEventInterface, IAggregateRootEntityCreatedEvent
             where TEntity : NestedEntity<TEntity, TEntityBaseEventClass, TEntityBaseEventInterface, TEntityCreatedEventInterface>
@@ -115,7 +115,7 @@ namespace Composable.CQRS.EventSourcing
             public abstract class NestedComponent<TNestedComponent, TNestedComponentBaseEventClass, TNestedComponentBaseEventInterface> :
                 AggregateRoot<TAggregateRoot, TAggregateRootBaseEventClass, TAggregateRootBaseEventInterface>.
                     Component<TNestedComponent, TNestedComponentBaseEventClass, TNestedComponentBaseEventInterface>
-                where TNestedComponentBaseEventInterface : TComponentBaseEventInterface, IAggregateRootComponentEvent
+                where TNestedComponentBaseEventInterface : TComponentBaseEventInterface
                 where TNestedComponentBaseEventClass : TComponentBaseEventClass, TNestedComponentBaseEventInterface
                 where TNestedComponent : NestedComponent<TNestedComponent, TNestedComponentBaseEventClass, TNestedComponentBaseEventInterface>
             {
@@ -125,7 +125,7 @@ namespace Composable.CQRS.EventSourcing
 
         public abstract class Entity<TEntity, TEntityBaseEventClass, TEntityBaseEventInterface, TEntityCreatedEventInterface> :
             Component<TEntity, TEntityBaseEventClass, TEntityBaseEventInterface>
-            where TEntityBaseEventInterface : TAggregateRootBaseEventInterface, IAggregateRootComponentEvent
+            where TEntityBaseEventInterface : TAggregateRootBaseEventInterface, IAggregateRootEntityEvent
             where TEntityBaseEventClass : TAggregateRootBaseEventClass, TEntityBaseEventInterface
             where TEntityCreatedEventInterface : TEntityBaseEventInterface, IAggregateRootEntityCreatedEvent
             where TEntity : Entity<TEntity, TEntityBaseEventClass, TEntityBaseEventInterface, TEntityCreatedEventInterface>

@@ -54,9 +54,6 @@
     <NamedTestSelector>
       <TestName>CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations.SingleAggregateInstanceEventStreamMutatorPerformanceTest_Given_a_10000_events_large_aggregate.With_four_migrations_that_change_nothing_mutation_takes_less_than_10_milliseconds</TestName>
     </NamedTestSelector>
-    <NamedTestSelector>
-      <TestName>CQRS.Tests.CQRS.EventSourcing.AggregateRoot.NestedEntitiesTests.EntityNestedInEntityWorks</TestName>
-    </NamedTestSelector>
   </IgnoredTests>
   <HiddenWarnings>LongTestTimesWithoutParallelExecution;CopyReferencedAssembliesToWorkspaceIsOn</HiddenWarnings>
 </ProjectConfiguration>

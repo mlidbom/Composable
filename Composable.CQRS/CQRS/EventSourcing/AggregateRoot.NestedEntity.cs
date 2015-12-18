@@ -31,7 +31,7 @@ namespace Composable.CQRS.EventSourcing
                              .For<TComponentBaseEventInterface>(ApplyEvent);
             }
 
-            protected Component()
+            internal Component()
             {
                 EventHandlersEventDispatcher.Register()
                                              .IgnoreUnhandled<TComponentBaseEventInterface>();

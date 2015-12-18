@@ -64,10 +64,27 @@ namespace CQRS.Tests.CQRS.EventSourcing.AggregateRoot
         public string Name { get; private set; }
         public Entity()
         {
+            Entities = NestedEntity.CreateSelfManagingCollection(this);
             RegisterEventAppliers()
                 .For<RootEvent.Entity.PropertyUpdated.Name>(e => Name = e.Name);
         }
 
+        public NestedEntity.Collection Entities { get; private set; }
+
         public void Rename(string name) { RaiseEvent(new RootEvent.Entity.Implementation.Renamed(name, Id)); }
+
+        public class NestedEntity : NestedEntity<NestedEntity, RootEvent.Entity.NestedEntity.Implementation.Root, RootEvent.Entity.NestedEntity.IRoot, RootEvent.Entity.NestedEntity.Created>
+        {
+            public string Name { get; private set; }
+            public NestedEntity()
+            {
+                RegisterEventAppliers()
+                    .For<RootEvent.Entity.NestedEntity.PropertyUpdated.Name>(e => Name = e.Name);
+            }
+
+            public void Rename(string name) { RaiseEvent(new RootEvent.Entity.NestedEntity.Implementation.Renamed(name, Id)); }
+        }
+
+        public NestedEntity AddEntity(string name) => Entities.Add(new RootEvent.Entity.NestedEntity.Implementation.Created(innerEntityId: Guid.NewGuid(), outerEntityId: Id, name: name));
     }
 }

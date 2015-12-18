@@ -8,7 +8,7 @@ namespace CQRS.Tests.CQRS.EventSourcing.AggregateRoot
 {
     public static partial class RootEvent
     {        
-        public static class Entity
+        public static partial class Entity
         {
             public interface IRoot : IAggregateRootComponentEvent, RootEvent.IRoot {}
 

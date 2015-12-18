@@ -67,5 +67,30 @@ namespace CQRS.Tests.CQRS.EventSourcing.AggregateRoot
             l1_2.Name.Should().Be("newName2");
             l1_1.Name.Should().Be("newName");
         }
+
+
+        [Test]
+        public void EntityNestedInEntityWorks()
+        {
+            var root = new Root("root").AddEntity("RootEntityName");
+
+            var l1_1 = root.AddEntity("l1_1");
+            l1_1.Name.Should().Be("l1_1");
+
+            root.Entities.Get(l1_1.Id).Should().Be(l1_1);
+
+            var l1_2 = root.AddEntity("l1_2");
+            l1_2.Name.Should().Be("l1_2");
+            root.Entities.Get(l1_2.Id).Should().Be(l1_2);
+
+            l1_1.Rename("newName");
+            l1_1.Name.Should().Be("newName");
+            l1_2.Name.Should().Be("l1_2");
+
+            l1_2.Rename("newName2");
+            l1_2.Name.Should().Be("newName2");
+            l1_1.Name.Should().Be("newName");
+        }
+
     }
 }

@@ -10,7 +10,7 @@ namespace CQRS.Tests.CQRS.EventSourcing.AggregateRoot
     {       
         public static partial class Component
         {
-            public interface IRoot : IAggregateRootEntityEvent, RootEvent.IRoot {}
+            public interface IRoot : RootEvent.IRoot {}
 
             public interface Renamed : IRoot, PropertyUpdated.Name {}
 
@@ -26,9 +26,7 @@ namespace CQRS.Tests.CQRS.EventSourcing.AggregateRoot
             {
                 public abstract class Root : RootEvent.Implementation.Root, Component.IRoot
                 {
-                    protected Root() {}
-                    protected Root(Guid entityId) { EntityId = entityId; }
-                    public Guid EntityId { get; }
+                    protected Root() {}                   
                 }
 
                 public class Renamed : Root, Component.Renamed

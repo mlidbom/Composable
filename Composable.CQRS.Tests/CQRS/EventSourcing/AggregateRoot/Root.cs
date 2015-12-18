@@ -45,7 +45,8 @@ namespace CQRS.Tests.CQRS.EventSourcing.AggregateRoot
         public class Entity : NestedEntity<Entity,
                                   RootEvent.Component.Entity.Implementation.Root,
                                   RootEvent.Component.Entity.IRoot,
-                                  RootEvent.Component.Entity.Created>
+                                  RootEvent.Component.Entity.Created,
+                                  RootEvent.Component.Entity.Implementation.IdGetterSetter>
         {
             public string Name { get; private set; }
             public Entity()
@@ -59,7 +60,7 @@ namespace CQRS.Tests.CQRS.EventSourcing.AggregateRoot
     }
 
     [UsedImplicitly]
-    public class Entity : Root.Entity<Entity, RootEvent.Entity.Implementation.Root, RootEvent.Entity.IRoot, RootEvent.Entity.Created>
+    public class Entity : Root.Entity<Entity, RootEvent.Entity.Implementation.Root, RootEvent.Entity.IRoot, RootEvent.Entity.Created, RootEvent.Entity.Implementation.IdGetterSetter>
     {
         public string Name { get; private set; }
         public Entity()
@@ -73,7 +74,7 @@ namespace CQRS.Tests.CQRS.EventSourcing.AggregateRoot
 
         public void Rename(string name) { RaiseEvent(new RootEvent.Entity.Implementation.Renamed(name, Id)); }
 
-        public class NestedEntity : NestedEntity<NestedEntity, RootEvent.Entity.NestedEntity.Implementation.Root, RootEvent.Entity.NestedEntity.IRoot, RootEvent.Entity.NestedEntity.Created>
+        public class NestedEntity : NestedEntity<NestedEntity, RootEvent.Entity.NestedEntity.Implementation.Root, RootEvent.Entity.NestedEntity.IRoot, RootEvent.Entity.NestedEntity.Created, RootEvent.Entity.NestedEntity.Implementation.IdGetterSetter>
         {
             public string Name { get; private set; }
             public NestedEntity()

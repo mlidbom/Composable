@@ -9,5 +9,6 @@ namespace Composable.CQRS.EventSourcing
         bool TryGet(TEntityId id, out TComponent component);
         bool Exists(TEntityId id);
         TComponent Get(TEntityId id);
+        TComponent this[TEntityId id] { get; }
     }
 }

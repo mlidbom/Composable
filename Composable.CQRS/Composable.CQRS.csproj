@@ -215,7 +215,6 @@
     <Compile Include="CQRS\EventSourcing\MicrosoftSQLServer\TableSchemaManager.cs" />
     <Compile Include="CQRS\EventSourcing\SelfUpdatingSingleAggregateQueryModel.cs" />
     <Compile Include="CQRS\IAggregateRepository.cs" />
-    <Compile Include="CQRS\EventSourcing\ICommandMessage.cs" />
     <Compile Include="CQRS\IReferenceObject.cs" />
     <Compile Include="CQRS\Query\Models\Generators\IVersioningDocumentDbReader.cs" />
     <Compile Include="CQRS\Query\Models\Generators\IVersioningQueryModelGenerator.cs" />

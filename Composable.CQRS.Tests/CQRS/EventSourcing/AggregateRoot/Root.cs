@@ -9,7 +9,7 @@ namespace CQRS.Tests.CQRS.EventSourcing.AggregateRoot
     {
         public string Name { get; private set; }
         public Entity.Collection Entities { get; }
-        public new Component Component { get; private set; }
+        public Component Component { get; private set; }
 
         public Root(string name) : base(new DateTimeNowTimeSource())
         {
@@ -46,6 +46,7 @@ namespace CQRS.Tests.CQRS.EventSourcing.AggregateRoot
                                   RootEvent.Component.Entity.Implementation.Root,
                                   RootEvent.Component.Entity.IRoot,
                                   RootEvent.Component.Entity.Created,
+                                  RootEvent.Component.Entity.Removed,
                                   RootEvent.Component.Entity.Implementation.IdGetterSetter>
         {
             public string Name { get; private set; }
@@ -56,15 +57,21 @@ namespace CQRS.Tests.CQRS.EventSourcing.AggregateRoot
             }
 
             public void Rename(string name) { RaiseEvent(new RootEvent.Component.Entity.Implementation.Renamed(name, Id)); }
+            public void Remove() => RaiseEvent(new RootEvent.Component.Entity.Implementation.Removed(Id));
         }
     }
 
     [UsedImplicitly]
-    public class Entity : Root.Entity<Entity, RootEvent.Entity.Implementation.Root, RootEvent.Entity.IRoot, RootEvent.Entity.Created, RootEvent.Entity.Implementation.IdGetterSetter>
+    public class Entity : Root.Entity<Entity,
+                              RootEvent.Entity.Implementation.Root,
+                              RootEvent.Entity.IRoot,
+                              RootEvent.Entity.Created,
+                              RootEvent.Entity.Removed,
+                              RootEvent.Entity.Implementation.IdGetterSetter>
     {
         public string Name { get; private set; }
         public Root Root { get; }
-        public Entity(Root root):base(root)
+        public Entity(Root root) : base(root)
         {
             Root = root;
             Entities = NestedEntity.CreateSelfManagingCollection(this);
@@ -75,21 +82,30 @@ namespace CQRS.Tests.CQRS.EventSourcing.AggregateRoot
         public NestedEntity.Collection Entities { get; private set; }
 
         public void Rename(string name) { RaiseEvent(new RootEvent.Entity.Implementation.Renamed(name, Id)); }
+        public void Remove() => RaiseEvent(new RootEvent.Entity.Implementation.Removed(Id));
 
-        public class NestedEntity : NestedEntity<NestedEntity, RootEvent.Entity.NestedEntity.Implementation.Root, RootEvent.Entity.NestedEntity.IRoot, RootEvent.Entity.NestedEntity.Created, RootEvent.Entity.NestedEntity.Implementation.IdGetterSetter>
+        public class NestedEntity : NestedEntity<NestedEntity,
+                                        RootEvent.Entity.NestedEntity.Implementation.Root,
+                                        RootEvent.Entity.NestedEntity.IRoot,
+                                        RootEvent.Entity.NestedEntity.Created,
+                                        RootEvent.Entity.NestedEntity.Removed,
+                                        RootEvent.Entity.NestedEntity.Implementation.IdGetterSetter>
         {
             public string Name { get; private set; }
             public Entity Entity { get; }
-            public NestedEntity(Entity entity):base(entity)
+            public NestedEntity(Entity entity) : base(entity)
             {
                 Entity = entity;
                 RegisterEventAppliers()
                     .For<RootEvent.Entity.NestedEntity.PropertyUpdated.Name>(e => Name = e.Name);
             }
 
-            public void Rename(string name) { RaiseEvent(new RootEvent.Entity.NestedEntity.Implementation.Renamed(nestedEntityId: Id, entityId: Entity.Id, name: name)); }
+            public void Rename(string name) => RaiseEvent(new RootEvent.Entity.NestedEntity.Implementation.Renamed(nestedEntityId: Id, entityId: Entity.Id, name: name));
+            public void Remove() => RaiseEvent(new RootEvent.Entity.NestedEntity.Implementation.Removed(nestedEntityId: Id, entityId: Entity.Id));
+
         }
 
-        public NestedEntity AddEntity(string name) => Entities.Add(new RootEvent.Entity.NestedEntity.Implementation.Created(nestedEntityId: Guid.NewGuid(), entityId: Id, name: name));
+        public NestedEntity AddEntity(string name)
+            => Entities.Add(new RootEvent.Entity.NestedEntity.Implementation.Created(nestedEntityId: Guid.NewGuid(), entityId: Id, name: name));
     }
 }

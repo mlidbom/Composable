@@ -18,8 +18,8 @@ namespace CQRS.Tests.CQRS.EventSourcing.AggregateRoot
                 }
 
                 public interface Created : IRoot, PropertyUpdated.Name {}
-
                 public interface Renamed : IRoot, PropertyUpdated.Name {}
+                public interface Removed : IRoot { }
 
                 public static class PropertyUpdated
                 {
@@ -50,6 +50,11 @@ namespace CQRS.Tests.CQRS.EventSourcing.AggregateRoot
                     {
                         public Renamed(string name, Guid nestedEntityId, Guid entityId) : base(nestedEntityid: nestedEntityId, entityId: entityId) { Name = name; }
                         public string Name { get; }
+                    }
+
+                    public class Removed : Root, NestedEntity.Removed
+                    {
+                        public Removed(Guid entityId, Guid nestedEntityId) : base(nestedEntityid: nestedEntityId, entityId: entityId) { }
                     }
 
                     public class IdGetterSetter : Root, IGetSetAggregateRootEntityEventEntityId<Root, IRoot>

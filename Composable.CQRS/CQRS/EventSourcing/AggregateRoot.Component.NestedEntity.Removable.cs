@@ -20,26 +20,53 @@ namespace Composable.CQRS.EventSourcing
                                                TEntityCreatedEventInterface,
                                                TEntityRemovedEventInterface,
                                                TEventEntityIdSetterGetter> :
-                                                   NestedEntity
-                                                       <TEntity, TEntityId, TEntityBaseEventClass, TEntityBaseEventInterface, TEntityCreatedEventInterface,
+                                                   NestedEntity<TEntity,
+                                                       TEntityId,
+                                                       TEntityBaseEventClass,
+                                                       TEntityBaseEventInterface,
+                                                       TEntityCreatedEventInterface,
                                                        TEventEntityIdSetterGetter>
                 where TEntityBaseEventInterface : class, TComponentBaseEventInterface
                 where TEntityBaseEventClass : TComponentBaseEventClass, TEntityBaseEventInterface
                 where TEntityCreatedEventInterface : TEntityBaseEventInterface
                 where TEntityRemovedEventInterface : TEntityBaseEventInterface
-                where TEventEntityIdSetterGetter : IGetSetAggregateRootEntityEventEntityId<TEntityId, TEntityBaseEventClass, TEntityBaseEventInterface>, new()
-                where TEntity :
-                    NestedEntity<TEntity, TEntityId, TEntityBaseEventClass, TEntityBaseEventInterface, TEntityCreatedEventInterface, TEventEntityIdSetterGetter>
+                where TEventEntityIdSetterGetter :
+                    IGetSetAggregateRootEntityEventEntityId<TEntityId, TEntityBaseEventClass, TEntityBaseEventInterface>, new()
+                where TEntity : NestedEntity<TEntity,
+                                    TEntityId,
+                                    TEntityBaseEventClass,
+                                    TEntityBaseEventInterface,
+                                    TEntityCreatedEventInterface,
+                                    TEventEntityIdSetterGetter>
             {
-                protected NestedEntity(TComponent parent) : base(parent) { }
+                protected NestedEntity(TComponent parent)
+                    : base(timeSource: parent.TimeSource,
+                           raiseEventThroughParent: parent.RaiseEvent,
+                           appliersRegistrar: parent.RegisterEventAppliers()) { }
 
-                public new static CollectionManager CreateSelfManagingCollection(TComponent parent) => new CollectionManager(parent: parent, raiseEventThroughParent: parent.RaiseEvent, appliersRegistrar: parent.RegisterEventAppliers());
+                public static CollectionManager CreateSelfManagingCollection(TComponent parent)
+                    =>
+                        new CollectionManager(
+                            parent: parent,
+                            raiseEventThroughParent: parent.RaiseEvent,
+                            appliersRegistrar: parent.RegisterEventAppliers());
 
-                public class CollectionManager : EntityCollectionManager<TComponent, TEntity, TEntityId, TEntityBaseEventClass, TEntityBaseEventInterface, TEntityCreatedEventInterface, TEntityRemovedEventInterface, TEventEntityIdSetterGetter>
+                public new class CollectionManager : EntityCollectionManager<TComponent,
+                                                     TEntity,
+                                                     TEntityId,
+                                                     TEntityBaseEventClass,
+                                                     TEntityBaseEventInterface,
+                                                     TEntityCreatedEventInterface,
+                                                     TEntityRemovedEventInterface,
+                                                     TEventEntityIdSetterGetter>
                 {
-                    public CollectionManager(TComponent parent, Action<TEntityBaseEventClass> raiseEventThroughParent, IEventHandlerRegistrar<TEntityBaseEventInterface> appliersRegistrar) : base(parent, raiseEventThroughParent, appliersRegistrar) { }
+                    public CollectionManager
+                        (TComponent parent,
+                         Action<TEntityBaseEventClass> raiseEventThroughParent,
+                         IEventHandlerRegistrar<TEntityBaseEventInterface> appliersRegistrar)
+                        : base(parent, raiseEventThroughParent, appliersRegistrar) { }
                 }
-            }            
+            }
         }
     }
 }

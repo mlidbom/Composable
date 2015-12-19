@@ -1,8 +1,6 @@
 ﻿using System;
-using System.Linq;
 using Composable.CQRS.EventHandling;
 using Composable.GenericAbstractions.Time;
-using Composable.System.Reflection;
 
 namespace Composable.CQRS.EventSourcing
 {
@@ -18,7 +16,7 @@ namespace Composable.CQRS.EventSourcing
         {
             private readonly CallMatchingHandlersInRegistrationOrderEventDispatcher<TComponentBaseEventInterface> _eventAppliersEventDispatcher =
                 new CallMatchingHandlersInRegistrationOrderEventDispatcher<TComponentBaseEventInterface>();
-            internal readonly CallMatchingHandlersInRegistrationOrderEventDispatcher<TComponentBaseEventInterface> EventHandlersEventDispatcher =
+            private readonly CallMatchingHandlersInRegistrationOrderEventDispatcher<TComponentBaseEventInterface> _eventHandlersEventDispatcher =
                 new CallMatchingHandlersInRegistrationOrderEventDispatcher<TComponentBaseEventInterface>();
             private readonly Action<TComponentBaseEventClass> _raiseEventThroughParent;
 
@@ -26,7 +24,7 @@ namespace Composable.CQRS.EventSourcing
 
             internal void ApplyEvent(TComponentBaseEventInterface @event) { _eventAppliersEventDispatcher.Dispatch(@event); }
 
-            public Component(TAggregateRoot aggregateRoot)
+            protected Component(TAggregateRoot aggregateRoot)
                 : this(
                     timeSource: aggregateRoot.TimeSource,
                     raiseEventThroughParent: aggregateRoot.RaiseEvent,
@@ -38,7 +36,7 @@ namespace Composable.CQRS.EventSourcing
             {
                 TimeSource = timeSource;
                 _raiseEventThroughParent = raiseEventThroughParent;
-                EventHandlersEventDispatcher.Register()
+                _eventHandlersEventDispatcher.Register()
                                             .IgnoreUnhandled<TComponentBaseEventInterface>();
 
                 if(registerEventAppliers)
@@ -51,7 +49,7 @@ namespace Composable.CQRS.EventSourcing
             protected virtual void RaiseEvent(TComponentBaseEventClass @event)
             {
                 _raiseEventThroughParent(@event);
-                EventHandlersEventDispatcher.Dispatch(@event);
+                _eventHandlersEventDispatcher.Dispatch(@event);
             }
 
             protected CallMatchingHandlersInRegistrationOrderEventDispatcher<TComponentBaseEventInterface>.RegistrationBuilder RegisterEventAppliers()
@@ -61,7 +59,7 @@ namespace Composable.CQRS.EventSourcing
 
             protected CallMatchingHandlersInRegistrationOrderEventDispatcher<TComponentBaseEventInterface>.RegistrationBuilder RegisterEventHandlers()
             {
-                return EventHandlersEventDispatcher.RegisterHandlers();
+                return _eventHandlersEventDispatcher.RegisterHandlers();
             }            
         }       
     }

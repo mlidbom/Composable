@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Linq;
 using Composable.CQRS.EventHandling;
-using Composable.System.Reflection;
 
 namespace Composable.CQRS.EventSourcing
 {
@@ -14,58 +12,43 @@ namespace Composable.CQRS.EventSourcing
             where TComponentBaseEventInterface : class, TAggregateRootBaseEventInterface
             where TComponentBaseEventClass : TAggregateRootBaseEventClass, TComponentBaseEventInterface
             where TComponent : Component<TComponent, TComponentBaseEventClass, TComponentBaseEventInterface>
-        {            
+        {
             public class EntityCollectionManager<TParent,
                                                  TEntity,
                                                  TEntityId,
                                                  TEntityBaseEventClass,
                                                  TEntityBaseEventInterface,
                                                  TEntityCreatedEventInterface,
-                                                 TEventEntityIdSetterGetter> : IEntityCollectionManager<TEntity,
+                                                 TEntityRemovedEventInterface,
+                                                 TEventEntityIdSetterGetter> : EntityCollectionManager<TParent,
+                                                                                   TEntity,
                                                                                    TEntityId,
                                                                                    TEntityBaseEventClass,
-                                                                                   TEntityCreatedEventInterface>
+                                                                                   TEntityBaseEventInterface,
+                                                                                   TEntityCreatedEventInterface,
+                                                                                   TEventEntityIdSetterGetter>
                 where TEntityBaseEventInterface : class, TAggregateRootBaseEventInterface
                 where TEntityCreatedEventInterface : TEntityBaseEventInterface
+                where TEntityRemovedEventInterface : TEntityBaseEventInterface
                 where TEntityBaseEventClass : TEntityBaseEventInterface, TAggregateRootBaseEventClass
                 where TEntity : Component<TEntity, TEntityBaseEventClass, TEntityBaseEventInterface>
                 where TEventEntityIdSetterGetter :
                     IGetSetAggregateRootEntityEventEntityId<TEntityId, TEntityBaseEventClass, TEntityBaseEventInterface>, new()
             {
-                protected static readonly TEventEntityIdSetterGetter IdGetterSetter = new TEventEntityIdSetterGetter();
-
-                private readonly TParent _parent;
-                protected readonly EntityCollection<TEntity, TEntityId> ManagedEntities;
-                private readonly Action<TEntityBaseEventClass> _raiseEventThroughParent;
                 protected EntityCollectionManager
                     (TParent parent,
                      Action<TEntityBaseEventClass> raiseEventThroughParent,
                      IEventHandlerRegistrar<TEntityBaseEventInterface> appliersRegistrar)
+                    : base(parent, raiseEventThroughParent, appliersRegistrar)
                 {
-                    ManagedEntities = new EntityCollection<TEntity, TEntityId>();
-                    _raiseEventThroughParent = raiseEventThroughParent;
-                    _parent = parent;
-                    appliersRegistrar
-                        .For<TEntityCreatedEventInterface>(
-                            e =>
-                            {
-                                var entity = ObjectFactory<TEntity>.CreateInstance(_parent);
-                                ManagedEntities.Add(entity, IdGetterSetter.GetId(e));
-                            })
-                        .For<TEntityBaseEventInterface>(e => ManagedEntities[IdGetterSetter.GetId(e)].ApplyEvent(e));
+                    appliersRegistrar.For<TEntityRemovedEventInterface>(
+                        e =>
+                        {
+                            var id = IdGetterSetter.GetId(e);
+                            ManagedEntities.Remove(id);
+                        });
                 }
-
-                public IReadOnlyEntityCollection<TEntity, TEntityId> Entities => ManagedEntities;
-
-                public TEntity Add<TCreationEvent>(TCreationEvent creationEvent)
-                    where TCreationEvent : TEntityBaseEventClass, TEntityCreatedEventInterface
-                {
-                    _raiseEventThroughParent(creationEvent);
-                    var result = ManagedEntities.InCreationOrder.Last();
-                    result._eventHandlersEventDispatcher.Dispatch(creationEvent);
-                    return result;
-                }
-            }
+            }            
         }
     }
 }

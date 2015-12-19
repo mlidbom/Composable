@@ -2,8 +2,8 @@ using System;
 
 namespace Composable.CQRS.EventSourcing
 {
-    public interface IGetAggregateRootEntityEventEntityId<TEventInterface>
+    public interface IGetAggregateRootEntityEventEntityId<TEventInterface, TEntityId>
     {
-        Guid GetId(TEventInterface @event);
+        TEntityId GetId(TEventInterface @event);
     }
 }

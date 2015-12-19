@@ -1,15 +1,18 @@
 using System;
 using System.Collections.Generic;
-using System.Diagnostics.Contracts;
 
 namespace Composable.CQRS.EventSourcing
 {
-    public interface IReadOnlyAggregateRootEntityCollection<TComponent>
+    public interface IReadOnlyAggregateRootEntityCollection<TEntity,TEntityId>
     {
-        IReadOnlyList<TComponent> InCreationOrder { get; }
-        bool TryGet(Guid id, out TComponent component);
-        bool Exists(Guid id);
-        TComponent Get(Guid id);
-        TComponent this[Guid id] { get; }
+        IReadOnlyList<TEntity> InCreationOrder { get; }
+        bool TryGet(TEntityId id, out TEntity component);
+        bool Exists(TEntityId id);
+        TEntity Get(TEntityId id);
+        TEntity this[TEntityId id] { get; }
+    }
+
+    public interface IReadOnlyAggregateRootEntityCollection<TEntity> : IReadOnlyAggregateRootEntityCollection<TEntity, Guid>
+    {        
     }
 }

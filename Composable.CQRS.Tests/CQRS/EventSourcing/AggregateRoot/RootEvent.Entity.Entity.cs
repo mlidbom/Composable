@@ -35,7 +35,7 @@ namespace CQRS.Tests.CQRS.EventSourcing.AggregateRoot
                     {
                         public Guid NestedEntityId { get; protected set; }
 
-                        public class IdGetterSetter : Root, IGetSetAggregateRootEntityEventEntityId<Root, IRoot>
+                        public class IdGetterSetter : Root, IGetSetAggregateRootEntityEventEntityId<Guid, Root, IRoot>
                         {
                             public void SetEntityId(Root @event, Guid id) => @event.NestedEntityId = id;
                             public Guid GetId(IRoot @event) => @event.NestedEntityId;

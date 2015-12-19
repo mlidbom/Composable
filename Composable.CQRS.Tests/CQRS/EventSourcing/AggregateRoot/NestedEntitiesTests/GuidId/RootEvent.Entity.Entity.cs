@@ -4,24 +4,22 @@ using Composable.CQRS.EventSourcing;
 // ReSharper disable MemberHidesStaticFromOuterClass
 // ReSharper disable RedundantNameQualifier
 // ReSharper disable InconsistentNaming
-namespace CQRS.Tests.CQRS.EventSourcing.AggregateRoot
+namespace CQRS.Tests.CQRS.EventSourcing.AggregateRoot.NestedEntitiesTests.GuidId
 {
     public static partial class RootEvent
     {
-        public static partial class Component
+        public static partial class Entity
         {
-            public static class Entity
+            public static class NestedEntity
             {
-                public interface IRoot : RootEvent.Component.IRoot
+                public interface IRoot : RootEvent.Entity.IRoot
                 {
-                    Guid EntityId { get; }
+                    Guid NestedEntityId { get; }
                 }
 
                 public interface Created : IRoot, PropertyUpdated.Name {}
-
                 public interface Renamed : IRoot, PropertyUpdated.Name {}
-
-                public interface Removed : IRoot {}
+                public interface Removed : IRoot { }
 
                 public static class PropertyUpdated
                 {
@@ -33,34 +31,36 @@ namespace CQRS.Tests.CQRS.EventSourcing.AggregateRoot
 
                 public static class Implementation
                 {
-                    public abstract class Root : RootEvent.Component.Implementation.Root, Entity.IRoot
+                    public abstract class Root : RootEvent.Entity.Implementation.Root, NestedEntity.IRoot
                     {
-                        public Guid EntityId { get; protected set; }
+                        public Guid NestedEntityId { get; protected set; }
 
-                        public class IdGetterSetter : IGetSetAggregateRootEntityEventEntityId<Guid, Root, IRoot>
+                        public class IdGetterSetter : Root, IGetSetAggregateRootEntityEventEntityId<Guid, Root, IRoot>
                         {
-                            public void SetEntityId(Root @event, Guid id) => @event.EntityId = id;
-                            public Guid GetId(IRoot @event) => @event.EntityId;
+                            public void SetEntityId(Root @event, Guid id) => @event.NestedEntityId = id;
+                            public Guid GetId(IRoot @event) => @event.NestedEntityId;
                         }
                     }
 
-                    public class Created : Root, Entity.Created
+                    public class Created : Root, NestedEntity.Created
                     {
-                        public Created(Guid entityId, string name)
+                        public Created(Guid nestedEntityId, string name)
                         {
-                            EntityId = entityId;
+                            NestedEntityId = nestedEntityId;
                             Name = name;
                         }
                         public string Name { get; }
                     }
 
-                    public class Renamed : Root, Entity.Renamed
+                    public class Renamed : Root, NestedEntity.Renamed
                     {
                         public Renamed(string name) { Name = name; }
                         public string Name { get; }
                     }
 
-                    public class Removed : Root, Entity.Removed {}
+                    public class Removed : Root, NestedEntity.Removed
+                    {
+                    }                    
                 }
             }
         }

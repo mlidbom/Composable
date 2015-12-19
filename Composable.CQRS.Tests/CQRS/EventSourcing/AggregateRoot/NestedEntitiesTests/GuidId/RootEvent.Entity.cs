@@ -4,7 +4,7 @@ using Composable.CQRS.EventSourcing;
 // ReSharper disable MemberHidesStaticFromOuterClass
 // ReSharper disable RedundantNameQualifier
 // ReSharper disable InconsistentNaming
-namespace CQRS.Tests.CQRS.EventSourcing.AggregateRoot
+namespace CQRS.Tests.CQRS.EventSourcing.AggregateRoot.NestedEntitiesTests.GuidId
 {
     public static partial class RootEvent
     {

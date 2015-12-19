@@ -52,9 +52,9 @@ namespace Composable.CQRS.EventSourcing
                 return _eventAppliersEventDispatcher.RegisterHandlers();
             }
 
-            public static IQueryModelComponentCollection<TComponent, TEntityId> CreateSelfManagingCollection(TRootQueryModel rootQueryModel) => new Collection(rootQueryModel);
+            public static IReadOnlyEntityCollection<TComponent, TEntityId> CreateSelfManagingCollection(TRootQueryModel rootQueryModel) => new Collection(rootQueryModel);
 
-            public class Collection : IQueryModelComponentCollection<TComponent, TEntityId>
+            public class Collection : IReadOnlyEntityCollection<TComponent, TEntityId>
             {
                 private readonly TRootQueryModel _aggregate;
                 public Collection(TRootQueryModel aggregate)

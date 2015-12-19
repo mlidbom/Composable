@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace Composable.CQRS.EventSourcing
 {
-    public interface IReadOnlyAggregateRootEntityCollection<TEntity,TEntityId>
+    public interface IReadOnlyEntityCollection<TEntity, in TEntityId>
     {
         IReadOnlyList<TEntity> InCreationOrder { get; }
         bool TryGet(TEntityId id, out TEntity component);
@@ -12,7 +12,8 @@ namespace Composable.CQRS.EventSourcing
         TEntity this[TEntityId id] { get; }
     }
 
-    public interface IReadOnlyAggregateRootEntityCollection<TEntity> : IReadOnlyAggregateRootEntityCollection<TEntity, Guid>
-    {        
+    public interface IReadOnlyEntityCollection<TEntity> : IReadOnlyEntityCollection<TEntity, Guid>
+    {
+        
     }
 }

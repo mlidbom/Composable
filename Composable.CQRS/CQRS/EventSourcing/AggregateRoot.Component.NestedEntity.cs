@@ -55,7 +55,7 @@ namespace Composable.CQRS.EventSourcing
 
                 public static Collection CreateSelfManagingCollection(TComponent aggregate) => new Collection(aggregate);
 
-                public class Collection : IReadOnlyAggregateRootEntityCollection<TEntity, TEntityId>
+                public class Collection : IReadOnlyEntityCollection<TEntity, TEntityId>
                 {
                     private readonly TComponent _component;
                     public Collection(TComponent component)

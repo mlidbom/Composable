@@ -33,14 +33,20 @@ namespace CQRS.Tests.CQRS.EventSourcing.AggregateRoot
                 {
                     public abstract class Root : RootEvent.Entity.Implementation.Root, NestedEntity.IRoot
                     {
-                        protected Root(Guid entityId, Guid nestedEntityid) : base(entityId) { NestedEntityId = nestedEntityid; }
-                        public Guid NestedEntityId { get; set; }
+                        public Guid NestedEntityId { get; protected set; }
+
+                        public class IdGetterSetter : Root, IGetSetAggregateRootEntityEventEntityId<Root, IRoot>
+                        {
+                            public void SetEntityId(Root @event, Guid id) => @event.NestedEntityId = id;
+                            public Guid GetId(IRoot @event) => @event.NestedEntityId;
+                        }
                     }
 
                     public class Created : Root, NestedEntity.Created
                     {
-                        public Created(Guid nestedEntityId, Guid entityId, string name) : base(entityId: entityId, nestedEntityid: nestedEntityId)
+                        public Created(Guid nestedEntityId, string name)
                         {
+                            NestedEntityId = nestedEntityId;
                             Name = name;
                         }
                         public string Name { get; }
@@ -48,22 +54,13 @@ namespace CQRS.Tests.CQRS.EventSourcing.AggregateRoot
 
                     public class Renamed : Root, NestedEntity.Renamed
                     {
-                        public Renamed(string name, Guid nestedEntityId, Guid entityId) : base(nestedEntityid: nestedEntityId, entityId: entityId) { Name = name; }
+                        public Renamed(string name) { Name = name; }
                         public string Name { get; }
                     }
 
                     public class Removed : Root, NestedEntity.Removed
                     {
-                        public Removed(Guid entityId, Guid nestedEntityId) : base(nestedEntityid: nestedEntityId, entityId: entityId) { }
-                    }
-
-                    public class IdGetterSetter : Root, IGetSetAggregateRootEntityEventEntityId<Root, IRoot>
-                    {
-                        public void SetEntityId(Root @event, Guid id) => @event.NestedEntityId = id;
-                        public Guid GetId(IRoot @event) => @event.NestedEntityId;
-
-                        public IdGetterSetter() : base(Guid.NewGuid(), Guid.NewGuid()) { }
-                    }
+                    }                    
                 }
             }
         }

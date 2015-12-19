@@ -1,13 +1,10 @@
-using System;
-using Composable.CQRS.EventSourcing;
-
-// ReSharper disable MemberHidesStaticFromOuterClass
+ // ReSharper disable MemberHidesStaticFromOuterClass
 // ReSharper disable RedundantNameQualifier
 // ReSharper disable InconsistentNaming
 namespace CQRS.Tests.CQRS.EventSourcing.AggregateRoot
 {
     public static partial class RootEvent
-    {       
+    {
         public static partial class Component
         {
             public interface IRoot : RootEvent.IRoot {}
@@ -24,10 +21,7 @@ namespace CQRS.Tests.CQRS.EventSourcing.AggregateRoot
 
             public static class Implementation
             {
-                public abstract class Root : RootEvent.Implementation.Root, Component.IRoot
-                {
-                    protected Root() {}                   
-                }
+                public abstract class Root : RootEvent.Implementation.Root, Component.IRoot {}
 
                 public class Renamed : Root, Component.Renamed
                 {

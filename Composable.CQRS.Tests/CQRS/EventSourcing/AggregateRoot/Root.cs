@@ -47,7 +47,7 @@ namespace CQRS.Tests.CQRS.EventSourcing.AggregateRoot
                                   RootEvent.Component.Entity.IRoot,
                                   RootEvent.Component.Entity.Created,
                                   RootEvent.Component.Entity.Removed,
-                                  RootEvent.Component.Entity.Implementation.IdGetterSetter>
+                                  RootEvent.Component.Entity.Implementation.Root.IdGetterSetter>
         {
             public string Name { get; private set; }
             public Entity(Component component) : base(component)
@@ -56,8 +56,8 @@ namespace CQRS.Tests.CQRS.EventSourcing.AggregateRoot
                     .For<RootEvent.Component.Entity.PropertyUpdated.Name>(e => Name = e.Name);
             }
 
-            public void Rename(string name) { RaiseEvent(new RootEvent.Component.Entity.Implementation.Renamed(name, Id)); }
-            public void Remove() => RaiseEvent(new RootEvent.Component.Entity.Implementation.Removed(Id));
+            public void Rename(string name) { RaiseEvent(new RootEvent.Component.Entity.Implementation.Renamed(name)); }
+            public void Remove() => RaiseEvent(new RootEvent.Component.Entity.Implementation.Removed());
         }
     }
 
@@ -67,7 +67,7 @@ namespace CQRS.Tests.CQRS.EventSourcing.AggregateRoot
                               RootEvent.Entity.IRoot,
                               RootEvent.Entity.Created,
                               RootEvent.Entity.Removed,
-                              RootEvent.Entity.Implementation.IdGetterSetter>
+                              RootEvent.Entity.Implementation.Root.IdGetterSetter>
     {
         public string Name { get; private set; }
         public Root Root { get; }
@@ -81,15 +81,15 @@ namespace CQRS.Tests.CQRS.EventSourcing.AggregateRoot
 
         public NestedEntity.Collection Entities { get; private set; }
 
-        public void Rename(string name) { RaiseEvent(new RootEvent.Entity.Implementation.Renamed(name, Id)); }
-        public void Remove() => RaiseEvent(new RootEvent.Entity.Implementation.Removed(Id));
+        public void Rename(string name) { RaiseEvent(new RootEvent.Entity.Implementation.Renamed(name)); }
+        public void Remove() => RaiseEvent(new RootEvent.Entity.Implementation.Removed());
 
         public class NestedEntity : NestedEntity<NestedEntity,
                                         RootEvent.Entity.NestedEntity.Implementation.Root,
                                         RootEvent.Entity.NestedEntity.IRoot,
                                         RootEvent.Entity.NestedEntity.Created,
                                         RootEvent.Entity.NestedEntity.Removed,
-                                        RootEvent.Entity.NestedEntity.Implementation.IdGetterSetter>
+                                        RootEvent.Entity.NestedEntity.Implementation.Root.IdGetterSetter>
         {
             public string Name { get; private set; }
             public Entity Entity { get; }
@@ -100,12 +100,12 @@ namespace CQRS.Tests.CQRS.EventSourcing.AggregateRoot
                     .For<RootEvent.Entity.NestedEntity.PropertyUpdated.Name>(e => Name = e.Name);
             }
 
-            public void Rename(string name) => RaiseEvent(new RootEvent.Entity.NestedEntity.Implementation.Renamed(nestedEntityId: Id, entityId: Entity.Id, name: name));
-            public void Remove() => RaiseEvent(new RootEvent.Entity.NestedEntity.Implementation.Removed(nestedEntityId: Id, entityId: Entity.Id));
+            public void Rename(string name) => RaiseEvent(new RootEvent.Entity.NestedEntity.Implementation.Renamed(name: name));
+            public void Remove() => RaiseEvent(new RootEvent.Entity.NestedEntity.Implementation.Removed());
 
         }
 
         public NestedEntity AddEntity(string name)
-            => Entities.Add(new RootEvent.Entity.NestedEntity.Implementation.Created(nestedEntityId: Guid.NewGuid(), entityId: Id, name: name));
+            => Entities.Add(new RootEvent.Entity.NestedEntity.Implementation.Created(nestedEntityId: Guid.NewGuid(), name: name));
     }
 }

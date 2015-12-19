@@ -82,6 +82,19 @@ namespace Composable.CQRS.EventSourcing
 
             public static Collection CreateSelfManagingCollection(TAggregateRoot aggregate) => new Collection(aggregate);
 
+            protected override void RaiseEvent(TEntityBaseEventClass @event)
+            {
+                var id = IdGetterSetter.GetId(@event);
+                if(id == Guid.Empty)
+                {
+                    IdGetterSetter.SetEntityId(@event, Id);
+                }else if(id != Id)
+                {
+                    throw new Exception($"Attempted to raise event with EntityId: {id} frow within entity with EntityId: {Id}");
+                }
+                base.RaiseEvent(@event);
+            }
+
             public class Collection : IReadOnlyAggregateRootEntityCollection<TEntity>
             {
                 private readonly TAggregateRoot _aggregate;

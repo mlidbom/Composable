@@ -208,6 +208,7 @@
     <Compile Include="System\Reactive\ThreadSafeObserverCollection.cs" />
     <Compile Include="System\Reflection\AssemblyExtensions.cs" />
     <Compile Include="System\Reflection\MemberAccessorHelper.cs" />
+    <Compile Include="System\Reflection\ObjectFactory.cs" />
     <Compile Include="System\Reflection\ObjectGraphWalker.cs" />
     <Compile Include="System\Reflection\TypeExtensions.cs" />
     <Compile Include="System\StringExtensions.cs" />

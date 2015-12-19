@@ -5,6 +5,7 @@ using System.Linq;
 using System.Reflection;
 using Composable.CQRS.EventHandling;
 using Composable.GenericAbstractions.Time;
+using Composable.System.Reflection;
 
 namespace Composable.CQRS.EventSourcing
 {
@@ -101,25 +102,7 @@ namespace Composable.CQRS.EventSourcing
                                   .For<TEntityCreatedEventInterface>(
                                       e =>
                                       {
-                                          TEntity entity;
-                                          try
-                                          {
-                                              entity =
-                                                  (TEntity)
-                                                  Activator.CreateInstance(
-                                                      type: typeof(TEntity),
-                                                      bindingAttr: BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Public,
-                                                      binder: null,
-                                                      args: new object[] { _component },
-                                                      culture: null);
-                                          }
-                                          catch (MissingMethodException exception)
-                                          {
-                                              throw new Exception(
-                                                  $"Type: {typeof(TEntity).FullName} must have a constructor taking a single argument of type: {typeof(TComponent).FullName}",
-                                                  exception);
-                                          }
-
+                                          var entity = ObjectFactory<TEntity>.CreateInstance(_component);
                                           _entities.Add(IdGetterSetter.GetId(e), entity);
                                           _entitiesInCreationOrder.Add(entity);
                                       })
@@ -191,24 +174,7 @@ namespace Composable.CQRS.EventSourcing
                               .For<TEntityCreatedEventInterface>(
                                   e =>
                                   {
-                                      TEntity entity;
-                                      try
-                                      {
-                                          entity =
-                                              (TEntity)
-                                              Activator.CreateInstance(
-                                                  type: typeof(TEntity),
-                                                  bindingAttr: BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Public,
-                                                  binder: null,
-                                                  args: new object[] {_aggregate},
-                                                  culture: null);
-                                      }
-                                      catch(MissingMethodException exception)
-                                      {
-                                          throw new Exception(
-                                              $"Type: {typeof(TEntity).FullName} must have a constructor taking a single argument of type: {typeof(TAggregateRoot).FullName}",
-                                              exception);
-                                      }
+                                      var entity = ObjectFactory<TEntity>.CreateInstance(_aggregate);
 
                                       _entities.Add(IdGetterSetter.GetId(e), entity);
                                       _entitiesInCreationOrder.Add(entity);

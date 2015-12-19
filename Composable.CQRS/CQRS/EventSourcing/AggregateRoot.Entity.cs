@@ -52,7 +52,7 @@ namespace Composable.CQRS.EventSourcing
                 base.RaiseEvent(@event);
             }
 
-            public class Collection : IReadOnlyAggregateRootEntityCollection<TEntity, TEntityId>
+            public class Collection : IReadOnlyEntityCollection<TEntity, TEntityId>
             {
                 private readonly TAggregateRoot _aggregate;
                 public Collection(TAggregateRoot aggregate)

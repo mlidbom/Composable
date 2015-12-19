@@ -167,8 +167,7 @@
     <Compile Include="CQRS\EventSourcing\AttemptToSaveEmptyAggregate.cs" />
     <Compile Include="CQRS\EventSourcing\IGetAggregateRootEntityEventEntityId.cs" />
     <Compile Include="CQRS\EventSourcing\IGetSetAggregateRootEntityEventEntityId.cs" />
-    <Compile Include="CQRS\EventSourcing\IQueryModelComponentCollection.cs" />
-    <Compile Include="CQRS\EventSourcing\IReadOnlyAggregateRootEntityCollection.cs" />
+    <Compile Include="CQRS\EventSourcing\IReadOnlyEntityCollection.cs" />
     <Compile Include="CQRS\EventSourcing\Refactoring\Migrations\AssertMigrationsAreIdempotentEventModifier.cs" />
     <Compile Include="CQRS\EventSourcing\Refactoring\Migrations\CompleteEventStoreStreamMutator.cs" />
     <Compile Include="CQRS\EventSourcing\Refactoring\Migrations\EventMigration.cs" />

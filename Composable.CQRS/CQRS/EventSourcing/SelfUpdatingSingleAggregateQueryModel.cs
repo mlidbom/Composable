@@ -67,20 +67,21 @@ namespace Composable.CQRS.EventSourcing
                                 var component = (TComponent)Activator.CreateInstance(typeof(TComponent), nonPublic:true);
                                 component.RootQueryModel = _aggregate;
 
-                                _components.Add(IdGetter.GetId(e), component);
+                                _entities.Add(IdGetter.GetId(e), component);
                                 _componentsInCreationOrder.Add(component);
                             })
-                        .For<TComponentBaseEventInterface>(e => _components[IdGetter.GetId(e)].ApplyEvent(e));
+                        .For<TComponentBaseEventInterface>(e => _entities[IdGetter.GetId(e)].ApplyEvent(e));
                 }
 
 
                 public IReadOnlyList<TComponent> InCreationOrder => _componentsInCreationOrder;
 
-                public bool TryGet(TEntityId id, out TComponent component) => _components.TryGetValue(id, out component);
-                public bool Exists(TEntityId id) => _components.ContainsKey(id);
-                public TComponent Get(TEntityId id) => _components[id];
+                public bool TryGet(TEntityId id, out TComponent component) => _entities.TryGetValue(id, out component);
+                public bool Exists(TEntityId id) => _entities.ContainsKey(id);
+                public TComponent Get(TEntityId id) => _entities[id];
+                public TComponent this[TEntityId id] => _entities[id];
 
-                private readonly Dictionary<TEntityId, TComponent> _components = new Dictionary<TEntityId, TComponent>();
+                private readonly Dictionary<TEntityId, TComponent> _entities = new Dictionary<TEntityId, TComponent>();
                 private readonly List<TComponent> _componentsInCreationOrder = new List<TComponent>();
             }
         }

@@ -1,14 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics.Contracts;
-using System.Linq;
 using Composable.CQRS.EventHandling;
-using Composable.System.Reflection;
 
 namespace Composable.CQRS.EventSourcing
 {
     public abstract partial class AggregateRoot<TAggregateRoot, TAggregateRootBaseEventClass, TAggregateRootBaseEventInterface>
-                where TAggregateRoot : AggregateRoot<TAggregateRoot, TAggregateRootBaseEventClass, TAggregateRootBaseEventInterface>
+        where TAggregateRoot : AggregateRoot<TAggregateRoot, TAggregateRootBaseEventClass, TAggregateRootBaseEventInterface>
         where TAggregateRootBaseEventInterface : class, IAggregateRootEvent
         where TAggregateRootBaseEventClass : AggregateRootEvent, TAggregateRootBaseEventInterface
     {
@@ -35,14 +31,30 @@ namespace Composable.CQRS.EventSourcing
                                 TEntityCreatedEventInterface,
                                 TEntityRemovedEventInterface,
                                 TEventEntityIdSetterGetter>
-            where TEventEntityIdSetterGetter : IGetSetAggregateRootEntityEventEntityId<TEntityId, TEntityBaseEventClass, TEntityBaseEventInterface>, new()
+            where TEventEntityIdSetterGetter : IGetSetAggregateRootEntityEventEntityId<TEntityId, TEntityBaseEventClass, TEntityBaseEventInterface>,
+                new()
         {
-            public Entity(TAggregateRoot aggregateRoot) : base(aggregateRoot) { }
-            public new static CollectionManager CreateSelfManagingCollection(TAggregateRoot parent) => new CollectionManager(parent: parent, raiseEventThroughParent: parent.RaiseEvent, appliersRegistrar: parent.RegisterEventAppliers());
+            protected Entity(TAggregateRoot aggregateRoot) : base(aggregateRoot) { }
+            public new static CollectionManager CreateSelfManagingCollection(TAggregateRoot parent)
+                =>
+                    new CollectionManager(
+                        parent: parent,
+                        raiseEventThroughParent: parent.RaiseEvent,
+                        appliersRegistrar: parent.RegisterEventAppliers());
 
-            public class CollectionManager : EntityCollectionManager<TAggregateRoot, TEntity, TEntityId, TEntityBaseEventClass, TEntityBaseEventInterface, TEntityCreatedEventInterface, TEntityRemovedEventInterface, TEventEntityIdSetterGetter>
+            public new class CollectionManager : EntityCollectionManager<TAggregateRoot,
+                                                     TEntity,
+                                                     TEntityId,
+                                                     TEntityBaseEventClass,
+                                                     TEntityBaseEventInterface,
+                                                     TEntityCreatedEventInterface,
+                                                     TEntityRemovedEventInterface,
+                                                     TEventEntityIdSetterGetter>
             {
-                public CollectionManager(TAggregateRoot parent, Action<TEntityBaseEventClass> raiseEventThroughParent, IEventHandlerRegistrar<TEntityBaseEventInterface> appliersRegistrar) : base(parent, raiseEventThroughParent, appliersRegistrar) { }
+                public CollectionManager
+                    (TAggregateRoot parent,
+                     Action<TEntityBaseEventClass> raiseEventThroughParent,
+                     IEventHandlerRegistrar<TEntityBaseEventInterface> appliersRegistrar) : base(parent, raiseEventThroughParent, appliersRegistrar) {}
             }
         }
     }

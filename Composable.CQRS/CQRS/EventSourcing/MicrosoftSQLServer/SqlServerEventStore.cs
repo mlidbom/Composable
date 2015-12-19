@@ -210,8 +210,8 @@ namespace Composable.CQRS.EventSourcing.MicrosoftSQLServer
 
         public IEnumerable<Guid> StreamAggregateIdsInCreationOrder(Type eventBaseType = null)
         {
-            _usageGuard.AssertNoContextChangeOccurred(this);
-            Contract.Requires(eventBaseType == null || (eventBaseType.IsInterface && typeof(IAggregateRootEvent).IsAssignableFrom(eventBaseType)));
+            Contract.Assert(eventBaseType == null || (eventBaseType.IsInterface && typeof(IAggregateRootEvent).IsAssignableFrom(eventBaseType)));
+            _usageGuard.AssertNoContextChangeOccurred(this);            
 
             _schemaManager.SetupSchemaIfDatabaseUnInitialized();
 

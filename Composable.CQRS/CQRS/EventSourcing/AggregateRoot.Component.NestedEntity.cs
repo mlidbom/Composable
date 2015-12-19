@@ -14,21 +14,22 @@ namespace Composable.CQRS.EventSourcing
             where TComponent : Component<TComponent, TComponentBaseEventClass, TComponentBaseEventInterface>
         {
             public abstract class NestedEntity<TEntity,
+                                               TEntityId,
                                                TEntityBaseEventClass,
                                                TEntityBaseEventInterface,
                                                TEntityCreatedEventInterface,
                                                TEntityRemovedEventInterface,
                                                TEventEntityIdSetterGetter> :
                                                    NestedEntity
-                                                       <TEntity, TEntityBaseEventClass, TEntityBaseEventInterface, TEntityCreatedEventInterface,
+                                                       <TEntity, TEntityId, TEntityBaseEventClass, TEntityBaseEventInterface, TEntityCreatedEventInterface,
                                                        TEventEntityIdSetterGetter>
                 where TEntityBaseEventInterface : TComponentBaseEventInterface
                 where TEntityBaseEventClass : TComponentBaseEventClass, TEntityBaseEventInterface
                 where TEntityCreatedEventInterface : TEntityBaseEventInterface
                 where TEntityRemovedEventInterface : TEntityBaseEventInterface
-                where TEventEntityIdSetterGetter : IGetSetAggregateRootEntityEventEntityId<TEntityBaseEventClass, TEntityBaseEventInterface>, new()
+                where TEventEntityIdSetterGetter : IGetSetAggregateRootEntityEventEntityId<TEntityId, TEntityBaseEventClass, TEntityBaseEventInterface>, new()
                 where TEntity :
-                    NestedEntity<TEntity, TEntityBaseEventClass, TEntityBaseEventInterface, TEntityCreatedEventInterface, TEventEntityIdSetterGetter>
+                    NestedEntity<TEntity, TEntityId, TEntityBaseEventClass, TEntityBaseEventInterface, TEntityCreatedEventInterface, TEventEntityIdSetterGetter>
             {
                 protected NestedEntity(TComponent component) : base(component) { }
 
@@ -36,7 +37,7 @@ namespace Composable.CQRS.EventSourcing
 
                 public new class Collection : Component<TComponent, TComponentBaseEventClass, TComponentBaseEventInterface>
                                                   .NestedEntity
-                                                  <TEntity, TEntityBaseEventClass, TEntityBaseEventInterface, TEntityCreatedEventInterface,
+                                                  <TEntity, TEntityId, TEntityBaseEventClass, TEntityBaseEventInterface, TEntityCreatedEventInterface,
                                                   TEventEntityIdSetterGetter>.Collection
                 {
                     public Collection(TComponent component) : base(component)
@@ -55,6 +56,7 @@ namespace Composable.CQRS.EventSourcing
             }
 
             public abstract class NestedEntity<TEntity,
+                                               TEntityId,
                                                TEntityBaseEventClass,
                                                TEntityBaseEventInterface,
                                                TEntityCreatedEventInterface,
@@ -63,13 +65,13 @@ namespace Composable.CQRS.EventSourcing
                 where TEntityBaseEventClass : TComponentBaseEventClass, TEntityBaseEventInterface
                 where TEntityCreatedEventInterface : TEntityBaseEventInterface
                 where TEntity :
-                    NestedEntity<TEntity, TEntityBaseEventClass, TEntityBaseEventInterface, TEntityCreatedEventInterface, TEventEntityIdSetterGetter>
-                where TEventEntityIdSetterGetter : IGetSetAggregateRootEntityEventEntityId<TEntityBaseEventClass, TEntityBaseEventInterface>, new()
+                    NestedEntity<TEntity, TEntityId, TEntityBaseEventClass, TEntityBaseEventInterface, TEntityCreatedEventInterface, TEventEntityIdSetterGetter>
+                where TEventEntityIdSetterGetter : IGetSetAggregateRootEntityEventEntityId<TEntityId, TEntityBaseEventClass, TEntityBaseEventInterface>, new()
             {
                 private readonly TComponent _component;
                 protected static readonly TEventEntityIdSetterGetter IdGetterSetter = new TEventEntityIdSetterGetter();
 
-                public Guid Id { get; private set; }
+                public TEntityId Id { get; private set; }
 
                 protected NestedEntity(TComponent component) : base(aggregateRoot: component.AggregateRoot, registerEventAppliers: false)
                 {
@@ -82,11 +84,11 @@ namespace Composable.CQRS.EventSourcing
                 protected override void RaiseEvent(TEntityBaseEventClass @event)
                 {
                     var id = IdGetterSetter.GetId(@event);
-                    if (id == Guid.Empty)
+                    if (Equals(id, default(TEntityId)))
                     {
                         IdGetterSetter.SetEntityId(@event, Id);
                     }
-                    else if (id != Id)
+                    else if (!Equals(id, Id))
                     {
                         throw new Exception($"Attempted to raise event with EntityId: {id} frow within entity with EntityId: {Id}");
                     }
@@ -95,7 +97,7 @@ namespace Composable.CQRS.EventSourcing
 
                 public static Collection CreateSelfManagingCollection(TComponent aggregate) => new Collection(aggregate);
 
-                public class Collection : IReadOnlyAggregateRootEntityCollection<TEntity>
+                public class Collection : IReadOnlyAggregateRootEntityCollection<TEntity, TEntityId>
                 {
                     private readonly TComponent _component;
                     public Collection(TComponent component)
@@ -123,13 +125,13 @@ namespace Composable.CQRS.EventSourcing
 
                     public IReadOnlyList<TEntity> InCreationOrder => EntitiesInCreationOrder;
 
-                    public bool TryGet(Guid id, out TEntity component) => Entities.TryGetValue(id, out component);
+                    public bool TryGet(TEntityId id, out TEntity component) => Entities.TryGetValue(id, out component);
                     [Pure]
-                    public bool Exists(Guid id) => Entities.ContainsKey(id);
-                    public TEntity Get(Guid id) => Entities[id];
-                    public TEntity this[Guid id] => Entities[id];
+                    public bool Exists(TEntityId id) => Entities.ContainsKey(id);
+                    public TEntity Get(TEntityId id) => Entities[id];
+                    public TEntity this[TEntityId id] => Entities[id];
 
-                    protected readonly Dictionary<Guid, TEntity> Entities = new Dictionary<Guid, TEntity>();
+                    protected readonly Dictionary<TEntityId, TEntity> Entities = new Dictionary<TEntityId, TEntity>();
                     protected readonly List<TEntity> EntitiesInCreationOrder = new List<TEntity>();
                 }
             }

@@ -43,7 +43,8 @@ namespace CQRS.Tests.CQRS.EventSourcing.AggregateRoot
 
         [UsedImplicitly]
         public class Entity : NestedEntity<Entity,
-                                  RootEvent.Component.Entity.Implementation.Root,
+                                  Guid,
+                                  RootEvent.Component.Entity.Implementation.Root,                                  
                                   RootEvent.Component.Entity.IRoot,
                                   RootEvent.Component.Entity.Created,
                                   RootEvent.Component.Entity.Removed,
@@ -63,6 +64,7 @@ namespace CQRS.Tests.CQRS.EventSourcing.AggregateRoot
 
     [UsedImplicitly]
     public class Entity : Root.Entity<Entity,
+                              Guid,
                               RootEvent.Entity.Implementation.Root,
                               RootEvent.Entity.IRoot,
                               RootEvent.Entity.Created,
@@ -85,6 +87,7 @@ namespace CQRS.Tests.CQRS.EventSourcing.AggregateRoot
         public void Remove() => RaiseEvent(new RootEvent.Entity.Implementation.Removed());
 
         public class NestedEntity : NestedEntity<NestedEntity,
+                                        Guid,
                                         RootEvent.Entity.NestedEntity.Implementation.Root,
                                         RootEvent.Entity.NestedEntity.IRoot,
                                         RootEvent.Entity.NestedEntity.Created,

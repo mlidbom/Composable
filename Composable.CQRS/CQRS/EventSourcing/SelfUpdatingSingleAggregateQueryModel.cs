@@ -32,11 +32,11 @@ namespace Composable.CQRS.EventSourcing
         }
 
 
-        public abstract class Entity<TComponent, TComponentBaseEventInterface, TComponentCreatedEventInterface, TEventEntityIdGetter>
+        public abstract class Entity<TComponent, TEntityId, TComponentBaseEventInterface, TComponentCreatedEventInterface, TEventEntityIdGetter>
             where TComponentBaseEventInterface : TAggregateRootBaseEventInterface
             where TComponentCreatedEventInterface : TComponentBaseEventInterface
-            where TComponent : Entity<TComponent, TComponentBaseEventInterface, TComponentCreatedEventInterface, TEventEntityIdGetter>
-            where TEventEntityIdGetter : IGetAggregateRootEntityEventEntityId<TComponentBaseEventInterface>, new()
+            where TComponent : Entity<TComponent, TEntityId, TComponentBaseEventInterface, TComponentCreatedEventInterface, TEventEntityIdGetter>
+            where TEventEntityIdGetter : IGetAggregateRootEntityEventEntityId<TComponentBaseEventInterface, TEntityId>, new()
         {
             private readonly CallMatchingHandlersInRegistrationOrderEventDispatcher<TComponentBaseEventInterface> _eventAppliersEventDispatcher =
                 new CallMatchingHandlersInRegistrationOrderEventDispatcher<TComponentBaseEventInterface>();
@@ -52,9 +52,9 @@ namespace Composable.CQRS.EventSourcing
                 return _eventAppliersEventDispatcher.RegisterHandlers();
             }
 
-            public static IQueryModelComponentCollection<TComponent> CreateSelfManagingCollection(TRootQueryModel rootQueryModel) => new Collection(rootQueryModel);
+            public static IQueryModelComponentCollection<TComponent, TEntityId> CreateSelfManagingCollection(TRootQueryModel rootQueryModel) => new Collection(rootQueryModel);
 
-            public class Collection : IQueryModelComponentCollection<TComponent>
+            public class Collection : IQueryModelComponentCollection<TComponent, TEntityId>
             {
                 private readonly TRootQueryModel _aggregate;
                 public Collection(TRootQueryModel aggregate)
@@ -76,11 +76,11 @@ namespace Composable.CQRS.EventSourcing
 
                 public IReadOnlyList<TComponent> InCreationOrder => _componentsInCreationOrder;
 
-                public bool TryGet(Guid id, out TComponent component) => _components.TryGetValue(id, out component);
-                public bool Exists(Guid id) => _components.ContainsKey(id);
-                public TComponent Get(Guid id) => _components[id];
+                public bool TryGet(TEntityId id, out TComponent component) => _components.TryGetValue(id, out component);
+                public bool Exists(TEntityId id) => _components.ContainsKey(id);
+                public TComponent Get(TEntityId id) => _components[id];
 
-                private readonly Dictionary<Guid, TComponent> _components = new Dictionary<Guid, TComponent>();
+                private readonly Dictionary<TEntityId, TComponent> _components = new Dictionary<TEntityId, TComponent>();
                 private readonly List<TComponent> _componentsInCreationOrder = new List<TComponent>();
             }
         }

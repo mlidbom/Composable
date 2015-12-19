@@ -9,11 +9,13 @@ namespace Composable.CQRS.EventSourcing
     public abstract partial class AggregateRoot<TAggregateRoot, TAggregateRootBaseEventClass, TAggregateRootBaseEventInterface>
     {
         public abstract class Entity<TEntity,
+                                     TEntityId,
                                      TEntityBaseEventClass,
                                      TEntityBaseEventInterface,
                                      TEntityCreatedEventInterface,
                                      TEntityRemovedEventInterface,
                                      TEventEntityIdSetterGetter> : Entity<TEntity,
+                                                                       TEntityId,
                                                                        TEntityBaseEventClass,
                                                                        TEntityBaseEventInterface,
                                                                        TEntityCreatedEventInterface,
@@ -23,17 +25,19 @@ namespace Composable.CQRS.EventSourcing
             where TEntityCreatedEventInterface : TEntityBaseEventInterface
             where TEntityRemovedEventInterface : TEntityBaseEventInterface
             where TEntity : Entity<TEntity,
+                                TEntityId,
                                 TEntityBaseEventClass,
                                 TEntityBaseEventInterface,
                                 TEntityCreatedEventInterface,
                                 TEntityRemovedEventInterface,
                                 TEventEntityIdSetterGetter>
-            where TEventEntityIdSetterGetter : IGetSetAggregateRootEntityEventEntityId<TEntityBaseEventClass, TEntityBaseEventInterface>, new()
+            where TEventEntityIdSetterGetter : IGetSetAggregateRootEntityEventEntityId<TEntityId, TEntityBaseEventClass, TEntityBaseEventInterface>, new()
         {
             public Entity(TAggregateRoot aggregateRoot) : base(aggregateRoot) { }
             public static new Collection CreateSelfManagingCollection(TAggregateRoot aggregate) => new Collection(aggregate);
 
             public new class Collection : Entity<TEntity,
+                                              TEntityId,
                                               TEntityBaseEventClass,
                                               TEntityBaseEventInterface,
                                               TEntityCreatedEventInterface,
@@ -55,6 +59,7 @@ namespace Composable.CQRS.EventSourcing
         }
 
         public abstract class Entity<TEntity,
+                                     TEntityId,
                                      TEntityBaseEventClass,
                                      TEntityBaseEventInterface,
                                      TEntityCreatedEventInterface,
@@ -63,15 +68,16 @@ namespace Composable.CQRS.EventSourcing
             where TEntityBaseEventClass : TAggregateRootBaseEventClass, TEntityBaseEventInterface
             where TEntityCreatedEventInterface : TEntityBaseEventInterface
             where TEntity : Entity<TEntity,
+                                TEntityId,
                                 TEntityBaseEventClass,
                                 TEntityBaseEventInterface,
                                 TEntityCreatedEventInterface,
                                 TEventEntityIdSetterGetter>
-            where TEventEntityIdSetterGetter : IGetSetAggregateRootEntityEventEntityId<TEntityBaseEventClass, TEntityBaseEventInterface>, new()
+            where TEventEntityIdSetterGetter : IGetSetAggregateRootEntityEventEntityId<TEntityId, TEntityBaseEventClass, TEntityBaseEventInterface>, new()
         {
             protected static readonly TEventEntityIdSetterGetter IdGetterSetter = new TEventEntityIdSetterGetter();
 
-            public Guid Id { get; private set; }
+            public TEntityId Id { get; private set; }
 
             protected Entity(TAggregateRoot aggregateRoot) : base(aggregateRoot: aggregateRoot, registerEventAppliers: false)
             {
@@ -85,17 +91,18 @@ namespace Composable.CQRS.EventSourcing
             protected override void RaiseEvent(TEntityBaseEventClass @event)
             {
                 var id = IdGetterSetter.GetId(@event);
-                if(id == Guid.Empty)
+                if (Equals(id, default(TEntityId)))
                 {
                     IdGetterSetter.SetEntityId(@event, Id);
-                }else if(id != Id)
+                }
+                else if (!Equals(id, Id))
                 {
                     throw new Exception($"Attempted to raise event with EntityId: {id} frow within entity with EntityId: {Id}");
                 }
                 base.RaiseEvent(@event);
             }
 
-            public class Collection : IReadOnlyAggregateRootEntityCollection<TEntity>
+            public class Collection : IReadOnlyAggregateRootEntityCollection<TEntity, TEntityId>
             {
                 private readonly TAggregateRoot _aggregate;
                 public Collection(TAggregateRoot aggregate)
@@ -124,13 +131,13 @@ namespace Composable.CQRS.EventSourcing
 
                 public IReadOnlyList<TEntity> InCreationOrder => EntitiesInCreationOrder;
 
-                public bool TryGet(Guid id, out TEntity component) => Entities.TryGetValue(id, out component);
+                public bool TryGet(TEntityId id, out TEntity component) => Entities.TryGetValue(id, out component);
                 [Pure]
-                public bool Exists(Guid id) => Entities.ContainsKey(id);
-                public TEntity Get(Guid id) => Entities[id];
-                public TEntity this[Guid id] => Entities[id];
+                public bool Exists(TEntityId id) => Entities.ContainsKey(id);
+                public TEntity Get(TEntityId id) => Entities[id];
+                public TEntity this[TEntityId id] => Entities[id];
 
-                protected readonly Dictionary<Guid, TEntity> Entities = new Dictionary<Guid, TEntity>();
+                protected readonly Dictionary<TEntityId, TEntity> Entities = new Dictionary<TEntityId, TEntity>();
                 protected readonly List<TEntity> EntitiesInCreationOrder = new List<TEntity>();
             }
         }

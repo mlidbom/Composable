@@ -8,7 +8,7 @@ namespace CQRS.Tests.CQRS.EventSourcing.AggregateRoot.NestedEntitiesTests.GuidId
     public class Root : AggregateRoot<Root, RootEvent.Implementation.Root, RootEvent.IRoot>
     {
         public string Name { get; private set; }
-        private readonly Entity.Collection _entities;
+        private readonly Entity.CollectionManager _entities;
         public Component Component { get; private set; }
 
         public Root(string name) : base(new DateTimeNowTimeSource())
@@ -38,7 +38,7 @@ namespace CQRS.Tests.CQRS.EventSourcing.AggregateRoot.NestedEntitiesTests.GuidId
         }
 
         public IReadOnlyEntityCollection<Entity, Guid> Entities => _entities.Entities;
-        private readonly Entity.Collection _entities;
+        private readonly Entity.CollectionManager _entities;
 
         public void Rename(string name) { RaiseEvent(new RootEvent.Component.Implementation.Renamed(name)); }
         public Entity AddEntity(string name) { return _entities.Add(new RootEvent.Component.Entity.Implementation.Created(Guid.NewGuid(), name)); }
@@ -84,7 +84,7 @@ namespace CQRS.Tests.CQRS.EventSourcing.AggregateRoot.NestedEntitiesTests.GuidId
         }
 
         public IReadOnlyEntityCollection<NestedEntity, Guid> Entities => _entities.Entities;
-        private readonly NestedEntity.Collection _entities;
+        private readonly NestedEntity.CollectionManager _entities;
 
         public void Rename(string name) { RaiseEvent(new RootEvent.Entity.Implementation.Renamed(name)); }
         public void Remove() => RaiseEvent(new RootEvent.Entity.Implementation.Removed());

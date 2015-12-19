@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using System.Linq;
+using Composable.CQRS.EventHandling;
 using Composable.System.Reflection;
 
 namespace Composable.CQRS.EventSourcing
@@ -37,24 +38,11 @@ namespace Composable.CQRS.EventSourcing
             where TEventEntityIdSetterGetter : IGetSetAggregateRootEntityEventEntityId<TEntityId, TEntityBaseEventClass, TEntityBaseEventInterface>, new()
         {
             public Entity(TAggregateRoot aggregateRoot) : base(aggregateRoot) { }
-            public static new Collection CreateSelfManagingCollection(TAggregateRoot aggregate) => new Collection(aggregate);
+            public new static CollectionManager CreateSelfManagingCollection(TAggregateRoot parent) => new CollectionManager(parent: parent, raiseEventThroughParent: parent.RaiseEvent, appliersRegistrar: parent.RegisterEventAppliers());
 
-            public new class Collection : Entity<TEntity,
-                                              TEntityId,
-                                              TEntityBaseEventClass,
-                                              TEntityBaseEventInterface,
-                                              TEntityCreatedEventInterface,
-                                              TEventEntityIdSetterGetter>.Collection
+            public class CollectionManager : EntityCollectionManager<TAggregateRoot, TEntity, TEntityId, TEntityBaseEventClass, TEntityBaseEventInterface, TEntityCreatedEventInterface, TEntityRemovedEventInterface, TEventEntityIdSetterGetter>
             {
-                public Collection(TAggregateRoot aggregate) : base(aggregate: aggregate, appliersRegistrar: aggregate.RegisterEventAppliers())
-                {
-                    aggregate.RegisterEventAppliers()
-                             .For<TEntityRemovedEventInterface>(
-                                 e =>
-                                 {
-                                     _entities.Remove(IdGetterSetter.GetId(e));
-                                 });
-                }
+                public CollectionManager(TAggregateRoot parent, Action<TEntityBaseEventClass> raiseEventThroughParent, IEventHandlerRegistrar<TEntityBaseEventInterface> appliersRegistrar) : base(parent, raiseEventThroughParent, appliersRegistrar) { }
             }
         }
     }

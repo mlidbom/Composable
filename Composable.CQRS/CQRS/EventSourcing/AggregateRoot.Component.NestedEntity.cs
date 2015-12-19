@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using System.Linq;
 using Composable.CQRS.EventHandling;
+using Composable.GenericAbstractions.Time;
 using Composable.System.Reflection;
 
 namespace Composable.CQRS.EventSourcing
@@ -22,7 +23,7 @@ namespace Composable.CQRS.EventSourcing
                                                TEntityBaseEventClass,
                                                TEntityBaseEventInterface,
                                                TEntityCreatedEventInterface,
-                                               TEventEntityIdSetterGetter> : Component<TEntity, TEntityBaseEventClass, TEntityBaseEventInterface>
+                                               TEventEntityIdSetterGetter> : Entity<TEntity, TEntityId, TEntityBaseEventClass, TEntityBaseEventInterface, TEntityCreatedEventInterface, TEventEntityIdSetterGetter>
                 where TEntityBaseEventInterface : class, TComponentBaseEventInterface
                 where TEntityBaseEventClass : TComponentBaseEventClass, TEntityBaseEventInterface
                 where TEntityCreatedEventInterface : TEntityBaseEventInterface
@@ -31,16 +32,20 @@ namespace Composable.CQRS.EventSourcing
                 where TEventEntityIdSetterGetter : IGetSetAggregateRootEntityEventEntityId<TEntityId, TEntityBaseEventClass, TEntityBaseEventInterface>, new()
             {
                 private readonly TComponent _parent;
-                protected static readonly TEventEntityIdSetterGetter IdGetterSetter = new TEventEntityIdSetterGetter();
 
                 public TEntityId Id { get; private set; }
 
-                protected NestedEntity(TComponent parent) : base(timeSource: parent.TimeSource, raiseEventThroughParent:parent.RaiseEvent, appliersRegistrar: parent.RegisterEventAppliers(), registerEventAppliers: false)
+                protected NestedEntity(TComponent parent) : this(timeSource: parent.TimeSource, raiseEventThroughParent:parent.RaiseEvent, appliersRegistrar: parent.RegisterEventAppliers(), registerEventAppliers: false)
                 {
                     _parent = parent;
                     RegisterEventAppliers()
                         .For<TEntityCreatedEventInterface>(e => Id = IdGetterSetter.GetId(e))
                         .IgnoreUnhandled<TEntityBaseEventInterface>();
+                }
+
+                public NestedEntity(IUtcTimeTimeSource timeSource, Action<TEntityBaseEventClass> raiseEventThroughParent, IEventHandlerRegistrar<TEntityBaseEventInterface> appliersRegistrar, bool registerEventAppliers) 
+                    : base(timeSource: timeSource, raiseEventThroughParent: raiseEventThroughParent, appliersRegistrar: appliersRegistrar, registerEventAppliers: registerEventAppliers)
+                {
                 }
 
                 protected override void RaiseEvent(TEntityBaseEventClass @event)
@@ -57,39 +62,11 @@ namespace Composable.CQRS.EventSourcing
                     _parent.RaiseEvent(@event);
                 }
 
-                public static Collection CreateSelfManagingCollection(TComponent parent) => new Collection(parent: parent, appliersRegistrar: parent.RegisterEventAppliers());
+                public static CollectionManager CreateSelfManagingCollection(TComponent parent) => new CollectionManager(parent: parent, raiseEventThroughParent: parent.RaiseEvent, appliersRegistrar: parent.RegisterEventAppliers());
 
-                public class Collection : IEntityCollectionManager<TEntity, TEntityId, TEntityBaseEventClass, TEntityCreatedEventInterface>
+                public class CollectionManager : EntityCollectionManager<TComponent, TEntity, TEntityId, TEntityBaseEventClass, TEntityBaseEventInterface, TEntityCreatedEventInterface, TEventEntityIdSetterGetter>
                 {
-                    private readonly TComponent _parent;
-                    protected readonly EntityCollection<TEntity, TEntityId> _entities;
-                    public Collection(TComponent parent, IEventHandlerRegistrar<TEntityBaseEventInterface> appliersRegistrar)
-                    {
-                        _entities = new EntityCollection<TEntity, TEntityId>();
-                        _parent = parent;
-                        appliersRegistrar
-                                  .For<TEntityCreatedEventInterface>(
-                                      e =>
-                                      {
-                                          var entity = ObjectFactory<TEntity>.CreateInstance(_parent);
-                                          var entityId = IdGetterSetter.GetId(e);
-
-                                          _entities.Add(entity, entityId);
-                                      })
-                                  .For<TEntityBaseEventInterface>(e => _entities[IdGetterSetter.GetId(e)].ApplyEvent(e));
-                    }
-
-                 
-                    public IReadOnlyEntityCollection<TEntity, TEntityId> Entities => _entities;
-
-                    public TEntity Add<TCreationEvent>(TCreationEvent creationEvent)
-                        where TCreationEvent : TEntityBaseEventClass, TEntityCreatedEventInterface
-                    {
-                        _parent.RaiseEvent(creationEvent);
-                        var result = _entities.InCreationOrder.Last();
-                        result.EventHandlersEventDispatcher.Dispatch(creationEvent);
-                        return result;
-                    }
+                    public CollectionManager(TComponent parent, Action<TEntityBaseEventClass> raiseEventThroughParent, IEventHandlerRegistrar<TEntityBaseEventInterface> appliersRegistrar) : base(parent, raiseEventThroughParent, appliersRegistrar) {}
                 }
             }
         }

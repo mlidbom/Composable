@@ -158,7 +158,7 @@
     <Compile Include="CQRS\EventHandling\IEventHandlerRegistrar.cs" />
     <Compile Include="CQRS\EventHandling\SingleAggregateQueryModelUpdater.cs" />
     <Compile Include="CQRS\EventHandling\UniqueMatchEventHierarchyHandler.cs" />
-    <Compile Include="CQRS\EventSourcing\AggregateRoot.Componen.NestedComponent.cs" />
+    <Compile Include="CQRS\EventSourcing\AggregateRoot.Component.NestedComponent.cs" />
     <Compile Include="CQRS\EventSourcing\AggregateRoot.Component.NestedEntity.cs" />
     <Compile Include="CQRS\EventSourcing\AggregateRoot.Component.cs" />
     <Compile Include="CQRS\EventSourcing\AggregateRoot.Entity.cs" />

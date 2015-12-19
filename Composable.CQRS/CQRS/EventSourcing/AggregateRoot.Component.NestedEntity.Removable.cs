@@ -1,4 +1,7 @@
-﻿namespace Composable.CQRS.EventSourcing
+﻿using System;
+using Composable.CQRS.EventHandling;
+
+namespace Composable.CQRS.EventSourcing
 {
     public abstract partial class AggregateRoot<TAggregateRoot, TAggregateRootBaseEventClass, TAggregateRootBaseEventInterface>
         where TAggregateRoot : AggregateRoot<TAggregateRoot, TAggregateRootBaseEventClass, TAggregateRootBaseEventInterface>
@@ -30,23 +33,11 @@
             {
                 protected NestedEntity(TComponent parent) : base(parent) { }
 
-                public new static Collection CreateSelfManagingCollection(TComponent aggregate) => new Collection(aggregate);
+                public new static CollectionManager CreateSelfManagingCollection(TComponent parent) => new CollectionManager(parent: parent, raiseEventThroughParent: parent.RaiseEvent, appliersRegistrar: parent.RegisterEventAppliers());
 
-                public new class Collection : Component<TComponent, TComponentBaseEventClass, TComponentBaseEventInterface>
-                                                  .NestedEntity
-                                                  <TEntity, TEntityId, TEntityBaseEventClass, TEntityBaseEventInterface, TEntityCreatedEventInterface,
-                                                  TEventEntityIdSetterGetter>.Collection
+                public class CollectionManager : EntityCollectionManager<TComponent, TEntity, TEntityId, TEntityBaseEventClass, TEntityBaseEventInterface, TEntityCreatedEventInterface, TEntityRemovedEventInterface, TEventEntityIdSetterGetter>
                 {
-                    public Collection(TComponent parent) : base(parent: parent, appliersRegistrar: parent.RegisterEventAppliers())
-                    {
-                        parent.RegisterEventAppliers()
-                                 .For<TEntityRemovedEventInterface>(
-                                     e =>
-                                     {
-                                         var id = IdGetterSetter.GetId(e);
-                                         _entities.Remove(id);
-                                     });
-                    }
+                    public CollectionManager(TComponent parent, Action<TEntityBaseEventClass> raiseEventThroughParent, IEventHandlerRegistrar<TEntityBaseEventInterface> appliersRegistrar) : base(parent, raiseEventThroughParent, appliersRegistrar) { }
                 }
             }            
         }

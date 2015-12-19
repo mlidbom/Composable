@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Linq;
 using Composable.CQRS.EventHandling;
 using Composable.GenericAbstractions.Time;
+using Composable.System.Reflection;
 
 namespace Composable.CQRS.EventSourcing
 {
@@ -60,7 +62,7 @@ namespace Composable.CQRS.EventSourcing
             protected CallMatchingHandlersInRegistrationOrderEventDispatcher<TComponentBaseEventInterface>.RegistrationBuilder RegisterEventHandlers()
             {
                 return EventHandlersEventDispatcher.RegisterHandlers();
-            }
-        }
+            }            
+        }       
     }
 }

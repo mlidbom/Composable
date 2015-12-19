@@ -30,29 +30,26 @@ namespace Composable.CQRS.EventSourcing
                 where TEntity :
                     NestedEntity<TEntity, TEntityBaseEventClass, TEntityBaseEventInterface, TEntityCreatedEventInterface, TEventEntityIdSetterGetter>
             {
-                protected NestedEntity(TComponent component) : base(component)
-                {
-                    RegisterEventAppliers()
-                        .For<TEntityCreatedEventInterface>(e => Id = IdGetterSetter.GetId(e))
-                        .IgnoreUnhandled<TEntityBaseEventInterface>();
-                }
+                protected NestedEntity(TComponent component) : base(component) { }
 
-                public static Collection CreateSelfManagingCollection(TComponent aggregate) => new Collection(aggregate);
+                public new static Collection CreateSelfManagingCollection(TComponent aggregate) => new Collection(aggregate);
 
                 public new class Collection : Component<TComponent, TComponentBaseEventClass, TComponentBaseEventInterface>
-                                                  .NestedEntity<TEntity, TEntityBaseEventClass, TEntityBaseEventInterface, TEntityCreatedEventInterface,TEventEntityIdSetterGetter>.Collection
+                                                  .NestedEntity
+                                                  <TEntity, TEntityBaseEventClass, TEntityBaseEventInterface, TEntityCreatedEventInterface,
+                                                  TEventEntityIdSetterGetter>.Collection
                 {
                     public Collection(TComponent component) : base(component)
                     {
                         component.RegisterEventAppliers()
-                             .For<TEntityRemovedEventInterface>(
-                                 e =>
-                                 {
-                                     var id = IdGetterSetter.GetId(e);
-                                     var entity = this[id];
-                                     Entities.Remove(id);
-                                     EntitiesInCreationOrder.Remove(entity);
-                                 });
+                                 .For<TEntityRemovedEventInterface>(
+                                     e =>
+                                     {
+                                         var id = IdGetterSetter.GetId(e);
+                                         var entity = this[id];
+                                         Entities.Remove(id);
+                                         EntitiesInCreationOrder.Remove(entity);
+                                     });
                     }
                 }
             }

@@ -1,4 +1,5 @@
-﻿using FluentAssertions;
+﻿using System;
+using FluentAssertions;
 using NUnit.Framework;
 
 // ReSharper disable InconsistentNaming
@@ -16,22 +17,41 @@ namespace CQRS.Tests.CQRS.EventSourcing.AggregateRoot
         public void Createing_nested_entities_works_and_events_dispatch_correctly()
         {
             var root = new Root("root");
-            var l1_1 = root.AddEntity("l1_1");
-            l1_1.Name.Should().Be("l1_1");
 
-            root.Entities.Get(l1_1.Id).Should().Be(l1_1);
+            var entity1 = root.AddEntity("entity1");
+            entity1.Name.Should().Be("entity1");
+            root.Entities.InCreationOrder.Count.Should().Be(1);
+            root.Entities.Exists(entity1.Id).Should().Be(true);
+            root.Entities.Get(entity1.Id).Should().Be(entity1);
+            root.Entities[entity1.Id].Should().Be(entity1);
 
-            var l1_2 = root.AddEntity("l1_2");
-            l1_2.Name.Should().Be("l1_2");
-            root.Entities.Get(l1_2.Id).Should().Be(l1_2);
+            var entity2 = root.AddEntity("entity2");
+            entity2.Name.Should().Be("entity2");
+            root.Entities.InCreationOrder.Count.Should().Be(2);
+            root.Entities.Exists(entity2.Id).Should().Be(true);
+            root.Entities[entity2.Id].Should().Be(entity2);
 
-            l1_1.Rename("newName");
-            l1_1.Name.Should().Be("newName");
-            l1_2.Name.Should().Be("l1_2");
+            entity1.Rename("newName");
+            entity1.Name.Should().Be("newName");
+            entity2.Name.Should().Be("entity2");
 
-            l1_2.Rename("newName2");
-            l1_2.Name.Should().Be("newName2");
-            l1_1.Name.Should().Be("newName");
+            entity2.Rename("newName2");
+            entity2.Name.Should().Be("newName2");
+            entity1.Name.Should().Be("newName");
+
+            root.Entities.InCreationOrder.Count.Should().Be(2);
+
+            entity2.Remove();
+            root.Entities.Exists(entity2.Id).Should().Be(false);
+            root.Entities.InCreationOrder.Count.Should().Be(1);
+            root.Invoking(_ => root.Entities.Get(entity2.Id)).ShouldThrow<Exception>();
+            root.Invoking(_ => { var __ = root.Entities[entity2.Id]; }).ShouldThrow<Exception>();
+
+            entity1.Remove();
+            root.Entities.Exists(entity1.Id).Should().Be(false);
+            root.Entities.InCreationOrder.Count.Should().Be(0);
+            root.Invoking(_ => root.Entities.Get(entity1.Id)).ShouldThrow<Exception>();
+            root.Invoking(_ => { var __ = root.Entities[entity1.Id]; }).ShouldThrow<Exception>();
         }
 
         [Test]
@@ -50,22 +70,40 @@ namespace CQRS.Tests.CQRS.EventSourcing.AggregateRoot
         {
             var root = new Root("root").Component;
 
-            var l1_1 = root.AddEntity("l1_1");
-            l1_1.Name.Should().Be("l1_1");
+            var entity1 = root.AddEntity("entity1");
+            entity1.Name.Should().Be("entity1");
+            root.Entities.InCreationOrder.Count.Should().Be(1);
+            root.Entities.Exists(entity1.Id).Should().Be(true);
+            root.Entities.Get(entity1.Id).Should().Be(entity1);
+            root.Entities[entity1.Id].Should().Be(entity1);
 
-            root.Entities.Get(l1_1.Id).Should().Be(l1_1);
+            var entity2 = root.AddEntity("entity2");
+            entity2.Name.Should().Be("entity2");
+            root.Entities.InCreationOrder.Count.Should().Be(2);
+            root.Entities.Exists(entity2.Id).Should().Be(true);
+            root.Entities[entity2.Id].Should().Be(entity2);
 
-            var l1_2 = root.AddEntity("l1_2");
-            l1_2.Name.Should().Be("l1_2");
-            root.Entities.Get(l1_2.Id).Should().Be(l1_2);
+            entity1.Rename("newName");
+            entity1.Name.Should().Be("newName");
+            entity2.Name.Should().Be("entity2");
 
-            l1_1.Rename("newName");
-            l1_1.Name.Should().Be("newName");
-            l1_2.Name.Should().Be("l1_2");
+            entity2.Rename("newName2");
+            entity2.Name.Should().Be("newName2");
+            entity1.Name.Should().Be("newName");
 
-            l1_2.Rename("newName2");
-            l1_2.Name.Should().Be("newName2");
-            l1_1.Name.Should().Be("newName");
+            root.Entities.InCreationOrder.Count.Should().Be(2);
+
+            entity2.Remove();
+            root.Entities.Exists(entity2.Id).Should().Be(false);
+            root.Entities.InCreationOrder.Count.Should().Be(1);
+            root.Invoking(_ => root.Entities.Get(entity2.Id)).ShouldThrow<Exception>();
+            root.Invoking(_ => { var __ = root.Entities[entity2.Id]; }).ShouldThrow<Exception>();
+
+            entity1.Remove();
+            root.Entities.Exists(entity1.Id).Should().Be(false);
+            root.Entities.InCreationOrder.Count.Should().Be(0);
+            root.Invoking(_ => root.Entities.Get(entity1.Id)).ShouldThrow<Exception>();
+            root.Invoking(_ => { var __ = root.Entities[entity1.Id]; }).ShouldThrow<Exception>();
         }
 
 
@@ -74,22 +112,40 @@ namespace CQRS.Tests.CQRS.EventSourcing.AggregateRoot
         {
             var root = new Root("root").AddEntity("RootEntityName");
 
-            var l1_1 = root.AddEntity("l1_1");
-            l1_1.Name.Should().Be("l1_1");
+            var entity1 = root.AddEntity("entity1");
+            entity1.Name.Should().Be("entity1");
+            root.Entities.InCreationOrder.Count.Should().Be(1);
+            root.Entities.Exists(entity1.Id).Should().Be(true);
+            root.Entities.Get(entity1.Id).Should().Be(entity1);
+            root.Entities[entity1.Id].Should().Be(entity1);
 
-            root.Entities.Get(l1_1.Id).Should().Be(l1_1);
+            var entity2 = root.AddEntity("entity2");
+            entity2.Name.Should().Be("entity2");
+            root.Entities.InCreationOrder.Count.Should().Be(2);
+            root.Entities.Exists(entity2.Id).Should().Be(true);
+            root.Entities[entity2.Id].Should().Be(entity2);
 
-            var l1_2 = root.AddEntity("l1_2");
-            l1_2.Name.Should().Be("l1_2");
-            root.Entities.Get(l1_2.Id).Should().Be(l1_2);
+            entity1.Rename("newName");
+            entity1.Name.Should().Be("newName");
+            entity2.Name.Should().Be("entity2");
 
-            l1_1.Rename("newName");
-            l1_1.Name.Should().Be("newName");
-            l1_2.Name.Should().Be("l1_2");
+            entity2.Rename("newName2");
+            entity2.Name.Should().Be("newName2");
+            entity1.Name.Should().Be("newName");
 
-            l1_2.Rename("newName2");
-            l1_2.Name.Should().Be("newName2");
-            l1_1.Name.Should().Be("newName");
+            root.Entities.InCreationOrder.Count.Should().Be(2);
+
+            entity2.Remove();
+            root.Entities.Exists(entity2.Id).Should().Be(false);
+            root.Entities.InCreationOrder.Count.Should().Be(1);
+            root.Invoking(_ => root.Entities.Get(entity2.Id)).ShouldThrow<Exception>();
+            root.Invoking(_ => { var __ = root.Entities[entity2.Id]; }).ShouldThrow<Exception>();
+
+            entity1.Remove();
+            root.Entities.Exists(entity1.Id).Should().Be(false);
+            root.Entities.InCreationOrder.Count.Should().Be(0);
+            root.Invoking(_ => root.Entities.Get(entity1.Id)).ShouldThrow<Exception>();
+            root.Invoking(_ => { var __ = root.Entities[entity1.Id]; }).ShouldThrow<Exception>();
         }
 
     }

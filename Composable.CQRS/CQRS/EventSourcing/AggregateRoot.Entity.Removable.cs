@@ -49,10 +49,7 @@ namespace Composable.CQRS.EventSourcing
                              .For<TEntityRemovedEventInterface>(
                                  e =>
                                  {
-                                     var id = IdGetterSetter.GetId(e);
-                                     var entity = this[id];
-                                     Entities.Remove(id);
-                                     EntitiesInCreationOrder.Remove(entity);
+                                     _entities.Remove(IdGetterSetter.GetId(e));
                                  });
                 }
             }

@@ -34,16 +34,14 @@
                                                   <TEntity, TEntityId, TEntityBaseEventClass, TEntityBaseEventInterface, TEntityCreatedEventInterface,
                                                   TEventEntityIdSetterGetter>.Collection
                 {
-                    public Collection(TComponent component) : base(component)
+                    public Collection(TComponent parent) : base(parent)
                     {
-                        component.RegisterEventAppliers()
+                        parent.RegisterEventAppliers()
                                  .For<TEntityRemovedEventInterface>(
                                      e =>
                                      {
                                          var id = IdGetterSetter.GetId(e);
-                                         var entity = this[id];
-                                         Entities.Remove(id);
-                                         EntitiesInCreationOrder.Remove(entity);
+                                         _entities.Remove(id);
                                      });
                     }
                 }

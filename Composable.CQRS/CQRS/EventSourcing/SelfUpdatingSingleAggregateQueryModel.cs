@@ -32,57 +32,59 @@ namespace Composable.CQRS.EventSourcing
         }
 
 
-        public abstract class Entity<TComponent, TEntityId, TComponentBaseEventInterface, TComponentCreatedEventInterface, TEventEntityIdGetter>
-            where TComponentBaseEventInterface : TAggregateRootBaseEventInterface
-            where TComponentCreatedEventInterface : TComponentBaseEventInterface
-            where TComponent : Entity<TComponent, TEntityId, TComponentBaseEventInterface, TComponentCreatedEventInterface, TEventEntityIdGetter>
-            where TEventEntityIdGetter : IGetAggregateRootEntityEventEntityId<TComponentBaseEventInterface, TEntityId>, new()
+        public abstract class Entity<TEntitity, TEntityId, TEntityBaseEventClass, TEntityBaseEventInterface, TEntityCreatedEventInterface, TEventEntityIdGetter>
+            where TEntityBaseEventInterface : TAggregateRootBaseEventInterface
+            where TEntityCreatedEventInterface : TEntityBaseEventInterface
+            where TEntitity : Entity<TEntitity, TEntityId, TEntityBaseEventClass, TEntityBaseEventInterface, TEntityCreatedEventInterface, TEventEntityIdGetter>
+            where TEventEntityIdGetter : IGetAggregateRootEntityEventEntityId<TEntityBaseEventInterface, TEntityId>, new()
         {
-            private readonly CallMatchingHandlersInRegistrationOrderEventDispatcher<TComponentBaseEventInterface> _eventAppliersEventDispatcher =
-                new CallMatchingHandlersInRegistrationOrderEventDispatcher<TComponentBaseEventInterface>();
+            private readonly CallMatchingHandlersInRegistrationOrderEventDispatcher<TEntityBaseEventInterface> _eventAppliersEventDispatcher =
+                new CallMatchingHandlersInRegistrationOrderEventDispatcher<TEntityBaseEventInterface>();
 
             private static readonly TEventEntityIdGetter IdGetter = new TEventEntityIdGetter();
 
             protected TRootQueryModel RootQueryModel { get; private set; }
 
-            private void ApplyEvent(TComponentBaseEventInterface @event) { _eventAppliersEventDispatcher.Dispatch(@event); }
+            private void ApplyEvent(TEntityBaseEventInterface @event) { _eventAppliersEventDispatcher.Dispatch(@event); }
 
-            protected CallMatchingHandlersInRegistrationOrderEventDispatcher<TComponentBaseEventInterface>.RegistrationBuilder RegisterEventAppliers()
+            protected CallMatchingHandlersInRegistrationOrderEventDispatcher<TEntityBaseEventInterface>.RegistrationBuilder RegisterEventAppliers()
             {
                 return _eventAppliersEventDispatcher.RegisterHandlers();
             }
 
-            public static IReadOnlyEntityCollection<TComponent, TEntityId> CreateSelfManagingCollection(TRootQueryModel rootQueryModel) => new Collection(rootQueryModel);
+            public static IReadOnlyEntityCollection<TEntitity, TEntityId> CreateSelfManagingCollection(TRootQueryModel rootQueryModel) => new Collection(rootQueryModel);
 
-            public class Collection : IReadOnlyEntityCollection<TComponent, TEntityId>
+            public class Collection : IReadOnlyEntityCollection<TEntitity, TEntityId>
             {
                 private readonly TRootQueryModel _aggregate;
                 public Collection(TRootQueryModel aggregate)
                 {
+                    __entities = new EntityCollection<TEntityId, TEntityId>();
                     _aggregate = aggregate;
                     _aggregate.RegisterEventAppliers()
-                         .For<TComponentCreatedEventInterface>(
+                         .For<TEntityCreatedEventInterface>(
                             e =>
                             {
-                                var component = (TComponent)Activator.CreateInstance(typeof(TComponent), nonPublic:true);
+                                var component = (TEntitity)Activator.CreateInstance(typeof(TEntitity), nonPublic:true);
                                 component.RootQueryModel = _aggregate;
 
                                 _entities.Add(IdGetter.GetId(e), component);
-                                _componentsInCreationOrder.Add(component);
+                                _entitiesInCreationOrder.Add(component);
                             })
-                        .For<TComponentBaseEventInterface>(e => _entities[IdGetter.GetId(e)].ApplyEvent(e));
+                        .For<TEntityBaseEventInterface>(e => _entities[IdGetter.GetId(e)].ApplyEvent(e));
                 }
 
 
-                public IReadOnlyList<TComponent> InCreationOrder => _componentsInCreationOrder;
+                public IReadOnlyList<TEntitity> InCreationOrder => _entitiesInCreationOrder;
 
-                public bool TryGet(TEntityId id, out TComponent component) => _entities.TryGetValue(id, out component);
+                public bool TryGet(TEntityId id, out TEntitity component) => _entities.TryGetValue(id, out component);
                 public bool Exists(TEntityId id) => _entities.ContainsKey(id);
-                public TComponent Get(TEntityId id) => _entities[id];
-                public TComponent this[TEntityId id] => _entities[id];
+                public TEntitity Get(TEntityId id) => _entities[id];
+                public TEntitity this[TEntityId id] => _entities[id];
 
-                private readonly Dictionary<TEntityId, TComponent> _entities = new Dictionary<TEntityId, TComponent>();
-                private readonly List<TComponent> _componentsInCreationOrder = new List<TComponent>();
+                private readonly Dictionary<TEntityId, TEntitity> _entities = new Dictionary<TEntityId, TEntitity>();
+                private readonly List<TEntitity> _entitiesInCreationOrder = new List<TEntitity>();
+                private EntityCollection<TEntityId, TEntityId> __entities;
             }
         }
     }

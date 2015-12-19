@@ -55,42 +55,37 @@ namespace Composable.CQRS.EventSourcing
 
                 public static Collection CreateSelfManagingCollection(TComponent aggregate) => new Collection(aggregate);
 
-                public class Collection : IReadOnlyEntityCollection<TEntity, TEntityId>
+                public class Collection : IEntityCollectionManager<TEntity, TEntityId, TEntityBaseEventClass, TEntityCreatedEventInterface>
                 {
-                    private readonly TComponent _component;
-                    public Collection(TComponent component)
+                    private readonly TComponent _parent;
+                    protected readonly EntityCollection<TEntity, TEntityId> _entities;
+                    public Collection(TComponent parent)
                     {
-                        _component = component;
-                        _component.RegisterEventAppliers()
+                        _entities = new EntityCollection<TEntity, TEntityId>();
+                        _parent = parent;
+                        _parent.RegisterEventAppliers()
                                   .For<TEntityCreatedEventInterface>(
                                       e =>
                                       {
-                                          var entity = ObjectFactory<TEntity>.CreateInstance(_component);
-                                          Entities.Add(IdGetterSetter.GetId(e), entity);
-                                          EntitiesInCreationOrder.Add(entity);
+                                          var entity = ObjectFactory<TEntity>.CreateInstance(_parent);
+                                          var entityId = IdGetterSetter.GetId(e);
+
+                                          _entities.Add(entity, entityId);
                                       })
-                                  .For<TEntityBaseEventInterface>(e => Entities[IdGetterSetter.GetId(e)].ApplyEvent(e));
+                                  .For<TEntityBaseEventInterface>(e => _entities[IdGetterSetter.GetId(e)].ApplyEvent(e));
                     }
+
+                 
+                    public IReadOnlyEntityCollection<TEntity, TEntityId> Entities => _entities;
 
                     public TEntity Add<TCreationEvent>(TCreationEvent creationEvent)
                         where TCreationEvent : TEntityBaseEventClass, TEntityCreatedEventInterface
                     {
-                        _component.RaiseEvent(creationEvent);
-                        var result = EntitiesInCreationOrder.Last();
+                        _parent.RaiseEvent(creationEvent);
+                        var result = _entities.InCreationOrder.Last();
                         result.EventHandlersEventDispatcher.Dispatch(creationEvent);
                         return result;
                     }
-
-                    public IReadOnlyList<TEntity> InCreationOrder => EntitiesInCreationOrder;
-
-                    public bool TryGet(TEntityId id, out TEntity component) => Entities.TryGetValue(id, out component);
-                    [Pure]
-                    public bool Exists(TEntityId id) => Entities.ContainsKey(id);
-                    public TEntity Get(TEntityId id) => Entities[id];
-                    public TEntity this[TEntityId id] => Entities[id];
-
-                    protected readonly Dictionary<TEntityId, TEntity> Entities = new Dictionary<TEntityId, TEntity>();
-                    protected readonly List<TEntity> EntitiesInCreationOrder = new List<TEntity>();
                 }
             }
         }

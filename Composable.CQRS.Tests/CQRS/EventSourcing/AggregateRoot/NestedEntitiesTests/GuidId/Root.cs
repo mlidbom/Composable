@@ -3,7 +3,7 @@ using Composable.CQRS.EventSourcing;
 using Composable.GenericAbstractions.Time;
 using JetBrains.Annotations;
 
-namespace CQRS.Tests.CQRS.EventSourcing.AggregateRoot
+namespace CQRS.Tests.CQRS.EventSourcing.AggregateRoot.NestedEntitiesTests.GuidId
 {
     public class Root : AggregateRoot<Root, RootEvent.Implementation.Root, RootEvent.IRoot>
     {

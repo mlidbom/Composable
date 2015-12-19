@@ -53,7 +53,7 @@ namespace CQRS.Tests.CQRS.EventSourcing.AggregateRoot.NestedEntitiesTests.GuidId
                                   RootEvent.Component.Entity.Implementation.Root.IdGetterSetter>
         {
             public string Name { get; private set; }
-            public Entity(Component component) : base(component)
+            public Entity(Component parent) : base(parent)
             {
                 RegisterEventAppliers()
                     .For<RootEvent.Component.Entity.PropertyUpdated.Name>(e => Name = e.Name);

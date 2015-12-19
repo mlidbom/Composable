@@ -32,7 +32,7 @@ namespace Composable.CQRS.EventSourcing
             protected Entity(TAggregateRoot aggregateRoot) : base(aggregateRoot: aggregateRoot, registerEventAppliers: false)
             {
                 RegisterEventAppliers()
-                    .For<TEntityCreatedEventInterface>(e => Id = IdGetterSetter.GetId((TEntityBaseEventClass)(object)e))
+                    .For<TEntityCreatedEventInterface>(e => Id = IdGetterSetter.GetId(e))
                     .IgnoreUnhandled<TEntityBaseEventInterface>();
             }
 

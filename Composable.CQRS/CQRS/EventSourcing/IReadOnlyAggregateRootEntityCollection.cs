@@ -9,5 +9,6 @@ namespace Composable.CQRS.EventSourcing
         bool TryGet(Guid id, out TComponent component);
         bool Exists(Guid id);
         TComponent Get(Guid id);
+        TComponent this[Guid id] { get; }
     }
 }

@@ -66,6 +66,7 @@ namespace Composable.CQRS.EventSourcing
                 [Pure]
                 public bool Exists(Guid id) => _entities.ContainsKey(id);
                 public TEntity Get(Guid id) => _entities[id];
+                public TEntity this[Guid id] => _entities[id];
 
                 private readonly Dictionary<Guid, TEntity> _entities = new Dictionary<Guid, TEntity>();
                 private readonly List<TEntity> _entitiesInCreationOrder = new List<TEntity>();

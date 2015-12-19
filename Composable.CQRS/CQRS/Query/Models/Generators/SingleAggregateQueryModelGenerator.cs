@@ -11,7 +11,7 @@ namespace Composable.CQRS.Query.Models.Generators
         IVersioningQueryModelGenerator<TViewModel> 
         where TImplementer : SingleAggregateQueryModelGenerator<TImplementer, TViewModel, TEvent, TSession>
         where TSession : IEventStoreReader
-        where TEvent : IAggregateRootEvent
+        where TEvent : class, IAggregateRootEvent
         where TViewModel : class, ISingleAggregateQueryModel, new()
     {
         private readonly CallMatchingHandlersInRegistrationOrderEventDispatcher<TEvent> _eventDispatcher = new CallMatchingHandlersInRegistrationOrderEventDispatcher<TEvent>();

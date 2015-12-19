@@ -7,6 +7,9 @@ using Composable.System.Reflection;
 namespace Composable.CQRS.EventSourcing
 {
     public abstract partial class AggregateRoot<TAggregateRoot, TAggregateRootBaseEventClass, TAggregateRootBaseEventInterface>
+                where TAggregateRoot : AggregateRoot<TAggregateRoot, TAggregateRootBaseEventClass, TAggregateRootBaseEventInterface>
+        where TAggregateRootBaseEventInterface : class, IAggregateRootEvent
+        where TAggregateRootBaseEventClass : AggregateRootEvent, TAggregateRootBaseEventInterface
     {
         public abstract class Entity<TEntity,
                                      TEntityId,
@@ -20,7 +23,7 @@ namespace Composable.CQRS.EventSourcing
                                                                        TEntityBaseEventInterface,
                                                                        TEntityCreatedEventInterface,
                                                                        TEventEntityIdSetterGetter>
-            where TEntityBaseEventInterface : TAggregateRootBaseEventInterface
+            where TEntityBaseEventInterface : class, TAggregateRootBaseEventInterface
             where TEntityBaseEventClass : TAggregateRootBaseEventClass, TEntityBaseEventInterface
             where TEntityCreatedEventInterface : TEntityBaseEventInterface
             where TEntityRemovedEventInterface : TEntityBaseEventInterface
@@ -43,7 +46,7 @@ namespace Composable.CQRS.EventSourcing
                                               TEntityCreatedEventInterface,
                                               TEventEntityIdSetterGetter>.Collection
             {
-                public Collection(TAggregateRoot aggregate) : base(aggregate)
+                public Collection(TAggregateRoot aggregate) : base(aggregate: aggregate, appliersRegistrar: aggregate.RegisterEventAppliers())
                 {
                     aggregate.RegisterEventAppliers()
                              .For<TEntityRemovedEventInterface>(

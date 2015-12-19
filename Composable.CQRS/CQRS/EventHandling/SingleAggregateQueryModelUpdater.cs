@@ -10,7 +10,7 @@ namespace Composable.CQRS.EventHandling
     public abstract class SingleAggregateQueryModelUpdater<TImplementer, TViewModel, TEvent, TSession> : CallsMatchingHandlersInRegistrationOrderEventHandler<TEvent>
         where TImplementer : SingleAggregateQueryModelUpdater<TImplementer, TViewModel, TEvent, TSession>
         where TSession : IDocumentDbSession
-        where TEvent : IAggregateRootEvent
+        where TEvent : class, IAggregateRootEvent
         where TViewModel : class, ISingleAggregateQueryModel, new()
     {
         protected readonly TSession Session;

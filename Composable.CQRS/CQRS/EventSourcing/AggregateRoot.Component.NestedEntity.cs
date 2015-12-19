@@ -2,14 +2,18 @@
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using System.Linq;
+using Composable.CQRS.EventHandling;
 using Composable.System.Reflection;
 
 namespace Composable.CQRS.EventSourcing
 {
     public abstract partial class AggregateRoot<TAggregateRoot, TAggregateRootBaseEventClass, TAggregateRootBaseEventInterface>
+        where TAggregateRoot : AggregateRoot<TAggregateRoot, TAggregateRootBaseEventClass, TAggregateRootBaseEventInterface>
+        where TAggregateRootBaseEventInterface : class, IAggregateRootEvent
+        where TAggregateRootBaseEventClass : AggregateRootEvent, TAggregateRootBaseEventInterface
     {
         public abstract partial class Component<TComponent, TComponentBaseEventClass, TComponentBaseEventInterface>
-            where TComponentBaseEventInterface : TAggregateRootBaseEventInterface
+            where TComponentBaseEventInterface : class, TAggregateRootBaseEventInterface
             where TComponentBaseEventClass : TAggregateRootBaseEventClass, TComponentBaseEventInterface
             where TComponent : Component<TComponent, TComponentBaseEventClass, TComponentBaseEventInterface>
         {            
@@ -19,7 +23,7 @@ namespace Composable.CQRS.EventSourcing
                                                TEntityBaseEventInterface,
                                                TEntityCreatedEventInterface,
                                                TEventEntityIdSetterGetter> : Component<TEntity, TEntityBaseEventClass, TEntityBaseEventInterface>
-                where TEntityBaseEventInterface : TComponentBaseEventInterface
+                where TEntityBaseEventInterface : class, TComponentBaseEventInterface
                 where TEntityBaseEventClass : TComponentBaseEventClass, TEntityBaseEventInterface
                 where TEntityCreatedEventInterface : TEntityBaseEventInterface
                 where TEntity :
@@ -31,7 +35,7 @@ namespace Composable.CQRS.EventSourcing
 
                 public TEntityId Id { get; private set; }
 
-                protected NestedEntity(TComponent parent) : base(aggregateRoot: parent.AggregateRoot, registerEventAppliers: false)
+                protected NestedEntity(TComponent parent) : base(timeSource: parent.TimeSource, raiseEventThroughParent:parent.RaiseEvent, appliersRegistrar: parent.RegisterEventAppliers(), registerEventAppliers: false)
                 {
                     _parent = parent;
                     RegisterEventAppliers()
@@ -53,17 +57,17 @@ namespace Composable.CQRS.EventSourcing
                     _parent.RaiseEvent(@event);
                 }
 
-                public static Collection CreateSelfManagingCollection(TComponent aggregate) => new Collection(aggregate);
+                public static Collection CreateSelfManagingCollection(TComponent parent) => new Collection(parent: parent, appliersRegistrar: parent.RegisterEventAppliers());
 
                 public class Collection : IEntityCollectionManager<TEntity, TEntityId, TEntityBaseEventClass, TEntityCreatedEventInterface>
                 {
                     private readonly TComponent _parent;
                     protected readonly EntityCollection<TEntity, TEntityId> _entities;
-                    public Collection(TComponent parent)
+                    public Collection(TComponent parent, IEventHandlerRegistrar<TEntityBaseEventInterface> appliersRegistrar)
                     {
                         _entities = new EntityCollection<TEntity, TEntityId>();
                         _parent = parent;
-                        _parent.RegisterEventAppliers()
+                        appliersRegistrar
                                   .For<TEntityCreatedEventInterface>(
                                       e =>
                                       {

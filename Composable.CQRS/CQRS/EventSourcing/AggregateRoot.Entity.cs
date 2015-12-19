@@ -2,11 +2,15 @@
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using System.Linq;
+using Composable.CQRS.EventHandling;
 using Composable.System.Reflection;
 
 namespace Composable.CQRS.EventSourcing
 {
     public abstract partial class AggregateRoot<TAggregateRoot, TAggregateRootBaseEventClass, TAggregateRootBaseEventInterface>
+        where TAggregateRoot : AggregateRoot<TAggregateRoot, TAggregateRootBaseEventClass, TAggregateRootBaseEventInterface>
+        where TAggregateRootBaseEventInterface : class, IAggregateRootEvent
+        where TAggregateRootBaseEventClass : AggregateRootEvent, TAggregateRootBaseEventInterface
     {       
         public abstract class Entity<TEntity,
                                      TEntityId,
@@ -14,7 +18,7 @@ namespace Composable.CQRS.EventSourcing
                                      TEntityBaseEventInterface,
                                      TEntityCreatedEventInterface,
                                      TEventEntityIdSetterGetter> : Component<TEntity, TEntityBaseEventClass, TEntityBaseEventInterface>
-            where TEntityBaseEventInterface : TAggregateRootBaseEventInterface
+            where TEntityBaseEventInterface : class, TAggregateRootBaseEventInterface
             where TEntityBaseEventClass : TAggregateRootBaseEventClass, TEntityBaseEventInterface
             where TEntityCreatedEventInterface : TEntityBaseEventInterface
             where TEntity : Entity<TEntity,
@@ -29,14 +33,14 @@ namespace Composable.CQRS.EventSourcing
 
             public TEntityId Id { get; private set; }
 
-            protected Entity(TAggregateRoot aggregateRoot) : base(aggregateRoot: aggregateRoot, registerEventAppliers: false)
+            protected Entity(TAggregateRoot aggregateRoot) : base(timeSource: aggregateRoot.TimeSource, raiseEventThroughParent: aggregateRoot.RaiseEvent, appliersRegistrar: aggregateRoot.RegisterEventAppliers(), registerEventAppliers: false)
             {
                 RegisterEventAppliers()
                     .For<TEntityCreatedEventInterface>(e => Id = IdGetterSetter.GetId(e))
                     .IgnoreUnhandled<TEntityBaseEventInterface>();
             }
 
-            public static Collection CreateSelfManagingCollection(TAggregateRoot aggregate) => new Collection(aggregate);
+            public static Collection CreateSelfManagingCollection(TAggregateRoot aggregate) => new Collection(aggregate: aggregate, appliersRegistrar: aggregate.RegisterEventAppliers());
 
             protected override void RaiseEvent(TEntityBaseEventClass @event)
             {
@@ -56,11 +60,11 @@ namespace Composable.CQRS.EventSourcing
             {
                 private readonly TAggregateRoot _aggregate;
                 protected readonly EntityCollection<TEntity, TEntityId> _entities;
-                public Collection(TAggregateRoot aggregate)
+                public Collection(TAggregateRoot aggregate, IEventHandlerRegistrar<TAggregateRootBaseEventInterface> appliersRegistrar)
                 {
                     _entities = new EntityCollection<TEntity, TEntityId>();
                     _aggregate = aggregate;
-                    _aggregate.RegisterEventAppliers()
+                    appliersRegistrar
                               .For<TEntityCreatedEventInterface>(
                                   e =>
                                   {

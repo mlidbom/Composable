@@ -1,12 +1,16 @@
-﻿using Composable.CQRS.EventHandling;
+﻿using System;
+using Composable.CQRS.EventHandling;
 using Composable.GenericAbstractions.Time;
 
 namespace Composable.CQRS.EventSourcing
 {
-    public abstract partial class AggregateRoot<TAggregateRoot, TAggregateRootBaseEventClass, TAggregateRootBaseEventInterface>
+    public abstract partial class AggregateRoot<TAggregateRoot, TAggregateRootBaseEventClass, TAggregateRootBaseEventInterface> 
+        where TAggregateRoot : AggregateRoot<TAggregateRoot, TAggregateRootBaseEventClass, TAggregateRootBaseEventInterface>
+        where TAggregateRootBaseEventInterface : class, IAggregateRootEvent
+        where TAggregateRootBaseEventClass : AggregateRootEvent, TAggregateRootBaseEventInterface
     {
         public abstract partial class Component<TComponent, TComponentBaseEventClass, TComponentBaseEventInterface>
-            where TComponentBaseEventInterface : TAggregateRootBaseEventInterface
+            where TComponentBaseEventInterface : class, TAggregateRootBaseEventInterface
             where TComponentBaseEventClass : TAggregateRootBaseEventClass, TComponentBaseEventInterface
             where TComponent : Component<TComponent, TComponentBaseEventClass, TComponentBaseEventInterface>
         {
@@ -14,30 +18,37 @@ namespace Composable.CQRS.EventSourcing
                 new CallMatchingHandlersInRegistrationOrderEventDispatcher<TComponentBaseEventInterface>();
             internal readonly CallMatchingHandlersInRegistrationOrderEventDispatcher<TComponentBaseEventInterface> EventHandlersEventDispatcher =
                 new CallMatchingHandlersInRegistrationOrderEventDispatcher<TComponentBaseEventInterface>();
+            private readonly Action<TComponentBaseEventClass> _raiseEventThroughParent;
 
-            protected IUtcTimeTimeSource TimeSource => AggregateRoot.TimeSource;
-            private TAggregateRoot AggregateRoot { get; set; }
+            protected IUtcTimeTimeSource TimeSource { get; private set; }
 
             internal void ApplyEvent(TComponentBaseEventInterface @event) { _eventAppliersEventDispatcher.Dispatch(@event); }
 
-            protected Component(TAggregateRoot aggregateRoot) : this(aggregateRoot: aggregateRoot, registerEventAppliers: true) { }
+            public Component(TAggregateRoot aggregateRoot)
+                : this(
+                    timeSource: aggregateRoot.TimeSource,
+                    raiseEventThroughParent: aggregateRoot.RaiseEvent,
+                    appliersRegistrar: aggregateRoot.RegisterEventAppliers(),
+                    registerEventAppliers: true)
+            {}
 
-            internal Component(TAggregateRoot aggregateRoot, bool registerEventAppliers)
+            internal Component(IUtcTimeTimeSource timeSource, Action<TComponentBaseEventClass> raiseEventThroughParent, IEventHandlerRegistrar<TComponentBaseEventInterface> appliersRegistrar, bool registerEventAppliers)
             {
-                AggregateRoot = aggregateRoot;
+                TimeSource = timeSource;
+                _raiseEventThroughParent = raiseEventThroughParent;
                 EventHandlersEventDispatcher.Register()
                                             .IgnoreUnhandled<TComponentBaseEventInterface>();
 
                 if(registerEventAppliers)
                 {
-                    AggregateRoot.RegisterEventAppliers()
+                    appliersRegistrar
                                  .For<TComponentBaseEventInterface>(ApplyEvent);
                 }
             }
 
             protected virtual void RaiseEvent(TComponentBaseEventClass @event)
             {
-                AggregateRoot.RaiseEvent(@event);
+                _raiseEventThroughParent(@event);
                 EventHandlersEventDispatcher.Dispatch(@event);
             }
 

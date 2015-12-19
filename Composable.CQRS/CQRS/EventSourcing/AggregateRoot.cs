@@ -12,7 +12,7 @@ namespace Composable.CQRS.EventSourcing
 {
     public partial class AggregateRoot<TAggregateRoot, TAggregateRootBaseEventClass, TAggregateRootBaseEventInterface> : VersionedPersistentEntity<TAggregateRoot>, IEventStored, ISharedOwnershipAggregateRoot
         where TAggregateRoot : AggregateRoot<TAggregateRoot, TAggregateRootBaseEventClass, TAggregateRootBaseEventInterface>
-        where TAggregateRootBaseEventInterface : IAggregateRootEvent
+        where TAggregateRootBaseEventInterface : class, IAggregateRootEvent
         where TAggregateRootBaseEventClass : AggregateRootEvent, TAggregateRootBaseEventInterface
     {
         protected IUtcTimeTimeSource TimeSource { get; private set; }

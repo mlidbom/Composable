@@ -6,7 +6,7 @@ namespace Composable.Persistence
     public abstract class SingleAggregateRelationalQueryModelUpdater<TImplementer, TQueryModel, TRootEventHandled, TSession> :
         CallsMatchingHandlersInRegistrationOrderEventHandler<TRootEventHandled>
         where TImplementer : SingleAggregateRelationalQueryModelUpdater<TImplementer, TQueryModel, TRootEventHandled, TSession>
-        where TRootEventHandled : IAggregateRootEvent
+        where TRootEventHandled : class, IAggregateRootEvent
         where TQueryModel : ISingleAggregateQueryModel, new()
         where TSession : IEntityPersister
     {

@@ -189,6 +189,13 @@
     <Compile Include="CQRS\EventSourcing\AggregateRoot\NestedEntitiesTests\GuidId\RootEvent.Entity.Entity.cs" />
     <Compile Include="CQRS\EventSourcing\AggregateRoot\NestedEntitiesTests\GuidId\RootEvent.Entity.cs" />
     <Compile Include="CQRS\EventSourcing\AggregateRoot\NestedEntitiesTests\GuidId\RootEvent.cs" />
+    <Compile Include="CQRS\EventSourcing\AggregateRoot\NestedEntitiesTests\IntegerId\NestedEntitiesTests.cs" />
+    <Compile Include="CQRS\EventSourcing\AggregateRoot\NestedEntitiesTests\IntegerId\Root.cs" />
+    <Compile Include="CQRS\EventSourcing\AggregateRoot\NestedEntitiesTests\IntegerId\RootEvent.Component.cs" />
+    <Compile Include="CQRS\EventSourcing\AggregateRoot\NestedEntitiesTests\IntegerId\RootEvent.Component.Entity.cs" />
+    <Compile Include="CQRS\EventSourcing\AggregateRoot\NestedEntitiesTests\IntegerId\RootEvent.cs" />
+    <Compile Include="CQRS\EventSourcing\AggregateRoot\NestedEntitiesTests\IntegerId\RootEvent.Entity.cs" />
+    <Compile Include="CQRS\EventSourcing\AggregateRoot\NestedEntitiesTests\IntegerId\RootEvent.Entity.Entity.cs" />
     <Compile Include="CQRS\EventSourcing\EventRefactoring\Migrations\After.cs" />
     <Compile Include="CQRS\EventSourcing\EventRefactoring\Migrations\Before.cs" />
     <Compile Include="CQRS\EventSourcing\EventRefactoring\Migrations\EventStreamMutatorTests.cs" />

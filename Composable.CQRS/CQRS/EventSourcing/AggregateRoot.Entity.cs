@@ -52,43 +52,35 @@ namespace Composable.CQRS.EventSourcing
                 base.RaiseEvent(@event);
             }
 
-            public class Collection : IReadOnlyEntityCollection<TEntity, TEntityId>
+            public class Collection : IEntityCollectionManager<TEntity, TEntityId, TEntityBaseEventClass, TEntityCreatedEventInterface>
             {
                 private readonly TAggregateRoot _aggregate;
+                protected readonly EntityCollection<TEntity, TEntityId> _entities;
                 public Collection(TAggregateRoot aggregate)
                 {
+                    _entities = new EntityCollection<TEntity, TEntityId>();
                     _aggregate = aggregate;
                     _aggregate.RegisterEventAppliers()
                               .For<TEntityCreatedEventInterface>(
                                   e =>
                                   {
                                       var entity = ObjectFactory<TEntity>.CreateInstance(_aggregate);
-
-                                      Entities.Add(IdGetterSetter.GetId(e), entity);
-                                      EntitiesInCreationOrder.Add(entity);
+                                      _entities.Add(entity, IdGetterSetter.GetId(e));
                                   })
-                              .For<TEntityBaseEventInterface>(e => Entities[IdGetterSetter.GetId(e)].ApplyEvent(e));
+                              .For<TEntityBaseEventInterface>(e => _entities[IdGetterSetter.GetId(e)].ApplyEvent(e));
                 }
+
+                public IReadOnlyEntityCollection<TEntity, TEntityId> Entities => _entities;
 
                 public TEntity Add<TCreationEvent>(TCreationEvent creationEvent)
                     where TCreationEvent : TEntityBaseEventClass, TEntityCreatedEventInterface
                 {
                     _aggregate.RaiseEvent(creationEvent);
-                    var result = EntitiesInCreationOrder.Last();
+                    var result = _entities.InCreationOrder.Last();
                     result.EventHandlersEventDispatcher.Dispatch(creationEvent);
                     return result;
                 }
-
-                public IReadOnlyList<TEntity> InCreationOrder => EntitiesInCreationOrder;
-
-                public bool TryGet(TEntityId id, out TEntity component) => Entities.TryGetValue(id, out component);
-                [Pure]
-                public bool Exists(TEntityId id) => Entities.ContainsKey(id);
-                public TEntity Get(TEntityId id) => Entities[id];
-                public TEntity this[TEntityId id] => Entities[id];
-
-                protected readonly Dictionary<TEntityId, TEntity> Entities = new Dictionary<TEntityId, TEntity>();
-                protected readonly List<TEntity> EntitiesInCreationOrder = new List<TEntity>();
+                
             }
         }
     }

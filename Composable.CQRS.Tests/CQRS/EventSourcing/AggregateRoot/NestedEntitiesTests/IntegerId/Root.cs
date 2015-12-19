@@ -9,13 +9,13 @@ namespace CQRS.Tests.CQRS.EventSourcing.AggregateRoot.NestedEntitiesTests.Intege
     {
         private static int _instances;
         public string Name { get; private set; }
-        public Entity.Collection Entities { get; }
+        private readonly Entity.Collection _entities;
         public Component Component { get; private set; }
 
         public Root(string name) : base(new DateTimeNowTimeSource())
         {
             Component = new Component(this);
-            Entities = Entity.CreateSelfManagingCollection(this);
+            _entities = Entity.CreateSelfManagingCollection(this);
 
             RegisterEventAppliers()
                 .For<RootEvent.PropertyUpdated.Name>(e => Name = e.Name);
@@ -23,7 +23,8 @@ namespace CQRS.Tests.CQRS.EventSourcing.AggregateRoot.NestedEntitiesTests.Intege
             RaiseEvent(new RootEvent.Implementation.Created(Guid.NewGuid(), name));
         }
 
-        public Entity AddEntity(string name) { return Entities.Add(new RootEvent.Entity.Implementation.Created(++_instances, name)); }
+        public IReadOnlyEntityCollection<Entity, int> Entities => _entities.Entities;
+        public Entity AddEntity(string name) { return _entities.Add(new RootEvent.Entity.Implementation.Created(++_instances, name)); }
     }
 
     public class Component : Root.Component<Component, RootEvent.Component.Implementation.Root, RootEvent.Component.IRoot>
@@ -32,16 +33,17 @@ namespace CQRS.Tests.CQRS.EventSourcing.AggregateRoot.NestedEntitiesTests.Intege
         public string Name { get; private set; }
         public Component(Root root) : base(root)
         {
-            Entities = Entity.CreateSelfManagingCollection(this);
+            _entities = Entity.CreateSelfManagingCollection(this);
 
             RegisterEventAppliers()
                 .For<RootEvent.Component.PropertyUpdated.Name>(e => Name = e.Name);
         }
 
-        public Entity.Collection Entities { get; private set; }
+        public IReadOnlyEntityCollection<Entity, int> Entities => _entities.Entities;
+        private readonly Entity.Collection _entities;
 
         public void Rename(string name) { RaiseEvent(new RootEvent.Component.Implementation.Renamed(name)); }
-        public Entity AddEntity(string name) { return Entities.Add(new RootEvent.Component.Entity.Implementation.Created(++_instances, name)); }
+        public Entity AddEntity(string name) { return _entities.Add(new RootEvent.Component.Entity.Implementation.Created(++_instances, name)); }
 
         [UsedImplicitly]
         public class Entity : NestedEntity<Entity,
@@ -79,12 +81,13 @@ namespace CQRS.Tests.CQRS.EventSourcing.AggregateRoot.NestedEntitiesTests.Intege
         public Entity(Root root) : base(root)
         {
             Root = root;
-            Entities = NestedEntity.CreateSelfManagingCollection(this);
+            _entities = NestedEntity.CreateSelfManagingCollection(this);
             RegisterEventAppliers()
                 .For<RootEvent.Entity.PropertyUpdated.Name>(e => Name = e.Name);
         }
 
-        public NestedEntity.Collection Entities { get; private set; }
+        public IReadOnlyEntityCollection<NestedEntity, int> Entities => _entities.Entities;
+        private readonly NestedEntity.Collection _entities;
 
         public void Rename(string name) { RaiseEvent(new RootEvent.Entity.Implementation.Renamed(name)); }
         public void Remove() => RaiseEvent(new RootEvent.Entity.Implementation.Removed());
@@ -112,6 +115,6 @@ namespace CQRS.Tests.CQRS.EventSourcing.AggregateRoot.NestedEntitiesTests.Intege
         }
 
         public NestedEntity AddEntity(string name)
-            => Entities.Add(new RootEvent.Entity.NestedEntity.Implementation.Created(nestedEntityId: ++_instances, name: name));
+            => _entities.Add(new RootEvent.Entity.NestedEntity.Implementation.Created(nestedEntityId: ++_instances, name: name));
     }
 }

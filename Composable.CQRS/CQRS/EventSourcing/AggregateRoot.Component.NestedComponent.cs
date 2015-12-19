@@ -15,10 +15,7 @@
                 where TNestedComponent : NestedComponent<TNestedComponent, TNestedComponentBaseEventClass, TNestedComponentBaseEventInterface>
             {
                 protected NestedComponent(TComponent parent) : base(parent.AggregateRoot)
-                {
-                    RegisterEventAppliers()
-                        .For<TNestedComponentBaseEventInterface>(ApplyEvent);
-                }
+                {}
             }
         }
     }

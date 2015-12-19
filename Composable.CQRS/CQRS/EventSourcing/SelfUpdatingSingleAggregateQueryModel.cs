@@ -7,6 +7,7 @@ namespace Composable.CQRS.EventSourcing
 {
     public abstract class SelfUpdatingSingleAggregateQueryModel<TRootQueryModel, TAggregateRootBaseEventInterface>
         where TRootQueryModel : SelfUpdatingSingleAggregateQueryModel<TRootQueryModel, TAggregateRootBaseEventInterface>
+        where TAggregateRootBaseEventInterface : class
     {
         readonly CallMatchingHandlersInRegistrationOrderEventDispatcher<TAggregateRootBaseEventInterface> _eventAppliersEventDispatcher =
             new CallMatchingHandlersInRegistrationOrderEventDispatcher<TAggregateRootBaseEventInterface>();
@@ -33,7 +34,7 @@ namespace Composable.CQRS.EventSourcing
 
 
         public abstract class Entity<TEntitity, TEntityId, TEntityBaseEventClass, TEntityBaseEventInterface, TEntityCreatedEventInterface, TEventEntityIdGetter>
-            where TEntityBaseEventInterface : TAggregateRootBaseEventInterface
+            where TEntityBaseEventInterface : class, TAggregateRootBaseEventInterface
             where TEntityCreatedEventInterface : TEntityBaseEventInterface
             where TEntitity : Entity<TEntitity, TEntityId, TEntityBaseEventClass, TEntityBaseEventInterface, TEntityCreatedEventInterface, TEventEntityIdGetter>
             where TEventEntityIdGetter : IGetAggregateRootEntityEventEntityId<TEntityBaseEventInterface, TEntityId>, new()

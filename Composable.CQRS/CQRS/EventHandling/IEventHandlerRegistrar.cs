@@ -13,6 +13,7 @@ namespace Composable.CQRS.EventHandling
     }
 
     public interface IEventHandlerRegistrar<in TBaseEvent>
+        where TBaseEvent : class
     {
         ///<summary>Registers a handler for any event that implements THandledEvent. All matching handlers will be called in the order they were registered.</summary>
         IEventHandlerRegistrar<TBaseEvent> For<THandledEvent>(Action<THandledEvent> handler) where THandledEvent : TBaseEvent;

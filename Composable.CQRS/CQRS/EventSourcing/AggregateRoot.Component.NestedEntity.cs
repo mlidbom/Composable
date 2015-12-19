@@ -66,15 +66,31 @@ namespace Composable.CQRS.EventSourcing
                     NestedEntity<TEntity, TEntityBaseEventClass, TEntityBaseEventInterface, TEntityCreatedEventInterface, TEventEntityIdSetterGetter>
                 where TEventEntityIdSetterGetter : IGetSetAggregateRootEntityEventEntityId<TEntityBaseEventClass, TEntityBaseEventInterface>, new()
             {
+                private readonly TComponent _component;
                 protected static readonly TEventEntityIdSetterGetter IdGetterSetter = new TEventEntityIdSetterGetter();
 
-                public Guid Id { get; protected set; }
+                public Guid Id { get; private set; }
 
                 protected NestedEntity(TComponent component) : base(aggregateRoot: component.AggregateRoot, registerEventAppliers: false)
                 {
+                    _component = component;
                     RegisterEventAppliers()
                         .For<TEntityCreatedEventInterface>(e => Id = IdGetterSetter.GetId(e))
                         .IgnoreUnhandled<TEntityBaseEventInterface>();
+                }
+
+                protected override void RaiseEvent(TEntityBaseEventClass @event)
+                {
+                    var id = IdGetterSetter.GetId(@event);
+                    if (id == Guid.Empty)
+                    {
+                        IdGetterSetter.SetEntityId(@event, Id);
+                    }
+                    else if (id != Id)
+                    {
+                        throw new Exception($"Attempted to raise event with EntityId: {id} frow within entity with EntityId: {Id}");
+                    }
+                    _component.RaiseEvent(@event);
                 }
 
                 public static Collection CreateSelfManagingCollection(TComponent aggregate) => new Collection(aggregate);

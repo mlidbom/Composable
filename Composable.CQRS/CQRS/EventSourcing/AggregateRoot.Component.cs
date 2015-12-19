@@ -35,7 +35,7 @@ namespace Composable.CQRS.EventSourcing
                 }
             }
 
-            protected void RaiseEvent(TComponentBaseEventClass @event)
+            protected virtual void RaiseEvent(TComponentBaseEventClass @event)
             {
                 AggregateRoot.RaiseEvent(@event);
                 EventHandlersEventDispatcher.Dispatch(@event);

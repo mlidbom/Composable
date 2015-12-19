@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using System.Linq;
-using System.Reflection;
 using Composable.CQRS.EventHandling;
 using Composable.GenericAbstractions.Time;
 using Composable.System.Reflection;
@@ -36,9 +35,7 @@ namespace Composable.CQRS.EventSourcing
 
             internal void ApplyEvent(TComponentBaseEventInterface @event) { _eventAppliersEventDispatcher.Dispatch(@event); }
 
-            protected Component(TAggregateRoot aggregateRoot) : this(aggregateRoot: aggregateRoot, registerEventAppliers: true)
-            {
-            }
+            protected Component(TAggregateRoot aggregateRoot) : this(aggregateRoot: aggregateRoot, registerEventAppliers: true) { }
 
             internal Component(TAggregateRoot aggregateRoot, bool registerEventAppliers)
             {
@@ -69,9 +66,11 @@ namespace Composable.CQRS.EventSourcing
                 return EventHandlersEventDispatcher.RegisterHandlers();
             }
 
-            public abstract class NestedEntity<TEntity, TEntityBaseEventClass, TEntityBaseEventInterface, TEntityCreatedEventInterface,
-                                               TEventEntityIdSetterGetter> :
-                                                   Component<TEntity, TEntityBaseEventClass, TEntityBaseEventInterface>
+            public abstract class NestedEntity<TEntity,
+                                               TEntityBaseEventClass,
+                                               TEntityBaseEventInterface,
+                                               TEntityCreatedEventInterface,
+                                               TEventEntityIdSetterGetter> : Component<TEntity, TEntityBaseEventClass, TEntityBaseEventInterface>
                 where TEntityBaseEventInterface : TComponentBaseEventInterface
                 where TEntityBaseEventClass : TComponentBaseEventClass, TEntityBaseEventInterface
                 where TEntityCreatedEventInterface : TEntityBaseEventInterface
@@ -83,7 +82,7 @@ namespace Composable.CQRS.EventSourcing
 
                 public Guid Id { get; private set; }
 
-                protected NestedEntity(TComponent component):base(aggregateRoot: component.AggregateRoot, registerEventAppliers: false)
+                protected NestedEntity(TComponent component) : base(aggregateRoot: component.AggregateRoot, registerEventAppliers: false)
                 {
                     RegisterEventAppliers()
                         .For<TEntityCreatedEventInterface>(e => Id = IdGetterSetter.GetId(e))
@@ -137,7 +136,7 @@ namespace Composable.CQRS.EventSourcing
                 where TNestedComponentBaseEventClass : TComponentBaseEventClass, TNestedComponentBaseEventInterface
                 where TNestedComponent : NestedComponent<TNestedComponent, TNestedComponentBaseEventClass, TNestedComponentBaseEventInterface>
             {
-                protected NestedComponent(TAggregateRoot aggregateRoot) : base(aggregateRoot) {}
+                protected NestedComponent(TAggregateRoot aggregateRoot) : base(aggregateRoot) { }
             }
         }
 

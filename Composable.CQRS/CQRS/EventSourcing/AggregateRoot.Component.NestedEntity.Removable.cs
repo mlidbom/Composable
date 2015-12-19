@@ -25,7 +25,7 @@
                 where TEntity :
                     NestedEntity<TEntity, TEntityId, TEntityBaseEventClass, TEntityBaseEventInterface, TEntityCreatedEventInterface, TEventEntityIdSetterGetter>
             {
-                protected NestedEntity(TComponent component) : base(component) { }
+                protected NestedEntity(TComponent parent) : base(parent) { }
 
                 public new static Collection CreateSelfManagingCollection(TComponent aggregate) => new Collection(aggregate);
 

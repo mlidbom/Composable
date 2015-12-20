@@ -1,10 +1,4 @@
-Castle.Core
-Castle.Windsor
-Iesi.Collections
 log4net
-NHibernate
-NServiceBus
 NServiceBus.CastleWindsor
 NServiceBus.Host
-NServiceBus.Interfaces
 NServiceBus.NHibernate

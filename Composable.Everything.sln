@@ -34,6 +34,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Packaging", "Packaging", "{
 	ProjectSection(SolutionItems) = preProject
 		buildpackages.ps1 = buildpackages.ps1
 		buildpaket.ps1 = buildpaket.ps1
+		CommonAssemblyInfo.cs = CommonAssemblyInfo.cs
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Composable.CQRS.ServiceBus.NServicebus.Tests.TransactionSupport", "Composable.CQRS.ServiceBus.NServicebus.Tests.TransactionSupport\Composable.CQRS.ServiceBus.NServicebus.Tests.TransactionSupport.csproj", "{E47F1459-865B-48EB-A74E-37B0472672EC}"

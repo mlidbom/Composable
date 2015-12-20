@@ -258,16 +258,16 @@
     <Content Include="Global.asax" />
     <Content Include="Content\Site.css" />
     <None Include="Scripts\jquery-1.10.2.intellisense.js" />
-    <Content Include="Scripts\jquery-2.1.4-vsdoc.js">
+    <Content Include="Scripts\jquery-1.10.2-vsdoc.js">
       <Paket>True</Paket>
     </Content>
-    <Content Include="Scripts\jquery-2.1.4.js">
+    <Content Include="Scripts\jquery-1.10.2.js">
       <Paket>True</Paket>
     </Content>
-    <Content Include="Scripts\jquery-2.1.4.min.js">
+    <Content Include="Scripts\jquery-1.10.2.min.js">
       <Paket>True</Paket>
     </Content>
-    <Content Include="Scripts\jquery-2.1.4.min.map">
+    <Content Include="Scripts\jquery-1.10.2.min.map">
       <Paket>True</Paket>
     </Content>
     <Content Include="Scripts\jquery.validate-vsdoc.js">
@@ -534,7 +534,7 @@
     <When Condition="$(TargetFrameworkIdentifier) == '.NETFramework' And ($(TargetFrameworkVersion) == 'v4.5' Or $(TargetFrameworkVersion) == 'v4.5.1' Or $(TargetFrameworkVersion) == 'v4.5.2' Or $(TargetFrameworkVersion) == 'v4.5.3' Or $(TargetFrameworkVersion) == 'v4.6' Or $(TargetFrameworkVersion) == 'v4.6.1')">
       <ItemGroup>
         <Reference Include="log4net">
-          <HintPath>..\packages\log4net\lib\net45-full\log4net.dll</HintPath>
+          <HintPath>..\packages\log4net\lib\net40-full\log4net.dll</HintPath>
           <Private>True</Private>
           <Paket>True</Paket>
         </Reference>

@@ -39,20 +39,29 @@
     <Reference Include="Castle.Windsor">
       <HintPath>..\..\..\packages\Castle.Windsor.3.3.0\lib\net45\Castle.Windsor.dll</HintPath>
     </Reference>
-    <Reference Include="Composable.Contracts">
-      <HintPath>..\packages\Composable.Contracts.0.8.1\lib\net40\Composable.Contracts.dll</HintPath>
+    <Reference Include="Composable.Contracts, Version=0.8.2.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Composable.Contracts.0.8.2\lib\net451\Composable.Contracts.dll</HintPath>
+      <Private>True</Private>
     </Reference>
-    <Reference Include="Composable.Core">
-      <HintPath>..\packages\Composable.Core.3.0.0\lib\net40\Composable.Core.dll</HintPath>
+    <Reference Include="Composable.Core, Version=3.3.0.0, Culture=neutral, PublicKeyToken=0c6b2c03e4c91d22, processorArchitecture=MSIL">
+      <HintPath>..\packages\Composable.Core.3.3.0\lib\net451\Composable.Core.dll</HintPath>
+      <Private>True</Private>
     </Reference>
-    <Reference Include="Composable.CQRS">
-      <HintPath>..\packages\Composable.CQRS.3.0.0\lib\net40\Composable.CQRS.dll</HintPath>
+    <Reference Include="Composable.CQRS, Version=3.3.0.0, Culture=neutral, PublicKeyToken=0c6b2c03e4c91d22, processorArchitecture=MSIL">
+      <HintPath>..\packages\Composable.CQRS.3.3.0\lib\net451\Composable.CQRS.dll</HintPath>
+      <Private>True</Private>
     </Reference>
-    <Reference Include="Composable.CQRS.Windsor">
-      <HintPath>..\packages\Composable.CQRS.Windsor.3.0.0\lib\net40\Composable.CQRS.Windsor.dll</HintPath>
+    <Reference Include="Composable.CQRS.Windsor, Version=3.3.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Composable.CQRS.Windsor.3.3.0\lib\net451\Composable.CQRS.Windsor.dll</HintPath>
+      <Private>True</Private>
     </Reference>
-    <Reference Include="Composable.DomainEvents">
-      <HintPath>..\packages\Composable.DomainEvents.3.0.0\lib\net40\Composable.DomainEvents.dll</HintPath>
+    <Reference Include="Composable.DomainEvents, Version=3.3.0.0, Culture=neutral, PublicKeyToken=0c6b2c03e4c91d22, processorArchitecture=MSIL">
+      <HintPath>..\packages\Composable.DomainEvents.3.3.0\lib\net451\Composable.DomainEvents.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Composable.Windsor, Version=0.0.0.0, Culture=neutral, PublicKeyToken=0c6b2c03e4c91d22, processorArchitecture=MSIL">
+      <HintPath>..\packages\Composable.Windsor.3.3.0\lib\net451\Composable.Windsor.dll</HintPath>
+      <Private>True</Private>
     </Reference>
     <Reference Include="log4net">
       <HintPath>..\..\..\packages\log4net.2.0.3\lib\net40-full\log4net.dll</HintPath>

@@ -1,7 +1,8 @@
 ﻿using Castle.MicroKernel.Registration;
 using Castle.Windsor;
 using Castle.Windsor.Installer;
-using Composable.CQRS.Windsor.Testing;
+using Composable.GenericAbstractions.Time;
+using Composable.Windsor.Testing;
 using Composable.ServiceBus;
 using NServiceBus;
 
@@ -23,6 +24,7 @@ namespace AccountManagement.TestHelpers
                 );
 
             container.Register(
+                Component.For<IUtcTimeTimeSource, DummyTimeSource>().Instance(DummyTimeSource.Now).LifestyleSingleton(),
                 Component.For<IServiceBus>().ImplementedBy<SynchronousBus>().LifestylePerWebRequest(),
                 Component.For<IWindsorContainer>().Instance(container)
                 );

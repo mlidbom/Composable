@@ -48,7 +48,7 @@ namespace Composable.CQRS.EventSourcing
                      IEventHandlerRegistrar<TEntityBaseEventInterface> appliersRegistrar)
                     : base(timeSource, raiseEventThroughParent, appliersRegistrar) {}
 
-                public static CollectionManager CreateSelfManagingCollection(TComponent parent)
+                public new static CollectionManager CreateSelfManagingCollection(TComponent parent)
                     =>
                         new CollectionManager(
                             parent: parent,

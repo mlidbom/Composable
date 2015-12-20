@@ -19,12 +19,9 @@ namespace Composable.CQRS.EventSourcing
                                                TEntityBaseEventClass,
                                                TEntityBaseEventInterface,
                                                TEntityCreatedEventInterface,
-                                               TEventEntityIdSetterGetter> : Entity<TEntity,
-                                                                                 TEntityId,
+                                               TEventEntityIdSetterGetter> : NestedComponent<TEntity,
                                                                                  TEntityBaseEventClass,
-                                                                                 TEntityBaseEventInterface,
-                                                                                 TEntityCreatedEventInterface,
-                                                                                 TEventEntityIdSetterGetter>
+                                                                                 TEntityBaseEventInterface>
                 where TEntityBaseEventInterface : class, TComponentBaseEventInterface
                 where TEntityBaseEventClass : TComponentBaseEventClass, TEntityBaseEventInterface
                 where TEntityCreatedEventInterface : TEntityBaseEventInterface
@@ -38,6 +35,8 @@ namespace Composable.CQRS.EventSourcing
                                                        TEntityBaseEventClass,
                                                        TEntityBaseEventInterface>, new()
             {
+                private static readonly TEventEntityIdSetterGetter IdGetterSetter = new TEventEntityIdSetterGetter();
+
                 protected NestedEntity(TComponent parent)
                     : this(parent.TimeSource, parent.RaiseEvent, parent.RegisterEventAppliers()) { }
 
@@ -45,7 +44,51 @@ namespace Composable.CQRS.EventSourcing
                     (IUtcTimeTimeSource timeSource,
                      Action<TEntityBaseEventClass> raiseEventThroughParent,
                      IEventHandlerRegistrar<TEntityBaseEventInterface> appliersRegistrar)
-                    : base(timeSource, raiseEventThroughParent, appliersRegistrar) { }
+                    : base(timeSource, raiseEventThroughParent, appliersRegistrar, registerEventAppliers: false)
+                {
+                    RegisterEventAppliers()
+                        .For<TEntityCreatedEventInterface>(e => Id = IdGetterSetter.GetId(e))
+                        .IgnoreUnhandled<TEntityBaseEventInterface>();
+                }
+
+                protected override void RaiseEvent(TEntityBaseEventClass @event)
+                {
+                    var id = IdGetterSetter.GetId(@event);
+                    if (Equals(id, default(TEntityId)))
+                    {
+                        IdGetterSetter.SetEntityId(@event, Id);
+                    }
+                    else if (!Equals(id, Id))
+                    {
+                        throw new Exception($"Attempted to raise event with EntityId: {id} frow within entity with EntityId: {Id}");
+                    }
+                    base.RaiseEvent(@event);
+                }
+
+                public TEntityId Id { get; private set; }
+
+                public  static CollectionManager CreateSelfManagingCollection(TComponent parent)
+                  =>
+                      new CollectionManager(
+                          parent: parent,
+                          raiseEventThroughParent: parent.RaiseEvent,
+                          appliersRegistrar: parent.RegisterEventAppliers());
+
+                public new class CollectionManager : EntityCollectionManager<TComponent,
+                                                         TEntity,
+                                                         TEntityId,
+                                                         TEntityBaseEventClass,
+                                                         TEntityBaseEventInterface,
+                                                         TEntityCreatedEventInterface,
+                                                         TEventEntityIdSetterGetter>
+                {
+                    public CollectionManager
+                        (TComponent parent,
+                         Action<TEntityBaseEventClass> raiseEventThroughParent,
+                         IEventHandlerRegistrar<TEntityBaseEventInterface> appliersRegistrar)
+                        : base(parent, raiseEventThroughParent, appliersRegistrar)
+                    { }
+                }
             }
         }
     }

@@ -1,7 +1,4 @@
 AutoMapper
-Castle.Core
-Castle.Windsor
-CommonServiceLocator
 CommonServiceLocator.WindsorAdapter
 FluentAssertions
 log4net
@@ -9,10 +6,5 @@ Moq
 NCrunch.Framework
 Newtonsoft.Json
 NServiceBus
-NServiceBus.Interfaces
 NUnit
-Rx-Core
-Rx-Interfaces
-Rx-Linq
 Rx-Main
-Rx-PlatformServices

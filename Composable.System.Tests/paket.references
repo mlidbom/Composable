@@ -1,5 +1,4 @@
 AutoMapper
-Castle.Core
 Castle.Windsor
 FluentAssertions
 NUnit

@@ -5,27 +5,16 @@ source http://nuget.teamcity.mpsedev.local/nuget
 framework: >= net451
 
 nuget AutoMapper 3.1.1
-nuget Castle.Core 3.3.3
-nuget Castle.Windsor 3.3.0
-nuget CommonServiceLocator 1.3
 nuget CommonServiceLocator.WindsorAdapter 1.0.1
 nuget FluentAssertions 4.0.0
-nuget Iesi.Collections 3.4.1.4000
 nuget log4net 2.0.3
 nuget Moq 4.2.1507.0118
 nuget NCrunch.Framework 2.16.0.13
 nuget Newtonsoft.Json 6.0.8
-nuget NHibernate 3.4.1.4000
-nuget NServiceBus 4.7.6
 nuget NServiceBus.CastleWindsor 4.7.6
 nuget NServiceBus.Host 4.7.6
-nuget NServiceBus.Interfaces 4.7.6
 nuget NServiceBus.NHibernate 4.5.4
 nuget NServiceBus.Testing 3.0.3.32
 nuget nspec 1.0.1
 nuget NUnit 2.6.4
-nuget Rx-Core 2.2.5
-nuget Rx-Interfaces 2.2.5
-nuget Rx-Linq 2.2.5
 nuget Rx-Main 2.2.5
-nuget Rx-PlatformServices 2.2.5

@@ -1,4 +1,3 @@
-Castle.Core
 Castle.Windsor
 FluentAssertions
 Moq
@@ -6,6 +5,4 @@ NCrunch.Framework
 NServiceBus.Interfaces
 nspec
 NUnit
-Rx-Core
-Rx-Interfaces
 Rx-Linq

@@ -1,9 +1,5 @@
-Castle.Core
-Castle.Windsor
 FluentAssertions
 NCrunch.Framework
-NServiceBus
 NServiceBus.CastleWindsor
 NServiceBus.Host
-NServiceBus.Interfaces
 NUnit

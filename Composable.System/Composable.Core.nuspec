@@ -1,0 +1,12 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package>
+  <metadata>
+    <id>$id$</id>
+    <version>$version$</version>
+    <authors>Magnus Lidbom</authors>
+    <description>All the magic you might want ;)</description>
+    <language>en-US</language>
+     <dependencies>
+     </dependencies>
+  </metadata>
+</package>

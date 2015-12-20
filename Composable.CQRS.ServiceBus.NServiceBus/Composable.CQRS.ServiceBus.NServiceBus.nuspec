@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package>
+  <metadata>
+     <id>$id$</id>
+     <version>$version$</version>
+    <authors>Magnus Lidbom</authors>
+    <description>Todo.</description>
+    <language>en-US</language>
+     <dependencies>
+        <dependency id="Composable.CQRS" version="$CQRSVersion$" />
+     </dependencies>
+  </metadata>
+</package>

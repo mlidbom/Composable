@@ -312,6 +312,7 @@
   <ItemGroup>
     <None Include="app.config" />
     <Compile Include="KeyValueStorage\DocumentDBSession.DocumentItem.cs" />
+    <None Include="Composable.CQRS.nuspec" />
     <None Include="paket.references">
       <SubType>Designer</SubType>
     </None>

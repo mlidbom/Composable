@@ -147,7 +147,6 @@
     <Compile Include="CQRS\Command\MemberValidationFailure.cs" />
     <Compile Include="CQRS\Command\SagaBase.cs" />
     <Compile Include="CQRS\Command\SubCommand.cs" />
-    <Compile Include="CQRS\DuplicateHandlersException.cs" />
     <Compile Include="CQRS\EntityToReferenceConverter.cs" />
     <Compile Include="CQRS\Event.cs" />
     <Compile Include="CQRS\EventHandling\CallMatchingHandlersInRegistrationOrderEventDispatcher.cs" />

@@ -110,4 +110,3 @@ NUGET
     jQuery.UI.Combined (1.8.24)
       jQuery (>= 1.4.4)
     knockoutjs (2.2.0)
-    NuGet.CommandLine (3.3.0)

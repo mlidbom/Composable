@@ -1,8 +1,8 @@
+source http://nuget.teamcity.mpsedev.local/nuget
 source C:\Manpower\NuGetFeed
 #source https://api.nuget.org/v3/index.json
-source http://nuget.teamcity.mpsedev.local/nuget
 
-framework: >= net451
+framework: >= net45 < net5
 
 nuget AutoMapper
 nuget CommonServiceLocator.WindsorAdapter

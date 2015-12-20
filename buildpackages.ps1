@@ -31,57 +31,25 @@ function FixVersion
 	}	
 }
 
-Set-Alias Build-Pkg-Internal $scriptRoot\tools\NuGet\NuGet.exe
-
-$CoreVersion = (FixVersion ([System.Diagnostics.FileVersionInfo]::GetVersionInfo("$scriptRoot\Composable.System\Bin\$Configuration\Composable.Core.dll")) $PreVersion)
-$ContractsVersion = (FixVersion ([System.Diagnostics.FileVersionInfo]::GetVersionInfo("$scriptRoot\Composable.Contracts\bin\$Configuration\Composable.Contracts.dll")) $PreVersion)
-$CQRSVersion = (FixVersion ([System.Diagnostics.FileVersionInfo]::GetVersionInfo("$scriptRoot\Composable.CQRS\Bin\$Configuration\Composable.CQRS.dll")) $PreVersion)
-$CQRSNHibernateVersion = (FixVersion ([System.Diagnostics.FileVersionInfo]::GetVersionInfo("$scriptRoot\Composable.CQRS.NHibernate\Bin\$Configuration\Composable.CQRS.NHibernate.dll")) $PreVersion)
-$PersistenceNHibernateVersion = (FixVersion ([System.Diagnostics.FileVersionInfo]::GetVersionInfo("$scriptRoot\Composable.Persistence.ORM.NHibernate\Bin\$Configuration\Composable.Persistence.ORM.NHibernate.dll")) $PreVersion)
-$CQRSServiceBusNServicebusVersion = (FixVersion ([System.Diagnostics.FileVersionInfo]::GetVersionInfo("$scriptRoot\Composable.CQRS.ServiceBus.NServiceBus\Bin\$Configuration\Composable.CQRS.ServiceBus.NServiceBus.dll")) $PreVersion)
-$DomainEventsVersion = (FixVersion ([System.Diagnostics.FileVersionInfo]::GetVersionInfo("$scriptRoot\Composable.DomainEvents\Bin\$Configuration\Composable.DomainEvents.dll")) $PreVersion)
-$AutomapperVersion = (FixVersion ([System.Diagnostics.FileVersionInfo]::GetVersionInfo("$scriptRoot\Composable.AutoMapper\Bin\$Configuration\Composable.AutoMapper.dll")) $PreVersion)
-$CQRSWindsorVersion = (FixVersion ([System.Diagnostics.FileVersionInfo]::GetVersionInfo("$scriptRoot\Composable.CQRS.Windsor\Bin\$Configuration\Composable.CQRS.Windsor.dll")) $PreVersion)
-$WindsorVersion = (FixVersion ([System.Diagnostics.FileVersionInfo]::GetVersionInfo("$scriptRoot\Composable.Windsor\Bin\$Configuration\Composable.Windsor.dll")) $PreVersion)
-$CQRSTestingVersion = (FixVersion ([System.Diagnostics.FileVersionInfo]::GetVersionInfo("$scriptRoot\Composable.CQRS.Testing\Bin\$Configuration\Composable.CQRS.Testing.dll")) $PreVersion)
-$NSpecNUnitVersion = (FixVersion ([System.Diagnostics.FileVersionInfo]::GetVersionInfo("$scriptRoot\NSpec.NUnit\Bin\$Configuration\NSpec.NUnit.dll")) $PreVersion)
-
-function Build-Pkg ($ProjectFile, $Version)
-{
-	Write-Host -ForegroundColor Cyan "Packaging $ProjectFile into $OutputDirectory Version: $Version"
-	Build-Pkg-Internal pack $ProjectFile -OutputDirectory $OutputDirectory `
-	    -Version $Version `
-		-Prop CoreVersion=$CoreVersion `
-		-Prop CQRSVersion=$CQRSVersion `
-		-Prop CQRSNHibernateVersion=$CQRSNHibernateVersion `
-		-Prop CQRSServiceBusNServicebusVersion=$CQRSServiceBusNServicebusVersion `
-		-Prop DomainEventsVersion=$DomainEventsVersion `
-		-Prop AutomapperVersion=$AutomapperVersion `
-		-Prop CQRSWindsorVersion=$CQRSWindsorVersion `
-		-Prop CQRSTestingVersion=$CQRSTestingVersion `
-		-Prop CQRSPopulationClientVersion=$CQRSPopulationClientVersion `
-		-Prop CJRSPopulationServerVersion=$CJRSPopulationServerVersion `
-		-Prop NSpecNUnitVersion=$NSpecNUnitVersion `
-		-Prop WindsorVersion=$WindsorVersion `
-		-Prop PersistenceNHibernateVersion=$PersistenceNHibernateVersion `
-		 -Symbols
-	
-	if($LASTEXITCODE -ne 0)
-	{
-		Write-Error "Bailing out because nuget.exe exited with code $LASTEXITCODE"
-	}
-	Write-Host
+function Get-Version{
+	param([string]$assemblyPath)
+	write-host "$scriptRoot\$assemblyPath"
+	(FixVersion ([System.Diagnostics.FileVersionInfo]::GetVersionInfo("$scriptRoot\$assemblyPath")) $PreVersion)
 }
 
-Build-Pkg "$scriptRoot\Composable.Contracts\Composable.Contracts.csproj" $ContractsVersion
-Build-Pkg "$scriptRoot\Composable.System\Composable.Core.csproj" $CoreVersion
-Build-Pkg "$scriptRoot\Composable.CQRS\Composable.CQRS.csproj" $CQRSVersion
-Build-Pkg "$scriptRoot\Composable.CQRS.NHibernate\Composable.CQRS.NHibernate.csproj" $CQRSNHibernateVersion
-Build-Pkg "$scriptRoot\Composable.Persistence.ORM.NHibernate\Composable.Persistence.ORM.NHibernate.csproj" $PersistenceNHibernateVersion
-Build-Pkg "$scriptRoot\Composable.CQRS.ServiceBus.NServiceBus\Composable.CQRS.ServiceBus.NServiceBus.csproj" $CQRSServiceBusNServicebusVersion
-Build-Pkg "$scriptRoot\Composable.DomainEvents\Composable.DomainEvents.csproj" $DomainEventsVersion
-Build-Pkg "$scriptRoot\Composable.AutoMapper\Composable.AutoMapper.csproj" $AutomapperVersion
-Build-Pkg "$scriptRoot\Composable.CQRS.Windsor\Composable.CQRS.Windsor.csproj" $CQRSWindsorVersion
-Build-Pkg "$scriptRoot\Composable.Windsor\Composable.Windsor.csproj" $WindsorVersion
-Build-Pkg "$scriptRoot\Composable.CQRS.Testing\Composable.CQRS.Testing.csproj" $CQRSTestingVersion
-Build-Pkg "$scriptRoot\NSpec.NUnit\NSpec.NUnit.csproj" $NSpecNUnitVersion
+Set-Alias Build-Pkg-Internal $scriptRoot\tools\NuGet\NuGet.exe
+Set-Alias paket $scriptRoot\.paket\paket.exe
+
+paket pack output $OutputDirectory buildconfig Debug buildplatform AnyCPU symbols `
+	specific-version Composable.Contracts (Get-Version "Composable.Contracts\bin\$Configuration\Composable.Contracts.dll") `
+	specific-version Composable.Core (Get-Version "Composable.System\Bin\$Configuration\Composable.Core.dll") `
+	specific-version Composable.CQRS (Get-Version "Composable.CQRS\Bin\$Configuration\Composable.CQRS.dll") `
+	specific-version Composable.CQRS.NHibernate (Get-Version "Composable.CQRS.NHibernate\Bin\$Configuration\Composable.CQRS.NHibernate.dll") `
+	specific-version Composable.Persistence.ORM.NHibernate (Get-Version "Composable.Persistence.ORM.NHibernate\Bin\$Configuration\Composable.Persistence.ORM.NHibernate.dll") `
+	specific-version Composable.CQRS.ServiceBus.NServiceBus (Get-Version "Composable.CQRS.ServiceBus.NServiceBus\Bin\$Configuration\Composable.CQRS.ServiceBus.NServiceBus.dll") `
+	specific-version Composable.DomainEvents (Get-Version "Composable.DomainEvents\Bin\$Configuration\Composable.DomainEvents.dll") `
+	specific-version Composable.AutoMapper (Get-Version "Composable.AutoMapper\Bin\$Configuration\Composable.AutoMapper.dll") `
+	specific-version Composable.CQRS.Windsor (Get-Version "Composable.CQRS.Windsor\Bin\$Configuration\Composable.CQRS.Windsor.dll") `
+	specific-version Composable.Windsor (Get-Version "Composable.Windsor\Bin\$Configuration\Composable.Windsor.dll") `
+	specific-version Composable.CQRS.Testing (Get-Version "Composable.CQRS.Testing\Bin\$Configuration\Composable.CQRS.Testing.dll") `
+	specific-version NSpec.NUnit (Get-Version "NSpec.NUnit\Bin\$Configuration\NSpec.NUnit.dll")

@@ -242,8 +242,7 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Composable.Core.nuspec">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    <None Include="paket.template">
       <SubType>Designer</SubType>
     </None>
     <None Include="Void.snk" />

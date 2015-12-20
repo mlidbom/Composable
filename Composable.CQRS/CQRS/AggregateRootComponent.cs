@@ -24,7 +24,7 @@ namespace Composable.CQRS
             Contract.Requires(aggregateRoot != null);
             Contract.Requires(raiseEvent != null);
 
-            _eventHandlersEventDispatcher.RegisterHandlers()
+            _eventHandlersEventDispatcher.Register()
                 .IgnoreUnhandled<TComponentBaseEventClass>();
 
             AggregateRoot = aggregateRoot;
@@ -45,14 +45,14 @@ namespace Composable.CQRS
             _eventHandlersEventDispatcher.Dispatch(@event);
         }
 
-        protected CallMatchingHandlersInRegistrationOrderEventDispatcher<TComponentBaseEventInterface>.RegistrationBuilder RegisterEventAppliers()
+        protected IEventHandlerRegistrar<TComponentBaseEventInterface> RegisterEventAppliers()
         {
-            return _eventAppliersEventDispatcher.RegisterHandlers();
+            return _eventAppliersEventDispatcher.Register();
         }
 
-        protected CallMatchingHandlersInRegistrationOrderEventDispatcher<TComponentBaseEventInterface>.RegistrationBuilder RegisterEventHandlers()
+        protected IEventHandlerRegistrar<TComponentBaseEventInterface> RegisterEventHandlers()
         {
-            return _eventHandlersEventDispatcher.RegisterHandlers();
+            return _eventHandlersEventDispatcher.Register();
         }
     }
 }

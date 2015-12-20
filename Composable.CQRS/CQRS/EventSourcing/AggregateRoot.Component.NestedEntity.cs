@@ -39,9 +39,7 @@ namespace Composable.CQRS.EventSourcing
                                                        TEntityBaseEventInterface>, new()
             {
                 protected NestedEntity(TComponent parent)
-                    : this(timeSource: parent.TimeSource,
-                           raiseEventThroughParent: parent.RaiseEvent,
-                           appliersRegistrar: parent.RegisterEventAppliers()) { }
+                    : this(parent.TimeSource, parent.RaiseEvent, parent.RegisterEventAppliers()) { }
 
                 protected NestedEntity
                     (IUtcTimeTimeSource timeSource,

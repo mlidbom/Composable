@@ -1,5 +1,6 @@
 ﻿using System;
 using Composable.CQRS.EventHandling;
+using Composable.GenericAbstractions.Time;
 
 namespace Composable.CQRS.EventSourcing
 {
@@ -39,10 +40,13 @@ namespace Composable.CQRS.EventSourcing
                                     TEntityCreatedEventInterface,
                                     TEventEntityIdSetterGetter>
             {
-                protected NestedEntity(TComponent parent)
-                    : base(timeSource: parent.TimeSource,
-                           raiseEventThroughParent: parent.RaiseEvent,
-                           appliersRegistrar: parent.RegisterEventAppliers()) { }
+                protected NestedEntity(TComponent parent) : base(parent) { }
+
+                protected NestedEntity
+                    (IUtcTimeTimeSource timeSource,
+                     Action<TEntityBaseEventClass> raiseEventThroughParent,
+                     IEventHandlerRegistrar<TEntityBaseEventInterface> appliersRegistrar)
+                    : base(timeSource, raiseEventThroughParent, appliersRegistrar) {}
 
                 public static CollectionManager CreateSelfManagingCollection(TComponent parent)
                     =>
@@ -52,19 +56,19 @@ namespace Composable.CQRS.EventSourcing
                             appliersRegistrar: parent.RegisterEventAppliers());
 
                 public new class CollectionManager : EntityCollectionManager<TComponent,
-                                                     TEntity,
-                                                     TEntityId,
-                                                     TEntityBaseEventClass,
-                                                     TEntityBaseEventInterface,
-                                                     TEntityCreatedEventInterface,
-                                                     TEntityRemovedEventInterface,
-                                                     TEventEntityIdSetterGetter>
+                                                         TEntity,
+                                                         TEntityId,
+                                                         TEntityBaseEventClass,
+                                                         TEntityBaseEventInterface,
+                                                         TEntityCreatedEventInterface,
+                                                         TEntityRemovedEventInterface,
+                                                         TEventEntityIdSetterGetter>
                 {
                     public CollectionManager
                         (TComponent parent,
                          Action<TEntityBaseEventClass> raiseEventThroughParent,
                          IEventHandlerRegistrar<TEntityBaseEventInterface> appliersRegistrar)
-                        : base(parent, raiseEventThroughParent, appliersRegistrar) { }
+                        : base(parent, raiseEventThroughParent, appliersRegistrar) {}
                 }
             }
         }

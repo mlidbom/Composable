@@ -27,9 +27,9 @@ namespace Composable.CQRS.EventSourcing
             @event.ForEach(_eventAppliersEventDispatcher.Dispatch);
         }
 
-        protected CallMatchingHandlersInRegistrationOrderEventDispatcher<TAggregateRootBaseEventInterface>.RegistrationBuilder RegisterEventAppliers()
+        protected IEventHandlerRegistrar<TAggregateRootBaseEventInterface> RegisterEventAppliers()
         {
-            return _eventAppliersEventDispatcher.RegisterHandlers();
+            return _eventAppliersEventDispatcher.Register();
         }
 
 
@@ -48,9 +48,9 @@ namespace Composable.CQRS.EventSourcing
 
             private void ApplyEvent(TEntityBaseEventInterface @event) { _eventAppliersEventDispatcher.Dispatch(@event); }
 
-            protected CallMatchingHandlersInRegistrationOrderEventDispatcher<TEntityBaseEventInterface>.RegistrationBuilder RegisterEventAppliers()
+            protected IEventHandlerRegistrar<TEntityBaseEventInterface> RegisterEventAppliers()
             {
-                return _eventAppliersEventDispatcher.RegisterHandlers();
+                return _eventAppliersEventDispatcher.Register();
             }
 
             public static IReadOnlyEntityCollection<TEntitity, TEntityId> CreateSelfManagingCollection(TRootQueryModel rootQueryModel) => new Collection(rootQueryModel);

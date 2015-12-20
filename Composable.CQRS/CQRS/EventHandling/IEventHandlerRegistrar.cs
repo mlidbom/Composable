@@ -2,16 +2,6 @@
 
 namespace Composable.CQRS.EventHandling
 {
-    public static class EventHandlerRegistrarExtensions
-    {
-        public static IEventHandlerRegistrar<TRestricted> Restrict<TRestricted, TOriginal>(this IEventHandlerRegistrar<TOriginal> @this) 
-            where TRestricted : class, TOriginal
-            where TOriginal : class
-        {
-            return @this;
-        }
-    }
-
     public interface IEventHandlerRegistrar<in TBaseEvent>
         where TBaseEvent : class
     {
@@ -27,5 +17,20 @@ namespace Composable.CQRS.EventHandling
         IEventHandlerRegistrar<TBaseEvent> BeforeHandlers<THandledEvent>(Action<THandledEvent> runBeforeHandlers) where THandledEvent : TBaseEvent;
         IEventHandlerRegistrar<TBaseEvent> AfterHandlers<THandledEvent>(Action<THandledEvent> runAfterHandlers) where THandledEvent : TBaseEvent;
         IEventHandlerRegistrar<TBaseEvent> IgnoreUnhandled<T>();
-    } 
+    }
+
+    public static class EventHandlerRegistrar
+    {
+        public static IEventHandlerRegistrar<TBaseEvent> BeforeHandlers<TBaseEvent>
+            (this IEventHandlerRegistrar<TBaseEvent> @this, Action<TBaseEvent> handler) where TBaseEvent : class
+        {
+            return @this.BeforeHandlers<TBaseEvent>(handler);
+        }
+
+        public static IEventHandlerRegistrar<TBaseEvent> AfterHandlers<TBaseEvent>
+            (this IEventHandlerRegistrar<TBaseEvent> @this, Action<TBaseEvent> handler) where TBaseEvent : class
+        {
+            return @this.AfterHandlers<TBaseEvent>(handler);
+        }        
+    }
 }

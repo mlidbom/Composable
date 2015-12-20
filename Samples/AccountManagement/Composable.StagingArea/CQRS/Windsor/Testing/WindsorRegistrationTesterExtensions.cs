@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using Castle.MicroKernel.Lifestyle;
 using Castle.Windsor;
+using Composable.Windsor.Testing;
 using FluentAssertions;
 
 namespace Composable.CQRS.Windsor.Testing

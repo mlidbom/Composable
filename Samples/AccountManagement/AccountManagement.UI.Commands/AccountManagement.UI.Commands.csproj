@@ -33,8 +33,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Composable.Core">
-      <HintPath>..\packages\Composable.Core.3.0.0\lib\net40\Composable.Core.dll</HintPath>
+    <Reference Include="Composable.Core, Version=3.3.0.0, Culture=neutral, PublicKeyToken=0c6b2c03e4c91d22, processorArchitecture=MSIL">
+      <HintPath>..\packages\Composable.Core.3.3.0\lib\net451\Composable.Core.dll</HintPath>
+      <Private>True</Private>
     </Reference>
     <Reference Include="Newtonsoft.Json">
       <HintPath>..\..\..\packages\Newtonsoft.Json.6.0.8\lib\net45\Newtonsoft.Json.dll</HintPath>

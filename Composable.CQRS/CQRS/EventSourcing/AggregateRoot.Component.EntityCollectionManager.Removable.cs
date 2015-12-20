@@ -44,7 +44,7 @@ namespace Composable.CQRS.EventSourcing
                     appliersRegistrar.For<TEntityRemovedEventInterface>(
                         e =>
                         {
-                            var id = IdGetterSetter.GetId(e);
+                            var id = IdGetter.GetId(e);
                             ManagedEntities.Remove(id);
                         });
                 }

@@ -37,7 +37,6 @@ function Get-Version{
 	(FixVersion ([System.Diagnostics.FileVersionInfo]::GetVersionInfo("$scriptRoot\$assemblyPath")) $PreVersion)
 }
 
-Set-Alias Build-Pkg-Internal $scriptRoot\tools\NuGet\NuGet.exe
 Set-Alias paket $scriptRoot\.paket\paket.exe
 
 paket pack `
@@ -46,6 +45,7 @@ paket pack `
 	buildplatform AnyCPU `
 	symbols `
 	exclude NSpec.NUnit `
+	exclude Composable.Contracts `
 	version (Get-Version "Composable.System\Bin\$Configuration\Composable.Core.dll")	
 	#specific-version Composable.Contracts (Get-Version "Composable.Contracts\bin\$Configuration\Composable.Contracts.dll") `
 	#specific-version Composable.Core (Get-Version "Composable.System\Bin\$Configuration\Composable.Core.dll") `

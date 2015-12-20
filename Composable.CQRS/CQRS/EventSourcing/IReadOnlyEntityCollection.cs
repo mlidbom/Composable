@@ -1,17 +1,19 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using Composable.CQRS.EventHandling;
-using Composable.System.Reflection;
+using System.Diagnostics.Contracts;
 
 namespace Composable.CQRS.EventSourcing
 {
     public interface IReadOnlyEntityCollection<TEntity, in TEntityId>
     {
+        [Pure]
         IReadOnlyList<TEntity> InCreationOrder { get; }
         bool TryGet(TEntityId id, out TEntity component);
+        [Pure]
         bool Exists(TEntityId id);
+        [Pure]
         TEntity Get(TEntityId id);
+        [Pure]
         TEntity this[TEntityId id] { get; }
     }
 

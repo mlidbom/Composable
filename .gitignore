@@ -25,3 +25,5 @@ _NCrunch_Composable.Everything/StoredText/*
 *.favdoc
 *.orig
 Samples/AccountManagement/_NCrunch_Sample.AccountManagement
+.paket/paket.exe
+Samples/AccountManagement/.paket/paket.exe

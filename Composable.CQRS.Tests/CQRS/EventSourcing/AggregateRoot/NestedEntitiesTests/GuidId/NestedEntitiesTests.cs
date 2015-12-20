@@ -1,4 +1,5 @@
 ﻿using System;
+using CQRS.Tests.CQRS.EventSourcing.AggregateRoot.NestedEntitiesTests.GuidId.Domain;
 using FluentAssertions;
 using NUnit.Framework;
 

@@ -4,7 +4,7 @@ using System.Diagnostics.Contracts;
 
 namespace Composable.CQRS.EventSourcing
 {
-    public interface IReadOnlyEntityCollection<TEntity, in TEntityId>
+    public interface IReadOnlyEntityCollection<TEntity, in TEntityId> : IEnumerable<TEntity>
     {
         [Pure]
         IReadOnlyList<TEntity> InCreationOrder { get; }

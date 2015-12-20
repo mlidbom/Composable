@@ -1,0 +1,6 @@
+AutoMapper
+Castle.Core
+Castle.Windsor
+CommonServiceLocator
+CommonServiceLocator.WindsorAdapter
+NUnit

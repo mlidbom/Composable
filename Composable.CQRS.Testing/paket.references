@@ -1,0 +1,6 @@
+Castle.Core
+Castle.Windsor
+log4net
+NServiceBus
+NServiceBus.Interfaces
+NUnit

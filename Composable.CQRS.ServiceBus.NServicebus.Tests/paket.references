@@ -1,0 +1,13 @@
+Castle.Core
+Castle.Windsor
+FluentAssertions
+Iesi.Collections
+Moq
+NCrunch.Framework
+NHibernate
+NServiceBus
+NServiceBus.CastleWindsor
+NServiceBus.Host
+NServiceBus.Interfaces
+NServiceBus.NHibernate
+NUnit

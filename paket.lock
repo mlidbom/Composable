@@ -1,6 +1,5 @@
-FRAMEWORK: >= NET451
 NUGET
-  remote: C:\Manpower\NuGetFeed
+  remote: http://nuget.teamcity.mpsedev.local/nuget
   specs:
     AutoMapper (3.1.1)
     Castle.Core (3.3.3)
@@ -31,6 +30,8 @@ NUGET
       NHibernate (>= 3.3.3.4001 < 4.0.0.0)
       NServiceBus (>= 4.4.2.0 < 5.0.0.0)
       NServiceBus.Interfaces (>= 4.4.2.0 < 5.0.0.0)
+    NServiceBus.Testing (3.0.3.32)
+      NServiceBus (>= 3.0.3.32)
     nspec (1.0.1)
     NUnit (2.6.4)
     Rx-Core (2.2.5)
@@ -47,7 +48,3 @@ NUGET
     Rx-PlatformServices (2.2.5)
       Rx-Core (>= 2.2.5)
       Rx-Interfaces (>= 2.2.5)
-  remote: http://nuget.teamcity.mpsedev.local/nuget
-  specs:
-    NServiceBus.Testing (3.0.3.32)
-      NServiceBus (>= 3.0.3.32)

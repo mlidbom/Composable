@@ -122,9 +122,8 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
-    <None Include="Composable.CQRS.Windsor.nuspec">
+    <None Include="paket.template">
       <SubType>Designer</SubType>
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="Void.snk" />
   </ItemGroup>

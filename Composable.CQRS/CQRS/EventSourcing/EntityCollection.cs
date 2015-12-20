@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 
@@ -28,6 +29,9 @@ namespace Composable.CQRS.EventSourcing
         {
             _entities.Add(id, entity);
             _entitiesInCreationOrder.Add(entity);
-        }        
+        }
+
+        public IEnumerator<TEntity> GetEnumerator() => _entitiesInCreationOrder.GetEnumerator();
+        IEnumerator IEnumerable.GetEnumerator() => _entitiesInCreationOrder.GetEnumerator();
     }
 }

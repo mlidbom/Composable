@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using Composable.CQRS.EventHandling;
 using Composable.System.Linq;
@@ -60,7 +61,6 @@ namespace Composable.CQRS.EventSourcing
                 private readonly TRootQueryModel _aggregate;
                 public Collection(TRootQueryModel aggregate)
                 {
-                    __entities = new EntityCollection<TEntityId, TEntityId>();
                     _aggregate = aggregate;
                     _aggregate.RegisterEventAppliers()
                          .For<TEntityCreatedEventInterface>(
@@ -85,7 +85,9 @@ namespace Composable.CQRS.EventSourcing
 
                 private readonly Dictionary<TEntityId, TEntitity> _entities = new Dictionary<TEntityId, TEntitity>();
                 private readonly List<TEntitity> _entitiesInCreationOrder = new List<TEntitity>();
-                private EntityCollection<TEntityId, TEntityId> __entities;
+
+                public IEnumerator<TEntitity> GetEnumerator() => _entitiesInCreationOrder.GetEnumerator();
+                IEnumerator IEnumerable.GetEnumerator() => _entitiesInCreationOrder.GetEnumerator();
             }
         }
     }

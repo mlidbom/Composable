@@ -17,8 +17,12 @@
                 where TNestedComponentBaseEventClass : TComponentBaseEventClass, TNestedComponentBaseEventInterface
                 where TNestedComponent : NestedComponent<TNestedComponent, TNestedComponentBaseEventClass, TNestedComponentBaseEventInterface>
             {
-                protected NestedComponent(TComponent parent) : base(timeSource: parent.TimeSource, raiseEventThroughParent: parent.RaiseEvent, appliersRegistrar: parent.RegisterEventAppliers(), registerEventAppliers: true)
-                {}
+                protected NestedComponent(TComponent parent)
+                    : base(
+                        timeSource: parent.TimeSource,
+                        raiseEventThroughParent: parent.RaiseEvent,
+                        appliersRegistrar: parent.RegisterEventAppliers(),
+                        registerEventAppliers: true) {}
             }
         }
     }

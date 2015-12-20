@@ -3,6 +3,7 @@ using System.Reflection;
 
 namespace Composable.System.Reflection
 {
+    ///<summary>Constructs instances of classes</summary>
     public static class ObjectFactory<TEntity>
     {
         ///<summary>Creates an instance of TEntity using a constructor that takes one argument of type TArgument1</summary>

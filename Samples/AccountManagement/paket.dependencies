@@ -21,22 +21,21 @@ framework: >= net45
 
 #We cannot support 2.0 of jQuery
 nuget jQuery ~> 1 
-nuget Nuget.CommandLine
-nuget CommonServiceLocator 1.3
-nuget Composable.Contracts 0.8.2
-nuget Composable.CQRS.ServiceBus.NServiceBus 3.3.0
-nuget Composable.CQRS.Windsor 3.3.0
-nuget FluentAssertions 4.0.0
-nuget jQuery.UI.Combined 1.8.24
-nuget knockoutjs 2.2.0
-nuget Microsoft.AspNet.Mvc 5.2.3
-nuget Microsoft.AspNet.Providers.LocalDB 2.0.0
-nuget Microsoft.AspNet.Web.Optimization 1.1.3
-nuget Microsoft.AspNet.WebApi 5.2.3
-nuget Microsoft.jQuery.Unobtrusive.Ajax 2.0.30506.0
-nuget Microsoft.jQuery.Unobtrusive.Validation 2.0.30506.0
-nuget Modernizr 2.6.2
-nuget Moq 4.2.1507.0118
-nuget NCrunch.Framework 2.16.0.13
-nuget NSpec.NUnit 0.8.0
-nuget Rx-Linq 2.2.5
+nuget CommonServiceLocator
+nuget Composable.Contracts
+nuget Composable.CQRS.ServiceBus.NServiceBus
+nuget Composable.CQRS.Windsor
+nuget FluentAssertions
+nuget jQuery.UI.Combined
+nuget knockoutjs
+nuget Microsoft.AspNet.Mvc
+nuget Microsoft.AspNet.Providers.LocalDB
+nuget Microsoft.AspNet.Web.Optimization
+nuget Microsoft.AspNet.WebApi
+nuget Microsoft.jQuery.Unobtrusive.Ajax
+nuget Microsoft.jQuery.Unobtrusive.Validation
+nuget Modernizr
+nuget Moq
+nuget NCrunch.Framework
+nuget NSpec.NUnit
+nuget Rx-Linq

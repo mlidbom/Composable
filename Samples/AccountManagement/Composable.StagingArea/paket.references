@@ -1,0 +1,16 @@
+Castle.Core
+Castle.Windsor
+CommonServiceLocator
+Composable.Core
+Composable.CQRS
+Composable.CQRS.Windsor
+Composable.DomainEvents
+Composable.Windsor
+FluentAssertions
+log4net
+Newtonsoft.Json
+NServiceBus.Interfaces
+NUnit
+Rx-Core
+Rx-Interfaces
+Rx-Linq

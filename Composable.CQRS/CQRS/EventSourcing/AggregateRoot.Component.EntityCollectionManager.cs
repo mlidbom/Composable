@@ -29,10 +29,9 @@ namespace Composable.CQRS.EventSourcing
                 where TEntityCreatedEventInterface : TEntityBaseEventInterface
                 where TEntityBaseEventClass : TEntityBaseEventInterface, TAggregateRootBaseEventClass
                 where TEntity : Component<TEntity, TEntityBaseEventClass, TEntityBaseEventInterface>
-                where TEventEntityIdSetterGetter :
-                    IGetSetAggregateRootEntityEventEntityId<TEntityId, TEntityBaseEventClass, TEntityBaseEventInterface>, new()
+                where TEventEntityIdSetterGetter : IGetAggregateRootEntityEventEntityId<TEntityBaseEventInterface, TEntityId>, new()
             {
-                protected static readonly TEventEntityIdSetterGetter IdGetterSetter = new TEventEntityIdSetterGetter();
+                protected static readonly TEventEntityIdSetterGetter IdGetter = new TEventEntityIdSetterGetter();
 
                 private readonly TParent _parent;
                 protected readonly EntityCollection<TEntity, TEntityId> ManagedEntities;
@@ -50,9 +49,9 @@ namespace Composable.CQRS.EventSourcing
                             e =>
                             {
                                 var entity = ObjectFactory<TEntity>.CreateInstance(_parent);
-                                ManagedEntities.Add(entity, IdGetterSetter.GetId(e));
+                                ManagedEntities.Add(entity, IdGetter.GetId(e));
                             })
-                        .For<TEntityBaseEventInterface>(e => ManagedEntities[IdGetterSetter.GetId(e)].ApplyEvent(e));
+                        .For<TEntityBaseEventInterface>(e => ManagedEntities[IdGetter.GetId(e)].ApplyEvent(e));
                 }
 
                 public IReadOnlyEntityCollection<TEntity, TEntityId> Entities => ManagedEntities;

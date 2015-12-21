@@ -5,3 +5,4 @@ NServiceBus.CastleWindsor
 NServiceBus.Host
 NServiceBus.NHibernate
 NUnit
+Newtonsoft.Json

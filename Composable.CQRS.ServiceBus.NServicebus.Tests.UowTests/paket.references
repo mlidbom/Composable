@@ -3,5 +3,4 @@ log4net
 NCrunch.Framework
 NServiceBus.CastleWindsor
 NServiceBus.Host
-NServiceBus.Testing
 NUnit

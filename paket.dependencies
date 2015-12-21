@@ -14,7 +14,6 @@ nuget Newtonsoft.Json >= 6.0.8
 nuget NServiceBus.CastleWindsor < 5
 nuget NServiceBus.Host < 5
 nuget NServiceBus.NHibernate < 5
-nuget NServiceBus.Testing < 5
 nuget nspec >= 1.0.1
 nuget NUnit >= 2.6.4
 nuget Rx-Main >= 2.2.5

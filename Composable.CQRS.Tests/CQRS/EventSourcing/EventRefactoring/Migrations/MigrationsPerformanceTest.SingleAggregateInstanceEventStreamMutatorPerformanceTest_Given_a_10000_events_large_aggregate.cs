@@ -33,7 +33,7 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
         }
 
         [Test]
-        public void Aggregate_should_raise_100_000_events_in_less_than_150_milliseconds()
+        public void Aggregate_should_raise_100_000_events_in_less_than_180_milliseconds()
         {
             var history = Seq.OfTypes<Ec1>()
                                   .Concat(1.Through(10000).Select(_ => typeof(E1)))
@@ -49,7 +49,7 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
                              .ToEvents();
 
             TimeAsserter.Execute(
-                maxTotal: 150.Milliseconds().AdjustRuntimeForNCrunch(),
+                maxTotal: 180.Milliseconds().AdjustRuntimeForNCrunch(),
                 action: () => new TestAggregate2(history));
         }
 

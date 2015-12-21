@@ -1,0 +1,7 @@
+FluentAssertions
+Moq
+NCrunch.Framework
+NServiceBus.CastleWindsor
+NServiceBus.Host
+NServiceBus.NHibernate
+NUnit

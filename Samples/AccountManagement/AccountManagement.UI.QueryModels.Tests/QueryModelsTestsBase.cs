@@ -4,7 +4,8 @@ using Castle.MicroKernel.Lifestyle;
 using Castle.MicroKernel.Registration;
 using Castle.Windsor;
 using Castle.Windsor.Installer;
-using Composable.CQRS.Windsor.Testing;
+using Composable.GenericAbstractions.Time;
+using Composable.Windsor.Testing;
 using Composable.ServiceBus;
 using NUnit.Framework;
 
@@ -35,6 +36,7 @@ namespace AccountManagement.UI.QueryModels.Tests
                 );
 
             Container.Register(
+                Component.For<IUtcTimeTimeSource, DummyTimeSource>().Instance(DummyTimeSource.Now).LifestyleSingleton(),
                 Component.For<IWindsorContainer>().Instance(Container),
                 Component.For<IServiceBus>().ImplementedBy<SynchronousBus>()
                 );

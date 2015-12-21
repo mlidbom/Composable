@@ -13,6 +13,7 @@ namespace Composable.CQRS.EventHandling
     /// Handlers should be registered using the RegisterHandlers method in the constructor of the inheritor.
     /// </summary>
     public class CallMatchingHandlersInRegistrationOrderEventDispatcher<TEvent> : IMutableEventDispatcher<TEvent>
+        where TEvent : class
     {
         private static readonly ILog Log = LogManager.GetLogger(typeof(CallMatchingHandlersInRegistrationOrderEventDispatcher<TEvent>));
         private readonly List<KeyValuePair<Type, Action<object>>> _handlers = new List<KeyValuePair<Type, Action<object>>>();

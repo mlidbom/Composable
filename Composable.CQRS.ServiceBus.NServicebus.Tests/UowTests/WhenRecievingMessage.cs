@@ -54,7 +54,9 @@ namespace Composable.CQRS.ServiceBus.NServicebus.Tests.UowTests
 
                 var messageHandled = new ManualResetEvent(false);
                 var status = TransactionStatus.Active;
+#pragma warning disable 618
                 TestingSupportMessageModule.OnHandleBeginMessage += transaction =>
+#pragma warning restore 618
                 {
                     transaction.TransactionCompleted += (_, transactionEventArgs) =>
                     {

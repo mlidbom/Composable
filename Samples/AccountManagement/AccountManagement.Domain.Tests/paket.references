@@ -1,0 +1,7 @@
+CommonServiceLocator
+Composable.Contracts
+Composable.CQRS.Windsor
+FluentAssertions
+NCrunch.Framework
+NSpec.NUnit
+Rx-Linq

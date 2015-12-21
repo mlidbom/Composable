@@ -1,9 +1,9 @@
 ﻿using Castle.MicroKernel.Registration;
 using Castle.MicroKernel.SubSystems.Configuration;
 using Castle.Windsor;
-using Composable.CQRS.Windsor;
-using Composable.CQRS.Windsor.Testing;
+using Composable.Windsor.Testing;
 using Composable.KeyValueStorage;
+using Composable.Windsor;
 using JetBrains.Annotations;
 
 namespace AccountManagement.UI.QueryModels.DocumentDB.Updaters.ContainerInstallers.Testing

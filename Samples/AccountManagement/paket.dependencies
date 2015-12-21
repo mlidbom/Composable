@@ -1,7 +1,8 @@
+framework: >= net45 < dnxcore50
+
 source C:\Manpower\NuGetFeed
-#source https://api.nuget.org/v3/index.json
+source https://api.nuget.org/v3/index.json
 source http://nuget.teamcity.mpsedev.local/nuget
-framework: >= net45
 
 #Teamcity restrictions
 #nuget Microsoft.Bcl.Build 1.0.14
@@ -21,7 +22,7 @@ framework: >= net45
 
 #We cannot support 2.0 of jQuery
 nuget jQuery ~> 1 
-nuget CommonServiceLocator
+nuget CommonServiceLocator ~> 1
 nuget Composable.Contracts
 nuget Composable.CQRS.ServiceBus.NServiceBus
 nuget Composable.CQRS.Windsor

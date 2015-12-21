@@ -222,10 +222,6 @@
     <None Include="Void.snk" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="..\packages\AutoMapper.3.1.1\lib\net40\AutoMapper.Net4.dll">
-      <Link>AutoMapper.Net4.dll</Link>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
     <Content Include="EventStore2.mdf">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

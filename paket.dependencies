@@ -1,0 +1,19 @@
+source http://nuget.teamcity.mpsedev.local/nuget
+source C:\Manpower\NuGetFeed
+#source https://api.nuget.org/v3/index.json
+
+framework: >= net45 < net5
+
+nuget AutoMapper >= 3.1.1
+nuget CommonServiceLocator.WindsorAdapter >= 1.0.1
+nuget FluentAssertions >= 4.0.0
+nuget log4net >= 2.0.3
+nuget Moq >= 4.2.1507.0118
+nuget NCrunch.Framework >= 2.16.0.13
+nuget Newtonsoft.Json >= 6.0.8
+nuget NServiceBus.CastleWindsor < 5
+nuget NServiceBus.Host < 5
+nuget NServiceBus.NHibernate < 5
+nuget nspec >= 1.0.1
+nuget NUnit >= 2.6.4
+nuget Rx-Main >= 2.2.5

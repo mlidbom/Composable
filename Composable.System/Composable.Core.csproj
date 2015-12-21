@@ -157,9 +157,7 @@
     <Compile Include="DDD\VersionedPersistentEntity.cs" />
     <Compile Include="DisposeAction.cs" />
     <Compile Include="GenericAbstractions\Time\DummyTimeSource.cs" />
-    <Compile Include="GenericAbstractions\Time\ILocalTimeTimeSource.cs" />
     <Compile Include="GenericAbstractions\Time\DateTimeNowTimeSource.cs" />
-    <Compile Include="GenericAbstractions\Time\ITimeSource.cs" />
     <Compile Include="GenericAbstractions\Time\IUtcTimeTimeSource.cs" />
     <Compile Include="JetBrainsCodeAnnotations.cs" />
     <Compile Include="Persistence\IEntityFetcher.cs" />
@@ -210,6 +208,7 @@
     <Compile Include="System\Reactive\ThreadSafeObserverCollection.cs" />
     <Compile Include="System\Reflection\AssemblyExtensions.cs" />
     <Compile Include="System\Reflection\MemberAccessorHelper.cs" />
+    <Compile Include="System\Reflection\ObjectFactory.cs" />
     <Compile Include="System\Reflection\ObjectGraphWalker.cs" />
     <Compile Include="System\Reflection\TypeExtensions.cs" />
     <Compile Include="System\StringExtensions.cs" />
@@ -243,13 +242,12 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Composable.Core.nuspec">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    <None Include="Composable.Core.nuspec" />
+    <None Include="paket.template">
       <SubType>Designer</SubType>
     </None>
     <None Include="Void.snk" />
   </ItemGroup>
-  <ItemGroup />
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
@@ -266,5 +264,4 @@
     <PreBuildEvent>
     </PreBuildEvent>
   </PropertyGroup>
-  <Import Project="$(SolutionDir)\.nuget\nuget.targets" />
 </Project>

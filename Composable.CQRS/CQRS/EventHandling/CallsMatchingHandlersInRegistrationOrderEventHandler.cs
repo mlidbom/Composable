@@ -11,7 +11,7 @@ namespace Composable.CQRS.EventHandling
     /// Handlers should be registered using the RegisterHandlers method in the constructor of the inheritor.
     /// </summary>
     public abstract class CallsMatchingHandlersInRegistrationOrderEventHandler<TEvent> : IHandleReplayedAndPublishedEvents<TEvent>
-        where TEvent : IAggregateRootEvent
+        where TEvent : class, IAggregateRootEvent
     {
         private readonly CallMatchingHandlersInRegistrationOrderEventDispatcher<TEvent> _eventDispatcher = new CallMatchingHandlersInRegistrationOrderEventDispatcher<TEvent>(); 
 

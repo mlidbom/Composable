@@ -10,10 +10,10 @@ using Composable.System.Linq;
 
 namespace Composable.CQRS.EventSourcing
 {
-    public class AggregateRoot<TEntity, TBaseEventClass, TBaseEventInterface> : VersionedPersistentEntity<TEntity>, IEventStored, ISharedOwnershipAggregateRoot
-        where TEntity : AggregateRoot<TEntity, TBaseEventClass, TBaseEventInterface>
-        where TBaseEventInterface : IAggregateRootEvent
-        where TBaseEventClass : AggregateRootEvent, TBaseEventInterface
+    public partial class AggregateRoot<TAggregateRoot, TAggregateRootBaseEventClass, TAggregateRootBaseEventInterface> : VersionedPersistentEntity<TAggregateRoot>, IEventStored, ISharedOwnershipAggregateRoot
+        where TAggregateRoot : AggregateRoot<TAggregateRoot, TAggregateRootBaseEventClass, TAggregateRootBaseEventInterface>
+        where TAggregateRootBaseEventInterface : class, IAggregateRootEvent
+        where TAggregateRootBaseEventClass : AggregateRootEvent, TAggregateRootBaseEventInterface
     {
         protected IUtcTimeTimeSource TimeSource { get; private set; }
 
@@ -24,16 +24,16 @@ namespace Composable.CQRS.EventSourcing
         protected AggregateRoot(IUtcTimeTimeSource timeSource) : base(Guid.Empty)
         {
             Contract.Assert(timeSource != null);
-            Contract.Assert(typeof(TBaseEventInterface).IsInterface);
+            Contract.Assert(typeof(TAggregateRootBaseEventInterface).IsInterface);
             TimeSource = timeSource;
             _eventHandlersEventDispatcher.Register().IgnoreUnhandled<IAggregateRootEvent>();
         }
 
         private readonly IList<IAggregateRootEvent> _unCommittedEvents = new List<IAggregateRootEvent>();
-        private readonly CallMatchingHandlersInRegistrationOrderEventDispatcher<TBaseEventInterface> _eventDispatcher = new CallMatchingHandlersInRegistrationOrderEventDispatcher<TBaseEventInterface>();
-        private readonly CallMatchingHandlersInRegistrationOrderEventDispatcher<TBaseEventInterface> _eventHandlersEventDispatcher = new CallMatchingHandlersInRegistrationOrderEventDispatcher<TBaseEventInterface>();
+        private readonly CallMatchingHandlersInRegistrationOrderEventDispatcher<TAggregateRootBaseEventInterface> _eventDispatcher = new CallMatchingHandlersInRegistrationOrderEventDispatcher<TAggregateRootBaseEventInterface>();
+        private readonly CallMatchingHandlersInRegistrationOrderEventDispatcher<TAggregateRootBaseEventInterface> _eventHandlersEventDispatcher = new CallMatchingHandlersInRegistrationOrderEventDispatcher<TAggregateRootBaseEventInterface>();
 
-        protected void RaiseEvent(TBaseEventClass theEvent)
+        protected void RaiseEvent(TAggregateRootBaseEventClass theEvent)
         {
             theEvent.AggregateRootVersion = Version + 1;
             theEvent.UtcTimeStamp = TimeSource.UtcNow;
@@ -60,17 +60,17 @@ namespace Composable.CQRS.EventSourcing
             DomainEvent.Raise(theEvent);
         }
 
-        protected CallMatchingHandlersInRegistrationOrderEventDispatcher<TBaseEventInterface>.RegistrationBuilder RegisterEventAppliers()
+        protected CallMatchingHandlersInRegistrationOrderEventDispatcher<TAggregateRootBaseEventInterface>.RegistrationBuilder RegisterEventAppliers()
         {
             return _eventDispatcher.RegisterHandlers();
         }
 
-        protected CallMatchingHandlersInRegistrationOrderEventDispatcher<TBaseEventInterface>.RegistrationBuilder RegisterEventHandlers()
+        protected CallMatchingHandlersInRegistrationOrderEventDispatcher<TAggregateRootBaseEventInterface>.RegistrationBuilder RegisterEventHandlers()
         {
             return _eventHandlersEventDispatcher.RegisterHandlers();
         }
 
-        private void ApplyEvent(TBaseEventInterface theEvent)
+        private void ApplyEvent(TAggregateRootBaseEventInterface theEvent)
         {
             if (theEvent is IAggregateRootCreatedEvent)
             {
@@ -103,12 +103,12 @@ namespace Composable.CQRS.EventSourcing
 
         void IEventStored.LoadFromHistory(IEnumerable<IAggregateRootEvent> history)
         {
-            history.ForEach(theEvent => ApplyEvent((TBaseEventInterface)theEvent));
+            history.ForEach(theEvent => ApplyEvent((TAggregateRootBaseEventInterface)theEvent));
         }
 
         void ISharedOwnershipAggregateRoot.IntegrateExternallyRaisedEvent(IAggregateRootEvent theEvent)
         {
-            RaiseEvent((TBaseEventClass)theEvent);
+            RaiseEvent((TAggregateRootBaseEventClass)theEvent);
         }
     }
 }

@@ -8,18 +8,18 @@ namespace CQRS.Tests.CQRS.EventSourcing.AggregateRoot.NestedEntitiesTests.GuidId
     {        
         public Component(Root root) : base(root)
         {
-            _entities = Entity.CreateSelfManagingCollection(this);
-            InnerComponent = new  NestedComponent(this);
+            _entities = Component.Entity.CreateSelfManagingCollection(this);
+            InnerComponent = new NestedComponent(this);
             RegisterEventAppliers()
                 .For<RootEvent.Component.PropertyUpdated.Name>(e => Name = e.Name);
         }
 
-        public NestedComponent InnerComponent { get; }
+        private readonly Component.Entity.CollectionManager _entities;
+        public Component.NestedComponent InnerComponent { get; }
+
         public string Name { get; private set; }
         public IReadOnlyEntityCollection<Entity, Guid> Entities => _entities.Entities;        
         public void Rename(string name) { RaiseEvent(new RootEvent.Component.Implementation.Renamed(name)); }
-        public Entity AddEntity(string name) { return _entities.Add(new RootEvent.Component.Entity.Implementation.Created(Guid.NewGuid(), name)); }
-
-        private readonly Entity.CollectionManager _entities;
+        public Component.Entity AddEntity(string name) { return _entities.Add(new RootEvent.Component.Entity.Implementation.Created(Guid.NewGuid(), name)); }        
     }
 }

@@ -7,9 +7,9 @@ namespace CQRS.Tests.CQRS.EventSourcing.AggregateRoot.NestedEntitiesTests.GuidId
     public partial class Component
     {        
         [UsedImplicitly]
-        public class Entity : NestedEntity<Entity,
+        public class Entity : Component.NestedEntity<Entity,
                                   Guid,
-                                  RootEvent.Component.Entity.Implementation.Root,                                  
+                                  RootEvent.Component.Entity.Implementation.Root,
                                   RootEvent.Component.Entity.IRoot,
                                   RootEvent.Component.Entity.Created,
                                   RootEvent.Component.Entity.Removed,

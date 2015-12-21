@@ -121,11 +121,11 @@
     <Compile Include="Command\WhenExecutingIDomainCommand.cs" />
     <Compile Include="CQRS\CommandHandlerBaseTests.cs" />
     <Compile Include="CQRS\EventSourcing\AggregateRootTests.cs" />
-    <Compile Include="CQRS\EventSourcing\AggregateRoot\NestedEntitiesTests\GuidId\Domain\Component.NestedComponent.cs" />
-    <Compile Include="CQRS\EventSourcing\AggregateRoot\NestedEntitiesTests\GuidId\Domain\Component.Entity.cs" />
-    <Compile Include="CQRS\EventSourcing\AggregateRoot\NestedEntitiesTests\GuidId\Domain\Component.cs" />
-    <Compile Include="CQRS\EventSourcing\AggregateRoot\NestedEntitiesTests\GuidId\Domain\Entity.NestedEntity.cs" />
-    <Compile Include="CQRS\EventSourcing\AggregateRoot\NestedEntitiesTests\GuidId\Domain\Entity.cs" />
+    <Compile Include="CQRS\EventSourcing\AggregateRoot\NestedEntitiesTests\GuidId\Domain\Root.Component.NestedComponent.cs" />
+    <Compile Include="CQRS\EventSourcing\AggregateRoot\NestedEntitiesTests\GuidId\Domain\Root.Component.Entity.cs" />
+    <Compile Include="CQRS\EventSourcing\AggregateRoot\NestedEntitiesTests\GuidId\Domain\Root.Component.cs" />
+    <Compile Include="CQRS\EventSourcing\AggregateRoot\NestedEntitiesTests\GuidId\Domain\Root.Entity.NestedEntity.cs" />
+    <Compile Include="CQRS\EventSourcing\AggregateRoot\NestedEntitiesTests\GuidId\Domain\Root.Entity.cs" />
     <Compile Include="CQRS\EventSourcing\AggregateRoot\NestedEntitiesTests\GuidId\NestedEntitiesTests.cs" />
     <Compile Include="CQRS\EventSourcing\AggregateRoot\NestedEntitiesTests\GuidId\Domain\Root.cs" />
     <Compile Include="CQRS\EventSourcing\AggregateRoot\NestedEntitiesTests\GuidId\Domain\Events\RootEvent.Component.NestedComponent.cs" />

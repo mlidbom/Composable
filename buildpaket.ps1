@@ -44,19 +44,16 @@ paket pack `
 	buildconfig Debug `
 	buildplatform AnyCPU `
 	symbols `
-	exclude NSpec.NUnit `
-	exclude Composable.Contracts `
-	version (Get-Version "Composable.System\Bin\$Configuration\Composable.Core.dll")	
-	#specific-version Composable.Contracts (Get-Version "Composable.Contracts\bin\$Configuration\Composable.Contracts.dll") `
-	#specific-version Composable.Core (Get-Version "Composable.System\Bin\$Configuration\Composable.Core.dll") `
-	#specific-version Composable.CQRS (Get-Version "Composable.CQRS\Bin\$Configuration\Composable.CQRS.dll") `
-	#specific-version Composable.CQRS.NHibernate (Get-Version "Composable.CQRS.NHibernate\Bin\$Configuration\Composable.CQRS.NHibernate.dll") `
-	#specific-version Composable.Persistence.ORM.NHibernate (Get-Version "Composable.Persistence.ORM.NHibernate\Bin\$Configuration\Composable.Persistence.ORM.NHibernate.dll") `
-	#specific-version Composable.CQRS.ServiceBus.NServiceBus (Get-Version "Composable.CQRS.ServiceBus.NServiceBus\Bin\$Configuration\Composable.CQRS.ServiceBus.NServiceBus.dll") `
-	#specific-version Composable.DomainEvents (Get-Version "Composable.DomainEvents\Bin\$Configuration\Composable.DomainEvents.dll") `
-	#specific-version Composable.AutoMapper (Get-Version "Composable.AutoMapper\Bin\$Configuration\Composable.AutoMapper.dll") `
-	#specific-version Composable.CQRS.Windsor (Get-Version "Composable.CQRS.Windsor\Bin\$Configuration\Composable.CQRS.Windsor.dll") `
-	#specific-version Composable.Windsor (Get-Version "Composable.Windsor\Bin\$Configuration\Composable.Windsor.dll") `
-	#specific-version Composable.CQRS.Testing (Get-Version "Composable.CQRS.Testing\Bin\$Configuration\Composable.CQRS.Testing.dll") `
-	#specific-version NSpec.NUnit (Get-Version "NSpec.NUnit\Bin\$Configuration\NSpec.NUnit.dll")
+	specific-version Composable.Contracts (Get-Version "Composable.Contracts\bin\$Configuration\Composable.Contracts.dll") `
+	specific-version Composable.Core (Get-Version "Composable.System\Bin\$Configuration\Composable.Core.dll") `
+	specific-version Composable.CQRS (Get-Version "Composable.CQRS\Bin\$Configuration\Composable.CQRS.dll") `
+	specific-version Composable.CQRS.NHibernate (Get-Version "Composable.CQRS.NHibernate\Bin\$Configuration\Composable.CQRS.NHibernate.dll") `
+	specific-version Composable.Persistence.ORM.NHibernate (Get-Version "Composable.Persistence.ORM.NHibernate\Bin\$Configuration\Composable.Persistence.ORM.NHibernate.dll") `
+	specific-version Composable.CQRS.ServiceBus.NServiceBus (Get-Version "Composable.CQRS.ServiceBus.NServiceBus\Bin\$Configuration\Composable.CQRS.ServiceBus.NServiceBus.dll") `
+	specific-version Composable.DomainEvents (Get-Version "Composable.DomainEvents\Bin\$Configuration\Composable.DomainEvents.dll") `
+	specific-version Composable.AutoMapper (Get-Version "Composable.AutoMapper\Bin\$Configuration\Composable.AutoMapper.dll") `
+	specific-version Composable.CQRS.Windsor (Get-Version "Composable.CQRS.Windsor\Bin\$Configuration\Composable.CQRS.Windsor.dll") `
+	specific-version Composable.Windsor (Get-Version "Composable.Windsor\Bin\$Configuration\Composable.Windsor.dll") `
+	specific-version Composable.CQRS.Testing (Get-Version "Composable.CQRS.Testing\Bin\$Configuration\Composable.CQRS.Testing.dll") `
+	specific-version NSpec.NUnit (Get-Version "NSpec.NUnit\Bin\$Configuration\NSpec.NUnit.dll")
 

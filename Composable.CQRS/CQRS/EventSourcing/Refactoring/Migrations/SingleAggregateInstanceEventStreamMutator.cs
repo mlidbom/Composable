@@ -1,7 +1,9 @@
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using System.Linq;
+using Composable.System.Collections.Collections;
 using Composable.System.Linq;
 
 // ReSharper disable ForCanBeConvertedToForeach
@@ -20,7 +22,7 @@ namespace Composable.CQRS.EventSourcing.Refactoring.Migrations
         private readonly EventModifier _eventModifier;
 
         private int _aggregateVersion = 1;
-
+        
         public static ISingleAggregateInstanceEventStreamMutator Create(IAggregateRootEvent creationEvent, IReadOnlyList<IEventMigration> eventMigrations, Action<IReadOnlyList<AggregateRootEvent>> eventsAddedCallback = null)
         {
             return new SingleAggregateInstanceEventStreamMutator(creationEvent, eventMigrations, eventsAddedCallback);
@@ -82,7 +84,7 @@ namespace Composable.CQRS.EventSourcing.Refactoring.Migrations
             (IReadOnlyList<IEventMigration> eventMigrations,
              IReadOnlyList<AggregateRootEvent> @events,
              Action<IReadOnlyList<AggregateRootEvent>> eventsAddedCallback = null)
-        {
+        {            
             if (eventMigrations.None())
             {
                 return @events;
@@ -93,16 +95,21 @@ namespace Composable.CQRS.EventSourcing.Refactoring.Migrations
                 return Seq.Empty<AggregateRootEvent>().ToList();
             }
 
-            var mutator = Create(@events.First(), eventMigrations, eventsAddedCallback);
+            var firstEvent = @events.First();
+            lock(AggregateLockManager.GetAggregateLockObject(firstEvent.AggregateRootId))
+            {
 
-            var result = @events
-                .SelectMany(mutator.Mutate)
-                .Concat(mutator.EndOfAggregate())
-                .ToArray();
+                var mutator = Create(@events.First(), eventMigrations, eventsAddedCallback);
 
-            AssertMigrationsAreIdempotent(eventMigrations, result);
+                var result = @events
+                    .SelectMany(mutator.Mutate)
+                    .Concat(mutator.EndOfAggregate())
+                    .ToArray();
 
-            return result;
+                AssertMigrationsAreIdempotent(eventMigrations, result);
+
+                return result;
+            }
         }
 
         private static void AssertMigrationsAreIdempotent(IReadOnlyList<IEventMigration> eventMigrations, AggregateRootEvent[] result)

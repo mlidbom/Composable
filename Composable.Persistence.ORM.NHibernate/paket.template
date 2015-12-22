@@ -1,1 +1,2 @@
 ﻿type project
+id Composable.Persistence.ORM.NHibernate

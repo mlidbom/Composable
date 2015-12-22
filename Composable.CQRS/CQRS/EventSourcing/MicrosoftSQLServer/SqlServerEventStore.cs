@@ -47,7 +47,6 @@ namespace Composable.CQRS.EventSourcing.MicrosoftSQLServer
             _eventWriter = new SqlServerEventStoreEventWriter(_connectionMananger, eventSerializer, _schemaManager);
         }
 
-
         public IEnumerable<IAggregateRootEvent> GetAggregateHistory(Guid aggregateId)
         {
             _usageGuard.AssertNoContextChangeOccurred(this);
@@ -66,11 +65,16 @@ namespace Composable.CQRS.EventSourcing.MicrosoftSQLServer
                 _cache.Store(aggregateId, cachedAggregateHistory);
             }
 
-            var withSqlMigrationsApplied = ApplyOldMigrations(cachedAggregateHistory);
+            lock(AggregateLockManager.GetAggregateLockObject(aggregateId))
+            {
+                var withSqlMigrationsApplied = ApplyOldMigrations(cachedAggregateHistory);
 
-            var migratedAggregateHistory = SingleAggregateInstanceEventStreamMutator.MutateCompleteAggregateHistory(_migrationFactories, withSqlMigrationsApplied);
+                var migratedAggregateHistory = SingleAggregateInstanceEventStreamMutator.MutateCompleteAggregateHistory(
+                    _migrationFactories,
+                    withSqlMigrationsApplied);
 
-            return migratedAggregateHistory;
+                return migratedAggregateHistory;
+            }
         }
 
         private static IReadOnlyList<AggregateRootEvent> ApplyOldMigrations(IReadOnlyList<AggregateRootEvent> events)

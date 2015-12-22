@@ -47,7 +47,7 @@ namespace Composable.CQRS.EventSourcing.MicrosoftSQLServer
             _eventWriter = new SqlServerEventStoreEventWriter(_connectionMananger, eventSerializer, _schemaManager);
         }
 
-
+        [Obsolete("BUG: this method modifies the cached events when calling ApplyOldMigrations, and MutateCompleteHistory. This means that it is not thread safe! Write tests that exposes the problem and FIX IT!")]
         public IEnumerable<IAggregateRootEvent> GetAggregateHistory(Guid aggregateId)
         {
             _usageGuard.AssertNoContextChangeOccurred(this);

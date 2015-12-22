@@ -87,8 +87,14 @@ FROM {EventTable.Name} With(UPDLOCK, READCOMMITTED, ROWLOCK) ";
                     loadCommand.CommandText = $"{SelectClause} WHERE {EventTable.Columns.AggregateId} = @{EventTable.Columns.AggregateId}";
                     loadCommand.Parameters.Add(new SqlParameter($"{EventTable.Columns.AggregateId}", aggregateId));
 
+                    bool skipNextreadEventBecauseItWasReadOnlyToEnsureProperSqlLocksWereTaken = false;
                     if (startAfterVersion > 0)
                     {
+                        if(startAfterVersion > 1)
+                        {
+                            startAfterVersion -= 1;
+                            skipNextreadEventBecauseItWasReadOnlyToEnsureProperSqlLocksWereTaken = true;
+                        }
                         loadCommand.CommandText += $" AND {EventTable.Columns.InsertedVersion} > @CachedVersion";
                         loadCommand.Parameters.Add(new SqlParameter("CachedVersion", startAfterVersion));
                     }
@@ -99,7 +105,14 @@ FROM {EventTable.Name} With(UPDLOCK, READCOMMITTED, ROWLOCK) ";
                     {
                         while (reader.Read())
                         {
-                            historyData.Add(ReadDataRow(reader));
+                            if(!skipNextreadEventBecauseItWasReadOnlyToEnsureProperSqlLocksWereTaken)
+                            {
+                                historyData.Add(ReadDataRow(reader));
+                            }
+                            else
+                            {
+                                skipNextreadEventBecauseItWasReadOnlyToEnsureProperSqlLocksWereTaken = false;
+                            }
                         }
                     }
                 }
@@ -146,6 +159,7 @@ FROM {EventTable.Name} With(UPDLOCK, READCOMMITTED, ROWLOCK) ";
             }
         }   
 
+        [Obsolete("BUG: This method has the same reentrancy problem with the database connection that the other methods in this class had. We need to change it so that it does not yield while reading a reader.")]
         public IEnumerable<Guid> StreamAggregateIdsInCreationOrder(Type eventBaseType = null)
         {
             using (var connection = _connectionMananger.OpenConnection())

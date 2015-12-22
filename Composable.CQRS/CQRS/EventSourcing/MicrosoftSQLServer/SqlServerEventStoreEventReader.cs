@@ -146,6 +146,7 @@ FROM {EventTable.Name} With(UPDLOCK, READCOMMITTED, ROWLOCK) ";
             }
         }   
 
+        [Obsolete("BUG: This method has the same reentrancy problem with the database connection that the other methods in this class had. We need to change it so that it does not yield while reading a reader.")]
         public IEnumerable<Guid> StreamAggregateIdsInCreationOrder(Type eventBaseType = null)
         {
             using (var connection = _connectionMananger.OpenConnection())

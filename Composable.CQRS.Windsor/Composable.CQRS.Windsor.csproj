@@ -122,7 +122,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
-    <None Include="Composable.CQRS.Windsor.nuspec" />
     <None Include="paket.template">
       <SubType>Designer</SubType>
     </None>

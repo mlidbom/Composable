@@ -58,7 +58,6 @@
     <Compile Include="SafeConfiguration.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Composable.AutoMapper.nuspec" />
     <None Include="paket.references">
       <SubType>Designer</SubType>
     </None>

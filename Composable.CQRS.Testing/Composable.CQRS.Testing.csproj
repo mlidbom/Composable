@@ -126,7 +126,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
-    <None Include="Composable.CQRS.Testing.nuspec" />
     <None Include="paket.references" />
     <None Include="paket.template">
       <SubType>Designer</SubType>

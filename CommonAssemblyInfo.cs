@@ -23,4 +23,4 @@ using System.Runtime.InteropServices;
 
 [assembly: ComVisible(false)]
 
-[assembly: AssemblyVersion("3.3.1.0")]
+[assembly: AssemblyVersion("3.4.0.0")]

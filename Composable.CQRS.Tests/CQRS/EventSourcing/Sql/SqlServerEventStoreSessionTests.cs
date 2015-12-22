@@ -4,12 +4,10 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Transactions;
-using Castle.Windsor;
 using Composable.CQRS.EventSourcing;
 using Composable.CQRS.EventSourcing.MicrosoftSQLServer;
-using Composable.CQRS.Testing;
+using Composable.System.Linq;
 using Composable.SystemExtensions.Threading;
-using CQRS.Tests.KeyValueStorage.Sql;
 using NCrunch.Framework;
 using NUnit.Framework;
 
@@ -39,6 +37,7 @@ namespace CQRS.Tests.CQRS.EventSourcing.Sql
             using (var session = OpenSession(CreateStore()))
             {
                 session.Save(user);
+                user.ChangeEmail($"newemail@somewhere.not");
                 session.SaveChanges();
             }
 
@@ -58,11 +57,8 @@ namespace CQRS.Tests.CQRS.EventSourcing.Sql
                 }
             };
 
-            var task1 = Task.Factory.StartNew(updateEmail);
-            var task2 = Task.Factory.StartNew(updateEmail);
-            var task3 = Task.Factory.StartNew(updateEmail);
-
-            Task.WaitAll(task1, task2, task3);
+            var tasks = 1.Through(20).Select(_ => Task.Factory.StartNew(updateEmail)).ToArray();
+            Task.WaitAll(tasks);
 
             using (var session = OpenSession(CreateStore()))
             {
@@ -78,6 +74,7 @@ namespace CQRS.Tests.CQRS.EventSourcing.Sql
             using (var session = OpenSession(CreateStore()))
             {
                 session.Save(user);
+                user.ChangeEmail($"newemail@somewhere.not");
                 session.SaveChanges();
             }
 
@@ -96,11 +93,10 @@ namespace CQRS.Tests.CQRS.EventSourcing.Sql
                 }
             };
 
-            var task1 = Task.Factory.StartNew(updateEmail);
-            var task2 = Task.Factory.StartNew(updateEmail);
-            var task3 = Task.Factory.StartNew(updateEmail);
+            var tasks = 1.Through(20).Select(_ => Task.Factory.StartNew(updateEmail)).ToArray();
+            
 
-            Task.WaitAll(task1, task2, task3);
+            Task.WaitAll(tasks);
 
             using (var session = OpenSession(CreateStore()))
             {

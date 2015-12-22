@@ -108,7 +108,6 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Composable.DomainEvents.nuspec" />
     <None Include="paket.references" />
     <None Include="paket.template">
       <SubType>Designer</SubType>

@@ -110,7 +110,6 @@
     <Compile Include="WindsorDisposableExtensions.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Composable.Windsor.nuspec" />
     <None Include="paket.references" />
     <None Include="paket.template">
       <SubType>Designer</SubType>

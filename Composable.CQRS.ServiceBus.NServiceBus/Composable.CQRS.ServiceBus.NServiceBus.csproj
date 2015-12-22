@@ -84,7 +84,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
-    <None Include="Composable.CQRS.ServiceBus.NServiceBus.nuspec" />
     <None Include="paket.references" />
     <None Include="paket.template">
       <SubType>Designer</SubType>

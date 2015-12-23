@@ -65,6 +65,13 @@ namespace Composable.CQRS.EventSourcing.MicrosoftSQLServer
                 if(cachedAggregateHistory.Count == 0)
                 {
                     currentHistory = newEventsFromDatabase;
+                    var withSqlMigrationsApplied = ApplyOldMigrations(currentHistory);
+
+                    var migratedAggregateHistory = SingleAggregateInstanceEventStreamMutator.MutateCompleteAggregateHistory(
+                        _migrationFactories,
+                        withSqlMigrationsApplied);
+
+                    currentHistory = migratedAggregateHistory;
                 }
                 else
                 {
@@ -76,14 +83,8 @@ namespace Composable.CQRS.EventSourcing.MicrosoftSQLServer
                 {
                     _cache.Store(aggregateId, currentHistory);
                 }
-
-                var withSqlMigrationsApplied = ApplyOldMigrations(currentHistory);
-
-                var migratedAggregateHistory = SingleAggregateInstanceEventStreamMutator.MutateCompleteAggregateHistory(
-                    _migrationFactories,
-                    withSqlMigrationsApplied);
-
-                return migratedAggregateHistory;
+           
+                return currentHistory;
             }
         }
 

@@ -58,7 +58,8 @@ namespace Composable.CQRS.EventSourcing.MicrosoftSQLServer
                 var newEventsFromDatabase = _eventReader.GetAggregateHistory(
                     aggregateId: aggregateId,
                     startAfterVersion: cachedAggregateHistory.Count,
-                    suppressTransactionWarning: true);
+                    suppressTransactionWarning: true,
+                    includeReplacedEvents: true);
 
                 IReadOnlyList<AggregateRootEvent> currentHistory;
 

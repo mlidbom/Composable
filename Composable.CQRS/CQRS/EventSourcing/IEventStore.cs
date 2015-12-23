@@ -9,6 +9,7 @@ namespace Composable.CQRS.EventSourcing
         void SaveEvents(IEnumerable<IAggregateRootEvent> events);
         void StreamEvents(int batchSize, Action<IReadOnlyList<IAggregateRootEvent>> handleEvents);
         void DeleteEvents(Guid aggregateId);
+        [Obsolete("Absolutely not ready to be used in production. DO NOT USE IN PRODUCTION!")]
         void PersistMigrations();
         IEnumerable<Guid> StreamAggregateIdsInCreationOrder(Type eventBaseType = null);
     }

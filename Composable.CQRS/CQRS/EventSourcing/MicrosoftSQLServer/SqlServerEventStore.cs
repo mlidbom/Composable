@@ -59,7 +59,7 @@ namespace Composable.CQRS.EventSourcing.MicrosoftSQLServer
                     aggregateId: aggregateId,
                     startAfterVersion: cachedAggregateHistory.Count,
                     suppressTransactionWarning: true,
-                    includeReplacedEvents: true);
+                    includeReplacedEventsWhenLoadingCompleteHistory: true);
 
                 IReadOnlyList<AggregateRootEvent> currentHistory;
 

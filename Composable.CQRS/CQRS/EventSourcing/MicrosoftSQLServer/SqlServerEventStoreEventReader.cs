@@ -79,7 +79,7 @@ FROM {EventTable.Name} With(UPDLOCK, READCOMMITTED, ROWLOCK) ";
             public bool HasBeenReplaced => EffectiveVersion < 0;
         }
 
-        public IReadOnlyList<AggregateRootEvent> GetAggregateHistory(Guid aggregateId, int startAfterVersion = 0, bool suppressTransactionWarning = false, bool includeReplacedEvents = false)
+        public IReadOnlyList<AggregateRootEvent> GetAggregateHistory(Guid aggregateId, int startAfterVersion = 0, bool suppressTransactionWarning = false, bool includeReplacedEventsWhenLoadingCompleteHistory = false)
         {
             var historyData = new List<EventDataRow>();
             using(var connection = _connectionMananger.OpenConnection(suppressTransactionWarning: suppressTransactionWarning))
@@ -102,7 +102,7 @@ FROM {EventTable.Name} With(UPDLOCK, READCOMMITTED, ROWLOCK) ";
                         while (reader.Read())
                         {
                             var eventDataRow = ReadDataRow(reader);
-                            if ((startAfterVersion == 0 && eventDataRow.HasBeenReplaced) || eventDataRow.EffectiveVersion.Value > startAfterVersion)
+                            if ((startAfterVersion == 0 && includeReplacedEventsWhenLoadingCompleteHistory && eventDataRow.HasBeenReplaced) || eventDataRow.EffectiveVersion.Value > startAfterVersion)
                             {                               
                                 historyData.Add(eventDataRow);
                             }                            

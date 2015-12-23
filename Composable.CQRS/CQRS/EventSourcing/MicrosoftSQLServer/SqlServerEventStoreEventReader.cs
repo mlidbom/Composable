@@ -69,13 +69,14 @@ FROM {EventTable.Name} With(UPDLOCK, READCOMMITTED, ROWLOCK) ";
                        InsertedVersion = eventReader.GetInt32(10),
                        ManualVersion = eventReader[11] as int?,
                        EffectiveVersion = eventReader[3] as int?
-                   };
+            };
         }
 
         private class EventDataRow : AggregateRootEvent
         {
             public int EventType { get; set; }
             public string EventJson { get; set; }
+            public bool HasBeenReplaced => EffectiveVersion < 0;
         }
 
         public IReadOnlyList<AggregateRootEvent> GetAggregateHistory(Guid aggregateId, int startAfterVersion = 0, bool suppressTransactionWarning = false, bool includeReplacedEvents = false)
@@ -101,7 +102,7 @@ FROM {EventTable.Name} With(UPDLOCK, READCOMMITTED, ROWLOCK) ";
                         while (reader.Read())
                         {
                             var eventDataRow = ReadDataRow(reader);
-                            if ((startAfterVersion == 0 && includeReplacedEvents) || eventDataRow.EffectiveVersion.Value > startAfterVersion)
+                            if ((startAfterVersion == 0 && eventDataRow.HasBeenReplaced) || eventDataRow.EffectiveVersion.Value > startAfterVersion)
                             {                               
                                 historyData.Add(eventDataRow);
                             }                            

@@ -95,11 +95,11 @@ FROM {EventTable.Name} With(UPDLOCK, READCOMMITTED, ROWLOCK) ";
                             startAfterVersion -= 1;
                             skipNextreadEventBecauseItWasReadOnlyToEnsureProperSqlLocksWereTaken = true;
                         }
-                        loadCommand.CommandText += $" AND {EventTable.Columns.InsertedVersion} > @CachedVersion";
+                        loadCommand.CommandText += $" AND {EventTable.Columns.EffectiveVersion} > @CachedVersion";
                         loadCommand.Parameters.Add(new SqlParameter("CachedVersion", startAfterVersion));
                     }
 
-                    loadCommand.CommandText += $" ORDER BY {EventTable.Columns.InsertedVersion} ASC";
+                    loadCommand.CommandText += $" ORDER BY {EventTable.Columns.EffectiveVersion} ASC";
 
                     using (var reader = loadCommand.ExecuteReader())
                     {

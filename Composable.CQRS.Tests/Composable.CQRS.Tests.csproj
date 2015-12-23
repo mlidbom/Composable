@@ -121,6 +121,7 @@
     <Compile Include="Command\WhenExecutingIDomainCommand.cs" />
     <Compile Include="CQRS\CommandHandlerBaseTests.cs" />
     <Compile Include="CQRS\EventSourcing\AggregateRootTests.cs" />
+    <Compile Include="CQRS\EventSourcing\EventRefactoring\Migrations\InsertingNewEventsTests.cs" />
     <Compile Include="CQRS\EventSourcing\AggregateRoot\NestedEntitiesTests\GuidId\Domain\Root.Component.NestedComponent.cs" />
     <Compile Include="CQRS\EventSourcing\AggregateRoot\NestedEntitiesTests\GuidId\Domain\Root.Component.Entity.cs" />
     <Compile Include="CQRS\EventSourcing\AggregateRoot\NestedEntitiesTests\GuidId\Domain\Root.Component.cs" />
@@ -165,6 +166,7 @@
     <Compile Include="CQRS\EventSourcing\EventStoreSessionTests.cs" />
     <Compile Include="CQRS\EventSourcing\InMemoryEventStoreSessionTests.cs" />
     <Compile Include="CQRS\EventSourcing\Sql\ReadOrderImplementationExperimentTests.cs" />
+    <Compile Include="CQRS\EventSourcing\Sql\MigratedSqlServerEventStoreSessionTests.cs" />
     <Compile Include="CQRS\EventSourcing\Sql\SQLServerEventStoreTest.cs" />
     <Compile Include="CQRS\EventSourcing\Sql\SqlServerEventStoreSessionTests.cs" />
     <Compile Include="CQRS\EventSourcing\User.cs" />

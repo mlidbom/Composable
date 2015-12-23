@@ -1,6 +1,7 @@
 ﻿using System;
 using Composable.CQRS.EventSourcing;
 using Composable.GenericAbstractions.Time;
+using TestAggregates;
 
 namespace CQRS.Tests.CQRS.EventSourcing
 {
@@ -19,6 +20,9 @@ namespace CQRS.Tests.CQRS.EventSourcing
                                          Password = e.Password;
                                      })
                 .For<UserChangedEmail>(e => Email = e.Email)
+                .For<MigratedBeforeUserRegisteredEvent>(e => {})
+                .For<MigratedAfterUserChangedEmailEvent>(e => {})
+                .For<MigratedReplaceUserChangedPasswordEvent>(e => {})
                 .For<UserChangedPassword>(e => Password = e.Password);
         }
 
@@ -39,8 +43,8 @@ namespace CQRS.Tests.CQRS.EventSourcing
     }
 
 
-    public interface IUserEvent : IAggregateRootEvent
-    {}
+    public interface IUserEvent : IAggregateRootEvent, IRootEvent
+    { }
 
     public abstract class UserEvent : AggregateRootEvent, IUserEvent
     {
@@ -67,5 +71,17 @@ namespace CQRS.Tests.CQRS.EventSourcing
         public Guid UserId { get; set; }
         public string Email { get; set; }
         public string Password { get; set; }
+    }
+
+    public class MigratedBeforeUserRegisteredEvent : UserEvent, IAggregateRootCreatedEvent
+    {
+    }
+
+    public class MigratedAfterUserChangedEmailEvent : UserEvent, IAggregateRootCreatedEvent
+    {
+    }
+
+    public class MigratedReplaceUserChangedPasswordEvent : UserEvent, IAggregateRootCreatedEvent
+    {
     }
 }

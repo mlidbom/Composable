@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Data.SqlTypes;
+using System.Diagnostics.Contracts;
 using System.Linq;
 
 namespace Composable.CQRS.EventSourcing.MicrosoftSQLServer
@@ -68,16 +69,17 @@ FROM {EventTable.Name} With(UPDLOCK, READCOMMITTED, ROWLOCK) ";
                        InsertedVersion = eventReader.GetInt32(10),
                        ManualVersion = eventReader[11] as int?,
                        EffectiveVersion = eventReader[3] as int?
-                   };
+            };
         }
 
         private class EventDataRow : AggregateRootEvent
         {
             public int EventType { get; set; }
             public string EventJson { get; set; }
+            public bool HasBeenReplaced => EffectiveVersion < 0;
         }
 
-        public IEnumerable<AggregateRootEvent> GetAggregateHistory(Guid aggregateId, int startAfterVersion = 0, bool suppressTransactionWarning = false)
+        public IReadOnlyList<AggregateRootEvent> GetAggregateHistory(Guid aggregateId, int startAfterVersion = 0, bool suppressTransactionWarning = false, bool includeReplacedEventsWhenLoadingCompleteHistory = false)
         {
             var historyData = new List<EventDataRow>();
             using(var connection = _connectionMananger.OpenConnection(suppressTransactionWarning: suppressTransactionWarning))
@@ -87,32 +89,23 @@ FROM {EventTable.Name} With(UPDLOCK, READCOMMITTED, ROWLOCK) ";
                     loadCommand.CommandText = $"{SelectClause} WHERE {EventTable.Columns.AggregateId} = @{EventTable.Columns.AggregateId}";
                     loadCommand.Parameters.Add(new SqlParameter($"{EventTable.Columns.AggregateId}", aggregateId));
 
-                    bool skipNextreadEventBecauseItWasReadOnlyToEnsureProperSqlLocksWereTaken = false;
                     if (startAfterVersion > 0)
                     {
-                        if(startAfterVersion > 1)
-                        {
-                            startAfterVersion -= 1;
-                            skipNextreadEventBecauseItWasReadOnlyToEnsureProperSqlLocksWereTaken = true;
-                        }
-                        loadCommand.CommandText += $" AND {EventTable.Columns.InsertedVersion} > @CachedVersion";
-                        loadCommand.Parameters.Add(new SqlParameter("CachedVersion", startAfterVersion));
+                        loadCommand.CommandText += $" AND {EventTable.Columns.EffectiveVersion} > @CachedVersion";
+                        loadCommand.Parameters.Add(new SqlParameter("CachedVersion", startAfterVersion ));
                     }
 
-                    loadCommand.CommandText += $" ORDER BY {EventTable.Columns.InsertedVersion} ASC";
+                    loadCommand.CommandText += $" ORDER BY {EventTable.Columns.EffectiveVersion} ASC";
 
                     using (var reader = loadCommand.ExecuteReader())
                     {
                         while (reader.Read())
                         {
-                            if(!skipNextreadEventBecauseItWasReadOnlyToEnsureProperSqlLocksWereTaken)
-                            {
-                                historyData.Add(ReadDataRow(reader));
-                            }
-                            else
-                            {
-                                skipNextreadEventBecauseItWasReadOnlyToEnsureProperSqlLocksWereTaken = false;
-                            }
+                            var eventDataRow = ReadDataRow(reader);
+                            if ((startAfterVersion == 0 && includeReplacedEventsWhenLoadingCompleteHistory && eventDataRow.HasBeenReplaced) || eventDataRow.EffectiveVersion.Value > startAfterVersion)
+                            {                               
+                                historyData.Add(eventDataRow);
+                            }                            
                         }
                     }
                 }

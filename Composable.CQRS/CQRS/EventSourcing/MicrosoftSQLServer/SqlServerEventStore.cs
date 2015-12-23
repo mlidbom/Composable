@@ -52,29 +52,41 @@ namespace Composable.CQRS.EventSourcing.MicrosoftSQLServer
         {
             _usageGuard.AssertNoContextChangeOccurred(this);
             _schemaManager.SetupSchemaIfDatabaseUnInitialized();
-            var cachedAggregateHistory = _cache.GetCopy(aggregateId);
-
-            cachedAggregateHistory.AddRange(
-                _eventReader.GetAggregateHistory(
-                    aggregateId: aggregateId,
-                    startAfterVersion: cachedAggregateHistory.Count,
-                    suppressTransactionWarning: true));            
-
-            //Should within a transaction a process write events, read them, then fail to commit we will have cached events that are not persisted unless we refuse to cache them here.
-            if(!_aggregatesWithEventsAddedByThisInstance.Contains(aggregateId))
-            {
-                _cache.Store(aggregateId, cachedAggregateHistory);
-            }
-
             lock(AggregateLockManager.GetAggregateLockObject(aggregateId))
             {
-                var withSqlMigrationsApplied = ApplyOldMigrations(cachedAggregateHistory);
+                var cachedAggregateHistory = _cache.GetCopy(aggregateId);
 
-                var migratedAggregateHistory = SingleAggregateInstanceEventStreamMutator.MutateCompleteAggregateHistory(
-                    _migrationFactories,
-                    withSqlMigrationsApplied);
+                var newEventsFromDatabase = _eventReader.GetAggregateHistory(
+                    aggregateId: aggregateId,
+                    startAfterVersion: cachedAggregateHistory.Count,
+                    suppressTransactionWarning: true,
+                    includeReplacedEventsWhenLoadingCompleteHistory: true);
 
-                return migratedAggregateHistory;
+                IReadOnlyList<AggregateRootEvent> currentHistory;
+
+                if(cachedAggregateHistory.Count == 0)
+                {
+                    currentHistory = newEventsFromDatabase;
+                    var withSqlMigrationsApplied = ApplyOldMigrations(currentHistory);
+
+                    var migratedAggregateHistory = SingleAggregateInstanceEventStreamMutator.MutateCompleteAggregateHistory(
+                        _migrationFactories,
+                        withSqlMigrationsApplied);
+
+                    currentHistory = migratedAggregateHistory;
+                }
+                else
+                {
+                    currentHistory = cachedAggregateHistory.Concat(newEventsFromDatabase).ToList();
+                }
+
+                //Should within a transaction a process write events, read them, then fail to commit we will have cached events that are not persisted unless we refuse to cache them here.
+                if(!_aggregatesWithEventsAddedByThisInstance.Contains(aggregateId))
+                {
+                    _cache.Store(aggregateId, currentHistory);
+                }
+           
+                return currentHistory;
             }
         }
 

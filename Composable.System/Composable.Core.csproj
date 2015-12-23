@@ -177,6 +177,7 @@
     <Compile Include="System\ComponentModel\DataAnnotations\IValidatableObjectExtensions.cs" />
     <Compile Include="System\Configuration\AppConfigConfigurationParameterProvider.cs" />
     <Compile Include="System\Configuration\ConnectionStringConfigurationParameterProvider.cs" />
+    <Compile Include="System\Configuration\DummyConnectionStringProvider.cs" />
     <Compile Include="System\Configuration\IConfigurationParameterProvider.cs" />
     <Compile Include="System\Configuration\IConnectionStringProvider.cs" />
     <Compile Include="System\EnumExtensions.cs" />

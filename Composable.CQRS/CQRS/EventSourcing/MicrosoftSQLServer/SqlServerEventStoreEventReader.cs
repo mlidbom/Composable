@@ -78,7 +78,7 @@ FROM {EventTable.Name} With(UPDLOCK, READCOMMITTED, ROWLOCK) ";
             public string EventJson { get; set; }
         }
 
-        public IReadOnlyList<AggregateRootEvent> GetAggregateHistory(Guid aggregateId, int startAfterVersion = 0, bool suppressTransactionWarning = false)
+        public IReadOnlyList<AggregateRootEvent> GetAggregateHistory(Guid aggregateId, int startAfterVersion = 0, bool suppressTransactionWarning = false, bool includeReplacedEvents = false)
         {
             var historyData = new List<EventDataRow>();
             using(var connection = _connectionMananger.OpenConnection(suppressTransactionWarning: suppressTransactionWarning))
@@ -101,7 +101,7 @@ FROM {EventTable.Name} With(UPDLOCK, READCOMMITTED, ROWLOCK) ";
                         while (reader.Read())
                         {
                             var eventDataRow = ReadDataRow(reader);
-                            if (startAfterVersion == 0 || eventDataRow.EffectiveVersion.Value > startAfterVersion)
+                            if ((startAfterVersion == 0 && includeReplacedEvents) || eventDataRow.EffectiveVersion.Value > startAfterVersion)
                             {                               
                                 historyData.Add(eventDataRow);
                             }                            

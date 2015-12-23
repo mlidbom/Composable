@@ -77,7 +77,7 @@ FROM {EventTable.Name} With(UPDLOCK, READCOMMITTED, ROWLOCK) ";
             public string EventJson { get; set; }
         }
 
-        public IEnumerable<AggregateRootEvent> GetAggregateHistory(Guid aggregateId, int startAfterVersion = 0, bool suppressTransactionWarning = false)
+        public IReadOnlyList<AggregateRootEvent> GetAggregateHistory(Guid aggregateId, int startAfterVersion = 0, bool suppressTransactionWarning = false)
         {
             var historyData = new List<EventDataRow>();
             using(var connection = _connectionMananger.OpenConnection(suppressTransactionWarning: suppressTransactionWarning))

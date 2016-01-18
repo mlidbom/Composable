@@ -11,7 +11,17 @@ namespace Composable.CQRS.EventSourcing
         void DeleteEvents(Guid aggregateId);
         [Obsolete("Absolutely not ready to be used in production. DO NOT USE IN PRODUCTION!")]
         void PersistMigrations();
+
+        ///<summary>The passed <paramref name="eventBaseType"/> filters the aggregate Ids so that only ids of aggregates that are created by an event that inherits from <paramref name="eventBaseType"/> are returned.</summary>
         IEnumerable<Guid> StreamAggregateIdsInCreationOrder(Type eventBaseType = null);
+    }
+
+    public static class EventStoreExtensions
+    {
+        public static IEnumerable<Guid> StreamAggregateIdsInCreationOrder<TBaseAggregateEventInterface>(this IEventStore @this)
+        {
+            return @this.StreamAggregateIdsInCreationOrder(typeof(TBaseAggregateEventInterface));
+        }
     }
 
     public static class EventStoreTestingExtensions

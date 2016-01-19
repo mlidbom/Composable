@@ -4,8 +4,7 @@ using Castle.MicroKernel.Registration;
 using Castle.MicroKernel.SubSystems.Configuration;
 using Castle.Windsor;
 using Composable.KeyValueStorage;
-using Composable.KeyValueStorage.SqlServer;
-using Composable.System.Configuration;
+using Composable.UnitsOfWork;
 using JetBrains.Annotations;
 
 namespace AccountManagement.UI.QueryModels.DocumentDB.Updaters.ContainerInstallers
@@ -17,21 +16,14 @@ namespace AccountManagement.UI.QueryModels.DocumentDB.Updaters.ContainerInstalle
             IWindsorContainer container,
             IConfigurationStore store)
         {
-
-
             container.Register(
-                Component.For<IDocumentDbSession, IAccountManagementQueryModelUpdaterSession>()
+                Component.For<IAccountManagementQueryModelUpdaterSession, IUnitOfWorkParticipant>()
                     .ImplementedBy<AccountManagementQueryModelUpdaterSession>()
                     .DependsOn(
                         AccountManagementDocumentDbReaderInstaller.Registration.DocumentDb,
                         Dependency.OnValue<IDocumentDbSessionInterceptor>(NullOpDocumentDbSessionInterceptor.Instance))
                     .LifestylePerWebRequest()
                 );
-        }
-
-        private static string GetConnectionStringFromConfiguration(string key)
-        {
-            return new ConnectionStringConfigurationParameterProvider().GetConnectionString(key).ConnectionString;
         }
     }
 }

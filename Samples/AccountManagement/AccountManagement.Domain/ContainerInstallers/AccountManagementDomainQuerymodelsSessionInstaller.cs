@@ -6,7 +6,7 @@ using Castle.Windsor;
 using Composable.CQRS.Windsor;
 using Composable.KeyValueStorage;
 using Composable.KeyValueStorage.SqlServer;
-using Composable.System.Configuration;
+using Composable.UnitsOfWork;
 using JetBrains.Annotations;
 
 namespace AccountManagement.Domain.ContainerInstallers
@@ -25,18 +25,13 @@ namespace AccountManagement.Domain.ContainerInstallers
             container.RegisterSqlServerDocumentDb(Registration, ConnectionStringName);
 
             container.Register(
-                Component.For<IAccountManagementDomainQueryModelSession>()
+                Component.For<IAccountManagementDomainQueryModelSession, IUnitOfWorkParticipant>()
                     .ImplementedBy<AccountManagementDomainQueryModelSession>()
                     .DependsOn(
                         Registration.DocumentDb,
                         Dependency.OnValue<IDocumentDbSessionInterceptor>(NullOpDocumentDbSessionInterceptor.Instance))
                     .LifestylePerWebRequest()
                 );
-        }
-
-        private static string GetConnectionStringFromConfiguration(string key)
-        {
-            return new ConnectionStringConfigurationParameterProvider().GetConnectionString(key).ConnectionString;
         }
     }
 }

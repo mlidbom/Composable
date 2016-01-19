@@ -45,8 +45,6 @@
     <Compile Include="ContainerInstallers\AccountManagementEventStoreInstaller.cs" />
     <Compile Include="Services\AccountManagementEventStoreSession.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Services\IAccountManagementEventStoreReader.cs" />
-    <Compile Include="Services\IAccountManagementEventStoreSession.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />

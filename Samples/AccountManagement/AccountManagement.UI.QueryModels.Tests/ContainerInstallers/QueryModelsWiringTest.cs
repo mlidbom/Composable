@@ -71,26 +71,5 @@ namespace AccountManagement.UI.QueryModels.Tests.ContainerInstallers
         {
             Container.ConfigureWiringForTestsCallAfterAllOtherWiring();
         }
-
-        [Test]
-        public void ResettingTestDatabasesRemovesAccountQueryModels()
-        {
-            Account registerAccountScenario;
-            using(Container.BeginScope())
-            {
-                registerAccountScenario = new RegisterAccountScenario(Container).Execute();
-            }
-
-            using(Container.BeginScope())
-            {
-                Container.Resolve<IAccountManagementQueryModelsReader>().GetAccount(registerAccountScenario.Id);
-            }
-
-            Container.ResetTestDataBases();
-            using(Container.BeginScope())
-            {
-                Assert.Throws<NoSuchDocumentException>(() => Container.Resolve<IAccountManagementQueryModelsReader>().GetAccount(registerAccountScenario.Id));
-            }
-        }
     }
 }

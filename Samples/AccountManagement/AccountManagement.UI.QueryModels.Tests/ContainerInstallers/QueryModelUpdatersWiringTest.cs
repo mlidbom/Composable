@@ -70,24 +70,5 @@ namespace AccountManagement.UI.QueryModels.Tests.ContainerInstallers
         {
             Container.ConfigureWiringForTestsCallAfterAllOtherWiring();
         }
-
-        [Test]
-        public void ResettingTestDatabasesRemovesAccountQueryModels()
-        {
-            var accountQueryModel = new AccountQueryModel();
-            ((ISingleAggregateQueryModel)accountQueryModel).SetId(Guid.NewGuid());
-
-            using(Container.BeginScope())
-            {
-                Container.Resolve<IAccountManagementQueryModelUpdaterSession>().Save(accountQueryModel);
-                Container.Resolve<IAccountManagementQueryModelUpdaterSession>().Get<AccountQueryModel>(accountQueryModel.Id);
-            }
-
-            Container.ResetTestDataBases();
-            using(Container.BeginScope())
-            {
-                Assert.Throws<NoSuchDocumentException>(() => Container.Resolve<IAccountManagementQueryModelUpdaterSession>().Get<AccountQueryModel>(accountQueryModel.Id));
-            }
-        }
     }
 }

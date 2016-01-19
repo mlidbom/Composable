@@ -10,6 +10,7 @@ using Composable.GenericAbstractions.Time;
 using Composable.Windsor.Testing;
 using Composable.KeyValueStorage;
 using Composable.ServiceBus;
+using Composable.System.Configuration;
 using NUnit.Framework;
 
 namespace AccountManagement.UI.QueryModels.Tests.ContainerInstallers
@@ -27,17 +28,18 @@ namespace AccountManagement.UI.QueryModels.Tests.ContainerInstallers
             Container = new WindsorContainer();
             Container.ConfigureWiringForTestsCallBeforeAllOtherWiring();
 
+            Container.Register(
+                Component.For<IUtcTimeTimeSource, DummyTimeSource>().Instance(DummyTimeSource.Now).LifestyleSingleton(),
+                Component.For<IServiceBus>().ImplementedBy<SynchronousBus>().LifestylePerWebRequest(),
+                Component.For<IWindsorContainer>().Instance(Container),
+                Component.For<IConnectionStringProvider>().Instance(new ConnectionStringConfigurationParameterProvider()).LifestyleSingleton()
+                );
+
             Container.Install(
                 FromAssembly.Containing<Domain.Events.EventStore.ContainerInstallers.AccountManagementDomainEventStoreInstaller>(),
                 FromAssembly.Containing<UI.QueryModels.DocumentDB.Updaters.ContainerInstallers.AccountManagementQuerymodelsSessionInstaller>(),
                 FromAssembly.Containing<UI.QueryModels.ContainerInstallers.AccountManagementDocumentDbReaderInstaller>()
-                );
-
-            Container.Register(
-                Component.For<IUtcTimeTimeSource, DummyTimeSource>().Instance(DummyTimeSource.Now).LifestyleSingleton(),
-                Component.For<IServiceBus>().ImplementedBy<SynchronousBus>().LifestylePerWebRequest(),
-                Component.For<IWindsorContainer>().Instance(Container)
-                );
+                );            
         }
 
         [Test]

@@ -1,6 +1,6 @@
 framework: >= net45 < dnxcore50
 
-source C:\Manpower\NuGetFeed
+source ..\..\NuGetFeed
 source http://nuget.teamcity.mpsedev.local/nuget
 
 #Teamcity restrictions
@@ -19,9 +19,9 @@ source http://nuget.teamcity.mpsedev.local/nuget
 #nuget NServiceBus 4.7.6
 #nuget NServiceBus.CastleWindsor 4.7.6
 
-nuget Composable.Contracts prerelease
-nuget Composable.CQRS.ServiceBus.NServiceBus prerelease
-nuget Composable.CQRS.Windsor prerelease
+nuget Composable.Contracts
+nuget Composable.CQRS.ServiceBus.NServiceBus
+nuget Composable.CQRS.Windsor
 #We cannot support 2.0 of jQuery since we need to keep supporting older browsers
 nuget jQuery ~> 1 
 nuget CommonServiceLocator ~> 1

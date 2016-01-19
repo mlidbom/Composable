@@ -44,7 +44,6 @@
   <ItemGroup>
     <Compile Include="ContainerInstallers\AccountManagementQuerymodelsSessionInstaller.cs" />
     <Compile Include="ContainerInstallers\Testing\ForTestsQueryModelsUpdatersEventHandlersInstaller.cs" />
-    <Compile Include="ContainerInstallers\Testing\InMemoryAccountManagementQuerymodelsSessionInstaller.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Services\AccountManagementQueryModelUpdaterSession.cs" />
     <Compile Include="Services\IAccountManagementQueryModelUpdaterSession.cs" />

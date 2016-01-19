@@ -54,12 +54,12 @@ namespace Composable.CQRS.Windsor
             @this.Register(
                 Component.For<IDocumentDb>()
                          .ImplementedBy<SqlServerDocumentDb>()
-                         .DependsOn(connectionString, sessionInterceptor)
+                         .DependsOn(connectionString)
                     .LifestylePerWebRequest()
                     .Named(registration.DocumentDbName),
                 Component.For(Seq.OfTypes<IDocumentDbSession, IDocumentDbUpdater, IDocumentDbReader, IDocumentDbBulkReader, IUnitOfWorkParticipant, IDocumentUpdatedNotifier>())
                          .ImplementedBy<DocumentDbSession>()
-                         .DependsOn(registration.DocumentDb)
+                         .DependsOn(registration.DocumentDb, sessionInterceptor)
                          .LifestylePerWebRequest()
                          .Named(registration.SessionName)
                 );

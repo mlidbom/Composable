@@ -18,7 +18,6 @@ namespace AccountManagement.Domain.Events.Implementation
         /// </summary>
         public UserRegisteredAccountEvent(Guid accountId, Email email, Password password) : base(accountId)
         {
-            Contract.Requires(accountId != Guid.Empty);
             Contract.Requires(email != null);
             Contract.Requires(password != null);
 

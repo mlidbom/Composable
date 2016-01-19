@@ -10,6 +10,7 @@ using Composable.CQRS.Windsor.Testing;
 using Composable.GenericAbstractions.Time;
 using Composable.Windsor.Testing;
 using Composable.ServiceBus;
+using Composable.System.Configuration;
 using NUnit.Framework;
 
 namespace AccountManagement.Domain.Tests.ContainerInstallers
@@ -27,16 +28,17 @@ namespace AccountManagement.Domain.Tests.ContainerInstallers
             Container = new WindsorContainer();
             Container.ConfigureWiringForTestsCallBeforeAllOtherWiring();
 
-            Container.Install(
-                FromAssembly.Containing<Domain.ContainerInstallers.AccountRepositoryInstaller>(),
-                FromAssembly.Containing<Domain.Events.EventStore.ContainerInstallers.AccountManagementDomainEventStoreInstaller>()
-                );
-
             Container.Register(
                 Component.For<IUtcTimeTimeSource, DummyTimeSource>().Instance(DummyTimeSource.Now).LifestyleSingleton(),
                 Component.For<IServiceBus>().ImplementedBy<SynchronousBus>().LifestylePerWebRequest(),
-                Component.For<IWindsorContainer>().Instance(Container)
+                Component.For<IWindsorContainer>().Instance(Container),
+                Component.For<IConnectionStringProvider>().Instance(new ConnectionStringConfigurationParameterProvider()).LifestyleSingleton()
                 );
+
+            Container.Install(
+                FromAssembly.Containing<Domain.ContainerInstallers.AccountRepositoryInstaller>(),
+                FromAssembly.Containing<Domain.Events.EventStore.ContainerInstallers.AccountManagementDomainEventStoreInstaller>()
+                );            
         }
 
         [Test]

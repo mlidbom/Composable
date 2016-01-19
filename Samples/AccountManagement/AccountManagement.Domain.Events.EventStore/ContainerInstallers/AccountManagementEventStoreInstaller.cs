@@ -15,13 +15,6 @@ namespace AccountManagement.Domain.Events.EventStore.ContainerInstallers
     public class AccountManagementDomainEventStoreInstaller : IWindsorInstaller
     {
         public static SqlServerEventStoreRegistration Registration = new SqlServerEventStoreRegistration<AccountManagementDomainEventStoreInstaller>();
-
-        public static class ComponentKeys
-        {
-            public const string EventStoreSession = "AccountManagement.Domain.EventStoreSession";
-        }
-
-
         public const string ConnectionStringName = "AccountManagementDomain";
 
         public void Install(IWindsorContainer container, IConfigurationStore store)
@@ -33,8 +26,7 @@ namespace AccountManagement.Domain.Events.EventStore.ContainerInstallers
                 Component.For<IAccountManagementEventStoreSession, IEventStoreReader, IAccountManagementEventStoreReader, IUnitOfWorkParticipant>()
                     .ImplementedBy<AccountManagementEventStoreSession>()
                     .DependsOn(Registration.Store)
-                    .LifestylePerWebRequest()
-                    .Named(ComponentKeys.EventStoreSession));
+                    .LifestylePerWebRequest());
         }
 
         private static string GetConnectionStringFromConfiguration(string key)

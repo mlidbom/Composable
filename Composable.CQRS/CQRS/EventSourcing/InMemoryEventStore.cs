@@ -4,11 +4,14 @@ using System.Diagnostics.Contracts;
 using System.Linq;
 using Composable.CQRS.EventSourcing.Refactoring.Migrations;
 using Composable.System.Linq;
+using Composable.Windsor.Testing;
 
 namespace Composable.CQRS.EventSourcing
 {
     //todo: Refactor to use the same serialization code as the sql server event store so that tests actually tests roundtrip serialization
-    public class InMemoryEventStore : IEventStore
+#pragma warning disable 618
+    public class InMemoryEventStore : IEventStore, IResetTestDatabases
+#pragma warning restore 618
     {
         private IReadOnlyList<IEventMigration> _migrationFactories;
 
@@ -110,5 +113,7 @@ namespace Composable.CQRS.EventSourcing
 
 
         internal void TestingOnlyReplaceMigrations(IReadOnlyList<IEventMigration> migrations) { _migrationFactories = migrations; }
+
+        void IResetTestDatabases.ResetDatabase() { Reset(); }
     }
 }

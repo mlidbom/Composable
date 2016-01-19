@@ -88,6 +88,10 @@
       <Project>{3632254d-0c4a-4eb8-b388-4c99f8939584}</Project>
       <Name>Composable.Core</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Composable.Windsor\Composable.Windsor.csproj">
+      <Project>{646DCE1F-A503-4158-80FB-AAA219C4CEFF}</Project>
+      <Name>Composable.Windsor</Name>
+    </ProjectReference>
     <ProjectReference Include="..\NSpec.NUnit\NSpec.NUnit.csproj">
       <Project>{1cd466e7-48cf-45ef-be1f-29c17f705b39}</Project>
       <Name>NSpec.NUnit</Name>

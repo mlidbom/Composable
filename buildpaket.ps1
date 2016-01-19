@@ -58,4 +58,4 @@ paket pack `
 	specific-version NSpec.NUnit (Get-Version "NSpec.NUnit\Bin\$Configuration\NSpec.NUnit.dll")
 
 Copy-Item -Path "$LocalOutputDirectory\*.nupkg" -Force $OutputDirectory
-
+Remove-Item -Path "$LocalOutputDirectory\*symbols.nupkg"

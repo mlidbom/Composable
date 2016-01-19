@@ -69,21 +69,5 @@ namespace AccountManagement.Domain.Tests.ContainerInstallers
         {
             Container.ConfigureWiringForTestsCallAfterAllOtherWiring();
         }
-
-        [Test]
-        public void ResettingTestDatabasesRemovesAccounts()
-        {
-            Account account;
-            using(Container.BeginScope())
-            {
-                account = new RegisterAccountScenario(Container).Execute();
-                Container.Resolve<IAccountRepository>().Get(account.Id);
-            }
-            Container.ResetTestDataBases();
-            using(Container.BeginScope())
-            {
-                Assert.Throws<AggregateRootNotFoundException>(() => Container.Resolve<IAccountRepository>().Get(account.Id));
-            }
-        }
     }
 }

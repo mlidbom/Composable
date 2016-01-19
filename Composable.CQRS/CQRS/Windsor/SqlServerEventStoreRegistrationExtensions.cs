@@ -33,9 +33,9 @@ namespace Composable.CQRS.Windsor
         internal Type SessionImplementor { get; private set; }
         internal string StoreName { get; }
         internal string SessionName { get; }
-        public virtual Dependency Store => Dependency.OnComponent(typeof(IEventStore), componentName: StoreName);
-        public virtual Dependency Session => Dependency.OnComponent(SessionType, componentName: SessionName);
-        public virtual Dependency Reader => Dependency.OnComponent(ReaderType, componentName: SessionName);
+        public Dependency Store => Dependency.OnComponent(typeof(IEventStore), componentName: StoreName);
+        public Dependency Session => Dependency.OnComponent(SessionType, componentName: SessionName);
+        public Dependency Reader => Dependency.OnComponent(ReaderType, componentName: SessionName);
 
     }
 
@@ -54,6 +54,24 @@ namespace Composable.CQRS.Windsor
 
     public static class SqlServerEventStoreRegistrationExtensions
     {
+        public static SqlServerEventStoreRegistration RegisterSqlServerEventStore<TSessionClass, TSessionInterface, TReaderInterface>
+            (this IWindsorContainer @this,
+             string connectionName,
+             Dependency nameMapper = null,
+             Dependency migrations = null)
+            where TSessionClass : EventStoreSession
+            where TSessionInterface : IEventStoreSession
+            where TReaderInterface : IEventStoreReader
+        {
+
+            return @this.RegisterSqlServerEventStore(
+                registration: new SqlServerEventStoreRegistration<TSessionClass, TSessionInterface, TReaderInterface>(),
+                connectionName: connectionName,
+                nameMapper: nameMapper,
+                migrations: migrations
+                );
+        }
+
         public static SqlServerEventStoreRegistration RegisterSqlServerEventStore
             (this IWindsorContainer @this,
              SqlServerEventStoreRegistration registration,

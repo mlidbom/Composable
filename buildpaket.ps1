@@ -12,6 +12,7 @@ trap {
 }
 
 $scriptRoot = Split-Path (Resolve-Path $myInvocation.MyCommand.Path) 
+$LocalOutputDirectory = Resolve-Path "$scriptRoot\NuGetFeed"
 $OutputDirectory = Resolve-Path "$scriptRoot\$OutputDirectory"
 
 function FixVersion
@@ -33,14 +34,13 @@ function FixVersion
 
 function Get-Version{
 	param([string]$assemblyPath)
-	write-host "$scriptRoot\$assemblyPath"
 	(FixVersion ([System.Diagnostics.FileVersionInfo]::GetVersionInfo("$scriptRoot\$assemblyPath")) $PreVersion)
 }
 
 Set-Alias paket $scriptRoot\.paket\paket.exe
 
 paket pack `
-	output $OutputDirectory `
+	output $LocalOutputDirectory `
 	buildconfig Debug `
 	buildplatform AnyCPU `
 	symbols `
@@ -56,4 +56,6 @@ paket pack `
 	specific-version Composable.Windsor (Get-Version "Composable.Windsor\Bin\$Configuration\Composable.Windsor.dll") `
 	specific-version Composable.CQRS.Testing (Get-Version "Composable.CQRS.Testing\Bin\$Configuration\Composable.CQRS.Testing.dll") `
 	specific-version NSpec.NUnit (Get-Version "NSpec.NUnit\Bin\$Configuration\NSpec.NUnit.dll")
+
+Copy-Item -Path "$LocalOutputDirectory\*.nupkg" -Force $OutputDirectory
 

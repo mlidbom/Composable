@@ -21,10 +21,5 @@ namespace AccountManagement.Domain.Events.EventStore.ContainerInstallers
         {
             container.RegisterSqlServerEventStore(Registration, ConnectionStringName);
         }
-
-        private static string GetConnectionStringFromConfiguration(string key)
-        {
-            return new ConnectionStringConfigurationParameterProvider().GetConnectionString(key).ConnectionString;
-        }
     }
 }

@@ -14,15 +14,13 @@ namespace AccountManagement.Domain.ContainerInstallers
     [UsedImplicitly]
     public class AccountManagementDomainQuerymodelsSessionInstaller : IWindsorInstaller
     {
-        public static string ConnectionStringName { get { return AccountManagementDomainEventStoreInstaller.ConnectionStringName; } }
-
-        public static readonly SqlServerDocumentDbRegistration Registration = new SqlServerDocumentDbRegistration<AccountManagementDomainQuerymodelsSessionInstaller>();
+        private static readonly SqlServerDocumentDbRegistration Registration = new SqlServerDocumentDbRegistration<AccountManagementDomainQuerymodelsSessionInstaller>();
 
         public void Install(
             IWindsorContainer container,
             IConfigurationStore store)
         {
-            container.RegisterSqlServerDocumentDb(Registration, ConnectionStringName);
+            container.RegisterSqlServerDocumentDb(Registration, AccountManagementDomainEventStoreInstaller.ConnectionStringName);
 
             container.Register(
                 Component.For<IAccountManagementDomainQueryModelSession, IUnitOfWorkParticipant>()

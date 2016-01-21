@@ -24,7 +24,7 @@ namespace AccountManagement.Domain
             //Use property updated events whenever possible. Changes to public state should be represented by property updated events.
             RegisterEventAppliers()
                 .For<IAccountEmailPropertyUpdatedEvent>(e => Email = e.Email)
-                .For<IAccountPasswordPropertyUpdateEvent>(e => Password = e.Password);
+                .For<IAccountPasswordPropertyUpdatedEvent>(e => Password = e.Password);
         }
 
         //Ensure that the state of the instance is sane. If not throw an exception.

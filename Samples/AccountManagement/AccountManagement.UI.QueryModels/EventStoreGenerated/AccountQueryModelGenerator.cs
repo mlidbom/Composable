@@ -16,7 +16,7 @@ namespace AccountManagement.UI.QueryModels.EventStoreGenerated
         {
             RegisterHandlers()
                 .For<IAccountEmailPropertyUpdatedEvent>(e => Model.Email = e.Email)
-                .For<IAccountPasswordPropertyUpdateEvent>(e => Model.Password = e.Password);
+                .For<IAccountPasswordPropertyUpdatedEvent>(e => Model.Password = e.Password);
         }
     }
 }

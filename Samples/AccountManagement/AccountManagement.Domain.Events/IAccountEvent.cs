@@ -17,11 +17,11 @@ namespace AccountManagement.Domain.Events
     public interface IUserRegisteredAccountEvent :
         IAccountCreatedEvent,
         IAccountEmailPropertyUpdatedEvent,
-        IAccountPasswordPropertyUpdateEvent {}
+        IAccountPasswordPropertyUpdatedEvent {}
 
     public interface IUserChangedAccountEmailEvent :
         IAccountEmailPropertyUpdatedEvent {}
 
     public interface IUserChangedAccountPasswordEvent :
-        IAccountPasswordPropertyUpdateEvent {}
+        IAccountPasswordPropertyUpdatedEvent {}
 }

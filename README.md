@@ -1,9 +1,9 @@
 # Composable.Monolithic Documentation
-<img align="right" src="images/monolith.jpg">
+<img align="right" style="height:90px;width:140px" src="images/monolith.jpg">
 
 Composable.Monolithic is a framework for [Composability](https://en.wikipedia.org/wiki/Composability) in Software Development available for .NET.
 
-Current version is 1, released in 2014.
+Current version is 1.0, released in 2014.
 
 [TOC]
 
@@ -33,6 +33,10 @@ ___
 We have been so kind as to provide a Trial&Error solution within the Framework for you to try it out and see it as a whole. The solution is located in the folder:
 
 	C:\Composable.Monolith\Samples\AccountManagement
+
+This solution wants to have the Composable package but this is solved by just Building the solution (Ctrl + Shift + B).
+
+Now it's ready for use! Enjoy!
 
 ## Show me the code already
 

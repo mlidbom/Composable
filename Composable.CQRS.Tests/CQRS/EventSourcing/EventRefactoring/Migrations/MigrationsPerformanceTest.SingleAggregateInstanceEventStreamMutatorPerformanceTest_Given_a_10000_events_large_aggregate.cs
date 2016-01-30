@@ -63,7 +63,7 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
                 Before<E8>.Insert<E9>()
                 ).ToArray();
 
-            var maxAverage = NCrunchPerformance.AdjustRuntime(15.Milliseconds(), boost: 2);
+            var maxAverage = TestEnvironmentPerformance.AdjustRuntime(15.Milliseconds(), boost: 2);
 
             TimeAsserter.Execute(
                 maxAverage: maxAverage,
@@ -103,7 +103,7 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
             var eventModifier = new EventModifier(@event, _ => { });
 
             var numberOfEventsToInspect = 1000000;
-            var maxtime = NCrunchPerformance.AdjustRuntime(60.Milliseconds(), boost: 12.0);
+            var maxtime = TestEnvironmentPerformance.AdjustRuntime(60.Milliseconds(), boost: 12.0);
 
             TimeAsserter.Execute(
                 maxTotal: maxtime,

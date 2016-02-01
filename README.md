@@ -9,38 +9,37 @@ Current version is 1.0, released in 2014.
 
 ## Installation
 
-Git clone into your homedirectory via Powershell.
-
+1. Git clone into your homedirectory via Powershell.
+```powershell
 	cd ~
     cd ..
     git clone https://github.com/mlidbom/Composable.Monolithic
+```
 
-Once cloned to a directory, open the project and Build the solution (Ctrl + Shift + B).
+2. Once cloned to a directory, open the project and Build the solution (Ctrl + Shift + B).
 
-> If this does not work you need to put the directory directly into your C: `cd C:\`, since windows does not allow strings longer than 260 Char (windows, please fix). See FAQ.
+	> If this does not work you need to put the directory directly into your `cd C:\`, since windows does not allow strings longer than 260 Char (windows, please fix). See FAQ.
 
-___
-Thereafter you need to create a subdirectory to the Framework, called NuGetFeed. Here we will put the [pakets](https://fsprojects.github.io/Paket/) for NuGet.
-
-	cd C:\
+3. Thereafter you need to create a subdirectory to the Framework, called NuGetFeed. Here we will put the [pakets](https://fsprojects.github.io/Paket/) for NuGet.
+```powershell
+	cd C:\[download dir]
     mkdir NuGetFeed
-
-Now we can run the package script `C:\Composable.Monolith\.buildpaket.ps1`
-
+	C:\[download dir]\.buildpaket.ps1
+```
 ___
 ### Trying out the Framework
 
 We have been so kind as to provide a Trial&Error solution within the Framework for you to try it out and see it as a whole. The solution is located in the folder:
 
-	C:\Composable.Monolith\Samples\AccountManagement
+`C:\Composable.Monolith\Samples\AccountManagement`
 
-This solution wants to have the Composable package but this is solved by just Building the solution (Ctrl + Shift + B).
+This solution wants to have the Composable package but this is solved by just **Building** the solution (Ctrl + Shift + B).
 
 Now it's ready for use! Enjoy!
 
 ## Show me the code already
 
-Some **sample** code;
+Some sample code (not executable)
 ```csharp
 using Composable.CQRS.Windsor.Testing;
 using Composable.GenericAbstractions.Time;

@@ -40,30 +40,46 @@ Now it's ready for use! Enjoy!
 
 ## Show me the code already
 
+Some **sample** code;
 ```csharp
-// how to use Composable..
-```
+using Composable.CQRS.Windsor.Testing;
+using Composable.GenericAbstractions.Time;
+using Composable.Windsor.Testing;
+using Composable.ServiceBus;
+using Composable.System.Configuration;
+using NUnit.Framework;
 
-So what about those [CQRS.ServiceBus](servicebus.md)
-
-```csharp
-using JetBrains.Annotations;
-using NServiceBus;
-
-namespace Composable.ServiceBus
+namespace AccountManagement.Domain.Tests.ContainerInstallers
 {
-    /// <summary> Defines a message handler that should only listen for messages dispatched by <see cref="SynchronousBus"/>.</summary>
-    public interface IHandleInProcessMessages<T> where T : IMessage
+    public abstract class DomainWiringTest
     {
-        [UsedImplicitly]
-        void Handle(T message);
-    }
+        protected IWindsorContainer Container;
+
+        [SetUp]
+        public void WireContainer()
+        {
+            Container = new WindsorContainer();
+            Container.ConfigureWiringForTestsCallBeforeAllOtherWiring();
+
+            Container.Register(
+                Component.For<IWindsorContainer>().Instance(Container),
+                );
+
+            Container.Install(
+                FromAssembly.Containing<Domain.ContainerInstallers.Repository>(),
+                );
+        }
+
+        [Test]
+        public void AllComponentsCanBeResolved()
+        {
+            Container
+                .RegistrationAssertionHelper()
+                .AllComponentsCanBeResolved();
+        }
 }
 ```
-
-For more in-depth sample try the section below, or dive right into API documentation on the right.
-
-## Samples and tutorials
+## TODO: Samples and tutorials
 
 Learn Windsor by example by completing step-by-step tutorials. See Windsor in action by exploring sample applications showcasing its capabilities:
 

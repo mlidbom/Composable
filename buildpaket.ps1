@@ -57,5 +57,8 @@ paket pack `
 	specific-version Composable.CQRS.Testing (Get-Version "Composable.CQRS.Testing\Bin\$Configuration\Composable.CQRS.Testing.dll") `
 	specific-version NSpec.NUnit (Get-Version "NSpec.NUnit\Bin\$Configuration\NSpec.NUnit.dll")
 
-Copy-Item -Path "$LocalOutputDirectory\*.nupkg" -Force $OutputDirectory
+if((Get-Item $LocalOutputDirectory).FullName -ne (Get-Item $OutputDirectory).FullName)
+{
+	Copy-Item -Path "$LocalOutputDirectory\*.nupkg" -Force $OutputDirectory
+}
 Remove-Item -Path "$LocalOutputDirectory\*symbols.nupkg"

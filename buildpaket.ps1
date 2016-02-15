@@ -39,6 +39,8 @@ function Get-Version{
 
 Set-Alias paket $scriptRoot\.paket\paket.exe
 
+Remove-Item "$LocalOutputDirectory\*.nupkg"
+
 paket pack `
 	output $LocalOutputDirectory `
 	buildconfig Debug `

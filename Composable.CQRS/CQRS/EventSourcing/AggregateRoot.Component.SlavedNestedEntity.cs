@@ -61,7 +61,7 @@ namespace Composable.CQRS.EventSourcing
                     base.RaiseEvent(@event);
                 }
 
-                public TEntityId Id { get; private set; }
+                public TEntityId Id { get; protected set; }
 
 
                 public abstract class EntityCollectionManagerBase<TParent>               

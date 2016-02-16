@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Composable.CQRS.EventHandling;
 using Composable.GenericAbstractions.Time;
 
@@ -14,6 +15,10 @@ namespace Composable.CQRS.EventSourcing
             where TComponentBaseEventClass : TAggregateRootBaseEventClass, TComponentBaseEventInterface
             where TComponent : Component<TComponent, TComponentBaseEventClass, TComponentBaseEventInterface>
         {
+
+            private readonly List<TComponentBaseEventInterface> _history = new List<TComponentBaseEventInterface>();
+            public IReadOnlyList<TComponentBaseEventInterface> History => _history;
+
             private readonly CallMatchingHandlersInRegistrationOrderEventDispatcher<TComponentBaseEventInterface> _eventAppliersEventDispatcher =
                 new CallMatchingHandlersInRegistrationOrderEventDispatcher<TComponentBaseEventInterface>();
             private readonly CallMatchingHandlersInRegistrationOrderEventDispatcher<TComponentBaseEventInterface> _eventHandlersEventDispatcher =
@@ -22,7 +27,11 @@ namespace Composable.CQRS.EventSourcing
 
             protected IUtcTimeTimeSource TimeSource { get; private set; }
 
-            internal void ApplyEvent(TComponentBaseEventInterface @event) { _eventAppliersEventDispatcher.Dispatch(@event); }
+            internal void ApplyEvent(TComponentBaseEventInterface @event)
+            {
+                _eventAppliersEventDispatcher.Dispatch(@event);
+                _history.Add(@event);
+            }
 
             protected Component(TAggregateRoot aggregateRoot)
                 : this(

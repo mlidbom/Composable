@@ -63,4 +63,3 @@ if((Get-Item $LocalOutputDirectory).FullName -ne (Get-Item $OutputDirectory).Ful
 {
 	Copy-Item -Path "$LocalOutputDirectory\*.nupkg" -Force $OutputDirectory
 }
-Remove-Item -Path "$LocalOutputDirectory\*symbols.nupkg"

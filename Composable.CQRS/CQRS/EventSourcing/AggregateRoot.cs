@@ -33,6 +33,9 @@ namespace Composable.CQRS.EventSourcing
         private readonly CallMatchingHandlersInRegistrationOrderEventDispatcher<TAggregateRootBaseEventInterface> _eventDispatcher = new CallMatchingHandlersInRegistrationOrderEventDispatcher<TAggregateRootBaseEventInterface>();
         private readonly CallMatchingHandlersInRegistrationOrderEventDispatcher<TAggregateRootBaseEventInterface> _eventHandlersEventDispatcher = new CallMatchingHandlersInRegistrationOrderEventDispatcher<TAggregateRootBaseEventInterface>();
 
+        private readonly List<TAggregateRootBaseEventInterface> _history = new List<TAggregateRootBaseEventInterface>();
+        public IReadOnlyList<TAggregateRootBaseEventInterface> History => _history; 
+
         protected void RaiseEvent(TAggregateRootBaseEventClass theEvent)
         {
             theEvent.AggregateRootVersion = Version + 1;
@@ -78,6 +81,7 @@ namespace Composable.CQRS.EventSourcing
             }
             Version = theEvent.AggregateRootVersion;
             _eventDispatcher.Dispatch(theEvent);
+            _history.Add(theEvent);
         }
 
         protected virtual void AssertInvariantsAreMet()

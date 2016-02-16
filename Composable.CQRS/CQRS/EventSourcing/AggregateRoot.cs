@@ -34,7 +34,7 @@ namespace Composable.CQRS.EventSourcing
         private readonly CallMatchingHandlersInRegistrationOrderEventDispatcher<TAggregateRootBaseEventInterface> _eventHandlersEventDispatcher = new CallMatchingHandlersInRegistrationOrderEventDispatcher<TAggregateRootBaseEventInterface>();
 
         private readonly List<TAggregateRootBaseEventInterface> _history = new List<TAggregateRootBaseEventInterface>();
-        public IReadOnlyList<TAggregateRootBaseEventInterface> History => _history; 
+        public IReadOnlyList<TAggregateRootBaseEventInterface> GetHistory() => _history; 
 
         protected void RaiseEvent(TAggregateRootBaseEventClass theEvent)
         {

@@ -114,16 +114,27 @@ namespace CQRS.Tests.CQRS.EventHandling
 
         public void when_attempting_to_register_event_twice()
         {
-            it["throws DuplicateRegistrationAttemptedException"] = () => Assert.Throws<DuplicateHandlerRegistrationAttemptedException>(() => new RegisterUserRegisteredTwice());
+            RegisterUserRegisteredTwice doubleRegistration = null;
+            before = () =>
+            {
+                doubleRegistration = new RegisterUserRegisteredTwice();
+                doubleRegistration.Handle(new UserRegistered(_userId));
+            };
+            it["no exception is thrown"] = () => { };
+            it["First handler is called first"] = () => doubleRegistration.Handler1CallOrder.Should().Be(1);
+            it["Second handler is called"] = () => doubleRegistration.Handler2CallOrder.Should().Be(2);
         }
 
         public class RegisterUserRegisteredTwice : CallsMatchingHandlersInRegistrationOrderEventHandler<IUserEvent>
         {
+            private int _calls = 0;
+            public int Handler1CallOrder = 0;
+            public int Handler2CallOrder = 0;
             public RegisterUserRegisteredTwice()
             {
                 RegisterHandlers()
-                    .For<IUserRegistered>(e => { })
-                    .For<IUserRegistered>(e => { });
+                    .For<IUserRegistered>(e => Handler1CallOrder = ++_calls)
+                    .For<IUserRegistered>(e => Handler2CallOrder = ++_calls);
             }
         }
 

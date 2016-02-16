@@ -143,6 +143,7 @@
     <Compile Include="CQRS\EventSourcing\AggregateRoot.Component.EntityCollectionManager.Removable.cs" />
     <Compile Include="CQRS\EventSourcing\AggregateRoot.Component.EntityCollectionManager.cs" />
     <Compile Include="CQRS\EventSourcing\AggregateRoot.Component.NestedComponent.cs" />
+    <Compile Include="CQRS\EventSourcing\AggregateRoot.Component.SlavedNestedEntity.cs" />
     <Compile Include="CQRS\EventSourcing\AggregateRoot.Component.NestedEntity.Removable.cs" />
     <Compile Include="CQRS\EventSourcing\AggregateRoot.Component.NestedEntity.cs" />
     <Compile Include="CQRS\EventSourcing\AggregateRoot.Component.cs" />

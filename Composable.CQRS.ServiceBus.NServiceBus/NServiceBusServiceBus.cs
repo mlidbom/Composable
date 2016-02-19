@@ -49,6 +49,7 @@ namespace Composable.CQRS.ServiceBus.NServiceBus
             AddEnvironmentNameHeader();
             _bus.Reply((IMessage)message);
         }
-        
+
+        public void SendAtTime(DateTime sendAt, object message) { _bus.Defer(sendAt, message); }
     }
 }

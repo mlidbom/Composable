@@ -294,6 +294,7 @@
     <Compile Include="CQRS\Command\IEntityHandledCommand.cs" />
     <Compile Include="CQRS\NoRegisteredHandlersException.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ServiceBus\TestingOnlyServiceBus.cs" />
     <Compile Include="StuffThatDoesNotBelongHere\MultiEventHandler.cs" />
     <Compile Include="StuffThatDoesNotBelongHere\Translation\TranslateAttribute.cs" />
     <Compile Include="StuffThatDoesNotBelongHere\Translation\TranslationTypeExtensions.cs" />

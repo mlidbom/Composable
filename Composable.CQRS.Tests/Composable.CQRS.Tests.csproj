@@ -184,6 +184,7 @@
     <Compile Include="NCrunchExlusivelyUsesResources.cs" />
     <Compile Include="KeyValueStorage\Sql\SqlDocumentDbTests.cs" />
     <Compile Include="KeyValueStorage\User.cs" />
+    <Compile Include="ServiceBus\WhenDummyTimeSourceTimeIsChanged.cs" />
     <Compile Include="TestEnvironmentPerformance.cs" />
     <Compile Include="NewtonSoft\SqlServerEventStoreSerializationSettingsTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -270,6 +271,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="CQRS\EventHandling\" />
+    <Folder Include="ServiceBus\TestingOnlyServiceBus\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

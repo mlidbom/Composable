@@ -180,6 +180,7 @@
     <Compile Include="System\Configuration\DummyConnectionStringProvider.cs" />
     <Compile Include="System\Configuration\IConfigurationParameterProvider.cs" />
     <Compile Include="System\Configuration\IConnectionStringProvider.cs" />
+    <Compile Include="System\DateTimeExtensions.cs" />
     <Compile Include="System\EnumExtensions.cs" />
     <Compile Include="GenericAbstractions\Hierarchies\HierarchyExtensions.cs" />
     <Compile Include="GenericAbstractions\Hierarchies\IHierarchy.cs" />
@@ -205,6 +206,7 @@
     <Compile Include="System\ObjectExtensions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="System\Reactive\SimpleObservable.cs" />
+    <Compile Include="System\Reactive\SimpleObserver.cs" />
     <Compile Include="System\Reactive\ThreadSafeObservable.cs" />
     <Compile Include="System\Reactive\ThreadSafeObserverCollection.cs" />
     <Compile Include="System\Reflection\AssemblyExtensions.cs" />

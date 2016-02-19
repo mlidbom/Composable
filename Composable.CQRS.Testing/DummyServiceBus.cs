@@ -81,6 +81,7 @@ namespace Composable.CQRS.Testing
         {
             Publish(message);
         }
+        public void SendAtTime(DateTime sendAt, object message) { throw new NotImplementedException(); }
 
         public void Replay(object message)
         {

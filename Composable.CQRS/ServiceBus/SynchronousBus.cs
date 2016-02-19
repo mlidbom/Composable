@@ -1,4 +1,5 @@
-﻿using Castle.MicroKernel.Lifestyle;
+﻿using System;
+using Castle.MicroKernel.Lifestyle;
 using Castle.Windsor;
 using Composable.KeyValueStorage.Population;
 using Composable.System.Linq;
@@ -60,5 +61,8 @@ namespace Composable.ServiceBus
         {
             SyncSendLocal(message);
         }
+
+        //Review:mlidbo: This is not OK. Find a better way of handling this.
+        public virtual void SendAtTime(DateTime sendAt, object message) { throw new NotImplementedException(); }
     }
 }

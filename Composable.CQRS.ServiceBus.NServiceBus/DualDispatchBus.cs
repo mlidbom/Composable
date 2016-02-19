@@ -93,6 +93,10 @@ namespace Composable.CQRS.ServiceBus.NServiceBus
                 _realBus.Reply(message);
             }
         }
-        
+
+        public void SendAtTime(DateTime sendAt, object message)
+        {
+            _realBus.SendAtTime(sendAt, message);
+        }
     }
 }

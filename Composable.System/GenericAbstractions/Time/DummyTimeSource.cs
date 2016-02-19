@@ -23,14 +23,14 @@ namespace Composable.GenericAbstractions.Time
 
 
         ///<summary>Allows for subscribing to notifications about <see cref="UtcNow"/> changing.</summary>
-        public IObservable<DateTime> UtcChanged { get { return _utcChanged; } }
+        public IObservable<DateTime> UtcNowChanged { get { return _utcNowChanged; } }
 
-        private readonly SimpleObservable<DateTime> _utcChanged = new SimpleObservable<DateTime>();
+        private readonly SimpleObservable<DateTime> _utcNowChanged = new SimpleObservable<DateTime>();
         private readonly SimpleObservable<DateTime> _localChanged = new SimpleObservable<DateTime>();
 
         private void NotifyListeners()
         {
-            _utcChanged.OnNext(UtcNow);
+            _utcNowChanged.OnNext(UtcNow);
         }
 
         ///<summary>Gets or sets the current UTC time.</summary>

@@ -18,7 +18,9 @@ namespace Composable.Windsor.Testing
         {
             return @this.ReplaceComponent(
                 componentName: name,
-                replacement: Component.For<IEventStore>()
+#pragma warning disable 618
+                replacement: Component.For<IEventStore, IResetTestDatabases>()
+#pragma warning restore 618
                     .ImplementedBy<InMemoryEventStore>()
                     .LifestyleSingleton(),
                     replacementName: replacementName);
@@ -28,12 +30,12 @@ namespace Composable.Windsor.Testing
         {
             return @this.ReplaceComponent(
                 componentName: dbToReplace,
-                replacement: Component.For<IDocumentDb>()
+#pragma warning disable 618
+                replacement: Component.For<IDocumentDb, IResetTestDatabases>()
+#pragma warning restore 618
                     .ImplementedBy<InMemoryDocumentDb>()
                     .LifestyleSingleton(),
                 replacementName: replacementName);
         }
-    }
-
-    
+    }    
 }

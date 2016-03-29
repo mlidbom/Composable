@@ -33,7 +33,7 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
         }
 
         [Test]
-        public void Aggregate_should_raise_100_000_events_in_less_than_150_milliseconds()
+        public void Aggregate_should_raise_100_000_events_in_less_than_180_milliseconds()
         {
             var history = Seq.OfTypes<Ec1>()
                                   .Concat(1.Through(10000).Select(_ => typeof(E1)))
@@ -49,7 +49,7 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
                              .ToEvents();
 
             TimeAsserter.Execute(
-                maxTotal: 150.Milliseconds().AdjustRuntimeForNCrunch(),
+                maxTotal: 180.Milliseconds().AdjustRuntimeForNCrunch(boost: 2),
                 action: () => new TestAggregate2(history));
         }
 
@@ -63,7 +63,7 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
                 Before<E8>.Insert<E9>()
                 ).ToArray();
 
-            var maxAverage = NCrunchPerformance.AdjustRuntime(15.Milliseconds());
+            var maxAverage = TestEnvironmentPerformance.AdjustRuntime(15.Milliseconds(), boost: 2);
 
             TimeAsserter.Execute(
                 maxAverage: maxAverage,
@@ -83,7 +83,7 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
                 Before<E9>.Insert<E1>()
                 ).ToArray();
 
-            var maxAverage = 10.Milliseconds().AdjustRuntimeForNCrunch(boost: 3);
+            var maxAverage = 10.Milliseconds().AdjustRuntimeForNCrunch(boost: 6);
 
             TimeAsserter.Execute(
                 maxAverage: maxAverage,
@@ -103,7 +103,7 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
             var eventModifier = new EventModifier(@event, _ => { });
 
             var numberOfEventsToInspect = 1000000;
-            var maxtime = NCrunchPerformance.AdjustRuntime(60.Milliseconds(), boost: 8.0);
+            var maxtime = TestEnvironmentPerformance.AdjustRuntime(60.Milliseconds(), boost: 12.0);
 
             TimeAsserter.Execute(
                 maxTotal: maxtime,

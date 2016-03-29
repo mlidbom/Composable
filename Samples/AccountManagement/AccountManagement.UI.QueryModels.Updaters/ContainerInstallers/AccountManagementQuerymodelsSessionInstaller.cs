@@ -1,10 +1,10 @@
-﻿using AccountManagement.UI.QueryModels.DocumentDB.Updaters.Services;
+﻿using AccountManagement.UI.QueryModels.ContainerInstallers;
+using AccountManagement.UI.QueryModels.DocumentDB.Updaters.Services;
 using Castle.MicroKernel.Registration;
 using Castle.MicroKernel.SubSystems.Configuration;
 using Castle.Windsor;
 using Composable.KeyValueStorage;
-using Composable.KeyValueStorage.SqlServer;
-using Composable.System.Configuration;
+using Composable.UnitsOfWork;
 using JetBrains.Annotations;
 
 namespace AccountManagement.UI.QueryModels.DocumentDB.Updaters.ContainerInstallers
@@ -12,37 +12,18 @@ namespace AccountManagement.UI.QueryModels.DocumentDB.Updaters.ContainerInstalle
     [UsedImplicitly]
     public class AccountManagementQuerymodelsSessionInstaller : IWindsorInstaller
     {
-        public static class ComponentKeys
-        {
-            public const string KeyForDocumentDb = "AccountManagement.QueryModelUpdaters.IDocumentDb";
-            public const string KeyForSession = "AccountManagement.QueryModelUpdaters.IDocumentDbSession";
-        }
-
-        public const string ConnectionStringName = QueryModels.ContainerInstallers.AccountManagementDocumentDbReaderInstaller.ConnectionStringName;
-
         public void Install(
             IWindsorContainer container,
             IConfigurationStore store)
         {
             container.Register(
-                Component.For<IDocumentDb>()
-                    .ImplementedBy<SqlServerDocumentDb>()
-                    .DependsOn(new {connectionString = GetConnectionStringFromConfiguration(ConnectionStringName)})
-                    .Named(ComponentKeys.KeyForDocumentDb)
-                    .LifestylePerWebRequest(),
-                Component.For<IDocumentDbSession, IAccountManagementQueryModelUpdaterSession>()
+                Component.For<IAccountManagementQueryModelUpdaterSession, IUnitOfWorkParticipant>()
                     .ImplementedBy<AccountManagementQueryModelUpdaterSession>()
                     .DependsOn(
-                        Dependency.OnComponent(typeof(IDocumentDb), ComponentKeys.KeyForDocumentDb),
+                        AccountManagementDocumentDbReaderInstaller.Registration.DocumentDb,
                         Dependency.OnValue<IDocumentDbSessionInterceptor>(NullOpDocumentDbSessionInterceptor.Instance))
-                    .Named(ComponentKeys.KeyForSession)
                     .LifestylePerWebRequest()
                 );
-        }
-
-        private static string GetConnectionStringFromConfiguration(string key)
-        {
-            return new ConnectionStringConfigurationParameterProvider().GetConnectionString(key).ConnectionString;
         }
     }
 }

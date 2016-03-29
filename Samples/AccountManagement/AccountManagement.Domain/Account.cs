@@ -6,24 +6,25 @@ using AccountManagement.Domain.Services;
 using AccountManagement.Domain.Shared;
 using Composable.Contracts;
 using Composable.CQRS.EventSourcing;
+using Composable.GenericAbstractions.Time;
 
 namespace AccountManagement.Domain
 {
     ///Completely encapsulates all the business logic for an account.  Should make it impossible for clients to use the class incorrectly.
-    public class Account : AggregateRoot<Account, IAccountEvent>
+    public class Account : AggregateRoot<Account, AccountEvent, IAccountEvent>
     {
         public Email Email { get; private set; } //Never public setters on an aggregate.
         public Password Password { get; private set; } //Never public setters on an aggregate.
 
         //No public constructors please. Aggregates are created through domain verbs. 
         //Expose named factory methods that ensure the instance is valid instead. See register method below.
-        private Account()
+        private Account():base(new DateTimeNowTimeSource())
         {
             //Maintain correct state as events are raised or read from the store. 
             //Use property updated events whenever possible. Changes to public state should be represented by property updated events.
             RegisterEventAppliers()
                 .For<IAccountEmailPropertyUpdatedEvent>(e => Email = e.Email)
-                .For<IAccountPasswordPropertyUpdateEvent>(e => Password = e.Password);
+                .For<IAccountPasswordPropertyUpdatedEvent>(e => Password = e.Password);
         }
 
         //Ensure that the state of the instance is sane. If not throw an exception.

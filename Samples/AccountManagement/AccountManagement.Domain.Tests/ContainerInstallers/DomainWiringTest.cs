@@ -7,7 +7,10 @@ using Castle.Windsor;
 using Castle.Windsor.Installer;
 using Composable.CQRS.EventSourcing;
 using Composable.CQRS.Windsor.Testing;
+using Composable.GenericAbstractions.Time;
+using Composable.Windsor.Testing;
 using Composable.ServiceBus;
+using Composable.System.Configuration;
 using NUnit.Framework;
 
 namespace AccountManagement.Domain.Tests.ContainerInstallers
@@ -25,15 +28,17 @@ namespace AccountManagement.Domain.Tests.ContainerInstallers
             Container = new WindsorContainer();
             Container.ConfigureWiringForTestsCallBeforeAllOtherWiring();
 
+            Container.Register(
+                Component.For<IUtcTimeTimeSource, DummyTimeSource>().Instance(DummyTimeSource.Now).LifestyleSingleton(),
+                Component.For<IServiceBus>().ImplementedBy<SynchronousBus>().LifestylePerWebRequest(),
+                Component.For<IWindsorContainer>().Instance(Container),
+                Component.For<IConnectionStringProvider>().Instance(new ConnectionStringConfigurationParameterProvider()).LifestyleSingleton()
+                );
+
             Container.Install(
                 FromAssembly.Containing<Domain.ContainerInstallers.AccountRepositoryInstaller>(),
                 FromAssembly.Containing<Domain.Events.EventStore.ContainerInstallers.AccountManagementDomainEventStoreInstaller>()
-                );
-
-            Container.Register(
-                Component.For<IServiceBus>().ImplementedBy<SynchronousBus>().LifestylePerWebRequest(),
-                Component.For<IWindsorContainer>().Instance(Container)
-                );
+                );            
         }
 
         [Test]
@@ -63,22 +68,6 @@ namespace AccountManagement.Domain.Tests.ContainerInstallers
         public void SetupTask()
         {
             Container.ConfigureWiringForTestsCallAfterAllOtherWiring();
-        }
-
-        [Test]
-        public void ResettingTestDatabasesRemovesAccounts()
-        {
-            Account account;
-            using(Container.BeginScope())
-            {
-                account = new RegisterAccountScenario(Container).Execute();
-                Container.Resolve<IAccountRepository>().Get(account.Id);
-            }
-            Container.ResetTestDataBases();
-            using(Container.BeginScope())
-            {
-                Assert.Throws<AggregateRootNotFoundException>(() => Container.Resolve<IAccountRepository>().Get(account.Id));
-            }
         }
     }
 }

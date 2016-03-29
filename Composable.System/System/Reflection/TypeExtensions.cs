@@ -112,7 +112,7 @@ namespace Composable.System.Reflection
         ///<summary>Thrown if there is no type that matches the string passed to <see cref="TypeExtensions.AsType"/> is found</summary>
         public class FailedToFindTypeException : Exception
         {
-            public FailedToFindTypeException(string typeName): base(typeName)
+            internal FailedToFindTypeException(string typeName): base(typeName)
             {
             }
         }

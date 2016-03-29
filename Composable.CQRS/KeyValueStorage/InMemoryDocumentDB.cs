@@ -5,12 +5,15 @@ using Composable.DDD;
 using Composable.NewtonSoft;
 using Composable.System.Collections.Collections;
 using Composable.System.Reactive;
+using Composable.Windsor.Testing;
 using Newtonsoft.Json;
 
 namespace Composable.KeyValueStorage
 {
     //todo: Refactor to use the same serialization code as the sql document db so that tests actually tests roundtrip serialization
-    public class InMemoryDocumentDb : InMemoryObjectStore, IDocumentDb
+#pragma warning disable 618
+    public class InMemoryDocumentDb : InMemoryObjectStore, IDocumentDb, IResetTestDatabases
+#pragma warning restore 618
     {
         private readonly ThreadSafeObservable<IDocumentUpdated> _documentUpdated = new ThreadSafeObservable<IDocumentUpdated>(); 
 
@@ -79,6 +82,11 @@ namespace Composable.KeyValueStorage
                     _documentUpdated.OnNext(new DocumentUpdated(idString, value));
                 }
             }
+        }
+
+        void IResetTestDatabases.ResetDatabase()
+        {
+            Clear();
         }
     }
 }

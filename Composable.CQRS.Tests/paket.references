@@ -1,0 +1,10 @@
+AutoMapper
+CommonServiceLocator.WindsorAdapter
+FluentAssertions
+log4net
+Moq
+NCrunch.Framework
+Newtonsoft.Json
+NServiceBus
+NUnit
+Rx-Main

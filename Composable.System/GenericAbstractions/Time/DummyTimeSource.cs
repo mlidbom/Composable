@@ -4,10 +4,9 @@ using Composable.System.Reactive;
 namespace Composable.GenericAbstractions.Time
 {
     /// <summary> Just statically returns whatever value was assigned.</summary>
-    public class DummyTimeSource : ITimeSource
+    public class DummyTimeSource : IUtcTimeTimeSource
     {
         private DateTime _utcNow;
-        private DateTime _localNow;
 
         private DummyTimeSource(DateTime utcNow)
         {
@@ -24,17 +23,14 @@ namespace Composable.GenericAbstractions.Time
 
 
         ///<summary>Allows for subscribing to notifications about <see cref="UtcNow"/> changing.</summary>
-        public IObservable<DateTime> UtcChanged { get { return _utcChanged; } }
-        ///<summary>Allows for subscribing to notifications about <see cref="LocalNow"/> changing.</summary>
-        public IObservable<DateTime> LocalChanged { get { return _localChanged; } }
+        public IObservable<DateTime> UtcNowChanged { get { return _utcNowChanged; } }
 
-        private readonly SimpleObservable<DateTime> _utcChanged = new SimpleObservable<DateTime>();
+        private readonly SimpleObservable<DateTime> _utcNowChanged = new SimpleObservable<DateTime>();
         private readonly SimpleObservable<DateTime> _localChanged = new SimpleObservable<DateTime>();
 
         private void NotifyListeners()
         {
-            _utcChanged.OnNext(UtcNow);
-            _localChanged.OnNext(LocalNow);
+            _utcNowChanged.OnNext(UtcNow);
         }
 
         ///<summary>Gets or sets the current UTC time.</summary>
@@ -47,22 +43,6 @@ namespace Composable.GenericAbstractions.Time
             set
             {
                 _utcNow = DateTime.SpecifyKind(value, DateTimeKind.Utc);
-                _localNow = _utcNow.ToLocalTime();
-                NotifyListeners();
-            }
-        }
-
-        ///<summary>Gets or sets the current local time.</summary>
-        public DateTime LocalNow
-        {
-            get
-            {
-                return _localNow;
-            }
-            set
-            {
-                _localNow = DateTime.SpecifyKind(value, DateTimeKind.Local);
-                _utcNow = _localNow.ToUniversalTime();
                 NotifyListeners();
             }
         }

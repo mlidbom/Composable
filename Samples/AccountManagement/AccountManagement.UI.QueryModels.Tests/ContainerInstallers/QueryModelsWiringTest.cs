@@ -6,8 +6,11 @@ using Castle.MicroKernel.Registration;
 using Castle.Windsor;
 using Castle.Windsor.Installer;
 using Composable.CQRS.Windsor.Testing;
+using Composable.GenericAbstractions.Time;
+using Composable.Windsor.Testing;
 using Composable.KeyValueStorage;
 using Composable.ServiceBus;
+using Composable.System.Configuration;
 using NUnit.Framework;
 
 namespace AccountManagement.UI.QueryModels.Tests.ContainerInstallers
@@ -25,16 +28,18 @@ namespace AccountManagement.UI.QueryModels.Tests.ContainerInstallers
             Container = new WindsorContainer();
             Container.ConfigureWiringForTestsCallBeforeAllOtherWiring();
 
+            Container.Register(
+                Component.For<IUtcTimeTimeSource, DummyTimeSource>().Instance(DummyTimeSource.Now).LifestyleSingleton(),
+                Component.For<IServiceBus>().ImplementedBy<SynchronousBus>().LifestylePerWebRequest(),
+                Component.For<IWindsorContainer>().Instance(Container),
+                Component.For<IConnectionStringProvider>().Instance(new ConnectionStringConfigurationParameterProvider()).LifestyleSingleton()
+                );
+
             Container.Install(
                 FromAssembly.Containing<Domain.Events.EventStore.ContainerInstallers.AccountManagementDomainEventStoreInstaller>(),
                 FromAssembly.Containing<Domain.ContainerInstallers.AccountManagementDomainQuerymodelsSessionInstaller>(),
                 FromAssembly.Containing<UI.QueryModels.ContainerInstallers.AccountManagementDocumentDbReaderInstaller>(),
                 FromAssembly.Containing<UI.QueryModels.DocumentDB.Updaters.ContainerInstallers.AccountManagementQuerymodelsSessionInstaller>()
-                );
-
-            Container.Register(
-                Component.For<IServiceBus>().ImplementedBy<SynchronousBus>().LifestylePerWebRequest(),
-                Component.For<IWindsorContainer>().Instance(Container)
                 );
         }
 
@@ -65,27 +70,6 @@ namespace AccountManagement.UI.QueryModels.Tests.ContainerInstallers
         public void SetupTask()
         {
             Container.ConfigureWiringForTestsCallAfterAllOtherWiring();
-        }
-
-        [Test]
-        public void ResettingTestDatabasesRemovesAccountQueryModels()
-        {
-            Account registerAccountScenario;
-            using(Container.BeginScope())
-            {
-                registerAccountScenario = new RegisterAccountScenario(Container).Execute();
-            }
-
-            using(Container.BeginScope())
-            {
-                Container.Resolve<IAccountManagementQueryModelsReader>().GetAccount(registerAccountScenario.Id);
-            }
-
-            Container.ResetTestDataBases();
-            using(Container.BeginScope())
-            {
-                Assert.Throws<NoSuchDocumentException>(() => Container.Resolve<IAccountManagementQueryModelsReader>().GetAccount(registerAccountScenario.Id));
-            }
         }
     }
 }

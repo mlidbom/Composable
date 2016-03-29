@@ -5,7 +5,7 @@ using JetBrains.Annotations;
 
 namespace AccountManagement.Domain.Events.Implementation
 {
-    public class UserChangedAccountEmailEvent : AggregateRootEvent, IUserChangedAccountEmailEvent
+    public class UserChangedAccountEmailEvent : AccountEvent, IUserChangedAccountEmailEvent
     {
         [Obsolete("NServicebus requires this constructor to exist.", true), UsedImplicitly] //ncrunch: no coverage
         public UserChangedAccountEmailEvent() {} //ncrunch: no coverage

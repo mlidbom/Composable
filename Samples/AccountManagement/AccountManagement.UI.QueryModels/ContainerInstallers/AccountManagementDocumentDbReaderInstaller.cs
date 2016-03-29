@@ -2,9 +2,11 @@
 using Castle.MicroKernel.Registration;
 using Castle.MicroKernel.SubSystems.Configuration;
 using Castle.Windsor;
+using Composable.CQRS.Windsor;
 using Composable.KeyValueStorage;
 using Composable.KeyValueStorage.SqlServer;
 using Composable.System.Configuration;
+using Composable.UnitsOfWork;
 using JetBrains.Annotations;
 
 namespace AccountManagement.UI.QueryModels.ContainerInstallers
@@ -12,31 +14,22 @@ namespace AccountManagement.UI.QueryModels.ContainerInstallers
     [UsedImplicitly]
     public class AccountManagementDocumentDbReaderInstaller : IWindsorInstaller
     {
-        public static class ComponentKeys
-        {
-            public const string DocumentDb = "AccountManagement.QueryModels.IDocumentDb";
-            public const string InMemoryDocumentDb = "AccountManagement.QueryModels.IDocumentDb.InMemory";
-            public const string DocumentDbReader = "AccountManagement.QueryModels.IDocumentDbReader";
-        }
-
         public const string ConnectionStringName = "AccountManagementReadModels";
+
+        public static readonly SqlServerDocumentDbRegistration Registration = new SqlServerDocumentDbRegistration<AccountManagementDocumentDbReaderInstaller>();
 
         public void Install(
             IWindsorContainer container,
             IConfigurationStore store)
         {
-            container.Register(
-                Component.For<IDocumentDb>()
-                    .ImplementedBy<SqlServerDocumentDb>()
-                    .DependsOn(new {connectionString = GetConnectionStringFromConfiguration(ConnectionStringName)})
-                    .Named(ComponentKeys.DocumentDb)
-                    .LifestylePerWebRequest(),
-                Component.For<IAccountManagementDocumentDbQueryModelsReader>()
+            container.RegisterSqlServerDocumentDb(Registration, ConnectionStringName);
+
+            container.Register(            
+                Component.For<IAccountManagementDocumentDbQueryModelsReader, IUnitOfWorkParticipant>()
                     .ImplementedBy<AccountManagementDocumentDbQueryModelsReader>()
                     .DependsOn(
-                        Dependency.OnComponent(typeof(IDocumentDb), ComponentKeys.DocumentDb),
+                        Registration.DocumentDb,
                         Dependency.OnValue<IDocumentDbSessionInterceptor>(NullOpDocumentDbSessionInterceptor.Instance))
-                    .Named(ComponentKeys.DocumentDbReader)
                     .LifestylePerWebRequest()
                 );
         }

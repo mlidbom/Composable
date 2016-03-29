@@ -26,8 +26,7 @@ namespace AccountManagement.UI.QueryModels.DocumentDB.Updaters
                 var previousAccountVersion = _generatedModels.GetVersion<AccountQueryModel>(message.AggregateRootId, message.AggregateRootVersion - 1);
                 _documentDbModels.Delete<EmailToAccountMapQueryModel>(previousAccountVersion.Email);
             }
-            var newEmail = message.Email;
-            _documentDbModels.Save(newEmail, new EmailToAccountMapQueryModel(newEmail, message.AggregateRootId));
+            _documentDbModels.Save(message.Email, new EmailToAccountMapQueryModel(message.Email, message.AggregateRootId));
         }
     }
 }

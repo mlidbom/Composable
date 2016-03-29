@@ -1,4 +1,5 @@
 ﻿using Castle.MicroKernel.Registration;
+using Composable.GenericAbstractions.Time;
 using NUnit.Framework;
 
 namespace AccountManagement.UI.Web.Tests
@@ -12,6 +13,7 @@ namespace AccountManagement.UI.Web.Tests
         {
             AuthenticationContext = new TestAuthenticationContext();
             Container.Register(
+                Component.For<IUtcTimeTimeSource, DummyTimeSource>().Instance(DummyTimeSource.Now).LifestyleSingleton(),
                 Component.For<TestAuthenticationContext, IAuthenticationContext>()
                     .Instance(AuthenticationContext)
                 );

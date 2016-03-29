@@ -13,6 +13,7 @@ namespace Composable.CQRS.EventHandling
     /// Handlers should be registered using the RegisterHandlers method in the constructor of the inheritor.
     /// </summary>
     public class CallMatchingHandlersInRegistrationOrderEventDispatcher<TEvent> : IMutableEventDispatcher<TEvent>
+        where TEvent : class
     {
         private static readonly ILog Log = LogManager.GetLogger(typeof(CallMatchingHandlersInRegistrationOrderEventDispatcher<TEvent>));
         private readonly List<KeyValuePair<Type, Action<object>>> _handlers = new List<KeyValuePair<Type, Action<object>>>();
@@ -55,10 +56,6 @@ namespace Composable.CQRS.EventHandling
             public RegistrationBuilder ForGenericEvent<THandledEvent>(Action<THandledEvent> handler)
             {
                 var eventType = typeof(THandledEvent);
-                if(_owner._handlers.Any(registration => registration.Key == eventType))
-                {
-                    throw new DuplicateHandlerRegistrationAttemptedException(eventType);
-                }
 
                 _owner._handlers.Add(new KeyValuePair<Type, Action<object>>(eventType, e => handler((THandledEvent)e)));
                 _owner._totalHandlers++;
@@ -180,11 +177,6 @@ namespace Composable.CQRS.EventHandling
                 handlers[i](evt);
             }
         }
-    }
-
-    public class DuplicateHandlerRegistrationAttemptedException : Exception
-    {
-        public DuplicateHandlerRegistrationAttemptedException(Type eventType) : base(eventType.AssemblyQualifiedName) {}
     }
 
     public class EventUnhandledException : Exception

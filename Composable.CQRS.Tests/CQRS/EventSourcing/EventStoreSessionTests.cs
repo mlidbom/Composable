@@ -296,6 +296,7 @@ namespace CQRS.Tests.CQRS.EventSourcing
             public void SendLocal(object message) { throw new NotSupportedException(); }
             public void Send(object message) { throw new NotSupportedException(); }
             public void Reply(object message) { throw new NotImplementedException(); }
+            public void SendAtTime(DateTime sendAt, object message) { throw new NotImplementedException(); }
             public void Replay(object message)
             {
                 throw new NotImplementedException();

@@ -6,7 +6,7 @@ namespace Composable.CQRS
     public class AggregateRepository<TAggregate, TBaseEventClass, TBaseEventInterface> : IAggregateRepository<TAggregate>
         where TAggregate : AggregateRoot<TAggregate, TBaseEventClass, TBaseEventInterface>, IEventStored
         where TBaseEventClass : AggregateRootEvent, TBaseEventInterface
-        where TBaseEventInterface : IAggregateRootEvent
+        where TBaseEventInterface : class, IAggregateRootEvent
     {
         protected readonly IEventStoreSession Aggregates;
 

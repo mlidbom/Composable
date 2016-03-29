@@ -1,4 +1,4 @@
-﻿using Composable.CQRS.Windsor.Testing;
+﻿using Composable.Windsor.Testing;
 
 namespace AccountManagement.UI.QueryModels.DocumentDB.Updaters.ContainerInstallers.Testing
 {

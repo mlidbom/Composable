@@ -2,7 +2,7 @@
 
 namespace AccountManagement.Domain.Events.PropertyUpdated
 {
-    public interface IAccountPasswordPropertyUpdateEvent : IAccountEvent
+    public interface IAccountPasswordPropertyUpdatedEvent : IAccountEvent
     {
         Password Password { get; /* Never add a setter! */ }
     }

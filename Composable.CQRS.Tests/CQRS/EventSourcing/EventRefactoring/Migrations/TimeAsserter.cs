@@ -1,5 +1,8 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Linq;
+using System.Threading.Tasks;
+using Composable.System.Linq;
 using FluentAssertions;
 
 namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
@@ -11,6 +14,7 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
              int iterations = 1,
              TimeSpan? maxAverage = null,
              TimeSpan? maxTotal = null,
+             bool parallellize = false,
              string description = "",
              string timeFormat = "ss\\.fff")
         {
@@ -18,10 +22,22 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
             maxTotal = maxTotal != default(TimeSpan) ? maxTotal : TimeSpan.MaxValue;
 
             var watch = Stopwatch.StartNew();
-            for(var i = 0; i < iterations; i++)
+
+
+            if(parallellize)
             {
-                action();
+                var tasks = 1.Through(20).Select(_ => Task.Factory.StartNew(action)).ToArray();
+                Task.WaitAll(tasks);
             }
+            else
+            {
+                for (var i = 0; i < iterations; i++)
+                {
+                    action();
+                }
+            }
+
+
             var total = watch.Elapsed;
             var average = TimeSpan.FromMilliseconds((total.TotalMilliseconds/iterations));
 

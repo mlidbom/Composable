@@ -47,7 +47,7 @@ namespace Composable.CQRS.EventSourcing.MicrosoftSQLServer
             _eventWriter = new SqlServerEventStoreEventWriter(_connectionMananger, eventSerializer, _schemaManager);
         }
 
-        public IEnumerable<IAggregateRootEvent> GetAggregateHistory(Guid aggregateId, bool takeReadLock = false)
+        public IEnumerable<IAggregateRootEvent> GetAggregateHistory(Guid aggregateId, bool takeWriteLock = false)
         {
             _usageGuard.AssertNoContextChangeOccurred(this);
             _schemaManager.SetupSchemaIfDatabaseUnInitialized();
@@ -60,7 +60,7 @@ namespace Composable.CQRS.EventSourcing.MicrosoftSQLServer
                     startAfterVersion: cachedAggregateHistory.Count,
                     suppressTransactionWarning: true,
                     includeReplacedEventsWhenLoadingCompleteHistory: true,
-                    takeReadLock: takeReadLock);
+                    takeWriteLock: takeWriteLock);
 
                 IReadOnlyList<AggregateRootEvent> currentHistory;
 

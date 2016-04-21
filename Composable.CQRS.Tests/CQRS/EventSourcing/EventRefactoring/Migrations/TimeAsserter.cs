@@ -9,7 +9,20 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
 {
     public static class TimeAsserter
     {
-        public static void Execute
+        public class TimedExecutionSummary
+        {
+            public TimedExecutionSummary(int iterations, TimeSpan total)
+            {
+                Iterations = iterations;
+                Total = total;
+            }
+
+            public int Iterations { get; }
+            public TimeSpan Total { get; }
+            public TimeSpan Average => ((int)Total.TotalMilliseconds/Iterations).Milliseconds();
+        }
+
+        public static TimedExecutionSummary Execute
             (Action action,
              int iterations = 1,
              TimeSpan? maxAverage = null,
@@ -21,25 +34,24 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
             maxAverage = maxAverage != default(TimeSpan) ? maxAverage : TimeSpan.MaxValue;
             maxTotal = maxTotal != default(TimeSpan) ? maxTotal : TimeSpan.MaxValue;
 
-            var watch = Stopwatch.StartNew();
-
-
-            if(parallellize)
-            {
-                var tasks = 1.Through(20).Select(_ => Task.Factory.StartNew(action)).ToArray();
-                Task.WaitAll(tasks);
-            }
-            else
-            {
-                for (var i = 0; i < iterations; i++)
+            var total = TimeAction(
+                () =>
                 {
-                    action();
-                }
-            }
+                    if(parallellize)
+                    {
+                        var tasks = 1.Through(20).Select(_ => Task.Factory.StartNew(action)).ToArray();
+                        Task.WaitAll(tasks);
+                    }
+                    else
+                    {
+                        for(var i = 0; i < iterations; i++)
+                        {
+                            action();
+                        }
+                    }
+                });
 
-
-            var total = watch.Elapsed;
-            var average = TimeSpan.FromMilliseconds((total.TotalMilliseconds/iterations));
+            var executionSummary = new TimedExecutionSummary(iterations, total);
 
             Func<TimeSpan?, string> format = date => date?.ToString(timeFormat) ?? "";
 
@@ -47,24 +59,32 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
             {
                 Console.WriteLine(
                     $@"Executed {iterations:N} iterations of {description}  
-    Total:   {format(total)} Limit: {format(maxTotal)} 
-    Average: {format(average)} Limit: {format(maxAverage)}");
+    Total:   {format(executionSummary.Total)} Limit: {format(maxTotal)} 
+    Average: {format(executionSummary.Average)} Limit: {format(maxAverage)}");
             }
             else
             {
                 Console.WriteLine($@"Executed {iterations} iterations of {description}  
-    Total:   {format(total)} Limit: {format(maxTotal)}");
+    Total:   {format(executionSummary.Total)} Limit: {format(maxTotal)}");
             }
 
             if(maxTotal.HasValue)
             {
-                total.Should().BeLessOrEqualTo(maxTotal.Value, $"{nameof(maxTotal)} exceeded");
+                executionSummary.Total.Should().BeLessOrEqualTo(maxTotal.Value, $"{nameof(maxTotal)} exceeded");
             }
 
             if (maxAverage.HasValue)
             {
-                average.Should().BeLessOrEqualTo(maxAverage.Value, $"{nameof(maxAverage)} exceeded");
-            }            
+                executionSummary.Average.Should().BeLessOrEqualTo(maxAverage.Value, $"{nameof(maxAverage)} exceeded");
+            }
+            return executionSummary;
+        }
+
+        public static TimeSpan TimeAction(Action action)
+        {
+            var watch = Stopwatch.StartNew();
+            action();
+            return watch.Elapsed;
         }
     }
 }

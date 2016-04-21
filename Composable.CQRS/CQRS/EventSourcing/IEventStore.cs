@@ -5,7 +5,7 @@ namespace Composable.CQRS.EventSourcing
 {
     public interface IEventStore : IDisposable
     {
-        IEnumerable<IAggregateRootEvent> GetAggregateHistory(Guid id, bool takeReadLock = false);
+        IEnumerable<IAggregateRootEvent> GetAggregateHistory(Guid id, bool takeWriteLock = false);
         void SaveEvents(IEnumerable<IAggregateRootEvent> events);
         void StreamEvents(int batchSize, Action<IReadOnlyList<IAggregateRootEvent>> handleEvents);
         void DeleteEvents(Guid aggregateId);

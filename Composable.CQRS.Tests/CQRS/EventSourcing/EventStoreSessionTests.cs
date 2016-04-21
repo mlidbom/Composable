@@ -314,7 +314,8 @@ namespace CQRS.Tests.CQRS.EventSourcing
             public List<Guid> DeletedAggregates = new List<Guid>();
 
             public void Dispose() { }
-            public IEnumerable<IAggregateRootEvent> GetAggregateHistory(Guid id, bool takeWriteLock = false) { throw new NotSupportedException(); }
+            public IEnumerable<IAggregateRootEvent> GetAggregateHistoryForUpdate(Guid id) { throw new NotImplementedException(); }
+            public IEnumerable<IAggregateRootEvent> GetAggregateHistory(Guid id) { throw new NotSupportedException(); }
             public void SaveEvents(IEnumerable<IAggregateRootEvent> events) { SavedEvents.AddRange(events); }
             public void StreamEvents(int batchSize, Action<IReadOnlyList<IAggregateRootEvent>> handleEvents) { throw new NotImplementedException(); }
             public IEnumerable<IAggregateRootEvent> StreamEvents() { throw new NotSupportedException(); }

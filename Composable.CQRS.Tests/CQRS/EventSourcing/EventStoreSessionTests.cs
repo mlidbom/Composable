@@ -16,6 +16,8 @@ using Composable.System.Linq;
 using System.Linq;
 using System.Threading.Tasks;
 using Composable.GenericAbstractions.Time;
+using Composable.System;
+using CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations;
 
 namespace CQRS.Tests.CQRS.EventSourcing
 {
@@ -540,6 +542,40 @@ namespace CQRS.Tests.CQRS.EventSourcing
                 var history = ((IEventStoreReader)session).GetHistory(userId);
                 Assert.That(history.Count(), Is.EqualTo(0));
             }
+        }
+
+
+        [Test]
+        public void Concurrent_read_only_access_to_aggregate_history_can_occur_in_paralell()
+        {
+            var user = new User();
+            user.Register("email@email.se", "password", Guid.NewGuid());
+            using (var session = OpenSession(CreateStore()))
+            {
+                session.Save(user);
+            }
+
+            var iterations = 20;
+            var delayEachTransactionByMilliseconds = 100;
+
+            TimeAsserter.Execute(
+                () =>
+                {
+                    using (var session = OpenSession(CreateStore()))
+                    {
+                        using (var transaction = new TransactionScope())
+                        {
+                            ((IEventStoreReader)session).GetHistory(user.Id);
+                            Thread.Sleep(delayEachTransactionByMilliseconds.Milliseconds());
+                            transaction.Complete();
+                        }
+                    }
+                },
+                parallellize:true,
+                iterations: iterations
+                , maxTotal: ((iterations * delayEachTransactionByMilliseconds) / 2).Milliseconds(),
+                description: "If access is serialized the time will be approximately iterations * delayPerIteration. If parelellized it should be far below this value.");
+
         }
 
         //[Test]

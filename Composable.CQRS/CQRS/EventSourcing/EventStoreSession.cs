@@ -184,7 +184,9 @@ namespace Composable.CQRS.EventSourcing
 
         private IEnumerable<IAggregateRootEvent> GetHistoryInternal(Guid aggregateId, bool takeWriteLock)
         {
-            IList<IAggregateRootEvent> history = _store.GetAggregateHistory(aggregateId, takeWriteLock).ToList();
+            IList<IAggregateRootEvent> history = (takeWriteLock
+                                                     ? _store.GetAggregateHistoryForUpdate(aggregateId)
+                                                     : _store.GetAggregateHistory(aggregateId)).ToList();
 
             var version = 1;
             foreach (var aggregateRootEvent in history)

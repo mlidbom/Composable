@@ -29,7 +29,9 @@ namespace Composable.CQRS.EventSourcing
             _migrationFactories = migrationFactories?.ToList() ?? new List<IEventMigration>();
         }
 
-        public IEnumerable<IAggregateRootEvent> GetAggregateHistory(Guid id, bool takeWriteLock = false)
+        public IEnumerable<IAggregateRootEvent> GetAggregateHistoryForUpdate(Guid id) => GetAggregateHistory(id);
+
+        public IEnumerable<IAggregateRootEvent> GetAggregateHistory(Guid id)
         {
             lock(_lockObject)
             {

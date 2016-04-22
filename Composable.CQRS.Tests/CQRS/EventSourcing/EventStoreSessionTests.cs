@@ -17,6 +17,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Composable.GenericAbstractions.Time;
 using Composable.System;
+using Composable.System.Diagnostics;
 using CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations;
 using FluentAssertions;
 
@@ -575,17 +576,19 @@ namespace CQRS.Tests.CQRS.EventSourcing
                                          }
                                      };
 
-            var timeForSingleTransactionalRead = (int)TimeAsserter.TimeAction(readUserHistory).TotalMilliseconds;
+            readUserHistory();//one warmup to get consistent times later.
+            var timeForSingleTransactionalRead = (int)StopwatchExtensions.TimeExecution(readUserHistory).TotalMilliseconds;
 
-            var timingsSummary = TimeAsserter.Execute(
+            var timingsSummary = TimeAsserter.ExecuteThreaded(
                 readUserHistory,
-                parallellize:true,
-                iterations: iterations
-                , maxTotal: TimeSpanExtensions.Milliseconds(((iterations * timeForSingleTransactionalRead) / 2)),
+                iterations: iterations,
+                timeIndividualExecutions:true,
+                maxTotal: ((iterations * timeForSingleTransactionalRead) / 2).Milliseconds(),
                 description: $"If access is serialized the time will be approximately {iterations * timeForSingleTransactionalRead} milliseconds. If parelellized it should be far below this value.");
 
             timingsSummary.Average.Should().BeLessThan(delayEachTransactionByMilliseconds.Milliseconds());
 
+            timingsSummary.IndividualExecutionTimes.Sum().Should().BeGreaterThan(timingsSummary.Total);
         }
 
         //[Test]

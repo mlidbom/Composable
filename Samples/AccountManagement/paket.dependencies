@@ -1,4 +1,4 @@
-framework: >= net45 < dnxcore50
+framework: >= net45
 
 source ..\..\NuGetFeed
 source http://nuget.teamcity.mpsedev.local/nuget

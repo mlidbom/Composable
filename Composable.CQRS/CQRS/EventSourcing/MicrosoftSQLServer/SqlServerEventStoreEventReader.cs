@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Data.SqlTypes;
-using System.Diagnostics.Contracts;
 using System.Linq;
 
 namespace Composable.CQRS.EventSourcing.MicrosoftSQLServer
@@ -11,17 +10,19 @@ namespace Composable.CQRS.EventSourcing.MicrosoftSQLServer
     {
         private readonly SqlServerEventStoreConnectionManager _connectionMananger;
         private readonly SqlServerEventStoreSchemaManager _schemaManager;
-        public IEventTypeToIdMapper EventTypeToIdMapper => _schemaManager.IdMapper;
+        private IEventTypeToIdMapper EventTypeToIdMapper => _schemaManager.IdMapper;
 
-        public string SelectClause => InternalSelect();
-        public string SelectTopClause(int top) => InternalSelect(top);
+        private string GetSelectClause(bool takeWriteLock) => InternalSelect(takeWriteLock: takeWriteLock);
+        private string SelectTopClause(int top, bool takeWriteLock) => InternalSelect(top: top, takeWriteLock: takeWriteLock);
 
-        private string InternalSelect(int? top = null)
+        private string InternalSelect(bool takeWriteLock, int? top = null)
         {
             var topClause = top.HasValue ? $"TOP {top.Value} " : "";
+            var lockHint = takeWriteLock ? "With(UPDLOCK, READCOMMITTED, ROWLOCK)" : "With(READCOMMITTED, ROWLOCK)";
+
             return $@"
 SELECT {topClause} {EventTable.Columns.EventType}, {EventTable.Columns.Event}, {EventTable.Columns.AggregateId}, {EventTable.Columns.EffectiveVersion}, {EventTable.Columns.EventId}, {EventTable.Columns.UtcTimeStamp}, {EventTable.Columns.InsertionOrder}, {EventTable.Columns.InsertAfter}, {EventTable.Columns.InsertBefore}, {EventTable.Columns.Replaces}, {EventTable.Columns.InsertedVersion}, {EventTable.Columns.ManualVersion}, {EventTable.Columns.EffectiveReadOrder}
-FROM {EventTable.Name} With(UPDLOCK, READCOMMITTED, ROWLOCK) ";
+FROM {EventTable.Name} {lockHint} ";
         }
 
         private static readonly SqlServerEvestStoreEventSerializer EventSerializer = new SqlServerEvestStoreEventSerializer();
@@ -79,14 +80,14 @@ FROM {EventTable.Name} With(UPDLOCK, READCOMMITTED, ROWLOCK) ";
             public bool HasBeenReplaced => EffectiveVersion < 0;
         }
 
-        public IReadOnlyList<AggregateRootEvent> GetAggregateHistory(Guid aggregateId, int startAfterVersion = 0, bool suppressTransactionWarning = false, bool includeReplacedEventsWhenLoadingCompleteHistory = false)
+        public IReadOnlyList<AggregateRootEvent> GetAggregateHistory(Guid aggregateId, bool takeWriteLock, int startAfterVersion = 0, bool suppressTransactionWarning = false, bool includeReplacedEventsWhenLoadingCompleteHistory = false)
         {
             var historyData = new List<EventDataRow>();
             using(var connection = _connectionMananger.OpenConnection(suppressTransactionWarning: suppressTransactionWarning))
             {
                 using (var loadCommand = connection.CreateCommand()) 
                 {
-                    loadCommand.CommandText = $"{SelectClause} WHERE {EventTable.Columns.AggregateId} = @{EventTable.Columns.AggregateId}";
+                    loadCommand.CommandText = $"{GetSelectClause(takeWriteLock)} WHERE {EventTable.Columns.AggregateId} = @{EventTable.Columns.AggregateId}";
                     loadCommand.Parameters.Add(new SqlParameter($"{EventTable.Columns.AggregateId}", aggregateId));
 
                     if (startAfterVersion > 0)
@@ -127,7 +128,7 @@ FROM {EventTable.Name} With(UPDLOCK, READCOMMITTED, ROWLOCK) ";
                     using (var loadCommand = connection.CreateCommand())
                     {
 
-                        loadCommand.CommandText = SelectTopClause(batchSize) + $"WHERE {EventTable.Columns.EffectiveReadOrder} > 0 AND {EventTable.Columns.EffectiveReadOrder}  > @{EventTable.Columns.EffectiveReadOrder}" + ReadSortOrder;
+                        loadCommand.CommandText = SelectTopClause(batchSize, takeWriteLock: false) + $"WHERE {EventTable.Columns.EffectiveReadOrder} > 0 AND {EventTable.Columns.EffectiveReadOrder}  > @{EventTable.Columns.EffectiveReadOrder}" + ReadSortOrder;
 
                         loadCommand.Parameters.Add(new SqlParameter(EventTable.Columns.EffectiveReadOrder, lastReadEventReadOrder));
 

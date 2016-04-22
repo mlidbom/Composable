@@ -47,8 +47,16 @@ namespace Composable.CQRS.EventSourcing.MicrosoftSQLServer
             _eventWriter = new SqlServerEventStoreEventWriter(_connectionMananger, eventSerializer, _schemaManager);
         }
 
-        [Obsolete("BUG: this method modifies the cached events when calling ApplyOldMigrations, and MutateCompleteHistory. This means that it is not thread safe! Write tests that exposes the problem and FIX IT!")]
+        public IEnumerable<IAggregateRootEvent> GetAggregateHistoryForUpdate(Guid aggregateId)
+        {
+            return GetAggregateHistoryInternal(aggregateId: aggregateId, takeWriteLock: true);
+        }
+
         public IEnumerable<IAggregateRootEvent> GetAggregateHistory(Guid aggregateId)
+        {
+            return GetAggregateHistoryInternal(aggregateId, takeWriteLock: false);
+        }
+        private IEnumerable<IAggregateRootEvent> GetAggregateHistoryInternal(Guid aggregateId, bool takeWriteLock)
         {
             _usageGuard.AssertNoContextChangeOccurred(this);
             _schemaManager.SetupSchemaIfDatabaseUnInitialized();
@@ -60,7 +68,8 @@ namespace Composable.CQRS.EventSourcing.MicrosoftSQLServer
                     aggregateId: aggregateId,
                     startAfterVersion: cachedAggregateHistory.Count,
                     suppressTransactionWarning: true,
-                    includeReplacedEventsWhenLoadingCompleteHistory: true);
+                    includeReplacedEventsWhenLoadingCompleteHistory: true,
+                    takeWriteLock: takeWriteLock);
 
                 IReadOnlyList<AggregateRootEvent> currentHistory;
 
@@ -85,7 +94,7 @@ namespace Composable.CQRS.EventSourcing.MicrosoftSQLServer
                 {
                     _cache.Store(aggregateId, currentHistory);
                 }
-           
+
                 return currentHistory;
             }
         }
@@ -196,7 +205,7 @@ namespace Composable.CQRS.EventSourcing.MicrosoftSQLServer
             {                
                 using(var transaction = new TransactionScope())
                 {
-                    var original = _eventReader.GetAggregateHistory(aggregateId: aggregateId).ToList();
+                    var original = _eventReader.GetAggregateHistory(aggregateId: aggregateId, takeWriteLock: true).ToList();
 
                     var startInsertingWithVersion = original[original.Count - 1].AggregateRootVersion + 1;
 

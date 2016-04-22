@@ -16,9 +16,15 @@ using Composable.System.Linq;
 using System.Linq;
 using System.Threading.Tasks;
 using Composable.GenericAbstractions.Time;
+using Composable.System;
+using Composable.System.Diagnostics;
+using CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations;
+using FluentAssertions;
 
 namespace CQRS.Tests.CQRS.EventSourcing
 {
+    using Composable.System;
+
     [TestFixture]
     [ExclusivelyUses(NCrunchExlusivelyUsesResources.EventStoreDbMdf)]
     public abstract class EventStoreSessionTests : NoSqlTest
@@ -309,6 +315,7 @@ namespace CQRS.Tests.CQRS.EventSourcing
             public List<Guid> DeletedAggregates = new List<Guid>();
 
             public void Dispose() { }
+            public IEnumerable<IAggregateRootEvent> GetAggregateHistoryForUpdate(Guid id) { throw new NotImplementedException(); }
             public IEnumerable<IAggregateRootEvent> GetAggregateHistory(Guid id) { throw new NotSupportedException(); }
             public void SaveEvents(IEnumerable<IAggregateRootEvent> events) { SavedEvents.AddRange(events); }
             public void StreamEvents(int batchSize, Action<IReadOnlyList<IAggregateRootEvent>> handleEvents) { throw new NotImplementedException(); }
@@ -540,6 +547,48 @@ namespace CQRS.Tests.CQRS.EventSourcing
                 var history = ((IEventStoreReader)session).GetHistory(userId);
                 Assert.That(history.Count(), Is.EqualTo(0));
             }
+        }
+
+
+        [Test]
+        public void Concurrent_read_only_access_to_aggregate_history_can_occur_in_paralell()
+        {
+            var user = new User();
+            user.Register("email@email.se", "password", Guid.NewGuid());
+            using (var session = OpenSession(CreateStore()))
+            {
+                session.Save(user);
+            }
+
+            var iterations = 20;
+            var delayEachTransactionByMilliseconds = 100;
+
+            Action readUserHistory = () =>
+                                     {
+                                         using(var session = OpenSession(CreateStore()))
+                                         {
+                                             using(var transaction = new TransactionScope())
+                                             {
+                                                 ((IEventStoreReader)session).GetHistory(user.Id);
+                                                 Thread.Sleep(TimeSpanExtensions.Milliseconds(delayEachTransactionByMilliseconds));
+                                                 transaction.Complete();
+                                             }
+                                         }
+                                     };
+
+            readUserHistory();//one warmup to get consistent times later.
+            var timeForSingleTransactionalRead = (int)StopwatchExtensions.TimeExecution(readUserHistory).TotalMilliseconds;
+
+            var timingsSummary = TimeAsserter.ExecuteThreaded(
+                readUserHistory,
+                iterations: iterations,
+                timeIndividualExecutions:true,
+                maxTotal: ((iterations * timeForSingleTransactionalRead) / 2).Milliseconds(),
+                description: $"If access is serialized the time will be approximately {iterations * timeForSingleTransactionalRead} milliseconds. If parelellized it should be far below this value.");
+
+            timingsSummary.Average.Should().BeLessThan(delayEachTransactionByMilliseconds.Milliseconds());
+
+            timingsSummary.IndividualExecutionTimes.Sum().Should().BeGreaterThan(timingsSummary.Total);
         }
 
         //[Test]

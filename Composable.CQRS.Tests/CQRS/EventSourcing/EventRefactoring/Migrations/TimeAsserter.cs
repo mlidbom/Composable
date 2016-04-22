@@ -39,7 +39,7 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
                 {
                     if(parallellize)
                     {
-                        var tasks = 1.Through(20).Select(_ => Task.Factory.StartNew(action)).ToArray();
+                        var tasks = 1.Through(iterations).Select(_ => Task.Factory.StartNew(action)).ToArray();
                         Task.WaitAll(tasks);
                     }
                     else

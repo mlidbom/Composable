@@ -181,6 +181,7 @@
     <Compile Include="System\Configuration\IConfigurationParameterProvider.cs" />
     <Compile Include="System\Configuration\IConnectionStringProvider.cs" />
     <Compile Include="System\DateTimeExtensions.cs" />
+    <Compile Include="System\Diagnostics\StopwatchExtensions.cs" />
     <Compile Include="System\EnumExtensions.cs" />
     <Compile Include="GenericAbstractions\Hierarchies\HierarchyExtensions.cs" />
     <Compile Include="GenericAbstractions\Hierarchies\IHierarchy.cs" />
@@ -215,6 +216,7 @@
     <Compile Include="System\Reflection\ObjectGraphWalker.cs" />
     <Compile Include="System\Reflection\TypeExtensions.cs" />
     <Compile Include="System\StringExtensions.cs" />
+    <Compile Include="System\TimeSpanEnumerableExtensions.cs" />
     <Compile Include="System\TimeSpanExtensions.cs" />
     <Compile Include="System\Transactions\InTransaction.cs" />
     <Compile Include="GenericAbstractions\Wrappers\GenericWrapper.cs" />

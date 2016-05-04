@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using System.Transactions;
 using Composable.CQRS.EventSourcing;
 using Composable.CQRS.EventSourcing.MicrosoftSQLServer;
+using Composable.CQRS.Testing;
 using Composable.System.Linq;
 using Composable.SystemExtensions.Threading;
 using NCrunch.Framework;
@@ -101,6 +102,37 @@ namespace CQRS.Tests.CQRS.EventSourcing.Sql
             using (var session = OpenSession(CreateStore()))
             {
                 var userHistory = ((IEventStoreReader)session).GetHistory(user.Id).ToArray();//Reading the aggregate will throw an exception if the history is invalid.
+            }
+        }
+
+        [Test]
+        public void InsertNewEventType_should_not_throw_exception_if_the_event_type_has_been_inserted_by_something_else()
+        {
+            Action<Guid> changeUserEmailInOtherAppDomain = userId =>
+                                                           {
+                                                               using(AppDomain.CurrentDomain.CloneScope())
+                                                               {
+                                                                   using(var session = OpenSession(CreateStore()))
+                                                                   {
+                                                                       var user = session.Get<User>(userId);
+                                                                       user.ChangeEmail("some@email.new");
+                                                                       session.SaveChanges();
+                                                                   }
+                                                               }
+                                                           };
+
+            using (var session = OpenSession(CreateStore()))
+            {
+                var userId = Guid.NewGuid();
+                var user = new User();
+                user.Register("email@email.se", "password", userId);
+                session.Save(user);
+                session.SaveChanges();
+
+                changeUserEmailInOtherAppDomain(userId);
+
+                user.ChangeEmail("some@email.new");
+                session.SaveChanges();
             }
         }
     }

@@ -31,6 +31,14 @@ namespace CQRS.Tests.CQRS.EventSourcing
             RaiseEvent(new UserRegistered() { AggregateRootId = id, UserId = id, Email = email, Password = password});
         }
 
+        public static User Register(IEventStoreSession aggregates, string email, string password, Guid id)
+        {
+            var user = new User();
+            user.Register(email, password, id);
+            aggregates.Save(user);
+            return user;
+        }
+
         public void ChangePassword(string password)
         {
             RaiseEvent(new UserChangedPassword() { Password = password });

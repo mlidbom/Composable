@@ -89,6 +89,19 @@ namespace Composable.CQRS.EventSourcing.MicrosoftSQLServer
             {
                 using (var command = connection.CreateCommand())
                 {
+                    command.CommandText = $@"SELECT {EventTypeTable.Columns.Id} FROM {EventTypeTable.Name} WHERE {EventTypeTable.Columns.EventType}=@{EventTypeTable.Columns.EventType}";
+                    command.Parameters.Add(new SqlParameter(EventTypeTable.Columns.EventType, _nameMapper.GetName(newType)));
+                    using (var reader = command.ExecuteReader())
+                    {
+                        if (reader.Read())
+                        {
+                            return new IdTypeMapping(id: reader.GetInt32(0), type: newType);
+                        }
+                    }
+                }
+
+                using (var command = connection.CreateCommand())
+                {
                     command.CommandText = $@"INSERT {EventTypeTable.Name} ( {EventTypeTable.Columns.EventType} ) OUTPUT INSERTED.{EventTypeTable.Columns.Id} VALUES( @{EventTypeTable.Columns.EventType} )";
                     command.Parameters.Add(new SqlParameter(EventTypeTable.Columns.EventType, _nameMapper.GetName(newType)));
                     return new IdTypeMapping(id: (int)command.ExecuteScalar(), type: newType);

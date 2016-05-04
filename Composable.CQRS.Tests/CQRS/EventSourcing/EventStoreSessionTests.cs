@@ -31,8 +31,7 @@ namespace CQRS.Tests.CQRS.EventSourcing
     {
         protected DummyServiceBus Bus { get; private set; }
 
-        [SetUp]
-        public void Setup()
+        public EventStoreSessionTests()
         {
             Bus = new DummyServiceBus(new WindsorContainer());
         }

@@ -166,6 +166,7 @@
     <Compile Include="CQRS\EventSourcing\InMemoryEventStoreSessionTests.cs" />
     <Compile Include="CQRS\EventSourcing\Sql\ReadOrderImplementationExperimentTests.cs" />
     <Compile Include="CQRS\EventSourcing\Sql\MigratedSqlServerEventStoreSessionTests.cs" />
+    <Compile Include="CQRS\EventSourcing\Sql\SqlServerEventStoreEventTypeToIdMapperTests.cs" />
     <Compile Include="CQRS\EventSourcing\Sql\SQLServerEventStoreTest.cs" />
     <Compile Include="CQRS\EventSourcing\Sql\SqlServerEventStoreSessionTests.cs" />
     <Compile Include="CQRS\EventSourcing\User.cs" />

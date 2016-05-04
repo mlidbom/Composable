@@ -105,31 +105,45 @@ namespace CQRS.Tests.CQRS.EventSourcing.Sql
             }
         }
 
+
+        private class RegisterUserAndChangeEmailScenario : MarshalByRefObject
+        {
+            public void Execute()
+            {
+                var test = new SqlServerEventStoreSessionTests();
+                using (var session = test.OpenSession(test.CreateStore()))
+                {
+                    var otherUser = User.Register(session, "email@email.se", "password", Guid.NewGuid());
+                    otherUser.ChangeEmail("some@email.new");
+                    session.SaveChanges();
+                }
+            }
+        }
+
         [Test]
         public void InsertNewEventType_should_not_throw_exception_if_the_event_type_has_been_inserted_by_something_else()
         {
-            Action<Guid> changeUserEmailInOtherAppDomain = userId =>
+            Action changeAnotherUsersEmailInOtherAppDomain = () =>
                                                            {
-                                                               using(AppDomain.CurrentDomain.CloneScope())
-                                                               {
-                                                                   using(var session = OpenSession(CreateStore()))
-                                                                   {
-                                                                       var user = session.Get<User>(userId);
-                                                                       user.ChangeEmail("some@email.new");
-                                                                       session.SaveChanges();
-                                                                   }
-                                                               }
+                                                              AppDomainExtensions.ExecuteInCloneDomainScope(
+                                                                  () =>
+                                                                  {
+                                                                      var test = new SqlServerEventStoreSessionTests();
+                                                                      using (var session = test.OpenSession(test.CreateStore()))
+                                                                      {
+                                                                          var otherUser = User.Register(session, "email@email.se", "password", Guid.NewGuid());
+                                                                          otherUser.ChangeEmail("some@email.new");
+                                                                          session.SaveChanges();
+                                                                      }
+                                                                  });
                                                            };
 
             using (var session = OpenSession(CreateStore()))
             {
-                var userId = Guid.NewGuid();
-                var user = new User();
-                user.Register("email@email.se", "password", userId);
-                session.Save(user);
+                var user = User.Register(session, "email@email.se", "password", Guid.NewGuid());
                 session.SaveChanges();
 
-                changeUserEmailInOtherAppDomain(userId);
+                changeAnotherUsersEmailInOtherAppDomain();
 
                 user.ChangeEmail("some@email.new");
                 session.SaveChanges();

@@ -14,6 +14,15 @@ namespace Composable.CQRS.Testing
             }
         }
 
+
+        public static void ExecuteInCloneDomainScope(CrossAppDomainDelegate action, TimeSpan? disposeDelay = null, bool suppressUnloadErrors = false)
+        {
+            using (var cloneDomainContext = AppDomain.CurrentDomain.CloneScope(disposeDelay: disposeDelay, suppressUnloadErrors: suppressUnloadErrors))
+            {
+                cloneDomainContext.CloneDomain.DoCallBack(action);
+            }
+        }
+
         public static AppDomainScope CloneScope(this AppDomain me, TimeSpan? disposeDelay = null, bool suppressUnloadErrors = false)
         {
             var setup = new AppDomainSetup()

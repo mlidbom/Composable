@@ -45,6 +45,7 @@ paket pack `
 	output $LocalOutputDirectory `
 	buildconfig Debug `
 	buildplatform AnyCPU `
+    minimum-from-lock-file `
 	symbols `
 	specific-version Composable.Contracts (Get-Version "Composable.Contracts\bin\$Configuration\Composable.Contracts.dll") `
 	specific-version Composable.Core (Get-Version "Composable.System\Bin\$Configuration\Composable.Core.dll") `

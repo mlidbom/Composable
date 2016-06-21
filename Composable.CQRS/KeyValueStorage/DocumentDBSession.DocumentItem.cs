@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Composable.System;
 using Composable.System.Linq;
 
 namespace Composable.KeyValueStorage
@@ -61,7 +62,7 @@ namespace Composable.KeyValueStorage
                     return;
                 }
                 IsCommitting = true;
-                using(new DisposeAction(() => IsCommitting = false))//Reset IsCommitting to false once we are done committing.
+                using(Disposable.Create(() => IsCommitting = false))//Reset IsCommitting to false once we are done committing.
                 {
                     if(ScheduledForAdding)
                     {

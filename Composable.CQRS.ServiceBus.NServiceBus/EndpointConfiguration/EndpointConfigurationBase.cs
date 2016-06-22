@@ -37,7 +37,7 @@ namespace Composable.CQRS.ServiceBus.NServiceBus.EndpointConfiguration
                 global::NServiceBus.Hosting.IHost,//NServiceBus.Host
                 Composable.DomainEvents.IDomainEvent,//Composable.DomainEvents
                 Composable.CQRS.Command.ICommand,//Composable.CQRS
-                Composable.DisposeAction>()//Composable.Core
+                Composable.System.Disposable>()//Composable.Core
                 .Select(type => type.Assembly)
                 .ToList();
 

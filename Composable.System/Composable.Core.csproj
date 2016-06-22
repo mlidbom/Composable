@@ -182,6 +182,7 @@
     <Compile Include="System\Configuration\IConnectionStringProvider.cs" />
     <Compile Include="System\DateTimeExtensions.cs" />
     <Compile Include="System\Diagnostics\StopwatchExtensions.cs" />
+    <Compile Include="System\Disposable.cs" />
     <Compile Include="System\EnumExtensions.cs" />
     <Compile Include="GenericAbstractions\Hierarchies\HierarchyExtensions.cs" />
     <Compile Include="GenericAbstractions\Hierarchies\IHierarchy.cs" />

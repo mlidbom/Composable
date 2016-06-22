@@ -1,5 +1,6 @@
 ﻿using System;
 using Composable.ServiceBus;
+using Composable.System;
 using Composable.SystemExtensions.Threading;
 
 namespace Composable.CQRS.ServiceBus.NServiceBus
@@ -39,7 +40,7 @@ namespace Composable.CQRS.ServiceBus.NServiceBus
             }
 
             _dispatchingOnSynchronousBus = true;
-            using (new DisposeAction(() => _dispatchingOnSynchronousBus = false))
+            using (Disposable.Create(() => _dispatchingOnSynchronousBus = false))
             {
                 action();
             }

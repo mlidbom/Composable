@@ -21,7 +21,7 @@ namespace Composable.System.Reactive
         public IDisposable Subscribe(IObserver<TEvent> observer)
         {
             _observerCollection.Add(observer);
-            return new DisposeAction(() => _observerCollection.Remove(observer));
+            return new Disposable(() => _observerCollection.Remove(observer));
         }
     }
 }

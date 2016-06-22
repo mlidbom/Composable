@@ -6,9 +6,9 @@ using System.Runtime.InteropServices;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyTitle("NSpecNUnit")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyDescription("Run NSpec tests with an NUnit test runner")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
+[assembly: AssemblyCompany("Composable")]
 [assembly: AssemblyProduct("NSpecNUnit")]
 [assembly: AssemblyCopyright("Copyright ©  2012")]
 [assembly: AssemblyTrademark("")]

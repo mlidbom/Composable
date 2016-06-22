@@ -4,7 +4,7 @@ using System.Diagnostics.Contracts;
 namespace Composable
 {
     ///<summary>Simple utility class that calls the supplied action when the instance is disposed. Gets rid of the need to create a ton of small classes to do cleanup.</summary>
-    [Obsolete("Please use Composable.System.Disposable instead. This class will be removed soon.", error:true)]
+    [Obsolete("Please use Composable.System.Disposable instead. This class will be removed soon.")]
     public class DisposeAction : IDisposable
     {
         private readonly Action _action;

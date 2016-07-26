@@ -34,39 +34,18 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
 
         protected static string ConnectionString => ConfigurationManager.ConnectionStrings["EventStore"].ConnectionString;
 
-
-        public class MigrationScenario
+        protected void RunMigrationTest(params MigrationScenario[] scenarios)
         {
-            public readonly IEnumerable<Type> OriginalHistory;
-            public readonly IEnumerable<Type> ExpectedHistory;
-            public readonly IReadOnlyList<IEventMigration> Migrations;
-            public MigrationScenario(IEnumerable<Type> originalHistory, IEnumerable<Type> expectedHistory, IEnumerable<IEventMigration> migrations)
+            Console.WriteLine($"###############$$$$$$$Running {scenarios.Length} scenario(s) with EventStoreType: {EventStoreType}");
+
+
+            IReadOnlyList<IEventMigration> migrations = new List<IEventMigration>();
+            var container = CreateContainerForEventStoreType(() => migrations, EventStoreType);
+            foreach (var migrationScenario in scenarios)
             {
-                OriginalHistory = originalHistory;
-                ExpectedHistory = expectedHistory;
-                Migrations = migrations.ToList();
+                migrations = migrationScenario.Migrations;
+                RunScenarioWithEventStoreType(migrationScenario, EventStoreType, container);
             }
-        }
-
-        protected void RunMigrationTest(MigrationScenario scenario)
-        {
-            ExecutedScenarios.Add(scenario);
-
-            var container = CreateContainerForEventStoreType(scenario.Migrations, EventStoreType);
-
-            RunScenarioWithEventStoreType(scenario, EventStoreType, container);
-        }
-
-
-        private List<MigrationScenario> ExecutedScenarios = new List<MigrationScenario>();
-
-        protected void RunMigrationTest
-            (            
-            IEnumerable<Type> originalHistory,
-            IEnumerable<Type> expectedHistory,
-            params IEventMigration[] migrations)
-        {
-          RunMigrationTest(new MigrationScenario(originalHistory: originalHistory, expectedHistory: expectedHistory, migrations: migrations));
         }
 
         private static void RunScenarioWithEventStoreType
@@ -82,9 +61,7 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
             var original = TestAggregate.FromEvents(DummyTimeSource.Now, aggregateId, scenario.OriginalHistory).History.ToList();
             Console.WriteLine($"Original History: ");
             original.ForEach(e => Console.WriteLine($"      {e}"));
-            Console.WriteLine();
-
-            Console.WriteLine($"###############$$$$$$$Running scenario with {eventStoreType}");
+            Console.WriteLine();            
 
             var initialAggregate = TestAggregate.FromEvents(timeSource, aggregateId, scenario.OriginalHistory);
             var expected = TestAggregate.FromEvents(timeSource, aggregateId, scenario.ExpectedHistory).History.ToList();
@@ -152,7 +129,7 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
 
         }
 
-        protected static WindsorContainer CreateContainerForEventStoreType(IReadOnlyList<IEventMigration> migrations, Type eventStoreType)
+        protected static WindsorContainer CreateContainerForEventStoreType(Func<IReadOnlyList<IEventMigration>> migrationsfactory, Type eventStoreType)
         {
             var container = new WindsorContainer();
 
@@ -166,7 +143,7 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
                          .ImplementedBy<SynchronousBus>()
                          .LifestylePerWebRequest(),
                 Component.For<IEnumerable<IEventMigration>>()
-                         .UsingFactoryMethod(() => migrations)
+                         .UsingFactoryMethod(migrationsfactory)
                          .LifestylePerWebRequest(),
                 SelectLifeStyle(
                     Component.For<IEventStore>()

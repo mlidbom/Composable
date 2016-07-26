@@ -29,14 +29,6 @@ namespace Composable.CQRS.EventSourcing.Refactoring.Migrations
 
             public RealMutator(IReadOnlyList<IEventMigration> eventMigrationFactories) { _eventMigrationFactories = eventMigrationFactories; }
 
-            public IEnumerable<AggregateRootEvent> Mutate(AggregateRootEvent @event)
-            {
-                return _aggregateMutatorsCache.GetOrAdd(
-                    @event.AggregateRootId,
-                    () => SingleAggregateInstanceEventStreamMutator.Create(@event, _eventMigrationFactories))
-                                                .Mutate(@event);
-            }
-
             public IEnumerable<AggregateRootEvent> Mutate(IEnumerable<AggregateRootEvent> eventStream)
             {
                 foreach(var @event in eventStream)

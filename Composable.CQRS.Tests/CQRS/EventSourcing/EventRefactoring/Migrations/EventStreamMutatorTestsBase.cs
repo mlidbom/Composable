@@ -16,7 +16,6 @@ using Composable.UnitsOfWork;
 using Composable.Windsor;
 using Composable.Windsor.Testing;
 using FluentAssertions;
-using FluentAssertions.Equivalency;
 using NCrunch.Framework;
 using NUnit.Framework;
 using TestAggregates;
@@ -41,22 +40,36 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
 
             IList<IEventMigration> migrations = new List<IEventMigration>();
             var container = CreateContainerForEventStoreType(() => migrations.ToArray(), EventStoreType);
+            var timeSource = container.Resolve<DummyTimeSource>();
+            timeSource.UtcNow = DateTime.Parse("2001-01-01 01:01:01.01");
+            int scenarioIndex = 1;
             foreach (var migrationScenario in scenarios)
             {
+                timeSource.UtcNow += 1.Hours();//No time collision between scenarios please.
                 migrations = migrationScenario.Migrations.ToList();
-                RunScenarioWithEventStoreType(migrationScenario, EventStoreType, container, migrations);
+                RunScenarioWithEventStoreType(migrationScenario, EventStoreType, container, migrations, scenarioIndex++);
             }
         }
 
         private static void RunScenarioWithEventStoreType
-            (MigrationScenario scenario, Type eventStoreType, WindsorContainer container, IList<IEventMigration> migrations)
+            (MigrationScenario scenario, Type eventStoreType, WindsorContainer container, IList<IEventMigration> migrations, int indexOfScenarioInBatch)
         {
             var timeSource = container.Resolve<DummyTimeSource>();
-            timeSource.UtcNow = DateTime.Parse("2001-01-01 01:01:01.01");
+
+            IReadOnlyList<IAggregateRootEvent> eventsInStoreAtStart;
+            using(container.BeginScope()) //Why is this needed? It fails without it but I do not understand why...
+            {
+                var eventStore = container.Resolve<IEventStore>();
+                if (eventStoreType == typeof(InMemoryEventStore))
+                {
+                    ((InMemoryEventStore)eventStore).TestingOnlyReplaceMigrations(migrations.ToArray());
+                }
+                eventsInStoreAtStart = eventStore.ListAllEventsForTestingPurposesAbsolutelyNotUsableForARealEventStoreOfAnySize();
+            }            
 
             var aggregateId = Guid.NewGuid();
 
-            Console.WriteLine($"\n########Running Scenario: {scenario.Name}\n");
+            Console.WriteLine($"\n########Running Scenario {indexOfScenarioInBatch}: {scenario.Name}\n");
 
             var original = TestAggregate.FromEvents(DummyTimeSource.Now, aggregateId, scenario.OriginalHistory).History.ToList();
             Console.WriteLine($"Original History: ");
@@ -65,6 +78,11 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
 
             var initialAggregate = TestAggregate.FromEvents(timeSource, aggregateId, scenario.OriginalHistory);
             var expected = TestAggregate.FromEvents(timeSource, aggregateId, scenario.ExpectedHistory).History.ToList();
+            var expectedCompleteEventstoreStream = eventsInStoreAtStart.Concat(expected).ToList();
+
+            Console.WriteLine($"Expected History: ");
+            expected.ForEach(e => Console.WriteLine($"      {e}"));
+            Console.WriteLine();
 
             var initialAggregate2 = TestAggregate.FromEvents(timeSource, aggregateId, scenario.OriginalHistory);
 
@@ -85,7 +103,8 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
 
             Console.WriteLine("  Streaming all events in store");
             var streamedEvents = container.ExecuteUnitOfWorkInIsolatedScope(() => container.Resolve<IEventStore>().ListAllEventsForTestingPurposesAbsolutelyNotUsableForARealEventStoreOfAnySize().ToList());
-            AssertStreamsAreIdentical(expected, streamedEvents, "Streaming all events in store");
+            
+            AssertStreamsAreIdentical(expectedCompleteEventstoreStream, streamedEvents, "Streaming all events in store");
             
             Console.WriteLine("  Persisting migrations");
             using(container.BeginScope())
@@ -98,7 +117,7 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
 
             Console.WriteLine("Streaming all events in store");
             streamedEvents = container.ExecuteUnitOfWorkInIsolatedScope(() => container.Resolve<IEventStore>().ListAllEventsForTestingPurposesAbsolutelyNotUsableForARealEventStoreOfAnySize().ToList());
-            AssertStreamsAreIdentical(expected, streamedEvents, "Streaming all events in store");
+            AssertStreamsAreIdentical( expectedCompleteEventstoreStream, streamedEvents, "Streaming all events in store");
 
 
             Console.WriteLine("  Disable all migrations so that none are used when reading from the event stores");
@@ -117,7 +136,7 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
 
             Console.WriteLine("Streaming all events in store");
             streamedEvents = container.ExecuteUnitOfWorkInIsolatedScope(() => container.Resolve<IEventStore>().ListAllEventsForTestingPurposesAbsolutelyNotUsableForARealEventStoreOfAnySize().ToList());
-            AssertStreamsAreIdentical(expected, streamedEvents, "Streaming all events in store");
+            AssertStreamsAreIdentical(expectedCompleteEventstoreStream, streamedEvents, "Streaming all events in store");
 
             if(eventStoreType == typeof(SqlServerEventStore))
             {
@@ -128,7 +147,7 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
 
                 Console.WriteLine("Streaming all events in store");
                 streamedEvents = container.ExecuteUnitOfWorkInIsolatedScope(() => container.Resolve<IEventStore>().ListAllEventsForTestingPurposesAbsolutelyNotUsableForARealEventStoreOfAnySize().ToList());
-                AssertStreamsAreIdentical(expected, streamedEvents, "Streaming all events in store");
+                AssertStreamsAreIdentical(expectedCompleteEventstoreStream, streamedEvents, "Streaming all events in store");
             }
 
         }

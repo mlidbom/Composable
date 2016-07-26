@@ -151,12 +151,6 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
     {
         protected EventStreamMutatorTests(Type eventStoreType) : base(eventStoreType) { }
 
-        //[Test]
-        //public void RunAllScenariosTogether()
-        //{
-        //    RunMigrationTest(MigrationScenarios.All.ToArray());
-        //}
-
         [Test]
         public void Base_class_method_should_detect_incorrect_type_order()
         {

@@ -5,10 +5,13 @@ using System.Reflection;
 using Composable.CQRS.EventSourcing;
 using Composable.CQRS.EventSourcing.MicrosoftSQLServer;
 using Composable.CQRS.EventSourcing.Refactoring.Migrations;
+using Composable.GenericAbstractions.Time;
 using Composable.System.Linq;
+using Composable.Windsor;
 using FluentAssertions;
 using NCrunch.Framework;
 using NUnit.Framework;
+using TestAggregates;
 using TestAggregates.Events;
 
 namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
@@ -223,6 +226,74 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
                         Before<E1>.Insert<E2>(),
                         After<E2>.Insert<E3>())))
                 .ShouldThrow<NonIdempotentMigrationDetectedException>();
+        }
+
+        [Test]
+        public void PersistingMigrationsOfTheSameAggregateMultipleTimes()
+        {
+            //var emptyMigrationsArray = new IEventMigration[0];
+            //IReadOnlyList<IEventMigration> migrations = emptyMigrationsArray;
+
+            //var container = CreateContainerForEventStoreType(() => migrations, EventStoreType);
+
+            //var id = Guid.Parse("00000000-0000-0000-0000-000000000001");
+
+            //container.Resolve<DummyTimeSource>().UtcNow = DateTime.Parse("2001-01-01 12:00");
+
+            //var aggregate = TestAggregate.FromEvents(container.Resolve<IUtcTimeTimeSource>(), id, Seq.OfTypes<Ec1, E1, E2, E3, E4>());
+            //var initialHistory = aggregate.History;
+
+
+            //Func<IEventStoreSession> session = () => container.Resolve<IEventStoreSession>();
+            //Func<IEventStore> eventStore = () => container.Resolve<IEventStore>();
+
+            //var firstSavedHistory = container.ExecuteUnitOfWorkInIsolatedScope(
+            //    () =>
+            //    {
+            //        session().Save(aggregate);
+            //        return session().Get<TestAggregate>(id).History;
+            //    });
+
+
+            //AssertStreamsAreIdentical(initialHistory, firstSavedHistory, "first saved history");
+
+            //migrations = Seq.Create(Replace<E1>.With<E5>()).ToList();
+
+            //var migratedHistory = container.ExecuteUnitOfWorkInIsolatedScope(() => session().Get<TestAggregate>(id).History);
+
+            //var expectedAfterReplacingE1WithE5 = TestAggregate.FromEvents(container.Resolve<IUtcTimeTimeSource>(), id, Seq.OfTypes<Ec1, E5, E2, E3, E4>()).History;
+            //AssertStreamsAreIdentical(expected: expectedAfterReplacingE1WithE5, migratedHistory: migratedHistory, descriptionOfHistory: "migrated history");
+
+            //var historyAfterPersistingButBeforeReload = container.ExecuteUnitOfWorkInIsolatedScope(
+            //    () =>
+            //    {
+            //        eventStore().PersistMigrations();
+            //        return session().Get<TestAggregate>(id).History;
+            //    });
+
+            //AssertStreamsAreIdentical(expected: expectedAfterReplacingE1WithE5, migratedHistory: historyAfterPersistingButBeforeReload, descriptionOfHistory: "migrated, persisted");
+
+            //var historyAfterPersistingAndReloading = container.ExecuteUnitOfWorkInIsolatedScope(() => session().Get<TestAggregate>(id).History);
+            //AssertStreamsAreIdentical(expected: expectedAfterReplacingE1WithE5, migratedHistory: historyAfterPersistingAndReloading, descriptionOfHistory: "migrated, persisted, reloaded");
+
+            //migrations = Seq.Create(Replace<E2>.With<E6>()).ToList();
+
+            //migratedHistory = container.ExecuteUnitOfWorkInIsolatedScope(() => session().Get<TestAggregate>(id).History);
+
+            //var expectedAfterReplacingE2WithE6 = TestAggregate.FromEvents(container.Resolve<IUtcTimeTimeSource>(), id, Seq.OfTypes<Ec1, E5, E6, E3, E4>()).History;
+            //AssertStreamsAreIdentical(expected: expectedAfterReplacingE2WithE6, migratedHistory: migratedHistory, descriptionOfHistory: "migrated history");
+
+            //historyAfterPersistingButBeforeReload = container.ExecuteUnitOfWorkInIsolatedScope(
+            //    () =>
+            //    {
+            //        eventStore().PersistMigrations();
+            //        return session().Get<TestAggregate>(id).History;
+            //    });
+
+            //AssertStreamsAreIdentical(expected: expectedAfterReplacingE2WithE6, migratedHistory: historyAfterPersistingButBeforeReload, descriptionOfHistory: "migrated, persisted");
+            //historyAfterPersistingAndReloading = container.ExecuteUnitOfWorkInIsolatedScope(() => session().Get<TestAggregate>(id).History);
+            //AssertStreamsAreIdentical(expected: expectedAfterReplacingE1WithE5, migratedHistory: historyAfterPersistingAndReloading, descriptionOfHistory: "migrated, persisted, reloaded");
+
         }
     }
 }

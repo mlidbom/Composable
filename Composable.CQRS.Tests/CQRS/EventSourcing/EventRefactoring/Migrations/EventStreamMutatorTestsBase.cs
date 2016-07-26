@@ -39,24 +39,24 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
             Console.WriteLine($"###############$$$$$$$Running {scenarios.Length} scenario(s) with EventStoreType: {EventStoreType}");
 
 
-            IReadOnlyList<IEventMigration> migrations = new List<IEventMigration>();
-            var container = CreateContainerForEventStoreType(() => migrations, EventStoreType);
+            IList<IEventMigration> migrations = new List<IEventMigration>();
+            var container = CreateContainerForEventStoreType(() => migrations.ToArray(), EventStoreType);
             foreach (var migrationScenario in scenarios)
             {
-                migrations = migrationScenario.Migrations;
-                RunScenarioWithEventStoreType(migrationScenario, EventStoreType, container);
+                migrations = migrationScenario.Migrations.ToList();
+                RunScenarioWithEventStoreType(migrationScenario, EventStoreType, container, migrations);
             }
         }
 
         private static void RunScenarioWithEventStoreType
-            (
-            MigrationScenario scenario,
-             Type eventStoreType, WindsorContainer container)
+            (MigrationScenario scenario, Type eventStoreType, WindsorContainer container, IList<IEventMigration> migrations)
         {
             var timeSource = container.Resolve<DummyTimeSource>();
             timeSource.UtcNow = DateTime.Parse("2001-01-01 01:01:01.01");
 
             var aggregateId = Guid.NewGuid();
+
+            Console.WriteLine($"\n########Running Scenario: {scenario.Name}\n");
 
             var original = TestAggregate.FromEvents(DummyTimeSource.Now, aggregateId, scenario.OriginalHistory).History.ToList();
             Console.WriteLine($"Original History: ");
@@ -102,10 +102,14 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
 
 
             Console.WriteLine("  Disable all migrations so that none are used when reading from the event stores");
-            Seq.Empty<IEventMigration>().ToArray();//Disable all migrations so none are used when reading back the history...
-            if (eventStoreType == typeof(InMemoryEventStore))
+            if(eventStoreType == typeof(InMemoryEventStore))
             {
-                ((InMemoryEventStore)container.Resolve<IEventStore>()).TestingOnlyReplaceMigrations(scenario.Migrations);
+                ((InMemoryEventStore)container.Resolve<IEventStore>()).TestingOnlyReplaceMigrations(Seq.Empty<IEventMigration>().ToArray());
+                    //Disable all migrations so none are used when reading back the history...
+            }
+            else
+            {
+                migrations.Clear();
             }
 
             migratedHistory = container.ExecuteUnitOfWorkInIsolatedScope(() => container.Resolve<IEventStoreSession>().Get<TestAggregate>(initialAggregate.Id)).History;

@@ -16,5 +16,7 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
             ExpectedHistory = expectedHistory;
             Migrations = migrations.ToList();
         }
+
+        public string Name { get; set; }
     }
 }

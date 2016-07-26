@@ -67,7 +67,7 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
                 eventsInStoreAtStart = eventStore.ListAllEventsForTestingPurposesAbsolutelyNotUsableForARealEventStoreOfAnySize();
             }
 
-            Console.WriteLine($"\n########Running Scenario {indexOfScenarioInBatch}: {scenario.Name}\n");
+            Console.WriteLine($"\n########Running Scenario {indexOfScenarioInBatch}");
 
             var original = TestAggregate.FromEvents(DummyTimeSource.Now, scenario.AggregateId, scenario.OriginalHistory).History.ToList();
             Console.WriteLine($"Original History: ");

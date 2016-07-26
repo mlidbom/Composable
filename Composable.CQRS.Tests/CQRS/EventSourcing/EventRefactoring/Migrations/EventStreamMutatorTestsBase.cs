@@ -34,46 +34,68 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
 
         protected static string ConnectionString => ConfigurationManager.ConnectionStrings["EventStore"].ConnectionString;
 
+
+        public class MigrationScenario
+        {
+            public readonly IEnumerable<Type> OriginalHistory;
+            public readonly IEnumerable<Type> ExpectedHistory;
+            public readonly IReadOnlyList<IEventMigration> Migrations;
+            public MigrationScenario(IEnumerable<Type> originalHistory, IEnumerable<Type> expectedHistory, IEnumerable<IEventMigration> migrations)
+            {
+                OriginalHistory = originalHistory;
+                ExpectedHistory = expectedHistory;
+                Migrations = migrations.ToList();
+            }
+        }
+
+        protected void RunMigrationTest(MigrationScenario scenario)
+        {
+            ExecutedScenarios.Add(scenario);
+
+            var container = CreateContainerForEventStoreType(scenario.Migrations, EventStoreType);
+
+            RunScenarioWithEventStoreType(scenario, EventStoreType, container);
+        }
+
+
+        private List<MigrationScenario> ExecutedScenarios = new List<MigrationScenario>();
+
         protected void RunMigrationTest
-            (
+            (            
             IEnumerable<Type> originalHistory,
             IEnumerable<Type> expectedHistory,
-            params IEventMigration[] manualMigrations)
+            params IEventMigration[] migrations)
         {
-            var migrationInstances = manualMigrations;
+          RunMigrationTest(new MigrationScenario(originalHistory: originalHistory, expectedHistory: expectedHistory, migrations: migrations));
+        }
+
+        private static void RunScenarioWithEventStoreType
+            (
+            MigrationScenario scenario,
+             Type eventStoreType, WindsorContainer container)
+        {
+            var timeSource = container.Resolve<DummyTimeSource>();
+            timeSource.UtcNow = DateTime.Parse("2001-01-01 01:01:01.01");
+
             var aggregateId = Guid.NewGuid();
 
-            var original = TestAggregate.FromEvents(DummyTimeSource.Now, aggregateId, originalHistory).History.ToList();
+            var original = TestAggregate.FromEvents(DummyTimeSource.Now, aggregateId, scenario.OriginalHistory).History.ToList();
             Console.WriteLine($"Original History: ");
             original.ForEach(e => Console.WriteLine($"      {e}"));
             Console.WriteLine();
 
-            RunScenarioWithEventStoreType(originalHistory, expectedHistory, aggregateId, migrationInstances, EventStoreType);
-        }
-
-        private static void RunScenarioWithEventStoreType
-            (IEnumerable<Type> originalHistory,
-             IEnumerable<Type> expectedHistory,
-             Guid aggregateId,
-             IEventMigration[] migrations,
-             Type eventStoreType)
-        {
-            var container = CreateContainerForEventStoreType(migrations, eventStoreType);
-            var timeSource = container.Resolve<DummyTimeSource>();
-            timeSource.UtcNow = DateTime.Parse("2001-01-01 01:01:01.01");
-
             Console.WriteLine($"###############$$$$$$$Running scenario with {eventStoreType}");
 
-            var initialAggregate = TestAggregate.FromEvents(timeSource, aggregateId, originalHistory);
-            var expected = TestAggregate.FromEvents(timeSource, aggregateId, expectedHistory).History.ToList();
+            var initialAggregate = TestAggregate.FromEvents(timeSource, aggregateId, scenario.OriginalHistory);
+            var expected = TestAggregate.FromEvents(timeSource, aggregateId, scenario.ExpectedHistory).History.ToList();
 
-            var initialAggregate2 = TestAggregate.FromEvents(timeSource, aggregateId, originalHistory);
+            var initialAggregate2 = TestAggregate.FromEvents(timeSource, aggregateId, scenario.OriginalHistory);
 
             timeSource.UtcNow += 1.Hours();//Bump clock to ensure that times will be be wrong unless the time from the original events are used..
 
             Console.WriteLine("Doing pure in memory ");            
             IReadOnlyList<IAggregateRootEvent> otherHistory = SingleAggregateInstanceEventStreamMutator.MutateCompleteAggregateHistory(
-                migrations,
+                scenario.Migrations,
                 initialAggregate2.History.Cast<AggregateRootEvent>().ToList());
 
             AssertStreamsAreIdentical(expected, otherHistory, $"Direct call to SingleAggregateInstanceEventStreamMutator.MutateCompleteAggregateHistory");
@@ -103,10 +125,10 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
 
 
             Console.WriteLine("  Disable all migrations so that none are used when reading from the event stores");
-            migrations = Seq.Empty<IEventMigration>().ToArray();//Disable all migrations so none are used when reading back the history...
+            Seq.Empty<IEventMigration>().ToArray();//Disable all migrations so none are used when reading back the history...
             if (eventStoreType == typeof(InMemoryEventStore))
             {
-                ((InMemoryEventStore)container.Resolve<IEventStore>()).TestingOnlyReplaceMigrations(migrations);
+                ((InMemoryEventStore)container.Resolve<IEventStore>()).TestingOnlyReplaceMigrations(scenario.Migrations);
             }
 
             migratedHistory = container.ExecuteUnitOfWorkInIsolatedScope(() => container.Resolve<IEventStoreSession>().Get<TestAggregate>(initialAggregate.Id)).History;
@@ -130,7 +152,7 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
 
         }
 
-        protected static WindsorContainer CreateContainerForEventStoreType(IEventMigration[] migrations, Type eventStoreType)
+        protected static WindsorContainer CreateContainerForEventStoreType(IReadOnlyList<IEventMigration> migrations, Type eventStoreType)
         {
             var container = new WindsorContainer();
 

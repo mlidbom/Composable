@@ -65,26 +65,24 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
                     ((InMemoryEventStore)eventStore).TestingOnlyReplaceMigrations(migrations.ToArray());
                 }
                 eventsInStoreAtStart = eventStore.ListAllEventsForTestingPurposesAbsolutelyNotUsableForARealEventStoreOfAnySize();
-            }            
-
-            var aggregateId = Guid.NewGuid();
+            }
 
             Console.WriteLine($"\n########Running Scenario {indexOfScenarioInBatch}: {scenario.Name}\n");
 
-            var original = TestAggregate.FromEvents(DummyTimeSource.Now, aggregateId, scenario.OriginalHistory).History.ToList();
+            var original = TestAggregate.FromEvents(DummyTimeSource.Now, scenario.AggregateId, scenario.OriginalHistory).History.ToList();
             Console.WriteLine($"Original History: ");
             original.ForEach(e => Console.WriteLine($"      {e}"));
             Console.WriteLine();            
 
-            var initialAggregate = TestAggregate.FromEvents(timeSource, aggregateId, scenario.OriginalHistory);
-            var expected = TestAggregate.FromEvents(timeSource, aggregateId, scenario.ExpectedHistory).History.ToList();
+            var initialAggregate = TestAggregate.FromEvents(timeSource, scenario.AggregateId, scenario.OriginalHistory);
+            var expected = TestAggregate.FromEvents(timeSource, scenario.AggregateId, scenario.ExpectedHistory).History.ToList();
             var expectedCompleteEventstoreStream = eventsInStoreAtStart.Concat(expected).ToList();
 
             Console.WriteLine($"Expected History: ");
             expected.ForEach(e => Console.WriteLine($"      {e}"));
             Console.WriteLine();
 
-            var initialAggregate2 = TestAggregate.FromEvents(timeSource, aggregateId, scenario.OriginalHistory);
+            var initialAggregate2 = TestAggregate.FromEvents(timeSource, scenario.AggregateId, scenario.OriginalHistory);
 
             timeSource.UtcNow += 1.Hours();//Bump clock to ensure that times will be be wrong unless the time from the original events are used..
 

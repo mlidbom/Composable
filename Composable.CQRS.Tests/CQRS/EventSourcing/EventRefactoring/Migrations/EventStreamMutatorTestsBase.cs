@@ -60,10 +60,6 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
             using(container.BeginScope()) //Why is this needed? It fails without it but I do not understand why...
             {
                 var eventStore = container.Resolve<IEventStore>();
-                if (eventStoreType == typeof(InMemoryEventStore))
-                {
-                    ((InMemoryEventStore)eventStore).TestingOnlyReplaceMigrations(migrations.ToArray());
-                }
                 eventsInStoreAtStart = eventStore.ListAllEventsForTestingPurposesAbsolutelyNotUsableForARealEventStoreOfAnySize();
             }
 
@@ -119,15 +115,7 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
 
 
             Console.WriteLine("  Disable all migrations so that none are used when reading from the event stores");
-            if(eventStoreType == typeof(InMemoryEventStore))
-            {
-                ((InMemoryEventStore)container.Resolve<IEventStore>()).TestingOnlyReplaceMigrations(Seq.Empty<IEventMigration>().ToArray());
-                    //Disable all migrations so none are used when reading back the history...
-            }
-            else
-            {
-                migrations.Clear();
-            }
+            migrations.Clear();
 
             migratedHistory = container.ExecuteUnitOfWorkInIsolatedScope(() => container.Resolve<IEventStoreSession>().Get<TestAggregate>(initialAggregate.Id)).History;
             AssertStreamsAreIdentical(expected, migratedHistory, "loaded aggregate");
@@ -166,35 +154,60 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
                 Component.For<IEnumerable<IEventMigration>>()
                          .UsingFactoryMethod(migrationsfactory)
                          .LifestylePerWebRequest(),
-                SelectLifeStyle(
-                    Component.For<IEventStore>()
-                             .ImplementedBy(eventStoreType)
-                             .DependsOn(Dependency.OnValue<string>(ConnectionString))),
                 Component.For<IEventStoreSession, IUnitOfWorkParticipant>()
                          .ImplementedBy<EventStoreSession>()
                          .LifestylePerWebRequest(),
                 Component.For<IWindsorContainer>().Instance(container)
                 );
 
+
+            if (eventStoreType == typeof(SqlServerEventStore))
+            {
+                container.Register(
+                    Component.For<IEventStore>()
+                             .ImplementedBy<SqlServerEventStore>()
+                             .DependsOn(Dependency.OnValue<string>(ConnectionString))
+                             .LifestyleScoped());
+            }else if(eventStoreType == typeof(InMemoryEventStore))
+            {
+                container.Register(
+                    Component.For<IEventStore>()
+                             .UsingFactoryMethod(
+                                 kernel =>
+                                 {
+                                     var store = kernel.Resolve<InMemoryEventStore>();
+                                     store.TestingOnlyReplaceMigrations(migrationsfactory());
+                                     return store;
+                                 })
+                             .LifestyleScoped(),
+                    Component.For<InMemoryEventStore>()
+                        .ImplementedBy<InMemoryEventStore>()
+                        .LifestyleSingleton());
+            }
+            else
+            {
+                throw new Exception($"Unsupported type of event store {eventStoreType}");
+            }            
+
             container.ConfigureWiringForTestsCallAfterAllOtherWiring();
             return container;
         }
-        private static IRegistration SelectLifeStyle(ComponentRegistration<IEventStore> dependsOn)
+        private static IRegistration SelectLifeStyle(ComponentRegistration<IEventStore> eventStoreRegistration)
         {
-            if(dependsOn.Implementation == typeof(SqlServerEventStore))
+            if(eventStoreRegistration.Implementation == typeof(SqlServerEventStore))
             {
-                return dependsOn.LifestylePerWebRequest();
+                return eventStoreRegistration.LifestylePerWebRequest();
             }
 
-            if (dependsOn.Implementation == typeof(InMemoryEventStore))
+            if (eventStoreRegistration.Implementation == typeof(InMemoryEventStore))
             {
-                return dependsOn.LifestyleSingleton();
+                return eventStoreRegistration.LifestyleSingleton();
             }
 
-            throw new Exception($"Unsupported type of event store {dependsOn.Implementation}");
+            throw new Exception($"Unsupported type of event store {eventStoreRegistration.Implementation}");
         }
 
-        private static void AssertStreamsAreIdentical(List<IAggregateRootEvent> expected, IReadOnlyList<IAggregateRootEvent> migratedHistory, string descriptionOfHistory)
+        protected static void AssertStreamsAreIdentical(IEnumerable<IAggregateRootEvent> expected, IEnumerable<IAggregateRootEvent> migratedHistory, string descriptionOfHistory)
         {
 
             try
@@ -202,10 +215,10 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
                 expected.ForEach(
                    (@event, index) =>
                    {
-                       if (@event.GetType() != migratedHistory[index].GetType())
+                       if (@event.GetType() != migratedHistory.ElementAt(index).GetType())
                        {
                            Assert.Fail(
-                               $"Expected event at postion {index} to be of type {@event.GetType()} but it was of type: {migratedHistory[index].GetType()}");
+                               $"Expected event at postion {index} to be of type {@event.GetType()} but it was of type: {migratedHistory.ElementAt(index).GetType()}");
                        }
                    });
 

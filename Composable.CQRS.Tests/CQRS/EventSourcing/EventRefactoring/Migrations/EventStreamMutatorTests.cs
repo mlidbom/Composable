@@ -130,6 +130,18 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
             Seq.OfTypes<Ec1, E1, E2>(),
             After<E1>.Insert<E2>());
 
+        static MigrationScenarios()
+        {
+            var namedScenarios = typeof(MigrationScenarios).GetFields(BindingFlags.Static | BindingFlags.Public)
+                                      .Where(info => info.IsStatic)
+                                      .Select(field => new {Migration = (MigrationScenario)field.GetValue(null), Name = field.Name});
+
+            foreach(var namedScenario in namedScenarios)
+            {
+                namedScenario.Migration.Name = namedScenario.Name;
+            }
+        }
+
         public static IEnumerable<MigrationScenario> All
             => typeof(MigrationScenarios).GetFields(BindingFlags.Static | BindingFlags.Public).Where(info => info.IsStatic).Select(field => (MigrationScenario)field.GetValue(null));
     }

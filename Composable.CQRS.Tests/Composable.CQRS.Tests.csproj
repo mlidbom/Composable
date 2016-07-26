@@ -145,6 +145,7 @@
     <Compile Include="CQRS\EventSourcing\EventRefactoring\Migrations\Before.cs" />
     <Compile Include="CQRS\EventSourcing\EventRefactoring\Migrations\EventStreamMutatorTests.cs" />
     <Compile Include="CQRS\EventSourcing\EventRefactoring\Migrations\EventStreamMutatorTestsBase.cs" />
+    <Compile Include="CQRS\EventSourcing\EventRefactoring\Migrations\MigrationScenario.cs" />
     <Compile Include="CQRS\EventSourcing\EventRefactoring\Migrations\MigrationsPerformanceTest.SingleAggregateInstanceEventStreamMutatorPerformanceTest_Given_a_10000_events_large_aggregate.cs" />
     <Compile Include="CQRS\EventSourcing\EventRefactoring\Migrations\MigrationsPerformanceTest.InMemory.cs" />
     <Compile Include="CQRS\EventSourcing\EventRefactoring\Migrations\Replace.cs" />

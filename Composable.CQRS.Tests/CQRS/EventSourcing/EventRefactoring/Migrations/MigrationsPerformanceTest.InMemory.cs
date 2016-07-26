@@ -26,7 +26,7 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
                 Before<E9>.Insert<E5>()
                 ).ToArray();
 
-            var container = CreateContainerForEventStoreType(eventMigrations, EventStoreType);
+            var container = CreateContainerForEventStoreType(() => eventMigrations, EventStoreType);
             var timeSource = container.Resolve<DummyTimeSource>();
 
             var history = Seq.OfTypes<Ec1>().Concat(1.Through(100000).Select(index => typeof(E1))).ToArray();

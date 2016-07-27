@@ -89,8 +89,10 @@ namespace Composable.CQRS.EventSourcing.MicrosoftSQLServer
                     currentHistory = cachedAggregateHistory.Concat(newEventsFromDatabase).ToList();
                 }
 
+                currentHistory.ForEach((@event, index) => @event.AggregateRootVersion = index + 1);
+
                 //Should within a transaction a process write events, read them, then fail to commit we will have cached events that are not persisted unless we refuse to cache them here.
-                if(!_aggregatesWithEventsAddedByThisInstance.Contains(aggregateId))
+                if (!_aggregatesWithEventsAddedByThisInstance.Contains(aggregateId))
                 {
                     _cache.Store(aggregateId, currentHistory);
                 }
@@ -205,19 +207,22 @@ namespace Composable.CQRS.EventSourcing.MicrosoftSQLServer
             {                
                 using(var transaction = new TransactionScope())
                 {
-                    var original = _eventReader.GetAggregateHistory(aggregateId: aggregateId, takeWriteLock: true).ToList();
+                    lock (AggregateLockManager.GetAggregateLockObject(aggregateId))
+                    {
+                        var original = _eventReader.GetAggregateHistory(aggregateId: aggregateId, takeWriteLock: true).ToList();
 
-                    var startInsertingWithVersion = original[original.Count - 1].AggregateRootVersion + 1;
+                        var startInsertingWithVersion = original.Max(@event => @event.InsertedVersion) + 1;
 
-                    SingleAggregateInstanceEventStreamMutator.MutateCompleteAggregateHistory(_migrationFactories, original,
-                                                                                                   newEvents =>
-                                                                                                   {
-                                                                                                       newEvents.ForEach(@event => ((AggregateRootEvent)@event).AggregateRootVersion = startInsertingWithVersion++);
-                                                                                                       SaveEvents(newEvents);
-                                                                                                       updatedAggregates++;
-                                                                                                       newEventCount += newEvents.Count();
-                                                                                                   });
-                    transaction.Complete();
+                        SingleAggregateInstanceEventStreamMutator.MutateCompleteAggregateHistory(_migrationFactories, original,
+                                                                                                       newEvents =>
+                                                                                                       {
+                                                                                                           newEvents.ForEach(@event => ((AggregateRootEvent)@event).AggregateRootVersion = startInsertingWithVersion++);
+                                                                                                           SaveEvents(newEvents);
+                                                                                                           updatedAggregates++;
+                                                                                                           newEventCount += newEvents.Count();
+                                                                                                       });
+                        transaction.Complete();
+                    }
                     migratedAggregates++;
                 }
 

@@ -34,9 +34,6 @@
     <NamedTestSelector>
       <TestName>CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations.SqlServerEventStoreEventStreamMutatorTests.EventStreamMutatorTests:PersistingMigrationsOfTheSameAggregateMultipleTimes</TestName>
     </NamedTestSelector>
-    <NamedTestSelector>
-      <TestName>CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations.SqlServerEventStoreEventStreamMutatorTests.EventStreamMutatorTests:UpdatingAnAggregateAfterPersistingMigrations</TestName>
-    </NamedTestSelector>
   </IgnoredTests>
   <HiddenWarnings>LongTestTimesWithoutParallelExecution;CopyReferencedAssembliesToWorkspaceIsOn</HiddenWarnings>
 </ProjectConfiguration>

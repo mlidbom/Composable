@@ -181,7 +181,6 @@
     <Compile Include="MessageHandlersRegister.cs" />
     <Compile Include="MessageHandlerWiringTests\MessageHandlerWiringTestBase.cs" />
     <Compile Include="MessageHandlerWiringTests\WhenOneMessageHandler_implements_IHandleInProcessEvents_and_IHandleMessages_for_same_type.cs" />
-    <Compile Include="NCrunchExlusivelyUsesResources.cs" />
     <Compile Include="KeyValueStorage\Sql\SqlDocumentDbTests.cs" />
     <Compile Include="KeyValueStorage\User.cs" />
     <Compile Include="ServiceBus\WhenDummyTimeSourceTimeIsChanged.cs" />
@@ -228,29 +227,6 @@
       <SubType>Designer</SubType>
     </None>
     <None Include="Void.snk" />
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="EventStore2.mdf">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="EventStore2_log.ldf">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      <DependentUpon>EventStore2.mdf</DependentUpon>
-    </Content>
-    <Content Include="EventStore.mdf">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="EventStore_log.ldf">
-      <DependentUpon>EventStore.mdf</DependentUpon>
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="DocumentDB.mdf">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="DocumentDB_log.ldf">
-      <DependentUpon>DocumentDB.mdf</DependentUpon>
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include=".NETFramework,Version=v4.0">

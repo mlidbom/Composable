@@ -21,6 +21,7 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
         public InMemoryEventStoreEventStreamMutatorTests() : base(typeof(InMemoryEventStore)) { }
     }
 
+    [ExclusivelyUses(NCrunchExlusivelyUsesResources.EventStoreDbMdf)]
     public class SqlServerEventStoreEventStreamMutatorTests : EventStreamMutatorTests
     {
         public SqlServerEventStoreEventStreamMutatorTests() : base(typeof(SqlServerEventStore)) { }
@@ -31,7 +32,7 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
         }
     }
 
-    [TestFixture, ExclusivelyUses(NCrunchExlusivelyUsesResources.EventStoreDbMdf)]
+    [TestFixture]
     public abstract class EventStreamMutatorTests : EventStreamMutatorTestsBase
     {
         protected EventStreamMutatorTests(Type eventStoreType) : base(eventStoreType) { }

@@ -261,7 +261,7 @@ namespace Composable.CQRS.EventSourcing.MicrosoftSQLServer
 
         public static void ResetDB(string connectionString)
         {
-            new SqlServerEventStoreSchemaManager(connectionString, new DefaultEventNameMapper()).ResetDB();
+            new SqlServerEventStore(connectionString, new SingleThreadUseGuard()).ResetDB();
         }
 
         public void ResetDB()

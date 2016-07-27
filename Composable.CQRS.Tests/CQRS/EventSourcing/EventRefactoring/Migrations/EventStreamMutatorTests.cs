@@ -298,5 +298,39 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
             AssertStreamsAreIdentical(expected: expectedAfterReplacingE2WithE6, migratedHistory: historyAfterPersistingAndReloading, descriptionOfHistory: "migrated, persisted, reloaded");
 
         }
+
+        [Test]
+        public void UpdatingAnAggregateAfterPersistingMigrations()
+        {
+            var emptyMigrationsArray = new IEventMigration[0];
+            IReadOnlyList<IEventMigration> migrations = emptyMigrationsArray;
+
+            var container = CreateContainerForEventStoreType(() => migrations, EventStoreType);
+
+            var id = Guid.Parse("00000000-0000-0000-0000-000000000001");
+
+            container.Resolve<DummyTimeSource>().UtcNow = DateTime.Parse("2001-01-01 12:00");
+
+            var initialAggregate = TestAggregate.FromEvents(container.Resolve<IUtcTimeTimeSource>(), id, Seq.OfTypes<Ec1, E1>());
+            var initialHistory = initialAggregate.History;
+
+
+            Func<IEventStoreSession> session = () => container.Resolve<IEventStoreSession>();
+            Func<IEventStore> eventStore = () => container.Resolve<IEventStore>();
+
+            container.ExecuteUnitOfWorkInIsolatedScope(() =>session().Save(initialAggregate));
+
+            migrations = Seq.Create(Replace<E1>.With<E5>()).ToList();
+
+            container.ExecuteUnitOfWorkInIsolatedScope(() => eventStore().PersistMigrations());
+
+            container.ExecuteUnitOfWorkInIsolatedScope(() => session().Get<TestAggregate>(id).RaiseEvents(new E2()));
+
+            var aggregate = container.ExecuteInIsolatedScope(() => session().Get<TestAggregate>(id));
+
+            var expected = TestAggregate.FromEvents(container.Resolve<IUtcTimeTimeSource>(), id, Seq.OfTypes<Ec1, E5, E2>()).History;
+            AssertStreamsAreIdentical(expected: expected, migratedHistory: aggregate.History, descriptionOfHistory: "migrated history");
+
+        }
     }
 }

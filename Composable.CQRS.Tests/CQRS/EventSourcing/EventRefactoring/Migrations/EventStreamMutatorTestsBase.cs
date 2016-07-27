@@ -23,7 +23,6 @@ using TestAggregates;
 namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
 {
     //Todo: Refactor this test. It is to monolithic and hard to read and extend.
-    [ExclusivelyUses(NCrunchExlusivelyUsesResources.EventStoreDbMdf)]
     public abstract class EventStreamMutatorTestsBase
     {
         protected readonly Type EventStoreType;

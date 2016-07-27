@@ -163,7 +163,7 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
             if (eventStoreType == typeof(SqlServerEventStore))
             {
                 var masterConnectionSTring = new ConnectionStringConfigurationParameterProvider().GetConnectionString("MasterDB");
-                var dbManager = new TemporaryLocalDBManager(masterConnectionSTring.ConnectionString);
+                var dbManager = new TemporaryLocalDbManager(masterConnectionSTring.ConnectionString, container);
 
                 var eventStoreConnectionString = dbManager.CreateOrGetLocalDb($"{nameof(EventStreamMutatorTestsBase)}_EventStore");
 
@@ -172,9 +172,6 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
                              .ImplementedBy<SqlServerEventStore>()
                              .DependsOn(Dependency.OnValue<string>(eventStoreConnectionString))
                              .LifestyleScoped());
-
-                container.Register(Component.For<TemporaryLocalDBManager>().UsingFactoryMethod(() => dbManager));//Register and resolve instance so that it is disposed with the container
-                container.Resolve<TemporaryLocalDBManager>();
 
             }
             else if(eventStoreType == typeof(InMemoryEventStore))

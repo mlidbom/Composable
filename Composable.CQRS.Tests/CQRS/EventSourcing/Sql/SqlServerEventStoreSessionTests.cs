@@ -9,20 +9,27 @@ using Composable.CQRS.EventSourcing.MicrosoftSQLServer;
 using Composable.CQRS.Testing;
 using Composable.System.Linq;
 using Composable.SystemExtensions.Threading;
-using NCrunch.Framework;
 using NUnit.Framework;
 
 namespace CQRS.Tests.CQRS.EventSourcing.Sql
 {
     [TestFixture]
-    [ExclusivelyUses(NCrunchExlusivelyUsesResources.EventStoreDbMdf)]
     class SqlServerEventStoreSessionTests : EventStoreSessionTests
     {
-        private static readonly string ConnectionString = ConfigurationManager.ConnectionStrings["EventStore"].ConnectionString;
-        [TestFixtureSetUp]
-        public static void SetupFixture()
+        private string ConnectionString;
+        private TemporaryLocalDbManager _temporaryLocalDbManager;
+        [SetUp]
+        public void Setup()
         {
-            SqlServerEventStore.ResetDB(ConnectionString);
+
+            var masterConnectionString = ConfigurationManager.ConnectionStrings["MasterDb"].ConnectionString;
+            _temporaryLocalDbManager = new TemporaryLocalDbManager(masterConnectionString);
+            ConnectionString = _temporaryLocalDbManager.CreateOrGetLocalDb($"SqlServerEventStoreSessionTests_EventStore");
+        }
+
+        [TearDown]
+        public void TearDownTask() {
+            _temporaryLocalDbManager.Dispose();
         }
 
         protected override IEventStore CreateStore()
@@ -129,6 +136,7 @@ namespace CQRS.Tests.CQRS.EventSourcing.Sql
                                                                   () =>
                                                                   {
                                                                       var test = new SqlServerEventStoreSessionTests();
+                                                                      test.Setup();
                                                                       using (var session = test.OpenSession(test.CreateStore()))
                                                                       {
                                                                           var otherUser = User.Register(session, "email@email.se", "password", Guid.NewGuid());

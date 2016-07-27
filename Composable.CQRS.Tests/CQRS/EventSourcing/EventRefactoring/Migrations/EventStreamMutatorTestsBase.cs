@@ -1,5 +1,4 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Castle.MicroKernel.Lifestyle;
@@ -16,7 +15,6 @@ using Composable.UnitsOfWork;
 using Composable.Windsor;
 using Composable.Windsor.Testing;
 using FluentAssertions;
-using NCrunch.Framework;
 using NUnit.Framework;
 using TestAggregates;
 

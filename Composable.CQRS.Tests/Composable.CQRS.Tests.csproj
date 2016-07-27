@@ -187,6 +187,7 @@
     <Compile Include="ServiceBus\WhenDummyTimeSourceTimeIsChanged.cs" />
     <Compile Include="SqlServerConnectionUtilities.cs" />
     <Compile Include="SqlServerLocalDBDatabaseManager.cs" />
+    <Compile Include="TemporaryLocalDbManager.cs" />
     <Compile Include="TestEnvironmentPerformance.cs" />
     <Compile Include="NewtonSoft\SqlServerEventStoreSerializationSettingsTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

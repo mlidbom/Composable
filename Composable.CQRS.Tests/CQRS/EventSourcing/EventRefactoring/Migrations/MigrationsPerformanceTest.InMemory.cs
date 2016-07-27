@@ -26,19 +26,23 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
                 Before<E9>.Insert<E5>()
                 ).ToArray();
 
-            var container = CreateContainerForEventStoreType(() => eventMigrations, EventStoreType);
-            var timeSource = container.Resolve<DummyTimeSource>();
+            using(var container = CreateContainerForEventStoreType(() => eventMigrations, EventStoreType))
+            {
+                var timeSource = container.Resolve<DummyTimeSource>();
 
-            var history = Seq.OfTypes<Ec1>().Concat(1.Through(100000).Select(index => typeof(E1))).ToArray();
-            var aggregate = TestAggregate.FromEvents(timeSource, Guid.NewGuid(), history);
-            container.ExecuteUnitOfWorkInIsolatedScope(() => container.Resolve<IEventStoreSession>().Save(aggregate));
+                var history = Seq.OfTypes<Ec1>().Concat(1.Through(100000).Select(index => typeof(E1))).ToArray();
+                var aggregate = TestAggregate.FromEvents(timeSource, Guid.NewGuid(), history);
+                container.ExecuteUnitOfWorkInIsolatedScope(() => container.Resolve<IEventStoreSession>().Save(aggregate));
 
-            //Warm up cache..
-            container.ExecuteUnitOfWorkInIsolatedScope(() => container.Resolve<IEventStoreSession>().Get<TestAggregate>(aggregate.Id));
+                //Warm up cache..
+                container.ExecuteUnitOfWorkInIsolatedScope(() => container.Resolve<IEventStoreSession>().Get<TestAggregate>(aggregate.Id));
 
-            TimeAsserter.Execute(
-                maxAverage: 150.Milliseconds().AdjustRuntimeForNCrunch(boost:6), iterations: 10, description: "load aggregate in isolated scope",
-                action: () => container.ExecuteInIsolatedScope(() => container.Resolve<IEventStoreSession>().Get<TestAggregate>(aggregate.Id)));
+                TimeAsserter.Execute(
+                    maxAverage: 150.Milliseconds().AdjustRuntimeForNCrunch(boost: 6),
+                    iterations: 10,
+                    description: "load aggregate in isolated scope",
+                    action: () => container.ExecuteInIsolatedScope(() => container.Resolve<IEventStoreSession>().Get<TestAggregate>(aggregate.Id)));
+            }
         }
     }
 }

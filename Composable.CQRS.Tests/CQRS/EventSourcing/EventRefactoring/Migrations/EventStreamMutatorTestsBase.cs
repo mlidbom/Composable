@@ -1,7 +1,6 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Configuration;
 using System.Linq;
 using Castle.MicroKernel.Lifestyle;
 using Castle.MicroKernel.Registration;
@@ -11,6 +10,7 @@ using Composable.CQRS.EventSourcing.MicrosoftSQLServer;
 using Composable.CQRS.EventSourcing.Refactoring.Migrations;
 using Composable.GenericAbstractions.Time;
 using Composable.ServiceBus;
+using Composable.System.Configuration;
 using Composable.System.Linq;
 using Composable.UnitsOfWork;
 using Composable.Windsor;
@@ -30,23 +30,23 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
             EventStoreType = eventStoreType;
         }
 
-        protected static string ConnectionString => ConfigurationManager.ConnectionStrings["EventStore"].ConnectionString;
-
         protected void RunMigrationTest(params MigrationScenario[] scenarios)
         {
             Console.WriteLine($"###############$$$$$$$Running {scenarios.Length} scenario(s) with EventStoreType: {EventStoreType}");
 
 
             IList<IEventMigration> migrations = new List<IEventMigration>();
-            var container = CreateContainerForEventStoreType(() => migrations.ToArray(), EventStoreType);
-            var timeSource = container.Resolve<DummyTimeSource>();
-            timeSource.UtcNow = DateTime.Parse("2001-01-01 01:01:01.01");
-            int scenarioIndex = 1;
-            foreach (var migrationScenario in scenarios)
+            using(var container = CreateContainerForEventStoreType(() => migrations.ToArray(), EventStoreType))
             {
-                timeSource.UtcNow += 1.Hours();//No time collision between scenarios please.
-                migrations = migrationScenario.Migrations.ToList();
-                RunScenarioWithEventStoreType(migrationScenario, EventStoreType, container, migrations, scenarioIndex++);
+                var timeSource = container.Resolve<DummyTimeSource>();
+                timeSource.UtcNow = DateTime.Parse("2001-01-01 01:01:01.01");
+                int scenarioIndex = 1;
+                foreach(var migrationScenario in scenarios)
+                {
+                    timeSource.UtcNow += 1.Hours(); //No time collision between scenarios please.
+                    migrations = migrationScenario.Migrations.ToList();
+                    RunScenarioWithEventStoreType(migrationScenario, EventStoreType, container, migrations, scenarioIndex++);
+                }
             }
         }
 
@@ -162,12 +162,22 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
 
             if (eventStoreType == typeof(SqlServerEventStore))
             {
-                container.Register(
+                var masterConnectionSTring = new ConnectionStringConfigurationParameterProvider().GetConnectionString("MasterDB");
+                var dbManager = new TemporaryLocalDBManager(masterConnectionSTring.ConnectionString);
+
+                var eventStoreConnectionString = dbManager.CreateOrGetLocalDb($"{nameof(EventStreamMutatorTestsBase)}_EventStore");
+
+                container.Register(                    
                     Component.For<IEventStore>()
                              .ImplementedBy<SqlServerEventStore>()
-                             .DependsOn(Dependency.OnValue<string>(ConnectionString))
+                             .DependsOn(Dependency.OnValue<string>(eventStoreConnectionString))
                              .LifestyleScoped());
-            }else if(eventStoreType == typeof(InMemoryEventStore))
+
+                container.Register(Component.For<TemporaryLocalDBManager>().UsingFactoryMethod(() => dbManager));//Register and resolve instance so that it is disposed with the container
+                container.Resolve<TemporaryLocalDBManager>();
+
+            }
+            else if(eventStoreType == typeof(InMemoryEventStore))
             {
                 container.Register(
                     Component.For<IEventStore>()
@@ -190,20 +200,6 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
 
             container.ConfigureWiringForTestsCallAfterAllOtherWiring();
             return container;
-        }
-        private static IRegistration SelectLifeStyle(ComponentRegistration<IEventStore> eventStoreRegistration)
-        {
-            if(eventStoreRegistration.Implementation == typeof(SqlServerEventStore))
-            {
-                return eventStoreRegistration.LifestylePerWebRequest();
-            }
-
-            if (eventStoreRegistration.Implementation == typeof(InMemoryEventStore))
-            {
-                return eventStoreRegistration.LifestyleSingleton();
-            }
-
-            throw new Exception($"Unsupported type of event store {eventStoreRegistration.Implementation}");
         }
 
         protected static void AssertStreamsAreIdentical(IEnumerable<IAggregateRootEvent> expected, IEnumerable<IAggregateRootEvent> migratedHistory, string descriptionOfHistory)

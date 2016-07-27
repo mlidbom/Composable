@@ -322,6 +322,8 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
 
                 container.ExecuteUnitOfWorkInIsolatedScope(() => eventStore().PersistMigrations());
 
+                migrations = Seq.Create<IEventMigration>().ToList();
+
                 container.ExecuteUnitOfWorkInIsolatedScope(() => session().Get<TestAggregate>(id).RaiseEvents(new E2()));
 
                 var aggregate = container.ExecuteInIsolatedScope(() => session().Get<TestAggregate>(id));
@@ -329,6 +331,16 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
                 var expected = TestAggregate.FromEvents(container.Resolve<IUtcTimeTimeSource>(), id, Seq.OfTypes<Ec1, E5, E2>()).History;
                 AssertStreamsAreIdentical(expected: expected, migratedHistory: aggregate.History, descriptionOfHistory: "migrated history");
 
+                var completeEventHistory =container.ExecuteInIsolatedScope(() => eventStore().ListAllEventsForTestingPurposesAbsolutelyNotUsableForARealEventStoreOfAnySize()).Cast<AggregateRootEvent>();
+                AssertStreamsAreIdentical(expected: expected, migratedHistory: completeEventHistory, descriptionOfHistory: "streamed persisted history");
+
+                if (EventStoreType == typeof(SqlServerEventStore))
+                {
+                    container.ExecuteUnitOfWorkInIsolatedScope(() => ((SqlServerEventStore)container.Resolve<IEventStore>()).ClearCache());
+                }
+
+                completeEventHistory = container.ExecuteInIsolatedScope(() => eventStore().ListAllEventsForTestingPurposesAbsolutelyNotUsableForARealEventStoreOfAnySize()).Cast<AggregateRootEvent>();
+                AssertStreamsAreIdentical(expected: expected, migratedHistory: completeEventHistory, descriptionOfHistory: "streamed persisted history");
             }
         }
     }

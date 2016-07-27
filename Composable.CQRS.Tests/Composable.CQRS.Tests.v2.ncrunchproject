@@ -31,9 +31,6 @@
     <NamedTestSelector>
       <TestName>CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations.SqlServerMigrationsPerformanceTest.A_ten_thousand_events_large_aggregate_with_four_migrations_should_load_cached_in_less_than_50_milliseconds</TestName>
     </NamedTestSelector>
-    <NamedTestSelector>
-      <TestName>CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations.SqlServerEventStoreEventStreamMutatorTests.EventStreamMutatorTests:PersistingMigrationsOfTheSameAggregateMultipleTimes</TestName>
-    </NamedTestSelector>
   </IgnoredTests>
   <HiddenWarnings>LongTestTimesWithoutParallelExecution;CopyReferencedAssembliesToWorkspaceIsOn</HiddenWarnings>
 </ProjectConfiguration>

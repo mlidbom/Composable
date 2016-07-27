@@ -38,7 +38,7 @@ VALUES(@{EventTable.Columns.AggregateId}, @{EventTable.Columns.InsertedVersion},
 SET @{EventTable.Columns.InsertionOrder} = SCOPE_IDENTITY();";
 
                         command.Parameters.Add(new SqlParameter(EventTable.Columns.AggregateId, @event.AggregateRootId));
-                        command.Parameters.Add(new SqlParameter(EventTable.Columns.InsertedVersion, @event.AggregateRootVersion));
+                        command.Parameters.Add(new SqlParameter(EventTable.Columns.InsertedVersion, @event.InsertedVersion >  @event.AggregateRootVersion ? @event.InsertedVersion : @event.AggregateRootVersion));
                         command.Parameters.Add(new SqlParameter(EventTable.Columns.EventType, IdMapper.GetId(@event.GetType())));
                         command.Parameters.Add(new SqlParameter(EventTable.Columns.EventId, @event.EventId));
                         command.Parameters.Add(new SqlParameter(EventTable.Columns.UtcTimeStamp, @event.UtcTimeStamp));

@@ -74,7 +74,7 @@ namespace Composable.CQRS.EventSourcing
                           raiseEventThroughParent: parent.RaiseEvent,
                           appliersRegistrar: parent.RegisterEventAppliers());
 
-                public new class CollectionManager : EntityCollectionManager<TComponent,
+                public class CollectionManager : EntityCollectionManager<TComponent,
                                                          TEntity,
                                                          TEntityId,
                                                          TEntityBaseEventClass,

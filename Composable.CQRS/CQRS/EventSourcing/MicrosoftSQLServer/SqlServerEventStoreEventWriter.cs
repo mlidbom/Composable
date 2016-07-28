@@ -5,7 +5,7 @@ using System.Data.SqlClient;
 
 namespace Composable.CQRS.EventSourcing.MicrosoftSQLServer
 {
-    internal class SqlServerEventStoreEventWriter
+    internal class  SqlServerEventStoreEventWriter
     {
         private readonly SqlServerEventStoreConnectionManager _connectionMananger;
         private readonly SqlServerEvestStoreEventSerializer _eventSerializer;
@@ -33,8 +33,8 @@ namespace Composable.CQRS.EventSourcing.MicrosoftSQLServer
                         command.CommandText +=
                             $@"
 INSERT {EventTable.Name} With(READCOMMITTED, ROWLOCK) 
-(       {EventTable.Columns.AggregateId},  {EventTable.Columns.InsertedVersion},  {EventTable.Columns.EventType},  {EventTable.Columns.EventId},  {EventTable.Columns.UtcTimeStamp},  {EventTable.Columns.Event},  {EventTable.Columns.InsertAfter}, {EventTable.Columns.InsertBefore},  {EventTable.Columns.Replaces}) 
-VALUES(@{EventTable.Columns.AggregateId}, @{EventTable.Columns.InsertedVersion}, @{EventTable.Columns.EventType}, @{EventTable.Columns.EventId}, @{EventTable.Columns.UtcTimeStamp}, @{EventTable.Columns.Event}, @{EventTable.Columns.InsertAfter},@{EventTable.Columns.InsertBefore}, @{EventTable.Columns.Replaces})
+(       {EventTable.Columns.AggregateId},  {EventTable.Columns.InsertedVersion}, {EventTable.Columns.ManualVersion},  {EventTable.Columns.EventType},  {EventTable.Columns.EventId},  {EventTable.Columns.UtcTimeStamp},  {EventTable.Columns.Event},  {EventTable.Columns.InsertAfter}, {EventTable.Columns.InsertBefore},  {EventTable.Columns.Replaces}) 
+VALUES(@{EventTable.Columns.AggregateId}, @{EventTable.Columns.InsertedVersion}, @{EventTable.Columns.ManualVersion}, @{EventTable.Columns.EventType}, @{EventTable.Columns.EventId}, @{EventTable.Columns.UtcTimeStamp}, @{EventTable.Columns.Event}, @{EventTable.Columns.InsertAfter},@{EventTable.Columns.InsertBefore}, @{EventTable.Columns.Replaces})
 SET @{EventTable.Columns.InsertionOrder} = SCOPE_IDENTITY();";
 
                         command.Parameters.Add(new SqlParameter(EventTable.Columns.AggregateId, @event.AggregateRootId));
@@ -45,6 +45,7 @@ SET @{EventTable.Columns.InsertionOrder} = SCOPE_IDENTITY();";
 
                         command.Parameters.Add(new SqlParameter(EventTable.Columns.Event, _eventSerializer.Serialize(@event)));
 
+                        command.Parameters.Add(Nullable(new SqlParameter(EventTable.Columns.ManualVersion, @event.InsertedVersion > @event.AggregateRootVersion ? @event.AggregateRootVersion : (int?)null)));
                         command.Parameters.Add(Nullable(new SqlParameter(EventTable.Columns.InsertAfter, @event.InsertAfter)));
                         command.Parameters.Add(Nullable(new SqlParameter(EventTable.Columns.InsertBefore, @event.InsertBefore)));
                         command.Parameters.Add(Nullable(new SqlParameter(EventTable.Columns.Replaces, @event.Replaces)));

@@ -73,8 +73,6 @@ namespace Composable.CQRS.EventSourcing.MicrosoftSQLServer
                                                    ? SingleAggregateInstanceEventStreamMutator.MutateCompleteAggregateHistory(_migrationFactories, newEventsFromDatabase) 
                                                    : cachedAggregateHistory.Concat(newEventsFromDatabase).ToList();
 
-                currentHistory.ForEach((@event, index) => @event.AggregateRootVersion = index + 1);
-
                 //Should within a transaction a process write events, read them, then fail to commit we will have cached events that are not persisted unless we refuse to cache them here.
                 if (!_aggregatesWithEventsAddedByThisInstance.Contains(aggregateId))
                 {
@@ -83,11 +81,6 @@ namespace Composable.CQRS.EventSourcing.MicrosoftSQLServer
 
                 return currentHistory;
             }
-        }
-
-        private static bool IsRefactoringEvent(AggregateRootEvent @event)
-        {
-            return @event.InsertAfter != null || @event.InsertBefore != null || @event.Replaces != null;
         }
 
         public const int StreamEventsBatchSize = 10000;

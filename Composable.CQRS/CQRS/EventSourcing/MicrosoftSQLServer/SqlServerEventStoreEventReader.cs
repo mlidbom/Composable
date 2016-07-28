@@ -80,10 +80,10 @@ FROM {EventTable.Name} {lockHint} ";
             public bool HasBeenReplaced => EffectiveVersion < 0;
         }
 
-        public IReadOnlyList<AggregateRootEvent> GetAggregateHistory(Guid aggregateId, bool takeWriteLock, int startAfterVersion = 0, bool suppressTransactionWarning = false)
+        public IReadOnlyList<AggregateRootEvent> GetAggregateHistory(Guid aggregateId, bool takeWriteLock, int startAfterVersion = 0)
         {
             var historyData = new List<EventDataRow>();
-            using(var connection = _connectionMananger.OpenConnection(suppressTransactionWarning: suppressTransactionWarning))
+            using(var connection = _connectionMananger.OpenConnection(suppressTransactionWarning: !takeWriteLock))
             {
                 using (var loadCommand = connection.CreateCommand()) 
                 {

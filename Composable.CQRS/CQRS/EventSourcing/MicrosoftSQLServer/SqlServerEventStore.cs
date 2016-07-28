@@ -153,6 +153,8 @@ namespace Composable.CQRS.EventSourcing.MicrosoftSQLServer
                                                                                                            updatedAggregates++;
                                                                                                            newEventCount += newEvents.Count();
                                                                                                        });
+                        EnsurePersistedMigrationsHaveConsistentEffectiveReadOrdersAndEffectiveVersions();
+
                         transaction.Complete();
                         _cache.Remove(aggregateId);
                     }
@@ -165,9 +167,7 @@ namespace Composable.CQRS.EventSourcing.MicrosoftSQLServer
                 }
             }
 
-            this.Log().Info($"Aggregates: {migratedAggregates}, Updated: {updatedAggregates}, New Events: {newEventCount}");
-
-            EnsurePersistedMigrationsHaveConsistentEffectiveReadOrdersAndEffectiveVersions();
+            this.Log().Info($"Aggregates: {migratedAggregates}, Updated: {updatedAggregates}, New Events: {newEventCount}");            
 
             this.Log().Warn($"Done persisting migrations.");
         }

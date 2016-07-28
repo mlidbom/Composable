@@ -7,7 +7,6 @@ using Composable.CQRS.EventSourcing.Refactoring.Migrations;
 using Composable.CQRS.EventSourcing.Refactoring.Naming;
 using Composable.Logging.Log4Net;
 using Composable.System;
-using Composable.System.Collections.Collections;
 using Composable.System.Linq;
 using Composable.SystemExtensions.Threading;
 using log4net;
@@ -68,26 +67,11 @@ namespace Composable.CQRS.EventSourcing.MicrosoftSQLServer
                     aggregateId: aggregateId,
                     startAfterVersion: cachedAggregateHistory.Count,
                     suppressTransactionWarning: true,
-                    includeReplacedEventsWhenLoadingCompleteHistory: true,
                     takeWriteLock: takeWriteLock);
 
-                IReadOnlyList<AggregateRootEvent> currentHistory;
-
-                if(cachedAggregateHistory.Count == 0)
-                {
-                    currentHistory = newEventsFromDatabase;
-                    var withSqlMigrationsApplied = ApplyOldMigrations(currentHistory);
-
-                    var migratedAggregateHistory = SingleAggregateInstanceEventStreamMutator.MutateCompleteAggregateHistory(
-                        _migrationFactories,
-                        withSqlMigrationsApplied);
-
-                    currentHistory = migratedAggregateHistory;
-                }
-                else
-                {
-                    currentHistory = cachedAggregateHistory.Concat(newEventsFromDatabase).ToList();
-                }
+                var currentHistory = cachedAggregateHistory.Count == 0 
+                                                   ? SingleAggregateInstanceEventStreamMutator.MutateCompleteAggregateHistory(_migrationFactories, newEventsFromDatabase) 
+                                                   : cachedAggregateHistory.Concat(newEventsFromDatabase).ToList();
 
                 currentHistory.ForEach((@event, index) => @event.AggregateRootVersion = index + 1);
 
@@ -99,51 +83,6 @@ namespace Composable.CQRS.EventSourcing.MicrosoftSQLServer
 
                 return currentHistory;
             }
-        }
-
-        private static IReadOnlyList<AggregateRootEvent> ApplyOldMigrations(IReadOnlyList<AggregateRootEvent> events)
-        {
-            var mutatedHistory = events.OrderBy(@event => @event.InsertionOrder).ToList();
-            var mutations = mutatedHistory.Where(IsRefactoringEvent).ToList();
-
-            AggregateRootEvent mutation;
-            while ((mutation = mutations.FirstOrDefault()) != null)
-            {
-                if(mutation.Replaces.HasValue)
-                {
-                    var replacements = mutations.RemoveIf(current => current.Replaces == mutation.Replaces);
-                    mutatedHistory.RemoveRange(replacements);
-                    var replaceIndex = mutatedHistory.FindIndex(@event => @event.InsertionOrder == mutation.Replaces.Value);
-
-                    mutatedHistory.InsertRange(replaceIndex + 1, replacements);
-                    mutatedHistory.RemoveAt(replaceIndex);
-
-                }
-                else if(mutation.InsertAfter.HasValue)
-                {                    
-                    var inserted = mutations.RemoveIf(current => current.InsertAfter == mutation.InsertAfter);
-                    mutatedHistory.RemoveRange(inserted);
-                    var insertAfterIndex = mutatedHistory.FindIndex(@event => @event.InsertionOrder == mutation.InsertAfter.Value);
-
-                    mutatedHistory.InsertRange(insertAfterIndex + 1, inserted);
-                }
-                else if(mutation.InsertBefore.HasValue)
-                {
-                    var inserted = mutations.RemoveIf(current => current.InsertBefore == mutation.InsertBefore);
-                    mutatedHistory.RemoveRange(inserted);
-                    var insertBeforeIndex = mutatedHistory.FindIndex(@event => @event.InsertionOrder == mutation.InsertBefore.Value);
-
-                    mutatedHistory.InsertRange(insertBeforeIndex, inserted);
-                }
-                else
-                {
-                    throw new Exception("WTF?");
-                }
-            }
-
-            mutatedHistory.ForEach((@event, index) => @event.AggregateRootVersion = index + 1);
-
-            return mutatedHistory;
         }
 
         private static bool IsRefactoringEvent(AggregateRootEvent @event)

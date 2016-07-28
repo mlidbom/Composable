@@ -182,7 +182,7 @@
     <Compile Include="CQRS\EventSourcing\ISharedOwnershipAggregateRoot.cs" />
     <Compile Include="CQRS\EventSourcing\RegisteredHandlerMissingException.cs" />
     <Compile Include="CQRS\EventSourcing\ReuseOfEventStoreSessionException.cs" />
-    <Compile Include="CQRS\EventSourcing\MicrosoftSQLServer\SqlServerEventStore.MigrationsScripts.cs" />
+    <Compile Include="CQRS\EventSourcing\MicrosoftSQLServer\SqlServerEventStore.SqlStatements.cs" />
     <Compile Include="CQRS\EventSourcing\MicrosoftSQLServer\IEventTypeToIdMapper.cs" />
     <Compile Include="CQRS\EventSourcing\MicrosoftSQLServer\LegacyEventTable.cs" />
     <Compile Include="CQRS\EventSourcing\MicrosoftSQLServer\EventTableSchemaManager.cs" />

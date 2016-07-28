@@ -154,6 +154,7 @@ namespace Composable.CQRS.EventSourcing.MicrosoftSQLServer
                                                                                                            newEventCount += newEvents.Count();
                                                                                                        });
                         transaction.Complete();
+                        _cache.Remove(aggregateId);
                     }
                     migratedAggregates++;
                 }

@@ -55,6 +55,7 @@ namespace Composable.CQRS.EventSourcing.MicrosoftSQLServer
         {
             return GetAggregateHistoryInternal(aggregateId, takeWriteLock: false);
         }
+
         private IEnumerable<IAggregateRootEvent> GetAggregateHistoryInternal(Guid aggregateId, bool takeWriteLock)
         {
             _usageGuard.AssertNoContextChangeOccurred(this);
@@ -66,7 +67,6 @@ namespace Composable.CQRS.EventSourcing.MicrosoftSQLServer
                 var newEventsFromDatabase = _eventReader.GetAggregateHistory(
                     aggregateId: aggregateId,
                     startAfterVersion: cachedAggregateHistory.Count,
-                    suppressTransactionWarning: true,
                     takeWriteLock: takeWriteLock);
 
                 var currentHistory = cachedAggregateHistory.Count == 0 

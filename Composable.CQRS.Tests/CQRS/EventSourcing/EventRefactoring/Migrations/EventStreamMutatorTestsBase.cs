@@ -21,8 +21,7 @@ using TestAggregates;
 
 namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
 {
-    //Todo: Refactor this test. It is to monolithic and hard to read and extend.
-    [ExclusivelyUses("Temporary.Removeme")]//todo:remove
+    //Todo: Refactor this test. It is too monolithic and hard to read and extend.
     public abstract class EventStreamMutatorTestsBase
     {
         protected readonly Type EventStoreType;
@@ -170,11 +169,8 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
                 container.Register(                    
                     Component.For<IEventStore>()
                              .ImplementedBy<SqlServerEventStore>()
-                             //.DependsOn(Dependency.OnValue<string>(eventStoreConnectionString))
-                             .DependsOn(Dependency.OnValue<string>(@"Data Source=(localdb)\MSSQLLocalDB;Initial Catalog=EventStoreTestsTmp;Integrated Security=True;"))//todo:remove and restore line above
+                             .DependsOn(Dependency.OnValue<string>(eventStoreConnectionString))
                              .LifestyleScoped());
-
-                container.ExecuteInIsolatedScope(() => ((SqlServerEventStore)container.Resolve<IEventStore>()).ResetDB());//todo:remove
 
             }
             else if(eventStoreType == typeof(InMemoryEventStore))

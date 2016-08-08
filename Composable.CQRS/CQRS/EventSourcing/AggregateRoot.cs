@@ -61,6 +61,7 @@ namespace Composable.CQRS.EventSourcing
                 if(_insertedVersionToAggregateVersionOffset != 0)
                 {
                     theEvent.InsertedVersion = theEvent.AggregateRootVersion + _insertedVersionToAggregateVersionOffset;
+                    theEvent.ManualVersion = theEvent.AggregateRootVersion;
                 }
                 theEvent.AggregateRootId = Id;
             }

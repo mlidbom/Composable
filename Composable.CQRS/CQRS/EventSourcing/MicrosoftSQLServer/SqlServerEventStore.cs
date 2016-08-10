@@ -184,12 +184,6 @@ namespace Composable.CQRS.EventSourcing.MicrosoftSQLServer
 
             this.Log().Warn($"Done persisting migrations.");
         }
-        private void PrintDebugInfoForAggregate(Guid aggregateId)
-        {
-            var history = _eventReader.GetAggregateHistory(aggregateId, takeWriteLock:true);
-            Debug.WriteLine("######################PrintDebugInfoForAggregate");
-            history.ForEach(@this => Debug.WriteLine(@this.ToNewtonSoftDebugString(Formatting.None)));
-        }
 
         public IEnumerable<Guid> StreamAggregateIdsInCreationOrder(Type eventBaseType = null)
         {

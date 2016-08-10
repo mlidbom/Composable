@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.SqlTypes;
 using System.Linq;
 using System.Reflection;
 using Composable.CQRS.EventSourcing;
@@ -127,6 +128,16 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
         }
 
         [Test]
+        public void Inserting_E2_before_E1_then_E3_before_E2()
+        {
+            RunMigrationTest(new MigrationScenario(
+            Seq.OfTypes<Ec1, E1, Ef>(),
+            Seq.OfTypes<Ec1, E3, E2, E1, Ef>(),
+            Before<E1>.Insert<E2>(),
+            Before<E2>.Insert<E3>()));
+        }
+
+        [Test]
         public void Inserting_E3_E4_before_E1_then_E5_before_E3()
         {
             RunMigrationTest(new MigrationScenario(
@@ -137,13 +148,34 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
         }
 
         [Test]
-        public void Inserting_E3_E4_before_E1_then_E5_before_E4()
+        public void Given_Ec1_E1_Ef_Inserting_E3_E4_before_E1_then_E5_before_E4()
         {
             RunMigrationTest(new MigrationScenario(
             Seq.OfTypes<Ec1, E1, Ef>(),
             Seq.OfTypes<Ec1, E3, E5, E4, E1, Ef>(),
             Before<E1>.Insert<E3, E4>(), //Ec1, E3, E4, E1, Ef
             Before<E4>.Insert<E5>())); //Ec1, E3, E5, E4, E1, Ef
+        }
+
+        [Test]
+        public void Given_Ec1_E1_Inserting_E2_before_E1_then_E3_before_E2()
+        {
+            RunMigrationTest(new MigrationScenario(
+            Seq.OfTypes<Ec1, E1>(),
+            Seq.OfTypes<Ec1, E3, E2, E1>(),
+            Before<E1>.Insert<E2>(), //Ec1, E2, E1
+            Before<E2>.Insert<E3>())); //Ec1, E3, E2, E1
+        }
+
+        [Test]
+        public void Given_Ec1_E1_Inserting_E3_E2_before_E1_then_E4_before_E3()
+        {
+            RunMigrationTest(new MigrationScenario(
+            Seq.OfTypes<Ec1, E1>(),
+            Seq.OfTypes<Ec1, E5, E4, E3, E2, E1>(),
+            Before<E1>.Insert<E3, E2>(), //Ec1, E3, E2, E1
+            Before<E3>.Insert<E4>(),
+            Before<E4>.Insert<E5>())); //Ec1, E4, E3, E2, E1
         }
 
         [Test]
@@ -430,6 +462,18 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
                 completeEventHistory = container.ExecuteInIsolatedScope(() => eventStore().ListAllEventsForTestingPurposesAbsolutelyNotUsableForARealEventStoreOfAnySize()).Cast<AggregateRootEvent>();
                 AssertStreamsAreIdentical(expected: expected, migratedHistory: completeEventHistory, descriptionOfHistory: "streamed persisted history");
             }
+        }
+
+        [Test]
+        public void Inserting_E2_Before_E1_Persisting_and_then_Inserting_E3_before_E1()
+        {
+            Assert.Inconclusive();
+        }
+
+        [Test]
+        public void Inserting_E2_After_E1_Persisting_and_then_Inserting_E3_after_E1()
+        {
+            Assert.Inconclusive();
         }
     }
 }

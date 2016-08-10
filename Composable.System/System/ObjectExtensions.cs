@@ -2,6 +2,7 @@
 
 using System;
 using System.Diagnostics.Contracts;
+using System.Web.Script.Serialization;
 
 #endregion
 
@@ -86,6 +87,20 @@ namespace Composable.System
         public static bool IsInstanceOf<T>(this object @this)
         {
             return @this is T;
+        }
+
+
+        ///<returns>A JSON serialized version of the instance.</returns>
+        public static string ToDebugJsonString(this object @this)
+        {
+            try
+            {
+                return @this.GetType().FullName + ":" + new JavaScriptSerializer().Serialize(@this);
+            }
+            catch (Exception)
+            {
+                return @this.GetType().FullName;
+            }
         }
     }
 }

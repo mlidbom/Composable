@@ -144,7 +144,7 @@ namespace Composable.CQRS.EventSourcing.MicrosoftSQLServer
                 {
                     lock (AggregateLockManager.GetAggregateLockObject(aggregateId))
                     {
-                        //PrintDebugInfoForAggregate(aggregateId);
+                        var updatedThisAggregate = false;
                         var original = _eventReader.GetAggregateHistory(aggregateId: aggregateId, takeWriteLock: true).ToList();
 
                         var startInsertingWithVersion = original.Max(@event => @event.InsertedVersion) + 1;
@@ -162,11 +162,13 @@ namespace Composable.CQRS.EventSourcing.MicrosoftSQLServer
                                                                                                            //EnsurePersistedMigrationsHaveConsistentEffectiveReadOrdersAndEffectiveVersions();                                                                                                           
                                                                                                            updatedAggregates = updatedAggregatesBeforeMigrationOfThisAggregate + 1;
                                                                                                            newEventCount += newEvents.Count();
+                                                                                                           updatedThisAggregate = true;
                                                                                                        });
 
-                        
-                        _eventWriter.FixManualVersions(aggregateId);
-                        //PrintDebugInfoForAggregate(aggregateId);
+                        if(updatedThisAggregate)
+                        {
+                            _eventWriter.FixManualVersions(aggregateId);
+                        }
 
                         transaction.Complete();
                         _cache.Remove(aggregateId);

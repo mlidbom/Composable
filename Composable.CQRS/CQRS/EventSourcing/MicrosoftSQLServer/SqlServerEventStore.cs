@@ -140,7 +140,8 @@ namespace Composable.CQRS.EventSourcing.MicrosoftSQLServer
 
             foreach(var aggregateId in StreamAggregateIdsInCreationOrder())
             {                
-                using(var transaction = new TransactionScope())
+                //todo: Look at batching the inserting of events in a way that let's us avoid taking a lock for a long time as we do now. This might be a problem in production.
+                using(var transaction = new TransactionScope(TransactionScopeOption.Required, scopeTimeout: 10.Minutes()))
                 {
                     lock (AggregateLockManager.GetAggregateLockObject(aggregateId))
                     {

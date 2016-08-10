@@ -125,52 +125,42 @@ SET @{EventTable.Columns.InsertionOrder} = SCOPE_IDENTITY();";
 
             Contract.Assert(Seq.Create(replacementGroup, insertBeforeGroup, insertAfterGroup).Where(@this => @this != null).Count() == 1);
 
-            IReadOnlyList<RefactoringEvent> eventsToPersist = null;
-            SqlDecimal startRange;
-            SqlDecimal endRange;
-
-            AggregateRootEvent[] newEvents;
             if (replacementGroup != null)
             {
                 Debug.WriteLine("#####Replace");
                 var eventToReplace = relatedEvents.Single(@event => @event.InsertionOrder == replacementGroup.Key);
 
-                startRange = eventToReplace.EffectiveReadOrder;
-                endRange = eventToReplace.NextReadOrder;
-                newEvents = replacementGroup.ToArray();
-            }else if (insertBeforeGroup != null)
+                SaveEventsWithinReadOrderRange(newEvents: replacementGroup.ToArray(), rangeStart: eventToReplace.EffectiveReadOrder, rangeEnd: eventToReplace.NextReadOrder);
+            }
+            else if (insertBeforeGroup != null)
             {
                 Debug.WriteLine("#####Insert Before");
                 var eventToInsertBefore = relatedEvents.Single(@event => @event.InsertionOrder == insertBeforeGroup.Key);
 
-                endRange = eventToInsertBefore.EffectiveReadOrder;
-                startRange = eventToInsertBefore.PreviousReadOrder;
-                newEvents = insertBeforeGroup.ToArray();
-            }else if(insertAfterGroup != null)
+                SaveEventsWithinReadOrderRange(newEvents: insertBeforeGroup.ToArray(), rangeStart: eventToInsertBefore.PreviousReadOrder, rangeEnd: eventToInsertBefore.EffectiveReadOrder);
+            }
+            else if(insertAfterGroup != null)
             {
                 Debug.WriteLine("#####Insert After");
                 var eventToInsertAfter = relatedEvents.Single(@event => @event.InsertionOrder == insertAfterGroup.Key);
 
-                startRange = eventToInsertAfter.EffectiveReadOrder;
-                endRange = eventToInsertAfter.NextReadOrder;
-                newEvents = insertAfterGroup.ToArray();
+                SaveEventsWithinReadOrderRange(newEvents: insertAfterGroup.ToArray(), rangeStart: eventToInsertAfter.EffectiveReadOrder, rangeEnd: eventToInsertAfter.NextReadOrder);
             }
-            else
-            {
-                throw new Exception("WTF?");
-            }
+        }
 
-            var increment = (endRange - startRange) / (newEvents.Length + 1);
 
-            Debug.WriteLine($"{nameof(startRange)}: {startRange}, {nameof(endRange)}: {endRange}, {nameof(increment)}: {increment}");
-            eventsToPersist =
-                newEvents.Select(
-                    (@event, index) => new RefactoringEvent
-                    {
-                        Event = @event,
-                        ManualReadOrder = startRange + (index + 1) * increment
-                    })
-                         .ToList();
+        private void SaveEventsWithinReadOrderRange(AggregateRootEvent[] newEvents, SqlDecimal rangeStart, SqlDecimal rangeEnd)
+        {
+            var increment = (rangeEnd - rangeStart)/(newEvents.Length + 1);
+
+            Debug.WriteLine($"{nameof(rangeStart)}: {rangeStart}, {nameof(rangeEnd)}: {rangeEnd}, {nameof(increment)}: {increment}");
+            IReadOnlyList<RefactoringEvent> eventsToPersist = newEvents.Select(
+                (@event, index) => new RefactoringEvent
+                                   {
+                                       Event = @event,
+                                       ManualReadOrder = rangeStart + (index + 1)*increment
+                                   })
+                                                                       .ToList();
 
             eventsToPersist.ForEach(@this => Debug.WriteLine(@this.ToNewtonSoftDebugString(Formatting.None)));
 
@@ -185,16 +175,16 @@ SET @{EventTable.Columns.InsertionOrder} = SCOPE_IDENTITY();";
                     command.CommandType = CommandType.Text;
                     command.CommandText = 
 $@"
-
---update Event set ManualVersion = null
-
 update replaced
-set replaced.ManualReadOrder = -abs(replaced.EffectiveReadOrder)
-from Event replaced
-inner join Event replaces
-	on replaces.Replaces = replaced.InsertionOrder
-where replaces.Replaces is not null
-and (replaced.ManualReadOrder > 0 or replaced.ManualReadOrder is null)
+set replaced.{EventTable.Columns.ManualReadOrder} = -abs(replaced.{EventTable.Columns.EffectiveReadOrder})
+from {EventTable.Name} replaced
+inner join {EventTable.Name} replaces
+	on replaces.{EventTable.Columns.Replaces} = replaced.{EventTable.Columns.InsertionOrder}
+where
+    replaced.{EventTable.Columns.AggregateId} = @{EventTable.Columns.AggregateId}
+and replaces.{EventTable.Columns.AggregateId} = @{EventTable.Columns.AggregateId}
+and replaces.{EventTable.Columns.Replaces} is not null
+and (replaced.{EventTable.Columns.ManualReadOrder} > 0 or replaced.{EventTable.Columns.ManualReadOrder} is null)
 
 update {EventTable.Name} 
 set {EventTable.Columns.ManualVersion} = ChangedReadOrders.NewVersion
@@ -204,7 +194,9 @@ from {EventTable.Name}
 	select * from
 	(select e.{EventTable.Columns.AggregateId}, {EventTable.Columns.InsertedVersion}, row_number() over (partition by e.{EventTable.Columns.AggregateId} order by e.{EventTable.Columns.EffectiveReadOrder}) NewVersion, {EventTable.Columns.EffectiveVersion}
 	    from {EventTable.Name} e
-	    where e.{EventTable.Columns.EffectiveReadOrder} > 0) NewReadOrders
+	    where e.{EventTable.Columns.AggregateId} = @{EventTable.Columns.AggregateId}
+            and e.{EventTable.Columns.EffectiveReadOrder} > 0
+        ) NewReadOrders
 	where NewReadOrders.{EventTable.Columns.EffectiveVersion} is null or ( NewReadOrders.NewVersion != NewReadOrders.{EventTable.Columns.EffectiveVersion})
 ) ChangedReadOrders
 
@@ -213,8 +205,11 @@ on {EventTable.Name}.{EventTable.Columns.AggregateId} = ChangedReadOrders.{Event
 
 update {EventTable.Name}
 set {EventTable.Columns.ManualVersion} = -{EventTable.Columns.InsertedVersion}
-where ({EventTable.Columns.EffectiveVersion} > 0 or {EventTable.Columns.EffectiveVersion} is null) and {EventTable.Columns.EffectiveReadOrder} < 0
+where {EventTable.Columns.AggregateId} = @{EventTable.Columns.AggregateId}
+    and ({EventTable.Columns.EffectiveVersion} > 0 or {EventTable.Columns.EffectiveVersion} is null) 
+    and {EventTable.Columns.EffectiveReadOrder} < 0
 ";
+                    command.Parameters.Add(new SqlParameter(EventTable.Columns.AggregateId, aggregateId));
                     command.ExecuteNonQuery();
                 });    
         }
@@ -269,26 +264,11 @@ SELECT  {EventTable.Columns.InsertionOrder},
 FROM    {EventTable.Name} {lockHintToMinimizeRiskOfDeadlocksByTakingUpdatelockOnInitialRead} ";
 
 
-            var insertBeforeFetchStatement = insertBefore.Any() 
-                ? $@"{selectStatement} where {EventTable.Columns.InsertBefore} in ( {insertBefore.Select(@this => @this.ToString()).Join(", ")} )"
-                : null ;
-
-            var insertAfterStatement = insertAfter.Any()
-                ? $@"{selectStatement} where {EventTable.Columns.InsertAfter} in ( {insertAfter.Select(@this => @this.ToString()).Join(", ")} )"
-                : null;
-
-            var replacesStatement = replaces.Any()
-                ? $@"{selectStatement} where {EventTable.Columns.Replaces} in ( {replaces.Select(@this => @this.ToString()).Join(", ")} )"
-                : null;
 
             var originalsStatement =
                 $@"{selectStatement} where {EventTable.Columns.InsertedVersion} in ( {replaces.Concat(insertBefore).Concat(insertAfter)
                                                                                               .Select(@this => @this.ToString())
                                                                                               .Join(", ")} )";
-
-            var unionStatement = Seq.Create(insertBeforeFetchStatement, insertAfterStatement, replacesStatement, originalsStatement)
-                                    .Where(statement => statement != null)
-                                    .Join($"{Environment.NewLine}union{Environment.NewLine}");
 
             var relatedEvents = new List<EventOrderNeighbourhood>();
 
@@ -296,7 +276,7 @@ FROM    {EventTable.Name} {lockHintToMinimizeRiskOfDeadlocksByTakingUpdatelockOn
                 command =>
                 {
                     command.CommandType = CommandType.Text;
-                    command.CommandText = unionStatement;
+                    command.CommandText = originalsStatement;
 
                     using(var reader = command.ExecuteReader())
                     {

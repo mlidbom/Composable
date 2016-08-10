@@ -223,7 +223,7 @@ FROM    {EventTable.Name} {lockHintToMinimizeRiskOfDeadlocksByTakingUpdatelockOn
 
 
             var originalsStatement =
-                $@"{selectStatement} where {EventTable.Columns.InsertedVersion} in ( {replaces.Concat(insertBefore).Concat(insertAfter)
+                $@"{selectStatement} where {EventTable.Columns.InsertionOrder} in ( {replaces.Concat(insertBefore).Concat(insertAfter)
                                                                                               .Select(@this => @this.ToString())
                                                                                               .Join(", ")} )";
 

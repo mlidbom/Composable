@@ -134,7 +134,6 @@ SET @{EventTable.Columns.InsertionOrder} = SCOPE_IDENTITY();";
             {
                 Debug.WriteLine("#####Replace");
                 var eventToReplace = relatedEvents.Single(@event => @event.InsertionOrder == replacementGroup.Key);
-                Contract.Assert(relatedEvents.None(@event => @event.Replaces.HasValue && @event.Replaces == eventToReplace.InsertionOrder));
 
                 startRange = eventToReplace.EffectiveReadOrder;
                 endRange = eventToReplace.NextReadOrder;
@@ -228,31 +227,17 @@ where ({EventTable.Columns.EffectiveVersion} > 0 or {EventTable.Columns.Effectiv
 
         private static SqlDecimal ToCorrectPrecisionAndScale(SqlDecimal value) { return SqlDecimal.ConvertToPrecScale(value, 38, 19); }
 
-        private class EventRefactoringInformation
+        private class EventOrderNeighbourhood
         {
             public long InsertionOrder { get; }
             public SqlDecimal EffectiveReadOrder { get; }
-            public SqlDecimal ManualReadOrder { get; }
-            public int? EffectiveVersion { get; }
-            public int InsertedVersion { get; }
-            public int? ManualVersion { get; }            
-            public long? Replaces { get; }
-            public long? InsertAfter { get; }
-            public long? InsertBefore { get; }
             public SqlDecimal PreviousReadOrder { get; }
             public SqlDecimal NextReadOrder { get; }            
 
-            public EventRefactoringInformation(long insertionOrder, SqlDecimal effectiveReadOrder, SqlDecimal manualReadOrder, int? effectiveVersion, int insertedVersion, int? manualVersion, long? replaces, long? insertAfter, long? insertBefore, SqlDecimal previousReadOrder, SqlDecimal nextReadOrder)
+            public EventOrderNeighbourhood(long insertionOrder, SqlDecimal effectiveReadOrder, SqlDecimal previousReadOrder, SqlDecimal nextReadOrder)
             {
                 InsertionOrder = insertionOrder;
-                ManualReadOrder = manualReadOrder;
                 EffectiveReadOrder = effectiveReadOrder;
-                EffectiveVersion = effectiveVersion;
-                InsertedVersion = insertedVersion;
-                ManualVersion = manualVersion;
-                Replaces = replaces;
-                InsertAfter = insertAfter;
-                InsertBefore = insertBefore;
                 NextReadOrder = UseNextIntegerInsteadIfNullSinceThatMeansThisEventIsTheLastInTheEventStore(nextReadOrder);
                 PreviousReadOrder = UseZeroInsteadIfNegativeSinceThisMeansThisIsTheFirstEventInTheEventStore(previousReadOrder);
             }
@@ -268,7 +253,7 @@ where ({EventTable.Columns.EffectiveVersion} > 0 or {EventTable.Columns.Effectiv
             }
         }
 
-        private IReadOnlyList<EventRefactoringInformation> LoadRelatedEventRefactoringInformation(IEnumerable<AggregateRootEvent> events)
+        private IReadOnlyList<EventOrderNeighbourhood> LoadRelatedEventRefactoringInformation(IEnumerable<AggregateRootEvent> events)
         {
             var insertBefore = events.Select(@this => @this.InsertBefore).Where(@this => @this != null).ToSet();
             var insertAfter = events.Select(@this => @this.InsertAfter).Where(@this => @this != null).ToSet();
@@ -279,13 +264,6 @@ where ({EventTable.Columns.EffectiveVersion} > 0 or {EventTable.Columns.Effectiv
             var selectStatement= $@"
 SELECT  {EventTable.Columns.InsertionOrder},
         {EventTable.Columns.EffectiveReadOrder},        
-        {EventTable.Columns.ManualReadOrder}, 
-        {EventTable.Columns.EffectiveVersion}, 
-        {EventTable.Columns.InsertedVersion}, 
-        {EventTable.Columns.ManualVersion}, 
-        {EventTable.Columns.Replaces}, 
-        {EventTable.Columns.InsertAfter}, 
-        {EventTable.Columns.InsertBefore},
         (select top 1 EffectiveReadorder from Event e1 where e1.EffectiveReadOrder < Event.EffectiveReadOrder order by EffectiveReadOrder desc) PreviousReadOrder,
         (select top 1 EffectiveReadorder from Event e1 where e1.EffectiveReadOrder > Event.EffectiveReadOrder order by EffectiveReadOrder) NextReadOrder
 FROM    {EventTable.Name} {lockHintToMinimizeRiskOfDeadlocksByTakingUpdatelockOnInitialRead} ";
@@ -312,7 +290,7 @@ FROM    {EventTable.Name} {lockHintToMinimizeRiskOfDeadlocksByTakingUpdatelockOn
                                     .Where(statement => statement != null)
                                     .Join($"{Environment.NewLine}union{Environment.NewLine}");
 
-            var relatedEvents = new List<EventRefactoringInformation>();
+            var relatedEvents = new List<EventOrderNeighbourhood>();
 
             _connectionMananger.UseCommand(
                 command =>
@@ -325,18 +303,11 @@ FROM    {EventTable.Name} {lockHintToMinimizeRiskOfDeadlocksByTakingUpdatelockOn
                         while(reader.Read())
                         {
                             relatedEvents.Add(
-                                new EventRefactoringInformation(
+                                new EventOrderNeighbourhood(
                                     insertionOrder: reader.GetInt64(0),
                                     effectiveReadOrder: reader.GetSqlDecimal(1),
-                                    manualReadOrder: reader.GetSqlDecimal(2),
-                                    effectiveVersion: reader[3] as int?,
-                                    insertedVersion: reader.GetInt32(4),
-                                    manualVersion: reader[5] as int?,
-                                    replaces: reader[6] as long?,
-                                    insertAfter: reader[7] as long?,
-                                    insertBefore: reader[8] as long?,
-                                    previousReadOrder: reader.GetSqlDecimal(9),
-                                    nextReadOrder: reader.GetSqlDecimal(10)                                    
+                                    previousReadOrder: reader.GetSqlDecimal(2),
+                                    nextReadOrder: reader.GetSqlDecimal(3)                                    
                                     ));
                         }
                     }

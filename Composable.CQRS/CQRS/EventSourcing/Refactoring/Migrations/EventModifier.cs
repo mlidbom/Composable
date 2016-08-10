@@ -68,7 +68,7 @@ namespace Composable.CQRS.EventSourcing.Refactoring.Migrations
             _replacementEvents.ForEach(
                 (e, index) =>
                 {                    
-                    e.AggregateRootVersion = Event.AggregateRootVersion + index;
+                    e.ManualVersion = e.AggregateRootVersion = Event.AggregateRootVersion + index;
                     e.Replaces = Event.InsertionOrder;
                     e.AggregateRootId = Event.AggregateRootId;
                     e.UtcTimeStamp = Event.UtcTimeStamp;
@@ -113,7 +113,7 @@ namespace Composable.CQRS.EventSourcing.Refactoring.Migrations
                     (e, index) =>
                     {
                         e.InsertAfter = _lastEventInActualStream.InsertionOrder;
-                        e.AggregateRootVersion = Event.AggregateRootVersion + index;
+                        e.ManualVersion = e.AggregateRootVersion = Event.AggregateRootVersion + index;
                         e.AggregateRootId = Event.AggregateRootId;
                         e.UtcTimeStamp = _lastEventInActualStream.UtcTimeStamp;
                     });                
@@ -124,13 +124,13 @@ namespace Composable.CQRS.EventSourcing.Refactoring.Migrations
                     (e, index) =>
                     {
                         e.InsertBefore = Event.InsertionOrder;
-                        e.AggregateRootVersion = Event.AggregateRootVersion + index;
+                        e.ManualVersion = e.AggregateRootVersion = Event.AggregateRootVersion + index;
                         e.AggregateRootId = Event.AggregateRootId;
                         e.UtcTimeStamp = Event.UtcTimeStamp;
                     });
             }
 
-            CurrentNode.ValuesFrom().ForEach((@event, index) => @event.AggregateRootVersion += _insertedEvents.Length);
+            CurrentNode.ValuesFrom().ForEach((@event, index) => { @event.AggregateRootVersion += _insertedEvents.Length; });
 
             CurrentNode.AddBefore(_insertedEvents);
             _eventsAddedCallback.Invoke(_insertedEvents);

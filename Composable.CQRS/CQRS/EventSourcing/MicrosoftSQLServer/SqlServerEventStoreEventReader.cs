@@ -21,7 +21,20 @@ namespace Composable.CQRS.EventSourcing.MicrosoftSQLServer
             var lockHint = takeWriteLock ? "With(UPDLOCK, READCOMMITTED, ROWLOCK)" : "With(READCOMMITTED, ROWLOCK)";
 
             return $@"
-SELECT {topClause} {EventTable.Columns.EventType}, {EventTable.Columns.Event}, {EventTable.Columns.AggregateId}, {EventTable.Columns.EffectiveVersion}, {EventTable.Columns.EventId}, {EventTable.Columns.UtcTimeStamp}, {EventTable.Columns.InsertionOrder}, {EventTable.Columns.InsertAfter}, {EventTable.Columns.InsertBefore}, {EventTable.Columns.Replaces}, {EventTable.Columns.InsertedVersion}, {EventTable.Columns.ManualVersion}, {EventTable.Columns.EffectiveReadOrder}
+SELECT {topClause} 
+    {EventTable.Columns.EventType}, 
+    {EventTable.Columns.Event}, 
+    {EventTable.Columns.AggregateId}, 
+    {EventTable.Columns.EffectiveVersion}, 
+    {EventTable.Columns.EventId}, 
+    {EventTable.Columns.UtcTimeStamp}, 
+    {EventTable.Columns.InsertionOrder}, 
+    {EventTable.Columns.InsertAfter}, 
+    {EventTable.Columns.InsertBefore}, 
+    {EventTable.Columns.Replaces}, 
+    {EventTable.Columns.InsertedVersion}, 
+    {EventTable.Columns.ManualVersion}, 
+    {EventTable.Columns.EffectiveReadOrder}
 FROM {EventTable.Name} {lockHint} ";
         }
 
@@ -96,7 +109,7 @@ FROM {EventTable.Name} {lockHint} ";
                         loadCommand.Parameters.Add(new SqlParameter("CachedVersion", startAfterVersion ));
                     }
 
-                    loadCommand.CommandText += $" ORDER BY {EventTable.Columns.EffectiveVersion} ASC";
+                    loadCommand.CommandText += $" ORDER BY {EventTable.Columns.EffectiveReadOrder} ASC";
 
                     using (var reader = loadCommand.ExecuteReader())
                     {

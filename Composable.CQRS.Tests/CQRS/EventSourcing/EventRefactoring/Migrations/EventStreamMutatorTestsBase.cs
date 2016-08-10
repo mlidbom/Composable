@@ -16,6 +16,7 @@ using Composable.Windsor;
 using Composable.Windsor.Testing;
 using FluentAssertions;
 using NCrunch.Framework;
+using Newtonsoft.Json;
 using NUnit.Framework;
 using TestAggregates;
 
@@ -232,9 +233,9 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
             {
                 Console.WriteLine($"   Failed comparing with {descriptionOfHistory}");
                 Console.WriteLine($"   Expected: ");
-                expected.ForEach(e => Console.WriteLine($"      {e}"));
+                expected.ForEach(e => Console.WriteLine($"      {e.ToNewtonSoftDebugString(Formatting.None)}"));
                 Console.WriteLine($"\n   Actual: ");
-                migratedHistory.ForEach(e => Console.WriteLine($"      {e}"));
+                migratedHistory.ForEach(e => Console.WriteLine($"      {e.ToNewtonSoftDebugString(Formatting.None)}"));
                 Console.WriteLine("\n");               
 
                 throw;

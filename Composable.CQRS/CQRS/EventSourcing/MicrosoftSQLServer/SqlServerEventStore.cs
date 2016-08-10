@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Diagnostics.Contracts;
 using System.Linq;
 using System.Transactions;
@@ -10,6 +11,7 @@ using Composable.System;
 using Composable.System.Linq;
 using Composable.SystemExtensions.Threading;
 using log4net;
+using Newtonsoft.Json;
 
 namespace Composable.CQRS.EventSourcing.MicrosoftSQLServer
 {
@@ -125,6 +127,7 @@ namespace Composable.CQRS.EventSourcing.MicrosoftSQLServer
         }
 
 
+
         public void PersistMigrations()
         {
             this.Log().Warn($"Starting to persist migrations");
@@ -141,19 +144,29 @@ namespace Composable.CQRS.EventSourcing.MicrosoftSQLServer
                 {
                     lock (AggregateLockManager.GetAggregateLockObject(aggregateId))
                     {
+                        //PrintDebugInfoForAggregate(aggregateId);
                         var original = _eventReader.GetAggregateHistory(aggregateId: aggregateId, takeWriteLock: true).ToList();
 
                         var startInsertingWithVersion = original.Max(@event => @event.InsertedVersion) + 1;
 
+                        var updatedAggregatesBeforeMigrationOfThisAggregate = updatedAggregates;
+
                         SingleAggregateInstanceEventStreamMutator.MutateCompleteAggregateHistory(_migrationFactories, original,
                                                                                                        newEvents =>
                                                                                                        {
+                                                                                                           //Make sure we don't try to insert into an occupied InsertedVersion                                                                                                           
                                                                                                            newEvents.ForEach(@event => @event.InsertedVersion = startInsertingWithVersion++);
-                                                                                                           SaveEvents(newEvents);
-                                                                                                           updatedAggregates++;
+                                                                                                           //Save all new events so they get an InsertionOrder for the next refactoring to work with in case it acts relative to any of these events                                                                                                           
+                                                                                                           _eventWriter.InsertRefactoringEvents(newEvents);
+                                                                                                           //SaveEvents(newEvents);
+                                                                                                           //EnsurePersistedMigrationsHaveConsistentEffectiveReadOrdersAndEffectiveVersions();                                                                                                           
+                                                                                                           updatedAggregates = updatedAggregatesBeforeMigrationOfThisAggregate + 1;
                                                                                                            newEventCount += newEvents.Count();
                                                                                                        });
-                        EnsurePersistedMigrationsHaveConsistentEffectiveReadOrdersAndEffectiveVersions();
+
+                        
+                        _eventWriter.FixManualVersions(aggregateId);
+                        //PrintDebugInfoForAggregate(aggregateId);
 
                         transaction.Complete();
                         _cache.Remove(aggregateId);
@@ -170,6 +183,12 @@ namespace Composable.CQRS.EventSourcing.MicrosoftSQLServer
             this.Log().Info($"Aggregates: {migratedAggregates}, Updated: {updatedAggregates}, New Events: {newEventCount}");            
 
             this.Log().Warn($"Done persisting migrations.");
+        }
+        private void PrintDebugInfoForAggregate(Guid aggregateId)
+        {
+            var history = _eventReader.GetAggregateHistory(aggregateId, takeWriteLock:true);
+            Debug.WriteLine("######################PrintDebugInfoForAggregate");
+            history.ForEach(@this => Debug.WriteLine(@this.ToNewtonSoftDebugString(Formatting.None)));
         }
 
         public IEnumerable<Guid> StreamAggregateIdsInCreationOrder(Type eventBaseType = null)

@@ -68,7 +68,9 @@ namespace CQRS.Tests
                 SqlConnection.ClearPool(conn);
             }
             
-            _masterConnection.ExecuteNonQuery($@"drop database [{db.Name}]");
+            _masterConnection.ExecuteNonQuery($@"
+                  alter database [{db.Name}] set single_user with rollback immediate
+                  drop database [{db.Name}]");
         }
 
         public void Dispose()

@@ -11,23 +11,31 @@ namespace CQRS.Tests.KeyValueStorage.Sql
 {
     [TestFixture]
     [Serializable]
-    [NCrunch.Framework.ExclusivelyUses(NCrunchExlusivelyUsesResources.DocumentDbMdf)]
     class SqlDocumentDbTests : DocumentDbTests
     {
-        private static string ConnectionString
-        {
-            get { return ConfigurationManager.ConnectionStrings["KeyValueStore"].ConnectionString; }
-        }
+        private static TemporaryLocalDbManager _temporaryLocalDbManager;
+
+        private string _connectionString;
 
         [SetUp]
-        public static void Setup()
+        public void Setup()
         {
-            SqlServerDocumentDb.ResetDB(ConnectionString);
+            var masterConnectionString = ConfigurationManager.ConnectionStrings["MasterDb"].ConnectionString;
+            _temporaryLocalDbManager = new TemporaryLocalDbManager(masterConnectionString);
+            _connectionString = _temporaryLocalDbManager.CreateOrGetLocalDb($"SqlDocumentDbTests_DB");
+
+            SqlServerDocumentDb.ResetDB(_connectionString);
+        }
+
+        [TearDown]
+        public void TearDownTask()
+        {
+            _temporaryLocalDbManager.Dispose();
         }
 
         protected override IDocumentDb CreateStore()
         {
-            return new SqlServerDocumentDb(ConnectionString);
+            return new SqlServerDocumentDb(_connectionString);
         }
 
 
@@ -54,7 +62,7 @@ namespace CQRS.Tests.KeyValueStorage.Sql
             var otherType = typeof(InsertSomething);
             var userInserter = otherDomain.CreateInstanceAndUnwrap(otherType.Assembly.FullName,otherType.FullName) as InsertSomething;
 
-            userInserter.InsertSomeUsers(ConnectionString, userIds);
+            userInserter.InsertSomeUsers(_connectionString, userIds);
 
             AppDomain.Unload(otherDomain);
         }

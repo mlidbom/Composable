@@ -26,7 +26,6 @@ namespace CQRS.Tests.CQRS.EventSourcing
     using Composable.System;
 
     [TestFixture]
-    [ExclusivelyUses(NCrunchExlusivelyUsesResources.EventStoreDbMdf)]
     public abstract class EventStoreSessionTests : NoSqlTest
     {
         protected DummyServiceBus Bus { get; private set; }

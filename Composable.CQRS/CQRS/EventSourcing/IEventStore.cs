@@ -10,7 +10,6 @@ namespace Composable.CQRS.EventSourcing
         void SaveEvents(IEnumerable<IAggregateRootEvent> events);
         void StreamEvents(int batchSize, Action<IReadOnlyList<IAggregateRootEvent>> handleEvents);
         void DeleteEvents(Guid aggregateId);
-        [Obsolete("Absolutely not ready to be used in production. DO NOT USE IN PRODUCTION!")]
         void PersistMigrations();
 
         ///<summary>The passed <paramref name="eventBaseType"/> filters the aggregate Ids so that only ids of aggregates that are created by an event that inherits from <paramref name="eventBaseType"/> are returned.</summary>

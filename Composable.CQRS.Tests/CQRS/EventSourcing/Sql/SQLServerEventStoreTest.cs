@@ -4,8 +4,6 @@ using System;
 using System.Configuration;
 using System.Transactions;
 using Composable.CQRS.EventSourcing;
-using CQRS.Tests.KeyValueStorage.Sql;
-using NCrunch.Framework;
 using NUnit.Framework;
 using System.Linq;
 using Composable.CQRS.EventSourcing.MicrosoftSQLServer;
@@ -16,7 +14,6 @@ using Composable.SystemExtensions.Threading;
 namespace CQRS.Tests.CQRS.EventSourcing.Sql
 {
     [TestFixture]
-    [ExclusivelyUses(NCrunchExlusivelyUsesResources.EventStoreDbMdf)]
     public class SqlServerEventStoreTest
     {
         [Test]
@@ -28,48 +25,54 @@ namespace CQRS.Tests.CQRS.EventSourcing.Sql
         [Test]
         public void ShouldNotCacheEventsSavedDuringFailedTransactionEvenIfReadDuringSameTransaction()
         {
-            var something = new SqlServerEventStore(ConfigurationManager.ConnectionStrings["EventStore"].ConnectionString, new SingleThreadUseGuard());
-            something.ResetDB();//Sometimes the test would fail on the last line with information that the table was missing. Probably because the table was created during the aborted transaction. I'm hoping this will fix it.
-
-            var user = new User();
-            user.Register("email@email.se", "password", Guid.NewGuid());
-
-            using (new TransactionScope())
+            using(var dbManager = new TemporaryLocalDbManager(ConfigurationManager.ConnectionStrings["MasterDb"].ConnectionString))
             {
-                something.SaveEvents(((IEventStored) user).GetChanges());
-                something.GetAggregateHistory(user.Id);
-                Assert.That(something.GetAggregateHistory(user.Id), Is.Not.Empty);
-            }
+                var connectionString = dbManager.CreateOrGetLocalDb("SqlServerEventStoreTest_EventStore1");
+                var something = new SqlServerEventStore(connectionString, new SingleThreadUseGuard());
+                something.ResetDB(); //Sometimes the test would fail on the last line with information that the table was missing. Probably because the table was created during the aborted transaction. I'm hoping this will fix it.
 
-            Assert.That(something.GetAggregateHistory(user.Id), Is.Empty);
+                var user = new User();
+                user.Register("email@email.se", "password", Guid.NewGuid());
+
+                using(new TransactionScope())
+                {
+                    something.SaveEvents(((IEventStored)user).GetChanges());
+                    something.GetAggregateHistory(user.Id);
+                    Assert.That(something.GetAggregateHistory(user.Id), Is.Not.Empty);
+                }
+
+                Assert.That(something.GetAggregateHistory(user.Id), Is.Empty);
+            }
         }
 
         [Test]
         public void ShouldCacheEventsBetweenInstancesTransaction()
         {
-            string connectionString = ConfigurationManager.ConnectionStrings["EventStore"].ConnectionString;
-
-            var something = new SqlServerEventStore(connectionString, new SingleThreadUseGuard());
-
-            var user = new User();
-            user.Register("email@email.se", "password", Guid.NewGuid());
-            var stored = (IEventStored) user;
-
-            using (var tran = new TransactionScope())
+            using(var dbManager = new TemporaryLocalDbManager(ConfigurationManager.ConnectionStrings["MasterDb"].ConnectionString))
             {
-                something.SaveEvents(stored.GetChanges());
-                something.GetAggregateHistory(user.Id);
-                Assert.That(something.GetAggregateHistory(user.Id), Is.Not.Empty);
-                tran.Complete();
+                var connectionString = dbManager.CreateOrGetLocalDb("SqlServerEventStoreTest_EventStore2");
+                var something = new SqlServerEventStore(connectionString, new SingleThreadUseGuard());
+
+                var user = new User();
+                user.Register("email@email.se", "password", Guid.NewGuid());
+                var stored = (IEventStored)user;
+
+                using(var tran = new TransactionScope())
+                {
+                    something.SaveEvents(stored.GetChanges());
+                    something.GetAggregateHistory(user.Id);
+                    Assert.That(something.GetAggregateHistory(user.Id), Is.Not.Empty);
+                    tran.Complete();
+                }
+
+                something = new SqlServerEventStore(connectionString, new SingleThreadUseGuard());
+                var firstRead = something.GetAggregateHistory(user.Id).Single();
+
+                something = new SqlServerEventStore(connectionString, new SingleThreadUseGuard());
+                var secondRead = something.GetAggregateHistory(user.Id).Single();
+
+                Assert.That(firstRead, Is.SameAs(secondRead));
             }
-
-            something = new SqlServerEventStore(connectionString, new SingleThreadUseGuard());
-            var firstRead = something.GetAggregateHistory(user.Id).Single();
-
-            something = new SqlServerEventStore(connectionString, new SingleThreadUseGuard());
-            var secondRead = something.GetAggregateHistory(user.Id).Single();
-
-            Assert.That(firstRead, Is.SameAs(secondRead));
         }
     }
 }

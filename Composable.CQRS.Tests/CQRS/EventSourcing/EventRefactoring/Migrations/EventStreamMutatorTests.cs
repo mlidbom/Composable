@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data.SqlTypes;
 using System.Linq;
 using System.Reflection;
+using Castle.MicroKernel.Lifestyle;
 using Composable.CQRS.EventSourcing;
 using Composable.CQRS.EventSourcing.MicrosoftSQLServer;
 using Composable.CQRS.EventSourcing.Refactoring.Migrations;
@@ -25,6 +26,51 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
     public class SqlServerEventStoreEventStreamMutatorTests : EventStreamMutatorTests
     {
         public SqlServerEventStoreEventStreamMutatorTests() : base(typeof(SqlServerEventStore)) { }
+
+        [Test]
+        public void PersistingMigrationsAndThenUpdatingTheAggregateFromAnotherProcessesEventStore()
+        {
+            var emptyMigrationsArray = Seq.Create(Replace<E1>.With<E2>()).ToArray();
+            IReadOnlyList<IEventMigration> migrations = emptyMigrationsArray;
+
+            using (var persistingContainer = CreateContainerForEventStoreType(() => migrations, EventStoreType))
+            {
+                string eventStoreConnectionString;
+                using(persistingContainer.BeginScope())
+                {
+                    eventStoreConnectionString = ((SqlServerEventStore)persistingContainer.Resolve<IEventStore>()).ConnectionString;
+                    eventStoreConnectionString = eventStoreConnectionString + ";";
+                }
+                Func<IEventStore> persistingEventStore = () => persistingContainer.Resolve<IEventStore>();
+
+                using (var otherProcessContainer = CreateContainerForEventStoreType(() => migrations, EventStoreType, eventStoreConnectionString))
+                {
+                    Func<IEventStoreSession> otherEventstoreSession = () => otherProcessContainer.Resolve<IEventStoreSession>();
+
+                    var id = Guid.Parse("00000000-0000-0000-0000-000000000001");
+
+                    var aggregate = TestAggregate.FromEvents(
+                        persistingContainer.Resolve<IUtcTimeTimeSource>(),
+                        id,
+                        Seq.OfTypes<Ec1, E1, E2, E3, E4>());
+
+                    otherProcessContainer.ExecuteUnitOfWorkInIsolatedScope(() => otherEventstoreSession().Save(aggregate));
+                    otherProcessContainer.ExecuteUnitOfWorkInIsolatedScope(() => otherEventstoreSession().Get<TestAggregate>(id));
+
+                    var test = persistingContainer.ExecuteUnitOfWorkInIsolatedScope(() => persistingEventStore().GetAggregateHistory(id));
+                    test.Count().Should().BeGreaterThan(0);
+
+                    persistingContainer.ExecuteInIsolatedScope(() => persistingEventStore().PersistMigrations());
+
+                    otherProcessContainer.ExecuteUnitOfWorkInIsolatedScope(
+                        () =>
+                        {
+                            otherEventstoreSession().Get<TestAggregate>(id).RaiseEvents(new E3());
+                        });
+
+                }
+            }
+        }
     }
 
     [TestFixture]
@@ -327,7 +373,7 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
             }
 
         }
-
+        
 
         [Test]
         public void PersistingMigrationsOfTheSameAggregateMultipleTimesWithEventsAddedInTheMiddleAndAfter()

@@ -137,7 +137,7 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
 
         }
 
-        protected static WindsorContainer CreateContainerForEventStoreType(Func<IReadOnlyList<IEventMigration>> migrationsfactory, Type eventStoreType)
+        protected static WindsorContainer CreateContainerForEventStoreType(Func<IReadOnlyList<IEventMigration>> migrationsfactory, Type eventStoreType, string eventStoreConnectionString = null)
         {
             var container = new WindsorContainer();
 
@@ -162,10 +162,13 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
 
             if (eventStoreType == typeof(SqlServerEventStore))
             {
-                var masterConnectionSTring = new ConnectionStringConfigurationParameterProvider().GetConnectionString("MasterDB");
-                var dbManager = new TemporaryLocalDbManager(masterConnectionSTring.ConnectionString, container);
+                if(eventStoreConnectionString == null)
+                {
+                    var masterConnectionSTring = new ConnectionStringConfigurationParameterProvider().GetConnectionString("MasterDB");
+                    var dbManager = new TemporaryLocalDbManager(masterConnectionSTring.ConnectionString, container);
 
-                var eventStoreConnectionString = dbManager.CreateOrGetLocalDb($"{nameof(EventStreamMutatorTestsBase)}_EventStore");
+                    eventStoreConnectionString = dbManager.CreateOrGetLocalDb($"{nameof(EventStreamMutatorTestsBase)}_EventStore");
+                }
 
                 container.Register(                    
                     Component.For<IEventStore>()

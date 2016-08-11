@@ -128,8 +128,9 @@ namespace Composable.CQRS.EventSourcing.MicrosoftSQLServer
             events = events.ToList();
             var updatedAggregates = events.Select(@event => @event.AggregateRootId).Distinct();
             _aggregatesWithEventsAddedByThisInstance.AddRange(updatedAggregates);
-            _eventWriter.Insert(events.Cast<AggregateRootEvent>());            
-            foreach(var aggregateId in updatedAggregates)
+            _eventWriter.Insert(events.Cast<AggregateRootEvent>());
+            //todo: move this to the event store session.
+            foreach (var aggregateId in updatedAggregates)
             {
                 var completeAggregateHistory = _cache.GetCopy(aggregateId).Concat(events.Where(@event => @event.AggregateRootId == aggregateId)).Cast<AggregateRootEvent>().ToArray();
                 SingleAggregateInstanceEventStreamMutator.AssertMigrationsAreIdempotent(_migrationFactories, completeAggregateHistory);

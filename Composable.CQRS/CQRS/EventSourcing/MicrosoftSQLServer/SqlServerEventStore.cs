@@ -126,8 +126,14 @@ namespace Composable.CQRS.EventSourcing.MicrosoftSQLServer
             _usageGuard.AssertNoContextChangeOccurred(this);
             _schemaManager.SetupSchemaIfDatabaseUnInitialized();
             events = events.ToList();
-            _aggregatesWithEventsAddedByThisInstance.AddRange(events.Select(e => e.AggregateRootId));
-            _eventWriter.Insert(events.Cast<AggregateRootEvent>());
+            var updatedAggregates = events.Select(@event => @event.AggregateRootId).Distinct();
+            _aggregatesWithEventsAddedByThisInstance.AddRange(updatedAggregates);
+            _eventWriter.Insert(events.Cast<AggregateRootEvent>());            
+            foreach(var aggregateId in updatedAggregates)
+            {
+                var completeAggregateHistory = _cache.GetCopy(aggregateId).Concat(events.Where(@event => @event.AggregateRootId == aggregateId)).Cast<AggregateRootEvent>().ToArray();
+                SingleAggregateInstanceEventStreamMutator.AssertMigrationsAreIdempotent(_migrationFactories, completeAggregateHistory);
+            }
         }
 
         public void DeleteEvents(Guid aggregateId)

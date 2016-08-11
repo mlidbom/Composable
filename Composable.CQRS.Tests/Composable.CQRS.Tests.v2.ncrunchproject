@@ -40,18 +40,6 @@
     <NamedTestSelector>
       <TestName>CQRS.Tests.CQRS.EventSourcing.SqlServerEventStoreTests.EventStoreTests:StreamEventsSinceReturnsWholeEventLogWhenFetchingALargeNumberOfEvents_EnsureBatchingDoesNotBreakThings</TestName>
     </NamedTestSelector>
-    <NamedTestSelector>
-      <TestName>CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations.SqlServerEventStoreEventStreamMutatorTests.EventStreamMutatorTests:Inserting_E2_Before_E1_Persisting_and_then_Inserting_E3_before_E1</TestName>
-    </NamedTestSelector>
-    <NamedTestSelector>
-      <TestName>CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations.SqlServerEventStoreEventStreamMutatorTests.EventStreamMutatorTests:Inserting_E2_After_E1_Persisting_and_then_Inserting_E3_after_E1</TestName>
-    </NamedTestSelector>
-    <NamedTestSelector>
-      <TestName>CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations.InMemoryEventStoreEventStreamMutatorTests.EventStreamMutatorTests:Inserting_E2_After_E1_Persisting_and_then_Inserting_E3_after_E1</TestName>
-    </NamedTestSelector>
-    <NamedTestSelector>
-      <TestName>CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations.InMemoryEventStoreEventStreamMutatorTests.EventStreamMutatorTests:Inserting_E2_Before_E1_Persisting_and_then_Inserting_E3_before_E1</TestName>
-    </NamedTestSelector>
   </IgnoredTests>
   <HiddenWarnings>LongTestTimesWithoutParallelExecution;CopyReferencedAssembliesToWorkspaceIsOn</HiddenWarnings>
 </ProjectConfiguration>

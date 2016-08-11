@@ -138,7 +138,8 @@ namespace Composable.CQRS.EventSourcing.MicrosoftSQLServer
             var logInterval = 1.Minutes();
             var lastLogTime = DateTime.Now;
 
-            foreach(var aggregateId in StreamAggregateIdsInCreationOrder())
+            var aggregateIdsInCreationOrder = StreamAggregateIdsInCreationOrder().ToList();
+            foreach(var aggregateId in aggregateIdsInCreationOrder)
             {                
                 //todo: Look at batching the inserting of events in a way that let's us avoid taking a lock for a long time as we do now. This might be a problem in production.
                 using(var transaction = new TransactionScope(TransactionScopeOption.Required, scopeTimeout: 10.Minutes()))
@@ -179,13 +180,13 @@ namespace Composable.CQRS.EventSourcing.MicrosoftSQLServer
 
                 if(logInterval < DateTime.Now - lastLogTime)
                 {
-                    this.Log().Info($"Aggregates: {migratedAggregates}, Updated: {updatedAggregates}, New Events: {newEventCount}");
+                    this.Log().Info($"Aggregates: {migratedAggregates} / {aggregateIdsInCreationOrder.Count}, Updated: {updatedAggregates}, New Events: {newEventCount}");
                 }
             }
 
-            this.Log().Info($"Aggregates: {migratedAggregates}, Updated: {updatedAggregates}, New Events: {newEventCount}");            
-
             this.Log().Warn($"Done persisting migrations.");
+            this.Log().Info($"Aggregates: {migratedAggregates} / {aggregateIdsInCreationOrder.Count} , Updated: {updatedAggregates}, New Events: {newEventCount}");            
+           
         }
 
         public IEnumerable<Guid> StreamAggregateIdsInCreationOrder(Type eventBaseType = null)

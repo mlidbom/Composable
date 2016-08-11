@@ -90,18 +90,21 @@ SET @{EventTable.Columns.InsertionOrder} = SCOPE_IDENTITY();";
 
             if (replacementGroup != null)
             {
+                Contract.Assert(replacementGroup.All(@this => @this.Replaces.HasValue && @this.Replaces > 0));
                 var eventToReplace = relatedEvents.Single(@event => @event.InsertionOrder == replacementGroup.Key);
 
                 SaveEventsWithinReadOrderRange(newEvents: replacementGroup.ToArray(), rangeStart: eventToReplace.EffectiveReadOrder, rangeEnd: eventToReplace.NextReadOrder);
             }
             else if (insertBeforeGroup != null)
             {
+                Contract.Assert(insertBeforeGroup.All(@this => @this.InsertBefore.HasValue && @this.InsertBefore.Value > 0));
                 var eventToInsertBefore = relatedEvents.Single(@event => @event.InsertionOrder == insertBeforeGroup.Key);
 
                 SaveEventsWithinReadOrderRange(newEvents: insertBeforeGroup.ToArray(), rangeStart: eventToInsertBefore.PreviousReadOrder, rangeEnd: eventToInsertBefore.EffectiveReadOrder);
             }
             else if(insertAfterGroup != null)
             {
+                Contract.Assert(insertAfterGroup.All(@this => @this.InsertAfter.HasValue && @this.InsertAfter.Value > 0));
                 var eventToInsertAfter = relatedEvents.Single(@event => @event.InsertionOrder == insertAfterGroup.Key);
 
                 SaveEventsWithinReadOrderRange(newEvents: insertAfterGroup.ToArray(), rangeStart: eventToInsertAfter.EffectiveReadOrder, rangeEnd: eventToInsertAfter.NextReadOrder);

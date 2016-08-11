@@ -134,7 +134,9 @@ namespace Composable.CQRS.EventSourcing.MicrosoftSQLServer
             long updatedAggregates = 0;
             long newEventCount = 0;
             var logInterval = 1.Minutes();
-            var lastLogTime = DateTime.Now;            
+            var lastLogTime = DateTime.Now;
+
+            const int RecoverableErrorRetriesToMake = 5;
 
             var aggregateIdsInCreationOrder = StreamAggregateIdsInCreationOrder().ToList();            
 
@@ -142,41 +144,54 @@ namespace Composable.CQRS.EventSourcing.MicrosoftSQLServer
             {
                 try
                 {
-                    //todo: Look at batching the inserting of events in a way that let's us avoid taking a lock for a long time as we do now. This might be a problem in production.
-                    using(var transaction = new TransactionScope(TransactionScopeOption.Required, scopeTimeout: 10.Minutes()))
+                    var succeeded = false;
+                    int retries = 0;
+                    while(!succeeded)
                     {
-                        lock(AggregateLockManager.GetAggregateLockObject(aggregateId))
+                        try
                         {
-                            var updatedThisAggregate = false;
-                            var original = _eventReader.GetAggregateHistory(aggregateId: aggregateId, takeWriteLock: true).ToList();
-
-                            var startInsertingWithVersion = original.Max(@event => @event.InsertedVersion) + 1;
-
-                            var updatedAggregatesBeforeMigrationOfThisAggregate = updatedAggregates;
-
-                            SingleAggregateInstanceEventStreamMutator.MutateCompleteAggregateHistory(
-                                _migrationFactories,
-                                original,
-                                newEvents =>
-                                {
-                                    //Make sure we don't try to insert into an occupied InsertedVersion                                                                                                           
-                                    newEvents.ForEach(@event => @event.InsertedVersion = startInsertingWithVersion++);
-                                    //Save all new events so they get an InsertionOrder for the next refactoring to work with in case it acts relative to any of these events                                                                                                           
-                                    _eventWriter.InsertRefactoringEvents(newEvents);                                                                                                     
-                                    updatedAggregates = updatedAggregatesBeforeMigrationOfThisAggregate + 1;
-                                    newEventCount += newEvents.Count();
-                                    updatedThisAggregate = true;
-                                });
-
-                            if(updatedThisAggregate)
+                            //todo: Look at batching the inserting of events in a way that let's us avoid taking a lock for a long time as we do now. This might be a problem in production.
+                            using(var transaction = new TransactionScope(TransactionScopeOption.Required, scopeTimeout: 10.Minutes()))
                             {
-                                _eventWriter.FixManualVersions(aggregateId);
-                            }
+                                lock(AggregateLockManager.GetAggregateLockObject(aggregateId))
+                                {
+                                    var updatedThisAggregate = false;
+                                    var original = _eventReader.GetAggregateHistory(aggregateId: aggregateId, takeWriteLock: true).ToList();
 
-                            transaction.Complete();
-                            _cache.Remove(aggregateId);
+                                    var startInsertingWithVersion = original.Max(@event => @event.InsertedVersion) + 1;
+
+                                    var updatedAggregatesBeforeMigrationOfThisAggregate = updatedAggregates;
+
+                                    SingleAggregateInstanceEventStreamMutator.MutateCompleteAggregateHistory(
+                                        _migrationFactories,
+                                        original,
+                                        newEvents =>
+                                        {
+                                            //Make sure we don't try to insert into an occupied InsertedVersion                                                                                                           
+                                            newEvents.ForEach(@event => @event.InsertedVersion = startInsertingWithVersion++);
+                                            //Save all new events so they get an InsertionOrder for the next refactoring to work with in case it acts relative to any of these events                                                                                                           
+                                            _eventWriter.InsertRefactoringEvents(newEvents);
+                                            updatedAggregates = updatedAggregatesBeforeMigrationOfThisAggregate + 1;
+                                            newEventCount += newEvents.Count();
+                                            updatedThisAggregate = true;
+                                        });
+
+                                    if(updatedThisAggregate)
+                                    {
+                                        _eventWriter.FixManualVersions(aggregateId);
+                                    }
+
+                                    transaction.Complete();
+                                    _cache.Remove(aggregateId);
+                                }
+                                migratedAggregates++;
+                                succeeded = true;
+                            }
                         }
-                        migratedAggregates++;
+                        catch(Exception e) when(IsRecoverableSqlException(e) && ++retries <= RecoverableErrorRetriesToMake)
+                        {
+                            this.Log().Warn($"Failed to persist migrations for aggregate: {aggregateId}. Exception appers to be recoverable so running retry {retries} out of {RecoverableErrorRetriesToMake}", e);
+                        }
                     }
                 }
                 catch(Exception exception)
@@ -195,6 +210,12 @@ namespace Composable.CQRS.EventSourcing.MicrosoftSQLServer
             this.Log().Warn($"Done persisting migrations.");
             this.Log().Info($"Inspected: {migratedAggregates} , Updated: {updatedAggregates}, New Events: {newEventCount}");            
            
+        }
+
+        private bool IsRecoverableSqlException(Exception exception)
+        {
+            var message = exception.Message.ToLower();
+            return message.Contains("timeout") || message.Contains("deadlock");
         }
 
         public IEnumerable<Guid> StreamAggregateIdsInCreationOrder(Type eventBaseType = null)

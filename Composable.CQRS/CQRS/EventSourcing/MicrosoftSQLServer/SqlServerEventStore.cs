@@ -138,42 +138,51 @@ namespace Composable.CQRS.EventSourcing.MicrosoftSQLServer
 
             var aggregateIdsInCreationOrder = StreamAggregateIdsInCreationOrder().ToList();
             foreach(var aggregateId in aggregateIdsInCreationOrder)
-            {                
-                //todo: Look at batching the inserting of events in a way that let's us avoid taking a lock for a long time as we do now. This might be a problem in production.
-                using(var transaction = new TransactionScope(TransactionScopeOption.Required, scopeTimeout: 10.Minutes()))
+            {
+                try
                 {
-                    lock (AggregateLockManager.GetAggregateLockObject(aggregateId))
+                    //todo: Look at batching the inserting of events in a way that let's us avoid taking a lock for a long time as we do now. This might be a problem in production.
+                    using(var transaction = new TransactionScope(TransactionScopeOption.Required, scopeTimeout: 10.Minutes()))
                     {
-                        var updatedThisAggregate = false;
-                        var original = _eventReader.GetAggregateHistory(aggregateId: aggregateId, takeWriteLock: true).ToList();
-
-                        var startInsertingWithVersion = original.Max(@event => @event.InsertedVersion) + 1;
-
-                        var updatedAggregatesBeforeMigrationOfThisAggregate = updatedAggregates;
-
-                        SingleAggregateInstanceEventStreamMutator.MutateCompleteAggregateHistory(_migrationFactories, original,
-                                                                                                       newEvents =>
-                                                                                                       {
-                                                                                                           //Make sure we don't try to insert into an occupied InsertedVersion                                                                                                           
-                                                                                                           newEvents.ForEach(@event => @event.InsertedVersion = startInsertingWithVersion++);
-                                                                                                           //Save all new events so they get an InsertionOrder for the next refactoring to work with in case it acts relative to any of these events                                                                                                           
-                                                                                                           _eventWriter.InsertRefactoringEvents(newEvents);
-                                                                                                           //SaveEvents(newEvents);
-                                                                                                           //EnsurePersistedMigrationsHaveConsistentEffectiveReadOrdersAndEffectiveVersions();                                                                                                           
-                                                                                                           updatedAggregates = updatedAggregatesBeforeMigrationOfThisAggregate + 1;
-                                                                                                           newEventCount += newEvents.Count();
-                                                                                                           updatedThisAggregate = true;
-                                                                                                       });
-
-                        if(updatedThisAggregate)
+                        lock(AggregateLockManager.GetAggregateLockObject(aggregateId))
                         {
-                            _eventWriter.FixManualVersions(aggregateId);
-                        }
+                            var updatedThisAggregate = false;
+                            var original = _eventReader.GetAggregateHistory(aggregateId: aggregateId, takeWriteLock: true).ToList();
 
-                        transaction.Complete();
-                        _cache.Remove(aggregateId);
+                            var startInsertingWithVersion = original.Max(@event => @event.InsertedVersion) + 1;
+
+                            var updatedAggregatesBeforeMigrationOfThisAggregate = updatedAggregates;
+
+                            SingleAggregateInstanceEventStreamMutator.MutateCompleteAggregateHistory(
+                                _migrationFactories,
+                                original,
+                                newEvents =>
+                                {
+                                    //Make sure we don't try to insert into an occupied InsertedVersion                                                                                                           
+                                    newEvents.ForEach(@event => @event.InsertedVersion = startInsertingWithVersion++);
+                                    //Save all new events so they get an InsertionOrder for the next refactoring to work with in case it acts relative to any of these events                                                                                                           
+                                    _eventWriter.InsertRefactoringEvents(newEvents);
+                                    //SaveEvents(newEvents);
+                                    //EnsurePersistedMigrationsHaveConsistentEffectiveReadOrdersAndEffectiveVersions();                                                                                                           
+                                    updatedAggregates = updatedAggregatesBeforeMigrationOfThisAggregate + 1;
+                                    newEventCount += newEvents.Count();
+                                    updatedThisAggregate = true;
+                                });
+
+                            if(updatedThisAggregate)
+                            {
+                                _eventWriter.FixManualVersions(aggregateId);
+                            }
+
+                            transaction.Complete();
+                            _cache.Remove(aggregateId);
+                        }
+                        migratedAggregates++;
                     }
-                    migratedAggregates++;
+                }
+                catch(Exception exception)
+                {
+                    this.Log().Error($"Failed to persist migrations for aggregate: {aggregateId}", exception: exception);
                 }
 
                 if(logInterval < DateTime.Now - lastLogTime)

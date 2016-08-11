@@ -66,10 +66,19 @@ namespace Composable.CQRS.EventSourcing.MicrosoftSQLServer
             {
                 var cachedAggregateHistory = _cache.GetCopy(aggregateId);
 
+                var startAfterInsertedVersion = cachedAggregateHistory.Any() ? cachedAggregateHistory.Max(@event => @event.InsertedVersion) : 0;
+
                 var newEventsFromDatabase = _eventReader.GetAggregateHistory(
                     aggregateId: aggregateId,
-                    startAfterVersion: cachedAggregateHistory.Count,
+                    startAfterInsertedVersion: startAfterInsertedVersion,
                     takeWriteLock: takeWriteLock);
+
+                var newlyPersistedRefactoringEvents = newEventsFromDatabase.Where(IsRefactoringEvent);
+                if(newlyPersistedRefactoringEvents.Any() && startAfterInsertedVersion > 0)
+                {
+                    _cache.Remove(aggregateId);
+                    return GetAggregateHistoryInternal(aggregateId: aggregateId, takeWriteLock: takeWriteLock);
+                }
 
                 var currentHistory = cachedAggregateHistory.Count == 0 
                                                    ? SingleAggregateInstanceEventStreamMutator.MutateCompleteAggregateHistory(_migrationFactories, newEventsFromDatabase) 
@@ -83,6 +92,10 @@ namespace Composable.CQRS.EventSourcing.MicrosoftSQLServer
 
                 return currentHistory;
             }
+        }
+        private static bool IsRefactoringEvent(AggregateRootEvent @event)
+        {
+            return @event.InsertBefore.HasValue || @event.InsertAfter.HasValue || @event.Replaces.HasValue;
         }
 
         public const int StreamEventsBatchSize = 10000;

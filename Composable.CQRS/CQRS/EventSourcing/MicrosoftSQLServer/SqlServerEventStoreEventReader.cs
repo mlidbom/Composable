@@ -93,7 +93,7 @@ FROM {EventTable.Name} {lockHint} ";
             public bool HasBeenReplaced => EffectiveVersion < 0;
         }
 
-        public IReadOnlyList<AggregateRootEvent> GetAggregateHistory(Guid aggregateId, bool takeWriteLock, int startAfterVersion = 0)
+        public IReadOnlyList<AggregateRootEvent> GetAggregateHistory(Guid aggregateId, bool takeWriteLock, int startAfterInsertedVersion = 0)
         {
             var historyData = new List<EventDataRow>();
             using(var connection = _connectionMananger.OpenConnection(suppressTransactionWarning: !takeWriteLock))
@@ -103,10 +103,10 @@ FROM {EventTable.Name} {lockHint} ";
                     loadCommand.CommandText = $"{GetSelectClause(takeWriteLock)} WHERE {EventTable.Columns.AggregateId} = @{EventTable.Columns.AggregateId}";
                     loadCommand.Parameters.Add(new SqlParameter($"{EventTable.Columns.AggregateId}", aggregateId));
 
-                    if (startAfterVersion > 0)
+                    if (startAfterInsertedVersion > 0)
                     {
-                        loadCommand.CommandText += $" AND {EventTable.Columns.EffectiveVersion} > @CachedVersion";
-                        loadCommand.Parameters.Add(new SqlParameter("CachedVersion", startAfterVersion ));
+                        loadCommand.CommandText += $" AND {EventTable.Columns.InsertedVersion} > @CachedVersion";
+                        loadCommand.Parameters.Add(new SqlParameter("CachedVersion", startAfterInsertedVersion ));
                     }
 
                     loadCommand.CommandText += $" ORDER BY {EventTable.Columns.EffectiveReadOrder} ASC";
@@ -116,10 +116,10 @@ FROM {EventTable.Name} {lockHint} ";
                         while (reader.Read())
                         {
                             var eventDataRow = ReadDataRow(reader);
-                            if (eventDataRow.EffectiveVersion.Value > startAfterVersion)
-                            {                               
+                            if(eventDataRow.EffectiveVersion > 0)
+                            {
                                 historyData.Add(eventDataRow);
-                            }                            
+                            }
                         }
                     }
                 }

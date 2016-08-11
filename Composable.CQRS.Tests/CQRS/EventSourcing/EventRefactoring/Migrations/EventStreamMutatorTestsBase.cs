@@ -9,6 +9,7 @@ using Composable.CQRS.EventSourcing.MicrosoftSQLServer;
 using Composable.CQRS.EventSourcing.Refactoring.Migrations;
 using Composable.GenericAbstractions.Time;
 using Composable.ServiceBus;
+using Composable.System.Collections.Collections;
 using Composable.System.Configuration;
 using Composable.System.Linq;
 using Composable.UnitsOfWork;
@@ -53,6 +54,9 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
         private static void RunScenarioWithEventStoreType
             (MigrationScenario scenario, Type eventStoreType, WindsorContainer container, IList<IEventMigration> migrations, int indexOfScenarioInBatch)
         {
+            var startingMigrations = migrations.ToList();
+            migrations.Clear();
+
             var timeSource = container.Resolve<DummyTimeSource>();
 
             IReadOnlyList<IAggregateRootEvent> eventsInStoreAtStart;
@@ -89,6 +93,7 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
             AssertStreamsAreIdentical(expected, otherHistory, $"Direct call to SingleAggregateInstanceEventStreamMutator.MutateCompleteAggregateHistory");
 
             container.ExecuteUnitOfWorkInIsolatedScope(() => container.Resolve<IEventStoreSession>().Save(initialAggregate));
+            migrations.AddRange(startingMigrations);
             var migratedHistory = container.ExecuteUnitOfWorkInIsolatedScope(() => container.Resolve<IEventStoreSession>().Get<TestAggregate>(initialAggregate.Id)).History;            
 
             AssertStreamsAreIdentical(expected, migratedHistory, "Loaded aggregate");

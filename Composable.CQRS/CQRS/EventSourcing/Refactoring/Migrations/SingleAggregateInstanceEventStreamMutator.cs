@@ -112,18 +112,18 @@ namespace Composable.CQRS.EventSourcing.Refactoring.Migrations
             }
         }
 
-        private static void AssertMigrationsAreIdempotent(IReadOnlyList<IEventMigration> eventMigrations, AggregateRootEvent[] result)
+        public static void AssertMigrationsAreIdempotent(IReadOnlyList<IEventMigration> eventMigrations, AggregateRootEvent[] @events)
         {
-            var creationEvent = result.First();
+            var creationEvent = events.First();
 
             var migrators = eventMigrations
                 .Where(migration => migration.MigratedAggregateEventHierarchyRootInterface.IsInstanceOfType(creationEvent))
                 .Select(migration => migration.CreateSingleAggregateInstanceHandlingMigrator())
                 .ToArray();
 
-            for(var eventIndex = 0; eventIndex < result.Length; eventIndex++)
+            for(var eventIndex = 0; eventIndex < events.Length; eventIndex++)
             {
-                var @event = result[eventIndex];
+                var @event = events[eventIndex];
                 for(var migratorIndex = 0; migratorIndex < migrators.Length; migratorIndex++)
                 {
                     migrators[migratorIndex].MigrateEvent(@event, AssertMigrationsAreIdempotentEventModifier.Instance);

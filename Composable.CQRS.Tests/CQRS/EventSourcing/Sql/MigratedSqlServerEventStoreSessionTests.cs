@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Configuration;
 using System.Linq;
 using Castle.Windsor;
@@ -38,13 +39,13 @@ namespace CQRS.Tests.CQRS.EventSourcing.Sql
             return new EventStoreSession(Bus, store, new SingleThreadUseGuard(), DateTimeNowTimeSource.Instance);
         }
 
-        protected IEventStore CreateStore()
+        protected IEventStore CreateStore(bool withMigrations = true)
         {
-            var migrations = new EventMigration<IRootEvent>[]
-                             {
-                                 Before<UserRegistered>.Insert<MigratedBeforeUserRegisteredEvent>(),
-                                 After<UserChangedEmail>.Insert<MigratedAfterUserChangedEmailEvent>()
-                             };
+            var migrations = withMigrations ? (IEnumerable<IEventMigration>)new EventMigration<IRootEvent>[]
+                                                           {
+                                                               Before<UserRegistered>.Insert<MigratedBeforeUserRegisteredEvent>(),
+                                                               After<UserChangedEmail>.Insert<MigratedAfterUserChangedEmailEvent>()
+                                                           }: new List<IEventMigration>();
             return new SqlServerEventStore(_connectionString, new SingleThreadUseGuard(), nameMapper: null, migrations: migrations);
 
         }
@@ -54,7 +55,7 @@ namespace CQRS.Tests.CQRS.EventSourcing.Sql
         {
             var user = new User();
             user.Register("email@email.se", "password", Guid.NewGuid());
-            using (var session = OpenSession(CreateStore()))
+            using (var session = OpenSession(CreateStore(withMigrations:false)))
             {
                 session.Save(user);
                 user.ChangeEmail($"newemail@somewhere.not");

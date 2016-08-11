@@ -134,10 +134,11 @@ namespace Composable.CQRS.EventSourcing.MicrosoftSQLServer
             long updatedAggregates = 0;
             long newEventCount = 0;
             var logInterval = 1.Minutes();
-            var lastLogTime = DateTime.Now;
+            var lastLogTime = DateTime.Now;            
 
-            var aggregateIdsInCreationOrder = StreamAggregateIdsInCreationOrder().ToList();
-            foreach(var aggregateId in aggregateIdsInCreationOrder)
+            var aggregateIdsInCreationOrder = StreamAggregateIdsInCreationOrder().ToList();            
+
+            foreach (var aggregateId in aggregateIdsInCreationOrder)
             {
                 try
                 {
@@ -188,12 +189,13 @@ namespace Composable.CQRS.EventSourcing.MicrosoftSQLServer
                 if(logInterval < DateTime.Now - lastLogTime)
                 {
                     lastLogTime = DateTime.Now;
-                    this.Log().Info($"Aggregates: {migratedAggregates} / {aggregateIdsInCreationOrder.Count}, Updated: {updatedAggregates}, New Events: {newEventCount}");
+                    Func<int> percentDone = () => (int)(((double)migratedAggregates / aggregateIdsInCreationOrder.Count) * 100);
+                    this.Log().Info($"{percentDone()}% done. Inspected: {migratedAggregates} / {aggregateIdsInCreationOrder.Count}, Updated: {updatedAggregates}, New Events: {newEventCount}");
                 }
             }
-
+            
             this.Log().Warn($"Done persisting migrations.");
-            this.Log().Info($"Aggregates: {migratedAggregates} / {aggregateIdsInCreationOrder.Count} , Updated: {updatedAggregates}, New Events: {newEventCount}");            
+            this.Log().Info($"Inspected: {migratedAggregates} , Updated: {updatedAggregates}, New Events: {newEventCount}");            
            
         }
 

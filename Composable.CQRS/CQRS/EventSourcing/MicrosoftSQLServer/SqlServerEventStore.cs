@@ -180,6 +180,7 @@ namespace Composable.CQRS.EventSourcing.MicrosoftSQLServer
 
                 if(logInterval < DateTime.Now - lastLogTime)
                 {
+                    lastLogTime = DateTime.Now;
                     this.Log().Info($"Aggregates: {migratedAggregates} / {aggregateIdsInCreationOrder.Count}, Updated: {updatedAggregates}, New Events: {newEventCount}");
                 }
             }

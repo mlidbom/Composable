@@ -21,7 +21,20 @@ namespace Composable.CQRS.EventSourcing.MicrosoftSQLServer
             var lockHint = takeWriteLock ? "With(UPDLOCK, READCOMMITTED, ROWLOCK)" : "With(READCOMMITTED, ROWLOCK)";
 
             return $@"
-SELECT {topClause} {EventTable.Columns.EventType}, {EventTable.Columns.Event}, {EventTable.Columns.AggregateId}, {EventTable.Columns.EffectiveVersion}, {EventTable.Columns.EventId}, {EventTable.Columns.UtcTimeStamp}, {EventTable.Columns.InsertionOrder}, {EventTable.Columns.InsertAfter}, {EventTable.Columns.InsertBefore}, {EventTable.Columns.Replaces}, {EventTable.Columns.InsertedVersion}, {EventTable.Columns.ManualVersion}, {EventTable.Columns.EffectiveReadOrder}
+SELECT {topClause} 
+    {EventTable.Columns.EventType}, 
+    {EventTable.Columns.Event}, 
+    {EventTable.Columns.AggregateId}, 
+    {EventTable.Columns.EffectiveVersion}, 
+    {EventTable.Columns.EventId}, 
+    {EventTable.Columns.UtcTimeStamp}, 
+    {EventTable.Columns.InsertionOrder}, 
+    {EventTable.Columns.InsertAfter}, 
+    {EventTable.Columns.InsertBefore}, 
+    {EventTable.Columns.Replaces}, 
+    {EventTable.Columns.InsertedVersion}, 
+    {EventTable.Columns.ManualVersion}, 
+    {EventTable.Columns.EffectiveReadOrder}
 FROM {EventTable.Name} {lockHint} ";
         }
 
@@ -80,10 +93,10 @@ FROM {EventTable.Name} {lockHint} ";
             public bool HasBeenReplaced => EffectiveVersion < 0;
         }
 
-        public IReadOnlyList<AggregateRootEvent> GetAggregateHistory(Guid aggregateId, bool takeWriteLock, int startAfterVersion = 0, bool suppressTransactionWarning = false, bool includeReplacedEventsWhenLoadingCompleteHistory = false)
+        public IReadOnlyList<AggregateRootEvent> GetAggregateHistory(Guid aggregateId, bool takeWriteLock, int startAfterVersion = 0)
         {
             var historyData = new List<EventDataRow>();
-            using(var connection = _connectionMananger.OpenConnection(suppressTransactionWarning: suppressTransactionWarning))
+            using(var connection = _connectionMananger.OpenConnection(suppressTransactionWarning: !takeWriteLock))
             {
                 using (var loadCommand = connection.CreateCommand()) 
                 {
@@ -96,14 +109,14 @@ FROM {EventTable.Name} {lockHint} ";
                         loadCommand.Parameters.Add(new SqlParameter("CachedVersion", startAfterVersion ));
                     }
 
-                    loadCommand.CommandText += $" ORDER BY {EventTable.Columns.EffectiveVersion} ASC";
+                    loadCommand.CommandText += $" ORDER BY {EventTable.Columns.EffectiveReadOrder} ASC";
 
                     using (var reader = loadCommand.ExecuteReader())
                     {
                         while (reader.Read())
                         {
                             var eventDataRow = ReadDataRow(reader);
-                            if ((startAfterVersion == 0 && includeReplacedEventsWhenLoadingCompleteHistory && eventDataRow.HasBeenReplaced) || eventDataRow.EffectiveVersion.Value > startAfterVersion)
+                            if (eventDataRow.EffectiveVersion.Value > startAfterVersion)
                             {                               
                                 historyData.Add(eventDataRow);
                             }                            
@@ -153,9 +166,9 @@ FROM {EventTable.Name} {lockHint} ";
             }
         }   
 
-        [Obsolete("BUG: This method has the same reentrancy problem with the database connection that the other methods in this class had. We need to change it so that it does not yield while reading a reader.")]
         public IEnumerable<Guid> StreamAggregateIdsInCreationOrder(Type eventBaseType = null)
         {
+            var ids = new List<Guid>();
             using (var connection = _connectionMananger.OpenConnection(suppressTransactionWarning:true))
             {
                 using (var loadCommand = connection.CreateCommand())
@@ -168,12 +181,13 @@ FROM {EventTable.Name} {lockHint} ";
                         {
                             if(eventBaseType == null || eventBaseType.IsAssignableFrom(EventTypeToIdMapper.GetType(reader.GetInt32(1))))
                             {
-                                yield return (Guid)reader[0];
+                                ids.Add((Guid)reader[0]);
                             }
                         }
                     }
                 }
             }
+            return ids;
         }
 
 

@@ -1,42 +1,36 @@
 ﻿using System;
 using System.Configuration;
 using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using System.Transactions;
 using Castle.Windsor;
 using Composable.CQRS.EventSourcing;
 using Composable.CQRS.EventSourcing.MicrosoftSQLServer;
 using Composable.CQRS.EventSourcing.Refactoring.Migrations;
 using Composable.CQRS.Testing;
 using Composable.GenericAbstractions.Time;
-using Composable.System.Linq;
 using Composable.SystemExtensions.Threading;
 using CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations;
 using FluentAssertions;
-using NCrunch.Framework;
 using NUnit.Framework;
 using TestAggregates;
 
 namespace CQRS.Tests.CQRS.EventSourcing.Sql
 {
     [TestFixture]
-    [ExclusivelyUses(NCrunchExlusivelyUsesResources.EventStoreDbMdf)]
     class MigratedSqlServerEventStoreSessionTests : NoSqlTest
     {
-        private static readonly string ConnectionString = ConfigurationManager.ConnectionStrings["EventStore"].ConnectionString;
-        [TestFixtureSetUp]
-        public static void SetupFixture()
-        {
-            SqlServerEventStore.ResetDB(ConnectionString);
-        }
+        private string _connectionString;
+        private WindsorContainer _windsorContainer;
 
         protected DummyServiceBus Bus { get; private set; }
 
         [SetUp]
         public void Setup()
         {
-            Bus = new DummyServiceBus(new WindsorContainer());
+            _windsorContainer = new WindsorContainer();
+            Bus = new DummyServiceBus(_windsorContainer);
+            var masterConnectionString = ConfigurationManager.ConnectionStrings["MasterDb"].ConnectionString;
+            _connectionString = new TemporaryLocalDbManager(masterConnectionString, _windsorContainer)
+                .CreateOrGetLocalDb("MigratedSqlServerEventStoreSessionTests_EventStore");
         }
 
         protected IEventStoreSession OpenSession(IEventStore store)
@@ -51,7 +45,7 @@ namespace CQRS.Tests.CQRS.EventSourcing.Sql
                                  Before<UserRegistered>.Insert<MigratedBeforeUserRegisteredEvent>(),
                                  After<UserChangedEmail>.Insert<MigratedAfterUserChangedEmailEvent>()
                              };
-            return new SqlServerEventStore(ConnectionString, new SingleThreadUseGuard(), nameMapper: null, migrations: migrations);
+            return new SqlServerEventStore(_connectionString, new SingleThreadUseGuard(), nameMapper: null, migrations: migrations);
 
         }
 
@@ -94,5 +88,8 @@ namespace CQRS.Tests.CQRS.EventSourcing.Sql
                 history2.Count().Should().Be(history3.Count());
             }
         }
+
+        [TearDown]
+        public void TearDownTask() { _windsorContainer.Dispose(); }
     }
 }

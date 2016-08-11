@@ -22,7 +22,12 @@ namespace Composable.CQRS.Testing
                                                          END stmt, type
                                                     FROM sys.objects) x
                                  WHERE stmt IS NOT NULL
-                                 ORDER BY CASE WHEN type IN('C', 'F', 'UQ', 'TA', 'TR') THEN 1 ELSE 2 END";
+                                 ORDER BY CASE 
+											WHEN type IN('F') THEN 1
+											WHEN type IN('C', 'TA', 'TR') THEN 2 
+											WHEN type IN('UQ') THEN 3
+											ELSE 4
+										END";
 
             var result = new List<string>();
             using (var rdr = cmd.ExecuteReader())
@@ -55,6 +60,7 @@ namespace Composable.CQRS.Testing
                     }
                     catch (SqlException ex)
                     {
+                        Console.WriteLine($"#########!!!!####Exception: {ex.Message}");
                         if (i == 0)
                             innerEx = ex;   // This is the exception we will later raise from this method in case we, for one reason or another, can't drop all objects.
                     }

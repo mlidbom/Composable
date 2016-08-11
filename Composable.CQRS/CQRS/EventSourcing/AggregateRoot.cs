@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
+using System.Linq;
 using Composable.CQRS.EventHandling;
 using Composable.DDD;
 using Composable.DomainEvents;
@@ -20,6 +21,8 @@ namespace Composable.CQRS.EventSourcing
         [Obsolete("Only for infrastructure", true)]
         public AggregateRoot():this(DateTimeNowTimeSource.Instance){ }
 
+        private int _insertedVersionToAggregateVersionOffset = 0;
+
         //Yes empty. Id should be assigned by an action and it should be obvious that the aggregate in invalid until that happens
         protected AggregateRoot(IUtcTimeTimeSource timeSource) : base(Guid.Empty)
         {
@@ -34,6 +37,7 @@ namespace Composable.CQRS.EventSourcing
         private readonly CallMatchingHandlersInRegistrationOrderEventDispatcher<TAggregateRootBaseEventInterface> _eventHandlersEventDispatcher = new CallMatchingHandlersInRegistrationOrderEventDispatcher<TAggregateRootBaseEventInterface>();
 
         private readonly List<TAggregateRootBaseEventInterface> _history = new List<TAggregateRootBaseEventInterface>();
+        
         public IReadOnlyList<TAggregateRootBaseEventInterface> GetHistory() => _history; 
 
         protected void RaiseEvent(TAggregateRootBaseEventClass theEvent)
@@ -53,6 +57,11 @@ namespace Composable.CQRS.EventSourcing
                 {
                     throw new ArgumentOutOfRangeException("Tried to raise event for AggregateRootId: {0} from AggregateRoot with Id: {1}."
                         .FormatWith(theEvent.AggregateRootId, Id));
+                }
+                if(_insertedVersionToAggregateVersionOffset != 0)
+                {
+                    theEvent.InsertedVersion = theEvent.AggregateRootVersion + _insertedVersionToAggregateVersionOffset;
+                    theEvent.ManualVersion = theEvent.AggregateRootVersion;
                 }
                 theEvent.AggregateRootId = Id;
             }
@@ -104,10 +113,15 @@ namespace Composable.CQRS.EventSourcing
         {
             TimeSource = timeSource;
         }
-
+        
         void IEventStored.LoadFromHistory(IEnumerable<IAggregateRootEvent> history)
         {
             history.ForEach(theEvent => ApplyEvent((TAggregateRootBaseEventInterface)theEvent));
+            var maxInsertedVersion = history.Max(@event => ((AggregateRootEvent)@event).InsertedVersion);
+            if(maxInsertedVersion != Version)
+            {
+                _insertedVersionToAggregateVersionOffset = maxInsertedVersion - Version;
+            }
         }
 
         void ISharedOwnershipAggregateRoot.IntegrateExternallyRaisedEvent(IAggregateRootEvent theEvent)

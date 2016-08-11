@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Diagnostics.Contracts;
 using System.Linq;
 using System.Transactions;
@@ -7,10 +8,10 @@ using Composable.CQRS.EventSourcing.Refactoring.Migrations;
 using Composable.CQRS.EventSourcing.Refactoring.Naming;
 using Composable.Logging.Log4Net;
 using Composable.System;
-using Composable.System.Collections.Collections;
 using Composable.System.Linq;
 using Composable.SystemExtensions.Threading;
 using log4net;
+using Newtonsoft.Json;
 
 namespace Composable.CQRS.EventSourcing.MicrosoftSQLServer
 {
@@ -56,6 +57,7 @@ namespace Composable.CQRS.EventSourcing.MicrosoftSQLServer
         {
             return GetAggregateHistoryInternal(aggregateId, takeWriteLock: false);
         }
+
         private IEnumerable<IAggregateRootEvent> GetAggregateHistoryInternal(Guid aggregateId, bool takeWriteLock)
         {
             _usageGuard.AssertNoContextChangeOccurred(this);
@@ -67,30 +69,14 @@ namespace Composable.CQRS.EventSourcing.MicrosoftSQLServer
                 var newEventsFromDatabase = _eventReader.GetAggregateHistory(
                     aggregateId: aggregateId,
                     startAfterVersion: cachedAggregateHistory.Count,
-                    suppressTransactionWarning: true,
-                    includeReplacedEventsWhenLoadingCompleteHistory: true,
                     takeWriteLock: takeWriteLock);
 
-                IReadOnlyList<AggregateRootEvent> currentHistory;
-
-                if(cachedAggregateHistory.Count == 0)
-                {
-                    currentHistory = newEventsFromDatabase;
-                    var withSqlMigrationsApplied = ApplyOldMigrations(currentHistory);
-
-                    var migratedAggregateHistory = SingleAggregateInstanceEventStreamMutator.MutateCompleteAggregateHistory(
-                        _migrationFactories,
-                        withSqlMigrationsApplied);
-
-                    currentHistory = migratedAggregateHistory;
-                }
-                else
-                {
-                    currentHistory = cachedAggregateHistory.Concat(newEventsFromDatabase).ToList();
-                }
+                var currentHistory = cachedAggregateHistory.Count == 0 
+                                                   ? SingleAggregateInstanceEventStreamMutator.MutateCompleteAggregateHistory(_migrationFactories, newEventsFromDatabase) 
+                                                   : cachedAggregateHistory.Concat(newEventsFromDatabase).ToList();
 
                 //Should within a transaction a process write events, read them, then fail to commit we will have cached events that are not persisted unless we refuse to cache them here.
-                if(!_aggregatesWithEventsAddedByThisInstance.Contains(aggregateId))
+                if (!_aggregatesWithEventsAddedByThisInstance.Contains(aggregateId))
                 {
                     _cache.Store(aggregateId, currentHistory);
                 }
@@ -99,64 +85,12 @@ namespace Composable.CQRS.EventSourcing.MicrosoftSQLServer
             }
         }
 
-        private static IReadOnlyList<AggregateRootEvent> ApplyOldMigrations(IReadOnlyList<AggregateRootEvent> events)
-        {
-            var mutatedHistory = events.OrderBy(@event => @event.InsertionOrder).ToList();
-            var mutations = mutatedHistory.Where(IsRefactoringEvent).ToList();
-
-            AggregateRootEvent mutation;
-            while ((mutation = mutations.FirstOrDefault()) != null)
-            {
-                if(mutation.Replaces.HasValue)
-                {
-                    var replacements = mutations.RemoveIf(current => current.Replaces == mutation.Replaces);
-                    mutatedHistory.RemoveRange(replacements);
-                    var replaceIndex = mutatedHistory.FindIndex(@event => @event.InsertionOrder == mutation.Replaces.Value);
-
-                    mutatedHistory.InsertRange(replaceIndex + 1, replacements);
-                    mutatedHistory.RemoveAt(replaceIndex);
-
-                }
-                else if(mutation.InsertAfter.HasValue)
-                {                    
-                    var inserted = mutations.RemoveIf(current => current.InsertAfter == mutation.InsertAfter);
-                    mutatedHistory.RemoveRange(inserted);
-                    var insertAfterIndex = mutatedHistory.FindIndex(@event => @event.InsertionOrder == mutation.InsertAfter.Value);
-
-                    mutatedHistory.InsertRange(insertAfterIndex + 1, inserted);
-                }
-                else if(mutation.InsertBefore.HasValue)
-                {
-                    var inserted = mutations.RemoveIf(current => current.InsertBefore == mutation.InsertBefore);
-                    mutatedHistory.RemoveRange(inserted);
-                    var insertBeforeIndex = mutatedHistory.FindIndex(@event => @event.InsertionOrder == mutation.InsertBefore.Value);
-
-                    mutatedHistory.InsertRange(insertBeforeIndex, inserted);
-                }
-                else
-                {
-                    throw new Exception("WTF?");
-                }
-            }
-
-            mutatedHistory.ForEach((@event, index) => @event.AggregateRootVersion = index + 1);
-
-            return mutatedHistory;
-        }
-
-        private static bool IsRefactoringEvent(AggregateRootEvent @event)
-        {
-            return @event.InsertAfter != null || @event.InsertBefore != null || @event.Replaces != null;
-        }
-
         public const int StreamEventsBatchSize = 10000;
        
         private IEnumerable<IAggregateRootEvent> StreamEvents()
         {            
             _usageGuard.AssertNoContextChangeOccurred(this);
             _schemaManager.SetupSchemaIfDatabaseUnInitialized();
-
-            EnsurePersistedMigrationsHaveConsistentEffectiveReadOrdersAndEffectiveVersions();
 
             var streamMutator = CompleteEventStoreStreamMutator.Create(_migrationFactories);
             return streamMutator.Mutate(_eventReader.StreamEvents(StreamEventsBatchSize));
@@ -191,6 +125,7 @@ namespace Composable.CQRS.EventSourcing.MicrosoftSQLServer
         }
 
 
+
         public void PersistMigrations()
         {
             this.Log().Warn($"Starting to persist migrations");
@@ -201,37 +136,86 @@ namespace Composable.CQRS.EventSourcing.MicrosoftSQLServer
             var logInterval = 1.Minutes();
             var lastLogTime = DateTime.Now;
 
-            foreach(var aggregateId in StreamAggregateIdsInCreationOrder())
-            {                
-                using(var transaction = new TransactionScope())
+            const int recoverableErrorRetriesToMake = 5;
+
+            var aggregateIdsInCreationOrder = StreamAggregateIdsInCreationOrder().ToList();            
+
+            foreach (var aggregateId in aggregateIdsInCreationOrder)
+            {
+                try
                 {
-                    var original = _eventReader.GetAggregateHistory(aggregateId: aggregateId, takeWriteLock: true).ToList();
+                    var succeeded = false;
+                    int retries = 0;
+                    while(!succeeded)
+                    {
+                        try
+                        {
+                            //todo: Look at batching the inserting of events in a way that let's us avoid taking a lock for a long time as we do now. This might be a problem in production.
+                            using(var transaction = new TransactionScope(TransactionScopeOption.Required, scopeTimeout: 10.Minutes()))
+                            {
+                                lock(AggregateLockManager.GetAggregateLockObject(aggregateId))
+                                {
+                                    var updatedThisAggregate = false;
+                                    var original = _eventReader.GetAggregateHistory(aggregateId: aggregateId, takeWriteLock: true).ToList();
 
-                    var startInsertingWithVersion = original[original.Count - 1].AggregateRootVersion + 1;
+                                    var startInsertingWithVersion = original.Max(@event => @event.InsertedVersion) + 1;
 
-                    SingleAggregateInstanceEventStreamMutator.MutateCompleteAggregateHistory(_migrationFactories, original,
-                                                                                                   newEvents =>
-                                                                                                   {
-                                                                                                       newEvents.ForEach(@event => ((AggregateRootEvent)@event).AggregateRootVersion = startInsertingWithVersion++);
-                                                                                                       SaveEvents(newEvents);
-                                                                                                       updatedAggregates++;
-                                                                                                       newEventCount += newEvents.Count();
-                                                                                                   });
-                    transaction.Complete();
-                    migratedAggregates++;
+                                    var updatedAggregatesBeforeMigrationOfThisAggregate = updatedAggregates;
+
+                                    SingleAggregateInstanceEventStreamMutator.MutateCompleteAggregateHistory(
+                                        _migrationFactories,
+                                        original,
+                                        newEvents =>
+                                        {
+                                            //Make sure we don't try to insert into an occupied InsertedVersion                                                                                                           
+                                            newEvents.ForEach(@event => @event.InsertedVersion = startInsertingWithVersion++);
+                                            //Save all new events so they get an InsertionOrder for the next refactoring to work with in case it acts relative to any of these events                                                                                                           
+                                            _eventWriter.InsertRefactoringEvents(newEvents);
+                                            updatedAggregates = updatedAggregatesBeforeMigrationOfThisAggregate + 1;
+                                            newEventCount += newEvents.Count();
+                                            updatedThisAggregate = true;
+                                        });
+
+                                    if(updatedThisAggregate)
+                                    {
+                                        _eventWriter.FixManualVersions(aggregateId);
+                                    }
+
+                                    transaction.Complete();
+                                    _cache.Remove(aggregateId);
+                                }
+                                migratedAggregates++;
+                                succeeded = true;
+                            }
+                        }
+                        catch(Exception e) when(IsRecoverableSqlException(e) && ++retries <= recoverableErrorRetriesToMake)
+                        {
+                            this.Log().Warn($"Failed to persist migrations for aggregate: {aggregateId}. Exception appers to be recoverable so running retry {retries} out of {recoverableErrorRetriesToMake}", e);
+                        }
+                    }
+                }
+                catch(Exception exception)
+                {
+                    this.Log().Error($"Failed to persist migrations for aggregate: {aggregateId}", exception: exception);
                 }
 
                 if(logInterval < DateTime.Now - lastLogTime)
                 {
-                    this.Log().Info($"Aggregates: {migratedAggregates}, Updated: {updatedAggregates}, New Events: {newEventCount}");
+                    lastLogTime = DateTime.Now;
+                    Func<int> percentDone = () => (int)(((double)migratedAggregates / aggregateIdsInCreationOrder.Count) * 100);
+                    this.Log().Info($"{percentDone()}% done. Inspected: {migratedAggregates} / {aggregateIdsInCreationOrder.Count}, Updated: {updatedAggregates}, New Events: {newEventCount}");
                 }
             }
-
-            this.Log().Info($"Aggregates: {migratedAggregates}, Updated: {updatedAggregates}, New Events: {newEventCount}");
-
-            EnsurePersistedMigrationsHaveConsistentEffectiveReadOrdersAndEffectiveVersions();
-
+            
             this.Log().Warn($"Done persisting migrations.");
+            this.Log().Info($"Inspected: {migratedAggregates} , Updated: {updatedAggregates}, New Events: {newEventCount}");            
+           
+        }
+
+        private bool IsRecoverableSqlException(Exception exception)
+        {
+            var message = exception.Message.ToLower();
+            return message.Contains("timeout") || message.Contains("deadlock");
         }
 
         public IEnumerable<Guid> StreamAggregateIdsInCreationOrder(Type eventBaseType = null)
@@ -241,27 +225,12 @@ namespace Composable.CQRS.EventSourcing.MicrosoftSQLServer
 
             _schemaManager.SetupSchemaIfDatabaseUnInitialized();
 
-            EnsurePersistedMigrationsHaveConsistentEffectiveReadOrdersAndEffectiveVersions();
             return _eventReader.StreamAggregateIdsInCreationOrder(eventBaseType);
-        }        
-
-        private void EnsurePersistedMigrationsHaveConsistentEffectiveReadOrdersAndEffectiveVersions()
-        {
-            this.Log().Debug($"{nameof(EnsurePersistedMigrationsHaveConsistentEffectiveReadOrdersAndEffectiveVersions)}: Starting");
-
-            _connectionMananger.UseCommand(
-                command =>
-                {
-                    command.CommandText = SqlStatements.EnsurePersistedMigrationsHaveConsistentEffectiveReadOrdersAndEffectiveVersions;
-                    command.ExecuteNonQuery();
-                });
-
-            this.Log().Debug($"{nameof(EnsurePersistedMigrationsHaveConsistentEffectiveReadOrdersAndEffectiveVersions)}: Done");
         }
 
         public static void ResetDB(string connectionString)
         {
-            new SqlServerEventStoreSchemaManager(connectionString, new DefaultEventNameMapper()).ResetDB();
+            new SqlServerEventStore(connectionString, new SingleThreadUseGuard()).ResetDB();
         }
 
         public void ResetDB()

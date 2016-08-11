@@ -52,22 +52,26 @@ AT:
                     return;
                 }
 
-                using(var connection = OpenConnection())
+                using(var transaction = new TransactionScope())
                 {
-                    LegacyEventTable.LogAndThrowIfUsingLegacySchema(connection);
-                    var usingLegacySchema = LegacyEventTable.IsUsingLegacySchema(connection);
-
-                    IdMapper = new SqlServerEventStoreEventTypeToIdMapper(ConnectionString, _nameMapper);
-
-                    ConnectionIdMapper[ConnectionString] = IdMapper;
-
-                    if(!usingLegacySchema && !EventTable.Exists(connection))
+                    using(var connection = OpenConnection())
                     {
-                        EventTypeTable.Create(connection);
-                        EventTable.Create(connection);
-                    }
+                        LegacyEventTable.LogAndThrowIfUsingLegacySchema(connection);
+                        var usingLegacySchema = LegacyEventTable.IsUsingLegacySchema(connection);
 
-                    VerifiedConnectionStrings.Add(ConnectionString);
+                        IdMapper = new SqlServerEventStoreEventTypeToIdMapper(ConnectionString, _nameMapper);
+
+                        ConnectionIdMapper[ConnectionString] = IdMapper;
+
+                        if(!usingLegacySchema && !EventTable.Exists(connection))
+                        {
+                            EventTypeTable.Create(connection);
+                            EventTable.Create(connection);
+                        }
+
+                        VerifiedConnectionStrings.Add(ConnectionString);
+                    }
+                    transaction.Complete();
                 }
             }
         }

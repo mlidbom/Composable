@@ -162,9 +162,7 @@ namespace Composable.CQRS.EventSourcing.MicrosoftSQLServer
                                     //Make sure we don't try to insert into an occupied InsertedVersion                                                                                                           
                                     newEvents.ForEach(@event => @event.InsertedVersion = startInsertingWithVersion++);
                                     //Save all new events so they get an InsertionOrder for the next refactoring to work with in case it acts relative to any of these events                                                                                                           
-                                    _eventWriter.InsertRefactoringEvents(newEvents);
-                                    //SaveEvents(newEvents);
-                                    //EnsurePersistedMigrationsHaveConsistentEffectiveReadOrdersAndEffectiveVersions();                                                                                                           
+                                    _eventWriter.InsertRefactoringEvents(newEvents);                                                                                                     
                                     updatedAggregates = updatedAggregatesBeforeMigrationOfThisAggregate + 1;
                                     newEventCount += newEvents.Count();
                                     updatedThisAggregate = true;

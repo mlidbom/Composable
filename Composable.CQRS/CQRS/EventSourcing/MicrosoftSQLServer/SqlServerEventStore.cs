@@ -66,15 +66,15 @@ namespace Composable.CQRS.EventSourcing.MicrosoftSQLServer
             {
                 var cachedAggregateHistory = _cache.GetCopy(aggregateId);
 
-                var startAfterInsertedVersion = cachedAggregateHistory.Any() ? cachedAggregateHistory.Max(@event => @event.InsertedVersion) : 0;
+                var highestCachedInsertedVersion = cachedAggregateHistory.Any() ? cachedAggregateHistory.Max(@event => @event.InsertedVersion) : 0;
 
                 var newEventsFromDatabase = _eventReader.GetAggregateHistory(
                     aggregateId: aggregateId,
-                    startAfterInsertedVersion: startAfterInsertedVersion,
+                    startAfterInsertedVersion: highestCachedInsertedVersion,
                     takeWriteLock: takeWriteLock);
 
-                var newlyPersistedRefactoringEvents = newEventsFromDatabase.Where(IsRefactoringEvent);
-                if(newlyPersistedRefactoringEvents.Any() && startAfterInsertedVersion > 0)
+                var containsRefactoringEvents = newEventsFromDatabase.Where(IsRefactoringEvent).Any();
+                if(containsRefactoringEvents && highestCachedInsertedVersion > 0)
                 {
                     _cache.Remove(aggregateId);
                     return GetAggregateHistoryInternal(aggregateId: aggregateId, takeWriteLock: takeWriteLock);
@@ -93,6 +93,7 @@ namespace Composable.CQRS.EventSourcing.MicrosoftSQLServer
                 return currentHistory;
             }
         }
+
         private static bool IsRefactoringEvent(AggregateRootEvent @event)
         {
             return @event.InsertBefore.HasValue || @event.InsertAfter.HasValue || @event.Replaces.HasValue;

@@ -136,7 +136,7 @@ namespace Composable.CQRS.EventSourcing.MicrosoftSQLServer
             var logInterval = 1.Minutes();
             var lastLogTime = DateTime.Now;
 
-            const int RecoverableErrorRetriesToMake = 5;
+            const int recoverableErrorRetriesToMake = 5;
 
             var aggregateIdsInCreationOrder = StreamAggregateIdsInCreationOrder().ToList();            
 
@@ -188,9 +188,9 @@ namespace Composable.CQRS.EventSourcing.MicrosoftSQLServer
                                 succeeded = true;
                             }
                         }
-                        catch(Exception e) when(IsRecoverableSqlException(e) && ++retries <= RecoverableErrorRetriesToMake)
+                        catch(Exception e) when(IsRecoverableSqlException(e) && ++retries <= recoverableErrorRetriesToMake)
                         {
-                            this.Log().Warn($"Failed to persist migrations for aggregate: {aggregateId}. Exception appers to be recoverable so running retry {retries} out of {RecoverableErrorRetriesToMake}", e);
+                            this.Log().Warn($"Failed to persist migrations for aggregate: {aggregateId}. Exception appers to be recoverable so running retry {retries} out of {recoverableErrorRetriesToMake}", e);
                         }
                     }
                 }

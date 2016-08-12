@@ -53,9 +53,14 @@ namespace Composable.CQRS.EventSourcing.Refactoring.Migrations
             }
         }
 
+        private void AssertNoPriorModificationsHaveBeenMade()
+        {
+            Contract.Assert(_replacementEvents == null && _insertedEvents == null, $"You can only modify the current event once.");
+        }
+
         public void Replace(params AggregateRootEvent[] events)
         {
-            Contract.Assert(_replacementEvents == null, $"You can only call {nameof(Replace)} once");
+            AssertNoPriorModificationsHaveBeenMade();
             Contract.Assert(Event.GetType() != typeof(EndOfAggregateHistoryEventPlaceHolder), "You cannot call replace on the event that signifies the end of the stream");
 
             _replacementEvents = events;
@@ -63,7 +68,7 @@ namespace Composable.CQRS.EventSourcing.Refactoring.Migrations
             _replacementEvents.ForEach(
                 (e, index) =>
                 {                    
-                    e.AggregateRootVersion = Event.AggregateRootVersion + index;
+                    e.ManualVersion = e.AggregateRootVersion = Event.AggregateRootVersion + index;
                     e.Replaces = Event.InsertionOrder;
                     e.AggregateRootId = Event.AggregateRootId;
                     e.UtcTimeStamp = Event.UtcTimeStamp;
@@ -98,7 +103,7 @@ namespace Composable.CQRS.EventSourcing.Refactoring.Migrations
 
         public void InsertBefore(params AggregateRootEvent[] insert)
         {
-            Contract.Assert(_insertedEvents == null, $"You can only call {nameof(InsertBefore)} once");
+            AssertNoPriorModificationsHaveBeenMade();
 
             _insertedEvents = insert;
 
@@ -108,7 +113,7 @@ namespace Composable.CQRS.EventSourcing.Refactoring.Migrations
                     (e, index) =>
                     {
                         e.InsertAfter = _lastEventInActualStream.InsertionOrder;
-                        e.AggregateRootVersion = Event.AggregateRootVersion + index;
+                        e.ManualVersion = e.AggregateRootVersion = Event.AggregateRootVersion + index;
                         e.AggregateRootId = Event.AggregateRootId;
                         e.UtcTimeStamp = _lastEventInActualStream.UtcTimeStamp;
                     });                
@@ -119,13 +124,13 @@ namespace Composable.CQRS.EventSourcing.Refactoring.Migrations
                     (e, index) =>
                     {
                         e.InsertBefore = Event.InsertionOrder;
-                        e.AggregateRootVersion = Event.AggregateRootVersion + index;
+                        e.ManualVersion = e.AggregateRootVersion = Event.AggregateRootVersion + index;
                         e.AggregateRootId = Event.AggregateRootId;
                         e.UtcTimeStamp = Event.UtcTimeStamp;
                     });
             }
 
-            CurrentNode.ValuesFrom().ForEach((@event, index) => @event.AggregateRootVersion += _insertedEvents.Length);
+            CurrentNode.ValuesFrom().ForEach((@event, index) => { @event.AggregateRootVersion += _insertedEvents.Length; });
 
             CurrentNode.AddBefore(_insertedEvents);
             _eventsAddedCallback.Invoke(_insertedEvents);

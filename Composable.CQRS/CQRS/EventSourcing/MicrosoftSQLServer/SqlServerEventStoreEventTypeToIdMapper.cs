@@ -63,6 +63,7 @@ namespace Composable.CQRS.EventSourcing.MicrosoftSQLServer
                 LoadTypesFromDatabase();
             }
         }
+
         private void LoadTypesFromDatabase()
         {
             lock(_lockObject)
@@ -111,7 +112,7 @@ namespace Composable.CQRS.EventSourcing.MicrosoftSQLServer
 
         private IEnumerable<IIdTypeMapping> GetTypes()
         {
-            using(var connection = _connectionMananger.OpenConnection())
+            using(var connection = _connectionMananger.OpenConnection(suppressTransactionWarning:true))
             {
                 using(var command = connection.CreateCommand())
                 {

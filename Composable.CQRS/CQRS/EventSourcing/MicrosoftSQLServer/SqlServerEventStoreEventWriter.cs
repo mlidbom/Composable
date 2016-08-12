@@ -3,23 +3,24 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
 using System.Data.SqlTypes;
-using System.Diagnostics;
 using System.Diagnostics.Contracts;
 using System.Linq;
 using Composable.System;
 using Composable.System.Linq;
-using Newtonsoft.Json;
 
 namespace Composable.CQRS.EventSourcing.MicrosoftSQLServer
 {
-    internal class  SqlServerEventStoreEventWriter
+    internal class SqlServerEventStoreEventWriter
     {
         private readonly SqlServerEventStoreConnectionManager _connectionMananger;
         private readonly SqlServerEvestStoreEventSerializer _eventSerializer;
         private IEventTypeToIdMapper IdMapper => _schemaManager.IdMapper;
         private readonly SqlServerEventStoreSchemaManager _schemaManager;
 
-        public SqlServerEventStoreEventWriter(SqlServerEventStoreConnectionManager connectionMananger, SqlServerEvestStoreEventSerializer eventSerializer, SqlServerEventStoreSchemaManager schemaManager)
+        public SqlServerEventStoreEventWriter
+            (SqlServerEventStoreConnectionManager connectionMananger,
+             SqlServerEvestStoreEventSerializer eventSerializer,
+             SqlServerEventStoreSchemaManager schemaManager)
         {
             _connectionMananger = connectionMananger;
             _eventSerializer = eventSerializer;
@@ -34,12 +35,12 @@ namespace Composable.CQRS.EventSourcing.MicrosoftSQLServer
 
         private void SaveEventsInternal(IEnumerable<EventWithManualReadorder> events)
         {
-            using (var connection = _connectionMananger.OpenConnection())
+            using(var connection = _connectionMananger.OpenConnection())
             {
-                foreach (var refactoringEvent in events)
+                foreach(var refactoringEvent in events)
                 {
                     var @event = refactoringEvent.Event;
-                    using (var command = connection.CreateCommand())
+                    using(var command = connection.CreateCommand())
                     {
                         command.CommandType = CommandType.Text;
 
@@ -51,7 +52,10 @@ VALUES(@{EventTable.Columns.AggregateId}, @{EventTable.Columns.InsertedVersion},
 SET @{EventTable.Columns.InsertionOrder} = SCOPE_IDENTITY();";
 
                         command.Parameters.Add(new SqlParameter(EventTable.Columns.AggregateId, @event.AggregateRootId));
-                        command.Parameters.Add(new SqlParameter(EventTable.Columns.InsertedVersion, @event.InsertedVersion > @event.AggregateRootVersion ? @event.InsertedVersion : @event.AggregateRootVersion));
+                        command.Parameters.Add(
+                            new SqlParameter(
+                                EventTable.Columns.InsertedVersion,
+                                @event.InsertedVersion > @event.AggregateRootVersion ? @event.InsertedVersion : @event.AggregateRootVersion));
                         command.Parameters.Add(new SqlParameter(EventTable.Columns.EventType, IdMapper.GetId(@event.GetType())));
                         command.Parameters.Add(new SqlParameter(EventTable.Columns.EventId, @event.EventId));
                         command.Parameters.Add(new SqlParameter(EventTable.Columns.UtcTimeStamp, @event.UtcTimeStamp));
@@ -81,36 +85,49 @@ SET @{EventTable.Columns.InsertionOrder} = SCOPE_IDENTITY();";
         {
             var relatedEvents = LoadRelatedEventRefactoringInformation(events);
 
-
-            var replacementGroup = events.Where(@event => @event.Replaces.HasValue).GroupBy(@event => @event.Replaces.Value).SingleOrDefault();
-            var insertBeforeGroup = events.Where(@event => @event.InsertBefore.HasValue).GroupBy(@event => @event.InsertBefore.Value).SingleOrDefault();
-            var insertAfterGroup = events.Where(@event => @event.InsertAfter.HasValue).GroupBy(@event => @event.InsertAfter.Value).SingleOrDefault();
+            var replacementGroup = events.Where(@event => @event.Replaces.HasValue)
+                                         .GroupBy(@event => @event.Replaces.Value)
+                                         .SingleOrDefault();
+            var insertBeforeGroup = events.Where(@event => @event.InsertBefore.HasValue)
+                                          .GroupBy(@event => @event.InsertBefore.Value)
+                                          .SingleOrDefault();
+            var insertAfterGroup = events.Where(@event => @event.InsertAfter.HasValue)
+                                         .GroupBy(@event => @event.InsertAfter.Value)
+                                         .SingleOrDefault();
 
             Contract.Assert(Seq.Create(replacementGroup, insertBeforeGroup, insertAfterGroup).Where(@this => @this != null).Count() == 1);
 
-            if (replacementGroup != null)
+            if(replacementGroup != null)
             {
                 Contract.Assert(replacementGroup.All(@this => @this.Replaces.HasValue && @this.Replaces > 0));
                 var eventToReplace = relatedEvents.Single(@event => @event.InsertionOrder == replacementGroup.Key);
 
-                SaveEventsWithinReadOrderRange(newEvents: replacementGroup.ToArray(), rangeStart: eventToReplace.EffectiveReadOrder, rangeEnd: eventToReplace.NextReadOrder);
+                SaveEventsWithinReadOrderRange(
+                    newEvents: replacementGroup.ToArray(),
+                    rangeStart: eventToReplace.EffectiveReadOrder,
+                    rangeEnd: eventToReplace.NextReadOrder);
             }
-            else if (insertBeforeGroup != null)
+            else if(insertBeforeGroup != null)
             {
                 Contract.Assert(insertBeforeGroup.All(@this => @this.InsertBefore.HasValue && @this.InsertBefore.Value > 0));
                 var eventToInsertBefore = relatedEvents.Single(@event => @event.InsertionOrder == insertBeforeGroup.Key);
 
-                SaveEventsWithinReadOrderRange(newEvents: insertBeforeGroup.ToArray(), rangeStart: eventToInsertBefore.PreviousReadOrder, rangeEnd: eventToInsertBefore.EffectiveReadOrder);
+                SaveEventsWithinReadOrderRange(
+                    newEvents: insertBeforeGroup.ToArray(),
+                    rangeStart: eventToInsertBefore.PreviousReadOrder,
+                    rangeEnd: eventToInsertBefore.EffectiveReadOrder);
             }
             else if(insertAfterGroup != null)
             {
                 Contract.Assert(insertAfterGroup.All(@this => @this.InsertAfter.HasValue && @this.InsertAfter.Value > 0));
                 var eventToInsertAfter = relatedEvents.Single(@event => @event.InsertionOrder == insertAfterGroup.Key);
 
-                SaveEventsWithinReadOrderRange(newEvents: insertAfterGroup.ToArray(), rangeStart: eventToInsertAfter.EffectiveReadOrder, rangeEnd: eventToInsertAfter.NextReadOrder);
+                SaveEventsWithinReadOrderRange(
+                    newEvents: insertAfterGroup.ToArray(),
+                    rangeStart: eventToInsertAfter.EffectiveReadOrder,
+                    rangeEnd: eventToInsertAfter.NextReadOrder);
             }
         }
-
 
         private void SaveEventsWithinReadOrderRange(AggregateRootEvent[] newEvents, SqlDecimal rangeStart, SqlDecimal rangeEnd)
         {
@@ -122,7 +139,7 @@ SET @{EventTable.Columns.InsertionOrder} = SCOPE_IDENTITY();";
                                        Event = @event,
                                        ManualReadOrder = rangeStart + (index + 1)*increment
                                    })
-                                                                       .ToList();
+                                                                               .ToList();
 
             SaveEventsInternal(eventsToPersist);
         }
@@ -136,7 +153,7 @@ SET @{EventTable.Columns.InsertionOrder} = SCOPE_IDENTITY();";
                     command.CommandText = SqlServerEventStore.SqlStatements.FixManualVersionsForAggregate(aggregateId);
                     command.Parameters.Add(new SqlParameter(EventTable.Columns.AggregateId, aggregateId));
                     command.ExecuteNonQuery();
-                });    
+                });
         }
 
         private class EventWithManualReadorder
@@ -152,7 +169,7 @@ SET @{EventTable.Columns.InsertionOrder} = SCOPE_IDENTITY();";
             public long InsertionOrder { get; }
             public SqlDecimal EffectiveReadOrder { get; }
             public SqlDecimal PreviousReadOrder { get; }
-            public SqlDecimal NextReadOrder { get; }            
+            public SqlDecimal NextReadOrder { get; }
 
             public EventOrderNeighbourhood(long insertionOrder, SqlDecimal effectiveReadOrder, SqlDecimal previousReadOrder, SqlDecimal nextReadOrder)
             {
@@ -192,8 +209,8 @@ FROM    {EventTable.Name} {lockHintToMinimizeRiskOfDeadlocksByTakingUpdatelockOn
 
             var originalsStatement =
                 $@"{selectStatement} where {EventTable.Columns.InsertionOrder} in ( {replaces.Concat(insertBefore).Concat(insertAfter)
-                                                                                              .Select(@this => @this.ToString())
-                                                                                              .Join(", ")} )";
+                                                                                             .Select(@this => @this.ToString())
+                                                                                             .Join(", ")} )";
 
             var relatedEvents = new List<EventOrderNeighbourhood>();
 
@@ -212,7 +229,7 @@ FROM    {EventTable.Name} {lockHintToMinimizeRiskOfDeadlocksByTakingUpdatelockOn
                                     insertionOrder: reader.GetInt64(0),
                                     effectiveReadOrder: reader.GetSqlDecimal(1),
                                     previousReadOrder: reader.GetSqlDecimal(2),
-                                    nextReadOrder: reader.GetSqlDecimal(3)                                    
+                                    nextReadOrder: reader.GetSqlDecimal(3)
                                     ));
                         }
                     }
@@ -225,7 +242,7 @@ FROM    {EventTable.Name} {lockHintToMinimizeRiskOfDeadlocksByTakingUpdatelockOn
         {
             @this.IsNullable = true;
             @this.Direction = ParameterDirection.Input;
-            if (@this.Value == null)
+            if(@this.Value == null)
             {
                 @this.Value = DBNull.Value;
             }

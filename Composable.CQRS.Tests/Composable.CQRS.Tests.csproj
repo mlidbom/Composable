@@ -145,6 +145,7 @@
     <Compile Include="CQRS\EventSourcing\EventRefactoring\Migrations\Before.cs" />
     <Compile Include="CQRS\EventSourcing\EventRefactoring\Migrations\EventStreamMutatorTests.cs" />
     <Compile Include="CQRS\EventSourcing\EventRefactoring\Migrations\EventStreamMutatorTestsBase.cs" />
+    <Compile Include="CQRS\EventSourcing\EventRefactoring\Migrations\MigrationScenario.cs" />
     <Compile Include="CQRS\EventSourcing\EventRefactoring\Migrations\MigrationsPerformanceTest.SingleAggregateInstanceEventStreamMutatorPerformanceTest_Given_a_10000_events_large_aggregate.cs" />
     <Compile Include="CQRS\EventSourcing\EventRefactoring\Migrations\MigrationsPerformanceTest.InMemory.cs" />
     <Compile Include="CQRS\EventSourcing\EventRefactoring\Migrations\Replace.cs" />
@@ -180,10 +181,12 @@
     <Compile Include="MessageHandlersRegister.cs" />
     <Compile Include="MessageHandlerWiringTests\MessageHandlerWiringTestBase.cs" />
     <Compile Include="MessageHandlerWiringTests\WhenOneMessageHandler_implements_IHandleInProcessEvents_and_IHandleMessages_for_same_type.cs" />
-    <Compile Include="NCrunchExlusivelyUsesResources.cs" />
     <Compile Include="KeyValueStorage\Sql\SqlDocumentDbTests.cs" />
     <Compile Include="KeyValueStorage\User.cs" />
     <Compile Include="ServiceBus\WhenDummyTimeSourceTimeIsChanged.cs" />
+    <Compile Include="SqlServerConnectionUtilities.cs" />
+    <Compile Include="SqlServerLocalDBDatabaseManager.cs" />
+    <Compile Include="TemporaryLocalDbManager.cs" />
     <Compile Include="TestEnvironmentPerformance.cs" />
     <Compile Include="NewtonSoft\SqlServerEventStoreSerializationSettingsTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -217,34 +220,13 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <None Include="App.config" />
+    <None Include="App.config">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="paket.references">
       <SubType>Designer</SubType>
     </None>
     <None Include="Void.snk" />
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="EventStore2.mdf">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="EventStore2_log.ldf">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      <DependentUpon>EventStore2.mdf</DependentUpon>
-    </Content>
-    <Content Include="EventStore.mdf">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="EventStore_log.ldf">
-      <DependentUpon>EventStore.mdf</DependentUpon>
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="DocumentDB.mdf">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="DocumentDB_log.ldf">
-      <DependentUpon>DocumentDB.mdf</DependentUpon>
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include=".NETFramework,Version=v4.0">

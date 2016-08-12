@@ -29,7 +29,6 @@ namespace CQRS.Tests.CQRS.EventSourcing
     }
 
     [TestFixture]
-    [ExclusivelyUses(NCrunchExlusivelyUsesResources.EventStoreDbMdf)]
     public abstract class EventStoreTests
     {
         protected abstract IEventStore CreateEventStore();
@@ -149,38 +148,34 @@ namespace CQRS.Tests.CQRS.EventSourcing
     }
 
     [TestFixture]
-    [ExclusivelyUses(NCrunchExlusivelyUsesResources.EventStoreDbMdf)]
     public class SqlServerEventStoreTests : EventStoreTests
     {
-        private static readonly string ConnectionString1 = ConfigurationManager.ConnectionStrings["EventStore"].ConnectionString;
-        private static readonly string ConnectionString2 = ConfigurationManager.ConnectionStrings["EventStore2"].ConnectionString;
+        private string _connectionString1;
+        private string _connectionString2;
+        private static TemporaryLocalDbManager _tempDbManager;
 
         [SetUp]
-        public static void SetupFixture()
+        public void SetupFixture()
         {
-            ResetDataBases();
+            _tempDbManager = new TemporaryLocalDbManager(ConfigurationManager.ConnectionStrings["MasterDb"].ConnectionString);
+            _connectionString1 = _tempDbManager.CreateOrGetLocalDb("SqlServerEventStoreTests_EventStore1");
+            _connectionString2 = _tempDbManager.CreateOrGetLocalDb("SqlServerEventStoreTests_EventStore2");
         }
 
         [TearDown]
         public void TearDownTask()
         {
-            ResetDataBases();
-        }
-
-        private static void ResetDataBases()
-        {
-            SqlServerEventStore.ResetDB(ConnectionString1);
-            SqlServerEventStore.ResetDB(ConnectionString2);
+            _tempDbManager.Dispose();
         }
 
         protected override IEventStore CreateEventStore()
         {
-            return new SqlServerEventStore(ConnectionString1, new SingleThreadUseGuard());
+            return new SqlServerEventStore(_connectionString1, new SingleThreadUseGuard());
         }
 
         override protected IEventStore CreateEventStore2()
         {
-            return new SqlServerEventStore(ConnectionString2, new SingleThreadUseGuard());
+            return new SqlServerEventStore(_connectionString2, new SingleThreadUseGuard());
         }
 
         [Test]

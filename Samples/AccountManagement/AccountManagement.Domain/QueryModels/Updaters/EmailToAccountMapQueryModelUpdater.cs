@@ -19,14 +19,18 @@ namespace AccountManagement.Domain.QueryModels.Updaters
 
         public void Handle(IAccountEmailPropertyUpdatedEvent message)
         {
-            var previousAccountVersion = _repository.GetVersion(message.AggregateRootId, message.AggregateRootVersion - 1);
-            var previousEmail = previousAccountVersion.Email;
-            var newEmail = message.Email;
-
-            if(previousEmail != null)
+            if(message.AggregateRootVersion > 1)
             {
-                _querymodels.Delete<EmailToAccountMapQueryModel>(previousEmail);
+                var previousAccountVersion = _repository.GetVersion(message.AggregateRootId, message.AggregateRootVersion - 1);
+                var previousEmail = previousAccountVersion.Email;                
+
+                if(previousEmail != null)
+                {
+                    _querymodels.Delete<EmailToAccountMapQueryModel>(previousEmail);
+                }
             }
+
+            var newEmail = message.Email;
             _querymodels.Save(newEmail, new EmailToAccountMapQueryModel(newEmail, message.AggregateRootId));
         }
     }

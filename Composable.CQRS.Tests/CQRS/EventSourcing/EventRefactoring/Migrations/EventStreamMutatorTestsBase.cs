@@ -1,7 +1,5 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Configuration;
 using System.Linq;
 using Castle.MicroKernel.Lifestyle;
 using Castle.MicroKernel.Registration;
@@ -11,20 +9,21 @@ using Composable.CQRS.EventSourcing.MicrosoftSQLServer;
 using Composable.CQRS.EventSourcing.Refactoring.Migrations;
 using Composable.GenericAbstractions.Time;
 using Composable.ServiceBus;
+using Composable.System.Collections.Collections;
+using Composable.System.Configuration;
 using Composable.System.Linq;
 using Composable.UnitsOfWork;
 using Composable.Windsor;
 using Composable.Windsor.Testing;
 using FluentAssertions;
-using FluentAssertions.Equivalency;
 using NCrunch.Framework;
+using Newtonsoft.Json;
 using NUnit.Framework;
 using TestAggregates;
 
 namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
 {
-    //Todo: Refactor this test. It is to monolithic and hard to read and extend.
-    [ExclusivelyUses(NCrunchExlusivelyUsesResources.EventStoreDbMdf)]
+    //Todo: Refactor this test. It is too monolithic and hard to read and extend.
     public abstract class EventStreamMutatorTestsBase
     {
         protected readonly Type EventStoreType;
@@ -32,53 +31,69 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
             EventStoreType = eventStoreType;
         }
 
-        protected static string ConnectionString => ConfigurationManager.ConnectionStrings["EventStore"].ConnectionString;
-
-        protected void RunMigrationTest
-            (
-            IEnumerable<Type> originalHistory,
-            IEnumerable<Type> expectedHistory,
-            params IEventMigration[] manualMigrations)
+        protected void RunMigrationTest(params MigrationScenario[] scenarios)
         {
-            var migrationInstances = manualMigrations;
-            var aggregateId = Guid.NewGuid();
+            Console.WriteLine($"###############$$$$$$$Running {scenarios.Length} scenario(s) with EventStoreType: {EventStoreType}");
 
-            var original = TestAggregate.FromEvents(DummyTimeSource.Now, aggregateId, originalHistory).History.ToList();
-            Console.WriteLine($"Original History: ");
-            original.ForEach(e => Console.WriteLine($"      {e}"));
-            Console.WriteLine();
 
-            RunScenarioWithEventStoreType(originalHistory, expectedHistory, aggregateId, migrationInstances, EventStoreType);
+            IList<IEventMigration> migrations = new List<IEventMigration>();
+            using(var container = CreateContainerForEventStoreType(() => migrations.ToArray(), EventStoreType))
+            {
+                var timeSource = container.Resolve<DummyTimeSource>();
+                timeSource.UtcNow = DateTime.Parse("2001-01-01 01:01:01.01");
+                int scenarioIndex = 1;
+                foreach(var migrationScenario in scenarios)
+                {
+                    timeSource.UtcNow += 1.Hours(); //No time collision between scenarios please.
+                    migrations = migrationScenario.Migrations.ToList();
+                    RunScenarioWithEventStoreType(migrationScenario, EventStoreType, container, migrations, scenarioIndex++);
+                }
+            }
         }
 
         private static void RunScenarioWithEventStoreType
-            (IEnumerable<Type> originalHistory,
-             IEnumerable<Type> expectedHistory,
-             Guid aggregateId,
-             IEventMigration[] migrations,
-             Type eventStoreType)
+            (MigrationScenario scenario, Type eventStoreType, WindsorContainer container, IList<IEventMigration> migrations, int indexOfScenarioInBatch)
         {
-            var container = CreateContainerForEventStoreType(migrations, eventStoreType);
+            var startingMigrations = migrations.ToList();
+            migrations.Clear();
+
             var timeSource = container.Resolve<DummyTimeSource>();
-            timeSource.UtcNow = DateTime.Parse("2001-01-01 01:01:01.01");
 
-            Console.WriteLine($"###############$$$$$$$Running scenario with {eventStoreType}");
+            IReadOnlyList<IAggregateRootEvent> eventsInStoreAtStart;
+            using(container.BeginScope()) //Why is this needed? It fails without it but I do not understand why...
+            {
+                var eventStore = container.Resolve<IEventStore>();
+                eventsInStoreAtStart = eventStore.ListAllEventsForTestingPurposesAbsolutelyNotUsableForARealEventStoreOfAnySize();
+            }
 
-            var initialAggregate = TestAggregate.FromEvents(timeSource, aggregateId, originalHistory);
-            var expected = TestAggregate.FromEvents(timeSource, aggregateId, expectedHistory).History.ToList();
+            Console.WriteLine($"\n########Running Scenario {indexOfScenarioInBatch}");
 
-            var initialAggregate2 = TestAggregate.FromEvents(timeSource, aggregateId, originalHistory);
+            var original = TestAggregate.FromEvents(DummyTimeSource.Now, scenario.AggregateId, scenario.OriginalHistory).History.ToList();
+            Console.WriteLine($"Original History: ");
+            original.ForEach(e => Console.WriteLine($"      {e}"));
+            Console.WriteLine();            
+
+            var initialAggregate = TestAggregate.FromEvents(timeSource, scenario.AggregateId, scenario.OriginalHistory);
+            var expected = TestAggregate.FromEvents(timeSource, scenario.AggregateId, scenario.ExpectedHistory).History.ToList();
+            var expectedCompleteEventstoreStream = eventsInStoreAtStart.Concat(expected).ToList();
+
+            Console.WriteLine($"Expected History: ");
+            expected.ForEach(e => Console.WriteLine($"      {e}"));
+            Console.WriteLine();
+
+            var initialAggregate2 = TestAggregate.FromEvents(timeSource, scenario.AggregateId, scenario.OriginalHistory);
 
             timeSource.UtcNow += 1.Hours();//Bump clock to ensure that times will be be wrong unless the time from the original events are used..
 
             Console.WriteLine("Doing pure in memory ");            
             IReadOnlyList<IAggregateRootEvent> otherHistory = SingleAggregateInstanceEventStreamMutator.MutateCompleteAggregateHistory(
-                migrations,
+                scenario.Migrations,
                 initialAggregate2.History.Cast<AggregateRootEvent>().ToList());
 
             AssertStreamsAreIdentical(expected, otherHistory, $"Direct call to SingleAggregateInstanceEventStreamMutator.MutateCompleteAggregateHistory");
 
             container.ExecuteUnitOfWorkInIsolatedScope(() => container.Resolve<IEventStoreSession>().Save(initialAggregate));
+            migrations.AddRange(startingMigrations);
             var migratedHistory = container.ExecuteUnitOfWorkInIsolatedScope(() => container.Resolve<IEventStoreSession>().Get<TestAggregate>(initialAggregate.Id)).History;            
 
             AssertStreamsAreIdentical(expected, migratedHistory, "Loaded aggregate");
@@ -86,7 +101,8 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
 
             Console.WriteLine("  Streaming all events in store");
             var streamedEvents = container.ExecuteUnitOfWorkInIsolatedScope(() => container.Resolve<IEventStore>().ListAllEventsForTestingPurposesAbsolutelyNotUsableForARealEventStoreOfAnySize().ToList());
-            AssertStreamsAreIdentical(expected, streamedEvents, "Streaming all events in store");
+            
+            AssertStreamsAreIdentical(expectedCompleteEventstoreStream, streamedEvents, "Streaming all events in store");
             
             Console.WriteLine("  Persisting migrations");
             using(container.BeginScope())
@@ -99,22 +115,18 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
 
             Console.WriteLine("Streaming all events in store");
             streamedEvents = container.ExecuteUnitOfWorkInIsolatedScope(() => container.Resolve<IEventStore>().ListAllEventsForTestingPurposesAbsolutelyNotUsableForARealEventStoreOfAnySize().ToList());
-            AssertStreamsAreIdentical(expected, streamedEvents, "Streaming all events in store");
+            AssertStreamsAreIdentical( expectedCompleteEventstoreStream, streamedEvents, "Streaming all events in store");
 
 
             Console.WriteLine("  Disable all migrations so that none are used when reading from the event stores");
-            migrations = Seq.Empty<IEventMigration>().ToArray();//Disable all migrations so none are used when reading back the history...
-            if (eventStoreType == typeof(InMemoryEventStore))
-            {
-                ((InMemoryEventStore)container.Resolve<IEventStore>()).TestingOnlyReplaceMigrations(migrations);
-            }
+            migrations.Clear();
 
             migratedHistory = container.ExecuteUnitOfWorkInIsolatedScope(() => container.Resolve<IEventStoreSession>().Get<TestAggregate>(initialAggregate.Id)).History;
             AssertStreamsAreIdentical(expected, migratedHistory, "loaded aggregate");
 
             Console.WriteLine("Streaming all events in store");
             streamedEvents = container.ExecuteUnitOfWorkInIsolatedScope(() => container.Resolve<IEventStore>().ListAllEventsForTestingPurposesAbsolutelyNotUsableForARealEventStoreOfAnySize().ToList());
-            AssertStreamsAreIdentical(expected, streamedEvents, "Streaming all events in store");
+            AssertStreamsAreIdentical(expectedCompleteEventstoreStream, streamedEvents, "Streaming all events in store");
 
             if(eventStoreType == typeof(SqlServerEventStore))
             {
@@ -125,12 +137,12 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
 
                 Console.WriteLine("Streaming all events in store");
                 streamedEvents = container.ExecuteUnitOfWorkInIsolatedScope(() => container.Resolve<IEventStore>().ListAllEventsForTestingPurposesAbsolutelyNotUsableForARealEventStoreOfAnySize().ToList());
-                AssertStreamsAreIdentical(expected, streamedEvents, "Streaming all events in store");
+                AssertStreamsAreIdentical(expectedCompleteEventstoreStream, streamedEvents, "Streaming all events in store");
             }
 
         }
 
-        protected static WindsorContainer CreateContainerForEventStoreType(IEventMigration[] migrations, Type eventStoreType)
+        protected static WindsorContainer CreateContainerForEventStoreType(Func<IReadOnlyList<IEventMigration>> migrationsfactory, Type eventStoreType, string eventStoreConnectionString = null)
         {
             var container = new WindsorContainer();
 
@@ -144,37 +156,58 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
                          .ImplementedBy<SynchronousBus>()
                          .LifestylePerWebRequest(),
                 Component.For<IEnumerable<IEventMigration>>()
-                         .UsingFactoryMethod(() => migrations)
+                         .UsingFactoryMethod(migrationsfactory)
                          .LifestylePerWebRequest(),
-                SelectLifeStyle(
-                    Component.For<IEventStore>()
-                             .ImplementedBy(eventStoreType)
-                             .DependsOn(Dependency.OnValue<string>(ConnectionString))),
                 Component.For<IEventStoreSession, IUnitOfWorkParticipant>()
                          .ImplementedBy<EventStoreSession>()
                          .LifestylePerWebRequest(),
                 Component.For<IWindsorContainer>().Instance(container)
                 );
 
+
+            if (eventStoreType == typeof(SqlServerEventStore))
+            {
+                if(eventStoreConnectionString == null)
+                {
+                    var masterConnectionSTring = new ConnectionStringConfigurationParameterProvider().GetConnectionString("MasterDB");
+                    var dbManager = new TemporaryLocalDbManager(masterConnectionSTring.ConnectionString, container);
+
+                    eventStoreConnectionString = dbManager.CreateOrGetLocalDb($"{nameof(EventStreamMutatorTestsBase)}_EventStore");
+                }
+
+                container.Register(                    
+                    Component.For<IEventStore>()
+                             .ImplementedBy<SqlServerEventStore>()
+                             .DependsOn(Dependency.OnValue<string>(eventStoreConnectionString))
+                             .LifestyleScoped());
+
+            }
+            else if(eventStoreType == typeof(InMemoryEventStore))
+            {
+                container.Register(
+                    Component.For<IEventStore>()
+                             .UsingFactoryMethod(
+                                 kernel =>
+                                 {
+                                     var store = kernel.Resolve<InMemoryEventStore>();
+                                     store.TestingOnlyReplaceMigrations(migrationsfactory());
+                                     return store;
+                                 })
+                             .LifestyleScoped(),
+                    Component.For<InMemoryEventStore>()
+                        .ImplementedBy<InMemoryEventStore>()
+                        .LifestyleSingleton());
+            }
+            else
+            {
+                throw new Exception($"Unsupported type of event store {eventStoreType}");
+            }            
+
             container.ConfigureWiringForTestsCallAfterAllOtherWiring();
             return container;
         }
-        private static IRegistration SelectLifeStyle(ComponentRegistration<IEventStore> dependsOn)
-        {
-            if(dependsOn.Implementation == typeof(SqlServerEventStore))
-            {
-                return dependsOn.LifestylePerWebRequest();
-            }
 
-            if (dependsOn.Implementation == typeof(InMemoryEventStore))
-            {
-                return dependsOn.LifestyleSingleton();
-            }
-
-            throw new Exception($"Unsupported type of event store {dependsOn.Implementation}");
-        }
-
-        private static void AssertStreamsAreIdentical(List<IAggregateRootEvent> expected, IReadOnlyList<IAggregateRootEvent> migratedHistory, string descriptionOfHistory)
+        protected static void AssertStreamsAreIdentical(IEnumerable<IAggregateRootEvent> expected, IEnumerable<IAggregateRootEvent> migratedHistory, string descriptionOfHistory)
         {
 
             try
@@ -182,10 +215,10 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
                 expected.ForEach(
                    (@event, index) =>
                    {
-                       if (@event.GetType() != migratedHistory[index].GetType())
+                       if (@event.GetType() != migratedHistory.ElementAt(index).GetType())
                        {
                            Assert.Fail(
-                               $"Expected event at postion {index} to be of type {@event.GetType()} but it was of type: {migratedHistory[index].GetType()}");
+                               $"Expected event at postion {index} to be of type {@event.GetType()} but it was of type: {migratedHistory.ElementAt(index).GetType()}");
                        }
                    });
 
@@ -208,9 +241,9 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
             {
                 Console.WriteLine($"   Failed comparing with {descriptionOfHistory}");
                 Console.WriteLine($"   Expected: ");
-                expected.ForEach(e => Console.WriteLine($"      {e}"));
+                expected.ForEach(e => Console.WriteLine($"      {e.ToNewtonSoftDebugString(Formatting.None)}"));
                 Console.WriteLine($"\n   Actual: ");
-                migratedHistory.ForEach(e => Console.WriteLine($"      {e}"));
+                migratedHistory.ForEach(e => Console.WriteLine($"      {e.ToNewtonSoftDebugString(Formatting.None)}"));
                 Console.WriteLine("\n");               
 
                 throw;

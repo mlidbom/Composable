@@ -14,16 +14,9 @@ using TestAggregates.Events;
 
 namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
 {
-    [ExclusivelyUses(NCrunchExlusivelyUsesResources.EventStoreDbMdf)]
     public class SqlServerMigrationsPerformanceTest : EventStreamMutatorTestsBase
     {
         public SqlServerMigrationsPerformanceTest() : base(typeof(SqlServerEventStore)) { }
-
-        [SetUp]
-        public void SetupTask()
-        {
-            SqlServerEventStore.ResetDB(ConnectionString);
-        }
 
         [Test]
         public void A_ten_thousand_events_large_aggregate_with_four_migrations_should_load_cached_in_less_than_20_milliseconds()
@@ -35,19 +28,24 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
                 Before<E9>.Insert<E5>()
                 ).ToArray();
 
-            var container = CreateContainerForEventStoreType(eventMigrations, EventStoreType);
-            var timeSource = container.Resolve<DummyTimeSource>();
+            using(var container = CreateContainerForEventStoreType(() => eventMigrations, EventStoreType))
+            {
+                var timeSource = container.Resolve<DummyTimeSource>();
 
-            var history = Seq.OfTypes<Ec1>().Concat(1.Through(10000).Select(index => typeof(E1))).ToArray();
-            var aggregate = TestAggregate.FromEvents(timeSource, Guid.NewGuid(), history);
-            container.ExecuteUnitOfWorkInIsolatedScope(() => container.Resolve<IEventStoreSession>().Save(aggregate));
+                var history = Seq.OfTypes<Ec1>().Concat(1.Through(10000).Select(index => typeof(E1))).ToArray();
+                var aggregate = TestAggregate.FromEvents(timeSource, Guid.NewGuid(), history);
+                container.ExecuteUnitOfWorkInIsolatedScope(() => container.Resolve<IEventStoreSession>().Save(aggregate));
 
-            //Warm up cache..
-            container.ExecuteUnitOfWorkInIsolatedScope(() => container.Resolve<IEventStoreSession>().Get<TestAggregate>(aggregate.Id));
+                //Warm up cache..
+                container.ExecuteUnitOfWorkInIsolatedScope(() => container.Resolve<IEventStoreSession>().Get<TestAggregate>(aggregate.Id));
 
-            TimeAsserter.Execute(
-                maxAverage: 20.Milliseconds().AdjustRuntimeForNCrunch(), iterations: 10, description: "load aggregate in isolated scope", timeFormat: "fff",
-                action: () => container.ExecuteInIsolatedScope(() => container.Resolve<IEventStoreSession>().Get<TestAggregate>(aggregate.Id)));
+                TimeAsserter.Execute(
+                    maxAverage: 20.Milliseconds().AdjustRuntimeForNCrunch(),
+                    iterations: 10,
+                    description: "load aggregate in isolated scope",
+                    timeFormat: "fff",
+                    action: () => container.ExecuteInIsolatedScope(() => container.Resolve<IEventStoreSession>().Get<TestAggregate>(aggregate.Id)));
+            }
         }
     }
 }

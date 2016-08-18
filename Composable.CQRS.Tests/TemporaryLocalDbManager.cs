@@ -73,7 +73,10 @@ namespace CQRS.Tests
                             Directory.CreateDirectory(outputFolder);
                         }
 
-                        _masterConnection.ExecuteNonQuery($"CREATE DATABASE [{dbName}] ON (NAME = N'{dbName}', FILENAME = '{dbFullFileName}')");
+                        using(new TransactionScope(TransactionScopeOption.Suppress))
+                        {
+                            _masterConnection.ExecuteNonQuery($"CREATE DATABASE [{dbName}] ON (NAME = N'{dbName}', FILENAME = '{dbFullFileName}')");
+                        }
 
                         InsertDatabase(dbName);
 

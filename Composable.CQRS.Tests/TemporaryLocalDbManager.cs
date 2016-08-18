@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Data.SqlClient;
 using System.Diagnostics;
 using System.Diagnostics.Contracts;
@@ -233,6 +234,43 @@ CREATE TABLE [dbo].[{ManagerTableSchema.TableName}](
                 Name = name;
                 ConnectionString = connectionString;
             }
+        }
+
+        public void RemoveAllDatabases()
+        {
+            var dbsToDrop = new List<string>();
+            _masterConnection.UseCommand(
+                command =>
+                {
+                    command.CommandText = "select name from sysdatabases";
+                    using(var reader = command.ExecuteReader())
+                    {
+                        while(reader.Read())
+                        {
+                            var dbName = reader.GetString(0);
+                            if((dbName.StartsWith(ManagerDbName) && dbName != ManagerDbName))
+                            {
+                                dbsToDrop.Add(dbName);
+                            }
+                        }
+                    }
+                });
+
+            foreach(var db in dbsToDrop)
+            {
+                var dropCommand = $"drop database [{db}]";
+                Debug.WriteLine(dropCommand);
+                try
+                {
+                    _masterConnection.ExecuteNonQuery(dropCommand);
+                }
+                catch(Exception e)
+                {
+                    Debug.WriteLine(e.Message);
+                }
+            }
+
+            _managerConnection.ExecuteNonQuery($"delete {ManagerTableSchema.TableName}");
         }
     }
 }

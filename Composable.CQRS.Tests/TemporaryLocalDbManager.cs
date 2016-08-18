@@ -1,15 +1,20 @@
 using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
+using System.Diagnostics;
 using System.Diagnostics.Contracts;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Transactions;
 using Castle.Core.Internal;
 using Castle.MicroKernel.Registration;
 using Castle.Windsor;
+using Composable.CQRS.EventSourcing.MicrosoftSQLServer;
 using Composable.CQRS.Testing;
+using Composable.System.Transactions;
 
 namespace CQRS.Tests
 {
@@ -143,8 +148,10 @@ CREATE TABLE [dbo].[{ManagerTableSchema.TableName}](
 
         private void ReserveDatabase(string dbName)
         {
-            Console.WriteLine($"Reserving DB {dbName}");
             _managerConnection.ExecuteNonQuery($"update {ManagerTableSchema.TableName} set {ManagerTableSchema.IsFree} = 0 where {ManagerTableSchema.DatabaseName} = '{dbName}'");
+            new SqlServerConnectionUtilities(ConnectionStringForDbNamed(dbName))
+                .UseConnection(connection => connection.DropAllObjects());
+            
         }
 
         private void InsertDatabase(string dbName)
@@ -155,15 +162,13 @@ CREATE TABLE [dbo].[{ManagerTableSchema.TableName}](
         private void ReleaseDatabase(ManagedLocalDb managedLocalDb)
         {
             _reservedDatabases.Remove(managedLocalDb.Name);
-            new SqlServerConnectionUtilities(ConnectionStringForDbNamed(managedLocalDb.Name))
-                .UseConnection(connection => connection.DropAllObjects());
 
             using (var conn = new SqlConnection(managedLocalDb.ConnectionString))
             {
                 SqlConnection.ClearPool(conn);
             }
 
-            _managerConnection.ExecuteNonQuery($"update {ManagerTableSchema.TableName} set {ManagerTableSchema.IsFree} = 1 where {ManagerTableSchema.DatabaseName} = '{managedLocalDb.Name}'");
+            _managerConnection.ExecuteNonQuery($"update {ManagerTableSchema.TableName} set {ManagerTableSchema.IsFree} = 1 where {ManagerTableSchema.DatabaseName} = '{managedLocalDb.Name}'");            
         }
 
         private IEnumerable<string> FreeDatabases()
@@ -172,12 +177,17 @@ CREATE TABLE [dbo].[{ManagerTableSchema.TableName}](
                 command =>
                 {
                     var names = new List<string>();
-                    command.CommandText = $"select {ManagerTableSchema.DatabaseName} from {ManagerTableSchema.TableName} where {ManagerTableSchema.IsFree} = 1";
+                    command.CommandText = $"select {ManagerTableSchema.DatabaseName}, {ManagerTableSchema.IsFree} from {ManagerTableSchema.TableName} With(TABLOCKX)";
                     using(var reader = command.ExecuteReader())
                     {
                         while(reader.Read())
                         {
-                            names.Add(reader.GetString(0));
+                            var dbName = reader.GetString(0);
+                            var isFree = reader.GetBoolean(1);
+                            if(isFree)
+                            {                                
+                                names.Add(dbName);
+                            }
                         }
                     }
                     return names;
@@ -195,7 +205,7 @@ CREATE TABLE [dbo].[{ManagerTableSchema.TableName}](
         {
             if (!_disposed)
             {
-                _reservedDatabases.Values.ForEach(ReleaseDatabase);
+                InTransaction.Execute(() => _reservedDatabases.Values.ForEach(ReleaseDatabase));
                 _disposed = true;
             }
         }

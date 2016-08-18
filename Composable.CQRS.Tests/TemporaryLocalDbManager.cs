@@ -113,12 +113,14 @@ namespace CQRS.Tests
             public static readonly string TableName = "Databases";
             public static readonly string DatabaseName = nameof(DatabaseName);
             public static readonly string IsFree = nameof(IsFree);
+            public static readonly string ReservationDate = nameof(ReservationDate);
         }
 
         private static readonly string CreateDbTableSql = $@"
 CREATE TABLE [dbo].[{ManagerTableSchema.TableName}](
 	[{ManagerTableSchema.DatabaseName}] [varchar](500) NOT NULL,
 	[{ManagerTableSchema.IsFree}] [bit] NOT NULL,
+    [{ManagerTableSchema.ReservationDate}] [datetime] NOT NULL
  CONSTRAINT [PK_DataBases] PRIMARY KEY CLUSTERED 
 (
 	[{ManagerTableSchema.DatabaseName}] ASC
@@ -148,7 +150,7 @@ CREATE TABLE [dbo].[{ManagerTableSchema.TableName}](
 
         private void ReserveDatabase(string dbName)
         {
-            _managerConnection.ExecuteNonQuery($"update {ManagerTableSchema.TableName} set {ManagerTableSchema.IsFree} = 0 where {ManagerTableSchema.DatabaseName} = '{dbName}'");
+            _managerConnection.ExecuteNonQuery($"update {ManagerTableSchema.TableName} set {ManagerTableSchema.IsFree} = 0, {ManagerTableSchema.ReservationDate} = getdate() where {ManagerTableSchema.DatabaseName} = '{dbName}'");
             new SqlServerConnectionUtilities(ConnectionStringForDbNamed(dbName))
                 .UseConnection(connection => connection.DropAllObjects());
             
@@ -156,7 +158,8 @@ CREATE TABLE [dbo].[{ManagerTableSchema.TableName}](
 
         private void InsertDatabase(string dbName)
         {
-            _managerConnection.ExecuteNonQuery($"insert {ManagerTableSchema.TableName} ({ManagerTableSchema.DatabaseName}, {ManagerTableSchema.IsFree}) values('{dbName}', 0)");
+            _managerConnection.ExecuteNonQuery(
+                $"insert {ManagerTableSchema.TableName} ({ManagerTableSchema.DatabaseName}, {ManagerTableSchema.IsFree}, {ManagerTableSchema.ReservationDate}) values('{dbName}', 0, getdate())");
         }
 
         private void ReleaseDatabase(ManagedLocalDb managedLocalDb)
@@ -173,6 +176,7 @@ CREATE TABLE [dbo].[{ManagerTableSchema.TableName}](
 
         private IEnumerable<string> FreeDatabases()
         {
+            ReleaseOldLocks();
             return _managerConnection.UseCommand(
                 command =>
                 {
@@ -194,6 +198,11 @@ CREATE TABLE [dbo].[{ManagerTableSchema.TableName}](
                 });
         }
 
+        private void ReleaseOldLocks()
+        {
+            _managerConnection.ExecuteNonQuery(
+                $"update {ManagerTableSchema.TableName} With(TABLOCKX) set {ManagerTableSchema.IsFree} = 1 where {ManagerTableSchema.ReservationDate} < dateadd(minute, -60, getdate())");
+        }
 
         public void Dispose()
         {

@@ -12,7 +12,7 @@ namespace Composable.GenericAbstractions.Wrappers
     [Pure]
     public class GenericWrapper<T> : IWrapper<T>
     {
-        /// <summary>Implements: <see cref="IWrapper{T}.Wrapped"/></summary>
+        /// <inheritdoc />
         public T Wrapped { get; private set; }
 
         /// <summary>Constructs an instance where <see cref="Wrapped"/> is <paramref name="wrapped"/> </summary>

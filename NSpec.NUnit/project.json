@@ -1,0 +1,13 @@
+﻿{
+  "dependencies": {
+    "FluentAssertions": "4.0.0",
+    "nspec": "1.0.1",
+    "NUnit": "2.6.4"
+  },
+  "frameworks": {
+    "net451": {}
+  },
+  "runtimes": {
+    "win": {}
+  }
+}

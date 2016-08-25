@@ -1,0 +1,11 @@
+﻿{
+  "dependencies": {
+    "NServiceBus.Interfaces": "4.7.6"
+  },
+  "frameworks": {
+    "net451": {}
+  },
+  "runtimes": {
+    "win": {}
+  }
+}

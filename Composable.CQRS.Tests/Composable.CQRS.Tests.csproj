@@ -223,9 +223,7 @@
     <None Include="App.config">
       <SubType>Designer</SubType>
     </None>
-    <None Include="paket.references">
-      <SubType>Designer</SubType>
-    </None>
+    <None Include="project.json" />
     <None Include="Void.snk" />
   </ItemGroup>
   <ItemGroup>

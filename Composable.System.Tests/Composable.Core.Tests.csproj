@@ -140,7 +140,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
-    <None Include="paket.references" />
+    <None Include="project.json" />
     <None Include="Void.snk" />
   </ItemGroup>
   <ItemGroup>

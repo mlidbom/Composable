@@ -72,7 +72,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
-    <None Include="paket.references" />
+    <None Include="project.json" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Composable.DomainEvents\Composable.DomainEvents.csproj">

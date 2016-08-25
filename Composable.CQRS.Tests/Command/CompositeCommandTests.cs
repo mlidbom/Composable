@@ -3,12 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using Castle.MicroKernel.Registration;
 using Castle.Windsor;
-using CommonServiceLocator.WindsorAdapter;
 using Composable.CQRS;
 using Composable.CQRS.Command;
 using Composable.SystemExtensions.Threading;
 using FluentAssertions;
-using Microsoft.Practices.ServiceLocation;
 using NUnit.Framework;
 using Composable.System.Linq;
 

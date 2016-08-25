@@ -1,0 +1,13 @@
+﻿{
+  "dependencies": {
+    "FluentAssertions": "4.0.0",
+    "NCrunch.Framework": "2.16.0.13",
+    "NUnit": "2.6.4"
+  },
+  "frameworks": {
+    "net451": {}
+  },
+  "runtimes": {
+    "win": {}
+  }
+}

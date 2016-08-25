@@ -53,7 +53,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
-    <None Include="paket.references" />
+    <None Include="project.json" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Composable.System\Composable.Core.csproj">

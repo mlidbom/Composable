@@ -55,10 +55,7 @@
     <Compile Include="Windsor\NHibernateTestingMode.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="paket.references" />
-    <None Include="paket.template">
-      <SubType>Designer</SubType>
-    </None>
+    <None Include="project.json" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Composable.System\Composable.Core.csproj">

@@ -110,10 +110,7 @@
     <Compile Include="WindsorDisposableExtensions.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="paket.references" />
-    <None Include="paket.template">
-      <SubType>Designer</SubType>
-    </None>
+    <None Include="project.json" />
     <None Include="Void.snk" />
   </ItemGroup>
   <ItemGroup>

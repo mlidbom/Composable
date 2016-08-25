@@ -2,9 +2,6 @@
 
 using System;
 using System.Threading;
-using Castle.MicroKernel.Registration;
-using Castle.Windsor;
-using CommonServiceLocator.WindsorAdapter;
 using Composable.System;
 using NUnit.Framework;
 

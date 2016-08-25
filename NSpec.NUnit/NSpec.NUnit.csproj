@@ -56,10 +56,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
-    <None Include="paket.references" />
-    <None Include="paket.template">
-      <SubType>Designer</SubType>
-    </None>
+    <None Include="project.json" />
     <None Include="Void.snk" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

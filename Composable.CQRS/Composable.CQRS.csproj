@@ -315,6 +315,7 @@
   <ItemGroup>
     <None Include="app.config" />
     <Compile Include="KeyValueStorage\DocumentDBSession.DocumentItem.cs" />
+    <None Include="Composable.CQRS.nuspec" />
     <None Include="project.json" />
     <None Include="Void.snk" />
   </ItemGroup>

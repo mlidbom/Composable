@@ -248,6 +248,7 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
+    <None Include="Composable.Core.nuspec" />
     <None Include="project.json" />
     <None Include="Void.snk" />
   </ItemGroup>

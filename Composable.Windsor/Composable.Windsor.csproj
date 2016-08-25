@@ -110,6 +110,7 @@
     <Compile Include="WindsorDisposableExtensions.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Composable.Windsor.nuspec" />
     <None Include="project.json" />
     <None Include="Void.snk" />
   </ItemGroup>

@@ -1,10 +1,14 @@
-{
-	"dependencies": {
-	},
-	"frameworks": {
-		"net45": { }
-	},
-	"runtimes": {
-		"win": { }
-	}
+﻿{
+  "dependencies": {
+    "Castle.Windsor": "3.3.0",
+    "Composable.CQRS": "3.4.5",
+    "Composable.Windsor": "3.4.5",
+    "FluentAssertions": "4.0.0"
+  },
+  "frameworks": {
+    "net461": {}
+  },
+  "runtimes": {
+    "win": {}
+  }
 }

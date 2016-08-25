@@ -1,6 +1,0 @@
-FRAMEWORK: >= NET45
-NUGET
-  remote: http://nuget.teamcity.mpsedev.local/nuget
-    Rx-Core (2.2.5)
-      Rx-Interfaces (>= 2.2.5)
-    Rx-Interfaces (2.2.5)

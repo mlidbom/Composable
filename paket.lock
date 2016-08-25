@@ -1,4 +1,0 @@
-FRAMEWORK: >= NET45 < DNXCORE50
-NUGET
-  remote: http://nuget.teamcity.mpsedev.local/nuget
-    Castle.Core (3.3.3)

@@ -1,5 +1,0 @@
-framework: >= net45 < dnxcore50
-source http://nuget.teamcity.mpsedev.local/nuget
-source C:\Manpower\NuGetFeed
-#source https://api.nuget.org/v3/index.json
-nuget Castle.Core

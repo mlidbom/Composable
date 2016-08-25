@@ -79,20 +79,4 @@ REM "$(ProjectDir)..\..\tools\NuGet.exe" pack "Composable.AutoMapper.nuspec" -o 
   </Target>
   -->
   <Import Project="..\.paket\paket.targets" />
-  <Choose>
-    <When Condition="$(TargetFrameworkIdentifier) == '.NETFramework' And ($(TargetFrameworkVersion) == 'v4.5' Or $(TargetFrameworkVersion) == 'v4.5.1' Or $(TargetFrameworkVersion) == 'v4.5.2' Or $(TargetFrameworkVersion) == 'v4.5.3' Or $(TargetFrameworkVersion) == 'v4.6' Or $(TargetFrameworkVersion) == 'v4.6.1')">
-      <ItemGroup>
-        <Reference Include="AutoMapper.Net4">
-          <HintPath>..\packages\AutoMapper\lib\net40\AutoMapper.Net4.dll</HintPath>
-          <Private>True</Private>
-          <Paket>True</Paket>
-        </Reference>
-        <Reference Include="AutoMapper">
-          <HintPath>..\packages\AutoMapper\lib\net40\AutoMapper.dll</HintPath>
-          <Private>True</Private>
-          <Paket>True</Paket>
-        </Reference>
-      </ItemGroup>
-    </When>
-  </Choose>
 </Project>

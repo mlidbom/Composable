@@ -125,6 +125,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
+    <None Include="Composable.CQRS.NHibernate.nuspec" />
     <None Include="project.json" />
     <None Include="Void.snk" />
   </ItemGroup>

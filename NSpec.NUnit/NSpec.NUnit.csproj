@@ -56,6 +56,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
+    <None Include="NSpec.NUnit.nuspec" />
     <None Include="project.json" />
     <None Include="Void.snk" />
   </ItemGroup>

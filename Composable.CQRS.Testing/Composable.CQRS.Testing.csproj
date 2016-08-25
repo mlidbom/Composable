@@ -126,6 +126,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
+    <None Include="Composable.CQRS.Testing.nuspec" />
     <None Include="project.json" />
     <None Include="Void.snk" />
   </ItemGroup>

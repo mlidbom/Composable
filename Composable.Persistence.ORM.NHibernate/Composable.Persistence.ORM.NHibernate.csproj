@@ -55,6 +55,7 @@
     <Compile Include="Windsor\NHibernateTestingMode.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Composable.Persistence.ORM.NHibernate.nuspec" />
     <None Include="project.json" />
   </ItemGroup>
   <ItemGroup>

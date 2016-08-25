@@ -58,6 +58,7 @@
     <Compile Include="SafeConfiguration.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Composable.AutoMapper.nuspec" />
     <None Include="project.json" />
     <None Include="Void.snk" />
   </ItemGroup>

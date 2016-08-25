@@ -108,6 +108,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Composable.DomainEvents.nuspec" />
     <None Include="project.json" />
     <None Include="Void.snk" />
   </ItemGroup>

@@ -1,7 +1,0 @@
-framework: >= net45
-
-source ..\..\NuGetFeed
-source http://nuget.teamcity.mpsedev.local/nuget
-
-
-#We cannot support 2.0 of jQuery since we need to keep supporting older browsers

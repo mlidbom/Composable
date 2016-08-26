@@ -57,7 +57,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
-    <None Include="paket.references" />
     <None Include="project.json" />
   </ItemGroup>
   <ItemGroup>
@@ -94,5 +93,4 @@
   <Target Name="AfterBuild">
   </Target>
   -->
-  <Import Project="..\.paket\paket.targets" />
 </Project>

@@ -1,0 +1,12 @@
+﻿{
+  "dependencies": {
+    "log4net": "2.0.3",
+    "Newtonsoft.Json": "6.0.8"
+  },
+  "frameworks": {
+    "net451": {}
+  },
+  "runtimes": {
+    "win": {}
+  }
+}

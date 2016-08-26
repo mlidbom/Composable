@@ -1,8 +1,5 @@
 using System;
-using Castle.Windsor;
-using CommonServiceLocator.WindsorAdapter;
 using Composable.CQRS.EventSourcing;
-using Composable.DomainEvents;
 using NUnit.Framework;
 
 namespace CQRS.Tests.CQRS.EventSourcing

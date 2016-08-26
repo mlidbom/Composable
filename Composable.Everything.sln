@@ -3,12 +3,6 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
 VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".paket", ".paket", "{35770385-206B-4D7C-9E21-2D1758557831}"
-	ProjectSection(SolutionItems) = preProject
-		paket.dependencies = paket.dependencies
-		paket.lock = paket.lock
-	EndProjectSection
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Composable.Core", "Composable.System\Composable.Core.csproj", "{3632254D-0C4A-4EB8-B388-4C99F8939584}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Composable.Core.Tests", "Composable.System.Tests\Composable.Core.Tests.csproj", "{4C78131D-DD7B-4C3E-B931-D4C6436EE09E}"
@@ -33,7 +27,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Composable.CQRS.Windsor", "
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Packaging", "Packaging", "{691518D4-146C-43DA-95A0-F8BFB0283AFC}"
 	ProjectSection(SolutionItems) = preProject
-		buildpaket.ps1 = buildpaket.ps1
+		buildpackages.ps1 = buildpackages.ps1
 		CommonAssemblyInfo.cs = CommonAssemblyInfo.cs
 	EndProjectSection
 EndProject

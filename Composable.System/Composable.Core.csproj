@@ -248,9 +248,8 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
-    <None Include="paket.template">
-      <SubType>Designer</SubType>
-    </None>
+    <None Include="Composable.Core.nuspec" />
+    <None Include="project.json" />
     <None Include="Void.snk" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />

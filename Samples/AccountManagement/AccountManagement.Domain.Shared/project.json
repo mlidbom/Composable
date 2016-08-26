@@ -1,0 +1,12 @@
+﻿{
+  "dependencies": {
+    "Composable.Contracts": "0.8.2",
+    "Composable.Core": "3.4.5"
+  },
+  "frameworks": {
+    "net461": {}
+  },
+  "runtimes": {
+    "win": {}
+  }
+}

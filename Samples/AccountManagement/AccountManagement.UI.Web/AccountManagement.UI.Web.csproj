@@ -111,7 +111,6 @@
     <Folder Include="Models\" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="paket.references" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\AccountManagement.Domain.Events.EventStore\AccountManagement.Domain.Events.EventStore.csproj">
@@ -174,5 +173,4 @@
   </Target>
   <Target Name="AfterBuild">
   </Target> -->
-  <Import Project="..\.paket\paket.targets" />
 </Project>

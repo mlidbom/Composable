@@ -150,5 +150,4 @@
     <StartAction>Program</StartAction>
     <StartProgram>$(ProjectDir)$(OutputPath)NServiceBus.Host.exe</StartProgram>
   </PropertyGroup>
-  <Import Project="..\.paket\paket.targets" />
 </Project>

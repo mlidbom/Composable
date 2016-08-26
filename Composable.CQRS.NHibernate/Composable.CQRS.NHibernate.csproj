@@ -151,5 +151,4 @@ REM "$(ProjectDir)..\..\tools\NuGet.exe" pack "Composable.CQRS.NHibernate.nuspec
   <Target Name="AfterBuild">
   </Target>
   -->
-  <Import Project="..\.paket\paket.targets" />
 </Project>

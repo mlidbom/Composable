@@ -1,0 +1,11 @@
+﻿{
+  "dependencies": {
+    "NUnit": "2.6.4"
+  },
+  "frameworks": {
+    "net451": {}
+  },
+  "runtimes": {
+    "win": {}
+  }
+}

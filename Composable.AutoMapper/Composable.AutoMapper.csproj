@@ -58,12 +58,8 @@
     <Compile Include="SafeConfiguration.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="paket.references">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="paket.template">
-      <SubType>Designer</SubType>
-    </None>
+    <None Include="Composable.AutoMapper.nuspec" />
+    <None Include="project.json" />
     <None Include="Void.snk" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
@@ -78,21 +74,4 @@ REM "$(ProjectDir)..\..\tools\NuGet.exe" pack "Composable.AutoMapper.nuspec" -o 
   <Target Name="AfterBuild">
   </Target>
   -->
-  <Import Project="..\.paket\paket.targets" />
-  <Choose>
-    <When Condition="$(TargetFrameworkIdentifier) == '.NETFramework' And ($(TargetFrameworkVersion) == 'v4.5' Or $(TargetFrameworkVersion) == 'v4.5.1' Or $(TargetFrameworkVersion) == 'v4.5.2' Or $(TargetFrameworkVersion) == 'v4.5.3' Or $(TargetFrameworkVersion) == 'v4.6' Or $(TargetFrameworkVersion) == 'v4.6.1')">
-      <ItemGroup>
-        <Reference Include="AutoMapper.Net4">
-          <HintPath>..\packages\AutoMapper\lib\net40\AutoMapper.Net4.dll</HintPath>
-          <Private>True</Private>
-          <Paket>True</Paket>
-        </Reference>
-        <Reference Include="AutoMapper">
-          <HintPath>..\packages\AutoMapper\lib\net40\AutoMapper.dll</HintPath>
-          <Private>True</Private>
-          <Paket>True</Paket>
-        </Reference>
-      </ItemGroup>
-    </When>
-  </Choose>
 </Project>

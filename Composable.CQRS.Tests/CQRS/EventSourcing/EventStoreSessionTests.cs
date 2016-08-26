@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Transactions;
 using Castle.Windsor;
-using CommonServiceLocator.WindsorAdapter;
 using Composable.CQRS.EventSourcing;
 using Composable.CQRS.Testing;
 using Composable.DomainEvents;

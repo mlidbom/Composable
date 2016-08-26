@@ -30,3 +30,4 @@ Samples/AccountManagement/.paket/paket.exe
 .vs/
 NuGetFeed/*
 !NuGetFeed/.keep
+project.lock.json

@@ -1,6 +1,6 @@
 ﻿{
   "dependencies": {
-    "NUnit": "2.6.4"
+    "NUnit": "3.4.1"
   },
   "frameworks": {
     "net451": {}

@@ -13,7 +13,6 @@ namespace CQRS.Tests.CQRS
     class SagaCommandHandlerBaseTests
     {
         [Test]
-        [ExpectedException(typeof(NotImplementedException))]
         public void Saga_should_send_commandFailedEvent_and_throw_underlying_Exceptions()
         {
             //Arrange
@@ -27,7 +26,8 @@ namespace CQRS.Tests.CQRS
             //Act
             try
             {
-                saga.Handle(command);
+                saga.Invoking(_ => saga.Handle(command))
+                    .ShouldThrow<NotImplementedException>();
                 
             }
             finally

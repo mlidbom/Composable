@@ -31,7 +31,7 @@ namespace Composable.AutoMapper.Tests
 
         private IMappingEngine _engine;
 
-        [TestFixtureSetUp]
+        [OneTimeSetUp]
         public void Setup()
         {
             _engine = ComposableMappingEngine.BuildEngine(

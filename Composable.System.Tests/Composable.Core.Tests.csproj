@@ -120,6 +120,7 @@
     <Compile Include="System\Configuration\AppConfigConfigurationParameterProviderTests.cs" />
     <Compile Include="System\Configuration\ConnectionStringConfigurationParameterProviderTests.cs" />
     <Compile Include="System\Linq\ExpressionUtilTests.cs" />
+    <Compile Include="TestingNunit3Attribute\UITestAttribute.cs" />
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include="Microsoft.Net.Client.3.5">
@@ -153,6 +154,7 @@
       <Name>Composable.Core</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

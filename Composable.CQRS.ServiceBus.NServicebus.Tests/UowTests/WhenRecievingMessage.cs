@@ -29,7 +29,7 @@ namespace Composable.CQRS.ServiceBus.NServicebus.Tests.UowTests
     {
         private TestResults _results;
 
-        [TestFixtureSetUp]
+        [OneTimeSetUp]
         public void SendMessageToNewEndpoint()
         {
             using(var cloneDomainScope = AppDomain.CurrentDomain.CloneScope())

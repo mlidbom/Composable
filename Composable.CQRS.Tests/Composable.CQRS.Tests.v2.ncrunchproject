@@ -41,5 +41,6 @@
       <TestName>CQRS.Tests.CQRS.EventSourcing.SqlServerEventStoreTests.EventStoreTests:StreamEventsSinceReturnsWholeEventLogWhenFetchingALargeNumberOfEvents_EnsureBatchingDoesNotBreakThings</TestName>
     </NamedTestSelector>
   </IgnoredTests>
+  <AdditionalFilesToInclude>bin\Debug\Castle.Core.dll;bin\Debug\Castle.Windsor.dll;bin\Debug\FluentAssertions.Core.dll;bin\Debug\FluentAssertions.dll;bin\Debug\log4net.dll;bin\Debug\Moq.dll;bin\Debug\NCrunch.Framework.dll;bin\Debug\Newtonsoft.Json.dll;bin\Debug\NServiceBus.dll;bin\Debug\nunit.framework.dll;bin\Debug\System.Reactive.Core.dll;bin\Debug\System.Reactive.Interfaces.dll;bin\Debug\System.Reactive.Linq.dll</AdditionalFilesToInclude>
   <HiddenWarnings>LongTestTimesWithoutParallelExecution;CopyReferencedAssembliesToWorkspaceIsOn</HiddenWarnings>
 </ProjectConfiguration>

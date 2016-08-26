@@ -49,8 +49,6 @@ namespace CQRS.Tests
             container.Resolve<TemporaryLocalDbManager>();
         }
 
-        private static readonly string DbDirectory = $"{nameof(TemporaryLocalDbManager)}_Databases";
-
         private readonly Dictionary<string, ManagedLocalDb> _reservedDatabases = new Dictionary<string, ManagedLocalDb>();
         private bool _disposed;        
 
@@ -71,17 +69,11 @@ namespace CQRS.Tests
                     else
                     {
                         // ReSharper disable once AssignNullToNotNullAttribute
-                        var outputFolder = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), DbDirectory);
                         dbName = $"TemporaryLocalDbManager_{Guid.NewGuid()}.mdf";
-                        var dbFullFileName = Path.Combine(outputFolder, dbName);
-                        if(!Directory.Exists(outputFolder))
-                        {
-                            Directory.CreateDirectory(outputFolder);
-                        }
 
                         using(new TransactionScope(TransactionScopeOption.Suppress))
                         {
-                            _masterConnection.ExecuteNonQuery($"CREATE DATABASE [{dbName}] ON (NAME = N'{dbName}', FILENAME = '{dbFullFileName}')");
+                            _masterConnection.ExecuteNonQuery($"CREATE DATABASE [{dbName}]");
                         }
 
                         InsertDatabase(dbName);

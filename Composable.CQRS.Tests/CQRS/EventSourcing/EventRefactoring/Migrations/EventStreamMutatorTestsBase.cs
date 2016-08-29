@@ -96,7 +96,10 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
             migrations.AddRange(startingMigrations);
             var migratedHistory = container.ExecuteUnitOfWorkInIsolatedScope(() => container.Resolve<IEventStoreSession>().Get<TestAggregate>(initialAggregate.Id)).History;            
 
-            AssertStreamsAreIdentical(expected, migratedHistory, "Loaded aggregate");
+            AssertStreamsAreIdentical(expected, migratedHistory, "Loaded un-cached aggregate");
+
+            var migratedCachedHistory = container.ExecuteUnitOfWorkInIsolatedScope(() => container.Resolve<IEventStoreSession>().Get<TestAggregate>(initialAggregate.Id)).History;
+            AssertStreamsAreIdentical(expected, migratedCachedHistory, "Loaded cached aggregate");
 
 
             Console.WriteLine("  Streaming all events in store");

@@ -110,6 +110,15 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
         }
 
         [Test]
+        public void Replacing_E1_with_E2_E3_at_end_of_stream()
+        {
+            RunMigrationTest(new MigrationScenario(
+            Seq.OfTypes<Ec1, E1>(),
+            Seq.OfTypes<Ec1, E2, E3>(),
+            Replace<E1>.With<E2, E3>()));
+        }
+
+        [Test]
         public void Replacing_E1_with_E2_E3()
         {
             RunMigrationTest(new MigrationScenario(

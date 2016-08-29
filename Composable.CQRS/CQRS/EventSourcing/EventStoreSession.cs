@@ -195,7 +195,7 @@ namespace Composable.CQRS.EventSourcing
             {
                 if (aggregateRootEvent.AggregateRootVersion != version++)
                 {
-                    throw new InvalidHistoryException();
+                    throw new InvalidHistoryException(aggregateId);
                 }
             }
             return history;

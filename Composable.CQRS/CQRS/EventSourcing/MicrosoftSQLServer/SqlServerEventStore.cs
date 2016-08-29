@@ -67,6 +67,7 @@ namespace Composable.CQRS.EventSourcing.MicrosoftSQLServer
                 var cachedAggregateHistory = _cache.GetCopy(aggregateId);
 
                 var highestCachedInsertedVersion = cachedAggregateHistory.Any() ? cachedAggregateHistory.Max(@event => @event.InsertedVersion) : 0;
+                var highestCachedAggregateRootVersion = cachedAggregateHistory.Any() ? cachedAggregateHistory.Max(@event => @event.AggregateRootVersion) : 0;
 
                 var newEventsFromDatabase = _eventReader.GetAggregateHistory(
                     aggregateId: aggregateId,
@@ -79,6 +80,9 @@ namespace Composable.CQRS.EventSourcing.MicrosoftSQLServer
                     _cache.Remove(aggregateId);
                     return GetAggregateHistoryInternal(aggregateId: aggregateId, takeWriteLock: takeWriteLock);
                 }
+
+                //Remove events that have been replaced by in memory migration events.
+                newEventsFromDatabase = newEventsFromDatabase.Where(@event => @event.AggregateRootVersion > highestCachedAggregateRootVersion).ToList();
 
                 var currentHistory = cachedAggregateHistory.Count == 0 
                                                    ? SingleAggregateInstanceEventStreamMutator.MutateCompleteAggregateHistory(_migrationFactories, newEventsFromDatabase) 

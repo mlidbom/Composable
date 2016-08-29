@@ -66,32 +66,32 @@ namespace Composable.CQRS.EventSourcing.MicrosoftSQLServer
             {
                 var cachedAggregateHistory = _cache.GetCopy(aggregateId);
 
-                var highestCachedInsertedVersion = cachedAggregateHistory.Any() ? cachedAggregateHistory.Max(@event => @event.InsertedVersion) : 0;
-                var highestCachedAggregateRootVersion = cachedAggregateHistory.Any() ? cachedAggregateHistory.Max(@event => @event.AggregateRootVersion) : 0;
-
                 var newEventsFromDatabase = _eventReader.GetAggregateHistory(
                     aggregateId: aggregateId,
-                    startAfterInsertedVersion: highestCachedInsertedVersion,
+                    startAfterInsertedVersion: cachedAggregateHistory.MaxSeenInsertedVersion,
                     takeWriteLock: takeWriteLock);
 
                 var containsRefactoringEvents = newEventsFromDatabase.Where(IsRefactoringEvent).Any();
-                if(containsRefactoringEvents && highestCachedInsertedVersion > 0)
+                if(containsRefactoringEvents && cachedAggregateHistory.MaxSeenInsertedVersion > 0)
                 {
                     _cache.Remove(aggregateId);
                     return GetAggregateHistoryInternal(aggregateId: aggregateId, takeWriteLock: takeWriteLock);
                 }
 
-                //Remove events that have been replaced by in memory migration events.
-                newEventsFromDatabase = newEventsFromDatabase.Where(@event => @event.AggregateRootVersion > highestCachedAggregateRootVersion).ToList();
-
-                var currentHistory = cachedAggregateHistory.Count == 0 
+                var currentHistory = cachedAggregateHistory.Events.Count == 0
                                                    ? SingleAggregateInstanceEventStreamMutator.MutateCompleteAggregateHistory(_migrationFactories, newEventsFromDatabase) 
-                                                   : cachedAggregateHistory.Concat(newEventsFromDatabase).ToList();
+                                                   : cachedAggregateHistory.Events.Concat(newEventsFromDatabase).ToList();
 
                 //Should within a transaction a process write events, read them, then fail to commit we will have cached events that are not persisted unless we refuse to cache them here.
                 if (!_aggregatesWithEventsAddedByThisInstance.Contains(aggregateId))
                 {
-                    _cache.Store(aggregateId, currentHistory);
+                    var maxSeenInsertedVersion = newEventsFromDatabase.Any()
+                                                     ? newEventsFromDatabase.Max(@event => @event.InsertedVersion)
+                                                     : cachedAggregateHistory.MaxSeenInsertedVersion;
+
+                    _cache.Store(
+                        aggregateId,
+                        new SqlServerEventStoreEventsCache.Entry(events: currentHistory, maxSeenInsertedVersion: maxSeenInsertedVersion));
                 }
 
                 return currentHistory;
@@ -136,7 +136,7 @@ namespace Composable.CQRS.EventSourcing.MicrosoftSQLServer
             //todo: move this to the event store session.
             foreach (var aggregateId in updatedAggregates)
             {
-                var completeAggregateHistory = _cache.GetCopy(aggregateId).Concat(events.Where(@event => @event.AggregateRootId == aggregateId)).Cast<AggregateRootEvent>().ToArray();
+                var completeAggregateHistory = _cache.GetCopy(aggregateId).Events.Concat(events.Where(@event => @event.AggregateRootId == aggregateId)).Cast<AggregateRootEvent>().ToArray();
                 SingleAggregateInstanceEventStreamMutator.AssertMigrationsAreIdempotent(_migrationFactories, completeAggregateHistory);
             }
         }

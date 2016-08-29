@@ -24,9 +24,4 @@
   <UseCPUArchitecture>AutoDetect</UseCPUArchitecture>
   <MSTestThreadApartmentState>STA</MSTestThreadApartmentState>
   <BuildProcessArchitecture>x86</BuildProcessArchitecture>
-  <IgnoredTests>
-    <NamedTestSelector>
-      <TestName>CQRS.Tests.KeyValueStorage.Sql.DocumentDbSpecification+SqlServerDocumentDbSpecification.nspec:ValidateSpec</TestName>
-    </NamedTestSelector>
-  </IgnoredTests>
 </ProjectConfiguration>

@@ -30,20 +30,20 @@ namespace Composable.CQRS.EventSourcing.MicrosoftSQLServer
                                                              SlidingExpiration = 20.Minutes()
                                                          };
 
-        public IReadOnlyList<AggregateRootEvent> GetCopy(Guid id)
+        public Entry GetCopy(Guid id)
         {
-            var cached = _internalCache.Get(id.ToString());
+            var cached = (Entry)_internalCache.Get(id.ToString());
             if(cached == null)
             {
-                return new List<AggregateRootEvent>();
+                return Entry.Empty;
             }
             //Make sure each caller gets their own copy.
-            return ((List<AggregateRootEvent>)cached).ToList();
+            return new Entry(events: cached.Events.ToList(), maxSeenInsertedVersion: cached.MaxSeenInsertedVersion);
         }
 
-        public void Store(Guid id, IEnumerable<AggregateRootEvent> events)
+        public void Store(Guid id, Entry entry)
         {
-            _internalCache.Set(key: id.ToString(), policy: Policy, value: events.ToList());
+            _internalCache.Set(key: id.ToString(), policy: Policy, value: entry);
         }
 
         public void Clear()
@@ -58,5 +58,19 @@ namespace Composable.CQRS.EventSourcing.MicrosoftSQLServer
         }
 
         public void Remove(Guid id) { _internalCache.Remove(key: id.ToString()); }
+
+        public class Entry
+        {
+            public static readonly  Entry Empty = new Entry(new List<AggregateRootEvent>(), 0);
+
+            public IReadOnlyList<AggregateRootEvent> Events { get; private set; }
+            public int MaxSeenInsertedVersion { get; private set; }
+
+            public Entry(IReadOnlyList<AggregateRootEvent> events, int maxSeenInsertedVersion)
+            {
+                Events = events;
+                MaxSeenInsertedVersion = maxSeenInsertedVersion;
+            }
+        }
     }
 }

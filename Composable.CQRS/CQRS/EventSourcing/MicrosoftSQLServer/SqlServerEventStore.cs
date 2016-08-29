@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Diagnostics.Contracts;
 using System.Linq;
 using System.Transactions;
@@ -10,6 +11,7 @@ using Composable.System;
 using Composable.System.Linq;
 using Composable.SystemExtensions.Threading;
 using log4net;
+using Newtonsoft.Json;
 
 namespace Composable.CQRS.EventSourcing.MicrosoftSQLServer
 {
@@ -64,15 +66,15 @@ namespace Composable.CQRS.EventSourcing.MicrosoftSQLServer
             {
                 var cachedAggregateHistory = _cache.GetCopy(aggregateId);
 
-                var highestCachedVersion = cachedAggregateHistory.Any() ? cachedAggregateHistory.Max(@event => @event.AggregateRootVersion) : 0;
+                var highestCachedInsertedVersion = cachedAggregateHistory.Any() ? cachedAggregateHistory.Max(@event => @event.InsertedVersion) : 0;
 
                 var newEventsFromDatabase = _eventReader.GetAggregateHistory(
                     aggregateId: aggregateId,
-                    startAfterInsertedVersion: highestCachedVersion,
+                    startAfterInsertedVersion: highestCachedInsertedVersion,
                     takeWriteLock: takeWriteLock);
 
                 var containsRefactoringEvents = newEventsFromDatabase.Where(IsRefactoringEvent).Any();
-                if(containsRefactoringEvents && highestCachedVersion > 0)
+                if(containsRefactoringEvents && highestCachedInsertedVersion > 0)
                 {
                     _cache.Remove(aggregateId);
                     return GetAggregateHistoryInternal(aggregateId: aggregateId, takeWriteLock: takeWriteLock);

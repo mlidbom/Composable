@@ -29,7 +29,8 @@ namespace Composable.DDD
         }
 
         private TKEy _id;
-        /// <summary>Implements: <see cref="IHasPersistentIdentity{TKeyType}.Id"/></summary>
+
+        /// <inheritdoc />
         public virtual TKEy Id { get { return _id; } private set { _id = value; } }
 
         ///<summary>Sets the id of the instance. Should probably never be used except by infrastructure code.</summary>
@@ -62,7 +63,7 @@ namespace Composable.DDD
             return Equals(other as TEntity);
         }
 
-        /// <summary>Implements: <see cref="object.GetHashCode"/></summary>
+        /// <inheritdoc />
         public override int GetHashCode()
         {
             return Id.GetHashCode();

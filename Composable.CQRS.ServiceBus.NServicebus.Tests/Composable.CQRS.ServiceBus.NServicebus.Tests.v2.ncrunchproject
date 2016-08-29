@@ -24,19 +24,6 @@
   <UseCPUArchitecture>AutoDetect</UseCPUArchitecture>
   <MSTestThreadApartmentState>STA</MSTestThreadApartmentState>
   <BuildProcessArchitecture>x86</BuildProcessArchitecture>
-  <IgnoredTests>
-    <NamedTestSelector>
-      <TestName>Composable.CQRS.ServiceBus.NServicebus.Tests.UowTests.WhenReceivingMessage.ExactlyOneInstanceOfParticipantIsCreated</TestName>
-    </NamedTestSelector>
-    <NamedTestSelector>
-      <TestName>Composable.CQRS.ServiceBus.NServicebus.Tests.UowTests.WhenReceivingMessage.ParticipantIsCommittedExactlyOnce</TestName>
-    </NamedTestSelector>
-    <NamedTestSelector>
-      <TestName>Composable.CQRS.ServiceBus.NServicebus.Tests.UowTests.WhenReceivingMessage.ParticipantIsNeverRolledBack</TestName>
-    </NamedTestSelector>
-    <NamedTestSelector>
-      <TestName>Composable.CQRS.ServiceBus.NServicebus.Tests.UowTests.WhenReceivingMessage.ParticipantJoinsUowExaclyOnce</TestName>
-    </NamedTestSelector>
-  </IgnoredTests>
+  <AdditionalFilesToInclude>bin\Debug\Castle.Core.dll;bin\Debug\Castle.Windsor.dll;bin\Debug\FluentAssertions.Core.dll;bin\Debug\FluentAssertions.dll;bin\Debug\Iesi.Collections.dll;bin\Debug\log4net.dll;bin\Debug\Moq.dll;bin\Debug\NCrunch.Framework.dll;bin\Debug\Newtonsoft.Json.dll;bin\Debug\NHibernate.dll;bin\Debug\NServiceBus.Core.dll;bin\Debug\NServiceBus.dll;bin\Debug\NServiceBus.NHibernate.dll;bin\Debug\NServiceBus.ObjectBuilder.CastleWindsor.dll;bin\Debug\nunit.framework.dll</AdditionalFilesToInclude>
   <HiddenWarnings>CopyReferencedAssembliesToWorkspaceIsOn;LongTestTimesWithoutParallelExecution</HiddenWarnings>
 </ProjectConfiguration>

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Caching;
 using Composable.System;
+using Composable.System.Linq;
 
 namespace Composable.CQRS.EventSourcing.MicrosoftSQLServer
 {
@@ -49,6 +50,11 @@ namespace Composable.CQRS.EventSourcing.MicrosoftSQLServer
         {
             _internalCache.Dispose();
             _internalCache = new MemoryCache(CacheName);
+        }
+
+        public static void ClearAll()
+        {
+            ConnectionStringToCacheMap.Values.ForEach(@this => @this.Clear());
         }
 
         public void Remove(Guid id) { _internalCache.Remove(key: id.ToString()); }

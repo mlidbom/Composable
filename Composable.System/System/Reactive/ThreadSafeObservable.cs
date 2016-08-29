@@ -13,7 +13,7 @@ namespace Composable.System.Reactive
             _observerCollection.OnNext(@event);
         }
 
-        ///<summary>Implements <see cref="IObservable{T}.Subscribe"/></summary>
+        /// <inheritdoc />
         public IDisposable Subscribe(IObserver<TEvent> observer)
         {
             _observerCollection.Add(observer);

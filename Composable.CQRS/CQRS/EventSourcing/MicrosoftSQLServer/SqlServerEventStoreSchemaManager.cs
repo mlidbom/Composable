@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Data.SqlClient;
+using System.Linq;
 using System.Transactions;
 using Composable.CQRS.EventSourcing.Refactoring.Naming;
 using Composable.Logging.Log4Net;
@@ -92,6 +94,21 @@ AT:
                 }
                 VerifiedConnectionStrings.Remove(ConnectionString);
                 SetupSchemaIfDatabaseUnInitialized();
+            }
+        }
+
+        internal static void ClearCache(IDbConnection connection)
+        {
+            lock(VerifiedConnectionStrings)
+            {
+                var dbName = connection.Database.ToLower();
+                var impacted = VerifiedConnectionStrings.Where(@this => @this.ToLower().Contains(dbName)).ToList();
+
+                foreach(var connectionString in impacted)
+                {
+                    VerifiedConnectionStrings.Remove(connectionString);
+                    ConnectionIdMapper.Remove(connectionString);
+                }
             }
         }
     }

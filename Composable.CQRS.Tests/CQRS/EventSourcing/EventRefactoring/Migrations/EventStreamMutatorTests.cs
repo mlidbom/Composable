@@ -9,6 +9,7 @@ using Composable.CQRS.EventSourcing;
 using Composable.CQRS.EventSourcing.MicrosoftSQLServer;
 using Composable.CQRS.EventSourcing.Refactoring.Migrations;
 using Composable.GenericAbstractions.Time;
+using Composable.System.Configuration;
 using Composable.System.Linq;
 using Composable.Windsor;
 using FluentAssertions;
@@ -604,6 +605,17 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
                     Seq.OfTypes<Ec1, E1>(),
                     Seq.OfTypes<Ec1, E2, E1>(),
                     Before<E1>.Insert<E2>()));
+        }
+    }
+
+    [TestFixture]
+    public class DropTempdatabases
+    {
+        [Test]
+        public void DropEm()
+        {
+            //new TemporaryLocalDbManager(new ConnectionStringConfigurationParameterProvider().GetConnectionString("MasterDB").ConnectionString)
+            //    .RemoveAllDatabases();
         }
     }
 }

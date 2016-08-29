@@ -40,7 +40,7 @@ namespace NSpec.NUnit
         }
     }
 
-    [Ignore]
+    [Ignore("TODO")]
     public class working_spec : NSpec.NUnit.nspec
     {
         public void this_works()
@@ -49,7 +49,7 @@ namespace NSpec.NUnit
         }
     }
 
-    [Ignore]
+    [Ignore("TODO")]
     public class specification_of_xfiles_math : NSpec.NUnit.nspec
     {
         public void when_using_strange_math()
@@ -58,7 +58,7 @@ namespace NSpec.NUnit
         }
     }
 
-    [Ignore]
+    [Ignore("TODO")]
     public class fails_in_before_all : NSpec.NUnit.nspec
     {
         public void before_all()
@@ -72,7 +72,7 @@ namespace NSpec.NUnit
         }
     }
 
-    [Ignore]
+    [Ignore("TODO")]
     public class fails_in_before_each : NSpec.NUnit.nspec
     {
         public void before_each()
@@ -86,7 +86,7 @@ namespace NSpec.NUnit
         }
     }
 
-    [Ignore]
+    [Ignore("TODO")]
     public class reports_first_failure : NSpec.NUnit.nspec
     {
         public void before_all()
@@ -105,7 +105,7 @@ namespace NSpec.NUnit
         }
     }
 
-    [TestFixture, Ignore]
+    [TestFixture, Ignore("TODO")]
     public class dots : NUnit.nspec
     {
         public void any_time()

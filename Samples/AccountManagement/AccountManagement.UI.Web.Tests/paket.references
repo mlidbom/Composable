@@ -1,8 +1,0 @@
-CommonServiceLocator
-Composable.CQRS.ServiceBus.NServiceBus
-Composable.CQRS.Windsor
-FluentAssertions
-Microsoft.AspNet.Mvc
-Moq
-NSpec.NUnit
-Rx-Linq

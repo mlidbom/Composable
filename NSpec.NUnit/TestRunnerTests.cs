@@ -1,4 +1,5 @@
 ﻿using System;
+using FluentAssertions;
 using NUnit.Framework;
 
 // ReSharper disable InconsistentNaming
@@ -35,30 +36,29 @@ namespace NSpec.NUnit
         [Test]
         public void reports_first_error()
         {
-            var exception= Assert.Throws<SpecificationException>(() => new reports_first_failure().ValidateSpec());
-            exception.InnerException.Message.should_be("first error");
+            var exception = Assert.Throws<SpecificationException>(() => new reports_first_failure().ValidateSpec());
+            exception.InnerException.Message.Should().Be("first error");
         }
     }
 
-    [Ignore("TODO")]
     public class working_spec : NSpec.NUnit.nspec
     {
         public void this_works()
         {
-            it["true is true"] = () => true.should_be(true);
+            it["true is true"] = () => true.Should().Be(true);
         }
     }
 
-    [Ignore("TODO")]
+    [Ignore("SHould fail when executed and actual test is done by checking that it fails whith an appropriate message.")]
     public class specification_of_xfiles_math : NSpec.NUnit.nspec
     {
         public void when_using_strange_math()
         {
-            it["1 equals 2"] = () => 1.should_be(2);
+            it["1 equals 2"] = () => 1.Should().Be(2);
         }
     }
-
-    [Ignore("TODO")]
+    
+    [Ignore("SHould fail when executed and actual test is done by checking that it fails whith an appropriate message.")]
     public class fails_in_before_all : NSpec.NUnit.nspec
     {
         public void before_all()
@@ -68,11 +68,11 @@ namespace NSpec.NUnit
 
         public void this_works()
         {
-            it["true is true"] = () => true.should_be(true);
+            it["true is true"] = () => true.Should().Be(true);
         }
     }
 
-    [Ignore("TODO")]
+    [Ignore("SHould fail when executed and actual test is done by checking that it fails whith an appropriate message.")]
     public class fails_in_before_each : NSpec.NUnit.nspec
     {
         public void before_each()
@@ -82,11 +82,11 @@ namespace NSpec.NUnit
 
         public void this_works()
         {
-            it["true is true"] = () => true.should_be(true);
+            it["true is true"] = () => true.Should().Be(true);
         }
     }
 
-    [Ignore("TODO")]
+    [Ignore("SHould fail when executed and actual test is done by checking that it fails whith an appropriate message.")]
     public class reports_first_failure : NSpec.NUnit.nspec
     {
         public void before_all()
@@ -101,11 +101,11 @@ namespace NSpec.NUnit
 
         public void this_works()
         {
-            it["true is true"] = () => true.should_be(true);
+            it["true is true"] = () => true.Should().Be(true);
         }
     }
 
-    [TestFixture, Ignore("TODO")]
+    [TestFixture, Ignore("SHould fail when executed and actual test is done by checking that it fails whith an appropriate message.")]
     public class dots : NUnit.nspec
     {
         public void any_time()

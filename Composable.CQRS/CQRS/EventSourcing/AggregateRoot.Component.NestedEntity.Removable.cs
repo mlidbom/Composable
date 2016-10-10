@@ -40,13 +40,19 @@ namespace Composable.CQRS.EventSourcing
                                     TEntityCreatedEventInterface,
                                     TEventEntityIdSetterGetter>
             {
-                protected NestedEntity(TComponent parent) : base(parent) { }
+                protected NestedEntity(TComponent parent) : this(parent.TimeSource, parent.RaiseEvent, parent.RegisterEventAppliers())
+                {                    
+                }
 
                 protected NestedEntity
-                    (IUtcTimeTimeSource timeSource,
-                     Action<TEntityBaseEventClass> raiseEventThroughParent,
-                     IEventHandlerRegistrar<TEntityBaseEventInterface> appliersRegistrar)
-                    : base(timeSource, raiseEventThroughParent, appliersRegistrar) {}
+                (IUtcTimeTimeSource timeSource,
+                 Action<TEntityBaseEventClass> raiseEventThroughParent,
+                 IEventHandlerRegistrar<TEntityBaseEventInterface> appliersRegistrar)
+                    : base(timeSource, raiseEventThroughParent, appliersRegistrar)
+                {
+                    RegisterEventAppliers()
+                        .IgnoreUnhandled<TEntityRemovedEventInterface>();
+                }
 
                 public new static CollectionManager CreateSelfManagingCollection(TComponent parent)
                     =>

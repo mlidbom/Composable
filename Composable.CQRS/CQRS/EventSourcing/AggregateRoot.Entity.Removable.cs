@@ -34,7 +34,11 @@ namespace Composable.CQRS.EventSourcing
             where TEventEntityIdSetterGetter : IGetSetAggregateRootEntityEventEntityId<TEntityId, TEntityBaseEventClass, TEntityBaseEventInterface>,
                 new()
         {
-            protected Entity(TAggregateRoot aggregateRoot) : base(aggregateRoot) { }
+            protected Entity(TAggregateRoot aggregateRoot) : base(aggregateRoot)
+            {
+                RegisterEventAppliers()
+                    .IgnoreUnhandled<TEntityRemovedEventInterface>();
+            }
             public new static CollectionManager CreateSelfManagingCollection(TAggregateRoot parent)
                 =>
                     new CollectionManager(

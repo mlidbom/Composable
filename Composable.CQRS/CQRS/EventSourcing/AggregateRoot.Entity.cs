@@ -41,8 +41,7 @@ namespace Composable.CQRS.EventSourcing
                 : base(timeSource, raiseEventThroughParent, appliersRegistrar, registerEventAppliers: false)
             {
                 RegisterEventAppliers()
-                    .For<TEntityCreatedEventInterface>(e => Id = IdGetterSetter.GetId(e))
-                    .IgnoreUnhandled<TEntityBaseEventInterface>();
+                    .For<TEntityCreatedEventInterface>(e => Id = IdGetterSetter.GetId(e));
             }
 
             protected override void RaiseEvent(TEntityBaseEventClass @event)

@@ -101,6 +101,7 @@
     <Compile Include="CQRS\EventSourcing\IAggregateRootCreatedEvent.cs" />
     <Compile Include="CQRS\EventSourcing\IAggregateRootDeletedEvent.cs" />
     <Compile Include="CQRS\EventSourcing\IAggregateRootEvent.cs" />
+    <Compile Include="CQRS\EventSourcing\IEvent.cs" />
     <Compile Include="CQRS\EventSourcing\IPropertyUpdatedEvent.cs" />
     <Compile Include="DomainEvents\IDomainEvent.cs" />
     <Compile Include="DomainEvents\IHandles.cs" />

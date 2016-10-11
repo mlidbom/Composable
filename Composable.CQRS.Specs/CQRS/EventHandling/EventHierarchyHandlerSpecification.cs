@@ -3,9 +3,9 @@ using Composable.CQRS.EventHandling;
 using Composable.CQRS.EventSourcing;
 using Composable.DDD;
 using Composable.KeyValueStorage;
+using Composable.ServiceBus;
 using FluentAssertions;
 using Moq;
-using NServiceBus;
 using NUnit.Framework;
 
 namespace CQRS.Tests.CQRS.EventHandling

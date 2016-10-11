@@ -14,6 +14,8 @@ using NUnit.Framework;
 
 namespace Composable.CQRS.ServiceBus.NServicebus.Tests
 {
+    using Composable.ServiceBus;
+
     [TestFixture]
     public class DualDispatchBusTests
     {

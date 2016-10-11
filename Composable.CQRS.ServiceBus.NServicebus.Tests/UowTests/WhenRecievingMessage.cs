@@ -17,6 +17,7 @@ using JetBrains.Annotations;
 using NCrunch.Framework;
 using NServiceBus;
 using NUnit.Framework;
+using ICommand = Composable.CQRS.Command.ICommand;
 
 #endregion
 
@@ -117,7 +118,7 @@ namespace Composable.CQRS.ServiceBus.NServicebus.Tests.UowTests
         public int TimesJoined;
     }
 
-    public class InvokeUnitOfWorkCommandMessage : ICommand
+    public class InvokeUnitOfWorkCommandMessage : Command.Command
     {
     }
 
@@ -166,7 +167,7 @@ namespace Composable.CQRS.ServiceBus.NServicebus.Tests.UowTests
     }
 
    
-    public class InvokeUOWCommandMessageMessageHandler : IHandleMessages<InvokeUnitOfWorkCommandMessage>
+    public class InvokeUOWCommandMessageMessageHandler : global::NServiceBus.IHandleMessages<InvokeUnitOfWorkCommandMessage>
     {
         public InvokeUOWCommandMessageMessageHandler(MyUnitOfWorkParticipant session)
         {

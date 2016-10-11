@@ -68,6 +68,7 @@
     <Compile Include="NCrunchExlusivelyUsesResources.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="StubMain.cs" />
+    <Compile Include="TestingSupportMessageModule.cs" />
     <Compile Include="WhenMessageHandlingFails.cs" />
   </ItemGroup>
   <ItemGroup>

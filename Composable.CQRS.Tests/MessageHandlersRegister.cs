@@ -1,7 +1,6 @@
 ﻿using Castle.MicroKernel.Registration;
 using Castle.Windsor;
 using Composable.ServiceBus;
-using NServiceBus;
 
 namespace CQRS.Tests
 {

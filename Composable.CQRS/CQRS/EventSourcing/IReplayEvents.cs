@@ -1,5 +1,4 @@
-﻿using NServiceBus;
-
+﻿
 namespace Composable.CQRS.EventSourcing
 {
     public interface IReplayEvents

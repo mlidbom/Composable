@@ -2,7 +2,6 @@
 using System.Linq;
 using Composable.ServiceBus;
 using FluentAssertions;
-using NServiceBus;
 using NUnit.Framework;
 
 namespace CQRS.Tests.MessageHandlerWiringTests

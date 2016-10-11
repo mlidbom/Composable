@@ -107,7 +107,6 @@
     <Compile Include="DatabaseHelpers.cs" />
     <Compile Include="DummyServiceBus.cs" />
     <Compile Include="EventTests.cs" />
-    <Compile Include="TestingSupportMessageModule.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

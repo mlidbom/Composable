@@ -51,6 +51,7 @@
       <Link>Properties\CommonAssemblyInfo.cs</Link>
     </Compile>
     <Compile Include="ComposableCqrsUnitOfWorkManager.cs" />
+    <Compile Include="NServiceBusConventions.cs" />
     <Compile Include="DualDispatchBus.cs" />
     <Compile Include="EndpointConfiguration\CatchSerializationErrorsMessageInspector.cs" />
     <Compile Include="EndpointConfiguration\ComposableFailureHeadersProvider.cs" />

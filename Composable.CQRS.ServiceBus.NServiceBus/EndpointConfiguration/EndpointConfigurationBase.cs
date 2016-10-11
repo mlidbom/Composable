@@ -9,8 +9,10 @@ using Castle.Core;
 using Castle.MicroKernel.Registration;
 using Castle.MicroKernel.Releasers;
 using Castle.Windsor;
+using Composable.DomainEvents;
 using Composable.GenericAbstractions.Time;
 using Composable.System.Linq;
+using Composable.System.Reflection;
 using Composable.SystemExtensions.Threading;
 using Composable.Windsor;
 using NServiceBus;
@@ -19,6 +21,7 @@ using NServiceBus.Hosting.Roles;
 using NServiceBus.Unicast.Config;
 using NServiceBus.UnitOfWork;
 using log4net.Config;
+using ICommand = Composable.CQRS.Command.ICommand;
 
 #endregion
 
@@ -56,6 +59,8 @@ namespace Composable.CQRS.ServiceBus.NServiceBus.EndpointConfiguration
                 .DefineEndpointName(InputQueueName)
                 .CastleWindsorBuilder(container: windsorContainer);
 
+            config = SetupConventions(config);
+
             config = ConfigureLogging(config);
 
 
@@ -76,6 +81,20 @@ namespace Composable.CQRS.ServiceBus.NServiceBus.EndpointConfiguration
 
             _serviceBusconfiguration = busConfig2.ImpersonateSender(false);
         }
+
+
+        protected virtual Configure SetupConventions(Configure config)
+        {
+            return config.DefiningEventsAs(IsEventType)
+                         .DefiningCommandsAs(IsCommandType)
+                         .DefiningCommandsAs(IsMessageType);
+        }
+
+        protected virtual bool IsMessageType(Type type) => type.IsMessageType();
+
+        protected virtual bool IsCommandType(Type type) => type.IsCommandType();
+
+        protected virtual bool IsEventType(Type type) => type.IsEventType();
 
         protected virtual Configure InitializeConfigurationAndDecideOnScanningPolicy()
         {

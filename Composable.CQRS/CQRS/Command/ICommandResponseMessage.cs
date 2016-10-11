@@ -1,5 +1,5 @@
 ﻿using System;
-using NServiceBus;
+using Composable.ServiceBus;
 
 namespace Composable.CQRS.Command
 {

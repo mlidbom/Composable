@@ -5,6 +5,7 @@ using NServiceBus;
 
 namespace Composable.CQRS.ServiceBus.NServiceBus
 {
+    using Composable.ServiceBus;
     public class NServiceBusServiceBus : INservicebusServicebus
     {
         private IBus _bus;

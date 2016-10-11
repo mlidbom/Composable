@@ -166,6 +166,7 @@
     <Compile Include="Persistence\IQueryableEntityFetcher.cs" />
     <Compile Include="Persistence\Testing\InMemoryPersistenceSession.cs" />
     <Compile Include="Persistence\IPersistenceSession.cs" />
+    <Compile Include="ServiceBus\IMessage.cs" />
     <Compile Include="SystemExtensions\ExceptionExtensions.cs" />
     <Compile Include="SystemExtensions\Threading\ISingleContextUseGuard.cs" />
     <Compile Include="SystemExtensions\Threading\MultiThreadedUseException.cs" />

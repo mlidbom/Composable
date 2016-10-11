@@ -1,7 +1,5 @@
 ﻿{
-  "dependencies": {
-    "NServiceBus.Interfaces": "4.7.6"
-  },
+  "dependencies": {},
   "frameworks": {
     "net451": {}
   },

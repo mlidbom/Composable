@@ -1,6 +1,7 @@
 ﻿using System;
 using Composable.System.Reflection;
 using NServiceBus;
+using IMessage = Composable.ServiceBus.IMessage;
 
 namespace Composable.CQRS.ServiceBus.NServiceBus
 {
@@ -9,6 +10,7 @@ namespace Composable.CQRS.ServiceBus.NServiceBus
         public static bool IsMessageType(this Type type)
         {
             return type.Implements<global::NServiceBus.IMessage>()
+                   || type.Implements<Composable.ServiceBus.IMessage>()
                    || type.Name.EndsWith("Message")
                    || (type.Namespace != null && type.Namespace.EndsWith("Messages"));
         }

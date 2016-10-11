@@ -32,6 +32,7 @@ using Composable.Windsor;
 
 namespace Composable.CQRS.ServiceBus.NServicebus.Tests.TransactionSupport
 {
+    
     [TestFixture, NUnit.Framework.Category("NSBFullSetupTests")]
     [ExclusivelyUses(NCrunchExlusivelyUsesResources.DocumentDbMdf, NCrunchExlusivelyUsesResources.EventStoreDbMdf, NCrunchExlusivelyUsesResources.NServiceBus)]
     [NCrunch.Framework.Isolated]
@@ -77,7 +78,7 @@ namespace Composable.CQRS.ServiceBus.NServicebus.Tests.TransactionSupport
         }
     }
 
-    public class InsertEventsMessage : IMessage
+    public class InsertEventsMessage : Composable.ServiceBus.IMessage
     {
     }
 
@@ -105,7 +106,7 @@ namespace Composable.CQRS.ServiceBus.NServicebus.Tests.TransactionSupport
     }
 
     [UsedImplicitly]
-    public class InseartEventsMessageHandler : IHandleMessages<InsertEventsMessage>
+    public class InseartEventsMessageHandler : global::NServiceBus.IHandleMessages<InsertEventsMessage>
     {
         private readonly IEventStoreSession _session;
 

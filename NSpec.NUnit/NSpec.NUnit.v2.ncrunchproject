@@ -24,12 +24,4 @@
   <UseCPUArchitecture>AutoDetect</UseCPUArchitecture>
   <MSTestThreadApartmentState>STA</MSTestThreadApartmentState>
   <BuildProcessArchitecture>x86</BuildProcessArchitecture>
-  <IgnoredTests>
-    <NamedTestSelector>
-      <TestName>NSpec.NUnit.TestRunnerTests.reports_first_error</TestName>
-    </NamedTestSelector>
-    <NamedTestSelector>
-      <TestName>NSpec.NUnit.TestRunnerTests.works_when_it_works</TestName>
-    </NamedTestSelector>
-  </IgnoredTests>
 </ProjectConfiguration>

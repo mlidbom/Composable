@@ -6,6 +6,7 @@ using Composable.CQRS.EventSourcing;
 using Composable.CQRS.EventSourcing.Refactoring.Migrations;
 using Composable.GenericAbstractions.Time;
 using Composable.System.Linq;
+using Composable.Testing;
 using FluentAssertions;
 using NUnit.Framework;
 using TestAggregates;

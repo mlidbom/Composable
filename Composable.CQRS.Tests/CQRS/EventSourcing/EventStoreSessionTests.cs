@@ -17,6 +17,7 @@ using System.Threading.Tasks;
 using Composable.GenericAbstractions.Time;
 using Composable.System;
 using Composable.System.Diagnostics;
+using Composable.Testing;
 using CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations;
 using FluentAssertions;
 

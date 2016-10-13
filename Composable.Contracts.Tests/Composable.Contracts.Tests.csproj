@@ -64,6 +64,10 @@
       <Project>{579a5738-6b8a-41e4-b2f3-5fd4ca595786}</Project>
       <Name>Composable.Contracts</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Composable.System\Composable.Core.csproj">
+      <Project>{3632254D-0C4A-4EB8-B388-4C99F8939584}</Project>
+      <Name>Composable.Core</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <None Include="project.json" />

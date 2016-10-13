@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using Composable.Testing;
 using FluentAssertions;
 using NUnit.Framework;
 
@@ -36,18 +37,14 @@ namespace Composable.Contracts.Tests
         }
 
         [Test]
-        public void ShouldRun50TestsInOneMillisecond() //The Activator.CreateInstance stuff in the default check had me a bit worried. Seems I had no reason to be.
+        public void ShouldRun500TestsIn10Milliseconds() //The Activator.CreateInstance stuff in the default check had me a bit worried. Seems I had no reason to be.
         {
             var one = 1;
-            Contract.Argument(() => one).NotDefault();//Warm things up.
 
-            var stopWatch = new Stopwatch();
-            stopWatch.Start();
-            for(int i = 0; i < 500; i++)
-            {
-                Contract.Argument(() =>one).NotDefault();
-            }
-            stopWatch.Elapsed.Should().BeLessOrEqualTo(10.Milliseconds());
+            TimeAsserter.Execute(
+                action: () => Contract.Argument(() => one).NotDefault(),
+                iterations: 500,
+                maxTotal: 10.Milliseconds());
         }
 
         private struct MyStructure {}

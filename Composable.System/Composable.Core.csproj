@@ -229,6 +229,7 @@
     <Compile Include="System\Web\IHttpRequestIdFetcher.cs" />
     <Compile Include="System\Web\MultiRequestAccessDetected.cs" />
     <Compile Include="System\Web\SingleHttpRequestUseGuard.cs" />
+    <Compile Include="Testing\TimeAsserter.cs" />
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include="Microsoft.Net.Client.3.5">

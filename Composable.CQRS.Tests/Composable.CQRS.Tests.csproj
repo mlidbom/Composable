@@ -151,7 +151,6 @@
     <Compile Include="CQRS\EventSourcing\EventRefactoring\Migrations\Replace.cs" />
     <Compile Include="CQRS\EventSourcing\EventRefactoring\Migrations\MigrationsPerformanceTest.SqlServer.cs" />
     <Compile Include="CQRS\EventSourcing\EventRefactoring\Migrations\TestAggregate.cs" />
-    <Compile Include="CQRS\EventSourcing\EventRefactoring\Migrations\TimeAsserter.cs" />
     <Compile Include="CQRS\EventSourcing\EventRefactoring\When_renaming_events\With_path_renamer.cs" />
     <Compile Include="CQRS\EventSourcing\EventRefactoring\When_renaming_events\With_path_renamer_and_then_renaming_attribute_renamer.cs" />
     <Compile Include="CQRS\EventSourcing\EventRefactoring\When_renaming_events\With_renaming_attribute_renamer_and_then_path_renamer.cs" />

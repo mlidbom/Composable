@@ -56,7 +56,7 @@ namespace Composable.CQRS.ServiceBus.NServicebus.Tests.TransactionSupport
             eventStore.SaveEvents(Aggregate.Create(2).Cast<IEventStored>().SelectMany( agg => agg.GetChanges()));
 
             endpointConfigurer.Init();
-            var messageHandled = new ManualResetEvent(false);
+            var messageHandled = new ManualResetEventSlim();
 #pragma warning disable 618
             TestingSupportMessageModule.OnHandleBeginMessage += transaction =>
 #pragma warning restore 618
@@ -68,7 +68,7 @@ namespace Composable.CQRS.ServiceBus.NServicebus.Tests.TransactionSupport
                     bus => bus.SendLocal(new InsertEventsMessage())
                 );
 
-            Assert.That(messageHandled.WaitOne(30.Seconds()), Is.True, "Timed out waiting for message");
+            Assert.That(messageHandled.Wait(30.Seconds()), Is.True, "Timed out waiting for message");
 
             using (var tx = new TransactionScope())
             {

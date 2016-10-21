@@ -38,14 +38,14 @@ namespace Composable.DomainEvents.Tests
             using (DomainEvent.RegisterShortTermSynchronousListener<IDomainEvent>(i => { called = true; }))
 #pragma warning restore 612,618
             {
-                var done = new ManualResetEvent(false);
+                var done = new ManualResetEventSlim();
                 using(var timer = new Timer((o) =>
                                                 {
                                                     DomainEvent.Raise(new SomethingHappend());
                                                     done.Set();
                                                 }, null, 1, -1))
                 {
-                    done.WaitOne(2.Seconds());
+                    done.Wait(2.Seconds());
                 }
             }
             Assert.That(called, Is.False);

@@ -53,7 +53,7 @@ namespace Composable.CQRS.ServiceBus.NServicebus.Tests.UowTests
                 _bus = endpointConfigurator.Container.Resolve<IServiceBus>();
                 _nsbBus = endpointConfigurator.Container.Resolve<IBus>();
 
-                var messageHandled = new ManualResetEvent(false);
+                var messageHandled = new ManualResetEventSlim();
                 var status = TransactionStatus.Active;
 #pragma warning disable 618
                 TestingSupportMessageModule.OnHandleBeginMessage += transaction =>
@@ -68,7 +68,7 @@ namespace Composable.CQRS.ServiceBus.NServicebus.Tests.UowTests
 
                 _bus.SendLocal(new InvokeUnitOfWorkCommandMessage());
 
-                Assert.That(messageHandled.WaitOne(30.Seconds()), Is.True, "Timed out waiting for message");
+                Assert.That(messageHandled.Wait(30.Seconds()), Is.True, "Timed out waiting for message");
 
                 Assert.That(status, Is.EqualTo(TransactionStatus.Committed), "Message handling did not complete successfully");
 

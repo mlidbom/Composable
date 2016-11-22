@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Configuration;
 using Composable.KeyValueStorage;
 using Composable.KeyValueStorage.SqlServer;
+using Composable.System.Configuration;
 using FluentAssertions;
 using NCrunch.Framework;
 using NUnit.Framework;
@@ -11,7 +12,6 @@ namespace CQRS.Tests.KeyValueStorage.Sql
 {
     public abstract class DocumentDbSpecification : NSpec.NUnit.nspec
     {
-        private static readonly string ConnectionString = ConfigurationManager.ConnectionStrings["KeyValueStore"].ConnectionString;
         private IDocumentDb _store = null;
         private string _ignoredString;
         private Dictionary<Type, Dictionary<string, string>> _persistentValues;
@@ -155,11 +155,21 @@ namespace CQRS.Tests.KeyValueStorage.Sql
         [ExclusivelyUses(NCrunchExlusivelyUsesResources.DocumentDbMdf)]
         public class SqlServerDocumentDbSpecification : DocumentDbSpecification
         {
+            private TemporaryLocalDbManager _connectionManager;
+            private string _connectionString;
+
             override public void before_each()
             {
                 base.before_each();
-                SqlServerDocumentDb.ResetDB(ConnectionString);
-                _store = new SqlServerDocumentDb(ConnectionString);
+                _connectionManager = new TemporaryLocalDbManager(new ConnectionStringConfigurationParameterProvider().GetConnectionString("MasterDB").ConnectionString);
+                _connectionString = _connectionManager.CreateOrGetLocalDb($"{nameof(SqlServerDocumentDbSpecification)}DocumentDB");
+                SqlServerDocumentDb.ResetDB(_connectionString);
+                _store = new SqlServerDocumentDb(_connectionString);
+            }
+
+            public void after_each()
+            {                
+                _connectionManager.Dispose();
             }
 
             public void Does_not_call_db_in_constructor()

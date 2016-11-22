@@ -26,6 +26,7 @@ using NCrunch.Framework;
 using NServiceBus;
 using NUnit.Framework;
 using Composable.GenericAbstractions.Time;
+using Composable.System.Configuration;
 using Composable.Windsor;
 
 #endregion
@@ -38,8 +39,6 @@ namespace Composable.CQRS.ServiceBus.NServicebus.Tests.TransactionSupport
     [NCrunch.Framework.Isolated]
     public class WhenMessageHandlingFails
     {
-        public static readonly string DocumentDbConnectionString = ConfigurationManager.ConnectionStrings["KeyValueStore"].ConnectionString;
-        public static readonly string EventStoreConnectionString = ConfigurationManager.ConnectionStrings["EventStore"].ConnectionString;
 
         [Test]
         [NCrunch.Framework.Isolated]
@@ -47,33 +46,41 @@ namespace Composable.CQRS.ServiceBus.NServicebus.Tests.TransactionSupport
         {
             var endpointConfigurer = new EndPointConfigurer("Composable.CQRS.ServiceBus.NServicebus.Tests.TransactionSupport");
 
-            var eventStore = new SqlServerEventStore(EventStoreConnectionString, new SingleThreadUseGuard());
-
-            eventStore.ResetDB();
-            SqlServerDocumentDb.ResetDB(EventStoreConnectionString);
-            SqlServerDocumentDb.ResetDB(DocumentDbConnectionString);
-
-            eventStore.SaveEvents(Aggregate.Create(2).Cast<IEventStored>().SelectMany( agg => agg.GetChanges()));
-
-            endpointConfigurer.Init();
-            var messageHandled = new ManualResetEventSlim();
-#pragma warning disable 618
-            TestingSupportMessageModule.OnHandleBeginMessage += transaction =>
-#pragma warning restore 618
-                                                                    {
-                                                                        transaction.TransactionCompleted += (_, __) => messageHandled.Set();
-                                                                    };
-
-            endpointConfigurer.Container.UseComponent<IServiceBus>(
-                    bus => bus.SendLocal(new InsertEventsMessage())
-                );
-
-            Assert.That(messageHandled.Wait(30.Seconds()), Is.True, "Timed out waiting for message");
-
-            using (var tx = new TransactionScope())
+            using (
+                var dbManager = new TemporaryLocalDbManager(
+                    new ConnectionStringConfigurationParameterProvider()
+                    .GetConnectionString("MasterDB").ConnectionString))
             {
-                var events = eventStore.ListAllEventsForTestingPurposesAbsolutelyNotUsableForARealEventStoreOfAnySize().ToList();
-                Assert.That(events, Has.Count.EqualTo(2));
+                string eventStoreConnectionString = dbManager.CreateOrGetLocalDb($"{nameof(WhenMessageHandlingFails)}EventStoreConnectionString");
+                string documentDbConnectionString = dbManager.CreateOrGetLocalDb($"{nameof(WhenMessageHandlingFails)}DocumentDBConnectionString"); ;
+                var eventStore = new SqlServerEventStore(eventStoreConnectionString, new SingleThreadUseGuard());
+
+                eventStore.ResetDB();
+                SqlServerDocumentDb.ResetDB(eventStoreConnectionString);                
+                SqlServerDocumentDb.ResetDB(documentDbConnectionString);
+
+                eventStore.SaveEvents(Aggregate.Create(2).Cast<IEventStored>().SelectMany(agg => agg.GetChanges()));
+
+                endpointConfigurer.Init();
+                var messageHandled = new ManualResetEventSlim();
+#pragma warning disable 618
+                TestingSupportMessageModule.OnHandleBeginMessage += transaction =>
+#pragma warning restore 618
+                                                                        {
+                                                                            transaction.TransactionCompleted += (_, __) => messageHandled.Set();
+                                                                        };
+
+                endpointConfigurer.Container.UseComponent<IServiceBus>(
+                                      bus => bus.SendLocal(new InsertEventsMessage())
+                                  );
+
+                Assert.That(messageHandled.Wait(30.Seconds()), Is.True, "Timed out waiting for message");
+
+                using (var tx = new TransactionScope())
+                {
+                    var events = eventStore.ListAllEventsForTestingPurposesAbsolutelyNotUsableForARealEventStoreOfAnySize().ToList();
+                    Assert.That(events, Has.Count.EqualTo(2));
+                }
             }
         }
     }
@@ -144,27 +151,38 @@ namespace Composable.CQRS.ServiceBus.NServicebus.Tests.TransactionSupport
 
         public static void ConfigureContainerTest(IWindsorContainer container)
         {
-            container.Register(
-                Component.For<IMessageInterceptor>().Instance(EmptyMessageInterceptor.Instance),
-                Component.For<IServiceBus>().ImplementedBy<NServiceBusServiceBus>(),
-               
-                Component.For<IEventStoreSession, IUnitOfWorkParticipant>()
-                    .ImplementedBy<EventStoreSession>()
-                    .LifeStyle.PerNserviceBusMessage(),
 
-                Component.For<IEventStore, SqlServerEventStore>().ImplementedBy<SqlServerEventStore>()
-                    .DependsOn(Dependency.OnValue(typeof(string), WhenMessageHandlingFails.DocumentDbConnectionString))
-                    .LifestyleScoped(),
+            using(
+                var dbManager = new TemporaryLocalDbManager(
+                                    new ConnectionStringConfigurationParameterProvider()
+                                        .GetConnectionString("MasterDB").ConnectionString))
+            {
+                string eventStoreConnectionString = dbManager.CreateOrGetLocalDb($"{nameof(WhenMessageHandlingFails)}EventStoreConnectionString");
+                string documentDbConnectionString = dbManager.CreateOrGetLocalDb($"{nameof(WhenMessageHandlingFails)}DocumentDBConnectionString");
+                ;
 
-                Component.For<IDocumentDb>().ImplementedBy<SqlServerDocumentDb>()
-                    .DependsOn(Dependency.OnValue(typeof(string), WhenMessageHandlingFails.EventStoreConnectionString))
-                    .LifestyleScoped(),
+                container.Register(
+                    Component.For<IMessageInterceptor>().Instance(EmptyMessageInterceptor.Instance),
+                    Component.For<IServiceBus>().ImplementedBy<NServiceBusServiceBus>(),
 
-                Component.For<IDocumentDbSession, IUnitOfWorkParticipant>().ImplementedBy<DocumentDbSession>()
-                    .DependsOn(Dependency.OnValue(typeof(IDocumentDbSessionInterceptor), NullOpDocumentDbSessionInterceptor.Instance))
-                    .LifeStyle.PerNserviceBusMessage(),
-                Component.For<ISingleContextUseGuard>()
+                    Component.For<IEventStoreSession, IUnitOfWorkParticipant>()
+                             .ImplementedBy<EventStoreSession>()
+                             .LifeStyle.PerNserviceBusMessage(),
+
+                    Component.For<IEventStore, SqlServerEventStore>().ImplementedBy<SqlServerEventStore>()
+                             .DependsOn(Dependency.OnValue(typeof(string), eventStoreConnectionString))
+                             .LifestyleScoped(),
+
+                    Component.For<IDocumentDb>().ImplementedBy<SqlServerDocumentDb>()
+                             .DependsOn(Dependency.OnValue(typeof(string), documentDbConnectionString))
+                             .LifestyleScoped(),
+
+                    Component.For<IDocumentDbSession, IUnitOfWorkParticipant>().ImplementedBy<DocumentDbSession>()
+                             .DependsOn(Dependency.OnValue(typeof(IDocumentDbSessionInterceptor), NullOpDocumentDbSessionInterceptor.Instance))
+                             .LifeStyle.PerNserviceBusMessage(),
+                    Component.For<ISingleContextUseGuard>()
                 );
+            }
         }
 
         protected override string InputQueueName { get { return _queueName; } }

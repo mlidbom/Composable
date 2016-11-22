@@ -40,9 +40,31 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="IHyperBus.cs" />
+    <Compile Include="APIDraft\EmptyResource.cs" />
+    <Compile Include="APIDraft\EntityQuery.cs" />
+    <Compile Include="APIDraft\IApiNavigator.cs" />
+    <Compile Include="APIDraft\IMessageHandlerRegistrar.cs" />
+    <Compile Include="APIDraft\IHyperBus.cs" />
+    <Compile Include="APIDraft\IMessageCascade.cs" />
+    <Compile Include="APIDraft\IMessageHandlers.cs" />
+    <Compile Include="APIDraft\MessageTypes.cs" />
+    <Compile Include="APIDraft\NavigationOptions.cs" />
+    <Compile Include="DemoApp\ExposedApi\AccountEvents.cs" />
+    <Compile Include="DemoApp\ApiImplementation\ApplicationBootstrapper.cs" />
+    <Compile Include="DemoApp\Client\D00ManualBusUsage.cs" />
+    <Compile Include="DemoApp\Client\D03AdvancedAwaiting.cs" />
+    <Compile Include="DemoApp\Client\D02AwaitingCascadeActivation.cs" />
+    <Compile Include="DemoApp\Client\D01NavigatorUsage.cs" />
+    <Compile Include="DemoApp\ExposedApi\Resources\Accounts\AccountsStartResource.cs" />
+    <Compile Include="DemoApp\ExposedApi\Resources\Accounts\AccountResource.cs" />
+    <Compile Include="DemoApp\ExposedApi\Resources\Accounts\ChangeAccountEmailCommand.cs" />
+    <Compile Include="DemoApp\ExposedApi\Resources\Accounts\Contact.cs" />
+    <Compile Include="DemoApp\ExposedApi\Resources\DemoApplicationApi.cs" />
+    <Compile Include="DemoApp\ExposedApi\Resources\DemoApplicationStartResource.cs" />
+    <Compile Include="DemoApp\ExposedApi\Resources\Accounts\RegisterAccountCommand.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

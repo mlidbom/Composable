@@ -152,7 +152,6 @@ namespace CQRS.Tests.KeyValueStorage.Sql
             return storedValue;
         }
 
-        [ExclusivelyUses(NCrunchExlusivelyUsesResources.DocumentDbMdf)]
         public class SqlServerDocumentDbSpecification : DocumentDbSpecification
         {
             private TemporaryLocalDbManager _connectionManager;

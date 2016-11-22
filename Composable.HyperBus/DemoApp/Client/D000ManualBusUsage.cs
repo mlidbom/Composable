@@ -5,7 +5,7 @@ using Composable.HyperBus.DemoApp.ExposedApi.Resources;
 
 namespace Composable.HyperBus.DemoApp.Client
 {
-    public class D00ManualBusUsage
+    public class D000ManualBusUsage
     {
         private IHyperBus Bus { get; }
 

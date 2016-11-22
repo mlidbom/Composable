@@ -5,7 +5,7 @@ using Composable.HyperBus.DemoApp.ExposedApi.Resources;
 
 namespace Composable.HyperBus.DemoApp.Client
 {
-    public class D02AwaitingCascadeActivation
+    public class D020AwaitingCascadeActivation
     {
         private IApiNavigator<EmptyResource> Navigator { get; }
 

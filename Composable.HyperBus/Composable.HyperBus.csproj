@@ -57,10 +57,10 @@
     <Compile Include="DemoApp\ApiImplementation\MessageHandlers\AccountEmailer.cs" />
     <Compile Include="DemoApp\ExposedApi\AccountEvents.cs" />
     <Compile Include="DemoApp\ApiImplementation\ManualRegistrationApplicationBootstrapper.cs" />
-    <Compile Include="DemoApp\Client\D00ManualBusUsage.cs" />
-    <Compile Include="DemoApp\Client\D03AdvancedAwaiting.cs" />
-    <Compile Include="DemoApp\Client\D02AwaitingCascadeActivation.cs" />
-    <Compile Include="DemoApp\Client\D01NavigatorUsage.cs" />
+    <Compile Include="DemoApp\Client\D000ManualBusUsage.cs" />
+    <Compile Include="DemoApp\Client\D030AdvancedAwaiting.cs" />
+    <Compile Include="DemoApp\Client\D020AwaitingCascadeActivation.cs" />
+    <Compile Include="DemoApp\Client\D010NavigatorUsage.cs" />
     <Compile Include="DemoApp\ExposedApi\Resources\Accounts\AccountsStartResource.cs" />
     <Compile Include="DemoApp\ExposedApi\Resources\Accounts\AccountResource.cs" />
     <Compile Include="DemoApp\ExposedApi\Resources\Accounts\ChangeAccountEmailCommand.cs" />

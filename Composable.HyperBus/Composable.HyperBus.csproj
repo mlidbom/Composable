@@ -52,7 +52,7 @@
     <Compile Include="APIDraft\NavigationOptions.cs" />
     <Compile Include="DemoApp\ApiImplementation\MessageHandlers\AccountEntityQueryHandler.cs" />
     <Compile Include="DemoApp\ApiImplementation\AutomaticRegistrationApplicationBootstrapper.cs" />
-    <Compile Include="DemoApp\ApiImplementation\MessageHandlers\RegisterAccountCommandHandler - Copy.cs" />
+    <Compile Include="DemoApp\ApiImplementation\MessageHandlers\ChangeAccountEmailCommandHandler.cs" />
     <Compile Include="DemoApp\ApiImplementation\MessageHandlers\RegisterAccountCommandHandler.cs" />
     <Compile Include="DemoApp\ApiImplementation\MessageHandlers\AccountEmailer.cs" />
     <Compile Include="DemoApp\ExposedApi\AccountEvents.cs" />
@@ -72,6 +72,12 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="project.json" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Composable.System\Composable.Core.csproj">
+      <Project>{3632254D-0C4A-4EB8-B388-4C99F8939584}</Project>
+      <Name>Composable.Core</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

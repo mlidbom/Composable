@@ -8,9 +8,9 @@ namespace Composable.HyperBus.DemoApp.ApiImplementation
 {
     public class ManualRegistrationApplicationBootstrapper
     {
-        public static void RegisterMessageHandlersManually(IMessageHandlerRegistrar registerMessageHandlers, IWindsorContainer container)
+        public static void RegisterMessageHandlersManually(IMessageHandlerRegistrar registerMessageHandlersFor, IWindsorContainer container)
         {
-            registerMessageHandlers
+            registerMessageHandlersFor
                      .Command((RegisterAccountCommand command) => container.Resolve<RegisterAccountCommandHandler>().Handle(command))
                      .Command((ChangeAccountEmailCommand command) => container.Resolve<ChangeAccountEmailCommandHandler>().Handle(command))
                      .Query((EntityQuery<AccountResource> query) => container.Resolve<AccountEntityQueryHandler>().Handle(query))

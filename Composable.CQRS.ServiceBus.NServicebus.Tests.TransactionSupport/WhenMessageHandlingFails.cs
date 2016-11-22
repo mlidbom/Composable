@@ -35,7 +35,7 @@ namespace Composable.CQRS.ServiceBus.NServicebus.Tests.TransactionSupport
 {
     
     [TestFixture, NUnit.Framework.Category("NSBFullSetupTests")]
-    [ExclusivelyUses(NCrunchExlusivelyUsesResources.DocumentDbMdf, NCrunchExlusivelyUsesResources.EventStoreDbMdf, NCrunchExlusivelyUsesResources.NServiceBus)]
+    [ExclusivelyUses(NCrunchExlusivelyUsesResources.NServiceBus)]
     [NCrunch.Framework.Isolated]
     public class WhenMessageHandlingFails
     {

@@ -9,8 +9,9 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Composable.HyperBus</RootNamespace>
     <AssemblyName>Composable.HyperBus</AssemblyName>
-    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -49,8 +50,13 @@
     <Compile Include="APIDraft\IMessageHandlers.cs" />
     <Compile Include="APIDraft\MessageTypes.cs" />
     <Compile Include="APIDraft\NavigationOptions.cs" />
+    <Compile Include="DemoApp\ApiImplementation\MessageHandlers\AccountEntityQueryHandler.cs" />
+    <Compile Include="DemoApp\ApiImplementation\AutomaticRegistrationApplicationBootstrapper.cs" />
+    <Compile Include="DemoApp\ApiImplementation\MessageHandlers\RegisterAccountCommandHandler - Copy.cs" />
+    <Compile Include="DemoApp\ApiImplementation\MessageHandlers\RegisterAccountCommandHandler.cs" />
+    <Compile Include="DemoApp\ApiImplementation\MessageHandlers\AccountEmailer.cs" />
     <Compile Include="DemoApp\ExposedApi\AccountEvents.cs" />
-    <Compile Include="DemoApp\ApiImplementation\ApplicationBootstrapper.cs" />
+    <Compile Include="DemoApp\ApiImplementation\ManualRegistrationApplicationBootstrapper.cs" />
     <Compile Include="DemoApp\Client\D00ManualBusUsage.cs" />
     <Compile Include="DemoApp\Client\D03AdvancedAwaiting.cs" />
     <Compile Include="DemoApp\Client\D02AwaitingCascadeActivation.cs" />
@@ -64,7 +70,9 @@
     <Compile Include="DemoApp\ExposedApi\Resources\Accounts\RegisterAccountCommand.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <None Include="project.json" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

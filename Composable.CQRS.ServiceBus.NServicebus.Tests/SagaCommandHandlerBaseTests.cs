@@ -7,7 +7,7 @@ using Moq;
 using NServiceBus.Saga;
 using NUnit.Framework;
 
-namespace CQRS.Tests.CQRS
+namespace Composable.CQRS.ServiceBus.NServicebus.Tests
 {
     [TestFixture]
     class SagaCommandHandlerBaseTests

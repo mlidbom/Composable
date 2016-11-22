@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 #pragma warning disable 1591
@@ -26,7 +27,7 @@ namespace Composable.HyperBus
     public interface ICascade<TReturnValue>
     {
         Task<TReturnValue> GetReturnValue();
-        Task RunToEndOfActivation();
+        Task RunToEndOfActivation(IEnumerable<Guid> excludedEndpoints = null, IEnumerable<Guid> includedEndpoints = null);
     }
 
     public interface IHyperBus
@@ -50,9 +51,11 @@ namespace Composable.HyperBus
         Task<TResource> RunAsync();
         Task<TResource> RunAsync(NavigationOptions options);
 
-        IApiNavigator<TReturnResource> Get<TReturnResource>(Func<IQuery<TReturnResource>> linkSelector);
-        IApiNavigator<TReturnResource> Execute<TReturnResource>(Func<ICommand<TReturnResource>> linkSelector);
+        IApiNavigator<TReturnResource> Get<TReturnResource>(Func<IQuery<TReturnResource>> linkSelector);        
         IApiNavigator<TReturnResource> Get<TReturnResource>(Func<TResource, IQuery<TReturnResource>> linkSelector);
+
+        IApiNavigator<EmptyResource> Execute(Func<ICommand> linkSelector);
+        IApiNavigator<TReturnResource> Execute<TReturnResource>(Func<ICommand<TReturnResource>> linkSelector);
         IApiNavigator<TReturnResource> Execute<TReturnResource>(Func<TResource, ICommand<TReturnResource>> linkSelector);
     }
 
@@ -69,7 +72,27 @@ namespace Composable.HyperBus
     public class RegisterAccountCommand : Command<Account>
     {}
 
-    public class Account { }
+
+    public class Contact { }
+
+    public class Account
+    {
+        public  LinksClass Links { get; }
+        public CommandsClass Commands { get; }
+        public class LinksClass
+        {
+            public IQuery<Contact> Contact { get; }
+        }
+
+        public class CommandsClass
+        {
+            public ChangeEmailCommand ChangeEmail(string email) => new ChangeEmailCommand() ;
+            public class ChangeEmailCommand : Command
+            {
+                public string Email { get;}
+            }
+        }
+    }
 
 
 
@@ -106,6 +129,10 @@ namespace Composable.HyperBus
                                         .Get(start => start.Links.Accounts)
                                         .Execute(accounts => accounts.Commands.Register(email: "some@email.com", password:"secret"))
                                         .RunAsync();
+
+            var contact = await Navigator.Get(() => account.Links.Contact).RunAsync();
+
+            await Navigator.Execute(() => account.Commands.ChangeEmail("new@email.com")).RunAsync();
         }
 
         public async Task DemoNavigatorUsageÁndAwaitingCascade()
@@ -124,7 +151,10 @@ namespace Composable.HyperBus
 
             var accountCreationCascade = await apiNavigationSpecification.RunAndReturnCascadeAsync();
 
-            await accountCreationCascade.RunToEndOfActivation();
+
+            await accountCreationCascade.RunToEndOfActivation(); //Await complete activation
+            await accountCreationCascade.RunToEndOfActivation(excludedEndpoints: new[] { Guid.Parse("13AF286B-1303-4028-A4FB-E32D7C456D99") }); //Wait for complete activation excepting the specified endpoints
+            await accountCreationCascade.RunToEndOfActivation(includedEndpoints: new[] { Guid.Parse("13AF286B-1303-4028-A4FB-E32D7C456D99") }); //Only wait for specific endpoints to be done.            
             var account = await accountCreationCascade.GetReturnValue();
         }
 

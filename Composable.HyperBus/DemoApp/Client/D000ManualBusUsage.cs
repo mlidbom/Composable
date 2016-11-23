@@ -1,5 +1,4 @@
-﻿using System;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using Composable.HyperBus.APIDraft;
 using Composable.HyperBus.DemoApp.ExposedApi.Resources;
 
@@ -15,7 +14,9 @@ namespace Composable.HyperBus.DemoApp.Client
             var startPage = await startPageSomething.GetReturnValue();
             var accountsSomething = await Bus.GetAsync(startPage.Links.Accounts);
             var accounts = await accountsSomething.GetReturnValue();
-            var registerAccountCommand = accounts.Commands.Register(email: "someone@somewhere.com", password: "secret");
+            var registerAccountCommand = accounts.Commands.Register(
+                                                     email: "someone@somewhere.com",
+                                                     password: "secret");
             var account = await Bus.ExecuteAsync(registerAccountCommand);
         }
     }

@@ -129,7 +129,6 @@
     <Compile Include="CQRS\Command\ISubCommand.cs" />
     <Compile Include="CQRS\Command\IValidationFailure.cs" />
     <Compile Include="CQRS\Command\MemberValidationFailure.cs" />
-    <Compile Include="CQRS\Command\SagaBase.cs" />
     <Compile Include="CQRS\Command\SubCommand.cs" />
     <Compile Include="CQRS\EntityToReferenceConverter.cs" />
     <Compile Include="CQRS\Event.cs" />
@@ -276,6 +275,7 @@
     <Compile Include="NewtonSoft\JsonSettings.cs" />
     <Compile Include="Persistence\SingleAggregateRelationalQueryModelUpdater.cs" />
     <Compile Include="ServiceBus\CanNotPublishMessageWhenReplayingEventsOnBusException.cs" />
+    <Compile Include="ServiceBus\IHandleMessages.cs" />
     <Compile Include="ServiceBus\IHandleReplayedAndPublishedEvents.cs" />
     <Compile Include="ServiceBus\IHandleInProcessMessages.cs" />
     <Compile Include="ServiceBus\IHandleRemoteMessages.cs" />

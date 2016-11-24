@@ -2,7 +2,6 @@ using Composable.CQRS.EventSourcing;
 using Composable.ServiceBus;
 using Composable.System;
 using Composable.System.Linq;
-using NServiceBus;
 
 namespace Composable.CQRS.EventHandling
 {

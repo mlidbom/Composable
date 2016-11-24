@@ -1,6 +1,5 @@
 ﻿using Castle.Windsor;
 using Composable.ServiceBus;
-using NServiceBus;
 
 namespace Composable.CQRS.EventSourcing
 {

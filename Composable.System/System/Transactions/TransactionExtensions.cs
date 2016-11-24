@@ -13,7 +13,7 @@ namespace Composable.System.Transactions
          {   
              Contract.Requires(me != null);
 
-             var done = new ManualResetEvent(false);
+             var done = new ManualResetEventSlim();
              me.TransactionCompleted += (_, __) => done.Set();
 
              if(me.TransactionInformation.Status != TransactionStatus.Active)
@@ -21,7 +21,7 @@ namespace Composable.System.Transactions
                  done.Set();
              }
 
-             return done.WaitOne(timeout);
+             return done.Wait(timeout);
          }
     }
 }

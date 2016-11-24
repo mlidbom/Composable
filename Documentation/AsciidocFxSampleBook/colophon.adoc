@@ -1,0 +1,4 @@
+[colophon]
+== Example Colophon
+
+Text at the end of a book describing facts about its production.

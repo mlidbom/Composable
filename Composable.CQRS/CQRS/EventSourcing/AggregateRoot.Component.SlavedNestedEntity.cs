@@ -14,6 +14,12 @@ namespace Composable.CQRS.EventSourcing
             where TComponentBaseEventClass : TAggregateRootBaseEventClass, TComponentBaseEventInterface
             where TComponent : Component<TComponent, TComponentBaseEventClass, TComponentBaseEventInterface>
         {
+            ///<summary>
+            /// An entity that is not created and removed through raising events. 
+            /// Instead it is automatically created and/or removed when another entity in the Aggregate object graph is added or removed. 
+            /// Inheritors must implement the add/remove behavior themselves. 
+            /// Usually this is implemented within a nested class that inherits from <see cref="EntityCollectionManagerBase{TParent}"/>           
+            /// </summary>
             public abstract class SlavedNestedEntity<TEntity,
                                                TEntityId,
                                                TEntityBaseEventClass,

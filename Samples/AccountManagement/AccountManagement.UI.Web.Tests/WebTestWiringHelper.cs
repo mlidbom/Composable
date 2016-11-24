@@ -9,17 +9,8 @@ namespace AccountManagement.UI.Web.Tests
         public static WindsorContainer CreateContainer()
         {
             var container = new WindsorContainer();
-            CommonWiring(container);
-            return container;
-        }
-
-        private static void CommonWiring(IWindsorContainer container)
-        {
-            container.ConfigureWiringForTestsCallBeforeAllOtherWiring();
-
             ApplicationBootstrapper.ConfigureContainerForTests(container);
-
-            container.ConfigureWiringForTestsCallAfterAllOtherWiring();
+            return container;
         }
     }
 

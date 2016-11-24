@@ -6,7 +6,6 @@ using Composable.ServiceBus;
 using Composable.StuffThatDoesNotBelongHere;
 using Composable.System;
 using log4net;
-using NServiceBus;
 
 namespace Composable.CQRS.EventHandling
 {

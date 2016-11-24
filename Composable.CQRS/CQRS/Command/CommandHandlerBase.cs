@@ -2,7 +2,6 @@
 using System.Linq;
 using System.Transactions;
 using Composable.ServiceBus;
-using NServiceBus;
 
 namespace Composable.CQRS.Command
 {

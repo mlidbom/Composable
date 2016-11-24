@@ -2,12 +2,12 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using NServiceBus;
+using Composable.CQRS.EventSourcing;
 
 namespace Composable.ServiceBus
 {
     // ReSharper disable once PossibleInterfaceMemberAmbiguity
-    public interface IHandleReplayedAndPublishedEvents<TEvent>:IHandleReplayedEvents<TEvent>,IHandleMessages<TEvent> where TEvent:IMessage
+    public interface IHandleReplayedAndPublishedEvents<TEvent>: IHandleReplayedEvents<TEvent>, IHandleMessages<TEvent> where TEvent:IMessage
     {
        
     }

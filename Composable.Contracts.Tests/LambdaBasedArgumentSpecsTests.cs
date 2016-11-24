@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using Composable.Testing;
 using FluentAssertions;
 using NUnit.Framework;
 
@@ -50,15 +51,11 @@ namespace Composable.Contracts.Tests
         {
             var notNullOrDefault = new object();
 
-            Contract.Argument(() => notNullOrDefault).NotNullOrDefault();//Warm it up. various reflection things cost first time only...
-
-            var stopWatch = new Stopwatch();
-            stopWatch.Start();
-            for(var i = 0; i < 500; i++)
-            {
-                Contract.Argument(() => notNullOrDefault).NotNullOrDefault();
-            }
-            stopWatch.Elapsed.Should().BeLessOrEqualTo(10.Milliseconds());
+            TimeAsserter.Execute(
+                    action: () => Contract.Argument(() => notNullOrDefault).NotNullOrDefault(),
+                    iterations: 500,
+                    maxTotal: 10.Milliseconds()
+            );
         }
 
 

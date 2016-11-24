@@ -81,13 +81,13 @@ namespace CQRS.Tests.CQRS.EventSourcing
         {
             var store = CreateStore();
             IEventStoreSession session = null;
-            var wait = new ManualResetEvent(false);
+            var wait = new ManualResetEventSlim();
             ThreadPool.QueueUserWorkItem((state) =>
                                              {
                                                  session = OpenSession(store);
                                                  wait.Set();
                                              });
-            wait.WaitOne();
+            wait.Wait();
 
             User user;
 

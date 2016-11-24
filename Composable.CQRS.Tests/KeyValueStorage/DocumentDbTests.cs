@@ -717,13 +717,13 @@ namespace CQRS.Tests.KeyValueStorage
         {
             var store = CreateStore();
             IDocumentDbSession session = null;
-            var wait = new ManualResetEvent(false);
+            var wait = new ManualResetEventSlim();
             ThreadPool.QueueUserWorkItem(state =>
                                          {
                                              session = OpenSession(store);
                                              wait.Set();
                                          });
-            wait.WaitOne();
+            wait.Wait();
 
             var user = new User() { Id = Guid.NewGuid() };
 

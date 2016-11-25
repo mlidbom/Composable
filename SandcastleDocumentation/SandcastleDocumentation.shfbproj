@@ -38,7 +38,7 @@
       <DocumentationSource sourceFile="..\Composable.CQRS\Composable.CQRS.csproj" />
       <DocumentationSource sourceFile="..\Composable.Windsor\Composable.Windsor.csproj" />
     </DocumentationSources>
-    <HelpFileVersion>3.6</HelpFileVersion>
+    <HelpFileVersion>3.4.6</HelpFileVersion>
     <MaximumGroupParts>2</MaximumGroupParts>
     <NamespaceGrouping>False</NamespaceGrouping>
     <SyntaxFilters>C#</SyntaxFilters>
@@ -51,24 +51,51 @@
     <ContentPlacement>AboveNamespaces</ContentPlacement>
     <VisibleItems>InheritedMembers, InheritedFrameworkMembers, Protected, ProtectedInternalAsProtected</VisibleItems>
     <ApiFilter>
-      <Filter entryType="Namespace" fullName="Composable.System" isExposed="True">
-  <Filter entryType="Class" fullName="Composable.System.ObjectExtensions" filterName="ObjectExtensions" isExposed="False" />
+      <Filter entryType="Namespace" fullName="Composable" isExposed="False" />
+<Filter entryType="Namespace" fullName="Composable.CQRS.UI.Command" isExposed="False" />
+<Filter entryType="Namespace" fullName="Composable.CQRS.UI.CommandService" isExposed="False" />
+<Filter entryType="Namespace" fullName="Composable.CQRS.UI.Event" isExposed="False" />
+<Filter entryType="Namespace" fullName="Composable.DomainEvents" isExposed="False" />
+<Filter entryType="Namespace" fullName="Composable.GenericAbstractions.Hierarchies" isExposed="False" />
+<Filter entryType="Namespace" fullName="Composable.GenericAbstractions.Wrappers" isExposed="False" />
+<Filter entryType="Namespace" fullName="Composable.KeyValueStorage" isExposed="True">
+  <Filter entryType="Class" fullName="Composable.KeyValueStorage.AttemptToSaveAlreadyPersistedValueException" filterName="AttemptToSaveAlreadyPersistedValueException" isExposed="False" />
 </Filter>
+<Filter entryType="Namespace" fullName="Composable.KeyValueStorage.Population" isExposed="False" />
+<Filter entryType="Namespace" fullName="Composable.KeyValueStorage.SqlServer" isExposed="False">
+  <Filter entryType="Class" fullName="Composable.KeyValueStorage.SqlServer.SqlServerDocumentDb" filterName="SqlServerDocumentDb" isExposed="True" />
+</Filter>
+<Filter entryType="Namespace" fullName="Composable.Logging.Log4Net" isExposed="False" />
+<Filter entryType="Namespace" fullName="Composable.NewtonSoft" isExposed="False" />
+<Filter entryType="Namespace" fullName="Composable.StuffThatDoesNotBelongHere" isExposed="False" />
+<Filter entryType="Namespace" fullName="Composable.StuffThatDoesNotBelongHere.Translation" isExposed="False" />
+<Filter entryType="Namespace" fullName="Composable.System.Collections.Collections" isExposed="False" />
+<Filter entryType="Namespace" fullName="Composable.System.ComponentModel.DataAnnotations" isExposed="False" />
+<Filter entryType="Namespace" fullName="Composable.System.Diagnostics" isExposed="False" />
+<Filter entryType="Namespace" fullName="Composable.System.IO" isExposed="False" />
+<Filter entryType="Namespace" fullName="Composable.System.Linq" isExposed="False" />
+<Filter entryType="Namespace" fullName="Composable.System.Reactive" isExposed="False" />
+<Filter entryType="Namespace" fullName="Composable.System.Reflection" isExposed="False" />
+<Filter entryType="Namespace" fullName="Composable.System.Transactions" isExposed="False" />
+<Filter entryType="Namespace" fullName="Composable.Testing" isExposed="False" />
+<Filter entryType="Namespace" fullName="JetBrains.Annotations" isExposed="False" />
 <Filter entryType="Namespace" fullName="System" isExposed="True">
   <Filter entryType="Class" fullName="System.Object" filterName="Object" isExposed="False" />
 </Filter></ApiFilter>
     <ComponentConfigurations>
-      <ComponentConfig id="Code Block Component" enabled="True" xmlns="">
+      <ComponentConfig id="Code Block Component" enabled="True">
         <component id="Code Block Component">
-  <basePath value="{@HtmlEncProjectFolder}" />
-  <outputPaths>{@HelpFormatOutputPaths}</outputPaths>
-  <allowMissingSource value="false" />
-  <removeRegionMarkers value="false" />
-  <colorizer syntaxFile="{@SHFBFolder}PresentationStyles\Colorizer\highlight.xml" styleFile="{@SHFBFolder}PresentationStyles\Colorizer\highlight.xsl" stylesheet="{@SHFBFolder}PresentationStyles\Colorizer\highlight.css" scriptFile="{@SHFBFolder}PresentationStyles\Colorizer\highlight.js" disabled="{@DisableCodeBlockComponent}" language="cs" tabSize="0" numberLines="false" outlining="false" keepSeeTags="false" defaultTitle="true" />
-</component>
+          <basePath value="{@HtmlEncProjectFolder}" />
+          <outputPaths>{@HelpFormatOutputPaths}</outputPaths>
+          <allowMissingSource value="false" />
+          <removeRegionMarkers value="false" />
+          <colorizer syntaxFile="{@SHFBFolder}PresentationStyles\Colorizer\highlight.xml" styleFile="{@SHFBFolder}PresentationStyles\Colorizer\highlight.xsl" stylesheet="{@SHFBFolder}PresentationStyles\Colorizer\highlight.css" scriptFile="{@SHFBFolder}PresentationStyles\Colorizer\highlight.js" disabled="{@DisableCodeBlockComponent}" language="cs" tabSize="0" numberLines="false" outlining="false" keepSeeTags="false" defaultTitle="true" />
+        </component>
       </ComponentConfig>
     </ComponentConfigurations>
     <MissingTags>AutoDocumentCtors, Namespace, AutoDocumentDispose</MissingTags>
+    <PlugInConfigurations>
+    </PlugInConfigurations>
   </PropertyGroup>
   <!-- There are no properties for these groups.  AnyCPU needs to appear in order for Visual Studio to perform
 			 the build.  The others are optional common platform types that may appear. -->

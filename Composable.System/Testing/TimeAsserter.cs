@@ -5,8 +5,7 @@ using Composable.System.Diagnostics;
 
 namespace Composable.Testing
 {
-    [Obsolete("API is not finalized.")]
-    public static class TimeAsserter
+    internal static class TimeAsserter
     {
         private const string DefaultTimeFormat = "ss\\.fff";
 

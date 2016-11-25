@@ -53,6 +53,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Automapper", "Automapper", 
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Other", "Other", "{AE4A974C-DB59-48DF-BE0C-3CE8C2F5BF4F}"
 EndProject
+Project("{7CF6DF6D-3B04-46F8-A40B-537D21BCA0B4}") = "SandcastleDocumentation", "SandcastleDocumentation\SandcastleDocumentation.shfbproj", "{467A4F57-7791-4771-B7FC-0EEAD508723D}"
+EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Composable.HyperBus", "Composable.HyperBus\Composable.HyperBus.csproj", "{17EA0D63-524B-4871-AFDF-CE988D3554FC}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "HyperBus", "HyperBus", "{9FDBFFA6-3014-45F1-A57C-581C9B327E3B}"
@@ -130,6 +132,9 @@ Global
 		{17EA0D63-524B-4871-AFDF-CE988D3554FC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{17EA0D63-524B-4871-AFDF-CE988D3554FC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{17EA0D63-524B-4871-AFDF-CE988D3554FC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{467A4F57-7791-4771-B7FC-0EEAD508723D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{467A4F57-7791-4771-B7FC-0EEAD508723D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{467A4F57-7791-4771-B7FC-0EEAD508723D}.Release|Any CPU.Build.0 = Release|Any CPU
 		{17EA0D63-524B-4871-AFDF-CE988D3554FC}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution

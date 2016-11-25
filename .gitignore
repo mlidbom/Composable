@@ -31,3 +31,4 @@ Samples/AccountManagement/.paket/paket.exe
 NuGetFeed/*
 !NuGetFeed/.keep
 project.lock.json
+SandcastleDocumentation/Help/

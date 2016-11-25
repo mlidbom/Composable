@@ -60,6 +60,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Automapper", "Automapper", 
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Other", "Other", "{AE4A974C-DB59-48DF-BE0C-3CE8C2F5BF4F}"
 EndProject
+Project("{7CF6DF6D-3B04-46F8-A40B-537D21BCA0B4}") = "SandcastleDocumentation", "SandcastleDocumentation\SandcastleDocumentation.shfbproj", "{467A4F57-7791-4771-B7FC-0EEAD508723D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -142,6 +144,9 @@ Global
 		{646DCE1F-A503-4158-80FB-AAA219C4CEFF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{646DCE1F-A503-4158-80FB-AAA219C4CEFF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{646DCE1F-A503-4158-80FB-AAA219C4CEFF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{467A4F57-7791-4771-B7FC-0EEAD508723D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{467A4F57-7791-4771-B7FC-0EEAD508723D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{467A4F57-7791-4771-B7FC-0EEAD508723D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

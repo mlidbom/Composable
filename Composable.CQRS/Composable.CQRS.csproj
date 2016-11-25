@@ -204,23 +204,6 @@
     <Compile Include="CQRS\Query\Models\Generators\IVersioningQueryModelGenerator.cs" />
     <Compile Include="CQRS\ReferenceObject.cs" />
     <Compile Include="CQRS\TranslatedReferenceObject.cs" />
-    <Compile Include="CQRS\UI\Command\CommandExecutionError.cs" />
-    <Compile Include="CQRS\UI\Command\IHandleUICommand.cs" />
-    <Compile Include="CQRS\UI\Command\IUICommand.cs" />
-    <Compile Include="CQRS\UI\Command\IUIValidationError.cs" />
-    <Compile Include="CQRS\UI\Command\PropertyValidationError.cs" />
-    <Compile Include="CQRS\UI\Command\PropertyValidationErrorExtensions.cs" />
-    <Compile Include="CQRS\UI\Command\UIClientCommand.cs" />
-    <Compile Include="CQRS\UI\Command\UICommandBase.cs" />
-    <Compile Include="CQRS\UI\Event\IHandleUIEvent.cs" />
-    <Compile Include="CQRS\UI\Event\IUIEvent.cs" />
-    <Compile Include="CQRS\UI\Event\UICommandResult.cs" />
-    <Compile Include="CQRS\UI\Event\UICommandStart.cs" />
-    <Compile Include="CQRS\UI\Event\UICommandStatus.cs" />
-    <Compile Include="CQRS\UI\Event\UIEventBase.cs" />
-    <Compile Include="CQRS\UI\CommandService\IUICommandService.cs" />
-    <Compile Include="CQRS\UI\CommandService\UICommandService.cs" />
-    <Compile Include="CQRS\UI\Event\UIViewModelStatus.cs" />
     <Compile Include="CQRS\UnNamedEntityReference.cs" />
     <Compile Include="CQRS\EventSourcing\AttemptToSaveAlreadyPersistedAggregateException.cs" />
     <Compile Include="CQRS\EventSourcing\EventStoreSession.cs" />
@@ -307,7 +290,6 @@
     <Compile Include="Windsor\MessageHandlersInstallerBase.cs" />
     <Compile Include="Windsor\Testing\ForTestsEventHandlerInstallerBase.cs" />
     <Compile Include="Windsor\Testing\WindsorTestWiringExtensions.cs" />
-    <Compile Include="Windsor\UICommandServiceInstaller.cs" />
     <Compile Include="Windsor\WindsorExtensions.cs" />
     <Compile Include="Windsor\WindsorUnitOfWorkExtensions.cs" />
   </ItemGroup>

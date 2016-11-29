@@ -46,10 +46,10 @@
     <RootNamespaceContainer>False</RootNamespaceContainer>
     <PresentationStyle>VS2013</PresentationStyle>
     <Preliminary>False</Preliminary>
-    <NamingMethod>Guid</NamingMethod>
+    <NamingMethod>HashedMemberName</NamingMethod>
     <HelpTitle>Composable Toolkit</HelpTitle>
     <ContentPlacement>AboveNamespaces</ContentPlacement>
-    <VisibleItems>InheritedMembers, InheritedFrameworkMembers, Protected, ProtectedInternalAsProtected</VisibleItems>
+    <VisibleItems>ExplicitInterfaceImplementations, InheritedMembers, InheritedFrameworkMembers, Protected, ProtectedInternalAsProtected</VisibleItems>
     <ApiFilter>
       <Filter entryType="Namespace" fullName="Composable" isExposed="False" />
 <Filter entryType="Namespace" fullName="Composable.CQRS.UI.Command" isExposed="False" />
@@ -69,6 +69,9 @@
 <Filter entryType="Namespace" fullName="Composable.NewtonSoft" isExposed="False" />
 <Filter entryType="Namespace" fullName="Composable.StuffThatDoesNotBelongHere" isExposed="False" />
 <Filter entryType="Namespace" fullName="Composable.StuffThatDoesNotBelongHere.Translation" isExposed="False" />
+<Filter entryType="Namespace" fullName="Composable.System" isExposed="True">
+  <Filter entryType="Class" fullName="Composable.System.ObjectExtensions" filterName="ObjectExtensions" isExposed="False" />
+</Filter>
 <Filter entryType="Namespace" fullName="Composable.System.Collections.Collections" isExposed="False" />
 <Filter entryType="Namespace" fullName="Composable.System.ComponentModel.DataAnnotations" isExposed="False" />
 <Filter entryType="Namespace" fullName="Composable.System.Diagnostics" isExposed="False" />
@@ -77,7 +80,6 @@
 <Filter entryType="Namespace" fullName="Composable.System.Reactive" isExposed="False" />
 <Filter entryType="Namespace" fullName="Composable.System.Reflection" isExposed="False" />
 <Filter entryType="Namespace" fullName="Composable.System.Transactions" isExposed="False" />
-<Filter entryType="Namespace" fullName="Composable.Testing" isExposed="False" />
 <Filter entryType="Namespace" fullName="JetBrains.Annotations" isExposed="False" />
 <Filter entryType="Namespace" fullName="System" isExposed="True">
   <Filter entryType="Class" fullName="System.Object" filterName="Object" isExposed="False" />
@@ -93,7 +95,7 @@
         </component>
       </ComponentConfig>
     </ComponentConfigurations>
-    <MissingTags>AutoDocumentCtors, Namespace, AutoDocumentDispose</MissingTags>
+    <MissingTags>None</MissingTags>
     <PlugInConfigurations>
     </PlugInConfigurations>
   </PropertyGroup>
@@ -117,14 +119,8 @@
   </PropertyGroup>
   <ItemGroup>
     <Folder Include="Content" />
-    <Folder Include="Content\VersionHistory" />
     <Folder Include="icons" />
     <Folder Include="media" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Content\VersionHistory\v1.0.0.0.aml" />
-    <None Include="Content\VersionHistory\VersionHistory.aml" />
-    <None Include="Content\Welcome.aml" />
   </ItemGroup>
   <ItemGroup>
     <ContentLayout Include="ContentLayout.content" />
@@ -142,5 +138,8 @@
     <PostBuildEvent>
     </PostBuildEvent>
     <RunPostBuildEvent>OnBuildSuccess</RunPostBuildEvent>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'docs' ">
+    <OutputPath>bin\docs\</OutputPath>
   </PropertyGroup>
 </Project>

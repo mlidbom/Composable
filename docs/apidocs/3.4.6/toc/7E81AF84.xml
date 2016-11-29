@@ -1,0 +1,1 @@
+﻿<?xml version="1.0" encoding="utf-8"?><HelpTOCNode Title="IUnitOfWorkParticipantWhoseCommitMayTriggerChangesInOtherParticipantsMustImplementIdemponentCommit Methods" Url="html/7E81AF84.htm"><HelpTOCNode Title="CommitAndReportIfCommitMayHaveCausedChangesInOtherParticipantsExpectAnotherCommitSoDoNotLeaveUnitOfWork Method " Url="html/B7868078.htm" /></HelpTOCNode>

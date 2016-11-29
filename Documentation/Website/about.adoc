@@ -1,0 +1,3 @@
+= About
+:page-permalink: /about/
+

@@ -1,0 +1,15 @@
+.site-header{
+    border-top: 0px;
+}
+
+.listingblock .pygments, .listingblock .pygments code {
+    background-color: #f8f8f7;
+}
+
+h1, h2, h3, #toctitle, .sidebarblock>.content>.title, h4, h5, h6 .post-title{
+    margin-top:0px;
+}
+
+#disqus-container {
+    margin-top: 50px;
+}

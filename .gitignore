@@ -32,3 +32,4 @@ NuGetFeed/*
 !NuGetFeed/.keep
 project.lock.json
 SandcastleDocumentation/Help/
+.idea

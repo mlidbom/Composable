@@ -1,0 +1,10 @@
+= Site published
+Magnus Lidbom
+:page-disqusid: '2016-11-28-site-published-post'
+
+
+First extremely minimal version of the site has been published.
+Essentially it simply holds the links to the API
+link:{site-baseurl}/documentation[documentation]
+for now.
+

@@ -18,7 +18,7 @@ title: Composable Toolkit
 description: > # this means to ignore newlines until "baseurl:"
   A .Net toolkit making CQRS, Event Sourcing, Event Driven Architecture, VEST testing and DDD
   simpler and more productive.
-baseurl: "/composable" # the subpath of your site, e.g. /blog
+baseurl: "/Composable" # the subpath of your site, e.g. /blog
 url: "https://mlidbom.github.io" # the base hostname & protocol for your site, e.g. http://example.com
 github_username:  mlidbom
 livereload: true

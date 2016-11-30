@@ -1,8 +1,8 @@
 <aside class="large-3 columns">
-    <h4>Posts</h4>
+    <h4>News</h4>
     <ul id="posts" class="posts nav">
         {% for post in site.posts limit: 5 %}
-        <li><a href="{{site.baseurl}}{{ post.url }}">{{ post.title }}</a></li>
+        <li><a href="{{site.baseurl}}{{ post.url }}">{{post.date | date: "%Y-%m-%d"}} {{ post.title }}</a></li>
         {% endfor %}
     </ul>
 

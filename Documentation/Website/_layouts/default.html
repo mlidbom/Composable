@@ -1,45 +1,43 @@
 <!doctype html>
 <!--[if IE 9]><html class="lt-ie10" lang="en"> <![endif]-->
-<html class="no-js" lang="en" data-useragent="Mozilla/5.0 (compatible; MSIE 10.0; Windows NT 6.2; Trident/6.0)">
-<head>
-    <meta charset="utf-8">
-    <!-- If you delete this meta tag World War Z will become a reality -->
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{page.title}}</title>
-    <meta name="description" content="{% if page.description %}{{ page.description }}{% else %}{{ site.description }}{% endif %}">
+<html class="no-js" lang="en">
+    <head>
+        <meta charset="utf-8">
+        <!-- If you delete this meta tag World War Z will become a reality -->
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>{{page.title}}</title>
+        <meta name="description" content="{% if page.description %}{{ page.description }}{% else %}{{ site.description }}{% endif %}">
 
-    <!-- If you are using the CSS version, only link these 2 files, you may add app.css to use for your overrides if you like -->
-    <link rel="stylesheet" href="{{site.baseurl}}css/normalize.css">
-    <link rel="stylesheet" href="{{site.baseurl}}css/foundation.css">
+        <!-- If you are using the CSS version, only link these 2 files, you may add app.css to use for your overrides if you like -->
 
-    <link rel="stylesheet" href="{{site.baseurl}}css/font-awesome.css">
-    <link rel="stylesheet" href="{{site.baseurl}}css/asciidoc-pygments.css">
-    <link rel="stylesheet" href="{{site.baseurl}}css/asciidoctor.css">
+        <link rel="stylesheet" href="{{site.baseurl}}/css/normalize.css">
+        <link rel="stylesheet" href="{{site.baseurl}}/css/foundation.css">
 
-    <!-- If you are using the gem version, you need this only -->
-    <link rel="stylesheet" href="{{site.baseurl}}css/app.css">
+        <link rel="stylesheet" href="{{site.baseurl}}/css/font-awesome.css">
 
-    <script src="{{site.baseurl}}js/vendor/modernizr.js"></script>
-</head>
-<body>
+        <link rel="stylesheet" href="{{site.baseurl}}/css/asciidoctor.css">
+        <link rel="stylesheet" href="{{site.baseurl}}/css/asciidoc-pygments.css">
 
-{% include default-navigation.html %}
+        <link rel="stylesheet" href="{{site.baseurl}}/css/app.css">
 
-<div class="row">
-    {% include default-main-content.html %}
+        <script src="{{site.baseurl}}/js/vendor/modernizr.js"></script>
+    </head>
 
-    {% include default-right-aside.html %}
-</div>
+    <body>
+        <div class="row">
+            {% include default-navigation.html %}
 
-{% include default-footer.html %}
+            {% include default-main-content.html %}
+
+            {% include default-right-aside.html %}
+        </div>
+
+        {% include default-footer.html %}
 
 
-<script src="{{site.baseurl}}js/vendor/jquery.js"></script>
-<script src="{{site.baseurl}}js/foundation.min.js"></script>
-<script>
-$(document).foundation();
-var doc = document.documentElement;
-doc.setAttribute('data-useragent', navigator.userAgent);
-</script>
-</body>
+        <script src="{{site.baseurl}}/js/vendor/jquery.js"></script>
+        <script src="{{site.baseurl}}/js/vendor/what-input.js"></script>
+        <script src="{{site.baseurl}}/js/vendor/foundation.js"></script>
+        <script src="{{site.baseurl}}/js/app.js"></script>
+    </body>
 </html>

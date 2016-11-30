@@ -1,10 +1,15 @@
 code{
-  border: none;
+  border: none; //Reset silly foundation default that messes up code
 }
 
+[data-sticky]{
+  width: 100%; //Required by the sticky component
+}
 
 .top-bar-title{
-  a{ color: #0a0a0a; }
+  a{
+    color: #0a0a0a;
+  }
 }
 
 a {
@@ -17,5 +22,10 @@ a {
 .page-toc {
   ul{
     list-style-type: none;
+  }
+
+  nav{
+    overflow-y: auto;
+    max-height: 92vh;
   }
 }

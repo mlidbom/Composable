@@ -29,13 +29,13 @@
             <div id="page-start-anchor" ></div>
             {% include default-navigation.html %}
 
-            {% include default-main-content.html %}
-
             {% if page.toc %}
                 {% include right-aside-toc.html %}
             {% else %}
-            {% include right-aside-news.html %}
+                {% include right-aside-news.html %}
             {% endif %}
+
+            {% include default-main-content.html %}
         </div>
 
         {% include default-footer.html %}

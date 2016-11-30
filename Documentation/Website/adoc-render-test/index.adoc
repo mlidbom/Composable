@@ -208,6 +208,27 @@ One more thing. Happy documenting!
 
 [[google]]When all else fails, head over to <http://google.com>.
 
+== Testing diagrams
+
+[ditaa]
+....
+                   +-------------+
+                   | Asciidoctor |-------+
+                   |   diagram   |       |
+                   +-------------+       | PNG out
+                       ^                 |
+                       | ditaa in        |
+                       |                 v
+ +--------+   +--------+----+    /---------------\
+ |        | --+ Asciidoctor +--> |               |
+ |  Text  |   +-------------+    |   Beautiful   |
+ |Document|   |   !magic!   |    |    Output     |
+ |     {d}|   |             |    |               |
+ +---+----+   +-------------+    \---------------/
+     :                                   ^
+     |          Lots of work             |
+     +-----------------------------------+
+....
 
 == Nesting sections level 1
 some text
@@ -393,6 +414,7 @@ some text
 some text
 
 some text
+
 
 
 

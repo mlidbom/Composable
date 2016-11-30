@@ -27,5 +27,8 @@ a {
   nav{
     overflow-y: auto;
     max-height: 92vh;
+    a.active{
+      background-color: #e6e6e6;
+    }
   }
 }

@@ -1,0 +1,9 @@
+<div class="large-3 columns page-toc" data-sticky-container >
+    <nav data-sticky data-options="marginTop:3" >
+        <div class="vertical menu">
+            {{ page.document | tocify_asciidoc: 3 }}
+
+            <ul><li><a href="#">Back to top</a></li></ul>
+        </div>
+    </nav>
+</div>

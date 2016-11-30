@@ -1,5 +1,6 @@
 = Asciidoctor Demo
 Dan Allen <thedoc@asciidoctor.org>
+:page-toc:
 :description: A demo of Asciidoctor. This document +
               exercises numerous features of AsciiDoc +
               to test Asciidoctor compliance.
@@ -185,6 +186,12 @@ We forgot to mention in <<numbered>> that you can change the numbering style.
 // This attribute line will get reattached to the next block
 // despite being followed by a trailing blank line
 [id='wrapup']
+
+== Nesting sections level 1
+=== Nesting sections level 2
+==== Nesting sections level 3
+===== Nesting sections level 4
+====== Nesting sections level 5
 
 == Wrap-up
 

@@ -2,9 +2,20 @@ code{
   border: none;
 }
 
+
+.top-bar-title{
+  a{ color: #0a0a0a; }
+}
+
 a {
   text-decoration: none;
   .asciidoc & {
     text-decoration: underline;
+  }
+}
+
+.page-toc {
+  ul{
+    list-style-type: none;
   }
 }

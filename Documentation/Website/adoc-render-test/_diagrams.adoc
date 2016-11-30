@@ -46,6 +46,7 @@ enum TimeUnit {
     +-------------------------+
 ....
 
+=== Graphviz/Dot Diagrams
 .Dot Diagram http://plantuml.com/dot
 [plantuml,dot-diagram]
 ....

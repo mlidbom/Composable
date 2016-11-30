@@ -4,11 +4,9 @@ Dan Allen <thedoc@asciidoctor.org>
 :description: A demo of Asciidoctor. This document +
               exercises numerous features of AsciiDoc +
               to test Asciidoctor compliance.
-:library: Asciidoctor
-ifdef::asciidoctor[]
-:source-highlighter: coderay
-endif::asciidoctor[]
-:plus: &#43;
+:sectnums:
+:imagesdir: images
+
 
 [role='lead']
 This is a demonstration of {library}. And this is the preamble of this document.

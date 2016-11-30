@@ -1,7 +1,10 @@
 = Documentation
 :page-permalink: /documentation/
+:page-toc:
 
+[role='lead']
+Welcome to the Composable documentation!
 
-== API Documentation
+NOTE: API Documentation is available here: link:../apidocs/3.4.6[3.4.6]
 
-link:../apidocs/3.4.6[3.4.6]
+== Introduction

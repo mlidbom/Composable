@@ -8,11 +8,6 @@ Dan Allen <thedoc@asciidoctor.org>
 ifdef::asciidoctor[]
 :source-highlighter: coderay
 endif::asciidoctor[]
-:imagesdir: images
-//:backend: docbook45
-//:backend: html5
-//:doctype: book
-//:sectids!:
 :plus: &#43;
 
 [role='lead']
@@ -131,7 +126,7 @@ Do you feel safer with the tiger in a box?
 .Tiger in a box
 image::tiger.png[]
 
-include::include.adoc[]
+include::_diagrams.adoc[]
 
 .Asciidoctor usage example, should contain 3 lines
 [source, ruby]
@@ -150,7 +145,7 @@ Here's what it outputs (using the built-in templates):
 </div>
 ....
 
-=== ``Quotes''
+== ``Quotes''
 
 ____
 AsciiDoc is 'so' *powerful*!

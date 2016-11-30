@@ -30,7 +30,11 @@
 
             {% include default-main-content.html %}
 
-            {% include default-right-aside.html %}
+            {% if page.toc %}
+                {% include right-aside-toc.html %}
+            {% else %}
+            {% include right-aside-news.html %}
+            {% endif %}
         </div>
 
         {% include default-footer.html %}

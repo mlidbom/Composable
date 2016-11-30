@@ -1,0 +1,11 @@
+<div class="large-3 columns" data-sticky-container>
+    <aside data-sticky>
+        <h4>News</h4>
+        <ul id="posts" class="posts nav">
+            {% for post in site.posts limit: 5 %}
+            <li><a href="{{site.baseurl}}{{ post.url }}">{{post.date | date: "%Y-%m-%d"}} {{ post.title }}</a></li>
+            {% endfor %}
+        </ul>
+
+    </aside>
+</div>

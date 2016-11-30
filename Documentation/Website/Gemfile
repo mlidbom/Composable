@@ -6,6 +6,6 @@ gem 'rake-jekyll', '~> 1.1.0'
 gem 'pygments.rb'
 
 group :jekyll_plugins do
-  gem 'jekyll-asciidoc'
-     gem 'jekyll-livereload'
+  gem 'jekyll-asciidoc', ">= 2.1.0.dev"
+  gem 'jekyll-livereload'
 end

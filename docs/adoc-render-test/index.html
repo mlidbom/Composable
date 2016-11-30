@@ -1,0 +1,543 @@
+<!doctype html>
+<!--[if IE 9]><html class="lt-ie10" lang="en"> <![endif]-->
+<html class="no-js" lang="en">
+    <head>
+        <meta charset="utf-8">
+        <!-- If you delete this meta tag World War Z will become a reality -->
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Asciidoctor Demo</title>
+        <meta name="description" content="A .Net toolkit making CQRS, Event Sourcing, Event Driven Architecture, VEST testing and DDD simpler and more productive.
+">
+
+        <link rel="shortcut icon" type="image/x-icon" href="/Composable/favicon.ico?">
+
+        <!-- If you are using the CSS version, only link these 2 files, you may add app.scss to use for your overrides if you like -->
+        <link rel="stylesheet" href="/Composable/css/normalize.css">
+        <link rel="stylesheet" href="/Composable/css/foundation.css">
+
+        <link rel="stylesheet" href="/Composable/css/font-awesome-4.7.0.min.css">
+
+        <link rel="stylesheet" href="/Composable/css/asciidoctor.css">
+        <link rel="stylesheet" href="/Composable/css/asciidoc-pygments-manual.css">
+
+        <link rel="stylesheet" href="/Composable/css/app.css">
+
+        <script src="/Composable/js/vendor/modernizr.js"></script>
+    </head>
+
+    <body>
+        <div class="row">
+            <nav class="top-bar">
+    <div class="top-bar-title"><strong><a href="/Composable/">Composable Toolkit</a></strong></div>
+    <div class="top-bar-left">
+            <a href="/Composable/documentation/">Documentation</a>
+    </div>
+</nav>
+
+<!-- sample topbar usage
+<div class="top-bar">
+    <div class="top-bar-left">
+        <ul class="dropdown menu" data-dropdown-menu>
+            <li class="menu-text">Site Title</li>
+            <li>
+                <a href="#">One</a>
+                <ul class="menu vertical">
+                    <li><a href="#">One</a></li>
+                    <li><a href="#">Two</a></li>
+                    <li><a href="#">Three</a></li>
+                </ul>
+            </li>
+            <li><a href="#">Two</a></li>
+            <li><a href="#">Three</a></li>
+        </ul>
+    </div>
+    <div class="top-bar-right">
+        <ul class="menu">
+            <li><input type="search" placeholder="Search"></li>
+            <li><button type="button" class="button">Search</button></li>
+        </ul>
+    </div>
+</div>
+-->
+
+            <div class="large-9 columns asciidoc" role="content">
+    <div id="preamble">
+<div class="sectionbody">
+<div class="paragraph lead">
+<p>This is a demonstration of Asciidoctor. And this is the preamble of this document.</p>
+</div>
+<div id="purpose" class="sidebarblock">
+<div class="content">
+<div class="title">Purpose</div>
+<div class="paragraph">
+<p>This document exercises many of the features of AsciiDoc to test the Asciidoctor implementation.</p>
+</div>
+</div>
+</div>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-tip" title="Tip"></i>
+</td>
+<td class="content">
+If you want the output to look familiar, copy (or link) the AsciiDoc stylesheet, asciidoc.css, to the output directory.
+</td>
+</tr>
+</table>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+Items marked with TODO are either not yet supported or a work in progress.
+</td>
+</tr>
+</table>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="first">First Steps with <a href="http://asciidoc.org">AsciiDoc</a></h2>
+<div class="sectionbody">
+<div class="ulist">
+<div class="title">Inline markup</div>
+<ul>
+<li>
+<p>single quotes around a phrase place 'emphasis'</p>
+</li>
+<li>
+<p>astericks around a phrase make the text <strong>bold</strong></p>
+</li>
+<li>
+<p>double astericks around one or more <strong>l</strong>etters in a word make those letters bold</p>
+</li>
+<li>
+<p>double underscore around a <em>sub</em>string in a word emphasize that substring</p>
+</li>
+<li>
+<p>use carrots around characters to make them <sup>super</sup>script</p>
+</li>
+<li>
+<p>use tildes around characters to make them <sub>sub</sub>script</p>
+</li>
+<li>
+<p>to pass through <u>HTML</u> directly, surround the text with triple plus</p>
+</li>
+</ul>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>characters can be escaped using a \</p>
+<div class="ulist">
+<ul>
+<li>
+<p>for instance, you can escape a quote inside emphasized text like 'Here's Johnny!'</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>you can safely use reserved XML characters like &lt;, &gt; and &amp;, which are escaped when rendering</p>
+</li>
+<li>
+<p>force a space between inline elements using the {sp} attribute</p>
+</li>
+<li>
+<p>hold text together with an intrinsic non-breaking&#160;space attribute, {nbsp}</p>
+</li>
+<li>
+<p>handle words with unicode characters like in the name Gregory Romé</p>
+</li>
+<li>
+<p>claim your copyright &#169;, registered trademark &#174; or trademark &#8482;</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>You can write text <a href="http://example.com">with inline links</a>, optionally using an explicit <a href="http://example.com">link prefix</a>. In either case, the link can have a <a href="http://example.com?foo=bar&amp;lang=en">query string</a>.</p>
+</div>
+<div class="paragraph">
+<p>If you want to break a line<br>
+just end it in a &#43; sign<br>
+and continue typing on the next line.</p>
+</div>
+<div class="sect2">
+<h3 id="lists_upon_lists">Lists Upon Lists</h3>
+<div class="ulist">
+<div class="title">Adjacent lists</div>
+<ul>
+<li>
+<p>this list</p>
+</li>
+<li>
+<p>should join</p>
+</li>
+<li>
+<p>to have</p>
+</li>
+<li>
+<p>four items</p>
+</li>
+</ul>
+</div>
+<div id="numbered" class="olist arabic">
+<div class="title">Numbered lists</div>
+<ol class="arabic">
+<li>
+<p>These items</p>
+</li>
+<li>
+<p>will be auto-numbered</p>
+<div class="olist loweralpha">
+<ol class="loweralpha" type="a">
+<li>
+<p>and can be nested</p>
+</li>
+</ol>
+</div>
+</li>
+<li>
+<p>A numbered list can nest</p>
+<div class="ulist">
+<ul>
+<li>
+<p>unordered</p>
+</li>
+<li>
+<p>list</p>
+</li>
+<li>
+<p>items</p>
+</li>
+</ul>
+</div>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<div class="title">Statement</div>
+<p>I swear I left it in 'Guy's' car. Let's go look for it.</p>
+</div>
+<div id="defs" class="dlist">
+<dl>
+<dt class="hdlist1">term</dt>
+<dd>
+<p>  definition
+line two</p>
+</dd>
+<dt class="hdlist1"><a id="another_term"></a>another term</dt>
+<dd>
+<p>another definition, which can be literal (indented) or regular paragraph</p>
+</dd>
+</dl>
+</div>
+<div class="paragraph">
+<p>This should be a standalone paragraph, not grabbed by the definition list.</p>
+</div>
+<div id="nested" class="ulist">
+<ul>
+<li>
+<p>first level
+written on two lines</p>
+</li>
+<li>
+<p>first level</p>
+<div class="literalblock">
+<div class="content">
+<pre>with this literal text</pre>
+</div>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>second level</p>
+<div class="ulist">
+<ul>
+<li>
+<p>third level</p>
+<div class="ulist">
+<ul>
+<li>
+<p>fourth level</p>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>back to<br>
+first level</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Let&#8217;s make a horizontal rule&#8230;&#8203;</p>
+</div>
+<hr>
+<div class="paragraph">
+<p>then take a break.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="we_re_back">We&#8217;re back!</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Want to see a <span class="image"><img src="images/tiger.png" alt="Tiger"></span>?</p>
+</div>
+<div class="paragraph">
+<p>Do you feel safer with the tiger in a box?</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="images/tiger.png" alt="tiger">
+</div>
+<div class="title">Figure 1. Tiger in a box</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="included_section">Included Section</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Look, I came from out of the <span class="blue">blue</span>!</p>
+</div>
+<div class="openblock">
+<div class="content">
+<div class="paragraph">
+<p>I&#8217;m keepin' it open.</p>
+</div>
+<div class="paragraph">
+<p>An 'open block', like this one, can contain other blocks.</p>
+</div>
+<div class="paragraph">
+<p>It can also act as any other block. (TODO)</p>
+</div>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">Asciidoctor usage example, should contain 3 lines</div>
+<div class="content">
+<pre class="pygments highlight"><code data-lang="ruby"><span class="tok-n">doc</span> <span class="tok-o">=</span> <span class="tok-no">Asciidoctor</span><span class="tok-o">::</span><span class="tok-no">Document</span><span class="tok-o">.</span><span class="tok-n">new</span><span class="tok-p">(</span><span class="tok-s2">&quot;*This* is it!&quot;</span><span class="tok-p">,</span> <span class="tok-ss">:header_footer</span> <span class="tok-o">=&gt;</span> <span class="tok-kp">false</span><span class="tok-p">)</span>
+
+<span class="tok-nb">puts</span> <span class="tok-n">doc</span><span class="tok-o">.</span><span class="tok-n">render</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Here&#8217;s what it outputs (using the built-in templates):</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>&lt;div class="paragraph"&gt;
+  &lt;p&gt;&lt;strong&gt;This&lt;/strong&gt; is it!&lt;/p&gt;
+&lt;/div&gt;</pre>
+</div>
+</div>
+<div class="sect2">
+<h3 id="quotes">``Quotes''</h3>
+<div class="quoteblock">
+<blockquote>
+<div class="paragraph">
+<p>AsciiDoc is 'so' <strong>powerful</strong>!</p>
+</div>
+</blockquote>
+</div>
+<div class="paragraph">
+<p>This verse comes to mind.</p>
+</div>
+<div class="verseblock">
+<pre class="content">La la la</pre>
+</div>
+<div class="paragraph">
+<p>Here&#8217;s another quote:</p>
+</div>
+<div class="quoteblock">
+<blockquote>
+<div class="paragraph">
+<p>When you have eliminated all which is impossible, then whatever remains, however improbable, must be the truth.</p>
+</div>
+</blockquote>
+<div class="attribution">
+&#8212; Sir Arthur Conan Doyle<br>
+<cite>The Adventures of Sherlock Holmes</cite>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="literally">Getting Literal</h2>
+<div class="sectionbody">
+<div class="literalblock">
+<div class="content">
+<pre>Want to get literal? Just prefix a line with a space (just one will do).</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>I'll join that party, too.</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>We forgot to mention in <a href="#numbered">Numbered lists</a> that you can change the numbering style.</p>
+</div>
+<div class="olist loweralpha">
+<ol class="loweralpha" type="a">
+<li>
+<p>first item (yeah!)</p>
+</li>
+<li>
+<p>second item, looking <code>so mono</code></p>
+</li>
+<li>
+<p>third item, mono it is!</p>
+</li>
+</ol>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="wrapup">Nesting sections level 1</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="nesting_sections_level_2">Nesting sections level 2</h3>
+<div class="sect3">
+<h4 id="nesting_sections_level_3">Nesting sections level 3</h4>
+<div class="sect4">
+<h5 id="nesting_sections_level_4">Nesting sections level 4</h5>
+<div class="sect5">
+<h6 id="nesting_sections_level_5">Nesting sections level 5</h6>
+
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="wrap_up">Wrap-up</h2>
+<div class="sectionbody">
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+AsciiDoc is quite cool, you should try it!
+</td>
+</tr>
+</table>
+</div>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-tip" title="Tip"></i>
+</td>
+<td class="content">
+<div class="title">Info</div>
+<div class="paragraph">
+<p>Go to this URL to learn more about it:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><a href="http://asciidoc.org" class="bare">http://asciidoc.org</a></p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Or you could return to the <a href="#first">First Steps</a> or <a href="#purpose">Purpose</a>.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>Here&#8217;s a reference to the definition of <a href="#another_term">[another_term]</a>, in case you forgot it.</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+One more thing. Happy documenting!
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p><a id="google"></a>When all else fails, head over to <a href="http://google.com" class="bare">http://google.com</a>.</p>
+</div>
+</div>
+</div>
+</div>
+
+            
+                <div class="large-3 columns page-toc" data-sticky-container >
+    <nav data-sticky data-options="marginTop:3" >
+        <div class="vertical menu">
+            <ul class="sectlevel1">
+<li><a href="#first">First Steps with <a href="http://asciidoc.org">AsciiDoc</a></a>
+<ul class="sectlevel2">
+<li><a href="#lists_upon_lists">Lists Upon Lists</a></li>
+</ul>
+</li>
+<li><a href="#we_re_back">We&#8217;re back!</a></li>
+<li><a href="#included_section">Included Section</a>
+<ul class="sectlevel2">
+<li><a href="#quotes">``Quotes''</a></li>
+</ul>
+</li>
+<li><a href="#literally">Getting Literal</a></li>
+<li><a href="#wrapup">Nesting sections level 1</a>
+<ul class="sectlevel2">
+<li><a href="#nesting_sections_level_2">Nesting sections level 2</a>
+<ul class="sectlevel3">
+<li><a href="#nesting_sections_level_3">Nesting sections level 3</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="#wrap_up">Wrap-up</a></li>
+</ul>
+
+            <ul><li><a href="#">Back to top</a></li></ul>
+        </div>
+    </nav>
+</div>
+            
+        </div>
+
+        <footer class="row">
+    <div class="large-12 columns">
+        <hr>
+        <div class="row">
+            <div class="large-12 columns">
+
+            </div>
+        </div>
+    </div>
+</footer>
+
+
+        <script src="/Composable/js/vendor/jquery.js"></script>
+        <script src="/Composable/js/vendor/what-input.js"></script>
+        <script src="/Composable/js/vendor/foundation.js"></script>
+        <script src="/Composable/js/app.js"></script>
+    </body>
+</html>

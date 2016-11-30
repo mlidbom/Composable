@@ -41,5 +41,7 @@ asciidoctor:
   attributes:
     - idseparator=_
     - stylesdir=css
+    - imagesdir=images
+    - imagesoutdir=images
     - source-highlighter=pygments
     - icons=font

@@ -3,8 +3,7 @@ code {
 
 a {
   text-decoration: none; }
-
-.asciidoc a {
-  text-decoration: underline; }
+  .asciidoc a {
+    text-decoration: underline; }
 
 /*# sourceMappingURL=app.css.map */

@@ -1,94 +1,37 @@
 <!doctype html>
-<!--[if IE 9]>
-<html class="lt-ie10" lang="en"> <![endif]-->
+<!--[if IE 9]><html class="lt-ie10" lang="en"> <![endif]-->
 <html class="no-js" lang="en" data-useragent="Mozilla/5.0 (compatible; MSIE 10.0; Windows NT 6.2; Trident/6.0)">
 <head>
     <meta charset="utf-8">
+    <!-- If you delete this meta tag World War Z will become a reality -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{page.title}}</title>
     <meta name="description" content="{% if page.description %}{{ page.description }}{% else %}{{ site.description }}{% endif %}">
 
+    <!-- If you are using the CSS version, only link these 2 files, you may add app.css to use for your overrides if you like -->
     <link rel="stylesheet" href="{{page.root}}css/normalize.css">
     <link rel="stylesheet" href="{{page.root}}css/foundation.css">
+
     <link rel="stylesheet" href="{{page.root}}css/font-awesome.css">
     <link rel="stylesheet" href="{{page.root}}css/asciidoc-pygments.css">
     <link rel="stylesheet" href="{{page.root}}css/asciidoctor.css">
+
+    <!-- If you are using the gem version, you need this only -->
+    <link rel="stylesheet" href="{{page.root}}css/app.css">
 
     <script src="{{page.root}}js/vendor/modernizr.js"></script>
 </head>
 <body>
 
-
-<!-- Nav Bar -->
-
-<nav class="top-bar" data-topbar>
-    <ul class="title-area">
-        <!-- Title Area -->
-        <li class="name">
-            <h1>
-                <a href="{{page.root}}">{{site.title}}</a>
-            </h1>
-            <h1>
-                <a href="{{page.root}}">Documentation</a>
-            </h1>
-        </li>
-        <li class="toggle-topbar menu-icon"><a href="#"><span>Menu</span></a></li>
-    </ul>
-</nav>
-<!-- End Nav -->
-
-
-<!-- Main Page Content and Sidebar -->
+{% include default-navigation.html %}
 
 <div class="row">
+    {% include default-main-content.html %}
 
-    <!-- Main Blog Content -->
-    <div class="large-9 columns" role="content">
-
-        {{ content }}
-
-    </div>
-
-    <!-- End Main Content -->
-
-    <!-- Sidebar -->
-
-    <aside class="large-3 columns">
-
-        <h4>Posts</h4>
-        <ul id="posts" class="posts nav">
-            {% for post in site.posts limit: 5 %}
-            <li><a href=".{{ post.url }}">{{ post.navtitle }}</a></li>
-            {% endfor %}
-        </ul>
-
-        <div class="panel">
-            <h5>Featured</h5>
-
-            <p>Pork drumstick turkey fugiat. Tri-tip elit turducken pork chop in. Swine short ribs meatball irure bacon
-                nulla pork belly cupidatat meatloaf cow.</p>
-        </div>
-
-    </aside>
-
-    <!-- End Sidebar -->
+    {% include default-right-aside.html %}
 </div>
 
-<!-- End Main Content and Sidebar -->
-
-
-<!-- Footer -->
-
-<footer class="row">
-    <div class="large-12 columns">
-        <hr>
-        <div class="row">
-            <div class="large-12 columns">
-                <p>Footer</p>
-            </div>
-        </div>
-    </div>
-</footer>
+{% include default-footer.html %}
 
 
 <script src="{{page.root}}js/vendor/jquery.js"></script>

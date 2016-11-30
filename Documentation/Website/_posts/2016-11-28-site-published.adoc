@@ -1,8 +1,6 @@
 = Site published
 Magnus Lidbom
 :showtitle:
-:page-navtitle: Site Published
-:page-root: ../../../
 :page-disqusid: '2016-11-28-site-published-post'
 
 

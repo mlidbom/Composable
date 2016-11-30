@@ -6,6 +6,7 @@ Dan Allen <thedoc@asciidoctor.org>
               to test Asciidoctor compliance.
 :sectnums:
 :imagesdir: images
+:library: Asciidoc
 
 
 [role='lead']
@@ -126,6 +127,8 @@ image::tiger.png[]
 
 include::_diagrams.adoc[]
 
+== Code samples with highlighting
+
 .Asciidoctor usage example, should contain 3 lines
 [source, ruby]
 ----
@@ -133,6 +136,7 @@ doc = Asciidoctor::Document.new("*This* is it!", :header_footer => false)
 
 puts doc.render
 ----
+
 
 // FIXME: use ifdef to show output according to backend
 Here's what it outputs (using the built-in templates):

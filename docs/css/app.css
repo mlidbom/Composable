@@ -1,6 +1,9 @@
 code {
   border: none; }
 
+[data-sticky] {
+  width: 100%; }
+
 .top-bar-title a {
   color: #0a0a0a; }
 
@@ -11,5 +14,8 @@ a {
 
 .page-toc ul {
   list-style-type: none; }
+.page-toc nav {
+  overflow-y: auto;
+  max-height: 92vh; }
 
 /*# sourceMappingURL=app.css.map */

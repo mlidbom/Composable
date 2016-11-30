@@ -7,7 +7,6 @@ using Composable.CQRS.EventSourcing;
 using Composable.ServiceBus;
 using Composable.Windsor.Testing;
 using CQRS.Tests.ServiceBus;
-using NServiceBus;
 using NUnit.Framework;
 
 namespace CQRS.Tests.MessageHandlerWiringTests

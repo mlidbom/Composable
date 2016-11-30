@@ -8,7 +8,7 @@ namespace AccountManagement.UI.QueryModels.EventStoreGenerated
 {
     /// <summary>Ad hoc creates an <see cref="AccountQueryModel"/> by reading and applying the events from the event store reader</summary>
     internal class AccountQueryModelGenerator :
-        SingleAggregateQueryModelGenerator<AccountQueryModelGenerator, AccountQueryModel, IAccountEvent, IEventStoreReader>,
+        SingleAggregateQueryModelGenerator<AccountQueryModelGenerator, AccountQueryModel, IAccountEvent, IAccountManagementEventStoreReader>,
         IAccountManagementQueryModelGenerator
     {
         //Note the use of a custom interface. This lets us keep query model generators for different systems apart in the wiring.

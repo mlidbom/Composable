@@ -26,21 +26,20 @@ livereload: true
 # Build settings
 stylesdir: css
 markdown: kramdown
-destination: ../../docs
+#destination: ../../docs
 keep_files: [apidocs]
-theme: minima
-disqus:
-  shortname: composable
-asciidoc: {}
-asciidoctor:
-  safe: unsafe
-  attributes:
-    - icons=font
-    - stylesdir=css
-    - idseparator=_
-    - source-highlighter=pygments
-gems:
-  - jekyll-feed
+
 exclude:
+  - README.adoc
   - Gemfile
   - Gemfile.lock
+  - Rakefile
+asciidoc: {}
+asciidoctor:
+  base_dir: :docdir
+  safe: unsafe
+  attributes:
+    - idseparator=_
+    - stylesdir=css
+    - source-highlighter=pygments
+    - icons=font

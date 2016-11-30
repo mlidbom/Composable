@@ -6,7 +6,6 @@ using System.Reflection;
 using Castle.Windsor;
 using Composable.System.Linq;
 using Composable.System.Reflection;
-using NServiceBus;
 
 namespace Composable.ServiceBus
 {

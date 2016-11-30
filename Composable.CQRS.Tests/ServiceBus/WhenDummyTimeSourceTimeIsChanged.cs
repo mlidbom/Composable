@@ -3,13 +3,13 @@ using System.Collections.Generic;
 using Castle.MicroKernel.Lifestyle;
 using Castle.MicroKernel.Registration;
 using Castle.Windsor;
+using Composable.CQRS.EventSourcing;
 using Composable.DDD;
 using Composable.GenericAbstractions.Time;
 using Composable.ServiceBus;
 using Composable.System.Reflection;
 using Composable.Windsor.Testing;
 using FluentAssertions;
-using NServiceBus;
 using NUnit.Framework;
 
 namespace CQRS.Tests.ServiceBus

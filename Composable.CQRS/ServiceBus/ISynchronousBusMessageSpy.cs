@@ -1,5 +1,3 @@
-using NServiceBus;
-
 namespace Composable.ServiceBus
 {
     public interface IMessageSpy { }

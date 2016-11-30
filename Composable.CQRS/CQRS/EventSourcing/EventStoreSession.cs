@@ -70,7 +70,7 @@ namespace Composable.CQRS.EventSourcing
 
         public TAggregate LoadSpecificVersion<TAggregate>(Guid aggregateId, int version) where TAggregate : IEventStored
         {
-            Contract.Requires(version > 0);
+            Contract.Assert(version > 0);
 
             _usageGuard.AssertNoContextChangeOccurred(this);
             var aggregate = CreateInstance<TAggregate>();

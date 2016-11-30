@@ -13,6 +13,7 @@ namespace AccountManagement.TestHelpers.Scenarios
         public readonly Email OldEmail;
         public readonly Account Account;
 
+        //Review:mlidbo: Replace optional parameters in scenario constructors with constructor overloading throughout the sample project.
         public ChangeAccountEmailScenario(IWindsorContainer container, Account account = null)
         {
             _container = container;

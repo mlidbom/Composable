@@ -2,7 +2,6 @@
 using Composable.ServiceBus;
 using FluentAssertions;
 using JetBrains.Annotations;
-using NServiceBus;
 using NUnit.Framework;
 
 namespace CQRS.Tests.ServiceBus

@@ -1,6 +1,7 @@
 = Documentation
 :page-permalink: /documentation/
 :page-toc:
+:sectnums:
 
 [role='lead']
 Welcome to the Composable documentation!

@@ -29,7 +29,7 @@ TIP: If you want the output to look familiar, copy (or link) the AsciiDoc styles
 NOTE: Items marked with TODO are either not yet supported or a work in progress.
 
 [[first,First Steps]]
-== First Steps with http://asciidoc.org[AsciiDoc]
+== First Steps with AsciiDoc
 
 .Inline markup
 * single quotes around a phrase place 'emphasis'
@@ -187,67 +187,6 @@ We forgot to mention in <<numbered>> that you can change the numbering style.
 // despite being followed by a trailing blank line
 [id='wrapup']
 
-== Nesting sections level 1
-=== Nesting sections level 2
-==== Nesting sections level 3
-===== Nesting sections level 4
-====== Nesting sections level 5
-
-== Nesting sections level 1
-=== Nesting sections level 2
-==== Nesting sections level 3
-===== Nesting sections level 4
-====== Nesting sections level 5
-
-== Nesting sections level 1
-=== Nesting sections level 2
-==== Nesting sections level 3
-===== Nesting sections level 4
-====== Nesting sections level 5
-
-== Nesting sections level 1
-=== Nesting sections level 2
-==== Nesting sections level 3
-===== Nesting sections level 4
-====== Nesting sections level 5
-
-== Nesting sections level 1
-=== Nesting sections level 2
-==== Nesting sections level 3
-===== Nesting sections level 4
-====== Nesting sections level 5
-
-== Nesting sections level 1
-=== Nesting sections level 2
-==== Nesting sections level 3
-===== Nesting sections level 4
-====== Nesting sections level 5
-
-== Nesting sections level 1
-=== Nesting sections level 2
-==== Nesting sections level 3
-===== Nesting sections level 4
-====== Nesting sections level 5
-
-== Nesting sections level 1
-=== Nesting sections level 2
-==== Nesting sections level 3
-===== Nesting sections level 4
-====== Nesting sections level 5
-
-== Nesting sections level 1
-=== Nesting sections level 2
-==== Nesting sections level 3
-===== Nesting sections level 4
-====== Nesting sections level 5
-
-== Nesting sections level 1
-=== Nesting sections level 2
-==== Nesting sections level 3
-===== Nesting sections level 4
-====== Nesting sections level 5
-
-
 == Wrap-up
 
 NOTE: AsciiDoc is quite cool, you should try it!
@@ -268,3 +207,192 @@ Here's a reference to the definition of <<another_term>>, in case you forgot it.
 One more thing. Happy documenting!
 
 [[google]]When all else fails, head over to <http://google.com>.
+
+
+== Nesting sections level 1
+some text
+
+some text
+
+some text
+
+=== Nesting sections level 2
+some text
+
+some text
+
+some text
+
+==== Nesting sections level 3
+some text
+
+some text
+
+some text
+
+== Nesting sections level 1
+some text
+
+some text
+
+some text
+
+=== Nesting sections level 2
+some text
+
+some text
+
+some text
+
+==== Nesting sections level 3
+some text
+
+some text
+
+some text
+
+== Nesting sections level 1
+some text
+
+some text
+
+some text
+
+=== Nesting sections level 2
+some text
+
+some text
+
+some text
+
+==== Nesting sections level 3
+some text
+
+some text
+
+some text
+
+== Nesting sections level 1
+some text
+
+some text
+
+some text
+
+=== Nesting sections level 2
+some text
+
+some text
+
+some text
+
+==== Nesting sections level 3
+some text
+
+some text
+
+some text
+
+== Nesting sections level 1
+some text
+
+some text
+
+some text
+
+=== Nesting sections level 2
+some text
+
+some text
+
+some text
+
+==== Nesting sections level 3
+some text
+
+some text
+
+some text
+
+== Nesting sections level 1
+some text
+
+some text
+
+some text
+
+=== Nesting sections level 2
+some text
+
+some text
+
+some text
+
+==== Nesting sections level 3
+some text
+
+some text
+
+some text
+
+== Nesting sections level 1
+some text
+
+some text
+
+some text
+
+=== Nesting sections level 2
+some text
+
+some text
+
+some text
+
+==== Nesting sections level 3
+some text
+
+some text
+
+some text
+
+some text
+
+some text
+
+some text
+
+some text
+
+some text
+
+some text
+
+some text
+
+some text
+
+some text
+
+some text
+
+some text
+
+some text
+
+some text
+
+some text
+
+some text
+
+some text
+
+some text
+
+some text
+
+some text
+
+
+

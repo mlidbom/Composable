@@ -1,7 +1,4 @@
-= Congratulations!
-#:showtitle:
-:page-title: Jekyll AsciiDoc Quickstart
-:page-description: A forkable blog-ready Jekyll site using AsciiDoc
+= Composable Toolkit
 
 
 == Pretty empty

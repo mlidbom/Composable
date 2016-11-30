@@ -4,7 +4,6 @@ using Castle.Windsor;
 using Composable.ServiceBus;
 using Composable.SystemExtensions.Threading;
 using FluentAssertions;
-using NServiceBus;
 
 namespace CQRS.Tests.ServiceBus
 {

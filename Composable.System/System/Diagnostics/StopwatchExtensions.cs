@@ -8,7 +8,7 @@ using Composable.System.Linq;
 namespace Composable.System.Diagnostics
 {
     ///<summary>Extensions to the Stopwatch class and related functionality.</summary>
-    public static class StopwatchExtensions
+    internal static class StopwatchExtensions
     {
         ///<summary>Measures how long it takes to execute <paramref name="action"/></summary>
         public static TimeSpan TimeExecution(Action action) => new Stopwatch().TimeExecution(action); 

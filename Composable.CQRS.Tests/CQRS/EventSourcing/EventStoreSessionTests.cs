@@ -17,6 +17,7 @@ using System.Threading.Tasks;
 using Composable.GenericAbstractions.Time;
 using Composable.System;
 using Composable.System.Diagnostics;
+using Composable.Testing;
 using CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations;
 using FluentAssertions;
 
@@ -80,13 +81,13 @@ namespace CQRS.Tests.CQRS.EventSourcing
         {
             var store = CreateStore();
             IEventStoreSession session = null;
-            var wait = new ManualResetEvent(false);
+            var wait = new ManualResetEventSlim();
             ThreadPool.QueueUserWorkItem((state) =>
                                              {
                                                  session = OpenSession(store);
                                                  wait.Set();
                                              });
-            wait.WaitOne();
+            wait.Wait();
 
             User user;
 

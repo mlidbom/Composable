@@ -1,0 +1,43 @@
+<!doctype html>
+<!--[if IE 9]><html class="lt-ie10" lang="en"> <![endif]-->
+<html class="no-js" lang="en">
+    <head>
+        <meta charset="utf-8">
+        <!-- If you delete this meta tag World War Z will become a reality -->
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>{{page.title}}</title>
+        <meta name="description" content="{% if page.description %}{{ page.description }}{% else %}{{ site.description }}{% endif %}">
+
+        <!-- If you are using the CSS version, only link these 2 files, you may add app.css to use for your overrides if you like -->
+
+        <link rel="stylesheet" href="{{site.baseurl}}/css/normalize.css">
+        <link rel="stylesheet" href="{{site.baseurl}}/css/foundation.css">
+
+        <link rel="stylesheet" href="{{site.baseurl}}/css/font-awesome.css">
+
+        <link rel="stylesheet" href="{{site.baseurl}}/css/asciidoctor.css">
+        <link rel="stylesheet" href="{{site.baseurl}}/css/asciidoc-pygments.css">
+
+        <link rel="stylesheet" href="{{site.baseurl}}/css/app.css">
+
+        <script src="{{site.baseurl}}/js/vendor/modernizr.js"></script>
+    </head>
+
+    <body>
+        <div class="row">
+            {% include default-navigation.html %}
+
+            {% include default-main-content.html %}
+
+            {% include default-right-aside.html %}
+        </div>
+
+        {% include default-footer.html %}
+
+
+        <script src="{{site.baseurl}}/js/vendor/jquery.js"></script>
+        <script src="{{site.baseurl}}/js/vendor/what-input.js"></script>
+        <script src="{{site.baseurl}}/js/vendor/foundation.js"></script>
+        <script src="{{site.baseurl}}/js/app.js"></script>
+    </body>
+</html>

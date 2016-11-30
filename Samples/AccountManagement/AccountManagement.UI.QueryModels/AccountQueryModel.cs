@@ -5,7 +5,7 @@ using Composable.DDD;
 
 namespace AccountManagement.UI.QueryModels
 {
-    public class AccountQueryModel : ValueObject<AccountQueryModel>, ISingleAggregateQueryModel
+    public class AccountQueryModel : ISingleAggregateQueryModel
     {
         public Password Password { get; set; }
         public Email Email { get; set; }

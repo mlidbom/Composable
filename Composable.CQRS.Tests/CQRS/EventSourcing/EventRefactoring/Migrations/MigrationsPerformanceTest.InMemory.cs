@@ -4,6 +4,7 @@ using Composable.CQRS.EventSourcing;
 using Composable.CQRS.EventSourcing.Refactoring.Migrations;
 using Composable.GenericAbstractions.Time;
 using Composable.System.Linq;
+using Composable.Testing;
 using Composable.Windsor;
 using FluentAssertions;
 using NUnit.Framework;

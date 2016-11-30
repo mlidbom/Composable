@@ -1,0 +1,11 @@
+﻿{
+  "dependencies": {
+    "Castle.Windsor": "3.3.0"
+  },
+  "frameworks": {
+    "net451": {}
+  },
+  "runtimes": {
+    "win": {}
+  }
+}

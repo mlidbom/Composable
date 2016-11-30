@@ -4,6 +4,7 @@ using AccountManagement.Domain.Services;
 using AccountManagement.Domain.Shared;
 using Castle.Windsor;
 using Composable.KeyValueStorage.Population;
+using Composable.Windsor;
 
 namespace AccountManagement.TestHelpers.Scenarios
 {
@@ -23,14 +24,16 @@ namespace AccountManagement.TestHelpers.Scenarios
 
         public Account Execute()
         {
-            using(var transaction = _container.BeginTransactionalUnitOfWorkScope())
-            {
-                var repository = _container.Resolve<IAccountRepository>();
-                var duplicateAccountChecker = _container.Resolve<IDuplicateAccountChecker>();
-                var registered = Account.Register(Email, Password, AccountId, repository, duplicateAccountChecker);
-                transaction.Commit();
-                return registered;
-            }
+            return _container.ExecuteUnitOfWork(
+                () =>
+                {
+                    var repository = _container.Resolve<IAccountRepository>();
+                    var duplicateAccountChecker = _container.Resolve<IDuplicateAccountChecker>();
+                    var registered = Account.Register(Email, Password, AccountId, repository, duplicateAccountChecker);
+
+                    return registered;
+                });
+
         }
     }
 }

@@ -12,7 +12,7 @@ using Composable.System.Linq;
 
 namespace Composable.DomainEvents
 {
-    public static class DomainEvent
+    internal static class DomainEvent
     {
         private static readonly ThreadLocal<List<Delegate>> ManualSubscribersStorage =
             new ThreadLocal<List<Delegate>>(() => new List<Delegate>());

@@ -1,6 +1,9 @@
----
-# You don't need to edit this file, it's empty on purpose.
-# Edit theme's home layout instead if you wanna make some changes
-# See: https://jekyllrb.com/docs/themes/#overriding-theme-defaults
----
-:page-layout: home
+= Congratulations!
+#:showtitle:
+:page-title: Jekyll AsciiDoc Quickstart
+:page-description: A forkable blog-ready Jekyll site using AsciiDoc
+
+
+== Pretty empty
+As you can tell the site is as of yet just a skeleton.
+So why don't you go read some link:documentation[documentation]?

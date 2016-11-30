@@ -5,6 +5,7 @@ using Composable.CQRS.EventSourcing.MicrosoftSQLServer;
 using Composable.CQRS.EventSourcing.Refactoring.Migrations;
 using Composable.GenericAbstractions.Time;
 using Composable.System.Linq;
+using Composable.Testing;
 using Composable.Windsor;
 using FluentAssertions;
 using NCrunch.Framework;

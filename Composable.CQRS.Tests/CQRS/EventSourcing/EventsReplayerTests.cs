@@ -1,6 +1,5 @@
 ﻿using Composable.CQRS.EventSourcing;
 using Composable.ServiceBus;
-using NServiceBus;
 using NUnit.Framework;
 
 namespace CQRS.Tests.CQRS.EventSourcing

@@ -1,0 +1,90 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{17EA0D63-524B-4871-AFDF-CE988D3554FC}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Composable.HyperBus</RootNamespace>
+    <AssemblyName>Composable.HyperBus</AssemblyName>
+    <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="APIDraft\EmptyResource.cs" />
+    <Compile Include="APIDraft\EntityQuery.cs" />
+    <Compile Include="APIDraft\IApiNavigator.cs" />
+    <Compile Include="APIDraft\IMessageHandlerRegistrar.cs" />
+    <Compile Include="APIDraft\IHyperBus.cs" />
+    <Compile Include="APIDraft\IMessageCascade.cs" />
+    <Compile Include="APIDraft\IMessageHandlers.cs" />
+    <Compile Include="APIDraft\MessageTypes.cs" />
+    <Compile Include="APIDraft\NavigationOptions.cs" />
+    <Compile Include="DemoApp\ApiImplementation\MessageHandlers\AccountEntityQueryHandler.cs" />
+    <Compile Include="DemoApp\ApiImplementation\AutomaticRegistrationApplicationBootstrapper.cs" />
+    <Compile Include="DemoApp\ApiImplementation\MessageHandlers\ChangeAccountEmailCommandHandler.cs" />
+    <Compile Include="DemoApp\ApiImplementation\MessageHandlers\RegisterAccountCommandHandler.cs" />
+    <Compile Include="DemoApp\ApiImplementation\MessageHandlers\AccountEmailer.cs" />
+    <Compile Include="DemoApp\ExposedApi\AccountEvents.cs" />
+    <Compile Include="DemoApp\ApiImplementation\ManualRegistrationApplicationBootstrapper.cs" />
+    <Compile Include="DemoApp\Client\D000ManualBusUsage.cs" />
+    <Compile Include="DemoApp\Client\D030AdvancedAwaiting.cs" />
+    <Compile Include="DemoApp\Client\D020AwaitingCascadeActivation.cs" />
+    <Compile Include="DemoApp\Client\D010NavigatorUsage.cs" />
+    <Compile Include="DemoApp\ExposedApi\Resources\Accounts\AccountsStartResource.cs" />
+    <Compile Include="DemoApp\ExposedApi\Resources\Accounts\AccountResource.cs" />
+    <Compile Include="DemoApp\ExposedApi\Resources\Accounts\ChangeAccountEmailCommand.cs" />
+    <Compile Include="DemoApp\ExposedApi\Resources\Accounts\Contact.cs" />
+    <Compile Include="DemoApp\ExposedApi\Resources\DemoApplicationApi.cs" />
+    <Compile Include="DemoApp\ExposedApi\Resources\DemoApplicationStartResource.cs" />
+    <Compile Include="DemoApp\ExposedApi\Resources\Accounts\RegisterAccountCommand.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="project.json" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Composable.System\Composable.Core.csproj">
+      <Project>{3632254D-0C4A-4EB8-B388-4C99F8939584}</Project>
+      <Name>Composable.Core</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

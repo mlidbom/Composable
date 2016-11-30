@@ -90,6 +90,16 @@
   <PropertyGroup>
     <AssemblyOriginatorKeyFile>Void.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'docs|AnyCPU'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\docs\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <DocumentationFile>bin\docs\Composable.CQRS.XML</DocumentationFile>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.configuration" />
@@ -129,7 +139,6 @@
     <Compile Include="CQRS\Command\ISubCommand.cs" />
     <Compile Include="CQRS\Command\IValidationFailure.cs" />
     <Compile Include="CQRS\Command\MemberValidationFailure.cs" />
-    <Compile Include="CQRS\Command\SagaBase.cs" />
     <Compile Include="CQRS\Command\SubCommand.cs" />
     <Compile Include="CQRS\EntityToReferenceConverter.cs" />
     <Compile Include="CQRS\Event.cs" />
@@ -206,23 +215,6 @@
     <Compile Include="CQRS\Query\Models\Generators\IVersioningQueryModelGenerator.cs" />
     <Compile Include="CQRS\ReferenceObject.cs" />
     <Compile Include="CQRS\TranslatedReferenceObject.cs" />
-    <Compile Include="CQRS\UI\Command\CommandExecutionError.cs" />
-    <Compile Include="CQRS\UI\Command\IHandleUICommand.cs" />
-    <Compile Include="CQRS\UI\Command\IUICommand.cs" />
-    <Compile Include="CQRS\UI\Command\IUIValidationError.cs" />
-    <Compile Include="CQRS\UI\Command\PropertyValidationError.cs" />
-    <Compile Include="CQRS\UI\Command\PropertyValidationErrorExtensions.cs" />
-    <Compile Include="CQRS\UI\Command\UIClientCommand.cs" />
-    <Compile Include="CQRS\UI\Command\UICommandBase.cs" />
-    <Compile Include="CQRS\UI\Event\IHandleUIEvent.cs" />
-    <Compile Include="CQRS\UI\Event\IUIEvent.cs" />
-    <Compile Include="CQRS\UI\Event\UICommandResult.cs" />
-    <Compile Include="CQRS\UI\Event\UICommandStart.cs" />
-    <Compile Include="CQRS\UI\Event\UICommandStatus.cs" />
-    <Compile Include="CQRS\UI\Event\UIEventBase.cs" />
-    <Compile Include="CQRS\UI\CommandService\IUICommandService.cs" />
-    <Compile Include="CQRS\UI\CommandService\UICommandService.cs" />
-    <Compile Include="CQRS\UI\Event\UIViewModelStatus.cs" />
     <Compile Include="CQRS\UnNamedEntityReference.cs" />
     <Compile Include="CQRS\EventSourcing\AttemptToSaveAlreadyPersistedAggregateException.cs" />
     <Compile Include="CQRS\EventSourcing\EventStoreSession.cs" />
@@ -276,6 +268,7 @@
     <Compile Include="NewtonSoft\JsonSettings.cs" />
     <Compile Include="Persistence\SingleAggregateRelationalQueryModelUpdater.cs" />
     <Compile Include="ServiceBus\CanNotPublishMessageWhenReplayingEventsOnBusException.cs" />
+    <Compile Include="ServiceBus\IHandleMessages.cs" />
     <Compile Include="ServiceBus\IHandleReplayedAndPublishedEvents.cs" />
     <Compile Include="ServiceBus\IHandleInProcessMessages.cs" />
     <Compile Include="ServiceBus\IHandleRemoteMessages.cs" />
@@ -308,7 +301,6 @@
     <Compile Include="Windsor\MessageHandlersInstallerBase.cs" />
     <Compile Include="Windsor\Testing\ForTestsEventHandlerInstallerBase.cs" />
     <Compile Include="Windsor\Testing\WindsorTestWiringExtensions.cs" />
-    <Compile Include="Windsor\UICommandServiceInstaller.cs" />
     <Compile Include="Windsor\WindsorExtensions.cs" />
     <Compile Include="Windsor\WindsorUnitOfWorkExtensions.cs" />
   </ItemGroup>

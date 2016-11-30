@@ -30,7 +30,6 @@ markdown: kramdown
 keep_files: [apidocs]
 
 exclude:
-  - LICENSE.adoc
   - README.adoc
   - Gemfile
   - Gemfile.lock

@@ -4,6 +4,6 @@
 :page-description: A forkable blog-ready Jekyll site using AsciiDoc
 
 
-=== Pretty empty
+== Pretty empty
 As you can tell the site is as of yet just a skeleton.
 So why don't you go read some link:documentation[documentation]?

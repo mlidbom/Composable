@@ -1,69 +1,58 @@
 <!doctype html>
-<!--[if IE 9]><html class="lt-ie10" lang="en"> <![endif]-->
 <html class="no-js" lang="en">
     <head>
-        <meta charset="utf-8">
-        <!-- If you delete this meta tag World War Z will become a reality -->
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Asciidoctor Demo</title>
-        <meta name="description" content="A .Net toolkit making CQRS, Event Sourcing, Event Driven Architecture, VEST testing and DDD simpler and more productive.
+    <!--foundation template lines-->
+    <meta charset="utf-8" />
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="/Composable/vendor/foundation-6.2.4-complete.zip/css/foundation.css">
+    <!--End foundation template lines-->
+
+
+    <link rel="stylesheet" href="/Composable/vendor-css/font-awesome-4.7.0.min.css">
+    <link rel="stylesheet" href="/Composable/vendor-css/asciidoctor.css">
+    <link rel="stylesheet" href="/Composable/vendor-css/asciidoc-pygments-manual.css">
+
+
+    <meta name="description" content="A .Net toolkit making CQRS, Event Sourcing, Event Driven Architecture, VEST testing and DDD simpler and more productive.
 ">
+    <link rel="stylesheet" href="/Composable/styles/app.css">
+    <link rel="shortcut icon" type="image/x-icon" href="/Composable/favicon.ico?">
+</head>
+<body>
+    <div class="row">
+        <div id="page-start-anchor" ></div>
 
-        <link rel="shortcut icon" type="image/x-icon" href="/Composable/favicon.ico?">
-
-        <!-- If you are using the CSS version, only link these 2 files, you may add app.scss to use for your overrides if you like -->
-        <link rel="stylesheet" href="/Composable/css/normalize.css">
-        <link rel="stylesheet" href="/Composable/css/foundation.css">
-
-        <link rel="stylesheet" href="/Composable/css/font-awesome-4.7.0.min.css">
-
-        <link rel="stylesheet" href="/Composable/css/asciidoctor.css">
-        <link rel="stylesheet" href="/Composable/css/asciidoc-pygments-manual.css">
-
-        <link rel="stylesheet" href="/Composable/css/app.css">
-
-        <script src="/Composable/js/vendor/modernizr.js"></script>
-    </head>
-
-    <body>
-        <div class="row">
-            <div id="page-start-anchor" ></div>
-            <nav class="top-bar">
-    <div class="top-bar-title"><strong><a href="/Composable/">Composable Toolkit</a></strong></div>
-    <div class="top-bar-left">
-            <a href="/Composable/documentation/">Documentation</a>
-    </div>
-</nav>
-
-<!-- sample topbar usage
-<div class="top-bar">
+        <div class="top-bar">
     <div class="top-bar-left">
         <ul class="dropdown menu" data-dropdown-menu>
-            <li class="menu-text">Site Title</li>
+            <li class="menu-text">Composable Toolkit</li>
             <li>
-                <a href="#">One</a>
-                <ul class="menu vertical">
-                    <li><a href="#">One</a></li>
-                    <li><a href="#">Two</a></li>
-                    <li><a href="#">Three</a></li>
+                <a href="/Composable/">Home</a>
+            </li>
+            <li>
+                <a href="/Composable/documentation/">Documentation</a>
+                <ul class="menu">
+                    <li>
+                        <a href="/Composable/documentation/">Written</a>
+                    </li>
+                    <li>
+                        <a href="/Composable/apidoc/">API</a>
+                        <ul class="menu">
+                            <li><a href="/Composable/apidocs/3.4.6">Version 3.4.6</a></li>
+                        </ul>
+                    </li>
                 </ul>
             </li>
-            <li><a href="#">Two</a></li>
-            <li><a href="#">Three</a></li>
-        </ul>
-    </div>
-    <div class="top-bar-right">
-        <ul class="menu">
-            <li><input type="search" placeholder="Search"></li>
-            <li><button type="button" class="button">Search</button></li>
         </ul>
     </div>
 </div>
--->
 
-            
-                <div class="large-3 large-push-9 columns page-toc" data-sticky-container>
-    <nav data-sticky data-options="marginTop:3;stickyOn:large">
+
+        
+            <div class="large-3 large-push-9 columns page-toc" data-sticky-container>
+    <nav data-sticky data-options="marginTop:4;stickyOn:large">
+        <h4>TOC</h4>
         <ul class="sectlevel1">
 <li><a href="#first">1. First Steps with AsciiDoc</a>
 <ul class="sectlevel2">
@@ -79,52 +68,53 @@
 <li><a href="#sequence_diagrams">3.4. Sequence Diagrams</a></li>
 </ul>
 </li>
-<li><a href="#code_samples_with_highlighting">4. Code samples with highlighting</a></li>
-<li><a href="#quotes">5. ``Quotes''</a></li>
-<li><a href="#literally">6. Getting Literal</a></li>
-<li><a href="#wrapup">7. Wrap-up</a></li>
-<li><a href="#testing_diagrams">8. Testing diagrams</a></li>
-<li><a href="#nesting_sections_level_1">9. Nesting sections level 1</a>
+<li><a href="#a_new_section">4. A new section</a></li>
+<li><a href="#code_samples_with_highlighting">5. Code samples with highlighting</a></li>
+<li><a href="#quotes">6. ``Quotes''</a></li>
+<li><a href="#literally">7. Getting Literal</a></li>
+<li><a href="#wrapup">8. Wrap-up</a></li>
+<li><a href="#testing_diagrams">9. Testing diagrams</a></li>
+<li><a href="#nesting_sections_level_1">10. Nesting sections level 1</a>
 <ul class="sectlevel2">
-<li><a href="#nesting_sections_level_2">9.1. Nesting sections level 2</a></li>
+<li><a href="#nesting_sections_level_2">10.1. Nesting sections level 2</a></li>
 </ul>
 </li>
-<li><a href="#nesting_sections_level_1_2">10. Nesting sections level 1</a>
+<li><a href="#nesting_sections_level_1_2">11. Nesting sections level 1</a>
 <ul class="sectlevel2">
-<li><a href="#nesting_sections_level_2_2">10.1. Nesting sections level 2</a></li>
+<li><a href="#nesting_sections_level_2_2">11.1. Nesting sections level 2</a></li>
 </ul>
 </li>
-<li><a href="#nesting_sections_level_1_3">11. Nesting sections level 1</a>
+<li><a href="#nesting_sections_level_1_3">12. Nesting sections level 1</a>
 <ul class="sectlevel2">
-<li><a href="#nesting_sections_level_2_3">11.1. Nesting sections level 2</a></li>
+<li><a href="#nesting_sections_level_2_3">12.1. Nesting sections level 2</a></li>
 </ul>
 </li>
-<li><a href="#nesting_sections_level_1_4">12. Nesting sections level 1</a>
+<li><a href="#nesting_sections_level_1_4">13. Nesting sections level 1</a>
 <ul class="sectlevel2">
-<li><a href="#nesting_sections_level_2_4">12.1. Nesting sections level 2</a></li>
+<li><a href="#nesting_sections_level_2_4">13.1. Nesting sections level 2</a></li>
 </ul>
 </li>
-<li><a href="#nesting_sections_level_1_5">13. Nesting sections level 1</a>
+<li><a href="#nesting_sections_level_1_5">14. Nesting sections level 1</a>
 <ul class="sectlevel2">
-<li><a href="#nesting_sections_level_2_5">13.1. Nesting sections level 2</a></li>
+<li><a href="#nesting_sections_level_2_5">14.1. Nesting sections level 2</a></li>
 </ul>
 </li>
-<li><a href="#nesting_sections_level_1_6">14. Nesting sections level 1</a>
+<li><a href="#nesting_sections_level_1_6">15. Nesting sections level 1</a>
 <ul class="sectlevel2">
-<li><a href="#nesting_sections_level_2_6">14.1. Nesting sections level 2</a></li>
+<li><a href="#nesting_sections_level_2_6">15.1. Nesting sections level 2</a></li>
 </ul>
 </li>
-<li><a href="#nesting_sections_level_1_7">15. Nesting sections level 1</a>
+<li><a href="#nesting_sections_level_1_7">16. Nesting sections level 1</a>
 <ul class="sectlevel2">
-<li><a href="#nesting_sections_level_2_7">15.1. Nesting sections level 2</a></li>
+<li><a href="#nesting_sections_level_2_7">16.1. Nesting sections level 2</a></li>
 </ul>
 </li>
 </ul>
     </nav>
 </div>
-            
+        
 
-            <div class="large-9 large-pull-3 columns asciidoc" role="content">
+        <div class="large-9 large-pull-3 columns asciidoc" role="content">
     <div id="preamble">
 <div class="sectionbody">
 <div class="paragraph lead">
@@ -416,7 +406,13 @@ first level</p>
 </div>
 </div>
 <div class="sect1">
-<h2 id="code_samples_with_highlighting">4. Code samples with highlighting</h2>
+<h2 id="a_new_section">4. A new section</h2>
+<div class="sectionbody">
+
+</div>
+</div>
+<div class="sect1">
+<h2 id="code_samples_with_highlighting">5. Code samples with highlighting</h2>
 <div class="sectionbody">
 <div class="listingblock">
 <div class="title">Asciidoctor usage example, should contain 3 lines</div>
@@ -424,6 +420,14 @@ first level</p>
 <pre class="pygments highlight"><code data-lang="ruby"><span class="tok-n">doc</span> <span class="tok-o">=</span> <span class="tok-no">Asciidoctor</span><span class="tok-o">::</span><span class="tok-no">Document</span><span class="tok-o">.</span><span class="tok-n">new</span><span class="tok-p">(</span><span class="tok-s2">&quot;*This* is it!&quot;</span><span class="tok-p">,</span> <span class="tok-ss">:header_footer</span> <span class="tok-o">=&gt;</span> <span class="tok-kp">false</span><span class="tok-p">)</span>
 
 <span class="tok-nb">puts</span> <span class="tok-n">doc</span><span class="tok-o">.</span><span class="tok-n">render</span></code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="cs"><span class="tok-k">public</span> <span class="tok-k">void</span> <span class="tok-nf">SomeMethod</span><span class="tok-p">()</span>
+<span class="tok-p">{</span>
+   <span class="tok-k">return</span> <span class="tok-k">null</span><span class="tok-p">;</span>
+<span class="tok-p">}</span></code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -439,7 +443,7 @@ first level</p>
 </div>
 </div>
 <div class="sect1">
-<h2 id="quotes">5. ``Quotes''</h2>
+<h2 id="quotes">6. ``Quotes''</h2>
 <div class="sectionbody">
 <div class="quoteblock">
 <blockquote>
@@ -471,7 +475,7 @@ first level</p>
 </div>
 </div>
 <div class="sect1">
-<h2 id="literally">6. Getting Literal</h2>
+<h2 id="literally">7. Getting Literal</h2>
 <div class="sectionbody">
 <div class="literalblock">
 <div class="content">
@@ -502,7 +506,7 @@ first level</p>
 </div>
 </div>
 <div class="sect1">
-<h2 id="wrapup">7. Wrap-up</h2>
+<h2 id="wrapup">8. Wrap-up</h2>
 <div class="sectionbody">
 <div class="admonitionblock note">
 <table>
@@ -562,7 +566,7 @@ One more thing. Happy documenting!
 </div>
 </div>
 <div class="sect1">
-<h2 id="testing_diagrams">8. Testing diagrams</h2>
+<h2 id="testing_diagrams">9. Testing diagrams</h2>
 <div class="sectionbody">
 <div class="imageblock">
 <div class="content">
@@ -572,7 +576,7 @@ One more thing. Happy documenting!
 </div>
 </div>
 <div class="sect1">
-<h2 id="nesting_sections_level_1">9. Nesting sections level 1</h2>
+<h2 id="nesting_sections_level_1">10. Nesting sections level 1</h2>
 <div class="sectionbody">
 <div class="paragraph">
 <p>some text</p>
@@ -584,7 +588,7 @@ One more thing. Happy documenting!
 <p>some text</p>
 </div>
 <div class="sect2">
-<h3 id="nesting_sections_level_2">9.1. Nesting sections level 2</h3>
+<h3 id="nesting_sections_level_2">10.1. Nesting sections level 2</h3>
 <div class="paragraph">
 <p>some text</p>
 </div>
@@ -595,7 +599,7 @@ One more thing. Happy documenting!
 <p>some text</p>
 </div>
 <div class="sect3">
-<h4 id="nesting_sections_level_3">9.1.1. Nesting sections level 3</h4>
+<h4 id="nesting_sections_level_3">10.1.1. Nesting sections level 3</h4>
 <div class="paragraph">
 <p>some text</p>
 </div>
@@ -610,7 +614,7 @@ One more thing. Happy documenting!
 </div>
 </div>
 <div class="sect1">
-<h2 id="nesting_sections_level_1_2">10. Nesting sections level 1</h2>
+<h2 id="nesting_sections_level_1_2">11. Nesting sections level 1</h2>
 <div class="sectionbody">
 <div class="paragraph">
 <p>some text</p>
@@ -622,7 +626,7 @@ One more thing. Happy documenting!
 <p>some text</p>
 </div>
 <div class="sect2">
-<h3 id="nesting_sections_level_2_2">10.1. Nesting sections level 2</h3>
+<h3 id="nesting_sections_level_2_2">11.1. Nesting sections level 2</h3>
 <div class="paragraph">
 <p>some text</p>
 </div>
@@ -633,7 +637,7 @@ One more thing. Happy documenting!
 <p>some text</p>
 </div>
 <div class="sect3">
-<h4 id="nesting_sections_level_3_2">10.1.1. Nesting sections level 3</h4>
+<h4 id="nesting_sections_level_3_2">11.1.1. Nesting sections level 3</h4>
 <div class="paragraph">
 <p>some text</p>
 </div>
@@ -648,7 +652,7 @@ One more thing. Happy documenting!
 </div>
 </div>
 <div class="sect1">
-<h2 id="nesting_sections_level_1_3">11. Nesting sections level 1</h2>
+<h2 id="nesting_sections_level_1_3">12. Nesting sections level 1</h2>
 <div class="sectionbody">
 <div class="paragraph">
 <p>some text</p>
@@ -660,7 +664,7 @@ One more thing. Happy documenting!
 <p>some text</p>
 </div>
 <div class="sect2">
-<h3 id="nesting_sections_level_2_3">11.1. Nesting sections level 2</h3>
+<h3 id="nesting_sections_level_2_3">12.1. Nesting sections level 2</h3>
 <div class="paragraph">
 <p>some text</p>
 </div>
@@ -671,7 +675,7 @@ One more thing. Happy documenting!
 <p>some text</p>
 </div>
 <div class="sect3">
-<h4 id="nesting_sections_level_3_3">11.1.1. Nesting sections level 3</h4>
+<h4 id="nesting_sections_level_3_3">12.1.1. Nesting sections level 3</h4>
 <div class="paragraph">
 <p>some text</p>
 </div>
@@ -686,7 +690,7 @@ One more thing. Happy documenting!
 </div>
 </div>
 <div class="sect1">
-<h2 id="nesting_sections_level_1_4">12. Nesting sections level 1</h2>
+<h2 id="nesting_sections_level_1_4">13. Nesting sections level 1</h2>
 <div class="sectionbody">
 <div class="paragraph">
 <p>some text</p>
@@ -698,7 +702,7 @@ One more thing. Happy documenting!
 <p>some text</p>
 </div>
 <div class="sect2">
-<h3 id="nesting_sections_level_2_4">12.1. Nesting sections level 2</h3>
+<h3 id="nesting_sections_level_2_4">13.1. Nesting sections level 2</h3>
 <div class="paragraph">
 <p>some text</p>
 </div>
@@ -709,7 +713,7 @@ One more thing. Happy documenting!
 <p>some text</p>
 </div>
 <div class="sect3">
-<h4 id="nesting_sections_level_3_4">12.1.1. Nesting sections level 3</h4>
+<h4 id="nesting_sections_level_3_4">13.1.1. Nesting sections level 3</h4>
 <div class="paragraph">
 <p>some text</p>
 </div>
@@ -724,7 +728,7 @@ One more thing. Happy documenting!
 </div>
 </div>
 <div class="sect1">
-<h2 id="nesting_sections_level_1_5">13. Nesting sections level 1</h2>
+<h2 id="nesting_sections_level_1_5">14. Nesting sections level 1</h2>
 <div class="sectionbody">
 <div class="paragraph">
 <p>some text</p>
@@ -736,7 +740,7 @@ One more thing. Happy documenting!
 <p>some text</p>
 </div>
 <div class="sect2">
-<h3 id="nesting_sections_level_2_5">13.1. Nesting sections level 2</h3>
+<h3 id="nesting_sections_level_2_5">14.1. Nesting sections level 2</h3>
 <div class="paragraph">
 <p>some text</p>
 </div>
@@ -747,7 +751,7 @@ One more thing. Happy documenting!
 <p>some text</p>
 </div>
 <div class="sect3">
-<h4 id="nesting_sections_level_3_5">13.1.1. Nesting sections level 3</h4>
+<h4 id="nesting_sections_level_3_5">14.1.1. Nesting sections level 3</h4>
 <div class="paragraph">
 <p>some text</p>
 </div>
@@ -762,7 +766,7 @@ One more thing. Happy documenting!
 </div>
 </div>
 <div class="sect1">
-<h2 id="nesting_sections_level_1_6">14. Nesting sections level 1</h2>
+<h2 id="nesting_sections_level_1_6">15. Nesting sections level 1</h2>
 <div class="sectionbody">
 <div class="paragraph">
 <p>some text</p>
@@ -774,7 +778,7 @@ One more thing. Happy documenting!
 <p>some text</p>
 </div>
 <div class="sect2">
-<h3 id="nesting_sections_level_2_6">14.1. Nesting sections level 2</h3>
+<h3 id="nesting_sections_level_2_6">15.1. Nesting sections level 2</h3>
 <div class="paragraph">
 <p>some text</p>
 </div>
@@ -785,7 +789,7 @@ One more thing. Happy documenting!
 <p>some text</p>
 </div>
 <div class="sect3">
-<h4 id="nesting_sections_level_3_6">14.1.1. Nesting sections level 3</h4>
+<h4 id="nesting_sections_level_3_6">15.1.1. Nesting sections level 3</h4>
 <div class="paragraph">
 <p>some text</p>
 </div>
@@ -800,7 +804,7 @@ One more thing. Happy documenting!
 </div>
 </div>
 <div class="sect1">
-<h2 id="nesting_sections_level_1_7">15. Nesting sections level 1</h2>
+<h2 id="nesting_sections_level_1_7">16. Nesting sections level 1</h2>
 <div class="sectionbody">
 <div class="paragraph">
 <p>some text</p>
@@ -812,7 +816,7 @@ One more thing. Happy documenting!
 <p>some text</p>
 </div>
 <div class="sect2">
-<h3 id="nesting_sections_level_2_7">15.1. Nesting sections level 2</h3>
+<h3 id="nesting_sections_level_2_7">16.1. Nesting sections level 2</h3>
 <div class="paragraph">
 <p>some text</p>
 </div>
@@ -823,7 +827,7 @@ One more thing. Happy documenting!
 <p>some text</p>
 </div>
 <div class="sect3">
-<h4 id="nesting_sections_level_3_7">15.1.1. Nesting sections level 3</h4>
+<h4 id="nesting_sections_level_3_7">16.1.1. Nesting sections level 3</h4>
 <div class="paragraph">
 <p>some text</p>
 </div>
@@ -895,9 +899,9 @@ One more thing. Happy documenting!
 </div>
 </div>
 </div>
-        </div>
+    </div>
 
-        <footer class="row">
+    <footer class="row">
     <div class="large-12 columns">
         <hr>
         <div class="row">
@@ -908,10 +912,10 @@ One more thing. Happy documenting!
     </div>
 </footer>
 
+    <script src="/Composable/vendor/foundation-6.2.4-complete.zip/js/vendor/jquery.js"></script>
+<script src="/Composable/vendor/foundation-6.2.4-complete.zip/js/vendor/what-input.js"></script>
+<script src="/Composable/vendor/foundation-6.2.4-complete.zip/js/vendor/foundation.js"></script>
+<script src="/Composable/js/app.js"></script>
 
-        <script src="/Composable/js/vendor/jquery.js"></script>
-        <script src="/Composable/js/vendor/what-input.js"></script>
-        <script src="/Composable/js/vendor/foundation.js"></script>
-        <script src="/Composable/js/app.js"></script>
-    </body>
+</body>
 </html>

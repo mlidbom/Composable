@@ -16,5 +16,13 @@ $(document).ready(
         )
 
         $(document).foundation()
+
+        $(".top-bar ul.dropdown.menu li a")
+            .filter(function(e, i) {
+                return i.href == document.location.href
+            }).each(function (_, elem) {
+                console.log(elem)
+                $(elem).parent().addClass("active")
+            })
     }
 )

@@ -1,0 +1,25 @@
+code {
+  border: none; }
+
+[data-sticky] {
+  width: 100%; }
+
+a {
+  text-decoration: none; }
+  .asciidoc a {
+    text-decoration: underline; }
+
+.page-toc ul {
+  list-style-type: none; }
+  .page-toc ul.sectlevel1 {
+    margin-left: 0px; }
+.page-toc nav {
+  overflow-y: auto;
+  max-height: 92vh; }
+  .page-toc nav a.active {
+    background-color: #e6e6e6; }
+
+.menu > li.active.is-dropdown-submenu-parent > a::after {
+  border-color: #fefefe transparent transparent; }
+
+/*# sourceMappingURL=app.css.map */

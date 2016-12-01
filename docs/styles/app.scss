@@ -1,0 +1,37 @@
+code{
+  border: none; //Reset silly foundation default that messes up code
+}
+
+[data-sticky]{
+  width: 100%; //Required by the sticky component
+}
+
+a {
+  text-decoration: none;
+  .asciidoc & {
+    text-decoration: underline;
+  }
+}
+
+.page-toc {
+  ul{
+    list-style-type: none;
+    &.sectlevel1{
+      margin-left: 0px;
+    }
+  }
+
+  nav{
+    overflow-y: auto;
+    max-height: 92vh;
+    a.active{
+      background-color: #e6e6e6;
+    }
+  }
+}
+
+.dropdown.menu > li.active.is-dropdown-submenu-parent > a::after {
+  border-color: #fefefe transparent transparent
+}
+
+

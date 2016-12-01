@@ -8,5 +8,5 @@ group :jekyll_plugins do
   gem 'jekyll-asciidoc', ">= 2.1.0.dev"
   gem 'jekyll-livereload'
   gem 'pygments.rb'
-  gem 'asciidoctor-diagram', '>= 1.4.0'
+  gem 'asciidoctor-diagram', '~> 1.4.0'
 end

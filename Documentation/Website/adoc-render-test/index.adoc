@@ -18,6 +18,7 @@ This is a demonstration of {library}. And this is the preamble of this document.
 This document exercises many of the features of AsciiDoc to test the {library} implementation.
 ****
 
+
 TIP: If you want the output to look familiar, copy (or link) the AsciiDoc stylesheet, asciidoc.css, to the output directory.
 
 NOTE: Items marked with TODO are either not yet supported or a work in progress.
@@ -127,6 +128,8 @@ image::tiger.png[]
 
 include::_diagrams.adoc[]
 
+== A new section
+
 == Code samples with highlighting
 
 .Asciidoctor usage example, should contain 3 lines
@@ -135,6 +138,14 @@ include::_diagrams.adoc[]
 doc = Asciidoctor::Document.new("*This* is it!", :header_footer => false)
 
 puts doc.render
+----
+
+[source, cs]
+----
+public void SomeMethod()
+{
+   return null;
+}
 ----
 
 

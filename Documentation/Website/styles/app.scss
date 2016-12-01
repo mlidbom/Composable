@@ -29,3 +29,9 @@ a {
     }
   }
 }
+
+.dropdown.menu > li.active.is-dropdown-submenu-parent > a::after {
+  border-color: #fefefe transparent transparent
+}
+
+

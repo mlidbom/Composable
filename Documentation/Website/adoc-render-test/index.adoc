@@ -5,9 +5,7 @@ Dan Allen <thedoc@asciidoctor.org>
               exercises numerous features of AsciiDoc +
               to test Asciidoctor compliance.
 :sectnums:
-:imagesdir: images
 :library: Asciidoc
-
 
 [role='lead']
 This is a demonstration of {library}. And this is the preamble of this document.

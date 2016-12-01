@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <module type="RUBY_MODULE" version="4">
   <component name="ModuleRunConfigurationManager">
-    <configuration default="false" name="serve" type="RubyRunConfigurationType" factoryName="Ruby" temporary="true">
+    <configuration default="false" name="serve" type="RubyRunConfigurationType" factoryName="Ruby" show_console_on_std_err="true">
       <module name="Website" />
       <RUBY_RUN_CONFIG NAME="RUBY_ARGS" VALUE="-e $stdout.sync=true;$stderr.sync=true;load($0=ARGV.shift)" />
       <RUBY_RUN_CONFIG NAME="WORK DIR" VALUE="$MODULE_DIR$" />

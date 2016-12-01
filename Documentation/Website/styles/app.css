@@ -19,4 +19,7 @@ a {
   .page-toc nav a.active {
     background-color: #e6e6e6; }
 
+.menu > li.active.is-dropdown-submenu-parent > a::after {
+  border-color: #fefefe transparent transparent; }
+
 /*# sourceMappingURL=app.css.map */

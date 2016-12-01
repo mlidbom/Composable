@@ -6,12 +6,6 @@ code{
   width: 100%; //Required by the sticky component
 }
 
-.top-bar-title{
-  a{
-    color: #0a0a0a;
-  }
-}
-
 a {
   text-decoration: none;
   .asciidoc & {
@@ -22,6 +16,9 @@ a {
 .page-toc {
   ul{
     list-style-type: none;
+    &.sectlevel1{
+      margin-left: 0px;
+    }
   }
 
   nav{
@@ -32,3 +29,9 @@ a {
     }
   }
 }
+
+.dropdown.menu > li.active.is-dropdown-submenu-parent > a::after {
+  border-color: #fefefe transparent transparent
+}
+
+

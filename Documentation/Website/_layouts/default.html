@@ -1,49 +1,26 @@
 <!doctype html>
-<!--[if IE 9]><html class="lt-ie10" lang="en"> <![endif]-->
 <html class="no-js" lang="en">
-    <head>
-        <meta charset="utf-8">
-        <!-- If you delete this meta tag World War Z will become a reality -->
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>{{page.title}}</title>
-        <meta name="description" content="{% if page.description %}{{ page.description }}{% else %}{{ site.description }}{% endif %}">
+    {% include common-head.html %}
+<body>
+<div class="row"><!--Start body content Row-->
+    <div id="page-start-anchor" ></div>
 
-        <link rel="shortcut icon" type="image/x-icon" href="{{site.baseurl}}/favicon.ico?">
+    {% include common-top-bar.html %}
 
-        <!-- If you are using the CSS version, only link these 2 files, you may add app.scss to use for your overrides if you like -->
-        <link rel="stylesheet" href="{{site.baseurl}}/css/normalize.css">
-        <link rel="stylesheet" href="{{site.baseurl}}/css/foundation.css">
+    {% if page.toc %}
+    {% include right-aside-toc.html %}
+    {% else %}
+    {% include right-aside-news.html %}
+    {% endif %}
 
-        <link rel="stylesheet" href="{{site.baseurl}}/css/font-awesome-4.7.0.min.css">
+    {% include default-main-content.html %}
 
-        <link rel="stylesheet" href="{{site.baseurl}}/css/asciidoctor.css">
-        <link rel="stylesheet" href="{{site.baseurl}}/css/asciidoc-pygments-manual.css">
+    </div>
 
-        <link rel="stylesheet" href="{{site.baseurl}}/css/app.css">
+    {% include default-footer.html %}
 
-        <script src="{{site.baseurl}}/js/vendor/modernizr.js"></script>
-    </head>
-
-    <body>
-        <div class="row">
-            <div id="page-start-anchor" ></div>
-            {% include default-navigation.html %}
-
-            {% if page.toc %}
-                {% include right-aside-toc.html %}
-            {% else %}
-                {% include right-aside-news.html %}
-            {% endif %}
-
-            {% include default-main-content.html %}
-        </div>
-
-        {% include default-footer.html %}
+{% include common-body-scripts.html %}
 
 
-        <script src="{{site.baseurl}}/js/vendor/jquery.js"></script>
-        <script src="{{site.baseurl}}/js/vendor/what-input.js"></script>
-        <script src="{{site.baseurl}}/js/vendor/foundation.js"></script>
-        <script src="{{site.baseurl}}/js/app.js"></script>
-    </body>
+</body>
 </html>

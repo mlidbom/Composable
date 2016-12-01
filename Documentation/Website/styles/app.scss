@@ -1,3 +1,6 @@
+$font-color: #2156a5;
+$font-color-inverted: #fefefe;
+
 code{
   border: none; //Reset silly foundation default that messes up code
 }
@@ -26,12 +29,28 @@ a {
     max-height: 92vh;
     a.active{
       background-color: #e6e6e6;
+      font-weight: bold;
     }
   }
 }
 
-.dropdown.menu > li.active.is-dropdown-submenu-parent > a::after {
-  border-color: #fefefe transparent transparent
+.menu .active > a {
+  background: $font-color;
 }
 
+.dropdown.menu {
+  > li.is-dropdown-submenu-parent {
+    > a::after {
+      border-color: $font-color transparent transparent transparent;
+    }
+
+    &.active > a::after {
+      border-color: $font-color-inverted transparent transparent transparent;
+    }
+  }
+
+  .is-dropdown-submenu .is-dropdown-submenu-parent.opens-right > a::after {
+    border-color: transparent transparent transparent $font-color;
+  }
+}
 

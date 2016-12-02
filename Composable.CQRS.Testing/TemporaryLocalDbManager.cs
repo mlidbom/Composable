@@ -97,21 +97,19 @@ namespace CQRS.Tests
             return _reservedDatabases[requestedDbName].ConnectionString;
         }
 
-
         private static readonly HashSet<string> ConnectionStringsWithKnownManagerDb = new HashSet<string>();
         private bool ManagerDbExists()
         {
-            if(ConnectionStringsWithKnownManagerDb.Contains(_masterConnectionString))
+            if(!ConnectionStringsWithKnownManagerDb.Contains(_masterConnectionString))
             {
-                return true;
+                if(_masterConnection.ExecuteScalar($"select DB_ID('{ManagerDbName}')") == DBNull.Value)
+                {
+                    return false;
+                }
             }
 
-            if((int)_masterConnection.ExecuteScalar($"select count(*) from sys.databases where name = '{ManagerDbName}'") == 1)
-            {
-                ConnectionStringsWithKnownManagerDb.Add(_masterConnectionString);
-                return true;
-            }
-            return false;
+            ConnectionStringsWithKnownManagerDb.Add(_masterConnectionString);
+            return true;
         }
 
         private void CreateManagerDB()
@@ -187,12 +185,6 @@ CREATE TABLE [dbo].[{ManagerTableSchema.TableName}](
         private void ReleaseDatabase(ManagedLocalDb managedLocalDb)
         {
             _reservedDatabases.Remove(managedLocalDb.Name);
-
-            using (var conn = new SqlConnection(managedLocalDb.ConnectionString))
-            {
-                SqlConnection.ClearPool(conn);
-            }
-
             _managerConnection.ExecuteNonQuery($"update {ManagerTableSchema.TableName} set {ManagerTableSchema.IsFree} = 1 where {ManagerTableSchema.DatabaseName} = '{managedLocalDb.Name}'");            
         }
 

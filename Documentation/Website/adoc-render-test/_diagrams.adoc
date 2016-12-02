@@ -1,0 +1,87 @@
+== Using Diagrams
+
+See: http://asciidoctor.org/docs/asciidoctor-diagram/
+
+=== PlantUML class Diagram
+.Class Diagram http://plantuml.com/class-diagram
+[plantuml,uml-diagram]
+....
+abstract class AbstractList
+abstract AbstractCollection
+interface List
+interface Collection
+
+List <|-- AbstractList
+Collection <|-- AbstractCollection
+
+Collection <|- List
+AbstractCollection <|- AbstractList
+AbstractList <|-- ArrayList
+
+class ArrayList {
+  Object[] elementData
+  size()
+}
+
+enum TimeUnit {
+  DAYS
+  HOURS
+  MINUTES
+}
+
+....
+
+=== Ditaa Diagram
+.Ditaa Diagram http://ditaa.sourceforge.net/
+[ditaa, ditaa-diagram]
+....
++--------+   +-------+    +-------+
+|        +---+ ditaa +--> |       |
+|  Text  |   +-------+    |diagram|
+|Document|   |!magic!|    |       |
+|     {d}|   |       |    |       |
++---+----+   +-------+    +-------+
+    :                         ^
+    |       Lots of work      |
+    +-------------------------+
+....
+
+=== Graphviz/Dot Diagrams
+.Dot Diagram http://plantuml.com/dot
+[plantuml,dot-diagram]
+....
+@startdot
+digraph foo {
+  node [style=rounded]
+  node1 [shape=box]
+  node2 [fillcolor=yellow, style="rounded,filled", shape=diamond]
+  node3 [shape=record, label="{ a | b | c }"]
+
+  node1 -> node2 -> node3[arrowhead=o]
+}
+@enddot
+....
+
+=== Sequence Diagrams
+.Sequence Diagram http://blockdiag.com/en/seqdiag/examples.html
+[seqdiag, seq-diagram]
+....
+seqdiag {
+  // normal edge and doted edge
+  A -> B [label = "normal edge"];
+  B --> C [label = "dotted edge"];
+
+  B <-- C [label = "return dotted edge"];
+  A <- B [label = "return edge"];
+
+  // asynchronus edge
+  A ->> B [label = "asynchronus edge"];
+  B -->> C [label = "asynchronus dotted edge"];
+
+  B <<-- C [label = "return asynchronus doted edge"];
+  A <<- B [label = "return asynchronus edge"];
+
+  // self referenced edge
+  A -> A [label = "self reference edge"];
+}
+....

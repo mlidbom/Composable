@@ -1,0 +1,56 @@
+$font-color: #2156a5;
+$font-color-inverted: #fefefe;
+
+code{
+  border: none; //Reset silly foundation default that messes up code
+}
+
+[data-sticky]{
+  width: 100%; //Required by the sticky component
+}
+
+a {
+  text-decoration: none;
+  .asciidoc & {
+    text-decoration: underline;
+  }
+}
+
+.page-toc {
+  ul{
+    list-style-type: none;
+    &.sectlevel1{
+      margin-left: 0px;
+    }
+  }
+
+  nav{
+    overflow-y: auto;
+    max-height: 92vh;
+    a.active{
+      background-color: #e6e6e6;
+      font-weight: bold;
+    }
+  }
+}
+
+.menu .active > a {
+  background: $font-color;
+}
+
+.dropdown.menu {
+  > li.is-dropdown-submenu-parent {
+    > a::after {
+      border-color: $font-color transparent transparent transparent;
+    }
+
+    &.active > a::after {
+      border-color: $font-color-inverted transparent transparent transparent;
+    }
+  }
+
+  .is-dropdown-submenu .is-dropdown-submenu-parent.opens-right > a::after {
+    border-color: transparent transparent transparent $font-color;
+  }
+}
+

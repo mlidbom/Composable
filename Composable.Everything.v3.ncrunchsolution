@@ -6,21 +6,6 @@
       <Value>JetBrainsCodeAnnotations.cs:Composable.System\Composable.Core.csproj</Value>
       <Value>WhenRecievingMessage.cs:Composable.CQRS.ServiceBus.NServiceBus.ErrorMessagesTests\Composable.CQRS.ServiceBus.NServiceBus.Tests.ErrorMessages.csproj</Value>
     </MetricsExclusionList>
-    <ShowCoverageForTests>True</ShowCoverageForTests>
     <SolutionConfigured>True</SolutionConfigured>
   </Settings>
-  <EngineModes>
-    <EngineMode>
-      <Name>Run impacted tests automatically, others manually (experimental!)</Name>
-      <Settings>
-        <TestsToExecuteAutomatically>IsImpacted</TestsToExecuteAutomatically>
-      </Settings>
-    </EngineMode>
-    <EngineMode>
-      <Name>UITests</Name>
-      <Settings>
-        <TestsToExecuteAutomatically>HasCategory 'EnabledUITest'</TestsToExecuteAutomatically>
-      </Settings>
-    </EngineMode>
-  </EngineModes>
 </SolutionConfiguration>

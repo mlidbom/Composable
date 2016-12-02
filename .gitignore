@@ -34,3 +34,4 @@ project.lock.json
 SandcastleDocumentation/Help/
 **/.idea/workspace.xml
 **/.idea/tasks.xm
+nCrunchTemp*

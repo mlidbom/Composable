@@ -9,9 +9,16 @@ namespace Composable.CQRS.Testing
 {
     public static class DatabaseHelpers
     {
-        private static IEnumerable<string> CreateDropAllObjectsStatements(IDbCommand cmd)
-        {
-            cmd.CommandText = @"SELECT stmt FROM (SELECT CASE WHEN type = 'AF'                           THEN 'DROP AGGREGATE ' + QUOTENAME(schema_name(schema_id)) + '.' + QUOTENAME(name)
+
+        public static void DropAllObjects(this IDbConnection connection) {
+            SqlServerEventStoreSchemaManager.ClearCache(connection);
+            SqlServerEventStoreEventsCache.ClearAll();
+            using (var cmd = connection.CreateCommand())
+            {
+                cmd.CommandType = CommandType.Text;
+                cmd.CommandText = @"select id=IDENTITY (int, 1,1), stmt 
+into #statements
+FROM (SELECT CASE WHEN type = 'AF'                           THEN 'DROP AGGREGATE ' + QUOTENAME(schema_name(schema_id)) + '.' + QUOTENAME(name)
                                                               WHEN type IN('C', 'F', 'UQ')               THEN 'ALTER TABLE ' + QUOTENAME(object_schema_name(parent_object_id)) + '.' + QUOTENAME(object_name(parent_object_id)) + ' DROP CONSTRAINT ' + QUOTENAME(name)
                                                               WHEN type IN('FN', 'FS', 'FT', 'IF', 'TF') THEN 'DROP FUNCTION ' + QUOTENAME(schema_name(schema_id)) + '.' + QUOTENAME(name)
                                                               WHEN type IN('P', 'PC')                    THEN 'DROP PROCEDURE ' + QUOTENAME(schema_name(schema_id)) + '.' + QUOTENAME(name)
@@ -28,59 +35,24 @@ namespace Composable.CQRS.Testing
 											WHEN type IN('C', 'TA', 'TR') THEN 2 
 											WHEN type IN('UQ') THEN 3
 											ELSE 4
-										END";
+										END
 
-            var result = new List<string>();
-            using (var rdr = cmd.ExecuteReader())
-            {
-                while (rdr.Read())
-                {
-                    result.Add((string)rdr[0]);
-                }
-            }
-            return result;
-        }
 
-        private static void ExecuteDropStatements(IEnumerable<string> stmts, IDbCommand cmd)
-        {
-            var list = stmts.ToList();
-            Exception innerEx = null;
-            for (;;)
-            {
-                bool didSomething = false;
-                for (int i = 0; i < list.Count; i++)
-                {
-                    try
-                    {
-                        cmd.CommandText = list[i];
-                        cmd.ExecuteNonQuery();
-                        // drop was successful
-                        list.RemoveAt(i);
-                        i--; // Retry next entry
-                        didSomething = true;
-                    }
-                    catch (SqlException ex)
-                    {
-                        Console.WriteLine($"#########!!!!####Exception: {ex.Message}");
-                        if (i == 0)
-                            innerEx = ex;   // This is the exception we will later raise from this method in case we, for one reason or another, can't drop all objects.
-                    }
-                }
-                if (!didSomething)
-                    break;
-            }
-            if (list.Count > 0)
-                throw new Exception(string.Format("Could not execute statement '{0}'", list[0]), innerEx);
-        }
+DECLARE @statement nvarchar(500)
+DECLARE cur CURSOR LOCAL FAST_FORWARD FOR SELECT stmt from #statements order by id
+OPEN cur
 
-        public static void DropAllObjects(this IDbConnection connection) {
-            SqlServerEventStoreSchemaManager.ClearCache(connection);
-            SqlServerEventStoreEventsCache.ClearAll();
-            using (var cmd = connection.CreateCommand())
-            {
-                cmd.CommandType = CommandType.Text;
-                var stmts = CreateDropAllObjectsStatements(cmd);
-                ExecuteDropStatements(stmts, cmd);
+FETCH NEXT FROM cur INTO @statement
+
+WHILE @@FETCH_STATUS = 0 BEGIN
+    execute sp_executesql @statement
+    FETCH NEXT FROM cur INTO @statement
+END
+
+CLOSE cur    
+DEALLOCATE cur
+";
+                cmd.ExecuteNonQuery();
             }
         }
     }

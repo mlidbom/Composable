@@ -24,7 +24,7 @@ github_username:  mlidbom
 livereload: true
 
 # Build settings
-stylesdir: css
+stylesdir: vendor-css
 markdown: kramdown
 #destination: ../../docs
 keep_files: [apidocs]
@@ -34,12 +34,14 @@ exclude:
   - Gemfile
   - Gemfile.lock
   - Rakefile
+  - _site
 asciidoc: {}
 asciidoctor:
   base_dir: :docdir
   safe: unsafe
   attributes:
     - idseparator=_
-    - stylesdir=css
+    - stylesdir=vendor-css
+    - imagesdir=images
     - source-highlighter=pygments
     - icons=font

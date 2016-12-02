@@ -1,7 +1,0 @@
-= Documentation
-:page-permalink: /documentation/
-
-
-== API Documentation
-
-link:../apidocs/3.4.6[3.4.6]

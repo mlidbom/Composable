@@ -3,9 +3,10 @@ source 'https://rubygems.org'
 gem 'wdm', '>= 0.1.0' if Gem.win_platform?
 gem 'jekyll', '~> 3.3.1'
 gem 'rake-jekyll', '~> 1.1.0'
-gem 'pygments.rb'
 
 group :jekyll_plugins do
-  gem 'jekyll-asciidoc'
-     gem 'jekyll-livereload'
+  gem 'jekyll-asciidoc', ">= 2.1.0.dev"
+  gem 'jekyll-livereload'
+  gem 'pygments.rb'
+  gem 'asciidoctor-diagram', '~> 1.4.0'
 end

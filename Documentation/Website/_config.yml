@@ -43,5 +43,6 @@ asciidoctor:
     - idseparator=_
     - stylesdir=vendor-css
     - imagesdir=images
+    - imagesoutdir=images
     - source-highlighter=pygments
     - icons=font

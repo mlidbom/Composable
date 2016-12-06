@@ -9,6 +9,7 @@ using Composable.CQRS.EventSourcing.MicrosoftSQLServer;
 using Composable.CQRS.Testing;
 using Composable.System.Linq;
 using Composable.SystemExtensions.Threading;
+using FluentAssertions;
 using NUnit.Framework;
 
 namespace CQRS.Tests.CQRS.EventSourcing.Sql
@@ -71,6 +72,7 @@ namespace CQRS.Tests.CQRS.EventSourcing.Sql
             using (var session = OpenSession(CreateStore()))
             {
                 var userHistory = ((IEventStoreReader)session).GetHistory(user.Id).ToArray();//Reading the aggregate will throw an exception if the history is invalid.
+                userHistory.Length.Should().Be(22);//Make sure that all of the transactions completed
             }
         }
 

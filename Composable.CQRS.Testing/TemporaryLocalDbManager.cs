@@ -41,6 +41,7 @@ namespace CQRS.Tests
             _managerConnection = new SqlServerConnectionUtilities(sqlConnectionStringBuilder.ConnectionString);
 
             CreateManagerDB();
+            ReleaseOldLocks();
         }
 
         public void RegisterWithContainer(IWindsorContainer container)
@@ -50,54 +51,73 @@ namespace CQRS.Tests
         }
 
         private readonly Dictionary<string, ManagedLocalDb> _reservedDatabases = new Dictionary<string, ManagedLocalDb>();
-        private bool _disposed;        
+        private bool _disposed;
 
         public string CreateOrGetLocalDb(string requestedDbName)
         {
-            using(var transaction = new TransactionScope())
+            Contract.Assert(!_disposed, "Attempt to use disposed object");
+            ManagedLocalDb dbName;
+            if(!_reservedDatabases.TryGetValue(requestedDbName, out dbName))
             {
-                Contract.Assert(!_disposed, "Attempt to use disposed object");
-                if(!_reservedDatabases.ContainsKey(requestedDbName))
+                using(var transaction = new TransactionScope())
                 {
-                    string dbName;
                     if(TryReserveDatabase(out dbName))
                     {
-                        _reservedDatabases.Add(
-                            requestedDbName,
-                            new ManagedLocalDb(name: dbName, connectionString: ConnectionStringForDbNamed(dbName)));
+                        _reservedDatabases.Add(requestedDbName,dbName);
                     }
                     else
                     {
                         // ReSharper disable once AssignNullToNotNullAttribute
-                        dbName = $"TemporaryLocalDbManager_{Guid.NewGuid()}.mdf";
+                        var newDBName = $"TemporaryLocalDbManager_{Guid.NewGuid()}.mdf";
+                        dbName = new ManagedLocalDb(newDBName, isEmpty:true, isFree:false, reservationDate:DateTime.UtcNow, connectionString: ConnectionStringForDbNamed(newDBName));
 
                         using(new TransactionScope(TransactionScopeOption.Suppress))
                         {
-                            _masterConnection.ExecuteNonQuery($"CREATE DATABASE [{dbName}]");
+                            _masterConnection.ExecuteNonQuery($"CREATE DATABASE [{dbName.Name}]");
                         }
 
-                        InsertDatabase(dbName);
+                        InsertDatabase(dbName.Name);
 
-                        _reservedDatabases.Add(requestedDbName,new ManagedLocalDb(name: dbName, connectionString: ConnectionStringForDbNamed(dbName)));
+                        _reservedDatabases.Add(requestedDbName,dbName);
                     }
+                    transaction.Complete();
                 }
-
-                transaction.Complete();
-                return _reservedDatabases[requestedDbName].ConnectionString;
             }
+
+            if(!dbName.IsEmpty)
+            {
+                EmptyOutDatase(dbName.Name);
+            }
+
+
+            return _reservedDatabases[requestedDbName].ConnectionString;
         }
 
+        private static readonly HashSet<string> ConnectionStringsWithKnownManagerDb = new HashSet<string>();
         private bool ManagerDbExists()
         {
-            return (int)_masterConnection.ExecuteScalar($"select count(*) from sys.databases where name = '{ManagerDbName}'") == 1;
+            if(!ConnectionStringsWithKnownManagerDb.Contains(_masterConnectionString))
+            {
+                if(_masterConnection.ExecuteScalar($"select DB_ID('{ManagerDbName}')") == DBNull.Value)
+                {
+                    return false;
+                }
+            }
+
+            ConnectionStringsWithKnownManagerDb.Add(_masterConnectionString);           
+            return true;
         }
 
         private void CreateManagerDB()
         {
-            if(!ManagerDbExists())
+            lock(typeof(TemporaryLocalDbManager))
             {
-                _masterConnection.ExecuteNonQuery($"CREATE DATABASE [{ManagerDbName}]");
-                _managerConnection.ExecuteNonQuery(CreateDbTableSql);
+                if (!ManagerDbExists())
+                {
+                    _masterConnection.ExecuteNonQuery($"CREATE DATABASE [{ManagerDbName}]");
+                    _managerConnection.ExecuteNonQuery(CreateDbTableSql);
+                    ConnectionStringsWithKnownManagerDb.Add(_masterConnectionString);
+                }
             }
         }
 
@@ -106,6 +126,7 @@ namespace CQRS.Tests
             public static readonly string TableName = "Databases";
             public static readonly string DatabaseName = nameof(DatabaseName);
             public static readonly string IsFree = nameof(IsFree);
+            public static readonly string IsClean = nameof(IsClean);
             public static readonly string ReservationDate = nameof(ReservationDate);
         }
 
@@ -113,6 +134,7 @@ namespace CQRS.Tests
 CREATE TABLE [dbo].[{ManagerTableSchema.TableName}](
 	[{ManagerTableSchema.DatabaseName}] [varchar](500) NOT NULL,
 	[{ManagerTableSchema.IsFree}] [bit] NOT NULL,
+    [{ManagerTableSchema.IsClean}] [bit] NOT NULL,
     [{ManagerTableSchema.ReservationDate}] [datetime] NOT NULL
  CONSTRAINT [PK_DataBases] PRIMARY KEY CLUSTERED 
 (
@@ -127,15 +149,15 @@ CREATE TABLE [dbo].[{ManagerTableSchema.TableName}](
             return sqlConnectionStringBuilder.ConnectionString;
         }
 
-        private bool TryReserveDatabase(out string databaseName)
+        private bool TryReserveDatabase(out ManagedLocalDb databaseName)
         {
 
             databaseName = null;
-            var freeDbs = FreeDatabases();
+            var freeDbs = GetDatabases().Where(db => db.IsFree).ToList();
             if(freeDbs.Any())
             {
                 databaseName = freeDbs.First();
-                ReserveDatabase(databaseName);
+                ReserveDatabase(databaseName.Name);
                 return true;
             }
             return false;
@@ -143,48 +165,46 @@ CREATE TABLE [dbo].[{ManagerTableSchema.TableName}](
 
         private void ReserveDatabase(string dbName)
         {
-            _managerConnection.ExecuteNonQuery($"update {ManagerTableSchema.TableName} set {ManagerTableSchema.IsFree} = 0, {ManagerTableSchema.ReservationDate} = getdate() where {ManagerTableSchema.DatabaseName} = '{dbName}'");
+            _managerConnection.ExecuteNonQuery($"update {ManagerTableSchema.TableName} set {ManagerTableSchema.IsFree} = 0, {ManagerTableSchema.IsClean} = 0, {ManagerTableSchema.ReservationDate} = getdate() where {ManagerTableSchema.DatabaseName} = '{dbName}'");
+        }
+
+        private void EmptyOutDatase(string dbName)
+        {
             new SqlServerConnectionUtilities(ConnectionStringForDbNamed(dbName))
                 .UseConnection(connection => connection.DropAllObjects());
-            
         }
 
         private void InsertDatabase(string dbName)
         {
             _managerConnection.ExecuteNonQuery(
-                $"insert {ManagerTableSchema.TableName} ({ManagerTableSchema.DatabaseName}, {ManagerTableSchema.IsFree}, {ManagerTableSchema.ReservationDate}) values('{dbName}', 0, getdate())");
+                $"insert {ManagerTableSchema.TableName} ({ManagerTableSchema.DatabaseName}, {ManagerTableSchema.IsFree},{ManagerTableSchema.IsClean}, {ManagerTableSchema.ReservationDate}) values('{dbName}', 0, 1, getdate())");
         }
 
         private void ReleaseDatabase(ManagedLocalDb managedLocalDb)
         {
             _reservedDatabases.Remove(managedLocalDb.Name);
-
-            using (var conn = new SqlConnection(managedLocalDb.ConnectionString))
-            {
-                SqlConnection.ClearPool(conn);
-            }
-
-            _managerConnection.ExecuteNonQuery($"update {ManagerTableSchema.TableName} set {ManagerTableSchema.IsFree} = 1 where {ManagerTableSchema.DatabaseName} = '{managedLocalDb.Name}'");            
+            Task.Run(() =>
+                    {
+                        EmptyOutDatase(managedLocalDb.Name);
+                        _managerConnection.ExecuteNonQuery(
+                            $"update {ManagerTableSchema.TableName} set {ManagerTableSchema.IsFree} = 1, {ManagerTableSchema.IsClean} = 1  where {ManagerTableSchema.DatabaseName} = '{managedLocalDb.Name}'");
+                    }
+                );
         }
 
-        private IEnumerable<string> FreeDatabases()
+        private IEnumerable<ManagedLocalDb> GetDatabases()
         {
-            ReleaseOldLocks();
             return _managerConnection.UseCommand(
                 command =>
                 {
-                    var names = new List<string>();
-                    command.CommandText = $"select {ManagerTableSchema.DatabaseName}, {ManagerTableSchema.IsFree} from {ManagerTableSchema.TableName} With(TABLOCKX)";
+                    var names = new List<ManagedLocalDb>();
+                    command.CommandText =
+                        $"select {ManagerTableSchema.DatabaseName}, {ManagerTableSchema.IsFree}, {ManagerTableSchema.IsClean}, {ManagerTableSchema.ReservationDate} from {ManagerTableSchema.TableName} With(TABLOCKX)";
                     using(var reader = command.ExecuteReader())
                     {
                         while(reader.Read())
                         {
-                            var dbName = reader.GetString(0);
-                            var isFree = reader.GetBoolean(1);
-                            if(isFree)
-                            {                                
-                                names.Add(dbName);
-                            }
+                            names.Add(new ManagedLocalDb(name:reader.GetString(0), isFree: reader.GetBoolean(1), isEmpty: reader.GetBoolean(2), reservationDate: reader.GetDateTime(3), connectionString:ConnectionStringForDbNamed(reader.GetString(0))));
                         }
                     }
                     return names;
@@ -194,7 +214,7 @@ CREATE TABLE [dbo].[{ManagerTableSchema.TableName}](
         private void ReleaseOldLocks()
         {
             _managerConnection.ExecuteNonQuery(
-                $"update {ManagerTableSchema.TableName} With(TABLOCKX) set {ManagerTableSchema.IsFree} = 1 where {ManagerTableSchema.ReservationDate} < dateadd(minute, -60, getdate())");
+                $"update {ManagerTableSchema.TableName} With(TABLOCKX) set {ManagerTableSchema.IsFree} = 1 where {ManagerTableSchema.ReservationDate} < dateadd(minute, -10, getdate())");
         }
 
         public void Dispose()
@@ -220,10 +240,16 @@ CREATE TABLE [dbo].[{ManagerTableSchema.TableName}](
         private class ManagedLocalDb
         {
             public string Name { get; }
+            public bool IsEmpty { get; set; }
+            public bool IsFree { get; set; }
+            public DateTime ReservationDate { get; set; }
             public string ConnectionString { get; }
-            public ManagedLocalDb(string name, string connectionString)
+            public ManagedLocalDb(string name, bool isEmpty, bool isFree, DateTime reservationDate,  string connectionString)
             {
                 Name = name;
+                IsEmpty = isEmpty;
+                IsFree = isFree;
+                ReservationDate = reservationDate;
                 ConnectionString = connectionString;
             }
         }

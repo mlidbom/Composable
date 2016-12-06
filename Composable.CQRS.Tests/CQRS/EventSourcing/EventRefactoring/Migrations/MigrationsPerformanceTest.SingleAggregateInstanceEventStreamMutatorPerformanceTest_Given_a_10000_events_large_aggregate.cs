@@ -27,7 +27,7 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
                                        .SelectMany(
                                            index => 1.Through(996)
                                                      .Select(_ => typeof(E1))
-                                                     .Concat(Seq.OfTypes<E2, E4, E6, E8>())));
+                                                     .Concat(Seq.OfTypes<E2, E4, E6, E8>()))).ToList();
 
             var aggregate = TestAggregate.FromEvents(DummyTimeSource.Now, Guid.NewGuid(), historyTypes);
             _history = aggregate.History.Cast<AggregateRootEvent>().ToList();
@@ -67,9 +67,9 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
             var maxAverage = TestEnvironmentPerformance.AdjustRuntime(15.Milliseconds(), boost: 2);
 
             TimeAsserter.Execute(
-                maxAverage: maxAverage,
-                iterations: 10,
+                maxTotal: maxAverage,
                 description: "load aggregate in isolated scope",
+                maxTries:10,
                 timeFormat: "ss\\.fff",
                 action: () => { SingleAggregateInstanceEventStreamMutator.MutateCompleteAggregateHistory(eventMigrations, _history); });
         }
@@ -87,8 +87,8 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
             var maxAverage = 10.Milliseconds().AdjustRuntimeForNCrunch(boost: 6);
 
             TimeAsserter.Execute(
-                maxAverage: maxAverage,
-                iterations: 10,
+                maxTotal: maxAverage,
+                maxTries: 10,
                 description: "load aggregate in isolated scope",
                 timeFormat: "ss\\.fff",
                 action: () => { SingleAggregateInstanceEventStreamMutator.MutateCompleteAggregateHistory(eventMigrations, _history); });

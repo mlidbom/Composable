@@ -5,19 +5,19 @@
     <meta charset="utf-8" />
     <meta http-equiv="x-ua-compatible" content="ie=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="stylesheet" href="/Composable/vendor/foundation-6.2.4-complete.zip/css/foundation.css">
+    <link rel="stylesheet" href="/vendor/foundation-6.2.4-complete.zip/css/foundation.css">
     <!--End foundation template lines-->
 
 
-    <link rel="stylesheet" href="/Composable/vendor-css/font-awesome-4.7.0.min.css">
-    <link rel="stylesheet" href="/Composable/vendor-css/asciidoctor.css">
-    <link rel="stylesheet" href="/Composable/vendor-css/asciidoc-pygments-manual.css">
+    <link rel="stylesheet" href="/vendor-css/font-awesome-4.7.0.min.css">
+    <link rel="stylesheet" href="/vendor-css/asciidoctor.css">
+    <link rel="stylesheet" href="/vendor-css/asciidoc-pygments-manual.css">
 
 
     <meta name="description" content="A .Net toolkit making CQRS, Event Sourcing, Event Driven Architecture, VEST testing and DDD simpler and more productive.
 ">
-    <link rel="stylesheet" href="/Composable/styles/app.css">
-    <link rel="shortcut icon" type="image/x-icon" href="/Composable/favicon.ico?">
+    <link rel="stylesheet" href="/styles/app.css">
+    <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?">
 </head>
 <body>
     <div class="row">
@@ -28,18 +28,18 @@
         <ul class="dropdown menu" data-dropdown-menu>
             <li class="menu-text">Composable Toolkit</li>
             <li>
-                <a href="/Composable/">Home</a>
+                <a href="/">Home</a>
             </li>
             <li>
-                <a href="/Composable/documentation/">Documentation</a>
+                <a href="/documentation/">Documentation</a>
                 <ul class="menu">
                     <li>
-                        <a href="/Composable/documentation/">Written</a>
+                        <a href="/documentation/">Written</a>
                     </li>
                     <li>
-                        <a href="/Composable/apidoc/">API</a>
+                        <a href="/apidoc/">API</a>
                         <ul class="menu">
-                            <li><a href="/Composable/apidocs/3.4.6">Version 3.4.6</a></li>
+                            <li><a href="/apidocs/3.4.6">Version 3.4.6</a></li>
                         </ul>
                     </li>
                 </ul>
@@ -53,18 +53,209 @@
             <div class="large-3 large-push-9 columns page-toc" data-sticky-container>
     <nav data-sticky data-options="marginTop:4;stickyOn:large">
         <h4>TOC</h4>
-        <ul class="sectlevel1">
-<li><a href="#introduction">1. Introduction</a></li>
+        <ul class="sectlevel0">
+<li><a href="#basic_concepts">Basic Concepts</a>
+<ul class="sectlevel1">
+<li><a href="#messaging">1. Messaging</a>
+<ul class="sectlevel2">
+<li><a href="#required_terms">1.1. Required terms</a></li>
+<li><a href="#service_bus">1.2. Service Bus</a></li>
+<li><a href="#semantic_routing">1.3. Semantic Routing</a></li>
+</ul>
+</li>
+<li><a href="#service_bus_2">2. Service Bus</a>
+<ul class="sectlevel2">
+<li><a href="#why_use_a_service_bus">2.1. Why use a service bus?</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="#components_basics">Components Basics</a>
+<ul class="sectlevel1">
+<li><a href="#event_store_basics">3. Event Store Basics</a></li>
+</ul>
+</li>
+<li><a href="#components_advanced">Components Advanced</a>
+<ul class="sectlevel1">
+<li><a href="#refactoring_event_streams">4. Refactoring Event Streams</a></li>
+</ul>
+</li>
 </ul>
     </nav>
 </div>
         
 
         <div class="large-9 large-pull-3 columns asciidoc" role="content">
-    <div id="preamble">
+    <h1 id="basic_concepts" class="sect0">Basic Concepts</h1>
+<div class="sect1">
+<h2 id="messaging">1. Messaging</h2>
 <div class="sectionbody">
-<div class="paragraph lead">
-<p>Welcome to the Composable documentation!</p>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+The code blocks in this section contain pseudo code for illustration purposes.
+It is not compatible with any specific library.
+</td>
+</tr>
+</table>
+</div>
+<div class="sect2">
+<h3 id="required_terms">1.1. Required terms</h3>
+<div class="dlist">
+<dl>
+<dt class="hdlist1">Message</dt>
+<dd>
+<p>An object that is used to send data to a receiver.</p>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-tip" title="Tip"></i>
+</td>
+<td class="content">
+In principle every method invocation is client code sending a message to a receiving object.
+The message type is the complete method signature. The message is all of the passed arguments including the <code>this</code> reference.
+</td>
+</tr>
+</table>
+</div>
+</dd>
+<dt class="hdlist1">Message Type</dt>
+<dd>
+<p>The System.Type returned by <code>message.GetType()</code>.</p>
+</dd>
+<dt class="hdlist1">Message Handler</dt>
+<dd>
+<p>A function, that takes a message as a parameter.</p>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="csharp"><span class="tok-k">void</span> <span class="tok-nf">Handle</span><span class="tok-p">(</span><span class="tok-n">RegisterAccountCommand</span> <span class="tok-n">command</span><span class="tok-p">)</span></code></pre>
+</div>
+</div>
+</dd>
+<dt class="hdlist1">Command</dt>
+<dd>
+<p>A message that instructs the handler to perform an action.</p>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="csharp"><span class="tok-k">class</span> <span class="tok-nc">RegisterAccountCommand</span>
+<span class="tok-p">{</span>
+    <span class="tok-n">Password</span> <span class="tok-n">Password</span> <span class="tok-p">{</span> <span class="tok-k">get</span><span class="tok-p">;</span> <span class="tok-p">}</span>
+    <span class="tok-n">Email</span> <span class="tok-n">Email</span> <span class="tok-p">{</span> <span class="tok-k">set</span><span class="tok-p">;</span> <span class="tok-p">}</span>
+<span class="tok-p">}</span></code></pre>
+</div>
+</div>
+</dd>
+<dt class="hdlist1">Event</dt>
+<dd>
+<p>A message that informs handlers about something that has happened.</p>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="csharp"><span class="tok-k">interface</span> <span class="tok-n">IAccountRegisteredEvent</span>
+<span class="tok-p">{</span>
+    <span class="tok-n">Password</span> <span class="tok-n">Password</span> <span class="tok-p">{</span> <span class="tok-k">get</span><span class="tok-p">;</span> <span class="tok-p">}</span>
+    <span class="tok-n">Email</span> <span class="tok-n">Email</span> <span class="tok-p">{</span> <span class="tok-k">get</span><span class="tok-p">;</span> <span class="tok-p">}</span>
+<span class="tok-p">}</span></code></pre>
+</div>
+</div>
+</dd>
+<dt class="hdlist1">Query</dt>
+<dd>
+<p>A message that asks the handler to supply some data.</p>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="csharp"><span class="tok-k">class</span> <span class="tok-nc">RecentlyRegisteredAccountsQuery</span>
+<span class="tok-p">{</span>
+    <span class="tok-n">TimeSpan</span> <span class="tok-n">MaxAge</span> <span class="tok-p">{</span> <span class="tok-k">get</span><span class="tok-p">;</span> <span class="tok-p">}</span>
+<span class="tok-p">}</span></code></pre>
+</div>
+</div>
+</dd>
+<dt class="hdlist1">Message Routing</dt>
+<dd>
+<p>The mechanism by which messages are delivered to message handlers.</p>
+</dd>
+</dl>
+</div>
+</div>
+<div class="sect2">
+<h3 id="service_bus">1.2. Service Bus</h3>
+<div class="paragraph">
+<p>A service bus decouples service providers from service consumers by introducing a messaging layer.
+Instead of clients calling methods on service instances, clients send and receive messages on the bus.</p>
+</div>
+<div class="listingblock">
+<div class="title">Manual service invokation requires an instance of the service.</div>
+<div class="content">
+<pre class="pygments highlight"><code>serviceInstance.RegisterAccount(arguments....</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">Client don&#8217;t even know where the service is when accessing it across a bus</div>
+<div class="content">
+<pre class="pygments highlight"><code data-lang="csharp"><span class="tok-n">bus</span><span class="tok-p">.</span><span class="tok-n">Execute</span><span class="tok-p">(</span><span class="tok-k">new</span> <span class="tok-n">RegisterAccountCommand</span><span class="tok-p">(</span></code></pre>
+</div>
+</div>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-tip" title="Tip"></i>
+</td>
+<td class="content">
+The <a href="#servicebus-benefits">benefits of this decoupling</a> may not be obvious, but they are profound.
+</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect2">
+<h3 id="semantic_routing">1.3. Semantic Routing</h3>
+<div class="paragraph">
+<p>A set of rules for routing that are simple but powerful.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>If a message handler can handle a message then it is a handler for that message.</p>
+</li>
+<li>
+<p>A command must have exactly one handler.</p>
+</li>
+<li>
+<p>A query must have exactly one handler.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>While the rules might be simple their consequences can take some getting used to.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="csharp"><span class="tok-k">interface</span> <span class="tok-n">IA</span>
+<span class="tok-k">interface</span> <span class="tok-n">IB</span> <span class="tok-p">:</span> <span class="tok-n">IA</span>
+<span class="tok-k">interface</span> <span class="tok-n">IC</span> <span class="tok-p">:</span> <span class="tok-n">IB</span>
+
+<span class="tok-k">void</span> <span class="tok-nf">HandleA</span><span class="tok-p">(</span><span class="tok-n">IAEvent</span> <span class="tok-c1">//Handles IA, IB and IC</span>
+<span class="tok-k">void</span> <span class="tok-nf">HandleB</span><span class="tok-p">(</span><span class="tok-n">IBEvent</span> <span class="tok-c1">//Handles  IB and IC</span>
+<span class="tok-k">void</span> <span class="tok-nf">HandleC</span><span class="tok-p">(</span><span class="tok-n">IBEvent</span> <span class="tok-c1">//Handles only IC</span></code></pre>
+</div>
+</div>
+<div class="admonitionblock warning">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-warning" title="Warning"></i>
+</td>
+<td class="content">
+Commands and queries must have exactly one handler or an exception is thrown.
+</td>
+</tr>
+</table>
 </div>
 <div class="admonitionblock note">
 <table>
@@ -73,15 +264,33 @@
 <i class="fa icon-note" title="Note"></i>
 </td>
 <td class="content">
-API Documentation is available here: <a href="../apidocs/3.4.6">3.4.6</a>
+An event can have any number of handlers from 0 and up. When an event is published all the handlers receive the event.
 </td>
 </tr>
 </table>
 </div>
 </div>
 </div>
+</div>
 <div class="sect1">
-<h2 id="introduction">1. Introduction</h2>
+<h2 id="service_bus_2">2. Service Bus</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="why_use_a_service_bus">2.1. Why use a service bus?</h3>
+
+</div>
+</div>
+</div>
+<h1 id="components_basics" class="sect0">Components Basics</h1>
+<div class="sect1">
+<h2 id="event_store_basics">3. Event Store Basics</h2>
+<div class="sectionbody">
+
+</div>
+</div>
+<h1 id="components_advanced" class="sect0">Components Advanced</h1>
+<div class="sect1">
+<h2 id="refactoring_event_streams">4. Refactoring Event Streams</h2>
 <div class="sectionbody">
 
 </div>
@@ -100,10 +309,10 @@ API Documentation is available here: <a href="../apidocs/3.4.6">3.4.6</a>
     </div>
 </footer>
 
-    <script src="/Composable/vendor/foundation-6.2.4-complete.zip/js/vendor/jquery.js"></script>
-<script src="/Composable/vendor/foundation-6.2.4-complete.zip/js/vendor/what-input.js"></script>
-<script src="/Composable/vendor/foundation-6.2.4-complete.zip/js/vendor/foundation.js"></script>
-<script src="/Composable/js/app.js"></script>
+    <script src="/vendor/foundation-6.2.4-complete.zip/js/vendor/jquery.js"></script>
+<script src="/vendor/foundation-6.2.4-complete.zip/js/vendor/what-input.js"></script>
+<script src="/vendor/foundation-6.2.4-complete.zip/js/vendor/foundation.js"></script>
+<script src="/js/app.js"></script>
 
 </body>
 </html>

@@ -1,0 +1,104 @@
+
+== Messaging
+NOTE: The code blocks in this section contain pseudo code for illustration purposes.
+It is not compatible with any specific library.
+
+=== Required terms
+Message::
+An object that is used to send data to a receiver.
++
+TIP: In principle every method invocation is client code sending a message to a receiving object.
+The message type is the complete method signature. The message is all of the passed arguments including the `this` reference.
+
+Message Type::
+The System.Type returned by `message.GetType()`.
+
+Message Handler::
+A function, that takes a message as a parameter.
++
+[source,csharp]
+----
+void Handle(RegisterAccountCommand command)
+----
+
+Command::
+A message that instructs the handler to perform an action.
++
+[source,csharp]
+----
+class RegisterAccountCommand
+{
+    Password Password { get; }
+    Email Email { set; }
+}
+----
+
+Event::
+A message that informs handlers about something that has happened.
++
+[source,csharp]
+----
+interface IAccountRegisteredEvent
+{
+    Password Password { get; }
+    Email Email { get; }
+}
+----
+
+Query::
+A message that asks the handler to supply some data.
++
+[source,csharp]
+----
+class RecentlyRegisteredAccountsQuery
+{
+    TimeSpan MaxAge { get; }
+}
+----
+
+Message Routing::
+The mechanism by which messages are delivered to message handlers.
+
+=== Service Bus
+A service bus decouples service providers from service consumers by introducing a messaging layer.
+Instead of clients calling methods on service instances, clients send and receive messages on the bus.
+
+[source]
+.Manual service invokation requires an instance of the service.
+----
+serviceInstance.RegisterAccount(arguments....
+----
+
+[source,csharp]
+.Client don't even know where the service is when accessing it across a bus
+----
+bus.Execute(new RegisterAccountCommand(
+----
+
+TIP: The <<servicebus-benefits, benefits of this decoupling>> may not be obvious, but they are profound.
+
+
+=== Semantic Routing
+A set of rules for routing that are simple but powerful.
+
+* If a message handler can handle a message then it is a handler for that message.
+* A command must have exactly one handler.
+* A query must have exactly one handler.
+
+
+While the rules might be simple their consequences can take some getting used to.
+[source,csharp]
+----
+interface IA
+interface IB : IA
+interface IC : IB
+
+void HandleA(IAEvent //Handles IA, IB and IC
+void HandleB(IBEvent //Handles  IB and IC
+void HandleC(IBEvent //Handles only IC
+----
+
+WARNING: Commands and queries must have exactly one handler or an exception is thrown.
+
+NOTE: An event can have any number of handlers from 0 and up. When an event is published all the handlers receive the event.
+

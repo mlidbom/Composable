@@ -1,17 +1,20 @@
-code {
-  border: none; }
-
 [data-sticky] {
   width: 100%; }
 
 a {
   text-decoration: none; }
-  .asciidoc a {
-    text-decoration: underline; }
+
+.asciidoc code {
+  border: none;
+  padding: 0px; }
+.asciidoc table {
+  width: auto; }
+.asciidoc a {
+  text-decoration: underline; }
 
 .page-toc ul {
   list-style-type: none; }
-  .page-toc ul.sectlevel1 {
+  .page-toc ul.sectlevel0 {
     margin-left: 0px; }
 .page-toc nav {
   overflow-y: auto;

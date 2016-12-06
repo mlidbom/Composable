@@ -1,25 +1,30 @@
 $font-color: #2156a5;
 $font-color-inverted: #fefefe;
 
-code{
-  border: none; //Reset silly foundation default that messes up code
-}
-
 [data-sticky]{
   width: 100%; //Required by the sticky component
 }
 
-a {
-  text-decoration: none;
-  .asciidoc & {
-    text-decoration: underline;
+a { text-decoration: none; }
+
+.asciidoc {
+  code {
+    border: none; //Reset silly foundation default that messes up code
+    padding: 0px;
   }
+  table {
+    width: auto;
+  }
+
+  a { text-decoration: underline; }
 }
+
+
 
 .page-toc {
   ul{
     list-style-type: none;
-    &.sectlevel1{
+    &.sectlevel0 {
       margin-left: 0px;
     }
   }

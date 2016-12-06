@@ -1,0 +1,15 @@
+﻿<ProjectConfiguration>
+  <Settings>
+    <AdditionalFilesToIncludeForProject>
+      <Value>bin\Debug\Castle.Windsor.dll</Value>
+      <Value>bin\Debug\log4net.dll</Value>
+      <Value>bin\Debug\Castle.Core.dll</Value>
+      <Value>bin\Debug\Newtonsoft.Json.dll</Value>
+    </AdditionalFilesToIncludeForProject>
+    <CopyReferencedAssembliesToWorkspace>True</CopyReferencedAssembliesToWorkspace>
+    <HiddenComponentWarnings>
+      <Value>CopyReferencedAssembliesToWorkspaceIsOn</Value>
+    </HiddenComponentWarnings>
+    <PreviouslyBuiltSuccessfully>True</PreviouslyBuiltSuccessfully>
+  </Settings>
+</ProjectConfiguration>

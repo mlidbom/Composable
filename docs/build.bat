@@ -1,1 +1,0 @@
-bundle.bat exec jekyll build --destination ../../docs

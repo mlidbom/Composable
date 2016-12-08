@@ -90,7 +90,7 @@
 <h2 id="messaging">1. Messaging</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>Any method call can, if you squint, be viewed as one object sending a message to another object object.
+<p>Any method call can, if you squint, be viewed as one object sending a message to another object.
 However, this ties the sender to the receiver in a very tight way.
 Great benefits can be had by making the message passing explicit.
 By sending messages to a receiver through some intermediary rather than directly.
@@ -176,7 +176,7 @@ The bus is responsible for routing the messages to the appropriate handler(s) an
 <div class="listingblock">
 <div class="title">Client don&#8217;t even know where the service is when accessing it across a bus</div>
 <div class="content">
-<pre class="pygments highlight"><code data-lang="csharp"><span class="tok-n">bus</span><span class="tok-p">.</span><span class="tok-n">Execute</span><span class="tok-p">(</span><span class="tok-k">new</span> <span class="tok-n">RegisterAccountCommand</span><span class="tok-p">(</span></code></pre>
+<pre class="pygments highlight"><code data-lang="csharp"><span class="tok-n">bus</span><span class="tok-p">.</span><span class="tok-n">Send</span><span class="tok-p">(</span><span class="tok-k">new</span> <span class="tok-n">RegisterAccountCommand</span><span class="tok-p">(</span></code></pre>
 </div>
 </div>
 <div class="admonitionblock tip">

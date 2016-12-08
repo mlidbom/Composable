@@ -58,26 +58,25 @@
 <ul class="sectlevel1">
 <li><a href="#messaging">1. Messaging</a>
 <ul class="sectlevel2">
-<li><a href="#required_terms">1.1. Required terms</a></li>
-<li><a href="#service_bus">1.2. Service Bus</a></li>
-<li><a href="#semantic_routing">1.3. Semantic Routing</a></li>
-</ul>
-</li>
-<li><a href="#service_bus_2">2. Service Bus</a>
-<ul class="sectlevel2">
-<li><a href="#why_use_a_service_bus">2.1. Why use a service bus?</a></li>
+<li><a href="#messaging_terms">1.1. Messaging terms</a></li>
+<li><a href="#semantic_routing">1.2. Semantic Routing</a></li>
 </ul>
 </li>
 </ul>
 </li>
 <li><a href="#components_basics">Components Basics</a>
 <ul class="sectlevel1">
-<li><a href="#event_store_basics">3. Event Store Basics</a></li>
+<li><a href="#event_store_basics">2. Event Store Basics</a>
+<ul class="sectlevel2">
+<li><a href="#aggregate_roots">2.1. Aggregate Roots</a></li>
+<li><a href="#the_event_store_session">2.2. The Event Store Session</a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li><a href="#components_advanced">Components Advanced</a>
 <ul class="sectlevel1">
-<li><a href="#refactoring_event_streams">4. Refactoring Event Streams</a></li>
+<li><a href="#refactoring_event_streams">3. Refactoring Event Streams</a></li>
 </ul>
 </li>
 </ul>
@@ -90,6 +89,24 @@
 <div class="sect1">
 <h2 id="messaging">1. Messaging</h2>
 <div class="sectionbody">
+<div class="paragraph">
+<p>Any method call can, if you squint, be viewed as one object sending a message to another object object.
+However, this ties the sender to the receiver in a very tight way.
+Great benefits can be had by making the message passing explicit.
+By sending messages to a receiver through some intermediary rather than directly.</p>
+</div>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-tip" title="Tip"></i>
+</td>
+<td class="content">
+Messaging is also known as message passing.
+</td>
+</tr>
+</table>
+</div>
 <div class="admonitionblock note">
 <table>
 <tr>
@@ -98,31 +115,21 @@
 </td>
 <td class="content">
 The code blocks in this section contain pseudo code for illustration purposes.
-It is not compatible with any specific library.
+It is not compatible with any specific library including Composable.
 </td>
 </tr>
 </table>
 </div>
 <div class="sect2">
-<h3 id="required_terms">1.1. Required terms</h3>
+<h3 id="messaging_terms">1.1. Messaging terms</h3>
+<div class="paragraph">
+<p>Here we define some terms as they are used in the context of this document.</p>
+</div>
 <div class="dlist">
 <dl>
 <dt class="hdlist1">Message</dt>
 <dd>
-<p>An object that is used to send data to a receiver.</p>
-<div class="admonitionblock tip">
-<table>
-<tr>
-<td class="icon">
-<i class="fa icon-tip" title="Tip"></i>
-</td>
-<td class="content">
-In principle every method invocation is client code sending a message to a receiving object.
-The message type is the complete method signature. The message is all of the passed arguments including the <code>this</code> reference.
-</td>
-</tr>
-</table>
-</div>
+<p>An object for the purpose of sending data to a receiver.</p>
 </dd>
 <dt class="hdlist1">Message Type</dt>
 <dd>
@@ -130,11 +137,58 @@ The message type is the complete method signature. The message is all of the pas
 </dd>
 <dt class="hdlist1">Message Handler</dt>
 <dd>
-<p>A function, that takes a message as a parameter.</p>
+<p>In principle just a function that takes a message as a parameter.</p>
 <div class="listingblock">
 <div class="content">
 <pre class="pygments highlight"><code data-lang="csharp"><span class="tok-k">void</span> <span class="tok-nf">Handle</span><span class="tok-p">(</span><span class="tok-n">RegisterAccountCommand</span> <span class="tok-n">command</span><span class="tok-p">)</span></code></pre>
 </div>
+</div>
+<div class="paragraph">
+<p>In practice most message handlers need to have one or more dependencies injected into them.
+In order to support this handlers are often required to be wrapped inside interfaces.
+ That way instances of implementing classes can be resolved from an IOC container easily.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight"><code data-lang="csharp"><span class="tok-k">interface</span> <span class="tok-n">IMessageHandler</span><span class="tok-p">&lt;</span><span class="tok-n">RegisterAccountCommand</span><span class="tok-p">&gt;</span>
+<span class="tok-p">{</span>
+    <span class="tok-k">void</span> <span class="tok-nf">Handle</span><span class="tok-p">(</span><span class="tok-n">RegisterAccountCommand</span> <span class="tok-n">aMessage</span><span class="tok-p">);</span>
+<span class="tok-p">}</span></code></pre>
+</div>
+</div>
+</dd>
+<dt class="hdlist1">Routing</dt>
+<dd>
+<p>The mechanism by which messages are delivered to handlers.</p>
+</dd>
+<dt class="hdlist1">Service Bus</dt>
+<dd>
+<p>A component which decouples message senders from message handlers.
+Instead of client code calling handler methods, clients send and receive messages via the bus.
+The bus is responsible for routing the messages to the appropriate handler(s) and invoking them.</p>
+<div class="listingblock">
+<div class="title">Manual service invokation requires an instance of the service.</div>
+<div class="content">
+<pre class="pygments highlight"><code>serviceInstance.RegisterAccount(arguments....</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">Client don&#8217;t even know where the service is when accessing it across a bus</div>
+<div class="content">
+<pre class="pygments highlight"><code data-lang="csharp"><span class="tok-n">bus</span><span class="tok-p">.</span><span class="tok-n">Execute</span><span class="tok-p">(</span><span class="tok-k">new</span> <span class="tok-n">RegisterAccountCommand</span><span class="tok-p">(</span></code></pre>
+</div>
+</div>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-tip" title="Tip"></i>
+</td>
+<td class="content">
+The benefits of this decoupling may not be obvious at first, but they are profound.
+</td>
+</tr>
+</table>
 </div>
 </dd>
 <dt class="hdlist1">Command</dt>
@@ -175,75 +229,43 @@ The message type is the complete method signature. The message is all of the pas
 </div>
 </div>
 </dd>
-<dt class="hdlist1">Message Routing</dt>
+<dt class="hdlist1">Command Handler</dt>
 <dd>
-<p>The mechanism by which messages are delivered to message handlers.</p>
+<p>A message handler for a command. Must ensure that the command is successfully executed or throw an exception.</p>
+</dd>
+<dt class="hdlist1">Query Handler</dt>
+<dd>
+<p>A message handler for a query. Must ensure that the query is successfully executed or throw an exception.</p>
+</dd>
+<dt class="hdlist1">Event Handler</dt>
+<dd>
+<p>A message handler for an event.</p>
+</dd>
+<dt class="hdlist1">Event Listener</dt>
+<dd>
+<p>Same as Event Handler.</p>
+</dd>
+<dt class="hdlist1">Subscribe</dt>
+<dd>
+<p>The action of registering an Event Handler with a service bus.</p>
+</dd>
+<dt class="hdlist1">Subscriber</dt>
+<dd>
+<p>An event handler registered on a service bus.</p>
+</dd>
+<dt class="hdlist1">Sending a command or query</dt>
+<dd>
+<p>Asking a service bus to deliver a message to its handler.</p>
+</dd>
+<dt class="hdlist1">Publishing an event</dt>
+<dd>
+<p>Sending an event to all it&#8217;s subscribers.</p>
+</dd>
+<dt class="hdlist1">Raising an event</dt>
+<dd>
+<p>Same as Publishing an event</p>
 </dd>
 </dl>
-</div>
-</div>
-<div class="sect2">
-<h3 id="service_bus">1.2. Service Bus</h3>
-<div class="paragraph">
-<p>A service bus decouples service providers from service consumers by introducing a messaging layer.
-Instead of clients calling methods on service instances, clients send and receive messages on the bus.</p>
-</div>
-<div class="listingblock">
-<div class="title">Manual service invokation requires an instance of the service.</div>
-<div class="content">
-<pre class="pygments highlight"><code>serviceInstance.RegisterAccount(arguments....</code></pre>
-</div>
-</div>
-<div class="listingblock">
-<div class="title">Client don&#8217;t even know where the service is when accessing it across a bus</div>
-<div class="content">
-<pre class="pygments highlight"><code data-lang="csharp"><span class="tok-n">bus</span><span class="tok-p">.</span><span class="tok-n">Execute</span><span class="tok-p">(</span><span class="tok-k">new</span> <span class="tok-n">RegisterAccountCommand</span><span class="tok-p">(</span></code></pre>
-</div>
-</div>
-<div class="admonitionblock tip">
-<table>
-<tr>
-<td class="icon">
-<i class="fa icon-tip" title="Tip"></i>
-</td>
-<td class="content">
-The <a href="#servicebus-benefits">benefits of this decoupling</a> may not be obvious, but they are profound.
-</td>
-</tr>
-</table>
-</div>
-</div>
-<div class="sect2">
-<h3 id="semantic_routing">1.3. Semantic Routing</h3>
-<div class="paragraph">
-<p>A set of rules for routing that are simple but powerful.</p>
-</div>
-<div class="ulist">
-<ul>
-<li>
-<p>If a message handler can handle a message then it is a handler for that message.</p>
-</li>
-<li>
-<p>A command must have exactly one handler.</p>
-</li>
-<li>
-<p>A query must have exactly one handler.</p>
-</li>
-</ul>
-</div>
-<div class="paragraph">
-<p>While the rules might be simple their consequences can take some getting used to.</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="pygments highlight"><code data-lang="csharp"><span class="tok-k">interface</span> <span class="tok-n">IA</span>
-<span class="tok-k">interface</span> <span class="tok-n">IB</span> <span class="tok-p">:</span> <span class="tok-n">IA</span>
-<span class="tok-k">interface</span> <span class="tok-n">IC</span> <span class="tok-p">:</span> <span class="tok-n">IB</span>
-
-<span class="tok-k">void</span> <span class="tok-nf">HandleA</span><span class="tok-p">(</span><span class="tok-n">IAEvent</span> <span class="tok-c1">//Handles IA, IB and IC</span>
-<span class="tok-k">void</span> <span class="tok-nf">HandleB</span><span class="tok-p">(</span><span class="tok-n">IBEvent</span> <span class="tok-c1">//Handles  IB and IC</span>
-<span class="tok-k">void</span> <span class="tok-nf">HandleC</span><span class="tok-p">(</span><span class="tok-n">IBEvent</span> <span class="tok-c1">//Handles only IC</span></code></pre>
-</div>
 </div>
 <div class="admonitionblock warning">
 <table>
@@ -252,45 +274,165 @@ The <a href="#servicebus-benefits">benefits of this decoupling</a> may not be ob
 <i class="fa icon-warning" title="Warning"></i>
 </td>
 <td class="content">
-Commands and queries must have exactly one handler or an exception is thrown.
+You should never talk about sending events.
+You always publish/Raise events.
+Keeping Send separate from Publish in your mind is fundamental to understanding.
+Trust us on this.
 </td>
 </tr>
 </table>
 </div>
-<div class="admonitionblock note">
+</div>
+<div class="sect2">
+<h3 id="semantic_routing">1.2. Semantic Routing</h3>
+<div class="paragraph">
+<p>Powerful, zero configuration, message type base routing.
+Extremely loose coupling between event publishers and handlers.</p>
+</div>
+<div class="sect3">
+<h4 id="definition">1.2.1. Definition</h4>
+<div class="ulist">
+<ul>
+<li>
+<p>Messages are delivered to every registered handler with a compatible argument type.</p>
+</li>
+<li>
+<p>Commands and query message types must have exactly one handler.</p>
+</li>
+</ul>
+</div>
+<div class="admonitionblock tip">
 <table>
 <tr>
 <td class="icon">
-<i class="fa icon-note" title="Note"></i>
+<i class="fa icon-tip" title="Tip"></i>
 </td>
 <td class="content">
-An event can have any number of handlers from 0 and up. When an event is published all the handlers receive the event.
+Note that the first rule is really just standard polymorphism.
+</td>
+</tr>
+</table>
+</div>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-tip" title="Tip"></i>
+</td>
+<td class="content">
+Semantic Routing is also known as "Polymorphic routing" or "Polymorphic  dispatching".
 </td>
 </tr>
 </table>
 </div>
 </div>
+<div class="sect3">
+<h4 id="clarifying_examples">1.2.2. Clarifying examples</h4>
+<div class="paragraph">
+<p>While the rules might be simple their consequences can be anything but.
+Let&#8217;s try some basic examples.</p>
 </div>
-</div>
-<div class="sect1">
-<h2 id="service_bus_2">2. Service Bus</h2>
-<div class="sectionbody">
-<div class="sect2">
-<h3 id="why_use_a_service_bus">2.1. Why use a service bus?</h3>
+<div class="listingblock">
+<div class="title">Given these event interfaces and implementing classes</div>
+<div class="content">
+<pre class="pygments highlight"><code data-lang="csharp"><span class="tok-k">interface</span> <span class="tok-n">IA</span>
+<span class="tok-k">interface</span> <span class="tok-n">IB</span> <span class="tok-p">:</span> <span class="tok-n">IA</span>
+<span class="tok-k">interface</span> <span class="tok-n">IC</span> <span class="tok-p">:</span> <span class="tok-n">IB</span>
 
+<span class="tok-k">class</span> <span class="tok-nc">A</span> <span class="tok-p">:</span> <span class="tok-n">IA</span> <span class="tok-p">{}</span>
+<span class="tok-k">class</span> <span class="tok-nc">B</span> <span class="tok-p">:</span> <span class="tok-n">IB</span> <span class="tok-p">{}</span>
+<span class="tok-k">class</span> <span class="tok-nc">C</span> <span class="tok-p">:</span> <span class="tok-n">IC</span> <span class="tok-p">{}</span></code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">And these handler methods registered on our service bus</div>
+<div class="content">
+<pre class="pygments highlight"><code data-lang="csharp"><span class="tok-k">void</span> <span class="tok-nf">HandleA</span><span class="tok-p">(</span><span class="tok-n">IAEvent</span> <span class="tok-c1">//Handles IA, IB and IC</span>
+<span class="tok-k">void</span> <span class="tok-nf">HandleB</span><span class="tok-p">(</span><span class="tok-n">IBEvent</span> <span class="tok-c1">//Handles IB and IC</span>
+<span class="tok-k">void</span> <span class="tok-nf">HandleC</span><span class="tok-p">(</span><span class="tok-n">IBEvent</span> <span class="tok-c1">//Handles only IC</span></code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">Let&#8217;s publish some events and examine the results.</div>
+<div class="content">
+<pre class="pygments highlight"><code data-lang="csharp"><span class="tok-n">serviceBus</span><span class="tok-p">.</span><span class="tok-n">Publish</span><span class="tok-p">(</span><span class="tok-k">new</span> <span class="tok-n">A</span><span class="tok-p">());</span> <span class="tok-c1">//Delivered to HandleA</span>
+<span class="tok-n">serviceBus</span><span class="tok-p">.</span><span class="tok-n">Publish</span><span class="tok-p">(</span><span class="tok-k">new</span> <span class="tok-n">B</span><span class="tok-p">());</span> <span class="tok-c1">//Delivered to HandleA and HandleB</span>
+<span class="tok-n">serviceBus</span><span class="tok-p">.</span><span class="tok-n">Publish</span><span class="tok-p">(</span><span class="tok-k">new</span> <span class="tok-n">C</span><span class="tok-p">());</span> <span class="tok-c1">//Delivered to HandleA, HandleB and HandleC</span></code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="loose_coupling_through_interfaces">1.2.3. Loose coupling through interfaces</h4>
+<div class="paragraph">
+<p>Working with events in terms of interfaces give a great mount of flexibility.
+Here is a partial list of things it is possible to do without having to change any code in any event listener.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Refactoring event classes</p>
+</li>
+<li>
+<p>Adding event classes</p>
+</li>
+<li>
+<p>Adding event interfaces</p>
+</li>
+<li>
+<p>Changing event inheritance hierarchy</p>
+</li>
+</ul>
+</div>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-tip" title="Tip"></i>
+</td>
+<td class="content">
+The benefits of this are hard to overstate.
+Make sure to remember to always think about events in terms of interfaces.
+The event classes are an implementation detail that should only ever be known by the code that publishes the event.
+</td>
+</tr>
+</table>
+</div>
+<div class="admonitionblock warning">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-warning" title="Warning"></i>
+</td>
+<td class="content">
+<strong>Never subscribe to an event class</strong>. You will lose all the benefits just discussed.
+</td>
+</tr>
+</table>
+</div>
+</div>
 </div>
 </div>
 </div>
 <h1 id="components_basics" class="sect0">Components Basics</h1>
 <div class="sect1">
-<h2 id="event_store_basics">3. Event Store Basics</h2>
+<h2 id="event_store_basics">2. Event Store Basics</h2>
 <div class="sectionbody">
+<div class="sect2">
+<h3 id="aggregate_roots">2.1. Aggregate Roots</h3>
 
+</div>
+<div class="sect2">
+<h3 id="the_event_store_session">2.2. The Event Store Session</h3>
+<div class="sect3">
+<h4 id="saving_and_loading_aggregate_roots">2.2.1. Saving and loading aggregate roots.</h4>
+
+</div>
+</div>
 </div>
 </div>
 <h1 id="components_advanced" class="sect0">Components Advanced</h1>
 <div class="sect1">
-<h2 id="refactoring_event_streams">4. Refactoring Event Streams</h2>
+<h2 id="refactoring_event_streams">3. Refactoring Event Streams</h2>
 <div class="sectionbody">
 
 </div>

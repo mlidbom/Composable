@@ -27,7 +27,7 @@ livereload: true
 stylesdir: vendor-css
 markdown: kramdown
 #destination: ../../docs
-keep_files: [apidocs,CNAME]
+keep_files: [apidocs,CNAME,.git]
 
 exclude:
   - README.adoc

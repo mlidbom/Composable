@@ -161,9 +161,9 @@ class C : IC {}
 [source,csharp]
 .And these handler methods registered on our service bus
 ----
-void HandleA(IAEvent //Handles IA, IB and IC
-void HandleB(IBEvent //Handles IB and IC
-void HandleC(ICEvent //Handles only IC
+void HandleA(IA //Handles IA, IB and IC
+void HandleB(IB //Handles IB and IC
+void HandleC(IC //Handles only IC
 ----
 
 [source,csharp]

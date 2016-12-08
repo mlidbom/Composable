@@ -57,7 +57,7 @@ serviceInstance.RegisterAccount(arguments....
 [source,csharp]
 .Client don't even know where the service is when accessing it across a bus
 ----
-bus.Execute(new RegisterAccountCommand(
+bus.Send(new RegisterAccountCommand(
 ----
 +
 TIP: The benefits of this decoupling may not be obvious at first, but they are profound.

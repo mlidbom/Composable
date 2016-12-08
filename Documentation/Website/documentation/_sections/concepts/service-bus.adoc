@@ -1,3 +1,0 @@
-== Service Bus
-
-=== Why use a service bus?

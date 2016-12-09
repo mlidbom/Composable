@@ -1,0 +1,1 @@
+powershell.exe -NoProfile -Command ./buildAndPublish.ps1

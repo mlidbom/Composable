@@ -86,13 +86,30 @@
 
         <div class="large-9 large-pull-3 columns asciidoc" role="content">
     <h1 id="basic_concepts" class="sect0">Basic Concepts</h1>
+<div class="openblock partintro">
+<div class="content">
+<div class="admonitionblock warning">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-warning" title="Warning"></i>
+</td>
+<td class="content">
+The code blocks in this section contain pseudo code for illustration purposes.
+It is not compatible with any specific library including Composable.
+</td>
+</tr>
+</table>
+</div>
+</div>
+</div>
 <div class="sect1">
 <h2 id="messaging">1. Messaging</h2>
 <div class="sectionbody">
 <div class="paragraph">
 <p>Any method call can, if you squint, be viewed as one object sending a message to another object.
-However, this ties the sender to the receiver in a very tight way.
-Great benefits can be had by making the message passing explicit.
+However, this ties the sender tightly to the receiver.
+Loose coupling benefits can be had by making the message passing explicit.
 By sending messages to a receiver through some intermediary rather than directly.
 Doing so is called messaging.</p>
 </div>
@@ -104,19 +121,6 @@ Doing so is called messaging.</p>
 </td>
 <td class="content">
 Messaging is also known as message passing.
-</td>
-</tr>
-</table>
-</div>
-<div class="admonitionblock note">
-<table>
-<tr>
-<td class="icon">
-<i class="fa icon-note" title="Note"></i>
-</td>
-<td class="content">
-The code blocks in this section contain pseudo code for illustration purposes.
-It is not compatible with any specific library including Composable.
 </td>
 </tr>
 </table>
@@ -260,7 +264,7 @@ The benefits of this decoupling may not be obvious at first, but they are profou
 </dd>
 <dt class="hdlist1">Publishing an event</dt>
 <dd>
-<p>Sending an event to all it&#8217;s subscribers.</p>
+<p>Delivering an event to all it&#8217;s subscribers.</p>
 </dd>
 <dt class="hdlist1">Raising an event</dt>
 <dd>
@@ -278,7 +282,6 @@ The benefits of this decoupling may not be obvious at first, but they are profou
 You should never talk about sending events.
 You always publish/Raise events.
 Keeping Send separate from Publish in your mind is fundamental to understanding.
-Trust us on this.
 </td>
 </tr>
 </table>
@@ -286,10 +289,6 @@ Trust us on this.
 </div>
 <div class="sect2">
 <h3 id="semantic_routing">1.2. Semantic Routing</h3>
-<div class="paragraph">
-<p>Powerful, zero configuration, message type base routing.
-Extremely loose coupling between event publishers and handlers.</p>
-</div>
 <div class="sect3">
 <h4 id="definition">1.2.1. Definition</h4>
 <div class="ulist">
@@ -329,10 +328,6 @@ Semantic Routing is also known as "Polymorphic routing" or "Polymorphic  dispatc
 </div>
 <div class="sect3">
 <h4 id="clarifying_examples">1.2.2. Clarifying examples</h4>
-<div class="paragraph">
-<p>While the rules might be simple their consequences can be anything but.
-Let&#8217;s try some basic examples.</p>
-</div>
 <div class="listingblock">
 <div class="title">Given these event interfaces and implementing classes</div>
 <div class="content">
@@ -365,7 +360,7 @@ Let&#8217;s try some basic examples.</p>
 <div class="sect3">
 <h4 id="loose_coupling_through_interfaces">1.2.3. Loose coupling through interfaces</h4>
 <div class="paragraph">
-<p>Working with events in terms of interfaces give a great mount of flexibility.
+<p>Working with events in terms of interfaces maintains flexibility.
 Here is a partial list of things it is possible to do without having to change any code in any event listener.</p>
 </div>
 <div class="ulist">
@@ -391,8 +386,7 @@ Here is a partial list of things it is possible to do without having to change a
 <i class="fa icon-tip" title="Tip"></i>
 </td>
 <td class="content">
-The benefits of this are hard to overstate.
-Make sure to remember to always think about events in terms of interfaces.
+Remember to think about events in terms of interfaces.
 The event classes are an implementation detail that should only ever be known by the code that publishes the event.
 </td>
 </tr>
@@ -405,7 +399,7 @@ The event classes are an implementation detail that should only ever be known by
 <i class="fa icon-warning" title="Warning"></i>
 </td>
 <td class="content">
-<strong>Never subscribe to an event class</strong>. You will lose all the benefits just discussed.
+<strong>Do not subscribe to event classes</strong>. You will lose the benefits just discussed.
 </td>
 </tr>
 </table>

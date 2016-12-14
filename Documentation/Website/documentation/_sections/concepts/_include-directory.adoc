@@ -1,5 +1,5 @@
 = Basic Concepts
-WARNING: The code blocks in this section contain pseudo code for illustration purposes.
+NOTE: The code blocks in this section contain pseudo code for illustration purposes.
 It is not compatible with any specific library including Composable.
 
 include::messaging.adoc[]

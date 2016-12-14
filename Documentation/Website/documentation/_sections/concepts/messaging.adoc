@@ -1,15 +1,12 @@
 
 == Messaging
 Any method call can, if you squint, be viewed as one object sending a message to another object.
-However, this ties the sender to the receiver in a very tight way.
-Great benefits can be had by making the message passing explicit.
+However, this ties the sender tightly to the receiver.
+Loose coupling benefits can be had by making the message passing explicit.
 By sending messages to a receiver through some intermediary rather than directly.
 Doing so is called messaging.
 
 TIP: Messaging is also known as message passing.
-
-NOTE: The code blocks in this section contain pseudo code for illustration purposes.
-It is not compatible with any specific library including Composable.
 
 === Messaging terms
 Here we define some terms as they are used in the context of this document.
@@ -119,7 +116,7 @@ Sending a command or query::
 Asking a service bus to deliver a message to its handler.
 
 Publishing an event::
-Sending an event to all it's subscribers.
+Delivering an event to all it's subscribers.
 
 Raising an event::
 Same as Publishing an event
@@ -127,12 +124,9 @@ Same as Publishing an event
 WARNING: You should never talk about sending events.
 You always publish/Raise events.
 Keeping Send separate from Publish in your mind is fundamental to understanding.
-Trust us on this.
 
 
 === Semantic Routing
-Powerful, zero configuration, message type base routing.
-Extremely loose coupling between event publishers and handlers.
 
 ==== Definition
 * Messages are delivered to every registered handler with a compatible argument type.
@@ -143,8 +137,6 @@ TIP: Note that the first rule is really just standard polymorphism.
 TIP: Semantic Routing is also known as "Polymorphic routing" or "Polymorphic  dispatching".
 
 ==== Clarifying examples
-While the rules might be simple their consequences can be anything but.
-Let's try some basic examples.
 
 [source,csharp]
 .Given these event interfaces and implementing classes
@@ -175,7 +167,7 @@ serviceBus.Publish(new C()); //Delivered to HandleA, HandleB and HandleC
 ----
 
 ==== Loose coupling through interfaces
-Working with events in terms of interfaces give a great mount of flexibility.
+Working with events in terms of interfaces maintains flexibility.
 Here is a partial list of things it is possible to do without having to change any code in any event listener.
 
 * Refactoring event classes
@@ -183,9 +175,8 @@ Here is a partial list of things it is possible to do without having to change a
 * Adding event interfaces
 * Changing event inheritance hierarchy
 
-TIP: The benefits of this are hard to overstate.
-Make sure to remember to always think about events in terms of interfaces.
+TIP: Remember to think about events in terms of interfaces.
 The event classes are an implementation detail that should only ever be known by the code that publishes the event.
 
-WARNING: *Never subscribe to an event class*. You will lose all the benefits just discussed.
+WARNING: *Do not subscribe to event classes*. You will lose the benefits just discussed.
 

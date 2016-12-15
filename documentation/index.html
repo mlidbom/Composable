@@ -25,7 +25,7 @@
 
         <div class="top-bar">
     <div class="top-bar-left">
-        <ul class="dropdown menu" data-dropdown-menu>
+        <ul class="dropdown menu" data-dropdown-menu data-close-on-click-inside="false">
             <li class="menu-text">Composable Toolkit</li>
             <li>
                 <a href="/">Home</a>
@@ -88,11 +88,11 @@
     <h1 id="basic_concepts" class="sect0">Basic Concepts</h1>
 <div class="openblock partintro">
 <div class="content">
-<div class="admonitionblock warning">
+<div class="admonitionblock note">
 <table>
 <tr>
 <td class="icon">
-<i class="fa icon-warning" title="Warning"></i>
+<i class="fa icon-note" title="Note"></i>
 </td>
 <td class="content">
 The code blocks in this section contain pseudo code for illustration purposes.
@@ -272,14 +272,13 @@ The benefits of this decoupling may not be obvious at first, but they are profou
 </dd>
 </dl>
 </div>
-<div class="admonitionblock warning">
+<div class="admonitionblock tip">
 <table>
 <tr>
 <td class="icon">
-<i class="fa icon-warning" title="Warning"></i>
+<i class="fa icon-tip" title="Tip"></i>
 </td>
 <td class="content">
-You should never talk about sending events.
 You always publish/Raise events.
 Keeping Send separate from Publish in your mind is fundamental to understanding.
 </td>
@@ -289,6 +288,18 @@ Keeping Send separate from Publish in your mind is fundamental to understanding.
 </div>
 <div class="sect2">
 <h3 id="semantic_routing">1.2. Semantic Routing</h3>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+Semantic routing is used throughout the toolkit. It is foundational for the Event Store, Service Bus, Query Model updaters and Generators&#8230;&#8203;
+</td>
+</tr>
+</table>
+</div>
 <div class="sect3">
 <h4 id="definition">1.2.1. Definition</h4>
 <div class="ulist">
@@ -308,7 +319,7 @@ Keeping Send separate from Publish in your mind is fundamental to understanding.
 <i class="fa icon-tip" title="Tip"></i>
 </td>
 <td class="content">
-Note that the first rule is really just standard polymorphism.
+The first rule is really just polymorphism.
 </td>
 </tr>
 </table>

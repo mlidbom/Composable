@@ -50,31 +50,55 @@
 
 
         
-            <div class="large-3 large-push-9 columns page-toc" data-sticky-container>
+            <div class="large-3 columns page-toc" data-sticky-container>
     <nav data-sticky data-options="marginTop:4;stickyOn:large">
         <h4>TOC</h4>
         <ul class="sectlevel1">
-<li><a href="#vest_testing_framework">Vest testing framework</a></li>
 <li><a href="#ioc_wiring_framework">IOC wiring framework</a></li>
+<li><a href="#vest_testing_framework">Vest testing framework</a></li>
 <li><a href="#event_store">Event store</a>
 <ul class="sectlevel2">
 <li><a href="#refactoring_support">Refactoring support</a></li>
 </ul>
 </li>
 <li><a href="#semantic_event_routing">Semantic Event Routing</a></li>
+<li><a href="#service_bus">Service Bus</a></li>
 </ul>
     </nav>
 </div>
         
 
-        <div class="large-9 large-pull-3 columns asciidoc" role="content">
+        <div class="large-9 columns asciidoc" role="content">
     <div id="preamble">
 <div class="sectionbody">
 <div class="paragraph">
 <p>Event driven SOA, Event Sourcing and CQRS constitutes an architecture that is far superior to classical architectures.
-In theory that is.
-In practice most teams struggle or fail to reach their goals with this architecture.
-The composable toolkit sets out to change that. To make this architecture just as superior in practice as in theory.</p>
+<strong>In theory.</strong>
+In practice most teams attempting this architecture struggle or fail.
+The composable toolkit sets out to change that.
+To make this architecture just as superior in practice as in theory.
+Over half a decade of production use practical solutions have been found for each significant roadblock encountered.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="ioc_wiring_framework">IOC wiring framework</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p>All Composable components provides built in wiring support including VEST testing support.</p>
+</li>
+<li>
+<p>Achieve better encapsulation and reusability of your libraries by having them provide their own wiring.</p>
+</li>
+<li>
+<p>Libraries request wiring from libraries they directly depend on only.</p>
+</li>
+<li>
+<p>Application bootstrappers request wiring from libraries they directly depend on only and the framework wires everything up correctly.</p>
+</li>
+</ul>
 </div>
 </div>
 </div>
@@ -87,11 +111,11 @@ The composable toolkit sets out to change that. To make this architecture just a
 <p>Get real confidence in your tests by running the full production code including IOC wiring when testing.</p>
 </li>
 <li>
-<p>All Composable components have functionally equivalent testing implementations.</p>
+<p>All Composable components have functionally equivalent <sup class="footnote" id="_footnote_testing-components-differences">[<a id="_footnoteref_1" class="footnote" href="#_footnote_1" title="View footnote.">1</a>]</sup> testing implementations.</p>
 <div class="ulist">
 <ul>
 <li>
-<p>Testing implementations pass the same tests as production implementations. <sup class="footnote">[<a id="_footnoteref_1" class="footnote" href="#_footnote_1" title="View footnote.">1</a>]</sup></p>
+<p>Testing implementations pass the same tests as production implementations. <sup class="footnoteref">[<a class="footnote" href="#_footnote_1" title="View footnote.">1</a>]</sup></p>
 </li>
 </ul>
 </div>
@@ -120,27 +144,6 @@ The composable toolkit sets out to change that. To make this architecture just a
 </div>
 </div>
 <div class="sect1">
-<h2 id="ioc_wiring_framework">IOC wiring framework</h2>
-<div class="sectionbody">
-<div class="ulist">
-<ul>
-<li>
-<p>All Composable components provides built in wiring support including VEST testing support.</p>
-</li>
-<li>
-<p>Achieve full encapsulation of your libraries by having them provide their own wiring.</p>
-</li>
-<li>
-<p>Libraries request wiring from direct dependencies.</p>
-</li>
-<li>
-<p>Application bootstrappers request wiring from direct dependencies and the framework wires everything up correctly.</p>
-</li>
-</ul>
-</div>
-</div>
-</div>
-<div class="sect1">
 <h2 id="event_store">Event store</h2>
 <div class="sectionbody">
 <div class="ulist">
@@ -155,7 +158,7 @@ The composable toolkit sets out to change that. To make this architecture just a
 <p>No pollution of public interfaces with event applier methods.</p>
 </li>
 <li>
-<p>Build complex aggregates by nesting components and entity collection to arbitrary depths.</p>
+<p>Build complex aggregates by nesting components and entity collections to arbitrary depths.</p>
 </li>
 <li>
 <p>Reduce the number of event appliers through semantic event routing. (Often by an order of magnitude or more).</p>
@@ -266,19 +269,58 @@ The composable toolkit sets out to change that. To make this architecture just a
 <p>Powerful tool for designing and reasoning about a domain.</p>
 </li>
 <li>
-<p>Decouple subscribers from publishers</p>
+<p>Decouple subscribers from publishers.</p>
 </li>
 <li>
-<p>Reduce the number of event appliers (Often by an order of magnitude or more)</p>
+<p>Reduce the number of required event appliers (Often by an order of magnitude or more)</p>
 </li>
 <li>
 <p>Reduce the number of required event handlers.</p>
 </li>
 <li>
-<p>Eliminate the need for new event appliers to handle new variations on existing events.</p>
+<p>Performant in-memory event routing components let you leverage semantic routing in your own components.
+<sup class="footnote">[<a id="_footnoteref_3" class="footnote" href="#_footnote_3" title="View footnote.">3</a>]</sup></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="service_bus">Service Bus</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p>Semantic Routing</p>
 </li>
 <li>
-<p>Reduce the need for new event handlers for new variations on existing events.</p>
+<p>Full TransactionScope and DTC support.</p>
+</li>
+<li>
+<p>Exactly once delivery.</p>
+</li>
+<li>
+<p>In order delivery. <sup class="footnote">[<a id="_footnoteref_4" class="footnote" href="#_footnote_4" title="View footnote.">4</a>]</sup></p>
+</li>
+<li>
+<p>Full VEST testing support including testing of sagas.</p>
+<div class="ulist">
+<ul>
+<li>
+<p>Step the DummyTimeSource forward and watch your sagas unfold as scheduled messages are sent.</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>in-process implementation</p>
+<div class="ulist">
+<ul>
+<li>
+<p>Easily switch between running a component in-process, remotely or both without changing either the sender or receiver of messages.</p>
+</li>
+</ul>
+</div>
 </li>
 </ul>
 </div>
@@ -287,10 +329,16 @@ The composable toolkit sets out to change that. To make this architecture just a
 <div id="footnotes">
 <hr>
 <div class="footnote" id="_footnote_1">
-<a href="#_footnoteref_1">1</a>. Some may bypass serialization or have different semantics when transactions fail.
+<a href="#_footnoteref_1">1</a>. Some testing implementations may bypass serialization or have different semantics when transactions fail.
 </div>
 <div class="footnote" id="_footnote_2">
 <a href="#_footnoteref_2">2</a>. The immutability of events allows for safe ubiquitous caching of events.
+</div>
+<div class="footnote" id="_footnote_3">
+<a href="#_footnoteref_3">3</a>. This is how many composable components are implemented internally. Such as the aggregate root, the query model updaters, the servicebuses etc.
+</div>
+<div class="footnote" id="_footnote_4">
+<a href="#_footnoteref_4">4</a>. On a per sender/receiver basis. Not guaranteed if a message handler fails after all level one retries.
 </div>
 </div>
 </div>

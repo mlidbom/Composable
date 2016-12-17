@@ -1,4 +1,12 @@
-$targetFolder = (Get-Item ../../../Composable-gh-pages).FullName
+$ghPagesCheckoutFolder = '../../../Composable-gh-pages'
+
+if(!(Test-Path $ghPagesCheckoutFolder))
+{
+    Write-Host "Missing gh-pages checkout"
+    return
+}
+
+$targetFolder = (Get-Item ).FullName
 Push-Location $targetFolder
 git checkout -f 
 git clean -fd

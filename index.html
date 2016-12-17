@@ -50,27 +50,247 @@
 
 
         
-            <div class="large-3 large-push-9 columns" data-sticky-container>
-    <aside data-sticky  data-options="marginTop:4;stickyOn:large">
-        <h4>News</h4>
-        <ul id="posts" class="posts nav">
-            
-            <li><a href="/2016/11/28/site-published.html">2016-11-28 Site published</a></li>
-            
-        </ul>
-
-    </aside>
+            <div class="large-3 large-push-9 columns page-toc" data-sticky-container>
+    <nav data-sticky data-options="marginTop:4;stickyOn:large">
+        <h4>TOC</h4>
+        <ul class="sectlevel1">
+<li><a href="#vest_testing_framework">Vest testing framework</a></li>
+<li><a href="#ioc_wiring_framework">IOC wiring framework</a></li>
+<li><a href="#event_store">Event store</a>
+<ul class="sectlevel2">
+<li><a href="#refactoring_support">Refactoring support</a></li>
+</ul>
+</li>
+<li><a href="#semantic_event_routing">Semantic Event Routing</a></li>
+</ul>
+    </nav>
 </div>
         
 
         <div class="large-9 large-pull-3 columns asciidoc" role="content">
-    <div class="sect1">
-<h2 id="pretty_empty">Pretty empty</h2>
+    <div id="preamble">
 <div class="sectionbody">
 <div class="paragraph">
-<p>As you can tell the site is as of yet just a skeleton.
-So why don&#8217;t you go read some <a href="documentation">documentation</a>?</p>
+<p>Event driven SOA, Event Sourcing and CQRS constitutes an architecture that is far superior to classical architectures.
+In theory
+In practice most teams struggle or fail to reach their goals with this architecture.
+The composable toolkit sets out to change that. To make this architecture just as superior in practice as in theory.</p>
 </div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="vest_testing_framework">Vest testing framework</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p>Get real confidence in your tests by running the full production code including IOC wiring when testing.</p>
+</li>
+<li>
+<p>All Composable components have functionally equivalent testing implementations.</p>
+<div class="ulist">
+<ul>
+<li>
+<p>Testing implementations pass the same tests as production implementations. <sup class="footnote">[<a id="_footnoteref_1" class="footnote" href="#_footnote_1" title="View footnote.">1</a>]</sup></p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>Creating a testing mode container is trivially simple.</p>
+<div class="ulist">
+<ul>
+<li>
+<p>Slow or hard to test components are automatically replaced with equivalent testing implementations.</p>
+</li>
+<li>
+<p>Test code needs no knowledge of which components are replaced.</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>Container extensions makes registering your own replacement components for testing trivially simple.</p>
+</li>
+<li>
+<p>Test scheduled logic by stepping the DummyTimeSource forward.</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="ioc_wiring_framework">IOC wiring framework</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p>All Composable components provides built in wiring support including VEST testing support.</p>
+</li>
+<li>
+<p>Achieve full encapsulation of your libraries by having them provide their own wiring.</p>
+</li>
+<li>
+<p>Libraries request wiring from direct dependencies.</p>
+</li>
+<li>
+<p>Application bootstrappers request wiring from direct dependencies and the framework wires everything up correctly.</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="event_store">Event store</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p>Full VEST Testing Support</p>
+</li>
+<li>
+<p>Comprehensive refactoring support keeps your code base clean and flexible.</p>
+</li>
+<li>
+<p>No pollution of public interfaces with event applier methods.</p>
+</li>
+<li>
+<p>Build complex aggregates by nesting components and entity collection to arbitrary depths.</p>
+</li>
+<li>
+<p>Reduce the number of event appliers through semantic event routing. (Often by an order of magnitude or more).</p>
+</li>
+<li>
+<p>Generate query models from the event stream with excellent performance.<sup class="footnote">[<a id="_footnoteref_2" class="footnote" href="#_footnote_2" title="View footnote.">2</a>]</sup></p>
+<div class="ulist">
+<ul>
+<li>
+<p>Minimize downtime and development friction by minimizing the number of persisted Query Models.</p>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
+<div class="sect2">
+<h3 id="refactoring_support">Refactoring support</h3>
+<div class="paragraph">
+<p>Maintain flexibility and a clean code base with comprehensive refactoring support.</p>
+</div>
+<div class="sect3">
+<h4 id="newtonsoft_json_supported_refactorings">Newtonsoft.JSON supported refactorings</h4>
+<div class="ulist">
+<ul>
+<li>
+<p>Take effect immediately without any need to wait for batches.</p>
+</li>
+<li>
+<p>Completely encapsulated. Clients of the event store see only refactored events and aggregates.</p>
+</li>
+<li>
+<p>Some possible refactorings</p>
+<div class="ulist">
+<ul>
+<li>
+<p>Rename properties and fields.</p>
+</li>
+<li>
+<p>Add properties including calculating values for historical events that originally did not have the new property.</p>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect3">
+<h4 id="event_stream_migrations">Event Stream migrations</h4>
+<div class="ulist">
+<ul>
+<li>
+<p>Take effect immediately without any need to wait for batches.</p>
+</li>
+<li>
+<p>Completely encapsulated. Clients of the event store see only refactored streams and aggregates.</p>
+</li>
+<li>
+<p>Supported Refactorings</p>
+<div class="ulist">
+<ul>
+<li>
+<p>Rename event</p>
+</li>
+<li>
+<p>Replace legacy event with new event(s).</p>
+</li>
+<li>
+<p>Insert new event(s) before or after existing event.</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>Persist migrations to storage</p>
+<div class="ulist">
+<ul>
+<li>
+<p>On-line persisting of in-memory migrations.</p>
+</li>
+<li>
+<p>Remove legacy events, handlers, and persisted migrations from your codebase.</p>
+</li>
+<li>
+<p>Complete history including refactorings is retained in storage.</p>
+</li>
+<li>
+<p>Comprehensively test the refactorings in-memory before choosing to persist them.</p>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="semantic_event_routing">Semantic Event Routing</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p>Declarative programming model.</p>
+</li>
+<li>
+<p>Powerful tool for designing and reasoning about a domain.</p>
+</li>
+<li>
+<p>Decouple subscribers from publishers</p>
+</li>
+<li>
+<p>Reduce the number of event appliers (Often by an order of magnitude or more)</p>
+</li>
+<li>
+<p>Reduce the number of required event handlers.</p>
+</li>
+<li>
+<p>Eliminate the need for new event appliers to handle new variations on existing events.</p>
+</li>
+<li>
+<p>Reduce the need for new event handlers for new variations on existing events.</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div id="footnotes">
+<hr>
+<div class="footnote" id="_footnote_1">
+<a href="#_footnoteref_1">1</a>. Some may bypass serialization or have different semantics when transactions fail.
+</div>
+<div class="footnote" id="_footnote_2">
+<a href="#_footnoteref_2">2</a>. The immutability of events allows for safe ubiquitous caching of events.
 </div>
 </div>
 </div>

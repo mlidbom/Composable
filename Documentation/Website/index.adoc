@@ -3,32 +3,34 @@
 = Composable Toolkit
 
 Event driven SOA, Event Sourcing and CQRS constitutes an architecture that is far superior to classical architectures.
-In theory that is.
-In practice most teams struggle or fail to reach their goals with this architecture.
-The composable toolkit sets out to change that. To make this architecture just as superior in practice as in theory.
+*In theory.*
+In practice most teams attempting this architecture struggle or fail.
+The composable toolkit sets out to change that.
+To make this architecture just as superior in practice as in theory.
+Over half a decade of production use practical solutions have been found for each significant roadblock encountered.
+
+
+== IOC wiring framework
+* All Composable components provides built in wiring support including VEST testing support.
+* Achieve better encapsulation and reusability of your libraries by having them provide their own wiring.
+* Libraries request wiring from libraries they directly depend on only.
+* Application bootstrappers request wiring from libraries they directly depend on only and the framework wires everything up correctly.
 
 == Vest testing framework
 * Get real confidence in your tests by running the full production code including IOC wiring when testing.
-* All Composable components have functionally equivalent testing implementations.
-** Testing implementations pass the same tests as production implementations. footnote:[Some may bypass serialization or have different semantics when transactions fail.]
+* All Composable components have functionally equivalent footnoteref:[testing-components-differences ,Some testing implementations may bypass serialization or have different semantics when transactions fail.] testing implementations.
+** Testing implementations pass the same tests as production implementations. footnoteref:[testing-components-differences]
 * Creating a testing mode container is trivially simple.
 ** Slow or hard to test components are automatically replaced with equivalent testing implementations.
 ** Test code needs no knowledge of which components are replaced.
 * Container extensions makes registering your own replacement components for testing trivially simple.
 * Test scheduled logic by stepping the DummyTimeSource forward.
 
-
-== IOC wiring framework
-* All Composable components provides built in wiring support including VEST testing support.
-* Achieve full encapsulation of your libraries by having them provide their own wiring.
-* Libraries request wiring from direct dependencies.
-* Application bootstrappers request wiring from direct dependencies and the framework wires everything up correctly.
-
 == Event store
 * Full VEST Testing Support
 * Comprehensive refactoring support keeps your code base clean and flexible.
 * No pollution of public interfaces with event applier methods.
-* Build complex aggregates by nesting components and entity collection to arbitrary depths.
+* Build complex aggregates by nesting components and entity collections to arbitrary depths.
 * Reduce the number of event appliers through semantic event routing. (Often by an order of magnitude or more).
 * Generate query models from the event stream with excellent performance.footnote:[The immutability of events allows for safe ubiquitous caching of events.]
 ** Minimize downtime and development friction by minimizing the number of persisted Query Models.
@@ -60,8 +62,19 @@ Maintain flexibility and a clean code base with comprehensive refactoring suppor
 == Semantic Event Routing
 * Declarative programming model.
 * Powerful tool for designing and reasoning about a domain.
-* Decouple subscribers from publishers
-* Reduce the number of event appliers (Often by an order of magnitude or more)
+* Decouple subscribers from publishers.
+* Reduce the number of required event appliers (Often by an order of magnitude or more)
 * Reduce the number of required event handlers.
-* Eliminate the need for new event appliers to handle new variations on existing events.
-* Reduce the need for new event handlers for new variations on existing events.
+* Performant in-memory event routing components let you leverage semantic routing in your own components.
+footnote:[This is how many composable components are implemented internally.
+Such as the aggregate root, the query model updaters, the servicebuses etc. ]
+
+== Service Bus
+* Semantic Routing
+* Full TransactionScope and DTC support.
+* Exactly once delivery.
+* In order delivery. footnote:[On a per sender/receiver basis. Not guaranteed if a message handler fails after all level one retries. ]
+* Full VEST testing support including testing of sagas.
+** Step the DummyTimeSource forward and watch your sagas unfold as scheduled messages are sent.
+* in-process implementation
+** Easily switch between running a component in-process, remotely or both without changing either the sender or receiver of messages.

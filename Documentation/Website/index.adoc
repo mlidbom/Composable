@@ -18,8 +18,11 @@ Over half a decade of production use practical solutions have been found for eac
 
 == Vest testing framework
 * Get real confidence in your tests by running the full production code including IOC wiring when testing.
-* All Composable components have functionally equivalent footnoteref:[testing-components-differences ,Some testing implementations may bypass serialization or have different semantics when transactions fail.] testing implementations.
-** Testing implementations pass the same tests as production implementations. footnoteref:[testing-components-differences]
+* All Composable components have functionally equivalent
+footnoteref:[testing-components-differences ,Some testing implementations may bypass serialization or have different semantics when transactions fail.]
+testing implementations.
+** Testing implementations pass the same tests as production implementations.
+footnoteref:[testing-components-differences]
 * Creating a testing mode container is trivially simple.
 ** Slow or hard to test components are automatically replaced with equivalent testing implementations.
 ** Test code needs no knowledge of which components are replaced.
@@ -32,7 +35,7 @@ Over half a decade of production use practical solutions have been found for eac
 * No pollution of public interfaces with event applier methods.
 * Build complex aggregates by nesting components and entity collections to arbitrary depths.
 * Reduce the number of event appliers through semantic event routing. (Often by an order of magnitude or more).
-* Generate query models from the event stream with excellent performance.footnote:[The immutability of events allows for safe ubiquitous caching of events.]
+* Generate query models from the event stream with excellent performance.
 ** Minimize downtime and development friction by minimizing the number of persisted Query Models.
 
 === Refactoring support

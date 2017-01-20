@@ -3,4 +3,12 @@
     <AllowParallelTestExecution>True</AllowParallelTestExecution>
     <SolutionConfigured>True</SolutionConfigured>
   </Settings>
+  <EngineModes>
+    <EngineMode>
+      <Name>Run all tests automatically except LongRunning</Name>
+      <Settings>
+        <TestsToExecuteAutomatically>(True AND DoesNotHaveCategory 'LongRunning')</TestsToExecuteAutomatically>
+      </Settings>
+    </EngineMode>
+  </EngineModes>
 </SolutionConfiguration>

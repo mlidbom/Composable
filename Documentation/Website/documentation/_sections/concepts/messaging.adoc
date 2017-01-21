@@ -1,0 +1,183 @@
+
+== Messaging
+Any method call can, if you squint, be viewed as one object sending a message to another object.
+However, this ties the sender tightly to the receiver.
+Loose coupling benefits can be had by making the message passing explicit.
+By sending messages to a receiver through some intermediary rather than directly.
+Doing so is called messaging.
+
+TIP: Messaging is also known as message passing.
+
+=== Messaging terms
+Here we define some terms as they are used in the context of this document.
+
+Message::
+An object for the purpose of sending data to a receiver.
+
+Message Type::
+The System.Type returned by `message.GetType()`.
+
+Message Handler::
+In principle just a function that takes a message as a parameter.
++
+[source,csharp]
+----
+void Handle(RegisterAccountCommand command)
+----
++
+In practice most message handlers need to have one or more dependencies injected into them.
+In order to support this handlers are often required to be wrapped inside interfaces.
+ That way instances of implementing classes can be resolved from an IOC container easily.
++
+[source,csharp]
+----
+interface IMessageHandler<RegisterAccountCommand>
+{
+    void Handle(RegisterAccountCommand aMessage);
+}
+----
+
+Routing::
+The mechanism by which messages are delivered to handlers.
+
+Service Bus::
+A component which decouples message senders from message handlers.
+Instead of client code calling handler methods, clients send and receive messages via the bus.
+The bus is responsible for routing the messages to the appropriate handler(s) and invoking them.
++
+[source]
+.Manual service invokation requires an instance of the service.
+----
+serviceInstance.RegisterAccount(arguments....
+----
++
+[source,csharp]
+.Client don't even know where the service is when accessing it across a bus
+----
+bus.Send(new RegisterAccountCommand(
+----
++
+TIP: The benefits of this decoupling may not be obvious at first, but they are profound.
+
+Command::
+A message that instructs the handler to perform an action.
++
+[source,csharp]
+----
+class RegisterAccountCommand
+{
+    Password Password { get; }
+    Email Email { set; }
+}
+----
+
+Event::
+A message that informs handlers about something that has happened.
++
+[source,csharp]
+----
+interface IAccountRegisteredEvent
+{
+    Password Password { get; }
+    Email Email { get; }
+}
+----
+
+Query::
+A message that asks the handler to supply some data.
++
+[source,csharp]
+----
+class RecentlyRegisteredAccountsQuery
+{
+    TimeSpan MaxAge { get; }
+}
+----
+
+Command Handler::
+A message handler for a command. Must ensure that the command is successfully executed or throw an exception.
+
+Query Handler::
+A message handler for a query. Must ensure that the query is successfully executed or throw an exception.
+
+Event Handler::
+A message handler for an event.
+
+Event Listener::
+Same as Event Handler.
+
+Subscribe::
+The action of registering an Event Handler with a service bus.
+
+Subscriber::
+An event handler registered on a service bus.
+
+Sending a command or query::
+Asking a service bus to deliver a message to its handler.
+
+Publishing an event::
+Delivering an event to all it's subscribers.
+
+Raising an event::
+Same as Publishing an event
+
+TIP: You always publish/Raise events.
+Keeping Send separate from Publish in your mind is fundamental to understanding.
+
+
+=== Semantic Routing
+NOTE: Semantic routing is used throughout the toolkit. It is foundational for the Event Store, Service Bus, Query Model updaters and Generators...
+
+
+==== Definition
+* Messages are delivered to every registered handler with a compatible argument type.
+* Commands and query message types must have exactly one handler.
+
+TIP: The first rule is really just polymorphism.
+
+TIP: Semantic Routing is also known as "Polymorphic routing" or "Polymorphic  dispatching".
+
+==== Clarifying examples
+
+[source,csharp]
+.Given these event interfaces and implementing classes
+----
+interface IA
+interface IB : IA
+interface IC : IB
+
+class A : IA {}
+class B : IB {}
+class C : IC {}
+----
+
+[source,csharp]
+.And these handler methods registered on our service bus
+----
+void HandleA(IA //Handles IA, IB and IC
+void HandleB(IB //Handles IB and IC
+void HandleC(IC //Handles only IC
+----
+
+[source,csharp]
+.Let's publish some events and examine the results.
+----
+serviceBus.Publish(new A()); //Delivered to HandleA
+serviceBus.Publish(new B()); //Delivered to HandleA and HandleB
+serviceBus.Publish(new C()); //Delivered to HandleA, HandleB and HandleC
+----
+
+==== Loose coupling through interfaces
+Working with events in terms of interfaces maintains flexibility.
+Here is a partial list of things it is possible to do without having to change any code in any event listener.
+
+* Refactoring event classes
+* Adding event classes
+* Adding event interfaces
+* Changing event inheritance hierarchy
+
+TIP: Remember to think about events in terms of interfaces.
+The event classes are an implementation detail that should only ever be known by the code that publishes the event.
+
+WARNING: *Do not subscribe to event classes*. You will lose the benefits just discussed.
+

@@ -1,6 +1,83 @@
+:page-toc:
+
 = Composable Toolkit
 
+Event driven SOA, Event Sourcing and CQRS constitutes an architecture that is far superior to classical architectures.
+*In theory.*
+In practice most teams attempting this architecture struggle or fail.
+The composable toolkit sets out to change that.
+To make this architecture just as superior in practice as in theory.
+Over half a decade of production use practical solutions have been found for each significant roadblock encountered.
 
-== Pretty empty
-As you can tell the site is as of yet just a skeleton.
-So why don't you go read some link:documentation[documentation]?
+
+== IOC wiring framework
+* All Composable components provides built in wiring support including VEST testing support.
+* Achieve better encapsulation and reusability of your libraries by having them provide their own wiring.
+* Libraries request wiring from libraries they directly depend on only.
+* Application bootstrappers request wiring from libraries they directly depend on only and the framework wires everything up correctly.
+
+== Vest testing framework
+* Get real confidence in your tests by running the full production code including IOC wiring when testing.
+* All Composable components have functionally equivalent
+footnoteref:[testing-components-differences ,Some testing implementations may bypass serialization or have different semantics when transactions fail.]
+testing implementations.
+** Testing implementations pass the same tests as production implementations.
+footnoteref:[testing-components-differences]
+* Creating a testing mode container is trivially simple.
+** Slow or hard to test components are automatically replaced with equivalent testing implementations.
+** Test code needs no knowledge of which components are replaced.
+* Container extensions makes registering your own replacement components for testing trivially simple.
+* Test scheduled logic by stepping the DummyTimeSource forward.
+
+== Event store
+* Full VEST Testing Support
+* Comprehensive refactoring support keeps your code base clean and flexible.
+* No pollution of public interfaces with event applier methods.
+* Build complex aggregates by nesting components and entity collections to arbitrary depths.
+* Reduce the number of event appliers through semantic event routing. (Often by an order of magnitude or more).
+* Generate query models from the event stream with excellent performance.
+** Minimize downtime and development friction by minimizing the number of persisted Query Models.
+
+=== Refactoring support
+Maintain flexibility and a clean code base with comprehensive refactoring support.
+
+==== Newtonsoft.JSON supported refactorings
+* Take effect immediately without any need to wait for batches.
+* Completely encapsulated. Clients of the event store see only refactored events and aggregates.
+* Some possible refactorings
+** Rename properties and fields.
+** Add properties including calculating values for historical events that originally did not have the new property.
+
+====  Event Stream migrations
+* Take effect immediately without any need to wait for batches.
+* Completely encapsulated. Clients of the event store see only refactored streams and aggregates.
+* Supported Refactorings
+** Rename event
+** Replace legacy event with new event(s).
+** Insert new event(s) before or after existing event.
+* Persist migrations to storage
+** On-line persisting of in-memory migrations.
+** Remove legacy events, handlers, and persisted migrations from your codebase.
+** Complete history including refactorings is retained in storage.
+** Comprehensively test the refactorings in-memory before choosing to persist them.
+
+
+== Semantic Event Routing
+* Declarative programming model.
+* Powerful tool for designing and reasoning about a domain.
+* Decouple subscribers from publishers.
+* Reduce the number of required event appliers (Often by an order of magnitude or more)
+* Reduce the number of required event handlers.
+* Performant in-memory event routing components let you leverage semantic routing in your own components.
+footnote:[This is how many composable components are implemented internally.
+Such as the aggregate root, the query model updaters, the servicebuses etc. ]
+
+== Service Bus
+* Semantic Routing
+* Full TransactionScope and DTC support.
+* Exactly once delivery.
+* In order delivery. footnote:[On a per sender/receiver basis. Not guaranteed if a message handler fails after all level one retries. ]
+* Full VEST testing support including testing of sagas.
+** Step the DummyTimeSource forward and watch your sagas unfold as scheduled messages are sent.
+* in-process implementation
+** Easily switch between running a component in-process, remotely or both without changing either the sender or receiver of messages.

@@ -2,10 +2,13 @@
 :page-permalink: /documentation/
 :page-toc:
 :sectnums:
+:doctype: book
+:imagesdir: images
 
-[role='lead']
-Welcome to the Composable documentation!
 
-NOTE: API Documentation is available here: link:../apidocs/3.4.6[3.4.6]
 
-== Introduction
+include::_include-directory.adoc[]
+
+
+
+

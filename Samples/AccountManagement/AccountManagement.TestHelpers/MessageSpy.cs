@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using Composable.ServiceBus;
-using NServiceBus;
 
 namespace AccountManagement.TestHelpers
 {

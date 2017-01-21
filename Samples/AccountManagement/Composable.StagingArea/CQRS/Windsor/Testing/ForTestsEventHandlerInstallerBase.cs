@@ -3,7 +3,6 @@ using Castle.MicroKernel.SubSystems.Configuration;
 using Castle.Windsor;
 using Composable.Windsor.Testing;
 using JetBrains.Annotations;
-using NServiceBus;
 
 namespace Composable.CQRS.Windsor.Testing
 {

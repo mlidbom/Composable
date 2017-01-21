@@ -46,7 +46,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AuthenticatedControllerTest.cs" />
-    <Compile Include="EndpointConfig.cs" />
     <Compile Include="StubMain.cs" />
     <Compile Include="WebApplicationBootstrapperTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

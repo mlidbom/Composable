@@ -2,7 +2,6 @@
 using Castle.MicroKernel.Registration;
 using Castle.Windsor;
 using Castle.Windsor.Installer;
-using Composable.CQRS.ServiceBus.NServiceBus;
 using Composable.ServiceBus;
 using JetBrains.Annotations;
 using Composable.GenericAbstractions.Time;
@@ -18,9 +17,7 @@ namespace AccountManagement.UI.Web
         {
             container.Register(
                 Component.For<IUtcTimeTimeSource>().ImplementedBy<DateTimeNowTimeSource>().LifestylePerWebRequest(),
-                Component.For<NServiceBusServiceBus>().LifestylePerWebRequest(),
                 Component.For<SynchronousBus>().ImplementedBy<SynchronousBus>().LifestylePerWebRequest(),
-                Component.For<IServiceBus>().ImplementedBy<DualDispatchBus>().LifestylePerWebRequest(),
                 Component.For<IAuthenticationContext>().ImplementedBy<AuthenticationContext>().LifestylePerWebRequest()                
                 );
 

@@ -1,6 +1,6 @@
 ﻿{
   "dependencies": {
-    "Composable.CQRS.ServiceBus.NServiceBus": "3.4.5",
+    "Composable.CQRS": "3.4.5",
     "FluentAssertions": "4.0.0",
     "NUnit": "2.6.4"
   },

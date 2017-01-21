@@ -1,5 +1,6 @@
 ﻿using AccountManagement.Domain.Events.PropertyUpdated;
 using AccountManagement.Domain.Services;
+using Composable.ServiceBus;
 using JetBrains.Annotations;
 
 namespace AccountManagement.Domain.QueryModels.Updaters

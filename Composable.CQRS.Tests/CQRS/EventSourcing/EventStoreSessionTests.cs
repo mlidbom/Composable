@@ -9,7 +9,6 @@ using Composable.DomainEvents;
 using Composable.ServiceBus;
 using Composable.SystemExtensions.Threading;
 using Composable.UnitsOfWork;
-using NCrunch.Framework;
 using NUnit.Framework;
 using Composable.System.Linq;
 using System.Linq;

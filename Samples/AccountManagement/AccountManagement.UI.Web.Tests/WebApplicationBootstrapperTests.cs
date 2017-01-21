@@ -3,7 +3,6 @@ using Castle.Windsor;
 using Composable.CQRS.Windsor.Testing;
 using Composable.Windsor.Testing;
 using Composable.ServiceBus;
-using Composable.System.Linq;
 using NUnit.Framework;
 
 namespace AccountManagement.UI.Web.Tests

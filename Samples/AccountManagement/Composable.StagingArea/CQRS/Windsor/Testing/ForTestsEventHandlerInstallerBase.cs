@@ -1,9 +1,9 @@
 ﻿using Castle.MicroKernel.Registration;
 using Castle.MicroKernel.SubSystems.Configuration;
 using Castle.Windsor;
+using Composable.ServiceBus;
 using Composable.Windsor.Testing;
 using JetBrains.Annotations;
-using NServiceBus;
 
 namespace Composable.CQRS.Windsor.Testing
 {

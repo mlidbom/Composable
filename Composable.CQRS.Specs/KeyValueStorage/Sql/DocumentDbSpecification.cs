@@ -5,7 +5,6 @@ using Composable.KeyValueStorage;
 using Composable.KeyValueStorage.SqlServer;
 using Composable.System.Configuration;
 using FluentAssertions;
-using NCrunch.Framework;
 using NUnit.Framework;
 
 namespace CQRS.Tests.KeyValueStorage.Sql

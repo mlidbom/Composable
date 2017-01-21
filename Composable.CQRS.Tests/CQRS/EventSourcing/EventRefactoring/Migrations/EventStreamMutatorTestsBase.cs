@@ -16,7 +16,6 @@ using Composable.UnitsOfWork;
 using Composable.Windsor;
 using Composable.Windsor.Testing;
 using FluentAssertions;
-using NCrunch.Framework;
 using Newtonsoft.Json;
 using NUnit.Framework;
 using TestAggregates;

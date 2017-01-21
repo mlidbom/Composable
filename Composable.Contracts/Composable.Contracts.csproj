@@ -79,7 +79,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Composable.Contracs.nuspec" />
-    <None Include="project.json" />
     <None Include="Void.snk" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

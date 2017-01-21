@@ -1,8 +1,8 @@
 ﻿using AccountManagement.Domain.Events.PropertyUpdated;
 using AccountManagement.UI.QueryModels.DocumentDB.Updaters.Services;
 using AccountManagement.UI.QueryModels.EventStoreGenerated;
+using Composable.ServiceBus;
 using JetBrains.Annotations;
-using NServiceBus;
 
 namespace AccountManagement.UI.QueryModels.DocumentDB.Updaters
 {

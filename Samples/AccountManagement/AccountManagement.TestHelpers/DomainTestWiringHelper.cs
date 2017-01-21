@@ -5,7 +5,6 @@ using Composable.GenericAbstractions.Time;
 using Composable.Windsor.Testing;
 using Composable.ServiceBus;
 using Composable.System.Configuration;
-using NServiceBus;
 
 namespace AccountManagement.TestHelpers
 {

@@ -1,14 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Configuration;
-using System.Threading;
-using Castle.Windsor;
 using Composable.CQRS.EventSourcing;
-using Composable.CQRS.Testing;
-using Composable.System;
-using CQRS.Tests.KeyValueStorage.Sql;
 using FluentAssertions;
-using NCrunch.Framework;
 using NUnit.Framework;
 using Composable.System.Linq;
 using System.Linq;
@@ -48,7 +41,7 @@ namespace CQRS.Tests.CQRS.EventSourcing
         }
 
 
-        [Test]
+        [Test,Category("LongRunning")]
         public void StreamEventsSinceReturnsWholeEventLogWhenFetchingALargeNumberOfEvents_EnsureBatchingDoesNotBreakThings()
         {
             using (var eventStore = CreateEventStore())

@@ -8,7 +8,6 @@ using Composable.System.Linq;
 using Composable.Testing;
 using Composable.Windsor;
 using FluentAssertions;
-using NCrunch.Framework;
 using NUnit.Framework;
 using TestAggregates;
 using TestAggregates.Events;

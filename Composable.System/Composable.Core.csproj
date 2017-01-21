@@ -271,7 +271,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Composable.Core.nuspec" />
-    <None Include="project.json" />
     <None Include="Void.snk" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />

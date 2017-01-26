@@ -1,61 +1,69 @@
 ﻿using System;
-using Composable.CQRS;
 using Composable.CQRS.Command;
 using Composable.ServiceBus;
 using FluentAssertions;
+using Machine.Specifications;
 using Moq;
 using NUnit.Framework;
 
-namespace CQRS.Tests.CQRS
+namespace Composable.CQRS.Specs.CQRS
 {
-    public class CommandHandlerBaseSpecification : NSpec.NUnit.nspec
+    [Subject("")]
+    public class CommandHandlerBaseSpecification_
     {
-        public void when_executing_command_handler()
+        class when_executing_command_handler
         {
-            Mock<ICommandService> commandServiceMock = null;
-            Mock<IServiceBus> busMock = null;
-            MyDelegatingToCommandServiceCommandHandler commandHandler = null;
-            before = () =>
-                     {
-                         commandServiceMock = new Mock<ICommandService>(MockBehavior.Strict);
-                         busMock = new Mock<IServiceBus>(MockBehavior.Strict);
-                         commandHandler = new MyDelegatingToCommandServiceCommandHandler(busMock.Object, commandServiceMock.Object);
-                     };
-            context["when commandService throws NotImplementedException"] =
-                () =>
-                {
-                    NotImplementedException exception = null;
-                    before = () =>
-                             {
-                                 commandServiceMock
-                                     .Setup(service => service.Execute<ICommand>(It.IsAny<ThrowNotImplementedExceptionCommand>()))
-                                     .Throws<NotImplementedException>();
+            static Mock<ICommandService> commandServiceMock = null;
+            static Mock<IServiceBus> busMock = null;
+            static MyDelegatingToCommandServiceCommandHandler commandHandler = null;
+            Establish before = () =>
+                               {
+                                   commandServiceMock = new Mock<ICommandService>(MockBehavior.Strict);
+                                   busMock = new Mock<IServiceBus>(MockBehavior.Strict);
+                                   commandHandler = new MyDelegatingToCommandServiceCommandHandler(busMock.Object, commandServiceMock.Object);
+                               };
 
-                                 busMock.Setup(bus => bus.Reply(It.IsAny<CommandExecutionExceptionResponse>()));
+            class when_commandService_throws_NotImplementedException
+            {
+                static NotImplementedException exception = null;
+                Establish before = () =>
+                                   {
+                                       commandServiceMock
+                                           .Setup(service => service.Execute<ICommand>(Moq.It.IsAny<ThrowNotImplementedExceptionCommand>()))
+                                           .Throws<NotImplementedException>();
 
-                                 exception = Assert.Throws<NotImplementedException>(() => commandHandler.Handle(new ThrowNotImplementedExceptionCommand()));
-                             };
-                    it["NotImplementedException is thrown by command handler"] = () => exception.Should().NotBeNull();
-                    it["reply with CommandExecutionExceptionResponse is sent on the bus"] = () => busMock.Verify(bus => bus.Reply(It.IsAny<CommandExecutionExceptionResponse>()));
-                };
+                                       busMock.Setup(bus => bus.Reply(Moq.It.IsAny<CommandExecutionExceptionResponse>()));
 
-            context["when commandService throws DomainCommandValidationException"] =
-                () =>
-                {
-                    DomainCommandValidationException exception = null;
-                    before = () =>
-                             {
-                                 commandServiceMock
-                                     .Setup(service => service.Execute<ICommand>(It.IsAny<ThrowDomainCommandValidationExceptionCommand>()))
-                                     .Callback(() => { throw new DomainCommandValidationException("AMessage"); });
-                                 
-                                 busMock.Setup(bus => bus.Reply(It.IsAny<CommandDomainValidationExceptionResponse>()));
+                                       exception =
+                                           Assert.Throws<NotImplementedException>(
+                                               () => commandHandler.Handle(new ThrowNotImplementedExceptionCommand()));
+                                   };
 
-                                 exception = Assert.Throws<DomainCommandValidationException>(() => commandHandler.Handle(new ThrowDomainCommandValidationExceptionCommand()));
-                             };
-                    it["DomainCommandValidationException is thrown by command handler"] = () => exception.Should().NotBeNull();
-                    it["reply with CommandDomainValidationExceptionResponse is sent on the bus"] = () => busMock.Verify(bus => bus.Reply(It.IsAny<CommandDomainValidationExceptionResponse>()));
-                };
+                Machine.Specifications.It NotImplementedException_is_thrown_by_command_handler = () => exception.Should().NotBeNull();
+                Machine.Specifications.It reply_with_CommandExecutionExceptionResponse_is_sent_on_the_bus =
+                    () => busMock.Verify(bus => bus.Reply(Moq.It.IsAny<CommandExecutionExceptionResponse>()));
+            }
+
+            class when_commandService_throws_DomainCommandValidationException
+            {
+                static DomainCommandValidationException exception = null;
+                Establish before = () =>
+                                   {
+                                       commandServiceMock
+                                           .Setup(service => service.Execute<ICommand>(Moq.It.IsAny<ThrowDomainCommandValidationExceptionCommand>()))
+                                           .Callback(() => { throw new DomainCommandValidationException("AMessage"); });
+
+                                       busMock.Setup(bus => bus.Reply(Moq.It.IsAny<CommandDomainValidationExceptionResponse>()));
+
+                                       exception =
+                                           Assert.Throws<DomainCommandValidationException>(
+                                               () => commandHandler.Handle(new ThrowDomainCommandValidationExceptionCommand()));
+                                   };
+
+                Machine.Specifications.It DomainCommandValidationException_is_thrown_by_command_handler = () => exception.Should().NotBeNull();
+                Machine.Specifications.It reply_with_CommandDomainValidationExceptionResponse_is_sent_on_the_bus =
+                    () => busMock.Verify(bus => bus.Reply(Moq.It.IsAny<CommandDomainValidationExceptionResponse>()));
+            }
         }
     }
 
@@ -65,6 +73,6 @@ namespace CQRS.Tests.CQRS
 
     public class MyDelegatingToCommandServiceCommandHandler : CommandHandlerBase<ICommand>
     {
-        public MyDelegatingToCommandServiceCommandHandler(IServiceBus bus, ICommandService commandService) : base(bus, commandService) {}
+        public MyDelegatingToCommandServiceCommandHandler(IServiceBus bus, ICommandService commandService) : base(bus, commandService) { }
     }
 }

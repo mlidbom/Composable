@@ -6,9 +6,9 @@ using NUnit.Framework;
 // ReSharper disable UnusedMember.Local
 namespace AccountManagement.Domain.Shared.Tests
 {
-    class When_creating_an_email
+    public class When_creating_an_email 
     {
-        static void AssertEmailThrowsException(string email) => Assert.Throws<InvalidEmailException>(() => Email.Parse(email));
+        static InvalidEmailException AssertEmailThrowsException(string email) => Assert.Throws<InvalidEmailException>(() => Email.Parse(email));
 
         class an_InvalidEmailException_is_thrown_when_string
         {
@@ -26,7 +26,7 @@ namespace AccountManagement.Domain.Shared.Tests
         class from_the_string_brokenEmail
         {
             It the_exception_message_contains_the_string_brokenEmail =
-                () => Assert.Throws<InvalidEmailException>(() => Email.Parse("brokenEmail")).Message.Should().Contain("brokenEmail");
+                () => AssertEmailThrowsException("brokenEmail").Message.Should().Contain("brokenEmail");
         }
 
         class from_the_string_testATtestDOTdk

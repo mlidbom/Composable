@@ -16,7 +16,7 @@ namespace Composable.Testing
              TimeSpan? maxTotal = null,
              string description = "",
              string timeFormat = DefaultTimeFormat, 
-             int maxTries = 3)
+             int maxTries = 1)
         {
             maxAverage = maxAverage != default(TimeSpan) ? maxAverage : TimeSpan.MaxValue;
             maxTotal = maxTotal != default(TimeSpan) ? maxTotal : TimeSpan.MaxValue;
@@ -28,11 +28,11 @@ namespace Composable.Testing
                 executionSummary = StopwatchExtensions.TimeExecution(action: action, iterations: iterations);                                
                 try
                 {
-                    RunAsserts(maxAverage, maxTotal, executionSummary, format);
+                    RunAsserts(maxAverage: maxAverage, maxTotal: maxTotal, executionSummary: executionSummary, format:format);
                 }
                 catch(Exception e)
                 {
-                    Debug.WriteLine($"Try: {tries} {e.GetType().FullName}: {e.Message}");
+                    Console.WriteLine($"Try: {tries} {e.GetType().FullName}: {e.Message}");
                     if(tries >= maxTries)
                     {
                         PrintSummary(iterations, maxAverage, maxTotal, description, format, executionSummary);

@@ -50,7 +50,7 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
                              .ToEvents();
 
             TimeAsserter.Execute(
-                maxTotal: 180.Milliseconds().AdjustRuntimeForNCrunch(boost: 2),
+                maxTotal: 180.Milliseconds().AdjustRuntimeToTestRunner(boost: 2),
                 action: () => new TestAggregate2(history));
         }
 
@@ -84,7 +84,7 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
                 Before<E9>.Insert<E1>()
                 ).ToArray();
 
-            var maxAverage = 10.Milliseconds().AdjustRuntimeForNCrunch(boost: 6);
+            var maxAverage = 10.Milliseconds().AdjustRuntimeToTestRunner(boost: 6);
 
             TimeAsserter.Execute(
                 maxTotal: maxAverage,

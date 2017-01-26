@@ -1,88 +1,73 @@
 ﻿using System;
-using Composable.System;
+using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
+using System.Reflection;
+using Composable.System;
 
 namespace CQRS.Tests
 {
-  public class TestEnvironment
-  {
-    public static TestRunner TestRunner = TestRunner.Instance;
-  }
-
-  public class TestRunner
-  {
-    public static readonly TestRunner Instance;
-
-    static TestRunner()
+    public static class TestEnvironment
     {
-      if (IsRunningInNcrunch)
-      {
-        Instance = new TestRunner("NCRunch", 5.0);
-      } else if (IsRunningInResharper)
-      {
-        Instance = new TestRunner("Resharper", 2.0);
-      }
-      else
-      {
-        Instance = new TestRunner("Default/Fallback", 1);
-      }
-    }
-
-    private static bool IsRunningInNcrunch => NCrunch.Framework.NCrunchEnvironment.NCrunchIsResident();
-
-    private static readonly bool IsRunningInResharper = AreWeRunningInResharper();
-
-    private static bool AreWeRunningInResharper()
-    {
-      return AppDomain.CurrentDomain.GetAssemblies().Any(assembly => assembly.FullName.StartsWith("JetBrains.ReSharper.UnitTestRunner"));
-    }
-
-    TestRunner(string name, double slowDownFactor)
-    {
-        Console.WriteLine($"Setting up performance adjustments for {name} with {nameof(slowDownFactor)}: {slowDownFactor}");
-        Name = name;
-        SlowDownFactor = slowDownFactor;
-    }
-
-    public string Name { get; }
-    public double SlowDownFactor { get; }
-  }
-
-  public static class TestEnvironmentPerformance
-  {
-
-        private static bool IsRunningInNcrunch => NCrunch.Framework.NCrunchEnvironment.NCrunchIsResident();
-
-      private static readonly bool IsRunningInResharper = AreWeRunningInResharper();
-
-      private static bool AreWeRunningInResharper()
-      {
-        return AppDomain.CurrentDomain.GetAssemblies().Any(assembly => assembly.FullName.StartsWith("JetBrains.ReSharper.UnitTestRunner"));
-      }
-
-      private static double NCRunchSlowDownFactor = 5.0;
-      private static double ResharperSlowDownFactor = 2.0;
-
-    //todo: Detect and adjust the abilities of the running machine and adjust expected runtime accordingly.
-    public static TimeSpan AdjustRuntime(TimeSpan original, double boost = 1.0)
-      {
-          return ((int)(original.TotalMilliseconds * (TestRunner.Instance.SlowDownFactor + boost))).Milliseconds();
-      }
-
-      public static int AdjustIterations(int original, double boost = 1.0)
+        public static TimeSpan AdjustRuntimeToTestEnvironment(this TimeSpan original, double boost = 0)
         {
-            if (IsRunningInNcrunch)
-            {
-                return (int)(original / (NCRunchSlowDownFactor + boost));
-            }
-            return original;
+            return ((int)(original.TotalMilliseconds * (TestRunner.Instance.SlowDownFactor + boost))).Milliseconds();
         }
     }
 
-    public static class NCrunchPerformanceExtensions
+    class TestRunner
     {
-        
-        public static TimeSpan AdjustRuntimeToTestRunner(this TimeSpan @this, double boost = 1.0) => TestEnvironmentPerformance.AdjustRuntime(@this, boost);        
-        public static int AdjustIterationsForNCrunch(this int @this, double boost = 1.0) => TestEnvironmentPerformance.AdjustIterations(@this, boost);
+        public static readonly TestRunner Instance = GetInstance();
+
+        private static TestRunner GetInstance()
+        {
+            var loadedAssemblies = AppDomain.CurrentDomain.GetAssemblies().ToList();
+            var processName = Process.GetCurrentProcess().ProcessName;
+            if (loadedAssemblies.Any(assembly => assembly.FullName.StartsWith("nCrunch.TaskRunner")))
+            {
+                return new TestRunner("NCRunch", 5.0);
+            }
+
+            if (processName.StartsWith("nunit-gui"))
+            {
+                return new TestRunner("Nunit GUI", 1);
+            }
+
+            if (processName.StartsWith("vstest"))
+            {
+                return new TestRunner("Visual Studio (vstest)", 1.0);
+            }
+
+            if (processName.StartsWith("nunit-console"))
+            {
+                return new TestRunner("Nunit Console", 1);
+            }
+
+            if (AreWeRunningInResharper(loadedAssemblies))
+            {
+                return new TestRunner("Resharper", 2.0);
+            }
+
+
+            Console.WriteLine(processName);
+            loadedAssemblies.ForEach(Console.WriteLine);
+
+            return new TestRunner($"Default/Fallback ({processName})", 1);
+        }
+
+        private static bool AreWeRunningInResharper(IEnumerable<Assembly> loadedAssemblies)
+        {
+            return loadedAssemblies.Any(assembly => assembly.FullName.StartsWith("JetBrains.ReSharper.UnitTestRunner"));
+        }
+
+        TestRunner(string name, double slowDownFactor)
+        {
+            Console.WriteLine($"Setting up performance adjustments for {name} with {nameof(slowDownFactor)}: {slowDownFactor}");
+            Name = name;
+            SlowDownFactor = slowDownFactor;
+        }
+
+        public string Name { get; }
+        public double SlowDownFactor { get; }
     }
 }

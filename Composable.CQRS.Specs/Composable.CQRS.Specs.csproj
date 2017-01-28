@@ -132,6 +132,7 @@
     <Compile Include="DebuggerShim.cs" />
     <Compile Include="DocumentUpdatedExtensions.cs" />
     <Compile Include="KeyValueStorage\Sql\DocumentDbSpecification.cs" />
+    <Compile Include="KeyValueStorage\Sql\DocumentDbSpecificationOld.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ServiceBus\SynchronousBusSpecification.cs" />
     <Compile Include="StubMain.cs" />

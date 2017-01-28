@@ -39,8 +39,9 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
                 container.ExecuteUnitOfWorkInIsolatedScope(() => container.Resolve<IEventStoreSession>().Get<TestAggregate>(aggregate.Id));
 
                 TimeAsserter.Execute(
-                    maxTotal: 150.Milliseconds().AdjustRuntimeToTestEnvironment(0),
-                    action: () => container.ExecuteInIsolatedScope(() => container.Resolve<IEventStoreSession>().Get<TestAggregate>(aggregate.Id)));
+                    maxTotal: 150.Milliseconds().AdjustRuntimeToTestEnvironment(boost:3),
+                    action: () => container.ExecuteInIsolatedScope(() => container.Resolve<IEventStoreSession>().Get<TestAggregate>(aggregate.Id))
+                    , maxTries: 3);
             }
         }
     }

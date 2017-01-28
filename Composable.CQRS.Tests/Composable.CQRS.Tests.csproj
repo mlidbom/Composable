@@ -240,7 +240,6 @@
     <Compile Include="KeyValueStorage\User.cs" />
     <Compile Include="ServiceBus\WhenDummyTimeSourceTimeIsChanged.cs" />
     <Compile Include="SqlServerLocalDBDatabaseManager.cs" />
-    <Compile Include="TestEnvironmentPerformance.cs" />
     <Compile Include="NewtonSoft\SqlServerEventStoreSerializationSettingsTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ServiceBus\MessageHandlersTestBase.cs" />

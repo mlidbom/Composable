@@ -4,8 +4,9 @@ using FluentAssertions;
 using NUnit.Framework;
 
 namespace Composable.Contracts.Tests
-{
-    // ReSharper disable ConvertToConstant.Local
+{  
+
+  // ReSharper disable ConvertToConstant.Local
     // ReSharper disable ExpressionIsAlwaysNull
     [TestFixture]
     public class LambdaBasedArgumentSpecsTests
@@ -54,7 +55,7 @@ namespace Composable.Contracts.Tests
             TimeAsserter.Execute(
                     action: () => Contract.Argument(() => notNullOrDefault).NotNullOrDefault(),
                     iterations: 10000,
-                    maxTotal: 20.Milliseconds(),
+                    maxTotal: 20.Milliseconds().AdjustRuntimeToTestEnvironment(),
                     maxTries:3
             );
         }

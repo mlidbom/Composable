@@ -5,7 +5,7 @@ using System.Linq;
 using System.Reflection;
 using Composable.System;
 
-namespace CQRS.Tests
+namespace Composable.Testing
 {
     public static class TestEnvironment
     {
@@ -45,7 +45,7 @@ namespace CQRS.Tests
 
             if (AreWeRunningInResharper(loadedAssemblies))
             {
-                return new TestRunner("Resharper", 2.0);
+                return new TestRunner("Resharper", 1.0);
             }
 
 

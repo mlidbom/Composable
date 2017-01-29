@@ -53,46 +53,47 @@ namespace Composable.CQRS.Testing
         public string ConnectionStringFor(string requestedDbName)
         {
             Contract.Assert(!_disposed, "Attempt to use disposed object");
-            Database database;
-            bool newDatabase = false;
-            if(!_reservedDatabases.TryGetValue(requestedDbName, out database))
+            Database database;            
+            if(_reservedDatabases.TryGetValue(requestedDbName, out database))
             {
-                using(var transaction = new TransactionScope())
-                {
-                    if(TryReserveDatabase(out database))
-                    {
-                        _reservedDatabases.Add(requestedDbName, database);
-                    }
-                    else
-                    {
-                        newDatabase = true;
-                        // ReSharper disable once AssignNullToNotNullAttribute
-                        var newDBName = $"{ManagerDbName}_{Guid.NewGuid()}.mdf";
-                        database = new Database(
-                            name: newDBName,
-                            isFree: false,
-                            reservationDate: DateTime.UtcNow,
-                            connectionString: ConnectionStringForDbNamed(newDBName));
-
-                        using(new TransactionScope(TransactionScopeOption.Suppress))
-                        {
-                            CreateDatabase(database.Name);
-                        }
-
-                        InsertDatabase(database.Name);
-
-                        _reservedDatabases.Add(requestedDbName, database);
-                    }
-                    transaction.Complete();
-                }
+                return database.ConnectionString;
             }
 
-            var db = _reservedDatabases[requestedDbName];
+            bool newDatabase = false;
+            using (var transaction = new TransactionScope())
+            {
+                if(TryReserveDatabase(out database))
+                {
+                    _reservedDatabases.Add(requestedDbName, database);
+                }
+                else
+                {
+                    newDatabase = true;
+                    // ReSharper disable once AssignNullToNotNullAttribute
+                    var newDatabaseName = $"{ManagerDbName}_{Guid.NewGuid()}.mdf";
+                    database = new Database(
+                        name: newDatabaseName,
+                        isFree: false,
+                        reservationDate: DateTime.UtcNow,
+                        connectionString: ConnectionStringForDbNamed(newDatabaseName));
+
+                    using(new TransactionScope(TransactionScopeOption.Suppress))
+                    {
+                        CreateDatabase(database.Name);
+                    }
+
+                    InsertDatabase(database.Name);
+
+                    _reservedDatabases.Add(requestedDbName, database);
+                }
+                transaction.Complete();
+            }
+
             if(!newDatabase)
             {
-                CleanDatabase(db);
+                CleanDatabase(database);
             }
-            return db.ConnectionString;
+            return database.ConnectionString;
         }
 
         void CreateDatabase(string databaseName)

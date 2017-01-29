@@ -1,6 +1,4 @@
-﻿using System;
-using System.Configuration;
-using System.Threading;
+﻿using System.Configuration;
 using Composable.CQRS.Testing;
 using Composable.Testing;
 using FluentAssertions;
@@ -12,6 +10,12 @@ namespace CQRS.Tests.SqlServerDatabasePoolTests
     public class PerformanceTests
     {
         static string _masterConnectionString = ConfigurationManager.ConnectionStrings["MasterDB"].ConnectionString;
+
+        [SetUp]
+        public void WarmUpCache()
+        {
+            new SqlServerDatabasePool(_masterConnectionString);
+        }
 
         [Test]
         public void Single_thread_can_reserve_and_release_100_identically_named_databases_in_5_seconds()
@@ -40,13 +44,13 @@ namespace CQRS.Tests.SqlServerDatabasePoolTests
                 action:
                 () =>
                 {
-                    using (var manager = new SqlServerDatabasePool(_masterConnectionString))
+                    using(var manager = new SqlServerDatabasePool(_masterConnectionString))
                     {
                         var connection1 = manager.ConnectionStringFor(dbName);
                     }
                 },
                 iterations: 100,
-                timeIndividualExecutions:true,
+                timeIndividualExecutions: true,
                 maxTotal: 3.Seconds());
         }
     }

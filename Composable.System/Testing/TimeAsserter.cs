@@ -101,10 +101,6 @@ namespace Composable.Testing
                 break;
             }
 
-
-            printResults();
-            RunAsserts(maxAverage, maxTotal, executionSummary, format);
-
             return executionSummary;
         }
 
@@ -126,7 +122,7 @@ namespace Composable.Testing
             if(iterations > 1)
             {
                 Console.WriteLine(
-                    $@"Executed {iterations:N} iterations of {description}  
+                    $@"Executed {iterations} iterations of {description}  
     Total:   {format(executionSummary.Total)} Limit: {format(maxTotal)} 
     Average: {format
                         (executionSummary.Average)} Limit: {format(maxAverage)}");

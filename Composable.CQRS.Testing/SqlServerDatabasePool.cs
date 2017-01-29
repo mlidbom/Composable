@@ -8,6 +8,7 @@ using System.Transactions;
 using Castle.Core.Internal;
 using Castle.MicroKernel.Registration;
 using Castle.Windsor;
+using Composable.Testing;
 using CQRS.Tests;
 
 namespace Composable.CQRS.Testing

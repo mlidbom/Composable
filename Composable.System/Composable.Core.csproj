@@ -162,6 +162,7 @@
     <Reference Include="System.Core">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
     </Reference>
+    <Reference Include="System.Data" />
     <Reference Include="System.Transactions" />
     <Reference Include="System.Web" />
     <Reference Include="System.Web.Extensions" />
@@ -251,6 +252,7 @@
     <Compile Include="System\Web\IHttpRequestIdFetcher.cs" />
     <Compile Include="System\Web\MultiRequestAccessDetected.cs" />
     <Compile Include="System\Web\SingleHttpRequestUseGuard.cs" />
+    <Compile Include="Testing\DatabaseHelpers.cs" />
     <Compile Include="Testing\TestEnvironmentPerformance.cs" />
     <Compile Include="Testing\TimeAsserter.cs" />
   </ItemGroup>

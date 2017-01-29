@@ -1,6 +1,6 @@
 ﻿using System.Data;
 
-namespace Composable.CQRS.Testing
+namespace Composable.Testing
 {
     public static class DatabaseHelpers
     {

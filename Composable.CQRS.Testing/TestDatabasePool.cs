@@ -65,8 +65,7 @@ namespace CQRS.Tests
                         // ReSharper disable once AssignNullToNotNullAttribute
                         var newDBName = $"{ManagerDbName}_{Guid.NewGuid()}.mdf";
                         database = new Database(
-                            newDBName,
-                            isEmpty: true,
+                            name: newDBName,
                             isFree: false,
                             reservationDate: DateTime.UtcNow,
                             connectionString: ConnectionStringForDbNamed(newDBName));
@@ -82,11 +81,6 @@ namespace CQRS.Tests
                     }
                     transaction.Complete();
                 }
-            }
-
-            if(!database.IsEmpty)
-            {
-                EmptyOutDatase(database.Name);
             }
 
             return _reservedDatabases[requestedDbName].ConnectionString;
@@ -132,7 +126,6 @@ namespace CQRS.Tests
             public static readonly string TableName = "Databases";
             public static readonly string DatabaseName = nameof(DatabaseName);
             public static readonly string IsFree = nameof(IsFree);
-            public static readonly string IsClean = nameof(IsClean);
             public static readonly string ReservationDate = nameof(ReservationDate);
             public static object ReservationCallStack = nameof(ReservationCallStack);
         }
@@ -141,7 +134,6 @@ namespace CQRS.Tests
 CREATE TABLE [dbo].[{ManagerTableSchema.TableName}](
 	[{ManagerTableSchema.DatabaseName}] [varchar](500) NOT NULL,
 	[{ManagerTableSchema.IsFree}] [bit] NOT NULL,
-    [{ManagerTableSchema.IsClean}] [bit] NOT NULL,
     [{ManagerTableSchema.ReservationDate}] [datetime] NOT NULL,
     [{ManagerTableSchema.ReservationCallStack}] [varchar](max) NOT NULL,
  CONSTRAINT [PK_DataBases] PRIMARY KEY CLUSTERED 
@@ -157,14 +149,15 @@ CREATE TABLE [dbo].[{ManagerTableSchema.TableName}](
             return sqlConnectionStringBuilder.ConnectionString;
         }
 
-        bool TryReserveDatabase(out Database databaseName)
+        bool TryReserveDatabase(out Database database)
         {
-            databaseName = null;
+            database = null;
             var freeDbs = GetDatabases().Where(db => db.IsFree).ToList();
             if(freeDbs.Any())
             {
-                databaseName = freeDbs.First();
-                ReserveDatabase(databaseName.Name);
+                database = freeDbs.First();
+                ReserveDatabase(database.Name);
+                CleanDatabase(database);
                 return true;
             }
             return false;
@@ -173,20 +166,21 @@ CREATE TABLE [dbo].[{ManagerTableSchema.TableName}](
         void ReserveDatabase(string dbName)
         {
             _managerConnection.ExecuteNonQuery(
-                $"update {ManagerTableSchema.TableName} set {ManagerTableSchema.IsFree} = 0, {ManagerTableSchema.IsClean} = 0, {ManagerTableSchema.ReservationDate} = getdate(), {ManagerTableSchema.ReservationCallStack} = '{Environment.StackTrace}' where {ManagerTableSchema.DatabaseName} = '{dbName}'");
+                $"update {ManagerTableSchema.TableName} set {ManagerTableSchema.IsFree} = 0, {ManagerTableSchema.ReservationDate} = getdate(), {ManagerTableSchema.ReservationCallStack} = '{Environment.StackTrace}' where {ManagerTableSchema.DatabaseName} = '{dbName}'");
             Console.WriteLine($"Reserved:{dbName}");
         }
 
-        void EmptyOutDatase(string dbName)
+        void CleanDatabase(Database db)
         {
-            new SqlServerConnectionUtilities(ConnectionStringForDbNamed(dbName))
+            new SqlServerConnectionUtilities(ConnectionStringForDbNamed(db.Name))
                 .UseConnection(connection => connection.DropAllObjects());
         }
 
         void InsertDatabase(string dbName)
         {
             _managerConnection.ExecuteNonQuery(
-                $"insert {ManagerTableSchema.TableName} ({ManagerTableSchema.DatabaseName}, {ManagerTableSchema.IsFree},{ManagerTableSchema.IsClean}, {ManagerTableSchema.ReservationDate},  {ManagerTableSchema.ReservationCallStack}) values('{dbName}', 0, 1, getdate(), '{Environment.StackTrace}')");
+                $@"insert {ManagerTableSchema.TableName} ({ManagerTableSchema.DatabaseName}, {ManagerTableSchema.IsFree}, {ManagerTableSchema.ReservationDate},  {ManagerTableSchema.ReservationCallStack}) 
+                                                           values('{dbName}'               ,                     0      ,                     getdate()       ,                     '{Environment.StackTrace}')");
         }
 
         void ReleaseDatabase(Database database)
@@ -195,9 +189,8 @@ CREATE TABLE [dbo].[{ManagerTableSchema.TableName}](
             Task.Run(
                 () =>
                 {
-                    EmptyOutDatase(database.Name);
                     var releasedDBs = _managerConnection.ExecuteNonQuery(
-                        $"update {ManagerTableSchema.TableName} set {ManagerTableSchema.IsFree} = 1, {ManagerTableSchema.IsClean} = 1  where {ManagerTableSchema.DatabaseName} = '{database.Name}'");
+                        $"update {ManagerTableSchema.TableName} set {ManagerTableSchema.IsFree} = 1  where {ManagerTableSchema.DatabaseName} = '{database.Name}'");
                     Contract.Assert(releasedDBs == 1);
                     Console.WriteLine($"Released:{database.Name}");
                 }
@@ -211,7 +204,7 @@ CREATE TABLE [dbo].[{ManagerTableSchema.TableName}](
                 {
                     var names = new List<Database>();
                     command.CommandText =
-                        $"select {ManagerTableSchema.DatabaseName}, {ManagerTableSchema.IsFree}, {ManagerTableSchema.IsClean}, {ManagerTableSchema.ReservationDate} from {ManagerTableSchema.TableName} With(TABLOCKX)";
+                        $"select {ManagerTableSchema.DatabaseName}, {ManagerTableSchema.IsFree}, {ManagerTableSchema.ReservationDate} from {ManagerTableSchema.TableName} With(TABLOCKX)";
                     using(var reader = command.ExecuteReader())
                     {
                         while(reader.Read())
@@ -220,8 +213,7 @@ CREATE TABLE [dbo].[{ManagerTableSchema.TableName}](
                                 new Database(
                                     name: reader.GetString(0),
                                     isFree: reader.GetBoolean(1),
-                                    isEmpty: reader.GetBoolean(2),
-                                    reservationDate: reader.GetDateTime(3),
+                                    reservationDate: reader.GetDateTime(2),
                                     connectionString: ConnectionStringForDbNamed(reader.GetString(0))));
                         }
                     }
@@ -262,14 +254,12 @@ CREATE TABLE [dbo].[{ManagerTableSchema.TableName}](
         class Database
         {
             public string Name { get; }
-            public bool IsEmpty { get; set; }
             public bool IsFree { get; set; }
             public DateTime ReservationDate { get; set; }
             public string ConnectionString { get; }
-            public Database(string name, bool isEmpty, bool isFree, DateTime reservationDate, string connectionString)
+            public Database(string name,  bool isFree, DateTime reservationDate, string connectionString)
             {
                 Name = name;
-                IsEmpty = isEmpty;
                 IsFree = isFree;
                 ReservationDate = reservationDate;
                 ConnectionString = connectionString;

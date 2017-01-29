@@ -36,7 +36,6 @@ namespace Composable.System.Data.SqlClient
             using (var connection = OpenConnection())
             {
                 action(connection);
-                connection.Close();
             }
         }
 

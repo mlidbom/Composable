@@ -1,19 +1,13 @@
 using System;
 using System.Collections.Generic;
-using System.Data;
 using System.Data.SqlClient;
-using System.Diagnostics;
 using System.Diagnostics.Contracts;
-using System.IO;
 using System.Linq;
-using System.Reflection;
-using System.Threading;
 using System.Threading.Tasks;
 using System.Transactions;
 using Castle.Core.Internal;
 using Castle.MicroKernel.Registration;
 using Castle.Windsor;
-using Composable.CQRS.EventSourcing.MicrosoftSQLServer;
 using Composable.CQRS.Testing;
 using Composable.System.Transactions;
 
@@ -21,15 +15,15 @@ namespace CQRS.Tests
 {
     public class TestDatabasePool : IDisposable
     {
-        private readonly string _masterConnectionString;
-        private readonly SqlServerConnectionUtilities _masterConnection;
-        private readonly SqlServerConnectionUtilities _managerConnection;
+        readonly string _masterConnectionString;
+        readonly SqlServerConnectionUtilities _masterConnection;
+        readonly SqlServerConnectionUtilities _managerConnection;
 
-        private static readonly string ManagerDbName = $"{nameof(TestDatabasePool)}";
+        static readonly string ManagerDbName = $"{nameof(TestDatabasePool)}";
 
         public TestDatabasePool(string masterConnectionString, IWindsorContainer container = null)
         {
-            _masterConnectionString = masterConnectionString; 
+            _masterConnectionString = masterConnectionString;
             _masterConnection = new SqlServerConnectionUtilities(_masterConnectionString);
             if(container != null)
             {
@@ -44,14 +38,15 @@ namespace CQRS.Tests
             ReleaseOldLocks();
         }
 
-        public void RegisterWithContainer(IWindsorContainer container)
+        void RegisterWithContainer(IWindsorContainer container)
         {
-            container.Register(Component.For<TestDatabasePool>().UsingFactoryMethod(() => this));//Register and resolve instance once so that it is disposed with the container
+            container.Register(Component.For<TestDatabasePool>().UsingFactoryMethod(() => this));
+                //Register and resolve instance once so that it is disposed with the container
             container.Resolve<TestDatabasePool>();
         }
 
-        private readonly Dictionary<string, Database> _reservedDatabases = new Dictionary<string, Database>();
-        private bool _disposed;
+        readonly Dictionary<string, Database> _reservedDatabases = new Dictionary<string, Database>();
+        bool _disposed;
 
         public string ConnectionStringFor(string requestedDbName)
         {
@@ -63,13 +58,18 @@ namespace CQRS.Tests
                 {
                     if(TryReserveDatabase(out database))
                     {
-                        _reservedDatabases.Add(requestedDbName,database);
+                        _reservedDatabases.Add(requestedDbName, database);
                     }
                     else
                     {
                         // ReSharper disable once AssignNullToNotNullAttribute
                         var newDBName = $"{ManagerDbName}_{Guid.NewGuid()}.mdf";
-                        database = new Database(newDBName, isEmpty:true, isFree:false, reservationDate:DateTime.UtcNow, connectionString: ConnectionStringForDbNamed(newDBName));
+                        database = new Database(
+                            newDBName,
+                            isEmpty: true,
+                            isFree: false,
+                            reservationDate: DateTime.UtcNow,
+                            connectionString: ConnectionStringForDbNamed(newDBName));
 
                         using(new TransactionScope(TransactionScopeOption.Suppress))
                         {
@@ -78,10 +78,10 @@ namespace CQRS.Tests
 
                         InsertDatabase(database.Name);
 
-                        _reservedDatabases.Add(requestedDbName,database);
+                        _reservedDatabases.Add(requestedDbName, database);
                     }
                     transaction.Complete();
-                }                
+                }
             }
 
             if(!database.IsEmpty)
@@ -99,8 +99,8 @@ namespace CQRS.Tests
             Console.WriteLine($"Created: {databaseName}");
         }
 
-        private static readonly HashSet<string> ConnectionStringsWithKnownManagerDb = new HashSet<string>();
-        private bool ManagerDbExists()
+        static readonly HashSet<string> ConnectionStringsWithKnownManagerDb = new HashSet<string>();
+        bool ManagerDbExists()
         {
             if(!ConnectionStringsWithKnownManagerDb.Contains(_masterConnectionString))
             {
@@ -110,15 +110,15 @@ namespace CQRS.Tests
                 }
             }
 
-            ConnectionStringsWithKnownManagerDb.Add(_masterConnectionString);           
+            ConnectionStringsWithKnownManagerDb.Add(_masterConnectionString);
             return true;
         }
 
-        private void CreateManagerDB()
+        void CreateManagerDB()
         {
             lock(typeof(TestDatabasePool))
             {
-                if (!ManagerDbExists())
+                if(!ManagerDbExists())
                 {
                     CreateDatabase(ManagerDbName);
                     _managerConnection.ExecuteNonQuery(CreateDbTableSql);
@@ -127,7 +127,7 @@ namespace CQRS.Tests
             }
         }
 
-        private static class ManagerTableSchema
+        static class ManagerTableSchema
         {
             public static readonly string TableName = "Databases";
             public static readonly string DatabaseName = nameof(DatabaseName);
@@ -137,7 +137,7 @@ namespace CQRS.Tests
             public static object ReservationCallStack = nameof(ReservationCallStack);
         }
 
-        private static readonly string CreateDbTableSql = $@"
+        static readonly string CreateDbTableSql = $@"
 CREATE TABLE [dbo].[{ManagerTableSchema.TableName}](
 	[{ManagerTableSchema.DatabaseName}] [varchar](500) NOT NULL,
 	[{ManagerTableSchema.IsFree}] [bit] NOT NULL,
@@ -150,16 +150,15 @@ CREATE TABLE [dbo].[{ManagerTableSchema.TableName}](
 ))
 ";
 
-        private string ConnectionStringForDbNamed(string dbName)
+        string ConnectionStringForDbNamed(string dbName)
         {
             var sqlConnectionStringBuilder = new SqlConnectionStringBuilder(_masterConnectionString);
             sqlConnectionStringBuilder.InitialCatalog = dbName;
             return sqlConnectionStringBuilder.ConnectionString;
         }
 
-        private bool TryReserveDatabase(out Database databaseName)
+        bool TryReserveDatabase(out Database databaseName)
         {
-
             databaseName = null;
             var freeDbs = GetDatabases().Where(db => db.IsFree).ToList();
             if(freeDbs.Any())
@@ -171,39 +170,41 @@ CREATE TABLE [dbo].[{ManagerTableSchema.TableName}](
             return false;
         }
 
-        private void ReserveDatabase(string dbName)
+        void ReserveDatabase(string dbName)
         {
-            _managerConnection.ExecuteNonQuery($"update {ManagerTableSchema.TableName} set {ManagerTableSchema.IsFree} = 0, {ManagerTableSchema.IsClean} = 0, {ManagerTableSchema.ReservationDate} = getdate(), {ManagerTableSchema.ReservationCallStack} = '{Environment.StackTrace}' where {ManagerTableSchema.DatabaseName} = '{dbName}'");
+            _managerConnection.ExecuteNonQuery(
+                $"update {ManagerTableSchema.TableName} set {ManagerTableSchema.IsFree} = 0, {ManagerTableSchema.IsClean} = 0, {ManagerTableSchema.ReservationDate} = getdate(), {ManagerTableSchema.ReservationCallStack} = '{Environment.StackTrace}' where {ManagerTableSchema.DatabaseName} = '{dbName}'");
             Console.WriteLine($"Reserved:{dbName}");
         }
 
-        private void EmptyOutDatase(string dbName)
+        void EmptyOutDatase(string dbName)
         {
             new SqlServerConnectionUtilities(ConnectionStringForDbNamed(dbName))
                 .UseConnection(connection => connection.DropAllObjects());
         }
 
-        private void InsertDatabase(string dbName)
+        void InsertDatabase(string dbName)
         {
             _managerConnection.ExecuteNonQuery(
                 $"insert {ManagerTableSchema.TableName} ({ManagerTableSchema.DatabaseName}, {ManagerTableSchema.IsFree},{ManagerTableSchema.IsClean}, {ManagerTableSchema.ReservationDate},  {ManagerTableSchema.ReservationCallStack}) values('{dbName}', 0, 1, getdate(), '{Environment.StackTrace}')");
         }
 
-        private void ReleaseDatabase(Database database)
+        void ReleaseDatabase(Database database)
         {
             _reservedDatabases.Remove(database.Name);
-            Task.Run(() =>
-                    {
-                        EmptyOutDatase(database.Name);
-                        var releasedDBs = _managerConnection.ExecuteNonQuery(
-                            $"update {ManagerTableSchema.TableName} set {ManagerTableSchema.IsFree} = 1, {ManagerTableSchema.IsClean} = 1  where {ManagerTableSchema.DatabaseName} = '{database.Name}'");
-                        Contract.Assert(releasedDBs == 1);
-                        Console.WriteLine($"Released:{database.Name}");
-                    }
-                );
+            Task.Run(
+                () =>
+                {
+                    EmptyOutDatase(database.Name);
+                    var releasedDBs = _managerConnection.ExecuteNonQuery(
+                        $"update {ManagerTableSchema.TableName} set {ManagerTableSchema.IsFree} = 1, {ManagerTableSchema.IsClean} = 1  where {ManagerTableSchema.DatabaseName} = '{database.Name}'");
+                    Contract.Assert(releasedDBs == 1);
+                    Console.WriteLine($"Released:{database.Name}");
+                }
+            );
         }
 
-        private IEnumerable<Database> GetDatabases()
+        IEnumerable<Database> GetDatabases()
         {
             return _managerConnection.UseCommand(
                 command =>
@@ -215,15 +216,21 @@ CREATE TABLE [dbo].[{ManagerTableSchema.TableName}](
                     {
                         while(reader.Read())
                         {
-                            names.Add(new Database(name:reader.GetString(0), isFree: reader.GetBoolean(1), isEmpty: reader.GetBoolean(2), reservationDate: reader.GetDateTime(3), connectionString:ConnectionStringForDbNamed(reader.GetString(0))));
+                            names.Add(
+                                new Database(
+                                    name: reader.GetString(0),
+                                    isFree: reader.GetBoolean(1),
+                                    isEmpty: reader.GetBoolean(2),
+                                    reservationDate: reader.GetDateTime(3),
+                                    connectionString: ConnectionStringForDbNamed(reader.GetString(0))));
                         }
                     }
                     return names;
                 });
         }
 
-        private void ReleaseOldLocks()
-        {            
+        void ReleaseOldLocks()
+        {
             var count = _managerConnection.ExecuteNonQuery(
                 $"update {ManagerTableSchema.TableName} With(TABLOCKX) set {ManagerTableSchema.IsFree} = 1 where {ManagerTableSchema.ReservationDate} < dateadd(minute, -10, getdate()) and {ManagerTableSchema.IsFree} = 0");
             if(count > 0)
@@ -240,7 +247,7 @@ CREATE TABLE [dbo].[{ManagerTableSchema.TableName}](
 
         protected virtual void InternalDispose()
         {
-            if (!_disposed)
+            if(!_disposed)
             {
                 InTransaction.Execute(() => _reservedDatabases.Values.ForEach(ReleaseDatabase));
                 _disposed = true;
@@ -249,19 +256,17 @@ CREATE TABLE [dbo].[{ManagerTableSchema.TableName}](
 
         ~TestDatabasePool()
         {
-            throw new Exception("Finalizer hit!");
-            Console.WriteLine("Finalizer hit!");
             InternalDispose();
         }
 
-        private class Database
+        class Database
         {
             public string Name { get; }
             public bool IsEmpty { get; set; }
             public bool IsFree { get; set; }
             public DateTime ReservationDate { get; set; }
             public string ConnectionString { get; }
-            public Database(string name, bool isEmpty, bool isFree, DateTime reservationDate,  string connectionString)
+            public Database(string name, bool isEmpty, bool isFree, DateTime reservationDate, string connectionString)
             {
                 Name = name;
                 IsEmpty = isEmpty;

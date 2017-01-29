@@ -55,7 +55,7 @@ namespace Composable.Testing
              bool timeIndividualExecutions = false,
              string description = "",
              string timeFormat = DefaultTimeFormat,
-             int maxTries = 3)
+             int maxTries = 1)
         {
             maxAverage = maxAverage != default(TimeSpan) ? maxAverage : TimeSpan.MaxValue;
             maxTotal = maxTotal != default(TimeSpan) ? maxTotal : TimeSpan.MaxValue;

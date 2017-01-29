@@ -54,6 +54,7 @@ namespace CQRS.Tests
         {
             Contract.Assert(!_disposed, "Attempt to use disposed object");
             Database database;
+            bool newDatabase = false;
             if(!_reservedDatabases.TryGetValue(requestedDbName, out database))
             {
                 using(var transaction = new TransactionScope())
@@ -64,6 +65,7 @@ namespace CQRS.Tests
                     }
                     else
                     {
+                        newDatabase = true;
                         // ReSharper disable once AssignNullToNotNullAttribute
                         var newDBName = $"{ManagerDbName}_{Guid.NewGuid()}.mdf";
                         database = new Database(
@@ -85,7 +87,12 @@ namespace CQRS.Tests
                 }
             }
 
-            return _reservedDatabases[requestedDbName].ConnectionString;
+            var db = _reservedDatabases[requestedDbName];
+            if(!newDatabase)
+            {
+                CleanDatabase(db);
+            }
+            return db.ConnectionString;
         }
 
         void CreateDatabase(string databaseName)
@@ -159,7 +166,6 @@ CREATE TABLE [dbo].[{ManagerTableSchema.TableName}](
             {
                 database = freeDbs.First();
                 ReserveDatabase(database.Name);
-                CleanDatabase(database);
                 return true;
             }
             return false;

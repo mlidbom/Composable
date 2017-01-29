@@ -5,6 +5,7 @@ using Composable.CQRS.Testing;
 using Composable.KeyValueStorage;
 using Composable.KeyValueStorage.SqlServer;
 using Composable.System.Linq;
+using Composable.Testing;
 using FluentAssertions;
 using NUnit.Framework;
 

@@ -9,6 +9,7 @@ using System.Linq;
 using Composable.CQRS.EventSourcing.MicrosoftSQLServer;
 using Composable.CQRS.Testing;
 using Composable.SystemExtensions.Threading;
+using Composable.Testing;
 
 #endregion
 

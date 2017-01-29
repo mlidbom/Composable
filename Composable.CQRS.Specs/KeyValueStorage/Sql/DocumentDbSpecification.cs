@@ -60,9 +60,9 @@
 //                static Action removeSubscriptions = () =>
 //                                                 {
 //                                                     // ReSharper disable PossibleNullReferenceException
-//                                                     subscription.Dispose();
-//                                                     typedSubscription.Dispose();
-//                                                     documentSubscription.Dispose();
+//                                                     subscription.InternalDispose();
+//                                                     typedSubscription.InternalDispose();
+//                                                     documentSubscription.InternalDispose();
 //                                                     // ReSharper restore PossibleNullReferenceException
 //                                                 };
 
@@ -191,7 +191,7 @@
 
 //                After_ = () =>
 //                         {
-//                             _dbPool.Dispose();
+//                             _dbPool.InternalDispose();
 //                         };
 //            }
 

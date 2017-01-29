@@ -9,6 +9,7 @@ using Composable.CQRS.EventSourcing.MicrosoftSQLServer;
 using Composable.CQRS.Testing;
 using Composable.System.Linq;
 using Composable.SystemExtensions.Threading;
+using Composable.Testing;
 using FluentAssertions;
 using NUnit.Framework;
 

@@ -1,5 +1,6 @@
 ﻿using Castle.MicroKernel.Registration;
 using Castle.Windsor;
+using Composable.Testing;
 
 namespace Composable.CQRS.Testing.Windsor
 {

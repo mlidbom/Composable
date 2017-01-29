@@ -239,7 +239,7 @@
     <Compile Include="System\Reflection\ObjectFactory.cs" />
     <Compile Include="System\Reflection\ObjectGraphWalker.cs" />
     <Compile Include="System\Reflection\TypeExtensions.cs" />
-    <Compile Include="System\ResourceLeakDetector.cs" />
+    <Compile Include="System\StrictlyManagedResourceBase.cs" />
     <Compile Include="System\StringExtensions.cs" />
     <Compile Include="System\TimeSpanEnumerableExtensions.cs" />
     <Compile Include="System\TimeSpanExtensions.cs" />
@@ -254,6 +254,7 @@
     <Compile Include="System\Web\MultiRequestAccessDetected.cs" />
     <Compile Include="System\Web\SingleHttpRequestUseGuard.cs" />
     <Compile Include="Testing\DatabaseHelpers.cs" />
+    <Compile Include="Testing\SqlServerDatabasePool.cs" />
     <Compile Include="Testing\TestEnvironmentPerformance.cs" />
     <Compile Include="Testing\TimeAsserter.cs" />
   </ItemGroup>

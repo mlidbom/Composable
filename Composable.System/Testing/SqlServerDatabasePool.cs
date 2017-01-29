@@ -5,13 +5,13 @@ using System.Diagnostics.Contracts;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Transactions;
+using Composable.System;
 using Composable.System.Data.SqlClient;
 using Composable.System.Linq;
-using Composable.Testing;
 
-namespace Composable.CQRS.Testing
+namespace Composable.Testing
 {
-    public class SqlServerDatabasePool : IDisposable
+    public sealed class SqlServerDatabasePool : StrictlyManagedResourceBase
     {
         readonly string _masterConnectionString;
         readonly SqlServerConnectionUtilities _masterConnection;
@@ -234,18 +234,12 @@ CREATE TABLE [dbo].[{ManagerTableSchema.TableName}](
                 });
         }
 
-        public void Dispose()
+        protected override void InternalDispose()
         {
-            InternalDispose();
-            GC.SuppressFinalize(this);
-        }
-
-        protected virtual void InternalDispose()
-        {
-            if(!_disposed)
+            if (!_disposed)
             {
-                _reservedDatabases.Values.ForEach(ReleaseDatabase);
                 _disposed = true;
+                _reservedDatabases.Values.ForEach(ReleaseDatabase);
             }
         }
 

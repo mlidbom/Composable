@@ -90,7 +90,7 @@ namespace CQRS.Tests
         {
             _masterConnection.ExecuteNonQuery($"CREATE DATABASE [{databaseName}]");
             _masterConnection.ExecuteNonQuery($"ALTER DATABASE [{databaseName}] SET RECOVERY SIMPLE;");
-            Console.WriteLine($"Created: {databaseName}");
+            //Console.WriteLine($"Created: {databaseName}");
         }
 
         static readonly HashSet<string> ConnectionStringsWithKnownManagerDb = new HashSet<string>();
@@ -167,7 +167,7 @@ CREATE TABLE [dbo].[{ManagerTableSchema.TableName}](
         {
             _managerConnection.ExecuteNonQuery(
                 $"update {ManagerTableSchema.TableName} set {ManagerTableSchema.IsFree} = 0, {ManagerTableSchema.ReservationDate} = getdate(), {ManagerTableSchema.ReservationCallStack} = '{Environment.StackTrace}' where {ManagerTableSchema.DatabaseName} = '{dbName}'");
-            Console.WriteLine($"Reserved:{dbName}");
+            //Console.WriteLine($"Reserved:{dbName}");
         }
 
         void CleanDatabase(Database db)
@@ -192,7 +192,7 @@ CREATE TABLE [dbo].[{ManagerTableSchema.TableName}](
                     var releasedDBs = _managerConnection.ExecuteNonQuery(
                         $"update {ManagerTableSchema.TableName} set {ManagerTableSchema.IsFree} = 1  where {ManagerTableSchema.DatabaseName} = '{database.Name}'");
                     Contract.Assert(releasedDBs == 1);
-                    Console.WriteLine($"Released:{database.Name}");
+                    //Console.WriteLine($"Released:{database.Name}");
                 }
             );
         }
@@ -227,7 +227,7 @@ CREATE TABLE [dbo].[{ManagerTableSchema.TableName}](
                 $"update {ManagerTableSchema.TableName} With(TABLOCKX) set {ManagerTableSchema.IsFree} = 1 where {ManagerTableSchema.ReservationDate} < dateadd(minute, -10, getdate()) and {ManagerTableSchema.IsFree} = 0");
             if(count > 0)
             {
-                Console.WriteLine($"Released {count} garbage reservations.");
+                //Console.WriteLine($"Released {count} garbage reservations.");
             }
         }
 
@@ -289,7 +289,7 @@ CREATE TABLE [dbo].[{ManagerTableSchema.TableName}](
             foreach(var db in dbsToDrop)
             {
                 var dropCommand = $"drop database [{db}]";
-                Console.WriteLine(dropCommand);
+                //Console.WriteLine(dropCommand);
                 try
                 {
                     _masterConnection.ExecuteNonQuery(dropCommand);

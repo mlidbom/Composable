@@ -89,11 +89,15 @@ namespace Composable.Testing
             //Console.WriteLine($"Created: {databaseName}");
         }
 
+        void SeparatelyInitConnectionPoolSoWeSeeRealisticExecutionTimesWhenProfiling() { _masterConnection.UseConnection(_ => { }); }
+
         static readonly HashSet<string> ConnectionStringsWithKnownManagerDb = new HashSet<string>();
         bool ManagerDbExists()
         {
             if(!ConnectionStringsWithKnownManagerDb.Contains(_masterConnectionString))
             {
+                SeparatelyInitConnectionPoolSoWeSeeRealisticExecutionTimesWhenProfiling();
+                //Don't go nuts trying to figure out why this line is slow. I got you covered. It is because it is very often the very first time a sql connection is opened. Initializing the DB pool is what is slow.
                 if(_masterConnection.ExecuteScalar($"select DB_ID('{ManagerDbName}')") == DBNull.Value)
                 {
                     return false;

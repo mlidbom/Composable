@@ -68,13 +68,16 @@ namespace Composable.Testing
                                   {
                                       PrintSummary(iterations, maxAverage, maxTotal, description, format, executionSummary);
 
-                                      Console.WriteLine(
-                                          $@"  
+                                      if(timeIndividualExecutions)
+                                      {
+                                          Console.WriteLine(
+                                              $@"  
     Individual execution times    
     Average: {format(executionSummary.IndividualExecutionTimes.Average())}
     Min:     {format(executionSummary.IndividualExecutionTimes.Min())}
     Max:     {format(executionSummary.IndividualExecutionTimes.Max())}
     Sum:     {format(executionSummary.IndividualExecutionTimes.Sum())}");
+                                      }
                                   };            
 
             for (int tries = 1; tries <= maxTries; tries++)

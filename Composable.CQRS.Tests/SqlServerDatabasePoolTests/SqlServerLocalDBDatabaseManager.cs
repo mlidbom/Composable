@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Configuration;
 using Composable.CQRS.Testing;
-using CQRS.Tests;
+using Composable.Testing;
 using FluentAssertions;
 using NUnit.Framework;
 
-namespace SqlServerDatabasePoolTests
+namespace CQRS.Tests.SqlServerDatabasePoolTests
 {
     [TestFixture]
     public class After_creating_two_databases_named_db1_and_db2
@@ -66,6 +66,17 @@ namespace SqlServerDatabasePoolTests
         public void The_Db1_connectionstring_is_different_from_the_Db2_connection_string()
         {
             _dB1ConnectionString.Should().NotBe(_dB2ConnectionString);
+        }
+
+
+        [Test]
+        public void Six_competing_threads_can_reserve_and_release_100_databases_in_10_seconds()
+        {
+            TimeAsserter.ExecuteThreaded(action:
+                () =>
+                {
+
+                }, maxTotal: 10.Seconds());
         }
 
         [TearDown]

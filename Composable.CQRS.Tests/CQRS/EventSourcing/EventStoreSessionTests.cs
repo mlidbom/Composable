@@ -577,7 +577,7 @@ namespace CQRS.Tests.CQRS.EventSourcing
             var timeForSingleTransactionalRead = (int)StopwatchExtensions.TimeExecution(readUserHistory).TotalMilliseconds;
 
             var timingsSummary = TimeAsserter.ExecuteThreaded(
-                readUserHistory,
+                action: readUserHistory,
                 iterations: iterations,
                 timeIndividualExecutions:true,
                 maxTotal: ((iterations * timeForSingleTransactionalRead) / 2).Milliseconds(),

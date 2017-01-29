@@ -156,7 +156,7 @@ namespace CQRS.Tests.CQRS.EventSourcing.Sql
                                                                       {
                                                                           test.TearDownTask();
                                                                       }
-                                                                  });
+                                                                  }, disposeDelay:100.Milliseconds());
                                                            };
 
             using (var session = OpenSession(CreateStore()))

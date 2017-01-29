@@ -32,7 +32,7 @@ namespace CQRS.Tests.SqlServerDatabasePoolTests
         }
 
         [Test]
-        public void Multiple_threads_can_reserve_and_release_100_identically_named_databases_in_10_seconds()
+        public void Multiple_threads_can_reserve_and_release_100_identically_named_databases_in_3_seconds()
         {
             var dbName = "EB82270F-E0BA-49F7-BC09-79AE95BA109F";
 
@@ -46,7 +46,8 @@ namespace CQRS.Tests.SqlServerDatabasePoolTests
                     }
                 },
                 iterations: 100,
-                maxTotal: 10.Seconds());
+                timeIndividualExecutions:true,
+                maxTotal: 3.Seconds());
         }
     }
 }

@@ -1,7 +1,7 @@
 using System;
 using System.Data.SqlClient;
 
-namespace CQRS.Tests
+namespace Composable.System.Data.SqlClient
 {
     internal class SqlServerConnectionUtilities
     {

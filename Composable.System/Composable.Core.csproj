@@ -202,6 +202,7 @@
     <Compile Include="System\Configuration\DummyConnectionStringProvider.cs" />
     <Compile Include="System\Configuration\IConfigurationParameterProvider.cs" />
     <Compile Include="System\Configuration\IConnectionStringProvider.cs" />
+    <Compile Include="System\Data\SqlClient\SqlServerConnectionUtilities.cs" />
     <Compile Include="System\DateTimeExtensions.cs" />
     <Compile Include="System\Diagnostics\StopwatchExtensions.cs" />
     <Compile Include="System\Disposable.cs" />

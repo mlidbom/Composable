@@ -4,8 +4,8 @@ namespace Composable.System
 {
     public abstract class StrictlyManagedResourceBase : IDisposable
     {
-        public StrictlyManagedResourceBase() { ReservationCallStack = Environment.StackTrace; }
-        public string ReservationCallStack { get; }
+        protected StrictlyManagedResourceBase() { ReservationCallStack = Environment.StackTrace; }
+        string ReservationCallStack { get; }
 
         bool _disposed;
         public void Dispose()

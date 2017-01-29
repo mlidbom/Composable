@@ -294,14 +294,14 @@ CREATE TABLE [dbo].[{ManagerTableSchema.TableName}](
             foreach(var db in dbsToDrop)
             {
                 var dropCommand = $"drop database [{db}]";
-                Debug.WriteLine(dropCommand);
+                Console.WriteLine(dropCommand);
                 try
                 {
                     _masterConnection.ExecuteNonQuery(dropCommand);
                 }
                 catch(Exception e)
                 {
-                    Debug.WriteLine(e.Message);
+                    Console.WriteLine(e.Message);
                 }
             }
 

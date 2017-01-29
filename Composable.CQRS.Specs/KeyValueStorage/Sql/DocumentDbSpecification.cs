@@ -172,7 +172,7 @@
 //        [Subject("")]
 //        public class SqlServerDocumentDbSpecification
 //        {
-//            static TestDatabasePool _dbPool;
+//            static SqlServerDatabasePool _dbPool;
 //            static string _connectionString;
 
 //            public SqlServerDocumentDbSpecification()
@@ -182,7 +182,7 @@
 //                Before_ = () =>
 //                          {
 //                              _dbPool =
-//                                  new TestDatabasePool(
+//                                  new SqlServerDatabasePool(
 //                                      new ConnectionStringConfigurationParameterProvider().GetConnectionString("MasterDB").ConnectionString);
 //                              _connectionString = _dbPool.ConnectionStringFor($"{nameof(SqlServerDocumentDbSpecification)}DocumentDB");
 //                              SqlServerDocumentDb.ResetDB(_connectionString);

@@ -7,6 +7,7 @@ using Composable.CQRS.EventSourcing;
 using NUnit.Framework;
 using System.Linq;
 using Composable.CQRS.EventSourcing.MicrosoftSQLServer;
+using Composable.CQRS.Testing;
 using Composable.SystemExtensions.Threading;
 
 #endregion
@@ -25,7 +26,7 @@ namespace CQRS.Tests.CQRS.EventSourcing.Sql
         [Test]
         public void ShouldNotCacheEventsSavedDuringFailedTransactionEvenIfReadDuringSameTransaction()
         {
-            using(var dbManager = new TestDatabasePool(ConfigurationManager.ConnectionStrings["MasterDb"].ConnectionString))
+            using(var dbManager = new SqlServerDatabasePool(ConfigurationManager.ConnectionStrings["MasterDb"].ConnectionString))
             {
                 var connectionString = dbManager.ConnectionStringFor("SqlServerEventStoreTest_EventStore1");
                 var something = new SqlServerEventStore(connectionString, new SingleThreadUseGuard());
@@ -48,7 +49,7 @@ namespace CQRS.Tests.CQRS.EventSourcing.Sql
         [Test]
         public void ShouldCacheEventsBetweenInstancesTransaction()
         {
-            using(var dbManager = new TestDatabasePool(ConfigurationManager.ConnectionStrings["MasterDb"].ConnectionString))
+            using(var dbManager = new SqlServerDatabasePool(ConfigurationManager.ConnectionStrings["MasterDb"].ConnectionString))
             {
                 var connectionString = dbManager.ConnectionStringFor("SqlServerEventStoreTest_EventStore2");
                 var something = new SqlServerEventStore(connectionString, new SingleThreadUseGuard());

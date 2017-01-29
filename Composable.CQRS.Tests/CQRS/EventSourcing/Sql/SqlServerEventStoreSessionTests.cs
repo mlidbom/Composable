@@ -18,19 +18,19 @@ namespace CQRS.Tests.CQRS.EventSourcing.Sql
     class SqlServerEventStoreSessionTests : EventStoreSessionTests
     {
         private string ConnectionString;
-        private TestDatabasePool _testDatabasePool;
+        private SqlServerDatabasePool _databasePool;
         [SetUp]
         public void Setup()
         {
 
             var masterConnectionString = ConfigurationManager.ConnectionStrings["MasterDb"].ConnectionString;
-            _testDatabasePool = new TestDatabasePool(masterConnectionString);
-            ConnectionString = _testDatabasePool.ConnectionStringFor($"SqlServerEventStoreSessionTests_EventStore");
+            _databasePool = new SqlServerDatabasePool(masterConnectionString);
+            ConnectionString = _databasePool.ConnectionStringFor($"SqlServerEventStoreSessionTests_EventStore");
         }
 
         [TearDown]
         public void TearDownTask() {
-            _testDatabasePool.Dispose();
+            _databasePool.Dispose();
         }
 
         protected override IEventStore CreateStore()

@@ -6,6 +6,7 @@ using NUnit.Framework;
 using Composable.System.Linq;
 using System.Linq;
 using Composable.CQRS.EventSourcing.MicrosoftSQLServer;
+using Composable.CQRS.Testing;
 using Composable.SystemExtensions.Threading;
 
 namespace CQRS.Tests.CQRS.EventSourcing
@@ -145,12 +146,12 @@ namespace CQRS.Tests.CQRS.EventSourcing
     {
         private string _connectionString1;
         private string _connectionString2;
-        private static TestDatabasePool _tempDbManager;
+        private static SqlServerDatabasePool _tempDbManager;
 
         [SetUp]
         public void SetupFixture()
         {
-            _tempDbManager = new TestDatabasePool(ConfigurationManager.ConnectionStrings["MasterDb"].ConnectionString);
+            _tempDbManager = new SqlServerDatabasePool(ConfigurationManager.ConnectionStrings["MasterDb"].ConnectionString);
             _connectionString1 = _tempDbManager.ConnectionStringFor("SqlServerEventStoreTests_EventStore1");
             _connectionString2 = _tempDbManager.ConnectionStringFor("SqlServerEventStoreTests_EventStore2");
         }

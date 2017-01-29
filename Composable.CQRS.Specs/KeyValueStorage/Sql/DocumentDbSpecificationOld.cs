@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Configuration;
 using System.Reactive.Disposables;
+using Composable.CQRS.Testing;
 using Composable.KeyValueStorage;
 using Composable.KeyValueStorage.SqlServer;
 using Composable.System.Configuration;
@@ -159,11 +160,11 @@ namespace CQRS.Tests.KeyValueStorage.Sqlold
 
         public class SqlServerDocumentDbSpecification : DocumentDbSpecification
         {
-            private TestDatabasePool _connectionManager;
+            private SqlServerDatabasePool _connectionManager;
 
             protected override void InitStore()
             {
-                _connectionManager = new TestDatabasePool(new ConnectionStringConfigurationParameterProvider().GetConnectionString("MasterDB").ConnectionString);
+                _connectionManager = new SqlServerDatabasePool(new ConnectionStringConfigurationParameterProvider().GetConnectionString("MasterDB").ConnectionString);
                 var connectionString = _connectionManager.ConnectionStringFor($"{nameof(SqlServerDocumentDbSpecification)}DocumentDB");
                 SqlServerDocumentDb.ResetDB(connectionString);
                 _store = new SqlServerDocumentDb(connectionString);

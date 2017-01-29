@@ -613,7 +613,7 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
         [Test]
         public void DropEm()
         {
-            //new TestDatabasePool(new ConnectionStringConfigurationParameterProvider().ConnectionStringFor("MasterDB").ConnectionString)
+            //new SqlServerDatabasePool(new ConnectionStringConfigurationParameterProvider().ConnectionStringFor("MasterDB").ConnectionString)
             //    .RemoveAllDatabases();
         }
     }

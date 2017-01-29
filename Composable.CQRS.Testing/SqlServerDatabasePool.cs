@@ -9,21 +9,21 @@ using Castle.Core.Internal;
 using Castle.MicroKernel.Registration;
 using Castle.Windsor;
 using Composable.CQRS.EventSourcing.MicrosoftSQLServer;
-using Composable.CQRS.Testing;
 using Composable.KeyValueStorage.SqlServer;
 using Composable.System.Transactions;
+using CQRS.Tests;
 
-namespace CQRS.Tests
+namespace Composable.CQRS.Testing
 {
-    public class TestDatabasePool : IDisposable
+    public class SqlServerDatabasePool : IDisposable
     {
         readonly string _masterConnectionString;
         readonly SqlServerConnectionUtilities _masterConnection;
         readonly SqlServerConnectionUtilities _managerConnection;
 
-        static readonly string ManagerDbName = $"{nameof(TestDatabasePool)}";
+        static readonly string ManagerDbName = $"{nameof(SqlServerDatabasePool)}";
 
-        public TestDatabasePool(string masterConnectionString, IWindsorContainer container = null)
+        public SqlServerDatabasePool(string masterConnectionString, IWindsorContainer container = null)
         {
             _masterConnectionString = masterConnectionString;
             _masterConnection = new SqlServerConnectionUtilities(_masterConnectionString);
@@ -42,9 +42,9 @@ namespace CQRS.Tests
 
         void RegisterWithContainer(IWindsorContainer container)
         {
-            container.Register(Component.For<TestDatabasePool>().UsingFactoryMethod(() => this));
+            container.Register(Component.For<SqlServerDatabasePool>().UsingFactoryMethod(() => this));
                 //Register and resolve instance once so that it is disposed with the container
-            container.Resolve<TestDatabasePool>();
+            container.Resolve<SqlServerDatabasePool>();
         }
 
         readonly Dictionary<string, Database> _reservedDatabases = new Dictionary<string, Database>();
@@ -119,7 +119,7 @@ namespace CQRS.Tests
 
         void CreateManagerDB()
         {
-            lock(typeof(TestDatabasePool))
+            lock(typeof(SqlServerDatabasePool))
             {
                 if(!ManagerDbExists())
                 {
@@ -266,7 +266,7 @@ CREATE TABLE [dbo].[{ManagerTableSchema.TableName}](
             }
         }
 
-        ~TestDatabasePool()
+        ~SqlServerDatabasePool()
         {
             InternalDispose();
         }

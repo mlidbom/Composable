@@ -30,7 +30,7 @@ namespace CQRS.Tests.CQRS.EventSourcing.Sql
             _windsorContainer = new WindsorContainer();
             Bus = new DummyServiceBus(_windsorContainer);
             var masterConnectionString = ConfigurationManager.ConnectionStrings["MasterDb"].ConnectionString;
-            _connectionString = new TestDatabasePool(masterConnectionString, _windsorContainer)
+            _connectionString = new SqlServerDatabasePool(masterConnectionString, _windsorContainer)
                 .ConnectionStringFor("MigratedSqlServerEventStoreSessionTests_EventStore");
         }
 

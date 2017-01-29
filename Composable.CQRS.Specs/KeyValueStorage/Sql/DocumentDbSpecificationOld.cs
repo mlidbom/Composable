@@ -16,14 +16,15 @@ namespace CQRS.Tests.KeyValueStorage.Sqlold
         private string _ignoredString;
         private Dictionary<Type, Dictionary<string, string>> _persistentValues;
 
-        public virtual void before_each()
+        void before_each()
         {
             _persistentValues = new Dictionary<Type, Dictionary<string, string>>();
         }
 
-        public abstract void after_each();
+        protected abstract void InitStore();
+        protected abstract void CleanStore();
 
-        public void starting_from_empty()
+        void starting_from_empty()
         {
             context["after subscribing to document updates"] =
                 () =>
@@ -52,10 +53,12 @@ namespace CQRS.Tests.KeyValueStorage.Sqlold
                     before = () =>
                              {
                                  nullOutReceived();
+                                 InitStore();
                                  subscription = _store.DocumentUpdated.Subscribe(updated => { documentUpdated = updated; });
                                  typedSubscription = _store.DocumentUpdated.WithDocumentType<string>().Subscribe(updated => typedDocumentUpdated = updated);
                                  documentSubscription = _store.DocumentUpdated.DocumentsOfType<string>().Subscribe(document => receivedDocument = document);
                              };
+                    after = CleanStore;
                     context["when adding a document with the id \"the_id\" and the value \"the_value\""] =
                         () =>
                         {
@@ -157,41 +160,35 @@ namespace CQRS.Tests.KeyValueStorage.Sqlold
         public class SqlServerDocumentDbSpecification : DocumentDbSpecification
         {
             private TestDatabasePool _connectionManager;
-            private string _connectionString;
-            private CompositeDisposable _connectionManagers = new CompositeDisposable();
 
-            public override void before_each()
+            protected override void InitStore()
             {
-                base.before_each();
                 _connectionManager = new TestDatabasePool(new ConnectionStringConfigurationParameterProvider().GetConnectionString("MasterDB").ConnectionString);
-                _connectionManagers.Add(_connectionManager);
-                _connectionString = _connectionManager.ConnectionStringFor($"{nameof(SqlServerDocumentDbSpecification)}DocumentDB");
-                SqlServerDocumentDb.ResetDB(_connectionString);
-                _store = new SqlServerDocumentDb(_connectionString);
+                var connectionString = _connectionManager.ConnectionStringFor($"{nameof(SqlServerDocumentDbSpecification)}DocumentDB");
+                SqlServerDocumentDb.ResetDB(connectionString);
+                _store = new SqlServerDocumentDb(connectionString);
             }
-
-            public override void after_each()
+            protected override void CleanStore()
             {
-                _connectionManagers.Clear();
+                _connectionManager.Dispose();
             }
 
             public void Does_not_call_db_in_constructor()
             {
                 SqlServerDocumentDb db;
                 act = () => db = new SqlServerDocumentDb("ANonsensStringThatDoesNotResultInASqlConnection");
-                it["Throws no exception"] =  () => { var blah = new SqlServerDocumentDb("ANonsensStringThatDoesNotResultInASqlConnection"); };
+                it["Throws no exception"] = () => { var blah = new SqlServerDocumentDb("ANonsensStringThatDoesNotResultInASqlConnection"); };
             }
         }
 
         public class InMemoryDocumentDbSpecification : DocumentDbSpecification
         {
-            override public void before_each()
+            protected override void InitStore()
             {
-                base.before_each();
                 _store = new InMemoryDocumentDb();
             }
 
-            public override void after_each() { }
+            protected override void CleanStore() { _store = null; }
         }
     }
 }

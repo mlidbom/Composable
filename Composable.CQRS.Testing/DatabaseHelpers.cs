@@ -11,8 +11,6 @@ namespace Composable.CQRS.Testing
     {
 
         public static void DropAllObjects(this IDbConnection connection) {
-            SqlServerEventStoreSchemaManager.ClearCache(connection);
-            SqlServerEventStoreEventsCache.ClearAll();
             using (var cmd = connection.CreateCommand())
             {
                 cmd.CommandType = CommandType.Text;

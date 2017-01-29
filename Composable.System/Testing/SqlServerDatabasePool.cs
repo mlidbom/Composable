@@ -29,7 +29,7 @@ namespace Composable.Testing
             sqlConnectionStringBuilder.InitialCatalog = ManagerDbName;
             _managerConnection = new SqlServerConnectionUtilities(sqlConnectionStringBuilder.ConnectionString);
 
-            CreateManagerDB();
+            EnsureManagerDbExists();
             ReleaseOldLocks();
         }        
 
@@ -108,7 +108,7 @@ namespace Composable.Testing
             return true;
         }
 
-        void CreateManagerDB()
+        void EnsureManagerDbExists()
         {
             lock(typeof(SqlServerDatabasePool))
             {

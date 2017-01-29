@@ -44,7 +44,7 @@ namespace Composable.Contracts.Tests
             TimeAsserter.Execute(
                 action: () => Contract.Argument(() => one).NotDefault(),
                 iterations: 500,
-                maxTotal: 10.Milliseconds());
+                maxTotal: 10.Milliseconds().AdjustRuntimeToTestEnvironment());
         }
 
         private struct MyStructure {}

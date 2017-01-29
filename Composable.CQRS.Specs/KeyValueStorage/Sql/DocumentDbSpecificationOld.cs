@@ -177,7 +177,9 @@ namespace CQRS.Tests.KeyValueStorage.Sqlold
 
             public void Does_not_call_db_in_constructor()
             {
-                _store = new SqlServerDocumentDb("ANonsensStringThatDoesNotResultInASqlConnection");
+                SqlServerDocumentDb db;
+                act = () => db = new SqlServerDocumentDb("ANonsensStringThatDoesNotResultInASqlConnection");
+                it["Throws no exception"] =  () => { var blah = new SqlServerDocumentDb("ANonsensStringThatDoesNotResultInASqlConnection"); };
             }
         }
 

@@ -190,7 +190,6 @@ CREATE TABLE [dbo].[{ManagerTableSchema.TableName}](
                     });
             
             SqlServerEventStoreEventsCache.ClearAll();
-            SqlServerDocumentDb.ResetDB(db.ConnectionString);
         }
 
         void InsertDatabase(string dbName)

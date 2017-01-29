@@ -233,12 +233,16 @@ CREATE TABLE [dbo].[{ManagerTableSchema.TableName}](
 
         void ReleaseOldLocks()
         {
-            var count = _managerConnection.ExecuteNonQuery(
-                $"update {ManagerTableSchema.TableName} With(TABLOCKX) set {ManagerTableSchema.IsFree} = 1 where {ManagerTableSchema.ReservationDate} < dateadd(minute, -10, getdate()) and {ManagerTableSchema.IsFree} = 0");
-            if(count > 0)
-            {
-                //Console.WriteLine($"Released {count} garbage reservations.");
-            }
+            Task.Run(
+                () =>
+                {
+                    var count = _managerConnection.ExecuteNonQuery(
+                        $"update {ManagerTableSchema.TableName} With(TABLOCKX) set {ManagerTableSchema.IsFree} = 1 where {ManagerTableSchema.ReservationDate} < dateadd(minute, -10, getdate()) and {ManagerTableSchema.IsFree} = 0");
+                    if(count > 0)
+                    {
+                        //Console.WriteLine($"Released {count} garbage reservations.");
+                    }
+                });
         }
 
         public void Dispose()

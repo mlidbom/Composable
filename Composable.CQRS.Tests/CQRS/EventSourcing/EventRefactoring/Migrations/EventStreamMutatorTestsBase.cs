@@ -172,9 +172,9 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
                 if(eventStoreConnectionString == null)
                 {
                     var masterConnectionSTring = new ConnectionStringConfigurationParameterProvider().GetConnectionString("MasterDB");
-                    var dbManager = new TemporaryLocalDbManager(masterConnectionSTring.ConnectionString, container);
+                    var dbManager = new TestDatabasePool(masterConnectionSTring.ConnectionString, container);
 
-                    eventStoreConnectionString = dbManager.CreateOrGetLocalDb($"{nameof(EventStreamMutatorTestsBase)}_EventStore");
+                    eventStoreConnectionString = dbManager.ConnectionStringFor($"{nameof(EventStreamMutatorTestsBase)}_EventStore");
                 }
 
                 container.Register(                    

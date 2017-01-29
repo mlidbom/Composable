@@ -131,7 +131,7 @@
     </Compile>
     <Compile Include="AppDomainExtensions.cs" />
     <Compile Include="SqlServerConnectionUtilities.cs" />
-    <Compile Include="TemporaryLocalDbManager.cs" />
+    <Compile Include="TestDatabasePool.cs" />
     <Compile Include="Windsor\Testing\WindsorRegistrationTesterExtensions.cs" />
     <Compile Include="Diagnostics\DocumentDbSessionInspector.cs" />
     <Compile Include="CollectionAssertions.cs" />

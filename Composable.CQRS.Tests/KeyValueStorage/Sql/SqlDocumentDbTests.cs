@@ -13,7 +13,7 @@ namespace CQRS.Tests.KeyValueStorage.Sql
     [Serializable]
     class SqlDocumentDbTests : DocumentDbTests
     {
-        private static TemporaryLocalDbManager _temporaryLocalDbManager;
+        private static TestDatabasePool _testDatabasePool;
 
         private string _connectionString;
 
@@ -21,8 +21,8 @@ namespace CQRS.Tests.KeyValueStorage.Sql
         public void Setup()
         {
             var masterConnectionString = ConfigurationManager.ConnectionStrings["MasterDb"].ConnectionString;
-            _temporaryLocalDbManager = new TemporaryLocalDbManager(masterConnectionString);
-            _connectionString = _temporaryLocalDbManager.CreateOrGetLocalDb($"SqlDocumentDbTests_DB");
+            _testDatabasePool = new TestDatabasePool(masterConnectionString);
+            _connectionString = _testDatabasePool.ConnectionStringFor($"SqlDocumentDbTests_DB");
 
             SqlServerDocumentDb.ResetDB(_connectionString);
         }
@@ -30,7 +30,7 @@ namespace CQRS.Tests.KeyValueStorage.Sql
         [TearDown]
         public void TearDownTask()
         {
-            _temporaryLocalDbManager.Dispose();
+            _testDatabasePool.Dispose();
         }
 
         protected override IDocumentDb CreateStore()

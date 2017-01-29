@@ -18,19 +18,19 @@ namespace CQRS.Tests.CQRS.EventSourcing.Sql
     class SqlServerEventStoreSessionTests : EventStoreSessionTests
     {
         private string ConnectionString;
-        private TemporaryLocalDbManager _temporaryLocalDbManager;
+        private TestDatabasePool _testDatabasePool;
         [SetUp]
         public void Setup()
         {
 
             var masterConnectionString = ConfigurationManager.ConnectionStrings["MasterDb"].ConnectionString;
-            _temporaryLocalDbManager = new TemporaryLocalDbManager(masterConnectionString);
-            ConnectionString = _temporaryLocalDbManager.CreateOrGetLocalDb($"SqlServerEventStoreSessionTests_EventStore");
+            _testDatabasePool = new TestDatabasePool(masterConnectionString);
+            ConnectionString = _testDatabasePool.ConnectionStringFor($"SqlServerEventStoreSessionTests_EventStore");
         }
 
         [TearDown]
         public void TearDownTask() {
-            _temporaryLocalDbManager.Dispose();
+            _testDatabasePool.Dispose();
         }
 
         protected override IEventStore CreateStore()
@@ -138,12 +138,23 @@ namespace CQRS.Tests.CQRS.EventSourcing.Sql
                                                                   () =>
                                                                   {
                                                                       var test = new SqlServerEventStoreSessionTests();
-                                                                      test.Setup();
-                                                                      using (var session = test.OpenSession(test.CreateStore()))
+                                                                      try
                                                                       {
-                                                                          var otherUser = User.Register(session, "email@email.se", "password", Guid.NewGuid());
-                                                                          otherUser.ChangeEmail("some@email.new");
-                                                                          session.SaveChanges();
+                                                                          test.Setup();
+                                                                          using(var session = test.OpenSession(test.CreateStore()))
+                                                                          {
+                                                                              var otherUser = User.Register(
+                                                                                  session,
+                                                                                  "email@email.se",
+                                                                                  "password",
+                                                                                  Guid.NewGuid());
+                                                                              otherUser.ChangeEmail("some@email.new");
+                                                                              session.SaveChanges();
+                                                                          }
+                                                                      }
+                                                                      finally
+                                                                      {
+                                                                          test.TearDownTask();
                                                                       }
                                                                   });
                                                            };

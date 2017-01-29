@@ -32,7 +32,7 @@ namespace Composable.Testing
                 }
                 catch(Exception e)
                 {
-                    Console.WriteLine($"Try: {tries} {e.GetType().FullName}: {e.Message}");
+                    Debug.WriteLine($"Try: {tries} {e.GetType().FullName}: {e.Message}");
                     if(tries >= maxTries)
                     {
                         PrintSummary(iterations, maxAverage, maxTotal, description, format, executionSummary);

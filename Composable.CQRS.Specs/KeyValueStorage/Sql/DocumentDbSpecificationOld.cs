@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Configuration;
+using System.Reactive.Disposables;
 using Composable.KeyValueStorage;
 using Composable.KeyValueStorage.SqlServer;
 using Composable.System.Configuration;
@@ -19,6 +20,8 @@ namespace CQRS.Tests.KeyValueStorage.Sqlold
         {
             _persistentValues = new Dictionary<Type, Dictionary<string, string>>();
         }
+
+        public abstract void after_each();
 
         public void starting_from_empty()
         {
@@ -153,21 +156,23 @@ namespace CQRS.Tests.KeyValueStorage.Sqlold
 
         public class SqlServerDocumentDbSpecification : DocumentDbSpecification
         {
-            private TemporaryLocalDbManager _connectionManager;
+            private TestDatabasePool _connectionManager;
             private string _connectionString;
+            private CompositeDisposable _connectionManagers = new CompositeDisposable();
 
-            override public void before_each()
+            public override void before_each()
             {
                 base.before_each();
-                _connectionManager = new TemporaryLocalDbManager(new ConnectionStringConfigurationParameterProvider().GetConnectionString("MasterDB").ConnectionString);
-                _connectionString = _connectionManager.CreateOrGetLocalDb($"{nameof(SqlServerDocumentDbSpecification)}DocumentDB");
+                _connectionManager = new TestDatabasePool(new ConnectionStringConfigurationParameterProvider().GetConnectionString("MasterDB").ConnectionString);
+                _connectionManagers.Add(_connectionManager);
+                _connectionString = _connectionManager.ConnectionStringFor($"{nameof(SqlServerDocumentDbSpecification)}DocumentDB");
                 SqlServerDocumentDb.ResetDB(_connectionString);
                 _store = new SqlServerDocumentDb(_connectionString);
             }
 
-            public void after_each()
-            {                
-                _connectionManager.Dispose();
+            public override void after_each()
+            {
+                _connectionManagers.Clear();
             }
 
             public void Does_not_call_db_in_constructor()
@@ -183,6 +188,8 @@ namespace CQRS.Tests.KeyValueStorage.Sqlold
                 base.before_each();
                 _store = new InMemoryDocumentDb();
             }
+
+            public override void after_each() { }
         }
     }
 }

@@ -237,6 +237,7 @@
     <Compile Include="System\Reflection\ObjectFactory.cs" />
     <Compile Include="System\Reflection\ObjectGraphWalker.cs" />
     <Compile Include="System\Reflection\TypeExtensions.cs" />
+    <Compile Include="System\ResourceLeakDetector.cs" />
     <Compile Include="System\StringExtensions.cs" />
     <Compile Include="System\TimeSpanEnumerableExtensions.cs" />
     <Compile Include="System\TimeSpanExtensions.cs" />

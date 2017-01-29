@@ -261,7 +261,7 @@ CREATE TABLE [dbo].[{ManagerTableSchema.TableName}](
         {
             if(!_disposed)
             {
-                InTransaction.Execute(() => _reservedDatabases.Values.ForEach(ReleaseDatabase));
+                _reservedDatabases.Values.ForEach(ReleaseDatabase);
                 _disposed = true;
             }
         }

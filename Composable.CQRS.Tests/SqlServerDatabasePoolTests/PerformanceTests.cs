@@ -17,7 +17,7 @@ namespace CQRS.Tests.SqlServerDatabasePoolTests
         }
 
         [Test]
-        public void Single_thread_can_reserve_and_release_100_identically_named_databases_in_5_seconds()
+        public void Single_thread_can_reserve_and_release_10_identically_named_databases_in_500_milliseconds()
         {
             var dbName = "74EA37DF-03CE-49C4-BDEC-EAD40FAFB3A1";
 
@@ -30,13 +30,13 @@ namespace CQRS.Tests.SqlServerDatabasePoolTests
                         manager.ConnectionStringFor(dbName);
                     }
                 },
-                iterations: 100,
-                maxTotal: 5.Seconds(),
+                iterations: 10,
+                maxTotal: 500.Milliseconds(),
                 maxTries: 3);
         }
 
         [Test]
-        public void Multiple_threads_can_reserve_and_release_100_identically_named_databases_in_2_seconds()
+        public void Multiple_threads_can_reserve_and_release_10_identically_named_databases_in_200_milliseconds()
         {
             var dbName = "EB82270F-E0BA-49F7-BC09-79AE95BA109F";
 
@@ -49,9 +49,9 @@ namespace CQRS.Tests.SqlServerDatabasePoolTests
                         manager.ConnectionStringFor(dbName);
                     }
                 },
-                iterations: 100,
+                iterations: 10,
                 timeIndividualExecutions: true,
-                maxTotal: 2.Seconds(),
+                maxTotal: 200.Milliseconds(),
                 maxTries: 3);
         }
 

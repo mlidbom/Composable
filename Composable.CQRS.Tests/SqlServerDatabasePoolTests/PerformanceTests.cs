@@ -1,5 +1,4 @@
 ﻿using System.Configuration;
-using Composable.CQRS.Testing;
 using Composable.Testing;
 using FluentAssertions;
 using NUnit.Framework;
@@ -28,7 +27,7 @@ namespace CQRS.Tests.SqlServerDatabasePoolTests
                 {
                     using(var manager = new SqlServerDatabasePool(_masterConnectionString))
                     {
-                        var connection1 = manager.ConnectionStringFor(dbName);
+                        manager.ConnectionStringFor(dbName);
                     }
                 },
                 iterations: 100,
@@ -47,29 +46,29 @@ namespace CQRS.Tests.SqlServerDatabasePoolTests
                 {
                     using(var manager = new SqlServerDatabasePool(_masterConnectionString))
                     {
-                        var connection1 = manager.ConnectionStringFor(dbName);
+                        manager.ConnectionStringFor(dbName);
                     }
                 },
                 iterations: 100,
                 timeIndividualExecutions: true,
                 maxTotal: 2.Seconds(),
-                maxTries:3);
+                maxTries: 3);
         }
 
         [Test]
         public void Repeated_fetching_of_same_connection_runs_1000_times_in_ten_milliseconds()
         {
             var dbName = "4669B59A-E0AC-4E76-891C-7A2369AE0F2F";
-            using (var manager = new SqlServerDatabasePool(_masterConnectionString))
+            using(var manager = new SqlServerDatabasePool(_masterConnectionString))
             {
-                var connection1 = manager.ConnectionStringFor(dbName);
+                manager.ConnectionStringFor(dbName);
 
                 TimeAsserter.Execute(
                     action: () => manager.ConnectionStringFor(dbName),
                     iterations: 1000,
                     maxTotal: 10.Milliseconds(),
-                    timeFormat:"fff"
-                    );
+                    timeFormat: "fff"
+                );
             }
         }
     }

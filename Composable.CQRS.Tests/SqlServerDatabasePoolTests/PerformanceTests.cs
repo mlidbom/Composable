@@ -14,7 +14,7 @@ namespace CQRS.Tests.SqlServerDatabasePoolTests
         [SetUp]
         public void WarmUpCache()
         {
-            new SqlServerDatabasePool(_masterConnectionString);
+            using(new SqlServerDatabasePool(_masterConnectionString)) { }
         }
 
         [Test]

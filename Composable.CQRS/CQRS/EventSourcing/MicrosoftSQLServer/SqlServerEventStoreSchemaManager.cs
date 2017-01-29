@@ -111,5 +111,17 @@ AT:
                 }
             }
         }
+
+        public static void ClearAllCache()
+        {
+            lock (VerifiedConnectionStrings)
+            {
+                foreach (var connectionString in VerifiedConnectionStrings.ToList())
+                {
+                    VerifiedConnectionStrings.Remove(connectionString);
+                    ConnectionIdMapper.Remove(connectionString);
+                }
+            }
+        }
     }
 }

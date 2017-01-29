@@ -170,12 +170,13 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
 
             if (eventStoreType == typeof(SqlServerEventStore))
             {
-                if(eventStoreConnectionString == null)
+                if (eventStoreConnectionString == null)
                 {
                     var masterConnectionSTring = new ConnectionStringConfigurationParameterProvider().GetConnectionString("MasterDB");
                     var dbManager = new SqlServerDatabasePool(masterConnectionSTring.ConnectionString, container);
 
                     eventStoreConnectionString = dbManager.ConnectionStringFor($"{nameof(EventStreamMutatorTestsBase)}_EventStore");
+                    SqlServerEventStore.ClearAllCache();
                 }
 
                 container.Register(                    

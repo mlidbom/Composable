@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Data.SqlClient;
-using System.Linq;
-using Composable.CQRS.EventSourcing.MicrosoftSQLServer;
+﻿using System.Data;
 
 namespace Composable.CQRS.Testing
 {

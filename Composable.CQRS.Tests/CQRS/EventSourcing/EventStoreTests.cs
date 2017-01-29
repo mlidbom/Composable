@@ -154,6 +154,8 @@ namespace CQRS.Tests.CQRS.EventSourcing
             _tempDbManager = new SqlServerDatabasePool(ConfigurationManager.ConnectionStrings["MasterDb"].ConnectionString);
             _connectionString1 = _tempDbManager.ConnectionStringFor("SqlServerEventStoreTests_EventStore1");
             _connectionString2 = _tempDbManager.ConnectionStringFor("SqlServerEventStoreTests_EventStore2");
+
+            SqlServerEventStore.ClearAllCache();            
         }
 
         [TearDown]

@@ -32,6 +32,8 @@ namespace CQRS.Tests.CQRS.EventSourcing.Sql
             var masterConnectionString = ConfigurationManager.ConnectionStrings["MasterDb"].ConnectionString;
             _connectionString = new SqlServerDatabasePool(masterConnectionString, _windsorContainer)
                 .ConnectionStringFor("MigratedSqlServerEventStoreSessionTests_EventStore");
+
+            SqlServerEventStore.ClearAllCache();
         }
 
         protected IEventStoreSession OpenSession(IEventStore store)

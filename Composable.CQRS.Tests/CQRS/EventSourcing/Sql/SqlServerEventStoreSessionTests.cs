@@ -26,6 +26,7 @@ namespace CQRS.Tests.CQRS.EventSourcing.Sql
             var masterConnectionString = ConfigurationManager.ConnectionStrings["MasterDb"].ConnectionString;
             _databasePool = new SqlServerDatabasePool(masterConnectionString);
             ConnectionString = _databasePool.ConnectionStringFor($"SqlServerEventStoreSessionTests_EventStore");
+            SqlServerEventStore.ClearAllCache();
         }
 
         [TearDown]

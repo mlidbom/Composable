@@ -8,9 +8,6 @@ using System.Transactions;
 using Castle.Core.Internal;
 using Castle.MicroKernel.Registration;
 using Castle.Windsor;
-using Composable.CQRS.EventSourcing.MicrosoftSQLServer;
-using Composable.KeyValueStorage.SqlServer;
-using Composable.System.Transactions;
 using CQRS.Tests;
 
 namespace Composable.CQRS.Testing
@@ -185,11 +182,8 @@ CREATE TABLE [dbo].[{ManagerTableSchema.TableName}](
                 .UseConnection(
                     connection =>
                     {
-                        SqlServerEventStoreSchemaManager.ClearCache(connection);
                         connection.DropAllObjects();
                     });
-            
-            SqlServerEventStoreEventsCache.ClearAll();
         }
 
         void InsertDatabase(string dbName)

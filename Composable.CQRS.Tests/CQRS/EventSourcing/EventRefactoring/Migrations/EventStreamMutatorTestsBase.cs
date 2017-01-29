@@ -8,6 +8,7 @@ using Composable.CQRS.EventSourcing;
 using Composable.CQRS.EventSourcing.MicrosoftSQLServer;
 using Composable.CQRS.EventSourcing.Refactoring.Migrations;
 using Composable.CQRS.Testing;
+using Composable.CQRS.Testing.Windsor;
 using Composable.GenericAbstractions.Time;
 using Composable.ServiceBus;
 using Composable.System.Collections.Collections;
@@ -173,7 +174,7 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
                 if (eventStoreConnectionString == null)
                 {
                     var masterConnectionSTring = new ConnectionStringConfigurationParameterProvider().GetConnectionString("MasterDB");
-                    var dbManager = new SqlServerDatabasePool(masterConnectionSTring.ConnectionString, container);
+                    var dbManager = container.RegisterSqlServerDatabasePool(masterConnectionSTring.ConnectionString);
 
                     eventStoreConnectionString = dbManager.ConnectionStringFor($"{nameof(EventStreamMutatorTestsBase)}_EventStore");
                     SqlServerEventStore.ClearAllCache();

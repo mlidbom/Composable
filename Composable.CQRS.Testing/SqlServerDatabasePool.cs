@@ -5,10 +5,8 @@ using System.Diagnostics.Contracts;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Transactions;
-using Castle.Core.Internal;
-using Castle.MicroKernel.Registration;
-using Castle.Windsor;
 using Composable.System.Data.SqlClient;
+using Composable.System.Linq;
 using Composable.Testing;
 
 namespace Composable.CQRS.Testing
@@ -21,14 +19,11 @@ namespace Composable.CQRS.Testing
 
         static readonly string ManagerDbName = $"{nameof(SqlServerDatabasePool)}";
 
-        public SqlServerDatabasePool(string masterConnectionString, IWindsorContainer container = null)
+        public SqlServerDatabasePool(string masterConnectionString)
         {
             _masterConnectionString = masterConnectionString;
             _masterConnection = new SqlServerConnectionUtilities(_masterConnectionString);
-            if(container != null)
-            {
-                RegisterWithContainer(container);
-            }
+            
 
             var sqlConnectionStringBuilder = new SqlConnectionStringBuilder(_masterConnectionString);
             sqlConnectionStringBuilder.InitialCatalog = ManagerDbName;
@@ -36,14 +31,7 @@ namespace Composable.CQRS.Testing
 
             CreateManagerDB();
             ReleaseOldLocks();
-        }
-
-        void RegisterWithContainer(IWindsorContainer container)
-        {
-            container.Register(Component.For<SqlServerDatabasePool>().UsingFactoryMethod(() => this));
-                //Register and resolve instance once so that it is disposed with the container
-            container.Resolve<SqlServerDatabasePool>();
-        }
+        }        
 
         readonly Dictionary<string, Database> _reservedDatabases = new Dictionary<string, Database>();
         bool _disposed;

@@ -1,12 +1,11 @@
-﻿using Machine.Specifications;
-
-// ReSharper disable MemberHidesStaticFromOuterClass
+﻿using JetBrains.Annotations;
+using Machine.Specifications;
 // ReSharper disable InconsistentNaming
-// ReSharper disable UnusedMember.Global
 // ReSharper disable UnusedMember.Local
+
 namespace Composable.Tests.TestFrameworkExploration.Machine.Specifications
 {
-    public class Describe_mspec
+    [UsedImplicitly] public class Describe_mspec
     {
         static CallTracker Current;
 
@@ -17,13 +16,6 @@ namespace Composable.Tests.TestFrameworkExploration.Machine.Specifications
                                           .Push(Class_context.before_all);
                                };
 
-        //Establish before_each = () => Current.Is(Outer_context.beforeAll,
-        //                                         Class_context.after_each,
-        //                                         Inner_context.beforeAll)
-        //                                     .Push(Class_context.before_each);
-
-        //Cleanup after_each = () => Current.Is(Outer_context.after)
-        //                                  .Push(Class_context.after_each);
 
         Cleanup after_all = () => Current.Is(Outer_context.afterAll)
                                          .Push(Class_context.after_all)
@@ -34,11 +26,6 @@ namespace Composable.Tests.TestFrameworkExploration.Machine.Specifications
             Establish beforeAll = () => Current.Is(Class_context.before_all)
                                                .Push(Outer_context.beforeAll);
 
-            //Establish before = () => Current.Is(Class_context.before_each)
-            //                                .Push(Outer_context.before);
-
-            //Cleanup after = () => Current.Is("")
-            //                             .Push(Outer_context.after);
 
             Cleanup afterAll = () => Current.Is(Inner_context.afterAll, Outer_context.beforeAll, Outer_context.It2)
                                             .Push(Outer_context.afterAll);
@@ -53,13 +40,6 @@ namespace Composable.Tests.TestFrameworkExploration.Machine.Specifications
             {
                 Establish beforeAll = () => Current.Is(Outer_context.beforeAll)
                                                    .Push(Inner_context.beforeAll);
-
-                //Establish before = () => Current.Is(Outer_context.before)
-                //                                .Push(Inner_context.before);
-
-                //Cleanup after = () => Current.Is(Inner_context.It1,
-                //                                 Inner_context.It2)
-                //                             .Push(Inner_context.after);
 
                 Cleanup afterAll = () => Current.Is(Inner_context.It2)
                                                 .Push(Inner_context.afterAll);

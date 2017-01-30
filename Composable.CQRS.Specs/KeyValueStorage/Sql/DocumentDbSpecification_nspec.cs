@@ -1,16 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Configuration;
-using System.Reactive.Disposables;
-using Composable.CQRS.Testing;
 using Composable.KeyValueStorage;
 using Composable.KeyValueStorage.SqlServer;
 using Composable.System.Configuration;
 using Composable.Testing;
+using CQRS.Tests;
 using FluentAssertions;
-using NUnit.Framework;
 
-namespace CQRS.Tests.KeyValueStorage.Sqlold
+namespace Composable.CQRS.Specs.KeyValueStorage.Sql
 {
     public abstract class DocumentDbSpecification : NSpec.NUnit.nspec
     {

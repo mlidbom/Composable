@@ -7,6 +7,7 @@ using Composable.CQRS.EventSourcing;
 using Composable.CQRS.EventSourcing.MicrosoftSQLServer;
 using Composable.CQRS.EventSourcing.Refactoring.Migrations;
 using Composable.CQRS.Testing;
+using Composable.CQRS.Testing.Windsor;
 using Composable.GenericAbstractions.Time;
 using Composable.SystemExtensions.Threading;
 using CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations;
@@ -30,8 +31,10 @@ namespace CQRS.Tests.CQRS.EventSourcing.Sql
             _windsorContainer = new WindsorContainer();
             Bus = new DummyServiceBus(_windsorContainer);
             var masterConnectionString = ConfigurationManager.ConnectionStrings["MasterDb"].ConnectionString;
-            _connectionString = new TemporaryLocalDbManager(masterConnectionString, _windsorContainer)
-                .CreateOrGetLocalDb("MigratedSqlServerEventStoreSessionTests_EventStore");
+            _connectionString = _windsorContainer.RegisterSqlServerDatabasePool(masterConnectionString)
+                .ConnectionStringFor("MigratedSqlServerEventStoreSessionTests_EventStore");
+
+            SqlServerEventStore.ClearAllCache();
         }
 
         protected IEventStoreSession OpenSession(IEventStore store)

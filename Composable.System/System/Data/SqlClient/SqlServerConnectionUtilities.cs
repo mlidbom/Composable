@@ -1,7 +1,7 @@
 using System;
 using System.Data.SqlClient;
 
-namespace CQRS.Tests
+namespace Composable.System.Data.SqlClient
 {
     internal class SqlServerConnectionUtilities
     {
@@ -36,7 +36,6 @@ namespace CQRS.Tests
             using (var connection = OpenConnection())
             {
                 action(connection);
-                connection.Close();
             }
         }
 

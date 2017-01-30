@@ -274,5 +274,11 @@ namespace Composable.CQRS.EventSourcing.MicrosoftSQLServer
         public void Dispose()
         {
         }
+
+        public static void ClearAllCache()
+        {
+            SqlServerEventStoreSchemaManager.ClearAllCache();
+            SqlServerEventStoreEventsCache.ClearAll();
+        }
     }
 }

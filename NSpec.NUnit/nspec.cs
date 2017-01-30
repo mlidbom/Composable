@@ -43,7 +43,7 @@ namespace NSpec.NUnit
 
         public class MyFormatter : ConsoleFormatter, IFormatter, ILiveFormatter
         {
-            private static void WriteNoticably(string message, params object[] formatwith)
+            private static void WriteNoticeably(string message, params object[] formatwith)
             {
                 message = String.Format("#################################    {0}    #################################", message);
                 Console.WriteLine(message, formatwith);
@@ -55,7 +55,7 @@ namespace NSpec.NUnit
                 Console.WriteLine();
                 if(contexts.Failures().Any())
                 {
-                    WriteNoticably("SUMMARY");                    
+                    WriteNoticeably("SUMMARY");                    
                     Console.WriteLine(base.Summary(contexts));
 
                     int currentFailure = 0;
@@ -89,7 +89,7 @@ namespace NSpec.NUnit
                 
 
                 Console.WriteLine();
-                WriteNoticably("END OF NSPEC RESULTS");                
+                WriteNoticeably("END OF NSPEC RESULTS");                
                 Console.WriteLine();
             }
 

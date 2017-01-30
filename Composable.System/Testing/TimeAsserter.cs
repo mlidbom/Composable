@@ -16,7 +16,7 @@ namespace Composable.Testing
              TimeSpan? maxTotal = null,
              string description = "",
              string timeFormat = DefaultTimeFormat, 
-             int maxTries = 3)
+             int maxTries = 1)
         {
             maxAverage = maxAverage != default(TimeSpan) ? maxAverage : TimeSpan.MaxValue;
             maxTotal = maxTotal != default(TimeSpan) ? maxTotal : TimeSpan.MaxValue;
@@ -28,11 +28,11 @@ namespace Composable.Testing
                 executionSummary = StopwatchExtensions.TimeExecution(action: action, iterations: iterations);                                
                 try
                 {
-                    RunAsserts(maxAverage, maxTotal, executionSummary, format);
+                    RunAsserts(maxAverage: maxAverage, maxTotal: maxTotal, executionSummary: executionSummary, format:format);
                 }
                 catch(Exception e)
                 {
-                    Debug.WriteLine($"Try: {tries} {e.GetType().FullName}: {e.Message}");
+                    Console.WriteLine($"Try: {tries} {e.GetType().FullName}: {e.Message}");
                     if(tries >= maxTries)
                     {
                         PrintSummary(iterations, maxAverage, maxTotal, description, format, executionSummary);
@@ -55,7 +55,7 @@ namespace Composable.Testing
              bool timeIndividualExecutions = false,
              string description = "",
              string timeFormat = DefaultTimeFormat,
-             int maxTries = 3)
+             int maxTries = 1)
         {
             maxAverage = maxAverage != default(TimeSpan) ? maxAverage : TimeSpan.MaxValue;
             maxTotal = maxTotal != default(TimeSpan) ? maxTotal : TimeSpan.MaxValue;
@@ -68,13 +68,16 @@ namespace Composable.Testing
                                   {
                                       PrintSummary(iterations, maxAverage, maxTotal, description, format, executionSummary);
 
-                                      Console.WriteLine(
-                                          $@"  
+                                      if(timeIndividualExecutions)
+                                      {
+                                          Console.WriteLine(
+                                              $@"  
     Individual execution times    
     Average: {format(executionSummary.IndividualExecutionTimes.Average())}
     Min:     {format(executionSummary.IndividualExecutionTimes.Min())}
     Max:     {format(executionSummary.IndividualExecutionTimes.Max())}
     Sum:     {format(executionSummary.IndividualExecutionTimes.Sum())}");
+                                      }
                                   };            
 
             for (int tries = 1; tries <= maxTries; tries++)
@@ -86,7 +89,7 @@ namespace Composable.Testing
                 }
                 catch (Exception e)
                 {
-                    Debug.WriteLine($"Try: {tries} {e.GetType().FullName}: {e.Message}");
+                    Console.WriteLine($"Try: {tries} {e.GetType().FullName}: {e.Message}");
                     if (tries >= maxTries)
                     {
                         printResults();
@@ -97,10 +100,6 @@ namespace Composable.Testing
                 printResults();
                 break;
             }
-
-
-            printResults();
-            RunAsserts(maxAverage, maxTotal, executionSummary, format);
 
             return executionSummary;
         }
@@ -123,7 +122,7 @@ namespace Composable.Testing
             if(iterations > 1)
             {
                 Console.WriteLine(
-                    $@"Executed {iterations:N} iterations of {description}  
+                    $@"Executed {iterations} iterations of {description}  
     Total:   {format(executionSummary.Total)} Limit: {format(maxTotal)} 
     Average: {format
                         (executionSummary.Average)} Limit: {format(maxAverage)}");

@@ -6,7 +6,9 @@ using NUnit.Framework;
 using Composable.System.Linq;
 using System.Linq;
 using Composable.CQRS.EventSourcing.MicrosoftSQLServer;
+using Composable.CQRS.Testing;
 using Composable.SystemExtensions.Threading;
+using Composable.Testing;
 
 namespace CQRS.Tests.CQRS.EventSourcing
 {
@@ -46,7 +48,7 @@ namespace CQRS.Tests.CQRS.EventSourcing
         {
             using (var eventStore = CreateEventStore())
             {
-                const int moreEventsThanTheBatchSizeForStreamingEvents = SqlServerEventStore.StreamEventsBatchSize + 100;
+                const int moreEventsThanTheBatchSizeForStreamingEvents = SqlServerEventStore.StreamEventsBatchSize + 100; 
                 var aggregateId = Guid.NewGuid();
                 eventStore.SaveEvents(1.Through(moreEventsThanTheBatchSizeForStreamingEvents).Select(i => new SomeEvent(aggregateId, i)));
                 var stream = eventStore.ListAllEventsForTestingPurposesAbsolutelyNotUsableForARealEventStoreOfAnySize().ToList();
@@ -145,14 +147,16 @@ namespace CQRS.Tests.CQRS.EventSourcing
     {
         private string _connectionString1;
         private string _connectionString2;
-        private static TemporaryLocalDbManager _tempDbManager;
+        private static SqlServerDatabasePool _tempDbManager;
 
         [SetUp]
         public void SetupFixture()
         {
-            _tempDbManager = new TemporaryLocalDbManager(ConfigurationManager.ConnectionStrings["MasterDb"].ConnectionString);
-            _connectionString1 = _tempDbManager.CreateOrGetLocalDb("SqlServerEventStoreTests_EventStore1");
-            _connectionString2 = _tempDbManager.CreateOrGetLocalDb("SqlServerEventStoreTests_EventStore2");
+            _tempDbManager = new SqlServerDatabasePool(ConfigurationManager.ConnectionStrings["MasterDb"].ConnectionString);
+            _connectionString1 = _tempDbManager.ConnectionStringFor("SqlServerEventStoreTests_EventStore1");
+            _connectionString2 = _tempDbManager.ConnectionStringFor("SqlServerEventStoreTests_EventStore2");
+
+            SqlServerEventStore.ClearAllCache();            
         }
 
         [TearDown]

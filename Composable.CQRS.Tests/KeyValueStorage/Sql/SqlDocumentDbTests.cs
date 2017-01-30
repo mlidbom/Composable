@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Configuration;
 using System.Linq;
+using Composable.CQRS.Testing;
 using Composable.KeyValueStorage;
 using Composable.KeyValueStorage.SqlServer;
 using Composable.System.Linq;
+using Composable.Testing;
 using FluentAssertions;
 using NUnit.Framework;
 
@@ -13,7 +15,7 @@ namespace CQRS.Tests.KeyValueStorage.Sql
     [Serializable]
     class SqlDocumentDbTests : DocumentDbTests
     {
-        private static TemporaryLocalDbManager _temporaryLocalDbManager;
+        private static SqlServerDatabasePool _databasePool;
 
         private string _connectionString;
 
@@ -21,8 +23,8 @@ namespace CQRS.Tests.KeyValueStorage.Sql
         public void Setup()
         {
             var masterConnectionString = ConfigurationManager.ConnectionStrings["MasterDb"].ConnectionString;
-            _temporaryLocalDbManager = new TemporaryLocalDbManager(masterConnectionString);
-            _connectionString = _temporaryLocalDbManager.CreateOrGetLocalDb($"SqlDocumentDbTests_DB");
+            _databasePool = new SqlServerDatabasePool(masterConnectionString);
+            _connectionString = _databasePool.ConnectionStringFor($"SqlDocumentDbTests_DB");
 
             SqlServerDocumentDb.ResetDB(_connectionString);
         }
@@ -30,7 +32,7 @@ namespace CQRS.Tests.KeyValueStorage.Sql
         [TearDown]
         public void TearDownTask()
         {
-            _temporaryLocalDbManager.Dispose();
+            _databasePool.Dispose();
         }
 
         protected override IDocumentDb CreateStore()

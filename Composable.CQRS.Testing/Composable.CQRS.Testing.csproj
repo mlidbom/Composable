@@ -111,6 +111,10 @@
       <HintPath>..\packages\Moq.4.2.1507.0118\lib\net40\Moq.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="Newtonsoft.Json, Version=6.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.6.0.8\lib\net45\Newtonsoft.Json.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="nunit.framework, Version=3.4.1.0, Culture=neutral, PublicKeyToken=2638cd05610744eb, processorArchitecture=MSIL">
       <HintPath>..\packages\NUnit.3.4.1\lib\net45\nunit.framework.dll</HintPath>
       <Private>True</Private>
@@ -130,12 +134,10 @@
       <Link>Properties\CommonAssemblyInfo.cs</Link>
     </Compile>
     <Compile Include="AppDomainExtensions.cs" />
-    <Compile Include="SqlServerConnectionUtilities.cs" />
-    <Compile Include="TemporaryLocalDbManager.cs" />
+    <Compile Include="Windsor\SqlDatabasePoolRegistrar.cs" />
     <Compile Include="Windsor\Testing\WindsorRegistrationTesterExtensions.cs" />
     <Compile Include="Diagnostics\DocumentDbSessionInspector.cs" />
     <Compile Include="CollectionAssertions.cs" />
-    <Compile Include="DatabaseHelpers.cs" />
     <Compile Include="DummyServiceBus.cs" />
     <Compile Include="EventTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

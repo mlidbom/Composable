@@ -162,6 +162,7 @@
     <Reference Include="System.Core">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
     </Reference>
+    <Reference Include="System.Data" />
     <Reference Include="System.Transactions" />
     <Reference Include="System.Web" />
     <Reference Include="System.Web.Extensions" />
@@ -201,6 +202,7 @@
     <Compile Include="System\Configuration\DummyConnectionStringProvider.cs" />
     <Compile Include="System\Configuration\IConfigurationParameterProvider.cs" />
     <Compile Include="System\Configuration\IConnectionStringProvider.cs" />
+    <Compile Include="System\Data\SqlClient\SqlServerConnectionUtilities.cs" />
     <Compile Include="System\DateTimeExtensions.cs" />
     <Compile Include="System\Diagnostics\StopwatchExtensions.cs" />
     <Compile Include="System\Disposable.cs" />
@@ -237,6 +239,7 @@
     <Compile Include="System\Reflection\ObjectFactory.cs" />
     <Compile Include="System\Reflection\ObjectGraphWalker.cs" />
     <Compile Include="System\Reflection\TypeExtensions.cs" />
+    <Compile Include="System\StrictlyManagedResourceBase.cs" />
     <Compile Include="System\StringExtensions.cs" />
     <Compile Include="System\TimeSpanEnumerableExtensions.cs" />
     <Compile Include="System\TimeSpanExtensions.cs" />
@@ -250,6 +253,9 @@
     <Compile Include="System\Web\IHttpRequestIdFetcher.cs" />
     <Compile Include="System\Web\MultiRequestAccessDetected.cs" />
     <Compile Include="System\Web\SingleHttpRequestUseGuard.cs" />
+    <Compile Include="Testing\DatabaseHelpers.cs" />
+    <Compile Include="Testing\SqlServerDatabasePool.cs" />
+    <Compile Include="Testing\TestEnvironmentPerformance.cs" />
     <Compile Include="Testing\TimeAsserter.cs" />
   </ItemGroup>
   <ItemGroup>

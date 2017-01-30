@@ -9,6 +9,7 @@ using Composable.CQRS.EventSourcing.MicrosoftSQLServer;
 using Composable.CQRS.Testing;
 using Composable.System.Linq;
 using Composable.SystemExtensions.Threading;
+using Composable.Testing;
 using FluentAssertions;
 using NUnit.Framework;
 
@@ -18,19 +19,20 @@ namespace CQRS.Tests.CQRS.EventSourcing.Sql
     class SqlServerEventStoreSessionTests : EventStoreSessionTests
     {
         private string ConnectionString;
-        private TemporaryLocalDbManager _temporaryLocalDbManager;
+        private SqlServerDatabasePool _databasePool;
         [SetUp]
         public void Setup()
         {
 
             var masterConnectionString = ConfigurationManager.ConnectionStrings["MasterDb"].ConnectionString;
-            _temporaryLocalDbManager = new TemporaryLocalDbManager(masterConnectionString);
-            ConnectionString = _temporaryLocalDbManager.CreateOrGetLocalDb($"SqlServerEventStoreSessionTests_EventStore");
+            _databasePool = new SqlServerDatabasePool(masterConnectionString);
+            ConnectionString = _databasePool.ConnectionStringFor($"SqlServerEventStoreSessionTests_EventStore");
+            SqlServerEventStore.ClearAllCache();
         }
 
         [TearDown]
         public void TearDownTask() {
-            _temporaryLocalDbManager.Dispose();
+            _databasePool.Dispose();
         }
 
         protected override IEventStore CreateStore()
@@ -138,14 +140,25 @@ namespace CQRS.Tests.CQRS.EventSourcing.Sql
                                                                   () =>
                                                                   {
                                                                       var test = new SqlServerEventStoreSessionTests();
-                                                                      test.Setup();
-                                                                      using (var session = test.OpenSession(test.CreateStore()))
+                                                                      try
                                                                       {
-                                                                          var otherUser = User.Register(session, "email@email.se", "password", Guid.NewGuid());
-                                                                          otherUser.ChangeEmail("some@email.new");
-                                                                          session.SaveChanges();
+                                                                          test.Setup();
+                                                                          using(var session = test.OpenSession(test.CreateStore()))
+                                                                          {
+                                                                              var otherUser = User.Register(
+                                                                                  session,
+                                                                                  "email@email.se",
+                                                                                  "password",
+                                                                                  Guid.NewGuid());
+                                                                              otherUser.ChangeEmail("some@email.new");
+                                                                              session.SaveChanges();
+                                                                          }
                                                                       }
-                                                                  });
+                                                                      finally
+                                                                      {
+                                                                          test.TearDownTask();
+                                                                      }
+                                                                  }, disposeDelay:100.Milliseconds());
                                                            };
 
             using (var session = OpenSession(CreateStore()))

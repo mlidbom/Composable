@@ -200,6 +200,7 @@
     <Compile Include="System\Linq\ExpressionUtilTests.cs" />
     <Compile Include="TestFrameworkExploration\CallContext.cs" />
     <Compile Include="TestFrameworkExploration\CallTracker.cs" />
+    <Compile Include="TestFrameworkExploration\Machine.Specifications\Describe_mspec.cs" />
     <Compile Include="TestFrameworkExploration\NSpec\Describe_NSpec.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -237,9 +238,7 @@
   <ItemGroup>
     <Service Include="{82A7F48D-3B50-4B1E-B82E-3ADA8210C358}" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="TestFrameworkExploration\Machine.Specifications\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>

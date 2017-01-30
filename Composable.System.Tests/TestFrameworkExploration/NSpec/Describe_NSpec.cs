@@ -12,7 +12,7 @@ namespace Composable.Tests.TestFrameworkExploration.NSpec
 {
     [UsedImplicitly] public class Describe_NSpec : nspec
     {
-        private readonly CallTracker Calls = new CallTracker();
+        readonly CallTracker Calls = new CallTracker();
         public void before_all() => Calls.CurrentIs(null)
                                          .Push(Class_context.before_all);
 
@@ -64,7 +64,7 @@ namespace Composable.Tests.TestFrameworkExploration.NSpec
                                           };
         }
 
-        private class CallTracker
+        class CallTracker
         {
             Stack<string> calls;
 

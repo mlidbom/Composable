@@ -201,6 +201,7 @@
     <Compile Include="TestFrameworkExploration\CallContext.cs" />
     <Compile Include="TestFrameworkExploration\CallTracker.cs" />
     <Compile Include="TestFrameworkExploration\Machine.Specifications\Describe_mspec.cs" />
+    <Compile Include="TestFrameworkExploration\NSpec\Describe_mspec_emulation.cs" />
     <Compile Include="TestFrameworkExploration\NSpec\Describe_NSpec.cs" />
   </ItemGroup>
   <ItemGroup>

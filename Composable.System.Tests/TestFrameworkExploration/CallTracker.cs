@@ -56,7 +56,7 @@ namespace Composable.Tests.TestFrameworkExploration
         public void PrintLog()
         {
             Console.WriteLine();
-            Console.WriteLine("#################################");
+            Console.WriteLine("################ Complete call log  #################");
             Console.WriteLine();
             Console.WriteLine(log.ToString());
         }

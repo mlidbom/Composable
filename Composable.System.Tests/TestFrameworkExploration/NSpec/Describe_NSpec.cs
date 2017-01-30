@@ -16,11 +16,14 @@ namespace Composable.Tests.TestFrameworkExploration.NSpec
         public void before_all() => Current.Is(null)
                                            .Push(Class_context.before_all);
 
-        public void before_each() => Current.Is("")
+        public void before_each() => Current.Is(Outer_context.beforeAll, Class_context.after_each, Inner_context.beforeAll)
                                             .Push(Class_context.before_each);
 
-        public void after_each() => Current.Is("")
+        public void after_each() => Current.Is(Outer_context.after)
                                            .Push(Class_context.after_each);
+
+        public void after_all() => Current.Is(Outer_context.afterAll)
+                                          .Push(Class_context.after_all);
 
         public void outer_context()
         {
@@ -44,7 +47,7 @@ namespace Composable.Tests.TestFrameworkExploration.NSpec
 
             context[Inner_context.Name] = () =>
                                           {
-                                              beforeAll = () => Current.Is("")
+                                              beforeAll = () => Current.Is(Class_context.after_each)
                                                                        .Push(Inner_context.beforeAll);
 
                                               before = () => Current.Is(Outer_context.before)
@@ -53,7 +56,7 @@ namespace Composable.Tests.TestFrameworkExploration.NSpec
                                               after = () => Current.Is(Inner_context.It1, Inner_context.It2)
                                                                    .Push(Inner_context.after);
 
-                                              afterAll = () => Current.Is("")
+                                              afterAll = () => Current.Is(Class_context.after_each)
                                                                       .Push(Inner_context.afterAll);
 
                                               it[Inner_context.It1] = () => Current.Is(Inner_context.before)
@@ -95,6 +98,7 @@ namespace Composable.Tests.TestFrameworkExploration.NSpec
             public static readonly string before_all = $"{Name}:{nameof(before_all)}";
             public static readonly string before_each = $"{Name}:{nameof(before_each)}";
             public static readonly string after_each = $"{Name}:{nameof(after_each)}";
+            public static readonly string after_all = $"{Name}:{nameof(after_all)}";
         }
 
         static class Inner_context
@@ -110,13 +114,13 @@ namespace Composable.Tests.TestFrameworkExploration.NSpec
 
         static class Outer_context
         {
-            static readonly string ClassName = nameof(Outer_context);
-            public static readonly string before = $"{ClassName}:before";
-            public static readonly string beforeAll = $"{ClassName}:{nameof(beforeAll)}";
-            public static readonly string after = $"{ClassName}:{nameof(after)}";
-            public static readonly string afterAll = $"{ClassName}:{nameof(afterAll)}";
-            public static readonly string It1 = $"{ClassName}:{nameof(It1)}";
-            public static readonly string It2 = $"{ClassName}:{nameof(It2)}";
+            static readonly string Name = nameof(Outer_context);
+            public static readonly string before = $"{Name}:before";
+            public static readonly string beforeAll = $"{Name}:{nameof(beforeAll)}";
+            public static readonly string after = $"{Name}:{nameof(after)}";
+            public static readonly string afterAll = $"{Name}:{nameof(afterAll)}";
+            public static readonly string It1 = $"{Name}:{nameof(It1)}";
+            public static readonly string It2 = $"{Name}:{nameof(It2)}";
         }
     }
 }

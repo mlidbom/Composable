@@ -45,27 +45,28 @@ namespace Composable.Tests.TestFrameworkExploration.NSpec
             it[Outer_context.It2] = () => Current.Is(Outer_context.before)
                                                  .Push(Outer_context.It2);
 
-            context[Inner_context.Name] = () =>
-                                          {
-                                              beforeAll = () => Current.Is(Class_context.after_each)
-                                                                       .Push(Inner_context.beforeAll);
+            context[Inner_context.Name] =
+                () =>
+                {
+                    beforeAll = () => Current.Is(Class_context.after_each)
+                                             .Push(Inner_context.beforeAll);
 
-                                              before = () => Current.Is(Outer_context.before)
-                                                                    .Push(Inner_context.before);
+                    before = () => Current.Is(Outer_context.before)
+                                          .Push(Inner_context.before);
 
-                                              after = () => Current.Is(Inner_context.It1,
-                                                                       Inner_context.It2)
-                                                                   .Push(Inner_context.after);
+                    after = () => Current.Is(Inner_context.It1,
+                                             Inner_context.It2)
+                                         .Push(Inner_context.after);
 
-                                              afterAll = () => Current.Is(Class_context.after_each)
-                                                                      .Push(Inner_context.afterAll);
+                    afterAll = () => Current.Is(Class_context.after_each)
+                                            .Push(Inner_context.afterAll);
 
-                                              it[Inner_context.It1] = () => Current.Is(Inner_context.before)
-                                                                                   .Push(Inner_context.It1);
+                    it[Inner_context.It1] = () => Current.Is(Inner_context.before)
+                                                         .Push(Inner_context.It1);
 
-                                              it[Inner_context.It1] = () => Current.Is(Inner_context.before)
-                                                                                   .Push(Inner_context.It2);
-                                          };
+                    it[Inner_context.It1] = () => Current.Is(Inner_context.before)
+                                                         .Push(Inner_context.It2);
+                };
         }
     }
 }

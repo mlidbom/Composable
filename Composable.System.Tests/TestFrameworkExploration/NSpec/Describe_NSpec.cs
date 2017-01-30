@@ -1,5 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using FluentAssertions;
 using JetBrains.Annotations;
 using NSpec.NUnit;
@@ -23,7 +25,8 @@ namespace Composable.Tests.TestFrameworkExploration.NSpec
                                            .Push(Class_context.after_each);
 
         public void after_all() => Current.Is(Outer_context.afterAll)
-                                          .Push(Class_context.after_all);
+                                          .Push(Class_context.after_all)
+                                          .PrintLog();
 
         public void outer_context()
         {
@@ -70,6 +73,20 @@ namespace Composable.Tests.TestFrameworkExploration.NSpec
         class CallTracker
         {
             Stack<string> calls;
+            StringBuilder log = new StringBuilder();
+            string Indent(string call)
+            {
+                if(call.StartsWith(Class_context.Name))
+                    return "";
+
+                if(call.StartsWith(Outer_context.Name))
+                    return call.StartsWith($"{Outer_context.Name}:It") ? "      " : "   ";
+
+                if (call.StartsWith(Inner_context.Name))
+                    return call.StartsWith($"{Inner_context.Name}:It") ? "         " : "      ";
+
+                throw new Exception("Unrecognized context");
+            }
 
             public CallTracker Is(params string[] current)
             {
@@ -87,14 +104,31 @@ namespace Composable.Tests.TestFrameworkExploration.NSpec
                 return this;
             }
 
-            public void Push(string push) { calls.Push(push); }
+            public CallTracker Push(string push)
+            {
+                if(calls.Any() && Current.Contains("after") && !push.Contains("after"))
+                {
+                    log.AppendLine();
+                }
+                log.AppendLine($"{Indent(push)}{push}");
+                calls.Push(push);
+                return this;
+            }
 
             public string Current => calls.Peek();
+
+            public void PrintLog()
+            {
+                Console.WriteLine();
+                Console.WriteLine("#################################");
+                Console.WriteLine();
+                Console.WriteLine(log.ToString());
+            }
         }
 
         static class Class_context
         {
-            static readonly string Name = nameof(Class_context);
+            public static readonly string Name = nameof(Class_context);
             public static readonly string before_all = $"{Name}:{nameof(before_all)}";
             public static readonly string before_each = $"{Name}:{nameof(before_each)}";
             public static readonly string after_each = $"{Name}:{nameof(after_each)}";
@@ -114,7 +148,7 @@ namespace Composable.Tests.TestFrameworkExploration.NSpec
 
         static class Outer_context
         {
-            static readonly string Name = nameof(Outer_context);
+            public static readonly string Name = nameof(Outer_context);
             public static readonly string before = $"{Name}:before";
             public static readonly string beforeAll = $"{Name}:{nameof(beforeAll)}";
             public static readonly string after = $"{Name}:{nameof(after)}";

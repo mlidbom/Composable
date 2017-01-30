@@ -198,6 +198,8 @@
     <Compile Include="System\Configuration\AppConfigConfigurationParameterProviderTests.cs" />
     <Compile Include="System\Configuration\ConnectionStringConfigurationParameterProviderTests.cs" />
     <Compile Include="System\Linq\ExpressionUtilTests.cs" />
+    <Compile Include="TestFrameworkExploration\CallContext.cs" />
+    <Compile Include="TestFrameworkExploration\CallTracker.cs" />
     <Compile Include="TestFrameworkExploration\NSpec\Describe_NSpec.cs" />
   </ItemGroup>
   <ItemGroup>

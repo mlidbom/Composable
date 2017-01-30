@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using FluentAssertions;
-using JetBrains.Annotations;
+﻿using JetBrains.Annotations;
 using NSpec.NUnit;
 
 // ReSharper disable MemberHidesStaticFromOuterClass
@@ -18,7 +13,9 @@ namespace Composable.Tests.TestFrameworkExploration.NSpec
         public void before_all() => Current.Is(null)
                                            .Push(Class_context.before_all);
 
-        public void before_each() => Current.Is(Outer_context.beforeAll, Class_context.after_each, Inner_context.beforeAll)
+        public void before_each() => Current.Is(Outer_context.beforeAll,
+                                                Class_context.after_each,
+                                                Inner_context.beforeAll)
                                             .Push(Class_context.before_each);
 
         public void after_each() => Current.Is(Outer_context.after)
@@ -56,7 +53,8 @@ namespace Composable.Tests.TestFrameworkExploration.NSpec
                                               before = () => Current.Is(Outer_context.before)
                                                                     .Push(Inner_context.before);
 
-                                              after = () => Current.Is(Inner_context.It1, Inner_context.It2)
+                                              after = () => Current.Is(Inner_context.It1,
+                                                                       Inner_context.It2)
                                                                    .Push(Inner_context.after);
 
                                               afterAll = () => Current.Is(Class_context.after_each)
@@ -68,93 +66,6 @@ namespace Composable.Tests.TestFrameworkExploration.NSpec
                                               it[Inner_context.It1] = () => Current.Is(Inner_context.before)
                                                                                    .Push(Inner_context.It2);
                                           };
-        }
-
-        class CallTracker
-        {
-            Stack<string> calls;
-            StringBuilder log = new StringBuilder();
-            string Indent(string call)
-            {
-                if(call.StartsWith(Class_context.Name))
-                    return "";
-
-                if(call.StartsWith(Outer_context.Name))
-                    return call.StartsWith($"{Outer_context.Name}:It") ? "      " : "   ";
-
-                if (call.StartsWith(Inner_context.Name))
-                    return call.StartsWith($"{Inner_context.Name}:It") ? "         " : "      ";
-
-                throw new Exception("Unrecognized context");
-            }
-
-            public CallTracker Is(params string[] current)
-            {
-                if(current == null)
-                {
-                    calls.Should().BeNull();
-                    calls = new Stack<string>();
-                    return this;
-                }
-
-                if(current.Length == 1 && current.Single() == "")
-                    return this;
-
-                calls.Peek().Should().BeOneOf(current);
-                return this;
-            }
-
-            public CallTracker Push(string push)
-            {
-                if(calls.Any() && Current.Contains("after") && !push.Contains("after"))
-                {
-                    log.AppendLine();
-                }
-                log.AppendLine($"{Indent(push)}{push}");
-                calls.Push(push);
-                return this;
-            }
-
-            public string Current => calls.Peek();
-
-            public void PrintLog()
-            {
-                Console.WriteLine();
-                Console.WriteLine("#################################");
-                Console.WriteLine();
-                Console.WriteLine(log.ToString());
-            }
-        }
-
-        static class Class_context
-        {
-            public static readonly string Name = nameof(Class_context);
-            public static readonly string before_all = $"{Name}:{nameof(before_all)}";
-            public static readonly string before_each = $"{Name}:{nameof(before_each)}";
-            public static readonly string after_each = $"{Name}:{nameof(after_each)}";
-            public static readonly string after_all = $"{Name}:{nameof(after_all)}";
-        }
-
-        static class Inner_context
-        {
-            public static readonly string Name = nameof(Inner_context);
-            public static readonly string before = $"{Name}:before";
-            public static readonly string beforeAll = $"{Name}:{nameof(beforeAll)}";
-            public static readonly string after = $"{Name}:{nameof(after)}";
-            public static readonly string afterAll = $"{Name}:{nameof(afterAll)}";
-            public static readonly string It1 = $"{Name}:{nameof(It1)}";
-            public static readonly string It2 = $"{Name}:{nameof(It2)}";
-        }
-
-        static class Outer_context
-        {
-            public static readonly string Name = nameof(Outer_context);
-            public static readonly string before = $"{Name}:before";
-            public static readonly string beforeAll = $"{Name}:{nameof(beforeAll)}";
-            public static readonly string after = $"{Name}:{nameof(after)}";
-            public static readonly string afterAll = $"{Name}:{nameof(afterAll)}";
-            public static readonly string It1 = $"{Name}:{nameof(It1)}";
-            public static readonly string It2 = $"{Name}:{nameof(It2)}";
         }
     }
 }

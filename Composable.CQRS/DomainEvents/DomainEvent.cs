@@ -12,7 +12,8 @@ using Composable.System.Linq;
 
 namespace Composable.DomainEvents
 {
-    internal static class DomainEvent
+    [Obsolete("Absolutely do not use this class. It is a designs mistake that is going away SOON")]
+    public static class DomainEvent
     {
         private static readonly ThreadLocal<List<Delegate>> ManualSubscribersStorage =
             new ThreadLocal<List<Delegate>>(() => new List<Delegate>());

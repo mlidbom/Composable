@@ -114,7 +114,8 @@ namespace Composable.CQRS.EventSourcing
         }
 
 
-        internal void TestingOnlyReplaceMigrations(IReadOnlyList<IEventMigration> migrations) { _migrationFactories = migrations; }
+        [Obsolete("Should be internal")]
+        public void TestingOnlyReplaceMigrations(IReadOnlyList<IEventMigration> migrations) { _migrationFactories = migrations; }
 
         void IResetTestDatabases.ResetDatabase() { Reset(); }
     }

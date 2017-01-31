@@ -3,8 +3,7 @@ using System.Data.SqlClient;
 
 namespace Composable.CQRS.EventSourcing.MicrosoftSQLServer
 {
-    [Obsolete("Should be internal. Do not use.")]
-    public abstract class TableSchemaManager
+    abstract class TableSchemaManager
     {
         public abstract string Name { get; }
         public abstract string CreateTableSql { get; }

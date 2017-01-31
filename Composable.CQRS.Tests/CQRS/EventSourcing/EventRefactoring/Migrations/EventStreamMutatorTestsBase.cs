@@ -82,16 +82,7 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
             expected.ForEach(e => Console.WriteLine($"      {e}"));
             Console.WriteLine();
 
-            var initialAggregate2 = TestAggregate.FromEvents(timeSource, scenario.AggregateId, scenario.OriginalHistory);
-
             timeSource.UtcNow += 1.Hours();//Bump clock to ensure that times will be be wrong unless the time from the original events are used..
-
-            Console.WriteLine("Doing pure in memory ");            
-            IReadOnlyList<IAggregateRootEvent> otherHistory = SingleAggregateInstanceEventStreamMutator.MutateCompleteAggregateHistory(
-                scenario.Migrations,
-                initialAggregate2.History.Cast<AggregateRootEvent>().ToList());
-
-            AssertStreamsAreIdentical(expected, otherHistory, $"Direct call to SingleAggregateInstanceEventStreamMutator.MutateCompleteAggregateHistory");
 
             container.ExecuteUnitOfWorkInIsolatedScope(() => container.Resolve<IEventStoreSession>().Save(initialAggregate));
             migrations.AddRange(startingMigrations);

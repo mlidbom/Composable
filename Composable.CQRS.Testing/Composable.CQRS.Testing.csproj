@@ -138,7 +138,6 @@
     <Compile Include="Windsor\Testing\WindsorRegistrationTesterExtensions.cs" />
     <Compile Include="CollectionAssertions.cs" />
     <Compile Include="DummyServiceBus.cs" />
-    <Compile Include="EventTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

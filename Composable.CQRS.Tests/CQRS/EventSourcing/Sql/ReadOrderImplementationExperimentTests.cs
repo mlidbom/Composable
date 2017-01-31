@@ -17,18 +17,6 @@ namespace CQRS.Tests.CQRS.EventSourcing.Sql
     public class ReadOrderImplementationExperimentTests
     {
         [Test]
-        public void PrintMigrationScript()
-        {
-            Console.WriteLine(new LegacyEventTableSchemaManager().ActualMigrationScript);
-        }
-
-        [Test]
-        public void PrintCreateReadOrdersSql()
-        {
-            Console.WriteLine(SqlServerEventStore.SqlStatements.EnsurePersistedMigrationsHaveConsistentReadOrdersAndEffectiveVersionsSqlStoredProcedure);
-        }
-
-        [Test]
         public void AlternateAlgorithmRecursed()
         {
             var before = SqlDecimal.Parse("9223372036854775806.999999999999998");

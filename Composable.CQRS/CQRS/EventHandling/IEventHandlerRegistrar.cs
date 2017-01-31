@@ -1,4 +1,5 @@
 ﻿using System;
+// ReSharper disable UnusedMember.Global todo: refactor usages of concrete classes to use these interfaces. Then remove unused.
 
 namespace Composable.CQRS.EventHandling
 {
@@ -11,7 +12,7 @@ namespace Composable.CQRS.EventHandling
     /// </summary>
     public interface IGenericEventHandlerRegistrar
     {
-        IGenericEventHandlerRegistrar ForGenericEvent<THandledEvent>(Action<THandledEvent> handler);
+        IGenericEventHandlerRegistrar ForGenericEvent<THandledEvent>(Action<THandledEvent> handler);//todo: Write tests
     }
 
     ///<summary>This registrar was created by upcasting an existing registrar. how the implementation of this is hidden gives some help ensuring that it is safe to use this.</summary>

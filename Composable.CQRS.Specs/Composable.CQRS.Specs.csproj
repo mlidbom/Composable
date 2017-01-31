@@ -123,7 +123,6 @@
     <Reference Include="System.Xml.Serialization" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="CQRS\CommandHandlerBaseSpecification.cs" />
     <Compile Include="CQRS\EventHandling\EventHierarchyHandlerSpecification.cs" />
     <Compile Include="CQRS\EventHandling\PropertyUpdatedEventsSpecification.cs" />
     <Compile Include="CQRS\EventHandling\SingleAggregateQueryModelUpdaterSpecification.cs" />

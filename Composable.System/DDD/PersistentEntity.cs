@@ -20,8 +20,6 @@ namespace Composable.DDD
     [DebuggerDisplay("{ToString()}")]
     public class IdEqualityObject<TEntity, TKEy> : IEquatable<TEntity>, IHasPersistentIdentity<TKEy> where TEntity : IdEqualityObject<TEntity, TKEy>
     {
-        ///<summary>Construct an instance with the default value as the Id.</summary>
-        protected IdEqualityObject(){}
         ///<summary>Construct an instance with <param name="id"> as the <see cref="Id"/></param>.</summary>
         protected IdEqualityObject(TKEy id)
         {
@@ -91,15 +89,6 @@ namespace Composable.DDD
         {
             return "{0}:{1}".FormatWith(GetType().Name, Id);
         }
-    }
-
-    ///<summary>Base class for <see cref="IdEqualityObject{TEntity,TKEy}" /> where the id type is Guid</summary>
-    public class IdEqualityObject<TEntity> : IdEqualityObject<TEntity, Guid> where TEntity : IdEqualityObject<TEntity>
-    {
-        ///<summary>Default constructor creating an instance with an empty Id</summary>
-        protected IdEqualityObject(){}
-        ///<summary>Construct an instance with the supplied Id</summary>
-        protected IdEqualityObject(Guid id) : base(id) {}
     }
 
     /// <summary>

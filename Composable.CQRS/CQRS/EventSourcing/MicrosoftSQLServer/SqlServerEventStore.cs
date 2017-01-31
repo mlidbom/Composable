@@ -253,18 +253,6 @@ namespace Composable.CQRS.EventSourcing.MicrosoftSQLServer
             return _eventReader.StreamAggregateIdsInCreationOrder(eventBaseType);
         }
 
-        public static void ResetDB(string connectionString)
-        {
-            new SqlServerEventStore(connectionString, new SingleThreadUseGuard()).ResetDB();
-        }
-
-        public void ResetDB()
-        {
-            _usageGuard.AssertNoContextChangeOccurred(this);
-            ClearCache();
-            _schemaManager.ResetDB();           
-        }
-
         public void ClearCache()
         {
             _cache.Clear();

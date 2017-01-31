@@ -1,8 +1,8 @@
 ﻿using System.Linq;
 using Castle.MicroKernel.Lifestyle;
 using Castle.Windsor;
-using Composable.KeyValueStorage.Population;
 using Composable.System.Linq;
+using Composable.Windsor;
 
 namespace Composable.ServiceBus
 {

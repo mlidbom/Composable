@@ -13,8 +13,8 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
         private readonly IEnumerable<Type> _insert;
 
         public static After<TEvent> Insert<T1>() => new After<TEvent>(Seq.OfTypes<T1>());
+        // ReSharper disable once UnusedMember.Global todo:Write test that uses this. We should have a test replacing with a collection.
         public static After<TEvent> Insert<T1, T2>() => new After<TEvent>(Seq.OfTypes<T1, T2>());
-        public static After<TEvent> Insert<T1, T2, T3>() => new After<TEvent>(Seq.OfTypes<T1, T2, T3>());
 
         private After(IEnumerable<Type> insert) : base(Guid.Parse("544C6694-7B29-4CC0-8DAA-6C50A5F28B70"), "After", "Long description of After")
         {

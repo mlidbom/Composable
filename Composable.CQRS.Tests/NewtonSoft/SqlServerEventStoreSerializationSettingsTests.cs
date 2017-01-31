@@ -2,6 +2,7 @@
 using Composable.CQRS.EventSourcing;
 using Composable.NewtonSoft;
 using FluentAssertions;
+using JetBrains.Annotations;
 using Newtonsoft.Json;
 using NUnit.Framework;
 
@@ -12,6 +13,7 @@ namespace CQRS.Tests.NewtonSoft
     {
         private class TestEvent : AggregateRootEvent
         {
+            [UsedImplicitly]
             public TestEvent() { }
 
             public TestEvent(string test1, string test2)

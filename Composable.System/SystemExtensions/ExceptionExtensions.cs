@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.Contracts;
 using System.Linq;
 
 namespace Composable.SystemExtensions
@@ -10,10 +11,8 @@ namespace Composable.SystemExtensions
         ///<summary>Flattens the exception.InnerException hierarchy into a sequence.</summary>
          public static IEnumerable<Exception> GetAllExceptionsInStack(this Exception exception)
          {
-             if(exception==null)
-             {
-                 throw new ArgumentNullException("exception");
-             }
+             Contract.Requires(exception != null);
+
              do
              {
                  yield return exception;

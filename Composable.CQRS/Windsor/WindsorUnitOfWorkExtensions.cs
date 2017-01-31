@@ -1,7 +1,6 @@
 ﻿using System;
 using Castle.MicroKernel.Lifestyle;
 using Castle.Windsor;
-using Composable.KeyValueStorage.Population;
 
 namespace Composable.Windsor
 {

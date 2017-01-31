@@ -10,7 +10,7 @@ namespace Composable.CQRS.EventSourcing
 {
     //todo: Refactor to use the same serialization code as the sql server event store so that tests actually tests roundtrip serialization
 #pragma warning disable 618
-    public class InMemoryEventStore : IEventStore, IResetTestDatabases
+    public class InMemoryEventStore : IEventStore
 #pragma warning restore 618
     {
         private IReadOnlyList<IEventMigration> _migrationFactories;
@@ -105,17 +105,6 @@ namespace Composable.CQRS.EventSourcing
             }
         }
 
-        public void Reset()
-        {
-            lock(_lockObject)
-            {
-                _events = new List<AggregateRootEvent>();
-            }
-        }
-
-
         public void TestingOnlyReplaceMigrations(IReadOnlyList<IEventMigration> migrations) { _migrationFactories = migrations; }
-
-        void IResetTestDatabases.ResetDatabase() { Reset(); }
     }
 }

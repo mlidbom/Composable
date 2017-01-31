@@ -18,13 +18,6 @@ namespace Composable.System
             return string.IsNullOrWhiteSpace(me);
         }
 
-        ///<summary>Delegates to <see cref="bool.Parse"/></summary>
-        public static bool ToBoolean(this string me)
-        {
-            Contract.Requires(me != null);
-            return bool.Parse(me);
-        }
-
         ///<summary>Allows more fluent use of String.Format by exposing it as an extension method.</summary>
         [JetBrains.Annotations.StringFormatMethod("me")]
         public static string FormatWith(this string me, params object[] values)
@@ -39,13 +32,6 @@ namespace Composable.System
             Contract.Requires(strings != null);
             Contract.Requires(separator != null);
             return string.Join(separator, strings.ToArray());
-        }
-
-        ///<summary>True if the beginning of <paramref name="me"/> is one of the supplied strings.</summary>
-        public static bool StartsWith(this string me, params string[] candidates)
-        {
-            Contract.Requires(candidates != null);
-            return candidates.Any(me.StartsWith);
         }
     }
 }

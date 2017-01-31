@@ -6,6 +6,8 @@ using Composable.System.Configuration;
 using Composable.Testing;
 using CQRS.Tests;
 using FluentAssertions;
+// ReSharper disable UnusedMember.Local
+// ReSharper disable UnusedMember.Global
 
 namespace Composable.CQRS.Specs.KeyValueStorage.Sql
 {

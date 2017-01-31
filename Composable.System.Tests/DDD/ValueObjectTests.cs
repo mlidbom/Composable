@@ -13,7 +13,7 @@ namespace Composable.Tests.DDD
     {
         private class Address : ValueObject<Address>
         {
-            private readonly string _address1;
+            string _address1;
             private readonly string _city;
             private readonly string[] _states;
 
@@ -27,13 +27,7 @@ namespace Composable.Tests.DDD
             public Address()
             {}
 
-            public string Address1 { get { return _address1; } }//ncrunch: no coverage
-
-            public string City { get { return _city; } }//ncrunch: no coverage
-
-            public string Guid { get; set; }
-
-            public string[] States { get { return _states; } }//ncrunch: no coverage
+            public string Guid { get;  set; }            
         }
 
         private class GuidHolder : ValueObject<GuidHolder>
@@ -54,9 +48,7 @@ namespace Composable.Tests.DDD
                 : base(address1, city, states)
             {
                 _address2 = address2;
-            }
-
-            public string Address2 { get { return _address2; } }
+            }            
         }
 
         [Test]

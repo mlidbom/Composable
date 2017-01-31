@@ -21,14 +21,6 @@ namespace Composable.CQRS.EventSourcing.MicrosoftSQLServer
             }
         }
 
-        public TResult UseConnection<TResult>(Func<SqlConnection, TResult> action, bool suppressTransactionWarning = false)
-        {
-            using (var connection = OpenConnection(suppressTransactionWarning))
-            {
-                return action(connection);
-            }
-        }
-
         public void UseCommand(Action<SqlCommand> action, bool suppressTransactionWarning = false)
         {
             UseConnection(connection =>
@@ -38,17 +30,6 @@ namespace Composable.CQRS.EventSourcing.MicrosoftSQLServer
                                   action(command);
                               }
                           });
-        }
-
-        public TResult UseCommand<TResult>(Func<SqlCommand, TResult> action, bool suppressTransactionWarning = false)
-        {
-            return UseConnection(connection => 
-            {
-                using (var command = connection.CreateCommand())
-                {
-                    return action(command);
-                }
-            });
         }
 
         public SqlConnection OpenConnection(bool suppressTransactionWarning = false)

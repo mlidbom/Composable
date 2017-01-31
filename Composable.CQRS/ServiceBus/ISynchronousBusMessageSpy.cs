@@ -7,6 +7,4 @@ namespace Composable.ServiceBus
     ///Implementers promise not to actually handle the message, but to only observe, log etc.
     /// </summary>
     public interface ISynchronousBusMessageSpy : IMessageSpy { }
-
-    public interface ISynchronousBusMessageSpy<TMessage> : IHandleInProcessMessages<TMessage> where TMessage : IMessage { }
 }

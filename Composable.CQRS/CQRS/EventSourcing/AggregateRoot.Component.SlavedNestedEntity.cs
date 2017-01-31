@@ -1,6 +1,7 @@
 ﻿using System;
 using Composable.CQRS.EventHandling;
 using Composable.GenericAbstractions.Time;
+// ReSharper disable UnusedMember.Global todo:tests
 
 namespace Composable.CQRS.EventSourcing
 {

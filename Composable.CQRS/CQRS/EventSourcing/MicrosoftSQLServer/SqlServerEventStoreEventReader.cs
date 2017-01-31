@@ -90,7 +90,6 @@ FROM {EventTable.Name} {lockHint} ";
         {
             public int EventType { get; set; }
             public string EventJson { get; set; }
-            public bool HasBeenReplaced => EffectiveVersion < 0;
         }
 
         public IReadOnlyList<AggregateRootEvent> GetAggregateHistory(Guid aggregateId, bool takeWriteLock, int startAfterInsertedVersion = 0)

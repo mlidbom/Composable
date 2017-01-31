@@ -18,14 +18,6 @@ namespace Composable.System.Linq
             return new HashSet<T>(me);
         }
 
-        ///<summary>Adds <paramref name="value"/> if not present. If it is present the current instance will be replaced by <paramref name="value"/></summary>
-        public static void AddOrReplace<T>(this ISet<T> me, T value)
-        {
-            Contract.Requires(me != null);
-            me.Remove(value);
-            me.Add(value);
-        }
-
         ///<summary>
         /// Removes all of the items in the supplied enumerable from the set.
         /// Simply forwards to ExceptWith but providing a name that is not utterly unreadable </summary>

@@ -18,22 +18,6 @@ namespace Composable.System.Collections.Collections
             return toRemove.Count;
         }
 
-        ///<summary>Remove entries matching the condition from the collection.</summary>
-        public static IReadOnlyList<T> RemoveIf<T>(this ICollection<T> @this, Func<T, bool> condition)
-        {
-            Contract.Requires(@this != null && condition != null);
-            var toRemove = @this.Where(condition).ToList();
-            toRemove.ForEach(removeMe => @this.Remove(removeMe));
-            return toRemove;
-        }
-
-        ///<summary>Remove all the instances in <param name="toRemove"/> from the collection <param name="me"></param></summary>
-        public static void RemoveRange<T>(this ICollection<T> me, IEnumerable<T> toRemove)
-        {
-            Contract.Requires(me != null && toRemove != null);
-            toRemove.ForEach(removeMe => me.Remove(removeMe));
-        }
-
         ///<summary>Add all instances in <param name="toAdd"> to the collection <param name="me"></param>.</param></summary>
         public static void AddRange<T>(this ICollection<T> me, IEnumerable<T> toAdd)
         {

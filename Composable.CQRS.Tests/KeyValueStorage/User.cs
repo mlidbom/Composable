@@ -6,7 +6,6 @@ namespace CQRS.Tests.KeyValueStorage
 {
     public class Person : ValueObject<Person>, IPersistentEntity<Guid>
     {
-        public string Name { get; set; }
         public Guid Id { get; set;  }
     }
 

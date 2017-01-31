@@ -59,7 +59,6 @@
     <Compile Include="APIDraft\MessageTypes.cs" />
     <Compile Include="APIDraft\NavigationOptions.cs" />
     <Compile Include="DemoApp\ApiImplementation\MessageHandlers\AccountEntityQueryHandler.cs" />
-    <Compile Include="DemoApp\ApiImplementation\AutomaticRegistrationApplicationBootstrapper.cs" />
     <Compile Include="DemoApp\ApiImplementation\MessageHandlers\ChangeAccountEmailCommandHandler.cs" />
     <Compile Include="DemoApp\ApiImplementation\MessageHandlers\RegisterAccountCommandHandler.cs" />
     <Compile Include="DemoApp\ApiImplementation\MessageHandlers\AccountEmailer.cs" />

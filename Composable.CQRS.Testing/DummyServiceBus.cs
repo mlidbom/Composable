@@ -5,6 +5,7 @@ using Composable.ServiceBus;
 using Composable.System.Transactions;
 using System.Linq;
 using Composable.System.Reflection;
+using JetBrains.Annotations;
 
 namespace Composable.CQRS.Testing
 {
@@ -34,7 +35,7 @@ namespace Composable.CQRS.Testing
             ((dynamic)this).Publish((dynamic)message);
         }
 
-        public void Publish<TMessage>(TMessage message) where TMessage : IMessage
+        [UsedImplicitly] public void Publish<TMessage>(TMessage message) where TMessage : IMessage
         {
             var handlerTypes = message.GetType().GetAllTypesInheritedOrImplemented()                                
                 .Where(t => t.Implements(typeof(IMessage)))
@@ -81,25 +82,5 @@ namespace Composable.CQRS.Testing
             Publish(message);
         }
         public void SendAtTime(DateTime sendAt, object message) { throw new NotImplementedException(); }
-
-        public void Replay(object message)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void AddHandler<TMessage>(Func<TMessage, IMessage> handler) where TMessage : IMessage
-        {
-            _localHandlers.Add(Tuple.Create(typeof(TMessage), (Func<object, IEnumerable<IMessage>>)(o => new[] { handler((TMessage)o) })));
-        }
-
-        public void AddHandler<TMessage>(Func<TMessage, IEnumerable<IMessage>> handler) where TMessage : IMessage
-        {
-            _localHandlers.Add(Tuple.Create(typeof(TMessage), (Func<object, IEnumerable<IMessage>>)(o => handler((TMessage)o))));
-        }
-
-        public void AddHandler<TMessage>(Action<TMessage> handler) where TMessage : IMessage
-        {
-            _localHandlers.Add(Tuple.Create(typeof(TMessage), (Func<object, IEnumerable<IMessage>>)(o => { handler((TMessage)o); return new IMessage[0]; })));
-        }
     }
 }

@@ -5,16 +5,6 @@ namespace Composable.CQRS.Testing
 {
     public static class AppDomainExtensions
     {
-        public static void ExecuteInCloneDomainScope<TExecutor>(Action<TExecutor> action, TimeSpan? disposeDelay = null, bool suppressUnloadErrors = false)
-            where TExecutor : MarshalByRefObject
-        {
-            using(var cloneDomainContext = AppDomain.CurrentDomain.CloneScope(disposeDelay: disposeDelay, suppressUnloadErrors: suppressUnloadErrors))
-            {
-                action(cloneDomainContext.CreateType<TExecutor>());
-            }
-        }
-
-
         public static void ExecuteInCloneDomainScope(CrossAppDomainDelegate action, TimeSpan? disposeDelay = null, bool suppressUnloadErrors = false)
         {
             using (var cloneDomainContext = AppDomain.CurrentDomain.CloneScope(disposeDelay: disposeDelay, suppressUnloadErrors: suppressUnloadErrors))
@@ -77,11 +67,5 @@ namespace Composable.CQRS.Testing
         }
 
         public AppDomain CloneDomain { get; private set; }
-
-        public T CreateType<T>() where T : MarshalByRefObject
-        {
-            var otherType = typeof(T);
-            return CloneDomain.CreateInstanceAndUnwrap(otherType.Assembly.FullName, otherType.FullName) as T;
-        }
     }
 }

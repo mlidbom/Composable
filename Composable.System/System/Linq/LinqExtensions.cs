@@ -13,31 +13,6 @@ namespace Composable.System.Linq
     [Pure]
     public static class LinqExtensions
     {
-        ///<summary>Returns the single instance that the enumerable contains and throws an exception if the instance is null.</summary>
-        public static T SingleNotNull<T>(this IEnumerable<T> me)
-        {
-            Contract.Requires(me != null);
-            Contract.Ensures(Contract.Result<T>() != null);
-            var result = me.Single();
-            if(result == null)
-            {
-                throw new Exception("Return value null");
-            }
-            return result;
-        }
-
-        /// <summary>
-        /// Binds <paramref name="me"/> to the parameter in <paramref name="selector"/>.
-        /// Enables you to perform operations that require you to alias the sequence being 
-        /// manipulated without having to create temporary variables.
-        /// </summary>
-        public static IEnumerable<TResult> Let<TSource, TResult>(this IEnumerable<TSource> me,
-                                                                 Func<IEnumerable<TSource>, IEnumerable<TResult>> selector)
-        {
-            Contract.Requires(selector != null);
-            return selector(me);
-        }
-
         /// <summary>
         /// Adds <paramref name="instances"/> to the end of <paramref name="source"/>
         /// </summary>

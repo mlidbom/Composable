@@ -17,7 +17,6 @@ namespace Composable.CQRS.EventSourcing
         {
 
             private readonly List<TComponentBaseEventInterface> _history = new List<TComponentBaseEventInterface>();
-            public IReadOnlyList<TComponentBaseEventInterface> GetHistory() => _history;
 
             private readonly CallMatchingHandlersInRegistrationOrderEventDispatcher<TComponentBaseEventInterface> _eventAppliersEventDispatcher =
                 new CallMatchingHandlersInRegistrationOrderEventDispatcher<TComponentBaseEventInterface>();
@@ -66,6 +65,7 @@ namespace Composable.CQRS.EventSourcing
                 return _eventAppliersEventDispatcher.Register();
             }
 
+            // ReSharper disable once UnusedMember.Global todo: tests
             protected IEventHandlerRegistrar<TComponentBaseEventInterface> RegisterEventHandlers()
             {
                 return _eventHandlersEventDispatcher.Register();

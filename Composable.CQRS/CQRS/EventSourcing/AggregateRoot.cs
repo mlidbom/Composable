@@ -11,7 +11,7 @@ using Composable.System.Linq;
 
 namespace Composable.CQRS.EventSourcing
 {
-    public partial class AggregateRoot<TAggregateRoot, TAggregateRootBaseEventClass, TAggregateRootBaseEventInterface> : VersionedPersistentEntity<TAggregateRoot>, IEventStored, ISharedOwnershipAggregateRoot
+    public partial class AggregateRoot<TAggregateRoot, TAggregateRootBaseEventClass, TAggregateRootBaseEventInterface> : VersionedPersistentEntity<TAggregateRoot>, IEventStored
         where TAggregateRoot : AggregateRoot<TAggregateRoot, TAggregateRootBaseEventClass, TAggregateRootBaseEventInterface>
         where TAggregateRootBaseEventInterface : class, IAggregateRootEvent
         where TAggregateRootBaseEventClass : AggregateRootEvent, TAggregateRootBaseEventInterface
@@ -37,8 +37,6 @@ namespace Composable.CQRS.EventSourcing
         private readonly CallMatchingHandlersInRegistrationOrderEventDispatcher<TAggregateRootBaseEventInterface> _eventHandlersEventDispatcher = new CallMatchingHandlersInRegistrationOrderEventDispatcher<TAggregateRootBaseEventInterface>();
 
         private readonly List<TAggregateRootBaseEventInterface> _history = new List<TAggregateRootBaseEventInterface>();
-        
-        public IReadOnlyList<TAggregateRootBaseEventInterface> GetHistory() => _history; 
 
         protected void RaiseEvent(TAggregateRootBaseEventClass theEvent)
         {
@@ -46,7 +44,7 @@ namespace Composable.CQRS.EventSourcing
             theEvent.UtcTimeStamp = TimeSource.UtcNow;
             if (Version == 0)
             {
-                if(!theEvent.IsInstanceOf<IAggregateRootCreatedEvent>())
+                if(!(theEvent is IAggregateRootCreatedEvent))
                 {
                     throw new Exception($"The first raised event type {theEvent.GetType()} did not inherit {nameof(IAggregateRootCreatedEvent)}");
                 }
@@ -77,6 +75,7 @@ namespace Composable.CQRS.EventSourcing
             return _eventDispatcher.RegisterHandlers();
         }
 
+        // ReSharper disable once UnusedMember.Global todo: coverage
         protected CallMatchingHandlersInRegistrationOrderEventDispatcher<TAggregateRootBaseEventInterface>.RegistrationBuilder RegisterEventHandlers()
         {
             return _eventHandlersEventDispatcher.RegisterHandlers();
@@ -96,8 +95,6 @@ namespace Composable.CQRS.EventSourcing
         protected virtual void AssertInvariantsAreMet()
         {
         }
-
-        IUtcTimeTimeSource IEventStored.TimeSource => TimeSource;
 
         void IEventStored.AcceptChanges()
         {
@@ -122,11 +119,6 @@ namespace Composable.CQRS.EventSourcing
             {
                 _insertedVersionToAggregateVersionOffset = maxInsertedVersion - Version;
             }
-        }
-
-        void ISharedOwnershipAggregateRoot.IntegrateExternallyRaisedEvent(IAggregateRootEvent theEvent)
-        {
-            RaiseEvent((TAggregateRootBaseEventClass)theEvent);
         }
     }
 }

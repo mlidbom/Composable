@@ -38,12 +38,6 @@ namespace Composable.Contracts
         }
 
         ///<summary>Standard constructor</summary>
-        public Inspected(TValue value, InspectionType type, string name = "")
-        {
-            _inspectedValues = new[] {new InspectedValue<TValue>(value, type, name)};
-        }
-
-        ///<summary>Standard constructor</summary>
         public Inspected(params InspectedValue<TValue>[] inspectedValues)
         {
             _inspectedValues = inspectedValues;

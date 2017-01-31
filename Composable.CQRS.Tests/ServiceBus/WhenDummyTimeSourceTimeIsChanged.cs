@@ -81,7 +81,6 @@ namespace CQRS.Tests.ServiceBus
 
         public class ScheduledMessage : ValueObject<ScheduledMessage>, IEvent
         {
-            public Guid Id { get; } = Guid.NewGuid();
         }
 
         public class MessageReceiver : IHandleMessages<ScheduledMessage>

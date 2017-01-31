@@ -22,17 +22,6 @@ namespace Composable.Tests.DDD
             }
         }
 
-        public class Toddler : Person
-        {
-            public Toddler()
-            {
-            }
-
-            public Toddler(Guid id) : base(id)
-            {
-            }
-        }
-
         [Test]
         public void InstanceEqualsItself()
         {

@@ -37,6 +37,7 @@ namespace Composable.CQRS.EventSourcing
             {
                 private static readonly TEventEntityIdSetterGetter IdGetterSetter = new TEventEntityIdSetterGetter();
 
+                // ReSharper disable once UnusedMember.Global todo: coverage
                 protected NestedEntity(TComponent parent)
                     : this(parent.TimeSource, parent.RaiseEvent, parent.RegisterEventAppliers()) { }
 
@@ -66,7 +67,8 @@ namespace Composable.CQRS.EventSourcing
 
                 public TEntityId Id { get; private set; }
 
-                public  static CollectionManager CreateSelfManagingCollection(TComponent parent)
+                // ReSharper disable once UnusedMember.Global todo: coverage
+                public  static CollectionManager CreateSelfManagingCollection(TComponent parent)//todo:tests
                   =>
                       new CollectionManager(
                           parent: parent,

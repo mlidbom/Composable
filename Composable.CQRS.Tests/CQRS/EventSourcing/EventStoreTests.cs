@@ -121,7 +121,7 @@ namespace CQRS.Tests.CQRS.EventSourcing
             using (var eventStore = CreateEventStore())
             {
                 eventStore.SaveEvents(aggregatesWithEvents.SelectMany(x => x.Value));
-                var allAggregateIds = eventStore.StreamAggregateIdsInCreationOrder(typeof(ISomeEvent)).ToList();
+                var allAggregateIds = eventStore.StreamAggregateIdsInCreationOrder<ISomeEvent>().ToList();
                 Assert.AreEqual(aggregatesWithEvents.Count, allAggregateIds.Count());
             }
         }

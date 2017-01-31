@@ -49,11 +49,4 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.When_renaming_events.Wi
             public static readonly string OldFullName = OldPath + OldName;
         }
     }
-
-    public class OldNestingClass
-    {
-        public class Event1OldREMOVE : AggregateRootEvent { }
-
-        public class Event2OldREMOVE : AggregateRootEvent { }
-    }    
 }

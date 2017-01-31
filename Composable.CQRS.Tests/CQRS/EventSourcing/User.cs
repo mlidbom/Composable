@@ -55,10 +55,7 @@ namespace CQRS.Tests.CQRS.EventSourcing
     { }
 
     public abstract class UserEvent : AggregateRootEvent, IUserEvent
-    {
-        protected UserEvent() {}
-        protected UserEvent(Guid aggregateRootId) : base(aggregateRootId) {}
-    }
+    {}
 
     public class UserChangedEmail : UserEvent, IUserEvent
     {

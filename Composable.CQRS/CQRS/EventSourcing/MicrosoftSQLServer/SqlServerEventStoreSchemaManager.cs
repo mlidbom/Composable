@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data;
 using System.Data.SqlClient;
 using System.Linq;
 using System.Transactions;
@@ -78,40 +77,7 @@ AT:
             }
         }
 
-        public static void ResetDB(string connectionString)
-        {
-            new SqlServerEventStoreSchemaManager(connectionString, new DefaultEventNameMapper()).ResetDB();
-        }
-
-        public void ResetDB()
-        {
-            lock(VerifiedConnectionStrings)
-            {
-                using(var connection = OpenConnection())
-                {
-                    EventTable.DropIfExists(connection);
-                    EventTypeTable.DropIfExists(connection);
-                }
-                VerifiedConnectionStrings.Remove(ConnectionString);
-                SetupSchemaIfDatabaseUnInitialized();
-            }
-        }
-
-        internal static void ClearCache(IDbConnection connection)
-        {
-            lock(VerifiedConnectionStrings)
-            {
-                var dbName = connection.Database.ToLower();
-                var impacted = VerifiedConnectionStrings.Where(@this => @this.ToLower().Contains(dbName)).ToList();
-
-                foreach(var connectionString in impacted)
-                {
-                    VerifiedConnectionStrings.Remove(connectionString);
-                    ConnectionIdMapper.Remove(connectionString);
-                }
-            }
-        }
-
+        //todo:remove the need for this by not using statics
         public static void ClearAllCache()
         {
             lock (VerifiedConnectionStrings)

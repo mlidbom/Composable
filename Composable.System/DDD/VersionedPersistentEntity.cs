@@ -21,17 +21,6 @@ namespace Composable.DDD
         {
         }
 
-        ///<summary>
-        /// Todo:This was an ugly hack to keep nhibernate from choking when adding instance without going through an nhibernate session. We no longer use NHibernate so not sure whether this method should be deprecated and removed...
-        /// </summary>
-        public static T FakePersistentInstance(Guid id)
-        {            
-            var result = (T)Activator.CreateInstance(typeof(T), nonPublic: true);
-            result.Version = 1;
-            result.SetIdBeVerySureYouKnowWhatYouAreDoing(id);
-            return result;
-        }
-
         ///<summary>Contains the current version of the entity</summary>
         public virtual int Version { get; protected set; }
     }

@@ -1,17 +1,13 @@
 ﻿using System;
-using System.Diagnostics;
 using System.Runtime.Remoting.Messaging;
 using System.Transactions;
 using Castle.Windsor;
-using Castle.MicroKernel.Lifestyle;
-using Composable.System;
-using Composable.System.Transactions;
 using Composable.SystemExtensions.Threading;
 using Composable.UnitsOfWork;
 
-namespace Composable.KeyValueStorage.Population
+namespace Composable.Windsor
 {
-    public static class WindsorUnitOfWorkExtensions
+    public static class WindsorUnitOfWorkExtensions1
     {
         public static ITransactionalUnitOfWork BeginTransactionalUnitOfWorkScope(this IWindsorContainer me)
         {
@@ -23,7 +19,7 @@ namespace Composable.KeyValueStorage.Population
             return new InnerTransactionalUnitOfWorkWindsorScope(CurrentScope);
         }
 
-        private static TransactionalUnitOfWorkWindsorScopeBase CurrentScope
+        static TransactionalUnitOfWorkWindsorScopeBase CurrentScope
         {
             get
             {

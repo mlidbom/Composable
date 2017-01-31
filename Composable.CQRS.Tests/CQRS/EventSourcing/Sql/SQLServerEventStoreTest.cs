@@ -31,20 +31,21 @@ namespace CQRS.Tests.CQRS.EventSourcing.Sql
             {
                 var connectionString = dbManager.ConnectionStringFor("SqlServerEventStoreTest_EventStore1");
                 SqlServerEventStore.ClearAllCache();
-                var something = new SqlServerEventStore(connectionString, new SingleThreadUseGuard());
-                something.ResetDB(); //Sometimes the test would fail on the last line with information that the table was missing. Probably because the table was created during the aborted transaction. I'm hoping this will fix it.
+                var eventStore = new SqlServerEventStore(connectionString, new SingleThreadUseGuard());
+
+                eventStore.GetAggregateHistory(Guid.NewGuid());//Trick store inte ensuring the schema exists.
 
                 var user = new User();
                 user.Register("email@email.se", "password", Guid.NewGuid());
 
                 using(new TransactionScope())
                 {
-                    something.SaveEvents(((IEventStored)user).GetChanges());
-                    something.GetAggregateHistory(user.Id);
-                    Assert.That(something.GetAggregateHistory(user.Id), Is.Not.Empty);
+                    eventStore.SaveEvents(((IEventStored)user).GetChanges());
+                    eventStore.GetAggregateHistory(user.Id);
+                    Assert.That(eventStore.GetAggregateHistory(user.Id), Is.Not.Empty);
                 }
 
-                Assert.That(something.GetAggregateHistory(user.Id), Is.Empty);
+                Assert.That(eventStore.GetAggregateHistory(user.Id), Is.Empty);
             }
         }
 

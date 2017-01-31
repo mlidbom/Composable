@@ -15,7 +15,6 @@ namespace Composable.CQRS.EventHandling
     public class CallMatchingHandlersInRegistrationOrderEventDispatcher<TEvent> : IMutableEventDispatcher<TEvent>
         where TEvent : class
     {
-        private static readonly ILog Log = LogManager.GetLogger(typeof(CallMatchingHandlersInRegistrationOrderEventDispatcher<TEvent>));
         private readonly List<KeyValuePair<Type, Action<object>>> _handlers = new List<KeyValuePair<Type, Action<object>>>();
 
         private readonly List<Action<object>> _runBeforeHandlers = new List<Action<object>>();

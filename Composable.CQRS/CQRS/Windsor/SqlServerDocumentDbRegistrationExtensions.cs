@@ -8,6 +8,7 @@ using Composable.System.Configuration;
 using Composable.System.Linq;
 using Composable.UnitsOfWork;
 using Composable.Windsor.Testing;
+// ReSharper disable UnusedMember.Global todo: write tests
 
 namespace Composable.CQRS.Windsor
 {

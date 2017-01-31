@@ -9,17 +9,12 @@ namespace Composable.Windsor.Testing
 
     public static class RewiringHelperExtensions
     {
-        public static IExecuteActionsWhenRewiringForTesting RegisterMessageHandlersFromAssemblyContainingType<TAssemblyIdentifier>(this IExecuteActionsWhenRewiringForTesting @this)
-        {
-            return @this.Run(container => container.RegisterMessageHandlersFromAssemblyContainingType<TAssemblyIdentifier>());
-        }
-
         public static IExecuteActionsWhenRewiringForTesting ReplaceEventStore(this IExecuteActionsWhenRewiringForTesting @this, string name, string replacementName = null)
         {
             return @this.ReplaceComponent(
                 componentName: name,
 #pragma warning disable 618
-                replacement: Component.For<IEventStore, IResetTestDatabases>()
+                replacement: Component.For<IEventStore>()
 #pragma warning restore 618
                     .ImplementedBy<InMemoryEventStore>()
                     .LifestyleSingleton(),
@@ -31,7 +26,7 @@ namespace Composable.Windsor.Testing
             return @this.ReplaceComponent(
                 componentName: dbToReplace,
 #pragma warning disable 618
-                replacement: Component.For<IDocumentDb, IResetTestDatabases>()
+                replacement: Component.For<IDocumentDb>()
 #pragma warning restore 618
                     .ImplementedBy<InMemoryDocumentDb>()
                     .LifestyleSingleton(),

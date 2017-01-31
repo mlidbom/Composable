@@ -13,19 +13,6 @@ namespace Composable.Windsor.Testing
 {
     public static class TestingWindsorExtensions
     {
-        [Obsolete("Relying on this method is fragile and apt to cause trouble. You should make sure to set up a new container for each test instead. That is far more safe and simple than using this")]
-        public static void ResetTestDataBases(this IWindsorContainer container)
-        {
-            using(container.BeginScope())
-            {
-                foreach(var dbResetter in container.ResolveAll<IResetTestDatabases>())
-                {
-                    dbResetter.ResetDatabase();
-                    container.Release(dbResetter);
-                }
-            }
-        }
-
         /// <summary>
         ///<para>Components registered as PerWebRequest will be remapped to Scoped.</para>
         /// <para>SingleThreadUseGuard is registered for the component ISingleContextUseGuard</para>

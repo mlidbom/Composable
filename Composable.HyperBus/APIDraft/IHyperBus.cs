@@ -1,4 +1,5 @@
 ﻿using System.Threading.Tasks;
+// ReSharper disable UnusedMember.Global
 
 #pragma warning disable 1591
 namespace Composable.HyperBus.APIDraft

@@ -29,11 +29,6 @@ namespace Composable.System
         }
     }
 
-    public class StrictlyManagedResource : StrictlyManagedResourceBase
-    {
-        protected override void InternalDispose() {}
-    }
-
     public class ResourceWasLeakedException : Exception
     {
         public ResourceWasLeakedException(Type instanceType, string reservationCallStack):base(FormatMessage(instanceType, reservationCallStack))

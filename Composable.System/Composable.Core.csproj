@@ -176,17 +176,10 @@
     <Compile Include="DDD\PersistentEntity.cs" />
     <Compile Include="DDD\ValueObject.cs" />
     <Compile Include="DDD\VersionedPersistentEntity.cs" />
-    <Compile Include="DisposeAction.cs" />
     <Compile Include="GenericAbstractions\Time\DummyTimeSource.cs" />
     <Compile Include="GenericAbstractions\Time\DateTimeNowTimeSource.cs" />
     <Compile Include="GenericAbstractions\Time\IUtcTimeTimeSource.cs" />
     <Compile Include="JetBrainsCodeAnnotations.cs" />
-    <Compile Include="Persistence\IEntityFetcher.cs" />
-    <Compile Include="Persistence\IEntityPersister.cs" />
-    <Compile Include="Persistence\IQueryableEntities.cs" />
-    <Compile Include="Persistence\IQueryableEntityFetcher.cs" />
-    <Compile Include="Persistence\Testing\InMemoryPersistenceSession.cs" />
-    <Compile Include="Persistence\IPersistenceSession.cs" />
     <Compile Include="ServiceBus\IMessage.cs" />
     <Compile Include="SystemExtensions\ExceptionExtensions.cs" />
     <Compile Include="SystemExtensions\Threading\ISingleContextUseGuard.cs" />
@@ -209,45 +202,31 @@
     <Compile Include="System\EnumExtensions.cs" />
     <Compile Include="GenericAbstractions\Hierarchies\HierarchyExtensions.cs" />
     <Compile Include="GenericAbstractions\Hierarchies\IHierarchy.cs" />
-    <Compile Include="System\Globalization\ThreadCultureScope.cs" />
-    <Compile Include="System\IntegerExtensions.cs" />
-    <Compile Include="System\IO\DirectoryInfoMutators.cs" />
-    <Compile Include="System\IO\FileInfoExtensions.cs" />
     <Compile Include="System\IO\DirectoryExtensions.cs" />
-    <Compile Include="System\IO\FileStreamExtensions.cs" />
-    <Compile Include="System\IO\StreamReaderExtensions.cs" />
     <Compile Include="System\Linq\ExpressionUtil.cs" />
-    <Compile Include="System\Linq\Filter.cs" />
     <Compile Include="System\Linq\HashSetExtensions.cs" />
     <Compile Include="System\Linq\Iteration.cs" />
     <Compile Include="System\Linq\Hierarchy.cs" />
-    <Compile Include="System\Linq\IFilter.cs" />
     <Compile Include="System\Linq\LinqExtensions.cs" />
     <Compile Include="System\Linq\Number.cs" />
     <Compile Include="System\Linq\ObjectExtensions.cs" />
     <Compile Include="System\Linq\Seq.cs" />
     <Compile Include="System\Linq\SimpleIndexing.cs" />
     <Compile Include="System\Linq\Zipping.cs" />
-    <Compile Include="System\ObjectExtensions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="System\Reactive\SimpleObservable.cs" />
     <Compile Include="System\Reactive\SimpleObserver.cs" />
     <Compile Include="System\Reactive\ThreadSafeObservable.cs" />
     <Compile Include="System\Reactive\ThreadSafeObserverCollection.cs" />
-    <Compile Include="System\Reflection\AssemblyExtensions.cs" />
     <Compile Include="System\Reflection\MemberAccessorHelper.cs" />
     <Compile Include="System\Reflection\ObjectFactory.cs" />
-    <Compile Include="System\Reflection\ObjectGraphWalker.cs" />
     <Compile Include="System\Reflection\TypeExtensions.cs" />
     <Compile Include="System\StrictlyManagedResourceBase.cs" />
     <Compile Include="System\StringExtensions.cs" />
     <Compile Include="System\TimeSpanEnumerableExtensions.cs" />
     <Compile Include="System\TimeSpanExtensions.cs" />
     <Compile Include="System\Transactions\InTransaction.cs" />
-    <Compile Include="GenericAbstractions\Wrappers\GenericWrapper.cs" />
     <Compile Include="GenericAbstractions\Wrappers\IWrapper.cs" />
-    <Compile Include="GenericAbstractions\Wrappers\WrapperExtensions.cs" />
-    <Compile Include="System\Transactions\TransactionExtensions.cs" />
     <Compile Include="System\Web\HttpRequestIdSupplier.cs" />
     <Compile Include="System\Web\HttpRequestIdFetcher.cs" />
     <Compile Include="System\Web\IHttpRequestIdFetcher.cs" />
@@ -278,6 +257,9 @@
   <ItemGroup>
     <None Include="Composable.Core.nuspec" />
     <None Include="Void.snk" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="System\Globalization\" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

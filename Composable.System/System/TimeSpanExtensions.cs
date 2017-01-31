@@ -1,15 +1,12 @@
-#region usings
-
 using System;
 using System.Diagnostics.Contracts;
 
-#endregion
-
+// ReSharper disable UnusedMember.Global todo: write the ridiculously simple tests.
 namespace Composable.System
 {
     /// <summary>A collection of extensions to work with timespans</summary>
     [Pure]
-    public static class TimeSpanExtensions //todo: write the ridiculously simple tests.
+    public static class TimeSpanExtensions 
     {
         /// <summary>Returns a TimeSpan <paramref name="me"/> milliseconds long.</summary>
         public static TimeSpan Milliseconds(this int me)

@@ -1,4 +1,5 @@
 ﻿using System;
+// ReSharper disable UnusedMember.Global todo: refactor usages of concrete classes to use these interfaces. Then remove unused.
 
 namespace Composable.CQRS.EventHandling
 {

@@ -5,6 +5,7 @@ using Composable.ServiceBus;
 using Composable.System.Transactions;
 using System.Linq;
 using Composable.System.Reflection;
+using JetBrains.Annotations;
 
 namespace Composable.CQRS.Testing
 {
@@ -34,7 +35,7 @@ namespace Composable.CQRS.Testing
             ((dynamic)this).Publish((dynamic)message);
         }
 
-        public void Publish<TMessage>(TMessage message) where TMessage : IMessage
+        [UsedImplicitly] public void Publish<TMessage>(TMessage message) where TMessage : IMessage
         {
             var handlerTypes = message.GetType().GetAllTypesInheritedOrImplemented()                                
                 .Where(t => t.Implements(typeof(IMessage)))

@@ -26,7 +26,6 @@ namespace Composable.GenericAbstractions.Time
         public IObservable<DateTime> UtcNowChanged { get { return _utcNowChanged; } }
 
         private readonly SimpleObservable<DateTime> _utcNowChanged = new SimpleObservable<DateTime>();
-        private readonly SimpleObservable<DateTime> _localChanged = new SimpleObservable<DateTime>();
 
         private void NotifyListeners()
         {

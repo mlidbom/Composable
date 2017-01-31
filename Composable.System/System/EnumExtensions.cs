@@ -7,6 +7,7 @@ using System.Diagnostics.Contracts;
 
 namespace Composable.System
 {
+    // ReSharper disable UnusedMember.Global todo: tests
     /// <summary/>
     [Pure]
     public static class EnumExtensions
@@ -16,8 +17,7 @@ namespace Composable.System
         /// </summary>
         /// <param name="value"></param>
         /// <param name="flag"></param>
-        /// <returns></returns>
-        // ReSharper disable once UnusedMember.Global todo: tests
+        /// <returns></returns>        
         public static bool HasFlag(this Enum value, Enum flag)
         {
             Contract.Requires(value != null && flag != null);

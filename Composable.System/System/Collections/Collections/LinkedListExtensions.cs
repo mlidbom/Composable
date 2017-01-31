@@ -18,14 +18,8 @@ namespace Composable.System.Collections.Collections
             }
         }
 
-        ///<summary>Enumerates all following nodes excluding this node.</summary>
-        public static IEnumerable<LinkedListNode<T>> NodesAfter<T>(this LinkedListNode<T> @this) { return @this.NodesFrom().Skip(1); }
-
         ///<summary>Enumerates this and all following node values.</summary>
         public static IEnumerable<T> ValuesFrom<T>(this LinkedListNode<T> @this) { return @this.NodesFrom().Select(node => node.Value); }
-
-        ///<summary>Enumerates all following node values excluding this node.</summary>
-        public static IEnumerable<T> ValuesAfter<T>(this LinkedListNode<T> @this) { return @this.ValuesFrom().Skip(1); }
 
         ///<summary>Inserts <paramref name="items"/> after the <paramref name="this"/>  node and returns the nodes that were inserted.</summary>
         public static IReadOnlyList<LinkedListNode<T>> AddAfter<T>(this LinkedListNode<T> @this, IEnumerable<T> items)
@@ -60,16 +54,6 @@ namespace Composable.System.Collections.Collections
             var newNodes = @this.AddAfter(items);
             @this.List.Remove(@this);
             return newNodes;
-        }
-
-        ///<summary>Inserts <paramref name="items"/> after the <paramref name="this"/>  node and returns the nodes that were inserted.</summary>
-        public static IReadOnlyList<LinkedListNode<T>> AddAfter<T>(this LinkedList<T> @this, LinkedListNode<T> node, IEnumerable<T> items)
-        {
-            Contract.Requires(items != null);
-            Contract.Requires(@this != null);
-            Contract.Requires(@this == node.List);
-
-            return node.AddAfter(items);
         }
 
         ///<summary>Inserts <paramref name="items"/> after the <paramref name="this"/>  node and returns the nodes that were inserted.</summary>

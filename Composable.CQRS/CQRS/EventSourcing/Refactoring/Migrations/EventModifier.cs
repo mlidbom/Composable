@@ -19,12 +19,6 @@ namespace Composable.CQRS.EventSourcing.Refactoring.Migrations
         private AggregateRootEvent[] _replacementEvents;
         private AggregateRootEvent[] _insertedEvents;
 
-        public EventModifier(AggregateRootEvent @event, Action<IReadOnlyList<AggregateRootEvent>> eventsAddedCallback)
-        {
-            Event = @event;
-            _eventsAddedCallback = eventsAddedCallback;
-        }
-
         public EventModifier(Action<IReadOnlyList<AggregateRootEvent>> eventsAddedCallback)
         {
             _eventsAddedCallback = eventsAddedCallback;

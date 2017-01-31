@@ -12,13 +12,6 @@ namespace Composable.System
             return @this.ToUniversalTime();
         }
 
-        ///<summary>Like <see cref="DateTime.ToLocalTime"/> except it will throw an exception if <see cref="@this"/>.Kind == <see cref="DateTimeKind.Unspecified"/> instead of assuming that Kind == <see cref="DateTimeKind.Utc"/> and converting based on that assumption like <see cref="DateTime.ToLocalTime"/> does.</summary>
-        public static DateTime SafeToLocalTime(this DateTime @this)
-        {
-            @this.AssertHasDeterministicValue();
-            return @this.ToLocalTime();
-        }
-
         ///<summary>Throws an exception if @this.Kind == <see cref="DateTimeKind.Unspecified"/>.</summary>
         public static void AssertHasDeterministicValue(this DateTime @this)
         {

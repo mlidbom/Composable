@@ -1,6 +1,7 @@
 ﻿using System;
 using FluentAssertions;
 using NUnit.Framework;
+// ReSharper disable UnusedMember.Global
 
 // ReSharper disable InconsistentNaming
 
@@ -40,7 +41,7 @@ namespace NSpec.NUnit
             exception.InnerException.Message.Should().Be("first error");
         }
     }
-
+    
     public class working_spec : NSpec.NUnit.nspec
     {
         public void this_works()

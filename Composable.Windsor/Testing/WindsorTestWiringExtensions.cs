@@ -1,6 +1,7 @@
 using System;
 using Castle.MicroKernel.Registration;
 using Castle.Windsor;
+// ReSharper disable UnusedMember.Global todo: write tests and start using in tests.
 
 
 namespace Composable.Windsor.Testing

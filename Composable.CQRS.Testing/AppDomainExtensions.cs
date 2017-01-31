@@ -67,11 +67,5 @@ namespace Composable.CQRS.Testing
         }
 
         public AppDomain CloneDomain { get; private set; }
-
-        public T CreateType<T>() where T : MarshalByRefObject
-        {
-            var otherType = typeof(T);
-            return CloneDomain.CreateInstanceAndUnwrap(otherType.Assembly.FullName, otherType.FullName) as T;
-        }
     }
 }

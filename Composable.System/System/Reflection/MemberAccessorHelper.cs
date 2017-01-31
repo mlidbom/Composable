@@ -28,14 +28,6 @@ namespace Composable.System.Reflection
                 obj).Compile();
         }
 
-        ///<summary>Returns the values of all the fields and properties that the supplied object contains.</summary>
-        public static IEnumerable<object> GetFieldAndPropertyValues(object o)
-        {
-            Contract.Requires(o != null);
-
-            return GetFieldsAndPropertyGetters(o.GetType()).Select(getter => getter(o));
-        }
-
         ///<summary>Returns functions that when invoked will return the values of the fields an properties in an instance of the supplied type.</summary>
         public static Func<Object, Object>[] GetFieldsAndPropertyGetters(Type type)
         {

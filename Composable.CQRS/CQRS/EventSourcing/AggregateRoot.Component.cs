@@ -17,7 +17,6 @@ namespace Composable.CQRS.EventSourcing
         {
 
             private readonly List<TComponentBaseEventInterface> _history = new List<TComponentBaseEventInterface>();
-            public IReadOnlyList<TComponentBaseEventInterface> GetHistory() => _history;
 
             private readonly CallMatchingHandlersInRegistrationOrderEventDispatcher<TComponentBaseEventInterface> _eventAppliersEventDispatcher =
                 new CallMatchingHandlersInRegistrationOrderEventDispatcher<TComponentBaseEventInterface>();

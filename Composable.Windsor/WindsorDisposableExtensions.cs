@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using Castle.Windsor;
 
 namespace Composable.Windsor
@@ -9,11 +8,6 @@ namespace Composable.Windsor
         public static DisposableComponent<TComponent> ResolveDisposable<TComponent>(this IWindsorContainer me)
         {
             return new DisposableComponent<TComponent>(me.Resolve<TComponent>(), me);
-        }
-
-        public static DisposableComponentCollection<TComponent> ResolveAllDisposable<TComponent>(this IWindsorContainer me)
-        {
-            return new DisposableComponentCollection<TComponent>(me.ResolveAll<TComponent>(), me);
         }
 
         public static void UseComponent<TComponent>(this IWindsorContainer me, Action<TComponent> action )
@@ -29,14 +23,6 @@ namespace Composable.Windsor
             using (var component = new DisposableComponent<TComponent>(me.Resolve<TComponent>(componentName), me))
             {
                 action(component.Instance);
-            }
-        }
-
-        public static void UseComponents<TComponent>(this IWindsorContainer me, Action<IEnumerable<TComponent>> action)
-        {
-            using (var component = me.ResolveAllDisposable<TComponent>())
-            {
-                action(component.Instances);
             }
         }
     }

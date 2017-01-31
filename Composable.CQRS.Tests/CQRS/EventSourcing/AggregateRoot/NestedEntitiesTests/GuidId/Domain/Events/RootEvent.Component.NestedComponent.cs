@@ -11,8 +11,6 @@ namespace CQRS.Tests.CQRS.EventSourcing.AggregateRoot.NestedEntitiesTests.GuidId
             {
                 public interface IRoot : Component.IRoot { }
 
-                public interface Renamed : NestedComponent.IRoot, PropertyUpdated.Name { }
-
                 public static class PropertyUpdated
                 {
                     public interface Name : NestedComponent.IRoot

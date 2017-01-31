@@ -66,11 +66,6 @@ namespace Composable.CQRS.EventSourcing.MicrosoftSQLServer
         {
             return JsonConvert.SerializeObject(@event, formatting, JsonSettings);
         }
-
-        public IAggregateRootEvent Deserialize(Type eventType, string eventData)
-        {
-            return (IAggregateRootEvent)JsonConvert.DeserializeObject(eventData, eventType, JsonSettings);
-        }
     }
 
     internal class SqlDecimalConverter : JsonConverter

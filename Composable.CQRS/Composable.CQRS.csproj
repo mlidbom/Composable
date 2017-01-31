@@ -242,7 +242,6 @@
     <Compile Include="KeyValueStorage\DocumentDbSession.cs" />
     <Compile Include="KeyValueStorage\NoSuchDocumentException.cs" />
     <Compile Include="NewtonSoft\JsonSettings.cs" />
-    <Compile Include="Persistence\SingleAggregateRelationalQueryModelUpdater.cs" />
     <Compile Include="ServiceBus\IHandleMessages.cs" />
     <Compile Include="ServiceBus\IHandleReplayedAndPublishedEvents.cs" />
     <Compile Include="ServiceBus\IHandleInProcessMessages.cs" />
@@ -296,7 +295,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="CQRS\ViewModels\" />
-    <Folder Include="Persistence\Testing\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

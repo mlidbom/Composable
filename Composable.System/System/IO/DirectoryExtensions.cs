@@ -1,6 +1,5 @@
 #region usings
 
-using System;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using System.IO;
@@ -29,18 +28,6 @@ namespace Composable.System.IO
         }
 
         /// <summary>
-        /// Returns a DirectoryInfo instance that points at me
-        /// </summary>
-        /// <param name="me"></param>
-        /// <returns></returns>
-        public static DirectoryInfo AsDirectory(this Environment.SpecialFolder me)
-        {
-            Contract.Ensures(Contract.Result<DirectoryInfo>() != null);
-            return Environment.GetFolderPath(me).AsDirectory();
-        }
-
-
-        /// <summary>
         /// Returns the size of the directory.
         /// </summary>
         public static long Size(this DirectoryInfo me)
@@ -63,26 +50,6 @@ namespace Composable.System.IO
         {
             Contract.Requires(me != null);
             me.Delete(true);
-        }
-
-
-        /// <summary>
-        /// Returns a DirectoryInfo that pointing at a directory that is found by 
-        /// following <paramref name="relativePath"/> from <paramref name="me"/>
-        /// This folder may or may not exist.
-        /// </summary>
-        /// <param name="me"></param>
-        /// <param name="relativePath"></param>
-        /// <returns></returns>
-        public static DirectoryInfo SubDir(this DirectoryInfo me, string relativePath)
-        {
-            Contract.Requires(me != null && !string.IsNullOrEmpty(me.FullName) && !string.IsNullOrEmpty(relativePath));
-            Contract.Ensures(Contract.Result<DirectoryInfo>() != null);
-            if(relativePath[0] == '\\')
-            {
-                relativePath = relativePath.Remove(0, 1);
-            }
-            return Path.Combine(me.FullName, relativePath).AsDirectory();
         }
 
         /// <summary>

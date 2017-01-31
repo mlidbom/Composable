@@ -14,6 +14,7 @@ using System.Web.Script.Serialization;
 
 namespace Composable.DDD
 {
+    //Review:mlidbo: Consider whether comparing using public properties only would make more sense. Maybe separate class?
     ///<summary>
     /// Base class for value objects that implements value equality based on instance fields.
     /// Properties are ignored when comparing. Only fields are used.

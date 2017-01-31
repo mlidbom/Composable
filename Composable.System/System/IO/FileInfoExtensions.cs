@@ -16,7 +16,7 @@ namespace Composable.System.IO
     public static class FileInfoExtensions
     {
         /// <summary>
-        /// Returns a sequnce where all files have <paramref name="extensions"/> as their extension
+        /// Returns a sequence where all files have <paramref name="extensions"/> as their extension
         /// </summary>
         /// <param name="me"></param>
         /// <param name="extensions"></param>

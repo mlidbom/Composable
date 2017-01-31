@@ -125,7 +125,6 @@
     <Compile Include="Testing\WindsorTestWiringExtensions.cs" />
     <Compile Include="TypedCollectionResolver.cs" />
     <Compile Include="WindsorComponentReplacer.cs" />
-    <Compile Include="WindsorConfigurationValidator.cs" />
     <Compile Include="WindsorDisposableExtensions.cs" />
   </ItemGroup>
   <ItemGroup>

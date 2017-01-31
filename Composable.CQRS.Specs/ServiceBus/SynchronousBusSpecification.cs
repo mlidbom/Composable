@@ -4,6 +4,7 @@ using Castle.Windsor;
 using Composable.ServiceBus;
 using Composable.SystemExtensions.Threading;
 using FluentAssertions;
+// ReSharper disable UnusedMember.Global
 
 namespace CQRS.Tests.ServiceBus
 {

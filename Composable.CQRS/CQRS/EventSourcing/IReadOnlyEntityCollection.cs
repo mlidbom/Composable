@@ -8,7 +8,7 @@ namespace Composable.CQRS.EventSourcing
     {
         [Pure]
         IReadOnlyList<TEntity> InCreationOrder { get; }
-        bool TryGet(TEntityId id, out TEntity component);
+        bool TryGet(TEntityId id, out TEntity component); //todo:write test
         [Pure]
         bool Exists(TEntityId id);
         [Pure]

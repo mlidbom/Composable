@@ -11,7 +11,7 @@ using Composable.System.Linq;
 
 namespace Composable.CQRS.EventSourcing
 {
-    public partial class AggregateRoot<TAggregateRoot, TAggregateRootBaseEventClass, TAggregateRootBaseEventInterface> : VersionedPersistentEntity<TAggregateRoot>, IEventStored, ISharedOwnershipAggregateRoot
+    public partial class AggregateRoot<TAggregateRoot, TAggregateRootBaseEventClass, TAggregateRootBaseEventInterface> : VersionedPersistentEntity<TAggregateRoot>, IEventStored
         where TAggregateRoot : AggregateRoot<TAggregateRoot, TAggregateRootBaseEventClass, TAggregateRootBaseEventInterface>
         where TAggregateRootBaseEventInterface : class, IAggregateRootEvent
         where TAggregateRootBaseEventClass : AggregateRootEvent, TAggregateRootBaseEventInterface
@@ -122,11 +122,6 @@ namespace Composable.CQRS.EventSourcing
             {
                 _insertedVersionToAggregateVersionOffset = maxInsertedVersion - Version;
             }
-        }
-
-        void ISharedOwnershipAggregateRoot.IntegrateExternallyRaisedEvent(IAggregateRootEvent theEvent)
-        {
-            RaiseEvent((TAggregateRootBaseEventClass)theEvent);
         }
     }
 }

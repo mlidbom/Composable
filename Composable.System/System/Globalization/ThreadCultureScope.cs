@@ -8,7 +8,7 @@ namespace Composable.System.Globalization
     ///<summary>
     /// Changes the current thread's CurrentCulture and CurrentUICulture when constructed and returns it to the original value when disposed.
     /// </summary>
-    public class ThreadCultureScope : IDisposable
+    public class ThreadCultureScope : IDisposable //todo: tests
     {
         private readonly CultureInfo _originalCulture;
         private readonly CultureInfo _originalUICulture;

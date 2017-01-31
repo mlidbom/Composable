@@ -3,9 +3,9 @@ using System.Runtime.Remoting.Messaging;
 using System.Transactions;
 using Castle.MicroKernel.Registration;
 using Castle.Windsor;
-using Composable.KeyValueStorage.Population;
 using Composable.SystemExtensions.Threading;
 using Composable.UnitsOfWork;
+using Composable.Windsor;
 using FluentAssertions;
 using NUnit.Framework;
 

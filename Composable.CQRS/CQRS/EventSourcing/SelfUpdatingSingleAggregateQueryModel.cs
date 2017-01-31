@@ -6,7 +6,7 @@ using Composable.System.Linq;
 
 namespace Composable.CQRS.EventSourcing
 {
-    public abstract class SelfUpdatingSingleAggregateQueryModel<TRootQueryModel, TAggregateRootBaseEventInterface>
+    abstract class SelfUpdatingSingleAggregateQueryModel<TRootQueryModel, TAggregateRootBaseEventInterface>
         where TRootQueryModel : SelfUpdatingSingleAggregateQueryModel<TRootQueryModel, TAggregateRootBaseEventInterface>
         where TAggregateRootBaseEventInterface : class
     {

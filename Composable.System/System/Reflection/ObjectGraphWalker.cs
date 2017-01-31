@@ -6,8 +6,10 @@ using System.Linq;
 
 namespace Composable.System.Reflection
 {
+    //todo:tests and make public and remove ignoring of unused members
     ///<summary>Flattens an object graph into a sequence by walking instance members using reflection.</summary>
-    public static class ObjectGraphWalker
+    // ReSharper disable once UnusedMember.Global
+    static class ObjectGraphWalker
     {
         ///<summary>Flattens the supplied object graph into a sequence</summary>
         public static IEnumerable<object> GetGraph(object o)

@@ -18,7 +18,7 @@ namespace Composable.Windsor
 
         public static void UseComponent<TComponent>(this IWindsorContainer me, Action<TComponent> action )
         {
-            using(var component = new DisposableComponent<TComponent>(me.Resolve<TComponent>(), me))
+            using(var component = me.ResolveDisposable<TComponent>())
             {
                 action(component.Instance);
             }
@@ -34,7 +34,7 @@ namespace Composable.Windsor
 
         public static void UseComponents<TComponent>(this IWindsorContainer me, Action<IEnumerable<TComponent>> action)
         {
-            using (var component = new DisposableComponentCollection<TComponent>(me.ResolveAll<TComponent>(), me))
+            using (var component = me.ResolveAllDisposable<TComponent>())
             {
                 action(component.Instances);
             }

@@ -1,4 +1,5 @@
 ﻿using JetBrains.Annotations;
+// ReSharper disable UnusedMember.Global
 
 namespace Composable.HyperBus.APIDraft
 {

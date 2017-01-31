@@ -8,6 +8,7 @@ using NHibernate;
 
 namespace Composable.Persistence.ORM.NHibernate.Windsor
 {
+    //todo: write tests.
     public static class NHibernateRegistrationExtensions
     {
         public static IWindsorContainer RegisterSqlServerNHibernateComponents

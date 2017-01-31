@@ -2,12 +2,12 @@
 using System.Threading.Tasks;
 using Composable.HyperBus.APIDraft;
 using Composable.HyperBus.DemoApp.ExposedApi.Resources;
+// ReSharper disable UnusedMember.Global
 
 namespace Composable.HyperBus.DemoApp.Client
 {
     public class D030AdvancedAwaiting
     {
-        private IHyperBus Bus { get; }
         private IApiNavigator<EmptyResource> Navigator { get; }
 
 

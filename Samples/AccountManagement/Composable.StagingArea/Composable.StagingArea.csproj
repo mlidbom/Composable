@@ -59,7 +59,6 @@
   <ItemGroup>
     <Compile Include="CQRS\Windsor\Testing\ForTestsEventHandlerInstallerBase.cs" />
     <Compile Include="CQRS\Windsor\Testing\WindsorRegistrationTesterExtensions.cs" />
-    <Compile Include="CQRS\Windsor\WindsorUnitOfWorkExtensions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

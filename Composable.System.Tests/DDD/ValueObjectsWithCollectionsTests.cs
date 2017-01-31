@@ -12,20 +12,7 @@ namespace Composable.Tests.DDD
     [TestFixture]
     public class ValueObjectsWithCollectionsTests
     {
-        public class UserViewModel
-        {
-            public Guid Id { get; set; }
-            public string UserName { set; get; }
-            public bool IsLogin { set; get; }
-            public bool IsAdmin { get; set; }
-        }
-
-        public class ViewModelBase : ValueObject<ViewModelBase> 
-        {
-            public UserViewModel LoginUserViewModel { get; set; }
-        }
-
-        public class ExternalJobsDashboardViewModel : ViewModelBase
+        public class ExternalJobsDashboardViewModel : ValueObject<ExternalJobsDashboardViewModel>
         {
             public ExternalJobsDashboardViewModel()
             {

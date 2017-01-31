@@ -7,7 +7,8 @@ using System.Reflection;
 
 namespace Composable.StuffThatDoesNotBelongHere.Translation
 {
-    public static class TranslationTypeExtensions
+    //todo: Move to core and add actual implementations and tests.
+    static class TranslationTypeExtensions
     {
         public static bool HasTranslatableProperties(this Type me)
         {
@@ -42,7 +43,7 @@ namespace Composable.StuffThatDoesNotBelongHere.Translation
 
     }
 
-    public class TranslatedProperty
+    class TranslatedProperty
     {
         private readonly PropertyInfo _propertyInfo;
 

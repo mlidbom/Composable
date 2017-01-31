@@ -9,11 +9,6 @@ namespace Composable.Windsor.Testing
 
     public static class RewiringHelperExtensions
     {
-        public static IExecuteActionsWhenRewiringForTesting RegisterMessageHandlersFromAssemblyContainingType<TAssemblyIdentifier>(this IExecuteActionsWhenRewiringForTesting @this)
-        {
-            return @this.Run(container => container.RegisterMessageHandlersFromAssemblyContainingType<TAssemblyIdentifier>());
-        }
-
         public static IExecuteActionsWhenRewiringForTesting ReplaceEventStore(this IExecuteActionsWhenRewiringForTesting @this, string name, string replacementName = null)
         {
             return @this.ReplaceComponent(

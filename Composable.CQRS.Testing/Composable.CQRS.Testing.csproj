@@ -135,8 +135,6 @@
     </Compile>
     <Compile Include="AppDomainExtensions.cs" />
     <Compile Include="Windsor\SqlDatabasePoolRegistrar.cs" />
-    <Compile Include="Windsor\Testing\WindsorRegistrationTesterExtensions.cs" />
-    <Compile Include="CollectionAssertions.cs" />
     <Compile Include="DummyServiceBus.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
@@ -159,6 +157,9 @@
     <None Include="Composable.CQRS.Testing.nuspec" />
     <None Include="packages.config" />
     <None Include="Void.snk" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Windsor\Testing\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

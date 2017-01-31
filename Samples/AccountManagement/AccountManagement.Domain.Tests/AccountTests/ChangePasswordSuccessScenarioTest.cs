@@ -1,8 +1,6 @@
 ﻿using System.Linq;
 using AccountManagement.Domain.Events;
-using AccountManagement.Domain.Shared;
 using AccountManagement.TestHelpers.Scenarios;
-using Composable.KeyValueStorage.Population;
 using FluentAssertions;
 using NUnit.Framework;
 

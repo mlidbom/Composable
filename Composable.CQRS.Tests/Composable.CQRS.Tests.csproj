@@ -216,7 +216,6 @@
     <Compile Include="CQRS\EventSourcing\EventRefactoring\When_renaming_events\With_renaming_attribute\By_path.cs" />
     <Compile Include="CQRS\EventSourcing\EventRefactoring\When_renaming_events\With_renaming_attribute\By_fullName.cs" />
     <Compile Include="CQRS\EventSourcing\EventRefactoring\When_renaming_events\When_mapping_names_for_classes_with_no_renaming_attribute.cs" />
-    <Compile Include="CQRS\EventSourcing\EventsReplayerTests.cs" />
     <Compile Include="CQRS\EventSourcing\EventStoreTests.cs" />
     <Compile Include="CQRS\EventSourcing\EventStoreSessionTests.cs" />
     <Compile Include="CQRS\EventSourcing\InMemoryEventStoreSessionTests.cs" />

@@ -3,7 +3,7 @@ using Composable.CQRS.EventSourcing;
 
 namespace Composable.Persistence
 {
-    public abstract class SingleAggregateRelationalQueryModelUpdater<TImplementer, TQueryModel, TRootEventHandled, TSession> :
+    abstract class SingleAggregateRelationalQueryModelUpdater<TImplementer, TQueryModel, TRootEventHandled, TSession> :
         CallsMatchingHandlersInRegistrationOrderEventHandler<TRootEventHandled>
         where TImplementer : SingleAggregateRelationalQueryModelUpdater<TImplementer, TQueryModel, TRootEventHandled, TSession>
         where TRootEventHandled : class, IAggregateRootEvent

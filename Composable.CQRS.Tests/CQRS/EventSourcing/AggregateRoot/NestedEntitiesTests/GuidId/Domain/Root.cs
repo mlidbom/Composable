@@ -9,7 +9,9 @@ namespace CQRS.Tests.CQRS.EventSourcing.AggregateRoot.NestedEntitiesTests.GuidId
     {
         public string Name { get; private set; }
         readonly Entity.CollectionManager _entities;
+#pragma warning disable 108,114
         public Component Component { get; private set; }
+#pragma warning restore 108,114
 
         public Root(string name) : base(new DateTimeNowTimeSource())
         {

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Composable.DomainEvents;
 using System.Linq;
 using Composable.NewtonSoft;
+using JetBrains.Annotations;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
@@ -10,7 +11,7 @@ namespace Composable.CQRS.Command
 {
     public class CommandSuccessResponse : ICommandSuccessResponse
     {
-        [Obsolete("Only for serialization", true)]
+        [Obsolete("Only for serialization", true), UsedImplicitly]
         public CommandSuccessResponse(){}
 
         public CommandSuccessResponse(Guid commandId, IEnumerable<IDomainEvent> events)

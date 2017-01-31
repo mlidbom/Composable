@@ -28,8 +28,6 @@ namespace Composable.DomainEvents
             }
         }
 
-        private static readonly object LockObject = new object();
-
         [ContractInvariantMethod]
         private static void Invariants()
         {

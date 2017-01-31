@@ -24,12 +24,6 @@ namespace CQRS.Tests.CQRS.EventSourcing.AggregateRoot.NestedEntitiesTests.GuidId
                 public static class Implementation
                 {
                     public abstract class Root : Component.Implementation.Root, NestedComponent.IRoot { }
-
-                    public class Renamed : Root, NestedComponent.Renamed
-                    {
-                        public Renamed(string name) { Name = name; }
-                        public string Name { get; }
-                    }
                 }
             }
         }

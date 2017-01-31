@@ -17,7 +17,7 @@ namespace Composable.System
         /// <param name="value"></param>
         /// <param name="flag"></param>
         /// <returns></returns>
-        public static bool HasFlag(this Enum value, Enum flag)
+        public static bool HasFlag(this Enum value, Enum flag)//todo:tests
         {
             Contract.Requires(value != null && flag != null);
 

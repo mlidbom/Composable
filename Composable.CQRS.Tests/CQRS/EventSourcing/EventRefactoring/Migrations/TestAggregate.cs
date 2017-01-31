@@ -12,36 +12,18 @@ namespace TestAggregates
     public interface IRootEvent : IAggregateRootEvent { }
 
     public abstract class RootEvent : AggregateRootEvent, IRootEvent
-    {
-        protected RootEvent() { }
-        protected RootEvent(Guid aggregateRootId) : base(aggregateRootId) { }
-    }
+    {}
 
     namespace Events
     {
         public abstract class ECAbstract : RootEvent, IAggregateRootCreatedEvent
-        {
-            public ECAbstract() : this(Guid.NewGuid()) { }
-            public ECAbstract(Guid aggregateRootId) : base(aggregateRootId) { }
-        }
+        {}
 
-        public class Ec1 : ECAbstract
-        {
-            public Ec1() { }
-            public Ec1(Guid aggregateRootId) : base(aggregateRootId) { }
-        }
+        public class Ec1 : ECAbstract{}
 
-        public class Ec2 : ECAbstract
-        {
-            public Ec2() { }
-            public Ec2(Guid aggregateRootId) : base(aggregateRootId) { }
-        }
+        public class Ec2 : ECAbstract{}
 
-        public class Ec3 : ECAbstract
-        {
-            public Ec3() { }
-            public Ec3(Guid aggregateRootId) : base(aggregateRootId) { }
-        }
+        public class Ec3 : ECAbstract{}
 
         public class E1 : RootEvent { }
         public class E2 : RootEvent { }

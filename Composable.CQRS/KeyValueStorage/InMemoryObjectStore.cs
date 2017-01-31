@@ -12,14 +12,6 @@ namespace Composable.KeyValueStorage
     {
         private Dictionary<string, List<Object>> _db = new Dictionary<string, List<object>>(StringComparer.InvariantCultureIgnoreCase);
         protected object _lockObject = new object();
-        public bool Contains<T>(object id)
-        {
-            lock(_lockObject)
-            {
-                T value;
-                return TryGet(id, out value);   
-            }
-        }
 
         public bool Contains(Type type, object id)
         {

@@ -19,7 +19,6 @@ namespace AccountManagement.TestHelpers
                 };
 
                 public const string Null = null;
-                public const string Empty = "";
                 public const string ShorterThanFourCharacters = "a";
                 public const string BorderedByWhiteSpaceAtEnd = "Urdu ";
                 public const string BorderedByWhiteSpaceAtBeginning = " Urdu";

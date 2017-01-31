@@ -3,11 +3,12 @@ using AccountManagement.Domain.Events.EventStore.Services;
 using AccountManagement.Domain.Events.PropertyUpdated;
 using Composable.CQRS.EventSourcing;
 using Composable.CQRS.Query.Models.Generators;
+using JetBrains.Annotations;
 
 namespace AccountManagement.UI.QueryModels.EventStoreGenerated
 {
     /// <summary>Ad hoc creates an <see cref="AccountQueryModel"/> by reading and applying the events from the event store reader</summary>
-    internal class AccountQueryModelGenerator :
+    [UsedImplicitly] internal class AccountQueryModelGenerator :
         SingleAggregateQueryModelGenerator<AccountQueryModelGenerator, AccountQueryModel, IAccountEvent, IAccountManagementEventStoreReader>,
         IAccountManagementQueryModelGenerator
     {

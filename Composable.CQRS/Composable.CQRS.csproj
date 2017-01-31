@@ -154,7 +154,6 @@
     <Compile Include="CQRS\EventHandling\ISingleAggregateQueryModel.cs" />
     <Compile Include="CQRS\EventHandling\IEventHandlerRegistrar.cs" />
     <Compile Include="CQRS\EventHandling\SingleAggregateQueryModelUpdater.cs" />
-    <Compile Include="CQRS\EventHandling\UniqueMatchEventHierarchyHandler.cs" />
     <Compile Include="CQRS\EventSourcing\AggregateRoot.Component.EntityCollectionManager.Removable.cs" />
     <Compile Include="CQRS\EventSourcing\AggregateRoot.Component.EntityCollectionManager.cs" />
     <Compile Include="CQRS\EventSourcing\AggregateRoot.Component.NestedComponent.cs" />
@@ -216,15 +215,11 @@
     <Compile Include="CQRS\IAggregateRepository.cs" />
     <Compile Include="CQRS\Query\Models\Generators\IVersioningDocumentDbReader.cs" />
     <Compile Include="CQRS\Query\Models\Generators\IVersioningQueryModelGenerator.cs" />
-    <Compile Include="CQRS\UnNamedEntityReference.cs" />
     <Compile Include="CQRS\EventSourcing\AttemptToSaveAlreadyPersistedAggregateException.cs" />
     <Compile Include="CQRS\EventSourcing\EventStoreSession.cs" />
     <Compile Include="CQRS\EventSourcing\IEventStoreSession.cs" />
     <Compile Include="CQRS\EventSourcing\InMemoryEventStore.cs" />
     <Compile Include="CQRS\EventSourcing\MicrosoftSQLServer\InvalidHistoryException.cs" />
-    <Compile Include="CQRS\IUnNamedEntityReference.cs" />
-    <Compile Include="CQRS\INamed.cs" />
-    <Compile Include="CQRS\ViewModels\ViewModelUpdater.cs" />
     <Compile Include="CQRS\Windsor\SqlServerDocumentDbRegistrationExtensions.cs" />
     <Compile Include="CQRS\Windsor\SqlServerEventStoreRegistrationExtensions.cs" />
     <Compile Include="DomainEvents\DomainEvent.cs" />
@@ -273,8 +268,6 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ServiceBus\TestingOnlyServiceBus.cs" />
     <Compile Include="StuffThatDoesNotBelongHere\MultiEventHandler.cs" />
-    <Compile Include="StuffThatDoesNotBelongHere\Translation\TranslateAttribute.cs" />
-    <Compile Include="StuffThatDoesNotBelongHere\Translation\TranslationTypeExtensions.cs" />
     <Compile Include="UnitsOfWork\AttemptingToJoinSecondUnitOfWorkException.cs" />
     <Compile Include="UnitsOfWork\IUnitOfWork.cs" />
     <Compile Include="UnitsOfWork\IUnitOfWorkParticipant.cs" />
@@ -283,7 +276,6 @@
     <Compile Include="UnitsOfWork\UnitOfWork.cs" />
     <Compile Include="Windsor\Testing\ForTestsEventHandlerInstallerBase.cs" />
     <Compile Include="Windsor\Testing\WindsorTestWiringExtensions.cs" />
-    <Compile Include="Windsor\WindsorExtensions.cs" />
     <Compile Include="Windsor\WindsorUnitOfWorkExtensions.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -311,7 +303,9 @@
     <None Include="KeyValueStorage\SqlServer\ChangeScript.sql" />
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="CQRS\ViewModels\" />
     <Folder Include="Persistence\Testing\" />
+    <Folder Include="StuffThatDoesNotBelongHere\Translation\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

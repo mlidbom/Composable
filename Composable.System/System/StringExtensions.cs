@@ -18,13 +18,6 @@ namespace Composable.System
             return string.IsNullOrWhiteSpace(me);
         }
 
-        ///<summary>Delegates to <see cref="bool.Parse"/></summary>
-        public static bool ToBoolean(this string me)
-        {
-            Contract.Requires(me != null);
-            return bool.Parse(me);
-        }
-
         ///<summary>Allows more fluent use of String.Format by exposing it as an extension method.</summary>
         [JetBrains.Annotations.StringFormatMethod("me")]
         public static string FormatWith(this string me, params object[] values)

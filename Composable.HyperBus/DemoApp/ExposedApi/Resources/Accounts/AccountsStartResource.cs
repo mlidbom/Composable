@@ -1,4 +1,5 @@
 using Composable.HyperBus.APIDraft;
+// ReSharper disable UnusedMember.Global
 
 namespace Composable.HyperBus.DemoApp.ExposedApi.Resources.Accounts
 {

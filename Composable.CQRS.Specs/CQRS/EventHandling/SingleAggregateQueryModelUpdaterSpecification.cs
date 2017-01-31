@@ -6,6 +6,7 @@ using Composable.KeyValueStorage;
 using FluentAssertions;
 using Moq;
 using NUnit.Framework;
+// ReSharper disable UnusedMember.Global
 
 namespace CQRS.Tests.CQRS.EventHandling
 {

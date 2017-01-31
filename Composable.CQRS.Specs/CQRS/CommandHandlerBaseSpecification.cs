@@ -5,6 +5,7 @@ using FluentAssertions;
 using Machine.Specifications;
 using Moq;
 using NUnit.Framework;
+// ReSharper disable UnusedMember.Local
 
 namespace Composable.CQRS.Specs.CQRS
 {

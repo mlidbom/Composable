@@ -7,9 +7,6 @@ namespace Composable.System.Collections.Collections
     ///<summary>Adds some convenience features to linked list</summary>
     public static class LinkedListExtensions
     {
-        ///<summary>Enumerates the nodes in the linked list</summary>
-        public static IEnumerable<LinkedListNode<T>> Nodes<T>(this LinkedList<T> list) { return list.First.NodesFrom(); }
-
         ///<summary>Enumerates this and all following nodes.</summary>
         public static IEnumerable<LinkedListNode<T>> NodesFrom<T>(this LinkedListNode<T> @this)
         {

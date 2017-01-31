@@ -120,7 +120,6 @@
     <Compile Include="KeyReplacementHandlerSelector.cs" />
     <Compile Include="LifestyleRegistrationMutator.cs" />
     <Compile Include="Testing\IConfigureWiringForTests.cs" />
-    <Compile Include="Testing\IResetTestDatabases.cs" />
     <Compile Include="Testing\TestingWindsorExtensions.cs" />
     <Compile Include="Testing\WindsorTestWiringExtensions.cs" />
     <Compile Include="TypedCollectionResolver.cs" />

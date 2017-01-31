@@ -5,7 +5,7 @@ namespace Composable.CQRS.EventSourcing.Refactoring.Migrations
     ///<summary>Defines an identity for migration of events into other events. Creates </summary>
     public interface IEventMigration
     {
-        Guid Id { get; }
+        Guid Id { get; }//Todo: Complete persisting of migrations including writing this data to the store.
         string Name { get; }
         string Description { get; }
         bool Done { get; }

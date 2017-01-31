@@ -13,7 +13,7 @@ namespace Composable.Tests.DDD
     {
         private class Address : ValueObject<Address>
         {
-            private readonly string _address1;
+            string _address1;
             private readonly string _city;
             private readonly string[] _states;
 
@@ -27,13 +27,14 @@ namespace Composable.Tests.DDD
             public Address()
             {}
 
-            public string Address1 { get { return _address1; } }//ncrunch: no coverage
+            //todo: fix this crazy behavior. These tests should fail!
+            public string Address1 { get { return null; } }//ncrunch: no coverage
 
-            public string City { get { return _city; } }//ncrunch: no coverage
+            public string City { get { return null; } }//ncrunch: no coverage
 
             public string Guid { get; set; }
 
-            public string[] States { get { return _states; } }//ncrunch: no coverage
+            public string[] States { get { return null; } }//ncrunch: no coverage
         }
 
         private class GuidHolder : ValueObject<GuidHolder>

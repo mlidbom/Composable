@@ -209,7 +209,6 @@
     <Compile Include="GenericAbstractions\Hierarchies\HierarchyExtensions.cs" />
     <Compile Include="GenericAbstractions\Hierarchies\IHierarchy.cs" />
     <Compile Include="System\Globalization\ThreadCultureScope.cs" />
-    <Compile Include="System\IO\FileInfoExtensions.cs" />
     <Compile Include="System\IO\DirectoryExtensions.cs" />
     <Compile Include="System\IO\StreamReaderExtensions.cs" />
     <Compile Include="System\Linq\ExpressionUtil.cs" />
@@ -231,7 +230,6 @@
     <Compile Include="System\Reactive\ThreadSafeObserverCollection.cs" />
     <Compile Include="System\Reflection\MemberAccessorHelper.cs" />
     <Compile Include="System\Reflection\ObjectFactory.cs" />
-    <Compile Include="System\Reflection\ObjectGraphWalker.cs" />
     <Compile Include="System\Reflection\TypeExtensions.cs" />
     <Compile Include="System\StrictlyManagedResourceBase.cs" />
     <Compile Include="System\StringExtensions.cs" />
@@ -239,7 +237,6 @@
     <Compile Include="System\TimeSpanExtensions.cs" />
     <Compile Include="System\Transactions\InTransaction.cs" />
     <Compile Include="GenericAbstractions\Wrappers\IWrapper.cs" />
-    <Compile Include="GenericAbstractions\Wrappers\WrapperExtensions.cs" />
     <Compile Include="System\Web\HttpRequestIdSupplier.cs" />
     <Compile Include="System\Web\HttpRequestIdFetcher.cs" />
     <Compile Include="System\Web\IHttpRequestIdFetcher.cs" />

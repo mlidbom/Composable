@@ -3,7 +3,7 @@ using System.Diagnostics.Contracts;
 
 namespace Composable.System
 {
-    internal static class DateTimeExtensions
+    public static class DateTimeExtensions
     {
         ///<summary>Like <see cref="DateTime.ToUniversalTime"/> except it will throw an exception if <see cref="@this"/>.Kind == <see cref="DateTimeKind.Unspecified"/> instead of assuming that Kind == <see cref="DateTimeKind.Local"/> and converting based on that assumption like <see cref="DateTime.ToUniversalTime"/> does.</summary>
         public static DateTime SafeToUniversalTime(this DateTime @this)

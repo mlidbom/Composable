@@ -12,6 +12,7 @@ using Composable.System.Linq;
 
 namespace Composable.DomainEvents
 {
+    //Review:mlidbo: REMOVE
     internal static class DomainEvent
     {
         private static readonly ThreadLocal<List<Delegate>> ManualSubscribersStorage =

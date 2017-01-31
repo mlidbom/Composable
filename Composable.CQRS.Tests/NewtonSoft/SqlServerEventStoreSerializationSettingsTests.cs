@@ -12,7 +12,37 @@ namespace CQRS.Tests.NewtonSoft
     {
         private class TestEvent : AggregateRootEvent
         {
+            public TestEvent() { }
+
             public TestEvent(string test1, string test2)
+            {
+                Test1 = test1;
+                Test2 = test2;
+            }
+
+            public TestEvent(
+                string test1,
+                string test2,
+                Guid eventId,
+                int aggregateRootVersion,
+                Guid aggregateRootId,
+                long insertionOrder,
+                long? replaces,
+                long? insertBefore,
+                long? insertAfter,
+                DateTime utcTimeStamp)
+#pragma warning disable CS0618 // Type or member is obsolete
+                : base(
+                       aggregateRootId: aggregateRootId,
+                       aggregateRootVersion: aggregateRootVersion,
+                       eventId: eventId,
+                       insertAfter: insertAfter,
+                       insertBefore: insertBefore,
+                       replaces: replaces,
+                       insertionOrder: insertionOrder,
+                       utcTimeStamp: utcTimeStamp
+                      )
+#pragma warning restore CS0618 // Type or member is obsolete
             {
                 Test1 = test1;
                 Test2 = test2;
@@ -26,16 +56,17 @@ namespace CQRS.Tests.NewtonSoft
         [Test]
         public void IgnoresAllIAggregateRootEventProperties()
         {
-            var eventWithAllValuesSet = new TestEvent("Test1", "Test2")
-                                        {
-                                            AggregateRootId =  Guid.NewGuid(),
-                                            AggregateRootVersion =  2,
-                                            EventId = Guid.NewGuid(),
-                                            InsertAfter =  10,
-                                            InsertBefore = 20,
-                                            Replaces = 30,
-                                            InsertionOrder = 40,
-                                            UtcTimeStamp = DateTime.Now + 1.Minutes()};
+            var eventWithAllValuesSet = new TestEvent(
+                                            test1: "Test1",
+                                            test2: "Test2",
+                                            aggregateRootId:  Guid.NewGuid(),
+                                            aggregateRootVersion:  2,
+                                            eventId: Guid.NewGuid(),
+                                            insertAfter:  10,
+                                            insertBefore:  20,
+                                            replaces: 30,
+                                            insertionOrder: 40,
+                                            utcTimeStamp: DateTime.Now + 1.Minutes());
 
             var eventWithOnlySubclassValues = new TestEvent("Test1", "Test2")
                                               {

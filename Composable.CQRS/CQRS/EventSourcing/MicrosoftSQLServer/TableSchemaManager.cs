@@ -1,8 +1,9 @@
-﻿using System.Data.SqlClient;
+﻿using System;
+using System.Data.SqlClient;
 
 namespace Composable.CQRS.EventSourcing.MicrosoftSQLServer
 {
-    internal abstract class TableSchemaManager
+    abstract class TableSchemaManager
     {
         public abstract string Name { get; }
         public abstract string CreateTableSql { get; }

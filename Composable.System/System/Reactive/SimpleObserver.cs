@@ -20,7 +20,7 @@ namespace Composable.System.Reactive
         public void OnCompleted() => _onCompleted();
     }
 
-    internal static class ObservableExtensions
+    public static class ObservableExtensions
     {
         public static IDisposable Subscribe<TEvent>(this IObservable<TEvent> @this, Action<TEvent> onNext)
         {

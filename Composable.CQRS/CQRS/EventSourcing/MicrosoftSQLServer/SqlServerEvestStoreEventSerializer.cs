@@ -91,7 +91,7 @@ namespace Composable.CQRS.EventSourcing.MicrosoftSQLServer
         public override bool CanConvert(Type objectType) { throw new NotImplementedException(); }
     }
 
-    internal static class AggregateRootEventDebugSerializer
+    public static class AggregateRootEventDebugSerializer
     {
         public static string ToNewtonSoftDebugString(this object @this, Formatting formatting = Formatting.Indented)
         {

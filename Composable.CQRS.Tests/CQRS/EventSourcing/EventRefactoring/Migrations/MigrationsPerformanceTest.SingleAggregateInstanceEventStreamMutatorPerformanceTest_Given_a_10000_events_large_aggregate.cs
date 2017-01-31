@@ -2,11 +2,21 @@
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using System.Linq;
+using System.Reactive.Disposables;
+using Castle.MicroKernel.Lifestyle;
+using Castle.MicroKernel.Registration;
+using Castle.Windsor;
 using Composable.CQRS.EventSourcing;
 using Composable.CQRS.EventSourcing.Refactoring.Migrations;
+using Composable.CQRS.Windsor;
 using Composable.GenericAbstractions.Time;
+using Composable.KeyValueStorage;
+using Composable.ServiceBus;
+using Composable.System.Configuration;
 using Composable.System.Linq;
 using Composable.Testing;
+using Composable.Windsor;
+using Composable.Windsor.Testing;
 using FluentAssertions;
 using NUnit.Framework;
 using TestAggregates;
@@ -18,6 +28,7 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
     public class SingleAggregateInstanceEventStreamMutatorPerformanceTest_Given_a_10000_events_large_aggregate
     {
         private List<AggregateRootEvent> _history;
+        TestAggregate _aggregate;
         [SetUp]
         public void Given_a_10000_events_large_aggregate()
         {
@@ -29,8 +40,59 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
                                                      .Select(_ => typeof(E1))
                                                      .Concat(Seq.OfTypes<E2, E4, E6, E8>()))).ToList();
 
-            var aggregate = TestAggregate.FromEvents(DummyTimeSource.Now, Guid.NewGuid(), historyTypes);
-            _history = aggregate.History.Cast<AggregateRootEvent>().ToList();
+            _aggregate = TestAggregate.FromEvents(DummyTimeSource.Now, Guid.NewGuid(), historyTypes);
+            _history = _aggregate.History.Cast<AggregateRootEvent>().ToList();            
+        }
+
+        void UseEventstoreSessionWithConfiguredMigrations(IEnumerable<IEventMigration> migrations, Action<IEventStoreSession> useSession)
+        {
+            using(var container = new WindsorContainer())
+            {
+
+                var dummyTimeSource = DummyTimeSource.Now;
+                container.ConfigureWiringForTestsCallBeforeAllOtherWiring();
+
+                container.Register(Component.For<IConnectionStringProvider>()
+                                            .ImplementedBy<DummyConnectionStringProvider>(),
+                                   Component.For<IUtcTimeTimeSource, DummyTimeSource>()
+                                        .Instance(dummyTimeSource),
+                                   Component.For<IWindsorContainer>()
+                                            .Instance(container),
+                                   Component.For<IServiceBus>()
+                                            .ImplementedBy<TestingOnlyServiceBus>());
+                
+
+                var sqlServerEventStoreRegistration = new SqlServerEventStoreRegistration<SingleAggregateInstanceEventStreamMutatorPerformanceTest_Given_a_10000_events_large_aggregate>();
+                container.RegisterSqlServerEventStore(sqlServerEventStoreRegistration, "ignored");
+
+                container.ConfigureWiringForTestsCallAfterAllOtherWiring();
+
+
+                using(container.BeginScope())
+                {
+                    container.UseComponent<IEventStore>(sqlServerEventStoreRegistration.Store.Value.ToString(), store => store.SaveEvents(_history));
+                }
+
+                using(container.BeginScope())
+                {
+                    useSession(container.Resolve<IEventStoreSession>());
+                }
+            }
+        }
+
+        void AssertAggregateLoadTime(IEnumerable<IEventMigration> eventMigrations, TimeSpan maxTotal)
+        {
+            UseEventstoreSessionWithConfiguredMigrations
+                (eventMigrations,
+                 session =>
+                 {
+                     TimeAsserter.Execute(
+                                          maxTotal: maxTotal,
+                                          description: "load aggregate in isolated scope",
+                                          maxTries: 10,
+                                          timeFormat: "ss\\.fff",
+                                          action: () => session.Get<TestAggregate>(_aggregate.Id));
+                 });
         }
 
         [Test]
@@ -55,56 +117,40 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
         }
 
         [Test]
-        public void With_four_migrations_mutation_that_all_actually_changes_things_migration_takes_less_than_15_milliseconds()
+        public void With_four_migrations_mutation_that_all_actually_changes_things_loading_takes_less_than_15_milliseconds()
         {
-            var eventMigrations = Seq.Create<IEventMigration>(
-                Before<E2>.Insert<E3>(),
-                Before<E4>.Insert<E5>(),
-                Before<E6>.Insert<E7>(),
-                Before<E8>.Insert<E9>()
-                ).ToArray();
-
-            var maxAverage = 15.Milliseconds().AdjustRuntimeToTestEnvironment(2);
-
-            TimeAsserter.Execute(
-                maxTotal: maxAverage,
-                description: "load aggregate in isolated scope",
-                maxTries:10,
-                timeFormat: "ss\\.fff",
-                action: () => { SingleAggregateInstanceEventStreamMutator.MutateCompleteAggregateHistory(eventMigrations, _history); });
+            AssertAggregateLoadTime(Seq.Create<IEventMigration>(
+                                                                Before<E2>.Insert<E3>(),
+                                                                Before<E4>.Insert<E5>(),
+                                                                Before<E6>.Insert<E7>(),
+                                                                Before<E8>.Insert<E9>()
+                                                               ).ToArray(),
+                                    15.Milliseconds().AdjustRuntimeToTestEnvironment(boost: 2));
         }
 
         [Test]
-        public void With_four_migrations_that_change_nothing_mutation_takes_less_than_10_milliseconds()
+        public void With_four_migrations_that_change_nothing_loading_takes_less_than_10_milliseconds()
         {
-            var eventMigrations = Seq.Create<IEventMigration>(
-                Before<E3>.Insert<E1>(),
-                Before<E5>.Insert<E1>(),
-                Before<E7>.Insert<E1>(),
-                Before<E9>.Insert<E1>()
-                ).ToArray();
-
-            var maxAverage = 10.Milliseconds().AdjustRuntimeToTestEnvironment((double)6);
-
-            TimeAsserter.Execute(
-                maxTotal: maxAverage,
-                maxTries: 10,
-                description: "load aggregate in isolated scope",
-                timeFormat: "ss\\.fff",
-                action: () => { SingleAggregateInstanceEventStreamMutator.MutateCompleteAggregateHistory(eventMigrations, _history); });
+            AssertAggregateLoadTime(Seq.Create<IEventMigration>(
+                                                                Before<E3>.Insert<E1>(),
+                                                                Before<E5>.Insert<E1>(),
+                                                                Before<E7>.Insert<E1>(),
+                                                                Before<E9>.Insert<E1>()
+                                                               ).ToArray(),
+                                    10.Milliseconds().AdjustRuntimeToTestEnvironment(boost: 6));
         }
 
         [Test]
-        public void Calling_before_after_or_replace_1000_000_times_takes_less_than_60_milliseconds()
+        public void Calling_before_after_or_replace_100_000_times_takes_less_than_60_milliseconds()
         {
             var before = Before<E3>.Insert<E2>().CreateSingleAggregateInstanceHandlingMigrator();
             var replace = Replace<E3>.With<E2>().CreateSingleAggregateInstanceHandlingMigrator();
             var after = After<E3>.Insert<E2>().CreateSingleAggregateInstanceHandlingMigrator();
             var @event = new E2();
-            var eventModifier = new EventModifier(@event, _ => { });
+            var eventModifier = new DummyEventModifier();
 
-            var numberOfEventsToInspect = 1000000;
-            var maxtime = 60.Milliseconds().AdjustRuntimeToTestEnvironment(12.0);
+            var numberOfEventsToInspect = 100000;
+            var maxtime = 60.Milliseconds().AdjustRuntimeToTestEnvironment();
 
             TimeAsserter.Execute(
                 maxTotal: maxtime,
@@ -126,14 +172,15 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
         [Test]
         public void When_there_are_no_migrations_mutation_takes_less_than_a_millisecond()
         {
-            var eventMigrations = Seq.Create<IEventMigration>().ToArray();
+            AssertAggregateLoadTime(Seq.Empty<IEventMigration>(),
+                                    1.Milliseconds());
 
-            TimeAsserter.Execute(
-                maxAverage: 1.Milliseconds(),
-                iterations: 10,
-                description: "load aggregate in isolated scope",
-                timeFormat: "ss\\.fff",
-                action: () => { SingleAggregateInstanceEventStreamMutator.MutateCompleteAggregateHistory(eventMigrations, _history); });
+        }
+
+        class DummyEventModifier : IEventModifier
+        {
+            public void Replace(params AggregateRootEvent[] events) { throw new NotImplementedException(); }
+            public void InsertBefore(params AggregateRootEvent[] insert) { throw new NotImplementedException(); }
         }
     }
 
@@ -177,7 +224,6 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
             Contract.Requires(events.First() is IAggregateRootCreatedEvent);
 
             RaiseEvents(events);
-        }
-
-    }
+        }        
+    }    
 }

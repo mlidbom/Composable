@@ -33,9 +33,9 @@ namespace Composable.CQRS.Windsor
         internal Type SessionImplementor { get; private set; }
         internal string StoreName { get; }
         internal string SessionName { get; }
-        public Dependency Store => Dependency.OnComponent(typeof(IEventStore), componentName: StoreName);
-        public Dependency Session => Dependency.OnComponent(SessionType, componentName: SessionName);
-        public Dependency Reader => Dependency.OnComponent(ReaderType, componentName: SessionName);
+        public ServiceOverride Store => Dependency.OnComponent(typeof(IEventStore), componentName: StoreName);
+        public ServiceOverride Session => Dependency.OnComponent(SessionType, componentName: SessionName);
+        public ServiceOverride Reader => Dependency.OnComponent(ReaderType, componentName: SessionName);
 
     }
 

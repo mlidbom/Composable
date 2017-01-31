@@ -75,6 +75,7 @@ namespace Composable.CQRS.EventSourcing
             return _eventDispatcher.RegisterHandlers();
         }
 
+        // ReSharper disable once UnusedMember.Global todo: coverage
         protected CallMatchingHandlersInRegistrationOrderEventDispatcher<TAggregateRootBaseEventInterface>.RegistrationBuilder RegisterEventHandlers()
         {
             return _eventHandlersEventDispatcher.RegisterHandlers();

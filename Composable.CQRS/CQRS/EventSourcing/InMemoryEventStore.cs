@@ -105,15 +105,6 @@ namespace Composable.CQRS.EventSourcing
             }
         }
 
-        public void Reset()
-        {
-            lock(_lockObject)
-            {
-                _events = new List<AggregateRootEvent>();
-            }
-        }
-
-
         public void TestingOnlyReplaceMigrations(IReadOnlyList<IEventMigration> migrations) { _migrationFactories = migrations; }
     }
 }

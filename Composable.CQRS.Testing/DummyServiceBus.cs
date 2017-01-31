@@ -82,25 +82,5 @@ namespace Composable.CQRS.Testing
             Publish(message);
         }
         public void SendAtTime(DateTime sendAt, object message) { throw new NotImplementedException(); }
-
-        public void Replay(object message)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void AddHandler<TMessage>(Func<TMessage, IMessage> handler) where TMessage : IMessage
-        {
-            _localHandlers.Add(Tuple.Create(typeof(TMessage), (Func<object, IEnumerable<IMessage>>)(o => new[] { handler((TMessage)o) })));
-        }
-
-        public void AddHandler<TMessage>(Func<TMessage, IEnumerable<IMessage>> handler) where TMessage : IMessage
-        {
-            _localHandlers.Add(Tuple.Create(typeof(TMessage), (Func<object, IEnumerable<IMessage>>)(o => handler((TMessage)o))));
-        }
-
-        public void AddHandler<TMessage>(Action<TMessage> handler) where TMessage : IMessage
-        {
-            _localHandlers.Add(Tuple.Create(typeof(TMessage), (Func<object, IEnumerable<IMessage>>)(o => { handler((TMessage)o); return new IMessage[0]; })));
-        }
     }
 }

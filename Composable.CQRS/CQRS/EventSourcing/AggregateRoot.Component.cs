@@ -65,6 +65,7 @@ namespace Composable.CQRS.EventSourcing
                 return _eventAppliersEventDispatcher.Register();
             }
 
+            // ReSharper disable once UnusedMember.Global todo: tests
             protected IEventHandlerRegistrar<TComponentBaseEventInterface> RegisterEventHandlers()
             {
                 return _eventHandlersEventDispatcher.Register();

@@ -58,6 +58,7 @@ namespace Composable.CQRS.EventSourcing
                 base.RaiseEvent(@event);
             }
 
+            // ReSharper disable once UnusedMember.Global todo: write tests.
             public static CollectionManager CreateSelfManagingCollection(TAggregateRoot parent)
                 => new CollectionManager(parent, parent.RaiseEvent, parent.RegisterEventAppliers());
 

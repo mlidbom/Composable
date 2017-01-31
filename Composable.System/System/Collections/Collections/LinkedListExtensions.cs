@@ -55,25 +55,5 @@ namespace Composable.System.Collections.Collections
             @this.List.Remove(@this);
             return newNodes;
         }
-
-        ///<summary>Inserts <paramref name="items"/> after the <paramref name="this"/>  node and returns the nodes that were inserted.</summary>
-        public static IReadOnlyList<LinkedListNode<T>> AddBefore<T>(this LinkedList<T> @this, LinkedListNode<T> node, IEnumerable<T> items)
-        {
-            Contract.Requires(items != null);
-            Contract.Requires(@this != null);
-            Contract.Requires(@this == node.List);
-
-            return node.AddBefore(items);
-        }
-
-        ///<summary>Replaces <paramref name="this"/> and returns the nodes that were inserted.</summary>
-        public static IReadOnlyList<LinkedListNode<T>> Replace<T>(this LinkedList<T> @this, LinkedListNode<T> node, IEnumerable<T> items)
-        {
-            Contract.Requires(items != null);
-            Contract.Requires(@this != null);
-
-            Contract.Requires(@this == node.List);
-            return node.Replace(items);
-        }
     }
 }

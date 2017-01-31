@@ -1,5 +1,6 @@
 ﻿using System;
 
+// ReSharper disable All
 namespace Composable.HyperBus.APIDraft
 {
     public class EntityQuery<TEntity> : IQuery<TEntity>

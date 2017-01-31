@@ -1,8 +1,8 @@
 ﻿using System.Threading.Tasks;
 using Composable.HyperBus.APIDraft;
 using Composable.HyperBus.DemoApp.ExposedApi.Resources;
-// ReSharper disable UnusedMember.Global
 
+// ReSharper disable All
 namespace Composable.HyperBus.DemoApp.Client
 {
     public class D000ManualBusUsage

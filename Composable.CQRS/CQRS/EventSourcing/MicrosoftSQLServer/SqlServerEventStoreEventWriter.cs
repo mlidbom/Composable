@@ -10,12 +10,12 @@ using Composable.System.Linq;
 
 namespace Composable.CQRS.EventSourcing.MicrosoftSQLServer
 {
-    internal class SqlServerEventStoreEventWriter
+    class SqlServerEventStoreEventWriter
     {
-        private readonly SqlServerEventStoreConnectionManager _connectionMananger;
-        private readonly SqlServerEvestStoreEventSerializer _eventSerializer;
-        private IEventTypeToIdMapper IdMapper => _schemaManager.IdMapper;
-        private readonly SqlServerEventStoreSchemaManager _schemaManager;
+        readonly SqlServerEventStoreConnectionManager _connectionMananger;
+        readonly SqlServerEvestStoreEventSerializer _eventSerializer;
+        IEventTypeToIdMapper IdMapper => _schemaManager.IdMapper;
+        readonly SqlServerEventStoreSchemaManager _schemaManager;
 
         public SqlServerEventStoreEventWriter
             (SqlServerEventStoreConnectionManager connectionMananger,
@@ -33,7 +33,7 @@ namespace Composable.CQRS.EventSourcing.MicrosoftSQLServer
             SaveEventsInternal(events.Select(@this => new EventWithManualReadorder() {Event = @this, ManualReadOrder = SqlDecimal.Null}));
         }
 
-        private void SaveEventsInternal(IEnumerable<EventWithManualReadorder> events)
+        void SaveEventsInternal(IEnumerable<EventWithManualReadorder> events)
         {
             using(var connection = _connectionMananger.OpenConnection())
             {
@@ -129,7 +129,7 @@ SET @{EventTable.Columns.InsertionOrder} = SCOPE_IDENTITY();";
             }
         }
 
-        private void SaveEventsWithinReadOrderRange(AggregateRootEvent[] newEvents, SqlDecimal rangeStart, SqlDecimal rangeEnd)
+        void SaveEventsWithinReadOrderRange(AggregateRootEvent[] newEvents, SqlDecimal rangeStart, SqlDecimal rangeEnd)
         {
             var increment = (rangeEnd - rangeStart)/(newEvents.Length + 1);
 
@@ -156,15 +156,15 @@ SET @{EventTable.Columns.InsertionOrder} = SCOPE_IDENTITY();";
                 });
         }
 
-        private class EventWithManualReadorder
+        class EventWithManualReadorder
         {
             public SqlDecimal ManualReadOrder { get; set; }
             public AggregateRootEvent Event { get; set; }
         }
 
-        private static SqlDecimal ToCorrectPrecisionAndScale(SqlDecimal value) { return SqlDecimal.ConvertToPrecScale(value, 38, 19); }
+        static SqlDecimal ToCorrectPrecisionAndScale(SqlDecimal value) { return SqlDecimal.ConvertToPrecScale(value, 38, 19); }
 
-        private class EventOrderNeighbourhood
+        class EventOrderNeighbourhood
         {
             public long InsertionOrder { get; }
             public SqlDecimal EffectiveReadOrder { get; }
@@ -179,18 +179,18 @@ SET @{EventTable.Columns.InsertionOrder} = SCOPE_IDENTITY();";
                 PreviousReadOrder = UseZeroInsteadIfNegativeSinceThisMeansThisIsTheFirstEventInTheEventStore(previousReadOrder);
             }
 
-            private SqlDecimal UseZeroInsteadIfNegativeSinceThisMeansThisIsTheFirstEventInTheEventStore(SqlDecimal previousReadOrder)
+            SqlDecimal UseZeroInsteadIfNegativeSinceThisMeansThisIsTheFirstEventInTheEventStore(SqlDecimal previousReadOrder)
             {
                 return previousReadOrder > 0 ? previousReadOrder : ToCorrectPrecisionAndScale(new SqlDecimal(0));
             }
 
-            private SqlDecimal UseNextIntegerInsteadIfNullSinceThatMeansThisEventIsTheLastInTheEventStore(SqlDecimal nextReadOrder)
+            SqlDecimal UseNextIntegerInsteadIfNullSinceThatMeansThisEventIsTheLastInTheEventStore(SqlDecimal nextReadOrder)
             {
                 return !nextReadOrder.IsNull ? nextReadOrder : ToCorrectPrecisionAndScale(new SqlDecimal(InsertionOrder + 1));
             }
         }
 
-        private IReadOnlyList<EventOrderNeighbourhood> LoadRelatedEventRefactoringInformation(IEnumerable<AggregateRootEvent> events)
+        IReadOnlyList<EventOrderNeighbourhood> LoadRelatedEventRefactoringInformation(IEnumerable<AggregateRootEvent> events)
         {
             var insertBefore = events.Select(@this => @this.InsertBefore).Where(@this => @this != null).ToSet();
             var insertAfter = events.Select(@this => @this.InsertAfter).Where(@this => @this != null).ToSet();
@@ -238,7 +238,7 @@ FROM    {EventTable.Name} {lockHintToMinimizeRiskOfDeadlocksByTakingUpdatelockOn
             return relatedEvents;
         }
 
-        private static SqlParameter Nullable(SqlParameter @this)
+        static SqlParameter Nullable(SqlParameter @this)
         {
             @this.IsNullable = true;
             @this.Direction = ParameterDirection.Input;

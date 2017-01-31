@@ -19,7 +19,7 @@ namespace Composable.Testing
     {
         public static readonly TestRunner Instance = GetInstance();
 
-        private static TestRunner GetInstance()
+        static TestRunner GetInstance()
         {
             var loadedAssemblies = AppDomain.CurrentDomain.GetAssemblies().ToList();
             var processName = Process.GetCurrentProcess().ProcessName;
@@ -55,7 +55,7 @@ namespace Composable.Testing
             return new TestRunner($"Default/Fallback ({processName})", 1);
         }
 
-        private static bool AreWeRunningInResharper(IEnumerable<Assembly> loadedAssemblies)
+        static bool AreWeRunningInResharper(IEnumerable<Assembly> loadedAssemblies)
         {
             return loadedAssemblies.Any(assembly => assembly.FullName.StartsWith("JetBrains.ReSharper.UnitTestRunner"));
         }

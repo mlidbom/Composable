@@ -47,6 +47,6 @@ namespace Composable.Contracts.Tests
                 maxTotal: 10.Milliseconds().AdjustRuntimeToTestEnvironment());
         }
 
-        private struct MyStructure {}
+        struct MyStructure {}
     }
 }

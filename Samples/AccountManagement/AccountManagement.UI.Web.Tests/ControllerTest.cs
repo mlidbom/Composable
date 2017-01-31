@@ -9,7 +9,7 @@ namespace AccountManagement.UI.Web.Tests
     public abstract class ControllerTest
     {
         protected WindsorContainer Container;
-        private IDisposable _scope;
+        IDisposable _scope;
 
         [SetUp]
         public void SetupContainer()

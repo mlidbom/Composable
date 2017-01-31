@@ -15,7 +15,7 @@ namespace CQRS.Tests.Command
     [TestFixture]
     public class CompositeCommandTests
     {
-        private WindsorContainer _container;
+        WindsorContainer _container;
 
 
         [SetUp]

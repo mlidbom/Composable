@@ -8,7 +8,7 @@ namespace AccountManagement.UI.Web.Tests.AccountControllerTests
 {
     public class DisplayAccountInformationTests : AccountControllerTest
     {
-        private Account _registeredAccount;
+        Account _registeredAccount;
 
         [SetUp]
         public void RegisterAccount()
@@ -31,7 +31,7 @@ namespace AccountManagement.UI.Web.Tests.AccountControllerTests
                 .Should().Be(_registeredAccount.Email.ToString());
         }
 
-        private DisplayAccountDetailsViewModel InvokeControllerAndGetViewModel()
+        DisplayAccountDetailsViewModel InvokeControllerAndGetViewModel()
         {
             return (DisplayAccountDetailsViewModel)Controller.DisplayAccountDetails().Model;
         }

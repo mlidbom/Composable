@@ -10,21 +10,21 @@ namespace Composable.CQRS.EventSourcing.MicrosoftSQLServer
 {
     public class SqlServerEventStoreEventsCache
     {
-        private static readonly ConcurrentDictionary<string, SqlServerEventStoreEventsCache> ConnectionStringToCacheMap =
+        static readonly ConcurrentDictionary<string, SqlServerEventStoreEventsCache> ConnectionStringToCacheMap =
             new ConcurrentDictionary<string, SqlServerEventStoreEventsCache>();
 
-        private const string CacheName = "EventStore";
+        const string CacheName = "EventStore";
 
-        private MemoryCache _internalCache = new MemoryCache(CacheName);
+        MemoryCache _internalCache = new MemoryCache(CacheName);
 
-        private SqlServerEventStoreEventsCache() { }
+        SqlServerEventStoreEventsCache() { }
 
         public static SqlServerEventStoreEventsCache ForConnectionString(string connectionString)
         {
             return ConnectionStringToCacheMap.GetOrAdd(connectionString, key => new SqlServerEventStoreEventsCache());
         }
 
-        private static readonly CacheItemPolicy Policy = new CacheItemPolicy()
+        static readonly CacheItemPolicy Policy = new CacheItemPolicy()
                                                          {
                                                              //todo: this way of doing cache expiration is unlikely to be acceptable in the long run....
                                                              SlidingExpiration = 20.Minutes()

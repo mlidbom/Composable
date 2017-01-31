@@ -10,7 +10,7 @@ namespace AccountManagement.Domain.Tests
     public abstract class DomainTestBase
     {
         protected WindsorContainer Container { get; private set; }
-        private IDisposable Scope { get; set; }
+        IDisposable Scope { get; set; }
         protected MessageSpy MessageSpy { get { return Container.Resolve<MessageSpy>(); } }
 
         [SetUp]

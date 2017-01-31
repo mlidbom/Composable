@@ -9,12 +9,12 @@ using Composable.System.Reflection;
 
 namespace Composable.ServiceBus
 {
-    internal class MessageHandlersResolver
+    class MessageHandlersResolver
     {
-        private readonly IWindsorContainer _container;
-        private readonly IEnumerable<Type> _handlerInterfaces;
-        private readonly IEnumerable<Type> _excludedHandlerInterfaces;
-        private readonly IDictionary<Type, IEnumerable<MessageHandlerReference>> _cache;
+        readonly IWindsorContainer _container;
+        readonly IEnumerable<Type> _handlerInterfaces;
+        readonly IEnumerable<Type> _excludedHandlerInterfaces;
+        readonly IDictionary<Type, IEnumerable<MessageHandlerReference>> _cache;
 
         public MessageHandlersResolver(IWindsorContainer container, IEnumerable<Type> handlerInterfaces, IEnumerable<Type> excludedHandlerInterfaces)
         {
@@ -43,7 +43,7 @@ namespace Composable.ServiceBus
             return _cache[messageType];
         }
 
-        private IEnumerable<MessageHandlerReference> FilterRepeatedHandlers(IEnumerable<MessageHandlerReference> handlers)
+        IEnumerable<MessageHandlerReference> FilterRepeatedHandlers(IEnumerable<MessageHandlerReference> handlers)
         {
             var methods = new List<MethodInfo>();
             var filteredHandlers = new List<MessageHandlerReference>();
@@ -59,23 +59,22 @@ namespace Composable.ServiceBus
             return filteredHandlers;
         }
 
-
-        private IEnumerable<Type> GetExcludedHandlerTypes(object message)
+        IEnumerable<Type> GetExcludedHandlerTypes(object message)
         {
             return _excludedHandlerInterfaces.SelectMany(excludedHandlerInterface => GenerateMessageHanderTypesByGenericInterface(message, excludedHandlerInterface));
         }
 
-        private IEnumerable<Type> GetCanBeHandledMessageTypes(object message)
+        IEnumerable<Type> GetCanBeHandledMessageTypes(object message)
         {
             return message.GetType().GetAllTypesInheritedOrImplemented().Where(type => type.Implements(typeof(IMessage)));
         }
 
-        private IEnumerable<Type> GenerateMessageHanderTypesByGenericInterface(object message, Type genericMessageHandlerInterface)
+        IEnumerable<Type> GenerateMessageHanderTypesByGenericInterface(object message, Type genericMessageHandlerInterface)
         {
             return GetCanBeHandledMessageTypes(message).Select(typeImplementedByMessageThatImplementsIMessage => genericMessageHandlerInterface.MakeGenericType(typeImplementedByMessageThatImplementsIMessage));
         }
 
-        private IEnumerable<MessageHandlerReference> GetRegisteredHandlerTypesForMessage(object message, Type genericInterface)
+        IEnumerable<MessageHandlerReference> GetRegisteredHandlerTypesForMessage(object message, Type genericInterface)
         {
             var messageHandlerTypes = GenerateMessageHanderTypesByGenericInterface(message, genericInterface);
 

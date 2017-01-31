@@ -73,10 +73,10 @@ namespace Composable.CQRS.EventHandling
             return new GenericEventHandlerRegistrar<TBaseEvent>(@this);
         }
 
-        private class GenericEventHandlerRegistrar<TBaseEventInterface> : IGenericEventHandlerRegistrar
+        class GenericEventHandlerRegistrar<TBaseEventInterface> : IGenericEventHandlerRegistrar
             where TBaseEventInterface : class
         {
-            private readonly IEventHandlerRegistrar<TBaseEventInterface> _innerRegistrar;
+            readonly IEventHandlerRegistrar<TBaseEventInterface> _innerRegistrar;
             public GenericEventHandlerRegistrar(IEventHandlerRegistrar<TBaseEventInterface> innerRegistrar) { _innerRegistrar = innerRegistrar; }
 
             public IGenericEventHandlerRegistrar ForGenericEvent<THandledEvent>(Action<THandledEvent> handler)
@@ -93,11 +93,11 @@ namespace Composable.CQRS.EventHandling
             return new UpCastEventHandlerRegistrar<TBaseEvent, TNewBaseEvent>(@this);
         }
 
-        private class UpCastEventHandlerRegistrar<TBaseEvent, TNewBaseEvent> : IUpCastEventHandlerRegistrar<TNewBaseEvent>
+        class UpCastEventHandlerRegistrar<TBaseEvent, TNewBaseEvent> : IUpCastEventHandlerRegistrar<TNewBaseEvent>
             where TBaseEvent : class
             where TNewBaseEvent : class, TBaseEvent
         {
-            private readonly IEventHandlerRegistrar<TBaseEvent> _innerRegistrar;
+            readonly IEventHandlerRegistrar<TBaseEvent> _innerRegistrar;
             public UpCastEventHandlerRegistrar(IEventHandlerRegistrar<TBaseEvent> innerRegistrar) { _innerRegistrar = innerRegistrar; }
 
             public IUpCastEventHandlerRegistrar<TNewBaseEvent> For<THandledEvent>(Action<THandledEvent> handler) where THandledEvent : TNewBaseEvent

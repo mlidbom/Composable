@@ -33,18 +33,18 @@ namespace Composable.Windsor
             set { CallContext.SetData("TransactionalUnitOfWorkWindsorScope_Current", value); }
         }
 
-        private abstract class TransactionalUnitOfWorkWindsorScopeBase : ITransactionalUnitOfWork
+        abstract class TransactionalUnitOfWorkWindsorScopeBase : ITransactionalUnitOfWork
         {
             public abstract void Dispose();
             public abstract void Commit();
             public abstract bool IsActive { get; }
         }
 
-        private class TransactionalUnitOfWorkWindsorScope : TransactionalUnitOfWorkWindsorScopeBase, IEnlistmentNotification
+        class TransactionalUnitOfWorkWindsorScope : TransactionalUnitOfWorkWindsorScopeBase, IEnlistmentNotification
         {
-            private readonly TransactionScope _transactionScopeWeCreatedAndOwn;
-            private readonly IUnitOfWork _unitOfWork;
-            private bool _committed;
+            readonly TransactionScope _transactionScopeWeCreatedAndOwn;
+            readonly IUnitOfWork _unitOfWork;
+            bool _committed;
 
             public TransactionalUnitOfWorkWindsorScope(IWindsorContainer container)
             {
@@ -110,10 +110,9 @@ namespace Composable.Windsor
             }
         }
 
-
-        private class InnerTransactionalUnitOfWorkWindsorScope : TransactionalUnitOfWorkWindsorScopeBase, ITransactionalUnitOfWork
+        class InnerTransactionalUnitOfWorkWindsorScope : TransactionalUnitOfWorkWindsorScopeBase, ITransactionalUnitOfWork
         {
-            private readonly TransactionalUnitOfWorkWindsorScopeBase _outer;
+            readonly TransactionalUnitOfWorkWindsorScopeBase _outer;
 
             public InnerTransactionalUnitOfWorkWindsorScope(TransactionalUnitOfWorkWindsorScopeBase outer)
             {

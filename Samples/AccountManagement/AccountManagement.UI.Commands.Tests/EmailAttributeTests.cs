@@ -29,7 +29,7 @@ namespace AccountManagement.UI.Commands.Tests
                 .Should().NotBeEmpty();
         }
 
-        private class ACommand
+        class ACommand
         {
             [Email]
             public string Email { get; set; }

@@ -11,15 +11,15 @@ namespace Composable.ServiceBus
 {
     public class TestingOnlyServiceBus : SynchronousBus
     {
-        private readonly DummyTimeSource _timeSource;
-        private readonly List<ScheduledMessage> _scheduledMessages = new List<ScheduledMessage>(); 
+        readonly DummyTimeSource _timeSource;
+        readonly List<ScheduledMessage> _scheduledMessages = new List<ScheduledMessage>(); 
         public TestingOnlyServiceBus(IWindsorContainer container, DummyTimeSource timeSource) : base(container)
         {
             _timeSource = timeSource;
             timeSource.UtcNowChanged.Subscribe(SendDueMessages);
         }
 
-        private void SendDueMessages(DateTime currentTime)
+        void SendDueMessages(DateTime currentTime)
         {
             var dueMessages = _scheduledMessages.Where(message => message.SendAt <= currentTime).ToList();
             dueMessages.ForEach(scheduledMessage => Send(scheduledMessage.Message));
@@ -35,7 +35,7 @@ namespace Composable.ServiceBus
             _scheduledMessages.Add(new ScheduledMessage(sendAt, message));
         }
 
-        private class ScheduledMessage
+        class ScheduledMessage
         {
             public Guid Id { get; }
             public DateTime SendAt { get; }

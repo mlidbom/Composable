@@ -27,7 +27,7 @@ namespace Composable.CQRS.EventSourcing
             where TEventEntityIdSetterGetter : IGetSetAggregateRootEntityEventEntityId<TEntityId, TEntityBaseEventClass, TEntityBaseEventInterface>,
                 new()
         {
-            private static readonly TEventEntityIdSetterGetter IdGetterSetter = new TEventEntityIdSetterGetter();
+            static readonly TEventEntityIdSetterGetter IdGetterSetter = new TEventEntityIdSetterGetter();
 
             public TEntityId Id { get; private set; }
 

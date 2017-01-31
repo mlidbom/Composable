@@ -9,7 +9,7 @@
     {
         public static IDocumentDbSessionInterceptor Instance = new NullOpDocumentDbSessionInterceptor();
 
-        private NullOpDocumentDbSessionInterceptor()
+        NullOpDocumentDbSessionInterceptor()
         {
             
         }

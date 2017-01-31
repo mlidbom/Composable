@@ -11,11 +11,11 @@ namespace Composable.Tests.System.Collections.Generic
 {
     public class DictionaryExtensions_GetOrAdd_When_Key
     {
-        private const int ExistingValue = 1;
-        private const int InsertedValue = 2;
-        private static readonly Func<int> Constructor = () => InsertedValue;
-        private const string Key = "key";
-        private const int ResultOfDefaultConstructor = new int();
+        const int ExistingValue = 1;
+        const int InsertedValue = 2;
+        static readonly Func<int> Constructor = () => InsertedValue;
+        const string Key = "key";
+        const int ResultOfDefaultConstructor = new int();
 
         [TestFixture]
         public class DictionaryExtensions_GetOrAdd_When_Key_Is_Not_Present

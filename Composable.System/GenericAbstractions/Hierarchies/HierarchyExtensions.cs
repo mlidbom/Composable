@@ -33,12 +33,11 @@ namespace Composable.GenericAbstractions.Hierarchies
     [Pure]
     public static class HierarchyExtensions
     {
-        private class Hierarchy<T> : IAutoHierarchy<T>
+        class Hierarchy<T> : IAutoHierarchy<T>
         {
-            private readonly Func<T, IEnumerable<T>> _childGetter;
+            readonly Func<T, IEnumerable<T>> _childGetter;
 
-            [ContractInvariantMethod]
-            private void ObjectInvariant()
+            [ContractInvariantMethod] void ObjectInvariant()
             {
                 Contract.Invariant(_childGetter != null);
             }

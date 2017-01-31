@@ -23,7 +23,7 @@ namespace AccountManagement.UI.Commands.Tests
                 .Should().NotBeEmpty();
         }
 
-        private class ACommand
+        class ACommand
         {
             [EntityId]
             public Guid? AnId { get; set; }

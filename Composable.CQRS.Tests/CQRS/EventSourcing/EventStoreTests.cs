@@ -145,9 +145,9 @@ namespace CQRS.Tests.CQRS.EventSourcing
     [TestFixture]
     public class SqlServerEventStoreTests : EventStoreTests
     {
-        private string _connectionString1;
-        private string _connectionString2;
-        private static SqlServerDatabasePool _tempDbManager;
+        string _connectionString1;
+        string _connectionString2;
+        static SqlServerDatabasePool _tempDbManager;
 
         [SetUp]
         public void SetupFixture()

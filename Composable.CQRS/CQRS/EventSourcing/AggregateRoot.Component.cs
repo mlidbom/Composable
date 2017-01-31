@@ -15,14 +15,13 @@ namespace Composable.CQRS.EventSourcing
             where TComponentBaseEventClass : TAggregateRootBaseEventClass, TComponentBaseEventInterface
             where TComponent : Component<TComponent, TComponentBaseEventClass, TComponentBaseEventInterface>
         {
+            readonly List<TComponentBaseEventInterface> _history = new List<TComponentBaseEventInterface>();
 
-            private readonly List<TComponentBaseEventInterface> _history = new List<TComponentBaseEventInterface>();
-
-            private readonly CallMatchingHandlersInRegistrationOrderEventDispatcher<TComponentBaseEventInterface> _eventAppliersEventDispatcher =
+            readonly CallMatchingHandlersInRegistrationOrderEventDispatcher<TComponentBaseEventInterface> _eventAppliersEventDispatcher =
                 new CallMatchingHandlersInRegistrationOrderEventDispatcher<TComponentBaseEventInterface>();
-            private readonly CallMatchingHandlersInRegistrationOrderEventDispatcher<TComponentBaseEventInterface> _eventHandlersEventDispatcher =
+            readonly CallMatchingHandlersInRegistrationOrderEventDispatcher<TComponentBaseEventInterface> _eventHandlersEventDispatcher =
                 new CallMatchingHandlersInRegistrationOrderEventDispatcher<TComponentBaseEventInterface>();
-            private readonly Action<TComponentBaseEventClass> _raiseEventThroughParent;
+            readonly Action<TComponentBaseEventClass> _raiseEventThroughParent;
 
             protected IUtcTimeTimeSource TimeSource { get; private set; }
 

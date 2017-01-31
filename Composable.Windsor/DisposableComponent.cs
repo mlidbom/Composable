@@ -5,7 +5,7 @@ namespace Composable.Windsor
 {
     public class DisposableComponent<T> : IDisposable
     {
-        private readonly IWindsorContainer _container;
+        readonly IWindsorContainer _container;
 
         public DisposableComponent(T component, IWindsorContainer container)
         {

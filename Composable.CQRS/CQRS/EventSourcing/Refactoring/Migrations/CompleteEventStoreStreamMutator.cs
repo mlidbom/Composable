@@ -5,7 +5,7 @@ using Composable.System.Collections.Collections;
 
 namespace Composable.CQRS.EventSourcing.Refactoring.Migrations
 {
-    internal abstract class CompleteEventStoreStreamMutator
+    abstract class CompleteEventStoreStreamMutator
     {
         public static ICompleteEventStreamMutator Create(IReadOnlyList<IEventMigration> eventMigrationFactories)
         {
@@ -14,9 +14,9 @@ namespace Composable.CQRS.EventSourcing.Refactoring.Migrations
                        : (ICompleteEventStreamMutator)new OnlySerializeVersionsMutator();
         }
 
-        private class OnlySerializeVersionsMutator : ICompleteEventStreamMutator
+        class OnlySerializeVersionsMutator : ICompleteEventStreamMutator
         {
-            private readonly Dictionary<Guid, int> _aggregateVersions = new Dictionary<Guid, int>();
+            readonly Dictionary<Guid, int> _aggregateVersions = new Dictionary<Guid, int>();
 
             public IEnumerable<AggregateRootEvent> Mutate(IEnumerable<AggregateRootEvent> eventStream)
             {
@@ -30,10 +30,10 @@ namespace Composable.CQRS.EventSourcing.Refactoring.Migrations
             }
         }
 
-        private class RealMutator : ICompleteEventStreamMutator
+        class RealMutator : ICompleteEventStreamMutator
         {
-            private readonly IReadOnlyList<IEventMigration> _eventMigrationFactories;
-            private readonly Dictionary<Guid, ISingleAggregateInstanceEventStreamMutator> _aggregateMutatorsCache =
+            readonly IReadOnlyList<IEventMigration> _eventMigrationFactories;
+            readonly Dictionary<Guid, ISingleAggregateInstanceEventStreamMutator> _aggregateMutatorsCache =
                 new Dictionary<Guid, ISingleAggregateInstanceEventStreamMutator>();
 
             public RealMutator(IReadOnlyList<IEventMigration> eventMigrationFactories) { _eventMigrationFactories = eventMigrationFactories; }

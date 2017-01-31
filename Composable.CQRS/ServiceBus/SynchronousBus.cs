@@ -10,9 +10,9 @@ namespace Composable.ServiceBus
     [UsedImplicitly]
     public partial class SynchronousBus : IServiceBus
     {
-        private readonly IWindsorContainer _container;
-        private readonly MessageHandlersResolver _handlersResolver;
-        private readonly MessageHandlersInvoker _messageHandlersInvoker;
+        readonly IWindsorContainer _container;
+        readonly MessageHandlersResolver _handlersResolver;
+        readonly MessageHandlersInvoker _messageHandlersInvoker;
         public SynchronousBus(IWindsorContainer container)
         {
             _container = container;

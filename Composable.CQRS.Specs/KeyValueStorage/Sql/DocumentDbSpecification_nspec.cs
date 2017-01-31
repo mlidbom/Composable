@@ -13,9 +13,9 @@ namespace Composable.CQRS.Specs.KeyValueStorage.Sql
 {
     public abstract class DocumentDbSpecification : NSpec.NUnit.nspec
     {
-        private IDocumentDb _store = null;
-        private string _ignoredString;
-        private Dictionary<Type, Dictionary<string, string>> _persistentValues;
+        IDocumentDb _store = null;
+        string _ignoredString;
+        Dictionary<Type, Dictionary<string, string>> _persistentValues;
 
         void before_each()
         {
@@ -151,7 +151,7 @@ namespace Composable.CQRS.Specs.KeyValueStorage.Sql
                 };
         }
 
-        private string GetStoredValue(string theID)
+        string GetStoredValue(string theID)
         {
             string storedValue;
             _store.TryGet<string>(theID, out storedValue, _persistentValues);
@@ -160,7 +160,7 @@ namespace Composable.CQRS.Specs.KeyValueStorage.Sql
 
         public class SqlServerDocumentDbSpecification : DocumentDbSpecification
         {
-            private SqlServerDatabasePool _connectionManager;
+            SqlServerDatabasePool _connectionManager;
 
             protected override void InitStore()
             {

@@ -13,12 +13,12 @@ using Composable.System.Linq;
 namespace Composable.DomainEvents
 {
     //Review:mlidbo: REMOVE
-    internal static class DomainEvent
+    static class DomainEvent
     {
-        private static readonly ThreadLocal<List<Delegate>> ManualSubscribersStorage =
+        static readonly ThreadLocal<List<Delegate>> ManualSubscribersStorage =
             new ThreadLocal<List<Delegate>>(() => new List<Delegate>());
 
-        private static List<Delegate> ManualSubscribers
+        static List<Delegate> ManualSubscribers
         {
             get
             {
@@ -28,8 +28,7 @@ namespace Composable.DomainEvents
             }
         }
 
-        [ContractInvariantMethod]
-        private static void Invariants()
+        [ContractInvariantMethod] static void Invariants()
         {
             Contract.Invariant(ManualSubscribers != null);
         }
@@ -41,9 +40,9 @@ namespace Composable.DomainEvents
             return new RemoveRegistration(callback);
         }
 
-        private class RemoveRegistration : IDisposable
+        class RemoveRegistration : IDisposable
         {
-            private readonly Delegate _callbackToRemove;
+            readonly Delegate _callbackToRemove;
 
             public RemoveRegistration(Delegate callback)
             {

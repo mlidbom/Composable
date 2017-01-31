@@ -15,12 +15,12 @@ namespace Composable.CQRS.EventHandling
     public class CallMatchingHandlersInRegistrationOrderEventDispatcher<TEvent> : IMutableEventDispatcher<TEvent>
         where TEvent : class
     {
-        private readonly List<KeyValuePair<Type, Action<object>>> _handlers = new List<KeyValuePair<Type, Action<object>>>();
+        readonly List<KeyValuePair<Type, Action<object>>> _handlers = new List<KeyValuePair<Type, Action<object>>>();
 
-        private readonly List<Action<object>> _runBeforeHandlers = new List<Action<object>>();
-        private readonly List<Action<object>> _runAfterHandlers = new List<Action<object>>();
-        private readonly HashSet<Type> _ignoredEvents = new HashSet<Type>();
-        private int _totalHandlers = 0;
+        readonly List<Action<object>> _runBeforeHandlers = new List<Action<object>>();
+        readonly List<Action<object>> _runAfterHandlers = new List<Action<object>>();
+        readonly HashSet<Type> _ignoredEvents = new HashSet<Type>();
+        int _totalHandlers = 0;
 
         ///<summary>Registers handlers for the incoming events. All matching handlers will be called in the order they were registered.</summary>
         public RegistrationBuilder RegisterHandlers()
@@ -35,7 +35,7 @@ namespace Composable.CQRS.EventHandling
 
         public class RegistrationBuilder : IEventHandlerRegistrar<TEvent>
         {
-            private readonly CallMatchingHandlersInRegistrationOrderEventDispatcher<TEvent> _owner;
+            readonly CallMatchingHandlersInRegistrationOrderEventDispatcher<TEvent> _owner;
 
             public RegistrationBuilder(CallMatchingHandlersInRegistrationOrderEventDispatcher<TEvent> owner)
             {
@@ -113,12 +113,10 @@ namespace Composable.CQRS.EventHandling
 
         }
 
+        Dictionary<Type, Action<object>[]> _typeToHandlerCache;
+        int _cachedTotalHandlers = 0;
 
-        private Dictionary<Type, Action<object>[]> _typeToHandlerCache;
-        private int _cachedTotalHandlers = 0;
-
-
-        private Action<object>[] GetHandlers(Type type)
+        Action<object>[] GetHandlers(Type type)
         {
             if(_cachedTotalHandlers != _totalHandlers)
             {

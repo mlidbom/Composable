@@ -4,8 +4,8 @@ namespace Composable.CQRS.EventSourcing.Refactoring.Naming
 {
     public class EventPathRenamer : IRenameEvents
     {
-        private string OldPath { get; }
-        private string NewPath { get;  }
+        string OldPath { get; }
+        string NewPath { get;  }
 
         public EventPathRenamer(string oldPath, Type eventAtNewPath)
         {

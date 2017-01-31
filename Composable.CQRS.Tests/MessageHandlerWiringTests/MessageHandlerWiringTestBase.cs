@@ -15,7 +15,7 @@ namespace CQRS.Tests.MessageHandlerWiringTests
     public class MessageHandlerWiringTestBase
     {
         protected WindsorContainer Container;
-        private IDisposable _scope;
+        IDisposable _scope;
 
         public SynchronousBus SynchronousBus { get { return Container.Resolve<SynchronousBus>(); } }
         public EventsReplayer EventsReplayer { get { return Container.Resolve<EventsReplayer>(); } }

@@ -61,12 +61,12 @@ namespace TestAggregates
             SetupAppliers();
         }
 
-        private TestAggregate(IUtcTimeTimeSource timeSource):base(timeSource)
+        TestAggregate(IUtcTimeTimeSource timeSource):base(timeSource)
         {
             SetupAppliers();
         }
 
-        private void SetupAppliers()
+        void SetupAppliers()
         {
             RegisterEventAppliers()
                 .For<IRootEvent>(e => _history.Add(e));
@@ -86,7 +86,7 @@ namespace TestAggregates
             return new TestAggregate(timeSource, rootEvents);
         }
 
-        private readonly List<IRootEvent> _history = new List<IRootEvent>();
+        readonly List<IRootEvent> _history = new List<IRootEvent>();
         public IReadOnlyList<IAggregateRootEvent> History => _history;
     }
 

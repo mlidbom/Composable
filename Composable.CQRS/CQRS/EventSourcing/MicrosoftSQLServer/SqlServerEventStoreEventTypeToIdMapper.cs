@@ -6,11 +6,11 @@ using Composable.Logging.Log4Net;
 
 namespace Composable.CQRS.EventSourcing.MicrosoftSQLServer
 {
-    internal class SqlServerEventStoreEventTypeToIdMapper : IEventTypeToIdMapper
+    class SqlServerEventStoreEventTypeToIdMapper : IEventTypeToIdMapper
     {
-        private readonly IEventNameMapper _nameMapper;
+        readonly IEventNameMapper _nameMapper;
 
-        private readonly SqlServerEventStoreConnectionManager _connectionMananger;
+        readonly SqlServerEventStoreConnectionManager _connectionMananger;
         public SqlServerEventStoreEventTypeToIdMapper(string connectionString, IEventNameMapper nameMapper)
         {
             _nameMapper = nameMapper;
@@ -56,7 +56,7 @@ namespace Composable.CQRS.EventSourcing.MicrosoftSQLServer
             }
         }
 
-        private void EnsureInitialized()
+        void EnsureInitialized()
         {
             if (_idToTypeMap == null)
             {
@@ -64,7 +64,7 @@ namespace Composable.CQRS.EventSourcing.MicrosoftSQLServer
             }
         }
 
-        private void LoadTypesFromDatabase()
+        void LoadTypesFromDatabase()
         {
             lock(_lockObject)
             {
@@ -84,7 +84,7 @@ namespace Composable.CQRS.EventSourcing.MicrosoftSQLServer
             }
         }
 
-        private IdTypeMapping InsertNewType(Type newType)
+        IdTypeMapping InsertNewType(Type newType)
         {          
             using (var connection = _connectionMananger.OpenConnection())
             {
@@ -108,9 +108,9 @@ namespace Composable.CQRS.EventSourcing.MicrosoftSQLServer
                     return new IdTypeMapping(id: (int)command.ExecuteScalar(), type: newType);
                 }
             }
-        }       
+        }
 
-        private IEnumerable<IIdTypeMapping> GetTypes()
+        IEnumerable<IIdTypeMapping> GetTypes()
         {
             using(var connection = _connectionMananger.OpenConnection(suppressTransactionWarning:true))
             {
@@ -148,19 +148,18 @@ namespace Composable.CQRS.EventSourcing.MicrosoftSQLServer
             }
         }
 
+        Dictionary<int, IIdTypeMapping> _idToTypeMap;
+        Dictionary<Type, int> _typeToIdMap;
+        readonly object _lockObject = new object();
 
-        private Dictionary<int, IIdTypeMapping> _idToTypeMap;
-        private Dictionary<Type, int> _typeToIdMap;
-        private readonly object _lockObject = new object();
-
-        private interface IIdTypeMapping {
+        interface IIdTypeMapping {
             int Id { get; }
             Type Type { get; }
         }
 
-        private class BrokenIdTypeMapping : IIdTypeMapping
+        class BrokenIdTypeMapping : IIdTypeMapping
         {
-            private readonly string _typeName;
+            readonly string _typeName;
             public BrokenIdTypeMapping(int id, string typeName)
             {
                 _typeName = typeName;
@@ -170,7 +169,7 @@ namespace Composable.CQRS.EventSourcing.MicrosoftSQLServer
             public Type Type { get { throw new TryingToReadEventOfTypeThatNoMappingCouldBeFoundForException(_typeName, Id);} }
         }
 
-        private class IdTypeMapping : IIdTypeMapping
+        class IdTypeMapping : IIdTypeMapping
         {
             public int Id { get; }
             public Type Type { get; }

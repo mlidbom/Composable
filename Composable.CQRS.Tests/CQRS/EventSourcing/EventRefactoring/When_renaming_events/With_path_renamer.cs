@@ -9,9 +9,9 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.When_renaming_events
     [TestFixture]
     public class With_path_renamer
     {
-        private const string OldPath = "Some.Old.Path.";
+        const string OldPath = "Some.Old.Path.";
 
-        private RenamingEventNameMapper _nameMapper;
+        RenamingEventNameMapper _nameMapper;
 
         [SetUp]
         public void SetupMappingsForEventsWithNoRenamingAttribute()
@@ -38,12 +38,12 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.When_renaming_events
             _nameMapper.GetType(Event2.OldName).Should().Be(typeof(Event2));
         }
 
-        private class Event1 : AggregateRootEvent
+        class Event1 : AggregateRootEvent
         {
             public const string OldName = OldPath + nameof(Event1);
         }
 
-        private class Event2 : AggregateRootEvent
+        class Event2 : AggregateRootEvent
         {
             public const string OldName = OldPath + nameof(Event2);
         }

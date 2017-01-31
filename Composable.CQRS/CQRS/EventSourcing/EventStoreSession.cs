@@ -27,13 +27,13 @@ namespace Composable.CQRS.EventSourcing
         IEventStoreSession,
         IUnitOfWorkParticipantWhoseCommitMayTriggerChangesInOtherParticipantsMustImplementIdemponentCommit
     {
-        private readonly IServiceBus _bus;
-        private readonly IEventStore _store;
-        private static ILog Log = LogManager.GetLogger(typeof(EventStoreSession));
-        private readonly IDictionary<Guid, IEventStored> _idMap = new Dictionary<Guid, IEventStored>();
-        private readonly HashSet<Guid> _publishedEvents = new HashSet<Guid>();
-        private readonly ISingleContextUseGuard _usageGuard;
-        private readonly List<Guid> _pendingDeletes = new List<Guid>();
+        readonly IServiceBus _bus;
+        readonly IEventStore _store;
+        static ILog Log = LogManager.GetLogger(typeof(EventStoreSession));
+        readonly IDictionary<Guid, IEventStored> _idMap = new Dictionary<Guid, IEventStored>();
+        readonly HashSet<Guid> _publishedEvents = new HashSet<Guid>();
+        readonly ISingleContextUseGuard _usageGuard;
+        readonly List<Guid> _pendingDeletes = new List<Guid>();
         protected internal IUtcTimeTimeSource TimeSource { get; set; }
 
 
@@ -133,8 +133,8 @@ namespace Composable.CQRS.EventSourcing
 
         #region Implementation of IUnitOfWorkParticipant
 
-        private IUnitOfWork _unitOfWork;
-        private readonly Guid _id = Guid.NewGuid();
+        IUnitOfWork _unitOfWork;
+        readonly Guid _id = Guid.NewGuid();
 
         IUnitOfWork IUnitOfWorkParticipant.UnitOfWork { get { return _unitOfWork; } }
         Guid IUnitOfWorkParticipant.Id { get { return _id; } }
@@ -183,7 +183,7 @@ namespace Composable.CQRS.EventSourcing
             return GetHistoryInternal(aggregateId, takeWriteLock:false);
         }
 
-        private IEnumerable<IAggregateRootEvent> GetHistoryInternal(Guid aggregateId, bool takeWriteLock)
+        IEnumerable<IAggregateRootEvent> GetHistoryInternal(Guid aggregateId, bool takeWriteLock)
         {
             IList<IAggregateRootEvent> history = (takeWriteLock
                                                      ? _store.GetAggregateHistoryForUpdate(aggregateId)
@@ -200,7 +200,7 @@ namespace Composable.CQRS.EventSourcing
             return history;
         }
 
-        private bool DoTryGet<TAggregate>(Guid aggregateId, out TAggregate aggregate) where TAggregate : IEventStored
+        bool DoTryGet<TAggregate>(Guid aggregateId, out TAggregate aggregate) where TAggregate : IEventStored
         {
             if (_pendingDeletes.Contains(aggregateId))
             {
@@ -230,14 +230,14 @@ namespace Composable.CQRS.EventSourcing
             }
         }
 
-        private TAggregate CreateInstance<TAggregate>() where TAggregate : IEventStored
+        TAggregate CreateInstance<TAggregate>() where TAggregate : IEventStored
         {
             var aggregate = (TAggregate)Activator.CreateInstance(typeof(TAggregate), nonPublic: true);
             aggregate.SetTimeSource(TimeSource);
             return aggregate;
-        }        
+        }
 
-        private void PublishUnpublishedEvents(IEnumerable<IAggregateRootEvent> events)
+        void PublishUnpublishedEvents(IEnumerable<IAggregateRootEvent> events)
         {
             var unpublishedEvents = events.Where(e => !_publishedEvents.Contains(e.EventId))
                                           .ToList();
@@ -245,7 +245,7 @@ namespace Composable.CQRS.EventSourcing
             unpublishedEvents.ForEach(_bus.Publish);
         }
 
-        private bool InternalSaveChanges()
+        bool InternalSaveChanges()
         {
             Log.DebugFormat("{0} saving changes with {1} changes from transaction within unit of work {2}", _id, _idMap.Count, _unitOfWork ?? (object)"null");
 
@@ -270,5 +270,5 @@ namespace Composable.CQRS.EventSourcing
         }        
     }
 
-    internal class ParticipantAccessedByWrongUnitOfWork : Exception { }
+    class ParticipantAccessedByWrongUnitOfWork : Exception { }
 }

@@ -13,7 +13,7 @@ namespace Composable.Contracts
             return ExtractName((LambdaExpression)fetchValue);
         }
 
-        private static string ExtractName(LambdaExpression lambda)
+        static string ExtractName(LambdaExpression lambda)
         {
             var body = lambda.Body;
 
@@ -42,7 +42,7 @@ namespace Composable.Contracts
             return (TValue)GetExpressionValue(fetchValue.Body);
         }
 
-        private static object GetExpressionValue(Expression expression)
+        static object GetExpressionValue(Expression expression)
         {
             switch (expression.NodeType)
             {

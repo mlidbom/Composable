@@ -78,7 +78,7 @@ namespace Composable.Tests.DDD
             Assert.That(rhs == lhs, Is.True);
         }
 
-        private static void AssertAreEqual(Person lhs, Person rhs)
+        static void AssertAreEqual(Person lhs, Person rhs)
         {
             Assert.That(lhs, Is.EqualTo(rhs));
             Assert.That(lhs.Equals(rhs), Is.True);
@@ -87,7 +87,7 @@ namespace Composable.Tests.DDD
             Assert.That(lhs != rhs, Is.Not.True);
         }
 
-        private static void AssertAreNotEqual(Person lhs, Person rhs)
+        static void AssertAreNotEqual(Person lhs, Person rhs)
         {
             Assert.That(lhs, Is.Not.EqualTo(rhs));
             Assert.That(lhs.Equals(rhs), Is.Not.True);

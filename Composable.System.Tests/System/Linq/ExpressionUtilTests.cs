@@ -25,6 +25,6 @@ namespace Composable.Tests.System.Linq
             ExpressionUtil.ExtractMemberName((ExpressionUtilTests me, object irrelevant) => me.MyMember).Should().Be("MyMember");
         }
 
-        private object MyMember{ get { throw new global::System.NotImplementedException(); } }//ncrunch: no coverage
+        object MyMember{ get { throw new global::System.NotImplementedException(); } }//ncrunch: no coverage
     }
 }

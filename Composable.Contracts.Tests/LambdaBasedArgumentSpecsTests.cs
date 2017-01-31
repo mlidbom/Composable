@@ -60,14 +60,12 @@ namespace Composable.Contracts.Tests
             );
         }
 
-
-        private static void TestStringsForNullOrEmpty(string singleString)
+        static void TestStringsForNullOrEmpty(string singleString)
         {
             Contract.Argument(() => singleString).NotNullOrEmpty();
         }
 
-
-        private static void TestStringsForNullOrEmpty(string firstString, string secondString, string thirdString)
+        static void TestStringsForNullOrEmpty(string firstString, string secondString, string thirdString)
         {
             Contract.Argument(() => firstString, () => secondString, () => thirdString).NotNullOrEmpty();
         }

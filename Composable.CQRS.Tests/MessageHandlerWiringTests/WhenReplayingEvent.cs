@@ -8,7 +8,7 @@ namespace CQRS.Tests.MessageHandlerWiringTests
     [TestFixture]
     public class WhenReplayingEvent : MessageHandlerWiringTestBase
     {
-        private AccountCreatedEvent _event;
+        AccountCreatedEvent _event;
 
         [SetUp]
         public void ReplayEvent()

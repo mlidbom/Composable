@@ -11,9 +11,9 @@ namespace Composable.UnitsOfWork
 {
     public class UnitOfWork : IUnitOfWork
     {
-        private static readonly ILog Log = LogManager.GetLogger(typeof (UnitOfWork));
-        private readonly HashSet<IUnitOfWorkParticipant> _participants = new HashSet<IUnitOfWorkParticipant>();
-        private readonly ISingleContextUseGuard _usageGuard;
+        static readonly ILog Log = LogManager.GetLogger(typeof (UnitOfWork));
+        readonly HashSet<IUnitOfWorkParticipant> _participants = new HashSet<IUnitOfWorkParticipant>();
+        readonly ISingleContextUseGuard _usageGuard;
         public const int MaxCascadeLevel = 10;
 
         public Guid Id { get; private set; }

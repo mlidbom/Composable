@@ -12,10 +12,10 @@ namespace CQRS.Tests.CQRS.EventHandling
 {
     public class SingleAggregateQueryModelUpdaterSpecification : NSpec.NUnit.nspec
     {
-        private Mock<IDocumentDbSession> _sessionMock;
-        private UserQueryModelUpdater _listener;
-        private readonly Guid _userId = Guid.Parse("00000000-0000-0000-0000-000000000001");
-        private UserQueryModel _queryModel;
+        Mock<IDocumentDbSession> _sessionMock;
+        UserQueryModelUpdater _listener;
+        readonly Guid _userId = Guid.Parse("00000000-0000-0000-0000-000000000001");
+        UserQueryModel _queryModel;
 
         public void before_each()
         {
@@ -128,7 +128,7 @@ namespace CQRS.Tests.CQRS.EventHandling
 
         public class RegisterUserRegisteredTwice : CallsMatchingHandlersInRegistrationOrderEventHandler<IUserEvent>
         {
-            private int _calls = 0;
+            int _calls = 0;
             public int Handler1CallOrder = 0;
             public int Handler2CallOrder = 0;
             public RegisterUserRegisteredTwice()

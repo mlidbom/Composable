@@ -21,7 +21,7 @@ namespace Composable.CQRS.EventSourcing
         [Obsolete("Only for infrastructure", true)]
         public AggregateRoot():this(DateTimeNowTimeSource.Instance){ }
 
-        private int _insertedVersionToAggregateVersionOffset = 0;
+        int _insertedVersionToAggregateVersionOffset = 0;
 
         //Yes empty. Id should be assigned by an action and it should be obvious that the aggregate in invalid until that happens
         protected AggregateRoot(IUtcTimeTimeSource timeSource) : base(Guid.Empty)
@@ -32,11 +32,11 @@ namespace Composable.CQRS.EventSourcing
             _eventHandlersEventDispatcher.Register().IgnoreUnhandled<IAggregateRootEvent>();
         }
 
-        private readonly IList<IAggregateRootEvent> _unCommittedEvents = new List<IAggregateRootEvent>();
-        private readonly CallMatchingHandlersInRegistrationOrderEventDispatcher<TAggregateRootBaseEventInterface> _eventDispatcher = new CallMatchingHandlersInRegistrationOrderEventDispatcher<TAggregateRootBaseEventInterface>();
-        private readonly CallMatchingHandlersInRegistrationOrderEventDispatcher<TAggregateRootBaseEventInterface> _eventHandlersEventDispatcher = new CallMatchingHandlersInRegistrationOrderEventDispatcher<TAggregateRootBaseEventInterface>();
+        readonly IList<IAggregateRootEvent> _unCommittedEvents = new List<IAggregateRootEvent>();
+        readonly CallMatchingHandlersInRegistrationOrderEventDispatcher<TAggregateRootBaseEventInterface> _eventDispatcher = new CallMatchingHandlersInRegistrationOrderEventDispatcher<TAggregateRootBaseEventInterface>();
+        readonly CallMatchingHandlersInRegistrationOrderEventDispatcher<TAggregateRootBaseEventInterface> _eventHandlersEventDispatcher = new CallMatchingHandlersInRegistrationOrderEventDispatcher<TAggregateRootBaseEventInterface>();
 
-        private readonly List<TAggregateRootBaseEventInterface> _history = new List<TAggregateRootBaseEventInterface>();
+        readonly List<TAggregateRootBaseEventInterface> _history = new List<TAggregateRootBaseEventInterface>();
 
         protected void RaiseEvent(TAggregateRootBaseEventClass theEvent)
         {
@@ -81,7 +81,7 @@ namespace Composable.CQRS.EventSourcing
             return _eventHandlersEventDispatcher.RegisterHandlers();
         }
 
-        private void ApplyEvent(TAggregateRootBaseEventInterface theEvent)
+        void ApplyEvent(TAggregateRootBaseEventInterface theEvent)
         {
             if (theEvent is IAggregateRootCreatedEvent)
             {

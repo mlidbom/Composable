@@ -20,7 +20,7 @@ namespace Composable.Windsor.Testing
 
     public class RegisterEventHandlersForTest<TInheritor> : Composable.Windsor.Testing.IConfigureWiringForTests
     {
-        private readonly IWindsorContainer _container;
+        readonly IWindsorContainer _container;
 
         public RegisterEventHandlersForTest(IWindsorContainer container)
         {

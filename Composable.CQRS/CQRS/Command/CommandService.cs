@@ -12,7 +12,7 @@ namespace Composable.CQRS.Command
 {
     public class CommandService : ICommandService
     {
-        private readonly IWindsorContainer _container;
+        readonly IWindsorContainer _container;
 
         public CommandService(IWindsorContainer container)
         {
@@ -20,8 +20,7 @@ namespace Composable.CQRS.Command
             _container = container;
         }
 
-        [ContractInvariantMethod]
-        private void Invariant()
+        [ContractInvariantMethod] void Invariant()
         {
             Contract.Invariant(_container != null);
         }

@@ -9,7 +9,7 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.When_renaming_events.Wi
     [TestFixture]
     public class By_name
     {
-        private RenamingEventNameMapper _nameMapper;
+        RenamingEventNameMapper _nameMapper;
 
         [SetUp]
         public void SetupMappingsForEventsWithNoRenamingAttribute()

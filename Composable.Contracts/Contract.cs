@@ -79,8 +79,7 @@ namespace Composable.Contracts
             return returnValue;
         }
 
-
-        private static Inspected<TParameter> CreateInspected<TParameter>(Expression<Func<TParameter>>[] arguments, InspectionType inspectionType)
+        static Inspected<TParameter> CreateInspected<TParameter>(Expression<Func<TParameter>>[] arguments, InspectionType inspectionType)
         { //Yes the loop is not as pretty as a linq expression but this is performance critical code that might run in tight loops. If it was not I would be using linq.
             var inspected = new InspectedValue<TParameter>[arguments.Length];
             for(var i = 0; i < arguments.Length; i++)

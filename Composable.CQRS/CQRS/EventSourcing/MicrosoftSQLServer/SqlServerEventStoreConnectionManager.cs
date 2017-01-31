@@ -5,9 +5,9 @@ using Composable.Logging.Log4Net;
 
 namespace Composable.CQRS.EventSourcing.MicrosoftSQLServer
 {
-    internal class SqlServerEventStoreConnectionManager
+    class SqlServerEventStoreConnectionManager
     {
-        private string ConnectionString { get; }
+        string ConnectionString { get; }
         public SqlServerEventStoreConnectionManager(string connectionString)
         {
             ConnectionString = connectionString;

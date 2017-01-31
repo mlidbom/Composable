@@ -27,7 +27,7 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
     //Everything in here actually runs much faster than this when executed normally, but with ncrunch instrumentation it runs much slower and the test gives leeway for that.....
     public class SingleAggregateInstanceEventStreamMutatorPerformanceTest_Given_a_10000_events_large_aggregate
     {
-        private List<AggregateRootEvent> _history;
+        List<AggregateRootEvent> _history;
         TestAggregate _aggregate;
         [SetUp]
         public void Given_a_10000_events_large_aggregate()
@@ -200,7 +200,7 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
             }
         }
 
-        private TestAggregate2():base(new DateTimeNowTimeSource())
+        TestAggregate2():base(new DateTimeNowTimeSource())
         {
             RegisterEventAppliers()
                 .For<IRootEvent>(e => {})

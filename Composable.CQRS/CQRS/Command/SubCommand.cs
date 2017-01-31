@@ -6,7 +6,7 @@ namespace Composable.CQRS.Command
 {
     public class SubCommand : ISubCommand
     {
-        private Func<Command> _accessor;
+        Func<Command> _accessor;
         
         public string Name { get; private set; }
         

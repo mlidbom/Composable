@@ -15,8 +15,7 @@ namespace Composable.System.Linq
     [Pure]
     public static class Seq
     {
-        [Pure]
-        private static class EmptySequence<T>
+        [Pure] static class EmptySequence<T>
         {
             public static readonly IEnumerable<T> Instance = new T[0];
         }

@@ -10,22 +10,22 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
 {
     public class Before<TEvent> : EventMigration<IRootEvent>
     {
-        private readonly IEnumerable<Type> _insert;
+        readonly IEnumerable<Type> _insert;
 
         public static Before<TEvent> Insert<T1>() => new Before<TEvent>(Seq.OfTypes<T1>());
         public static Before<TEvent> Insert<T1, T2>() => new Before<TEvent>(Seq.OfTypes<T1, T2>());
 
-        private Before(IEnumerable<Type> insert) : base(Guid.Parse("0533D2E4-DE78-4751-8CAE-3343726D635B"), "Before", "Long description of Before")
+        Before(IEnumerable<Type> insert) : base(Guid.Parse("0533D2E4-DE78-4751-8CAE-3343726D635B"), "Before", "Long description of Before")
         {
             _insert = insert;             
         }
 
         public override ISingleAggregateInstanceHandlingEventMigrator CreateSingleAggregateInstanceHandlingMigrator() => new Inspector(_insert);
 
-        private class Inspector : ISingleAggregateInstanceHandlingEventMigrator
+        class Inspector : ISingleAggregateInstanceHandlingEventMigrator
         {
-            private readonly IEnumerable<Type> _insert;
-            private Type _lastSeenEventType;
+            readonly IEnumerable<Type> _insert;
+            Type _lastSeenEventType;
 
             public Inspector(IEnumerable<Type> insert) { _insert = insert; }
 

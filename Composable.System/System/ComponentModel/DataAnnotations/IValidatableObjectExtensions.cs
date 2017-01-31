@@ -10,7 +10,7 @@ namespace Composable.System.ComponentModel.DataAnnotations
     ///<summary>Extensions for <see cref="IValidatableObject"/> intended to make type safe implementations easy.</summary>
     public static class IValidatableObjectExtensions
     {
-        private static string ExtractMemberName(Expression<Func<object>> accessor)
+        static string ExtractMemberName(Expression<Func<object>> accessor)
         {
             Contract.Requires(accessor != null);
 

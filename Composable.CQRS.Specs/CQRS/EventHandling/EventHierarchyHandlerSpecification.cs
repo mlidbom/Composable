@@ -88,7 +88,7 @@ namespace CQRS.Tests.CQRS.EventHandling
 
         public class RegisterUserRegisteredTwice : CallsMatchingHandlersInRegistrationOrderEventHandler<IUserEvent>
         {
-            private int _calls = 0;
+            int _calls = 0;
             public int Handler1CallOrder = 0;
             public int Handler2CallOrder = 0;
             public RegisterUserRegisteredTwice()

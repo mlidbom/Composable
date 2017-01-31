@@ -8,7 +8,7 @@ namespace CQRS.Tests.CQRS.EventSourcing.AggregateRoot.NestedEntitiesTests.GuidId
     public class Root : AggregateRoot<Root, RootEvent.Implementation.Root, RootEvent.IRoot>
     {
         public string Name { get; private set; }
-        private readonly Entity.CollectionManager _entities;
+        readonly Entity.CollectionManager _entities;
         public Component Component { get; private set; }
 
         public Root(string name) : base(new DateTimeNowTimeSource())

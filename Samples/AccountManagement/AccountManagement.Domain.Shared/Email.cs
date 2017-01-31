@@ -11,14 +11,14 @@ namespace AccountManagement.Domain.Shared
     /// </summary>
     public class Email : ValueObject<Email>
     {
-        private string Value { get; set; }
+        string Value { get; set; }
 
         public override string ToString()
         {
             return Value;
         }
 
-        private Email(string emailAddress)
+        Email(string emailAddress)
         {
             Validate(emailAddress);
             Value = emailAddress;
@@ -57,7 +57,7 @@ namespace AccountManagement.Domain.Shared
         }
 
         //Note how all the exceptions contain the invalid email address. Always make sure that exceptions contain the relevant information.
-        private static void Validate(string emailAddress)
+        static void Validate(string emailAddress)
         {
             if(!IsValidEmail(emailAddress))
             {

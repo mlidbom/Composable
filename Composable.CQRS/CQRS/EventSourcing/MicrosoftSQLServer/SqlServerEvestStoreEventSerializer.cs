@@ -9,7 +9,7 @@ using Newtonsoft.Json.Serialization;
 
 namespace Composable.CQRS.EventSourcing.MicrosoftSQLServer
 {
-    internal class SqlServerEvestStoreEventSerializer
+    class SqlServerEvestStoreEventSerializer
     {
         public static readonly JsonSerializerSettings JsonSettings = NewtonSoft.JsonSettings.SqlEventStoreSerializerSettings;
 
@@ -24,7 +24,7 @@ namespace Composable.CQRS.EventSourcing.MicrosoftSQLServer
         }
     }
 
-    internal class SqlServerDebugEventStoreEventSerializer
+    class SqlServerDebugEventStoreEventSerializer
     {
         public class DebugPrintingContractsResolver : Newtonsoft.Json.Serialization.DefaultContractResolver
         {
@@ -68,7 +68,7 @@ namespace Composable.CQRS.EventSourcing.MicrosoftSQLServer
         }
     }
 
-    internal class SqlDecimalConverter : JsonConverter
+    class SqlDecimalConverter : JsonConverter
     {
         public override void WriteJson(JsonWriter writer, object valuee, JsonSerializer serializer)
         {

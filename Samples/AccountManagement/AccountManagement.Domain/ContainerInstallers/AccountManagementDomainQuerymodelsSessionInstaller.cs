@@ -14,7 +14,7 @@ namespace AccountManagement.Domain.ContainerInstallers
     [UsedImplicitly]
     public class AccountManagementDomainQuerymodelsSessionInstaller : IWindsorInstaller
     {
-        private static readonly SqlServerDocumentDbRegistration Registration = new SqlServerDocumentDbRegistration<AccountManagementDomainQuerymodelsSessionInstaller>();
+        static readonly SqlServerDocumentDbRegistration Registration = new SqlServerDocumentDbRegistration<AccountManagementDomainQuerymodelsSessionInstaller>();
 
         public void Install(
             IWindsorContainer container,

@@ -19,11 +19,11 @@ namespace CQRS.Tests.ServiceBus
     [TestFixture]
     public class WhenDummyTimeSourceTimeIsChanged
     {
-        private IServiceBus _bus;
-        private MessageReceiver _messageReceiver;
-        private DummyTimeSource _timeSource;
-        private IDisposable _scope;
-        private WindsorContainer _container;
+        IServiceBus _bus;
+        MessageReceiver _messageReceiver;
+        DummyTimeSource _timeSource;
+        IDisposable _scope;
+        WindsorContainer _container;
         [SetUp]
         public void SetupTask()
         {
@@ -85,7 +85,7 @@ namespace CQRS.Tests.ServiceBus
 
         public class MessageReceiver : IHandleMessages<ScheduledMessage>
         {
-            private readonly List<ScheduledMessage> _receivedMessages = new List<ScheduledMessage>();
+            readonly List<ScheduledMessage> _receivedMessages = new List<ScheduledMessage>();
             public IReadOnlyList<ScheduledMessage> ReceivedMessages => _receivedMessages;
 
             public void Handle(ScheduledMessage message) { _receivedMessages.Add(message); }

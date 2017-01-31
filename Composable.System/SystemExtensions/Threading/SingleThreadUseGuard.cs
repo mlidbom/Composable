@@ -5,7 +5,7 @@ namespace Composable.SystemExtensions.Threading
     ///<summary>Ensures that guarded components are used within one thread only.</summary>
     public class SingleThreadUseGuard : UsageGuard
     {
-        private readonly Thread _owningThread;
+        readonly Thread _owningThread;
 
         ///<summary>Default constructor associates the instance with the current thread.</summary>
         public SingleThreadUseGuard()

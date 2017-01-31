@@ -9,7 +9,7 @@ namespace Core.Tests
     [TestFixture]
     public class EnumExtensionsTest
     {
-        private enum Flaggy
+        enum Flaggy
         {
             Flag1 = 1,
             Flag2 = 2,

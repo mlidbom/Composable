@@ -18,7 +18,7 @@ namespace AccountManagement.Domain
 
         //No public constructors please. Aggregates are created through domain verbs. 
         //Expose named factory methods that ensure the instance is valid instead. See register method below.
-        private Account():base(new DateTimeNowTimeSource())
+        Account():base(new DateTimeNowTimeSource())
         {
             //Maintain correct state as events are raised or read from the store. 
             //Use property updated events whenever possible. Changes to public state should be represented by property updated events.

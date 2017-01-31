@@ -8,7 +8,7 @@ namespace Composable.HyperBus.DemoApp.Client
 {
     public class D020AwaitingCascadeActivation
     {
-        private IApiNavigator<EmptyResource> Navigator { get; }
+        IApiNavigator<EmptyResource> Navigator { get; }
 
         public async Task DemoNavigatorUsageÁndAwaitingCascade()
         {

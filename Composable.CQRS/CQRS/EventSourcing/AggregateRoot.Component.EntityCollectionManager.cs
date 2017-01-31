@@ -33,9 +33,9 @@ namespace Composable.CQRS.EventSourcing
             {
                 protected static readonly TEventEntityIdSetterGetter IdGetter = new TEventEntityIdSetterGetter();
 
-                private readonly TParent _parent;
+                readonly TParent _parent;
                 protected readonly EntityCollection<TEntity, TEntityId> ManagedEntities;
-                private readonly Action<TEntityBaseEventClass> _raiseEventThroughParent;
+                readonly Action<TEntityBaseEventClass> _raiseEventThroughParent;
                 protected EntityCollectionManager
                     (TParent parent,
                      Action<TEntityBaseEventClass> raiseEventThroughParent,

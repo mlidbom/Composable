@@ -7,7 +7,7 @@ namespace Composable.HyperBus.DemoApp.Client
 {
     public class D000ManualBusUsage
     {
-        private IHyperBus Bus { get; }
+        IHyperBus Bus { get; }
 
         public async Task DemoDirectBusUsage()
         {

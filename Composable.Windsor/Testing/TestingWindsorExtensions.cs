@@ -90,7 +90,7 @@ namespace Composable.Windsor.Testing
             }
         }
 
-        private static string CreateStackTrace(Exception exception)
+        static string CreateStackTrace(Exception exception)
         {
             return GetNestedExceptionsList(exception)
                 .Reverse()
@@ -102,7 +102,7 @@ namespace Composable.Windsor.Testing
                 .Join(string.Format("{0}   ---End of inner stack trace---{0}{0}", Environment.NewLine));
         }
 
-        private static IEnumerable<Exception> GetNestedExceptionsList(Exception exception)
+        static IEnumerable<Exception> GetNestedExceptionsList(Exception exception)
         {
             yield return exception;
             while(exception.InnerException != null)

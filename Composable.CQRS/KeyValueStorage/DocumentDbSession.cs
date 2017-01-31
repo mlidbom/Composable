@@ -16,15 +16,15 @@ namespace Composable.KeyValueStorage
         [ThreadStatic]
         internal static bool UseUpdateLock;
 
-        private readonly InMemoryObjectStore _idMap = new InMemoryObjectStore();
+        readonly InMemoryObjectStore _idMap = new InMemoryObjectStore();
 
         public readonly IDocumentDb BackingStore;
         public readonly IDocumentDbSessionInterceptor Interceptor;        
         public readonly ISingleContextUseGuard UsageGuard;
 
-        private readonly IDictionary<DocumentKey, DocumentItem> _handledDocuments = new Dictionary<DocumentKey, DocumentItem>(); 
+        readonly IDictionary<DocumentKey, DocumentItem> _handledDocuments = new Dictionary<DocumentKey, DocumentItem>();
 
-        private static readonly ILog Log = LogManager.GetLogger(typeof(DocumentDbSession));
+        static readonly ILog Log = LogManager.GetLogger(typeof(DocumentDbSession));
 
         //Review:mlidbo: Always requiring an interceptor causes a lot of unneeded complexity for clients. Consider creating a virtual void OnFirstLoad(T document) method instead. This would allow for inheriting this class to create "interceptable" sessions. Alternatively maybe an observable/event could be used somehow.
         public DocumentDbSession(IDocumentDb backingStore, ISingleContextUseGuard usageGuard, IDocumentDbSessionInterceptor interceptor)
@@ -41,7 +41,7 @@ namespace Composable.KeyValueStorage
             return TryGetInternal(key, typeof(TValue), out document);
         }
 
-        private bool TryGetInternal<TValue>(object key, Type documentType, out TValue value)
+        bool TryGetInternal<TValue>(object key, Type documentType, out TValue value)
         {
             if(documentType.IsInterface)
             {
@@ -64,7 +64,7 @@ namespace Composable.KeyValueStorage
             return false;
         }
 
-        private DocumentItem GetDocumentItem(object key, Type documentType)
+        DocumentItem GetDocumentItem(object key, Type documentType)
         {
             DocumentItem doc;
             var documentKey = new DocumentKey(key, documentType);
@@ -77,7 +77,7 @@ namespace Composable.KeyValueStorage
             return doc;
         }
 
-        private void OnInitialLoad(object key, object value)
+        void OnInitialLoad(object key, object value)
         {
             _idMap.Add(key, value);
             GetDocumentItem(key, value.GetType()).DocumentLoadedFromBackingStore(value);
@@ -103,7 +103,7 @@ namespace Composable.KeyValueStorage
             }
         }
 
-        private class UpdateLock : IDisposable
+        class UpdateLock : IDisposable
         {
             public UpdateLock()
             {
@@ -222,7 +222,7 @@ namespace Composable.KeyValueStorage
             }
         }
 
-        private void InternalSaveChanges()
+        void InternalSaveChanges()
         {
             Log.DebugFormat("{0} saving changes. Unit of work: {1}",_id, _unitOfWork ?? (object)"null");            
             _handledDocuments.ForEach(p => p.Value.CommitChangesToBackingStore());
@@ -255,9 +255,9 @@ namespace Composable.KeyValueStorage
             return "{0}: {1}".FormatWith(_id, GetType().FullName);
         }
 
-        private IUnitOfWork _unitOfWork;
-        private readonly Guid _id = Guid.NewGuid();
-        private Dictionary<Type, Dictionary<string, string>> _persistentValues = new Dictionary<Type, Dictionary<string, string>>();
+        IUnitOfWork _unitOfWork;
+        readonly Guid _id = Guid.NewGuid();
+        Dictionary<Type, Dictionary<string, string>> _persistentValues = new Dictionary<Type, Dictionary<string, string>>();
 
 
         IUnitOfWork IUnitOfWorkParticipant.UnitOfWork { get { return _unitOfWork; } }

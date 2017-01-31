@@ -7,7 +7,7 @@ namespace Composable.System.Web
     ///<summary>Adds extension that assigns and tracks a unique Guid to each HttpRequest</summary>
     public static class HttpRequestIdSupplier
     {
-        private const string UniqueRequestId = "__Unique_Request_Id";
+        const string UniqueRequestId = "__Unique_Request_Id";
 
         ///<summary>Returns the unique Guid of the current request</summary>
         public static Guid Id(this HttpRequest me)

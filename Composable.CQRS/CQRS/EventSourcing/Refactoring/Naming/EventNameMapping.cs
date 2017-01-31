@@ -5,7 +5,7 @@ namespace Composable.CQRS.EventSourcing.Refactoring.Naming
 {
     public class EventNameMapping
     {
-        private string _fullName;
+        string _fullName;
         public EventNameMapping(Type type)
         {
             Type = type;

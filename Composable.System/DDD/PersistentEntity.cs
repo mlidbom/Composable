@@ -26,7 +26,7 @@ namespace Composable.DDD
             Id = id;
         }
 
-        private TKEy _id;
+        TKEy _id;
 
         /// <inheritdoc />
         public virtual TKEy Id { get { return _id; } private set { _id = value; } }

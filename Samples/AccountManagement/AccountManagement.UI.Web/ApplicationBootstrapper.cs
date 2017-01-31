@@ -24,7 +24,7 @@ namespace AccountManagement.UI.Web
             SharedWiring(container);
         }
 
-        private static void SharedWiring(IWindsorContainer container)
+        static void SharedWiring(IWindsorContainer container)
         {
             container.Register(
                 Component.For<IWindsorContainer>().Instance(container),

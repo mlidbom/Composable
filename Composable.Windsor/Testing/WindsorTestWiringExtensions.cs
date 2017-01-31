@@ -43,7 +43,7 @@ namespace Composable.Windsor.Testing
 
     public class ExecuteActionsWhenRewiringForTests : IExecuteActionsWhenRewiringForTesting
     {
-        private readonly IWindsorContainer Container;
+        readonly IWindsorContainer Container;
 
         public ExecuteActionsWhenRewiringForTests(IWindsorContainer container)
         {
@@ -60,9 +60,9 @@ namespace Composable.Windsor.Testing
             return this;
         }
 
-        private class LambdaBasedTestRewirer : IConfigureWiringForTests
+        class LambdaBasedTestRewirer : IConfigureWiringForTests
         {
-            private readonly Action _action;
+            readonly Action _action;
 
             public LambdaBasedTestRewirer(Action action)
             {

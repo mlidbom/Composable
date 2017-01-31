@@ -53,10 +53,10 @@ namespace Composable.CQRS.EventSourcing.Refactoring.Naming
                 );
         }
 
-        private readonly Dictionary<string, Type> _nameToTypeMappings;
-        private readonly Dictionary<Type, string> _typeToNameMappings;
+        readonly Dictionary<string, Type> _nameToTypeMappings;
+        readonly Dictionary<Type, string> _typeToNameMappings;
 
-        private static void AssertMappingsAreValid(EventNameMapping[] mappings)
+        static void AssertMappingsAreValid(EventNameMapping[] mappings)
         {
             var detectedDuplicate = mappings.GroupBy(mapping => mapping.FullName)
                                             .Where(grouping => grouping.Count() > 1)

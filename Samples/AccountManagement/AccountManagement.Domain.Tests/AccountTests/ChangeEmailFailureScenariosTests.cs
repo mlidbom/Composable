@@ -7,7 +7,7 @@ namespace AccountManagement.Domain.Tests.AccountTests
 {
     public class ChangeEmailFailureScenariosTests : DomainTestBase
     {
-        private ChangeAccountEmailScenario _changeEmail;
+        ChangeAccountEmailScenario _changeEmail;
 
         [SetUp]
         public void RegisterAccount()

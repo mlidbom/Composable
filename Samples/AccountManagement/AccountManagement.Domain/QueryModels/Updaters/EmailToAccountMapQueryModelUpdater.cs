@@ -8,8 +8,8 @@ namespace AccountManagement.Domain.QueryModels.Updaters
     [UsedImplicitly]
     public class EmailToAccountMapQueryModelUpdater : IHandleMessages<IAccountEmailPropertyUpdatedEvent>
     {
-        private readonly IAccountManagementDomainQueryModelSession _querymodels;
-        private readonly IAccountRepository _repository;
+        readonly IAccountManagementDomainQueryModelSession _querymodels;
+        readonly IAccountRepository _repository;
 
         public EmailToAccountMapQueryModelUpdater(IAccountManagementDomainQueryModelSession querymodels, IAccountRepository repository)
         {

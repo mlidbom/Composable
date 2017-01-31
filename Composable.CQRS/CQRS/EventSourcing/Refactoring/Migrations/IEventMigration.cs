@@ -4,11 +4,13 @@ namespace Composable.CQRS.EventSourcing.Refactoring.Migrations
 {
     ///<summary>Defines an identity for migration of events into other events. Creates </summary>
     public interface IEventMigration
-    {
-        Guid Id { get; }//Todo: Complete persisting of migrations including writing this data to the store.
+    {        
+        // ReSharper disable UnusedMember.Global
+        Guid Id { get; }//Todo: Complete persisting of migrations including writing this data to the store.                
         string Name { get; }
         string Description { get; }
         bool Done { get; }
+        // ReSharper restore UnusedMember.Global
 
         ///<summary>The event interface that is the root of the event hierarchy for the aggregate whose events this migration modifies</summary>
         Type MigratedAggregateEventHierarchyRootInterface { get; }

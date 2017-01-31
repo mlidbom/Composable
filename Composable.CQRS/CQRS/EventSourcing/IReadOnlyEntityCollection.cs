@@ -7,7 +7,8 @@ namespace Composable.CQRS.EventSourcing
     {
         [Pure]
         IReadOnlyList<TEntity> InCreationOrder { get; }
-        bool TryGet(TEntityId id, out TEntity component); //todo:write test
+        // ReSharper disable once UnusedMember.Global todo:write test
+        bool TryGet(TEntityId id, out TEntity component);
         [Pure]
         bool Exists(TEntityId id);
         [Pure]

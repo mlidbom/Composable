@@ -8,18 +8,6 @@ namespace Composable.CQRS.EventSourcing.MicrosoftSQLServer
         public abstract string Name { get; }
         public abstract string CreateTableSql { get; }
 
-        public void DropIfExists(SqlConnection connection)
-        {
-            using (var dropCommand = connection.CreateCommand())
-            {
-                dropCommand.CommandText =
-                    $@"IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[{Name}]') AND type in (N'U'))
-DROP TABLE [dbo].[{Name}]";
-
-                dropCommand.ExecuteNonQuery();
-            }
-        }
-
         public bool Exists(SqlConnection connection)
         {
             using (var checkForTableCommand = connection.CreateCommand())

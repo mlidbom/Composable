@@ -3,6 +3,7 @@ using Composable.CQRS.EventSourcing;
 
 namespace Composable.Persistence
 {
+    // ReSharper disable once UnusedMember.Global todo: write tests
     abstract class SingleAggregateRelationalQueryModelUpdater<TImplementer, TQueryModel, TRootEventHandled, TSession> :
         CallsMatchingHandlersInRegistrationOrderEventHandler<TRootEventHandled>
         where TImplementer : SingleAggregateRelationalQueryModelUpdater<TImplementer, TQueryModel, TRootEventHandled, TSession>

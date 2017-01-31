@@ -132,20 +132,13 @@
     </Compile>
     <Compile Include="CQRS\AggregateRepository.cs" />
     <Compile Include="CQRS\Command\Command.cs" />
-    <Compile Include="CQRS\Command\CommandDomainValidationExceptionResponse.cs" />
-    <Compile Include="CQRS\Command\CommandExecutionExceptionResponse.cs" />
-    <Compile Include="CQRS\Command\CommandHandlerBase.cs" />
     <Compile Include="CQRS\Command\CommandResult.cs" />
     <Compile Include="CQRS\Command\CommandService.cs" />
-    <Compile Include="CQRS\Command\CommandSuccessResponse.cs" />
     <Compile Include="CQRS\Command\CompositeCommand.cs" />
     <Compile Include="CQRS\Command\DomainCommandValidationException.cs" />
     <Compile Include="CQRS\Command\ICommand.cs" />
-    <Compile Include="CQRS\Command\ICommandFailedResponse.cs" />
     <Compile Include="CQRS\Command\ICommandHandler.cs" />
-    <Compile Include="CQRS\Command\ICommandResponseMessage.cs" />
     <Compile Include="CQRS\Command\ICommandService.cs" />
-    <Compile Include="CQRS\Command\ICommandSuccessResponse.cs" />
     <Compile Include="CQRS\Command\ISubCommand.cs" />
     <Compile Include="CQRS\Command\SubCommand.cs" />
     <Compile Include="CQRS\EventHandling\CallMatchingHandlersInRegistrationOrderEventDispatcher.cs" />
@@ -267,7 +260,6 @@
     <Compile Include="CQRS\EventHandling\CallsMatchingHandlersInRegistrationOrderEventHandler.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ServiceBus\TestingOnlyServiceBus.cs" />
-    <Compile Include="StuffThatDoesNotBelongHere\MultiEventHandler.cs" />
     <Compile Include="UnitsOfWork\AttemptingToJoinSecondUnitOfWorkException.cs" />
     <Compile Include="UnitsOfWork\IUnitOfWork.cs" />
     <Compile Include="UnitsOfWork\IUnitOfWorkParticipant.cs" />
@@ -305,7 +297,6 @@
   <ItemGroup>
     <Folder Include="CQRS\ViewModels\" />
     <Folder Include="Persistence\Testing\" />
-    <Folder Include="StuffThatDoesNotBelongHere\Translation\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

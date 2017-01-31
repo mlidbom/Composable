@@ -34,12 +34,6 @@ namespace Composable.DomainEvents
             Contract.Invariant(ManualSubscribers != null);
         }
        
-        /// <summary>
-        /// Registers a callback for the given domain event.
-        /// Should only be used for testing. Implement <see cref="IHandles{TEvent}"/> for normal usage
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="callback"></param>
         [Obsolete("Only use if you are really sure you know what you are doing. Any use except to wrap synchronous calls in a using block may behave erratically with for instance the asp.net threading model...")]
         public static IDisposable RegisterShortTermSynchronousListener<T>(Action<T> callback) where T : IDomainEvent
         {
@@ -62,14 +56,6 @@ namespace Composable.DomainEvents
             }
         }
 
-
-        /// <summary>
-        /// Raises the given domain event
-        /// All implementors of <see cref="IHandles{T}"/> will be instantiated and called.
-        /// All registered <see cref="Action{T}"/> instances will be invoked
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="args"></param>
         [ContractVerification(false)]
         public static void Raise<T>(T args) where T : IDomainEvent
         {

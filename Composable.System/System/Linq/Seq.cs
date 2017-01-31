@@ -40,7 +40,7 @@ namespace Composable.System.Linq
         ///<summary>Returns a sequence of types matching the supplied type arguments</summary>
         public static IEnumerable<Type> OfTypes<T1>()
         {
-            return Seq.Create(typeof(T1));
+            return Create(typeof(T1));
         }
 
         ///<summary>Returns a sequence of types matching the supplied type arguments</summary>

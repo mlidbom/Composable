@@ -109,7 +109,7 @@ namespace Composable.ServiceBus
             internal void Invoke(object message)
             {
                 var handler = HandlerCreator();
-                new MessageHandlerMethod(ImplementingClass, this.GenericInterfaceImplemented).Invoke(handler, message);
+                new MessageHandlerMethod(ImplementingClass, GenericInterfaceImplemented).Invoke(handler, message);
             }
 
             internal MethodInfo GetHandlerMethod()

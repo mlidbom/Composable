@@ -71,7 +71,7 @@ namespace Composable.KeyValueStorage
 
             if (!_handledDocuments.TryGetValue(documentKey, out doc))
             {                
-                doc = new DocumentItem(documentKey, BackingStore, this._persistentValues);
+                doc = new DocumentItem(documentKey, BackingStore, _persistentValues);
                 _handledDocuments.Add(documentKey, doc);
             }
             return doc;

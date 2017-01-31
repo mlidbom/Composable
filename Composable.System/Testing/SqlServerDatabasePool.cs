@@ -267,6 +267,7 @@ CREATE TABLE [dbo].[{ManagerTableSchema.TableName}](
             }
         }
 
+        // ReSharper disable once UnusedMember.Global
         public void RemoveAllDatabases()
         {
             var dbsToDrop = new List<string>();

@@ -13,6 +13,7 @@ using CQRS.Tests.CQRS.EventHandling.CVManagement.QueryModelUpdaters;
 using FluentAssertions;
 using Moq;
 using NUnit.Framework;
+// ReSharper disable UnusedMember.Global
 
 namespace CQRS.Tests.CQRS.EventHandling
 {

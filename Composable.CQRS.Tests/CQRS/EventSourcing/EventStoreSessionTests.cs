@@ -291,6 +291,7 @@ namespace CQRS.Tests.CQRS.EventSourcing
             }
         }
 
+        //todo:remove this
         private class MockServiceBus : IServiceBus
         {
             public List<IAggregateRootEvent> Published = new List<IAggregateRootEvent>();
@@ -300,12 +301,9 @@ namespace CQRS.Tests.CQRS.EventSourcing
             public void Send(object message) { throw new NotSupportedException(); }
             public void Reply(object message) { throw new NotImplementedException(); }
             public void SendAtTime(DateTime sendAt, object message) { throw new NotImplementedException(); }
-            public void Replay(object message)
-            {
-                throw new NotImplementedException();
-            }
         }
 
+        //todo:remove this
         private class MockEventStore : IEventStore
         {
             public List<IAggregateRootEvent> SavedEvents = new List<IAggregateRootEvent>();
@@ -316,11 +314,9 @@ namespace CQRS.Tests.CQRS.EventSourcing
             public IEnumerable<IAggregateRootEvent> GetAggregateHistory(Guid id) { throw new NotSupportedException(); }
             public void SaveEvents(IEnumerable<IAggregateRootEvent> events) { SavedEvents.AddRange(events); }
             public void StreamEvents(int batchSize, Action<IReadOnlyList<IAggregateRootEvent>> handleEvents) { throw new NotImplementedException(); }
-            public IEnumerable<IAggregateRootEvent> StreamEvents() { throw new NotSupportedException(); }
             public void DeleteEvents(Guid aggregateId) { DeletedAggregates.Add(aggregateId); }
             public void PersistMigrations() { throw new NotImplementedException(); }
             public IEnumerable<Guid> StreamAggregateIdsInCreationOrder(Type eventBaseType = null) { throw new NotImplementedException(); }
-            public IEnumerable<Guid> StreamAggregateIdsInCreationOrder() { throw new NotImplementedException(); }
         }
 
         [Test]

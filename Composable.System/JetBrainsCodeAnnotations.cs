@@ -17,6 +17,7 @@
 #pragma warning disable 1591
 
 using System;
+// ReSharper disable UnusedMember.Global
 
 // ReSharper disable CheckNamespace
 namespace JetBrains.Annotations

@@ -306,16 +306,6 @@ WHERE ValueTypeId ";
             }
         }
 
-        private bool _disposed;
-
-        public void Dispose()
-        {
-            if(!_disposed)
-            {
-                _disposed = true;
-            }
-        }
-
         private SqlConnection OpenSession()
         {
             return OpenSession(ConnectionString);

@@ -46,7 +46,7 @@ namespace Composable.CQRS.EventSourcing
             theEvent.UtcTimeStamp = TimeSource.UtcNow;
             if (Version == 0)
             {
-                if(!theEvent.IsInstanceOf<IAggregateRootCreatedEvent>())
+                if(!(theEvent is IAggregateRootCreatedEvent))
                 {
                     throw new Exception($"The first raised event type {theEvent.GetType()} did not inherit {nameof(IAggregateRootCreatedEvent)}");
                 }

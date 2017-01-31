@@ -66,7 +66,7 @@ namespace Composable.CQRS.EventSourcing
 
                 public TEntityId Id { get; private set; }
 
-                public  static CollectionManager CreateSelfManagingCollection(TComponent parent)
+                public  static CollectionManager CreateSelfManagingCollection(TComponent parent)//todo:tests
                   =>
                       new CollectionManager(
                           parent: parent,

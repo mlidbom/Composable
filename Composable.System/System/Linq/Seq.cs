@@ -151,7 +151,8 @@ namespace Composable.System.Linq
             return OfTypes<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18>().Append(typeof(T19));
         }
 
-        ///<summary>Returns a sequence of types matching the supplied type arguments</summary>
+        // ReSharper disable once UnusedMember.Global
+        ///<summary>Returns a sequence of types matching the supplied type arguments</summary>        
         public static IEnumerable<Type> OfTypes<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20>()
         {
             return OfTypes<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19>().Append(typeof(T20));

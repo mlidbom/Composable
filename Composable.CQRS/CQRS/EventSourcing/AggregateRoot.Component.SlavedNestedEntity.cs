@@ -20,6 +20,7 @@ namespace Composable.CQRS.EventSourcing
             /// Inheritors must implement the add/remove behavior themselves. 
             /// Usually this is implemented within a nested class that inherits from <see cref="EntityCollectionManagerBase{TParent}"/>           
             /// </summary>
+            //todo:tests
             public abstract class SlavedNestedEntity<TEntity,
                                                TEntityId,
                                                TEntityBaseEventClass,

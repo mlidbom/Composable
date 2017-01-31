@@ -2,7 +2,6 @@
 
 using System;
 using System.Diagnostics.Contracts;
-using System.Web.Script.Serialization;
 
 #endregion
 
@@ -66,41 +65,6 @@ namespace Composable.System
             Contract.Requires(me != null && action != null);
             action(me);
             return me;
-        }
-
-        /// <summary>
-        /// Modifies the instance using the supplied <paramref name="modifier"/> and then returns the instance.
-        /// </summary>
-        public static T Modify<T>(this T objectToModify, Action<T> modifier)
-        {
-            Contract.Requires(objectToModify != null && modifier != null);
-            return objectToModify.Do(modifier);
-        }
-
-        ///<summary>Returns true if <paramref name="this"/> is an instance of the type <paramref name="type"/></summary>
-        public static bool IsInstanceOf(this object @this, Type type)
-        {
-            return type.IsInstanceOfType(@this);
-        }
-
-        ///<summary>Returns true if <paramref name="this"/> is an instance of the type <typeparam name="T"/></summary>
-        public static bool IsInstanceOf<T>(this object @this)
-        {
-            return @this is T;
-        }
-
-
-        ///<returns>A JSON serialized version of the instance.</returns>
-        public static string ToDebugJsonString(this object @this)
-        {
-            try
-            {
-                return @this.GetType().FullName + ":" + new JavaScriptSerializer().Serialize(@this);
-            }
-            catch (Exception)
-            {
-                return @this.GetType().FullName;
-            }
         }
     }
 }

@@ -158,18 +158,5 @@ namespace Composable.KeyValueStorage
                     .ToList();
             }
         }
-
-        public void Dispose()
-        {
-            //Not really anything much to do here....
-        }
-
-        public void Clear()
-        {
-            lock(_lockObject)
-            {
-                _db = new Dictionary<string, List<object>>();
-            }
-        }
     }
 }

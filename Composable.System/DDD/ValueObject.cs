@@ -14,7 +14,9 @@ using System.Web.Script.Serialization;
 
 namespace Composable.DDD
 {
-    ///<summary>Base class for value objects that implements value equality 
+    ///<summary>
+    /// Base class for value objects that implements value equality based on instance fields.
+    /// Properties are ignored when comparing. Only fields are used.
     ///</summary>
     ///<typeparam name="T"></typeparam>
     public abstract class ValueObject<T> : IEquatable<T> where T : ValueObject<T>
@@ -33,7 +35,7 @@ namespace Composable.DDD
         /// <see cref="object.GetHashCode"/>
         public override int GetHashCode()
         {
-            var fields = MemberAccessorHelper<T>.GetFieldsAndProperties(GetType());
+            var fields = MemberAccessorHelper<T>.GetFieldGetters(GetType());
 
             const int startValue = 17;
             const int multiplier = 59;
@@ -73,7 +75,7 @@ namespace Composable.DDD
             if(myType != otherType)
                 return false;
 
-            var fields = MemberAccessorHelper<T>.GetFieldsAndProperties(GetType());
+            var fields = MemberAccessorHelper<T>.GetFieldGetters(GetType());
 
             for(var i = 0; i < fields.Length; i++)
             {

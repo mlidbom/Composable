@@ -27,14 +27,7 @@ namespace Composable.Tests.DDD
             public Address()
             {}
 
-            //todo: fix this crazy behavior. These tests should fail!
-            public string Address1 { get { return null; } }//ncrunch: no coverage
-
-            public string City { get { return null; } }//ncrunch: no coverage
-
-            public string Guid { get; set; }
-
-            public string[] States { get { return null; } }//ncrunch: no coverage
+            public string Guid { get;  set; }            
         }
 
         private class GuidHolder : ValueObject<GuidHolder>
@@ -55,9 +48,7 @@ namespace Composable.Tests.DDD
                 : base(address1, city, states)
             {
                 _address2 = address2;
-            }
-
-            public string Address2 { get { return _address2; } }
+            }            
         }
 
         [Test]

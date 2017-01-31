@@ -13,7 +13,7 @@ namespace AccountManagement.Domain.Shared
     {
         private string Value { get; set; }
 
-        override public string ToString()
+        public override string ToString()
         {
             return Value;
         }

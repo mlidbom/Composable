@@ -136,7 +136,7 @@ namespace CQRS.Tests.CQRS.EventSourcing
             return new InMemoryEventStore();
         }
 
-        override protected IEventStore CreateEventStore2()
+        protected override IEventStore CreateEventStore2()
         {
             return new InMemoryEventStore();
         }
@@ -170,7 +170,7 @@ namespace CQRS.Tests.CQRS.EventSourcing
             return new SqlServerEventStore(_connectionString1, new SingleThreadUseGuard());
         }
 
-        override protected IEventStore CreateEventStore2()
+        protected override IEventStore CreateEventStore2()
         {
             return new SqlServerEventStore(_connectionString2, new SingleThreadUseGuard());
         }

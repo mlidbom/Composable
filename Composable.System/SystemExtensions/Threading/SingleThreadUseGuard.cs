@@ -14,7 +14,7 @@ namespace Composable.SystemExtensions.Threading
         }
 
         ///<summary>Throws a <see cref="MultiThreadedUseException"/> if the current thread is different from the one that the instance was constructed in.</summary>
-        override protected void InternalAssertNoChangeOccurred(object guarded)
+        protected override void InternalAssertNoChangeOccurred(object guarded)
         {
             if (Thread.CurrentThread != _owningThread)
             {

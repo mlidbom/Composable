@@ -8,8 +8,8 @@ namespace Composable.CQRS.EventSourcing.MicrosoftSQLServer
     {
         private static readonly string LegacySqlTimeStamp = nameof(LegacySqlTimeStamp);
 
-        override public string Name { get; } = LegacyEventTable.Name;
-        override public string CreateTableSql { get { throw new NotImplementedException(); } }
+        public override string Name { get; } = LegacyEventTable.Name;
+        public override string CreateTableSql { get { throw new NotImplementedException(); } }
 
         private static readonly EventTableSchemaManager EventTableSchema = new EventTableSchemaManager();
         private static readonly EventTypeTableSchemaManager EventTypeTableSchema = new EventTypeTableSchemaManager();

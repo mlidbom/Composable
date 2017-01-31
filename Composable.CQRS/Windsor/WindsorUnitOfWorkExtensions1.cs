@@ -62,7 +62,7 @@ namespace Composable.Windsor
                 }                
             }
 
-            override public void Dispose()
+            public override void Dispose()
             {
                 CurrentScope = null;
                 if(!_committed)
@@ -72,14 +72,14 @@ namespace Composable.Windsor
                 _transactionScopeWeCreatedAndOwn.Dispose();
             }
 
-            override public void Commit()
+            public override void Commit()
             {
                 _unitOfWork.Commit();
                 _transactionScopeWeCreatedAndOwn.Complete();
                 _committed = true;
             }
 
-            override public bool IsActive {get { return !CommitCalled && !RollBackCalled && !InDoubtCalled; }}
+            public override bool IsActive {get { return !CommitCalled && !RollBackCalled && !InDoubtCalled; }}
 
             public bool PrepareCalled { get; private set; }
             public bool CommitCalled { get; private set; }
@@ -120,13 +120,13 @@ namespace Composable.Windsor
                 _outer = outer;
             }
 
-            override public void Dispose()
+            public override void Dispose()
             { }
 
-            override public void Commit()
+            public override void Commit()
             { }
 
-            override public bool IsActive { get { return _outer.IsActive; } }
+            public override bool IsActive { get { return _outer.IsActive; } }
         }
 
 

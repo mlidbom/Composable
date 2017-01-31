@@ -93,7 +93,7 @@ namespace CQRS.Tests.Command
             public EditCommand EditCommand { private get; set; }
             public SomethingCommand SomethingCommand { private get; set; }
 
-            override public IEnumerable<SubCommand> GetContainedCommands()
+            public override IEnumerable<SubCommand> GetContainedCommands()
             {
                 return new List<SubCommand>
                        {

@@ -37,7 +37,7 @@ namespace Composable.Tests.SystemExtensions.Threading
 
         class AlwayInDifferentContextUsageGuard : UsageGuard
         {
-            override protected void InternalAssertNoChangeOccurred(object guarded)
+            protected override void InternalAssertNoChangeOccurred(object guarded)
             {
                 throw new Exception();
             }

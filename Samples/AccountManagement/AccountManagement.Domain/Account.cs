@@ -29,7 +29,7 @@ namespace AccountManagement.Domain
 
         //Ensure that the state of the instance is sane. If not throw an exception.
         //Called after every call to RaiseEvent.
-        override protected void AssertInvariantsAreMet()
+        protected override void AssertInvariantsAreMet()
         {
             Contract.Invariant(() => Email, () => Password, () => Id).NotNullOrDefault();
         }

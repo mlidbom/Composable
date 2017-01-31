@@ -57,7 +57,7 @@ namespace Composable.KeyValueStorage
             _persistentValues.GetOrAddDefault(value.GetType())[idString] = stringValue;
         }
 
-        override public void Update(object key, object value)
+        public override void Update(object key, object value)
         {
             lock(_lockObject)
             {

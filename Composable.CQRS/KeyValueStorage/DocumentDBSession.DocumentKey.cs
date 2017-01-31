@@ -49,7 +49,7 @@ namespace Composable.KeyValueStorage
                 return Id.GetHashCode();
             }
 
-            override public string ToString()
+            public override string ToString()
             {
                 return "Id: {0}, Type: {1}".FormatWith(Id, Type);
             }

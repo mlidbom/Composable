@@ -20,7 +20,7 @@ namespace Composable.System.Web
         }
 
         ///<summary>Throws an exception if the request has changed since the guard was created.</summary>
-        override protected void InternalAssertNoChangeOccurred(object guarded)
+        protected override void InternalAssertNoChangeOccurred(object guarded)
         {
             var currentRequestId = _httpRequestIdFetcher.GetCurrent();
             if(_initialRequestId != currentRequestId)

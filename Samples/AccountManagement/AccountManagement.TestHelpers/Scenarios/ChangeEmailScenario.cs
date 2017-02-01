@@ -1,4 +1,5 @@
 ﻿using AccountManagement.Domain;
+using AccountManagement.Domain.Services;
 using AccountManagement.Domain.Shared;
 using Castle.Windsor;
 using Composable.CQRS.Windsor;
@@ -24,7 +25,7 @@ namespace AccountManagement.TestHelpers.Scenarios
 
         public void Execute()
         {      
-            _container.ExecuteUnitOfWork(() => Account.ChangeEmail(NewEmail));
+            _container.ExecuteUnitOfWork(() => _container.Resolve<IAccountRepository>().Get(Account.Id).ChangeEmail(NewEmail));
         }
     }
 }

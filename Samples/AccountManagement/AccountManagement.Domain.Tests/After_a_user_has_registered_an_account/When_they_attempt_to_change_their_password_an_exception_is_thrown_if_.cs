@@ -1,14 +1,12 @@
 ﻿using System;
-using AccountManagement.Domain.Shared;
 using AccountManagement.TestHelpers.Scenarios;
-using Composable.Contracts;
 using FluentAssertions;
 using NUnit.Framework;
 
-namespace AccountManagement.Domain.Tests.AccountTests
+namespace AccountManagement.Domain.Tests.After_a_user_has_registered_an_account
 {
     [TestFixture]
-    public class ChangePasswordFailureScenariosTests : DomainTestBase
+    public class When_they_attempt_to_change_their_password_an_exception_is_thrown_if_ : DomainTestBase
     {
         RegisterAccountScenario _registerAccountScenario;
         Account _account;
@@ -23,7 +21,7 @@ namespace AccountManagement.Domain.Tests.AccountTests
         }
 
         [Test]
-        public void WhenNewPasswordIsNullObjectNullExceptionIsThrown()
+        public void Password_is_null()
         {
             _changePasswordScenario.NewPassword = null;
             _changePasswordScenario
@@ -32,7 +30,7 @@ namespace AccountManagement.Domain.Tests.AccountTests
         }
 
         [Test]
-        public void WhenOldPasswordIsNullObjectNullExceptionIsThrown()
+        public void OldPassword_is_null()
         {
             _changePasswordScenario.OldPassword = null;
             _changePasswordScenario
@@ -41,7 +39,7 @@ namespace AccountManagement.Domain.Tests.AccountTests
         }
 
         [Test]
-        public void WhenOldPasswordIsEmptyStringIsEmptyExceptionIsThrown()
+        public void OldPassword_is_empty_string()
         {
             _changePasswordScenario.OldPassword = "";
             _changePasswordScenario
@@ -50,7 +48,7 @@ namespace AccountManagement.Domain.Tests.AccountTests
         }
 
         [Test]
-        public void WhenOldPasswordIsIncorrectWrongPasswordExceptionIsThrown()
+        public void OldPassword_is_not_the_current_password_of_the_account()
         {
             _changePasswordScenario.OldPassword = "Wrong";
             _changePasswordScenario

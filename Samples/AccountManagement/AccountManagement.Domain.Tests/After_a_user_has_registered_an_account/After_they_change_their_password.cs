@@ -18,7 +18,7 @@ namespace AccountManagement.Domain.Tests.After_a_user_has_registered_an_account
         }
 
         [Test]
-        public void An_IUserChangedAccountPasswordEvent_is_raised_is_published_on_the_bus()
+        public void An_IUserChangedAccountPasswordEvent_is_published_on_the_bus()
         {
             MessageSpy.ReceivedMessages
                 .OfType<IUserChangedAccountPasswordEvent>()

@@ -6,13 +6,13 @@ namespace Composable.CQRS.EventSourcing.MicrosoftSQLServer
 {
     class LegacyEventTableSchemaManager : TableSchemaManager
     {
-        private static readonly string LegacySqlTimeStamp = nameof(LegacySqlTimeStamp);
+        static readonly string LegacySqlTimeStamp = nameof(LegacySqlTimeStamp);
 
-        override public string Name { get; } = LegacyEventTable.Name;
-        override public string CreateTableSql { get { throw new NotImplementedException(); } }
+        public override string Name { get; } = LegacyEventTable.Name;
+        public override string CreateTableSql { get { throw new NotImplementedException(); } }
 
-        private static readonly EventTableSchemaManager EventTableSchema = new EventTableSchemaManager();
-        private static readonly EventTypeTableSchemaManager EventTypeTableSchema = new EventTypeTableSchemaManager();
+        static readonly EventTableSchemaManager EventTableSchema = new EventTableSchemaManager();
+        static readonly EventTypeTableSchemaManager EventTypeTableSchema = new EventTypeTableSchemaManager();
         public bool IsUsingLegacySchema(SqlConnection connection) { return Exists(connection); }
 
 
@@ -40,7 +40,7 @@ namespace Composable.CQRS.EventSourcing.MicrosoftSQLServer
             //http://blogs.msdn.com/b/dfurman/archive/2010/04/20/adding-the-identity-property-to-a-column-of-an-existing-table.aspx
             this.Log().Error(CreateMigrationScript(connection));
         }
-        private string CreateMigrationScript(SqlConnection connection) {
+        string CreateMigrationScript(SqlConnection connection) {
             return $@"
 /*Database is using a legacy schema. You need to migrate your data into the new schema.
 Paste this whole log mesage into a sql management studio window and it will uppgrade the database for you

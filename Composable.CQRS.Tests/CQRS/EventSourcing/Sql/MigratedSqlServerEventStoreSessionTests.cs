@@ -20,8 +20,8 @@ namespace CQRS.Tests.CQRS.EventSourcing.Sql
     [TestFixture]
     class MigratedSqlServerEventStoreSessionTests : NoSqlTest
     {
-        private string _connectionString;
-        private WindsorContainer _windsorContainer;
+        string _connectionString;
+        WindsorContainer _windsorContainer;
 
         protected DummyServiceBus Bus { get; private set; }
 

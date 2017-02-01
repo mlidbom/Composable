@@ -20,23 +20,23 @@ namespace Composable.KeyValueStorage.SqlServer
     {
         public readonly string ConnectionString;
 
-        private static readonly JsonSerializerSettings _jsonSettings = JsonSettings.JsonSerializerSettings;
+        static readonly JsonSerializerSettings _jsonSettings = JsonSettings.JsonSerializerSettings;
 
-        private const int UniqueConstraintViolationErrorNumber = 2627;
+        const int UniqueConstraintViolationErrorNumber = 2627;
 
-        private static readonly object StaticLockObject = new object();
+        static readonly object StaticLockObject = new object();
 
         public SqlServerDocumentDb(string connectionString)
         {
             ConnectionString = connectionString;
         }
 
-        private readonly ThreadSafeObservable<IDocumentUpdated> _documentUpdated = new ThreadSafeObservable<IDocumentUpdated>(); 
+        readonly ThreadSafeObservable<IDocumentUpdated> _documentUpdated = new ThreadSafeObservable<IDocumentUpdated>(); 
         public IObservable<IDocumentUpdated> DocumentUpdated { get { return _documentUpdated; } }
 
         public ConcurrentDictionary<Type, int> KnownTypes { get { return VerifiedConnections[ConnectionString]; } }
 
-        private Type GetTypeFromId(int id)
+        Type GetTypeFromId(int id)
         {
             return KnownTypes.Single(pair => pair.Value == id).Key;
         }
@@ -127,7 +127,7 @@ WHERE Id=@Id AND ValueTypeId
             }
         }
 
-        private static string GetIdString(object id)
+        static string GetIdString(object id)
         {
             return id.ToString().ToLower().TrimEnd(' ');
         }
@@ -306,19 +306,19 @@ WHERE ValueTypeId ";
             }
         }
 
-        private SqlConnection OpenSession()
+        SqlConnection OpenSession()
         {
             return OpenSession(ConnectionString);
         }
 
-        private static SqlConnection OpenSession(string connectionString)
+        static SqlConnection OpenSession(string connectionString)
         {
             var connection = new SqlConnection(connectionString);
             connection.Open();
             return connection;
         }
 
-        private void EnsureTypeRegistered(Type type)
+        void EnsureTypeRegistered(Type type)
         {
             lock(StaticLockObject)
             {
@@ -350,7 +350,7 @@ ELSE
             }
         }
 
-        private bool IsKnownType(Type type)
+        bool IsKnownType(Type type)
         {
             if(!KnownTypes.ContainsKey(type))
             {
@@ -359,7 +359,7 @@ ELSE
             return KnownTypes.ContainsKey(type);
         }
 
-        private void AddTypeCriteria(SqlCommand command, Type type)
+        void AddTypeCriteria(SqlCommand command, Type type)
         {
             lock(StaticLockObject)
             {
@@ -372,12 +372,12 @@ ELSE
             }
         }
 
-        private void EnsureInitialized()
+        void EnsureInitialized()
         {
             EnsureInitialized(ConnectionString);
         }
 
-        private static void EnsureInitialized(string connectionString)
+        static void EnsureInitialized(string connectionString)
         {
             lock(StaticLockObject)
             {
@@ -448,7 +448,7 @@ ALTER TABLE [dbo].[Store] CHECK CONSTRAINT [FK_ValueType_Store]
             }
         }
 
-        private static void RefreshKnownTypes(String connectionString, ConcurrentDictionary<Type, int> knownTypes)
+        static void RefreshKnownTypes(String connectionString, ConcurrentDictionary<Type, int> knownTypes)
         {
             lock(StaticLockObject)
             {
@@ -469,8 +469,7 @@ ALTER TABLE [dbo].[Store] CHECK CONSTRAINT [FK_ValueType_Store]
             }
         }
 
-
-        private static readonly ConcurrentDictionary<String, ConcurrentDictionary<Type, int>> VerifiedConnections = new ConcurrentDictionary<string, ConcurrentDictionary<Type, int>>();
+        static readonly ConcurrentDictionary<String, ConcurrentDictionary<Type, int>> VerifiedConnections = new ConcurrentDictionary<string, ConcurrentDictionary<Type, int>>();
 
         public static void ResetDB(string connectionString)
         {

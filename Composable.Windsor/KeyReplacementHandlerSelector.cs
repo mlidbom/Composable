@@ -9,11 +9,11 @@ namespace Composable.Windsor
     /// when the container is asked for a service with 'originalKey'
     /// Use it by adding it to the container at wire-up with container.Kernel.AddHandlerSelector(new KeyReplacementHandlerSelector(typeof([ComponentType]),"originalKey", "replacementKey"));
     /// </summary>
-    internal class KeyReplacementHandlerSelector : IHandlerSelector
+    class KeyReplacementHandlerSelector : IHandlerSelector
     {
-        private readonly Type _serviceType;
-        private readonly string _originalKey;
-        private readonly string _replacementKey;
+        readonly Type _serviceType;
+        readonly string _originalKey;
+        readonly string _replacementKey;
 
         public KeyReplacementHandlerSelector(Type serviceType, string originalKey, string replacementKey)
         {

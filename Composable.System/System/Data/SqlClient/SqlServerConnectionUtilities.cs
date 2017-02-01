@@ -5,7 +5,7 @@ namespace Composable.System.Data.SqlClient
 {
     public class SqlServerConnectionUtilities
     {
-        private string ConnectionString { get; }
+        string ConnectionString { get; }
         public SqlServerConnectionUtilities(string connectionString)
         {
             ConnectionString = connectionString;

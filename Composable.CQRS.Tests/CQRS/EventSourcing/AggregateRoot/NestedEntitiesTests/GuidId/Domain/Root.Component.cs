@@ -14,7 +14,7 @@ namespace CQRS.Tests.CQRS.EventSourcing.AggregateRoot.NestedEntitiesTests.GuidId
                 .For<RootEvent.Component.PropertyUpdated.Name>(e => Name = e.Name);
         }
 
-        private readonly Component.Entity.CollectionManager _entities;
+        readonly Component.Entity.CollectionManager _entities;
         public Component.NestedComponent InnerComponent { get; }
 
         public string Name { get; private set; }

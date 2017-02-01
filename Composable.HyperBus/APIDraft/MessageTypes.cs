@@ -1,5 +1,5 @@
 ﻿using System;
-// ReSharper disable UnusedMember.Global
+// ReSharper disable All
 
 namespace Composable.HyperBus.APIDraft
 {

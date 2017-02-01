@@ -2,10 +2,10 @@ using System.Collections.Generic;
 
 namespace Composable.CQRS.EventSourcing.Refactoring.Migrations
 {
-    internal class AssertMigrationsAreIdempotentEventModifier : IEventModifier
+    class AssertMigrationsAreIdempotentEventModifier : IEventModifier
     {
         public static readonly IEventModifier Instance = new AssertMigrationsAreIdempotentEventModifier();
-        private AssertMigrationsAreIdempotentEventModifier() { }
+        AssertMigrationsAreIdempotentEventModifier() { }
 
         public void Replace(params AggregateRootEvent[] events) { throw new NonIdempotentMigrationDetectedException(); }
 

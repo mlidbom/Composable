@@ -1,15 +1,13 @@
 using System;
 using System.Collections.Generic;
-using System.Data.SqlTypes;
 using System.Linq;
 using System.Reflection;
-using Composable.NewtonSoft;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 
 namespace Composable.CQRS.EventSourcing.MicrosoftSQLServer
 {
-    internal class SqlServerEvestStoreEventSerializer
+    class SqlServerEvestStoreEventSerializer
     {
         public static readonly JsonSerializerSettings JsonSettings = NewtonSoft.JsonSettings.SqlEventStoreSerializerSettings;
 
@@ -24,9 +22,9 @@ namespace Composable.CQRS.EventSourcing.MicrosoftSQLServer
         }
     }
 
-    internal class SqlServerDebugEventStoreEventSerializer
+    class SqlServerDebugEventStoreEventSerializer
     {
-        public class DebugPrintingContractsResolver : Newtonsoft.Json.Serialization.DefaultContractResolver
+        public class DebugPrintingContractsResolver : DefaultContractResolver
         {
             protected override IList<JsonProperty> CreateProperties(Type type, MemberSerialization memberSerialization)
             {
@@ -35,22 +33,7 @@ namespace Composable.CQRS.EventSourcing.MicrosoftSQLServer
                                 .ToList();
                 props.ForEach(p => { p.Writable = true; p.Readable = true; });
                 return props;
-            }
-
-            protected override JsonProperty CreateProperty(MemberInfo member, MemberSerialization memberSerialization)
-            {
-                var property = base.CreateProperty(member, memberSerialization);
-
-
-                if(property.PropertyType == typeof(SqlDecimal))
-                {
-                    property.Converter = new SqlDecimalConverter();
-                }
-
-
-                return property;
-
-            }
+            }            
         }
 
         public static readonly JsonSerializerSettings JsonSettings =
@@ -66,24 +49,6 @@ namespace Composable.CQRS.EventSourcing.MicrosoftSQLServer
         {
             return JsonConvert.SerializeObject(@event, formatting, JsonSettings);
         }
-    }
-
-    internal class SqlDecimalConverter : JsonConverter
-    {
-        public override void WriteJson(JsonWriter writer, object valuee, JsonSerializer serializer)
-        {
-            var value = (SqlDecimal)valuee;
-            if(value.IsNull)
-            {
-                writer.WriteNull();
-            }
-            else
-            {
-                writer.WriteValue(value.Value.ToString());
-            }
-        }
-        public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer) { throw new NotImplementedException(); }
-        public override bool CanConvert(Type objectType) { throw new NotImplementedException(); }
     }
 
     public static class AggregateRootEventDebugSerializer

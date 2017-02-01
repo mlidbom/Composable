@@ -4,9 +4,9 @@ using Composable.Contracts;
 
 namespace AccountManagement.Domain.Services
 {
-    internal class DuplicateAccountChecker : IDuplicateAccountChecker
+    class DuplicateAccountChecker : IDuplicateAccountChecker
     {
-        private readonly IAccountManagementDomainQueryModelSession _querymodels;
+        readonly IAccountManagementDomainQueryModelSession _querymodels;
 
         public DuplicateAccountChecker(IAccountManagementDomainQueryModelSession querymodels)
         {

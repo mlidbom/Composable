@@ -1,8 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-// ReSharper disable UnusedMember.Global
 
+// ReSharper disable All
 namespace Composable.HyperBus.APIDraft
 {
     public interface IMessageCascade

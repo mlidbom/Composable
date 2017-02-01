@@ -15,7 +15,7 @@ namespace Composable.CQRS.EventSourcing.Refactoring.Naming
             }
         }
 
-        private string CreateFullName(EventNameMapping mapping, EventRenamedFromAttribute renaming)
+        string CreateFullName(EventNameMapping mapping, EventRenamedFromAttribute renaming)
         {
             if(renaming.FullName != null)
             {

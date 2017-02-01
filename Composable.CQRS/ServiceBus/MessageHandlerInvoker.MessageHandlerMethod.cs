@@ -4,9 +4,9 @@ using System.Linq.Expressions;
 
 namespace Composable.ServiceBus
 {
-    internal class MessageHandlerMethod
+    class MessageHandlerMethod
     {
-        private Action<object, object> HandlerMethod { get; set; }
+        Action<object, object> HandlerMethod { get; set; }
 
         public MessageHandlerMethod(Type implementingClass, Type genericInterfaceImplemented)
         {
@@ -19,7 +19,7 @@ namespace Composable.ServiceBus
         }
 
         //Returns an action that can be used to invoke this handler for a specific type of message.
-        private static Action<object, object> CreateHandlerMethodInvoker(Type implementingClass, Type genericInterfaceImplemented)
+        static Action<object, object> CreateHandlerMethodInvoker(Type implementingClass, Type genericInterfaceImplemented)
         {
             var methodInfo = implementingClass.GetInterfaceMap(genericInterfaceImplemented).TargetMethods.Single();
             var messageHandlerParameter = Expression.Parameter(typeof(object));

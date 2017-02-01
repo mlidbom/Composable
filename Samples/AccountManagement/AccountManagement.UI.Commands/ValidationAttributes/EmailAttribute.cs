@@ -5,7 +5,7 @@ namespace AccountManagement.UI.Commands.ValidationAttributes
 {
     public class EmailAttribute : ValidationAttribute
     {
-        override public bool IsValid(object value)
+        public override bool IsValid(object value)
         {
             if(string.IsNullOrEmpty((string)value))
             {

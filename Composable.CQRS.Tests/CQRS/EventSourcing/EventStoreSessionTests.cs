@@ -292,7 +292,7 @@ namespace CQRS.Tests.CQRS.EventSourcing
         }
 
         //todo:remove this
-        private class MockServiceBus : IServiceBus
+        class MockServiceBus : IServiceBus
         {
             public List<IAggregateRootEvent> Published = new List<IAggregateRootEvent>();
 
@@ -304,7 +304,7 @@ namespace CQRS.Tests.CQRS.EventSourcing
         }
 
         //todo:remove this
-        private class MockEventStore : IEventStore
+        class MockEventStore : IEventStore
         {
             public List<IAggregateRootEvent> SavedEvents = new List<IAggregateRootEvent>();
             public List<Guid> DeletedAggregates = new List<Guid>();

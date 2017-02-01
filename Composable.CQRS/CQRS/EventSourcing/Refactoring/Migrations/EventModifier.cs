@@ -12,12 +12,12 @@ namespace Composable.CQRS.EventSourcing.Refactoring.Migrations
     //The performance of this class is extremely important since it is called at least once for every event that is loaded from the event store when you have any migrations activated. It is called A LOT.
     //This is one of those central classes for which optimization is actually vitally important.
     //Each of the optimizations were done with the help of a profiler and running benchmarks on the tested performance improvements time and time again.  
-    internal class EventModifier : IEventModifier
+    class EventModifier : IEventModifier
     {
-        private readonly Action<IReadOnlyList<AggregateRootEvent>> _eventsAddedCallback;
+        readonly Action<IReadOnlyList<AggregateRootEvent>> _eventsAddedCallback;
         internal LinkedList<AggregateRootEvent> Events;
-        private AggregateRootEvent[] _replacementEvents;
-        private AggregateRootEvent[] _insertedEvents;
+        AggregateRootEvent[] _replacementEvents;
+        AggregateRootEvent[] _insertedEvents;
 
         public EventModifier(Action<IReadOnlyList<AggregateRootEvent>> eventsAddedCallback)
         {
@@ -26,10 +26,10 @@ namespace Composable.CQRS.EventSourcing.Refactoring.Migrations
 
         public AggregateRootEvent Event;
 
-        private LinkedListNode<AggregateRootEvent> _currentNode;
-        private AggregateRootEvent _lastEventInActualStream;
+        LinkedListNode<AggregateRootEvent> _currentNode;
+        AggregateRootEvent _lastEventInActualStream;
 
-        private LinkedListNode<AggregateRootEvent> CurrentNode
+        LinkedListNode<AggregateRootEvent> CurrentNode
         {
             get
             {
@@ -47,7 +47,7 @@ namespace Composable.CQRS.EventSourcing.Refactoring.Migrations
             }
         }
 
-        private void AssertNoPriorModificationsHaveBeenMade()
+        void AssertNoPriorModificationsHaveBeenMade()
         {
             Contract.Assert(_replacementEvents == null && _insertedEvents == null, $"You can only modify the current event once.");
         }

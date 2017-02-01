@@ -43,7 +43,7 @@ namespace NSpec.NUnit
 
         public class MyFormatter : ConsoleFormatter, IFormatter, ILiveFormatter
         {
-            private static void WriteNoticeably(string message, params object[] formatwith)
+            static void WriteNoticeably(string message, params object[] formatwith)
             {
                 message = String.Format("#################################    {0}    #################################", message);
                 Console.WriteLine(message, formatwith);

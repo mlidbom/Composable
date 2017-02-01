@@ -6,10 +6,10 @@ using Composable.Windsor;
 
 namespace Composable.ServiceBus
 {
-    internal class MessageHandlersInvoker
+    class MessageHandlersInvoker
     {
-        private readonly IWindsorContainer _container;
-        private readonly MessageHandlersResolver _handlersResolver;
+        readonly IWindsorContainer _container;
+        readonly MessageHandlersResolver _handlersResolver;
 
         public MessageHandlersInvoker(IWindsorContainer container, MessageHandlersResolver handlersResolver)
         {
@@ -45,9 +45,7 @@ namespace Composable.ServiceBus
             }
         }
 
-
-
-        private static void AssertThatThereIsExactlyOneRegisteredHandler(MessageHandlersResolver.MessageHandlerReference[] handlers, object message)
+        static void AssertThatThereIsExactlyOneRegisteredHandler(MessageHandlersResolver.MessageHandlerReference[] handlers, object message)
         {
             if (handlers.Length == 0)
             {

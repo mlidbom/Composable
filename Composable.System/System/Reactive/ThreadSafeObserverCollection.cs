@@ -9,7 +9,7 @@ namespace Composable.System.Reactive
     public class ThreadSafeObserverCollection<TEvent>
     {
         readonly HashSet<IObserver<TEvent>>  _observers = new HashSet<IObserver<TEvent>>();
-        private readonly object _lockObject = new object();
+        readonly object _lockObject = new object();
 
         ///<summary>Add an observer to the collection.</summary>
         public void Add(IObserver<TEvent> observer)

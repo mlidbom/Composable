@@ -6,9 +6,9 @@ namespace Composable.GenericAbstractions.Time
     /// <summary> Just statically returns whatever value was assigned.</summary>
     public class DummyTimeSource : IUtcTimeTimeSource
     {
-        private DateTime _utcNow;
+        DateTime _utcNow;
 
-        private DummyTimeSource(DateTime utcNow)
+        DummyTimeSource(DateTime utcNow)
         {
             UtcNow = utcNow;
         }
@@ -25,9 +25,9 @@ namespace Composable.GenericAbstractions.Time
         ///<summary>Allows for subscribing to notifications about <see cref="UtcNow"/> changing.</summary>
         public IObservable<DateTime> UtcNowChanged { get { return _utcNowChanged; } }
 
-        private readonly SimpleObservable<DateTime> _utcNowChanged = new SimpleObservable<DateTime>();
+        readonly SimpleObservable<DateTime> _utcNowChanged = new SimpleObservable<DateTime>();
 
-        private void NotifyListeners()
+        void NotifyListeners()
         {
             _utcNowChanged.OnNext(UtcNow);
         }

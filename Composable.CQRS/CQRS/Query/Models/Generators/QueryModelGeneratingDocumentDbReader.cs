@@ -10,10 +10,10 @@ namespace Composable.CQRS.Query.Models.Generators
     // ReSharper disable once ClassWithVirtualMembersNeverInherited.Global
     public class QueryModelGeneratingDocumentDbReader : IVersioningDocumentDbReader
     {
-        private readonly ISingleContextUseGuard _usageGuard;
-        private readonly IDocumentDbSessionInterceptor _interceptor;
-        private readonly IEnumerable<IQueryModelGenerator> _documentGenerators;
-        private readonly InMemoryObjectStore _idMap = new InMemoryObjectStore();
+        readonly ISingleContextUseGuard _usageGuard;
+        readonly IDocumentDbSessionInterceptor _interceptor;
+        readonly IEnumerable<IQueryModelGenerator> _documentGenerators;
+        readonly InMemoryObjectStore _idMap = new InMemoryObjectStore();
         //Review:mlidbo: Always requiring an interceptor causes a lot of unneeded complexity for clients. Consider creating a virtual void OnFirstLoad(T document) method instead. This would allow for inheriting this class to create "interceptable" sessions. Alternatively maybe an observable/event could be used somehow.
         public QueryModelGeneratingDocumentDbReader(ISingleContextUseGuard usageGuard, IDocumentDbSessionInterceptor interceptor, IEnumerable<IQueryModelGenerator> documentGenerators )
         {
@@ -91,7 +91,7 @@ namespace Composable.CQRS.Query.Models.Generators
             return false;
         }
 
-        private TDocument TryGenerateModel<TDocument>(object key, int version)
+        TDocument TryGenerateModel<TDocument>(object key, int version)
         {
             if(version < 0)
             {
@@ -107,7 +107,7 @@ namespace Composable.CQRS.Query.Models.Generators
                     .SingleOrDefault();
         }
 
-        private bool HandlesDocumentType<TDocument>(bool requireVersioningSupport)
+        bool HandlesDocumentType<TDocument>(bool requireVersioningSupport)
         {
             return requireVersioningSupport
                 ? VersionedGeneratorsForDocumentType<TDocument>().Any()
@@ -120,12 +120,12 @@ namespace Composable.CQRS.Query.Models.Generators
             return ids.Select(id => Get<TValue>(id)).ToList();
         }
 
-        private IEnumerable<IVersioningQueryModelGenerator<TDocument>> VersionedGeneratorsForDocumentType<TDocument>()
+        IEnumerable<IVersioningQueryModelGenerator<TDocument>> VersionedGeneratorsForDocumentType<TDocument>()
         {
             return _documentGenerators.OfType<IVersioningQueryModelGenerator<TDocument>>().ToList();
         }
 
-        private IEnumerable<IQueryModelGenerator<TDocument>> GetGeneratorsForDocumentType<TDocument>()
+        IEnumerable<IQueryModelGenerator<TDocument>> GetGeneratorsForDocumentType<TDocument>()
         {
             return _documentGenerators.OfType<IQueryModelGenerator<TDocument>>().ToList();
         }

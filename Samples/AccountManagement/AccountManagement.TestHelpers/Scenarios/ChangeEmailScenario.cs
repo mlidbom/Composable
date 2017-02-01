@@ -8,7 +8,7 @@ namespace AccountManagement.TestHelpers.Scenarios
 {
     public class ChangeAccountEmailScenario
     {
-        private readonly IWindsorContainer _container;
+        readonly IWindsorContainer _container;
 
         public Email NewEmail = TestData.Email.CreateValidEmail();
         public readonly Email OldEmail;

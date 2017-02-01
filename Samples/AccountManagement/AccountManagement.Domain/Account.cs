@@ -18,7 +18,7 @@ namespace AccountManagement.Domain
 
         //No public constructors please. Aggregates are created through domain verbs. 
         //Expose named factory methods that ensure the instance is valid instead. See register method below.
-        private Account():base(new DateTimeNowTimeSource())
+        Account():base(new DateTimeNowTimeSource())
         {
             //Maintain correct state as events are raised or read from the store. 
             //Use property updated events whenever possible. Changes to public state should be represented by property updated events.
@@ -29,7 +29,7 @@ namespace AccountManagement.Domain
 
         //Ensure that the state of the instance is sane. If not throw an exception.
         //Called after every call to RaiseEvent.
-        override protected void AssertInvariantsAreMet()
+        protected override void AssertInvariantsAreMet()
         {
             Contract.Invariant(() => Email, () => Password, () => Id).NotNullOrDefault();
         }

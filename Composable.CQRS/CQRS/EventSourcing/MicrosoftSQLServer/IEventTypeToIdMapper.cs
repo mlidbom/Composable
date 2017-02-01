@@ -2,7 +2,7 @@ using System;
 
 namespace Composable.CQRS.EventSourcing.MicrosoftSQLServer
 {
-    internal interface IEventTypeToIdMapper
+    interface IEventTypeToIdMapper
     {
         Type GetType(int id);
         int GetId(Type type);

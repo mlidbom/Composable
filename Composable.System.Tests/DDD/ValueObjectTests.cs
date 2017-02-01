@@ -11,11 +11,11 @@ namespace Composable.Tests.DDD
     [TestFixture]
     public class ValueObjectTests
     {
-        private class Address : ValueObject<Address>
+        class Address : ValueObject<Address>
         {
             string _address1;
-            private readonly string _city;
-            private readonly string[] _states;
+            readonly string _city;
+            readonly string[] _states;
 
             public Address(string address1, string city, params string[] states)
             {
@@ -30,7 +30,7 @@ namespace Composable.Tests.DDD
             public string Guid { get;  set; }            
         }
 
-        private class GuidHolder : ValueObject<GuidHolder>
+        class GuidHolder : ValueObject<GuidHolder>
         {
             public GuidHolder(Guid id)
             {
@@ -40,9 +40,9 @@ namespace Composable.Tests.DDD
             public Guid Id { get; private set; }
         }
 
-        private class ExpandedAddress : Address
+        class ExpandedAddress : Address
         {
-            private readonly string _address2;
+            readonly string _address2;
 
             public ExpandedAddress(string address1, string address2, string city, params string[] states)
                 : base(address1, city, states)

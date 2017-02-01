@@ -9,7 +9,7 @@ namespace Composable.Logging.Log4Net
             return LogHolder<T>.Logger;
         }
 
-        private static class LogHolder<T>
+        static class LogHolder<T>
         {
             // ReSharper disable once StaticFieldInGenericType
             public static readonly ILog Logger = LogManager.GetLogger(typeof(T));

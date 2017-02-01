@@ -9,8 +9,8 @@ namespace AccountManagement.Domain.Tests.AccountTests
     [TestFixture]
     public class RegisterAccountSuccessScenarioTests : DomainTestBase
     {
-        private Account _registeredAccount;
-        private RegisterAccountScenario _registerAccountScenario;
+        Account _registeredAccount;
+        RegisterAccountScenario _registerAccountScenario;
 
         [SetUp]
         public void RegisterAccount()

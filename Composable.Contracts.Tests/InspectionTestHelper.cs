@@ -94,7 +94,7 @@ namespace Composable.Contracts.Tests
             exception.BadValue.Name.Should().Be(returnvalueName);
         }
 
-        private static void AssertThrows<TException, TInspected>(Inspected<TInspected> inspected,
+        static void AssertThrows<TException, TInspected>(Inspected<TInspected> inspected,
             Action<Inspected<TInspected>> assert,
             InspectionType inspectionType,
             string badValueName)

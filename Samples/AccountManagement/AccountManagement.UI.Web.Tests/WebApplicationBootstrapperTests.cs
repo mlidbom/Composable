@@ -10,7 +10,7 @@ namespace AccountManagement.UI.Web.Tests
     [TestFixture]
     public class WebApplicationBootstrapperTests
     {
-        private WindsorContainer _container;
+        WindsorContainer _container;
 
         [SetUp]
         public void SetupContainer()

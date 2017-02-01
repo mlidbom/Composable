@@ -6,11 +6,10 @@ using JetBrains.Annotations;
 
 namespace AccountManagement.UI.QueryModels.Services.Implementation
 {
-    [UsedImplicitly]
-    internal class AccountManagementQueryModelReader : IAccountManagementQueryModelsReader
+    [UsedImplicitly] class AccountManagementQueryModelReader : IAccountManagementQueryModelsReader
     {
-        private readonly IAccountManagementEventStoreGeneratedQueryModelsReader _generatedModels;
-        private readonly IAccountManagementDocumentDbQueryModelsReader _documentDbQueryModels;
+        readonly IAccountManagementEventStoreGeneratedQueryModelsReader _generatedModels;
+        readonly IAccountManagementDocumentDbQueryModelsReader _documentDbQueryModels;
 
         public AccountManagementQueryModelReader(IAccountManagementEventStoreGeneratedQueryModelsReader generatedModels, IAccountManagementDocumentDbQueryModelsReader documentDbQueryModels)
         {

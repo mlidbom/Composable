@@ -10,9 +10,9 @@ namespace Composable.KeyValueStorage
     {        
         internal class DocumentItem
         {
-            private readonly IDocumentDb _backingStore;
-            private readonly Dictionary<Type, Dictionary<string, string>> _persistentValues;
-            private DocumentKey Key { get; set; }
+            readonly IDocumentDb _backingStore;
+            readonly Dictionary<Type, Dictionary<string, string>> _persistentValues;
+            DocumentKey Key { get; set; }
 
             public DocumentItem(DocumentKey key, IDocumentDb backingStore, Dictionary<Type, Dictionary<string, string>> persistentValues)
             {
@@ -21,13 +21,13 @@ namespace Composable.KeyValueStorage
                 Key = key;
             }
 
-            private Object Document { get; set; }
+            Object Document { get; set; }
             public bool IsDeleted { get; private set; }
-            private bool IsInBackingStore { get; set; }
+            bool IsInBackingStore { get; set; }
 
-            private bool ScheduledForAdding { get { return !IsInBackingStore && !IsDeleted && Document != null; } }
-            private bool ScheduledForRemoval { get { return IsInBackingStore && IsDeleted; } }
-            private bool ScheduledForUpdate { get { return IsInBackingStore && !IsDeleted; } }
+            bool ScheduledForAdding { get { return !IsInBackingStore && !IsDeleted && Document != null; } }
+            bool ScheduledForRemoval { get { return IsInBackingStore && IsDeleted; } }
+            bool ScheduledForUpdate { get { return IsInBackingStore && !IsDeleted; } }
 
             public void Delete()
             {
@@ -48,7 +48,7 @@ namespace Composable.KeyValueStorage
                 IsInBackingStore = true;
             }
 
-            private bool IsCommitting { get; set; }
+            bool IsCommitting { get; set; }
             public void CommitChangesToBackingStore()
             {
                 //Avoid reentrancy issues.

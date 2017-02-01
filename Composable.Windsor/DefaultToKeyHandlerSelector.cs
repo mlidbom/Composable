@@ -11,8 +11,8 @@ namespace Composable.Windsor
     /// </summary>
     public class DefaultToKeyHandlerSelector : IHandlerSelector
     {
-        private readonly Type _type;
-        private readonly string _keyToDefaultTo;
+        readonly Type _type;
+        readonly string _keyToDefaultTo;
 
         public DefaultToKeyHandlerSelector(Type type, string keyToDefaultTo)
         {

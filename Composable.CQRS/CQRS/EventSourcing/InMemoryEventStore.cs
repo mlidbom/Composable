@@ -13,16 +13,16 @@ namespace Composable.CQRS.EventSourcing
     public class InMemoryEventStore : IEventStore
 #pragma warning restore 618
     {
-        private IReadOnlyList<IEventMigration> _migrationFactories;
+        IReadOnlyList<IEventMigration> _migrationFactories;
 
-        private IList<AggregateRootEvent> _events = new List<AggregateRootEvent>();
-        private int InsertionOrder;
+        IList<AggregateRootEvent> _events = new List<AggregateRootEvent>();
+        int InsertionOrder;
 
         public void Dispose()
         {
         }
 
-        private object _lockObject = new object();
+        object _lockObject = new object();
 
         public InMemoryEventStore(IEnumerable<IEventMigration> migrationFactories = null )
         {
@@ -36,7 +36,7 @@ namespace Composable.CQRS.EventSourcing
             lock(_lockObject)
             {
                 return SingleAggregateInstanceEventStreamMutator.MutateCompleteAggregateHistory(_migrationFactories, _events.Where(e => e.AggregateRootId == id).ToList())
-                    .ToList();;
+                    .ToList();
             }
         }
 
@@ -53,7 +53,7 @@ namespace Composable.CQRS.EventSourcing
             }
         }
 
-        private IEnumerable<IAggregateRootEvent> StreamEvents()
+        IEnumerable<IAggregateRootEvent> StreamEvents()
         {
             lock(_lockObject)
             {

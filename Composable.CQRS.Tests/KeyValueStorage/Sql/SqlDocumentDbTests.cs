@@ -15,9 +15,9 @@ namespace CQRS.Tests.KeyValueStorage.Sql
     [Serializable]
     class SqlDocumentDbTests : DocumentDbTests
     {
-        private static SqlServerDatabasePool _databasePool;
+        static SqlServerDatabasePool _databasePool;
 
-        private string _connectionString;
+        string _connectionString;
 
         [SetUp]
         public void Setup()

@@ -13,8 +13,8 @@ namespace Composable.Windsor
     /// <typeparam name="T"></typeparam>
     public class TypedCollectionResolver<T> : ISubDependencyResolver
     {
-        private readonly bool _allowEmptyCollections;
-        private readonly IKernel _kernel;
+        readonly bool _allowEmptyCollections;
+        readonly IKernel _kernel;
 
         public TypedCollectionResolver(IKernel kernel, bool allowEmptyCollections = true)
         {

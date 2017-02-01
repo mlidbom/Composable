@@ -14,6 +14,11 @@ namespace Composable.CQRS.EventSourcing.Refactoring.Migrations
             Contract.Requires(!description.IsNullOrWhiteSpace());
 
             Contract.Assert(typeof(TMigratedAggregateEventHierarchyRootInterface).IsInterface, $"{nameof(TMigratedAggregateEventHierarchyRootInterface)} must be an interface.");
+
+            Id = id;
+            Name = name;
+            Description = description;
+            Done = false;
         }
 
         public Guid Id { get; }

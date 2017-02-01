@@ -13,13 +13,12 @@ namespace Composable.System
         }
 
         ///<summary>Throws an exception if @this.Kind == <see cref="DateTimeKind.Unspecified"/>.</summary>
-        public static void AssertHasDeterministicValue(this DateTime @this)
+        static void AssertHasDeterministicValue(this DateTime @this)
         {
             Contract.Requires(@this.HasDeterministicValue());
         }
 
-        [Pure]
         ///<summary>True if @this.Kind != DateTimeKind.Unspecified. If Kind is Unspecified it is not really possible to know which time this represents. It is not possible to schedule an event to take place at this time etc. In order to be able to do so you must know the timezone for a datetime which you only know if it is not Unspecified. </summary>
-        public static bool HasDeterministicValue(this DateTime @this) { return @this.Kind != DateTimeKind.Unspecified; }
+        [Pure] static bool HasDeterministicValue(this DateTime @this) { return @this.Kind != DateTimeKind.Unspecified; }
     }
 }

@@ -15,20 +15,20 @@ namespace Composable.CQRS.EventSourcing.Refactoring.Migrations
     //The performance of this class is extremely important since it is called at least once for every event that is loaded from the event store when you have any migrations activated. It is called A LOT.
     //This is one of those central classes for which optimization is actually vitally important.
     //Each of the optimizations were done with the help of a profiler and running benchmarks on the tested performance improvements time and time again.  
-    internal class SingleAggregateInstanceEventStreamMutator : ISingleAggregateInstanceEventStreamMutator
+    class SingleAggregateInstanceEventStreamMutator : ISingleAggregateInstanceEventStreamMutator
     {
-        private readonly Guid _aggregateId;
-        private readonly ISingleAggregateInstanceHandlingEventMigrator[] _eventMigrators;
-        private readonly EventModifier _eventModifier;
+        readonly Guid _aggregateId;
+        readonly ISingleAggregateInstanceHandlingEventMigrator[] _eventMigrators;
+        readonly EventModifier _eventModifier;
 
-        private int _aggregateVersion = 1;
+        int _aggregateVersion = 1;
         
         public static ISingleAggregateInstanceEventStreamMutator Create(IAggregateRootEvent creationEvent, IReadOnlyList<IEventMigration> eventMigrations, Action<IReadOnlyList<AggregateRootEvent>> eventsAddedCallback = null)
         {
             return new SingleAggregateInstanceEventStreamMutator(creationEvent, eventMigrations, eventsAddedCallback);
         }
 
-        private SingleAggregateInstanceEventStreamMutator
+        SingleAggregateInstanceEventStreamMutator
             (IAggregateRootEvent creationEvent, IEnumerable<IEventMigration> eventMigrations, Action<IReadOnlyList<AggregateRootEvent>> eventsAddedCallback)
         {
             _eventModifier = new EventModifier(eventsAddedCallback ?? (_ => { }));

@@ -10,9 +10,9 @@ namespace AccountManagement.Domain.Tests.AccountTests
     [TestFixture]
     public class ChangePasswordFailureScenariosTests : DomainTestBase
     {
-        private RegisterAccountScenario _registerAccountScenario;
-        private Account _account;
-        private ChangePasswordScenario _changePasswordScenario;
+        RegisterAccountScenario _registerAccountScenario;
+        Account _account;
+        ChangePasswordScenario _changePasswordScenario;
 
         [SetUp]
         public void RegisterAccount()

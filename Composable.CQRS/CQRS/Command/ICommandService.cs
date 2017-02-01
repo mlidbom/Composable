@@ -15,8 +15,7 @@ namespace Composable.CQRS
         CommandResult Execute<TCommand>(TCommand command);
     }
 
-    [ContractClassFor(typeof(ICommandService))]
-    internal abstract class CommandServiceContract : ICommandService
+    [ContractClassFor(typeof(ICommandService))] abstract class CommandServiceContract : ICommandService
     {
         public CommandResult Execute<TCommand>(TCommand command)
         {

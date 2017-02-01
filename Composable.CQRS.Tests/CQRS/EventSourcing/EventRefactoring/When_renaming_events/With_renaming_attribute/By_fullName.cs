@@ -9,7 +9,7 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.When_renaming_events.Wi
     [TestFixture]
     public class By_fullName
     {
-        private RenamingEventNameMapper _nameMapper;
+        RenamingEventNameMapper _nameMapper;
 
         [SetUp]
         public void SetupMappingsForEventsWithNoRenamingAttribute()
@@ -33,14 +33,12 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.When_renaming_events.Wi
             _nameMapper.GetType(Event2.OldName).Should().Be(typeof(Event2));
         }
 
-        [EventRenamedFrom(FullName = OldName)]
-        private class Event1 : AggregateRootEvent
+        [EventRenamedFrom(FullName = OldName)] class Event1 : AggregateRootEvent
         {
             public const string OldName= "Even1OldName";
         }
 
-        [EventRenamedFrom(FullName = OldName)]
-        private class Event2 : AggregateRootEvent
+        [EventRenamedFrom(FullName = OldName)] class Event2 : AggregateRootEvent
         {
             public const string OldName = "Event2OldName";
         }

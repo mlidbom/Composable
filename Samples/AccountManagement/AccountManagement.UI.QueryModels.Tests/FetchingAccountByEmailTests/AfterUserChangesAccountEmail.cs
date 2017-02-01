@@ -9,7 +9,7 @@ namespace AccountManagement.UI.QueryModels.Tests.FetchingAccountByEmailTests
     [TestFixture]
     public class AfterUserChangesAccountEmail : RegistersAccountDuringSetupAccountQueryModelTestBase
     {
-        private ChangeAccountEmailScenario _scenario;
+        ChangeAccountEmailScenario _scenario;
 
         [SetUp]
         public void ChangeEmail()

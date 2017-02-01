@@ -7,10 +7,12 @@ namespace CQRS.Tests.CQRS.EventSourcing.AggregateRoot.NestedEntitiesTests.Intege
 {
     public class Root : AggregateRoot<Root, RootEvent.Implementation.Root, RootEvent.IRoot>
     {
-        private static int _instances;
+        static int _instances;
         public string Name { get; private set; }
-        private readonly Entity.CollectionManager _entities;
+        readonly Entity.CollectionManager _entities;
+#pragma warning disable 108,114
         public Component Component { get; private set; }
+#pragma warning restore 108,114
 
         public Root(string name) : base(new DateTimeNowTimeSource())
         {
@@ -29,7 +31,7 @@ namespace CQRS.Tests.CQRS.EventSourcing.AggregateRoot.NestedEntitiesTests.Intege
 
     public class Component : Root.Component<Component, RootEvent.Component.Implementation.Root, RootEvent.Component.IRoot>
     {
-        private static int _instances;
+        static int _instances;
         public string Name { get; private set; }
         public Component(Root root) : base(root)
         {
@@ -40,7 +42,7 @@ namespace CQRS.Tests.CQRS.EventSourcing.AggregateRoot.NestedEntitiesTests.Intege
         }
 
         public IReadOnlyEntityCollection<Entity, int> Entities => _entities.Entities;
-        private readonly Entity.CollectionManager _entities;
+        readonly Entity.CollectionManager _entities;
 
         public void Rename(string name) { RaiseEvent(new RootEvent.Component.Implementation.Renamed(name)); }
         public Entity AddEntity(string name) { return _entities.Add(new RootEvent.Component.Entity.Implementation.Created(++_instances, name)); }
@@ -75,7 +77,7 @@ namespace CQRS.Tests.CQRS.EventSourcing.AggregateRoot.NestedEntitiesTests.Intege
                               RootEvent.Entity.Removed,
                               RootEvent.Entity.Implementation.Root.IdGetterSetter>
     {
-        private static int _instances;
+        static int _instances;
         public string Name { get; private set; }
         public Root Root { get; }
         public Entity(Root root) : base(root)
@@ -87,7 +89,7 @@ namespace CQRS.Tests.CQRS.EventSourcing.AggregateRoot.NestedEntitiesTests.Intege
         }
 
         public IReadOnlyEntityCollection<NestedEntity, int> Entities => _entities.Entities;
-        private readonly NestedEntity.CollectionManager _entities;
+        readonly NestedEntity.CollectionManager _entities;
 
         public void Rename(string name) { RaiseEvent(new RootEvent.Entity.Implementation.Renamed(name)); }
         public void Remove() => RaiseEvent(new RootEvent.Entity.Implementation.Removed());

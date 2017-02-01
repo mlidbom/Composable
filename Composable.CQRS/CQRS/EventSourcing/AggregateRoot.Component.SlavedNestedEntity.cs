@@ -39,7 +39,7 @@ namespace Composable.CQRS.EventSourcing
                                                        TEntityBaseEventClass,
                                                        TEntityBaseEventInterface>, new()
             {
-                private static readonly TEventEntityIdSetterGetter IdGetterSetter = new TEventEntityIdSetterGetter();
+                static readonly TEventEntityIdSetterGetter IdGetterSetter = new TEventEntityIdSetterGetter();
 
                 protected SlavedNestedEntity(TComponent parent)
                     : this(parent.TimeSource, parent.RaiseEvent, parent.RegisterEventAppliers()) { }
@@ -75,7 +75,7 @@ namespace Composable.CQRS.EventSourcing
                 {
                     protected static readonly TEventEntityIdSetterGetter IdGetter = new TEventEntityIdSetterGetter();
 
-                    private readonly TParent _parent;
+                    readonly TParent _parent;
                     protected readonly EntityCollection<TEntity, TEntityId> ManagedEntities;
                     protected EntityCollectionManagerBase
                         (TParent parent, IEventHandlerRegistrar<TEntityBaseEventInterface> appliersRegistrar)

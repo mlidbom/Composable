@@ -8,7 +8,7 @@ namespace AccountManagement.Domain.Tests.AccountTests
 {
     public class ChangePasswordSuccessScenarioTest : DomainTestBase
     {
-        private ChangePasswordScenario _changePasswordScenario;
+        ChangePasswordScenario _changePasswordScenario;
 
         [SetUp]
         public void RegisterAccount()

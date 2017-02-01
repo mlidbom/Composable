@@ -7,7 +7,7 @@ namespace CQRS.Tests.MessageHandlerWiringTests
     [TestFixture]
     public class WhenPublishingEvent : MessageHandlerWiringTestBase
     {
-        private AccountCreatedEvent _event;
+        AccountCreatedEvent _event;
 
         [SetUp]
         public void PublishEvent()

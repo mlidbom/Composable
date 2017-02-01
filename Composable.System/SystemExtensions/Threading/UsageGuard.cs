@@ -6,10 +6,9 @@ namespace Composable.SystemExtensions.Threading
     ///<summary>Base class that takes care of most of the complexity of implementing <see cref="ISingleContextUseGuard"/></summary>
     public abstract class UsageGuard : ISingleContextUseGuard
     {
-        [ThreadStatic]
-        private static bool _isInIgnoredContextDueToInfrastructureSuchAsTransaction;
+        [ThreadStatic] static bool _isInIgnoredContextDueToInfrastructureSuchAsTransaction;
 
-        private static bool IsInIgnoredContextDueToInfrastructureSuchAsTransaction
+        static bool IsInIgnoredContextDueToInfrastructureSuchAsTransaction
         {
             get { return _isInIgnoredContextDueToInfrastructureSuchAsTransaction; } 
             set { _isInIgnoredContextDueToInfrastructureSuchAsTransaction = value; }

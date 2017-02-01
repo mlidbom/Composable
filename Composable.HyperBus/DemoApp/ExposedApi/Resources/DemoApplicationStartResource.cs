@@ -1,6 +1,7 @@
 using Composable.HyperBus.APIDraft;
 using Composable.HyperBus.DemoApp.ExposedApi.Resources.Accounts;
 
+// ReSharper disable All
 namespace Composable.HyperBus.DemoApp.ExposedApi.Resources
 {
     public class DemoApplicationStartResource

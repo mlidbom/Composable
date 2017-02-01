@@ -17,6 +17,6 @@ namespace Composable.Contracts
         public InspectedValue BadValue { get; private set; }
 
         ///<summary>Tells which field/property/argument failded inspection and what value it had.</summary>
-        override public string Message { get { return string.Format("{0}: {1}", BadValue.Type, BadValue.Name); } }
+        public override string Message { get { return string.Format("{0}: {1}", BadValue.Type, BadValue.Name); } }
     }
 }

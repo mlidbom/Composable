@@ -35,8 +35,8 @@ namespace Composable.CQRS.Testing
 
     public class AppDomainScope : IDisposable
     {
-        private readonly TimeSpan? _disposeDelay;
-        private readonly bool _suppressUnloadErrors;
+        readonly TimeSpan? _disposeDelay;
+        readonly bool _suppressUnloadErrors;
 
         public AppDomainScope(AppDomain cloneDomain, TimeSpan? disposeDelay, bool suppressUnloadErrors = false)
         {

@@ -5,7 +5,7 @@ namespace Composable.CQRS.EventSourcing
 {
     public class EventsReplayer : IReplayEvents
     {
-        private readonly MessageHandlersInvoker _handlersInvoker;
+        readonly MessageHandlersInvoker _handlersInvoker;
 
         public EventsReplayer(IWindsorContainer container)
         {

@@ -13,7 +13,7 @@ namespace Core.Tests.Linq
     [TestFixture]
     public class HierarchyTests
     {
-        private class Hierarchical
+        class Hierarchical
         {
             public Hierarchical[] Children = new Hierarchical[0];
         }
@@ -57,8 +57,7 @@ namespace Core.Tests.Linq
             Assert.That(flattened.Distinct().Count(), Is.EqualTo(10)); //Ensures all objects are there.
         }
 
-
-        private class Person : IHierarchy<Person>
+        class Person : IHierarchy<Person>
         {
             public IList<Person> Children = new List<Person>();
             IEnumerable<Person> IHierarchy<Person>.Children { get { return Children; } }

@@ -26,7 +26,7 @@ namespace AccountManagement.TestHelpers
                 public const string MissingLowercaseCharacter = "URDU";
             }
 
-            private static int _passwordCount = 1;
+            static int _passwordCount = 1;
             public static string CreateValidPasswordString()
             {
                 return "SomeComplexPassword" + _passwordCount++;
@@ -40,7 +40,7 @@ namespace AccountManagement.TestHelpers
 
         public static class Email
         {
-            private static int _registeredAccounts = 1;
+            static int _registeredAccounts = 1;
 
             public static Domain.Shared.Email CreateValidEmail()
             {

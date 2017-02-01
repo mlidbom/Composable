@@ -10,7 +10,7 @@ namespace AccountManagement.UI.Commands.Tests.UserCommands
     [TestFixture]
     public class RegisterAccountCommandTests
     {
-        private RegisterAccountCommand _registerAccountCommand;
+        RegisterAccountCommand _registerAccountCommand;
 
         [SetUp]
         public void CreateValidCommand()
@@ -85,7 +85,7 @@ namespace AccountManagement.UI.Commands.Tests.UserCommands
             _registerAccountCommand.Invoking(command => command.Validate(null).ToArray()).ShouldThrow<Exception>();
         }
 
-        private string ValidateAndGetFirstMessage()
+        string ValidateAndGetFirstMessage()
         {
             return CommandValidator.ValidationFailures(_registerAccountCommand).First().ErrorMessage;
         }

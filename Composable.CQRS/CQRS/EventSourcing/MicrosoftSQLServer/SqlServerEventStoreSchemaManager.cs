@@ -8,13 +8,13 @@ using Composable.Logging.Log4Net;
 
 namespace Composable.CQRS.EventSourcing.MicrosoftSQLServer
 {
-    internal class SqlServerEventStoreSchemaManager
+    class SqlServerEventStoreSchemaManager
     {
-        private static readonly HashSet<string> VerifiedConnectionStrings = new HashSet<string>();
-        private static readonly Dictionary<string, IEventTypeToIdMapper> ConnectionIdMapper = new Dictionary<string, IEventTypeToIdMapper>();
-        private static readonly EventTableSchemaManager EventTable = new EventTableSchemaManager();
-        private static readonly EventTypeTableSchemaManager EventTypeTable = new EventTypeTableSchemaManager();
-        private static readonly LegacyEventTableSchemaManager LegacyEventTable = new LegacyEventTableSchemaManager();
+        static readonly HashSet<string> VerifiedConnectionStrings = new HashSet<string>();
+        static readonly Dictionary<string, IEventTypeToIdMapper> ConnectionIdMapper = new Dictionary<string, IEventTypeToIdMapper>();
+        static readonly EventTableSchemaManager EventTable = new EventTableSchemaManager();
+        static readonly EventTypeTableSchemaManager EventTypeTable = new EventTypeTableSchemaManager();
+        static readonly LegacyEventTableSchemaManager LegacyEventTable = new LegacyEventTableSchemaManager();
 
         public SqlServerEventStoreSchemaManager(string connectionString, IEventNameMapper nameMapper)
         {
@@ -22,14 +22,14 @@ namespace Composable.CQRS.EventSourcing.MicrosoftSQLServer
             _nameMapper = nameMapper;
         }
 
-        private readonly IEventNameMapper _nameMapper;
+        readonly IEventNameMapper _nameMapper;
 
 
         public IEventTypeToIdMapper IdMapper { get; private set; }
 
-        private string ConnectionString { get; }
+        string ConnectionString { get; }
 
-        private SqlConnection OpenConnection()
+        SqlConnection OpenConnection()
         {
             var connection = new SqlConnection(ConnectionString);
             connection.Open();

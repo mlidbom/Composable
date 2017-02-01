@@ -11,7 +11,7 @@ namespace CQRS.Tests.NewtonSoft
     [TestFixture]
     public class SqlServerEventStoreSerializationSettingsTests
     {
-        private class TestEvent : AggregateRootEvent
+        class TestEvent : AggregateRootEvent
         {
             [UsedImplicitly]
             public TestEvent() { }

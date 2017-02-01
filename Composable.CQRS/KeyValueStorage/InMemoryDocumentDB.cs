@@ -15,7 +15,7 @@ namespace Composable.KeyValueStorage
     public class InMemoryDocumentDb : InMemoryObjectStore, IDocumentDb
 #pragma warning restore 618
     {
-        private readonly ThreadSafeObservable<IDocumentUpdated> _documentUpdated = new ThreadSafeObservable<IDocumentUpdated>(); 
+        readonly ThreadSafeObservable<IDocumentUpdated> _documentUpdated = new ThreadSafeObservable<IDocumentUpdated>(); 
 
         public InMemoryDocumentDb()
         {
@@ -23,7 +23,7 @@ namespace Composable.KeyValueStorage
 
         public IObservable<IDocumentUpdated> DocumentUpdated { get { return _documentUpdated; }}
 
-        private readonly Dictionary<Type, Dictionary<string, string>> _persistentValues = new Dictionary<Type, Dictionary<string, string>>();
+        readonly Dictionary<Type, Dictionary<string, string>> _persistentValues = new Dictionary<Type, Dictionary<string, string>>();
 
         public bool TryGet<T>(object id, out T value, Dictionary<Type, Dictionary<string, string>> persistentValues)
         {
@@ -52,12 +52,12 @@ namespace Composable.KeyValueStorage
             return GetAll<T>().Select(document => document.Id);
         }
 
-        private void SetPersistedValue<T>(T value, string idString, string stringValue)
+        void SetPersistedValue<T>(T value, string idString, string stringValue)
         {
             _persistentValues.GetOrAddDefault(value.GetType())[idString] = stringValue;
         }
 
-        override public void Update(object key, object value)
+        public override void Update(object key, object value)
         {
             lock(_lockObject)
             {

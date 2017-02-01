@@ -13,11 +13,9 @@ namespace Composable.DDD
     }
 
 
-    [ContractClassFor(typeof (IHasPersistentIdentity<>))]
-    internal abstract class HasPersistentIdentityContract<T> : IHasPersistentIdentity<T>
+    [ContractClassFor(typeof (IHasPersistentIdentity<>))] abstract class HasPersistentIdentityContract<T> : IHasPersistentIdentity<T>
     {
-        [ContractInvariantMethod]
-        private void Invariants()
+        [ContractInvariantMethod] void Invariants()
         {
             Contract.Invariant(!Equals(((IHasPersistentIdentity<T>)this).Id, default(T)));
         }

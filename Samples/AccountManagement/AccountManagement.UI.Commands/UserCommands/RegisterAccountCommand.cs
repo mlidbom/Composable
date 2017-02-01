@@ -30,7 +30,7 @@ namespace AccountManagement.UI.Commands.UserCommands
             return ValidatePassword();
         }
 
-        private IEnumerable<ValidationResult> ValidatePassword()
+        IEnumerable<ValidationResult> ValidatePassword()
         {
             var policyFailures = Domain.Shared.Password.Policy.GetPolicyFailures(Password).ToList();
             if(!policyFailures.None())

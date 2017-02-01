@@ -12,7 +12,7 @@ namespace Composable.CQRS.EventHandling
     public abstract class CallsMatchingHandlersInRegistrationOrderEventHandler<TEvent> : IHandleReplayedAndPublishedEvents<TEvent>
         where TEvent : class, IAggregateRootEvent
     {
-        private readonly CallMatchingHandlersInRegistrationOrderEventDispatcher<TEvent> _eventDispatcher = new CallMatchingHandlersInRegistrationOrderEventDispatcher<TEvent>(); 
+        readonly CallMatchingHandlersInRegistrationOrderEventDispatcher<TEvent> _eventDispatcher = new CallMatchingHandlersInRegistrationOrderEventDispatcher<TEvent>(); 
 
         ///<summary>Registers handlers for the incoming events. All matching handlers will be called in the order they were registered.</summary>
         protected CallMatchingHandlersInRegistrationOrderEventDispatcher<TEvent>.RegistrationBuilder RegisterHandlers()

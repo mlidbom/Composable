@@ -6,8 +6,7 @@ using JetBrains.Annotations;
 
 namespace AccountManagement.Domain.Services
 {
-    [UsedImplicitly]
-    internal class AccountRepository : AggregateRepository<Account, AccountEvent, IAccountEvent>, IAccountRepository
+    [UsedImplicitly] class AccountRepository : AggregateRepository<Account, AccountEvent, IAccountEvent>, IAccountRepository
     {
         public AccountRepository(IAccountManagementEventStoreSession aggregates) : base(aggregates) {}
     }

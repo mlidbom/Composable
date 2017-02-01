@@ -9,7 +9,7 @@ namespace AccountManagement.TestHelpers.Scenarios
 {
     public class RegisterAccountScenario
     {
-        private readonly IWindsorContainer _container;
+        readonly IWindsorContainer _container;
         public string PasswordAsString = TestData.Password.CreateValidPasswordString();
         public Password Password;
         public Email Email = TestData.Email.CreateValidEmail();

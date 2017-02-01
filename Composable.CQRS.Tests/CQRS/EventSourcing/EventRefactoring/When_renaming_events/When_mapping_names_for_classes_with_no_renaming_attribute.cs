@@ -9,7 +9,7 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.When_renaming_events
     [TestFixture]
     public class When_mapping_names_for_classes_with_no_renaming_attribute
     {
-        private RenamingEventNameMapper _nameMapper;
+        RenamingEventNameMapper _nameMapper;
 
         [SetUp]
         public void SetupMappingsForEventsWithNoRenamingAttribute()
@@ -33,7 +33,8 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.When_renaming_events
             _nameMapper.GetType(typeof(Event2).FullName).Should().Be(typeof(Event2));
         }
 
-        private class Event1 : AggregateRootEvent { }
-        private class Event2 : AggregateRootEvent { }
+        class Event1 : AggregateRootEvent { }
+
+        class Event2 : AggregateRootEvent { }
     }   
 }

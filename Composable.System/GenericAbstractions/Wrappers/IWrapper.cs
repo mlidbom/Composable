@@ -17,8 +17,7 @@ namespace Composable.GenericAbstractions.Wrappers
         T Wrapped { get; }
     }
 
-    [ContractClassFor(typeof(IWrapper<>))]
-    internal abstract class WrapperContract<T> : IWrapper<T>
+    [ContractClassFor(typeof(IWrapper<>))] abstract class WrapperContract<T> : IWrapper<T>
     {
         public T Wrapped
         {

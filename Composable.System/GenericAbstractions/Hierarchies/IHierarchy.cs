@@ -40,8 +40,7 @@ namespace Composable.GenericAbstractions.Hierarchies
         IEnumerable<T> Children { get; }
     }
 
-    [ContractClassFor(typeof(IHierarchy<>))]
-    internal abstract class HierarchyContract<T> : IHierarchy<T> where T : IHierarchy<T>
+    [ContractClassFor(typeof(IHierarchy<>))] abstract class HierarchyContract<T> : IHierarchy<T> where T : IHierarchy<T>
     {
         public IEnumerable<T> Children
         {

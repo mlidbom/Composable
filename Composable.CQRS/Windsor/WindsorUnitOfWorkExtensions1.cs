@@ -33,18 +33,18 @@ namespace Composable.Windsor
             set { CallContext.SetData("TransactionalUnitOfWorkWindsorScope_Current", value); }
         }
 
-        private abstract class TransactionalUnitOfWorkWindsorScopeBase : ITransactionalUnitOfWork
+        abstract class TransactionalUnitOfWorkWindsorScopeBase : ITransactionalUnitOfWork
         {
             public abstract void Dispose();
             public abstract void Commit();
             public abstract bool IsActive { get; }
         }
 
-        private class TransactionalUnitOfWorkWindsorScope : TransactionalUnitOfWorkWindsorScopeBase, IEnlistmentNotification
+        class TransactionalUnitOfWorkWindsorScope : TransactionalUnitOfWorkWindsorScopeBase, IEnlistmentNotification
         {
-            private readonly TransactionScope _transactionScopeWeCreatedAndOwn;
-            private readonly IUnitOfWork _unitOfWork;
-            private bool _committed;
+            readonly TransactionScope _transactionScopeWeCreatedAndOwn;
+            readonly IUnitOfWork _unitOfWork;
+            bool _committed;
 
             public TransactionalUnitOfWorkWindsorScope(IWindsorContainer container)
             {
@@ -62,7 +62,7 @@ namespace Composable.Windsor
                 }                
             }
 
-            override public void Dispose()
+            public override void Dispose()
             {
                 CurrentScope = null;
                 if(!_committed)
@@ -72,14 +72,14 @@ namespace Composable.Windsor
                 _transactionScopeWeCreatedAndOwn.Dispose();
             }
 
-            override public void Commit()
+            public override void Commit()
             {
                 _unitOfWork.Commit();
                 _transactionScopeWeCreatedAndOwn.Complete();
                 _committed = true;
             }
 
-            override public bool IsActive {get { return !CommitCalled && !RollBackCalled && !InDoubtCalled; }}
+            public override bool IsActive {get { return !CommitCalled && !RollBackCalled && !InDoubtCalled; }}
 
             public bool PrepareCalled { get; private set; }
             public bool CommitCalled { get; private set; }
@@ -110,23 +110,22 @@ namespace Composable.Windsor
             }
         }
 
-
-        private class InnerTransactionalUnitOfWorkWindsorScope : TransactionalUnitOfWorkWindsorScopeBase, ITransactionalUnitOfWork
+        class InnerTransactionalUnitOfWorkWindsorScope : TransactionalUnitOfWorkWindsorScopeBase, ITransactionalUnitOfWork
         {
-            private readonly TransactionalUnitOfWorkWindsorScopeBase _outer;
+            readonly TransactionalUnitOfWorkWindsorScopeBase _outer;
 
             public InnerTransactionalUnitOfWorkWindsorScope(TransactionalUnitOfWorkWindsorScopeBase outer)
             {
                 _outer = outer;
             }
 
-            override public void Dispose()
+            public override void Dispose()
             { }
 
-            override public void Commit()
+            public override void Commit()
             { }
 
-            override public bool IsActive { get { return _outer.IsActive; } }
+            public override bool IsActive { get { return _outer.IsActive; } }
         }
 
 

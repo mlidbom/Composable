@@ -6,8 +6,8 @@ namespace Composable.CQRS.EventSourcing
 {
     public class EntityCollection<TEntity, TEntityId> : IReadOnlyEntityCollection<TEntity, TEntityId>
     {
-        private readonly Dictionary<TEntityId, TEntity> _entities = new Dictionary<TEntityId, TEntity>();
-        private readonly List<TEntity> _entitiesInCreationOrder = new List<TEntity>();
+        readonly Dictionary<TEntityId, TEntity> _entities = new Dictionary<TEntityId, TEntity>();
+        readonly List<TEntity> _entitiesInCreationOrder = new List<TEntity>();
 
 
         public IReadOnlyList<TEntity> InCreationOrder => _entitiesInCreationOrder;

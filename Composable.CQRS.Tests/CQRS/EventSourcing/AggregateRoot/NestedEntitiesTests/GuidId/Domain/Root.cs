@@ -8,8 +8,10 @@ namespace CQRS.Tests.CQRS.EventSourcing.AggregateRoot.NestedEntitiesTests.GuidId
     public class Root : AggregateRoot<Root, RootEvent.Implementation.Root, RootEvent.IRoot>
     {
         public string Name { get; private set; }
-        private readonly Entity.CollectionManager _entities;
+        readonly Entity.CollectionManager _entities;
+#pragma warning disable 108,114
         public Component Component { get; private set; }
+#pragma warning restore 108,114
 
         public Root(string name) : base(new DateTimeNowTimeSource())
         {

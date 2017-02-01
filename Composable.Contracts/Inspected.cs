@@ -10,7 +10,7 @@ namespace Composable.Contracts
     /// <typeparam name="TValue"></typeparam>
     public class Inspected<TValue>
     {
-        private readonly InspectedValue<TValue>[] _inspectedValues;
+        readonly InspectedValue<TValue>[] _inspectedValues;
 
         /// <summary>
         /// Performs the supplied inspection against each <see cref="InspectedValue"/> in the instance.

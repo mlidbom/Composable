@@ -11,9 +11,9 @@ namespace Composable.System.Reflection
     ///<summary>Provides high performance access to object fields and properties.</summary>
     public static class MemberAccessorHelper
     {
-        private static readonly IDictionary<Type, Func<Object, Object>[]> TypeFields = new ConcurrentDictionary<Type, Func<Object, Object>[]>();
+        static readonly IDictionary<Type, Func<Object, Object>[]> TypeFields = new ConcurrentDictionary<Type, Func<Object, Object>[]>();
 
-        private static Func<object, object> BuildFieldGetter(FieldInfo field)
+        static Func<object, object> BuildFieldGetter(FieldInfo field)
         {
             Contract.Requires(field != null && field.DeclaringType != null);
 
@@ -36,7 +36,7 @@ namespace Composable.System.Reflection
             return InnerGetFields(type);
         }
 
-        private static Func<object, object>[] InnerGetFields(Type type)
+        static Func<object, object>[] InnerGetFields(Type type)
         {
             Func<Object, Object>[] fields;
             Contract.Ensures(Contract.Result<Func<Object, Object>[]>() != null);
@@ -64,7 +64,7 @@ namespace Composable.System.Reflection
     public static class MemberAccessorHelper<T>
     {
         // ReSharper disable StaticFieldInGenericType
-        private static readonly Func<Object, Object>[] Fields;
+        static readonly Func<Object, Object>[] Fields;
         // ReSharper restore StaticFieldInGenericType
 
         static MemberAccessorHelper()

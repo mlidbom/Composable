@@ -13,7 +13,7 @@ namespace CQRS.Tests.ServiceBus
     public class MessageHandlersTestBase
     {
         protected WindsorContainer Container;
-        private IDisposable _scope;
+        IDisposable _scope;
 
         public SynchronousBus SynchronousBus { get { return Container.Resolve<SynchronousBus>(); } }
 

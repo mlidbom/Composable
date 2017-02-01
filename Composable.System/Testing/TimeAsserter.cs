@@ -7,7 +7,7 @@ namespace Composable.Testing
 {
     public static class TimeAsserter
     {
-        private const string DefaultTimeFormat = "ss\\.fff";
+        const string DefaultTimeFormat = "ss\\.fff";
 
         public static StopwatchExtensions.TimedExecutionSummary Execute
             (Action action,
@@ -104,7 +104,7 @@ namespace Composable.Testing
             return executionSummary;
         }
 
-        private static void RunAsserts(TimeSpan? maxAverage, TimeSpan? maxTotal, StopwatchExtensions.TimedExecutionSummary executionSummary, Func<TimeSpan?, string> format)
+        static void RunAsserts(TimeSpan? maxAverage, TimeSpan? maxTotal, StopwatchExtensions.TimedExecutionSummary executionSummary, Func<TimeSpan?, string> format)
         {
             if(maxTotal.HasValue && executionSummary.Total > maxTotal.Value)
             {
@@ -116,7 +116,7 @@ namespace Composable.Testing
                 throw new Exception($"{nameof(maxAverage)} exceeded");
             }
         }
-        private static void PrintSummary
+        static void PrintSummary
             (int iterations, TimeSpan? maxAverage, TimeSpan? maxTotal, string description, Func<TimeSpan?, string> format, StopwatchExtensions.TimedExecutionSummary executionSummary)
         {
             if(iterations > 1)

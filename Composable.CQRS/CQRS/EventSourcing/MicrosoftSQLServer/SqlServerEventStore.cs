@@ -17,19 +17,19 @@ namespace Composable.CQRS.EventSourcing.MicrosoftSQLServer
 {
     public partial class SqlServerEventStore : IEventStore
     {
-        private static readonly ILog Log = LogManager.GetLogger(typeof(SqlServerEventStore));        
+        static readonly ILog Log = LogManager.GetLogger(typeof(SqlServerEventStore));        
 
         public readonly string ConnectionString;
-        private readonly ISingleContextUseGuard _usageGuard;
+        readonly ISingleContextUseGuard _usageGuard;
 
-        private readonly SqlServerEventStoreEventReader _eventReader;        
-        private readonly SqlServerEventStoreEventWriter _eventWriter;
-        private readonly SqlServerEventStoreEventsCache _cache;
-        private readonly SqlServerEventStoreSchemaManager _schemaManager;
-        private readonly IReadOnlyList<IEventMigration> _migrationFactories;
+        readonly SqlServerEventStoreEventReader _eventReader;
+        readonly SqlServerEventStoreEventWriter _eventWriter;
+        readonly SqlServerEventStoreEventsCache _cache;
+        readonly SqlServerEventStoreSchemaManager _schemaManager;
+        readonly IReadOnlyList<IEventMigration> _migrationFactories;
 
-        private readonly HashSet<Guid> _aggregatesWithEventsAddedByThisInstance = new HashSet<Guid>();
-        private readonly SqlServerEventStoreConnectionManager _connectionMananger;
+        readonly HashSet<Guid> _aggregatesWithEventsAddedByThisInstance = new HashSet<Guid>();
+        readonly SqlServerEventStoreConnectionManager _connectionMananger;
 
         public SqlServerEventStore(string connectionString, ISingleContextUseGuard usageGuard, IEventNameMapper nameMapper = null, IEnumerable<IEventMigration> migrations = null)
         {
@@ -58,7 +58,7 @@ namespace Composable.CQRS.EventSourcing.MicrosoftSQLServer
             return GetAggregateHistoryInternal(aggregateId, takeWriteLock: false);
         }
 
-        private IEnumerable<IAggregateRootEvent> GetAggregateHistoryInternal(Guid aggregateId, bool takeWriteLock)
+        IEnumerable<IAggregateRootEvent> GetAggregateHistoryInternal(Guid aggregateId, bool takeWriteLock)
         {
             _usageGuard.AssertNoContextChangeOccurred(this);
             _schemaManager.SetupSchemaIfDatabaseUnInitialized();
@@ -98,14 +98,14 @@ namespace Composable.CQRS.EventSourcing.MicrosoftSQLServer
             }
         }
 
-        private static bool IsRefactoringEvent(AggregateRootEvent @event)
+        static bool IsRefactoringEvent(AggregateRootEvent @event)
         {
             return @event.InsertBefore.HasValue || @event.InsertAfter.HasValue || @event.Replaces.HasValue;
         }
 
         public const int StreamEventsBatchSize = 10000;
-       
-        private IEnumerable<IAggregateRootEvent> StreamEvents()
+
+        IEnumerable<IAggregateRootEvent> StreamEvents()
         {            
             _usageGuard.AssertNoContextChangeOccurred(this);
             _schemaManager.SetupSchemaIfDatabaseUnInitialized();
@@ -237,7 +237,7 @@ namespace Composable.CQRS.EventSourcing.MicrosoftSQLServer
            
         }
 
-        private bool IsRecoverableSqlException(Exception exception)
+        bool IsRecoverableSqlException(Exception exception)
         {
             var message = exception.Message.ToLower();
             return message.Contains("timeout") || message.Contains("deadlock");

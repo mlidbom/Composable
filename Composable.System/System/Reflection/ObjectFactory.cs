@@ -8,13 +8,13 @@ namespace Composable.System.Reflection
     ///<summary>Constructs instances of classes</summary>
     public static class ObjectFactory<TEntity>
     {
-        private interface ITypedArgument
+        interface ITypedArgument
         {
             Type Type { get; }
             object Argument { get; }
         }
 
-        private struct TypedArgument<TParameter> : ITypedArgument
+        struct TypedArgument<TParameter> : ITypedArgument
         {
             public TypedArgument(TParameter argument) { Argument = argument; }
 
@@ -28,7 +28,7 @@ namespace Composable.System.Reflection
             return CreateInstanceInternal(new TypedArgument<TParameter1>(argument1));
         }
 
-        private static TEntity CreateInstanceInternal(params ITypedArgument[] typedArguments)
+        static TEntity CreateInstanceInternal(params ITypedArgument[] typedArguments)
         {
             var argumentsArray = typedArguments.Select(typedArgument => typedArgument.Argument).ToArray();
             var parameterTypes = typedArguments.Select(typedArgument => typedArgument.Type).ToArray();
@@ -70,8 +70,7 @@ namespace Composable.System.Reflection
         //    return (TEntity)constructor.Invoke(invokeAttr: bindingFlags, binder: null, obj: null, parameters: argumentsArray, culture: null);
         //}
 
-
-        private static string DescribeParameterList(IEnumerable<Type> parameterTypes)
+        static string DescribeParameterList(IEnumerable<Type> parameterTypes)
         {
             return parameterTypes.Select(parameterType => parameterType.FullName).Join(", ");
         }

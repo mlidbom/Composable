@@ -35,7 +35,7 @@ namespace Composable.CQRS.EventSourcing
                                                        TEntityBaseEventClass,
                                                        TEntityBaseEventInterface>, new()
             {
-                private static readonly TEventEntityIdSetterGetter IdGetterSetter = new TEventEntityIdSetterGetter();
+                static readonly TEventEntityIdSetterGetter IdGetterSetter = new TEventEntityIdSetterGetter();
 
                 // ReSharper disable once UnusedMember.Global todo: coverage
                 protected NestedEntity(TComponent parent)

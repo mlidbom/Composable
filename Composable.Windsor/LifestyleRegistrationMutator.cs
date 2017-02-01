@@ -10,8 +10,8 @@ namespace Composable.Windsor
     /// </summary>
     public class LifestyleRegistrationMutator : IContributeComponentModelConstruction
     {
-        private readonly LifestyleType _originalLifestyle;
-        private readonly LifestyleType _newLifestyleType;
+        readonly LifestyleType _originalLifestyle;
+        readonly LifestyleType _newLifestyleType;
 
         public LifestyleRegistrationMutator(
             LifestyleType originalLifestyle = LifestyleType.PerWebRequest,

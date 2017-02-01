@@ -56,10 +56,10 @@ namespace Composable.Contracts.Tests
                 maxTotal: 10.Milliseconds().AdjustRuntimeToTestEnvironment());            
         }
 
-        private struct MyStructure
+        struct MyStructure
         {
             // ReSharper disable NotAccessedField.Local
-            private int _value;
+            int _value;
             // ReSharper restore NotAccessedField.Local
 
             public MyStructure(int value)

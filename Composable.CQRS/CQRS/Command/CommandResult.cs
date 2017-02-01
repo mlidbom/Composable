@@ -9,7 +9,7 @@ namespace Composable.CQRS
 {
     public class CommandResult
     {
-        private readonly IList<IDomainEvent> _events = new List<IDomainEvent>();
+        readonly IList<IDomainEvent> _events = new List<IDomainEvent>();
 
         public void RegisterEvent(IDomainEvent evt)
         {

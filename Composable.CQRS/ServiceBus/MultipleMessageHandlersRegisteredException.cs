@@ -11,7 +11,7 @@ namespace Composable.ServiceBus
         public MultipleMessageHandlersRegisteredException(object message, IEnumerable<Type> handlerTypes)
             : base(CreateMessage(message, handlerTypes)) { }
 
-        private static string CreateMessage(object message, IEnumerable<Type> handlerTypes)
+        static string CreateMessage(object message, IEnumerable<Type> handlerTypes)
         {
             var exceptionMessage = "There are multiple handlers registered for the message type:{0}.\nIf you are getting this because you have registered a listener as a test spy have your listener implement ISynchronousBusMessageSpy and the exception will disappear"
                 .FormatWith(message.GetType());

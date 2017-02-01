@@ -11,7 +11,7 @@ namespace Composable.CQRS.Windsor.Testing
     {
         public class WindsorRegistrationAssertionHelper
         {
-            private readonly IWindsorContainer _container;
+            readonly IWindsorContainer _container;
 
             public WindsorRegistrationAssertionHelper(IWindsorContainer container)
             {

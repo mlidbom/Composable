@@ -7,13 +7,13 @@ namespace CQRS.Tests.KeyValueStorage
     [TestFixture]
     public class DocumentDBSession_DocumentKeyTests
     {
-        private class Base
+        class Base
         {}
 
-        private class Inheritor : Base
+        class Inheritor : Base
         {}
 
-        private class Unrelated{}
+        class Unrelated{}
 
 
         [Test]

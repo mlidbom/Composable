@@ -53,12 +53,12 @@ namespace Core.Tests.IO
 
         #region Helpers
 
-        private static string CreateUsableFolderPath()
+        static string CreateUsableFolderPath()
         {
             return Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
         }
 
-        private static int CreateDirectoryHierarchy(string directoryPath, int depth)
+        static int CreateDirectoryHierarchy(string directoryPath, int depth)
         {
             if(depth <= 0)
             {

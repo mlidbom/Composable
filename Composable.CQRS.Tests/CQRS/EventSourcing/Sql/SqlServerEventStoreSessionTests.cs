@@ -18,8 +18,8 @@ namespace CQRS.Tests.CQRS.EventSourcing.Sql
     [TestFixture]
     class SqlServerEventStoreSessionTests : EventStoreSessionTests
     {
-        private string ConnectionString;
-        private SqlServerDatabasePool _databasePool;
+        string ConnectionString;
+        SqlServerDatabasePool _databasePool;
         [SetUp]
         public void Setup()
         {

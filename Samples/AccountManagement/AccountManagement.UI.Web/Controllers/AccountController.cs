@@ -6,8 +6,8 @@ namespace AccountManagement.UI.Web.Controllers
 {
     public class AccountController : Controller
     {
-        private readonly IAuthenticationContext _authenticationContext;
-        private readonly IAccountManagementQueryModelsReader _queryModels;
+        readonly IAuthenticationContext _authenticationContext;
+        readonly IAccountManagementQueryModelsReader _queryModels;
 
         public AccountController(IAuthenticationContext authenticationContext, IAccountManagementQueryModelsReader queryModels)
         {

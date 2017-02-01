@@ -9,9 +9,9 @@ namespace AccountManagement.Domain.Tests.AccountTests
     [TestFixture]
     public class RegisterAccountFailureScenariosTests : DomainTestBase
     {
-        private IDuplicateAccountChecker _duplicateAccountChecker;
-        private RegisterAccountScenario _registerAccountScenario;
-        private IAccountRepository _repository;
+        IDuplicateAccountChecker _duplicateAccountChecker;
+        RegisterAccountScenario _registerAccountScenario;
+        IAccountRepository _repository;
 
         [SetUp]
         public void SetupWiringAndCreateRepositoryAndScope()

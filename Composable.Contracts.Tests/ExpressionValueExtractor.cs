@@ -5,11 +5,11 @@ namespace Composable.Contracts.Tests
     [TestFixture]
     public class ExpressionValueExtractorTests
     {
-        private string _testString = "TestString";
+        string _testString = "TestString";
 
-        private string TestString { get { return _testString; } }
+        string TestString { get { return _testString; } }
 
-        private object WrappedIntOne = 1;
+        object WrappedIntOne = 1;
 
         [Test]
         public void ExtractsValuesromFieldAccessingLambdas()
@@ -35,9 +35,7 @@ namespace Composable.Contracts.Tests
             Assert.That(result, Is.SameAs(_testString));
         }
 
-
-
-        private TValue ReturnExtractedParameterValue<TValue>(TValue param)
+        TValue ReturnExtractedParameterValue<TValue>(TValue param)
         {
             return ContractsExpression.ExtractValue(() => param);
         }

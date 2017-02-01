@@ -29,7 +29,7 @@ namespace Composable.CQRS.Command
 
         public IEnumerable<string> InvalidMembers { get; private set; }
 
-        private static string ExtractMemberName(LambdaExpression expr)
+        static string ExtractMemberName(LambdaExpression expr)
         {
             var body = expr.Body;
             var parts = new List<string>();

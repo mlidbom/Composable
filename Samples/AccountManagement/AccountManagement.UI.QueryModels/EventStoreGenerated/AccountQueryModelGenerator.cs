@@ -8,7 +8,7 @@ using JetBrains.Annotations;
 namespace AccountManagement.UI.QueryModels.EventStoreGenerated
 {
     /// <summary>Ad hoc creates an <see cref="AccountQueryModel"/> by reading and applying the events from the event store reader</summary>
-    [UsedImplicitly] internal class AccountQueryModelGenerator :
+    [UsedImplicitly] class AccountQueryModelGenerator :
         SingleAggregateQueryModelGenerator<AccountQueryModelGenerator, AccountQueryModel, IAccountEvent, IAccountManagementEventStoreReader>,
         IAccountManagementQueryModelGenerator
     {

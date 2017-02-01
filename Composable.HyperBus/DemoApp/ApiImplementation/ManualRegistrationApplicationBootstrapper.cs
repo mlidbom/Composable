@@ -3,8 +3,8 @@ using Composable.HyperBus.APIDraft;
 using Composable.HyperBus.DemoApp.ApiImplementation.MessageHandlers;
 using Composable.HyperBus.DemoApp.ExposedApi;
 using Composable.HyperBus.DemoApp.ExposedApi.Resources.Accounts;
-// ReSharper disable UnusedMember.Global
 
+// ReSharper disable All
 namespace Composable.HyperBus.DemoApp.ApiImplementation
 {
     public class ManualRegistrationApplicationBootstrapper

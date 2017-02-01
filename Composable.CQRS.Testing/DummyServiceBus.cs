@@ -11,16 +11,16 @@ namespace Composable.CQRS.Testing
 {
     public class DummyServiceBus : IServiceBus
     {
-        private List<Tuple<Type, Func<object, IEnumerable<IMessage>>>> _localHandlers = new List<Tuple<Type, Func<object, IEnumerable<IMessage>>>>();
+        List<Tuple<Type, Func<object, IEnumerable<IMessage>>>> _localHandlers = new List<Tuple<Type, Func<object, IEnumerable<IMessage>>>>();
 
-        private readonly IWindsorContainer _serviceLocator;
+        readonly IWindsorContainer _serviceLocator;
 
         public DummyServiceBus(IWindsorContainer serviceLocator)
         {
             _serviceLocator = serviceLocator;
         }
 
-        private readonly IList<object> _published = new List<object>();
+        readonly IList<object> _published = new List<object>();
 
         public IEnumerable<object> Published { get { return _published; } }
 

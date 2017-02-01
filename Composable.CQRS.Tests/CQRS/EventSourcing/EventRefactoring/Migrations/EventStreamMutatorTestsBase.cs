@@ -52,7 +52,7 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
             }
         }
 
-        private static void RunScenarioWithEventStoreType
+        static void RunScenarioWithEventStoreType
             (MigrationScenario scenario, Type eventStoreType, WindsorContainer container, IList<IEventMigration> migrations, int indexOfScenarioInBatch)
         {
             var startingMigrations = migrations.ToList();

@@ -11,15 +11,15 @@ namespace CQRS.Tests.SqlServerDatabasePoolTests
     [TestFixture]
     public class After_creating_two_databases_named_db1_and_db2
     {
-        private string _masterConnectionString;
-        private SqlServerConnectionUtilities _masterConnection;
-        private SqlServerDatabasePool _manager;
-        private string _dB1ConnectionString;
-        private string _dB2ConnectionString;
-        private string _dB2DbName;
-        private string _dB1DbName;
-        private const string Db1 = "LocalDBManagerTests_After_creating_connection_Db1";
-        private const string Db2 = "LocalDBManagerTests_After_creating_connection_Db2";
+        string _masterConnectionString;
+        SqlServerConnectionUtilities _masterConnection;
+        SqlServerDatabasePool _manager;
+        string _dB1ConnectionString;
+        string _dB2ConnectionString;
+        string _dB2DbName;
+        string _dB1DbName;
+        const string Db1 = "LocalDBManagerTests_After_creating_connection_Db1";
+        const string Db2 = "LocalDBManagerTests_After_creating_connection_Db2";
 
 
         [SetUp]

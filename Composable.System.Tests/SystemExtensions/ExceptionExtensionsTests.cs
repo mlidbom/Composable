@@ -10,9 +10,9 @@ namespace Composable.Tests.SystemExtensions
     [TestFixture]
     public class ExceptionExtensions
     {
-        private Exception _originalException;
-        private Exception _firstNestingException;
-        private Exception _secondNestingException;
+        Exception _originalException;
+        Exception _firstNestingException;
+        Exception _secondNestingException;
 
         [SetUp]
         public void Setup()

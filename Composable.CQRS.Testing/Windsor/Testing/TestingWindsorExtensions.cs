@@ -1,12 +1,12 @@
 ﻿using System;
 using Castle.MicroKernel.Registration;
 using Castle.Windsor;
-using Castle.Windsor.Installer;
 using Composable.GenericAbstractions.Time;
 using Composable.ServiceBus;
 using Composable.System.Configuration;
+using Composable.Windsor.Testing;
 
-namespace Composable.Windsor.Testing
+namespace Composable.CQRS.Testing.Windsor.Testing
 {
     public static class TestingWindsorExtensions
     {

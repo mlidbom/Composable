@@ -88,6 +88,10 @@
       <Project>{579A5738-6B8A-41E4-B2F3-5FD4CA595786}</Project>
       <Name>Composable.Contracts</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\..\Composable.CQRS.Testing\Composable.CQRS.Testing.csproj">
+      <Project>{D7F30AB8-1C8F-4F0D-8E89-6E4DABF52941}</Project>
+      <Name>Composable.CQRS.Testing</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\..\Composable.CQRS\Composable.CQRS.csproj">
       <Project>{3B776BD4-0EDD-4A83-BC9A-3A53D6649AB0}</Project>
       <Name>Composable.CQRS</Name>

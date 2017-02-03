@@ -51,7 +51,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DomainTestWiringHelper.cs" />
-    <Compile Include="MessageSpy.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Scenarios\ChangeEmailScenario.cs" />
     <Compile Include="Scenarios\ChangePasswordScenario.cs" />
@@ -59,6 +58,10 @@
     <Compile Include="TestData.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\..\Composable.CQRS.Testing\Composable.CQRS.Testing.csproj">
+      <Project>{D7F30AB8-1C8F-4F0D-8E89-6E4DABF52941}</Project>
+      <Name>Composable.CQRS.Testing</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\..\Composable.CQRS\Composable.CQRS.csproj">
       <Project>{3B776BD4-0EDD-4A83-BC9A-3A53D6649AB0}</Project>
       <Name>Composable.CQRS</Name>

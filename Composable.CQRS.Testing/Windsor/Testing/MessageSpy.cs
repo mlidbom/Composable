@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using Composable.ServiceBus;
 
-namespace AccountManagement.TestHelpers
+namespace Composable.Windsor.Testing
 {
     public class MessageSpy : IHandleMessages<IMessage>,
         ISynchronousBusMessageSpy //Keeps the bus from getting angry when more than one listener exists when invoking "Send". A hack that will be changed.

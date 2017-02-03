@@ -1,10 +1,11 @@
 using AccountManagement.Domain.QueryModels;
 using AccountManagement.Domain.Shared;
 using Composable.Contracts;
+using JetBrains.Annotations;
 
 namespace AccountManagement.Domain.Services
 {
-    class DuplicateAccountChecker : IDuplicateAccountChecker
+    [UsedImplicitly] class DuplicateAccountChecker : IDuplicateAccountChecker
     {
         readonly IAccountManagementDomainQueryModelSession _querymodels;
 

@@ -20,6 +20,7 @@ namespace AccountManagement.UI.QueryModels.ContainerInstallers
                     .IncludeNonPublicTypes()
                     .BasedOn(typeof(IAccountManagementQueryModelGenerator))
                     .WithServiceBase()
+                    .WithServiceSelf()
                     .LifestylePerWebRequest()
                 );
         }

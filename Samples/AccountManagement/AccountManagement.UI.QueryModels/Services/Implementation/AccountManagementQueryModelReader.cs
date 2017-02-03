@@ -2,25 +2,28 @@
 using AccountManagement.Domain.Shared;
 using AccountManagement.UI.QueryModels.DocumentDbStored;
 using AccountManagement.UI.QueryModels.EventStoreGenerated;
+using Composable.CQRS.Query.Models.Generators;
+using Composable.KeyValueStorage;
+using Composable.System.Linq;
+using Composable.SystemExtensions.Threading;
 using JetBrains.Annotations;
 
 namespace AccountManagement.UI.QueryModels.Services.Implementation
 {
     [UsedImplicitly] class AccountManagementQueryModelReader : IAccountManagementQueryModelsReader
     {
-        readonly IAccountManagementEventStoreGeneratedQueryModelsReader _generatedModels;
         readonly IAccountManagementDocumentDbQueryModelsReader _documentDbQueryModels;
+        readonly QueryModelGeneratingDocumentDbReader _generatedModels;
 
-        public AccountManagementQueryModelReader(IAccountManagementEventStoreGeneratedQueryModelsReader generatedModels, IAccountManagementDocumentDbQueryModelsReader documentDbQueryModels)
+        public AccountManagementQueryModelReader(IAccountManagementDocumentDbQueryModelsReader documentDbQueryModels,
+                                                 AccountQueryModelGenerator accountQueryModelGenerator,
+                                                 ISingleContextUseGuard usageGuard)
         {
-            _generatedModels = generatedModels;
             _documentDbQueryModels = documentDbQueryModels;
+            _generatedModels = new QueryModelGeneratingDocumentDbReader(usageGuard, NullOpDocumentDbSessionInterceptor.Instance, Seq.Create(accountQueryModelGenerator));
         }
 
-        public AccountQueryModel GetAccount(Guid accountId)
-        {
-            return _generatedModels.Get<AccountQueryModel>(accountId);
-        }
+        public AccountQueryModel GetAccount(Guid accountId) { return _generatedModels.Get<AccountQueryModel>(accountId); }
 
         public bool TryGetAccountByEmail(Email accountEmail, out AccountQueryModel account)
         {
@@ -32,6 +35,11 @@ namespace AccountManagement.UI.QueryModels.Services.Implementation
             }
             account = null;
             return false;
+        }
+
+        public AccountQueryModel GetAccount(Guid accountId, int version)
+        {
+            return _generatedModels.GetVersion<AccountQueryModel>(accountId, version);    
         }
     }
 }

@@ -138,6 +138,8 @@ namespace CQRS.Tests.NewtonSoft
                                             insertionOrder: 40,
                                             utcTimeStamp: DateTime.Now + 1.Minutes());
 
+            new SqlServerEvestStoreEventSerializer().Serialize(@event);//Warmup
+
             var eventSerializerPerformanceNumbers = StopwatchExtensions.TimeExecution(() =>
                                  {
                                      var eventJson = new SqlServerEvestStoreEventSerializer().Serialize(@event);

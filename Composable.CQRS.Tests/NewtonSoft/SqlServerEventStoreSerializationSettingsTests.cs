@@ -1,5 +1,6 @@
 ﻿using System;
 using Composable.CQRS.EventSourcing;
+using Composable.CQRS.EventSourcing.MicrosoftSQLServer;
 using Composable.NewtonSoft;
 using FluentAssertions;
 using JetBrains.Annotations;
@@ -76,13 +77,18 @@ namespace CQRS.Tests.NewtonSoft
                                                   UtcTimeStamp = DateTime.MinValue
                                               };
 
-            var eventWithAllValuesJson = JsonConvert.SerializeObject(eventWithAllValuesSet, JsonSettings.SqlEventStoreSerializerSettings);
-            var eventWithOnlySubclassValuesJson = JsonConvert.SerializeObject(eventWithOnlySubclassValues, JsonSettings.SqlEventStoreSerializerSettings);
-            var roundTripped = JsonConvert.DeserializeObject<TestEvent>(eventWithAllValuesJson, JsonSettings.SqlEventStoreSerializerSettings);
+            var serializer = new SqlServerEvestStoreEventSerializer();
+
+            var eventWithAllValuesJson = serializer.Serialize(eventWithAllValuesSet);
+            var eventWithOnlySubclassValuesJson = serializer.Serialize(eventWithOnlySubclassValues);
+            var roundTripped = serializer.Deserialize(typeof(TestEvent), eventWithAllValuesJson);
 
             Console.WriteLine(eventWithAllValuesJson);
 
-            eventWithAllValuesJson.Should().Be("{\"Test1\":\"Test1\",\"Test2\":\"Test2\"}");
+            eventWithAllValuesJson.Should().Be(@"{
+  ""Test1"": ""Test1"",
+  ""Test2"": ""Test2""
+}");
             eventWithAllValuesJson.Should().Be(eventWithOnlySubclassValuesJson);
 
             roundTripped.ShouldBeEquivalentTo(eventWithOnlySubclassValues,

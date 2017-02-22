@@ -5,7 +5,7 @@ using NUnit.Framework;
 
 namespace AccountManagement.Domain.Tests.AccountTests
 {
-    public class ChangeEmailFailureScenariosTests : DomainTestBase
+    public class When_they_attempt_to_change_their_email_an_exception_is_thrown_if : DomainTestBase
     {
         ChangeAccountEmailScenario _changeEmail;
 
@@ -16,7 +16,7 @@ namespace AccountManagement.Domain.Tests.AccountTests
         }
 
         [Test]
-        public void WhenEmailIsNullObjectIsNullExceptionIsThrown()
+        public void NewEmail_is_null()
         {
             _changeEmail.NewEmail = null;
             _changeEmail.Invoking(scenario => scenario.Execute())

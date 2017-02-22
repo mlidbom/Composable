@@ -4,9 +4,9 @@ using AccountManagement.TestHelpers.Scenarios;
 using FluentAssertions;
 using NUnit.Framework;
 
-namespace AccountManagement.Domain.Tests.AccountTests
+namespace AccountManagement.Domain.Tests.After_a_user_has_registered_an_account
 {
-    public class ChangeEmailSuccessScenariosTests : DomainTestBase
+    public class After_they_change_their_email : DomainTestBase
     {
         ChangeAccountEmailScenario _changeEmailScenario;
 
@@ -18,7 +18,7 @@ namespace AccountManagement.Domain.Tests.AccountTests
         }
 
         [Test]
-        public void ASingleIUserChangedAccountEmailEventIsRaised()
+        public void an_IUserChangedAccountEmailEvent_is_published_on_the_bus()
         {
             MessageSpy.ReceivedMessages
                 .OfType<IUserChangedAccountEmailEvent>()
@@ -26,7 +26,7 @@ namespace AccountManagement.Domain.Tests.AccountTests
         }
 
         [Test]
-        public void RaisedEventHasTheCorrectEmail()
+        public void Raised_event_contains_the_supplied_email()
         {
             MessageSpy.ReceivedMessages
                 .OfType<IUserChangedAccountEmailEvent>().Single()
@@ -34,13 +34,13 @@ namespace AccountManagement.Domain.Tests.AccountTests
         }
 
         [Test]
-        public void AccountHasTheNewEmail()
+        public void Account_Email_is_the_supplied_email()
         {
             _changeEmailScenario.Account.Email.Should().Be(_changeEmailScenario.NewEmail);
         }
 
         [Test]
-        public void RegisteringAnAccountWithTheOldEmailIsPossible()
+        public void Registering_an_account_with_the_old_email_works()
         {
             new RegisterAccountScenario(Container)
             {
@@ -49,7 +49,7 @@ namespace AccountManagement.Domain.Tests.AccountTests
         }
 
         [Test]
-        public void RegisteringAnAccountWithTheNewEmailThrowsDuplicateAccountException()
+        public void Attempting_to_register_an_account_with_the_new_email_throws_a_DuplicateAccountException()
         {
             new RegisterAccountScenario(Container)
                 {

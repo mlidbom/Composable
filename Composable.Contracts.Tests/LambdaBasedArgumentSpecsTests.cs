@@ -19,13 +19,13 @@ namespace Composable.Contracts.Tests
             string emptyString = "";
             string nullString = null;
             Assert.Throws<ObjectIsNullContractViolationException>(() => Contract.Argument(() => nullString).NotNull())
-                .Message.Should().Contain("nullString");
+                .Message.Should().Contain(nameof(nullString));
 
             Assert.Throws<ObjectIsNullContractViolationException>(() => Contract.Argument(() => okString, () => nullString, () => notNullObject).NotNull())
-                .Message.Should().Contain("nullString");
+                .Message.Should().Contain(nameof(nullString));
 
             Assert.Throws<StringIsEmptyContractViolationException>(() => Contract.Argument(() => okString, () => emptyString).NotNullOrEmpty())
-                .Message.Should().Contain("emptyString");
+                .Message.Should().Contain(nameof(emptyString));
 
             Assert.Throws<ObjectIsNullContractViolationException>(() => TestStringsForNullOrEmpty(nullString))
                 .Message.Should().Contain("singleString");

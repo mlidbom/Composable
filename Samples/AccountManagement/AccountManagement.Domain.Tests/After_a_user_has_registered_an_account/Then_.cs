@@ -4,10 +4,10 @@ using AccountManagement.TestHelpers.Scenarios;
 using FluentAssertions;
 using NUnit.Framework;
 
-namespace AccountManagement.Domain.Tests.AccountTests
+namespace AccountManagement.Domain.Tests.After_a_user_has_registered_an_account
 {
     [TestFixture]
-    public class RegisterAccountSuccessScenarioTests : DomainTestBase
+    public class Then_ : DomainTestBase
     {
         Account _registeredAccount;
         RegisterAccountScenario _registerAccountScenario;
@@ -20,19 +20,19 @@ namespace AccountManagement.Domain.Tests.AccountTests
         }
 
         [Test]
-        public void AnIUserRegisteredAccountEventIsPublished()
+        public void An_IUserRegisteredAccountEvent_is_published()
         {
             MessageSpy.ReceivedMessages.OfType<IUserRegisteredAccountEvent>().ToList().Should().HaveCount(1);
         }
 
         [Test]
-        public void AccountEmailIsTheOneUsedForRegistration()
+        public void AccountEmail_is_the_one_used_for_registration()
         {
             Assert.That(_registeredAccount.Email, Is.EqualTo(_registerAccountScenario.Email));
         }
 
         [Test]
-        public void AccountPasswordIsTheOnUsedForRegistration()
+        public void AccountPassword_is_the_one_used_for_registration()
         {
             Assert.True(_registeredAccount.Password.IsCorrectPassword(_registerAccountScenario.PasswordAsString));
         }

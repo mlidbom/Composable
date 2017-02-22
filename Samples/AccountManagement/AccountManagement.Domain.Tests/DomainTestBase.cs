@@ -1,30 +1,26 @@
-﻿using System;
-using AccountManagement.TestHelpers;
+﻿using AccountManagement.TestHelpers;
 using Castle.MicroKernel.Lifestyle;
 using Castle.Windsor;
+using Composable.System;
+using Composable.Windsor.Testing;
 using NUnit.Framework;
 
 namespace AccountManagement.Domain.Tests
 {
-    [TestFixture]
-    public abstract class DomainTestBase
+    [TestFixture] public abstract class DomainTestBase
     {
-        protected WindsorContainer Container { get; private set; }
-        IDisposable Scope { get; set; }
+        protected IWindsorContainer Container { get; private set; }
         protected MessageSpy MessageSpy { get { return Container.Resolve<MessageSpy>(); } }
 
-        [SetUp]
-        public void SetupContainerAndBeginScope()
+        StrictAggregateDisposable _managedResources;
+
+        [SetUp] public void SetupContainerAndBeginScope()
         {
             Container = DomainTestWiringHelper.SetupContainerForTesting();
-            Scope = Container.BeginScope();
+
+            _managedResources = StrictAggregateDisposable.Create(Container.BeginScope(), Container);
         }
 
-        [TearDown]
-        public void DisposeScopeAndContainer()
-        {
-            Scope.Dispose();
-            Container.Dispose();
-        }
+        [TearDown] public void DisposeScopeAndContainer() { _managedResources.Dispose(); }
     }
 }

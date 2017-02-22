@@ -65,12 +65,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AccountTests\ChangeEmailSuccessScenarioTests.cs" />
-    <Compile Include="AccountTests\ChangeEmailFailureScenariosTests.cs" />
-    <Compile Include="AccountTests\ChangePasswordFailureScenariosTests.cs" />
-    <Compile Include="AccountTests\ChangePasswordSuccessScenarioTest.cs" />
-    <Compile Include="AccountTests\RegisterAccountSuccessScenarioTests.cs" />
-    <Compile Include="AccountTests\RegisterAccountFailureScenariosTests.cs" />
+    <Compile Include="After_a_user_has_registered_an_account\After_they_change_their_email.cs" />
+    <Compile Include="After_a_user_has_registered_an_account\When_they_attempt_to_change_their_email_an_exception_is_thrown_if.cs" />
+    <Compile Include="After_a_user_has_registered_an_account\When_they_attempt_to_change_their_password_an_exception_is_thrown_if_.cs" />
+    <Compile Include="After_a_user_has_registered_an_account\After_they_change_their_password.cs" />
+    <Compile Include="After_a_user_has_registered_an_account\Then_.cs" />
+    <Compile Include="When_a_user_registers_an_account\An_exception_of_type_.cs" />
     <Compile Include="ContainerInstallers\DomainWiringTest.cs" />
     <Compile Include="DomainTestBase.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -87,6 +87,10 @@
     <ProjectReference Include="..\..\..\Composable.Contracts\Composable.Contracts.csproj">
       <Project>{579A5738-6B8A-41E4-B2F3-5FD4CA595786}</Project>
       <Name>Composable.Contracts</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\Composable.CQRS.Testing\Composable.CQRS.Testing.csproj">
+      <Project>{D7F30AB8-1C8F-4F0D-8E89-6E4DABF52941}</Project>
+      <Name>Composable.CQRS.Testing</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\..\Composable.CQRS\Composable.CQRS.csproj">
       <Project>{3B776BD4-0EDD-4A83-BC9A-3A53D6649AB0}</Project>

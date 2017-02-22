@@ -4,9 +4,9 @@ using AccountManagement.TestHelpers.Scenarios;
 using FluentAssertions;
 using NUnit.Framework;
 
-namespace AccountManagement.Domain.Tests.AccountTests
+namespace AccountManagement.Domain.Tests.After_a_user_has_registered_an_account
 {
-    public class ChangePasswordSuccessScenarioTest : DomainTestBase
+    public class After_they_change_their_password : DomainTestBase
     {
         ChangePasswordScenario _changePasswordScenario;
 
@@ -18,7 +18,7 @@ namespace AccountManagement.Domain.Tests.AccountTests
         }
 
         [Test]
-        public void AnIUserChangedAccountPasswordEventIsRaised()
+        public void An_IUserChangedAccountPasswordEvent_is_published_on_the_bus()
         {
             MessageSpy.ReceivedMessages
                 .OfType<IUserChangedAccountPasswordEvent>()
@@ -26,14 +26,14 @@ namespace AccountManagement.Domain.Tests.AccountTests
         }
 
         [Test]
-        public void EventPasswordShouldAcceptTheUsedPasswordAsValid()
+        public void Event_password_should_accept_the_used_password_as_valid()
         {
             MessageSpy.ReceivedMessages.OfType<IUserChangedAccountPasswordEvent>()
                 .Single().Password.AssertIsCorrectPassword(_changePasswordScenario.NewPasswordAsString);
         }
 
         [Test]
-        public void AccountPasswordShouldAcceptTheNewPassword()
+        public void Account_password_should_accept_the_new_password_as_valid()
         {
             _changePasswordScenario.Account.Password.AssertIsCorrectPassword(_changePasswordScenario.NewPasswordAsString);
         }

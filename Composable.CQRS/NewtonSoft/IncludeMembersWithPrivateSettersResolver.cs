@@ -7,7 +7,7 @@ namespace Composable.NewtonSoft
     class IncludeMembersWithPrivateSettersResolver : DefaultContractResolver
     {
         public static IncludeMembersWithPrivateSettersResolver Instance => new IncludeMembersWithPrivateSettersResolver();
-        protected IncludeMembersWithPrivateSettersResolver():base(shareCache:true)
+        protected IncludeMembersWithPrivateSettersResolver():base(shareCache:false)
         {            
         }
 

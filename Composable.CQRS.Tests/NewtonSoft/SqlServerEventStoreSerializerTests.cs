@@ -99,7 +99,7 @@ namespace CQRS.Tests.NewtonSoft
                 );
         }
 
-        [Test] public void Should_roundtrip_simple_event_10000_times_in_50_milliseconds_with_new_instance_for_each_serialization()
+        [Test] public void Should_roundtrip_simple_event_10000_times_in_100_milliseconds_with_new_instance_for_each_serialization()
         {
             var @event = new TestEvent(
                                             test1: "Test1",
@@ -119,13 +119,17 @@ namespace CQRS.Tests.NewtonSoft
                                      var roundTripped = (TestEvent)new SqlServerEvestStoreEventSerializer().Deserialize(typeof(TestEvent), eventJson);
                                  },
                                  iterations:10000,
-                                 maxTotal: 50.Milliseconds()
+                                 maxTotal: 100.Milliseconds(),
+                                 maxTries:3
                                 );
         }
 
         [Test]
         public void Should_roundtrip_simple_event_within_10_percent_of_default_serializer_performance_given_all_new_serializer_instances()
         {
+            const int iterations = 10000;
+            const double allowedSlowdown = 1.1;
+
             var @event = new TestEvent(
                                             test1: "Test1",
                                             test2: "Test2",
@@ -140,14 +144,6 @@ namespace CQRS.Tests.NewtonSoft
 
             new SqlServerEvestStoreEventSerializer().Serialize(@event);//Warmup
 
-            var eventSerializerPerformanceNumbers = StopwatchExtensions.TimeExecution(() =>
-                                 {
-                                     var eventJson = new SqlServerEvestStoreEventSerializer().Serialize(@event);
-                                     var roundTripped = (TestEvent)new SqlServerEvestStoreEventSerializer().Deserialize(typeof(TestEvent), eventJson);
-                                 },
-                                 iterations: 10000);
-
-
             var settings = SqlServerEvestStoreEventSerializer.JsonSettings;
             var defaultSerializerPerformanceNumbers = StopwatchExtensions.TimeExecution(() =>
                                                                                         {
@@ -155,13 +151,18 @@ namespace CQRS.Tests.NewtonSoft
                                                                                             var roundTripped = JsonConvert.DeserializeObject<TestEvent>(eventJson, settings);
                                                                                         },
          
-                                                                                        iterations: 10000);
+                                                                                        iterations: iterations);
 
-            var slowdownComparedToDefaultSerializer = (eventSerializerPerformanceNumbers.Total.TotalMilliseconds / defaultSerializerPerformanceNumbers.Total.TotalMilliseconds);
-            Console.WriteLine($"Times slower than default serializer: {slowdownComparedToDefaultSerializer}");
-            slowdownComparedToDefaultSerializer
-                .Should()
-                .BeLessThan(1.1);
+            var allowedTime = TimeSpan.FromMilliseconds(defaultSerializerPerformanceNumbers.Total.TotalMilliseconds * allowedSlowdown);
+
+            TimeAsserter.Execute(() =>
+                                 {
+                                     var eventJson = new SqlServerEvestStoreEventSerializer().Serialize(@event);
+                                     var roundTripped = (TestEvent)new SqlServerEvestStoreEventSerializer().Deserialize(typeof(TestEvent), eventJson);
+                                 },
+                                 iterations: iterations,
+                                 maxTotal: allowedTime,
+                                 maxTries: 3);
         }
     }
 }

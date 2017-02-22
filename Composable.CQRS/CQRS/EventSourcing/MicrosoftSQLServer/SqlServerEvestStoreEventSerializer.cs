@@ -9,7 +9,7 @@ namespace Composable.CQRS.EventSourcing.MicrosoftSQLServer
 {
     class SqlServerEvestStoreEventSerializer
     {
-        public static readonly JsonSerializerSettings JsonSettings = NewtonSoft.JsonSettings.SqlEventStoreSerializerSettings;
+        public static JsonSerializerSettings JsonSettings => NewtonSoft.JsonSettings.SqlEventStoreSerializerSettings;
 
         public string Serialize(object @event)
         {
@@ -36,7 +36,7 @@ namespace Composable.CQRS.EventSourcing.MicrosoftSQLServer
             }            
         }
 
-        public static readonly JsonSerializerSettings JsonSettings =
+        public static JsonSerializerSettings JsonSettings =>
             new JsonSerializerSettings
             {
                 TypeNameHandling = TypeNameHandling.Auto,

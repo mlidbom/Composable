@@ -4,7 +4,7 @@ namespace Composable.NewtonSoft
 {
     public static class JsonSettings
     {
-        public static readonly JsonSerializerSettings JsonSerializerSettings =
+        public static JsonSerializerSettings JsonSerializerSettings =>
             new JsonSerializerSettings
             {
                 TypeNameHandling = TypeNameHandling.Auto,
@@ -12,7 +12,7 @@ namespace Composable.NewtonSoft
                 ContractResolver = IncludeMembersWithPrivateSettersResolver.Instance
             };
 
-        public static readonly JsonSerializerSettings SqlEventStoreSerializerSettings =
+        public static JsonSerializerSettings SqlEventStoreSerializerSettings =>
             new JsonSerializerSettings
             {
                 TypeNameHandling = TypeNameHandling.Auto,

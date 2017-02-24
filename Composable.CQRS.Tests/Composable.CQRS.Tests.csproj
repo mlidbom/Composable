@@ -237,7 +237,7 @@
     <Compile Include="ServiceBus\WhenDummyTimeSourceTimeIsChanged.cs" />
     <Compile Include="SqlServerDatabasePoolTests\PerformanceTests.cs" />
     <Compile Include="SqlServerDatabasePoolTests\After_creating_two_databases_named_db1_and_db2.cs" />
-    <Compile Include="NewtonSoft\SqlServerEventStoreSerializationSettingsTests.cs" />
+    <Compile Include="NewtonSoft\SqlServerEventStoreSerializerTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ServiceBus\MessageHandlersTestBase.cs" />
     <Compile Include="ServiceBus\WhenHandlingAMessageThatInheritsOtherMessages.cs" />

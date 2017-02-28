@@ -115,6 +115,7 @@ namespace Composable.CQRS.EventHandling
 
         Dictionary<Type, Action<object>[]> _typeToHandlerCache;
         int _cachedTotalHandlers = 0;
+        static readonly Action<object>[] NullHandlerList = new Action<object>[0];
 
         Action<object>[] GetHandlers(Type type)
         {
@@ -154,11 +155,9 @@ namespace Composable.CQRS.EventHandling
                 {
                     throw new EventUnhandledException(GetType(), type);
                 }
-                return new Action<object>[0];
-            }
-            arrayResult = result.ToArray();
-            _typeToHandlerCache[type] = arrayResult;
-            return arrayResult;
+                return _typeToHandlerCache[type] = NullHandlerList;
+            }            
+            return _typeToHandlerCache[type] = result.ToArray();
         }
 
         public void Dispatch(TEvent evt)

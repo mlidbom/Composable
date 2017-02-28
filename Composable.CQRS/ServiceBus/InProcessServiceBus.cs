@@ -56,14 +56,20 @@ namespace Composable.ServiceBus
 
         public IMessageHandlerRegistrar ForEvent<TEvent>(Action<TEvent> handler) where TEvent : IEvent
         {
-            _eventHandlerRegistrations.Add(new EventHandlerRegistration(typeof(TEvent), registrar => registrar.For(handler)));
-            return this;
+            lock(_lock)
+            {
+                _eventHandlerRegistrations.Add(new EventHandlerRegistration(typeof(TEvent), registrar => registrar.For(handler)));
+                return this;
+            }            
         }
 
         public IMessageHandlerRegistrar ForCommand<TCommand>(Action<TCommand> handler) where TCommand : ICommand
         {
-            _commandHandlers.Add(typeof(TCommand), command => handler((TCommand)command));
-            return this;
+            lock(_lock)
+            {
+                _commandHandlers.Add(typeof(TCommand), command => handler((TCommand)command));
+                return this;
+            }
         }
 
         public bool Handles(object aMessage)
@@ -79,12 +85,9 @@ namespace Composable.ServiceBus
             throw new Exception($"Unhandled message type: {aMessage.GetType()}");
         }
 
-        protected virtual void AfterDispatchingMessage(IMessage message)
-        {
-            
-        }
+        protected virtual void AfterDispatchingMessage(IMessage message) { }
 
-        private class EventHandlerRegistration
+        class EventHandlerRegistration
         {
             public Type Type { get; }
             public Action<IEventHandlerRegistrar<IEvent>> RegisterHandlerWithRegistrar { get; }

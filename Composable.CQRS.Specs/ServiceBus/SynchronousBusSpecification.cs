@@ -108,7 +108,6 @@ namespace CQRS.Tests.ServiceBus
         }
 
         public class AnotherCommandHandler : ACommandHandler{}
-        public class ASpy : ACommandHandler, ISynchronousBusMessageSpy { }
 
         public class AnEventHandler
         {

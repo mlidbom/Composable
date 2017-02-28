@@ -9,7 +9,7 @@ using Composable.System.Reactive;
 
 namespace Composable.ServiceBus
 {
-    public class TestingOnlyServiceBus : InProcessServiceBus
+    public class TestingOnlyServiceBus : InProcessServiceBus, IMessageSpy
     {
         readonly DummyTimeSource _timeSource;
         readonly List<ScheduledMessage> _scheduledMessages = new List<ScheduledMessage>(); 
@@ -49,15 +49,12 @@ namespace Composable.ServiceBus
             }
         }
 
-        readonly List<Action<IMessage>> _spies = new List<Action<IMessage>>();
-        public void RegisterSpy(Action<IMessage> messageSpy)
-        {
-            _spies.Add(messageSpy);
-        }
+        readonly List<IMessage> _dispatchedMessages = new List<IMessage>();
+        public IEnumerable<IMessage> DispatchedMessages => _dispatchedMessages;
 
         protected override void AfterDispatchingMessage(IMessage message)
         {
-            _spies.ForEach(spy => spy(message));
+            _dispatchedMessages.Add(message);
         }
     }    
 }

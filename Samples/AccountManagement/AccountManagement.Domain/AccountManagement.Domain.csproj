@@ -54,7 +54,7 @@
     <Compile Include="ContainerInstallers\AccountManagementDomainQuerymodelsSessionInstaller.cs" />
     <Compile Include="ContainerInstallers\AccountRepositoryInstaller.cs" />
     <Compile Include="ContainerInstallers\DuplicateAccountCheckerInstaller.cs" />
-    <Compile Include="ContainerInstallers\Testing\ForTestsDomainEventHandlersInstaller.cs" />
+    <Compile Include="ContainerInstallers\Testing\DomainEventHandlersInstaller.cs" />
     <Compile Include="DuplicateAccountException.cs" />
     <Compile Include="QueryModels\EmailToAccountMapQueryModel.cs" />
     <Compile Include="Services\AccountManagementDomainQueryModelSession.cs" />

@@ -71,7 +71,6 @@
     <Compile Include="After_a_user_has_registered_an_account\After_they_change_their_password.cs" />
     <Compile Include="After_a_user_has_registered_an_account\Then_.cs" />
     <Compile Include="When_a_user_registers_an_account\An_exception_of_type_.cs" />
-    <Compile Include="ContainerInstallers\DomainWiringTest.cs" />
     <Compile Include="DomainTestBase.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="StubMain.cs" />

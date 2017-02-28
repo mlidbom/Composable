@@ -32,6 +32,7 @@ namespace Composable.ServiceBus
                 _eventHandlerRegistrations.ForEach(handlerRegistration => handlerRegistration.RegisterHandlerWithRegistrar(registrar));
             }            
             dispatcher.Dispatch((IEvent)message);
+            AfterDispatchingMessage((IMessage)message);
         }
 
         public void Send(object message)
@@ -50,6 +51,7 @@ namespace Composable.ServiceBus
             }
 
             handler(message);
+            AfterDispatchingMessage((IMessage)message);
         }
 
         //Review:mlidbo: This is not OK. Find a better way of handling this.
@@ -81,6 +83,11 @@ namespace Composable.ServiceBus
                     return _commandHandlers.ContainsKey(aMessage.GetType());
             }
             throw new Exception($"Unhandled message type: {aMessage.GetType()}");
+        }
+
+        protected virtual void AfterDispatchingMessage(IMessage message)
+        {
+            
         }
 
         private class EventHandlerRegistration

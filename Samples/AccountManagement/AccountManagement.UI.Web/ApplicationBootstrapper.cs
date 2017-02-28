@@ -2,6 +2,7 @@
 using Castle.MicroKernel.Registration;
 using Castle.Windsor;
 using Castle.Windsor.Installer;
+using Composable.CQRS.Testing.Windsor.Testing;
 using Composable.ServiceBus;
 using JetBrains.Annotations;
 using Composable.GenericAbstractions.Time;
@@ -18,7 +19,9 @@ namespace AccountManagement.UI.Web
             container.Register(
                 Component.For<IUtcTimeTimeSource>().ImplementedBy<DateTimeNowTimeSource>().LifestylePerWebRequest(),
                 Component.For<SynchronousBus>().ImplementedBy<SynchronousBus>().LifestylePerWebRequest(),
-                Component.For<IAuthenticationContext>().ImplementedBy<AuthenticationContext>().LifestylePerWebRequest()                
+                Component.For<IAuthenticationContext>().ImplementedBy<AuthenticationContext>().LifestylePerWebRequest(),
+                Component.For<IWindsorContainer>().Instance(container),
+                Component.For<IConnectionStringProvider>().Instance(new ConnectionStringConfigurationParameterProvider()).LifestyleSingleton()
                 );
 
             SharedWiring(container);
@@ -26,10 +29,8 @@ namespace AccountManagement.UI.Web
 
         static void SharedWiring(IWindsorContainer container)
         {
-            container.Register(
-                Component.For<IWindsorContainer>().Instance(container),
-                Classes.FromThisAssembly().BasedOn<Controller>().WithServiceSelf().LifestyleTransient(),
-                Component.For<IConnectionStringProvider>().Instance(new ConnectionStringConfigurationParameterProvider()).LifestyleSingleton()
+            container.Register(                
+                Classes.FromThisAssembly().BasedOn<Controller>().WithServiceSelf().LifestyleTransient()                
                 );
 
             container.Install(
@@ -42,15 +43,7 @@ namespace AccountManagement.UI.Web
 
         public static void ConfigureContainerForTests(IWindsorContainer container)
         {
-            container.ConfigureWiringForTestsCallBeforeAllOtherWiring();
-
-            SharedWiring(container);
-            container.Register(
-                Component.For<IServiceBus>().ImplementedBy<SynchronousBus>().LifestylePerWebRequest()
-                );
-
-
-            container.ConfigureWiringForTestsCallAfterAllOtherWiring();
+            container.SetupForTesting(SharedWiring);
         }
     }
 }

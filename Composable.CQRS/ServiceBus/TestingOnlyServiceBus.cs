@@ -48,5 +48,16 @@ namespace Composable.ServiceBus
                 Message = message;
             }
         }
+
+        readonly List<Action<IMessage>> _spies = new List<Action<IMessage>>();
+        public void RegisterSpy(Action<IMessage> messageSpy)
+        {
+            _spies.Add(messageSpy);
+        }
+
+        protected override void AfterDispatchingMessage(IMessage message)
+        {
+            _spies.ForEach(spy => spy(message));
+        }
     }    
 }

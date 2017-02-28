@@ -68,8 +68,6 @@
     <Compile Include="FetchingAccountByEmailTests\AfterAccountIsRegistered.cs" />
     <Compile Include="FetchingAccountByEmailTests\AfterUserChangesAccountEmail.cs" />
     <Compile Include="FetchingAccountByEmailTests\RegistersAccountDuringSetupAccountQueryModelTestBase.cs" />
-    <Compile Include="ContainerInstallers\QueryModelsWiringTest.cs" />
-    <Compile Include="ContainerInstallers\QueryModelUpdatersWiringTest.cs" />
     <Compile Include="AccountMapQueryModelTests\AfterAccountIsRegistered.cs" />
     <Compile Include="AccountMapQueryModelTests\AfterUserChangesAccountEmail.cs" />
     <Compile Include="AccountMapQueryModelTests\RegistersAccountDuringSetupTestBase.cs" />
@@ -82,6 +80,10 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\..\Composable.CQRS.Testing\Composable.CQRS.Testing.csproj">
+      <Project>{D7F30AB8-1C8F-4F0D-8E89-6E4DABF52941}</Project>
+      <Name>Composable.CQRS.Testing</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\..\Composable.CQRS\Composable.CQRS.csproj">
       <Project>{3B776BD4-0EDD-4A83-BC9A-3A53D6649AB0}</Project>
       <Name>Composable.CQRS</Name>

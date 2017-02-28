@@ -266,7 +266,6 @@
     <Compile Include="UnitsOfWork\IUnitOfWorkParticipantWhoseCommitMayTriggerChangesInOtherParticipantsMustImplementIdemponentCommit.cs" />
     <Compile Include="UnitsOfWork\TooDeepCascadeLevelDetected.cs" />
     <Compile Include="UnitsOfWork\UnitOfWork.cs" />
-    <Compile Include="Windsor\Testing\ForTestsEventHandlerInstallerBase.cs" />
     <Compile Include="Windsor\Testing\WindsorTestWiringExtensions.cs" />
     <Compile Include="Windsor\WindsorUnitOfWorkExtensions.cs" />
   </ItemGroup>

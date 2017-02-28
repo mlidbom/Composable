@@ -296,17 +296,6 @@ namespace CQRS.Tests.CQRS.EventSourcing
             }
         }
 
-        //todo:remove this
-        class MockServiceBus : IServiceBus
-        {
-            public List<IAggregateRootEvent> Published = new List<IAggregateRootEvent>();
-
-            public void Publish(object message) { Published.Add((IAggregateRootEvent)message); }
-            public void SendLocal(object message) { throw new NotSupportedException(); }
-            public void Send(object message) { throw new NotSupportedException(); }
-            public void Reply(object message) { throw new NotImplementedException(); }
-            public void SendAtTime(DateTime sendAt, object message) { throw new NotImplementedException(); }
-        }
 
         //todo:remove this
         class MockEventStore : IEventStore
@@ -327,7 +316,7 @@ namespace CQRS.Tests.CQRS.EventSourcing
         [Test]
         public void EventsArePublishedOnSaveChangesAndThisInteractsWithUnitOfWorkParticipations()
         {
-            var bus = new MockServiceBus();
+            var bus = new TestingOnlyServiceBus(DummyTimeSource.Now);
             var store = new MockEventStore();
 
             var users = 1.Through(9).Select(i => { var u = new User(); u.Register(i + "@test.com", "abcd", Guid.NewGuid()); u.ChangeEmail("new" + i + "@test.com"); return u; }).ToList();
@@ -338,31 +327,31 @@ namespace CQRS.Tests.CQRS.EventSourcing
                 uow.AddParticipant(session);
 
                 users.Take(3).ForEach(u => session.Save(u));
-                Assert.That(bus.Published.Count, Is.EqualTo(0));
+                Assert.That(bus.DispatchedMessages.Count, Is.EqualTo(0));
                 session.SaveChanges();
-                Assert.That(bus.Published.Count, Is.EqualTo(6));
+                Assert.That(bus.DispatchedMessages.Count, Is.EqualTo(6));
 
                 users.Skip(3).Take(3).ForEach(u => session.Save(u));
-                Assert.That(bus.Published.Count, Is.EqualTo(6));
+                Assert.That(bus.DispatchedMessages.Count, Is.EqualTo(6));
                 session.SaveChanges();
-                Assert.That(bus.Published.Count, Is.EqualTo(12));
+                Assert.That(bus.DispatchedMessages.Count, Is.EqualTo(12));
 
                 users.Skip(6).Take(3).ForEach(u => session.Save(u));
 
-                Assert.That(bus.Published.Count, Is.EqualTo(12));
+                Assert.That(bus.DispatchedMessages.Count, Is.EqualTo(12));
                 Assert.That(store.SavedEvents.Count, Is.EqualTo(0));
                 uow.Commit();
-                Assert.That(bus.Published.Count, Is.EqualTo(18));
+                Assert.That(bus.DispatchedMessages.Count, Is.EqualTo(18));
 
-                Assert.That(bus.Published.Select(e => e.EventId).Distinct().Count(), Is.EqualTo(18));
-                Assert.That(bus.Published, Is.EquivalentTo(store.SavedEvents));
+                Assert.That(bus.DispatchedMessages.OfType<IAggregateRootEvent>().Select(e => e.EventId).Distinct().Count(), Is.EqualTo(18));
+                Assert.That(bus.DispatchedMessages, Is.EquivalentTo(store.SavedEvents));
             }
         }
 
         [Test]
         public void EventsAreDeletedWhenNotAUnitOfWorkParticipant()
         {
-            var bus = new MockServiceBus();
+            var bus = new TestingOnlyServiceBus(DummyTimeSource.Now);
             var store = new MockEventStore();
 
             using (var session = new EventStoreSession(bus, store, new SingleThreadUseGuard(), DateTimeNowTimeSource.Instance))
@@ -383,7 +372,7 @@ namespace CQRS.Tests.CQRS.EventSourcing
         [Test]
         public void EventsAreDeletedWhenUnitOfWorkIsCommitted()
         {
-            var bus = new MockServiceBus();
+            var bus = new TestingOnlyServiceBus(DummyTimeSource.Now);
             var store = new MockEventStore();
 
             using (var session = new EventStoreSession(bus, store, new SingleThreadUseGuard(), DateTimeNowTimeSource.Instance))

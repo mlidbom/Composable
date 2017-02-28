@@ -227,6 +227,7 @@
     <Compile Include="KeyValueStorage\IDocumentUpdatedNotifier.cs" />
     <Compile Include="KeyValueStorage\InMemoryObjectStore.cs" />
     <Compile Include="KeyValueStorage\DocumentIdIsEmptyGuidException.cs" />
+    <Compile Include="ServiceBus\InProcessServiceBus.cs" />
     <Compile Include="Windsor\WindsorUnitOfWorkExtensions1.cs" />
     <Compile Include="KeyValueStorage\InMemoryDocumentDB.cs" />
     <Compile Include="KeyValueStorage\DocumentUpdated.cs" />

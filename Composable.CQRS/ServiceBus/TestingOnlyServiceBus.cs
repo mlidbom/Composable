@@ -9,11 +9,11 @@ using Composable.System.Reactive;
 
 namespace Composable.ServiceBus
 {
-    public class TestingOnlyServiceBus : SynchronousBus
+    public class TestingOnlyServiceBus : InProcessServiceBus
     {
         readonly DummyTimeSource _timeSource;
         readonly List<ScheduledMessage> _scheduledMessages = new List<ScheduledMessage>(); 
-        public TestingOnlyServiceBus(IWindsorContainer container, DummyTimeSource timeSource) : base(container)
+        public TestingOnlyServiceBus(DummyTimeSource timeSource)
         {
             _timeSource = timeSource;
             timeSource.UtcNowChanged.Subscribe(SendDueMessages);

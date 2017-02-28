@@ -148,7 +148,7 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
                     .Instance(DummyTimeSource.Now)
                     .LifestyleSingleton(),
                 Component.For<IServiceBus>()
-                         .ImplementedBy<SynchronousBus>()
+                         .ImplementedBy<InProcessServiceBus>()
                          .LifestylePerWebRequest(),
                 Component.For<IEnumerable<IEventMigration>>()
                          .UsingFactoryMethod(migrationsfactory)

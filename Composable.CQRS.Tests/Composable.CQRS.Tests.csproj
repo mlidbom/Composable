@@ -230,8 +230,6 @@
     <Compile Include="KeyValueStorage\InMemoryDocumentDbTests.cs" />
     <Compile Include="KeyValueStorage\DocumentDbTests.cs" />
     <Compile Include="MessageHandlersRegister.cs" />
-    <Compile Include="MessageHandlerWiringTests\MessageHandlerWiringTestBase.cs" />
-    <Compile Include="MessageHandlerWiringTests\WhenOneMessageHandler_implements_IHandleInProcessEvents_and_IHandleMessages_for_same_type.cs" />
     <Compile Include="KeyValueStorage\Sql\SqlDocumentDbTests.cs" />
     <Compile Include="KeyValueStorage\User.cs" />
     <Compile Include="ServiceBus\WhenDummyTimeSourceTimeIsChanged.cs" />
@@ -239,10 +237,6 @@
     <Compile Include="SqlServerDatabasePoolTests\After_creating_two_databases_named_db1_and_db2.cs" />
     <Compile Include="NewtonSoft\SqlServerEventStoreSerializerTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="ServiceBus\MessageHandlersTestBase.cs" />
-    <Compile Include="ServiceBus\WhenHandlingAMessageThatInheritsOtherMessages.cs" />
-    <Compile Include="MessageHandlerWiringTests\WhenReplayingEvent.cs" />
-    <Compile Include="MessageHandlerWiringTests\WhenPublishingEvent.cs" />
     <Compile Include="StubMain.cs" />
     <Compile Include="UnitOfWorkTests\WindsorUnitOfWorkExtensionsTests.cs" />
   </ItemGroup>
@@ -295,7 +289,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="CQRS\EventHandling\" />
-    <Folder Include="ServiceBus\TestingOnlyServiceBus\" />
   </ItemGroup>
   <ItemGroup>
     <Service Include="{82A7F48D-3B50-4B1E-B82E-3ADA8210C358}" />

@@ -8,7 +8,7 @@ namespace Composable.ServiceBus
     /// Sends/Publishes messages to <see cref="IHandleMessages{T}"/> implementations registered in the <see cref="IWindsorContainer"/>.
     /// </summary>
     [UsedImplicitly]
-    public partial class SynchronousBus : IServiceBus
+    public class SynchronousBus : IServiceBus
     {
         readonly IWindsorContainer _container;
         readonly MessageHandlersResolver _handlersResolver;
@@ -32,20 +32,15 @@ namespace Composable.ServiceBus
             return _handlersResolver.HasHandlerFor(message);
         }
 
-        protected virtual void PublishLocal(object message)
+        void PublishLocal(object message)
         {
             _messageHandlersInvoker.InvokeHandlers(message, allowMultipleHandlers: true);
         }
 
 
-        protected virtual void SyncSendLocal(object message)
+        void SyncSendLocal(object message)
         {
             _messageHandlersInvoker.InvokeHandlers(message, allowMultipleHandlers: false);
-        }
-
-        public virtual void SendLocal(object message)
-        {
-            SyncSendLocal(message);
         }
 
         public virtual void Send(object message)

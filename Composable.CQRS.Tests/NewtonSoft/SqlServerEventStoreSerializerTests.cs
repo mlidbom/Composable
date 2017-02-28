@@ -99,7 +99,7 @@ namespace CQRS.Tests.NewtonSoft
                 );
         }
 
-        [Test, NCrunch.Framework.Serial] public void Should_roundtrip_simple_event_10000_times_in_100_milliseconds_with_new_instance_for_each_serialization()
+        [Test] public void Should_roundtrip_simple_event_10000_times_in_100_milliseconds_with_new_instance_for_each_serialization()
         {
             var @event = new TestEvent(
                                             test1: "Test1",
@@ -124,7 +124,7 @@ namespace CQRS.Tests.NewtonSoft
                                 );
         }
 
-        [Test, NCrunch.Framework.Serial] public void Should_roundtrip_simple_event_within_20_percent_of_default_serializer_performance_given_all_new_serializer_instances()
+        [Test] public void Should_roundtrip_simple_event_within_20_percent_of_default_serializer_performance_given_all_new_serializer_instances()
         {
             const int iterations = 10000;
             const double allowedSlowdown = 1.2;

@@ -16,8 +16,6 @@ namespace Composable.ServiceBus
 
     [UsedImplicitly] public class InProcessServiceBus : IInProcessServiceBus, IMessageHandlerRegistrar
     {
-        readonly CallMatchingHandlersInRegistrationOrderEventDispatcher<IEvent> _eventDispatcher = new CallMatchingHandlersInRegistrationOrderEventDispatcher<IEvent>();
-
         readonly Dictionary<Type, Action<object>> _commandHandlers = new Dictionary<Type, Action<object>>();
         readonly List<EventHandlerRegistration> _eventHandlerRegistrations = new List<EventHandlerRegistration>();
 
@@ -31,8 +29,8 @@ namespace Composable.ServiceBus
             {
                 _eventHandlerRegistrations.ForEach(handlerRegistration => handlerRegistration.RegisterHandlerWithRegistrar(registrar));
             }            
-            dispatcher.Dispatch((IEvent)anEvent);
-            AfterDispatchingMessage((IMessage)anEvent);
+            dispatcher.Dispatch(anEvent);
+            AfterDispatchingMessage(anEvent);
         }
 
         public void Send(ICommand message)
@@ -44,14 +42,14 @@ namespace Composable.ServiceBus
                 {
                     handler = _commandHandlers[message.GetType()];
                 }
-                catch(KeyNotFoundException e)
+                catch(KeyNotFoundException)
                 {
                     throw new NoHandlerException(message.GetType());
                 }
             }
 
             handler(message);
-            AfterDispatchingMessage((IMessage)message);
+            AfterDispatchingMessage(message);
         }
 
         public IMessageHandlerRegistrar ForEvent<TEvent>(Action<TEvent> handler) where TEvent : IEvent

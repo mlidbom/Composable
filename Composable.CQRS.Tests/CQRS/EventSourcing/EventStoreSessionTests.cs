@@ -27,11 +27,16 @@ namespace CQRS.Tests.CQRS.EventSourcing
     [TestFixture]
     public abstract class EventStoreSessionTests : NoSqlTest
     {
-        protected DummyServiceBus Bus { get; private set; }
+        protected TestingOnlyServiceBus Bus { get; private set; }
 
-        public EventStoreSessionTests()
+        protected EventStoreSessionTests()
         {
-            Bus = new DummyServiceBus(new WindsorContainer());
+            SetupBus();
+        }
+
+        [SetUp] public void SetupBus()
+        {
+            Bus = new TestingOnlyServiceBus(DummyTimeSource.Now);
         }
 
         protected IEventStoreSession OpenSession(IEventStore store)
@@ -452,7 +457,7 @@ namespace CQRS.Tests.CQRS.EventSourcing
                 session.SaveChanges();
             }
 
-            Bus.Reset();
+            Bus.DispatchedMessages.Count().Should().Be(2);
 
             using (var session = OpenSession(store))
             {
@@ -464,9 +469,9 @@ namespace CQRS.Tests.CQRS.EventSourcing
 
                 session.SaveChanges();
 
-                var published = Bus.Published.ToList();
-                Assert.That(published.Count, Is.EqualTo(1));
-                Assert.That(published[0], Is.InstanceOf<UserChangedEmail>());
+                var published = Bus.DispatchedMessages.ToList();
+                Bus.DispatchedMessages.Count().Should().Be(3);
+                Assert.That(published.Last(), Is.InstanceOf<UserChangedEmail>());
             }
         }
 

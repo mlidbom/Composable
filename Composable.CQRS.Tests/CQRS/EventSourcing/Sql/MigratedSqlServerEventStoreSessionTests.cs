@@ -9,6 +9,7 @@ using Composable.CQRS.EventSourcing.Refactoring.Migrations;
 using Composable.CQRS.Testing;
 using Composable.CQRS.Testing.Windsor;
 using Composable.GenericAbstractions.Time;
+using Composable.ServiceBus;
 using Composable.SystemExtensions.Threading;
 using CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations;
 using FluentAssertions;
@@ -23,13 +24,13 @@ namespace CQRS.Tests.CQRS.EventSourcing.Sql
         string _connectionString;
         WindsorContainer _windsorContainer;
 
-        protected DummyServiceBus Bus { get; private set; }
+        protected TestingOnlyServiceBus Bus { get; private set; }
 
         [SetUp]
         public void Setup()
         {
             _windsorContainer = new WindsorContainer();
-            Bus = new DummyServiceBus(_windsorContainer);
+            Bus = new TestingOnlyServiceBus(DummyTimeSource.Now);
             var masterConnectionString = ConfigurationManager.ConnectionStrings["MasterDb"].ConnectionString;
             _connectionString = _windsorContainer.RegisterSqlServerDatabasePool(masterConnectionString)
                 .ConnectionStringFor("MigratedSqlServerEventStoreSessionTests_EventStore");

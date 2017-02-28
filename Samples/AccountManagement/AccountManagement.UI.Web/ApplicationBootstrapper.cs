@@ -18,7 +18,7 @@ namespace AccountManagement.UI.Web
         {
             container.Register(
                 Component.For<IUtcTimeTimeSource>().ImplementedBy<DateTimeNowTimeSource>().LifestylePerWebRequest(),
-                Component.For<SynchronousBus>().ImplementedBy<SynchronousBus>().LifestylePerWebRequest(),
+                Component.For<IMessageHandlerRegistrar, IServiceBus>().ImplementedBy<InProcessServiceBus>().LifestylePerWebRequest(),
                 Component.For<IAuthenticationContext>().ImplementedBy<AuthenticationContext>().LifestylePerWebRequest(),
                 Component.For<IWindsorContainer>().Instance(container),
                 Component.For<IConnectionStringProvider>().Instance(new ConnectionStringConfigurationParameterProvider()).LifestyleSingleton()

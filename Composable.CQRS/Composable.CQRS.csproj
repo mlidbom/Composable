@@ -256,7 +256,6 @@
     <Compile Include="ServiceBus\MessageHandlerResolver.cs" />
     <Compile Include="ServiceBus\MultipleMessageHandlersRegisteredException.cs" />
     <Compile Include="ServiceBus\NoHandlerException.cs" />
-    <Compile Include="ServiceBus\SynchronousBus.cs" />
     <Compile Include="CQRS\EventHandling\CallsMatchingHandlersInRegistrationOrderEventHandler.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ServiceBus\TestingOnlyServiceBus.cs" />

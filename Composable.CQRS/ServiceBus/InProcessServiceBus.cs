@@ -14,7 +14,7 @@ namespace Composable.ServiceBus
         IMessageHandlerRegistrar ForCommand<TCommand>(Action<TCommand> handler) where TCommand : ICommand;
     }
 
-    [UsedImplicitly] public class InProcessServiceBus : IServiceBus, IMessageHandlerRegistrar
+    [UsedImplicitly] public class InProcessServiceBus : IInProcessServiceBus, IMessageHandlerRegistrar
     {
         readonly CallMatchingHandlersInRegistrationOrderEventDispatcher<IEvent> _eventDispatcher = new CallMatchingHandlersInRegistrationOrderEventDispatcher<IEvent>();
 
@@ -23,7 +23,7 @@ namespace Composable.ServiceBus
 
         readonly  object _lock = new object();
 
-        public void Publish(object message)
+        public void Publish(IEvent anEvent)
         {
             var dispatcher = new CallMatchingHandlersInRegistrationOrderEventDispatcher<IEvent>();
             var registrar = dispatcher.RegisterHandlers().IgnoreUnhandled<IEvent>();
@@ -31,11 +31,11 @@ namespace Composable.ServiceBus
             {
                 _eventHandlerRegistrations.ForEach(handlerRegistration => handlerRegistration.RegisterHandlerWithRegistrar(registrar));
             }            
-            dispatcher.Dispatch((IEvent)message);
-            AfterDispatchingMessage((IMessage)message);
+            dispatcher.Dispatch((IEvent)anEvent);
+            AfterDispatchingMessage((IMessage)anEvent);
         }
 
-        public void Send(object message)
+        public void Send(ICommand message)
         {
             Action<object> handler;
             lock(_lock)
@@ -53,12 +53,6 @@ namespace Composable.ServiceBus
             handler(message);
             AfterDispatchingMessage((IMessage)message);
         }
-
-        //Review:mlidbo: This is not OK. Find a better way of handling this.
-        public void Reply(object message) { throw new NotImplementedException(); }
-
-        //Review:mlidbo: This is not OK. Find a better way of handling this.
-        public virtual void SendAtTime(DateTime sendAt, object message) { throw new NotImplementedException(); }
 
         public IMessageHandlerRegistrar ForEvent<TEvent>(Action<TEvent> handler) where TEvent : IEvent
         {

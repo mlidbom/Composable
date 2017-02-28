@@ -1,12 +1,17 @@
 ﻿using System;
+using Composable.CQRS.Command;
+using Composable.CQRS.EventSourcing;
 
 namespace Composable.ServiceBus
 {
-    public interface IServiceBus
+    public interface IInProcessServiceBus
     {
-        void Publish(object message);
-        void Send(object message);
-        void Reply(object message);
-        void SendAtTime(DateTime sendAt, object message);
+        void Publish(IEvent anEvent);
+        void Send(ICommand message);
+    }
+
+    public interface IServiceBus : IInProcessServiceBus
+    {
+        void SendAtTime(DateTime sendAt, ICommand message);
     }
 }

@@ -42,7 +42,6 @@ namespace CQRS.Tests.ServiceBus
                                 getBus().ForCommand<ACommand>(command => commandHandled = true);
                              };
                     it["Handles(new ACommand()) returns true"] = () => getBus().Handles(new ACommand()).Should().Be(true);
-                    it["Publish(new ACommand()) throws an exception"] = () => this.Invoking(_ => getBus().Publish(new ACommand())).ShouldThrow<Exception>();
 
                     it["Send(new ACommand()) dispatches to registered handler"] = () =>
                                                                                {
@@ -67,7 +66,6 @@ namespace CQRS.Tests.ServiceBus
                         getBus().Publish(new AnEvent());
                         eventHandled.Should().Be(true);
                     };
-                    it["Send(new AnEvent()) throws an exception"] = () => this.Invoking( _ => getBus().Send(new AnEvent())).ShouldThrow<Exception>();
 
                 };         
         }

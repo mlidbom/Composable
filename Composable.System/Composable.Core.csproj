@@ -171,11 +171,17 @@
     <Compile Include="..\CommonAssemblyInfo.cs">
       <Link>Properties\CommonAssemblyInfo.cs</Link>
     </Compile>
+    <Compile Include="CQRS\EventSourcing\AggregateRootEvent.cs" />
+    <Compile Include="CQRS\EventSourcing\IAggregateRootCreatedEvent.cs" />
+    <Compile Include="CQRS\EventSourcing\IAggregateRootDeletedEvent.cs" />
+    <Compile Include="CQRS\EventSourcing\IAggregateRootEvent.cs" />
+    <Compile Include="CQRS\EventSourcing\IEvent.cs" />
     <Compile Include="DDD\IHasPersistentIdentity.cs" />
     <Compile Include="DDD\IPersistentEntity.cs" />
     <Compile Include="DDD\PersistentEntity.cs" />
     <Compile Include="DDD\ValueObject.cs" />
     <Compile Include="DDD\VersionedPersistentEntity.cs" />
+    <Compile Include="DomainEvents\IDomainEvent.cs" />
     <Compile Include="GenericAbstractions\Time\DummyTimeSource.cs" />
     <Compile Include="GenericAbstractions\Time\DateTimeNowTimeSource.cs" />
     <Compile Include="GenericAbstractions\Time\IUtcTimeTimeSource.cs" />

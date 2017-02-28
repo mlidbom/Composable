@@ -145,10 +145,6 @@
       <Project>{3b776bd4-0edd-4a83-bc9a-3a53d6649ab0}</Project>
       <Name>Composable.CQRS</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Composable.DomainEvents\Composable.DomainEvents.csproj">
-      <Project>{cd7ecab7-ad05-43a6-a13e-74340838ddde}</Project>
-      <Name>Composable.DomainEvents</Name>
-    </ProjectReference>
     <ProjectReference Include="..\Composable.System\Composable.Core.csproj">
       <Project>{3632254d-0c4a-4eb8-b388-4c99f8939584}</Project>
       <Name>Composable.Core</Name>

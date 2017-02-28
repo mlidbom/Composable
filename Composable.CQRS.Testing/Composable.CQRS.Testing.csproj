@@ -141,10 +141,6 @@
     <Compile Include="Windsor\Testing\TestingWindsorExtensions.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Composable.DomainEvents\Composable.DomainEvents.csproj">
-      <Project>{CD7ECAB7-AD05-43A6-A13E-74340838DDDE}</Project>
-      <Name>Composable.DomainEvents</Name>
-    </ProjectReference>
     <ProjectReference Include="..\Composable.CQRS\Composable.CQRS.csproj">
       <Project>{3B776BD4-0EDD-4A83-BC9A-3A53D6649AB0}</Project>
       <Name>Composable.CQRS</Name>

@@ -13,7 +13,7 @@ namespace Composable.ServiceBus
     {
         readonly DummyTimeSource _timeSource;
         readonly List<ScheduledMessage> _scheduledMessages = new List<ScheduledMessage>(); 
-        public TestingOnlyServiceBus(DummyTimeSource timeSource)
+        public TestingOnlyServiceBus(DummyTimeSource timeSource, IMessageHandlerRegistry registry): base(registry)
         {
             _timeSource = timeSource;
             timeSource.UtcNowChanged.Subscribe(SendDueMessages);

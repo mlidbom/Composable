@@ -147,6 +147,9 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
                 Component.For<IUtcTimeTimeSource, DummyTimeSource>()
                     .Instance(DummyTimeSource.Now)
                     .LifestyleSingleton(),
+                Component.For<IMessageHandlerRegistrar, IMessageHandlerRegistry>()
+                    .ImplementedBy<MessageHandlerRegistry>()
+                    .LifestyleSingleton(),
                 Component.For<IServiceBus>()
                          .ImplementedBy<TestingOnlyServiceBus>()
                          .LifestylePerWebRequest(),

@@ -52,14 +52,18 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
                 var dummyTimeSource = DummyTimeSource.Now;
                 container.ConfigureWiringForTestsCallBeforeAllOtherWiring();
 
-                container.Register(Component.For<IConnectionStringProvider>()
-                                            .ImplementedBy<DummyConnectionStringProvider>(),
-                                   Component.For<IUtcTimeTimeSource, DummyTimeSource>()
-                                        .Instance(dummyTimeSource),
-                                   Component.For<IWindsorContainer>()
-                                            .Instance(container),
-                                   Component.For<IServiceBus>()
-                                            .ImplementedBy<TestingOnlyServiceBus>());
+              container.Register(
+                                 Component.For<IConnectionStringProvider>()
+                                          .ImplementedBy<DummyConnectionStringProvider>(),
+                                 Component.For<IMessageHandlerRegistrar, IMessageHandlerRegistry>()
+                                          .ImplementedBy<MessageHandlerRegistry>()
+                                          .LifestyleSingleton(),
+                                 Component.For<IUtcTimeTimeSource, DummyTimeSource>()
+                                          .Instance(dummyTimeSource),
+                                 Component.For<IWindsorContainer>()
+                                          .Instance(container),
+                                 Component.For<IServiceBus>()
+                                          .ImplementedBy<TestingOnlyServiceBus>());
                 
 
                 var sqlServerEventStoreRegistration = new SqlServerEventStoreRegistration<SingleAggregateInstanceEventStreamMutatorPerformanceTest_Given_a_10000_events_large_aggregate>();

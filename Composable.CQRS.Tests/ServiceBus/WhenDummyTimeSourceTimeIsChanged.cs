@@ -36,10 +36,15 @@ namespace CQRS.Tests.ServiceBus
 
             _timeSource = DummyTimeSource.FromLocalTime(DateTime.Parse("2015-01-01 10:00"));
 
-            _container.Register(
-                Component.For<DummyTimeSource>().Instance(_timeSource),
-                Component.For<IServiceBus, IMessageHandlerRegistrar>().ImplementedBy<TestingOnlyServiceBus>().LifestyleScoped()
-                );
+          _container.Register(
+                              Component.For<DummyTimeSource>()
+                                       .Instance(_timeSource),
+                              Component.For<IMessageHandlerRegistrar, IMessageHandlerRegistry>()
+                                       .ImplementedBy<MessageHandlerRegistry>()
+                                       .LifestyleSingleton(),
+                              Component.For<IServiceBus>()
+                                       .ImplementedBy<TestingOnlyServiceBus>()
+                                       .LifestyleScoped());
 
             _container.ConfigureWiringForTestsCallAfterAllOtherWiring();
 

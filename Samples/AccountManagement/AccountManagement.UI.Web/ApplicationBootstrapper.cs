@@ -15,10 +15,11 @@ namespace AccountManagement.UI.Web
     public class ApplicationBootstrapper
     {
         public static void ConfigureContainer(IWindsorContainer container)
-        {
+        {            
             container.Register(
                 Component.For<IUtcTimeTimeSource>().ImplementedBy<DateTimeNowTimeSource>().LifestylePerWebRequest(),
-                Component.For<IMessageHandlerRegistrar, IServiceBus>().ImplementedBy<InProcessServiceBus>().LifestylePerWebRequest(),
+                Component.For<IMessageHandlerRegistrar>().ImplementedBy<MessageHandlerRegistry>().LifestyleSingleton(),
+                Component.For<IServiceBus>().ImplementedBy<TestingOnlyServiceBus>().LifestylePerWebRequest(),
                 Component.For<IAuthenticationContext>().ImplementedBy<AuthenticationContext>().LifestylePerWebRequest(),
                 Component.For<IWindsorContainer>().Instance(container),
                 Component.For<IConnectionStringProvider>().Instance(new ConnectionStringConfigurationParameterProvider()).LifestyleSingleton()

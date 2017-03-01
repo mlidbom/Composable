@@ -216,10 +216,14 @@
     <Compile Include="ServiceBus\IHandleMessages.cs" />
     <Compile Include="ServiceBus\IHandleReplayedAndPublishedEvents.cs" />
     <Compile Include="ServiceBus\IHandleReplayedEvents.cs" />
+    <Compile Include="ServiceBus\IInProcessServiceBus.cs" />
     <Compile Include="ServiceBus\IMessage.cs" />
+    <Compile Include="ServiceBus\IMessageHandlerRegistrar.cs" />
+    <Compile Include="ServiceBus\IMessageHandlerRegistry.cs" />
     <Compile Include="ServiceBus\IMessageSpy.cs" />
     <Compile Include="ServiceBus\InProcessServiceBus.cs" />
     <Compile Include="ServiceBus\IServiceBus.cs" />
+    <Compile Include="ServiceBus\MessageHandlerRegistry.cs" />
     <Compile Include="ServiceBus\MultipleMessageHandlersRegisteredException.cs" />
     <Compile Include="ServiceBus\NoHandlerException.cs" />
     <Compile Include="ServiceBus\TestingOnlyServiceBus.cs" />

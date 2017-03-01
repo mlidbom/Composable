@@ -20,8 +20,9 @@ namespace CQRS.Tests.ServiceBus
           IMessageHandlerRegistrar registrar = null;
           before = () =>
                    {
-                     bus = new InProcessServiceBus();
-                     registrar = bus;
+                     var registry = new MessageHandlerRegistry();
+                     registrar = registry;
+                     bus = new InProcessServiceBus(registry);
                    };
 
             it["Handles(new ACommand()) returns false"] = () => bus.Handles(new ACommand()).Should().Be(false);
@@ -73,10 +74,12 @@ namespace CQRS.Tests.ServiceBus
         {
             InProcessServiceBus bus = null;
           IMessageHandlerRegistrar registrar = null;
+          MessageHandlerRegistry registry = null;
 
             before = () =>
                      {
-                          registrar = bus = new InProcessServiceBus();                         
+                       registrar = registry = new MessageHandlerRegistry();
+                       bus = new InProcessServiceBus(registry);                         
                          registrar.ForCommand<ACommand>(_ => { });
                      };
 

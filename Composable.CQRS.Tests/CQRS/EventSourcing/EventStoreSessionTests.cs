@@ -36,7 +36,7 @@ namespace CQRS.Tests.CQRS.EventSourcing
 
         [SetUp] public void SetupBus()
         {
-            Bus = new TestingOnlyServiceBus(DummyTimeSource.Now);
+            Bus = new TestingOnlyServiceBus(DummyTimeSource.Now, new MessageHandlerRegistry());
         }
 
         protected IEventStoreSession OpenSession(IEventStore store)
@@ -316,7 +316,7 @@ namespace CQRS.Tests.CQRS.EventSourcing
         [Test]
         public void EventsArePublishedOnSaveChangesAndThisInteractsWithUnitOfWorkParticipations()
         {
-            var bus = new TestingOnlyServiceBus(DummyTimeSource.Now);
+            var bus = new TestingOnlyServiceBus(DummyTimeSource.Now, new MessageHandlerRegistry());
             var store = new MockEventStore();
 
             var users = 1.Through(9).Select(i => { var u = new User(); u.Register(i + "@test.com", "abcd", Guid.NewGuid()); u.ChangeEmail("new" + i + "@test.com"); return u; }).ToList();
@@ -351,7 +351,7 @@ namespace CQRS.Tests.CQRS.EventSourcing
         [Test]
         public void EventsAreDeletedWhenNotAUnitOfWorkParticipant()
         {
-            var bus = new TestingOnlyServiceBus(DummyTimeSource.Now);
+            var bus = new TestingOnlyServiceBus(DummyTimeSource.Now, new MessageHandlerRegistry());
             var store = new MockEventStore();
 
             using (var session = new EventStoreSession(bus, store, new SingleThreadUseGuard(), DateTimeNowTimeSource.Instance))
@@ -372,7 +372,7 @@ namespace CQRS.Tests.CQRS.EventSourcing
         [Test]
         public void EventsAreDeletedWhenUnitOfWorkIsCommitted()
         {
-            var bus = new TestingOnlyServiceBus(DummyTimeSource.Now);
+            var bus = new TestingOnlyServiceBus(DummyTimeSource.Now, new MessageHandlerRegistry());
             var store = new MockEventStore();
 
             using (var session = new EventStoreSession(bus, store, new SingleThreadUseGuard(), DateTimeNowTimeSource.Instance))

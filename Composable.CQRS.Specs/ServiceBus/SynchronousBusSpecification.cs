@@ -10,28 +10,27 @@ using FluentAssertions;
 
 namespace CQRS.Tests.ServiceBus
 {
-    public class SynchronousBusSpecification : NSpec.NUnit.nspec
+  using Composable.GenericAbstractions.Time;
+
+  public class SynchronousBusSpecification : NSpec.NUnit.nspec
     {
         public void given_no_registered_handlers()
         {
-            WindsorContainer container = null;
-            before = () =>
-                     {
-                         container = new WindsorContainer();
-                         container.Register(
-                             Component.For<ISingleContextUseGuard>().ImplementedBy<SingleThreadUseGuard>(),
-                             Component.For<InProcessServiceBus>(),
-                             Component.For<IWindsorContainer>().Instance(container)
-                             );
-                     };
-            Func<InProcessServiceBus> getBus = () => container.Resolve<InProcessServiceBus>();
-            it["Handles(new ACommand()) returns false"] = () => getBus().Handles(new ACommand()).Should().Be(false);
-            it["Send(new ACommand()) throws NoHandlerException"] = expect<NoHandlerException>(() => getBus().Send(new ACommand()));
+          InProcessServiceBus bus = null;
+          IMessageHandlerRegistrar registrar = null;
+          before = () =>
+                   {
+                     bus = new InProcessServiceBus();
+                     registrar = bus;
+                   };
+
+            it["Handles(new ACommand()) returns false"] = () => bus.Handles(new ACommand()).Should().Be(false);
+            it["Send(new ACommand()) throws NoHandlerException"] = expect<NoHandlerException>(() => bus.Send(new ACommand()));
 
             //Todo:reply should throw an exception telling us that you cannot reply except while handling a command
-            //it["Reply(new ACommand()) throws CantCallReplyWhenNotHandlingMessageException"] = expect<CantCallReplyWhenNotHandlingMessageException>(() => getBus().Reply(new ACommand()));
+            //it["Reply(new ACommand()) throws CantCallReplyWhenNotHandlingMessageException"] = expect<CantCallReplyWhenNotHandlingMessageException>(() => bus.Reply(new ACommand()));
 
-            it["Publish(new AnEvent()) throws no exception"] = () => getBus().Publish(new AnEvent());
+            it["Publish(new AnEvent()) throws no exception"] = () => bus.Publish(new AnEvent());
 
             context["after registering a command handler for ACommand with bus"] =
                 () =>
@@ -39,13 +38,13 @@ namespace CQRS.Tests.ServiceBus
                     bool commandHandled = false;
                     before = () =>
                              {
-                                getBus().ForCommand<ACommand>(command => commandHandled = true);
+                                registrar.ForCommand<ACommand>(command => commandHandled = true);
                              };
-                    it["Handles(new ACommand()) returns true"] = () => getBus().Handles(new ACommand()).Should().Be(true);
+                    it["Handles(new ACommand()) returns true"] = () => bus.Handles(new ACommand()).Should().Be(true);
 
                     it["Send(new ACommand()) dispatches to registered handler"] = () =>
                                                                                {
-                                                                                   getBus().Send(new ACommand());
+                                                                                   bus.Send(new ACommand());
                                                                                    commandHandled.Should().Be(true);
                                                                                };
 
@@ -57,13 +56,13 @@ namespace CQRS.Tests.ServiceBus
                     bool eventHandled = false;
                     before = () =>
                     {
-                        getBus().ForEvent<AnEvent>(command => eventHandled = true);
+                        registrar.ForEvent<AnEvent>(command => eventHandled = true);
                     };
-                    it["Handles(new AnEvent()) returns true"] = () => getBus().Handles(new AnEvent()).Should().Be(true);
-                    it["Publish(new AnEvent()) throws no exception"] = () => getBus().Publish(new AnEvent());
+                    it["Handles(new AnEvent()) returns true"] = () => bus.Handles(new AnEvent()).Should().Be(true);
+                    it["Publish(new AnEvent()) throws no exception"] = () => bus.Publish(new AnEvent());
                     it["Publish(new AnEvent()) dispatches to AnEventHandler"] = () =>
                     {
-                        getBus().Publish(new AnEvent());
+                        bus.Publish(new AnEvent());
                         eventHandled.Should().Be(true);
                     };
 
@@ -73,16 +72,17 @@ namespace CQRS.Tests.ServiceBus
         public void when_there_is_one_handler_registered_for_a_message()
         {
             InProcessServiceBus bus = null;
+          IMessageHandlerRegistrar registrar = null;
 
             before = () =>
                      {
-                         bus = new InProcessServiceBus();
-                         bus.ForCommand<ACommand>(_ => { });
+                          registrar = bus = new InProcessServiceBus();                         
+                         registrar.ForCommand<ACommand>(_ => { });
                      };
 
             context["when you add another handler for that command that does not implement ISynchronousBusMessageSpy"] = () =>
                            {
-                               it["an exception is thrown"] =  () => this.Invoking(_ => bus.ForCommand<ACommand>(cmd => {})).ShouldThrow<Exception>();
+                               it["an exception is thrown"] =  () => this.Invoking(_ => registrar.ForCommand<ACommand>(cmd => {})).ShouldThrow<Exception>();
                            };
             
 

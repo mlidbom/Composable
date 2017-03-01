@@ -52,7 +52,7 @@ namespace Composable.ServiceBus
             AfterDispatchingMessage(message);
         }
 
-        public IMessageHandlerRegistrar ForEvent<TEvent>(Action<TEvent> handler) where TEvent : IEvent
+        IMessageHandlerRegistrar IMessageHandlerRegistrar.ForEvent<TEvent>(Action<TEvent> handler)
         {
             lock(_lock)
             {
@@ -61,7 +61,7 @@ namespace Composable.ServiceBus
             }            
         }
 
-        public IMessageHandlerRegistrar ForCommand<TCommand>(Action<TCommand> handler) where TCommand : ICommand
+        IMessageHandlerRegistrar IMessageHandlerRegistrar.ForCommand<TCommand>(Action<TCommand> handler)
         {
             lock(_lock)
             {

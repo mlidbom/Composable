@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using Composable.System;
 using Composable.System.Linq;
-using log4net;
 // ReSharper disable ForCanBeConvertedToForeach this file needs these optimizations...
 
 namespace Composable.CQRS.EventHandling

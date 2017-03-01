@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using System.Linq;
-using Castle.Windsor;
 using Composable.CQRS.Command;
 using Composable.GenericAbstractions.Time;
 using Composable.System;

@@ -94,48 +94,6 @@ namespace CQRS.Tests.ServiceBus
         }
 
         public class AnEvent : IEvent { }
-
-        public class ACommandHandler : IHandleMessages<ACommand>
-        {
-            public bool ReceivedMessage;
-
-            public void Handle(ACommand command)
-            {
-                ReceivedMessage = true;
-            }
-        }
-
-        public class AnotherCommandHandler : ACommandHandler{}
-
-        public class AnEventHandler
-        {
-            public bool ReceivedEvent;
-
-            public void Handle(AnEvent @event)
-            {
-                ReceivedEvent = true;
-            }
-        }
-
-        public class AInProcessMessageHandler : IHandleInProcessMessages<ACommand>
-        {
-            public bool ReceivedMessage;
-
-            public void Handle(ACommand command)
-            {
-                ReceivedMessage = true;
-            }
-        }
-
-        public class ARemoteMessageHandler : IHandleRemoteMessages<ACommand>
-        {
-            public bool ReceivedMessage;
-
-            public void Handle(ACommand command)
-            {
-                ReceivedMessage = true;
-            }
-        }
     }
 
     

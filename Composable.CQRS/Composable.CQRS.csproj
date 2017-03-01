@@ -181,7 +181,6 @@
     <Compile Include="CQRS\EventSourcing\Refactoring\Naming\IRenameEvents.cs" />
     <Compile Include="CQRS\EventSourcing\Refactoring\Naming\RenameEventsBasedOnEventRenamedAttributes.cs" />
     <Compile Include="CQRS\EventSourcing\Refactoring\Naming\DefaultEventNameMapper.cs" />
-    <Compile Include="CQRS\EventSourcing\EventsReplayer.cs" />
     <Compile Include="CQRS\EventSourcing\IEventStore.cs" />
     <Compile Include="CQRS\EventSourcing\AggregateRootNotFoundException.cs" />
     <Compile Include="CQRS\EventSourcing\IEventStored.cs" />
@@ -246,7 +245,6 @@
     <Compile Include="ServiceBus\IHandleMessages.cs" />
     <Compile Include="ServiceBus\IHandleReplayedAndPublishedEvents.cs" />
     <Compile Include="ServiceBus\IHandleInProcessMessages.cs" />
-    <Compile Include="ServiceBus\IHandleRemoteMessages.cs" />
     <Compile Include="ServiceBus\IHandleReplayedEvents.cs" />
     <Compile Include="ServiceBus\MessageHandlersInvoker.cs" />
     <Compile Include="ServiceBus\MessageHandlerInvoker.MessageHandlerMethod.cs" />

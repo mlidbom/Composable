@@ -11,7 +11,7 @@ using Composable.CQRS.EventSourcing.Refactoring.Migrations;
 using Composable.CQRS.Windsor;
 using Composable.GenericAbstractions.Time;
 using Composable.KeyValueStorage;
-using Composable.ServiceBus;
+using Composable.Messaging;
 using Composable.System.Configuration;
 using Composable.System.Linq;
 using Composable.Testing;
@@ -24,7 +24,9 @@ using TestAggregates.Events;
 
 namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
 {
-    //Everything in here actually runs much faster than this when executed normally, but with ncrunch instrumentation it runs much slower and the test gives leeway for that.....
+  using Composable.Messaging.Bus;
+
+  //Everything in here actually runs much faster than this when executed normally, but with ncrunch instrumentation it runs much slower and the test gives leeway for that.....
     public class SingleAggregateInstanceEventStreamMutatorPerformanceTest_Given_a_10000_events_large_aggregate
     {
         List<AggregateRootEvent> _history;

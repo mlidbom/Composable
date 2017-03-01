@@ -2,12 +2,14 @@
 using Castle.MicroKernel.Registration;
 using Castle.MicroKernel.SubSystems.Configuration;
 using Castle.Windsor;
-using Composable.ServiceBus;
+using Composable.Messaging;
 using Composable.Windsor.Testing;
 
 namespace AccountManagement.UI.QueryModels.DocumentDB.Updaters.ContainerInstallers.Testing
 {
-    public class QueryModelsUpdatersEventHandlersInstaller : IWindsorInstaller
+  using Composable.Messaging.Bus;
+
+  public class QueryModelsUpdatersEventHandlersInstaller : IWindsorInstaller
     {
         public void Install(IWindsorContainer container, IConfigurationStore store)
         {

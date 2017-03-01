@@ -10,7 +10,7 @@ using Composable.CQRS.EventSourcing.Refactoring.Migrations;
 using Composable.CQRS.Testing;
 using Composable.CQRS.Testing.Windsor;
 using Composable.GenericAbstractions.Time;
-using Composable.ServiceBus;
+using Composable.Messaging;
 using Composable.System.Collections.Collections;
 using Composable.System.Configuration;
 using Composable.System.Linq;
@@ -24,7 +24,9 @@ using TestAggregates;
 
 namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
 {
-    //Todo: Refactor this test. It is too monolithic and hard to read and extend.
+  using Composable.Messaging.Bus;
+
+  //Todo: Refactor this test. It is too monolithic and hard to read and extend.
     public abstract class EventStreamMutatorTestsBase
     {
         protected readonly Type EventStoreType;

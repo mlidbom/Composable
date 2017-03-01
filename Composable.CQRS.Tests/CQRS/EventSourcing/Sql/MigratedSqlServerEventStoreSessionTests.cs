@@ -9,7 +9,7 @@ using Composable.CQRS.EventSourcing.Refactoring.Migrations;
 using Composable.CQRS.Testing;
 using Composable.CQRS.Testing.Windsor;
 using Composable.GenericAbstractions.Time;
-using Composable.ServiceBus;
+using Composable.Messaging;
 using Composable.SystemExtensions.Threading;
 using CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations;
 using FluentAssertions;
@@ -18,7 +18,9 @@ using TestAggregates;
 
 namespace CQRS.Tests.CQRS.EventSourcing.Sql
 {
-    [TestFixture]
+  using Composable.Messaging.Bus;
+
+  [TestFixture]
     class MigratedSqlServerEventStoreSessionTests : NoSqlTest
     {
         string _connectionString;

@@ -1,5 +1,5 @@
 
-using Composable.ServiceBus;
+using Composable.Messaging;
 
 namespace Composable.CQRS.EventSourcing
 {

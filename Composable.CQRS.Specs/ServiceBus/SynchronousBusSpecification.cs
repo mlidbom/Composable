@@ -3,7 +3,7 @@ using Castle.MicroKernel.Registration;
 using Castle.Windsor;
 using Composable.CQRS.Command;
 using Composable.CQRS.EventSourcing;
-using Composable.ServiceBus;
+using Composable.Messaging;
 using Composable.SystemExtensions.Threading;
 using FluentAssertions;
 // ReSharper disable UnusedMember.Global
@@ -11,6 +11,8 @@ using FluentAssertions;
 namespace CQRS.Tests.ServiceBus
 {
   using Composable.GenericAbstractions.Time;
+  using Composable.Messaging.Bus;
+  using Composable.Messaging.Commands;
 
   public class SynchronousBusSpecification : NSpec.NUnit.nspec
     {

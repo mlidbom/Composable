@@ -7,7 +7,7 @@ using Castle.Windsor.Installer;
 using Composable.CQRS.Testing.Windsor.Testing;
 using Composable.GenericAbstractions.Time;
 using Composable.Windsor.Testing;
-using Composable.ServiceBus;
+using Composable.Messaging;
 using Composable.System.Configuration;
 using NUnit.Framework;
 

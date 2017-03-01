@@ -12,7 +12,9 @@ using Composable.System.Linq;
 
 namespace CQRS.Tests.Command
 {
-    [TestFixture]
+  using Composable.Messaging.Commands;
+
+  [TestFixture]
     public class CompositeCommandTests
     {
         WindsorContainer _container;
@@ -103,14 +105,14 @@ namespace CQRS.Tests.Command
             }
         }
 
-        public class EditCommand : Composable.CQRS.Command.Command
+        public class EditCommand : Command
         {
             public bool BothInvalid { get; set; }
             public string EditedField { get; set; }
             public string OtherEditedField { get; set; }
         }
 
-        public class SomethingCommand : Composable.CQRS.Command.Command {}
+        public class SomethingCommand : Command {}
 
         public class EditCommandHandler : ICommandHandler<EditCommand>
         {

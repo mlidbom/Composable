@@ -6,7 +6,7 @@ using Castle.Windsor;
 using Composable.CQRS.EventSourcing;
 using Composable.CQRS.Testing;
 using Composable.DomainEvents;
-using Composable.ServiceBus;
+using Composable.Messaging;
 using Composable.SystemExtensions.Threading;
 using Composable.UnitsOfWork;
 using NUnit.Framework;
@@ -22,7 +22,8 @@ using FluentAssertions;
 
 namespace CQRS.Tests.CQRS.EventSourcing
 {
-    using Composable.System;
+  using Composable.Messaging.Bus;
+  using Composable.System;
 
     [TestFixture]
     public abstract class EventStoreSessionTests : NoSqlTest

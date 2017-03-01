@@ -4,7 +4,9 @@ using System.Collections.ObjectModel;
 
 namespace Composable.CQRS.Command
 {
-    public abstract class CompositeCommand : Command
+  using Composable.Messaging.Commands;
+
+  public abstract class CompositeCommand : Command
     {
         public abstract IEnumerable<SubCommand> GetContainedCommands();
 

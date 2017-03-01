@@ -1,7 +1,7 @@
 ﻿using Castle.MicroKernel.Registration;
 using Castle.MicroKernel.SubSystems.Configuration;
 using Castle.Windsor;
-using Composable.ServiceBus;
+using Composable.Messaging;
 using Composable.Windsor.Testing;
 using JetBrains.Annotations;
 
@@ -31,7 +31,7 @@ namespace Composable.CQRS.Windsor.Testing
         {
             _container.Register(
                 Classes.FromAssemblyContaining<TInheritor>()
-                    .BasedOn(typeof(IHandleMessages<>))
+                    .BasedOn(typeof(IEventHandler<>))
                     .WithServiceBase()
                     .LifestyleScoped());
         }

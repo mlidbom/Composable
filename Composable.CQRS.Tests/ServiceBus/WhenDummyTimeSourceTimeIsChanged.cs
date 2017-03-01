@@ -7,7 +7,7 @@ using Composable.CQRS.Command;
 using Composable.CQRS.EventSourcing;
 using Composable.DDD;
 using Composable.GenericAbstractions.Time;
-using Composable.ServiceBus;
+using Composable.Messaging;
 using Composable.System.Reflection;
 using Composable.Windsor.Testing;
 using FluentAssertions;
@@ -15,7 +15,9 @@ using NUnit.Framework;
 
 namespace CQRS.Tests.ServiceBus
 {
-    using Composable.System;
+  using Composable.Messaging.Bus;
+  using Composable.Messaging.Commands;
+  using Composable.System;
 
     [TestFixture]
     public class WhenDummyTimeSourceTimeIsChanged
@@ -88,7 +90,7 @@ namespace CQRS.Tests.ServiceBus
             _container.Dispose();
         }
 
-        public class ScheduledCommand : Composable.CQRS.Command.Command
+        public class ScheduledCommand : Command
         {
         }
     }

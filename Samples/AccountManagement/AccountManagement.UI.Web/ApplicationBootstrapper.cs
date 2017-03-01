@@ -3,7 +3,7 @@ using Castle.MicroKernel.Registration;
 using Castle.Windsor;
 using Castle.Windsor.Installer;
 using Composable.CQRS.Testing.Windsor.Testing;
-using Composable.ServiceBus;
+using Composable.Messaging;
 using JetBrains.Annotations;
 using Composable.GenericAbstractions.Time;
 using Composable.System.Configuration;
@@ -11,7 +11,9 @@ using Composable.Windsor.Testing;
 
 namespace AccountManagement.UI.Web
 {
-    [UsedImplicitly]
+  using Composable.Messaging.Bus;
+
+  [UsedImplicitly]
     public class ApplicationBootstrapper
     {
         public static void ConfigureContainer(IWindsorContainer container)

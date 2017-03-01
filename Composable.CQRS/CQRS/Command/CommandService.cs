@@ -10,7 +10,9 @@ using Composable.Windsor;
 
 namespace Composable.CQRS.Command
 {
-    public class CommandService : ICommandService
+  using Composable.Messaging.Commands;
+
+  public class CommandService : ICommandService
     {
         readonly IWindsorContainer _container;
 

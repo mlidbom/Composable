@@ -264,7 +264,7 @@
     <Compile Include="System\Reflection\ObjectFactory.cs" />
     <Compile Include="System\Reflection\TypeExtensions.cs" />
     <Compile Include="System\StrictAggregateDisposable.cs" />
-    <Compile Include="System\StrictlyManagedResourceBase.cs" />
+    <Compile Include="System\StrictlyManagedResource.cs" />
     <Compile Include="System\StringExtensions.cs" />
     <Compile Include="System\TimeSpanEnumerableExtensions.cs" />
     <Compile Include="System\TimeSpanExtensions.cs" />

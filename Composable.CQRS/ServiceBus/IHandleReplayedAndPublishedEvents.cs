@@ -7,7 +7,7 @@ using Composable.CQRS.EventSourcing;
 namespace Composable.ServiceBus
 {
     // ReSharper disable once PossibleInterfaceMemberAmbiguity
-    public interface IHandleReplayedAndPublishedEvents<TEvent>: IHandleReplayedEvents<TEvent>, IHandleMessages<TEvent> where TEvent:IMessage
+    public interface IHandleReplayedAndPublishedEvents<TEvent>: IHandleReplayedEvents<TEvent>, IHandleMessages<TEvent> where TEvent:IEvent
     {
        
     }

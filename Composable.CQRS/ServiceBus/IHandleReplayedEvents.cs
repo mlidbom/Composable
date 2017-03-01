@@ -6,8 +6,7 @@ using Composable.CQRS.EventSourcing;
 
 namespace Composable.ServiceBus
 {
-    //Review:mlidbo: This should not constrain to IMessage, but rather to IEvent
-    public interface IHandleReplayedEvents<in TEvent> where TEvent:IMessage
+    public interface IHandleReplayedEvents<in TEvent> where TEvent:IEvent
     {
         void Handle(TEvent message);
     }

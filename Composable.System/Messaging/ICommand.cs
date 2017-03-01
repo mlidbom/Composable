@@ -1,7 +1,5 @@
-namespace Composable.Messaging.Commands
+namespace Composable.Messaging
 {
-  using Composable.Messaging;
-
   using global::System;
 
   public interface ICommand : IMessage

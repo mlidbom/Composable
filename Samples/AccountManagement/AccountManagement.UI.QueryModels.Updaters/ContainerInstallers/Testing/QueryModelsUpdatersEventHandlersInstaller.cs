@@ -7,7 +7,7 @@ using Composable.Windsor.Testing;
 
 namespace AccountManagement.UI.QueryModels.DocumentDB.Updaters.ContainerInstallers.Testing
 {
-  using Composable.Messaging.Bus;
+  using Composable.Messaging.Buses;
 
   public class QueryModelsUpdatersEventHandlersInstaller : IWindsorInstaller
     {

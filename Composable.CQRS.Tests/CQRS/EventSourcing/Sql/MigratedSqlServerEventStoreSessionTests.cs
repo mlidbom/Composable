@@ -18,7 +18,7 @@ using TestAggregates;
 
 namespace CQRS.Tests.CQRS.EventSourcing.Sql
 {
-  using Composable.Messaging.Bus;
+  using Composable.Messaging.Buses;
 
   [TestFixture]
     class MigratedSqlServerEventStoreSessionTests : NoSqlTest

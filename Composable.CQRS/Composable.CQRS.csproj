@@ -131,10 +131,6 @@
       <Link>Properties\CommonAssemblyInfo.cs</Link>
     </Compile>
     <Compile Include="CQRS\AggregateRepository.cs" />
-    <Compile Include="CQRS\Command\CommandService.cs" />
-    <Compile Include="CQRS\Command\CompositeCommand.cs" />
-    <Compile Include="CQRS\Command\DomainCommandValidationException.cs" />
-    <Compile Include="CQRS\Command\ICommandHandler.cs" />
     <Compile Include="CQRS\EventSourcing\AggregateRoot.Component.EntityCollectionManager.Removable.cs" />
     <Compile Include="CQRS\EventSourcing\AggregateRoot.Component.EntityCollectionManager.cs" />
     <Compile Include="CQRS\EventSourcing\AggregateRoot.Component.NestedComponent.cs" />

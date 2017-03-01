@@ -1,7 +1,6 @@
-﻿namespace Composable.Messaging.Bus
+﻿namespace Composable.Messaging.Buses
 {
   using Composable.GenericAbstractions.Time;
-  using Composable.Messaging.Commands;
   using Composable.System;
   using Composable.System.Reactive;
 

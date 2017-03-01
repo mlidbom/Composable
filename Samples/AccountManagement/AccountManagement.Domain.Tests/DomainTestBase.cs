@@ -8,7 +8,7 @@ using NUnit.Framework;
 
 namespace AccountManagement.Domain.Tests
 {
-  using Composable.Messaging.Bus;
+  using Composable.Messaging.Buses;
 
   [TestFixture] public abstract class DomainTestBase
     {

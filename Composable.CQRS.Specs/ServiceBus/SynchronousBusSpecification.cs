@@ -1,7 +1,6 @@
 ﻿using System;
 using Castle.MicroKernel.Registration;
 using Castle.Windsor;
-using Composable.CQRS.Command;
 using Composable.CQRS.EventSourcing;
 using Composable.Messaging;
 using Composable.SystemExtensions.Threading;
@@ -11,7 +10,7 @@ using FluentAssertions;
 namespace CQRS.Tests.ServiceBus
 {
   using Composable.GenericAbstractions.Time;
-  using Composable.Messaging.Bus;
+  using Composable.Messaging.Buses;
   using Composable.Messaging.Commands;
 
   public class SynchronousBusSpecification : NSpec.NUnit.nspec

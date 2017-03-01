@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using Castle.MicroKernel.Lifestyle;
 using Castle.MicroKernel.Registration;
 using Castle.Windsor;
-using Composable.CQRS.Command;
 using Composable.CQRS.EventSourcing;
 using Composable.DDD;
 using Composable.GenericAbstractions.Time;
@@ -15,7 +14,7 @@ using NUnit.Framework;
 
 namespace CQRS.Tests.ServiceBus
 {
-  using Composable.Messaging.Bus;
+  using Composable.Messaging.Buses;
   using Composable.Messaging.Commands;
   using Composable.System;
 

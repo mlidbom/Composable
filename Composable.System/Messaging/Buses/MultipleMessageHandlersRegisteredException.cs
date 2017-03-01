@@ -1,4 +1,4 @@
-﻿namespace Composable.Messaging.Bus
+﻿namespace Composable.Messaging.Buses
 {
   using Composable.System;
   using Composable.System.Linq;

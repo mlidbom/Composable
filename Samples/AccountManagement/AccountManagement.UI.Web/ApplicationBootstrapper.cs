@@ -11,7 +11,7 @@ using Composable.Windsor.Testing;
 
 namespace AccountManagement.UI.Web
 {
-  using Composable.Messaging.Bus;
+  using Composable.Messaging.Buses;
 
   [UsedImplicitly]
     public class ApplicationBootstrapper

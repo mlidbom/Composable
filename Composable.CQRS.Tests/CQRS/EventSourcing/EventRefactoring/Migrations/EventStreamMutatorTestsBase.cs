@@ -24,7 +24,7 @@ using TestAggregates;
 
 namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
 {
-  using Composable.Messaging.Bus;
+  using Composable.Messaging.Buses;
 
   //Todo: Refactor this test. It is too monolithic and hard to read and extend.
     public abstract class EventStreamMutatorTestsBase

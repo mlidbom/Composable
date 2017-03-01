@@ -174,7 +174,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Command\CompositeCommandTests.cs" />
     <Compile Include="CQRS\EventSourcing\AggregateRootTests.cs" />
     <Compile Include="CQRS\EventSourcing\AggregateRoot\NestedEntitiesTests\GuidId\Domain\Root.Component.NestedComponent.cs" />
     <Compile Include="CQRS\EventSourcing\AggregateRoot\NestedEntitiesTests\GuidId\Domain\Root.Component.Entity.cs" />

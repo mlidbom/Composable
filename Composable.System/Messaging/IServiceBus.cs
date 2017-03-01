@@ -2,7 +2,7 @@
 
 namespace Composable.Messaging
 {
-  using Composable.Messaging.Bus;
+  using Composable.Messaging.Buses;
   using Composable.Messaging.Commands;
 
   public interface IServiceBus : IInProcessServiceBus

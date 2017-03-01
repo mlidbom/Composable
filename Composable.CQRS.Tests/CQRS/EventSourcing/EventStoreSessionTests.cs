@@ -22,7 +22,7 @@ using FluentAssertions;
 
 namespace CQRS.Tests.CQRS.EventSourcing
 {
-  using Composable.Messaging.Bus;
+  using Composable.Messaging.Buses;
   using Composable.System;
 
     [TestFixture]

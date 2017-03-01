@@ -8,7 +8,7 @@ using Composable.Windsor.Testing;
 
 namespace Composable.CQRS.Testing.Windsor.Testing
 {
-  using Composable.Messaging.Bus;
+  using Composable.Messaging.Buses;
 
   public static class TestingWindsorExtensions
     {

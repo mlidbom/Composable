@@ -1,7 +1,6 @@
-﻿namespace Composable.Messaging.Bus
+﻿namespace Composable.Messaging.Buses
 {
   using Composable.CQRS.EventSourcing;
-  using Composable.Messaging.Commands;
   using Composable.Messaging.Events;
 
   using global::System;

@@ -1,4 +1,4 @@
-namespace Composable.Messaging.Bus
+namespace Composable.Messaging.Buses
 {
   using global::System.Collections.Generic;
 

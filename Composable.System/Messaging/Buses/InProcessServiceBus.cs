@@ -1,8 +1,6 @@
-﻿namespace Composable.Messaging
+﻿namespace Composable.Messaging.Buses
 {
   using Composable.CQRS.EventSourcing;
-  using Composable.Messaging.Bus;
-  using Composable.Messaging.Commands;
 
   using JetBrains.Annotations;
 

@@ -8,7 +8,7 @@ using Composable.Windsor.Testing;
 
 namespace AccountManagement.Domain.ContainerInstallers.Testing
 {
-  using Composable.Messaging.Bus;
+  using Composable.Messaging.Buses;
 
   public class DomainEventHandlersInstaller : IWindsorInstaller
     {

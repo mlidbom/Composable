@@ -42,5 +42,5 @@ namespace Composable.Messaging
     public interface IReplayedEventSubscriber<in TEvent> : IEventSubscriber<TEvent> where TEvent : IEvent {}
 
     ///<summary>An <see cref="IEventSubscriber{TEvent}" /> that should be invoked when an event is either published or replayed.</summary>
-    public interface IPublishedOrReplayedEventSubscriber<in TEvent> : IEventSubscriber<TEvent> where TEvent : IEvent {}
+    public interface IPublishedAndReplayedEventSubscriber<in TEvent> : IEventSubscriber<TEvent> where TEvent : IEvent {}
 }

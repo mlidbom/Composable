@@ -194,7 +194,7 @@
     <Compile Include="Messaging\Events\ISingleAggregateQueryModel.cs" />
     <Compile Include="Messaging\Events\SingleAggregateQueryModelUpdater.cs" />
     <Compile Include="Messaging\ICommandHandler.cs" />
-    <Compile Include="Messaging\IEventSubscriber.cs" />
+    <Compile Include="Messaging\IEventListener.cs" />
     <Compile Include="Messaging\IQuery.cs" />
     <Compile Include="Persistence\KeyValueStorage\AttemptToSaveAlreadyPersistedValueException.cs" />
     <Compile Include="Persistence\KeyValueStorage\DocumentIdIsEmptyGuidException.cs" />

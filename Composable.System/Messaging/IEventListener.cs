@@ -6,7 +6,7 @@ using Composable.CQRS.EventSourcing;
 
 namespace Composable.Messaging
 {
-    public interface IEventSubscriber<in TEvent> where TEvent:IEvent
+    public interface IEventListener<in TEvent> where TEvent:IEvent
     {
         void Handle(TEvent message);
     }

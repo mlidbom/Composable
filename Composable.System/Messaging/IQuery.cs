@@ -1,6 +1,4 @@
 ﻿namespace Composable.Messaging
 {
-  public interface IQuery<TResult> : IMessage
-  {    
-  }
+    public interface IQuery<TResult> : IMessage {}
 }

@@ -1,26 +1,19 @@
+using Composable.CQRS.EventSourcing;
+
 namespace Composable.Messaging.Events
 {
-  using Composable.CQRS.EventSourcing;
-  using Composable.Messaging;
-
-  /// <summary>
+    /// <summary>
     /// Calls all matching handlers in the order they were registered when an event is received.
     /// Handlers should be registered using the RegisterHandlers method in the constructor of the inheritor.
     /// </summary>
     public abstract class CallsMatchingHandlersInRegistrationOrderEventHandler<TEvent> : IEventApplier<TEvent>
         where TEvent : class, IAggregateRootEvent
     {
-        readonly CallMatchingHandlersInRegistrationOrderEventDispatcher<TEvent> _eventDispatcher = new CallMatchingHandlersInRegistrationOrderEventDispatcher<TEvent>(); 
+        readonly CallMatchingHandlersInRegistrationOrderEventDispatcher<TEvent> _eventDispatcher = new CallMatchingHandlersInRegistrationOrderEventDispatcher<TEvent>();
 
         ///<summary>Registers handlers for the incoming events. All matching handlers will be called in the order they were registered.</summary>
-        protected CallMatchingHandlersInRegistrationOrderEventDispatcher<TEvent>.RegistrationBuilder RegisterHandlers()
-        {
-            return _eventDispatcher.RegisterHandlers();
-        }
+        protected CallMatchingHandlersInRegistrationOrderEventDispatcher<TEvent>.RegistrationBuilder RegisterHandlers() { return _eventDispatcher.RegisterHandlers(); }
 
-        public virtual void Handle(TEvent evt)
-        {
-           _eventDispatcher.Dispatch(evt);
-        }
+        public virtual void Handle(TEvent evt) { _eventDispatcher.Dispatch(evt); }
     }
 }

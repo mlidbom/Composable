@@ -1,12 +1,12 @@
 // ReSharper disable ForCanBeConvertedToForeach this file needs these optimizations...
 
+using System;
+using System.Collections.Generic;
+using System.Linq;
+
 namespace Composable.Messaging.Events
 {
-  using global::System;
-  using global::System.Collections.Generic;
-  using global::System.Linq;
-
-  /// <summary>
+    /// <summary>
     /// Calls all matching handlers in the order they were registered when an event is Dispatched.
     /// Handlers should be registered using the RegisterHandlers method in the constructor of the inheritor.
     /// </summary>
@@ -26,19 +26,13 @@ namespace Composable.Messaging.Events
             return new RegistrationBuilder(this);
         }
 
-        public IEventHandlerRegistrar<TEvent> Register()
-        {
-            return new RegistrationBuilder(this);
-        } 
+        public IEventHandlerRegistrar<TEvent> Register() { return new RegistrationBuilder(this); }
 
         public class RegistrationBuilder : IEventHandlerRegistrar<TEvent>
         {
             readonly CallMatchingHandlersInRegistrationOrderEventDispatcher<TEvent> _owner;
 
-            public RegistrationBuilder(CallMatchingHandlersInRegistrationOrderEventDispatcher<TEvent> owner)
-            {
-                _owner = owner;
-            }
+            public RegistrationBuilder(CallMatchingHandlersInRegistrationOrderEventDispatcher<TEvent> owner) { _owner = owner; }
 
             ///<summary>Registers a for any event that implements THandledEvent. All matching handlers will be called in the order they were registered.</summary>
             public RegistrationBuilder For<THandledEvent>(Action<THandledEvent> handler) where THandledEvent : TEvent
@@ -58,7 +52,6 @@ namespace Composable.Messaging.Events
                 _owner._totalHandlers++;
                 return this;
             }
-
 
             public RegistrationBuilder BeforeHandlers(Action<TEvent> runBeforeHandlers)
             {
@@ -82,10 +75,7 @@ namespace Composable.Messaging.Events
 
             #region IEventHandlerRegistrar implementation.
 
-            IEventHandlerRegistrar<TEvent> IEventHandlerRegistrar<TEvent>.ForGenericEvent<THandledEvent>(Action<THandledEvent> handler)
-            {
-                return ForGenericEvent(handler);
-            }
+            IEventHandlerRegistrar<TEvent> IEventHandlerRegistrar<TEvent>.ForGenericEvent<THandledEvent>(Action<THandledEvent> handler) { return ForGenericEvent(handler); }
 
             IEventHandlerRegistrar<TEvent> IEventHandlerRegistrar<TEvent>.BeforeHandlers<THandledEvent>(Action<THandledEvent> runBeforeHandlers)
             {
@@ -97,18 +87,11 @@ namespace Composable.Messaging.Events
                 return AfterHandlers(e => runAfterHandlers((THandledEvent)e));
             }
 
-            IEventHandlerRegistrar<TEvent> IEventHandlerRegistrar<TEvent>.IgnoreUnhandled<T>()
-            {
-                return IgnoreUnhandled<TEvent>();
-            }
+            IEventHandlerRegistrar<TEvent> IEventHandlerRegistrar<TEvent>.IgnoreUnhandled<T>() { return IgnoreUnhandled<TEvent>(); }
 
-            IEventHandlerRegistrar<TEvent> IEventHandlerRegistrar<TEvent>.For<THandledEvent>(Action<THandledEvent> handler)
-            {
-                return For(handler);
-            }
+            IEventHandlerRegistrar<TEvent> IEventHandlerRegistrar<TEvent>.For<THandledEvent>(Action<THandledEvent> handler) { return For(handler); }
 
             #endregion
-
         }
 
         Dictionary<Type, Action<object>[]> _typeToHandlerCache;
@@ -129,32 +112,33 @@ namespace Composable.Messaging.Events
                 return arrayResult;
             }
 
-            var result = new List<Action<object>>(); 
+            var result = new List<Action<object>>();
             var hasDispatchedEvent = false;
 
             result.AddRange(_runBeforeHandlers);
 
-            for (var index = 0; index < _handlers.Count; index++)
+            for(var index = 0; index < _handlers.Count; index++)
             {
-                if (_handlers[index].Key.IsAssignableFrom(type))
+                if(_handlers[index].Key.IsAssignableFrom(type))
                 {
-                   hasDispatchedEvent = true;
-                   result.Add(_handlers[index].Value);
+                    hasDispatchedEvent = true;
+                    result.Add(_handlers[index].Value);
                 }
             }
 
             if(hasDispatchedEvent)
             {
                 result.AddRange(_runAfterHandlers);
-            }
-            else
+            } else
             {
                 if(!_ignoredEvents.Any(ignoredEventType => ignoredEventType.IsAssignableFrom(type)))
                 {
                     throw new EventUnhandledException(GetType(), type);
                 }
+
                 return _typeToHandlerCache[type] = NullHandlerList;
-            }            
+            }
+
             return _typeToHandlerCache[type] = result.ToArray();
         }
 

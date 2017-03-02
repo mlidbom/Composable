@@ -1,12 +1,11 @@
-﻿namespace Composable.Messaging.Buses
+﻿using System;
+using System.Collections.Generic;
+using Composable.System;
+using Composable.System.Linq;
+
+namespace Composable.Messaging.Buses
 {
-  using Composable.System;
-  using Composable.System.Linq;
-
-  using global::System;
-  using global::System.Collections.Generic;
-
-  public class MultipleMessageHandlersRegisteredException : Exception
+    public class MultipleMessageHandlersRegisteredException : Exception
     {
         public MultipleMessageHandlersRegisteredException(object message, IEnumerable<Type> handlerTypes)
             : base(CreateMessage(message, handlerTypes)) { }

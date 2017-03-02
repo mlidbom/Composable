@@ -1,15 +1,15 @@
-﻿namespace Composable.Messaging.Buses
+﻿using System;
+using Composable.CQRS.EventSourcing;
+using Composable.Messaging.Events;
+
+namespace Composable.Messaging.Buses
 {
-  using Composable.CQRS.EventSourcing;
-  using Composable.Messaging.Events;
+    public interface IMessageHandlerRegistry
+    {
+        Action<object> GetHandlerFor(ICommand message);
 
-  using global::System;
+        IEventDispatcher<IEvent> CreateEventDispatcher();
 
-  public interface IMessageHandlerRegistry {
-    Action<object> GetHandlerFor(ICommand message);
-
-    IEventDispatcher<IEvent> CreateEventDispatcher();
-
-    bool Handles(object aMessage);
-  }
+        bool Handles(object aMessage);
+    }
 }

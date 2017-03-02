@@ -1,15 +1,9 @@
-#region usings
-
-
-
-#endregion
+using Composable.CQRS.EventSourcing;
+using Composable.KeyValueStorage;
 
 namespace Composable.Messaging.Events
 {
-  using Composable.CQRS.EventSourcing;
-  using Composable.KeyValueStorage;
-
-  public abstract class SingleAggregateQueryModelUpdater<TImplementer, TViewModel, TEvent, TSession> : CallsMatchingHandlersInRegistrationOrderEventHandler<TEvent>
+    public abstract class SingleAggregateQueryModelUpdater<TImplementer, TViewModel, TEvent, TSession> : CallsMatchingHandlersInRegistrationOrderEventHandler<TEvent>
         where TImplementer : SingleAggregateQueryModelUpdater<TImplementer, TViewModel, TEvent, TSession>
         where TSession : IDocumentDbSession
         where TEvent : class, IAggregateRootEvent
@@ -23,14 +17,14 @@ namespace Composable.Messaging.Events
             Session = session;
 
             RegisterHandlers()
-                .ForGenericEvent<IAggregateRootDeletedEvent>(e =>  Session.Delete<TViewModel>(e.AggregateRootId))
+                .ForGenericEvent<IAggregateRootDeletedEvent>(e => Session.Delete<TViewModel>(e.AggregateRootId))
                 .BeforeHandlers(e =>
                                 {
                                     if(e is IAggregateRootCreatedEvent)
                                     {
                                         Model = new TViewModel();
                                         Model.SetId(e.AggregateRootId);
-                                    }else if (!(e is IAggregateRootDeletedEvent))
+                                    } else if(!(e is IAggregateRootDeletedEvent))
                                     {
                                         Model = Session.GetForUpdate<TViewModel>(e.AggregateRootId);
                                     }
@@ -40,7 +34,7 @@ namespace Composable.Messaging.Events
                                    if(e is IAggregateRootCreatedEvent)
                                    {
                                        Session.Save(Model);
-                                   }else
+                                   } else
                                    {
                                        Session.SaveChanges();
                                    }

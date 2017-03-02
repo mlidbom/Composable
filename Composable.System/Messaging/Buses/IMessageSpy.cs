@@ -1,8 +1,8 @@
+using System.Collections.Generic;
+
 namespace Composable.Messaging.Buses
 {
-  using global::System.Collections.Generic;
-
-  public interface IMessageSpy
+    public interface IMessageSpy
     {
         IEnumerable<IMessage> DispatchedMessages { get; }
     }

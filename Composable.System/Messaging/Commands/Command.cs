@@ -1,16 +1,15 @@
+using System;
+using Composable.DDD;
+
 namespace Composable.Messaging.Commands
 {
-  using Composable.DDD;
+    public class Command : ValueObject<Command>, ICommand
+    {
+        public Guid Id { get; set; }
 
-  using global::System;
+        protected Command()
+            : this(Guid.NewGuid()) { }
 
-  public class Command : ValueObject<Command>, ICommand
-  {
-    public Guid Id { get; set; }
-
-    protected Command()
-      : this(Guid.NewGuid()) { }
-
-    protected Command(Guid id) { Id = id; }
-  }
+        protected Command(Guid id) { Id = id; }
+    }
 }

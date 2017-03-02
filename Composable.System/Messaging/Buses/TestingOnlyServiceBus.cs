@@ -21,7 +21,7 @@ namespace Composable.Messaging.Buses
         {
             var dueMessages = _scheduledMessages.Where(message => message.SendAt <= currentTime)
                                                 .ToList();
-            dueMessages.ForEach(scheduledMessage => Send(scheduledMessage.Message));
+            dueMessages.ForEach(scheduledMessage => ((IInProcessServiceBus)this).Send(scheduledMessage.Message));
             dueMessages.ForEach(message => _scheduledMessages.Remove(message));
         }
 

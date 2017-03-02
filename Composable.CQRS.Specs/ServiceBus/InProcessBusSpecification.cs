@@ -11,7 +11,7 @@ namespace Composable.CQRS.Specs.ServiceBus
     {
         public void given_no_registered_handlers()
         {
-          InProcessServiceBus bus = null;
+          IInProcessServiceBus bus = null;
           IMessageHandlerRegistrar registrar = null;
           before = () =>
                    {
@@ -65,10 +65,8 @@ namespace Composable.CQRS.Specs.ServiceBus
             context["after registering a handler for AQuery with bus"] =
                 () =>
                 {
-                    bool queryHandled = false;
                     before = () =>
                     {
-                        Func<AQuery, AQueryResult> queryHandler = query => new AQueryResult();
                         registrar.ForQuery<AQuery, AQueryResult>(query => new AQueryResult());
                     };
                     it["Handles(new AQuery()) returns true"] = () => bus.Handles(new AQuery()).Should().Be(true);

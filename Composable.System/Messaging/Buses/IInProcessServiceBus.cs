@@ -7,5 +7,6 @@ namespace Composable.Messaging.Buses
         void Publish(IEvent anEvent);
         TResult Get<TResult>(IQuery<TResult> query) where TResult : IQueryResult; 
         void Send(ICommand message);
+        bool Handles(object aMessage);
     }
 }

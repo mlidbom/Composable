@@ -8,20 +8,20 @@ namespace Composable.Messaging.Buses
 
         public InProcessServiceBus(IMessageHandlerRegistry handlerRegistry) { _handlerRegistry = handlerRegistry; }
 
-        public void Publish(IEvent anEvent)
+        void IInProcessServiceBus.Publish(IEvent anEvent)
         {
             _handlerRegistry.CreateEventDispatcher()
                             .Dispatch(anEvent);
             AfterDispatchingMessage(anEvent);
         }
 
-        public void Send(ICommand message)
+        void IInProcessServiceBus.Send(ICommand message)
         {
             _handlerRegistry.GetCommandHandler(message)(message);
             AfterDispatchingMessage(message);
         }
 
-        public TResult Get<TResult>(IQuery<TResult> query) where TResult : IQueryResult
+        TResult IInProcessServiceBus.Get<TResult>(IQuery<TResult> query)
         {
             var returnValue = _handlerRegistry.GetQueryHandler(query)
                                               .Invoke(query);

@@ -1,19 +1,13 @@
 ﻿using System;
-using Castle.MicroKernel.Registration;
-using Castle.Windsor;
-using Composable.CQRS.EventSourcing;
 using Composable.Messaging;
-using Composable.SystemExtensions.Threading;
+using Composable.Messaging.Buses;
 using FluentAssertions;
+
 // ReSharper disable UnusedMember.Global
 
-namespace CQRS.Tests.ServiceBus
+namespace Composable.CQRS.Specs.ServiceBus
 {
-  using Composable.GenericAbstractions.Time;
-  using Composable.Messaging.Buses;
-  using Composable.Messaging.Commands;
-
-  public class SynchronousBusSpecification : NSpec.NUnit.nspec
+    public class InProcessBusSpecification : NSpec.NUnit.nspec
     {
         public void given_no_registered_handlers()
         {
@@ -28,12 +22,6 @@ namespace CQRS.Tests.ServiceBus
 
             it["Handles(new ACommand()) returns false"] = () => bus.Handles(new ACommand()).Should().Be(false);
             it["Send(new ACommand()) throws NoHandlerException"] = expect<NoHandlerException>(() => bus.Send(new ACommand()));
-
-            //Todo:reply should throw an exception telling us that you cannot reply except while handling a command
-            //it["Reply(new ACommand()) throws CantCallReplyWhenNotHandlingMessageException"] = expect<CantCallReplyWhenNotHandlingMessageException>(() => bus.Reply(new ACommand()));
-
-            it["Publish(new AnEvent()) throws no exception"] = () => bus.Publish(new AnEvent());
-
             context["after registering a command handler for ACommand with bus"] =
                 () =>
                 {
@@ -52,6 +40,8 @@ namespace CQRS.Tests.ServiceBus
 
                 };
 
+            it["Handles(new AnEvent()) returns false"] = () => bus.Handles(new AnEvent()).Should().BeFalse();
+            it["Publish(new AnEvent()) throws no exception"] = () => bus.Publish(new AnEvent());
             context["after registering a handlerfor AnEvent with bus"] =
                 () =>
                 {
@@ -68,7 +58,31 @@ namespace CQRS.Tests.ServiceBus
                         eventHandled.Should().Be(true);
                     };
 
-                };         
+                };
+
+            it["Handles(new AQuery()) returns false"] = () => bus.Handles(new AQuery()).Should().Be(false);
+            it["Get(new AQuery()) throws NoHandlerException"] = expect<NoHandlerException>(() => bus.Get(new AQuery()));
+            context["after registering a handler for AQuery with bus"] =
+                () =>
+                {
+                    bool queryHandled = false;
+                    before = () =>
+                    {
+                        Func<AQuery, AQueryResult> queryHandler = query => new AQueryResult();
+                        registrar.ForQuery<AQuery, AQueryResult>(query => new AQueryResult());
+                    };
+                    it["Handles(new AQuery()) returns true"] = () => bus.Handles(new AQuery()).Should().Be(true);
+                    it["Get(new AQuery()) throws no exception"] = () => bus.Get(new AQuery());
+                    it["Get(new AQuery()) returns an instance of AQueryResult"] = () =>
+                                                                                 {
+                                                                                     var aQueryResult = bus.Get(new AQuery());
+                                                                                     aQueryResult.Should()
+                                                                                                 .NotBeNull();
+                                                                                     aQueryResult.Should().BeOfType<AQueryResult>();
+                                                                                     
+                                                                                 };
+
+                };
         }
 
         public void when_there_is_one_handler_registered_for_a_message()
@@ -92,13 +106,18 @@ namespace CQRS.Tests.ServiceBus
 
         }
 
-        public class ACommand : ICommand
+        class ACommand : ICommand
         {
             public Guid Id { get; } = Guid.NewGuid();
         }
 
-        public class AnEvent : IEvent { }
-    }
+        class AQuery : IQuery<AQueryResult>
+        {
+            
+        }
 
-    
+        class AQueryResult : IQueryResult { }
+
+        class AnEvent : IEvent { }
+    }    
 }

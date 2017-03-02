@@ -17,8 +17,12 @@ namespace Composable.Messaging
     /// </summary>
     public interface IEvent : IMessage {}
 
+
     ///<summary>An <see cref="IMessage"/> that instructs the receiver to return some data.</summary>
-    public interface IQuery<TResult> : IMessage {}
+    public interface IQuery<TResult> : IMessage where TResult : IQueryResult {}
+
+    ///<summary>A response to an <see cref="IQuery{TResult}"/></summary>
+    public interface IQueryResult : IMessage {}
 
     ///<summary>Performs the action requested by a command.
     /// <para>Should be named as: (CommandName)Handler</para>

@@ -6,7 +6,9 @@ namespace Composable.Messaging.Buses
 {
     public interface IMessageHandlerRegistry
     {
-        Action<object> GetHandlerFor(ICommand message);
+        Action<object> GetCommandHandler(ICommand message);
+
+        Func<IQuery<TResult>, TResult> GetQueryHandler<TResult>(IQuery<TResult> query) where TResult : IQueryResult;
 
         IEventDispatcher<IEvent> CreateEventDispatcher();
 

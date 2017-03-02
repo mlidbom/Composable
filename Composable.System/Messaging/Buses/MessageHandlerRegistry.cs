@@ -3,12 +3,14 @@ using System.Collections.Generic;
 using System.Linq;
 using Composable.CQRS.EventSourcing;
 using Composable.Messaging.Events;
+using Composable.System.Reflection;
 
 namespace Composable.Messaging.Buses
 {
     public class MessageHandlerRegistry : IMessageHandlerRegistrar, IMessageHandlerRegistry
     {
         readonly Dictionary<Type, Action<object>> _commandHandlers = new Dictionary<Type, Action<object>>();
+        readonly Dictionary<Type, Func<object,object>> _queryHandlers = new Dictionary<Type, Func<object, object>>();
         readonly List<EventHandlerRegistration> _eventHandlerRegistrations = new List<EventHandlerRegistration>();
 
         readonly object _lock = new object();
@@ -31,7 +33,16 @@ namespace Composable.Messaging.Buses
             }
         }
 
-        Action<object> IMessageHandlerRegistry.GetHandlerFor(ICommand message)
+        IMessageHandlerRegistrar IMessageHandlerRegistrar.ForQuery<TQuery,TResult>(Func<TQuery, TResult> handler)
+        {
+            lock (_lock)
+            {
+                _queryHandlers.Add(typeof(TQuery), query => handler((TQuery)query));
+                return this;
+            }
+        }
+
+        Action<object> IMessageHandlerRegistry.GetCommandHandler(ICommand message)
         {
             try
             {
@@ -44,6 +55,22 @@ namespace Composable.Messaging.Buses
             {
                 throw new NoHandlerException(message.GetType());
             }
+        }
+
+        Func<IQuery<TResult>, TResult> IMessageHandlerRegistry.GetQueryHandler<TResult>(IQuery<TResult> query)
+        {
+            try
+            {
+                lock (_lock)
+                {
+                    var typeUnsafeQuery = _queryHandlers[query.GetType()];
+                    return actualQuery => (TResult)typeUnsafeQuery(actualQuery);
+                }
+            }
+            catch (KeyNotFoundException)
+            {
+                throw new NoHandlerException(query.GetType());
+            }            
         }
 
         IEventDispatcher<IEvent> IMessageHandlerRegistry.CreateEventDispatcher()
@@ -68,10 +95,13 @@ namespace Composable.Messaging.Buses
 
                 if(aMessage is ICommand)
                     return _commandHandlers.ContainsKey(aMessage.GetType());
+
+                if(aMessage.GetType().Implements(typeof(IQuery<>)))
+                    return _queryHandlers.ContainsKey(aMessage.GetType());
             }
 
             throw new Exception($"Unhandled message type: {aMessage.GetType()}");
-        }
+        }        
 
         class EventHandlerRegistration
         {

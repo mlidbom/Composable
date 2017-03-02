@@ -13,7 +13,7 @@
       TimeAsserter.Execute(() => new StrictlyManagedResource().Dispose(),
         iterations: 100,
         maxTotal: 30.Milliseconds(),
-        maxTries: 1);
+        maxTries: 3);
     }
   }
 }

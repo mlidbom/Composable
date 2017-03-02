@@ -175,7 +175,6 @@
     <Compile Include="CQRS\EventSourcing\IAggregateRootCreatedEvent.cs" />
     <Compile Include="CQRS\EventSourcing\IAggregateRootDeletedEvent.cs" />
     <Compile Include="CQRS\EventSourcing\IAggregateRootEvent.cs" />
-    <Compile Include="CQRS\EventSourcing\IEvent.cs" />
     <Compile Include="DDD\IHasPersistentIdentity.cs" />
     <Compile Include="DDD\IPersistentEntity.cs" />
     <Compile Include="DDD\PersistentEntity.cs" />
@@ -193,9 +192,7 @@
     <Compile Include="Messaging\Events\IMutableEventDispatcher.cs" />
     <Compile Include="Messaging\Events\ISingleAggregateQueryModel.cs" />
     <Compile Include="Messaging\Events\SingleAggregateQueryModelUpdater.cs" />
-    <Compile Include="Messaging\ICommandHandler.cs" />
-    <Compile Include="Messaging\IEventListener.cs" />
-    <Compile Include="Messaging\IQuery.cs" />
+    <Compile Include="Messaging\_Interfaces.cs" />
     <Compile Include="Persistence\KeyValueStorage\AttemptToSaveAlreadyPersistedValueException.cs" />
     <Compile Include="Persistence\KeyValueStorage\DocumentIdIsEmptyGuidException.cs" />
     <Compile Include="Persistence\KeyValueStorage\DocumentUpdated.cs" />
@@ -211,13 +208,9 @@
     <Compile Include="Persistence\KeyValueStorage\NoSuchDocumentException.cs" />
     <Compile Include="Messaging\Commands\Command.cs" />
     <Compile Include="Messaging\Commands\CommandResult.cs" />
-    <Compile Include="Messaging\ICommand.cs" />
     <Compile Include="Messaging\Commands\ISubCommand.cs" />
     <Compile Include="Messaging\Commands\SubCommand.cs" />
-    <Compile Include="Messaging\IEventHandler.cs" />
-    <Compile Include="Messaging\IEventApplier.cs" />
     <Compile Include="Messaging\Buses\IInProcessServiceBus.cs" />
-    <Compile Include="Messaging\IMessage.cs" />
     <Compile Include="Messaging\Buses\IMessageHandlerRegistrar.cs" />
     <Compile Include="Messaging\Buses\IMessageHandlerRegistry.cs" />
     <Compile Include="Messaging\Buses\IMessageSpy.cs" />

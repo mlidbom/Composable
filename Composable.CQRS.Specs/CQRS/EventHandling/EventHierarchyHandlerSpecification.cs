@@ -101,7 +101,7 @@ namespace CQRS.Tests.CQRS.EventHandling
             }
         }
 
-        public interface IHandlesIUserEvents : IEventHandler<IUserEvent>
+        public interface IHandlesIUserEvents : IEventSubscriber<IUserEvent>
         {
             int CallsMade { get; set; }
             int? BeforeHandlers1CallOrder { get; set; }

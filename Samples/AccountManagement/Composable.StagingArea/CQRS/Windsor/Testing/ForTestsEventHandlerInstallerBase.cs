@@ -31,7 +31,7 @@ namespace Composable.CQRS.Windsor.Testing
         {
             _container.Register(
                 Classes.FromAssemblyContaining<TInheritor>()
-                    .BasedOn(typeof(IEventHandler<>))
+                    .BasedOn(typeof(IEventSubscriber<>))
                     .WithServiceBase()
                     .LifestyleScoped());
         }

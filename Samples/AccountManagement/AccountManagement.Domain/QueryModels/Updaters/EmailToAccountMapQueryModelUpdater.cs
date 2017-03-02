@@ -6,7 +6,7 @@ using JetBrains.Annotations;
 namespace AccountManagement.Domain.QueryModels.Updaters
 {
     [UsedImplicitly]
-    public class EmailToAccountMapQueryModelUpdater : IEventHandler<IAccountEmailPropertyUpdatedEvent>
+    public class EmailToAccountMapQueryModelUpdater : IPublishedOrReplayedEventSubscriber<IAccountEmailPropertyUpdatedEvent>
     {
         readonly IAccountManagementDomainQueryModelSession _querymodels;
         readonly IAccountRepository _repository;

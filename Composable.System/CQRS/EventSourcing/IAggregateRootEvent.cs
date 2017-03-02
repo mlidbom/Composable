@@ -1,5 +1,6 @@
 using System;
 using Composable.DomainEvents;
+using Composable.Messaging;
 
 namespace Composable.CQRS.EventSourcing
 {

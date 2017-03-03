@@ -185,7 +185,7 @@
     <Compile Include="GenericAbstractions\Time\DateTimeNowTimeSource.cs" />
     <Compile Include="GenericAbstractions\Time\IUtcTimeTimeSource.cs" />
     <Compile Include="JetBrainsCodeAnnotations.cs" />
-    <Compile Include="Messaging\Buses\_Interfaces.cs" />
+    <Compile Include="Messaging\Buses\_Composable.Messaging.Buses.Interfaces.cs" />
     <Compile Include="Messaging\Events\CallMatchingHandlersInRegistrationOrderEventDispatcher.cs" />
     <Compile Include="Messaging\Events\CallsMatchingHandlersInRegistrationOrderEventHandler.cs" />
     <Compile Include="Messaging\Events\IEventDispatcher.cs" />
@@ -263,6 +263,7 @@
     <Compile Include="System\TimeSpanExtensions.cs" />
     <Compile Include="System\Transactions\InTransaction.cs" />
     <Compile Include="GenericAbstractions\Wrappers\IWrapper.cs" />
+    <Compile Include="System\Transactions\ITransactionalScope.cs" />
     <Compile Include="System\Web\HttpRequestIdSupplier.cs" />
     <Compile Include="System\Web\HttpRequestIdFetcher.cs" />
     <Compile Include="System\Web\IHttpRequestIdFetcher.cs" />

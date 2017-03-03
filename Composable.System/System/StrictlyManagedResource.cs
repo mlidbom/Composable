@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 using Composable.System.Configuration;
 using Composable.System.Linq;
 
@@ -51,17 +52,36 @@ namespace Composable.System
     ///</example>
     public class StrictlyManagedResource<TManagedResource> : IStrictlyManagedResource where TManagedResource : IStrictlyManagedResource
     {
-        public static Action<StrictlyManagedResourceWasFinalizedException> ThrowCreatedException = exception => { throw exception; };
+        public static Action<StrictlyManagedResourceWasFinalizedException> ThrowCreatedExceptionWhenFinalizerIsCalled = exception => { throw exception; };
+        public static Action<StrictlyManagedResourceLifespanWasExceededException> ThrowCreatedExceptionWhenLifespanWasExceeded = exception => { throw exception; };
+
         static readonly bool CollectStacktraces = StrictlyManagedResources.CollectStackTracesFor<TManagedResource>();
-        public StrictlyManagedResource(bool forceStackTraceCollection = false)
+        public StrictlyManagedResource(TimeSpan? maxLifetime = null, bool forceStackTraceCollection = false)
         {
             if(forceStackTraceCollection || CollectStacktraces || StrictlyManagedResources.CollectStackTracesForAllStrictlyManagedResources)
             {
                 ReservationCallStack = Environment.StackTrace;
             }
+            if(maxLifetime.HasValue)
+            {
+#pragma warning disable 4014
+                ScheduleDisposalAndExistenceTest(this, maxLifetime.Value);
+#pragma warning restore 4014
+            }
         }
 
-        public string ReservationCallStack { get; }
+        static async Task ScheduleDisposalAndExistenceTest(StrictlyManagedResource<TManagedResource> resource, TimeSpan maxLifeSpan)
+        {
+            var resourceReference = new WeakReference<StrictlyManagedResource<TManagedResource>>(resource);
+            await Task.Delay(maxLifeSpan).ConfigureAwait(false);
+            StrictlyManagedResource<TManagedResource> stillLivingResource;
+            if(resourceReference.TryGetTarget(out stillLivingResource) && !stillLivingResource._disposed)
+            {
+                ThrowCreatedExceptionWhenLifespanWasExceeded(new StrictlyManagedResourceLifespanWasExceededException(stillLivingResource.GetType(), stillLivingResource.ReservationCallStack, maxLifeSpan));
+            }
+        }
+
+        string ReservationCallStack { get; }
 
         bool _disposed;
 
@@ -75,7 +95,7 @@ namespace Composable.System
         {
             if(!_disposed)
             {
-                ThrowCreatedException(new StrictlyManagedResourceWasFinalizedException(GetType(), ReservationCallStack));
+                ThrowCreatedExceptionWhenFinalizerIsCalled(new StrictlyManagedResourceWasFinalizedException(GetType(), ReservationCallStack));
             }
         }
     }
@@ -135,4 +155,20 @@ Set configuration value: {StrictlyManagedResources.ConfigurationParamaterNameFor
 Set configuration value: {StrictlyManagedResources.CollectStackTracesForAllStrictlyManagedResourcesConfigurationParamaterName} to ""true"" to collect allocation stack traces for all types.
 Please note that this will decrease performance and should only be set while debugging resource leaks.";
     }
+
+    public class StrictlyManagedResourceLifespanWasExceededException : Exception
+    {
+        public StrictlyManagedResourceLifespanWasExceededException(Type instanceType, string reservationCallStack, TimeSpan maxTimeSpan) : base(FormatMessage(instanceType, reservationCallStack, maxTimeSpan)) { }
+
+        static string FormatMessage(Type instanceType, string reservationCallStack, TimeSpan maxTimeSpan)
+            => reservationCallStack != string.Empty
+                   ? $@"User code failed to Dispose this instance of {instanceType.FullName} within the maximum lifetime: {maxTimeSpan}
+Construction call stack: {reservationCallStack}"
+                   : $@"No allocation stack trace collected. 
+Set configuration value: {StrictlyManagedResources.ConfigurationParamaterNameFor(instanceType)} to ""true"" to collect allocation stack traces for this type.
+Set configuration value: {StrictlyManagedResources.CollectStackTracesForAllStrictlyManagedResourcesConfigurationParamaterName} to ""true"" to collect allocation stack traces for all types.
+Please note that this will decrease performance and should only be set while debugging resource leaks.";
+    }
 }
+
+

@@ -19,7 +19,7 @@ namespace Composable.Tests.StrictlyManagedResource
         public void SetupTask()
         {
             _leakedResource = null;
-            StrictlyManagedResource<StrictResource>.ThrowCreatedException = resource => _leakedResource = resource;
+            StrictlyManagedResource<StrictResource>.ThrowCreatedExceptionWhenFinalizerIsCalled = resource => _leakedResource = resource;
 
             // ReSharper disable once ObjectCreationAsStatement
             ((Action)(() => new StrictlyManagedResource<StrictResource>().Dispose())).Invoke();

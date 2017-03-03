@@ -17,7 +17,7 @@ namespace Composable.Tests.StrictlyManagedResource
         StrictlyManagedResourceWasFinalizedException LeakResourceAndRunGarbageCollection(bool forceStackTraceCollection)
         {
             StrictlyManagedResourceWasFinalizedException exception = null;
-            StrictlyManagedResource<StrictResource>.ThrowCreatedException = resource => exception = resource;
+            StrictlyManagedResource<StrictResource>.ThrowCreatedExceptionWhenFinalizerIsCalled = resource => exception = resource;
 
             ((Action)(() => new StrictlyManagedResource<StrictResource>(forceStackTraceCollection: forceStackTraceCollection))).Invoke();
 

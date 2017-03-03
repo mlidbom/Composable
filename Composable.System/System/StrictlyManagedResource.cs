@@ -53,7 +53,7 @@ namespace Composable.System
     {
         public static Action<StrictlyManagedResourceWasFinalizedException> ThrowCreatedException = exception => { throw exception; };
         static readonly bool CollectStacktraces = StrictlyManagedResources.CollectStackTracesFor<TManagedResource>();
-        public StrictlyManagedResource(TimeSpan? maxLifetime = null, bool forceStackTraceCollection = false)
+        public StrictlyManagedResource(bool forceStackTraceCollection = false)
         {
             if(forceStackTraceCollection || CollectStacktraces || StrictlyManagedResources.CollectStackTracesForAllStrictlyManagedResources)
             {

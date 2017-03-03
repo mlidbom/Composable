@@ -5,15 +5,17 @@ namespace Composable.System.Configuration
     ///<summary>Fetches configuration variables from the application configuration file.</summary>
     public class AppConfigConfigurationParameterProvider : IConfigurationParameterProvider
     {
-        ///<summary>Gets a string configuration value.</summary>
-        public string GetString(string parameterName)
+        public static readonly IConfigurationParameterProvider Instance = new AppConfigConfigurationParameterProvider();
+
+        public string GetString(string parameterName, string valueIfMissing = null)
         {
             var parameter = ConfigurationManager.AppSettings[parameterName];
-            if (parameter==null)
+            if(parameter != null) return parameter;
+            if(valueIfMissing != null)
             {
-                throw new ConfigurationErrorsException(string.Format("ApplicationSettings Parameter {0} does not exists",parameterName));
+                return valueIfMissing;
             }
-            return parameter;
+            throw new ConfigurationErrorsException($"ApplicationSettings Parameter {parameterName} does not exists");
         }
     }
 }

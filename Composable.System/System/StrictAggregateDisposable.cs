@@ -11,12 +11,12 @@ namespace Composable.System
         void Add(IEnumerable<IDisposable> disposables);
     }
 
-    public interface IStrictAggregateDisposable : IAggregateDisposable
+    public interface IStrictAggregateDisposable : IAggregateDisposable, IStrictlyManagedResource
     {}
 
-    public class StrictAggregateDisposable : StrictlyManagedResourceBase, IStrictAggregateDisposable
+    public class StrictAggregateDisposable : StrictlyManagedResourceBase<StrictAggregateDisposable>, IStrictAggregateDisposable
     {
-        readonly IList<IDisposable> _managedResources = new List<IDisposable>();        
+        readonly IList<IDisposable> _managedResources = new List<IDisposable>();
 
         public static StrictAggregateDisposable Create(params IDisposable[] disposables)
         {
@@ -40,15 +40,9 @@ namespace Composable.System
             Add(disposables.ToArray());
         }
 
-        public void Add(params IDisposable[] disposables)
-        {
-            _managedResources.AddRange(disposables);
-        }
+        public void Add(params IDisposable[] disposables) => _managedResources.AddRange(disposables);
 
-        public void Add(IEnumerable<IDisposable> disposables)
-        {
-            _managedResources.AddRange(disposables);
-        }
+        public void Add(IEnumerable<IDisposable> disposables) => _managedResources.AddRange(disposables);
 
         protected override void InternalDispose()
         {

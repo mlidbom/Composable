@@ -11,7 +11,7 @@ using Composable.System.Linq;
 
 namespace Composable.Testing
 {
-    public sealed class SqlServerDatabasePool : StrictlyManagedResourceBase
+    public sealed class SqlServerDatabasePool : StrictlyManagedResourceBase<SqlServerDatabasePool>
     {
         readonly string _masterConnectionString;
         readonly SqlServerConnectionUtilities _masterConnection;
@@ -23,7 +23,7 @@ namespace Composable.Testing
         {
             _masterConnectionString = masterConnectionString;
             _masterConnection = new SqlServerConnectionUtilities(_masterConnectionString);
-            
+
 
             var sqlConnectionStringBuilder = new SqlConnectionStringBuilder(_masterConnectionString);
             sqlConnectionStringBuilder.InitialCatalog = ManagerDbName;
@@ -31,7 +31,7 @@ namespace Composable.Testing
 
             EnsureManagerDbExists();
             ReleaseOldLocks();
-        }        
+        }
 
         readonly Dictionary<string, Database> _reservedDatabases = new Dictionary<string, Database>();
         bool _disposed;
@@ -39,7 +39,7 @@ namespace Composable.Testing
         public string ConnectionStringFor(string requestedDbName)
         {
             Contract.Assert(!_disposed, "Attempt to use disposed object");
-            Database database;            
+            Database database;
             if(_reservedDatabases.TryGetValue(requestedDbName, out database))
             {
                 return database.ConnectionString;

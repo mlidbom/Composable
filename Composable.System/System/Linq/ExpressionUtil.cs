@@ -51,5 +51,30 @@ namespace Composable.System.Linq
 
             return memberExpression.Member.Name;
         }
+
+
+        public static string ExtractMemberPath<TValue>(Expression<Func<TValue>> func)
+        {
+            Contract.Requires(func != null);
+            return ExtractMemberPath((LambdaExpression)func);
+        }
+
+        public static string ExtractMemberPath(LambdaExpression lambda)
+        {
+            Contract.Requires(lambda != null);
+            var body = lambda.Body;
+            MemberExpression memberExpression;
+
+            if (body is UnaryExpression)
+            {
+                memberExpression = (MemberExpression)((UnaryExpression)body).Operand;
+            }
+            else
+            {
+                memberExpression = (MemberExpression)body;
+            }
+
+            return $"{memberExpression.Member.DeclaringType.FullName}.{memberExpression.Member.Name}" ;
+        }
     }
 }

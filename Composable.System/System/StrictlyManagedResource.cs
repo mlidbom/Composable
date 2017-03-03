@@ -51,6 +51,7 @@ namespace Composable.System
     ///</example>
     public class StrictlyManagedResource<TManagedResource> : IStrictlyManagedResource where TManagedResource : IStrictlyManagedResource
     {
+        public static Action<StrictlyManagedResourceWasFinalizedException> ThrowCreatedException = exception => { throw exception; };
         static readonly bool CollectStacktraces = StrictlyManagedResources.CollectStackTracesFor<TManagedResource>();
         public StrictlyManagedResource(TimeSpan? maxLifetime = null, bool forceStackTraceCollection = false)
         {
@@ -60,7 +61,7 @@ namespace Composable.System
             }
         }
 
-        string ReservationCallStack { get; }
+        public string ReservationCallStack { get; }
 
         bool _disposed;
 
@@ -74,7 +75,7 @@ namespace Composable.System
         {
             if(!_disposed)
             {
-                throw new StrictlyManagedResourceWasFinalizedException(GetType(), ReservationCallStack);
+                ThrowCreatedException(new StrictlyManagedResourceWasFinalizedException(GetType(), ReservationCallStack));
             }
         }
     }

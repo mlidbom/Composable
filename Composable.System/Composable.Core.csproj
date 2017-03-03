@@ -185,6 +185,7 @@
     <Compile Include="GenericAbstractions\Time\DateTimeNowTimeSource.cs" />
     <Compile Include="GenericAbstractions\Time\IUtcTimeTimeSource.cs" />
     <Compile Include="JetBrainsCodeAnnotations.cs" />
+    <Compile Include="Messaging\Buses\_Interfaces.cs" />
     <Compile Include="Messaging\Events\CallMatchingHandlersInRegistrationOrderEventDispatcher.cs" />
     <Compile Include="Messaging\Events\CallsMatchingHandlersInRegistrationOrderEventHandler.cs" />
     <Compile Include="Messaging\Events\IEventDispatcher.cs" />
@@ -210,12 +211,7 @@
     <Compile Include="Messaging\Commands\CommandResult.cs" />
     <Compile Include="Messaging\Commands\ISubCommand.cs" />
     <Compile Include="Messaging\Commands\SubCommand.cs" />
-    <Compile Include="Messaging\Buses\IInProcessServiceBus.cs" />
-    <Compile Include="Messaging\Buses\IMessageHandlerRegistrar.cs" />
-    <Compile Include="Messaging\Buses\IMessageHandlerRegistry.cs" />
-    <Compile Include="Messaging\Buses\IMessageSpy.cs" />
     <Compile Include="Messaging\Buses\InProcessServiceBus.cs" />
-    <Compile Include="Messaging\IServiceBus.cs" />
     <Compile Include="Messaging\Buses\MessageHandlerRegistry.cs" />
     <Compile Include="Messaging\Buses\MultipleMessageHandlersRegisteredException.cs" />
     <Compile Include="Messaging\Buses\NoHandlerException.cs" />

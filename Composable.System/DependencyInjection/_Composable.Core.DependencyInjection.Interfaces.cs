@@ -6,7 +6,7 @@ namespace Composable.DependencyInjection
     ///<summary>A lease to use a component.
     /// <para>Should be disposed as soon as the component is no longer in use.</para>
     /// <para>An exception is thrown if dispose fails to be called. </para>
-    /// <para>should inherit from <see cref="StrictlyManagedResourceBase"/> or have a member field of type: <see cref="StrictlyManagedResource"/></para>
+    /// <para>should inherit from <see cref="StrictlyManagedResourceBase{TInheritor}"/> or have a member field of type: <see cref="StrictlyManagedResource{TManagedResource}"/></para>
     /// </summary>
     public interface IComponentLease<out TComponent> : IDisposable
     {
@@ -23,6 +23,7 @@ namespace Composable.DependencyInjection
     public static class ServiceLocator
     {
         public static IComponentLease<TComponent> Lease<TComponent>(this IServiceLocator @this) => (IComponentLease<TComponent>)@this.Lease(typeof(TComponent));
+
         // ReSharper disable once SuspiciousTypeConversion.Global
         public static IComponentLease<TComponent[]> LeaseAll<TComponent>(this IServiceLocator @this) => (IComponentLease<TComponent[]>)@this.LeaseAll(typeof(TComponent));
     }

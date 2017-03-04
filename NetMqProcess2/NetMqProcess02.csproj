@@ -52,7 +52,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="NetMQProcess01.cs" />
+    <Compile Include="NetMQProcess02.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="_01_Introduction\Client.cs" />
   </ItemGroup>

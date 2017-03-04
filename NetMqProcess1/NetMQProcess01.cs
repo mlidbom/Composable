@@ -1,10 +1,13 @@
-﻿namespace NetMqProcess1
+﻿using System;
+
+namespace NetMqProcess01
 {
-    class NetMqProcess01
+    static class NetMqProcess01
     {
         static void Main(string[] args)
         {
-            new _01_Introduction.Server().Run();
+            Console.WriteLine(nameof(NetMqProcess01));
+            new NetMqProcess1._01_Introduction.Server().Run();
         }
     }
 }

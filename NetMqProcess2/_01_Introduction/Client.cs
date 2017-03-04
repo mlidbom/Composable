@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using NetMQ;
 using NetMQ.Sockets;
 
@@ -11,15 +13,27 @@ namespace NetMqProcess2._01_Introduction
             using (var client = new RequestSocket())
             {
                 client.Connect("tcp://localhost:5555");
-
-                for (int i = 0; i < 10; i++)
+                var sent = new List<long>();
+                var received = new List<long>();
+                for (int i = 0; i < 10000; i++)
                 {
-                    Console.WriteLine("Sending Hello");
-                    client.SendFrame("Hello");
-
+                    sent.Add(i);
+                    client.SendFrame(i.ToString());
                     var message = client.ReceiveFrameString();
-                    Console.WriteLine("Received {0}", message);
+                    if(message == "quit")
+                    {
+                        //break;
+                    }
+                    received.Add(long.Parse(message));
                 }
+
+                client.SendFrame("quit");
+
+                Console.WriteLine($@"sent.Length {sent.Count}
+received.Length: {received.Count},
+sent.Sum(): {sent.Sum()}
+received.Sum(): {received.Sum()}
+");
             }
         }
     }

@@ -13,17 +13,19 @@ namespace NetMqProcess1._01_Introduction
             {
                 server.Bind("tcp://*:5555");
 
+                int messages = 0;
                 while (true)
                 {
                     var message = server.ReceiveFrameString();
-
-                    Console.WriteLine("Received {0}", message);
-
-                    // processing the request
-                    Thread.Sleep(100);
-
-                    Console.WriteLine("Sending World");
-                    server.SendFrame("World");
+                    if(message == "quit")
+                    {
+                        break;
+                    }
+                    server.SendFrame(message);
+                    if(++messages % 1000 == 0)
+                    {
+                        Console.WriteLine($"Echoed  {messages} messages.");
+                    }
                 }
             }
         }

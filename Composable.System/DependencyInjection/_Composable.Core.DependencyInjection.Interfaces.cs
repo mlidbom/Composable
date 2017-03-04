@@ -26,5 +26,37 @@ namespace Composable.DependencyInjection
 
         // ReSharper disable once SuspiciousTypeConversion.Global
         public static IComponentLease<TComponent[]> LeaseAll<TComponent>(this IServiceLocator @this) => (IComponentLease<TComponent[]>)@this.LeaseAll(typeof(TComponent));
+
+        public static void Use<TComponent>(this IServiceLocator @this, Action<TComponent> useComponent)
+        {
+            using(var lease = @this.Lease<TComponent>())
+            {
+                useComponent(lease.Instance);
+            }
+        }
+
+        public static TResult Use<TComponent, TResult>(this IServiceLocator @this, Func<TComponent, TResult> useComponent)
+        {
+            using(var lease = @this.Lease<TComponent>())
+            {
+                return useComponent(lease.Instance);
+            }
+        }
+
+        public static void UseAll<TComponent>(this IServiceLocator @this, Action<TComponent[]> useComponent)
+        {
+            using(var lease = @this.LeaseAll<TComponent>())
+            {
+                useComponent(lease.Instance);
+            }
+        }
+
+        public static TResult UseAll<TComponent, TResult>(this IServiceLocator @this, Func<TComponent[], TResult> useComponent)
+        {
+            using(var lease = @this.LeaseAll<TComponent>())
+            {
+                return useComponent(lease.Instance);
+            }
+        }
     }
 }

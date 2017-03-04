@@ -2,11 +2,17 @@
 using System.Threading;
 using NetMQ;
 using NetMQ.Sockets;
+using Newtonsoft.Json;
 
 namespace NetMqProcess1._01_Introduction
 {
     public class Server
     {
+        public class Data
+        {
+            public long Id { get; set; }
+        }
+
         public void Run()
         {
             using (var server = new ResponseSocket())
@@ -21,7 +27,8 @@ namespace NetMqProcess1._01_Introduction
                     {
                         break;
                     }
-                    server.SendFrame(message);
+                    var data = JsonConvert.DeserializeObject<Data>(message);
+                    server.SendFrame(JsonConvert.SerializeObject(data));
                     if(++messages % 1000 == 0)
                     {
                         Console.WriteLine($"Echoed  {messages} messages.");

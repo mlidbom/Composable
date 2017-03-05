@@ -7,13 +7,13 @@ using NetMQ.Sockets;
 
 namespace NetMqProcess01.__Mine
 {
-    public class _01_ReqRouterDealerRep
+    public static class _01_ReqRouterDealerRep
     {
         const bool UseInProcess = true;
         static string RouterSocket = UseInProcess ? "inproc://router-socket" : "tcp://127.0.0.1:5559";
         static string DealerSocket = UseInProcess ? "inproc://dealer-socket" : "tcp://127.0.0.1:5560";
-        static readonly int NumberOfServers = 1;
-        static readonly int NumberOfClient = 50;
+        static readonly int NumberOfServers = 10;
+        static readonly int NumberOfClient = 100;
 
         public static void Run()
         {
@@ -29,12 +29,12 @@ namespace NetMqProcess01.__Mine
             1.Through(NumberOfServers)
              .ForEach(serverId =>
                       {
-                          Task.Run(() =>
+                          new Thread(() =>
                                    {
-                                       var random = new Random(serverId);
                                        using(var responseSocket = new ResponseSocket())
                                        {
                                            responseSocket.Connect(DealerSocket);
+                                           //Console.WriteLine($"Server: {serverId} started");
                                            while(true)
                                            {
                                                var request = responseSocket.ReceiveMultipartMessage();
@@ -51,7 +51,7 @@ namespace NetMqProcess01.__Mine
                                                responseSocket.SendMultipartMessage(response);
                                            }
                                        }
-                                   });
+                                   }).Start();
                       });
 
         static long TotalRequests = 0;
@@ -72,11 +72,12 @@ namespace NetMqProcess01.__Mine
             1.Through(NumberOfClient)
              .ForEach(clientId =>
                       {
-                          Task.Run(() =>
+                          new Thread(() =>
                                    {
                                        using(var requestSocket = new RequestSocket())
                                        {
                                            requestSocket.Connect(RouterSocket);
+                                           //Console.WriteLine($"Client: {clientId} started");
                                            long requests = 0;
                                            while(true)
                                                try
@@ -114,7 +115,7 @@ namespace NetMqProcess01.__Mine
                                                    Console.WriteLine(e);
                                                }
                                        }
-                                   });
+                                   }).Start();
                       });
     }
 }

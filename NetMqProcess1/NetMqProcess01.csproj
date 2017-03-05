@@ -60,6 +60,7 @@
     <Compile Include="NetMQProcess01.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="_50_Router_Dealer\RouterAndDealer.cs" />
+    <Compile Include="__Mine\_01_ReqRouterDealerRep.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

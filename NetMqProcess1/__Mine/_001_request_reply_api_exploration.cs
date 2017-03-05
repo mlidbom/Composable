@@ -1,4 +1,5 @@
-﻿using FluentAssertions;
+﻿using System;
+using FluentAssertions;
 using NetMQ;
 using NetMQ.Sockets;
 using NUnit.Framework;
@@ -8,14 +9,14 @@ namespace NetMqProcess01.__Mine
     [TestFixture]
     public class _001_request_reply_api_exploration
     {
-        static readonly string ResponseSocketAddress = "inproc://request-socket";
         ResponseSocket _responseSocket;
         RequestSocket _requestSocket;
 
-        [SetUp] public void SetupTask() {
-
-            _responseSocket = new ResponseSocket(ResponseSocketAddress);
-            _requestSocket = new RequestSocket(ResponseSocketAddress);
+        [SetUp] public void SetupTask()
+        {
+            string responseSocketAddress = $"inproc://request-socket-{Guid.NewGuid()}";
+            _responseSocket = new ResponseSocket(responseSocketAddress);
+            _requestSocket = new RequestSocket(responseSocketAddress);
         }
 
         [TearDown] public void TearDownTask() {

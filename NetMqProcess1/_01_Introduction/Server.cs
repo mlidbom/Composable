@@ -1,10 +1,9 @@
 ﻿using System;
-using System.Threading;
 using NetMQ;
 using NetMQ.Sockets;
 using Newtonsoft.Json;
 
-namespace NetMqProcess1._01_Introduction
+namespace NetMqProcess01._01_Introduction
 {
     public class Server
     {

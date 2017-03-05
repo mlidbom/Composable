@@ -5,7 +5,7 @@ using NetMQ;
 using NetMQ.Sockets;
 using Newtonsoft.Json;
 
-namespace NetMqProcess2._01_Introduction
+namespace NetMqProcess02._01_Introduction
 {
     public class Client
     {

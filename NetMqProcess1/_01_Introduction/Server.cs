@@ -12,7 +12,7 @@ namespace NetMqProcess01._01_Introduction
             public long Id { get; set; }
         }
 
-        public void Run()
+        public static void Run()
         {
             using (var server = new ResponseSocket())
             {

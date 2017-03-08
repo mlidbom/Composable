@@ -15,7 +15,7 @@ namespace Composable.System.Linq
         ///<summary>Extracts the name of the member that the supplied func expression returns.</summary>
         public static string ExtractMemberName<TValue>(Expression<Func<TValue>> func)
         {
-            Contract.Requires(func != null);
+            ContractTemp.Argument(() => func).NotNull();
             return ExtractMemberName((LambdaExpression)func);
         }
 

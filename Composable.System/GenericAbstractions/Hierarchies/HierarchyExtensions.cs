@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using System.Linq;
+using Composable.Contracts;
 using Composable.GenericAbstractions.Wrappers;
 using Composable.System.Linq;
 
@@ -43,7 +44,7 @@ namespace Composable.GenericAbstractions.Hierarchies
 
             public Hierarchy(T nodeValue, Func<T, IEnumerable<T>> childGetter)
             {
-                Contract.Requires(childGetter != null);
+                ContractOptimized.Argument(childGetter, nameof(childGetter)).NotNull();
                 Wrapped = nodeValue;
                 _childGetter = childGetter;
             }
@@ -55,9 +56,8 @@ namespace Composable.GenericAbstractions.Hierarchies
         /// </summary>
         public static IAutoHierarchy<T> AsHierarchy<T>(this T me, Func<T, IEnumerable<T>> childGetter)
         {
-            Contract.Requires(me != null && childGetter != null);
-            Contract.Ensures(Contract.Result<IAutoHierarchy<T>>() != null);
-            return new Hierarchy<T>(me, childGetter);
+            ContractOptimized.Argument(me, nameof(me), childGetter, nameof(childGetter)).NotNull();
+            return ContractTemp.Return(new Hierarchy<T>(me, childGetter), inspect => inspect.NotNull());
         }
 
         /// <summary>

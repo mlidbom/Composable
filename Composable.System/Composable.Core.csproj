@@ -171,6 +171,7 @@
     <Compile Include="..\CommonAssemblyInfo.cs">
       <Link>Properties\CommonAssemblyInfo.cs</Link>
     </Compile>
+    <Compile Include="Contracts\ContractOptimized.cs" />
     <Compile Include="Contracts\ContractsExpression.cs" />
     <Compile Include="Contracts\ContractTemp.cs" />
     <Compile Include="Contracts\ContractViolationException.cs" />

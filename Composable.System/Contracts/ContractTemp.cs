@@ -77,7 +77,7 @@ namespace Composable.Contracts
         {
             assert(ReturnValue(returnValue));
             return returnValue;
-        }
+        }     
 
         static Inspected<TParameter> CreateInspected<TParameter>(Expression<Func<TParameter>>[] arguments, InspectionType inspectionType)
         { //Yes the loop is not as pretty as a linq expression but this is performance critical code that might run in tight loops. If it was not I would be using linq.

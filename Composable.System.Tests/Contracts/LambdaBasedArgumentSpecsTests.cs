@@ -1,9 +1,9 @@
-﻿using System.Diagnostics;
+﻿using Composable.Contracts;
 using Composable.Testing;
 using FluentAssertions;
 using NUnit.Framework;
 
-namespace Composable.Contracts.Tests
+namespace Composable.Tests.Contracts
 {  
 
   // ReSharper disable ConvertToConstant.Local

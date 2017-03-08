@@ -176,6 +176,19 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Contracts\EnumerableEmptyTests.cs" />
+    <Compile Include="Contracts\ExpressionValueExtractor.cs" />
+    <Compile Include="Contracts\GuidNotEmptyTests.cs" />
+    <Compile Include="Contracts\InspectionTestHelper.cs" />
+    <Compile Include="Contracts\LambdaBasedArgumentSpecsTests.cs" />
+    <Compile Include="Contracts\ManualInspectionTests.cs" />
+    <Compile Include="Contracts\NotNullOrEmptyOrWhitespaceTests.cs" />
+    <Compile Include="Contracts\ObjectNotDefaultTests.cs" />
+    <Compile Include="Contracts\ObjectNotNullOrDefaultTests.cs" />
+    <Compile Include="Contracts\ObjectNotNullTests.cs" />
+    <Compile Include="Contracts\ReturnTests.cs" />
+    <Compile Include="Contracts\ReturnValueContractHelper.cs" />
+    <Compile Include="Contracts\StringNotNullOrEmptyTests.cs" />
     <Compile Include="DDD\ValueObjectsWithCollectionsTests.cs" />
     <Compile Include="DDD\PersistentEntityTests.cs" />
     <Compile Include="DDD\ValueObjectTests.cs" />
@@ -227,6 +240,8 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+    <None Include="Contracts\packages.config" />
+    <None Include="Contracts\Void.snk" />
     <None Include="packages.config" />
     <None Include="Void.snk" />
   </ItemGroup>

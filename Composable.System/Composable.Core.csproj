@@ -171,6 +171,22 @@
     <Compile Include="..\CommonAssemblyInfo.cs">
       <Link>Properties\CommonAssemblyInfo.cs</Link>
     </Compile>
+    <Compile Include="Contracts\ContractsExpression.cs" />
+    <Compile Include="Contracts\ContractTemp.cs" />
+    <Compile Include="Contracts\ContractViolationException.cs" />
+    <Compile Include="Contracts\EnumerableInspector.cs" />
+    <Compile Include="Contracts\GuidInspector.cs" />
+    <Compile Include="Contracts\GuidIsEmptyContractViolationException.cs" />
+    <Compile Include="Contracts\Inspected.cs" />
+    <Compile Include="Contracts\InspectedValue.cs" />
+    <Compile Include="Contracts\InspectionType.cs" />
+    <Compile Include="Contracts\InvalidAccessorLambdaException.cs" />
+    <Compile Include="Contracts\ObjectInspector.cs" />
+    <Compile Include="Contracts\ObjectIsDefaultContractViolationException.cs" />
+    <Compile Include="Contracts\ObjectIsNullContractViolationException.cs" />
+    <Compile Include="Contracts\StringInspector.cs" />
+    <Compile Include="Contracts\StringIsEmptyContractViolationException.cs" />
+    <Compile Include="Contracts\StringIsWhitespaceContractViolationException.cs" />
     <Compile Include="CQRS\EventSourcing\AggregateRootEvent.cs" />
     <Compile Include="CQRS\EventSourcing\IAggregateRootCreatedEvent.cs" />
     <Compile Include="CQRS\EventSourcing\IAggregateRootDeletedEvent.cs" />

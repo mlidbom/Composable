@@ -51,10 +51,6 @@
     <Compile Include="WrongPasswordException.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\..\Composable.Contracts\Composable.Contracts.csproj">
-      <Project>{579A5738-6B8A-41E4-B2F3-5FD4CA595786}</Project>
-      <Name>Composable.Contracts</Name>
-    </ProjectReference>
     <ProjectReference Include="..\..\..\Composable.System\Composable.Core.csproj">
       <Project>{3632254D-0C4A-4EB8-B388-4C99F8939584}</Project>
       <Name>Composable.Core</Name>

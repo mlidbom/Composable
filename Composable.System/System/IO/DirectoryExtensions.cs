@@ -3,6 +3,7 @@
 using System.Diagnostics.Contracts;
 using System.IO;
 using System.Linq;
+using Composable.Contracts;
 using Composable.GenericAbstractions.Hierarchies;
 
 #endregion
@@ -21,8 +22,7 @@ namespace Composable.System.IO
         /// <returns></returns>
         public static DirectoryInfo AsDirectory(this string path)
         {
-            Contract.Requires(!string.IsNullOrWhiteSpace(path));
-            Contract.Ensures(Contract.Result<DirectoryInfo>() != null);
+            ContractTemp.Argument(() => path).NotNullEmptyOrWhiteSpace();
             return new DirectoryInfo(path);
         }
 
@@ -31,7 +31,7 @@ namespace Composable.System.IO
         /// </summary>
         public static long Size(this DirectoryInfo me)
         {
-            Contract.Requires(me != null && me.FullName != null);
+            ContractTemp.Argument(() => me).NotNull();
             return me.FullName
                 .AsHierarchy(Directory.GetDirectories).Flatten().Unwrap()
                 .SelectMany(Directory.GetFiles)
@@ -47,7 +47,7 @@ namespace Composable.System.IO
         /// <param name="me"></param>
         public static void DeleteRecursive(this DirectoryInfo me)
         {
-            Contract.Requires(me != null);
+            ContractTemp.Argument(() => me).NotNull();
             me.Delete(true);
         }
     }

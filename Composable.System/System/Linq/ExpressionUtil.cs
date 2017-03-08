@@ -3,6 +3,7 @@
 using System;
 using System.Diagnostics.Contracts;
 using System.Linq.Expressions;
+using Composable.Contracts;
 
 #endregion
 
@@ -22,21 +23,21 @@ namespace Composable.System.Linq
         ///<summary>Extracts the name of the member that the supplied func expression returns.</summary>
         public static string ExtractMemberName<TParam, TValue>(Expression<Func<TParam, TValue>> func)
         {
-            Contract.Requires(func != null);
+            ContractTemp.Argument(() => func).NotNull();
             return ExtractMemberName((LambdaExpression)func);
         }
 
         ///<summary>Extracts the name of the member that the supplied func expression returns.</summary>
         public static string ExtractMemberName<TParam, TParam2, TValue>(Expression<Func<TParam, TParam2, TValue>> func)
         {
-            Contract.Requires(func != null);
+            ContractTemp.Argument(() => func).NotNull();
             return ExtractMemberName((LambdaExpression)func);
         }
 
         ///<summary>Extracts the name of the member that the supplied lambda expression returns.</summary>
         public static string ExtractMemberName(LambdaExpression lambda)
         {
-            Contract.Requires(lambda != null);
+            ContractTemp.Argument(() => lambda).NotNull();
             var body = lambda.Body;
             MemberExpression memberExpression;
 
@@ -55,13 +56,13 @@ namespace Composable.System.Linq
 
         public static string ExtractMemberPath<TValue>(Expression<Func<TValue>> func)
         {
-            Contract.Requires(func != null);
+            ContractTemp.Argument(() => func).NotNull();
             return ExtractMemberPath((LambdaExpression)func);
         }
 
         public static string ExtractMemberPath(LambdaExpression lambda)
         {
-            Contract.Requires(lambda != null);
+            ContractTemp.Argument(() => lambda).NotNull();
             var body = lambda.Body;
             MemberExpression memberExpression;
 

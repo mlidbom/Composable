@@ -2,6 +2,7 @@
 
 using System;
 using System.Diagnostics.Contracts;
+using Composable.Contracts;
 
 #endregion
 
@@ -20,7 +21,7 @@ namespace Composable.System
         /// <returns></returns>        
         public static bool HasFlag(this Enum value, Enum flag)
         {
-            Contract.Requires(value != null && flag != null);
+            ContractTemp.Argument(() => value, () => flag).NotNull();
 
             if(!value.GetType().Equals(flag.GetType()))
             {

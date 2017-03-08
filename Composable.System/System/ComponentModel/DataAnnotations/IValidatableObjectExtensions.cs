@@ -27,7 +27,7 @@ namespace Composable.System.ComponentModel.DataAnnotations
         ///<summary>Creates an <see cref="ValidationResult"/> by extracting the invalid member(s) name from the supplied expression(s)</summary>///<summary>Enumerates the lines in a streamreader.</summary>
         public static ValidationResult CreateValidationResult(this IValidatableObject me, string message, IEnumerable<Expression<Func<object>>> members)
         {
-            Contract.Requires(me != null && message != null && members != null);
+            ContractTemp.Argument(() => me, () => message, () => members).NotNull();
             return new ValidationResult(message, members.Select(ExtractMemberName).ToList());
         }
 

@@ -66,8 +66,7 @@ namespace Composable.GenericAbstractions.Hierarchies
         /// </summary>
         public static IEnumerable<T> Flatten<T>(this T root) where T : IHierarchy<T>
         {
-            Contract.Requires(root != null);
-            Contract.Ensures(Contract.Result<IEnumerable<T>>() != null);
+            ContractOptimized.Argument(root, nameof(root)).NotNull();
             return Seq.Create(root).FlattenHierarchy(me => me.Children);
         }
 
@@ -77,8 +76,7 @@ namespace Composable.GenericAbstractions.Hierarchies
         /// </summary>
         public static IEnumerable<T> Unwrap<T>(this IEnumerable<IAutoHierarchy<T>> root)
         {
-            Contract.Requires(root != null);
-            Contract.Ensures(Contract.Result<IEnumerable<T>>() != null);
+            ContractOptimized.Argument(root, nameof(root)).NotNull();
             return root.Select(me => me.Wrapped);
         }
     }

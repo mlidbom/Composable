@@ -18,10 +18,10 @@ namespace Composable.Contracts.Tests
             var zero = 0;
             // ReSharper restore ConvertToConstant.Local
 
-            Assert.Throws<ObjectIsDefaultContractViolationException>(() => Contract.Argument(() => zero).NotDefault());
-            Assert.Throws<ObjectIsDefaultContractViolationException>(() => Contract.Argument(() => zero).NotDefault());
-            Assert.Throws<ObjectIsDefaultContractViolationException>(() => Contract.Argument(() => myStructure).NotDefault());
-            Assert.Throws<ObjectIsDefaultContractViolationException>(() => Contract.Argument(() => myStructure).NotDefault());
+            Assert.Throws<ObjectIsDefaultContractViolationException>(() => ContractTemp.Argument(() => zero).NotDefault());
+            Assert.Throws<ObjectIsDefaultContractViolationException>(() => ContractTemp.Argument(() => zero).NotDefault());
+            Assert.Throws<ObjectIsDefaultContractViolationException>(() => ContractTemp.Argument(() => myStructure).NotDefault());
+            Assert.Throws<ObjectIsDefaultContractViolationException>(() => ContractTemp.Argument(() => myStructure).NotDefault());
 
             var badValues = new List<object> {zero, myStructure};
             var goodValues = new List<object> {new Object(), "", Guid.NewGuid()};
@@ -42,7 +42,7 @@ namespace Composable.Contracts.Tests
             var one = 1;
 
             TimeAsserter.Execute(
-                action: () => Contract.Argument(() => one).NotDefault(),
+                action: () => ContractTemp.Argument(() => one).NotDefault(),
                 iterations: 500,
                 maxTotal: 10.Milliseconds().AdjustRuntimeToTestEnvironment());
         }

@@ -11,7 +11,7 @@ namespace AccountManagement.Domain.Shared
         {
             public static byte[] HashPassword(byte[] salt, string password) //Extract to a private nested PasswordHasher class if this class gets uncomfortably long.
             {
-                Contract.Argument(() => salt, () => password).NotNullOrDefault();
+                ContractTemp.Argument(() => salt, () => password).NotNullOrDefault();
 
                 var encodedPassword = Encoding.Unicode.GetBytes(password);
                 var saltedPassword = salt.Concat(encodedPassword).ToArray();

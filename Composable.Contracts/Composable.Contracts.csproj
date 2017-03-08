@@ -59,7 +59,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Contract.cs" />
+    <Compile Include="ContractTemp.cs" />
     <Compile Include="ContractsExpression.cs" />
     <Compile Include="ContractViolationException.cs" />
     <Compile Include="EnumerableInspector.cs" />

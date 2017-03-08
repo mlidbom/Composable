@@ -16,7 +16,7 @@ namespace AccountManagement.Domain.Services
 
         public void AssertAccountDoesNotExist(Email email)
         {
-            Contract.Argument(() => email).NotNull();
+            ContractTemp.Argument(() => email).NotNull();
 
             EmailToAccountMapQueryModel ignored;
             if(_querymodels.TryGet(email, out ignored))

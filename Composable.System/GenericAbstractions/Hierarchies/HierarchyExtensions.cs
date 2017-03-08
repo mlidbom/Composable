@@ -37,12 +37,6 @@ namespace Composable.GenericAbstractions.Hierarchies
         {
             readonly Func<T, IEnumerable<T>> _childGetter;
 
-            [ContractInvariantMethod] void ObjectInvariant()
-            {
-                Contract.Invariant(_childGetter != null);
-            }
-
-            [ContractVerification(false)]
             public IEnumerable<IAutoHierarchy<T>> Children { get { return _childGetter(Wrapped).Select(child => child.AsHierarchy(_childGetter)); } }
 
             public T Wrapped { get; private set; }

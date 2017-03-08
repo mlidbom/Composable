@@ -16,7 +16,7 @@ namespace Composable.Contracts
     /// <code>public static Inspected&lt;Guid> NotEmpty(this Inspected&lt;Guid> me) { return me.Inspect(inspected => inspected != Guid.Empty, badValue => new GuidIsEmptyContractViolationException(badValue)); }
     /// </code>
     /// </summary>
-    public static class Contract
+    public static class ContractTemp
     {
         ///<summary>
         ///<para>Start inspecting one or more arguments for contract compliance.</para> 

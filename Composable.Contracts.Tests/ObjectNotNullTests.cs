@@ -22,14 +22,14 @@ namespace Composable.Contracts.Tests
             var nullString = (string)null;
             var anObject = new object();
 
-            Assert.Throws<ObjectIsNullContractViolationException>(() => Contract.Argument(() => nullString).NotNull());
-            Assert.Throws<ObjectIsNullContractViolationException>(() => Contract.Argument(() => anObject, () => nullString).NotNull());
-            Assert.Throws<ObjectIsNullContractViolationException>(() => Contract.Argument(() => nullString).NotNull())
+            Assert.Throws<ObjectIsNullContractViolationException>(() => ContractTemp.Argument(() => nullString).NotNull());
+            Assert.Throws<ObjectIsNullContractViolationException>(() => ContractTemp.Argument(() => anObject, () => nullString).NotNull());
+            Assert.Throws<ObjectIsNullContractViolationException>(() => ContractTemp.Argument(() => nullString).NotNull())
                 .Message.Should().Contain("nullString");
 
-            Assert.Throws<ObjectIsNullContractViolationException>(() => Contract.Invariant(() => nullString).NotNull());
-            Assert.Throws<ObjectIsNullContractViolationException>(() => Contract.Invariant(() => anObject, () => nullString).NotNull());
-            Assert.Throws<ObjectIsNullContractViolationException>(() => Contract.Invariant(() => nullString).NotNull())
+            Assert.Throws<ObjectIsNullContractViolationException>(() => ContractTemp.Invariant(() => nullString).NotNull());
+            Assert.Throws<ObjectIsNullContractViolationException>(() => ContractTemp.Invariant(() => anObject, () => nullString).NotNull());
+            Assert.Throws<ObjectIsNullContractViolationException>(() => ContractTemp.Invariant(() => nullString).NotNull())
                 .Message.Should().Contain("nullString");
         }
 
@@ -38,7 +38,7 @@ namespace Composable.Contracts.Tests
         {
             string nullString = null;
 
-            Assert.Throws<ObjectIsNullContractViolationException>(() => Contract.Argument(() => nullString).NotNull())
+            Assert.Throws<ObjectIsNullContractViolationException>(() => ContractTemp.Argument(() => nullString).NotNull())
                 .Message.Should().Contain("nullString");
         }
     }

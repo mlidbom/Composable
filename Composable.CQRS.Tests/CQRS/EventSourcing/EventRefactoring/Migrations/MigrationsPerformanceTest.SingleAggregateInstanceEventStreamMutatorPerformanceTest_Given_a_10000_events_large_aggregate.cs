@@ -162,14 +162,17 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
                 maxTotal: maxtime,
                 description: $"{nameof(before)}",
                 iterations: numberOfEventsToInspect,
+                maxTries:3,
                 action: () => before.MigrateEvent(@event, @eventModifier));
             TimeAsserter.Execute(
                 maxTotal: maxtime,
+                maxTries: 3,
                 description: $"{nameof(replace)}",
                 iterations: numberOfEventsToInspect,
                 action: () => replace.MigrateEvent(@event, @eventModifier));
             TimeAsserter.Execute(
                 maxTotal: maxtime,
+                maxTries: 3,
                 description: $"{nameof(after)}",
                 iterations: numberOfEventsToInspect,
                 action: () => after.MigrateEvent(@event, @eventModifier));

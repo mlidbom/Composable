@@ -45,7 +45,6 @@ namespace Composable.DDD
 
             for(var i = 0; i < fields.Length; i++)
             {
-                Contract.Assume(!ReferenceEquals(fields[i], null));
                 var value = fields[i](this);
 
                 if (value is IEnumerable && !(value is string))
@@ -53,8 +52,7 @@ namespace Composable.DDD
                     var value1Array = ((IEnumerable)value).Cast<object>().Where(me => !ReferenceEquals(me, null)).ToArray();
                     foreach(var something in value1Array)
                     {
-                        Contract.Assume(something != null);
-                        hashCode = hashCode * multiplier + something.GetHashCode();    
+                        hashCode = hashCode * multiplier + something.GetHashCode();
                     }
                 }
                 else if(!ReferenceEquals(value, null))
@@ -79,8 +77,7 @@ namespace Composable.DDD
             var fields = MemberAccessorHelper<T>.GetFieldGetters(GetType());
 
             for(var i = 0; i < fields.Length; i++)
-            {
-                Contract.Assume(!ReferenceEquals(fields[i], null));
+            {                
                 var value1 = fields[i](other);
                 var value2 = fields[i]((T)this);
 

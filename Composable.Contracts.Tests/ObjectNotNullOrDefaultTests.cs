@@ -19,9 +19,9 @@ namespace Composable.Contracts.Tests
             object nullObject = null;
             string emptyString = "";
 
-            Assert.Throws<ObjectIsNullContractViolationException>(() => Contract.Argument(() => nullObject).NotNullOrDefault());
-            Assert.Throws<ObjectIsNullContractViolationException>(() => Contract.Argument(() => anObject, () => nullObject).NotNullOrDefault());
-            Assert.Throws<ObjectIsNullContractViolationException>(() => Contract.Argument(() => emptyString, () => nullObject, () => anObject).NotNullOrDefault());
+            Assert.Throws<ObjectIsNullContractViolationException>(() => ContractTemp.Argument(() => nullObject).NotNullOrDefault());
+            Assert.Throws<ObjectIsNullContractViolationException>(() => ContractTemp.Argument(() => anObject, () => nullObject).NotNullOrDefault());
+            Assert.Throws<ObjectIsNullContractViolationException>(() => ContractTemp.Argument(() => emptyString, () => nullObject, () => anObject).NotNullOrDefault());
         }
 
         [Test]
@@ -33,10 +33,10 @@ namespace Composable.Contracts.Tests
             var defaultMyStructure = new MyStructure();
             var aMyStructure = new MyStructure(1);
 
-            Assert.Throws<ObjectIsDefaultContractViolationException>(() => Contract.Argument(() => zero).NotNullOrDefault());
-            Assert.Throws<ObjectIsDefaultContractViolationException>(() => Contract.Argument(() => anObject, () => zero).NotNullOrDefault());
-            Assert.Throws<ObjectIsDefaultContractViolationException>(() => Contract.Argument(() => emptyString, () => anObject, () => defaultMyStructure).NotNullOrDefault());
-            Contract.Argument(() => emptyString, () => anObject, () => aMyStructure).NotNullOrDefault();
+            Assert.Throws<ObjectIsDefaultContractViolationException>(() => ContractTemp.Argument(() => zero).NotNullOrDefault());
+            Assert.Throws<ObjectIsDefaultContractViolationException>(() => ContractTemp.Argument(() => anObject, () => zero).NotNullOrDefault());
+            Assert.Throws<ObjectIsDefaultContractViolationException>(() => ContractTemp.Argument(() => emptyString, () => anObject, () => defaultMyStructure).NotNullOrDefault());
+            ContractTemp.Argument(() => emptyString, () => anObject, () => aMyStructure).NotNullOrDefault();
 
 
             InspectionTestHelper.BatchTestInspection<ObjectIsDefaultContractViolationException, object>(
@@ -51,7 +51,7 @@ namespace Composable.Contracts.Tests
             var one = 1;
 
             TimeAsserter.Execute(
-                action: () => Contract.Argument(() => one).NotNullOrDefault(),
+                action: () => ContractTemp.Argument(() => one).NotNullOrDefault(),
                 iterations: 500,
                 maxTotal: 10.Milliseconds().AdjustRuntimeToTestEnvironment());            
         }

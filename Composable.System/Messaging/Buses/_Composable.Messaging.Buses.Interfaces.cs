@@ -20,9 +20,7 @@ namespace Composable.Messaging.Buses
         void SendAtTime(DateTime sendAt, ICommand message);
     }
 
-    public interface IServiceBus : IInProcessServiceBus, IInterProcessServiceBus
-    {        
-    }    
+    public interface IServiceBus : IInProcessServiceBus, IInterProcessServiceBus {}
 
     public interface IMessageSpy
     {
@@ -47,11 +45,7 @@ namespace Composable.Messaging.Buses
         IMessageHandlerRegistrar ForQuery<TQuery, TResult>(Func<TQuery, TResult> handler) where TQuery : IQuery<TResult> where TResult : IQueryResult;
     }
 
-
-    public interface IMessageHandlerScope : IDisposable
-    {
-        
-    }
+    public interface IMessageHandlerScope : IDisposable {}
 
     public interface IMessageHandlerScopeManager
     {

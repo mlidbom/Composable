@@ -1,13 +1,14 @@
 ﻿using System;
 using Castle.Windsor;
+using Composable.DependencyInjection;
 
 namespace Composable.Windsor
 {
     public static class WindsorDisposableExtensions
     {
-        public static DisposableComponent<TComponent> ResolveDisposable<TComponent>(this IWindsorContainer me)
+        public static IComponentLease<TComponent> ResolveDisposable<TComponent>(this IWindsorContainer me)
         {
-            return new DisposableComponent<TComponent>(me.Resolve<TComponent>(), me);
+            return new WindsorComponentLease<TComponent>(me.Resolve<TComponent>(), me);
         }
 
         public static void UseComponent<TComponent>(this IWindsorContainer me, Action<TComponent> action )
@@ -20,7 +21,7 @@ namespace Composable.Windsor
 
         public static void UseComponent<TComponent>(this IWindsorContainer me, string componentName, Action<TComponent> action)
         {
-            using (var component = new DisposableComponent<TComponent>(me.Resolve<TComponent>(componentName), me))
+            using (var component = new WindsorComponentLease<TComponent>(me.Resolve<TComponent>(componentName), me))
             {
                 action(component.Instance);
             }

@@ -7,6 +7,7 @@
     <EngineMode>
       <Name>Run all tests automatically except LongRunning</Name>
       <Settings>
+        <AutoPinNewTests>True</AutoPinNewTests>
         <TestsToExecuteAutomatically>(True AND DoesNotHaveCategory 'LongRunning')</TestsToExecuteAutomatically>
       </Settings>
     </EngineMode>

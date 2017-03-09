@@ -1,6 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
-using System.Diagnostics.Contracts;
+
 
 namespace Composable.CQRS.EventSourcing
 {
@@ -12,7 +12,6 @@ namespace Composable.CQRS.EventSourcing
 
         public IReadOnlyList<TEntity> InCreationOrder => _entitiesInCreationOrder;
 
-        [Pure]
         public bool TryGet(TEntityId id, out TEntity component) => _entities.TryGetValue(id, out component);        
         public bool Exists(TEntityId id) => _entities.ContainsKey(id);
         public TEntity Get(TEntityId id) => _entities[id];

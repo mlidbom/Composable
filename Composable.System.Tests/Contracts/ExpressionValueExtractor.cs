@@ -1,6 +1,7 @@
-﻿using NUnit.Framework;
+﻿using Composable.Contracts;
+using NUnit.Framework;
 
-namespace Composable.Contracts.Tests
+namespace Composable.Tests.Contracts
 {
     [TestFixture]
     public class ExpressionValueExtractorTests

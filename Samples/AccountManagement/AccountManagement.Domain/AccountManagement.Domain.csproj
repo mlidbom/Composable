@@ -67,10 +67,6 @@
     <Compile Include="Services\IAccountManagementDomainQueryModelSession.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\..\Composable.Contracts\Composable.Contracts.csproj">
-      <Project>{579A5738-6B8A-41E4-B2F3-5FD4CA595786}</Project>
-      <Name>Composable.Contracts</Name>
-    </ProjectReference>
     <ProjectReference Include="..\..\..\Composable.CQRS\Composable.CQRS.csproj">
       <Project>{3B776BD4-0EDD-4A83-BC9A-3A53D6649AB0}</Project>
       <Name>Composable.CQRS</Name>

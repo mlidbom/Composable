@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics.Contracts;
+
 using Castle.MicroKernel.Registration;
 using Castle.Windsor;
+using Composable.Contracts;
 using Composable.CQRS.EventSourcing;
 using Composable.CQRS.EventSourcing.MicrosoftSQLServer;
 using Composable.CQRS.EventSourcing.Refactoring.Migrations;
@@ -17,10 +18,11 @@ using Composable.Windsor.Testing;
 namespace Composable.CQRS.Windsor
 {
     public abstract class SqlServerEventStoreRegistration
-    {        
+    {
         protected SqlServerEventStoreRegistration(string description, Type sessionImplementor, Type sessionType, Type readerType)
         {
-            Contract.Requires(!description.IsNullOrWhiteSpace());
+            Contract.Argument(() => description)
+                        .NotNullEmptyOrWhiteSpace();
 
             SessionType = sessionType;
             ReaderType = readerType;
@@ -80,8 +82,10 @@ namespace Composable.CQRS.Windsor
              Dependency nameMapper = null,
              Dependency migrations = null)
         {
-            Contract.Requires(registration != null);
-            Contract.Requires(!connectionName.IsNullOrWhiteSpace());
+            Contract.Argument(() => registration)
+                        .NotNull();
+            Contract.Argument(() => connectionName)
+                        .NotNullEmptyOrWhiteSpace();
 
             nameMapper = nameMapper ?? Dependency.OnValue<IEventNameMapper>(null);//We don't want to get any old name mapper that might have been registered by someone else.
             migrations = migrations ?? Dependency.OnValue<IEnumerable<IEventMigration>>(null); //We don't want to get any old migrations array that might have been registered by someone else.

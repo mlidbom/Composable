@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Diagnostics.Contracts;
+
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using Composable.Contracts;
 
 namespace Composable.System.Reflection
 {
@@ -15,7 +16,8 @@ namespace Composable.System.Reflection
 
         static Func<object, object> BuildFieldGetter(FieldInfo field)
         {
-            Contract.Requires(field != null && field.DeclaringType != null);
+            ContractOptimized.Argument(field, nameof(field), field.DeclaringType, "field.DeclaringType")
+                             .NotNull();
 
             var obj = Expression.Parameter(typeof(object), "obj");
 
@@ -31,7 +33,8 @@ namespace Composable.System.Reflection
         ///<summary>Returns functions that when invoked will return the values of the fields an properties in an instance of the supplied type.</summary>
         public static Func<Object, Object>[] GetFieldGetters(Type type)
         {
-            Contract.Requires(type != null);
+            ContractOptimized.Argument(type, nameof(type))
+                             .NotNull();
 
             return InnerGetFields(type);
         }
@@ -39,7 +42,6 @@ namespace Composable.System.Reflection
         static Func<object, object>[] InnerGetFields(Type type)
         {
             Func<Object, Object>[] fields;
-            Contract.Ensures(Contract.Result<Func<Object, Object>[]>() != null);
 
             if (!TypeFields.TryGetValue(type, out fields))
             {
@@ -55,7 +57,7 @@ namespace Composable.System.Reflection
                     }
                 }
                 TypeFields[type] = fields = newFields.ToArray();
-            }            
+            }
             return fields;
         }
     }
@@ -75,7 +77,9 @@ namespace Composable.System.Reflection
         ///<summary>Returns functions that when invoked will return the values of the fields an properties in an instance of the supplied type.</summary>
         public static Func<object, object>[] GetFieldGetters(Type type)
         {
-            Contract.Requires(type != null);
+            ContractOptimized.Argument(type, nameof(type))
+                             .NotNull();
+
             if(type == typeof(T))
             {
                 return Fields;

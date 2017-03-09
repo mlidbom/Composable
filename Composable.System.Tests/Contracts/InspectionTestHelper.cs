@@ -1,10 +1,11 @@
 using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
+using Composable.Contracts;
 using FluentAssertions;
 using NUnit.Framework;
 
-namespace Composable.Contracts.Tests
+namespace Composable.Tests.Contracts
 {
     public static class InspectionTestHelper
     {
@@ -86,7 +87,7 @@ namespace Composable.Contracts.Tests
                 badValueName: returnvalueName);
 
             var exception = Assert.Throws<TException>(() => Return(inspectedValue, assert));
-            exception.BadValue.Type.Should().Be(InspectionType.ReturnValue);            
+            exception.BadValue.Type.Should().Be(InspectionType.ReturnValue);
             exception.BadValue.Name.Should().Be(returnvalueName);
 
             exception = Assert.Throws<TException>(() => ReturnOptimized(inspectedValue, assert));

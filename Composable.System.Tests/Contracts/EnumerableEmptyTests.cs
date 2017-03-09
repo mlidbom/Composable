@@ -1,8 +1,9 @@
 ﻿using System.Collections.Generic;
+using Composable.Contracts;
 using FluentAssertions;
 using NUnit.Framework;
 
-namespace Composable.Contracts.Tests
+namespace Composable.Tests.Contracts
 {
     [TestFixture]
     public class EnumerableEmptyTests

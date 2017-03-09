@@ -1,7 +1,8 @@
 #region usings
 
 using System;
-using System.Diagnostics.Contracts;
+
+using Composable.Contracts;
 
 #endregion
 
@@ -9,7 +10,6 @@ namespace Composable.System
 {
     // ReSharper disable UnusedMember.Global todo: tests
     /// <summary/>
-    [Pure]
     public static class EnumExtensions
     {
         /// <summary>
@@ -20,7 +20,7 @@ namespace Composable.System
         /// <returns></returns>        
         public static bool HasFlag(this Enum value, Enum flag)
         {
-            Contract.Requires(value != null && flag != null);
+            Contract.Argument(() => value, () => flag).NotNull();
 
             if(!value.GetType().Equals(flag.GetType()))
             {

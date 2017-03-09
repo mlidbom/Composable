@@ -1,8 +1,9 @@
 #region usings
 
 using System;
-using System.Diagnostics.Contracts;
+
 using System.Transactions;
+using Composable.Contracts;
 
 #endregion
 
@@ -14,7 +15,9 @@ namespace Composable.System.Transactions
         ///<summary>Runs the supplied action within a <see cref="TransactionScope"/></summary>
         public static void Execute(Action action)
         {
-            Contract.Requires(action != null);
+            ContractOptimized.Argument(action, nameof(action))
+                             .NotNull();
+
             using(var transaction = new TransactionScope())
             {
                 action();

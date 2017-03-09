@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
-using System.Diagnostics.Contracts;
+
 using System.Linq;
+using Composable.Contracts;
 
 namespace Composable.System.Collections.Collections
 {
@@ -24,8 +25,7 @@ namespace Composable.System.Collections.Collections
         ///<summary>Inserts <paramref name="items"/> after the <paramref name="this"/>  node and returns the nodes that were inserted.</summary>
         public static IReadOnlyList<LinkedListNode<T>> AddAfter<T>(this LinkedListNode<T> @this, IEnumerable<T> items)
         {
-            Contract.Requires(items != null);
-            Contract.Requires(@this != null);
+            Contract.Argument(() => items, () => @this).NotNull();
 
             return items
                 .Reverse()
@@ -37,8 +37,7 @@ namespace Composable.System.Collections.Collections
         ///<summary>Inserts <paramref name="items"/> after the <paramref name="this"/>  node and returns the nodes that were inserted.</summary>
         public static IReadOnlyList<LinkedListNode<T>> AddBefore<T>(this LinkedListNode<T> @this, IEnumerable<T> items)
         {
-            Contract.Requires(items != null);
-            Contract.Requires(@this != null);
+            Contract.Argument(() => items, () => @this).NotNull();
 
             return items
                 .Select(@event => @this.List.AddBefore(@this, @event))
@@ -48,8 +47,7 @@ namespace Composable.System.Collections.Collections
         ///<summary>Replaces <paramref name="this"/> and returns the nodes that were inserted.</summary>
         public static IReadOnlyList<LinkedListNode<T>> Replace<T>(this LinkedListNode<T> @this, IEnumerable<T> items)
         {
-            Contract.Requires(items != null);
-            Contract.Requires(@this != null);
+            Contract.Argument(() => items, () => @this).NotNull();
 
             var newNodes = @this.AddAfter(items);
             @this.List.Remove(@this);

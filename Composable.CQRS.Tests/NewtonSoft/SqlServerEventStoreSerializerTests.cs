@@ -119,7 +119,7 @@ namespace CQRS.Tests.NewtonSoft
                                      var roundTripped = (TestEvent)new SqlServerEvestStoreEventSerializer().Deserialize(typeof(TestEvent), eventJson);
                                  },
                                  iterations:10000,
-                                 maxTotal: 100.Milliseconds(),
+                                 maxTotal: 100.Milliseconds().AdjustRuntimeToTestEnvironment(),
                                  maxTries:3
                                 );
         }
@@ -161,7 +161,7 @@ namespace CQRS.Tests.NewtonSoft
                                  },
                                  iterations: iterations,
                                  maxTotal: allowedTime,
-                                 maxTries: 3);
+                                 maxTries: 10);
         }
     }
 }

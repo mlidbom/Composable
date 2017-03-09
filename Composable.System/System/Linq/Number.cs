@@ -2,14 +2,13 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics.Contracts;
+
 
 #endregion
 
 namespace Composable.System.Linq
 {
     /// <summary/>
-    [Pure]
     public static class Number
     {
         /// <summary>

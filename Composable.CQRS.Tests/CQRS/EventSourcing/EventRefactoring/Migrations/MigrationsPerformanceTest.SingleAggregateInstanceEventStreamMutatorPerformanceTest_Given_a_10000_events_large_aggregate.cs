@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics.Contracts;
+
 using System.Linq;
 using System.Reactive.Disposables;
 using Castle.MicroKernel.Lifestyle;
 using Castle.MicroKernel.Registration;
 using Castle.Windsor;
+using Composable.Contracts;
 using Composable.CQRS.EventSourcing;
 using Composable.CQRS.EventSourcing.Refactoring.Migrations;
 using Composable.CQRS.Windsor;
@@ -162,14 +163,17 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
                 maxTotal: maxtime,
                 description: $"{nameof(before)}",
                 iterations: numberOfEventsToInspect,
+                maxTries:3,
                 action: () => before.MigrateEvent(@event, @eventModifier));
             TimeAsserter.Execute(
                 maxTotal: maxtime,
+                maxTries: 3,
                 description: $"{nameof(replace)}",
                 iterations: numberOfEventsToInspect,
                 action: () => replace.MigrateEvent(@event, @eventModifier));
             TimeAsserter.Execute(
                 maxTotal: maxtime,
+                maxTries: 3,
                 description: $"{nameof(after)}",
                 iterations: numberOfEventsToInspect,
                 action: () => after.MigrateEvent(@event, @eventModifier));
@@ -227,9 +231,10 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
 
         public TestAggregate2(params RootEvent[] events) : this()
         {
-            Contract.Requires(events.First() is IAggregateRootCreatedEvent);
+            ContractOptimized.Argument(events.First(), "events.First()")
+                             .IsOfType<IAggregateRootCreatedEvent>();
 
             RaiseEvents(events);
-        }        
-    }    
+        }
+    }
 }

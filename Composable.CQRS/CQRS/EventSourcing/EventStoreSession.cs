@@ -2,10 +2,11 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics.Contracts;
+
 using System.Linq;
 using System.Threading;
 using System.Transactions;
+using Composable.Contracts;
 using Composable.CQRS.EventSourcing.MicrosoftSQLServer;
 using Composable.GenericAbstractions.Time;
 using Composable.Logging.Log4Net;
@@ -40,10 +41,8 @@ namespace Composable.CQRS.EventSourcing
 
         public EventStoreSession(IServiceBus bus, IEventStore store, ISingleContextUseGuard usageGuard, IUtcTimeTimeSource timeSource)
         {
-            Contract.Requires(bus != null);
-            Contract.Requires(store != null);
-            Contract.Requires(usageGuard != null);
-            Contract.Requires(timeSource != null);
+            Contract.Argument(() => bus, () => store, () => usageGuard, () => timeSource)
+                        .NotNull();
 
             _usageGuard = usageGuard;
             _bus = bus;

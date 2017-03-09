@@ -1,7 +1,7 @@
 #region usings
 
 using System.Collections.Generic;
-using System.Diagnostics.Contracts;
+
 
 #endregion
 
@@ -10,7 +10,6 @@ namespace Composable.System.Linq
     ///<summary>
     /// Methods useful for any type when used in a Linq context
     ///</summary>
-    [Pure]
     public static class ObjectExtensions
     {
         /// <summary>

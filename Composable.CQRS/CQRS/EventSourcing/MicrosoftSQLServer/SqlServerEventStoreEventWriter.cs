@@ -3,8 +3,9 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
 using System.Data.SqlTypes;
-using System.Diagnostics.Contracts;
+
 using System.Linq;
+using Composable.Contracts;
 using Composable.System;
 using Composable.System.Linq;
 

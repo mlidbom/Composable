@@ -41,7 +41,7 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
                 TimeAsserter.Execute(
                     maxTotal: 150.Milliseconds().AdjustRuntimeToTestEnvironment(boost:3),
                     action: () => container.ExecuteInIsolatedScope(() => container.Resolve<IEventStoreSession>().Get<TestAggregate>(aggregate.Id))
-                    , maxTries: 3);
+                    , maxTries: 10);
             }
         }
     }

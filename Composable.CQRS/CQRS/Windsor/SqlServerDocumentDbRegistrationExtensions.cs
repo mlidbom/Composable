@@ -1,6 +1,7 @@
-﻿using System.Diagnostics.Contracts;
+﻿
 using Castle.MicroKernel.Registration;
 using Castle.Windsor;
+using Composable.Contracts;
 using Composable.KeyValueStorage;
 using Composable.KeyValueStorage.SqlServer;
 using Composable.System;
@@ -16,7 +17,8 @@ namespace Composable.CQRS.Windsor
     {
         protected SqlServerDocumentDbRegistration(string description)
         {
-            Contract.Requires(!description.IsNullOrWhiteSpace());
+            Contract.Argument(() => description)
+                        .NotNullEmptyOrWhiteSpace();
 
             DocumentDbName = $"{description}.DocumentDb";
             SessionName = $"{description}.Session";
@@ -44,8 +46,10 @@ namespace Composable.CQRS.Windsor
              string connectionName,
              Dependency sessionInterceptor = null)
         {
-            Contract.Requires(registration != null);
-            Contract.Requires(!connectionName.IsNullOrWhiteSpace());
+            Contract.Argument(() => registration)
+                        .NotNull();
+            Contract.Argument(() => connectionName)
+                        .NotNullEmptyOrWhiteSpace();
 
             //We don't want to get any old interceptor that might have been registered by someone else.
             sessionInterceptor = sessionInterceptor ?? Dependency.OnValue<IDocumentDbSessionInterceptor>(NullOpDocumentDbSessionInterceptor.Instance);

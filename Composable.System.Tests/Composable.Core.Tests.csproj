@@ -155,6 +155,9 @@
     <Reference Include="System.Data" />
     <Reference Include="System.Runtime.Remoting" />
     <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.ValueTuple, Version=4.0.1.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.ValueTuple.4.3.0\lib\netstandard1.0\System.ValueTuple.dll</HintPath>
+    </Reference>
     <Reference Include="System.Xml" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Xml.Serialization" />
@@ -189,6 +192,7 @@
     <Compile Include="Contracts\ReturnTests.cs" />
     <Compile Include="Contracts\ReturnValueContractHelper.cs" />
     <Compile Include="Contracts\StringNotNullOrEmptyTests.cs" />
+    <Compile Include="Csharp7features.cs" />
     <Compile Include="DDD\ValueObjectsWithCollectionsTests.cs" />
     <Compile Include="DDD\PersistentEntityTests.cs" />
     <Compile Include="DDD\ValueObjectTests.cs" />

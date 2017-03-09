@@ -240,7 +240,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Composable.System\Composable.Core.csproj">
-      <Project>{3632254D-0C4A-4EB8-B388-4C99F8939584}</Project>
+      <Project>{3632254d-0c4a-4eb8-b388-4c99f8939584}</Project>
       <Name>Composable.Core</Name>
     </ProjectReference>
     <ProjectReference Include="..\Composable.CQRS\Composable.CQRS.csproj">

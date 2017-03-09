@@ -2,11 +2,12 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics.Contracts;
+
 using System.Linq;
 using Composable.Contracts;
 using Composable.GenericAbstractions.Wrappers;
 using Composable.System.Linq;
+using JetBrains.Annotations;
 
 #endregion
 
@@ -31,7 +32,6 @@ namespace Composable.GenericAbstractions.Hierarchies
     /// <summary>
     /// Provides extension methods for working with hierarchical data.
     /// </summary>
-    [Pure]
     public static class HierarchyExtensions
     {
         class Hierarchy<T> : IAutoHierarchy<T>
@@ -57,7 +57,7 @@ namespace Composable.GenericAbstractions.Hierarchies
         public static IAutoHierarchy<T> AsHierarchy<T>(this T me, Func<T, IEnumerable<T>> childGetter)
         {
             ContractOptimized.Argument(me, nameof(me), childGetter, nameof(childGetter)).NotNull();
-            return ContractTemp.Return(new Hierarchy<T>(me, childGetter), inspect => inspect.NotNull());
+            return Contract.Return(new Hierarchy<T>(me, childGetter), inspect => inspect.NotNull());
         }
 
         /// <summary>

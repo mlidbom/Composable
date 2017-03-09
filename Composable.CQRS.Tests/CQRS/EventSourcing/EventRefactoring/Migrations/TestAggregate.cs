@@ -1,7 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics.Contracts;
+
 using System.Linq;
+using Composable.Contracts;
 using Composable.CQRS.EventSourcing;
 using Composable.GenericAbstractions.Time;
 using Composable.System.Linq;
@@ -74,7 +75,8 @@ namespace TestAggregates
 
         public TestAggregate(IUtcTimeTimeSource timeSource, params RootEvent[] events):this(timeSource)
         {
-            Contract.Requires(events.First() is IAggregateRootCreatedEvent);
+            ContractOptimized.Argument(events.First(), "events.First()")
+                             .IsOfType<IAggregateRootCreatedEvent>();
 
             RaiseEvents(events);
         }

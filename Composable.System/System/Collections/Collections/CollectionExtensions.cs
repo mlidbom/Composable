@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics.Contracts;
+
 using System.Linq;
 using Composable.Contracts;
 using Composable.System.Linq;
@@ -22,7 +22,7 @@ namespace Composable.System.Collections.Collections
         ///<summary>Add all instances in <param name="toAdd"> to the collection <param name="me"></param>.</param></summary>
         public static void AddRange<T>(this ICollection<T> me, IEnumerable<T> toAdd)
         {
-            ContractTemp.Argument(() => me, () => toAdd).NotNull();
+            Contract.Argument(() => me, () => toAdd).NotNull();
             toAdd.ForEach(me.Add);
         }
     }

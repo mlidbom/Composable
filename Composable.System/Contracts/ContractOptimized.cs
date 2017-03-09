@@ -1,6 +1,6 @@
 ﻿namespace Composable.Contracts
 {
-    class ContractOptimized
+    public class ContractOptimized
     {
         public static Inspected<object> Argument(object argumentValue1, string argumentName1) =>
             new Inspected<object>(new InspectedValue<object>(argumentValue1, InspectionType.Argument, argumentName1));
@@ -17,6 +17,5 @@
                                          new InspectedValue<object>(p2, InspectionType.Argument, n2),
                                          new InspectedValue<object>(p3, InspectionType.Argument, n3));
         }
-
     }
 }

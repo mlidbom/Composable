@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics.Contracts;
-using System.Linq;
 
+using System.Linq;
+using Composable.Contracts;
 using Composable.DDD;
 using Composable.DomainEvents;
 using Composable.GenericAbstractions.Time;

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Diagnostics.Contracts;
+
 using System.Linq;
 using System.Linq.Expressions;
 using Composable.Contracts;
@@ -13,7 +13,7 @@ namespace Composable.System.ComponentModel.DataAnnotations
     {
         static string ExtractMemberName(Expression<Func<object>> accessor)
         {
-            ContractTemp.Argument(() => accessor).NotNull();
+            Contract.Argument(() => accessor).NotNull();
 
             Expression expr = accessor.Body;
             while (expr.NodeType == ExpressionType.Convert || expr.NodeType == ExpressionType.ConvertChecked)
@@ -27,14 +27,14 @@ namespace Composable.System.ComponentModel.DataAnnotations
         ///<summary>Creates an <see cref="ValidationResult"/> by extracting the invalid member(s) name from the supplied expression(s)</summary>///<summary>Enumerates the lines in a streamreader.</summary>
         public static ValidationResult CreateValidationResult(this IValidatableObject me, string message, IEnumerable<Expression<Func<object>>> members)
         {
-            ContractTemp.Argument(() => me, () => message, () => members).NotNull();
+            Contract.Argument(() => me, () => message, () => members).NotNull();
             return new ValidationResult(message, members.Select(ExtractMemberName).ToList());
         }
 
         ///<summary>Creates an <see cref="ValidationResult"/> by extracting the invalid member(s) name from the supplied expression(s)</summary>///<summary>Enumerates the lines in a streamreader.</summary>
         public static ValidationResult CreateValidationResult(this IValidatableObject me, string message, params Expression<Func<object>>[] members)
         {
-            ContractTemp.Argument(() => me, () => message, () => members).NotNull();
+            Contract.Argument(() => me, () => message, () => members).NotNull();
             return me.CreateValidationResult(message, (IEnumerable<Expression<Func<object>>>)members);
         }
     }

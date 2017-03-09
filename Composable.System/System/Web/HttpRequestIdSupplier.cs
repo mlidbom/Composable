@@ -1,6 +1,7 @@
 using System;
-using System.Diagnostics.Contracts;
+
 using System.Web;
+using Composable.Contracts;
 
 namespace Composable.System.Web
 {
@@ -12,7 +13,8 @@ namespace Composable.System.Web
         ///<summary>Returns the unique Guid of the current request</summary>
         public static Guid Id(this HttpRequest me)
         {
-            Contract.Requires(me != null && me.RequestContext != null);
+            ContractOptimized.Argument(me, nameof(me), me.RequestContext, "me.RequestContext")
+                             .NotNull();
 
             if(!me.RequestContext.HttpContext.Items.Contains(UniqueRequestId))
             {

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics.Contracts;
+
+using Composable.Contracts;
 using Composable.System.Linq;
 
 namespace Composable.System.Reactive
@@ -13,7 +14,8 @@ namespace Composable.System.Reactive
         ///<summary>Calls <see cref="IObserver{T}.OnNext"/> for each subscribed observer.</summary>
         public void OnNext(TEvent @event)
         {
-            Contract.Requires(@event != null);
+            ContractOptimized.Argument(@event, nameof(@event)).NotNull();
+
             _observerCollection.ForEach(objserver => objserver.OnNext(@event));
         }
 

@@ -1,10 +1,11 @@
 using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
-using System.Diagnostics.Contracts;
+
 using System.Linq;
 using System.Threading.Tasks;
 using System.Transactions;
+using Composable.Contracts;
 using Composable.System;
 using Composable.System.Data.SqlClient;
 using Composable.System.Linq;
@@ -38,7 +39,11 @@ namespace Composable.Testing
 
         public string ConnectionStringFor(string requestedDbName)
         {
-            Contract.Assert(!_disposed, "Attempt to use disposed object");
+            if(_disposed)
+            {
+                throw new InvalidOperationException("Attempt to use disposed object");
+            }
+
             Database database;
             if(_reservedDatabases.TryGetValue(requestedDbName, out database))
             {
@@ -194,6 +199,7 @@ CREATE TABLE [dbo].[{ManagerTableSchema.TableName}](
                 {
                     var releasedDBs = _managerConnection.ExecuteNonQuery(
                         $"update {ManagerTableSchema.TableName} set {ManagerTableSchema.IsFree} = 1  where {ManagerTableSchema.DatabaseName} = '{database.Name}'");
+
                     Contract.Assert(releasedDBs == 1);
                     //Console.WriteLine($"Released:{database.Name}");
                 }

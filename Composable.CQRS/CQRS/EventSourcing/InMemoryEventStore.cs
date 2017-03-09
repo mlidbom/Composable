@@ -1,7 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics.Contracts;
+
 using System.Linq;
+using Composable.Contracts;
 using Composable.CQRS.EventSourcing.Refactoring.Migrations;
 using Composable.System.Linq;
 using Composable.Windsor.Testing;

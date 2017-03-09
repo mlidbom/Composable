@@ -46,7 +46,7 @@
     <WarningLevel>4</WarningLevel>
     <DocumentationFile>
     </DocumentationFile>
-    <CodeContractsEnableRuntimeChecking>True</CodeContractsEnableRuntimeChecking>
+    <CodeContractsEnableRuntimeChecking>False</CodeContractsEnableRuntimeChecking>
     <CodeContractsRuntimeOnlyPublicSurface>False</CodeContractsRuntimeOnlyPublicSurface>
     <CodeContractsRuntimeThrowOnFailure>True</CodeContractsRuntimeThrowOnFailure>
     <CodeContractsRuntimeCallSiteRequires>False</CodeContractsRuntimeCallSiteRequires>
@@ -171,9 +171,10 @@
     <Compile Include="..\CommonAssemblyInfo.cs">
       <Link>Properties\CommonAssemblyInfo.cs</Link>
     </Compile>
+    <Compile Include="Contracts\AssertionException.cs" />
     <Compile Include="Contracts\ContractOptimized.cs" />
     <Compile Include="Contracts\ContractsExpression.cs" />
-    <Compile Include="Contracts\ContractTemp.cs" />
+    <Compile Include="Contracts\Contract.cs" />
     <Compile Include="Contracts\ContractViolationException.cs" />
     <Compile Include="Contracts\EnumerableInspector.cs" />
     <Compile Include="Contracts\GuidInspector.cs" />

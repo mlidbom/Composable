@@ -1,5 +1,6 @@
 using System;
-using System.Diagnostics.Contracts;
+
+using Composable.Contracts;
 using Composable.SystemExtensions.Threading;
 
 namespace Composable.System.Web
@@ -13,7 +14,8 @@ namespace Composable.System.Web
         ///<summary>Construct an instance bound to the currently executing http request. The id of the current request will be extracted using the supplied <see cref="IHttpRequestIdFetcher"/></summary>
         public SingleHttpRequestUseGuard(IHttpRequestIdFetcher httpRequestIdFetcher)
         {
-            Contract.Requires(httpRequestIdFetcher != null);
+            ContractOptimized.Argument(httpRequestIdFetcher, nameof(httpRequestIdFetcher))
+                             .NotNull();
 
             _httpRequestIdFetcher = httpRequestIdFetcher;
             _initialRequestId = httpRequestIdFetcher.GetCurrent();

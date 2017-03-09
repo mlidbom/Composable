@@ -1,9 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Diagnostics.Contracts;
+
 using System.Linq;
 using System.Transactions;
+using Composable.Contracts;
 using Composable.CQRS.EventSourcing.Refactoring.Migrations;
 using Composable.CQRS.EventSourcing.Refactoring.Naming;
 using Composable.Logging.Log4Net;
@@ -246,7 +247,7 @@ namespace Composable.CQRS.EventSourcing.MicrosoftSQLServer
         public IEnumerable<Guid> StreamAggregateIdsInCreationOrder(Type eventBaseType = null)
         {
             Contract.Assert(eventBaseType == null || (eventBaseType.IsInterface && typeof(IAggregateRootEvent).IsAssignableFrom(eventBaseType)));
-            _usageGuard.AssertNoContextChangeOccurred(this);            
+            _usageGuard.AssertNoContextChangeOccurred(this);
 
             _schemaManager.SetupSchemaIfDatabaseUnInitialized();
 

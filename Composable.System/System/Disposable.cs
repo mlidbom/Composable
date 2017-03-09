@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Diagnostics.Contracts;
+
 using Composable.Contracts;
 
 namespace Composable.System
@@ -12,7 +12,7 @@ namespace Composable.System
         ///<summary>Constructs an instance that will call <param name="action"> when disposed.</param></summary>
         public Disposable(Action action)
         {
-            ContractTemp.Argument(() => action).NotNull();
+            Contract.Argument(() => action).NotNull();
             _action = action;
         }
 

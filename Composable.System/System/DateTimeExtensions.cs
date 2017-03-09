@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Diagnostics.Contracts;
+
 using Composable.Contracts;
 
 namespace Composable.System

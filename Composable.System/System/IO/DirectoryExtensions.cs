@@ -1,6 +1,6 @@
 #region usings
 
-using System.Diagnostics.Contracts;
+
 using System.IO;
 using System.Linq;
 using Composable.Contracts;
@@ -11,7 +11,6 @@ using Composable.GenericAbstractions.Hierarchies;
 namespace Composable.System.IO
 {
     /// <summary/>
-    [Pure]
     public static class DirectoryExtensions
     {
         /// <summary>
@@ -22,7 +21,7 @@ namespace Composable.System.IO
         /// <returns></returns>
         public static DirectoryInfo AsDirectory(this string path)
         {
-            ContractTemp.Argument(() => path).NotNullEmptyOrWhiteSpace();
+            Contract.Argument(() => path).NotNullEmptyOrWhiteSpace();
             return new DirectoryInfo(path);
         }
 
@@ -31,7 +30,7 @@ namespace Composable.System.IO
         /// </summary>
         public static long Size(this DirectoryInfo me)
         {
-            ContractTemp.Argument(() => me).NotNull();
+            Contract.Argument(() => me).NotNull();
             return me.FullName
                 .AsHierarchy(Directory.GetDirectories).Flatten().Unwrap()
                 .SelectMany(Directory.GetFiles)
@@ -47,7 +46,7 @@ namespace Composable.System.IO
         /// <param name="me"></param>
         public static void DeleteRecursive(this DirectoryInfo me)
         {
-            ContractTemp.Argument(() => me).NotNull();
+            Contract.Argument(() => me).NotNull();
             me.Delete(true);
         }
     }

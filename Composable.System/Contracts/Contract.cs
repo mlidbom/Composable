@@ -16,7 +16,7 @@ namespace Composable.Contracts
     /// <code>public static Inspected&lt;Guid> NotEmpty(this Inspected&lt;Guid> me) { return me.Inspect(inspected => inspected != Guid.Empty, badValue => new GuidIsEmptyContractViolationException(badValue)); }
     /// </code>
     /// </summary>
-    public static class ContractTemp
+    public static class Contract
     {
         ///<summary>
         ///<para>Start inspecting one or more arguments for contract compliance.</para> 
@@ -90,6 +90,22 @@ namespace Composable.Contracts
                     name: ContractsExpression.ExtractName(arguments[i]));
             }
             return new Inspected<TParameter>(inspected);
+        }
+
+        public static void Assert(bool assertion)
+        {
+            if(!assertion)
+            {
+                throw new AssertionException();
+            }
+        }
+
+        public static void Assert(bool assertion, string failureMessage)
+        {
+            if (!assertion)
+            {
+                throw new AssertionException(failureMessage);
+            }
         }
     }
 }

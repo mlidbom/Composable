@@ -2,8 +2,9 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics.Contracts;
+
 using System.Linq;
+using Composable.Contracts;
 
 #endregion
 
@@ -12,10 +13,9 @@ namespace Composable.System.Linq
 
 
     /// <summary/>
-    [Pure]
     public static class Seq
     {
-        [Pure] static class EmptySequence<T>
+        static class EmptySequence<T>
         {
             public static readonly IEnumerable<T> Instance = new T[0];
         }
@@ -31,8 +31,8 @@ namespace Composable.System.Linq
         /// <returns></returns>
         public static IEnumerable<T> Create<T>(params T[] values)
         {
-            Contract.Requires(values != null);
-            Contract.Ensures(Contract.Result<IEnumerable<T>>() != null);
+            ContractOptimized.Argument(values, nameof(values))
+                             .NotNull();
             return values;
         }
 

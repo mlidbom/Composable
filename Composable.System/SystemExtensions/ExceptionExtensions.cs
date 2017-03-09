@@ -1,7 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics.Contracts;
+
 using System.Linq;
+using Composable.Contracts;
 
 namespace Composable.SystemExtensions
 {
@@ -10,8 +11,9 @@ namespace Composable.SystemExtensions
     {
         ///<summary>Flattens the exception.InnerException hierarchy into a sequence.</summary>
          public static IEnumerable<Exception> GetAllExceptionsInStack(this Exception exception)
-         {
-             Contract.Requires(exception != null);
+        {
+            ContractOptimized.Argument(exception, nameof(exception))
+                             .NotNull();
 
              do
              {

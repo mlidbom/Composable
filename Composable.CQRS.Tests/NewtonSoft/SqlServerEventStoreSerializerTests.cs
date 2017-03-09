@@ -161,7 +161,7 @@ namespace CQRS.Tests.NewtonSoft
                                  },
                                  iterations: iterations,
                                  maxTotal: allowedTime,
-                                 maxTries: 3);
+                                 maxTries: 10);
         }
     }
 }

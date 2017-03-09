@@ -1,6 +1,7 @@
 ﻿using System;
-using System.Diagnostics.Contracts;
+
 using AccountManagement.Domain.Shared;
+using Composable.Contracts;
 using Composable.CQRS.EventSourcing;
 using JetBrains.Annotations;
 
@@ -18,8 +19,8 @@ namespace AccountManagement.Domain.Events.Implementation
         /// </summary>
         public UserRegisteredAccountEvent(Guid accountId, Email email, Password password) : base(accountId)
         {
-            Contract.Requires(email != null);
-            Contract.Requires(password != null);
+            Contract.Argument(() => email, () => password)
+                        .NotNull();
 
             Email = email;
             Password = password;

@@ -18,13 +18,13 @@ namespace Composable.Tests.Contracts
             string okString = "okString";
             string emptyString = "";
             string nullString = null;
-            Assert.Throws<ObjectIsNullContractViolationException>(() => ContractTemp.Argument(() => nullString).NotNull())
+            Assert.Throws<ObjectIsNullContractViolationException>(() => Contract.Argument(() => nullString).NotNull())
                 .Message.Should().Contain(nameof(nullString));
 
-            Assert.Throws<ObjectIsNullContractViolationException>(() => ContractTemp.Argument(() => okString, () => nullString, () => notNullObject).NotNull())
+            Assert.Throws<ObjectIsNullContractViolationException>(() => Contract.Argument(() => okString, () => nullString, () => notNullObject).NotNull())
                 .Message.Should().Contain(nameof(nullString));
 
-            Assert.Throws<StringIsEmptyContractViolationException>(() => ContractTemp.Argument(() => okString, () => emptyString).NotNullOrEmpty())
+            Assert.Throws<StringIsEmptyContractViolationException>(() => Contract.Argument(() => okString, () => emptyString).NotNullOrEmpty())
                 .Message.Should().Contain(nameof(emptyString));
 
             Assert.Throws<ObjectIsNullContractViolationException>(() => TestStringsForNullOrEmpty(nullString))
@@ -43,8 +43,8 @@ namespace Composable.Tests.Contracts
         [Test]
         public void ThrowsIllegalArgumentAccessLambdaIfTheLambdaAccessesALiteral()
         {
-            Assert.Throws<InvalidAccessorLambdaException>(() => ContractTemp.Argument(() => ""));
-            Assert.Throws<InvalidAccessorLambdaException>(() => ContractTemp.Argument(() => 0));
+            Assert.Throws<InvalidAccessorLambdaException>(() => Contract.Argument(() => ""));
+            Assert.Throws<InvalidAccessorLambdaException>(() => Contract.Argument(() => 0));
         }
 
         [Test]
@@ -53,7 +53,7 @@ namespace Composable.Tests.Contracts
             var notNullOrDefault = new object();
 
             TimeAsserter.Execute(
-                    action: () => ContractTemp.Argument(() => notNullOrDefault).NotNullOrDefault(),
+                    action: () => Contract.Argument(() => notNullOrDefault).NotNullOrDefault(),
                     iterations: 500,
                     maxTotal: 10.Milliseconds().AdjustRuntimeToTestEnvironment(),
                     maxTries:3
@@ -62,12 +62,12 @@ namespace Composable.Tests.Contracts
 
         static void TestStringsForNullOrEmpty(string singleString)
         {
-            ContractTemp.Argument(() => singleString).NotNullOrEmpty();
+            Contract.Argument(() => singleString).NotNullOrEmpty();
         }
 
         static void TestStringsForNullOrEmpty(string firstString, string secondString, string thirdString)
         {
-            ContractTemp.Argument(() => firstString, () => secondString, () => thirdString).NotNullOrEmpty();
+            Contract.Argument(() => firstString, () => secondString, () => thirdString).NotNullOrEmpty();
         }
     }
 

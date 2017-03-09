@@ -2,14 +2,13 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics.Contracts;
+
 
 #endregion
 
 namespace Composable.System.Linq
 {
     /// <summary/>
-    [Pure]
     public static class Hierarchy
     {
         /// <summary>
@@ -22,7 +21,6 @@ namespace Composable.System.Linq
         public static IEnumerable<TSource> FlattenHierarchy<TSource>(this IEnumerable<TSource> source,
                                                                      Func<TSource, IEnumerable<TSource>> childrenSelector)
         {
-            Contract.Ensures(Contract.Result<IEnumerable<TSource>>() != null);
             foreach(var item in source)
             {
                 foreach(var child in FlattenHierarchy(childrenSelector(item), childrenSelector))

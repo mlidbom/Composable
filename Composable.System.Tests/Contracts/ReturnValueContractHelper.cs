@@ -7,7 +7,7 @@ namespace Composable.Tests.Contracts
     {
         public static TReturnValue Return<TReturnValue>(TReturnValue returnValue, Action<Inspected<TReturnValue>> assert)
         {
-            return ContractTemp.Return(returnValue, assert);
+            return Contract.Return(returnValue, assert);
         }
     }
 }

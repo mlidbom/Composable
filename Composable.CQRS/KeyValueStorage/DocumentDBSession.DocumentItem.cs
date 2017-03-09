@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics.Contracts;
+
+using Composable.Contracts;
 using Composable.System;
 using Composable.System.Linq;
 
@@ -36,14 +37,16 @@ namespace Composable.KeyValueStorage
 
             public void Save(object document)
             {
-                Contract.Requires(document != null);
+                Contract.Argument(() => document)
+                            .NotNull();
                 Document = document;
                 IsDeleted = false;
             }
 
             public void DocumentLoadedFromBackingStore(object document)
             {
-                Contract.Requires(document != null);
+                Contract.Argument(() => document)
+                            .NotNull();
                 Document = document;
                 IsInBackingStore = true;
             }

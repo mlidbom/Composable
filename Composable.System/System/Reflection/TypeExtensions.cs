@@ -2,8 +2,9 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics.Contracts;
+
 using System.Linq;
+using Composable.Contracts;
 using Composable.System.Linq;
 
 #endregion
@@ -16,17 +17,27 @@ namespace Composable.System.Reflection
         /// ///<returns>true if <paramref name="me"/> implements the interface: <typeparamref name="TImplemented"/>. By definition true if <paramref name="me"/> == <typeparamref name="TImplemented"/>.</returns>
         public static bool Implements<TImplemented>(this Type me)
         {
-            Contract.Requires(me != null);
-            Contract.Requires(typeof(TImplemented).IsInterface);
+            ContractOptimized.Argument(me, nameof(me))
+                             .NotNull();
+
+            if (!typeof(TImplemented).IsInterface)
+            {
+                throw new ArgumentException(nameof(TImplemented));
+            }
+
             return me.Implements(typeof(TImplemented));
         }
 
         ///<returns>true if <paramref name="me"/> implements the interface: <paramref name="implemented"/>. By definition true if <paramref name="me"/> == <paramref name="implemented"/>.</returns>
         public static bool Implements(this Type me, Type implemented)
         {
-            Contract.Requires(me != null);
-            Contract.Requires(implemented != null);
-            Contract.Requires(implemented.IsInterface);
+            ContractOptimized.Argument(me, nameof(me), implemented, nameof(implemented))
+                             .NotNull();
+
+            if(!implemented.IsInterface)
+            {
+                throw new ArgumentException(nameof(implemented));
+            }
 
             if(me == implemented) { return true;}
 
@@ -42,7 +53,8 @@ namespace Composable.System.Reflection
         ///<summary>Returns a sequence containing all the classes and interfaces that this type inherits/implements</summary>
         public static IEnumerable<Type> GetAllTypesInheritedOrImplemented(this Type me)
         {
-            Contract.Requires(me != null);
+            ContractOptimized.Argument(me, nameof(me))
+                             .NotNull();
             return me.GetClassInheritanceChain().Concat(me.GetInterfaces());
         }
 

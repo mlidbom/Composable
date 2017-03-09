@@ -28,7 +28,7 @@ namespace Composable.CQRS.EventSourcing.MicrosoftSQLServer
             _schemaManager = schemaManager;
         }
 
-        //Review:catch primary key violation errors and rethrow in an optimistic concurrency failure exception.: 
+        //Review:catch primary key violation errors and rethrow in an optimistic concurrency failure exception.:
         public void Insert(IEnumerable<AggregateRootEvent> events)
         {
             SaveEventsInternal(events.Select(@this => new EventWithManualReadorder() {Event = @this, ManualReadOrder = SqlDecimal.Null}));

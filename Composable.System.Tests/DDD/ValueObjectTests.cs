@@ -27,7 +27,7 @@ namespace Composable.Tests.DDD
             public Address()
             {}
 
-            public string Guid { get;  set; }            
+            public string Guid { get;  set; }
         }
 
         class GuidHolder : ValueObject<GuidHolder>
@@ -48,7 +48,7 @@ namespace Composable.Tests.DDD
                 : base(address1, city, states)
             {
                 _address2 = address2;
-            }            
+            }
         }
 
         [Test]

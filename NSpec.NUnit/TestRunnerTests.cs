@@ -41,7 +41,7 @@ namespace NSpec.NUnit
             exception.InnerException.Message.Should().Be("first error");
         }
     }
-    
+
     public class working_spec : NSpec.NUnit.nspec
     {
         public void this_works()
@@ -58,7 +58,7 @@ namespace NSpec.NUnit
             it["1 equals 2"] = () => 1.Should().Be(2);
         }
     }
-    
+
     [Ignore("SHould fail when executed and actual test is done by checking that it fails whith an appropriate message.")]
     public class fails_in_before_all : NSpec.NUnit.nspec
     {

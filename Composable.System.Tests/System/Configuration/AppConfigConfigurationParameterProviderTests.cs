@@ -38,7 +38,7 @@ namespace Composable.Tests.System.Configuration
             //Arrange
             var parameterKey = "ErrorTest1";
             var provider = new AppConfigConfigurationParameterProvider();
-            
+
             //Assert
             var exc=Assert.Throws<ConfigurationErrorsException>(() => provider.GetString(parameterKey));
             exc.Message.Should().Contain(parameterKey);

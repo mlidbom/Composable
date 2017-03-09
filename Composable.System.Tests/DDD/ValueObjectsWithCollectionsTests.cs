@@ -79,7 +79,7 @@ namespace Composable.Tests.DDD
                                     }
             };
 
-            Assert.That(lhs, Is.EqualTo(rhs));   
+            Assert.That(lhs, Is.EqualTo(rhs));
         }
 
         [Test]

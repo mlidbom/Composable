@@ -96,7 +96,7 @@ FROM {EventTable.Name} {lockHint} ";
             var historyData = new List<EventDataRow>();
             using(var connection = _connectionMananger.OpenConnection(suppressTransactionWarning: !takeWriteLock))
             {
-                using (var loadCommand = connection.CreateCommand()) 
+                using (var loadCommand = connection.CreateCommand())
                 {
                     loadCommand.CommandText = $"{GetSelectClause(takeWriteLock)} WHERE {EventTable.Columns.AggregateId} = @{EventTable.Columns.AggregateId}";
                     loadCommand.Parameters.Add(new SqlParameter($"{EventTable.Columns.AggregateId}", aggregateId));
@@ -162,7 +162,7 @@ FROM {EventTable.Name} {lockHint} ";
                     }
                 }
             }
-        }   
+        }
 
         public IEnumerable<Guid> StreamAggregateIdsInCreationOrder(Type eventBaseType = null)
         {
@@ -188,6 +188,6 @@ FROM {EventTable.Name} {lockHint} ";
             return ids;
         }
 
-        string ReadSortOrder => $" ORDER BY {EventTable.Columns.EffectiveReadOrder} ASC";        
+        string ReadSortOrder => $" ORDER BY {EventTable.Columns.EffectiveReadOrder} ASC";
     }
 }

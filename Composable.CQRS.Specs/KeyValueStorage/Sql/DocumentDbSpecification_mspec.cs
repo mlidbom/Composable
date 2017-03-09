@@ -74,7 +74,7 @@
 //                                             };
 //                    Establish before = () =>
 //                             {
-//                                 Before();                                 
+//                                 Before();
 //                                 nullOutReceived();
 //                                 subscription = _store.DocumentUpdated.Subscribe(updated => { documentUpdated = updated; });
 //                                 typedSubscription = _store.DocumentUpdated.WithDocumentType<string>().Subscribe(updated => typedDocumentUpdated = updated);
@@ -109,7 +109,7 @@
 //                                It subscriber_is_not_notified = () => documentUpdated.Should().BeNull();
 //                                It typed_subscriber_is_not_notified = () => typedDocumentUpdated.Should().BeNull();
 //                                It no_document_is_received = () => receivedDocument.Should().BeNull();
-//                                It stored_value_is_QUOTthe_valueQUOT = () => GetStoredValue("the_id").Should().Be("the_value");  
+//                                It stored_value_is_QUOTthe_valueQUOT = () => GetStoredValue("the_id").Should().Be("the_value");
 //                           }
 
 //                            class when_updating_the_object_using_the_value_QUOTanother_valueQUOT

@@ -30,7 +30,7 @@ namespace Composable.Windsor.Testing
                 );
         }
 
-        
+
         public static void ConfigureWiringForTestsCallAfterAllOtherWiring(this IWindsorContainer container)
         {
             foreach(var configurer in container.ResolveAll<IConfigureWiringForTests>())

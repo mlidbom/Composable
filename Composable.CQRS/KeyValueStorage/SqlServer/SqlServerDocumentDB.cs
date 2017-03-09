@@ -31,7 +31,7 @@ namespace Composable.KeyValueStorage.SqlServer
             ConnectionString = connectionString;
         }
 
-        readonly ThreadSafeObservable<IDocumentUpdated> _documentUpdated = new ThreadSafeObservable<IDocumentUpdated>(); 
+        readonly ThreadSafeObservable<IDocumentUpdated> _documentUpdated = new ThreadSafeObservable<IDocumentUpdated>();
         public IObservable<IDocumentUpdated> DocumentUpdated { get { return _documentUpdated; } }
 
         public ConcurrentDictionary<Type, int> KnownTypes { get { return VerifiedConnections[ConnectionString]; } }
@@ -42,7 +42,7 @@ namespace Composable.KeyValueStorage.SqlServer
         }
 
         public bool TryGet<TValue>(object key, out TValue value, Dictionary<Type, Dictionary<string, string>> persistentValues)
-        {           
+        {
             EnsureInitialized();
 
             if (!IsKnownType(typeof(TValue)))

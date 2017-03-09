@@ -15,7 +15,7 @@ namespace Composable.KeyValueStorage
     public class InMemoryDocumentDb : InMemoryObjectStore, IDocumentDb
 #pragma warning restore 618
     {
-        readonly ThreadSafeObservable<IDocumentUpdated> _documentUpdated = new ThreadSafeObservable<IDocumentUpdated>(); 
+        readonly ThreadSafeObservable<IDocumentUpdated> _documentUpdated = new ThreadSafeObservable<IDocumentUpdated>();
 
         public InMemoryDocumentDb()
         {
@@ -40,7 +40,7 @@ namespace Composable.KeyValueStorage
                 base.Add(id, value);
                 _documentUpdated.OnNext(new DocumentUpdated(idString, value));
             }
-        }        
+        }
 
         public IEnumerable<T> GetAll<T>(IEnumerable<Guid> ids) where T : IHasPersistentIdentity<Guid>
         {

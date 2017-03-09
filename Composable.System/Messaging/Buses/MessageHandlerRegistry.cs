@@ -70,7 +70,7 @@ namespace Composable.Messaging.Buses
             catch (KeyNotFoundException)
             {
                 throw new NoHandlerException(query.GetType());
-            }            
+            }
         }
 
         IEventDispatcher<IEvent> IMessageHandlerRegistry.CreateEventDispatcher()
@@ -101,7 +101,7 @@ namespace Composable.Messaging.Buses
             }
 
             throw new Exception($"Unhandled message type: {aMessage.GetType()}");
-        }        
+        }
 
         class EventHandlerRegistration
         {

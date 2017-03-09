@@ -149,7 +149,7 @@ namespace CQRS.Tests.NewtonSoft
                                                                                             var eventJson = JsonConvert.SerializeObject(@event, settings);
                                                                                             var roundTripped = JsonConvert.DeserializeObject<TestEvent>(eventJson, settings);
                                                                                         },
-         
+
                                                                                         iterations: iterations);
 
             var allowedTime = TimeSpan.FromMilliseconds(defaultSerializerPerformanceNumbers.Total.TotalMilliseconds * allowedSlowdown);

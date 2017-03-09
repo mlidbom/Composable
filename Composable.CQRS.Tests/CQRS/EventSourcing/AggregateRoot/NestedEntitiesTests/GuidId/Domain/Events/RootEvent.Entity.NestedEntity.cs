@@ -60,7 +60,7 @@ namespace CQRS.Tests.CQRS.EventSourcing.AggregateRoot.NestedEntitiesTests.GuidId
 
                     public class Removed : Root, NestedEntity.Removed
                     {
-                    }                    
+                    }
                 }
             }
         }

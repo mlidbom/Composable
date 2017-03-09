@@ -5,7 +5,7 @@ using System;
 namespace Composable.System
 {
     /// <summary>A collection of extensions to work with timespans</summary>
-    public static class TimeSpanExtensions 
+    public static class TimeSpanExtensions
     {
         /// <summary>Returns a TimeSpan <paramref name="me"/> milliseconds long.</summary>
         public static TimeSpan Milliseconds(this int me)

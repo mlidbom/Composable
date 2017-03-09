@@ -13,6 +13,6 @@
             public const string EventId = nameof(EventId);
             public const string Event = nameof(Event);
             public static string SqlTimeStamp = nameof(SqlTimeStamp);
-        }        
+        }
     }
 }

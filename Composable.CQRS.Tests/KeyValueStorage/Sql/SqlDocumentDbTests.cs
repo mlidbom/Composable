@@ -55,7 +55,7 @@ namespace CQRS.Tests.KeyValueStorage.Sql
                 }
             }
         }
-        
+
         public void InsertUsersInOtherAppDomain(Guid userIds)
         {
             var myDomain = AppDomain.CurrentDomain;
@@ -71,7 +71,7 @@ namespace CQRS.Tests.KeyValueStorage.Sql
 
         [Test]
         public void CanGetDocumentOfPreviouslyUnKnownClassAddedByAnotherDocumentDBInstance()
-        {            
+        {
             var readingDocumentDb = CreateStore();
 
             var userId = Guid.Parse("00000000-0000-0000-0000-000000000001");

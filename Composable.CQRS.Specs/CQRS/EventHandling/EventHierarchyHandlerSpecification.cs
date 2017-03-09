@@ -149,7 +149,7 @@ namespace CQRS.Tests.CQRS.EventHandling
         public class UserQueryModel : IHasPersistentIdentity<Guid>
         {
             public Guid Id { get; set; }
-        }      
+        }
 
         public interface IUserEvent : IAggregateRootEvent {}
 

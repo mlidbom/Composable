@@ -11,11 +11,11 @@ using Composable.System.Linq;
 
 namespace Composable.CQRS.EventSourcing.Refactoring.Migrations
 {
-    //Yes this class has quite a bit of code that looks overly complex. Like it could be simplified a lot. 
+    //Yes this class has quite a bit of code that looks overly complex. Like it could be simplified a lot.
     //What you are seeing is likely optimizations. Please do not change this class for reasons of readability unless you do thorough performance testing and verify that no performance is lost.
     //The performance of this class is extremely important since it is called at least once for every event that is loaded from the event store when you have any migrations activated. It is called A LOT.
     //This is one of those central classes for which optimization is actually vitally important.
-    //Each of the optimizations were done with the help of a profiler and running benchmarks on the tested performance improvements time and time again.  
+    //Each of the optimizations were done with the help of a profiler and running benchmarks on the tested performance improvements time and time again.
     class SingleAggregateInstanceEventStreamMutator : ISingleAggregateInstanceEventStreamMutator
     {
         readonly Guid _aggregateId;
@@ -23,7 +23,7 @@ namespace Composable.CQRS.EventSourcing.Refactoring.Migrations
         readonly EventModifier _eventModifier;
 
         int _aggregateVersion = 1;
-        
+
         public static ISingleAggregateInstanceEventStreamMutator Create(IAggregateRootEvent creationEvent, IReadOnlyList<IEventMigration> eventMigrations, Action<IReadOnlyList<AggregateRootEvent>> eventsAddedCallback = null)
         {
             return new SingleAggregateInstanceEventStreamMutator(creationEvent, eventMigrations, eventsAddedCallback);
@@ -46,7 +46,7 @@ namespace Composable.CQRS.EventSourcing.Refactoring.Migrations
             if (_eventMigrators.Length == 0)
             {
                 return Seq.Create(@event);
-            }            
+            }
 
             @event.AggregateRootVersion = _aggregateVersion;
             _eventModifier.Reset(@event);
@@ -85,7 +85,7 @@ namespace Composable.CQRS.EventSourcing.Refactoring.Migrations
             (IReadOnlyList<IEventMigration> eventMigrations,
              IReadOnlyList<AggregateRootEvent> @events,
              Action<IReadOnlyList<AggregateRootEvent>> eventsAddedCallback = null)
-        {            
+        {
             if (eventMigrations.None())
             {
                 return @events;

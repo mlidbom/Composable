@@ -95,9 +95,9 @@ namespace Composable.DDD
     /// Simple base class for Entities that ensures a correct identity based <see cref="object.Equals(object)"/>, <see cref="object.GetHashCode"/>, and <see cref="IEquatable{T}"/>.
     /// 
     /// This class uses <see cref="Guid"/>s as Ids because it is the only built in .Net type the developers are
-    /// avare of which can, in practice, guarantee for a system that an PersistentEntity will have a globally unique immutable identity 
-    /// from the moment of instantiation and through any number of persisting-loading cycles. That in turn is an 
-    /// absolute requirement for a correct implementation of <see cref="object.Equals(object)"/>, 
+    /// avare of which can, in practice, guarantee for a system that an PersistentEntity will have a globally unique immutable identity
+    /// from the moment of instantiation and through any number of persisting-loading cycles. That in turn is an
+    /// absolute requirement for a correct implementation of <see cref="object.Equals(object)"/>,
     /// <see cref="object.GetHashCode"/>, and <see cref="IEquatable{TEntity}"/>.
     /// </summary>
     [DebuggerDisplay("{GetType().Name} Id={Id}")]

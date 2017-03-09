@@ -39,7 +39,7 @@ namespace AccountManagement.UI.QueryModels.Services.Implementation
 
         public AccountQueryModel GetAccount(Guid accountId, int version)
         {
-            return _generatedModels.GetVersion<AccountQueryModel>(accountId, version);    
+            return _generatedModels.GetVersion<AccountQueryModel>(accountId, version);
         }
     }
 }

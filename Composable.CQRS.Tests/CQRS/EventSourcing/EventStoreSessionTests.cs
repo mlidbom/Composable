@@ -52,7 +52,7 @@ namespace CQRS.Tests.CQRS.EventSourcing
             {
                 Assert.Throws<AggregateRootNotFoundException>(() => session.Get<User>(Guid.NewGuid()));
             }
-        }       
+        }
 
         [Test]
         public void CanSaveAndLoadAggregate()

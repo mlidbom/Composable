@@ -77,7 +77,7 @@ namespace Composable.CQRS.Query.Models.Generators
             {
                 return true;
             }
-            
+
             document = TryGenerateModel<TDocument>(key, version);
             if (!Equals(document, default(TDocument)))
             {

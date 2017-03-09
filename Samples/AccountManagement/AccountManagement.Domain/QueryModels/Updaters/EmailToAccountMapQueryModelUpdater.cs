@@ -22,7 +22,7 @@ namespace AccountManagement.Domain.QueryModels.Updaters
             if(message.AggregateRootVersion > 1)
             {
                 var previousAccountVersion = _repository.GetVersion(message.AggregateRootId, message.AggregateRootVersion - 1);
-                var previousEmail = previousAccountVersion.Email;                
+                var previousEmail = previousAccountVersion.Email;
 
                 if(previousEmail != null)
                 {

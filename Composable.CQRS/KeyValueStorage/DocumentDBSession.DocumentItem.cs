@@ -8,7 +8,7 @@ using Composable.System.Linq;
 namespace Composable.KeyValueStorage
 {
     public partial class DocumentDbSession
-    {        
+    {
         internal class DocumentItem
         {
             readonly IDocumentDb _backingStore;

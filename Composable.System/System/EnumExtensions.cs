@@ -17,7 +17,7 @@ namespace Composable.System
         /// </summary>
         /// <param name="value"></param>
         /// <param name="flag"></param>
-        /// <returns></returns>        
+        /// <returns></returns>
         public static bool HasFlag(this Enum value, Enum flag)
         {
             Contract.Argument(() => value, () => flag).NotNull();

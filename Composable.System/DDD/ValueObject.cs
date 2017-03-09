@@ -77,7 +77,7 @@ namespace Composable.DDD
             var fields = MemberAccessorHelper<T>.GetFieldGetters(GetType());
 
             for(var i = 0; i < fields.Length; i++)
-            {                
+            {
                 var value1 = fields[i](other);
                 var value2 = fields[i]((T)this);
 
@@ -105,7 +105,7 @@ namespace Composable.DDD
                             return false;
                         }
                     }
-                } 
+                }
                 else if(!value1.Equals(value2))
                     return false;
             }

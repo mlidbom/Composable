@@ -24,7 +24,7 @@ namespace Composable.System.Linq
         public static T Third<T>(this IEnumerable<T> me)
         {
             ContractOptimized.Argument(me, nameof(me))
-                             .NotNull(); 
+                             .NotNull();
             return me.ElementAt(2);
         }
 

@@ -5,7 +5,7 @@ namespace AccountManagement.TestHelpers
     public static class TestData
     {
         public static class Password
-        {           
+        {
             public static class Invalid
             {
                 public static string[] All =

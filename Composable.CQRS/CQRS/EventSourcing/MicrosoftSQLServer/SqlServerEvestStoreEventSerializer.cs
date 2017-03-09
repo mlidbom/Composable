@@ -33,7 +33,7 @@ namespace Composable.CQRS.EventSourcing.MicrosoftSQLServer
                                 .ToList();
                 props.ForEach(p => { p.Writable = true; p.Readable = true; });
                 return props;
-            }            
+            }
         }
 
         public static readonly JsonSerializerSettings JsonSettings =

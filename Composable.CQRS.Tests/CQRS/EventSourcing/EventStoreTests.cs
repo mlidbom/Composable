@@ -48,7 +48,7 @@ namespace CQRS.Tests.CQRS.EventSourcing
         {
             using (var eventStore = CreateEventStore())
             {
-                const int moreEventsThanTheBatchSizeForStreamingEvents = SqlServerEventStore.StreamEventsBatchSize + 100; 
+                const int moreEventsThanTheBatchSizeForStreamingEvents = SqlServerEventStore.StreamEventsBatchSize + 100;
                 var aggregateId = Guid.NewGuid();
                 eventStore.SaveEvents(1.Through(moreEventsThanTheBatchSizeForStreamingEvents).Select(i => new SomeEvent(aggregateId, i)));
                 var stream = eventStore.ListAllEventsForTestingPurposesAbsolutelyNotUsableForARealEventStoreOfAnySize().ToList();
@@ -65,7 +65,7 @@ namespace CQRS.Tests.CQRS.EventSourcing
 
         [Test]
         public void DeleteEventsDeletesTheEventsForOnlyTheSpecifiedAggregate()
-        {            
+        {
             var aggregatesWithEvents = 1.Through(10).ToDictionary(i => i,
                                                                   i =>
                                                                   {
@@ -74,7 +74,7 @@ namespace CQRS.Tests.CQRS.EventSourcing
                                                                   });
 
             using (var eventStore = CreateEventStore())
-            {                
+            {
                 eventStore.SaveEvents(aggregatesWithEvents.SelectMany(x => x.Value));
                 var toRemove = aggregatesWithEvents[2][0].AggregateRootId;
                 aggregatesWithEvents.Remove(2);
@@ -156,7 +156,7 @@ namespace CQRS.Tests.CQRS.EventSourcing
             _connectionString1 = _tempDbManager.ConnectionStringFor("SqlServerEventStoreTests_EventStore1");
             _connectionString2 = _tempDbManager.ConnectionStringFor("SqlServerEventStoreTests_EventStore2");
 
-            SqlServerEventStore.ClearAllCache();            
+            SqlServerEventStore.ClearAllCache();
         }
 
         [TearDown]
@@ -199,7 +199,7 @@ namespace CQRS.Tests.CQRS.EventSourcing
 
                     store1Events = store1.GetAggregateHistory(aggregateId);
                     store2Events = store2.GetAggregateHistory(aggregateId);
-                }                
+                }
 
                 using(var store1 = CreateEventStore())
                 using(var store2 = CreateEventStore2())

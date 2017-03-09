@@ -55,7 +55,7 @@ namespace NSpec.NUnit
                 Console.WriteLine();
                 if(contexts.Failures().Any())
                 {
-                    WriteNoticeably("SUMMARY");                    
+                    WriteNoticeably("SUMMARY");
                     Console.WriteLine(base.Summary(contexts));
 
                     int currentFailure = 0;
@@ -82,14 +82,14 @@ namespace NSpec.NUnit
 
                         Console.WriteLine(message);
 
-                        Console.WriteLine(base.WriteFailure(failure));                        
+                        Console.WriteLine(base.WriteFailure(failure));
                     }
                 }
 
-                
+
 
                 Console.WriteLine();
-                WriteNoticeably("END OF NSPEC RESULTS");                
+                WriteNoticeably("END OF NSPEC RESULTS");
                 Console.WriteLine();
             }
 

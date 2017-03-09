@@ -44,7 +44,7 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
                                                      .Concat(Seq.OfTypes<E2, E4, E6, E8>()))).ToList();
 
             _aggregate = TestAggregate.FromEvents(DummyTimeSource.Now, Guid.NewGuid(), historyTypes);
-            _history = _aggregate.History.Cast<AggregateRootEvent>().ToList();            
+            _history = _aggregate.History.Cast<AggregateRootEvent>().ToList();
         }
 
         void UseEventstoreSessionWithConfiguredMigrations(IEnumerable<IEventMigration> migrations, Action<IEventStoreSession> useSession)
@@ -67,7 +67,7 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
                                           .Instance(container),
                                  Component.For<IServiceBus>()
                                           .ImplementedBy<TestingOnlyServiceBus>());
-                
+
 
                 var sqlServerEventStoreRegistration = new SqlServerEventStoreRegistration<SingleAggregateInstanceEventStreamMutatorPerformanceTest_Given_a_10000_events_large_aggregate>();
                 container.RegisterSqlServerEventStore(sqlServerEventStoreRegistration, "ignored");

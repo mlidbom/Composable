@@ -49,7 +49,7 @@ namespace Composable.CQRS.EventSourcing
                             ManagedEntities.Remove(id);
                         });
                 }
-            }            
+            }
         }
     }
 }

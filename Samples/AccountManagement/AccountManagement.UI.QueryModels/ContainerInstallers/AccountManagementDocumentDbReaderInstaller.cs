@@ -23,7 +23,7 @@ namespace AccountManagement.UI.QueryModels.ContainerInstallers
         {
             container.RegisterSqlServerDocumentDb(Registration, ConnectionStringName);
 
-            container.Register(            
+            container.Register(
                 Component.For<IAccountManagementDocumentDbQueryModelsReader, IUnitOfWorkParticipant>()
                     .ImplementedBy<AccountManagementDocumentDbQueryModelsReader>()
                     .DependsOn(

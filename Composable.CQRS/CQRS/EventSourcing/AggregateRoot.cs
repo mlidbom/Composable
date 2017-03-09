@@ -112,7 +112,7 @@ namespace Composable.CQRS.EventSourcing
         {
             TimeSource = timeSource;
         }
-        
+
         void IEventStored.LoadFromHistory(IEnumerable<IAggregateRootEvent> history)
         {
             history.ForEach(theEvent => ApplyEvent((TAggregateRootBaseEventInterface)theEvent));

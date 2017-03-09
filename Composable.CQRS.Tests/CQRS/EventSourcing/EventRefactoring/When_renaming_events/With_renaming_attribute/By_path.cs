@@ -44,5 +44,5 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.When_renaming_events.Wi
             public const string OldPath = "Event2OldNamespace.";
             public const string OldName = OldPath + nameof(Event2);
         }
-    }   
+    }
 }

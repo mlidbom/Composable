@@ -11,7 +11,7 @@
 
         NullOpDocumentDbSessionInterceptor()
         {
-            
+
         }
 
         public void AfterLoad(object instance)

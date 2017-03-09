@@ -14,7 +14,7 @@ using JetBrains.Annotations;
 namespace Composable.GenericAbstractions.Hierarchies
 {
     /// <summary>
-    /// Represents a hierarchy in which the instances in the hierarchy do not themselves 
+    /// Represents a hierarchy in which the instances in the hierarchy do not themselves
     /// implement <see cref="IHierarchy{T}"/>.
     /// 
     /// <example>

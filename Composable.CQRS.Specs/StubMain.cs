@@ -7,6 +7,6 @@ namespace Composable.CQRS.Specs
         public static void Main()
         {
             throw new Exception("Not intended to be used");
-        } 
+        }
     }
 }

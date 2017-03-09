@@ -89,5 +89,5 @@ namespace CQRS.Tests.SqlServerDatabasePoolTests
                     .ShouldThrow<Exception>()
                     .Where(exception => exception.Message.ToLower().Contains("disposed"));
         }
-    }        
+    }
 }

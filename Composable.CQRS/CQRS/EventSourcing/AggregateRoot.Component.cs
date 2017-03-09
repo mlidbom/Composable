@@ -7,7 +7,7 @@ namespace Composable.CQRS.EventSourcing
 {
   using Composable.Messaging.Events;
 
-  public abstract partial class AggregateRoot<TAggregateRoot, TAggregateRootBaseEventClass, TAggregateRootBaseEventInterface> 
+  public abstract partial class AggregateRoot<TAggregateRoot, TAggregateRootBaseEventClass, TAggregateRootBaseEventInterface>
         where TAggregateRoot : AggregateRoot<TAggregateRoot, TAggregateRootBaseEventClass, TAggregateRootBaseEventInterface>
         where TAggregateRootBaseEventInterface : class, IAggregateRootEvent
         where TAggregateRootBaseEventClass : AggregateRootEvent, TAggregateRootBaseEventInterface
@@ -70,7 +70,7 @@ namespace Composable.CQRS.EventSourcing
             protected IEventHandlerRegistrar<TComponentBaseEventInterface> RegisterEventHandlers()
             {
                 return _eventHandlersEventDispatcher.Register();
-            }            
-        }       
+            }
+        }
     }
 }

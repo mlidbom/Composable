@@ -43,7 +43,7 @@ namespace Composable.CQRS.EventSourcing
                                     TEventEntityIdSetterGetter>
             {
                 protected NestedEntity(TComponent parent) : this(parent.TimeSource, parent.RaiseEvent, parent.RegisterEventAppliers())
-                {                    
+                {
                 }
 
                 protected NestedEntity

@@ -44,7 +44,7 @@ namespace Composable.KeyValueStorage
 
             List<Object> matchesId = null;
             if(!_db.TryGetValue(idstring, out matchesId))
-            {                
+            {
                 return false;
             }
 

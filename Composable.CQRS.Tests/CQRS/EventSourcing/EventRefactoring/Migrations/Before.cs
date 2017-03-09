@@ -17,7 +17,7 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
 
         Before(IEnumerable<Type> insert) : base(Guid.Parse("0533D2E4-DE78-4751-8CAE-3343726D635B"), "Before", "Long description of Before")
         {
-            _insert = insert;             
+            _insert = insert;
         }
 
         public override ISingleAggregateInstanceHandlingEventMigrator CreateSingleAggregateInstanceHandlingMigrator() => new Inspector(_insert);

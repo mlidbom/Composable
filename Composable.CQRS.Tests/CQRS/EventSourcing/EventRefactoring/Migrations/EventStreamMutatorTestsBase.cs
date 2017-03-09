@@ -74,7 +74,7 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
             var original = TestAggregate.FromEvents(DummyTimeSource.Now, scenario.AggregateId, scenario.OriginalHistory).History.ToList();
             Console.WriteLine($"Original History: ");
             original.ForEach(e => Console.WriteLine($"      {e}"));
-            Console.WriteLine();            
+            Console.WriteLine();
 
             var initialAggregate = TestAggregate.FromEvents(timeSource, scenario.AggregateId, scenario.OriginalHistory);
             var expected = TestAggregate.FromEvents(timeSource, scenario.AggregateId, scenario.ExpectedHistory).History.ToList();
@@ -88,7 +88,7 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
 
             container.ExecuteUnitOfWorkInIsolatedScope(() => container.Resolve<IEventStoreSession>().Save(initialAggregate));
             migrations.AddRange(startingMigrations);
-            var migratedHistory = container.ExecuteUnitOfWorkInIsolatedScope(() => container.Resolve<IEventStoreSession>().Get<TestAggregate>(initialAggregate.Id)).History;            
+            var migratedHistory = container.ExecuteUnitOfWorkInIsolatedScope(() => container.Resolve<IEventStoreSession>().Get<TestAggregate>(initialAggregate.Id)).History;
 
             AssertStreamsAreIdentical(expected, migratedHistory, "Loaded un-cached aggregate");
 
@@ -98,16 +98,16 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
 
             Console.WriteLine("  Streaming all events in store");
             var streamedEvents = container.ExecuteUnitOfWorkInIsolatedScope(() => container.Resolve<IEventStore>().ListAllEventsForTestingPurposesAbsolutelyNotUsableForARealEventStoreOfAnySize().ToList());
-            
+
             AssertStreamsAreIdentical(expectedCompleteEventstoreStream, streamedEvents, "Streaming all events in store");
-            
+
             Console.WriteLine("  Persisting migrations");
             using(container.BeginScope())
             {
                 container.Resolve<IEventStore>().PersistMigrations();
             }
 
-            migratedHistory = container.ExecuteUnitOfWorkInIsolatedScope(() => container.Resolve<IEventStoreSession>().Get<TestAggregate>(initialAggregate.Id)).History;            
+            migratedHistory = container.ExecuteUnitOfWorkInIsolatedScope(() => container.Resolve<IEventStoreSession>().Get<TestAggregate>(initialAggregate.Id)).History;
             AssertStreamsAreIdentical(expected, migratedHistory, "Loaded aggregate");
 
             Console.WriteLine("Streaming all events in store");
@@ -176,7 +176,7 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
                     SqlServerEventStore.ClearAllCache();
                 }
 
-                container.Register(                    
+                container.Register(
                     Component.For<IEventStore>()
                              .ImplementedBy<SqlServerEventStore>()
                              .DependsOn(Dependency.OnValue<string>(eventStoreConnectionString))
@@ -202,7 +202,7 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
             else
             {
                 throw new Exception($"Unsupported type of event store {eventStoreType}");
-            }            
+            }
 
             container.ConfigureWiringForTestsCallAfterAllOtherWiring();
             return container;
@@ -245,7 +245,7 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
                 expected.ForEach(e => Console.WriteLine($"      {e.ToNewtonSoftDebugString(Formatting.None)}"));
                 Console.WriteLine($"\n   Actual: ");
                 migratedHistory.ForEach(e => Console.WriteLine($"      {e.ToNewtonSoftDebugString(Formatting.None)}"));
-                Console.WriteLine("\n");               
+                Console.WriteLine("\n");
 
                 throw;
             }

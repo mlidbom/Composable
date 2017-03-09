@@ -42,5 +42,5 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.When_renaming_events.Wi
         {
             public const string OldName = "Event2OldName";
         }
-    }   
+    }
 }

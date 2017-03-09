@@ -25,7 +25,7 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
              IEnumerable<Type> originalHistory,
              IEnumerable<Type> expectedHistory,
              params IEventMigration[] migrations)
-        {            
+        {
             AggregateId = aggregateId;
             OriginalHistory = originalHistory;
             ExpectedHistory = expectedHistory;

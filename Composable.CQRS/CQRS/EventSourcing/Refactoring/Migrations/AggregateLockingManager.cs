@@ -13,6 +13,6 @@ namespace Composable.CQRS.EventSourcing.Refactoring.Migrations
             {
                 return AggregateHistoryLockObjects.GetOrAdd(aggregateId, () => new object());
             }
-        }        
+        }
     }
 }

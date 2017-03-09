@@ -35,6 +35,6 @@ namespace Composable.Windsor
                     keyToDefaultTo: replacementName));
 
             return @this;
-        }        
+        }
     }
 }

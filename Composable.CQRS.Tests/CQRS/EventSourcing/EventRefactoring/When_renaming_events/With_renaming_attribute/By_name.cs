@@ -31,7 +31,7 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.When_renaming_events.Wi
         {
             _nameMapper.GetType(Event1.OldFullName).Should().Be(typeof(Event1));
             _nameMapper.GetType(Event2.OldFullName).Should().Be(typeof(Event2));
-        }       
+        }
     }
 
     [EventRenamedFrom(Name = OldName)]

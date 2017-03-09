@@ -19,7 +19,7 @@ namespace Composable.KeyValueStorage
         readonly InMemoryObjectStore _idMap = new InMemoryObjectStore();
 
         public readonly IDocumentDb BackingStore;
-        public readonly IDocumentDbSessionInterceptor Interceptor;        
+        public readonly IDocumentDbSessionInterceptor Interceptor;
         public readonly ISingleContextUseGuard UsageGuard;
 
         readonly IDictionary<DocumentKey, DocumentItem> _handledDocuments = new Dictionary<DocumentKey, DocumentItem>();
@@ -70,7 +70,7 @@ namespace Composable.KeyValueStorage
             var documentKey = new DocumentKey(key, documentType);
 
             if (!_handledDocuments.TryGetValue(documentKey, out doc))
-            {                
+            {
                 doc = new DocumentItem(documentKey, BackingStore, _persistentValues);
                 _handledDocuments.Add(documentKey, doc);
             }
@@ -120,7 +120,7 @@ namespace Composable.KeyValueStorage
         public IEnumerable<TValue> Get<TValue>(IEnumerable<Guid> ids) where TValue : IHasPersistentIdentity<Guid>
         {
             UsageGuard.AssertNoContextChangeOccurred(this);
-            var idSet = ids.ToSet();//Avoid multiple enumerations.            
+            var idSet = ids.ToSet();//Avoid multiple enumerations.
 
             var stored = BackingStore.GetAll<TValue>(idSet);
 
@@ -150,7 +150,7 @@ namespace Composable.KeyValueStorage
 
         public virtual void Save<TValue>(object id, TValue value)
         {
-            UsageGuard.AssertNoContextChangeOccurred(this);            
+            UsageGuard.AssertNoContextChangeOccurred(this);
 
             TValue ignored;
             if (TryGetInternal(id, value.GetType(), out ignored))
@@ -163,12 +163,12 @@ namespace Composable.KeyValueStorage
 
             _idMap.Add(id, value);
             if(_unitOfWork == null)
-            {                
+            {
                 documentItem.CommitChangesToBackingStore();
             }else
             {
                 Log.DebugFormat("{0} postponed persisting object from call to Save since participating in a unit of work", _id);
-            }            
+            }
         }
 
         public virtual void Save<TEntity>(TEntity entity) where TEntity : IHasPersistentIdentity<Guid>
@@ -207,14 +207,14 @@ namespace Composable.KeyValueStorage
             else
             {
                 Log.DebugFormat("{0} postponed deleting object since participating in a unit of work", _id);
-            }            
+            }
         }
 
         public virtual void SaveChanges()
         {
             UsageGuard.AssertNoContextChangeOccurred(this);
             if (_unitOfWork == null)
-            {                
+            {
                 InternalSaveChanges();
             }else
             {
@@ -224,7 +224,7 @@ namespace Composable.KeyValueStorage
 
         void InternalSaveChanges()
         {
-            Log.DebugFormat("{0} saving changes. Unit of work: {1}",_id, _unitOfWork ?? (object)"null");            
+            Log.DebugFormat("{0} saving changes. Unit of work: {1}",_id, _unitOfWork ?? (object)"null");
             _handledDocuments.ForEach(p => p.Value.CommitChangesToBackingStore());
         }
 

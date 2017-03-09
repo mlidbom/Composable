@@ -50,7 +50,7 @@ namespace Composable.CQRS.EventSourcing.Refactoring.Migrations
                     foreach(var mutatedEvent in mutatedEvents)
                     {
                         yield return mutatedEvent;
-                    }                    
+                    }
                 }
 
                 foreach (var mutator in _aggregateMutatorsCache)

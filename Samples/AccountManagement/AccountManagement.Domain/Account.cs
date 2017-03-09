@@ -16,11 +16,11 @@ namespace AccountManagement.Domain
         public Email Email { get; private set; } //Never public setters on an aggregate.
         public Password Password { get; private set; } //Never public setters on an aggregate.
 
-        //No public constructors please. Aggregates are created through domain verbs. 
+        //No public constructors please. Aggregates are created through domain verbs.
         //Expose named factory methods that ensure the instance is valid instead. See register method below.
         Account():base(new DateTimeNowTimeSource())
         {
-            //Maintain correct state as events are raised or read from the store. 
+            //Maintain correct state as events are raised or read from the store.
             //Use property updated events whenever possible. Changes to public state should be represented by property updated events.
             RegisterEventAppliers()
                 .For<IAccountEmailPropertyUpdatedEvent>(e => Email = e.Email)
@@ -47,7 +47,7 @@ namespace AccountManagement.Domain
             IAccountRepository repository,
             IDuplicateAccountChecker duplicateAccountChecker)
         {
-            //Ensure that it is impossible to call with invalid arguments. 
+            //Ensure that it is impossible to call with invalid arguments.
             //Since all domain types should ensure that it is impossible to create a non-default value that is invalid we only have to disallow default values.
             Contract.Argument(() => email, () => password, () => accountId, () => repository, () => duplicateAccountChecker).NotNullOrDefault();
 

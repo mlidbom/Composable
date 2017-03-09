@@ -86,7 +86,7 @@ namespace CQRS.Tests.CQRS.EventSourcing.Sql
             using (var session = OpenSession(CreateStore()))
             {
                 var reader = session as IEventStoreReader;
-      
+
                 var history1 = reader.GetHistory(user.Id);
                 var history2 = reader.GetHistory(user.Id);
                 var history3 = reader.GetHistory(user.Id);

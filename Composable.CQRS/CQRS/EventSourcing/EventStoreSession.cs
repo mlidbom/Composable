@@ -267,7 +267,7 @@ namespace Composable.CQRS.EventSourcing
             _pendingDeletes.Clear();
 
             return result;
-        }        
+        }
     }
 
     class ParticipantAccessedByWrongUnitOfWork : Exception { }

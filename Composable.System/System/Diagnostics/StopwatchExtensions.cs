@@ -11,7 +11,7 @@ namespace Composable.System.Diagnostics
     public static class StopwatchExtensions
     {
         ///<summary>Measures how long it takes to execute <paramref name="action"/></summary>
-        public static TimeSpan TimeExecution(Action action) => new Stopwatch().TimeExecution(action); 
+        public static TimeSpan TimeExecution(Action action) => new Stopwatch().TimeExecution(action);
 
         ///<summary>Measures how long it takes to execute <paramref name="action"/></summary>
         public static TimeSpan TimeExecution(this Stopwatch @this, Action action)

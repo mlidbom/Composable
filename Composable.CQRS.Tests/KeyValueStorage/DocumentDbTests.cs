@@ -855,7 +855,7 @@ namespace CQRS.Tests.KeyValueStorage
 
             var userid1 = Guid.Parse("00000000-0000-0000-0000-000000000001");
             var userid2 = Guid.Parse("00000000-0000-0000-0000-000000000002");
-            
+
             var user1 = new User {Id = userid1 };
             var user2 = new User { Id = userid2 };
             var dog = new Dog {Id = Guid.Parse("00000000-0000-0000-0000-000000000010") };
@@ -882,9 +882,9 @@ namespace CQRS.Tests.KeyValueStorage
 
             Dictionary<Type, Dictionary<string, string>> adict = new Dictionary<Type, Dictionary<string, string>>();
 
-            1.Through(4).ForEach(num => 
+            1.Through(4).ForEach(num =>
             {
-                var user = new User() { Id = Guid.NewGuid()};                
+                var user = new User() { Id = Guid.NewGuid()};
                 store.Add(user.Id, user, adict);
             });
 

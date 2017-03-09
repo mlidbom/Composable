@@ -24,7 +24,7 @@ namespace AccountManagement.TestHelpers.Scenarios
         }
 
         public void Execute()
-        {      
+        {
             _container.ExecuteUnitOfWork(() => _container.Resolve<IAccountRepository>().Get(Account.Id).ChangeEmail(NewEmail));
         }
     }

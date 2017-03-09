@@ -14,7 +14,7 @@ namespace Composable.System.IO
     public static class DirectoryExtensions
     {
         /// <summary>
-        /// Called on <paramref name="path"/> return a DirectoryInfo instance 
+        /// Called on <paramref name="path"/> return a DirectoryInfo instance
         /// pointed at that path.
         /// </summary>
         /// <param name="path"></param>

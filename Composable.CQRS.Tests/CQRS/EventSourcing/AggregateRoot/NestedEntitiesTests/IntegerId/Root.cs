@@ -50,7 +50,7 @@ namespace CQRS.Tests.CQRS.EventSourcing.AggregateRoot.NestedEntitiesTests.Intege
         [UsedImplicitly]
         public class Entity : NestedEntity<Entity,
                                   int,
-                                  RootEvent.Component.Entity.Implementation.Root,                                  
+                                  RootEvent.Component.Entity.Implementation.Root,
                                   RootEvent.Component.Entity.IRoot,
                                   RootEvent.Component.Entity.Created,
                                   RootEvent.Component.Entity.Removed,

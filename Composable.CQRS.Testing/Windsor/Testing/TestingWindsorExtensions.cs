@@ -26,10 +26,10 @@ namespace Composable.CQRS.Testing.Windsor.Testing
                 Component.For<IServiceBus, IMessageSpy>().Instance(bus).LifestyleSingleton(),
                 Component.For<IWindsorContainer>().Instance(@this),
                 Component.For<IConnectionStringProvider>().Instance(new ConnectionStringConfigurationParameterProvider()).LifestyleSingleton()
-                );            
+                );
 
             registerComponents(@this);
-            
+
             @this.ConfigureWiringForTestsCallAfterAllOtherWiring();
 
             return @this;

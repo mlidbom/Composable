@@ -23,6 +23,6 @@
             public const string EventType = nameof(EventType);
             public const string EventId = nameof(EventId);
             public const string Event = nameof(Event);
-        }        
+        }
     }
 }

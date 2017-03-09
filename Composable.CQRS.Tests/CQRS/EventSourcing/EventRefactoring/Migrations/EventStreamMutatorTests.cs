@@ -381,7 +381,7 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
             }
 
         }
-        
+
 
         [Test]
         public void PersistingMigrationsOfTheSameAggregateMultipleTimesWithEventsAddedInTheMiddleAndAfter()
@@ -528,7 +528,7 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
                 var expectedHistoryAfterSecondMigration = TestAggregate.FromEvents(container.Resolve<IUtcTimeTimeSource>(), id, Seq.OfTypes<Ec1, E2, E3, E1>()).History;
 
                 Func<IEventStoreSession> session = () => container.Resolve<IEventStoreSession>();
-                Func<IEventStore> eventStore = () => container.Resolve<IEventStore>();                
+                Func<IEventStore> eventStore = () => container.Resolve<IEventStore>();
 
                 container.ExecuteUnitOfWorkInIsolatedScope(() => session().Save(initialAggregate));
                 migrations = firstMigration;
@@ -544,7 +544,7 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
                 var historyWithSecondMigrationUnPersisted = container.ExecuteUnitOfWorkInIsolatedScope(() => session().Get<TestAggregate>(id).History);
 
                 container.ExecuteUnitOfWorkInIsolatedScope(() => eventStore().PersistMigrations());
-                var historyAfterPersistingSecondMigration = container.ExecuteUnitOfWorkInIsolatedScope(() => session().Get<TestAggregate>(id).History);                
+                var historyAfterPersistingSecondMigration = container.ExecuteUnitOfWorkInIsolatedScope(() => session().Get<TestAggregate>(id).History);
                 AssertStreamsAreIdentical(expectedHistoryAfterSecondMigration, historyWithSecondMigrationUnPersisted, nameof(historyWithSecondMigrationUnPersisted));
                 AssertStreamsAreIdentical(expectedHistoryAfterSecondMigration, historyAfterPersistingSecondMigration, nameof(historyAfterPersistingSecondMigration));
             }
@@ -566,7 +566,7 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
                 var expectedHistoryAfterSecondMigration = TestAggregate.FromEvents(container.Resolve<IUtcTimeTimeSource>(), id, Seq.OfTypes<Ec1, E1, E3, E2>()).History;
 
                 Func<IEventStoreSession> session = () => container.Resolve<IEventStoreSession>();
-                Func<IEventStore> eventStore = () => container.Resolve<IEventStore>();                
+                Func<IEventStore> eventStore = () => container.Resolve<IEventStore>();
 
                 container.ExecuteUnitOfWorkInIsolatedScope(() => session().Save(initialAggregate));
                 migrations = firstMigration;

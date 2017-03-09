@@ -28,7 +28,7 @@ namespace CQRS.Tests.CQRS.EventSourcing.AggregateRoot.NestedEntitiesTests.GuidId
         readonly NestedEntity.CollectionManager _entities;
 
         public void Rename(string name) { RaiseEvent(new RootEvent.Entity.Implementation.Renamed(name)); }
-        public void Remove() => RaiseEvent(new RootEvent.Entity.Implementation.Removed());       
+        public void Remove() => RaiseEvent(new RootEvent.Entity.Implementation.Removed());
 
         public NestedEntity AddEntity(string name)
             => _entities.Add(new RootEvent.Entity.NestedEntity.Implementation.Created(nestedEntityId: Guid.NewGuid(), name: name));

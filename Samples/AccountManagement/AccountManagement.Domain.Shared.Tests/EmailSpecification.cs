@@ -6,7 +6,7 @@ using NUnit.Framework;
 // ReSharper disable UnusedMember.Local
 namespace AccountManagement.Domain.Shared.Tests
 {
-    public class When_creating_an_email 
+    public class When_creating_an_email
     {
         static InvalidEmailException AssertEmailThrowsException(string email) => Assert.Throws<InvalidEmailException>(() => Email.Parse(email));
 

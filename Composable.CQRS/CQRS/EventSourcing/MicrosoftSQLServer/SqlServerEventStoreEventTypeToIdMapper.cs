@@ -18,7 +18,7 @@ namespace Composable.CQRS.EventSourcing.MicrosoftSQLServer
         }
 
         public Type GetType(int id)
-        {            
+        {
             lock(_lockObject)
             {
                 EnsureInitialized();
@@ -37,7 +37,7 @@ namespace Composable.CQRS.EventSourcing.MicrosoftSQLServer
 
                 return result.Type;
             }
-        }        
+        }
 
         public int GetId(Type type)
         {
@@ -85,7 +85,7 @@ namespace Composable.CQRS.EventSourcing.MicrosoftSQLServer
         }
 
         IdTypeMapping InsertNewType(Type newType)
-        {          
+        {
             using (var connection = _connectionMananger.OpenConnection())
             {
                 using (var command = connection.CreateCommand())

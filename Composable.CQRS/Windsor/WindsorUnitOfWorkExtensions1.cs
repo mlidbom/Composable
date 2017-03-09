@@ -14,7 +14,7 @@ namespace Composable.Windsor
             var currentScope = CurrentScope;
             if(currentScope == null)
             {
-                return CurrentScope = new TransactionalUnitOfWorkWindsorScope(me);    
+                return CurrentScope = new TransactionalUnitOfWorkWindsorScope(me);
             }
             return new InnerTransactionalUnitOfWorkWindsorScope(CurrentScope);
         }
@@ -26,7 +26,7 @@ namespace Composable.Windsor
                 var result = (TransactionalUnitOfWorkWindsorScopeBase)CallContext.GetData("TransactionalUnitOfWorkWindsorScope_Current");
                 if (result != null && result.IsActive)
                 {
-                    return result;   
+                    return result;
                 }
                 return CurrentScope = null;
             }
@@ -59,7 +59,7 @@ namespace Composable.Windsor
                 {
                     _transactionScopeWeCreatedAndOwn.Dispose();//Under no circumstances leave transactions scopes hanging around unmanaged!
                     throw;
-                }                
+                }
             }
 
             public override void Dispose()

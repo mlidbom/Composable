@@ -77,7 +77,7 @@ namespace Composable.CQRS.Specs.ServiceBus
                                                                                      aQueryResult.Should()
                                                                                                  .NotBeNull();
                                                                                      aQueryResult.Should().BeOfType<AQueryResult>();
-                                                                                     
+
                                                                                  };
 
                 };
@@ -92,7 +92,7 @@ namespace Composable.CQRS.Specs.ServiceBus
             before = () =>
                      {
                        registrar = registry = new MessageHandlerRegistry();
-                       bus = new InProcessServiceBus(registry);                         
+                       bus = new InProcessServiceBus(registry);
                          registrar.ForCommand<ACommand>(_ => { });
                      };
 
@@ -100,7 +100,7 @@ namespace Composable.CQRS.Specs.ServiceBus
                            {
                                it["an exception is thrown"] =  () => this.Invoking(_ => registrar.ForCommand<ACommand>(cmd => {})).ShouldThrow<Exception>();
                            };
-            
+
 
         }
 
@@ -111,11 +111,11 @@ namespace Composable.CQRS.Specs.ServiceBus
 
         class AQuery : IQuery<AQueryResult>
         {
-            
+
         }
 
         class AQueryResult : IQueryResult { }
 
         class AnEvent : IEvent { }
-    }    
+    }
 }

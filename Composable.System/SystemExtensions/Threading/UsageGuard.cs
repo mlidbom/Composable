@@ -11,7 +11,7 @@ namespace Composable.SystemExtensions.Threading
 
         static bool IsInIgnoredContextDueToInfrastructureSuchAsTransaction
         {
-            get { return _isInIgnoredContextDueToInfrastructureSuchAsTransaction; } 
+            get { return _isInIgnoredContextDueToInfrastructureSuchAsTransaction; }
             set { _isInIgnoredContextDueToInfrastructureSuchAsTransaction = value; }
         }
 
@@ -43,9 +43,9 @@ namespace Composable.SystemExtensions.Threading
         ///<summary>Implementations throw an exception if the context has changed.</summary>
         public void AssertNoContextChangeOccurred(object guarded)
         {
-            if(IsInIgnoredContextDueToInfrastructureSuchAsTransaction)                
+            if(IsInIgnoredContextDueToInfrastructureSuchAsTransaction)
             {
-                return;                
+                return;
             }
             InternalAssertNoChangeOccurred(guarded);
         }

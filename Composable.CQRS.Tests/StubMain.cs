@@ -7,6 +7,6 @@ namespace CQRS.Tests
         public static void Main()
         {
             throw new Exception("Not intended to be used");
-        } 
+        }
     }
 }

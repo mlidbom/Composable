@@ -6,7 +6,7 @@ using System.Linq.Expressions;
 namespace Composable.Contracts
 {
  /// <summary>
-    /// Ensures that a class's contract is followed. 
+    /// Ensures that a class's contract is followed.
     /// <para>Inspects arguments, members and return values and throws different <see cref="ContractViolationException"/>s if the inspection fails.</para>
     /// <para><see cref="Argument{TParameter}"/> inspects method arguments. Call at the very beginning of methods.</para>
     /// <para><see cref="ReturnValue{TReturnValue}"/> and <see cref="Return{TReturnValue}"/> inspects the return value from a method. Call at the very end of a method.</para>
@@ -19,7 +19,7 @@ namespace Composable.Contracts
     public static class Contract
     {
         ///<summary>
-        ///<para>Start inspecting one or more arguments for contract compliance.</para> 
+        ///<para>Start inspecting one or more arguments for contract compliance.</para>
         ///<para>Using an expression removes the need for an extra string to specify the name and ensures that  the name is always correct in exceptions.</para>
         ///</summary>
         public static Inspected<TParameter> Argument<TParameter>(params Expression<Func<TParameter>>[] arguments)
@@ -28,7 +28,7 @@ namespace Composable.Contracts
         }
 
         ///<summary>
-        ///<para>Start inspecting one or more arguments for contract compliance.</para> 
+        ///<para>Start inspecting one or more arguments for contract compliance.</para>
         ///<para>Using an expression removes the need for an extra string to specify the name and ensures that  the name is always correct in exceptions.</para>
         ///<para>The returned type : <see cref="Inspected{TValue}"/> can be easily extended with extension methods to support generic inspections.</para>
         ///<code>public static Inspected&lt;Guid> NotEmpty(this Inspected&lt;Guid> me) { return me.Inspect(inspected => inspected != Guid.Empty, badValue => new GuidIsEmptyContractViolationException(badValue)); }</code>
@@ -65,7 +65,7 @@ namespace Composable.Contracts
 
         ///<summary>Start inspecting a return value
         ///<para>The returned type : <see cref="Inspected{TValue}"/> can be easily extended with extension methods to support generic inspections.</para>
-        ///<code>public static Inspected&lt;Guid> NotEmpty(this Inspected&lt;Guid> me) { return me.Inspect(inspected => inspected != Guid.Empty, badValue => new GuidIsEmptyContractViolationException(badValue)); }</code> 
+        ///<code>public static Inspected&lt;Guid> NotEmpty(this Inspected&lt;Guid> me) { return me.Inspect(inspected => inspected != Guid.Empty, badValue => new GuidIsEmptyContractViolationException(badValue)); }</code>
         ///</summary>
         public static Inspected<TReturnValue> ReturnValue<TReturnValue>(TReturnValue returnValue)
         {
@@ -77,7 +77,7 @@ namespace Composable.Contracts
         {
             assert(ReturnValue(returnValue));
             return returnValue;
-        }     
+        }
 
         static Inspected<TParameter> CreateInspected<TParameter>(Expression<Func<TParameter>>[] arguments, InspectionType inspectionType)
         { //Yes the loop is not as pretty as a linq expression but this is performance critical code that might run in tight loops. If it was not I would be using linq.

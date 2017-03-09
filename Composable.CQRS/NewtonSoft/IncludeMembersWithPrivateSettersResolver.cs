@@ -8,7 +8,7 @@ namespace Composable.NewtonSoft
     {
         public static readonly IncludeMembersWithPrivateSettersResolver Instance = new IncludeMembersWithPrivateSettersResolver();
         protected IncludeMembersWithPrivateSettersResolver():base(shareCache:true)
-        {            
+        {
         }
 
         protected override JsonProperty CreateProperty(MemberInfo member, MemberSerialization memberSerialization)

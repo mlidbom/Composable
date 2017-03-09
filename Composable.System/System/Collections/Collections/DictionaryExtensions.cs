@@ -14,7 +14,7 @@ namespace Composable.System.Collections.Collections
     {
         /// <summary>
         /// If <paramref name="key"/> exists in me <paramref name="me"/> it is returned.
-        /// If not <paramref name="constructor"/> is used to create a new value that is inserted into <paramref name="me"/> and returned. 
+        /// If not <paramref name="constructor"/> is used to create a new value that is inserted into <paramref name="me"/> and returned.
         /// </summary>
         public static TValue GetOrAdd<TKey, TValue>(this IDictionary<TKey, TValue> me, TKey key, Func<TValue> constructor)
         {

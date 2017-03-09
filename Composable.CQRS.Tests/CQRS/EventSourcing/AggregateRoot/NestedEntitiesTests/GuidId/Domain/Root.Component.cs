@@ -5,7 +5,7 @@ using CQRS.Tests.CQRS.EventSourcing.AggregateRoot.NestedEntitiesTests.GuidId.Dom
 namespace CQRS.Tests.CQRS.EventSourcing.AggregateRoot.NestedEntitiesTests.GuidId.Domain
 {
     public partial class Component : Root.Component<Component, RootEvent.Component.Implementation.Root, RootEvent.Component.IRoot>
-    {        
+    {
         public Component(Root root) : base(root)
         {
             _entities = Component.Entity.CreateSelfManagingCollection(this);
@@ -18,8 +18,8 @@ namespace CQRS.Tests.CQRS.EventSourcing.AggregateRoot.NestedEntitiesTests.GuidId
         public Component.NestedComponent InnerComponent { get; }
 
         public string Name { get; private set; }
-        public IReadOnlyEntityCollection<Entity, Guid> Entities => _entities.Entities;        
+        public IReadOnlyEntityCollection<Entity, Guid> Entities => _entities.Entities;
         public void Rename(string name) { RaiseEvent(new RootEvent.Component.Implementation.Renamed(name)); }
-        public Component.Entity AddEntity(string name) { return _entities.Add(new RootEvent.Component.Entity.Implementation.Created(Guid.NewGuid(), name)); }        
+        public Component.Entity AddEntity(string name) { return _entities.Add(new RootEvent.Component.Entity.Implementation.Created(Guid.NewGuid(), name)); }
     }
 }

@@ -4,7 +4,7 @@ using FluentAssertions;
 using NUnit.Framework;
 
 namespace Composable.Tests.Contracts
-{  
+{
 
   // ReSharper disable ConvertToConstant.Local
     // ReSharper disable ExpressionIsAlwaysNull

@@ -16,5 +16,5 @@ namespace Composable.KeyValueStorage
     public class DocumentUpdated : DocumentUpdated<object>, IDocumentUpdated
     {
         public DocumentUpdated(string key, object document) : base(key, document) { }
-    }    
+    }
 }

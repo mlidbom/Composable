@@ -18,7 +18,7 @@ namespace Composable.CQRS.EventSourcing.MicrosoftSQLServer
 {
     public partial class SqlServerEventStore : IEventStore
     {
-        static readonly ILog Log = LogManager.GetLogger(typeof(SqlServerEventStore));        
+        static readonly ILog Log = LogManager.GetLogger(typeof(SqlServerEventStore));
 
         public readonly string ConnectionString;
         readonly ISingleContextUseGuard _usageGuard;
@@ -41,7 +41,7 @@ namespace Composable.CQRS.EventSourcing.MicrosoftSQLServer
 
             ConnectionString = connectionString;
             _usageGuard = usageGuard;
-            var eventSerializer = new SqlServerEvestStoreEventSerializer();            
+            var eventSerializer = new SqlServerEvestStoreEventSerializer();
             _cache = SqlServerEventStoreEventsCache.ForConnectionString(connectionString);
             _connectionMananger = new SqlServerEventStoreConnectionManager(connectionString);
             _schemaManager = new SqlServerEventStoreSchemaManager(connectionString, nameMapper);
@@ -80,7 +80,7 @@ namespace Composable.CQRS.EventSourcing.MicrosoftSQLServer
                 }
 
                 var currentHistory = cachedAggregateHistory.Events.Count == 0
-                                                   ? SingleAggregateInstanceEventStreamMutator.MutateCompleteAggregateHistory(_migrationFactories, newEventsFromDatabase) 
+                                                   ? SingleAggregateInstanceEventStreamMutator.MutateCompleteAggregateHistory(_migrationFactories, newEventsFromDatabase)
                                                    : cachedAggregateHistory.Events.Concat(newEventsFromDatabase).ToList();
 
                 //Should within a transaction a process write events, read them, then fail to commit we will have cached events that are not persisted unless we refuse to cache them here.
@@ -107,7 +107,7 @@ namespace Composable.CQRS.EventSourcing.MicrosoftSQLServer
         public const int StreamEventsBatchSize = 10000;
 
         IEnumerable<IAggregateRootEvent> StreamEvents()
-        {            
+        {
             _usageGuard.AssertNoContextChangeOccurred(this);
             _schemaManager.SetupSchemaIfDatabaseUnInitialized();
 
@@ -147,7 +147,7 @@ namespace Composable.CQRS.EventSourcing.MicrosoftSQLServer
             _usageGuard.AssertNoContextChangeOccurred(this);
             _schemaManager.SetupSchemaIfDatabaseUnInitialized();
             _cache.Remove(aggregateId);
-            _eventWriter.DeleteAggregate(aggregateId);            
+            _eventWriter.DeleteAggregate(aggregateId);
         }
 
 
@@ -164,7 +164,7 @@ namespace Composable.CQRS.EventSourcing.MicrosoftSQLServer
 
             const int recoverableErrorRetriesToMake = 5;
 
-            var aggregateIdsInCreationOrder = StreamAggregateIdsInCreationOrder().ToList();            
+            var aggregateIdsInCreationOrder = StreamAggregateIdsInCreationOrder().ToList();
 
             foreach (var aggregateId in aggregateIdsInCreationOrder)
             {
@@ -193,9 +193,9 @@ namespace Composable.CQRS.EventSourcing.MicrosoftSQLServer
                                         original,
                                         newEvents =>
                                         {
-                                            //Make sure we don't try to insert into an occupied InsertedVersion                                                                                                           
+                                            //Make sure we don't try to insert into an occupied InsertedVersion
                                             newEvents.ForEach(@event => @event.InsertedVersion = startInsertingWithVersion++);
-                                            //Save all new events so they get an InsertionOrder for the next refactoring to work with in case it acts relative to any of these events                                                                                                           
+                                            //Save all new events so they get an InsertionOrder for the next refactoring to work with in case it acts relative to any of these events
                                             _eventWriter.InsertRefactoringEvents(newEvents);
                                             updatedAggregates = updatedAggregatesBeforeMigrationOfThisAggregate + 1;
                                             newEventCount += newEvents.Count();
@@ -232,10 +232,10 @@ namespace Composable.CQRS.EventSourcing.MicrosoftSQLServer
                     this.Log().Info($"{percentDone()}% done. Inspected: {migratedAggregates} / {aggregateIdsInCreationOrder.Count}, Updated: {updatedAggregates}, New Events: {newEventCount}");
                 }
             }
-            
+
             this.Log().Warn($"Done persisting migrations.");
-            this.Log().Info($"Inspected: {migratedAggregates} , Updated: {updatedAggregates}, New Events: {newEventCount}");            
-           
+            this.Log().Info($"Inspected: {migratedAggregates} , Updated: {updatedAggregates}, New Events: {newEventCount}");
+
         }
 
         bool IsRecoverableSqlException(Exception exception)

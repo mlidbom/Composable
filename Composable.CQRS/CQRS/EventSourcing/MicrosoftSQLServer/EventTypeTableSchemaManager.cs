@@ -3,7 +3,7 @@
     class EventTypeTableSchemaManager : TableSchemaManager
     {
         public override string Name { get; } = EventTypeTable.Name;
-  
+
 
         public override string CreateTableSql => $@"
 CREATE TABLE [dbo].[{EventTypeTable.Name}](

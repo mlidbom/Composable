@@ -5,7 +5,7 @@ using JetBrains.Annotations;
 namespace CQRS.Tests.CQRS.EventSourcing.AggregateRoot.NestedEntitiesTests.GuidId.Domain
 {
     public partial class Component
-    {        
+    {
         [UsedImplicitly]
         public class Entity : Component.NestedEntity<Entity,
                                   Guid,

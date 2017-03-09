@@ -24,7 +24,7 @@ namespace Composable.System.Linq
         }
 
         /// <summary>
-        /// generates a sequence of integers beginning with <paramref name="me"/> where each element is 
+        /// generates a sequence of integers beginning with <paramref name="me"/> where each element is
         /// <paramref name="stepsize"/> larger than the previous
         /// </summary>
         public static IterationSpecification By(this int me, int stepsize)
@@ -38,7 +38,7 @@ namespace Composable.System.Linq
 
 
         /// <summary>
-        /// generates a sequence of integers beginning with <paramref name="me"/> where each element is 
+        /// generates a sequence of integers beginning with <paramref name="me"/> where each element is
         /// the previous element plus one that includes the upper bound <paramref name="guard"/> cref="guard"/>
         /// </summary>
         public static IEnumerable<int> Through(this int me, int guard)
@@ -50,7 +50,7 @@ namespace Composable.System.Linq
         }
 
         /// <summary>
-        /// generates a sequence of integers beginning with <paramref name="me"/> where each element is 
+        /// generates a sequence of integers beginning with <paramref name="me"/> where each element is
         /// the previous element plus one that excludes the upper bound <paramref name="guard"/>
         /// </summary>
         public static IEnumerable<int> Until(this int me, int guard)

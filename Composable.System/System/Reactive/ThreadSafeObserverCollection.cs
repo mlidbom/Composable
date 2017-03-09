@@ -25,8 +25,8 @@ namespace Composable.System.Reactive
         {
             lock(_lockObject)
             {
-                _observers.Remove(observer);   
-            }            
+                _observers.Remove(observer);
+            }
         }
 
         ///<summary>Calls <see cref="IObserver{T}.OnNext"/> for each observer in the collection.</summary>

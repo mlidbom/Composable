@@ -36,5 +36,5 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.When_renaming_events
         class Event1 : AggregateRootEvent { }
 
         class Event2 : AggregateRootEvent { }
-    }   
+    }
 }

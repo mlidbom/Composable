@@ -9,6 +9,6 @@
     /// </summary>
     public interface IAggregateRootCreatedEvent : IAggregateRootEvent
     {
-         
+
     }
 }

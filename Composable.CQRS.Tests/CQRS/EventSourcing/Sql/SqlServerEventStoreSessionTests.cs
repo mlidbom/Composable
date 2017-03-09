@@ -64,7 +64,7 @@ namespace CQRS.Tests.CQRS.EventSourcing.Sql
                         Thread.Sleep(100);
                         session.SaveChanges();
                         transaction.Complete();
-                    }//Sql duplicate key (AggregateId, Version) Exception would be thrown here if history was not serialized 
+                    }//Sql duplicate key (AggregateId, Version) Exception would be thrown here if history was not serialized
                 }
             };
 
@@ -101,12 +101,12 @@ namespace CQRS.Tests.CQRS.EventSourcing.Sql
                         Thread.Sleep(100);
                         session.SaveChanges();
                         transaction.Complete();
-                    }//Sql duplicate key (AggregateId, Version) Exception would be thrown here if history was not serialized 
+                    }//Sql duplicate key (AggregateId, Version) Exception would be thrown here if history was not serialized
                 }
             };
 
             var tasks = 1.Through(20).Select(_ => Task.Factory.StartNew(updateEmail)).ToArray();
-            
+
 
             Task.WaitAll(tasks);
 

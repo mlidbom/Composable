@@ -43,7 +43,7 @@ namespace CQRS.Tests.UnitOfWorkTests
             unitOfWorkSpy.UnitOfWork.Should().Be(null);
             unitOfWorkSpy.Committed.Should().Be(false);
             unitOfWorkSpy.RolledBack.Should().Be(true);
-        }    
+        }
 
         [Test]
         public void CommittingTheOuterScopeCommitsDuh()
@@ -82,7 +82,7 @@ namespace CQRS.Tests.UnitOfWorkTests
     {
         public IUnitOfWork UnitOfWork { get; private set; }
         public Guid Id { get; private set; }
-        
+
         public void Join(IUnitOfWork unit)
         {
             UnitOfWork = unit;

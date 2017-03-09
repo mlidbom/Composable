@@ -9,11 +9,11 @@ using System.Collections.Generic;
 namespace Composable.GenericAbstractions.Hierarchies
 {
     /// <summary>
-    /// Provides a minimal interface for representing a data type which 
-    /// is hierarchical in the form that each instance has a collection 
+    /// Provides a minimal interface for representing a data type which
+    /// is hierarchical in the form that each instance has a collection
     /// of other instances.
     /// 
-    /// Implementing this interface gives access to all the extension methods 
+    /// Implementing this interface gives access to all the extension methods
     /// implemented upon it which is the main purpose of doing so.
     /// 
     /// <example>

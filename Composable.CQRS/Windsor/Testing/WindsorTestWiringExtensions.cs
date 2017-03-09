@@ -32,5 +32,5 @@ namespace Composable.Windsor.Testing
                     .LifestyleSingleton(),
                 replacementName: replacementName);
         }
-    }    
+    }
 }

@@ -216,7 +216,7 @@ namespace CQRS.Tests.CQRS.EventHandling
 
         public class UserDeleted : AggregateRootEvent, IUserDeleted {
             public UserDeleted(Guid userId):base(userId)
-            {                
+            {
             }
         }
 

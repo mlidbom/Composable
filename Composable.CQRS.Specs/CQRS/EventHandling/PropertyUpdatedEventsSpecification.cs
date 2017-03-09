@@ -47,7 +47,7 @@ namespace CQRS.Tests.CQRS.EventHandling
                 Guid RecruiterId { get; set; }
             }
 
-            //Property updated events. There should be one per property or collection.            
+            //Property updated events. There should be one per property or collection.
             //All other events MUST inherit each PropertyUpdated event that applies. They should NOT add properties that are part of the aggregate in any way but by inheriting
             //a PropertyUpdated event.
             namespace PropertyUpdated
@@ -62,7 +62,7 @@ namespace CQRS.Tests.CQRS.EventHandling
                     string Password { get; set; }
                 }
 
-                //For collections PropertyUpdated events should handle List<T>. Not Items. 
+                //For collections PropertyUpdated events should handle List<T>. Not Items.
                 //They should have both Added* and Removed* properties.
                 public interface ICVSkillsPropertyUpdated : ICVEvent
                 {

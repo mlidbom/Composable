@@ -17,7 +17,7 @@ namespace AccountManagement.UI.Web
     public class ApplicationBootstrapper
     {
         public static void ConfigureContainer(IWindsorContainer container)
-        {            
+        {
             container.Register(
                 Component.For<IUtcTimeTimeSource>().ImplementedBy<DateTimeNowTimeSource>().LifestylePerWebRequest(),
                 Component.For<IMessageHandlerRegistrar>().ImplementedBy<MessageHandlerRegistry>().LifestyleSingleton(),
@@ -32,8 +32,8 @@ namespace AccountManagement.UI.Web
 
         static void SharedWiring(IWindsorContainer container)
         {
-            container.Register(                
-                Classes.FromThisAssembly().BasedOn<Controller>().WithServiceSelf().LifestyleTransient()                
+            container.Register(
+                Classes.FromThisAssembly().BasedOn<Controller>().WithServiceSelf().LifestyleTransient()
                 );
 
             container.Install(

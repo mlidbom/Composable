@@ -107,6 +107,6 @@ namespace CQRS.Tests.CQRS.EventSourcing.Sql
             {
                 throw new Exception($"Should have generated {eventsToInsert} values but generated {insertedEvents} values.");
             }
-        }        
-    }    
+        }
+    }
 }

@@ -41,7 +41,7 @@ namespace NetMqProcess01.__Mine
                                    {
                                        ResponseSocket responseSocket = null;
 
-                                       EventHandler<NetMQSocketEventArgs> handleRequest = 
+                                       EventHandler<NetMQSocketEventArgs> handleRequest =
                                        (sender, socketEventArgs) =>
                                            {
                                                NetMQMessage request = null;

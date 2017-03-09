@@ -8,9 +8,9 @@ namespace Composable.CQRS.Query.Models.Generators
 {
   using Composable.Messaging.Events;
 
-  public abstract class SingleAggregateQueryModelGenerator<TImplementer, TViewModel, TEvent, TSession> 
+  public abstract class SingleAggregateQueryModelGenerator<TImplementer, TViewModel, TEvent, TSession>
         : IQueryModelGenerator<TViewModel>,
-        IVersioningQueryModelGenerator<TViewModel> 
+        IVersioningQueryModelGenerator<TViewModel>
         where TImplementer : SingleAggregateQueryModelGenerator<TImplementer, TViewModel, TEvent, TSession>
         where TSession : IEventStoreReader
         where TEvent : class, IAggregateRootEvent

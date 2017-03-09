@@ -10,7 +10,7 @@ namespace Composable.Windsor.Testing
     {
         IExecuteActionsWhenRewiringForTesting Execute(Action<IWindsorContainer> action);
     }
-   
+
     public static class WindsorTestWiringExtensions
     {
         public static IExecuteActionsWhenRewiringForTesting WhenTesting(this IWindsorContainer @this)

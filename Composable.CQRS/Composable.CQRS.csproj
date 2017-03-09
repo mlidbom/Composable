@@ -1,270 +1,55 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <!--<UsingTask TaskName="InjectModuleInitializer" AssemblyFile="$(ProjectDir)..\..\Tools\InjectModuleInitializer\InjectModuleInitializer.exe" />-->
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProductVersion>8.0.30703</ProductVersion>
-    <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{3B776BD4-0EDD-4A83-BC9A-3A53D6649AB0}</ProjectGuid>
-    <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Composable</RootNamespace>
-    <AssemblyName>Composable.CQRS</AssemblyName>
-    <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
-    <FileAlignment>512</FileAlignment>
-    <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
-    <CodeContractsAssemblyMode>1</CodeContractsAssemblyMode>
-    <TargetFrameworkProfile />
+    <TargetFramework>net451</TargetFramework>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <DocumentationFile>
-    </DocumentationFile>
-    <CodeContractsEnableRuntimeChecking>False</CodeContractsEnableRuntimeChecking>
-    <CodeContractsRuntimeOnlyPublicSurface>False</CodeContractsRuntimeOnlyPublicSurface>
-    <CodeContractsRuntimeThrowOnFailure>True</CodeContractsRuntimeThrowOnFailure>
-    <CodeContractsRuntimeCallSiteRequires>False</CodeContractsRuntimeCallSiteRequires>
-    <CodeContractsRuntimeSkipQuantifiers>False</CodeContractsRuntimeSkipQuantifiers>
-    <CodeContractsRunCodeAnalysis>False</CodeContractsRunCodeAnalysis>
-    <CodeContractsNonNullObligations>True</CodeContractsNonNullObligations>
-    <CodeContractsBoundsObligations>True</CodeContractsBoundsObligations>
-    <CodeContractsArithmeticObligations>True</CodeContractsArithmeticObligations>
-    <CodeContractsEnumObligations>True</CodeContractsEnumObligations>
-    <CodeContractsRedundantAssumptions>True</CodeContractsRedundantAssumptions>
-    <CodeContractsAssertsToContractsCheckBox>True</CodeContractsAssertsToContractsCheckBox>
-    <CodeContractsRedundantTests>True</CodeContractsRedundantTests>
-    <CodeContractsMissingPublicRequiresAsWarnings>True</CodeContractsMissingPublicRequiresAsWarnings>
-    <CodeContractsMissingPublicEnsuresAsWarnings>False</CodeContractsMissingPublicEnsuresAsWarnings>
-    <CodeContractsInferRequires>True</CodeContractsInferRequires>
-    <CodeContractsInferEnsures>False</CodeContractsInferEnsures>
-    <CodeContractsInferEnsuresAutoProperties>True</CodeContractsInferEnsuresAutoProperties>
-    <CodeContractsInferObjectInvariants>False</CodeContractsInferObjectInvariants>
-    <CodeContractsSuggestAssumptions>False</CodeContractsSuggestAssumptions>
-    <CodeContractsSuggestAssumptionsForCallees>False</CodeContractsSuggestAssumptionsForCallees>
-    <CodeContractsSuggestRequires>False</CodeContractsSuggestRequires>
-    <CodeContractsNecessaryEnsures>True</CodeContractsNecessaryEnsures>
-    <CodeContractsSuggestObjectInvariants>False</CodeContractsSuggestObjectInvariants>
-    <CodeContractsSuggestReadonly>True</CodeContractsSuggestReadonly>
-    <CodeContractsRunInBackground>True</CodeContractsRunInBackground>
-    <CodeContractsShowSquigglies>True</CodeContractsShowSquigglies>
-    <CodeContractsUseBaseLine>False</CodeContractsUseBaseLine>
-    <CodeContractsEmitXMLDocs>False</CodeContractsEmitXMLDocs>
-    <CodeContractsCustomRewriterAssembly />
-    <CodeContractsCustomRewriterClass />
-    <CodeContractsLibPaths />
-    <CodeContractsExtraRewriteOptions />
-    <CodeContractsExtraAnalysisOptions />
-    <CodeContractsSQLServerOption />
-    <CodeContractsBaseLineFile />
-    <CodeContractsCacheAnalysisResults>True</CodeContractsCacheAnalysisResults>
-    <CodeContractsSkipAnalysisIfCannotConnectToCache>False</CodeContractsSkipAnalysisIfCannotConnectToCache>
-    <CodeContractsFailBuildOnWarnings>False</CodeContractsFailBuildOnWarnings>
-    <CodeContractsBeingOptimisticOnExternal>True</CodeContractsBeingOptimisticOnExternal>
-    <CodeContractsRuntimeCheckingLevel>Full</CodeContractsRuntimeCheckingLevel>
-    <CodeContractsReferenceAssembly>DoNotBuild</CodeContractsReferenceAssembly>
-    <CodeContractsAnalysisWarningLevel>0</CodeContractsAnalysisWarningLevel>
-    <Prefer32Bit>false</Prefer32Bit>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <Prefer32Bit>false</Prefer32Bit>
-  </PropertyGroup>
+
   <PropertyGroup>
-    <RunPostBuildEvent>OnOutputUpdated</RunPostBuildEvent>
-  </PropertyGroup>
-  <PropertyGroup>
-    <SignAssembly>true</SignAssembly>
-  </PropertyGroup>
-  <PropertyGroup>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <SignAssembly>True</SignAssembly>
     <AssemblyOriginatorKeyFile>Void.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'docs|AnyCPU'">
-    <DebugSymbols>true</DebugSymbols>
-    <OutputPath>bin\docs\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <DebugType>full</DebugType>
-    <PlatformTarget>AnyCPU</PlatformTarget>
-    <ErrorReport>prompt</ErrorReport>
-    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
-    <DocumentationFile>bin\docs\Composable.CQRS.XML</DocumentationFile>
-  </PropertyGroup>
+
   <ItemGroup>
-    <Reference Include="Castle.Core, Version=3.3.0.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc, processorArchitecture=MSIL">
-      <HintPath>..\packages\Castle.Core.3.3.0\lib\net45\Castle.Core.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="Castle.Windsor, Version=3.3.0.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc, processorArchitecture=MSIL">
+    <PackageReference Include="Castle.Windsor" Version="3.3.0" />
+    <PackageReference Include="log4net" Version="2.0.7" />
+    <PackageReference Include="Newtonsoft.Json" Version="6.0.8" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <Compile Include="..\CommonAssemblyInfo.cs" Link="Properties\CommonAssemblyInfo.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Composable.System\Composable.Core.csproj" />
+    <ProjectReference Include="..\Composable.Windsor\Composable.Windsor.csproj" />
+  </ItemGroup>
+
+  
+  <ItemGroup>
+    <Reference Include="Castle.Windsor">
       <HintPath>..\packages\Castle.Windsor.3.3.0\lib\net45\Castle.Windsor.dll</HintPath>
-      <Private>True</Private>
     </Reference>
-    <Reference Include="log4net, Version=2.0.7.0, Culture=neutral, PublicKeyToken=669e0ddf0bb1aa2a, processorArchitecture=MSIL">
-      <HintPath>..\packages\log4net.2.0.7\lib\net45-full\log4net.dll</HintPath>
-      <Private>True</Private>
+    <Reference Include="log4net">
+      <HintPath>..\Samples\AccountManagement\AccountManagement.UI.Web\Bin\log4net.dll</HintPath>
     </Reference>
-    <Reference Include="Newtonsoft.Json, Version=6.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+    <Reference Include="Newtonsoft.Json">
       <HintPath>..\packages\Newtonsoft.Json.6.0.8\lib\net45\Newtonsoft.Json.dll</HintPath>
-      <Private>True</Private>
     </Reference>
-    <Reference Include="System" />
-    <Reference Include="System.configuration" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Data" />
+    <Reference Include="System.ComponentModel.DataAnnotations">
+      <HintPath>..\..\..\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.5\System.ComponentModel.DataAnnotations.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Configuration">
+      <HintPath>..\..\..\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.5.1\System.Configuration.dll</HintPath>
+    </Reference>
     <Reference Include="System.Runtime.Caching" />
-    <Reference Include="System.Transactions" />
-    <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System.Xml" />
+    <Reference Include="System.Transactions">
+      <HintPath>..\..\..\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.5.1\System.Transactions.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web" />
+    <Reference Include="System.Web.Extensions">
+      <HintPath>..\..\..\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.5.1\System.Web.Extensions.dll</HintPath>
+    </Reference>
   </ItemGroup>
-  <ItemGroup>
-    <Compile Include="..\CommonAssemblyInfo.cs">
-      <Link>Properties\CommonAssemblyInfo.cs</Link>
-    </Compile>
-    <Compile Include="CQRS\AggregateRepository.cs" />
-    <Compile Include="CQRS\EventSourcing\AggregateRoot.Component.EntityCollectionManager.Removable.cs" />
-    <Compile Include="CQRS\EventSourcing\AggregateRoot.Component.EntityCollectionManager.cs" />
-    <Compile Include="CQRS\EventSourcing\AggregateRoot.Component.NestedComponent.cs" />
-    <Compile Include="CQRS\EventSourcing\AggregateRoot.Component.SlavedNestedEntity.cs" />
-    <Compile Include="CQRS\EventSourcing\AggregateRoot.Component.NestedEntity.Removable.cs" />
-    <Compile Include="CQRS\EventSourcing\AggregateRoot.Component.NestedEntity.cs" />
-    <Compile Include="CQRS\EventSourcing\AggregateRoot.Component.cs" />
-    <Compile Include="CQRS\EventSourcing\AggregateRoot.Entity.Removable.cs" />
-    <Compile Include="CQRS\EventSourcing\AggregateRoot.Entity.cs" />
-    <Compile Include="CQRS\EventSourcing\AttemptToSaveEmptyAggregate.cs" />
-    <Compile Include="CQRS\EventSourcing\EntityCollection.cs" />
-    <Compile Include="CQRS\EventSourcing\Refactoring\Migrations\AggregateLockingManager.cs" />
-    <Compile Include="CQRS\EventSourcing\IGetAggregateRootEntityEventEntityId.cs" />
-    <Compile Include="CQRS\EventSourcing\IGetSetAggregateRootEntityEventEntityId.cs" />
-    <Compile Include="CQRS\EventSourcing\IReadOnlyEntityCollection.cs" />
-    <Compile Include="CQRS\EventSourcing\Refactoring\Migrations\AssertMigrationsAreIdempotentEventModifier.cs" />
-    <Compile Include="CQRS\EventSourcing\Refactoring\Migrations\CompleteEventStoreStreamMutator.cs" />
-    <Compile Include="CQRS\EventSourcing\Refactoring\Migrations\EventMigration.cs" />
-    <Compile Include="CQRS\EventSourcing\Refactoring\Migrations\EventModifier.cs" />
-    <Compile Include="CQRS\EventSourcing\Refactoring\Migrations\ICompleteEventStreamMutator.cs" />
-    <Compile Include="CQRS\EventSourcing\Refactoring\Migrations\IEventMigration.cs" />
-    <Compile Include="CQRS\EventSourcing\Refactoring\Migrations\IEventModifier.cs" />
-    <Compile Include="CQRS\EventSourcing\Refactoring\Migrations\ISingleAggregateInstanceEventStreamMutator.cs" />
-    <Compile Include="CQRS\EventSourcing\Refactoring\Migrations\NonIdempotentMigrationDetectedException.cs" />
-    <Compile Include="CQRS\EventSourcing\Refactoring\Migrations\SingleAggregateInstanceEventStreamMutator.cs" />
-    <Compile Include="CQRS\EventSourcing\Refactoring\Naming\CouldNotFindTypeBasedOnName.cs" />
-    <Compile Include="CQRS\EventSourcing\Refactoring\Naming\EventNameMapping.cs" />
-    <Compile Include="CQRS\EventSourcing\Refactoring\Naming\EventPathRenamer.cs" />
-    <Compile Include="CQRS\EventSourcing\Refactoring\Naming\EventRenamedFromAttribute.cs" />
-    <Compile Include="CQRS\EventSourcing\Refactoring\Naming\RenamingEventNameMapper.cs" />
-    <Compile Include="CQRS\EventSourcing\Refactoring\Naming\IEventNameMapper.cs" />
-    <Compile Include="CQRS\EventSourcing\Refactoring\Naming\IRenameEvents.cs" />
-    <Compile Include="CQRS\EventSourcing\Refactoring\Naming\RenameEventsBasedOnEventRenamedAttributes.cs" />
-    <Compile Include="CQRS\EventSourcing\Refactoring\Naming\DefaultEventNameMapper.cs" />
-    <Compile Include="CQRS\EventSourcing\IEventStore.cs" />
-    <Compile Include="CQRS\EventSourcing\AggregateRootNotFoundException.cs" />
-    <Compile Include="CQRS\EventSourcing\IEventStored.cs" />
-    <Compile Include="CQRS\EventSourcing\IReplayEvents.cs" />
-    <Compile Include="CQRS\EventSourcing\ReuseOfEventStoreSessionException.cs" />
-    <Compile Include="CQRS\EventSourcing\MicrosoftSQLServer\SqlServerEventStore.SqlStatements.cs" />
-    <Compile Include="CQRS\EventSourcing\MicrosoftSQLServer\IEventTypeToIdMapper.cs" />
-    <Compile Include="CQRS\EventSourcing\MicrosoftSQLServer\LegacyEventTable.cs" />
-    <Compile Include="CQRS\EventSourcing\MicrosoftSQLServer\EventTableSchemaManager.cs" />
-    <Compile Include="CQRS\EventSourcing\MicrosoftSQLServer\EventTypeTable.cs" />
-    <Compile Include="CQRS\EventSourcing\MicrosoftSQLServer\EventTable.cs" />
-    <Compile Include="CQRS\EventSourcing\MicrosoftSQLServer\EventTypeTableSchemaManager.cs" />
-    <Compile Include="CQRS\EventSourcing\MicrosoftSQLServer\LegacyEventTableSchemaManager.cs" />
-    <Compile Include="CQRS\EventSourcing\MicrosoftSQLServer\SqlServerEventStoreConnectionManager.cs" />
-    <Compile Include="CQRS\EventSourcing\MicrosoftSQLServer\SqlServerEventStoreEventReader.cs" />
-    <Compile Include="CQRS\EventSourcing\MicrosoftSQLServer\SqlServerEventStoreEventsCache.cs" />
-    <Compile Include="CQRS\EventSourcing\MicrosoftSQLServer\SqlServerEventStore.cs" />
-    <Compile Include="CQRS\EventSourcing\MicrosoftSQLServer\SqlServerEventStoreEventTypeToIdMapper.cs" />
-    <Compile Include="CQRS\EventSourcing\MicrosoftSQLServer\SqlServerEventStoreEventWriter.cs" />
-    <Compile Include="CQRS\EventSourcing\MicrosoftSQLServer\SqlServerEventStoreSchemaManager.cs" />
-    <Compile Include="CQRS\EventSourcing\MicrosoftSQLServer\SqlServerEvestStoreEventSerializer.cs" />
-    <Compile Include="CQRS\EventSourcing\MicrosoftSQLServer\TableSchemaManager.cs" />
-    <Compile Include="CQRS\EventSourcing\SelfUpdatingSingleAggregateQueryModel.cs" />
-    <Compile Include="CQRS\IAggregateRepository.cs" />
-    <Compile Include="CQRS\Query\Models\Generators\IVersioningDocumentDbReader.cs" />
-    <Compile Include="CQRS\Query\Models\Generators\IVersioningQueryModelGenerator.cs" />
-    <Compile Include="CQRS\EventSourcing\AttemptToSaveAlreadyPersistedAggregateException.cs" />
-    <Compile Include="CQRS\EventSourcing\EventStoreSession.cs" />
-    <Compile Include="CQRS\EventSourcing\IEventStoreSession.cs" />
-    <Compile Include="CQRS\EventSourcing\InMemoryEventStore.cs" />
-    <Compile Include="CQRS\EventSourcing\MicrosoftSQLServer\InvalidHistoryException.cs" />
-    <Compile Include="CQRS\Windsor\SqlServerDocumentDbRegistrationExtensions.cs" />
-    <Compile Include="CQRS\Windsor\SqlServerEventStoreRegistrationExtensions.cs" />
-    <Compile Include="DomainEvents\DomainEvent.cs" />
-    <Compile Include="CQRS\Query\Models\Generators\QueryModelGeneratingDocumentDbReader.cs" />
-    <Compile Include="CQRS\Query\Models\Generators\IQueryModelGenerator.cs" />
-    <Compile Include="CQRS\Query\Models\Generators\SingleAggregateQueryModelGenerator.cs" />
-    <Compile Include="KeyValueStorage\DocumentDbSession.cs" />
-    <Compile Include="KeyValueStorage\DocumentDBSession.DocumentItem.cs" />
-    <Compile Include="KeyValueStorage\DocumentDBSession.DocumentKey.cs" />
-    <Compile Include="KeyValueStorage\InMemoryDocumentDB.cs" />
-    <Compile Include="KeyValueStorage\SqlServer\SqlServerDocumentDB.cs" />
-    <Compile Include="KeyValueStorage\SqlServer\TooManyItemsDeletedException.cs" />
-    <Compile Include="UnitsOfWork\AttemptingToJoinSecondUnitOfWorkException.cs" />
-    <Compile Include="Windsor\WindsorUnitOfWorkExtensions1.cs" />
-    <Compile Include="Logging\Log4Net\Log4NetExtensions.cs" />
-    <Compile Include="NewtonSoft\IgnoreAggregateRootEventDeclaredPropertiesBecauseTheyAreAlreadyStoredInSql.cs" />
-    <Compile Include="NewtonSoft\IncludeMembersWithPrivateSettersResolver.cs" />
-    <Compile Include="NewtonSoft\JsonSettings.cs" />
-    <Compile Include="CQRS\EventSourcing\AggregateRoot.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="UnitsOfWork\UnitOfWork.cs" />
-    <Compile Include="Windsor\Testing\WindsorTestWiringExtensions.cs" />
-    <Compile Include="Windsor\WindsorUnitOfWorkExtensions.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="app.config" />
-    <None Include="Composable.CQRS.nuspec" />
-    <None Include="packages.config" />
-    <None Include="Void.snk" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\Composable.System\Composable.Core.csproj">
-      <Project>{3632254d-0c4a-4eb8-b388-4c99f8939584}</Project>
-      <Name>Composable.Core</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Composable.Windsor\Composable.Windsor.csproj">
-      <Project>{646dce1f-a503-4158-80fb-aaa219c4ceff}</Project>
-      <Name>Composable.Windsor</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="CQRS\ViewModels\" />
-    <Folder Include="ServiceBus\" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="KeyValueStorage\SqlServer\ChangeScript.sql" />
-  </ItemGroup>
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <PropertyGroup>
-    <PostBuildEvent>REM mkdir packages
-REM "$(ProjectDir)..\..\tools\NuGet.exe" pack "Composable.CQRS.nuspec" -o packages</PostBuildEvent>
-  </PropertyGroup>
-  <PropertyGroup>
-    <PreBuildEvent>REM Doing this will not really help since valueobject is inherited from causing all kinds of issues should several versions be loaded....
-REM copy "$(TargetDir)Composable.Core.dll" "$(ProjectDir)__EmbeddedAssemblies"
-REM copy "$(TargetDir)Composable.Core.pdb" "$(ProjectDir)__EmbeddedAssemblies"</PreBuildEvent>
-  </PropertyGroup>
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
-       Other similar extension points exist, see Microsoft.Common.targets.
-  <Target Name="BeforeBuild">
-  </Target>
-  <Target Name="AfterBuild">
-  </Target>
-  -->
-  <!--<Target Name="AfterBuild">
-    <InjectModuleInitializer AssemblyFile="$(TargetPath)" />
-    <GetFrameworkSdkPath>
-      <Output TaskParameter="Path" PropertyName="SdkPath" />
-    </GetFrameworkSdkPath>
-    <Exec Command="&quot;$(SdkPath)bin\sn.exe&quot; -R $(TargetPath) $(ProjectDir)..\..\Void.snk" />
-  </Target>-->
+
 </Project>

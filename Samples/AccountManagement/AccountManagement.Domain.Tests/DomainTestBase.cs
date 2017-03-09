@@ -1,16 +1,19 @@
 ﻿using AccountManagement.TestHelpers;
 using Castle.MicroKernel.Lifestyle;
 using Castle.Windsor;
+using Composable.Messaging;
 using Composable.System;
 using Composable.Windsor.Testing;
 using NUnit.Framework;
 
 namespace AccountManagement.Domain.Tests
 {
-    [TestFixture] public abstract class DomainTestBase
+  using Composable.Messaging.Buses;
+
+  [TestFixture] public abstract class DomainTestBase
     {
         protected IWindsorContainer Container { get; private set; }
-        protected MessageSpy MessageSpy { get { return Container.Resolve<MessageSpy>(); } }
+        protected IMessageSpy MessageSpy { get { return Container.Resolve<IMessageSpy>(); } }
 
         StrictAggregateDisposable _managedResources;
 

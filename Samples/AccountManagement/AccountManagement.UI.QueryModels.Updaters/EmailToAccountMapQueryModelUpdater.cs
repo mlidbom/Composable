@@ -2,13 +2,13 @@
 using AccountManagement.UI.QueryModels.DocumentDB.Updaters.Services;
 using AccountManagement.UI.QueryModels.EventStoreGenerated;
 using AccountManagement.UI.QueryModels.Services;
-using Composable.ServiceBus;
+using Composable.Messaging;
 using JetBrains.Annotations;
 
 namespace AccountManagement.UI.QueryModels.DocumentDB.Updaters
 {
     [UsedImplicitly]
-    public class EmailToAccountMapQueryModelUpdater : IHandleMessages<IAccountEmailPropertyUpdatedEvent>
+    public class EmailToAccountMapQueryModelUpdater : IPublishedAndReplayedEventSubscriber<IAccountEmailPropertyUpdatedEvent>
     {
         readonly IAccountManagementQueryModelUpdaterSession _documentDbModels;
         readonly IAccountManagementQueryModelsReader _generatedModels;

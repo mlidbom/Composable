@@ -1,5 +1,5 @@
 ﻿using System;
-using Composable.CQRS.EventHandling;
+
 using Composable.CQRS.EventSourcing;
 using Composable.DDD;
 using Composable.KeyValueStorage;
@@ -10,7 +10,9 @@ using NUnit.Framework;
 
 namespace CQRS.Tests.CQRS.EventHandling
 {
-    public class SingleAggregateQueryModelUpdaterSpecification : NSpec.NUnit.nspec
+  using Composable.Messaging.Events;
+
+  public class SingleAggregateQueryModelUpdaterSpecification : NSpec.NUnit.nspec
     {
         Mock<IDocumentDbSession> _sessionMock;
         UserQueryModelUpdater _listener;

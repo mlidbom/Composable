@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using Composable.CQRS.EventHandling;
+
 using Composable.CQRS.EventSourcing;
 using Composable.DDD;
 using Composable.KeyValueStorage;
@@ -19,7 +19,9 @@ namespace CQRS.Tests.CQRS.EventHandling
 {
     namespace CVManagement
     {
-        namespace GlobalEvents
+      using Composable.Messaging.Events;
+
+      namespace GlobalEvents
         {
 
             #region Generic events intended to be inherited. None of these should ever be raised. Only inheritors should be raised.

@@ -131,22 +131,6 @@
       <Link>Properties\CommonAssemblyInfo.cs</Link>
     </Compile>
     <Compile Include="CQRS\AggregateRepository.cs" />
-    <Compile Include="CQRS\Command\Command.cs" />
-    <Compile Include="CQRS\Command\CommandResult.cs" />
-    <Compile Include="CQRS\Command\CommandService.cs" />
-    <Compile Include="CQRS\Command\CompositeCommand.cs" />
-    <Compile Include="CQRS\Command\DomainCommandValidationException.cs" />
-    <Compile Include="CQRS\Command\ICommand.cs" />
-    <Compile Include="CQRS\Command\ICommandHandler.cs" />
-    <Compile Include="CQRS\Command\ICommandService.cs" />
-    <Compile Include="CQRS\Command\ISubCommand.cs" />
-    <Compile Include="CQRS\Command\SubCommand.cs" />
-    <Compile Include="CQRS\EventHandling\CallMatchingHandlersInRegistrationOrderEventDispatcher.cs" />
-    <Compile Include="CQRS\EventHandling\IEventDispatcher.cs" />
-    <Compile Include="CQRS\EventHandling\IMutableEventDispatcher.cs" />
-    <Compile Include="CQRS\EventHandling\ISingleAggregateQueryModel.cs" />
-    <Compile Include="CQRS\EventHandling\IEventHandlerRegistrar.cs" />
-    <Compile Include="CQRS\EventHandling\SingleAggregateQueryModelUpdater.cs" />
     <Compile Include="CQRS\EventSourcing\AggregateRoot.Component.EntityCollectionManager.Removable.cs" />
     <Compile Include="CQRS\EventSourcing\AggregateRoot.Component.EntityCollectionManager.cs" />
     <Compile Include="CQRS\EventSourcing\AggregateRoot.Component.NestedComponent.cs" />
@@ -181,7 +165,6 @@
     <Compile Include="CQRS\EventSourcing\Refactoring\Naming\IRenameEvents.cs" />
     <Compile Include="CQRS\EventSourcing\Refactoring\Naming\RenameEventsBasedOnEventRenamedAttributes.cs" />
     <Compile Include="CQRS\EventSourcing\Refactoring\Naming\DefaultEventNameMapper.cs" />
-    <Compile Include="CQRS\EventSourcing\EventsReplayer.cs" />
     <Compile Include="CQRS\EventSourcing\IEventStore.cs" />
     <Compile Include="CQRS\EventSourcing\AggregateRootNotFoundException.cs" />
     <Compile Include="CQRS\EventSourcing\IEventStored.cs" />
@@ -219,68 +202,31 @@
     <Compile Include="CQRS\Query\Models\Generators\QueryModelGeneratingDocumentDbReader.cs" />
     <Compile Include="CQRS\Query\Models\Generators\IQueryModelGenerator.cs" />
     <Compile Include="CQRS\Query\Models\Generators\SingleAggregateQueryModelGenerator.cs" />
+    <Compile Include="KeyValueStorage\DocumentDbSession.cs" />
+    <Compile Include="KeyValueStorage\DocumentDBSession.DocumentItem.cs" />
     <Compile Include="KeyValueStorage\DocumentDBSession.DocumentKey.cs" />
-    <Compile Include="KeyValueStorage\IDocumentDbBulkReader.cs" />
-    <Compile Include="KeyValueStorage\IDocumentDbReader.cs" />
-    <Compile Include="KeyValueStorage\IDocumentDbSessionInterceptor.cs" />
-    <Compile Include="KeyValueStorage\IDocumentDbUpdater.cs" />
-    <Compile Include="KeyValueStorage\IDocumentUpdatedNotifier.cs" />
-    <Compile Include="KeyValueStorage\InMemoryObjectStore.cs" />
-    <Compile Include="KeyValueStorage\DocumentIdIsEmptyGuidException.cs" />
-    <Compile Include="Windsor\WindsorUnitOfWorkExtensions1.cs" />
     <Compile Include="KeyValueStorage\InMemoryDocumentDB.cs" />
-    <Compile Include="KeyValueStorage\DocumentUpdated.cs" />
-    <Compile Include="KeyValueStorage\IDocumentUpdated.cs" />
-    <Compile Include="KeyValueStorage\IDocumentDB.cs" />
     <Compile Include="KeyValueStorage\SqlServer\SqlServerDocumentDB.cs" />
     <Compile Include="KeyValueStorage\SqlServer\TooManyItemsDeletedException.cs" />
+    <Compile Include="UnitsOfWork\AttemptingToJoinSecondUnitOfWorkException.cs" />
+    <Compile Include="Windsor\WindsorUnitOfWorkExtensions1.cs" />
     <Compile Include="Logging\Log4Net\Log4NetExtensions.cs" />
     <Compile Include="NewtonSoft\IgnoreAggregateRootEventDeclaredPropertiesBecauseTheyAreAlreadyStoredInSql.cs" />
     <Compile Include="NewtonSoft\IncludeMembersWithPrivateSettersResolver.cs" />
-    <Compile Include="KeyValueStorage\AttemptToSaveAlreadyPersistedValueException.cs" />
-    <Compile Include="KeyValueStorage\IDocumentDbSession.cs" />
-    <Compile Include="KeyValueStorage\DocumentDbSession.cs" />
-    <Compile Include="KeyValueStorage\NoSuchDocumentException.cs" />
     <Compile Include="NewtonSoft\JsonSettings.cs" />
-    <Compile Include="ServiceBus\IHandleMessages.cs" />
-    <Compile Include="ServiceBus\IHandleReplayedAndPublishedEvents.cs" />
-    <Compile Include="ServiceBus\IHandleInProcessMessages.cs" />
-    <Compile Include="ServiceBus\IHandleRemoteMessages.cs" />
-    <Compile Include="ServiceBus\IHandleReplayedEvents.cs" />
-    <Compile Include="ServiceBus\MessageHandlersInvoker.cs" />
-    <Compile Include="ServiceBus\MessageHandlerInvoker.MessageHandlerMethod.cs" />
-    <Compile Include="ServiceBus\IServiceBus.cs" />
     <Compile Include="CQRS\EventSourcing\AggregateRoot.cs" />
-    <Compile Include="ServiceBus\ISynchronousBusMessageSpy.cs" />
-    <Compile Include="ServiceBus\MessageHandlerResolver.cs" />
-    <Compile Include="ServiceBus\MultipleMessageHandlersRegisteredException.cs" />
-    <Compile Include="ServiceBus\NoHandlerException.cs" />
-    <Compile Include="ServiceBus\SynchronousBus.cs" />
-    <Compile Include="CQRS\EventHandling\CallsMatchingHandlersInRegistrationOrderEventHandler.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="ServiceBus\TestingOnlyServiceBus.cs" />
-    <Compile Include="UnitsOfWork\AttemptingToJoinSecondUnitOfWorkException.cs" />
-    <Compile Include="UnitsOfWork\IUnitOfWork.cs" />
-    <Compile Include="UnitsOfWork\IUnitOfWorkParticipant.cs" />
-    <Compile Include="UnitsOfWork\IUnitOfWorkParticipantWhoseCommitMayTriggerChangesInOtherParticipantsMustImplementIdemponentCommit.cs" />
-    <Compile Include="UnitsOfWork\TooDeepCascadeLevelDetected.cs" />
     <Compile Include="UnitsOfWork\UnitOfWork.cs" />
-    <Compile Include="Windsor\Testing\ForTestsEventHandlerInstallerBase.cs" />
     <Compile Include="Windsor\Testing\WindsorTestWiringExtensions.cs" />
     <Compile Include="Windsor\WindsorUnitOfWorkExtensions.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
-    <Compile Include="KeyValueStorage\DocumentDBSession.DocumentItem.cs" />
     <None Include="Composable.CQRS.nuspec" />
     <None Include="packages.config" />
     <None Include="Void.snk" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Composable.DomainEvents\Composable.DomainEvents.csproj">
-      <Project>{CD7ECAB7-AD05-43A6-A13E-74340838DDDE}</Project>
-      <Name>Composable.DomainEvents</Name>
-    </ProjectReference>
     <ProjectReference Include="..\Composable.System\Composable.Core.csproj">
       <Project>{3632254D-0C4A-4EB8-B388-4C99F8939584}</Project>
       <Name>Composable.Core</Name>
@@ -291,10 +237,11 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <None Include="KeyValueStorage\SqlServer\ChangeScript.sql" />
+    <Folder Include="CQRS\ViewModels\" />
+    <Folder Include="ServiceBus\" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="CQRS\ViewModels\" />
+    <None Include="KeyValueStorage\SqlServer\ChangeScript.sql" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

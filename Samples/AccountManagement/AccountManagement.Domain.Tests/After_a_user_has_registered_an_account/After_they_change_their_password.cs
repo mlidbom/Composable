@@ -20,7 +20,7 @@ namespace AccountManagement.Domain.Tests.After_a_user_has_registered_an_account
         [Test]
         public void An_IUserChangedAccountPasswordEvent_is_published_on_the_bus()
         {
-            MessageSpy.ReceivedMessages
+            MessageSpy.DispatchedMessages
                 .OfType<IUserChangedAccountPasswordEvent>()
                 .Should().HaveCount(1);
         }
@@ -28,7 +28,7 @@ namespace AccountManagement.Domain.Tests.After_a_user_has_registered_an_account
         [Test]
         public void Event_password_should_accept_the_used_password_as_valid()
         {
-            MessageSpy.ReceivedMessages.OfType<IUserChangedAccountPasswordEvent>()
+            MessageSpy.DispatchedMessages.OfType<IUserChangedAccountPasswordEvent>()
                 .Single().Password.AssertIsCorrectPassword(_changePasswordScenario.NewPasswordAsString);
         }
 

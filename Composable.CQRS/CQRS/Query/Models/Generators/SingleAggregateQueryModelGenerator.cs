@@ -1,12 +1,14 @@
 ﻿using System;
 using System.Linq;
-using Composable.CQRS.EventHandling;
+
 using Composable.CQRS.EventSourcing;
 using Composable.System.Linq;
 
 namespace Composable.CQRS.Query.Models.Generators
 {
-    public abstract class SingleAggregateQueryModelGenerator<TImplementer, TViewModel, TEvent, TSession> 
+  using Composable.Messaging.Events;
+
+  public abstract class SingleAggregateQueryModelGenerator<TImplementer, TViewModel, TEvent, TSession> 
         : IQueryModelGenerator<TViewModel>,
         IVersioningQueryModelGenerator<TViewModel> 
         where TImplementer : SingleAggregateQueryModelGenerator<TImplementer, TViewModel, TEvent, TSession>

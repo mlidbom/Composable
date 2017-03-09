@@ -2,7 +2,8 @@
 using Castle.MicroKernel.Registration;
 using Castle.Windsor;
 using Castle.Windsor.Installer;
-using Composable.ServiceBus;
+using Composable.CQRS.Testing.Windsor.Testing;
+using Composable.Messaging;
 using JetBrains.Annotations;
 using Composable.GenericAbstractions.Time;
 using Composable.System.Configuration;
@@ -10,15 +11,20 @@ using Composable.Windsor.Testing;
 
 namespace AccountManagement.UI.Web
 {
-    [UsedImplicitly]
+  using Composable.Messaging.Buses;
+
+  [UsedImplicitly]
     public class ApplicationBootstrapper
     {
         public static void ConfigureContainer(IWindsorContainer container)
-        {
+        {            
             container.Register(
                 Component.For<IUtcTimeTimeSource>().ImplementedBy<DateTimeNowTimeSource>().LifestylePerWebRequest(),
-                Component.For<SynchronousBus>().ImplementedBy<SynchronousBus>().LifestylePerWebRequest(),
-                Component.For<IAuthenticationContext>().ImplementedBy<AuthenticationContext>().LifestylePerWebRequest()                
+                Component.For<IMessageHandlerRegistrar>().ImplementedBy<MessageHandlerRegistry>().LifestyleSingleton(),
+                Component.For<IServiceBus>().ImplementedBy<TestingOnlyServiceBus>().LifestylePerWebRequest(),
+                Component.For<IAuthenticationContext>().ImplementedBy<AuthenticationContext>().LifestylePerWebRequest(),
+                Component.For<IWindsorContainer>().Instance(container),
+                Component.For<IConnectionStringProvider>().Instance(new ConnectionStringConfigurationParameterProvider()).LifestyleSingleton()
                 );
 
             SharedWiring(container);
@@ -26,10 +32,8 @@ namespace AccountManagement.UI.Web
 
         static void SharedWiring(IWindsorContainer container)
         {
-            container.Register(
-                Component.For<IWindsorContainer>().Instance(container),
-                Classes.FromThisAssembly().BasedOn<Controller>().WithServiceSelf().LifestyleTransient(),
-                Component.For<IConnectionStringProvider>().Instance(new ConnectionStringConfigurationParameterProvider()).LifestyleSingleton()
+            container.Register(                
+                Classes.FromThisAssembly().BasedOn<Controller>().WithServiceSelf().LifestyleTransient()                
                 );
 
             container.Install(
@@ -42,15 +46,7 @@ namespace AccountManagement.UI.Web
 
         public static void ConfigureContainerForTests(IWindsorContainer container)
         {
-            container.ConfigureWiringForTestsCallBeforeAllOtherWiring();
-
-            SharedWiring(container);
-            container.Register(
-                Component.For<IServiceBus>().ImplementedBy<SynchronousBus>().LifestylePerWebRequest()
-                );
-
-
-            container.ConfigureWiringForTestsCallAfterAllOtherWiring();
+            container.SetupForTesting(SharedWiring);
         }
     }
 }

@@ -10,7 +10,7 @@ using Composable.CQRS.EventSourcing.Refactoring.Migrations;
 using Composable.CQRS.Testing;
 using Composable.CQRS.Testing.Windsor;
 using Composable.GenericAbstractions.Time;
-using Composable.ServiceBus;
+using Composable.Messaging;
 using Composable.System.Collections.Collections;
 using Composable.System.Configuration;
 using Composable.System.Linq;
@@ -24,7 +24,9 @@ using TestAggregates;
 
 namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
 {
-    //Todo: Refactor this test. It is too monolithic and hard to read and extend.
+  using Composable.Messaging.Buses;
+
+  //Todo: Refactor this test. It is too monolithic and hard to read and extend.
     public abstract class EventStreamMutatorTestsBase
     {
         protected readonly Type EventStoreType;
@@ -147,8 +149,11 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
                 Component.For<IUtcTimeTimeSource, DummyTimeSource>()
                     .Instance(DummyTimeSource.Now)
                     .LifestyleSingleton(),
+                Component.For<IMessageHandlerRegistrar, IMessageHandlerRegistry>()
+                    .ImplementedBy<MessageHandlerRegistry>()
+                    .LifestyleSingleton(),
                 Component.For<IServiceBus>()
-                         .ImplementedBy<SynchronousBus>()
+                         .ImplementedBy<TestingOnlyServiceBus>()
                          .LifestylePerWebRequest(),
                 Component.For<IEnumerable<IEventMigration>>()
                          .UsingFactoryMethod(migrationsfactory)

@@ -1,11 +1,13 @@
 ﻿using System;
 using AccountManagement.Domain.Shared;
-using Composable.CQRS.EventHandling;
+
 using Composable.DDD;
 
 namespace AccountManagement.UI.QueryModels
 {
-    public class AccountQueryModel : ISingleAggregateQueryModel
+  using Composable.Messaging.Events;
+
+  public class AccountQueryModel : ISingleAggregateQueryModel
     {
         public Password Password { get; set; }
         public Email Email { get; set; }

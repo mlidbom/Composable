@@ -6,7 +6,7 @@ using Castle.Windsor;
 using Composable.CQRS.EventSourcing;
 using Composable.DDD;
 using Composable.GenericAbstractions.Time;
-using Composable.ServiceBus;
+using Composable.Messaging;
 using Composable.System.Reflection;
 using Composable.Windsor.Testing;
 using FluentAssertions;
@@ -14,62 +14,72 @@ using NUnit.Framework;
 
 namespace CQRS.Tests.ServiceBus
 {
-    using Composable.System;
+  using Composable.Messaging.Buses;
+  using Composable.Messaging.Commands;
+  using Composable.System;
 
     [TestFixture]
     public class WhenDummyTimeSourceTimeIsChanged
     {
         IServiceBus _bus;
-        MessageReceiver _messageReceiver;
         DummyTimeSource _timeSource;
         IDisposable _scope;
         WindsorContainer _container;
+        ScheduledCommand receivedCommand = null;
+
         [SetUp]
         public void SetupTask()
         {
             _container = new WindsorContainer();
+            receivedCommand = null;
 
             _container.ConfigureWiringForTestsCallBeforeAllOtherWiring();
 
-            _messageReceiver = new MessageReceiver();
             _timeSource = DummyTimeSource.FromLocalTime(DateTime.Parse("2015-01-01 10:00"));
 
-            _container.Register(
-                Component.For<DummyTimeSource>().Instance(_timeSource),
-                Component.For<IServiceBus>().ImplementedBy<TestingOnlyServiceBus>().LifestyleScoped(),
-                Component.For<IWindsorContainer>().Instance(_container),
-                Component.For<IHandleMessages<ScheduledMessage>>().Instance(_messageReceiver)
-                );
+          _container.Register(
+                              Component.For<DummyTimeSource>()
+                                       .Instance(_timeSource),
+                              Component.For<IMessageHandlerRegistrar, IMessageHandlerRegistry>()
+                                       .ImplementedBy<MessageHandlerRegistry>()
+                                       .LifestyleSingleton(),
+                              Component.For<IServiceBus>()
+                                       .ImplementedBy<TestingOnlyServiceBus>()
+                                       .LifestyleScoped());
 
             _container.ConfigureWiringForTestsCallAfterAllOtherWiring();
 
             _scope = _container.BeginScope();
 
             _bus = _container.Resolve<IServiceBus>();
+            _container.Resolve<IMessageHandlerRegistrar>()
+                      .ForCommand<ScheduledCommand>(cmd => receivedCommand = cmd);
         }
 
         [Test]
         public void DueMessagesAreDelivered()
         {
             var now = _timeSource.UtcNow;
-            var inOneHour = new ScheduledMessage();
+            var inOneHour = new ScheduledCommand();
             _bus.SendAtTime(now + 1.Hours(), inOneHour);
 
             _timeSource.UtcNow = now + 1.Hours();
 
-            _messageReceiver.ReceivedMessages.Should().Contain(inOneHour);
+            receivedCommand.Should()
+                           .Be(inOneHour);
         }
 
         [Test]
         public void NotDueMessagesAreNotDelivered()
         {
             var now = _timeSource.UtcNow;
-            var inOneHour = new ScheduledMessage();
+            var inOneHour = new ScheduledCommand();
             _bus.SendAtTime(now + 1.Hours(), inOneHour);
 
             _timeSource.UtcNow = now + 1.Minutes();
 
-            _messageReceiver.ReceivedMessages.Should().BeEmpty();
+            receivedCommand.Should()
+                           .Be(null);
         }
 
         [TearDown]
@@ -79,16 +89,8 @@ namespace CQRS.Tests.ServiceBus
             _container.Dispose();
         }
 
-        public class ScheduledMessage : ValueObject<ScheduledMessage>, IEvent
+        public class ScheduledCommand : Command
         {
-        }
-
-        public class MessageReceiver : IHandleMessages<ScheduledMessage>
-        {
-            readonly List<ScheduledMessage> _receivedMessages = new List<ScheduledMessage>();
-            public IReadOnlyList<ScheduledMessage> ReceivedMessages => _receivedMessages;
-
-            public void Handle(ScheduledMessage message) { _receivedMessages.Add(message); }
         }
     }
 }

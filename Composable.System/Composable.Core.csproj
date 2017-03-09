@@ -171,16 +171,51 @@
     <Compile Include="..\CommonAssemblyInfo.cs">
       <Link>Properties\CommonAssemblyInfo.cs</Link>
     </Compile>
+    <Compile Include="CQRS\EventSourcing\AggregateRootEvent.cs" />
+    <Compile Include="CQRS\EventSourcing\IAggregateRootCreatedEvent.cs" />
+    <Compile Include="CQRS\EventSourcing\IAggregateRootDeletedEvent.cs" />
+    <Compile Include="CQRS\EventSourcing\IAggregateRootEvent.cs" />
     <Compile Include="DDD\IHasPersistentIdentity.cs" />
     <Compile Include="DDD\IPersistentEntity.cs" />
     <Compile Include="DDD\PersistentEntity.cs" />
     <Compile Include="DDD\ValueObject.cs" />
     <Compile Include="DDD\VersionedPersistentEntity.cs" />
+    <Compile Include="DomainEvents\IDomainEvent.cs" />
     <Compile Include="GenericAbstractions\Time\DummyTimeSource.cs" />
     <Compile Include="GenericAbstractions\Time\DateTimeNowTimeSource.cs" />
     <Compile Include="GenericAbstractions\Time\IUtcTimeTimeSource.cs" />
     <Compile Include="JetBrainsCodeAnnotations.cs" />
-    <Compile Include="ServiceBus\IMessage.cs" />
+    <Compile Include="Messaging\Buses\_Composable.Messaging.Buses.Interfaces.cs" />
+    <Compile Include="Messaging\Events\CallMatchingHandlersInRegistrationOrderEventDispatcher.cs" />
+    <Compile Include="Messaging\Events\CallsMatchingHandlersInRegistrationOrderEventHandler.cs" />
+    <Compile Include="Messaging\Events\IEventDispatcher.cs" />
+    <Compile Include="Messaging\Events\IEventHandlerRegistrar.cs" />
+    <Compile Include="Messaging\Events\IMutableEventDispatcher.cs" />
+    <Compile Include="Messaging\Events\ISingleAggregateQueryModel.cs" />
+    <Compile Include="Messaging\Events\SingleAggregateQueryModelUpdater.cs" />
+    <Compile Include="Messaging\_Interfaces.cs" />
+    <Compile Include="Persistence\KeyValueStorage\AttemptToSaveAlreadyPersistedValueException.cs" />
+    <Compile Include="Persistence\KeyValueStorage\DocumentIdIsEmptyGuidException.cs" />
+    <Compile Include="Persistence\KeyValueStorage\DocumentUpdated.cs" />
+    <Compile Include="Persistence\KeyValueStorage\IDocumentDB.cs" />
+    <Compile Include="Persistence\KeyValueStorage\IDocumentDbBulkReader.cs" />
+    <Compile Include="Persistence\KeyValueStorage\IDocumentDbReader.cs" />
+    <Compile Include="Persistence\KeyValueStorage\IDocumentDbSession.cs" />
+    <Compile Include="Persistence\KeyValueStorage\IDocumentDbSessionInterceptor.cs" />
+    <Compile Include="Persistence\KeyValueStorage\IDocumentDbUpdater.cs" />
+    <Compile Include="Persistence\KeyValueStorage\IDocumentUpdated.cs" />
+    <Compile Include="Persistence\KeyValueStorage\IDocumentUpdatedNotifier.cs" />
+    <Compile Include="Persistence\KeyValueStorage\InMemoryObjectStore.cs" />
+    <Compile Include="Persistence\KeyValueStorage\NoSuchDocumentException.cs" />
+    <Compile Include="Messaging\Commands\Command.cs" />
+    <Compile Include="Messaging\Commands\CommandResult.cs" />
+    <Compile Include="Messaging\Commands\ISubCommand.cs" />
+    <Compile Include="Messaging\Commands\SubCommand.cs" />
+    <Compile Include="Messaging\Buses\InProcessServiceBus.cs" />
+    <Compile Include="Messaging\Buses\MessageHandlerRegistry.cs" />
+    <Compile Include="Messaging\Buses\MultipleMessageHandlersRegisteredException.cs" />
+    <Compile Include="Messaging\Buses\NoHandlerException.cs" />
+    <Compile Include="Messaging\Buses\TestingOnlyServiceBus.cs" />
     <Compile Include="SystemExtensions\ExceptionExtensions.cs" />
     <Compile Include="SystemExtensions\Threading\ISingleContextUseGuard.cs" />
     <Compile Include="SystemExtensions\Threading\MultiThreadedUseException.cs" />
@@ -222,12 +257,13 @@
     <Compile Include="System\Reflection\ObjectFactory.cs" />
     <Compile Include="System\Reflection\TypeExtensions.cs" />
     <Compile Include="System\StrictAggregateDisposable.cs" />
-    <Compile Include="System\StrictlyManagedResourceBase.cs" />
+    <Compile Include="System\StrictlyManagedResource.cs" />
     <Compile Include="System\StringExtensions.cs" />
     <Compile Include="System\TimeSpanEnumerableExtensions.cs" />
     <Compile Include="System\TimeSpanExtensions.cs" />
     <Compile Include="System\Transactions\InTransaction.cs" />
     <Compile Include="GenericAbstractions\Wrappers\IWrapper.cs" />
+    <Compile Include="System\Transactions\ITransactionalScope.cs" />
     <Compile Include="System\Web\HttpRequestIdSupplier.cs" />
     <Compile Include="System\Web\HttpRequestIdFetcher.cs" />
     <Compile Include="System\Web\IHttpRequestIdFetcher.cs" />
@@ -237,6 +273,10 @@
     <Compile Include="Testing\SqlServerDatabasePool.cs" />
     <Compile Include="Testing\TestEnvironmentPerformance.cs" />
     <Compile Include="Testing\TimeAsserter.cs" />
+    <Compile Include="UnitsOfWork\IUnitOfWork.cs" />
+    <Compile Include="UnitsOfWork\IUnitOfWorkParticipant.cs" />
+    <Compile Include="UnitsOfWork\IUnitOfWorkParticipantWhoseCommitMayTriggerChangesInOtherParticipantsMustImplementIdemponentCommit.cs" />
+    <Compile Include="UnitsOfWork\TooDeepCascadeLevelDetected.cs" />
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include="Microsoft.Net.Client.3.5">
@@ -260,6 +300,7 @@
     <None Include="Void.snk" />
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="Messaging\Queries\" />
     <Folder Include="System\Globalization\" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />

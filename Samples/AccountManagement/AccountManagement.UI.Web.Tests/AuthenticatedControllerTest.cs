@@ -13,9 +13,7 @@ namespace AccountManagement.UI.Web.Tests
         {
             AuthenticationContext = new TestAuthenticationContext();
             Container.Register(
-                Component.For<IUtcTimeTimeSource, DummyTimeSource>().Instance(DummyTimeSource.Now).LifestyleSingleton(),
-                Component.For<TestAuthenticationContext, IAuthenticationContext>()
-                    .Instance(AuthenticationContext)
+                Component.For<TestAuthenticationContext, IAuthenticationContext>().Instance(AuthenticationContext)
                 );
         }
     }

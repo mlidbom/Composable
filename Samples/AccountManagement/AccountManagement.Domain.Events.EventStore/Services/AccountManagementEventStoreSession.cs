@@ -1,6 +1,7 @@
 ﻿using Composable.CQRS.EventSourcing;
 using Composable.GenericAbstractions.Time;
-using Composable.ServiceBus;
+using Composable.Messaging;
+using Composable.Messaging.Buses;
 using Composable.SystemExtensions.Threading;
 
 namespace AccountManagement.Domain.Events.EventStore.Services

@@ -1,9 +1,9 @@
 ﻿using System;
-using Composable.CQRS.EventHandling;
+
 using Composable.CQRS.EventSourcing;
 using Composable.DDD;
 using Composable.KeyValueStorage;
-using Composable.ServiceBus;
+using Composable.Messaging;
 using FluentAssertions;
 using Moq;
 using NUnit.Framework;
@@ -11,7 +11,9 @@ using NUnit.Framework;
 
 namespace CQRS.Tests.CQRS.EventHandling
 {
-    public class EventHierarchyHandlerSpecification : NSpec.NUnit.nspec
+  using Composable.Messaging.Events;
+
+  public class EventHierarchyHandlerSpecification : NSpec.NUnit.nspec
     {
         public void before_each()
         {
@@ -99,7 +101,7 @@ namespace CQRS.Tests.CQRS.EventHandling
             }
         }
 
-        public interface IHandlesIUserEvents : IHandleMessages<IUserEvent>
+        public interface IHandlesIUserEvents : IEventSubscriber<IUserEvent>
         {
             int CallsMade { get; set; }
             int? BeforeHandlers1CallOrder { get; set; }

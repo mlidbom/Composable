@@ -119,8 +119,9 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
                              .ToEvents();
 
             TimeAsserter.Execute(
-                maxTotal: 180.Milliseconds().AdjustRuntimeToTestEnvironment((double)2),
-                action: () => new TestAggregate2(history));
+                maxTotal: 180.Milliseconds().AdjustRuntimeToTestEnvironment(2),
+                action: () => new TestAggregate2(history),
+                maxTries: 10);
         }
 
         [Test]

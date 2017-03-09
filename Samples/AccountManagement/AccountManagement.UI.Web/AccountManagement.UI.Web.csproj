@@ -179,11 +179,11 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\..\Composable.CQRS.Testing\Composable.CQRS.Testing.csproj">
-      <Project>{D7F30AB8-1C8F-4F0D-8E89-6E4DABF52941}</Project>
+      <Project>{d7f30ab8-1c8f-4f0d-8e89-6e4dabf52941}</Project>
       <Name>Composable.CQRS.Testing</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\..\Composable.CQRS\Composable.CQRS.csproj">
-      <Project>{3B776BD4-0EDD-4A83-BC9A-3A53D6649AB0}</Project>
+      <Project>{3b776bd4-0edd-4a83-bc9a-3a53d6649ab0}</Project>
       <Name>Composable.CQRS</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\..\Composable.System\Composable.Core.csproj">
@@ -191,7 +191,7 @@
       <Name>Composable.Core</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\..\Composable.Windsor\Composable.Windsor.csproj">
-      <Project>{646DCE1F-A503-4158-80FB-AAA219C4CEFF}</Project>
+      <Project>{646dce1f-a503-4158-80fb-aaa219c4ceff}</Project>
       <Name>Composable.Windsor</Name>
     </ProjectReference>
     <ProjectReference Include="..\AccountManagement.Domain.Events.EventStore\AccountManagement.Domain.Events.EventStore.csproj">

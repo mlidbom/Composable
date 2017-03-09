@@ -77,11 +77,11 @@
       <Name>Composable.Core</Name>
     </ProjectReference>
     <ProjectReference Include="..\AccountManagement.Domain.Shared\AccountManagement.Domain.Shared.csproj">
-      <Project>{CA31649D-A11B-45F6-9D17-2E716F11ADFA}</Project>
+      <Project>{ca31649d-a11b-45f6-9d17-2e716f11adfa}</Project>
       <Name>AccountManagement.Domain.Shared</Name>
     </ProjectReference>
     <ProjectReference Include="..\AccountManagement.TestHelpers\AccountManagement.TestHelpers.csproj">
-      <Project>{688DE4C0-690E-4EF5-AF36-A16BD2D9E930}</Project>
+      <Project>{688de4c0-690e-4ef5-af36-a16bd2d9e930}</Project>
       <Name>AccountManagement.TestHelpers</Name>
     </ProjectReference>
     <ProjectReference Include="..\AccountManagement.UI.Commands\AccountManagement.UI.Commands.csproj">

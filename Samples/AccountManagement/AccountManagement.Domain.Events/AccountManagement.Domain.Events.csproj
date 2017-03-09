@@ -58,7 +58,7 @@
       <Name>Composable.Core</Name>
     </ProjectReference>
     <ProjectReference Include="..\AccountManagement.Domain.Shared\AccountManagement.Domain.Shared.csproj">
-      <Project>{CA31649D-A11B-45F6-9D17-2E716F11ADFA}</Project>
+      <Project>{ca31649d-a11b-45f6-9d17-2e716f11adfa}</Project>
       <Name>AccountManagement.Domain.Shared</Name>
     </ProjectReference>
   </ItemGroup>

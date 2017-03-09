@@ -68,7 +68,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\..\Composable.CQRS\Composable.CQRS.csproj">
-      <Project>{3B776BD4-0EDD-4A83-BC9A-3A53D6649AB0}</Project>
+      <Project>{3b776bd4-0edd-4a83-bc9a-3a53d6649ab0}</Project>
       <Name>Composable.CQRS</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\..\Composable.System\Composable.Core.csproj">
@@ -84,7 +84,7 @@
       <Name>AccountManagement.Domain.Events</Name>
     </ProjectReference>
     <ProjectReference Include="..\AccountManagement.Domain.Shared\AccountManagement.Domain.Shared.csproj">
-      <Project>{CA31649D-A11B-45F6-9D17-2E716F11ADFA}</Project>
+      <Project>{ca31649d-a11b-45f6-9d17-2e716f11adfa}</Project>
       <Name>AccountManagement.Domain.Shared</Name>
     </ProjectReference>
     <ProjectReference Include="..\Composable.StagingArea\Composable.StagingArea.csproj">

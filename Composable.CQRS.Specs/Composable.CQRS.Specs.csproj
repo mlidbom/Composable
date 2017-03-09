@@ -150,7 +150,7 @@
       <Name>Composable.Core</Name>
     </ProjectReference>
     <ProjectReference Include="..\Composable.Windsor\Composable.Windsor.csproj">
-      <Project>{646DCE1F-A503-4158-80FB-AAA219C4CEFF}</Project>
+      <Project>{646dce1f-a503-4158-80fb-aaa219c4ceff}</Project>
       <Name>Composable.Windsor</Name>
     </ProjectReference>
     <ProjectReference Include="..\NSpec.NUnit\NSpec.NUnit.csproj">

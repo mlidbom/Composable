@@ -13,7 +13,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Castle.Windsor" Version="3.4.0" />
+    <PackageReference Include="Castle.Windsor" Version="3.3.0" />
     <PackageReference Include="FluentAssertions" Version="4.0.0" />
   </ItemGroup>
 

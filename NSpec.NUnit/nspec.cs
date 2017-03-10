@@ -25,20 +25,9 @@ namespace NSpec.NUnit
             var runner = new ContextRunner(tagsFilter, new ConsoleFormatter(), false);
             ContextCollection result = runner.Run(builder.Contexts().Build());
 
-            if (result.Failures() == null)
+            if (result.Failures().Any())
             {
-                Assert.Fail("*****   Failed to execute some tests   *****");
-            }
-
-            var crashes = result.AllContexts().Where(context => context.Exception != null).ToList();
-            if(crashes.Any())
-            {
-                throw new SpecificationException("unknown", crashes.First().Exception);
-            }
-
-            if(result.Failures().Any())
-            {
-                throw new SpecificationException("unknown", result.First().Exception);
+                throw new SpecificationException("unknown", result.Failures().First().Exception.InnerException);
             }
         }
 

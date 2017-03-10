@@ -9,8 +9,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="FluentAssertions" Version="4.0.0" />
-    <PackageReference Include="Moq" Version="4.5.28" />
+    <PackageReference Include="FluentAssertions" Version="4.19.2" />
+    <PackageReference Include="Moq" Version="4.5.30" />
     <PackageReference Include="System.Reactive.Linq" Version="3.1.1" />
   </ItemGroup>
 
@@ -22,9 +22,6 @@
 
   
   <ItemGroup>
-    <Reference Include="FluentAssertions">
-      <HintPath>..\packages\FluentAssertions.4.0.0\lib\net45\FluentAssertions.dll</HintPath>
-    </Reference>
     <Reference Include="System.ComponentModel.DataAnnotations">
       <HintPath>..\..\..\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.5\System.ComponentModel.DataAnnotations.dll</HintPath>
     </Reference>

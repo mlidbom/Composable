@@ -11,7 +11,12 @@ namespace Composable.Testing
     {
         public static TimeSpan AdjustRuntimeToTestEnvironment(this TimeSpan original, double boost = 0)
         {
-            return ((int)(original.TotalMilliseconds * (TestRunner.Instance.SlowDownFactor + boost))).Milliseconds();
+            var slowDownFactor = TestRunner.Instance.SlowDownFactor;
+            if (Math.Abs(slowDownFactor - 1.0) > 0.001)
+            {
+                slowDownFactor = slowDownFactor + boost;
+            }
+            return ((int)(original.TotalMilliseconds * slowDownFactor)).Milliseconds();
         }
     }
 
@@ -30,22 +35,22 @@ namespace Composable.Testing
 
             if (processName.StartsWith("nunit-gui"))
             {
-                return new TestRunner("Nunit GUI", 1);
+                return new TestRunner("Nunit GUI");
             }
 
             if (processName.StartsWith("vstest"))
             {
-                return new TestRunner("Visual Studio (vstest)", 1.0);
+                return new TestRunner("Visual Studio (vstest)");
             }
 
             if (processName.StartsWith("nunit-console"))
             {
-                return new TestRunner("Nunit Console", 1);
+                return new TestRunner("Nunit Console");
             }
 
             if (AreWeRunningInResharper(loadedAssemblies))
             {
-                return new TestRunner("Resharper", 1.0);
+                return new TestRunner("Resharper");
             }
 
 
@@ -60,7 +65,7 @@ namespace Composable.Testing
             return loadedAssemblies.Any(assembly => assembly.FullName.StartsWith("JetBrains.ReSharper.UnitTestRunner"));
         }
 
-        TestRunner(string name, double slowDownFactor)
+        TestRunner(string name, double slowDownFactor = 1.0)
         {
             Console.WriteLine($"Setting up performance adjustments for {name} with {nameof(slowDownFactor)}: {slowDownFactor}");
             Name = name;

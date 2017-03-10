@@ -19,12 +19,13 @@ namespace NSpec.NUnit
         [Test]
         public void ValidateSpec()
         {
-            var finder = new SpecFinder(new[] {GetType()});
-            var builder = new ContextBuilder(finder, new DefaultConventions());
+            var finder = new SpecFinder(new [] {GetType()}, "");
+            var tagsFilter = new Tags();
+            var builder = new ContextBuilder(finder, tagsFilter, new DefaultConventions());
+            var runner = new ContextRunner(tagsFilter, new ConsoleFormatter(), false);
+            ContextCollection result = runner.Run(builder.Contexts().Build());
 
-            ContextCollection result = new ContextRunner(builder, new MyFormatter(), false).Run(builder.Contexts().Build());
-
-            if(result.Failures() == null)
+            if (result.Failures() == null)
             {
                 Assert.Fail("*****   Failed to execute some tests   *****");
             }

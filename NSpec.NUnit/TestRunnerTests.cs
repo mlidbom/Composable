@@ -106,7 +106,7 @@ namespace NSpec.NUnit
         }
     }
 
-    [TestFixture, Ignore("SHould fail when executed and actual test is done by checking that it fails whith an appropriate message.")]
+    [Ignore("SHould fail when executed and actual test is done by checking that it fails whith an appropriate message.")]
     public class dots : NUnit.nspec
     {
         public void any_time()

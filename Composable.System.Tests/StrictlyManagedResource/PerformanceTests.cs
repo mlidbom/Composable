@@ -18,9 +18,9 @@ namespace Composable.Tests.StrictlyManagedResource
                                  maxTries: 10,
                                  timeFormat: "s\\.ffffff");
 
-        [Test] public void Allocates_and_disposes_7000_instances_in_10_millisecond_when_not_collecting_stack_traces() =>
+        [Test] public void Allocates_and_disposes_5000_instances_in_10_millisecond_when_not_collecting_stack_traces() =>
             TimeAsserter.Execute(() => new StrictlyManagedResource<StrictResource>(forceStackTraceCollection: false).Dispose(),
-                                 iterations: 7000,
+                                 iterations: 5000,
                                  maxTotal: 10.Milliseconds(),
                                  maxTries: 10,
                                  timeFormat: "s\\.ffffff");

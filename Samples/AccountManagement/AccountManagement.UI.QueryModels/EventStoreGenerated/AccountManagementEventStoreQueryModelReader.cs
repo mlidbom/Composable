@@ -7,7 +7,7 @@ using JetBrains.Annotations;
 namespace AccountManagement.UI.QueryModels.EventStoreGenerated
 {
     [UsedImplicitly]
-    public class AccountManagementEventStoreQueryModelReader : QueryModelGeneratingDocumentDbReader, IAccountManagementQueryModelGeneratingDocumentDbReader
+    class AccountManagementEventStoreQueryModelReader : QueryModelGeneratingDocumentDbReader//, IAccountManagementQueryModelGeneratingDocumentDbReader
     {
         public AccountManagementEventStoreQueryModelReader(
             ISingleContextUseGuard usageGuard,

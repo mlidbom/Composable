@@ -9,6 +9,7 @@ namespace Composable.Messaging
     /// <para>Implementations should be named as an imperative sentence with an optional(but standardized "Command" suffix): RegisterUserAccount[Command]</para></summary>
     public interface ICommand : IMessage
     {
+        // ReSharper disable once UnusedMemberInSuper.Global
         Guid Id { get; }
     }
 
@@ -24,14 +25,6 @@ namespace Composable.Messaging
 
     ///<summary>A response to an <see cref="IQuery{TResult}"/></summary>
     public interface IQueryResult : IMessage {}
-
-    ///<summary>Performs the action requested by a command.
-    /// <para>Should be named as: (CommandName)Handler</para>
-    /// </summary>
-    public interface ICommandHandler<in TCommand>
-    {
-        void Execute(TCommand command);
-    }
 
     ///<summary>Any type that subscribes to an event should implement this interface. Regardless of wether the event was Published or Replayed.</summary>
     public interface IEventSubscriber<in TEvent> where TEvent : IEvent

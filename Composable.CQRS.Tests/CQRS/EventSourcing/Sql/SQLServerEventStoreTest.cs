@@ -1,6 +1,4 @@
-﻿#region usings
-
-using System;
+﻿using System;
 using System.Configuration;
 using System.Linq;
 using System.Transactions;
@@ -9,8 +7,6 @@ using Composable.CQRS.CQRS.EventSourcing.MicrosoftSQLServer;
 using Composable.SystemExtensions.Threading;
 using Composable.Testing;
 using NUnit.Framework;
-
-#endregion
 
 namespace Composable.CQRS.Tests.CQRS.EventSourcing.Sql
 {

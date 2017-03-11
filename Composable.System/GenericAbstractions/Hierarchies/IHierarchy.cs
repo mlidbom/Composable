@@ -1,9 +1,4 @@
-﻿#region usings
-
-using System.Collections.Generic;
-
-
-#endregion
+﻿using System.Collections.Generic;
 
 namespace Composable.GenericAbstractions.Hierarchies
 {

@@ -1,10 +1,6 @@
-#region usings
-
 using System;
 using System.Diagnostics;
 using Composable.System;
-
-#endregion
 
 namespace Composable.DDD
 {

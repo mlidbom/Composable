@@ -1,8 +1,4 @@
-#region usings
-
 using System;
-
-#endregion
 
 namespace Composable.DDD
 {

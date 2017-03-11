@@ -1,11 +1,7 @@
-#region usings
-
 using System;
 using System.Collections.Generic;
 
 using Composable.Contracts;
-
-#endregion
 
 namespace Composable.System.Collections.Collections
 {

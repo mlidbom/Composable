@@ -1,11 +1,7 @@
-#region usings
-
 using System;
 
 using System.Linq.Expressions;
 using Composable.Contracts;
-
-#endregion
 
 namespace Composable.System.Linq
 {

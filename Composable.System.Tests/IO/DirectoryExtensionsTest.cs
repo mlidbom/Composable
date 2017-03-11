@@ -1,13 +1,9 @@
-#region usings
-
 using System;
 using System.IO;
 using System.Linq;
 using Composable.System.IO;
 using Composable.System.Linq;
 using NUnit.Framework;
-
-#endregion
 
 namespace Composable.Tests.IO
 {
@@ -51,8 +47,6 @@ namespace Composable.Tests.IO
             Console.WriteLine("Deleted directory {0}", directory);
         }
 
-        #region Helpers
-
         static string CreateUsableFolderPath()
         {
             return Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
@@ -86,7 +80,5 @@ namespace Composable.Tests.IO
 
             return size;
         }
-
-        #endregion
     }
 }

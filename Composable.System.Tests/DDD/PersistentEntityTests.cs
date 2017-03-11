@@ -1,10 +1,6 @@
-#region usings
-
 using System;
 using Composable.DDD;
 using NUnit.Framework;
-
-#endregion
 
 namespace Composable.Tests.DDD
 {

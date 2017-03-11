@@ -1,11 +1,7 @@
-#region usings
-
 using System;
 using System.Collections.Generic;
 using Composable.System.Collections.Collections;
 using NUnit.Framework;
-
-#endregion
 
 namespace Composable.Tests.System.Collections.Generic
 {

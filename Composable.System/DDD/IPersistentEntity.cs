@@ -1,9 +1,3 @@
-#region usings
-
-
-
-#endregion
-
 namespace Composable.DDD
 {
     /// <summary>

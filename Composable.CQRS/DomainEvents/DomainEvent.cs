@@ -1,12 +1,8 @@
-#region usings
-
 using System;
 using System.Collections.Generic;
 using System.Threading;
 using Composable.Contracts;
 using Composable.DomainEvents;
-
-#endregion
 
 namespace Composable.CQRS.DomainEvents
 {

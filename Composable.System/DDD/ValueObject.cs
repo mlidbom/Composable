@@ -1,12 +1,8 @@
-#region usings
-
 using System;
 using System.Collections;
 using System.Linq;
 using Composable.System.Reflection;
 using System.Web.Script.Serialization;
-
-#endregion
 
 namespace Composable.DDD
 {

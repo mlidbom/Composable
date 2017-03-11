@@ -1,10 +1,5 @@
-#region usings
-
 using System;
 using System.Collections.Generic;
-
-
-#endregion
 
 namespace Composable.System.Linq
 {

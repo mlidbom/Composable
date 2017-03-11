@@ -1,5 +1,3 @@
-#region usings
-
 using System;
 using System.Collections.Generic;
 
@@ -7,8 +5,6 @@ using System.Linq;
 using Composable.Contracts;
 using Composable.GenericAbstractions.Wrappers;
 using Composable.System.Linq;
-
-#endregion
 
 namespace Composable.GenericAbstractions.Hierarchies
 {

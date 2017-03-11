@@ -1,10 +1,6 @@
-﻿#region usings
-
-using System.Linq;
+﻿using System.Linq;
 using Composable.System.Linq;
 using NUnit.Framework;
-
-#endregion
 
 namespace Composable.Tests.Linq
 {

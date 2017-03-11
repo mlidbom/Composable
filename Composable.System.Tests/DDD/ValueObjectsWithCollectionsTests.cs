@@ -1,10 +1,6 @@
-#region usings
-
 using System.Collections.Generic;
 using Composable.DDD;
 using NUnit.Framework;
-
-#endregion
 
 namespace Composable.Tests.DDD
 {
@@ -19,10 +15,12 @@ namespace Composable.Tests.DDD
             }
 
             public IEnumerable<JobAdvertisement> JobAdvertisements { get; set; }
+            // ReSharper disable once UnusedAutoPropertyAccessor.Local
             public string CompanyState { get; set; }
 
             public class JobAdvertisement : ValueObject<JobAdvertisement>
             {
+                // ReSharper disable once UnusedAutoPropertyAccessor.Local
                 public string Name { get; set; }
             }
         }

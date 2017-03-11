@@ -1,13 +1,9 @@
-﻿#region usings
-
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using Composable.System.Linq;
 using FluentAssertions;
 using NUnit.Framework;
-
-#endregion
 
 namespace Composable.Tests.Linq
 {

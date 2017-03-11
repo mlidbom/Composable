@@ -1,10 +1,6 @@
-#region usings
-
 using System;
 using Composable.DDD;
 using NUnit.Framework;
-
-#endregion
 
 namespace Composable.Tests.DDD
 {
@@ -27,6 +23,7 @@ namespace Composable.Tests.DDD
             public Address()
             {}
 
+            // ReSharper disable once UnusedAutoPropertyAccessor.Local
             public string Guid { get;  set; }
         }
 
@@ -37,6 +34,7 @@ namespace Composable.Tests.DDD
                 Id = id;
             }
 
+            // ReSharper disable once UnusedAutoPropertyAccessor.Local
             Guid Id { get; set; }
         }
 

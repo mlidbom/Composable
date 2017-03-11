@@ -1,12 +1,8 @@
-#region usings
-
 using System;
 
 using System.Transactions;
 using Composable.Contracts;
 using JetBrains.Annotations;
-
-#endregion
 
 namespace Composable.System.Transactions
 {

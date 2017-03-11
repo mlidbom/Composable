@@ -41,7 +41,7 @@ namespace AccountManagement.Domain.Tests.When_a_user_registers_an_account
         {
             _registerAccountScenario.Email = null;
             this.Invoking(_ => _registerAccountScenario.Execute())
-                .ShouldThrow<Exception>(); ;
+                .ShouldThrow<Exception>();
         }
 
         [Test]
@@ -49,14 +49,14 @@ namespace AccountManagement.Domain.Tests.When_a_user_registers_an_account
         {
             _registerAccountScenario.AccountId = Guid.Empty;
             this.Invoking(_ => _registerAccountScenario.Execute())
-                .ShouldThrow<Exception>(); ;
+                .ShouldThrow<Exception>();
         }
 
         [Test]
         public void ObjectIsDefaultContractViolationException_is_thrown_if_repository_is_null()
         {
             this.Invoking(_ => Account.Register(_registerAccountScenario.Email, _registerAccountScenario.Password, Guid.Empty, _repository, _duplicateAccountChecker))
-                .ShouldThrow<Exception>(); ;
+                .ShouldThrow<Exception>();
         }
     }
 }

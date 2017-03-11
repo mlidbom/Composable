@@ -1,10 +1,6 @@
-#region usings
-
 using System;
 
 using Composable.Contracts;
-
-#endregion
 
 namespace Composable.System
 {

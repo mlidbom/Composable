@@ -1,12 +1,7 @@
-#region usings
-
-
 using System.IO;
 using System.Linq;
 using Composable.Contracts;
 using Composable.GenericAbstractions.Hierarchies;
-
-#endregion
 
 namespace Composable.System.IO
 {

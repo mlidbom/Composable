@@ -1,10 +1,7 @@
-#region usings
-
 using System;
 using Composable.DDD;
 using NUnit.Framework;
-
-#endregion
+// ReSharper disable UnusedAutoPropertyAccessor.Local
 
 namespace Composable.Tests.DDD
 {

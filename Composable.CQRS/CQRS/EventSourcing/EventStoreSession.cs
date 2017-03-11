@@ -1,6 +1,4 @@
-﻿#region usings
-
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using Composable.Contracts;
@@ -13,8 +11,6 @@ using Composable.System.Linq;
 using Composable.SystemExtensions.Threading;
 using Composable.UnitsOfWork;
 using log4net;
-
-#endregion
 
 namespace Composable.CQRS.CQRS.EventSourcing
 {
@@ -125,9 +121,6 @@ namespace Composable.CQRS.CQRS.EventSourcing
             return "{0}: {1}".FormatWith(_id, GetType().FullName);
         }
 
-
-        #region Implementation of IUnitOfWorkParticipant
-
         IUnitOfWork _unitOfWork;
         readonly Guid _id = Guid.NewGuid();
 
@@ -170,8 +163,6 @@ namespace Composable.CQRS.CQRS.EventSourcing
             _usageGuard.AssertNoContextChangeOccurred(this);
             return InternalSaveChanges();
         }
-
-        #endregion
 
         public IEnumerable<IAggregateRootEvent> GetHistory(Guid aggregateId)
         {

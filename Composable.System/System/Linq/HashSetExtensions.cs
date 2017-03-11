@@ -1,10 +1,6 @@
-#region usings
-
 using System.Collections.Generic;
 
 using Composable.Contracts;
-
-#endregion
 
 namespace Composable.System.Linq
 {

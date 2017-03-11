@@ -1,6 +1,7 @@
 using System;
 
 using Composable.Contracts;
+using JetBrains.Annotations;
 
 namespace Composable.SystemExtensions.Threading
 {
@@ -16,7 +17,7 @@ namespace Composable.SystemExtensions.Threading
         }
 
         ///<summary>Occasionally you have to be able to run code without validating the context. Passing such code to this method allows for that.</summary>
-        public static void RunInContextExcludedFromSingleUseRule(Action action)
+        public static void RunInContextExcludedFromSingleUseRule([InstantHandle]Action action)
         {
             ContractOptimized.Argument(action, nameof(action))
                              .NotNull();

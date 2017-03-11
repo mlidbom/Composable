@@ -26,8 +26,7 @@ namespace Composable.Testing
             _masterConnection = new SqlServerConnectionUtilities(_masterConnectionString);
 
 
-            var sqlConnectionStringBuilder = new SqlConnectionStringBuilder(_masterConnectionString);
-            sqlConnectionStringBuilder.InitialCatalog = ManagerDbName;
+            var sqlConnectionStringBuilder = new SqlConnectionStringBuilder(_masterConnectionString) {InitialCatalog = ManagerDbName};
             _managerConnection = new SqlServerConnectionUtilities(sqlConnectionStringBuilder.ConnectionString);
 
             EnsureManagerDbExists();
@@ -65,7 +64,6 @@ namespace Composable.Testing
                     database = new Database(
                         name: newDatabaseName,
                         isFree: false,
-                        reservationDate: DateTime.UtcNow,
                         connectionString: ConnectionStringForDbNamed(newDatabaseName));
 
                     using(new TransactionScope(TransactionScopeOption.Suppress))
@@ -149,8 +147,7 @@ CREATE TABLE [dbo].[{ManagerTableSchema.TableName}](
 
         string ConnectionStringForDbNamed(string dbName)
         {
-            var sqlConnectionStringBuilder = new SqlConnectionStringBuilder(_masterConnectionString);
-            sqlConnectionStringBuilder.InitialCatalog = dbName;
+            var sqlConnectionStringBuilder = new SqlConnectionStringBuilder(_masterConnectionString) {InitialCatalog = dbName};
             return sqlConnectionStringBuilder.ConnectionString;
         }
 
@@ -222,7 +219,6 @@ CREATE TABLE [dbo].[{ManagerTableSchema.TableName}](
                                 new Database(
                                     name: reader.GetString(0),
                                     isFree: reader.GetBoolean(1),
-                                    reservationDate: reader.GetDateTime(2),
                                     connectionString: ConnectionStringForDbNamed(reader.GetString(0))));
                         }
                     }
@@ -261,14 +257,12 @@ CREATE TABLE [dbo].[{ManagerTableSchema.TableName}](
         class Database
         {
             public string Name { get; }
-            public bool IsFree { get; set; }
-            public DateTime ReservationDate { get; set; }
+            public bool IsFree { get; }
             public string ConnectionString { get; }
-            public Database(string name,  bool isFree, DateTime reservationDate, string connectionString)
+            public Database(string name,  bool isFree, string connectionString)
             {
                 Name = name;
                 IsFree = isFree;
-                ReservationDate = reservationDate;
                 ConnectionString = connectionString;
             }
         }

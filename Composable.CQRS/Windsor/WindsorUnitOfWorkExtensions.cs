@@ -1,12 +1,13 @@
 ﻿using System;
 using Castle.MicroKernel.Lifestyle;
 using Castle.Windsor;
+using JetBrains.Annotations;
 
 namespace Composable.CQRS.Windsor
 {
     public static class WindsorUnitOfWorkExtensions
     {
-        public static TResult ExecuteUnitOfWork<TResult>(this IWindsorContainer me, Func<TResult> function)
+        public static TResult ExecuteUnitOfWork<TResult>(this IWindsorContainer me, [InstantHandle]Func<TResult> function)
         {
             TResult result;
             using (var transaction = me.BeginTransactionalUnitOfWorkScope())
@@ -17,7 +18,7 @@ namespace Composable.CQRS.Windsor
             return result;
         }
 
-        public static void ExecuteUnitOfWork(this IWindsorContainer me, Action action)
+        public static void ExecuteUnitOfWork(this IWindsorContainer me, [InstantHandle]Action action)
         {
             using (var transaction = me.BeginTransactionalUnitOfWorkScope())
             {
@@ -26,7 +27,7 @@ namespace Composable.CQRS.Windsor
             }
         }
 
-        internal static TResult ExecuteUnitOfWorkInIsolatedScope<TResult>(this IWindsorContainer me, Func<TResult> function)
+        internal static TResult ExecuteUnitOfWorkInIsolatedScope<TResult>(this IWindsorContainer me, [InstantHandle]Func<TResult> function)
         {
             using (me.BeginScope())
             {
@@ -34,7 +35,7 @@ namespace Composable.CQRS.Windsor
             }
         }
 
-        internal static void ExecuteUnitOfWorkInIsolatedScope(this IWindsorContainer me, Action action)
+        internal static void ExecuteUnitOfWorkInIsolatedScope(this IWindsorContainer me, [InstantHandle]Action action)
         {
             using (me.BeginScope())
             {
@@ -42,7 +43,7 @@ namespace Composable.CQRS.Windsor
             }
         }
 
-        internal static TResult ExecuteInIsolatedScope<TResult>(this IWindsorContainer me, Func<TResult> function)
+        internal static TResult ExecuteInIsolatedScope<TResult>(this IWindsorContainer me, [InstantHandle]Func<TResult> function)
         {
             using (me.BeginScope())
             {
@@ -50,7 +51,7 @@ namespace Composable.CQRS.Windsor
             }
         }
 
-        internal static void ExecuteInIsolatedScope(this IWindsorContainer me, Action action)
+        internal static void ExecuteInIsolatedScope(this IWindsorContainer me, [InstantHandle]Action action)
         {
             using (me.BeginScope())
             {

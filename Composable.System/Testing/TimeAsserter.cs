@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.Threading;
 using Composable.System;
 using Composable.System.Diagnostics;
+using JetBrains.Annotations;
 
 namespace Composable.Testing
 {
@@ -30,7 +31,7 @@ namespace Composable.Testing
         }
 
         public static StopwatchExtensions.TimedExecutionSummary Execute
-            (Action action,
+            ([InstantHandle]Action action,
              int iterations = 1,
              TimeSpan? maxAverage = null,
              TimeSpan? maxTotal = null,
@@ -70,7 +71,7 @@ namespace Composable.Testing
         }
 
         public static StopwatchExtensions.TimedThreadedExecutionSummary ExecuteThreaded
-            (Action action,
+            ([InstantHandle]Action action,
              int iterations = 1,
              TimeSpan? maxAverage = null,
              TimeSpan? maxTotal = null,
@@ -83,6 +84,8 @@ namespace Composable.Testing
             maxTotal = maxTotal != default(TimeSpan) ? maxTotal : TimeSpan.MaxValue;
 
             StopwatchExtensions.TimedThreadedExecutionSummary executionSummary = null;
+
+            // ReSharper disable AccessToModifiedClosure
 
             Func<TimeSpan?, string> format = date => date?.ToString(timeFormat) ?? "";
 
@@ -101,6 +104,7 @@ namespace Composable.Testing
     Sum:     {format(executionSummary.IndividualExecutionTimes.Sum())}");
                                       }
                                   };
+            // ReSharper restore AccessToModifiedClosure
 
             for (int tries = 1; tries <= maxTries; tries++)
             {
@@ -126,7 +130,7 @@ namespace Composable.Testing
             return executionSummary;
         }
 
-        static void RunAsserts(TimeSpan? maxAverage, TimeSpan? maxTotal, StopwatchExtensions.TimedExecutionSummary executionSummary, Func<TimeSpan?, string> format)
+        static void RunAsserts(TimeSpan? maxAverage, TimeSpan? maxTotal, StopwatchExtensions.TimedExecutionSummary executionSummary, [InstantHandle]Func<TimeSpan?, string> format)
         {
             if(maxTotal.HasValue && executionSummary.Total > maxTotal.Value)
             {
@@ -139,7 +143,7 @@ namespace Composable.Testing
             }
         }
         static void PrintSummary
-            (int iterations, TimeSpan? maxAverage, TimeSpan? maxTotal, string description, Func<TimeSpan?, string> format, StopwatchExtensions.TimedExecutionSummary executionSummary)
+            (int iterations, TimeSpan? maxAverage, TimeSpan? maxTotal, string description, [InstantHandle]Func<TimeSpan?, string> format, StopwatchExtensions.TimedExecutionSummary executionSummary)
         {
             if(iterations > 1)
             {

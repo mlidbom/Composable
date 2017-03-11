@@ -44,6 +44,7 @@ namespace NetMqProcess01.__Mine
                                        (sender, socketEventArgs) =>
                                            {
                                                NetMQMessage request = null;
+                                               // ReSharper disable once AccessToModifiedClosure
                                                if(responseSocket.TryReceiveMultipartMessage(ref request))
                                                {
                                                    var clientId = request.First.ConvertToInt32();
@@ -56,6 +57,7 @@ namespace NetMqProcess01.__Mine
                                                                                   );
 
                                                    //Console.WriteLine($"Server {serverId} responding to client: {clientId}");
+                                                   // ReSharper disable once AccessToModifiedClosure
                                                    responseSocket.SendMultipartMessage(response);
                                                }
                                            };

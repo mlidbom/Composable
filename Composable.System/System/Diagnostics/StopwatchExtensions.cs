@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using Composable.System.Linq;
+using JetBrains.Annotations;
 
 namespace Composable.System.Diagnostics
 {
@@ -11,10 +12,10 @@ namespace Composable.System.Diagnostics
     static class StopwatchExtensions
     {
         ///<summary>Measures how long it takes to execute <paramref name="action"/></summary>
-        public static TimeSpan TimeExecution(Action action) => new Stopwatch().TimeExecution(action);
+        public static TimeSpan TimeExecution([InstantHandle]Action action) => new Stopwatch().TimeExecution(action);
 
         ///<summary>Measures how long it takes to execute <paramref name="action"/></summary>
-        static TimeSpan TimeExecution(this Stopwatch @this, Action action)
+        static TimeSpan TimeExecution(this Stopwatch @this, [InstantHandle]Action action)
         {
             @this.Reset();
             @this.Start();
@@ -23,7 +24,7 @@ namespace Composable.System.Diagnostics
         }
 
 
-        public static TimedExecutionSummary TimeExecution(Action action, int iterations = 1)
+        public static TimedExecutionSummary TimeExecution([InstantHandle]Action action, int iterations = 1)
         {
             var total = TimeExecution(
                 () =>
@@ -37,7 +38,7 @@ namespace Composable.System.Diagnostics
             return new TimedExecutionSummary(iterations, total);
         }
 
-        public static TimedThreadedExecutionSummary TimeExecutionThreaded(Action action, int iterations = 1, bool timeIndividualExecutions = false)
+        public static TimedThreadedExecutionSummary TimeExecutionThreaded([InstantHandle]Action action, int iterations = 1, bool timeIndividualExecutions = false)
         {
             var executionTimes = new List<TimeSpan>();
             Func<TimeSpan> timedAction = () => TimeExecution(action);

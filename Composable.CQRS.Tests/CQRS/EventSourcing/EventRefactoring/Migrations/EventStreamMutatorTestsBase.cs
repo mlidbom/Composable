@@ -18,6 +18,7 @@ using Composable.System.Linq;
 using Composable.UnitsOfWork;
 using Composable.Windsor.Testing;
 using FluentAssertions;
+using JetBrains.Annotations;
 using Newtonsoft.Json;
 using NUnit.Framework;
 
@@ -137,7 +138,8 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
 
         }
 
-        protected static WindsorContainer CreateContainerForEventStoreType(Func<IReadOnlyList<IEventMigration>> migrationsfactory, Type eventStoreType, string eventStoreConnectionString = null)
+        //InstantHandle is not actually true, but the thing resharper warns about is exactly what we want here!
+        protected static WindsorContainer CreateContainerForEventStoreType([InstantHandle]Func<IReadOnlyList<IEventMigration>> migrationsfactory, Type eventStoreType, string eventStoreConnectionString = null)
         {
             var container = new WindsorContainer();
 

@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 
 using Composable.Contracts;
+using JetBrains.Annotations;
 
 #endregion
 
@@ -28,7 +29,7 @@ namespace Composable.System.Linq
         /// <summary>
         /// Executes <paramref name="action"/> for each element in the sequence <paramref name="source"/>.
         /// </summary>
-        public static void ForEach<T>(this IEnumerable<T> source, Action<T> action)
+        public static void ForEach<T>(this IEnumerable<T> source, [InstantHandle]Action<T> action)
         {
             ContractOptimized.Argument(source, nameof(source), action, nameof(action))
                              .NotNull();

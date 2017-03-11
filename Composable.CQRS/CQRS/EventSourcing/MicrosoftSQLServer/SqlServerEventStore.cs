@@ -226,6 +226,7 @@ namespace Composable.CQRS.CQRS.EventSourcing.MicrosoftSQLServer
                 if(logInterval < DateTime.Now - lastLogTime)
                 {
                     lastLogTime = DateTime.Now;
+                    // ReSharper disable once AccessToModifiedClosure
                     Func<int> percentDone = () => (int)(((double)migratedAggregates / aggregateIdsInCreationOrder.Count) * 100);
                     this.Log().Info($"{percentDone()}% done. Inspected: {migratedAggregates} / {aggregateIdsInCreationOrder.Count}, Updated: {updatedAggregates}, New Events: {newEventCount}");
                 }

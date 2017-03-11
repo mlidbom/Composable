@@ -50,10 +50,10 @@ namespace Composable.Messaging.Events
     static class EventHandlerRegistrar
     {
         public static IEventHandlerRegistrar<TBaseEvent> BeforeHandlers<TBaseEvent>
-            (this IEventHandlerRegistrar<TBaseEvent> @this, Action<TBaseEvent> handler) where TBaseEvent : class { return @this.BeforeHandlers<TBaseEvent>(handler); }
+            (this IEventHandlerRegistrar<TBaseEvent> @this, Action<TBaseEvent> handler) where TBaseEvent : class { return @this.BeforeHandlers(handler); }
 
         public static IEventHandlerRegistrar<TBaseEvent> AfterHandlers<TBaseEvent>
-            (this IEventHandlerRegistrar<TBaseEvent> @this, Action<TBaseEvent> handler) where TBaseEvent : class { return @this.AfterHandlers<TBaseEvent>(handler); }
+            (this IEventHandlerRegistrar<TBaseEvent> @this, Action<TBaseEvent> handler) where TBaseEvent : class { return @this.AfterHandlers(handler); }
 
         public static IEventHandlerRegistrar<TNewBaseEvent> DownCast<TBaseEvent, TNewBaseEvent>(this IEventHandlerRegistrar<TBaseEvent> @this)
             where TBaseEvent : class

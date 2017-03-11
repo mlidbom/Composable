@@ -18,7 +18,7 @@ namespace Composable.Messaging.Events
         readonly List<Action<object>> _runBeforeHandlers = new List<Action<object>>();
         readonly List<Action<object>> _runAfterHandlers = new List<Action<object>>();
         readonly HashSet<Type> _ignoredEvents = new HashSet<Type>();
-        int _totalHandlers = 0;
+        int _totalHandlers;
 
         ///<summary>Registers handlers for the incoming events. All matching handlers will be called in the order they were registered.</summary>
         internal IEventHandlerRegistrar<TEvent> RegisterHandlers()
@@ -95,7 +95,8 @@ namespace Composable.Messaging.Events
         }
 
         Dictionary<Type, Action<object>[]> _typeToHandlerCache;
-        int _cachedTotalHandlers = 0;
+        int _cachedTotalHandlers;
+        // ReSharper disable once StaticMemberInGenericType
         static readonly Action<object>[] NullHandlerList = new Action<object>[0];
 
         Action<object>[] GetHandlers(Type type)

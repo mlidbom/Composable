@@ -154,7 +154,7 @@ namespace Composable.CQRS.Specs.KeyValueStorage.Sql
         string GetStoredValue(string theId)
         {
             string storedValue;
-            _store.TryGet<string>(theId, out storedValue, _persistentValues);
+            _store.TryGet(theId, out storedValue, _persistentValues);
             return storedValue;
         }
 

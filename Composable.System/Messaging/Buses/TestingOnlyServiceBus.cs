@@ -37,13 +37,11 @@ namespace Composable.Messaging.Buses
 
         class ScheduledMessage
         {
-            Guid Id { get; }
             public DateTime SendAt { get; }
             public ICommand Message { get; }
 
             public ScheduledMessage(DateTime sendAt, ICommand message)
             {
-                Id = Guid.NewGuid();
                 SendAt = sendAt.SafeToUniversalTime();
                 Message = message;
             }

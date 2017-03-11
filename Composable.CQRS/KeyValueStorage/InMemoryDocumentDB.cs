@@ -27,7 +27,7 @@ namespace Composable.CQRS.KeyValueStorage
 
         public bool TryGet<T>(object id, out T value, Dictionary<Type, Dictionary<string, string>> persistentValues)
         {
-            return TryGet<T>(id, out value);
+            return TryGet(id, out value);
         }
 
         public void Add<T>(object id, T value, Dictionary<Type, Dictionary<string, string>> persistentValues)

@@ -79,7 +79,7 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
       }
 
     [Test]
-    public void A_ten_thousand_events_large_aggregate_with_no_migrations_should_load_uncached_in_less_than_200_milliseconds()
+    public void A_ten_thousand_events_large_aggregate_with_no_migrations_should_load_uncached_in_less_than_300_milliseconds()
     {
       using (var container = CreateContainerForEventStoreType(() => new List<IEventMigration>(), EventStoreType))
       {
@@ -89,13 +89,16 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
         var aggregate = TestAggregate.FromEvents(timeSource, Guid.NewGuid(), history);
         container.ExecuteUnitOfWorkInIsolatedScope(() => container.Resolve<IEventStoreSession>().Save(aggregate));
 
-        TimeAsserter.Execute(
-          maxTotal: 200.Milliseconds().AdjustRuntimeToTestEnvironment(),
+        var time = TimeAsserter.Execute(
+          maxTotal: 300.Milliseconds().AdjustRuntimeToTestEnvironment(),
           description: "load aggregate in isolated scope",
           action:
           () =>
             container.ExecuteInIsolatedScope(
               () => container.Resolve<IEventStoreSession>().Get<TestAggregate>(aggregate.Id)));
+
+          time.Total.Should()
+              .BeGreaterThan(50.Milliseconds(), "It seems we have changed cache behavior and need to refactor this test. We try for speed but this is not likely to ever be achieved uncached.");
       }
     }
 

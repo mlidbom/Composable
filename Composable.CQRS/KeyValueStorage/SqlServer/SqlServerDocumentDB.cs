@@ -131,10 +131,10 @@ WHERE Id=@Id AND ValueTypeId
             return id.ToString().ToLower().TrimEnd(' ');
         }
 
-        public bool Remove<T>(object id)
+        public void Remove<T>(object id)
         {
             EnsureInitialized();
-            return Remove(id, typeof(T));
+            Remove(id, typeof(T));
         }
         public int RemoveAll<T>()
         {
@@ -153,7 +153,7 @@ WHERE Id=@Id AND ValueTypeId
             }
         }
 
-        public bool Remove(object id, Type documentType)
+        public void Remove(object id, Type documentType)
         {
             EnsureInitialized();
             using(var connection = OpenSession())
@@ -167,11 +167,14 @@ WHERE Id=@Id AND ValueTypeId
                     AddTypeCriteria(command, documentType);
 
                     var rowsAffected = command.ExecuteNonQuery();
-                    if(rowsAffected > 1)
+                    if(rowsAffected < 1)
+                    {
+                        throw new NoSuchDocumentException(id, documentType);
+                    }
+                    if (rowsAffected > 1)
                     {
                         throw new TooManyItemsDeletedException();
                     }
-                    return rowsAffected > 0;
                 }
             }
         }

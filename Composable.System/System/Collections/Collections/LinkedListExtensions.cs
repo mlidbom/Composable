@@ -1,7 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 using System.Linq;
-using Composable.Contracts;
 
 namespace Composable.System.Collections.Collections
 {
@@ -23,35 +23,42 @@ namespace Composable.System.Collections.Collections
         public static IEnumerable<T> ValuesFrom<T>(this LinkedListNode<T> @this) { return @this.NodesFrom().Select(node => node.Value); }
 
         ///<summary>Inserts <paramref name="items"/> after the <paramref name="this"/>  node and returns the nodes that were inserted.</summary>
-        static IReadOnlyList<LinkedListNode<T>> AddAfter<T>(this LinkedListNode<T> @this, IEnumerable<T> items)
+        public static void AddBefore<T>(this LinkedListNode<T> @this, IEnumerable<T> items)
         {
-            Contract.Argument(() => items, () => @this).NotNull();
+            if(items == null || @this == null)
+            {
+                throw new ArgumentNullException();
+            }
 
-            return items
-                .Reverse()
-                .Select(@event => @this.List.AddAfter(@this, @event))
-                .Reverse()
-                .ToList();
-        }
-
-        ///<summary>Inserts <paramref name="items"/> after the <paramref name="this"/>  node and returns the nodes that were inserted.</summary>
-        public static IReadOnlyList<LinkedListNode<T>> AddBefore<T>(this LinkedListNode<T> @this, IEnumerable<T> items)
-        {
-            Contract.Argument(() => items, () => @this).NotNull();
-
-            return items
-                .Select(@event => @this.List.AddBefore(@this, @event))
-                .ToList();
+            foreach(var item in items)
+            {
+                @this.List.AddBefore(@this, item);
+            }
         }
 
         ///<summary>Replaces <paramref name="this"/> and returns the nodes that were inserted.</summary>
-        public static IReadOnlyList<LinkedListNode<T>> Replace<T>(this LinkedListNode<T> @this, IEnumerable<T> items)
+        public static LinkedListNode<T> Replace<T>(this LinkedListNode<T> @this, IEnumerable<T> items)
         {
-            Contract.Argument(() => items, () => @this).NotNull();
+            if (items == null || @this == null)
+            {
+                throw new ArgumentNullException();
+            }
 
-            var newNodes = @this.AddAfter(items);
+            LinkedListNode<T> current = null;
+            var newItemsReversed = items.Reverse().ToList();
+            if(newItemsReversed.Count < 1)
+            {
+                throw new ArgumentException($"{nameof(items)} may not be empty");
+            }
+
+            foreach(var newItem in newItemsReversed)
+            {
+                current = @this.List.AddAfter(@this, newItem);
+            }
             @this.List.Remove(@this);
-            return newNodes;
+            return current;
         }
+
+
     }
 }

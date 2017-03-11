@@ -1,8 +1,4 @@
-﻿using System;
-using System.Linq.Expressions;
-using Composable.System.Linq;
-
-namespace Composable.System.Configuration
+﻿namespace Composable.System.Configuration
 {
     ///<summary>Allows for reading configuration parameters from a source such as a configuration file</summary>
     interface IConfigurationParameterProvider
@@ -15,10 +11,5 @@ namespace Composable.System.Configuration
     {
         public static bool GetBoolean(this IConfigurationParameterProvider @this, string parameterName, bool? valueIfMissing = null)
             => bool.Parse(@this.GetString(parameterName, valueIfMissing?.ToString()));
-        public static bool GetBooleanFor(this IConfigurationParameterProvider @this, Expression<Func<bool>> memberPathToUseAsParameterName, bool? valueIfMissing = null)
-        {
-            var configurationValue = ExpressionUtil.ExtractMemberPath(memberPathToUseAsParameterName);
-            return bool.Parse(@this.GetString(configurationValue, valueIfMissing?.ToString()));
-        }
     }
 }

@@ -1,6 +1,7 @@
 ﻿using System;
 using Castle.MicroKernel.Registration;
 using Castle.Windsor;
+// ReSharper disable UnusedMethodReturnValue.Global
 
 namespace Composable.Windsor
 {

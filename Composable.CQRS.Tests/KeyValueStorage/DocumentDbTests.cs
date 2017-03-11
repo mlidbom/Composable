@@ -751,6 +751,8 @@ namespace Composable.CQRS.Tests.KeyValueStorage
 
             var user = new User() {Id = Guid.NewGuid()};
 
+            // ReSharper disable once NotAccessedVariable
+            bool found;
             Assert.Throws<MultiRequestAccessDetected>(() => session.Get<User>(Guid.NewGuid()));
             Assert.Throws<MultiRequestAccessDetected>(() => session.GetAll<User>());
             Assert.Throws<MultiRequestAccessDetected>(() => session.Save(user, user.Id));
@@ -758,8 +760,8 @@ namespace Composable.CQRS.Tests.KeyValueStorage
             Assert.Throws<MultiRequestAccessDetected>(session.Dispose);
             Assert.Throws<MultiRequestAccessDetected>(() => session.Save(new User()));
             Assert.Throws<MultiRequestAccessDetected>(session.SaveChanges);
-            Assert.Throws<MultiRequestAccessDetected>(() => session.TryGet(Guid.NewGuid(), out user));
-            Assert.Throws<MultiRequestAccessDetected>(() => session.TryGetForUpdate(user.Id, out user));
+            Assert.Throws<MultiRequestAccessDetected>(() => found = session.TryGet(Guid.NewGuid(), out user));
+            Assert.Throws<MultiRequestAccessDetected>(() => found = session.TryGetForUpdate(user.Id, out user));
             Assert.Throws<MultiRequestAccessDetected>(() => session.Delete(user));
         }
 

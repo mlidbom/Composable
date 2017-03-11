@@ -19,12 +19,4 @@ namespace Composable.System.Reactive
         public void OnError(Exception error) => _onError(error);
         public void OnCompleted() => _onCompleted();
     }
-
-    static class ObservableExtensions
-    {
-        public static IDisposable Subscribe<TEvent>(this IObservable<TEvent> @this, Action<TEvent> onNext)
-        {
-            return @this.Subscribe( new SimpleObserver<TEvent>(onNext: onNext));
-        }
-    }
 }

@@ -128,15 +128,6 @@
       <FixtureTestSelector>
         <FixtureName>CQRS.Tests.CQRS.EventSourcing.AggregateRoot.NestedEntitiesTests.GuidId.NestedEntitiesTests</FixtureName>
       </FixtureTestSelector>
-      <NamedTestSelector>
-        <TestName>Composable.CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations.SingleAggregateInstanceEventStreamMutatorPerformanceTest_Given_a_10000_events_large_aggregate.Aggregate_should_raise_100_000_events_in_less_than_180_milliseconds</TestName>
-      </NamedTestSelector>
-      <NamedTestSelector>
-        <TestName>Composable.CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations.SqlServerMigrationsPerformanceTest.A_ten_thousand_events_large_aggregate_with_no_migrations_should_load_uncached_in_less_than_300_milliseconds</TestName>
-      </NamedTestSelector>
-      <NamedTestSelector>
-        <TestName>Composable.CQRS.Tests.SqlServerDatabasePoolTests.PerformanceTests.Multiple_threads_can_reserve_and_release_10_identically_named_databases_in_200_milliseconds</TestName>
-      </NamedTestSelector>
     </IgnoredTests>
     <PreviouslyBuiltSuccessfully>True</PreviouslyBuiltSuccessfully>
   </Settings>

@@ -9,7 +9,5 @@
         Invariant,
         ///<summary>The inspected value is a return value</summary>
         ReturnValue,
-        ///<summary>Sanity check in the code.</summary>
-        Assert
     }
 }

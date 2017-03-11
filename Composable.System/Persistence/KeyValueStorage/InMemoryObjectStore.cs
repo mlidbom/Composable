@@ -75,11 +75,11 @@ namespace Composable.Persistence.KeyValueStorage
             }
         }
 
-        public bool Remove<T>(object id)
+        public void Remove<T>(object id)
         {
             lock(LockObject)
             {
-                return Remove(id, typeof(T));
+                Remove(id, typeof(T));
             }
         }
 
@@ -94,17 +94,20 @@ namespace Composable.Persistence.KeyValueStorage
             return toRemove.Count;
         }
 
-        public bool Remove(object id, Type documentType)
+        public void Remove(object id, Type documentType)
         {
             lock(LockObject)
             {
                 var idstring = GetIdString(id);
                 var removed = _db.GetOrAddDefault(idstring).RemoveWhere(value => documentType.IsAssignableFrom(value.GetType()));
-                if(removed > 1)
+                if(removed < 1)
                 {
-                    throw new Exception("FUBAR");
+                    throw new NoSuchDocumentException(id, documentType);
                 }
-                return removed == 1;
+                if (removed > 1)
+                {
+                    throw new Exception("It really should be impossible to hit multiple documents with one Id, but apparently you just did it!");
+                }
             }
         }
 

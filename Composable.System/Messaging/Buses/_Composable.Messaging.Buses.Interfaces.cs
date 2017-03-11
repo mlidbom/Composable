@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using Composable.Messaging.Events;
-using Composable.System.Transactions;
 
 namespace Composable.Messaging.Buses
 {
@@ -40,17 +39,10 @@ namespace Composable.Messaging.Buses
 
     public interface IMessageHandlerRegistrar
     {
+        // ReSharper disable UnusedMethodReturnValue.Global
         IMessageHandlerRegistrar ForEvent<TEvent>(Action<TEvent> handler) where TEvent : IEvent;
         IMessageHandlerRegistrar ForCommand<TCommand>(Action<TCommand> handler) where TCommand : ICommand;
         IMessageHandlerRegistrar ForQuery<TQuery, TResult>(Func<TQuery, TResult> handler) where TQuery : IQuery<TResult> where TResult : IQueryResult;
-    }
-
-    public interface IMessageHandlerScope : IDisposable {}
-
-    public interface IMessageHandlerScopeManager
-    {
-        ITransactionalScope GetOrCreateQueryHandlerScope();
-        ITransactionalScope GetOrCreateCommandHandlerScope();
-        ITransactionalScope GetOrCreateEventSubscriberScope();
+        // ReSharper restore UnusedMethodReturnValue.Global
     }
 }

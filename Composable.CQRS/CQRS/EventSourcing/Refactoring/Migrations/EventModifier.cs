@@ -69,7 +69,7 @@ namespace Composable.CQRS.CQRS.EventSourcing.Refactoring.Migrations
                     e.UtcTimeStamp = Event.UtcTimeStamp;
                 });
 
-            CurrentNode = CurrentNode.Replace(_replacementEvents).First();
+            CurrentNode = CurrentNode.Replace(_replacementEvents);
             _eventsAddedCallback.Invoke(_replacementEvents);
         }
 

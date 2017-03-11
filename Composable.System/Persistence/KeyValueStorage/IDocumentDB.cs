@@ -10,9 +10,9 @@ namespace Composable.Persistence.KeyValueStorage
         void Add<T>(object id, T value, Dictionary<Type, Dictionary<string, string>> persistentValues);
         void Update(IEnumerable<KeyValuePair<string, object>> values, Dictionary<Type, Dictionary<string, string>> persistentValues);
 
-        bool Remove<T>(object id);
+        void Remove<T>(object id);
         int RemoveAll<T>();
-        bool Remove(object id, Type documentType);
+        void Remove(object id, Type documentType);
         IEnumerable<T> GetAll<T>() where T : IHasPersistentIdentity<Guid>;
         IEnumerable<T> GetAll<T>(IEnumerable<Guid> ids) where T : IHasPersistentIdentity<Guid>;
         IEnumerable<Guid> GetAllIds<T>() where T : IHasPersistentIdentity<Guid>;

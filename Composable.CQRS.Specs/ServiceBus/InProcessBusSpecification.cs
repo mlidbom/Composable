@@ -46,10 +46,7 @@ namespace Composable.CQRS.Specs.ServiceBus
                 () =>
                 {
                     bool eventHandled = false;
-                    before = () =>
-                    {
-                        registrar.ForEvent<AnEvent>(command => eventHandled = true);
-                    };
+                    before = () => registrar.ForEvent<AnEvent>(command => eventHandled = true);
                     it["Handles(new AnEvent()) returns true"] = () => bus.Handles(new AnEvent()).Should().Be(true);
                     it["Publish(new AnEvent()) throws no exception"] = () => bus.Publish(new AnEvent());
                     it["Publish(new AnEvent()) dispatches to AnEventHandler"] = () =>

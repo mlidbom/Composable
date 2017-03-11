@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 
 using System.Linq;
@@ -17,19 +16,6 @@ namespace Composable.System.Linq
             ContractOptimized.Argument(source, nameof(source), instances, nameof(instances))
                              .NotNull();
             return source.Concat(instances);
-        }
-
-        /// <summary>
-        /// <para>The inversion of Enumerable.Any(Func&lt;T, bool&gt; predicate) </para>
-        /// <para>Returns true if <paramref name="me"/> contains no elements matching <paramref name="predicate"/></para>
-        /// </summary>
-        /// <returns>true if <paramref name="me"/> contains no objects matching <paramref name="predicate"/>. Otherwise false.</returns>
-        public static bool None<T>(this IEnumerable<T> me, Func<T, bool> predicate)
-        {
-            ContractOptimized.Argument(me, nameof(me), predicate, nameof(predicate))
-                             .NotNull();
-
-            return !me.Any(predicate);
         }
 
         /// <summary>

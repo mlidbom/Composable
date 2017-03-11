@@ -12,6 +12,7 @@ using Composable.System.Configuration;
 using Composable.System.Linq;
 using Composable.UnitsOfWork;
 using Composable.Windsor.Testing;
+// ReSharper disable UnusedMethodReturnValue.Global
 
 // ReSharper disable UnusedMember.Global todo: write complete tests and remove unused.
 

@@ -46,25 +46,6 @@ namespace Composable.System.Reflection
             return me.GetInterfaces().Contains(implemented);
         }
 
-        ///<summary>Returns a sequence containing all the classes and interfaces that this type inherits/implements</summary>
-        public static IEnumerable<Type> GetAllTypesInheritedOrImplemented(this Type me)
-        {
-            ContractOptimized.Argument(me, nameof(me))
-                             .NotNull();
-            return me.GetClassInheritanceChain().Concat(me.GetInterfaces());
-        }
-
-        ///<summary>Lists all classes that this class inherits prepended by the class of the instance itself.</summary>
-        static IEnumerable<Type> GetClassInheritanceChain(this Type me)
-        {
-            yield return me;
-            while (me.BaseType != null)
-            {
-                me = me.BaseType;
-                yield return me;
-            }
-        }
-
         static readonly Dictionary<string, Type> TypeMap = new Dictionary<string, Type>();
 
         ///<summary>Finds the class that the string represents within any loaded assembly. Calling with "MyNameSpace.MyObject" would return the same type as typeof(MyNameSpace.MyObject) etc.</summary>

@@ -38,14 +38,4 @@ namespace Composable.Messaging
     {
         void Handle(TEvent message);
     }
-
-    ///<summary>An <see cref="IEventSubscriber{TEvent}"/> that should be invoked when an event is initially published. </summary>
-    public interface IPublishedEventSubscriber<in TEvent> : IEventSubscriber<TEvent>
-        where TEvent : IEvent {}
-
-    ///<summary>An <see cref="IEventSubscriber{TEvent}"/> that should be invoked when an event is replayed.</summary>
-    public interface IReplayedEventSubscriber<in TEvent> : IEventSubscriber<TEvent> where TEvent : IEvent {}
-
-    ///<summary>An <see cref="IEventSubscriber{TEvent}" /> that should be invoked when an event is either published or replayed.</summary>
-    public interface IPublishedAndReplayedEventSubscriber<in TEvent> : IEventSubscriber<TEvent> where TEvent : IEvent {}
 }

@@ -8,9 +8,6 @@
       <FixtureTestSelector>
         <FixtureName>Composable.Tests.SystemExtensions.ExceptionExtensions</FixtureName>
       </FixtureTestSelector>
-      <NamedTestSelector>
-        <TestName>Composable.Tests.Contracts.ObjectNotDefaultTests.ShouldRun500TestsIn10Milliseconds</TestName>
-      </NamedTestSelector>
     </IgnoredTests>
     <PreviouslyBuiltSuccessfully>True</PreviouslyBuiltSuccessfully>
   </Settings>

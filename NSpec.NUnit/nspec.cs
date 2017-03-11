@@ -22,7 +22,7 @@ namespace Composable
             var finder = new SpecFinder(new [] {GetType()});
             var tagsFilter = new Tags();
             var builder = new ContextBuilder(finder, tagsFilter, new DefaultConventions());
-            var runner = new ContextRunner(tagsFilter, new ConsoleFormatter(), false);
+            var runner = new ContextRunner(tagsFilter, new MyFormatter(), false);
             ContextCollection result = runner.Run(builder.Contexts().Build());
 
             if (result.Failures().Any())
@@ -31,7 +31,7 @@ namespace Composable
             }
         }
 
-        public class MyFormatter : ConsoleFormatter, IFormatter, ILiveFormatter
+        class MyFormatter : ConsoleFormatter, IFormatter, ILiveFormatter
         {
             static void WriteNoticeably(string message, params object[] formatwith)
             {

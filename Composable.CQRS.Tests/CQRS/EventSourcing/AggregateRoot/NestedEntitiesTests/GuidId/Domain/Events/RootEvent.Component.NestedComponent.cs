@@ -15,7 +15,6 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.AggregateRoot.NestedEntitiesT
                 {
                     public interface Name : NestedComponent.IRoot
                     {
-                        string Name { get; }
                     }
                 }
 

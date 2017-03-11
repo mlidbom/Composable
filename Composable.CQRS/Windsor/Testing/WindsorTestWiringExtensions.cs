@@ -3,6 +3,7 @@ using Composable.CQRS.CQRS.EventSourcing;
 using Composable.CQRS.KeyValueStorage;
 using Composable.Persistence.KeyValueStorage;
 using Composable.Windsor.Testing;
+// ReSharper disable UnusedMethodReturnValue.Global
 
 namespace Composable.CQRS.Windsor.Testing
 {

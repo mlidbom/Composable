@@ -3,7 +3,7 @@ using AccountManagement.UI.QueryModels.Services;
 using Castle.MicroKernel.Lifestyle;
 using Castle.Windsor;
 using Castle.Windsor.Installer;
-using Composable.CQRS.Testing.Windsor.Testing;
+using Composable.CQRS.Windsor.Testing.Testing;
 using NUnit.Framework;
 
 namespace AccountManagement.UI.QueryModels.Tests

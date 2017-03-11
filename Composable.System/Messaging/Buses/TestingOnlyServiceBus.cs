@@ -7,7 +7,7 @@ using Composable.System.Reactive;
 
 namespace Composable.Messaging.Buses
 {
-    public class TestingOnlyServiceBus : InProcessServiceBus, IServiceBus, IDisposable, IMessageSpy
+    class TestingOnlyServiceBus : InProcessServiceBus, IServiceBus, IDisposable, IMessageSpy
     {
         readonly DummyTimeSource _timeSource;
         readonly List<ScheduledMessage> _scheduledMessages = new List<ScheduledMessage>();

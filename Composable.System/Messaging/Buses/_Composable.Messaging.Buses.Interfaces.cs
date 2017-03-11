@@ -26,7 +26,7 @@ namespace Composable.Messaging.Buses
         IEnumerable<IMessage> DispatchedMessages { get; }
     }
 
-    public interface IMessageHandlerRegistry
+    interface IMessageHandlerRegistry
     {
         Action<object> GetCommandHandler(ICommand message);
 

@@ -17,7 +17,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Composable.CQRS.Testing\Composable.CQRS.Testing.csproj" />
     <ProjectReference Include="..\Composable.CQRS\Composable.CQRS.csproj" />
     <ProjectReference Include="..\Composable.System\Composable.Core.csproj" />
   </ItemGroup>

@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 using System.Transactions;
 using Composable.CQRS.CQRS.EventSourcing;
 using Composable.CQRS.CQRS.EventSourcing.MicrosoftSQLServer;
-using Composable.CQRS.Testing;
 using Composable.System.Linq;
 using Composable.SystemExtensions.Threading;
 using Composable.Testing;

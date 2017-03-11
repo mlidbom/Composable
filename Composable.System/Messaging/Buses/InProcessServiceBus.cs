@@ -2,7 +2,7 @@
 
 namespace Composable.Messaging.Buses
 {
-    [UsedImplicitly] public class InProcessServiceBus : IInProcessServiceBus
+    [UsedImplicitly] class InProcessServiceBus : IInProcessServiceBus
     {
         readonly IMessageHandlerRegistry _handlerRegistry;
 

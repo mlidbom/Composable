@@ -4,7 +4,7 @@ using Composable.System.Reactive;
 namespace Composable.GenericAbstractions.Time
 {
     /// <summary> Just statically returns whatever value was assigned.</summary>
-    public class DummyTimeSource : IUtcTimeTimeSource
+    class DummyTimeSource : IUtcTimeTimeSource
     {
         DateTime _utcNow;
 

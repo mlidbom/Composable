@@ -33,6 +33,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="DomainEvents\" />
     <Folder Include="System\Transactions\" />
   </ItemGroup>
 

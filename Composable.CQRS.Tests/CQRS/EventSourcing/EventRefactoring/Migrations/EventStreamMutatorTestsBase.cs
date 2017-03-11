@@ -8,7 +8,6 @@ using Composable.CQRS.CQRS.EventSourcing;
 using Composable.CQRS.CQRS.EventSourcing.MicrosoftSQLServer;
 using Composable.CQRS.CQRS.EventSourcing.Refactoring.Migrations;
 using Composable.CQRS.EventSourcing;
-using Composable.CQRS.Testing.Windsor;
 using Composable.CQRS.Windsor;
 using Composable.GenericAbstractions.Time;
 using Composable.Messaging.Buses;

@@ -2,14 +2,13 @@
 using Castle.MicroKernel.Registration;
 using Castle.Windsor;
 using Composable.GenericAbstractions.Time;
+using Composable.Messaging.Buses;
 using Composable.System.Configuration;
 using Composable.Windsor.Testing;
 
-namespace Composable.CQRS.Testing.Windsor.Testing
+namespace Composable.CQRS.Windsor.Testing.Testing
 {
-  using Composable.Messaging.Buses;
-
-  public static class TestingWindsorExtensions
+    public static class TestingWindsorExtensions
     {
         public static IWindsorContainer SetupForTesting(this IWindsorContainer @this, Action<IWindsorContainer> registerComponents )
         {

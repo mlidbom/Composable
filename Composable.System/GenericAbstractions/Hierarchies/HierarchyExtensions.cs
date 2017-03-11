@@ -20,7 +20,7 @@ namespace Composable.GenericAbstractions.Hierarchies
     /// </example>
     /// 
     /// </summary>
-    public interface IAutoHierarchy<T> : IHierarchy<IAutoHierarchy<T>>, IWrapper<T>
+    interface IAutoHierarchy<T> : IHierarchy<IAutoHierarchy<T>>, IWrapper<T>
     {
     }
 

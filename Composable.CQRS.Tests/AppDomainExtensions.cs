@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Threading;
 
-namespace Composable.CQRS.Testing
+namespace Composable.CQRS.Tests
 {
     static class AppDomainExtensions
     {

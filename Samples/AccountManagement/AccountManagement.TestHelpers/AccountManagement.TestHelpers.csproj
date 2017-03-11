@@ -13,7 +13,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\Composable.CQRS.Testing\Composable.CQRS.Testing.csproj" />
     <ProjectReference Include="..\..\..\Composable.CQRS\Composable.CQRS.csproj" />
     <ProjectReference Include="..\AccountManagement.Domain.Events.EventStore\AccountManagement.Domain.Events.EventStore.csproj" />
     <ProjectReference Include="..\AccountManagement.Domain.Events\AccountManagement.Domain.Events.csproj" />

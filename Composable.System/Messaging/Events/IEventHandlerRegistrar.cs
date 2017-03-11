@@ -11,13 +11,13 @@ namespace Composable.Messaging.Events
     /// <para>To get an instance of this interface, Call the extension on <see cref="IEventHandlerRegistrar{TBaseEvent}"/> <see cref="EventHandlerRegistrar.MakeGeneric{TBaseEvent}"/></para>
     /// 
     /// </summary>
-    public interface IGenericEventHandlerRegistrar
+    interface IGenericEventHandlerRegistrar
     {
         IGenericEventHandlerRegistrar ForGenericEvent<THandledEvent>(Action<THandledEvent> handler); // todo: Write tests
     }
 
     ///<summary>This registrar was created by upcasting an existing registrar. how the implementation of this is hidden gives some help ensuring that it is safe to use this.</summary>
-    public interface IUpCastEventHandlerRegistrar<in TBaseEvent>
+    interface IUpCastEventHandlerRegistrar<in TBaseEvent>
         where TBaseEvent : class
     {
         ///<summary>Registers a handler for any event that implements THandledEvent. All matching handlers will be called in the order they were registered.</summary>

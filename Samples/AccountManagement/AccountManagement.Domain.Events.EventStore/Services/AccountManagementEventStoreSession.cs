@@ -1,5 +1,4 @@
 ﻿using Composable.CQRS.CQRS.EventSourcing;
-using Composable.CQRS.EventSourcing;
 using Composable.GenericAbstractions.Time;
 using Composable.Messaging.Buses;
 using Composable.SystemExtensions.Threading;

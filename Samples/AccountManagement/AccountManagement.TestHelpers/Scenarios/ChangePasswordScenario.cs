@@ -3,7 +3,6 @@ using AccountManagement.Domain.Services;
 using AccountManagement.Domain.Shared;
 using Castle.Windsor;
 using Composable.CQRS.Windsor;
-using Composable.Windsor;
 
 namespace AccountManagement.TestHelpers.Scenarios
 {

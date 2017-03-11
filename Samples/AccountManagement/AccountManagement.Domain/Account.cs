@@ -6,7 +6,6 @@ using AccountManagement.Domain.Services;
 using AccountManagement.Domain.Shared;
 using Composable.Contracts;
 using Composable.CQRS.CQRS.EventSourcing;
-using Composable.CQRS.EventSourcing;
 using Composable.GenericAbstractions.Time;
 
 namespace AccountManagement.Domain

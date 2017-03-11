@@ -42,7 +42,7 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
                 container.ExecuteUnitOfWorkInIsolatedScope(() => container.Resolve<IEventStoreSession>().Get<TestAggregate>(aggregate.Id));
 
                 TimeAsserter.Execute(
-                    maxTotal: 20.Milliseconds().AdjustRuntimeToTestEnvironment(0),
+                    maxTotal: 20.Milliseconds().AdjustRuntimeToTestEnvironment(),
                     description: "load aggregate in isolated scope",
                     timeFormat: "fff",
                     action: () => container.ExecuteInIsolatedScope(() => container.Resolve<IEventStoreSession>().Get<TestAggregate>(aggregate.Id)),
@@ -69,7 +69,7 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
           container.ExecuteUnitOfWorkInIsolatedScope(() => container.Resolve<IEventStoreSession>().Save(aggregate));
 
           TimeAsserter.Execute(
-            maxTotal: 500.Milliseconds().AdjustRuntimeToTestEnvironment(0),
+            maxTotal: 500.Milliseconds().AdjustRuntimeToTestEnvironment(),
             description: "load aggregate in isolated scope",
             action:
             () =>
@@ -90,7 +90,7 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
         container.ExecuteUnitOfWorkInIsolatedScope(() => container.Resolve<IEventStoreSession>().Save(aggregate));
 
         TimeAsserter.Execute(
-          maxTotal: 200.Milliseconds().AdjustRuntimeToTestEnvironment(0),
+          maxTotal: 200.Milliseconds().AdjustRuntimeToTestEnvironment(),
           description: "load aggregate in isolated scope",
           action:
           () =>
@@ -112,7 +112,7 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
         container.ExecuteUnitOfWorkInIsolatedScope(() => container.Resolve<IEventStoreSession>().Save(aggregate));
 
         TimeAsserter.Execute(
-          maxTotal: 20.Milliseconds().AdjustRuntimeToTestEnvironment(0),
+          maxTotal: 20.Milliseconds().AdjustRuntimeToTestEnvironment(),
           description: "load aggregate in isolated scope",
           action:
           () =>

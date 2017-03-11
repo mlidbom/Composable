@@ -19,11 +19,13 @@ using TestAggregates.Events;
 
 namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
 {
+    [TestFixture]
     public class InMemoryEventStoreEventStreamMutatorTests : EventStreamMutatorTests
     {
         public InMemoryEventStoreEventStreamMutatorTests() : base(typeof(InMemoryEventStore)) { }
     }
 
+    [TestFixture]
     public class SqlServerEventStoreEventStreamMutatorTests : EventStreamMutatorTests
     {
         public SqlServerEventStoreEventStreamMutatorTests() : base(typeof(SqlServerEventStore)) { }

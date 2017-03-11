@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Threading;
 using Composable.System;
 using Composable.System.Diagnostics;
 
@@ -8,6 +9,25 @@ namespace Composable.Testing
     public static class TimeAsserter
     {
         const string DefaultTimeFormat = "ss\\.fff";
+
+        static PerformanceCounter _totalCpu;
+
+        static void WaitUntilCPULoadIsBelowPercent(int percent)
+        {
+            const int waitMilliseconds = 20;
+            if (_totalCpu == null)
+            {
+                _totalCpu = new PerformanceCounter("Processor", "% Processor Time", "_Total");
+            }
+
+            var currentValue = (int)_totalCpu.NextValue();
+            while (currentValue > percent || currentValue == 0)
+            {
+                Console.WriteLine($"Waiting {waitMilliseconds} milliseconds for CPU to drop below {percent} percent");
+                Thread.Sleep(waitMilliseconds);
+                currentValue = (int)_totalCpu.NextValue();
+            }
+        }
 
         public static StopwatchExtensions.TimedExecutionSummary Execute
             (Action action,
@@ -18,6 +38,7 @@ namespace Composable.Testing
              string timeFormat = DefaultTimeFormat,
              int maxTries = 1)
         {
+            var waitForCpuLoadToDropBelowPercent = 50;
             maxAverage = maxAverage != default(TimeSpan) ? maxAverage : TimeSpan.MaxValue;
             maxTotal = maxTotal != default(TimeSpan) ? maxTotal : TimeSpan.MaxValue;
 
@@ -25,6 +46,7 @@ namespace Composable.Testing
             StopwatchExtensions.TimedExecutionSummary executionSummary = null;
             for(int tries = 1; tries <= maxTries; tries++)
             {
+                WaitUntilCPULoadIsBelowPercent(waitForCpuLoadToDropBelowPercent);
                 executionSummary = StopwatchExtensions.TimeExecution(action: action, iterations: iterations);
                 try
                 {

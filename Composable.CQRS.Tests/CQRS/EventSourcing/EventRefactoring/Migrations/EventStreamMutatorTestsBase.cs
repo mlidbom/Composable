@@ -26,6 +26,7 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
 {
   using Composable.Messaging.Buses;
 
+    [TestFixture]
   //Todo: Refactor this test. It is too monolithic and hard to read and extend.
     public abstract class EventStreamMutatorTestsBase
     {

@@ -118,7 +118,7 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
                              .ToEvents();
 
             TimeAsserter.Execute(
-                maxTotal: 180.Milliseconds().AdjustRuntimeToTestEnvironment(2),
+                maxTotal: 180.Milliseconds().AdjustRuntimeToTestEnvironment(),
                 action: () => new TestAggregate2(history),
                 maxTries: 10);
         }
@@ -132,7 +132,7 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
                                                                 Before<E6>.Insert<E7>(),
                                                                 Before<E8>.Insert<E9>()
                                                                ).ToArray(),
-                                    15.Milliseconds().AdjustRuntimeToTestEnvironment(boost: 2));
+                                    15.Milliseconds().AdjustRuntimeToTestEnvironment());
         }
 
         [Test]
@@ -144,7 +144,7 @@ namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
                                                                 Before<E7>.Insert<E1>(),
                                                                 Before<E9>.Insert<E1>()
                                                                ).ToArray(),
-                                    10.Milliseconds().AdjustRuntimeToTestEnvironment(boost: 6));
+                                    10.Milliseconds().AdjustRuntimeToTestEnvironment());
         }
 
         [Test]

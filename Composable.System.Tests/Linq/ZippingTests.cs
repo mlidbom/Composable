@@ -6,7 +6,7 @@ using NUnit.Framework;
 
 #endregion
 
-namespace Composable.Linq
+namespace Composable.Tests.Linq
 {
     [TestFixture]
     public class ZippingTests

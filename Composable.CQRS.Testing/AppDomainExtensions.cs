@@ -3,7 +3,7 @@ using System.Threading;
 
 namespace Composable.CQRS.Testing
 {
-    public static class AppDomainExtensions
+    static class AppDomainExtensions
     {
         public static void ExecuteInCloneDomainScope(CrossAppDomainDelegate action, TimeSpan? disposeDelay = null, bool suppressUnloadErrors = false)
         {

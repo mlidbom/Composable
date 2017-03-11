@@ -1,8 +1,9 @@
 ﻿using System.Configuration;
+using Composable.System.Configuration;
 using FluentAssertions;
 using NUnit.Framework;
 
-namespace Composable.System.Configuration
+namespace Composable.Tests.System.Configuration
 {
     [TestFixture]
     public class ConnectionStringConfigurationParameterProviderTests

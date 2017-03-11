@@ -3,7 +3,7 @@ using Composable.System;
 using FluentAssertions;
 using NUnit.Framework;
 
-namespace Composable.StrictlyManagedResource
+namespace Composable.Tests.StrictlyManagedResource
 {
     [TestFixture] public class When_no_gc_root_exists_for_object_and_garbage_collector_runs_and_instance_is_not_disposed
     {

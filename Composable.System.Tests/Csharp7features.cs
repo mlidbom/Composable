@@ -3,7 +3,7 @@ using System.Collections.Concurrent;
 using FluentAssertions;
 using NUnit.Framework;
 
-namespace Composable
+namespace Composable.Tests
 {
     [TestFixture] public class Csharp7Features
     {

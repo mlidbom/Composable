@@ -4,7 +4,7 @@ using Castle.Windsor;
 
 namespace Composable.Windsor
 {
-    public static class WindsorComponentReplacer
+    static class WindsorComponentReplacer
     {
         public static IWindsorContainer ReplaceComponent<TServiceType>(this IWindsorContainer @this, string componentName, ComponentRegistration<TServiceType> replacement, string replacementName = null) where TServiceType : class
         {

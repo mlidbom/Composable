@@ -6,7 +6,7 @@ using NUnit.Framework;
 
 #endregion
 
-namespace Composable
+namespace Composable.Tests
 {
     [TestFixture]
     public class ObjectExtensionsTest

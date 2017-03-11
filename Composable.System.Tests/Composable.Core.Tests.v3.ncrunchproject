@@ -6,117 +6,11 @@
     </HiddenComponentWarnings>
     <IgnoredTests>
       <FixtureTestSelector>
-        <FixtureName>Composable.Tests.StrictlyManagedResource.PerformanceTests</FixtureName>
-      </FixtureTestSelector>
-      <NamedTestSelector>
-        <TestName>Composable.Tests.StrictlyManagedResource.PerformanceTests.Allocates_and_disposes_5000_instances_in_10_millisecond_when_not_collecting_stack_traces</TestName>
-      </NamedTestSelector>
-      <NamedTestSelector>
-        <TestName>Composable.Tests.StrictlyManagedResource.PerformanceTests.Allocates_and_disposes_2000_instances_in_10_millisecond_when_not_collecting_stack_traces_but_tracking_lifetimes</TestName>
-      </NamedTestSelector>
-      <NamedTestSelector>
-        <TestName>Composable.Tests.StrictlyManagedResource.PerformanceTests.Allocated_and_disposes_40_instances_in_10_millisecond_when_actually_collecting_stack_traces</TestName>
-      </NamedTestSelector>
-      <FixtureTestSelector>
-        <FixtureName>Composable.Tests.Contracts.ObjectNotNullOrDefaultTests</FixtureName>
-      </FixtureTestSelector>
-      <NamedTestSelector>
-        <TestName>Composable.Tests.Contracts.ObjectNotNullOrDefaultTests.ShouldRun50TestsInOneMillisecond</TestName>
-      </NamedTestSelector>
-      <FixtureTestSelector>
-        <FixtureName>Composable.Tests.Contracts.ObjectNotDefaultTests</FixtureName>
+        <FixtureName>Composable.Tests.SystemExtensions.ExceptionExtensions</FixtureName>
       </FixtureTestSelector>
       <NamedTestSelector>
         <TestName>Composable.Tests.Contracts.ObjectNotDefaultTests.ShouldRun500TestsIn10Milliseconds</TestName>
       </NamedTestSelector>
-      <FixtureTestSelector>
-        <FixtureName>Composable.Tests.Contracts.LambdaBasedArgumentSpecsTests</FixtureName>
-      </FixtureTestSelector>
-      <NamedTestSelector>
-        <TestName>Composable.Tests.Contracts.LambdaBasedArgumentSpecsTests.ShouldRun50TestsIn1Millisecond</TestName>
-      </NamedTestSelector>
-      <FixtureTestSelector>
-        <FixtureName>Composable.Tests.Contracts.EnumerableEmptyTests</FixtureName>
-      </FixtureTestSelector>
-      <FixtureTestSelector>
-        <FixtureName>Composable.Tests.Contracts.ExpressionValueExtractorTests</FixtureName>
-      </FixtureTestSelector>
-      <FixtureTestSelector>
-        <FixtureName>Composable.Tests.Contracts.GuidNotEmptyTests</FixtureName>
-      </FixtureTestSelector>
-      <FixtureTestSelector>
-        <FixtureName>Composable.Tests.Contracts.ManualInspectionTests</FixtureName>
-      </FixtureTestSelector>
-      <FixtureTestSelector>
-        <FixtureName>Composable.Tests.Contracts.NotNullOrEmptyOrWhitespaceTests</FixtureName>
-      </FixtureTestSelector>
-      <FixtureTestSelector>
-        <FixtureName>Composable.Tests.Contracts.ObjectNotNullTests</FixtureName>
-      </FixtureTestSelector>
-      <FixtureTestSelector>
-        <FixtureName>Composable.Tests.Contracts.ReturnTests</FixtureName>
-      </FixtureTestSelector>
-      <FixtureTestSelector>
-        <FixtureName>Composable.Tests.Contracts.StringNotNullOrEmptyTests</FixtureName>
-      </FixtureTestSelector>
-      <FixtureTestSelector>
-        <FixtureName>Composable.Tests.Csharp7Features</FixtureName>
-      </FixtureTestSelector>
-      <FixtureTestSelector>
-        <FixtureName>Composable.Tests.DDD.PersistentEntityTests</FixtureName>
-      </FixtureTestSelector>
-      <FixtureTestSelector>
-        <FixtureName>Composable.Tests.DDD.ValueObjectsWithCollectionsTests</FixtureName>
-      </FixtureTestSelector>
-      <FixtureTestSelector>
-        <FixtureName>Composable.Tests.DDD.ValueObjectTests</FixtureName>
-      </FixtureTestSelector>
-      <FixtureTestSelector>
-        <FixtureName>Composable.Tests.DDD.ValueObjectToString</FixtureName>
-      </FixtureTestSelector>
-      <FixtureTestSelector>
-        <FixtureName>Composable.Tests.GenericAbstractions.Time.DateTimeNowTimeSourceTests</FixtureName>
-      </FixtureTestSelector>
-      <FixtureTestSelector>
-        <FixtureName>Composable.Tests.GenericAbstractions.Time.DummyTimeSourceTests</FixtureName>
-      </FixtureTestSelector>
-      <FixtureTestSelector>
-        <FixtureName>Composable.Tests.StrictlyManagedResource.When_max_lifetime_is_exceeded_without_dispose_being_called</FixtureName>
-      </FixtureTestSelector>
-      <FixtureTestSelector>
-        <FixtureName>Composable.Tests.StrictlyManagedResource.When_no_gc_root_exists_for_object_and_garbage_collector_runs_and_instance_is_disposed</FixtureName>
-      </FixtureTestSelector>
-      <FixtureTestSelector>
-        <FixtureName>Composable.Tests.StrictlyManagedResource.When_no_gc_root_exists_for_object_and_garbage_collector_runs_and_instance_is_not_disposed</FixtureName>
-      </FixtureTestSelector>
-      <FixtureTestSelector>
-        <FixtureName>Composable.Tests.System.Collections.Generic.DictionaryExtensions_GetOrAdd_When_Key+DictionaryExtensions_GetOrAdd_When_Key_Is_Not_Present</FixtureName>
-      </FixtureTestSelector>
-      <FixtureTestSelector>
-        <FixtureName>Composable.Tests.System.Collections.Generic.DictionaryExtensions_GetOrAdd_When_Key+DictionaryExtensions_GetOrAdd_When_Key_Is_Present</FixtureName>
-      </FixtureTestSelector>
-      <FixtureTestSelector>
-        <FixtureName>Composable.Tests.System.Collections.Generic.DictionaryExtensions_GetOrAdd_When_Key+DictionaryExtensions_GetOrAddDefault_When_Key_Is_Not_Present</FixtureName>
-      </FixtureTestSelector>
-      <FixtureTestSelector>
-        <FixtureName>Composable.Tests.System.Collections.Generic.DictionaryExtensions_GetOrAdd_When_Key+DictionaryExtensions_GetOrAddDefault_When_Key_Is_Present</FixtureName>
-      </FixtureTestSelector>
-      <FixtureTestSelector>
-        <FixtureName>Composable.Tests.System.Configuration.AppConfigConfigurationParameterProviderTests</FixtureName>
-      </FixtureTestSelector>
-      <FixtureTestSelector>
-        <FixtureName>Composable.Tests.System.Configuration.ConnectionStringConfigurationParameterProviderTests</FixtureName>
-      </FixtureTestSelector>
-      <FixtureTestSelector>
-        <FixtureName>Composable.Tests.System.Linq.ExpressionUtilTests</FixtureName>
-      </FixtureTestSelector>
-      <FixtureTestSelector>
-        <FixtureName>Composable.Tests.SystemExtensions.ExceptionExtensions</FixtureName>
-      </FixtureTestSelector>
-      <FixtureTestSelector>
-        <FixtureName>Composable.Tests.SystemExtensions.Threading.UsageGuardTests</FixtureName>
-      </FixtureTestSelector>
-      <AllTestsSelector />
     </IgnoredTests>
     <PreviouslyBuiltSuccessfully>True</PreviouslyBuiltSuccessfully>
   </Settings>

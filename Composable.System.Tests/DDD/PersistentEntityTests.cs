@@ -1,11 +1,12 @@
 #region usings
 
 using System;
+using Composable.DDD;
 using NUnit.Framework;
 
 #endregion
 
-namespace Composable.DDD
+namespace Composable.Tests.DDD
 {
     [TestFixture]
     public class PersistentEntityTests

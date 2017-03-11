@@ -9,7 +9,7 @@
     <SignAssembly>False</SignAssembly>
     <AssemblyOriginatorKeyFile>Void.snk</AssemblyOriginatorKeyFile>
     <DelaySign>False</DelaySign>
-    <RootNamespace>Composable</RootNamespace>
+    <RootNamespace>Composable.Tests</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>

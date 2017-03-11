@@ -1,8 +1,9 @@
 ﻿using System;
+using Composable.Contracts;
 
-namespace Composable.Contracts
+namespace Composable.Tests.Contracts
 {
-    public static class ReturnValueContractHelper
+    static class ReturnValueContractHelper
     {
         public static TReturnValue Return<TReturnValue>(TReturnValue returnValue, Action<Inspected<TReturnValue>> assert)
         {

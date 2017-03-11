@@ -2,7 +2,7 @@
 using Composable.Testing;
 using NUnit.Framework;
 
-namespace Composable.StrictlyManagedResource
+namespace Composable.Tests.StrictlyManagedResource
 {
     public class PerformanceTests
     {

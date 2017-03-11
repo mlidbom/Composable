@@ -128,6 +128,9 @@
       <FixtureTestSelector>
         <FixtureName>CQRS.Tests.CQRS.EventSourcing.AggregateRoot.NestedEntitiesTests.GuidId.NestedEntitiesTests</FixtureName>
       </FixtureTestSelector>
+      <NamedTestSelector>
+        <TestName>Composable.CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations.SingleAggregateInstanceEventStreamMutatorPerformanceTest_Given_a_10000_events_large_aggregate.Aggregate_should_raise_100_000_events_in_less_than_180_milliseconds</TestName>
+      </NamedTestSelector>
     </IgnoredTests>
     <PreviouslyBuiltSuccessfully>True</PreviouslyBuiltSuccessfully>
   </Settings>

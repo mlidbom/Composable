@@ -1,7 +1,8 @@
 ﻿using System;
+using Composable.SystemExtensions.Threading;
 using NUnit.Framework;
 
-namespace Composable.SystemExtensions.Threading
+namespace Composable.Tests.SystemExtensions.Threading
 {
     [TestFixture]
     public class UsageGuardTests

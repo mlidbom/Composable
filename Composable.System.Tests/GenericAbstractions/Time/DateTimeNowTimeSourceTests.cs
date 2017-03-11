@@ -1,8 +1,9 @@
 ﻿using System;
+using Composable.GenericAbstractions.Time;
 using FluentAssertions;
 using NUnit.Framework;
 
-namespace Composable.GenericAbstractions.Time
+namespace Composable.Tests.GenericAbstractions.Time
 {
     [TestFixture]
     public class DateTimeNowTimeSourceTests

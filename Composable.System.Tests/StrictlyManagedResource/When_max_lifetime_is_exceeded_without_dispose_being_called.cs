@@ -3,7 +3,7 @@ using Composable.System;
 using FluentAssertions;
 using NUnit.Framework;
 
-namespace Composable.StrictlyManagedResource
+namespace Composable.Tests.StrictlyManagedResource
 {
     public class When_max_lifetime_is_exceeded_without_dispose_being_called
     {

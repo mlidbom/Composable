@@ -1,9 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using Composable.Contracts;
 using FluentAssertions;
 using NUnit.Framework;
 
-namespace Composable.Contracts
+namespace Composable.Tests.Contracts
 {
     [TestFixture]
     public class NotNullOrEmptyOrWhitespaceTests

@@ -4,7 +4,7 @@ using Composable.DependencyInjection;
 
 namespace Composable.Windsor
 {
-    public static class WindsorDisposableExtensions
+    static class WindsorDisposableExtensions
     {
         public static IComponentLease<TComponent> ResolveDisposable<TComponent>(this IWindsorContainer me)
         {

@@ -2,5 +2,5 @@
 
 namespace AccountManagement.UI.QueryModels.DocumentDbStored
 {
-    public interface IAccountManagementDocumentDbQueryModelsReader : IDocumentDbReader {}
+    interface IAccountManagementDocumentDbQueryModelsReader : IDocumentDbReader {}
 }

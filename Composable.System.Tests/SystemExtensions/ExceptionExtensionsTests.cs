@@ -1,9 +1,10 @@
 ﻿using System;
 using Composable.System.Linq;
+using Composable.SystemExtensions;
 using FluentAssertions;
 using NUnit.Framework;
 
-namespace Composable.SystemExtensions
+namespace Composable.Tests.SystemExtensions
 {
     [TestFixture]
     public class ExceptionExtensionsTests

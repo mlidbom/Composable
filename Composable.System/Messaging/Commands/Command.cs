@@ -10,6 +10,6 @@ namespace Composable.Messaging.Commands
         protected Command()
             : this(Guid.NewGuid()) { }
 
-        protected Command(Guid id) { Id = id; }
+        Command(Guid id) { Id = id; }
     }
 }

@@ -10,7 +10,7 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.AggregateRoot.NestedEntitiesT
     {
         public interface IRoot : IAggregateRootEvent {}
 
-        public interface Created : IRoot, IAggregateRootCreatedEvent, PropertyUpdated.Name {}
+        interface Created : IRoot, IAggregateRootCreatedEvent, PropertyUpdated.Name {}
 
         public static class PropertyUpdated
         {

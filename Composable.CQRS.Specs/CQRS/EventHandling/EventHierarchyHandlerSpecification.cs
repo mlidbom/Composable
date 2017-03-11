@@ -17,7 +17,7 @@ namespace Composable.CQRS.Specs.CQRS.EventHandling
         }
 
         IHandlesIUserEvents listener;
-        protected Guid _userId = Guid.Parse("00000000-0000-0000-0000-000000000001");
+        Guid _userId = Guid.Parse("00000000-0000-0000-0000-000000000001");
 
         public void when_listening_for_IUserEvent()
         {

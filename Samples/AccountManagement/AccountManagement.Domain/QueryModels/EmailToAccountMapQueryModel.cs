@@ -14,7 +14,7 @@ namespace AccountManagement.Domain.QueryModels
             AccountId = accountId;
         }
 
-        public Email Email { get; set; }
-        public Guid AccountId { get; set; }
+        Email Email { get; set; }
+        Guid AccountId { get; set; }
     }
 }

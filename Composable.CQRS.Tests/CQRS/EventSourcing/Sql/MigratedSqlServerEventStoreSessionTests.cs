@@ -22,7 +22,7 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.Sql
         string _connectionString;
         WindsorContainer _windsorContainer;
 
-        protected TestingOnlyServiceBus Bus { get; private set; }
+        TestingOnlyServiceBus Bus { get; set; }
 
         [SetUp]
         public void Setup()

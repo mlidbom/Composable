@@ -30,12 +30,12 @@ namespace Composable.System
 
         public StrictAggregateDisposable() { }
 
-        public StrictAggregateDisposable(params IDisposable[] disposables)
+        StrictAggregateDisposable(params IDisposable[] disposables)
         {
             Add(disposables);
         }
 
-        public StrictAggregateDisposable(IEnumerable<IDisposable> disposables)
+        StrictAggregateDisposable(IEnumerable<IDisposable> disposables)
         {
             Add(disposables.ToArray());
         }

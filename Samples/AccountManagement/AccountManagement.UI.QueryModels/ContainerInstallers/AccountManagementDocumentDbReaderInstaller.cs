@@ -12,7 +12,7 @@ namespace AccountManagement.UI.QueryModels.ContainerInstallers
     [UsedImplicitly]
     public class AccountManagementDocumentDbReaderInstaller : IWindsorInstaller
     {
-        public const string ConnectionStringName = "AccountManagementReadModels";
+        const string ConnectionStringName = "AccountManagementReadModels";
 
         public static readonly SqlServerDocumentDbRegistration Registration = new SqlServerDocumentDbRegistration<AccountManagementDocumentDbReaderInstaller>();
 

@@ -6,7 +6,7 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.AggregateRoot.NestedEntitiesT
     {
         public class NestedComponent : Component.NestedComponent<NestedComponent, RootEvent.Component.NestedComponent.Implementation.Root, RootEvent.Component.NestedComponent.IRoot>
         {
-            public string Name { get; private set; }
+            string Name { get; set; }
             public NestedComponent(Component parent) : base(parent)
             {
                 RegisterEventAppliers()

@@ -14,7 +14,7 @@ namespace Composable.Tests.Contracts
             Assert.Throws<StringIsWhitespaceContractViolationException>(() => ReturnInputStringAndRefuseToReturnNull(" "));
         }
 
-        public string ReturnInputStringAndRefuseToReturnNull(string returnMe)
+        string ReturnInputStringAndRefuseToReturnNull(string returnMe)
         {
             Contract.ReturnValue(returnMe).NotNullEmptyOrWhiteSpace();
             return Contract.Return(returnMe, assert => assert.NotNullEmptyOrWhiteSpace());

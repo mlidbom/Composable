@@ -18,7 +18,7 @@ namespace Composable.System
             => AppConfigConfigurationParameterProvider.Instance.GetBoolean(StrictlyManagedResources.ConfigurationParamaterNameFor<TManagedResource>(),
                                                                            valueIfMissing: false);
 
-        public static string ConfigurationParamaterNameFor<TManagedResource>() => ConfigurationParamaterNameFor(typeof(TManagedResource));
+        static string ConfigurationParamaterNameFor<TManagedResource>() => ConfigurationParamaterNameFor(typeof(TManagedResource));
 
         public static string ConfigurationParamaterNameFor(Type instanceType) => $"{instanceType.FullName}.CollectStackTraces";
     }

@@ -16,7 +16,7 @@ namespace Composable.DDD
         }
 
         /// <summary> Creates an instance using a newly generated Id</summary>
-        protected VersionedPersistentEntity()
+        VersionedPersistentEntity()
         {
         }
 

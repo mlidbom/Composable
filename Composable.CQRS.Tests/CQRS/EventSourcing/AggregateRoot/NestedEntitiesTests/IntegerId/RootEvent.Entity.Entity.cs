@@ -17,7 +17,8 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.AggregateRoot.NestedEntitiesT
                 }
 
                 public interface Created : IRoot, PropertyUpdated.Name {}
-                public interface Renamed : IRoot, PropertyUpdated.Name {}
+
+                interface Renamed : IRoot, PropertyUpdated.Name {}
                 public interface Removed : IRoot { }
 
                 public static class PropertyUpdated

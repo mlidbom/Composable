@@ -32,6 +32,6 @@ namespace Composable.CQRS.Tests.KeyValueStorage
         {
             TheEmail = email;
         }
-        public string TheEmail { get; set; }
+        public string TheEmail { get; private set; }
     }
 }

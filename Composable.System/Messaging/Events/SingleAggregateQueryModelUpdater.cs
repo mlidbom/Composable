@@ -9,8 +9,8 @@ namespace Composable.Messaging.Events
         where TEvent : class, IAggregateRootEvent
         where TViewModel : class, ISingleAggregateQueryModel, new()
     {
-        protected readonly TSession Session;
-        protected TViewModel Model { get; set; }
+        readonly TSession Session;
+        protected TViewModel Model { get; private set; }
 
         protected SingleAggregateQueryModelUpdater(TSession session)
         {

@@ -15,7 +15,7 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.AggregateRoot.NestedEntitiesT
                               RootEvent.Entity.Implementation.Root.IdGetterSetter>
     {
         public string Name { get; private set; }
-        public Root Root { get; }
+        Root Root { get; }
         public Entity(Root root) : base(root)
         {
             Root = root;

@@ -22,10 +22,10 @@ namespace Composable.DependencyInjection
 
     public static class ServiceLocator
     {
-        public static IComponentLease<TComponent> Lease<TComponent>(this IServiceLocator @this) => (IComponentLease<TComponent>)@this.Lease(typeof(TComponent));
+        static IComponentLease<TComponent> Lease<TComponent>(this IServiceLocator @this) => (IComponentLease<TComponent>)@this.Lease(typeof(TComponent));
 
         // ReSharper disable once SuspiciousTypeConversion.Global
-        public static IComponentLease<TComponent[]> LeaseAll<TComponent>(this IServiceLocator @this) => (IComponentLease<TComponent[]>)@this.LeaseAll(typeof(TComponent));
+        static IComponentLease<TComponent[]> LeaseAll<TComponent>(this IServiceLocator @this) => (IComponentLease<TComponent[]>)@this.LeaseAll(typeof(TComponent));
 
         public static void Use<TComponent>(this IServiceLocator @this, Action<TComponent> useComponent)
         {

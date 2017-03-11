@@ -19,7 +19,7 @@ namespace Composable.System.Linq
         /// The returned sequence will be the length of the shorter of the two sequences if
         /// they are uneven in length.
         /// </summary>
-        public static IEnumerable<TResult> Zip<TFirst, TSecond, TResult>(this IEnumerable<TFirst> first, IEnumerable<TSecond> second,
+        static IEnumerable<TResult> Zip<TFirst, TSecond, TResult>(this IEnumerable<TFirst> first, IEnumerable<TSecond> second,
                                                                          Func<TFirst, TSecond, TResult> selector)
         {
             using(var firstEnum = first.GetEnumerator())

@@ -37,7 +37,7 @@ namespace Composable.Tests.DDD
                 Id = id;
             }
 
-            public Guid Id { get; private set; }
+            Guid Id { get; set; }
         }
 
         class ExpandedAddress : Address

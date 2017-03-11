@@ -21,7 +21,7 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing
     [TestFixture]
     public abstract class EventStoreSessionTests : NoSqlTest
     {
-        protected TestingOnlyServiceBus Bus { get; private set; }
+        TestingOnlyServiceBus Bus { get; set; }
 
         protected EventStoreSessionTests()
         {

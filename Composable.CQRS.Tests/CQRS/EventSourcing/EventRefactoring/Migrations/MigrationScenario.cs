@@ -20,7 +20,7 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
                    expectedHistory,
                    migrations) {}
 
-        public MigrationScenario
+        MigrationScenario
             (Guid aggregateId,
              IEnumerable<Type> originalHistory,
              IEnumerable<Type> expectedHistory,

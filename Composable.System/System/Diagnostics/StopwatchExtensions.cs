@@ -14,7 +14,7 @@ namespace Composable.System.Diagnostics
         public static TimeSpan TimeExecution(Action action) => new Stopwatch().TimeExecution(action);
 
         ///<summary>Measures how long it takes to execute <paramref name="action"/></summary>
-        public static TimeSpan TimeExecution(this Stopwatch @this, Action action)
+        static TimeSpan TimeExecution(this Stopwatch @this, Action action)
         {
             @this.Reset();
             @this.Start();

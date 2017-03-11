@@ -15,7 +15,7 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.AggregateRoot.NestedEntitiesT
         }
 
         readonly Component.Entity.CollectionManager _entities;
-        public Component.NestedComponent InnerComponent { get; }
+        Component.NestedComponent InnerComponent { get; }
 
         public string Name { get; private set; }
         public IReadOnlyEntityCollection<Entity, Guid> Entities => _entities.Entities;

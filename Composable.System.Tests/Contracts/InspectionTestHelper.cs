@@ -27,7 +27,7 @@ namespace Composable.Tests.Contracts
             }
         }
 
-        public static void InspectGoodValues<TInspected>(Action<Inspected<TInspected>> assert, TInspected goodValue)
+        static void InspectGoodValues<TInspected>(Action<Inspected<TInspected>> assert, TInspected goodValue)
         {
             Expression<Func<TInspected>> fetchInspected = () => goodValue;
             var inspectedName = ContractsExpression.ExtractName(fetchInspected);

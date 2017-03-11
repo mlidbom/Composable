@@ -13,7 +13,7 @@ namespace Composable.CQRS.Testing
             }
         }
 
-        public static AppDomainScope CloneScope(this AppDomain me, TimeSpan? disposeDelay = null, bool suppressUnloadErrors = false)
+        static AppDomainScope CloneScope(this AppDomain me, TimeSpan? disposeDelay = null, bool suppressUnloadErrors = false)
         {
             var setup = new AppDomainSetup()
                         {

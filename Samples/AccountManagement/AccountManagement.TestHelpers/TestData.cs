@@ -16,10 +16,10 @@
                     MissingLowercaseCharacter
                 };
 
-                public const string Null = null;
+                const string Null = null;
                 public const string ShorterThanFourCharacters = "a";
                 public const string BorderedByWhiteSpaceAtEnd = "Urdu ";
-                public const string BorderedByWhiteSpaceAtBeginning = " Urdu";
+                const string BorderedByWhiteSpaceAtBeginning = " Urdu";
                 public const string MissingUpperCaseCharacter = "urdu";
                 public const string MissingLowercaseCharacter = "URDU";
             }

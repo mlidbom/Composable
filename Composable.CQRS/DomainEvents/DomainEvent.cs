@@ -4,10 +4,11 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using Composable.Contracts;
+using Composable.DomainEvents;
 
 #endregion
 
-namespace Composable.DomainEvents
+namespace Composable.CQRS.DomainEvents
 {
     //Review:mlidbo: REMOVE
     static class DomainEvent

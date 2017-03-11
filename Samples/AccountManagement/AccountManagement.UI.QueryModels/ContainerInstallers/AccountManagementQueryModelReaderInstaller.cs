@@ -3,7 +3,7 @@ using AccountManagement.UI.QueryModels.Services.Implementation;
 using Castle.MicroKernel.Registration;
 using Castle.MicroKernel.SubSystems.Configuration;
 using Castle.Windsor;
-using Composable.KeyValueStorage;
+using Composable.Persistence.KeyValueStorage;
 using JetBrains.Annotations;
 
 namespace AccountManagement.UI.QueryModels.ContainerInstallers

@@ -1,4 +1,5 @@
-﻿using Composable.KeyValueStorage;
+﻿using Composable.CQRS.KeyValueStorage;
+using Composable.Persistence.KeyValueStorage;
 using Composable.SystemExtensions.Threading;
 using JetBrains.Annotations;
 

@@ -1,12 +1,13 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Composable.System;
 using Composable.System.Linq;
 using Composable.SystemExtensions.Threading;
+using Composable.UnitsOfWork;
 using log4net;
-using Composable.System;
 
-namespace Composable.UnitsOfWork
+namespace Composable.CQRS.UnitsOfWork
 {
     class UnitOfWork : IUnitOfWork
     {

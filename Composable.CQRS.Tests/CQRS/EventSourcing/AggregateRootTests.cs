@@ -1,8 +1,8 @@
 using System;
-using Composable.CQRS.EventSourcing;
+using Composable.CQRS.CQRS.EventSourcing;
 using NUnit.Framework;
 
-namespace CQRS.Tests.CQRS.EventSourcing
+namespace Composable.CQRS.Tests.CQRS.EventSourcing
 {
     [TestFixture]
     public class AggregateRootTests

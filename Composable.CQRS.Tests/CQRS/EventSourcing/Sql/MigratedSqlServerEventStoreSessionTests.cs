@@ -3,22 +3,20 @@ using System.Collections.Generic;
 using System.Configuration;
 using System.Linq;
 using Castle.Windsor;
-using Composable.CQRS.EventSourcing;
-using Composable.CQRS.EventSourcing.MicrosoftSQLServer;
-using Composable.CQRS.EventSourcing.Refactoring.Migrations;
+using Composable.CQRS.CQRS.EventSourcing;
+using Composable.CQRS.CQRS.EventSourcing.MicrosoftSQLServer;
+using Composable.CQRS.CQRS.EventSourcing.Refactoring.Migrations;
 using Composable.CQRS.Testing.Windsor;
+using Composable.CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations;
 using Composable.GenericAbstractions.Time;
+using Composable.Messaging.Buses;
 using Composable.SystemExtensions.Threading;
-using CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations;
 using FluentAssertions;
 using NUnit.Framework;
-using TestAggregates;
 
-namespace CQRS.Tests.CQRS.EventSourcing.Sql
+namespace Composable.CQRS.Tests.CQRS.EventSourcing.Sql
 {
-  using Composable.Messaging.Buses;
-
-  [TestFixture]
+    [TestFixture]
     class MigratedSqlServerEventStoreSessionTests : NoSqlTest
     {
         string _connectionString;

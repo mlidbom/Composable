@@ -4,8 +4,8 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Transactions;
-using Composable.CQRS.EventSourcing;
-using Composable.CQRS.EventSourcing.MicrosoftSQLServer;
+using Composable.CQRS.CQRS.EventSourcing;
+using Composable.CQRS.CQRS.EventSourcing.MicrosoftSQLServer;
 using Composable.CQRS.Testing;
 using Composable.System.Linq;
 using Composable.SystemExtensions.Threading;
@@ -13,7 +13,7 @@ using Composable.Testing;
 using FluentAssertions;
 using NUnit.Framework;
 
-namespace CQRS.Tests.CQRS.EventSourcing.Sql
+namespace Composable.CQRS.Tests.CQRS.EventSourcing.Sql
 {
     [TestFixture]
     class SqlServerEventStoreSessionTests : EventStoreSessionTests

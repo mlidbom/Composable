@@ -1,4 +1,4 @@
-﻿namespace Composable.KeyValueStorage
+﻿namespace Composable.Persistence.KeyValueStorage
 {
     public interface IDocumentDbSession : IDocumentDbBulkReader, IDocumentDbUpdater
     {}

@@ -1,5 +1,5 @@
 
-namespace Composable.KeyValueStorage
+namespace Composable.Persistence.KeyValueStorage
 {
     class DocumentUpdated<TDocument> : IDocumentUpdated<TDocument>
     {

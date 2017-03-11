@@ -2,10 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using Composable.DDD;
-using Composable.KeyValueStorage;
+using Composable.Persistence.KeyValueStorage;
 using Composable.SystemExtensions.Threading;
 
-namespace Composable.CQRS.Query.Models.Generators
+namespace Composable.CQRS.CQRS.Query.Models.Generators
 {
     // ReSharper disable once ClassWithVirtualMembersNeverInherited.Global
     public class QueryModelGeneratingDocumentDbReader : IVersioningDocumentDbReader

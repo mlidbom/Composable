@@ -1,10 +1,10 @@
-﻿using Composable.CQRS.EventSourcing;
-using Composable.CQRS.EventSourcing.Refactoring.Naming;
+﻿using Composable.CQRS.CQRS.EventSourcing.Refactoring.Naming;
+using Composable.CQRS.EventSourcing;
 using Composable.System.Linq;
 using FluentAssertions;
 using NUnit.Framework;
 
-namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.When_renaming_events
+namespace Composable.CQRS.Tests.CQRS.EventSourcing.EventRefactoring.When_renaming_events
 {
     [TestFixture]
     public class When_mapping_names_for_classes_with_no_renaming_attribute

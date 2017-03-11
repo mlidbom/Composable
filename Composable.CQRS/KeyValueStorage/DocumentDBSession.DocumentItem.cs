@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-
 using Composable.Contracts;
+using Composable.Persistence.KeyValueStorage;
 using Composable.System;
 using Composable.System.Linq;
 
-namespace Composable.KeyValueStorage
+namespace Composable.CQRS.KeyValueStorage
 {
     public partial class DocumentDbSession
     {

@@ -1,17 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
-using Composable.KeyValueStorage;
-using Composable.KeyValueStorage.SqlServer;
+using Composable.CQRS.KeyValueStorage;
+using Composable.CQRS.KeyValueStorage.SqlServer;
+using Composable.Persistence.KeyValueStorage;
 using Composable.System.Configuration;
 using Composable.Testing;
-using CQRS.Tests;
 using FluentAssertions;
 // ReSharper disable UnusedMember.Local
 // ReSharper disable UnusedMember.Global
 
 namespace Composable.CQRS.Specs.KeyValueStorage.Sql
 {
-    public abstract class DocumentDbSpecification : NSpec.NUnit.nspec
+    public abstract class DocumentDbSpecification : nspec
     {
         IDocumentDb _store = null;
         string _ignoredString;

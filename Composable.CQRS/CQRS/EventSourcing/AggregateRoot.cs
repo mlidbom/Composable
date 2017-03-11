@@ -1,19 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
-
 using System.Linq;
 using Composable.Contracts;
+using Composable.CQRS.DomainEvents;
+using Composable.CQRS.EventSourcing;
 using Composable.DDD;
-using Composable.DomainEvents;
 using Composable.GenericAbstractions.Time;
+using Composable.Messaging.Events;
 using Composable.System;
 using Composable.System.Linq;
 
-namespace Composable.CQRS.EventSourcing
+namespace Composable.CQRS.CQRS.EventSourcing
 {
-  using Composable.Messaging.Events;
-
-  public partial class AggregateRoot<TAggregateRoot, TAggregateRootBaseEventClass, TAggregateRootBaseEventInterface> : VersionedPersistentEntity<TAggregateRoot>, IEventStored
+    public partial class AggregateRoot<TAggregateRoot, TAggregateRootBaseEventClass, TAggregateRootBaseEventInterface> : VersionedPersistentEntity<TAggregateRoot>, IEventStored
         where TAggregateRoot : AggregateRoot<TAggregateRoot, TAggregateRootBaseEventClass, TAggregateRootBaseEventInterface>
         where TAggregateRootBaseEventInterface : class, IAggregateRootEvent
         where TAggregateRootBaseEventClass : AggregateRootEvent, TAggregateRootBaseEventInterface

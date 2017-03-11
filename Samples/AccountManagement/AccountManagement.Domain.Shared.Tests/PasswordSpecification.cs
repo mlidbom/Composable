@@ -1,4 +1,5 @@
 ﻿using AccountManagement.TestHelpers;
+using Composable;
 using FluentAssertions;
 using JetBrains.Annotations;
 using NUnit.Framework;
@@ -6,7 +7,7 @@ using NUnit.Framework;
 namespace AccountManagement.Domain.Shared.Tests
 {
     //Review:mlidbo: Replace with standard nunit test.
-    public class PasswordSpecification : NSpec.NUnit.nspec
+    public class PasswordSpecification : nspec
     {
         [UsedImplicitly]
         public void when_creating_a_new_password()

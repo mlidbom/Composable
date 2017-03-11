@@ -1,13 +1,13 @@
 ﻿using System;
 using Castle.MicroKernel.Registration;
 using Castle.Windsor;
+using Composable.CQRS.Windsor;
 using Composable.SystemExtensions.Threading;
 using Composable.UnitsOfWork;
-using Composable.Windsor;
 using FluentAssertions;
 using NUnit.Framework;
 
-namespace CQRS.Tests.UnitOfWorkTests
+namespace Composable.CQRS.Tests.UnitOfWorkTests
 {
     [TestFixture]
     public class WindsorUnitOfWorkExtensionsTests

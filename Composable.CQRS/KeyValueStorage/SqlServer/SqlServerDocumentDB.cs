@@ -4,8 +4,9 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
 using System.Linq;
+using Composable.CQRS.NewtonSoft;
 using Composable.DDD;
-using Composable.NewtonSoft;
+using Composable.Persistence.KeyValueStorage;
 using Composable.System;
 using Composable.System.Collections.Collections;
 using Composable.System.Linq;
@@ -13,7 +14,7 @@ using Composable.System.Reactive;
 using Composable.System.Reflection;
 using Newtonsoft.Json;
 
-namespace Composable.KeyValueStorage.SqlServer
+namespace Composable.CQRS.KeyValueStorage.SqlServer
 {
     class SqlServerDocumentDb : IDocumentDb
     {

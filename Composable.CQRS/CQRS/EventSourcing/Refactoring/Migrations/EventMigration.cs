@@ -1,8 +1,8 @@
 using System;
-
 using Composable.Contracts;
+using Composable.CQRS.EventSourcing;
 
-namespace Composable.CQRS.EventSourcing.Refactoring.Migrations
+namespace Composable.CQRS.CQRS.EventSourcing.Refactoring.Migrations
 {
     public abstract class EventMigration<TMigratedAggregateEventHierarchyRootInterface> : IEventMigration
         where TMigratedAggregateEventHierarchyRootInterface : IAggregateRootEvent

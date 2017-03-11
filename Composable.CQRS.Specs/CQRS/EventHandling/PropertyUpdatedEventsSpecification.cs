@@ -1,26 +1,26 @@
 ﻿using System;
 using System.Collections.Generic;
-
 using Composable.CQRS.EventSourcing;
+using Composable.CQRS.KeyValueStorage;
+using Composable.CQRS.Specs.CQRS.EventHandling.CVManagement;
+using Composable.CQRS.Specs.CQRS.EventHandling.CVManagement.GlobalEvents;
+using Composable.CQRS.Specs.CQRS.EventHandling.CVManagement.InternalEvents.InternalImplementations;
+using Composable.CQRS.Specs.CQRS.EventHandling.CVManagement.QueryModelUpdaters;
 using Composable.DDD;
-using Composable.KeyValueStorage;
+using Composable.Messaging.Events;
+using Composable.Persistence.KeyValueStorage;
 using Composable.System.Linq;
 using Composable.SystemExtensions.Threading;
-using CQRS.Tests.CQRS.EventHandling.CVManagement;
-using CQRS.Tests.CQRS.EventHandling.CVManagement.GlobalEvents;
-using CQRS.Tests.CQRS.EventHandling.CVManagement.InternalEvents.InternalImplementations;
-using CQRS.Tests.CQRS.EventHandling.CVManagement.QueryModelUpdaters;
 using FluentAssertions;
 using NUnit.Framework;
+
 // ReSharper disable UnusedMember.Global
 
-namespace CQRS.Tests.CQRS.EventHandling
+namespace Composable.CQRS.Specs.CQRS.EventHandling
 {
     namespace CVManagement
     {
-      using Composable.Messaging.Events;
-
-      namespace GlobalEvents
+        namespace GlobalEvents
         {
 
             #region Generic events intended to be inherited. None of these should ever be raised. Only inheritors should be raised.
@@ -135,7 +135,7 @@ namespace CQRS.Tests.CQRS.EventHandling
         }
     }
 
-    public class PropertyUpdatedEventsSpecification : NSpec.NUnit.nspec
+    public class PropertyUpdatedEventsSpecification : nspec
     {
         public void starting_from_empty()
         {

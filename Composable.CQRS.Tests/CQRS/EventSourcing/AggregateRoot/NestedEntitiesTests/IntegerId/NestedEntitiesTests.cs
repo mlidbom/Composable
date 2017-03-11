@@ -5,7 +5,7 @@ using NUnit.Framework;
 // ReSharper disable InconsistentNaming
 
 // ReSharper disable MemberHidesStaticFromOuterClass
-namespace CQRS.Tests.CQRS.EventSourcing.AggregateRoot.NestedEntitiesTests.IntegerId
+namespace Composable.CQRS.Tests.CQRS.EventSourcing.AggregateRoot.NestedEntitiesTests.IntegerId
 {
     [TestFixture]
     public class NestedEntitiesTests

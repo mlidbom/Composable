@@ -1,10 +1,11 @@
-﻿using FluentAssertions;
+﻿using Composable;
+using FluentAssertions;
 using JetBrains.Annotations;
 using NUnit.Framework;
 
 namespace AccountManagement.Domain.Shared.Tests
 {
-    public class EmailSpecification : NSpec.NUnit.nspec
+    public class EmailSpecification : nspec
     {
         [UsedImplicitly]
         public void creating_new_email()

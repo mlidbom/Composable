@@ -1,23 +1,23 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Transactions;
+using Composable.CQRS.CQRS.EventSourcing;
 using Composable.CQRS.EventSourcing;
-using Composable.SystemExtensions.Threading;
-using Composable.UnitsOfWork;
-using NUnit.Framework;
-using Composable.System.Linq;
-using System.Linq;
+using Composable.CQRS.UnitsOfWork;
 using Composable.GenericAbstractions.Time;
+using Composable.Messaging.Buses;
+using Composable.System;
 using Composable.System.Diagnostics;
+using Composable.System.Linq;
+using Composable.SystemExtensions.Threading;
 using Composable.Testing;
 using FluentAssertions;
+using NUnit.Framework;
 
-namespace CQRS.Tests.CQRS.EventSourcing
+namespace Composable.CQRS.Tests.CQRS.EventSourcing
 {
-  using Composable.Messaging.Buses;
-  using Composable.System;
-
     [TestFixture]
     public abstract class EventStoreSessionTests : NoSqlTest
     {
@@ -564,10 +564,10 @@ namespace CQRS.Tests.CQRS.EventSourcing
                 action: readUserHistory,
                 iterations: iterations,
                 timeIndividualExecutions:true,
-                maxTotal: ((iterations * timeForSingleTransactionalRead) / 2).Milliseconds(),
+                maxTotal: TimeSpanExtensions.Milliseconds(((iterations * timeForSingleTransactionalRead) / 2)),
                 description: $"If access is serialized the time will be approximately {iterations * timeForSingleTransactionalRead} milliseconds. If parelellized it should be far below this value.");
 
-            timingsSummary.Average.Should().BeLessThan(delayEachTransactionByMilliseconds.Milliseconds());
+            timingsSummary.Average.Should().BeLessThan(TimeSpanExtensions.Milliseconds(delayEachTransactionByMilliseconds));
 
             timingsSummary.IndividualExecutionTimes.Sum().Should().BeGreaterThan(timingsSummary.Total);
         }

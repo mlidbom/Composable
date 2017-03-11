@@ -1,11 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
-using Composable.Contracts;
 using FluentAssertions;
 using NUnit.Framework;
 
-namespace Composable.Tests.Contracts
+namespace Composable.Contracts
 {
     public static class InspectionTestHelper
     {

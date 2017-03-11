@@ -3,16 +3,15 @@ using Castle.MicroKernel.Lifestyle;
 using Castle.MicroKernel.Registration;
 using Castle.Windsor;
 using Composable.GenericAbstractions.Time;
+using Composable.Messaging.Buses;
+using Composable.Messaging.Commands;
+using Composable.System;
 using Composable.Windsor.Testing;
 using FluentAssertions;
 using NUnit.Framework;
 
-namespace CQRS.Tests.ServiceBus
+namespace Composable.CQRS.Tests.ServiceBus
 {
-  using Composable.Messaging.Buses;
-  using Composable.Messaging.Commands;
-  using Composable.System;
-
     [TestFixture]
     public class WhenDummyTimeSourceTimeIsChanged
     {
@@ -56,9 +55,9 @@ namespace CQRS.Tests.ServiceBus
         {
             var now = _timeSource.UtcNow;
             var inOneHour = new ScheduledCommand();
-            _bus.SendAtTime(now + 1.Hours(), inOneHour);
+            _bus.SendAtTime(now + TimeSpanExtensions.Hours(1), inOneHour);
 
-            _timeSource.UtcNow = now + 1.Hours();
+            _timeSource.UtcNow = now + TimeSpanExtensions.Hours(1);
 
             receivedCommand.Should()
                            .Be(inOneHour);
@@ -69,9 +68,9 @@ namespace CQRS.Tests.ServiceBus
         {
             var now = _timeSource.UtcNow;
             var inOneHour = new ScheduledCommand();
-            _bus.SendAtTime(now + 1.Hours(), inOneHour);
+            _bus.SendAtTime(now + TimeSpanExtensions.Hours(1), inOneHour);
 
-            _timeSource.UtcNow = now + 1.Minutes();
+            _timeSource.UtcNow = now + TimeSpanExtensions.Minutes(1);
 
             receivedCommand.Should()
                            .Be(null);

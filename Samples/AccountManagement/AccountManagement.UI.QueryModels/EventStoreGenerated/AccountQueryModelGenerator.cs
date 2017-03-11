@@ -1,7 +1,7 @@
 ﻿using AccountManagement.Domain.Events;
 using AccountManagement.Domain.Events.EventStore.Services;
 using AccountManagement.Domain.Events.PropertyUpdated;
-using Composable.CQRS.Query.Models.Generators;
+using Composable.CQRS.CQRS.Query.Models.Generators;
 using JetBrains.Annotations;
 
 namespace AccountManagement.UI.QueryModels.EventStoreGenerated

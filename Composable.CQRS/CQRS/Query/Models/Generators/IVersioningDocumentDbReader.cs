@@ -1,6 +1,6 @@
-using Composable.KeyValueStorage;
+using Composable.Persistence.KeyValueStorage;
 
-namespace Composable.CQRS.Query.Models.Generators
+namespace Composable.CQRS.CQRS.Query.Models.Generators
 {
     interface IVersioningDocumentDbReader : IDocumentDbReader
     {

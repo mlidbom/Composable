@@ -1,14 +1,15 @@
 using System;
 using System.Collections.Generic;
-using Composable.DDD;
-using Composable.System.Linq;
 using System.Linq;
+using Composable.DDD;
+using Composable.Persistence.KeyValueStorage;
+using Composable.System;
+using Composable.System.Linq;
 using Composable.SystemExtensions.Threading;
 using Composable.UnitsOfWork;
 using log4net;
-using Composable.System;
 
-namespace Composable.KeyValueStorage
+namespace Composable.CQRS.KeyValueStorage
 {
     // ReSharper disable once ClassWithVirtualMembersNeverInherited.Global
     partial class DocumentDbSession : IDocumentDbSession, IUnitOfWorkParticipant

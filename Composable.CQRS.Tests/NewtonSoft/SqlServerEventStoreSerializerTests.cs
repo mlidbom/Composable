@@ -1,6 +1,6 @@
 ﻿using System;
+using Composable.CQRS.CQRS.EventSourcing.MicrosoftSQLServer;
 using Composable.CQRS.EventSourcing;
-using Composable.CQRS.EventSourcing.MicrosoftSQLServer;
 using Composable.System.Diagnostics;
 using Composable.Testing;
 using FluentAssertions;
@@ -8,7 +8,7 @@ using JetBrains.Annotations;
 using Newtonsoft.Json;
 using NUnit.Framework;
 
-namespace CQRS.Tests.NewtonSoft
+namespace Composable.CQRS.Tests.NewtonSoft
 {
     [TestFixture]
     public class SqlServerEventStoreSerializerTests

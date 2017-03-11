@@ -1,9 +1,10 @@
 ﻿using System;
+using Composable.CQRS.CQRS.EventSourcing;
 using Composable.CQRS.EventSourcing;
+using Composable.CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations;
 using Composable.GenericAbstractions.Time;
-using TestAggregates;
 
-namespace CQRS.Tests.CQRS.EventSourcing
+namespace Composable.CQRS.Tests.CQRS.EventSourcing
 {
     class User : AggregateRoot<User,UserEvent, IUserEvent>
     {

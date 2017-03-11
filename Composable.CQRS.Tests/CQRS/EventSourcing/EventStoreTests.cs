@@ -1,15 +1,16 @@
 ﻿using System;
 using System.Configuration;
-using Composable.CQRS.EventSourcing;
-using FluentAssertions;
-using NUnit.Framework;
-using Composable.System.Linq;
 using System.Linq;
-using Composable.CQRS.EventSourcing.MicrosoftSQLServer;
+using Composable.CQRS.CQRS.EventSourcing;
+using Composable.CQRS.CQRS.EventSourcing.MicrosoftSQLServer;
+using Composable.CQRS.EventSourcing;
+using Composable.System.Linq;
 using Composable.SystemExtensions.Threading;
 using Composable.Testing;
+using FluentAssertions;
+using NUnit.Framework;
 
-namespace CQRS.Tests.CQRS.EventSourcing
+namespace Composable.CQRS.Tests.CQRS.EventSourcing
 {
     public interface ISomeEvent : IAggregateRootEvent {}
 

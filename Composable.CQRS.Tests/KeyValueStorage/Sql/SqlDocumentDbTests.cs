@@ -1,14 +1,14 @@
 ﻿using System;
 using System.Configuration;
 using System.Linq;
-using Composable.KeyValueStorage;
-using Composable.KeyValueStorage.SqlServer;
+using Composable.CQRS.KeyValueStorage.SqlServer;
+using Composable.Persistence.KeyValueStorage;
 using Composable.System.Linq;
 using Composable.Testing;
 using FluentAssertions;
 using NUnit.Framework;
 
-namespace CQRS.Tests.KeyValueStorage.Sql
+namespace Composable.CQRS.Tests.KeyValueStorage.Sql
 {
     [TestFixture]
     [Serializable]

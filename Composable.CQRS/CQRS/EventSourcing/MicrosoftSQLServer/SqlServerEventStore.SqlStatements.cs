@@ -1,6 +1,6 @@
 using System;
 
-namespace Composable.CQRS.EventSourcing.MicrosoftSQLServer
+namespace Composable.CQRS.CQRS.EventSourcing.MicrosoftSQLServer
 {
     partial class SqlServerEventStore
     {

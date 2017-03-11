@@ -1,10 +1,10 @@
 ﻿using System.Threading;
+using Composable.System;
 using FluentAssertions;
 using NUnit.Framework;
 
-namespace Composable.Tests.StrictlyManagedResource
+namespace Composable.StrictlyManagedResource
 {
-    using Composable.System;
     public class When_max_lifetime_is_exceeded_without_dispose_being_called
     {
         class StrictResource : IStrictlyManagedResource
@@ -24,9 +24,9 @@ namespace Composable.Tests.StrictlyManagedResource
                                                                                                        exceptionThrown.Set();
                                                                                                    };
 
-            using(new StrictlyManagedResource<StrictResource>(forceStackTraceCollection: forceStackTraceCollection, maxLifetime: 10.Milliseconds()))
+            using(new StrictlyManagedResource<StrictResource>(forceStackTraceCollection: forceStackTraceCollection, maxLifetime: TimeSpanExtensions.Milliseconds(10)))
             {
-                exceptionThrown.WaitOne(100.Milliseconds())
+                exceptionThrown.WaitOne(TimeSpanExtensions.Milliseconds(100))
                                .Should()
                                .BeTrue("Timed out waiting for exception to be thrown.");
             }

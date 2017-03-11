@@ -1,17 +1,15 @@
 ﻿using System;
-
 using Composable.CQRS.EventSourcing;
-using Composable.KeyValueStorage;
+using Composable.Messaging.Events;
+using Composable.Persistence.KeyValueStorage;
 using FluentAssertions;
 using Moq;
 
 // ReSharper disable UnusedMember.Global
 
-namespace CQRS.Tests.CQRS.EventHandling
+namespace Composable.CQRS.Specs.CQRS.EventHandling
 {
-  using Composable.Messaging.Events;
-
-  public class SingleAggregateQueryModelUpdaterSpecification : NSpec.NUnit.nspec
+    public class SingleAggregateQueryModelUpdaterSpecification : nspec
     {
         Mock<IDocumentDbSession> _sessionMock;
         UserQueryModelUpdater _listener;

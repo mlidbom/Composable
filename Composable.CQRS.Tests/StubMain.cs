@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace CQRS.Tests
+namespace Composable.CQRS.Tests
 {
     public class StubMain
     {

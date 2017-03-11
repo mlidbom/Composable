@@ -1,7 +1,7 @@
 ﻿using System;
 using Composable.DDD;
 
-namespace CQRS.Tests.KeyValueStorage
+namespace Composable.CQRS.Tests.KeyValueStorage
 {
     public class Dog : IPersistentEntity<Guid>
     {

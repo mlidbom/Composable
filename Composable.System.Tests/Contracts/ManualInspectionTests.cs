@@ -1,8 +1,7 @@
-﻿using Composable.Contracts;
-using FluentAssertions;
+﻿using FluentAssertions;
 using NUnit.Framework;
 
-namespace Composable.Tests.Contracts
+namespace Composable.Contracts
 {
     [TestFixture]
     public class ManualInspectionTests

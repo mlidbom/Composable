@@ -1,9 +1,9 @@
 using System;
-using Composable.CQRS.EventSourcing;
+using Composable.CQRS.CQRS.EventSourcing;
 using Composable.GenericAbstractions.Time;
 using JetBrains.Annotations;
 
-namespace CQRS.Tests.CQRS.EventSourcing.AggregateRoot.NestedEntitiesTests.IntegerId
+namespace Composable.CQRS.Tests.CQRS.EventSourcing.AggregateRoot.NestedEntitiesTests.IntegerId
 {
     public class Root : AggregateRoot<Root, RootEvent.Implementation.Root, RootEvent.IRoot>
     {

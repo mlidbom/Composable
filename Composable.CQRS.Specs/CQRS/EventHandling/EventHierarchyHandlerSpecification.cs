@@ -1,17 +1,15 @@
 ﻿using System;
-
 using Composable.CQRS.EventSourcing;
 using Composable.DDD;
 using Composable.Messaging;
+using Composable.Messaging.Events;
 using FluentAssertions;
 
 // ReSharper disable UnusedMember.Global
 
-namespace CQRS.Tests.CQRS.EventHandling
+namespace Composable.CQRS.Specs.CQRS.EventHandling
 {
-  using Composable.Messaging.Events;
-
-  public class EventHierarchyHandlerSpecification : NSpec.NUnit.nspec
+    public class EventHierarchyHandlerSpecification : nspec
     {
         public void before_each()
         {

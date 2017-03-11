@@ -2,6 +2,7 @@
 using AccountManagement.Domain.Events.EventStore.Services;
 using AccountManagement.Domain.Events.Implementation;
 using Composable.CQRS;
+using Composable.CQRS.CQRS;
 using JetBrains.Annotations;
 
 namespace AccountManagement.Domain.Services

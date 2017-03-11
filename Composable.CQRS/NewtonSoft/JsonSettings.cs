@@ -1,6 +1,6 @@
 ﻿using Newtonsoft.Json;
 
-namespace Composable.NewtonSoft
+namespace Composable.CQRS.NewtonSoft
 {
     static class JsonSettings
     {

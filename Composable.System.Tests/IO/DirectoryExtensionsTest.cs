@@ -9,7 +9,7 @@ using NUnit.Framework;
 
 #endregion
 
-namespace Core.Tests.IO
+namespace Composable.IO
 {
     [TestFixture]
     public class DirectoryExtensionsTest

@@ -2,17 +2,19 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
+using Composable.CQRS.KeyValueStorage;
+using Composable.CQRS.UnitsOfWork;
 using Composable.DDD;
-using Composable.KeyValueStorage;
+using Composable.Persistence.KeyValueStorage;
 using Composable.System;
 using Composable.System.Linq;
 using Composable.System.Web;
 using Composable.SystemExtensions.Threading;
 using Composable.UnitsOfWork;
-using NUnit.Framework;
 using FluentAssertions;
+using NUnit.Framework;
 
-namespace CQRS.Tests.KeyValueStorage
+namespace Composable.CQRS.Tests.KeyValueStorage
 {
     [TestFixture]
     public abstract class DocumentDbTests

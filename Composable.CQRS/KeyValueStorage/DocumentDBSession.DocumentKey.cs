@@ -1,7 +1,7 @@
 ﻿using System;
 using Composable.System;
 
-namespace Composable.KeyValueStorage
+namespace Composable.CQRS.KeyValueStorage
 {
     public partial class DocumentDbSession
     {

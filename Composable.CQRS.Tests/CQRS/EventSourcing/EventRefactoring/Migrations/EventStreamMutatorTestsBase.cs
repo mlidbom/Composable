@@ -4,26 +4,25 @@ using System.Linq;
 using Castle.MicroKernel.Lifestyle;
 using Castle.MicroKernel.Registration;
 using Castle.Windsor;
+using Composable.CQRS.CQRS.EventSourcing;
+using Composable.CQRS.CQRS.EventSourcing.MicrosoftSQLServer;
+using Composable.CQRS.CQRS.EventSourcing.Refactoring.Migrations;
 using Composable.CQRS.EventSourcing;
-using Composable.CQRS.EventSourcing.MicrosoftSQLServer;
-using Composable.CQRS.EventSourcing.Refactoring.Migrations;
 using Composable.CQRS.Testing.Windsor;
+using Composable.CQRS.Windsor;
 using Composable.GenericAbstractions.Time;
+using Composable.Messaging.Buses;
 using Composable.System.Collections.Collections;
 using Composable.System.Configuration;
 using Composable.System.Linq;
 using Composable.UnitsOfWork;
-using Composable.Windsor;
 using Composable.Windsor.Testing;
 using FluentAssertions;
 using Newtonsoft.Json;
 using NUnit.Framework;
-using TestAggregates;
 
-namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
+namespace Composable.CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
 {
-  using Composable.Messaging.Buses;
-
     [TestFixture]
   //Todo: Refactor this test. It is too monolithic and hard to read and extend.
     public abstract class EventStreamMutatorTestsBase

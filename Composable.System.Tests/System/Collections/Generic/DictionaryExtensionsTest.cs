@@ -7,7 +7,7 @@ using NUnit.Framework;
 
 #endregion
 
-namespace Composable.Tests.System.Collections.Generic
+namespace Composable.System.Collections.Generic
 {
     public class DictionaryExtensions_GetOrAdd_When_Key
     {

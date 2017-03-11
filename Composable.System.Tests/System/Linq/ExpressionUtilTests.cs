@@ -1,8 +1,7 @@
-﻿using Composable.System.Linq;
+﻿using FluentAssertions;
 using NUnit.Framework;
-using FluentAssertions;
 
-namespace Composable.Tests.System.Linq
+namespace Composable.System.Linq
 {
     [TestFixture]
     public class ExpressionUtilTests

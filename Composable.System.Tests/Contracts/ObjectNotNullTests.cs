@@ -1,10 +1,9 @@
 using System;
 using System.Collections.Generic;
-using Composable.Contracts;
 using FluentAssertions;
 using NUnit.Framework;
 
-namespace Composable.Tests.Contracts
+namespace Composable.Contracts
 {
     // ReSharper disable ConvertToConstant.Local
     // ReSharper disable ExpressionIsAlwaysNull

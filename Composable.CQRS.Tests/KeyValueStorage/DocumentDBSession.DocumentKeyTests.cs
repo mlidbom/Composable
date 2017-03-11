@@ -1,8 +1,8 @@
-﻿using Composable.KeyValueStorage;
-using NUnit.Framework;
+﻿using Composable.CQRS.KeyValueStorage;
 using FluentAssertions;
+using NUnit.Framework;
 
-namespace CQRS.Tests.KeyValueStorage
+namespace Composable.CQRS.Tests.KeyValueStorage
 {
     [TestFixture]
     public class DocumentDBSession_DocumentKeyTests

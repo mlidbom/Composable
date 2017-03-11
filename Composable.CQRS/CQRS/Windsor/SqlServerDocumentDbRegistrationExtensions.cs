@@ -1,16 +1,18 @@
-﻿
-using Castle.MicroKernel.Registration;
+﻿using Castle.MicroKernel.Registration;
 using Castle.Windsor;
 using Composable.Contracts;
-using Composable.KeyValueStorage;
-using Composable.KeyValueStorage.SqlServer;
+using Composable.CQRS.KeyValueStorage;
+using Composable.CQRS.KeyValueStorage.SqlServer;
+using Composable.CQRS.Windsor.Testing;
+using Composable.Persistence.KeyValueStorage;
 using Composable.System.Configuration;
 using Composable.System.Linq;
 using Composable.UnitsOfWork;
 using Composable.Windsor.Testing;
+
 // ReSharper disable UnusedMember.Global todo: write tests
 
-namespace Composable.CQRS.Windsor
+namespace Composable.CQRS.CQRS.Windsor
 {
     public abstract class SqlServerDocumentDbRegistration
     {

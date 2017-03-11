@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
-using Composable.CQRS.Query.Models.Generators;
-using Composable.KeyValueStorage;
+using Composable.CQRS.CQRS.Query.Models.Generators;
+using Composable.Persistence.KeyValueStorage;
 using Composable.SystemExtensions.Threading;
 using JetBrains.Annotations;
 

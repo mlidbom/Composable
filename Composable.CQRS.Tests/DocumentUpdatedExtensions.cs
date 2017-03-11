@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Reactive.Linq;
-using Composable.KeyValueStorage;
+using Composable.Persistence.KeyValueStorage;
 
-namespace CQRS.Tests
+namespace Composable.CQRS.Tests
 {
     public static class DocumentUpdatedObservableExtensions
     {

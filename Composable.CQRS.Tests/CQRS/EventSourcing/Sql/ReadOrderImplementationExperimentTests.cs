@@ -5,7 +5,7 @@ using System.Linq;
 using Composable.System.Linq;
 using NUnit.Framework;
 
-namespace CQRS.Tests.CQRS.EventSourcing.Sql
+namespace Composable.CQRS.Tests.CQRS.EventSourcing.Sql
 {
     [TestFixture]
     public class ReadOrderImplementationExperimentTests

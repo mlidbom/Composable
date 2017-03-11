@@ -2,17 +2,17 @@
 
 using System;
 using System.Configuration;
-using System.Transactions;
-using Composable.CQRS.EventSourcing;
-using NUnit.Framework;
 using System.Linq;
-using Composable.CQRS.EventSourcing.MicrosoftSQLServer;
+using System.Transactions;
+using Composable.CQRS.CQRS.EventSourcing;
+using Composable.CQRS.CQRS.EventSourcing.MicrosoftSQLServer;
 using Composable.SystemExtensions.Threading;
 using Composable.Testing;
+using NUnit.Framework;
 
 #endregion
 
-namespace CQRS.Tests.CQRS.EventSourcing.Sql
+namespace Composable.CQRS.Tests.CQRS.EventSourcing.Sql
 {
     [TestFixture]
     public class SqlServerEventStoreTest

@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using Composable.DDD;
 
-namespace CQRS.Tests.KeyValueStorage
+namespace Composable.CQRS.Tests.KeyValueStorage
 {
     public class Person : ValueObject<Person>, IPersistentEntity<Guid>
     {

@@ -1,20 +1,21 @@
 ﻿using System;
 using System.Collections.Generic;
-
 using Castle.MicroKernel.Registration;
 using Castle.Windsor;
 using Composable.Contracts;
-using Composable.CQRS.EventSourcing;
-using Composable.CQRS.EventSourcing.MicrosoftSQLServer;
-using Composable.CQRS.EventSourcing.Refactoring.Migrations;
-using Composable.CQRS.EventSourcing.Refactoring.Naming;
+using Composable.CQRS.CQRS.EventSourcing;
+using Composable.CQRS.CQRS.EventSourcing.MicrosoftSQLServer;
+using Composable.CQRS.CQRS.EventSourcing.Refactoring.Migrations;
+using Composable.CQRS.CQRS.EventSourcing.Refactoring.Naming;
+using Composable.CQRS.Windsor.Testing;
 using Composable.System.Configuration;
 using Composable.System.Linq;
 using Composable.UnitsOfWork;
 using Composable.Windsor.Testing;
+
 // ReSharper disable UnusedMember.Global todo: write complete tests and remove unused.
 
-namespace Composable.CQRS.Windsor
+namespace Composable.CQRS.CQRS.Windsor
 {
     public abstract class SqlServerEventStoreRegistration
     {

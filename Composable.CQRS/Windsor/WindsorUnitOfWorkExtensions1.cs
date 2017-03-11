@@ -2,10 +2,11 @@
 using System.Runtime.Remoting.Messaging;
 using System.Transactions;
 using Castle.Windsor;
+using Composable.CQRS.UnitsOfWork;
 using Composable.SystemExtensions.Threading;
 using Composable.UnitsOfWork;
 
-namespace Composable.Windsor
+namespace Composable.CQRS.Windsor
 {
     static class WindsorUnitOfWorkExtensions1
     {

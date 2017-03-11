@@ -7,7 +7,7 @@ using FluentAssertions;
 
 namespace Composable.CQRS.Specs.ServiceBus
 {
-    public class InProcessBusSpecification : NSpec.NUnit.nspec
+    public class InProcessBusSpecification : nspec
     {
         public void given_no_registered_handlers()
         {

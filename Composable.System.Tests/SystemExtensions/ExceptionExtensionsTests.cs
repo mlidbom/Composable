@@ -1,13 +1,12 @@
 ﻿using System;
 using Composable.System.Linq;
-using NUnit.Framework;
-using Composable.SystemExtensions;
 using FluentAssertions;
+using NUnit.Framework;
 
-namespace Composable.Tests.SystemExtensions
+namespace Composable.SystemExtensions
 {
     [TestFixture]
-    public class ExceptionExtensions
+    public class ExceptionExtensionsTests
     {
         Exception _originalException;
         Exception _firstNestingException;

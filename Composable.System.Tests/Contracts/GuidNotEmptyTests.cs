@@ -1,9 +1,8 @@
 ﻿using System;
-using Composable.Contracts;
 using FluentAssertions;
 using NUnit.Framework;
 
-namespace Composable.Tests.Contracts
+namespace Composable.Contracts
 {
     [TestFixture]
     public class GuidNotEmptyTests

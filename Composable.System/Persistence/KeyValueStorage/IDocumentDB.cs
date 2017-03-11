@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using Composable.DDD;
 
-namespace Composable.KeyValueStorage
+namespace Composable.Persistence.KeyValueStorage
 {
     public interface IDocumentDb : IDocumentUpdatedNotifier
     {

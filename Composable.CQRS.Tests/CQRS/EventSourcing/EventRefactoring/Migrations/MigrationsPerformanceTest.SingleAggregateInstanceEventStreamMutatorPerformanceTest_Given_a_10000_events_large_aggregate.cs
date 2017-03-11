@@ -1,15 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
-
 using System.Linq;
 using Castle.MicroKernel.Lifestyle;
 using Castle.MicroKernel.Registration;
 using Castle.Windsor;
 using Composable.Contracts;
+using Composable.CQRS.CQRS.EventSourcing;
+using Composable.CQRS.CQRS.EventSourcing.Refactoring.Migrations;
+using Composable.CQRS.CQRS.Windsor;
 using Composable.CQRS.EventSourcing;
-using Composable.CQRS.EventSourcing.Refactoring.Migrations;
-using Composable.CQRS.Windsor;
+using Composable.CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations.Events;
 using Composable.GenericAbstractions.Time;
+using Composable.Messaging.Buses;
 using Composable.System.Configuration;
 using Composable.System.Linq;
 using Composable.Testing;
@@ -17,14 +19,10 @@ using Composable.Windsor;
 using Composable.Windsor.Testing;
 using FluentAssertions;
 using NUnit.Framework;
-using TestAggregates;
-using TestAggregates.Events;
 
-namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
+namespace Composable.CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
 {
-  using Composable.Messaging.Buses;
-
-  //Everything in here actually runs much faster than this when executed normally, but with ncrunch instrumentation it runs much slower and the test gives leeway for that.....
+    //Everything in here actually runs much faster than this when executed normally, but with ncrunch instrumentation it runs much slower and the test gives leeway for that.....
     public class SingleAggregateInstanceEventStreamMutatorPerformanceTest_Given_a_10000_events_large_aggregate
     {
         List<AggregateRootEvent> _history;

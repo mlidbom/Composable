@@ -2,7 +2,7 @@
 using Castle.MicroKernel.Registration;
 using Castle.MicroKernel.SubSystems.Configuration;
 using Castle.Windsor;
-using Composable.CQRS.Windsor;
+using Composable.CQRS.CQRS.Windsor;
 using JetBrains.Annotations;
 
 namespace AccountManagement.Domain.Events.EventStore.ContainerInstallers

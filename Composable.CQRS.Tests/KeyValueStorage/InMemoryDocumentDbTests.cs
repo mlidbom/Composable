@@ -1,7 +1,8 @@
-﻿using Composable.KeyValueStorage;
+﻿using Composable.CQRS.KeyValueStorage;
+using Composable.Persistence.KeyValueStorage;
 using NUnit.Framework;
 
-namespace CQRS.Tests.KeyValueStorage
+namespace Composable.CQRS.Tests.KeyValueStorage
 {
     [TestFixture]
     class InMemoryDocumentDbTests : DocumentDbTests

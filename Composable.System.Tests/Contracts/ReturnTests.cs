@@ -1,7 +1,6 @@
-﻿using Composable.Contracts;
-using NUnit.Framework;
+﻿using NUnit.Framework;
 
-namespace Composable.Tests.Contracts
+namespace Composable.Contracts
 {
     [TestFixture]
     public class ReturnTests

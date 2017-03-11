@@ -1,6 +1,6 @@
 using System;
 
-namespace Composable.KeyValueStorage
+namespace Composable.Persistence.KeyValueStorage
 {
     public interface IDocumentUpdatedNotifier
     {

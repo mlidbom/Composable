@@ -6,7 +6,7 @@ using Composable.DDD;
 using Composable.System.Collections.Collections;
 using Composable.System.Linq;
 
-namespace Composable.KeyValueStorage
+namespace Composable.Persistence.KeyValueStorage
 {
     class InMemoryObjectStore : IEnumerable<KeyValuePair<string, object>>
     {
@@ -127,7 +127,7 @@ namespace Composable.KeyValueStorage
         {
             lock(_lockObject)
             {
-                values.ForEach(pair => Update(pair.Key, pair.Value));
+                values.ForEach(pair => Update((object)pair.Key, pair.Value));
             }
         }
 

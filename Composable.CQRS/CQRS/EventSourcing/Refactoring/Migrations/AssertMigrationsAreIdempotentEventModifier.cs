@@ -1,4 +1,6 @@
-namespace Composable.CQRS.EventSourcing.Refactoring.Migrations
+using Composable.CQRS.EventSourcing;
+
+namespace Composable.CQRS.CQRS.EventSourcing.Refactoring.Migrations
 {
     class AssertMigrationsAreIdempotentEventModifier : IEventModifier
     {

@@ -1,7 +1,6 @@
 ﻿using System;
-using Composable.Contracts;
 
-namespace Composable.Tests.Contracts
+namespace Composable.Contracts
 {
     public static class ReturnValueContractHelper
     {

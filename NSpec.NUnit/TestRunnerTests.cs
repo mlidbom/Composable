@@ -1,11 +1,12 @@
 ﻿using System;
 using FluentAssertions;
 using NUnit.Framework;
+
 // ReSharper disable UnusedMember.Global
 
 // ReSharper disable InconsistentNaming
 
-namespace NSpec.NUnit
+namespace Composable
 {
     [TestFixture]
     public class TestRunnerTests
@@ -42,7 +43,7 @@ namespace NSpec.NUnit
         }
     }
 
-    public class working_spec : NSpec.NUnit.nspec
+    public class working_spec : nspec
     {
         public void this_works()
         {
@@ -51,7 +52,7 @@ namespace NSpec.NUnit
     }
 
     [Ignore("SHould fail when executed and actual test is done by checking that it fails whith an appropriate message.")]
-    public class specification_of_xfiles_math : NSpec.NUnit.nspec
+    public class specification_of_xfiles_math : nspec
     {
         public void when_using_strange_math()
         {
@@ -60,7 +61,7 @@ namespace NSpec.NUnit
     }
 
     [Ignore("SHould fail when executed and actual test is done by checking that it fails whith an appropriate message.")]
-    public class fails_in_before_all : NSpec.NUnit.nspec
+    public class fails_in_before_all : nspec
     {
         public void before_all()
         {
@@ -74,7 +75,7 @@ namespace NSpec.NUnit
     }
 
     [Ignore("SHould fail when executed and actual test is done by checking that it fails whith an appropriate message.")]
-    public class fails_in_before_each : NSpec.NUnit.nspec
+    public class fails_in_before_each : nspec
     {
         public void before_each()
         {
@@ -88,7 +89,7 @@ namespace NSpec.NUnit
     }
 
     [Ignore("SHould fail when executed and actual test is done by checking that it fails whith an appropriate message.")]
-    public class reports_first_failure : NSpec.NUnit.nspec
+    public class reports_first_failure : nspec
     {
         public void before_all()
         {
@@ -107,7 +108,7 @@ namespace NSpec.NUnit
     }
 
     [Ignore("SHould fail when executed and actual test is done by checking that it fails whith an appropriate message.")]
-    public class dots : NUnit.nspec
+    public class dots : nspec
     {
         public void any_time()
         {

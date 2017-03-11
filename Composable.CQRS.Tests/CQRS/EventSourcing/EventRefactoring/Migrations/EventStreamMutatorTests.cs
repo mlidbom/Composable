@@ -3,18 +3,18 @@ using System.Collections.Generic;
 using System.Linq;
 using Castle.MicroKernel.Lifestyle;
 using Castle.Windsor;
+using Composable.CQRS.CQRS.EventSourcing;
+using Composable.CQRS.CQRS.EventSourcing.MicrosoftSQLServer;
+using Composable.CQRS.CQRS.EventSourcing.Refactoring.Migrations;
 using Composable.CQRS.EventSourcing;
-using Composable.CQRS.EventSourcing.MicrosoftSQLServer;
-using Composable.CQRS.EventSourcing.Refactoring.Migrations;
+using Composable.CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations.Events;
+using Composable.CQRS.Windsor;
 using Composable.GenericAbstractions.Time;
 using Composable.System.Linq;
-using Composable.Windsor;
 using FluentAssertions;
 using NUnit.Framework;
-using TestAggregates;
-using TestAggregates.Events;
 
-namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
+namespace Composable.CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
 {
     [TestFixture]
     public class InMemoryEventStoreEventStreamMutatorTests : EventStreamMutatorTests

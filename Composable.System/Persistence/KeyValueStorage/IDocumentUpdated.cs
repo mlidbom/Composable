@@ -1,4 +1,4 @@
-namespace Composable.KeyValueStorage
+namespace Composable.Persistence.KeyValueStorage
 {
     public interface IDocumentUpdated<out TDocument>
     {

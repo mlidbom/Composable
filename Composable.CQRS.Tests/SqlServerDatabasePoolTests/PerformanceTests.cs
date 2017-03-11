@@ -3,7 +3,7 @@ using Composable.Testing;
 using FluentAssertions;
 using NUnit.Framework;
 
-namespace CQRS.Tests.SqlServerDatabasePoolTests
+namespace Composable.CQRS.Tests.SqlServerDatabasePoolTests
 {
     [TestFixture]
     public class PerformanceTests

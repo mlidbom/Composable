@@ -1,12 +1,11 @@
 #region usings
 
 using System.Collections.Generic;
-using Composable.DDD;
 using NUnit.Framework;
 
 #endregion
 
-namespace Composable.Tests.DDD
+namespace Composable.DDD
 {
     [TestFixture]
     public class ValueObjectsWithCollectionsTests

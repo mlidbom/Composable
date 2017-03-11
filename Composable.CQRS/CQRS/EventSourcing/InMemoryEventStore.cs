@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-
 using System.Linq;
 using Composable.Contracts;
-using Composable.CQRS.EventSourcing.Refactoring.Migrations;
+using Composable.CQRS.CQRS.EventSourcing.Refactoring.Migrations;
+using Composable.CQRS.EventSourcing;
 using Composable.System.Linq;
 
-namespace Composable.CQRS.EventSourcing
+namespace Composable.CQRS.CQRS.EventSourcing
 {
     //todo: Refactor to use the same serialization code as the sql server event store so that tests actually tests roundtrip serialization
 #pragma warning disable 618

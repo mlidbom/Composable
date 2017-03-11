@@ -1,14 +1,13 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-
+using Composable.CQRS.EventSourcing;
+using Composable.Messaging.Events;
 using Composable.System.Linq;
 
-namespace Composable.CQRS.EventSourcing
+namespace Composable.CQRS.CQRS.EventSourcing
 {
-  using Composable.Messaging.Events;
-
-  //todo:complete including tests
+    //todo:complete including tests
     // ReSharper disable UnusedMember.Global
     abstract class SelfUpdatingSingleAggregateQueryModel<TRootQueryModel, TAggregateRootBaseEventInterface>
         where TRootQueryModel : SelfUpdatingSingleAggregateQueryModel<TRootQueryModel, TAggregateRootBaseEventInterface>

@@ -1,7 +1,8 @@
 ﻿using System;
+using Composable.CQRS.CQRS.EventSourcing;
 using Composable.CQRS.EventSourcing;
 
-namespace Composable.CQRS
+namespace Composable.CQRS.CQRS
 {
     public class AggregateRepository<TAggregate, TBaseEventClass, TBaseEventInterface> : IAggregateRepository<TAggregate>
         where TAggregate : AggregateRoot<TAggregate, TBaseEventClass, TBaseEventInterface>, IEventStored

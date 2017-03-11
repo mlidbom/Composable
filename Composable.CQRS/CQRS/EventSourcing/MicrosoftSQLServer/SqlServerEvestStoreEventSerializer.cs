@@ -2,10 +2,11 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using Composable.CQRS.EventSourcing;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 
-namespace Composable.CQRS.EventSourcing.MicrosoftSQLServer
+namespace Composable.CQRS.CQRS.EventSourcing.MicrosoftSQLServer
 {
     class SqlServerEvestStoreEventSerializer
     {

@@ -1,5 +1,5 @@
 using Composable.CQRS.EventSourcing;
-using Composable.KeyValueStorage;
+using Composable.Persistence.KeyValueStorage;
 
 namespace Composable.Messaging.Events
 {

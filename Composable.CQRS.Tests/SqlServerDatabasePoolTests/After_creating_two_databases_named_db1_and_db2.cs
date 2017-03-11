@@ -5,7 +5,7 @@ using Composable.Testing;
 using FluentAssertions;
 using NUnit.Framework;
 
-namespace CQRS.Tests.SqlServerDatabasePoolTests
+namespace Composable.CQRS.Tests.SqlServerDatabasePoolTests
 {
     [TestFixture]
     public class After_creating_two_databases_named_db1_and_db2

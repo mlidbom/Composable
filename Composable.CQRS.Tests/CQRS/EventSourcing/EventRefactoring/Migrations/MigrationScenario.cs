@@ -2,9 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
-using Composable.CQRS.EventSourcing.Refactoring.Migrations;
+using Composable.CQRS.CQRS.EventSourcing.Refactoring.Migrations;
 
-namespace CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
+namespace Composable.CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
 {
     public class MigrationScenario
     {

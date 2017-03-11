@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Composable.KeyValueStorage.SqlServer
+namespace Composable.CQRS.KeyValueStorage.SqlServer
 {
     class TooManyItemsDeletedException : Exception {}
 }

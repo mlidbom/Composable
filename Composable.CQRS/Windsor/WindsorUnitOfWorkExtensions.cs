@@ -2,7 +2,7 @@
 using Castle.MicroKernel.Lifestyle;
 using Castle.Windsor;
 
-namespace Composable.Windsor
+namespace Composable.CQRS.Windsor
 {
     public static class WindsorUnitOfWorkExtensions
     {

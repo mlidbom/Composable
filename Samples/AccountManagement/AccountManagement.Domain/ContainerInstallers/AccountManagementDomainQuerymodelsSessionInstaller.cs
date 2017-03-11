@@ -3,8 +3,8 @@ using AccountManagement.Domain.Services;
 using Castle.MicroKernel.Registration;
 using Castle.MicroKernel.SubSystems.Configuration;
 using Castle.Windsor;
-using Composable.CQRS.Windsor;
-using Composable.KeyValueStorage;
+using Composable.CQRS.CQRS.Windsor;
+using Composable.Persistence.KeyValueStorage;
 using Composable.UnitsOfWork;
 using JetBrains.Annotations;
 

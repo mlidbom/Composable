@@ -6,7 +6,7 @@ using NUnit.Framework;
 
 #endregion
 
-namespace Core.Tests.Linq
+namespace Composable.Linq
 {
     [TestFixture]
     public class SeqTests

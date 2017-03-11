@@ -1,8 +1,10 @@
 using Castle.MicroKernel.Registration;
-using Composable.CQRS.EventSourcing;
-using Composable.KeyValueStorage;
+using Composable.CQRS.CQRS.EventSourcing;
+using Composable.CQRS.KeyValueStorage;
+using Composable.Persistence.KeyValueStorage;
+using Composable.Windsor.Testing;
 
-namespace Composable.Windsor.Testing
+namespace Composable.CQRS.Windsor.Testing
 {
 
     static class RewiringHelperExtensions

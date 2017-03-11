@@ -1,4 +1,4 @@
-﻿using Composable.KeyValueStorage;
+﻿using Composable.Persistence.KeyValueStorage;
 
 namespace AccountManagement.Domain.Services
 {

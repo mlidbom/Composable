@@ -3,7 +3,7 @@ using AccountManagement.UI.QueryModels.DocumentDB.Updaters.Services;
 using Castle.MicroKernel.Registration;
 using Castle.MicroKernel.SubSystems.Configuration;
 using Castle.Windsor;
-using Composable.KeyValueStorage;
+using Composable.Persistence.KeyValueStorage;
 using Composable.UnitsOfWork;
 using JetBrains.Annotations;
 

@@ -17,7 +17,7 @@ namespace Composable.DDD
     /// the operators simply uses Equals.
     /// 
     /// </summary>
-    [DebuggerDisplay("{ToString()}")]
+    [DebuggerDisplay("{" + nameof(ToString) + "()}")]
     public class IdEqualityObject<TEntity, TKEy> : IEquatable<TEntity>, IHasPersistentIdentity<TKEy> where TEntity : IdEqualityObject<TEntity, TKEy>
     {
         ///<summary>Construct an instance with <param name="id"> as the <see cref="Id"/></param>.</summary>

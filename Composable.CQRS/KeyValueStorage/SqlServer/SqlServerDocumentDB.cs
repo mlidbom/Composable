@@ -9,7 +9,6 @@ using Composable.Persistence.KeyValueStorage;
 using Composable.System;
 using Composable.System.Collections.Collections;
 using Composable.System.Linq;
-using Composable.System.Reactive;
 using Composable.System.Reflection;
 using Newtonsoft.Json;
 
@@ -29,9 +28,6 @@ namespace Composable.CQRS.KeyValueStorage.SqlServer
         {
             _connectionString = connectionString;
         }
-
-        readonly ThreadSafeObservable<IDocumentUpdated> _documentUpdated = new ThreadSafeObservable<IDocumentUpdated>();
-        public IObservable<IDocumentUpdated> DocumentUpdated { get { return _documentUpdated; } }
 
         ConcurrentDictionary<Type, int> KnownTypes { get { return VerifiedConnections[_connectionString]; } }
 
@@ -106,8 +102,6 @@ WHERE Id=@Id AND ValueTypeId
 
                     var stringValue = JsonConvert.SerializeObject(value, Formatting.None, JsonSettings);
                     command.Parameters.Add(new SqlParameter("Value", stringValue));
-
-                    _documentUpdated.OnNext(new DocumentUpdated(idString, value));
 
                     persistentValues.GetOrAddDefault(value.GetType())[idString] = stringValue;
                     try
@@ -208,7 +202,6 @@ WHERE Id=@Id AND ValueTypeId
                         if(!command.CommandText.IsNullOrWhiteSpace())
                         {
                             command.ExecuteNonQuery();
-                            _documentUpdated.OnNext(new DocumentUpdated(entry.Key, entry.Value));
                         }
                     }
                 }

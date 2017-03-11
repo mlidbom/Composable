@@ -64,7 +64,7 @@ namespace Composable.CQRS.CQRS.Windsor
                          .DependsOn(connectionString)
                     .LifestylePerWebRequest()
                     .Named(registration.DocumentDbName),
-                Component.For(Seq.OfTypes<IDocumentDbSession, IDocumentDbUpdater, IDocumentDbReader, IDocumentDbBulkReader, IUnitOfWorkParticipant, IDocumentUpdatedNotifier>())
+                Component.For(Seq.OfTypes<IDocumentDbSession, IDocumentDbUpdater, IDocumentDbReader, IDocumentDbBulkReader, IUnitOfWorkParticipant>())
                          .ImplementedBy<DocumentDbSession>()
                          .DependsOn(registration.DocumentDb, sessionInterceptor)
                          .LifestylePerWebRequest()

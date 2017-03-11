@@ -5,7 +5,6 @@ using Composable.CQRS.NewtonSoft;
 using Composable.DDD;
 using Composable.Persistence.KeyValueStorage;
 using Composable.System.Collections.Collections;
-using Composable.System.Reactive;
 using Newtonsoft.Json;
 
 namespace Composable.CQRS.KeyValueStorage
@@ -15,10 +14,6 @@ namespace Composable.CQRS.KeyValueStorage
     class InMemoryDocumentDb : InMemoryObjectStore, IDocumentDb
 #pragma warning restore 618
     {
-        readonly ThreadSafeObservable<IDocumentUpdated> _documentUpdated = new ThreadSafeObservable<IDocumentUpdated>();
-
-        public IObservable<IDocumentUpdated> DocumentUpdated { get { return _documentUpdated; }}
-
         readonly Dictionary<Type, Dictionary<string, string>> _persistentValues = new Dictionary<Type, Dictionary<string, string>>();
 
         public bool TryGet<T>(object id, out T value, Dictionary<Type, Dictionary<string, string>> persistentValues)
@@ -34,7 +29,6 @@ namespace Composable.CQRS.KeyValueStorage
                 var stringValue = JsonConvert.SerializeObject(value, JsonSettings.JsonSerializerSettings);
                 SetPersistedValue(value, idString, stringValue);
                 base.Add(id, value);
-                _documentUpdated.OnNext(new DocumentUpdated(idString, value));
             }
         }
 
@@ -75,7 +69,6 @@ namespace Composable.CQRS.KeyValueStorage
                 {
                     base.Update(key, value);
                     SetPersistedValue(value, idString, stringValue);
-                    _documentUpdated.OnNext(new DocumentUpdated(idString, value));
                 }
             }
         }

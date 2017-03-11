@@ -4,7 +4,7 @@ using Composable.DDD;
 
 namespace Composable.Persistence.KeyValueStorage
 {
-    public interface IDocumentDb : IDocumentUpdatedNotifier
+    public interface IDocumentDb
     {
         bool TryGet<T>(object id, out T value, Dictionary<Type,Dictionary<string,string>> persistentValues);
         void Add<T>(object id, T value, Dictionary<Type, Dictionary<string, string>> persistentValues);

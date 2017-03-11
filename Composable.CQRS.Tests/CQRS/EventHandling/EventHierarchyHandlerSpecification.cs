@@ -6,7 +6,7 @@ using FluentAssertions;
 
 // ReSharper disable UnusedMember.Global
 
-namespace Composable.CQRS.Specs.CQRS.EventHandling
+namespace Composable.CQRS.Tests.CQRS.EventHandling
 {
     public class EventHierarchyHandlerSpecification : nspec
     {

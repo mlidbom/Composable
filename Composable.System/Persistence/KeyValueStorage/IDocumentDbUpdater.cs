@@ -3,7 +3,7 @@ using Composable.DDD;
 
 namespace Composable.Persistence.KeyValueStorage
 {
-    public interface IDocumentDbUpdater : IDocumentUpdatedNotifier
+    public interface IDocumentDbUpdater
     {
         /// <summary>Like Get but, if supported by implementing class, eagerly locks the instance in the database.</summary>
         TValue GetForUpdate<TValue>(object key);

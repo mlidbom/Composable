@@ -7,7 +7,7 @@ using Moq;
 
 // ReSharper disable UnusedMember.Global
 
-namespace Composable.CQRS.Specs.CQRS.EventHandling
+namespace Composable.CQRS.Tests.CQRS.EventHandling
 {
     public class SingleAggregateQueryModelUpdaterSpecification : nspec
     {

@@ -2,10 +2,10 @@
 using System.Collections.Generic;
 using Composable.CQRS.EventSourcing;
 using Composable.CQRS.KeyValueStorage;
-using Composable.CQRS.Specs.CQRS.EventHandling.CVManagement;
-using Composable.CQRS.Specs.CQRS.EventHandling.CVManagement.GlobalEvents;
-using Composable.CQRS.Specs.CQRS.EventHandling.CVManagement.InternalEvents.InternalImplementations;
-using Composable.CQRS.Specs.CQRS.EventHandling.CVManagement.QueryModelUpdaters;
+using Composable.CQRS.Tests.CQRS.EventHandling.CVManagement;
+using Composable.CQRS.Tests.CQRS.EventHandling.CVManagement.GlobalEvents;
+using Composable.CQRS.Tests.CQRS.EventHandling.CVManagement.InternalEvents.InternalImplementations;
+using Composable.CQRS.Tests.CQRS.EventHandling.CVManagement.QueryModelUpdaters;
 using Composable.DDD;
 using Composable.Messaging.Events;
 using Composable.Persistence.KeyValueStorage;
@@ -16,7 +16,7 @@ using NUnit.Framework;
 
 // ReSharper disable UnusedMember.Global
 
-namespace Composable.CQRS.Specs.CQRS.EventHandling
+namespace Composable.CQRS.Tests.CQRS.EventHandling
 {
     namespace CVManagement
     {

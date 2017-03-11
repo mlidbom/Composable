@@ -5,7 +5,7 @@ using FluentAssertions;
 
 // ReSharper disable UnusedMember.Global
 
-namespace Composable.CQRS.Specs.ServiceBus
+namespace Composable.CQRS.Tests.ServiceBus
 {
     public class InProcessBusSpecification : nspec
     {

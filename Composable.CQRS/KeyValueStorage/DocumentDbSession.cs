@@ -35,8 +35,6 @@ namespace Composable.CQRS.KeyValueStorage
             _interceptor = interceptor;
         }
 
-        public IObservable<IDocumentUpdated> DocumentUpdated { get { return _backingStore.DocumentUpdated; } }
-
         public virtual bool TryGet<TValue>(object key, out TValue document)
         {
             return TryGetInternal(key, typeof(TValue), out document);

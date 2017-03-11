@@ -19,6 +19,7 @@
   <ItemGroup>
     <ProjectReference Include="..\Composable.CQRS\Composable.CQRS.csproj" />
     <ProjectReference Include="..\Composable.System\Composable.Core.csproj" />
+    <ProjectReference Include="..\NSpec.NUnit\NSpec.NUnit.csproj" />
   </ItemGroup>
 
   

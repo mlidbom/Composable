@@ -42,7 +42,7 @@ namespace Composable.Persistence.KeyValueStorage
             var idstring = GetIdString(id);
             value = null;
 
-            List<Object> matchesId = null;
+            List<Object> matchesId;
             if(!_db.TryGetValue(idstring, out matchesId))
             {
                 return false;
@@ -127,7 +127,7 @@ namespace Composable.Persistence.KeyValueStorage
         {
             lock(LockObject)
             {
-                values.ForEach(pair => Update((object)pair.Key, pair.Value));
+                values.ForEach(pair => Update(pair.Key, pair.Value));
             }
         }
 

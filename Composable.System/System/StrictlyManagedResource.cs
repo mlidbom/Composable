@@ -52,7 +52,9 @@ namespace Composable.System
     ///</example>
     class StrictlyManagedResource<TManagedResource> : IStrictlyManagedResource where TManagedResource : IStrictlyManagedResource
     {
+        // ReSharper disable once StaticMemberInGenericType
         public static Action<StrictlyManagedResourceWasFinalizedException> ThrowCreatedExceptionWhenFinalizerIsCalled = exception => { throw exception; };
+        // ReSharper disable once StaticMemberInGenericType
         public static Action<StrictlyManagedResourceLifespanWasExceededException> ThrowCreatedExceptionWhenLifespanWasExceeded = exception => { throw exception; };
 
         static readonly bool CollectStacktraces = StrictlyManagedResources.CollectStackTracesFor<TManagedResource>();
@@ -70,6 +72,7 @@ namespace Composable.System
             }
         }
 
+        // ReSharper disable once UnusedMethodReturnValue.Local
         static async Task ScheduleDisposalAndExistenceTest(StrictlyManagedResource<TManagedResource> resource, TimeSpan maxLifeSpan)
         {
             var resourceReference = new WeakReference<StrictlyManagedResource<TManagedResource>>(resource);

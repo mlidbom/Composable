@@ -44,7 +44,7 @@ namespace AccountManagement.TestHelpers
 
             public static Domain.Shared.Email CreateValidEmail()
             {
-                return Domain.Shared.Email.Parse("test.test@test{0}.se".FormatWith(_registeredAccounts++));
+                return Domain.Shared.Email.Parse($"test.test@test{_registeredAccounts++}.se");
             }
         }
     }

@@ -3,7 +3,7 @@ using System.Threading;
 namespace Composable.SystemExtensions.Threading
 {
     ///<summary>Ensures that guarded components are used within one thread only.</summary>
-    public class SingleThreadUseGuard : UsageGuard
+    class SingleThreadUseGuard : UsageGuard
     {
         readonly Thread _owningThread;
 

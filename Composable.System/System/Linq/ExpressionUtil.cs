@@ -10,7 +10,7 @@ using Composable.Contracts;
 namespace Composable.System.Linq
 {
     ///<summary>Extracts member names from expressions</summary>
-    public static class ExpressionUtil
+    static class ExpressionUtil
     {
         ///<summary>Extracts the name of the member that the supplied func expression returns.</summary>
         public static string ExtractMemberName<TValue>(Expression<Func<TValue>> func)

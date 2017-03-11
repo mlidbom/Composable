@@ -15,7 +15,7 @@ namespace AccountManagement.Domain.Shared
             {
                 if(password == null)
                 {
-                    return Seq.Create(Failures.Null); //Everything else will fail with null reference exception if we don't return here...
+                    return new []{Failures.Null}; //Everything else will fail with null reference exception if we don't return here...
                 }
 
                 var failures = new List<Failures>();

@@ -1,6 +1,6 @@
 namespace Composable.UnitsOfWork
 {
-    public interface IUnitOfWorkParticipantWhoseCommitMayTriggerChangesInOtherParticipantsMustImplementIdemponentCommit : IUnitOfWorkParticipant
+    interface IUnitOfWorkParticipantWhoseCommitMayTriggerChangesInOtherParticipantsMustImplementIdemponentCommit : IUnitOfWorkParticipant
     {
         bool CommitAndReportIfCommitMayHaveCausedChangesInOtherParticipantsExpectAnotherCommitSoDoNotLeaveUnitOfWork();
     }

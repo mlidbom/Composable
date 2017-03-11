@@ -2,10 +2,10 @@
 
 namespace Composable.Testing
 {
-    public static class DatabaseHelpers
+    static class DatabaseHelpers
     {
 
-        public static void DropAllObjects(this IDbConnection connection) {
+        internal static void DropAllObjects(this IDbConnection connection) {
             using (var cmd = connection.CreateCommand())
             {
                 cmd.CommandType = CommandType.Text;

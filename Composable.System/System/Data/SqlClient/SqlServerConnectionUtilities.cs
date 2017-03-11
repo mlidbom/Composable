@@ -3,7 +3,7 @@ using System.Data.SqlClient;
 
 namespace Composable.System.Data.SqlClient
 {
-    public class SqlServerConnectionUtilities
+    class SqlServerConnectionUtilities
     {
         string ConnectionString { get; }
         public SqlServerConnectionUtilities(string connectionString)

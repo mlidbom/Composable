@@ -10,7 +10,7 @@ namespace Composable.Messaging.Events
     /// Calls all matching handlers in the order they were registered when an event is Dispatched.
     /// Handlers should be registered using the RegisterHandlers method in the constructor of the inheritor.
     /// </summary>
-    public class CallMatchingHandlersInRegistrationOrderEventDispatcher<TEvent> : IMutableEventDispatcher<TEvent>
+    class CallMatchingHandlersInRegistrationOrderEventDispatcher<TEvent> : IMutableEventDispatcher<TEvent>
         where TEvent : class
     {
         readonly List<KeyValuePair<Type, Action<object>>> _handlers = new List<KeyValuePair<Type, Action<object>>>();
@@ -21,7 +21,7 @@ namespace Composable.Messaging.Events
         int _totalHandlers = 0;
 
         ///<summary>Registers handlers for the incoming events. All matching handlers will be called in the order they were registered.</summary>
-        public RegistrationBuilder RegisterHandlers()
+        internal IEventHandlerRegistrar<TEvent> RegisterHandlers()
         {
             return new RegistrationBuilder(this);
         }
@@ -157,7 +157,7 @@ namespace Composable.Messaging.Events
         }
     }
 
-    public class EventUnhandledException : Exception
+    class EventUnhandledException : Exception
     {
         public EventUnhandledException(Type handlerType, Type eventType)
             : base($@"{handlerType} does not handle nor ignore incoming event {eventType}") {}

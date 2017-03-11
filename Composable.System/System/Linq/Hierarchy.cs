@@ -9,7 +9,7 @@ using System.Collections.Generic;
 namespace Composable.System.Linq
 {
     /// <summary/>
-    public static class Hierarchy
+    static class Hierarchy
     {
         /// <summary>
         /// Flattens a hierarchical structure of <typeparamref name="TSource"/> objects into an <see cref="IEnumerable{TSource}"/>

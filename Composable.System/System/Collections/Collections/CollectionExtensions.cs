@@ -8,7 +8,7 @@ using Composable.System.Linq;
 namespace Composable.System.Collections.Collections
 {
     ///<summary>Extensions on <see cref="ICollection{T}"/></summary>
-    public static class CollectionExtensions
+    static class CollectionExtensions
     {
         ///<summary>Remove entries matching the condition from the collection.</summary>
         public static int RemoveWhere<T>(this ICollection<T> me, Func<T, bool> condition)

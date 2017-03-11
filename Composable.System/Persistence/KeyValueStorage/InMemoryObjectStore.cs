@@ -8,7 +8,7 @@ using Composable.System.Linq;
 
 namespace Composable.KeyValueStorage
 {
-    public class InMemoryObjectStore : IEnumerable<KeyValuePair<string, object>>
+    class InMemoryObjectStore : IEnumerable<KeyValuePair<string, object>>
     {
         Dictionary<string, List<Object>> _db = new Dictionary<string, List<object>>(StringComparer.InvariantCultureIgnoreCase);
         protected object _lockObject = new object();

@@ -10,7 +10,7 @@ using Composable.Contracts;
 namespace Composable.System.Linq
 {
     /// <summary/>
-    public static class SimpleIndexing
+    static class SimpleIndexing
     {
         /// <summary>Returns the second element in the IEnumerable</summary>
         public static T Second<T>(this IEnumerable<T> me)

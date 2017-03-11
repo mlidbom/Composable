@@ -9,7 +9,7 @@ namespace Composable.Tests.Contracts
 {
     public static class InspectionTestHelper
     {
-        public static void BatchTestInspection<TException, TInspected>(
+        internal static void BatchTestInspection<TException, TInspected>(
             Action<Inspected<TInspected>> assert,
             IEnumerable<TInspected> badValues,
             IEnumerable<TInspected> goodValues
@@ -44,7 +44,7 @@ namespace Composable.Tests.Contracts
             Return(goodValue, assert);
         }
 
-        public static void InspectBadValue<TException, TInspected>(Action<Inspected<TInspected>> assert, TInspected inspectedValue)
+        internal static void InspectBadValue<TException, TInspected>(Action<Inspected<TInspected>> assert, TInspected inspectedValue)
             where TException : ContractViolationException
         {
             Expression<Func<TInspected>> fetchInspected = () => inspectedValue;

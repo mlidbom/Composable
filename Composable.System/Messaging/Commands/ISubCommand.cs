@@ -1,6 +1,6 @@
 namespace Composable.Messaging.Commands
 {
-    public interface ISubCommand
+    interface ISubCommand
     {
         string Name { get; }
         Command Command { get; }

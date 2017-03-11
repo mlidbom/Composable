@@ -6,7 +6,7 @@ using Composable.System.Linq;
 namespace Composable.System.Reactive
 {
     ///<summary>A thread safe collection of <see cref="IObserver{T}"/> instances.</summary>
-    public class ThreadSafeObserverCollection<TEvent>
+    class ThreadSafeObserverCollection<TEvent>
     {
         readonly HashSet<IObserver<TEvent>>  _observers = new HashSet<IObserver<TEvent>>();
         readonly object _lockObject = new object();

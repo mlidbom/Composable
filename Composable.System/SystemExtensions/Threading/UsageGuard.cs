@@ -5,7 +5,7 @@ using Composable.Contracts;
 namespace Composable.SystemExtensions.Threading
 {
     ///<summary>Base class that takes care of most of the complexity of implementing <see cref="ISingleContextUseGuard"/></summary>
-    public abstract class UsageGuard : ISingleContextUseGuard
+    abstract class UsageGuard : ISingleContextUseGuard
     {
         [ThreadStatic] static bool _isInIgnoredContextDueToInfrastructureSuchAsTransaction;
 

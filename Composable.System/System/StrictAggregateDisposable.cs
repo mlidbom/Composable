@@ -5,13 +5,13 @@ using Composable.System.Collections.Collections;
 
 namespace Composable.System
 {
-    public interface IAggregateDisposable : IDisposable
+    interface IAggregateDisposable : IDisposable
     {
         void Add(params IDisposable[] disposables);
         void Add(IEnumerable<IDisposable> disposables);
     }
 
-    public interface IStrictAggregateDisposable : IAggregateDisposable, IStrictlyManagedResource
+    interface IStrictAggregateDisposable : IAggregateDisposable, IStrictlyManagedResource
     {}
 
     public class StrictAggregateDisposable : StrictlyManagedResourceBase<StrictAggregateDisposable>, IStrictAggregateDisposable

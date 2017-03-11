@@ -737,17 +737,14 @@ namespace CQRS.Tests.KeyValueStorage
             Assert.Throws<MultiThreadedUseException>(() => session.TryGet(Guid.NewGuid(), out user));
             Assert.Throws<MultiThreadedUseException>(() => session.TryGetForUpdate(user.Id, out user));
             Assert.Throws<MultiThreadedUseException>(() => session.Delete(user));
-        }
+        }        
 
         [Test]
         public void ThrowsIfUsedByMultipleHttpRequests()
         {
             var store = CreateStore();
 
-            var requestContextMock = new Mock<IHttpRequestIdFetcher>(MockBehavior.Strict);
-            requestContextMock.Setup(me => me.GetCurrent()).Returns(Guid.NewGuid);
-
-            var guard = new SingleHttpRequestUseGuard(requestContextMock.Object);
+            var guard = new SingleHttpRequestUseGuard(new AlwaysNewRequestIdsHttpRequestFetcher());
 
             var session = OpenSession(store, guard);
 
@@ -933,6 +930,11 @@ namespace CQRS.Tests.KeyValueStorage
 
             store.GetAll<Person>().Should().HaveCount(4);
 
+        }
+
+        class AlwaysNewRequestIdsHttpRequestFetcher : IHttpRequestIdFetcher
+        {
+            public Guid GetCurrent() => Guid.NewGuid();
         }
     }
 }

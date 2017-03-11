@@ -11,7 +11,7 @@ using Composable.Contracts;
 namespace Composable.System.Linq
 {
     /// <summary/>
-    public static class LinqExtensions
+    static class LinqExtensions
     {
         /// <summary>
         /// Adds <paramref name="instances"/> to the end of <paramref name="source"/>

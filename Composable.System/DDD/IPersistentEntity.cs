@@ -16,7 +16,7 @@ namespace Composable.DDD
     /// * Classes that have a lifecycle longer than an application run. Often persisted in databases.
     /// </summary>
     /// <typeparam name="TKeyType"></typeparam>
-    public interface IPersistentEntity<out TKeyType> : IHasPersistentIdentity<TKeyType>
+    interface IPersistentEntity<out TKeyType> : IHasPersistentIdentity<TKeyType>
     {
     }
 }

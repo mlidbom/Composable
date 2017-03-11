@@ -20,7 +20,7 @@ namespace AccountManagement.UI.QueryModels.Services.Implementation
                                                  ISingleContextUseGuard usageGuard)
         {
             _documentDbQueryModels = documentDbQueryModels;
-            _generatedModels = new QueryModelGeneratingDocumentDbReader(usageGuard, NullOpDocumentDbSessionInterceptor.Instance, Seq.Create(accountQueryModelGenerator));
+            _generatedModels = new QueryModelGeneratingDocumentDbReader(usageGuard, NullOpDocumentDbSessionInterceptor.Instance, new []{ accountQueryModelGenerator });
         }
 
         public AccountQueryModel GetAccount(Guid accountId) { return _generatedModels.Get<AccountQueryModel>(accountId); }

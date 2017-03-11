@@ -29,7 +29,7 @@ namespace Composable.CQRS.Query.Models.Generators
         }
 
         ///<summary>Registers handlers for the incoming events. All matching handlers will be called in the order they were registered.</summary>
-        protected CallMatchingHandlersInRegistrationOrderEventDispatcher<TEvent>.RegistrationBuilder RegisterHandlers()
+        protected IEventHandlerRegistrar<TEvent> RegisterHandlers()
         {
             return _eventDispatcher.RegisterHandlers();
         }

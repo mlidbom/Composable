@@ -13,7 +13,7 @@ namespace Composable.System.Linq
 
 
     /// <summary/>
-    public static class Seq
+    static class Seq
     {
         static class EmptySequence<T>
         {

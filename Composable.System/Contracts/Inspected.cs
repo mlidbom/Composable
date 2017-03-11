@@ -19,7 +19,7 @@ namespace Composable.Contracts
         /// <param name="buildException">Expression that should return an appropriate exception if the inspection fails. If not supplied a default <see cref="ContractViolationException"/> vill be created.</param>
         /// <returns>The same instance (this) in order to enable fluent chaining style code.</returns>
         /// <exception cref="Exception">The exception created by the buildException argument will be thrown if an <see cref="InspectedValue{TValue}"/> fails inspection.</exception>
-        public Inspected<TValue> Inspect(Func<TValue, bool> isValueValid, Func<InspectedValue<TValue>, Exception> buildException = null)
+        internal Inspected<TValue> Inspect(Func<TValue, bool> isValueValid, Func<InspectedValue<TValue>, Exception> buildException = null)
         {
             if(buildException == null)
             {

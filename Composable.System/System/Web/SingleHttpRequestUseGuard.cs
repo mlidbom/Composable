@@ -6,7 +6,7 @@ using Composable.SystemExtensions.Threading;
 namespace Composable.System.Web
 {
     ///<summary>Ensures that the monitored component is only used within a single http request</summary>
-    public class SingleHttpRequestUseGuard : UsageGuard
+    class SingleHttpRequestUseGuard : UsageGuard
     {
         readonly IHttpRequestIdFetcher _httpRequestIdFetcher;
         readonly Guid _initialRequestId;

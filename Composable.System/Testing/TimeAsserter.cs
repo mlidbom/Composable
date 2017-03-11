@@ -6,7 +6,7 @@ using Composable.System.Diagnostics;
 
 namespace Composable.Testing
 {
-    public static class TimeAsserter
+    static class TimeAsserter
     {
         const string DefaultTimeFormat = "ss\\.fff";
 

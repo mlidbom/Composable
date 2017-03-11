@@ -2,7 +2,7 @@
 
 namespace Composable.KeyValueStorage
 {
-    public class AttemptToSaveAlreadyPersistedValueException : Exception
+    class AttemptToSaveAlreadyPersistedValueException : Exception
     {
         public AttemptToSaveAlreadyPersistedValueException(object key, object value)
             : base(

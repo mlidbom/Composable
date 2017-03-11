@@ -11,7 +11,7 @@ using Composable.GenericAbstractions.Hierarchies;
 namespace Composable.System.IO
 {
     /// <summary/>
-    public static class DirectoryExtensions
+    static class DirectoryExtensions
     {
         /// <summary>
         /// Called on <paramref name="path"/> return a DirectoryInfo instance

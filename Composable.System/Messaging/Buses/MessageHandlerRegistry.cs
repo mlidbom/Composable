@@ -7,7 +7,7 @@ using Composable.System.Reflection;
 
 namespace Composable.Messaging.Buses
 {
-    public class MessageHandlerRegistry : IMessageHandlerRegistrar, IMessageHandlerRegistry
+    class MessageHandlerRegistry : IMessageHandlerRegistrar, IMessageHandlerRegistry
     {
         readonly Dictionary<Type, Action<object>> _commandHandlers = new Dictionary<Type, Action<object>>();
         readonly Dictionary<Type, Func<object,object>> _queryHandlers = new Dictionary<Type, Func<object, object>>();

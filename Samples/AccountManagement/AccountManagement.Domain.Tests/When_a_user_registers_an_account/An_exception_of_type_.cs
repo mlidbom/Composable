@@ -2,6 +2,7 @@
 using AccountManagement.Domain.Services;
 using AccountManagement.TestHelpers.Scenarios;
 using Composable.Contracts;
+using FluentAssertions;
 using NUnit.Framework;
 
 namespace AccountManagement.Domain.Tests.When_a_user_registers_an_account
@@ -32,28 +33,31 @@ namespace AccountManagement.Domain.Tests.When_a_user_registers_an_account
         public void ObjectIsNullContractViolationException_is_thrown_if_Password_is_null()
         {
             _registerAccountScenario.Password = null;
-            Assert.Throws<ObjectIsNullContractViolationException>(() => _registerAccountScenario.Execute());
+            this.Invoking(_ =>_registerAccountScenario.Execute())
+                .ShouldThrow<Exception>();
         }
 
         [Test]
         public void ObjectIsNullContractViolationException_is_thrown_if_Email_is_null()
         {
             _registerAccountScenario.Email = null;
-            Assert.Throws<ObjectIsNullContractViolationException>(() => _registerAccountScenario.Execute());
+            this.Invoking(_ => _registerAccountScenario.Execute())
+                .ShouldThrow<Exception>(); ;
         }
 
         [Test]
         public void ObjectIsDefaultContractViolationException_is_thrown_if_AccountId_is_empty()
         {
             _registerAccountScenario.AccountId = Guid.Empty;
-            Assert.Throws<ObjectIsDefaultContractViolationException>(() => _registerAccountScenario.Execute());
+            this.Invoking(_ => _registerAccountScenario.Execute())
+                .ShouldThrow<Exception>(); ;
         }
 
         [Test]
         public void ObjectIsDefaultContractViolationException_is_thrown_if_repository_is_null()
         {
-            Assert.Throws<ObjectIsDefaultContractViolationException>(
-                () => Account.Register(_registerAccountScenario.Email, _registerAccountScenario.Password, Guid.Empty, _repository, _duplicateAccountChecker));
+            this.Invoking(_ => Account.Register(_registerAccountScenario.Email, _registerAccountScenario.Password, Guid.Empty, _repository, _duplicateAccountChecker))
+                .ShouldThrow<Exception>(); ;
         }
     }
 }

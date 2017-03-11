@@ -10,7 +10,7 @@ namespace Composable.System.Linq
     ///<summary>
     /// Methods useful for any type when used in a Linq context
     ///</summary>
-    public static class ObjectExtensions
+    static class ObjectExtensions
     {
         /// <summary>
         /// Returns <paramref name="me"/> repeated <paramref name="times"/> times.

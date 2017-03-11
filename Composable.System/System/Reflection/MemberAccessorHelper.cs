@@ -10,7 +10,7 @@ using Composable.Contracts;
 namespace Composable.System.Reflection
 {
     ///<summary>Provides high performance access to object fields and properties.</summary>
-    public static class MemberAccessorHelper
+    static class MemberAccessorHelper
     {
         static readonly IDictionary<Type, Func<Object, Object>[]> TypeFields = new ConcurrentDictionary<Type, Func<Object, Object>[]>();
 
@@ -63,7 +63,7 @@ namespace Composable.System.Reflection
     }
 
     ///<summary>Provides high performance access to object fields and properties.</summary>
-    public static class MemberAccessorHelper<T>
+    static class MemberAccessorHelper<T>
     {
         // ReSharper disable StaticFieldInGenericType
         static readonly Func<Object, Object>[] Fields;

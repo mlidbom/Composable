@@ -5,7 +5,7 @@ using System.Linq;
 namespace Composable.Contracts
 {
     ///<summary>Performs inspections on <see cref="IEnumerable{T}"/> instances</summary>
-    public static class EnumerableInspector
+    static class EnumerableInspector
     {
         ///<summary>
         /// <para>Throws <see cref="ObjectIsNullContractViolationException"/> if any inspected value is null.</para>
@@ -25,7 +25,7 @@ namespace Composable.Contracts
     }
 
     ///<summary>Thrown if an enumerable is empty but is not allowed to be.</summary>
-    public class EnumerableIsEmptyContractViolationException : ContractViolationException
+    class EnumerableIsEmptyContractViolationException : ContractViolationException
     {
         ///<summary>Standard constructor.</summary>
         public EnumerableIsEmptyContractViolationException(InspectedValue badValue) : base(badValue) {}

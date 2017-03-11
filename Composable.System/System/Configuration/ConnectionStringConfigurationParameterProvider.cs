@@ -3,7 +3,7 @@
 namespace Composable.System.Configuration
 {
     ///<summary>Supplies connection strings from the application configuration file.</summary>
-    public class ConnectionStringConfigurationParameterProvider : IConnectionStringProvider
+    class ConnectionStringConfigurationParameterProvider : IConnectionStringProvider
     {
         ///<summary>Returns the connection string with the given name.</summary>
         public ConnectionStringSettings GetConnectionString(string parameterName)

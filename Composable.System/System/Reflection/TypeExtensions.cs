@@ -12,7 +12,7 @@ using Composable.System.Linq;
 namespace Composable.System.Reflection
 {
     /// <summary>A collection of extensions to work with <see cref="Type"/></summary>
-    public static class TypeExtensions
+    static class TypeExtensions
     {
         /// ///<returns>true if <paramref name="me"/> implements the interface: <typeparamref name="TImplemented"/>. By definition true if <paramref name="me"/> == <typeparamref name="TImplemented"/>.</returns>
         public static bool Implements<TImplemented>(this Type me)

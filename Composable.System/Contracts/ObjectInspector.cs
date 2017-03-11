@@ -22,7 +22,7 @@ namespace Composable.Contracts
         /// <para>Throws <see cref="ObjectIsDefaultContractViolationException"/> if any inspected value is default(TValue). Such as 0 for integer, Guid.Empty for Guid, new MyStruct() for any struct.</para>
         /// <para>Consider using <see cref="NotNullOrDefault{TValue}"/> instead as it works for reference types as well and is only marginally slower.</para>
         /// </summary>
-        public static Inspected<TValue> NotDefault<TValue>(this Inspected<TValue> me)
+        internal static Inspected<TValue> NotDefault<TValue>(this Inspected<TValue> me)
             where TValue : struct
         {
             return me.Inspect(

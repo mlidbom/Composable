@@ -1,4 +1,5 @@
-﻿using AccountManagement.TestHelpers.Scenarios;
+﻿using System;
+using AccountManagement.TestHelpers.Scenarios;
 using Composable.Contracts;
 using FluentAssertions;
 using NUnit.Framework;
@@ -20,7 +21,7 @@ namespace AccountManagement.Domain.Tests.AccountTests
         {
             _changeEmail.NewEmail = null;
             _changeEmail.Invoking(scenario => scenario.Execute())
-                .ShouldThrow<ObjectIsNullContractViolationException>();
+                .ShouldThrow<Exception>();
         }
     }
 }

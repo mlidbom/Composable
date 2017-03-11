@@ -12,7 +12,7 @@ using Composable.System.Linq;
 
 namespace Composable.Testing
 {
-    public sealed class SqlServerDatabasePool : StrictlyManagedResourceBase<SqlServerDatabasePool>
+    sealed class SqlServerDatabasePool : StrictlyManagedResourceBase<SqlServerDatabasePool>
     {
         readonly string _masterConnectionString;
         readonly SqlServerConnectionUtilities _masterConnection;

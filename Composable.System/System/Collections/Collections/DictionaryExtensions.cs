@@ -10,7 +10,7 @@ using Composable.Contracts;
 namespace Composable.System.Collections.Collections
 {
     ///<summary>Helpers for working with dictionaries</summary>
-    public static class DictionaryExtensions
+    static class DictionaryExtensions
     {
         /// <summary>
         /// If <paramref name="key"/> exists in me <paramref name="me"/> it is returned.

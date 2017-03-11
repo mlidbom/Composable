@@ -72,13 +72,13 @@ namespace Composable.CQRS.EventSourcing
             DomainEvent.Raise(theEvent);
         }
 
-        protected CallMatchingHandlersInRegistrationOrderEventDispatcher<TAggregateRootBaseEventInterface>.RegistrationBuilder RegisterEventAppliers()
+        protected IEventHandlerRegistrar<TAggregateRootBaseEventInterface> RegisterEventAppliers()
         {
             return _eventDispatcher.RegisterHandlers();
         }
 
         // ReSharper disable once UnusedMember.Global todo: coverage
-        protected CallMatchingHandlersInRegistrationOrderEventDispatcher<TAggregateRootBaseEventInterface>.RegistrationBuilder RegisterEventHandlers()
+        protected IEventHandlerRegistrar<TAggregateRootBaseEventInterface> RegisterEventHandlers()
         {
             return _eventHandlersEventDispatcher.RegisterHandlers();
         }

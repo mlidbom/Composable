@@ -32,7 +32,7 @@ namespace Composable.GenericAbstractions.Hierarchies
     /// <summary>
     /// Provides extension methods for working with hierarchical data.
     /// </summary>
-    public static class HierarchyExtensions
+    static class HierarchyExtensions
     {
         class Hierarchy<T> : IAutoHierarchy<T>
         {

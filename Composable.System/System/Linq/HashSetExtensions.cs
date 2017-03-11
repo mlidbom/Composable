@@ -10,7 +10,7 @@ using Composable.Contracts;
 namespace Composable.System.Linq
 {
     /// <summary>A collection of extensions to work with <see cref="HashSet{T}"/></summary>
-    public static class HashSetExtensions
+    static class HashSetExtensions
     {
         /// <returns>A set containing all the items in <paramref name="me"/></returns>
         public static HashSet<T> ToSet<T>(this IEnumerable<T> me)

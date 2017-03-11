@@ -10,7 +10,7 @@ namespace Composable.CQRS
     {
         readonly IEventStoreSession Aggregates;
 
-        public AggregateRepository(IEventStoreSession aggregates)
+        protected AggregateRepository(IEventStoreSession aggregates)
         {
             Aggregates = aggregates;
         }

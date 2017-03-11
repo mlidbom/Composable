@@ -6,7 +6,7 @@ using Composable.Contracts;
 namespace Composable.System.Collections.Collections
 {
     ///<summary>Adds some convenience features to linked list</summary>
-    public static class LinkedListExtensions
+    static class LinkedListExtensions
     {
         ///<summary>Enumerates this and all following nodes.</summary>
         public static IEnumerable<LinkedListNode<T>> NodesFrom<T>(this LinkedListNode<T> @this)

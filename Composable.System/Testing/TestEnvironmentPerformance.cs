@@ -7,7 +7,7 @@ using Composable.System;
 
 namespace Composable.Testing
 {
-    public static class TestEnvironment
+    static class TestEnvironment
     {
         public static TimeSpan AdjustRuntimeToTestEnvironment(this TimeSpan original)
         {

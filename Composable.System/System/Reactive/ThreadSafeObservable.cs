@@ -3,7 +3,7 @@
 namespace Composable.System.Reactive
 {
     ///<summary>Suplies a simple and thread safe implementation of IObservable.</summary>
-    public class ThreadSafeObservable<TEvent> : IObservable<TEvent>
+    class ThreadSafeObservable<TEvent> : IObservable<TEvent>
     {
         readonly ThreadSafeObserverCollection<TEvent> _observerCollection = new ThreadSafeObserverCollection<TEvent>();
 

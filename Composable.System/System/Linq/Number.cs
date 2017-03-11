@@ -9,7 +9,7 @@ using System.Collections.Generic;
 namespace Composable.System.Linq
 {
     /// <summary/>
-    public static class Number
+    static class Number
     {
         /// <summary>
         /// Represents a sequence first yielding <see cref="StartValue"/> and then infinitely yielding the last value plus <see cref="StepSize"/>

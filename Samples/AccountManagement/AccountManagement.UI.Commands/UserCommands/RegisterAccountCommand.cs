@@ -33,7 +33,7 @@ namespace AccountManagement.UI.Commands.UserCommands
         IEnumerable<ValidationResult> ValidatePassword()
         {
             var policyFailures = Domain.Shared.Password.Policy.GetPolicyFailures(Password).ToList();
-            if(!policyFailures.None())
+            if(policyFailures.Any())
             {
                 switch(policyFailures.First())
                 {
@@ -50,7 +50,7 @@ namespace AccountManagement.UI.Commands.UserCommands
                         yield return this.CreateValidationResult(RegisterAccountCommandResources.Password_ShorterThanFourCharacters, () => Password);
                         break;
                     default:
-                        throw new Exception("Unknown password failure type {0}".FormatWith(policyFailures.First().ToString()));
+                        throw new Exception($"Unknown password failure type {policyFailures.First()}");
                 }
             }
         }

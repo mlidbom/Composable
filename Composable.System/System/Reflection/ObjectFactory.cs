@@ -6,7 +6,7 @@ using System.Reflection;
 namespace Composable.System.Reflection
 {
     ///<summary>Constructs instances of classes</summary>
-    public static class ObjectFactory<TEntity>
+    static class ObjectFactory<TEntity>
     {
         interface ITypedArgument
         {

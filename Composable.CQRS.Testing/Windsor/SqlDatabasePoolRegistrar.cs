@@ -4,7 +4,7 @@ using Composable.Testing;
 
 namespace Composable.CQRS.Testing.Windsor
 {
-    public static class SqlDatabasePoolRegistrar
+    static class SqlDatabasePoolRegistrar
     {
         public static SqlServerDatabasePool RegisterSqlServerDatabasePool(this IWindsorContainer @this,  string connectionString)
         {

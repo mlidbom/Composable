@@ -10,7 +10,7 @@ using Composable.Contracts;
 namespace Composable.System.Linq
 {
     /// <summary/>
-    public static class Iteration
+    static class Iteration
     {
         /// <summary>
         /// Executes <paramref name="action"/> for each element in the sequence <paramref name="source"/>.

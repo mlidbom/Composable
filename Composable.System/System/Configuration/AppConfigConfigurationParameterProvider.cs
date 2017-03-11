@@ -3,7 +3,7 @@
 namespace Composable.System.Configuration
 {
     ///<summary>Fetches configuration variables from the application configuration file.</summary>
-    public class AppConfigConfigurationParameterProvider : IConfigurationParameterProvider
+    class AppConfigConfigurationParameterProvider : IConfigurationParameterProvider
     {
         public static readonly IConfigurationParameterProvider Instance = new AppConfigConfigurationParameterProvider();
 

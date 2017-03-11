@@ -6,7 +6,7 @@ using Composable.Contracts;
 namespace Composable.System.Web
 {
     ///<summary>Adds extension that assigns and tracks a unique Guid to each HttpRequest</summary>
-    public static class HttpRequestIdSupplier
+    static class HttpRequestIdSupplier
     {
         const string UniqueRequestId = "__Unique_Request_Id";
 

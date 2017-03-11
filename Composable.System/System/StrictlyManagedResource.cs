@@ -31,7 +31,7 @@ namespace Composable.System
     /// <para>Implementing this interface MUST be done by inheriting from <see cref="StrictlyManagedResourceBase{TInheritor}"/> or having a readonly field of type <see cref="StrictlyManagedResource{TManagedResource}"/>.
     ///  This guarantees the expected behavior including the ability to enable and disable the collection of stacktraces for the allocations.</para>
     /// </summary>
-    public interface IStrictlyManagedResource : IDisposable {}
+    interface IStrictlyManagedResource : IDisposable {}
 
     ///<summary>
     /// Helper class for implementing <see cref="IStrictlyManagedResource"/>
@@ -50,7 +50,7 @@ namespace Composable.System
     ///}
     /// </code>
     ///</example>
-    public class StrictlyManagedResource<TManagedResource> : IStrictlyManagedResource where TManagedResource : IStrictlyManagedResource
+    class StrictlyManagedResource<TManagedResource> : IStrictlyManagedResource where TManagedResource : IStrictlyManagedResource
     {
         public static Action<StrictlyManagedResourceWasFinalizedException> ThrowCreatedExceptionWhenFinalizerIsCalled = exception => { throw exception; };
         public static Action<StrictlyManagedResourceLifespanWasExceededException> ThrowCreatedExceptionWhenLifespanWasExceeded = exception => { throw exception; };
@@ -142,7 +142,7 @@ namespace Composable.System
     }
 
     ///<summary><see cref="IStrictlyManagedResource"/></summary>
-    public class StrictlyManagedResourceWasFinalizedException : Exception
+    class StrictlyManagedResourceWasFinalizedException : Exception
     {
         public StrictlyManagedResourceWasFinalizedException(Type instanceType, string reservationCallStack) : base(FormatMessage(instanceType, reservationCallStack)) { }
 
@@ -156,7 +156,7 @@ Set configuration value: {StrictlyManagedResources.CollectStackTracesForAllStric
 Please note that this will decrease performance and should only be set while debugging resource leaks.";
     }
 
-    public class StrictlyManagedResourceLifespanWasExceededException : Exception
+    class StrictlyManagedResourceLifespanWasExceededException : Exception
     {
         public StrictlyManagedResourceLifespanWasExceededException(Type instanceType, string reservationCallStack, TimeSpan maxTimeSpan) : base(FormatMessage(instanceType, reservationCallStack, maxTimeSpan)) { }
 

@@ -7,7 +7,7 @@ using Composable.System.Linq;
 namespace Composable.System.Reactive
 {
     ///<summary>Simple implementation of <see cref="IObservable{T}"/> that tracks subscribers and allows for calling OnNext on them all at once.</summary>
-    public class SimpleObservable<TEvent> : IObservable<TEvent>
+    class SimpleObservable<TEvent> : IObservable<TEvent>
     {
         readonly HashSet<IObserver<TEvent>> _observerCollection = new HashSet<IObserver<TEvent>>();
 

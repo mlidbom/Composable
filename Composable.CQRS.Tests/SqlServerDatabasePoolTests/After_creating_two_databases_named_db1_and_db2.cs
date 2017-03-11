@@ -11,12 +11,9 @@ namespace Composable.CQRS.Tests.SqlServerDatabasePoolTests
     public class After_creating_two_databases_named_db1_and_db2
     {
         string _masterConnectionString;
-        SqlServerConnectionUtilities _masterConnection;
         SqlServerDatabasePool _manager;
         string _dB1ConnectionString;
         string _dB2ConnectionString;
-        string _dB2DbName;
-        string _dB1DbName;
         const string Db1 = "LocalDBManagerTests_After_creating_connection_Db1";
         const string Db2 = "LocalDBManagerTests_After_creating_connection_Db2";
 
@@ -25,13 +22,10 @@ namespace Composable.CQRS.Tests.SqlServerDatabasePoolTests
         public void SetupTask()
         {
             _masterConnectionString = ConfigurationManager.ConnectionStrings["MasterDB"].ConnectionString;
-            _masterConnection = new SqlServerConnectionUtilities(_masterConnectionString);
             _manager = new SqlServerDatabasePool(_masterConnectionString);
             _dB1ConnectionString = _manager.ConnectionStringFor(Db1);
             _dB2ConnectionString = _manager.ConnectionStringFor(Db2);
 
-            _dB1DbName = new SqlServerConnectionUtilities(_dB1ConnectionString).UseConnection(connection => connection.Database);
-            _dB2DbName = new SqlServerConnectionUtilities(_dB2ConnectionString).UseConnection(connection => connection.Database);
         }
 
         [Test]

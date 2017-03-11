@@ -1,62 +1,21 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
 using Composable.CQRS.EventSourcing;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Serialization;
 
 namespace Composable.CQRS.CQRS.EventSourcing.MicrosoftSQLServer
 {
     class SqlServerEvestStoreEventSerializer
     {
-        public static readonly JsonSerializerSettings JsonSettings = NewtonSoft.JsonSettings.SqlEventStoreSerializerSettings;
+        internal static readonly JsonSerializerSettings JsonSettings = NewtonSoft.JsonSettings.SqlEventStoreSerializerSettings;
 
-        public string Serialize(object @event)
+        public static string Serialize(object @event)
         {
             return JsonConvert.SerializeObject(@event, Formatting.Indented, JsonSettings);
         }
 
-        public IAggregateRootEvent Deserialize(Type eventType, string eventData)
+        public static IAggregateRootEvent Deserialize(Type eventType, string eventData)
         {
             return (IAggregateRootEvent)JsonConvert.DeserializeObject(eventData, eventType, JsonSettings);
-        }
-    }
-
-    class SqlServerDebugEventStoreEventSerializer
-    {
-        class DebugPrintingContractsResolver : DefaultContractResolver
-        {
-            protected override IList<JsonProperty> CreateProperties(Type type, MemberSerialization memberSerialization)
-            {
-                var props = type.GetProperties(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)
-                                .Select(p => CreateProperty(p, memberSerialization))
-                                .ToList();
-                props.ForEach(p => { p.Writable = true; p.Readable = true; });
-                return props;
-            }
-        }
-
-        static readonly JsonSerializerSettings JsonSettings =
-            new JsonSerializerSettings
-            {
-                TypeNameHandling = TypeNameHandling.Auto,
-                ConstructorHandling = ConstructorHandling.AllowNonPublicDefaultConstructor,
-                ContractResolver = new DebugPrintingContractsResolver(),
-                Error = (serializer, err) => err.ErrorContext.Handled = true
-    };
-
-        public string Serialize(object @event, Formatting formatting)
-        {
-            return JsonConvert.SerializeObject(@event, formatting, JsonSettings);
-        }
-    }
-
-    static class AggregateRootEventDebugSerializer
-    {
-        public static string ToNewtonSoftDebugString(this object @this, Formatting formatting = Formatting.Indented)
-        {
-            return $"{@this.GetType()}:{new SqlServerDebugEventStoreEventSerializer().Serialize(@this, formatting)}";
         }
     }
 }

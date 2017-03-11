@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
 using System.Linq;
-using Composable.CQRS.NewtonSoft;
 using Composable.DDD;
 using Composable.Persistence.KeyValueStorage;
 using Composable.System;

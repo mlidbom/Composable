@@ -47,7 +47,7 @@ namespace Composable.CQRS.CQRS.EventSourcing
                 events.Cast<AggregateRootEvent>().ForEach(
                     @event =>
                     {
-                        ((AggregateRootEvent)@event).InsertionOrder = ++_insertionOrder;
+                        @event.InsertionOrder = ++_insertionOrder;
                         _events.Add(@event);
                     });
             }

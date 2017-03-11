@@ -1,4 +1,5 @@
 ﻿using Composable.Contracts;
+using FluentAssertions;
 using NUnit.Framework;
 
 namespace Composable.Tests.Contracts
@@ -11,10 +12,10 @@ namespace Composable.Tests.Contracts
         {
             Assert.Throws<ObjectIsNullContractViolationException>(() => ReturnInputStringAndRefuseToReturnNull(null));
             Assert.Throws<StringIsEmptyContractViolationException>(() => ReturnInputStringAndRefuseToReturnNull(""));
-            Assert.Throws<StringIsWhitespaceContractViolationException>(() => ReturnInputStringAndRefuseToReturnNull(" "));
+            Assert.Throws<StringIsWhitespaceContractViolationException>(() => ReturnInputStringAndRefuseToReturnNull(" ").Should().Be(""));
         }
 
-        string ReturnInputStringAndRefuseToReturnNull(string returnMe)
+        static string ReturnInputStringAndRefuseToReturnNull(string returnMe)
         {
             Contract.ReturnValue(returnMe).NotNullEmptyOrWhiteSpace();
             return Contract.Return(returnMe, assert => assert.NotNullEmptyOrWhiteSpace());

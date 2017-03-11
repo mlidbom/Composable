@@ -56,11 +56,9 @@ namespace Composable.CQRS.CQRS.EventSourcing
 
             class Collection : IReadOnlyEntityCollection<TEntitity, TEntityId>
             {
-                readonly TRootQueryModel _aggregate;
                 public Collection(TRootQueryModel aggregate)
                 {
-                    _aggregate = aggregate;
-                    _aggregate.RegisterEventAppliers()
+                    aggregate.RegisterEventAppliers()
                          .For<TEntityCreatedEventInterface>(
                             e =>
                             {

@@ -28,7 +28,6 @@ namespace Composable.CQRS.CQRS.EventSourcing.MicrosoftSQLServer
         readonly IReadOnlyList<IEventMigration> _migrationFactories;
 
         readonly HashSet<Guid> _aggregatesWithEventsAddedByThisInstance = new HashSet<Guid>();
-        readonly SqlServerEventStoreConnectionManager _connectionMananger;
 
         public SqlServerEventStore(string connectionString, ISingleContextUseGuard usageGuard, IEventNameMapper nameMapper = null, IEnumerable<IEventMigration> migrations = null)
         {
@@ -39,12 +38,11 @@ namespace Composable.CQRS.CQRS.EventSourcing.MicrosoftSQLServer
 
             ConnectionString = connectionString;
             _usageGuard = usageGuard;
-            var eventSerializer = new SqlServerEvestStoreEventSerializer();
             _cache = SqlServerEventStoreEventsCache.ForConnectionString(connectionString);
-            _connectionMananger = new SqlServerEventStoreConnectionManager(connectionString);
+            var connectionMananger = new SqlServerEventStoreConnectionManager(connectionString);
             _schemaManager = new SqlServerEventStoreSchemaManager(connectionString, nameMapper);
-            _eventReader = new SqlServerEventStoreEventReader(_connectionMananger, _schemaManager);
-            _eventWriter = new SqlServerEventStoreEventWriter(_connectionMananger, eventSerializer, _schemaManager);
+            _eventReader = new SqlServerEventStoreEventReader(connectionMananger, _schemaManager);
+            _eventWriter = new SqlServerEventStoreEventWriter(connectionMananger, _schemaManager);
         }
 
         public IEnumerable<IAggregateRootEvent> GetAggregateHistoryForUpdate(Guid aggregateId)
@@ -237,7 +235,7 @@ namespace Composable.CQRS.CQRS.EventSourcing.MicrosoftSQLServer
 
         }
 
-        bool IsRecoverableSqlException(Exception exception)
+        static bool IsRecoverableSqlException(Exception exception)
         {
             var message = exception.Message.ToLower();
             return message.Contains("timeout") || message.Contains("deadlock");

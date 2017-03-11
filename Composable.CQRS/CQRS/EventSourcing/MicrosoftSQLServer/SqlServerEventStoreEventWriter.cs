@@ -14,17 +14,14 @@ namespace Composable.CQRS.CQRS.EventSourcing.MicrosoftSQLServer
     class SqlServerEventStoreEventWriter
     {
         readonly SqlServerEventStoreConnectionManager _connectionMananger;
-        readonly SqlServerEvestStoreEventSerializer _eventSerializer;
         IEventTypeToIdMapper IdMapper => _schemaManager.IdMapper;
         readonly SqlServerEventStoreSchemaManager _schemaManager;
 
         public SqlServerEventStoreEventWriter
             (SqlServerEventStoreConnectionManager connectionMananger,
-             SqlServerEvestStoreEventSerializer eventSerializer,
              SqlServerEventStoreSchemaManager schemaManager)
         {
             _connectionMananger = connectionMananger;
-            _eventSerializer = eventSerializer;
             _schemaManager = schemaManager;
         }
 
@@ -62,15 +59,17 @@ SET @{EventTable.Columns.InsertionOrder} = SCOPE_IDENTITY();";
                         command.Parameters.Add(new SqlParameter(EventTable.Columns.UtcTimeStamp, @event.UtcTimeStamp));
                         command.Parameters.Add(new SqlParameter(EventTable.Columns.ManualReadOrder, refactoringEvent.ManualReadOrder));
 
-                        command.Parameters.Add(new SqlParameter(EventTable.Columns.Event, _eventSerializer.Serialize(@event)));
+                        command.Parameters.Add(new SqlParameter(EventTable.Columns.Event, SqlServerEvestStoreEventSerializer.Serialize(@event)));
 
                         command.Parameters.Add(Nullable(new SqlParameter(EventTable.Columns.ManualVersion, @event.ManualVersion)));
                         command.Parameters.Add(Nullable(new SqlParameter(EventTable.Columns.InsertAfter, @event.InsertAfter)));
                         command.Parameters.Add(Nullable(new SqlParameter(EventTable.Columns.InsertBefore, @event.InsertBefore)));
                         command.Parameters.Add(Nullable(new SqlParameter(EventTable.Columns.Replaces, @event.Replaces)));
 
-                        var identityParameter = new SqlParameter(EventTable.Columns.InsertionOrder, SqlDbType.BigInt);
-                        identityParameter.Direction = ParameterDirection.Output;
+                        var identityParameter = new SqlParameter(EventTable.Columns.InsertionOrder, SqlDbType.BigInt)
+                                                {
+                                                    Direction = ParameterDirection.Output
+                                                };
 
                         command.Parameters.Add(identityParameter);
 
@@ -180,7 +179,7 @@ SET @{EventTable.Columns.InsertionOrder} = SCOPE_IDENTITY();";
                 PreviousReadOrder = UseZeroInsteadIfNegativeSinceThisMeansThisIsTheFirstEventInTheEventStore(previousReadOrder);
             }
 
-            SqlDecimal UseZeroInsteadIfNegativeSinceThisMeansThisIsTheFirstEventInTheEventStore(SqlDecimal previousReadOrder)
+            static SqlDecimal UseZeroInsteadIfNegativeSinceThisMeansThisIsTheFirstEventInTheEventStore(SqlDecimal previousReadOrder)
             {
                 return previousReadOrder > 0 ? previousReadOrder : ToCorrectPrecisionAndScale(new SqlDecimal(0));
             }

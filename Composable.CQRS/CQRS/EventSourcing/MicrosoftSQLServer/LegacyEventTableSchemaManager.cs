@@ -88,14 +88,14 @@ go
 drop table {Name}
 ";
 
-        string InsertEventTypesSql => $@"
+        static string InsertEventTypesSql => $@"
 insert into {EventTypeTable.Name} ( {EventTypeTable.Columns.EventType} )
 select {LegacyEventTable.Columns.EventType} 
 from {LegacyEventTable.Name}
 group by {EventTable.Columns.EventType} 
 ";
 
-        string MigrateEventsSql => $@"
+        static string MigrateEventsSql => $@"
 insert into {EventTableSchema.Name} 
 (      {EventTable.Columns.AggregateId}, {EventTable.Columns.InsertedVersion}, {EventTable.Columns.UtcTimeStamp}, {EventTable.Columns.EventType}, {EventTable.Columns.EventId}, {EventTable.Columns.Event}, {LegacySqlTimeStamp}, {EventTable.Columns.SqlInsertTimeStamp})
 select {LegacyEventTable.Columns.AggregateId}, {LegacyEventTable.Columns.AggregateVersion},{LegacyEventTable.Columns.TimeStamp}, {EventTypeTable.Name}.{EventTypeTable.Columns.Id}, {LegacyEventTable.Columns.EventId}, {LegacyEventTable.Columns.Event}, CAST({LegacyEventTable.Columns.SqlTimeStamp} AS BIGINT), {LegacyEventTable.Columns.TimeStamp}

@@ -24,6 +24,7 @@ namespace Composable.System.Diagnostics
         }
 
 
+        // ReSharper disable once MethodOverloadWithOptionalParameter
         public static TimedExecutionSummary TimeExecution([InstantHandle]Action action, int iterations = 1)
         {
             var total = TimeExecution(

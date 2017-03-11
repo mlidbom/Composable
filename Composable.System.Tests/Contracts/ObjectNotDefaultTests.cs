@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Composable.Contracts;
 using Composable.Testing;
 using FluentAssertions;
@@ -22,9 +21,6 @@ namespace Composable.Tests.Contracts
             Assert.Throws<ObjectIsDefaultContractViolationException>(() => Contract.Argument(() => zero).NotDefault());
             Assert.Throws<ObjectIsDefaultContractViolationException>(() => Contract.Argument(() => myStructure).NotDefault());
             Assert.Throws<ObjectIsDefaultContractViolationException>(() => Contract.Argument(() => myStructure).NotDefault());
-
-            var badValues = new List<object> {zero, myStructure};
-            var goodValues = new List<object> {new Object(), "", Guid.NewGuid()};
 
             InspectionTestHelper.InspectBadValue<ObjectIsDefaultContractViolationException, MyStructure>(
                 inspected => inspected.NotDefault(),

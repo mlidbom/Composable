@@ -42,7 +42,7 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
             _history = _aggregate.History.Cast<AggregateRootEvent>().ToList();
         }
 
-        void UseEventstoreSessionWithConfiguredMigrations(IEnumerable<IEventMigration> migrations, Action<IEventStoreSession> useSession)
+        void UseEventstoreSessionWithConfiguredMigrations(Action<IEventStoreSession> useSession)
         {
             using(var container = new WindsorContainer())
             {
@@ -82,11 +82,10 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
             }
         }
 
-        void AssertAggregateLoadTime(IEnumerable<IEventMigration> eventMigrations, TimeSpan maxTotal)
+        void AssertAggregateLoadTime(TimeSpan maxTotal)
         {
             UseEventstoreSessionWithConfiguredMigrations
-                (eventMigrations,
-                 session =>
+                (session =>
                  {
                      TimeAsserter.Execute(
                                           maxTotal: maxTotal,
@@ -115,6 +114,7 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
 
             TimeAsserter.Execute(
                 maxTotal: 180.Milliseconds().AdjustRuntimeToTestEnvironment(),
+                // ReSharper disable once ObjectCreationAsStatement
                 action: () => new TestAggregate2(history),
                 maxTries: 10);
         }
@@ -122,25 +122,13 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
         [Test]
         public void With_four_migrations_mutation_that_all_actually_changes_things_loading_takes_less_than_15_milliseconds()
         {
-            AssertAggregateLoadTime(Seq.Create<IEventMigration>(
-                                                                Before<E2>.Insert<E3>(),
-                                                                Before<E4>.Insert<E5>(),
-                                                                Before<E6>.Insert<E7>(),
-                                                                Before<E8>.Insert<E9>()
-                                                               ).ToArray(),
-                                    15.Milliseconds().AdjustRuntimeToTestEnvironment());
+            AssertAggregateLoadTime(15.Milliseconds().AdjustRuntimeToTestEnvironment());
         }
 
         [Test]
         public void With_four_migrations_that_change_nothing_loading_takes_less_than_10_milliseconds()
         {
-            AssertAggregateLoadTime(Seq.Create<IEventMigration>(
-                                                                Before<E3>.Insert<E1>(),
-                                                                Before<E5>.Insert<E1>(),
-                                                                Before<E7>.Insert<E1>(),
-                                                                Before<E9>.Insert<E1>()
-                                                               ).ToArray(),
-                                    10.Milliseconds().AdjustRuntimeToTestEnvironment());
+            AssertAggregateLoadTime(10.Milliseconds().AdjustRuntimeToTestEnvironment());
         }
 
         [Test]
@@ -178,8 +166,7 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
         [Test]
         public void When_there_are_no_migrations_mutation_takes_less_than_a_millisecond()
         {
-            AssertAggregateLoadTime(Seq.Empty<IEventMigration>(),
-                                    1.Milliseconds());
+            AssertAggregateLoadTime(1.Milliseconds());
 
         }
 

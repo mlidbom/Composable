@@ -79,7 +79,7 @@ namespace Composable.CQRS.Tests.KeyValueStorage.Sql
 
             using (var session = OpenSession(readingDocumentDb))
             {
-                var loadedUser = session.Get<User>(userId);
+                session.Get<User>(userId);
             }
         }
 

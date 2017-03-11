@@ -9,14 +9,13 @@ namespace AccountManagement.Domain.Tests.After_a_user_has_registered_an_account
     public class When_they_attempt_to_change_their_password_an_exception_is_thrown_if_ : DomainTestBase
     {
         RegisterAccountScenario _registerAccountScenario;
-        Account _account;
         ChangePasswordScenario _changePasswordScenario;
 
         [SetUp]
         public void RegisterAccount()
         {
             _registerAccountScenario = new RegisterAccountScenario(Container);
-            _account = _registerAccountScenario.Execute();
+            _registerAccountScenario.Execute();
             _changePasswordScenario = new ChangePasswordScenario(Container);
         }
 

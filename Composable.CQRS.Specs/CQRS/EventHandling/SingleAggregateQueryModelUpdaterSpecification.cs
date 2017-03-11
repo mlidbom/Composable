@@ -141,7 +141,7 @@ namespace Composable.CQRS.Specs.CQRS.EventHandling
 
         class UserQueryModel : ISingleAggregateQueryModel
         {
-            public Guid Id { get; set; }
+            public Guid Id { get; private set; }
             public void SetId(Guid id)
             {
                 Id = id;
@@ -150,19 +150,19 @@ namespace Composable.CQRS.Specs.CQRS.EventHandling
 
         class UserQueryModelUpdater : SingleAggregateQueryModelUpdater<UserQueryModelUpdater, UserQueryModel, IUserEvent, IDocumentDbSession>
         {
-            public int CallsMade { get; set; }
+            public int CallsMade { get; private set; }
 
-            public int? BeforeHandlers1CallOrder { get; set; }
-            public int? BeforeHandlers2CallOrder { get; set; }
+            public int? BeforeHandlers1CallOrder { get; private set; }
+            public int? BeforeHandlers2CallOrder { get; private set; }
 
-            public int? UserCreatedCallOrder { get; set; }
-            public int? UserRegisteredCallOrder { get; set; }
-            public int? SkillsAddedCallOrder { get; set; }
-            public int? SkillsRemovedCallOrder { get; set; }
+            public int? UserCreatedCallOrder { get; private set; }
+            public int? UserRegisteredCallOrder { get; private set; }
+            public int? SkillsAddedCallOrder { get; private set; }
+            public int? SkillsRemovedCallOrder { get; private set; }
 
 
-            public int? AfterHandlers1CallOrder { get; set; }
-            public int? AfterHandlers2CallOrder { get; set; }
+            public int? AfterHandlers1CallOrder { get; private set; }
+            public int? AfterHandlers2CallOrder { get; private set; }
 
             public UserQueryModel TheModel { get { return Model; } }
 

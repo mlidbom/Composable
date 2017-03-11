@@ -2,6 +2,7 @@
 using System.Collections.Concurrent;
 using FluentAssertions;
 using NUnit.Framework;
+// ReSharper disable All
 
 namespace Composable.Tests
 {
@@ -181,7 +182,7 @@ namespace Composable.Tests
         class PersonWithThrowExceptionExpressions
         {
             public string Name { get; }
-            public PersonWithThrowExceptionExpressions(string name) => Name = name ?? throw new ArgumentNullException(name);
+            public PersonWithThrowExceptionExpressions(string name) => Name = name ?? throw new ArgumentNullException(nameof(name));
             public string GetFirstName()
             {
                 var parts = Name.Split(' ');

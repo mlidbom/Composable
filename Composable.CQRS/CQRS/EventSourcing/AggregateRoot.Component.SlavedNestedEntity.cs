@@ -21,7 +21,7 @@ namespace Composable.CQRS.CQRS.EventSourcing
             /// An entity that is not created and removed through raising events.
             /// Instead it is automatically created and/or removed when another entity in the Aggregate object graph is added or removed.
             /// Inheritors must implement the add/remove behavior themselves.
-            /// Usually this is implemented within a nested class that inherits from <see cref="EntityCollectionManagerBase{TParent}"/>
+            /// Usually this is implemented within a nested class that inherits from <see cref="EntityCollectionManagerBase"/>
             /// </summary>
             public abstract class SlavedNestedEntity<TEntity,
                                                TEntityId,
@@ -70,20 +70,19 @@ namespace Composable.CQRS.CQRS.EventSourcing
                     base.RaiseEvent(@event);
                 }
 
+                //bug: Id is never set. This is almost certainly a bug here.
                 TEntityId Id { get; set; }
 
 
-                public abstract class EntityCollectionManagerBase<TParent>
+                public abstract class EntityCollectionManagerBase
                 {
                     static readonly TEventEntityIdSetterGetter IdGetter = new TEventEntityIdSetterGetter();
 
-                    readonly TParent _parent;
                     readonly EntityCollection<TEntity, TEntityId> _managedEntities;
                     protected EntityCollectionManagerBase
-                        (TParent parent, IEventHandlerRegistrar<TEntityBaseEventInterface> appliersRegistrar)
+                        (IEventHandlerRegistrar<TEntityBaseEventInterface> appliersRegistrar)
                     {
                         _managedEntities = new EntityCollection<TEntity, TEntityId>();
-                        _parent = parent;
                         appliersRegistrar
                             .For<TEntityBaseEventInterface>(e => _managedEntities[IdGetter.GetId(e)].ApplyEvent(e));
                     }

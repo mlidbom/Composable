@@ -22,7 +22,7 @@ namespace Composable.CQRS.Tests.UnitOfWorkTests
                 Component.For<IUnitOfWorkParticipant>().Instance(unitOfWorkSpy)
                 );
 
-            using(var outerScope = container.BeginTransactionalUnitOfWorkScope())
+            using(container.BeginTransactionalUnitOfWorkScope())
             {
                 unitOfWorkSpy.UnitOfWork.Should().NotBe(null);
                 unitOfWorkSpy.Committed.Should().Be(false);

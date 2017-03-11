@@ -24,6 +24,7 @@ namespace Composable.System.Reflection
             return Expression.Lambda<Func<object, object>>(
                 Expression.Convert(
                     Expression.Field(
+                                     // ReSharper disable once AssignNullToNotNullAttribute
                         Expression.Convert(obj, field.DeclaringType),
                         field),
                     typeof(object)),

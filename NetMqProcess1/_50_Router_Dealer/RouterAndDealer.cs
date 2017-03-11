@@ -33,7 +33,7 @@ namespace NetMqProcess01._50_Router_Dealer
                 {
                     Task.Factory.StartNew(state =>
                     {
-                        DealerSocket client = null;
+                        DealerSocket client;
 
                         if (!clientSocketPerThread.IsValueCreated)
                         {
@@ -63,6 +63,7 @@ namespace NetMqProcess01._50_Router_Dealer
                             Thread.Sleep(delay);
                         }
 
+                        // ReSharper disable once FunctionNeverReturns
                     }, i, TaskCreationOptions.LongRunning);
                 }
 
@@ -90,6 +91,7 @@ namespace NetMqProcess01._50_Router_Dealer
                     }
                 }
             }
+            // ReSharper disable once FunctionNeverReturns
         }
 
         static void PrintFrames(string operationType, NetMQMessage message)

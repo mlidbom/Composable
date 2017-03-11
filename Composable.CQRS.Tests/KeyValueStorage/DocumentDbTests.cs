@@ -102,6 +102,7 @@ namespace Composable.CQRS.Tests.KeyValueStorage
 
             using (var session = OpenSession(store))
             {
+                // ReSharper disable once ReturnValueOfPureMethodIsNotUsed
                 Assert.Throws<NoSuchDocumentException>(() => session.Get<User>(ids.Take(5).Append(Guid.Parse("00000000-0000-0000-0000-000000000099")).ToArray()).ToArray());
             }
         }
@@ -737,7 +738,7 @@ namespace Composable.CQRS.Tests.KeyValueStorage
             Assert.Throws<MultiThreadedUseException>(() => session.TryGet(Guid.NewGuid(), out user));
             Assert.Throws<MultiThreadedUseException>(() => session.TryGetForUpdate(user.Id, out user));
             Assert.Throws<MultiThreadedUseException>(() => session.Delete(user));
-        }        
+        }
 
         [Test]
         public void ThrowsIfUsedByMultipleHttpRequests()

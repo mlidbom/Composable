@@ -3,6 +3,7 @@ using Composable;
 using FluentAssertions;
 using JetBrains.Annotations;
 using NUnit.Framework;
+// ReSharper disable ObjectCreationAsStatement
 
 namespace AccountManagement.Domain.Shared.Tests
 {

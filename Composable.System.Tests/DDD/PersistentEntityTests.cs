@@ -56,6 +56,7 @@ namespace Composable.Tests.DDD
         {
             var lhs = new Person();
             Assert.That(lhs.Equals(null), Is.False);
+            // ReSharper disable once ConditionIsAlwaysTrueOrFalse
             Assert.That(lhs == null, Is.False);
         }
 
@@ -63,6 +64,7 @@ namespace Composable.Tests.DDD
         public void ComparisonWithLhsNullReturnsFalse()
         {
             var rhs = new Person();
+            // ReSharper disable once ConditionIsAlwaysTrueOrFalse
             Assert.That(null == rhs, Is.False);
         }
 
@@ -71,6 +73,7 @@ namespace Composable.Tests.DDD
         {
             Person rhs = null;
             Person lhs = null;
+            // ReSharper disable once ConditionIsAlwaysTrueOrFalse
             Assert.That(rhs == lhs, Is.True);
         }
 

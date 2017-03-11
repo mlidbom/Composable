@@ -1,5 +1,6 @@
 using System;
 using Composable.DDD;
+using JetBrains.Annotations;
 using NUnit.Framework;
 
 namespace Composable.Tests.DDD
@@ -9,9 +10,9 @@ namespace Composable.Tests.DDD
     {
         class Address : ValueObject<Address>
         {
-            string _address1;
-            readonly string _city;
-            readonly string[] _states;
+            [UsedImplicitly] string _address1;
+            [UsedImplicitly] readonly string _city;
+            [UsedImplicitly] readonly string[] _states;
 
             public Address(string address1, string city, params string[] states)
             {
@@ -40,7 +41,7 @@ namespace Composable.Tests.DDD
 
         class ExpandedAddress : Address
         {
-            readonly string _address2;
+            [UsedImplicitly] readonly string _address2;
 
             public ExpandedAddress(string address1, string address2, string city, params string[] states)
                 : base(address1, city, states)
@@ -250,6 +251,7 @@ namespace Composable.Tests.DDD
         {
             var lhs = new Address();
             Assert.That(lhs.Equals(null), Is.False);
+            // ReSharper disable once ConditionIsAlwaysTrueOrFalse
             Assert.That(lhs == null, Is.False);
         }
 
@@ -257,6 +259,7 @@ namespace Composable.Tests.DDD
         public void ComparisonWithLhsNullReturnsFalse()
         {
             var rhs = new Address();
+            // ReSharper disable once ConditionIsAlwaysTrueOrFalse
             Assert.That(null == rhs, Is.False);
         }
 
@@ -265,6 +268,7 @@ namespace Composable.Tests.DDD
         {
             Address rhs = null;
             Address lhs = null;
+            // ReSharper disable once ConditionIsAlwaysTrueOrFalse
             Assert.That(rhs == lhs, Is.True);
         }
     }

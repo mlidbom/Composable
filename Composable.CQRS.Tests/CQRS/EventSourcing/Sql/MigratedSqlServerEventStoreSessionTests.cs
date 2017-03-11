@@ -68,8 +68,6 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.Sql
 
             using (var session = OpenSession(CreateStore()))
             {
-                var reader = session as IEventStoreReader;
-                var history = reader.GetHistory(user.Id);
                 user = session.Get<User>(user.Id);
                 user.ChangePassword("NewPassword");
                 user.ChangePassword("NewPassword1");

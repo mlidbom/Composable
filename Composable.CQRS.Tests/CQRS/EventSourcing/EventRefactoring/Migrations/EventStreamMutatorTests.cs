@@ -13,6 +13,8 @@ using Composable.GenericAbstractions.Time;
 using Composable.System.Linq;
 using FluentAssertions;
 using NUnit.Framework;
+// ReSharper disable AccessToDisposedClosure
+// ReSharper disable AccessToModifiedClosure
 
 namespace Composable.CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
 {
@@ -41,10 +43,12 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
                     eventStoreConnectionString = ((SqlServerEventStore)persistingContainer.Resolve<IEventStore>()).ConnectionString;
                     eventStoreConnectionString = eventStoreConnectionString + ";";
                 }
+
                 Func<IEventStore> persistingEventStore = () => persistingContainer.Resolve<IEventStore>();
 
                 using (var otherProcessContainer = CreateContainerForEventStoreType(() => migrations, EventStoreType, eventStoreConnectionString))
                 {
+                    // ReSharper disable once AccessToDisposedClosure
                     Func<IEventStoreSession> otherEventstoreSession = () => otherProcessContainer.Resolve<IEventStoreSession>();
 
                     var id = Guid.Parse("00000000-0000-0000-0000-000000000001");
@@ -63,11 +67,7 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
 
                     persistingContainer.ExecuteInIsolatedScope(() => persistingEventStore().PersistMigrations());
 
-                    otherProcessContainer.ExecuteUnitOfWorkInIsolatedScope(
-                        () =>
-                        {
-                            otherEventstoreSession().Get<TestAggregate>(id).RaiseEvents(new E3());
-                        });
+                    otherProcessContainer.ExecuteUnitOfWorkInIsolatedScope(() => otherEventstoreSession().Get<TestAggregate>(id).RaiseEvents(new E3()));
 
                 }
             }
@@ -475,8 +475,6 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
                 container.Resolve<DummyTimeSource>().UtcNow = DateTime.Parse("2001-01-01 12:00");
 
                 var initialAggregate = TestAggregate.FromEvents(container.Resolve<IUtcTimeTimeSource>(), id, Seq.OfTypes<Ec1, E1>());
-                var initialHistory = initialAggregate.History;
-
 
                 Func<IEventStoreSession> session = () => container.Resolve<IEventStoreSession>();
                 Func<IEventStore> eventStore = () => container.Resolve<IEventStore>();

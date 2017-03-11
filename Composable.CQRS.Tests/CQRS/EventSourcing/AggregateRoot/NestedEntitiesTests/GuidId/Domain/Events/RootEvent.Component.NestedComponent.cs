@@ -7,7 +7,7 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.AggregateRoot.NestedEntitiesT
     {
         public static partial class Component
         {
-            internal static partial class NestedComponent
+            internal static class NestedComponent
             {
                 internal interface IRoot : Component.IRoot { }
 

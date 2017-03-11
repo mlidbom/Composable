@@ -16,7 +16,8 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.Sql
         [Test]
         public void Does_not_call_db_in_constructor()
         {
-            var eventStore = new SqlServerEventStore("SomeStringThatDoesNotPointToARealSqlServer", new SingleThreadUseGuard());
+            // ReSharper disable once ObjectCreationAsStatement
+            new SqlServerEventStore("SomeStringThatDoesNotPointToARealSqlServer", new SingleThreadUseGuard());
         }
 
         [Test]

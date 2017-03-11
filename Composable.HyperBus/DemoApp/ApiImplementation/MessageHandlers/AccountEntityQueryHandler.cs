@@ -5,6 +5,6 @@ namespace Composable.HyperBus.DemoApp.ApiImplementation.MessageHandlers
 {
     public class AccountEntityQueryHandler : IQueryHandler<EntityQuery<AccountResource>, AccountResource>
     {
-        public AccountResource Handle(EntityQuery<AccountResource> query) => (AccountResource)null;
+        public AccountResource Handle(EntityQuery<AccountResource> query) => null;
     }
 }

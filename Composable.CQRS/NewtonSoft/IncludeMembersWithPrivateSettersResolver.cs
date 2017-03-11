@@ -7,7 +7,7 @@ namespace Composable.CQRS.NewtonSoft
     class IncludeMembersWithPrivateSettersResolver : DefaultContractResolver
     {
         public static readonly IncludeMembersWithPrivateSettersResolver Instance = new IncludeMembersWithPrivateSettersResolver();
-        protected IncludeMembersWithPrivateSettersResolver():base(shareCache:true)
+        protected IncludeMembersWithPrivateSettersResolver()
         {
         }
 

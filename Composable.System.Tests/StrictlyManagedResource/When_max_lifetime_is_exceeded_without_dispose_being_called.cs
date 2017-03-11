@@ -14,7 +14,7 @@ namespace Composable.Tests.StrictlyManagedResource
 
         [SetUp] public void SetupTask() { }
 
-        StrictlyManagedResourceLifespanWasExceededException ExceedResourceLifeTimeWithoutDisposing(bool forceStackTraceCollection)
+        static StrictlyManagedResourceLifespanWasExceededException ExceedResourceLifeTimeWithoutDisposing(bool forceStackTraceCollection)
         {
             StrictlyManagedResourceLifespanWasExceededException exception = null;
             var exceptionThrown = new ManualResetEvent(false);

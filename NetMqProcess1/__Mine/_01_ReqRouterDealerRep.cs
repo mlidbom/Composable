@@ -7,11 +7,15 @@ using NetMQ.Sockets;
 
 namespace NetMqProcess01.__Mine
 {
+    // ReSharper disable once InconsistentNaming
     static class _01_ReqRouterDealerRep
     {
         const bool UseInProcess = true;
+
+        // ReSharper disable UnreachableCode
         static string _routerSocket = UseInProcess ? "inproc://router-socket" : "tcp://127.0.0.1:5559";
         static string _dealerSocket = UseInProcess ? "inproc://dealer-socket" : "tcp://127.0.0.1:5560";
+        // ReSharper restore UnreachableCode
         static readonly int NumberOfServers = 100;
         static readonly int NumberOfClient = 10;
 
@@ -104,12 +108,9 @@ namespace NetMqProcess01.__Mine
                                          {
                                              requestSocket.Connect(_routerSocket);
                                              Console.WriteLine($"Client: {clientId} started");
-                                             long requests = 0;
                                              while(true)
                                                  try
                                                  {
-                                                     requests++;
-
                                                      var request = new NetMQMessage();
                                                      request.Append(clientId);
 
@@ -143,6 +144,7 @@ namespace NetMqProcess01.__Mine
                                                      Console.WriteLine(e);
                                                  }
                                          }
+                                         // ReSharper disable once FunctionNeverReturns
                                      });
                       });
     }

@@ -109,7 +109,7 @@ namespace Composable.CQRS.Windsor
             }
         }
 
-        class InnerTransactionalUnitOfWorkWindsorScope : TransactionalUnitOfWorkWindsorScopeBase, ITransactionalUnitOfWork
+        class InnerTransactionalUnitOfWorkWindsorScope : TransactionalUnitOfWorkWindsorScopeBase
         {
             readonly TransactionalUnitOfWorkWindsorScopeBase _outer;
 

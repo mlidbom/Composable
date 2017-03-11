@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using Composable.Contracts;
-using Composable.CQRS.DomainEvents;
 using Composable.CQRS.EventSourcing;
 using Composable.DDD;
 using Composable.GenericAbstractions.Time;
@@ -37,8 +36,6 @@ namespace Composable.CQRS.CQRS.EventSourcing
         readonly CallMatchingHandlersInRegistrationOrderEventDispatcher<TAggregateRootBaseEventInterface> _eventDispatcher = new CallMatchingHandlersInRegistrationOrderEventDispatcher<TAggregateRootBaseEventInterface>();
         readonly CallMatchingHandlersInRegistrationOrderEventDispatcher<TAggregateRootBaseEventInterface> _eventHandlersEventDispatcher = new CallMatchingHandlersInRegistrationOrderEventDispatcher<TAggregateRootBaseEventInterface>();
 
-        readonly List<TAggregateRootBaseEventInterface> _history = new List<TAggregateRootBaseEventInterface>();
-
         protected void RaiseEvent(TAggregateRootBaseEventClass theEvent)
         {
             theEvent.AggregateRootVersion = Version + 1;
@@ -68,7 +65,6 @@ namespace Composable.CQRS.CQRS.EventSourcing
             AssertInvariantsAreMet();
             _unCommittedEvents.Add(theEvent);
             _eventHandlersEventDispatcher.Dispatch(theEvent);
-            DomainEvent.Raise(theEvent);
         }
 
         protected IEventHandlerRegistrar<TAggregateRootBaseEventInterface> RegisterEventAppliers()
@@ -90,7 +86,6 @@ namespace Composable.CQRS.CQRS.EventSourcing
             }
             Version = theEvent.AggregateRootVersion;
             _eventDispatcher.Dispatch(theEvent);
-            _history.Add(theEvent);
         }
 
         protected virtual void AssertInvariantsAreMet()

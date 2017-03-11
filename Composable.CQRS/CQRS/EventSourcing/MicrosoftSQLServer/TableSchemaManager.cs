@@ -21,7 +21,7 @@ namespace Composable.CQRS.CQRS.EventSourcing.MicrosoftSQLServer
             ExecuteNonQuery(connection, CreateTableSql);
         }
 
-        void ExecuteNonQuery(SqlConnection connection, string sql)
+        static void ExecuteNonQuery(SqlConnection connection, string sql)
         {
             using (var createTableCommand = connection.CreateCommand())
             {

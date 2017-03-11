@@ -34,7 +34,6 @@ namespace Composable.CQRS.CQRS.EventSourcing
             {
                 protected static readonly TEventEntityIdSetterGetter IdGetter = new TEventEntityIdSetterGetter();
 
-                readonly TParent _parent;
                 protected readonly EntityCollection<TEntity, TEntityId> ManagedEntities;
                 readonly Action<TEntityBaseEventClass> _raiseEventThroughParent;
                 protected EntityCollectionManager
@@ -44,12 +43,11 @@ namespace Composable.CQRS.CQRS.EventSourcing
                 {
                     ManagedEntities = new EntityCollection<TEntity, TEntityId>();
                     _raiseEventThroughParent = raiseEventThroughParent;
-                    _parent = parent;
                     appliersRegistrar
                         .For<TEntityCreatedEventInterface>(
                             e =>
                             {
-                                var entity = ObjectFactory<TEntity>.CreateInstance(_parent);
+                                var entity = ObjectFactory<TEntity>.CreateInstance(parent);
                                 ManagedEntities.Add(entity, IdGetter.GetId(e));
                             })
                         .For<TEntityBaseEventInterface>(e => ManagedEntities[IdGetter.GetId(e)].ApplyEvent(e));

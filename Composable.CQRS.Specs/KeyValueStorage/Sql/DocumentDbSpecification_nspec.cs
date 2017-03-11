@@ -176,9 +176,10 @@ namespace Composable.CQRS.Specs.KeyValueStorage.Sql
 
             public void Does_not_call_db_in_constructor()
             {
-                SqlServerDocumentDb db;
-                act = () => db = new SqlServerDocumentDb("ANonsensStringThatDoesNotResultInASqlConnection");
-                it["Throws no exception"] = () => { var blah = new SqlServerDocumentDb("ANonsensStringThatDoesNotResultInASqlConnection"); };
+                // ReSharper disable once ObjectCreationAsStatement
+                act = () => new SqlServerDocumentDb("ANonsensStringThatDoesNotResultInASqlConnection");
+                // ReSharper disable once ObjectCreationAsStatement
+                it["Throws no exception"] = () => new SqlServerDocumentDb("ANonsensStringThatDoesNotResultInASqlConnection");
             }
         }
 

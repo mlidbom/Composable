@@ -19,6 +19,7 @@ namespace Composable.Messaging
 
 
     ///<summary>An <see cref="IMessage"/> that instructs the receiver to return some data.</summary>
+    // ReSharper disable once UnusedTypeParameter
     public interface IQuery<TResult> : IMessage where TResult : IQueryResult {}
 
     ///<summary>A response to an <see cref="IQuery{TResult}"/></summary>

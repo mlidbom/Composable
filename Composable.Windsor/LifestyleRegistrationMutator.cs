@@ -14,8 +14,8 @@ namespace Composable.Windsor
         readonly LifestyleType _newLifestyleType;
 
         public LifestyleRegistrationMutator(
-            LifestyleType originalLifestyle = LifestyleType.PerWebRequest,
-            LifestyleType newLifestyleType = LifestyleType.Scoped)
+            LifestyleType originalLifestyle,
+            LifestyleType newLifestyleType)
         {
             _originalLifestyle = originalLifestyle;
             _newLifestyleType = newLifestyleType;

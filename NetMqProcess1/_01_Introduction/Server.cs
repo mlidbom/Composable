@@ -2,6 +2,7 @@
 using NetMQ;
 using NetMQ.Sockets;
 using Newtonsoft.Json;
+// ReSharper disable All
 
 namespace NetMqProcess01._01_Introduction
 {

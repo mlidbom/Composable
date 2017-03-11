@@ -1,6 +1,5 @@
 ﻿using System;
 using Composable.CQRS.EventSourcing;
-using Composable.DDD;
 using Composable.Messaging;
 using Composable.Messaging.Events;
 using FluentAssertions;

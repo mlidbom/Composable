@@ -5,6 +5,6 @@ namespace Composable.HyperBus.DemoApp.ApiImplementation.MessageHandlers
 {
     public class ChangeAccountEmailCommandHandler : ICommandHandler<ChangeAccountEmailCommand, AccountResource>
     {
-        public AccountResource Handle(ChangeAccountEmailCommand command) => (AccountResource)null;
+        public AccountResource Handle(ChangeAccountEmailCommand command) => null;
     }
 }

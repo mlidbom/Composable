@@ -82,6 +82,8 @@ namespace AccountManagement.UI.Commands.Tests.UserCommands
         public void FailsIfUnHandledPolicyFailureIsDetected()
         {
             _registerAccountCommand.Password = null; //Null is normally caught by the Require attribute.
+            // ReSharper disable once AssignNullToNotNullAttribute
+            // ReSharper disable once ReturnValueOfPureMethodIsNotUsed
             _registerAccountCommand.Invoking(command => command.Validate(null).ToArray()).ShouldThrow<Exception>();
         }
 

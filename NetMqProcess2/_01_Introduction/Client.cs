@@ -14,7 +14,7 @@ namespace NetMqProcess02._01_Introduction
             public long Id { get; set; }
         }
 
-        public void Run()
+        public static void Run()
         {
             using (var client = new RequestSocket())
             {

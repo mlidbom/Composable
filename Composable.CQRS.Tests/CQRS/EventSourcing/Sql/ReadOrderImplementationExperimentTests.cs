@@ -74,7 +74,7 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.Sql
             insertSortOrders.ForEach(insertSortOrder => Console.WriteLine($"         {insertSortOrder} scale: {insertSortOrder.Scale} "));
         }
 
-        IEnumerable<SqlDecimal> GetSortOrdersBetween(SqlDecimal before, SqlDecimal after, long eventsToInsert)
+        static IEnumerable<SqlDecimal> GetSortOrdersBetween(SqlDecimal before, SqlDecimal after, long eventsToInsert)
         {
             before = SqlDecimal.ConvertToPrecScale(before, 38, 19);//Unless we convert to the correct precision we will not be able to use the full resolution
             after = SqlDecimal.ConvertToPrecScale(after, 38, 19);

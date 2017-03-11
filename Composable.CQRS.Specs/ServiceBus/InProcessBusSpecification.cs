@@ -85,14 +85,11 @@ namespace Composable.CQRS.Specs.ServiceBus
 
         public void when_there_is_one_handler_registered_for_a_message()
         {
-            InProcessServiceBus bus = null;
           IMessageHandlerRegistrar registrar = null;
-          MessageHandlerRegistry registry = null;
 
             before = () =>
                      {
-                       registrar = registry = new MessageHandlerRegistry();
-                       bus = new InProcessServiceBus(registry);
+                       registrar = new MessageHandlerRegistry();
                          registrar.ForCommand<ACommand>(_ => { });
                      };
 

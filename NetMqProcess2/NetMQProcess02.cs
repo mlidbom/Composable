@@ -5,10 +5,10 @@ namespace NetMqProcess02
 {
     static class NetMqProcess02
     {
-        static void Main(string[] args)
+        static void Main()
         {
             Console.WriteLine(nameof(NetMqProcess02));
-            new Client().Run();
+            Client.Run();
         }
     }
 }

@@ -36,7 +36,7 @@ namespace Composable.Tests.Contracts
             Assert.That(result, Is.SameAs(_testString));
         }
 
-        TValue ReturnExtractedParameterValue<TValue>(TValue param)
+        static TValue ReturnExtractedParameterValue<TValue>(TValue param)
         {
             return ContractsExpression.ExtractValue(() => param);
         }

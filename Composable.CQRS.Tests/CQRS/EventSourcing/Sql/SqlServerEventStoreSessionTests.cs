@@ -56,7 +56,7 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.Sql
             {
                 using (var session = OpenSession(CreateStore()))
                 {
-                    var prereadHistory = ((IEventStoreReader)session).GetHistory(user.Id);
+                    ((IEventStoreReader)session).GetHistory(user.Id);
                     using (var transaction = new TransactionScope())
                     {
                         var userToUpdate = session.Get<User>(user.Id);
@@ -112,7 +112,7 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.Sql
 
             using (var session = OpenSession(CreateStore()))
             {
-                var userHistory = ((IEventStoreReader)session).GetHistory(user.Id).ToArray();//Reading the aggregate will throw an exception if the history is invalid.
+                ((IEventStoreReader)session).GetHistory(user.Id);
             }
         }
 

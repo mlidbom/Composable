@@ -17,10 +17,6 @@ namespace Composable.CQRS.KeyValueStorage
     {
         readonly ThreadSafeObservable<IDocumentUpdated> _documentUpdated = new ThreadSafeObservable<IDocumentUpdated>();
 
-        public InMemoryDocumentDb()
-        {
-        }
-
         public IObservable<IDocumentUpdated> DocumentUpdated { get { return _documentUpdated; }}
 
         readonly Dictionary<Type, Dictionary<string, string>> _persistentValues = new Dictionary<Type, Dictionary<string, string>>();

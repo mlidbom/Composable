@@ -14,11 +14,12 @@ namespace Composable.Tests.StrictlyManagedResource
 
         [SetUp] public void SetupTask() { }
 
-        StrictlyManagedResourceWasFinalizedException LeakResourceAndRunGarbageCollection(bool forceStackTraceCollection)
+        static StrictlyManagedResourceWasFinalizedException LeakResourceAndRunGarbageCollection(bool forceStackTraceCollection)
         {
             StrictlyManagedResourceWasFinalizedException exception = null;
             StrictlyManagedResource<StrictResource>.ThrowCreatedExceptionWhenFinalizerIsCalled = resource => exception = resource;
 
+            // ReSharper disable once ObjectCreationAsStatement
             ((Action)(() => new StrictlyManagedResource<StrictResource>(forceStackTraceCollection: forceStackTraceCollection))).Invoke();
 
             GC.Collect();

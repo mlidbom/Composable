@@ -5,6 +5,6 @@ namespace Composable.HyperBus.DemoApp.ApiImplementation.MessageHandlers
 {
     public class RegisterAccountCommandHandler : ICommandHandler<RegisterAccountCommand, AccountResource>
     {
-        public AccountResource Handle(RegisterAccountCommand command) => (AccountResource)null;
+        public AccountResource Handle(RegisterAccountCommand command) => null;
     }
 }

@@ -16,15 +16,15 @@ namespace Composable.Tests.System.Linq
         [Test]
         public void CanExtractFromMemberAccessingLambdaWithParameter()
         {
-            ExpressionUtil.ExtractMemberName((ExpressionUtilTests me) => me.MyMember).Should().Be("MyMember");
+            ExpressionUtil.ExtractMemberName((ExpressionUtilTests me) => MyMember).Should().Be("MyMember");
         }
 
         [Test]
         public void CanExtractFromMemberAccessingLambdaWith2Parameters()
         {
-            ExpressionUtil.ExtractMemberName((ExpressionUtilTests me, object irrelevant) => me.MyMember).Should().Be("MyMember");
+            ExpressionUtil.ExtractMemberName((ExpressionUtilTests me, object irrelevant) => MyMember).Should().Be("MyMember");
         }
 
-        object MyMember{ get { throw new global::System.NotImplementedException(); } }//ncrunch: no coverage
+        static object MyMember{ get { throw new global::System.NotImplementedException(); } }//ncrunch: no coverage
     }
 }

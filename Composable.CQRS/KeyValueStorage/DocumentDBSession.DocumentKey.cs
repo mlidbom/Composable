@@ -54,8 +54,8 @@ namespace Composable.CQRS.KeyValueStorage
                 return "Id: {0}, Type: {1}".FormatWith(Id, Type);
             }
 
-            public string Id { get; private set; }
-            Type Type { get; set; }
+            public string Id { get; }
+            Type Type { get;  }
 
         }
 

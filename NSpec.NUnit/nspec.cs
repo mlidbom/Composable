@@ -19,7 +19,7 @@ namespace Composable
         [Test]
         public void ValidateSpec()
         {
-            var finder = new SpecFinder(new [] {GetType()}, "");
+            var finder = new SpecFinder(new [] {GetType()});
             var tagsFilter = new Tags();
             var builder = new ContextBuilder(finder, tagsFilter, new DefaultConventions());
             var runner = new ContextRunner(tagsFilter, new ConsoleFormatter(), false);
@@ -46,7 +46,7 @@ namespace Composable
                 if(contexts.Failures().Any())
                 {
                     WriteNoticeably("SUMMARY");
-                    Console.WriteLine(base.Summary(contexts));
+                    Console.WriteLine(Summary(contexts));
 
                     int currentFailure = 0;
                     foreach (var failure in contexts.Failures())
@@ -64,7 +64,7 @@ namespace Composable
                         var levels = relatedContexts.Select(me => me.Name)
                                                     .Reverse()
                                                     .Skip(1)
-                                                    .Concat(new string[] { failure.Spec + " - " + failure.Exception.Message });
+                                                    .Concat(new[] { failure.Spec + " - " + failure.Exception.Message });
 
                         var message = levels
                             .Select((name, level) => "\t".Times(level) + name)
@@ -72,7 +72,7 @@ namespace Composable
 
                         Console.WriteLine(message);
 
-                        Console.WriteLine(base.WriteFailure(failure));
+                        Console.WriteLine(WriteFailure(failure));
                     }
                 }
 

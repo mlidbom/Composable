@@ -13,10 +13,10 @@ namespace Composable.CQRS.CQRS.EventSourcing.MicrosoftSQLServer
         readonly SqlServerEventStoreSchemaManager _schemaManager;
         IEventTypeToIdMapper EventTypeToIdMapper => _schemaManager.IdMapper;
 
-        string GetSelectClause(bool takeWriteLock) => InternalSelect(takeWriteLock: takeWriteLock);
-        string SelectTopClause(int top, bool takeWriteLock) => InternalSelect(top: top, takeWriteLock: takeWriteLock);
+        static string GetSelectClause(bool takeWriteLock) => InternalSelect(takeWriteLock: takeWriteLock);
+        static string SelectTopClause(int top, bool takeWriteLock) => InternalSelect(top: top, takeWriteLock: takeWriteLock);
 
-        string InternalSelect(bool takeWriteLock, int? top = null)
+        static string InternalSelect(bool takeWriteLock, int? top = null)
         {
             var topClause = top.HasValue ? $"TOP {top.Value} " : "";
             var lockHint = takeWriteLock ? "With(UPDLOCK, READCOMMITTED, ROWLOCK)" : "With(READCOMMITTED, ROWLOCK)";
@@ -39,8 +39,6 @@ SELECT {topClause}
 FROM {EventTable.Name} {lockHint} ";
         }
 
-        static readonly SqlServerEvestStoreEventSerializer EventSerializer = new SqlServerEvestStoreEventSerializer();
-
         public SqlServerEventStoreEventReader(SqlServerEventStoreConnectionManager connectionManager, SqlServerEventStoreSchemaManager schemaManager)
         {
             _connectionMananger = connectionManager;
@@ -49,7 +47,7 @@ FROM {EventTable.Name} {lockHint} ";
 
         AggregateRootEvent HydrateEvent(EventDataRow eventDataRowRow)
         {
-            var @event = (AggregateRootEvent)EventSerializer.Deserialize(eventType: EventTypeToIdMapper.GetType(eventDataRowRow.EventType), eventData: eventDataRowRow.EventJson);
+            var @event = (AggregateRootEvent)SqlServerEvestStoreEventSerializer.Deserialize(eventType: EventTypeToIdMapper.GetType(eventDataRowRow.EventType), eventData: eventDataRowRow.EventJson);
             @event.AggregateRootId = eventDataRowRow.AggregateRootId;
             @event.AggregateRootVersion = eventDataRowRow.AggregateRootVersion;
             @event.EventId = eventDataRowRow.EventId;
@@ -65,7 +63,7 @@ FROM {EventTable.Name} {lockHint} ";
             return @event;
         }
 
-        EventDataRow ReadDataRow(SqlDataReader eventReader)
+        static EventDataRow ReadDataRow(SqlDataReader eventReader)
         {
             return new EventDataRow
                    {
@@ -189,6 +187,6 @@ FROM {EventTable.Name} {lockHint} ";
             return ids;
         }
 
-        string ReadSortOrder => $" ORDER BY {EventTable.Columns.EffectiveReadOrder} ASC";
+        static string ReadSortOrder => $" ORDER BY {EventTable.Columns.EffectiveReadOrder} ASC";
     }
 }

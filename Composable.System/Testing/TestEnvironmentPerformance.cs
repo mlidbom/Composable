@@ -52,7 +52,7 @@ namespace Composable.Testing
             Console.WriteLine(processName);
             loadedAssemblies.ForEach(Console.WriteLine);
 
-            return new TestRunner($"Default/Fallback ({processName})", 1);
+            return new TestRunner($"Default/Fallback ({processName})");
         }
 
         static bool AreWeRunningInResharper(IEnumerable<Assembly> loadedAssemblies)

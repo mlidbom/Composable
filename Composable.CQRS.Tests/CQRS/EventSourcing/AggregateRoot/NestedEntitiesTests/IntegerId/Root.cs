@@ -79,10 +79,8 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.AggregateRoot.NestedEntitiesT
     {
         static int _instances;
         public string Name { get; private set; }
-        public Root Root { get; }
         public Entity(Root root) : base(root)
         {
-            Root = root;
             _entities = NestedEntity.CreateSelfManagingCollection(this);
             RegisterEventAppliers()
                 .For<RootEvent.Entity.PropertyUpdated.Name>(e => Name = e.Name);
@@ -103,10 +101,8 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.AggregateRoot.NestedEntitiesT
                                         RootEvent.Entity.NestedEntity.Implementation.Root.IdGetterSetter>
         {
             public string Name { get; private set; }
-            public Entity Entity { get; }
             public NestedEntity(Entity entity) : base(entity)
             {
-                Entity = entity;
                 RegisterEventAppliers()
                     .For<RootEvent.Entity.NestedEntity.PropertyUpdated.Name>(e => Name = e.Name);
             }

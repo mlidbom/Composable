@@ -1,6 +1,7 @@
 ﻿using AccountManagement.UI.Commands.Tests.UserCommands;
 using AccountManagement.UI.Commands.ValidationAttributes;
 using FluentAssertions;
+using JetBrains.Annotations;
 using NUnit.Framework;
 
 namespace AccountManagement.UI.Commands.Tests
@@ -32,7 +33,7 @@ namespace AccountManagement.UI.Commands.Tests
         class ACommand
         {
             [Email]
-            public string Email { get; set; }
+            public string Email { [UsedImplicitly] get; set; }
         }
     }
 }

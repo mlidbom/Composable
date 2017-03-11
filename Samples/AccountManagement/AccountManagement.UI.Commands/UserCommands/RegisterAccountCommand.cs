@@ -5,6 +5,7 @@ using System.Linq;
 using AccountManagement.UI.Commands.ValidationAttributes;
 using Composable.DDD;
 using Composable.System.ComponentModel.DataAnnotations;
+using JetBrains.Annotations;
 
 namespace AccountManagement.UI.Commands.UserCommands
 {
@@ -13,12 +14,12 @@ namespace AccountManagement.UI.Commands.UserCommands
         //Note the use of a custom validation attribute.
         [Required(ErrorMessageResourceType = typeof(RegisterAccountCommandResources), ErrorMessageResourceName = "IdInvalid")]
         [EntityId(ErrorMessageResourceType = typeof(RegisterAccountCommandResources), ErrorMessageResourceName = "IdMissing")]
-        public Guid AccountId { get; set; }
+        public Guid AccountId { [UsedImplicitly] get; set; }
 
         //Note the use of a custom validation attribute.
         [Email(ErrorMessageResourceType = typeof(RegisterAccountCommandResources), ErrorMessageResourceName = "EmailInvalid")]
         [Required(ErrorMessageResourceType = typeof(RegisterAccountCommandResources), ErrorMessageResourceName = "EmailMissing")]
-        public string Email { get; set; }
+        public string Email { [UsedImplicitly] get; set; }
 
         [Required(ErrorMessageResourceType = typeof(RegisterAccountCommandResources), ErrorMessageResourceName = "PasswordMissing")]
         // ReSharper disable once MemberCanBePrivate.Global

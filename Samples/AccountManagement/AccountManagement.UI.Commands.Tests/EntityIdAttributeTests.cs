@@ -2,6 +2,7 @@
 using AccountManagement.UI.Commands.Tests.UserCommands;
 using AccountManagement.UI.Commands.ValidationAttributes;
 using FluentAssertions;
+using JetBrains.Annotations;
 using NUnit.Framework;
 
 namespace AccountManagement.UI.Commands.Tests
@@ -26,7 +27,7 @@ namespace AccountManagement.UI.Commands.Tests
         class ACommand
         {
             [EntityId]
-            public Guid? AnId { get; set; }
+            public Guid? AnId { [UsedImplicitly] get; set; }
         }
     }
 }

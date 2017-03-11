@@ -16,12 +16,10 @@ namespace Composable.CQRS.CQRS.EventSourcing
         readonly CallMatchingHandlersInRegistrationOrderEventDispatcher<TAggregateRootBaseEventInterface> _eventAppliersEventDispatcher =
             new CallMatchingHandlersInRegistrationOrderEventDispatcher<TAggregateRootBaseEventInterface>();
 
-        Guid Id { get; set; }
-
         protected SelfUpdatingSingleAggregateQueryModel()
         {
             RegisterEventAppliers()
-                .ForGenericEvent<IAggregateRootCreatedEvent>(e => Id = e.AggregateRootId);
+                .ForGenericEvent<IAggregateRootCreatedEvent>(e => {});
         }
 
         public void ApplyEvent(TAggregateRootBaseEventInterface @event) { _eventAppliersEventDispatcher.Dispatch(@event); }
@@ -47,8 +45,6 @@ namespace Composable.CQRS.CQRS.EventSourcing
 
             static readonly TEventEntityIdGetter IdGetter = new TEventEntityIdGetter();
 
-            TRootQueryModel RootQueryModel { get; set; }
-
             void ApplyEvent(TEntityBaseEventInterface @event) { _eventAppliersEventDispatcher.Dispatch(@event); }
 
             protected IEventHandlerRegistrar<TEntityBaseEventInterface> RegisterEventAppliers()
@@ -69,7 +65,6 @@ namespace Composable.CQRS.CQRS.EventSourcing
                             e =>
                             {
                                 var component = (TEntitity)Activator.CreateInstance(typeof(TEntitity), nonPublic:true);
-                                component.RootQueryModel = _aggregate;
 
                                 _entities.Add(IdGetter.GetId(e), component);
                                 _entitiesInCreationOrder.Add(component);

@@ -14,6 +14,7 @@ namespace Composable.Tests.DDD
                 JobAdvertisements = new List<JobAdvertisement>();
             }
 
+            // ReSharper disable once UnusedAutoPropertyAccessor.Local
             public IEnumerable<JobAdvertisement> JobAdvertisements { get; set; }
             // ReSharper disable once UnusedAutoPropertyAccessor.Local
             public string CompanyState { get; set; }

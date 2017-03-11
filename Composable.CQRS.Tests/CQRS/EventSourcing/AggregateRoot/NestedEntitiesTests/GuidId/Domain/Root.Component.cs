@@ -9,13 +9,11 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.AggregateRoot.NestedEntitiesT
         public Component(Root root) : base(root)
         {
             _entities = Component.Entity.CreateSelfManagingCollection(this);
-            InnerComponent = new NestedComponent(this);
             RegisterEventAppliers()
                 .For<RootEvent.Component.PropertyUpdated.Name>(e => Name = e.Name);
         }
 
         readonly Component.Entity.CollectionManager _entities;
-        Component.NestedComponent InnerComponent { get; }
 
         public string Name { get; private set; }
         public IReadOnlyEntityCollection<Entity, Guid> Entities => _entities.Entities;

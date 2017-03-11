@@ -3,6 +3,7 @@ using Composable.CQRS.CQRS.EventSourcing;
 using Composable.CQRS.EventSourcing;
 using Composable.CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations;
 using Composable.GenericAbstractions.Time;
+using JetBrains.Annotations;
 
 namespace Composable.CQRS.Tests.CQRS.EventSourcing
 {
@@ -73,20 +74,20 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing
 
     class UserRegistered : UserEvent, IAggregateRootCreatedEvent
     {
-        public Guid UserId { get; set; }
+        public Guid UserId { [UsedImplicitly] get; set; }
         public string Email { get; set; }
         public string Password { get; set; }
     }
 
-    class MigratedBeforeUserRegisteredEvent : UserEvent, IAggregateRootCreatedEvent
+    [UsedImplicitly] class MigratedBeforeUserRegisteredEvent : UserEvent, IAggregateRootCreatedEvent
     {
     }
 
-    class MigratedAfterUserChangedEmailEvent : UserEvent, IAggregateRootCreatedEvent
+    [UsedImplicitly] class MigratedAfterUserChangedEmailEvent : UserEvent, IAggregateRootCreatedEvent
     {
     }
 
-    class MigratedReplaceUserChangedPasswordEvent : UserEvent, IAggregateRootCreatedEvent
+    [UsedImplicitly] class MigratedReplaceUserChangedPasswordEvent : UserEvent, IAggregateRootCreatedEvent
     {
     }
 }

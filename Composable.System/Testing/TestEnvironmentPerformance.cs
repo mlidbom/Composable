@@ -63,11 +63,9 @@ namespace Composable.Testing
         TestRunner(string name, double slowDownFactor = 1.0)
         {
             Console.WriteLine($"Setting up performance adjustments for {name} with {nameof(slowDownFactor)}: {slowDownFactor}");
-            Name = name;
             SlowDownFactor = slowDownFactor;
         }
 
-        public string Name { get; }
         public double SlowDownFactor { get; }
     }
 }

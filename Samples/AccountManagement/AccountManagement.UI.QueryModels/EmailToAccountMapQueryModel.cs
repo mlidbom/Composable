@@ -1,5 +1,6 @@
 ﻿using System;
 using AccountManagement.Domain.Shared;
+using JetBrains.Annotations;
 
 namespace AccountManagement.UI.QueryModels
 {
@@ -11,7 +12,7 @@ namespace AccountManagement.UI.QueryModels
             AccountId = accountId;
         }
 
-        Email Email { get; set; }
+        Email Email { [UsedImplicitly] get; set; }
         internal Guid AccountId { get; private set; }
     }
 }

@@ -82,13 +82,11 @@ namespace Composable.CQRS.Windsor
 
             public override bool IsActive {get { return !CommitCalled && !RollBackCalled && !InDoubtCalled; }}
 
-            bool PrepareCalled { get; set; }
             bool CommitCalled { get; set; }
             bool RollBackCalled { get; set; }
             bool InDoubtCalled { get; set; }
             public void Prepare(PreparingEnlistment preparingEnlistment)
             {
-                PrepareCalled = true;
                 preparingEnlistment.Prepared();
             }
 

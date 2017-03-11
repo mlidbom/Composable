@@ -1,9 +1,11 @@
 ﻿using System;
 using AccountManagement.Domain.Shared;
 using Composable.Contracts;
+using JetBrains.Annotations;
 
 namespace AccountManagement.Domain.QueryModels
 {
+    //todo: Hmm, does not use the account id, so what exactly is this for? Does not seem to match the name.
     class EmailToAccountMapQueryModel
     {
         public EmailToAccountMapQueryModel(Email email, Guid accountId)
@@ -11,10 +13,8 @@ namespace AccountManagement.Domain.QueryModels
             Contract.Argument(() => email, () => accountId).NotNullOrDefault();
 
             Email = email;
-            AccountId = accountId;
         }
 
-        Email Email { get; set; }
-        Guid AccountId { get; set; }
+        Email Email { [UsedImplicitly] get; set; }
     }
 }

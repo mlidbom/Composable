@@ -79,7 +79,8 @@ namespace Composable.CQRS.Tests.UnitOfWorkTests
     class UnitOfWorkSpy : IUnitOfWorkParticipant
     {
         public IUnitOfWork UnitOfWork { get; private set; }
-        public Guid Id { get; private set; }
+        // ReSharper disable once UnassignedGetOnlyAutoProperty
+        public Guid Id { get;  }
 
         public void Join(IUnitOfWork unit)
         {

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Composable.DDD;
+using JetBrains.Annotations;
 
 namespace Composable.CQRS.Tests.KeyValueStorage
 {
@@ -21,9 +22,9 @@ namespace Composable.CQRS.Tests.KeyValueStorage
 
     class Address : ValueObject<Address>
     {
-        public string Street { get; set; }
-        public int Streetnumber { get; set; }
-        public string City { get; set; }
+        public string Street { [UsedImplicitly] get; set; }
+        public int Streetnumber { [UsedImplicitly] get; set; }
+        public string City { [UsedImplicitly] get; set; }
     }
 
     class Email : ValueObject<Email>

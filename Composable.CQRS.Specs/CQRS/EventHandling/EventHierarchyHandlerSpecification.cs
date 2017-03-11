@@ -142,12 +142,7 @@ namespace Composable.CQRS.Specs.CQRS.EventHandling
         }
 
 
-        public class UserQueryModel : IHasPersistentIdentity<Guid>
-        {
-            public Guid Id { get; set; }
-        }
-
-        public interface IUserEvent : IAggregateRootEvent {}
+        interface IUserEvent : IAggregateRootEvent {}
 
         interface IUserCreatedEvent : IUserEvent {}
 

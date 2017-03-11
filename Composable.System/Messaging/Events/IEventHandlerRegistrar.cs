@@ -47,7 +47,7 @@ namespace Composable.Messaging.Events
         IEventHandlerRegistrar<TBaseEvent> IgnoreUnhandled<T>();
     }
 
-    public static class EventHandlerRegistrar
+    static class EventHandlerRegistrar
     {
         public static IEventHandlerRegistrar<TBaseEvent> BeforeHandlers<TBaseEvent>
             (this IEventHandlerRegistrar<TBaseEvent> @this, Action<TBaseEvent> handler) where TBaseEvent : class { return @this.BeforeHandlers<TBaseEvent>(handler); }

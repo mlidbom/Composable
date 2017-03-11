@@ -9,7 +9,7 @@ using System.Collections.Generic;
 namespace Composable.System.Linq
 {
     /// <summary/>
-    public static class Zipping
+    static class Zipping
     {
         /// <summary>
         /// Projects two sequences into a single sequence in which each value is the result

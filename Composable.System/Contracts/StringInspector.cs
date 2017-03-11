@@ -1,5 +1,4 @@
 using System;
-// ReSharper disable MemberCanBeInternal
 
 namespace Composable.Contracts
 {
@@ -10,7 +9,7 @@ namespace Composable.Contracts
         /// <para>Throws <see cref="ObjectIsNullContractViolationException"/> if any expected value is null.</para>
         /// <para>Throws <see cref="StringIsEmptyContractViolationException"/> if any inspected value is an empty string.</para>
         /// </summary>
-        public static Inspected<string> NotNullOrEmpty(this Inspected<string> me)
+        internal static Inspected<string> NotNullOrEmpty(this Inspected<string> me)
         {
             me.NotNull(); //We want the proper exceptions
             return me.Inspect(inspected => inspected != String.Empty,

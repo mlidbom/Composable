@@ -1,7 +1,7 @@
 namespace Composable.Contracts
 {
     ///<summary>Represents a single value that is being inspected. Keeps track of the values name and the type of inspection </summary>
-    public class InspectedValue<TValue> : InspectedValue
+    class InspectedValue<TValue> : InspectedValue
     {
         ///<summary>The actual value being inspected</summary>
         internal TValue Value { get; private set; }
@@ -14,7 +14,7 @@ namespace Composable.Contracts
     }
 
     ///<summary>Represents a single value that is being inspected. Keeps track of the values name and the type of inspection </summary>
-    public class InspectedValue
+    class InspectedValue
     {
         ///<summary>Standard constructor</summary>
         protected InspectedValue(InspectionType type, string name)

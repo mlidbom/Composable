@@ -40,21 +40,21 @@ namespace Composable.CQRS.EventSourcing
             InsertAfter = insertAfter;
         }
 
-        public Guid EventId { get; set; }
-        public int AggregateRootVersion { get; set; }
+        public Guid EventId { get; internal set; }
+        public int AggregateRootVersion { get; internal set; }
 
-        public Guid AggregateRootId { get; set; }
-        public DateTime UtcTimeStamp { get; set; }
+        public Guid AggregateRootId { get; internal set; }
+        public DateTime UtcTimeStamp { get; internal set; }
 
-        public int InsertedVersion { get; internal set; }
-        public int? EffectiveVersion { get; internal set; }
-        public int? ManualVersion { get; internal set; }
+        internal int InsertedVersion { get; set; }
+        internal int? EffectiveVersion { get; set; }
+        internal int? ManualVersion { get; set; }
 
-        public long InsertionOrder { get; internal set; }
-        public long? Replaces { get; internal set; }
+        internal long InsertionOrder { get; set; }
+        internal long? Replaces { get; set; }
 
-        public long? InsertBefore { get; internal set; }
+        internal long? InsertBefore { get; set; }
 
-        public long? InsertAfter { get; internal set; }
+        internal long? InsertAfter { get; set; }
     }
 }

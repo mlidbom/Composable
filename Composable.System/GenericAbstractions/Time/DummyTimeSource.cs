@@ -39,7 +39,7 @@ namespace Composable.GenericAbstractions.Time
             {
                 return _utcNow;
             }
-            set
+            internal set
             {
                 _utcNow = DateTime.SpecifyKind(value, DateTimeKind.Utc);
                 NotifyListeners();

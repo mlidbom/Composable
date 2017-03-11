@@ -54,7 +54,7 @@ namespace Composable.Contracts
                 badValue => new ObjectIsDefaultContractViolationException(badValue));
         }
 
-        public static Inspected<object> IsOfType<TRequiredType>(this Inspected<object> @this)
+        internal static Inspected<object> IsOfType<TRequiredType>(this Inspected<object> @this)
         {
             return @this.Inspect(value => value is TRequiredType,
                                  value => new ContractViolationException(value));

@@ -1,11 +1,9 @@
 using System;
 using Composable.CQRS.CQRS.EventSourcing;
 using Composable.CQRS.Tests.CQRS.EventSourcing.AggregateRoot.NestedEntitiesTests.GuidId.Domain.Events;
-using JetBrains.Annotations;
 
 namespace Composable.CQRS.Tests.CQRS.EventSourcing.AggregateRoot.NestedEntitiesTests.GuidId.Domain
 {
-    [UsedImplicitly]
     partial class Entity : Root.Entity<Entity,
                               Guid,
                               RootEvent.Entity.Implementation.Root,

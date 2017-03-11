@@ -1,7 +1,6 @@
 using System;
 using Composable.CQRS.CQRS.EventSourcing;
 using Composable.GenericAbstractions.Time;
-using JetBrains.Annotations;
 
 namespace Composable.CQRS.Tests.CQRS.EventSourcing.AggregateRoot.NestedEntitiesTests.IntegerId
 {
@@ -47,7 +46,6 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.AggregateRoot.NestedEntitiesT
         public void Rename(string name) { RaiseEvent(new RootEvent.Component.Implementation.Renamed(name)); }
         public Entity AddEntity(string name) { return _entities.Add(new RootEvent.Component.Entity.Implementation.Created(++_instances, name)); }
 
-        [UsedImplicitly]
         public class Entity : NestedEntity<Entity,
                                   int,
                                   RootEvent.Component.Entity.Implementation.Root,
@@ -68,7 +66,6 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.AggregateRoot.NestedEntitiesT
         }
     }
 
-    [UsedImplicitly]
     class Entity : Root.Entity<Entity,
                               int,
                               RootEvent.Entity.Implementation.Root,

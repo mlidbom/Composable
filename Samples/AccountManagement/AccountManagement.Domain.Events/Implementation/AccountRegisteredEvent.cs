@@ -8,8 +8,8 @@ namespace AccountManagement.Domain.Events.Implementation
 {
     public class UserRegisteredAccountEvent : AccountEvent, IUserRegisteredAccountEvent
     {
-        [Obsolete("NServicebus requires this constructor to exist.", true), UsedImplicitly] //ncrunch: no coverage
-        public UserRegisteredAccountEvent() {} //ncrunch: no coverage
+        [UsedImplicitly] //ncrunch: no coverage
+        UserRegisteredAccountEvent() {} //ncrunch: no coverage
 
         ///<summary>
         /// The constructor should guarantee that the event is correctly created.

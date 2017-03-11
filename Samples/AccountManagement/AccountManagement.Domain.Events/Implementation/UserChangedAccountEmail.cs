@@ -1,12 +1,11 @@
-﻿using System;
-using AccountManagement.Domain.Shared;
+﻿using AccountManagement.Domain.Shared;
 using JetBrains.Annotations;
 
 namespace AccountManagement.Domain.Events.Implementation
 {
     public class UserChangedAccountEmailEvent : AccountEvent, IUserChangedAccountEmailEvent
     {
-        [Obsolete("NServicebus requires this constructor to exist.", true), UsedImplicitly] //ncrunch: no coverage
+        [UsedImplicitly] //ncrunch: no coverage
         public UserChangedAccountEmailEvent() {} //ncrunch: no coverage
 
         public UserChangedAccountEmailEvent(Email email)

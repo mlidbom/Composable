@@ -1,12 +1,10 @@
 using System;
 using Composable.CQRS.Tests.CQRS.EventSourcing.AggregateRoot.NestedEntitiesTests.GuidId.Domain.Events;
-using JetBrains.Annotations;
 
 namespace Composable.CQRS.Tests.CQRS.EventSourcing.AggregateRoot.NestedEntitiesTests.GuidId.Domain
 {
     partial class Component
     {
-        [UsedImplicitly]
         public class Entity : Component.NestedEntity<Entity,
                                   Guid,
                                   RootEvent.Component.Entity.Implementation.Root,

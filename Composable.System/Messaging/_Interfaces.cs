@@ -10,6 +10,7 @@ namespace Composable.Messaging
     public interface ICommand : IMessage
     {
         // ReSharper disable once UnusedMemberInSuper.Global
+        // ReSharper disable once UnusedMember.Global
         Guid Id { get; }
     }
 

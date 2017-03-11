@@ -44,7 +44,7 @@ namespace Composable.Messaging.Events
             /// Useful for listening to generic events such as IAggregateRootCreatedEvent or IAggregateRootDeletedEvent
             /// Be aware that the concrete event received MUST still actually inherit TEvent or there will be an InvalidCastException
             /// </summary>
-            public RegistrationBuilder ForGenericEvent<THandledEvent>(Action<THandledEvent> handler)
+            RegistrationBuilder ForGenericEvent<THandledEvent>(Action<THandledEvent> handler)
             {
                 var eventType = typeof(THandledEvent);
 
@@ -53,20 +53,20 @@ namespace Composable.Messaging.Events
                 return this;
             }
 
-            public RegistrationBuilder BeforeHandlers(Action<TEvent> runBeforeHandlers)
+            RegistrationBuilder BeforeHandlers(Action<TEvent> runBeforeHandlers)
             {
                 _owner._runBeforeHandlers.Add(e => runBeforeHandlers((TEvent)e));
                 _owner._totalHandlers++;
                 return this;
             }
 
-            public RegistrationBuilder AfterHandlers(Action<TEvent> runAfterHandlers)
+            RegistrationBuilder AfterHandlers(Action<TEvent> runAfterHandlers)
             {
                 _owner._runAfterHandlers.Add(e => runAfterHandlers((TEvent)e));
                 return this;
             }
 
-            public RegistrationBuilder IgnoreUnhandled<T>()
+            RegistrationBuilder IgnoreUnhandled<T>()
             {
                 _owner._ignoredEvents.Add(typeof(T));
                 _owner._totalHandlers++;

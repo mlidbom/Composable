@@ -69,7 +69,7 @@ namespace Composable.System.Data.SqlClient
                                  });
         }
 
-        public SqlConnection OpenConnection()
+        SqlConnection OpenConnection()
         {
             var connection = new SqlConnection(ConnectionString);
             connection.Open();

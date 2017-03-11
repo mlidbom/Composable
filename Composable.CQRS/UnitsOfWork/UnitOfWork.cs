@@ -66,7 +66,7 @@ namespace Composable.CQRS.UnitsOfWork
 
         public override string ToString()
         {
-            return String.Format("Unit of work {0} with participants:\n {1}", Id, _participants.Select(p => String.Format("{0} {1}", p.GetType(), p.Id)).Join("\n\t"));
+            return $"Unit of work {Id} with participants:\n {_participants.Select(p => $"{p.GetType()} {p.Id}") .Join("\n\t")}";
         }
 
         public void Rollback()

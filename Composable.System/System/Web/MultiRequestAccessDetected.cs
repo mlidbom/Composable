@@ -7,10 +7,6 @@ namespace Composable.System.Web
     {
         ///<summary>Creates an instance with the supplied information.</summary>
         public MultiRequestAccessDetected(object guarded, Guid initialRequestId, Guid currentRequestId) : base(
-            string.Format("Atttempt to use {0} from request:{1}, when owning request was : {2}",
-                          guarded,
-                          currentRequestId,
-                          initialRequestId
-                )) {}
+                                                                                                               $"Atttempt to use {guarded} from request:{currentRequestId}, when owning request was : {initialRequestId}") {}
     }
 }

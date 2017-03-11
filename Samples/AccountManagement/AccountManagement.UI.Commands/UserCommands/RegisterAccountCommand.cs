@@ -21,6 +21,7 @@ namespace AccountManagement.UI.Commands.UserCommands
         public string Email { get; set; }
 
         [Required(ErrorMessageResourceType = typeof(RegisterAccountCommandResources), ErrorMessageResourceName = "PasswordMissing")]
+        // ReSharper disable once MemberCanBePrivate.Global
         public string Password { get; set; }
 
         public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)

@@ -11,7 +11,7 @@ namespace Composable.System.Configuration
             var parameter = ConfigurationManager.ConnectionStrings[parameterName];
             if (parameter==null)
             {
-                throw new ConfigurationErrorsException(string.Format("ConnectionString with name {0} does not exists",parameterName));
+                throw new ConfigurationErrorsException($"ConnectionString with name {parameterName} does not exists");
             }
             return parameter;
         }

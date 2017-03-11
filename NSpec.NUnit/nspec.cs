@@ -35,7 +35,7 @@ namespace Composable
         {
             static void WriteNoticeably(string message, params object[] formatwith)
             {
-                message = String.Format("#################################    {0}    #################################", message);
+                message = $"#################################    {message}    #################################";
                 Console.WriteLine(message, formatwith);
             }
 

@@ -4,7 +4,7 @@ namespace Composable.CQRS.CQRS.EventSourcing
 {
     class AggregateRootNotFoundException : Exception
     {
-        public AggregateRootNotFoundException(Guid aggregateId): base(string.Format("Aggregate root with Id: {0} not found", aggregateId))
+        public AggregateRootNotFoundException(Guid aggregateId): base($"Aggregate root with Id: {aggregateId} not found")
         {
 
         }

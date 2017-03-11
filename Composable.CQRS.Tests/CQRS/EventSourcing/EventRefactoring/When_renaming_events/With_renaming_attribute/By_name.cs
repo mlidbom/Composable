@@ -37,14 +37,14 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.EventRefactoring.When_renamin
     [EventRenamedFrom(Name = OldName)]
     class Event1 : AggregateRootEvent
     {
-        public const string OldName = "Even1OldName";
+        const string OldName = "Even1OldName";
         public static readonly string OldFullName = $"{typeof(Event1).Namespace}.{OldName}";
     }
 
     [EventRenamedFrom(Name = OldName)]
     class Event2 : AggregateRootEvent
     {
-        public const string OldName = "Event2OldName";
+        const string OldName = "Event2OldName";
         public static readonly string OldFullName = $"{typeof(Event1).Namespace}.{OldName}";
     }
 }

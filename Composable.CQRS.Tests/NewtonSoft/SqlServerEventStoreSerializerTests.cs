@@ -52,7 +52,9 @@ namespace Composable.CQRS.Tests.NewtonSoft
                 Test2 = test2;
             }
 
+            // ReSharper disable once MemberCanBePrivate.Local
             public string Test1 { get; private set; }
+            // ReSharper disable once MemberCanBePrivate.Local
             public string Test2 { get; private set; }
         }
 

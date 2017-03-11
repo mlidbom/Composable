@@ -41,7 +41,7 @@ namespace Composable.CQRS.Tests.KeyValueStorage.Sql
 
 
         [Serializable]
-        public class InsertSomething : MarshalByRefObject
+        class InsertSomething : MarshalByRefObject
         {
             public void InsertSomeUsers(string connectionString, params Guid[] userIds)
             {
@@ -55,7 +55,7 @@ namespace Composable.CQRS.Tests.KeyValueStorage.Sql
             }
         }
 
-        public void InsertUsersInOtherAppDomain(Guid userIds)
+        void InsertUsersInOtherAppDomain(Guid userIds)
         {
             var myDomain = AppDomain.CurrentDomain;
             var otherDomain = AppDomain.CreateDomain("other domain", myDomain.Evidence, myDomain.BaseDirectory, myDomain.RelativeSearchPath,false);

@@ -38,7 +38,7 @@ namespace Composable.Windsor
             var originalHandler = handlers.FirstOrDefault(handler => handler.ComponentModel.Name == _originalKey);
             if (originalHandler != null) return originalHandler;
 
-            throw new NotSupportedException(string.Format("Tried to get key {0} from HandlerSelector for type {1} but found no matching handler", key, _serviceType.Name));
+            throw new NotSupportedException($"Tried to get key {key} from HandlerSelector for type {_serviceType.Name} but found no matching handler");
         }
     }
 }

@@ -81,8 +81,7 @@ namespace NetMqProcess01._50_Router_Dealer
                     {
                         var clientAddress = clientMessage[0];
                         var clientOriginalMessage = clientMessage[2].ConvertToString();
-                        string response = string.Format("{0} back from server {1}",
-                            clientOriginalMessage, DateTime.Now.ToLongTimeString());
+                        string response = $"{clientOriginalMessage} back from server {DateTime.Now.ToLongTimeString()}";
                         var messageToClient = new NetMQMessage();
                         messageToClient.Append(clientAddress);
                         messageToClient.AppendEmptyFrame();

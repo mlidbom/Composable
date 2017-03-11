@@ -6,8 +6,7 @@ namespace Composable.Persistence.KeyValueStorage
     {
         public AttemptToSaveAlreadyPersistedValueException(object key, object value)
             : base(
-                string.Format("Instance of {0} with Id: {1} has already been persisted. To update it, load it from a session and modify it rather than attempting to call save",
-                              value.GetType().FullName, key))
+                   $"Instance of {value.GetType() .FullName} with Id: {key} has already been persisted. To update it, load it from a session and modify it rather than attempting to call save")
         {
 
         }

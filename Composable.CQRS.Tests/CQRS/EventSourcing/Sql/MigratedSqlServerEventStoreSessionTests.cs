@@ -36,12 +36,12 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.Sql
             SqlServerEventStore.ClearAllCache();
         }
 
-        protected IEventStoreSession OpenSession(IEventStore store)
+        IEventStoreSession OpenSession(IEventStore store)
         {
             return new EventStoreSession(Bus, store, new SingleThreadUseGuard(), DateTimeNowTimeSource.Instance);
         }
 
-        protected IEventStore CreateStore(bool withMigrations = true)
+        IEventStore CreateStore(bool withMigrations = true)
         {
             var migrations = withMigrations ? (IEnumerable<IEventMigration>)new EventMigration<IRootEvent>[]
                                                            {

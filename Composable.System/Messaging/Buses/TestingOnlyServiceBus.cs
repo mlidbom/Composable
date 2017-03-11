@@ -37,7 +37,7 @@ namespace Composable.Messaging.Buses
 
         class ScheduledMessage
         {
-            public Guid Id { get; }
+            Guid Id { get; }
             public DateTime SendAt { get; }
             public ICommand Message { get; }
 

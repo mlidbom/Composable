@@ -22,14 +22,10 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyVersion("3.4.6.0")]
 
 
-[assembly: InternalsVisibleTo("Composable.Windsor")]
-[assembly: InternalsVisibleTo("Composable.StagingArea")]
 [assembly: InternalsVisibleTo("Composable.HyperBus")]
 [assembly: InternalsVisibleTo("NetMqProcess01")]
 [assembly: InternalsVisibleTo("NetMqProcess02")]
 [assembly: InternalsVisibleTo("NSpec.NUnit")]
 [assembly: InternalsVisibleTo("Composable.CQRS")]
 [assembly: InternalsVisibleTo("Composable.Core.Tests")]
-[assembly: InternalsVisibleTo("Composable.CQRS.Specs")]
 [assembly: InternalsVisibleTo("Composable.CQRS.Tests")]
-[assembly: InternalsVisibleTo("Composable.CQRS.Testing")]

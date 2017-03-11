@@ -1,7 +1,7 @@
 ﻿using System;
 using Castle.Windsor;
 
-namespace Composable.Windsor
+namespace Composable.CQRS.Windsor
 {
     static class WindsorDisposableExtensions
     {

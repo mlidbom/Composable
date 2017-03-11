@@ -1,4 +1,4 @@
-﻿namespace Composable.Windsor.Testing
+﻿namespace Composable.CQRS.Windsor.Testing
 {
     ///<summary>Component that changes container wiring to enable testing.</summary>
     interface IConfigureWiringForTests

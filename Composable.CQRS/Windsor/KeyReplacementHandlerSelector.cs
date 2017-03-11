@@ -2,7 +2,7 @@
 using System.Linq;
 using Castle.MicroKernel;
 
-namespace Composable.Windsor
+namespace Composable.CQRS.Windsor
 {
     /// <summary>
     /// When multiple registrations to the same type are made this HandlerSelector returns the service registered with the 'replacementKey'

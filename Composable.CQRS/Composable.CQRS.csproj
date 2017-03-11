@@ -22,7 +22,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Composable.System\Composable.Core.csproj" />
-    <ProjectReference Include="..\Composable.Windsor\Composable.Windsor.csproj" />
   </ItemGroup>
 
   

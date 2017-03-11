@@ -2,7 +2,7 @@
 using Castle.MicroKernel;
 using Castle.MicroKernel.ModelBuilder;
 
-namespace Composable.Windsor
+namespace Composable.CQRS.Windsor
 {
     /// <summary>
     /// Add this mutator to the Container using container.Kernel.ComponentModelBuilder.AddContributor(new LifestyleRegistrationMutator());

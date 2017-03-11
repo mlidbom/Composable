@@ -9,7 +9,7 @@ using Composable.System;
 using Composable.System.Linq;
 using Composable.SystemExtensions.Threading;
 
-namespace Composable.Windsor.Testing
+namespace Composable.CQRS.Windsor.Testing
 {
     static class TestingWindsorExtensions
     {

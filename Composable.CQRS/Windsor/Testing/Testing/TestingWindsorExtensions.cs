@@ -4,7 +4,6 @@ using Castle.Windsor;
 using Composable.GenericAbstractions.Time;
 using Composable.Messaging.Buses;
 using Composable.System.Configuration;
-using Composable.Windsor.Testing;
 
 namespace Composable.CQRS.Windsor.Testing.Testing
 {

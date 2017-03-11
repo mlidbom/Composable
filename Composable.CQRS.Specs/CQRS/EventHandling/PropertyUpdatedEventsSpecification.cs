@@ -26,22 +26,22 @@ namespace Composable.CQRS.Specs.CQRS.EventHandling
             #region Generic events intended to be inherited. None of these should ever be raised. Only inheritors should be raised.
 
             //Every single CV event should inherit this one. Directly or indirectly.
-            public interface ICVEvent : IAggregateRootEvent {}
+            public interface ICvEvent : IAggregateRootEvent {}
 
             //Note how this event inherits IAggregateRootCreatedEvent. This allows SingleAggregateQueryModelUpdater and others to automatically know that it is a creation event.
             //Any event that signifies that a CV has been created should inherit this event
             //That way SingleAggregateQueryModelUpdater will not try to read the model from the DB and it can automatically instantiate the model with the correct aggregate root id.
-            interface ICVCreated : ICVEvent, IAggregateRootCreatedEvent {}
+            interface ICvCreated : ICvEvent, IAggregateRootCreatedEvent {}
 
             //Note how this event inherits IAggregateRootDeletedEvent. This allows SingleAggregateQueryModelUpdater and others to automatically know that it is a deletion event.
             //That way SingleAggregateQueryModelUpdater will know that it can go right ahead and delete the model.
-            public interface ICVDeleted : ICVEvent, IAggregateRootDeletedEvent {}
+            public interface ICvDeleted : ICvEvent, IAggregateRootDeletedEvent {}
 
             //Should be inherited by any event that is triggered by the candidate editing his/her CV
-            interface ICVUpdatedByOwner : ICVEvent {}
+            interface ICvUpdatedByOwner : ICvEvent {}
 
             //Should be inherited by any event that is triggered by a recruiter acting on the CV
-            public interface ICVUpdatedByRecruiter : ICVEvent
+            public interface ICvUpdatedByRecruiter : ICvEvent
             {
                 Guid RecruiterId { get; set; }
             }
@@ -51,19 +51,19 @@ namespace Composable.CQRS.Specs.CQRS.EventHandling
             //a PropertyUpdated event.
             namespace PropertyUpdated
             {
-                interface ICVEmailPropertyUpdated : ICVEvent
+                interface ICvEmailPropertyUpdated : ICvEvent
                 {
                     string Email { get; set; }
                 }
 
-                interface ICVPasswordPropertyUpdated : ICVEvent
+                interface ICvPasswordPropertyUpdated : ICvEvent
                 {
                     string Password { get; set; }
                 }
 
                 //For collections PropertyUpdated events should handle List<T>. Not Items.
                 //They should have both Added* and Removed* properties.
-                public interface ICVSkillsPropertyUpdated : ICVEvent
+                public interface ICvSkillsPropertyUpdated : ICvEvent
                 {
                     List<string> AddedSkills { get; set; }
                     List<string> RemovedSkills { get; set; }
@@ -72,14 +72,14 @@ namespace Composable.CQRS.Specs.CQRS.EventHandling
 
             #endregion
 
-            interface ICVRegistered : ICVCreated, PropertyUpdated.ICVEmailPropertyUpdated, PropertyUpdated.ICVPasswordPropertyUpdated {}
+            interface ICvRegistered : ICvCreated, PropertyUpdated.ICvEmailPropertyUpdated, PropertyUpdated.ICvPasswordPropertyUpdated {}
 
-            interface ICVSkillsEditedByCandidate : PropertyUpdated.ICVSkillsPropertyUpdated, ICVUpdatedByOwner {}
+            interface ICvSkillsEditedByCandidate : PropertyUpdated.ICvSkillsPropertyUpdated, ICvUpdatedByOwner {}
 
-            public interface ICVSkillsEditedByRecruiter : PropertyUpdated.ICVSkillsPropertyUpdated, ICVUpdatedByRecruiter {}
+            public interface ICvSkillsEditedByRecruiter : PropertyUpdated.ICvSkillsPropertyUpdated, ICvUpdatedByRecruiter {}
         }
 
-        public class CVQueryModel : ValueObject<CVQueryModel>, ISingleAggregateQueryModel
+        public class CvQueryModel : ValueObject<CvQueryModel>, ISingleAggregateQueryModel
         {
             public Guid Id { get; private set; }
             public void SetId(Guid id)
@@ -91,7 +91,7 @@ namespace Composable.CQRS.Specs.CQRS.EventHandling
             internal string Password { get; set; }
             internal HashSet<string> Skills { get; set; }
 
-            public CVQueryModel()
+            public CvQueryModel()
             {
                 Skills = new HashSet<string>();
             }
@@ -101,13 +101,13 @@ namespace Composable.CQRS.Specs.CQRS.EventHandling
         {
             namespace InternalImplementations
             {
-                class CVRegisteredEvent : AggregateRootEvent, ICVRegistered
+                class CvRegisteredEvent : AggregateRootEvent, ICvRegistered
                 {
                     public string Email { get; set; }
                     public string Password { get; set; }
                 }
 
-                class CVSkillsEdited : AggregateRootEvent, ICVSkillsEditedByCandidate
+                class CvSkillsEdited : AggregateRootEvent, ICvSkillsEditedByCandidate
                 {
                     public List<string> AddedSkills { get; set; }
                     public List<string> RemovedSkills { get; set; }
@@ -117,15 +117,15 @@ namespace Composable.CQRS.Specs.CQRS.EventHandling
 
         namespace QueryModelUpdaters
         {
-            class CVQueryModelUpdater : SingleAggregateQueryModelUpdater<CVQueryModelUpdater, CVQueryModel, ICVEvent, IDocumentDbSession>
+            class CvQueryModelUpdater : SingleAggregateQueryModelUpdater<CvQueryModelUpdater, CvQueryModel, ICvEvent, IDocumentDbSession>
             {
-                public CVQueryModelUpdater(IDocumentDbSession session)
+                public CvQueryModelUpdater(IDocumentDbSession session)
                     : base(session)
                 {
                     RegisterHandlers()
-                        .For<GlobalEvents.PropertyUpdated.ICVEmailPropertyUpdated>(e => Model.Email = e.Email)
-                        .For<GlobalEvents.PropertyUpdated.ICVPasswordPropertyUpdated>(e => Model.Password = e.Password)
-                        .For<GlobalEvents.PropertyUpdated.ICVSkillsPropertyUpdated>(e =>
+                        .For<GlobalEvents.PropertyUpdated.ICvEmailPropertyUpdated>(e => Model.Email = e.Email)
+                        .For<GlobalEvents.PropertyUpdated.ICvPasswordPropertyUpdated>(e => Model.Password = e.Password)
+                        .For<GlobalEvents.PropertyUpdated.ICvSkillsPropertyUpdated>(e =>
                                                                                     {
                                                                                         Model.Skills.RemoveRange(e.RemovedSkills);
                                                                                         Model.Skills.AddRange(e.AddedSkills);
@@ -139,8 +139,8 @@ namespace Composable.CQRS.Specs.CQRS.EventHandling
     {
         public void starting_from_empty()
         {
-            CVQueryModel cvQueryModel = null;
-            CVQueryModelUpdater cvQueryModelUpdater = null;
+            CvQueryModel cvQueryModel = null;
+            CvQueryModelUpdater cvQueryModelUpdater = null;
             IDocumentDbSession documentDbSession = null;
             Guid cvId = Guid.Parse("00000000-0000-0000-0000-000000000001");
 
@@ -148,23 +148,23 @@ namespace Composable.CQRS.Specs.CQRS.EventHandling
                      {
                          cvQueryModel = null;
                          documentDbSession = new DocumentDbSession(new InMemoryDocumentDb(), new SingleThreadUseGuard(), NullOpDocumentDbSessionInterceptor.Instance);
-                         cvQueryModelUpdater = new CVQueryModelUpdater(documentDbSession);
+                         cvQueryModelUpdater = new CvQueryModelUpdater(documentDbSession);
                      };
 
             context["after receiving CVRegisteredAvent"] =
                 () =>
                 {
-                    CVRegisteredEvent registeredEvent = null;
+                    CvRegisteredEvent registeredEvent = null;
                     before = () =>
                              {
-                                 registeredEvent = new CVRegisteredEvent()
+                                 registeredEvent = new CvRegisteredEvent()
                                                    {
                                                        AggregateRootId = cvId,
                                                        Email = "Email",
                                                        Password = "Password",
                                                    };
                                  cvQueryModelUpdater.Handle(registeredEvent);
-                                 cvQueryModel = documentDbSession.Get<CVQueryModel>(cvId);
+                                 cvQueryModel = documentDbSession.Get<CvQueryModel>(cvId);
                              };
                     it["does not crash :)"] = () => Assert.True(true);
                     it["_resultingModel.Id is template.id"] = () => cvQueryModel.Id.Should().Be(registeredEvent.AggregateRootId);
@@ -173,10 +173,10 @@ namespace Composable.CQRS.Specs.CQRS.EventHandling
                     context["after receiving CVSkillsEditedEvent"] =
                         () =>
                         {
-                            CVSkillsEdited skillsEdited = null;
+                            CvSkillsEdited skillsEdited = null;
                             before = () =>
                                      {
-                                         skillsEdited = new CVSkillsEdited()
+                                         skillsEdited = new CvSkillsEdited()
                                                         {
                                                             AggregateRootId = registeredEvent.AggregateRootId,
                                                             AddedSkills = new List<string> {"AddedSkill1", "AddedSkill2", "AddedSkill3"},

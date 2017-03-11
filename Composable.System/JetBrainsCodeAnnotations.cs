@@ -173,11 +173,11 @@ namespace JetBrains.Annotations
 
         public ContractAnnotationAttribute([NotNull] string fdt, bool forceFullStates)
         {
-            FDT = fdt;
+            Fdt = fdt;
             ForceFullStates = forceFullStates;
         }
 
-        public string FDT { get; private set; }
+        public string Fdt { get; private set; }
         public bool ForceFullStates { get; private set; }
     }
 
@@ -347,10 +347,10 @@ namespace JetBrains.Annotations
     /// This attribute is intended to mark publicly available API which should not be removed and so is treated as used.
     /// </summary>
     [MeansImplicitUse]
-    public sealed class PublicAPIAttribute : Attribute
+    public sealed class PublicApiAttribute : Attribute
     {
-        public PublicAPIAttribute() { }
-        public PublicAPIAttribute(string comment) { }
+        public PublicApiAttribute() { }
+        public PublicApiAttribute(string comment) { }
     }
 
     /// <summary>

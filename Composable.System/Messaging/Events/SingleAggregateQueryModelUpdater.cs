@@ -9,15 +9,15 @@ namespace Composable.Messaging.Events
         where TEvent : class, IAggregateRootEvent
         where TViewModel : class, ISingleAggregateQueryModel, new()
     {
-        readonly TSession Session;
+        readonly TSession _session;
         protected TViewModel Model { get; private set; }
 
         protected SingleAggregateQueryModelUpdater(TSession session)
         {
-            Session = session;
+            _session = session;
 
             RegisterHandlers()
-                .ForGenericEvent<IAggregateRootDeletedEvent>(e => Session.Delete<TViewModel>(e.AggregateRootId))
+                .ForGenericEvent<IAggregateRootDeletedEvent>(e => _session.Delete<TViewModel>(e.AggregateRootId))
                 .BeforeHandlers(e =>
                                 {
                                     if(e is IAggregateRootCreatedEvent)
@@ -26,17 +26,17 @@ namespace Composable.Messaging.Events
                                         Model.SetId(e.AggregateRootId);
                                     } else if(!(e is IAggregateRootDeletedEvent))
                                     {
-                                        Model = Session.GetForUpdate<TViewModel>(e.AggregateRootId);
+                                        Model = _session.GetForUpdate<TViewModel>(e.AggregateRootId);
                                     }
                                 })
                 .AfterHandlers(e =>
                                {
                                    if(e is IAggregateRootCreatedEvent)
                                    {
-                                       Session.Save(Model);
+                                       _session.Save(Model);
                                    } else
                                    {
-                                       Session.SaveChanges();
+                                       _session.SaveChanges();
                                    }
                                });
         }

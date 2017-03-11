@@ -7,13 +7,13 @@ namespace AccountManagement.UI.QueryModels.Tests.AccountMapQueryModelTests
     public class RegistersAccountDuringSetupTestBase : QueryModelsTestsBase
     {
         protected Account RegisteredAccount;
-        RegisterAccountScenario RegisterAccountScenario;
+        RegisterAccountScenario _registerAccountScenario;
 
         [SetUp]
         public void RegisterAccount()
         {
-            RegisterAccountScenario = new RegisterAccountScenario(Container);
-            RegisteredAccount = RegisterAccountScenario.Execute();
+            _registerAccountScenario = new RegisterAccountScenario(Container);
+            RegisteredAccount = _registerAccountScenario.Execute();
         }
 
         protected AccountQueryModel GetAccountQueryModel()

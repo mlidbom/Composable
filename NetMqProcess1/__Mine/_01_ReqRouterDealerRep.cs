@@ -10,8 +10,8 @@ namespace NetMqProcess01.__Mine
     static class _01_ReqRouterDealerRep
     {
         const bool UseInProcess = true;
-        static string RouterSocket = UseInProcess ? "inproc://router-socket" : "tcp://127.0.0.1:5559";
-        static string DealerSocket = UseInProcess ? "inproc://dealer-socket" : "tcp://127.0.0.1:5560";
+        static string _routerSocket = UseInProcess ? "inproc://router-socket" : "tcp://127.0.0.1:5559";
+        static string _dealerSocket = UseInProcess ? "inproc://dealer-socket" : "tcp://127.0.0.1:5560";
         static readonly int NumberOfServers = 100;
         static readonly int NumberOfClient = 10;
 
@@ -66,7 +66,7 @@ namespace NetMqProcess01.__Mine
                                        } else
                                        {
                                            threadServerSocket.Value = responseSocket = new ResponseSocket();
-                                           responseSocket.Connect(DealerSocket);
+                                           responseSocket.Connect(_dealerSocket);
                                            responseSocket.ReceiveReady += handleRequest;
                                            serverPoller.Add(responseSocket);
 
@@ -78,7 +78,7 @@ namespace NetMqProcess01.__Mine
                       });
         }
 
-        static long TotalRequests = 0;
+        static long _totalRequests = 0;
 
         static void StartBroker() =>
             Task.Run(() =>
@@ -86,8 +86,8 @@ namespace NetMqProcess01.__Mine
                          using(var router = new RouterSocket())
                          using(var dealer = new DealerSocket())
                          {
-                             router.Bind(RouterSocket);
-                             dealer.Bind(DealerSocket);
+                             router.Bind(_routerSocket);
+                             dealer.Bind(_dealerSocket);
                              new Proxy(router, dealer).Start();
                          }
                      });
@@ -100,7 +100,7 @@ namespace NetMqProcess01.__Mine
                                      {
                                          using(var requestSocket = new RequestSocket())
                                          {
-                                             requestSocket.Connect(RouterSocket);
+                                             requestSocket.Connect(_routerSocket);
                                              Console.WriteLine($"Client: {clientId} started");
                                              long requests = 0;
                                              while(true)
@@ -128,7 +128,7 @@ namespace NetMqProcess01.__Mine
                                                      //    Console.WriteLine($"Client:{clientId} has made {requests} requests.");
                                                      //}
 
-                                                     var currentTotalRequests = Interlocked.Increment(ref TotalRequests);
+                                                     var currentTotalRequests = Interlocked.Increment(ref _totalRequests);
                                                      if(currentTotalRequests % 10000 == 0)
                                                      {
                                                          Console.WriteLine($"Total requests: {currentTotalRequests:N}");

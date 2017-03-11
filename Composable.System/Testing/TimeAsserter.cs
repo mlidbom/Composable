@@ -12,7 +12,7 @@ namespace Composable.Testing
 
         static PerformanceCounter _totalCpu;
 
-        static void WaitUntilCPULoadIsBelowPercent(int percent)
+        static void WaitUntilCpuLoadIsBelowPercent(int percent)
         {
             const int waitMilliseconds = 20;
             if (_totalCpu == null)
@@ -46,7 +46,7 @@ namespace Composable.Testing
             StopwatchExtensions.TimedExecutionSummary executionSummary = null;
             for(int tries = 1; tries <= maxTries; tries++)
             {
-                WaitUntilCPULoadIsBelowPercent(waitForCpuLoadToDropBelowPercent);
+                WaitUntilCpuLoadIsBelowPercent(waitForCpuLoadToDropBelowPercent);
                 executionSummary = StopwatchExtensions.TimeExecution(action: action, iterations: iterations);
                 try
                 {

@@ -12,10 +12,10 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
         public readonly IEnumerable<Type> ExpectedHistory;
         public readonly IReadOnlyList<IEventMigration> Migrations;
         public Guid AggregateId { get; }
-        static int Instances = 1;
+        static int _instances = 1;
 
         public MigrationScenario(IEnumerable<Type> originalHistory, IEnumerable<Type> expectedHistory, params IEventMigration[] migrations)
-            : this(Guid.Parse($"00000000-0000-0000-0000-0000000{Instances:D5}"),
+            : this(Guid.Parse($"00000000-0000-0000-0000-0000000{_instances:D5}"),
                    originalHistory,
                    expectedHistory,
                    migrations) {}
@@ -30,7 +30,7 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
             OriginalHistory = originalHistory;
             ExpectedHistory = expectedHistory;
             Migrations = migrations.ToList();
-            Interlocked.Increment(ref Instances);
+            Interlocked.Increment(ref _instances);
         }
     }
 }

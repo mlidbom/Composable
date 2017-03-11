@@ -11,11 +11,11 @@ namespace Composable.Persistence.KeyValueStorage
     class InMemoryObjectStore : IEnumerable<KeyValuePair<string, object>>
     {
         Dictionary<string, List<Object>> _db = new Dictionary<string, List<object>>(StringComparer.InvariantCultureIgnoreCase);
-        protected object _lockObject = new object();
+        protected object LockObject = new object();
 
         public bool Contains(Type type, object id)
         {
-            lock(_lockObject)
+            lock(LockObject)
             {
                 object value;
                 return TryGet(type, id, out value);
@@ -24,7 +24,7 @@ namespace Composable.Persistence.KeyValueStorage
 
         public bool TryGet<T>(object id, out T value)
         {
-            lock(_lockObject)
+            lock(LockObject)
             {
                 object found;
                 if(TryGet(typeof(T), id, out found))
@@ -64,7 +64,7 @@ namespace Composable.Persistence.KeyValueStorage
 
         public virtual void Add<T>(object id, T value)
         {
-            lock(_lockObject)
+            lock(LockObject)
             {
                 var idString = GetIdString(id);
                 if(Contains(value.GetType(), idString))
@@ -77,7 +77,7 @@ namespace Composable.Persistence.KeyValueStorage
 
         public bool Remove<T>(object id)
         {
-            lock(_lockObject)
+            lock(LockObject)
             {
                 return Remove(id, typeof(T));
             }
@@ -96,7 +96,7 @@ namespace Composable.Persistence.KeyValueStorage
 
         public bool Remove(object id, Type documentType)
         {
-            lock(_lockObject)
+            lock(LockObject)
             {
                 var idstring = GetIdString(id);
                 var removed = _db.GetOrAddDefault(idstring).RemoveWhere(value => documentType.IsAssignableFrom(value.GetType()));
@@ -110,7 +110,7 @@ namespace Composable.Persistence.KeyValueStorage
 
         public IEnumerator<KeyValuePair<string, object>> GetEnumerator()
         {
-            lock(_lockObject)
+            lock(LockObject)
             {
                 return _db.SelectMany(m => m.Value.Select(inner => new KeyValuePair<string, object>(m.Key, inner)))
                     .ToList()//ToList is to make it thread safe...
@@ -125,7 +125,7 @@ namespace Composable.Persistence.KeyValueStorage
 
         public void Update(IEnumerable<KeyValuePair<string, object>> values, Dictionary<Type, Dictionary<string, string>> persistentValues)
         {
-            lock(_lockObject)
+            lock(LockObject)
             {
                 values.ForEach(pair => Update((object)pair.Key, pair.Value));
             }
@@ -133,7 +133,7 @@ namespace Composable.Persistence.KeyValueStorage
 
         public virtual void Update(object key, object value)
         {
-            lock(_lockObject)
+            lock(LockObject)
             {
                 object existing;
                 if(!TryGet(value.GetType(), key, out existing))
@@ -150,7 +150,7 @@ namespace Composable.Persistence.KeyValueStorage
 
         public IEnumerable<T> GetAll<T>() where T : IHasPersistentIdentity<Guid>
         {
-            lock(_lockObject)
+            lock(LockObject)
             {
                 return this.
                     Where(pair => typeof(T).IsAssignableFrom(pair.Value.GetType()))

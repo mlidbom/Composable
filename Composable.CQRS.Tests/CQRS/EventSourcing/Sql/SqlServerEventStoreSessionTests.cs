@@ -18,7 +18,7 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.Sql
     [TestFixture]
     class SqlServerEventStoreSessionTests : EventStoreSessionTests
     {
-        string ConnectionString;
+        string _connectionString;
         SqlServerDatabasePool _databasePool;
         [SetUp]
         public void Setup()
@@ -26,7 +26,7 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.Sql
 
             var masterConnectionString = ConfigurationManager.ConnectionStrings["MasterDb"].ConnectionString;
             _databasePool = new SqlServerDatabasePool(masterConnectionString);
-            ConnectionString = _databasePool.ConnectionStringFor($"SqlServerEventStoreSessionTests_EventStore");
+            _connectionString = _databasePool.ConnectionStringFor($"SqlServerEventStoreSessionTests_EventStore");
             SqlServerEventStore.ClearAllCache();
         }
 
@@ -37,7 +37,7 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.Sql
 
         protected override IEventStore CreateStore()
         {
-            return new SqlServerEventStore(ConnectionString, new SingleThreadUseGuard());
+            return new SqlServerEventStore(_connectionString, new SingleThreadUseGuard());
         }
 
         [Test]

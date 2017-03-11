@@ -32,7 +32,7 @@ namespace Composable.CQRS.KeyValueStorage
 
         public void Add<T>(object id, T value, Dictionary<Type, Dictionary<string, string>> persistentValues)
         {
-            lock(_lockObject)
+            lock(LockObject)
             {
                 var idString = GetIdString(id);
                 var stringValue = JsonConvert.SerializeObject(value, JsonSettings.JsonSerializerSettings);
@@ -59,7 +59,7 @@ namespace Composable.CQRS.KeyValueStorage
 
         public override void Update(object key, object value)
         {
-            lock(_lockObject)
+            lock(LockObject)
             {
                 string oldValue;
                 string idString = GetIdString(key);

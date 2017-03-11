@@ -9,7 +9,7 @@ using NUnit.Framework;
 
 namespace Composable.Tests.System.Collections.Generic
 {
-    public class DictionaryExtensions_GetOrAdd_When_Key
+    public class DictionaryExtensionsGetOrAddWhenKey
     {
         const int ExistingValue = 1;
         const int InsertedValue = 2;

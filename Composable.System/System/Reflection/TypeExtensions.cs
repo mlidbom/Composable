@@ -69,7 +69,7 @@ namespace Composable.System.Reflection
             }
         }
 
-        static readonly Dictionary<string, Type> _typeMap = new Dictionary<string, Type>();
+        static readonly Dictionary<string, Type> TypeMap = new Dictionary<string, Type>();
 
         ///<summary>Finds the class that the string represents within any loaded assembly. Calling with "MyNameSpace.MyObject" would return the same type as typeof(MyNameSpace.MyObject) etc.</summary>
         public static Type AsType(this string valueType)
@@ -85,9 +85,9 @@ namespace Composable.System.Reflection
         ///<summary>Finds the class that the string represents within any loaded assembly. Calling with "MyNameSpace.MyObject" would return the same type as typeof(MyNameSpace.MyObject) etc.</summary>
         public static bool TryGetType(this string valueType, out Type type)
         {
-            lock (_typeMap)
+            lock (TypeMap)
             {
-                if (_typeMap.TryGetValue(valueType, out type))
+                if (TypeMap.TryGetValue(valueType, out type))
                 {
                     return true;
                 }
@@ -107,7 +107,7 @@ namespace Composable.System.Reflection
                 }
 
                 type = types.Single();
-                _typeMap.Add(valueType, types.Single());
+                TypeMap.Add(valueType, types.Single());
                 return true;
             }
         }

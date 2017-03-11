@@ -9,26 +9,26 @@ namespace Composable.CQRS.CQRS
         where TBaseEventClass : AggregateRootEvent, TBaseEventInterface
         where TBaseEventInterface : class, IAggregateRootEvent
     {
-        readonly IEventStoreSession Aggregates;
+        readonly IEventStoreSession _aggregates;
 
         protected AggregateRepository(IEventStoreSession aggregates)
         {
-            Aggregates = aggregates;
+            _aggregates = aggregates;
         }
 
         public virtual TAggregate Get(Guid id)
         {
-            return Aggregates.Get<TAggregate>(id);
+            return _aggregates.Get<TAggregate>(id);
         }
 
         public virtual void Add(TAggregate aggregate)
         {
-            Aggregates.Save(aggregate);
+            _aggregates.Save(aggregate);
         }
 
         public virtual TAggregate GetVersion(Guid aggregateRootId, int version)
         {
-            return Aggregates.LoadSpecificVersion<TAggregate>(aggregateRootId, version);
+            return _aggregates.LoadSpecificVersion<TAggregate>(aggregateRootId, version);
         }
     }
 }

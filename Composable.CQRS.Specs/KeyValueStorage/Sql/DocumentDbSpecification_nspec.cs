@@ -151,10 +151,10 @@ namespace Composable.CQRS.Specs.KeyValueStorage.Sql
                 };
         }
 
-        string GetStoredValue(string theID)
+        string GetStoredValue(string theId)
         {
             string storedValue;
-            _store.TryGet<string>(theID, out storedValue, _persistentValues);
+            _store.TryGet<string>(theId, out storedValue, _persistentValues);
             return storedValue;
         }
 
@@ -166,7 +166,7 @@ namespace Composable.CQRS.Specs.KeyValueStorage.Sql
             {
                 _connectionManager = new SqlServerDatabasePool(new ConnectionStringConfigurationParameterProvider().GetConnectionString("MasterDB").ConnectionString);
                 var connectionString = _connectionManager.ConnectionStringFor($"{nameof(SqlServerDocumentDbSpecification)}DocumentDB");
-                SqlServerDocumentDb.ResetDB(connectionString);
+                SqlServerDocumentDb.ResetDb(connectionString);
                 _store = new SqlServerDocumentDb(connectionString);
             }
             protected override void CleanStore()

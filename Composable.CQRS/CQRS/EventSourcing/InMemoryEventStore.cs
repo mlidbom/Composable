@@ -16,7 +16,7 @@ namespace Composable.CQRS.CQRS.EventSourcing
         IReadOnlyList<IEventMigration> _migrationFactories;
 
         IList<AggregateRootEvent> _events = new List<AggregateRootEvent>();
-        int InsertionOrder;
+        int _insertionOrder;
 
         public void Dispose()
         {
@@ -47,7 +47,7 @@ namespace Composable.CQRS.CQRS.EventSourcing
                 events.Cast<AggregateRootEvent>().ForEach(
                     @event =>
                     {
-                        ((AggregateRootEvent)@event).InsertionOrder = ++InsertionOrder;
+                        ((AggregateRootEvent)@event).InsertionOrder = ++_insertionOrder;
                         _events.Add(@event);
                     });
             }

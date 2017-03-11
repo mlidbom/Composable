@@ -78,17 +78,17 @@ namespace Composable.CQRS.CQRS.EventSourcing
                     static readonly TEventEntityIdSetterGetter IdGetter = new TEventEntityIdSetterGetter();
 
                     readonly TParent _parent;
-                    readonly EntityCollection<TEntity, TEntityId> ManagedEntities;
+                    readonly EntityCollection<TEntity, TEntityId> _managedEntities;
                     protected EntityCollectionManagerBase
                         (TParent parent, IEventHandlerRegistrar<TEntityBaseEventInterface> appliersRegistrar)
                     {
-                        ManagedEntities = new EntityCollection<TEntity, TEntityId>();
+                        _managedEntities = new EntityCollection<TEntity, TEntityId>();
                         _parent = parent;
                         appliersRegistrar
-                            .For<TEntityBaseEventInterface>(e => ManagedEntities[IdGetter.GetId(e)].ApplyEvent(e));
+                            .For<TEntityBaseEventInterface>(e => _managedEntities[IdGetter.GetId(e)].ApplyEvent(e));
                     }
 
-                    public IReadOnlyEntityCollection<TEntity, TEntityId> Entities => ManagedEntities;
+                    public IReadOnlyEntityCollection<TEntity, TEntityId> Entities => _managedEntities;
                 }
             }
         }

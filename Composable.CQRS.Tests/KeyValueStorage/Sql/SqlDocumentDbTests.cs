@@ -25,7 +25,7 @@ namespace Composable.CQRS.Tests.KeyValueStorage.Sql
             _databasePool = new SqlServerDatabasePool(masterConnectionString);
             _connectionString = _databasePool.ConnectionStringFor($"SqlDocumentDbTests_DB");
 
-            SqlServerDocumentDb.ResetDB(_connectionString);
+            SqlServerDocumentDb.ResetDb(_connectionString);
         }
 
         [TearDown]

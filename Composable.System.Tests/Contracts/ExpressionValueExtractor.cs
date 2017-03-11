@@ -10,7 +10,7 @@ namespace Composable.Tests.Contracts
 
         string TestString { get { return _testString; } }
 
-        object WrappedIntOne = 1;
+        object _wrappedIntOne = 1;
 
         [Test]
         public void ExtractsValuesromFieldAccessingLambdas()
@@ -18,8 +18,8 @@ namespace Composable.Tests.Contracts
             var result = ContractsExpression.ExtractValue(() => _testString);
             Assert.That(result, Is.SameAs(_testString));
 
-            var result2 = ContractsExpression.ExtractValue(() => WrappedIntOne);
-            Assert.That(result2, Is.SameAs(WrappedIntOne));
+            var result2 = ContractsExpression.ExtractValue(() => _wrappedIntOne);
+            Assert.That(result2, Is.SameAs(_wrappedIntOne));
         }
 
         [Test]

@@ -163,25 +163,25 @@ namespace Composable.Tests
                  .Be(7);
         }
 
-        class Person_With_expression_bodies_constructor_destructor_and_properties
+        class PersonWithExpressionBodiesConstructorDestructorAndProperties
         {
-            private static ConcurrentDictionary<int, string> names = new ConcurrentDictionary<int, string>();
-            private int id = GetId();
+            private static ConcurrentDictionary<int, string> _names = new ConcurrentDictionary<int, string>();
+            private int _id = GetId();
             static int GetId() => 1;
 
-            public Person_With_expression_bodies_constructor_destructor_and_properties(string name) => names.TryAdd(id, name); // constructors
-            ~Person_With_expression_bodies_constructor_destructor_and_properties() => names.TryRemove(id, out string _);              // destructors
+            public PersonWithExpressionBodiesConstructorDestructorAndProperties(string name) => _names.TryAdd(_id, name); // constructors
+            ~PersonWithExpressionBodiesConstructorDestructorAndProperties() => _names.TryRemove(_id, out string _);              // destructors
             public string Name
             {
-                get => names[id];                                 // getters
-                set => names[id] = value;                         // setters
+                get => _names[_id];                                 // getters
+                set => _names[_id] = value;                         // setters
             }
         }
 
-        class Person_with_throw_exception_expressions
+        class PersonWithThrowExceptionExpressions
         {
             public string Name { get; }
-            public Person_with_throw_exception_expressions(string name) => Name = name ?? throw new ArgumentNullException(name);
+            public PersonWithThrowExceptionExpressions(string name) => Name = name ?? throw new ArgumentNullException(name);
             public string GetFirstName()
             {
                 var parts = Name.Split(' ');

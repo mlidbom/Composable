@@ -16,12 +16,12 @@ namespace Composable.CQRS.CQRS.Query.Models.Generators
         where TViewModel : class, ISingleAggregateQueryModel, new()
     {
         readonly CallMatchingHandlersInRegistrationOrderEventDispatcher<TEvent> _eventDispatcher = new CallMatchingHandlersInRegistrationOrderEventDispatcher<TEvent>();
-        readonly TSession Session;
+        readonly TSession _session;
         protected TViewModel Model { get; private set; }
 
         protected SingleAggregateQueryModelGenerator(TSession session)
         {
-            Session = session;
+            _session = session;
             _eventDispatcher.RegisterHandlers()
                 .ForGenericEvent<IAggregateRootCreatedEvent>(e => Model.SetId(e.AggregateRootId))
                 .ForGenericEvent<IAggregateRootDeletedEvent>(e => Model = null);
@@ -40,7 +40,7 @@ namespace Composable.CQRS.CQRS.Query.Models.Generators
 
         public TViewModel TryGenerate(Guid id, int version)
         {
-            var history = Session.GetHistory(id).Take(version).Cast<TEvent>().ToList();
+            var history = _session.GetHistory(id).Take(version).Cast<TEvent>().ToList();
             if (history.None())
             {
                 return null;

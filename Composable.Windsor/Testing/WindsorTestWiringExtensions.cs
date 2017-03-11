@@ -43,18 +43,18 @@ namespace Composable.Windsor.Testing
 
     class ExecuteActionsWhenRewiringForTests : IExecuteActionsWhenRewiringForTesting
     {
-        readonly IWindsorContainer Container;
+        readonly IWindsorContainer _container;
 
         public ExecuteActionsWhenRewiringForTests(IWindsorContainer container)
         {
-            Container = container;
+            _container = container;
         }
 
         public IExecuteActionsWhenRewiringForTesting Execute(Action<IWindsorContainer> action)
         {
-            Container.Register(
+            _container.Register(
                 Component.For<IConfigureWiringForTests>()
-                         .Instance(new LambdaBasedTestRewirer(() => action(Container)))
+                         .Instance(new LambdaBasedTestRewirer(() => action(_container)))
                          .Named(Guid.NewGuid().ToString())
                          .LifestyleSingleton());
             return this;

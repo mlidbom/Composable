@@ -873,7 +873,7 @@ namespace Composable.CQRS.Tests.KeyValueStorage
 
 
         [Test]
-        public void DeletingAllObjectsOfATypeLeavesNoSuchObjectsInTheDBButLeavesOtherObjectsInPlaceAndReturnsTheNumberOfDeletedObjects()
+        public void DeletingAllObjectsOfATypeLeavesNoSuchObjectsInTheDbButLeavesOtherObjectsInPlaceAndReturnsTheNumberOfDeletedObjects()
         {
             var store = CreateStore();
 

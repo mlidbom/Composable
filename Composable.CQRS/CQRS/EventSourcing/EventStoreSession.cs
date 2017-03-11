@@ -26,7 +26,7 @@ namespace Composable.CQRS.CQRS.EventSourcing
     {
         readonly IServiceBus _bus;
         readonly IEventStore _store;
-        static ILog Log = LogManager.GetLogger(typeof(EventStoreSession));
+        static ILog _log = LogManager.GetLogger(typeof(EventStoreSession));
         readonly IDictionary<Guid, IEventStored> _idMap = new Dictionary<Guid, IEventStored>();
         readonly HashSet<Guid> _publishedEvents = new HashSet<Guid>();
         readonly ISingleContextUseGuard _usageGuard;
@@ -103,7 +103,7 @@ namespace Composable.CQRS.CQRS.EventSourcing
             {
                 var newEvents = _idMap.SelectMany(p => p.Value.GetChanges()).ToList();
                 PublishUnpublishedEvents(newEvents);
-                Log.DebugFormat("{0} ignored call to SaveChanges since participating in a unit of work", _id);
+                _log.DebugFormat("{0} ignored call to SaveChanges since participating in a unit of work", _id);
             }
         }
 
@@ -242,7 +242,7 @@ namespace Composable.CQRS.CQRS.EventSourcing
 
         bool InternalSaveChanges()
         {
-            Log.DebugFormat("{0} saving changes with {1} changes from transaction within unit of work {2}", _id, _idMap.Count, _unitOfWork ?? (object)"null");
+            _log.DebugFormat("{0} saving changes with {1} changes from transaction within unit of work {2}", _id, _idMap.Count, _unitOfWork ?? (object)"null");
 
             var aggregates = _idMap.Select(p => p.Value).ToList();
 

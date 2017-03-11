@@ -19,13 +19,13 @@ namespace Composable.CQRS.Tests.ServiceBus
         DummyTimeSource _timeSource;
         IDisposable _scope;
         WindsorContainer _container;
-        ScheduledCommand receivedCommand = null;
+        ScheduledCommand _receivedCommand = null;
 
         [SetUp]
         public void SetupTask()
         {
             _container = new WindsorContainer();
-            receivedCommand = null;
+            _receivedCommand = null;
 
             _container.ConfigureWiringForTestsCallBeforeAllOtherWiring();
 
@@ -47,7 +47,7 @@ namespace Composable.CQRS.Tests.ServiceBus
 
             _bus = _container.Resolve<IServiceBus>();
             _container.Resolve<IMessageHandlerRegistrar>()
-                      .ForCommand<ScheduledCommand>(cmd => receivedCommand = cmd);
+                      .ForCommand<ScheduledCommand>(cmd => _receivedCommand = cmd);
         }
 
         [Test]
@@ -59,7 +59,7 @@ namespace Composable.CQRS.Tests.ServiceBus
 
             _timeSource.UtcNow = now + TimeSpanExtensions.Hours(1);
 
-            receivedCommand.Should()
+            _receivedCommand.Should()
                            .Be(inOneHour);
         }
 
@@ -72,7 +72,7 @@ namespace Composable.CQRS.Tests.ServiceBus
 
             _timeSource.UtcNow = now + TimeSpanExtensions.Minutes(1);
 
-            receivedCommand.Should()
+            _receivedCommand.Should()
                            .Be(null);
         }
 

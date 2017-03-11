@@ -19,9 +19,9 @@ namespace Composable.CQRS.KeyValueStorage
 
         readonly InMemoryObjectStore _idMap = new InMemoryObjectStore();
 
-        readonly IDocumentDb BackingStore;
-        readonly IDocumentDbSessionInterceptor Interceptor;
-        readonly ISingleContextUseGuard UsageGuard;
+        readonly IDocumentDb _backingStore;
+        readonly IDocumentDbSessionInterceptor _interceptor;
+        readonly ISingleContextUseGuard _usageGuard;
 
         readonly IDictionary<DocumentKey, DocumentItem> _handledDocuments = new Dictionary<DocumentKey, DocumentItem>();
 
@@ -30,12 +30,12 @@ namespace Composable.CQRS.KeyValueStorage
         //Review:mlidbo: Always requiring an interceptor causes a lot of unneeded complexity for clients. Consider creating a virtual void OnFirstLoad(T document) method instead. This would allow for inheriting this class to create "interceptable" sessions. Alternatively maybe an observable/event could be used somehow.
         public DocumentDbSession(IDocumentDb backingStore, ISingleContextUseGuard usageGuard, IDocumentDbSessionInterceptor interceptor)
         {
-            UsageGuard = usageGuard;
-            BackingStore = backingStore;
-            Interceptor = interceptor;
+            _usageGuard = usageGuard;
+            _backingStore = backingStore;
+            _interceptor = interceptor;
         }
 
-        public IObservable<IDocumentUpdated> DocumentUpdated { get { return BackingStore.DocumentUpdated; } }
+        public IObservable<IDocumentUpdated> DocumentUpdated { get { return _backingStore.DocumentUpdated; } }
 
         public virtual bool TryGet<TValue>(object key, out TValue document)
         {
@@ -48,7 +48,7 @@ namespace Composable.CQRS.KeyValueStorage
             {
                 throw new ArgumentException("You cannot query by id for an interface type. There is no guarantee of uniqueness");
             }
-            UsageGuard.AssertNoContextChangeOccurred(this);
+            _usageGuard.AssertNoContextChangeOccurred(this);
 
             if (_idMap.TryGet(key, out value) && documentType.IsAssignableFrom(value.GetType()))
             {
@@ -56,7 +56,7 @@ namespace Composable.CQRS.KeyValueStorage
             }
 
             var documentItem = GetDocumentItem(key, documentType);
-            if(!documentItem.IsDeleted && BackingStore.TryGet(key, out value, _persistentValues) && documentType.IsAssignableFrom(value.GetType()))
+            if(!documentItem.IsDeleted && _backingStore.TryGet(key, out value, _persistentValues) && documentType.IsAssignableFrom(value.GetType()))
             {
                 OnInitialLoad(key, value);
                 return true;
@@ -72,7 +72,7 @@ namespace Composable.CQRS.KeyValueStorage
 
             if (!_handledDocuments.TryGetValue(documentKey, out doc))
             {
-                doc = new DocumentItem(documentKey, BackingStore, _persistentValues);
+                doc = new DocumentItem(documentKey, _backingStore, _persistentValues);
                 _handledDocuments.Add(documentKey, doc);
             }
             return doc;
@@ -82,13 +82,13 @@ namespace Composable.CQRS.KeyValueStorage
         {
             _idMap.Add(key, value);
             GetDocumentItem(key, value.GetType()).DocumentLoadedFromBackingStore(value);
-            if (Interceptor != null)
-                Interceptor.AfterLoad(value);
+            if (_interceptor != null)
+                _interceptor.AfterLoad(value);
         }
 
         public virtual TValue GetForUpdate<TValue>(object key)
         {
-            UsageGuard.AssertNoContextChangeOccurred(this);
+            _usageGuard.AssertNoContextChangeOccurred(this);
             using(new UpdateLock())
             {
                 return Get<TValue>(key);
@@ -97,7 +97,7 @@ namespace Composable.CQRS.KeyValueStorage
 
         public virtual bool TryGetForUpdate<TValue>(object key, out TValue value)
         {
-            UsageGuard.AssertNoContextChangeOccurred(this);
+            _usageGuard.AssertNoContextChangeOccurred(this);
             using (new UpdateLock())
             {
                 return TryGet(key, out value);
@@ -120,10 +120,10 @@ namespace Composable.CQRS.KeyValueStorage
 
         public IEnumerable<TValue> Get<TValue>(IEnumerable<Guid> ids) where TValue : IHasPersistentIdentity<Guid>
         {
-            UsageGuard.AssertNoContextChangeOccurred(this);
+            _usageGuard.AssertNoContextChangeOccurred(this);
             var idSet = ids.ToSet();//Avoid multiple enumerations.
 
-            var stored = BackingStore.GetAll<TValue>(idSet);
+            var stored = _backingStore.GetAll<TValue>(idSet);
 
             stored.Where(document => !_idMap.Contains(typeof(TValue), document.Id))
                 .ForEach(unloadedDocument => OnInitialLoad(unloadedDocument.Id, unloadedDocument));
@@ -139,7 +139,7 @@ namespace Composable.CQRS.KeyValueStorage
 
         public virtual TValue Get<TValue>(object key)
         {
-            UsageGuard.AssertNoContextChangeOccurred(this);
+            _usageGuard.AssertNoContextChangeOccurred(this);
             TValue value;
             if(TryGet(key, out value))
             {
@@ -151,7 +151,7 @@ namespace Composable.CQRS.KeyValueStorage
 
         public virtual void Save<TValue>(object id, TValue value)
         {
-            UsageGuard.AssertNoContextChangeOccurred(this);
+            _usageGuard.AssertNoContextChangeOccurred(this);
 
             TValue ignored;
             if (TryGetInternal(id, value.GetType(), out ignored))
@@ -174,7 +174,7 @@ namespace Composable.CQRS.KeyValueStorage
 
         public virtual void Save<TEntity>(TEntity entity) where TEntity : IHasPersistentIdentity<Guid>
         {
-            UsageGuard.AssertNoContextChangeOccurred(this);
+            _usageGuard.AssertNoContextChangeOccurred(this);
             if(entity.Id.Equals(Guid.Empty))
             {
                 throw new DocumentIdIsEmptyGuidException();
@@ -184,13 +184,13 @@ namespace Composable.CQRS.KeyValueStorage
 
         public virtual void Delete<TEntity>(TEntity entity) where TEntity : IHasPersistentIdentity<Guid>
         {
-            UsageGuard.AssertNoContextChangeOccurred(this);
+            _usageGuard.AssertNoContextChangeOccurred(this);
             Delete<TEntity>(entity.Id);
         }
 
         public virtual void Delete<T>(object id)
         {
-            UsageGuard.AssertNoContextChangeOccurred(this);
+            _usageGuard.AssertNoContextChangeOccurred(this);
             T ignored;
             if(!TryGet(id, out ignored))
             {
@@ -213,7 +213,7 @@ namespace Composable.CQRS.KeyValueStorage
 
         public virtual void SaveChanges()
         {
-            UsageGuard.AssertNoContextChangeOccurred(this);
+            _usageGuard.AssertNoContextChangeOccurred(this);
             if (_unitOfWork == null)
             {
                 InternalSaveChanges();
@@ -231,8 +231,8 @@ namespace Composable.CQRS.KeyValueStorage
 
         public virtual IEnumerable<T> GetAll<T>() where T : IHasPersistentIdentity<Guid>
         {
-            UsageGuard.AssertNoContextChangeOccurred(this);
-            var stored = BackingStore.GetAll<T>();
+            _usageGuard.AssertNoContextChangeOccurred(this);
+            var stored = _backingStore.GetAll<T>();
             stored.Where(document => !_idMap.Contains(typeof (T), document.Id))
                 .ForEach(unloadedDocument => OnInitialLoad(unloadedDocument.Id, unloadedDocument));
             return _idMap.Select(pair => pair.Value).OfType<T>();
@@ -240,13 +240,13 @@ namespace Composable.CQRS.KeyValueStorage
 
         public IEnumerable<Guid> GetAllIds<T>() where T : IHasPersistentIdentity<Guid>
         {
-            return BackingStore.GetAllIds<T>();
+            return _backingStore.GetAllIds<T>();
         }
 
 
         public virtual void Dispose()
         {
-            UsageGuard.AssertNoContextChangeOccurred(this);
+            _usageGuard.AssertNoContextChangeOccurred(this);
             //Can be called before the transaction commits....
             //_idMap.Clear();
         }

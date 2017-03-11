@@ -18,9 +18,9 @@ namespace Composable.CQRS.KeyValueStorage.SqlServer
 {
     class SqlServerDocumentDb : IDocumentDb
     {
-        readonly string ConnectionString;
+        readonly string _connectionString;
 
-        static readonly JsonSerializerSettings _jsonSettings = JsonSettings.JsonSerializerSettings;
+        static readonly JsonSerializerSettings JsonSettings = NewtonSoft.JsonSettings.JsonSerializerSettings;
 
         const int UniqueConstraintViolationErrorNumber = 2627;
 
@@ -28,13 +28,13 @@ namespace Composable.CQRS.KeyValueStorage.SqlServer
 
         public SqlServerDocumentDb(string connectionString)
         {
-            ConnectionString = connectionString;
+            _connectionString = connectionString;
         }
 
         readonly ThreadSafeObservable<IDocumentUpdated> _documentUpdated = new ThreadSafeObservable<IDocumentUpdated>();
         public IObservable<IDocumentUpdated> DocumentUpdated { get { return _documentUpdated; } }
 
-        ConcurrentDictionary<Type, int> KnownTypes { get { return VerifiedConnections[ConnectionString]; } }
+        ConcurrentDictionary<Type, int> KnownTypes { get { return VerifiedConnections[_connectionString]; } }
 
         Type GetTypeFromId(int id)
         {
@@ -75,11 +75,11 @@ WHERE Id=@Id AND ValueTypeId
                             return false;
                         }
                         var stringValue = reader.GetString(0);
-                        found = JsonConvert.DeserializeObject(stringValue, GetTypeFromId(reader.GetInt32(1)), _jsonSettings);
+                        found = JsonConvert.DeserializeObject(stringValue, GetTypeFromId(reader.GetInt32(1)), JsonSettings);
 
                         //Things such as TimeZone etc can cause roundtripping serialization to result in different values from the original so don't cache the read string. Cache the result of serializing it again.
                         //Todo: Try to find a way to remove the need to do this so that we can get rid of the overhead of an extra serialization.
-                        persistentValues.GetOrAddDefault(found.GetType())[idString] = JsonConvert.SerializeObject(found, Formatting.None, _jsonSettings);
+                        persistentValues.GetOrAddDefault(found.GetType())[idString] = JsonConvert.SerializeObject(found, Formatting.None, JsonSettings);
                     }
                 }
             }
@@ -105,7 +105,7 @@ WHERE Id=@Id AND ValueTypeId
                     command.Parameters.Add(new SqlParameter("Id", idString));
                     command.Parameters.Add(new SqlParameter("ValueTypeId", KnownTypes[value.GetType()]));
 
-                    var stringValue = JsonConvert.SerializeObject(value, Formatting.None, _jsonSettings);
+                    var stringValue = JsonConvert.SerializeObject(value, Formatting.None, JsonSettings);
                     command.Parameters.Add(new SqlParameter("Value", stringValue));
 
                     _documentUpdated.OnNext(new DocumentUpdated(idString, value));
@@ -188,7 +188,7 @@ WHERE Id=@Id AND ValueTypeId
                     using(var command = connection.CreateCommand())
                     {
                         command.CommandType = CommandType.Text;
-                        var stringValue = JsonConvert.SerializeObject(entry.Value, Formatting.None, _jsonSettings);
+                        var stringValue = JsonConvert.SerializeObject(entry.Value, Formatting.None, JsonSettings);
 
                         string oldValue;
                         string idString = GetIdString(entry.Key);
@@ -237,7 +237,7 @@ WHERE ValueTypeId ";
                     {
                         while(reader.Read())
                         {
-                            yield return (T)JsonConvert.DeserializeObject(reader.GetString(1), GetTypeFromId(reader.GetInt32(2)), _jsonSettings);
+                            yield return (T)JsonConvert.DeserializeObject(reader.GetString(1), GetTypeFromId(reader.GetInt32(2)), JsonSettings);
                         }
                     }
                 }
@@ -269,7 +269,7 @@ WHERE ValueTypeId ";
                     {
                         while (reader.Read())
                         {
-                            yield return (T)JsonConvert.DeserializeObject(reader.GetString(1), GetTypeFromId(reader.GetInt32(2)), _jsonSettings);
+                            yield return (T)JsonConvert.DeserializeObject(reader.GetString(1), GetTypeFromId(reader.GetInt32(2)), JsonSettings);
                         }
                     }
                 }
@@ -308,7 +308,7 @@ WHERE ValueTypeId ";
 
         SqlConnection OpenSession()
         {
-            return OpenSession(ConnectionString);
+            return OpenSession(_connectionString);
         }
 
         static SqlConnection OpenSession(string connectionString)
@@ -354,7 +354,7 @@ ELSE
         {
             if(!KnownTypes.ContainsKey(type))
             {
-                RefreshKnownTypes(ConnectionString, KnownTypes);
+                RefreshKnownTypes(_connectionString, KnownTypes);
             }
             return KnownTypes.ContainsKey(type);
         }
@@ -374,7 +374,7 @@ ELSE
 
         void EnsureInitialized()
         {
-            EnsureInitialized(ConnectionString);
+            EnsureInitialized(_connectionString);
         }
 
         static void EnsureInitialized(string connectionString)
@@ -471,7 +471,7 @@ ALTER TABLE [dbo].[Store] CHECK CONSTRAINT [FK_ValueType_Store]
 
         static readonly ConcurrentDictionary<String, ConcurrentDictionary<Type, int>> VerifiedConnections = new ConcurrentDictionary<string, ConcurrentDictionary<Type, int>>();
 
-        public static void ResetDB(string connectionString)
+        public static void ResetDb(string connectionString)
         {
             lock (StaticLockObject)
             {

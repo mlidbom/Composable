@@ -1,7 +1,6 @@
 ﻿using System;
 using AccountManagement.Domain.Services;
 using AccountManagement.TestHelpers.Scenarios;
-using Composable.Contracts;
 using FluentAssertions;
 using NUnit.Framework;
 

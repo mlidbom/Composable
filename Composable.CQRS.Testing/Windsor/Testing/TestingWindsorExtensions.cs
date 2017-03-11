@@ -2,7 +2,6 @@
 using Castle.MicroKernel.Registration;
 using Castle.Windsor;
 using Composable.GenericAbstractions.Time;
-using Composable.Messaging;
 using Composable.System.Configuration;
 using Composable.Windsor.Testing;
 

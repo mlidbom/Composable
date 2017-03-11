@@ -1,5 +1,4 @@
-﻿using System;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using Composable.HyperBus.APIDraft;
 using Composable.HyperBus.DemoApp.ExposedApi.Resources;
 

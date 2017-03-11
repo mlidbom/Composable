@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Runtime.Remoting.Messaging;
-using System.Transactions;
 using Castle.MicroKernel.Registration;
 using Castle.Windsor;
 using Composable.SystemExtensions.Threading;

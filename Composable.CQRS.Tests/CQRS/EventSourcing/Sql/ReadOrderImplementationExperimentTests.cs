@@ -1,14 +1,8 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Data.SqlTypes;
-using System.Globalization;
 using System.Linq;
-using System.Web.UI.WebControls;
-using Composable.CQRS.EventSourcing;
-using Composable.CQRS.EventSourcing.MicrosoftSQLServer;
 using Composable.System.Linq;
-using FluentAssertions;
 using NUnit.Framework;
 
 namespace CQRS.Tests.CQRS.EventSourcing.Sql

@@ -1,6 +1,5 @@
 ﻿using System;
 using AccountManagement.TestHelpers.Scenarios;
-using Composable.Contracts;
 using FluentAssertions;
 using NUnit.Framework;
 

@@ -4,16 +4,11 @@ using System;
 using System.Collections.Generic;
 
 using System.Linq;
-using System.Threading;
-using System.Transactions;
 using Composable.Contracts;
 using Composable.CQRS.EventSourcing.MicrosoftSQLServer;
 using Composable.GenericAbstractions.Time;
-using Composable.Logging.Log4Net;
-using Composable.Messaging;
 using Composable.Messaging.Buses;
 using Composable.System;
-using Composable.System.Collections.Collections;
 using Composable.System.Linq;
 using Composable.SystemExtensions.Threading;
 using Composable.UnitsOfWork;

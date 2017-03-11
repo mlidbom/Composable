@@ -2,11 +2,9 @@
 
 using Composable.CQRS.EventSourcing;
 using Composable.DDD;
-using Composable.KeyValueStorage;
 using Composable.Messaging;
 using FluentAssertions;
-using Moq;
-using NUnit.Framework;
+
 // ReSharper disable UnusedMember.Global
 
 namespace CQRS.Tests.CQRS.EventHandling

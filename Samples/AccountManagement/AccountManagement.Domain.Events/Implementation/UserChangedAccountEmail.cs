@@ -1,6 +1,5 @@
 ﻿using System;
 using AccountManagement.Domain.Shared;
-using Composable.CQRS.EventSourcing;
 using JetBrains.Annotations;
 
 namespace AccountManagement.Domain.Events.Implementation

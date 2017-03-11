@@ -1,6 +1,4 @@
-﻿using Composable.System;
-
-namespace AccountManagement.TestHelpers
+﻿namespace AccountManagement.TestHelpers
 {
     public static class TestData
     {

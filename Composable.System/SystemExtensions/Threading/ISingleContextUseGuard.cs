@@ -1,6 +1,4 @@
 ﻿
-using Composable.Contracts;
-
 namespace Composable.SystemExtensions.Threading
 {
 

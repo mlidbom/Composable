@@ -1,7 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-
 using System.Linq;
 using System.Transactions;
 using Composable.Contracts;
@@ -12,7 +10,6 @@ using Composable.System;
 using Composable.System.Linq;
 using Composable.SystemExtensions.Threading;
 using log4net;
-using Newtonsoft.Json;
 
 namespace Composable.CQRS.EventSourcing.MicrosoftSQLServer
 {

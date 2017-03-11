@@ -8,7 +8,6 @@ using Composable.CQRS.EventSourcing;
 using Composable.CQRS.Query.Models.Generators;
 using Composable.GenericAbstractions.Time;
 using Composable.KeyValueStorage;
-using Composable.Messaging;
 using Composable.SystemExtensions.Threading;
 using Composable.UnitsOfWork;
 using Composable.Windsor;

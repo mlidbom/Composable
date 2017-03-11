@@ -1,5 +1,4 @@
 ﻿using AccountManagement.TestHelpers.Scenarios;
-using Castle.MicroKernel.Lifestyle;
 using FluentAssertions;
 using NUnit.Framework;
 

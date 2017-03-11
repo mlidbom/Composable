@@ -5,7 +5,6 @@ using Composable.DDD;
 using Composable.NewtonSoft;
 using Composable.System.Collections.Collections;
 using Composable.System.Reactive;
-using Composable.Windsor.Testing;
 using Newtonsoft.Json;
 
 namespace Composable.KeyValueStorage

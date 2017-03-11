@@ -1,9 +1,7 @@
 ﻿using AccountManagement.TestHelpers;
 using Castle.MicroKernel.Lifestyle;
 using Castle.Windsor;
-using Composable.Messaging;
 using Composable.System;
-using Composable.Windsor.Testing;
 using NUnit.Framework;
 
 namespace AccountManagement.Domain.Tests

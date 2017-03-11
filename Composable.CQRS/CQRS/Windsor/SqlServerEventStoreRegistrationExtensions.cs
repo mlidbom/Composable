@@ -8,7 +8,6 @@ using Composable.CQRS.EventSourcing;
 using Composable.CQRS.EventSourcing.MicrosoftSQLServer;
 using Composable.CQRS.EventSourcing.Refactoring.Migrations;
 using Composable.CQRS.EventSourcing.Refactoring.Naming;
-using Composable.System;
 using Composable.System.Configuration;
 using Composable.System.Linq;
 using Composable.UnitsOfWork;

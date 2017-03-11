@@ -4,7 +4,6 @@ using Castle.MicroKernel.SubSystems.Configuration;
 using Castle.Windsor;
 using Composable.CQRS.Windsor;
 using Composable.KeyValueStorage;
-using Composable.KeyValueStorage.SqlServer;
 using Composable.UnitsOfWork;
 using JetBrains.Annotations;
 

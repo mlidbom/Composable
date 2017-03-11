@@ -1,8 +1,6 @@
 #region usings
 
-using System;
 using System.Linq;
-using Composable.System;
 using Composable.System.Linq;
 using NUnit.Framework;
 

@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Composable.CQRS.EventSourcing;
 using Composable.System.Linq;
 using Composable.SystemExtensions.Threading;
 using log4net;

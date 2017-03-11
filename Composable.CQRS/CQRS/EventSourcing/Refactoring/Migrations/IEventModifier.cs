@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace Composable.CQRS.EventSourcing.Refactoring.Migrations
+﻿namespace Composable.CQRS.EventSourcing.Refactoring.Migrations
 {
     public interface IEventModifier
     {

@@ -2,22 +2,15 @@
 using System.Collections.Generic;
 using System.Threading;
 using System.Transactions;
-using Castle.Windsor;
 using Composable.CQRS.EventSourcing;
-using Composable.CQRS.Testing;
-using Composable.DomainEvents;
-using Composable.Messaging;
 using Composable.SystemExtensions.Threading;
 using Composable.UnitsOfWork;
 using NUnit.Framework;
 using Composable.System.Linq;
 using System.Linq;
-using System.Threading.Tasks;
 using Composable.GenericAbstractions.Time;
-using Composable.System;
 using Composable.System.Diagnostics;
 using Composable.Testing;
-using CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations;
 using FluentAssertions;
 
 namespace CQRS.Tests.CQRS.EventSourcing

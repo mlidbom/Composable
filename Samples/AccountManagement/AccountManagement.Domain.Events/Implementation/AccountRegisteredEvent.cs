@@ -2,7 +2,6 @@
 
 using AccountManagement.Domain.Shared;
 using Composable.Contracts;
-using Composable.CQRS.EventSourcing;
 using JetBrains.Annotations;
 
 namespace AccountManagement.Domain.Events.Implementation

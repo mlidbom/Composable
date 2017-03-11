@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 
 namespace Composable.CQRS.EventSourcing.Refactoring.Migrations

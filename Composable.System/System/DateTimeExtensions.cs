@@ -1,7 +1,5 @@
 ﻿using System;
 
-using Composable.Contracts;
-
 namespace Composable.System
 {
     static class DateTimeExtensions

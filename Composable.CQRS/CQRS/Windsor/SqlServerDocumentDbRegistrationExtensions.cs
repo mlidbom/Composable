@@ -4,7 +4,6 @@ using Castle.Windsor;
 using Composable.Contracts;
 using Composable.KeyValueStorage;
 using Composable.KeyValueStorage.SqlServer;
-using Composable.System;
 using Composable.System.Configuration;
 using Composable.System.Linq;
 using Composable.UnitsOfWork;

@@ -1,7 +1,6 @@
 using System;
 
 using Composable.Contracts;
-using Composable.System;
 
 namespace Composable.CQRS.EventSourcing.Refactoring.Migrations
 {

@@ -1,8 +1,6 @@
 ﻿using System;
 using AccountManagement.Domain.Shared;
 
-using Composable.DDD;
-
 namespace AccountManagement.UI.QueryModels
 {
   using Composable.Messaging.Events;

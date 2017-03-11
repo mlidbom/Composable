@@ -1,6 +1,4 @@
-using Castle.Windsor;
 using Composable.CQRS.EventSourcing;
-using Composable.CQRS.Testing;
 using NUnit.Framework;
 
 namespace CQRS.Tests.CQRS.EventSourcing

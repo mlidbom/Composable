@@ -12,7 +12,6 @@ using Composable.System.Linq;
 using Composable.System.Reactive;
 using Composable.System.Reflection;
 using Newtonsoft.Json;
-using log4net;
 
 namespace Composable.KeyValueStorage.SqlServer
 {

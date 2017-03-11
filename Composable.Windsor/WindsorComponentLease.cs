@@ -1,5 +1,4 @@
-﻿using System;
-using Castle.Windsor;
+﻿using Castle.Windsor;
 using Composable.DependencyInjection;
 
 namespace Composable.Windsor

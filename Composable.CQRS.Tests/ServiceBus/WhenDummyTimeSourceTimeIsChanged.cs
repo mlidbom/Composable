@@ -1,13 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
 using Castle.MicroKernel.Lifestyle;
 using Castle.MicroKernel.Registration;
 using Castle.Windsor;
-using Composable.CQRS.EventSourcing;
-using Composable.DDD;
 using Composable.GenericAbstractions.Time;
-using Composable.Messaging;
-using Composable.System.Reflection;
 using Composable.Windsor.Testing;
 using FluentAssertions;
 using NUnit.Framework;

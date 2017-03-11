@@ -1,10 +1,8 @@
-﻿using AccountManagement.UI.QueryModels.EventStoreGenerated;
-using AccountManagement.UI.QueryModels.Services;
+﻿using AccountManagement.UI.QueryModels.Services;
 using AccountManagement.UI.QueryModels.Services.Implementation;
 using Castle.MicroKernel.Registration;
 using Castle.MicroKernel.SubSystems.Configuration;
 using Castle.Windsor;
-using Composable.CQRS.Windsor;
 using Composable.KeyValueStorage;
 using JetBrains.Annotations;
 

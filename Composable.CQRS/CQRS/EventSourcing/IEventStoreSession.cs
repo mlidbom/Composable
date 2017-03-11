@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using Composable.UnitsOfWork;
 using JetBrains.Annotations;
 
 namespace Composable.CQRS.EventSourcing

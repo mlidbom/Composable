@@ -1,6 +1,5 @@
 using System;
 using System.Configuration;
-using Composable.CQRS.Testing;
 using Composable.System.Data.SqlClient;
 using Composable.Testing;
 using FluentAssertions;

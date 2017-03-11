@@ -1,14 +1,9 @@
 ﻿using System;
 using AccountManagement.UI.QueryModels.Services;
 using Castle.MicroKernel.Lifestyle;
-using Castle.MicroKernel.Registration;
 using Castle.Windsor;
 using Castle.Windsor.Installer;
 using Composable.CQRS.Testing.Windsor.Testing;
-using Composable.GenericAbstractions.Time;
-using Composable.Windsor.Testing;
-using Composable.Messaging;
-using Composable.System.Configuration;
 using NUnit.Framework;
 
 namespace AccountManagement.UI.QueryModels.Tests

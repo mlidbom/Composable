@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using NSpec.Domain;
-using NSpec.Domain.Extensions;
 using NSpec.Domain.Formatters;
 using NUnit.Framework;
 

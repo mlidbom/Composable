@@ -7,7 +7,6 @@ using System.Linq;
 using Composable.Contracts;
 using Composable.GenericAbstractions.Wrappers;
 using Composable.System.Linq;
-using JetBrains.Annotations;
 
 #endregion
 

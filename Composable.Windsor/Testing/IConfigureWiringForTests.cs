@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Composable.Windsor.Testing
+﻿namespace Composable.Windsor.Testing
 {
     ///<summary>Component that changes container wiring to enable testing.</summary>
     public interface IConfigureWiringForTests

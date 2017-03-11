@@ -11,7 +11,6 @@ using CQRS.Tests.CQRS.EventHandling.CVManagement.GlobalEvents;
 using CQRS.Tests.CQRS.EventHandling.CVManagement.InternalEvents.InternalImplementations;
 using CQRS.Tests.CQRS.EventHandling.CVManagement.QueryModelUpdaters;
 using FluentAssertions;
-using Moq;
 using NUnit.Framework;
 // ReSharper disable UnusedMember.Global
 

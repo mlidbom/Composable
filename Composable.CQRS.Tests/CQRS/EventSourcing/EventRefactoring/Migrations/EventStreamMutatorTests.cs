@@ -1,15 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data.SqlTypes;
 using System.Linq;
-using System.Reflection;
 using Castle.MicroKernel.Lifestyle;
 using Castle.Windsor;
 using Composable.CQRS.EventSourcing;
 using Composable.CQRS.EventSourcing.MicrosoftSQLServer;
 using Composable.CQRS.EventSourcing.Refactoring.Migrations;
 using Composable.GenericAbstractions.Time;
-using Composable.System.Configuration;
 using Composable.System.Linq;
 using Composable.Windsor;
 using FluentAssertions;

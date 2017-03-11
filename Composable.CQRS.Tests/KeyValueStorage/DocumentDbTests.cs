@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
-using Composable.CQRS.Testing;
 using Composable.DDD;
 using Composable.KeyValueStorage;
 using Composable.System;
@@ -10,7 +9,6 @@ using Composable.System.Linq;
 using Composable.System.Web;
 using Composable.SystemExtensions.Threading;
 using Composable.UnitsOfWork;
-using Moq;
 using NUnit.Framework;
 using FluentAssertions;
 

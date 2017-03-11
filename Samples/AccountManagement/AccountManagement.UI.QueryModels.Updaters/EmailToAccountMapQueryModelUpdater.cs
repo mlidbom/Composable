@@ -1,6 +1,5 @@
 ﻿using AccountManagement.Domain.Events.PropertyUpdated;
 using AccountManagement.UI.QueryModels.DocumentDB.Updaters.Services;
-using AccountManagement.UI.QueryModels.EventStoreGenerated;
 using AccountManagement.UI.QueryModels.Services;
 using Composable.Messaging;
 using JetBrains.Annotations;

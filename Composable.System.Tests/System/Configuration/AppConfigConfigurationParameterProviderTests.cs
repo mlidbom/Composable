@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Configuration;
-using System.Linq;
-using System.Text;
+﻿using System.Configuration;
 using Composable.System.Configuration;
 using NUnit.Framework;
 using FluentAssertions;

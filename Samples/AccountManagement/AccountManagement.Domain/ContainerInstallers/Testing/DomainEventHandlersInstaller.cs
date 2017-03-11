@@ -3,8 +3,6 @@ using AccountManagement.Domain.QueryModels.Updaters;
 using Castle.MicroKernel.Registration;
 using Castle.MicroKernel.SubSystems.Configuration;
 using Castle.Windsor;
-using Composable.Messaging;
-using Composable.Windsor.Testing;
 
 namespace AccountManagement.Domain.ContainerInstallers.Testing
 {

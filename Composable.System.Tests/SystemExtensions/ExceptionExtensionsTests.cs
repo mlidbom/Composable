@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using Composable.System.Linq;
 using NUnit.Framework;
 using Composable.SystemExtensions;

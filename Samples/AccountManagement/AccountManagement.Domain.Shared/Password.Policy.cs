@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using AccountManagement.Domain.Shared.Extensions;
-using Composable.System.Linq;
 
 namespace AccountManagement.Domain.Shared
 {

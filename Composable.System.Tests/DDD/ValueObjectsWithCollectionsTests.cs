@@ -1,6 +1,5 @@
 #region usings
 
-using System;
 using System.Collections.Generic;
 using Composable.DDD;
 using NUnit.Framework;

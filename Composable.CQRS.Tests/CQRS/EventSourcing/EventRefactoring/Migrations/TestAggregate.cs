@@ -5,7 +5,6 @@ using System.Linq;
 using Composable.Contracts;
 using Composable.CQRS.EventSourcing;
 using Composable.GenericAbstractions.Time;
-using Composable.System.Linq;
 using JetBrains.Annotations;
 
 namespace TestAggregates

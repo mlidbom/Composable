@@ -10,8 +10,6 @@ using Composable.CQRS.EventSourcing;
 using Composable.CQRS.EventSourcing.Refactoring.Migrations;
 using Composable.CQRS.Windsor;
 using Composable.GenericAbstractions.Time;
-using Composable.KeyValueStorage;
-using Composable.Messaging;
 using Composable.System.Configuration;
 using Composable.System.Linq;
 using Composable.Testing;

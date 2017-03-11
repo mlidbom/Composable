@@ -5,7 +5,6 @@ using System.Linq;
 using Composable.Contracts;
 using Composable.CQRS.EventSourcing.Refactoring.Migrations;
 using Composable.System.Linq;
-using Composable.Windsor.Testing;
 
 namespace Composable.CQRS.EventSourcing
 {

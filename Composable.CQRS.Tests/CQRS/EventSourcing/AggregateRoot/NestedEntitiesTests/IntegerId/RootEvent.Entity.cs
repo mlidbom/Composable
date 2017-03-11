@@ -1,4 +1,3 @@
-using System;
 using Composable.CQRS.EventSourcing;
 
 // ReSharper disable MemberHidesStaticFromOuterClass

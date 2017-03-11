@@ -16,7 +16,7 @@ using log4net;
 
 namespace Composable.KeyValueStorage.SqlServer
 {
-    public class SqlServerDocumentDb : IDocumentDb
+    class SqlServerDocumentDb : IDocumentDb
     {
         public readonly string ConnectionString;
 

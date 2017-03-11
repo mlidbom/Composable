@@ -16,7 +16,7 @@ using Newtonsoft.Json;
 
 namespace Composable.CQRS.EventSourcing.MicrosoftSQLServer
 {
-    public partial class SqlServerEventStore : IEventStore
+    partial class SqlServerEventStore : IEventStore
     {
         static readonly ILog Log = LogManager.GetLogger(typeof(SqlServerEventStore));
 

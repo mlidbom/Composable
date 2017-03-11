@@ -3,7 +3,7 @@ using Composable.System.Reflection;
 
 namespace Composable.CQRS.EventSourcing.Refactoring.Naming
 {
-    public class EventNameMapping
+    class EventNameMapping
     {
         string _fullName;
         public EventNameMapping(Type type)

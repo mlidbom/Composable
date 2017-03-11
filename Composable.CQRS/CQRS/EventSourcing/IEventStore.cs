@@ -16,7 +16,7 @@ namespace Composable.CQRS.EventSourcing
         IEnumerable<Guid> StreamAggregateIdsInCreationOrder(Type eventBaseType = null);
     }
 
-    public static class EventStoreExtensions
+    static class EventStoreExtensions
     {
         public static IEnumerable<Guid> StreamAggregateIdsInCreationOrder<TBaseAggregateEventInterface>(this IEventStore @this)
         {
@@ -24,7 +24,7 @@ namespace Composable.CQRS.EventSourcing
         }
     }
 
-    public static class EventStoreTestingExtensions
+    static class EventStoreTestingExtensions
     {
         public static IReadOnlyList<IAggregateRootEvent> ListAllEventsForTestingPurposesAbsolutelyNotUsableForARealEventStoreOfAnySize(this IEventStore @this)
         {

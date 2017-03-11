@@ -5,7 +5,7 @@ namespace Composable.KeyValueStorage
 {
     public partial class DocumentDbSession
     {
-        public class DocumentKey : IEquatable<DocumentKey>
+        internal class DocumentKey : IEquatable<DocumentKey>
         {
             public DocumentKey(object id, Type type)
             {
@@ -59,7 +59,7 @@ namespace Composable.KeyValueStorage
 
         }
 
-        public class DocumentKey<TDocument> : DocumentKey
+        internal class DocumentKey<TDocument> : DocumentKey
         {
             public DocumentKey(object id) : base(id, typeof(TDocument)) { }
         }

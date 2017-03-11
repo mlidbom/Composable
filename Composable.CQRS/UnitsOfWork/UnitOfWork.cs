@@ -9,7 +9,7 @@ using Composable.System;
 
 namespace Composable.UnitsOfWork
 {
-    public class UnitOfWork : IUnitOfWork
+    class UnitOfWork : IUnitOfWork
     {
         static readonly ILog Log = LogManager.GetLogger(typeof (UnitOfWork));
         readonly HashSet<IUnitOfWorkParticipant> _participants = new HashSet<IUnitOfWorkParticipant>();

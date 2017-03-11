@@ -13,7 +13,7 @@ namespace Composable.CQRS.EventSourcing
         TEntity this[TEntityId id] { get; }
     }
 
-    public interface IEntityCollectionManager<TEntity, in TEntityId, TEventClass, in TEntityCreationInterface>
+    interface IEntityCollectionManager<TEntity, in TEntityId, TEventClass, in TEntityCreationInterface>
     {
         IReadOnlyEntityCollection<TEntity, TEntityId> Entities { get; }
         TEntity Add<TCreationEvent>(TCreationEvent creationEvent)

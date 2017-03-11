@@ -2,9 +2,9 @@
 
 namespace Composable.NewtonSoft
 {
-    public static class JsonSettings
+    static class JsonSettings
     {
-        public static readonly JsonSerializerSettings JsonSerializerSettings =
+        internal static readonly JsonSerializerSettings JsonSerializerSettings =
             new JsonSerializerSettings
             {
                 TypeNameHandling = TypeNameHandling.Auto,

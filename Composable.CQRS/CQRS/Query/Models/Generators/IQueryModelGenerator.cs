@@ -4,7 +4,7 @@ namespace Composable.CQRS.Query.Models.Generators
 {
     public interface IQueryModelGenerator { }
 
-    public interface IQueryModelGenerator<out TDocument> : IQueryModelGenerator
+    interface IQueryModelGenerator<out TDocument> : IQueryModelGenerator
     {
         TDocument TryGenerate(Guid id);
     }

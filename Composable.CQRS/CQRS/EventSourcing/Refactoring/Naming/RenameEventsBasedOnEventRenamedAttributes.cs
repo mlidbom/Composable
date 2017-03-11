@@ -3,7 +3,7 @@ using System.Linq;
 
 namespace Composable.CQRS.EventSourcing.Refactoring.Naming
 {
-    public class RenameEventsBasedOnEventRenamedAttributes : IRenameEvents
+    class RenameEventsBasedOnEventRenamedAttributes : IRenameEvents
     {
         public void Rename(EventNameMapping mapping)
         {

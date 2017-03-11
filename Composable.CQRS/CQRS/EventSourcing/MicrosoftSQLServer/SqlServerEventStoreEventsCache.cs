@@ -8,7 +8,7 @@ using Composable.System.Linq;
 
 namespace Composable.CQRS.EventSourcing.MicrosoftSQLServer
 {
-    public class SqlServerEventStoreEventsCache
+    class SqlServerEventStoreEventsCache
     {
         static readonly ConcurrentDictionary<string, SqlServerEventStoreEventsCache> ConnectionStringToCacheMap =
             new ConcurrentDictionary<string, SqlServerEventStoreEventsCache>();

@@ -15,7 +15,7 @@ namespace Composable.KeyValueStorage
             readonly Dictionary<Type, Dictionary<string, string>> _persistentValues;
             DocumentKey Key { get; set; }
 
-            public DocumentItem(DocumentKey key, IDocumentDb backingStore, Dictionary<Type, Dictionary<string, string>> persistentValues)
+            internal DocumentItem(DocumentKey key, IDocumentDb backingStore, Dictionary<Type, Dictionary<string, string>> persistentValues)
             {
                 _backingStore = backingStore;
                 _persistentValues = persistentValues;

@@ -2,9 +2,9 @@
 
 namespace Composable.Logging.Log4Net
 {
-    public static class Log4NetExtensions
+    static class Log4NetExtensions
     {
-        public static ILog Log<T>(this T me)
+        internal static ILog Log<T>(this T me)
         {
             return LogHolder<T>.Logger;
         }

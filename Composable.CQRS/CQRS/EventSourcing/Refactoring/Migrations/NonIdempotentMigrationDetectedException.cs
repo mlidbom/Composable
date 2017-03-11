@@ -2,5 +2,5 @@
 
 namespace Composable.CQRS.EventSourcing.Refactoring.Migrations
 {
-    public class NonIdempotentMigrationDetectedException : Exception {}
+    class NonIdempotentMigrationDetectedException : Exception {}
 }

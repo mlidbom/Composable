@@ -181,7 +181,7 @@ namespace Composable.CQRS.EventSourcing.MicrosoftSQLServer
         }
     }
 
-    public class TryingToReadEventOfTypeThatNoMappingCouldBeFoundForException : Exception
+    class TryingToReadEventOfTypeThatNoMappingCouldBeFoundForException : Exception
     {
         public TryingToReadEventOfTypeThatNoMappingCouldBeFoundForException(string typeName, int id):base($"Event type Id: {id}, Name: {typeName} could not be mapped to a type.") {  }
     }

@@ -67,7 +67,7 @@ namespace Composable.CQRS.EventSourcing
                     base.RaiseEvent(@event);
                 }
 
-                public TEntityId Id { get; private set; }
+                internal TEntityId Id { get; private set; }
 
                 // ReSharper disable once UnusedMember.Global todo: coverage
                 public  static CollectionManager CreateSelfManagingCollection(TComponent parent)//todo:tests
@@ -85,7 +85,7 @@ namespace Composable.CQRS.EventSourcing
                                                          TEntityCreatedEventInterface,
                                                          TEventEntityIdSetterGetter>
                 {
-                    public CollectionManager
+                    internal CollectionManager
                         (TComponent parent,
                          Action<TEntityBaseEventClass> raiseEventThroughParent,
                          IEventHandlerRegistrar<TEntityBaseEventInterface> appliersRegistrar)

@@ -14,7 +14,7 @@ namespace Composable.CQRS.EventSourcing
             where TComponentBaseEventClass : TAggregateRootBaseEventClass, TComponentBaseEventInterface
             where TComponent : Component<TComponent, TComponentBaseEventClass, TComponentBaseEventInterface>
         {
-            public class EntityCollectionManager<TParent,
+            internal class EntityCollectionManager<TParent,
                                                  TEntity,
                                                  TEntityId,
                                                  TEntityBaseEventClass,

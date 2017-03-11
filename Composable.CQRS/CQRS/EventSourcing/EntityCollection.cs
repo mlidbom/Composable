@@ -17,14 +17,14 @@ namespace Composable.CQRS.EventSourcing
         public TEntity Get(TEntityId id) => _entities[id];
         public TEntity this[TEntityId id] => _entities[id];
 
-        public void Remove(TEntityId id)
+        internal void Remove(TEntityId id)
         {
             var toRemove = _entities[id];
             _entities.Remove(id);
             _entitiesInCreationOrder.Remove(toRemove);
         }
 
-        public void Add(TEntity entity, TEntityId id)
+        internal void Add(TEntity entity, TEntityId id)
         {
             _entities.Add(id, entity);
             _entitiesInCreationOrder.Add(entity);

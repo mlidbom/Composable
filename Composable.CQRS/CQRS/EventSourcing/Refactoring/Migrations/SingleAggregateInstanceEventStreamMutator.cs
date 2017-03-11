@@ -133,7 +133,7 @@ namespace Composable.CQRS.EventSourcing.Refactoring.Migrations
         }
     }
 
-    public class EndOfAggregateHistoryEventPlaceHolder : AggregateRootEvent {
+    class EndOfAggregateHistoryEventPlaceHolder : AggregateRootEvent {
         public EndOfAggregateHistoryEventPlaceHolder(Guid aggregateId, int i):base(aggregateId)
         {
             AggregateRootVersion = i;

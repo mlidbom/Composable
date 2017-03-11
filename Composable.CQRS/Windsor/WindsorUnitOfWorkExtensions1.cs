@@ -7,7 +7,7 @@ using Composable.UnitsOfWork;
 
 namespace Composable.Windsor
 {
-    public static class WindsorUnitOfWorkExtensions1
+    static class WindsorUnitOfWorkExtensions1
     {
         public static ITransactionalUnitOfWork BeginTransactionalUnitOfWorkScope(this IWindsorContainer me)
         {
@@ -131,8 +131,7 @@ namespace Composable.Windsor
 
     }
 
-
-    public interface ITransactionalUnitOfWork : IDisposable
+    interface ITransactionalUnitOfWork : IDisposable
     {
         void Commit();
     }

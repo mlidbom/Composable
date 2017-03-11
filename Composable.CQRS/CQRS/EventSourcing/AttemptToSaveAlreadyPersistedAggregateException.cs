@@ -2,7 +2,7 @@
 
 namespace Composable.CQRS.EventSourcing
 {
-    public class AttemptToSaveAlreadyPersistedAggregateException : Exception
+    class AttemptToSaveAlreadyPersistedAggregateException : Exception
     {
         public AttemptToSaveAlreadyPersistedAggregateException(IEventStored aggregate)
             :base(

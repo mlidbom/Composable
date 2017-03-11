@@ -7,9 +7,9 @@ using Composable.KeyValueStorage;
 namespace Composable.Windsor.Testing
 {
 
-    public static class RewiringHelperExtensions
+    static class RewiringHelperExtensions
     {
-        public static IExecuteActionsWhenRewiringForTesting ReplaceEventStore(this IExecuteActionsWhenRewiringForTesting @this, string name, string replacementName = null)
+        internal static IExecuteActionsWhenRewiringForTesting ReplaceEventStore(this IExecuteActionsWhenRewiringForTesting @this, string name, string replacementName = null)
         {
             return @this.ReplaceComponent(
                 componentName: name,

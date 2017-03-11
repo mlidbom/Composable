@@ -56,14 +56,14 @@ namespace Composable.CQRS.EventSourcing
                         .IgnoreUnhandled<TEntityRemovedEventInterface>();
                 }
 
-                public new static CollectionManager CreateSelfManagingCollection(TComponent parent)
+                internal new static CollectionManager CreateSelfManagingCollection(TComponent parent)
                     =>
                         new CollectionManager(
                             parent: parent,
                             raiseEventThroughParent: parent.RaiseEvent,
                             appliersRegistrar: parent.RegisterEventAppliers());
 
-                public new class CollectionManager : EntityCollectionManager<TComponent,
+                internal new class CollectionManager : EntityCollectionManager<TComponent,
                                                          TEntity,
                                                          TEntityId,
                                                          TEntityBaseEventClass,
@@ -72,7 +72,7 @@ namespace Composable.CQRS.EventSourcing
                                                          TEntityRemovedEventInterface,
                                                          TEventEntityIdSetterGetter>
                 {
-                    public CollectionManager
+                    internal CollectionManager
                         (TComponent parent,
                          Action<TEntityBaseEventClass> raiseEventThroughParent,
                          IEventHandlerRegistrar<TEntityBaseEventInterface> appliersRegistrar)

@@ -7,7 +7,7 @@ using Newtonsoft.Json.Serialization;
 
 namespace Composable.CQRS.EventSourcing.MicrosoftSQLServer
 {
-    public class SqlServerEvestStoreEventSerializer
+    class SqlServerEvestStoreEventSerializer
     {
         public static readonly JsonSerializerSettings JsonSettings = NewtonSoft.JsonSettings.SqlEventStoreSerializerSettings;
 
@@ -51,7 +51,7 @@ namespace Composable.CQRS.EventSourcing.MicrosoftSQLServer
         }
     }
 
-    public static class AggregateRootEventDebugSerializer
+    static class AggregateRootEventDebugSerializer
     {
         public static string ToNewtonSoftDebugString(this object @this, Formatting formatting = Formatting.Indented)
         {

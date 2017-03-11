@@ -12,7 +12,7 @@ namespace Composable.KeyValueStorage
 {
     //todo: Refactor to use the same serialization code as the sql document db so that tests actually tests roundtrip serialization
 #pragma warning disable 618
-    public class InMemoryDocumentDb : InMemoryObjectStore, IDocumentDb
+    class InMemoryDocumentDb : InMemoryObjectStore, IDocumentDb
 #pragma warning restore 618
     {
         readonly ThreadSafeObservable<IDocumentUpdated> _documentUpdated = new ThreadSafeObservable<IDocumentUpdated>();

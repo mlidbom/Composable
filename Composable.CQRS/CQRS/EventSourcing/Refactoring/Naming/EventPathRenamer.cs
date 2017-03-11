@@ -2,7 +2,7 @@ using System;
 
 namespace Composable.CQRS.EventSourcing.Refactoring.Naming
 {
-    public class EventPathRenamer : IRenameEvents
+    class EventPathRenamer : IRenameEvents
     {
         string OldPath { get; }
         string NewPath { get;  }

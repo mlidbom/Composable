@@ -2,8 +2,7 @@ using System;
 
 namespace Composable.CQRS.EventSourcing.MicrosoftSQLServer
 {
-
-    public partial class SqlServerEventStore
+    partial class SqlServerEventStore
     {
         internal class SqlStatements {
             public static string EnsurePersistedMigrationsHaveConsistentReadOrdersAndEffectiveVersionsSqlStoredProcedure => $@"

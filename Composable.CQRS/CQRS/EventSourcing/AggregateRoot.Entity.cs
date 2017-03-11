@@ -31,7 +31,7 @@ namespace Composable.CQRS.EventSourcing
         {
             static readonly TEventEntityIdSetterGetter IdGetterSetter = new TEventEntityIdSetterGetter();
 
-            public TEntityId Id { get; private set; }
+            internal TEntityId Id { get; private set; }
 
             protected Entity(TAggregateRoot aggregateRoot)
                 : this(aggregateRoot.TimeSource, aggregateRoot.RaiseEvent, aggregateRoot.RegisterEventAppliers()) {}
@@ -73,7 +73,7 @@ namespace Composable.CQRS.EventSourcing
                                                  TEntityCreatedEventInterface,
                                                  TEventEntityIdSetterGetter>
             {
-                public CollectionManager
+                internal CollectionManager
                     (TAggregateRoot parent,
                      Action<TEntityBaseEventClass> raiseEventThroughParent,
                      IEventHandlerRegistrar<TEntityBaseEventInterface> appliersRegistrar) : base(parent, raiseEventThroughParent, appliersRegistrar) {}

@@ -11,7 +11,7 @@ using Composable.System;
 namespace Composable.KeyValueStorage
 {
     // ReSharper disable once ClassWithVirtualMembersNeverInherited.Global
-    public partial class DocumentDbSession : IDocumentDbSession, IUnitOfWorkParticipant
+    partial class DocumentDbSession : IDocumentDbSession, IUnitOfWorkParticipant
     {
         [ThreadStatic]
         internal static bool UseUpdateLock;

@@ -26,7 +26,7 @@ namespace Composable.Windsor
             }
         }
 
-        public static TResult ExecuteUnitOfWorkInIsolatedScope<TResult>(this IWindsorContainer me, Func<TResult> function)
+        internal static TResult ExecuteUnitOfWorkInIsolatedScope<TResult>(this IWindsorContainer me, Func<TResult> function)
         {
             using (me.BeginScope())
             {
@@ -34,7 +34,7 @@ namespace Composable.Windsor
             }
         }
 
-        public static void ExecuteUnitOfWorkInIsolatedScope(this IWindsorContainer me, Action action)
+        internal static void ExecuteUnitOfWorkInIsolatedScope(this IWindsorContainer me, Action action)
         {
             using (me.BeginScope())
             {
@@ -42,7 +42,7 @@ namespace Composable.Windsor
             }
         }
 
-        public static TResult ExecuteInIsolatedScope<TResult>(this IWindsorContainer me, Func<TResult> function)
+        internal static TResult ExecuteInIsolatedScope<TResult>(this IWindsorContainer me, Func<TResult> function)
         {
             using (me.BeginScope())
             {
@@ -50,7 +50,7 @@ namespace Composable.Windsor
             }
         }
 
-        public static void ExecuteInIsolatedScope(this IWindsorContainer me, Action action)
+        internal static void ExecuteInIsolatedScope(this IWindsorContainer me, Action action)
         {
             using (me.BeginScope())
             {

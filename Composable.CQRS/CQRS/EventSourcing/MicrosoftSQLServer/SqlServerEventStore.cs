@@ -108,6 +108,7 @@ namespace Composable.CQRS.CQRS.EventSourcing.MicrosoftSQLServer
             _schemaManager.SetupSchemaIfDatabaseUnInitialized();
 
             var streamMutator = CompleteEventStoreStreamMutator.Create(_migrationFactories);
+            // ReSharper disable once InconsistentlySynchronizedField
             return streamMutator.Mutate(_eventReader.StreamEvents(StreamEventsBatchSize));
         }
 
@@ -248,6 +249,7 @@ namespace Composable.CQRS.CQRS.EventSourcing.MicrosoftSQLServer
 
             _schemaManager.SetupSchemaIfDatabaseUnInitialized();
 
+            // ReSharper disable once InconsistentlySynchronizedField
             return _eventReader.StreamAggregateIdsInCreationOrder(eventBaseType);
         }
 

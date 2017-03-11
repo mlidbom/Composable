@@ -59,7 +59,7 @@ namespace Composable.CQRS.EventSourcing.MicrosoftSQLServer
 
         public void Remove(Guid id) { _internalCache.Remove(key: id.ToString()); }
 
-        public class Entry
+        internal class Entry
         {
             public static readonly  Entry Empty = new Entry(new List<AggregateRootEvent>(), 0);
 

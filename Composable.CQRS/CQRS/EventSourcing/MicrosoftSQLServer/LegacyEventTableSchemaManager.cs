@@ -27,8 +27,7 @@ namespace Composable.CQRS.EventSourcing.MicrosoftSQLServer
             }
         }
 
-
-        public void PrintMigrationScriptToLog(SqlConnection connection)
+        void PrintMigrationScriptToLog(SqlConnection connection)
         {
             //References to read for more efficient ways of doing this:
             //https://msdn.microsoft.com/en-us/library/ms190273.aspx (SWITCH section)
@@ -59,7 +58,7 @@ dbcc shrinkdatabase ( {connection.Database} )
 ";
         }
 
-        public string ActualMigrationScript => $@"
+        string ActualMigrationScript => $@"
 
 {EventTypeTableSchema.CreateTableSql}
 
@@ -89,14 +88,14 @@ go
 drop table {Name}
 ";
 
-        public string InsertEventTypesSql => $@"
+        string InsertEventTypesSql => $@"
 insert into {EventTypeTable.Name} ( {EventTypeTable.Columns.EventType} )
 select {LegacyEventTable.Columns.EventType} 
 from {LegacyEventTable.Name}
 group by {EventTable.Columns.EventType} 
 ";
 
-        public string MigrateEventsSql => $@"
+        string MigrateEventsSql => $@"
 insert into {EventTableSchema.Name} 
 (      {EventTable.Columns.AggregateId}, {EventTable.Columns.InsertedVersion}, {EventTable.Columns.UtcTimeStamp}, {EventTable.Columns.EventType}, {EventTable.Columns.EventId}, {EventTable.Columns.Event}, {LegacySqlTimeStamp}, {EventTable.Columns.SqlInsertTimeStamp})
 select {LegacyEventTable.Columns.AggregateId}, {LegacyEventTable.Columns.AggregateVersion},{LegacyEventTable.Columns.TimeStamp}, {EventTypeTable.Name}.{EventTypeTable.Columns.Id}, {LegacyEventTable.Columns.EventId}, {LegacyEventTable.Columns.Event}, CAST({LegacyEventTable.Columns.SqlTimeStamp} AS BIGINT), {LegacyEventTable.Columns.TimeStamp}

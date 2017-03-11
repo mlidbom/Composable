@@ -25,9 +25,9 @@ namespace Composable.CQRS.EventSourcing
                 new CallMatchingHandlersInRegistrationOrderEventDispatcher<TComponentBaseEventInterface>();
             readonly Action<TComponentBaseEventClass> _raiseEventThroughParent;
 
-            protected IUtcTimeTimeSource TimeSource { get; private set; }
+            IUtcTimeTimeSource TimeSource { get; set; }
 
-            internal void ApplyEvent(TComponentBaseEventInterface @event)
+            void ApplyEvent(TComponentBaseEventInterface @event)
             {
                 _eventAppliersEventDispatcher.Dispatch(@event);
                 _history.Add(@event);

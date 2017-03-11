@@ -18,9 +18,9 @@ namespace Composable.KeyValueStorage
 
         readonly InMemoryObjectStore _idMap = new InMemoryObjectStore();
 
-        public readonly IDocumentDb BackingStore;
-        public readonly IDocumentDbSessionInterceptor Interceptor;
-        public readonly ISingleContextUseGuard UsageGuard;
+        readonly IDocumentDb BackingStore;
+        readonly IDocumentDbSessionInterceptor Interceptor;
+        readonly ISingleContextUseGuard UsageGuard;
 
         readonly IDictionary<DocumentKey, DocumentItem> _handledDocuments = new Dictionary<DocumentKey, DocumentItem>();
 

@@ -65,7 +65,7 @@ where {EventTable.Columns.AggregateId} = @{EventTable.Columns.AggregateId}
 ";
             }
 
-            internal static string EnsurePersistedMigrationsHaveConsistentEffectiveReadOrdersAndEffectiveVersions => $@"
+            static string EnsurePersistedMigrationsHaveConsistentEffectiveReadOrdersAndEffectiveVersions => $@"
 set nocount on
 
 declare @{EventTable.Columns.InsertionOrder} bigint

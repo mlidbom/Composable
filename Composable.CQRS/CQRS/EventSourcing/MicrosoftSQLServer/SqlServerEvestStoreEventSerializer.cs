@@ -24,7 +24,7 @@ namespace Composable.CQRS.EventSourcing.MicrosoftSQLServer
 
     class SqlServerDebugEventStoreEventSerializer
     {
-        public class DebugPrintingContractsResolver : DefaultContractResolver
+        class DebugPrintingContractsResolver : DefaultContractResolver
         {
             protected override IList<JsonProperty> CreateProperties(Type type, MemberSerialization memberSerialization)
             {
@@ -36,7 +36,7 @@ namespace Composable.CQRS.EventSourcing.MicrosoftSQLServer
             }
         }
 
-        public static readonly JsonSerializerSettings JsonSettings =
+        static readonly JsonSerializerSettings JsonSettings =
             new JsonSerializerSettings
             {
                 TypeNameHandling = TypeNameHandling.Auto,

@@ -36,7 +36,7 @@ namespace Composable.CQRS.EventSourcing
             protected Entity(TAggregateRoot aggregateRoot)
                 : this(aggregateRoot.TimeSource, aggregateRoot.RaiseEvent, aggregateRoot.RegisterEventAppliers()) {}
 
-            protected Entity
+            Entity
                 (IUtcTimeTimeSource timeSource,
                  Action<TEntityBaseEventClass> raiseEventThroughParent,
                  IEventHandlerRegistrar<TEntityBaseEventInterface> appliersRegistrar)

@@ -81,10 +81,10 @@ namespace Composable.Windsor
 
             public override bool IsActive {get { return !CommitCalled && !RollBackCalled && !InDoubtCalled; }}
 
-            public bool PrepareCalled { get; private set; }
-            public bool CommitCalled { get; private set; }
-            public bool RollBackCalled { get; private set; }
-            public bool InDoubtCalled { get; private set; }
+            bool PrepareCalled { get; set; }
+            bool CommitCalled { get; set; }
+            bool RollBackCalled { get; set; }
+            bool InDoubtCalled { get; set; }
             public void Prepare(PreparingEnlistment preparingEnlistment)
             {
                 PrepareCalled = true;

@@ -46,7 +46,7 @@ namespace Composable.CQRS.EventSourcing
                 {
                 }
 
-                protected NestedEntity
+                NestedEntity
                 (IUtcTimeTimeSource timeSource,
                  Action<TEntityBaseEventClass> raiseEventThroughParent,
                  IEventHandlerRegistrar<TEntityBaseEventInterface> appliersRegistrar)

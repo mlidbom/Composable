@@ -55,7 +55,7 @@ namespace Composable.KeyValueStorage
             }
 
             public string Id { get; private set; }
-            public Type Type { get; private set; }
+            Type Type { get; set; }
 
         }
 

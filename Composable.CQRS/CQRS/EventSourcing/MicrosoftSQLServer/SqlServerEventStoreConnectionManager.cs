@@ -13,7 +13,7 @@ namespace Composable.CQRS.EventSourcing.MicrosoftSQLServer
             ConnectionString = connectionString;
         }
 
-        public void UseConnection(Action<SqlConnection> action, bool suppressTransactionWarning = false)
+        void UseConnection(Action<SqlConnection> action, bool suppressTransactionWarning = false)
         {
             using(var connection = OpenConnection(suppressTransactionWarning))
             {

@@ -18,7 +18,7 @@ namespace Composable.CQRS.EventSourcing
         where TAggregateRootBaseEventInterface : class, IAggregateRootEvent
         where TAggregateRootBaseEventClass : AggregateRootEvent, TAggregateRootBaseEventInterface
     {
-        protected IUtcTimeTimeSource TimeSource { get; private set; }
+        IUtcTimeTimeSource TimeSource { get; set; }
 
         [Obsolete("Only for infrastructure", true)]
         public AggregateRoot():this(DateTimeNowTimeSource.Instance){ }

@@ -70,15 +70,15 @@ namespace Composable.CQRS.EventSourcing
                     base.RaiseEvent(@event);
                 }
 
-                public TEntityId Id { get; protected set; }
+                TEntityId Id { get; set; }
 
 
                 public abstract class EntityCollectionManagerBase<TParent>
                 {
-                    protected static readonly TEventEntityIdSetterGetter IdGetter = new TEventEntityIdSetterGetter();
+                    static readonly TEventEntityIdSetterGetter IdGetter = new TEventEntityIdSetterGetter();
 
                     readonly TParent _parent;
-                    protected readonly EntityCollection<TEntity, TEntityId> ManagedEntities;
+                    readonly EntityCollection<TEntity, TEntityId> ManagedEntities;
                     protected EntityCollectionManagerBase
                         (TParent parent, IEventHandlerRegistrar<TEntityBaseEventInterface> appliersRegistrar)
                     {

@@ -9,7 +9,7 @@ namespace Composable.KeyValueStorage
 {
     public partial class DocumentDbSession
     {
-        internal class DocumentItem
+        class DocumentItem
         {
             readonly IDocumentDb _backingStore;
             readonly Dictionary<Type, Dictionary<string, string>> _persistentValues;

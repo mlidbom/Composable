@@ -8,7 +8,7 @@ namespace Composable.CQRS
         where TBaseEventClass : AggregateRootEvent, TBaseEventInterface
         where TBaseEventInterface : class, IAggregateRootEvent
     {
-        protected readonly IEventStoreSession Aggregates;
+        readonly IEventStoreSession Aggregates;
 
         public AggregateRepository(IEventStoreSession aggregates)
         {

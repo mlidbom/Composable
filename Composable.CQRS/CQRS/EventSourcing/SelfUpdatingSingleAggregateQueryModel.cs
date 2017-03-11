@@ -17,8 +17,7 @@ namespace Composable.CQRS.EventSourcing
         readonly CallMatchingHandlersInRegistrationOrderEventDispatcher<TAggregateRootBaseEventInterface> _eventAppliersEventDispatcher =
             new CallMatchingHandlersInRegistrationOrderEventDispatcher<TAggregateRootBaseEventInterface>();
 
-
-        public Guid Id { get; private set; }
+        Guid Id { get; set; }
 
         protected SelfUpdatingSingleAggregateQueryModel()
         {
@@ -32,7 +31,7 @@ namespace Composable.CQRS.EventSourcing
             @event.ForEach(_eventAppliersEventDispatcher.Dispatch);
         }
 
-        protected IEventHandlerRegistrar<TAggregateRootBaseEventInterface> RegisterEventAppliers()
+        IEventHandlerRegistrar<TAggregateRootBaseEventInterface> RegisterEventAppliers()
         {
             return _eventAppliersEventDispatcher.Register();
         }
@@ -49,7 +48,7 @@ namespace Composable.CQRS.EventSourcing
 
             static readonly TEventEntityIdGetter IdGetter = new TEventEntityIdGetter();
 
-            protected TRootQueryModel RootQueryModel { get; private set; }
+            TRootQueryModel RootQueryModel { get; set; }
 
             void ApplyEvent(TEntityBaseEventInterface @event) { _eventAppliersEventDispatcher.Dispatch(@event); }
 
@@ -60,7 +59,7 @@ namespace Composable.CQRS.EventSourcing
 
             public static IReadOnlyEntityCollection<TEntitity, TEntityId> CreateSelfManagingCollection(TRootQueryModel rootQueryModel) => new Collection(rootQueryModel);
 
-            public class Collection : IReadOnlyEntityCollection<TEntitity, TEntityId>
+            class Collection : IReadOnlyEntityCollection<TEntitity, TEntityId>
             {
                 readonly TRootQueryModel _aggregate;
                 public Collection(TRootQueryModel aggregate)

@@ -18,7 +18,7 @@ namespace Composable.KeyValueStorage.SqlServer
 {
     class SqlServerDocumentDb : IDocumentDb
     {
-        public readonly string ConnectionString;
+        readonly string ConnectionString;
 
         static readonly JsonSerializerSettings _jsonSettings = JsonSettings.JsonSerializerSettings;
 
@@ -34,7 +34,7 @@ namespace Composable.KeyValueStorage.SqlServer
         readonly ThreadSafeObservable<IDocumentUpdated> _documentUpdated = new ThreadSafeObservable<IDocumentUpdated>();
         public IObservable<IDocumentUpdated> DocumentUpdated { get { return _documentUpdated; } }
 
-        public ConcurrentDictionary<Type, int> KnownTypes { get { return VerifiedConnections[ConnectionString]; } }
+        ConcurrentDictionary<Type, int> KnownTypes { get { return VerifiedConnections[ConnectionString]; } }
 
         Type GetTypeFromId(int id)
         {

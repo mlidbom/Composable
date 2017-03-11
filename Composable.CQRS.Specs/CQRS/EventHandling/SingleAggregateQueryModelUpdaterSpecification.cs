@@ -182,23 +182,23 @@ namespace Composable.CQRS.Specs.CQRS.EventHandling
             }
         }
 
-        public interface IUserEvent : IAggregateRootEvent {}
+        interface IUserEvent : IAggregateRootEvent {}
 
-        public interface IUserCreatedEvent : IUserEvent, IAggregateRootCreatedEvent {}
+        interface IUserCreatedEvent : IUserEvent, IAggregateRootCreatedEvent {}
 
         interface IUserRegistered : IUserCreatedEvent {}
 
         interface IUserDeleted : IUserEvent, IAggregateRootDeletedEvent {}
 
-        public interface IUserSkillsEvent : IUserEvent {}
+        interface IUserSkillsEvent : IUserEvent {}
 
-        public interface IUserSkillsAdded : IUserSkillsEvent {}
+        interface IUserSkillsAdded : IUserSkillsEvent {}
 
-        public interface IUserSkillsRemoved : IUserSkillsEvent {}
+        interface IUserSkillsRemoved : IUserSkillsEvent {}
 
-        public interface IUserAddedSkills : IUserSkillsAdded {}
+        interface IUserAddedSkills : IUserSkillsAdded {}
 
-        public interface IUserRemovedSkills : IUserSkillsRemoved {}
+        interface IUserRemovedSkills : IUserSkillsRemoved {}
 
         interface IUserEditedSkill : IUserAddedSkills, IUserRemovedSkills {}
 

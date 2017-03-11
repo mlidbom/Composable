@@ -131,7 +131,7 @@ namespace Composable.Persistence.KeyValueStorage
             }
         }
 
-        public virtual void Update(object key, object value)
+        protected virtual void Update(object key, object value)
         {
             lock(LockObject)
             {

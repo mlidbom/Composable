@@ -89,7 +89,7 @@ namespace Composable.CQRS.Specs.CQRS.EventHandling
 
             internal string Email { get; set; }
             internal string Password { get; set; }
-            internal HashSet<string> Skills { get; set; }
+            internal HashSet<string> Skills { get; }
 
             public CvQueryModel()
             {

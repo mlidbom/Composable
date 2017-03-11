@@ -113,7 +113,7 @@ namespace Composable.DDD
         /// <summary>
         /// Creates a new instance with an automatically generated Id
         /// </summary>
-        public PersistentEntity():base(Guid.NewGuid())
+        protected PersistentEntity():base(Guid.NewGuid())
         {
         }
 

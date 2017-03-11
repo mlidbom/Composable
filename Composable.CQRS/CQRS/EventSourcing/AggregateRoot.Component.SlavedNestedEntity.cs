@@ -75,7 +75,9 @@ namespace Composable.CQRS.CQRS.EventSourcing
                     base.RaiseEvent(@event);
                 }
 
-                public TEntityId Id { get; protected set; }
+                // ReSharper disable once MemberCanBePrivate.Global
+                // ReSharper disable once UnusedAutoPropertyAccessor.Global
+                protected TEntityId Id { get; set; }
 
 
                 public abstract class EntityCollectionManagerBase

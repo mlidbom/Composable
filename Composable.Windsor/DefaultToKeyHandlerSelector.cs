@@ -9,7 +9,7 @@ namespace Composable.Windsor
     /// (instead of the default Windsor behavior of defaulting to the first registered service)
     /// Use it by adding it to the container at wire-up with container.Kernel.AddHandlerSelector(new DefaultToKeyHandlerSelector(typeof([ComponentType]),"defaultKey"));
     /// </summary>
-    class DefaultToKeyHandlerSelector : IHandlerSelector
+    sealed class DefaultToKeyHandlerSelector : IHandlerSelector
     {
         readonly Type _type;
         readonly string _keyToDefaultTo;
@@ -20,12 +20,12 @@ namespace Composable.Windsor
             _keyToDefaultTo = keyToDefaultTo;
         }
 
-        public virtual bool HasOpinionAbout(string key, Type service)
+        public bool HasOpinionAbout(string key, Type service)
         {
             return service == _type;
         }
 
-        public virtual IHandler SelectHandler(string key, Type service, IHandler[] handlers)
+        public IHandler SelectHandler(string key, Type service, IHandler[] handlers)
         {
             var handlerForDefaultKey = handlers.FirstOrDefault(handler => handler.ComponentModel.Name == _keyToDefaultTo);
             if (handlerForDefaultKey == null)

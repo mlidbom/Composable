@@ -28,14 +28,14 @@ namespace Composable.Messaging.Events
 
         public IEventHandlerRegistrar<TEvent> Register() { return new RegistrationBuilder(this); }
 
-        public class RegistrationBuilder : IEventHandlerRegistrar<TEvent>
+        class RegistrationBuilder : IEventHandlerRegistrar<TEvent>
         {
             readonly CallMatchingHandlersInRegistrationOrderEventDispatcher<TEvent> _owner;
 
             public RegistrationBuilder(CallMatchingHandlersInRegistrationOrderEventDispatcher<TEvent> owner) { _owner = owner; }
 
             ///<summary>Registers a for any event that implements THandledEvent. All matching handlers will be called in the order they were registered.</summary>
-            public RegistrationBuilder For<THandledEvent>(Action<THandledEvent> handler) where THandledEvent : TEvent
+            RegistrationBuilder For<THandledEvent>(Action<THandledEvent> handler) where THandledEvent : TEvent
             {
                 return ForGenericEvent(handler);
             }

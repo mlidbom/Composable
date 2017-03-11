@@ -73,7 +73,7 @@ namespace Composable.System.Diagnostics
                 Total = total;
             }
 
-            public int Iterations { get; }
+            int Iterations { get; }
             public TimeSpan Total { get; }
             public TimeSpan Average => (Total.TotalMilliseconds / Iterations).Milliseconds();
         }

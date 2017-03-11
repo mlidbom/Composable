@@ -39,7 +39,7 @@ namespace Composable.System.Data.SqlClient
             }
         }
 
-        public TResult UseConnection<TResult>(Func<SqlConnection, TResult> action)
+        TResult UseConnection<TResult>(Func<SqlConnection, TResult> action)
         {
             using (var connection = OpenConnection())
             {

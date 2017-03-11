@@ -11,7 +11,7 @@ namespace Composable.Windsor
     /// Use it by adding it to the container at wire-up with container.Kernel.Resolver.AddSubResolver(new TypedCollectionResolver&lt;CollectionItemType&gt;(container.Kernel));
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public class TypedCollectionResolver<T> : ISubDependencyResolver
+    public sealed class TypedCollectionResolver<T> : ISubDependencyResolver
     {
         readonly bool _allowEmptyCollections;
         readonly IKernel _kernel;
@@ -22,7 +22,7 @@ namespace Composable.Windsor
             _allowEmptyCollections = allowEmptyCollections;
         }
 
-        public virtual bool CanResolve(CreationContext context,
+        public bool CanResolve(CreationContext context,
                                        ISubDependencyResolver contextHandlerResolver,
                                        ComponentModel model,
                                        DependencyModel dependency)
@@ -40,7 +40,7 @@ namespace Composable.Windsor
                    CanSatisfy(itemType);
         }
 
-        public virtual object Resolve(CreationContext context,
+        public object Resolve(CreationContext context,
                                       ISubDependencyResolver contextHandlerResolver,
                                       ComponentModel model,
                                       DependencyModel dependency)
@@ -48,17 +48,17 @@ namespace Composable.Windsor
             return _kernel.ResolveAll(GetItemType(dependency.TargetItemType), null);
         }
 
-        protected virtual bool CanSatisfy(Type itemType)
+        bool CanSatisfy(Type itemType)
         {
             return _allowEmptyCollections || _kernel.HasComponent(itemType);
         }
 
-        protected virtual Type GetItemType(Type targetItemType)
+        static Type GetItemType(Type targetItemType)
         {
             return targetItemType.GetCompatibleArrayItemType();
         }
 
-        protected virtual bool HasParameter(DependencyModel dependency)
+        static bool HasParameter(DependencyModel dependency)
         {
             return dependency.Parameter != null;
         }

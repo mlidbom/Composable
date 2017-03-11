@@ -49,10 +49,10 @@ namespace Composable.System.Linq
         public class Pair<T, T2>
         {
             /// <summary>The first instance in the pair.</summary>
-            public T First { get; set; }
+            public T First { get; }
 
             /// <summary>The second instance in the pair.</summary>
-            public T2 Second { get; set; }
+            public T2 Second { get; }
 
             /// <summary>Constructs a pair.</summary>
             public Pair(T first, T2 second)

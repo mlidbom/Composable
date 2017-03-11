@@ -92,13 +92,13 @@ namespace Composable.CQRS.Tests.UnitOfWorkTests
             Committed = true;
             UnitOfWork = null;
         }
-        public bool Committed { get; set; }
+        public bool Committed { get; private set; }
 
         public void Rollback(IUnitOfWork unit)
         {
             RolledBack = true;
             UnitOfWork = null;
         }
-        public bool RolledBack { get; set; }
+        public bool RolledBack { get; private set; }
     }
 }

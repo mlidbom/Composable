@@ -179,7 +179,7 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
 
     class TestAggregate2 : AggregateRoot<TestAggregate, RootEvent, IRootEvent>
     {
-        public void RaiseEvents(params RootEvent[] events)
+        void RaiseEvents(params RootEvent[] events)
         {
             if (GetIdBypassContractValidation() == Guid.Empty && events.First().AggregateRootId == Guid.Empty)
             {

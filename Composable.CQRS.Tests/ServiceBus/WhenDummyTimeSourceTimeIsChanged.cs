@@ -83,7 +83,7 @@ namespace Composable.CQRS.Tests.ServiceBus
             _container.Dispose();
         }
 
-        public class ScheduledCommand : Command
+        class ScheduledCommand : Command
         {
         }
     }

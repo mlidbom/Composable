@@ -56,7 +56,7 @@ namespace Composable.System.Linq
             return ExtractMemberPath((LambdaExpression)func);
         }
 
-        public static string ExtractMemberPath(LambdaExpression lambda)
+        static string ExtractMemberPath(LambdaExpression lambda)
         {
             Contract.Argument(() => lambda).NotNull();
             var body = lambda.Body;

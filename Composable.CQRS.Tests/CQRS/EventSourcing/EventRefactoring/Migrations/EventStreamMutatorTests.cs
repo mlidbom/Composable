@@ -585,7 +585,7 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
             }
         }
 
-        protected void ClearEventstoreCache(WindsorContainer container)
+        void ClearEventstoreCache(WindsorContainer container)
         {
             if(EventStoreType == typeof(SqlServerEventStore))
             {

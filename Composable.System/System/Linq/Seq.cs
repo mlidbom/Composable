@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Composable.Contracts;
+// ReSharper disable MemberCanBePrivate.Global
 
 namespace Composable.System.Linq
 {

@@ -2,7 +2,7 @@
 
 namespace NetMqProcess01
 {
-    public static class NetMqProcess01
+    static class NetMqProcess01
     {
         public static void Main(string[] args)
         {

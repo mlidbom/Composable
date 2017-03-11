@@ -53,7 +53,7 @@ namespace Composable.CQRS.KeyValueStorage
             _persistentValues.GetOrAddDefault(value.GetType())[idString] = stringValue;
         }
 
-        public override void Update(object key, object value)
+        protected override void Update(object key, object value)
         {
             lock(LockObject)
             {

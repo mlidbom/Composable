@@ -104,15 +104,14 @@ namespace Composable.Tests.Contracts
             exception.BadValue.Name.Should().Be(badValueName);
         }
 
-
-        public static TReturnValue Return<TReturnValue>(TReturnValue returnValue, Action<Inspected<TReturnValue>> assert)
+        static void Return<TReturnValue>(TReturnValue returnValue, Action<Inspected<TReturnValue>> assert)
         {
-            return Contract.Return(returnValue, assert);
+            Contract.Return(returnValue, assert);
         }
 
-        public static TReturnValue ReturnOptimized<TReturnValue>(TReturnValue returnValue, Action<Inspected<TReturnValue>> assert)
+        static void ReturnOptimized<TReturnValue>(TReturnValue returnValue, Action<Inspected<TReturnValue>> assert)
         {
-            return Contract.Return(returnValue, assert);
+            Contract.Return(returnValue, assert);
         }
     }
 }

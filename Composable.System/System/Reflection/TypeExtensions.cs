@@ -55,7 +55,7 @@ namespace Composable.System.Reflection
         }
 
         ///<summary>Lists all classes that this class inherits prepended by the class of the instance itself.</summary>
-        public static IEnumerable<Type> GetClassInheritanceChain(this Type me)
+        static IEnumerable<Type> GetClassInheritanceChain(this Type me)
         {
             yield return me;
             while (me.BaseType != null)
@@ -109,7 +109,7 @@ namespace Composable.System.Reflection
         }
 
         ///<summary>Thrown if there is more than one type that matches the string passed to <see cref="TypeExtensions.AsType"/></summary>
-        public class MultipleMatchingTypesException : Exception
+        class MultipleMatchingTypesException : Exception
         {
             internal MultipleMatchingTypesException(string typeName): base(typeName)
             {

@@ -4,7 +4,7 @@ using Composable.CQRS.EventSourcing;
 
 namespace Composable.CQRS.CQRS.EventSourcing.Refactoring.Migrations
 {
-    public abstract class EventMigration<TMigratedAggregateEventHierarchyRootInterface> : IEventMigration
+    abstract class EventMigration<TMigratedAggregateEventHierarchyRootInterface> : IEventMigration
         where TMigratedAggregateEventHierarchyRootInterface : IAggregateRootEvent
     {
         protected EventMigration(Guid id, string name, string description)

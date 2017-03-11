@@ -34,7 +34,7 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.EventRefactoring.When_renamin
         }
 
         [EventRenamedFrom(Name = OldName, Path = OldPath)]
-        public class Event1 : AggregateRootEvent
+        class Event1 : AggregateRootEvent
         {
             public const string OldName = "Event1Old";
             public const string OldPath = "OldPath.";
@@ -42,7 +42,7 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.EventRefactoring.When_renamin
         }
 
         [EventRenamedFrom(Name = OldName, Path = OldPath)]
-        public class Event2 : AggregateRootEvent
+        class Event2 : AggregateRootEvent
         {
             public const string OldName = "Event2Old";
             public const string OldPath = "OldPath.";

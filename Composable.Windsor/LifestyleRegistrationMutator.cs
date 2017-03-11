@@ -8,7 +8,7 @@ namespace Composable.Windsor
     /// Add this mutator to the Container using container.Kernel.ComponentModelBuilder.AddContributor(new LifestyleRegistrationMutator());
     /// in order to allow PerWebRequest lifestyled Components to be treated as Scoped instead (this makes it work with NServiceBus and unit test)
     /// </summary>
-    public class LifestyleRegistrationMutator : IContributeComponentModelConstruction
+    class LifestyleRegistrationMutator : IContributeComponentModelConstruction
     {
         readonly LifestyleType _originalLifestyle;
         readonly LifestyleType _newLifestyleType;

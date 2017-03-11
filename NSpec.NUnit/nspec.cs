@@ -95,7 +95,7 @@ namespace Composable
         }
     }
 
-    public class SpecificationException : Exception
+    class SpecificationException : Exception
     {
         public SpecificationException(string position, Exception exception) : base(position, exception) {}
     }

@@ -190,7 +190,7 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
         }
     }
 
-    public class TestAggregate2 : AggregateRoot<TestAggregate, RootEvent, IRootEvent>
+    class TestAggregate2 : AggregateRoot<TestAggregate, RootEvent, IRootEvent>
     {
         public void RaiseEvents(params RootEvent[] events)
         {

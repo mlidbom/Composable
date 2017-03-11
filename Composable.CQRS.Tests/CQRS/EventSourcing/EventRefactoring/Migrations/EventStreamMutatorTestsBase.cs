@@ -32,7 +32,7 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
             EventStoreType = eventStoreType;
         }
 
-        protected void RunMigrationTest(params MigrationScenario[] scenarios)
+        internal void RunMigrationTest(params MigrationScenario[] scenarios)
         {
             Console.WriteLine($"###############$$$$$$$Running {scenarios.Length} scenario(s) with EventStoreType: {EventStoreType}");
 

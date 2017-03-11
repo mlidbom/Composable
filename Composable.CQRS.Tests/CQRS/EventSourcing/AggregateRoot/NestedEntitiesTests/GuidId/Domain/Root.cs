@@ -5,7 +5,7 @@ using Composable.GenericAbstractions.Time;
 
 namespace Composable.CQRS.Tests.CQRS.EventSourcing.AggregateRoot.NestedEntitiesTests.GuidId.Domain
 {
-    public class Root : AggregateRoot<Root, RootEvent.Implementation.Root, RootEvent.IRoot>
+    class Root : AggregateRoot<Root, RootEvent.Implementation.Root, RootEvent.IRoot>
     {
         public string Name { get; private set; }
         readonly Entity.CollectionManager _entities;

@@ -11,21 +11,21 @@ namespace Composable.Tests.DDD
     [TestFixture]
     public class ValueObjectToString
     {
-        public class Root : ValueObject<Root>
+        class Root : ValueObject<Root>
         {
             public string Name { get; set; }
             public Branch Branch1 { get; set; }
             public Branch Branch2 { get; set; }
         }
 
-        public class Branch
+        class Branch
         {
             public string Name { get; set; }
             public Leaf Leaf1 { get; set; }
             public Leaf Leaf2 { get; set; }
         }
 
-        public class Leaf
+        class Leaf
         {
             public string Name { get; set; }
         }

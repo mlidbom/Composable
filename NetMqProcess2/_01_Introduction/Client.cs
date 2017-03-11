@@ -7,9 +7,9 @@ using Newtonsoft.Json;
 
 namespace NetMqProcess02._01_Introduction
 {
-    public class Client
+    class Client
     {
-        public class Data
+        class Data
         {
             public long Id { get; set; }
         }

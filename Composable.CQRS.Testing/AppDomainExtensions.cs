@@ -33,7 +33,7 @@ namespace Composable.CQRS.Testing
         }
     }
 
-    public class AppDomainScope : IDisposable
+    class AppDomainScope : IDisposable
     {
         readonly TimeSpan? _disposeDelay;
         readonly bool _suppressUnloadErrors;

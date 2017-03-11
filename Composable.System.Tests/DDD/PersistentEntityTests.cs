@@ -11,7 +11,7 @@ namespace Composable.Tests.DDD
     [TestFixture]
     public class PersistentEntityTests
     {
-        public class Person : PersistentEntity<Person>
+        class Person : PersistentEntity<Person>
         {
             public Person()
             {

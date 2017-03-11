@@ -5,7 +5,7 @@ using Composable.CQRS.CQRS.EventSourcing;
 // ReSharper disable InconsistentNaming
 namespace Composable.CQRS.Tests.CQRS.EventSourcing.AggregateRoot.NestedEntitiesTests.IntegerId
 {
-    public static partial class RootEvent
+    static partial class RootEvent
     {
         public static partial class Entity
         {
@@ -28,7 +28,7 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.AggregateRoot.NestedEntitiesT
                     }
                 }
 
-                public static class Implementation
+                internal static class Implementation
                 {
                     public abstract class Root : RootEvent.Entity.Implementation.Root, NestedEntity.IRoot
                     {

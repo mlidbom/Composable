@@ -226,7 +226,7 @@ namespace Composable.Tests
             return true;
         }
 
-        public class Point
+        internal class Point
         {
             public Point(int x, int y)
             {

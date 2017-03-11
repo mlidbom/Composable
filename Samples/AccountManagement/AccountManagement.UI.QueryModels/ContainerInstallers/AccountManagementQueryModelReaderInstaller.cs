@@ -11,7 +11,7 @@ namespace AccountManagement.UI.QueryModels.ContainerInstallers
     [UsedImplicitly]
     public class AccountManagementQueryModelReaderInstaller : IWindsorInstaller
     {
-        public static class ComponentKeys
+        static class ComponentKeys
         {
             public const string QueryModelsReader = "AccountManagement.QueryModels.QueryModelsReader";
         }

@@ -11,7 +11,7 @@ using Composable.SystemExtensions.Threading;
 
 namespace Composable.Windsor.Testing
 {
-    public static class TestingWindsorExtensions
+    static class TestingWindsorExtensions
     {
         /// <summary>
         ///<para>Components registered as PerWebRequest will be remapped to Scoped.</para>

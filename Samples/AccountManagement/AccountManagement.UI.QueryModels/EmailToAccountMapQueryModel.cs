@@ -11,7 +11,7 @@ namespace AccountManagement.UI.QueryModels
             AccountId = accountId;
         }
 
-        public Email Email { get; private set; }
-        public Guid AccountId { get; private set; }
+        Email Email { get; set; }
+        internal Guid AccountId { get; private set; }
     }
 }

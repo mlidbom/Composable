@@ -3,15 +3,15 @@
 // ReSharper disable InconsistentNaming
 namespace Composable.CQRS.Tests.CQRS.EventSourcing.AggregateRoot.NestedEntitiesTests.GuidId.Domain.Events
 {
-    public static partial class RootEvent
+    static partial class RootEvent
     {
         public static partial class Component
         {
-            public static partial class NestedComponent
+            internal static partial class NestedComponent
             {
-                public interface IRoot : Component.IRoot { }
+                internal interface IRoot : Component.IRoot { }
 
-                public static class PropertyUpdated
+                internal static class PropertyUpdated
                 {
                     public interface Name : NestedComponent.IRoot
                     {
@@ -19,7 +19,7 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.AggregateRoot.NestedEntitiesT
                     }
                 }
 
-                public static class Implementation
+                internal static class Implementation
                 {
                     public abstract class Root : Component.Implementation.Root, NestedComponent.IRoot { }
                 }

@@ -7,7 +7,7 @@ using NetMQ.Sockets;
 
 namespace NetMqProcess01.__Mine
 {
-    public static class _01_ReqRouterDealerRep
+    static class _01_ReqRouterDealerRep
     {
         const bool UseInProcess = true;
         static string RouterSocket = UseInProcess ? "inproc://router-socket" : "tcp://127.0.0.1:5559";

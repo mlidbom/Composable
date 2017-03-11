@@ -11,7 +11,7 @@ namespace Composable.Windsor.Testing
         IExecuteActionsWhenRewiringForTesting Execute(Action<IWindsorContainer> action);
     }
 
-    public static class WindsorTestWiringExtensions
+    static class WindsorTestWiringExtensions
     {
         public static IExecuteActionsWhenRewiringForTesting WhenTesting(this IWindsorContainer @this)
         {
@@ -19,9 +19,9 @@ namespace Composable.Windsor.Testing
         }
     }
 
-    public static class RewiringHelperExtensions
+    static class RewiringHelperExtensions
     {
-        public static IExecuteActionsWhenRewiringForTesting Run(this IExecuteActionsWhenRewiringForTesting @this, Action<IWindsorContainer> action ) => @this.Execute(action);
+        static IExecuteActionsWhenRewiringForTesting Run(this IExecuteActionsWhenRewiringForTesting @this, Action<IWindsorContainer> action ) => @this.Execute(action);
 
         public static IExecuteActionsWhenRewiringForTesting ReplaceComponent<TServiceType>(this IExecuteActionsWhenRewiringForTesting @this, string componentName, ComponentRegistration<TServiceType> replacement, string replacementName = null) where TServiceType : class
         {
@@ -41,7 +41,7 @@ namespace Composable.Windsor.Testing
 
 
 
-    public class ExecuteActionsWhenRewiringForTests : IExecuteActionsWhenRewiringForTesting
+    class ExecuteActionsWhenRewiringForTests : IExecuteActionsWhenRewiringForTesting
     {
         readonly IWindsorContainer Container;
 

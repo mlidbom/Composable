@@ -6,7 +6,7 @@ namespace Composable.Windsor
 {
     static class WindsorDisposableExtensions
     {
-        public static IComponentLease<TComponent> ResolveDisposable<TComponent>(this IWindsorContainer me)
+        static IComponentLease<TComponent> ResolveDisposable<TComponent>(this IWindsorContainer me)
         {
             return new WindsorComponentLease<TComponent>(me.Resolve<TComponent>(), me);
         }

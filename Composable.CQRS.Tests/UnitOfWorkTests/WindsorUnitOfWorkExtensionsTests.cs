@@ -76,7 +76,7 @@ namespace Composable.CQRS.Tests.UnitOfWorkTests
         }
     }
 
-    public class UnitOfWorkSpy : IUnitOfWorkParticipant
+    class UnitOfWorkSpy : IUnitOfWorkParticipant
     {
         public IUnitOfWork UnitOfWork { get; private set; }
         public Guid Id { get; private set; }

@@ -7,7 +7,7 @@ using Composable.System.Linq;
 
 namespace Composable.CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
 {
-    public class After<TEvent> : EventMigration<IRootEvent>
+    class After<TEvent> : EventMigration<IRootEvent>
     {
         readonly IEnumerable<Type> _insert;
 

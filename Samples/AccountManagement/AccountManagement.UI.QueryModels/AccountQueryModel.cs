@@ -7,8 +7,8 @@ namespace AccountManagement.UI.QueryModels
 
   public class AccountQueryModel : ISingleAggregateQueryModel
     {
-        public Password Password { get; set; }
-        public Email Email { get; set; }
+        public Password Password { get; internal set; }
+        public Email Email { get; internal set; }
         public Guid Id { get; private set; }
 
         void ISingleAggregateQueryModel.SetId(Guid id)

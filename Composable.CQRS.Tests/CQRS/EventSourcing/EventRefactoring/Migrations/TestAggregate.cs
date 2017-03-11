@@ -9,36 +9,36 @@ using JetBrains.Annotations;
 
 namespace Composable.CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
 {
-    public interface IRootEvent : IAggregateRootEvent { }
+    interface IRootEvent : IAggregateRootEvent { }
 
-    public abstract class RootEvent : AggregateRootEvent, IRootEvent
+    abstract class RootEvent : AggregateRootEvent, IRootEvent
     {}
 
     namespace Events
     {
-        public abstract class ECAbstract : RootEvent, IAggregateRootCreatedEvent
+        abstract class ECAbstract : RootEvent, IAggregateRootCreatedEvent
         {}
 
-        public class Ec1 : ECAbstract{}
+        internal class Ec1 : ECAbstract{}
 
-        public class Ec2 : ECAbstract{}
+        internal class Ec2 : ECAbstract{}
 
-        public class Ec3 : ECAbstract{}
+        internal class Ec3 : ECAbstract{}
 
-        public class E1 : RootEvent { }
-        public class E2 : RootEvent { }
-        public class E3 : RootEvent { }
-        public class E4 : RootEvent { }
-        public class E5 : RootEvent { }
-        public class E6 : RootEvent { }
-        public class E7 : RootEvent { }
-        public class E8 : RootEvent { }
-        public class E9 : RootEvent { }
-        public class Ef : RootEvent { }
+        internal class E1 : RootEvent { }
+        internal class E2 : RootEvent { }
+        internal class E3 : RootEvent { }
+        internal class E4 : RootEvent { }
+        internal class E5 : RootEvent { }
+        internal class E6 : RootEvent { }
+        internal class E7 : RootEvent { }
+        internal class E8 : RootEvent { }
+        internal class E9 : RootEvent { }
+        internal class Ef : RootEvent { }
     }
 
 
-    public class TestAggregate : AggregateRoot<TestAggregate, RootEvent, IRootEvent>
+    class TestAggregate : AggregateRoot<TestAggregate, RootEvent, IRootEvent>
     {
         public void RaiseEvents(params RootEvent[] events)
         {
@@ -91,7 +91,7 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
         public IReadOnlyList<IAggregateRootEvent> History => _history;
     }
 
-    public static class EventSequenceGenerator
+    static class EventSequenceGenerator
     {
         public static RootEvent[] ToEvents(this IEnumerable<Type> types)
         {

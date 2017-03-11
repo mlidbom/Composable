@@ -34,20 +34,20 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.EventRefactoring.When_renamin
         }
 
         [EventRenamedFrom(Name = OldName)]
-        public class Event1 : AggregateRootEvent
+        class Event1 : AggregateRootEvent
         {
             public const string OldName = "Event1Old";
             public static readonly string OldFullName = typeof(Event1OldREMOVE).FullName.Replace("REMOVE", "");
         }
 
         [EventRenamedFrom(Name = OldName)]
-        public class Event2 : AggregateRootEvent
+        class Event2 : AggregateRootEvent
         {
             public const string OldName = "Event2Old";
             public static readonly string OldFullName = typeof(Event2OldREMOVE).FullName.Replace("REMOVE", "");
         }
 
-        public class Event1OldREMOVE : AggregateRootEvent { }
-        public class Event2OldREMOVE : AggregateRootEvent { }
+        class Event1OldREMOVE : AggregateRootEvent { }
+        class Event2OldREMOVE : AggregateRootEvent { }
     }
 }

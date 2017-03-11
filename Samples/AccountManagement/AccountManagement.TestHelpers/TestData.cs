@@ -25,7 +25,7 @@
             }
 
             static int _passwordCount = 1;
-            public static string CreateValidPasswordString()
+            internal static string CreateValidPasswordString()
             {
                 return "SomeComplexPassword" + _passwordCount++;
             }
@@ -36,7 +36,7 @@
             }
         }
 
-        public static class Email
+        internal static class Email
         {
             static int _registeredAccounts = 1;
 

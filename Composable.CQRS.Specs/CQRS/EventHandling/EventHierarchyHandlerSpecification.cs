@@ -16,7 +16,7 @@ namespace Composable.CQRS.Specs.CQRS.EventHandling
             listener = new HandlesIUserEventsHierarchy();
         }
 
-        protected IHandlesIUserEvents listener;
+        IHandlesIUserEvents listener;
         protected Guid _userId = Guid.Parse("00000000-0000-0000-0000-000000000001");
 
         public void when_listening_for_IUserEvent()
@@ -84,7 +84,7 @@ namespace Composable.CQRS.Specs.CQRS.EventHandling
             it["Second handler is called"] = () => doubleRegistration.Handler2CallOrder.Should().Be(2);
         }
 
-        public class RegisterUserRegisteredTwice : CallsMatchingHandlersInRegistrationOrderEventHandler<IUserEvent>
+        class RegisterUserRegisteredTwice : CallsMatchingHandlersInRegistrationOrderEventHandler<IUserEvent>
         {
             int _calls = 0;
             public int Handler1CallOrder = 0;
@@ -97,7 +97,7 @@ namespace Composable.CQRS.Specs.CQRS.EventHandling
             }
         }
 
-        public interface IHandlesIUserEvents : IEventSubscriber<IUserEvent>
+        interface IHandlesIUserEvents : IEventSubscriber<IUserEvent>
         {
             int CallsMade { get; set; }
             int? BeforeHandlers1CallOrder { get; set; }
@@ -110,7 +110,7 @@ namespace Composable.CQRS.Specs.CQRS.EventHandling
             int? AfterHandlers2CallOrder { get; set; }
         }
 
-        public class HandlesIUserEventsHierarchy : CallsMatchingHandlersInRegistrationOrderEventHandler<IUserEvent>, IHandlesIUserEvents
+        class HandlesIUserEventsHierarchy : CallsMatchingHandlersInRegistrationOrderEventHandler<IUserEvent>, IHandlesIUserEvents
         {
             public int CallsMade { get; set; }
 
@@ -149,45 +149,45 @@ namespace Composable.CQRS.Specs.CQRS.EventHandling
 
         public interface IUserEvent : IAggregateRootEvent {}
 
-        public interface IUserCreatedEvent : IUserEvent {}
+        interface IUserCreatedEvent : IUserEvent {}
 
-        public interface IUserRegistered : IUserCreatedEvent, IAggregateRootCreatedEvent {}
+        interface IUserRegistered : IUserCreatedEvent, IAggregateRootCreatedEvent {}
 
-        public interface IUserDeleted : IUserEvent, IAggregateRootDeletedEvent {}
+        interface IUserDeleted : IUserEvent, IAggregateRootDeletedEvent {}
 
-        public interface IUserSkillsEvent : IUserEvent {}
+        interface IUserSkillsEvent : IUserEvent {}
 
-        public interface IUserSkillsAdded : IUserSkillsEvent {}
+        interface IUserSkillsAdded : IUserSkillsEvent {}
 
-        public interface IUserSkillsRemoved : IUserSkillsEvent {}
+        interface IUserSkillsRemoved : IUserSkillsEvent {}
 
-        public interface IUserAddedSkills : IUserSkillsAdded {}
+        interface IUserAddedSkills : IUserSkillsAdded {}
 
-        public interface IUserRemovedSkills : IUserSkillsRemoved {}
+        interface IUserRemovedSkills : IUserSkillsRemoved {}
 
-        public interface IUserEditedSkill : IUserAddedSkills, IUserRemovedSkills {}
+        interface IUserEditedSkill : IUserAddedSkills, IUserRemovedSkills {}
 
-        public interface IIgnoredUserEvent : IUserEvent {}
+        interface IIgnoredUserEvent : IUserEvent {}
 
-        public class IgnoredUserEvent : AggregateRootEvent, IIgnoredUserEvent {}
+        class IgnoredUserEvent : AggregateRootEvent, IIgnoredUserEvent {}
 
-        public class UserCreatedEvent : AggregateRootEvent, IUserCreatedEvent
+        class UserCreatedEvent : AggregateRootEvent, IUserCreatedEvent
         {
             public UserCreatedEvent(Guid userId) : base(userId) {}
         }
 
         public class UserDeleted : AggregateRootEvent, IUserDeleted {}
 
-        public class UserEditedSkill : AggregateRootEvent, IUserEditedSkill
+        class UserEditedSkill : AggregateRootEvent, IUserEditedSkill
         {
             public UserEditedSkill(Guid userId) : base(userId) {}
         }
 
-        public class UserRegistered : AggregateRootEvent, IUserRegistered
+        class UserRegistered : AggregateRootEvent, IUserRegistered
         {
             public UserRegistered(Guid userId) : base(userId) {}
         }
 
-        public class UnHandledEvent : AggregateRootEvent, IUserEvent {}
+        class UnHandledEvent : AggregateRootEvent, IUserEvent {}
     }
 }

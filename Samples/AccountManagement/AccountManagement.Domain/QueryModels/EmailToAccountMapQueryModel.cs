@@ -4,7 +4,7 @@ using Composable.Contracts;
 
 namespace AccountManagement.Domain.QueryModels
 {
-    public class EmailToAccountMapQueryModel
+    class EmailToAccountMapQueryModel
     {
         public EmailToAccountMapQueryModel(Email email, Guid accountId)
         {

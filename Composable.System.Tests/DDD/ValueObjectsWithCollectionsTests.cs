@@ -11,7 +11,7 @@ namespace Composable.Tests.DDD
     [TestFixture]
     public class ValueObjectsWithCollectionsTests
     {
-        public class ExternalJobsDashboardViewModel : ValueObject<ExternalJobsDashboardViewModel>
+        class ExternalJobsDashboardViewModel : ValueObject<ExternalJobsDashboardViewModel>
         {
             public ExternalJobsDashboardViewModel()
             {

@@ -15,7 +15,7 @@ namespace Composable.CQRS.CQRS.EventSourcing
             where TComponentBaseEventClass : TAggregateRootBaseEventClass, TComponentBaseEventInterface
             where TComponent : Component<TComponent, TComponentBaseEventClass, TComponentBaseEventInterface>
         {
-            public abstract class NestedEntity<TEntity,
+            internal abstract class NestedEntity<TEntity,
                                                TEntityId,
                                                TEntityBaseEventClass,
                                                TEntityBaseEventInterface,

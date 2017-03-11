@@ -5,7 +5,7 @@ using JetBrains.Annotations;
 
 namespace Composable.CQRS.Tests.CQRS.EventSourcing.AggregateRoot.NestedEntitiesTests.IntegerId
 {
-    public class Root : AggregateRoot<Root, RootEvent.Implementation.Root, RootEvent.IRoot>
+    class Root : AggregateRoot<Root, RootEvent.Implementation.Root, RootEvent.IRoot>
     {
         static int _instances;
         public string Name { get; private set; }
@@ -29,7 +29,7 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.AggregateRoot.NestedEntitiesT
         public Entity AddEntity(string name) { return _entities.Add(new RootEvent.Entity.Implementation.Created(++_instances, name)); }
     }
 
-    public class Component : Root.Component<Component, RootEvent.Component.Implementation.Root, RootEvent.Component.IRoot>
+    class Component : Root.Component<Component, RootEvent.Component.Implementation.Root, RootEvent.Component.IRoot>
     {
         static int _instances;
         public string Name { get; private set; }
@@ -69,7 +69,7 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.AggregateRoot.NestedEntitiesT
     }
 
     [UsedImplicitly]
-    public class Entity : Root.Entity<Entity,
+    class Entity : Root.Entity<Entity,
                               int,
                               RootEvent.Entity.Implementation.Root,
                               RootEvent.Entity.IRoot,

@@ -4,7 +4,7 @@ using Composable.CQRS.Tests.CQRS.EventSourcing.AggregateRoot.NestedEntitiesTests
 
 namespace Composable.CQRS.Tests.CQRS.EventSourcing.AggregateRoot.NestedEntitiesTests.GuidId.Domain
 {
-    public partial class Component : Root.Component<Component, RootEvent.Component.Implementation.Root, RootEvent.Component.IRoot>
+    partial class Component : Root.Component<Component, RootEvent.Component.Implementation.Root, RootEvent.Component.IRoot>
     {
         public Component(Root root) : base(root)
         {

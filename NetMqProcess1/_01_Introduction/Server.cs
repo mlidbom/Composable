@@ -7,7 +7,7 @@ namespace NetMqProcess01._01_Introduction
 {
     public class Server
     {
-        public class Data
+        class Data
         {
             public long Id { get; set; }
         }

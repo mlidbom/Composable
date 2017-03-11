@@ -51,14 +51,13 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing
         }
     }
 
-
-    public interface IUserEvent : IAggregateRootEvent, IRootEvent
+    interface IUserEvent : IAggregateRootEvent, IRootEvent
     { }
 
-    public abstract class UserEvent : AggregateRootEvent, IUserEvent
+    abstract class UserEvent : AggregateRootEvent, IUserEvent
     {}
 
-    public class UserChangedEmail : UserEvent, IUserEvent
+    class UserChangedEmail : UserEvent, IUserEvent
     {
         public UserChangedEmail(string email)
         {
@@ -67,27 +66,27 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing
         public string Email { get; private set; }
     }
 
-    public class UserChangedPassword : UserEvent, IUserEvent
+    class UserChangedPassword : UserEvent, IUserEvent
     {
         public string Password { get; set; }
     }
 
-    public class UserRegistered : UserEvent, IAggregateRootCreatedEvent
+    class UserRegistered : UserEvent, IAggregateRootCreatedEvent
     {
         public Guid UserId { get; set; }
         public string Email { get; set; }
         public string Password { get; set; }
     }
 
-    public class MigratedBeforeUserRegisteredEvent : UserEvent, IAggregateRootCreatedEvent
+    class MigratedBeforeUserRegisteredEvent : UserEvent, IAggregateRootCreatedEvent
     {
     }
 
-    public class MigratedAfterUserChangedEmailEvent : UserEvent, IAggregateRootCreatedEvent
+    class MigratedAfterUserChangedEmailEvent : UserEvent, IAggregateRootCreatedEvent
     {
     }
 
-    public class MigratedReplaceUserChangedPasswordEvent : UserEvent, IAggregateRootCreatedEvent
+    class MigratedReplaceUserChangedPasswordEvent : UserEvent, IAggregateRootCreatedEvent
     {
     }
 }

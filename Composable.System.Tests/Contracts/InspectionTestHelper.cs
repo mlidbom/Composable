@@ -7,7 +7,7 @@ using NUnit.Framework;
 
 namespace Composable.Tests.Contracts
 {
-    public static class InspectionTestHelper
+    static class InspectionTestHelper
     {
         internal static void BatchTestInspection<TException, TInspected>(
             Action<Inspected<TInspected>> assert,

@@ -4,7 +4,7 @@ using Composable.Persistence.KeyValueStorage;
 
 namespace Composable.CQRS.Specs
 {
-    public static class DocumentUpdatedObservableExtensions
+    static class DocumentUpdatedObservableExtensions
     {
         public static IObservable<IDocumentUpdated<TDocument>> WithDocumentType<TDocument>(this IObservable<IDocumentUpdated> me)
         {

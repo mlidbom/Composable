@@ -9,7 +9,7 @@ namespace Composable.Windsor
     /// (instead of the default Windsor behavior of defaulting to the first registered service)
     /// Use it by adding it to the container at wire-up with container.Kernel.AddHandlerSelector(new DefaultToKeyHandlerSelector(typeof([ComponentType]),"defaultKey"));
     /// </summary>
-    public class DefaultToKeyHandlerSelector : IHandlerSelector
+    class DefaultToKeyHandlerSelector : IHandlerSelector
     {
         readonly Type _type;
         readonly string _keyToDefaultTo;

@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace AccountManagement.UI.Commands.Tests.UserCommands
 {
-    public static class CommandValidator
+    static class CommandValidator
     {
         public static IEnumerable<ValidationResult> ValidationFailures(object command)
         {

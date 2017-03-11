@@ -6,7 +6,7 @@ namespace AccountManagement.Domain.Shared
 {
     public class PasswordDoesNotMatchPolicyException : ArgumentException
     {
-        public PasswordDoesNotMatchPolicyException(IEnumerable<Password.Policy.Failures> passwordPolicyFailures) : base(BuildMessage(passwordPolicyFailures))
+        internal PasswordDoesNotMatchPolicyException(IEnumerable<Password.Policy.Failures> passwordPolicyFailures) : base(BuildMessage(passwordPolicyFailures))
         {
             Failures = passwordPolicyFailures;
         }

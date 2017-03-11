@@ -31,14 +31,14 @@ namespace Composable.CQRS.Specs.CQRS.EventHandling
             //Note how this event inherits IAggregateRootCreatedEvent. This allows SingleAggregateQueryModelUpdater and others to automatically know that it is a creation event.
             //Any event that signifies that a CV has been created should inherit this event
             //That way SingleAggregateQueryModelUpdater will not try to read the model from the DB and it can automatically instantiate the model with the correct aggregate root id.
-            public interface ICVCreated : ICVEvent, IAggregateRootCreatedEvent {}
+            interface ICVCreated : ICVEvent, IAggregateRootCreatedEvent {}
 
             //Note how this event inherits IAggregateRootDeletedEvent. This allows SingleAggregateQueryModelUpdater and others to automatically know that it is a deletion event.
             //That way SingleAggregateQueryModelUpdater will know that it can go right ahead and delete the model.
             public interface ICVDeleted : ICVEvent, IAggregateRootDeletedEvent {}
 
             //Should be inherited by any event that is triggered by the candidate editing his/her CV
-            public interface ICVUpdatedByOwner : ICVEvent {}
+            interface ICVUpdatedByOwner : ICVEvent {}
 
             //Should be inherited by any event that is triggered by a recruiter acting on the CV
             public interface ICVUpdatedByRecruiter : ICVEvent
@@ -51,12 +51,12 @@ namespace Composable.CQRS.Specs.CQRS.EventHandling
             //a PropertyUpdated event.
             namespace PropertyUpdated
             {
-                public interface ICVEmailPropertyUpdated : ICVEvent
+                interface ICVEmailPropertyUpdated : ICVEvent
                 {
                     string Email { get; set; }
                 }
 
-                public interface ICVPasswordPropertyUpdated : ICVEvent
+                interface ICVPasswordPropertyUpdated : ICVEvent
                 {
                     string Password { get; set; }
                 }
@@ -72,9 +72,9 @@ namespace Composable.CQRS.Specs.CQRS.EventHandling
 
             #endregion
 
-            public interface ICVRegistered : ICVCreated, PropertyUpdated.ICVEmailPropertyUpdated, PropertyUpdated.ICVPasswordPropertyUpdated {}
+            interface ICVRegistered : ICVCreated, PropertyUpdated.ICVEmailPropertyUpdated, PropertyUpdated.ICVPasswordPropertyUpdated {}
 
-            public interface ICVSkillsEditedByCandidate : PropertyUpdated.ICVSkillsPropertyUpdated, ICVUpdatedByOwner {}
+            interface ICVSkillsEditedByCandidate : PropertyUpdated.ICVSkillsPropertyUpdated, ICVUpdatedByOwner {}
 
             public interface ICVSkillsEditedByRecruiter : PropertyUpdated.ICVSkillsPropertyUpdated, ICVUpdatedByRecruiter {}
         }
@@ -87,9 +87,9 @@ namespace Composable.CQRS.Specs.CQRS.EventHandling
                 Id = id;
             }
 
-            public string Email { get; set; }
-            public string Password { get; set; }
-            public HashSet<string> Skills { get; set; }
+            internal string Email { get; set; }
+            internal string Password { get; set; }
+            internal HashSet<string> Skills { get; set; }
 
             public CVQueryModel()
             {
@@ -101,13 +101,13 @@ namespace Composable.CQRS.Specs.CQRS.EventHandling
         {
             namespace InternalImplementations
             {
-                public class CVRegisteredEvent : AggregateRootEvent, ICVRegistered
+                class CVRegisteredEvent : AggregateRootEvent, ICVRegistered
                 {
                     public string Email { get; set; }
                     public string Password { get; set; }
                 }
 
-                public class CVSkillsEdited : AggregateRootEvent, ICVSkillsEditedByCandidate
+                class CVSkillsEdited : AggregateRootEvent, ICVSkillsEditedByCandidate
                 {
                     public List<string> AddedSkills { get; set; }
                     public List<string> RemovedSkills { get; set; }
@@ -117,7 +117,7 @@ namespace Composable.CQRS.Specs.CQRS.EventHandling
 
         namespace QueryModelUpdaters
         {
-            public class CVQueryModelUpdater : SingleAggregateQueryModelUpdater<CVQueryModelUpdater, CVQueryModel, ICVEvent, IDocumentDbSession>
+            class CVQueryModelUpdater : SingleAggregateQueryModelUpdater<CVQueryModelUpdater, CVQueryModel, ICVEvent, IDocumentDbSession>
             {
                 public CVQueryModelUpdater(IDocumentDbSession session)
                     : base(session)

@@ -7,7 +7,7 @@ using FluentAssertions;
 
 namespace Composable.CQRS.Windsor.Testing
 {
-    public static class WindsorRegistrationTesterExtensions
+    static class WindsorRegistrationTesterExtensions
     {
         public class WindsorRegistrationAssertionHelper
         {

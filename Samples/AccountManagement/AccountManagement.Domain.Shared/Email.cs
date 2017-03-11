@@ -68,6 +68,6 @@ namespace AccountManagement.Domain.Shared
 
     public class InvalidEmailException : ArgumentException
     {
-        public InvalidEmailException(string message) : base(message ?? "[null]") {}
+        internal InvalidEmailException(string message) : base(message ?? "[null]") {}
     }
 }

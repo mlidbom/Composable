@@ -6,7 +6,7 @@ using Composable.CQRS.CQRS.EventSourcing.Refactoring.Migrations;
 
 namespace Composable.CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
 {
-    public class MigrationScenario
+    class MigrationScenario
     {
         public readonly IEnumerable<Type> OriginalHistory;
         public readonly IEnumerable<Type> ExpectedHistory;

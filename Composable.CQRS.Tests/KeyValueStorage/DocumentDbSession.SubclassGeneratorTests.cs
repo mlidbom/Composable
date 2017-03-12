@@ -18,20 +18,9 @@ namespace Composable.CQRS.Tests.KeyValueStorage
         // ReSharper disable once MemberCanBePrivate.Global
         public interface INestedInheritingInterface : IDocumentDbSession {}
 
-        [Test] public void CanCreateSubclass()
-        {
-            var inheritingType = DocumentDbSession.SubClassGenerator.GenerateSubClass<IInheritingInterface>();
-        }
-
-        [Test] public void CanCreateSubclassForNestedInterface()
-        {
-            var inheritingType = DocumentDbSession.SubClassGenerator.GenerateSubClass<INestedInheritingInterface>();
-        }
 
         [Test] public void Can_create_10_instances_per_millisecond_given_correct_windsor_wiring()
         {
-            var sessionType = DocumentDbSession.SubClassGenerator.GenerateSubClass<IInheritingInterface>();
-
             var container = new WindsorContainer();
             container.Register(
                                Component.For<IDocumentDb>()
@@ -42,16 +31,25 @@ namespace Composable.CQRS.Tests.KeyValueStorage
                                         .LifestyleScoped(),
                                Component.For<IDocumentDbSessionInterceptor>()
                                         .Instance(NullOpDocumentDbSessionInterceptor.Instance)
-                                        .LifestyleSingleton(),
-                               Component.For<IInheritingInterface>()
-                                        .ImplementedBy(sessionType)
-                                        .LifestyleScoped()
+                                        .LifestyleSingleton()
                               );
 
-            using(container.BeginScope())
+            var factoryMethod = DocumentDbSession.SubClassGenerator.CreateFactoryMethod<IInheritingInterface>();
+            //warm up cache
+            using (container.BeginScope())
             {
-                container.Resolve<IInheritingInterface>();
+                var instance = factoryMethod(container);
             }
+
+            TimeAsserter.Execute(() =>
+                                 {
+                                     using(container.BeginScope())
+                                     {
+                                         factoryMethod(container);
+                                     }
+                                 },
+                                 iterations: 100,
+                                 maxTotal: 10.Milliseconds());
         }
     }
 }

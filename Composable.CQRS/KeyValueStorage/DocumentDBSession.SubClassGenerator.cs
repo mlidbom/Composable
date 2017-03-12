@@ -1,7 +1,8 @@
 ﻿using System;
 using System.CodeDom.Compiler;
 using System.Collections.Generic;
-using System.Reflection;
+using Castle.MicroKernel.Registration;
+using Castle.Windsor;
 using Composable.Persistence.KeyValueStorage;
 using Composable.SystemExtensions.Threading;
 
@@ -12,13 +13,9 @@ namespace Composable.CQRS.KeyValueStorage
         internal class SubClassGenerator
         {
             static Dictionary<Type, Type> Cache = new Dictionary<Type, Type>();
-            public static Type GenerateSubClass<TSubClassInterface>() where TSubClassInterface : IDocumentDbSession
-            {
-                if(Cache.TryGetValue(typeof(TSubClassInterface), out Type generatedSubclass))
-                {
-                    return generatedSubclass;
-                }
 
+            static Type InternalGenerate<TSubClassInterface>() where TSubClassInterface : IDocumentDbSession
+            {
                 var subClassName = $"{nameof(DocumentDbSession)}_generated_implementation_of_{typeof(TSubClassInterface).FullName.Replace(".", "_") .Replace("+", "_")}";
                 string subclassCode =
                     $@"
@@ -56,9 +53,33 @@ public class {subClassName} :
                     throw new SubclassGenerationException(subclassCode, compilerResults);
                 }
 
-                var generateSubClass = compilerResults.CompiledAssembly.GetType(subClassName);
-                Cache.Add(typeof(TSubClassInterface), generateSubClass);
-                return generateSubClass;
+                var generatedSubClass = compilerResults.CompiledAssembly.GetType(subClassName);
+                return generatedSubClass;
+            }
+
+            //Todo: Optimize startup time for applications requesting many types. Letting us do this is why this returns a Func
+            //Maybe lazily build an assembly for all requested subclasses when getting the first request for an instance.
+            //Or maybe push off creating the class as a background worker etc.
+            //Or maybe switch to using castle.dynamicproxy somehow.
+            internal static Func<IWindsorContainer, TSubClassInterface> CreateFactoryMethod<TSubClassInterface>() where TSubClassInterface : class, IDocumentDbSession
+            {
+                return container =>
+                       {
+                           if (Cache.TryGetValue(typeof(TSubClassInterface), out Type cachedSubClass))
+                           {
+                               return container.Resolve<TSubClassInterface>();
+                           }
+
+                           var newlyGeneratedSubclass = InternalGenerate<TSubClassInterface>();
+
+                           Cache.Add(typeof(TSubClassInterface), newlyGeneratedSubclass);
+
+                           container.Register(Component.For<TSubClassInterface>()
+                                                       .ImplementedBy(newlyGeneratedSubclass)
+                                                       .LifestyleScoped());
+
+                           return container.Resolve<TSubClassInterface>();
+                       };
             }
         }
     }

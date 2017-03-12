@@ -1,0 +1,5 @@
+﻿namespace Composable
+{
+    class AssemblyHandleComposableCore
+    {}
+}

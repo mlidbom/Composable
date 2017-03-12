@@ -25,25 +25,16 @@
             }
 
             static int _passwordCount = 1;
-            internal static string CreateValidPasswordString()
-            {
-                return "SomeComplexPassword" + _passwordCount++;
-            }
+            internal static string CreateValidPasswordString() => "SomeComplexPassword" + _passwordCount++;
 
-            public static Domain.Shared.Password CreateValidPassword()
-            {
-                return new Domain.Shared.Password(CreateValidPasswordString());
-            }
+            public static Domain.Shared.Password CreateValidPassword() => new Domain.Shared.Password(CreateValidPasswordString());
         }
 
         internal static class Email
         {
             static int _registeredAccounts = 1;
 
-            public static Domain.Shared.Email CreateValidEmail()
-            {
-                return Domain.Shared.Email.Parse($"test.test@test{_registeredAccounts++}.se");
-            }
+            public static Domain.Shared.Email CreateValidEmail() => Domain.Shared.Email.Parse($"test.test@test{_registeredAccounts++}.se");
         }
     }
 }

@@ -116,16 +116,13 @@ namespace Composable.CQRS.CQRS.EventSourcing
         }
 
 
-        public override string ToString()
-        {
-            return "{0}: {1}".FormatWith(_id, GetType().FullName);
-        }
+        public override string ToString() => "{0}: {1}".FormatWith(_id, GetType().FullName);
 
         IUnitOfWork _unitOfWork;
         readonly Guid _id = Guid.NewGuid();
 
-        IUnitOfWork IUnitOfWorkParticipant.UnitOfWork { get { return _unitOfWork; } }
-        Guid IUnitOfWorkParticipant.Id { get { return _id; } }
+        IUnitOfWork IUnitOfWorkParticipant.UnitOfWork => _unitOfWork;
+        Guid IUnitOfWorkParticipant.Id => _id;
 
         void IUnitOfWorkParticipant.Join(IUnitOfWork unit)
         {
@@ -164,10 +161,7 @@ namespace Composable.CQRS.CQRS.EventSourcing
             return InternalSaveChanges();
         }
 
-        public IEnumerable<IAggregateRootEvent> GetHistory(Guid aggregateId)
-        {
-            return GetHistoryInternal(aggregateId, takeWriteLock:false);
-        }
+        public IEnumerable<IAggregateRootEvent> GetHistory(Guid aggregateId) => GetHistoryInternal(aggregateId, takeWriteLock:false);
 
         IEnumerable<IAggregateRootEvent> GetHistoryInternal(Guid aggregateId, bool takeWriteLock)
         {

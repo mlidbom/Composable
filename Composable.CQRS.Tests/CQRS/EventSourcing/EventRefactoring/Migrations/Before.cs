@@ -14,10 +14,7 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
         public static Before<TEvent> Insert<T1>() => new Before<TEvent>(Seq.OfTypes<T1>());
         public static Before<TEvent> Insert<T1, T2>() => new Before<TEvent>(Seq.OfTypes<T1, T2>());
 
-        Before(IEnumerable<Type> insert) : base(Guid.Parse("0533D2E4-DE78-4751-8CAE-3343726D635B"), "Before", "Long description of Before")
-        {
-            _insert = insert;
-        }
+        Before(IEnumerable<Type> insert) : base(Guid.Parse("0533D2E4-DE78-4751-8CAE-3343726D635B"), "Before", "Long description of Before") => _insert = insert;
 
         public override ISingleAggregateInstanceHandlingEventMigrator CreateSingleAggregateInstanceHandlingMigrator() => new Inspector(_insert);
 
@@ -26,8 +23,7 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
             readonly IEnumerable<Type> _insert;
             Type _lastSeenEventType;
 
-            public Inspector(IEnumerable<Type> insert) { _insert = insert; }
-
+            public Inspector(IEnumerable<Type> insert) => _insert = insert;
 
             public void MigrateEvent(IAggregateRootEvent @event, IEventModifier modifier)
             {

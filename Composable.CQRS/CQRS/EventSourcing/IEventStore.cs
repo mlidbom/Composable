@@ -19,10 +19,7 @@ namespace Composable.CQRS.CQRS.EventSourcing
 
     static class EventStoreExtensions
     {
-        public static IEnumerable<Guid> StreamAggregateIdsInCreationOrder<TBaseAggregateEventInterface>(this IEventStore @this)
-        {
-            return @this.StreamAggregateIdsInCreationOrder(typeof(TBaseAggregateEventInterface));
-        }
+        public static IEnumerable<Guid> StreamAggregateIdsInCreationOrder<TBaseAggregateEventInterface>(this IEventStore @this) => @this.StreamAggregateIdsInCreationOrder(typeof(TBaseAggregateEventInterface));
     }
 
     static class EventStoreTestingExtensions

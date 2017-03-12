@@ -12,7 +12,7 @@ namespace AccountManagement.UI.QueryModels.Tests
     {
         protected WindsorContainer Container;
         IDisposable _scope;
-        protected IAccountManagementQueryModelsReader QueryModelsReader { get { return Container.Resolve<IAccountManagementQueryModelsReader>(); } }
+        protected IAccountManagementQueryModelsReader QueryModelsReader => Container.Resolve<IAccountManagementQueryModelsReader>();
 
         protected void ReplaceContainerScope()
         {

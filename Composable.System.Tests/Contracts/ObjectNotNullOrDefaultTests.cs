@@ -63,10 +63,7 @@ namespace Composable.Tests.Contracts
             int _value;
             // ReSharper restore NotAccessedField.Local
 
-            public MyStructure(int value)
-            {
-                _value = value;
-            }
+            public MyStructure(int value) => _value = value;
         }
     }
 

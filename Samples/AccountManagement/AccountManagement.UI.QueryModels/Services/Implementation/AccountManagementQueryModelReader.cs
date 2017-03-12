@@ -22,7 +22,7 @@ namespace AccountManagement.UI.QueryModels.Services.Implementation
             _generatedModels = new QueryModelGeneratingDocumentDbReader(usageGuard, NullOpDocumentDbSessionInterceptor.Instance, new []{ accountQueryModelGenerator });
         }
 
-        public AccountQueryModel GetAccount(Guid accountId) { return _generatedModels.Get<AccountQueryModel>(accountId); }
+        public AccountQueryModel GetAccount(Guid accountId) => _generatedModels.Get<AccountQueryModel>(accountId);
 
         public bool TryGetAccountByEmail(Email accountEmail, out AccountQueryModel account)
         {
@@ -36,9 +36,6 @@ namespace AccountManagement.UI.QueryModels.Services.Implementation
             return false;
         }
 
-        public AccountQueryModel GetAccount(Guid accountId, int version)
-        {
-            return _generatedModels.GetVersion<AccountQueryModel>(accountId, version);
-        }
+        public AccountQueryModel GetAccount(Guid accountId, int version) => _generatedModels.GetVersion<AccountQueryModel>(accountId, version);
     }
 }

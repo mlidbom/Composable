@@ -38,9 +38,6 @@ namespace Composable.Contracts
         }
 
         ///<summary>Standard constructor</summary>
-        internal Inspected(params InspectedValue<TValue>[] inspectedValues)
-        {
-            _inspectedValues = inspectedValues;
-        }
+        internal Inspected(params InspectedValue<TValue>[] inspectedValues) => _inspectedValues = inspectedValues;
     }
 }

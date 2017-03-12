@@ -7,10 +7,7 @@ namespace Composable.Contracts
         internal TValue Value { get; private set; }
 
         ///<summary>Standard constructor</summary>
-        internal InspectedValue(TValue value, InspectionType type, string name = "") : base(type, name)
-        {
-            Value = value;
-        }
+        internal InspectedValue(TValue value, InspectionType type, string name = "") : base(type, name) => Value = value;
     }
 
     ///<summary>Represents a single value that is being inspected. Keeps track of the values name and the type of inspection </summary>

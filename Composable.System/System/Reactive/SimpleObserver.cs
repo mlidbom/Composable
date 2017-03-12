@@ -15,8 +15,8 @@ namespace Composable.System.Reactive
             _onCompleted = onCompleted ?? (() => { });
         }
 
-        public void OnNext(TEvent value) => _onNext(value);
-        public void OnError(Exception error) => _onError(error);
-        public void OnCompleted() => _onCompleted();
+        public void OnNext(TEvent value) { _onNext(value); }
+        public void OnError(Exception error) { _onError(error); }
+        public void OnCompleted() { _onCompleted(); }
     }
 }

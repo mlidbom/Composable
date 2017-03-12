@@ -11,7 +11,7 @@ namespace AccountManagement.Domain.Tests
   [TestFixture] public abstract class DomainTestBase
     {
         protected IWindsorContainer Container { get; private set; }
-        protected IMessageSpy MessageSpy { get { return Container.Resolve<IMessageSpy>(); } }
+        protected IMessageSpy MessageSpy => Container.Resolve<IMessageSpy>();
 
         StrictAggregateDisposable _managedResources;
 

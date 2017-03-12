@@ -22,15 +22,11 @@ namespace Composable.System.Linq
         /// generates a sequence of integers beginning with <paramref name="me"/> where each element is
         /// <paramref name="stepsize"/> larger than the previous
         /// </summary>
-        public static IterationSpecification By(this int me, int stepsize)
-        {
-            return new IterationSpecification
-                       {
-                           StartValue = me,
-                           StepSize = stepsize
-                       };
-        }
-
+        public static IterationSpecification By(this int me, int stepsize) => new IterationSpecification
+                                                                              {
+                                                                                  StartValue = me,
+                                                                                  StepSize = stepsize
+                                                                              };
 
         /// <summary>
         /// generates a sequence of integers beginning with <paramref name="me"/> where each element is
@@ -48,10 +44,7 @@ namespace Composable.System.Linq
         /// generates a sequence of integers beginning with <paramref name="me"/> where each element is
         /// the previous element plus one that excludes the upper bound <paramref name="guard"/>
         /// </summary>
-        public static IEnumerable<int> Until(this int me, int guard)
-        {
-            return me.Through(guard - 1);
-        }
+        public static IEnumerable<int> Until(this int me, int guard) => me.Through(guard - 1);
 
         /// <summary>
         /// Returns as sequence that will yield all values to and including <paramref name="guard"/>
@@ -80,9 +73,6 @@ namespace Composable.System.Linq
         /// <summary>
         /// Returns as sequence that will yield all values to but excluding <paramref name="guard"/>
         /// </summary>
-        public static IEnumerable<int> Until(this IterationSpecification me, int guard)
-        {
-            return me.Through(guard - Math.Sign(me.StepSize));
-        }
+        public static IEnumerable<int> Until(this IterationSpecification me, int guard) => me.Through(guard - Math.Sign(me.StepSize));
     }
 }

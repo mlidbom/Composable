@@ -47,10 +47,7 @@ namespace Composable.Tests.IO
             Console.WriteLine("Deleted directory {0}", directory);
         }
 
-        static string CreateUsableFolderPath()
-        {
-            return Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
-        }
+        static string CreateUsableFolderPath() => Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
 
         static int CreateDirectoryHierarchy(string directoryPath, int depth)
         {

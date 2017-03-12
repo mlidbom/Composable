@@ -39,7 +39,8 @@ namespace Composable.Tests.StrictlyManagedResource
                 .Should()
                 .NotBeNull();
 
-        [Test] public void And_stack_trace_collection_is_enabled_exception_messages_contains_name_of_allocating_class_and_method_and_managed_type() =>
+        [Test] public void And_stack_trace_collection_is_enabled_exception_messages_contains_name_of_allocating_class_and_method_and_managed_type()
+        {
             ExceedResourceLifeTimeWithoutDisposing(forceStackTraceCollection: true)
                 .Message
                 .Should()
@@ -50,5 +51,6 @@ namespace Composable.Tests.StrictlyManagedResource
                 .Contain(nameof(And_stack_trace_collection_is_enabled_exception_messages_contains_name_of_allocating_class_and_method_and_managed_type))
                 .And
                 .Contain(nameof(StrictResource));
+        }
     }
 }

@@ -6,9 +6,6 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing
     [TestFixture]
     class InMemoryEventStoreSessionTests : EventStoreSessionTests
     {
-        protected override IEventStore CreateStore()
-        {
-            return new InMemoryEventStore();
-        }
+        protected override IEventStore CreateStore() => new InMemoryEventStore();
     }
 }

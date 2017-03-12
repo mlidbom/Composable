@@ -16,17 +16,14 @@ namespace Composable.System.Reflection
 
         struct TypedArgument<TParameter> : ITypedArgument
         {
-            public TypedArgument(TParameter argument) { Argument = argument; }
+            public TypedArgument(TParameter argument) => Argument = argument;
 
             public Type Type => typeof(TParameter);
             public object Argument { get; }
         }
 
         ///<summary>Creates an instance of TEntity using a constructor matching the specified argument types</summary>
-        public static TEntity CreateInstance<TParameter1>(TParameter1 argument1)
-        {
-            return CreateInstanceInternal(new TypedArgument<TParameter1>(argument1));
-        }
+        public static TEntity CreateInstance<TParameter1>(TParameter1 argument1) => CreateInstanceInternal(new TypedArgument<TParameter1>(argument1));
 
         static TEntity CreateInstanceInternal(params ITypedArgument[] typedArguments)
         {

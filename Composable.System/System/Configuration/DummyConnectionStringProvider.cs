@@ -6,9 +6,6 @@ namespace Composable.System.Configuration
     class DummyConnectionStringProvider : IConnectionStringProvider
     {
         ///<summary>Always returns a default connection string: "Composable.System.Configuration.DummyConnectionStringProvider.DummyConnectionString"</summary>
-        public ConnectionStringSettings GetConnectionString(string parameterName)
-        {
-            return new ConnectionStringSettings(parameterName, "Composable.System.Configuration.DummyConnectionStringProvider.DummyConnectionString");
-        }
+        public ConnectionStringSettings GetConnectionString(string parameterName) => new ConnectionStringSettings(parameterName, "Composable.System.Configuration.DummyConnectionStringProvider.DummyConnectionString");
     }
 }

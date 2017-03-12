@@ -13,10 +13,7 @@ namespace AccountManagement.Domain.Shared
     {
         string Value { get; set; }
 
-        public override string ToString()
-        {
-            return Value;
-        }
+        public override string ToString() => Value;
 
         Email(string emailAddress)
         {
@@ -51,10 +48,7 @@ namespace AccountManagement.Domain.Shared
             return true;
         }
 
-        public static Email Parse(string emailAddress)
-        {
-            return new Email(emailAddress);
-        }
+        public static Email Parse(string emailAddress) => new Email(emailAddress);
 
         //Note how all the exceptions contain the invalid email address. Always make sure that exceptions contain the relevant information.
         static void Validate(string emailAddress)

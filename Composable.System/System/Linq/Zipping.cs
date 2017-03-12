@@ -62,10 +62,7 @@ namespace Composable.System.Linq
             }
 
             /// <summary><see cref="object.ToString"/></summary>
-            public override string ToString()
-            {
-                return $"({First}, {Second})";
-            }
+            public override string ToString() => $"({First}, {Second})";
         }
     }
 }

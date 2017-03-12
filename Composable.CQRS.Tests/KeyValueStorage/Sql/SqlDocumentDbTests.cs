@@ -34,11 +34,7 @@ namespace Composable.CQRS.Tests.KeyValueStorage.Sql
             _databasePool.Dispose();
         }
 
-        protected override IDocumentDb CreateStore()
-        {
-            return new SqlServerDocumentDb(_connectionString);
-        }
-
+        protected override IDocumentDb CreateStore() => new SqlServerDocumentDb(_connectionString);
 
         [Serializable]
         class InsertSomething : MarshalByRefObject

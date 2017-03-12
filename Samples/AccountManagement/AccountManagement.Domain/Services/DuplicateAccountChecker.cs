@@ -9,10 +9,7 @@ namespace AccountManagement.Domain.Services
     {
         readonly IAccountManagementDomainQueryModelSession _querymodels;
 
-        public DuplicateAccountChecker(IAccountManagementDomainQueryModelSession querymodels)
-        {
-            _querymodels = querymodels;
-        }
+        public DuplicateAccountChecker(IAccountManagementDomainQueryModelSession querymodels) => _querymodels = querymodels;
 
         public void AssertAccountDoesNotExist(Email email)
         {

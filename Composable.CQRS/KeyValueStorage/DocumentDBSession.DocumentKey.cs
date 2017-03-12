@@ -44,15 +44,9 @@ namespace Composable.CQRS.KeyValueStorage
                 return Equals((DocumentKey)obj);
             }
 
-            public override int GetHashCode()
-            {
-                return Id.GetHashCode();
-            }
+            public override int GetHashCode() => Id.GetHashCode();
 
-            public override string ToString()
-            {
-                return "Id: {0}, Type: {1}".FormatWith(Id, Type);
-            }
+            public override string ToString() => "Id: {0}, Type: {1}".FormatWith(Id, Type);
 
             public string Id { get; }
             Type Type { get;  }

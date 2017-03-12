@@ -12,8 +12,8 @@ namespace Composable.SystemExtensions.Threading
 
         static bool IsInIgnoredContextDueToInfrastructureSuchAsTransaction
         {
-            get { return _isInIgnoredContextDueToInfrastructureSuchAsTransaction; }
-            set { _isInIgnoredContextDueToInfrastructureSuchAsTransaction = value; }
+            get => _isInIgnoredContextDueToInfrastructureSuchAsTransaction;
+            set => _isInIgnoredContextDueToInfrastructureSuchAsTransaction = value;
         }
 
         ///<summary>Occasionally you have to be able to run code without validating the context. Passing such code to this method allows for that.</summary>

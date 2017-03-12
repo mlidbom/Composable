@@ -63,26 +63,23 @@ FROM {EventTable.Name} {lockHint} ";
             return @event;
         }
 
-        static EventDataRow ReadDataRow(SqlDataReader eventReader)
-        {
-            return new EventDataRow
-                   {
-                       EventJson = eventReader.GetString(1),
-                       EventType = eventReader.GetInt32(0),
-                       AggregateRootId = eventReader.GetGuid(2),
-                       AggregateRootVersion = eventReader[3] as int? ?? eventReader.GetInt32(10),
-                       EventId = eventReader.GetGuid(4),
-                       UtcTimeStamp = DateTime.SpecifyKind(eventReader.GetDateTime(5), DateTimeKind.Utc),
-                       //Without this the datetime will be DateTimeKind.Unspecified and will not convert correctly into Local time....
-                       InsertionOrder = eventReader.GetInt64(6),
-                       InsertAfter = eventReader[7] as long?,
-                       InsertBefore = eventReader[8] as long?,
-                       Replaces = eventReader[9] as long?,
-                       InsertedVersion = eventReader.GetInt32(10),
-                       ManualVersion = eventReader[11] as int?,
-                       EffectiveVersion = eventReader[3] as int?
-            };
-        }
+        static EventDataRow ReadDataRow(SqlDataReader eventReader) => new EventDataRow
+                                                                      {
+                                                                          EventJson = eventReader.GetString(1),
+                                                                          EventType = eventReader.GetInt32(0),
+                                                                          AggregateRootId = eventReader.GetGuid(2),
+                                                                          AggregateRootVersion = eventReader[3] as int? ?? eventReader.GetInt32(10),
+                                                                          EventId = eventReader.GetGuid(4),
+                                                                          UtcTimeStamp = DateTime.SpecifyKind(eventReader.GetDateTime(5), DateTimeKind.Utc),
+                                                                          //Without this the datetime will be DateTimeKind.Unspecified and will not convert correctly into Local time....
+                                                                          InsertionOrder = eventReader.GetInt64(6),
+                                                                          InsertAfter = eventReader[7] as long?,
+                                                                          InsertBefore = eventReader[8] as long?,
+                                                                          Replaces = eventReader[9] as long?,
+                                                                          InsertedVersion = eventReader.GetInt32(10),
+                                                                          ManualVersion = eventReader[11] as int?,
+                                                                          EffectiveVersion = eventReader[3] as int?
+                                                                      };
 
         class EventDataRow : AggregateRootEvent
         {

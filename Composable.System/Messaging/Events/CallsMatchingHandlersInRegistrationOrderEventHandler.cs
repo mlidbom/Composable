@@ -12,7 +12,7 @@ namespace Composable.Messaging.Events
         readonly CallMatchingHandlersInRegistrationOrderEventDispatcher<TEvent> _eventDispatcher = new CallMatchingHandlersInRegistrationOrderEventDispatcher<TEvent>();
 
         ///<summary>Registers handlers for the incoming events. All matching handlers will be called in the order they were registered.</summary>
-        protected IEventHandlerRegistrar<TEvent> RegisterHandlers() { return _eventDispatcher.RegisterHandlers(); }
+        protected IEventHandlerRegistrar<TEvent> RegisterHandlers() => _eventDispatcher.RegisterHandlers();
 
         public virtual void Handle(TEvent evt) { _eventDispatcher.Dispatch(evt); }
     }

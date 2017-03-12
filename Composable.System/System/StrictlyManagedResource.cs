@@ -127,7 +127,7 @@ namespace Composable.System
     {
         bool _disposed;
         readonly StrictlyManagedResource<TInheritor> _strictlyManagedResource;
-        protected StrictlyManagedResourceBase() { _strictlyManagedResource = new StrictlyManagedResource<TInheritor>(); }
+        protected StrictlyManagedResourceBase() => _strictlyManagedResource = new StrictlyManagedResource<TInheritor>();
 
         public void Dispose()
         {

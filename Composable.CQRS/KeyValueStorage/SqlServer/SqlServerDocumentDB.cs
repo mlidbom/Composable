@@ -24,12 +24,9 @@ namespace Composable.CQRS.KeyValueStorage.SqlServer
 
         static readonly object StaticLockObject = new object();
 
-        public SqlServerDocumentDb(string connectionString)
-        {
-            _connectionString = connectionString;
-        }
+        public SqlServerDocumentDb(string connectionString) => _connectionString = connectionString;
 
-        ConcurrentDictionary<Type, int> KnownTypes { get { return VerifiedConnections[_connectionString]; } }
+        ConcurrentDictionary<Type, int> KnownTypes => VerifiedConnections[_connectionString];
 
         Type GetTypeFromId(int id)
         {
@@ -120,10 +117,7 @@ WHERE Id=@Id AND ValueTypeId
             }
         }
 
-        static string GetIdString(object id)
-        {
-            return id.ToString().ToLower().TrimEnd(' ');
-        }
+        static string GetIdString(object id) => id.ToString().ToLower().TrimEnd(' ');
 
         public void Remove<T>(object id)
         {
@@ -301,10 +295,7 @@ WHERE ValueTypeId ";
             }
         }
 
-        SqlConnection OpenSession()
-        {
-            return OpenSession(_connectionString);
-        }
+        SqlConnection OpenSession() => OpenSession(_connectionString);
 
         static SqlConnection OpenSession(string connectionString)
         {

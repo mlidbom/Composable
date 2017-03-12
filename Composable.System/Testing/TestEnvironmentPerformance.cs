@@ -9,10 +9,7 @@ namespace Composable.Testing
 {
     static class TestEnvironment
     {
-        public static TimeSpan AdjustRuntimeToTestEnvironment(this TimeSpan original)
-        {
-            return ((int)(original.TotalMilliseconds * TestRunner.Instance.SlowDownFactor)).Milliseconds();
-        }
+        public static TimeSpan AdjustRuntimeToTestEnvironment(this TimeSpan original) => ((int)(original.TotalMilliseconds * TestRunner.Instance.SlowDownFactor)).Milliseconds();
     }
 
     class TestRunner

@@ -29,9 +29,6 @@ namespace Composable.CQRS.CQRS.EventSourcing.MicrosoftSQLServer {
                 Error = (serializer, err) => err.ErrorContext.Handled = true
             };
 
-        public static string Serialize(object @event, Formatting formatting)
-        {
-            return JsonConvert.SerializeObject(@event, formatting, JsonSettings);
-        }
+        public static string Serialize(object @event, Formatting formatting) => JsonConvert.SerializeObject(@event, formatting, JsonSettings);
     }
 }

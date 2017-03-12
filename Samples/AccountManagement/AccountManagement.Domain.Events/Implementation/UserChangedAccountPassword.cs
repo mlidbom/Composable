@@ -8,10 +8,7 @@ namespace AccountManagement.Domain.Events.Implementation
         [UsedImplicitly] //ncrunch: no coverage
         public UserChangedAccountPassword() {} //ncrunch: no coverage
 
-        public UserChangedAccountPassword(Password password)
-        {
-            Password = password;
-        }
+        public UserChangedAccountPassword(Password password) => Password = password;
 
         public Password Password { get; private set; }
     }

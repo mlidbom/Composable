@@ -56,7 +56,7 @@ namespace Composable.Tests.Linq
         class Person : IHierarchy<Person>
         {
             public IList<Person> Children = new List<Person>();
-            IEnumerable<Person> IHierarchy<Person>.Children { get { return Children; } }
+            IEnumerable<Person> IHierarchy<Person>.Children => Children;
         }
 
 

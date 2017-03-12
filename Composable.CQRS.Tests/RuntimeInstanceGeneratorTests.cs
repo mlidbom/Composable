@@ -64,8 +64,6 @@ namespace Composable.CQRS.Tests
 
         [Test] public void Throws_exception_if_you_pass_a_built_in_interface()
         {
-            var container = new WindsorContainer();
-
             //Ensure that it is working if we pass the correct types...
             RuntimeInstanceGenerator.DocumentDb.CreateFactoryMethod<IDocumentDbSessionInterface, IDocumentDbUpdaterInterface, IDocumentDbReaderInterface>();
 

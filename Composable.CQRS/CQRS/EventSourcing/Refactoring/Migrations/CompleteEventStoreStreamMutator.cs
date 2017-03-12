@@ -8,12 +8,9 @@ namespace Composable.CQRS.CQRS.EventSourcing.Refactoring.Migrations
 {
     abstract class CompleteEventStoreStreamMutator
     {
-        public static ICompleteEventStreamMutator Create(IReadOnlyList<IEventMigration> eventMigrationFactories)
-        {
-            return eventMigrationFactories.Any()
-                       ? new RealMutator(eventMigrationFactories)
-                       : (ICompleteEventStreamMutator)new OnlySerializeVersionsMutator();
-        }
+        public static ICompleteEventStreamMutator Create(IReadOnlyList<IEventMigration> eventMigrationFactories) => eventMigrationFactories.Any()
+                                                                                                                        ? new RealMutator(eventMigrationFactories)
+                                                                                                                        : (ICompleteEventStreamMutator)new OnlySerializeVersionsMutator();
 
         class OnlySerializeVersionsMutator : ICompleteEventStreamMutator
         {
@@ -37,7 +34,7 @@ namespace Composable.CQRS.CQRS.EventSourcing.Refactoring.Migrations
             readonly Dictionary<Guid, ISingleAggregateInstanceEventStreamMutator> _aggregateMutatorsCache =
                 new Dictionary<Guid, ISingleAggregateInstanceEventStreamMutator>();
 
-            public RealMutator(IReadOnlyList<IEventMigration> eventMigrationFactories) { _eventMigrationFactories = eventMigrationFactories; }
+            public RealMutator(IReadOnlyList<IEventMigration> eventMigrationFactories) => _eventMigrationFactories = eventMigrationFactories;
 
             public IEnumerable<AggregateRootEvent> Mutate(IEnumerable<AggregateRootEvent> eventStream)
             {

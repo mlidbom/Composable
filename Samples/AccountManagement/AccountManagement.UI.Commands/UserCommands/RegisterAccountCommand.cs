@@ -25,10 +25,7 @@ namespace AccountManagement.UI.Commands.UserCommands
         // ReSharper disable once MemberCanBePrivate.Global
         public string Password { get; set; }
 
-        public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
-        {
-            return ValidatePassword();
-        }
+        public IEnumerable<ValidationResult> Validate(ValidationContext validationContext) => ValidatePassword();
 
         IEnumerable<ValidationResult> ValidatePassword()
         {

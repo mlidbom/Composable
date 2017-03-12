@@ -80,10 +80,7 @@ namespace Composable.System.Diagnostics
 
         public class TimedThreadedExecutionSummary : TimedExecutionSummary
         {
-            public TimedThreadedExecutionSummary(int iterations, IReadOnlyList<TimeSpan> individualExecutionTimes, TimeSpan total): base(iterations, total)
-            {
-                IndividualExecutionTimes = individualExecutionTimes;
-            }
+            public TimedThreadedExecutionSummary(int iterations, IReadOnlyList<TimeSpan> individualExecutionTimes, TimeSpan total): base(iterations, total) => IndividualExecutionTimes = individualExecutionTimes;
 
             public IReadOnlyList<TimeSpan> IndividualExecutionTimes { get; }
         }

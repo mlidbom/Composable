@@ -118,11 +118,7 @@ namespace Composable.DDD
         }
 
         ///<summary>Compares the objects for inequality using value semantics</summary>
-        public static bool operator !=(ValueObject<T> lhs, ValueObject<T> rhs)
-        {
-            return !(lhs == rhs);
-        }
-
+        public static bool operator !=(ValueObject<T> lhs, ValueObject<T> rhs) => !(lhs == rhs);
 
         ///<returns>A JSON serialized version of the instance.</returns>
         public override string ToString()

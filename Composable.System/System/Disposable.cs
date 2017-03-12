@@ -23,9 +23,6 @@ namespace Composable.System
         }
 
         ///<summary>Constructs an object that will call <param name="action"> when disposed.</param></summary>
-        public static IDisposable Create(Action action)
-        {
-            return new Disposable(action);
-        }
+        public static IDisposable Create(Action action) => new Disposable(action);
     }
 }

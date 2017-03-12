@@ -93,9 +93,6 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
 
     static class EventSequenceGenerator
     {
-        public static RootEvent[] ToEvents(this IEnumerable<Type> types)
-        {
-            return types.Select(Activator.CreateInstance).Cast<RootEvent>().ToArray();
-        }
+        public static RootEvent[] ToEvents(this IEnumerable<Type> types) => types.Select(Activator.CreateInstance).Cast<RootEvent>().ToArray();
     }
 }

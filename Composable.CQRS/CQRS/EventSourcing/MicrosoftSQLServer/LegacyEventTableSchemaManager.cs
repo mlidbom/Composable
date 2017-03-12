@@ -9,13 +9,11 @@ namespace Composable.CQRS.CQRS.EventSourcing.MicrosoftSQLServer
         static readonly string LegacySqlTimeStamp = nameof(LegacySqlTimeStamp);
 
         public override string Name { get; } = LegacyEventTable.Name;
-        public override string CreateTableSql { get { throw new NotImplementedException(); } }
+        public override string CreateTableSql => throw new NotImplementedException();
 
         static readonly EventTableSchemaManager EventTableSchema = new EventTableSchemaManager();
         static readonly EventTypeTableSchemaManager EventTypeTableSchema = new EventTypeTableSchemaManager();
-        public bool IsUsingLegacySchema(SqlConnection connection) { return Exists(connection); }
-
-
+        public bool IsUsingLegacySchema(SqlConnection connection) => Exists(connection);
 
         public void LogAndThrowIfUsingLegacySchema(SqlConnection connection)
         {
@@ -39,8 +37,7 @@ namespace Composable.CQRS.CQRS.EventSourcing.MicrosoftSQLServer
             //http://blogs.msdn.com/b/dfurman/archive/2010/04/20/adding-the-identity-property-to-a-column-of-an-existing-table.aspx
             this.Log().Error(CreateMigrationScript(connection));
         }
-        string CreateMigrationScript(SqlConnection connection) {
-            return $@"
+        string CreateMigrationScript(SqlConnection connection) => $@"
 /*Database is using a legacy schema. You need to migrate your data into the new schema.
 Paste this whole log mesage into a sql management studio window and it will uppgrade the database for you
 1: Create new tables: */
@@ -56,7 +53,6 @@ go
 dbcc shrinkdatabase ( {connection.Database} )
 
 ";
-        }
 
         string ActualMigrationScript => $@"
 

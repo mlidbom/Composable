@@ -90,9 +90,6 @@ namespace AccountManagement.UI.Commands.Tests.UserCommands
             _registerAccountCommand.Invoking(command => command.Validate(null).ToArray()).ShouldThrow<Exception>();
         }
 
-        string ValidateAndGetFirstMessage()
-        {
-            return CommandValidator.ValidationFailures(_registerAccountCommand).First().ErrorMessage;
-        }
+        string ValidateAndGetFirstMessage() => CommandValidator.ValidationFailures(_registerAccountCommand).First().ErrorMessage;
     }
 }

@@ -36,10 +36,7 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.Sql
             SqlServerEventStore.ClearAllCache();
         }
 
-        IEventStoreSession OpenSession(IEventStore store)
-        {
-            return new EventStoreSession(Bus, store, new SingleThreadUseGuard(), DateTimeNowTimeSource.Instance);
-        }
+        IEventStoreSession OpenSession(IEventStore store) => new EventStoreSession(Bus, store, new SingleThreadUseGuard(), DateTimeNowTimeSource.Instance);
 
         IEventStore CreateStore(bool withMigrations = true)
         {

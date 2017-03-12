@@ -21,6 +21,6 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.AggregateRoot.NestedEntitiesT
         public string Name { get; private set; }
         public IReadOnlyEntityCollection<Entity, Guid> Entities => _entities.Entities;
         public void Rename(string name) { RaiseEvent(new RootEvent.Component.Implementation.Renamed(name)); }
-        public Component.Entity AddEntity(string name) { return _entities.Add(new RootEvent.Component.Entity.Implementation.Created(Guid.NewGuid(), name)); }
+        public Component.Entity AddEntity(string name) => _entities.Add(new RootEvent.Component.Entity.Implementation.Created(Guid.NewGuid(), name));
     }
 }

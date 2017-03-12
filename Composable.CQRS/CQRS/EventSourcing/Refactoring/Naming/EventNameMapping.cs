@@ -16,10 +16,7 @@ namespace Composable.CQRS.CQRS.EventSourcing.Refactoring.Naming
 
         public string FullName
         {
-            get
-            {
-                return _fullName;
-            }
+            get => _fullName;
             set
             {
                 Type ignored;

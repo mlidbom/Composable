@@ -4,10 +4,7 @@ namespace Composable.CQRS.Logging.Log4Net
 {
     static class Log4NetExtensions
     {
-        internal static ILog Log<T>(this T me)
-        {
-            return LogHolder<T>.Logger;
-        }
+        internal static ILog Log<T>(this T me) => LogHolder<T>.Logger;
 
         static class LogHolder<T>
         {

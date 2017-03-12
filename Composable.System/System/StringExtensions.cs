@@ -9,10 +9,7 @@ namespace Composable.System
     static class StringExtensions
     {
         ///<summary>returns true if me is null, empty or only whitespace</summary>
-        internal static bool IsNullOrWhiteSpace(this string me)
-        {
-            return string.IsNullOrWhiteSpace(me);
-        }
+        internal static bool IsNullOrWhiteSpace(this string me) => string.IsNullOrWhiteSpace(me);
 
         ///<summary>Allows more fluent use of String.Format by exposing it as an extension method.</summary>
         [JetBrains.Annotations.StringFormatMethod("me")]

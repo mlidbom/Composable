@@ -8,10 +8,7 @@ namespace AccountManagement.Domain.Events.Implementation
         [UsedImplicitly] //ncrunch: no coverage
         public UserChangedAccountEmailEvent() {} //ncrunch: no coverage
 
-        public UserChangedAccountEmailEvent(Email email)
-        {
-            Email = email;
-        }
+        public UserChangedAccountEmailEvent(Email email) => Email = email;
 
         public Email Email { get; private set; }
     }

@@ -17,15 +17,12 @@ namespace Composable.DDD
     public class IdEqualityObject<TEntity, TKEy> : IEquatable<TEntity>, IHasPersistentIdentity<TKEy> where TEntity : IdEqualityObject<TEntity, TKEy>
     {
         ///<summary>Construct an instance with <param name="id"> as the <see cref="Id"/></param>.</summary>
-        protected IdEqualityObject(TKEy id)
-        {
-            Id = id;
-        }
+        protected IdEqualityObject(TKEy id) => Id = id;
 
         TKEy _id;
 
         /// <inheritdoc />
-        public virtual TKEy Id { get { return _id; } private set { _id = value; } }
+        public virtual TKEy Id { get => _id; private set => _id = value; }
 
         ///<summary>Sets the id of the instance. Should probably never be used except by infrastructure code.</summary>
         protected void SetIdBeVerySureYouKnowWhatYouAreDoing(TKEy id)
@@ -34,34 +31,22 @@ namespace Composable.DDD
         }
 
         ///<summary>Gets the id of the instance bypassing contract validation. Should probably never be used except by infrastructure code.</summary>
-        protected TKEy GetIdBypassContractValidation()
-        {
-            return _id;
-        }
+        protected TKEy GetIdBypassContractValidation() => _id;
 
         /// <summary>
         /// Implements equals using persistent reference semantics.
         /// If two instances have the same Id, Equals will return true.
         /// </summary>
-        public virtual bool Equals(TEntity other)
-        {
-            return !ReferenceEquals(null, other) && other.Id.Equals(Id);
-        }
+        public virtual bool Equals(TEntity other) => !ReferenceEquals(null, other) && other.Id.Equals(Id);
 
         /// <summary>
         /// Implements equals using persistent reference semantics.
         /// If two instances have the same Id, Equals will return true.
         /// </summary>
-        public override bool Equals(object other)
-        {
-            return Equals(other as TEntity);
-        }
+        public override bool Equals(object other) => Equals(other as TEntity);
 
         /// <inheritdoc />
-        public override int GetHashCode()
-        {
-            return Id.GetHashCode();
-        }
+        public override int GetHashCode() => Id.GetHashCode();
 
         ///<summary>True if both instances have the same ID</summary>
         public static bool operator ==(IdEqualityObject<TEntity, TKEy> lhs, IdEqualityObject<TEntity, TKEy> rhs)
@@ -75,16 +60,10 @@ namespace Composable.DDD
         }
 
         ///<summary>True if both instances do not have the same ID</summary>
-        public static bool operator !=(IdEqualityObject<TEntity, TKEy> lhs, IdEqualityObject<TEntity, TKEy> rhs)
-        {
-            return !(lhs == rhs);
-        }
+        public static bool operator !=(IdEqualityObject<TEntity, TKEy> lhs, IdEqualityObject<TEntity, TKEy> rhs) => !(lhs == rhs);
 
         ///<summary>Returns a string similar to: MyType:MyId</summary>
-        public override string ToString()
-        {
-            return "{0}:{1}".FormatWith(GetType().Name, Id);
-        }
+        public override string ToString() => "{0}:{1}".FormatWith(GetType().Name, Id);
     }
 
     /// <summary>
@@ -129,9 +108,6 @@ namespace Composable.DDD
         }
 
         ///<summary>True if both instances do not have the same ID</summary>
-        public static bool operator !=(PersistentEntity<TEntity> lhs, PersistentEntity<TEntity> rhs)
-        {
-            return !(lhs == rhs);
-        }
+        public static bool operator !=(PersistentEntity<TEntity> lhs, PersistentEntity<TEntity> rhs) => !(lhs == rhs);
     }
 }

@@ -56,7 +56,7 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.AggregateRoot.NestedEntitiesT
 
                     public class Renamed : Root, Entity.Renamed
                     {
-                        public Renamed(string name) { Name = name; }
+                        public Renamed(string name) => Name = name;
                         public string Name { get; }
                     }
 

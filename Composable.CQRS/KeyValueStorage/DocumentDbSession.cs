@@ -35,10 +35,7 @@ namespace Composable.CQRS.KeyValueStorage
             _interceptor = interceptor;
         }
 
-        public virtual bool TryGet<TValue>(object key, out TValue document)
-        {
-            return TryGetInternal(key, typeof(TValue), out document);
-        }
+        public virtual bool TryGet<TValue>(object key, out TValue document) => TryGetInternal(key, typeof(TValue), out document);
 
         bool TryGetInternal<TValue>(object key, Type documentType, out TValue value)
         {
@@ -104,10 +101,7 @@ namespace Composable.CQRS.KeyValueStorage
 
         class UpdateLock : IDisposable
         {
-            public UpdateLock()
-            {
-                UseUpdateLock = true;
-            }
+            public UpdateLock() => UseUpdateLock = true;
 
             public void Dispose()
             {
@@ -236,11 +230,7 @@ namespace Composable.CQRS.KeyValueStorage
             return _idMap.Select(pair => pair.Value).OfType<T>();
         }
 
-        public IEnumerable<Guid> GetAllIds<T>() where T : IHasPersistentIdentity<Guid>
-        {
-            return _backingStore.GetAllIds<T>();
-        }
-
+        public IEnumerable<Guid> GetAllIds<T>() where T : IHasPersistentIdentity<Guid> => _backingStore.GetAllIds<T>();
 
         public virtual void Dispose()
         {
@@ -249,18 +239,15 @@ namespace Composable.CQRS.KeyValueStorage
             //_idMap.Clear();
         }
 
-        public override string ToString()
-        {
-            return "{0}: {1}".FormatWith(_id, GetType().FullName);
-        }
+        public override string ToString() => "{0}: {1}".FormatWith(_id, GetType().FullName);
 
         IUnitOfWork _unitOfWork;
         readonly Guid _id = Guid.NewGuid();
         Dictionary<Type, Dictionary<string, string>> _persistentValues = new Dictionary<Type, Dictionary<string, string>>();
 
 
-        IUnitOfWork IUnitOfWorkParticipant.UnitOfWork { get { return _unitOfWork; } }
-        Guid IUnitOfWorkParticipant.Id { get { return _id; } }
+        IUnitOfWork IUnitOfWorkParticipant.UnitOfWork => _unitOfWork;
+        Guid IUnitOfWorkParticipant.Id => _id;
 
         void IUnitOfWorkParticipant.Join(IUnitOfWork unit)
         {

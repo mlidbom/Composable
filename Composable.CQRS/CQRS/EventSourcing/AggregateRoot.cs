@@ -67,16 +67,10 @@ namespace Composable.CQRS.CQRS.EventSourcing
             _eventHandlersEventDispatcher.Dispatch(theEvent);
         }
 
-        protected IEventHandlerRegistrar<TAggregateRootBaseEventInterface> RegisterEventAppliers()
-        {
-            return _eventDispatcher.RegisterHandlers();
-        }
+        protected IEventHandlerRegistrar<TAggregateRootBaseEventInterface> RegisterEventAppliers() => _eventDispatcher.RegisterHandlers();
 
         // ReSharper disable once UnusedMember.Global todo: coverage
-        protected IEventHandlerRegistrar<TAggregateRootBaseEventInterface> RegisterEventHandlers()
-        {
-            return _eventHandlersEventDispatcher.RegisterHandlers();
-        }
+        protected IEventHandlerRegistrar<TAggregateRootBaseEventInterface> RegisterEventHandlers() => _eventHandlersEventDispatcher.RegisterHandlers();
 
         void ApplyEvent(TAggregateRootBaseEventInterface theEvent)
         {
@@ -97,10 +91,7 @@ namespace Composable.CQRS.CQRS.EventSourcing
             _unCommittedEvents.Clear();
         }
 
-        IEnumerable<IAggregateRootEvent> IEventStored.GetChanges()
-        {
-            return _unCommittedEvents;
-        }
+        IEnumerable<IAggregateRootEvent> IEventStored.GetChanges() => _unCommittedEvents;
 
         void IEventStored.SetTimeSource(IUtcTimeTimeSource timeSource)
         {

@@ -50,10 +50,7 @@ namespace Composable.CQRS.CQRS.Query.Models.Generators
             throw new NoSuchDocumentException(key, typeof(TValue));
         }
 
-        public virtual bool TryGet<TDocument>(object key, out TDocument document)
-        {
-            return TryGetVersion(key, out document);
-        }
+        public virtual bool TryGet<TDocument>(object key, out TDocument document) => TryGetVersion(key, out document);
 
         public virtual bool TryGetVersion<TDocument>(object key, out TDocument document, int version = -1)
         {
@@ -107,12 +104,9 @@ namespace Composable.CQRS.CQRS.Query.Models.Generators
                     .SingleOrDefault();
         }
 
-        bool HandlesDocumentType<TDocument>(bool requireVersioningSupport)
-        {
-            return requireVersioningSupport
-                ? VersionedGeneratorsForDocumentType<TDocument>().Any()
-                : GetGeneratorsForDocumentType<TDocument>().Any();
-        }
+        bool HandlesDocumentType<TDocument>(bool requireVersioningSupport) => requireVersioningSupport
+                                                                                  ? VersionedGeneratorsForDocumentType<TDocument>().Any()
+                                                                                  : GetGeneratorsForDocumentType<TDocument>().Any();
 
         public virtual IEnumerable<TValue> Get<TValue>(IEnumerable<Guid> ids) where TValue : IHasPersistentIdentity<Guid>
         {
@@ -120,14 +114,8 @@ namespace Composable.CQRS.CQRS.Query.Models.Generators
             return ids.Select(id => Get<TValue>(id)).ToList();
         }
 
-        IEnumerable<IVersioningQueryModelGenerator<TDocument>> VersionedGeneratorsForDocumentType<TDocument>()
-        {
-            return _documentGenerators.OfType<IVersioningQueryModelGenerator<TDocument>>().ToList();
-        }
+        IEnumerable<IVersioningQueryModelGenerator<TDocument>> VersionedGeneratorsForDocumentType<TDocument>() => _documentGenerators.OfType<IVersioningQueryModelGenerator<TDocument>>().ToList();
 
-        IEnumerable<IQueryModelGenerator<TDocument>> GetGeneratorsForDocumentType<TDocument>()
-        {
-            return _documentGenerators.OfType<IQueryModelGenerator<TDocument>>().ToList();
-        }
+        IEnumerable<IQueryModelGenerator<TDocument>> GetGeneratorsForDocumentType<TDocument>() => _documentGenerators.OfType<IQueryModelGenerator<TDocument>>().ToList();
     }
 }

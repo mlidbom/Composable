@@ -57,10 +57,7 @@ namespace Composable.Persistence.KeyValueStorage
             return false;
         }
 
-        protected static string GetIdString(object id)
-        {
-            return id.ToString().ToLower().TrimEnd(' ');
-        }
+        protected static string GetIdString(object id) => id.ToString().ToLower().TrimEnd(' ');
 
         public virtual void Add<T>(object id, T value)
         {
@@ -121,10 +118,7 @@ namespace Composable.Persistence.KeyValueStorage
             }
         }
 
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            return GetEnumerator();
-        }
+        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
         public void Update(IEnumerable<KeyValuePair<string, object>> values, Dictionary<Type, Dictionary<string, string>> persistentValues)
         {

@@ -8,10 +8,7 @@ namespace Composable.Contracts
     static class ContractsExpression
     {
         ///<summary>Extracts the returned field,property,argument name from a lambda</summary>
-        public static string ExtractName<TValue>(Expression<Func<TValue>> fetchValue)
-        {
-            return ExtractName((LambdaExpression)fetchValue);
-        }
+        public static string ExtractName<TValue>(Expression<Func<TValue>> fetchValue) => ExtractName((LambdaExpression)fetchValue);
 
         static string ExtractName(LambdaExpression lambda)
         {
@@ -37,10 +34,7 @@ namespace Composable.Contracts
         }
 
         ///<summary>Extracts the returned field,property,argument value from a lambda</summary>
-        public static TValue ExtractValue<TValue>(Expression<Func<TValue>> fetchValue)
-        {
-            return (TValue)GetExpressionValue(fetchValue.Body);
-        }
+        public static TValue ExtractValue<TValue>(Expression<Func<TValue>> fetchValue) => (TValue)GetExpressionValue(fetchValue.Body);
 
         static object GetExpressionValue(Expression expression)
         {

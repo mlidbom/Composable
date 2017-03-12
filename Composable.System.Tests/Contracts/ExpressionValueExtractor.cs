@@ -8,7 +8,7 @@ namespace Composable.Tests.Contracts
     {
         string _testString = "TestString";
 
-        string TestString { get { return _testString; } }
+        string TestString => _testString;
 
         object _wrappedIntOne = 1;
 

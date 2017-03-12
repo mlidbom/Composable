@@ -45,15 +45,9 @@ namespace Composable.CQRS.CQRS.EventSourcing.MicrosoftSQLServer
             _eventWriter = new SqlServerEventStoreEventWriter(connectionMananger, _schemaManager);
         }
 
-        public IEnumerable<IAggregateRootEvent> GetAggregateHistoryForUpdate(Guid aggregateId)
-        {
-            return GetAggregateHistoryInternal(aggregateId: aggregateId, takeWriteLock: true);
-        }
+        public IEnumerable<IAggregateRootEvent> GetAggregateHistoryForUpdate(Guid aggregateId) => GetAggregateHistoryInternal(aggregateId: aggregateId, takeWriteLock: true);
 
-        public IEnumerable<IAggregateRootEvent> GetAggregateHistory(Guid aggregateId)
-        {
-            return GetAggregateHistoryInternal(aggregateId, takeWriteLock: false);
-        }
+        public IEnumerable<IAggregateRootEvent> GetAggregateHistory(Guid aggregateId) => GetAggregateHistoryInternal(aggregateId, takeWriteLock: false);
 
         IEnumerable<IAggregateRootEvent> GetAggregateHistoryInternal(Guid aggregateId, bool takeWriteLock)
         {
@@ -95,10 +89,7 @@ namespace Composable.CQRS.CQRS.EventSourcing.MicrosoftSQLServer
             }
         }
 
-        static bool IsRefactoringEvent(AggregateRootEvent @event)
-        {
-            return @event.InsertBefore.HasValue || @event.InsertAfter.HasValue || @event.Replaces.HasValue;
-        }
+        static bool IsRefactoringEvent(AggregateRootEvent @event) => @event.InsertBefore.HasValue || @event.InsertAfter.HasValue || @event.Replaces.HasValue;
 
         public const int StreamEventsBatchSize = 10000;
 

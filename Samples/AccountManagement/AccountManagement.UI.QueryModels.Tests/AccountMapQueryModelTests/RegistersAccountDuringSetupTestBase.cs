@@ -16,9 +16,6 @@ namespace AccountManagement.UI.QueryModels.Tests.AccountMapQueryModelTests
             RegisteredAccount = _registerAccountScenario.Execute();
         }
 
-        protected AccountQueryModel GetAccountQueryModel()
-        {
-            return QueryModelsReader.GetAccount(RegisteredAccount.Id);
-        }
+        protected AccountQueryModel GetAccountQueryModel() => QueryModelsReader.GetAccount(RegisteredAccount.Id);
     }
 }

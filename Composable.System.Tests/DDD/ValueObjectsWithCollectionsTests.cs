@@ -9,10 +9,7 @@ namespace Composable.Tests.DDD
     {
         class ExternalJobsDashboardViewModel : ValueObject<ExternalJobsDashboardViewModel>
         {
-            public ExternalJobsDashboardViewModel()
-            {
-                JobAdvertisements = new List<JobAdvertisement>();
-            }
+            public ExternalJobsDashboardViewModel() => JobAdvertisements = new List<JobAdvertisement>();
 
             // ReSharper disable once UnusedAutoPropertyAccessor.Local
             public IEnumerable<JobAdvertisement> JobAdvertisements { get; set; }

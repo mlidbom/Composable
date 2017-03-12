@@ -131,15 +131,9 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing
     [TestFixture]
     public class InMemoryEventStoreTests : EventStoreTests
     {
-        protected override IEventStore CreateEventStore()
-        {
-            return new InMemoryEventStore();
-        }
+        protected override IEventStore CreateEventStore() => new InMemoryEventStore();
 
-        protected override IEventStore CreateEventStore2()
-        {
-            return new InMemoryEventStore();
-        }
+        protected override IEventStore CreateEventStore2() => new InMemoryEventStore();
     }
 
     [TestFixture]
@@ -165,15 +159,9 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing
             _tempDbManager.Dispose();
         }
 
-        protected override IEventStore CreateEventStore()
-        {
-            return new SqlServerEventStore(_connectionString1, new SingleThreadUseGuard());
-        }
+        protected override IEventStore CreateEventStore() => new SqlServerEventStore(_connectionString1, new SingleThreadUseGuard());
 
-        protected override IEventStore CreateEventStore2()
-        {
-            return new SqlServerEventStore(_connectionString2, new SingleThreadUseGuard());
-        }
+        protected override IEventStore CreateEventStore2() => new SqlServerEventStore(_connectionString2, new SingleThreadUseGuard());
 
         [Test]
         public void DoesNotMixUpEventsFromDifferentStores()

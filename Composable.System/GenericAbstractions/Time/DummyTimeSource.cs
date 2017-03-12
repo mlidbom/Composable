@@ -8,22 +8,18 @@ namespace Composable.GenericAbstractions.Time
     {
         DateTime _utcNow;
 
-        DummyTimeSource(DateTime utcNow)
-        {
-            UtcNow = utcNow;
-        }
+        DummyTimeSource(DateTime utcNow) => UtcNow = utcNow;
 
         ///<summary>Returns a timesource that will continually return the time that it was created at as the current time.</summary>
-        internal static DummyTimeSource Now { get{return new DummyTimeSource(DateTime.UtcNow);}}
+        internal static DummyTimeSource Now => new DummyTimeSource(DateTime.UtcNow);
 
         ///<summary>Returns a timesource that will forever return <param name="localTime"> as the current time.</param></summary>
-        internal static DummyTimeSource FromLocalTime(DateTime localTime) { return new DummyTimeSource(DateTime.SpecifyKind(localTime, DateTimeKind.Local).ToUniversalTime());  }
+        internal static DummyTimeSource FromLocalTime(DateTime localTime) => new DummyTimeSource(DateTime.SpecifyKind(localTime, DateTimeKind.Local).ToUniversalTime());
         ///<summary>Returns a timesource that will forever return <param name="utcTime"> as the current time.</param></summary>
-        internal static DummyTimeSource FromÚtcTime(DateTime utcTime) { return new DummyTimeSource(DateTime.SpecifyKind(utcTime, DateTimeKind.Utc)); }
-
+        internal static DummyTimeSource FromÚtcTime(DateTime utcTime) => new DummyTimeSource(DateTime.SpecifyKind(utcTime, DateTimeKind.Utc));
 
         ///<summary>Allows for subscribing to notifications about <see cref="UtcNow"/> changing.</summary>
-        internal IObservable<DateTime> UtcNowChanged { get { return _utcNowChanged; } }
+        internal IObservable<DateTime> UtcNowChanged => _utcNowChanged;
 
         readonly SimpleObservable<DateTime> _utcNowChanged = new SimpleObservable<DateTime>();
 
@@ -35,10 +31,7 @@ namespace Composable.GenericAbstractions.Time
         ///<summary>Gets or sets the current UTC time.</summary>
         public DateTime UtcNow
         {
-            get
-            {
-                return _utcNow;
-            }
+            get => _utcNow;
             internal set
             {
                 _utcNow = DateTime.SpecifyKind(value, DateTimeKind.Utc);

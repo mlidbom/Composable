@@ -9,7 +9,6 @@
 
     static class ConfigurationParameterProvider
     {
-        public static bool GetBoolean(this IConfigurationParameterProvider @this, string parameterName, bool? valueIfMissing = null)
-            => bool.Parse(@this.GetString(parameterName, valueIfMissing?.ToString()));
+        public static bool GetBoolean(this IConfigurationParameterProvider @this, string parameterName, bool? valueIfMissing = null) => bool.Parse(@this.GetString(parameterName, valueIfMissing?.ToString()));
     }
 }

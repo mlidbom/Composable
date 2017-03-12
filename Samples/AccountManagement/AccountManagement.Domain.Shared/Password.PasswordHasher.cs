@@ -7,6 +7,7 @@ namespace AccountManagement.Domain.Shared
 {
     public partial class Password
     {
+        //Use a private nested class to the Password class short and readable while keeping the hashing logic private.
         static class PasswordHasher
         {
             public static byte[] HashPassword(byte[] salt, string password) //Extract to a private nested PasswordHasher class if this class gets uncomfortably long.

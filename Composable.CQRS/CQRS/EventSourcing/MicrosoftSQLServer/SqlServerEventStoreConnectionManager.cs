@@ -8,10 +8,7 @@ namespace Composable.CQRS.CQRS.EventSourcing.MicrosoftSQLServer
     class SqlServerEventStoreConnectionManager
     {
         string ConnectionString { get; }
-        public SqlServerEventStoreConnectionManager(string connectionString)
-        {
-            ConnectionString = connectionString;
-        }
+        public SqlServerEventStoreConnectionManager(string connectionString) => ConnectionString = connectionString;
 
         void UseConnection(Action<SqlConnection> action, bool suppressTransactionWarning = false)
         {

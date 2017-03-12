@@ -166,7 +166,7 @@ namespace Composable.CQRS.CQRS.EventSourcing.MicrosoftSQLServer
                 Id = id;
             }
             public int Id { get; }
-            public Type Type { get { throw new TryingToReadEventOfTypeThatNoMappingCouldBeFoundForException(_typeName, Id);} }
+            public Type Type => throw new TryingToReadEventOfTypeThatNoMappingCouldBeFoundForException(_typeName, Id);
         }
 
         class IdTypeMapping : IIdTypeMapping

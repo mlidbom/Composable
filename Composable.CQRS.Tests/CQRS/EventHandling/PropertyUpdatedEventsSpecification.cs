@@ -91,10 +91,7 @@ namespace Composable.CQRS.Tests.CQRS.EventHandling
             internal string Password { get; set; }
             internal HashSet<string> Skills { get; }
 
-            public CvQueryModel()
-            {
-                Skills = new HashSet<string>();
-            }
+            public CvQueryModel() => Skills = new HashSet<string>();
         }
 
         namespace InternalEvents

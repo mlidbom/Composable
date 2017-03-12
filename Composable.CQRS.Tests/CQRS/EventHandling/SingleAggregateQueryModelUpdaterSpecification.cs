@@ -164,7 +164,7 @@ namespace Composable.CQRS.Tests.CQRS.EventHandling
             public int? AfterHandlers1CallOrder { get; private set; }
             public int? AfterHandlers2CallOrder { get; private set; }
 
-            public UserQueryModel TheModel { get { return Model; } }
+            public UserQueryModel TheModel => Model;
 
             public UserQueryModelUpdater(IDocumentDbSession session)
                 : base(session)

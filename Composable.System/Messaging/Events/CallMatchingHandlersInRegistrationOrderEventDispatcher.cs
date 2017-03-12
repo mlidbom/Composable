@@ -21,24 +21,18 @@ namespace Composable.Messaging.Events
         int _totalHandlers;
 
         ///<summary>Registers handlers for the incoming events. All matching handlers will be called in the order they were registered.</summary>
-        internal IEventHandlerRegistrar<TEvent> RegisterHandlers()
-        {
-            return new RegistrationBuilder(this);
-        }
+        internal IEventHandlerRegistrar<TEvent> RegisterHandlers() => new RegistrationBuilder(this);
 
-        public IEventHandlerRegistrar<TEvent> Register() { return new RegistrationBuilder(this); }
+        public IEventHandlerRegistrar<TEvent> Register() => new RegistrationBuilder(this);
 
         class RegistrationBuilder : IEventHandlerRegistrar<TEvent>
         {
             readonly CallMatchingHandlersInRegistrationOrderEventDispatcher<TEvent> _owner;
 
-            public RegistrationBuilder(CallMatchingHandlersInRegistrationOrderEventDispatcher<TEvent> owner) { _owner = owner; }
+            public RegistrationBuilder(CallMatchingHandlersInRegistrationOrderEventDispatcher<TEvent> owner) => _owner = owner;
 
             ///<summary>Registers a for any event that implements THandledEvent. All matching handlers will be called in the order they were registered.</summary>
-            RegistrationBuilder For<THandledEvent>(Action<THandledEvent> handler) where THandledEvent : TEvent
-            {
-                return ForGenericEvent(handler);
-            }
+            RegistrationBuilder For<THandledEvent>(Action<THandledEvent> handler) where THandledEvent : TEvent => ForGenericEvent(handler);
 
             ///<summary>Lets you register handlers for event interfaces that may be defined outside of the event hierarchy you specify with TEvent.
             /// Useful for listening to generic events such as IAggregateRootCreatedEvent or IAggregateRootDeletedEvent
@@ -75,7 +69,7 @@ namespace Composable.Messaging.Events
 
             #region IEventHandlerRegistrar implementation.
 
-            IEventHandlerRegistrar<TEvent> IEventHandlerRegistrar<TEvent>.ForGenericEvent<THandledEvent>(Action<THandledEvent> handler) { return ForGenericEvent(handler); }
+            IEventHandlerRegistrar<TEvent> IEventHandlerRegistrar<TEvent>.ForGenericEvent<THandledEvent>(Action<THandledEvent> handler) => ForGenericEvent(handler);
 
             IEventHandlerRegistrar<TEvent> IEventHandlerRegistrar<TEvent>.BeforeHandlers<THandledEvent>(Action<THandledEvent> runBeforeHandlers)
             {
@@ -87,9 +81,9 @@ namespace Composable.Messaging.Events
                 return AfterHandlers(e => runAfterHandlers((THandledEvent)e));
             }
 
-            IEventHandlerRegistrar<TEvent> IEventHandlerRegistrar<TEvent>.IgnoreUnhandled<T>() { return IgnoreUnhandled<TEvent>(); }
+            IEventHandlerRegistrar<TEvent> IEventHandlerRegistrar<TEvent>.IgnoreUnhandled<T>() => IgnoreUnhandled<TEvent>();
 
-            IEventHandlerRegistrar<TEvent> IEventHandlerRegistrar<TEvent>.For<THandledEvent>(Action<THandledEvent> handler) { return For(handler); }
+            IEventHandlerRegistrar<TEvent> IEventHandlerRegistrar<TEvent>.For<THandledEvent>(Action<THandledEvent> handler) => For(handler);
 
             #endregion
         }

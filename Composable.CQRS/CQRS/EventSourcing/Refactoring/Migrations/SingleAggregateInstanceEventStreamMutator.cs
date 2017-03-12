@@ -22,10 +22,7 @@ namespace Composable.CQRS.CQRS.EventSourcing.Refactoring.Migrations
 
         int _aggregateVersion = 1;
 
-        public static ISingleAggregateInstanceEventStreamMutator Create(IAggregateRootEvent creationEvent, IReadOnlyList<IEventMigration> eventMigrations, Action<IReadOnlyList<AggregateRootEvent>> eventsAddedCallback = null)
-        {
-            return new SingleAggregateInstanceEventStreamMutator(creationEvent, eventMigrations, eventsAddedCallback);
-        }
+        public static ISingleAggregateInstanceEventStreamMutator Create(IAggregateRootEvent creationEvent, IReadOnlyList<IEventMigration> eventMigrations, Action<IReadOnlyList<AggregateRootEvent>> eventsAddedCallback = null) => new SingleAggregateInstanceEventStreamMutator(creationEvent, eventMigrations, eventsAddedCallback);
 
         SingleAggregateInstanceEventStreamMutator
             (IAggregateRootEvent creationEvent, IEnumerable<IEventMigration> eventMigrations, Action<IReadOnlyList<AggregateRootEvent>> eventsAddedCallback)
@@ -132,9 +129,6 @@ namespace Composable.CQRS.CQRS.EventSourcing.Refactoring.Migrations
     }
 
     class EndOfAggregateHistoryEventPlaceHolder : AggregateRootEvent {
-        public EndOfAggregateHistoryEventPlaceHolder(Guid aggregateId, int i):base(aggregateId)
-        {
-            AggregateRootVersion = i;
-        }
+        public EndOfAggregateHistoryEventPlaceHolder(Guid aggregateId, int i):base(aggregateId) => AggregateRootVersion = i;
     }
 }

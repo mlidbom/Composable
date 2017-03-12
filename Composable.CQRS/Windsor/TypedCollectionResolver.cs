@@ -43,24 +43,12 @@ namespace Composable.CQRS.Windsor
         public object Resolve(CreationContext context,
                                       ISubDependencyResolver contextHandlerResolver,
                                       ComponentModel model,
-                                      DependencyModel dependency)
-        {
-            return _kernel.ResolveAll(GetItemType(dependency.TargetItemType), null);
-        }
+                                      DependencyModel dependency) => _kernel.ResolveAll(GetItemType(dependency.TargetItemType), null);
 
-        bool CanSatisfy(Type itemType)
-        {
-            return _allowEmptyCollections || _kernel.HasComponent(itemType);
-        }
+        bool CanSatisfy(Type itemType) => _allowEmptyCollections || _kernel.HasComponent(itemType);
 
-        static Type GetItemType(Type targetItemType)
-        {
-            return targetItemType.GetCompatibleArrayItemType();
-        }
+        static Type GetItemType(Type targetItemType) => targetItemType.GetCompatibleArrayItemType();
 
-        static bool HasParameter(DependencyModel dependency)
-        {
-            return dependency.Parameter != null;
-        }
+        static bool HasParameter(DependencyModel dependency) => dependency.Parameter != null;
     }
 }

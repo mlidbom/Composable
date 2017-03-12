@@ -29,10 +29,7 @@ namespace Composable.CQRS.Tests.KeyValueStorage
 
     class Email : ValueObject<Email>
     {
-        public Email(string email)
-        {
-            TheEmail = email;
-        }
+        public Email(string email) => TheEmail = email;
         public string TheEmail { get; private set; }
     }
 }

@@ -30,10 +30,7 @@ namespace Composable.Tests.DDD
 
         class GuidHolder : ValueObject<GuidHolder>
         {
-            public GuidHolder(Guid id)
-            {
-                Id = id;
-            }
+            public GuidHolder(Guid id) => Id = id;
 
             // ReSharper disable once UnusedAutoPropertyAccessor.Local
             Guid Id { get; set; }
@@ -44,10 +41,7 @@ namespace Composable.Tests.DDD
             [UsedImplicitly] readonly string _address2;
 
             public ExpandedAddress(string address1, string address2, string city, params string[] states)
-                : base(address1, city, states)
-            {
-                _address2 = address2;
-            }
+                : base(address1, city, states) => _address2 = address2;
         }
 
         [Test]

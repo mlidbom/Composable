@@ -26,9 +26,9 @@ namespace Composable.CQRS.KeyValueStorage
             public bool IsDeleted { get; private set; }
             bool IsInBackingStore { get; set; }
 
-            bool ScheduledForAdding { get { return !IsInBackingStore && !IsDeleted && Document != null; } }
-            bool ScheduledForRemoval { get { return IsInBackingStore && IsDeleted; } }
-            bool ScheduledForUpdate { get { return IsInBackingStore && !IsDeleted; } }
+            bool ScheduledForAdding => !IsInBackingStore && !IsDeleted && Document != null;
+            bool ScheduledForRemoval => IsInBackingStore && IsDeleted;
+            bool ScheduledForUpdate => IsInBackingStore && !IsDeleted;
 
             public void Delete()
             {

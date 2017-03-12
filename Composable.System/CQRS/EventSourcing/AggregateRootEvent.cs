@@ -13,7 +13,7 @@ namespace Composable.CQRS.EventSourcing
             UtcTimeStamp = DateTime.UtcNow;
         }
 
-        protected AggregateRootEvent(Guid aggregateRootId) : this() { AggregateRootId = aggregateRootId; }
+        protected AggregateRootEvent(Guid aggregateRootId) : this() => AggregateRootId = aggregateRootId;
 
         [Obsolete("Only intended for testing. Do not use for normal inheritance.")] protected AggregateRootEvent(Guid? eventId = null,
                                                                                                                  int? aggregateRootVersion = null,

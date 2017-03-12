@@ -31,7 +31,7 @@ namespace Composable.CQRS.Windsor
                 }
                 return CurrentScope = null;
             }
-            set { CallContext.SetData("TransactionalUnitOfWorkWindsorScope_Current", value); }
+            set => CallContext.SetData("TransactionalUnitOfWorkWindsorScope_Current", value);
         }
 
         abstract class TransactionalUnitOfWorkWindsorScopeBase : ITransactionalUnitOfWork
@@ -80,7 +80,7 @@ namespace Composable.CQRS.Windsor
                 _committed = true;
             }
 
-            public override bool IsActive {get { return !CommitCalled && !RollBackCalled && !InDoubtCalled; }}
+            public override bool IsActive => !CommitCalled && !RollBackCalled && !InDoubtCalled;
 
             bool CommitCalled { get; set; }
             bool RollBackCalled { get; set; }
@@ -113,10 +113,7 @@ namespace Composable.CQRS.Windsor
         {
             readonly TransactionalUnitOfWorkWindsorScopeBase _outer;
 
-            public InnerTransactionalUnitOfWorkWindsorScope(TransactionalUnitOfWorkWindsorScopeBase outer)
-            {
-                _outer = outer;
-            }
+            public InnerTransactionalUnitOfWorkWindsorScope(TransactionalUnitOfWorkWindsorScopeBase outer) => _outer = outer;
 
             public override void Dispose()
             { }
@@ -124,7 +121,7 @@ namespace Composable.CQRS.Windsor
             public override void Commit()
             { }
 
-            public override bool IsActive { get { return _outer.IsActive; } }
+            public override bool IsActive => _outer.IsActive;
         }
 
 

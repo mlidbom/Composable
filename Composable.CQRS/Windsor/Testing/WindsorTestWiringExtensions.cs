@@ -59,10 +59,7 @@ namespace Composable.CQRS.Windsor.Testing
     {
         readonly IWindsorContainer _container;
 
-        public ExecuteActionsWhenRewiringForTests(IWindsorContainer container)
-        {
-            _container = container;
-        }
+        public ExecuteActionsWhenRewiringForTests(IWindsorContainer container) => _container = container;
 
         public IExecuteActionsWhenRewiringForTesting Execute(Action<IWindsorContainer> action)
         {
@@ -78,10 +75,7 @@ namespace Composable.CQRS.Windsor.Testing
         {
             readonly Action _action;
 
-            public LambdaBasedTestRewirer(Action action)
-            {
-                _action = action;
-            }
+            public LambdaBasedTestRewirer(Action action) => _action = action;
 
             public void ConfigureWiringForTesting()
             {
@@ -97,10 +91,7 @@ namespace Composable.CQRS.Windsor.Testing
 
     static class WindsorTestWiringExtensions
     {
-        public static IExecuteActionsWhenRewiringForTesting WhenTesting(this IWindsorContainer @this)
-        {
-            return new ExecuteActionsWhenRewiringForTests(@this);
-        }
+        public static IExecuteActionsWhenRewiringForTesting WhenTesting(this IWindsorContainer @this) => new ExecuteActionsWhenRewiringForTests(@this);
     }
 
 }

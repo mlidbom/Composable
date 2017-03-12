@@ -9,6 +9,6 @@ namespace Composable.GenericAbstractions.Time
         internal static readonly DateTimeNowTimeSource Instance = new DateTimeNowTimeSource();
 
         ///<summary>Returns DateTime.UtcNow</summary>
-        public DateTime UtcNow { get { return DateTime.UtcNow; } }
+        public DateTime UtcNow => DateTime.UtcNow;
     }
 }

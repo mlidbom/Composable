@@ -56,16 +56,10 @@ namespace Composable.CQRS.CQRS.EventSourcing
                 _eventHandlersEventDispatcher.Dispatch(@event);
             }
 
-            protected IEventHandlerRegistrar<TComponentBaseEventInterface> RegisterEventAppliers()
-            {
-                return _eventAppliersEventDispatcher.Register();
-            }
+            protected IEventHandlerRegistrar<TComponentBaseEventInterface> RegisterEventAppliers() => _eventAppliersEventDispatcher.Register();
 
             // ReSharper disable once UnusedMember.Global todo: tests
-            protected IEventHandlerRegistrar<TComponentBaseEventInterface> RegisterEventHandlers()
-            {
-                return _eventHandlersEventDispatcher.Register();
-            }
+            protected IEventHandlerRegistrar<TComponentBaseEventInterface> RegisterEventHandlers() => _eventHandlersEventDispatcher.Register();
         }
     }
 }

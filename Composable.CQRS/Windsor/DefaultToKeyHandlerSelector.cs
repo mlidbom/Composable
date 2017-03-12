@@ -20,10 +20,7 @@ namespace Composable.CQRS.Windsor
             _keyToDefaultTo = keyToDefaultTo;
         }
 
-        public bool HasOpinionAbout(string key, Type service)
-        {
-            return service == _type;
-        }
+        public bool HasOpinionAbout(string key, Type service) => service == _type;
 
         public IHandler SelectHandler(string key, Type service, IHandler[] handlers)
         {

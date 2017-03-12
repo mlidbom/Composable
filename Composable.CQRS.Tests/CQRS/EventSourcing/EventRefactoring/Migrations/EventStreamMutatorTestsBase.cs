@@ -28,9 +28,7 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
     public abstract class EventStreamMutatorTestsBase
     {
         protected readonly Type EventStoreType;
-        protected EventStreamMutatorTestsBase(Type eventStoreType) {
-            EventStoreType = eventStoreType;
-        }
+        protected EventStreamMutatorTestsBase(Type eventStoreType) => EventStoreType = eventStoreType;
 
         internal void RunMigrationTest(params MigrationScenario[] scenarios)
         {

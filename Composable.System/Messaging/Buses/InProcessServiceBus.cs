@@ -6,7 +6,7 @@ namespace Composable.Messaging.Buses
     {
         readonly IMessageHandlerRegistry _handlerRegistry;
 
-        public InProcessServiceBus(IMessageHandlerRegistry handlerRegistry) { _handlerRegistry = handlerRegistry; }
+        public InProcessServiceBus(IMessageHandlerRegistry handlerRegistry) => _handlerRegistry = handlerRegistry;
 
         void IInProcessServiceBus.Publish(IEvent anEvent)
         {
@@ -30,7 +30,7 @@ namespace Composable.Messaging.Buses
             return returnValue;
         }
 
-        public bool Handles(object aMessage) { return _handlerRegistry.Handles(aMessage); }
+        public bool Handles(object aMessage) => _handlerRegistry.Handles(aMessage);
 
         protected virtual void AfterDispatchingMessage(IMessage message) { }
     }

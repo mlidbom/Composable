@@ -50,23 +50,23 @@ namespace Composable.Messaging.Events
     static class EventHandlerRegistrar
     {
         public static IEventHandlerRegistrar<TBaseEvent> BeforeHandlers<TBaseEvent>
-            (this IEventHandlerRegistrar<TBaseEvent> @this, Action<TBaseEvent> handler) where TBaseEvent : class { return @this.BeforeHandlers(handler); }
+            (this IEventHandlerRegistrar<TBaseEvent> @this, Action<TBaseEvent> handler) where TBaseEvent : class => @this.BeforeHandlers(handler);
 
         public static IEventHandlerRegistrar<TBaseEvent> AfterHandlers<TBaseEvent>
-            (this IEventHandlerRegistrar<TBaseEvent> @this, Action<TBaseEvent> handler) where TBaseEvent : class { return @this.AfterHandlers(handler); }
+            (this IEventHandlerRegistrar<TBaseEvent> @this, Action<TBaseEvent> handler) where TBaseEvent : class => @this.AfterHandlers(handler);
 
         public static IEventHandlerRegistrar<TNewBaseEvent> DownCast<TBaseEvent, TNewBaseEvent>(this IEventHandlerRegistrar<TBaseEvent> @this)
             where TBaseEvent : class
-            where TNewBaseEvent : class, TBaseEvent { return @this; }
+            where TNewBaseEvent : class, TBaseEvent => @this;
 
         public static IGenericEventHandlerRegistrar MakeGeneric<TBaseEvent>(this IEventHandlerRegistrar<TBaseEvent> @this)
-            where TBaseEvent : class { return new GenericEventHandlerRegistrar<TBaseEvent>(@this); }
+            where TBaseEvent : class => new GenericEventHandlerRegistrar<TBaseEvent>(@this);
 
         class GenericEventHandlerRegistrar<TBaseEventInterface> : IGenericEventHandlerRegistrar
             where TBaseEventInterface : class
         {
             readonly IEventHandlerRegistrar<TBaseEventInterface> _innerRegistrar;
-            public GenericEventHandlerRegistrar(IEventHandlerRegistrar<TBaseEventInterface> innerRegistrar) { _innerRegistrar = innerRegistrar; }
+            public GenericEventHandlerRegistrar(IEventHandlerRegistrar<TBaseEventInterface> innerRegistrar) => _innerRegistrar = innerRegistrar;
 
             public IGenericEventHandlerRegistrar ForGenericEvent<THandledEvent>(Action<THandledEvent> handler)
             {
@@ -77,16 +77,16 @@ namespace Composable.Messaging.Events
 
         public static IUpCastEventHandlerRegistrar<TNewBaseEvent> UpCast<TBaseEvent, TNewBaseEvent>(this IEventHandlerRegistrar<TBaseEvent> @this)
             where TBaseEvent : class
-            where TNewBaseEvent : class, TBaseEvent { return new UpCastEventHandlerRegistrar<TBaseEvent, TNewBaseEvent>(@this); }
+            where TNewBaseEvent : class, TBaseEvent => new UpCastEventHandlerRegistrar<TBaseEvent, TNewBaseEvent>(@this);
 
         class UpCastEventHandlerRegistrar<TBaseEvent, TNewBaseEvent> : IUpCastEventHandlerRegistrar<TNewBaseEvent>
             where TBaseEvent : class
             where TNewBaseEvent : class, TBaseEvent
         {
             readonly IEventHandlerRegistrar<TBaseEvent> _innerRegistrar;
-            public UpCastEventHandlerRegistrar(IEventHandlerRegistrar<TBaseEvent> innerRegistrar) { _innerRegistrar = innerRegistrar; }
+            public UpCastEventHandlerRegistrar(IEventHandlerRegistrar<TBaseEvent> innerRegistrar) => _innerRegistrar = innerRegistrar;
 
-            public IUpCastEventHandlerRegistrar<TNewBaseEvent> For<THandledEvent>(Action<THandledEvent> handler) where THandledEvent : TNewBaseEvent { return ForGenericEvent(handler); }
+            public IUpCastEventHandlerRegistrar<TNewBaseEvent> For<THandledEvent>(Action<THandledEvent> handler) where THandledEvent : TNewBaseEvent => ForGenericEvent(handler);
 
             public IUpCastEventHandlerRegistrar<TNewBaseEvent> ForGenericEvent<THandledEvent>(Action<THandledEvent> handler)
             {

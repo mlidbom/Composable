@@ -7,17 +7,14 @@ namespace Composable.System
     {
         readonly IList<IDisposable> _managedResources = new List<IDisposable>();
 
-        public static StrictAggregateDisposable Create(params IDisposable[] disposables)
-        {
-            return new StrictAggregateDisposable(disposables);
-        }
+        public static StrictAggregateDisposable Create(params IDisposable[] disposables) => new StrictAggregateDisposable(disposables);
 
         StrictAggregateDisposable(params IDisposable[] disposables)
         {
             Add(disposables);
         }
 
-        void Add(params IDisposable[] disposables) => _managedResources.AddRange(disposables);
+        void Add(params IDisposable[] disposables) { _managedResources.AddRange(disposables); }
 
         protected override void InternalDispose()
         {

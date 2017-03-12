@@ -30,7 +30,7 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.AggregateRoot.NestedEntitiesT
 
             public class Created : Root, RootEvent.Created
             {
-                public Created(Guid id, string name) : base(id) { Name = name; }
+                public Created(Guid id, string name) : base(id) => Name = name;
                 public string Name { get; }
             }
         }

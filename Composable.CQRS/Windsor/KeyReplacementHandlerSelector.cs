@@ -22,10 +22,7 @@ namespace Composable.CQRS.Windsor
             _replacementKey = replacementKey;
         }
 
-        public bool HasOpinionAbout(string key, Type service)
-        {
-            return key == _originalKey;
-        }
+        public bool HasOpinionAbout(string key, Type service) => key == _originalKey;
 
         public IHandler SelectHandler(string key, Type service, IHandler[] handlers)
         {

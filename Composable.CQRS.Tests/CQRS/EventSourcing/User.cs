@@ -60,10 +60,7 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing
 
     class UserChangedEmail : UserEvent, IUserEvent
     {
-        public UserChangedEmail(string email)
-        {
-            Email = email;
-        }
+        public UserChangedEmail(string email) => Email = email;
         public string Email { get; private set; }
     }
 

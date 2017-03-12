@@ -33,10 +33,7 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing
             Bus = new TestingOnlyServiceBus(DummyTimeSource.Now, new MessageHandlerRegistry());
         }
 
-        protected IEventStoreSession OpenSession(IEventStore store)
-        {
-            return new EventStoreSession(Bus, store, new SingleThreadUseGuard(), DateTimeNowTimeSource.Instance);
-        }
+        protected IEventStoreSession OpenSession(IEventStore store) => new EventStoreSession(Bus, store, new SingleThreadUseGuard(), DateTimeNowTimeSource.Instance);
 
         [Test]
         public void WhenFetchingAggregateThatDoesNotExistNoSuchAggregateExceptionIsThrown()
@@ -298,13 +295,13 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing
             public List<Guid> DeletedAggregates = new List<Guid>();
 
             public void Dispose() { }
-            public IEnumerable<IAggregateRootEvent> GetAggregateHistoryForUpdate(Guid id) { throw new NotImplementedException(); }
-            public IEnumerable<IAggregateRootEvent> GetAggregateHistory(Guid id) { throw new NotSupportedException(); }
+            public IEnumerable<IAggregateRootEvent> GetAggregateHistoryForUpdate(Guid id) => throw new NotImplementedException();
+            public IEnumerable<IAggregateRootEvent> GetAggregateHistory(Guid id) => throw new NotSupportedException();
             public void SaveEvents(IEnumerable<IAggregateRootEvent> events) { SavedEvents.AddRange(events); }
             public void StreamEvents(int batchSize, Action<IReadOnlyList<IAggregateRootEvent>> handleEvents) { throw new NotImplementedException(); }
             public void DeleteEvents(Guid aggregateId) { DeletedAggregates.Add(aggregateId); }
             public void PersistMigrations() { throw new NotImplementedException(); }
-            public IEnumerable<Guid> StreamAggregateIdsInCreationOrder(Type eventBaseType = null) { throw new NotImplementedException(); }
+            public IEnumerable<Guid> StreamAggregateIdsInCreationOrder(Type eventBaseType = null) => throw new NotImplementedException();
         }
 
         [Test]

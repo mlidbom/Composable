@@ -23,9 +23,6 @@ namespace Composable.SystemExtensions
          }
 
         ///<summary>Returns the deepest nested inner exception that was the root cause of the current exception.</summary>
-        public static Exception GetRootCauseException(this Exception e)
-        {
-            return e.GetAllExceptionsInStack().Last();
-        }
+        public static Exception GetRootCauseException(this Exception e) => e.GetAllExceptionsInStack().Last();
     }
 }

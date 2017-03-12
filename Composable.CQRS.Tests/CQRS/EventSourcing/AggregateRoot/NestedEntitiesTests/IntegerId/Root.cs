@@ -25,7 +25,7 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.AggregateRoot.NestedEntitiesT
         }
 
         public IReadOnlyEntityCollection<Entity, int> Entities => _entities.Entities;
-        public Entity AddEntity(string name) { return _entities.Add(new RootEvent.Entity.Implementation.Created(++_instances, name)); }
+        public Entity AddEntity(string name) => _entities.Add(new RootEvent.Entity.Implementation.Created(++_instances, name));
     }
 
     class Component : Root.Component<Component, RootEvent.Component.Implementation.Root, RootEvent.Component.IRoot>
@@ -44,7 +44,7 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.AggregateRoot.NestedEntitiesT
         readonly Entity.CollectionManager _entities;
 
         public void Rename(string name) { RaiseEvent(new RootEvent.Component.Implementation.Renamed(name)); }
-        public Entity AddEntity(string name) { return _entities.Add(new RootEvent.Component.Entity.Implementation.Created(++_instances, name)); }
+        public Entity AddEntity(string name) => _entities.Add(new RootEvent.Component.Entity.Implementation.Created(++_instances, name));
 
         public class Entity : NestedEntity<Entity,
                                   int,

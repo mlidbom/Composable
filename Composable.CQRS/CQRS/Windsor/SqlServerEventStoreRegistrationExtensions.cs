@@ -65,16 +65,12 @@ namespace Composable.CQRS.CQRS.Windsor
              Dependency migrations = null)
             where TSessionClass : EventStoreSession
             where TSessionInterface : IEventStoreSession
-            where TReaderInterface : IEventStoreReader
-        {
-
-            return @this.RegisterSqlServerEventStore(
-                registration: new SqlServerEventStoreRegistration<TSessionClass, TSessionInterface, TReaderInterface>(),
-                connectionName: connectionName,
-                nameMapper: nameMapper,
-                migrations: migrations
-                );
-        }
+            where TReaderInterface : IEventStoreReader => @this.RegisterSqlServerEventStore(
+                                                                                            registration: new SqlServerEventStoreRegistration<TSessionClass, TSessionInterface, TReaderInterface>(),
+                                                                                            connectionName: connectionName,
+                                                                                            nameMapper: nameMapper,
+                                                                                            migrations: migrations
+                                                                                           );
 
         internal static SqlServerEventStoreRegistration RegisterSqlServerEventStore
             (this IWindsorContainer @this,

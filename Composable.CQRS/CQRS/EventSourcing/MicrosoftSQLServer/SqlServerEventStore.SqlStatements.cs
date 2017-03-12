@@ -26,9 +26,7 @@ end
 
 {EnsurePersistedMigrationsHaveConsistentEffectiveReadOrdersAndEffectiveVersions}
 ";
-            internal static string FixManualVersionsForAggregate(Guid aggregateId)
-            {
-                return $@"
+            internal static string FixManualVersionsForAggregate(Guid aggregateId) => $@"
 update replaced
 set replaced.{EventTable.Columns.ManualReadOrder} = -abs(replaced.{EventTable.Columns.EffectiveReadOrder})
 from {EventTable.Name} replaced
@@ -63,7 +61,6 @@ where {EventTable.Columns.AggregateId} = @{EventTable.Columns.AggregateId}
     and ({EventTable.Columns.EffectiveVersion} > 0 or {EventTable.Columns.EffectiveVersion} is null) 
     and {EventTable.Columns.EffectiveReadOrder} < 0
 ";
-            }
 
             static string EnsurePersistedMigrationsHaveConsistentEffectiveReadOrdersAndEffectiveVersions => $@"
 set nocount on

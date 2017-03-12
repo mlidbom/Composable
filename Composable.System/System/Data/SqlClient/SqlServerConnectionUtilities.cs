@@ -6,10 +6,7 @@ namespace Composable.System.Data.SqlClient
     class SqlServerConnectionUtilities
     {
         string ConnectionString { get; }
-        public SqlServerConnectionUtilities(string connectionString)
-        {
-            ConnectionString = connectionString;
-        }
+        public SqlServerConnectionUtilities(string connectionString) => ConnectionString = connectionString;
 
         public int ExecuteNonQuery(string commandText)
         {

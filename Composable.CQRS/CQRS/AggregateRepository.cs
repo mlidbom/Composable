@@ -11,24 +11,15 @@ namespace Composable.CQRS.CQRS
     {
         readonly IEventStoreSession _aggregates;
 
-        protected AggregateRepository(IEventStoreSession aggregates)
-        {
-            _aggregates = aggregates;
-        }
+        protected AggregateRepository(IEventStoreSession aggregates) => _aggregates = aggregates;
 
-        public virtual TAggregate Get(Guid id)
-        {
-            return _aggregates.Get<TAggregate>(id);
-        }
+        public virtual TAggregate Get(Guid id) => _aggregates.Get<TAggregate>(id);
 
         public virtual void Add(TAggregate aggregate)
         {
             _aggregates.Save(aggregate);
         }
 
-        public virtual TAggregate GetVersion(Guid aggregateRootId, int version)
-        {
-            return _aggregates.LoadSpecificVersion<TAggregate>(aggregateRootId, version);
-        }
+        public virtual TAggregate GetVersion(Guid aggregateRootId, int version) => _aggregates.LoadSpecificVersion<TAggregate>(aggregateRootId, version);
     }
 }

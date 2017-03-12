@@ -28,15 +28,9 @@ namespace Composable.CQRS.CQRS.Query.Models.Generators
         }
 
         ///<summary>Registers handlers for the incoming events. All matching handlers will be called in the order they were registered.</summary>
-        protected IEventHandlerRegistrar<TEvent> RegisterHandlers()
-        {
-            return _eventDispatcher.RegisterHandlers();
-        }
+        protected IEventHandlerRegistrar<TEvent> RegisterHandlers() => _eventDispatcher.RegisterHandlers();
 
-        public TViewModel TryGenerate(Guid id)
-        {
-            return TryGenerate(id, int.MaxValue);
-        }
+        public TViewModel TryGenerate(Guid id) => TryGenerate(id, int.MaxValue);
 
         public TViewModel TryGenerate(Guid id, int version)
         {

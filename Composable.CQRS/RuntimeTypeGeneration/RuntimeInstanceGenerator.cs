@@ -1,76 +1,16 @@
 ﻿using System;
 using System.CodeDom.Compiler;
 using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
 using Castle.MicroKernel.Registration;
 using Castle.Windsor;
 using Composable.Persistence.KeyValueStorage;
 using Composable.System.Linq;
-using Composable.SystemExtensions.Threading;
 
 namespace Composable.CQRS.RuntimeTypeGeneration
 {
-    class DocumentDbFactoryMethods<TSessionInterface,
-                                   TUpdaterInterface,
-                                   TReaderInterface>
-        where TSessionInterface : class, IDocumentDbSession
-        where TUpdaterInterface : class, IDocumentDbUpdater
-        where TReaderInterface : class, IDocumentDbReader
+    static partial class RuntimeInstanceGenerator
     {
-        readonly Func<IWindsorContainer, object> _internalFactory;
-        public DocumentDbFactoryMethods(Func<IWindsorContainer, object> internalFactory) => _internalFactory = internalFactory;
-
-        internal TSessionInterface CreateSession(IWindsorContainer container) => (TSessionInterface)_internalFactory(container);
-        internal TReaderInterface CreateReader(IWindsorContainer container) => (TReaderInterface)_internalFactory(container);
-        internal TUpdaterInterface CreateUpdater(IWindsorContainer container) => (TUpdaterInterface)_internalFactory(container);
-    }
-
-    static class RuntimeInstanceGenerator
-    {
-        static readonly HashSet<Type> ProhibitedBuiltInTypes = Seq.OfTypes<IDocumentDbSession, IDocumentDbReader, IDocumentDbUpdater>()
-                                                                  .ToSet();
-        internal static class DocumentDb
-        {
-            internal static DocumentDbFactoryMethods<TSessionInterface, TUpdaterInterface, TReaderInterface> CreateFactoryMethod<
-                TSessionInterface,
-                TUpdaterInterface,
-                TReaderInterface>()
-                where TSessionInterface : class, IDocumentDbSession
-                where TUpdaterInterface : class, IDocumentDbUpdater
-                where TReaderInterface : class, IDocumentDbReader
-            {
-
-                var requestedServiceInterfaces = Seq.OfTypes<TSessionInterface, TUpdaterInterface, TReaderInterface>().ToArray();
-
-                if (requestedServiceInterfaces.ToSet().Intersect(ProhibitedBuiltInTypes).Any())
-                {
-                    throw new ArgumentException("The service interfaces you supply must inherit from the built in interfaces. You are not allowed to supply the built in interfaces.");
-                }
-
-                var subClassName = SubClassName<TSessionInterface>();
-                string subclassCode =
-                    $@"
-public class {subClassName} : 
-    {typeof(KeyValueStorage.DocumentDbSession).FullName}, 
-    {typeof(TSessionInterface).FullName.Replace("+", ".")},
-    {typeof(TUpdaterInterface).FullName.Replace("+", ".")},
-    {typeof(TReaderInterface).FullName.Replace("+", ".")}
-{{ 
-    public {subClassName}(
-        {typeof(IDocumentDb).FullName} backingStore, 
-        {typeof(ISingleContextUseGuard).FullName} usageGuard, 
-        {typeof(IDocumentDbSessionInterceptor).FullName} interceptor)
-            :base(backingStore, usageGuard, interceptor)
-    {{
-    }}
-}}";
-                var internalFactory = RuntimeInstanceGenerator.CreateFactoryMethod(subclassCode, subClassName, requestedServiceInterfaces);
-                return new DocumentDbFactoryMethods<TSessionInterface, TUpdaterInterface, TReaderInterface>(internalFactory);
-            }
-        }
-
-
         static readonly Dictionary<string, Type> Cache = new Dictionary<string, Type>();
 
         static Type InternalGenerate(string subclassCode, string subClassName, Assembly subclassAssembly)
@@ -126,7 +66,7 @@ public class {subClassName} :
                    };
         }
 
-        static string SubClassName<TSubClassInterface>() where TSubClassInterface : class, IDocumentDbSession
+        static string SubClassName<TSubClassInterface>()
         {
             var subClassName = $"{nameof(KeyValueStorage.DocumentDbSession)}_generated_implementation_of_{typeof(TSubClassInterface).FullName.Replace(".", "_").Replace("+", "_")}";
             return subClassName;

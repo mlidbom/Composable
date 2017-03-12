@@ -14,7 +14,7 @@ using NUnit.Framework;
 namespace Composable.CQRS.Tests
 {
     [TestFixture]
-    public class RuntimeInstanceGeneratorTests
+    public class RuntimeInstanceGeneratorTests_DocumentDb
     {
         //Make the interface nested to ensure that we support that case. Just about every other interface used will not be so I do not test specifically for that here.
         // ReSharper disable MemberCanBePrivate.Global

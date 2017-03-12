@@ -8,16 +8,18 @@ using Composable.SystemExtensions.Threading;
 using Composable.Testing;
 using NUnit.Framework;
 
-namespace Composable.CQRS.Tests.KeyValueStorage
+namespace Composable.CQRS.Tests
 {
-    [TestFixture] public class DocumentDbSession_SubclassGeneratorTests
+    [TestFixture]
+    public class RuntimeInstanceGeneratorTests
     {
         //Make the interface nested to ensure that we support that case. Just about every other interface used will not be so I do not test specifically for that here.
         // ReSharper disable once MemberCanBePrivate.Global
-        public interface IInheritingInterface : IDocumentDbSession {}
+        public interface IInheritingDocumentDbSessionInterface : IDocumentDbSession { }
 
 
-        [Test] public void Can_create_10_instances_per_millisecond_given_correct_windsor_wiring()
+        [Test]
+        public void Can_create_10_documentDbSession_instances_per_millisecond_given_correct_windsor_wiring()
         {
             var container = new WindsorContainer();
             container.Register(
@@ -32,7 +34,7 @@ namespace Composable.CQRS.Tests.KeyValueStorage
                                         .LifestyleSingleton()
                               );
 
-            var factoryMethod = RuntimeInstanceGenerator.DocumentDbSession.CreateFactoryMethod<IInheritingInterface>();
+            var factoryMethod = RuntimeInstanceGenerator.DocumentDbSession.CreateFactoryMethod<IInheritingDocumentDbSessionInterface>();
             //warm up cache
             using (container.BeginScope())
             {
@@ -41,7 +43,7 @@ namespace Composable.CQRS.Tests.KeyValueStorage
 
             TimeAsserter.Execute(() =>
                                  {
-                                     using(container.BeginScope())
+                                     using (container.BeginScope())
                                      {
                                          factoryMethod(container);
                                      }

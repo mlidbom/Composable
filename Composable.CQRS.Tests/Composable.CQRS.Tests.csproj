@@ -9,10 +9,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Include="KeyValueStorage\DocumentDbSession.SubclassGeneratorTests.cs" />
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="Castle.Windsor" Version="3.4.0" />
     <PackageReference Include="FluentAssertions" Version="4.19.2" />
     <PackageReference Include="Moq" Version="4.5.30" />

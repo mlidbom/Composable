@@ -1,11 +1,14 @@
-﻿using Castle.MicroKernel.Lifestyle;
+﻿using System;
+using Castle.MicroKernel.Lifestyle;
 using Castle.MicroKernel.Registration;
 using Castle.Windsor;
 using Composable.CQRS.KeyValueStorage;
+using Composable.CQRS.RuntimeTypeGeneration;
 using Composable.Persistence.KeyValueStorage;
 using Composable.System;
 using Composable.SystemExtensions.Threading;
 using Composable.Testing;
+using FluentAssertions;
 using NUnit.Framework;
 
 namespace Composable.CQRS.Tests
@@ -14,8 +17,11 @@ namespace Composable.CQRS.Tests
     public class RuntimeInstanceGeneratorTests
     {
         //Make the interface nested to ensure that we support that case. Just about every other interface used will not be so I do not test specifically for that here.
-        // ReSharper disable once MemberCanBePrivate.Global
-        public interface IInheritingDocumentDbSessionInterface : IDocumentDbSession { }
+        // ReSharper disable MemberCanBePrivate.Global
+        public interface IDocumentDbSessionInterface : IDocumentDbSession { }
+        public interface IDocumentDbUpdaterInterface : IDocumentDbUpdater { }
+        public interface IDocumentDbReaderInterface : IDocumentDbReader { }
+        // ReSharper restore MemberCanBePrivate.Global
 
 
         [Test]
@@ -34,22 +40,43 @@ namespace Composable.CQRS.Tests
                                         .LifestyleSingleton()
                               );
 
-            var factoryMethod = RuntimeInstanceGenerator.DocumentDbSession.CreateFactoryMethod<IInheritingDocumentDbSessionInterface>();
+            var dbFactory = RuntimeInstanceGenerator.DocumentDb.CreateFactoryMethod<IDocumentDbSessionInterface, IDocumentDbUpdaterInterface, IDocumentDbReaderInterface>();
             //warm up cache
             using (container.BeginScope())
             {
-                var instance = factoryMethod(container);
+                dbFactory.CreateReader(container);
+                dbFactory.CreateUpdater(container);
+                dbFactory.CreateSession(container);
             }
 
             TimeAsserter.Execute(() =>
                                  {
                                      using (container.BeginScope())
                                      {
-                                         factoryMethod(container);
+                                         dbFactory.CreateReader(container);
+                                         dbFactory.CreateSession(container);
+                                         dbFactory.CreateUpdater(container);
                                      }
                                  },
                                  iterations: 100,
-                                 maxTotal: 10.Milliseconds());
+                                 maxTotal: TimeSpanExtensions.Milliseconds(10));
+        }
+
+        [Test] public void Throws_exception_if_you_pass_a_built_in_interface()
+        {
+            var container = new WindsorContainer();
+
+            //Ensure that it is working if we pass the correct types...
+            RuntimeInstanceGenerator.DocumentDb.CreateFactoryMethod<IDocumentDbSessionInterface, IDocumentDbUpdaterInterface, IDocumentDbReaderInterface>();
+
+            this.Invoking(_ => RuntimeInstanceGenerator.DocumentDb.CreateFactoryMethod<IDocumentDbSession, IDocumentDbUpdaterInterface, IDocumentDbReaderInterface>())
+                .ShouldThrow<Exception>();
+
+            this.Invoking(_ => RuntimeInstanceGenerator.DocumentDb.CreateFactoryMethod<IDocumentDbSessionInterface, IDocumentDbUpdater, IDocumentDbReaderInterface>())
+                .ShouldThrow<Exception>();
+
+            this.Invoking(_ => RuntimeInstanceGenerator.DocumentDb.CreateFactoryMethod<IDocumentDbSessionInterface, IDocumentDbUpdaterInterface, IDocumentDbReader>())
+                .ShouldThrow<Exception>();
         }
     }
 }

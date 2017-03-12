@@ -151,7 +151,7 @@ namespace Composable.CQRS.CQRS.EventSourcing.MicrosoftSQLServer
 
         public void PersistMigrations()
         {
-            this.Log().Warn($"Starting to persist migrations");
+            this.Log().Warn("Starting to persist migrations");
 
             long migratedAggregates = 0;
             long updatedAggregates = 0;
@@ -195,7 +195,7 @@ namespace Composable.CQRS.CQRS.EventSourcing.MicrosoftSQLServer
                                             //Save all new events so they get an InsertionOrder for the next refactoring to work with in case it acts relative to any of these events
                                             _eventWriter.InsertRefactoringEvents(newEvents);
                                             updatedAggregates = updatedAggregatesBeforeMigrationOfThisAggregate + 1;
-                                            newEventCount += newEvents.Count();
+                                            newEventCount += newEvents.Count;
                                             updatedThisAggregate = true;
                                         });
 
@@ -231,7 +231,7 @@ namespace Composable.CQRS.CQRS.EventSourcing.MicrosoftSQLServer
                 }
             }
 
-            this.Log().Warn($"Done persisting migrations.");
+            this.Log().Warn("Done persisting migrations.");
             this.Log().Info($"Inspected: {migratedAggregates} , Updated: {updatedAggregates}, New Events: {newEventCount}");
 
         }

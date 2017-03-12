@@ -4,7 +4,7 @@ using Composable.HyperBus.DemoApp.ExposedApi;
 
 namespace Composable.HyperBus.DemoApp.ApiImplementation.MessageHandlers
 {
-    public class AccountEmailer :
+    class AccountEmailer :
         IEventHandler<AccountEvent.IAccountRegisteredEvent>,
         IEventHandler<AccountEvent.IAccountEmailChangedEvent>
     {

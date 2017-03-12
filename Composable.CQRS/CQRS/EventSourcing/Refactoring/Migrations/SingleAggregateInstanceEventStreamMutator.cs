@@ -81,26 +81,26 @@ namespace Composable.CQRS.CQRS.EventSourcing.Refactoring.Migrations
 
         public static IReadOnlyList<AggregateRootEvent> MutateCompleteAggregateHistory
             (IReadOnlyList<IEventMigration> eventMigrations,
-             IReadOnlyList<AggregateRootEvent> @events,
+             IReadOnlyList<AggregateRootEvent> events,
              Action<IReadOnlyList<AggregateRootEvent>> eventsAddedCallback = null)
         {
             if (eventMigrations.None())
             {
-                return @events;
+                return events;
             }
 
-            if(@events.None())
+            if(events.None())
             {
                 return Seq.Empty<AggregateRootEvent>().ToList();
             }
 
-            var firstEvent = @events.First();
+            var firstEvent = events.First();
             lock(AggregateLockManager.GetAggregateLockObject(firstEvent.AggregateRootId))
             {
 
-                var mutator = Create(@events.First(), eventMigrations, eventsAddedCallback);
+                var mutator = Create(events.First(), eventMigrations, eventsAddedCallback);
 
-                var result = @events
+                var result = events
                     .SelectMany(mutator.Mutate)
                     .Concat(mutator.EndOfAggregate())
                     .ToArray();
@@ -111,7 +111,7 @@ namespace Composable.CQRS.CQRS.EventSourcing.Refactoring.Migrations
             }
         }
 
-        public static void AssertMigrationsAreIdempotent(IReadOnlyList<IEventMigration> eventMigrations, AggregateRootEvent[] @events)
+        public static void AssertMigrationsAreIdempotent(IReadOnlyList<IEventMigration> eventMigrations, AggregateRootEvent[] events)
         {
             var creationEvent = events.First();
 

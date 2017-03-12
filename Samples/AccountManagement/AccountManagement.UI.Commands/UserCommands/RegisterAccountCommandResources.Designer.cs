@@ -124,6 +124,15 @@ namespace AccountManagement.UI.Commands.UserCommands {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to The password is null..
+        /// </summary>
+        public static string Password_null {
+            get {
+                return ResourceManager.GetString("Password_null", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to The password is too short..
         /// </summary>
         public static string Password_ShorterThanFourCharacters {

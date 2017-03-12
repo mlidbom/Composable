@@ -70,7 +70,7 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
             Console.WriteLine($"\n########Running Scenario {indexOfScenarioInBatch}");
 
             var original = TestAggregate.FromEvents(DummyTimeSource.Now, scenario.AggregateId, scenario.OriginalHistory).History.ToList();
-            Console.WriteLine($"Original History: ");
+            Console.WriteLine("Original History: ");
             original.ForEach(e => Console.WriteLine($"      {e}"));
             Console.WriteLine();
 
@@ -78,7 +78,7 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
             var expected = TestAggregate.FromEvents(timeSource, scenario.AggregateId, scenario.ExpectedHistory).History.ToList();
             var expectedCompleteEventstoreStream = eventsInStoreAtStart.Concat(expected).ToList();
 
-            Console.WriteLine($"Expected History: ");
+            Console.WriteLine("Expected History: ");
             expected.ForEach(e => Console.WriteLine($"      {e}"));
             Console.WriteLine();
 
@@ -239,9 +239,9 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
             catch(Exception)
             {
                 Console.WriteLine($"   Failed comparing with {descriptionOfHistory}");
-                Console.WriteLine($"   Expected: ");
+                Console.WriteLine("   Expected: ");
                 expected.ForEach(e => Console.WriteLine($"      {e.ToNewtonSoftDebugString(Formatting.None)}"));
-                Console.WriteLine($"\n   Actual: ");
+                Console.WriteLine("\n   Actual: ");
                 migratedHistory.ForEach(e => Console.WriteLine($"      {e.ToNewtonSoftDebugString(Formatting.None)}"));
                 Console.WriteLine("\n");
 

@@ -16,7 +16,7 @@
                     MissingLowercaseCharacter
                 };
 
-                const string Null = null;
+                public const string Null = null;
                 public const string ShorterThanFourCharacters = "a";
                 public const string BorderedByWhiteSpaceAtEnd = "Urdu ";
                 const string BorderedByWhiteSpaceAtBeginning = " Urdu";

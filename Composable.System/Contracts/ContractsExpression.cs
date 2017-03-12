@@ -44,6 +44,7 @@ namespace Composable.Contracts
 
         static object GetExpressionValue(Expression expression)
         {
+            // ReSharper disable once SwitchStatementMissingSomeCases
             switch (expression.NodeType)
             {
                 case ExpressionType.Constant:

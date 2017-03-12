@@ -25,7 +25,7 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.Sql
 
             var masterConnectionString = ConfigurationManager.ConnectionStrings["MasterDb"].ConnectionString;
             _databasePool = new SqlServerDatabasePool(masterConnectionString);
-            _connectionString = _databasePool.ConnectionStringFor($"SqlServerEventStoreSessionTests_EventStore");
+            _connectionString = _databasePool.ConnectionStringFor("SqlServerEventStoreSessionTests_EventStore");
             SqlServerEventStore.ClearAllCache();
         }
 
@@ -47,7 +47,7 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.Sql
             using (var session = OpenSession(CreateStore()))
             {
                 session.Save(user);
-                user.ChangeEmail($"newemail@somewhere.not");
+                user.ChangeEmail("newemail@somewhere.not");
                 session.SaveChanges();
             }
 
@@ -85,7 +85,7 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.Sql
             using (var session = OpenSession(CreateStore()))
             {
                 session.Save(user);
-                user.ChangeEmail($"newemail@somewhere.not");
+                user.ChangeEmail("newemail@somewhere.not");
                 session.SaveChanges();
             }
 

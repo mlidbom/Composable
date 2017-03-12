@@ -78,7 +78,7 @@ namespace Composable.System.Reflection
                     return false;
                 }
 
-                if (types.Count() > 1)
+                if (types.Length > 1)
                 {
                     throw new MultipleMatchingTypesException(valueType);
                 }

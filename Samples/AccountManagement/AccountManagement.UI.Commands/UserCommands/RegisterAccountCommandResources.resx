@@ -144,6 +144,9 @@
   <data name="Password_MissingUpperCaseCharacter" xml:space="preserve">
     <value>The password must contain an uppercase letter.</value>
   </data>
+  <data name="Password_null" xml:space="preserve">
+    <value>The password is null.</value>
+  </data>
   <data name="Password_ShorterThanFourCharacters" xml:space="preserve">
     <value>The password is too short.</value>
   </data>

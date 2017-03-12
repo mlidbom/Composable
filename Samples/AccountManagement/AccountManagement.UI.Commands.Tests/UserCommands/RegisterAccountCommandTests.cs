@@ -76,6 +76,9 @@ namespace AccountManagement.UI.Commands.Tests.UserCommands
 
             _registerAccountCommand.Password = TestData.Password.Invalid.MissingUpperCaseCharacter;
             ValidateAndGetFirstMessage().Should().Be(RegisterAccountCommandResources.Password_MissingUpperCaseCharacter);
+
+            _registerAccountCommand.Password = TestData.Password.Invalid.Null;
+            ValidateAndGetFirstMessage().Should().Be(RegisterAccountCommandResources.PasswordMissing);
         }
 
         [Test]

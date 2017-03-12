@@ -37,7 +37,7 @@ namespace Composable.CQRS.Windsor.Testing
 
         static IExecuteActionsWhenRewiringForTesting Run(this IExecuteActionsWhenRewiringForTesting @this, Action<IWindsorContainer> action) => @this.Execute(action);
 
-        public static IExecuteActionsWhenRewiringForTesting ReplaceComponent<TServiceType>(this IExecuteActionsWhenRewiringForTesting @this, string componentName, ComponentRegistration<TServiceType> replacement, string replacementName = null) where TServiceType : class
+        static IExecuteActionsWhenRewiringForTesting ReplaceComponent<TServiceType>(this IExecuteActionsWhenRewiringForTesting @this, string componentName, ComponentRegistration<TServiceType> replacement, string replacementName = null) where TServiceType : class
         {
             return @this.Run(container => container.ReplaceComponent(componentName, replacement, replacementName));
         }

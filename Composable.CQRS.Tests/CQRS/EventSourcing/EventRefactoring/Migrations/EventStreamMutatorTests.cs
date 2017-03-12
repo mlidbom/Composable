@@ -497,7 +497,7 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
                 var completeEventHistory =container.ExecuteInIsolatedScope(() => eventStore().ListAllEventsForTestingPurposesAbsolutelyNotUsableForARealEventStoreOfAnySize()).Cast<AggregateRootEvent>();
                 AssertStreamsAreIdentical(expected: expected, migratedHistory: completeEventHistory, descriptionOfHistory: "streamed persisted history");
 
-                Console.WriteLine($"Version");
+                Console.WriteLine("Version");
                 Console.WriteLine("Aggregate Effective Inserted Manual");
                 Console.WriteLine("A E I M");
                 completeEventHistory.ForEach(@event => Console.WriteLine($"{@event.AggregateRootVersion} {@event.EffectiveVersion} {@event.InsertedVersion} {@event.ManualVersion}"));

@@ -161,7 +161,7 @@ namespace Composable.CQRS.Tests.CQRS.EventHandling
                                                    {
                                                        AggregateRootId = cvId,
                                                        Email = "Email",
-                                                       Password = "Password",
+                                                       Password = "Password"
                                                    };
                                  cvQueryModelUpdater.Handle(registeredEvent);
                                  cvQueryModel = documentDbSession.Get<CvQueryModel>(cvId);

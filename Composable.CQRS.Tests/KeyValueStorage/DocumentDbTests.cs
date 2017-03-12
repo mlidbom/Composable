@@ -868,7 +868,7 @@ namespace Composable.CQRS.Tests.KeyValueStorage
 
                 var ids = session.GetAllIds<User>().ToSet();
 
-                ids.Count().Should().Be(2);
+                ids.Count.Should().Be(2);
                 ids.Should().Contain(userid1);
                 ids.Should().Contain(userid2);
             }

@@ -60,9 +60,9 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.Sql
             using (var session = OpenSession(CreateStore(withMigrations:false)))
             {
                 session.Save(user);
-                user.ChangeEmail($"newemail@somewhere.not");
-                user.ChangeEmail($"newemail1@somewhere.not");
-                user.ChangeEmail($"newemail2@somewhere.not");
+                user.ChangeEmail("newemail@somewhere.not");
+                user.ChangeEmail("newemail1@somewhere.not");
+                user.ChangeEmail("newemail2@somewhere.not");
                 session.SaveChanges();
             }
 

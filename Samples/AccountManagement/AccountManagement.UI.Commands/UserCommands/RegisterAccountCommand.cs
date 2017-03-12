@@ -49,6 +49,8 @@ namespace AccountManagement.UI.Commands.UserCommands
                     case Domain.Shared.Password.Policy.Failures.ShorterThanFourCharacters:
                         yield return this.CreateValidationResult(RegisterAccountCommandResources.Password_ShorterThanFourCharacters, () => Password);
                         break;
+                    case Domain.Shared.Password.Policy.Failures.Null:
+                        throw new Exception("Null should have been caught by the Required attribute");
                     default:
                         throw new Exception($"Unknown password failure type {policyFailures.First()}");
                 }

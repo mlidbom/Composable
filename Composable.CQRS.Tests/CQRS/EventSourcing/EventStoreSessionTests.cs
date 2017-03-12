@@ -80,7 +80,7 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing
             var store = CreateStore();
             IEventStoreSession session = null;
             var wait = new ManualResetEventSlim();
-            ThreadPool.QueueUserWorkItem((state) =>
+            ThreadPool.QueueUserWorkItem(state =>
                                              {
                                                  session = OpenSession(store);
                                                  wait.Set();

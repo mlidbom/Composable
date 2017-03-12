@@ -148,19 +148,19 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
                 description: $"{nameof(before)}",
                 iterations: numberOfEventsToInspect,
                 maxTries:3,
-                action: () => before.MigrateEvent(@event, @eventModifier));
+                action: () => before.MigrateEvent(@event, eventModifier));
             TimeAsserter.Execute(
                 maxTotal: maxtime,
                 maxTries: 3,
                 description: $"{nameof(replace)}",
                 iterations: numberOfEventsToInspect,
-                action: () => replace.MigrateEvent(@event, @eventModifier));
+                action: () => replace.MigrateEvent(@event, eventModifier));
             TimeAsserter.Execute(
                 maxTotal: maxtime,
                 maxTries: 3,
                 description: $"{nameof(after)}",
                 iterations: numberOfEventsToInspect,
-                action: () => after.MigrateEvent(@event, @eventModifier));
+                action: () => after.MigrateEvent(@event, eventModifier));
         }
 
         [Test]

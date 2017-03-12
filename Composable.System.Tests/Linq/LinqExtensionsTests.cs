@@ -13,7 +13,7 @@ namespace Composable.Tests.Linq
         {
             var nestedInts = new List<List<int>>
                                  {
-                                     new List<int> { 1, },
+                                     new List<int> { 1 },
                                      new List<int> { 2, 3 },
                                      new List<int> { 4, 5, 6, 7 }
                                  };

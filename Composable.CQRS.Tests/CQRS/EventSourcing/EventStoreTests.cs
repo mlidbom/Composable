@@ -104,7 +104,7 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing
             {
                 eventStore.SaveEvents(aggregatesWithEvents.SelectMany(x => x.Value));
                 var allAggregateIds = eventStore.StreamAggregateIdsInCreationOrder().ToList();
-                Assert.AreEqual(aggregatesWithEvents.Count, allAggregateIds.Count());
+                Assert.AreEqual(aggregatesWithEvents.Count, allAggregateIds.Count);
             }
         }
 
@@ -122,7 +122,7 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing
             {
                 eventStore.SaveEvents(aggregatesWithEvents.SelectMany(x => x.Value));
                 var allAggregateIds = eventStore.StreamAggregateIdsInCreationOrder<ISomeEvent>().ToList();
-                Assert.AreEqual(aggregatesWithEvents.Count, allAggregateIds.Count());
+                Assert.AreEqual(aggregatesWithEvents.Count, allAggregateIds.Count);
             }
         }
     }

@@ -37,13 +37,13 @@ namespace Composable.Tests.DDD
                                                     {
                                                         Name = "Branch1Name",
                                                         Leaf1 = new Leaf { Name = "Leaf1Name" },
-                                                        Leaf2 = new Leaf { Name = "Leaf2Name" },
+                                                        Leaf2 = new Leaf { Name = "Leaf2Name" }
                                                     },
                                       Branch2 = new Branch
                                                     {
                                                         Name = "Branch1Name",
                                                         Leaf1 = new Leaf { Name = "Leaf1Name" },
-                                                        Leaf2 = new Leaf { Name = "Leaf2Name" },
+                                                        Leaf2 = new Leaf { Name = "Leaf2Name" }
                                                     }
                                   }.ToString();
             Assert.That(description, Is.EqualTo(

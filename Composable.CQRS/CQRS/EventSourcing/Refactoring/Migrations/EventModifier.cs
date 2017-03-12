@@ -50,7 +50,7 @@ namespace Composable.CQRS.CQRS.EventSourcing.Refactoring.Migrations
 
         void AssertNoPriorModificationsHaveBeenMade()
         {
-            Contract.Assert(_replacementEvents == null && _insertedEvents == null, $"You can only modify the current event once.");
+            Contract.Assert(_replacementEvents == null && _insertedEvents == null, "You can only modify the current event once.");
         }
 
         public void Replace(params AggregateRootEvent[] events)

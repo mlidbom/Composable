@@ -30,4 +30,21 @@
     </Reference>
   </ItemGroup>
 
+  
+  <ItemGroup>
+    <Compile Update="UserCommands\RegisterAccountCommandResources.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>RegisterAccountCommandResources.resx</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
+  
+  <ItemGroup>
+    <EmbeddedResource Update="UserCommands\RegisterAccountCommandResources.resx">
+      <Generator>PublicResXFileCodeGenerator</Generator>
+      <LastGenOutput>RegisterAccountCommandResources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+  </ItemGroup>
+
 </Project>

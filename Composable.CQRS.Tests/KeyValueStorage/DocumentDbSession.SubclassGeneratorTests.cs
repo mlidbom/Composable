@@ -10,13 +10,11 @@ using NUnit.Framework;
 
 namespace Composable.CQRS.Tests.KeyValueStorage
 {
-    // ReSharper disable once MemberCanBeInternal
-    public interface IInheritingInterface : IDocumentDbSession {}
-
     [TestFixture] public class DocumentDbSession_SubclassGeneratorTests
     {
+        //Make the interface nested to ensure that we support that case. Just about every other interface used will not be so I do not test specifically for that here.
         // ReSharper disable once MemberCanBePrivate.Global
-        public interface INestedInheritingInterface : IDocumentDbSession {}
+        public interface IInheritingInterface : IDocumentDbSession {}
 
 
         [Test] public void Can_create_10_instances_per_millisecond_given_correct_windsor_wiring()
@@ -34,7 +32,7 @@ namespace Composable.CQRS.Tests.KeyValueStorage
                                         .LifestyleSingleton()
                               );
 
-            var factoryMethod = DocumentDbSession.SubClassGenerator.CreateFactoryMethod<IInheritingInterface>();
+            var factoryMethod = RuntimeInstanceGenerator.DocumentDbSession.CreateFactoryMethod<IInheritingInterface>();
             //warm up cache
             using (container.BeginScope())
             {

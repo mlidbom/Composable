@@ -3,24 +3,25 @@ using System.CodeDom.Compiler;
 using System.Collections.Generic;
 using Castle.MicroKernel.Registration;
 using Castle.Windsor;
+using Composable.CQRS.KeyValueStorage;
 using Composable.Persistence.KeyValueStorage;
 using Composable.SystemExtensions.Threading;
 
-namespace Composable.CQRS.KeyValueStorage
+namespace Composable.CQRS
 {
-    public partial class DocumentDbSession
+    class RuntimeInstanceGenerator
     {
-        internal class SubClassGenerator
+        internal class DocumentDbSession
         {
             static Dictionary<Type, Type> Cache = new Dictionary<Type, Type>();
 
             static Type InternalGenerate<TSubClassInterface>() where TSubClassInterface : IDocumentDbSession
             {
-                var subClassName = $"{nameof(DocumentDbSession)}_generated_implementation_of_{typeof(TSubClassInterface).FullName.Replace(".", "_") .Replace("+", "_")}";
+                var subClassName = $"{nameof(KeyValueStorage.DocumentDbSession)}_generated_implementation_of_{typeof(TSubClassInterface).FullName.Replace(".", "_").Replace("+", "_")}";
                 string subclassCode =
                     $@"
 public class {subClassName} : 
-    {typeof(DocumentDbSession).FullName}, 
+    {typeof(KeyValueStorage.DocumentDbSession).FullName}, 
     {typeof(TSubClassInterface).FullName.Replace("+", ".")}
 {{ 
     public {subClassName}(
@@ -39,7 +40,7 @@ public class {subClassName} :
                                 IncludeDebugInformation = false,
                                 ReferencedAssemblies =
                                 {
-                                    $"{typeof(SubClassGenerator).Assembly.GetName().Name}.dll",
+                                    $"{typeof(AssemblyHandleComposableCqrs).Assembly.GetName().Name}.dll",
                                     $"{typeof(AssemblyHandleComposableCore).Assembly.GetName().Name}.dll",
                                     $"{typeof(TSubClassInterface).Assembly.GetName().Name}.dll"
                                 }
@@ -48,7 +49,7 @@ public class {subClassName} :
                 var compiler = CodeDomProvider.CreateProvider("CSharp");
                 var compilerResults = compiler.CompileAssemblyFromSource(parms, subclassCode);
 
-                if(compilerResults.Errors.HasErrors)
+                if (compilerResults.Errors.HasErrors)
                 {
                     throw new SubclassGenerationException(subclassCode, compilerResults);
                 }
@@ -65,6 +66,7 @@ public class {subClassName} :
             {
                 return container =>
                        {
+                           // ReSharper disable once UnusedVariable
                            if (Cache.TryGetValue(typeof(TSubClassInterface), out Type cachedSubClass))
                            {
                                return container.Resolve<TSubClassInterface>();

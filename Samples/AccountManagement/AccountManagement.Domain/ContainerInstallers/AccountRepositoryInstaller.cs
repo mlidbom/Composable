@@ -5,6 +5,7 @@ using Castle.Windsor;
 
 namespace AccountManagement.Domain.ContainerInstallers
 {
+    // ReSharper disable once ClassNeverInstantiated.Global
     public class AccountRepositoryInstaller : IWindsorInstaller
     {
         public void Install(IWindsorContainer container, IConfigurationStore store)

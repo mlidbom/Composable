@@ -9,7 +9,7 @@ using NetMQ.Sockets;
 namespace NetMqProcess01._50_Router_Dealer
 {
     // ReSharper disable once UnusedMember.Global
-    class RouterAndDealer
+    static class RouterAndDealer
     {
         public static void Run()
         {

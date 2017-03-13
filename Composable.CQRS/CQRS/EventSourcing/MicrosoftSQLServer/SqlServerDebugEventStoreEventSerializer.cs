@@ -6,7 +6,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 
 namespace Composable.CQRS.CQRS.EventSourcing.MicrosoftSQLServer {
-    class SqlServerDebugEventStoreEventSerializer
+    static class SqlServerDebugEventStoreEventSerializer
     {
         class DebugPrintingContractsResolver : DefaultContractResolver
         {

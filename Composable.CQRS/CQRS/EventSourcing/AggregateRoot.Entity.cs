@@ -2,6 +2,7 @@
 using Composable.CQRS.EventSourcing;
 using Composable.GenericAbstractions.Time;
 using Composable.Messaging.Events;
+using JetBrains.Annotations;
 
 namespace Composable.CQRS.CQRS.EventSourcing
 {
@@ -10,6 +11,7 @@ namespace Composable.CQRS.CQRS.EventSourcing
         where TAggregateRootBaseEventInterface : class, IAggregateRootEvent
         where TAggregateRootBaseEventClass : AggregateRootEvent, TAggregateRootBaseEventInterface
     {
+        [UsedImplicitly(ImplicitUseKindFlags.InstantiatedWithFixedConstructorSignature)]
         public abstract class Entity<TEntity,
                                      TEntityId,
                                      TEntityBaseEventClass,

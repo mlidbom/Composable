@@ -10,9 +10,11 @@ namespace Composable.CQRS.Tests.KeyValueStorage
         class Base
         {}
 
+        // ReSharper disable once ClassNeverInstantiated.Local
         class Inheritor : Base
         {}
 
+        // ReSharper disable once ClassNeverInstantiated.Local
         class Unrelated{}
 
 

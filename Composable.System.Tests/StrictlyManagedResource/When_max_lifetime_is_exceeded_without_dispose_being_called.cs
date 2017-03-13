@@ -7,6 +7,7 @@ namespace Composable.Tests.StrictlyManagedResource
 {
     public class When_max_lifetime_is_exceeded_without_dispose_being_called
     {
+        // ReSharper disable once ClassNeverInstantiated.Local
         class StrictResource : IStrictlyManagedResource
         {
             public void Dispose() { }

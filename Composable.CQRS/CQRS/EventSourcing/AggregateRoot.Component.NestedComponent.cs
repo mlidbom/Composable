@@ -2,6 +2,7 @@
 using Composable.CQRS.EventSourcing;
 using Composable.GenericAbstractions.Time;
 using Composable.Messaging.Events;
+using JetBrains.Annotations;
 
 namespace Composable.CQRS.CQRS.EventSourcing
 {
@@ -15,6 +16,7 @@ namespace Composable.CQRS.CQRS.EventSourcing
             where TComponentBaseEventClass : TAggregateRootBaseEventClass, TComponentBaseEventInterface
             where TComponent : Component<TComponent, TComponentBaseEventClass, TComponentBaseEventInterface>
         {
+            [UsedImplicitly(ImplicitUseKindFlags.InstantiatedWithFixedConstructorSignature)]
             public abstract class NestedComponent<TNestedComponent, TNestedComponentBaseEventClass, TNestedComponentBaseEventInterface> :
                 AggregateRoot<TAggregateRoot, TAggregateRootBaseEventClass, TAggregateRootBaseEventInterface>.
                     Component<TNestedComponent, TNestedComponentBaseEventClass, TNestedComponentBaseEventInterface>

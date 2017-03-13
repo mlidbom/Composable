@@ -4,7 +4,7 @@ using Newtonsoft.Json;
 
 namespace Composable.CQRS.CQRS.EventSourcing.MicrosoftSQLServer
 {
-    class SqlServerEvestStoreEventSerializer
+    static class SqlServerEvestStoreEventSerializer
     {
         internal static readonly JsonSerializerSettings JsonSettings = NewtonSoft.JsonSettings.SqlEventStoreSerializerSettings;
 

@@ -10,6 +10,7 @@ namespace Composable.Tests.StrictlyManagedResource
     {
         StrictlyManagedResourceWasFinalizedException _leakedResource;
 
+        // ReSharper disable once ClassNeverInstantiated.Local
         class StrictResource : IStrictlyManagedResource
         {
             public void Dispose() { }

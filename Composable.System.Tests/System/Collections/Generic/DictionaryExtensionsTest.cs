@@ -5,7 +5,7 @@ using NUnit.Framework;
 
 namespace Composable.Tests.System.Collections.Generic
 {
-    public class DictionaryExtensionsGetOrAddWhenKey
+    public static class DictionaryExtensionsGetOrAddWhenKey
     {
         const int ExistingValue = 1;
         const int InsertedValue = 2;

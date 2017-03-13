@@ -13,8 +13,10 @@ namespace Composable.System.Web
         ///<summary>Returns the unique Guid of the current request</summary>
         public static Guid Id(this HttpRequest me)
         {
-            ContractOptimized.Argument(me, nameof(me), me.RequestContext, "me.RequestContext")
+            ContractOptimized.Argument(me, nameof(me))
                              .NotNull();
+
+            Contract.Assert(me.RequestContext != null, "me.RequestContext != null");
 
             if(!me.RequestContext.HttpContext.Items.Contains(UniqueRequestId))
             {

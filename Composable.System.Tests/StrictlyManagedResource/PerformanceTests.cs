@@ -6,6 +6,7 @@ namespace Composable.Tests.StrictlyManagedResource
 {
     public class PerformanceTests
     {
+        // ReSharper disable once ClassNeverInstantiated.Local
         class StrictResource : IStrictlyManagedResource
         {
             public void Dispose() { }

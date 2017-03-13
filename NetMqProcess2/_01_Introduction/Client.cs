@@ -7,7 +7,7 @@ using Newtonsoft.Json;
 
 namespace NetMqProcess02._01_Introduction
 {
-    class Client
+    static class Client
     {
         class Data
         {

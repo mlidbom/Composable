@@ -7,6 +7,7 @@ namespace Composable.Tests.StrictlyManagedResource
 {
     [TestFixture] public class When_no_gc_root_exists_for_object_and_garbage_collector_runs_and_instance_is_not_disposed
     {
+        // ReSharper disable once ClassNeverInstantiated.Local
         class StrictResource : IStrictlyManagedResource
         {
             public void Dispose() { }

@@ -91,6 +91,15 @@ namespace Composable.Contracts
                 throw new AssertionException(failureMessage);
             }
         }
+
+        //internal static AssertClass Assert => AssertClass.Instance;
+
+
+    }
+
+    internal class ContractAssertion
+    {
+        readonly ContractAssertion Instance = new ContractAssertion();
     }
 }
 

@@ -19,11 +19,11 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
         abstract class EcAbstract : RootEvent, IAggregateRootCreatedEvent
         {}
 
+        // ReSharper disable ClassNeverInstantiated.Global
         internal class Ec1 : EcAbstract{}
-
         internal class Ec2 : EcAbstract{}
-
         internal class Ec3 : EcAbstract{}
+        // ReSharper restore ClassNeverInstantiated.Global
 
         internal class E1 : RootEvent { }
         internal class E2 : RootEvent { }

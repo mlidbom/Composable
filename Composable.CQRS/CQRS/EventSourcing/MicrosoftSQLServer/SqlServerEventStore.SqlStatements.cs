@@ -4,7 +4,7 @@ namespace Composable.CQRS.CQRS.EventSourcing.MicrosoftSQLServer
 {
     partial class SqlServerEventStore
     {
-        internal class SqlStatements {
+        internal static class SqlStatements {
             public static string EnsurePersistedMigrationsHaveConsistentReadOrdersAndEffectiveVersionsSqlStoredProcedure => $@"
 IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[{nameof(EnsurePersistedMigrationsHaveConsistentEffectiveReadOrdersAndEffectiveVersions)}]') AND type in (N'P', N'PC'))
 BEGIN

@@ -16,8 +16,10 @@ namespace Composable.System.Reflection
 
         static Func<object, object> BuildFieldGetter(FieldInfo field)
         {
-            ContractOptimized.Argument(field, nameof(field), field.DeclaringType, "field.DeclaringType")
+            ContractOptimized.Argument(field, nameof(field))
                              .NotNull();
+
+            Contract.Assert(field.DeclaringType != null, "field.DeclaringType cannot be null");
 
             var obj = Expression.Parameter(typeof(object), "obj");
 

@@ -21,7 +21,7 @@ namespace Composable.CQRS.Tests
         public interface IEventStoreReaderInterface : IEventStoreReader {}
         // ReSharper restore MemberCanBePrivate.Global
 
-        [Test] public void Can_create_10_EventStore_instances_per_millisecond_given_correct_windsor_wiring()
+        [Test] public void Can_create_5_EventStore_instances_per_millisecond_given_correct_windsor_wiring()
         {
             using(var container = CreateContainerWithDependencies())
             {
@@ -41,7 +41,7 @@ namespace Composable.CQRS.Tests
                                              container.Resolve<IEventStoreReaderInterface>();
                                          }
                                      },
-                                     iterations: 100,
+                                     iterations: 50,
                                      maxTotal: TimeSpanExtensions.Milliseconds(10));
             }
         }

@@ -7,7 +7,7 @@ using Composable.System.Linq;
 
 namespace Composable.CQRS.KeyValueStorage
 {
-    public partial class DocumentDbSession
+    partial class DocumentDbSession
     {
         class DocumentItem
         {

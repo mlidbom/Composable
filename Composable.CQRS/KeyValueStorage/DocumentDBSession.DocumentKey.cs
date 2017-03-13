@@ -3,7 +3,7 @@ using Composable.System;
 
 namespace Composable.CQRS.KeyValueStorage
 {
-    public partial class DocumentDbSession
+    partial class DocumentDbSession
     {
         internal class DocumentKey : IEquatable<DocumentKey>
         {

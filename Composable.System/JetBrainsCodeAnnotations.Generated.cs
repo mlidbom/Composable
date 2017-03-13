@@ -221,7 +221,7 @@ namespace JetBrains.Annotations
     /// </code></item>
     /// <item><code>
     /// [ContractAnnotation("halt &lt;= condition: false")]
-    /// public void Assert(bool condition, string text) // regular assertion method
+    /// public void OldObsoletedAssert(bool condition, string text) // regular assertion method
     /// </code></item>
     /// <item><code>
     /// [ContractAnnotation("s:null =&gt; true")]

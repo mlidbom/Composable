@@ -16,7 +16,7 @@ namespace Composable.System.Web
             ContractOptimized.Argument(me, nameof(me))
                              .NotNull();
 
-            Contract.Assert(me.RequestContext != null, "me.RequestContext != null");
+            Contract.Assert.That(me.RequestContext != null, "me.RequestContext != null");
 
             if(!me.RequestContext.HttpContext.Items.Contains(UniqueRequestId))
             {

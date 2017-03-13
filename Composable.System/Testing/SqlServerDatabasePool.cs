@@ -197,8 +197,7 @@ CREATE TABLE [dbo].[{ManagerTableSchema.TableName}](
                     var releasedDBs = _managerConnection.ExecuteNonQuery(
                         $"update {ManagerTableSchema.TableName} set {ManagerTableSchema.IsFree} = 1  where {ManagerTableSchema.DatabaseName} = '{database.Name}'");
 
-                    Contract.Assert(releasedDBs == 1);
-                    //Console.WriteLine($"Released:{database.Name}");
+                    Contract.Assert.That(releasedDBs == 1, "releasedDBs == 1");
                 }
             );
         }

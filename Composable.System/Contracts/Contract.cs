@@ -76,30 +76,19 @@ namespace Composable.Contracts
             return new Inspected<TParameter>(inspected);
         }
 
-        internal static void Assert(bool assertion)
+        internal static readonly IContractAssertion Assert = new ContractAssertionImplementation(InspectionType.Assertion);
+        internal static readonly IContractAssertion Arguments = new ContractAssertionImplementation(InspectionType.Argument);
+
+        class ContractAssertionImplementation : IContractAssertion
         {
-            if(!assertion)
-            {
-                throw new AssertionException();
-            }
+            public ContractAssertionImplementation(InspectionType inspectionType) { InspectionType = inspectionType; }
+            public InspectionType InspectionType { get; }
         }
-
-        internal static void Assert(bool assertion, string failureMessage)
-        {
-            if (!assertion)
-            {
-                throw new AssertionException(failureMessage);
-            }
-        }
-
-        //internal static AssertClass Assert => AssertClass.Instance;
-
-
     }
 
-    internal class ContractAssertion
+    interface IContractAssertion
     {
-        readonly ContractAssertion Instance = new ContractAssertion();
+        InspectionType InspectionType { get; }
     }
 }
 

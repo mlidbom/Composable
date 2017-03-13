@@ -213,8 +213,7 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
 
         public TestAggregate2(params RootEvent[] events) : this()
         {
-            ContractOptimized.Argument(events.First(), "events.First()")
-                             .IsOfType<IAggregateRootCreatedEvent>();
+            Contract.Assert.That(events.First() is IAggregateRootCreatedEvent, "events.First() is IAggregateRootCreatedEvent");
 
             RaiseEvents(events);
         }

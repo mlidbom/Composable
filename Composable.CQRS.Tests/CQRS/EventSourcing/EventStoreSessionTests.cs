@@ -592,9 +592,9 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing
         //    {
         //        var loadedUser = session.Get<User>(user.Id);
 
-        //        Assert.That(loadedUser.Id, Is.EqualTo(user.Id));
-        //        Assert.That(loadedUser.Email, Is.EqualTo(user.Email));
-        //        Assert.That(loadedUser.Password, Is.EqualTo(user.Password));
+        //        OldObsoletedAssert.That(loadedUser.Id, Is.EqualTo(user.Id));
+        //        OldObsoletedAssert.That(loadedUser.Email, Is.EqualTo(user.Email));
+        //        OldObsoletedAssert.That(loadedUser.Password, Is.EqualTo(user.Password));
 
         //    }
         //}
@@ -622,9 +622,9 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing
         //    {
         //        var loadedUser = session.Get<User>(user.Id);
 
-        //        Assert.That(loadedUser.Id, Is.EqualTo(user.Id));
-        //        Assert.That(loadedUser.Email, Is.EqualTo(user.Email));
-        //        Assert.That(loadedUser.Password, Is.EqualTo(user.Password));
+        //        OldObsoletedAssert.That(loadedUser.Id, Is.EqualTo(user.Id));
+        //        OldObsoletedAssert.That(loadedUser.Email, Is.EqualTo(user.Email));
+        //        OldObsoletedAssert.That(loadedUser.Password, Is.EqualTo(user.Password));
 
         //    }
         //}

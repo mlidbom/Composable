@@ -4,7 +4,7 @@ namespace Composable.Contracts
 {
     class AssertionException : Exception
     {
-        public AssertionException(string failureMessage) : base(failureMessage) {}
+        public AssertionException(InspectionType inspectionType, string failureMessage) : base($"{inspectionType}: {failureMessage}") {}
         public AssertionException() {}
     }
 }

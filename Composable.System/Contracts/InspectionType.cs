@@ -8,6 +8,7 @@
         ///<summary>The inspected value is an invariant of the class</summary>
         Invariant,
         ///<summary>The inspected value is a return value</summary>
-        ReturnValue
+        ReturnValue,
+        Assertion
     }
 }

@@ -89,7 +89,8 @@ namespace Composable.CQRS.CQRS.EventSourcing
 
         public IEnumerable<Guid> StreamAggregateIdsInCreationOrder(Type eventBaseType = null)
         {
-            Contract.Assert(eventBaseType == null || (eventBaseType.IsInterface && typeof(IAggregateRootEvent).IsAssignableFrom(eventBaseType)));
+            Contract.Assert.That(eventBaseType == null || eventBaseType.IsInterface && typeof(IAggregateRootEvent).IsAssignableFrom(eventBaseType),
+                                 "eventBaseType == null || eventBaseType.IsInterface && typeof(IAggregateRootEvent).IsAssignableFrom(eventBaseType)");
 
             lock (_lockObject)
             {

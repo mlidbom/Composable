@@ -14,7 +14,7 @@ namespace Composable.Tests.System.Configuration
             //Arrange
             var provider = new AppConfigConfigurationParameterProvider();
 
-            //Assert
+            //OldObsoletedAssert
             Assert.AreEqual(ConfigurationManager.AppSettings["KeyTest1"], provider.GetString("KeyTest1"));
         }
 
@@ -24,7 +24,7 @@ namespace Composable.Tests.System.Configuration
             //Arrange
             var provider = new AppConfigConfigurationParameterProvider();
 
-            //Assert
+            //OldObsoletedAssert
             Assert.Throws<ConfigurationErrorsException>(() => provider.GetString("ErrorTest1"));
         }
 
@@ -35,7 +35,7 @@ namespace Composable.Tests.System.Configuration
             var parameterKey = "ErrorTest1";
             var provider = new AppConfigConfigurationParameterProvider();
 
-            //Assert
+            //OldObsoletedAssert
             var exc=Assert.Throws<ConfigurationErrorsException>(() => provider.GetString(parameterKey));
             exc.Message.Should().Contain(parameterKey);
         }

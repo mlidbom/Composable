@@ -37,7 +37,7 @@ namespace Composable.CQRS.CQRS.EventSourcing.Refactoring.Migrations
 
         public IEnumerable<AggregateRootEvent> Mutate(AggregateRootEvent @event)
         {
-            Contract.Assert(_aggregateId == @event.AggregateRootId);
+            Contract.Assert.That(_aggregateId == @event.AggregateRootId, "_aggregateId == @event.AggregateRootId");
             if (_eventMigrators.Length == 0)
             {
                 return Seq.Create(@event);

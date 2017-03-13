@@ -14,7 +14,7 @@ namespace Composable.Tests.System.Configuration
             //Arrange
             var provider = new ConnectionStringConfigurationParameterProvider();
 
-            //Assert
+            //OldObsoletedAssert
             Assert.AreEqual(ConfigurationManager.ConnectionStrings["CSTest1"], provider.GetConnectionString("CSTest1"));
         }
 
@@ -24,7 +24,7 @@ namespace Composable.Tests.System.Configuration
             //Arrange
             var provider = new ConnectionStringConfigurationParameterProvider();
 
-            //Assert
+            //OldObsoletedAssert
             Assert.Throws<ConfigurationErrorsException>(() => provider.GetConnectionString("ErrorTest1"));
         }
 
@@ -36,7 +36,7 @@ namespace Composable.Tests.System.Configuration
             var parameterKey = "ErrorTest1";
             var provider = new ConnectionStringConfigurationParameterProvider();
 
-            //Assert
+            //OldObsoletedAssert
             var exc = Assert.Throws<ConfigurationErrorsException>(() => provider.GetConnectionString(parameterKey));
             exc.Message.Should().Contain(parameterKey);
         }

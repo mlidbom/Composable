@@ -47,13 +47,13 @@ namespace Composable.CQRS.CQRS.EventSourcing.Refactoring.Migrations
 
         void AssertNoPriorModificationsHaveBeenMade()
         {
-            Contract.Assert(_replacementEvents == null && _insertedEvents == null, "You can only modify the current event once.");
+            Contract.Assert.That(_replacementEvents == null && _insertedEvents == null, "You can only modify the current event once.");
         }
 
         public void Replace(params AggregateRootEvent[] events)
         {
             AssertNoPriorModificationsHaveBeenMade();
-            Contract.Assert(Event.GetType() != typeof(EndOfAggregateHistoryEventPlaceHolder), "You cannot call replace on the event that signifies the end of the stream");
+            Contract.Assert.That(Event.GetType() != typeof(EndOfAggregateHistoryEventPlaceHolder), "You cannot call replace on the event that signifies the end of the stream");
 
             _replacementEvents = events;
 

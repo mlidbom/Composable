@@ -26,8 +26,8 @@ namespace Composable.CQRS.CQRS.EventSourcing
         //Yes empty. Id should be assigned by an action and it should be obvious that the aggregate in invalid until that happens
         protected AggregateRoot(IUtcTimeTimeSource timeSource) : base(Guid.Empty)
         {
-            Contract.Assert(timeSource != null);
-            Contract.Assert(typeof(TAggregateRootBaseEventInterface).IsInterface);
+            Contract.Assert.That(timeSource != null, "timeSource != null");
+            Contract.Assert.That(typeof(TAggregateRootBaseEventInterface).IsInterface, "typeof(TAggregateRootBaseEventInterface).IsInterface");
             TimeSource = timeSource;
             _eventHandlersEventDispatcher.Register().IgnoreUnhandled<IAggregateRootEvent>();
         }

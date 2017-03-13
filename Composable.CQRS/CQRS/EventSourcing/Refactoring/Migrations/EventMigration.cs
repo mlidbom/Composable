@@ -15,8 +15,7 @@ namespace Composable.CQRS.CQRS.EventSourcing.Refactoring.Migrations
             Contract.Argument(() => description, () => name)
                         .NotNullEmptyOrWhiteSpace();
 
-
-            Contract.Assert(typeof(TMigratedAggregateEventHierarchyRootInterface).IsInterface, $"{nameof(TMigratedAggregateEventHierarchyRootInterface)} must be an interface.");
+            Contract.Assert.That(typeof(TMigratedAggregateEventHierarchyRootInterface).IsInterface, "typeof(TMigratedAggregateEventHierarchyRootInterface).IsInterface");
 
             Id = id;
             Name = name;

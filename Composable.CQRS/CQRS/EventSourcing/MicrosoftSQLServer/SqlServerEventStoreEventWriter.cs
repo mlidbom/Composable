@@ -95,11 +95,13 @@ SET @{EventTable.Columns.InsertionOrder} = SCOPE_IDENTITY();";
                                          .GroupBy(@event => @event.InsertAfter.Value)
                                          .SingleOrDefault();
 
-            Contract.Assert(Seq.Create(replacementGroup, insertBeforeGroup, insertAfterGroup).Where(@this => @this != null).Count() == 1);
+            Contract.Assert.That(Seq.Create(replacementGroup, insertBeforeGroup, insertAfterGroup).Where(@this => @this != null).Count() == 1,
+                                 "Seq.Create(replacementGroup, insertBeforeGroup, insertAfterGroup).Where(@this => @this != null).Count() == 1");
 
             if(replacementGroup != null)
             {
-                Contract.Assert(replacementGroup.All(@this => @this.Replaces.HasValue && @this.Replaces > 0));
+                Contract.Assert.That(replacementGroup.All(@this => @this.Replaces.HasValue && @this.Replaces > 0),
+                                     "replacementGroup.All(@this => @this.Replaces.HasValue && @this.Replaces > 0)");
                 var eventToReplace = relatedEvents.Single(@event => @event.InsertionOrder == replacementGroup.Key);
 
                 SaveEventsWithinReadOrderRange(
@@ -109,7 +111,8 @@ SET @{EventTable.Columns.InsertionOrder} = SCOPE_IDENTITY();";
             }
             else if(insertBeforeGroup != null)
             {
-                Contract.Assert(insertBeforeGroup.All(@this => @this.InsertBefore.HasValue && @this.InsertBefore.Value > 0));
+                Contract.Assert.That(insertBeforeGroup.All(@this => @this.InsertBefore.HasValue && @this.InsertBefore.Value > 0),
+                                     "insertBeforeGroup.All(@this => @this.InsertBefore.HasValue && @this.InsertBefore.Value > 0)");
                 var eventToInsertBefore = relatedEvents.Single(@event => @event.InsertionOrder == insertBeforeGroup.Key);
 
                 SaveEventsWithinReadOrderRange(
@@ -119,7 +122,8 @@ SET @{EventTable.Columns.InsertionOrder} = SCOPE_IDENTITY();";
             }
             else if(insertAfterGroup != null)
             {
-                Contract.Assert(insertAfterGroup.All(@this => @this.InsertAfter.HasValue && @this.InsertAfter.Value > 0));
+                Contract.Assert.That(insertAfterGroup.All(@this => @this.InsertAfter.HasValue && @this.InsertAfter.Value > 0),
+                                     "insertAfterGroup.All(@this => @this.InsertAfter.HasValue && @this.InsertAfter.Value > 0)");
                 var eventToInsertAfter = relatedEvents.Single(@event => @event.InsertionOrder == insertAfterGroup.Key);
 
                 SaveEventsWithinReadOrderRange(

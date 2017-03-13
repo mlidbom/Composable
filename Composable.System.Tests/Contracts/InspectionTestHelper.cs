@@ -10,7 +10,7 @@ namespace Composable.Tests.Contracts
     static class InspectionTestHelper
     {
         internal static void BatchTestInspection<TException, TInspected>(
-            Action<Inspected<TInspected>> assert,
+            Action<IInspected<TInspected>> assert,
             IEnumerable<TInspected> badValues,
             IEnumerable<TInspected> goodValues
             )
@@ -27,7 +27,7 @@ namespace Composable.Tests.Contracts
             }
         }
 
-        static void InspectGoodValues<TInspected>(Action<Inspected<TInspected>> assert, TInspected goodValue)
+        static void InspectGoodValues<TInspected>(Action<IInspected<TInspected>> assert, TInspected goodValue)
         {
             var inspected = Contract.Argument(() => goodValue);
             assert(inspected);
@@ -41,7 +41,7 @@ namespace Composable.Tests.Contracts
             Return(goodValue, assert);
         }
 
-        internal static void InspectBadValue<TException, TInspected>(Action<Inspected<TInspected>> assert, TInspected inspectedValue)
+        internal static void InspectBadValue<TException, TInspected>(Action<IInspected<TInspected>> assert, TInspected inspectedValue)
             where TException : ContractViolationException
         {
             Expression<Func<TInspected>> fetchInspected = () => inspectedValue;
@@ -92,8 +92,8 @@ namespace Composable.Tests.Contracts
             exception.BadValue.Name.Should().Be(returnvalueName);
         }
 
-        static void AssertThrows<TException, TInspected>(Inspected<TInspected> inspected,
-            Action<Inspected<TInspected>> assert,
+        static void AssertThrows<TException, TInspected>(IInspected<TInspected> inspected,
+            Action<IInspected<TInspected>> assert,
             InspectionType inspectionType,
             string badValueName)
             where TException : ContractViolationException
@@ -104,12 +104,12 @@ namespace Composable.Tests.Contracts
             exception.BadValue.Name.Should().Be(badValueName);
         }
 
-        static void Return<TReturnValue>(TReturnValue returnValue, Action<Inspected<TReturnValue>> assert)
+        static void Return<TReturnValue>(TReturnValue returnValue, Action<IInspected<TReturnValue>> assert)
         {
             Contract.Return(returnValue, assert);
         }
 
-        static void ReturnOptimized<TReturnValue>(TReturnValue returnValue, Action<Inspected<TReturnValue>> assert)
+        static void ReturnOptimized<TReturnValue>(TReturnValue returnValue, Action<IInspected<TReturnValue>> assert)
         {
             Contract.Return(returnValue, assert);
         }

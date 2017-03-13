@@ -3,7 +3,6 @@ using AccountManagement.Domain.Shared;
 using AccountManagement.UI.QueryModels.ContainerInstallers;
 using AccountManagement.UI.QueryModels.EventStoreGenerated;
 using Composable.CQRS.CQRS.Query.Models.Generators;
-using Composable.Persistence.KeyValueStorage;
 using Composable.SystemExtensions.Threading;
 using JetBrains.Annotations;
 
@@ -19,7 +18,7 @@ namespace AccountManagement.UI.QueryModels.Services.Implementation
                                                  ISingleContextUseGuard usageGuard)
         {
             _documentDbQueryModels = documentDbQueryModels;
-            _generatedModels = new QueryModelGeneratingDocumentDbReader(usageGuard, NullOpDocumentDbSessionInterceptor.Instance, new []{ accountQueryModelGenerator });
+            _generatedModels = new QueryModelGeneratingDocumentDbReader(usageGuard, new []{ accountQueryModelGenerator });
         }
 
         public AccountQueryModel GetAccount(Guid accountId) => _generatedModels.Get<AccountQueryModel>(accountId);

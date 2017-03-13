@@ -35,8 +35,7 @@ namespace Composable.CQRS.CQRS.Windsor
     public static class DocumentDbRegistrationExtensions
     {
         public static void RegisterSqlServerDocumentDb<TSession, TUpdater, TReader, TBulkReader>(this IWindsorContainer @this,
-                                                                                                 string connectionName,
-                                                                                                 Dependency sessionInterceptor = null)
+                                                                                                 string connectionName)
             where TSession : IDocumentDbSession
             where TUpdater : IDocumentDbUpdater
             where TReader : IDocumentDbReader
@@ -46,9 +45,6 @@ namespace Composable.CQRS.CQRS.Windsor
                     .NotNullEmptyOrWhiteSpace();
 
             GeneratedLowLevelInterfaceInspector.InspectInterfaces(Seq.OfTypes<TSession, TUpdater, TReader, TBulkReader>());
-
-            //We don't want to get any old interceptor that might have been registered by someone else.
-            sessionInterceptor = sessionInterceptor ?? Dependency.OnValue<IDocumentDbSessionInterceptor>(NullOpDocumentDbSessionInterceptor.Instance);
 
             var connectionString = Dependency.OnValue(typeof(string),
                                                       @this.Resolve<IConnectionStringProvider>()
@@ -65,7 +61,7 @@ namespace Composable.CQRS.CQRS.Windsor
                                     .Named(registration.DocumentDbName),
                            Component.For(Seq.OfTypes<IDocumentDbSession>())
                                     .ImplementedBy<DocumentDbSession>()
-                                    .DependsOn(registration.DocumentDb, sessionInterceptor)
+                                    .DependsOn(registration.DocumentDb)
                                     .LifestylePerWebRequest()
                                     .Named(registration.SessionName),
                            Component.For(Seq.OfTypes<TSession, TUpdater, TReader, TBulkReader>())

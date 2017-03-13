@@ -4,6 +4,6 @@
     class ObjectIsNullContractViolationException : ContractViolationException
     {
         ///<summary>Standard constructor</summary>
-        public ObjectIsNullContractViolationException(InspectedValue badValue) : base(badValue) {}
+        public ObjectIsNullContractViolationException(IInspectedValue badValue) : base(badValue) {}
     }
 }

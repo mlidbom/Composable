@@ -12,7 +12,7 @@ namespace Composable.Contracts
         /// <para>Throws <see cref="ObjectIsNullContractViolationException"/> if any inspected value is null.</para>
         /// <para>Throws a <see cref="EnumerableIsEmptyContractViolationException"/> if any inspected value is an empty sequence.</para>
         /// </summary>
-        public static Inspected<TValue> NotNullOrEmptyEnumerable<TValue>(this Inspected<TValue> me)
+        public static IInspected<TValue> NotNullOrEmptyEnumerable<TValue>(this IInspected<TValue> me)
             where TValue : IEnumerable
         {
             me.Inspect(
@@ -29,6 +29,6 @@ namespace Composable.Contracts
     class EnumerableIsEmptyContractViolationException : ContractViolationException
     {
         ///<summary>Standard constructor.</summary>
-        public EnumerableIsEmptyContractViolationException(InspectedValue badValue) : base(badValue) {}
+        public EnumerableIsEmptyContractViolationException(IInspectedValue badValue) : base(badValue) {}
     }
 }

@@ -4,6 +4,6 @@ namespace Composable.Contracts
     class GuidIsEmptyContractViolationException : ContractViolationException
     {
         ///<summary>Standard constructor</summary>
-        public GuidIsEmptyContractViolationException(InspectedValue badValue) : base(badValue) {}
+        public GuidIsEmptyContractViolationException(IInspectedValue badValue) : base(badValue) {}
     }
 }

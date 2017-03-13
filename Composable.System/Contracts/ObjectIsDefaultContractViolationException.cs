@@ -4,6 +4,6 @@
     class ObjectIsDefaultContractViolationException : ContractViolationException
     {
         ///<summary>Standard constructor</summary>
-        public ObjectIsDefaultContractViolationException(InspectedValue badValue) : base(badValue) {}
+        public ObjectIsDefaultContractViolationException(IInspectedValue badValue) : base(badValue) {}
     }
 }

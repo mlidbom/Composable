@@ -4,6 +4,6 @@
     class StringIsEmptyContractViolationException : ContractViolationException
     {
         ///<summary>Standard constructor</summary>
-        public StringIsEmptyContractViolationException(InspectedValue badValue) : base(badValue) {}
+        public StringIsEmptyContractViolationException(IInspectedValue badValue) : base(badValue) {}
     }
 }

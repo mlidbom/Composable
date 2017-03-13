@@ -3,7 +3,6 @@ using AccountManagement.UI.QueryModels.Services.Implementation;
 using Castle.MicroKernel.Registration;
 using Castle.MicroKernel.SubSystems.Configuration;
 using Castle.Windsor;
-using Composable.Persistence.KeyValueStorage;
 using JetBrains.Annotations;
 
 namespace AccountManagement.UI.QueryModels.ContainerInstallers
@@ -21,9 +20,6 @@ namespace AccountManagement.UI.QueryModels.ContainerInstallers
             container.Register(
                 Component.For<IAccountManagementQueryModelsReader>()
                     .ImplementedBy<AccountManagementQueryModelReader>()
-                    .DependsOn(
-                        Dependency.OnValue<IDocumentDbSessionInterceptor>(NullOpDocumentDbSessionInterceptor.Instance)
-                    )
                     .Named(ComponentKeys.QueryModelsReader)
                     .LifestylePerWebRequest()
                     .IsDefault()

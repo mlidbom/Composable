@@ -11,14 +11,11 @@ namespace Composable.CQRS.CQRS.Query.Models.Generators
     public class QueryModelGeneratingDocumentDbReader : IVersioningDocumentDbReader
     {
         readonly ISingleContextUseGuard _usageGuard;
-        readonly IDocumentDbSessionInterceptor _interceptor;
         readonly IEnumerable<IQueryModelGenerator> _documentGenerators;
         readonly InMemoryObjectStore _idMap = new InMemoryObjectStore();
-        //Review:mlidbo: Always requiring an interceptor causes a lot of unneeded complexity for clients. Consider creating a virtual void OnFirstLoad(T document) method instead. This would allow for inheriting this class to create "interceptable" sessions. Alternatively maybe an observable/event could be used somehow.
-        public QueryModelGeneratingDocumentDbReader(ISingleContextUseGuard usageGuard, IDocumentDbSessionInterceptor interceptor, IEnumerable<IQueryModelGenerator> documentGenerators )
+        public QueryModelGeneratingDocumentDbReader(ISingleContextUseGuard usageGuard, IEnumerable<IQueryModelGenerator> documentGenerators )
         {
             _usageGuard = usageGuard;
-            _interceptor = interceptor;
             _documentGenerators = documentGenerators;
         }
 
@@ -78,7 +75,6 @@ namespace Composable.CQRS.CQRS.Query.Models.Generators
             document = TryGenerateModel<TDocument>(key, version);
             if (!Equals(document, default(TDocument)))
             {
-                _interceptor.AfterLoad(document);
                 if(!requiresVersioning)
                 {
                     _idMap.Add(key, document);

@@ -20,7 +20,6 @@ namespace Composable.CQRS.KeyValueStorage
         readonly InMemoryObjectStore _idMap = new InMemoryObjectStore();
 
         readonly IDocumentDb _backingStore;
-        readonly IDocumentDbSessionInterceptor _interceptor;
         readonly ISingleContextUseGuard _usageGuard;
 
         readonly IDictionary<DocumentKey, DocumentItem> _handledDocuments = new Dictionary<DocumentKey, DocumentItem>();
@@ -28,11 +27,10 @@ namespace Composable.CQRS.KeyValueStorage
         static readonly ILog Log = LogManager.GetLogger(typeof(DocumentDbSession));
 
         //Review:mlidbo: Always requiring an interceptor causes a lot of unneeded complexity for clients. Consider creating a virtual void OnFirstLoad(T document) method instead. This would allow for inheriting this class to create "interceptable" sessions. Alternatively maybe an observable/event could be used somehow.
-        public DocumentDbSession(IDocumentDb backingStore, ISingleContextUseGuard usageGuard, IDocumentDbSessionInterceptor interceptor)
+        public DocumentDbSession(IDocumentDb backingStore, ISingleContextUseGuard usageGuard)
         {
             _usageGuard = usageGuard;
             _backingStore = backingStore;
-            _interceptor = interceptor;
         }
 
         public virtual bool TryGet<TValue>(object key, out TValue document) => TryGetInternal(key, typeof(TValue), out document);
@@ -77,8 +75,6 @@ namespace Composable.CQRS.KeyValueStorage
         {
             _idMap.Add(key, value);
             GetDocumentItem(key, value.GetType()).DocumentLoadedFromBackingStore(value);
-            if (_interceptor != null)
-                _interceptor.AfterLoad(value);
         }
 
         public virtual TValue GetForUpdate<TValue>(object key)

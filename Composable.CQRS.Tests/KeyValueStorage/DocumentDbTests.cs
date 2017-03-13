@@ -21,7 +21,7 @@ namespace Composable.CQRS.Tests.KeyValueStorage
     {
         protected abstract IDocumentDb CreateStore();
 
-        protected static IDocumentDbSession OpenSession(IDocumentDb store, ISingleContextUseGuard guard = null) => new DocumentDbSession(store, guard ?? new SingleThreadUseGuard(), NullOpDocumentDbSessionInterceptor.Instance);
+        protected static IDocumentDbSession OpenSession(IDocumentDb store, ISingleContextUseGuard guard = null) => new DocumentDbSession(store, guard ?? new SingleThreadUseGuard());
 
         [Test]
         public void CanSaveAndLoadAggregate()

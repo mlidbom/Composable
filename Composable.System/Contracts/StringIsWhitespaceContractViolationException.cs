@@ -4,6 +4,6 @@
     class StringIsWhitespaceContractViolationException : ContractViolationException
     {
         ///<summary>Standard constructor</summary>
-        public StringIsWhitespaceContractViolationException(InspectedValue badValue) : base(badValue) {}
+        public StringIsWhitespaceContractViolationException(IInspectedValue badValue) : base(badValue) {}
     }
 }

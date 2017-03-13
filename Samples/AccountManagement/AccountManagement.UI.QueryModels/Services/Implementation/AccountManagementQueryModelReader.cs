@@ -1,6 +1,6 @@
 ﻿using System;
 using AccountManagement.Domain.Shared;
-using AccountManagement.UI.QueryModels.DocumentDbStored;
+using AccountManagement.UI.QueryModels.ContainerInstallers;
 using AccountManagement.UI.QueryModels.EventStoreGenerated;
 using Composable.CQRS.CQRS.Query.Models.Generators;
 using Composable.Persistence.KeyValueStorage;
@@ -11,10 +11,10 @@ namespace AccountManagement.UI.QueryModels.Services.Implementation
 {
     [UsedImplicitly] class AccountManagementQueryModelReader : IAccountManagementQueryModelsReader
     {
-        readonly IAccountManagementDocumentDbQueryModelsReader _documentDbQueryModels;
+        readonly IAccountManagementUiDocumentDbSession _documentDbQueryModels;
         readonly QueryModelGeneratingDocumentDbReader _generatedModels;
 
-        public AccountManagementQueryModelReader(IAccountManagementDocumentDbQueryModelsReader documentDbQueryModels,
+        public AccountManagementQueryModelReader(IAccountManagementUiDocumentDbSession documentDbQueryModels,
                                                  AccountQueryModelGenerator accountQueryModelGenerator,
                                                  ISingleContextUseGuard usageGuard)
         {

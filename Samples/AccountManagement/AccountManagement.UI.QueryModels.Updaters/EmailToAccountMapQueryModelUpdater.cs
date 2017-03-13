@@ -1,5 +1,5 @@
 ﻿using AccountManagement.Domain.Events.PropertyUpdated;
-using AccountManagement.UI.QueryModels.DocumentDB.Updaters.Services;
+using AccountManagement.UI.QueryModels.ContainerInstallers;
 using AccountManagement.UI.QueryModels.Services;
 using Composable.Messaging;
 using JetBrains.Annotations;
@@ -9,10 +9,10 @@ namespace AccountManagement.UI.QueryModels.DocumentDB.Updaters
     [UsedImplicitly]
     public class EmailToAccountMapQueryModelUpdater : IEventSubscriber<IAccountEmailPropertyUpdatedEvent>
     {
-        readonly IAccountManagementQueryModelUpdaterSession _documentDbModels;
+        readonly IAccountManagementUiDocumentDbUpdater _documentDbModels;
         readonly IAccountManagementQueryModelsReader _generatedModels;
 
-        public EmailToAccountMapQueryModelUpdater(IAccountManagementQueryModelUpdaterSession documentDbModels,
+        public EmailToAccountMapQueryModelUpdater(IAccountManagementUiDocumentDbUpdater documentDbModels,
             IAccountManagementQueryModelsReader generatedModels)
         {
             _documentDbModels = documentDbModels;

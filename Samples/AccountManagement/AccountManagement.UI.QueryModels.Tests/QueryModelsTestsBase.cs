@@ -31,9 +31,7 @@ namespace AccountManagement.UI.QueryModels.Tests
                                                             FromAssembly.Containing<Domain.ContainerInstallers.AccountRepositoryInstaller>(),
                                                             FromAssembly.Containing<Domain.Events.EventStore.ContainerInstallers.AccountManagementDomainEventStoreInstaller>(),
                                                             FromAssembly.Containing<UI.QueryModels.ContainerInstallers.AccountManagementDocumentDbReaderInstaller>(),
-                                                            FromAssembly
-                                                                .Containing
-                                                                <UI.QueryModels.DocumentDB.Updaters.ContainerInstallers.AccountManagementQuerymodelsSessionInstaller>()
+                                                            FromAssembly.Containing<UI.QueryModels.DocumentDB.Updaters.ContainerInstallers.EventHandlersInstaller>()
                                                            );
 
                                       });

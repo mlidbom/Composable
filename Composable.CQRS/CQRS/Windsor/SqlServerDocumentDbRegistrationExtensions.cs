@@ -1,4 +1,6 @@
-﻿using Castle.MicroKernel.Registration;
+﻿using System;
+using Castle.DynamicProxy;
+using Castle.MicroKernel.Registration;
 using Castle.Windsor;
 using Composable.Contracts;
 using Composable.CQRS.KeyValueStorage;
@@ -7,20 +9,15 @@ using Composable.CQRS.Windsor.Testing;
 using Composable.Persistence.KeyValueStorage;
 using Composable.System.Configuration;
 using Composable.System.Linq;
-using Composable.UnitsOfWork;
-
-// ReSharper disable UnusedMethodReturnValue.Global
-
-// ReSharper disable UnusedMember.Global todo: write tests
 
 namespace Composable.CQRS.CQRS.Windsor
 {
-    public abstract class SqlServerDocumentDbRegistration
+    abstract class SqlServerDocumentDbRegistration
     {
         protected SqlServerDocumentDbRegistration(string description)
         {
             Contract.Argument(() => description)
-                        .NotNullEmptyOrWhiteSpace();
+                    .NotNullEmptyOrWhiteSpace();
 
             DocumentDbName = $"{description}.DocumentDb";
             SessionName = $"{description}.Session";
@@ -28,53 +25,83 @@ namespace Composable.CQRS.CQRS.Windsor
         internal string DocumentDbName { get; }
         internal string SessionName { get; }
         public Dependency DocumentDb => Dependency.OnComponent(typeof(IDocumentDb), componentName: DocumentDbName);
-        public Dependency DocumentDbSession => Dependency.OnComponent(typeof(IDocumentDbSession), componentName: SessionName);
-        public Dependency DocumentDbReader => Dependency.OnComponent(typeof(IDocumentDbReader), componentName: SessionName);
-        public Dependency DocumentDbBulkReader => Dependency.OnComponent(typeof(IDocumentDbBulkReader), componentName: SessionName);
-        public Dependency DocumentDbUpdater => Dependency.OnComponent(typeof(IDocumentDbUpdater), componentName: SessionName);
-
     }
 
-    public class SqlServerDocumentDbRegistration<TFactory> : SqlServerDocumentDbRegistration
+    class SqlServerDocumentDbRegistration<TFactory> : SqlServerDocumentDbRegistration
     {
-        public SqlServerDocumentDbRegistration():base(typeof(TFactory).FullName) {}
+        public SqlServerDocumentDbRegistration() : base(typeof(TFactory).FullName) {}
     }
 
     public static class DocumentDbRegistrationExtensions
     {
-        public static SqlServerDocumentDbRegistration RegisterSqlServerDocumentDb
-            (this IWindsorContainer @this,
-             SqlServerDocumentDbRegistration registration,
-             string connectionName,
-             Dependency sessionInterceptor = null)
+        public static void RegisterSqlServerDocumentDb<TSession, TUpdater, TReader, TBulkReader>(this IWindsorContainer @this,
+                                                                                                 string connectionName,
+                                                                                                 Dependency sessionInterceptor = null)
+            where TSession : IDocumentDbSession
+            where TUpdater : IDocumentDbUpdater
+            where TReader : IDocumentDbReader
+            where TBulkReader : IDocumentDbBulkReader
         {
-            Contract.Argument(() => registration)
-                        .NotNull();
             Contract.Argument(() => connectionName)
-                        .NotNullEmptyOrWhiteSpace();
+                    .NotNullEmptyOrWhiteSpace();
 
             //We don't want to get any old interceptor that might have been registered by someone else.
             sessionInterceptor = sessionInterceptor ?? Dependency.OnValue<IDocumentDbSessionInterceptor>(NullOpDocumentDbSessionInterceptor.Instance);
 
-            var connectionString = Dependency.OnValue(typeof(string),@this.Resolve<IConnectionStringProvider>().GetConnectionString(connectionName).ConnectionString);
+            var connectionString = Dependency.OnValue(typeof(string),
+                                                      @this.Resolve<IConnectionStringProvider>()
+                                                           .GetConnectionString(connectionName)
+                                                           .ConnectionString);
+
+            var registration = new SqlServerDocumentDbRegistration<TSession>();
 
             @this.Register(
-                Component.For<IDocumentDb>()
-                         .ImplementedBy<SqlServerDocumentDb>()
-                         .DependsOn(connectionString)
-                    .LifestylePerWebRequest()
-                    .Named(registration.DocumentDbName),
-                Component.For(Seq.OfTypes<IDocumentDbSession, IDocumentDbUpdater, IDocumentDbReader, IDocumentDbBulkReader, IUnitOfWorkParticipant>())
-                         .ImplementedBy<DocumentDbSession>()
-                         .DependsOn(registration.DocumentDb, sessionInterceptor)
-                         .LifestylePerWebRequest()
-                         .Named(registration.SessionName)
-                );
+                           Component.For<IDocumentDb>()
+                                    .ImplementedBy<SqlServerDocumentDb>()
+                                    .DependsOn(connectionString)
+                                    .LifestylePerWebRequest()
+                                    .Named(registration.DocumentDbName),
+                           Component.For(Seq.OfTypes<IDocumentDbSession>())
+                                    .ImplementedBy<DocumentDbSession>()
+                                    .DependsOn(registration.DocumentDb, sessionInterceptor)
+                                    .LifestylePerWebRequest()
+                                    .Named(registration.SessionName),
+                           Component.For(Seq.OfTypes<TSession, TUpdater, TReader, TBulkReader>())
+                                    .UsingFactoryMethod(kernel => CreateProxyFor<TSession, TUpdater, TReader, TBulkReader>(kernel.Resolve<IDocumentDbSession>(registration.SessionName)))
+                          );
 
             @this.WhenTesting()
                  .ReplaceDocumentDb(registration.DocumentDbName);
+        }
 
-            return registration;
+        static TSession CreateProxyFor<TSession, TUpdater, TReader, TBulkReader>(IDocumentDbSession session)
+            where TSession : IDocumentDbSession
+            where TUpdater : IDocumentDbUpdater
+            where TReader : IDocumentDbReader
+            where TBulkReader : IDocumentDbBulkReader
+        {
+            var sessionType = EventStoreSessionProxyFactory<TSession, TUpdater, TReader, TBulkReader>.ProxyType;
+            return (TSession)Activator.CreateInstance(sessionType, new IInterceptor[] {}, session);
+        }
+
+        //Using a generic class this way allows us to bypass any need for dictionary lookups or similar giving us excellent performance.
+        static class EventStoreSessionProxyFactory<TSession, TUpdater, TReader, TBulkReader>
+            where TSession : IDocumentDbSession
+            where TUpdater : IDocumentDbUpdater
+            where TReader : IDocumentDbReader
+            where TBulkReader : IDocumentDbBulkReader
+        {
+            internal static readonly Type ProxyType =
+                new DefaultProxyBuilder()
+                    .CreateInterfaceProxyTypeWithTargetInterface(interfaceToProxy: typeof(IDocumentDbSession),
+                                                                 additionalInterfacesToProxy: new[]
+                                                                                              {
+                                                                                                  typeof(TSession),
+                                                                                                  typeof(TUpdater),
+                                                                                                  typeof(TReader),
+                                                                                                  typeof(TBulkReader)
+                                                                                              },
+                                                                 options: ProxyGenerationOptions.Default);
         }
     }
 }

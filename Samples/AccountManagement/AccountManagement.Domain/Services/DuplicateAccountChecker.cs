@@ -1,3 +1,4 @@
+using AccountManagement.Domain.ContainerInstallers;
 using AccountManagement.Domain.QueryModels;
 using AccountManagement.Domain.Shared;
 using Composable.Contracts;
@@ -7,9 +8,9 @@ namespace AccountManagement.Domain.Services
 {
     [UsedImplicitly] class DuplicateAccountChecker : IDuplicateAccountChecker
     {
-        readonly IAccountManagementDomainQueryModelSession _querymodels;
+        readonly IAccountManagementDomainDocumentDbSession _querymodels;
 
-        public DuplicateAccountChecker(IAccountManagementDomainQueryModelSession querymodels) => _querymodels = querymodels;
+        public DuplicateAccountChecker(IAccountManagementDomainDocumentDbSession querymodels) => _querymodels = querymodels;
 
         public void AssertAccountDoesNotExist(Email email)
         {

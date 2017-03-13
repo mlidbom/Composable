@@ -105,13 +105,27 @@ namespace Composable.CQRS.CQRS.Windsor
             return registration;
         }
 
-        static TSessionInterface CreateProxyFor<TSessionInterface, TReaderInterface>(IEventStoreSession session) =>
-            (TSessionInterface)ProxyGeneratorInstance.CreateInterfaceProxyWithTarget(interfaceToProxy: typeof(IEventStoreSession),
-                                                                             additionalInterfacesToProxy: new[]
-                                                                                                          {
-                                                                                                              typeof(TSessionInterface),
-                                                                                                              typeof(TReaderInterface)
-                                                                                                          },
-                                                                             target: session);
+        static TSessionInterface CreateProxyFor<TSessionInterface, TReaderInterface>(IEventStoreSession session)
+            where TSessionInterface : IEventStoreSession
+            where TReaderInterface : IEventStoreReader
+        {
+            var sessionType = EventStoreSessionProxyFactory<TSessionInterface, TReaderInterface>.ProxyType;
+            return (TSessionInterface)Activator.CreateInstance(sessionType, new IInterceptor[] { }, session);
+        }
+
+        //Using a generic class this way allows us to bypass any need for dictionary lookups or similar giving us excellent performance.
+        static class EventStoreSessionProxyFactory<TSessionInterface, TReaderInterface>
+            where TSessionInterface : IEventStoreSession
+            where TReaderInterface : IEventStoreReader
+        {
+            internal static readonly Type ProxyType = new DefaultProxyBuilder().CreateInterfaceProxyTypeWithTargetInterface(interfaceToProxy: typeof(IEventStoreSession),
+                                                                                                              additionalInterfacesToProxy: new[]
+                                                                                                                                           {
+                                                                                                                                               typeof(TSessionInterface),
+                                                                                                                                               typeof(TReaderInterface)
+                                                                                                                                           },
+                                                                                                              options: ProxyGenerationOptions.Default);
+
+        }
     }
 }

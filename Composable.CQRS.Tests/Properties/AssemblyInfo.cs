@@ -35,3 +35,8 @@ using System.Runtime.InteropServices;
 // by using the '*' as shown below:
 
 [assembly: AssemblyVersion("1.0.0.0")]
+
+[assembly: System.Runtime.CompilerServices.InternalsVisibleTo(Composable.CQRS.InternalsRequiredToBeVisibleTo.Assembly1)]
+[assembly: System.Runtime.CompilerServices.InternalsVisibleTo(Composable.CQRS.InternalsRequiredToBeVisibleTo.Assembly2)]
+[assembly: System.Runtime.CompilerServices.InternalsVisibleTo(Composable.CQRS.InternalsRequiredToBeVisibleTo.Assembly3)]
+[assembly: System.Runtime.CompilerServices.InternalsVisibleTo(Composable.CQRS.InternalsRequiredToBeVisibleTo.Assembly4)]

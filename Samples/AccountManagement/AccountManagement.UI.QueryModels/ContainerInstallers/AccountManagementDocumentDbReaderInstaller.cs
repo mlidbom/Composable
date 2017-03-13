@@ -7,15 +7,13 @@ using JetBrains.Annotations;
 
 namespace AccountManagement.UI.QueryModels.ContainerInstallers
 {
-    // ReSharper disable MemberCanBeInternal unfortunately required by framework to be public at the moment for proxy generation to work.
-    public interface IAccountManagementUiDocumentDbSession : IDocumentDbSession { }
+    interface IAccountManagementUiDocumentDbSession : IDocumentDbSession { }
 
-    public interface IAccountManagementUiDocumentDbUpdater : IDocumentDbUpdater { }
+    interface IAccountManagementUiDocumentDbUpdater : IDocumentDbUpdater { }
 
-    public interface IAccountManagementUiDocumentDbReader : IDocumentDbReader { }
+    interface IAccountManagementUiDocumentDbReader : IDocumentDbReader { }
 
-    public interface IAccountManagementUiDocumentDbBulkReader : IDocumentDbBulkReader { }
-    // ReSharper restore MemberCanBeInternal
+    interface IAccountManagementUiDocumentDbBulkReader : IDocumentDbBulkReader { }
 
     [UsedImplicitly]
     public class AccountManagementDocumentDbReaderInstaller : IWindsorInstaller

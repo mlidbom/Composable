@@ -45,6 +45,8 @@ namespace Composable.CQRS.CQRS.Windsor
             Contract.Argument(() => connectionName)
                     .NotNullEmptyOrWhiteSpace();
 
+            GeneratedLowLevelInterfaceInspector.InspectInterfaces(Seq.OfTypes<TSession, TUpdater, TReader, TBulkReader>());
+
             //We don't want to get any old interceptor that might have been registered by someone else.
             sessionInterceptor = sessionInterceptor ?? Dependency.OnValue<IDocumentDbSessionInterceptor>(NullOpDocumentDbSessionInterceptor.Instance);
 

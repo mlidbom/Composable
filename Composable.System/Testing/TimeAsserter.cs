@@ -37,9 +37,9 @@ namespace Composable.Testing
              TimeSpan? maxTotal = null,
              string description = "",
              string timeFormat = DefaultTimeFormat,
-             int maxTries = 1)
+             int maxTries = 1,
+             int waitForCpuLoadToDropBelowPercent= 30)
         {
-            var waitForCpuLoadToDropBelowPercent = 50;
             maxAverage = maxAverage != default(TimeSpan) ? maxAverage : TimeSpan.MaxValue;
             maxTotal = maxTotal != default(TimeSpan) ? maxTotal : TimeSpan.MaxValue;
 

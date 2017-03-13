@@ -48,8 +48,6 @@ namespace Composable.CQRS.CQRS.Windsor
 
     public static class SqlServerEventStoreRegistrationExtensions
     {
-        static readonly ProxyGenerator ProxyGeneratorInstance = new ProxyGenerator();
-
         public static SqlServerEventStoreRegistration RegisterSqlServerEventStore<TSessionInterface, TReaderInterface>
             (this IWindsorContainer @this,
              string connectionName,
@@ -113,6 +111,7 @@ namespace Composable.CQRS.CQRS.Windsor
             return (TSessionInterface)Activator.CreateInstance(sessionType, new IInterceptor[] { }, session);
         }
 
+
         //Using a generic class this way allows us to bypass any need for dictionary lookups or similar giving us excellent performance.
         static class EventStoreSessionProxyFactory<TSessionInterface, TReaderInterface>
             where TSessionInterface : IEventStoreSession
@@ -125,7 +124,6 @@ namespace Composable.CQRS.CQRS.Windsor
                                                                                                                                                typeof(TReaderInterface)
                                                                                                                                            },
                                                                                                               options: ProxyGenerationOptions.Default);
-
         }
     }
 }

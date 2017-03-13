@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Castle.DynamicProxy;
 using Castle.MicroKernel.Registration;
 using Castle.Windsor;
 using Composable.Contracts;
@@ -7,7 +8,6 @@ using Composable.CQRS.CQRS.EventSourcing;
 using Composable.CQRS.CQRS.EventSourcing.MicrosoftSQLServer;
 using Composable.CQRS.CQRS.EventSourcing.Refactoring.Migrations;
 using Composable.CQRS.CQRS.EventSourcing.Refactoring.Naming;
-using Composable.CQRS.RuntimeTypeGeneration;
 using Composable.CQRS.Windsor.Testing;
 using Composable.System.Configuration;
 using Composable.System.Linq;
@@ -27,8 +27,10 @@ namespace Composable.CQRS.CQRS.Windsor
             ReaderType = readerType;
             StoreName = $"{description}.Store";
             SessionName = $"{description}.Session";
+            SessionImplementationName = $"{description}.SessionImplementation";
         }
 
+        internal string SessionImplementationName { get; }
         internal Type ReaderType { get; }
         internal Type SessionType { get; }
         internal string StoreName { get; }
@@ -51,6 +53,8 @@ namespace Composable.CQRS.CQRS.Windsor
 
     public static class SqlServerEventStoreRegistrationExtensions
     {
+        static readonly ProxyGenerator ProxyGeneratorInstance = new ProxyGenerator();
+
         public static SqlServerEventStoreRegistration RegisterSqlServerEventStore<TSessionInterface, TReaderInterface>
             (this IWindsorContainer @this,
              string connectionName,
@@ -83,17 +87,19 @@ namespace Composable.CQRS.CQRS.Windsor
 
             var connectionString = Dependency.OnValue(typeof(string),@this.Resolve<IConnectionStringProvider>().GetConnectionString(connectionName).ConnectionString);
 
-            var implementationType = RuntimeInstanceGenerator.EventStore.CreateType<TSessionInterface, TReaderInterface>();
-
             @this.Register(
                 Component.For<IEventStore>()
                          .ImplementedBy<SqlServerEventStore>()
                          .DependsOn(connectionString, nameMapper, migrations)
                     .LifestylePerWebRequest()
                     .Named(registration.StoreName),
-                Component.For(Seq.Create(registration.SessionType, registration.ReaderType, typeof(IUnitOfWorkParticipant)))
-                         .ImplementedBy(implementationType)
+                Component.For<IEventStoreSession,IUnitOfWorkParticipant>()
+                         .ImplementedBy(typeof(EventStoreSession))
                          .DependsOn(registration.Store)
+                         .LifestylePerWebRequest()
+                         .Named(registration.SessionImplementationName),
+                Component.For(Seq.Create(registration.SessionType, registration.ReaderType))
+                         .UsingFactoryMethod(kernel => CreateProxyFor<TSessionInterface, TReaderInterface>(kernel.Resolve<IEventStoreSession>(registration.SessionImplementationName)))
                          .LifestylePerWebRequest()
                          .Named(registration.SessionName)
                 );
@@ -103,5 +109,14 @@ namespace Composable.CQRS.CQRS.Windsor
 
             return registration;
         }
+
+        static TSessionInterface CreateProxyFor<TSessionInterface, TReaderInterface>(IEventStoreSession session) =>
+            (TSessionInterface)ProxyGeneratorInstance.CreateInterfaceProxyWithTarget(interfaceToProxy: typeof(IEventStoreSession),
+                                                                             additionalInterfacesToProxy: new[]
+                                                                                                          {
+                                                                                                              typeof(TSessionInterface),
+                                                                                                              typeof(TReaderInterface)
+                                                                                                          },
+                                                                             target: session);
     }
 }

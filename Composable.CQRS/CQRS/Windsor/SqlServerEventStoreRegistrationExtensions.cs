@@ -7,6 +7,7 @@ using Composable.CQRS.CQRS.EventSourcing;
 using Composable.CQRS.CQRS.EventSourcing.MicrosoftSQLServer;
 using Composable.CQRS.CQRS.EventSourcing.Refactoring.Migrations;
 using Composable.CQRS.CQRS.EventSourcing.Refactoring.Naming;
+using Composable.CQRS.RuntimeTypeGeneration;
 using Composable.CQRS.Windsor.Testing;
 using Composable.System.Configuration;
 using Composable.System.Linq;
@@ -20,64 +21,57 @@ namespace Composable.CQRS.CQRS.Windsor
 {
     public abstract class SqlServerEventStoreRegistration
     {
-        protected SqlServerEventStoreRegistration(string description, Type sessionImplementor, Type sessionType, Type readerType)
+        protected SqlServerEventStoreRegistration(string description, Type sessionType, Type readerType)
         {
-            Contract.Argument(() => description)
-                        .NotNullEmptyOrWhiteSpace();
-
             SessionType = sessionType;
             ReaderType = readerType;
-            SessionImplementor = sessionImplementor;
             StoreName = $"{description}.Store";
             SessionName = $"{description}.Session";
         }
 
         internal Type ReaderType { get; }
         internal Type SessionType { get; }
-        internal Type SessionImplementor { get; private set; }
         internal string StoreName { get; }
         internal string SessionName { get; }
         internal ServiceOverride Store => Dependency.OnComponent(typeof(IEventStore), componentName: StoreName);
-        public ServiceOverride Session => Dependency.OnComponent(SessionType, componentName: SessionName);
-        public ServiceOverride Reader => Dependency.OnComponent(ReaderType, componentName: SessionName);
 
     }
 
     class SqlServerEventStoreRegistration<TFactory> : SqlServerEventStoreRegistration
     {
-        public SqlServerEventStoreRegistration() : base(typeof(TFactory).FullName,sessionImplementor: typeof(EventStoreSession), sessionType: typeof(IEventStoreSession), readerType: typeof(IEventStoreReader)) {}
+        public SqlServerEventStoreRegistration() : base(typeof(TFactory).FullName, sessionType: typeof(IEventStoreSession), readerType: typeof(IEventStoreReader)) {}
     }
 
-    class SqlServerEventStoreRegistration<TSessionClass, TSessionInterface, TReaderInterface> : SqlServerEventStoreRegistration
-        where TSessionClass : EventStoreSession
+    class SqlServerEventStoreRegistration<TSessionInterface, TReaderInterface> : SqlServerEventStoreRegistration
         where TSessionInterface : IEventStoreSession
         where TReaderInterface : IEventStoreReader
     {
-        public SqlServerEventStoreRegistration() : base(typeof(TSessionClass).FullName, sessionImplementor: typeof(TSessionClass), sessionType: typeof(TSessionInterface), readerType: typeof(TReaderInterface)) { }
+        public SqlServerEventStoreRegistration() : base(typeof(TSessionInterface).FullName, sessionType: typeof(TSessionInterface), readerType: typeof(TReaderInterface)) { }
     }
 
     public static class SqlServerEventStoreRegistrationExtensions
     {
-        public static SqlServerEventStoreRegistration RegisterSqlServerEventStore<TSessionClass, TSessionInterface, TReaderInterface>
+        public static SqlServerEventStoreRegistration RegisterSqlServerEventStore<TSessionInterface, TReaderInterface>
             (this IWindsorContainer @this,
              string connectionName,
              Dependency nameMapper = null,
              Dependency migrations = null)
-            where TSessionClass : EventStoreSession
             where TSessionInterface : IEventStoreSession
-            where TReaderInterface : IEventStoreReader => @this.RegisterSqlServerEventStore(
-                                                                                            registration: new SqlServerEventStoreRegistration<TSessionClass, TSessionInterface, TReaderInterface>(),
+            where TReaderInterface : IEventStoreReader => @this.RegisterSqlServerEventStore<TSessionInterface, TReaderInterface>(
+                                                                                            registration: new SqlServerEventStoreRegistration<TSessionInterface, TReaderInterface>(),
                                                                                             connectionName: connectionName,
                                                                                             nameMapper: nameMapper,
                                                                                             migrations: migrations
                                                                                            );
 
-        internal static SqlServerEventStoreRegistration RegisterSqlServerEventStore
+        static SqlServerEventStoreRegistration RegisterSqlServerEventStore<TSessionInterface, TReaderInterface>
             (this IWindsorContainer @this,
              SqlServerEventStoreRegistration registration,
              string connectionName,
              Dependency nameMapper = null,
              Dependency migrations = null)
+            where TSessionInterface : IEventStoreSession
+            where TReaderInterface : IEventStoreReader
         {
             Contract.Argument(() => registration)
                         .NotNull();
@@ -89,6 +83,8 @@ namespace Composable.CQRS.CQRS.Windsor
 
             var connectionString = Dependency.OnValue(typeof(string),@this.Resolve<IConnectionStringProvider>().GetConnectionString(connectionName).ConnectionString);
 
+            var implementationType = RuntimeInstanceGenerator.EventStore.CreateType<TSessionInterface, TReaderInterface>();
+
             @this.Register(
                 Component.For<IEventStore>()
                          .ImplementedBy<SqlServerEventStore>()
@@ -96,7 +92,7 @@ namespace Composable.CQRS.CQRS.Windsor
                     .LifestylePerWebRequest()
                     .Named(registration.StoreName),
                 Component.For(Seq.Create(registration.SessionType, registration.ReaderType, typeof(IUnitOfWorkParticipant)))
-                         .ImplementedBy(registration.SessionImplementor)
+                         .ImplementedBy(implementationType)
                          .DependsOn(registration.Store)
                          .LifestylePerWebRequest()
                          .Named(registration.SessionName)

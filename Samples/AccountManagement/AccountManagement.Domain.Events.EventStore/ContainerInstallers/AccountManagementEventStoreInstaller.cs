@@ -14,7 +14,7 @@ namespace AccountManagement.Domain.Events.EventStore.ContainerInstallers
 
         public void Install(IWindsorContainer container, IConfigurationStore store)
         {
-            container.RegisterSqlServerEventStore<AccountManagementEventStoreSession,
+            container.RegisterSqlServerEventStore<
                 IAccountManagementEventStoreSession,
                 IAccountManagementEventStoreReader>(ConnectionStringName);
         }

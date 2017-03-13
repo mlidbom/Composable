@@ -15,12 +15,12 @@ namespace Composable.CQRS.RuntimeTypeGeneration
         where TUpdaterInterface : class, IDocumentDbUpdater
         where TReaderInterface : class, IDocumentDbReader
     {
-        readonly Func<IWindsorContainer, object> _internalFactory;
-        public DocumentDbFactoryMethods(Func<IWindsorContainer, object> internalFactory) => _internalFactory = internalFactory;
+        readonly Func<object> _internalFactory;
+        public DocumentDbFactoryMethods(Func<object> internalFactory) => _internalFactory = internalFactory;
 
-        internal TSessionInterface CreateSession(IWindsorContainer container) => (TSessionInterface)_internalFactory(container);
-        internal TReaderInterface CreateReader(IWindsorContainer container) => (TReaderInterface)_internalFactory(container);
-        internal TUpdaterInterface CreateUpdater(IWindsorContainer container) => (TUpdaterInterface)_internalFactory(container);
+        internal TSessionInterface CreateSession() => (TSessionInterface)_internalFactory();
+        internal TReaderInterface CreateReader() => (TReaderInterface)_internalFactory();
+        internal TUpdaterInterface CreateUpdater() => (TUpdaterInterface)_internalFactory();
     }
 
     static partial class RuntimeInstanceGenerator
@@ -33,7 +33,9 @@ namespace Composable.CQRS.RuntimeTypeGeneration
             internal static DocumentDbFactoryMethods<TSessionInterface, TUpdaterInterface, TReaderInterface> CreateFactoryMethod<
                 TSessionInterface,
                 TUpdaterInterface,
-                TReaderInterface>()
+                TReaderInterface>(
+                IWindsorContainer container
+                )
                 where TSessionInterface : class, IDocumentDbSession
                 where TUpdaterInterface : class, IDocumentDbUpdater
                 where TReaderInterface : class, IDocumentDbReader
@@ -52,7 +54,7 @@ namespace Composable.CQRS.RuntimeTypeGeneration
                 var subClassName = SubClassName<TSessionInterface>();
                 string subclassCode =
                     $@"
-public class {subClassName} : 
+class {subClassName} : 
     {typeof(KeyValueStorage.DocumentDbSession).FullName}, 
     {typeof(TSessionInterface).FullName.Replace("+", ".")},
     {typeof(TUpdaterInterface).FullName.Replace("+", ".")},
@@ -66,7 +68,7 @@ public class {subClassName} :
     {{
     }}
 }}";
-                var internalFactory = RuntimeInstanceGenerator.CreateFactoryMethod(subclassCode, subClassName, requestedServiceInterfaces);
+                var internalFactory = RuntimeInstanceGenerator.CreateFactoryMethod(container, subclassCode, subClassName, requestedServiceInterfaces);
                 return new DocumentDbFactoryMethods<TSessionInterface, TUpdaterInterface, TReaderInterface>(internalFactory);
             }
         }

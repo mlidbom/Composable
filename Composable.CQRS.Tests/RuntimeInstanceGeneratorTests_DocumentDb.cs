@@ -27,6 +27,33 @@ namespace Composable.CQRS.Tests
         [Test]
         public void Can_create_10_documentDbSession_instances_per_millisecond_given_correct_windsor_wiring()
         {
+            using(var container = CreateContainerWithDependencies())
+            {
+
+                var dbFactory = RuntimeInstanceGenerator.DocumentDb.CreateFactoryMethod<IDocumentDbSessionInterface, IDocumentDbUpdaterInterface, IDocumentDbReaderInterface>(container);
+                //warm up cache
+                using(container.BeginScope())
+                {
+                    dbFactory.CreateReader();
+                    dbFactory.CreateUpdater();
+                    dbFactory.CreateSession();
+                }
+
+                TimeAsserter.Execute(() =>
+                                     {
+                                         using(container.BeginScope())
+                                         {
+                                             dbFactory.CreateReader();
+                                             dbFactory.CreateSession();
+                                             dbFactory.CreateUpdater();
+                                         }
+                                     },
+                                     iterations: 100,
+                                     maxTotal: TimeSpanExtensions.Milliseconds(10));
+            }
+        }
+        static WindsorContainer CreateContainerWithDependencies()
+        {
             var container = new WindsorContainer();
             container.Register(
                                Component.For<IDocumentDb>()
@@ -39,42 +66,25 @@ namespace Composable.CQRS.Tests
                                         .Instance(NullOpDocumentDbSessionInterceptor.Instance)
                                         .LifestyleSingleton()
                               );
-
-            var dbFactory = RuntimeInstanceGenerator.DocumentDb.CreateFactoryMethod<IDocumentDbSessionInterface, IDocumentDbUpdaterInterface, IDocumentDbReaderInterface>();
-            //warm up cache
-            using (container.BeginScope())
-            {
-                dbFactory.CreateReader(container);
-                dbFactory.CreateUpdater(container);
-                dbFactory.CreateSession(container);
-            }
-
-            TimeAsserter.Execute(() =>
-                                 {
-                                     using (container.BeginScope())
-                                     {
-                                         dbFactory.CreateReader(container);
-                                         dbFactory.CreateSession(container);
-                                         dbFactory.CreateUpdater(container);
-                                     }
-                                 },
-                                 iterations: 100,
-                                 maxTotal: TimeSpanExtensions.Milliseconds(10));
+            return container;
         }
 
         [Test] public void Throws_exception_if_you_pass_a_built_in_interface()
         {
-            //Ensure that it is working if we pass the correct types...
-            RuntimeInstanceGenerator.DocumentDb.CreateFactoryMethod<IDocumentDbSessionInterface, IDocumentDbUpdaterInterface, IDocumentDbReaderInterface>();
+            using(var container = CreateContainerWithDependencies())
+            {
+                //Ensure that it is working if we pass the correct types...
+                RuntimeInstanceGenerator.DocumentDb.CreateFactoryMethod<IDocumentDbSessionInterface, IDocumentDbUpdaterInterface, IDocumentDbReaderInterface>(container);
 
-            this.Invoking(_ => RuntimeInstanceGenerator.DocumentDb.CreateFactoryMethod<IDocumentDbSession, IDocumentDbUpdaterInterface, IDocumentDbReaderInterface>())
-                .ShouldThrow<Exception>();
+                this.Invoking(_ => RuntimeInstanceGenerator.DocumentDb.CreateFactoryMethod<IDocumentDbSession, IDocumentDbUpdaterInterface, IDocumentDbReaderInterface>(container))
+                    .ShouldThrow<Exception>();
 
-            this.Invoking(_ => RuntimeInstanceGenerator.DocumentDb.CreateFactoryMethod<IDocumentDbSessionInterface, IDocumentDbUpdater, IDocumentDbReaderInterface>())
-                .ShouldThrow<Exception>();
+                this.Invoking(_ => RuntimeInstanceGenerator.DocumentDb.CreateFactoryMethod<IDocumentDbSessionInterface, IDocumentDbUpdater, IDocumentDbReaderInterface>(container))
+                    .ShouldThrow<Exception>();
 
-            this.Invoking(_ => RuntimeInstanceGenerator.DocumentDb.CreateFactoryMethod<IDocumentDbSessionInterface, IDocumentDbUpdaterInterface, IDocumentDbReader>())
-                .ShouldThrow<Exception>();
+                this.Invoking(_ => RuntimeInstanceGenerator.DocumentDb.CreateFactoryMethod<IDocumentDbSessionInterface, IDocumentDbUpdaterInterface, IDocumentDbReader>(container))
+                    .ShouldThrow<Exception>();
+            }
         }
     }
 }

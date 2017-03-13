@@ -64,20 +64,19 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
                                           .ImplementedBy<TestingOnlyServiceBus>());
 
 
-                var sqlServerEventStoreRegistration = new SqlServerEventStoreRegistration<SingleAggregateInstanceEventStreamMutatorPerformanceTest_Given_a_10000_events_large_aggregate>();
-                container.RegisterSqlServerEventStore(sqlServerEventStoreRegistration, "ignored");
+                var registration = container.RegisterSqlServerEventStore<ITestingEventstoreSession, ITestingEventstoreReader>("dummy connection name");
 
                 container.ConfigureWiringForTestsCallAfterAllOtherWiring();
 
 
                 using(container.BeginScope())
                 {
-                    container.UseComponent<IEventStore>(sqlServerEventStoreRegistration.Store.Value.ToString(), store => store.SaveEvents(_history));
+                    container.UseComponent<IEventStore>(registration.Store.Value.ToString(), store => store.SaveEvents(_history));
                 }
 
                 using(container.BeginScope())
                 {
-                    useSession(container.Resolve<IEventStoreSession>());
+                    useSession(container.Resolve<ITestingEventstoreSession>());
                 }
             }
         }

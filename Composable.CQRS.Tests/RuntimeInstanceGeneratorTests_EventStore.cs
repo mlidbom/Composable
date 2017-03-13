@@ -1,13 +1,11 @@
 ﻿using System;
 using Castle.MicroKernel.Lifestyle;
-using Castle.MicroKernel.Registration;
 using Castle.Windsor;
 using Composable.CQRS.CQRS.EventSourcing;
+using Composable.CQRS.CQRS.Windsor;
 using Composable.CQRS.RuntimeTypeGeneration;
-using Composable.GenericAbstractions.Time;
-using Composable.Messaging.Buses;
+using Composable.CQRS.Windsor.Testing.Testing;
 using Composable.System;
-using Composable.SystemExtensions.Threading;
 using Composable.Testing;
 using FluentAssertions;
 using NUnit.Framework;
@@ -25,54 +23,44 @@ namespace Composable.CQRS.Tests
 
         [Test] public void Can_create_10_EventStore_instances_per_millisecond_given_correct_windsor_wiring()
         {
-            var container = new WindsorContainer();
-            container.Register(
-                               Component.For<IEventStore>()
-                                        .ImplementedBy<InMemoryEventStore>()
-                                        .LifestyleSingleton(),
-                               Component.For<ISingleContextUseGuard>()
-                                        .ImplementedBy<SingleThreadUseGuard>()
-                                        .LifestyleScoped(),
-                               Component.For<IServiceBus>()
-                                        .ImplementedBy<TestingOnlyServiceBus>()
-                                        .LifestyleSingleton(),
-                               Component.For<IMessageHandlerRegistrar, IMessageHandlerRegistry>()
-                                        .ImplementedBy<MessageHandlerRegistry>()
-                                        .LifestyleSingleton(),
-                               Component.For<IUtcTimeTimeSource, DummyTimeSource>()
-                                        .Instance(DummyTimeSource.Now)
-                                        .LifestyleSingleton()
-                              );
-
-            var dbFactory = RuntimeInstanceGenerator.EventStore.CreateFactoryMethod<IEventStoreSessionInterface, IEventStoreReaderInterface>();
-            //warm up cache
-            using(container.BeginScope())
+            using(var container = CreateContainerWithDependencies())
             {
-                dbFactory.CreateReader(container);
-                dbFactory.CreateSession(container);
-            }
 
-            TimeAsserter.Execute(() =>
-                                 {
-                                     using(container.BeginScope())
+                //warm up cache
+                using(container.BeginScope())
+                {
+                    container.Resolve<IEventStoreSessionInterface>();
+                    container.Resolve<IEventStoreReaderInterface>();
+                }
+
+                TimeAsserter.Execute(() =>
                                      {
-                                         dbFactory.CreateReader(container);
-                                         dbFactory.CreateSession(container);
-                                     }
-                                 },
-                                 iterations: 100,
-                                 maxTotal: TimeSpanExtensions.Milliseconds(10));
+                                         using(container.BeginScope())
+                                         {
+                                             container.Resolve<IEventStoreSessionInterface>();
+                                             container.Resolve<IEventStoreReaderInterface>();
+                                         }
+                                     },
+                                     iterations: 100,
+                                     maxTotal: TimeSpanExtensions.Milliseconds(10));
+            }
+        }
+        static IWindsorContainer CreateContainerWithDependencies()
+        {
+            var container = new WindsorContainer()
+                .SetupForTesting(_ => _.RegisterSqlServerEventStore<IEventStoreSessionInterface, IEventStoreReaderInterface>("ignored connection string"));
+            return container;
         }
 
         [Test] public void Throws_exception_if_you_pass_a_built_in_interface()
         {
             //Ensure that it is working if we pass the correct types...
-            RuntimeInstanceGenerator.EventStore.CreateFactoryMethod<IEventStoreSessionInterface, IEventStoreReaderInterface>();
+            RuntimeInstanceGenerator.EventStore.CreateType<IEventStoreSessionInterface, IEventStoreReaderInterface>();
 
-            this.Invoking(_ => RuntimeInstanceGenerator.EventStore.CreateFactoryMethod<IEventStoreSession, IEventStoreReaderInterface>())
+            this.Invoking(_ => RuntimeInstanceGenerator.EventStore.CreateType<IEventStoreSession, IEventStoreReaderInterface>())
                 .ShouldThrow<Exception>();
 
-            this.Invoking(_ => RuntimeInstanceGenerator.EventStore.CreateFactoryMethod<IEventStoreSessionInterface, IEventStoreReader>())
+            this.Invoking(_ => RuntimeInstanceGenerator.EventStore.CreateType<IEventStoreSessionInterface, IEventStoreReader>())
                 .ShouldThrow<Exception>();
         }
     }

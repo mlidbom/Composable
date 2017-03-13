@@ -46,7 +46,7 @@ namespace Composable.System.Linq
         /// A simple class that represents the pairing of two instances of the same type:
         /// <see cref="First"/> and <see cref="Second"/>
         /// </summary>
-        public class Pair<T, T2>
+        internal class Pair<T, T2>
         {
             /// <summary>The first instance in the pair.</summary>
             public T First { get; }

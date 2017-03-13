@@ -65,7 +65,7 @@ namespace Composable.System.Diagnostics
         }
 
 
-        public class TimedExecutionSummary
+        internal class TimedExecutionSummary
         {
             public TimedExecutionSummary(int iterations, TimeSpan total)
             {
@@ -78,7 +78,7 @@ namespace Composable.System.Diagnostics
             public TimeSpan Average => (Total.TotalMilliseconds / Iterations).Milliseconds();
         }
 
-        public class TimedThreadedExecutionSummary : TimedExecutionSummary
+        internal class TimedThreadedExecutionSummary : TimedExecutionSummary
         {
             public TimedThreadedExecutionSummary(int iterations, IReadOnlyList<TimeSpan> individualExecutionTimes, TimeSpan total): base(iterations, total) => IndividualExecutionTimes = individualExecutionTimes;
 

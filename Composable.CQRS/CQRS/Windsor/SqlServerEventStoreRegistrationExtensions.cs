@@ -39,11 +39,6 @@ namespace Composable.CQRS.CQRS.Windsor
 
     }
 
-    class SqlServerEventStoreRegistration<TFactory> : SqlServerEventStoreRegistration
-    {
-        public SqlServerEventStoreRegistration() : base(typeof(TFactory).FullName, sessionType: typeof(IEventStoreSession), readerType: typeof(IEventStoreReader)) {}
-    }
-
     class SqlServerEventStoreRegistration<TSessionInterface, TReaderInterface> : SqlServerEventStoreRegistration
         where TSessionInterface : IEventStoreSession
         where TReaderInterface : IEventStoreReader

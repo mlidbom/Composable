@@ -10,7 +10,7 @@ namespace AccountManagement.Domain.Events.EventStore.ContainerInstallers
     [UsedImplicitly]
     public class AccountManagementDomainEventStoreInstaller : IWindsorInstaller
     {
-        public const string ConnectionStringName = "AccountManagementDomain";
+        internal const string ConnectionStringName = "AccountManagementDomain";
 
         public void Install(IWindsorContainer container, IConfigurationStore store)
         {

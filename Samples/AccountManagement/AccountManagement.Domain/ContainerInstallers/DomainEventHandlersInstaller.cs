@@ -3,13 +3,12 @@ using AccountManagement.Domain.QueryModels.Updaters;
 using Castle.MicroKernel.Registration;
 using Castle.MicroKernel.SubSystems.Configuration;
 using Castle.Windsor;
+using Composable.Messaging.Buses;
 using JetBrains.Annotations;
 
-namespace AccountManagement.Domain.ContainerInstallers.Testing
+namespace AccountManagement.Domain.ContainerInstallers
 {
-  using Composable.Messaging.Buses;
-
-  [UsedImplicitly] public class DomainEventHandlersInstaller : IWindsorInstaller
+    [UsedImplicitly] public class DomainEventHandlersInstaller : IWindsorInstaller
     {
         public void Install(IWindsorContainer container, IConfigurationStore store)
         {

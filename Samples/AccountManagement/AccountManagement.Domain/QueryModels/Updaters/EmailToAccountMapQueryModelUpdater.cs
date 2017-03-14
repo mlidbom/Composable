@@ -1,5 +1,4 @@
-﻿using AccountManagement.Domain.ContainerInstallers;
-using AccountManagement.Domain.Events.PropertyUpdated;
+﻿using AccountManagement.Domain.Events.PropertyUpdated;
 using AccountManagement.Domain.Services;
 using Composable.Messaging;
 using JetBrains.Annotations;

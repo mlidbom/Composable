@@ -1,6 +1,5 @@
 ﻿using System;
 using AccountManagement.Domain.Shared;
-using AccountManagement.UI.QueryModels.ContainerInstallers;
 using AccountManagement.UI.QueryModels.EventStoreGenerated;
 using Composable.CQRS.CQRS.Query.Models.Generators;
 using Composable.SystemExtensions.Threading;

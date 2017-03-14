@@ -1,4 +1,3 @@
-using AccountManagement.Domain.ContainerInstallers;
 using AccountManagement.Domain.QueryModels;
 using AccountManagement.Domain.Shared;
 using Composable.Contracts;

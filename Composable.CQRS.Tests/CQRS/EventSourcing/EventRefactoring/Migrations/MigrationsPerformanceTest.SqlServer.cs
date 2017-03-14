@@ -76,32 +76,34 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
         }
       }
 
-    [Test]
-    public void A_ten_thousand_events_large_aggregate_with_no_migrations_should_load_uncached_in_less_than_300_milliseconds()
-    {
-      using (var container = CreateContainerForEventStoreType(() => new List<IEventMigration>(), EventStoreType))
-      {
-        var timeSource = container.Resolve<DummyTimeSource>();
+        [Test] public void A_ten_thousand_events_large_aggregate_with_no_migrations_should_load_uncached_in_less_than_300_milliseconds()
+        {
+            using(var container = CreateContainerForEventStoreType(() => new List<IEventMigration>(), EventStoreType))
+            {
+                var timeSource = container.Resolve<DummyTimeSource>();
 
-        var history = Seq.OfTypes<Ec1>().Concat(1.Through(10000).Select(index => typeof(E1))).ToArray();
-        var aggregate = TestAggregate.FromEvents(timeSource, Guid.NewGuid(), history);
-        container.ExecuteUnitOfWorkInIsolatedScope(() => container.Resolve<IEventStoreSession>().Save(aggregate));
+                var history = Seq.OfTypes<Ec1>().Concat(1.Through(10000).Select(index => typeof(E1))).ToArray();
+                TestAggregate aggregate = null;
 
-        var time = TimeAsserter.Execute(
-          maxTotal: 300.Milliseconds().AdjustRuntimeToTestEnvironment(),
-          description: "load aggregate in isolated scope",
-          action:
-          () =>
-            container.ExecuteInIsolatedScope(
-              () => container.Resolve<IEventStoreSession>().Get<TestAggregate>(aggregate.Id)));
+                var time = TimeAsserter.Execute(maxTotal: 300.Milliseconds(),
+                                                description: "load aggregate in isolated scope",
+                                                setup: () =>
+                                                       {
+                                                           aggregate = TestAggregate.FromEvents(timeSource, Guid.NewGuid(), history);
+                                                           container.ExecuteUnitOfWorkInIsolatedScope(() => container.Resolve<IEventStoreSession>()
+                                                                                                                     .Save(aggregate));
+                                                       },
+                                                action: () => container.ExecuteInIsolatedScope(() => container.Resolve<IEventStoreSession>()
+                                                                                                              .Get<TestAggregate>(aggregate.Id)),
+                                                maxTries: 10);
 
-          time.Total.Should()
-              .BeGreaterThan(50.Milliseconds(), "It seems we have changed cache behavior and need to refactor this test. We try for speed but this is not likely to ever be achieved uncached.");
-      }
-    }
+                time.Total.Should()
+                    .BeGreaterThan(50.Milliseconds(), "It seems we have changed cache behavior and need to refactor this test. We try for speed but this is not likely to ever be achieved uncached.");
+            }
+        }
 
 
-    [Test]
+        [Test]
     public void A_ten_thousand_events_large_aggregate_with_no_migrations_should_load_cached_in_less_than_20_milliseconds()
     {
       using (var container = CreateContainerForEventStoreType(() => new List<IEventMigration>(), EventStoreType))

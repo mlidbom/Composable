@@ -30,6 +30,7 @@ namespace Composable.Testing
             }
         }
 
+
         public static StopwatchExtensions.TimedExecutionSummary Execute
             ([InstantHandle]Action action,
              int iterations = 1,
@@ -38,32 +39,36 @@ namespace Composable.Testing
              string description = "",
              string timeFormat = DefaultTimeFormat,
              int maxTries = 1,
-             int waitForCpuLoadToDropBelowPercent= 30)
+             [InstantHandle]Action setup = null,
+             [InstantHandle]Action tearDown = null,
+             int waitForCpuLoadToDropBelowPercent= 50)
         {
             maxAverage = maxAverage != default(TimeSpan) ? maxAverage : TimeSpan.MaxValue;
             maxTotal = maxTotal != default(TimeSpan) ? maxTotal : TimeSpan.MaxValue;
 
-            Func<TimeSpan?, string> format = date => date?.ToString(timeFormat) ?? "";
+            string Format(TimeSpan? date) => date?.ToString(timeFormat) ?? "";
             StopwatchExtensions.TimedExecutionSummary executionSummary = null;
-            for(int tries = 1; tries <= maxTries; tries++)
+            for(var tries = 1; tries <= maxTries; tries++)
             {
                 WaitUntilCpuLoadIsBelowPercent(waitForCpuLoadToDropBelowPercent);
+                setup?.Invoke();
                 executionSummary = StopwatchExtensions.TimeExecution(action: action, iterations: iterations);
+                tearDown?.Invoke();
                 try
                 {
-                    RunAsserts(maxAverage: maxAverage, maxTotal: maxTotal, executionSummary: executionSummary, format:format);
+                    RunAsserts(maxAverage: maxAverage, maxTotal: maxTotal, executionSummary: executionSummary, format:Format);
                 }
                 catch(Exception e)
                 {
                     Console.WriteLine($"Try: {tries} {e.GetType().FullName}: {e.Message}");
                     if(tries >= maxTries)
                     {
-                        PrintSummary(iterations, maxAverage, maxTotal, description, format, executionSummary);
+                        PrintSummary(iterations, maxAverage, maxTotal, description, Format, executionSummary);
                         throw;
                     }
                     continue;
                 }
-                PrintSummary(iterations, maxAverage, maxTotal, description, format, executionSummary);
+                PrintSummary(iterations, maxAverage, maxTotal, description, Format, executionSummary);
                 break;
             }
 

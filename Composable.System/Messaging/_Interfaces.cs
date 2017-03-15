@@ -14,6 +14,10 @@ namespace Composable.Messaging
         Guid Id { get; }
     }
 
+    public interface ICommand<TResult> : ICommand where TResult : IMessage
+    {
+    }
+
     ///<summary>An <see cref="IMessage"/> which informs the receiver that something has happened.
     /// <para>Should be immutable since it is impossible to change something that has already happened.</para>
     /// </summary>
@@ -24,6 +28,12 @@ namespace Composable.Messaging
     // ReSharper disable once UnusedTypeParameter
     public interface IQuery<TResult> : IMessage where TResult : IQueryResult {}
 
+    ///<summary>Represent an entity within the domain of the current API that is uniquely identifiable through a query.</summary>
+    public interface IResource<TResource> : IQueryResult where TResource : IResource<TResource>
+    {
+        IQuery<TResource> Self { get; }
+    }
+
     ///<summary>A response to an <see cref="IQuery{TResult}"/></summary>
     public interface IQueryResult : IMessage {}
 
@@ -31,5 +41,36 @@ namespace Composable.Messaging
     public interface IEventSubscriber<in TEvent> where TEvent : IEvent
     {
         void Handle(TEvent message);
+    }
+
+
+    public class SingletonQuery<TSingleton> : IQuery<TSingleton> where TSingleton : IResource<TSingleton>
+    {}
+
+    public interface IEntityQuery<TEntity> : IQuery<TEntity> where TEntity : IQueryResult
+    {
+        Guid Id { get; }
+    }
+
+    public class EntityQuery<TEntity> : IEntityQuery<TEntity> where TEntity : IResource<TEntity>
+    {
+        public EntityQuery(Guid id) { Id = id; }
+        public Guid Id { get; }
+    }
+
+    public interface IEntityResource<TResource> : IResource<TResource> where TResource : IEntityResource<TResource>
+    {
+        Guid Id { get; }
+    }
+
+    public abstract class EntityResource<TResource> : IEntityResource<TResource> where TResource : EntityResource<TResource>
+    {
+        public EntityResource(Guid id)
+        {
+            Id = id;
+            Self = new EntityQuery<TResource>(id);
+        }
+        public IQuery<TResource> Self { get; }
+        public Guid Id { get; }
     }
 }

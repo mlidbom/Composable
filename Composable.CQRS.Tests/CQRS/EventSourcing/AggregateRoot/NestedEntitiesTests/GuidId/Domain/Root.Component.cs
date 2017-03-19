@@ -1,5 +1,5 @@
 using System;
-using Composable.CQRS.CQRS.EventSourcing;
+using Composable.CQRS.EventSourcing;
 using Composable.CQRS.Tests.CQRS.EventSourcing.AggregateRoot.NestedEntitiesTests.GuidId.Domain.Events;
 
 namespace Composable.CQRS.Tests.CQRS.EventSourcing.AggregateRoot.NestedEntitiesTests.GuidId.Domain

@@ -1,12 +1,11 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Composable.CQRS.EventSourcing;
 using Composable.System;
 using Composable.System.Linq;
 using Composable.System.Reflection;
 
-namespace Composable.CQRS.CQRS.EventSourcing.Refactoring.Naming
+namespace Composable.CQRS.EventSourcing.Refactoring.Naming
 {
     class RenamingEventNameMapper : IEventNameMapper
     {

@@ -1,6 +1,6 @@
 ﻿using log4net;
 
-namespace Composable.CQRS.Logging.Log4Net
+namespace Composable.Logging.Log4Net
 {
     static class Log4NetExtensions
     {

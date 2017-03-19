@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Configuration;
 using System.Linq;
-using Composable.CQRS.CQRS.EventSourcing;
-using Composable.CQRS.CQRS.EventSourcing.MicrosoftSQLServer;
 using Composable.CQRS.EventSourcing;
+using Composable.CQRS.EventSourcing.MicrosoftSQLServer;
 using Composable.System.Linq;
 using Composable.SystemExtensions.Threading;
 using Composable.Testing;

@@ -1,5 +1,5 @@
 using System;
-using Composable.CQRS.CQRS.EventSourcing;
+using Composable.CQRS.EventSourcing;
 using NUnit.Framework;
 
 namespace Composable.CQRS.Tests.CQRS.EventSourcing

@@ -1,4 +1,4 @@
-﻿namespace Composable.CQRS
+﻿namespace Composable
 {
     class AssemblyHandleComposableCqrs
     {}

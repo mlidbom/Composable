@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Linq;
-using Composable.CQRS.CQRS.EventSourcing;
-using Composable.CQRS.CQRS.EventSourcing.Refactoring.Migrations;
+using Composable.CQRS.EventSourcing;
+using Composable.CQRS.EventSourcing.Refactoring.Migrations;
 using Composable.CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations.Events;
-using Composable.CQRS.Windsor;
 using Composable.GenericAbstractions.Time;
 using Composable.System.Linq;
 using Composable.Testing;
+using Composable.Windsor;
 using FluentAssertions;
 using NUnit.Framework;
 

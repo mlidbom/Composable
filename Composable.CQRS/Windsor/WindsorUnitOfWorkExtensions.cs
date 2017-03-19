@@ -3,7 +3,7 @@ using Castle.MicroKernel.Lifestyle;
 using Castle.Windsor;
 using JetBrains.Annotations;
 
-namespace Composable.CQRS.Windsor
+namespace Composable.Windsor
 {
     public static class WindsorUnitOfWorkExtensions
     {

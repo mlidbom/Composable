@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using Composable.Contracts;
-using Composable.CQRS.CQRS.EventSourcing;
 using Composable.CQRS.EventSourcing;
 using Composable.GenericAbstractions.Time;
 using JetBrains.Annotations;

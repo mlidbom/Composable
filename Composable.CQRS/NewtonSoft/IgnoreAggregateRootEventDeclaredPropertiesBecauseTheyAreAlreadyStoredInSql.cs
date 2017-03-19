@@ -3,7 +3,7 @@ using Composable.CQRS.EventSourcing;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 
-namespace Composable.CQRS.NewtonSoft
+namespace Composable.NewtonSoft
 {
     class IgnoreAggregateRootEventDeclaredPropertiesBecauseTheyAreAlreadyStoredInSql : IncludeMembersWithPrivateSettersResolver
     {

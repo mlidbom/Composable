@@ -1,7 +1,7 @@
 ﻿using AccountManagement.Domain.Events;
 using AccountManagement.Domain.Events.EventStore.Services;
 using AccountManagement.Domain.Events.Implementation;
-using Composable.CQRS.CQRS;
+using Composable.CQRS;
 using Composable.Persistence.KeyValueStorage;
 using JetBrains.Annotations;
 

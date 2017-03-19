@@ -1,6 +1,6 @@
 ﻿using Castle.Windsor;
 using Castle.Windsor.Installer;
-using Composable.CQRS.Windsor.Testing.Testing;
+using Composable.Windsor.Testing.Testing;
 
 namespace AccountManagement.TestHelpers
 {

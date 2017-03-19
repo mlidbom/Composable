@@ -5,7 +5,7 @@ using System.Runtime.CompilerServices;
 using Composable.Contracts;
 using Composable.System.Linq;
 
-namespace Composable.CQRS {
+namespace Composable {
     static class GeneratedLowLevelInterfaceInspector
     {
         internal static void InspectInterfaces(IEnumerable<Type> types)

@@ -1,7 +1,6 @@
 using System;
-using Composable.UnitsOfWork;
 
-namespace Composable.CQRS.UnitsOfWork
+namespace Composable.UnitsOfWork
 {
     class AttemptingToJoinSecondUnitOfWorkException : Exception
     {

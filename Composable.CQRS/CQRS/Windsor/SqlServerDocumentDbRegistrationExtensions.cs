@@ -3,14 +3,14 @@ using Castle.DynamicProxy;
 using Castle.MicroKernel.Registration;
 using Castle.Windsor;
 using Composable.Contracts;
-using Composable.CQRS.KeyValueStorage;
-using Composable.CQRS.KeyValueStorage.SqlServer;
-using Composable.CQRS.Windsor.Testing;
+using Composable.KeyValueStorage;
+using Composable.KeyValueStorage.SqlServer;
 using Composable.Persistence.KeyValueStorage;
 using Composable.System.Configuration;
 using Composable.System.Linq;
+using Composable.Windsor.Testing;
 
-namespace Composable.CQRS.CQRS.Windsor
+namespace Composable.CQRS.Windsor
 {
     abstract class SqlServerDocumentDbRegistration
     {

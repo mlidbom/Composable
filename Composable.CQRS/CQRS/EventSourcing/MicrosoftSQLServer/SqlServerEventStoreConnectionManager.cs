@@ -1,9 +1,9 @@
 using System;
 using System.Data.SqlClient;
 using System.Transactions;
-using Composable.CQRS.Logging.Log4Net;
+using Composable.Logging.Log4Net;
 
-namespace Composable.CQRS.CQRS.EventSourcing.MicrosoftSQLServer
+namespace Composable.CQRS.EventSourcing.MicrosoftSQLServer
 {
     class SqlServerEventStoreConnectionManager
     {

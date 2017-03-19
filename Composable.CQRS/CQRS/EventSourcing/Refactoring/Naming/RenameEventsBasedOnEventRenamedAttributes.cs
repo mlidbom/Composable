@@ -1,7 +1,7 @@
 using System;
 using System.Linq;
 
-namespace Composable.CQRS.CQRS.EventSourcing.Refactoring.Naming
+namespace Composable.CQRS.EventSourcing.Refactoring.Naming
 {
     class RenameEventsBasedOnEventRenamedAttributes : IRenameEvents
     {

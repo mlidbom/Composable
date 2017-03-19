@@ -1,9 +1,8 @@
 ﻿using System;
-using Composable.CQRS.EventSourcing;
 using Composable.GenericAbstractions.Time;
 using Composable.Messaging.Events;
 
-namespace Composable.CQRS.CQRS.EventSourcing
+namespace Composable.CQRS.EventSourcing
 {
     public abstract partial class AggregateRoot<TAggregateRoot, TAggregateRootBaseEventClass, TAggregateRootBaseEventInterface>
         where TAggregateRoot : AggregateRoot<TAggregateRoot, TAggregateRootBaseEventClass, TAggregateRootBaseEventInterface>

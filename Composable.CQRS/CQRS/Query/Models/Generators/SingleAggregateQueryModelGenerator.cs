@@ -1,12 +1,11 @@
 ﻿using System;
 using System.Linq;
-using Composable.CQRS.CQRS.EventSourcing;
 using Composable.CQRS.EventSourcing;
 using Composable.Messaging.Events;
 using Composable.System.Linq;
 using JetBrains.Annotations;
 
-namespace Composable.CQRS.CQRS.Query.Models.Generators
+namespace Composable.CQRS.Query.Models.Generators
 {
     [UsedImplicitly(ImplicitUseKindFlags.InstantiatedWithFixedConstructorSignature)]
     public abstract class SingleAggregateQueryModelGenerator<TImplementer, TViewModel, TEvent, TSession>

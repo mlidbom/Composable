@@ -1,4 +1,4 @@
-﻿using Composable.CQRS.CQRS;
+﻿using Composable.CQRS;
 
 namespace AccountManagement.Domain.Services
 {

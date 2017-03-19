@@ -1,7 +1,7 @@
 ﻿using Castle.Windsor;
 using Composable.DependencyInjection;
 
-namespace Composable.CQRS.Windsor
+namespace Composable.Windsor
 {
     class WindsorComponentLease<T> : IComponentLease<T>
     {

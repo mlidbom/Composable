@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace Composable.CQRS.CQRS.EventSourcing
+namespace Composable.CQRS.EventSourcing
 {
     public interface IReadOnlyEntityCollection<TEntity, in TEntityId> : IEnumerable<TEntity>
     {

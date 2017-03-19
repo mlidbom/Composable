@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using Composable.System.Collections.Collections;
 
-namespace Composable.CQRS.CQRS.EventSourcing.Refactoring.Migrations
+namespace Composable.CQRS.EventSourcing.Refactoring.Migrations
 {
     static class AggregateLockManager
     {

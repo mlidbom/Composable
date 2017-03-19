@@ -2,8 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Composable.Contracts;
-using Composable.CQRS.CQRS.EventSourcing.MicrosoftSQLServer;
-using Composable.CQRS.EventSourcing;
+using Composable.CQRS.EventSourcing.MicrosoftSQLServer;
 using Composable.GenericAbstractions.Time;
 using Composable.Messaging.Buses;
 using Composable.System;
@@ -12,7 +11,7 @@ using Composable.SystemExtensions.Threading;
 using Composable.UnitsOfWork;
 using log4net;
 
-namespace Composable.CQRS.CQRS.EventSourcing
+namespace Composable.CQRS.EventSourcing
 {
     //Review:mlidbo: Detect and warn about using the session within multiple transactions. That it is likely to result in optimistic concurrency exceptions.
     class EventStoreSession :

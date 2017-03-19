@@ -1,8 +1,7 @@
 using System;
-using Composable.CQRS.EventSourcing;
 using Newtonsoft.Json;
 
-namespace Composable.CQRS.CQRS.EventSourcing.MicrosoftSQLServer
+namespace Composable.CQRS.EventSourcing.MicrosoftSQLServer
 {
     static class SqlServerEvestStoreEventSerializer
     {

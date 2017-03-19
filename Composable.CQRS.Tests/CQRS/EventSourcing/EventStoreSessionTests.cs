@@ -3,9 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Transactions;
-using Composable.CQRS.CQRS.EventSourcing;
 using Composable.CQRS.EventSourcing;
-using Composable.CQRS.UnitsOfWork;
 using Composable.GenericAbstractions.Time;
 using Composable.Messaging.Buses;
 using Composable.System;
@@ -13,6 +11,7 @@ using Composable.System.Diagnostics;
 using Composable.System.Linq;
 using Composable.SystemExtensions.Threading;
 using Composable.Testing;
+using Composable.UnitsOfWork;
 using FluentAssertions;
 using NUnit.Framework;
 

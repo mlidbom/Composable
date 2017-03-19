@@ -4,10 +4,9 @@ using System.Linq;
 using Composable.System;
 using Composable.System.Linq;
 using Composable.SystemExtensions.Threading;
-using Composable.UnitsOfWork;
 using log4net;
 
-namespace Composable.CQRS.UnitsOfWork
+namespace Composable.UnitsOfWork
 {
     class UnitOfWork : IUnitOfWork
     {

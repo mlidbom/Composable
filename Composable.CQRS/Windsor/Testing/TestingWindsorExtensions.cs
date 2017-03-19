@@ -3,7 +3,7 @@ using Castle.MicroKernel.Registration;
 using Castle.Windsor;
 using Composable.SystemExtensions.Threading;
 
-namespace Composable.CQRS.Windsor.Testing
+namespace Composable.Windsor.Testing
 {
     static class TestingWindsorExtensions
     {

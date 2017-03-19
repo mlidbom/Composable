@@ -8,6 +8,7 @@
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <SignAssembly>False</SignAssembly>
     <AssemblyOriginatorKeyFile>Void.snk</AssemblyOriginatorKeyFile>
+    <RootNamespace>Composable</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>

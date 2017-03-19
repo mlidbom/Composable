@@ -1,13 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Composable.CQRS.NewtonSoft;
 using Composable.DDD;
+using Composable.NewtonSoft;
 using Composable.Persistence.KeyValueStorage;
 using Composable.System.Collections.Collections;
 using Newtonsoft.Json;
 
-namespace Composable.CQRS.KeyValueStorage
+namespace Composable.KeyValueStorage
 {
     //todo: Refactor to use the same serialization code as the sql document db so that tests actually tests roundtrip serialization
 #pragma warning disable 618

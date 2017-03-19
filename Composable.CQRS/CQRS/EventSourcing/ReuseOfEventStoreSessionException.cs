@@ -1,7 +1,7 @@
 using System;
 using Composable.UnitsOfWork;
 
-namespace Composable.CQRS.CQRS.EventSourcing
+namespace Composable.CQRS.EventSourcing
 {
     class ReuseOfEventStoreSessionException : InvalidOperationException
     {

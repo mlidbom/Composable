@@ -1,4 +1,4 @@
-﻿using Composable.CQRS.KeyValueStorage;
+﻿using Composable.KeyValueStorage;
 using FluentAssertions;
 using NUnit.Framework;
 

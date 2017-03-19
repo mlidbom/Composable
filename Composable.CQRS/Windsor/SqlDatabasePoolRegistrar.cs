@@ -2,7 +2,7 @@
 using Castle.Windsor;
 using Composable.Testing;
 
-namespace Composable.CQRS.Windsor
+namespace Composable.Windsor
 {
     static class SqlDatabasePoolRegistrar
     {

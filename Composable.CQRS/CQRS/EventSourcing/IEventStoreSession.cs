@@ -1,8 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using Composable.CQRS.EventSourcing;
 
-namespace Composable.CQRS.CQRS.EventSourcing
+namespace Composable.CQRS.EventSourcing
 {
     public interface IEventStoreReader
     {

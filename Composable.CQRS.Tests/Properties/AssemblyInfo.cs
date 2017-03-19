@@ -1,5 +1,6 @@
 ﻿using System.Reflection;
 using System.Runtime.InteropServices;
+using Composable;
 
 // General Information about an assembly is controlled through the following
 // set of attributes. Change these attribute values to modify the information
@@ -36,7 +37,7 @@ using System.Runtime.InteropServices;
 
 [assembly: AssemblyVersion("1.0.0.0")]
 
-[assembly: System.Runtime.CompilerServices.InternalsVisibleTo(Composable.CQRS.InternalsRequiredToBeVisibleTo.Assembly1)]
-[assembly: System.Runtime.CompilerServices.InternalsVisibleTo(Composable.CQRS.InternalsRequiredToBeVisibleTo.Assembly2)]
-[assembly: System.Runtime.CompilerServices.InternalsVisibleTo(Composable.CQRS.InternalsRequiredToBeVisibleTo.Assembly3)]
-[assembly: System.Runtime.CompilerServices.InternalsVisibleTo(Composable.CQRS.InternalsRequiredToBeVisibleTo.Assembly4)]
+[assembly: System.Runtime.CompilerServices.InternalsVisibleTo(InternalsRequiredToBeVisibleTo.Assembly1)]
+[assembly: System.Runtime.CompilerServices.InternalsVisibleTo(InternalsRequiredToBeVisibleTo.Assembly2)]
+[assembly: System.Runtime.CompilerServices.InternalsVisibleTo(InternalsRequiredToBeVisibleTo.Assembly3)]
+[assembly: System.Runtime.CompilerServices.InternalsVisibleTo(InternalsRequiredToBeVisibleTo.Assembly4)]

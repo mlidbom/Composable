@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Composable.CQRS.CQRS.Query.Models.Generators;
+using Composable.CQRS.Query.Models.Generators;
 using Composable.DDD;
 using Composable.Persistence.KeyValueStorage;
 using Composable.System;

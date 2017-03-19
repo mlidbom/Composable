@@ -3,9 +3,8 @@ using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Data.SqlTypes;
 using System.Linq;
-using Composable.CQRS.EventSourcing;
 
-namespace Composable.CQRS.CQRS.EventSourcing.MicrosoftSQLServer
+namespace Composable.CQRS.EventSourcing.MicrosoftSQLServer
 {
     class SqlServerEventStoreEventReader
     {

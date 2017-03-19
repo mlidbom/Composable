@@ -9,7 +9,7 @@ using Composable.SystemExtensions.Threading;
 using Composable.UnitsOfWork;
 using log4net;
 
-namespace Composable.CQRS.KeyValueStorage
+namespace Composable.KeyValueStorage
 {
     // ReSharper disable once ClassWithVirtualMembersNeverInherited.Global
     partial class DocumentDbSession : IDocumentDbSession, IUnitOfWorkParticipant

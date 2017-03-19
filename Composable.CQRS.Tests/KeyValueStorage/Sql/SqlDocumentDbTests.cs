@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Configuration;
 using System.Linq;
-using Composable.CQRS.KeyValueStorage.SqlServer;
+using Composable.KeyValueStorage.SqlServer;
 using Composable.Persistence.KeyValueStorage;
 using Composable.System.Linq;
 using Composable.Testing;

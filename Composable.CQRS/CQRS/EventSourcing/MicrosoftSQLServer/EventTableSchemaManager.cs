@@ -1,4 +1,4 @@
-namespace Composable.CQRS.CQRS.EventSourcing.MicrosoftSQLServer
+namespace Composable.CQRS.EventSourcing.MicrosoftSQLServer
 {
     class EventTableSchemaManager : TableSchemaManager
     {

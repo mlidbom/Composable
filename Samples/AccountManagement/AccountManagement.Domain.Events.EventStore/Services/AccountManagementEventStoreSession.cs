@@ -1,4 +1,4 @@
-﻿using Composable.CQRS.CQRS.EventSourcing;
+﻿using Composable.CQRS.EventSourcing;
 
 namespace AccountManagement.Domain.Events.EventStore.Services
 {

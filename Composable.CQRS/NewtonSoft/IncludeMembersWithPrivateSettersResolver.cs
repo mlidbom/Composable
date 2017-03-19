@@ -2,7 +2,7 @@
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 
-namespace Composable.CQRS.NewtonSoft
+namespace Composable.NewtonSoft
 {
     class IncludeMembersWithPrivateSettersResolver : DefaultContractResolver
     {

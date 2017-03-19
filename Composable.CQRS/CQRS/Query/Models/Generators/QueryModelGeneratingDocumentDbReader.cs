@@ -5,7 +5,7 @@ using Composable.DDD;
 using Composable.Persistence.KeyValueStorage;
 using Composable.SystemExtensions.Threading;
 
-namespace Composable.CQRS.CQRS.Query.Models.Generators
+namespace Composable.CQRS.Query.Models.Generators
 {
     // ReSharper disable once ClassWithVirtualMembersNeverInherited.Global
     public class QueryModelGeneratingDocumentDbReader : IVersioningDocumentDbReader

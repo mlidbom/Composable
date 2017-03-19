@@ -1,7 +1,7 @@
 using System;
 using Composable.System;
 
-namespace Composable.CQRS.CQRS.EventSourcing
+namespace Composable.CQRS.EventSourcing
 {
     class AttemptToSaveEmptyAggregate : Exception
     {

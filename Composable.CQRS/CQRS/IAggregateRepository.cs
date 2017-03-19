@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Composable.CQRS.CQRS
+namespace Composable.CQRS
 {
     public interface IAggregateRepository<TAggregate>
     {

@@ -5,7 +5,7 @@ using Composable.GenericAbstractions.Time;
 using Composable.Messaging.Buses;
 using Composable.System.Configuration;
 
-namespace Composable.CQRS.Windsor.Testing.Testing
+namespace Composable.Windsor.Testing.Testing
 {
     public static class TestingWindsorExtensions
     {

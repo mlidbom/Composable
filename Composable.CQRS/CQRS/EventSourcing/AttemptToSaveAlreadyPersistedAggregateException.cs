@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Composable.CQRS.CQRS.EventSourcing
+namespace Composable.CQRS.EventSourcing
 {
     class AttemptToSaveAlreadyPersistedAggregateException : Exception
     {

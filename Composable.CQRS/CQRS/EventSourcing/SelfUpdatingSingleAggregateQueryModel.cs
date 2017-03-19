@@ -1,11 +1,10 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using Composable.CQRS.EventSourcing;
 using Composable.Messaging.Events;
 using Composable.System.Linq;
 
-namespace Composable.CQRS.CQRS.EventSourcing
+namespace Composable.CQRS.EventSourcing
 {
     //todo:complete including tests
     // ReSharper disable UnusedMember.Global

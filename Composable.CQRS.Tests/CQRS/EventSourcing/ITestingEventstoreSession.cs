@@ -1,4 +1,4 @@
-﻿using Composable.CQRS.CQRS.EventSourcing;
+﻿using Composable.CQRS.EventSourcing;
 
 namespace Composable.CQRS.Tests.CQRS.EventSourcing
 {

@@ -1,10 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
-using Composable.CQRS.CQRS.EventSourcing.Refactoring.Naming;
-using Composable.CQRS.Logging.Log4Net;
+using Composable.CQRS.EventSourcing.Refactoring.Naming;
+using Composable.Logging.Log4Net;
 
-namespace Composable.CQRS.CQRS.EventSourcing.MicrosoftSQLServer
+namespace Composable.CQRS.EventSourcing.MicrosoftSQLServer
 {
     class SqlServerEventStoreEventTypeToIdMapper : IEventTypeToIdMapper
     {

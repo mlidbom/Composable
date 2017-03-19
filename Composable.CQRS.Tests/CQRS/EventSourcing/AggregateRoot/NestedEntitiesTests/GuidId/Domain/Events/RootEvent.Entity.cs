@@ -1,5 +1,5 @@
 using System;
-using Composable.CQRS.CQRS.EventSourcing;
+using Composable.CQRS.EventSourcing;
 
 // ReSharper disable MemberHidesStaticFromOuterClass
 // ReSharper disable RedundantNameQualifier

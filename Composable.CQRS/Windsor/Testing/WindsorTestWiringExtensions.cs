@@ -1,13 +1,13 @@
 using System;
 using Castle.MicroKernel.Registration;
 using Castle.Windsor;
-using Composable.CQRS.CQRS.EventSourcing;
-using Composable.CQRS.KeyValueStorage;
+using Composable.CQRS.EventSourcing;
+using Composable.KeyValueStorage;
 using Composable.Persistence.KeyValueStorage;
 
 // ReSharper disable UnusedMethodReturnValue.Global
 
-namespace Composable.CQRS.Windsor.Testing
+namespace Composable.Windsor.Testing
 {
     static class RewiringHelperExtensions
     {

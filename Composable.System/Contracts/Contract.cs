@@ -81,7 +81,7 @@ namespace Composable.Contracts
 
         class ContractAssertionImplementation : IContractAssertion
         {
-            public ContractAssertionImplementation(InspectionType inspectionType) { InspectionType = inspectionType; }
+            public ContractAssertionImplementation(InspectionType inspectionType) => InspectionType = inspectionType;
             public InspectionType InspectionType { get; }
         }
     }

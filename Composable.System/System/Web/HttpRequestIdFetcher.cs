@@ -7,9 +7,6 @@ namespace Composable.System.Web
     class HttpRequestIdFetcher : IHttpRequestIdFetcher
     {
         ///<summary>Gets the id for the current request</summary>
-        public Guid GetCurrent()
-        {
-            return HttpContext.Current.Request.Id();
-        }
+        public Guid GetCurrent() => HttpContext.Current.Request.Id();
     }
 }

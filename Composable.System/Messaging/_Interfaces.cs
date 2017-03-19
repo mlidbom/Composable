@@ -54,7 +54,7 @@ namespace Composable.Messaging
 
     public class EntityQuery<TEntity> : IEntityQuery<TEntity> where TEntity : IResource<TEntity>
     {
-        public EntityQuery(Guid id) { Id = id; }
+        public EntityQuery(Guid id) => Id = id;
         public Guid Id { get; }
     }
 

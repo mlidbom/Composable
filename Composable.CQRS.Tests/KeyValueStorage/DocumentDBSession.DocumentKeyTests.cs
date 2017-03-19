@@ -1,4 +1,4 @@
-﻿using Composable.KeyValueStorage;
+﻿using Composable.DocumentDb;
 using FluentAssertions;
 using NUnit.Framework;
 

@@ -6,7 +6,7 @@ using Composable.CQRS.Tests.CQRS.EventHandling.CVManagement.GlobalEvents;
 using Composable.CQRS.Tests.CQRS.EventHandling.CVManagement.InternalEvents.InternalImplementations;
 using Composable.CQRS.Tests.CQRS.EventHandling.CVManagement.QueryModelUpdaters;
 using Composable.DDD;
-using Composable.KeyValueStorage;
+using Composable.DocumentDb;
 using Composable.Messaging.Events;
 using Composable.Persistence.KeyValueStorage;
 using Composable.System.Linq;

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Composable.KeyValueStorage.SqlServer
+namespace Composable.DocumentDb.SqlServer
 {
     class TooManyItemsDeletedException : Exception {}
 }

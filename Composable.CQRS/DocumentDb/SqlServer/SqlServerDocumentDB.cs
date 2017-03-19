@@ -12,7 +12,7 @@ using Composable.System.Linq;
 using Composable.System.Reflection;
 using Newtonsoft.Json;
 
-namespace Composable.KeyValueStorage.SqlServer
+namespace Composable.DocumentDb.SqlServer
 {
     class SqlServerDocumentDb : IDocumentDb
     {

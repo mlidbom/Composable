@@ -5,7 +5,7 @@ using Composable.Persistence.KeyValueStorage;
 using Composable.System;
 using Composable.System.Linq;
 
-namespace Composable.KeyValueStorage
+namespace Composable.DocumentDb
 {
     partial class DocumentDbSession
     {

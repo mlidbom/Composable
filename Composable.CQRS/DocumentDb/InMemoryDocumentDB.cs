@@ -7,7 +7,7 @@ using Composable.Persistence.KeyValueStorage;
 using Composable.System.Collections.Collections;
 using Newtonsoft.Json;
 
-namespace Composable.KeyValueStorage
+namespace Composable.DocumentDb
 {
     //todo: Refactor to use the same serialization code as the sql document db so that tests actually tests roundtrip serialization
 #pragma warning disable 618

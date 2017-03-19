@@ -2,7 +2,7 @@ using System;
 using Castle.MicroKernel.Registration;
 using Castle.Windsor;
 using Composable.CQRS.EventSourcing;
-using Composable.KeyValueStorage;
+using Composable.DocumentDb;
 using Composable.Persistence.KeyValueStorage;
 
 // ReSharper disable UnusedMethodReturnValue.Global

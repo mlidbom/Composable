@@ -5,7 +5,7 @@ using Castle.Windsor;
 using Composable.Contracts;
 using Composable.DocumentDb;
 using Composable.DocumentDb.SqlServer;
-using Composable.Persistence.KeyValueStorage;
+using Composable.Persistence.DocumentDb;
 using Composable.System.Configuration;
 using Composable.System.Linq;
 using Composable.Windsor.Testing;

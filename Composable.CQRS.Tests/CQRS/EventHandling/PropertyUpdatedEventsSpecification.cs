@@ -8,7 +8,7 @@ using Composable.CQRS.Tests.CQRS.EventHandling.CVManagement.QueryModelUpdaters;
 using Composable.DDD;
 using Composable.DocumentDb;
 using Composable.Messaging.Events;
-using Composable.Persistence.KeyValueStorage;
+using Composable.Persistence.DocumentDb;
 using Composable.System.Linq;
 using Composable.SystemExtensions.Threading;
 using FluentAssertions;

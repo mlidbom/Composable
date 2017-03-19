@@ -1,5 +1,5 @@
 ﻿using Composable.DocumentDb;
-using Composable.Persistence.KeyValueStorage;
+using Composable.Persistence.DocumentDb;
 using NUnit.Framework;
 
 namespace Composable.CQRS.Tests.KeyValueStorage

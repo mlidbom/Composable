@@ -1,6 +1,6 @@
 using System;
 
-namespace Composable.Persistence.KeyValueStorage
+namespace Composable.Persistence.DocumentDb
 {
     class DocumentIdIsEmptyGuidException : Exception
     {

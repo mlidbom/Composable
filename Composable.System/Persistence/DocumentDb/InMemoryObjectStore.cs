@@ -6,7 +6,7 @@ using Composable.DDD;
 using Composable.System.Collections.Collections;
 using Composable.System.Linq;
 
-namespace Composable.Persistence.KeyValueStorage
+namespace Composable.Persistence.DocumentDb
 {
     class InMemoryObjectStore : IEnumerable<KeyValuePair<string, object>>
     {

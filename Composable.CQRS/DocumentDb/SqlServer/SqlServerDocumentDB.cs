@@ -5,7 +5,7 @@ using System.Data;
 using System.Data.SqlClient;
 using System.Linq;
 using Composable.DDD;
-using Composable.Persistence.KeyValueStorage;
+using Composable.Persistence.DocumentDb;
 using Composable.System;
 using Composable.System.Collections.Collections;
 using Composable.System.Linq;

@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Composable.DDD;
-using Composable.Persistence.KeyValueStorage;
+using Composable.Persistence.DocumentDb;
 using Composable.System;
 using Composable.System.Linq;
 using Composable.SystemExtensions.Threading;

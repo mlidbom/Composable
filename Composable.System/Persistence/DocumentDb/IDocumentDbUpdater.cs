@@ -1,7 +1,7 @@
 ﻿using System;
 using Composable.DDD;
 
-namespace Composable.Persistence.KeyValueStorage
+namespace Composable.Persistence.DocumentDb
 {
     public interface IDocumentDbUpdater
     {

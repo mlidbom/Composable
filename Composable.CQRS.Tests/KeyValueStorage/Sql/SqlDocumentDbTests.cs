@@ -2,7 +2,7 @@
 using System.Configuration;
 using System.Linq;
 using Composable.DocumentDb.SqlServer;
-using Composable.Persistence.KeyValueStorage;
+using Composable.Persistence.DocumentDb;
 using Composable.System.Linq;
 using Composable.Testing;
 using FluentAssertions;

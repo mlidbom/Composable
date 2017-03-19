@@ -1,7 +1,7 @@
 ﻿using System;
 using Composable.System;
 
-namespace Composable.Persistence.KeyValueStorage
+namespace Composable.Persistence.DocumentDb
 {
     class NoSuchDocumentException : Exception
     {

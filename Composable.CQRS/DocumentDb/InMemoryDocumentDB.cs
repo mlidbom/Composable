@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Composable.DDD;
 using Composable.NewtonSoft;
-using Composable.Persistence.KeyValueStorage;
+using Composable.Persistence.DocumentDb;
 using Composable.System.Collections.Collections;
 using Newtonsoft.Json;
 

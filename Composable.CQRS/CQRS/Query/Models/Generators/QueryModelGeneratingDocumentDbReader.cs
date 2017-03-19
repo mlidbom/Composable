@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Composable.DDD;
-using Composable.Persistence.KeyValueStorage;
+using Composable.Persistence.DocumentDb;
 using Composable.SystemExtensions.Threading;
 
 namespace Composable.CQRS.Query.Models.Generators

@@ -1,6 +1,6 @@
 ﻿using System;
 using AccountManagement.Domain.Shared;
-using Composable.Persistence.KeyValueStorage;
+using Composable.Persistence.DocumentDb;
 
 namespace AccountManagement.UI.QueryModels.Services
 {

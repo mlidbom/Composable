@@ -1,4 +1,4 @@
-using Composable.Persistence.KeyValueStorage;
+using Composable.Persistence.DocumentDb;
 
 namespace Composable.CQRS.Query.Models.Generators
 {

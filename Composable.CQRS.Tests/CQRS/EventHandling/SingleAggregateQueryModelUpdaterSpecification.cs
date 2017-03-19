@@ -1,7 +1,7 @@
 ﻿using System;
 using Composable.CQRS.EventSourcing;
 using Composable.Messaging.Events;
-using Composable.Persistence.KeyValueStorage;
+using Composable.Persistence.DocumentDb;
 using FluentAssertions;
 using Moq;
 

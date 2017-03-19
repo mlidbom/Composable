@@ -39,6 +39,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="CQRS\" />
     <Folder Include="System\Transactions\" />
   </ItemGroup>
 

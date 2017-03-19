@@ -26,10 +26,7 @@ namespace Composable.CQRS.Tests.ServiceBus
                 () =>
                 {
                     bool commandHandled = false;
-                    before = () =>
-                             {
-                                registrar.ForCommand<ACommand>(command => commandHandled = true);
-                             };
+                    before = () => registrar.ForCommand<ACommand>(command => commandHandled = true);
                     it["Handles(new ACommand()) returns true"] = () => bus.Handles(new ACommand()).Should().Be(true);
 
                     it["Send(new ACommand()) dispatches to registered handler"] = () =>
@@ -62,10 +59,7 @@ namespace Composable.CQRS.Tests.ServiceBus
             context["after registering a handler for AQuery with bus"] =
                 () =>
                 {
-                    before = () =>
-                    {
-                        registrar.ForQuery<AQuery, AQueryResult>(query => new AQueryResult());
-                    };
+                    before = () => registrar.ForQuery<AQuery, AQueryResult>(query => new AQueryResult());
                     it["Handles(new AQuery()) returns true"] = () => bus.Handles(new AQuery()).Should().Be(true);
                     it["Get(new AQuery()) throws no exception"] = () => bus.Get(new AQuery());
                     it["Get(new AQuery()) returns an instance of AQueryResult"] = () =>
@@ -90,10 +84,8 @@ namespace Composable.CQRS.Tests.ServiceBus
                          registrar.ForCommand<ACommand>(_ => { });
                      };
 
-            context["when you add another handler for that command that does not implement ISynchronousBusMessageSpy"] = () =>
-                           {
-                               it["an exception is thrown"] =  () => this.Invoking(_ => registrar.ForCommand<ACommand>(cmd => {})).ShouldThrow<Exception>();
-                           };
+            context["when you add another handler for that command that does not implement ISynchronousBusMessageSpy"] = 
+                () => it["an exception is thrown"] =  () => this.Invoking(_ => registrar.ForCommand<ACommand>(cmd => {})).ShouldThrow<Exception>();
 
 
         }

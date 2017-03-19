@@ -25,16 +25,12 @@ namespace AccountManagement.UI.QueryModels.Tests
         {
             Container = new WindsorContainer();
 
-            Container.SetupForTesting(container =>
-                                      {
-                                          container.Install(
-                                                            FromAssembly.Containing<Domain.ContainerInstallers.AccountRepositoryInstaller>(),
-                                                            FromAssembly.Containing<Domain.Events.EventStore.ContainerInstallers.AccountManagementDomainEventStoreInstaller>(),
-                                                            FromAssembly.Containing<UI.QueryModels.ContainerInstallers.AccountManagementDocumentDbReaderInstaller>(),
-                                                            FromAssembly.Containing<UI.QueryModels.DocumentDB.Updaters.ContainerInstallers.EventHandlersInstaller>()
-                                                           );
-
-                                      });
+            Container.SetupForTesting(container => container.Install(
+                                                                     FromAssembly.Containing<Domain.ContainerInstallers.AccountRepositoryInstaller>(),
+                                                                     FromAssembly.Containing<Domain.Events.EventStore.ContainerInstallers.AccountManagementDomainEventStoreInstaller>(),
+                                                                     FromAssembly.Containing<UI.QueryModels.ContainerInstallers.AccountManagementDocumentDbReaderInstaller>(),
+                                                                     FromAssembly.Containing<UI.QueryModels.DocumentDB.Updaters.ContainerInstallers.EventHandlersInstaller>()
+                                                                    ));
 
             _scope = Container.BeginScope();
         }

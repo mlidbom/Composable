@@ -17,7 +17,7 @@ namespace AccountManagement.Domain.Shared.Tests
                 () =>
                 {
                     var password = TestData.Password.CreateValidPassword();
-                    before = () => { password = new Password("Pass"); };
+                    before = () => password = new Password("Pass");
 
                     it["HashedPassword is not null"] = () => password.HashedPassword.Should().NotBeNull();
                     it["HashedPassword is not an empty array"] = () => password.HashedPassword.Should().NotBeEmpty();

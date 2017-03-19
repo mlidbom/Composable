@@ -174,11 +174,7 @@ CREATE TABLE [dbo].[{ManagerTableSchema.TableName}](
         void CleanDatabase(Database db)
         {
             new SqlServerConnectionUtilities(ConnectionStringForDbNamed(db.Name))
-                .UseConnection(
-                    connection =>
-                    {
-                        connection.DropAllObjects();
-                    });
+                .UseConnection(connection => connection.DropAllObjects());
         }
 
         void InsertDatabase(string dbName)

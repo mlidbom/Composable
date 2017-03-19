@@ -122,7 +122,7 @@ namespace Composable.CQRS.CQRS.EventSourcing.Refactoring.Migrations
                     });
             }
 
-            CurrentNode.ValuesFrom().ForEach((@event, index) => { @event.AggregateRootVersion += _insertedEvents.Length; });
+            CurrentNode.ValuesFrom().ForEach((@event, index) => @event.AggregateRootVersion += _insertedEvents.Length);
 
             CurrentNode.AddBefore(_insertedEvents);
             _eventsAddedCallback.Invoke(_insertedEvents);

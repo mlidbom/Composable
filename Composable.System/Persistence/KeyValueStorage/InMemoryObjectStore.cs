@@ -84,10 +84,7 @@ namespace Composable.Persistence.KeyValueStorage
         {
             var toRemove = _db.Where(mapping => mapping.Value.Any( value => value.GetType() == typeof(T))).ToList();
             toRemove.ForEach(
-                removeMe =>
-                {
-                    _db.GetOrAddDefault(removeMe.Key).RemoveWhere(value => typeof(T) == value.GetType());
-                });
+                removeMe => _db.GetOrAddDefault(removeMe.Key).RemoveWhere(value => typeof(T) == value.GetType()));
             return toRemove.Count;
         }
 

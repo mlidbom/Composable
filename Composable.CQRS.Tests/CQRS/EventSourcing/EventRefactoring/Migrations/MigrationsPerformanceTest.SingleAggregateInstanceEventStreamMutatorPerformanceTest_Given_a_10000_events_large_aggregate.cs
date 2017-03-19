@@ -84,15 +84,12 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
         void AssertAggregateLoadTime(TimeSpan maxTotal)
         {
             UseEventstoreSessionWithConfiguredMigrations
-                (session =>
-                 {
-                     TimeAsserter.Execute(
-                                          maxTotal: maxTotal,
-                                          description: "load aggregate in isolated scope",
-                                          maxTries: 10,
-                                          timeFormat: "ss\\.fff",
-                                          action: () => session.Get<TestAggregate>(_aggregate.Id));
-                 });
+                (session => TimeAsserter.Execute(
+                                                 maxTotal: maxTotal,
+                                                 description: "load aggregate in isolated scope",
+                                                 maxTries: 10,
+                                                 timeFormat: "ss\\.fff",
+                                                 action: () => session.Get<TestAggregate>(_aggregate.Id)));
         }
 
         [Test]

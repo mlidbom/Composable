@@ -115,32 +115,29 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.Sql
         [Test]
         public void InsertNewEventType_should_not_throw_exception_if_the_event_type_has_been_inserted_by_something_else()
         {
-            Action changeAnotherUsersEmailInOtherAppDomain = () =>
-                                                           {
-                                                              AppDomainExtensions.ExecuteInCloneDomainScope(
-                                                                  () =>
-                                                                  {
-                                                                      var test = new SqlServerEventStoreSessionTests();
-                                                                      try
-                                                                      {
-                                                                          test.Setup();
-                                                                          using(var session = test.OpenSession(test.CreateStore()))
-                                                                          {
-                                                                              var otherUser = User.Register(
-                                                                                  session,
-                                                                                  "email@email.se",
-                                                                                  "password",
-                                                                                  Guid.NewGuid());
-                                                                              otherUser.ChangeEmail("some@email.new");
-                                                                              session.SaveChanges();
-                                                                          }
-                                                                      }
-                                                                      finally
-                                                                      {
-                                                                          test.TearDownTask();
-                                                                      }
-                                                                  }, disposeDelay:100.Milliseconds());
-                                                           };
+            Action changeAnotherUsersEmailInOtherAppDomain = () => AppDomainExtensions.ExecuteInCloneDomainScope(
+                                                                                                                 () =>
+                                                                                                                 {
+                                                                                                                     var test = new SqlServerEventStoreSessionTests();
+                                                                                                                     try
+                                                                                                                     {
+                                                                                                                         test.Setup();
+                                                                                                                         using(var session = test.OpenSession(test.CreateStore()))
+                                                                                                                         {
+                                                                                                                             var otherUser = User.Register(
+                                                                                                                                                           session,
+                                                                                                                                                           "email@email.se",
+                                                                                                                                                           "password",
+                                                                                                                                                           Guid.NewGuid());
+                                                                                                                             otherUser.ChangeEmail("some@email.new");
+                                                                                                                             session.SaveChanges();
+                                                                                                                         }
+                                                                                                                     }
+                                                                                                                     finally
+                                                                                                                     {
+                                                                                                                         test.TearDownTask();
+                                                                                                                     }
+                                                                                                                 }, disposeDelay:100.Milliseconds());
 
             using (var session = OpenSession(CreateStore()))
             {

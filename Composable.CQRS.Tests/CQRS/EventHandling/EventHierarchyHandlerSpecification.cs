@@ -67,7 +67,8 @@ namespace Composable.CQRS.Tests.CQRS.EventHandling
                 };
 
             context["when receiving unhandled event"] =
-                () => { it["unhandled event exception is thrown"] = () => expect<EventUnhandledException>(() => _listener.Handle(new UnHandledEvent())); };
+                () => it["unhandled event exception is thrown"] =
+                          () => expect<EventUnhandledException>(() => _listener.Handle(new UnHandledEvent()));
         }
 
         public void when_attempting_to_register_event_twice()

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Composable.CQRS.EventSourcing
+namespace Composable.Persistence.EventStore
 {
     class AggregateRootNotFoundException : Exception
     {

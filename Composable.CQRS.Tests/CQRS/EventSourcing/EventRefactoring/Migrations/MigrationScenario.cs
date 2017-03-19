@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
-using Composable.CQRS.EventSourcing.Refactoring.Migrations;
+using Composable.Persistence.EventStore.Refactoring.Migrations;
 
 namespace Composable.CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
 {

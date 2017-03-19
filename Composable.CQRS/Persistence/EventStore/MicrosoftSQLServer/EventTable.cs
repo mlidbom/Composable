@@ -1,4 +1,4 @@
-﻿namespace Composable.CQRS.EventSourcing.MicrosoftSQLServer
+﻿namespace Composable.Persistence.EventStore.MicrosoftSQLServer
 {
     static class EventTable
     {

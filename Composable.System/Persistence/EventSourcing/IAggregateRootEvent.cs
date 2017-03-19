@@ -1,7 +1,7 @@
 using System;
 using Composable.Messaging;
 
-namespace Composable.CQRS.EventSourcing
+namespace Composable.Persistence.EventSourcing
 {
     public interface IAggregateRootEvent : IEvent
     {

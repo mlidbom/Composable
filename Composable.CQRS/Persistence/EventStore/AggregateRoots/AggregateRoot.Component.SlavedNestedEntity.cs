@@ -1,10 +1,11 @@
 ﻿using System;
 using Composable.GenericAbstractions.Time;
 using Composable.Messaging.Events;
+using Composable.Persistence.EventSourcing;
 
 // ReSharper disable UnusedMember.Global todo:tests
 
-namespace Composable.CQRS.EventSourcing
+namespace Composable.Persistence.EventStore.AggregateRoots
 {
     public abstract partial class AggregateRoot<TAggregateRoot, TAggregateRootBaseEventClass, TAggregateRootBaseEventInterface>
         where TAggregateRoot : AggregateRoot<TAggregateRoot, TAggregateRootBaseEventClass, TAggregateRootBaseEventInterface>

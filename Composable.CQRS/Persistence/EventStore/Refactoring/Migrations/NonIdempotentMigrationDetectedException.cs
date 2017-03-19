@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Composable.CQRS.EventSourcing.Refactoring.Migrations
+namespace Composable.Persistence.EventStore.Refactoring.Migrations
 {
     class NonIdempotentMigrationDetectedException : Exception {}
 }

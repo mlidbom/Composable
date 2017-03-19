@@ -1,8 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Composable.CQRS.EventSourcing;
-using Composable.CQRS.EventSourcing.Refactoring.Migrations;
+using Composable.Persistence.EventSourcing;
+using Composable.Persistence.EventStore.Refactoring.Migrations;
 using Composable.System.Linq;
 
 namespace Composable.CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Composable.CQRS.Query.Models.Generators
+namespace Composable.Persistence.EventStore.Query.Models.Generators
 {
     interface IVersioningQueryModelGenerator : IQueryModelGenerator
     {

@@ -1,4 +1,4 @@
-﻿namespace Composable.CQRS.EventSourcing
+﻿namespace Composable.Persistence.EventSourcing
 {
     /// <summary>
     /// Marks an event as meaning that the aggregate was created.

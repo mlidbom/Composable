@@ -1,4 +1,4 @@
-using Composable.CQRS.EventSourcing;
+using Composable.Persistence.EventSourcing;
 
 namespace Composable.Messaging.Events
 {

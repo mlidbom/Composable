@@ -3,10 +3,11 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Caching;
+using Composable.Persistence.EventSourcing;
 using Composable.System;
 using Composable.System.Linq;
 
-namespace Composable.CQRS.EventSourcing.MicrosoftSQLServer
+namespace Composable.Persistence.EventStore.MicrosoftSQLServer
 {
     class SqlServerEventStoreEventsCache
     {

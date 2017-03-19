@@ -1,19 +1,19 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using Castle.DynamicProxy;
 using Castle.MicroKernel.Registration;
 using Castle.Windsor;
 using Composable.Contracts;
-using Composable.CQRS.EventSourcing;
-using Composable.CQRS.EventSourcing.MicrosoftSQLServer;
-using Composable.CQRS.EventSourcing.Refactoring.Migrations;
-using Composable.CQRS.EventSourcing.Refactoring.Naming;
+using Composable.Persistence.EventStore;
+using Composable.Persistence.EventStore.MicrosoftSQLServer;
+using Composable.Persistence.EventStore.Refactoring.Migrations;
+using Composable.Persistence.EventStore.Refactoring.Naming;
 using Composable.System.Configuration;
 using Composable.System.Linq;
 using Composable.UnitsOfWork;
 using Composable.Windsor.Testing;
 
-namespace Composable.CQRS.Windsor
+namespace Composable.Windsor.Persistence
 {
     public abstract class SqlServerEventStoreRegistration
     {

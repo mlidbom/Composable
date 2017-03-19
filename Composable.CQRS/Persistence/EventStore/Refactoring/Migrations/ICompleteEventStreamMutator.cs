@@ -1,6 +1,7 @@
 using System.Collections.Generic;
+using Composable.Persistence.EventSourcing;
 
-namespace Composable.CQRS.EventSourcing.Refactoring.Migrations
+namespace Composable.Persistence.EventStore.Refactoring.Migrations
 {
     interface ICompleteEventStreamMutator
     {

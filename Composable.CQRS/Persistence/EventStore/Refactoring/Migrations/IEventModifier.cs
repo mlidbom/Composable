@@ -1,4 +1,6 @@
-﻿namespace Composable.CQRS.EventSourcing.Refactoring.Migrations
+﻿using Composable.Persistence.EventSourcing;
+
+namespace Composable.Persistence.EventStore.Refactoring.Migrations
 {
     public interface IEventModifier
     {

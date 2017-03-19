@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Composable.DocumentDb.SqlServer
+namespace Composable.Persistence.DocumentDb.SqlServer
 {
     class TooManyItemsDeletedException : Exception {}
 }

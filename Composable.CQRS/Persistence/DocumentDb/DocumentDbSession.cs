@@ -2,14 +2,13 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Composable.DDD;
-using Composable.Persistence.DocumentDb;
 using Composable.System;
 using Composable.System.Linq;
 using Composable.SystemExtensions.Threading;
 using Composable.UnitsOfWork;
 using log4net;
 
-namespace Composable.DocumentDb
+namespace Composable.Persistence.DocumentDb
 {
     // ReSharper disable once ClassWithVirtualMembersNeverInherited.Global
     partial class DocumentDbSession : IDocumentDbSession, IUnitOfWorkParticipant

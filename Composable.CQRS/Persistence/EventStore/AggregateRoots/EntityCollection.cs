@@ -1,7 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 
-namespace Composable.CQRS.EventSourcing
+namespace Composable.Persistence.EventStore.AggregateRoots
 {
     public class EntityCollection<TEntity, TEntityId> : IReadOnlyEntityCollection<TEntity, TEntityId>
     {

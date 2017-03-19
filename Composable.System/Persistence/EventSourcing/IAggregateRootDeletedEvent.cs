@@ -1,4 +1,4 @@
-﻿namespace Composable.CQRS.EventSourcing
+﻿namespace Composable.Persistence.EventSourcing
 {
     public interface IAggregateRootDeletedEvent : IAggregateRootEvent
     {

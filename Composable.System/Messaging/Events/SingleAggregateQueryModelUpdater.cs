@@ -1,5 +1,5 @@
-using Composable.CQRS.EventSourcing;
 using Composable.Persistence.DocumentDb;
+using Composable.Persistence.EventSourcing;
 
 namespace Composable.Messaging.Events
 {

@@ -1,7 +1,7 @@
 ﻿using System;
 using Composable.DDD;
 
-namespace Composable.CQRS.EventSourcing
+namespace Composable.Persistence.EventSourcing
 {
     //review:mlidbo: Make instances immutable.
     //Review:mlidbo: Extract refactoring information into a separate abstraction?

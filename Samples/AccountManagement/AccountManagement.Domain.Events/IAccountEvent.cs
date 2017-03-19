@@ -1,5 +1,5 @@
 ﻿using AccountManagement.Domain.Events.PropertyUpdated;
-using Composable.CQRS.EventSourcing;
+using Composable.Persistence.EventSourcing;
 
 namespace AccountManagement.Domain.Events
 {

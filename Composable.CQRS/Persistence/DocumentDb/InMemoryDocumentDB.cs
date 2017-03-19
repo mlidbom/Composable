@@ -3,11 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using Composable.DDD;
 using Composable.NewtonSoft;
-using Composable.Persistence.DocumentDb;
 using Composable.System.Collections.Collections;
 using Newtonsoft.Json;
 
-namespace Composable.DocumentDb
+namespace Composable.Persistence.DocumentDb
 {
     //todo: Refactor to use the same serialization code as the sql document db so that tests actually tests roundtrip serialization
 #pragma warning disable 618

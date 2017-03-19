@@ -1,6 +1,6 @@
 ﻿using System.Data.SqlClient;
 
-namespace Composable.CQRS.EventSourcing.MicrosoftSQLServer
+namespace Composable.Persistence.EventStore.MicrosoftSQLServer
 {
     abstract class TableSchemaManager
     {

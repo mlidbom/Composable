@@ -5,10 +5,11 @@ using System.Data.SqlClient;
 using System.Data.SqlTypes;
 using System.Linq;
 using Composable.Contracts;
+using Composable.Persistence.EventSourcing;
 using Composable.System;
 using Composable.System.Linq;
 
-namespace Composable.CQRS.EventSourcing.MicrosoftSQLServer
+namespace Composable.Persistence.EventStore.MicrosoftSQLServer
 {
     class SqlServerEventStoreEventWriter
     {

@@ -1,11 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using Composable.Contracts;
-using Composable.Persistence.DocumentDb;
 using Composable.System;
 using Composable.System.Linq;
 
-namespace Composable.DocumentDb
+namespace Composable.Persistence.DocumentDb
 {
     partial class DocumentDbSession
     {

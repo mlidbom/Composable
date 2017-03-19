@@ -2,8 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using Composable.Contracts;
-using Composable.CQRS.EventSourcing;
 using Composable.GenericAbstractions.Time;
+using Composable.Persistence.EventSourcing;
+using Composable.Persistence.EventStore.AggregateRoots;
 using JetBrains.Annotations;
 
 namespace Composable.CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations

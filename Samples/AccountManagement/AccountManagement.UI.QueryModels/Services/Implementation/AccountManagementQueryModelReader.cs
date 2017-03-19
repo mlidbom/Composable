@@ -1,7 +1,7 @@
 ﻿using System;
 using AccountManagement.Domain.Shared;
 using AccountManagement.UI.QueryModels.EventStoreGenerated;
-using Composable.CQRS.Query.Models.Generators;
+using Composable.Persistence.EventStore.Query.Models.Generators;
 using Composable.SystemExtensions.Threading;
 using JetBrains.Annotations;
 

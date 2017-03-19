@@ -1,7 +1,7 @@
 using System;
 using Composable.System.Reflection;
 
-namespace Composable.CQRS.EventSourcing.Refactoring.Naming
+namespace Composable.Persistence.EventStore.Refactoring.Naming
 {
     class DefaultEventNameMapper : IEventNameMapper
     {

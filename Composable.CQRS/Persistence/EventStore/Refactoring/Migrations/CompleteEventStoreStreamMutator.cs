@@ -1,9 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Composable.Persistence.EventSourcing;
 using Composable.System.Collections.Collections;
 
-namespace Composable.CQRS.EventSourcing.Refactoring.Migrations
+namespace Composable.Persistence.EventStore.Refactoring.Migrations
 {
     abstract class CompleteEventStoreStreamMutator
     {

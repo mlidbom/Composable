@@ -1,7 +1,7 @@
 ﻿using System;
 using Composable.System;
 
-namespace Composable.DocumentDb
+namespace Composable.Persistence.DocumentDb
 {
     partial class DocumentDbSession
     {

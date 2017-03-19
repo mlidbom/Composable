@@ -1,14 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
-using Composable.CQRS.EventSourcing;
 using Composable.CQRS.Tests.CQRS.EventHandling.CVManagement;
 using Composable.CQRS.Tests.CQRS.EventHandling.CVManagement.GlobalEvents;
 using Composable.CQRS.Tests.CQRS.EventHandling.CVManagement.InternalEvents.InternalImplementations;
 using Composable.CQRS.Tests.CQRS.EventHandling.CVManagement.QueryModelUpdaters;
 using Composable.DDD;
-using Composable.DocumentDb;
 using Composable.Messaging.Events;
 using Composable.Persistence.DocumentDb;
+using Composable.Persistence.EventSourcing;
 using Composable.System.Linq;
 using Composable.SystemExtensions.Threading;
 using FluentAssertions;

@@ -1,6 +1,6 @@
 using System;
-using Composable.CQRS.EventSourcing;
 using Composable.CQRS.Tests.CQRS.EventSourcing.AggregateRoot.NestedEntitiesTests.GuidId.Domain.Events;
+using Composable.Persistence.EventStore.AggregateRoots;
 
 namespace Composable.CQRS.Tests.CQRS.EventSourcing.AggregateRoot.NestedEntitiesTests.GuidId.Domain
 {

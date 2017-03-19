@@ -1,4 +1,4 @@
-using Composable.CQRS.EventSourcing;
+using Composable.Persistence.EventStore;
 using NUnit.Framework;
 
 namespace Composable.CQRS.Tests.CQRS.EventSourcing

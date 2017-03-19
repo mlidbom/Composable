@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace Composable.CQRS.EventSourcing
+namespace Composable.Persistence.EventStore.AggregateRoots
 {
     public interface IReadOnlyEntityCollection<TEntity, in TEntityId> : IEnumerable<TEntity>
     {

@@ -2,9 +2,11 @@
 using System.Collections;
 using System.Collections.Generic;
 using Composable.Messaging.Events;
+using Composable.Persistence.EventSourcing;
+using Composable.Persistence.EventStore.AggregateRoots;
 using Composable.System.Linq;
 
-namespace Composable.CQRS.EventSourcing
+namespace Composable.Persistence.EventStore.Query.Models
 {
     //todo:complete including tests
     // ReSharper disable UnusedMember.Global

@@ -1,6 +1,6 @@
 ﻿using System;
-using Composable.CQRS.EventSourcing;
-using Composable.CQRS.EventSourcing.MicrosoftSQLServer;
+using Composable.Persistence.EventSourcing;
+using Composable.Persistence.EventStore.MicrosoftSQLServer;
 using Composable.System.Diagnostics;
 using Composable.Testing;
 using FluentAssertions;

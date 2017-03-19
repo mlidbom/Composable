@@ -1,8 +1,8 @@
 ﻿using AccountManagement.Domain.Events;
 using AccountManagement.Domain.Events.EventStore.Services;
 using AccountManagement.Domain.Events.Implementation;
-using Composable.CQRS;
 using Composable.Persistence.DocumentDb;
+using Composable.Persistence.EventStore;
 using JetBrains.Annotations;
 
 namespace AccountManagement.Domain.Services

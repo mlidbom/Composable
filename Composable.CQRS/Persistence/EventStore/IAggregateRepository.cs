@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Composable.CQRS
+namespace Composable.Persistence.EventStore
 {
     public interface IAggregateRepository<TAggregate>
     {

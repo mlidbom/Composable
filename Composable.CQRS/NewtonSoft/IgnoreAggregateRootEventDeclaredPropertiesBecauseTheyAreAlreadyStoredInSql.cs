@@ -1,5 +1,5 @@
 ﻿using System.Reflection;
-using Composable.CQRS.EventSourcing;
+using Composable.Persistence.EventSourcing;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 

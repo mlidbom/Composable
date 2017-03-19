@@ -1,4 +1,4 @@
-﻿using Composable.CQRS;
+﻿using Composable.Persistence.EventStore;
 
 namespace AccountManagement.Domain.Services
 {

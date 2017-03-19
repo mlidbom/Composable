@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using Composable.CQRS.Query.Models.Generators;
+using Composable.Persistence.EventStore.Query.Models.Generators;
 using Composable.SystemExtensions.Threading;
 using JetBrains.Annotations;
 

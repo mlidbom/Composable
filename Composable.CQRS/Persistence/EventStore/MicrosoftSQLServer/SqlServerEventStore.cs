@@ -3,15 +3,16 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Transactions;
 using Composable.Contracts;
-using Composable.CQRS.EventSourcing.Refactoring.Migrations;
-using Composable.CQRS.EventSourcing.Refactoring.Naming;
 using Composable.Logging.Log4Net;
+using Composable.Persistence.EventSourcing;
+using Composable.Persistence.EventStore.Refactoring.Migrations;
+using Composable.Persistence.EventStore.Refactoring.Naming;
 using Composable.System;
 using Composable.System.Linq;
 using Composable.SystemExtensions.Threading;
 using log4net;
 
-namespace Composable.CQRS.EventSourcing.MicrosoftSQLServer
+namespace Composable.Persistence.EventStore.MicrosoftSQLServer
 {
     partial class SqlServerEventStore : IEventStore
     {

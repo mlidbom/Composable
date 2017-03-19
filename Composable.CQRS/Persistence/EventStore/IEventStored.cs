@@ -1,8 +1,9 @@
 using System;
 using System.Collections.Generic;
 using Composable.GenericAbstractions.Time;
+using Composable.Persistence.EventSourcing;
 
-namespace Composable.CQRS.EventSourcing
+namespace Composable.Persistence.EventStore
 {
     public interface IEventStored
     {

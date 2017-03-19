@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Composable.CQRS.EventSourcing;
-using Composable.CQRS.EventSourcing.MicrosoftSQLServer;
-using Composable.CQRS.EventSourcing.Refactoring.Migrations;
 using Composable.CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations.Events;
 using Composable.GenericAbstractions.Time;
+using Composable.Persistence.EventStore;
+using Composable.Persistence.EventStore.MicrosoftSQLServer;
+using Composable.Persistence.EventStore.Refactoring.Migrations;
 using Composable.System.Linq;
 using Composable.Testing;
 using Composable.Windsor;

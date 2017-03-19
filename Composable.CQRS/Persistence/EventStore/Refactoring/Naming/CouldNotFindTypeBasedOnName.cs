@@ -1,6 +1,6 @@
 using System;
 
-namespace Composable.CQRS.EventSourcing.Refactoring.Naming
+namespace Composable.Persistence.EventStore.Refactoring.Naming
 {
     class CouldNotFindTypeBasedOnName : Exception
     {

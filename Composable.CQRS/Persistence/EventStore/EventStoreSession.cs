@@ -2,16 +2,17 @@
 using System.Collections.Generic;
 using System.Linq;
 using Composable.Contracts;
-using Composable.CQRS.EventSourcing.MicrosoftSQLServer;
 using Composable.GenericAbstractions.Time;
 using Composable.Messaging.Buses;
+using Composable.Persistence.EventSourcing;
+using Composable.Persistence.EventStore.MicrosoftSQLServer;
 using Composable.System;
 using Composable.System.Linq;
 using Composable.SystemExtensions.Threading;
 using Composable.UnitsOfWork;
 using log4net;
 
-namespace Composable.CQRS.EventSourcing
+namespace Composable.Persistence.EventStore
 {
     //Review:mlidbo: Detect and warn about using the session within multiple transactions. That it is likely to result in optimistic concurrency exceptions.
     class EventStoreSession :

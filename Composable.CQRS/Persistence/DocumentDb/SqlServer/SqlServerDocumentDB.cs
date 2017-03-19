@@ -5,14 +5,13 @@ using System.Data;
 using System.Data.SqlClient;
 using System.Linq;
 using Composable.DDD;
-using Composable.Persistence.DocumentDb;
 using Composable.System;
 using Composable.System.Collections.Collections;
 using Composable.System.Linq;
 using Composable.System.Reflection;
 using Newtonsoft.Json;
 
-namespace Composable.DocumentDb.SqlServer
+namespace Composable.Persistence.DocumentDb.SqlServer
 {
     class SqlServerDocumentDb : IDocumentDb
     {

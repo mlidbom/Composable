@@ -1,6 +1,7 @@
 using System;
+using Composable.Persistence.EventSourcing;
 
-namespace Composable.CQRS.EventSourcing.Refactoring.Migrations
+namespace Composable.Persistence.EventStore.Refactoring.Migrations
 {
     ///<summary>Defines an identity for migration of events into other events. Creates </summary>
     public interface IEventMigration

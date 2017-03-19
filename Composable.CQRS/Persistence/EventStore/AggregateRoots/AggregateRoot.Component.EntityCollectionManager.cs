@@ -1,9 +1,10 @@
 ﻿using System;
 using System.Linq;
 using Composable.Messaging.Events;
+using Composable.Persistence.EventSourcing;
 using Composable.System.Reflection;
 
-namespace Composable.CQRS.EventSourcing
+namespace Composable.Persistence.EventStore.AggregateRoots
 {
     public abstract partial class AggregateRoot<TAggregateRoot, TAggregateRootBaseEventClass, TAggregateRootBaseEventInterface>
         where TAggregateRoot : AggregateRoot<TAggregateRoot, TAggregateRootBaseEventClass, TAggregateRootBaseEventInterface>

@@ -1,4 +1,4 @@
-﻿using Composable.CQRS.Query.Models.Generators;
+﻿using Composable.Persistence.EventStore.Query.Models.Generators;
 
 namespace AccountManagement.UI.QueryModels.EventStoreGenerated
 {

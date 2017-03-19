@@ -1,5 +1,5 @@
 ﻿using System;
-using Composable.CQRS.EventSourcing;
+using Composable.Persistence.EventSourcing;
 
 namespace AccountManagement.Domain.Events.Implementation
 {

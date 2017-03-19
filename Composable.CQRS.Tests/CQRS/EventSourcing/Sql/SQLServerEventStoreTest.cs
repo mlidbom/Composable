@@ -2,8 +2,8 @@
 using System.Configuration;
 using System.Linq;
 using System.Transactions;
-using Composable.CQRS.EventSourcing;
-using Composable.CQRS.EventSourcing.MicrosoftSQLServer;
+using Composable.Persistence.EventStore;
+using Composable.Persistence.EventStore.MicrosoftSQLServer;
 using Composable.SystemExtensions.Threading;
 using Composable.Testing;
 using NUnit.Framework;

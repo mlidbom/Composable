@@ -19,10 +19,7 @@ namespace AccountManagement.Domain.API
 
     public class AccountResource : EntityResource<AccountResource>
     {
-        public AccountResource(Account account) : base(account.Id)
-        {
-            Commands = new AccountResourceCommands(account);
-        }
+        public AccountResource(Account account) : base(account.Id) => Commands = new AccountResourceCommands(account);
 
         AccountResourceCommands Commands { get; }
         public class AccountResourceCommands

@@ -44,27 +44,25 @@ namespace NetMqProcess01.__Mine
                                    {
                                        ResponseSocket responseSocket = null;
 
-                                       EventHandler<NetMQSocketEventArgs> handleRequest =
-                                       (sender, socketEventArgs) =>
+                                       void HandleRequest(object sender, NetMQSocketEventArgs socketEventArgs)
+                                       {
+                                           NetMQMessage request = null;
+                                           // ReSharper disable once AccessToModifiedClosure
+                                           if(responseSocket.TryReceiveMultipartMessage(ref request))
                                            {
-                                               NetMQMessage request = null;
+                                               var clientId = request.First.ConvertToInt32();
+
+                                               //Console.WriteLine($"Server {serverId} got request from client: {clientId}");
+                                               var response = new NetMQMessage(new[]
+                                                                               {
+                                                                                   new NetMQFrame($"Server:{serverId}, Client:{clientId}")
+                                                                               });
+
+                                               //Console.WriteLine($"Server {serverId} responding to client: {clientId}");
                                                // ReSharper disable once AccessToModifiedClosure
-                                               if(responseSocket.TryReceiveMultipartMessage(ref request))
-                                               {
-                                                   var clientId = request.First.ConvertToInt32();
-
-                                                   //Console.WriteLine($"Server {serverId} got request from client: {clientId}");
-                                                   var response = new NetMQMessage(new[]
-                                                                                   {
-                                                                                       new NetMQFrame($"Server:{serverId}, Client:{clientId}")
-                                                                                   }
-                                                                                  );
-
-                                                   //Console.WriteLine($"Server {serverId} responding to client: {clientId}");
-                                                   // ReSharper disable once AccessToModifiedClosure
-                                                   responseSocket.SendMultipartMessage(response);
-                                               }
-                                           };
+                                               responseSocket.SendMultipartMessage(response);
+                                           }
+                                       }
 
                                        if(threadServerSocket.IsValueCreated)
                                        {
@@ -73,7 +71,7 @@ namespace NetMqProcess01.__Mine
                                        {
                                            threadServerSocket.Value = responseSocket = new ResponseSocket();
                                            responseSocket.Connect(_dealerSocket);
-                                           responseSocket.ReceiveReady += handleRequest;
+                                           responseSocket.ReceiveReady += HandleRequest;
                                            serverPoller.Add(responseSocket);
 
                                            Console.WriteLine($"Added thread lockal socket nr: {threadServerSocket.Values.Count}");

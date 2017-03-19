@@ -92,23 +92,22 @@ namespace Composable.Testing
 
             // ReSharper disable AccessToModifiedClosure
 
-            Func<TimeSpan?, string> format = date => date?.ToString(timeFormat) ?? "";
+            string Format(TimeSpan? date) => date?.ToString(timeFormat) ?? "";
 
-            Action printResults = () =>
-                                  {
-                                      PrintSummary(iterations, maxAverage, maxTotal, description, format, executionSummary);
+            void PrintResults()
+            {
+                PrintSummary(iterations, maxAverage, maxTotal, description, Format, executionSummary);
 
-                                      if(timeIndividualExecutions)
-                                      {
-                                          Console.WriteLine(
-                                              $@"  
+                if(timeIndividualExecutions)
+                {
+                    Console.WriteLine($@"  
     Individual execution times    
-    Average: {format(executionSummary.IndividualExecutionTimes.Average())}
-    Min:     {format(executionSummary.IndividualExecutionTimes.Min())}
-    Max:     {format(executionSummary.IndividualExecutionTimes.Max())}
-    Sum:     {format(executionSummary.IndividualExecutionTimes.Sum())}");
-                                      }
-                                  };
+    Average: {Format(executionSummary.IndividualExecutionTimes.Average())}
+    Min:     {Format(executionSummary.IndividualExecutionTimes.Min())}
+    Max:     {Format(executionSummary.IndividualExecutionTimes.Max())}
+    Sum:     {Format(executionSummary.IndividualExecutionTimes.Sum())}");
+                }
+            }
             // ReSharper restore AccessToModifiedClosure
 
             for (int tries = 1; tries <= maxTries; tries++)
@@ -116,19 +115,19 @@ namespace Composable.Testing
                 executionSummary = StopwatchExtensions.TimeExecutionThreaded(action: action, iterations: iterations, timeIndividualExecutions: timeIndividualExecutions);
                 try
                 {
-                    RunAsserts(maxAverage, maxTotal, executionSummary, format);
+                    RunAsserts(maxAverage, maxTotal, executionSummary, Format);
                 }
                 catch (Exception e)
                 {
                     Console.WriteLine($"Try: {tries} {e.GetType().FullName}: {e.Message}");
                     if (tries >= maxTries)
                     {
-                        printResults();
+                        PrintResults();
                         throw;
                     }
                     continue;
                 }
-                printResults();
+                PrintResults();
                 break;
             }
 

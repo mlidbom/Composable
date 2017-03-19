@@ -541,24 +541,24 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing
             var iterations = 20;
             var delayEachTransactionByMilliseconds = 100;
 
-            Action readUserHistory = () =>
-                                     {
-                                         using(var session = OpenSession(CreateStore()))
-                                         {
-                                             using(var transaction = new TransactionScope())
-                                             {
-                                                 ((IEventStoreReader)session).GetHistory(user.Id);
-                                                 Thread.Sleep(TimeSpanExtensions.Milliseconds(delayEachTransactionByMilliseconds));
-                                                 transaction.Complete();
-                                             }
-                                         }
-                                     };
+            void ReadUserHistory()
+            {
+                using(var session = OpenSession(CreateStore()))
+                {
+                    using(var transaction = new TransactionScope())
+                    {
+                        ((IEventStoreReader)session).GetHistory(user.Id);
+                        Thread.Sleep(TimeSpanExtensions.Milliseconds(delayEachTransactionByMilliseconds));
+                        transaction.Complete();
+                    }
+                }
+            }
 
-            readUserHistory();//one warmup to get consistent times later.
-            var timeForSingleTransactionalRead = (int)StopwatchExtensions.TimeExecution(readUserHistory).TotalMilliseconds;
+            ReadUserHistory();//one warmup to get consistent times later.
+            var timeForSingleTransactionalRead = (int)StopwatchExtensions.TimeExecution(ReadUserHistory).TotalMilliseconds;
 
             var timingsSummary = TimeAsserter.ExecuteThreaded(
-                action: readUserHistory,
+                action: ReadUserHistory,
                 iterations: iterations,
                 timeIndividualExecutions:true,
                 maxTotal: TimeSpanExtensions.Milliseconds(((iterations * timeForSingleTransactionalRead) / 2)),

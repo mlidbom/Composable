@@ -42,14 +42,14 @@ namespace Composable.System.Diagnostics
         public static TimedThreadedExecutionSummary TimeExecutionThreaded([InstantHandle]Action action, int iterations = 1, bool timeIndividualExecutions = false)
         {
             var executionTimes = new List<TimeSpan>();
-            Func<TimeSpan> timedAction = () => TimeExecution(action);
+            TimeSpan TimedAction() => TimeExecution(action);
 
             var total = TimeExecution(
                 () =>
                 {
                     if(timeIndividualExecutions)
                     {
-                        var tasks = 1.Through(iterations).Select(_ => Task.Factory.StartNew(timedAction)).ToArray();
+                        var tasks = 1.Through(iterations).Select(_ => Task.Factory.StartNew(TimedAction)).ToArray();
                         // ReSharper disable once CoVariantArrayConversion
                         Task.WaitAll(tasks);
                         executionTimes = tasks.Select(@this => @this.Result).ToList();

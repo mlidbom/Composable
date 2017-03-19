@@ -5,7 +5,7 @@ using Composable.Messaging.Events;
 namespace Composable.Messaging.Buses
 {
     ///<summary>Dispatches messages within a process.</summary>
-    public interface IInProcessServiceBus
+    interface IInProcessServiceBus
     {
         void Publish(IEvent anEvent);
         TResult Get<TResult>(IQuery<TResult> query) where TResult : IQueryResult;
@@ -14,12 +14,12 @@ namespace Composable.Messaging.Buses
     }
 
     ///<summary>Dispatches messages between processes.</summary>
-    public interface IInterProcessServiceBus
+    interface IInterProcessServiceBus
     {
         void SendAtTime(DateTime sendAt, ICommand message);
     }
 
-    public interface IServiceBus : IInProcessServiceBus, IInterProcessServiceBus {}
+    interface IServiceBus : IInProcessServiceBus, IInterProcessServiceBus {}
 
     public interface IMessageSpy
     {

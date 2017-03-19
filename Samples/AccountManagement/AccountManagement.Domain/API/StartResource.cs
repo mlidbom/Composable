@@ -22,9 +22,10 @@ namespace AccountManagement.Domain.API
         public AccountResource(Account account) : base(account.Id) => Commands = new AccountResourceCommands(account);
 
         AccountResourceCommands Commands { get; }
-        public class AccountResourceCommands
+
+        class AccountResourceCommands
         {
-            public AccountResourceCommands(Account account)
+            internal AccountResourceCommands(Account account)
             {
             }
         }

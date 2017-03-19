@@ -42,7 +42,7 @@ namespace NetMqProcess01.__Mine
                       {
                           Task.Run(() =>
                                    {
-                                       ResponseSocket responseSocket = null;
+                                       ResponseSocket responseSocket;
 
                                        void HandleRequest(object sender, NetMQSocketEventArgs socketEventArgs)
                                        {
@@ -64,10 +64,7 @@ namespace NetMqProcess01.__Mine
                                            }
                                        }
 
-                                       if(threadServerSocket.IsValueCreated)
-                                       {
-                                           responseSocket = threadServerSocket.Value;
-                                       } else
+                                       if(!threadServerSocket.IsValueCreated)
                                        {
                                            threadServerSocket.Value = responseSocket = new ResponseSocket();
                                            responseSocket.Connect(_dealerSocket);

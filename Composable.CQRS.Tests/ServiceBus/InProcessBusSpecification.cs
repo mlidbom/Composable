@@ -84,7 +84,7 @@ namespace Composable.CQRS.Tests.ServiceBus
                          registrar.ForCommand<ACommand>(_ => { });
                      };
 
-            context["when you add another handler for that command that does not implement ISynchronousBusMessageSpy"] = 
+            context["when you add another handler for that command that does not implement ISynchronousBusMessageSpy"] =
                 () => it["an exception is thrown"] =  () => this.Invoking(_ => registrar.ForCommand<ACommand>(cmd => {})).ShouldThrow<Exception>();
 
 

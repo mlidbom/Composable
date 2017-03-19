@@ -47,12 +47,12 @@ namespace Composable.Messaging
     public class SingletonQuery<TSingleton> : IQuery<TSingleton> where TSingleton : IResource<TSingleton>
     {}
 
-    public interface IEntityQuery<TEntity> : IQuery<TEntity> where TEntity : IQueryResult
+    interface IEntityQuery<TEntity> : IQuery<TEntity> where TEntity : IQueryResult
     {
         Guid Id { get; }
     }
 
-    public class EntityQuery<TEntity> : IEntityQuery<TEntity> where TEntity : IResource<TEntity>
+    class EntityQuery<TEntity> : IEntityQuery<TEntity> where TEntity : IResource<TEntity>
     {
         public EntityQuery(Guid id) => Id = id;
         public Guid Id { get; }
@@ -65,7 +65,7 @@ namespace Composable.Messaging
 
     public abstract class EntityResource<TResource> : IEntityResource<TResource> where TResource : EntityResource<TResource>
     {
-        public EntityResource(Guid id)
+        protected EntityResource(Guid id)
         {
             Id = id;
             Self = new EntityQuery<TResource>(id);

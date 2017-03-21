@@ -11,5 +11,11 @@
         <TestsToExecuteAutomatically>(True AND DoesNotHaveCategory 'LongRunning')</TestsToExecuteAutomatically>
       </Settings>
     </EngineMode>
+    <EngineMode>
+      <Name>Run all tests automatically except PerformanceTest</Name>
+      <Settings>
+        <TestsToExecuteAutomatically>DoesNotHaveCategory 'PerformanceTest'</TestsToExecuteAutomatically>
+      </Settings>
+    </EngineMode>
   </EngineModes>
 </SolutionConfiguration>

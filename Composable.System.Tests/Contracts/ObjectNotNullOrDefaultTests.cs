@@ -45,7 +45,7 @@ namespace Composable.Tests.Contracts
                 goodValues: new List<object> {new object(), "", Guid.NewGuid()});
         }
 
-        [Test]
+        [Test, Category(TestCategories.PerformanceTest)]
         public void ShouldRun50TestsInOneMillisecond() //The Activator.CreateInstance stuff in the default check had me a bit worried. Seems I had no reason to be.
         {
             var one = 1;

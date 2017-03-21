@@ -72,7 +72,7 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
             var original = TestAggregate.FromEvents(DummyTimeSource.Now, scenario.AggregateId, scenario.OriginalHistory).History.ToList();
             Log.Info("Original History: ");
             original.ForEach(e => Log.Info($"      {e}"));
-            Log.Info("");
+            Console.WriteLine();
 
             var initialAggregate = TestAggregate.FromEvents(timeSource, scenario.AggregateId, scenario.OriginalHistory);
             var expected = TestAggregate.FromEvents(timeSource, scenario.AggregateId, scenario.ExpectedHistory).History.ToList();
@@ -80,7 +80,7 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
 
             Log.Info("Expected History: ");
             expected.ForEach(e => Log.Info($"      {e}"));
-            Log.Info("");
+            Console.WriteLine();
 
             timeSource.UtcNow += 1.Hours();//Bump clock to ensure that times will be be wrong unless the time from the original events are used..
 

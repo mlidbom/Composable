@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using Composable.Logging;
-using Composable.System;
 using NSpec;
 using NSpec.Domain;
 using NSpec.Domain.Formatters;
@@ -18,8 +17,6 @@ namespace Composable
     public abstract class nspec : NSpec.nspec
         // ReSharper restore InconsistentNaming
     {
-        static readonly ILogger Log = Logger.For<nspec>();
-
         [Test]
         public void ValidateSpec()
         {
@@ -46,23 +43,23 @@ namespace Composable
             static void WriteNoticeably(string message, params object[] formatwith)
             {
                 message = $"#################################    {message}    #################################";
-                Log.Info(message.FormatWith(formatwith));
+                Console.WriteLine(message, formatwith);
             }
 
             void IFormatter.Write(ContextCollection contexts)
             {
                 //Not calling base here lets us get rid of its noisy stack trace output so it does not obscure our thrown exceptions stacktrace.
-                Log.Info("");
+                Console.WriteLine();
                 if(contexts.Failures().Any())
                 {
                     WriteNoticeably("SUMMARY");
-                    Log.Error(Summary(contexts));
+                    this.Log().Error(Summary(contexts));
 
                     int currentFailure = 0;
                     foreach (var failure in contexts.Failures())
                     {
-                        Log.Info("");
-                        Log.Info($"#################################  FAILURE {++currentFailure} #################################");
+                        Console.WriteLine();
+                        Console.Write("#################################  FAILURE {0} #################################", ++currentFailure);
 
                         var current = failure.Context;
                         var relatedContexts = new List<Context>() { current };
@@ -80,17 +77,17 @@ namespace Composable
                             .Select((name, level) => "\t".Times(level) + name)
                             .Aggregate(Environment.NewLine + "at: ", (agg, curr) => agg + curr + Environment.NewLine);
 
-                        Log.Error(message);
+                        this.Log().Error(message);
 
-                        Log.Error(WriteFailure(failure));
+                        this.Log().Error(WriteFailure(failure));
                     }
                 }
 
 
 
-                Log.Info("");
+                Console.WriteLine();
                 WriteNoticeably("END OF NSPEC RESULTS");
-                Log.Info("");
+                Console.WriteLine();
             }
 
             void ILiveFormatter.Write(Context context)

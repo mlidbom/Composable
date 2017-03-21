@@ -1,7 +1,6 @@
 using System;
 using System.IO;
 using System.Linq;
-using Composable.Logging;
 using Composable.System.IO;
 using Composable.System.Linq;
 using NUnit.Framework;
@@ -11,8 +10,6 @@ namespace Composable.Tests.IO
     [TestFixture]
     public class DirectoryExtensionsTest
     {
-        static readonly ILogger Log = Logger.For<DirectoryExtensionsTest>();
-
         [Test]
         public void AsDirectoryShouldReturnDirectoryInfoWithFullNameBeingTheOriginalString()
         {
@@ -29,9 +26,9 @@ namespace Composable.Tests.IO
             Assert.That(directory.AsDirectory().Exists, "There should be a directory at first");
             Assert.That(directory.AsDirectory().GetDirectories().Any(), Is.True, "There should be subdirectories");
 
-            Log.Info($"Deleting directory {directory}");
+            Console.WriteLine("Deleting directory {0}", directory);
             directory.AsDirectory().DeleteRecursive();
-            Log.Info($"Deleted directory {directory}");
+            Console.WriteLine("Deleted directory {0}", directory);
 
 
             Assert.That(directory.AsDirectory().Exists, Is.False, "Directory should have been deleted");
@@ -45,9 +42,9 @@ namespace Composable.Tests.IO
 
             Assert.That(directory.AsDirectory().Size(), Is.EqualTo(size));
 
-            Log.Info($"Deleting directory {directory}");
+            Console.WriteLine("Deleting directory {0}", directory);
             directory.AsDirectory().Delete(true);
-            Log.Info($"Deleted directory {directory}");
+            Console.WriteLine("Deleted directory {0}", directory);
         }
 
         static string CreateUsableFolderPath() => Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
@@ -60,7 +57,7 @@ namespace Composable.Tests.IO
             }
 
             directoryPath.AsDirectory().Create();
-            Log.Info($"created directory {directoryPath}");
+            Console.WriteLine("created directory {0}", directoryPath);
             var fileContent = new Byte[100];
             var size = 0;
             directoryPath.Repeat(2).Select(dir => Path.Combine(dir, Guid.NewGuid().ToString())).ForEach(
@@ -71,7 +68,7 @@ namespace Composable.Tests.IO
                             stream.Write(fileContent, 0, fileContent.Length);
                             size += fileContent.Length;
                         }
-                        Log.Info($"created file {file}");
+                        Console.WriteLine("created file {0}", file);
                     });
 
             size += directoryPath.Repeat(2)

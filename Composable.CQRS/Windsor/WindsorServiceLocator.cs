@@ -15,7 +15,8 @@ namespace Composable.Windsor
         readonly IWindsorContainer _container;
         public WindsorServiceLocator(IWindsorContainer container) { _container = container; }
 
-        public IComponentLease<object> Lease(Type componentType) => new WindsorComponentLease<object>(_container.Resolve(componentType), _container);
-        public IMultiComponentLease<object> LeaseAll(Type componentType) => new WindsorMultiComponentLease<object>(_container.ResolveAll(componentType).Cast<object>().ToArray(), _container);
+
+        public IComponentLease<TComponent> Lease<TComponent>() => new WindsorComponentLease<TComponent>(_container.Resolve<TComponent>(), _container);
+        public IMultiComponentLease<TComponent> LeaseAll<TComponent>() => new WindsorMultiComponentLease<TComponent>(_container.ResolveAll<TComponent>().ToArray(), _container);
     }
 }

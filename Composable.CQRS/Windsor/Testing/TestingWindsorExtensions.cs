@@ -24,15 +24,9 @@ namespace Composable.Windsor.Testing
 
         public static void ConfigureWiringForTestsCallAfterAllOtherWiring(this IWindsorContainer container)
         {
-            //container.AsServiceLocator()
-            //         .UseAll<IConfigureWiringForTests>(components
-            //                                               => components.ForEach(component => component.ConfigureWiringForTesting()));
-
-            foreach (var configurer in container.ResolveAll<IConfigureWiringForTests>())
-            {
-                configurer.ConfigureWiringForTesting();
-                container.Release(configurer);
-            }
+            container.AsServiceLocator()
+                     .UseAll<IConfigureWiringForTests>(components
+                                                           => components.ForEach(component => component.ConfigureWiringForTesting()));
         }
     }
 }

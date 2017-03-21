@@ -7,7 +7,6 @@ using System.Transactions;
 using Composable.Persistence.EventStore;
 using Composable.Persistence.EventStore.MicrosoftSQLServer;
 using Composable.System.Linq;
-using Composable.SystemExtensions.Threading;
 using Composable.Testing;
 using FluentAssertions;
 using NUnit.Framework;
@@ -35,7 +34,7 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.Sql
 
         protected override IEventStore CreateStore() => new SqlServerEventStore(_connectionString);
 
-        [Test, Performance]
+        [Test]
         public void Serializes_access_to_an_aggregate_so_that_concurrent_transactions_succeed_even_if_history_has_been_read_outside_of_modifying_transactions()
         {
             var user = new User();
@@ -73,7 +72,7 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.Sql
             }
         }
 
-        [Test, Performance]
+        [Test]
         public void Serializes_access_to_an_aggregate_so_that_concurrent_transactions_succeed()
         {
             var user = new User();

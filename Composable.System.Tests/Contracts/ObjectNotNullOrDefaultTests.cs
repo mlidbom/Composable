@@ -9,7 +9,7 @@ namespace Composable.Tests.Contracts
 {
     // ReSharper disable ConvertToConstant.Local
     // ReSharper disable ExpressionIsAlwaysNull
-    [TestFixture]
+    [TestFixture, Performance]
     public class ObjectNotNullOrDefaultTests
     {
         [Test]
@@ -45,7 +45,7 @@ namespace Composable.Tests.Contracts
                 goodValues: new List<object> {new object(), "", Guid.NewGuid()});
         }
 
-        [Test, Performance]
+        [Test]
         public void ShouldRun50TestsInOneMillisecond() //The Activator.CreateInstance stuff in the default check had me a bit worried. Seems I had no reason to be.
         {
             var one = 1;

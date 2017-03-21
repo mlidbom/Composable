@@ -14,12 +14,12 @@ using NUnit.Framework;
 
 namespace Composable.CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
 {
-    [Parallelizable(ParallelScope.None)]
+    [TestFixture, Performance]
     public class SqlServerMigrationsPerformanceTest : EventStreamMutatorTestsBase
     {
         public SqlServerMigrationsPerformanceTest() : base(typeof(SqlServerEventStore)) { }
 
-        [Test, Performance]
+        [Test]
         public void A_ten_thousand_events_large_aggregate_with_four_migrations_should_load_cached_in_less_than_20_milliseconds()
         {
             var eventMigrations = Seq.Create<IEventMigration>(
@@ -49,7 +49,7 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
             }
         }
 
-      [Test, Performance]
+      [Test]
       public void A_ten_thousand_events_large_aggregate_with_four_migrations_should_load_uncached_in_less_than_500_milliseconds()
       {
         var eventMigrations =
@@ -77,7 +77,7 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
         }
       }
 
-        [Test, Performance] public void A_ten_thousand_events_large_aggregate_with_no_migrations_should_load_uncached_in_less_than_300_milliseconds()
+        [Test] public void A_ten_thousand_events_large_aggregate_with_no_migrations_should_load_uncached_in_less_than_300_milliseconds()
         {
             using(var container = CreateContainerForEventStoreType(() => new List<IEventMigration>(), EventStoreType))
             {
@@ -104,7 +104,7 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
         }
 
 
-    [Test, Performance] public void A_ten_thousand_events_large_aggregate_with_no_migrations_should_load_cached_in_less_than_30_milliseconds()
+    [Test] public void A_ten_thousand_events_large_aggregate_with_no_migrations_should_load_cached_in_less_than_30_milliseconds()
     {
       using (var container = CreateContainerForEventStoreType(() => new List<IEventMigration>(), EventStoreType))
       {

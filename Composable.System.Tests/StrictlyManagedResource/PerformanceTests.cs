@@ -4,6 +4,7 @@ using NUnit.Framework;
 
 namespace Composable.Tests.StrictlyManagedResource
 {
+    [TestFixture, Performance]
     public class PerformanceTests
     {
         // ReSharper disable once ClassNeverInstantiated.Local
@@ -12,7 +13,7 @@ namespace Composable.Tests.StrictlyManagedResource
             public void Dispose() { }
         }
 
-        [Test, Performance] public void Allocated_and_disposes_40_instances_in_10_millisecond_when_actually_collecting_stack_traces()
+        [Test] public void Allocated_and_disposes_40_instances_in_10_millisecond_when_actually_collecting_stack_traces()
         {
             TimeAsserter.Execute(() => new StrictlyManagedResource<StrictResource>(forceStackTraceCollection: true).Dispose(),
                                  iterations: 40,
@@ -22,7 +23,7 @@ namespace Composable.Tests.StrictlyManagedResource
                                  timeFormat: "s\\.ffffff");
         }
 
-        [Test, Performance] public void Allocates_and_disposes_5000_instances_in_10_millisecond_when_not_collecting_stack_traces()
+        [Test] public void Allocates_and_disposes_5000_instances_in_10_millisecond_when_not_collecting_stack_traces()
         {
             TimeAsserter.Execute(() => new StrictlyManagedResource<StrictResource>().Dispose(),
                                  iterations: 5000,
@@ -31,7 +32,7 @@ namespace Composable.Tests.StrictlyManagedResource
                                  timeFormat: "s\\.ffffff");
         }
 
-        [Test, Performance]
+        [Test]
         public void Allocates_and_disposes_2000_instances_in_10_millisecond_when_not_collecting_stack_traces_but_tracking_lifetimes()
         {
             TimeAsserter.Execute(() => new StrictlyManagedResource<StrictResource>(forceStackTraceCollection: false, maxLifetime: 1.Minutes()).Dispose(),

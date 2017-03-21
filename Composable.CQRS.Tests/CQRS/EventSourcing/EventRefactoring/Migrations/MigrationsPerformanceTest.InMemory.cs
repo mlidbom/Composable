@@ -12,12 +12,12 @@ using NUnit.Framework;
 
 namespace Composable.CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
 {
-    [TestFixture]
+    [TestFixture, Performance]
     public class InMemoryMigrationsPerformanceTest : EventStreamMutatorTestsBase
     {
         public InMemoryMigrationsPerformanceTest() : base(typeof(InMemoryEventStore)) { }
 
-        [Test, Performance]//Do not worry about it if this test fails when running in ncrunch. It runs it much slower for some reason. Probably due to intrumenting the assembly. Just ignore it in ncrunch.
+        [Test]//Do not worry about it if this test fails when running in ncrunch. It runs it much slower for some reason. Probably due to intrumenting the assembly. Just ignore it in ncrunch.
         public void A_hundred_thousand_events_large_aggregate_with_four_migrations_should_load_cached_in_less_than_300_milliseconds()
         {
             var eventMigrations = Seq.Create<IEventMigration>(

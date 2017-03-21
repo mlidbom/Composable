@@ -8,7 +8,7 @@ namespace Composable.Tests.Contracts
 
   // ReSharper disable ConvertToConstant.Local
     // ReSharper disable ExpressionIsAlwaysNull
-    [TestFixture]
+    [TestFixture, Performance]
     public class LambdaBasedArgumentSpecsTests
     {
         [Test]
@@ -47,7 +47,7 @@ namespace Composable.Tests.Contracts
             Assert.Throws<InvalidAccessorLambdaException>(() => Contract.Argument(() => 0));
         }
 
-        [Test, Performance]
+        [Test]
         public void ShouldRun50TestsIn1Millisecond() //The expression compilation stuff was worrying but this should be OK except for tight loops.
         {
             var notNullOrDefault = new object();

@@ -6,7 +6,6 @@ using Composable.Persistence.EventSourcing;
 using Composable.Persistence.EventStore;
 using Composable.Persistence.EventStore.MicrosoftSQLServer;
 using Composable.System.Linq;
-using Composable.SystemExtensions.Threading;
 using Composable.Testing;
 using FluentAssertions;
 using NUnit.Framework;
@@ -44,7 +43,7 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing
         }
 
 
-        [Test, Performance]
+        [Test]
         public void StreamEventsSinceReturnsWholeEventLogWhenFetchingALargeNumberOfEvents_EnsureBatchingDoesNotBreakThings()
         {
             using (var eventStore = CreateEventStore())

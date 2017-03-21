@@ -6,7 +6,7 @@ using NUnit.Framework;
 
 namespace Composable.Tests.Contracts
 {
-    [TestFixture]
+    [TestFixture, Performance]
     public class ObjectNotDefaultTests
     {
         [Test]
@@ -32,7 +32,7 @@ namespace Composable.Tests.Contracts
                 goodValues: new List<int> {1, 2, 3});
         }
 
-        [Test, Performance]
+        [Test]
         public void ShouldRun500TestsIn10Milliseconds() //The Activator.CreateInstance stuff in the default check had me a bit worried. Seems I had no reason to be.
         {
             var one = 1;

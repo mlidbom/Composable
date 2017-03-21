@@ -23,7 +23,7 @@ using NUnit.Framework;
 
 namespace Composable.CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
 {
-    //Everything in here actually runs much faster than this when executed normally, but with ncrunch instrumentation it runs much slower and the test gives leeway for that.....
+    [TestFixture, Performance]
     public class SingleAggregateInstanceEventStreamMutatorPerformanceTest_Given_a_10000_events_large_aggregate
     {
         List<AggregateRootEvent> _history;
@@ -93,7 +93,7 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
                                                  action: () => session.Get<TestAggregate>(_aggregate.Id)));
         }
 
-        [Test, Performance]
+        [Test]
         public void Aggregate_should_raise_100_000_events_in_less_than_180_milliseconds()
         {
             var history = Seq.OfTypes<Ec1>()
@@ -116,19 +116,19 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
                 maxTries: 10);
         }
 
-        [Test, Performance]
+        [Test]
         public void With_four_migrations_mutation_that_all_actually_changes_things_loading_takes_less_than_15_milliseconds()
         {
             AssertAggregateLoadTime(15.Milliseconds().AdjustRuntimeToTestEnvironment());
         }
 
-        [Test, Performance]
+        [Test]
         public void With_four_migrations_that_change_nothing_loading_takes_less_than_10_milliseconds()
         {
             AssertAggregateLoadTime(10.Milliseconds().AdjustRuntimeToTestEnvironment());
         }
 
-        [Test, Performance]
+        [Test]
         public void Calling_before_after_or_replace_100_000_times_takes_less_than_60_milliseconds()
         {
             var before = Before<E3>.Insert<E2>().CreateSingleAggregateInstanceHandlingMigrator();
@@ -160,7 +160,7 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
                 action: () => after.MigrateEvent(@event, eventModifier));
         }
 
-        [Test, Performance]
+        [Test]
         public void When_there_are_no_migrations_mutation_takes_less_than_a_millisecond()
         {
             AssertAggregateLoadTime(1.Milliseconds());

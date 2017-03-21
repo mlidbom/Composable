@@ -27,7 +27,13 @@ namespace Composable
             var tagsFilter = new Tags();
             var builder = new ContextBuilder(finder, tagsFilter, new DefaultConventions());
             var runner = new ContextRunner(tagsFilter, new MyFormatter(), false);
-            ContextCollection result = runner.Run(builder.Contexts().Build());
+
+            ContextCollection result;
+            var contextCollection = builder.Contexts().Build();
+            lock(SafeConsole.SyncronizationRoot)
+            {
+                result = runner.Run(contextCollection);
+            }
 
             if (result.Failures().Any())
             {
@@ -89,12 +95,12 @@ namespace Composable
 
             void ILiveFormatter.Write(Context context)
             {
-                base.Write(context);
+                //base.Write(context);
             }
 
             void ILiveFormatter.Write(ExampleBase e, int level)
             {
-                base.Write(e, level);
+                //base.Write(e, level);
             }
         }
     }

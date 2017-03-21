@@ -29,18 +29,23 @@ namespace Composable.Logging
 
             ConsoleLogger(Type type) => _type = type;
 
-            static void WriteLine(string message)
-            {
-                lock(typeof(ConsoleLogger))
-                {
-                    Console.WriteLine(message);
-                }
-            }
             public static ILogger Create(Type type) => new ConsoleLogger(type);
-            public void Error(string message) => WriteLine($"ERROR:{_type}: {message}");
-            public void Warning(string message) => WriteLine($"WARNING:{_type}: {message}");
-            public void Info(string message) => WriteLine($"INFO:{_type}: {message}");
-            public void Debug(string message) => WriteLine($"DEBUG:{_type}: {message}");
+            public void Error(string message) => SafeConsole.WriteLine($"ERROR:{_type}: {message}");
+            public void Warning(string message) => SafeConsole.WriteLine($"WARNING:{_type}: {message}");
+            public void Info(string message) => SafeConsole.WriteLine($"INFO:{_type}: {message}");
+            public void Debug(string message) => SafeConsole.WriteLine($"DEBUG:{_type}: {message}");
+        }
+    }
+
+    static class SafeConsole
+    {
+        internal static readonly object SyncronizationRoot = typeof(SafeConsole);
+        internal static void WriteLine(string message)
+        {
+            lock (SyncronizationRoot)
+            {
+                Console.WriteLine(message);
+            }
         }
     }
 }

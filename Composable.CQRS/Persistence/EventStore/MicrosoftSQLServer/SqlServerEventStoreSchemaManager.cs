@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
-using System.Linq;
 using System.Transactions;
 using Composable.Logging.Log4Net;
 using Composable.Persistence.EventStore.Refactoring.Naming;

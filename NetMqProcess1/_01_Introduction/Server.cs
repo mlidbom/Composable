@@ -1,5 +1,4 @@
-﻿using System;
-using Composable.Logging;
+﻿using Composable.Logging;
 using NetMQ;
 using NetMQ.Sockets;
 using Newtonsoft.Json;

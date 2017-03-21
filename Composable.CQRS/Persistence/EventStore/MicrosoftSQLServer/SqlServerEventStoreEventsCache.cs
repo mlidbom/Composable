@@ -13,8 +13,6 @@ namespace Composable.Persistence.EventStore.MicrosoftSQLServer
 
         MemoryCache _internalCache = new MemoryCache(CacheName);
 
-        internal SqlServerEventStoreEventsCache() { }
-
         static readonly CacheItemPolicy Policy = new CacheItemPolicy()
                                                          {
                                                              //todo: this way of doing cache expiration is unlikely to be acceptable in the long run....

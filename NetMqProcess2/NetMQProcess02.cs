@@ -1,5 +1,4 @@
-﻿using System;
-using Composable.Logging;
+﻿using Composable.Logging;
 using NetMqProcess02._01_Introduction;
 
 namespace NetMqProcess02

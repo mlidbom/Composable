@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using Composable.Logging;
 
 namespace NetMqProcess01
 {
@@ -12,7 +13,7 @@ namespace NetMqProcess01
             {
                 runType = int.Parse(args[0]);
             }
-            Console.WriteLine(nameof(NetMqProcess01));
+            SafeConsole.WriteLine(nameof(NetMqProcess01));
             switch(runType)
             {
                 case 1:

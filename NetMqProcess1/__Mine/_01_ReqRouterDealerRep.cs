@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Composable.Logging;
 using Composable.System.Linq;
 using NetMQ;
 using NetMQ.Sockets;
@@ -10,6 +11,7 @@ namespace NetMqProcess01.__Mine
     // ReSharper disable once InconsistentNaming
     static class _01_ReqRouterDealerRep
     {
+        static readonly ILogger Log = Logger.For(typeof(_01_ReqRouterDealerRep));
         const bool UseInProcess = true;
 
         // ReSharper disable UnreachableCode
@@ -52,13 +54,13 @@ namespace NetMqProcess01.__Mine
                                            {
                                                var clientId = request.First.ConvertToInt32();
 
-                                               //Console.WriteLine($"Server {serverId} got request from client: {clientId}");
+                                               //SafeConsole.WriteLine($"Server {serverId} got request from client: {clientId}");
                                                var response = new NetMQMessage(new[]
                                                                                {
                                                                                    new NetMQFrame($"Server:{serverId}, Client:{clientId}")
                                                                                });
 
-                                               //Console.WriteLine($"Server {serverId} responding to client: {clientId}");
+                                               //SafeConsole.WriteLine($"Server {serverId} responding to client: {clientId}");
                                                // ReSharper disable once AccessToModifiedClosure
                                                responseSocket.SendMultipartMessage(response);
                                            }
@@ -71,10 +73,10 @@ namespace NetMqProcess01.__Mine
                                            responseSocket.ReceiveReady += HandleRequest;
                                            serverPoller.Add(responseSocket);
 
-                                           Console.WriteLine($"Added thread lockal socket nr: {threadServerSocket.Values.Count}");
+                                           SafeConsole.WriteLine($"Added thread lockal socket nr: {threadServerSocket.Values.Count}");
                                        }
 
-                                       Console.WriteLine($"Server: {serverId} started");
+                                       SafeConsole.WriteLine($"Server: {serverId} started");
                                    });
                       });
         }
@@ -102,19 +104,19 @@ namespace NetMqProcess01.__Mine
                                          using(var requestSocket = new RequestSocket())
                                          {
                                              requestSocket.Connect(_routerSocket);
-                                             Console.WriteLine($"Client: {clientId} started");
+                                             SafeConsole.WriteLine($"Client: {clientId} started");
                                              while(true)
                                                  try
                                                  {
                                                      var request = new NetMQMessage();
                                                      request.Append(clientId);
 
-                                                     //Console.WriteLine($"Client:{clientId} sending: {clientId}");
+                                                     //SafeConsole.WriteLine($"Client:{clientId} sending: {clientId}");
                                                      requestSocket.SendMultipartMessage(request);
                                                      var response = requestSocket.ReceiveMultipartMessage()
                                                                                  .First.ConvertToString();
 
-                                                     //Console.WriteLine($"Client:{clientId} got: {response}");
+                                                     //SafeConsole.WriteLine($"Client:{clientId} got: {response}");
 
                                                      if (!response.Contains($"Client:{clientId}"))
                                                      {
@@ -123,20 +125,20 @@ namespace NetMqProcess01.__Mine
 
                                                      //if(requests % 1000 == 0)
                                                      //{
-                                                     //    Console.WriteLine($"Client:{clientId} has made {requests} requests.");
+                                                     //    SafeConsole.WriteLine($"Client:{clientId} has made {requests} requests.");
                                                      //}
 
                                                      var currentTotalRequests = Interlocked.Increment(ref _totalRequests);
                                                      if(currentTotalRequests % 10000 == 0)
                                                      {
-                                                         Console.WriteLine($"Total requests: {currentTotalRequests:N}");
+                                                         SafeConsole.WriteLine($"Total requests: {currentTotalRequests:N}");
                                                      }
 
 
                                                  }
                                                  catch(Exception e)
                                                  {
-                                                     Console.WriteLine(e);
+                                                     Log.Error(e);
                                                  }
                                          }
                                          // ReSharper disable once FunctionNeverReturns

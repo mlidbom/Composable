@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading;
+using Composable.Logging;
 
 namespace Composable.CQRS.Tests
 {
@@ -35,6 +36,7 @@ namespace Composable.CQRS.Tests
 
     class AppDomainScope : IDisposable
     {
+        static readonly ILogger Log = Logger.For<AppDomainScope>();
         readonly TimeSpan? _disposeDelay;
         readonly bool _suppressUnloadErrors;
 
@@ -55,11 +57,11 @@ namespace Composable.CQRS.Tests
             {
                 AppDomain.Unload(CloneDomain);
             }
-            catch(Exception)
+            catch(Exception exception)
             {
                 if(_suppressUnloadErrors)
                 {
-                    Console.WriteLine("############ ERROR UNLOADING APP DOMAIN ###############");
+                    Log.Error(exception, "############ ERROR UNLOADING APP DOMAIN ###############");
                     return;
                 }
                 throw;

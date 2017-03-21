@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Composable.Logging;
 using NetMQ;
 using NetMQ.Sockets;
 using Newtonsoft.Json;
@@ -32,7 +33,7 @@ namespace NetMqProcess02._01_Introduction
 
                 client.SendFrame("quit");
 
-                Console.WriteLine($@"sent.Length {sent.Count}
+                SafeConsole.WriteLine($@"sent.Length {sent.Count}
 received.Length: {received.Count},
 sent.Sum(): {sent.Select(data => data.Id).Sum()}
 received.Sum(): {received.Select(data => data.Id).Sum()}

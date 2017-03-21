@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Configuration;
 using System.Linq;
+using Composable.Logging;
 using Composable.Persistence.EventSourcing;
 using Composable.Persistence.EventStore;
 using Composable.Persistence.EventStore.MicrosoftSQLServer;
@@ -204,24 +205,24 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing
             }
             catch(Exception)
             {
-                Console.WriteLine("aggregate1 events");
-                aggregate1Events.ForEach(e => Console.WriteLine($"   {e}"));
+                SafeConsole.WriteLine("aggregate1 events");
+                aggregate1Events.ForEach(e => SafeConsole.WriteLine($"   {e}"));
 
-                Console.WriteLine("\n\naggregate2 events");
-                aggregate2Events.ForEach(e => Console.WriteLine($"   {e}"));
+                SafeConsole.WriteLine("\n\naggregate2 events");
+                aggregate2Events.ForEach(e => SafeConsole.WriteLine($"   {e}"));
 
-                Console.WriteLine("\n\nloaded events from eventstore 1");
-                store1Events.ForEach(e => Console.WriteLine($"   {e}"));
+                SafeConsole.WriteLine("\n\nloaded events from eventstore 1");
+                store1Events.ForEach(e => SafeConsole.WriteLine($"   {e}"));
 
-                Console.WriteLine("\n\nloaded events from eventstore 2");
-                store2Events.ForEach(e => Console.WriteLine($"   {e}"));
+                SafeConsole.WriteLine("\n\nloaded events from eventstore 2");
+                store2Events.ForEach(e => SafeConsole.WriteLine($"   {e}"));
 
 
-                Console.WriteLine("\n\nloaded events from new eventstore 1");
-                store1NewStoreEvents.ForEach(e => Console.WriteLine($"   {e}"));
+                SafeConsole.WriteLine("\n\nloaded events from new eventstore 1");
+                store1NewStoreEvents.ForEach(e => SafeConsole.WriteLine($"   {e}"));
 
-                Console.WriteLine("\n\nloaded events from new eventstore 2");
-                store2NewStoreEvents.ForEach(e => Console.WriteLine($"   {e}"));
+                SafeConsole.WriteLine("\n\nloaded events from new eventstore 2");
+                store2NewStoreEvents.ForEach(e => SafeConsole.WriteLine($"   {e}"));
 
                 throw;
             }

@@ -6,6 +6,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Transactions;
 using Composable.Contracts;
+using Composable.Logging;
 using Composable.System;
 using Composable.System.Data.SqlClient;
 using Composable.System.Linq;
@@ -17,6 +18,8 @@ namespace Composable.Testing
         readonly string _masterConnectionString;
         readonly SqlServerConnectionUtilities _masterConnection;
         readonly SqlServerConnectionUtilities _managerConnection;
+
+        static readonly ILogger Log = Logger.For<SqlServerDatabasePool>();
 
         static readonly string ManagerDbName = $"{nameof(SqlServerDatabasePool)}";
 
@@ -89,7 +92,7 @@ namespace Composable.Testing
         {
             _masterConnection.ExecuteNonQuery($"CREATE DATABASE [{databaseName}]");
             _masterConnection.ExecuteNonQuery($"ALTER DATABASE [{databaseName}] SET RECOVERY SIMPLE;");
-            //Console.WriteLine($"Created: {databaseName}");
+            //SafeConsole.WriteLine($"Created: {databaseName}");
         }
 
         void SeparatelyInitConnectionPoolSoWeSeeRealisticExecutionTimesWhenProfiling() { _masterConnection.UseConnection(_ => { }); }
@@ -168,7 +171,7 @@ CREATE TABLE [dbo].[{ManagerTableSchema.TableName}](
         {
             _managerConnection.ExecuteNonQuery(
                 $"update {ManagerTableSchema.TableName} set {ManagerTableSchema.IsFree} = 0, {ManagerTableSchema.ReservationDate} = getdate(), {ManagerTableSchema.ReservationCallStack} = '{Environment.StackTrace}' where {ManagerTableSchema.DatabaseName} = '{dbName}'");
-            //Console.WriteLine($"Reserved:{dbName}");
+            //SafeConsole.WriteLine($"Reserved:{dbName}");
         }
 
         void CleanDatabase(Database db)
@@ -230,7 +233,7 @@ CREATE TABLE [dbo].[{ManagerTableSchema.TableName}](
                         $"update {ManagerTableSchema.TableName} With(TABLOCKX) set {ManagerTableSchema.IsFree} = 1 where {ManagerTableSchema.ReservationDate} < dateadd(minute, -10, getdate()) and {ManagerTableSchema.IsFree} = 0");
                     if(count > 0)
                     {
-                        //Console.WriteLine($"Released {count} garbage reservations.");
+                        //SafeConsole.WriteLine($"Released {count} garbage reservations.");
                     }
                 });
         }
@@ -286,14 +289,14 @@ CREATE TABLE [dbo].[{ManagerTableSchema.TableName}](
             foreach(var db in dbsToDrop)
             {
                 var dropCommand = $"drop database [{db}]";
-                //Console.WriteLine(dropCommand);
+                //SafeConsole.WriteLine(dropCommand);
                 try
                 {
                     _masterConnection.ExecuteNonQuery(dropCommand);
                 }
-                catch(Exception e)
+                catch(Exception exception)
                 {
-                    Console.WriteLine(e.Message);
+                    Log.Error(exception);
                 }
             }
 

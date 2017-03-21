@@ -5,6 +5,7 @@ using Castle.MicroKernel.Lifestyle;
 using Castle.Windsor;
 using Composable.CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations.Events;
 using Composable.GenericAbstractions.Time;
+using Composable.Logging;
 using Composable.Persistence.EventSourcing;
 using Composable.Persistence.EventStore;
 using Composable.Persistence.EventStore.MicrosoftSQLServer;
@@ -495,10 +496,10 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
                 var completeEventHistory =container.ExecuteInIsolatedScope(() => EventStore().ListAllEventsForTestingPurposesAbsolutelyNotUsableForARealEventStoreOfAnySize()).Cast<AggregateRootEvent>();
                 AssertStreamsAreIdentical(expected: expected, migratedHistory: completeEventHistory, descriptionOfHistory: "streamed persisted history");
 
-                Console.WriteLine("Version");
-                Console.WriteLine("Aggregate Effective Inserted Manual");
-                Console.WriteLine("A E I M");
-                completeEventHistory.ForEach(@event => Console.WriteLine($"{@event.AggregateRootVersion} {@event.EffectiveVersion} {@event.InsertedVersion} {@event.ManualVersion}"));
+                SafeConsole.WriteLine("Version");
+                SafeConsole.WriteLine("Aggregate Effective Inserted Manual");
+                SafeConsole.WriteLine("A E I M");
+                completeEventHistory.ForEach(@event => SafeConsole.WriteLine($"{@event.AggregateRootVersion} {@event.EffectiveVersion} {@event.InsertedVersion} {@event.ManualVersion}"));
 
                 ClearEventstoreCache(container);
 

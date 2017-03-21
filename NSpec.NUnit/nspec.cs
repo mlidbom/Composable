@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Composable.Logging;
 using NSpec;
 using NSpec.Domain;
 using NSpec.Domain.Formatters;
@@ -42,23 +43,23 @@ namespace Composable
             static void WriteNoticeably(string message, params object[] formatwith)
             {
                 message = $"#################################    {message}    #################################";
-                Console.WriteLine(message, formatwith);
+                SafeConsole.WriteLine(message, formatwith);
             }
 
             void IFormatter.Write(ContextCollection contexts)
             {
                 //Not calling base here lets us get rid of its noisy stack trace output so it does not obscure our thrown exceptions stacktrace.
-                Console.WriteLine();
+                SafeConsole.WriteLine();
                 if(contexts.Failures().Any())
                 {
                     WriteNoticeably("SUMMARY");
-                    Console.WriteLine(Summary(contexts));
+                    SafeConsole.WriteLine(Summary(contexts));
 
                     int currentFailure = 0;
                     foreach (var failure in contexts.Failures())
                     {
-                        Console.WriteLine();
-                        Console.Write("#################################  FAILURE {0} #################################", ++currentFailure);
+                        SafeConsole.WriteLine();
+                        SafeConsole.Write("#################################  FAILURE {0} #################################", ++currentFailure);
 
                         var current = failure.Context;
                         var relatedContexts = new List<Context>() { current };
@@ -76,17 +77,17 @@ namespace Composable
                             .Select((name, level) => "\t".Times(level) + name)
                             .Aggregate(Environment.NewLine + "at: ", (agg, curr) => agg + curr + Environment.NewLine);
 
-                        Console.WriteLine(message);
+                        SafeConsole.WriteLine(message);
 
-                        Console.WriteLine(WriteFailure(failure));
+                        SafeConsole.WriteLine(WriteFailure(failure));
                     }
                 }
 
 
 
-                Console.WriteLine();
+                SafeConsole.WriteLine();
                 WriteNoticeably("END OF NSPEC RESULTS");
-                Console.WriteLine();
+                SafeConsole.WriteLine();
             }
 
             void ILiveFormatter.Write(Context context)

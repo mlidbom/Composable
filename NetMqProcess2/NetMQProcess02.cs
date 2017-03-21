@@ -1,4 +1,5 @@
 ﻿using System;
+using Composable.Logging;
 using NetMqProcess02._01_Introduction;
 
 namespace NetMqProcess02
@@ -7,7 +8,7 @@ namespace NetMqProcess02
     {
         static void Main()
         {
-            Console.WriteLine(nameof(NetMqProcess02));
+            SafeConsole.WriteLine(nameof(NetMqProcess02));
             Client.Run();
         }
     }

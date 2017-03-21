@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Threading;
+using Composable.Logging;
 using Composable.System;
 using Composable.System.Diagnostics;
 using JetBrains.Annotations;
@@ -12,7 +13,6 @@ namespace Composable.Testing
         const string DefaultTimeFormat = "ss\\.fff";
 
         static PerformanceCounter _totalCpu;
-
         static void WaitUntilCpuLoadIsBelowPercent(int percent)
         {
             const int waitMilliseconds = 20;
@@ -24,7 +24,7 @@ namespace Composable.Testing
             var currentValue = (int)_totalCpu.NextValue();
             while (currentValue > percent || currentValue == 0)
             {
-                Console.WriteLine($"Waiting {waitMilliseconds} milliseconds for CPU to drop below {percent} percent");
+                SafeConsole.WriteLine($"Waiting {waitMilliseconds} milliseconds for CPU to drop below {percent} percent");
                 Thread.Sleep(waitMilliseconds);
                 currentValue = (int)_totalCpu.NextValue();
             }
@@ -60,7 +60,7 @@ namespace Composable.Testing
                 }
                 catch(Exception e)
                 {
-                    Console.WriteLine($"Try: {tries} {e.GetType().FullName}: {e.Message}");
+                    SafeConsole.WriteLine($"Try: {tries} {e.GetType().FullName}: {e.Message}");
                     if(tries >= maxTries)
                     {
                         PrintSummary(iterations, maxAverage, maxTotal, description, Format, executionSummary);
@@ -100,7 +100,7 @@ namespace Composable.Testing
 
                 if(timeIndividualExecutions)
                 {
-                    Console.WriteLine($@"  
+                    SafeConsole.WriteLine($@"  
     Individual execution times    
     Average: {Format(executionSummary.IndividualExecutionTimes.Average())}
     Min:     {Format(executionSummary.IndividualExecutionTimes.Min())}
@@ -119,7 +119,7 @@ namespace Composable.Testing
                 }
                 catch (Exception e)
                 {
-                    Console.WriteLine($"Try: {tries} {e.GetType().FullName}: {e.Message}");
+                    SafeConsole.WriteLine($"Try: {tries} {e.GetType().FullName}: {e.Message}");
                     if (tries >= maxTries)
                     {
                         PrintResults();
@@ -151,7 +151,7 @@ namespace Composable.Testing
         {
             if(iterations > 1)
             {
-                Console.WriteLine(
+                SafeConsole.WriteLine(
                     $@"Executed {iterations} iterations of {description}  
     Total:   {format(executionSummary.Total)} Limit: {format(maxTotal)} 
     Average: {format
@@ -159,7 +159,7 @@ namespace Composable.Testing
             }
             else
             {
-                Console.WriteLine(
+                SafeConsole.WriteLine(
                     $@"Executed {iterations} iterations of {description}  
     Total:   {format(executionSummary.Total)} Limit: {format(maxTotal)}");
             }

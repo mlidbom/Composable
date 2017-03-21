@@ -20,6 +20,10 @@
     <PackageReference Include="Newtonsoft.Json" Version="9.0.1" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\Composable.System\Composable.Core.csproj" />
+  </ItemGroup>
+
   
   <ItemGroup>
     <Reference Include="System.ComponentModel.DataAnnotations">

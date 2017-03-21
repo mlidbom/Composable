@@ -1,4 +1,4 @@
 @echo off
 
-..\tools\autobuild\binaries\AutoBuild.Console.exe ".." "autobuild.build"
+..\tools\autobuild\binaries\AutoBuild.SafeConsole.exe ".." "autobuild.build"
 pause

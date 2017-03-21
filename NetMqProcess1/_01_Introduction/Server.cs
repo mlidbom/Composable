@@ -1,4 +1,5 @@
 ﻿using System;
+using Composable.Logging;
 using NetMQ;
 using NetMQ.Sockets;
 using Newtonsoft.Json;
@@ -31,7 +32,7 @@ namespace NetMqProcess01._01_Introduction
                     server.SendFrame(JsonConvert.SerializeObject(data));
                     if(++messages % 1000 == 0)
                     {
-                        Console.WriteLine($"Echoed  {messages} messages.");
+                        SafeConsole.WriteLine($"Echoed  {messages} messages.");
                     }
                 }
             }

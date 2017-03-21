@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using Composable.Logging;
 using FluentAssertions;
 using NUnit.Framework;
 // ReSharper disable All
@@ -12,7 +13,7 @@ namespace Composable.Tests
         {
             if(TryGet(out int val1, out var val2))
             {
-                Console.WriteLine($"{val1}, {val2}");
+                SafeConsole.WriteLine($"{val1}, {val2}");
             }
         }
 

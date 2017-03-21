@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
+using Composable.Logging;
 using Composable.System;
 
 namespace Composable.Testing
@@ -15,6 +16,7 @@ namespace Composable.Testing
     class TestRunner
     {
         public static readonly TestRunner Instance = GetInstance();
+        static readonly ILogger Log = Logger.For<TestRunner>();
 
         static TestRunner GetInstance()
         {
@@ -46,8 +48,8 @@ namespace Composable.Testing
             }
 
 
-            Console.WriteLine(processName);
-            loadedAssemblies.ForEach(Console.WriteLine);
+            Log.Debug(processName);
+            loadedAssemblies.ForEach(assembly =>  Log.Debug(assembly.FullName));
 
             return new TestRunner($"Default/Fallback ({processName})");
         }
@@ -59,7 +61,7 @@ namespace Composable.Testing
 
         TestRunner(string name, double slowDownFactor = 1.0)
         {
-            Console.WriteLine($"Setting up performance adjustments for {name} with {nameof(slowDownFactor)}: {slowDownFactor}");
+            SafeConsole.WriteLine($"Setting up performance adjustments for {name} with {nameof(slowDownFactor)}: {slowDownFactor}");
             SlowDownFactor = slowDownFactor;
         }
 

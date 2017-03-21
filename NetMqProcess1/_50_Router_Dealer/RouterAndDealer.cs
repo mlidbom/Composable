@@ -2,6 +2,7 @@
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Composable.Logging;
 using Composable.System;
 using NetMQ;
 using NetMQ.Sockets;
@@ -56,9 +57,9 @@ namespace NetMqProcess01._50_Router_Dealer
                             var messageToServer = new NetMQMessage();
                             messageToServer.AppendEmptyFrame();
                             messageToServer.Append($" [Client{state.ToString() }.AppendedFrame]");
-                            Console.WriteLine("======================================");
-                            Console.WriteLine(" OUTGOING MESSAGE TO SERVER ");
-                            Console.WriteLine("======================================");
+                            SafeConsole.WriteLine("======================================");
+                            SafeConsole.WriteLine(" OUTGOING MESSAGE TO SERVER ");
+                            SafeConsole.WriteLine("======================================");
                             PrintFrames("Client Sending", messageToServer);
                             client.SendMultipartMessage(messageToServer);
                             Thread.Sleep(delay);
@@ -75,9 +76,9 @@ namespace NetMqProcess01._50_Router_Dealer
                 while (true)
                 {
                     var clientMessage = server.ReceiveMultipartMessage();
-                    Console.WriteLine("======================================");
-                    Console.WriteLine(" INCOMING CLIENT MESSAGE FROM CLIENT ");
-                    Console.WriteLine("======================================");
+                    SafeConsole.WriteLine("======================================");
+                    SafeConsole.WriteLine(" INCOMING CLIENT MESSAGE FROM CLIENT ");
+                    SafeConsole.WriteLine("======================================");
                     PrintFrames("Server receiving", clientMessage);
                     if (clientMessage.FrameCount == 3)
                     {
@@ -99,7 +100,7 @@ namespace NetMqProcess01._50_Router_Dealer
         {
             for (int i = 0; i < message.FrameCount; i++)
             {
-                Console.WriteLine("{0} Socket : Frame[{1}] = {2}", operationType, i,
+                SafeConsole.WriteLine("{0} Socket : Frame[{1}] = {2}", operationType, i,
                     message[i].ConvertToString());
             }
         }
@@ -109,7 +110,7 @@ namespace NetMqProcess01._50_Router_Dealer
             string frameString;
             if (e.Socket.TryReceiveFrameString(10.Milliseconds(), out frameString))
             {
-                Console.WriteLine("REPLY {0}", frameString);
+                SafeConsole.WriteLine("REPLY {0}", frameString);
             }
         }
     }

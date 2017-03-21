@@ -1,6 +1,7 @@
 ﻿using System;
 using Castle.MicroKernel.Registration;
 using Castle.Windsor;
+using Composable.DependencyInjection;
 using Composable.GenericAbstractions.Time;
 using Composable.Messaging.Buses;
 using Composable.System.Configuration;
@@ -17,22 +18,24 @@ namespace Composable.Windsor.Testing.Testing
             var registry = new MessageHandlerRegistry();
             var bus = new TestingOnlyServiceBus(dummyTimeSource, registry);
 
-            @this.Register(
-                           Component.For<IUtcTimeTimeSource, DummyTimeSource>()
+            @this.AsDependencyInjectionContainer()
+                 .Register(
+                           CComponent.For<IUtcTimeTimeSource, DummyTimeSource>()
                                     .Instance(dummyTimeSource)
                                     .LifestyleSingleton(),
-                           Component.For<IMessageHandlerRegistrar>()
+                           CComponent.For<IMessageHandlerRegistrar>()
                                     .Instance(registry)
                                     .LifestyleSingleton(),
-                           Component.For<IServiceBus, IMessageSpy>()
+                           CComponent.For<IServiceBus, IMessageSpy>()
                                     .Instance(bus)
                                     .LifestyleSingleton(),
-                           Component.For<IWindsorContainer>()
-                                    .Instance(@this),
-                           Component.For<IConnectionStringProvider>()
+                           CComponent.For<IWindsorContainer>()
+                                    .Instance(@this)
+                                    .LifestyleSingleton(),
+                           CComponent.For<IConnectionStringProvider>()
                                     .Instance(new DummyConnectionStringProvider())
                                     .LifestyleSingleton()
-                          );
+                );
 
             registerComponents(@this);
 

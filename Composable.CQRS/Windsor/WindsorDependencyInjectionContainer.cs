@@ -5,15 +5,19 @@ using Castle.MicroKernel.Registration;
 using Castle.Windsor;
 using Composable.DependencyInjection;
 using Component = Castle.MicroKernel.Registration.Component;
-using ComponentRegistration = Composable.DependencyInjection.ComponentRegistration;
 
 namespace Composable.Windsor
 {
+    static class WindsorDependencyInjectionContainerExtensions
+    {
+        internal static IDependencyInjectionContainer AsDependencyInjectionContainer(this IWindsorContainer @this) => new WindsorDependencyInjectionContainer(@this);
+    }
+
     class WindsorDependencyInjectionContainer : IDependencyInjectionContainer
     {
         readonly IWindsorContainer _container;
         public WindsorDependencyInjectionContainer(IWindsorContainer container) { _container = container; }
-        public IDependencyInjectionContainer Register(params ComponentRegistration[] registration)
+        public IDependencyInjectionContainer Register(params CComponentRegistration[] registration)
         {
             var windsorRegistrations = registration.Select(ToWindsorRegistration)
                                                    .ToArray();
@@ -22,10 +26,21 @@ namespace Composable.Windsor
             return this;
         }
 
-        IRegistration ToWindsorRegistration(ComponentRegistration componentRegistration)
+        IRegistration ToWindsorRegistration(CComponentRegistration componentRegistration)
         {
-            var registration = Component.For(componentRegistration.ServiceTypes)
-                                        .ImplementedBy(componentRegistration.ImplementingType);
+            ComponentRegistration<object> registration = Component.For(componentRegistration.ServiceTypes);
+
+            if(componentRegistration.InstantiationSpec.Instance != null)
+            {
+                registration.Instance(componentRegistration.InstantiationSpec.Instance);
+            }else if(componentRegistration.InstantiationSpec.ImplementationType != null)
+            {
+                registration.ImplementedBy(componentRegistration.InstantiationSpec.ImplementationType);
+            } else
+            {
+                throw new Exception($"Invalid {nameof(InstantiationSpec)}");
+            }
+
 
             if(!componentRegistration.Name.IsNullOrEmpty())
             {
@@ -34,9 +49,9 @@ namespace Composable.Windsor
 
             switch(componentRegistration.Lifestyle)
             {
-                case LifeStyle.Singleton:
+                case Lifestyle.Singleton:
                     return registration.LifestyleSingleton();
-                case LifeStyle.Scoped:
+                case Lifestyle.Scoped:
                     return registration.LifestyleScoped();
                 default:
                     throw new ArgumentOutOfRangeException(nameof(componentRegistration.Lifestyle));

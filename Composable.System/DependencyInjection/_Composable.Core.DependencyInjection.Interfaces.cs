@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Composable.Contracts;
 using Composable.System;
+using Composable.System.Linq;
 
 namespace Composable.DependencyInjection
 {
@@ -18,11 +19,20 @@ namespace Composable.DependencyInjection
 
     interface IDependencyInjectionContainer
     {
-        IDependencyInjectionContainer Register(params ComponentRegistration[] registration);
+        IDependencyInjectionContainer Register(params CComponentRegistration[] registration);
     }
 
-    class Component
+    class CComponent
     {
+        internal static ComponentRegistrationBuilderInitial<TService1> For<TService1, TService2, TService3>()
+            => For<TService1>(Seq.OfTypes<TService2, TService3>());
+
+        internal static ComponentRegistrationBuilderInitial<TService1> For<TService1, TService2>()
+            => For<TService1>(Seq.OfTypes<TService2>());
+
+        internal static ComponentRegistrationBuilderInitial<TService> For<TService>()
+            => For<TService>(new List<Type>());
+
         internal static ComponentRegistrationBuilderInitial<TService> For<TService>(IEnumerable<Type> additionalServices)
             => new ComponentRegistrationBuilderInitial<TService>(additionalServices);
 
@@ -36,56 +46,79 @@ namespace Composable.DependencyInjection
         {
             public ComponentRegistrationBuilderInitial(IEnumerable<Type> serviceTypes) : base(serviceTypes.Concat(new List<Type>() {typeof(TService)})) {}
 
-            public ComponentRegistrationBuilderWithImplementation<TService> ImplementedBy<TImplementation>()
-                => new ComponentRegistrationBuilderWithImplementation<TService>(ServiceTypes,
-                                                                                typeof(TImplementation));
+            public ComponentRegistrationBuilderWithInstantiationSpec<TService> ImplementedBy<TImplementation>()
+            {
+                Contract.Arguments.That(ServiceTypes.All(serviceType => serviceType.IsAssignableFrom(typeof(TImplementation))), "The implementing type must implement all the service interfaces.");
+                return new ComponentRegistrationBuilderWithInstantiationSpec<TService>(ServiceTypes, InstantiationSpec.ImplementedBy(typeof(TImplementation)));
+            }
+
+            public ComponentRegistrationBuilderWithInstantiationSpec<TService> Instance(TService instance)
+            {
+                Contract.Arguments.That(ServiceTypes.All(serviceType => serviceType.IsInstanceOfType(instance)), "The implementing type must implement all the service interfaces.");
+                return new ComponentRegistrationBuilderWithInstantiationSpec<TService>(ServiceTypes, InstantiationSpec.FromInstance(instance));
+            }
         }
 
-        internal class ComponentRegistrationBuilderWithImplementation<TService>
+        internal class ComponentRegistrationBuilderWithInstantiationSpec<TService>
         {
             readonly IEnumerable<Type> _serviceTypes;
-            readonly Type _implementingType;
+            readonly InstantiationSpec _instantInstatiationSpec;
             public string Name { get; private set; }
 
-            public ComponentRegistrationBuilderWithImplementation(IEnumerable<Type> serviceTypes, Type implementingType)
+            public ComponentRegistrationBuilderWithInstantiationSpec(IEnumerable<Type> serviceTypes, InstantiationSpec instantInstatiationSpec)
             {
                 _serviceTypes = serviceTypes;
-                _implementingType = implementingType;
+                _instantInstatiationSpec = instantInstatiationSpec;
             }
 
 
-            ComponentRegistrationBuilderWithImplementation<TService> Named(string name)
+            ComponentRegistrationBuilderWithInstantiationSpec<TService> Named(string name)
             {
                 Contract.Arguments.That(Name == null, "Name == null");
                 Name = name;
                 return this;
             }
 
-            public ComponentRegistration LifeStyleSingleton() => new ComponentRegistration(LifeStyle.Singleton, Name, _serviceTypes, _implementingType);
+            public CComponentRegistration LifestyleSingleton() => new CComponentRegistration(Lifestyle.Singleton, Name, _serviceTypes, _instantInstatiationSpec);
 
         }
     }
 
-    enum LifeStyle
+    enum Lifestyle
     {
         Singleton,
         Scoped
     }
 
-    class ComponentRegistration
+    class InstantiationSpec
+    {
+        internal object Instance { get; }
+        internal Type ImplementationType { get; }
+
+        internal static InstantiationSpec FromInstance(object instance) => new InstantiationSpec(instance);
+
+        internal static InstantiationSpec ImplementedBy(Type implementationType) => new InstantiationSpec(implementationType);
+
+        InstantiationSpec(Type implementationType) => ImplementationType = implementationType;
+
+        InstantiationSpec(object instance) => Instance = instance;
+    }
+
+    class CComponentRegistration
     {
         public IEnumerable<Type> ServiceTypes { get; }
-        internal Type ImplementingType { get; }
-        internal LifeStyle Lifestyle { get; }
+        internal InstantiationSpec InstantiationSpec { get; }
+        internal Lifestyle Lifestyle { get; }
         internal string Name { get; }
-        public ComponentRegistration(LifeStyle lifestyle, string name, IEnumerable<Type> serviceTypes, Type implementingType)
+        public CComponentRegistration(Lifestyle lifestyle, string name, IEnumerable<Type> serviceTypes, InstantiationSpec instantiationSpec)
         {
             serviceTypes = serviceTypes.ToList();
-            Contract.Arguments.That(serviceTypes.All(serviceType => serviceType.IsAssignableFrom(implementingType)), "The implementing type must implement all the service interfaces.");
+
+            Contract.Arguments.That(lifestyle == Lifestyle.Singleton || instantiationSpec.Instance == null, $"{nameof(InstantiationSpec.Instance)} registrations must be {nameof(Lifestyle.Singleton)}s");
 
             Name = name;
             ServiceTypes = serviceTypes;
-            ImplementingType = implementingType;
+            InstantiationSpec = instantiationSpec;
             Lifestyle = lifestyle;
         }
     }

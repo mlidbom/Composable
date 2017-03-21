@@ -26,7 +26,6 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.Sql
             using(var dbManager = new SqlServerDatabasePool(ConfigurationManager.ConnectionStrings["MasterDb"].ConnectionString))
             {
                 var connectionString = dbManager.ConnectionStringFor("SqlServerEventStoreTest_EventStore1");
-                SqlServerEventStore.ClearAllCache();
                 var eventStore = new SqlServerEventStore(connectionString, new SingleThreadUseGuard());
 
                 eventStore.GetAggregateHistory(Guid.NewGuid());//Trick store inte ensuring the schema exists.
@@ -51,8 +50,7 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.Sql
             using(var dbManager = new SqlServerDatabasePool(ConfigurationManager.ConnectionStrings["MasterDb"].ConnectionString))
             {
                 var connectionString = dbManager.ConnectionStringFor("SqlServerEventStoreTest_EventStore2");
-                SqlServerEventStore.ClearAllCache();
-                var something = new SqlServerEventStore(connectionString, new SingleThreadUseGuard());
+                var eventStore = new SqlServerEventStore(connectionString, new SingleThreadUseGuard());
 
                 var user = new User();
                 user.Register("email@email.se", "password", Guid.NewGuid());
@@ -60,17 +58,18 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.Sql
 
                 using(var tran = new TransactionScope())
                 {
-                    something.SaveEvents(stored.GetChanges());
-                    something.GetAggregateHistory(user.Id);
-                    Assert.That(something.GetAggregateHistory(user.Id), Is.Not.Empty);
+                    eventStore.SaveEvents(stored.GetChanges());
+                    eventStore.GetAggregateHistory(user.Id);
+                    Assert.That(eventStore.GetAggregateHistory(user.Id), Is.Not.Empty);
                     tran.Complete();
                 }
 
-                something = new SqlServerEventStore(connectionString, new SingleThreadUseGuard());
-                var firstRead = something.GetAggregateHistory(user.Id).Single();
+                var cache = new SqlServerEventStoreEventsCache();
+                eventStore = new SqlServerEventStore(connectionString, new SingleThreadUseGuard(), cache);
+                var firstRead = eventStore.GetAggregateHistory(user.Id).Single();
 
-                something = new SqlServerEventStore(connectionString, new SingleThreadUseGuard());
-                var secondRead = something.GetAggregateHistory(user.Id).Single();
+                eventStore = new SqlServerEventStore(connectionString, new SingleThreadUseGuard(), cache);
+                var secondRead = eventStore.GetAggregateHistory(user.Id).Single();
 
                 Assert.That(firstRead, Is.SameAs(secondRead));
             }

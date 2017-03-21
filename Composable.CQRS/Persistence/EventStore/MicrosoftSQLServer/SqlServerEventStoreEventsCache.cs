@@ -1,29 +1,19 @@
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Caching;
 using Composable.Persistence.EventSourcing;
 using Composable.System;
-using Composable.System.Linq;
 
 namespace Composable.Persistence.EventStore.MicrosoftSQLServer
 {
     class SqlServerEventStoreEventsCache
     {
-        static readonly ConcurrentDictionary<string, SqlServerEventStoreEventsCache> ConnectionStringToCacheMap =
-            new ConcurrentDictionary<string, SqlServerEventStoreEventsCache>();
-
         const string CacheName = "EventStore";
 
         MemoryCache _internalCache = new MemoryCache(CacheName);
 
-        SqlServerEventStoreEventsCache() { }
-
-        public static SqlServerEventStoreEventsCache ForConnectionString(string connectionString)
-        {
-            return ConnectionStringToCacheMap.GetOrAdd(connectionString, key => new SqlServerEventStoreEventsCache());
-        }
+        internal SqlServerEventStoreEventsCache() { }
 
         static readonly CacheItemPolicy Policy = new CacheItemPolicy()
                                                          {
@@ -51,11 +41,6 @@ namespace Composable.Persistence.EventStore.MicrosoftSQLServer
         {
             _internalCache.Dispose();
             _internalCache = new MemoryCache(CacheName);
-        }
-
-        public static void ClearAll()
-        {
-            ConnectionStringToCacheMap.Values.ForEach(@this => @this.Clear());
         }
 
         public void Remove(Guid id) { _internalCache.Remove(key: id.ToString()); }

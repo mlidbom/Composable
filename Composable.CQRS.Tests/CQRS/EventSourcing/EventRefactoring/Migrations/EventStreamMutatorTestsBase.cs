@@ -164,20 +164,21 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
 
             if (eventStoreType == typeof(SqlServerEventStore))
             {
+                var cache = new SqlServerEventStoreEventsCache();
                 if (eventStoreConnectionString == null)
                 {
                     var masterConnectionSTring = new ConnectionStringConfigurationParameterProvider().GetConnectionString("MasterDB");
                     var dbManager = container.RegisterSqlServerDatabasePool(masterConnectionSTring.ConnectionString);
 
                     eventStoreConnectionString = dbManager.ConnectionStringFor($"{nameof(EventStreamMutatorTestsBase)}_EventStore");
-                    SqlServerEventStore.ClearAllCache();
                 }
 
                 container.Register(
-                    Component.For<IEventStore>()
-                             .ImplementedBy<SqlServerEventStore>()
-                             .DependsOn(Dependency.OnValue<string>(eventStoreConnectionString))
-                             .LifestyleScoped());
+                                   Component.For<IEventStore>()
+                                            .ImplementedBy<SqlServerEventStore>()
+                                            .DependsOn(Dependency.OnValue<string>(eventStoreConnectionString),
+                                                       Dependency.OnValue<SqlServerEventStoreEventsCache>(cache))
+                                            .LifestyleScoped());
 
             }
             else if(eventStoreType == typeof(InMemoryEventStore))

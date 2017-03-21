@@ -10,11 +10,11 @@ namespace Composable.Persistence.EventStore.MicrosoftSQLServer
 {
     class SqlServerEventStoreSchemaManager
     {
-        static readonly HashSet<string> VerifiedConnectionStrings = new HashSet<string>();
-        static readonly Dictionary<string, IEventTypeToIdMapper> ConnectionIdMapper = new Dictionary<string, IEventTypeToIdMapper>();
-        static readonly EventTableSchemaManager EventTable = new EventTableSchemaManager();
-        static readonly EventTypeTableSchemaManager EventTypeTable = new EventTypeTableSchemaManager();
-        static readonly LegacyEventTableSchemaManager LegacyEventTable = new LegacyEventTableSchemaManager();
+        readonly HashSet<string> _verifiedConnectionStrings = new HashSet<string>();
+        readonly Dictionary<string, IEventTypeToIdMapper> _connectionIdMapper = new Dictionary<string, IEventTypeToIdMapper>();
+        readonly EventTableSchemaManager _eventTable = new EventTableSchemaManager();
+        readonly EventTypeTableSchemaManager _eventTypeTable = new EventTypeTableSchemaManager();
+        readonly LegacyEventTableSchemaManager _legacyEventTable = new LegacyEventTableSchemaManager();
 
         public SqlServerEventStoreSchemaManager(string connectionString, IEventNameMapper nameMapper)
         {
@@ -45,11 +45,11 @@ AT:
 
         public void SetupSchemaIfDatabaseUnInitialized()
         {
-            lock(VerifiedConnectionStrings)
+            lock(_verifiedConnectionStrings)
             {
-                if(VerifiedConnectionStrings.Contains(ConnectionString))
+                if(_verifiedConnectionStrings.Contains(ConnectionString))
                 {
-                    IdMapper = ConnectionIdMapper[ConnectionString];
+                    IdMapper = _connectionIdMapper[ConnectionString];
                     return;
                 }
 
@@ -57,35 +57,22 @@ AT:
                 {
                     using(var connection = OpenConnection())
                     {
-                        LegacyEventTable.LogAndThrowIfUsingLegacySchema(connection);
-                        var usingLegacySchema = LegacyEventTable.IsUsingLegacySchema(connection);
+                        _legacyEventTable.LogAndThrowIfUsingLegacySchema(connection);
+                        var usingLegacySchema = _legacyEventTable.IsUsingLegacySchema(connection);
 
                         IdMapper = new SqlServerEventStoreEventTypeToIdMapper(ConnectionString, _nameMapper);
 
-                        ConnectionIdMapper[ConnectionString] = IdMapper;
+                        _connectionIdMapper[ConnectionString] = IdMapper;
 
-                        if(!usingLegacySchema && !EventTable.Exists(connection))
+                        if(!usingLegacySchema && !_eventTable.Exists(connection))
                         {
-                            EventTypeTable.Create(connection);
-                            EventTable.Create(connection);
+                            _eventTypeTable.Create(connection);
+                            _eventTable.Create(connection);
                         }
 
-                        VerifiedConnectionStrings.Add(ConnectionString);
+                        _verifiedConnectionStrings.Add(ConnectionString);
                     }
                     transaction.Complete();
-                }
-            }
-        }
-
-        //todo:remove the need for this by not using statics
-        public static void ClearAllCache()
-        {
-            lock (VerifiedConnectionStrings)
-            {
-                foreach (var connectionString in VerifiedConnectionStrings.ToList())
-                {
-                    VerifiedConnectionStrings.Remove(connectionString);
-                    ConnectionIdMapper.Remove(connectionString);
                 }
             }
         }

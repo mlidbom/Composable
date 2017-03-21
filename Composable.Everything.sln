@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26228.4
+VisualStudioVersion = 15.0.26228.9
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Composable.Core", "Composable.System\Composable.Core.csproj", "{3632254D-0C4A-4EB8-B388-4C99F8939584}"
 EndProject
@@ -78,6 +78,8 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NetMqProcess01", "NetMqProcess1\NetMqProcess01.csproj", "{F26F80BD-33FC-4ACF-8FFC-45E05A07445A}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NetMqProcess02", "NetMqProcess2\NetMqProcess02.csproj", "{4F93CA8C-D3EE-4FB5-B357-98510A967436}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Composable.Testing", "Composable.Testing\Composable.Testing.csproj", "{97A297D3-CAA7-4ECD-82A2-0987A1E00A80}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -217,6 +219,12 @@ Global
 		{4F93CA8C-D3EE-4FB5-B357-98510A967436}.docs|Any CPU.Build.0 = Debug|Any CPU
 		{4F93CA8C-D3EE-4FB5-B357-98510A967436}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4F93CA8C-D3EE-4FB5-B357-98510A967436}.Release|Any CPU.Build.0 = Release|Any CPU
+		{97A297D3-CAA7-4ECD-82A2-0987A1E00A80}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{97A297D3-CAA7-4ECD-82A2-0987A1E00A80}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{97A297D3-CAA7-4ECD-82A2-0987A1E00A80}.docs|Any CPU.ActiveCfg = Debug|Any CPU
+		{97A297D3-CAA7-4ECD-82A2-0987A1E00A80}.docs|Any CPU.Build.0 = Debug|Any CPU
+		{97A297D3-CAA7-4ECD-82A2-0987A1E00A80}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{97A297D3-CAA7-4ECD-82A2-0987A1E00A80}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -246,5 +254,6 @@ Global
 		{1B59C5D6-7A44-4AC7-877B-32CC6D24FAE3} = {AE4A974C-DB59-48DF-BE0C-3CE8C2F5BF4F}
 		{F26F80BD-33FC-4ACF-8FFC-45E05A07445A} = {9FDBFFA6-3014-45F1-A57C-581C9B327E3B}
 		{4F93CA8C-D3EE-4FB5-B357-98510A967436} = {9FDBFFA6-3014-45F1-A57C-581C9B327E3B}
+		{97A297D3-CAA7-4ECD-82A2-0987A1E00A80} = {9CD284F1-8738-485C-899B-30FDE5384A86}
 	EndGlobalSection
 EndGlobal

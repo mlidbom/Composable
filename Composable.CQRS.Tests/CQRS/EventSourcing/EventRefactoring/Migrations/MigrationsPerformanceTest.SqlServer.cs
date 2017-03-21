@@ -14,6 +14,7 @@ using NUnit.Framework;
 
 namespace Composable.CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
 {
+    [Parallelizable(ParallelScope.None)]
     public class SqlServerMigrationsPerformanceTest : EventStreamMutatorTestsBase
     {
         public SqlServerMigrationsPerformanceTest() : base(typeof(SqlServerEventStore)) { }

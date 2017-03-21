@@ -1,6 +1,7 @@
 ﻿using System.Reflection;
 using System.Runtime.InteropServices;
 using Composable;
+using NUnit.Framework;
 
 // General Information about an assembly is controlled through the following
 // set of attributes. Change these attribute values to modify the information
@@ -41,3 +42,6 @@ using Composable;
 [assembly: System.Runtime.CompilerServices.InternalsVisibleTo(InternalsRequiredToBeVisibleTo.Assembly2)]
 [assembly: System.Runtime.CompilerServices.InternalsVisibleTo(InternalsRequiredToBeVisibleTo.Assembly3)]
 [assembly: System.Runtime.CompilerServices.InternalsVisibleTo(InternalsRequiredToBeVisibleTo.Assembly4)]
+
+
+[assembly: Parallelizable(ParallelScope.Fixtures)]

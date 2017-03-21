@@ -45,20 +45,34 @@ namespace Composable.Windsor.Persistence
 
             GeneratedLowLevelInterfaceInspector.InspectInterfaces(Seq.OfTypes<TSession, TUpdater, TReader, TBulkReader>());
 
-            var connectionString = Dependency.OnValue(typeof(string),
-                                                      @this.Resolve<IConnectionStringProvider>()
-                                                           .GetConnectionString(connectionName)
-                                                           .ConnectionString);
+            var newContainer = @this.AsDependencyInjectionContainer();
 
             var registration = new SqlServerDocumentDbRegistration<TSession>();
 
-            @this.Register(
-                           Component.For<IDocumentDb>()
-                                    .ImplementedBy<SqlServerDocumentDb>()
-                                    .DependsOn(connectionString)
-                                    .LifestyleScoped()
-                                    .Named(registration.DocumentDbName),
-                           Component.For(Seq.OfTypes<IDocumentDbSession>())
+            if(!newContainer.IsTestMode)
+            {
+
+                var connectionString = Dependency.OnValue(typeof(string),
+                                                          @this.Resolve<IConnectionStringProvider>()
+                                                               .GetConnectionString(connectionName)
+                                                               .ConnectionString);
+
+                @this.Register(Component.For<IDocumentDb>()
+                                        .ImplementedBy<SqlServerDocumentDb>()
+                                        .DependsOn(connectionString)
+                                        .LifestyleScoped()
+                                        .Named(registration.DocumentDbName));
+            } else
+            {
+                @this.Register(
+                               Component.For<IDocumentDb>()
+                                        .ImplementedBy<InMemoryDocumentDb>()
+                                        .Named(registration.DocumentDbName)
+                                        .LifestyleSingleton());
+            }
+
+
+            @this.Register(Component.For(Seq.OfTypes<IDocumentDbSession>())
                                     .ImplementedBy<DocumentDbSession>()
                                     .DependsOn(registration.DocumentDb)
                                     .LifestyleScoped()
@@ -66,9 +80,6 @@ namespace Composable.Windsor.Persistence
                            Component.For(Seq.OfTypes<TSession, TUpdater, TReader, TBulkReader>())
                                     .UsingFactoryMethod(kernel => CreateProxyFor<TSession, TUpdater, TReader, TBulkReader>(kernel.Resolve<IDocumentDbSession>(registration.SessionName)))
                           );
-
-            @this.WhenTesting()
-                 .ReplaceDocumentDb(registration.DocumentDbName);
         }
 
         static TSession CreateProxyFor<TSession, TUpdater, TReader, TBulkReader>(IDocumentDbSession session)

@@ -25,7 +25,11 @@ namespace Composable.DependencyInjection
     interface IDependencyInjectionContainer
     {
         IDependencyInjectionContainer Register(params CComponentRegistration[] registration);
+        bool IsTestMode { get; }
     }
+
+    class TestModeMarker
+    {}
 
     ///<summary></summary>
     interface IServiceLocator
@@ -118,8 +122,7 @@ namespace Composable.DependencyInjection
                 _instantInstatiationSpec = instantInstatiationSpec;
             }
 
-
-            ComponentRegistrationBuilderWithInstantiationSpec<TService> Named(string name)
+            internal ComponentRegistrationBuilderWithInstantiationSpec<TService> Named(string name)
             {
                 Contract.Arguments.That(Name == null, "Name == null");
                 Name = name;

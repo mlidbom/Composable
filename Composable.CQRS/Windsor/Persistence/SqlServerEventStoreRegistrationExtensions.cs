@@ -4,6 +4,7 @@ using Castle.DynamicProxy;
 using Castle.MicroKernel.Registration;
 using Castle.Windsor;
 using Composable.Contracts;
+using Composable.DependencyInjection;
 using Composable.Persistence.EventStore;
 using Composable.Persistence.EventStore.MicrosoftSQLServer;
 using Composable.Persistence.EventStore.Refactoring.Migrations;
@@ -78,12 +79,24 @@ namespace Composable.Windsor.Persistence
 
             var connectionString = Dependency.OnValue(typeof(string),@this.Resolve<IConnectionStringProvider>().GetConnectionString(connectionName).ConnectionString);
 
+            var newContainer = @this.AsDependencyInjectionContainer();
+
+            if(newContainer.IsTestMode)
+            {
+                newContainer.Register(CComponent.For<IEventStore>()
+                                        .ImplementedBy<InMemoryEventStore>()
+                                        .Named(registration.StoreName)
+                                        .LifestyleSingleton());
+            } else
+            {
+                @this.Register(Component.For<IEventStore>()
+                                        .ImplementedBy<SqlServerEventStore>()
+                                        .DependsOn(connectionString, nameMapper, migrations)
+                                        .LifestyleScoped()
+                                        .Named(registration.StoreName));
+            }
+
             @this.Register(
-                Component.For<IEventStore>()
-                         .ImplementedBy<SqlServerEventStore>()
-                         .DependsOn(connectionString, nameMapper, migrations)
-                    .LifestyleScoped()
-                    .Named(registration.StoreName),
                 Component.For<IEventStoreSession,IUnitOfWorkParticipant>()
                          .ImplementedBy(typeof(EventStoreSession))
                          .DependsOn(registration.Store)
@@ -95,8 +108,6 @@ namespace Composable.Windsor.Persistence
                          .Named(registration.SessionName)
                 );
 
-            @this.WhenTesting()
-                 .ReplaceEventStore(registration.StoreName);
 
             return registration;
         }

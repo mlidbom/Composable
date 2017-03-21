@@ -1,10 +1,8 @@
-﻿using Castle.Core;
-using Castle.Windsor;
+﻿using Castle.Windsor;
 using Composable.DependencyInjection;
 using Composable.DependencyInjection.Testing;
 using Composable.System.Linq;
 using Composable.SystemExtensions.Threading;
-using Component = Castle.MicroKernel.Registration.Component;
 
 namespace Composable.Windsor.Testing
 {
@@ -16,7 +14,11 @@ namespace Composable.Windsor.Testing
         public static void ConfigureWiringForTestsCallBeforeAllOtherWiring(this IWindsorContainer container)
         {
             container.AsDependencyInjectionContainer()
-                     .Register(CComponent.For<ISingleContextUseGuard>()
+                     .Register(
+                               CComponent.For<TestModeMarker>()
+                                         .ImplementedBy<TestModeMarker>()
+                                         .LifestyleSingleton(),
+                               CComponent.For<ISingleContextUseGuard>()
                                          .ImplementedBy<SingleThreadUseGuard>()
                                          .LifestyleScoped());
         }

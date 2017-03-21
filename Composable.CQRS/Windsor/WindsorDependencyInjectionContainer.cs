@@ -26,6 +26,8 @@ namespace Composable.Windsor
             return this;
         }
 
+        public bool IsTestMode => _container.Kernel.HasComponent(typeof(TestModeMarker));
+
         IRegistration ToWindsorRegistration(CComponentRegistration componentRegistration)
         {
             ComponentRegistration<object> registration = Component.For(componentRegistration.ServiceTypes);

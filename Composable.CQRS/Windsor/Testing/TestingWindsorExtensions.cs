@@ -2,6 +2,7 @@
 using Castle.Windsor;
 using Composable.DependencyInjection;
 using Composable.DependencyInjection.Testing;
+using Composable.System.Linq;
 using Composable.SystemExtensions.Threading;
 using Component = Castle.MicroKernel.Registration.Component;
 
@@ -23,7 +24,11 @@ namespace Composable.Windsor.Testing
 
         public static void ConfigureWiringForTestsCallAfterAllOtherWiring(this IWindsorContainer container)
         {
-            foreach(var configurer in container.ResolveAll<IConfigureWiringForTests>())
+            //container.AsServiceLocator()
+            //         .UseAll<IConfigureWiringForTests>(components
+            //                                               => components.ForEach(component => component.ConfigureWiringForTesting()));
+
+            foreach (var configurer in container.ResolveAll<IConfigureWiringForTests>())
             {
                 configurer.ConfigureWiringForTesting();
                 container.Release(configurer);

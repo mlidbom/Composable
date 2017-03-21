@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace Composable.Testing
 {
@@ -7,8 +8,20 @@ namespace Composable.Testing
                                  NUnit.Framework.Interfaces.IApplyToTest,
                                  NUnit.Framework.Interfaces.IApplyToContext
     {
-        //Exclusively use the resource: "Performance"
-        public PerformanceAttribute() : base("Performance") {}
+        public PerformanceAttribute(ResourceType resourceType = ResourceType.Cpu | ResourceType.Disk) : base(GetResourceTypes(resourceType)) {}
+        static string[] GetResourceTypes(ResourceType resourceType)
+        {
+            var typeNames = new List<string>();
+            if(resourceType.HasFlag(ResourceType.Cpu))
+            {
+                typeNames.Add("CpuPerformance");
+            }
+            if(resourceType.HasFlag(ResourceType.Disk))
+            {
+                typeNames.Add("DiskPerformance");
+            }
+            return typeNames.ToArray();
+        }
 
         //Add the NUnit category performance
         public void ApplyToTest(NUnit.Framework.Internal.Test test)
@@ -18,4 +31,12 @@ namespace Composable.Testing
         public void ApplyToContext(NUnit.Framework.Internal.TestExecutionContext context)
             => context.ParallelScope = NUnit.Framework.ParallelScope.None;
     }
+
+    [Flags]
+    enum ResourceType
+    {
+        Cpu = 1,
+        Disk = 2
+    }
 }
+

@@ -10,6 +10,7 @@ namespace Composable.Testing
 {
     static class TimeAsserter
     {
+        static readonly ILogger Log = Logger.For(typeof(TimeAsserter));
         const string DefaultTimeFormat = "ss\\.fff";
 
         static PerformanceCounter _totalCpu;
@@ -24,7 +25,7 @@ namespace Composable.Testing
             var currentValue = (int)_totalCpu.NextValue();
             while (currentValue > percent || currentValue == 0)
             {
-                SafeConsole.WriteLine($"Waiting {waitMilliseconds} milliseconds for CPU to drop below {percent} percent");
+                Log.Debug($"Waiting {waitMilliseconds} milliseconds for CPU to drop below {percent} percent");
                 Thread.Sleep(waitMilliseconds);
                 currentValue = (int)_totalCpu.NextValue();
             }

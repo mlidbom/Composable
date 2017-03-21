@@ -104,7 +104,7 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
         }
 
 
-    [Test, Performance] public void A_ten_thousand_events_large_aggregate_with_no_migrations_should_load_cached_in_less_than_20_milliseconds()
+    [Test, Performance] public void A_ten_thousand_events_large_aggregate_with_no_migrations_should_load_cached_in_less_than_30_milliseconds()
     {
       using (var container = CreateContainerForEventStoreType(() => new List<IEventMigration>(), EventStoreType))
       {
@@ -115,7 +115,7 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
         container.ExecuteUnitOfWorkInIsolatedScope(() => container.Resolve<IEventStoreSession>().Save(aggregate));
 
         TimeAsserter.Execute(
-          maxTotal: 20.Milliseconds().AdjustRuntimeToTestEnvironment(),
+          maxTotal: 30.Milliseconds().AdjustRuntimeToTestEnvironment(),
           description: "load aggregate in isolated scope",
           action:
           () =>

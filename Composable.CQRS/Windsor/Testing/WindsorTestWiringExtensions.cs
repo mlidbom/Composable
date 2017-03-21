@@ -1,8 +1,10 @@
 using System;
 using Castle.MicroKernel.Registration;
 using Castle.Windsor;
+using Composable.DependencyInjection.Testing;
 using Composable.Persistence.DocumentDb;
 using Composable.Persistence.EventStore;
+using Component = Castle.MicroKernel.Registration.Component;
 
 // ReSharper disable UnusedMethodReturnValue.Global
 

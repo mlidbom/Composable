@@ -1,4 +1,4 @@
-﻿namespace Composable.Windsor.Testing
+﻿namespace Composable.DependencyInjection.Testing
 {
     ///<summary>Component that changes container wiring to enable testing.</summary>
     interface IConfigureWiringForTests

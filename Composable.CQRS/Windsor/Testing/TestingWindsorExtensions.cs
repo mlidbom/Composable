@@ -1,7 +1,8 @@
 ﻿using Castle.Core;
-using Castle.MicroKernel.Registration;
 using Castle.Windsor;
+using Composable.DependencyInjection.Testing;
 using Composable.SystemExtensions.Threading;
+using Component = Castle.MicroKernel.Registration.Component;
 
 namespace Composable.Windsor.Testing
 {

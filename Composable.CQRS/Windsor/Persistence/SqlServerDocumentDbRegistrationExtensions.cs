@@ -56,12 +56,12 @@ namespace Composable.Windsor.Persistence
                            Component.For<IDocumentDb>()
                                     .ImplementedBy<SqlServerDocumentDb>()
                                     .DependsOn(connectionString)
-                                    .LifestylePerWebRequest()
+                                    .LifestyleScoped()
                                     .Named(registration.DocumentDbName),
                            Component.For(Seq.OfTypes<IDocumentDbSession>())
                                     .ImplementedBy<DocumentDbSession>()
                                     .DependsOn(registration.DocumentDb)
-                                    .LifestylePerWebRequest()
+                                    .LifestyleScoped()
                                     .Named(registration.SessionName),
                            Component.For(Seq.OfTypes<TSession, TUpdater, TReader, TBulkReader>())
                                     .UsingFactoryMethod(kernel => CreateProxyFor<TSession, TUpdater, TReader, TBulkReader>(kernel.Resolve<IDocumentDbSession>(registration.SessionName)))

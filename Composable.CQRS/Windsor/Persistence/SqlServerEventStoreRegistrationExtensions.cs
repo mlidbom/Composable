@@ -82,16 +82,16 @@ namespace Composable.Windsor.Persistence
                 Component.For<IEventStore>()
                          .ImplementedBy<SqlServerEventStore>()
                          .DependsOn(connectionString, nameMapper, migrations)
-                    .LifestylePerWebRequest()
+                    .LifestyleScoped()
                     .Named(registration.StoreName),
                 Component.For<IEventStoreSession,IUnitOfWorkParticipant>()
                          .ImplementedBy(typeof(EventStoreSession))
                          .DependsOn(registration.Store)
-                         .LifestylePerWebRequest()
+                         .LifestyleScoped()
                          .Named(registration.SessionImplementationName),
                 Component.For(Seq.Create(registration.SessionType, registration.ReaderType))
                          .UsingFactoryMethod(kernel => CreateProxyFor<TSessionInterface, TReaderInterface>(kernel.Resolve<IEventStoreSession>(registration.SessionImplementationName)))
-                         .LifestylePerWebRequest()
+                         .LifestyleScoped()
                          .Named(registration.SessionName)
                 );
 

@@ -11,7 +11,7 @@ namespace AccountManagement.Domain.ContainerInstallers
         public void Install(IWindsorContainer container, IConfigurationStore store)
         {
             container.Register(
-                Component.For<IAccountRepository>().ImplementedBy<AccountRepository>().LifestylePerWebRequest()
+                Component.For<IAccountRepository>().ImplementedBy<AccountRepository>().LifestyleScoped()
                 );
         }
     }

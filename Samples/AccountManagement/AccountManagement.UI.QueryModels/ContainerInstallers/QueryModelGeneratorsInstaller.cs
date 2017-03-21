@@ -11,7 +11,7 @@ namespace AccountManagement.UI.QueryModels.ContainerInstallers
     {
         public void Install(IWindsorContainer container, IConfigurationStore store)
         {
-            container.Register(Component.For<AccountQueryModelGenerator>().LifestylePerWebRequest());
+            container.Register(Component.For<AccountQueryModelGenerator>().LifestyleScoped());
         }
     }
 }

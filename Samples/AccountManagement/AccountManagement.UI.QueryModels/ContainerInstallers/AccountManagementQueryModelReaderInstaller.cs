@@ -21,7 +21,7 @@ namespace AccountManagement.UI.QueryModels.ContainerInstallers
                 Component.For<IAccountManagementQueryModelsReader>()
                     .ImplementedBy<AccountManagementQueryModelReader>()
                     .Named(ComponentKeys.QueryModelsReader)
-                    .LifestylePerWebRequest()
+                    .LifestyleScoped()
                     .IsDefault()
                 );
         }

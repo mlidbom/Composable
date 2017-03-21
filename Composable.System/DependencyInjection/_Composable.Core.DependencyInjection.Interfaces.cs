@@ -22,7 +22,7 @@ namespace Composable.DependencyInjection
         IDependencyInjectionContainer Register(params CComponentRegistration[] registration);
     }
 
-    class CComponent
+    static class CComponent
     {
         internal static ComponentRegistrationBuilderInitial<TService1> For<TService1, TService2, TService3>()
             => For<TService1>(Seq.OfTypes<TService2, TService3>());
@@ -80,6 +80,7 @@ namespace Composable.DependencyInjection
             }
 
             public CComponentRegistration LifestyleSingleton() => new CComponentRegistration(Lifestyle.Singleton, Name, _serviceTypes, _instantInstatiationSpec);
+            public CComponentRegistration LifestyleScoped() => new CComponentRegistration(Lifestyle.Scoped, Name, _serviceTypes, _instantInstatiationSpec);
 
         }
     }

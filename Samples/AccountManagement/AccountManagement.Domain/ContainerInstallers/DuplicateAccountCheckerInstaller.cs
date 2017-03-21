@@ -14,7 +14,7 @@ namespace AccountManagement.Domain.ContainerInstallers
             container.Register(
                 Component.For<IDuplicateAccountChecker>()
                     .ImplementedBy<DuplicateAccountChecker>()
-                    .LifestylePerWebRequest()
+                    .LifestyleScoped()
                 );
         }
     }

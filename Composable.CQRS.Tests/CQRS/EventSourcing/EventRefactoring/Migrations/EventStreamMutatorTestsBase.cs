@@ -151,13 +151,13 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
                     .LifestyleSingleton(),
                 Component.For<IServiceBus>()
                          .ImplementedBy<TestingOnlyServiceBus>()
-                         .LifestylePerWebRequest(),
+                         .LifestyleScoped(),
                 Component.For<IEnumerable<IEventMigration>>()
                          .UsingFactoryMethod(migrationsfactory)
-                         .LifestylePerWebRequest(),
+                         .LifestyleScoped(),
                 Component.For<IEventStoreSession, IUnitOfWorkParticipant>()
                          .ImplementedBy<EventStoreSession>()
-                         .LifestylePerWebRequest(),
+                         .LifestyleScoped(),
                 Component.For<IWindsorContainer>().Instance(container)
                 );
 

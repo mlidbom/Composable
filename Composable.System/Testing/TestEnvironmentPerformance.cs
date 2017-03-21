@@ -49,7 +49,7 @@ namespace Composable.Testing
 
 
             Log.Debug(processName);
-            loadedAssemblies.ForEach(Console.WriteLine);
+            loadedAssemblies.ForEach(assembly => Log.Info(assembly.ToString()));
 
             return new TestRunner($"Default/Fallback ({processName})");
         }

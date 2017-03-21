@@ -35,7 +35,7 @@ namespace Composable.Tests.StrictlyManagedResource
             return exception;
         }
 
-        [Test] public void Lead_is_detected() =>
+        [Test] public void Leak_is_detected() =>
             ExceedResourceLifeTimeWithoutDisposing(forceStackTraceCollection: false)
                 .Should()
                 .NotBeNull();

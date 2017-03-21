@@ -6,20 +6,8 @@
 
   <PropertyGroup>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
-    <SignAssembly>False</SignAssembly>
-    <AssemblyOriginatorKeyFile>Void.snk</AssemblyOriginatorKeyFile>
-    <DelaySign>False</DelaySign>
     <RootNamespace>Composable</RootNamespace>
   </PropertyGroup>
-
-  <ItemGroup>
-    <Compile Remove="DomainEvents\**" />
-    <Compile Remove="System\Transactions\**" />
-    <EmbeddedResource Remove="DomainEvents\**" />
-    <EmbeddedResource Remove="System\Transactions\**" />
-    <None Remove="DomainEvents\**" />
-    <None Remove="System\Transactions\**" />
-  </ItemGroup>
 
   <ItemGroup>
     <Compile Include="..\CommonAssemblyInfo.cs" Link="Properties\CommonAssemblyInfo.cs" />

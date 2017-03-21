@@ -4,15 +4,13 @@
     <TargetFramework>net451</TargetFramework>
   </PropertyGroup>
 
-
   <PropertyGroup>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <RootNamespace>Composable.Testing</RootNamespace>
   </PropertyGroup>
 
-
   <ItemGroup>
-    <Compile Include="..\CommonAssemblyInfo.cs" Link="CommonAssemblyInfo.cs" />
+    <Compile Include="..\CommonAssemblyInfo.cs" Link="Properties\CommonAssemblyInfo.cs" />
   </ItemGroup>
   
   <ItemGroup>
@@ -20,4 +18,5 @@
     <PackageReference Include="NUnit" Version="3.6.1" />
   </ItemGroup>
 
+  
 </Project>

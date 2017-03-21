@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Configuration;
 using System.Linq;
-using Composable.Logging;
 using Composable.Persistence.DocumentDb;
 using Composable.Persistence.DocumentDb.SqlServer;
 using Composable.System.Linq;
@@ -45,7 +44,7 @@ namespace Composable.CQRS.Tests.KeyValueStorage.Sql
                 var store = new SqlServerDocumentDb(connectionString);
                 using(var session = OpenSession(store))
                 {
-                    this.Log().Info(AppDomain.CurrentDomain.FriendlyName);
+                    Console.WriteLine(AppDomain.CurrentDomain.FriendlyName);
                     userIds.ForEach(userId => session.Save(new User(){Id = userId}));
                     session.SaveChanges();
                 }

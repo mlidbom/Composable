@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Threading;
-using Composable.Logging;
 
 namespace Composable.CQRS.Tests
 {
@@ -60,7 +59,7 @@ namespace Composable.CQRS.Tests
             {
                 if(_suppressUnloadErrors)
                 {
-                    this.Log().Error("############ ERROR UNLOADING APP DOMAIN ###############");
+                    Console.WriteLine("############ ERROR UNLOADING APP DOMAIN ###############");
                     return;
                 }
                 throw;

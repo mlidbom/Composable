@@ -29,7 +29,7 @@ namespace Composable.Persistence.EventStore.MicrosoftSQLServer
 
         readonly HashSet<Guid> _aggregatesWithEventsAddedByThisInstance = new HashSet<Guid>();
 
-        public SqlServerEventStore(string connectionString, ISingleContextUseGuard usageGuard, SqlServerEventStoreEventsCache cache = null, IEventNameMapper nameMapper = null, IEnumerable<IEventMigration> migrations = null)
+        public SqlServerEventStore(string connectionString, ISingleContextUseGuard usageGuard = null, SqlServerEventStoreEventsCache cache = null, IEventNameMapper nameMapper = null, IEnumerable<IEventMigration> migrations = null)
         {
             Log.Debug("Constructor called");
 
@@ -37,7 +37,7 @@ namespace Composable.Persistence.EventStore.MicrosoftSQLServer
             nameMapper = nameMapper ?? new DefaultEventNameMapper();
 
             ConnectionString = connectionString;
-            _usageGuard = usageGuard;
+            _usageGuard = usageGuard ?? new SingleThreadUseGuard();
             _cache = cache ?? new SqlServerEventStoreEventsCache();
             var connectionMananger = new SqlServerEventStoreConnectionManager(connectionString);
             _schemaManager = new SqlServerEventStoreSchemaManager(connectionString, nameMapper);

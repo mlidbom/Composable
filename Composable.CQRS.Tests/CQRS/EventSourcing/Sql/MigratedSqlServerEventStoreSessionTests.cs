@@ -43,7 +43,7 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.Sql
                                                                Before<UserRegistered>.Insert<MigratedBeforeUserRegisteredEvent>(),
                                                                After<UserChangedEmail>.Insert<MigratedAfterUserChangedEmailEvent>()
                                                            }: new List<IEventMigration>();
-            return new SqlServerEventStore(_connectionString, new SingleThreadUseGuard(), nameMapper: null, migrations: migrations);
+            return new SqlServerEventStore(_connectionString, migrations: migrations);
 
         }
 

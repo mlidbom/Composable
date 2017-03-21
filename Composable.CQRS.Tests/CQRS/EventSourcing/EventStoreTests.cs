@@ -158,9 +158,9 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing
             _tempDbManager.Dispose();
         }
 
-        protected override IEventStore CreateEventStore() => new SqlServerEventStore(_connectionString1, new SingleThreadUseGuard());
+        protected override IEventStore CreateEventStore() => new SqlServerEventStore(_connectionString1);
 
-        protected override IEventStore CreateEventStore2() => new SqlServerEventStore(_connectionString2, new SingleThreadUseGuard());
+        protected override IEventStore CreateEventStore2() => new SqlServerEventStore(_connectionString2);
 
         [Test]
         public void DoesNotMixUpEventsFromDifferentStores()

@@ -33,7 +33,7 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.Sql
             _databasePool.Dispose();
         }
 
-        protected override IEventStore CreateStore() => new SqlServerEventStore(_connectionString, new SingleThreadUseGuard());
+        protected override IEventStore CreateStore() => new SqlServerEventStore(_connectionString);
 
         [Test, Performance]
         public void Serializes_access_to_an_aggregate_so_that_concurrent_transactions_succeed_even_if_history_has_been_read_outside_of_modifying_transactions()

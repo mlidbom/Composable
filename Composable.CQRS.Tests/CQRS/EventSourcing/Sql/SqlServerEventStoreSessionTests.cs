@@ -36,7 +36,7 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.Sql
 
         protected override IEventStore CreateStore() => new SqlServerEventStore(_connectionString, new SingleThreadUseGuard());
 
-        [Test, Category(TestCategories.Slow)]
+        [Test, Performance]
         public void Serializes_access_to_an_aggregate_so_that_concurrent_transactions_succeed_even_if_history_has_been_read_outside_of_modifying_transactions()
         {
             var user = new User();
@@ -74,7 +74,7 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.Sql
             }
         }
 
-        [Test]
+        [Test, Performance]
         public void Serializes_access_to_an_aggregate_so_that_concurrent_transactions_succeed()
         {
             var user = new User();

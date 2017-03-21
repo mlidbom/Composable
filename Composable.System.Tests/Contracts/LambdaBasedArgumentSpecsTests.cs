@@ -47,7 +47,7 @@ namespace Composable.Tests.Contracts
             Assert.Throws<InvalidAccessorLambdaException>(() => Contract.Argument(() => 0));
         }
 
-        [Test, Category(TestCategories.PerformanceTest)]
+        [Test, Performance]
         public void ShouldRun50TestsIn1Millisecond() //The expression compilation stuff was worrying but this should be OK except for tight loops.
         {
             var notNullOrDefault = new object();

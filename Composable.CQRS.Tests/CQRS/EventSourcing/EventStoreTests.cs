@@ -43,7 +43,7 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing
         }
 
 
-        [Test,Category(TestCategories.Slow)]
+        [Test, Performance]
         public void StreamEventsSinceReturnsWholeEventLogWhenFetchingALargeNumberOfEvents_EnsureBatchingDoesNotBreakThings()
         {
             using (var eventStore = CreateEventStore())

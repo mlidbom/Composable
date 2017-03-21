@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Composable.Logging;
 using NSpec;
 using NSpec.Domain;
 using NSpec.Domain.Formatters;
@@ -46,7 +47,7 @@ namespace Composable
                 if(contexts.Failures().Any())
                 {
                     WriteNoticeably("SUMMARY");
-                    Console.WriteLine(Summary(contexts));
+                    this.Log().Error(Summary(contexts));
 
                     int currentFailure = 0;
                     foreach (var failure in contexts.Failures())
@@ -70,9 +71,9 @@ namespace Composable
                             .Select((name, level) => "\t".Times(level) + name)
                             .Aggregate(Environment.NewLine + "at: ", (agg, curr) => agg + curr + Environment.NewLine);
 
-                        Console.WriteLine(message);
+                        this.Log().Error(message);
 
-                        Console.WriteLine(WriteFailure(failure));
+                        this.Log().Error(WriteFailure(failure));
                     }
                 }
 

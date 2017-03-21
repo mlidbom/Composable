@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Configuration;
 using System.Linq;
+using Composable.Logging;
 using Composable.Persistence.EventSourcing;
 using Composable.Persistence.EventStore;
 using Composable.Persistence.EventStore.MicrosoftSQLServer;
@@ -26,6 +27,8 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing
     [TestFixture]
     public abstract class EventStoreTests
     {
+        static readonly ILogger Log = Logger.For<EventStoreTests>();
+
         protected abstract IEventStore CreateEventStore();
         protected abstract IEventStore CreateEventStore2();
 
@@ -142,6 +145,7 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing
         string _connectionString1;
         string _connectionString2;
         static SqlServerDatabasePool _tempDbManager;
+        static readonly ILogger Log = Logger.For<EventStoreTests>();
 
         [SetUp]
         public void SetupFixture()
@@ -204,24 +208,24 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing
             }
             catch(Exception)
             {
-                Console.WriteLine("aggregate1 events");
-                aggregate1Events.ForEach(e => Console.WriteLine($"   {e}"));
+                Log.Error("aggregate1 events");
+                aggregate1Events.ForEach(e => Log.Error($"   {e}"));
 
-                Console.WriteLine("\n\naggregate2 events");
-                aggregate2Events.ForEach(e => Console.WriteLine($"   {e}"));
+                Log.Error("\n\naggregate2 events");
+                aggregate2Events.ForEach(e => Log.Error($"   {e}"));
 
-                Console.WriteLine("\n\nloaded events from eventstore 1");
-                store1Events.ForEach(e => Console.WriteLine($"   {e}"));
+                Log.Error("\n\nloaded events from eventstore 1");
+                store1Events.ForEach(e => Log.Error($"   {e}"));
 
-                Console.WriteLine("\n\nloaded events from eventstore 2");
-                store2Events.ForEach(e => Console.WriteLine($"   {e}"));
+                Log.Error("\n\nloaded events from eventstore 2");
+                store2Events.ForEach(e => Log.Error($"   {e}"));
 
 
-                Console.WriteLine("\n\nloaded events from new eventstore 1");
-                store1NewStoreEvents.ForEach(e => Console.WriteLine($"   {e}"));
+                Log.Error("\n\nloaded events from new eventstore 1");
+                store1NewStoreEvents.ForEach(e => Log.Error($"   {e}"));
 
-                Console.WriteLine("\n\nloaded events from new eventstore 2");
-                store2NewStoreEvents.ForEach(e => Console.WriteLine($"   {e}"));
+                Log.Error("\n\nloaded events from new eventstore 2");
+                store2NewStoreEvents.ForEach(e => Log.Error($"   {e}"));
 
                 throw;
             }

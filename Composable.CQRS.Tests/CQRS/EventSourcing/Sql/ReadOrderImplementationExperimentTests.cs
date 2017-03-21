@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data.SqlTypes;
 using System.Linq;
+using Composable.Logging;
 using Composable.System.Linq;
 using NUnit.Framework;
 
@@ -10,20 +11,22 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.Sql
     [TestFixture]
     public class ReadOrderImplementationExperimentTests
     {
+        static readonly ILogger Log = Logger.For<ReadOrderImplementationExperimentTests>();
+
         [Test]
         public void AlternateAlgorithmRecursed()
         {
             var before = SqlDecimal.Parse("9223372036854775806.999999999999998");
             var after =  SqlDecimal.Parse("9223372036854775806.999999999999999");
 
-            Console.WriteLine($"before = {before}\nafter  = {after}");
-            Console.WriteLine("999999999999999989".Length);
+            Log.Info($"before = {before}\nafter  = {after}");
+            Log.Info("999999999999999989".Length.ToString());
 
             var eventsToInsert = 999;
 
             var insertSortOrders = GetSortOrdersBetween(before, after, eventsToInsert);
 
-            insertSortOrders.ForEach(insertSortOrder => Console.WriteLine($"         {insertSortOrder} scale: {insertSortOrder.Scale} "));
+            insertSortOrders.ForEach(insertSortOrder => Log.Info($"         {insertSortOrder} scale: {insertSortOrder.Scale} "));
         }
 
         [Test]
@@ -32,14 +35,14 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.Sql
             var before = SqlDecimal.Parse("9223372036854775806.9999999999999998");
             var after = SqlDecimal.Parse("9223372036854775806.99999999999999999");
 
-            Console.WriteLine($"before = {before}\nafter  = {after}");
-            Console.WriteLine("999999999999999989".Length);
+            Log.Info($"before = {before}\nafter  = {after}");
+            Log.Info("999999999999999989".Length.ToString());
 
             var eventsToInsert = 99;
 
             var insertSortOrders = GetSortOrdersBetween(before, after, eventsToInsert);
 
-            insertSortOrders.ForEach(insertSortOrder => Console.WriteLine($"         {insertSortOrder} scale: {insertSortOrder.Scale} "));
+            insertSortOrders.ForEach(insertSortOrder => Log.Info($"         {insertSortOrder} scale: {insertSortOrder.Scale} "));
         }
 
         [Test]
@@ -48,14 +51,14 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.Sql
             var before = SqlDecimal.Parse("9223372036854775806.9999999999999999997");
             var after =  SqlDecimal.Parse("9223372036854775806.9999999999999999999");
 
-            Console.WriteLine($"before = {before}:{before.Scale}\nafter  = {after}:{after.Scale}");
-            Console.WriteLine("999999999999999989".Length);
+            Log.Info($"before = {before}:{before.Scale}\nafter  = {after}:{after.Scale}");
+            Log.Info("999999999999999989".Length.ToString());
 
             var eventsToInsert = 1;
 
             var insertSortOrders = GetSortOrdersBetween(before, after, eventsToInsert);
 
-            insertSortOrders.ForEach(insertSortOrder => Console.WriteLine($"         {insertSortOrder} scale: {insertSortOrder.Scale} "));
+            insertSortOrders.ForEach(insertSortOrder => Log.Info($"         {insertSortOrder} scale: {insertSortOrder.Scale} "));
         }
 
         [Test]
@@ -64,14 +67,14 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.Sql
             var before = SqlDecimal.Parse("9223372036854775806.99999999999999999");
             var after =  SqlDecimal.Parse("9223372036854775807.00000000000000000");
 
-            Console.WriteLine($"before = {before}:{before.Scale}\nafter  = {after}:{after.Scale}");
+            Log.Info($"before = {before}:{before.Scale}\nafter  = {after}:{after.Scale}");
 
             var eventsToInsert = 99;
 
             var insertSortOrders = GetSortOrdersBetween(before, after, eventsToInsert).ToList();
 
 
-            insertSortOrders.ForEach(insertSortOrder => Console.WriteLine($"         {insertSortOrder} scale: {insertSortOrder.Scale} "));
+            insertSortOrders.ForEach(insertSortOrder => Log.Info($"         {insertSortOrder} scale: {insertSortOrder.Scale} "));
         }
 
         static IEnumerable<SqlDecimal> GetSortOrdersBetween(SqlDecimal before, SqlDecimal after, long eventsToInsert)

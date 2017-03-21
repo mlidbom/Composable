@@ -6,6 +6,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Transactions;
 using Composable.Contracts;
+using Composable.Logging;
 using Composable.System;
 using Composable.System.Data.SqlClient;
 using Composable.System.Linq;
@@ -293,7 +294,7 @@ CREATE TABLE [dbo].[{ManagerTableSchema.TableName}](
                 }
                 catch(Exception e)
                 {
-                    Console.WriteLine(e.Message);
+                   this.Log().Error(e.Message);
                 }
             }
 

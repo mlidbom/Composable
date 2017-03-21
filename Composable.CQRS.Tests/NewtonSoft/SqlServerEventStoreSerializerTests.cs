@@ -1,4 +1,5 @@
 ﻿using System;
+using Composable.Logging;
 using Composable.Persistence.EventSourcing;
 using Composable.Persistence.EventStore.MicrosoftSQLServer;
 using Composable.System.Diagnostics;
@@ -84,7 +85,7 @@ namespace Composable.CQRS.Tests.NewtonSoft
             var eventWithOnlySubclassValuesJson = SqlServerEvestStoreEventSerializer.Serialize(eventWithOnlySubclassValues);
             var roundTripped = SqlServerEvestStoreEventSerializer.Deserialize(typeof(TestEvent), eventWithAllValuesJson);
 
-            Console.WriteLine(eventWithAllValuesJson);
+            this.Log().Info(eventWithAllValuesJson);
 
             eventWithAllValuesJson.Should().Be(@"{
   ""Test1"": ""Test1"",

@@ -14,6 +14,7 @@ namespace Composable.Messaging
         Guid Id { get; }
     }
 
+    // ReSharper disable once UnusedTypeParameter
     public interface ICommand<TResult> : ICommand where TResult : IMessage
     {
     }

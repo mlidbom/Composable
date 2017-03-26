@@ -7,7 +7,6 @@ using Composable.Persistence.DocumentDb;
 using Composable.Persistence.DocumentDb.SqlServer;
 using Composable.System.Configuration;
 using Composable.System.Linq;
-using Composable.Windsor.Testing;
 
 namespace Composable.Windsor.Persistence
 {

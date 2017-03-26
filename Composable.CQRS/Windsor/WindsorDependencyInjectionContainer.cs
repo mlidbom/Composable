@@ -4,29 +4,29 @@ using Castle.Core.Internal;
 using Castle.MicroKernel.Registration;
 using Castle.Windsor;
 using Composable.DependencyInjection;
-using Component = Castle.MicroKernel.Registration.Component;
 
 namespace Composable.Windsor
 {
     static class WindsorDependencyInjectionContainerExtensions
     {
         internal static IDependencyInjectionContainer AsDependencyInjectionContainer(this IWindsorContainer @this) => new WindsorDependencyInjectionContainer(@this);
+        internal static IWindsorContainer Unsupported(this IDependencyInjectionContainer @this) { return ((WindsorDependencyInjectionContainer)@this).WindsorContainer; }
     }
 
     class WindsorDependencyInjectionContainer : IDependencyInjectionContainer
     {
-        readonly IWindsorContainer _container;
-        public WindsorDependencyInjectionContainer(IWindsorContainer container) { _container = container; }
+        internal readonly IWindsorContainer WindsorContainer;
+        public WindsorDependencyInjectionContainer(IWindsorContainer windsorContainer) { WindsorContainer = windsorContainer; }
         public IDependencyInjectionContainer Register(params CComponentRegistration[] registration)
         {
             var windsorRegistrations = registration.Select(ToWindsorRegistration)
                                                    .ToArray();
 
-            _container.Register(windsorRegistrations);
+            WindsorContainer.Register(windsorRegistrations);
             return this;
         }
 
-        public bool IsTestMode => _container.Kernel.HasComponent(typeof(TestModeMarker));
+        public bool IsTestMode => WindsorContainer.Kernel.HasComponent(typeof(TestModeMarker));
 
         IRegistration ToWindsorRegistration(CComponentRegistration componentRegistration)
         {

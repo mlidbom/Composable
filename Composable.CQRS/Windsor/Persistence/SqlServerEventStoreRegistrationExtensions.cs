@@ -12,7 +12,6 @@ using Composable.Persistence.EventStore.Refactoring.Naming;
 using Composable.System.Configuration;
 using Composable.System.Linq;
 using Composable.UnitsOfWork;
-using Composable.Windsor.Testing;
 
 namespace Composable.Windsor.Persistence
 {

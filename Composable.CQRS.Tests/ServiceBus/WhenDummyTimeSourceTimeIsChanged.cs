@@ -1,8 +1,7 @@
 ﻿using System;
-using Castle.MicroKernel.Lifestyle;
-using Castle.MicroKernel.Registration;
-using Castle.Windsor;
-using Composable.DependencyInjection.Windsor.Testing;
+using Composable.DependencyInjection;
+using Composable.DependencyInjection.Testing;
+using Composable.DependencyInjection.Windsor;
 using Composable.GenericAbstractions.Time;
 using Composable.Messaging.Buses;
 using Composable.Messaging.Commands;
@@ -18,13 +17,13 @@ namespace Composable.CQRS.Tests.ServiceBus
         IServiceBus _bus;
         DummyTimeSource _timeSource;
         IDisposable _scope;
-        WindsorContainer _container;
+        WindsorDependencyInjectionContainer _container;
         ScheduledCommand _receivedCommand = null;
 
         [SetUp]
         public void SetupTask()
         {
-            _container = new WindsorContainer();
+            _container = new WindsorDependencyInjectionContainer();
             _receivedCommand = null;
 
             _container.ConfigureWiringForTestsCallBeforeAllOtherWiring();
@@ -32,12 +31,13 @@ namespace Composable.CQRS.Tests.ServiceBus
             _timeSource = DummyTimeSource.FromLocalTime(DateTime.Parse("2015-01-01 10:00"));
 
           _container.Register(
-                              Component.For<DummyTimeSource>()
-                                       .Instance(_timeSource),
-                              Component.For<IMessageHandlerRegistrar, IMessageHandlerRegistry>()
+                              CComponent.For<DummyTimeSource>()
+                                       .Instance(_timeSource)
+                                       .LifestyleSingleton(),
+                              CComponent.For<IMessageHandlerRegistrar, IMessageHandlerRegistry>()
                                        .ImplementedBy<MessageHandlerRegistry>()
                                        .LifestyleSingleton(),
-                              Component.For<IServiceBus>()
+                              CComponent.For<IServiceBus>()
                                        .ImplementedBy<TestingOnlyServiceBus>()
                                        .LifestyleScoped());
 

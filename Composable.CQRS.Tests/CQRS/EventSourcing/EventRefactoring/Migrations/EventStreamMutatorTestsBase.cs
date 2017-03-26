@@ -4,6 +4,7 @@ using System.Linq;
 using Castle.MicroKernel.Lifestyle;
 using Castle.MicroKernel.Registration;
 using Castle.Windsor;
+using Composable.DependencyInjection.Persistence;
 using Composable.DependencyInjection.Windsor;
 using Composable.DependencyInjection.Windsor.Testing;
 using Composable.GenericAbstractions.Time;
@@ -168,7 +169,7 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
                 if (eventStoreConnectionString == null)
                 {
                     var masterConnectionSTring = new ConnectionStringConfigurationParameterProvider().GetConnectionString("MasterDB");
-                    var dbManager = container.RegisterSqlServerDatabasePool(masterConnectionSTring.ConnectionString);
+                    var dbManager = container.AsDependencyInjectionContainer().RegisterSqlServerDatabasePool(masterConnectionSTring.ConnectionString);
 
                     eventStoreConnectionString = dbManager.ConnectionStringFor($"{nameof(EventStreamMutatorTestsBase)}_EventStore");
                 }

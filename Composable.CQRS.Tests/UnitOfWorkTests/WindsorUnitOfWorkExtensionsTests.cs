@@ -1,6 +1,5 @@
 ﻿using System;
-using Castle.MicroKernel.Registration;
-using Castle.Windsor;
+using Composable.DependencyInjection;
 using Composable.DependencyInjection.Windsor;
 using Composable.SystemExtensions.Threading;
 using Composable.UnitsOfWork;
@@ -15,11 +14,11 @@ namespace Composable.CQRS.Tests.UnitOfWorkTests
         [Test]
         public void CommitInNestedScopeDoesNothing()
         {
-            var container = new WindsorContainer();
+            var container = new WindsorDependencyInjectionContainer();
             var unitOfWorkSpy = new UnitOfWorkSpy();
             container.Register(
-                Component.For<ISingleContextUseGuard>().ImplementedBy<SingleThreadUseGuard>(),
-                Component.For<IUnitOfWorkParticipant>().Instance(unitOfWorkSpy)
+                CComponent.For<ISingleContextUseGuard>().ImplementedBy<SingleThreadUseGuard>().LifestyleSingleton(),
+                CComponent.For<IUnitOfWorkParticipant>().Instance(unitOfWorkSpy).LifestyleSingleton()
                 );
 
             using(container.BeginTransactionalUnitOfWorkScope())
@@ -46,11 +45,11 @@ namespace Composable.CQRS.Tests.UnitOfWorkTests
         [Test]
         public void CommittingTheOuterScopeCommitsDuh()
         {
-            var container = new WindsorContainer();
+            var container = new WindsorDependencyInjectionContainer();
             var unitOfWorkSpy = new UnitOfWorkSpy();
             container.Register(
-                Component.For<ISingleContextUseGuard>().ImplementedBy<SingleThreadUseGuard>(),
-                Component.For<IUnitOfWorkParticipant>().Instance(unitOfWorkSpy)
+                CComponent.For<ISingleContextUseGuard>().ImplementedBy<SingleThreadUseGuard>().LifestyleSingleton(),
+                CComponent.For<IUnitOfWorkParticipant>().Instance(unitOfWorkSpy).LifestyleSingleton()
                 );
 
             using(var outerScope = container.BeginTransactionalUnitOfWorkScope())

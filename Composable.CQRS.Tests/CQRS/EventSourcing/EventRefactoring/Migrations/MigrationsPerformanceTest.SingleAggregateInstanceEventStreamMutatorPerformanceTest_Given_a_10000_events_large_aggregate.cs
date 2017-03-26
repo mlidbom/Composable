@@ -1,14 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Castle.MicroKernel.Lifestyle;
-using Castle.MicroKernel.Registration;
 using Castle.Windsor;
 using Composable.Contracts;
 using Composable.CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations.Events;
+using Composable.DependencyInjection;
+using Composable.DependencyInjection.Persistence;
+using Composable.DependencyInjection.Testing;
 using Composable.DependencyInjection.Windsor;
-using Composable.DependencyInjection.Windsor.Persistence;
-using Composable.DependencyInjection.Windsor.Testing;
 using Composable.GenericAbstractions.Time;
 using Composable.Messaging.Buses;
 using Composable.Persistence.EventSourcing;
@@ -45,24 +44,28 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
 
         void UseEventstoreSessionWithConfiguredMigrations(Action<IEventStoreSession> useSession)
         {
-            using(var container = new WindsorContainer())
+            using(var container = new WindsorDependencyInjectionContainer())
             {
 
                 var dummyTimeSource = DummyTimeSource.Now;
                 container.ConfigureWiringForTestsCallBeforeAllOtherWiring();
 
               container.Register(
-                                 Component.For<IConnectionStringProvider>()
-                                          .ImplementedBy<DummyConnectionStringProvider>(),
-                                 Component.For<IMessageHandlerRegistrar, IMessageHandlerRegistry>()
+                                 CComponent.For<IConnectionStringProvider>()
+                                          .ImplementedBy<DummyConnectionStringProvider>()
+                                          .LifestyleSingleton(),
+                                 CComponent.For<IMessageHandlerRegistrar, IMessageHandlerRegistry>()
                                           .ImplementedBy<MessageHandlerRegistry>()
                                           .LifestyleSingleton(),
-                                 Component.For<IUtcTimeTimeSource, DummyTimeSource>()
-                                          .Instance(dummyTimeSource),
-                                 Component.For<IWindsorContainer>()
-                                          .Instance(container),
-                                 Component.For<IServiceBus>()
-                                          .ImplementedBy<TestingOnlyServiceBus>());
+                                 CComponent.For<IUtcTimeTimeSource, DummyTimeSource>()
+                                          .Instance(dummyTimeSource)
+                                          .LifestyleSingleton(),
+                                 CComponent.For<IWindsorContainer>()
+                                          .Instance(((IServiceLocator)container).Unsupported())
+                                          .LifestyleSingleton(),
+                                 CComponent.For<IServiceBus>()
+                                          .ImplementedBy<TestingOnlyServiceBus>()
+                                          .LifestyleSingleton());
 
 
                 var registration = container.RegisterSqlServerEventStore<ITestingEventstoreSession, ITestingEventstoreReader>("dummy connection name");
@@ -72,7 +75,7 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
 
                 using(container.BeginScope())
                 {
-                    container.UseComponent<IEventStore>(registration.Store.Value.ToString(), store => store.SaveEvents(_history));
+                    container.Use<IEventStore>(registration.Store.Value.ToString(), store => store.SaveEvents(_history));
                 }
 
                 using(container.BeginScope())

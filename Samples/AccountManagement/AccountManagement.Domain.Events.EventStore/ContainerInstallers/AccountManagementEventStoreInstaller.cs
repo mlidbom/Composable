@@ -1,6 +1,5 @@
 ﻿using AccountManagement.Domain.Events.EventStore.Services;
 using Composable.DependencyInjection;
-using Composable.Windsor;
 using Composable.Windsor.Persistence;
 
 namespace AccountManagement.Domain.Events.EventStore.ContainerInstallers
@@ -11,7 +10,7 @@ namespace AccountManagement.Domain.Events.EventStore.ContainerInstallers
 
         internal static void Install(IDependencyInjectionContainer container)
         {
-            container.Unsupported().RegisterSqlServerEventStore<
+            container.RegisterSqlServerEventStore<
                 IAccountManagementEventStoreSession,
                 IAccountManagementEventStoreReader>(ConnectionStringName);
         }

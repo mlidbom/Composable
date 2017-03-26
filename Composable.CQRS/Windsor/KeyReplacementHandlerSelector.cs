@@ -15,16 +15,16 @@ namespace Composable.Windsor
         readonly string _originalKey;
         readonly string _replacementKey;
 
-        public KeyReplacementHandlerSelector(Type serviceType, string originalKey, string replacementKey)
+        internal KeyReplacementHandlerSelector(Type serviceType, string originalKey, string replacementKey)
         {
             _serviceType = serviceType;
             _originalKey = originalKey;
             _replacementKey = replacementKey;
         }
 
-        public bool HasOpinionAbout(string key, Type service) => key == _originalKey;
+        bool IHandlerSelector.HasOpinionAbout(string key, Type service) => key == _originalKey;
 
-        public IHandler SelectHandler(string key, Type service, IHandler[] handlers)
+        IHandler IHandlerSelector.SelectHandler(string key, Type service, IHandler[] handlers)
         {
             if (key == _originalKey)
             {

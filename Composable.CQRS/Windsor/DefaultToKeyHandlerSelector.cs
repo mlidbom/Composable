@@ -14,15 +14,15 @@ namespace Composable.Windsor
         readonly Type _type;
         readonly string _keyToDefaultTo;
 
-        public DefaultToKeyHandlerSelector(Type type, string keyToDefaultTo)
+        internal DefaultToKeyHandlerSelector(Type type, string keyToDefaultTo)
         {
             _type = type;
             _keyToDefaultTo = keyToDefaultTo;
         }
 
-        public bool HasOpinionAbout(string key, Type service) => service == _type;
+        bool IHandlerSelector.HasOpinionAbout(string key, Type service) => service == _type;
 
-        public IHandler SelectHandler(string key, Type service, IHandler[] handlers)
+        IHandler IHandlerSelector.SelectHandler(string key, Type service, IHandler[] handlers)
         {
             var handlerForDefaultKey = handlers.FirstOrDefault(handler => handler.ComponentModel.Name == _keyToDefaultTo);
             if (handlerForDefaultKey == null)

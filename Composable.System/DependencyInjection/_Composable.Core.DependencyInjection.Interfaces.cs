@@ -61,7 +61,7 @@ namespace Composable.DependencyInjection
             }
         }
 
-        public static void UseAll<TComponent>(this IServiceLocator @this, Action<TComponent[]> useComponent)
+        internal static void UseAll<TComponent>(this IServiceLocator @this, Action<TComponent[]> useComponent)
         {
             using (var lease = @this.LeaseAll<TComponent>())
             {
@@ -100,7 +100,7 @@ namespace Composable.DependencyInjection
 
         public class ComponentRegistrationBuilderInitial<TService> : ComponentRegistrationBuilderInitialBase
         {
-            public ComponentRegistrationBuilderInitial(IEnumerable<Type> serviceTypes) : base(serviceTypes.Concat(new List<Type>() {typeof(TService)})) {}
+            internal ComponentRegistrationBuilderInitial(IEnumerable<Type> serviceTypes) : base(serviceTypes.Concat(new List<Type>() {typeof(TService)})) {}
 
             public ComponentRegistrationBuilderWithInstantiationSpec<TService> ImplementedBy<TImplementation>()
             {
@@ -108,7 +108,7 @@ namespace Composable.DependencyInjection
                 return new ComponentRegistrationBuilderWithInstantiationSpec<TService>(ServiceTypes, InstantiationSpec.ImplementedBy(typeof(TImplementation)));
             }
 
-            public ComponentRegistrationBuilderWithInstantiationSpec<TService> Instance(TService instance)
+            internal ComponentRegistrationBuilderWithInstantiationSpec<TService> Instance(TService instance)
             {
                 Contract.Arguments.That(ServiceTypes.All(serviceType => serviceType.IsInstanceOfType(instance)), "The implementing type must implement all the service interfaces.");
                 return new ComponentRegistrationBuilderWithInstantiationSpec<TService>(ServiceTypes, InstantiationSpec.FromInstance(instance));
@@ -121,7 +121,7 @@ namespace Composable.DependencyInjection
             readonly InstantiationSpec _instantInstatiationSpec;
             public string Name { get; private set; }
 
-            public ComponentRegistrationBuilderWithInstantiationSpec(IEnumerable<Type> serviceTypes, InstantiationSpec instantInstatiationSpec)
+            internal ComponentRegistrationBuilderWithInstantiationSpec(IEnumerable<Type> serviceTypes, InstantiationSpec instantInstatiationSpec)
             {
                 _serviceTypes = serviceTypes;
                 _instantInstatiationSpec = instantInstatiationSpec;
@@ -134,7 +134,7 @@ namespace Composable.DependencyInjection
                 return this;
             }
 
-            public CComponentRegistration LifestyleSingleton() => new CComponentRegistration(Lifestyle.Singleton, Name, _serviceTypes, _instantInstatiationSpec);
+            internal CComponentRegistration LifestyleSingleton() => new CComponentRegistration(Lifestyle.Singleton, Name, _serviceTypes, _instantInstatiationSpec);
             public CComponentRegistration LifestyleScoped() => new CComponentRegistration(Lifestyle.Scoped, Name, _serviceTypes, _instantInstatiationSpec);
 
         }
@@ -146,7 +146,7 @@ namespace Composable.DependencyInjection
         Scoped
     }
 
-    public class InstantiationSpec
+    class InstantiationSpec
     {
         internal object Instance { get; }
         internal Type ImplementationType { get; }
@@ -162,7 +162,7 @@ namespace Composable.DependencyInjection
 
     public class CComponentRegistration
     {
-        public IEnumerable<Type> ServiceTypes { get; }
+        internal IEnumerable<Type> ServiceTypes { get; }
         internal InstantiationSpec InstantiationSpec { get; }
         internal Lifestyle Lifestyle { get; }
         internal string Name { get; }

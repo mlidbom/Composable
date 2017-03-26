@@ -44,7 +44,15 @@ namespace Composable.Windsor.Persistence
 
     public static class SqlServerEventStoreRegistrationExtensions
     {
-        public static SqlServerEventStoreRegistration RegisterSqlServerEventStore<TSessionInterface, TReaderInterface>
+        public static SqlServerEventStoreRegistration RegisterSqlServerEventStore<TSessionInterface, TReaderInterface>(this IDependencyInjectionContainer @this,
+                                                                                                                       string connectionName,
+                                                                                                                       Dependency nameMapper = null,
+                                                                                                                       Dependency migrations = null)
+            where TSessionInterface : IEventStoreSession
+            where TReaderInterface : IEventStoreReader =>
+                @this.Unsupported().RegisterSqlServerEventStore<TSessionInterface, TReaderInterface>(connectionName, nameMapper, migrations);
+
+        internal static SqlServerEventStoreRegistration RegisterSqlServerEventStore<TSessionInterface, TReaderInterface>
             (this IWindsorContainer @this,
              string connectionName,
              Dependency nameMapper = null,

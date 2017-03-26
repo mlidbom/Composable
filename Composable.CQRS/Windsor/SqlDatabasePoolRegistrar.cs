@@ -6,7 +6,7 @@ namespace Composable.Windsor
 {
     static class SqlDatabasePoolRegistrar
     {
-        public static SqlServerDatabasePool RegisterSqlServerDatabasePool(this IWindsorContainer @this,  string connectionString)
+        internal static SqlServerDatabasePool RegisterSqlServerDatabasePool(this IWindsorContainer @this,  string connectionString)
         {
             @this.Register(
                 Component.For<SqlServerDatabasePool>()

@@ -5,7 +5,7 @@ using JetBrains.Annotations;
 
 namespace Composable.Windsor
 {
-    public static class WindsorUnitOfWorkExtensions
+    static class WindsorUnitOfWorkExtensions
     {
         public static TResult ExecuteUnitOfWork<TResult>(this IWindsorContainer me, [InstantHandle]Func<TResult> function)
         {

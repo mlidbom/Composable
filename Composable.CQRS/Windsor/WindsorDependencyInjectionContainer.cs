@@ -12,11 +12,11 @@ using Composable.Windsor.Testing;
 
 namespace Composable.Windsor
 {
-    public static class WindsorDependencyInjectionContainerExtensions
+    static class WindsorDependencyInjectionContainerExtensions
     {
         internal static IDependencyInjectionContainer AsDependencyInjectionContainer(this IWindsorContainer @this) => new WindsorDependencyInjectionContainer(@this);
         public static IWindsorContainer Unsupported(this IDependencyInjectionContainer @this) => ((WindsorDependencyInjectionContainer)@this).WindsorContainer;
-        public static IWindsorContainer Unsupported(this IServiceLocator @this) => ((WindsorServiceLocator)@this).WindsorContainer;
+        internal static IWindsorContainer Unsupported(this IServiceLocator @this) => ((WindsorServiceLocator)@this).WindsorContainer;
     }
 
     public static class WindsorDependencyInjectionContainerFactory

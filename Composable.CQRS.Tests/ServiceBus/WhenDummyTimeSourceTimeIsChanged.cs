@@ -1,7 +1,6 @@
 ﻿using System;
 using Composable.DependencyInjection;
 using Composable.DependencyInjection.Testing;
-using Composable.DependencyInjection.Windsor;
 using Composable.GenericAbstractions.Time;
 using Composable.Messaging.Buses;
 using Composable.Messaging.Commands;
@@ -17,13 +16,13 @@ namespace Composable.CQRS.Tests.ServiceBus
         IServiceBus _bus;
         DummyTimeSource _timeSource;
         IDisposable _scope;
-        WindsorDependencyInjectionContainer _container;
+        IDependencyInjectionContainer _container;
         ScheduledCommand _receivedCommand = null;
 
         [SetUp]
         public void SetupTask()
         {
-            _container = new WindsorDependencyInjectionContainer();
+            _container = DependencyInjectionContainer.Create();
             _receivedCommand = null;
 
             _container.ConfigureWiringForTestsCallBeforeAllOtherWiring();
@@ -43,10 +42,11 @@ namespace Composable.CQRS.Tests.ServiceBus
 
             _container.ConfigureWiringForTestsCallAfterAllOtherWiring();
 
-            _scope = _container.BeginScope();
+            var serviceLocator = _container.CreateServiceLocator();
+            _scope = serviceLocator.BeginScope();
 
-            _bus = _container.Resolve<IServiceBus>();
-            _container.Resolve<IMessageHandlerRegistrar>()
+            _bus = serviceLocator.Resolve<IServiceBus>();
+            serviceLocator.Resolve<IMessageHandlerRegistrar>()
                       .ForCommand<ScheduledCommand>(cmd => _receivedCommand = cmd);
         }
 

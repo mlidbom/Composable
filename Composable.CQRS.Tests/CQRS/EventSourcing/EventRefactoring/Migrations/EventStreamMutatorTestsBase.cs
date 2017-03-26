@@ -1,12 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Castle.MicroKernel.Registration;
-using Castle.Windsor;
 using Composable.DependencyInjection;
 using Composable.DependencyInjection.Persistence;
 using Composable.DependencyInjection.Testing;
-using Composable.DependencyInjection.Windsor;
 using Composable.GenericAbstractions.Time;
 using Composable.Logging;
 using Composable.Messaging.Buses;
@@ -17,6 +14,7 @@ using Composable.Persistence.EventStore.Refactoring.Migrations;
 using Composable.System.Collections.Collections;
 using Composable.System.Configuration;
 using Composable.System.Linq;
+using Composable.SystemExtensions.Threading;
 using Composable.UnitsOfWork;
 using FluentAssertions;
 using Newtonsoft.Json;
@@ -139,11 +137,10 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
 
         protected static IServiceLocator CreateContainerForEventStoreType(Func<IReadOnlyList<IEventMigration>> migrationsfactory, Type eventStoreType, string eventStoreConnectionString = null)
         {
-            var container = new WindsorDependencyInjectionContainer();
+            var container = DependencyInjectionContainer.Create();
 
             container.ConfigureWiringForTestsCallBeforeAllOtherWiring();
 
-            var windsorContainer = container.Unsupported();
             container.Register(
                 CComponent.For<IUtcTimeTimeSource, DummyTimeSource>()
                     .Instance(DummyTimeSource.Now)
@@ -159,8 +156,7 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
                          .LifestyleScoped(),
                 CComponent.For<IEventStoreSession, IUnitOfWorkParticipant>()
                          .ImplementedBy<EventStoreSession>()
-                         .LifestyleScoped(),
-                CComponent.For<IWindsorContainer>().Instance(windsorContainer).LifestyleSingleton()
+                         .LifestyleScoped()
                 );
 
 
@@ -175,12 +171,15 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
                     eventStoreConnectionString = dbManager.ConnectionStringFor($"{nameof(EventStreamMutatorTestsBase)}_EventStore");
                 }
 
-                windsorContainer.Register(
-                                   Component.For<IEventStore>()
-                                            .ImplementedBy<SqlServerEventStore>()
-                                            .DependsOn(Dependency.OnValue<string>(eventStoreConnectionString),
-                                                       Dependency.OnValue<SqlServerEventStoreEventsCache>(cache))
-                                            .LifestyleScoped());
+                container.Register(
+                                   CComponent.For<IEventStore>()
+                                             .UsingFactoryMethod(
+                                                                 locator => new SqlServerEventStore(connectionString: eventStoreConnectionString,
+                                                                                                    usageGuard: locator.Resolve<ISingleContextUseGuard>(),
+                                                                                                    cache: cache,
+                                                                                                    nameMapper: null,
+                                                                                                    migrations: locator.Resolve<IEnumerable<IEventMigration>>()))
+                                             .LifestyleScoped());
 
             }
             else if(eventStoreType == typeof(InMemoryEventStore))
@@ -205,7 +204,7 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
             }
 
             container.ConfigureWiringForTestsCallAfterAllOtherWiring();
-            return container;
+            return container.CreateServiceLocator();
         }
 
         protected static void AssertStreamsAreIdentical(IEnumerable<IAggregateRootEvent> expected, IEnumerable<IAggregateRootEvent> migratedHistory, string descriptionOfHistory)

@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using System.Configuration;
 using System.Linq;
 using Composable.CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations;
+using Composable.DependencyInjection;
 using Composable.DependencyInjection.Persistence;
-using Composable.DependencyInjection.Windsor;
 using Composable.GenericAbstractions.Time;
 using Composable.Messaging.Buses;
 using Composable.Persistence.EventStore;
@@ -20,14 +20,14 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.Sql
     class MigratedSqlServerEventStoreSessionTests : NoSqlTest
     {
         string _connectionString;
-        WindsorDependencyInjectionContainer _windsorContainer;
+        IDependencyInjectionContainer _windsorContainer;
 
         TestingOnlyServiceBus Bus { get; set; }
 
         [SetUp]
         public void Setup()
         {
-            _windsorContainer = new WindsorDependencyInjectionContainer();
+            _windsorContainer = DependencyInjectionContainer.Create();
             Bus = new TestingOnlyServiceBus(DummyTimeSource.Now, new MessageHandlerRegistry());
             var masterConnectionString = ConfigurationManager.ConnectionStrings["MasterDb"].ConnectionString;
             _connectionString = _windsorContainer.RegisterSqlServerDatabasePool(masterConnectionString)

@@ -4,7 +4,6 @@ using AccountManagement.Domain.Events.EventStore;
 using AccountManagement.UI.QueryModels.DocumentDB.Updaters;
 using AccountManagement.UI.QueryModels.Services;
 using Composable.DependencyInjection;
-using Composable.DependencyInjection.Windsor;
 using NUnit.Framework;
 
 namespace AccountManagement.UI.QueryModels.Tests
@@ -25,7 +24,7 @@ namespace AccountManagement.UI.QueryModels.Tests
         public void SetupContainerAndScope()
         {
 
-            Container = WindsorDependencyInjectionContainerFactory.SetupForTesting(container =>
+            Container = DependencyInjectionContainer.SetupForTesting(container =>
                                                                                    {
                                                                                        AccountManagementDomainBootstrapper.SetupForTesting(container);
                                                                                        AccountManagementDomainEventStoreBootstrapper.BootstrapForTesting(container);

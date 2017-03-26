@@ -1,6 +1,5 @@
 ﻿using System;
 using Composable.DependencyInjection;
-using Composable.DependencyInjection.Windsor;
 using Composable.SystemExtensions.Threading;
 using Composable.UnitsOfWork;
 using FluentAssertions;
@@ -14,19 +13,20 @@ namespace Composable.CQRS.Tests.UnitOfWorkTests
         [Test]
         public void CommitInNestedScopeDoesNothing()
         {
-            var container = new WindsorDependencyInjectionContainer();
+            var container = DependencyInjectionContainer.Create();
+            var serviceLocator = container.CreateServiceLocator();
             var unitOfWorkSpy = new UnitOfWorkSpy();
             container.Register(
                 CComponent.For<ISingleContextUseGuard>().ImplementedBy<SingleThreadUseGuard>().LifestyleSingleton(),
                 CComponent.For<IUnitOfWorkParticipant>().Instance(unitOfWorkSpy).LifestyleSingleton()
                 );
 
-            using(container.BeginTransactionalUnitOfWorkScope())
+            using(serviceLocator.BeginTransactionalUnitOfWorkScope())
             {
                 unitOfWorkSpy.UnitOfWork.Should().NotBe(null);
                 unitOfWorkSpy.Committed.Should().Be(false);
                 unitOfWorkSpy.RolledBack.Should().Be(false);
-                using (var innerScope = container.BeginTransactionalUnitOfWorkScope())
+                using (var innerScope = serviceLocator.BeginTransactionalUnitOfWorkScope())
                 {
                     innerScope.Commit();
                     unitOfWorkSpy.UnitOfWork.Should().NotBe(null);
@@ -45,19 +45,20 @@ namespace Composable.CQRS.Tests.UnitOfWorkTests
         [Test]
         public void CommittingTheOuterScopeCommitsDuh()
         {
-            var container = new WindsorDependencyInjectionContainer();
+            var container = DependencyInjectionContainer.Create();
+            var serviceLocator = container.CreateServiceLocator();
             var unitOfWorkSpy = new UnitOfWorkSpy();
             container.Register(
                 CComponent.For<ISingleContextUseGuard>().ImplementedBy<SingleThreadUseGuard>().LifestyleSingleton(),
                 CComponent.For<IUnitOfWorkParticipant>().Instance(unitOfWorkSpy).LifestyleSingleton()
                 );
 
-            using(var outerScope = container.BeginTransactionalUnitOfWorkScope())
+            using(var outerScope = serviceLocator.BeginTransactionalUnitOfWorkScope())
             {
                 unitOfWorkSpy.UnitOfWork.Should().NotBe(null);
                 unitOfWorkSpy.Committed.Should().Be(false);
                 unitOfWorkSpy.RolledBack.Should().Be(false);
-                using (var innerScope = container.BeginTransactionalUnitOfWorkScope())
+                using (var innerScope = serviceLocator.BeginTransactionalUnitOfWorkScope())
                 {
                     innerScope.Commit();
                     unitOfWorkSpy.UnitOfWork.Should().NotBe(null);

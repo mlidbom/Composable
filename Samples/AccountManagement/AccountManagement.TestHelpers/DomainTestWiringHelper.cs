@@ -1,7 +1,6 @@
 ﻿using AccountManagement.Domain;
 using AccountManagement.Domain.Events.EventStore;
 using Composable.DependencyInjection;
-using Composable.DependencyInjection.Windsor;
 
 namespace AccountManagement.TestHelpers
 {
@@ -9,7 +8,7 @@ namespace AccountManagement.TestHelpers
     {
         public static IServiceLocator SetupContainerForTesting()
         {
-            return WindsorDependencyInjectionContainerFactory.SetupForTesting(container =>
+            return DependencyInjectionContainer.SetupForTesting(container =>
                                                                        {
                                                                            AccountManagementDomainBootstrapper.SetupForTesting(container);
                                                                            AccountManagementDomainEventStoreBootstrapper.BootstrapForTesting(container);

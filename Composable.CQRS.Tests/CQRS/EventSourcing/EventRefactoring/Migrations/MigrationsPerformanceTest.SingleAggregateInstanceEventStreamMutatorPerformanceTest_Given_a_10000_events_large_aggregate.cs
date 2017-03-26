@@ -5,7 +5,6 @@ using Composable.Contracts;
 using Composable.CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations.Events;
 using Composable.DependencyInjection;
 using Composable.DependencyInjection.Persistence;
-using Composable.DependencyInjection.Windsor;
 using Composable.GenericAbstractions.Time;
 using Composable.Persistence.EventSourcing;
 using Composable.Persistence.EventStore;
@@ -42,7 +41,7 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
         {
             SqlServerEventStoreRegistration registration =  null;
 
-            var container = WindsorDependencyInjectionContainerFactory.SetupForTesting(
+            var container = DependencyInjectionContainer.SetupForTesting(
                 cont => registration = cont.RegisterSqlServerEventStore<ITestingEventstoreSession, ITestingEventstoreReader>("dummy connection name"));
 
             using (container)

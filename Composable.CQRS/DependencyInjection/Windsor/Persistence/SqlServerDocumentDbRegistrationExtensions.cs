@@ -2,13 +2,12 @@ using System;
 using Castle.DynamicProxy;
 using Castle.MicroKernel.Registration;
 using Composable.Contracts;
-using Composable.DependencyInjection;
 using Composable.Persistence.DocumentDb;
 using Composable.Persistence.DocumentDb.SqlServer;
 using Composable.System.Configuration;
 using Composable.System.Linq;
 
-namespace Composable.Windsor.Persistence
+namespace Composable.DependencyInjection.Windsor.Persistence
 {
     abstract class SqlServerDocumentDbRegistration
     {

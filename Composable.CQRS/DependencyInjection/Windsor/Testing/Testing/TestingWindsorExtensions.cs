@@ -1,11 +1,10 @@
 ﻿using System;
 using Castle.Windsor;
-using Composable.DependencyInjection;
 using Composable.GenericAbstractions.Time;
 using Composable.Messaging.Buses;
 using Composable.System.Configuration;
 
-namespace Composable.Windsor.Testing.Testing
+namespace Composable.DependencyInjection.Windsor.Testing.Testing
 {
     public static class TestingWindsorExtensions
     {

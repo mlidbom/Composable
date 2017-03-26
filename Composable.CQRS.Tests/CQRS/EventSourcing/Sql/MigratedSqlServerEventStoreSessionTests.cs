@@ -4,13 +4,13 @@ using System.Configuration;
 using System.Linq;
 using Castle.Windsor;
 using Composable.CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations;
+using Composable.DependencyInjection.Windsor;
 using Composable.GenericAbstractions.Time;
 using Composable.Messaging.Buses;
 using Composable.Persistence.EventStore;
 using Composable.Persistence.EventStore.MicrosoftSQLServer;
 using Composable.Persistence.EventStore.Refactoring.Migrations;
 using Composable.SystemExtensions.Threading;
-using Composable.Windsor;
 using FluentAssertions;
 using NUnit.Framework;
 

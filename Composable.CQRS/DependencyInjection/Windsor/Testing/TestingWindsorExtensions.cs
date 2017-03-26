@@ -1,10 +1,9 @@
 ﻿using Castle.Windsor;
-using Composable.DependencyInjection;
 using Composable.DependencyInjection.Testing;
 using Composable.System.Linq;
 using Composable.SystemExtensions.Threading;
 
-namespace Composable.Windsor.Testing
+namespace Composable.DependencyInjection.Windsor.Testing
 {
     static class TestingWindsorExtensions
     {

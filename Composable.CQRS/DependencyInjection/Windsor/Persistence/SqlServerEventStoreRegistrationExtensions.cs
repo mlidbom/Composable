@@ -4,7 +4,6 @@ using Castle.DynamicProxy;
 using Castle.MicroKernel.Registration;
 using Castle.Windsor;
 using Composable.Contracts;
-using Composable.DependencyInjection;
 using Composable.Persistence.EventStore;
 using Composable.Persistence.EventStore.MicrosoftSQLServer;
 using Composable.Persistence.EventStore.Refactoring.Migrations;
@@ -13,7 +12,7 @@ using Composable.System.Configuration;
 using Composable.System.Linq;
 using Composable.UnitsOfWork;
 
-namespace Composable.Windsor.Persistence
+namespace Composable.DependencyInjection.Windsor.Persistence
 {
     public abstract class SqlServerEventStoreRegistration
     {

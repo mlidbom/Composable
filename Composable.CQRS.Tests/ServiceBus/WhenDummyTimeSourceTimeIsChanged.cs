@@ -2,11 +2,11 @@
 using Castle.MicroKernel.Lifestyle;
 using Castle.MicroKernel.Registration;
 using Castle.Windsor;
+using Composable.DependencyInjection.Windsor.Testing;
 using Composable.GenericAbstractions.Time;
 using Composable.Messaging.Buses;
 using Composable.Messaging.Commands;
 using Composable.System;
-using Composable.Windsor.Testing;
 using FluentAssertions;
 using NUnit.Framework;
 

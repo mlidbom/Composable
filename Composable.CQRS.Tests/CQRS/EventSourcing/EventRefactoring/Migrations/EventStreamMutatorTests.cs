@@ -4,6 +4,7 @@ using System.Linq;
 using Castle.MicroKernel.Lifestyle;
 using Castle.Windsor;
 using Composable.CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations.Events;
+using Composable.DependencyInjection.Windsor;
 using Composable.GenericAbstractions.Time;
 using Composable.Logging;
 using Composable.Persistence.EventSourcing;
@@ -11,7 +12,6 @@ using Composable.Persistence.EventStore;
 using Composable.Persistence.EventStore.MicrosoftSQLServer;
 using Composable.Persistence.EventStore.Refactoring.Migrations;
 using Composable.System.Linq;
-using Composable.Windsor;
 using FluentAssertions;
 using NUnit.Framework;
 // ReSharper disable AccessToDisposedClosure

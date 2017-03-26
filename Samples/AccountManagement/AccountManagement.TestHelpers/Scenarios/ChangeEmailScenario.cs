@@ -2,7 +2,7 @@
 using AccountManagement.Domain.Services;
 using AccountManagement.Domain.Shared;
 using Composable.DependencyInjection;
-using Composable.Windsor;
+using Composable.DependencyInjection.Windsor;
 
 namespace AccountManagement.TestHelpers.Scenarios
 {

@@ -5,7 +5,7 @@ using Castle.Windsor;
 using Composable.SystemExtensions.Threading;
 using Composable.UnitsOfWork;
 
-namespace Composable.Windsor
+namespace Composable.DependencyInjection.Windsor
 {
     static class WindsorUnitOfWorkExtensions1
     {

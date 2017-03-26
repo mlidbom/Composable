@@ -2,9 +2,8 @@
 using System.Linq;
 using Castle.MicroKernel.Lifestyle;
 using Castle.Windsor;
-using Composable.DependencyInjection;
 
-namespace Composable.Windsor
+namespace Composable.DependencyInjection.Windsor
 {
     static class WindsorServiceLocatorExtensions
     {

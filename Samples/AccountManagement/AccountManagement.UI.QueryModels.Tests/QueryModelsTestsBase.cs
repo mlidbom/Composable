@@ -4,7 +4,7 @@ using AccountManagement.Domain.Events.EventStore;
 using AccountManagement.UI.QueryModels.DocumentDB.Updaters;
 using AccountManagement.UI.QueryModels.Services;
 using Composable.DependencyInjection;
-using Composable.Windsor;
+using Composable.DependencyInjection.Windsor;
 using NUnit.Framework;
 
 namespace AccountManagement.UI.QueryModels.Tests

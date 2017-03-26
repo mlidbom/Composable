@@ -1,9 +1,9 @@
 ﻿using System;
 using Castle.MicroKernel.Registration;
 using Castle.Windsor;
+using Composable.DependencyInjection.Windsor;
 using Composable.SystemExtensions.Threading;
 using Composable.UnitsOfWork;
-using Composable.Windsor;
 using FluentAssertions;
 using NUnit.Framework;
 

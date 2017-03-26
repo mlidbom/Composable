@@ -4,13 +4,12 @@ using Castle.Core.Internal;
 using Castle.MicroKernel.Lifestyle;
 using Castle.MicroKernel.Registration;
 using Castle.Windsor;
-using Composable.DependencyInjection;
 using Composable.GenericAbstractions.Time;
 using Composable.Messaging.Buses;
 using Composable.System.Configuration;
-using Composable.Windsor.Testing;
+using Composable.DependencyInjection.Windsor.Testing;
 
-namespace Composable.Windsor
+namespace Composable.DependencyInjection.Windsor
 {
     static class WindsorDependencyInjectionContainerExtensions
     {

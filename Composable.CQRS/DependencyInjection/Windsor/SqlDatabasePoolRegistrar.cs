@@ -2,7 +2,7 @@
 using Castle.Windsor;
 using Composable.Testing;
 
-namespace Composable.Windsor
+namespace Composable.DependencyInjection.Windsor
 {
     static class SqlDatabasePoolRegistrar
     {

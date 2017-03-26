@@ -4,7 +4,7 @@ using Castle.Windsor;
 
 // ReSharper disable UnusedMethodReturnValue.Global
 
-namespace Composable.Windsor
+namespace Composable.DependencyInjection.Windsor
 {
     static class WindsorComponentReplacer
     {

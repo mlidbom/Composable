@@ -1,7 +1,7 @@
 ﻿using AccountManagement.Domain;
 using AccountManagement.Domain.Events.EventStore;
 using Composable.DependencyInjection;
-using Composable.Windsor;
+using Composable.DependencyInjection.Windsor;
 
 namespace AccountManagement.TestHelpers
 {

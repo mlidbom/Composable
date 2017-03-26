@@ -7,7 +7,7 @@ using Composable.Persistence.EventStore;
 
 // ReSharper disable UnusedMethodReturnValue.Global
 
-namespace Composable.Windsor.Testing
+namespace Composable.DependencyInjection.Windsor.Testing
 {
     static class RewiringHelperExtensions
     {

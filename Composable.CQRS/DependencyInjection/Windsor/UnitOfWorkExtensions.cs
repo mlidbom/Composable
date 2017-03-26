@@ -1,8 +1,7 @@
 ﻿using System;
-using Composable.DependencyInjection;
 using JetBrains.Annotations;
 
-namespace Composable.Windsor
+namespace Composable.DependencyInjection.Windsor
 {
     public static class UnitOfWorkExtensions
     {

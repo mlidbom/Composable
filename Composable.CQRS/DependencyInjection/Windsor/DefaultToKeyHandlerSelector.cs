@@ -2,7 +2,7 @@
 using System.Linq;
 using Castle.MicroKernel;
 
-namespace Composable.Windsor
+namespace Composable.DependencyInjection.Windsor
 {
     /// <summary>
     /// When multiple registrations to the same type are made this HandlerSelector defaults selection to the one with the specified key

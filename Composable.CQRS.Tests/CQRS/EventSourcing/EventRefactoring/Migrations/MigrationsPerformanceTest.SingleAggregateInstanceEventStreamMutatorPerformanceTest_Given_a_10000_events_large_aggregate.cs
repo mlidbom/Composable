@@ -42,7 +42,8 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
         {
             SqlServerEventStoreRegistration registration =  null;
 
-            var container = WindsorDependencyInjectionContainerFactory.SetupForTesting(cont => registration = cont.RegisterSqlServerEventStore<ITestingEventstoreSession, ITestingEventstoreReader>("dummy connection name"));
+            var container = WindsorDependencyInjectionContainerFactory.SetupForTesting(
+                cont => registration = cont.RegisterSqlServerEventStore<ITestingEventstoreSession, ITestingEventstoreReader>("dummy connection name"));
 
             using (container)
             {

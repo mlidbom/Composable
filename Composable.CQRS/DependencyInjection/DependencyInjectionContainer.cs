@@ -5,10 +5,6 @@ using Castle.MicroKernel.Lifestyle;
 using Castle.MicroKernel.Registration;
 using Castle.MicroKernel.Resolvers.SpecializedResolvers;
 using Castle.Windsor;
-using Composable.DependencyInjection.Testing;
-using Composable.GenericAbstractions.Time;
-using Composable.Messaging.Buses;
-using Composable.System.Configuration;
 using JetBrains.Annotations;
 
 namespace Composable.DependencyInjection

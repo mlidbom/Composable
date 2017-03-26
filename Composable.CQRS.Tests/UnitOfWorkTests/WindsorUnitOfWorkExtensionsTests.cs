@@ -13,14 +13,13 @@ namespace Composable.CQRS.Tests.UnitOfWorkTests
         [Test]
         public void CommitInNestedScopeDoesNothing()
         {
-            var container = DependencyInjectionContainer.Create();
-            var serviceLocator = container.CreateServiceLocator();
             var unitOfWorkSpy = new UnitOfWorkSpy();
-            container.Register(
-                CComponent.For<ISingleContextUseGuard>().ImplementedBy<SingleThreadUseGuard>().LifestyleSingleton(),
-                CComponent.For<IUnitOfWorkParticipant>().Instance(unitOfWorkSpy).LifestyleSingleton()
-                );
+            var serviceLocator = DependencyInjectionContainer.SetupForTesting(
+                                                                              cont => cont.Register(CComponent.For<IUnitOfWorkParticipant>()
+                                                                                                              .Instance(unitOfWorkSpy)
+                                                                                                              .LifestyleSingleton()));
 
+            using(serviceLocator.BeginScope())
             using(serviceLocator.BeginTransactionalUnitOfWorkScope())
             {
                 unitOfWorkSpy.UnitOfWork.Should().NotBe(null);
@@ -45,15 +44,14 @@ namespace Composable.CQRS.Tests.UnitOfWorkTests
         [Test]
         public void CommittingTheOuterScopeCommitsDuh()
         {
-            var container = DependencyInjectionContainer.Create();
-            var serviceLocator = container.CreateServiceLocator();
             var unitOfWorkSpy = new UnitOfWorkSpy();
-            container.Register(
-                CComponent.For<ISingleContextUseGuard>().ImplementedBy<SingleThreadUseGuard>().LifestyleSingleton(),
-                CComponent.For<IUnitOfWorkParticipant>().Instance(unitOfWorkSpy).LifestyleSingleton()
-                );
+            var serviceLocator = DependencyInjectionContainer.SetupForTesting(
+                                                                              cont => cont.Register(CComponent.For<IUnitOfWorkParticipant>()
+                                                                                                              .Instance(unitOfWorkSpy)
+                                                                                                              .LifestyleSingleton()));
 
-            using(var outerScope = serviceLocator.BeginTransactionalUnitOfWorkScope())
+            using (serviceLocator.BeginScope())
+            using (var outerScope = serviceLocator.BeginTransactionalUnitOfWorkScope())
             {
                 unitOfWorkSpy.UnitOfWork.Should().NotBe(null);
                 unitOfWorkSpy.Committed.Should().Be(false);

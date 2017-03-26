@@ -9,6 +9,7 @@ using Composable.DependencyInjection.Testing;
 using Composable.GenericAbstractions.Time;
 using Composable.Messaging.Buses;
 using Composable.System.Configuration;
+using JetBrains.Annotations;
 
 namespace Composable.DependencyInjection.Windsor
 {
@@ -22,7 +23,7 @@ namespace Composable.DependencyInjection.Windsor
 
     public static class WindsorDependencyInjectionContainerFactory
     {
-        public static IServiceLocator SetupForTesting(Action<IDependencyInjectionContainer> setup)
+        public static IServiceLocator SetupForTesting([InstantHandle]Action<IDependencyInjectionContainer> setup)
         {
             var @this = new WindsorDependencyInjectionContainer();
 

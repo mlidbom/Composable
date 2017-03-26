@@ -142,15 +142,6 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
             container.ConfigureWiringForTestsCallBeforeAllOtherWiring();
 
             container.Register(
-                CComponent.For<IUtcTimeTimeSource, DummyTimeSource>()
-                    .Instance(DummyTimeSource.Now)
-                    .LifestyleSingleton(),
-                CComponent.For<IMessageHandlerRegistrar, IMessageHandlerRegistry>()
-                    .ImplementedBy<MessageHandlerRegistry>()
-                    .LifestyleSingleton(),
-                CComponent.For<IServiceBus>()
-                         .ImplementedBy<TestingOnlyServiceBus>()
-                         .LifestyleScoped(),
                 CComponent.For<IEnumerable<IEventMigration>>()
                          .UsingFactoryMethod(_ => migrationsfactory())
                          .LifestyleScoped(),

@@ -22,25 +22,6 @@ namespace Composable.DependencyInjection
 
             @this.ConfigureWiringForTestsCallBeforeAllOtherWiring();
 
-            var dummyTimeSource = DummyTimeSource.Now;
-            var registry = new MessageHandlerRegistry();
-            var bus = new TestingOnlyServiceBus(dummyTimeSource, registry);
-
-            @this.Register(
-                           CComponent.For<IUtcTimeTimeSource, DummyTimeSource>()
-                                     .Instance(dummyTimeSource)
-                                     .LifestyleSingleton(),
-                           CComponent.For<IMessageHandlerRegistrar>()
-                                     .Instance(registry)
-                                     .LifestyleSingleton(),
-                           CComponent.For<IServiceBus, IMessageSpy>()
-                                     .Instance(bus)
-                                     .LifestyleSingleton(),
-                           CComponent.For<IConnectionStringProvider>()
-                                     .Instance(new DummyConnectionStringProvider())
-                                     .LifestyleSingleton()
-                          );
-
             setup(@this);
 
             @this.ConfigureWiringForTestsCallAfterAllOtherWiring();

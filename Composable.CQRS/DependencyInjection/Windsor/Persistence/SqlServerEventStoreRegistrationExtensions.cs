@@ -78,14 +78,16 @@ namespace Composable.DependencyInjection.Windsor.Persistence
             Contract.Argument(() => connectionName)
                         .NotNullEmptyOrWhiteSpace();
 
+            var newContainer = @this.AsDependencyInjectionContainer();
+            var serviceLocator = newContainer.CreateServiceLocator();
+
             GeneratedLowLevelInterfaceInspector.InspectInterfaces(Seq.OfTypes<TSessionInterface, TReaderInterface>());
 
             nameMapper = nameMapper ?? Dependency.OnValue<IEventNameMapper>(null);//We don't want to get any old name mapper that might have been registered by someone else.
             migrations = migrations ?? Dependency.OnValue<IEnumerable<IEventMigration>>(null); //We don't want to get any old migrations array that might have been registered by someone else.
 
-            var connectionString = Dependency.OnValue(typeof(string),@this.Resolve<IConnectionStringProvider>().GetConnectionString(connectionName).ConnectionString);
+            var connectionString = Dependency.OnValue(typeof(string), serviceLocator.Resolve<IConnectionStringProvider>().GetConnectionString(connectionName).ConnectionString);
 
-            var newContainer = @this.AsDependencyInjectionContainer();
 
             if(newContainer.IsTestMode)
             {

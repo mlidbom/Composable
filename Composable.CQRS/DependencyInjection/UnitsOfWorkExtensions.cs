@@ -1,36 +1,47 @@
 ﻿using System;
 using System.Runtime.Remoting.Messaging;
 using System.Transactions;
-using Castle.Windsor;
+using Composable.DependencyInjection.Windsor;
 using Composable.SystemExtensions.Threading;
 using Composable.UnitsOfWork;
+using JetBrains.Annotations;
 
-namespace Composable.DependencyInjection.Windsor
+namespace Composable.DependencyInjection
 {
-    static class WindsorUnitOfWorkExtensions1
+    public static class PublicUnitOfWorkExtensions
     {
-        public static ITransactionalUnitOfWork BeginTransactionalUnitOfWorkScope(this IWindsorContainer me)
+        public static TResult ExecuteUnitOfWork<TResult>(this IServiceLocator me, [InstantHandle]Func<TResult> function)
         {
-            var currentScope = CurrentScope;
-            if(currentScope == null)
+            TResult result;
+            using (var transaction = me.Unsupported().BeginTransactionalUnitOfWorkScope())
             {
-                return CurrentScope = new TransactionalUnitOfWorkWindsorScope(me);
+                result = function();
+                transaction.Commit();
             }
-            return new InnerTransactionalUnitOfWorkWindsorScope(CurrentScope);
+            return result;
         }
 
-        static TransactionalUnitOfWorkWindsorScopeBase CurrentScope
+        public static void ExecuteUnitOfWork(this IServiceLocator me, [InstantHandle]Action action)
         {
-            get
+            using (var transaction = me.Unsupported().BeginTransactionalUnitOfWorkScope())
             {
-                var result = (TransactionalUnitOfWorkWindsorScopeBase)CallContext.GetData("TransactionalUnitOfWorkWindsorScope_Current");
-                if (result != null && result.IsActive)
-                {
-                    return result;
-                }
-                return CurrentScope = null;
+                action();
+                transaction.Commit();
             }
-            set => CallContext.SetData("TransactionalUnitOfWorkWindsorScope_Current", value);
+        }
+
+    }
+
+    static class UnitOfWorkExtensions
+    {
+        public static ITransactionalUnitOfWork BeginTransactionalUnitOfWorkScope(this IServiceLocator @this)
+        {
+            var currentScope = TransactionalUnitOfWorkWindsorScopeBase.CurrentScope;
+            if(currentScope == null)
+            {
+                return TransactionalUnitOfWorkWindsorScopeBase.CurrentScope = new TransactionalUnitOfWorkWindsorScope(@this);
+            }
+            return new InnerTransactionalUnitOfWorkWindsorScope(TransactionalUnitOfWorkWindsorScopeBase.CurrentScope);
         }
 
         abstract class TransactionalUnitOfWorkWindsorScopeBase : ITransactionalUnitOfWork
@@ -38,6 +49,20 @@ namespace Composable.DependencyInjection.Windsor
             public abstract void Dispose();
             public abstract void Commit();
             public abstract bool IsActive { get; }
+
+            internal static TransactionalUnitOfWorkWindsorScopeBase CurrentScope
+            {
+                get
+                {
+                    var result = (TransactionalUnitOfWorkWindsorScopeBase)CallContext.GetData("TransactionalUnitOfWorkWindsorScope_Current");
+                    if (result != null && result.IsActive)
+                    {
+                        return result;
+                    }
+                    return CurrentScope = null;
+                }
+                set => CallContext.SetData("TransactionalUnitOfWorkWindsorScope_Current", value);
+            }
         }
 
         class TransactionalUnitOfWorkWindsorScope : TransactionalUnitOfWorkWindsorScopeBase, IEnlistmentNotification
@@ -46,7 +71,7 @@ namespace Composable.DependencyInjection.Windsor
             readonly IUnitOfWork _unitOfWork;
             bool _committed;
 
-            public TransactionalUnitOfWorkWindsorScope(IWindsorContainer container)
+            public TransactionalUnitOfWorkWindsorScope(IServiceLocator container)
             {
                 _transactionScopeWeCreatedAndOwn = new TransactionScope();
                 try

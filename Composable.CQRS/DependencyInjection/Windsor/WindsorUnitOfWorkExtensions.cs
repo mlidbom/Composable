@@ -58,5 +58,9 @@ namespace Composable.DependencyInjection.Windsor
                 action();
             }
         }
+
+
+        public static ITransactionalUnitOfWork BeginTransactionalUnitOfWorkScope(this IWindsorContainer me) => me.AsServiceLocator()
+                                                                                                                 .BeginTransactionalUnitOfWorkScope();
     }
 }

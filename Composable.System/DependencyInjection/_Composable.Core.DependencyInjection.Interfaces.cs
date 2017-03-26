@@ -116,6 +116,13 @@ namespace Composable.DependencyInjection
                 Contract.Arguments.That(ServiceTypes.All(serviceType => serviceType.IsInstanceOfType(instance)), "The implementing type must implement all the service interfaces.");
                 return new ComponentRegistrationBuilderWithInstantiationSpec<TService>(ServiceTypes, InstantiationSpec.FromInstance(instance));
             }
+
+            internal ComponentRegistrationBuilderWithInstantiationSpec<TService> UsingFactoryMethod<TImplementation>(Func<IServiceLocator, TImplementation> factoryMethod)
+                where TImplementation : TService
+            {
+                Contract.Arguments.That(ServiceTypes.All(serviceType => serviceType.IsAssignableFrom(typeof(TImplementation))), "The implementing type must implement all the service interfaces.");
+                return new ComponentRegistrationBuilderWithInstantiationSpec<TService>(ServiceTypes, InstantiationSpec.FromFactoryMethod(serviceLocator => factoryMethod(serviceLocator)));
+            }
         }
 
         public class ComponentRegistrationBuilderWithInstantiationSpec<TService>
@@ -153,12 +160,17 @@ namespace Composable.DependencyInjection
     {
         internal object Instance { get; }
         internal Type ImplementationType { get; }
+        internal Func<IServiceLocator, object> FactoryMethod { get; }
 
         internal static InstantiationSpec FromInstance(object instance) => new InstantiationSpec(instance);
 
         internal static InstantiationSpec ImplementedBy(Type implementationType) => new InstantiationSpec(implementationType);
 
+        internal static InstantiationSpec FromFactoryMethod(Func<IServiceLocator, object> factoryMethod) => new InstantiationSpec(factoryMethod);
+
         InstantiationSpec(Type implementationType) => ImplementationType = implementationType;
+
+        InstantiationSpec(Func<IServiceLocator, object> factoryMethod) => FactoryMethod = factoryMethod;
 
         InstantiationSpec(object instance) => Instance = instance;
     }

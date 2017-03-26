@@ -15,7 +15,8 @@ namespace Composable.DependencyInjection.Windsor
     {
         internal static IDependencyInjectionContainer AsDependencyInjectionContainer(this IWindsorContainer @this) => new WindsorDependencyInjectionContainer(@this);
         public static IWindsorContainer Unsupported(this IDependencyInjectionContainer @this) => ((WindsorDependencyInjectionContainer)@this).WindsorContainer;
-        internal static IWindsorContainer Unsupported(this IServiceLocator @this) => ((WindsorServiceLocator)@this).WindsorContainer;
+        internal static IWindsorContainer Unsupported(this IServiceLocator @this) => ((WindsorDependencyInjectionContainer)@this).WindsorContainer;
+        internal static IServiceLocator AsServiceLocator(this IWindsorContainer @this) => new WindsorDependencyInjectionContainer(@this);
     }
 
     public static class WindsorDependencyInjectionContainerFactory
@@ -42,7 +43,7 @@ namespace Composable.DependencyInjection.Windsor
                                      .Instance(bus)
                                      .LifestyleSingleton(),
                            CComponent.For<IWindsorContainer>()
-                                     .Instance(@this.Unsupported())
+                                     .Instance(((IDependencyInjectionContainer)@this).Unsupported())
                                      .LifestyleSingleton(),
                            CComponent.For<IConnectionStringProvider>()
                                      .Instance(new DummyConnectionStringProvider())
@@ -57,7 +58,7 @@ namespace Composable.DependencyInjection.Windsor
         }
     }
 
-    class WindsorDependencyInjectionContainer : IDependencyInjectionContainer
+    class WindsorDependencyInjectionContainer : IDependencyInjectionContainer, IServiceLocator
     {
         internal readonly IWindsorContainer WindsorContainer;
         public WindsorDependencyInjectionContainer(IWindsorContainer windsorContainer) { WindsorContainer = windsorContainer; }
@@ -69,7 +70,7 @@ namespace Composable.DependencyInjection.Windsor
             WindsorContainer.Register(windsorRegistrations);
             return this;
         }
-        public IServiceLocator CreateServiceLocator() => new WindsorServiceLocator(WindsorContainer);
+        public IServiceLocator CreateServiceLocator() => this;
 
         public bool IsTestMode => WindsorContainer.Kernel.HasComponent(typeof(TestModeMarker));
 
@@ -83,7 +84,10 @@ namespace Composable.DependencyInjection.Windsor
             }else if(componentRegistration.InstantiationSpec.ImplementationType != null)
             {
                 registration.ImplementedBy(componentRegistration.InstantiationSpec.ImplementationType);
-            } else
+            } else if(componentRegistration.InstantiationSpec.FactoryMethod != null)
+            {
+                registration.UsingFactoryMethod(() => componentRegistration.InstantiationSpec.FactoryMethod(CreateServiceLocator()));
+            }else
             {
                 throw new Exception($"Invalid {nameof(InstantiationSpec)}");
             }
@@ -104,6 +108,7 @@ namespace Composable.DependencyInjection.Windsor
                     throw new ArgumentOutOfRangeException(nameof(componentRegistration.Lifestyle));
             }
         }
+
         public IComponentLease<TComponent> Lease<TComponent>() => new WindsorComponentLease<TComponent>(WindsorContainer.Resolve<TComponent>(), WindsorContainer);
         public IMultiComponentLease<TComponent> LeaseAll<TComponent>() => new WindsorMultiComponentLease<TComponent>(WindsorContainer.ResolveAll<TComponent>().ToArray(), WindsorContainer);
         public IDisposable BeginScope() => WindsorContainer.BeginScope();

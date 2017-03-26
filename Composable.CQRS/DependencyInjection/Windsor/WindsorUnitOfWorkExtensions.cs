@@ -7,7 +7,7 @@ namespace Composable.DependencyInjection.Windsor
 {
     static class WindsorUnitOfWorkExtensions
     {
-        public static TResult ExecuteUnitOfWork<TResult>(this IWindsorContainer me, [InstantHandle]Func<TResult> function)
+        static TResult ExecuteUnitOfWork<TResult>(this IWindsorContainer me, [InstantHandle]Func<TResult> function)
         {
             TResult result;
             using (var transaction = me.BeginTransactionalUnitOfWorkScope())
@@ -18,7 +18,7 @@ namespace Composable.DependencyInjection.Windsor
             return result;
         }
 
-        public static void ExecuteUnitOfWork(this IWindsorContainer me, [InstantHandle]Action action)
+        static void ExecuteUnitOfWork(this IWindsorContainer me, [InstantHandle]Action action)
         {
             using (var transaction = me.BeginTransactionalUnitOfWorkScope())
             {

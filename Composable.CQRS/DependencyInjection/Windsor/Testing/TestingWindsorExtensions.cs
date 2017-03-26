@@ -1,33 +1,24 @@
-﻿using Castle.Windsor;
+﻿using System;
+using Castle.Windsor;
 using Composable.DependencyInjection.Testing;
-using Composable.System.Linq;
-using Composable.SystemExtensions.Threading;
 
 namespace Composable.DependencyInjection.Windsor.Testing
 {
     static class TestingWindsorExtensions
     {
-        /// <summary>
-        /// <para>SingleThreadUseGuard is registered for the component ISingleContextUseGuard</para>
-        /// </summary>
+        [Obsolete]
         public static void ConfigureWiringForTestsCallBeforeAllOtherWiring(this IWindsorContainer container)
         {
             container.AsDependencyInjectionContainer()
-                     .Register(
-                               CComponent.For<TestModeMarker>()
-                                         .ImplementedBy<TestModeMarker>()
-                                         .LifestyleSingleton(),
-                               CComponent.For<ISingleContextUseGuard>()
-                                         .ImplementedBy<SingleThreadUseGuard>()
-                                         .LifestyleScoped());
+                     .ConfigureWiringForTestsCallBeforeAllOtherWiring();
         }
 
 
+        [Obsolete]
         public static void ConfigureWiringForTestsCallAfterAllOtherWiring(this IWindsorContainer container)
         {
-            container.AsServiceLocator()
-                     .UseAll<IConfigureWiringForTests>(components
-                                                           => components.ForEach(component => component.ConfigureWiringForTesting()));
+            container.AsDependencyInjectionContainer()
+                     .ConfigureWiringForTestsCallAfterAllOtherWiring();
         }
     }
 }

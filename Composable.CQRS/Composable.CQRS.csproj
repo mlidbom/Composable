@@ -43,4 +43,9 @@
     </Reference>
   </ItemGroup>
 
+  
+  <ItemGroup>
+    <Folder Include="DependencyInjection\Persistence\" />
+  </ItemGroup>
+
 </Project>

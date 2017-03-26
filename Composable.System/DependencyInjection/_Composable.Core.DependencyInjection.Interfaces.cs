@@ -45,6 +45,9 @@ namespace Composable.DependencyInjection
         public static TComponent Resolve<TComponent>(this IServiceLocator @this) => @this.Lease<TComponent>()
                                                                                          .Instance;
 
+        public static TComponent[] ResolveAll<TComponent>(this IServiceLocator @this) => @this.LeaseAll<TComponent>()
+                                                                                         .Instances;
+
         public static void Use<TComponent>(this IServiceLocator @this, Action<TComponent> useComponent)
         {
             using (var lease = @this.Lease<TComponent>())

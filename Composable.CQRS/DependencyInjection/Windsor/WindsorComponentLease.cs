@@ -13,7 +13,7 @@ namespace Composable.DependencyInjection.Windsor
             Instance = component;
         }
 
-        public T Instance { get; private set; }
+        public T Instance { get; }
         public void Dispose() => _container.Release(Instance);
     }
 

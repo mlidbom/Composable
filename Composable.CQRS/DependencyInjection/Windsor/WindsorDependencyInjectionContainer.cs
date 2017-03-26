@@ -4,10 +4,10 @@ using Castle.Core.Internal;
 using Castle.MicroKernel.Lifestyle;
 using Castle.MicroKernel.Registration;
 using Castle.Windsor;
+using Composable.DependencyInjection.Testing;
 using Composable.GenericAbstractions.Time;
 using Composable.Messaging.Buses;
 using Composable.System.Configuration;
-using Composable.DependencyInjection.Windsor.Testing;
 
 namespace Composable.DependencyInjection.Windsor
 {
@@ -25,7 +25,7 @@ namespace Composable.DependencyInjection.Windsor
             var @this = new WindsorDependencyInjectionContainer(new WindsorContainer());
 
 
-            @this.Unsupported().ConfigureWiringForTestsCallBeforeAllOtherWiring();
+            @this.ConfigureWiringForTestsCallBeforeAllOtherWiring();
 
             var dummyTimeSource = DummyTimeSource.Now;
             var registry = new MessageHandlerRegistry();
@@ -51,7 +51,7 @@ namespace Composable.DependencyInjection.Windsor
 
             setup(@this);
 
-            @this.Unsupported().ConfigureWiringForTestsCallAfterAllOtherWiring();
+            @this.ConfigureWiringForTestsCallAfterAllOtherWiring();
 
             return @this.CreateServiceLocator();
         }

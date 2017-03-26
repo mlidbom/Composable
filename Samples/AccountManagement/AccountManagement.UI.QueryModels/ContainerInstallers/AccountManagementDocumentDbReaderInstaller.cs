@@ -1,6 +1,6 @@
 ﻿using AccountManagement.UI.QueryModels.Services;
 using Composable.DependencyInjection;
-using Composable.DependencyInjection.Windsor.Persistence;
+using Composable.DependencyInjection.Persistence;
 
 namespace AccountManagement.UI.QueryModels.ContainerInstallers
 {

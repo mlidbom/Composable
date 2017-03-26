@@ -6,8 +6,9 @@ using Composable.Persistence.DocumentDb;
 using Composable.Persistence.DocumentDb.SqlServer;
 using Composable.System.Configuration;
 using Composable.System.Linq;
+using Composable.SystemExtensions.Threading;
 
-namespace Composable.DependencyInjection.Windsor.Persistence
+namespace Composable.DependencyInjection.Persistence
 {
     abstract class SqlServerDocumentDbRegistration
     {
@@ -50,16 +51,14 @@ namespace Composable.DependencyInjection.Windsor.Persistence
             if(!@this.IsTestMode)
             {
 
-                var connectionString = Dependency.OnValue(typeof(string),
-                                                          serviceLocator.Resolve<IConnectionStringProvider>()
+                var connectionString = serviceLocator.Resolve<IConnectionStringProvider>()
                                                                .GetConnectionString(connectionName)
-                                                               .ConnectionString);
+                                                               .ConnectionString;
 
-                @this.Unsupported().Register(Component.For<IDocumentDb>()
-                                        .ImplementedBy<SqlServerDocumentDb>()
-                                        .DependsOn(connectionString)
-                                        .LifestyleScoped()
-                                        .Named(registration.DocumentDbName));
+                @this.Register(CComponent.For<IDocumentDb>()
+                                        .UsingFactoryMethod(locator => new SqlServerDocumentDb(connectionString:connectionString))
+                                        .Named(registration.DocumentDbName)
+                                        .LifestyleScoped());
             } else
             {
                 @this.Register(CComponent.For<IDocumentDb>()
@@ -69,13 +68,14 @@ namespace Composable.DependencyInjection.Windsor.Persistence
             }
 
 
-            @this.Unsupported().Register(Component.For(Seq.OfTypes<IDocumentDbSession>())
-                                    .ImplementedBy<DocumentDbSession>()
-                                    .DependsOn(registration.DocumentDb)
-                                    .LifestyleScoped()
-                                    .Named(registration.SessionName),
-                           Component.For(Seq.OfTypes<TSession, TUpdater, TReader, TBulkReader>())
+            @this.Register(CComponent.For<IDocumentDbSession>()
+                                    .UsingFactoryMethod(locator => new DocumentDbSession(backingStore: serviceLocator.Resolve<IDocumentDb>(registration.DocumentDbName),
+                                    usageGuard: locator.Resolve<ISingleContextUseGuard>()))
+                                     .Named(registration.SessionName)
+                                    .LifestyleScoped(),
+                           CComponent.For<TSession>(Seq.OfTypes<TUpdater, TReader, TBulkReader>())
                                     .UsingFactoryMethod(kernel => CreateProxyFor<TSession, TUpdater, TReader, TBulkReader>(kernel.Resolve<IDocumentDbSession>(registration.SessionName)))
+                                    .LifestyleScoped()
                           );
         }
 

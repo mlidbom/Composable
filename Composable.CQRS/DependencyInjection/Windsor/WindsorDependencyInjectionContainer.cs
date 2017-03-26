@@ -16,7 +16,6 @@ namespace Composable.DependencyInjection.Windsor
     static class WindsorDependencyInjectionContainerExtensions
     {
         internal static IDependencyInjectionContainer AsDependencyInjectionContainer(this IWindsorContainer @this) => new WindsorDependencyInjectionContainer(@this);
-        public static IWindsorContainer Unsupported(this IDependencyInjectionContainer @this) => ((WindsorDependencyInjectionContainer)@this).WindsorContainer;
         internal static IWindsorContainer Unsupported(this IServiceLocator @this) => ((WindsorDependencyInjectionContainer)@this).WindsorContainer;
         internal static IServiceLocator AsServiceLocator(this IWindsorContainer @this) => new WindsorDependencyInjectionContainer(@this);
     }
@@ -43,9 +42,6 @@ namespace Composable.DependencyInjection.Windsor
                                      .LifestyleSingleton(),
                            CComponent.For<IServiceBus, IMessageSpy>()
                                      .Instance(bus)
-                                     .LifestyleSingleton(),
-                           CComponent.For<IWindsorContainer>()
-                                     .Instance(((IDependencyInjectionContainer)@this).Unsupported())
                                      .LifestyleSingleton(),
                            CComponent.For<IConnectionStringProvider>()
                                      .Instance(new DummyConnectionStringProvider())

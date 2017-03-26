@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Runtime.Remoting.Messaging;
 using System.Transactions;
-using Castle.Windsor;
-using Composable.DependencyInjection.Windsor;
 using Composable.SystemExtensions.Threading;
 using Composable.UnitsOfWork;
 using JetBrains.Annotations;
@@ -14,7 +12,7 @@ namespace Composable.DependencyInjection
         public static TResult ExecuteUnitOfWork<TResult>(this IServiceLocator me, [InstantHandle]Func<TResult> function)
         {
             TResult result;
-            using (var transaction = me.Unsupported().BeginTransactionalUnitOfWorkScope())
+            using (var transaction = me.BeginTransactionalUnitOfWorkScope())
             {
                 result = function();
                 transaction.Commit();
@@ -24,7 +22,7 @@ namespace Composable.DependencyInjection
 
         public static void ExecuteUnitOfWork(this IServiceLocator me, [InstantHandle]Action action)
         {
-            using (var transaction = me.Unsupported().BeginTransactionalUnitOfWorkScope())
+            using (var transaction = me.BeginTransactionalUnitOfWorkScope())
             {
                 action();
                 transaction.Commit();
@@ -87,9 +85,6 @@ namespace Composable.DependencyInjection
             }
         }
 
-
-        public static ITransactionalUnitOfWork BeginTransactionalUnitOfWorkScope(this IWindsorContainer me) => me.AsServiceLocator()
-                                                                                                                 .BeginTransactionalUnitOfWorkScope();
 
         public static ITransactionalUnitOfWork BeginTransactionalUnitOfWorkScope(this IServiceLocator @this)
         {

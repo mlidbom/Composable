@@ -143,7 +143,7 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
 
             container.ConfigureWiringForTestsCallBeforeAllOtherWiring();
 
-            var windsorContainer = ((IServiceLocator)container).Unsupported();
+            var windsorContainer = container.Unsupported();
             container.Register(
                 CComponent.For<IUtcTimeTimeSource, DummyTimeSource>()
                     .Instance(DummyTimeSource.Now)

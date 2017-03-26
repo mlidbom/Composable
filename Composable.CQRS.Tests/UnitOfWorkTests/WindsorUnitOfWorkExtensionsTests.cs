@@ -1,6 +1,5 @@
 ﻿using System;
 using Composable.DependencyInjection;
-using Composable.SystemExtensions.Threading;
 using Composable.UnitsOfWork;
 using FluentAssertions;
 using NUnit.Framework;

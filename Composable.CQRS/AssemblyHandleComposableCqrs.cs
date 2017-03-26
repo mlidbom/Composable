@@ -1,5 +1,0 @@
-﻿namespace Composable
-{
-    class AssemblyHandleComposableCqrs
-    {}
-}

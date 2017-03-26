@@ -13,10 +13,8 @@ namespace Composable.GenericAbstractions.Time
         ///<summary>Returns a timesource that will continually return the time that it was created at as the current time.</summary>
         internal static DummyTimeSource Now => new DummyTimeSource(DateTime.UtcNow);
 
-        ///<summary>Returns a timesource that will forever return <param name="localTime"> as the current time.</param></summary>
-        internal static DummyTimeSource FromLocalTime(DateTime localTime) => new DummyTimeSource(DateTime.SpecifyKind(localTime, DateTimeKind.Local).ToUniversalTime());
         ///<summary>Returns a timesource that will forever return <param name="utcTime"> as the current time.</param></summary>
-        internal static DummyTimeSource FromÚtcTime(DateTime utcTime) => new DummyTimeSource(DateTime.SpecifyKind(utcTime, DateTimeKind.Utc));
+        internal static DummyTimeSource FromUtcTime(DateTime utcTime) => new DummyTimeSource(DateTime.SpecifyKind(utcTime, DateTimeKind.Utc));
 
         ///<summary>Allows for subscribing to notifications about <see cref="UtcNow"/> changing.</summary>
         internal IObservable<DateTime> UtcNowChanged => _utcNowChanged;

@@ -36,13 +36,12 @@ namespace Composable.DependencyInjection
                 _windsorContainer.Kernel.Resolver.AddSubResolver(new CollectionResolver(_windsorContainer.Kernel));
             }
 
-            public IDependencyInjectionContainer Register(params CComponentRegistration[] registration)
+            public void Register(params CComponentRegistration[] registration)
             {
                 var windsorRegistrations = registration.Select(ToWindsorRegistration)
                                                        .ToArray();
 
                 _windsorContainer.Register(windsorRegistrations);
-                return this;
             }
             public IServiceLocator CreateServiceLocator() => this;
 

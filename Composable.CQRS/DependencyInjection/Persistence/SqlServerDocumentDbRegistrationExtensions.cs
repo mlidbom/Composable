@@ -1,6 +1,5 @@
 using System;
 using Castle.DynamicProxy;
-using Castle.MicroKernel.Registration;
 using Composable.Contracts;
 using Composable.Persistence.DocumentDb;
 using Composable.Persistence.DocumentDb.SqlServer;
@@ -22,7 +21,6 @@ namespace Composable.DependencyInjection.Persistence
         }
         internal string DocumentDbName { get; }
         internal string SessionName { get; }
-        public Dependency DocumentDb => Dependency.OnComponent(typeof(IDocumentDb), componentName: DocumentDbName);
     }
 
     class SqlServerDocumentDbRegistration<TFactory> : SqlServerDocumentDbRegistration

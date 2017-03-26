@@ -17,9 +17,8 @@ namespace Composable.DependencyInjection.Persistence
 {
     public abstract class SqlServerEventStoreRegistration
     {
-        protected SqlServerEventStoreRegistration(string description, Type sessionType, Type readerType)
+        protected SqlServerEventStoreRegistration(string description, Type readerType)
         {
-            SessionType = sessionType;
             ReaderType = readerType;
             StoreName = $"{description}.Store";
             SessionName = $"{description}.Session";
@@ -28,7 +27,6 @@ namespace Composable.DependencyInjection.Persistence
 
         internal string SessionImplementationName { get; }
         internal Type ReaderType { get; }
-        internal Type SessionType { get; }
         internal string StoreName { get; }
         internal string SessionName { get; }
         internal ServiceOverride Store => Dependency.OnComponent(typeof(IEventStore), componentName: StoreName);
@@ -39,7 +37,7 @@ namespace Composable.DependencyInjection.Persistence
         where TSessionInterface : IEventStoreSession
         where TReaderInterface : IEventStoreReader
     {
-        public SqlServerEventStoreRegistration() : base(typeof(TSessionInterface).FullName, sessionType: typeof(TSessionInterface), readerType: typeof(TReaderInterface)) { }
+        public SqlServerEventStoreRegistration() : base(typeof(TSessionInterface).FullName, readerType: typeof(TReaderInterface)) { }
     }
 
     public static class SqlServerEventStoreRegistrationExtensions

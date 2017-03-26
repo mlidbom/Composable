@@ -24,7 +24,7 @@ namespace Composable.DependencyInjection
 
     public interface IDependencyInjectionContainer : IDisposable
     {
-        IDependencyInjectionContainer Register(params CComponentRegistration[] registration);
+        void Register(params CComponentRegistration[] registration);
         IServiceLocator CreateServiceLocator();
         bool IsTestMode { get; }
     }
@@ -46,13 +46,13 @@ namespace Composable.DependencyInjection
         public static TComponent Resolve<TComponent>(this IServiceLocator @this) => @this.Lease<TComponent>()
                                                                                          .Instance;
 
-        public static TComponent Resolve<TComponent>(this IServiceLocator @this, string componentName) => @this.Lease<TComponent>(componentName)
+        internal static TComponent Resolve<TComponent>(this IServiceLocator @this, string componentName) => @this.Lease<TComponent>(componentName)
                                                                                          .Instance;
 
-        public static TComponent[] ResolveAll<TComponent>(this IServiceLocator @this) => @this.LeaseAll<TComponent>()
+        internal static TComponent[] ResolveAll<TComponent>(this IServiceLocator @this) => @this.LeaseAll<TComponent>()
                                                                                          .Instances;
 
-        public static void Use<TComponent>(this IServiceLocator @this, string componentName, Action<TComponent> useComponent)
+        internal static void Use<TComponent>(this IServiceLocator @this, string componentName, Action<TComponent> useComponent)
         {
             using (var lease = @this.Lease<TComponent>(componentName))
             {
@@ -140,7 +140,7 @@ namespace Composable.DependencyInjection
         {
             readonly IEnumerable<Type> _serviceTypes;
             readonly InstantiationSpec _instantInstatiationSpec;
-            public string Name { get; private set; }
+            string Name { get; set; }
 
             internal ComponentRegistrationBuilderWithInstantiationSpec(IEnumerable<Type> serviceTypes, InstantiationSpec instantInstatiationSpec)
             {

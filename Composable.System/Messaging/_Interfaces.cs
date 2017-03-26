@@ -1,4 +1,7 @@
 ﻿using System;
+// ReSharper disable UnusedMemberInSuper.Global
+// ReSharper disable UnusedTypeParameter
+// ReSharper disable UnusedMember.Global
 
 namespace Composable.Messaging
 {
@@ -9,12 +12,9 @@ namespace Composable.Messaging
     /// <para>Implementations should be named as an imperative sentence with an optional(but standardized "Command" suffix): RegisterUserAccount[Command]</para></summary>
     public interface ICommand : IMessage
     {
-        // ReSharper disable once UnusedMemberInSuper.Global
-        // ReSharper disable once UnusedMember.Global
         Guid Id { get; }
     }
 
-    // ReSharper disable once UnusedTypeParameter
     public interface ICommand<TResult> : ICommand where TResult : IMessage
     {
     }
@@ -26,7 +26,6 @@ namespace Composable.Messaging
 
 
     ///<summary>An <see cref="IMessage"/> that instructs the receiver to return some data.</summary>
-    // ReSharper disable once UnusedTypeParameter
     public interface IQuery<TResult> : IMessage where TResult : IQueryResult {}
 
     ///<summary>Represent an entity within the domain of the current API that is uniquely identifiable through a query.</summary>

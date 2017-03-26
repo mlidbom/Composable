@@ -5,6 +5,7 @@ using Composable.Messaging.Commands;
 // ReSharper disable UnusedParameter.Local
 // ReSharper disable UnusedAutoPropertyAccessor.Local
 // ReSharper disable ClassNeverInstantiated.Global
+// ReSharper disable UnusedMember.Global
 
 namespace AccountManagement.Domain.API
 {

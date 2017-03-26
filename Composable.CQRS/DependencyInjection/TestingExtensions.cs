@@ -14,19 +14,16 @@ namespace Composable.DependencyInjection
         /// </summary>
         public static void ConfigureWiringForTestsCallBeforeAllOtherWiring(this IDependencyInjectionContainer @this)
         {
-            @this.Register(
-                               CComponent.For<TestModeMarker>()
-                                         .ImplementedBy<TestModeMarker>()
-                                         .LifestyleSingleton(),
-                               CComponent.For<ISingleContextUseGuard>()
-                                         .ImplementedBy<SingleThreadUseGuard>()
-                                         .LifestyleScoped());
-
             var dummyTimeSource = DummyTimeSource.Now;
             var registry = new MessageHandlerRegistry();
             var bus = new TestingOnlyServiceBus(dummyTimeSource, registry);
 
-            @this.Register(
+            @this.Register(CComponent.For<TestModeMarker>()
+                                     .ImplementedBy<TestModeMarker>()
+                                     .LifestyleSingleton(),
+                           CComponent.For<ISingleContextUseGuard>()
+                                     .ImplementedBy<SingleThreadUseGuard>()
+                                     .LifestyleScoped(),
                            CComponent.For<IUtcTimeTimeSource, DummyTimeSource>()
                                      .Instance(dummyTimeSource)
                                      .LifestyleSingleton(),
@@ -41,7 +38,6 @@ namespace Composable.DependencyInjection
                                      .LifestyleSingleton()
                           );
         }
-
 
         public static void ConfigureWiringForTestsCallAfterAllOtherWiring(this IDependencyInjectionContainer container)
         {

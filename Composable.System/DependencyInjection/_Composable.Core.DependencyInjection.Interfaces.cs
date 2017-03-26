@@ -22,7 +22,7 @@ namespace Composable.DependencyInjection
         TComponent[] Instances { get; }
     }
 
-    public interface IDependencyInjectionContainer
+    public interface IDependencyInjectionContainer : IDisposable
     {
         IDependencyInjectionContainer Register(params CComponentRegistration[] registration);
         IServiceLocator CreateServiceLocator();

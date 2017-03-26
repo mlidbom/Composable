@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Castle.MicroKernel.Lifestyle;
-using Castle.Windsor;
 using Composable.CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations.Events;
-using Composable.DependencyInjection.Windsor;
+using Composable.DependencyInjection;
 using Composable.GenericAbstractions.Time;
 using Composable.Logging;
 using Composable.Persistence.EventSourcing;
@@ -584,7 +582,7 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
             }
         }
 
-        void ClearEventstoreCache(WindsorContainer container)
+        void ClearEventstoreCache(IServiceLocator container)
         {
             if(EventStoreType == typeof(SqlServerEventStore))
             {

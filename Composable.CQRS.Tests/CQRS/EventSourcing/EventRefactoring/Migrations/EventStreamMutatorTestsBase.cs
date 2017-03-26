@@ -1,12 +1,12 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Castle.MicroKernel.Lifestyle;
 using Castle.MicroKernel.Registration;
 using Castle.Windsor;
+using Composable.DependencyInjection;
 using Composable.DependencyInjection.Persistence;
+using Composable.DependencyInjection.Testing;
 using Composable.DependencyInjection.Windsor;
-using Composable.DependencyInjection.Windsor.Testing;
 using Composable.GenericAbstractions.Time;
 using Composable.Logging;
 using Composable.Messaging.Buses;
@@ -53,7 +53,7 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
         }
 
         static void RunScenarioWithEventStoreType
-            (MigrationScenario scenario, Type eventStoreType, WindsorContainer container, IList<IEventMigration> migrations, int indexOfScenarioInBatch)
+            (MigrationScenario scenario, Type eventStoreType, IServiceLocator container, IList<IEventMigration> migrations, int indexOfScenarioInBatch)
         {
             var startingMigrations = migrations.ToList();
             migrations.Clear();
@@ -137,29 +137,30 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
 
         }
 
-        protected static WindsorContainer CreateContainerForEventStoreType(Func<IReadOnlyList<IEventMigration>> migrationsfactory, Type eventStoreType, string eventStoreConnectionString = null)
+        protected static IServiceLocator CreateContainerForEventStoreType(Func<IReadOnlyList<IEventMigration>> migrationsfactory, Type eventStoreType, string eventStoreConnectionString = null)
         {
-            var container = new WindsorContainer();
+            var container = new WindsorDependencyInjectionContainer();
 
             container.ConfigureWiringForTestsCallBeforeAllOtherWiring();
 
+            var windsorContainer = ((IServiceLocator)container).Unsupported();
             container.Register(
-                Component.For<IUtcTimeTimeSource, DummyTimeSource>()
+                CComponent.For<IUtcTimeTimeSource, DummyTimeSource>()
                     .Instance(DummyTimeSource.Now)
                     .LifestyleSingleton(),
-                Component.For<IMessageHandlerRegistrar, IMessageHandlerRegistry>()
+                CComponent.For<IMessageHandlerRegistrar, IMessageHandlerRegistry>()
                     .ImplementedBy<MessageHandlerRegistry>()
                     .LifestyleSingleton(),
-                Component.For<IServiceBus>()
+                CComponent.For<IServiceBus>()
                          .ImplementedBy<TestingOnlyServiceBus>()
                          .LifestyleScoped(),
-                Component.For<IEnumerable<IEventMigration>>()
-                         .UsingFactoryMethod(migrationsfactory)
+                CComponent.For<IEnumerable<IEventMigration>>()
+                         .UsingFactoryMethod(_ => migrationsfactory())
                          .LifestyleScoped(),
-                Component.For<IEventStoreSession, IUnitOfWorkParticipant>()
+                CComponent.For<IEventStoreSession, IUnitOfWorkParticipant>()
                          .ImplementedBy<EventStoreSession>()
                          .LifestyleScoped(),
-                Component.For<IWindsorContainer>().Instance(container)
+                CComponent.For<IWindsorContainer>().Instance(windsorContainer).LifestyleSingleton()
                 );
 
 
@@ -169,12 +170,12 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
                 if (eventStoreConnectionString == null)
                 {
                     var masterConnectionSTring = new ConnectionStringConfigurationParameterProvider().GetConnectionString("MasterDB");
-                    var dbManager = container.AsDependencyInjectionContainer().RegisterSqlServerDatabasePool(masterConnectionSTring.ConnectionString);
+                    var dbManager = container.RegisterSqlServerDatabasePool(masterConnectionSTring.ConnectionString);
 
                     eventStoreConnectionString = dbManager.ConnectionStringFor($"{nameof(EventStreamMutatorTestsBase)}_EventStore");
                 }
 
-                container.Register(
+                windsorContainer.Register(
                                    Component.For<IEventStore>()
                                             .ImplementedBy<SqlServerEventStore>()
                                             .DependsOn(Dependency.OnValue<string>(eventStoreConnectionString),
@@ -185,7 +186,7 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
             else if(eventStoreType == typeof(InMemoryEventStore))
             {
                 container.Register(
-                    Component.For<IEventStore>()
+                    CComponent.For<IEventStore>()
                              .UsingFactoryMethod(
                                  kernel =>
                                  {
@@ -194,7 +195,7 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
                                      return store;
                                  })
                              .LifestyleScoped(),
-                    Component.For<InMemoryEventStore>()
+                    CComponent.For<InMemoryEventStore>()
                         .ImplementedBy<InMemoryEventStore>()
                         .LifestyleSingleton());
             }

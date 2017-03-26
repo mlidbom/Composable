@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Composable.CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations.Events;
-using Composable.DependencyInjection.Windsor;
+using Composable.DependencyInjection;
 using Composable.GenericAbstractions.Time;
 using Composable.Persistence.EventStore;
 using Composable.Persistence.EventStore.MicrosoftSQLServer;

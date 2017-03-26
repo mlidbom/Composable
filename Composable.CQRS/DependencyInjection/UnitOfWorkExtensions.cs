@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Runtime.Remoting.Messaging;
 using System.Transactions;
+using Castle.Windsor;
 using Composable.DependencyInjection.Windsor;
 using Composable.SystemExtensions.Threading;
 using Composable.UnitsOfWork;
@@ -34,6 +35,62 @@ namespace Composable.DependencyInjection
 
     static class UnitOfWorkExtensions
     {
+        static TResult ExecuteUnitOfWork<TResult>(this IServiceLocator me, [InstantHandle]Func<TResult> function)
+        {
+            TResult result;
+            using (var transaction = me.BeginTransactionalUnitOfWorkScope())
+            {
+                result = function();
+                transaction.Commit();
+            }
+            return result;
+        }
+
+        static void ExecuteUnitOfWork(this IServiceLocator me, [InstantHandle]Action action)
+        {
+            using (var transaction = me.BeginTransactionalUnitOfWorkScope())
+            {
+                action();
+                transaction.Commit();
+            }
+        }
+
+        internal static TResult ExecuteUnitOfWorkInIsolatedScope<TResult>(this IServiceLocator me, [InstantHandle]Func<TResult> function)
+        {
+            using (me.BeginScope())
+            {
+                return ExecuteUnitOfWork(me, function);
+            }
+        }
+
+        internal static void ExecuteUnitOfWorkInIsolatedScope(this IServiceLocator me, [InstantHandle]Action action)
+        {
+            using (me.BeginScope())
+            {
+                ExecuteUnitOfWork(me, action);
+            }
+        }
+
+        internal static TResult ExecuteInIsolatedScope<TResult>(this IServiceLocator me, [InstantHandle]Func<TResult> function)
+        {
+            using (me.BeginScope())
+            {
+                return function();
+            }
+        }
+
+        internal static void ExecuteInIsolatedScope(this IServiceLocator me, [InstantHandle]Action action)
+        {
+            using (me.BeginScope())
+            {
+                action();
+            }
+        }
+
+
+        public static ITransactionalUnitOfWork BeginTransactionalUnitOfWorkScope(this IWindsorContainer me) => me.AsServiceLocator()
+                                                                                                                 .BeginTransactionalUnitOfWorkScope();
+
         public static ITransactionalUnitOfWork BeginTransactionalUnitOfWorkScope(this IServiceLocator @this)
         {
             var currentScope = TransactionalUnitOfWorkWindsorScopeBase.CurrentScope;

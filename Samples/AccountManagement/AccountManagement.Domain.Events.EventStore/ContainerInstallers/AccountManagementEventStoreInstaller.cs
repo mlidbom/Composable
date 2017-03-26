@@ -1,6 +1,6 @@
 ﻿using AccountManagement.Domain.Events.EventStore.Services;
 using Composable.DependencyInjection;
-using Composable.DependencyInjection.Windsor.Persistence;
+using Composable.DependencyInjection.Persistence;
 
 namespace AccountManagement.Domain.Events.EventStore.ContainerInstallers
 {

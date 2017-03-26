@@ -35,6 +35,7 @@ namespace Composable.DependencyInjection
     ///<summary></summary>
     public interface IServiceLocator : IDisposable
     {
+        IComponentLease<TComponent> Lease<TComponent>(string componentName);
         IComponentLease<TComponent> Lease<TComponent>();
         IMultiComponentLease<TComponent> LeaseAll<TComponent>();
         IDisposable BeginScope();
@@ -43,6 +44,9 @@ namespace Composable.DependencyInjection
     public static class ServiceLocator
     {
         public static TComponent Resolve<TComponent>(this IServiceLocator @this) => @this.Lease<TComponent>()
+                                                                                         .Instance;
+
+        public static TComponent Resolve<TComponent>(this IServiceLocator @this, string componentName) => @this.Lease<TComponent>(componentName)
                                                                                          .Instance;
 
         public static TComponent[] ResolveAll<TComponent>(this IServiceLocator @this) => @this.LeaseAll<TComponent>()
@@ -120,7 +124,6 @@ namespace Composable.DependencyInjection
             internal ComponentRegistrationBuilderWithInstantiationSpec<TService> UsingFactoryMethod<TImplementation>(Func<IServiceLocator, TImplementation> factoryMethod)
                 where TImplementation : TService
             {
-                Contract.Arguments.That(ServiceTypes.All(serviceType => serviceType.IsAssignableFrom(typeof(TImplementation))), "The implementing type must implement all the service interfaces.");
                 return new ComponentRegistrationBuilderWithInstantiationSpec<TService>(ServiceTypes, InstantiationSpec.FromFactoryMethod(serviceLocator => factoryMethod(serviceLocator)));
             }
         }

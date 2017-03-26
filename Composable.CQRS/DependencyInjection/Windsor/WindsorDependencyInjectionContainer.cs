@@ -109,6 +109,7 @@ namespace Composable.DependencyInjection.Windsor
             }
         }
 
+        public IComponentLease<TComponent> Lease<TComponent>(string componentName) => new WindsorComponentLease<TComponent>(WindsorContainer.Resolve<TComponent>(componentName), WindsorContainer);
         public IComponentLease<TComponent> Lease<TComponent>() => new WindsorComponentLease<TComponent>(WindsorContainer.Resolve<TComponent>(), WindsorContainer);
         public IMultiComponentLease<TComponent> LeaseAll<TComponent>() => new WindsorMultiComponentLease<TComponent>(WindsorContainer.ResolveAll<TComponent>().ToArray(), WindsorContainer);
         public IDisposable BeginScope() => WindsorContainer.BeginScope();

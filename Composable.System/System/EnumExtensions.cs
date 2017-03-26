@@ -18,7 +18,7 @@ namespace Composable.System
         {
             Contract.Argument(() => value, () => flag).NotNull();
 
-            if(!value.GetType().Equals(flag.GetType()))
+            if(value.GetType() != flag.GetType())
             {
                 throw new ArgumentOutOfRangeException();
             }

@@ -238,7 +238,7 @@ namespace Composable.Persistence.DocumentDb
 
         IUnitOfWork _unitOfWork;
         readonly Guid _id = Guid.NewGuid();
-        Dictionary<Type, Dictionary<string, string>> _persistentValues = new Dictionary<Type, Dictionary<string, string>>();
+        readonly Dictionary<Type, Dictionary<string, string>> _persistentValues = new Dictionary<Type, Dictionary<string, string>>();
 
 
         IUnitOfWork IUnitOfWorkParticipant.UnitOfWork => _unitOfWork;

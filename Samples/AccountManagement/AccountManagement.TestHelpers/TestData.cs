@@ -6,7 +6,7 @@
         {
             public static class Invalid
             {
-                public static string[] All =
+                public static readonly string[] All =
                 {
                     Null,
                     ShorterThanFourCharacters,

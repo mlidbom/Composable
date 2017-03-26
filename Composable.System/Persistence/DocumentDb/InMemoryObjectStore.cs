@@ -11,7 +11,7 @@ namespace Composable.Persistence.DocumentDb
     class InMemoryObjectStore : IEnumerable<KeyValuePair<string, object>>
     {
         Dictionary<string, List<Object>> _db = new Dictionary<string, List<object>>(StringComparer.InvariantCultureIgnoreCase);
-        protected object LockObject = new object();
+        protected readonly object LockObject = new object();
 
         public bool Contains(Type type, object id)
         {

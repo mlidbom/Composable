@@ -9,7 +9,7 @@ namespace AccountManagement.TestHelpers.Scenarios
     public class RegisterAccountScenario
     {
         readonly IServiceLocator _container;
-        public string PasswordAsString = TestData.Password.CreateValidPasswordString();
+        public readonly string PasswordAsString = TestData.Password.CreateValidPasswordString();
         public Password Password;
         public Email Email = TestData.Email.CreateValidEmail();
         public Guid AccountId = Guid.NewGuid();

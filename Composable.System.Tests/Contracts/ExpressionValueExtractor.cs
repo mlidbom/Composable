@@ -10,7 +10,7 @@ namespace Composable.Tests.Contracts
 
         string TestString => _testString;
 
-        object _wrappedIntOne = 1;
+        readonly object _wrappedIntOne = 1;
 
         [Test]
         public void ExtractsValuesromFieldAccessingLambdas()

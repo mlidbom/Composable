@@ -133,7 +133,7 @@ namespace Composable.Testing
             public static readonly string DatabaseName = nameof(DatabaseName);
             public static readonly string IsFree = nameof(IsFree);
             public static readonly string ReservationDate = nameof(ReservationDate);
-            public static object ReservationCallStack = nameof(ReservationCallStack);
+            public static readonly string ReservationCallStack = nameof(ReservationCallStack);
         }
 
         static readonly string CreateDbTableSql = $@"

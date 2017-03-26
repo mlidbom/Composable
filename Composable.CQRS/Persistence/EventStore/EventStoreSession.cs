@@ -22,7 +22,7 @@ namespace Composable.Persistence.EventStore
     {
         readonly IServiceBus _bus;
         readonly IEventStore _store;
-        static ILog _log = LogManager.GetLogger(typeof(EventStoreSession));
+        static readonly ILog Log = LogManager.GetLogger(typeof(EventStoreSession));
         readonly IDictionary<Guid, IEventStored> _idMap = new Dictionary<Guid, IEventStored>();
         readonly HashSet<Guid> _publishedEvents = new HashSet<Guid>();
         readonly ISingleContextUseGuard _usageGuard;
@@ -99,7 +99,7 @@ namespace Composable.Persistence.EventStore
             {
                 var newEvents = _idMap.SelectMany(p => p.Value.GetChanges()).ToList();
                 PublishUnpublishedEvents(newEvents);
-                _log.DebugFormat("{0} ignored call to SaveChanges since participating in a unit of work", _id);
+                Log.DebugFormat("{0} ignored call to SaveChanges since participating in a unit of work", _id);
             }
         }
 
@@ -227,7 +227,7 @@ namespace Composable.Persistence.EventStore
 
         bool InternalSaveChanges()
         {
-            _log.DebugFormat("{0} saving changes with {1} changes from transaction within unit of work {2}", _id, _idMap.Count, _unitOfWork ?? (object)"null");
+            Log.DebugFormat("{0} saving changes with {1} changes from transaction within unit of work {2}", _id, _idMap.Count, _unitOfWork ?? (object)"null");
 
             var aggregates = _idMap.Select(p => p.Value).ToList();
 

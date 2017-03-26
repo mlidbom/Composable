@@ -4,6 +4,7 @@ namespace Composable.Logging.Log4Net
 {
     static class Log4NetExtensions
     {
+        // ReSharper disable once UnusedParameter.Global removing the parameter would make it impossible to invoke this as an extension method :)
         internal static ILog Log<T>(this T me) => LogHolder<T>.Logger;
 
         static class LogHolder<T>

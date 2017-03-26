@@ -43,15 +43,15 @@ namespace Composable.DependencyInjection.Windsor.Persistence
 
             GeneratedLowLevelInterfaceInspector.InspectInterfaces(Seq.OfTypes<TSession, TUpdater, TReader, TBulkReader>());
 
-            var newContainer = @this;
-
             var registration = new SqlServerDocumentDbRegistration<TSession>();
 
-            if(!newContainer.IsTestMode)
+            var serviceLocator = @this.CreateServiceLocator();
+
+            if(!@this.IsTestMode)
             {
 
                 var connectionString = Dependency.OnValue(typeof(string),
-                                                          @this.Unsupported().Resolve<IConnectionStringProvider>()
+                                                          serviceLocator.Resolve<IConnectionStringProvider>()
                                                                .GetConnectionString(connectionName)
                                                                .ConnectionString);
 
@@ -62,8 +62,7 @@ namespace Composable.DependencyInjection.Windsor.Persistence
                                         .Named(registration.DocumentDbName));
             } else
             {
-                @this.Unsupported().Register(
-                               Component.For<IDocumentDb>()
+                @this.Register(CComponent.For<IDocumentDb>()
                                         .ImplementedBy<InMemoryDocumentDb>()
                                         .Named(registration.DocumentDbName)
                                         .LifestyleSingleton());

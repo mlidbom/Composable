@@ -1,21 +1,21 @@
 ﻿using AccountManagement.Domain;
 using AccountManagement.Domain.Services;
 using AccountManagement.Domain.Shared;
-using Castle.Windsor;
+using Composable.DependencyInjection;
 using Composable.Windsor;
 
 namespace AccountManagement.TestHelpers.Scenarios
 {
     public class ChangePasswordScenario
     {
-        readonly IWindsorContainer _container;
+        readonly IServiceLocator _container;
 
         public string OldPassword;
         public readonly string NewPasswordAsString = TestData.Password.CreateValidPasswordString();
         public Password NewPassword;
         public readonly Account Account;
 
-        public ChangePasswordScenario(IWindsorContainer container)
+        public ChangePasswordScenario(IServiceLocator container)
         {
             _container = container;
             NewPassword = new Password(NewPasswordAsString);

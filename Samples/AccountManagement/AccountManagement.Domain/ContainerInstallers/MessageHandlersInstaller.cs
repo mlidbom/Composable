@@ -1,27 +1,26 @@
 ﻿using AccountManagement.Domain.API;
 using AccountManagement.Domain.Events.PropertyUpdated;
 using AccountManagement.Domain.QueryModels.Updaters;
-using Castle.MicroKernel.Registration;
-using Castle.MicroKernel.SubSystems.Configuration;
-using Castle.Windsor;
+using Composable.DependencyInjection;
 using Composable.Messaging;
 using Composable.Messaging.Buses;
-using JetBrains.Annotations;
 
 namespace AccountManagement.Domain.ContainerInstallers
 {
-    [UsedImplicitly] public class MessageHandlersInstaller : IWindsorInstaller
+    static class MessageHandlersInstaller
     {
-        public void Install(IWindsorContainer container, IConfigurationStore store)
+        internal static void Install(IDependencyInjectionContainer container)
         {
             container.Register(
-                Component.For<EmailToAccountMapQueryModelUpdater>().LifestyleScoped()
-                );
+                               CComponent.For<EmailToAccountMapQueryModelUpdater>()
+                                         .ImplementedBy<EmailToAccountMapQueryModelUpdater>()
+                                         .LifestyleScoped()
+                              );
 
-            container.Resolve<IMessageHandlerRegistrar>()
-                     .ForEvent<IAccountEmailPropertyUpdatedEvent>(@event => container.Resolve<EmailToAccountMapQueryModelUpdater>()
-                                                                                     .Handle(@event))
-                     .ForQuery<IQuery<StartResource>, StartResource>(query => new StartResource());
+            container.CreateServiceLocator().Use<IMessageHandlerRegistrar>(registrar =>
+                                                        registrar
+                                                            .ForEvent<IAccountEmailPropertyUpdatedEvent>(@event => container.CreateServiceLocator().Use<EmailToAccountMapQueryModelUpdater>(updater => updater.Handle(@event)))
+                                                            .ForQuery<IQuery<StartResource>, StartResource>(query => new StartResource()));
         }
     }
 }

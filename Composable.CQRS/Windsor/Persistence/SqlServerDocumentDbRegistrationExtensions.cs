@@ -1,8 +1,8 @@
 using System;
 using Castle.DynamicProxy;
 using Castle.MicroKernel.Registration;
-using Castle.Windsor;
 using Composable.Contracts;
+using Composable.DependencyInjection;
 using Composable.Persistence.DocumentDb;
 using Composable.Persistence.DocumentDb.SqlServer;
 using Composable.System.Configuration;
@@ -32,7 +32,7 @@ namespace Composable.Windsor.Persistence
 
     public static class DocumentDbRegistrationExtensions
     {
-        public static void RegisterSqlServerDocumentDb<TSession, TUpdater, TReader, TBulkReader>(this IWindsorContainer @this,
+        public static void RegisterSqlServerDocumentDb<TSession, TUpdater, TReader, TBulkReader>(this IDependencyInjectionContainer @this,
                                                                                                  string connectionName)
             where TSession : IDocumentDbSession
             where TUpdater : IDocumentDbUpdater
@@ -44,7 +44,7 @@ namespace Composable.Windsor.Persistence
 
             GeneratedLowLevelInterfaceInspector.InspectInterfaces(Seq.OfTypes<TSession, TUpdater, TReader, TBulkReader>());
 
-            var newContainer = @this.AsDependencyInjectionContainer();
+            var newContainer = @this;
 
             var registration = new SqlServerDocumentDbRegistration<TSession>();
 
@@ -52,18 +52,18 @@ namespace Composable.Windsor.Persistence
             {
 
                 var connectionString = Dependency.OnValue(typeof(string),
-                                                          @this.Resolve<IConnectionStringProvider>()
+                                                          @this.Unsupported().Resolve<IConnectionStringProvider>()
                                                                .GetConnectionString(connectionName)
                                                                .ConnectionString);
 
-                @this.Register(Component.For<IDocumentDb>()
+                @this.Unsupported().Register(Component.For<IDocumentDb>()
                                         .ImplementedBy<SqlServerDocumentDb>()
                                         .DependsOn(connectionString)
                                         .LifestyleScoped()
                                         .Named(registration.DocumentDbName));
             } else
             {
-                @this.Register(
+                @this.Unsupported().Register(
                                Component.For<IDocumentDb>()
                                         .ImplementedBy<InMemoryDocumentDb>()
                                         .Named(registration.DocumentDbName)
@@ -71,7 +71,7 @@ namespace Composable.Windsor.Persistence
             }
 
 
-            @this.Register(Component.For(Seq.OfTypes<IDocumentDbSession>())
+            @this.Unsupported().Register(Component.For(Seq.OfTypes<IDocumentDbSession>())
                                     .ImplementedBy<DocumentDbSession>()
                                     .DependsOn(registration.DocumentDb)
                                     .LifestyleScoped()

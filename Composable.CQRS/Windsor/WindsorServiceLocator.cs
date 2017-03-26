@@ -1,4 +1,6 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
+using Castle.MicroKernel.Lifestyle;
 using Castle.Windsor;
 using Composable.DependencyInjection;
 
@@ -11,10 +13,12 @@ namespace Composable.Windsor
 
     class WindsorServiceLocator : IServiceLocator
     {
-        readonly IWindsorContainer _container;
-        public WindsorServiceLocator(IWindsorContainer container) => _container = container;
+        internal readonly IWindsorContainer WindsorContainer;
+        public WindsorServiceLocator(IWindsorContainer container) => WindsorContainer = container;
 
-        public IComponentLease<TComponent> Lease<TComponent>() => new WindsorComponentLease<TComponent>(_container.Resolve<TComponent>(), _container);
-        public IMultiComponentLease<TComponent> LeaseAll<TComponent>() => new WindsorMultiComponentLease<TComponent>(_container.ResolveAll<TComponent>().ToArray(), _container);
+        public IComponentLease<TComponent> Lease<TComponent>() => new WindsorComponentLease<TComponent>(WindsorContainer.Resolve<TComponent>(), WindsorContainer);
+        public IMultiComponentLease<TComponent> LeaseAll<TComponent>() => new WindsorMultiComponentLease<TComponent>(WindsorContainer.ResolveAll<TComponent>().ToArray(), WindsorContainer);
+        public IDisposable BeginScope() => WindsorContainer.BeginScope();
+        public void Dispose() => WindsorContainer.Dispose();
     }
 }

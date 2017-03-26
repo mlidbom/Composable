@@ -1,18 +1,19 @@
 ﻿using System;
+using AccountManagement.Domain;
+using AccountManagement.Domain.Events.EventStore;
+using AccountManagement.UI.QueryModels.DocumentDB.Updaters;
 using AccountManagement.UI.QueryModels.Services;
-using Castle.MicroKernel.Lifestyle;
-using Castle.Windsor;
-using Castle.Windsor.Installer;
-using Composable.Windsor.Testing.Testing;
+using Composable.DependencyInjection;
+using Composable.Windsor;
 using NUnit.Framework;
 
 namespace AccountManagement.UI.QueryModels.Tests
 {
     public class QueryModelsTestsBase
     {
-        protected WindsorContainer Container;
+        protected IServiceLocator Container;
         IDisposable _scope;
-        protected IAccountManagementQueryModelsReader QueryModelsReader => Container.Resolve<IAccountManagementQueryModelsReader>();
+        protected IAccountManagementQueryModelsReader QueryModelsReader => Container.Lease<IAccountManagementQueryModelsReader>().Instance;
 
         protected void ReplaceContainerScope()
         {
@@ -23,14 +24,16 @@ namespace AccountManagement.UI.QueryModels.Tests
         [SetUp]
         public void SetupContainerAndScope()
         {
-            Container = new WindsorContainer();
 
-            Container.SetupForTesting(container => container.Install(
-                                                                     FromAssembly.Containing<Domain.ContainerInstallers.AccountRepositoryInstaller>(),
-                                                                     FromAssembly.Containing<Domain.Events.EventStore.ContainerInstallers.AccountManagementDomainEventStoreInstaller>(),
-                                                                     FromAssembly.Containing<UI.QueryModels.ContainerInstallers.AccountManagementDocumentDbReaderInstaller>(),
-                                                                     FromAssembly.Containing<UI.QueryModels.DocumentDB.Updaters.ContainerInstallers.EventHandlersInstaller>()
-                                                                    ));
+            Container = WindsorDependencyInjectionContainerFactory.SetupForTesting(container =>
+                                                                                   {
+                                                                                       AccountManagementDomainBootstrapper.SetupForTesting(container);
+                                                                                       AccountManagementDomainEventStoreBootstrapper.BootstrapForTesting(container);
+                                                                                       AccountManagementUiQueryModelsBootstrapper.BootstrapForTesting(container);
+                                                                                       AccountManagementUiQueryModelsDocumentDbUpdatersBootstrapper.BootstrapForTesting(container);
+                                                                                   });
+
+
 
             _scope = Container.BeginScope();
         }

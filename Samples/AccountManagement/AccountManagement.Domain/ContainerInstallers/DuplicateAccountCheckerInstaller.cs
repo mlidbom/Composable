@@ -1,18 +1,14 @@
 ﻿using AccountManagement.Domain.Services;
-using Castle.MicroKernel.Registration;
-using Castle.MicroKernel.SubSystems.Configuration;
-using Castle.Windsor;
-using JetBrains.Annotations;
+using Composable.DependencyInjection;
 
 namespace AccountManagement.Domain.ContainerInstallers
 {
-    [UsedImplicitly]
-    public class DuplicateAccountCheckerInstaller : IWindsorInstaller
+    static class DuplicateAccountCheckerInstaller
     {
-        public void Install(IWindsorContainer container, IConfigurationStore store)
+        internal static void Install(IDependencyInjectionContainer container)
         {
             container.Register(
-                Component.For<IDuplicateAccountChecker>()
+                CComponent.For<IDuplicateAccountChecker>()
                     .ImplementedBy<DuplicateAccountChecker>()
                     .LifestyleScoped()
                 );

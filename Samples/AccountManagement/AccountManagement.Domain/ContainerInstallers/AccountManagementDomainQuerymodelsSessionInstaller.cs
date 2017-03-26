@@ -1,18 +1,13 @@
 ﻿using AccountManagement.Domain.Events.EventStore.ContainerInstallers;
 using AccountManagement.Domain.Services;
-using Castle.MicroKernel.Registration;
-using Castle.MicroKernel.SubSystems.Configuration;
-using Castle.Windsor;
+using Composable.DependencyInjection;
 using Composable.Windsor.Persistence;
-using JetBrains.Annotations;
 
 namespace AccountManagement.Domain.ContainerInstallers
 {
-    [UsedImplicitly] public class AccountManagementDomainQuerymodelsSessionInstaller : IWindsorInstaller
+    static class AccountManagementDomainQuerymodelsSessionInstaller
     {
-        public void Install(
-            IWindsorContainer container,
-            IConfigurationStore store)
+        internal static void Install(IDependencyInjectionContainer container)
         {
             container
                 .RegisterSqlServerDocumentDb<

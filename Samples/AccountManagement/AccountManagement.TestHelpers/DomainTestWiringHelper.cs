@@ -1,16 +1,19 @@
-﻿using Castle.Windsor;
-using Castle.Windsor.Installer;
-using Composable.Windsor.Testing.Testing;
+﻿using AccountManagement.Domain;
+using AccountManagement.Domain.Events.EventStore;
+using Composable.DependencyInjection;
+using Composable.Windsor;
 
 namespace AccountManagement.TestHelpers
 {
     public static class DomainTestWiringHelper
     {
-        public static IWindsorContainer SetupContainerForTesting()
+        public static IServiceLocator SetupContainerForTesting()
         {
-            return new WindsorContainer()
-                .SetupForTesting(@this => @this.Install(FromAssembly.Containing<Domain.ContainerInstallers.AccountRepositoryInstaller>(),
-                                                        FromAssembly.Containing<Domain.Events.EventStore.ContainerInstallers.AccountManagementDomainEventStoreInstaller>()));
+            return WindsorDependencyInjectionContainerFactory.SetupForTesting(container =>
+                                                                       {
+                                                                           AccountManagementDomainBootstrapper.SetupForTesting(container);
+                                                                           AccountManagementDomainEventStoreBootstrapper.BootstrapForTesting(container);
+                                                                       });
         }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using AccountManagement.TestHelpers.Scenarios;
 using AccountManagement.UI.QueryModels.Services;
+using Composable.DependencyInjection;
 using FluentAssertions;
 using NUnit.Framework;
 

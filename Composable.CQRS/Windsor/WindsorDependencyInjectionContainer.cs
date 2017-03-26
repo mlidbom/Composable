@@ -1,16 +1,61 @@
 ﻿using System;
 using System.Linq;
 using Castle.Core.Internal;
+using Castle.MicroKernel.Lifestyle;
 using Castle.MicroKernel.Registration;
 using Castle.Windsor;
 using Composable.DependencyInjection;
+using Composable.GenericAbstractions.Time;
+using Composable.Messaging.Buses;
+using Composable.System.Configuration;
+using Composable.Windsor.Testing;
 
 namespace Composable.Windsor
 {
-    static class WindsorDependencyInjectionContainerExtensions
+    public static class WindsorDependencyInjectionContainerExtensions
     {
         internal static IDependencyInjectionContainer AsDependencyInjectionContainer(this IWindsorContainer @this) => new WindsorDependencyInjectionContainer(@this);
-        internal static IWindsorContainer Unsupported(this IDependencyInjectionContainer @this) { return ((WindsorDependencyInjectionContainer)@this).WindsorContainer; }
+        public static IWindsorContainer Unsupported(this IDependencyInjectionContainer @this) => ((WindsorDependencyInjectionContainer)@this).WindsorContainer;
+        public static IWindsorContainer Unsupported(this IServiceLocator @this) => ((WindsorServiceLocator)@this).WindsorContainer;
+    }
+
+    public static class WindsorDependencyInjectionContainerFactory
+    {
+        public static IServiceLocator SetupForTesting(Action<IDependencyInjectionContainer> setup)
+        {
+            var @this = new WindsorDependencyInjectionContainer(new WindsorContainer());
+
+
+            @this.Unsupported().ConfigureWiringForTestsCallBeforeAllOtherWiring();
+
+            var dummyTimeSource = DummyTimeSource.Now;
+            var registry = new MessageHandlerRegistry();
+            var bus = new TestingOnlyServiceBus(dummyTimeSource, registry);
+
+            @this.Register(
+                           CComponent.For<IUtcTimeTimeSource, DummyTimeSource>()
+                                     .Instance(dummyTimeSource)
+                                     .LifestyleSingleton(),
+                           CComponent.For<IMessageHandlerRegistrar>()
+                                     .Instance(registry)
+                                     .LifestyleSingleton(),
+                           CComponent.For<IServiceBus, IMessageSpy>()
+                                     .Instance(bus)
+                                     .LifestyleSingleton(),
+                           CComponent.For<IWindsorContainer>()
+                                     .Instance(@this.Unsupported())
+                                     .LifestyleSingleton(),
+                           CComponent.For<IConnectionStringProvider>()
+                                     .Instance(new DummyConnectionStringProvider())
+                                     .LifestyleSingleton()
+                          );
+
+            setup(@this);
+
+            @this.Unsupported().ConfigureWiringForTestsCallAfterAllOtherWiring();
+
+            return @this.CreateServiceLocator();
+        }
     }
 
     class WindsorDependencyInjectionContainer : IDependencyInjectionContainer
@@ -25,6 +70,7 @@ namespace Composable.Windsor
             WindsorContainer.Register(windsorRegistrations);
             return this;
         }
+        public IServiceLocator CreateServiceLocator() => new WindsorServiceLocator(WindsorContainer);
 
         public bool IsTestMode => WindsorContainer.Kernel.HasComponent(typeof(TestModeMarker));
 
@@ -59,5 +105,9 @@ namespace Composable.Windsor
                     throw new ArgumentOutOfRangeException(nameof(componentRegistration.Lifestyle));
             }
         }
+        public IComponentLease<TComponent> Lease<TComponent>() => new WindsorComponentLease<TComponent>(WindsorContainer.Resolve<TComponent>(), WindsorContainer);
+        public IMultiComponentLease<TComponent> LeaseAll<TComponent>() => new WindsorMultiComponentLease<TComponent>(WindsorContainer.ResolveAll<TComponent>().ToArray(), WindsorContainer);
+        public IDisposable BeginScope() => WindsorContainer.BeginScope();
+        public void Dispose() => WindsorContainer.Dispose();
     }
 }

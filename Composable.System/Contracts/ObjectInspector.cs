@@ -1,5 +1,6 @@
 ﻿using System;
 // ReSharper disable UnusedMethodReturnValue.Global
+// ReSharper disable UnusedMember.Global
 
 namespace Composable.Contracts
 {

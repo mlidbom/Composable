@@ -4,6 +4,7 @@ using System.Linq;
 using Composable.Contracts;
 using Composable.System;
 using Composable.System.Linq;
+// ReSharper disable UnusedMember.Global
 
 namespace Composable.DependencyInjection
 {

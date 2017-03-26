@@ -3,6 +3,7 @@ using System.Linq;
 using Castle.Core.Internal;
 using Castle.MicroKernel.Lifestyle;
 using Castle.MicroKernel.Registration;
+using Castle.MicroKernel.Resolvers.SpecializedResolvers;
 using Castle.Windsor;
 using Composable.DependencyInjection.Testing;
 using Composable.GenericAbstractions.Time;
@@ -23,7 +24,7 @@ namespace Composable.DependencyInjection.Windsor
     {
         public static IServiceLocator SetupForTesting(Action<IDependencyInjectionContainer> setup)
         {
-            var @this = new WindsorDependencyInjectionContainer(new WindsorContainer());
+            var @this = new WindsorDependencyInjectionContainer();
 
 
             @this.ConfigureWiringForTestsCallBeforeAllOtherWiring();
@@ -61,7 +62,15 @@ namespace Composable.DependencyInjection.Windsor
     class WindsorDependencyInjectionContainer : IDependencyInjectionContainer, IServiceLocator
     {
         internal readonly IWindsorContainer WindsorContainer;
-        public WindsorDependencyInjectionContainer(IWindsorContainer windsorContainer) { WindsorContainer = windsorContainer; }
+        public WindsorDependencyInjectionContainer(IWindsorContainer windsorContainer = null)
+        {
+            WindsorContainer = windsorContainer;
+            if(WindsorContainer == null)
+            {
+                WindsorContainer = new WindsorContainer();
+                WindsorContainer.Kernel.Resolver.AddSubResolver(new CollectionResolver(WindsorContainer.Kernel));
+            }
+        }
         public IDependencyInjectionContainer Register(params CComponentRegistration[] registration)
         {
             var windsorRegistrations = registration.Select(ToWindsorRegistration)

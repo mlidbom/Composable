@@ -1,11 +1,10 @@
-﻿using Composable.DependencyInjection.Testing;
-using Composable.GenericAbstractions.Time;
+﻿using Composable.GenericAbstractions.Time;
 using Composable.Messaging.Buses;
 using Composable.System.Configuration;
 using Composable.System.Linq;
 using Composable.SystemExtensions.Threading;
 
-namespace Composable.DependencyInjection
+namespace Composable.DependencyInjection.Testing
 {
     static class TestingExtensions
     {

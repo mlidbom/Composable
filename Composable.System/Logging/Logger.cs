@@ -1,4 +1,6 @@
 ﻿using System;
+using JetBrains.Annotations;
+
 // ReSharper disable UnusedMember.Global
 
 namespace Composable.Logging
@@ -9,6 +11,8 @@ namespace Composable.Logging
         void Warning(string message);
         void Info(string message);
         void Debug(string message);
+        [StringFormatMethod(formatParameterName: "message")]
+        void DebugFormat(string message, params object[] arguments);
     }
 
     static class Logger

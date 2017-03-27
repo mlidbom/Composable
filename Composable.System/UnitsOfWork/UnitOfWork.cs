@@ -1,16 +1,16 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Composable.Logging;
 using Composable.System;
 using Composable.System.Linq;
 using Composable.SystemExtensions.Threading;
-using log4net;
 
 namespace Composable.UnitsOfWork
 {
     class UnitOfWork : IUnitOfWork
     {
-        static readonly ILog Log = LogManager.GetLogger(typeof (UnitOfWork));
+        static readonly ILogger Log = Logger.For<UnitOfWork>();
         readonly HashSet<IUnitOfWorkParticipant> _participants = new HashSet<IUnitOfWorkParticipant>();
         readonly ISingleContextUseGuard _usageGuard;
         const int MaxCascadeLevel = 10;
@@ -80,7 +80,7 @@ namespace Composable.UnitsOfWork
                             participant.Rollback(this);
                         }catch(Exception e)
                         {
-                            Log.Error("Swallowing exception thrown by participant {0} {1}.".FormatWith(participant.GetType(), participant.Id), e);
+                            Log.Error(e, $"Swallowing exception thrown by participant {participant.GetType()} {participant.Id}.");
                         }
                     }
                 );

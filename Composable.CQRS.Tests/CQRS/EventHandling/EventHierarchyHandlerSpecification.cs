@@ -16,7 +16,7 @@ namespace Composable.CQRS.Tests.CQRS.EventHandling
         }
 
         IHandlesIUserEvents _listener;
-        Guid _userId = Guid.Parse("00000000-0000-0000-0000-000000000001");
+        readonly Guid _userId = Guid.Parse("00000000-0000-0000-0000-000000000001");
 
         public void when_listening_for_IUserEvent()
         {
@@ -99,32 +99,32 @@ namespace Composable.CQRS.Tests.CQRS.EventHandling
 
         interface IHandlesIUserEvents : IEventSubscriber<IUserEvent>
         {
-            int CallsMade { get; set; }
-            int? BeforeHandlers1CallOrder { get; set; }
-            int? BeforeHandlers2CallOrder { get; set; }
-            int? UserCreatedCallOrder { get; set; }
-            int? UserRegisteredCallOrder { get; set; }
-            int? SkillsAddedCallOrder { get; set; }
-            int? SkillsRemovedCallOrder { get; set; }
-            int? AfterHandlers1CallOrder { get; set; }
-            int? AfterHandlers2CallOrder { get; set; }
+            int CallsMade { get; }
+            int? BeforeHandlers1CallOrder { get; }
+            int? BeforeHandlers2CallOrder { get; }
+            int? UserCreatedCallOrder { get; }
+            int? UserRegisteredCallOrder { get; }
+            int? SkillsAddedCallOrder { get; }
+            int? SkillsRemovedCallOrder { get; }
+            int? AfterHandlers1CallOrder { get; }
+            int? AfterHandlers2CallOrder { get; }
         }
 
         class HandlesIUserEventsHierarchy : CallsMatchingHandlersInRegistrationOrderEventHandler<IUserEvent>, IHandlesIUserEvents
         {
-            public int CallsMade { get; set; }
+            public int CallsMade { get; private set; }
 
-            public int? BeforeHandlers1CallOrder { get; set; }
-            public int? BeforeHandlers2CallOrder { get; set; }
+            public int? BeforeHandlers1CallOrder { get; private set; }
+            public int? BeforeHandlers2CallOrder { get; private set; }
 
-            public int? UserCreatedCallOrder { get; set; }
-            public int? UserRegisteredCallOrder { get; set; }
-            public int? SkillsAddedCallOrder { get; set; }
-            public int? SkillsRemovedCallOrder { get; set; }
+            public int? UserCreatedCallOrder { get; private set; }
+            public int? UserRegisteredCallOrder { get; private set; }
+            public int? SkillsAddedCallOrder { get; private set; }
+            public int? SkillsRemovedCallOrder { get; private set; }
 
 
-            public int? AfterHandlers1CallOrder { get; set; }
-            public int? AfterHandlers2CallOrder { get; set; }
+            public int? AfterHandlers1CallOrder { get; private set; }
+            public int? AfterHandlers2CallOrder { get; private set; }
 
             public HandlesIUserEventsHierarchy()
             {

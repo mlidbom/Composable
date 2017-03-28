@@ -46,7 +46,7 @@ namespace Composable.Persistence.DocumentDb
 
             public override int GetHashCode() => Id.GetHashCode();
 
-            public override string ToString() => "Id: {0}, Type: {1}".FormatWith(Id, Type);
+            public override string ToString() => $"Id: {Id}, Type: {Type}";
 
             public string Id { get; }
             Type Type { get;  }

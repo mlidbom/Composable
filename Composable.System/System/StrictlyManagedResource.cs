@@ -15,7 +15,7 @@ namespace Composable.System
                                                                         valueIfMissing: false);
 
         public static bool CollectStackTracesFor<TManagedResource>()
-            => AppConfigConfigurationParameterProvider.Instance.GetBoolean(StrictlyManagedResources.ConfigurationParamaterNameFor<TManagedResource>(),
+            => AppConfigConfigurationParameterProvider.Instance.GetBoolean(ConfigurationParamaterNameFor<TManagedResource>(),
                                                                            valueIfMissing: false);
 
         static string ConfigurationParamaterNameFor<TManagedResource>() => ConfigurationParamaterNameFor(typeof(TManagedResource));
@@ -53,9 +53,9 @@ namespace Composable.System
     class StrictlyManagedResource<TManagedResource> : IStrictlyManagedResource where TManagedResource : IStrictlyManagedResource
     {
         // ReSharper disable once StaticMemberInGenericType
-        public static Action<StrictlyManagedResourceWasFinalizedException> ThrowCreatedExceptionWhenFinalizerIsCalled = exception => { throw exception; };
+        public static Action<StrictlyManagedResourceWasFinalizedException> ThrowCreatedExceptionWhenFinalizerIsCalled = exception => throw exception;
         // ReSharper disable once StaticMemberInGenericType
-        public static Action<StrictlyManagedResourceLifespanWasExceededException> ThrowCreatedExceptionWhenLifespanWasExceeded = exception => { throw exception; };
+        public static Action<StrictlyManagedResourceLifespanWasExceededException> ThrowCreatedExceptionWhenLifespanWasExceeded = exception => throw exception;
 
         static readonly bool CollectStacktraces = StrictlyManagedResources.CollectStackTracesFor<TManagedResource>();
         public StrictlyManagedResource(TimeSpan? maxLifetime = null, bool forceStackTraceCollection = false)

@@ -52,20 +52,20 @@ namespace Composable.CQRS.Tests.CQRS.EventHandling
             {
                 interface ICvEmailPropertyUpdated : ICvEvent
                 {
-                    string Email { get; set; }
+                    string Email { get; }
                 }
 
                 interface ICvPasswordPropertyUpdated : ICvEvent
                 {
-                    string Password { get; set; }
+                    string Password { get; }
                 }
 
                 //For collections PropertyUpdated events should handle List<T>. Not Items.
                 //They should have both Added* and Removed* properties.
                 public interface ICvSkillsPropertyUpdated : ICvEvent
                 {
-                    List<string> AddedSkills { get; set; }
-                    List<string> RemovedSkills { get; set; }
+                    List<string> AddedSkills { get; }
+                    List<string> RemovedSkills { get; }
                 }
             }
 

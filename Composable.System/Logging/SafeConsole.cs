@@ -1,5 +1,4 @@
 ﻿using System;
-using Composable.System;
 using JetBrains.Annotations;
 
 namespace Composable.Logging
@@ -16,7 +15,7 @@ namespace Composable.Logging
             }
         }
 
-        [StringFormatMethod("message")] internal static void WriteLine(string message, params object[] args) { WriteLine(message.FormatWith(args)); }
+        [StringFormatMethod("message")] internal static void WriteLine(string message, params object[] args) { WriteLine(string.Format(message, args)); }
 
         internal static void WriteLine() => WriteLine("");
 
@@ -28,6 +27,6 @@ namespace Composable.Logging
             }
         }
 
-        [StringFormatMethod("message")] internal static void Write(string message, params object[] args) { Write(message.FormatWith(args)); }
+        [StringFormatMethod("message")] internal static void Write(string message, params object[] args) { Write(string.Format(message, args)); }
     }
 }

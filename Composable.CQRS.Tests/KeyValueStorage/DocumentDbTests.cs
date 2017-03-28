@@ -63,7 +63,7 @@ namespace Composable.CQRS.Tests.KeyValueStorage
         {
             var store = CreateStore();
 
-            var ids = 1.Through(9).Select(index => Guid.Parse("00000000-0000-0000-0000-00000000000{0}".FormatWith(index))).ToArray();
+            var ids = 1.Through(9).Select(index => Guid.Parse($"00000000-0000-0000-0000-00000000000{index}")).ToArray();
 
             var users = ids.Select(id => new User() { Id = id }).ToArray();
 
@@ -85,7 +85,7 @@ namespace Composable.CQRS.Tests.KeyValueStorage
         {
             var store = CreateStore();
 
-            var ids = 1.Through(9).Select(index => Guid.Parse("00000000-0000-0000-0000-00000000000{0}".FormatWith(index))).ToArray();
+            var ids = 1.Through(9).Select(index => Guid.Parse($"00000000-0000-0000-0000-00000000000{index}")).ToArray();
 
             var users = ids.Select(id => new User() { Id = id }).ToArray();
 
@@ -108,7 +108,7 @@ namespace Composable.CQRS.Tests.KeyValueStorage
         {
             var store = CreateStore();
 
-            var ids = 1.Through(9).Select(index => Guid.Parse("00000000-0000-0000-0000-00000000000{0}".FormatWith(index))).ToArray();
+            var ids = 1.Through(9).Select(index => Guid.Parse($"00000000-0000-0000-0000-00000000000{index}")).ToArray();
 
             var users = ids.Select(id => new User() { Id = id }).ToArray();
 

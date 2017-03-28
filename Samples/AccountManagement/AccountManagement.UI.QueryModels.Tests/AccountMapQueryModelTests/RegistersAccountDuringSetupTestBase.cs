@@ -12,7 +12,7 @@ namespace AccountManagement.UI.QueryModels.Tests.AccountMapQueryModelTests
         [SetUp]
         public void RegisterAccount()
         {
-            _registerAccountScenario = new RegisterAccountScenario(Container);
+            _registerAccountScenario = new RegisterAccountScenario(ServiceLocator);
             RegisteredAccount = _registerAccountScenario.Execute();
         }
 

@@ -13,8 +13,6 @@ namespace Composable.Persistence.EventStore.MicrosoftSQLServer
         readonly Dictionary<string, IEventTypeToIdMapper> _connectionIdMapper = new Dictionary<string, IEventTypeToIdMapper>();
         readonly EventTableSchemaManager _eventTable = new EventTableSchemaManager();
         readonly EventTypeTableSchemaManager _eventTypeTable = new EventTypeTableSchemaManager();
-        readonly LegacyEventTableSchemaManager _legacyEventTable = new LegacyEventTableSchemaManager();
-
         public SqlServerEventStoreSchemaManager(string connectionString, IEventNameMapper nameMapper)
         {
             ConnectionString = connectionString;
@@ -56,14 +54,11 @@ AT:
                 {
                     using(var connection = OpenConnection())
                     {
-                        _legacyEventTable.LogAndThrowIfUsingLegacySchema(connection);
-                        var usingLegacySchema = _legacyEventTable.IsUsingLegacySchema(connection);
-
                         IdMapper = new SqlServerEventStoreEventTypeToIdMapper(ConnectionString, _nameMapper);
 
                         _connectionIdMapper[ConnectionString] = IdMapper;
 
-                        if(!usingLegacySchema && !_eventTable.Exists(connection))
+                        if(!_eventTable.Exists(connection))
                         {
                             _eventTypeTable.Create(connection);
                             _eventTable.Create(connection);

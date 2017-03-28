@@ -2,15 +2,15 @@
 using System.Collections.Generic;
 using System.Configuration;
 using System.Linq;
-using Castle.Windsor;
 using Composable.CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations;
+using Composable.DependencyInjection;
+using Composable.DependencyInjection.Persistence;
 using Composable.GenericAbstractions.Time;
 using Composable.Messaging.Buses;
 using Composable.Persistence.EventStore;
 using Composable.Persistence.EventStore.MicrosoftSQLServer;
 using Composable.Persistence.EventStore.Refactoring.Migrations;
 using Composable.SystemExtensions.Threading;
-using Composable.Windsor;
 using FluentAssertions;
 using NUnit.Framework;
 
@@ -20,17 +20,17 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.Sql
     class MigratedSqlServerEventStoreSessionTests : NoSqlTest
     {
         string _connectionString;
-        WindsorContainer _windsorContainer;
+        IDependencyInjectionContainer _container;
 
         TestingOnlyServiceBus Bus { get; set; }
 
         [SetUp]
         public void Setup()
         {
-            _windsorContainer = new WindsorContainer();
+            _container = DependencyInjectionContainer.Create();
             Bus = new TestingOnlyServiceBus(DummyTimeSource.Now, new MessageHandlerRegistry());
             var masterConnectionString = ConfigurationManager.ConnectionStrings["MasterDb"].ConnectionString;
-            _connectionString = _windsorContainer.RegisterSqlServerDatabasePool(masterConnectionString)
+            _connectionString = _container.RegisterSqlServerDatabasePool(masterConnectionString)
                 .ConnectionStringFor("MigratedSqlServerEventStoreSessionTests_EventStore");
         }
 
@@ -86,6 +86,6 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.Sql
         }
 
         [TearDown]
-        public void TearDownTask() { _windsorContainer.Dispose(); }
+        public void TearDownTask() { _container.Dispose(); }
     }
 }

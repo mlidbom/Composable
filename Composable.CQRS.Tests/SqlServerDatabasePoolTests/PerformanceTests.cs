@@ -8,12 +8,12 @@ namespace Composable.CQRS.Tests.SqlServerDatabasePoolTests
     [TestFixture, Performance]
     public class PerformanceTests
     {
-        static string _masterConnectionString = ConfigurationManager.ConnectionStrings["MasterDB"].ConnectionString;
+        static readonly string MasterConnectionString = ConfigurationManager.ConnectionStrings["MasterDB"].ConnectionString;
 
         [SetUp]
         public void WarmUpCache()
         {
-            using(new SqlServerDatabasePool(_masterConnectionString)) { }
+            using(new SqlServerDatabasePool(MasterConnectionString)) { }
         }
 
         [Test]
@@ -25,7 +25,7 @@ namespace Composable.CQRS.Tests.SqlServerDatabasePoolTests
                 action:
                 () =>
                 {
-                    using(var manager = new SqlServerDatabasePool(_masterConnectionString))
+                    using(var manager = new SqlServerDatabasePool(MasterConnectionString))
                     {
                         manager.ConnectionStringFor(dbName);
                     }
@@ -44,7 +44,7 @@ namespace Composable.CQRS.Tests.SqlServerDatabasePoolTests
                 action:
                 () =>
                 {
-                    using(var manager = new SqlServerDatabasePool(_masterConnectionString))
+                    using(var manager = new SqlServerDatabasePool(MasterConnectionString))
                     {
                         manager.ConnectionStringFor(dbName);
                     }
@@ -59,7 +59,7 @@ namespace Composable.CQRS.Tests.SqlServerDatabasePoolTests
         public void Repeated_fetching_of_same_connection_runs_1000_times_in_ten_milliseconds()
         {
             var dbName = "4669B59A-E0AC-4E76-891C-7A2369AE0F2F";
-            using(var manager = new SqlServerDatabasePool(_masterConnectionString))
+            using(var manager = new SqlServerDatabasePool(MasterConnectionString))
             {
                 manager.ConnectionStringFor(dbName);
 

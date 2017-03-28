@@ -1,15 +1,13 @@
 using System;
 using Castle.DynamicProxy;
-using Castle.MicroKernel.Registration;
-using Castle.Windsor;
 using Composable.Contracts;
 using Composable.Persistence.DocumentDb;
 using Composable.Persistence.DocumentDb.SqlServer;
 using Composable.System.Configuration;
 using Composable.System.Linq;
-using Composable.Windsor.Testing;
+using Composable.SystemExtensions.Threading;
 
-namespace Composable.Windsor.Persistence
+namespace Composable.DependencyInjection.Persistence
 {
     abstract class SqlServerDocumentDbRegistration
     {
@@ -23,7 +21,6 @@ namespace Composable.Windsor.Persistence
         }
         internal string DocumentDbName { get; }
         internal string SessionName { get; }
-        public Dependency DocumentDb => Dependency.OnComponent(typeof(IDocumentDb), componentName: DocumentDbName);
     }
 
     class SqlServerDocumentDbRegistration<TFactory> : SqlServerDocumentDbRegistration
@@ -33,7 +30,7 @@ namespace Composable.Windsor.Persistence
 
     public static class DocumentDbRegistrationExtensions
     {
-        public static void RegisterSqlServerDocumentDb<TSession, TUpdater, TReader, TBulkReader>(this IWindsorContainer @this,
+        public static void RegisterSqlServerDocumentDb<TSession, TUpdater, TReader, TBulkReader>(this IDependencyInjectionContainer @this,
                                                                                                  string connectionName)
             where TSession : IDocumentDbSession
             where TUpdater : IDocumentDbUpdater
@@ -45,40 +42,38 @@ namespace Composable.Windsor.Persistence
 
             GeneratedLowLevelInterfaceInspector.InspectInterfaces(Seq.OfTypes<TSession, TUpdater, TReader, TBulkReader>());
 
-            var newContainer = @this.AsDependencyInjectionContainer();
-
             var registration = new SqlServerDocumentDbRegistration<TSession>();
 
-            if(!newContainer.IsTestMode)
+            var serviceLocator = @this.CreateServiceLocator();
+
+            if(!@this.IsTestMode)
             {
 
-                var connectionString = Dependency.OnValue(typeof(string),
-                                                          @this.Resolve<IConnectionStringProvider>()
+                var connectionString = serviceLocator.Resolve<IConnectionStringProvider>()
                                                                .GetConnectionString(connectionName)
-                                                               .ConnectionString);
+                                                               .ConnectionString;
 
-                @this.Register(Component.For<IDocumentDb>()
-                                        .ImplementedBy<SqlServerDocumentDb>()
-                                        .DependsOn(connectionString)
-                                        .LifestyleScoped()
-                                        .Named(registration.DocumentDbName));
+                @this.Register(CComponent.For<IDocumentDb>()
+                                        .UsingFactoryMethod(locator => new SqlServerDocumentDb(connectionString:connectionString))
+                                        .Named(registration.DocumentDbName)
+                                        .LifestyleScoped());
             } else
             {
-                @this.Register(
-                               Component.For<IDocumentDb>()
+                @this.Register(CComponent.For<IDocumentDb>()
                                         .ImplementedBy<InMemoryDocumentDb>()
                                         .Named(registration.DocumentDbName)
                                         .LifestyleSingleton());
             }
 
 
-            @this.Register(Component.For(Seq.OfTypes<IDocumentDbSession>())
-                                    .ImplementedBy<DocumentDbSession>()
-                                    .DependsOn(registration.DocumentDb)
-                                    .LifestyleScoped()
-                                    .Named(registration.SessionName),
-                           Component.For(Seq.OfTypes<TSession, TUpdater, TReader, TBulkReader>())
+            @this.Register(CComponent.For<IDocumentDbSession>()
+                                     .UsingFactoryMethod(locator => new DocumentDbSession(backingStore: serviceLocator.Resolve<IDocumentDb>(registration.DocumentDbName),
+                                                                                          usageGuard: locator.Resolve<ISingleContextUseGuard>()))
+                                     .Named(registration.SessionName)
+                                     .LifestyleScoped());
+            @this.Register(CComponent.For<TSession>(Seq.OfTypes<TUpdater, TReader, TBulkReader>())
                                     .UsingFactoryMethod(kernel => CreateProxyFor<TSession, TUpdater, TReader, TBulkReader>(kernel.Resolve<IDocumentDbSession>(registration.SessionName)))
+                                    .LifestyleScoped()
                           );
         }
 

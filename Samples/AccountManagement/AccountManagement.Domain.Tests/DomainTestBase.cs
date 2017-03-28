@@ -1,6 +1,5 @@
 ﻿using AccountManagement.TestHelpers;
-using Castle.MicroKernel.Lifestyle;
-using Castle.Windsor;
+using Composable.DependencyInjection;
 using Composable.System;
 using NUnit.Framework;
 
@@ -10,16 +9,16 @@ namespace AccountManagement.Domain.Tests
 
   [TestFixture] public abstract class DomainTestBase
     {
-        protected IWindsorContainer Container { get; private set; }
-        protected IMessageSpy MessageSpy => Container.Resolve<IMessageSpy>();
+        protected IServiceLocator ServiceLocator { get; private set; }
+        protected IMessageSpy MessageSpy => ServiceLocator.Lease<IMessageSpy>().Instance;
 
         StrictAggregateDisposable _managedResources;
 
         [SetUp] public void SetupContainerAndBeginScope()
         {
-            Container = DomainTestWiringHelper.SetupContainerForTesting();
+            ServiceLocator = DomainTestWiringHelper.CreateServiceLocator();
 
-            _managedResources = StrictAggregateDisposable.Create(Container.BeginScope(), Container);
+            _managedResources = StrictAggregateDisposable.Create(ServiceLocator.BeginScope(), ServiceLocator);
         }
 
         [TearDown] public void DisposeScopeAndContainer() { _managedResources.Dispose(); }

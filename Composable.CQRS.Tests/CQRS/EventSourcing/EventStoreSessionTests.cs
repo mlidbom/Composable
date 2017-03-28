@@ -291,8 +291,8 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing
         //todo:remove this
         class MockEventStore : IEventStore
         {
-            public List<IAggregateRootEvent> SavedEvents = new List<IAggregateRootEvent>();
-            public List<Guid> DeletedAggregates = new List<Guid>();
+            public readonly List<IAggregateRootEvent> SavedEvents = new List<IAggregateRootEvent>();
+            public readonly List<Guid> DeletedAggregates = new List<Guid>();
 
             public void Dispose() { }
             public IEnumerable<IAggregateRootEvent> GetAggregateHistoryForUpdate(Guid id) => throw new NotImplementedException();

@@ -22,7 +22,7 @@ namespace Composable.Persistence.EventStore
         {
         }
 
-        object _lockObject = new object();
+        readonly object _lockObject = new object();
 
         public InMemoryEventStore(IEnumerable<IEventMigration> migrationFactories = null ) => _migrationFactories = migrationFactories?.ToList() ?? new List<IEventMigration>();
 

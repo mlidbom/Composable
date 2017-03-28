@@ -1,17 +1,15 @@
 ﻿using AccountManagement.UI.QueryModels.EventStoreGenerated;
-using Castle.MicroKernel.Registration;
-using Castle.MicroKernel.SubSystems.Configuration;
-using Castle.Windsor;
-using JetBrains.Annotations;
+using Composable.DependencyInjection;
 
 namespace AccountManagement.UI.QueryModels.ContainerInstallers
 {
-    [UsedImplicitly]
-    public class QueryModelGeneratorsInstaller : IWindsorInstaller
+    static class QueryModelGeneratorsInstaller
     {
-        public void Install(IWindsorContainer container, IConfigurationStore store)
+        internal static void Install(IDependencyInjectionContainer container)
         {
-            container.Register(Component.For<AccountQueryModelGenerator>().LifestyleScoped());
+            container.Register(CComponent.For<AccountQueryModelGenerator>()
+                .ImplementedBy<AccountQueryModelGenerator>()
+                .LifestyleScoped());
         }
     }
 }

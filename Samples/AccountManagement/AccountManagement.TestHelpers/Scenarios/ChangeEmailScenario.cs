@@ -1,30 +1,29 @@
 ﻿using AccountManagement.Domain;
 using AccountManagement.Domain.Services;
 using AccountManagement.Domain.Shared;
-using Castle.Windsor;
-using Composable.Windsor;
+using Composable.DependencyInjection;
 
 namespace AccountManagement.TestHelpers.Scenarios
 {
     public class ChangeAccountEmailScenario
     {
-        readonly IWindsorContainer _container;
+        readonly IServiceLocator _serviceLocator;
 
         public Email NewEmail = TestData.Email.CreateValidEmail();
         public readonly Email OldEmail;
         public readonly Account Account;
 
         //Review:mlidbo: Replace optional parameters in scenario constructors with constructor overloading throughout the sample project.
-        public ChangeAccountEmailScenario(IWindsorContainer container, Account account = null)
+        public ChangeAccountEmailScenario(IServiceLocator serviceLocator, Account account = null)
         {
-            _container = container;
-            Account = account ?? new RegisterAccountScenario(container).Execute();
+            _serviceLocator = serviceLocator;
+            Account = account ?? new RegisterAccountScenario(serviceLocator).Execute();
             OldEmail = Account.Email;
         }
 
         public void Execute()
         {
-            _container.ExecuteUnitOfWork(() => _container.Resolve<IAccountRepository>().Get(Account.Id).ChangeEmail(NewEmail));
+            _serviceLocator.ExecuteUnitOfWork(() => _serviceLocator.Use<IAccountRepository>(repo => repo.Get(Account.Id).ChangeEmail(NewEmail)));
         }
     }
 }

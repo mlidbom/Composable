@@ -1,33 +1,30 @@
 ﻿using System;
-using Castle.MicroKernel.Registration;
-using Castle.Windsor;
-using Composable.SystemExtensions.Threading;
+using Composable.DependencyInjection;
 using Composable.UnitsOfWork;
-using Composable.Windsor;
 using FluentAssertions;
 using NUnit.Framework;
 
 namespace Composable.CQRS.Tests.UnitOfWorkTests
 {
     [TestFixture]
-    public class WindsorUnitOfWorkExtensionsTests
+    public class UnitOfWorkExtensionsTests
     {
         [Test]
         public void CommitInNestedScopeDoesNothing()
         {
-            var container = new WindsorContainer();
             var unitOfWorkSpy = new UnitOfWorkSpy();
-            container.Register(
-                Component.For<ISingleContextUseGuard>().ImplementedBy<SingleThreadUseGuard>(),
-                Component.For<IUnitOfWorkParticipant>().Instance(unitOfWorkSpy)
-                );
+            var serviceLocator = DependencyInjectionContainer.CreateServiceLocatorForTesting(
+                                                                              cont => cont.Register(CComponent.For<IUnitOfWorkParticipant>()
+                                                                                                              .Instance(unitOfWorkSpy)
+                                                                                                              .LifestyleSingleton()));
 
-            using(container.BeginTransactionalUnitOfWorkScope())
+            using(serviceLocator.BeginScope())
+            using(serviceLocator.BeginTransactionalUnitOfWorkScope())
             {
                 unitOfWorkSpy.UnitOfWork.Should().NotBe(null);
                 unitOfWorkSpy.Committed.Should().Be(false);
                 unitOfWorkSpy.RolledBack.Should().Be(false);
-                using (var innerScope = container.BeginTransactionalUnitOfWorkScope())
+                using (var innerScope = serviceLocator.BeginTransactionalUnitOfWorkScope())
                 {
                     innerScope.Commit();
                     unitOfWorkSpy.UnitOfWork.Should().NotBe(null);
@@ -46,19 +43,19 @@ namespace Composable.CQRS.Tests.UnitOfWorkTests
         [Test]
         public void CommittingTheOuterScopeCommitsDuh()
         {
-            var container = new WindsorContainer();
             var unitOfWorkSpy = new UnitOfWorkSpy();
-            container.Register(
-                Component.For<ISingleContextUseGuard>().ImplementedBy<SingleThreadUseGuard>(),
-                Component.For<IUnitOfWorkParticipant>().Instance(unitOfWorkSpy)
-                );
+            var serviceLocator = DependencyInjectionContainer.CreateServiceLocatorForTesting(
+                                                                              cont => cont.Register(CComponent.For<IUnitOfWorkParticipant>()
+                                                                                                              .Instance(unitOfWorkSpy)
+                                                                                                              .LifestyleSingleton()));
 
-            using(var outerScope = container.BeginTransactionalUnitOfWorkScope())
+            using (serviceLocator.BeginScope())
+            using (var outerScope = serviceLocator.BeginTransactionalUnitOfWorkScope())
             {
                 unitOfWorkSpy.UnitOfWork.Should().NotBe(null);
                 unitOfWorkSpy.Committed.Should().Be(false);
                 unitOfWorkSpy.RolledBack.Should().Be(false);
-                using (var innerScope = container.BeginTransactionalUnitOfWorkScope())
+                using (var innerScope = serviceLocator.BeginTransactionalUnitOfWorkScope())
                 {
                     innerScope.Commit();
                     unitOfWorkSpy.UnitOfWork.Should().NotBe(null);

@@ -1,20 +1,14 @@
 ﻿using AccountManagement.UI.QueryModels.Services;
-using Castle.MicroKernel.Registration;
-using Castle.MicroKernel.SubSystems.Configuration;
-using Castle.Windsor;
-using Composable.Windsor.Persistence;
-using JetBrains.Annotations;
+using Composable.DependencyInjection;
+using Composable.DependencyInjection.Persistence;
 
 namespace AccountManagement.UI.QueryModels.ContainerInstallers
 {
-    [UsedImplicitly]
-    public class AccountManagementDocumentDbReaderInstaller : IWindsorInstaller
+    static class AccountManagementDocumentDbReaderInstaller
     {
         const string ConnectionStringName = "AccountManagementReadModels";
 
-        public void Install(
-            IWindsorContainer container,
-            IConfigurationStore store)
+        internal static void Install(IDependencyInjectionContainer container)
         {
             container.RegisterSqlServerDocumentDb<
                          IAccountManagementUiDocumentDbSession,

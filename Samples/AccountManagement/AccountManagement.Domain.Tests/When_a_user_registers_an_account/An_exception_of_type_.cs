@@ -1,6 +1,7 @@
 ﻿using System;
 using AccountManagement.Domain.Services;
 using AccountManagement.TestHelpers.Scenarios;
+using Composable.DependencyInjection;
 using FluentAssertions;
 using NUnit.Framework;
 
@@ -16,9 +17,9 @@ namespace AccountManagement.Domain.Tests.When_a_user_registers_an_account
         [SetUp]
         public void SetupWiringAndCreateRepositoryAndScope()
         {
-            _repository = Container.Resolve<IAccountRepository>();
-            _duplicateAccountChecker = Container.Resolve<IDuplicateAccountChecker>();
-            _registerAccountScenario = new RegisterAccountScenario(Container);
+            _repository = ServiceLocator.Lease<IAccountRepository>().Instance;
+            _duplicateAccountChecker = ServiceLocator.Lease<IDuplicateAccountChecker>().Instance;
+            _registerAccountScenario = new RegisterAccountScenario(ServiceLocator);
         }
 
         [Test]

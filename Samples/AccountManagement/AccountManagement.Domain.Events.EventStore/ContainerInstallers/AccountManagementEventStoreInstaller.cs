@@ -1,18 +1,14 @@
 ﻿using AccountManagement.Domain.Events.EventStore.Services;
-using Castle.MicroKernel.Registration;
-using Castle.MicroKernel.SubSystems.Configuration;
-using Castle.Windsor;
-using Composable.Windsor.Persistence;
-using JetBrains.Annotations;
+using Composable.DependencyInjection;
+using Composable.DependencyInjection.Persistence;
 
 namespace AccountManagement.Domain.Events.EventStore.ContainerInstallers
 {
-    [UsedImplicitly]
-    public class AccountManagementDomainEventStoreInstaller : IWindsorInstaller
+    static class AccountManagementDomainEventStoreInstaller
     {
         internal const string ConnectionStringName = "AccountManagementDomain";
 
-        public void Install(IWindsorContainer container, IConfigurationStore store)
+        internal static void Install(IDependencyInjectionContainer container)
         {
             container.RegisterSqlServerEventStore<
                 IAccountManagementEventStoreSession,

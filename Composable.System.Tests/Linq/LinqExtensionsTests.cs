@@ -18,7 +18,7 @@ namespace Composable.Tests.Linq
                                      new List<int> { 4, 5, 6, 7 }
                                  };
 
-            var flattened = LinqExtensions.Flatten<List<int>, int>(nestedInts);
+            var flattened = nestedInts.Flatten<List<int>, int>();
             Assert.That(flattened, Is.EquivalentTo(1.Through(7)));
         }
 

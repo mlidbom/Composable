@@ -234,11 +234,11 @@ namespace Composable.Persistence.DocumentDb
             //_idMap.Clear();
         }
 
-        public override string ToString() => "{0}: {1}".FormatWith(_id, GetType().FullName);
+        public override string ToString() => $"{_id}: {GetType().FullName}";
 
         IUnitOfWork _unitOfWork;
         readonly Guid _id = Guid.NewGuid();
-        Dictionary<Type, Dictionary<string, string>> _persistentValues = new Dictionary<Type, Dictionary<string, string>>();
+        readonly Dictionary<Type, Dictionary<string, string>> _persistentValues = new Dictionary<Type, Dictionary<string, string>>();
 
 
         IUnitOfWork IUnitOfWorkParticipant.UnitOfWork => _unitOfWork;

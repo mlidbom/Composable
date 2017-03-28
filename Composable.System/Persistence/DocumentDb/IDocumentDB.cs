@@ -10,6 +10,7 @@ namespace Composable.Persistence.DocumentDb
         void Add<T>(object id, T value, Dictionary<Type, Dictionary<string, string>> persistentValues);
         void Update(IEnumerable<KeyValuePair<string, object>> values, Dictionary<Type, Dictionary<string, string>> persistentValues);
 
+        // ReSharper disable once UnusedMember.Global
         void Remove<T>(object id);
         int RemoveAll<T>();
         void Remove(object id, Type documentType);

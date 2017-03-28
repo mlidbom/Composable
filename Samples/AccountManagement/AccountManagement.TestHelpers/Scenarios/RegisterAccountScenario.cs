@@ -2,35 +2,36 @@ using System;
 using AccountManagement.Domain;
 using AccountManagement.Domain.Services;
 using AccountManagement.Domain.Shared;
-using Castle.Windsor;
-using Composable.Windsor;
+using Composable.DependencyInjection;
 
 namespace AccountManagement.TestHelpers.Scenarios
 {
     public class RegisterAccountScenario
     {
-        readonly IWindsorContainer _container;
-        public string PasswordAsString = TestData.Password.CreateValidPasswordString();
+        readonly IServiceLocator _serviceLocator;
+        public readonly string PasswordAsString = TestData.Password.CreateValidPasswordString();
         public Password Password;
         public Email Email = TestData.Email.CreateValidEmail();
         public Guid AccountId = Guid.NewGuid();
 
-        public RegisterAccountScenario(IWindsorContainer container)
+        public RegisterAccountScenario(IServiceLocator serviceLocator)
         {
             Password = new Password(PasswordAsString);
-            _container = container;
+            _serviceLocator = serviceLocator;
         }
 
         public Account Execute()
         {
-            return _container.ExecuteUnitOfWork(
+            return _serviceLocator.ExecuteUnitOfWork(
                 () =>
                 {
-                    var repository = _container.Resolve<IAccountRepository>();
-                    var duplicateAccountChecker = _container.Resolve<IDuplicateAccountChecker>();
-                    var registered = Account.Register(Email, Password, AccountId, repository, duplicateAccountChecker);
+                    using(var duplicateAccountChecker = _serviceLocator.Lease<IDuplicateAccountChecker>())
+                    using(var repository = _serviceLocator.Lease<IAccountRepository>())
+                    {
+                        var registered = Account.Register(Email, Password, AccountId, repository.Instance, duplicateAccountChecker.Instance);
 
-                    return registered;
+                        return registered;
+                    }
                 });
 
         }

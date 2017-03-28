@@ -246,7 +246,7 @@ namespace Composable.Persistence.EventStore.MicrosoftSQLServer
             return _eventReader.StreamAggregateIdsInCreationOrder(eventBaseType);
         }
 
-        public void ClearCache()
+        internal void ClearCache()
         {
             _cache.Clear();
         }

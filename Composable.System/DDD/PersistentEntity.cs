@@ -63,7 +63,7 @@ namespace Composable.DDD
         public static bool operator !=(IdEqualityObject<TEntity, TKEy> lhs, IdEqualityObject<TEntity, TKEy> rhs) => !(lhs == rhs);
 
         ///<summary>Returns a string similar to: MyType:MyId</summary>
-        public override string ToString() => "{0}:{1}".FormatWith(GetType().Name, Id);
+        public override string ToString() => $"{GetType().Name}:{Id}";
     }
 
     /// <summary>

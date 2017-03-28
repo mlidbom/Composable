@@ -2,25 +2,23 @@ using System;
 using System.Collections.Generic;
 using Castle.DynamicProxy;
 using Castle.MicroKernel.Registration;
-using Castle.Windsor;
 using Composable.Contracts;
-using Composable.DependencyInjection;
+using Composable.GenericAbstractions.Time;
+using Composable.Messaging.Buses;
 using Composable.Persistence.EventStore;
 using Composable.Persistence.EventStore.MicrosoftSQLServer;
 using Composable.Persistence.EventStore.Refactoring.Migrations;
-using Composable.Persistence.EventStore.Refactoring.Naming;
 using Composable.System.Configuration;
 using Composable.System.Linq;
+using Composable.SystemExtensions.Threading;
 using Composable.UnitsOfWork;
-using Composable.Windsor.Testing;
 
-namespace Composable.Windsor.Persistence
+namespace Composable.DependencyInjection.Persistence
 {
     public abstract class SqlServerEventStoreRegistration
     {
-        protected SqlServerEventStoreRegistration(string description, Type sessionType, Type readerType)
+        protected SqlServerEventStoreRegistration(string description, Type readerType)
         {
-            SessionType = sessionType;
             ReaderType = readerType;
             StoreName = $"{description}.Store";
             SessionName = $"{description}.Session";
@@ -29,7 +27,6 @@ namespace Composable.Windsor.Persistence
 
         internal string SessionImplementationName { get; }
         internal Type ReaderType { get; }
-        internal Type SessionType { get; }
         internal string StoreName { get; }
         internal string SessionName { get; }
         internal ServiceOverride Store => Dependency.OnComponent(typeof(IEventStore), componentName: StoreName);
@@ -40,30 +37,27 @@ namespace Composable.Windsor.Persistence
         where TSessionInterface : IEventStoreSession
         where TReaderInterface : IEventStoreReader
     {
-        public SqlServerEventStoreRegistration() : base(typeof(TSessionInterface).FullName, sessionType: typeof(TSessionInterface), readerType: typeof(TReaderInterface)) { }
+        public SqlServerEventStoreRegistration() : base(typeof(TSessionInterface).FullName, readerType: typeof(TReaderInterface)) { }
     }
 
     public static class SqlServerEventStoreRegistrationExtensions
     {
-        public static SqlServerEventStoreRegistration RegisterSqlServerEventStore<TSessionInterface, TReaderInterface>
-            (this IWindsorContainer @this,
-             string connectionName,
-             Dependency nameMapper = null,
-             Dependency migrations = null)
+        public static SqlServerEventStoreRegistration RegisterSqlServerEventStore<TSessionInterface, TReaderInterface>(this IDependencyInjectionContainer @this,
+                                                                                                                       string connectionName,
+                                                                                                                       IEnumerable<IEventMigration> migrations = null)
             where TSessionInterface : IEventStoreSession
-            where TReaderInterface : IEventStoreReader => @this.RegisterSqlServerEventStore<TSessionInterface, TReaderInterface>(
-                                                                                            registration: new SqlServerEventStoreRegistration<TSessionInterface, TReaderInterface>(),
-                                                                                            connectionName: connectionName,
-                                                                                            nameMapper: nameMapper,
-                                                                                            migrations: migrations
-                                                                                           );
+            where TReaderInterface : IEventStoreReader =>
+            @this.RegisterSqlServerEventStore<TSessionInterface, TReaderInterface>(
+                                                                                   registration: new SqlServerEventStoreRegistration<TSessionInterface, TReaderInterface>(),
+                                                                                   connectionName: connectionName,
+                                                                                   migrations: migrations
+                                                                                  );
 
         static SqlServerEventStoreRegistration RegisterSqlServerEventStore<TSessionInterface, TReaderInterface>
-            (this IWindsorContainer @this,
+            (this IDependencyInjectionContainer @this,
              SqlServerEventStoreRegistration registration,
              string connectionName,
-             Dependency nameMapper = null,
-             Dependency migrations = null)
+             IEnumerable<IEventMigration> migrations = null)
             where TSessionInterface : IEventStoreSession
             where TReaderInterface : IEventStoreReader
         {
@@ -72,42 +66,43 @@ namespace Composable.Windsor.Persistence
             Contract.Argument(() => connectionName)
                         .NotNullEmptyOrWhiteSpace();
 
+            var newContainer = @this;
+            var serviceLocator = newContainer.CreateServiceLocator();
+
             GeneratedLowLevelInterfaceInspector.InspectInterfaces(Seq.OfTypes<TSessionInterface, TReaderInterface>());
 
-            nameMapper = nameMapper ?? Dependency.OnValue<IEventNameMapper>(null);//We don't want to get any old name mapper that might have been registered by someone else.
-            migrations = migrations ?? Dependency.OnValue<IEnumerable<IEventMigration>>(null); //We don't want to get any old migrations array that might have been registered by someone else.
+            migrations = migrations ?? new List<IEventMigration>(); //We don't want to get any old migrations array that might have been registered by someone else.
 
-            var connectionString = Dependency.OnValue(typeof(string),@this.Resolve<IConnectionStringProvider>().GetConnectionString(connectionName).ConnectionString);
+            var connectionString =  serviceLocator.Resolve<IConnectionStringProvider>().GetConnectionString(connectionName).ConnectionString;
 
-            var newContainer = @this.AsDependencyInjectionContainer();
 
             if(newContainer.IsTestMode)
             {
                 newContainer.Register(CComponent.For<IEventStore>()
-                                        .ImplementedBy<InMemoryEventStore>()
-                                        .Named(registration.StoreName)
-                                        .LifestyleSingleton());
+                                                .UsingFactoryMethod(sl => new InMemoryEventStore(migrationFactories: migrations))
+                                                .Named(registration.StoreName)
+                                                .LifestyleSingleton());
             } else
             {
-                @this.Register(Component.For<IEventStore>()
-                                        .ImplementedBy<SqlServerEventStore>()
-                                        .DependsOn(connectionString, nameMapper, migrations)
-                                        .LifestyleScoped()
-                                        .Named(registration.StoreName));
+                newContainer.Register(CComponent.For<IEventStore>()
+                                                .UsingFactoryMethod(sl => new SqlServerEventStore(connectionString: connectionString, migrations: migrations))
+                                                .Named(registration.StoreName)
+                                                .LifestyleScoped());
             }
 
-            @this.Register(
-                Component.For<IEventStoreSession,IUnitOfWorkParticipant>()
-                         .ImplementedBy(typeof(EventStoreSession))
-                         .DependsOn(registration.Store)
-                         .LifestyleScoped()
-                         .Named(registration.SessionImplementationName),
-                Component.For(Seq.Create(registration.SessionType, registration.ReaderType))
-                         .UsingFactoryMethod(kernel => CreateProxyFor<TSessionInterface, TReaderInterface>(kernel.Resolve<IEventStoreSession>(registration.SessionImplementationName)))
-                         .LifestyleScoped()
-                         .Named(registration.SessionName)
-                );
 
+            newContainer.Register(CComponent.For<IEventStoreSession, IUnitOfWorkParticipant>()
+                                            .UsingFactoryMethod(oeu => new EventStoreSession(bus: serviceLocator.Resolve<IServiceBus>(),
+                                                                                             store: serviceLocator.Resolve<IEventStore>(registration.StoreName),
+                                                                                             usageGuard: serviceLocator.Resolve<ISingleContextUseGuard>(),
+                                                                                             timeSource: serviceLocator.Resolve<IUtcTimeTimeSource>()))
+                                            .Named(registration.SessionImplementationName)
+                                            .LifestyleScoped());
+
+            newContainer.Register(CComponent.For<TSessionInterface>(Seq.Create(registration.ReaderType))
+                                            .UsingFactoryMethod(locator =>CreateProxyFor<TSessionInterface, TReaderInterface>(locator.Resolve<IEventStoreSession>(registration.SessionImplementationName)))
+                                            .Named(registration.SessionName)
+                                            .LifestyleScoped());
 
             return registration;
         }

@@ -1,5 +1,6 @@
 ﻿using AccountManagement.TestHelpers.Scenarios;
 using AccountManagement.UI.QueryModels.Services;
+using Composable.DependencyInjection;
 using FluentAssertions;
 using NUnit.Framework;
 
@@ -13,7 +14,7 @@ namespace AccountManagement.UI.QueryModels.Tests.FetchingAccountByEmailTests
         [SetUp]
         public void ChangeEmail()
         {
-            _scenario = new ChangeAccountEmailScenario(Container, RegisteredAccount);
+            _scenario = new ChangeAccountEmailScenario(ServiceLocator, RegisteredAccount);
             _scenario.Execute();
             ReplaceContainerScope();//Changes are not expected to be visible in the same scope so start a new one.
         }
@@ -21,10 +22,10 @@ namespace AccountManagement.UI.QueryModels.Tests.FetchingAccountByEmailTests
         [Test]
         public void YouCanGetTheAccountViaTheNewEmail()
         {
-            AccountQueryModel account;
-            Container.Resolve<IAccountManagementQueryModelsReader>()
+            AccountQueryModel account = null;
+            ServiceLocator.Use<IAccountManagementQueryModelsReader>(reader => reader
                 .TryGetAccountByEmail(_scenario.NewEmail, out account)
-                .Should().Be(true);
+                .Should().Be(true));
 
             account.Id.Should().Be(RegisteredAccount.Id);
         }
@@ -32,10 +33,11 @@ namespace AccountManagement.UI.QueryModels.Tests.FetchingAccountByEmailTests
         [Test]
         public void TryingToFetchViaTheOldEmailThrowsNoSuchDocumentException()
         {
-            AccountQueryModel account;
-            Container.Resolve<IAccountManagementQueryModelsReader>()
-                .TryGetAccountByEmail(_scenario.OldEmail, out account)
-                .Should().Be(false);
+            AccountQueryModel account = null;
+            ServiceLocator.Use<IAccountManagementQueryModelsReader>(reader => reader
+                                                                   .TryGetAccountByEmail(_scenario.OldEmail, out account)
+                                                                   .Should()
+                                                                   .Be(false));
 
             account.Should().Be(null);
         }

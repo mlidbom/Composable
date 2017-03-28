@@ -27,7 +27,7 @@ namespace Composable.System.Linq
         public static void AddRange<T>(this ISet<T> me, IEnumerable<T> toAdd)
         {
             Contract.Argument(() => me, () => toAdd).NotNull();
-            toAdd.ForEach(addMe => me.Add(addMe));
+            toAdd.ForEach(me.Add);
         }
     }
 }

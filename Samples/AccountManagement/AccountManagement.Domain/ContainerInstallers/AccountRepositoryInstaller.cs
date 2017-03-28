@@ -1,17 +1,14 @@
 ﻿using AccountManagement.Domain.Services;
-using Castle.MicroKernel.Registration;
-using Castle.MicroKernel.SubSystems.Configuration;
-using Castle.Windsor;
+using Composable.DependencyInjection;
 
 namespace AccountManagement.Domain.ContainerInstallers
 {
-    // ReSharper disable once ClassNeverInstantiated.Global
-    public class AccountRepositoryInstaller : IWindsorInstaller
+    static class AccountRepositoryInstaller
     {
-        public void Install(IWindsorContainer container, IConfigurationStore store)
+        internal static void Install(IDependencyInjectionContainer container)
         {
             container.Register(
-                Component.For<IAccountRepository>().ImplementedBy<AccountRepository>().LifestyleScoped()
+                CComponent.For<IAccountRepository>().ImplementedBy<AccountRepository>().LifestyleScoped()
                 );
         }
     }

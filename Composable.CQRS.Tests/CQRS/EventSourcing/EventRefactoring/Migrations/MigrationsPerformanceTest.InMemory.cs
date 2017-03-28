@@ -27,20 +27,20 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
                 Before<E9>.Insert<E5>()
                 ).ToArray();
 
-            using(var container = CreateContainerForEventStoreType(() => eventMigrations, EventStoreType))
+            using(var serviceLocator = CreateServiceLocatorForEventStoreType(() => eventMigrations, EventStoreType))
             {
-                var timeSource = container.Resolve<DummyTimeSource>();
+                var timeSource = serviceLocator.Resolve<DummyTimeSource>();
 
                 var history = Seq.OfTypes<Ec1>().Concat(1.Through(100000).Select(index => typeof(E1))).ToArray();
                 var aggregate = TestAggregate.FromEvents(timeSource, Guid.NewGuid(), history);
-                container.ExecuteUnitOfWorkInIsolatedScope(() => container.Resolve<IEventStoreSession>().Save(aggregate));
+                serviceLocator.ExecuteUnitOfWorkInIsolatedScope(() => serviceLocator.Resolve<IEventStoreSession>().Save(aggregate));
 
                 //Warm up cache..
-                container.ExecuteUnitOfWorkInIsolatedScope(() => container.Resolve<IEventStoreSession>().Get<TestAggregate>(aggregate.Id));
+                serviceLocator.ExecuteUnitOfWorkInIsolatedScope(() => serviceLocator.Resolve<IEventStoreSession>().Get<TestAggregate>(aggregate.Id));
 
                 TimeAsserter.Execute(
                     maxTotal: 300.Milliseconds().AdjustRuntimeToTestEnvironment(),
-                    action: () => container.ExecuteInIsolatedScope(() => container.Resolve<IEventStoreSession>().Get<TestAggregate>(aggregate.Id))
+                    action: () => serviceLocator.ExecuteInIsolatedScope(() => serviceLocator.Resolve<IEventStoreSession>().Get<TestAggregate>(aggregate.Id))
                     , maxTries: 10);
             }
         }

@@ -15,7 +15,7 @@ namespace AccountManagement.Domain.Tests.After_a_user_has_registered_an_account
         [SetUp]
         public void RegisterAccount()
         {
-            _registerAccountScenario = new RegisterAccountScenario(Container);
+            _registerAccountScenario = new RegisterAccountScenario(ServiceLocator);
             _registeredAccount = _registerAccountScenario.Execute();
         }
 

@@ -6,9 +6,9 @@ namespace AccountManagement.TestHelpers
 {
     public static class DomainTestWiringHelper
     {
-        public static IServiceLocator SetupContainerForTesting()
+        public static IServiceLocator CreateServiceLocator()
         {
-            return DependencyInjectionContainer.SetupForTesting(container =>
+            return DependencyInjectionContainer.CreateServiceLocatorForTesting(container =>
                                                                        {
                                                                            AccountManagementDomainBootstrapper.SetupForTesting(container);
                                                                            AccountManagementDomainEventStoreBootstrapper.BootstrapForTesting(container);

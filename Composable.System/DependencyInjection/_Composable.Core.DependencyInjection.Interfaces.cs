@@ -4,6 +4,8 @@ using System.Linq;
 using Composable.Contracts;
 using Composable.System;
 using Composable.System.Linq;
+using JetBrains.Annotations;
+
 // ReSharper disable UnusedMember.Global
 
 namespace Composable.DependencyInjection
@@ -42,9 +44,15 @@ namespace Composable.DependencyInjection
         IDisposable BeginScope();
     }
 
+    public interface IServiceLocatorKernel
+    {
+        TComponent Resolve<TComponent>();
+        TComponent Resolve<TComponent>(string componentName);
+    }
+
     public static class ServiceLocator
     {
-        public static TComponent Resolve<TComponent>(this IServiceLocator @this) => @this.Lease<TComponent>()
+        internal static TComponent Resolve<TComponent>(this IServiceLocator @this) => @this.Lease<TComponent>()
                                                                                          .Instance;
 
         internal static TComponent Resolve<TComponent>(this IServiceLocator @this, string componentName) => @this.Lease<TComponent>(componentName)
@@ -53,7 +61,7 @@ namespace Composable.DependencyInjection
         internal static TComponent[] ResolveAll<TComponent>(this IServiceLocator @this) => @this.LeaseAll<TComponent>()
                                                                                          .Instances;
 
-        internal static void Use<TComponent>(this IServiceLocator @this, string componentName, Action<TComponent> useComponent)
+        internal static void Use<TComponent>(this IServiceLocator @this, string componentName, [InstantHandle] Action<TComponent> useComponent)
         {
             using (var lease = @this.Lease<TComponent>(componentName))
             {
@@ -61,7 +69,7 @@ namespace Composable.DependencyInjection
             }
         }
 
-        public static void Use<TComponent>(this IServiceLocator @this, Action<TComponent> useComponent)
+        public static void Use<TComponent>(this IServiceLocator @this,[InstantHandle] Action<TComponent> useComponent)
         {
             using (var lease = @this.Lease<TComponent>())
             {
@@ -77,7 +85,7 @@ namespace Composable.DependencyInjection
             }
         }
 
-        internal static void UseAll<TComponent>(this IServiceLocator @this, Action<TComponent[]> useComponent)
+        internal static void UseAll<TComponent>(this IServiceLocator @this, [InstantHandle] Action<TComponent[]> useComponent)
         {
             using (var lease = @this.LeaseAll<TComponent>())
             {
@@ -130,7 +138,7 @@ namespace Composable.DependencyInjection
                 return new ComponentRegistrationBuilderWithInstantiationSpec<TService>(ServiceTypes, InstantiationSpec.FromInstance(instance));
             }
 
-            internal ComponentRegistrationBuilderWithInstantiationSpec<TService> UsingFactoryMethod<TImplementation>(Func<IServiceLocator, TImplementation> factoryMethod)
+            internal ComponentRegistrationBuilderWithInstantiationSpec<TService> UsingFactoryMethod<TImplementation>(Func<IServiceLocatorKernel, TImplementation> factoryMethod)
                 where TImplementation : TService
             {
                 return new ComponentRegistrationBuilderWithInstantiationSpec<TService>(ServiceTypes, InstantiationSpec.FromFactoryMethod(serviceLocator => factoryMethod(serviceLocator)));
@@ -172,17 +180,17 @@ namespace Composable.DependencyInjection
     {
         internal object Instance { get; }
         internal Type ImplementationType { get; }
-        internal Func<IServiceLocator, object> FactoryMethod { get; }
+        internal Func<IServiceLocatorKernel, object> FactoryMethod { get; }
 
         internal static InstantiationSpec FromInstance(object instance) => new InstantiationSpec(instance);
 
         internal static InstantiationSpec ImplementedBy(Type implementationType) => new InstantiationSpec(implementationType);
 
-        internal static InstantiationSpec FromFactoryMethod(Func<IServiceLocator, object> factoryMethod) => new InstantiationSpec(factoryMethod);
+        internal static InstantiationSpec FromFactoryMethod(Func<IServiceLocatorKernel, object> factoryMethod) => new InstantiationSpec(factoryMethod);
 
         InstantiationSpec(Type implementationType) => ImplementationType = implementationType;
 
-        InstantiationSpec(Func<IServiceLocator, object> factoryMethod) => FactoryMethod = factoryMethod;
+        InstantiationSpec(Func<IServiceLocatorKernel, object> factoryMethod) => FactoryMethod = factoryMethod;
 
         InstantiationSpec(object instance) => Instance = instance;
     }

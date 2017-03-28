@@ -6,7 +6,7 @@ namespace Composable.DependencyInjection
 {
     public static class DependencyInjectionContainer
     {
-        public static IServiceLocator SetupForTesting([InstantHandle]Action<IDependencyInjectionContainer> setup)
+        public static IServiceLocator CreateServiceLocatorForTesting([InstantHandle]Action<IDependencyInjectionContainer> setup)
         {
             var @this = Create();
 

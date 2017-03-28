@@ -10,21 +10,21 @@ namespace AccountManagement.UI.QueryModels.Tests
 {
     public class QueryModelsTestsBase
     {
-        protected IServiceLocator Container;
+        protected IServiceLocator ServiceLocator;
         IDisposable _scope;
-        protected IAccountManagementQueryModelsReader QueryModelsReader => Container.Lease<IAccountManagementQueryModelsReader>().Instance;
+        protected IAccountManagementQueryModelsReader QueryModelsReader => ServiceLocator.Lease<IAccountManagementQueryModelsReader>().Instance;
 
         protected void ReplaceContainerScope()
         {
             _scope.Dispose();
-            _scope = Container.BeginScope();
+            _scope = ServiceLocator.BeginScope();
         }
 
         [SetUp]
         public void SetupContainerAndScope()
         {
 
-            Container = DependencyInjectionContainer.SetupForTesting(container =>
+            ServiceLocator = DependencyInjectionContainer.CreateServiceLocatorForTesting(container =>
                                                                                    {
                                                                                        AccountManagementDomainBootstrapper.SetupForTesting(container);
                                                                                        AccountManagementDomainEventStoreBootstrapper.BootstrapForTesting(container);
@@ -34,14 +34,14 @@ namespace AccountManagement.UI.QueryModels.Tests
 
 
 
-            _scope = Container.BeginScope();
+            _scope = ServiceLocator.BeginScope();
         }
 
         [TearDown]
         public void DisposeScopeAndContainer()
         {
             _scope.Dispose();
-            Container.Dispose();
+            ServiceLocator.Dispose();
         }
     }
 }

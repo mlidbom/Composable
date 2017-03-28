@@ -21,7 +21,7 @@ namespace Composable.CQRS.Tests.ServiceBus
         [SetUp]
         public void SetupTask()
         {
-            _serviceLocator = DependencyInjectionContainer.SetupForTesting(cont => {});
+            _serviceLocator = DependencyInjectionContainer.CreateServiceLocatorForTesting(cont => {});
             _receivedCommand = null;
 
             _timeSource = _serviceLocator.Resolve<DummyTimeSource>();

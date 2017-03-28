@@ -11,10 +11,10 @@ namespace AccountManagement.UI.QueryModels.Tests.FetchingAccountByEmailTests
         [Test]
         public void YouCanGetTheAccountViaTheEmail()
         {
-            AccountQueryModel account;
-            Container.Resolve<IAccountManagementQueryModelsReader>()
+            AccountQueryModel account = null;
+            ServiceLocator.Use<IAccountManagementQueryModelsReader>(reader => reader
                 .TryGetAccountByEmail(RegisteredAccount.Email, out account)
-                .Should().Be(true);
+                .Should().Be(true));
 
             account.Should().NotBe(null);
             account.Email.Should().Be(RegisteredAccount.Email);

@@ -13,7 +13,7 @@ namespace AccountManagement.Domain.Tests.After_a_user_has_registered_an_account
         [SetUp]
         public void ChangeEmail()
         {
-            _changeEmailScenario = new ChangeAccountEmailScenario(Container);
+            _changeEmailScenario = new ChangeAccountEmailScenario(ServiceLocator);
             _changeEmailScenario.Execute();
         }
 
@@ -42,7 +42,7 @@ namespace AccountManagement.Domain.Tests.After_a_user_has_registered_an_account
         [Test]
         public void Registering_an_account_with_the_old_email_works()
         {
-            new RegisterAccountScenario(Container)
+            new RegisterAccountScenario(ServiceLocator)
             {
                 Email = _changeEmailScenario.OldEmail
             }.Execute();
@@ -51,7 +51,7 @@ namespace AccountManagement.Domain.Tests.After_a_user_has_registered_an_account
         [Test]
         public void Attempting_to_register_an_account_with_the_new_email_throws_a_DuplicateAccountException()
         {
-            new RegisterAccountScenario(Container)
+            new RegisterAccountScenario(ServiceLocator)
                 {
                     Email = _changeEmailScenario.NewEmail
                 }.Invoking(me => me.Execute())

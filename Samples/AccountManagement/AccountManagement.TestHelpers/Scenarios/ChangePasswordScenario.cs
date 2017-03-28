@@ -7,28 +7,27 @@ namespace AccountManagement.TestHelpers.Scenarios
 {
     public class ChangePasswordScenario
     {
-        readonly IServiceLocator _container;
+        readonly IServiceLocator _serviceLocator;
 
         public string OldPassword;
         public readonly string NewPasswordAsString = TestData.Password.CreateValidPasswordString();
         public Password NewPassword;
         public readonly Account Account;
 
-        public ChangePasswordScenario(IServiceLocator container)
+        public ChangePasswordScenario(IServiceLocator serviceLocator)
         {
-            _container = container;
+            _serviceLocator = serviceLocator;
             NewPassword = new Password(NewPasswordAsString);
-            var registerAccountScenario = new RegisterAccountScenario(container);
+            var registerAccountScenario = new RegisterAccountScenario(serviceLocator);
             Account = registerAccountScenario.Execute();
             OldPassword = registerAccountScenario.PasswordAsString;
         }
 
         public void Execute()
         {
-            _container.ExecuteUnitOfWork(() => _container.Resolve<IAccountRepository>()
-                                                         .Get(Account.Id)
-                                                         .ChangePassword(oldPassword: OldPassword,
-                                                                         newPassword: NewPassword));
+            _serviceLocator.ExecuteUnitOfWork(() => _serviceLocator.Use<IAccountRepository>(repo => repo.Get(Account.Id)
+                                                                                              .ChangePassword(oldPassword: OldPassword,
+                                                                                                              newPassword: NewPassword)));
         }
     }
 }

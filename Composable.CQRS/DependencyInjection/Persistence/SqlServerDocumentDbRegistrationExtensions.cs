@@ -67,11 +67,11 @@ namespace Composable.DependencyInjection.Persistence
 
 
             @this.Register(CComponent.For<IDocumentDbSession>()
-                                    .UsingFactoryMethod(locator => new DocumentDbSession(backingStore: serviceLocator.Resolve<IDocumentDb>(registration.DocumentDbName),
-                                    usageGuard: locator.Resolve<ISingleContextUseGuard>()))
+                                     .UsingFactoryMethod(locator => new DocumentDbSession(backingStore: serviceLocator.Resolve<IDocumentDb>(registration.DocumentDbName),
+                                                                                          usageGuard: locator.Resolve<ISingleContextUseGuard>()))
                                      .Named(registration.SessionName)
-                                    .LifestyleScoped(),
-                           CComponent.For<TSession>(Seq.OfTypes<TUpdater, TReader, TBulkReader>())
+                                     .LifestyleScoped());
+            @this.Register(CComponent.For<TSession>(Seq.OfTypes<TUpdater, TReader, TBulkReader>())
                                     .UsingFactoryMethod(kernel => CreateProxyFor<TSession, TUpdater, TReader, TBulkReader>(kernel.Resolve<IDocumentDbSession>(registration.SessionName)))
                                     .LifestyleScoped()
                           );

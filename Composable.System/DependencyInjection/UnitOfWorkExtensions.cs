@@ -123,13 +123,13 @@ namespace Composable.DependencyInjection
             readonly IUnitOfWork _unitOfWork;
             bool _committed;
 
-            public TransactionalUnitOfWorkScope(IServiceLocator container)
+            public TransactionalUnitOfWorkScope(IServiceLocator serviceLocator)
             {
                 _transactionScopeWeCreatedAndOwn = new TransactionScope();
                 try
                 {
-                    _unitOfWork = new UnitOfWork(container.Resolve<ISingleContextUseGuard>());
-                    _unitOfWork.AddParticipants(container.ResolveAll<IUnitOfWorkParticipant>());
+                    _unitOfWork = new UnitOfWork(serviceLocator.Resolve<ISingleContextUseGuard>());
+                    _unitOfWork.AddParticipants(serviceLocator.ResolveAll<IUnitOfWorkParticipant>());
                     Transaction.Current.EnlistVolatile(this, EnlistmentOptions.None);
                 }
                 catch(Exception)

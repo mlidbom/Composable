@@ -50,10 +50,10 @@ namespace Composable.Persistence.DocumentDb.SqlServer
                 using(var command = connection.CreateCommand())
                 {
                     string lockHint = DocumentDbSession.UseUpdateLock ? "With(UPDLOCK, ROWLOCK)" : "";
-                    command.CommandText = @"
-SELECT Value, ValueTypeId FROM Store {0} 
+                    command.CommandText = $@"
+SELECT Value, ValueTypeId FROM Store {lockHint} 
 WHERE Id=@Id AND ValueTypeId
-".FormatWith(lockHint);
+";
                     string idString = GetIdString(key);
                     command.Parameters.Add(new SqlParameter("Id", idString));
 
@@ -351,7 +351,7 @@ ELSE
                 var acceptableTypeIds = KnownTypes.Where(x => type.IsAssignableFrom(x.Key)).Select(t => t.Value.ToString()).ToArray();
                 if(acceptableTypeIds.None())
                 {
-                    throw new Exception("Type: {0} is not among the known types".FormatWith(type.FullName));
+                    throw new Exception($"Type: {type.FullName} is not among the known types");
                 }
                 command.CommandText += "IN( " + acceptableTypeIds.Join(",") + ")\n";
             }

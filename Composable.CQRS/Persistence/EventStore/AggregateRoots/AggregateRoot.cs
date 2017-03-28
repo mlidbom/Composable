@@ -6,7 +6,6 @@ using Composable.DDD;
 using Composable.GenericAbstractions.Time;
 using Composable.Messaging.Events;
 using Composable.Persistence.EventSourcing;
-using Composable.System;
 using Composable.System.Linq;
 
 namespace Composable.Persistence.EventStore.AggregateRoots

@@ -1,5 +1,4 @@
 ﻿using System;
-using Composable.System;
 
 namespace Composable.Messaging.Buses
 {

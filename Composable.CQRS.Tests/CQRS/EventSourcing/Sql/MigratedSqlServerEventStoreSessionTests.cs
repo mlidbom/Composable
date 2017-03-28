@@ -20,17 +20,17 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.Sql
     class MigratedSqlServerEventStoreSessionTests : NoSqlTest
     {
         string _connectionString;
-        IDependencyInjectionContainer _windsorContainer;
+        IDependencyInjectionContainer _container;
 
         TestingOnlyServiceBus Bus { get; set; }
 
         [SetUp]
         public void Setup()
         {
-            _windsorContainer = DependencyInjectionContainer.Create();
+            _container = DependencyInjectionContainer.Create();
             Bus = new TestingOnlyServiceBus(DummyTimeSource.Now, new MessageHandlerRegistry());
             var masterConnectionString = ConfigurationManager.ConnectionStrings["MasterDb"].ConnectionString;
-            _connectionString = _windsorContainer.RegisterSqlServerDatabasePool(masterConnectionString)
+            _connectionString = _container.RegisterSqlServerDatabasePool(masterConnectionString)
                 .ConnectionStringFor("MigratedSqlServerEventStoreSessionTests_EventStore");
         }
 
@@ -86,6 +86,6 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.Sql
         }
 
         [TearDown]
-        public void TearDownTask() { _windsorContainer.Dispose(); }
+        public void TearDownTask() { _container.Dispose(); }
     }
 }

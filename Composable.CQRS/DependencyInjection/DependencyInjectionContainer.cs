@@ -1,6 +1,5 @@
 ﻿using System;
 using Composable.DependencyInjection.Testing;
-using Composable.DependencyInjection.Windsor;
 using JetBrains.Annotations;
 
 namespace Composable.DependencyInjection
@@ -21,6 +20,6 @@ namespace Composable.DependencyInjection
             return @this.CreateServiceLocator();
         }
 
-        internal static IDependencyInjectionContainer Create() => new WindsorDependencyInjectionContainer();
+        internal static IDependencyInjectionContainer Create() => new Windsor.WindsorDependencyInjectionContainer();
     }
 }

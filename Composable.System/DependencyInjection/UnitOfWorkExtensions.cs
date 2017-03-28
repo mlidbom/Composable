@@ -88,42 +88,42 @@ namespace Composable.DependencyInjection
 
         public static ITransactionalUnitOfWork BeginTransactionalUnitOfWorkScope(this IServiceLocator @this)
         {
-            var currentScope = TransactionalUnitOfWorkWindsorScopeBase.CurrentScope;
+            var currentScope = TransactionalUnitOfWorkScopeBase.CurrentScope;
             if(currentScope == null)
             {
-                return TransactionalUnitOfWorkWindsorScopeBase.CurrentScope = new TransactionalUnitOfWorkWindsorScope(@this);
+                return TransactionalUnitOfWorkScopeBase.CurrentScope = new TransactionalUnitOfWorkScope(@this);
             }
-            return new InnerTransactionalUnitOfWorkWindsorScope(TransactionalUnitOfWorkWindsorScopeBase.CurrentScope);
+            return new InnerTransactionalUnitOfWorkScope(TransactionalUnitOfWorkScopeBase.CurrentScope);
         }
 
-        abstract class TransactionalUnitOfWorkWindsorScopeBase : ITransactionalUnitOfWork
+        abstract class TransactionalUnitOfWorkScopeBase : ITransactionalUnitOfWork
         {
             public abstract void Dispose();
             public abstract void Commit();
             public abstract bool IsActive { get; }
 
-            internal static TransactionalUnitOfWorkWindsorScopeBase CurrentScope
+            internal static TransactionalUnitOfWorkScopeBase CurrentScope
             {
                 get
                 {
-                    var result = (TransactionalUnitOfWorkWindsorScopeBase)CallContext.GetData("TransactionalUnitOfWorkWindsorScope_Current");
+                    var result = (TransactionalUnitOfWorkScopeBase)CallContext.GetData("TransactionalUnitOfWorkScope_Current");
                     if (result != null && result.IsActive)
                     {
                         return result;
                     }
                     return CurrentScope = null;
                 }
-                set => CallContext.SetData("TransactionalUnitOfWorkWindsorScope_Current", value);
+                set => CallContext.SetData("TransactionalUnitOfWorkScope_Current", value);
             }
         }
 
-        class TransactionalUnitOfWorkWindsorScope : TransactionalUnitOfWorkWindsorScopeBase, IEnlistmentNotification
+        class TransactionalUnitOfWorkScope : TransactionalUnitOfWorkScopeBase, IEnlistmentNotification
         {
             readonly TransactionScope _transactionScopeWeCreatedAndOwn;
             readonly IUnitOfWork _unitOfWork;
             bool _committed;
 
-            public TransactionalUnitOfWorkWindsorScope(IServiceLocator container)
+            public TransactionalUnitOfWorkScope(IServiceLocator container)
             {
                 _transactionScopeWeCreatedAndOwn = new TransactionScope();
                 try
@@ -185,11 +185,11 @@ namespace Composable.DependencyInjection
             }
         }
 
-        class InnerTransactionalUnitOfWorkWindsorScope : TransactionalUnitOfWorkWindsorScopeBase
+        class InnerTransactionalUnitOfWorkScope : TransactionalUnitOfWorkScopeBase
         {
-            readonly TransactionalUnitOfWorkWindsorScopeBase _outer;
+            readonly TransactionalUnitOfWorkScopeBase _outer;
 
-            public InnerTransactionalUnitOfWorkWindsorScope(TransactionalUnitOfWorkWindsorScopeBase outer) => _outer = outer;
+            public InnerTransactionalUnitOfWorkScope(TransactionalUnitOfWorkScopeBase outer) => _outer = outer;
 
             public override void Dispose()
             { }

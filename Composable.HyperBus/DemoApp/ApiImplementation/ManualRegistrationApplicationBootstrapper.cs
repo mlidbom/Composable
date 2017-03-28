@@ -1,4 +1,4 @@
-﻿using Castle.Windsor;
+﻿using Composable.DependencyInjection;
 using Composable.HyperBus.APIDraft;
 using Composable.HyperBus.DemoApp.ApiImplementation.MessageHandlers;
 using Composable.HyperBus.DemoApp.ExposedApi;
@@ -9,7 +9,7 @@ namespace Composable.HyperBus.DemoApp.ApiImplementation
 {
     public class ManualRegistrationApplicationBootstrapper
     {
-        public static void RegisterMessageHandlersManually(IMessageHandlerRegistrar registerMessageHandlersFor, IWindsorContainer container)
+        public static void RegisterMessageHandlersManually(IMessageHandlerRegistrar registerMessageHandlersFor, IServiceLocator container)
         {
             registerMessageHandlersFor
                      .Command((RegisterAccountCommand command) => container.Resolve<RegisterAccountCommandHandler>().Handle(command))

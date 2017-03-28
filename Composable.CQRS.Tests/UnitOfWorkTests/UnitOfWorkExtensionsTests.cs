@@ -7,7 +7,7 @@ using NUnit.Framework;
 namespace Composable.CQRS.Tests.UnitOfWorkTests
 {
     [TestFixture]
-    public class WindsorUnitOfWorkExtensionsTests
+    public class UnitOfWorkExtensionsTests
     {
         [Test]
         public void CommitInNestedScopeDoesNothing()

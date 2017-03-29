@@ -30,9 +30,8 @@ namespace Composable.DependencyInjection.Persistence
 
     public static class DocumentDbRegistrationExtensions
     {
-        public static void RegisterSqlServerDocumentDb<TSession, TUpdater, TReader, TBulkReader>(this IDependencyInjectionContainer @this,
+        public static void RegisterSqlServerDocumentDb<TUpdater, TReader, TBulkReader>(this IDependencyInjectionContainer @this,
                                                                                                  string connectionName)
-            where TSession : IDocumentDbSession
             where TUpdater : IDocumentDbUpdater
             where TReader : IDocumentDbReader
             where TBulkReader : IDocumentDbBulkReader
@@ -40,9 +39,9 @@ namespace Composable.DependencyInjection.Persistence
             Contract.Argument(() => connectionName)
                     .NotNullEmptyOrWhiteSpace();
 
-            GeneratedLowLevelInterfaceInspector.InspectInterfaces(Seq.OfTypes<TSession, TUpdater, TReader, TBulkReader>());
+            GeneratedLowLevelInterfaceInspector.InspectInterfaces(Seq.OfTypes<TUpdater, TReader, TBulkReader>());
 
-            var registration = new SqlServerDocumentDbRegistration<TSession>();
+            var registration = new SqlServerDocumentDbRegistration<TUpdater>();
 
             var serviceLocator = @this.CreateServiceLocator();
 
@@ -71,25 +70,23 @@ namespace Composable.DependencyInjection.Persistence
                                                                                           usageGuard: locator.Resolve<ISingleContextUseGuard>()))
                                      .Named(registration.SessionName)
                                      .LifestyleScoped());
-            @this.Register(CComponent.For<TSession>(Seq.OfTypes<TUpdater, TReader, TBulkReader>())
-                                    .UsingFactoryMethod(kernel => CreateProxyFor<TSession, TUpdater, TReader, TBulkReader>(kernel.Resolve<IDocumentDbSession>(registration.SessionName)))
+            @this.Register(CComponent.For<TUpdater>(Seq.OfTypes<TUpdater, TReader, TBulkReader>())
+                                    .UsingFactoryMethod(kernel => CreateProxyFor<TUpdater, TReader, TBulkReader>(kernel.Resolve<IDocumentDbSession>(registration.SessionName)))
                                     .LifestyleScoped()
                           );
         }
 
-        static TSession CreateProxyFor<TSession, TUpdater, TReader, TBulkReader>(IDocumentDbSession session)
-            where TSession : IDocumentDbSession
+        static TUpdater CreateProxyFor<TUpdater, TReader, TBulkReader>(IDocumentDbSession session)
             where TUpdater : IDocumentDbUpdater
             where TReader : IDocumentDbReader
             where TBulkReader : IDocumentDbBulkReader
         {
-            var sessionType = EventStoreSessionProxyFactory<TSession, TUpdater, TReader, TBulkReader>.ProxyType;
-            return (TSession)Activator.CreateInstance(sessionType, new IInterceptor[] {}, session);
+            var sessionType = EventStoreSessionProxyFactory<TUpdater, TReader, TBulkReader>.ProxyType;
+            return (TUpdater)Activator.CreateInstance(sessionType, new IInterceptor[] {}, session);
         }
 
         //Using a generic class this way allows us to bypass any need for dictionary lookups or similar giving us excellent performance.
-        static class EventStoreSessionProxyFactory<TSession, TUpdater, TReader, TBulkReader>
-            where TSession : IDocumentDbSession
+        static class EventStoreSessionProxyFactory<TUpdater, TReader, TBulkReader>
             where TUpdater : IDocumentDbUpdater
             where TReader : IDocumentDbReader
             where TBulkReader : IDocumentDbBulkReader
@@ -99,7 +96,6 @@ namespace Composable.DependencyInjection.Persistence
                     .CreateInterfaceProxyTypeWithTargetInterface(interfaceToProxy: typeof(IDocumentDbSession),
                                                                  additionalInterfacesToProxy: new[]
                                                                                               {
-                                                                                                  typeof(TSession),
                                                                                                   typeof(TUpdater),
                                                                                                   typeof(TReader),
                                                                                                   typeof(TBulkReader)

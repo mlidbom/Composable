@@ -9,10 +9,10 @@ namespace AccountManagement.UI.QueryModels.Services.Implementation
 {
     [UsedImplicitly] class AccountManagementQueryModelReader : IAccountManagementQueryModelsReader
     {
-        readonly IAccountManagementUiDocumentDbSession _documentDbQueryModels;
+        readonly IAccountManagementUiDocumentDbReader _documentDbQueryModels;
         readonly QueryModelGeneratingDocumentDbReader _generatedModels;
 
-        public AccountManagementQueryModelReader(IAccountManagementUiDocumentDbSession documentDbQueryModels,
+        public AccountManagementQueryModelReader(IAccountManagementUiDocumentDbReader documentDbQueryModels,
                                                  AccountQueryModelGenerator accountQueryModelGenerator,
                                                  ISingleContextUseGuard usageGuard)
         {

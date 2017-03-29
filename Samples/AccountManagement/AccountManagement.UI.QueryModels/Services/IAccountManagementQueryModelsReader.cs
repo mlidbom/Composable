@@ -4,8 +4,6 @@ using Composable.Persistence.DocumentDb;
 
 namespace AccountManagement.UI.QueryModels.Services
 {
-    interface IAccountManagementUiDocumentDbSession : IDocumentDbSession { }
-
     interface IAccountManagementUiDocumentDbUpdater : IDocumentDbUpdater { }
 
     interface IAccountManagementUiDocumentDbReader : IDocumentDbReader { }

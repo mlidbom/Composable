@@ -11,7 +11,6 @@ namespace AccountManagement.UI.QueryModels.ContainerInstallers
         internal static void Install(IDependencyInjectionContainer container)
         {
             container.RegisterSqlServerDocumentDb<
-                         IAccountManagementUiDocumentDbSession,
                          IAccountManagementUiDocumentDbUpdater,
                          IAccountManagementUiDocumentDbReader,
                          IAccountManagementUiDocumentDbBulkReader>(ConnectionStringName);

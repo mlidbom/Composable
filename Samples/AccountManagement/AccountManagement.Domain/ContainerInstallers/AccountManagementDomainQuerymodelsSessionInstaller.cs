@@ -11,7 +11,6 @@ namespace AccountManagement.Domain.ContainerInstallers
         {
             container
                 .RegisterSqlServerDocumentDb<
-                    IAccountManagementDomainDocumentDbSession,
                     IAccountManagementDomainDocumentDbUpdater,
                     IAccountManagementDomainDocumentDbReader,
                     IAccountManagementDomainDocumentDbBulkReader>(AccountManagementDomainEventStoreInstaller

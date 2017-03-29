@@ -7,8 +7,6 @@ using JetBrains.Annotations;
 
 namespace AccountManagement.Domain.Services
 {
-    interface IAccountManagementDomainDocumentDbSession : IDocumentDbSession { }
-
     interface IAccountManagementDomainDocumentDbUpdater : IDocumentDbUpdater { }
 
     interface IAccountManagementDomainDocumentDbReader : IDocumentDbReader { }

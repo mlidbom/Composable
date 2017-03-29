@@ -7,9 +7,9 @@ namespace AccountManagement.Domain.Services
 {
     [UsedImplicitly] class DuplicateAccountChecker : IDuplicateAccountChecker
     {
-        readonly IAccountManagementDomainDocumentDbSession _querymodels;
+        readonly IAccountManagementDomainDocumentDbReader _querymodels;
 
-        public DuplicateAccountChecker(IAccountManagementDomainDocumentDbSession querymodels) => _querymodels = querymodels;
+        public DuplicateAccountChecker(IAccountManagementDomainDocumentDbReader querymodels) => _querymodels = querymodels;
 
         public void AssertAccountDoesNotExist(Email email)
         {

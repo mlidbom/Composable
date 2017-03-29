@@ -5,7 +5,7 @@ namespace Composable.Messaging.Events
 {
     public abstract class SingleAggregateQueryModelUpdater<TImplementer, TViewModel, TEvent, TSession> : CallsMatchingHandlersInRegistrationOrderEventHandler<TEvent>
         where TImplementer : SingleAggregateQueryModelUpdater<TImplementer, TViewModel, TEvent, TSession>
-        where TSession : IDocumentDbSession
+        where TSession : IDocumentDbUpdater
         where TEvent : class, IAggregateRootEvent
         where TViewModel : class, ISingleAggregateQueryModel, new()
     {

@@ -18,7 +18,7 @@ namespace Composable.DependencyInjection.Windsor
             _windsorContainer.Kernel.Resolver.AddSubResolver(new CollectionResolver(_windsorContainer.Kernel));
         }
 
-        public void Register(params CComponentRegistration[] registration)
+        public void Register(params ComponentRegistration[] registration)
         {
             var windsorRegistrations = registration.Select(ToWindsorRegistration)
                                                    .ToArray();
@@ -36,9 +36,9 @@ namespace Composable.DependencyInjection.Windsor
         IDisposable IServiceLocator.BeginScope() => _windsorContainer.BeginScope();
         void IDisposable.Dispose() => _windsorContainer.Dispose();
 
-        IRegistration ToWindsorRegistration(CComponentRegistration componentRegistration)
+        IRegistration ToWindsorRegistration(ComponentRegistration componentRegistration)
         {
-            ComponentRegistration<object> registration = Component.For(componentRegistration.ServiceTypes);
+            ComponentRegistration<object> registration = Castle.MicroKernel.Registration.Component.For(componentRegistration.ServiceTypes);
 
             if (componentRegistration.InstantiationSpec.Instance != null)
             {

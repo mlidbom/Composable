@@ -57,22 +57,22 @@ namespace Composable.DependencyInjection.Persistence
 
             if(newContainer.IsTestMode)
             {
-                newContainer.Register(CComponent.For<IEventStore<TSessionInterface, TReaderInterface>>()
+                newContainer.Register(Component.For<IEventStore<TSessionInterface, TReaderInterface>>()
                                                 .UsingFactoryMethod(sl => new InMemoryEventStore<TSessionInterface, TReaderInterface>(migrationFactories: migrations))
                                                 .LifestyleSingleton());
             } else
             {
-                newContainer.Register(CComponent.For<IEventStore<TSessionInterface, TReaderInterface>>()
+                newContainer.Register(Component.For<IEventStore<TSessionInterface, TReaderInterface>>()
                                                 .UsingFactoryMethod(sl => new SqlServerEventStore<TSessionInterface, TReaderInterface>(connectionString: connectionString, migrations: migrations))
                                                 .LifestyleScoped());
             }
 
 
-            newContainer.Register(CComponent.For<IEventStoreSession<TSessionInterface, TReaderInterface>, IUnitOfWorkParticipant>()
+            newContainer.Register(Component.For<IEventStoreSession<TSessionInterface, TReaderInterface>, IUnitOfWorkParticipant>()
                                             .ImplementedBy<EventStoreSession<TSessionInterface, TReaderInterface>>()
                                             .LifestyleScoped());
 
-            newContainer.Register(CComponent.For<TSessionInterface>(Seq.OfTypes<TReaderInterface>())
+            newContainer.Register(Component.For<TSessionInterface>(Seq.OfTypes<TReaderInterface>())
                                             .UsingFactoryMethod(locator =>CreateProxyFor<TSessionInterface, TReaderInterface>(locator.Resolve<IEventStoreSession<TSessionInterface, TReaderInterface>>()))
                                             .LifestyleScoped());
         }

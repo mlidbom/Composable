@@ -27,7 +27,7 @@ namespace Composable.DependencyInjection
 
     public interface IDependencyInjectionContainer : IDisposable
     {
-        void Register(params CComponentRegistration[] registration);
+        void Register(params ComponentRegistration[] registration);
         IServiceLocator CreateServiceLocator();
         bool IsTestMode { get; }
     }
@@ -102,7 +102,7 @@ namespace Composable.DependencyInjection
         }
     }
 
-    public static class CComponent
+    public static class Component
     {
         internal static ComponentRegistrationBuilderInitial<TService1> For<TService1, TService2, TService3>()
             => For<TService1>(Seq.OfTypes<TService2, TService3>());
@@ -156,8 +156,8 @@ namespace Composable.DependencyInjection
                 _instantInstatiationSpec = instantInstatiationSpec;
             }
 
-            internal CComponentRegistration LifestyleSingleton() => new CComponentRegistration(Lifestyle.Singleton, _serviceTypes, _instantInstatiationSpec);
-            public CComponentRegistration LifestyleScoped() => new CComponentRegistration(Lifestyle.Scoped, _serviceTypes, _instantInstatiationSpec);
+            internal ComponentRegistration LifestyleSingleton() => new ComponentRegistration(Lifestyle.Singleton, _serviceTypes, _instantInstatiationSpec);
+            public ComponentRegistration LifestyleScoped() => new ComponentRegistration(Lifestyle.Scoped, _serviceTypes, _instantInstatiationSpec);
 
         }
     }
@@ -187,12 +187,12 @@ namespace Composable.DependencyInjection
         InstantiationSpec(object instance) => Instance = instance;
     }
 
-    public class CComponentRegistration
+    public class ComponentRegistration
     {
         internal IEnumerable<Type> ServiceTypes { get; }
         internal InstantiationSpec InstantiationSpec { get; }
         internal Lifestyle Lifestyle { get; }
-        internal CComponentRegistration(Lifestyle lifestyle, IEnumerable<Type> serviceTypes, InstantiationSpec instantiationSpec)
+        internal ComponentRegistration(Lifestyle lifestyle, IEnumerable<Type> serviceTypes, InstantiationSpec instantiationSpec)
         {
             serviceTypes = serviceTypes.ToList();
 

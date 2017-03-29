@@ -17,22 +17,22 @@ namespace Composable.DependencyInjection.Testing
             var registry = new MessageHandlerRegistry();
             var bus = new TestingOnlyServiceBus(dummyTimeSource, registry);
 
-            @this.Register(CComponent.For<TestModeMarker>()
+            @this.Register(Component.For<TestModeMarker>()
                                      .ImplementedBy<TestModeMarker>()
                                      .LifestyleSingleton(),
-                           CComponent.For<ISingleContextUseGuard>()
+                           Component.For<ISingleContextUseGuard>()
                                      .ImplementedBy<SingleThreadUseGuard>()
                                      .LifestyleScoped(),
-                           CComponent.For<IUtcTimeTimeSource, DummyTimeSource>()
+                           Component.For<IUtcTimeTimeSource, DummyTimeSource>()
                                      .Instance(dummyTimeSource)
                                      .LifestyleSingleton(),
-                           CComponent.For<IMessageHandlerRegistrar>()
+                           Component.For<IMessageHandlerRegistrar>()
                                      .Instance(registry)
                                      .LifestyleSingleton(),
-                           CComponent.For<IServiceBus, IMessageSpy>()
+                           Component.For<IServiceBus, IMessageSpy>()
                                      .Instance(bus)
                                      .LifestyleSingleton(),
-                           CComponent.For<IConnectionStringProvider>()
+                           Component.For<IConnectionStringProvider>()
                                      .Instance(new DummyConnectionStringProvider())
                                      .LifestyleSingleton()
                           );

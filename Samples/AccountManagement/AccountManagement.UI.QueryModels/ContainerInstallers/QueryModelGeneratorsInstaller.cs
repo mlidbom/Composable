@@ -7,7 +7,7 @@ namespace AccountManagement.UI.QueryModels.ContainerInstallers
     {
         internal static void Install(IDependencyInjectionContainer container)
         {
-            container.Register(CComponent.For<AccountQueryModelGenerator>()
+            container.Register(Component.For<AccountQueryModelGenerator>()
                 .ImplementedBy<AccountQueryModelGenerator>()
                 .LifestyleScoped());
         }

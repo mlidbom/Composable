@@ -141,10 +141,10 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
             container.ConfigureWiringForTestsCallBeforeAllOtherWiring();
 
             container.Register(
-                CComponent.For<IEnumerable<IEventMigration>>()
+                Component.For<IEnumerable<IEventMigration>>()
                          .UsingFactoryMethod(_ => migrationsfactory())
                          .LifestyleScoped(),
-                CComponent.For<IEventStoreSession, IUnitOfWorkParticipant>()
+                Component.For<IEventStoreSession, IUnitOfWorkParticipant>()
                          .ImplementedBy<EventStoreSession>()
                          .LifestyleScoped()
                 );
@@ -162,7 +162,7 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
                 }
 
                 container.Register(
-                                   CComponent.For<IEventStore>()
+                                   Component.For<IEventStore>()
                                              .UsingFactoryMethod(
                                                                  locator => new SqlServerEventStore(connectionString: eventStoreConnectionString,
                                                                                                     usageGuard: locator.Resolve<ISingleContextUseGuard>(),
@@ -175,7 +175,7 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
             else if(eventStoreType == typeof(InMemoryEventStore))
             {
                 container.Register(
-                    CComponent.For<IEventStore>()
+                    Component.For<IEventStore>()
                              .UsingFactoryMethod(
                                  kernel =>
                                  {
@@ -184,7 +184,7 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
                                      return store;
                                  })
                              .LifestyleScoped(),
-                    CComponent.For<InMemoryEventStore>()
+                    Component.For<InMemoryEventStore>()
                         .ImplementedBy<InMemoryEventStore>()
                         .LifestyleSingleton());
             }

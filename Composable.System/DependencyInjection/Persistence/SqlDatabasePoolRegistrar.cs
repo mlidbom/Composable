@@ -8,7 +8,7 @@ namespace Composable.DependencyInjection.Persistence
         {
             var sqlServerDatabasePool = new SqlServerDatabasePool(connectionString);
             @this.Register(
-                CComponent.For<SqlServerDatabasePool>()
+                Component.For<SqlServerDatabasePool>()
                 .UsingFactoryMethod(_ => sqlServerDatabasePool)
                 .LifestyleSingleton()
                 );

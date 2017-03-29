@@ -52,7 +52,7 @@ namespace Composable.DependencyInjection.Persistence
 
             if(@this.IsTestMode)
             {
-                @this.Register(CComponent.For<ISomethingOrOtherSqlServerDocumentDb<TUpdater, TReader, TBulkReader>>()
+                @this.Register(Component.For<ISomethingOrOtherSqlServerDocumentDb<TUpdater, TReader, TBulkReader>>()
                                          .ImplementedBy<SomethingOrOtherInMemoryDocumentDb<TUpdater, TReader, TBulkReader>>()
                                          .LifestyleSingleton());
 
@@ -62,16 +62,16 @@ namespace Composable.DependencyInjection.Persistence
                                                      .GetConnectionString(connectionName)
                                                      .ConnectionString;
 
-                @this.Register(CComponent.For<ISomethingOrOtherSqlServerDocumentDb<TUpdater, TReader, TBulkReader>>()
+                @this.Register(Component.For<ISomethingOrOtherSqlServerDocumentDb<TUpdater, TReader, TBulkReader>>()
                                          .UsingFactoryMethod(kernel => new SomethingOrOtherSqlServerDocumentDb<TUpdater, TReader, TBulkReader>(connectionString))
                                          .LifestyleScoped());
             }
 
 
-            @this.Register(CComponent.For<ISomethingOrOtherDocumentDbSession<TUpdater, TReader, TBulkReader>>()
+            @this.Register(Component.For<ISomethingOrOtherDocumentDbSession<TUpdater, TReader, TBulkReader>>()
                                      .ImplementedBy<SomethingOrOtherDocumentDbSession<TUpdater, TReader, TBulkReader>>()
                                      .LifestyleScoped());
-            @this.Register(CComponent.For<TUpdater>(Seq.OfTypes<TUpdater, TReader, TBulkReader>())
+            @this.Register(Component.For<TUpdater>(Seq.OfTypes<TUpdater, TReader, TBulkReader>())
                                     .UsingFactoryMethod(kernel => CreateProxyFor<TUpdater, TReader, TBulkReader>(kernel.Resolve<ISomethingOrOtherDocumentDbSession<TUpdater, TReader, TBulkReader>>()))
                                     .LifestyleScoped()
                           );

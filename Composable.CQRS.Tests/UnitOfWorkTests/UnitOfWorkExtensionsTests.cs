@@ -14,7 +14,7 @@ namespace Composable.CQRS.Tests.UnitOfWorkTests
         {
             var unitOfWorkSpy = new UnitOfWorkSpy();
             var serviceLocator = DependencyInjectionContainer.CreateServiceLocatorForTesting(
-                                                                              cont => cont.Register(CComponent.For<IUnitOfWorkParticipant>()
+                                                                              cont => cont.Register(Component.For<IUnitOfWorkParticipant>()
                                                                                                               .Instance(unitOfWorkSpy)
                                                                                                               .LifestyleSingleton()));
 
@@ -45,7 +45,7 @@ namespace Composable.CQRS.Tests.UnitOfWorkTests
         {
             var unitOfWorkSpy = new UnitOfWorkSpy();
             var serviceLocator = DependencyInjectionContainer.CreateServiceLocatorForTesting(
-                                                                              cont => cont.Register(CComponent.For<IUnitOfWorkParticipant>()
+                                                                              cont => cont.Register(Component.For<IUnitOfWorkParticipant>()
                                                                                                               .Instance(unitOfWorkSpy)
                                                                                                               .LifestyleSingleton()));
 

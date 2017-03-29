@@ -8,7 +8,7 @@ namespace AccountManagement.Domain.ContainerInstallers
         internal static void Install(IDependencyInjectionContainer container)
         {
             container.Register(
-                CComponent.For<IDuplicateAccountChecker>()
+                Component.For<IDuplicateAccountChecker>()
                     .ImplementedBy<DuplicateAccountChecker>()
                     .LifestyleScoped()
                 );

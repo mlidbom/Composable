@@ -39,16 +39,15 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
 
         void UseEventstoreSessionWithConfiguredMigrations(Action<IEventStoreSession> useSession)
         {
-            SqlServerEventStoreRegistration registration =  null;
 
             var container = DependencyInjectionContainer.CreateServiceLocatorForTesting(
-                cont => registration = cont.RegisterSqlServerEventStore<ITestingEventstoreSession, ITestingEventstoreReader>("dummy connection name"));
+                cont => cont.RegisterSqlServerEventStore<ITestingEventstoreSession, ITestingEventstoreReader>("dummy connection name"));
 
             using (container)
             {
                 using (container.BeginScope())
                 {
-                    container.Use<IEventStore>(registration.Store.Value.ToString(), store => store.SaveEvents(_history));
+                    container.Use<IEventStore<ITestingEventstoreSession, ITestingEventstoreReader>>(store => store.SaveEvents(_history));
                 }
 
                 using (container.BeginScope())

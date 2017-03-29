@@ -126,30 +126,29 @@ namespace Composable.DependencyInjection
         {
             internal ComponentRegistrationBuilderInitial(IEnumerable<Type> serviceTypes) : base(serviceTypes.Concat(new List<Type>() {typeof(TService)})) {}
 
-            public ComponentRegistrationBuilderWithInstantiationSpec<TService> ImplementedBy<TImplementation>()
+            public ComponentRegistrationBuilderWithInstantiationSpec ImplementedBy<TImplementation>()
             {
                 Contract.Arguments.That(ServiceTypes.All(serviceType => serviceType.IsAssignableFrom(typeof(TImplementation))), "The implementing type must implement all the service interfaces.");
-                return new ComponentRegistrationBuilderWithInstantiationSpec<TService>(ServiceTypes, InstantiationSpec.ImplementedBy(typeof(TImplementation)));
+                return new ComponentRegistrationBuilderWithInstantiationSpec(ServiceTypes, InstantiationSpec.ImplementedBy(typeof(TImplementation)));
             }
 
-            internal ComponentRegistrationBuilderWithInstantiationSpec<TService> Instance(TService instance)
+            internal ComponentRegistrationBuilderWithInstantiationSpec Instance(TService instance)
             {
                 Contract.Arguments.That(ServiceTypes.All(serviceType => serviceType.IsInstanceOfType(instance)), "The implementing type must implement all the service interfaces.");
-                return new ComponentRegistrationBuilderWithInstantiationSpec<TService>(ServiceTypes, InstantiationSpec.FromInstance(instance));
+                return new ComponentRegistrationBuilderWithInstantiationSpec(ServiceTypes, InstantiationSpec.FromInstance(instance));
             }
 
-            internal ComponentRegistrationBuilderWithInstantiationSpec<TService> UsingFactoryMethod<TImplementation>(Func<IServiceLocatorKernel, TImplementation> factoryMethod)
+            internal ComponentRegistrationBuilderWithInstantiationSpec UsingFactoryMethod<TImplementation>(Func<IServiceLocatorKernel, TImplementation> factoryMethod)
                 where TImplementation : TService
             {
-                return new ComponentRegistrationBuilderWithInstantiationSpec<TService>(ServiceTypes, InstantiationSpec.FromFactoryMethod(serviceLocator => factoryMethod(serviceLocator)));
+                return new ComponentRegistrationBuilderWithInstantiationSpec(ServiceTypes, InstantiationSpec.FromFactoryMethod(serviceLocator => factoryMethod(serviceLocator)));
             }
         }
 
-        public class ComponentRegistrationBuilderWithInstantiationSpec<TService>
+        public class ComponentRegistrationBuilderWithInstantiationSpec
         {
             readonly IEnumerable<Type> _serviceTypes;
             readonly InstantiationSpec _instantInstatiationSpec;
-            string Name { get; set; }
 
             internal ComponentRegistrationBuilderWithInstantiationSpec(IEnumerable<Type> serviceTypes, InstantiationSpec instantInstatiationSpec)
             {
@@ -157,15 +156,8 @@ namespace Composable.DependencyInjection
                 _instantInstatiationSpec = instantInstatiationSpec;
             }
 
-            public ComponentRegistrationBuilderWithInstantiationSpec<TService> Named(string name)
-            {
-                Contract.Arguments.That(Name == null, "Name == null");
-                Name = name;
-                return this;
-            }
-
-            internal CComponentRegistration LifestyleSingleton() => new CComponentRegistration(Lifestyle.Singleton, Name, _serviceTypes, _instantInstatiationSpec);
-            public CComponentRegistration LifestyleScoped() => new CComponentRegistration(Lifestyle.Scoped, Name, _serviceTypes, _instantInstatiationSpec);
+            internal CComponentRegistration LifestyleSingleton() => new CComponentRegistration(Lifestyle.Singleton, _serviceTypes, _instantInstatiationSpec);
+            public CComponentRegistration LifestyleScoped() => new CComponentRegistration(Lifestyle.Scoped, _serviceTypes, _instantInstatiationSpec);
 
         }
     }
@@ -200,14 +192,12 @@ namespace Composable.DependencyInjection
         internal IEnumerable<Type> ServiceTypes { get; }
         internal InstantiationSpec InstantiationSpec { get; }
         internal Lifestyle Lifestyle { get; }
-        internal string Name { get; }
-        internal CComponentRegistration(Lifestyle lifestyle, string name, IEnumerable<Type> serviceTypes, InstantiationSpec instantiationSpec)
+        internal CComponentRegistration(Lifestyle lifestyle, IEnumerable<Type> serviceTypes, InstantiationSpec instantiationSpec)
         {
             serviceTypes = serviceTypes.ToList();
 
             Contract.Arguments.That(lifestyle == Lifestyle.Singleton || instantiationSpec.Instance == null, $"{nameof(InstantiationSpec.Instance)} registrations must be {nameof(Lifestyle.Singleton)}s");
 
-            Name = name;
             ServiceTypes = serviceTypes;
             InstantiationSpec = instantiationSpec;
             Lifestyle = lifestyle;

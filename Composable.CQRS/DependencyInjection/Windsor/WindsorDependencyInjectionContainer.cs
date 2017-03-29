@@ -57,12 +57,6 @@ namespace Composable.DependencyInjection.Windsor
                 throw new Exception($"Invalid {nameof(InstantiationSpec)}");
             }
 
-
-            if (!componentRegistration.Name.IsNullOrEmpty())
-            {
-                registration = registration.Named(componentRegistration.Name);
-            }
-
             switch (componentRegistration.Lifestyle)
             {
                 case Lifestyle.Singleton:

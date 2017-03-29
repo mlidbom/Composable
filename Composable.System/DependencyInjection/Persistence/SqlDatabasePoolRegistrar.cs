@@ -6,14 +6,14 @@ namespace Composable.DependencyInjection.Persistence
     {
         internal static SqlServerDatabasePool RegisterSqlServerDatabasePool(this IDependencyInjectionContainer @this,  string connectionString)
         {
+            var sqlServerDatabasePool = new SqlServerDatabasePool(connectionString);
             @this.Register(
                 CComponent.For<SqlServerDatabasePool>()
-                .UsingFactoryMethod(locator => new SqlServerDatabasePool(connectionString))
-                .Named(connectionString)
+                .UsingFactoryMethod(_ => sqlServerDatabasePool)
                 .LifestyleSingleton()
                 );
 
-            return @this.CreateServiceLocator().Resolve<SqlServerDatabasePool>(connectionString);
+            return @this.CreateServiceLocator().Resolve<SqlServerDatabasePool>();
         }
     }
 }

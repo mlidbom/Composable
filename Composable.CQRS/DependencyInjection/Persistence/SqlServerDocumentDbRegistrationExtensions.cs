@@ -13,18 +13,18 @@ namespace Composable.DependencyInjection.Persistence
 {
     public static class DocumentDbRegistrationExtensions
     {
-        interface ISqlServerDocumentDb<TUpdater, TReader, TBulkReader> : IDocumentDb
+        interface IDocumentDb<TUpdater, TReader, TBulkReader> : IDocumentDb
         {
         }
 
-        [UsedImplicitly] class SqlServerDocumentDb<TUpdater, TReader, TBulkReader> : SqlServerDocumentDb, ISqlServerDocumentDb<TUpdater, TReader, TBulkReader>
+        [UsedImplicitly] class SqlServerDocumentDb<TUpdater, TReader, TBulkReader> : SqlServerDocumentDb, IDocumentDb<TUpdater, TReader, TBulkReader>
         {
             public SqlServerDocumentDb(string connectionString) : base(connectionString)
             {
             }
         }
 
-        [UsedImplicitly] class InMemoryDocumentDb<TUpdater, TReader, TBulkReader> : InMemoryDocumentDb, ISqlServerDocumentDb<TUpdater, TReader, TBulkReader>
+        [UsedImplicitly] class InMemoryDocumentDb<TUpdater, TReader, TBulkReader> : InMemoryDocumentDb, IDocumentDb<TUpdater, TReader, TBulkReader>
         {
         }
 
@@ -32,7 +32,7 @@ namespace Composable.DependencyInjection.Persistence
 
         [UsedImplicitly] class DocumentDbSession<TUpdater, TReader, TBulkReader> : DocumentDbSession, IDocumentDbSession<TUpdater, TReader, TBulkReader>
         {
-            public DocumentDbSession(ISqlServerDocumentDb<TUpdater, TReader, TBulkReader> backingStore, ISingleContextUseGuard usageGuard) : base(backingStore, usageGuard)
+            public DocumentDbSession(IDocumentDb<TUpdater, TReader, TBulkReader> backingStore, ISingleContextUseGuard usageGuard) : base(backingStore, usageGuard)
             {
             }
         }
@@ -52,7 +52,7 @@ namespace Composable.DependencyInjection.Persistence
 
             if(@this.IsTestMode)
             {
-                @this.Register(Component.For<ISqlServerDocumentDb<TUpdater, TReader, TBulkReader>>()
+                @this.Register(Component.For<IDocumentDb<TUpdater, TReader, TBulkReader>>()
                                          .ImplementedBy<InMemoryDocumentDb<TUpdater, TReader, TBulkReader>>()
                                          .LifestyleSingleton());
 
@@ -62,7 +62,7 @@ namespace Composable.DependencyInjection.Persistence
                                                      .GetConnectionString(connectionName)
                                                      .ConnectionString;
 
-                @this.Register(Component.For<ISqlServerDocumentDb<TUpdater, TReader, TBulkReader>>()
+                @this.Register(Component.For<IDocumentDb<TUpdater, TReader, TBulkReader>>()
                                          .UsingFactoryMethod(kernel => new SqlServerDocumentDb<TUpdater, TReader, TBulkReader>(connectionString))
                                          .LifestyleScoped());
             }

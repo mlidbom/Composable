@@ -6,30 +6,37 @@ using Composable.Persistence.DocumentDb.SqlServer;
 using Composable.System.Configuration;
 using Composable.System.Linq;
 using Composable.SystemExtensions.Threading;
+using JetBrains.Annotations;
+// ReSharper disable UnusedTypeParameter
 
 namespace Composable.DependencyInjection.Persistence
 {
-    abstract class SqlServerDocumentDbRegistration
-    {
-        protected SqlServerDocumentDbRegistration(string description)
-        {
-            Contract.Argument(() => description)
-                    .NotNullEmptyOrWhiteSpace();
-
-            DocumentDbName = $"{description}.DocumentDb";
-            SessionName = $"{description}.Session";
-        }
-        internal string DocumentDbName { get; }
-        internal string SessionName { get; }
-    }
-
-    class SqlServerDocumentDbRegistration<TFactory> : SqlServerDocumentDbRegistration
-    {
-        public SqlServerDocumentDbRegistration() : base(typeof(TFactory).FullName) {}
-    }
-
     public static class DocumentDbRegistrationExtensions
     {
+        interface ISomethingOrOtherSqlServerDocumentDb<TUpdater, TReader, TBulkReader> : IDocumentDb
+        {
+        }
+
+        [UsedImplicitly] class SomethingOrOtherSqlServerDocumentDb<TUpdater, TReader, TBulkReader> : SqlServerDocumentDb, ISomethingOrOtherSqlServerDocumentDb<TUpdater, TReader, TBulkReader>
+        {
+            public SomethingOrOtherSqlServerDocumentDb(string connectionString) : base(connectionString)
+            {
+            }
+        }
+
+        [UsedImplicitly] class SomethingOrOtherInMemoryDocumentDb<TUpdater, TReader, TBulkReader> : InMemoryDocumentDb, ISomethingOrOtherSqlServerDocumentDb<TUpdater, TReader, TBulkReader>
+        {
+        }
+
+        interface ISomethingOrOtherDocumentDbSession<TUpdater, TReader, TBulkReader> : IDocumentDbSession { }
+
+        [UsedImplicitly] class SomethingOrOtherDocumentDbSession<TUpdater, TReader, TBulkReader> : DocumentDbSession, ISomethingOrOtherDocumentDbSession<TUpdater, TReader, TBulkReader>
+        {
+            public SomethingOrOtherDocumentDbSession(ISomethingOrOtherSqlServerDocumentDb<TUpdater, TReader, TBulkReader> backingStore, ISingleContextUseGuard usageGuard) : base(backingStore, usageGuard)
+            {
+            }
+        }
+
         public static void RegisterSqlServerDocumentDb<TUpdater, TReader, TBulkReader>(this IDependencyInjectionContainer @this,
                                                                                                  string connectionName)
             where TUpdater : IDocumentDbUpdater
@@ -41,37 +48,31 @@ namespace Composable.DependencyInjection.Persistence
 
             GeneratedLowLevelInterfaceInspector.InspectInterfaces(Seq.OfTypes<TUpdater, TReader, TBulkReader>());
 
-            var registration = new SqlServerDocumentDbRegistration<TUpdater>();
-
             var serviceLocator = @this.CreateServiceLocator();
 
-            if(!@this.IsTestMode)
+            if(@this.IsTestMode)
             {
+                @this.Register(CComponent.For<ISomethingOrOtherSqlServerDocumentDb<TUpdater, TReader, TBulkReader>>()
+                                         .ImplementedBy<SomethingOrOtherInMemoryDocumentDb<TUpdater, TReader, TBulkReader>>()
+                                         .LifestyleSingleton());
 
-                var connectionString = serviceLocator.Resolve<IConnectionStringProvider>()
-                                                               .GetConnectionString(connectionName)
-                                                               .ConnectionString;
-
-                @this.Register(CComponent.For<IDocumentDb>()
-                                        .UsingFactoryMethod(locator => new SqlServerDocumentDb(connectionString:connectionString))
-                                        .Named(registration.DocumentDbName)
-                                        .LifestyleScoped());
             } else
             {
-                @this.Register(CComponent.For<IDocumentDb>()
-                                        .ImplementedBy<InMemoryDocumentDb>()
-                                        .Named(registration.DocumentDbName)
-                                        .LifestyleSingleton());
+                var connectionString = serviceLocator.Resolve<IConnectionStringProvider>()
+                                                     .GetConnectionString(connectionName)
+                                                     .ConnectionString;
+
+                @this.Register(CComponent.For<ISomethingOrOtherSqlServerDocumentDb<TUpdater, TReader, TBulkReader>>()
+                                         .UsingFactoryMethod(kernel => new SomethingOrOtherSqlServerDocumentDb<TUpdater, TReader, TBulkReader>(connectionString))
+                                         .LifestyleScoped());
             }
 
 
-            @this.Register(CComponent.For<IDocumentDbSession>()
-                                     .UsingFactoryMethod(locator => new DocumentDbSession(backingStore: serviceLocator.Resolve<IDocumentDb>(registration.DocumentDbName),
-                                                                                          usageGuard: locator.Resolve<ISingleContextUseGuard>()))
-                                     .Named(registration.SessionName)
+            @this.Register(CComponent.For<ISomethingOrOtherDocumentDbSession<TUpdater, TReader, TBulkReader>>()
+                                     .ImplementedBy<SomethingOrOtherDocumentDbSession<TUpdater, TReader, TBulkReader>>()
                                      .LifestyleScoped());
             @this.Register(CComponent.For<TUpdater>(Seq.OfTypes<TUpdater, TReader, TBulkReader>())
-                                    .UsingFactoryMethod(kernel => CreateProxyFor<TUpdater, TReader, TBulkReader>(kernel.Resolve<IDocumentDbSession>(registration.SessionName)))
+                                    .UsingFactoryMethod(kernel => CreateProxyFor<TUpdater, TReader, TBulkReader>(kernel.Resolve<ISomethingOrOtherDocumentDbSession<TUpdater, TReader, TBulkReader>>()))
                                     .LifestyleScoped()
                           );
         }

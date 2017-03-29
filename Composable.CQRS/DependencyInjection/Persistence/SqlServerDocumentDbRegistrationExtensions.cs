@@ -13,26 +13,26 @@ namespace Composable.DependencyInjection.Persistence
 {
     public static class DocumentDbRegistrationExtensions
     {
-        interface ISomethingOrOtherSqlServerDocumentDb<TUpdater, TReader, TBulkReader> : IDocumentDb
+        interface ISqlServerDocumentDb<TUpdater, TReader, TBulkReader> : IDocumentDb
         {
         }
 
-        [UsedImplicitly] class SomethingOrOtherSqlServerDocumentDb<TUpdater, TReader, TBulkReader> : SqlServerDocumentDb, ISomethingOrOtherSqlServerDocumentDb<TUpdater, TReader, TBulkReader>
+        [UsedImplicitly] class SqlServerDocumentDb<TUpdater, TReader, TBulkReader> : SqlServerDocumentDb, ISqlServerDocumentDb<TUpdater, TReader, TBulkReader>
         {
-            public SomethingOrOtherSqlServerDocumentDb(string connectionString) : base(connectionString)
+            public SqlServerDocumentDb(string connectionString) : base(connectionString)
             {
             }
         }
 
-        [UsedImplicitly] class SomethingOrOtherInMemoryDocumentDb<TUpdater, TReader, TBulkReader> : InMemoryDocumentDb, ISomethingOrOtherSqlServerDocumentDb<TUpdater, TReader, TBulkReader>
+        [UsedImplicitly] class InMemoryDocumentDb<TUpdater, TReader, TBulkReader> : InMemoryDocumentDb, ISqlServerDocumentDb<TUpdater, TReader, TBulkReader>
         {
         }
 
-        interface ISomethingOrOtherDocumentDbSession<TUpdater, TReader, TBulkReader> : IDocumentDbSession { }
+        interface IDocumentDbSession<TUpdater, TReader, TBulkReader> : IDocumentDbSession { }
 
-        [UsedImplicitly] class SomethingOrOtherDocumentDbSession<TUpdater, TReader, TBulkReader> : DocumentDbSession, ISomethingOrOtherDocumentDbSession<TUpdater, TReader, TBulkReader>
+        [UsedImplicitly] class DocumentDbSession<TUpdater, TReader, TBulkReader> : DocumentDbSession, IDocumentDbSession<TUpdater, TReader, TBulkReader>
         {
-            public SomethingOrOtherDocumentDbSession(ISomethingOrOtherSqlServerDocumentDb<TUpdater, TReader, TBulkReader> backingStore, ISingleContextUseGuard usageGuard) : base(backingStore, usageGuard)
+            public DocumentDbSession(ISqlServerDocumentDb<TUpdater, TReader, TBulkReader> backingStore, ISingleContextUseGuard usageGuard) : base(backingStore, usageGuard)
             {
             }
         }
@@ -52,8 +52,8 @@ namespace Composable.DependencyInjection.Persistence
 
             if(@this.IsTestMode)
             {
-                @this.Register(Component.For<ISomethingOrOtherSqlServerDocumentDb<TUpdater, TReader, TBulkReader>>()
-                                         .ImplementedBy<SomethingOrOtherInMemoryDocumentDb<TUpdater, TReader, TBulkReader>>()
+                @this.Register(Component.For<ISqlServerDocumentDb<TUpdater, TReader, TBulkReader>>()
+                                         .ImplementedBy<InMemoryDocumentDb<TUpdater, TReader, TBulkReader>>()
                                          .LifestyleSingleton());
 
             } else
@@ -62,17 +62,17 @@ namespace Composable.DependencyInjection.Persistence
                                                      .GetConnectionString(connectionName)
                                                      .ConnectionString;
 
-                @this.Register(Component.For<ISomethingOrOtherSqlServerDocumentDb<TUpdater, TReader, TBulkReader>>()
-                                         .UsingFactoryMethod(kernel => new SomethingOrOtherSqlServerDocumentDb<TUpdater, TReader, TBulkReader>(connectionString))
+                @this.Register(Component.For<ISqlServerDocumentDb<TUpdater, TReader, TBulkReader>>()
+                                         .UsingFactoryMethod(kernel => new SqlServerDocumentDb<TUpdater, TReader, TBulkReader>(connectionString))
                                          .LifestyleScoped());
             }
 
 
-            @this.Register(Component.For<ISomethingOrOtherDocumentDbSession<TUpdater, TReader, TBulkReader>>()
-                                     .ImplementedBy<SomethingOrOtherDocumentDbSession<TUpdater, TReader, TBulkReader>>()
+            @this.Register(Component.For<IDocumentDbSession<TUpdater, TReader, TBulkReader>>()
+                                     .ImplementedBy<DocumentDbSession<TUpdater, TReader, TBulkReader>>()
                                      .LifestyleScoped());
             @this.Register(Component.For<TUpdater>(Seq.OfTypes<TUpdater, TReader, TBulkReader>())
-                                    .UsingFactoryMethod(kernel => CreateProxyFor<TUpdater, TReader, TBulkReader>(kernel.Resolve<ISomethingOrOtherDocumentDbSession<TUpdater, TReader, TBulkReader>>()))
+                                    .UsingFactoryMethod(kernel => CreateProxyFor<TUpdater, TReader, TBulkReader>(kernel.Resolve<IDocumentDbSession<TUpdater, TReader, TBulkReader>>()))
                                     .LifestyleScoped()
                           );
         }

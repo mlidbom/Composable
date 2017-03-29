@@ -13,19 +13,24 @@ using Composable.System.Linq;
 using Composable.SystemExtensions.Threading;
 using Composable.UnitsOfWork;
 using JetBrains.Annotations;
+
 // ReSharper disable UnusedTypeParameter the type parameters allow non-ambiguous registrations in the container. They are in fact used.
 
 namespace Composable.DependencyInjection.Persistence
 {
-    interface IEventStore<TSessionInterface, TReaderInterface> : IEventStore { }
+    interface IEventStore<TSessionInterface, TReaderInterface> : IEventStore {}
 
     public static class SqlServerEventStoreRegistrationExtensions
     {
-        interface IEventStoreSession<TSessionInterface, TReaderInterface> : IEventStoreSession { }
+        interface IEventStoreSession<TSessionInterface, TReaderInterface> : IEventStoreSession {}
 
         class SqlServerEventStore<TSessionInterface, TReaderInterface> : SqlServerEventStore, IEventStore<TSessionInterface, TReaderInterface>
         {
-            public SqlServerEventStore(string connectionString, ISingleContextUseGuard usageGuard = null, SqlServerEventStoreEventsCache cache = null, IEventNameMapper nameMapper = null, IEnumerable<IEventMigration> migrations = null) : base(connectionString, usageGuard, cache, nameMapper, migrations) {}
+            public SqlServerEventStore(string connectionString,
+                                       ISingleContextUseGuard usageGuard = null,
+                                       SqlServerEventStoreEventsCache cache = null,
+                                       IEventNameMapper nameMapper = null,
+                                       IEnumerable<IEventMigration> migrations = null) : base(connectionString, usageGuard, cache, nameMapper, migrations) {}
         }
 
         class InMemoryEventStore<TSessionInterface, TReaderInterface> : InMemoryEventStore, IEventStore<TSessionInterface, TReaderInterface>
@@ -35,48 +40,49 @@ namespace Composable.DependencyInjection.Persistence
 
         [UsedImplicitly] class EventStoreSession<TSessionInterface, TReaderInterface> : EventStoreSession, IEventStoreSession<TSessionInterface, TReaderInterface>
         {
-            public EventStoreSession(IServiceBus bus, IEventStore<TSessionInterface, TReaderInterface> store, ISingleContextUseGuard usageGuard, IUtcTimeTimeSource timeSource) : base(bus, store, usageGuard, timeSource) {}
+            public EventStoreSession(IServiceBus bus,
+                                     IEventStore<TSessionInterface, TReaderInterface> store,
+                                     ISingleContextUseGuard usageGuard,
+                                     IUtcTimeTimeSource timeSource) : base(bus, store, usageGuard, timeSource) {}
         }
 
         public static void RegisterSqlServerEventStore<TSessionInterface, TReaderInterface>(this IDependencyInjectionContainer @this,
-                                                                                                                       string connectionName,
-                                                                                                                       IEnumerable<IEventMigration> migrations = null)
+                                                                                            string connectionName,
+                                                                                            IEnumerable<IEventMigration> migrations = null)
             where TSessionInterface : IEventStoreSession
             where TReaderInterface : IEventStoreReader
         {
             Contract.Argument(() => connectionName)
-                        .NotNullEmptyOrWhiteSpace();
+                    .NotNullEmptyOrWhiteSpace();
 
             var newContainer = @this;
             var serviceLocator = newContainer.CreateServiceLocator();
 
             GeneratedLowLevelInterfaceInspector.InspectInterfaces(Seq.OfTypes<TSessionInterface, TReaderInterface>());
 
-            migrations = migrations ?? new List<IEventMigration>(); //We don't want to get any old migrations array that might have been registered by someone else.
-
-            var connectionString =  serviceLocator.Resolve<IConnectionStringProvider>().GetConnectionString(connectionName).ConnectionString;
-
+            var connectionString = serviceLocator.Resolve<IConnectionStringProvider>()
+                                                 .GetConnectionString(connectionName)
+                                                 .ConnectionString;
 
             if(newContainer.IsTestMode)
             {
                 newContainer.Register(Component.For<IEventStore<TSessionInterface, TReaderInterface>>()
-                                                .UsingFactoryMethod(sl => new InMemoryEventStore<TSessionInterface, TReaderInterface>(migrationFactories: migrations))
-                                                .LifestyleSingleton());
+                                               .UsingFactoryMethod(sl => new InMemoryEventStore<TSessionInterface, TReaderInterface>(migrationFactories: migrations))
+                                               .LifestyleSingleton());
             } else
             {
                 newContainer.Register(Component.For<IEventStore<TSessionInterface, TReaderInterface>>()
-                                                .UsingFactoryMethod(sl => new SqlServerEventStore<TSessionInterface, TReaderInterface>(connectionString: connectionString, migrations: migrations))
-                                                .LifestyleScoped());
+                                               .UsingFactoryMethod(sl => new SqlServerEventStore<TSessionInterface, TReaderInterface>(connectionString: connectionString, migrations: migrations))
+                                               .LifestyleScoped());
             }
 
-
             newContainer.Register(Component.For<IEventStoreSession<TSessionInterface, TReaderInterface>, IUnitOfWorkParticipant>()
-                                            .ImplementedBy<EventStoreSession<TSessionInterface, TReaderInterface>>()
-                                            .LifestyleScoped());
+                                           .ImplementedBy<EventStoreSession<TSessionInterface, TReaderInterface>>()
+                                           .LifestyleScoped());
 
             newContainer.Register(Component.For<TSessionInterface>(Seq.OfTypes<TReaderInterface>())
-                                            .UsingFactoryMethod(locator =>CreateProxyFor<TSessionInterface, TReaderInterface>(locator.Resolve<IEventStoreSession<TSessionInterface, TReaderInterface>>()))
-                                            .LifestyleScoped());
+                                           .UsingFactoryMethod(locator => CreateProxyFor<TSessionInterface, TReaderInterface>(locator.Resolve<IEventStoreSession<TSessionInterface, TReaderInterface>>()))
+                                           .LifestyleScoped());
         }
 
         static TSessionInterface CreateProxyFor<TSessionInterface, TReaderInterface>(IEventStoreSession session)
@@ -84,9 +90,8 @@ namespace Composable.DependencyInjection.Persistence
             where TReaderInterface : IEventStoreReader
         {
             var sessionType = EventStoreSessionProxyFactory<TSessionInterface, TReaderInterface>.ProxyType;
-            return (TSessionInterface)Activator.CreateInstance(sessionType, new IInterceptor[] { }, session);
+            return (TSessionInterface)Activator.CreateInstance(sessionType, new IInterceptor[] {}, session);
         }
-
 
         //Using a generic class this way allows us to bypass any need for dictionary lookups or similar giving us excellent performance.
         static class EventStoreSessionProxyFactory<TSessionInterface, TReaderInterface>
@@ -94,12 +99,12 @@ namespace Composable.DependencyInjection.Persistence
             where TReaderInterface : IEventStoreReader
         {
             internal static readonly Type ProxyType = new DefaultProxyBuilder().CreateInterfaceProxyTypeWithTargetInterface(interfaceToProxy: typeof(IEventStoreSession),
-                                                                                                              additionalInterfacesToProxy: new[]
-                                                                                                                                           {
-                                                                                                                                               typeof(TSessionInterface),
-                                                                                                                                               typeof(TReaderInterface)
-                                                                                                                                           },
-                                                                                                              options: ProxyGenerationOptions.Default);
+                                                                                                                            additionalInterfacesToProxy: new[]
+                                                                                                                                                         {
+                                                                                                                                                             typeof(TSessionInterface),
+                                                                                                                                                             typeof(TReaderInterface)
+                                                                                                                                                         },
+                                                                                                                            options: ProxyGenerationOptions.Default);
         }
     }
 }

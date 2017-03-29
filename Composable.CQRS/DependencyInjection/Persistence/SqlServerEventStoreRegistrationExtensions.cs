@@ -12,6 +12,8 @@ using Composable.System.Configuration;
 using Composable.System.Linq;
 using Composable.SystemExtensions.Threading;
 using Composable.UnitsOfWork;
+using JetBrains.Annotations;
+// ReSharper disable UnusedTypeParameter the type parameters allow non-ambiguous registrations in the container. They are in fact used.
 
 namespace Composable.DependencyInjection.Persistence
 {
@@ -31,7 +33,7 @@ namespace Composable.DependencyInjection.Persistence
             public InMemoryEventStore(IEnumerable<IEventMigration> migrationFactories = null) : base(migrationFactories) {}
         }
 
-        class EventStoreSession<TSessionInterface, TReaderInterface> : EventStoreSession, IEventStoreSession<TSessionInterface, TReaderInterface>
+        [UsedImplicitly] class EventStoreSession<TSessionInterface, TReaderInterface> : EventStoreSession, IEventStoreSession<TSessionInterface, TReaderInterface>
         {
             public EventStoreSession(IServiceBus bus, IEventStore<TSessionInterface, TReaderInterface> store, ISingleContextUseGuard usageGuard, IUtcTimeTimeSource timeSource) : base(bus, store, usageGuard, timeSource) {}
         }

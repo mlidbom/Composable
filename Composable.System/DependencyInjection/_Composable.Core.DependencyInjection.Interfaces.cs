@@ -38,7 +38,6 @@ namespace Composable.DependencyInjection
     ///<summary></summary>
     public interface IServiceLocator : IDisposable
     {
-        IComponentLease<TComponent> Lease<TComponent>(string componentName);
         IComponentLease<TComponent> Lease<TComponent>();
         IMultiComponentLease<TComponent> LeaseAll<TComponent>();
         IDisposable BeginScope();
@@ -47,7 +46,6 @@ namespace Composable.DependencyInjection
     public interface IServiceLocatorKernel
     {
         TComponent Resolve<TComponent>();
-        TComponent Resolve<TComponent>(string componentName);
     }
 
     public static class ServiceLocator
@@ -55,19 +53,8 @@ namespace Composable.DependencyInjection
         internal static TComponent Resolve<TComponent>(this IServiceLocator @this) => @this.Lease<TComponent>()
                                                                                          .Instance;
 
-        internal static TComponent Resolve<TComponent>(this IServiceLocator @this, string componentName) => @this.Lease<TComponent>(componentName)
-                                                                                         .Instance;
-
         internal static TComponent[] ResolveAll<TComponent>(this IServiceLocator @this) => @this.LeaseAll<TComponent>()
                                                                                          .Instances;
-
-        internal static void Use<TComponent>(this IServiceLocator @this, string componentName, [InstantHandle] Action<TComponent> useComponent)
-        {
-            using (var lease = @this.Lease<TComponent>(componentName))
-            {
-                useComponent(lease.Instance);
-            }
-        }
 
         public static void Use<TComponent>(this IServiceLocator @this,[InstantHandle] Action<TComponent> useComponent)
         {

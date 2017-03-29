@@ -30,7 +30,6 @@ namespace Composable.DependencyInjection.Windsor
 
         bool IDependencyInjectionContainer.IsTestMode => _windsorContainer.Kernel.HasComponent(typeof(TestModeMarker));
 
-        IComponentLease<TComponent> IServiceLocator.Lease<TComponent>(string componentName) => new WindsorComponentLease<TComponent>(_windsorContainer.Resolve<TComponent>(componentName), _windsorContainer.Kernel);
         IComponentLease<TComponent> IServiceLocator.Lease<TComponent>() => new WindsorComponentLease<TComponent>(_windsorContainer.Resolve<TComponent>(), _windsorContainer.Kernel);
         IMultiComponentLease<TComponent> IServiceLocator.LeaseAll<TComponent>() => new WindsorMultiComponentLease<TComponent>(_windsorContainer.ResolveAll<TComponent>().ToArray(), _windsorContainer.Kernel);
         IDisposable IServiceLocator.BeginScope() => _windsorContainer.BeginScope();
@@ -74,7 +73,6 @@ namespace Composable.DependencyInjection.Windsor
             internal WindsorServiceLocatorKernel(IKernel kernel) => _kernel = kernel;
 
             TComponent IServiceLocatorKernel.Resolve<TComponent>() => _kernel.Resolve<TComponent>();
-            TComponent IServiceLocatorKernel.Resolve<TComponent>(string componentName) => _kernel.Resolve<TComponent>(componentName);
         }
 
         sealed class WindsorComponentLease<T> : IComponentLease<T>

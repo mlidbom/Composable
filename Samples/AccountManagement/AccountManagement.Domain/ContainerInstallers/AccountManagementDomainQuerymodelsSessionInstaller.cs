@@ -13,8 +13,7 @@ namespace AccountManagement.Domain.ContainerInstallers
                 .RegisterSqlServerDocumentDb<
                     IAccountManagementDomainDocumentDbUpdater,
                     IAccountManagementDomainDocumentDbReader,
-                    IAccountManagementDomainDocumentDbBulkReader>(AccountManagementDomainEventStoreInstaller
-                                                                .ConnectionStringName);
+                    IAccountManagementDomainDocumentDbBulkReader>(AccountManagementDomainEventStoreInstaller.ConnectionStringName);
         }
     }
 }

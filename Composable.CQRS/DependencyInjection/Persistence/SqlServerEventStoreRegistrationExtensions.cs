@@ -35,7 +35,7 @@ namespace Composable.DependencyInjection.Persistence
 
         class InMemoryEventStore<TSessionInterface, TReaderInterface> : InMemoryEventStore, IEventStore<TSessionInterface, TReaderInterface>
         {
-            public InMemoryEventStore(IEnumerable<IEventMigration> migrationFactories = null) : base(migrationFactories) {}
+            public InMemoryEventStore(IEnumerable<IEventMigration> migrations = null) : base(migrations) {}
         }
 
         [UsedImplicitly] class EventStoreSession<TSessionInterface, TReaderInterface> : EventStoreSession, IEventStoreSession<TSessionInterface, TReaderInterface>
@@ -64,15 +64,17 @@ namespace Composable.DependencyInjection.Persistence
                                                  .GetConnectionString(connectionName)
                                                  .ConnectionString;
 
+            var cache = new SqlServerEventStoreEventsCache();
+
             if(newContainer.IsTestMode)
             {
                 newContainer.Register(Component.For<IEventStore<TSessionInterface, TReaderInterface>>()
-                                               .UsingFactoryMethod(sl => new InMemoryEventStore<TSessionInterface, TReaderInterface>(migrationFactories: migrations))
+                                               .UsingFactoryMethod(sl => new InMemoryEventStore<TSessionInterface, TReaderInterface>(migrations: migrations))
                                                .LifestyleSingleton());
             } else
             {
                 newContainer.Register(Component.For<IEventStore<TSessionInterface, TReaderInterface>>()
-                                               .UsingFactoryMethod(sl => new SqlServerEventStore<TSessionInterface, TReaderInterface>(connectionString: connectionString, migrations: migrations))
+                                               .UsingFactoryMethod(sl => new SqlServerEventStore<TSessionInterface, TReaderInterface>(connectionString: connectionString, migrations: migrations, cache: cache))
                                                .LifestyleScoped());
             }
 

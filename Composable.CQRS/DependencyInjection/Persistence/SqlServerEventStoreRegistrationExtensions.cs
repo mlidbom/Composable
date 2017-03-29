@@ -55,8 +55,7 @@ namespace Composable.DependencyInjection.Persistence
             Contract.Argument(() => connectionName)
                     .NotNullEmptyOrWhiteSpace();
 
-            var newContainer = @this;
-            var serviceLocator = newContainer.CreateServiceLocator();
+            var serviceLocator = @this.CreateServiceLocator();
 
             GeneratedLowLevelInterfaceInspector.InspectInterfaces(Seq.OfTypes<TSessionInterface, TReaderInterface>());
 
@@ -66,23 +65,23 @@ namespace Composable.DependencyInjection.Persistence
 
             var cache = new SqlServerEventStoreEventsCache();
 
-            if(newContainer.IsTestMode)
+            if(@this.IsTestMode)
             {
-                newContainer.Register(Component.For<IEventStore<TSessionInterface, TReaderInterface>>()
+                @this.Register(Component.For<IEventStore<TSessionInterface, TReaderInterface>>()
                                                .UsingFactoryMethod(sl => new InMemoryEventStore<TSessionInterface, TReaderInterface>(migrations: migrations))
                                                .LifestyleSingleton());
             } else
             {
-                newContainer.Register(Component.For<IEventStore<TSessionInterface, TReaderInterface>>()
+                @this.Register(Component.For<IEventStore<TSessionInterface, TReaderInterface>>()
                                                .UsingFactoryMethod(sl => new SqlServerEventStore<TSessionInterface, TReaderInterface>(connectionString: connectionString, migrations: migrations, cache: cache))
                                                .LifestyleScoped());
             }
 
-            newContainer.Register(Component.For<IEventStoreSession<TSessionInterface, TReaderInterface>, IUnitOfWorkParticipant>()
+            @this.Register(Component.For<IEventStoreSession<TSessionInterface, TReaderInterface>, IUnitOfWorkParticipant>()
                                            .ImplementedBy<EventStoreSession<TSessionInterface, TReaderInterface>>()
                                            .LifestyleScoped());
 
-            newContainer.Register(Component.For<TSessionInterface>(Seq.OfTypes<TReaderInterface>())
+            @this.Register(Component.For<TSessionInterface>(Seq.OfTypes<TReaderInterface>())
                                            .UsingFactoryMethod(locator => CreateProxyFor<TSessionInterface, TReaderInterface>(locator.Resolve<IEventStoreSession<TSessionInterface, TReaderInterface>>()))
                                            .LifestyleScoped());
         }

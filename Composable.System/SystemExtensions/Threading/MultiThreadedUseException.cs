@@ -8,7 +8,7 @@ namespace Composable.SystemExtensions.Threading
     class MultiThreadedUseException : InvalidOperationException
     {
         ///<summary>Constructs an instance using the supplied arguments to create an informative message.</summary>
-        public MultiThreadedUseException(object guarded, Thread owningThread, Thread currentThread)
+        internal MultiThreadedUseException(object guarded, Thread owningThread, Thread currentThread)
             : base(
                    $"Attempt to use {guarded} from thread Id:{currentThread.ManagedThreadId}, Name: {currentThread.Name} when owning thread was Id: {owningThread.ManagedThreadId} Name: {owningThread.Name}")
         {

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace Composable.UnitsOfWork
 {
-    public interface IUnitOfWork
+    interface IUnitOfWork
     {
         Guid Id { get; }
         void AddParticipants(IEnumerable<IUnitOfWorkParticipant> unitOfWorkParticipants);

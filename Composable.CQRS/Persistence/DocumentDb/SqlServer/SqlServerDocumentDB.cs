@@ -32,7 +32,7 @@ namespace Composable.Persistence.DocumentDb.SqlServer
             return KnownTypes.Single(pair => pair.Value == id).Key;
         }
 
-        public bool TryGet<TValue>(object key, out TValue value, Dictionary<Type, Dictionary<string, string>> persistentValues)
+        bool IDocumentDb.TryGet<TValue>(object key, out TValue value, Dictionary<Type, Dictionary<string, string>> persistentValues)
         {
             EnsureInitialized();
 

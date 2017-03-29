@@ -2,7 +2,7 @@
 
 namespace Composable.UnitsOfWork
 {
-    public interface IUnitOfWorkParticipant
+    interface IUnitOfWorkParticipant
     {
         IUnitOfWork UnitOfWork { get; }
         Guid Id { get; }

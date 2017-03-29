@@ -314,7 +314,7 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing
 
             using (var session = new EventStoreSession(bus, store, new SingleThreadUseGuard(), DateTimeNowTimeSource.Instance))
             {
-                var uow = new UnitOfWork(new SingleThreadUseGuard());
+                var uow = UnitOfWork.Create(new SingleThreadUseGuard());
                 uow.AddParticipant(session);
 
                 users.Take(3).ForEach(u => session.Save(u));
@@ -368,7 +368,7 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing
 
             using (var session = new EventStoreSession(bus, store, new SingleThreadUseGuard(), DateTimeNowTimeSource.Instance))
             {
-                var uow = new UnitOfWork(new SingleThreadUseGuard());
+                var uow = UnitOfWork.Create(new SingleThreadUseGuard());
                 uow.AddParticipant(session);
 
                 var aggregate1 = new Guid("92EC4FE2-26A8-4274-8674-DC5D95513C83");

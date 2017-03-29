@@ -37,7 +37,7 @@ namespace Composable.GenericAbstractions.Hierarchies
 
             public T Wrapped { get; private set; }
 
-            public Hierarchy(T nodeValue, Func<T, IEnumerable<T>> childGetter)
+            internal Hierarchy(T nodeValue, Func<T, IEnumerable<T>> childGetter)
             {
                 ContractOptimized.Argument(childGetter, nameof(childGetter)).NotNull();
                 Wrapped = nodeValue;

@@ -27,7 +27,7 @@ namespace Composable.System.Web
             var currentRequestId = _httpRequestIdFetcher.GetCurrent();
             if(_initialRequestId != currentRequestId)
             {
-                throw new MultiRequestAccessDetected(guarded, _initialRequestId, currentRequestId);
+                throw new MultiRequestAccessDetectedException(guarded, _initialRequestId, currentRequestId);
             }
         }
     }

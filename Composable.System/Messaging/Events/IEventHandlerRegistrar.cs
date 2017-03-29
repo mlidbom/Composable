@@ -66,7 +66,7 @@ namespace Composable.Messaging.Events
             where TBaseEventInterface : class
         {
             readonly IEventHandlerRegistrar<TBaseEventInterface> _innerRegistrar;
-            public GenericEventHandlerRegistrar(IEventHandlerRegistrar<TBaseEventInterface> innerRegistrar) => _innerRegistrar = innerRegistrar;
+            internal GenericEventHandlerRegistrar(IEventHandlerRegistrar<TBaseEventInterface> innerRegistrar) => _innerRegistrar = innerRegistrar;
 
             public IGenericEventHandlerRegistrar ForGenericEvent<THandledEvent>(Action<THandledEvent> handler)
             {
@@ -84,7 +84,7 @@ namespace Composable.Messaging.Events
             where TNewBaseEvent : class, TBaseEvent
         {
             readonly IEventHandlerRegistrar<TBaseEvent> _innerRegistrar;
-            public UpCastEventHandlerRegistrar(IEventHandlerRegistrar<TBaseEvent> innerRegistrar) => _innerRegistrar = innerRegistrar;
+            internal UpCastEventHandlerRegistrar(IEventHandlerRegistrar<TBaseEvent> innerRegistrar) => _innerRegistrar = innerRegistrar;
 
             public IUpCastEventHandlerRegistrar<TNewBaseEvent> For<THandledEvent>(Action<THandledEvent> handler) where THandledEvent : TNewBaseEvent => ForGenericEvent(handler);
 

@@ -8,30 +8,35 @@ using Composable.SystemExtensions.Threading;
 
 namespace Composable.UnitsOfWork
 {
-    class UnitOfWork : IUnitOfWork
+    sealed class UnitOfWork : IUnitOfWork
     {
         static readonly ILogger Log = Logger.For<UnitOfWork>();
         readonly HashSet<IUnitOfWorkParticipant> _participants = new HashSet<IUnitOfWorkParticipant>();
         readonly ISingleContextUseGuard _usageGuard;
         const int MaxCascadeLevel = 10;
 
-        public Guid Id { get; private set; }
+        readonly Guid _id;
+        Guid IUnitOfWork.Id => _id;
+        readonly IUnitOfWork _this;
 
-        public UnitOfWork(ISingleContextUseGuard usageGuard)
+        internal static IUnitOfWork Create(ISingleContextUseGuard usageGuard) => new UnitOfWork(usageGuard);
+
+        UnitOfWork(ISingleContextUseGuard usageGuard)
         {
             _usageGuard = usageGuard;
-            Id = Guid.NewGuid();
-            Log.DebugFormat("Constructed {0}", Id);
+            _id = Guid.NewGuid();
+            _this = this;
+            Log.DebugFormat("Constructed {0}", _id);
         }
 
-        public void AddParticipants(IEnumerable<IUnitOfWorkParticipant> unitOfWorkParticipants)
+        void IUnitOfWork.AddParticipants(IEnumerable<IUnitOfWorkParticipant> unitOfWorkParticipants)
         {
             _usageGuard.AssertNoContextChangeOccurred(this);
             Log.Debug("Adding participants");
-            unitOfWorkParticipants.ForEach(AddParticipant);
+            unitOfWorkParticipants.ForEach(_this.AddParticipant);
         }
 
-        public void AddParticipant(IUnitOfWorkParticipant participant)
+        void IUnitOfWork.AddParticipant(IUnitOfWorkParticipant participant)
         {
             _usageGuard.AssertNoContextChangeOccurred(this);
             Log.DebugFormat("Adding participant {0} {1}", participant.GetType(), participant.Id);
@@ -44,7 +49,7 @@ namespace Composable.UnitsOfWork
         }
 
 
-        public void Commit()
+        void IUnitOfWork.Commit()
         {
             _usageGuard.AssertNoContextChangeOccurred(this);
             Log.Debug("Commit");
@@ -65,10 +70,10 @@ namespace Composable.UnitsOfWork
 
         public override string ToString()
         {
-            return $"Unit of work {Id} with participants:\n {_participants.Select(p => $"{p.GetType()} {p.Id}") .Join("\n\t")}";
+            return $"Unit of work {_this.Id} with participants:\n {_participants.Select(p => $"{p.GetType()} {p.Id}") .Join("\n\t")}";
         }
 
-        public void Rollback()
+        void IUnitOfWork.Rollback()
         {
             _usageGuard.AssertNoContextChangeOccurred(this);
             Log.Debug("Rollback");

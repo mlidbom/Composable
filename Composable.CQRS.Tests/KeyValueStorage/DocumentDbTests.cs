@@ -219,7 +219,7 @@ namespace Composable.CQRS.Tests.KeyValueStorage
 
             using (var session = OpenSession(store))
             {
-                var uow = new UnitOfWork(new SingleThreadUseGuard());
+                var uow = UnitOfWork.Create(new SingleThreadUseGuard());
                 uow.AddParticipant((IUnitOfWorkParticipant)session);
 
                 session.Save(user.Id, user);
@@ -243,7 +243,7 @@ namespace Composable.CQRS.Tests.KeyValueStorage
 
             using (var session = OpenSession(store))
             {
-                var uow = new UnitOfWork(new SingleThreadUseGuard());
+                var uow = UnitOfWork.Create(new SingleThreadUseGuard());
                 uow.AddParticipant((IUnitOfWorkParticipant)session);
 
                 session.Save(user.Id, user);
@@ -269,7 +269,7 @@ namespace Composable.CQRS.Tests.KeyValueStorage
 
             using (var session = OpenSession(store))
             {
-                var uow = new UnitOfWork(new SingleThreadUseGuard());
+                var uow = UnitOfWork.Create(new SingleThreadUseGuard());
                 uow.AddParticipant((IUnitOfWorkParticipant)session);
 
                 session.Save(lowerCase.TheEmail, lowerCase);
@@ -282,7 +282,7 @@ namespace Composable.CQRS.Tests.KeyValueStorage
 
             using (var session = OpenSession(store))
             {
-                var uow = new UnitOfWork(new SingleThreadUseGuard());
+                var uow = UnitOfWork.Create(new SingleThreadUseGuard());
                 uow.AddParticipant((IUnitOfWorkParticipant)session);
 
                 Assert.Throws<AttemptToSaveAlreadyPersistedValueException>(() => session.Save(upperCase.TheEmail, upperCase));
@@ -308,7 +308,7 @@ namespace Composable.CQRS.Tests.KeyValueStorage
 
             using (var session = OpenSession(store))
             {
-                var uow = new UnitOfWork(new SingleThreadUseGuard());
+                var uow = UnitOfWork.Create(new SingleThreadUseGuard());
                 uow.AddParticipant((IUnitOfWorkParticipant)session);
 
                 session.Save(noWhitespace.TheEmail, noWhitespace);
@@ -321,7 +321,7 @@ namespace Composable.CQRS.Tests.KeyValueStorage
 
             using (var session = OpenSession(store))
             {
-                var uow = new UnitOfWork(new SingleThreadUseGuard());
+                var uow = UnitOfWork.Create(new SingleThreadUseGuard());
                 uow.AddParticipant((IUnitOfWorkParticipant)session);
 
                 Assert.Throws<AttemptToSaveAlreadyPersistedValueException>(() => session.Save(withWhitespace.TheEmail, withWhitespace));
@@ -390,7 +390,7 @@ namespace Composable.CQRS.Tests.KeyValueStorage
 
             using (var session = OpenSession(store))
             {
-                var uow = new UnitOfWork(new SingleThreadUseGuard());
+                var uow = UnitOfWork.Create(new SingleThreadUseGuard());
                 uow.AddParticipant((IUnitOfWorkParticipant)session);
 
                 user = session.Get<User>(user.Id);
@@ -747,16 +747,16 @@ namespace Composable.CQRS.Tests.KeyValueStorage
 
             // ReSharper disable once NotAccessedVariable
             bool found;
-            Assert.Throws<MultiRequestAccessDetected>(() => session.Get<User>(Guid.NewGuid()));
-            Assert.Throws<MultiRequestAccessDetected>(() => session.GetAll<User>());
-            Assert.Throws<MultiRequestAccessDetected>(() => session.Save(user, user.Id));
-            Assert.Throws<MultiRequestAccessDetected>(() => session.Delete(user));
-            Assert.Throws<MultiRequestAccessDetected>(session.Dispose);
-            Assert.Throws<MultiRequestAccessDetected>(() => session.Save(new User()));
-            Assert.Throws<MultiRequestAccessDetected>(session.SaveChanges);
-            Assert.Throws<MultiRequestAccessDetected>(() => found = session.TryGet(Guid.NewGuid(), out user));
-            Assert.Throws<MultiRequestAccessDetected>(() => found = session.TryGetForUpdate(user.Id, out user));
-            Assert.Throws<MultiRequestAccessDetected>(() => session.Delete(user));
+            Assert.Throws<MultiRequestAccessDetectedException>(() => session.Get<User>(Guid.NewGuid()));
+            Assert.Throws<MultiRequestAccessDetectedException>(() => session.GetAll<User>());
+            Assert.Throws<MultiRequestAccessDetectedException>(() => session.Save(user, user.Id));
+            Assert.Throws<MultiRequestAccessDetectedException>(() => session.Delete(user));
+            Assert.Throws<MultiRequestAccessDetectedException>(session.Dispose);
+            Assert.Throws<MultiRequestAccessDetectedException>(() => session.Save(new User()));
+            Assert.Throws<MultiRequestAccessDetectedException>(session.SaveChanges);
+            Assert.Throws<MultiRequestAccessDetectedException>(() => found = session.TryGet(Guid.NewGuid(), out user));
+            Assert.Throws<MultiRequestAccessDetectedException>(() => found = session.TryGetForUpdate(user.Id, out user));
+            Assert.Throws<MultiRequestAccessDetectedException>(() => session.Delete(user));
         }
 
 

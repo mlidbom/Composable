@@ -128,7 +128,7 @@ namespace Composable.DependencyInjection
                 _transactionScopeWeCreatedAndOwn = new TransactionScope();
                 try
                 {
-                    _unitOfWork = new UnitOfWork(serviceLocator.Resolve<ISingleContextUseGuard>());
+                    _unitOfWork = UnitOfWork.Create(serviceLocator.Resolve<ISingleContextUseGuard>());
                     _unitOfWork.AddParticipants(serviceLocator.ResolveAll<IUnitOfWorkParticipant>());
                     Transaction.Current.EnlistVolatile(this, EnlistmentOptions.None);
                 }

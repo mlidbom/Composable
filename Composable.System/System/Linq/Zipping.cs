@@ -55,7 +55,7 @@ namespace Composable.System.Linq
             public T2 Second { get; }
 
             /// <summary>Constructs a pair.</summary>
-            public Pair(T first, T2 second)
+            internal Pair(T first, T2 second)
             {
                 First = first;
                 Second = second;

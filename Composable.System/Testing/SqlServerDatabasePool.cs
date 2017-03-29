@@ -254,10 +254,10 @@ CREATE TABLE [dbo].[{ManagerTableSchema.TableName}](
 
         class Database
         {
-            public string Name { get; }
-            public bool IsFree { get; }
-            public string ConnectionString { get; }
-            public Database(string name,  bool isFree, string connectionString)
+            internal string Name { get; }
+            internal bool IsFree { get; }
+            internal string ConnectionString { get; }
+            internal Database(string name,  bool isFree, string connectionString)
             {
                 Name = name;
                 IsFree = isFree;
@@ -266,7 +266,7 @@ CREATE TABLE [dbo].[{ManagerTableSchema.TableName}](
         }
 
         // ReSharper disable once UnusedMember.Global
-        public void RemoveAllDatabases()
+        internal void RemoveAllDatabases()
         {
             var dbsToDrop = new List<string>();
             _masterConnection.UseCommand(

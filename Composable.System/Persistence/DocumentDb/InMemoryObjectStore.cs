@@ -13,7 +13,7 @@ namespace Composable.Persistence.DocumentDb
         Dictionary<string, List<Object>> _db = new Dictionary<string, List<object>>(StringComparer.InvariantCultureIgnoreCase);
         protected readonly object LockObject = new object();
 
-        public bool Contains(Type type, object id)
+        internal bool Contains(Type type, object id)
         {
             lock(LockObject)
             {
@@ -22,7 +22,7 @@ namespace Composable.Persistence.DocumentDb
             }
         }
 
-        public bool TryGet<T>(object id, out T value)
+        internal bool TryGet<T>(object id, out T value)
         {
             lock(LockObject)
             {

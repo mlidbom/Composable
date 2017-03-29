@@ -30,7 +30,7 @@ namespace Composable.Messaging.Buses
             return returnValue;
         }
 
-        public bool Handles(object aMessage) => _handlerRegistry.Handles(aMessage);
+        bool IInProcessServiceBus.Handles(object aMessage) => _handlerRegistry.Handles(aMessage);
 
         protected virtual void AfterDispatchingMessage(IMessage message) { }
     }

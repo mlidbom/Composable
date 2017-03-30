@@ -55,17 +55,11 @@ namespace Composable.DependencyInjection.Persistence
             Contract.Argument(() => connectionName)
                     .NotNullEmptyOrWhiteSpace();
 
-            var serviceLocator = @this.CreateServiceLocator();
-
             GeneratedLowLevelInterfaceInspector.InspectInterfaces(Seq.OfTypes<TSessionInterface, TReaderInterface>());
-
-            var connectionString = serviceLocator.Resolve<IConnectionStringProvider>()
-                                                 .GetConnectionString(connectionName)
-                                                 .ConnectionString;
 
             var cache = new SqlServerEventStoreEventsCache();
 
-            if(@this.IsTestMode)
+            if(@this.RunMode().IsTesting)
             {
                 @this.Register(Component.For<IEventStore<TSessionInterface, TReaderInterface>>()
                                                .UsingFactoryMethod(sl => new InMemoryEventStore<TSessionInterface, TReaderInterface>(migrations: migrations))
@@ -73,8 +67,13 @@ namespace Composable.DependencyInjection.Persistence
             } else
             {
                 @this.Register(Component.For<IEventStore<TSessionInterface, TReaderInterface>>()
-                                               .UsingFactoryMethod(sl => new SqlServerEventStore<TSessionInterface, TReaderInterface>(connectionString: connectionString, migrations: migrations, cache: cache))
-                                               .LifestyleScoped());
+                                        .UsingFactoryMethod(sl => new SqlServerEventStore<TSessionInterface, TReaderInterface>(
+                                                                                                                               connectionString: sl.Resolve<IConnectionStringProvider>()
+                                                                                                                                                   .GetConnectionString(connectionName)
+                                                                                                                                                   .ConnectionString,
+                                                                                                                               migrations: migrations,
+                                                                                                                               cache: cache))
+                                        .LifestyleScoped());
             }
 
             @this.Register(Component.For<IEventStoreSession<TSessionInterface, TReaderInterface>, IUnitOfWorkParticipant>()

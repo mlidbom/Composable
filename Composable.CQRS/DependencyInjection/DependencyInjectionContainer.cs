@@ -6,6 +6,9 @@ namespace Composable.DependencyInjection
 {
     public static class DependencyInjectionContainer
     {
+        internal static IRunMode RunMode(this IDependencyInjectionContainer @this) => @this.CreateServiceLocator()
+                                                                                  .Resolve<IRunMode>();
+
         public static IServiceLocator CreateServiceLocatorForTesting([InstantHandle]Action<IDependencyInjectionContainer> setup)
         {
             var @this = Create();

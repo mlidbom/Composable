@@ -1,15 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Configuration;
 using System.Linq;
 using Composable.CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations;
 using Composable.DependencyInjection;
-using Composable.DependencyInjection.Persistence;
 using Composable.GenericAbstractions.Time;
 using Composable.Messaging.Buses;
 using Composable.Persistence.EventStore;
 using Composable.Persistence.EventStore.MicrosoftSQLServer;
 using Composable.Persistence.EventStore.Refactoring.Migrations;
+using Composable.System.Configuration;
 using Composable.SystemExtensions.Threading;
 using FluentAssertions;
 using NUnit.Framework;
@@ -20,18 +19,16 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.Sql
     class MigratedSqlServerEventStoreSessionTests : NoSqlTest
     {
         string _connectionString;
-        IDependencyInjectionContainer _container;
+        IServiceLocator _container;
 
         TestingOnlyServiceBus Bus { get; set; }
 
         [SetUp]
         public void Setup()
         {
-            _container = DependencyInjectionContainer.Create();
+            _container = DependencyInjectionContainer.CreateServiceLocatorForTesting(_ => {});
             Bus = new TestingOnlyServiceBus(DummyTimeSource.Now, new MessageHandlerRegistry());
-            var masterConnectionString = ConfigurationManager.ConnectionStrings["MasterDb"].ConnectionString;
-            _connectionString = _container.RegisterSqlServerDatabasePool(masterConnectionString)
-                .ConnectionStringFor("MigratedSqlServerEventStoreSessionTests_EventStore");
+            _connectionString = _container.Resolve<IConnectionStringProvider>().GetConnectionString("MigratedSqlServerEventStoreSessionTests_EventStore").ConnectionString;
         }
 
         IEventStoreSession OpenSession(IEventStore store) => new EventStoreSession(Bus, store, new SingleThreadUseGuard(), DateTimeNowTimeSource.Instance);

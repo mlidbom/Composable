@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Composable.DependencyInjection;
-using Composable.DependencyInjection.Persistence;
 using Composable.DependencyInjection.Testing;
 using Composable.GenericAbstractions.Time;
 using Composable.Logging;
@@ -137,6 +136,7 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
         protected static IServiceLocator CreateServiceLocatorForEventStoreType(Func<IReadOnlyList<IEventMigration>> migrationsfactory, Type eventStoreType, string eventStoreConnectionString = null)
         {
             var container = DependencyInjectionContainer.Create();
+            var serviceLocator = container.CreateServiceLocator();
 
             container.ConfigureWiringForTestsCallBeforeAllOtherWiring();
 
@@ -155,10 +155,9 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
                 var cache = new SqlServerEventStoreEventsCache();
                 if (eventStoreConnectionString == null)
                 {
-                    var masterConnectionSTring = new ConnectionStringConfigurationParameterProvider().GetConnectionString("MasterDB");
-                    var dbManager = container.RegisterSqlServerDatabasePool(masterConnectionSTring.ConnectionString);
+                    var dbManager = serviceLocator.Resolve<IConnectionStringProvider>();
 
-                    eventStoreConnectionString = dbManager.ConnectionStringFor($"{nameof(EventStreamMutatorTestsBase)}_EventStore");
+                    eventStoreConnectionString = dbManager.GetConnectionString($"{nameof(EventStreamMutatorTestsBase)}_EventStore").ConnectionString;
                 }
 
                 container.Register(
@@ -194,7 +193,7 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
             }
 
             container.ConfigureWiringForTestsCallAfterAllOtherWiring();
-            return container.CreateServiceLocator();
+            return serviceLocator;
         }
 
         protected static void AssertStreamsAreIdentical(IEnumerable<IAggregateRootEvent> expected, IEnumerable<IAggregateRootEvent> migratedHistory, string descriptionOfHistory)

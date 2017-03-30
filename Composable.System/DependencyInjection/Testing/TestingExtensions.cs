@@ -16,26 +16,33 @@ namespace Composable.DependencyInjection.Testing
             var dummyTimeSource = DummyTimeSource.Now;
             var registry = new MessageHandlerRegistry();
             var bus = new TestingOnlyServiceBus(dummyTimeSource, registry);
+            var runMode = new RunMode(isTesting:true);
 
-            @this.Register(Component.For<TestModeMarker>()
-                                     .ImplementedBy<TestModeMarker>()
-                                     .LifestyleSingleton(),
+            var masterConnectionString = new ConnectionStringConfigurationParameterProvider().GetConnectionString("MasterDB")
+                                                                                             .ConnectionString;
+            var connectionStringProvider = new SqlServerDatabasePoolConnectionStringProvider(masterConnectionString);
+
+            @this.Register(Component.For<IRunMode>()
+                                    .UsingFactoryMethod(_ => runMode)
+                                    .LifestyleSingleton(),
                            Component.For<ISingleContextUseGuard>()
-                                     .ImplementedBy<SingleThreadUseGuard>()
-                                     .LifestyleScoped(),
+                                    .ImplementedBy<SingleThreadUseGuard>()
+                                    .LifestyleScoped(),
                            Component.For<IUtcTimeTimeSource, DummyTimeSource>()
-                                     .Instance(dummyTimeSource)
-                                     .LifestyleSingleton(),
+                                    .UsingFactoryMethod(_ => dummyTimeSource)
+                                    .LifestyleSingleton(),
                            Component.For<IMessageHandlerRegistrar>()
-                                     .Instance(registry)
-                                     .LifestyleSingleton(),
+                                    .UsingFactoryMethod(_ => registry)
+                                    .LifestyleSingleton(),
                            Component.For<IServiceBus, IMessageSpy>()
-                                     .Instance(bus)
-                                     .LifestyleSingleton(),
+                                    .UsingFactoryMethod(_ => bus)
+                                    .LifestyleSingleton(),
                            Component.For<IConnectionStringProvider>()
-                                     .Instance(new DummyConnectionStringProvider())
-                                     .LifestyleSingleton()
+                                    .UsingFactoryMethod(locator => connectionStringProvider)
+                                    .LifestyleSingleton()
                           );
+            @this.CreateServiceLocator()
+                 .Resolve<IConnectionStringProvider>();//Trigger resolving the dabasepool so that it will be properly disposed with the container
         }
 
         public static void ConfigureWiringForTestsCallAfterAllOtherWiring(this IDependencyInjectionContainer container)

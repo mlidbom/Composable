@@ -29,11 +29,19 @@ namespace Composable.DependencyInjection
     {
         void Register(params ComponentRegistration[] registration);
         IServiceLocator CreateServiceLocator();
-        bool IsTestMode { get; }
     }
 
-    class TestModeMarker
-    {}
+    interface IRunMode
+    {
+        bool IsTesting { get; }
+    }
+
+    class RunMode : IRunMode
+    {
+        readonly bool _isTesting;
+        bool IRunMode.IsTesting => _isTesting;
+        public RunMode(bool isTesting) => _isTesting = isTesting;
+    }
 
     ///<summary></summary>
     public interface IServiceLocator : IDisposable
@@ -43,7 +51,7 @@ namespace Composable.DependencyInjection
         IDisposable BeginScope();
     }
 
-    public interface IServiceLocatorKernel
+    interface IServiceLocatorKernel
     {
         TComponent Resolve<TComponent>();
     }

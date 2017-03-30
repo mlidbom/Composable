@@ -13,64 +13,68 @@ namespace Composable.CQRS.Tests.UnitOfWorkTests
         public void CommitInNestedScopeDoesNothing()
         {
             var unitOfWorkSpy = new UnitOfWorkSpy();
-            var serviceLocator = DependencyInjectionContainer.CreateServiceLocatorForTesting(
+            using (var serviceLocator = DependencyInjectionContainer.CreateServiceLocatorForTesting(
                                                                               cont => cont.Register(Component.For<IUnitOfWorkParticipant>()
-                                                                                                              .Instance(unitOfWorkSpy)
-                                                                                                              .LifestyleSingleton()));
-
-            using(serviceLocator.BeginScope())
-            using(serviceLocator.BeginTransactionalUnitOfWorkScope())
+                                                                                                              .UsingFactoryMethod(_ => unitOfWorkSpy)
+                                                                                                              .LifestyleSingleton())))
             {
-                unitOfWorkSpy.UnitOfWork.Should().NotBe(null);
-                unitOfWorkSpy.Committed.Should().Be(false);
-                unitOfWorkSpy.RolledBack.Should().Be(false);
-                using (var innerScope = serviceLocator.BeginTransactionalUnitOfWorkScope())
+
+                using (serviceLocator.BeginScope())
+                using (serviceLocator.BeginTransactionalUnitOfWorkScope())
                 {
-                    innerScope.Commit();
+                    unitOfWorkSpy.UnitOfWork.Should().NotBe(null);
+                    unitOfWorkSpy.Committed.Should().Be(false);
+                    unitOfWorkSpy.RolledBack.Should().Be(false);
+                    using (var innerScope = serviceLocator.BeginTransactionalUnitOfWorkScope())
+                    {
+                        innerScope.Commit();
+                        unitOfWorkSpy.UnitOfWork.Should().NotBe(null);
+                        unitOfWorkSpy.Committed.Should().Be(false);
+                        unitOfWorkSpy.RolledBack.Should().Be(false);
+                    }
                     unitOfWorkSpy.UnitOfWork.Should().NotBe(null);
                     unitOfWorkSpy.Committed.Should().Be(false);
                     unitOfWorkSpy.RolledBack.Should().Be(false);
                 }
-                unitOfWorkSpy.UnitOfWork.Should().NotBe(null);
+                unitOfWorkSpy.UnitOfWork.Should().Be(null);
                 unitOfWorkSpy.Committed.Should().Be(false);
-                unitOfWorkSpy.RolledBack.Should().Be(false);
+                unitOfWorkSpy.RolledBack.Should().Be(true);
             }
-            unitOfWorkSpy.UnitOfWork.Should().Be(null);
-            unitOfWorkSpy.Committed.Should().Be(false);
-            unitOfWorkSpy.RolledBack.Should().Be(true);
         }
 
         [Test]
         public void CommittingTheOuterScopeCommitsDuh()
         {
             var unitOfWorkSpy = new UnitOfWorkSpy();
-            var serviceLocator = DependencyInjectionContainer.CreateServiceLocatorForTesting(
+            using (var serviceLocator = DependencyInjectionContainer.CreateServiceLocatorForTesting(
                                                                               cont => cont.Register(Component.For<IUnitOfWorkParticipant>()
-                                                                                                              .Instance(unitOfWorkSpy)
-                                                                                                              .LifestyleSingleton()));
-
-            using (serviceLocator.BeginScope())
-            using (var outerScope = serviceLocator.BeginTransactionalUnitOfWorkScope())
+                                                                                                              .UsingFactoryMethod(_ => unitOfWorkSpy)
+                                                                                                              .LifestyleSingleton())))
             {
-                unitOfWorkSpy.UnitOfWork.Should().NotBe(null);
-                unitOfWorkSpy.Committed.Should().Be(false);
-                unitOfWorkSpy.RolledBack.Should().Be(false);
-                using (var innerScope = serviceLocator.BeginTransactionalUnitOfWorkScope())
+
+                using (serviceLocator.BeginScope())
+                using (var outerScope = serviceLocator.BeginTransactionalUnitOfWorkScope())
                 {
-                    innerScope.Commit();
                     unitOfWorkSpy.UnitOfWork.Should().NotBe(null);
                     unitOfWorkSpy.Committed.Should().Be(false);
                     unitOfWorkSpy.RolledBack.Should().Be(false);
+                    using (var innerScope = serviceLocator.BeginTransactionalUnitOfWorkScope())
+                    {
+                        innerScope.Commit();
+                        unitOfWorkSpy.UnitOfWork.Should().NotBe(null);
+                        unitOfWorkSpy.Committed.Should().Be(false);
+                        unitOfWorkSpy.RolledBack.Should().Be(false);
+                    }
+                    unitOfWorkSpy.UnitOfWork.Should().NotBe(null);
+                    unitOfWorkSpy.Committed.Should().Be(false);
+                    unitOfWorkSpy.RolledBack.Should().Be(false);
+                    outerScope.Commit();
                 }
-                unitOfWorkSpy.UnitOfWork.Should().NotBe(null);
-                unitOfWorkSpy.Committed.Should().Be(false);
+                unitOfWorkSpy.UnitOfWork.Should().Be(null);
+                unitOfWorkSpy.Committed.Should().Be(true);
                 unitOfWorkSpy.RolledBack.Should().Be(false);
-                outerScope.Commit();
             }
-            unitOfWorkSpy.UnitOfWork.Should().Be(null);
-            unitOfWorkSpy.Committed.Should().Be(true);
-            unitOfWorkSpy.RolledBack.Should().Be(false);
-        }
+            }
     }
 
     class UnitOfWorkSpy : IUnitOfWorkParticipant

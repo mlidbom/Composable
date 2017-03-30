@@ -28,8 +28,6 @@ namespace Composable.DependencyInjection.Windsor
 
         IServiceLocator IDependencyInjectionContainer.CreateServiceLocator() => this;
 
-        bool IDependencyInjectionContainer.IsTestMode => _windsorContainer.Kernel.HasComponent(typeof(TestModeMarker));
-
         IComponentLease<TComponent> IServiceLocator.Lease<TComponent>() => new WindsorComponentLease<TComponent>(_windsorContainer.Resolve<TComponent>(), _windsorContainer.Kernel);
         IMultiComponentLease<TComponent> IServiceLocator.LeaseAll<TComponent>() => new WindsorMultiComponentLease<TComponent>(_windsorContainer.ResolveAll<TComponent>().ToArray(), _windsorContainer.Kernel);
         IDisposable IServiceLocator.BeginScope() => _windsorContainer.BeginScope();

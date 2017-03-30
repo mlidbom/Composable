@@ -135,62 +135,61 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
 
         protected static IServiceLocator CreateServiceLocatorForEventStoreType(Func<IReadOnlyList<IEventMigration>> migrationsfactory, Type eventStoreType, string eventStoreConnectionString = null)
         {
-            var container = DependencyInjectionContainer.Create();
-            var serviceLocator = container.CreateServiceLocator();
-
-            container.ConfigureWiringForTestsCallBeforeAllOtherWiring();
-
-            container.Register(
-                Component.For<IEnumerable<IEventMigration>>()
-                         .UsingFactoryMethod(_ => migrationsfactory())
-                         .LifestyleScoped(),
-                Component.For<IEventStoreSession, IUnitOfWorkParticipant>()
-                         .ImplementedBy<EventStoreSession>()
-                         .LifestyleScoped()
-                );
+            var serviceLocator = DependencyInjectionContainer.CreateServiceLocatorForTesting(
+                container =>
+                 {
+                    container.Register(
+                        Component.For<IEnumerable<IEventMigration>>()
+                                 .UsingFactoryMethod(_ => migrationsfactory())
+                                 .LifestyleScoped(),
+                        Component.For<IEventStoreSession, IUnitOfWorkParticipant>()
+                                 .ImplementedBy<EventStoreSession>()
+                                 .LifestyleScoped()
+                        );
 
 
-            if (eventStoreType == typeof(SqlServerEventStore))
-            {
-                var cache = new SqlServerEventStoreEventsCache();
-                if (eventStoreConnectionString == null)
-                {
-                    var dbManager = serviceLocator.Resolve<IConnectionStringProvider>();
+                    if (eventStoreType == typeof(SqlServerEventStore))
+                    {
+                        var cache = new SqlServerEventStoreEventsCache();
+                        if (eventStoreConnectionString == null)
+                        {
+                            var dbManager = container.CreateServiceLocator().Resolve<IConnectionStringProvider>();
 
-                    eventStoreConnectionString = dbManager.GetConnectionString($"{nameof(EventStreamMutatorTestsBase)}_EventStore").ConnectionString;
-                }
+                            eventStoreConnectionString = dbManager.GetConnectionString($"{nameof(EventStreamMutatorTestsBase)}_EventStore").ConnectionString;
+                        }
 
-                container.Register(
-                                   Component.For<IEventStore>()
-                                             .UsingFactoryMethod(
-                                                                 locator => new SqlServerEventStore(connectionString: eventStoreConnectionString,
-                                                                                                    usageGuard: locator.Resolve<ISingleContextUseGuard>(),
-                                                                                                    cache: cache,
-                                                                                                    nameMapper: null,
-                                                                                                    migrations: locator.Resolve<IEnumerable<IEventMigration>>()))
-                                             .LifestyleScoped());
+                        container.Register(
+                                           Component.For<IEventStore>()
+                                                     .UsingFactoryMethod(
+                                                                         locator => new SqlServerEventStore(connectionString: eventStoreConnectionString,
+                                                                                                            usageGuard: locator.Resolve<ISingleContextUseGuard>(),
+                                                                                                            cache: cache,
+                                                                                                            nameMapper: null,
+                                                                                                            migrations: locator.Resolve<IEnumerable<IEventMigration>>()))
+                                                     .LifestyleScoped());
 
-            }
-            else if(eventStoreType == typeof(InMemoryEventStore))
-            {
-                container.Register(
-                    Component.For<IEventStore>()
-                             .UsingFactoryMethod(
-                                 kernel =>
-                                 {
-                                     var store = kernel.Resolve<InMemoryEventStore>();
-                                     store.TestingOnlyReplaceMigrations(migrationsfactory());
-                                     return store;
-                                 })
-                             .LifestyleScoped(),
-                    Component.For<InMemoryEventStore>()
-                        .ImplementedBy<InMemoryEventStore>()
-                        .LifestyleSingleton());
-            }
-            else
-            {
-                throw new Exception($"Unsupported type of event store {eventStoreType}");
-            }
+                    }
+                    else if(eventStoreType == typeof(InMemoryEventStore))
+                    {
+                        container.Register(
+                            Component.For<IEventStore>()
+                                     .UsingFactoryMethod(
+                                         kernel =>
+                                         {
+                                             var store = kernel.Resolve<InMemoryEventStore>();
+                                             store.TestingOnlyReplaceMigrations(migrationsfactory());
+                                             return store;
+                                         })
+                                     .LifestyleScoped(),
+                            Component.For<InMemoryEventStore>()
+                                .ImplementedBy<InMemoryEventStore>()
+                                .LifestyleSingleton());
+                    }
+                    else
+                    {
+                        throw new Exception($"Unsupported type of event store {eventStoreType}");
+                    }
+                 });
 
             return serviceLocator;
         }

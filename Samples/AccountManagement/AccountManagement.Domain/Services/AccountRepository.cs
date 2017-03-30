@@ -1,9 +1,8 @@
-﻿using AccountManagement.Domain.Events;
-using AccountManagement.Domain.Events.EventStore.Services;
-using AccountManagement.Domain.Events.Implementation;
+﻿using AccountManagement.Domain.Events.EventStore.Services;
 using Composable.Persistence.DocumentDb;
 using Composable.Persistence.EventStore;
 using JetBrains.Annotations;
+using AccountEvent = AccountManagement.Domain.Events.AccountEvent;
 
 namespace AccountManagement.Domain.Services
 {
@@ -13,7 +12,7 @@ namespace AccountManagement.Domain.Services
 
     interface IAccountManagementDomainDocumentDbBulkReader : IDocumentDbBulkReader { }
 
-    [UsedImplicitly] class AccountRepository : AggregateRepository<Account, AccountEvent, IAccountEvent>, IAccountRepository
+    [UsedImplicitly] class AccountRepository : AggregateRepository<Account, AccountEvent.Implementation.Root, AccountEvent.Root>, IAccountRepository
     {
         public AccountRepository(IAccountManagementEventStoreSession aggregates) : base(aggregates) {}
     }

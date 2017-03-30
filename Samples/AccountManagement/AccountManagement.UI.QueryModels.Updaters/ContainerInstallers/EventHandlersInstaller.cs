@@ -1,4 +1,4 @@
-﻿using AccountManagement.Domain.Events.PropertyUpdated;
+﻿using AccountManagement.Domain.Events;
 using Composable.DependencyInjection;
 using Composable.Messaging.Buses;
 
@@ -15,7 +15,7 @@ namespace AccountManagement.UI.QueryModels.DocumentDB.Updaters.ContainerInstalle
                               );
 
             container.CreateServiceLocator().Use<IMessageHandlerRegistrar>(
-                registrar => registrar.ForEvent<IAccountEmailPropertyUpdatedEvent>(
+                registrar => registrar.ForEvent<AccountEvent.PropertyUpdated.Email>(
                     @event => container.CreateServiceLocator().Use<EmailToAccountMapQueryModelUpdater>(updater => updater.Handle(@event))));
         }
     }

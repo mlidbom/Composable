@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Composable.DependencyInjection;
-using Composable.DependencyInjection.Testing;
 using Composable.GenericAbstractions.Time;
 using Composable.Logging;
 using Composable.Persistence.EventSourcing;

@@ -18,6 +18,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\..\NSpec.NUnit\NSpec.NUnit.csproj" />
     <ProjectReference Include="..\AccountManagement.TestHelpers\AccountManagement.TestHelpers.csproj" />
   </ItemGroup>
 

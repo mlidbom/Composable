@@ -14,9 +14,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\..\Composable.CQRS\Composable.CQRS.csproj" />
-    <ProjectReference Include="..\AccountManagement.Domain.Events.EventStore\AccountManagement.Domain.Events.EventStore.csproj" />
-    <ProjectReference Include="..\AccountManagement.Domain.Events\AccountManagement.Domain.Events.csproj" />
-    <ProjectReference Include="..\AccountManagement.Domain.Shared\AccountManagement.Domain.Shared.csproj" />
   </ItemGroup>
 
   

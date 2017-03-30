@@ -21,14 +21,14 @@ namespace AccountManagement.Domain.Tests.After_a_user_has_registered_an_account
         public void An_IUserChangedAccountPasswordEvent_is_published_on_the_bus()
         {
             MessageSpy.DispatchedMessages
-                .OfType<IUserChangedAccountPasswordEvent>()
+                .OfType<AccountEvent.UserChangedPassword>()
                 .Should().HaveCount(1);
         }
 
         [Test]
         public void Event_password_should_accept_the_used_password_as_valid()
         {
-            MessageSpy.DispatchedMessages.OfType<IUserChangedAccountPasswordEvent>()
+            MessageSpy.DispatchedMessages.OfType<AccountEvent.UserChangedPassword>()
                 .Single().Password.AssertIsCorrectPassword(_changePasswordScenario.NewPasswordAsString);
         }
 

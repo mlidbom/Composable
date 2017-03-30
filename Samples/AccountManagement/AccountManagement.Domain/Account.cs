@@ -1,17 +1,15 @@
 ﻿using System;
-using AccountManagement.Domain.Events;
-using AccountManagement.Domain.Events.Implementation;
-using AccountManagement.Domain.Events.PropertyUpdated;
 using AccountManagement.Domain.Services;
 using AccountManagement.Domain.Shared;
 using Composable.Contracts;
 using Composable.GenericAbstractions.Time;
 using Composable.Persistence.EventStore.AggregateRoots;
+using AccountEvent = AccountManagement.Domain.Events.AccountEvent;
 
 namespace AccountManagement.Domain
 {
     ///Completely encapsulates all the business logic for an account.  Should make it impossible for clients to use the class incorrectly.
-    public class Account : AggregateRoot<Account, AccountEvent, IAccountEvent>
+    public class Account : AggregateRoot<Account, AccountEvent.Implementation.Root, AccountEvent.Root>
     {
         public Email Email { get; private set; } //Never public setters on an aggregate.
         public Password Password { get; private set; } //Never public setters on an aggregate.
@@ -23,8 +21,8 @@ namespace AccountManagement.Domain
             //Maintain correct state as events are raised or read from the store.
             //Use property updated events whenever possible. Changes to public state should be represented by property updated events.
             RegisterEventAppliers()
-                .For<IAccountEmailPropertyUpdatedEvent>(e => Email = e.Email)
-                .For<IAccountPasswordPropertyUpdatedEvent>(e => Password = e.Password);
+                .For<AccountEvent.PropertyUpdated.Email>(e => Email = e.Email)
+                .For<AccountEvent.PropertyUpdated.Password>(e => Password = e.Password);
         }
 
         //Ensure that the state of the instance is sane. If not throw an exception.
@@ -55,7 +53,7 @@ namespace AccountManagement.Domain
             duplicateAccountChecker.AssertAccountDoesNotExist(email);
 
             var created = new Account();
-            created.RaiseEvent(new UserRegisteredAccountEvent(accountId: accountId, email: email, password: password));
+            created.RaiseEvent(new AccountEvent.Implementation.UserRegistered(accountId: accountId, email: email, password: password));
             repository.Add(created);
 
             return Contract.Return(created, inspect => inspect.NotNull()); //Promise and ensure that you will never return null.
@@ -68,14 +66,14 @@ namespace AccountManagement.Domain
 
             Password.AssertIsCorrectPassword(oldPassword);
 
-            RaiseEvent(new UserChangedAccountPassword(newPassword));
+            RaiseEvent(new AccountEvent.Implementation.UserChangedPassword(newPassword));
         }
 
         public void ChangeEmail(Email email)
         {
             Contract.Argument(() => email).NotNullOrDefault();
 
-            RaiseEvent(new UserChangedAccountEmailEvent(email));
+            RaiseEvent(new AccountEvent.Implementation.UserChangedEmail(email));
         }
     }
 }

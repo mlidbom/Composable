@@ -18,7 +18,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\..\Composable.System\Composable.Core.csproj" />
-    <ProjectReference Include="..\AccountManagement.Domain.Events\AccountManagement.Domain.Events.csproj" />
     <ProjectReference Include="..\AccountManagement.UI.QueryModels\AccountManagement.UI.QueryModels.csproj" />
   </ItemGroup>
 

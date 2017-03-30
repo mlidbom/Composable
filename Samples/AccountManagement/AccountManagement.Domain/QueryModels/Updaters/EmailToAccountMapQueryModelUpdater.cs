@@ -1,4 +1,4 @@
-﻿using AccountManagement.Domain.Events.PropertyUpdated;
+﻿using AccountManagement.Domain.Events;
 using AccountManagement.Domain.Services;
 using Composable.Messaging;
 using JetBrains.Annotations;
@@ -6,7 +6,7 @@ using JetBrains.Annotations;
 namespace AccountManagement.Domain.QueryModels.Updaters
 {
     [UsedImplicitly]
-    class EmailToAccountMapQueryModelUpdater : IEventSubscriber<IAccountEmailPropertyUpdatedEvent>
+    class EmailToAccountMapQueryModelUpdater : IEventSubscriber<AccountEvent.PropertyUpdated.Email>
     {
         readonly IAccountManagementDomainDocumentDbUpdater _querymodels;
         readonly IAccountRepository _repository;
@@ -17,7 +17,7 @@ namespace AccountManagement.Domain.QueryModels.Updaters
             _repository = repository;
         }
 
-        public void Handle(IAccountEmailPropertyUpdatedEvent message)
+        public void Handle(AccountEvent.PropertyUpdated.Email message)
         {
             if(message.AggregateRootVersion > 1)
             {

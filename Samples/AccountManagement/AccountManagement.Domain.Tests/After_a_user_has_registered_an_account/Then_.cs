@@ -22,7 +22,7 @@ namespace AccountManagement.Domain.Tests.After_a_user_has_registered_an_account
         [Test]
         public void An_IUserRegisteredAccountEvent_is_published()
         {
-            MessageSpy.DispatchedMessages.OfType<IUserRegisteredAccountEvent>().ToList().Should().HaveCount(1);
+            MessageSpy.DispatchedMessages.OfType<AccountEvent.UserRegistered>().ToList().Should().HaveCount(1);
         }
 
         [Test]

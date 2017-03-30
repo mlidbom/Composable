@@ -21,7 +21,7 @@ namespace AccountManagement.Domain.Tests.After_a_user_has_registered_an_account
         public void an_IUserChangedAccountEmailEvent_is_published_on_the_bus()
         {
             MessageSpy.DispatchedMessages
-                .OfType<IUserChangedAccountEmailEvent>()
+                .OfType<AccountEvent.UserChangedEmail>()
                 .Should().HaveCount(1);
         }
 
@@ -29,7 +29,7 @@ namespace AccountManagement.Domain.Tests.After_a_user_has_registered_an_account
         public void Raised_event_contains_the_supplied_email()
         {
             MessageSpy.DispatchedMessages
-                .OfType<IUserChangedAccountEmailEvent>().Single()
+                .OfType<AccountEvent.UserChangedEmail>().Single()
                 .Email.Should().Be(_changeEmailScenario.NewEmail);
         }
 

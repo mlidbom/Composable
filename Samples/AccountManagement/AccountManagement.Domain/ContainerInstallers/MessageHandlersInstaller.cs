@@ -1,5 +1,5 @@
 ﻿using AccountManagement.Domain.API;
-using AccountManagement.Domain.Events.PropertyUpdated;
+using AccountManagement.Domain.Events;
 using AccountManagement.Domain.QueryModels.Updaters;
 using Composable.DependencyInjection;
 using Composable.Messaging;
@@ -19,7 +19,7 @@ namespace AccountManagement.Domain.ContainerInstallers
 
             container.CreateServiceLocator().Use<IMessageHandlerRegistrar>(registrar =>
                                                         registrar
-                                                            .ForEvent<IAccountEmailPropertyUpdatedEvent>(@event => container.CreateServiceLocator().Use<EmailToAccountMapQueryModelUpdater>(updater => updater.Handle(@event)))
+                                                            .ForEvent<AccountEvent.PropertyUpdated.Email>(@event => container.CreateServiceLocator().Use<EmailToAccountMapQueryModelUpdater>(updater => updater.Handle(@event)))
                                                             .ForQuery<IQuery<StartResource>, StartResource>(query => new StartResource()));
         }
     }

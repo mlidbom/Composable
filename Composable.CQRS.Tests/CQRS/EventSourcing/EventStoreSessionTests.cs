@@ -19,7 +19,7 @@ using NUnit.Framework;
 namespace Composable.CQRS.Tests.CQRS.EventSourcing
 {
     [TestFixture]
-    public abstract class EventStoreSessionTests : NoSqlTest
+    public abstract class EventStoreSessionTests
     {
         TestingOnlyServiceBus Bus { get; set; }
 
@@ -628,13 +628,5 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing
 
         //    }
         //}
-    }
-
-    public class NoSqlTest
-    {
-        static NoSqlTest()
-        {
-            log4net.Config.XmlConfigurator.Configure();
-        }
     }
 }

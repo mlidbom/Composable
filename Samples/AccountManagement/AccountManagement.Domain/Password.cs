@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Linq;
 
-namespace AccountManagement.Domain.Shared
+namespace AccountManagement.Domain
 {
     /// <summary>
     /// Note how all the business logic of a secure password is encapsulated and the instance is immutable after being created.

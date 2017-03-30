@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace AccountManagement.Domain.Shared
+namespace AccountManagement.Domain
 {
     public class PasswordDoesNotMatchPolicyException : ArgumentException
     {

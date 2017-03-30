@@ -1,5 +1,4 @@
-﻿using AccountManagement.Domain.Shared;
-using Composable.Contracts;
+﻿using Composable.Contracts;
 using Composable.Messaging;
 using Composable.Messaging.Commands;
 // ReSharper disable UnusedParameter.Local

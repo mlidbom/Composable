@@ -1,5 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using AccountManagement.Domain.Shared;
+using AccountManagement.Domain;
 
 namespace AccountManagement.UI.Commands.ValidationAttributes
 {

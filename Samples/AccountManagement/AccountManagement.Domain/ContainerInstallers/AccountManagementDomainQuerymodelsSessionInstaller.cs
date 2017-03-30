@@ -1,5 +1,4 @@
-﻿using AccountManagement.Domain.Events.EventStore.ContainerInstallers;
-using AccountManagement.Domain.Services;
+﻿using AccountManagement.Domain.Services;
 using Composable.DependencyInjection;
 using Composable.DependencyInjection.Persistence;
 

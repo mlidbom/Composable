@@ -1,5 +1,5 @@
 ﻿using System;
-using AccountManagement.Domain.Shared;
+using AccountManagement.Domain;
 using JetBrains.Annotations;
 
 namespace AccountManagement.UI.QueryModels

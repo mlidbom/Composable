@@ -1,5 +1,4 @@
 ﻿using System;
-using AccountManagement.Domain.Shared;
 using Composable.Contracts;
 using Composable.Persistence.EventSourcing;
 using JetBrains.Annotations;

@@ -1,6 +1,5 @@
 ﻿using System;
 using AccountManagement.Domain.Services;
-using AccountManagement.Domain.Shared;
 using Composable.Contracts;
 using Composable.GenericAbstractions.Time;
 using Composable.Persistence.EventStore.AggregateRoots;

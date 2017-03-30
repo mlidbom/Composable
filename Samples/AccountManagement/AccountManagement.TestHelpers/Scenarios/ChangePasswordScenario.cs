@@ -1,6 +1,5 @@
 ﻿using AccountManagement.Domain;
 using AccountManagement.Domain.Services;
-using AccountManagement.Domain.Shared;
 using Composable.DependencyInjection;
 
 namespace AccountManagement.TestHelpers.Scenarios

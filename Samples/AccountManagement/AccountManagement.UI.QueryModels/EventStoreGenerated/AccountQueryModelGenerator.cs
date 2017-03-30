@@ -1,5 +1,5 @@
 ﻿using AccountManagement.Domain.Events;
-using AccountManagement.Domain.Events.EventStore.Services;
+using AccountManagement.Domain.Services;
 using Composable.Persistence.EventStore.Query.Models.Generators;
 using JetBrains.Annotations;
 

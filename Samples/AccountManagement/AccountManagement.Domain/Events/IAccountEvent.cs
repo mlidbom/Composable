@@ -33,12 +33,12 @@ namespace AccountManagement.Domain.Events
         {
             public interface Password : AccountEvent.Root
             {
-                Shared.Password Password { get; /* Never add a setter! */ }
+                Domain.Password Password { get; /* Never add a setter! */ }
             }
 
             public interface Email : AccountEvent.Root
             {
-                Shared.Email Email { get; /* Never add a setter! */ }
+                Domain.Email Email { get; /* Never add a setter! */ }
             }
         }
     }

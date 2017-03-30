@@ -1,5 +1,5 @@
 ﻿using System;
-using AccountManagement.Domain.Shared;
+using AccountManagement.Domain;
 
 namespace AccountManagement.UI.QueryModels
 {

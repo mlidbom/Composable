@@ -3,7 +3,7 @@ using FluentAssertions;
 using JetBrains.Annotations;
 using NUnit.Framework;
 
-namespace AccountManagement.Domain.Shared.Tests
+namespace AccountManagement.Domain.Tests
 {
     public class EmailSpecification : nspec
     {

@@ -3,9 +3,10 @@ using Composable;
 using FluentAssertions;
 using JetBrains.Annotations;
 using NUnit.Framework;
+
 // ReSharper disable ObjectCreationAsStatement
 
-namespace AccountManagement.Domain.Shared.Tests
+namespace AccountManagement.Domain.Tests
 {
     //Review:mlidbo: Replace with standard nunit test.
     public class PasswordSpecification : nspec

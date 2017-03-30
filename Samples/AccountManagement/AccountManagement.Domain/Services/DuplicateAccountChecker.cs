@@ -1,5 +1,4 @@
 using AccountManagement.Domain.QueryModels;
-using AccountManagement.Domain.Shared;
 using Composable.Contracts;
 using JetBrains.Annotations;
 

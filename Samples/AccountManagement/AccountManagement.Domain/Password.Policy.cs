@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using AccountManagement.Domain.Shared.Extensions;
+using AccountManagement.Domain.Extensions;
 
-namespace AccountManagement.Domain.Shared
+namespace AccountManagement.Domain
 {
     public partial class Password
     {

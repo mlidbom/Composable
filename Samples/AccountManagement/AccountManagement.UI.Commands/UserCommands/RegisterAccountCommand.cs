@@ -29,24 +29,24 @@ namespace AccountManagement.UI.Commands.UserCommands
 
         IEnumerable<ValidationResult> ValidatePassword()
         {
-            var policyFailures = Domain.Shared.Password.Policy.GetPolicyFailures(Password).ToList();
+            var policyFailures = Domain.Password.Policy.GetPolicyFailures(Password).ToList();
             if(policyFailures.Any())
             {
                 switch(policyFailures.First())
                 {
-                    case Domain.Shared.Password.Policy.Failures.BorderedByWhitespace:
+                    case Domain.Password.Policy.Failures.BorderedByWhitespace:
                         yield return this.CreateValidationResult(RegisterAccountCommandResources.Password_BorderedByWhitespace, () => Password);
                         break;
-                    case Domain.Shared.Password.Policy.Failures.MissingLowerCaseCharacter:
+                    case Domain.Password.Policy.Failures.MissingLowerCaseCharacter:
                         yield return this.CreateValidationResult(RegisterAccountCommandResources.Password_MissingLowerCaseCharacter, () => Password);
                         break;
-                    case Domain.Shared.Password.Policy.Failures.MissingUppercaseCharacter:
+                    case Domain.Password.Policy.Failures.MissingUppercaseCharacter:
                         yield return this.CreateValidationResult(RegisterAccountCommandResources.Password_MissingUpperCaseCharacter, () => Password);
                         break;
-                    case Domain.Shared.Password.Policy.Failures.ShorterThanFourCharacters:
+                    case Domain.Password.Policy.Failures.ShorterThanFourCharacters:
                         yield return this.CreateValidationResult(RegisterAccountCommandResources.Password_ShorterThanFourCharacters, () => Password);
                         break;
-                    case Domain.Shared.Password.Policy.Failures.Null:
+                    case Domain.Password.Policy.Failures.Null:
                         throw new Exception("Null should have been caught by the Required attribute");
                     default:
                         throw new Exception($"Unknown password failure type {policyFailures.First()}");

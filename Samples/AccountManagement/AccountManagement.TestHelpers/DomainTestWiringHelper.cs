@@ -1,5 +1,4 @@
 ﻿using AccountManagement.Domain;
-using AccountManagement.Domain.Events.EventStore;
 using Composable.DependencyInjection;
 
 namespace AccountManagement.TestHelpers
@@ -11,7 +10,6 @@ namespace AccountManagement.TestHelpers
             return DependencyInjectionContainer.CreateServiceLocatorForTesting(container =>
                                                                        {
                                                                            AccountManagementDomainBootstrapper.SetupForTesting(container);
-                                                                           AccountManagementDomainEventStoreBootstrapper.BootstrapForTesting(container);
                                                                        });
         }
     }

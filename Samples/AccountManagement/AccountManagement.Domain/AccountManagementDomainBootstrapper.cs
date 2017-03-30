@@ -7,6 +7,7 @@ namespace AccountManagement.Domain
     {
         public static void SetupForTesting(IDependencyInjectionContainer container)
         {
+            AccountManagementDomainEventStoreInstaller.Install(container);
             AccountManagementDomainQuerymodelsSessionInstaller.Install(container);
             AccountRepositoryInstaller.Install(container);
             DuplicateAccountCheckerInstaller.Install(container);

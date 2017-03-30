@@ -1,6 +1,5 @@
 ﻿using System;
 using AccountManagement.Domain;
-using AccountManagement.Domain.Events.EventStore;
 using AccountManagement.UI.QueryModels.DocumentDB.Updaters;
 using AccountManagement.UI.QueryModels.Services;
 using Composable.DependencyInjection;
@@ -27,7 +26,6 @@ namespace AccountManagement.UI.QueryModels.Tests
             ServiceLocator = DependencyInjectionContainer.CreateServiceLocatorForTesting(container =>
                                                                                    {
                                                                                        AccountManagementDomainBootstrapper.SetupForTesting(container);
-                                                                                       AccountManagementDomainEventStoreBootstrapper.BootstrapForTesting(container);
                                                                                        AccountManagementUiQueryModelsBootstrapper.BootstrapForTesting(container);
                                                                                        AccountManagementUiQueryModelsDocumentDbUpdatersBootstrapper.BootstrapForTesting(container);
                                                                                    });

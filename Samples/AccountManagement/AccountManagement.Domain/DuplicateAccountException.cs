@@ -1,5 +1,4 @@
 using System;
-using AccountManagement.Domain.Shared;
 
 namespace AccountManagement.Domain
 {

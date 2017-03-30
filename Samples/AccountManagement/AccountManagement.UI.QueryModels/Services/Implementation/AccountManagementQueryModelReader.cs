@@ -1,5 +1,5 @@
 ﻿using System;
-using AccountManagement.Domain.Shared;
+using AccountManagement.Domain;
 using AccountManagement.UI.QueryModels.EventStoreGenerated;
 using Composable.Persistence.EventStore.Query.Models.Generators;
 using Composable.SystemExtensions.Threading;

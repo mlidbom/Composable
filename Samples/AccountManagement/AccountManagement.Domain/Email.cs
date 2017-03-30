@@ -2,7 +2,7 @@
 using System.Text.RegularExpressions;
 using Composable.DDD;
 
-namespace AccountManagement.Domain.Shared
+namespace AccountManagement.Domain
 {
     ///<summary>
     /// A small value object that ensures that it is impossible to create an invalid email.

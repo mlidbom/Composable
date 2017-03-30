@@ -1,5 +1,5 @@
 ﻿using System;
-using AccountManagement.Domain.Shared;
+using AccountManagement.Domain;
 using Composable.Persistence.DocumentDb;
 
 namespace AccountManagement.UI.QueryModels.Services

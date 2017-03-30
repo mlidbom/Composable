@@ -18,8 +18,6 @@ namespace Composable.DependencyInjection
 
             setup(@this);
 
-            @this.ConfigureWiringForTestsCallAfterAllOtherWiring();
-
             return @this.CreateServiceLocator();
         }
 

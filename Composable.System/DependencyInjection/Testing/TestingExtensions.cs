@@ -1,7 +1,6 @@
 ﻿using Composable.GenericAbstractions.Time;
 using Composable.Messaging.Buses;
 using Composable.System.Configuration;
-using Composable.System.Linq;
 using Composable.SystemExtensions.Threading;
 
 namespace Composable.DependencyInjection.Testing
@@ -43,13 +42,6 @@ namespace Composable.DependencyInjection.Testing
                           );
             @this.CreateServiceLocator()
                  .Resolve<IConnectionStringProvider>();//Trigger resolving the dabasepool so that it will be properly disposed with the container
-        }
-
-        public static void ConfigureWiringForTestsCallAfterAllOtherWiring(this IDependencyInjectionContainer container)
-        {
-            container.CreateServiceLocator()
-                     .UseAll<IConfigureWiringForTests>(components
-                                                           => components.ForEach(component => component.ConfigureWiringForTesting()));
         }
     }
 }

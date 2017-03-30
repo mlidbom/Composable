@@ -192,7 +192,6 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
                 throw new Exception($"Unsupported type of event store {eventStoreType}");
             }
 
-            container.ConfigureWiringForTestsCallAfterAllOtherWiring();
             return serviceLocator;
         }
 

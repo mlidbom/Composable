@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using Composable.Persistence.EventSourcing;
 
 namespace Composable.Persistence.EventStore
 {

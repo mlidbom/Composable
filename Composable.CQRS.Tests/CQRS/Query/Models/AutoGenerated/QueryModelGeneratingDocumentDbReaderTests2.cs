@@ -8,7 +8,6 @@ using Composable.DependencyInjection;
 using Composable.GenericAbstractions.Time;
 using Composable.Messaging.Events;
 using Composable.Persistence.DocumentDb;
-using Composable.Persistence.EventSourcing;
 using Composable.Persistence.EventStore;
 using Composable.Persistence.EventStore.AggregateRoots;
 using Composable.Persistence.EventStore.Query.Models.Generators;

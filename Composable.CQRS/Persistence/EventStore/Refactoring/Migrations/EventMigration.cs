@@ -1,6 +1,5 @@
 using System;
 using Composable.Contracts;
-using Composable.Persistence.EventSourcing;
 
 namespace Composable.Persistence.EventStore.Refactoring.Migrations
 {

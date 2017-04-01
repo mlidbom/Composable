@@ -5,7 +5,6 @@ using System.Threading;
 using System.Transactions;
 using Composable.GenericAbstractions.Time;
 using Composable.Messaging.Buses;
-using Composable.Persistence.EventSourcing;
 using Composable.Persistence.EventStore;
 using Composable.System;
 using Composable.System.Diagnostics;

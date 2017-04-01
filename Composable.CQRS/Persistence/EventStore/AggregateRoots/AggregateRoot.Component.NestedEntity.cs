@@ -1,7 +1,6 @@
 ﻿using System;
 using Composable.GenericAbstractions.Time;
 using Composable.Messaging.Events;
-using Composable.Persistence.EventSourcing;
 
 namespace Composable.Persistence.EventStore.AggregateRoots
 {

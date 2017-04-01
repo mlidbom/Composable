@@ -4,7 +4,6 @@ using System.Linq;
 using Composable.Contracts;
 using Composable.GenericAbstractions.Time;
 using Composable.Messaging.Buses;
-using Composable.Persistence.EventSourcing;
 using Composable.Persistence.EventStore.MicrosoftSQLServer;
 using Composable.System.Linq;
 using Composable.SystemExtensions.Threading;

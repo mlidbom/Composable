@@ -1,7 +1,7 @@
 ﻿using System;
 using Composable.Logging;
-using Composable.Persistence.EventSourcing;
-using Composable.Persistence.EventStore.MicrosoftSQLServer;
+using Composable.Persistence.EventStore;
+using Composable.Persistence.EventStore.Serialization.NewtonSoft;
 using Composable.System.Diagnostics;
 using Composable.Testing;
 using FluentAssertions;
@@ -14,6 +14,8 @@ namespace Composable.CQRS.Tests.NewtonSoft
     [TestFixture, Performance]
     public class SqlServerEventStoreSerializerTests
     {
+        readonly IEventStoreEventSerializer _eventSerializer = new NewtonSoftEventStoreEventSerializer();
+
         class TestEvent : AggregateRootEvent
         {
             [UsedImplicitly]
@@ -81,9 +83,9 @@ namespace Composable.CQRS.Tests.NewtonSoft
                                                   UtcTimeStamp = DateTime.MinValue
                                               };
 
-            var eventWithAllValuesJson = SqlServerEvestStoreEventSerializer.Serialize(eventWithAllValuesSet);
-            var eventWithOnlySubclassValuesJson = SqlServerEvestStoreEventSerializer.Serialize(eventWithOnlySubclassValues);
-            var roundTripped = SqlServerEvestStoreEventSerializer.Deserialize(typeof(TestEvent), eventWithAllValuesJson);
+            var eventWithAllValuesJson = _eventSerializer.Serialize(eventWithAllValuesSet);
+            var eventWithOnlySubclassValuesJson = _eventSerializer.Serialize(eventWithOnlySubclassValues);
+            var roundTripped = _eventSerializer.Deserialize(typeof(TestEvent), eventWithAllValuesJson);
 
             SafeConsole.WriteLine(eventWithAllValuesJson);
 
@@ -115,8 +117,8 @@ namespace Composable.CQRS.Tests.NewtonSoft
             TimeAsserter.Execute(
                                  () =>
                                  {
-                                     var eventJson = SqlServerEvestStoreEventSerializer.Serialize(@event);
-                                     SqlServerEvestStoreEventSerializer.Deserialize(typeof(TestEvent), eventJson);
+                                     var eventJson = _eventSerializer.Serialize(@event);
+                                     _eventSerializer.Deserialize(typeof(TestEvent), eventJson);
                                  },
                                  iterations:10000,
                                  maxTotal: 100.Milliseconds().AdjustRuntimeToTestEnvironment(),
@@ -141,9 +143,9 @@ namespace Composable.CQRS.Tests.NewtonSoft
                                             insertionOrder: 40,
                                             utcTimeStamp: DateTime.Now + 1.Minutes());
 
-            SqlServerEvestStoreEventSerializer.Serialize(@event);//Warmup
+            _eventSerializer.Serialize(@event);//Warmup
 
-            var settings = SqlServerEvestStoreEventSerializer.JsonSettings;
+            var settings = NewtonSoftEventStoreEventSerializer.JsonSettings;
             var defaultSerializerPerformanceNumbers = StopwatchExtensions.TimeExecution(() =>
                                                                                         {
                                                                                             var eventJson = JsonConvert.SerializeObject(@event, settings);
@@ -156,8 +158,8 @@ namespace Composable.CQRS.Tests.NewtonSoft
 
             TimeAsserter.Execute(() =>
                                  {
-                                     var eventJson = SqlServerEvestStoreEventSerializer.Serialize(@event);
-                                     SqlServerEvestStoreEventSerializer.Deserialize(typeof(TestEvent), eventJson);
+                                     var eventJson = _eventSerializer.Serialize(@event);
+                                     _eventSerializer.Deserialize(typeof(TestEvent), eventJson);
                                  },
                                  iterations: iterations,
                                  maxTotal: allowedTime,

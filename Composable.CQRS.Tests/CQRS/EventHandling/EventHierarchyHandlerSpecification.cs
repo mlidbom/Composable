@@ -1,7 +1,7 @@
 ﻿using System;
 using Composable.Messaging;
 using Composable.Messaging.Events;
-using Composable.Persistence.EventSourcing;
+using Composable.Persistence.EventStore;
 using FluentAssertions;
 
 // ReSharper disable UnusedMember.Global

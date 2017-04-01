@@ -1,4 +1,4 @@
-﻿using Composable.Persistence.EventSourcing;
+﻿using Composable.Persistence.EventStore;
 using Composable.Persistence.EventStore.Refactoring.Naming;
 using Composable.System.Linq;
 using FluentAssertions;

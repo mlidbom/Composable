@@ -4,7 +4,6 @@ using System.Linq;
 using Composable.DependencyInjection;
 using Composable.GenericAbstractions.Time;
 using Composable.Logging;
-using Composable.Persistence.EventSourcing;
 using Composable.Persistence.EventStore;
 using Composable.Persistence.EventStore.MicrosoftSQLServer;
 using Composable.Persistence.EventStore.Refactoring.Migrations;
@@ -161,6 +160,7 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
                                            Component.For<IEventStore>()
                                                      .UsingFactoryMethod(
                                                                          locator => new SqlServerEventStore(connectionString: eventStoreConnectionString,
+                                                                                                            serializer: locator.Resolve<IEventStoreEventSerializer>(),
                                                                                                             usageGuard: locator.Resolve<ISingleContextUseGuard>(),
                                                                                                             cache: cache,
                                                                                                             nameMapper: null,

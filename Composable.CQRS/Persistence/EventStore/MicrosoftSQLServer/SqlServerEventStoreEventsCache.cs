@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Caching;
-using Composable.Persistence.EventSourcing;
 using Composable.System;
 
 namespace Composable.Persistence.EventStore.MicrosoftSQLServer

@@ -1,6 +1,6 @@
 ﻿using System;
 using Composable.Contracts;
-using Composable.Persistence.EventSourcing;
+using Composable.Persistence.EventStore;
 using JetBrains.Annotations;
 // ReSharper disable MemberHidesStaticFromOuterClass
 // ReSharper disable InconsistentNaming

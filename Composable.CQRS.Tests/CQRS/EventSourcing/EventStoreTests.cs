@@ -2,9 +2,9 @@
 using System.Configuration;
 using System.Linq;
 using Composable.Logging;
-using Composable.Persistence.EventSourcing;
 using Composable.Persistence.EventStore;
 using Composable.Persistence.EventStore.MicrosoftSQLServer;
+using Composable.Persistence.EventStore.Serialization.NewtonSoft;
 using Composable.System.Linq;
 using Composable.Testing;
 using FluentAssertions;
@@ -157,9 +157,9 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing
             _tempDbManager.Dispose();
         }
 
-        protected override IEventStore CreateEventStore() => new SqlServerEventStore(_connectionString1);
+        protected override IEventStore CreateEventStore() => new SqlServerEventStore(_connectionString1, serializer: new NewtonSoftEventStoreEventSerializer());
 
-        protected override IEventStore CreateEventStore2() => new SqlServerEventStore(_connectionString2);
+        protected override IEventStore CreateEventStore2() => new SqlServerEventStore(_connectionString2, serializer: new NewtonSoftEventStoreEventSerializer());
 
         [Test]
         public void DoesNotMixUpEventsFromDifferentStores()

@@ -1,5 +1,5 @@
 ﻿using System.Reflection;
-using Composable.Persistence.EventSourcing;
+using Composable.Persistence.EventStore;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 

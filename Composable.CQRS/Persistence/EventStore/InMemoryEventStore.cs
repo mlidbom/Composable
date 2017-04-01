@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using Composable.Contracts;
-using Composable.Persistence.EventSourcing;
 using Composable.Persistence.EventStore.Refactoring.Migrations;
 using Composable.System.Linq;
 

@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Data.SqlTypes;
 using System.Linq;
-using Composable.Persistence.EventSourcing;
 
 namespace Composable.Persistence.EventStore.MicrosoftSQLServer
 {
@@ -11,6 +10,7 @@ namespace Composable.Persistence.EventStore.MicrosoftSQLServer
     {
         readonly SqlServerEventStoreConnectionManager _connectionMananger;
         readonly SqlServerEventStoreSchemaManager _schemaManager;
+        readonly IEventStoreEventSerializer _serializer;
         IEventTypeToIdMapper EventTypeToIdMapper => _schemaManager.IdMapper;
 
         static string GetSelectClause(bool takeWriteLock) => InternalSelect(takeWriteLock: takeWriteLock);
@@ -39,15 +39,16 @@ SELECT {topClause}
 FROM {EventTable.Name} {lockHint} ";
         }
 
-        public SqlServerEventStoreEventReader(SqlServerEventStoreConnectionManager connectionManager, SqlServerEventStoreSchemaManager schemaManager)
+        public SqlServerEventStoreEventReader(SqlServerEventStoreConnectionManager connectionManager, SqlServerEventStoreSchemaManager schemaManager, IEventStoreEventSerializer serializer)
         {
             _connectionMananger = connectionManager;
             _schemaManager = schemaManager;
+            _serializer = serializer;
         }
 
         AggregateRootEvent HydrateEvent(EventDataRow eventDataRowRow)
         {
-            var @event = (AggregateRootEvent)SqlServerEvestStoreEventSerializer.Deserialize(eventType: EventTypeToIdMapper.GetType(eventDataRowRow.EventType), eventData: eventDataRowRow.EventJson);
+            var @event = (AggregateRootEvent)_serializer.Deserialize(eventType: EventTypeToIdMapper.GetType(eventDataRowRow.EventType), eventData: eventDataRowRow.EventJson);
             @event.AggregateRootId = eventDataRowRow.AggregateRootId;
             @event.AggregateRootVersion = eventDataRowRow.AggregateRootVersion;
             @event.EventId = eventDataRowRow.EventId;

@@ -2,7 +2,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using Composable.Messaging.Events;
-using Composable.Persistence.EventSourcing;
 using Composable.Persistence.EventStore.AggregateRoots;
 using Composable.System.Linq;
 

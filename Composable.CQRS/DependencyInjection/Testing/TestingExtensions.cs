@@ -1,5 +1,7 @@
 ﻿using Composable.GenericAbstractions.Time;
 using Composable.Messaging.Buses;
+using Composable.Persistence.EventStore;
+using Composable.Persistence.EventStore.Serialization.NewtonSoft;
 using Composable.System.Configuration;
 using Composable.SystemExtensions.Threading;
 
@@ -26,6 +28,9 @@ namespace Composable.DependencyInjection.Testing
                                     .LifestyleSingleton(),
                            Component.For<ISingleContextUseGuard>()
                                     .ImplementedBy<SingleThreadUseGuard>()
+                                    .LifestyleScoped(),
+                           Component.For<IEventStoreEventSerializer>()
+                                    .ImplementedBy<NewtonSoftEventStoreEventSerializer>()
                                     .LifestyleScoped(),
                            Component.For<IUtcTimeTimeSource, DummyTimeSource>()
                                     .UsingFactoryMethod(_ => dummyTimeSource)

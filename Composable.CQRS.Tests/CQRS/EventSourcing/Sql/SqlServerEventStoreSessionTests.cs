@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using System.Transactions;
 using Composable.Persistence.EventStore;
 using Composable.Persistence.EventStore.MicrosoftSQLServer;
+using Composable.Persistence.EventStore.Serialization.NewtonSoft;
 using Composable.System.Linq;
 using Composable.Testing;
 using FluentAssertions;
@@ -32,7 +33,7 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.Sql
             _databasePool.Dispose();
         }
 
-        protected override IEventStore CreateStore() => new SqlServerEventStore(_connectionString);
+        protected override IEventStore CreateStore() => new SqlServerEventStore(_connectionString, serializer: new NewtonSoftEventStoreEventSerializer());
 
         [Test]
         public void Serializes_access_to_an_aggregate_so_that_concurrent_transactions_succeed_even_if_history_has_been_read_outside_of_modifying_transactions()

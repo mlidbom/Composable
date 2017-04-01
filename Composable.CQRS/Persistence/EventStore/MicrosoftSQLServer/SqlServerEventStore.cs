@@ -4,7 +4,6 @@ using System.Linq;
 using System.Transactions;
 using Composable.Contracts;
 using Composable.Logging.Log4Net;
-using Composable.Persistence.EventSourcing;
 using Composable.Persistence.EventStore.Refactoring.Migrations;
 using Composable.Persistence.EventStore.Refactoring.Naming;
 using Composable.System;
@@ -29,7 +28,7 @@ namespace Composable.Persistence.EventStore.MicrosoftSQLServer
 
         readonly HashSet<Guid> _aggregatesWithEventsAddedByThisInstance = new HashSet<Guid>();
 
-        public SqlServerEventStore(string connectionString, ISingleContextUseGuard usageGuard = null, SqlServerEventStoreEventsCache cache = null, IEventNameMapper nameMapper = null, IEnumerable<IEventMigration> migrations = null)
+        public SqlServerEventStore(string connectionString, IEventStoreEventSerializer serializer, ISingleContextUseGuard usageGuard = null, SqlServerEventStoreEventsCache cache = null, IEventNameMapper nameMapper = null, IEnumerable<IEventMigration> migrations = null)
         {
             Log.Debug("Constructor called");
 
@@ -41,8 +40,8 @@ namespace Composable.Persistence.EventStore.MicrosoftSQLServer
             _cache = cache ?? new SqlServerEventStoreEventsCache();
             var connectionMananger = new SqlServerEventStoreConnectionManager(connectionString);
             _schemaManager = new SqlServerEventStoreSchemaManager(connectionString, nameMapper);
-            _eventReader = new SqlServerEventStoreEventReader(connectionMananger, _schemaManager);
-            _eventWriter = new SqlServerEventStoreEventWriter(connectionMananger, _schemaManager);
+            _eventReader = new SqlServerEventStoreEventReader(connectionMananger, _schemaManager, serializer);
+            _eventWriter = new SqlServerEventStoreEventWriter(connectionMananger, _schemaManager, serializer);
         }
 
         public IEnumerable<IAggregateRootEvent> GetAggregateHistoryForUpdate(Guid aggregateId) => GetAggregateHistoryInternal(aggregateId: aggregateId, takeWriteLock: true);

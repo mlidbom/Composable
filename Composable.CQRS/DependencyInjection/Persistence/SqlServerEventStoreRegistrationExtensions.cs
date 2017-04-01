@@ -27,10 +27,11 @@ namespace Composable.DependencyInjection.Persistence
         class SqlServerEventStore<TSessionInterface, TReaderInterface> : SqlServerEventStore, IEventStore<TSessionInterface, TReaderInterface>
         {
             public SqlServerEventStore(string connectionString,
+                                       IEventStoreEventSerializer serializer,
                                        ISingleContextUseGuard usageGuard = null,
                                        SqlServerEventStoreEventsCache cache = null,
                                        IEventNameMapper nameMapper = null,
-                                       IEnumerable<IEventMigration> migrations = null) : base(connectionString, usageGuard, cache, nameMapper, migrations) {}
+                                       IEnumerable<IEventMigration> migrations = null) : base(connectionString, serializer, usageGuard, cache, nameMapper, migrations) {}
         }
 
         class InMemoryEventStore<TSessionInterface, TReaderInterface> : InMemoryEventStore, IEventStore<TSessionInterface, TReaderInterface>
@@ -71,6 +72,7 @@ namespace Composable.DependencyInjection.Persistence
                                                                                                                                connectionString: sl.Resolve<IConnectionStringProvider>()
                                                                                                                                                    .GetConnectionString(connectionName)
                                                                                                                                                    .ConnectionString,
+                                                                                                                               serializer: sl.Resolve<IEventStoreEventSerializer>(),
                                                                                                                                migrations: migrations,
                                                                                                                                cache: cache))
                                         .LifestyleScoped());

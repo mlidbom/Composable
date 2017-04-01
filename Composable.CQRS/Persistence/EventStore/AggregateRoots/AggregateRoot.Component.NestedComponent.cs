@@ -1,7 +1,6 @@
 ﻿using System;
 using Composable.GenericAbstractions.Time;
 using Composable.Messaging.Events;
-using Composable.Persistence.EventSourcing;
 using JetBrains.Annotations;
 
 namespace Composable.Persistence.EventStore.AggregateRoots

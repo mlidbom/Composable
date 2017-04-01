@@ -5,7 +5,6 @@ using System.Data.SqlClient;
 using System.Data.SqlTypes;
 using System.Linq;
 using Composable.Contracts;
-using Composable.Persistence.EventSourcing;
 using Composable.System;
 using Composable.System.Linq;
 
@@ -16,13 +15,16 @@ namespace Composable.Persistence.EventStore.MicrosoftSQLServer
         readonly SqlServerEventStoreConnectionManager _connectionMananger;
         IEventTypeToIdMapper IdMapper => _schemaManager.IdMapper;
         readonly SqlServerEventStoreSchemaManager _schemaManager;
+        readonly IEventStoreEventSerializer _serializer;
 
         public SqlServerEventStoreEventWriter
             (SqlServerEventStoreConnectionManager connectionMananger,
-             SqlServerEventStoreSchemaManager schemaManager)
+             SqlServerEventStoreSchemaManager schemaManager,
+             IEventStoreEventSerializer serializer)
         {
             _connectionMananger = connectionMananger;
             _schemaManager = schemaManager;
+            _serializer = serializer;
         }
 
         //Review:catch primary key violation errors and rethrow in an optimistic concurrency failure exception.:
@@ -59,7 +61,7 @@ SET @{EventTable.Columns.InsertionOrder} = SCOPE_IDENTITY();";
                         command.Parameters.Add(new SqlParameter(EventTable.Columns.UtcTimeStamp, @event.UtcTimeStamp));
                         command.Parameters.Add(new SqlParameter(EventTable.Columns.ManualReadOrder, refactoringEvent.ManualReadOrder));
 
-                        command.Parameters.Add(new SqlParameter(EventTable.Columns.Event, SqlServerEvestStoreEventSerializer.Serialize(@event)));
+                        command.Parameters.Add(new SqlParameter(EventTable.Columns.Event, _serializer.Serialize(@event)));
 
                         command.Parameters.Add(Nullable(new SqlParameter(EventTable.Columns.ManualVersion, @event.ManualVersion)));
                         command.Parameters.Add(Nullable(new SqlParameter(EventTable.Columns.InsertAfter, @event.InsertAfter)));

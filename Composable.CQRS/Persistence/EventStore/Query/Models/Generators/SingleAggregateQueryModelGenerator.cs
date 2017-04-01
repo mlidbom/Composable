@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Linq;
 using Composable.Messaging.Events;
-using Composable.Persistence.EventSourcing;
 using Composable.System.Linq;
 using JetBrains.Annotations;
 

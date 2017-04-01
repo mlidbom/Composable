@@ -1,4 +1,4 @@
-﻿namespace Composable.Persistence.EventSourcing
+﻿namespace Composable.Persistence.EventStore
 {
     /// <summary>
     /// Marks an event as meaning that the aggregate was created.

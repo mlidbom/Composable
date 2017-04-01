@@ -1,5 +1,3 @@
-using Composable.Persistence.EventSourcing;
-
 namespace Composable.Persistence.EventStore.Refactoring.Migrations
 {
     class AssertMigrationsAreIdempotentEventModifier : IEventModifier

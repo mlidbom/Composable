@@ -1,7 +1,6 @@
 ﻿using System;
 using Composable.GenericAbstractions.Time;
 using Composable.Messaging.Events;
-using Composable.Persistence.EventSourcing;
 
 // ReSharper disable UnusedMember.Global todo:tests
 

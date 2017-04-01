@@ -1,4 +1,4 @@
-﻿namespace Composable.Persistence.EventSourcing
+﻿namespace Composable.Persistence.EventStore
 {
     public interface IAggregateRootDeletedEvent : IAggregateRootEvent
     {

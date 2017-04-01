@@ -1,6 +1,4 @@
-﻿using Composable.Persistence.EventSourcing;
-
-namespace Composable.Persistence.EventStore.Refactoring.Migrations
+﻿namespace Composable.Persistence.EventStore.Refactoring.Migrations
 {
     public interface IEventModifier
     {

@@ -6,7 +6,6 @@ using Composable.CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations.Event
 using Composable.DependencyInjection;
 using Composable.DependencyInjection.Persistence;
 using Composable.GenericAbstractions.Time;
-using Composable.Persistence.EventSourcing;
 using Composable.Persistence.EventStore;
 using Composable.Persistence.EventStore.AggregateRoots;
 using Composable.Persistence.EventStore.Refactoring.Migrations;

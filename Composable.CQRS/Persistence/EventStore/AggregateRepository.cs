@@ -1,5 +1,4 @@
 ﻿using System;
-using Composable.Persistence.EventSourcing;
 using Composable.Persistence.EventStore.AggregateRoots;
 
 namespace Composable.Persistence.EventStore

@@ -10,16 +10,16 @@ using Composable.System.Linq;
 
 namespace Composable.Persistence.EventStore.MicrosoftSQLServer
 {
-    class SqlServerEventStoreEventWriter
+    class SqlServerEventStoreEventWriter : IEventStoreEventWriter
     {
         readonly SqlServerEventStoreConnectionManager _connectionMananger;
         IEventTypeToIdMapper IdMapper => _schemaManager.IdMapper;
-        readonly SqlServerEventStoreSchemaManager _schemaManager;
+        readonly IEventStoreSchemaManager _schemaManager;
         readonly IEventStoreEventSerializer _serializer;
 
         public SqlServerEventStoreEventWriter
             (SqlServerEventStoreConnectionManager connectionMananger,
-             SqlServerEventStoreSchemaManager schemaManager,
+             IEventStoreSchemaManager schemaManager,
              IEventStoreEventSerializer serializer)
         {
             _connectionMananger = connectionMananger;
@@ -150,7 +150,7 @@ SET @{EventTable.Columns.InsertionOrder} = SCOPE_IDENTITY();";
             SaveEventsInternal(eventsToPersist);
         }
 
-        internal void FixManualVersions(Guid aggregateId)
+        public void FixManualVersions(Guid aggregateId)
         {
             _connectionMananger.UseCommand(
                 command =>

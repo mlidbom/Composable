@@ -24,12 +24,12 @@ namespace Composable.DependencyInjection.Persistence
     {
         interface IEventStoreSession<TSessionInterface, TReaderInterface> : IEventStoreSession {}
 
-        class SqlServerEventStore<TSessionInterface, TReaderInterface> : SqlServerEventStore, IEventStore<TSessionInterface, TReaderInterface>
+        class EventStore<TSessionInterface, TReaderInterface> : EventStore, IEventStore<TSessionInterface, TReaderInterface>
         {
-            public SqlServerEventStore(string connectionString,
+            public EventStore(string connectionString,
                                        IEventStoreEventSerializer serializer,
                                        ISingleContextUseGuard usageGuard = null,
-                                       SqlServerEventStoreEventsCache cache = null,
+                                       EventCache cache = null,
                                        IEventNameMapper nameMapper = null,
                                        IEnumerable<IEventMigration> migrations = null) : base(connectionString, serializer, usageGuard, cache, nameMapper, migrations) {}
         }
@@ -58,7 +58,7 @@ namespace Composable.DependencyInjection.Persistence
 
             GeneratedLowLevelInterfaceInspector.InspectInterfaces(Seq.OfTypes<TSessionInterface, TReaderInterface>());
 
-            var cache = new SqlServerEventStoreEventsCache();
+            var cache = new EventCache();
 
             if(@this.RunMode().IsTesting)
             {
@@ -68,7 +68,7 @@ namespace Composable.DependencyInjection.Persistence
             } else
             {
                 @this.Register(Component.For<IEventStore<TSessionInterface, TReaderInterface>>()
-                                        .UsingFactoryMethod(sl => new SqlServerEventStore<TSessionInterface, TReaderInterface>(
+                                        .UsingFactoryMethod(sl => new EventStore<TSessionInterface, TReaderInterface>(
                                                                                                                                connectionString: sl.Resolve<IConnectionStringProvider>()
                                                                                                                                                    .GetConnectionString(connectionName)
                                                                                                                                                    .ConnectionString,

@@ -7,7 +7,7 @@ using Composable.Persistence.EventStore.Refactoring.Naming;
 
 namespace Composable.Persistence.EventStore.MicrosoftSQLServer
 {
-    class SqlServerEventStoreSchemaManager
+    class SqlServerEventStoreSchemaManager : IEventStoreSchemaManager
     {
         readonly HashSet<string> _verifiedConnectionStrings = new HashSet<string>();
         readonly Dictionary<string, IEventTypeToIdMapper> _connectionIdMapper = new Dictionary<string, IEventTypeToIdMapper>();

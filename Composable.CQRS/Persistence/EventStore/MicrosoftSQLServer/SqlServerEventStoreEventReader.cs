@@ -6,10 +6,10 @@ using System.Linq;
 
 namespace Composable.Persistence.EventStore.MicrosoftSQLServer
 {
-    class SqlServerEventStoreEventReader
+    class SqlServerEventStoreEventReader : IEventStoreEventReader
     {
         readonly SqlServerEventStoreConnectionManager _connectionMananger;
-        readonly SqlServerEventStoreSchemaManager _schemaManager;
+        readonly IEventStoreSchemaManager _schemaManager;
         readonly IEventStoreEventSerializer _serializer;
         IEventTypeToIdMapper EventTypeToIdMapper => _schemaManager.IdMapper;
 
@@ -39,7 +39,7 @@ SELECT {topClause}
 FROM {EventTable.Name} {lockHint} ";
         }
 
-        public SqlServerEventStoreEventReader(SqlServerEventStoreConnectionManager connectionManager, SqlServerEventStoreSchemaManager schemaManager, IEventStoreEventSerializer serializer)
+        public SqlServerEventStoreEventReader(SqlServerEventStoreConnectionManager connectionManager, IEventStoreSchemaManager schemaManager, IEventStoreEventSerializer serializer)
         {
             _connectionMananger = connectionManager;
             _schemaManager = schemaManager;

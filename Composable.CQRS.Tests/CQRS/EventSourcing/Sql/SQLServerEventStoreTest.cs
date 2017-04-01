@@ -17,7 +17,7 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.Sql
         public void Does_not_call_db_in_constructor()
         {
             // ReSharper disable once ObjectCreationAsStatement
-            new SqlServerEventStore("SomeStringThatDoesNotPointToARealSqlServer", serializer: new NewtonSoftEventStoreEventSerializer());
+            new EventStore("SomeStringThatDoesNotPointToARealSqlServer", serializer: new NewtonSoftEventStoreEventSerializer());
         }
 
         [Test]
@@ -26,7 +26,7 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.Sql
             using(var dbManager = new SqlServerDatabasePool(ConfigurationManager.ConnectionStrings["MasterDb"].ConnectionString))
             {
                 var connectionString = dbManager.ConnectionStringFor("SqlServerEventStoreTest_EventStore1");
-                var eventStore = new SqlServerEventStore(connectionString, serializer: new NewtonSoftEventStoreEventSerializer());
+                var eventStore = new EventStore(connectionString, serializer: new NewtonSoftEventStoreEventSerializer());
 
                 eventStore.GetAggregateHistory(Guid.NewGuid());//Trick store inte ensuring the schema exists.
 
@@ -50,7 +50,7 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.Sql
             using(var dbManager = new SqlServerDatabasePool(ConfigurationManager.ConnectionStrings["MasterDb"].ConnectionString))
             {
                 var connectionString = dbManager.ConnectionStringFor("SqlServerEventStoreTest_EventStore2");
-                var eventStore = new SqlServerEventStore(connectionString, serializer: new NewtonSoftEventStoreEventSerializer());
+                var eventStore = new EventStore(connectionString, serializer: new NewtonSoftEventStoreEventSerializer());
 
                 var user = new User();
                 user.Register("email@email.se", "password", Guid.NewGuid());
@@ -64,11 +64,11 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.Sql
                     tran.Complete();
                 }
 
-                var cache = new SqlServerEventStoreEventsCache();
-                eventStore = new SqlServerEventStore(connectionString, serializer: new NewtonSoftEventStoreEventSerializer(), cache: cache);
+                var cache = new EventCache();
+                eventStore = new EventStore(connectionString, serializer: new NewtonSoftEventStoreEventSerializer(), cache: cache);
                 var firstRead = eventStore.GetAggregateHistory(user.Id).Single();
 
-                eventStore = new SqlServerEventStore(connectionString, serializer: new NewtonSoftEventStoreEventSerializer(), cache: cache);
+                eventStore = new EventStore(connectionString, serializer: new NewtonSoftEventStoreEventSerializer(), cache: cache);
                 var secondRead = eventStore.GetAggregateHistory(user.Id).Single();
 
                 Assert.That(firstRead, Is.SameAs(secondRead));

@@ -11,6 +11,7 @@ using Composable.Persistence.EventStore.Refactoring.Migrations;
 using Composable.System.Linq;
 using FluentAssertions;
 using NUnit.Framework;
+
 // ReSharper disable AccessToDisposedClosure
 // ReSharper disable AccessToModifiedClosure
 
@@ -25,7 +26,7 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
     [TestFixture]
     public class SqlServerEventStoreEventStreamMutatorTests : EventStreamMutatorTests
     {
-        public SqlServerEventStoreEventStreamMutatorTests() : base(typeof(SqlServerEventStore)) { }
+        public SqlServerEventStoreEventStreamMutatorTests() : base(typeof(EventStore)) { }
 
         [Test]
         public void PersistingMigrationsAndThenUpdatingTheAggregateFromAnotherProcessesEventStore()
@@ -38,7 +39,7 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
                 string eventStoreConnectionString;
                 using(serviceLocator.BeginScope())
                 {
-                    eventStoreConnectionString = ((SqlServerEventStore)serviceLocator.Resolve<IEventStore>()).ConnectionString;
+                    eventStoreConnectionString = ((EventStore)serviceLocator.Resolve<IEventStore>()).ConnectionString;
                     eventStoreConnectionString = eventStoreConnectionString + ";";
                 }
 
@@ -583,9 +584,9 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
 
         void ClearEventstoreCache(IServiceLocator serviceLocator)
         {
-            if(EventStoreType == typeof(SqlServerEventStore))
+            if(EventStoreType == typeof(EventStore))
             {
-                serviceLocator.ExecuteUnitOfWorkInIsolatedScope(() => ((SqlServerEventStore)serviceLocator.Resolve<IEventStore>()).ClearCache());
+                serviceLocator.ExecuteUnitOfWorkInIsolatedScope(() => ((EventStore)serviceLocator.Resolve<IEventStore>()).ClearCache());
             }
         }
 

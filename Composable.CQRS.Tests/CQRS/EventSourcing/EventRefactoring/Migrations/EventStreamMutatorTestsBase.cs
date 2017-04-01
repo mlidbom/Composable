@@ -15,6 +15,7 @@ using Composable.UnitsOfWork;
 using FluentAssertions;
 using Newtonsoft.Json;
 using NUnit.Framework;
+
 // ReSharper disable AccessToModifiedClosure
 
 namespace Composable.CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
@@ -117,10 +118,10 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
             streamedEvents = serviceLocator.ExecuteUnitOfWorkInIsolatedScope(() => serviceLocator.Resolve<IEventStore>().ListAllEventsForTestingPurposesAbsolutelyNotUsableForARealEventStoreOfAnySize().ToList());
             AssertStreamsAreIdentical(expectedCompleteEventstoreStream, streamedEvents, "Streaming all events in store");
 
-            if(eventStoreType == typeof(SqlServerEventStore))
+            if(eventStoreType == typeof(EventStore))
             {
                 SafeConsole.WriteLine("Clearing sql server eventstore cache");
-                serviceLocator.ExecuteUnitOfWorkInIsolatedScope(() => ((SqlServerEventStore)serviceLocator.Resolve<IEventStore>()).ClearCache());
+                serviceLocator.ExecuteUnitOfWorkInIsolatedScope(() => ((EventStore)serviceLocator.Resolve<IEventStore>()).ClearCache());
                 migratedHistory = serviceLocator.ExecuteUnitOfWorkInIsolatedScope(() => serviceLocator.Resolve<IEventStoreSession>().Get<TestAggregate>(initialAggregate.Id)).History;
                 AssertStreamsAreIdentical(expected, migratedHistory, "Loaded aggregate");
 
@@ -146,9 +147,9 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
                         );
 
 
-                    if (eventStoreType == typeof(SqlServerEventStore))
+                    if (eventStoreType == typeof(EventStore))
                     {
-                        var cache = new SqlServerEventStoreEventsCache();
+                        var cache = new EventCache();
                         if (eventStoreConnectionString == null)
                         {
                             var dbManager = container.CreateServiceLocator().Resolve<IConnectionStringProvider>();
@@ -159,7 +160,7 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
                         container.Register(
                                            Component.For<IEventStore>()
                                                      .UsingFactoryMethod(
-                                                                         locator => new SqlServerEventStore(connectionString: eventStoreConnectionString,
+                                                                         locator => new EventStore(connectionString: eventStoreConnectionString,
                                                                                                             serializer: locator.Resolve<IEventStoreEventSerializer>(),
                                                                                                             usageGuard: locator.Resolve<ISingleContextUseGuard>(),
                                                                                                             cache: cache,

@@ -17,7 +17,7 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
     [TestFixture, Performance]
     public class SqlServerMigrationsPerformanceTest : EventStreamMutatorTestsBase
     {
-        public SqlServerMigrationsPerformanceTest() : base(typeof(SqlServerEventStore)) { }
+        public SqlServerMigrationsPerformanceTest() : base(typeof(EventStore)) { }
 
         [Test]
         public void A_ten_thousand_events_large_aggregate_with_four_migrations_should_load_cached_in_less_than_20_milliseconds()

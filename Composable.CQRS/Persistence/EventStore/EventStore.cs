@@ -4,6 +4,7 @@ using System.Linq;
 using System.Transactions;
 using Composable.Contracts;
 using Composable.Logging.Log4Net;
+using Composable.Persistence.EventStore.MicrosoftSQLServer;
 using Composable.Persistence.EventStore.Refactoring.Migrations;
 using Composable.Persistence.EventStore.Refactoring.Naming;
 using Composable.System;
@@ -11,24 +12,24 @@ using Composable.System.Linq;
 using Composable.SystemExtensions.Threading;
 using log4net;
 
-namespace Composable.Persistence.EventStore.MicrosoftSQLServer
+namespace Composable.Persistence.EventStore
 {
-    partial class SqlServerEventStore : IEventStore
+    class EventStore : IEventStore
     {
-        static readonly ILog Log = LogManager.GetLogger(typeof(SqlServerEventStore));
+        static readonly ILog Log = LogManager.GetLogger(typeof(EventStore));
 
         public readonly string ConnectionString;
         readonly ISingleContextUseGuard _usageGuard;
 
-        readonly SqlServerEventStoreEventReader _eventReader;
-        readonly SqlServerEventStoreEventWriter _eventWriter;
-        readonly SqlServerEventStoreEventsCache _cache;
-        readonly SqlServerEventStoreSchemaManager _schemaManager;
+        readonly IEventStoreEventReader _eventReader;
+        readonly IEventStoreEventWriter _eventWriter;
+        readonly EventCache _cache;
+        readonly IEventStoreSchemaManager _schemaManager;
         readonly IReadOnlyList<IEventMigration> _migrationFactories;
 
         readonly HashSet<Guid> _aggregatesWithEventsAddedByThisInstance = new HashSet<Guid>();
 
-        public SqlServerEventStore(string connectionString, IEventStoreEventSerializer serializer, ISingleContextUseGuard usageGuard = null, SqlServerEventStoreEventsCache cache = null, IEventNameMapper nameMapper = null, IEnumerable<IEventMigration> migrations = null)
+        public EventStore(string connectionString, IEventStoreEventSerializer serializer, ISingleContextUseGuard usageGuard = null, EventCache cache = null, IEventNameMapper nameMapper = null, IEnumerable<IEventMigration> migrations = null)
         {
             Log.Debug("Constructor called");
 
@@ -37,7 +38,7 @@ namespace Composable.Persistence.EventStore.MicrosoftSQLServer
 
             ConnectionString = connectionString;
             _usageGuard = usageGuard ?? new SingleThreadUseGuard();
-            _cache = cache ?? new SqlServerEventStoreEventsCache();
+            _cache = cache ?? new EventCache();
             var connectionMananger = new SqlServerEventStoreConnectionManager(connectionString);
             _schemaManager = new SqlServerEventStoreSchemaManager(connectionString, nameMapper);
             _eventReader = new SqlServerEventStoreEventReader(connectionMananger, _schemaManager, serializer);
@@ -81,7 +82,7 @@ namespace Composable.Persistence.EventStore.MicrosoftSQLServer
 
                     _cache.Store(
                         aggregateId,
-                        new SqlServerEventStoreEventsCache.Entry(events: currentHistory, maxSeenInsertedVersion: maxSeenInsertedVersion));
+                        new EventCache.Entry(events: currentHistory, maxSeenInsertedVersion: maxSeenInsertedVersion));
                 }
 
                 return currentHistory;

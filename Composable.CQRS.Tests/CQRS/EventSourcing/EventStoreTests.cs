@@ -48,7 +48,7 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing
         {
             using (var eventStore = CreateEventStore())
             {
-                const int moreEventsThanTheBatchSizeForStreamingEvents = SqlServerEventStore.StreamEventsBatchSize + 100;
+                const int moreEventsThanTheBatchSizeForStreamingEvents = EventStore.StreamEventsBatchSize + 100;
                 var aggregateId = Guid.NewGuid();
                 eventStore.SaveEvents(1.Through(moreEventsThanTheBatchSizeForStreamingEvents).Select(i => new SomeEvent(aggregateId, i)));
                 var stream = eventStore.ListAllEventsForTestingPurposesAbsolutelyNotUsableForARealEventStoreOfAnySize().ToList();
@@ -157,9 +157,9 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing
             _tempDbManager.Dispose();
         }
 
-        protected override IEventStore CreateEventStore() => new SqlServerEventStore(_connectionString1, serializer: new NewtonSoftEventStoreEventSerializer());
+        protected override IEventStore CreateEventStore() => new EventStore(_connectionString1, serializer: new NewtonSoftEventStoreEventSerializer());
 
-        protected override IEventStore CreateEventStore2() => new SqlServerEventStore(_connectionString2, serializer: new NewtonSoftEventStoreEventSerializer());
+        protected override IEventStore CreateEventStore2() => new EventStore(_connectionString2, serializer: new NewtonSoftEventStoreEventSerializer());
 
         [Test]
         public void DoesNotMixUpEventsFromDifferentStores()

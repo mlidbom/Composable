@@ -4,9 +4,9 @@ using System.Linq;
 using System.Runtime.Caching;
 using Composable.System;
 
-namespace Composable.Persistence.EventStore.MicrosoftSQLServer
+namespace Composable.Persistence.EventStore
 {
-    class SqlServerEventStoreEventsCache
+    class EventCache
     {
         const string CacheName = "EventStore";
 

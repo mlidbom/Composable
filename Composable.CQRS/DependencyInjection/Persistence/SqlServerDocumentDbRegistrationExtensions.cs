@@ -50,7 +50,7 @@ namespace Composable.DependencyInjection.Persistence
 
             var serviceLocator = @this.CreateServiceLocator();
 
-            if(@this.RunMode().IsTesting)
+            if(@this.RunMode().IsTesting && @this.RunMode().Mode == TestingMode.InMemory)
             {
                 @this.Register(Component.For<IDocumentDb<TUpdater, TReader, TBulkReader>>()
                                          .ImplementedBy<InMemoryDocumentDb<TUpdater, TReader, TBulkReader>>()

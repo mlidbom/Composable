@@ -21,11 +21,12 @@ namespace Composable.Persistence.DocumentDb.SqlServer
 
         const int UniqueConstraintViolationErrorNumber = 2627;
 
-        static readonly object StaticLockObject = new object();
+        readonly object _lockObject = new object();
 
         public SqlServerDocumentDb(string connectionString) => _connectionString = connectionString;
 
-        ConcurrentDictionary<Type, int> KnownTypes => VerifiedConnections[_connectionString];
+        readonly ConcurrentDictionary<String, ConcurrentDictionary<Type, int>> _verifiedConnections = new ConcurrentDictionary<string, ConcurrentDictionary<Type, int>>();
+        ConcurrentDictionary<Type, int> KnownTypes => _verifiedConnections[_connectionString];
 
         Type GetTypeFromId(int id)
         {
@@ -294,18 +295,16 @@ WHERE ValueTypeId ";
             }
         }
 
-        SqlConnection OpenSession() => OpenSession(_connectionString);
-
-        static SqlConnection OpenSession(string connectionString)
+        SqlConnection OpenSession()
         {
-            var connection = new SqlConnection(connectionString);
+            var connection = new SqlConnection(_connectionString);
             connection.Open();
             return connection;
         }
 
         void EnsureTypeRegistered(Type type)
         {
-            lock(StaticLockObject)
+            lock(_lockObject)
             {
                 if(!IsKnownType(type))
                 {
@@ -339,14 +338,14 @@ ELSE
         {
             if(!KnownTypes.ContainsKey(type))
             {
-                RefreshKnownTypes(_connectionString, KnownTypes);
+                RefreshKnownTypes(KnownTypes);
             }
             return KnownTypes.ContainsKey(type);
         }
 
         void AddTypeCriteria(SqlCommand command, Type type)
         {
-            lock(StaticLockObject)
+            lock(_lockObject)
             {
                 var acceptableTypeIds = KnownTypes.Where(x => type.IsAssignableFrom(x.Key)).Select(t => t.Value.ToString()).ToArray();
                 if(acceptableTypeIds.None())
@@ -359,16 +358,11 @@ ELSE
 
         void EnsureInitialized()
         {
-            EnsureInitialized(_connectionString);
-        }
-
-        static void EnsureInitialized(string connectionString)
-        {
-            lock(StaticLockObject)
+            lock(_lockObject)
             {
-                if(!VerifiedConnections.ContainsKey(connectionString))
+                if(!_verifiedConnections.ContainsKey(_connectionString))
                 {
-                    using(var connection = OpenSession(connectionString))
+                    using(var connection = OpenSession())
                     {
                         using(var checkForValueTypeCommand = connection.CreateCommand())
                         {
@@ -425,19 +419,19 @@ ALTER TABLE [dbo].[Store] CHECK CONSTRAINT [FK_ValueType_Store]
                         }
 
                         var knownTypes = new ConcurrentDictionary<Type, int>();
-                        VerifiedConnections.TryAdd(connectionString, knownTypes);
+                        _verifiedConnections.TryAdd(_connectionString, knownTypes);
 
-                        RefreshKnownTypes(connectionString, knownTypes);
+                        RefreshKnownTypes(knownTypes);
                     }
                 }
             }
         }
 
-        static void RefreshKnownTypes(String connectionString, ConcurrentDictionary<Type, int> knownTypes)
+        void RefreshKnownTypes(ConcurrentDictionary<Type, int> knownTypes)
         {
-            lock(StaticLockObject)
+            lock(_lockObject)
             {
-                using(var connection = OpenSession(connectionString))
+                using(var connection = OpenSession())
                 {
                     using(var findTypesCommand = connection.CreateCommand())
                     {
@@ -449,34 +443,6 @@ ALTER TABLE [dbo].[Store] CHECK CONSTRAINT [FK_ValueType_Store]
                                 knownTypes.TryAdd(reader.GetString(0).AsType(), reader.GetInt32(1));
                             }
                         }
-                    }
-                }
-            }
-        }
-
-        static readonly ConcurrentDictionary<String, ConcurrentDictionary<Type, int>> VerifiedConnections = new ConcurrentDictionary<string, ConcurrentDictionary<Type, int>>();
-
-        public static void ResetDb(string connectionString)
-        {
-            lock (StaticLockObject)
-            {
-                using (var connection = OpenSession(connectionString))
-                {
-                    using (var dropCommand = connection.CreateCommand())
-                    {
-                        dropCommand.CommandText =
-                            @"
-IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[Store]') AND type in (N'U'))
-DROP TABLE [dbo].[Store];
-IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[ValueType]') AND type in (N'U'))
-DROP TABLE [dbo].[ValueType];
-";
-
-                        dropCommand.ExecuteNonQuery();
-
-                        ConcurrentDictionary<Type, int> ignored;
-                        VerifiedConnections.TryRemove(connectionString, out ignored);
-                        EnsureInitialized(connectionString);
                     }
                 }
             }

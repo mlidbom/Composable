@@ -23,9 +23,9 @@ namespace AccountManagement.UI.QueryModels.Tests.FetchingAccountByEmailTests
         public void YouCanGetTheAccountViaTheNewEmail()
         {
             AccountQueryModel account = null;
-            ServiceLocator.Use<IAccountManagementQueryModelsReader>(reader => reader
+            ServiceLocator.Use<IAccountManagementQueryModelsReader>(useComponent: reader => reader
                 .TryGetAccountByEmail(_scenario.NewEmail, out account)
-                .Should().Be(true));
+                .Should().Be(expected: true));
 
             account.Id.Should().Be(RegisteredAccount.Id);
         }
@@ -34,12 +34,12 @@ namespace AccountManagement.UI.QueryModels.Tests.FetchingAccountByEmailTests
         public void TryingToFetchViaTheOldEmailThrowsNoSuchDocumentException()
         {
             AccountQueryModel account = null;
-            ServiceLocator.Use<IAccountManagementQueryModelsReader>(reader => reader
+            ServiceLocator.Use<IAccountManagementQueryModelsReader>(useComponent: reader => reader
                                                                    .TryGetAccountByEmail(_scenario.OldEmail, out account)
                                                                    .Should()
-                                                                   .Be(false));
+                                                                   .Be(expected: false));
 
-            account.Should().Be(null);
+            account.Should().Be(expected: null);
         }
     }
 }

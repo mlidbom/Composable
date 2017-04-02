@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Castle.Core.Internal;
 using Castle.MicroKernel;
@@ -12,19 +13,23 @@ namespace Composable.DependencyInjection.Windsor
     class WindsorDependencyInjectionContainer : IDependencyInjectionContainer, IServiceLocator
     {
         readonly IWindsorContainer _windsorContainer;
+        readonly List<ComponentRegistration> _registeredComponents = new List<ComponentRegistration>();
         internal WindsorDependencyInjectionContainer()
         {
             _windsorContainer = new WindsorContainer();
             _windsorContainer.Kernel.Resolver.AddSubResolver(new CollectionResolver(_windsorContainer.Kernel));
         }
 
-        public void Register(params ComponentRegistration[] registration)
+        public void Register(params ComponentRegistration[] registrations)
         {
-            var windsorRegistrations = registration.Select(ToWindsorRegistration)
+            _registeredComponents.AddRange(registrations);
+
+            var windsorRegistrations = registrations.Select(ToWindsorRegistration)
                                                    .ToArray();
 
             _windsorContainer.Register(windsorRegistrations);
         }
+        public IEnumerable<ComponentRegistration> RegisteredComponents() => _registeredComponents; 
 
         IServiceLocator IDependencyInjectionContainer.CreateServiceLocator() => this;
 

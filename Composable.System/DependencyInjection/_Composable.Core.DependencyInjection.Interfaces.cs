@@ -27,7 +27,8 @@ namespace Composable.DependencyInjection
 
     public interface IDependencyInjectionContainer : IDisposable
     {
-        void Register(params ComponentRegistration[] registration);
+        void Register(params ComponentRegistration[] registrations);
+        IEnumerable<ComponentRegistration> RegisteredComponents();
         IServiceLocator CreateServiceLocator();
     }
 

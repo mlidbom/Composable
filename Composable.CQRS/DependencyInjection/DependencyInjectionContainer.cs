@@ -21,6 +21,6 @@ namespace Composable.DependencyInjection
             return @this.CreateServiceLocator();
         }
 
-        static IDependencyInjectionContainer Create() => new Windsor.WindsorDependencyInjectionContainer();
+        internal static IDependencyInjectionContainer Create() => new Windsor.WindsorDependencyInjectionContainer();
     }
 }

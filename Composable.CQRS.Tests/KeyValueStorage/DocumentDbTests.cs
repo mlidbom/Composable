@@ -9,6 +9,7 @@ using Composable.System.Linq;
 using Composable.SystemExtensions.Threading;
 using Composable.UnitsOfWork;
 using FluentAssertions;
+using JetBrains.Annotations;
 using NUnit.Framework;
 
 namespace Composable.CQRS.Tests.KeyValueStorage
@@ -34,6 +35,16 @@ namespace Composable.CQRS.Tests.KeyValueStorage
             ServiceLocator.Dispose();
         }
 
+        internal void UseInTransactionalScope([InstantHandle] Action<ITestingDocumentDbReader, ITestingDocumentDbUpdater> useSession)
+        {
+            ServiceLocator.ExecuteUnitOfWorkInIsolatedScope(() => useSession(ServiceLocator.DocumentDbReader(), ServiceLocator.DocumentDbUpdater()));
+        }
+
+        internal void UseInScope([InstantHandle]Action<ITestingDocumentDbReader> useSession)
+        {
+            ServiceLocator.ExecuteInIsolatedScope(() => useSession(ServiceLocator.DocumentDbReader()));
+        }
+
         [Test]
         public void CanSaveAndLoadAggregate()
         {
@@ -50,19 +61,18 @@ namespace Composable.CQRS.Tests.KeyValueStorage
                                      }
                        };
 
-            ServiceLocator.ExecuteUnitOfWorkInIsolatedScope(() => ServiceLocator.DocumentDbUpdater()
-                                                                                .Save(user.Id, user));
+            UseInTransactionalScope((reader,updater) => updater.Save(user.Id, user));
 
-            using (ServiceLocator.BeginScope())
-            {
-                var loadedUser = ServiceLocator.DocumentDbReader().Get<User>(user.Id);
+            UseInScope(reader =>
+                              {
+                                  var loadedUser = reader.Get<User>(user.Id);
 
-                Assert.That(loadedUser.Id, Is.EqualTo(user.Id));
-                Assert.That(loadedUser.Email, Is.EqualTo(user.Email));
-                Assert.That(loadedUser.Password, Is.EqualTo(user.Password));
+                                  Assert.That(loadedUser.Id, Is.EqualTo(user.Id));
+                                  Assert.That(loadedUser.Email, Is.EqualTo(user.Email));
+                                  Assert.That(loadedUser.Password, Is.EqualTo(user.Password));
 
-                Assert.That(loadedUser.Address, Is.EqualTo(user.Address));
-            }
+                                  Assert.That(loadedUser.Address, Is.EqualTo(user.Address));
+                              });
         }
 
 
@@ -73,17 +83,15 @@ namespace Composable.CQRS.Tests.KeyValueStorage
 
             var users = ids.Select(id => new User() { Id = id }).ToArray();
 
-            ServiceLocator.ExecuteUnitOfWorkInIsolatedScope(() => users.ForEach(user => ServiceLocator.DocumentDbUpdater()
-                                                                                                          .Save(user)));
+            UseInTransactionalScope((reader, updater) => users.ForEach(user => updater.Save(user)));
 
-            using(ServiceLocator.BeginScope())
-            {
-                var fetchedById = ServiceLocator.DocumentDbReader()
-                                                .Get<User>(ids.Take(5));
-                fetchedById.Select(fetched => fetched.Id)
-                           .Should()
-                           .Equal(ids.Take(5));
-            }
+            UseInScope(reader =>
+                              {
+                                  var fetchedById = reader.Get<User>(ids.Take(5));
+                                  fetchedById.Select(fetched => fetched.Id)
+                                             .Should()
+                                             .Equal(ids.Take(5));
+                              });
         }
 
         [Test] public void GetAllWithIdsThrowsNoSuchDocumentExceptionExceptionIfAnyIdIsMissing()
@@ -95,18 +103,15 @@ namespace Composable.CQRS.Tests.KeyValueStorage
             var users = ids.Select(id => new User() {Id = id})
                            .ToArray();
 
-            ServiceLocator.ExecuteUnitOfWorkInIsolatedScope(() => users.ForEach(user => ServiceLocator.DocumentDbUpdater()
-                                                                                                      .Save(user)));
+            UseInTransactionalScope((reader,updater) => users.ForEach(user => updater.Save(user)));
 
-            using(ServiceLocator.BeginScope())
-            {
-                // ReSharper disable once ReturnValueOfPureMethodIsNotUsed
-                Assert.Throws<NoSuchDocumentException>(() => ServiceLocator.DocumentDbReader()
-                                                                           .Get<User>(ids.Take(5)
-                                                                                         .Append(Guid.Parse("00000000-0000-0000-0000-000000000099"))
-                                                                                         .ToArray())
-                                                                           .ToArray());
-            }
+            UseInScope(reader => Assert.Throws<NoSuchDocumentException>(
+                                 () => ServiceLocator.DocumentDbReader()
+                                                     .Get<User>(ids.Take(5)
+                                                                   .Append(Guid.Parse("00000000-0000-0000-0000-000000000099"))
+                                                                   .ToArray())
+                                                     // ReSharper disable once ReturnValueOfPureMethodIsNotUsed
+                                                     .ToArray()));
         }
 
 
@@ -117,16 +122,17 @@ namespace Composable.CQRS.Tests.KeyValueStorage
 
             var users = ids.Select(id => new User() { Id = id }).ToArray();
 
-            ServiceLocator.ExecuteUnitOfWorkInIsolatedScope(() => users.ForEach(user => ServiceLocator.DocumentDbUpdater()
-                                                                                                      .Save(user)));
+            UseInTransactionalScope((reader,updater) => users.ForEach(user => updater.Save(user)));
 
-            using (ServiceLocator.BeginScope())
-            {
-                var fetchedIndividually = ids.Select(id => ServiceLocator.DocumentDbReader().Get<User>(id)).ToArray();
-                var fetchedWithGetAll = ServiceLocator.DocumentDbReader().Get<User>(ids).ToArray();
+            UseInScope(reader =>
+                             {
+                                 var fetchedIndividually = ids.Select(id => reader.Get<User>(id))
+                                                              .ToArray();
+                                 var fetchedWithGetAll = reader.Get<User>(ids)
+                                                               .ToArray();
 
-                fetchedIndividually.ForEach((user, index) => Assert.That(user, Is.SameAs(fetchedWithGetAll[index])));
-            }
+                                 fetchedIndividually.ForEach((user, index) => Assert.That(user, Is.SameAs(fetchedWithGetAll[index])));
+                             });
         }
 
 
@@ -147,8 +153,7 @@ namespace Composable.CQRS.Tests.KeyValueStorage
                                      }
                        };
 
-            ServiceLocator.ExecuteUnitOfWorkInIsolatedScope(() => ServiceLocator.DocumentDbSession()
-                                                                                .Save(user.Id, user));
+            UseInTransactionalScope((reader,updater) => updater.Save(user.Id, user));
 
             using (ServiceLocator.BeginScope())
             {
@@ -168,14 +173,17 @@ namespace Composable.CQRS.Tests.KeyValueStorage
             IPersistentEntity<Guid> user1 = new User { Id = Guid.NewGuid(), Email = "user1" };
             IPersistentEntity<Guid> user2 = new User { Id = Guid.NewGuid(), Email = "user2" };
 
-            ServiceLocator.ExecuteUnitOfWorkInIsolatedScope(() =>
-                                                            {
-                                                                var session = ServiceLocator.DocumentDbSession();
-                                                                session.Save(user2);
-                                                                session.Save(user1.Id, user1);
-                                                                session.Get<User>(user1.Id).Should().Be(user1);
-                                                                session.Get<User>(user2.Id).Should().Be(user2);
-                                                            });
+            UseInTransactionalScope((reader, updater) =>
+                                           {
+                                               updater.Save(user2);
+                                               updater.Save(user1.Id, user1);
+                                               reader.Get<User>(user1.Id)
+                                                     .Should()
+                                                     .Be(user1);
+                                               reader.Get<User>(user2.Id)
+                                                     .Should()
+                                                     .Be(user2);
+                                           });
 
             using (ServiceLocator.BeginScope())
             {
@@ -190,12 +198,11 @@ namespace Composable.CQRS.Tests.KeyValueStorage
         {
             var user = new User { Id = Guid.NewGuid() };
 
-            ServiceLocator.ExecuteUnitOfWorkInIsolatedScope(() =>
-                                                            {
-                                                                var session = ServiceLocator.DocumentDbSession();
-                                                                session.Save(user.Id, user);
-                                                                session.Delete(user);
-                                                            });
+            UseInTransactionalScope((reader,updater) =>
+                                           {
+                                               updater.Save(user.Id, user);
+                                               updater.Delete(user);
+                                           });
 
             using (ServiceLocator.BeginScope())
             {
@@ -208,13 +215,12 @@ namespace Composable.CQRS.Tests.KeyValueStorage
         {
             var user = new User { Id = Guid.NewGuid() };
 
-            ServiceLocator.ExecuteUnitOfWorkInIsolatedScope(() =>
-                                                            {
-                                                                var session = ServiceLocator.DocumentDbSession();
-                                                                session.Save(user.Id, user);
-                                                                session.Delete(user);
-                                                                session.Save(user.Id, user);
-                                                            });
+            UseInTransactionalScope((reader,updater) =>
+                                           {
+                                               updater.Save(user.Id, user);
+                                               updater.Delete(user);
+                                               updater.Save(user.Id, user);
+                                           });
 
             using (ServiceLocator.BeginScope())
             {
@@ -228,16 +234,15 @@ namespace Composable.CQRS.Tests.KeyValueStorage
             var lowerCase = new Email("theemail");
             var upperCase = new Email(lowerCase.TheEmail.ToUpper());
 
-            ServiceLocator.ExecuteUnitOfWorkInIsolatedScope(() =>
-                                                            {
-                                                                var session = ServiceLocator.DocumentDbSession();
-                                                                session.Save(lowerCase.TheEmail, lowerCase);
-                                                                Assert.Throws<AttemptToSaveAlreadyPersistedValueException>(() => session.Save(upperCase.TheEmail, upperCase));
+            UseInTransactionalScope((reader, updater) =>
+                                           {
+                                               updater.Save(lowerCase.TheEmail, lowerCase);
+                                               Assert.Throws<AttemptToSaveAlreadyPersistedValueException>(() => updater.Save(upperCase.TheEmail, upperCase));
 
-                                                                session.Get<Email>(lowerCase.TheEmail)
-                                                                       .Should()
-                                                                       .Be(session.Get<Email>(upperCase.TheEmail));
-                                                            });
+                                               reader.Get<Email>(lowerCase.TheEmail)
+                                                     .Should()
+                                                     .Be(reader.Get<Email>(upperCase.TheEmail));
+                                           });
 
             ServiceLocator.ExecuteUnitOfWorkInIsolatedScope(
                 () =>

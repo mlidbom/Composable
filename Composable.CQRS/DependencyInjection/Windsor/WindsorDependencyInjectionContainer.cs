@@ -29,7 +29,7 @@ namespace Composable.DependencyInjection.Windsor
 
             _windsorContainer.Register(windsorRegistrations);
         }
-        public IEnumerable<ComponentRegistration> RegisteredComponents() => _registeredComponents; 
+        public IEnumerable<ComponentRegistration> RegisteredComponents() => _registeredComponents;
 
         IServiceLocator IDependencyInjectionContainer.CreateServiceLocator() => this;
 

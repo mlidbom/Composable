@@ -103,12 +103,11 @@ namespace Composable.CQRS.Tests.KeyValueStorage
             UseInTransactionalScope((reader,updater) => users.ForEach(user => updater.Save(user)));
 
             UseInScope(reader => Assert.Throws<NoSuchDocumentException>(
-                                 () => ServiceLocator.DocumentDbReader()
-                                                     .Get<User>(ids.Take(5)
-                                                                   .Append(Guid.Parse("00000000-0000-0000-0000-000000000099"))
-                                                                   .ToArray())
-                                                     // ReSharper disable once ReturnValueOfPureMethodIsNotUsed
-                                                     .ToArray()));
+                           () => reader.Get<User>(ids.Take(5)
+                                                     .Append(Guid.Parse("00000000-0000-0000-0000-000000000099"))
+                                                     .ToArray())
+                                       // ReSharper disable once ReturnValueOfPureMethodIsNotUsed
+                                       .ToArray()));
         }
 
 
@@ -566,9 +565,8 @@ namespace Composable.CQRS.Tests.KeyValueStorage
 
             using (ServiceLocator.BeginScope())
             {
-                var session = ServiceLocator.DocumentDbSession();
-                Assert.That(session.GetAll<Dog>().ToList(), Has.Count.EqualTo(2));
-                Assert.That(session.GetAll<User>().ToList(), Has.Count.EqualTo(2));
+                Assert.That(ServiceLocator.DocumentDbBulkReader().GetAll<Dog>().ToList(), Has.Count.EqualTo(2));
+                Assert.That(ServiceLocator.DocumentDbBulkReader().GetAll<User>().ToList(), Has.Count.EqualTo(2));
             }
         }
 
@@ -579,10 +577,7 @@ namespace Composable.CQRS.Tests.KeyValueStorage
             var wait = new ManualResetEventSlim();
             ThreadPool.QueueUserWorkItem(state =>
                                          {
-                                             using(ServiceLocator.BeginScope())
-                                             {
-                                                 session = ServiceLocator.DocumentDbSession();
-                                             }
+                                             ServiceLocator.ExecuteInIsolatedScope(() => session = ServiceLocator.DocumentDbSession());
                                              wait.Set();
                                          });
             wait.Wait();
@@ -614,12 +609,11 @@ namespace Composable.CQRS.Tests.KeyValueStorage
                                         updater.Save(person1);
                                     });
 
-            using (ServiceLocator.BeginScope())
-            {
-                var session = ServiceLocator.DocumentDbSession();
-                Assert.That(session.Get<Person>(user1.Id), Is.EqualTo(user1));
-                Assert.That(session.Get<Person>(person1.Id), Is.EqualTo(person1));
-            }
+            UseInScope(reader =>
+                       {
+                           Assert.That(reader.Get<Person>(user1.Id), Is.EqualTo(user1));
+                           Assert.That(reader.Get<Person>(person1.Id), Is.EqualTo(person1));
+                       });
         }
 
         [Test]
@@ -636,8 +630,7 @@ namespace Composable.CQRS.Tests.KeyValueStorage
 
             using (ServiceLocator.BeginScope())
             {
-                var session = ServiceLocator.DocumentDbSession();
-                var people = session.GetAll<Person>().ToList();
+                var people = ServiceLocator.DocumentDbBulkReader().GetAll<Person>().ToList();
 
                 Assert.That(people, Has.Count.EqualTo(2));
                 Assert.That(people, Contains.Item(user1));
@@ -650,12 +643,8 @@ namespace Composable.CQRS.Tests.KeyValueStorage
         {
             var user1 = new User { Id = Guid.Empty };
 
-            using (ServiceLocator.BeginScope())
-            {
-                var session = ServiceLocator.DocumentDbSession();
-                session.Invoking(sess => sess.Save(user1))
-                    .ShouldThrow<Exception>();
-            }
+            UseInTransactionalScope((reader, updater) => updater.Invoking(@this => @this.Save(user1))
+                                                                .ShouldThrow<Exception>());
         }
 
         [Test]
@@ -687,9 +676,8 @@ namespace Composable.CQRS.Tests.KeyValueStorage
             var user2 = new User { Id = userid2 };
             var dog = new Dog {Id = Guid.Parse("00000000-0000-0000-0000-000000000010") };
 
-            UseInTransactionalScope((reader, updater2) =>
+            UseInTransactionalScope((reader, updater) =>
                                     {
-                                        var updater = ServiceLocator.DocumentDbSession();
                                         updater.Save(user1);
                                         updater.Save(user2);
                                         updater.Save(dog);
@@ -720,9 +708,8 @@ namespace Composable.CQRS.Tests.KeyValueStorage
             var user2 = new User { Id = userid2 };
             var dog = new Dog { Id = Guid.Parse("00000000-0000-0000-0000-000000000010") };
 
-            UseInTransactionalScope((reader, updater2) =>
+            UseInTransactionalScope((reader, updater) =>
                                     {
-                                        var updater = ServiceLocator.DocumentDbSession();
                                         updater.Save(user1);
                                         updater.Save(user2);
                                         updater.Save(dog);

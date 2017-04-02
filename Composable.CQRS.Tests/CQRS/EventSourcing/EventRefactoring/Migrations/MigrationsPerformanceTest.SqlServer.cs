@@ -5,7 +5,6 @@ using Composable.CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations.Event
 using Composable.DependencyInjection;
 using Composable.GenericAbstractions.Time;
 using Composable.Persistence.EventStore;
-using Composable.Persistence.EventStore.MicrosoftSQLServer;
 using Composable.Persistence.EventStore.Refactoring.Migrations;
 using Composable.System.Linq;
 using Composable.Testing;

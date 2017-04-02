@@ -2,7 +2,7 @@ using System;
 
 namespace Composable.Persistence.EventStore.MicrosoftSQLServer
 {
-    partial class SqlServerEventStore
+    static class SqlServerEventStore
     {
         internal static class SqlStatements {
             public static string EnsurePersistedMigrationsHaveConsistentReadOrdersAndEffectiveVersionsSqlStoredProcedure => $@"

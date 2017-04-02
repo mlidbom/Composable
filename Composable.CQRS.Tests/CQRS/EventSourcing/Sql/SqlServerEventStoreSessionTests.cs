@@ -7,7 +7,6 @@ using System.Transactions;
 using Composable.DependencyInjection;
 using Composable.DependencyInjection.Persistence;
 using Composable.Persistence.EventStore;
-using Composable.Persistence.EventStore.MicrosoftSQLServer;
 using Composable.Persistence.EventStore.Serialization.NewtonSoft;
 using Composable.System.Linq;
 using Composable.Testing;

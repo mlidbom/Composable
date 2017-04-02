@@ -64,7 +64,7 @@ namespace Composable.CQRS.Tests.KeyValueStorage.Sql
         }
 
         [Test]
-        public void CanGetDocumentOfPreviouslyUnKnownClassAddedByAnotherDocumentDBInstance()
+        public void Can_get_document_of_previously_unknown_class_added_by_onother_documentDb_instance()
         {
             var readingDocumentDb = CreateStore();
 
@@ -79,7 +79,7 @@ namespace Composable.CQRS.Tests.KeyValueStorage.Sql
         }
 
         [Test]
-        public void CanGetAllDocumentOfPreviouslyUnKnownClassAddedByAnotherDocumentDBInstance()
+        public void Can_get_all_documents_of_previously_unknown_class_added_by_onother_documentDb_instance()
         {
             var readingDocumentDb = CreateStore();
 
@@ -94,7 +94,7 @@ namespace Composable.CQRS.Tests.KeyValueStorage.Sql
         }
 
         [Test]
-        public void CanGetAllDocumentOfPreviouslyUnKnownClassAddedByAnotherDocumentDBInstanceById()
+        public void Can_get_all_documents_of_previously_unknown_class_added_by_onother_documentDb_instance_byId()
         {
             var readingDocumentDb = CreateStore();
 

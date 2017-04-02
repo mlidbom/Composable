@@ -6,7 +6,6 @@ using Composable.DependencyInjection;
 using Composable.GenericAbstractions.Time;
 using Composable.Logging;
 using Composable.Persistence.EventStore;
-using Composable.Persistence.EventStore.MicrosoftSQLServer;
 using Composable.Persistence.EventStore.Refactoring.Migrations;
 using Composable.System.Linq;
 using FluentAssertions;

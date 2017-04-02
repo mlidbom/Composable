@@ -1,20 +1,16 @@
 ﻿using System;
-using System.Configuration;
 using System.Linq;
 using System.Transactions;
 using Composable.DependencyInjection;
 using Composable.DependencyInjection.Persistence;
 using Composable.Persistence.EventStore;
-using Composable.Persistence.EventStore.MicrosoftSQLServer;
-using Composable.Persistence.EventStore.Serialization.NewtonSoft;
-using Composable.Testing;
 using NUnit.Framework;
 
 namespace Composable.CQRS.Tests.CQRS.EventSourcing.Sql
 {
     static class TestWiringHelper
     {
-        internal static IEventStore<ITestingEventstoreSession, ITestingEventstoreReader> EventStore(this IServiceLocator @this) => 
+        internal static IEventStore<ITestingEventstoreSession, ITestingEventstoreReader> EventStore(this IServiceLocator @this) =>
             @this.Resolve<IEventStore<ITestingEventstoreSession, ITestingEventstoreReader>>();
 
         internal static IEventStore<ITestingEventstoreSession, ITestingEventstoreReader> SqlEventStore(this IServiceLocator @this) =>

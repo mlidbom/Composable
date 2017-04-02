@@ -19,8 +19,7 @@ namespace AccountManagement.Domain.Events
 
             public class UserRegistered : Root, AccountEvent.UserRegistered
             {
-                [UsedImplicitly] //ncrunch: no coverage
-                UserRegistered() { } //ncrunch: no coverage
+                [UsedImplicitly] UserRegistered() { } //ncrunch: no coverage
 
                 ///<summary>
                 /// The constructor should guarantee that the event is correctly created.
@@ -44,8 +43,7 @@ namespace AccountManagement.Domain.Events
 
             public class UserChangedEmail : Root, AccountEvent.UserChangedEmail
             {
-                [UsedImplicitly] //ncrunch: no coverage
-                UserChangedEmail() { } //ncrunch: no coverage
+                [UsedImplicitly] UserChangedEmail() { } //ncrunch: no coverage
 
                 public UserChangedEmail(Email email) => Email = email;
 
@@ -54,8 +52,7 @@ namespace AccountManagement.Domain.Events
 
             public class UserChangedPassword : Root, AccountEvent.UserChangedPassword
             {
-                [UsedImplicitly] //ncrunch: no coverage
-                public UserChangedPassword() { } //ncrunch: no coverage
+                [UsedImplicitly] public UserChangedPassword() { } //ncrunch: no coverage
 
                 public UserChangedPassword(Password password) => Password = password;
 

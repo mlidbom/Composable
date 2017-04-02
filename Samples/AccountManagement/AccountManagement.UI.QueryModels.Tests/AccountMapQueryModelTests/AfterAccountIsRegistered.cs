@@ -21,7 +21,7 @@ namespace AccountManagement.UI.QueryModels.Tests.AccountMapQueryModelTests
         [Test]
         public void PasswordMatchesTheDomainObject()
         {
-            GetAccountQueryModel().Password.Should().Be(RegisteredAccount.Password);
+            GetAccountQueryModel().Password.ShouldBeEquivalentTo(RegisteredAccount.Password);
         }
     }
 }

@@ -34,13 +34,20 @@ namespace Composable.DependencyInjection
     interface IRunMode
     {
         bool IsTesting { get; }
+        TestingMode Mode { get; }
     }
 
     class RunMode : IRunMode
     {
         readonly bool _isTesting;
+        readonly TestingMode _testingMode;
         bool IRunMode.IsTesting => _isTesting;
-        public RunMode(bool isTesting) => _isTesting = isTesting;
+        public TestingMode Mode => _testingMode;
+        public RunMode(bool isTesting, TestingMode mode)
+        {
+            _testingMode = mode;
+            _isTesting = isTesting;
+        }
     }
 
     ///<summary></summary>

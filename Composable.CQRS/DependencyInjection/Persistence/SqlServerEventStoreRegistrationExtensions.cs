@@ -60,7 +60,7 @@ namespace Composable.DependencyInjection.Persistence
 
             var cache = new EventCache();
 
-            if(@this.RunMode().IsTesting)
+            if(@this.RunMode().IsTesting && @this.RunMode().Mode == TestingMode.InMemory)
             {
                 @this.Register(Component.For<IEventStore<TSessionInterface, TReaderInterface>>()
                                                .UsingFactoryMethod(sl => new InMemoryEventStore<TSessionInterface, TReaderInterface>(migrations: migrations))

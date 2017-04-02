@@ -12,12 +12,12 @@ namespace Composable.DependencyInjection.Testing
         /// <summary>
         /// <para>SingleThreadUseGuard is registered for the component ISingleContextUseGuard</para>
         /// </summary>
-        public static void ConfigureWiringForTestsCallBeforeAllOtherWiring(this IDependencyInjectionContainer @this)
+        public static void ConfigureWiringForTestsCallBeforeAllOtherWiring(this IDependencyInjectionContainer @this, TestingMode mode = TestingMode.InMemory)
         {
             var dummyTimeSource = DummyTimeSource.Now;
             var registry = new MessageHandlerRegistry();
             var bus = new TestingOnlyServiceBus(dummyTimeSource, registry);
-            var runMode = new RunMode(isTesting:true);
+            var runMode = new RunMode(isTesting:true, mode:mode);
 
             var masterConnectionString = new ConnectionStringConfigurationParameterProvider().GetConnectionString("MasterDB")
                                                                                              .ConnectionString;

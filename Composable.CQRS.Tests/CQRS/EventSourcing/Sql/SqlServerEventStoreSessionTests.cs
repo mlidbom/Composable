@@ -4,6 +4,8 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Transactions;
+using Composable.DependencyInjection;
+using Composable.DependencyInjection.Persistence;
 using Composable.Persistence.EventStore;
 using Composable.Persistence.EventStore.MicrosoftSQLServer;
 using Composable.Persistence.EventStore.Serialization.NewtonSoft;
@@ -19,9 +21,14 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.Sql
     {
         string _connectionString;
         SqlServerDatabasePool _databasePool;
+        IServiceLocator _serviceLocator;
         [SetUp]
         public void Setup()
         {
+            _serviceLocator = DependencyInjectionContainer.CreateServiceLocatorForTesting(
+                                                                                          container => container
+                                                                                              .RegisterSqlServerEventStore<ITestingEventstoreSession, ITestingEventstoreReader
+                                                                                              >("SqlServerEventStoreSessionTests_EventStore"));
 
             var masterConnectionString = ConfigurationManager.ConnectionStrings["MasterDb"].ConnectionString;
             _databasePool = new SqlServerDatabasePool(masterConnectionString);
@@ -31,6 +38,7 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.Sql
         [TearDown]
         public void TearDownTask() {
             _databasePool.Dispose();
+            _serviceLocator.Dispose();
         }
 
         protected override IEventStore CreateStore() => new EventStore(_connectionString, serializer: new NewtonSoftEventStoreEventSerializer());

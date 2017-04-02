@@ -2,6 +2,8 @@
 using System.Configuration;
 using System.Linq;
 using System.Transactions;
+using Composable.DependencyInjection;
+using Composable.DependencyInjection.Persistence;
 using Composable.Persistence.EventStore;
 using Composable.Persistence.EventStore.MicrosoftSQLServer;
 using Composable.Persistence.EventStore.Serialization.NewtonSoft;
@@ -10,49 +12,79 @@ using NUnit.Framework;
 
 namespace Composable.CQRS.Tests.CQRS.EventSourcing.Sql
 {
+    static class TestWiringHelper
+    {
+        internal static IEventStore<ITestingEventstoreSession, ITestingEventstoreReader> EventStore(this IServiceLocator @this) => 
+            @this.Resolve<IEventStore<ITestingEventstoreSession, ITestingEventstoreReader>>();
+
+        internal static IEventStore<ITestingEventstoreSession, ITestingEventstoreReader> SqlEventStore(this IServiceLocator @this) =>
+            @this.EventStore();//todo: Throw here if it is not the correct type of store
+
+        internal static IEventStore<ITestingEventstoreSession, ITestingEventstoreReader> InMemoryEventStore(this IServiceLocator @this) =>
+            @this.EventStore();//todo: Throw here if it is not the correct type of store
+
+        internal static IServiceLocator SetupTestingServiceLocator(TestingMode mode)
+        {
+            return DependencyInjectionContainer.CreateServiceLocatorForTesting(container =>
+                                                                                   container
+                                                                                       .RegisterSqlServerEventStore<ITestingEventstoreSession, ITestingEventstoreReader
+                                                                                       >("SomeStringThatDoesNotPointToARealSqlServer"),
+                                                                                       mode: mode);
+        }
+    }
+
+
     [TestFixture]
     public class SqlServerEventStoreTest
     {
+        IServiceLocator _serviceLocator;
+        [SetUp] public void SetupTask()
+        {
+            _serviceLocator = TestWiringHelper.SetupTestingServiceLocator(TestingMode.SqlServer);
+        }
+
+        [TearDown] public void TearDownTask()
+        {
+            _serviceLocator.Dispose();
+        }
+
         [Test]
         public void Does_not_call_db_in_constructor()
         {
-            // ReSharper disable once ObjectCreationAsStatement
-            new EventStore("SomeStringThatDoesNotPointToARealSqlServer", serializer: new NewtonSoftEventStoreEventSerializer());
+                _serviceLocator.ExecuteInIsolatedScope(() => _serviceLocator.Resolve<ITestingEventstoreSession>());
         }
 
         [Test]
         public void ShouldNotCacheEventsSavedDuringFailedTransactionEvenIfReadDuringSameTransaction()
         {
-            using(var dbManager = new SqlServerDatabasePool(ConfigurationManager.ConnectionStrings["MasterDb"].ConnectionString))
-            {
-                var connectionString = dbManager.ConnectionStringFor("SqlServerEventStoreTest_EventStore1");
-                var eventStore = new EventStore(connectionString, serializer: new NewtonSoftEventStoreEventSerializer());
+            _serviceLocator.ExecuteInIsolatedScope(() =>
+                                                   {
+                                                       var eventStore = _serviceLocator.SqlEventStore();
 
-                eventStore.GetAggregateHistory(Guid.NewGuid());//Trick store inte ensuring the schema exists.
+                                                       eventStore.GetAggregateHistory(Guid.NewGuid()); //Trick store inte ensuring the schema exists.
 
-                var user = new User();
-                user.Register("email@email.se", "password", Guid.NewGuid());
+                                                       var user = new User();
+                                                       user.Register("email@email.se", "password", Guid.NewGuid());
 
-                using(new TransactionScope())
-                {
-                    eventStore.SaveEvents(((IEventStored)user).GetChanges());
-                    eventStore.GetAggregateHistory(user.Id);
-                    Assert.That(eventStore.GetAggregateHistory(user.Id), Is.Not.Empty);
-                }
+                                                       using(new TransactionScope())
+                                                       {
+                                                           eventStore.SaveEvents(((IEventStored)user).GetChanges());
+                                                           eventStore.GetAggregateHistory(user.Id);
+                                                           Assert.That(eventStore.GetAggregateHistory(user.Id), Is.Not.Empty);
+                                                       }
 
-                Assert.That(eventStore.GetAggregateHistory(user.Id), Is.Empty);
-            }
+                                                       Assert.That(eventStore.GetAggregateHistory(user.Id), Is.Empty);
+                                                   });
         }
 
         [Test]
         public void ShouldCacheEventsBetweenInstancesTransaction()
         {
-            using(var dbManager = new SqlServerDatabasePool(ConfigurationManager.ConnectionStrings["MasterDb"].ConnectionString))
+            var user = new User();
+            using(_serviceLocator.BeginScope())
             {
-                var connectionString = dbManager.ConnectionStringFor("SqlServerEventStoreTest_EventStore2");
-                var eventStore = new EventStore(connectionString, serializer: new NewtonSoftEventStoreEventSerializer());
+                var eventStore = _serviceLocator.SqlEventStore();
 
-                var user = new User();
                 user.Register("email@email.se", "password", Guid.NewGuid());
                 var stored = (IEventStored)user;
 
@@ -63,16 +95,21 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.Sql
                     Assert.That(eventStore.GetAggregateHistory(user.Id), Is.Not.Empty);
                     tran.Complete();
                 }
-
-                var cache = new EventCache();
-                eventStore = new EventStore(connectionString, serializer: new NewtonSoftEventStoreEventSerializer(), cache: cache);
-                var firstRead = eventStore.GetAggregateHistory(user.Id).Single();
-
-                eventStore = new EventStore(connectionString, serializer: new NewtonSoftEventStoreEventSerializer(), cache: cache);
-                var secondRead = eventStore.GetAggregateHistory(user.Id).Single();
-
-                Assert.That(firstRead, Is.SameAs(secondRead));
             }
+
+            IAggregateRootEvent firstRead;
+            using(_serviceLocator.BeginScope())
+            {
+                firstRead = _serviceLocator.SqlEventStore().GetAggregateHistory(user.Id).Single();
+            }
+
+            IAggregateRootEvent secondRead;
+            using (_serviceLocator.BeginScope())
+            {
+                secondRead = _serviceLocator.SqlEventStore().GetAggregateHistory(user.Id).Single();
+            }
+
+            Assert.That(firstRead, Is.SameAs(secondRead));
         }
     }
 }

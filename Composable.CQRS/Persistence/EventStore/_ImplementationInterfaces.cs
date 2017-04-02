@@ -24,4 +24,25 @@ namespace Composable.Persistence.EventStore
         void DeleteAggregate(Guid aggregateId);
         void FixManualVersions(Guid aggregateId);
     }
+
+
+    interface IEventstorePersistenceLayer
+    {
+        IEventStoreSchemaManager SchemaManager { get; }
+        IEventStoreEventReader EventReader { get; }
+        IEventStoreEventWriter EventWriter { get; }
+    }
+
+    class EventstorePersistenceLayer : IEventstorePersistenceLayer
+    {
+        public EventstorePersistenceLayer(IEventStoreSchemaManager schemaManager, IEventStoreEventReader eventReader, IEventStoreEventWriter eventWriter)
+        {
+            SchemaManager = schemaManager;
+            EventReader = eventReader;
+            EventWriter = eventWriter;
+        }
+        public IEventStoreSchemaManager SchemaManager { get; }
+        public IEventStoreEventReader EventReader { get; }
+        public IEventStoreEventWriter EventWriter { get; }
+    }
 }

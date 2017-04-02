@@ -155,16 +155,16 @@ namespace Composable.CQRS.Tests.KeyValueStorage
 
             UseInTransactionalScope((reader,updater) => updater.Save(user.Id, user));
 
-            using (ServiceLocator.BeginScope())
-            {
-                var loadedUser = ServiceLocator.DocumentDbUpdater().GetForUpdate<User>(user.Id);
+            UseInTransactionalScope((reader, updater) =>
+                                    {
+                                        var loadedUser = updater.GetForUpdate<User>(user.Id);
 
-                Assert.That(loadedUser.Id, Is.EqualTo(user.Id));
-                Assert.That(loadedUser.Email, Is.EqualTo(user.Email));
-                Assert.That(loadedUser.Password, Is.EqualTo(user.Password));
+                                        Assert.That(loadedUser.Id, Is.EqualTo(user.Id));
+                                        Assert.That(loadedUser.Email, Is.EqualTo(user.Email));
+                                        Assert.That(loadedUser.Password, Is.EqualTo(user.Password));
 
-                Assert.That(loadedUser.Address, Is.EqualTo(user.Address));
-            }
+                                        Assert.That(loadedUser.Address, Is.EqualTo(user.Address));
+                                    });
         }
 
         [Test]
@@ -185,12 +185,15 @@ namespace Composable.CQRS.Tests.KeyValueStorage
                                                      .Be(user2);
                                            });
 
-            using (ServiceLocator.BeginScope())
-            {
-                var session = ServiceLocator.DocumentDbSession();
-                session.Get<User>(user1.Id).Id.Should().Be(user1.Id);
-                session.Get<User>(user2.Id).Id.Should().Be(user2.Id);
-            }
+            UseInScope(reader =>
+                       {
+                           reader.Get<User>(user1.Id)
+                                 .Id.Should()
+                                 .Be(user1.Id);
+                           reader.Get<User>(user2.Id)
+                                 .Id.Should()
+                                 .Be(user2.Id);
+                       });
         }
 
         [Test]
@@ -204,10 +207,10 @@ namespace Composable.CQRS.Tests.KeyValueStorage
                                                updater.Delete(user);
                                            });
 
-            using (ServiceLocator.BeginScope())
-            {
-                ServiceLocator.DocumentDbSession().TryGet(user.Id, out user).Should().BeFalse();
-            }
+            UseInScope(reader =>
+                           reader.TryGet(user.Id, out user)
+                                 .Should()
+                                 .BeFalse());
         }
 
         [Test]
@@ -222,10 +225,7 @@ namespace Composable.CQRS.Tests.KeyValueStorage
                                                updater.Save(user.Id, user);
                                            });
 
-            using (ServiceLocator.BeginScope())
-            {
-                ServiceLocator.DocumentDbSession().TryGet(user.Id, out user).Should().BeTrue();
-            }
+            UseInScope(reader => reader.TryGet(user.Id, out user).Should().BeTrue());
         }
 
         [Test]

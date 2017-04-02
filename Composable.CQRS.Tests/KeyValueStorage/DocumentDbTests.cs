@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using Composable.DDD;
+using Composable.DependencyInjection;
 using Composable.Persistence.DocumentDb;
 using Composable.System.Linq;
 using Composable.System.Web;
@@ -16,15 +17,29 @@ namespace Composable.CQRS.Tests.KeyValueStorage
     [TestFixture]
     public abstract class DocumentDbTests
     {
-        protected abstract IDocumentDb CreateStore();
+        protected IDocumentDb CreateStore() => ServiceLocator.DocumentDb();
 
-        internal static IDocumentDbSession OpenSession(IDocumentDb store, ISingleContextUseGuard guard = null) => new DocumentDbSession(store, guard ?? new SingleThreadUseGuard());
+        protected IServiceLocator ServiceLocator { get; private set; }
+
+        internal IDocumentDbSession OpenSession(IDocumentDb store) => ServiceLocator.DocumentDbSession();
+
+        protected abstract IServiceLocator CreateServiceLocator();
+
+        [SetUp]
+        public void Setup()
+        {
+            ServiceLocator = CreateServiceLocator();
+        }
+
+        [TearDown]
+        public void TearDownTask()
+        {
+            ServiceLocator.Dispose();
+        }
 
         [Test]
         public void CanSaveAndLoadAggregate()
         {
-            var store = CreateStore();
-
             var user = new User
                        {
                            Id = Guid.NewGuid(),
@@ -38,15 +53,12 @@ namespace Composable.CQRS.Tests.KeyValueStorage
                                      }
                        };
 
-            using (var session = OpenSession(store))
-            {
-                session.Save(user.Id, user);
-                session.SaveChanges();
-            }
+            ServiceLocator.ExecuteUnitOfWorkInIsolatedScope(() => ServiceLocator.DocumentDbUpdater()
+                                                                                .Save(user.Id, user));
 
-            using (var session = OpenSession(store))
+            using (ServiceLocator.BeginScope())
             {
-                var loadedUser = session.Get<User>(user.Id);
+                var loadedUser = ServiceLocator.DocumentDbReader().Get<User>(user.Id);
 
                 Assert.That(loadedUser.Id, Is.EqualTo(user.Id));
                 Assert.That(loadedUser.Email, Is.EqualTo(user.Email));
@@ -60,44 +72,43 @@ namespace Composable.CQRS.Tests.KeyValueStorage
         [Test]
         public void GetAllWithIdsReturnsAsManyResultsAsPassedIds()
         {
-            var store = CreateStore();
-
             var ids = 1.Through(9).Select(index => Guid.Parse($"00000000-0000-0000-0000-00000000000{index}")).ToArray();
 
             var users = ids.Select(id => new User() { Id = id }).ToArray();
 
-            using (var session = OpenSession(store))
-            {
-                users.ForEach(user => session.Save(user));
-                session.SaveChanges();
-            }
+            ServiceLocator.ExecuteUnitOfWorkInIsolatedScope(() => users.ForEach(user => ServiceLocator.DocumentDbUpdater()
+                                                                                                          .Save(user)));
 
-            using (var session = OpenSession(store))
+            using(ServiceLocator.BeginScope())
             {
-                var fetchedById = session.Get<User>(ids.Take(5));
-                fetchedById.Select(fetched => fetched.Id).Should().Equal(ids.Take(5));
+                var fetchedById = ServiceLocator.DocumentDbReader()
+                                                .Get<User>(ids.Take(5));
+                fetchedById.Select(fetched => fetched.Id)
+                           .Should()
+                           .Equal(ids.Take(5));
             }
         }
 
-        [Test]
-        public void GetAllWithIdsThrowsNoSuchDocumentExceptionExceptionIfAnyIdIsMissing()
+        [Test] public void GetAllWithIdsThrowsNoSuchDocumentExceptionExceptionIfAnyIdIsMissing()
         {
-            var store = CreateStore();
+            var ids = 1.Through(9)
+                       .Select(index => Guid.Parse($"00000000-0000-0000-0000-00000000000{index}"))
+                       .ToArray();
 
-            var ids = 1.Through(9).Select(index => Guid.Parse($"00000000-0000-0000-0000-00000000000{index}")).ToArray();
+            var users = ids.Select(id => new User() {Id = id})
+                           .ToArray();
 
-            var users = ids.Select(id => new User() { Id = id }).ToArray();
+            ServiceLocator.ExecuteUnitOfWorkInIsolatedScope(() => users.ForEach(user => ServiceLocator.DocumentDbUpdater()
+                                                                                                      .Save(user)));
 
-            using (var session = OpenSession(store))
-            {
-                users.ForEach(user => session.Save(user));
-                session.SaveChanges();
-            }
-
-            using (var session = OpenSession(store))
+            using(ServiceLocator.BeginScope())
             {
                 // ReSharper disable once ReturnValueOfPureMethodIsNotUsed
-                Assert.Throws<NoSuchDocumentException>(() => session.Get<User>(ids.Take(5).Append(Guid.Parse("00000000-0000-0000-0000-000000000099")).ToArray()).ToArray());
+                Assert.Throws<NoSuchDocumentException>(() => ServiceLocator.DocumentDbReader()
+                                                                           .Get<User>(ids.Take(5)
+                                                                                         .Append(Guid.Parse("00000000-0000-0000-0000-000000000099"))
+                                                                                         .ToArray())
+                                                                           .ToArray());
             }
         }
 
@@ -111,12 +122,10 @@ namespace Composable.CQRS.Tests.KeyValueStorage
 
             var users = ids.Select(id => new User() { Id = id }).ToArray();
 
-            using (var session = OpenSession(store))
-            {
-                users.ForEach(user => session.Save(user));
-                session.SaveChanges();
-            }
+            ServiceLocator.ExecuteUnitOfWorkInIsolatedScope(() => users.ForEach(user => ServiceLocator.DocumentDbUpdater()
+                                                                                                      .Save(user)));
 
+            using (ServiceLocator.BeginScope())
             using (var session = OpenSession(store))
             {
                 var fetchedIndividually = ids.Select(id => session.Get<User>(id)).ToArray();
@@ -146,12 +155,14 @@ namespace Composable.CQRS.Tests.KeyValueStorage
                                      }
                        };
 
+            using (ServiceLocator.BeginScope())
             using (var session = OpenSession(store))
             {
                 session.Save(user.Id, user);
                 session.SaveChanges();
             }
 
+            using (ServiceLocator.BeginScope())
             using (var session = OpenSession(store))
             {
                 var loadedUser = session.GetForUpdate<User>(user.Id);
@@ -172,6 +183,7 @@ namespace Composable.CQRS.Tests.KeyValueStorage
             IPersistentEntity<Guid> user1 = new User { Id = Guid.NewGuid(), Email = "user1" };
             IPersistentEntity<Guid> user2 = new User { Id = Guid.NewGuid(), Email = "user2" };
 
+            using (ServiceLocator.BeginScope())
             using (var session = OpenSession(store))
             {
                 session.Save(user2);
@@ -181,6 +193,7 @@ namespace Composable.CQRS.Tests.KeyValueStorage
                 session.SaveChanges();
             }
 
+            using (ServiceLocator.BeginScope())
             using (var session = OpenSession(store))
             {
                 session.Get<User>(user1.Id).Id.Should().Be(user1.Id);
@@ -196,6 +209,7 @@ namespace Composable.CQRS.Tests.KeyValueStorage
 
             var user = new User { Id = Guid.NewGuid() };
 
+            using (ServiceLocator.BeginScope())
             using (var session = OpenSession(store))
             {
                 session.Save(user.Id, user);
@@ -203,6 +217,7 @@ namespace Composable.CQRS.Tests.KeyValueStorage
                 session.SaveChanges();
             }
 
+            using (ServiceLocator.BeginScope())
             using (var session = OpenSession(store))
             {
                 session.TryGet(user.Id, out user).Should().BeFalse();
@@ -217,6 +232,7 @@ namespace Composable.CQRS.Tests.KeyValueStorage
 
             var user = new User { Id = Guid.NewGuid() };
 
+            using (ServiceLocator.BeginScope())
             using (var session = OpenSession(store))
             {
                 var uow = UnitOfWork.Create(new SingleThreadUseGuard());
@@ -228,6 +244,7 @@ namespace Composable.CQRS.Tests.KeyValueStorage
                 uow.Commit();
             }
 
+            using (ServiceLocator.BeginScope())
             using (var session = OpenSession(store))
             {
                 session.TryGet(user.Id, out user).Should().BeFalse();
@@ -241,6 +258,7 @@ namespace Composable.CQRS.Tests.KeyValueStorage
 
             var user = new User { Id = Guid.NewGuid() };
 
+            using (ServiceLocator.BeginScope())
             using (var session = OpenSession(store))
             {
                 var uow = UnitOfWork.Create(new SingleThreadUseGuard());
@@ -253,6 +271,7 @@ namespace Composable.CQRS.Tests.KeyValueStorage
                 uow.Commit();
             }
 
+            using (ServiceLocator.BeginScope())
             using (var session = OpenSession(store))
             {
                 session.TryGet(user.Id, out user).Should().BeTrue();
@@ -267,6 +286,7 @@ namespace Composable.CQRS.Tests.KeyValueStorage
             var lowerCase = new Email("theemail");
             var upperCase = new Email(lowerCase.TheEmail.ToUpper());
 
+            using (ServiceLocator.BeginScope())
             using (var session = OpenSession(store))
             {
                 var uow = UnitOfWork.Create(new SingleThreadUseGuard());
@@ -280,6 +300,7 @@ namespace Composable.CQRS.Tests.KeyValueStorage
                 uow.Commit();
             }
 
+            using (ServiceLocator.BeginScope())
             using (var session = OpenSession(store))
             {
                 var uow = UnitOfWork.Create(new SingleThreadUseGuard());
@@ -306,6 +327,7 @@ namespace Composable.CQRS.Tests.KeyValueStorage
             var noWhitespace = new Email("theemail");
             var withWhitespace = new Email(noWhitespace.TheEmail + "  ");
 
+            using (ServiceLocator.BeginScope())
             using (var session = OpenSession(store))
             {
                 var uow = UnitOfWork.Create(new SingleThreadUseGuard());
@@ -319,6 +341,7 @@ namespace Composable.CQRS.Tests.KeyValueStorage
                 uow.Commit();
             }
 
+            using (ServiceLocator.BeginScope())
             using (var session = OpenSession(store))
             {
                 var uow = UnitOfWork.Create(new SingleThreadUseGuard());
@@ -344,6 +367,7 @@ namespace Composable.CQRS.Tests.KeyValueStorage
 
             var user = new User { Id = Guid.NewGuid() };
 
+            using (ServiceLocator.BeginScope())
             using (var session = OpenSession(store))
             {
                 session.TryGet(user.Id, out user);
@@ -358,6 +382,7 @@ namespace Composable.CQRS.Tests.KeyValueStorage
 
             var user = new User { Id = Guid.NewGuid() };
 
+            using (ServiceLocator.BeginScope())
             using (var session = OpenSession(store))
             {
                 session.Save(user.Id, user);
@@ -369,6 +394,7 @@ namespace Composable.CQRS.Tests.KeyValueStorage
                 session.SaveChanges();
             }
 
+            using (ServiceLocator.BeginScope())
             using (var session = OpenSession(store))
             {
                 session.TryGet(user.Id, out user).Should().BeFalse();
@@ -382,12 +408,14 @@ namespace Composable.CQRS.Tests.KeyValueStorage
 
             var user = new User { Id = Guid.NewGuid() };
 
+            using (ServiceLocator.BeginScope())
             using (var session = OpenSession(store))
             {
                 session.Save(user.Id, user);
                 session.SaveChanges();
             }
 
+            using (ServiceLocator.BeginScope())
             using (var session = OpenSession(store))
             {
                 var uow = UnitOfWork.Create(new SingleThreadUseGuard());
@@ -408,6 +436,7 @@ namespace Composable.CQRS.Tests.KeyValueStorage
                 uow.Commit();
             }
 
+            using (ServiceLocator.BeginScope())
             using (var session = OpenSession(store))
             {
                 session.TryGet(user.Id, out user).Should().Be(true);
@@ -422,12 +451,14 @@ namespace Composable.CQRS.Tests.KeyValueStorage
 
             var user = new User { Id = Guid.NewGuid() };
 
+            using (ServiceLocator.BeginScope())
             using (var session = OpenSession(store))
             {
                 session.Save(user.Id, user);
                 session.SaveChanges();
             }
 
+            using (ServiceLocator.BeginScope())
             using (var session = OpenSession(store))
             {
                 var loaded1 = session.Get<User>(user.Id);
@@ -443,6 +474,7 @@ namespace Composable.CQRS.Tests.KeyValueStorage
 
             var user = new User { Id = Guid.NewGuid() };
 
+            using (ServiceLocator.BeginScope())
             using (var session = OpenSession(store))
             {
                 session.Save(user.Id, user);
@@ -464,12 +496,14 @@ namespace Composable.CQRS.Tests.KeyValueStorage
             var user = new User { Id = Guid.NewGuid() };
             var userSet = new HashSet<User> { user };
 
+            using (ServiceLocator.BeginScope())
             using (var session = OpenSession(store))
             {
                 session.Save(user.Id, userSet);
                 session.SaveChanges();
             }
 
+            using (ServiceLocator.BeginScope())
             using (var session = OpenSession(store))
             {
                 var loadedUser = session.Get<HashSet<User>>(user.Id);
@@ -494,12 +528,14 @@ namespace Composable.CQRS.Tests.KeyValueStorage
                            People = new HashSet<User> { userInSet }
                        };
 
+            using (ServiceLocator.BeginScope())
             using (var session = OpenSession(store))
             {
                 session.Save(user.Id, user);
                 session.SaveChanges();
             }
 
+            using (ServiceLocator.BeginScope())
             using (var session = OpenSession(store))
             {
                 var loadedUser = session.Get<User>(user.Id);
@@ -514,6 +550,7 @@ namespace Composable.CQRS.Tests.KeyValueStorage
         public void ThrowsExceptionWhenAttemptingToDeleteNonExistingValue()
         {
             var store = CreateStore();
+            using (ServiceLocator.BeginScope())
             using (var session = OpenSession(store))
             {
                 var lassie = new Dog { Id = Guid.NewGuid() };
@@ -535,12 +572,14 @@ namespace Composable.CQRS.Tests.KeyValueStorage
             var store = CreateStore();
             var user = new User { Id = Guid.NewGuid() };
 
+            using (ServiceLocator.BeginScope())
             using (var session = OpenSession(store))
             {
                 session.Save(user);
                 session.SaveChanges();
             }
 
+            using (ServiceLocator.BeginScope())
             using (var session = OpenSession(store))
             {
                 var loadedUser = session.Get<User>(user.Id);
@@ -551,6 +590,7 @@ namespace Composable.CQRS.Tests.KeyValueStorage
                 Assert.Throws<NoSuchDocumentException>(() => session.Get<User>(user.Id));
             }
 
+            using (ServiceLocator.BeginScope())
             using (var session = OpenSession(store))
             {
                 Assert.Throws<NoSuchDocumentException>(() => session.Get<User>(user.Id));
@@ -563,12 +603,14 @@ namespace Composable.CQRS.Tests.KeyValueStorage
             var store = CreateStore();
             var user = new User { Id = Guid.NewGuid() };
 
+            using (ServiceLocator.BeginScope())
             using (var session = OpenSession(store))
             {
                 session.Save(user);
                 session.SaveChanges();
             }
 
+            using (ServiceLocator.BeginScope())
             using (var session = OpenSession(store))
             {
                 session.Delete(user);
@@ -577,6 +619,7 @@ namespace Composable.CQRS.Tests.KeyValueStorage
                 Assert.Throws<NoSuchDocumentException>(() => session.Get<User>(user.Id));
             }
 
+            using (ServiceLocator.BeginScope())
             using (var session = OpenSession(store))
             {
                 Assert.Throws<NoSuchDocumentException>(() => session.Get<User>(user.Id));
@@ -589,6 +632,7 @@ namespace Composable.CQRS.Tests.KeyValueStorage
             var store = CreateStore();
             var user = new User { Id = Guid.NewGuid() };
 
+            using (ServiceLocator.BeginScope())
             using (var session = OpenSession(store))
             {
                 session.Save(user);
@@ -597,6 +641,7 @@ namespace Composable.CQRS.Tests.KeyValueStorage
                 Assert.Throws<NoSuchDocumentException>(() => session.Get<User>(user.Id));
             }
 
+            using (ServiceLocator.BeginScope())
             using (var session = OpenSession(store))
             {
                 Assert.Throws<NoSuchDocumentException>(() => session.Get<User>(user.Id));
@@ -610,12 +655,14 @@ namespace Composable.CQRS.Tests.KeyValueStorage
 
             var user = new User { Id = Guid.NewGuid() };
 
+            using (ServiceLocator.BeginScope())
             using (var session = OpenSession(store))
             {
                 session.Save(user.Id, user);
                 session.SaveChanges();
             }
 
+            using (ServiceLocator.BeginScope())
             using (var session = OpenSession(store))
             {
                 var loadedUser = session.Get<User>(user.Id);
@@ -623,6 +670,7 @@ namespace Composable.CQRS.Tests.KeyValueStorage
                 session.SaveChanges();
             }
 
+            using (ServiceLocator.BeginScope())
             using (var session = OpenSession(store))
             {
                 var loadedUser = session.Get<User>(user.Id);
@@ -637,6 +685,7 @@ namespace Composable.CQRS.Tests.KeyValueStorage
 
             var user = new User { Id = Guid.NewGuid() };
 
+            using (ServiceLocator.BeginScope())
             using (var session = OpenSession(store))
             {
                 session.Save(user.Id, user);
@@ -645,6 +694,7 @@ namespace Composable.CQRS.Tests.KeyValueStorage
 
             Assert.Throws<AttemptToSaveAlreadyPersistedValueException>(() =>
                                                                        {
+                                                                           using (ServiceLocator.BeginScope())
                                                                            using (var session = OpenSession(store))
                                                                            {
                                                                                session.Save(user.Id, user);
@@ -666,6 +716,7 @@ namespace Composable.CQRS.Tests.KeyValueStorage
 
             var dog = new Dog { Id = user.Id };
 
+            using (ServiceLocator.BeginScope())
             using (var session = OpenSession(store))
             {
                 session.Save<IPersistentEntity<Guid>>(user);
@@ -673,6 +724,7 @@ namespace Composable.CQRS.Tests.KeyValueStorage
                 session.SaveChanges();
             }
 
+            using (ServiceLocator.BeginScope())
             using (var session = OpenSession(store))
             {
                 var loadedDog = session.Get<Dog>(dog.Id);
@@ -691,6 +743,7 @@ namespace Composable.CQRS.Tests.KeyValueStorage
         {
             var store = CreateStore();
 
+            using (ServiceLocator.BeginScope())
             using (var session = OpenSession(store))
             {
                 session.Save(new User { Id = Guid.NewGuid() });
@@ -700,6 +753,7 @@ namespace Composable.CQRS.Tests.KeyValueStorage
                 session.SaveChanges();
             }
 
+            using (ServiceLocator.BeginScope())
             using (var session = OpenSession(store))
             {
                 Assert.That(session.GetAll<Dog>().ToList(), Has.Count.EqualTo(2));
@@ -715,7 +769,10 @@ namespace Composable.CQRS.Tests.KeyValueStorage
             var wait = new ManualResetEventSlim();
             ThreadPool.QueueUserWorkItem(state =>
                                          {
-                                             session = OpenSession(store);
+                                             using(ServiceLocator.BeginScope())
+                                             {
+                                                 session = OpenSession(store);
+                                             }
                                              wait.Set();
                                          });
             wait.Wait();
@@ -734,31 +791,6 @@ namespace Composable.CQRS.Tests.KeyValueStorage
             Assert.Throws<MultiThreadedUseException>(() => session.Delete(user));
         }
 
-        [Test]
-        public void ThrowsIfUsedByMultipleHttpRequests()
-        {
-            var store = CreateStore();
-
-            var guard = new SingleHttpRequestUseGuard(new AlwaysNewRequestIdsHttpRequestFetcher());
-
-            var session = OpenSession(store, guard);
-
-            var user = new User() {Id = Guid.NewGuid()};
-
-            // ReSharper disable once NotAccessedVariable
-            bool found;
-            Assert.Throws<MultiRequestAccessDetectedException>(() => session.Get<User>(Guid.NewGuid()));
-            Assert.Throws<MultiRequestAccessDetectedException>(() => session.GetAll<User>());
-            Assert.Throws<MultiRequestAccessDetectedException>(() => session.Save(user, user.Id));
-            Assert.Throws<MultiRequestAccessDetectedException>(() => session.Delete(user));
-            Assert.Throws<MultiRequestAccessDetectedException>(session.Dispose);
-            Assert.Throws<MultiRequestAccessDetectedException>(() => session.Save(new User()));
-            Assert.Throws<MultiRequestAccessDetectedException>(session.SaveChanges);
-            Assert.Throws<MultiRequestAccessDetectedException>(() => found = session.TryGet(Guid.NewGuid(), out user));
-            Assert.Throws<MultiRequestAccessDetectedException>(() => found = session.TryGetForUpdate(user.Id, out user));
-            Assert.Throws<MultiRequestAccessDetectedException>(() => session.Delete(user));
-        }
-
 
         [Test]
         public void GetHandlesSubTyping()
@@ -768,6 +800,7 @@ namespace Composable.CQRS.Tests.KeyValueStorage
             var user1 = new User { Id = Guid.NewGuid() };
             var person1 = new Person { Id = Guid.NewGuid() };
 
+            using (ServiceLocator.BeginScope())
             using (var session = OpenSession(store))
             {
                 session.Save(user1);
@@ -775,6 +808,7 @@ namespace Composable.CQRS.Tests.KeyValueStorage
                 session.SaveChanges();
             }
 
+            using (ServiceLocator.BeginScope())
             using (var session = OpenSession(store))
             {
                 Assert.That(session.Get<Person>(user1.Id), Is.EqualTo(user1));
@@ -790,6 +824,7 @@ namespace Composable.CQRS.Tests.KeyValueStorage
             var user1 = new User { Id = Guid.NewGuid() };
             var person1 = new Person { Id = Guid.NewGuid() };
 
+            using (ServiceLocator.BeginScope())
             using (var session = OpenSession(store))
             {
                 session.Save(user1);
@@ -797,6 +832,7 @@ namespace Composable.CQRS.Tests.KeyValueStorage
                 session.SaveChanges();
             }
 
+            using (ServiceLocator.BeginScope())
             using (var session = OpenSession(store))
             {
                 var people = session.GetAll<Person>().ToList();
@@ -814,6 +850,7 @@ namespace Composable.CQRS.Tests.KeyValueStorage
 
             var user1 = new User { Id = Guid.Empty };
 
+            using (ServiceLocator.BeginScope())
             using (var session = OpenSession(store))
             {
                 session.Invoking(sess => sess.Save(user1))
@@ -829,6 +866,7 @@ namespace Composable.CQRS.Tests.KeyValueStorage
             var user1 = new User { Id = Guid.Parse("00000000-0000-0000-0000-000000000001") };
             var user2 = new User { Id = Guid.Parse("00000000-0000-0000-0000-000000000002") };
 
+            using (ServiceLocator.BeginScope())
             using (var session = OpenSession(store))
             {
                 session.Save(user1);
@@ -854,6 +892,7 @@ namespace Composable.CQRS.Tests.KeyValueStorage
             var user2 = new User { Id = userid2 };
             var dog = new Dog {Id = Guid.Parse("00000000-0000-0000-0000-000000000010") };
 
+            using (ServiceLocator.BeginScope())
             using (var session = OpenSession(readingDocumentDb))
             {
                 session.Save(user1);
@@ -927,11 +966,6 @@ namespace Composable.CQRS.Tests.KeyValueStorage
 
             store.GetAll<Person>().Should().HaveCount(4);
 
-        }
-
-        class AlwaysNewRequestIdsHttpRequestFetcher : IHttpRequestIdFetcher
-        {
-            public Guid GetCurrent() => Guid.NewGuid();
         }
     }
 }

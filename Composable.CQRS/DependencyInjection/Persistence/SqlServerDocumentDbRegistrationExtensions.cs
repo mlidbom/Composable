@@ -28,7 +28,7 @@ namespace Composable.DependencyInjection.Persistence
         {
         }
 
-        interface IDocumentDbSession<TUpdater, TReader, TBulkReader> : IDocumentDbSession { }
+        internal interface IDocumentDbSession<TUpdater, TReader, TBulkReader> : IDocumentDbSession { }
 
         [UsedImplicitly] class DocumentDbSession<TUpdater, TReader, TBulkReader> : DocumentDbSession, IDocumentDbSession<TUpdater, TReader, TBulkReader>
         {
@@ -64,7 +64,7 @@ namespace Composable.DependencyInjection.Persistence
 
                 @this.Register(Component.For<IDocumentDb<TUpdater, TReader, TBulkReader>>()
                                          .UsingFactoryMethod(kernel => new SqlServerDocumentDb<TUpdater, TReader, TBulkReader>(connectionString))
-                                         .LifestyleScoped());
+                                         .LifestyleSingleton());
             }
 
 

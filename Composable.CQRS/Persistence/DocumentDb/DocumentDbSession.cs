@@ -197,18 +197,6 @@ namespace Composable.Persistence.DocumentDb
             }
         }
 
-        public virtual void SaveChanges()
-        {
-            _usageGuard.AssertNoContextChangeOccurred(this);
-            if (_unitOfWork == null)
-            {
-                InternalSaveChanges();
-            }else
-            {
-                Log.DebugFormat("{0} Ignored call to SaveChanges since participating in a unit of work", _id);
-            }
-        }
-
         void InternalSaveChanges()
         {
             Log.DebugFormat("{0} saving changes. Unit of work: {1}",_id, _unitOfWork ?? (object)"null");

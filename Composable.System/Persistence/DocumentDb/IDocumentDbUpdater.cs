@@ -15,6 +15,5 @@ namespace Composable.Persistence.DocumentDb
         void Delete<TEntity>(object id);
         void Save<TEntity>(TEntity entity) where TEntity : IHasPersistentIdentity<Guid>;
         void Delete<TEntity>(TEntity entity) where TEntity : IHasPersistentIdentity<Guid>;
-        void SaveChanges();
     }
 }

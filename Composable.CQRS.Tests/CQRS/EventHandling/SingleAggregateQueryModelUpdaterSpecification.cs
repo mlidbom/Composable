@@ -73,7 +73,6 @@ namespace Composable.CQRS.Tests.CQRS.EventHandling
                     before = () =>
                              {
                                  _sessionMock.Setup(session => session.GetForUpdate<UserQueryModel>(_userId)).Returns(_queryModel);
-                                 _sessionMock.Setup(session => session.SaveChanges());
                                  _listener.Handle(new UserEditedSkill(_userId));
                              };
                     it["BeforeHandlers1 should be called first"] = () => _listener.BeforeHandlers1CallOrder.Should().Be(1);
@@ -93,11 +92,9 @@ namespace Composable.CQRS.Tests.CQRS.EventHandling
                     before = () =>
                              {
                                  _sessionMock.Setup(mock => mock.Delete<UserQueryModel>(_userId));
-                                 _sessionMock.Setup(mock => mock.SaveChanges());
                                  _listener.Handle(new UserDeleted(_userId));
                              };
                     it["delete is called on the session"] = () => _sessionMock.Verify(session => session.Delete<UserQueryModel>(_userId));
-                    it["delete is called on the session"] = () => _sessionMock.Verify(session => session.SaveChanges());
                     it["Model is null in updater"] = () => _listener.TheModel.Should().BeNull();
                 };
 

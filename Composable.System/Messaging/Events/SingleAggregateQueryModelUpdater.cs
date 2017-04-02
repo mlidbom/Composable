@@ -33,9 +33,6 @@ namespace Composable.Messaging.Events
                                    if(e is IAggregateRootCreatedEvent)
                                    {
                                        session1.Save(Model);
-                                   } else
-                                   {
-                                       session1.SaveChanges();
                                    }
                                });
         }

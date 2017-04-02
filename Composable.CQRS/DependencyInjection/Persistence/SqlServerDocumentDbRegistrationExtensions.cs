@@ -6,6 +6,7 @@ using Composable.Persistence.DocumentDb.SqlServer;
 using Composable.System.Configuration;
 using Composable.System.Linq;
 using Composable.SystemExtensions.Threading;
+using Composable.UnitsOfWork;
 using JetBrains.Annotations;
 // ReSharper disable UnusedTypeParameter the type parameters allow non-ambiguous registrations in the container. They are in fact used.
 
@@ -68,7 +69,7 @@ namespace Composable.DependencyInjection.Persistence
             }
 
 
-            @this.Register(Component.For<IDocumentDbSession<TUpdater, TReader, TBulkReader>>()
+            @this.Register(Component.For<IDocumentDbSession<TUpdater, TReader, TBulkReader>, IUnitOfWorkParticipant>()
                                      .ImplementedBy<DocumentDbSession<TUpdater, TReader, TBulkReader>>()
                                      .LifestyleScoped());
             @this.Register(Component.For<TUpdater>(Seq.OfTypes<TUpdater, TReader, TBulkReader>())

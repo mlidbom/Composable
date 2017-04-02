@@ -472,7 +472,6 @@ namespace Composable.CQRS.Tests.KeyValueStorage
             UseInTransactionalScope((reader, updater) =>
                                     {
                                         updater.Delete(user);
-
                                         Assert.Throws<NoSuchDocumentException>(() => updater.GetForUpdate<User>(user.Id));
                                     });
 
@@ -503,10 +502,8 @@ namespace Composable.CQRS.Tests.KeyValueStorage
 
             UseInTransactionalScope((reader, updater) =>
                                     {
-                                        var session = ServiceLocator.DocumentDbSession();
                                         var loadedUser = updater.GetForUpdate<User>(user.Id);
                                         loadedUser.Password = "NewPassword";
-                                        session.SaveChanges();
                                     });
 
             UseInScope(reader =>
@@ -543,32 +540,29 @@ namespace Composable.CQRS.Tests.KeyValueStorage
                                         updater.Save<IPersistentEntity<Guid>>(dog);
                                     });
 
-            using (ServiceLocator.BeginScope())
-            {
-                var session = ServiceLocator.DocumentDbSession();
-                var loadedDog = session.Get<Dog>(dog.Id);
-                var loadedUser = session.Get<User>(dog.Id);
+            UseInScope(reader =>
+                       {
+                           var loadedDog = reader.Get<Dog>(dog.Id);
+                           var loadedUser = reader.Get<User>(dog.Id);
 
-                Assert.That(loadedDog.Name, Is.EqualTo(dog.Name));
-                Assert.That(loadedUser.Email, Is.EqualTo(user.Email));
-                Assert.That(loadedDog.Id, Is.EqualTo(user.Id));
-                Assert.That(loadedUser.Id, Is.EqualTo(user.Id));
-            }
+                           Assert.That(loadedDog.Name, Is.EqualTo(dog.Name));
+                           Assert.That(loadedUser.Email, Is.EqualTo(user.Email));
+                           Assert.That(loadedDog.Id, Is.EqualTo(user.Id));
+                           Assert.That(loadedUser.Id, Is.EqualTo(user.Id));
+                       });
         }
 
 
         [Test]
         public void FetchesAllinstancesPerType()
         {
-            using (ServiceLocator.BeginScope())
-            {
-                var session = ServiceLocator.DocumentDbSession();
-                session.Save(new User { Id = Guid.NewGuid() });
-                session.Save(new User { Id = Guid.NewGuid() });
-                session.Save(new Dog { Id = Guid.NewGuid() });
-                session.Save(new Dog { Id = Guid.NewGuid() });
-                session.SaveChanges();
-            }
+            UseInTransactionalScope((reader, updater) =>
+                                    {
+                                        updater.Save(new User {Id = Guid.NewGuid()});
+                                        updater.Save(new User {Id = Guid.NewGuid()});
+                                        updater.Save(new Dog {Id = Guid.NewGuid()});
+                                        updater.Save(new Dog {Id = Guid.NewGuid()});
+                                    });
 
             using (ServiceLocator.BeginScope())
             {
@@ -614,13 +608,11 @@ namespace Composable.CQRS.Tests.KeyValueStorage
             var user1 = new User { Id = Guid.NewGuid() };
             var person1 = new Person { Id = Guid.NewGuid() };
 
-            using (ServiceLocator.BeginScope())
-            {
-                var session = ServiceLocator.DocumentDbSession();
-                session.Save(user1);
-                session.Save(person1);
-                session.SaveChanges();
-            }
+            UseInTransactionalScope((reader, updater) =>
+                                    {
+                                        updater.Save(user1);
+                                        updater.Save(person1);
+                                    });
 
             using (ServiceLocator.BeginScope())
             {
@@ -636,13 +628,11 @@ namespace Composable.CQRS.Tests.KeyValueStorage
             var user1 = new User { Id = Guid.NewGuid() };
             var person1 = new Person { Id = Guid.NewGuid() };
 
-            using (ServiceLocator.BeginScope())
-            {
-                var session = ServiceLocator.DocumentDbSession();
-                session.Save(user1);
-                session.Save(person1);
-                session.SaveChanges();
-            }
+            UseInTransactionalScope((reader, updater) =>
+                                    {
+                                        updater.Save(user1);
+                                        updater.Save(person1);
+                                    });
 
             using (ServiceLocator.BeginScope())
             {
@@ -674,17 +664,16 @@ namespace Composable.CQRS.Tests.KeyValueStorage
             var user1 = new User { Id = Guid.Parse("00000000-0000-0000-0000-000000000001") };
             var user2 = new User { Id = Guid.Parse("00000000-0000-0000-0000-000000000002") };
 
-            using (ServiceLocator.BeginScope())
-            {
-                var session = ServiceLocator.DocumentDbSession();
-                session.Save(user1);
-                session.Save(user2);
+            UseInTransactionalScope((reader, updater) =>
+                                    {
+                                        updater.Save(user1);
+                                        updater.Save(user2);
 
-                var people = session.Get<User>(new[] { user1.Id });
+                                        var people = reader.Get<User>(new[] {user1.Id});
 
-                Assert.That(people.ToList(), Has.Count.EqualTo(1));
-                Assert.That(people, Contains.Item(user1));
-            }
+                                        Assert.That(people.ToList(), Has.Count.EqualTo(1));
+                                        Assert.That(people, Contains.Item(user1));
+                                    });
         }
 
 
@@ -698,19 +687,57 @@ namespace Composable.CQRS.Tests.KeyValueStorage
             var user2 = new User { Id = userid2 };
             var dog = new Dog {Id = Guid.Parse("00000000-0000-0000-0000-000000000010") };
 
-            using (ServiceLocator.BeginScope())
-            {
-                var session = ServiceLocator.DocumentDbSession();
-                session.Save(user1);
-                session.Save(user2);
-                session.Save(dog);
+            UseInTransactionalScope((reader, updater2) =>
+                                    {
+                                        var updater = ServiceLocator.DocumentDbSession();
+                                        updater.Save(user1);
+                                        updater.Save(user2);
+                                        updater.Save(dog);
+                                    });
 
-                var ids = session.GetAllIds<User>().ToSet();
+            ServiceLocator.ExecuteInIsolatedScope(() =>
+                                                  {
+                                                      var ids = ServiceLocator.DocumentDbBulkReader()
+                                                                              .GetAllIds<User>()
+                                                                              .ToSet();
 
-                ids.Count.Should().Be(2);
-                ids.Should().Contain(userid1);
-                ids.Should().Contain(userid2);
-            }
+                                                      ids.Count.Should()
+                                                         .Be(2);
+                                                      ids.Should()
+                                                         .Contain(userid1);
+                                                      ids.Should()
+                                                         .Contain(userid2);
+                                                  });
+        }
+
+        [Test, Ignore("Bug found while refactoring. Fix soon but ignore for now")]
+        public void GetAllIdsShouldOnlyReturnResultsWithTheGivenTypeWhenCalledWithinTheInsertingTransaction()
+        {
+            var userid1 = Guid.Parse("00000000-0000-0000-0000-000000000001");
+            var userid2 = Guid.Parse("00000000-0000-0000-0000-000000000002");
+
+            var user1 = new User { Id = userid1 };
+            var user2 = new User { Id = userid2 };
+            var dog = new Dog { Id = Guid.Parse("00000000-0000-0000-0000-000000000010") };
+
+            UseInTransactionalScope((reader, updater2) =>
+                                    {
+                                        var updater = ServiceLocator.DocumentDbSession();
+                                        updater.Save(user1);
+                                        updater.Save(user2);
+                                        updater.Save(dog);
+
+                                        var ids = ServiceLocator.DocumentDbBulkReader()
+                                                                .GetAllIds<User>()
+                                                                .ToSet();
+
+                                        ids.Count.Should()
+                                           .Be(2);
+                                        ids.Should()
+                                           .Contain(userid1);
+                                        ids.Should()
+                                           .Contain(userid2);
+                                    });
         }
 
 

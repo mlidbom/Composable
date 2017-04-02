@@ -9,7 +9,7 @@ namespace Composable.DependencyInjection
         internal static IRunMode RunMode(this IDependencyInjectionContainer @this) => @this.CreateServiceLocator()
                                                                                   .Resolve<IRunMode>();
 
-        public static IServiceLocator CreateServiceLocatorForTesting([InstantHandle]Action<IDependencyInjectionContainer> setup, TestingMode mode = TestingMode.SqlServer)
+        public static IServiceLocator CreateServiceLocatorForTesting([InstantHandle]Action<IDependencyInjectionContainer> setup, TestingMode mode = TestingMode.RealComponents)
         {
             var @this = Create();
 

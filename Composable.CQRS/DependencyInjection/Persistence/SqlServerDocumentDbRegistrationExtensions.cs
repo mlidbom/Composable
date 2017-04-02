@@ -13,7 +13,7 @@ namespace Composable.DependencyInjection.Persistence
 {
     public static class DocumentDbRegistrationExtensions
     {
-        interface IDocumentDb<TUpdater, TReader, TBulkReader> : IDocumentDb
+        internal interface IDocumentDb<TUpdater, TReader, TBulkReader> : IDocumentDb
         {
         }
 

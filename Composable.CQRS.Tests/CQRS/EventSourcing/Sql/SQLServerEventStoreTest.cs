@@ -2,41 +2,18 @@
 using System.Linq;
 using System.Transactions;
 using Composable.DependencyInjection;
-using Composable.DependencyInjection.Persistence;
 using Composable.Persistence.EventStore;
 using NUnit.Framework;
 
 namespace Composable.CQRS.Tests.CQRS.EventSourcing.Sql
 {
-    static class TestWiringHelper
-    {
-        internal static IEventStore<ITestingEventstoreSession, ITestingEventstoreReader> EventStore(this IServiceLocator @this) =>
-            @this.Resolve<IEventStore<ITestingEventstoreSession, ITestingEventstoreReader>>();
-
-        internal static IEventStore<ITestingEventstoreSession, ITestingEventstoreReader> SqlEventStore(this IServiceLocator @this) =>
-            @this.EventStore();//todo: Throw here if it is not the correct type of store
-
-        internal static IEventStore<ITestingEventstoreSession, ITestingEventstoreReader> InMemoryEventStore(this IServiceLocator @this) =>
-            @this.EventStore();//todo: Throw here if it is not the correct type of store
-
-        internal static IServiceLocator SetupTestingServiceLocator(TestingMode mode)
-        {
-            return DependencyInjectionContainer.CreateServiceLocatorForTesting(container =>
-                                                                                   container
-                                                                                       .RegisterSqlServerEventStore<ITestingEventstoreSession, ITestingEventstoreReader
-                                                                                       >("SomeStringThatDoesNotPointToARealSqlServer"),
-                                                                                       mode: mode);
-        }
-    }
-
-
     [TestFixture]
     public class SqlServerEventStoreTest
     {
         IServiceLocator _serviceLocator;
         [SetUp] public void SetupTask()
         {
-            _serviceLocator = TestWiringHelper.SetupTestingServiceLocator(TestingMode.SqlServer);
+            _serviceLocator = TestWiringHelper.SetupTestingServiceLocator(TestingMode.RealComponents);
         }
 
         [TearDown] public void TearDownTask()

@@ -25,12 +25,12 @@ namespace Composable.Persistence.DocumentDb.SqlServer
 
         public SqlServerDocumentDb(string connectionString) => _connectionString = connectionString;
 
-        readonly ConcurrentDictionary<String, ConcurrentDictionary<Type, int>> _verifiedConnections = new ConcurrentDictionary<string, ConcurrentDictionary<Type, int>>();
-        ConcurrentDictionary<Type, int> KnownTypes => _verifiedConnections[_connectionString];
+        bool _initialized;
+        ConcurrentDictionary<Type, int> _knownTypes = null;
 
         Type GetTypeFromId(int id)
         {
-            return KnownTypes.Single(pair => pair.Value == id).Key;
+            return _knownTypes.Single(pair => pair.Value == id).Key;
         }
 
         bool IDocumentDb.TryGet<TValue>(object key, out TValue value, Dictionary<Type, Dictionary<string, string>> persistentValues)
@@ -95,7 +95,7 @@ WHERE Id=@Id AND ValueTypeId
                     command.CommandText += @"INSERT INTO Store(Id, ValueTypeId, Value) VALUES(@Id, @ValueTypeId, @Value)";
 
                     command.Parameters.Add(new SqlParameter("Id", idString));
-                    command.Parameters.Add(new SqlParameter("ValueTypeId", KnownTypes[value.GetType()]));
+                    command.Parameters.Add(new SqlParameter("ValueTypeId", _knownTypes[value.GetType()]));
 
                     var stringValue = JsonConvert.SerializeObject(value, Formatting.None, JsonSettings);
                     command.Parameters.Add(new SqlParameter("Value", stringValue));
@@ -134,7 +134,7 @@ WHERE Id=@Id AND ValueTypeId
                     command.CommandType = CommandType.Text;
                     command.CommandText += "DELETE Store WHERE ValueTypeId = @TypeId";
 
-                    command.Parameters.Add(new SqlParameter("TypeId", KnownTypes[typeof(T)]));
+                    command.Parameters.Add(new SqlParameter("TypeId", _knownTypes[typeof(T)]));
 
                     return command.ExecuteNonQuery();
                 }
@@ -327,7 +327,7 @@ ELSE
                             command.Parameters.Add(new SqlParameter("ValueTypeId", SqlDbType.Int) {Direction = ParameterDirection.Output});
                             command.Parameters.Add(new SqlParameter("ValueType", type.FullName));
                             command.ExecuteNonQuery();
-                            KnownTypes.TryAdd(type, (int)command.Parameters["ValueTypeId"].Value);
+                            _knownTypes.TryAdd(type, (int)command.Parameters["ValueTypeId"].Value);
                         }
                     }
                 }
@@ -336,18 +336,18 @@ ELSE
 
         bool IsKnownType(Type type)
         {
-            if(!KnownTypes.ContainsKey(type))
+            if(!_knownTypes.ContainsKey(type))
             {
-                RefreshKnownTypes(KnownTypes);
+                RefreshKnownTypes();
             }
-            return KnownTypes.ContainsKey(type);
+            return _knownTypes.ContainsKey(type);
         }
 
         void AddTypeCriteria(SqlCommand command, Type type)
         {
             lock(_lockObject)
             {
-                var acceptableTypeIds = KnownTypes.Where(x => type.IsAssignableFrom(x.Key)).Select(t => t.Value.ToString()).ToArray();
+                var acceptableTypeIds = _knownTypes.Where(x => type.IsAssignableFrom(x.Key)).Select(t => t.Value.ToString()).ToArray();
                 if(acceptableTypeIds.None())
                 {
                     throw new Exception($"Type: {type.FullName} is not among the known types");
@@ -360,7 +360,7 @@ ELSE
         {
             lock(_lockObject)
             {
-                if(!_verifiedConnections.ContainsKey(_connectionString))
+                if(!_initialized)
                 {
                     using(var connection = OpenSession())
                     {
@@ -418,16 +418,16 @@ ALTER TABLE [dbo].[Store] CHECK CONSTRAINT [FK_ValueType_Store]
                             }
                         }
 
-                        var knownTypes = new ConcurrentDictionary<Type, int>();
-                        _verifiedConnections.TryAdd(_connectionString, knownTypes);
+                        _knownTypes = new ConcurrentDictionary<Type, int>();
+                        _initialized = true;
 
-                        RefreshKnownTypes(knownTypes);
+                        RefreshKnownTypes();
                     }
                 }
             }
         }
 
-        void RefreshKnownTypes(ConcurrentDictionary<Type, int> knownTypes)
+        void RefreshKnownTypes()
         {
             lock(_lockObject)
             {
@@ -440,7 +440,7 @@ ALTER TABLE [dbo].[Store] CHECK CONSTRAINT [FK_ValueType_Store]
                         {
                             while(reader.Read())
                             {
-                                knownTypes.TryAdd(reader.GetString(0).AsType(), reader.GetInt32(1));
+                                _knownTypes.TryAdd(reader.GetString(0).AsType(), reader.GetInt32(1));
                             }
                         }
                     }

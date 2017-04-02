@@ -1,11 +1,11 @@
 ﻿using System;
-using System.Configuration;
 using System.Linq;
+using Composable.DependencyInjection;
 using Composable.Logging;
 using Composable.Persistence.DocumentDb;
 using Composable.Persistence.DocumentDb.SqlServer;
+using Composable.System.Configuration;
 using Composable.System.Linq;
-using Composable.Testing;
 using FluentAssertions;
 using NUnit.Framework;
 
@@ -15,22 +15,20 @@ namespace Composable.CQRS.Tests.KeyValueStorage.Sql
     [Serializable]
     class SqlDocumentDbTests : DocumentDbTests
     {
-        static SqlServerDatabasePool _databasePool;
-
         string _connectionString;
+        IServiceLocator _serviceLocator;
 
         [SetUp]
         public void Setup()
         {
-            var masterConnectionString = ConfigurationManager.ConnectionStrings["MasterDb"].ConnectionString;
-            _databasePool = new SqlServerDatabasePool(masterConnectionString);
-            _connectionString = _databasePool.ConnectionStringFor("SqlDocumentDbTests_DB");
+            _serviceLocator = TestWiringHelper.SetupTestingServiceLocator(TestingMode.RealComponents);
+            _connectionString = _serviceLocator.Resolve<IConnectionStringProvider>().GetConnectionString("SqlDocumentDbTests_DB").ConnectionString;
         }
 
         [TearDown]
         public void TearDownTask()
         {
-            _databasePool.Dispose();
+            _serviceLocator.Dispose();
         }
 
         protected override IDocumentDb CreateStore() => new SqlServerDocumentDb(_connectionString);

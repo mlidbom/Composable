@@ -85,13 +85,10 @@ namespace Composable.CQRS.Tests.KeyValueStorage
 
             UseInTransactionalScope((reader, updater) => users.ForEach(user => updater.Save(user)));
 
-            UseInScope(reader =>
-                              {
-                                  var fetchedById = reader.Get<User>(ids.Take(5));
-                                  fetchedById.Select(fetched => fetched.Id)
-                                             .Should()
-                                             .Equal(ids.Take(5));
-                              });
+            UseInScope(reader => reader.Get<User>(ids.Take(5))
+                                       .Select(fetched => fetched.Id)
+                                       .Should()
+                                       .Equal(ids.Take(5)));
         }
 
         [Test] public void GetAllWithIdsThrowsNoSuchDocumentExceptionExceptionIfAnyIdIsMissing()

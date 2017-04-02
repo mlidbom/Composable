@@ -56,10 +56,10 @@ namespace Composable.CQRS.Tests.KeyValueStorage.Sql
 
             InsertUsersInOtherDocumentDb(userId);
 
-            using (ServiceLocator.BeginScope())
-            {
-                ServiceLocator.DocumentDbSession().Get<User>(Seq.Create(userId)).Count().Should().Be(1);
-            }
+            UseInScope(reader => reader.Get<User>(Seq.Create(userId))
+                                       .Count()
+                                       .Should()
+                                       .Be(1));
         }
     }
 }

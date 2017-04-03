@@ -13,7 +13,7 @@ using Composable.System.Linq;
 
 namespace Composable.Testing
 {
-    sealed class SqlServerDatabasePool : StrictlyManagedResourceBase<SqlServerDatabasePool>
+    sealed partial class SqlServerDatabasePool : StrictlyManagedResourceBase<SqlServerDatabasePool>
     {
         readonly string _masterConnectionString;
         readonly SqlServerConnectionUtilities _masterConnection;
@@ -103,67 +103,7 @@ namespace Composable.Testing
                 CleanDatabase(database);
             }
             return database.ConnectionString;
-        }
-
-        void CreateDatabase(string databaseName)
-        {
-            _masterConnection.ExecuteNonQuery($"CREATE DATABASE [{databaseName}]");
-            _masterConnection.ExecuteNonQuery($"ALTER DATABASE [{databaseName}] SET RECOVERY SIMPLE;");
-            //SafeConsole.WriteLine($"Created: {databaseName}");
-        }
-
-        void SeparatelyInitConnectionPoolSoWeSeeRealisticExecutionTimesWhenProfiling() { _masterConnection.UseConnection(_ => { }); }
-
-        static readonly HashSet<string> ConnectionStringsWithKnownManagerDb = new HashSet<string>();
-        bool ManagerDbExists()
-        {
-            if(!ConnectionStringsWithKnownManagerDb.Contains(_masterConnectionString))
-            {
-                SeparatelyInitConnectionPoolSoWeSeeRealisticExecutionTimesWhenProfiling();
-
-                if(_masterConnection.ExecuteScalar($"select DB_ID('{ManagerDbName}')") == DBNull.Value)
-                {
-                    return false;
-                }
-            }
-
-            ConnectionStringsWithKnownManagerDb.Add(_masterConnectionString);
-            return true;
-        }
-
-        void EnsureManagerDbExists()
-        {
-            lock(typeof(SqlServerDatabasePool))
-            {
-                if(!ManagerDbExists())
-                {
-                    CreateDatabase(ManagerDbName);
-                    _managerConnection.ExecuteNonQuery(CreateDbTableSql);
-                    ConnectionStringsWithKnownManagerDb.Add(_masterConnectionString);
-                }
-            }
-        }
-
-        static class ManagerTableSchema
-        {
-            public static readonly string TableName = "Databases";
-            public static readonly string DatabaseName = nameof(DatabaseName);
-            public static readonly string IsFree = nameof(IsFree);
-            public static readonly string ReservationDate = nameof(ReservationDate);
-            public static readonly string ReservationCallStack = nameof(ReservationCallStack);
-        }
-
-        static readonly string CreateDbTableSql = $@"
-CREATE TABLE [dbo].[{ManagerTableSchema.TableName}](
-	[{ManagerTableSchema.DatabaseName}] [varchar](500) NOT NULL,
-	[{ManagerTableSchema.IsFree}] [bit] NOT NULL,
-    [{ManagerTableSchema.ReservationDate}] [datetime] NOT NULL,
-    [{ManagerTableSchema.ReservationCallStack}] [varchar](max) NOT NULL,
- CONSTRAINT [PK_DataBases] PRIMARY KEY CLUSTERED 
-(
-	[{ManagerTableSchema.DatabaseName}] ASC
-))
-";
+        }        
 
         string ConnectionStringForDbNamed(string dbName)
         {

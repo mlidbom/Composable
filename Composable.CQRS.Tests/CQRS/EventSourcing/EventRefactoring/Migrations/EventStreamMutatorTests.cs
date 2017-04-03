@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Composable.CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations.Events;
 using Composable.DependencyInjection;
+using Composable.DependencyInjection.Testing;
 using Composable.GenericAbstractions.Time;
 using Composable.Logging;
 using Composable.Persistence.EventStore;
@@ -10,6 +11,8 @@ using Composable.Persistence.EventStore.Refactoring.Migrations;
 using Composable.System.Linq;
 using FluentAssertions;
 using NUnit.Framework;
+
+using IEventStore = Composable.DependencyInjection.Persistence.IEventStore<Composable.CQRS.Tests.ITestingEventstoreUpdater, Composable.CQRS.Tests.ITestingEventstoreReader>;
 
 // ReSharper disable AccessToDisposedClosure
 // ReSharper disable AccessToModifiedClosure
@@ -35,19 +38,12 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
 
             using (var serviceLocator = CreateServiceLocatorForEventStoreType(() => migrations, EventStoreType))
             {
-                string eventStoreConnectionString;
-                using(serviceLocator.BeginScope())
-                {
-                    eventStoreConnectionString = ((EventStore)serviceLocator.Resolve<IEventStore>()).ConnectionString;
-                    eventStoreConnectionString = eventStoreConnectionString + ";";
-                }
-
                 IEventStore PersistingEventStore() => serviceLocator.Resolve<IEventStore>();
 
-                using (var otherProcessServiceLocator = CreateServiceLocatorForEventStoreType(() => migrations, EventStoreType, eventStoreConnectionString))
+                using (var otherProcessServiceLocator = serviceLocator.Clone())
                 {
                     // ReSharper disable once AccessToDisposedClosure
-                    IEventStoreUpdater OtherEventstoreSession() => otherProcessServiceLocator.Resolve<IEventStoreUpdater>();
+                    ITestingEventstoreUpdater OtherEventstoreSession() => otherProcessServiceLocator.Resolve<ITestingEventstoreUpdater>();
 
                     var id = Guid.Parse("00000000-0000-0000-0000-000000000001");
 
@@ -325,7 +321,7 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
                 var aggregate = TestAggregate.FromEvents(serviceLocator.Resolve<IUtcTimeTimeSource>(), id, Seq.OfTypes<Ec1, E1, E2, E3, E4>());
                 var initialHistory = aggregate.History;
 
-                IEventStoreUpdater Session() => serviceLocator.Resolve<IEventStoreUpdater>();
+                ITestingEventstoreUpdater Session() => serviceLocator.Resolve<ITestingEventstoreUpdater>();
                 IEventStore EventStore() => serviceLocator.Resolve<IEventStore>();
 
                 var firstSavedHistory = serviceLocator.ExecuteUnitOfWorkInIsolatedScope(
@@ -395,7 +391,7 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
                 var aggregate = TestAggregate.FromEvents(serviceLocator.Resolve<IUtcTimeTimeSource>(), id, Seq.OfTypes<Ec1, E1, E2, E3, E4>());
                 var initialHistory = aggregate.History;
 
-                IEventStoreUpdater Session() => serviceLocator.Resolve<IEventStoreUpdater>();
+                ITestingEventstoreUpdater Session() => serviceLocator.Resolve<ITestingEventstoreUpdater>();
                 IEventStore EventStore() => serviceLocator.Resolve<IEventStore>();
 
                 var firstSavedHistory = serviceLocator.ExecuteUnitOfWorkInIsolatedScope(
@@ -472,7 +468,7 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
 
                 var initialAggregate = TestAggregate.FromEvents(serviceLocator.Resolve<IUtcTimeTimeSource>(), id, Seq.OfTypes<Ec1, E1>());
 
-                IEventStoreUpdater Session() => serviceLocator.Resolve<IEventStoreUpdater>();
+                ITestingEventstoreUpdater Session() => serviceLocator.Resolve<ITestingEventstoreUpdater>();
                 IEventStore EventStore() => serviceLocator.Resolve<IEventStore>();
 
                 serviceLocator.ExecuteUnitOfWorkInIsolatedScope(() => Session().Save(initialAggregate));
@@ -520,7 +516,7 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
                 var expectedHistoryAfterFirstMigration = TestAggregate.FromEvents(serviceLocator.Resolve<IUtcTimeTimeSource>(), id, Seq.OfTypes<Ec1, E2, E1>()).History;
                 var expectedHistoryAfterSecondMigration = TestAggregate.FromEvents(serviceLocator.Resolve<IUtcTimeTimeSource>(), id, Seq.OfTypes<Ec1, E2, E3, E1>()).History;
 
-                IEventStoreUpdater Session() => serviceLocator.Resolve<IEventStoreUpdater>();
+                ITestingEventstoreUpdater Session() => serviceLocator.Resolve<ITestingEventstoreUpdater>();
                 IEventStore EventStore() => serviceLocator.Resolve<IEventStore>();
 
                 serviceLocator.ExecuteUnitOfWorkInIsolatedScope(() => Session().Save(initialAggregate));
@@ -558,7 +554,7 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
                 var expectedHistoryAfterFirstMigration = TestAggregate.FromEvents(serviceLocator.Resolve<IUtcTimeTimeSource>(), id, Seq.OfTypes<Ec1, E1, E2>()).History;
                 var expectedHistoryAfterSecondMigration = TestAggregate.FromEvents(serviceLocator.Resolve<IUtcTimeTimeSource>(), id, Seq.OfTypes<Ec1, E1, E3, E2>()).History;
 
-                IEventStoreUpdater Session() => serviceLocator.Resolve<IEventStoreUpdater>();
+                ITestingEventstoreUpdater Session() => serviceLocator.Resolve<ITestingEventstoreUpdater>();
                 IEventStore EventStore() => serviceLocator.Resolve<IEventStore>();
 
                 serviceLocator.ExecuteUnitOfWorkInIsolatedScope(() => Session().Save(initialAggregate));

@@ -2,19 +2,19 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Composable.DependencyInjection;
+using Composable.DependencyInjection.Persistence;
 using Composable.GenericAbstractions.Time;
 using Composable.Logging;
 using Composable.Persistence.EventStore;
 using Composable.Persistence.EventStore.MicrosoftSQLServer;
 using Composable.Persistence.EventStore.Refactoring.Migrations;
 using Composable.System.Collections.Collections;
-using Composable.System.Configuration;
 using Composable.System.Linq;
-using Composable.SystemExtensions.Threading;
-using Composable.UnitsOfWork;
 using FluentAssertions;
 using Newtonsoft.Json;
 using NUnit.Framework;
+
+using IEventStore = Composable.DependencyInjection.Persistence.IEventStore<Composable.CQRS.Tests.ITestingEventstoreUpdater, Composable.CQRS.Tests.ITestingEventstoreReader>;
 
 // ReSharper disable AccessToModifiedClosure
 
@@ -80,16 +80,16 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
 
             timeSource.UtcNow += 1.Hours(); //Bump clock to ensure that times will be be wrong unless the time from the original events are used..
 
-            serviceLocator.ExecuteUnitOfWorkInIsolatedScope(() => serviceLocator.Resolve<IEventStoreUpdater>()
+            serviceLocator.ExecuteUnitOfWorkInIsolatedScope(() => serviceLocator.Resolve<ITestingEventstoreUpdater>()
                                                                                 .Save(initialAggregate));
             migrations.AddRange(startingMigrations);
-            var migratedHistory = serviceLocator.ExecuteUnitOfWorkInIsolatedScope(() => serviceLocator.Resolve<IEventStoreUpdater>()
+            var migratedHistory = serviceLocator.ExecuteUnitOfWorkInIsolatedScope(() => serviceLocator.Resolve<ITestingEventstoreUpdater>()
                                                                                                       .Get<TestAggregate>(initialAggregate.Id))
                                                 .History;
 
             AssertStreamsAreIdentical(expected, migratedHistory, "Loaded un-cached aggregate");
 
-            var migratedCachedHistory = serviceLocator.ExecuteUnitOfWorkInIsolatedScope(() => serviceLocator.Resolve<IEventStoreUpdater>()
+            var migratedCachedHistory = serviceLocator.ExecuteUnitOfWorkInIsolatedScope(() => serviceLocator.Resolve<ITestingEventstoreUpdater>()
                                                                                                             .Get<TestAggregate>(initialAggregate.Id))
                                                       .History;
             AssertStreamsAreIdentical(expected, migratedCachedHistory, "Loaded cached aggregate");
@@ -108,7 +108,7 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
                               .PersistMigrations();
             }
 
-            migratedHistory = serviceLocator.ExecuteUnitOfWorkInIsolatedScope(() => serviceLocator.Resolve<IEventStoreUpdater>()
+            migratedHistory = serviceLocator.ExecuteUnitOfWorkInIsolatedScope(() => serviceLocator.Resolve<ITestingEventstoreUpdater>()
                                                                                                   .Get<TestAggregate>(initialAggregate.Id))
                                             .History;
             AssertStreamsAreIdentical(expected, migratedHistory, "Loaded aggregate");
@@ -122,7 +122,7 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
             SafeConsole.WriteLine("  Disable all migrations so that none are used when reading from the event stores");
             migrations.Clear();
 
-            migratedHistory = serviceLocator.ExecuteUnitOfWorkInIsolatedScope(() => serviceLocator.Resolve<IEventStoreUpdater>()
+            migratedHistory = serviceLocator.ExecuteUnitOfWorkInIsolatedScope(() => serviceLocator.Resolve<ITestingEventstoreUpdater>()
                                                                                                   .Get<TestAggregate>(initialAggregate.Id))
                                             .History;
             AssertStreamsAreIdentical(expected, migratedHistory, "loaded aggregate");
@@ -137,7 +137,7 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
             {
                 SafeConsole.WriteLine("Clearing sql server eventstore cache");
                 serviceLocator.ExecuteUnitOfWorkInIsolatedScope(() => ((EventStore)serviceLocator.Resolve<IEventStore>()).ClearCache());
-                migratedHistory = serviceLocator.ExecuteUnitOfWorkInIsolatedScope(() => serviceLocator.Resolve<IEventStoreUpdater>()
+                migratedHistory = serviceLocator.ExecuteUnitOfWorkInIsolatedScope(() => serviceLocator.Resolve<ITestingEventstoreUpdater>()
                                                                                                       .Get<TestAggregate>(initialAggregate.Id))
                                                 .History;
                 AssertStreamsAreIdentical(expected, migratedHistory, "Loaded aggregate");
@@ -150,57 +150,18 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
             }
         }
 
-        protected static IServiceLocator CreateServiceLocatorForEventStoreType(Func<IReadOnlyList<IEventMigration>> migrationsfactory, Type eventStoreType, string eventStoreConnectionString = null)
+        protected static IServiceLocator CreateServiceLocatorForEventStoreType(Func<IReadOnlyList<IEventMigration>> migrationsfactory, Type eventStoreType)
         {
             var serviceLocator = DependencyInjectionContainer.CreateServiceLocatorForTesting(
                 container =>
                 {
-                    container.Register(
-                        Component.For<IEnumerable<IEventMigration>>()
-                                 .UsingFactoryMethod(_ => migrationsfactory())
-                                 .LifestyleScoped(),
-                        Component.For<IEventStoreUpdater, IUnitOfWorkParticipant>()
-                                 .ImplementedBy<EventStoreUpdater>()
-                                 .LifestyleScoped()
-                    );
-
+                    var eventStoreConnectionString = container.CreateServiceLocator().EventStoreConnectionString();
                     if(eventStoreType == typeof(EventStore))
                     {
-                        var cache = new EventCache();
-                        if(eventStoreConnectionString == null)
-                        {
-                            var dbManager = container.CreateServiceLocator()
-                                                     .Resolve<IConnectionStringProvider>();
-
-                            eventStoreConnectionString = dbManager.GetConnectionString($"{nameof(EventStreamMutatorTestsBase)}_EventStore")
-                                                                  .ConnectionString;
-                        }
-
-                        container.Register(
-                            Component.For<IEventStore>()
-                                     .UsingFactoryMethod(
-                                         locator => new EventStore(connectionString: eventStoreConnectionString,
-                                                                   serializer: locator.Resolve<IEventStoreEventSerializer>(),
-                                                                   usageGuard: locator.Resolve<ISingleContextUseGuard>(),
-                                                                   cache: cache,
-                                                                   nameMapper: null,
-                                                                   migrations: locator.Resolve<IEnumerable<IEventMigration>>()))
-                                     .LifestyleScoped());
+                       container.RegisterSqlServerEventStoreForFlexibleTesting<ITestingEventstoreUpdater, ITestingEventstoreReader>(TestingMode.RealComponents, eventStoreConnectionString, migrationsfactory);
                     } else if(eventStoreType == typeof(InMemoryEventStore))
                     {
-                        container.Register(
-                            Component.For<IEventStore>()
-                                     .UsingFactoryMethod(
-                                         kernel =>
-                                         {
-                                             var store = kernel.Resolve<InMemoryEventStore>();
-                                             store.TestingOnlyReplaceMigrations(migrationsfactory());
-                                             return store;
-                                         })
-                                     .LifestyleScoped(),
-                            Component.For<InMemoryEventStore>()
-                                     .ImplementedBy<InMemoryEventStore>()
-                                     .LifestyleSingleton());
+                        container.RegisterSqlServerEventStoreForFlexibleTesting<ITestingEventstoreUpdater, ITestingEventstoreReader>(TestingMode.InMemory, eventStoreConnectionString, migrationsfactory);
                     } else
                     {
                         throw new Exception($"Unsupported type of event store {eventStoreType}");

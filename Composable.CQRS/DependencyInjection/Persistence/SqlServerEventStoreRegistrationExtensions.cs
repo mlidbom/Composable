@@ -21,7 +21,7 @@ namespace Composable.DependencyInjection.Persistence
 
     public static class SqlServerEventStoreRegistrationExtensions
     {
-        interface IEventStoreUpdater<TSessionInterface, TReaderInterface> : IEventStoreUpdater {}
+        internal interface IEventStoreUpdater<TSessionInterface, TReaderInterface> : IEventStoreUpdater {}
 
         class EventStore<TSessionInterface, TReaderInterface> : EventStore, IEventStore<TSessionInterface, TReaderInterface>
         {
@@ -48,24 +48,46 @@ namespace Composable.DependencyInjection.Persistence
 
         public static void RegisterSqlServerEventStore<TSessionInterface, TReaderInterface>(this IDependencyInjectionContainer @this,
                                                                                             string connectionName,
-                                                                                            IEnumerable<IEventMigration> migrations = null)
+                                                                                            IReadOnlyList<IEventMigration> migrations = null)
+            where TSessionInterface : IEventStoreUpdater
+            where TReaderInterface : IEventStoreReader
+            => @this.RegisterSqlServerEventStoreForFlexibleTesting<TSessionInterface, TReaderInterface>(
+                @this.RunMode().Mode,
+                connectionName,
+                migrations != null
+                    ? (Func<IReadOnlyList<IEventMigration>>)(() => migrations)
+                    : (() => EmptyMigrationsArray));
+
+        static readonly IEventMigration[] EmptyMigrationsArray = new IEventMigration[0];
+        internal static void RegisterSqlServerEventStoreForFlexibleTesting<TSessionInterface, TReaderInterface>(this IDependencyInjectionContainer @this,
+                                                                                                                TestingMode mode,
+                                                                                                                string connectionName,
+                                                                                                                Func<IReadOnlyList<IEventMigration>> migrations)
             where TSessionInterface : IEventStoreUpdater
             where TReaderInterface : IEventStoreReader
         {
             Contract.Argument(() => connectionName)
                     .NotNullEmptyOrWhiteSpace();
+            migrations = migrations ?? (() => EmptyMigrationsArray);
 
             GeneratedLowLevelInterfaceInspector.InspectInterfaces(Seq.OfTypes<TSessionInterface, TReaderInterface>());
 
             var cache = new EventCache();
 
-            if(@this.RunMode()
-                    .IsTesting && @this.RunMode()
-                                       .Mode == TestingMode.InMemory)
+            if(@this.RunMode().IsTesting && mode == TestingMode.InMemory)
             {
-                @this.Register(Component.For<IEventStore<TSessionInterface, TReaderInterface>>()
-                                        .UsingFactoryMethod(sl => new InMemoryEventStore<TSessionInterface, TReaderInterface>(migrations: migrations))
+                @this.Register(Component.For<InMemoryEventStore<TSessionInterface, TReaderInterface>>()
+                                        .UsingFactoryMethod(sl => new InMemoryEventStore<TSessionInterface, TReaderInterface>(migrations: migrations()))
                                         .LifestyleSingleton());
+
+                @this.Register(Component.For<IEventStore<TSessionInterface, TReaderInterface>>()
+                                        .UsingFactoryMethod(sl =>
+                                                            {
+                                                                var store = sl.Resolve<InMemoryEventStore<TSessionInterface, TReaderInterface>>();
+                                                                store.TestingOnlyReplaceMigrations(migrations());
+                                                                return store;
+                                                            })
+                                        .LifestyleScoped());
             } else
             {
                 @this.Register(Component.For<IEventStore<TSessionInterface, TReaderInterface>>()
@@ -74,7 +96,7 @@ namespace Composable.DependencyInjection.Persistence
                                                                                     .GetConnectionString(connectionName)
                                                                                     .ConnectionString,
                                                                 serializer: sl.Resolve<IEventStoreEventSerializer>(),
-                                                                migrations: migrations,
+                                                                migrations: migrations(),
                                                                 cache: cache))
                                         .LifestyleScoped());
             }

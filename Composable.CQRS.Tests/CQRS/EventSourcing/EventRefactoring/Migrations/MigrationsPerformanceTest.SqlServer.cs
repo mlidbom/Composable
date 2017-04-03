@@ -34,16 +34,16 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
 
                 var history = Seq.OfTypes<Ec1>().Concat(1.Through(10000).Select(index => typeof(E1))).ToArray();
                 var aggregate = TestAggregate.FromEvents(timeSource, Guid.NewGuid(), history);
-                serviceLocator.ExecuteUnitOfWorkInIsolatedScope(() => serviceLocator.Resolve<IEventStoreUpdater>().Save(aggregate));
+                serviceLocator.ExecuteUnitOfWorkInIsolatedScope(() => serviceLocator.Resolve<ITestingEventstoreUpdater>().Save(aggregate));
 
                 //Warm up cache..
-                serviceLocator.ExecuteUnitOfWorkInIsolatedScope(() => serviceLocator.Resolve<IEventStoreUpdater>().Get<TestAggregate>(aggregate.Id));
+                serviceLocator.ExecuteUnitOfWorkInIsolatedScope(() => serviceLocator.Resolve<ITestingEventstoreUpdater>().Get<TestAggregate>(aggregate.Id));
 
                 TimeAsserter.Execute(
                     maxTotal: 20.Milliseconds().AdjustRuntimeToTestEnvironment(),
                     description: "load aggregate in isolated scope",
                     timeFormat: "fff",
-                    action: () => serviceLocator.ExecuteInIsolatedScope(() => serviceLocator.Resolve<IEventStoreUpdater>().Get<TestAggregate>(aggregate.Id)),
+                    action: () => serviceLocator.ExecuteInIsolatedScope(() => serviceLocator.Resolve<ITestingEventstoreUpdater>().Get<TestAggregate>(aggregate.Id)),
                     maxTries: 3);
             }
         }
@@ -64,7 +64,7 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
 
           var history = Seq.OfTypes<Ec1>().Concat(1.Through(10000).Select(index => typeof(E1))).ToArray();
           var aggregate = TestAggregate.FromEvents(timeSource, Guid.NewGuid(), history);
-          serviceLocator.ExecuteUnitOfWorkInIsolatedScope(() => serviceLocator.Resolve<IEventStoreUpdater>().Save(aggregate));
+          serviceLocator.ExecuteUnitOfWorkInIsolatedScope(() => serviceLocator.Resolve<ITestingEventstoreUpdater>().Save(aggregate));
 
           TimeAsserter.Execute(
             maxTotal: 500.Milliseconds().AdjustRuntimeToTestEnvironment(),
@@ -72,7 +72,7 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
             action:
             () =>
               serviceLocator.ExecuteInIsolatedScope(
-                () => serviceLocator.Resolve<IEventStoreUpdater>().Get<TestAggregate>(aggregate.Id)));
+                () => serviceLocator.Resolve<ITestingEventstoreUpdater>().Get<TestAggregate>(aggregate.Id)));
         }
       }
 
@@ -90,10 +90,10 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
                                                 setup: () =>
                                                        {
                                                            aggregate = TestAggregate.FromEvents(timeSource, Guid.NewGuid(), history);
-                                                           serviceLocator.ExecuteUnitOfWorkInIsolatedScope(() => serviceLocator.Resolve<IEventStoreUpdater>()
+                                                           serviceLocator.ExecuteUnitOfWorkInIsolatedScope(() => serviceLocator.Resolve<ITestingEventstoreUpdater>()
                                                                                                                      .Save(aggregate));
                                                        },
-                                                action: () => serviceLocator.ExecuteInIsolatedScope(() => serviceLocator.Resolve<IEventStoreUpdater>()
+                                                action: () => serviceLocator.ExecuteInIsolatedScope(() => serviceLocator.Resolve<ITestingEventstoreUpdater>()
                                                                                                               .Get<TestAggregate>(aggregate.Id)),
                                                 maxTries: 10);
 
@@ -111,7 +111,7 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
 
         var history = Seq.OfTypes<Ec1>().Concat(1.Through(10000).Select(index => typeof(E1))).ToArray();
         var aggregate = TestAggregate.FromEvents(timeSource, Guid.NewGuid(), history);
-        serviceLocator.ExecuteUnitOfWorkInIsolatedScope(() => serviceLocator.Resolve<IEventStoreUpdater>().Save(aggregate));
+        serviceLocator.ExecuteUnitOfWorkInIsolatedScope(() => serviceLocator.Resolve<ITestingEventstoreUpdater>().Save(aggregate));
 
         TimeAsserter.Execute(
           maxTotal: 30.Milliseconds().AdjustRuntimeToTestEnvironment(),
@@ -119,7 +119,7 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
           action:
           () =>
             serviceLocator.ExecuteInIsolatedScope(
-              () => serviceLocator.Resolve<IEventStoreUpdater>().Get<TestAggregate>(aggregate.Id)),
+              () => serviceLocator.Resolve<ITestingEventstoreUpdater>().Get<TestAggregate>(aggregate.Id)),
           maxTries: 3);
       }
     }

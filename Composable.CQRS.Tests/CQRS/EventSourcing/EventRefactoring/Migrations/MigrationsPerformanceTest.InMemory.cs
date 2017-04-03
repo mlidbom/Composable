@@ -33,14 +33,14 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
 
                 var history = Seq.OfTypes<Ec1>().Concat(1.Through(100000).Select(index => typeof(E1))).ToArray();
                 var aggregate = TestAggregate.FromEvents(timeSource, Guid.NewGuid(), history);
-                serviceLocator.ExecuteUnitOfWorkInIsolatedScope(() => serviceLocator.Resolve<IEventStoreUpdater>().Save(aggregate));
+                serviceLocator.ExecuteUnitOfWorkInIsolatedScope(() => serviceLocator.Resolve<ITestingEventstoreUpdater>().Save(aggregate));
 
                 //Warm up cache..
-                serviceLocator.ExecuteUnitOfWorkInIsolatedScope(() => serviceLocator.Resolve<IEventStoreUpdater>().Get<TestAggregate>(aggregate.Id));
+                serviceLocator.ExecuteUnitOfWorkInIsolatedScope(() => serviceLocator.Resolve<ITestingEventstoreUpdater>().Get<TestAggregate>(aggregate.Id));
 
                 TimeAsserter.Execute(
                     maxTotal: 300.Milliseconds().AdjustRuntimeToTestEnvironment(),
-                    action: () => serviceLocator.ExecuteInIsolatedScope(() => serviceLocator.Resolve<IEventStoreUpdater>().Get<TestAggregate>(aggregate.Id))
+                    action: () => serviceLocator.ExecuteInIsolatedScope(() => serviceLocator.Resolve<ITestingEventstoreUpdater>().Get<TestAggregate>(aggregate.Id))
                     , maxTries: 10);
             }
         }

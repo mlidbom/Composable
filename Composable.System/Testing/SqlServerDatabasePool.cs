@@ -96,14 +96,14 @@ if( @reservedId is not null)
 select @reservedId";
 
             var idObject = _managerConnection.ExecuteScalar(command);
-            if(!(idObject is DBNull))
+            if(idObject is DBNull)
             {
-                database = new Database(pool:this, id:(int)idObject, isFree:false);
-                return true;
+                database = null;
+                return false;
             }
 
-            database = null;
-            return false;
+            database = new Database(pool: this, id: (int)idObject, isFree: false);
+            return true;
         }
 
         void CleanDatabase(Database db)

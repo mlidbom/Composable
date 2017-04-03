@@ -11,18 +11,15 @@ namespace Composable.CQRS.Tests.SqlServerDatabasePoolTests
     {
         static readonly string MasterConnectionString = ConfigurationManager.ConnectionStrings["MasterDB"].ConnectionString;
 
+        [OneTimeSetUp] public void ResetDatabases()
+        {
+            SqlServerDatabasePool.DropAllAndStartOver(MasterConnectionString);
+        }
+
         [SetUp]
         public void WarmUpCache()
         {
             using(new SqlServerDatabasePool(MasterConnectionString)) { }
-        }
-
-        [Test,Ignore("Should only ever be executed manually")] public void RemoveAllDatabases()
-        {
-            using(var manager = new SqlServerDatabasePool(MasterConnectionString))
-            {
-                manager.RemoveAllDatabases();
-            }
         }
 
         [Test]
@@ -41,7 +38,7 @@ namespace Composable.CQRS.Tests.SqlServerDatabasePoolTests
                 },
                 iterations: 10,
                 maxTotal: 500.Milliseconds(),
-                maxTries: 3);
+                maxTries: 10);
         }
 
         [Test]

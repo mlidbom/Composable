@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using Composable.Contracts;
-using Composable.Testing;
 using NUnit.Framework;
 
 namespace Composable.Tests.Contracts

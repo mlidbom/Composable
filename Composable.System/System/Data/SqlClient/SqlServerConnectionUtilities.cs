@@ -8,6 +8,11 @@ namespace Composable.System.Data.SqlClient
         string ConnectionString { get; }
         public SqlServerConnectionUtilities(string connectionString) => ConnectionString = connectionString;
 
+        public void ClearConnectionPool()
+        {
+            SqlConnection.ClearPool(new SqlConnection(connectionString:ConnectionString));
+        }
+
         public int ExecuteNonQuery(string commandText)
         {
             return UseCommand(

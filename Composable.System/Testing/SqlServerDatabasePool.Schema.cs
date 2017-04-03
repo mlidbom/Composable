@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.SqlClient;
+using Composable.System.Data.SqlClient;
 
 namespace Composable.Testing
 {
@@ -49,7 +51,6 @@ namespace Composable.Testing
         {
             public static readonly string TableName = "Databases";
             public static readonly string Id = nameof(Id);
-            public static readonly string DatabaseName = nameof(DatabaseName);
             public static readonly string IsFree = nameof(IsFree);
             public static readonly string ReservationDate = nameof(ReservationDate);
             public static readonly string ReservationCallStack = nameof(ReservationCallStack);
@@ -58,7 +59,6 @@ namespace Composable.Testing
         static readonly string CreateDbTableSql = $@"
 CREATE TABLE [dbo].[{ManagerTableSchema.TableName}](
     [{ManagerTableSchema.Id}] [int] IDENTITY(1,1) NOT NULL,
-	[{ManagerTableSchema.DatabaseName}] [varchar](500) NOT NULL,
 	[{ManagerTableSchema.IsFree}] [bit] NOT NULL,
     [{ManagerTableSchema.ReservationDate}] [datetime] NOT NULL,
     [{ManagerTableSchema.ReservationCallStack}] [varchar](max) NOT NULL,
@@ -67,5 +67,49 @@ CREATE TABLE [dbo].[{ManagerTableSchema.TableName}](
 	[{ManagerTableSchema.Id}] ASC
 ))
 ";
+
+        internal void DropAllAndStartOver()
+        {
+            _managerConnection.ClearConnectionPool();
+            var dbsToDrop = new List<string>();
+            _masterConnection.UseCommand(
+                action: command =>
+                        {
+                            command.CommandText = "select name from sysdatabases";
+                            using (var reader = command.ExecuteReader())
+                            {
+                                while (reader.Read())
+                                {
+                                    var dbName = reader.GetString(i: 0);
+                                    if (dbName.StartsWith(ManagerDbName))
+                                        dbsToDrop.Add(dbName);
+                                }
+                            }
+                        });
+
+            foreach (var db in dbsToDrop)
+            {
+                var dropCommand = $"drop database [{db}]";
+                //SafeConsole.WriteLine(dropCommand);
+                try
+                {
+                    _masterConnection.ExecuteNonQuery(dropCommand);
+                }
+                catch (Exception exception)
+                {
+                    Log.Error(exception);
+                }
+            }
+
+            ConnectionStringsWithKnownManagerDb.Clear();
+        }
+
+        internal static void DropAllAndStartOver(string masterConnectionString)
+        {
+            using(var pool = new SqlServerDatabasePool(masterConnectionString))
+            {
+                pool.DropAllAndStartOver();
+            }
+        }
     }
 }

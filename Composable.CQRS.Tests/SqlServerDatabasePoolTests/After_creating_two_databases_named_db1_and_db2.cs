@@ -18,10 +18,15 @@ namespace Composable.CQRS.Tests.SqlServerDatabasePoolTests
         const string Db2 = "LocalDBManagerTests_After_creating_connection_Db2";
 
 
+        [OneTimeSetUp] public void OneTimeSetup()
+        {
+            _masterConnectionString = ConfigurationManager.ConnectionStrings["MasterDB"].ConnectionString;
+            //SqlServerDatabasePool.DropAllAndStartOver(_masterConnectionString);
+        }
+
         [SetUp]
         public void SetupTask()
         {
-            _masterConnectionString = ConfigurationManager.ConnectionStrings["MasterDB"].ConnectionString;
             _manager = new SqlServerDatabasePool(_masterConnectionString);
             _dB1ConnectionString = _manager.ConnectionStringFor(Db1);
             _dB2ConnectionString = _manager.ConnectionStringFor(Db2);

@@ -603,7 +603,7 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
         public void DropEm()
         {
             //new SqlServerDatabasePool(new ConnectionStringConfigurationParameterProvider().ConnectionStringFor("MasterDB").ConnectionString)
-            //    .RemoveAllDatabases();
+            //    .DropAllAndStartOver();
         }
     }
 }

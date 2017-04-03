@@ -54,18 +54,14 @@ namespace Composable.Testing
         public string ConnectionStringFor(string requestedDbName)
         {
             if(_disposed)
-            {
-                throw new InvalidOperationException("Attempt to use disposed object");
-            }
+                throw new InvalidOperationException(message: "Attempt to use disposed object");
 
             Database database;
             if(_reservedDatabases.TryGetValue(requestedDbName, out database))
-            {
                 return database.ConnectionString;
-            }
 
-            bool newDatabase = false;
-            RunInIsolatedTransaction(() =>
+            var newDatabase = false;
+            RunInIsolatedTransaction(action: () =>
                                      {
                                          if(TryReserveDatabase(out database))
                                          {
@@ -80,13 +76,11 @@ namespace Composable.Testing
                                              {
                                                  newDatabase = true;
                                                  // ReSharper disable once AssignNullToNotNullAttribute
-                                                 var newDatabaseName = $"{ManagerDbName}_{Guid.NewGuid()}.mdf";
-                                                 var id = InsertDatabase(newDatabaseName);
+                                                 var id = InsertDatabase();
                                                  database = new Database(
-                                                     id: id,
-                                                     name: newDatabaseName,
-                                                     isFree: false,
-                                                     connectionString: ConnectionStringForDbNamed(newDatabaseName));
+                                                     this,
+                                                     id,
+                                                     isFree: false);
 
                                                  using(new TransactionScope(TransactionScopeOption.Suppress))
                                                  {
@@ -99,9 +93,7 @@ namespace Composable.Testing
                                      });
 
             if(!newDatabase)
-            {
                 CleanDatabase(database);
-            }
             return database.ConnectionString;
         }
 
@@ -115,39 +107,36 @@ namespace Composable.Testing
         {
             database = null;
             var databases = GetDatabases();
-            var freeDbs = databases.Where(db => db.IsFree).ToList();
+            var freeDbs = databases.Where(predicate: db => db.IsFree).ToList();
             if(freeDbs.Any())
             {
                 database = freeDbs.First();
-                ReserveDatabase(database.Name);
+                ReserveDatabase(database.Id);
                 return true;
             }
             return false;
         }
 
-        void ReserveDatabase(string dbName)
+        void ReserveDatabase(int id)
         {
             _managerConnection.ExecuteNonQuery(
-                $"update {ManagerTableSchema.TableName} set {ManagerTableSchema.IsFree} = 0, {ManagerTableSchema.ReservationDate} = getdate(), {ManagerTableSchema.ReservationCallStack} = '{Environment.StackTrace}' where {ManagerTableSchema.DatabaseName} = '{dbName}'");
+                $"update {ManagerTableSchema.TableName} set {ManagerTableSchema.IsFree} = 0, {ManagerTableSchema.ReservationDate} = getdate(), {ManagerTableSchema.ReservationCallStack} = '{Environment.StackTrace}' where {ManagerTableSchema.Id} = '{id}'");
             //SafeConsole.WriteLine($"Reserved:{dbName}");
         }
 
         void CleanDatabase(Database db)
         {
             new SqlServerConnectionUtilities(ConnectionStringForDbNamed(db.Name))
-                .UseConnection(connection => connection.DropAllObjects());
+                .UseConnection(action: connection => connection.DropAllObjects());
         }
 
-        int InsertDatabase(string dbName)
+        int InsertDatabase()
         {
             var value = _managerConnection.ExecuteScalar(
                 $@"
                 set nocount on
-                insert {ManagerTableSchema.TableName} ({ManagerTableSchema.DatabaseName}, {ManagerTableSchema.IsFree}, {ManagerTableSchema.ReservationDate},  {
-                        ManagerTableSchema.ReservationCallStack
-                    }) 
-                                                   values('{dbName}'                       ,                     0      ,                     getdate()       ,                     '{
-                        Environment.StackTrace
+                insert {ManagerTableSchema.TableName} ({ManagerTableSchema.IsFree}, {ManagerTableSchema.ReservationDate},  {ManagerTableSchema.ReservationCallStack}) 
+                                                   values(                0      ,                     getdate()       ,                     '{Environment.StackTrace
                     }')
                 select @@IDENTITY");
             return (int)(decimal)value;
@@ -156,14 +145,14 @@ namespace Composable.Testing
 
         void ReleaseDatabases(IReadOnlyList<Database> database)
         {
-            database.ForEach(db => _reservedDatabases.Remove(db.Name));
+            database.ForEach(action: db => _reservedDatabases.Remove(db.Name));
 
-            var nameList = database.Select(db => "'" + db.Name + "'").Join(",");
+            var idList = database.Select(selector: db => "'" + db.Id + "'").Join(separator: ",");
 
             Task.Run(
-                () => RunInIsolatedTransaction(
-                    () => _managerConnection.ExecuteNonQuery(
-                        $"update {ManagerTableSchema.TableName} set {ManagerTableSchema.IsFree} = 1  where {ManagerTableSchema.DatabaseName} in ({nameList})")));
+                action: () => RunInIsolatedTransaction(
+                    action: () => _managerConnection.ExecuteNonQuery(
+                        $"update {ManagerTableSchema.TableName} set {ManagerTableSchema.IsFree} = 1  where {ManagerTableSchema.Id} in ({idList})")));
         }
 
         static readonly string LockingHint = "With(TABLOCKX)";
@@ -171,22 +160,19 @@ namespace Composable.Testing
         IEnumerable<Database> GetDatabases()
         {
             return _managerConnection.UseCommand(
-                command =>
+                action: command =>
                 {
                     var names = new List<Database>();
                     command.CommandText =
-                        $"select {ManagerTableSchema.Id}, {ManagerTableSchema.DatabaseName}, {ManagerTableSchema.IsFree}, {ManagerTableSchema.ReservationDate} from {ManagerTableSchema.TableName} {LockingHint}";
+                        $"select {ManagerTableSchema.Id}, {ManagerTableSchema.IsFree}, {ManagerTableSchema.ReservationDate} from {ManagerTableSchema.TableName} {LockingHint}";
                     using(var reader = command.ExecuteReader())
                     {
                         while(reader.Read())
-                        {
                             names.Add(
                                 new Database(
-                                    id: reader.GetInt32(0),
-                                    name: reader.GetString(1),
-                                    isFree: reader.GetBoolean(2),
-                                    connectionString: ConnectionStringForDbNamed(reader.GetString(1))));
-                        }
+                                    this,
+                                    reader.GetInt32(0),
+                                    reader.GetBoolean(1)));
                     }
                     return names;
                 });
@@ -194,7 +180,7 @@ namespace Composable.Testing
 
         void ReleaseOldLocks()
         {
-                    RunInIsolatedTransaction(() =>
+                    RunInIsolatedTransaction(action: () =>
                                              {
                                                  var count = _managerConnection.ExecuteNonQuery(
                                                      $"update {ManagerTableSchema.TableName} {LockingHint} set {ManagerTableSchema.IsFree} = 1 where {ManagerTableSchema.ReservationDate} < dateadd(minute, -10, getdate()) and {ManagerTableSchema.IsFree} = 0");
@@ -225,51 +211,13 @@ namespace Composable.Testing
             internal string Name { get; }
             internal bool IsFree { get; }
             internal string ConnectionString { get; }
-            internal Database(int id, string name,  bool isFree, string connectionString)
+            internal Database(SqlServerDatabasePool pool, int id, bool isFree)
             {
                 Id = id;
-                Name = name;
+                Name = $"{ManagerDbName}_{id}";
                 IsFree = isFree;
-                ConnectionString = connectionString;
+                ConnectionString = pool.ConnectionStringForDbNamed(Name);
             }
-        }
-
-        // ReSharper disable once UnusedMember.Global
-        internal void RemoveAllDatabases()
-        {
-            var dbsToDrop = new List<string>();
-            _masterConnection.UseCommand(
-                command =>
-                {
-                    command.CommandText = "select name from sysdatabases";
-                    using(var reader = command.ExecuteReader())
-                    {
-                        while(reader.Read())
-                        {
-                            var dbName = reader.GetString(0);
-                            if((dbName.StartsWith(ManagerDbName) && dbName != ManagerDbName))
-                            {
-                                dbsToDrop.Add(dbName);
-                            }
-                        }
-                    }
-                });
-
-            foreach(var db in dbsToDrop)
-            {
-                var dropCommand = $"drop database [{db}]";
-                //SafeConsole.WriteLine(dropCommand);
-                try
-                {
-                    _masterConnection.ExecuteNonQuery(dropCommand);
-                }
-                catch(Exception exception)
-                {
-                    Log.Error(exception);
-                }
-            }
-
-            _managerConnection.ExecuteNonQuery($"delete {ManagerTableSchema.TableName}");
         }
     }
 }

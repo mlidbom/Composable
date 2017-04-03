@@ -26,11 +26,11 @@ namespace Composable.DependencyInjection.Persistence
         class EventStore<TSessionInterface, TReaderInterface> : EventStore, IEventStore<TSessionInterface, TReaderInterface>
         {
             public EventStore(string connectionString,
-                                       IEventStoreEventSerializer serializer,
-                                       ISingleContextUseGuard usageGuard = null,
-                                       EventCache cache = null,
-                                       IEventNameMapper nameMapper = null,
-                                       IEnumerable<IEventMigration> migrations = null) : base(connectionString, serializer, usageGuard, cache, nameMapper, migrations) {}
+                              IEventStoreEventSerializer serializer,
+                              ISingleContextUseGuard usageGuard = null,
+                              EventCache cache = null,
+                              IEventNameMapper nameMapper = null,
+                              IEnumerable<IEventMigration> migrations = null) : base(connectionString, serializer, usageGuard, cache, nameMapper, migrations) {}
         }
 
         class InMemoryEventStore<TSessionInterface, TReaderInterface> : InMemoryEventStore, IEventStore<TSessionInterface, TReaderInterface>
@@ -59,31 +59,33 @@ namespace Composable.DependencyInjection.Persistence
 
             var cache = new EventCache();
 
-            if(@this.RunMode().IsTesting && @this.RunMode().Mode == TestingMode.InMemory)
+            if(@this.RunMode()
+                    .IsTesting && @this.RunMode()
+                                       .Mode == TestingMode.InMemory)
             {
                 @this.Register(Component.For<IEventStore<TSessionInterface, TReaderInterface>>()
-                                               .UsingFactoryMethod(sl => new InMemoryEventStore<TSessionInterface, TReaderInterface>(migrations: migrations))
-                                               .LifestyleSingleton());
+                                        .UsingFactoryMethod(sl => new InMemoryEventStore<TSessionInterface, TReaderInterface>(migrations: migrations))
+                                        .LifestyleSingleton());
             } else
             {
                 @this.Register(Component.For<IEventStore<TSessionInterface, TReaderInterface>>()
                                         .UsingFactoryMethod(sl => new EventStore<TSessionInterface, TReaderInterface>(
-                                                                                                                               connectionString: sl.Resolve<IConnectionStringProvider>()
-                                                                                                                                                   .GetConnectionString(connectionName)
-                                                                                                                                                   .ConnectionString,
-                                                                                                                               serializer: sl.Resolve<IEventStoreEventSerializer>(),
-                                                                                                                               migrations: migrations,
-                                                                                                                               cache: cache))
+                                                                connectionString: sl.Resolve<IConnectionStringProvider>()
+                                                                                    .GetConnectionString(connectionName)
+                                                                                    .ConnectionString,
+                                                                serializer: sl.Resolve<IEventStoreEventSerializer>(),
+                                                                migrations: migrations,
+                                                                cache: cache))
                                         .LifestyleScoped());
             }
 
             @this.Register(Component.For<IEventStoreUpdater<TSessionInterface, TReaderInterface>, IUnitOfWorkParticipant>()
-                                           .ImplementedBy<EventStoreUpdater<TSessionInterface, TReaderInterface>>()
-                                           .LifestyleScoped());
+                                    .ImplementedBy<EventStoreUpdater<TSessionInterface, TReaderInterface>>()
+                                    .LifestyleScoped());
 
             @this.Register(Component.For<TSessionInterface>(Seq.OfTypes<TReaderInterface>())
-                                           .UsingFactoryMethod(locator => CreateProxyFor<TSessionInterface, TReaderInterface>(locator.Resolve<IEventStoreUpdater<TSessionInterface, TReaderInterface>>()))
-                                           .LifestyleScoped());
+                                    .UsingFactoryMethod(locator => CreateProxyFor<TSessionInterface, TReaderInterface>(locator.Resolve<IEventStoreUpdater<TSessionInterface, TReaderInterface>>()))
+                                    .LifestyleScoped());
         }
 
         static TSessionInterface CreateProxyFor<TSessionInterface, TReaderInterface>(IEventStoreUpdater updater)
@@ -99,13 +101,14 @@ namespace Composable.DependencyInjection.Persistence
             where TSessionInterface : IEventStoreUpdater
             where TReaderInterface : IEventStoreReader
         {
-            internal static readonly Type ProxyType = new DefaultProxyBuilder().CreateInterfaceProxyTypeWithTargetInterface(interfaceToProxy: typeof(IEventStoreUpdater),
-                                                                                                                            additionalInterfacesToProxy: new[]
-                                                                                                                                                         {
-                                                                                                                                                             typeof(TSessionInterface),
-                                                                                                                                                             typeof(TReaderInterface)
-                                                                                                                                                         },
-                                                                                                                            options: ProxyGenerationOptions.Default);
+            internal static readonly Type ProxyType = new DefaultProxyBuilder().CreateInterfaceProxyTypeWithTargetInterface(
+                interfaceToProxy: typeof(IEventStoreUpdater),
+                additionalInterfacesToProxy: new[]
+                                             {
+                                                 typeof(TSessionInterface),
+                                                 typeof(TReaderInterface)
+                                             },
+                options: ProxyGenerationOptions.Default);
         }
     }
 }

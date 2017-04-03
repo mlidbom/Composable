@@ -31,6 +31,7 @@ namespace Composable.Testing
             _managerConnection = new SqlServerConnectionUtilities(sqlConnectionStringBuilder.ConnectionString);
 
             EnsureManagerDbExists();
+            //Task.Run(() => ReleaseOldLocks()); //todo: running this here causes deadlocks. Investigate and finally figure out how to get rid of the veird tablockx hints without running into deadlocks. 
         }
 
         readonly Dictionary<string, Database> _reservedDatabases = new Dictionary<string, Database>();

@@ -49,8 +49,6 @@ namespace Composable.DependencyInjection.Persistence
 
             GeneratedLowLevelInterfaceInspector.InspectInterfaces(Seq.OfTypes<TUpdater, TReader, TBulkReader>());
 
-            var serviceLocator = @this.CreateServiceLocator();
-
             if(@this.RunMode().IsTesting && @this.RunMode().Mode == TestingMode.InMemory)
             {
                 @this.Register(Component.For<IDocumentDb<TUpdater, TReader, TBulkReader>>()
@@ -59,12 +57,10 @@ namespace Composable.DependencyInjection.Persistence
 
             } else
             {
-                var connectionString = serviceLocator.Resolve<IConnectionStringProvider>()
-                                                     .GetConnectionString(connectionName)
-                                                     .ConnectionString;
-
                 @this.Register(Component.For<IDocumentDb<TUpdater, TReader, TBulkReader>>()
-                                         .UsingFactoryMethod(kernel => new SqlServerDocumentDb<TUpdater, TReader, TBulkReader>(connectionString))
+                                         .UsingFactoryMethod(kernel => new SqlServerDocumentDb<TUpdater, TReader, TBulkReader>(kernel.Resolve<IConnectionStringProvider>()
+                                                                                                                                             .GetConnectionString(connectionName)
+                                                                                                                                             .ConnectionString))
                                          .LifestyleSingleton());
             }
 

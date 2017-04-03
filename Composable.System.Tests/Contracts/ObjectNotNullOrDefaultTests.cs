@@ -2,14 +2,13 @@
 using System.Collections.Generic;
 using Composable.Contracts;
 using Composable.Testing;
-using FluentAssertions;
 using NUnit.Framework;
 
 namespace Composable.Tests.Contracts
 {
     // ReSharper disable ConvertToConstant.Local
     // ReSharper disable ExpressionIsAlwaysNull
-    [TestFixture, Performance]
+    [TestFixture]
     public class ObjectNotNullOrDefaultTests
     {
         [Test]
@@ -43,18 +42,6 @@ namespace Composable.Tests.Contracts
                 inspected => inspected.NotNullOrDefault(),
                 badValues: new List<object> {zero, defaultMyStructure},
                 goodValues: new List<object> {new object(), "", Guid.NewGuid()});
-        }
-
-        [Test]
-        public void ShouldRun50TestsInOneMillisecond() //The Activator.CreateInstance stuff in the default check had me a bit worried. Seems I had no reason to be.
-        {
-            var one = 1;
-
-            TimeAsserter.Execute(
-                action: () => Contract.Argument(() => one).NotNullOrDefault(),
-                iterations: 500,
-                maxTotal: 10.Milliseconds().AdjustRuntimeToTestEnvironment(),
-                maxTries: 5);
         }
 
         struct MyStructure

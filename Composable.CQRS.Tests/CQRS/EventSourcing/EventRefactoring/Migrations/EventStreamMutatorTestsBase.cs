@@ -192,7 +192,6 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
                                    config => config.RespectingRuntimeTypes()
                                                    .WithStrictOrdering()
                                                    .Excluding(@event => @event.EventId)
-                                                   //.Excluding(@event => @event.UtcTimeStamp)
                                                    .Excluding(@event => @event.InsertionOrder)
                                                    .Excluding(@event => @event.InsertAfter)
                                                    .Excluding(@event => @event.InsertBefore)
@@ -200,7 +199,7 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
                                                    .Excluding(@event => @event.InsertedVersion)
                                                    .Excluding(@event => @event.ManualVersion)
                                                    .Excluding(@event => @event.EffectiveVersion)
-                                                   .Excluding(subjectInfo => subjectInfo.SelectedMemberPath.EndsWith(".TimeStamp")));
+                                                   );
             }
             catch(Exception)
             {

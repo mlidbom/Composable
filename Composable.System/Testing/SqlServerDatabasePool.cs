@@ -84,23 +84,26 @@ namespace Composable.Testing
 
         bool TryReserveDatabase(out Database database)
         {
-            database = null;
-            var databases = GetDatabases();
-            var freeDbs = databases.Where(predicate: db => db.IsFree).ToList();
-            if(freeDbs.Any())
+            var command = $@"declare @reservedId integer
+
+SET @reservedId = (select top 1 {ManagerTableSchema.Id} from {ManagerTableSchema.TableName} {LockingHint}
+WHERE {ManagerTableSchema.IsFree} = 1
+order by {ManagerTableSchema.ReservationDate} asc)
+
+if( @reservedId is not null)
+	update {ManagerTableSchema.TableName} set {ManagerTableSchema.IsFree} = 0 where Id = @reservedId
+
+select @reservedId";
+
+            var reservedId = (int?)_managerConnection.ExecuteScalar(command);
+            if(reservedId != null)
             {
-                database = freeDbs.First();
-                ReserveDatabase(database.Id);
+                database = new Database(pool:this, id:reservedId.Value, isFree:false);
                 return true;
             }
-            return false;
-        }
 
-        void ReserveDatabase(int id)
-        {
-            _managerConnection.ExecuteNonQuery(
-                $"update {ManagerTableSchema.TableName} set {ManagerTableSchema.IsFree} = 0, {ManagerTableSchema.ReservationDate} = getdate(), {ManagerTableSchema.ReservationCallStack} = '{Environment.StackTrace}' where {ManagerTableSchema.Id} = '{id}'");
-            //SafeConsole.WriteLine($"Reserved:{dbName}");
+            database = null;
+            return false;
         }
 
         void CleanDatabase(Database db)
@@ -115,8 +118,7 @@ namespace Composable.Testing
                 $@"
                 set nocount on
                 insert {ManagerTableSchema.TableName} ({ManagerTableSchema.IsFree}, {ManagerTableSchema.ReservationDate},  {ManagerTableSchema.ReservationCallStack}) 
-                                                   values(                0      ,                     getdate()       ,                     '{Environment.StackTrace
-                    }')
+                                                   values(                0      ,                     getdate()       ,                     '{Environment.StackTrace}')
                 select @@IDENTITY");
             var id = (int)(decimal)value;
             var database = new Database(pool: this, id: id, isFree: false);

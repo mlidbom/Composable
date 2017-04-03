@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 using Composable.DependencyInjection;
 using Composable.DependencyInjection.Testing;
 using Composable.Persistence.EventStore;
-using Composable.Persistence.EventStore.Serialization.NewtonSoft;
 using Composable.System.Linq;
 using FluentAssertions;
 using NUnit.Framework;
@@ -15,13 +14,6 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.Sql
     [TestFixture]
     class SqlServerEventStoreSessionTests : EventStoreSessionTests
     {
-        string _connectionString;
-        [SetUp]
-        public void Setup()
-        {
-            _connectionString = ServiceLocator.EventStoreConnectionString();
-        }
-
         protected override IServiceLocator CreateServiceLocator() => TestWiringHelper.SetupTestingServiceLocator(TestingMode.RealComponents);
 
         [Test]

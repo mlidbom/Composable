@@ -84,6 +84,8 @@ namespace Composable.Testing
              bool timeIndividualExecutions = false,
              string description = "",
              string timeFormat = DefaultTimeFormat,
+             [InstantHandle]Action setup = null,
+             [InstantHandle]Action tearDown = null,
              int maxTries = 1)
         {
             maxAverage = maxAverage != default(TimeSpan) ? maxAverage : TimeSpan.MaxValue;
@@ -99,7 +101,7 @@ namespace Composable.Testing
             {
                 PrintSummary(iterations, maxAverage, maxTotal, description, Format, executionSummary);
 
-                if(timeIndividualExecutions)
+                if (timeIndividualExecutions)
                 {
                     SafeConsole.WriteLine($@"  
     Individual execution times    
@@ -113,7 +115,9 @@ namespace Composable.Testing
 
             for (int tries = 1; tries <= maxTries; tries++)
             {
+                setup?.Invoke();
                 executionSummary = StopwatchExtensions.TimeExecutionThreaded(action: action, iterations: iterations, timeIndividualExecutions: timeIndividualExecutions);
+                tearDown?.Invoke();
                 try
                 {
                     RunAsserts(maxAverage, maxTotal, executionSummary, Format);

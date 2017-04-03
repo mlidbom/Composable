@@ -1,4 +1,5 @@
-﻿using System.Configuration;
+﻿using System;
+using System.Configuration;
 using Composable.Testing;
 using FluentAssertions;
 using NUnit.Framework;
@@ -14,6 +15,14 @@ namespace Composable.CQRS.Tests.SqlServerDatabasePoolTests
         public void WarmUpCache()
         {
             using(new SqlServerDatabasePool(MasterConnectionString)) { }
+        }
+
+        [Test,Ignore("Should only ever be executed manually")] public void RemoveAllDatabases()
+        {
+            using(var manager = new SqlServerDatabasePool(MasterConnectionString))
+            {
+                manager.RemoveAllDatabases();
+            }
         }
 
         [Test]
@@ -36,7 +45,7 @@ namespace Composable.CQRS.Tests.SqlServerDatabasePoolTests
         }
 
         [Test]
-        public void Multiple_threads_can_reserve_and_release_10_identically_named_databases_in_200_milliseconds()
+        public void Multiple_threads_can_reserve_and_release_10_identically_named_databases_in_50_milliseconds()
         {
             var dbName = "EB82270F-E0BA-49F7-BC09-79AE95BA109F";
 
@@ -51,8 +60,51 @@ namespace Composable.CQRS.Tests.SqlServerDatabasePoolTests
                 },
                 iterations: 10,
                 timeIndividualExecutions: true,
-                maxTotal: 200.Milliseconds(),
-                maxTries: 3);
+                maxTotal: 50.Milliseconds(),
+                maxTries: 10);
+        }
+
+        [Test]
+        public void Multiple_threads_can_reserve_and_release_10_differently_named_databases_in_60_milliseconds()
+        {
+            SqlServerDatabasePool manager = null;
+
+
+            TimeAsserter.ExecuteThreaded(
+                setup: () =>
+                       {
+                           manager = new SqlServerDatabasePool(MasterConnectionString);
+                           manager.ConnectionStringFor("fake_to_force_creation_of_manager_database");
+                       },
+                tearDown: () => manager.Dispose(),
+                action: () => manager.ConnectionStringFor(Guid.NewGuid()
+                                                              .ToString()),
+                iterations: 10,
+                maxTries: 10,
+                maxTotal: 60.Milliseconds(),
+                timeFormat: "fff"
+            );
+        }
+
+        [Test]
+        public void Single_thread_can_reserve_and_release_10_differently_named_databases_in_400_milliseconds()
+        {
+            SqlServerDatabasePool manager = null;
+
+            TimeAsserter.Execute(
+                setup: () =>
+                       {
+                           manager = new SqlServerDatabasePool(MasterConnectionString);
+                           manager.ConnectionStringFor("fake_to_force_creation_of_manager_database");
+                       },
+                tearDown: () => manager.Dispose(),
+                action: () => manager.ConnectionStringFor(Guid.NewGuid()
+                                                              .ToString()),
+                iterations: 10,
+                maxTries: 5,
+                maxTotal: 400.Milliseconds(),
+                timeFormat: "fff"
+            );
         }
 
         [Test]

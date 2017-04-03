@@ -128,14 +128,18 @@ select @reservedId";
 
         void ReleaseDatabases(IReadOnlyList<Database> database)
         {
-            database.ForEach(action: db => _reservedDatabases.Remove(db.Name));
-
-            var idList = database.Select(selector: db => "'" + db.Id + "'").Join(separator: ",");
-
-            Task.Run(
-                action: () => RunInIsolatedTransaction(
-                    action: () => _managerConnection.ExecuteNonQuery(
-                        $"update {ManagerTableSchema.TableName} set {ManagerTableSchema.IsFree} = 1  where {ManagerTableSchema.Id} in ({idList})")));
+            database.ForEach(action: db =>
+                                     {
+                                         _reservedDatabases.Remove(db.Name);
+                                         Task.Run(
+                                             action: () =>
+                                                     {
+                                                         //CleanDatabase(db); //todo: do cleanup only on background thread. Check out how to handle ReleaseOldLocks
+                                                         RunInIsolatedTransaction(
+                                                             action: () => _managerConnection.ExecuteNonQuery(
+                                                                         $"update {ManagerTableSchema.TableName} set {ManagerTableSchema.IsFree} = 1  where {ManagerTableSchema.Id} = {db.Id}"));
+                                                     });
+                                     });
         }
 
         static readonly string LockingHint = "With(TABLOCKX)";

@@ -140,27 +140,6 @@ select @reservedId";
 
         static readonly string LockingHint = "With(TABLOCKX)";
 
-        IEnumerable<Database> GetDatabases()
-        {
-            return _managerConnection.UseCommand(
-                action: command =>
-                {
-                    var names = new List<Database>();
-                    command.CommandText =
-                        $"select {ManagerTableSchema.Id}, {ManagerTableSchema.IsFree}, {ManagerTableSchema.ReservationDate} from {ManagerTableSchema.TableName} {LockingHint}";
-                    using(var reader = command.ExecuteReader())
-                    {
-                        while(reader.Read())
-                            names.Add(
-                                new Database(
-                                    this,
-                                    reader.GetInt32(0),
-                                    reader.GetBoolean(1)));
-                    }
-                    return names;
-                });
-        }
-
         void ReleaseOldLocks()
         {
                     RunInIsolatedTransaction(action: () =>

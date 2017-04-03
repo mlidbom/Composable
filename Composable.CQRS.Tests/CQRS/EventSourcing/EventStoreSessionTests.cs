@@ -24,11 +24,10 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing
     [TestFixture]
     public abstract class EventStoreSessionTests
     {
-        IServiceBus Bus => ServiceLocator.Resolve<IServiceBus>();
         IMessageSpy MessageSpy => ServiceLocator.Resolve<IMessageSpy>();
 
         protected abstract IServiceLocator CreateServiceLocator();
-        internal IServiceLocator ServiceLocator { get; set; }
+        internal IServiceLocator ServiceLocator { get; private set; }
 
         [SetUp] public void SetupBus()
         {
@@ -39,8 +38,6 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing
         {
             ServiceLocator.Dispose();
         }
-
-        protected IEventStoreSession OpenSession(IEventStore store) => new EventStoreSession(Bus, store, new SingleThreadUseGuard(), DateTimeNowTimeSource.Instance);
 
 
         protected void UseInTransactionalScope([InstantHandle] Action<IEventStoreSession> useSession)
@@ -96,7 +93,6 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing
             Assert.Throws<MultiThreadedUseException>(() => session.Dispose());
             Assert.Throws<MultiThreadedUseException>(() => session.LoadSpecificVersion<User>(Guid.NewGuid(), 1));
             Assert.Throws<MultiThreadedUseException>(() => session.Save(new User()));
-            Assert.Throws<MultiThreadedUseException>(() => session.SaveChanges());
             Assert.Throws<MultiThreadedUseException>(() => session.TryGet(Guid.NewGuid(), out user));
 
         }

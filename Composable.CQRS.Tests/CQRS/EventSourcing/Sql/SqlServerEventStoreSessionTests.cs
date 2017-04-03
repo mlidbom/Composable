@@ -4,6 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Transactions;
 using Composable.DependencyInjection;
+using Composable.DependencyInjection.Testing;
 using Composable.Persistence.EventStore;
 using Composable.Persistence.EventStore.Serialization.NewtonSoft;
 using Composable.System.Linq;
@@ -35,7 +36,6 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.Sql
                                     {
                                         session.Save(user);
                                         user.ChangeEmail("newemail@somewhere.not");
-                                        session.SaveChanges();
                                     });
 
             void UpdateEmail()
@@ -43,15 +43,10 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.Sql
                 UseInTransactionalScope(session =>
                                         {
                                             ((IEventStoreReader)session).GetHistory(user.Id);
-                                            using(var transaction = new TransactionScope())
-                                            {
-                                                var userToUpdate = session.Get<User>(user.Id);
-                                                userToUpdate.ChangeEmail($"newemail_{userToUpdate.Version}@somewhere.not");
-                                                Thread.Sleep(100);
-                                                session.SaveChanges();
-                                                transaction.Complete();
-                                            } //Sql duplicate key (AggregateId, Version) Exception would be thrown here if history was not serialized
-                                        });
+                                            var userToUpdate = session.Get<User>(user.Id);
+                                            userToUpdate.ChangeEmail($"newemail_{userToUpdate.Version}@somewhere.not");
+                                            Thread.Sleep(100);
+                                        }); //Sql duplicate key (AggregateId, Version) Exception would be thrown here if history was not serialized
             }
 
             var tasks = 1.Through(20).Select(_ => Task.Factory.StartNew(UpdateEmail)).ToArray();
@@ -96,43 +91,34 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.Sql
             UseInScope(session => ((IEventStoreReader)session).GetHistory(user.Id));
         }
 
-        [Test]
-        public void InsertNewEventType_should_not_throw_exception_if_the_event_type_has_been_inserted_by_something_else()
+        [Test] public void InsertNewEventType_should_not_throw_exception_if_the_event_type_has_been_inserted_by_something_else()
         {
-            void ChangeAnotherUsersEmailInOtherAppDomain() => AppDomainExtensions.ExecuteInCloneDomainScope(() =>
-                                                                                                            {
-                                                                                                                var test = new SqlServerEventStoreSessionTests();
-                                                                                                                try
-                                                                                                                {
-                                                                                                                    test.SetupBus();
-                                                                                                                    test.Setup();
-                                                                                                                    using(var session = test.OpenSession(test.CreateStore()))
-                                                                                                                    {
-                                                                                                                        var otherUser = User.Register(session,
-                                                                                                                                                      "email@email.se",
-                                                                                                                                                      "password",
-                                                                                                                                                      Guid.NewGuid());
-                                                                                                                        otherUser.ChangeEmail("some@email.new");
-                                                                                                                        session.SaveChanges();
-                                                                                                                    }
-                                                                                                                }
-                                                                                                                finally
-                                                                                                                {
-                                                                                                                    test.TearDownTask();
-                                                                                                                }
-                                                                                                            },
-                                                                                                            disposeDelay: 100.Milliseconds());
-
-            using (var session = OpenSession(CreateStore()))
+            User otherUser = null;
+            User user = null;
+            void ChangeAnotherUsersEmailInOtherInstance()
             {
-                var user = User.Register(session, "email@email.se", "password", Guid.NewGuid());
-                session.SaveChanges();
+                using(var clonedServiceLocator = ServiceLocator.Clone())
+                {
+                    clonedServiceLocator.ExecuteUnitOfWorkInIsolatedScope(() =>
+                                                                          {
+                                                                              // ReSharper disable once AccessToDisposedClosure
+                                                                              var session = clonedServiceLocator.Resolve<ITestingEventstoreSession>();
+                                                                              otherUser = User.Register(session,
+                                                                                                            "email@email.se",
+                                                                                                            "password",
+                                                                                                            Guid.NewGuid());
+                                                                              otherUser.ChangeEmail("otheruser@email.new");
+                                                                          });
 
-                ChangeAnotherUsersEmailInOtherAppDomain();
-
-                user.ChangeEmail("some@email.new");
-                session.SaveChanges();
+                }
             }
+
+            UseInTransactionalScope(session => user = User.Register(session, "email@email.se", "password", Guid.NewGuid()));
+
+            ChangeAnotherUsersEmailInOtherInstance();
+            UseInScope(session => session.Get<User>(otherUser.Id).Email.Should().Be("otheruser@email.new"));
+
+            UseInTransactionalScope(session => user.ChangeEmail("some@email.new"));
         }
     }
 }

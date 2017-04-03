@@ -67,8 +67,8 @@ namespace Composable.DependencyInjection.Testing
 
             cloneContainer.Register(
                 Component.For<IConnectionStringProvider>()
-                    .UsingFactoryMethod(_ => sourceContainer.Resolve<IConnectionStringProvider>())
-                    .LifestyleScoped()
+                    .Instance(sourceContainer.Resolve<IConnectionStringProvider>())
+                    .LifestyleSingleton()
                 );
 
             toRegister.ForEach(component => cloneContainer.Register(component));

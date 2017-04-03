@@ -1,12 +1,25 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data.SqlClient;
-using Composable.System.Data.SqlClient;
 
 namespace Composable.Testing
 {
     sealed partial class SqlServerDatabasePool
     {
+        class Database
+        {
+            internal int Id { get; }
+            internal string Name { get; }
+            internal bool IsFree { get; }
+            internal string ConnectionString { get; }
+            internal Database(SqlServerDatabasePool pool, int id, bool isFree)
+            {
+                Id = id;
+                Name = $"{ManagerDbName}_{id:0000}";
+                IsFree = isFree;
+                ConnectionString = pool.ConnectionStringForDbNamed(Name);
+            }
+        }
+
         static readonly HashSet<string> ConnectionStringsWithKnownManagerDb = new HashSet<string>();
 
         void SeparatelyInitConnectionPoolSoWeSeeRealisticExecutionTimesWhenProfiling() { _masterConnection.UseConnection(_ => { }); }
@@ -68,7 +81,7 @@ CREATE TABLE [dbo].[{ManagerTableSchema.TableName}](
 ))
 ";
 
-        internal void DropAllAndStartOver()
+        void DropAllAndStartOver()
         {
             _managerConnection.ClearConnectionPool();
             var dbsToDrop = new List<string>();

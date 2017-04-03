@@ -15,6 +15,7 @@
 
   <ItemGroup>
     <None Include="Testing\SqlServerDatabasePool.Schema.cs" />
+    <None Include="Testing\SqlServerDatabasePool.Transactions.cs" />
   </ItemGroup>
 
   <ItemGroup>

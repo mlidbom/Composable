@@ -13,7 +13,7 @@ namespace Composable.CQRS.Tests.SqlServerDatabasePoolTests
 
         [OneTimeSetUp] public void ResetDatabases()
         {
-            SqlServerDatabasePool.DropAllAndStartOver(MasterConnectionString);
+            //SqlServerDatabasePool.DropAllAndStartOver(MasterConnectionString);
         }
 
         [SetUp]

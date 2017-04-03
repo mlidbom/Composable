@@ -1,11 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
-
 using System.Linq;
 using System.Threading.Tasks;
 using System.Transactions;
-using Composable.Contracts;
 using Composable.Logging;
 using Composable.System;
 using Composable.System.Data.SqlClient;
@@ -37,19 +35,6 @@ namespace Composable.Testing
 
         readonly Dictionary<string, Database> _reservedDatabases = new Dictionary<string, Database>();
         bool _disposed;
-
-        static void RunInIsolatedTransaction(Action action)
-        {
-            using(var transaction = new TransactionScope(TransactionScopeOption.Required,
-                                                         new TransactionOptions
-                                                         {
-                                                             IsolationLevel = IsolationLevel.Serializable
-                                                         }))
-            {
-                action();
-                transaction.Complete();
-            }
-        }
 
         public string ConnectionStringFor(string requestedDbName)
         {
@@ -203,21 +188,6 @@ namespace Composable.Testing
         ~SqlServerDatabasePool()
         {
             InternalDispose();
-        }
-
-        class Database
-        {
-            internal int Id { get; }
-            internal string Name { get; }
-            internal bool IsFree { get; }
-            internal string ConnectionString { get; }
-            internal Database(SqlServerDatabasePool pool, int id, bool isFree)
-            {
-                Id = id;
-                Name = $"{ManagerDbName}_{id:0000}";
-                IsFree = isFree;
-                ConnectionString = pool.ConnectionStringForDbNamed(Name);
-            }
         }
     }
 }

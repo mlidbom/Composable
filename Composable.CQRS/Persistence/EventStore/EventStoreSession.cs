@@ -86,21 +86,6 @@ namespace Composable.Persistence.EventStore
             _idMap.Add(aggregate.Id, aggregate);
         }
 
-        public void SaveChanges()
-        {
-            _usageGuard.AssertNoContextChangeOccurred(this);
-            if (_unitOfWork == null)
-            {
-                InternalSaveChanges();
-            }
-            else
-            {
-                var newEvents = _idMap.SelectMany(p => p.Value.GetChanges()).ToList();
-                PublishUnpublishedEvents(newEvents);
-                Log.DebugFormat("{0} ignored call to SaveChanges since participating in a unit of work", _id);
-            }
-        }
-
         public void Delete(Guid aggregateId)
         {
             _usageGuard.AssertNoContextChangeOccurred(this);

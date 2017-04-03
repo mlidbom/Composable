@@ -28,11 +28,6 @@ namespace Composable.Persistence.EventStore
         void Save<TAggregate>(TAggregate aggregate) where TAggregate : IEventStored;
 
         /// <summary>
-        /// Detects and persist all uncommited events in tracked aggregates.
-        /// </summary>
-        void SaveChanges();
-
-        /// <summary>
         /// Tries to get the specified instance. Returns false and sets the result to null if the aggregate did not exist.
         /// </summary>
         bool TryGet<TAggregate>(Guid aggregateId, out TAggregate result) where TAggregate : IEventStored;

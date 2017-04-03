@@ -122,7 +122,7 @@ namespace Composable.Persistence.EventStore
             var updatedAggregates = events.Select(@event => @event.AggregateRootId).Distinct();
             _aggregatesWithEventsAddedByThisInstance.AddRange(updatedAggregates);
             _eventWriter.Insert(events.Cast<AggregateRootEvent>());
-            //todo: move this to the event store session.
+            //todo: move this to the event store updater.
             foreach (var aggregateId in updatedAggregates)
             {
                 var completeAggregateHistory = _cache.GetCopy(aggregateId).Events.Concat(events.Where(@event => @event.AggregateRootId == aggregateId)).Cast<AggregateRootEvent>().ToArray();

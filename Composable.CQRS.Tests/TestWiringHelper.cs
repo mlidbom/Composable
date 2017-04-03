@@ -8,7 +8,7 @@ namespace Composable.CQRS.Tests
 {
     interface ITestingEventstoreReader : IEventStoreReader { }
 
-    interface ITestingEventstoreSession : IEventStoreSession{ }
+    interface ITestingEventstoreUpdater : IEventStoreUpdater{ }
 
     interface ITestingDocumentDbBulkReader : IDocumentDbBulkReader { }
 
@@ -29,13 +29,13 @@ namespace Composable.CQRS.Tests
                                                                                               .GetConnectionString(EventStoreConnectionStringName)
                                                                                               .ConnectionString;
 
-        internal static IEventStore<ITestingEventstoreSession, ITestingEventstoreReader> EventStore(this IServiceLocator @this) =>
-            @this.Resolve<IEventStore<ITestingEventstoreSession, ITestingEventstoreReader>>();
+        internal static IEventStore<ITestingEventstoreUpdater, ITestingEventstoreReader> EventStore(this IServiceLocator @this) =>
+            @this.Resolve<IEventStore<ITestingEventstoreUpdater, ITestingEventstoreReader>>();
 
-        internal static IEventStore<ITestingEventstoreSession, ITestingEventstoreReader> SqlEventStore(this IServiceLocator @this) =>
+        internal static IEventStore<ITestingEventstoreUpdater, ITestingEventstoreReader> SqlEventStore(this IServiceLocator @this) =>
             @this.EventStore();//todo: Throw here if it is not the correct type of store
 
-        internal static IEventStore<ITestingEventstoreSession, ITestingEventstoreReader> InMemoryEventStore(this IServiceLocator @this) =>
+        internal static IEventStore<ITestingEventstoreUpdater, ITestingEventstoreReader> InMemoryEventStore(this IServiceLocator @this) =>
             @this.EventStore();//todo: Throw here if it is not the correct type of store
 
 
@@ -63,7 +63,7 @@ namespace Composable.CQRS.Tests
 
         internal static void RegisterTestingSqlServerEventStore(this IDependencyInjectionContainer @this)
         {
-            @this.RegisterSqlServerEventStore<ITestingEventstoreSession, ITestingEventstoreReader>
+            @this.RegisterSqlServerEventStore<ITestingEventstoreUpdater, ITestingEventstoreReader>
                 (EventStoreConnectionStringName);
         }
 

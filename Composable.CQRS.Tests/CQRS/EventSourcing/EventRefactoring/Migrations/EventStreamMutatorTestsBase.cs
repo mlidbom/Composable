@@ -79,13 +79,13 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
 
             timeSource.UtcNow += 1.Hours();//Bump clock to ensure that times will be be wrong unless the time from the original events are used..
 
-            serviceLocator.ExecuteUnitOfWorkInIsolatedScope(() => serviceLocator.Resolve<IEventStoreSession>().Save(initialAggregate));
+            serviceLocator.ExecuteUnitOfWorkInIsolatedScope(() => serviceLocator.Resolve<IEventStoreUpdater>().Save(initialAggregate));
             migrations.AddRange(startingMigrations);
-            var migratedHistory = serviceLocator.ExecuteUnitOfWorkInIsolatedScope(() => serviceLocator.Resolve<IEventStoreSession>().Get<TestAggregate>(initialAggregate.Id)).History;
+            var migratedHistory = serviceLocator.ExecuteUnitOfWorkInIsolatedScope(() => serviceLocator.Resolve<IEventStoreUpdater>().Get<TestAggregate>(initialAggregate.Id)).History;
 
             AssertStreamsAreIdentical(expected, migratedHistory, "Loaded un-cached aggregate");
 
-            var migratedCachedHistory = serviceLocator.ExecuteUnitOfWorkInIsolatedScope(() => serviceLocator.Resolve<IEventStoreSession>().Get<TestAggregate>(initialAggregate.Id)).History;
+            var migratedCachedHistory = serviceLocator.ExecuteUnitOfWorkInIsolatedScope(() => serviceLocator.Resolve<IEventStoreUpdater>().Get<TestAggregate>(initialAggregate.Id)).History;
             AssertStreamsAreIdentical(expected, migratedCachedHistory, "Loaded cached aggregate");
 
 
@@ -100,7 +100,7 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
                 serviceLocator.Resolve<IEventStore>().PersistMigrations();
             }
 
-            migratedHistory = serviceLocator.ExecuteUnitOfWorkInIsolatedScope(() => serviceLocator.Resolve<IEventStoreSession>().Get<TestAggregate>(initialAggregate.Id)).History;
+            migratedHistory = serviceLocator.ExecuteUnitOfWorkInIsolatedScope(() => serviceLocator.Resolve<IEventStoreUpdater>().Get<TestAggregate>(initialAggregate.Id)).History;
             AssertStreamsAreIdentical(expected, migratedHistory, "Loaded aggregate");
 
             SafeConsole.WriteLine("Streaming all events in store");
@@ -111,7 +111,7 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
             SafeConsole.WriteLine("  Disable all migrations so that none are used when reading from the event stores");
             migrations.Clear();
 
-            migratedHistory = serviceLocator.ExecuteUnitOfWorkInIsolatedScope(() => serviceLocator.Resolve<IEventStoreSession>().Get<TestAggregate>(initialAggregate.Id)).History;
+            migratedHistory = serviceLocator.ExecuteUnitOfWorkInIsolatedScope(() => serviceLocator.Resolve<IEventStoreUpdater>().Get<TestAggregate>(initialAggregate.Id)).History;
             AssertStreamsAreIdentical(expected, migratedHistory, "loaded aggregate");
 
             SafeConsole.WriteLine("Streaming all events in store");
@@ -122,7 +122,7 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
             {
                 SafeConsole.WriteLine("Clearing sql server eventstore cache");
                 serviceLocator.ExecuteUnitOfWorkInIsolatedScope(() => ((EventStore)serviceLocator.Resolve<IEventStore>()).ClearCache());
-                migratedHistory = serviceLocator.ExecuteUnitOfWorkInIsolatedScope(() => serviceLocator.Resolve<IEventStoreSession>().Get<TestAggregate>(initialAggregate.Id)).History;
+                migratedHistory = serviceLocator.ExecuteUnitOfWorkInIsolatedScope(() => serviceLocator.Resolve<IEventStoreUpdater>().Get<TestAggregate>(initialAggregate.Id)).History;
                 AssertStreamsAreIdentical(expected, migratedHistory, "Loaded aggregate");
 
                 SafeConsole.WriteLine("Streaming all events in store");
@@ -141,8 +141,8 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
                         Component.For<IEnumerable<IEventMigration>>()
                                  .UsingFactoryMethod(_ => migrationsfactory())
                                  .LifestyleScoped(),
-                        Component.For<IEventStoreSession, IUnitOfWorkParticipant>()
-                                 .ImplementedBy<EventStoreSession>()
+                        Component.For<IEventStoreUpdater, IUnitOfWorkParticipant>()
+                                 .ImplementedBy<EventStoreUpdater>()
                                  .LifestyleScoped()
                         );
 

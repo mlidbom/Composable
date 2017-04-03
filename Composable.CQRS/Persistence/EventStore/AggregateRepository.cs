@@ -8,9 +8,14 @@ namespace Composable.Persistence.EventStore
         where TBaseEventClass : AggregateRootEvent, TBaseEventInterface
         where TBaseEventInterface : class, IAggregateRootEvent
     {
-        readonly IEventStoreSession _aggregates;
+        readonly IEventStoreReader _reader;
+        readonly IEventStoreUpdater _aggregates;
 
-        protected AggregateRepository(IEventStoreSession aggregates) => _aggregates = aggregates;
+        protected AggregateRepository(IEventStoreUpdater aggregates, IEventStoreReader reader)
+        {
+            _aggregates = aggregates;
+            _reader = reader;
+        }
 
         public virtual TAggregate Get(Guid id) => _aggregates.Get<TAggregate>(id);
 
@@ -19,6 +24,6 @@ namespace Composable.Persistence.EventStore
             _aggregates.Save(aggregate);
         }
 
-        public virtual TAggregate GetVersion(Guid aggregateRootId, int version) => _aggregates.LoadSpecificVersion<TAggregate>(aggregateRootId, version);
+        public virtual TAggregate GetVersion(Guid aggregateRootId, int version) => _reader.LoadSpecificVersion<TAggregate>(aggregateRootId, version);
     }
 }

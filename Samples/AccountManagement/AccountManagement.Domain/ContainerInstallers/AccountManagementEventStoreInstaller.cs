@@ -11,7 +11,7 @@ namespace AccountManagement.Domain.ContainerInstallers
         internal static void Install(IDependencyInjectionContainer container)
         {
             container.RegisterSqlServerEventStore<
-                IAccountManagementEventStoreSession,
+                IAccountManagementEventStoreUpdater,
                 IAccountManagementEventStoreReader>(ConnectionStringName);
         }
     }

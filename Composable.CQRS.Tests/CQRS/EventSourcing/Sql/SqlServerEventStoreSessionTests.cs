@@ -2,7 +2,6 @@
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Transactions;
 using Composable.DependencyInjection;
 using Composable.DependencyInjection.Testing;
 using Composable.Persistence.EventStore;
@@ -102,7 +101,7 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.Sql
                     clonedServiceLocator.ExecuteUnitOfWorkInIsolatedScope(() =>
                                                                           {
                                                                               // ReSharper disable once AccessToDisposedClosure
-                                                                              var session = clonedServiceLocator.Resolve<ITestingEventstoreSession>();
+                                                                              var session = clonedServiceLocator.Resolve<ITestingEventstoreUpdater>();
                                                                               otherUser = User.Register(session,
                                                                                                             "email@email.se",
                                                                                                             "password",

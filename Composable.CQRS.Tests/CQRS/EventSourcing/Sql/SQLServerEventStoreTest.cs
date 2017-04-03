@@ -24,7 +24,7 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.Sql
         [Test]
         public void Does_not_call_db_in_constructor()
         {
-                _serviceLocator.ExecuteInIsolatedScope(() => _serviceLocator.Resolve<ITestingEventstoreSession>());
+                _serviceLocator.ExecuteInIsolatedScope(() => _serviceLocator.Resolve<ITestingEventstoreUpdater>());
         }
 
         [Test]

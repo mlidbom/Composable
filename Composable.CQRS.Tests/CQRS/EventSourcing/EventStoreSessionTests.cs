@@ -1,11 +1,7 @@
 ﻿using System;
-using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
-using System.Transactions;
 using Composable.DependencyInjection;
-using Composable.GenericAbstractions.Time;
 using Composable.Messaging.Buses;
 using Composable.Persistence.EventStore;
 using Composable.System;
@@ -13,9 +9,7 @@ using Composable.System.Diagnostics;
 using Composable.System.Linq;
 using Composable.SystemExtensions.Threading;
 using Composable.Testing;
-using Composable.UnitsOfWork;
 using FluentAssertions;
-using FluentAssertions.Equivalency;
 using JetBrains.Annotations;
 using NUnit.Framework;
 
@@ -40,13 +34,13 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing
         }
 
 
-        protected void UseInTransactionalScope([InstantHandle] Action<IEventStoreSession> useSession)
+        protected void UseInTransactionalScope([InstantHandle] Action<IEventStoreUpdater> useSession)
             => ServiceLocator.ExecuteUnitOfWorkInIsolatedScope(
-                () => useSession(ServiceLocator.Resolve<ITestingEventstoreSession>()));
+                () => useSession(ServiceLocator.Resolve<ITestingEventstoreUpdater>()));
 
-        protected void UseInScope([InstantHandle]Action<IEventStoreSession> useSession)
+        protected void UseInScope([InstantHandle]Action<IEventStoreUpdater> useSession)
             => ServiceLocator.ExecuteInIsolatedScope(
-                () => useSession(ServiceLocator.Resolve<ITestingEventstoreSession>()));
+                () => useSession(ServiceLocator.Resolve<ITestingEventstoreUpdater>()));
 
         [Test]
         public void WhenFetchingAggregateThatDoesNotExistNoSuchAggregateExceptionIsThrown()
@@ -78,22 +72,27 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing
         [Test]
         public void ThrowsIfUsedByMultipleThreads()
         {
-            IEventStoreSession session = null;
+            IEventStoreUpdater updater = null;
+            IEventStoreReader reader = null;
             var wait = new ManualResetEventSlim();
             ThreadPool.QueueUserWorkItem(_ =>
                                          {
-                                             ServiceLocator.ExecuteInIsolatedScope(() => session = ServiceLocator.Resolve<ITestingEventstoreSession>());
+                                             ServiceLocator.ExecuteInIsolatedScope(() =>
+                                                                                   {
+                                                                                       updater = ServiceLocator.Resolve<ITestingEventstoreUpdater>();
+                                                                                       reader = ServiceLocator.Resolve<ITestingEventstoreReader>();
+                                                                                   });
                                              wait.Set();
                                          });
             wait.Wait();
 
             User user;
 
-            Assert.Throws<MultiThreadedUseException>(() => session.Get<User>(Guid.NewGuid()));
-            Assert.Throws<MultiThreadedUseException>(() => session.Dispose());
-            Assert.Throws<MultiThreadedUseException>(() => session.LoadSpecificVersion<User>(Guid.NewGuid(), 1));
-            Assert.Throws<MultiThreadedUseException>(() => session.Save(new User()));
-            Assert.Throws<MultiThreadedUseException>(() => session.TryGet(Guid.NewGuid(), out user));
+            Assert.Throws<MultiThreadedUseException>(() => updater.Get<User>(Guid.NewGuid()));
+            Assert.Throws<MultiThreadedUseException>(() => updater.Dispose());
+            Assert.Throws<MultiThreadedUseException>(() => reader.LoadSpecificVersion<User>(Guid.NewGuid(), 1));
+            Assert.Throws<MultiThreadedUseException>(() => updater.Save(new User()));
+            Assert.Throws<MultiThreadedUseException>(() => updater.TryGet(Guid.NewGuid(), out user));
 
         }
 
@@ -102,8 +101,6 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing
         [Test]
         public void CanLoadSpecificVersionOfAggregate()
         {
-            var store = CreateStore();
-
             var user = new User();
             user.Register("email@email.se", "password", Guid.NewGuid());
             user.ChangePassword("NewPassword");
@@ -113,17 +110,18 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing
 
             UseInScope(session =>
                        {
-                           var loadedUser = session.LoadSpecificVersion<User>(user.Id, 1);
+                           var reader = ServiceLocator.Resolve<ITestingEventstoreReader>();
+                           var loadedUser = reader.LoadSpecificVersion<User>(user.Id, 1);
                            Assert.That(loadedUser.Id, Is.EqualTo(user.Id));
                            Assert.That(loadedUser.Email, Is.EqualTo("email@email.se"));
                            Assert.That(loadedUser.Password, Is.EqualTo("password"));
 
-                           loadedUser = session.LoadSpecificVersion<User>(user.Id, 2);
+                           loadedUser = reader.LoadSpecificVersion<User>(user.Id, 2);
                            Assert.That(loadedUser.Id, Is.EqualTo(user.Id));
                            Assert.That(loadedUser.Email, Is.EqualTo("email@email.se"));
                            Assert.That(loadedUser.Password, Is.EqualTo("NewPassword"));
 
-                           loadedUser = session.LoadSpecificVersion<User>(user.Id, 3);
+                           loadedUser = reader.LoadSpecificVersion<User>(user.Id, 3);
                            Assert.That(loadedUser.Id, Is.EqualTo(user.Id));
                            Assert.That(loadedUser.Email, Is.EqualTo("NewEmail"));
                            Assert.That(loadedUser.Password, Is.EqualTo("NewPassword"));
@@ -149,8 +147,6 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing
         [Test]
         public void ReturnsSameInstanceOnLoadAfterSave()
         {
-            var store = CreateStore();
-
             var user = new User();
             user.Register("email@email.se", "password", Guid.NewGuid());
 
@@ -189,8 +185,6 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing
         [Test]
         public void DoesNotUpdateAggregatesLoadedViaSpecificVersion()
         {
-            var store = CreateStore();
-
             var user = new User();
             user.Register("OriginalEmail", "password", Guid.NewGuid());
 
@@ -198,7 +192,7 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing
 
             UseInTransactionalScope(session =>
                                     {
-                                        var loadedUser = session.LoadSpecificVersion<User>(user.Id, 1);
+                                        var loadedUser = ServiceLocator.Resolve<ITestingEventstoreReader>().LoadSpecificVersion<User>(user.Id, 1);
                                         loadedUser.ChangeEmail("NewEmail");
                                     });
 
@@ -219,7 +213,7 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing
             Assert.That(((IEventStored)user).GetChanges(), Is.Empty);
         }
 
-        [Test, Ignore("TODO. Fix this long standing design issue. This test will probably be removed because get changes is refactored out of existance as we force the store session to create the instances and it will immediately track updates via observables")]
+        [Test, Ignore("TODO. Fix this long standing design issue. This test will probably be removed because get changes is refactored out of existance as we force the store updater to create the instances and it will immediately track updates via observables")]
         public void Resets_aggregate_immediately_upon_save()
         {
             var user = new User();

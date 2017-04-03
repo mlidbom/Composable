@@ -6,21 +6,20 @@ namespace Composable.Persistence.EventStore
     public interface IEventStoreReader
     {
         IEnumerable<IAggregateRootEvent> GetHistory(Guid aggregateId);
-    }
-
-    public interface IEventStoreSession : IDisposable
-    {
-        /// <summary>
-        /// Loads an aggregate and tracks it for changes.
-        /// </summary>
-        TAggregate Get<TAggregate>(Guid aggregateId) where TAggregate : IEventStored;
-
         /// <summary>
         /// Loads a specific version of the aggregate.
         /// This instance is NOT tracked for changes.
         /// No changes to this entity vill be persisted.
         /// </summary>
         TAggregate LoadSpecificVersion<TAggregate>(Guid aggregateId, int version) where TAggregate : IEventStored;
+    }
+
+    public interface IEventStoreUpdater : IDisposable
+    {
+        /// <summary>
+        /// Loads an aggregate and tracks it for changes.
+        /// </summary>
+        TAggregate Get<TAggregate>(Guid aggregateId) where TAggregate : IEventStored;
 
         /// <summary>
         /// Causes the store to start tracking the aggregate.

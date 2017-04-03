@@ -12,15 +12,15 @@ using log4net;
 
 namespace Composable.Persistence.EventStore
 {
-    //Review:mlidbo: Detect and warn about using the session within multiple transactions. That it is likely to result in optimistic concurrency exceptions.
-    class EventStoreSession :
+    //Review:mlidbo: Detect and warn about using the updater within multiple transactions. That it is likely to result in optimistic concurrency exceptions.
+    class EventStoreUpdater :
         IEventStoreReader,
-        IEventStoreSession,
+        IEventStoreUpdater,
         IUnitOfWorkParticipantWhoseCommitMayTriggerChangesInOtherParticipantsMustImplementIdemponentCommit
     {
         readonly IServiceBus _bus;
         readonly IEventStore _store;
-        static readonly ILog Log = LogManager.GetLogger(typeof(EventStoreSession));
+        static readonly ILog Log = LogManager.GetLogger(typeof(EventStoreUpdater));
         readonly IDictionary<Guid, IEventStored> _idMap = new Dictionary<Guid, IEventStored>();
         readonly HashSet<Guid> _publishedEvents = new HashSet<Guid>();
         readonly ISingleContextUseGuard _usageGuard;
@@ -28,7 +28,7 @@ namespace Composable.Persistence.EventStore
         IUtcTimeTimeSource TimeSource { get; set; }
 
 
-        public EventStoreSession(IServiceBus bus, IEventStore store, ISingleContextUseGuard usageGuard, IUtcTimeTimeSource timeSource)
+        public EventStoreUpdater(IServiceBus bus, IEventStore store, ISingleContextUseGuard usageGuard, IUtcTimeTimeSource timeSource)
         {
             Contract.Argument(() => bus, () => store, () => usageGuard, () => timeSource)
                         .NotNull();

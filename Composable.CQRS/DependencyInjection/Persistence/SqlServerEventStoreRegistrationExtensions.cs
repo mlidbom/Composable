@@ -21,7 +21,7 @@ namespace Composable.DependencyInjection.Persistence
 
     public static class SqlServerEventStoreRegistrationExtensions
     {
-        interface IEventStoreSession<TSessionInterface, TReaderInterface> : IEventStoreSession {}
+        interface IEventStoreUpdater<TSessionInterface, TReaderInterface> : IEventStoreUpdater {}
 
         class EventStore<TSessionInterface, TReaderInterface> : EventStore, IEventStore<TSessionInterface, TReaderInterface>
         {
@@ -38,9 +38,9 @@ namespace Composable.DependencyInjection.Persistence
             public InMemoryEventStore(IEnumerable<IEventMigration> migrations = null) : base(migrations) {}
         }
 
-        [UsedImplicitly] class EventStoreSession<TSessionInterface, TReaderInterface> : EventStoreSession, IEventStoreSession<TSessionInterface, TReaderInterface>
+        [UsedImplicitly] class EventStoreUpdater<TSessionInterface, TReaderInterface> : EventStoreUpdater, IEventStoreUpdater<TSessionInterface, TReaderInterface>
         {
-            public EventStoreSession(IServiceBus bus,
+            public EventStoreUpdater(IServiceBus bus,
                                      IEventStore<TSessionInterface, TReaderInterface> store,
                                      ISingleContextUseGuard usageGuard,
                                      IUtcTimeTimeSource timeSource) : base(bus, store, usageGuard, timeSource) {}
@@ -49,7 +49,7 @@ namespace Composable.DependencyInjection.Persistence
         public static void RegisterSqlServerEventStore<TSessionInterface, TReaderInterface>(this IDependencyInjectionContainer @this,
                                                                                             string connectionName,
                                                                                             IEnumerable<IEventMigration> migrations = null)
-            where TSessionInterface : IEventStoreSession
+            where TSessionInterface : IEventStoreUpdater
             where TReaderInterface : IEventStoreReader
         {
             Contract.Argument(() => connectionName)
@@ -77,29 +77,29 @@ namespace Composable.DependencyInjection.Persistence
                                         .LifestyleScoped());
             }
 
-            @this.Register(Component.For<IEventStoreSession<TSessionInterface, TReaderInterface>, IUnitOfWorkParticipant>()
-                                           .ImplementedBy<EventStoreSession<TSessionInterface, TReaderInterface>>()
+            @this.Register(Component.For<IEventStoreUpdater<TSessionInterface, TReaderInterface>, IUnitOfWorkParticipant>()
+                                           .ImplementedBy<EventStoreUpdater<TSessionInterface, TReaderInterface>>()
                                            .LifestyleScoped());
 
             @this.Register(Component.For<TSessionInterface>(Seq.OfTypes<TReaderInterface>())
-                                           .UsingFactoryMethod(locator => CreateProxyFor<TSessionInterface, TReaderInterface>(locator.Resolve<IEventStoreSession<TSessionInterface, TReaderInterface>>()))
+                                           .UsingFactoryMethod(locator => CreateProxyFor<TSessionInterface, TReaderInterface>(locator.Resolve<IEventStoreUpdater<TSessionInterface, TReaderInterface>>()))
                                            .LifestyleScoped());
         }
 
-        static TSessionInterface CreateProxyFor<TSessionInterface, TReaderInterface>(IEventStoreSession session)
-            where TSessionInterface : IEventStoreSession
+        static TSessionInterface CreateProxyFor<TSessionInterface, TReaderInterface>(IEventStoreUpdater updater)
+            where TSessionInterface : IEventStoreUpdater
             where TReaderInterface : IEventStoreReader
         {
             var sessionType = EventStoreSessionProxyFactory<TSessionInterface, TReaderInterface>.ProxyType;
-            return (TSessionInterface)Activator.CreateInstance(sessionType, new IInterceptor[] {}, session);
+            return (TSessionInterface)Activator.CreateInstance(sessionType, new IInterceptor[] {}, updater);
         }
 
         //Using a generic class this way allows us to bypass any need for dictionary lookups or similar giving us excellent performance.
         static class EventStoreSessionProxyFactory<TSessionInterface, TReaderInterface>
-            where TSessionInterface : IEventStoreSession
+            where TSessionInterface : IEventStoreUpdater
             where TReaderInterface : IEventStoreReader
         {
-            internal static readonly Type ProxyType = new DefaultProxyBuilder().CreateInterfaceProxyTypeWithTargetInterface(interfaceToProxy: typeof(IEventStoreSession),
+            internal static readonly Type ProxyType = new DefaultProxyBuilder().CreateInterfaceProxyTypeWithTargetInterface(interfaceToProxy: typeof(IEventStoreUpdater),
                                                                                                                             additionalInterfacesToProxy: new[]
                                                                                                                                                          {
                                                                                                                                                              typeof(TSessionInterface),

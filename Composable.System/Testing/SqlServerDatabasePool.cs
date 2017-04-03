@@ -31,7 +31,6 @@ namespace Composable.Testing
             _managerConnection = new SqlServerConnectionUtilities(sqlConnectionStringBuilder.ConnectionString);
 
             EnsureManagerDbExists();
-            //Task.Run(() => ReleaseOldLocks()); //todo: running this here causes deadlocks and/or other fun problems. Investigate and finally figure out how to get rid of the veird tablockx hints without running into deadlocks. 
         }
 
         readonly Dictionary<string, Database> _reservedDatabases = new Dictionary<string, Database>();
@@ -92,7 +91,9 @@ WHERE {ManagerTableSchema.IsFree} = 1
 order by {ManagerTableSchema.ReservationDate} asc)
 
 if( @reservedId is not null)
-	update {ManagerTableSchema.TableName} set {ManagerTableSchema.IsFree} = 0 where Id = @reservedId
+	update {ManagerTableSchema.TableName} 
+        set {ManagerTableSchema.IsFree} = 0, {ManagerTableSchema.ReservationDate} = getdate(), {ManagerTableSchema.ReservationCallStack} = '{Environment.StackTrace}'
+    where Id = @reservedId
 
 select @reservedId";
 

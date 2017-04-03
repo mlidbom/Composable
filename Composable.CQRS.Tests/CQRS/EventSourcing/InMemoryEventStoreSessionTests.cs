@@ -8,6 +8,5 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing
     class InMemoryEventStoreSessionTests : EventStoreSessionTests
     {
         protected override IServiceLocator CreateServiceLocator() => TestWiringHelper.SetupTestingServiceLocator(TestingMode.InMemory);
-        protected override IEventStore CreateStore() => new InMemoryEventStore();
     }
 }

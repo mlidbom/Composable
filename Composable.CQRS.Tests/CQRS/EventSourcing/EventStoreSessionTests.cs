@@ -96,8 +96,6 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing
 
         }
 
-        protected abstract IEventStore CreateStore();
-
         [Test]
         public void CanLoadSpecificVersionOfAggregate()
         {

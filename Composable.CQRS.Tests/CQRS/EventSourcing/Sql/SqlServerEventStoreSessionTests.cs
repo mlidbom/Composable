@@ -24,8 +24,6 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.Sql
 
         protected override IServiceLocator CreateServiceLocator() => TestWiringHelper.SetupTestingServiceLocator(TestingMode.RealComponents);
 
-        protected override IEventStore CreateStore() => new EventStore(_connectionString, serializer: new NewtonSoftEventStoreEventSerializer());
-
         [Test]
         public void Serializes_access_to_an_aggregate_so_that_concurrent_transactions_succeed_even_if_history_has_been_read_outside_of_modifying_transactions()
         {

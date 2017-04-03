@@ -81,8 +81,7 @@ namespace Composable.CQRS.Tests.SqlServerDatabasePoolTests
                                                               .ToString()),
                 iterations: 10,
                 maxTries: 10,
-                maxTotal: 60.Milliseconds(),
-                timeFormat: "fff"
+                maxTotal: 60.Milliseconds()
             );
         }
 
@@ -102,8 +101,7 @@ namespace Composable.CQRS.Tests.SqlServerDatabasePoolTests
                                                               .ToString()),
                 iterations: 10,
                 maxTries: 5,
-                maxTotal: 400.Milliseconds(),
-                timeFormat: "fff"
+                maxTotal: 400.Milliseconds()
             );
         }
 
@@ -118,8 +116,7 @@ namespace Composable.CQRS.Tests.SqlServerDatabasePoolTests
                 TimeAsserter.Execute(
                     action: () => manager.ConnectionStringFor(dbName),
                     iterations: 1000,
-                    maxTotal: 10.Milliseconds(),
-                    timeFormat: "fff"
+                    maxTotal: 10.Milliseconds()
                 );
             }
         }

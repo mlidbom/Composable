@@ -95,10 +95,10 @@ if( @reservedId is not null)
 
 select @reservedId";
 
-            var reservedId = (int?)_managerConnection.ExecuteScalar(command);
-            if(reservedId != null)
+            var idObject = _managerConnection.ExecuteScalar(command);
+            if(!(idObject is DBNull))
             {
-                database = new Database(pool:this, id:reservedId.Value, isFree:false);
+                database = new Database(pool:this, id:(int)idObject, isFree:false);
                 return true;
             }
 

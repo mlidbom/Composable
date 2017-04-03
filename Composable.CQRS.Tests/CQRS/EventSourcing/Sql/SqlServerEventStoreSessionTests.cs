@@ -1,15 +1,12 @@
 ﻿using System;
-using System.Configuration;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Transactions;
 using Composable.DependencyInjection;
-using Composable.DependencyInjection.Persistence;
 using Composable.Persistence.EventStore;
 using Composable.Persistence.EventStore.Serialization.NewtonSoft;
 using Composable.System.Linq;
-using Composable.Testing;
 using FluentAssertions;
 using NUnit.Framework;
 
@@ -19,26 +16,13 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.Sql
     class SqlServerEventStoreSessionTests : EventStoreSessionTests
     {
         string _connectionString;
-        SqlServerDatabasePool _databasePool;
-        IServiceLocator _serviceLocator;
         [SetUp]
         public void Setup()
         {
-            _serviceLocator = DependencyInjectionContainer.CreateServiceLocatorForTesting(
-                                                                                          container => container
-                                                                                              .RegisterSqlServerEventStore<ITestingEventstoreSession, ITestingEventstoreReader
-                                                                                              >("SqlServerEventStoreSessionTests_EventStore"));
-
-            var masterConnectionString = ConfigurationManager.ConnectionStrings["MasterDb"].ConnectionString;
-            _databasePool = new SqlServerDatabasePool(masterConnectionString);
-            _connectionString = _databasePool.ConnectionStringFor("SqlServerEventStoreSessionTests_EventStore");
+            _connectionString = ServiceLocator.EventStoreConnectionString();
         }
 
-        [TearDown]
-        public void TearDownTask() {
-            _databasePool.Dispose();
-            _serviceLocator.Dispose();
-        }
+        protected override IServiceLocator CreateServiceLocator() => TestWiringHelper.SetupTestingServiceLocator(TestingMode.RealComponents);
 
         protected override IEventStore CreateStore() => new EventStore(_connectionString, serializer: new NewtonSoftEventStoreEventSerializer());
 
@@ -47,37 +31,40 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.Sql
         {
             var user = new User();
             user.Register("email@email.se", "password", Guid.NewGuid());
-            using (var session = OpenSession(CreateStore()))
-            {
-                session.Save(user);
-                user.ChangeEmail("newemail@somewhere.not");
-                session.SaveChanges();
-            }
+            UseInTransactionalScope(session =>
+                                    {
+                                        session.Save(user);
+                                        user.ChangeEmail("newemail@somewhere.not");
+                                        session.SaveChanges();
+                                    });
 
             void UpdateEmail()
             {
-                using(var session = OpenSession(CreateStore()))
-                {
-                    ((IEventStoreReader)session).GetHistory(user.Id);
-                    using(var transaction = new TransactionScope())
-                    {
-                        var userToUpdate = session.Get<User>(user.Id);
-                        userToUpdate.ChangeEmail($"newemail_{userToUpdate.Version}@somewhere.not");
-                        Thread.Sleep(100);
-                        session.SaveChanges();
-                        transaction.Complete();
-                    } //Sql duplicate key (AggregateId, Version) Exception would be thrown here if history was not serialized
-                }
+                UseInTransactionalScope(session =>
+                                        {
+                                            ((IEventStoreReader)session).GetHistory(user.Id);
+                                            using(var transaction = new TransactionScope())
+                                            {
+                                                var userToUpdate = session.Get<User>(user.Id);
+                                                userToUpdate.ChangeEmail($"newemail_{userToUpdate.Version}@somewhere.not");
+                                                Thread.Sleep(100);
+                                                session.SaveChanges();
+                                                transaction.Complete();
+                                            } //Sql duplicate key (AggregateId, Version) Exception would be thrown here if history was not serialized
+                                        });
             }
 
             var tasks = 1.Through(20).Select(_ => Task.Factory.StartNew(UpdateEmail)).ToArray();
             Task.WaitAll(tasks);
 
-            using (var session = OpenSession(CreateStore()))
-            {
-                var userHistory = ((IEventStoreReader)session).GetHistory(user.Id).ToArray();//Reading the aggregate will throw an exception if the history is invalid.
-                userHistory.Length.Should().Be(22);//Make sure that all of the transactions completed
-            }
+            UseInScope(
+                session =>
+                {
+                    var userHistory = ((IEventStoreReader)session).GetHistory(user.Id)
+                                                                  .ToArray(); //Reading the aggregate will throw an exception if the history is invalid.
+                    userHistory.Length.Should()
+                               .Be(22); //Make sure that all of the transactions completed
+                });
         }
 
         [Test]
@@ -85,26 +72,20 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.Sql
         {
             var user = new User();
             user.Register("email@email.se", "password", Guid.NewGuid());
-            using (var session = OpenSession(CreateStore()))
-            {
-                session.Save(user);
-                user.ChangeEmail("newemail@somewhere.not");
-                session.SaveChanges();
-            }
+            UseInTransactionalScope(session =>
+                                    {
+                                        session.Save(user);
+                                        user.ChangeEmail("newemail@somewhere.not");
+                                    });
 
             void UpdateEmail()
             {
-                using(var session = OpenSession(CreateStore()))
-                {
-                    using(var transaction = new TransactionScope())
-                    {
-                        var userToUpdate = session.Get<User>(user.Id);
-                        userToUpdate.ChangeEmail($"newemail_{userToUpdate.Version}@somewhere.not");
-                        Thread.Sleep(100);
-                        session.SaveChanges();
-                        transaction.Complete();
-                    } //Sql duplicate key (AggregateId, Version) Exception would be thrown here if history was not serialized
-                }
+                UseInTransactionalScope(session =>
+                                        {
+                                            var userToUpdate = session.Get<User>(user.Id);
+                                            userToUpdate.ChangeEmail($"newemail_{userToUpdate.Version}@somewhere.not");
+                                            Thread.Sleep(100);
+                                        }); //Sql duplicate key (AggregateId, Version) Exception would be thrown here if history was not serialized
             }
 
             var tasks = 1.Through(20).Select(_ => Task.Factory.StartNew(UpdateEmail)).ToArray();
@@ -112,10 +93,7 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.Sql
 
             Task.WaitAll(tasks);
 
-            using (var session = OpenSession(CreateStore()))
-            {
-                ((IEventStoreReader)session).GetHistory(user.Id);
-            }
+            UseInScope(session => ((IEventStoreReader)session).GetHistory(user.Id));
         }
 
         [Test]
@@ -126,6 +104,7 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.Sql
                                                                                                                 var test = new SqlServerEventStoreSessionTests();
                                                                                                                 try
                                                                                                                 {
+                                                                                                                    test.SetupBus();
                                                                                                                     test.Setup();
                                                                                                                     using(var session = test.OpenSession(test.CreateStore()))
                                                                                                                     {

@@ -60,14 +60,8 @@ namespace Composable.Testing
                                              } else
                                              {
                                                  newDatabase = true;
-                                                 // ReSharper disable once AssignNullToNotNullAttribute
-                                                 var id = InsertDatabase();
-                                                 database = new Database(
-                                                     this,
-                                                     id,
-                                                     isFree: false);
-
-                                                 using(new TransactionScope(TransactionScopeOption.Suppress))
+                                                 database = InsertDatabase();
+                                                 using (new TransactionScope(TransactionScopeOption.Suppress))
                                                  {
                                                      CreateDatabase(database.Name);
                                                  }
@@ -115,7 +109,7 @@ namespace Composable.Testing
                 .UseConnection(action: connection => connection.DropAllObjects());
         }
 
-        int InsertDatabase()
+        Database InsertDatabase()
         {
             var value = _managerConnection.ExecuteScalar(
                 $@"
@@ -124,7 +118,9 @@ namespace Composable.Testing
                                                    values(                0      ,                     getdate()       ,                     '{Environment.StackTrace
                     }')
                 select @@IDENTITY");
-            return (int)(decimal)value;
+            var id = (int)(decimal)value;
+            var database = new Database(pool: this, id: id, isFree: false);
+            return database;
         }
 
 

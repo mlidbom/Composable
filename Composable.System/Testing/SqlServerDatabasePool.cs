@@ -214,7 +214,7 @@ namespace Composable.Testing
             internal Database(SqlServerDatabasePool pool, int id, bool isFree)
             {
                 Id = id;
-                Name = $"{ManagerDbName}_{id}";
+                Name = $"{ManagerDbName}_{id:0000}";
                 IsFree = isFree;
                 ConnectionString = pool.ConnectionStringForDbNamed(Name);
             }

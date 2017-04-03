@@ -18,7 +18,6 @@ namespace Composable.Persistence.EventStore
     {
         static readonly ILog Log = LogManager.GetLogger(typeof(EventStore));
 
-        public readonly string ConnectionString;
         readonly ISingleContextUseGuard _usageGuard;
 
         readonly IEventStoreEventReader _eventReader;
@@ -29,14 +28,13 @@ namespace Composable.Persistence.EventStore
 
         readonly HashSet<Guid> _aggregatesWithEventsAddedByThisInstance = new HashSet<Guid>();
 
-        public EventStore(string connectionString, IEventStoreEventSerializer serializer, ISingleContextUseGuard usageGuard = null, EventCache cache = null, IEventNameMapper nameMapper = null, IEnumerable<IEventMigration> migrations = null)
+        protected EventStore(string connectionString, IEventStoreEventSerializer serializer, ISingleContextUseGuard usageGuard = null, EventCache cache = null, IEventNameMapper nameMapper = null, IEnumerable<IEventMigration> migrations = null)
         {
             Log.Debug("Constructor called");
 
             _migrationFactories = migrations?.ToList() ?? new List<IEventMigration>();
             nameMapper = nameMapper ?? new DefaultEventNameMapper();
 
-            ConnectionString = connectionString;
             _usageGuard = usageGuard ?? new SingleThreadUseGuard();
             _cache = cache ?? new EventCache();
             var connectionMananger = new SqlServerEventStoreConnectionManager(connectionString);

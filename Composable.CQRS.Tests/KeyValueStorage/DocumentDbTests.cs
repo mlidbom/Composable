@@ -34,7 +34,7 @@ namespace Composable.CQRS.Tests.KeyValueStorage
             ServiceLocator.Dispose();
         }
 
-        internal void UseInTransactionalScope([InstantHandle] Action<ITestingDocumentDbReader, ITestingDocumentDbUpdater> useSession)
+        void UseInTransactionalScope([InstantHandle] Action<ITestingDocumentDbReader, ITestingDocumentDbUpdater> useSession)
         {
             ServiceLocator.ExecuteUnitOfWorkInIsolatedScope(() => useSession(ServiceLocator.DocumentDbReader(), ServiceLocator.DocumentDbUpdater()));
         }

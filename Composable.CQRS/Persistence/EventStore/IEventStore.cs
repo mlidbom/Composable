@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace Composable.Persistence.EventStore
 {
-    public interface IEventStore : IDisposable
+    interface IEventStore : IDisposable
     {
         IEnumerable<IAggregateRootEvent> GetAggregateHistoryForUpdate(Guid id);
         IEnumerable<IAggregateRootEvent> GetAggregateHistory(Guid id);

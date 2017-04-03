@@ -21,10 +21,6 @@ namespace Composable.CQRS.Tests
         static string DocumentDbConnectionStringName = "Fake_connectionstring_for_document_database_testing";
         static string EventStoreConnectionStringName = "Fake_connectionstring_for_event_store_testing";
 
-        internal static string DocumentDbConnectionString(this IServiceLocator @this) => @this.Resolve<IConnectionStringProvider>()
-                                                                                              .GetConnectionString(DocumentDbConnectionStringName)
-                                                                                              .ConnectionString;
-
         internal static string EventStoreConnectionString(this IServiceLocator @this) => @this.Resolve<IConnectionStringProvider>()
                                                                                               .GetConnectionString(EventStoreConnectionStringName)
                                                                                               .ConnectionString;
@@ -34,10 +30,6 @@ namespace Composable.CQRS.Tests
 
         internal static IEventStore<ITestingEventstoreUpdater, ITestingEventstoreReader> SqlEventStore(this IServiceLocator @this) =>
             @this.EventStore();//todo: Throw here if it is not the correct type of store
-
-        internal static IEventStore<ITestingEventstoreUpdater, ITestingEventstoreReader> InMemoryEventStore(this IServiceLocator @this) =>
-            @this.EventStore();//todo: Throw here if it is not the correct type of store
-
 
         internal static IDocumentDb DocumentDb(this IServiceLocator @this) =>
             @this.Resolve<DocumentDbRegistrationExtensions.IDocumentDb<ITestingDocumentDbUpdater, ITestingDocumentDbReader, ITestingDocumentDbBulkReader>>();
@@ -54,14 +46,13 @@ namespace Composable.CQRS.Tests
         internal static DocumentDbRegistrationExtensions.IDocumentDbSession<ITestingDocumentDbUpdater, ITestingDocumentDbReader, ITestingDocumentDbBulkReader> DocumentDbSession(this IServiceLocator @this)
             => @this.Resolve<DocumentDbRegistrationExtensions.IDocumentDbSession<ITestingDocumentDbUpdater, ITestingDocumentDbReader, ITestingDocumentDbBulkReader>>();
 
-
-        internal static void RegisterTestingSqlServerDocumentDb(this IDependencyInjectionContainer @this)
+        static void RegisterTestingSqlServerDocumentDb(this IDependencyInjectionContainer @this)
         {
             @this.RegisterSqlServerDocumentDb<ITestingDocumentDbUpdater, ITestingDocumentDbReader, ITestingDocumentDbBulkReader>
                 (DocumentDbConnectionStringName);
         }
 
-        internal static void RegisterTestingSqlServerEventStore(this IDependencyInjectionContainer @this)
+        static void RegisterTestingSqlServerEventStore(this IDependencyInjectionContainer @this)
         {
             @this.RegisterSqlServerEventStore<ITestingEventstoreUpdater, ITestingEventstoreReader>
                 (EventStoreConnectionStringName);

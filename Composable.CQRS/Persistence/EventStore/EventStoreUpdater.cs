@@ -27,7 +27,6 @@ namespace Composable.Persistence.EventStore
         readonly List<Guid> _pendingDeletes = new List<Guid>();
         IUtcTimeTimeSource TimeSource { get; set; }
 
-
         public EventStoreUpdater(IServiceBus bus, IEventStore store, ISingleContextUseGuard usageGuard, IUtcTimeTimeSource timeSource)
         {
             Contract.Argument(() => bus, () => store, () => usageGuard, () => timeSource)

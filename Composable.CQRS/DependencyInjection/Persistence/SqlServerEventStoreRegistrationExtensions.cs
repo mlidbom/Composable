@@ -21,7 +21,7 @@ namespace Composable.DependencyInjection.Persistence
 
     public static class SqlServerEventStoreRegistrationExtensions
     {
-        internal interface IEventStoreUpdater<TSessionInterface, TReaderInterface> : IEventStoreUpdater {}
+        interface IEventStoreUpdater<TSessionInterface, TReaderInterface> : IEventStoreUpdater {}
 
         class EventStore<TSessionInterface, TReaderInterface> : EventStore, IEventStore<TSessionInterface, TReaderInterface>
         {

@@ -23,7 +23,7 @@ namespace Composable.Persistence.DocumentDb.SqlServer
 
         readonly object _lockObject = new object();
 
-        public SqlServerDocumentDb(string connectionString) => _connectionString = connectionString;
+        protected SqlServerDocumentDb(string connectionString) => _connectionString = connectionString;
 
         bool _initialized;
         ConcurrentDictionary<Type, int> _knownTypes = null;

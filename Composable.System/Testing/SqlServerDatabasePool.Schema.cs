@@ -48,7 +48,7 @@ namespace Composable.Testing
         static class ManagerTableSchema
         {
             public static readonly string TableName = "Databases";
-            public static readonly string Identity = nameof(Identity);
+            public static readonly string Id = nameof(Id);
             public static readonly string DatabaseName = nameof(DatabaseName);
             public static readonly string IsFree = nameof(IsFree);
             public static readonly string ReservationDate = nameof(ReservationDate);
@@ -57,14 +57,14 @@ namespace Composable.Testing
 
         static readonly string CreateDbTableSql = $@"
 CREATE TABLE [dbo].[{ManagerTableSchema.TableName}](
-    [{ManagerTableSchema.Identity}] [int] IDENTITY(1,1) NOT NULL,
+    [{ManagerTableSchema.Id}] [int] IDENTITY(1,1) NOT NULL,
 	[{ManagerTableSchema.DatabaseName}] [varchar](500) NOT NULL,
 	[{ManagerTableSchema.IsFree}] [bit] NOT NULL,
     [{ManagerTableSchema.ReservationDate}] [datetime] NOT NULL,
     [{ManagerTableSchema.ReservationCallStack}] [varchar](max) NOT NULL,
  CONSTRAINT [PK_DataBases] PRIMARY KEY CLUSTERED 
 (
-	[{ManagerTableSchema.Identity}] ASC
+	[{ManagerTableSchema.Id}] ASC
 ))
 ";
     }

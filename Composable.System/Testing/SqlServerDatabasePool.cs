@@ -81,7 +81,9 @@ namespace Composable.Testing
                                                  newDatabase = true;
                                                  // ReSharper disable once AssignNullToNotNullAttribute
                                                  var newDatabaseName = $"{ManagerDbName}_{Guid.NewGuid()}.mdf";
+                                                 var id = InsertDatabase(newDatabaseName);
                                                  database = new Database(
+                                                     id: id,
                                                      name: newDatabaseName,
                                                      isFree: false,
                                                      connectionString: ConnectionStringForDbNamed(newDatabaseName));
@@ -90,8 +92,6 @@ namespace Composable.Testing
                                                  {
                                                      CreateDatabase(database.Name);
                                                  }
-
-                                                 InsertDatabase(database.Name);
 
                                                  _reservedDatabases.Add(requestedDbName, database);
                                              }
@@ -103,7 +103,7 @@ namespace Composable.Testing
                 CleanDatabase(database);
             }
             return database.ConnectionString;
-        }        
+        }
 
         string ConnectionStringForDbNamed(string dbName)
         {
@@ -138,12 +138,21 @@ namespace Composable.Testing
                 .UseConnection(connection => connection.DropAllObjects());
         }
 
-        void InsertDatabase(string dbName)
+        int InsertDatabase(string dbName)
         {
-            _managerConnection.ExecuteNonQuery(
-                $@"insert {ManagerTableSchema.TableName} ({ManagerTableSchema.DatabaseName}, {ManagerTableSchema.IsFree}, {ManagerTableSchema.ReservationDate},  {ManagerTableSchema.ReservationCallStack}) 
-                                                           values('{dbName}'               ,                     0      ,                     getdate()       ,                     '{Environment.StackTrace}')");
+            var value = _managerConnection.ExecuteScalar(
+                $@"
+                set nocount on
+                insert {ManagerTableSchema.TableName} ({ManagerTableSchema.DatabaseName}, {ManagerTableSchema.IsFree}, {ManagerTableSchema.ReservationDate},  {
+                        ManagerTableSchema.ReservationCallStack
+                    }) 
+                                                   values('{dbName}'                       ,                     0      ,                     getdate()       ,                     '{
+                        Environment.StackTrace
+                    }')
+                select @@IDENTITY");
+            return (int)(decimal)value;
         }
+
 
         void ReleaseDatabases(IReadOnlyList<Database> database)
         {
@@ -166,16 +175,17 @@ namespace Composable.Testing
                 {
                     var names = new List<Database>();
                     command.CommandText =
-                        $"select {ManagerTableSchema.DatabaseName}, {ManagerTableSchema.IsFree}, {ManagerTableSchema.ReservationDate} from {ManagerTableSchema.TableName} {LockingHint}";
+                        $"select {ManagerTableSchema.Id}, {ManagerTableSchema.DatabaseName}, {ManagerTableSchema.IsFree}, {ManagerTableSchema.ReservationDate} from {ManagerTableSchema.TableName} {LockingHint}";
                     using(var reader = command.ExecuteReader())
                     {
                         while(reader.Read())
                         {
                             names.Add(
                                 new Database(
-                                    name: reader.GetString(0),
-                                    isFree: reader.GetBoolean(1),
-                                    connectionString: ConnectionStringForDbNamed(reader.GetString(0))));
+                                    id: reader.GetInt32(0),
+                                    name: reader.GetString(1),
+                                    isFree: reader.GetBoolean(2),
+                                    connectionString: ConnectionStringForDbNamed(reader.GetString(1))));
                         }
                     }
                     return names;
@@ -211,11 +221,13 @@ namespace Composable.Testing
 
         class Database
         {
+            internal int Id { get; }
             internal string Name { get; }
             internal bool IsFree { get; }
             internal string ConnectionString { get; }
-            internal Database(string name,  bool isFree, string connectionString)
+            internal Database(int id, string name,  bool isFree, string connectionString)
             {
+                Id = id;
                 Name = name;
                 IsFree = isFree;
                 ConnectionString = connectionString;

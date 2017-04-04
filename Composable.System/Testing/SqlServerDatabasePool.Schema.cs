@@ -49,11 +49,14 @@ namespace Composable.Testing
 
         void EnsureManagerDbExists()
         {
-            if(!ManagerDbExists())
+            lock(typeof(SqlServerDatabasePool))
             {
-                CreateDatabase(ManagerDbName);
-                _managerConnection.ExecuteNonQuery(CreateDbTableSql);
-                ConnectionStringsWithKnownManagerDb.Add(_masterConnectionString);
+                if(!ManagerDbExists())
+                {
+                    CreateDatabase(ManagerDbName);
+                    _managerConnection.ExecuteNonQuery(CreateDbTableSql);
+                    ConnectionStringsWithKnownManagerDb.Add(_masterConnectionString);
+                }
             }
         }
 

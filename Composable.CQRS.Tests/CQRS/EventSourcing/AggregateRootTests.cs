@@ -28,7 +28,7 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing
         public void GetChangesReturnsEmptyListAfterAcceptChangesCalled()
         {
             var user = new User();
-            var userAseventStored = user as IEventStored;
+            var userAseventStored = (IEventStored)user;
             Assert.That(user.Version, Is.EqualTo(0));
 
             user.Register("email", "password", Guid.NewGuid());

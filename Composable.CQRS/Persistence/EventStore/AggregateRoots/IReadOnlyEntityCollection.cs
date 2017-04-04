@@ -12,7 +12,7 @@ namespace Composable.Persistence.EventStore.AggregateRoots
         TEntity this[TEntityId id] { get; }
     }
 
-    interface IEntityCollectionManager<TEntity, in TEntityId, TEventClass, in TEntityCreationInterface>
+    interface IEntityCollectionManager<TEntity, in TEntityId, in TEventClass, in TEntityCreationInterface>
     {
         IReadOnlyEntityCollection<TEntity, TEntityId> Entities { get; }
         TEntity Add<TCreationEvent>(TCreationEvent creationEvent)

@@ -441,21 +441,21 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing
 
             UseInTransactionalScope(session =>
                                     {
-                                        users.Take(3).ForEach(u => session.Save(u));
+                                        users.Take(3).ForEach(session.Save);
                                         Assert.That(MessageSpy.DispatchedMessages.Count, Is.EqualTo(0));
                                     });
 
             UseInTransactionalScope(session =>
                                     {
                                         Assert.That(MessageSpy.DispatchedMessages.Count, Is.EqualTo(6));
-                                        users.Skip(3).Take(3).ForEach(u => session.Save(u));
+                                        users.Skip(3).Take(3).ForEach(session.Save);
                                         Assert.That(MessageSpy.DispatchedMessages.Count, Is.EqualTo(6));
                                     });
 
             UseInTransactionalScope(session =>
                                     {
                                         Assert.That(MessageSpy.DispatchedMessages.Count, Is.EqualTo(12));
-                                        users.Skip(6).Take(3).ForEach(u => session.Save(u));
+                                        users.Skip(6).Take(3).ForEach(session.Save);
                                         Assert.That(MessageSpy.DispatchedMessages.Count, Is.EqualTo(12));
                                     });
 

@@ -14,14 +14,10 @@ namespace Composable.Contracts
         {
             var body = lambda.Body;
 
-            var unaryExpression = body as UnaryExpression;
-            if(unaryExpression != null)
+            var innerMemberExpression = (body as UnaryExpression)?.Operand as MemberExpression;
+            if(innerMemberExpression != null)
             {
-                var innerMemberExpression = unaryExpression.Operand as MemberExpression;
-                if(innerMemberExpression != null)
-                {
-                    return innerMemberExpression.Member.Name;
-                }
+                return innerMemberExpression.Member.Name;
             }
 
             var memberExpression = body as MemberExpression;

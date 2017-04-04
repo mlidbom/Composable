@@ -41,12 +41,12 @@ namespace Composable.DependencyInjection
     class RunMode : IRunMode
     {
         readonly bool _isTesting;
-        readonly TestingMode _testingMode;
         bool IRunMode.IsTesting => _isTesting;
-        public TestingMode Mode => _testingMode;
+        public TestingMode Mode { get; }
+
         public RunMode(bool isTesting, TestingMode mode)
         {
-            _testingMode = mode;
+            Mode = mode;
             _isTesting = isTesting;
         }
     }

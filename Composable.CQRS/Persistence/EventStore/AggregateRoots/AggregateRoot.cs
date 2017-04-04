@@ -16,8 +16,7 @@ namespace Composable.Persistence.EventStore.AggregateRoots
     {
         IUtcTimeTimeSource TimeSource { get; set; }
 
-        [Obsolete("Only for infrastructure", true)]
-        public AggregateRoot():this(DateTimeNowTimeSource.Instance){ }
+        [Obsolete("Only for infrastructure", true)] protected AggregateRoot():this(DateTimeNowTimeSource.Instance){ }
 
         int _insertedVersionToAggregateVersionOffset = 0;
 

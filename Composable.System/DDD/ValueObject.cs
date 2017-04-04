@@ -39,9 +39,10 @@ namespace Composable.DDD
             {
                 var value = fields[i](this);
 
-                if (value is IEnumerable && !(value is string))
+                var enumerableValue = value as IEnumerable;
+                if (enumerableValue != null && !(value is string))
                 {
-                    var value1Array = ((IEnumerable)value).Cast<object>().Where(me => !ReferenceEquals(me, null)).ToArray();
+                    var value1Array = enumerableValue.Cast<object>().Where(me => !ReferenceEquals(me, null)).ToArray();
                     foreach(var something in value1Array)
                     {
                         hashCode = hashCode * multiplier + something.GetHashCode();

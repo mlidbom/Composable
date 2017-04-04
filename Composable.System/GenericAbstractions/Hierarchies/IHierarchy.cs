@@ -25,7 +25,7 @@ namespace Composable.GenericAbstractions.Hierarchies
     /// 
     /// An alternative to implementing this interface is to use <see cref="HierarchyExtensions.AsHierarchy{T}"/>
     /// </summary>
-    interface IHierarchy<T> where T : IHierarchy<T>
+    interface IHierarchy<out T> where T : IHierarchy<T>
     {
         /// <summary>
         /// Returns the collection direct descendants of this node.

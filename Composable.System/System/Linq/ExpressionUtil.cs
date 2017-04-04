@@ -37,9 +37,10 @@ namespace Composable.System.Linq
             var body = lambda.Body;
             MemberExpression memberExpression;
 
-            if(body is UnaryExpression)
+            var expression = body as UnaryExpression;
+            if(expression != null)
             {
-                memberExpression = (MemberExpression)((UnaryExpression)body).Operand;
+                memberExpression = (MemberExpression)expression.Operand;
             }
             else
             {
@@ -62,9 +63,10 @@ namespace Composable.System.Linq
             var body = lambda.Body;
             MemberExpression memberExpression;
 
-            if (body is UnaryExpression)
+            var expression = body as UnaryExpression;
+            if (expression != null)
             {
-                memberExpression = (MemberExpression)((UnaryExpression)body).Operand;
+                memberExpression = (MemberExpression)expression.Operand;
             }
             else
             {

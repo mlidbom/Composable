@@ -10,7 +10,7 @@ namespace Composable.Persistence.DocumentDb
 {
     class InMemoryObjectStore : IEnumerable<KeyValuePair<string, object>>
     {
-        Dictionary<string, List<Object>> _db = new Dictionary<string, List<object>>(StringComparer.InvariantCultureIgnoreCase);
+        readonly Dictionary<string, List<Object>> _db = new Dictionary<string, List<object>>(StringComparer.InvariantCultureIgnoreCase);
         protected readonly object LockObject = new object();
 
         internal bool Contains(Type type, object id)
@@ -48,7 +48,7 @@ namespace Composable.Persistence.DocumentDb
                 return false;
             }
 
-            var found = matchesId.Where(obj => typeOfValue.IsAssignableFrom(obj.GetType())).ToList();
+            var found = matchesId.Where(typeOfValue.IsInstanceOfType).ToList();
             if(found.Any())
             {
                 value = found.Single();
@@ -93,7 +93,7 @@ namespace Composable.Persistence.DocumentDb
             lock(LockObject)
             {
                 var idstring = GetIdString(id);
-                var removed = _db.GetOrAddDefault(idstring).RemoveWhere(value => documentType.IsAssignableFrom(value.GetType()));
+                var removed = _db.GetOrAddDefault(idstring).RemoveWhere(documentType.IsInstanceOfType);
                 if(removed < 1)
                 {
                     throw new NoSuchDocumentException(id, documentType);
@@ -147,7 +147,7 @@ namespace Composable.Persistence.DocumentDb
             lock(LockObject)
             {
                 return this.
-                    Where(pair => typeof(T).IsAssignableFrom(pair.Value.GetType()))
+                    Where(pair => pair.Value is T)
                     .Select(pair => (T)pair.Value)
                     .ToList();
             }

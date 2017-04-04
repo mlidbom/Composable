@@ -7,10 +7,7 @@ namespace AccountManagement.TestHelpers
     {
         public static IServiceLocator CreateServiceLocator()
         {
-            return DependencyInjectionContainer.CreateServiceLocatorForTesting(container =>
-                                                                       {
-                                                                           AccountManagementDomainBootstrapper.SetupForTesting(container);
-                                                                       });
+            return DependencyInjectionContainer.CreateServiceLocatorForTesting(AccountManagementDomainBootstrapper.SetupForTesting);
         }
     }
 }

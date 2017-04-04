@@ -40,13 +40,13 @@ namespace Composable.Persistence.DocumentDb
             }
             _usageGuard.AssertNoContextChangeOccurred(this);
 
-            if (_idMap.TryGet(key, out value) && documentType.IsAssignableFrom(value.GetType()))
+            if (_idMap.TryGet(key, out value) && documentType.IsInstanceOfType(value))
             {
                 return true;
             }
 
             var documentItem = GetDocumentItem(key, documentType);
-            if(!documentItem.IsDeleted && _backingStore.TryGet(key, out value, _persistentValues) && documentType.IsAssignableFrom(value.GetType()))
+            if(!documentItem.IsDeleted && _backingStore.TryGet(key, out value, _persistentValues) && documentType.IsInstanceOfType(value))
             {
                 OnInitialLoad(key, value);
                 return true;

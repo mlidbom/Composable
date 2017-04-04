@@ -36,35 +36,26 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
             _history = _aggregate.History.Cast<AggregateRootEvent>().ToList();
         }
 
-        void UseEventstoreSessionWithConfiguredMigrations(Action<IEventStoreUpdater> useSession)
-        {
 
+        void AssertAggregateLoadTime(TimeSpan maxTotal)
+        {
             var container = DependencyInjectionContainer.CreateServiceLocatorForTesting(
                 cont => cont.RegisterSqlServerEventStore<ITestingEventstoreUpdater, ITestingEventstoreReader>("dummy connection name"));
 
-            using (container)
+            using(container)
             {
-                using (container.BeginScope())
+                using(container.BeginScope())
                 {
                     container.Use<IEventStore<ITestingEventstoreUpdater, ITestingEventstoreReader>>(store => store.SaveEvents(_history));
                 }
 
-                using (container.BeginScope())
-                {
-                    useSession(container.Resolve<ITestingEventstoreUpdater>());
-                }
+                TimeAsserter.Execute(
+                    maxTotal: maxTotal,
+                    description: "load aggregate in isolated scope",
+                    maxTries: 10,
+                    timeFormat: "ss\\.fff",
+                    action: () => container.ExecuteInIsolatedScope(() =>  container.Resolve<ITestingEventstoreUpdater>().Get<TestAggregate>(_aggregate.Id)));
             }
-        }
-
-        void AssertAggregateLoadTime(TimeSpan maxTotal)
-        {
-            UseEventstoreSessionWithConfiguredMigrations
-                (session => TimeAsserter.Execute(
-                                                 maxTotal: maxTotal,
-                                                 description: "load aggregate in isolated scope",
-                                                 maxTries: 10,
-                                                 timeFormat: "ss\\.fff",
-                                                 action: () => session.Get<TestAggregate>(_aggregate.Id)));
         }
 
         [Test]
@@ -135,9 +126,9 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
         }
 
         [Test]
-        public void When_there_are_no_migrations_mutation_takes_less_than_a_millisecond()
+        public void When_there_are_no_migrations_loading_takes_less_than_40_milliseconds()
         {
-            AssertAggregateLoadTime(1.Milliseconds());
+            AssertAggregateLoadTime(40.Milliseconds());
 
         }
 

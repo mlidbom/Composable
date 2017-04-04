@@ -111,8 +111,8 @@ select @reservedId";
 
         void CleanDatabase(Database db)
         {
-            new SqlServerConnectionUtilities(ConnectionStringForDbNamed(db.Name))
-                .UseConnection(action: connection => connection.DropAllObjects());
+            RunInIsolatedTransaction(() => new SqlServerConnectionUtilities(ConnectionStringForDbNamed(db.Name))
+                                         .UseConnection(action: connection => connection.DropAllObjects()));
         }
 
         Database InsertDatabase()

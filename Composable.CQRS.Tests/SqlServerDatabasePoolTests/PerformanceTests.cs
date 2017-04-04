@@ -42,7 +42,7 @@ namespace Composable.CQRS.Tests.SqlServerDatabasePoolTests
         }
 
         [Test]
-        public void Multiple_threads_can_reserve_and_release_10_identically_named_databases_in_40_milliseconds()
+        public void Multiple_threads_can_reserve_and_release_10_identically_named_databases_in_50_milliseconds()
         {
             var dbName = "EB82270F-E0BA-49F7-BC09-79AE95BA109F";
 
@@ -57,7 +57,7 @@ namespace Composable.CQRS.Tests.SqlServerDatabasePoolTests
                 },
                 iterations: 10,
                 timeIndividualExecutions: true,
-                maxTotal: 40.Milliseconds(),
+                maxTotal: 50.Milliseconds(),
                 maxTries: 10);
         }
 

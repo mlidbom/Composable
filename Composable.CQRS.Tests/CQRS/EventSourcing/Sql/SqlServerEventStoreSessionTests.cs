@@ -15,9 +15,12 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.Sql
     class SqlServerEventStoreSessionTests : EventStoreSessionTests
     {
         protected override IServiceLocator CreateServiceLocator() => TestWiringHelper.SetupTestingServiceLocator(TestingMode.RealComponents);
+    }
 
+    [TestFixture] class Serializes_access_to_an_aggregate_so_that_concurrent_transactions_succeed_even_if_history_has_been_read_outside_of_modifying_transactions : SqlServerEventStoreSessionTests
+    {
         [Test]
-        public void Serializes_access_to_an_aggregate_so_that_concurrent_transactions_succeed_even_if_history_has_been_read_outside_of_modifying_transactions()
+        public void Verify_assumption()
         {
             var user = new User();
             user.Register("email@email.se", "password", Guid.NewGuid());
@@ -50,9 +53,13 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.Sql
                                .Be(22); //Make sure that all of the transactions completed
                 });
         }
+    }
 
+    [TestFixture]
+    class Serializes_access_to_an_aggregate_so_that_concurrent_transactions_succeed : SqlServerEventStoreSessionTests
+    {
         [Test]
-        public void Serializes_access_to_an_aggregate_so_that_concurrent_transactions_succeed()
+        public void Verify_assumption()
         {
             var user = new User();
             user.Register("email@email.se", "password", Guid.NewGuid());
@@ -79,23 +86,28 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.Sql
 
             UseInScope(session => ((IEventStoreReader)session).GetHistory(user.Id));
         }
+    }
 
-        [Test] public void InsertNewEventType_should_not_throw_exception_if_the_event_type_has_been_inserted_by_something_else()
+    [TestFixture]
+    class InsertNewEventType_should_not_throw_exception_if_the_event_type_has_been_inserted_by_something_else : SqlServerEventStoreSessionTests
+    {
+        [Test]
+        public void Verify_assumption()
         {
             User otherUser = null;
             User user = null;
             void ChangeAnotherUsersEmailInOtherInstance()
             {
-                using(var clonedServiceLocator = ServiceLocator.Clone())
+                using (var clonedServiceLocator = ServiceLocator.Clone())
                 {
                     clonedServiceLocator.ExecuteUnitOfWorkInIsolatedScope(() =>
                                                                           {
                                                                               // ReSharper disable once AccessToDisposedClosure
                                                                               var session = clonedServiceLocator.Resolve<ITestingEventstoreUpdater>();
                                                                               otherUser = User.Register(session,
-                                                                                                            "email@email.se",
-                                                                                                            "password",
-                                                                                                            Guid.NewGuid());
+                                                                                                        "email@email.se",
+                                                                                                        "password",
+                                                                                                        Guid.NewGuid());
                                                                               otherUser.ChangeEmail("otheruser@email.new");
                                                                           });
 
@@ -109,5 +121,5 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.Sql
 
             UseInTransactionalScope(session => user.ChangeEmail("some@email.new"));
         }
-    }
+    }    
 }

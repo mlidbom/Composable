@@ -47,29 +47,22 @@ namespace Composable.Testing
 
             var newDatabase = false;
             RunInIsolatedTransaction(action: () =>
-                                     {
-                                         if(TryReserveDatabase(out database))
-                                         {
-                                             _reservedDatabases.Add(requestedDbName, database);
-                                         } else
-                                         {
-                                             ReleaseOldLocks();
-                                             if(TryReserveDatabase(out database))
                                              {
-                                                 _reservedDatabases.Add(requestedDbName, database);
-                                             } else
-                                             {
-                                                 newDatabase = true;
-                                                 database = InsertDatabase();
-                                                 using (new TransactionScope(TransactionScopeOption.Suppress))
+                                                 if(TryReserveDatabase(out database))
                                                  {
-                                                     CreateDatabase(database.Name);
-                                                 }
+                                                     _reservedDatabases.Add(requestedDbName, database);
+                                                 } else
+                                                 {
+                                                     newDatabase = true;
+                                                     database = InsertDatabase();
+                                                     using(new TransactionScope(TransactionScopeOption.Suppress))
+                                                     {
+                                                         CreateDatabase(database.Name);
+                                                     }
 
-                                                 _reservedDatabases.Add(requestedDbName, database);
-                                             }
-                                         }
-                                     });
+                                                     _reservedDatabases.Add(requestedDbName, database);
+                                                 }
+                                             });
 
             if(!newDatabase)
                 CleanDatabase(database);
@@ -84,13 +77,16 @@ namespace Composable.Testing
 
         bool TryReserveDatabase(out Database database)
         {
-            var command = $@"declare @reservedId integer
+            var command = $@"
 
+update {ManagerTableSchema.TableName} {LockingHint} set {ManagerTableSchema.IsFree} = 1 where {ManagerTableSchema.ReservationDate} < dateadd(minute, -10, getdate()) and {ManagerTableSchema.IsFree} = 0
+
+declare @reservedId integer
 SET @reservedId = (select top 1 {ManagerTableSchema.Id} from {ManagerTableSchema.TableName} {LockingHint}
 WHERE {ManagerTableSchema.IsFree} = 1
 order by {ManagerTableSchema.ReservationDate} asc)
 
-if( @reservedId is not null)
+if ( @reservedId is not null)
 	update {ManagerTableSchema.TableName} 
         set {ManagerTableSchema.IsFree} = 0, {ManagerTableSchema.ReservationDate} = getdate(), {ManagerTableSchema.ReservationCallStack} = '{Environment.StackTrace}'
     where Id = @reservedId
@@ -145,19 +141,6 @@ select @reservedId";
         }
 
         static readonly string LockingHint = "With(TABLOCKX)";
-
-        void ReleaseOldLocks()
-        {
-                    RunInIsolatedTransaction(action: () =>
-                                             {
-                                                 var count = _managerConnection.ExecuteNonQuery(
-                                                     $"update {ManagerTableSchema.TableName} {LockingHint} set {ManagerTableSchema.IsFree} = 1 where {ManagerTableSchema.ReservationDate} < dateadd(minute, -10, getdate()) and {ManagerTableSchema.IsFree} = 0");
-                                                 if(count > 0)
-                                                 {
-                                                     //SafeConsole.WriteLine($"Released {count} garbage reservations.");
-                                                 }
-                                             });
-        }
 
         protected override void InternalDispose()
         {

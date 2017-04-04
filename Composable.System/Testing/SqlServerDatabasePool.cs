@@ -77,18 +77,23 @@ namespace Composable.Testing
 
         bool TryReserveDatabase(out Database database)
         {
+            var tryReserveId = $"SET @reservedId = (select top 1 {ManagerTableSchema.Id} from {ManagerTableSchema.TableName} {LockingHint} WHERE {ManagerTableSchema.IsFree} = 1 order by {ManagerTableSchema.ReservationDate} asc)";
+            var releaseOldLocks = $"update {ManagerTableSchema.TableName} {LockingHint} set {ManagerTableSchema.IsFree} = 1 where {ManagerTableSchema.ReservationDate} < dateadd(minute, -10, getdate()) and {ManagerTableSchema.IsFree} = 0";
             var command = $@"
-
-update {ManagerTableSchema.TableName} {LockingHint} set {ManagerTableSchema.IsFree} = 1 where {ManagerTableSchema.ReservationDate} < dateadd(minute, -10, getdate()) and {ManagerTableSchema.IsFree} = 0
-
 declare @reservedId integer
-SET @reservedId = (select top 1 {ManagerTableSchema.Id} from {ManagerTableSchema.TableName} {LockingHint}
-WHERE {ManagerTableSchema.IsFree} = 1
-order by {ManagerTableSchema.ReservationDate} asc)
+{tryReserveId}
+
+if(@reservedId is null)
+begin
+    {releaseOldLocks}
+    {tryReserveId}
+end
 
 if ( @reservedId is not null)
 	update {ManagerTableSchema.TableName} 
-        set {ManagerTableSchema.IsFree} = 0, {ManagerTableSchema.ReservationDate} = getdate(), {ManagerTableSchema.ReservationCallStack} = '{Environment.StackTrace}'
+        set {ManagerTableSchema.IsFree} = 0, 
+            {ManagerTableSchema.ReservationDate} = getdate(), 
+            {ManagerTableSchema.ReservationCallStack} = '{Environment.StackTrace}'
     where Id = @reservedId
 
 select @reservedId";

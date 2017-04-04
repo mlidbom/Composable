@@ -42,7 +42,16 @@ LOG ON  ( NAME = {databaseName}_log, FILENAME = '{DatabaseRootFolder}\{databaseN
                     return false;
                 }
             }
-
+            try
+            {
+                _managerConnection.UseConnection(_ => {});
+            }
+            catch(Exception exception)
+            {
+                Log.Error(exception, "Failed to open manager database. Assuming it was on a temp drive and is now gone. Dropping everything and starting over.");
+                DropAllAndStartOver();
+                return false;
+            }
             ConnectionStringsWithKnownManagerDb.Add(_masterConnectionString);
             return true;
         }

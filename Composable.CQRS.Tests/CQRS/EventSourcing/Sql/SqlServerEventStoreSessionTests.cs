@@ -121,5 +121,5 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.Sql
 
             UseInTransactionalScope(session => user.ChangeEmail("some@email.new"));
         }
-    }    
+    }
 }

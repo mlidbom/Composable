@@ -96,7 +96,7 @@ select @reservedId";
                 return false;
             }
 
-            database = new Database(pool: this, id: (int)idObject, isFree: false);
+            database = new Database(pool: this, id: (int)idObject);
             return true;
         }
 
@@ -115,7 +115,7 @@ select @reservedId";
                                                    values(                0      ,                     getdate()       ,                     '{Environment.StackTrace}')
                 select @@IDENTITY");
             var id = (int)(decimal)value;
-            var database = new Database(pool: this, id: id, isFree: false);
+            var database = new Database(pool: this, id: id);
             using (new TransactionScope(TransactionScopeOption.Suppress))
             {
                 CreateDatabase(database.Name);
@@ -136,7 +136,7 @@ select @reservedId";
                                               {
                                                   while(reader.Read())
                                                   {
-                                                      oldLockedDatabases.Add(new Database(pool: this, id: reader.GetInt32(0), isFree: false));
+                                                      oldLockedDatabases.Add(new Database(pool: this, id: reader.GetInt32(0)));
                                                   }
                                               }
                                           });

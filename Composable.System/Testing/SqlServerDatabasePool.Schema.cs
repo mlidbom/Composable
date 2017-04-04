@@ -9,13 +9,11 @@ namespace Composable.Testing
         {
             internal int Id { get; }
             internal string Name { get; }
-            internal bool IsFree { get; }
             internal string ConnectionString { get; }
-            internal Database(SqlServerDatabasePool pool, int id, bool isFree)
+            internal Database(SqlServerDatabasePool pool, int id)
             {
                 Id = id;
                 Name = $"{ManagerDbName}_{id:0000}";
-                IsFree = isFree;
                 ConnectionString = pool.ConnectionStringForDbNamed(Name);
             }
         }

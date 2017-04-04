@@ -1,7 +1,9 @@
+using System;
 using Composable.DependencyInjection;
 using Composable.DependencyInjection.Persistence;
 using Composable.Persistence.DocumentDb;
 using Composable.Persistence.EventStore;
+using JetBrains.Annotations;
 
 namespace Composable.CQRS.Tests
 {
@@ -38,6 +40,12 @@ namespace Composable.CQRS.Tests
         internal static ITestingDocumentDbBulkReader DocumentDbBulkReader(this IServiceLocator @this) =>
             @this.Resolve<ITestingDocumentDbBulkReader>();
 
+        internal static ITestingEventstoreUpdater EventstoreUpdater(this IServiceLocator @this) =>
+            @this.Resolve<ITestingEventstoreUpdater>();
+
+        internal static ITestingEventstoreReader EventstoreReader(this IServiceLocator @this) =>
+            @this.Resolve<ITestingEventstoreReader>();
+
         internal static DocumentDbRegistrationExtensions.IDocumentDbSession<ITestingDocumentDbUpdater, ITestingDocumentDbReader, ITestingDocumentDbBulkReader> DocumentDbSession(this IServiceLocator @this)
             => @this.Resolve<DocumentDbRegistrationExtensions.IDocumentDbSession<ITestingDocumentDbUpdater, ITestingDocumentDbReader, ITestingDocumentDbBulkReader>>();
 
@@ -53,12 +61,13 @@ namespace Composable.CQRS.Tests
                 (EventStoreConnectionStringName);
         }
 
-        internal static IServiceLocator SetupTestingServiceLocator(TestingMode mode)
+        internal static IServiceLocator SetupTestingServiceLocator(TestingMode mode, [InstantHandle]Action<IDependencyInjectionContainer> configureContainer = null)
         {
             return DependencyInjectionContainer.CreateServiceLocatorForTesting(container =>
                                                                                {
                                                                                    container.RegisterTestingSqlServerDocumentDb();
                                                                                    container.RegisterTestingSqlServerEventStore();
+                                                                                   configureContainer?.Invoke(container);
                                                                                },
                                                                                mode: mode);
         }

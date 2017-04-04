@@ -84,15 +84,6 @@ namespace Composable.Persistence.DocumentDb
             }
         }
 
-        public virtual bool TryGetForUpdate<TValue>(object key, out TValue value)
-        {
-            _usageGuard.AssertNoContextChangeOccurred(this);
-            using (new UpdateLock())
-            {
-                return TryGet(key, out value);
-            }
-        }
-
         class UpdateLock : IDisposable
         {
             public UpdateLock() => UseUpdateLock = true;

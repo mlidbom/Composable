@@ -125,13 +125,5 @@ CREATE TABLE [dbo].[{ManagerTableSchema.TableName}](
 
             ConnectionStringsWithKnownManagerDb.Clear();
         }
-
-        internal static void DropAllAndStartOver(string masterConnectionString)
-        {
-            using(var pool = new SqlServerDatabasePool(masterConnectionString))
-            {
-                pool.DropAllAndStartOver();
-            }
-        }
     }
 }

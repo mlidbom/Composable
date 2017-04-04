@@ -4,7 +4,7 @@ namespace Composable.Testing
 {
     static class DatabaseHelpers
     {
-        internal static string DropAllObjectsStatement = @"select id=IDENTITY (int, 1,1), stmt 
+        static string DropAllObjectsStatement = @"select id=IDENTITY (int, 1,1), stmt 
 into #statements
 FROM (SELECT CASE WHEN type = 'AF'                           THEN 'DROP AGGREGATE ' + QUOTENAME(schema_name(schema_id)) + '.' + QUOTENAME(name)
                                                               WHEN type IN('C', 'F', 'UQ')               THEN 'ALTER TABLE ' + QUOTENAME(object_schema_name(parent_object_id)) + '.' + QUOTENAME(object_name(parent_object_id)) + ' DROP CONSTRAINT ' + QUOTENAME(name)

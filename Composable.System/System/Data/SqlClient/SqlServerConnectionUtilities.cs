@@ -60,7 +60,7 @@ namespace Composable.System.Data.SqlClient
                           });
         }
 
-        public TResult UseCommand<TResult>(Func<SqlCommand, TResult> action)
+        TResult UseCommand<TResult>(Func<SqlCommand, TResult> action)
         {
             return UseConnection(connection =>
                                  {

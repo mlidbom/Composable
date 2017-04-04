@@ -590,7 +590,6 @@ namespace Composable.CQRS.Tests.KeyValueStorage
             Assert.Throws<MultiThreadedUseException>(() => session.Dispose());
             Assert.Throws<MultiThreadedUseException>(() => session.Save(new User()));
             Assert.Throws<MultiThreadedUseException>(() => session.TryGet(Guid.NewGuid(), out user));
-            Assert.Throws<MultiThreadedUseException>(() => session.TryGetForUpdate(user.Id, out user));
             Assert.Throws<MultiThreadedUseException>(() => session.Delete(user));
         }
 

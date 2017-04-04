@@ -43,6 +43,7 @@ FROM {EventTable.Name} {lockHint} ";
         {
             _connectionMananger = connectionManager;
             _schemaManager = schemaManager;
+            //todo: This class should not handle serialization.
             _serializer = serializer;
         }
 
@@ -88,6 +89,7 @@ FROM {EventTable.Name} {lockHint} ";
             public string EventJson { get; set; }
         }
 
+        //todo: Return some lower level persistence type here. Not AggregateRootEvent. This class should not handle serialization.
         public IReadOnlyList<AggregateRootEvent> GetAggregateHistory(Guid aggregateId, bool takeWriteLock, int startAfterInsertedVersion = 0)
         {
             var historyData = new List<EventDataRow>();

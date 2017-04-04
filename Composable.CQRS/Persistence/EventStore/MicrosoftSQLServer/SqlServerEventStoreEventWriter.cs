@@ -15,6 +15,7 @@ namespace Composable.Persistence.EventStore.MicrosoftSQLServer
         readonly SqlServerEventStoreConnectionManager _connectionMananger;
         IEventTypeToIdMapper IdMapper => _schemaManager.IdMapper;
         readonly IEventStoreSchemaManager _schemaManager;
+        //todo: Do not use a serializer in here. It should be handled at a higher level.
         readonly IEventStoreEventSerializer _serializer;
 
         public SqlServerEventStoreEventWriter
@@ -27,7 +28,7 @@ namespace Composable.Persistence.EventStore.MicrosoftSQLServer
             _serializer = serializer;
         }
 
-        //Review:catch primary key violation errors and rethrow in an optimistic concurrency failure exception.:
+        //todo: Pass some lower level persistence type here. Not AggregateRootEvent
         public void Insert(IEnumerable<AggregateRootEvent> events)
         {
             SaveEventsInternal(events.Select(@this => new EventWithManualReadorder() {Event = @this, ManualReadOrder = SqlDecimal.Null}));

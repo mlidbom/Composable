@@ -100,12 +100,6 @@ select @reservedId";
             return true;
         }
 
-        void CleanDatabase(Database db)
-        {
-            RunInIsolatedTransaction(() => new SqlServerConnectionUtilities(ConnectionStringForDbNamed(db.Name))
-                                         .UseConnection(action: connection => connection.DropAllObjects()));
-        }
-
         Database InsertDatabase()
         {
             var value = _managerConnection.ExecuteScalar(
@@ -127,7 +121,7 @@ select @reservedId";
         void ReleaseOldLocks()
         {
             var selectDbsWithOldLocks = $"select {ManagerTableSchema.Id} from {ManagerTableSchema.TableName} {LockingHint} where {ManagerTableSchema.ReservationDate} < dateadd(minute, -10, getdate()) and {ManagerTableSchema.IsFree} = 0";
-            List<Database> oldLockedDatabases = new List<Database>();
+            var oldLockedDatabases = new List<Database>();
             _managerConnection.UseCommand(command =>
                                           {
                                               command.CommandText = selectDbsWithOldLocks;
@@ -140,22 +134,24 @@ select @reservedId";
                                                   }
                                               }
                                           });
-            ReleaseDatabases(oldLockedDatabases);
+            CleanAndRelease(oldLockedDatabases);
         }
 
-        void ReleaseDatabases(IReadOnlyList<Database> database)
+        void CleanAndRelease(IReadOnlyList<Database> databases)
         {
-            database.ForEach(action: db =>
+            void CleanAndReleaseDatabase(Database database)
+            {
+                RunInIsolatedTransaction(() => new SqlServerConnectionUtilities(ConnectionStringForDbNamed(database.Name))
+                                             .UseConnection(action: connection => connection.DropAllObjects()));
+
+                RunInIsolatedTransaction(() => _managerConnection.ExecuteNonQuery(
+                                             $@"update {ManagerTableSchema.TableName} set {ManagerTableSchema.IsFree} = 1  where {ManagerTableSchema.Id} = {database.Id}"));
+            }
+
+            databases.ForEach(action: db =>
                                      {
                                          _reservedDatabases.Remove(db.Name);
-                                         Task.Run(
-                                             action: () =>
-                                                     {
-                                                         CleanDatabase(db);
-                                                         RunInIsolatedTransaction(
-                                                             action: () => _managerConnection.ExecuteNonQuery(
-                                                                         $@"update {ManagerTableSchema.TableName} set {ManagerTableSchema.IsFree} = 1  where {ManagerTableSchema.Id} = {db.Id}"));
-                                                     });
+                                         Task.Run(() => CleanAndReleaseDatabase(db));
                                      });
         }
 
@@ -166,7 +162,7 @@ select @reservedId";
             if (!_disposed)
             {
                 _disposed = true;
-                ReleaseDatabases(_reservedDatabases.Values.ToList());
+                CleanAndRelease(_reservedDatabases.Values.ToList());
             }
         }
 

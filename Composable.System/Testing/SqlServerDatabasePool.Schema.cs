@@ -24,7 +24,9 @@ namespace Composable.Testing
 
         void CreateDatabase(string databaseName)
         {
-            _masterConnection.ExecuteNonQuery($"CREATE DATABASE [{databaseName}]");
+            _masterConnection.ExecuteNonQuery($@"CREATE DATABASE [{databaseName}] 
+ON      ( NAME = {databaseName}_data, FILENAME = '{DatabaseRootFolder}\{databaseName}.mdf') 
+LOG ON  ( NAME = {databaseName}_log, FILENAME = '{DatabaseRootFolder}\{databaseName}.ldf'); ");
             _masterConnection.ExecuteNonQuery($"ALTER DATABASE [{databaseName}] SET RECOVERY SIMPLE;");
             //SafeConsole.WriteLine($"Created: {databaseName}");
         }

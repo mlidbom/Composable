@@ -18,6 +18,8 @@ namespace Composable.Testing
         readonly SqlServerConnectionUtilities _masterConnection;
         readonly SqlServerConnectionUtilities _managerConnection;
 
+        static readonly string DatabaseRootFolder = @"R:\";
+
         static readonly ILogger Log = Logger.For<SqlServerDatabasePool>();
 
         static readonly string ManagerDbName = $"{nameof(SqlServerDatabasePool)}";

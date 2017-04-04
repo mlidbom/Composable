@@ -23,7 +23,7 @@ namespace Composable.CQRS.Tests.SqlServerDatabasePoolTests
         }
 
         [Test]
-        public void Single_thread_can_reserve_and_release_10_identically_named_databases_in_500_milliseconds()
+        public void Single_thread_can_reserve_and_release_10_identically_named_databases_in_30_milliseconds()
         {
             var dbName = "74EA37DF-03CE-49C4-BDEC-EAD40FAFB3A1";
 
@@ -37,12 +37,12 @@ namespace Composable.CQRS.Tests.SqlServerDatabasePoolTests
                     }
                 },
                 iterations: 10,
-                maxTotal: 500.Milliseconds(),
+                maxTotal: 30.Milliseconds(),
                 maxTries: 10);
         }
 
         [Test]
-        public void Multiple_threads_can_reserve_and_release_10_identically_named_databases_in_50_milliseconds()
+        public void Multiple_threads_can_reserve_and_release_10_identically_named_databases_in_40_milliseconds()
         {
             var dbName = "EB82270F-E0BA-49F7-BC09-79AE95BA109F";
 
@@ -57,15 +57,14 @@ namespace Composable.CQRS.Tests.SqlServerDatabasePoolTests
                 },
                 iterations: 10,
                 timeIndividualExecutions: true,
-                maxTotal: 50.Milliseconds(),
+                maxTotal: 40.Milliseconds(),
                 maxTries: 10);
         }
 
         [Test]
-        public void Multiple_threads_can_reserve_and_release_10_differently_named_databases_in_60_milliseconds()
+        public void Multiple_threads_can_reserve_and_release_10_differently_named_databases_in_20_milliseconds()
         {
             SqlServerDatabasePool manager = null;
-
 
             TimeAsserter.ExecuteThreaded(
                 setup: () =>
@@ -78,12 +77,12 @@ namespace Composable.CQRS.Tests.SqlServerDatabasePoolTests
                                                               .ToString()),
                 iterations: 10,
                 maxTries: 10,
-                maxTotal: 60.Milliseconds()
+                maxTotal: 20.Milliseconds()
             );
         }
 
         [Test]
-        public void Single_thread_can_reserve_and_release_10_differently_named_databases_in_400_milliseconds()
+        public void Single_thread_can_reserve_and_release_10_differently_named_databases_in_15_milliseconds()
         {
             SqlServerDatabasePool manager = null;
 
@@ -97,8 +96,8 @@ namespace Composable.CQRS.Tests.SqlServerDatabasePoolTests
                 action: () => manager.ConnectionStringFor(Guid.NewGuid()
                                                               .ToString()),
                 iterations: 10,
-                maxTries: 5,
-                maxTotal: 400.Milliseconds()
+                maxTries: 10,
+                maxTotal: 15.Milliseconds()
             );
         }
 

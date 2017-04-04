@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Data.SqlClient;
 using System.Linq;
 using System.Threading.Tasks;
@@ -45,27 +46,25 @@ namespace Composable.Testing
             if(_reservedDatabases.TryGetValue(requestedDbName, out database))
                 return database.ConnectionString;
 
-            var newDatabase = false;
             RunInIsolatedTransaction(action: () =>
                                              {
-                                                 if(TryReserveDatabase(out database))
+                                                 if (TryReserveDatabase(out database))
                                                  {
                                                      _reservedDatabases.Add(requestedDbName, database);
                                                  } else
                                                  {
-                                                     newDatabase = true;
-                                                     database = InsertDatabase();
-                                                     using(new TransactionScope(TransactionScopeOption.Suppress))
+                                                     ReleaseOldLocks();
+                                                     if(TryReserveDatabase(out database))
                                                      {
-                                                         CreateDatabase(database.Name);
+                                                         _reservedDatabases.Add(requestedDbName, database);
+                                                     } else
+                                                     {
+                                                         database = InsertDatabase();
+                                                         _reservedDatabases.Add(requestedDbName, database);
                                                      }
-
-                                                     _reservedDatabases.Add(requestedDbName, database);
                                                  }
                                              });
 
-            if(!newDatabase)
-                CleanDatabase(database);
             return database.ConnectionString;
         }
 
@@ -77,17 +76,9 @@ namespace Composable.Testing
 
         bool TryReserveDatabase(out Database database)
         {
-            var tryReserveId = $"SET @reservedId = (select top 1 {ManagerTableSchema.Id} from {ManagerTableSchema.TableName} {LockingHint} WHERE {ManagerTableSchema.IsFree} = 1 order by {ManagerTableSchema.ReservationDate} asc)";
-            var releaseOldLocks = $"update {ManagerTableSchema.TableName} {LockingHint} set {ManagerTableSchema.IsFree} = 1 where {ManagerTableSchema.ReservationDate} < dateadd(minute, -10, getdate()) and {ManagerTableSchema.IsFree} = 0";
             var command = $@"
 declare @reservedId integer
-{tryReserveId}
-
-if(@reservedId is null)
-begin
-    {releaseOldLocks}
-    {tryReserveId}
-end
+SET @reservedId = (select top 1 {ManagerTableSchema.Id} from {ManagerTableSchema.TableName} {LockingHint} WHERE {ManagerTableSchema.IsFree} = 1 order by {ManagerTableSchema.ReservationDate} asc)
 
 if ( @reservedId is not null)
 	update {ManagerTableSchema.TableName} 
@@ -125,9 +116,32 @@ select @reservedId";
                 select @@IDENTITY");
             var id = (int)(decimal)value;
             var database = new Database(pool: this, id: id, isFree: false);
+            using (new TransactionScope(TransactionScopeOption.Suppress))
+            {
+                CreateDatabase(database.Name);
+            }
             return database;
         }
 
+
+        void ReleaseOldLocks()
+        {
+            var selectDbsWithOldLocks = $"select {ManagerTableSchema.Id} from {ManagerTableSchema.TableName} {LockingHint} where {ManagerTableSchema.ReservationDate} < dateadd(minute, -10, getdate()) and {ManagerTableSchema.IsFree} = 0";
+            List<Database> oldLockedDatabases = new List<Database>();
+            _managerConnection.UseCommand(command =>
+                                          {
+                                              command.CommandText = selectDbsWithOldLocks;
+                                              command.CommandType = CommandType.Text;
+                                              using(var reader = command.ExecuteReader())
+                                              {
+                                                  while(reader.Read())
+                                                  {
+                                                      oldLockedDatabases.Add(new Database(pool: this, id: reader.GetInt32(0), isFree: false));
+                                                  }
+                                              }
+                                          });
+            ReleaseDatabases(oldLockedDatabases);
+        }
 
         void ReleaseDatabases(IReadOnlyList<Database> database)
         {
@@ -137,10 +151,10 @@ select @reservedId";
                                          Task.Run(
                                              action: () =>
                                                      {
-                                                         //CleanDatabase(db); //todo: do cleanup only on background thread. Check out how to handle ReleaseOldLocks
+                                                         CleanDatabase(db);
                                                          RunInIsolatedTransaction(
                                                              action: () => _managerConnection.ExecuteNonQuery(
-                                                                         $"update {ManagerTableSchema.TableName} set {ManagerTableSchema.IsFree} = 1  where {ManagerTableSchema.Id} = {db.Id}"));
+                                                                         $@"update {ManagerTableSchema.TableName} set {ManagerTableSchema.IsFree} = 1  where {ManagerTableSchema.Id} = {db.Id}"));
                                                      });
                                      });
         }

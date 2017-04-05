@@ -56,29 +56,29 @@ namespace Composable.Testing
         readonly Dictionary<string, Database> _reservedDatabases = new Dictionary<string, Database>();
         bool _disposed;
 
-        public string ConnectionStringFor(string requestedDbName)
+        public string ConnectionStringFor(string connectionStringName)
         {
             Contract.Assert.That(!_disposed, "!_disposed");
 
             Database database;
-            if(_reservedDatabases.TryGetValue(requestedDbName, out database))
+            if(_reservedDatabases.TryGetValue(connectionStringName, out database))
                 return database.ConnectionString;
 
             RunInIsolatedTransaction(action: () =>
                                              {
                                                  if (TryReserveDatabase(out database))
                                                  {
-                                                     _reservedDatabases.Add(requestedDbName, database);
+                                                     _reservedDatabases.Add(connectionStringName, database);
                                                  } else
                                                  {
                                                      ReleaseOldLocks();
                                                      if(TryReserveDatabase(out database))
                                                      {
-                                                         _reservedDatabases.Add(requestedDbName, database);
+                                                         _reservedDatabases.Add(connectionStringName, database);
                                                      } else
                                                      {
                                                          database = InsertDatabase();
-                                                         _reservedDatabases.Add(requestedDbName, database);
+                                                         _reservedDatabases.Add(connectionStringName, database);
                                                      }
                                                  }
                                              });

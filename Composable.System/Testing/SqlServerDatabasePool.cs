@@ -165,11 +165,9 @@ select @reservedId";
                 _managerConnection.ExecuteNonQuery($@"update {ManagerTableSchema.TableName} set {ManagerTableSchema.IsFree} = 1  where {ManagerTableSchema.Id} = {database.Id}");
             }
 
-            databases.ForEach(action: db =>
-                                     {
-                                         _reservedDatabases.Remove(db.Name);
-                                         Task.Run(() => CleanAndReleaseDatabase(db));
-                                     });
+            databases.ForEach(action: db => _reservedDatabases.Remove(db.Name));
+
+            Task.Run(() => databases.ForEach(CleanAndReleaseDatabase));
         }
 
         static readonly string ExclusiveTableLockHint = "With(TABLOCKX)";

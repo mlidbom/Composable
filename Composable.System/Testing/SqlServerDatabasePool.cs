@@ -97,7 +97,7 @@ namespace Composable.Testing
         {
             var command = $@"
 declare @reservedId integer
-SET @reservedId = (select top 1 {ManagerTableSchema.Id} from {ManagerTableSchema.TableName} {LockingHint} WHERE {ManagerTableSchema.IsFree} = 1 order by {ManagerTableSchema.ReservationDate} asc)
+SET @reservedId = (select top 1 {ManagerTableSchema.Id} from {ManagerTableSchema.TableName} {ExclusiveTableLockHint} WHERE {ManagerTableSchema.IsFree} = 1 order by {ManagerTableSchema.ReservationDate} asc)
 
 if ( @reservedId is not null)
 	update {ManagerTableSchema.TableName} 
@@ -139,7 +139,7 @@ select @reservedId";
 
         void ReleaseOldLocks()
         {
-            var selectDbsWithOldLocks = $"select {ManagerTableSchema.Id} from {ManagerTableSchema.TableName} {LockingHint} where {ManagerTableSchema.ReservationDate} < dateadd(minute, -10, getdate()) and {ManagerTableSchema.IsFree} = 0";
+            var selectDbsWithOldLocks = $"select {ManagerTableSchema.Id} from {ManagerTableSchema.TableName} {ExclusiveTableLockHint} where {ManagerTableSchema.ReservationDate} < dateadd(minute, -10, getdate()) and {ManagerTableSchema.IsFree} = 0";
             var oldLockedDatabases = new List<Database>();
             _managerConnection.UseCommand(command =>
                                           {
@@ -160,11 +160,9 @@ select @reservedId";
         {
             void CleanAndReleaseDatabase(Database database)
             {
-                RunInIsolatedTransaction(() => new SqlServerConnectionUtilities(ConnectionStringForDbNamed(database.Name))
-                                             .UseConnection(action: connection => connection.DropAllObjects()));
+                new SqlServerConnectionUtilities(ConnectionStringForDbNamed(database.Name)).UseConnection(action: connection => connection.DropAllObjects());
 
-                RunInIsolatedTransaction(() => _managerConnection.ExecuteNonQuery(
-                                             $@"update {ManagerTableSchema.TableName} set {ManagerTableSchema.IsFree} = 1  where {ManagerTableSchema.Id} = {database.Id}"));
+                _managerConnection.ExecuteNonQuery($@"update {ManagerTableSchema.TableName} set {ManagerTableSchema.IsFree} = 1  where {ManagerTableSchema.Id} = {database.Id}");
             }
 
             databases.ForEach(action: db =>
@@ -174,7 +172,7 @@ select @reservedId";
                                      });
         }
 
-        static readonly string LockingHint = "With(TABLOCKX)";
+        static readonly string ExclusiveTableLockHint = "With(TABLOCKX)";
 
         protected override void InternalDispose()
         {

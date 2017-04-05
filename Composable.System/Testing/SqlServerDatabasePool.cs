@@ -179,10 +179,5 @@ select @reservedId";
                 CleanAndRelease(_reservedDatabases.Values.ToList());
             }
         }
-
-        ~SqlServerDatabasePool()
-        {
-            InternalDispose();
-        }
     }
 }

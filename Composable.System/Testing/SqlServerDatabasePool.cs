@@ -20,21 +20,23 @@ namespace Composable.Testing
         readonly SqlServerConnectionUtilities _masterConnection;
         readonly SqlServerConnectionUtilities _managerConnection;
 
-        static readonly string DatabaseRootFolder;
+        static readonly string DatabaseRootFolderOverride;
 
         static SqlServerDatabasePool()
         {
             var tempDirectory = Environment.GetEnvironmentVariable("COMPOSABLE_TEMP_DRIVE");
-            tempDirectory = tempDirectory ?? Path.Combine(Path.GetTempPath(), "COMPOSABLE_TMP");
+            if (tempDirectory.IsNullOrWhiteSpace())
+                return;
+
             if(!Directory.Exists(tempDirectory))
             {
                 Directory.CreateDirectory(tempDirectory);
             }
 
-            DatabaseRootFolder = Path.Combine(tempDirectory, "DatabasePoolData");
-            if(!Directory.Exists(DatabaseRootFolder))
+            DatabaseRootFolderOverride = Path.Combine(tempDirectory, "DatabasePoolData");
+            if(!Directory.Exists(DatabaseRootFolderOverride))
             {
-                Directory.CreateDirectory(DatabaseRootFolder);
+                Directory.CreateDirectory(DatabaseRootFolderOverride);
             }
         }
 

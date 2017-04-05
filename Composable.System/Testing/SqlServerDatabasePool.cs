@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Transactions;
+using Composable.Contracts;
 using Composable.Logging;
 using Composable.System;
 using Composable.System.Data.SqlClient;
@@ -46,7 +47,6 @@ namespace Composable.Testing
             _masterConnectionString = masterConnectionString;
             _masterConnection = new SqlServerConnectionUtilities(_masterConnectionString);
 
-
             var sqlConnectionStringBuilder = new SqlConnectionStringBuilder(_masterConnectionString) {InitialCatalog = ManagerDbName};
             _managerConnection = new SqlServerConnectionUtilities(sqlConnectionStringBuilder.ConnectionString);
 
@@ -58,8 +58,7 @@ namespace Composable.Testing
 
         public string ConnectionStringFor(string requestedDbName)
         {
-            if(_disposed)
-                throw new InvalidOperationException(message: "Attempt to use disposed object");
+            Contract.Assert.That(!_disposed, "!_disposed");
 
             Database database;
             if(_reservedDatabases.TryGetValue(requestedDbName, out database))

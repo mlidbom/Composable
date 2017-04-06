@@ -25,7 +25,7 @@ namespace Composable.Testing
 
         void CreateDatabase(string databaseName)
         {
-            var createDatabaseCommand = $@"CREATE DATABASE [{databaseName}";
+            var createDatabaseCommand = $@"CREATE DATABASE [{databaseName}]";
             if(!DatabaseRootFolderOverride.IsNullOrWhiteSpace())
             {
                 createDatabaseCommand += $@"

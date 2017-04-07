@@ -36,13 +36,12 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.Sql
                 UseInScope(session =>
                                         {
                                             ((IEventStoreReader)session).GetHistory(user.Id);
-                                            using(var transaction = new TransactionScope())
-                                            {
-                                                var userToUpdate = session.Get<User>(user.Id);
-                                                userToUpdate.ChangeEmail($"newemail_{userToUpdate.Version}@somewhere.not");
-                                                Thread.Sleep(100);
-                                                transaction.Complete();
-                                            }
+                                            ServiceLocator.ExecuteUnitOfWork(() =>
+                                                                             {
+                                                                                 var userToUpdate = session.Get<User>(user.Id);
+                                                                                 userToUpdate.ChangeEmail($"newemail_{userToUpdate.Version}@somewhere.not");
+                                                                                 Thread.Sleep(100);
+                                                                             });
                                         }); //Sql duplicate key (AggregateId, Version) Exception would be thrown here if history was not serialized
             }
 

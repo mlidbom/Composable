@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Transactions;
 using Composable.DependencyInjection;
 using Composable.DependencyInjection.Testing;
 using Composable.Persistence.EventStore;
@@ -32,12 +33,16 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.Sql
 
             void UpdateEmail()
             {
-                UseInTransactionalScope(session =>
+                UseInScope(session =>
                                         {
                                             ((IEventStoreReader)session).GetHistory(user.Id);
-                                            var userToUpdate = session.Get<User>(user.Id);
-                                            userToUpdate.ChangeEmail($"newemail_{userToUpdate.Version}@somewhere.not");
-                                            Thread.Sleep(100);
+                                            using(var transaction = new TransactionScope())
+                                            {
+                                                var userToUpdate = session.Get<User>(user.Id);
+                                                userToUpdate.ChangeEmail($"newemail_{userToUpdate.Version}@somewhere.not");
+                                                Thread.Sleep(100);
+                                                transaction.Complete();
+                                            }
                                         }); //Sql duplicate key (AggregateId, Version) Exception would be thrown here if history was not serialized
             }
 

@@ -2,7 +2,6 @@
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Transactions;
 using Composable.DependencyInjection;
 using Composable.DependencyInjection.Testing;
 using Composable.Persistence.EventStore;

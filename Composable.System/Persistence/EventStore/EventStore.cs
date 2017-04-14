@@ -3,20 +3,18 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Transactions;
 using Composable.Contracts;
-using Composable.Logging.Log4Net;
-using Composable.Persistence.EventStore.MicrosoftSQLServer;
+using Composable.Logging;
 using Composable.Persistence.EventStore.Refactoring.Migrations;
 using Composable.Persistence.EventStore.Refactoring.Naming;
 using Composable.System;
 using Composable.System.Linq;
 using Composable.SystemExtensions.Threading;
-using log4net;
 
 namespace Composable.Persistence.EventStore
 {
     class EventStore : IEventStore
     {
-        static readonly ILog Log = LogManager.GetLogger(typeof(EventStore));
+        static readonly ILogger Log = Logger.For<EventStore>();
 
         readonly ISingleContextUseGuard _usageGuard;
 
@@ -28,19 +26,17 @@ namespace Composable.Persistence.EventStore
 
         readonly HashSet<Guid> _aggregatesWithEventsAddedByThisInstance = new HashSet<Guid>();
 
-        protected EventStore(string connectionString, IEventStoreEventSerializer serializer, ISingleContextUseGuard usageGuard = null, EventCache cache = null, IEventNameMapper nameMapper = null, IEnumerable<IEventMigration> migrations = null)
+        protected EventStore(IEventstorePersistenceLayer persistenceLayer, IEventStoreEventSerializer serializer, ISingleContextUseGuard usageGuard = null, EventCache cache = null, IEventNameMapper nameMapper = null, IEnumerable<IEventMigration> migrations = null)
         {
             Log.Debug("Constructor called");
 
             _migrationFactories = migrations?.ToList() ?? new List<IEventMigration>();
-            nameMapper = nameMapper ?? new DefaultEventNameMapper();
 
             _usageGuard = usageGuard ?? new SingleThreadUseGuard();
             _cache = cache ?? new EventCache();
-            var connectionManager = new SqlServerEventStoreConnectionManager(connectionString);
-            _schemaManager = new SqlServerEventStoreSchemaManager(connectionString, nameMapper);
-            _eventReader = new SqlServerEventStoreEventReader(connectionManager, _schemaManager, serializer);
-            _eventWriter = new SqlServerEventStoreEventWriter(connectionManager, _schemaManager, serializer);
+            _schemaManager = persistenceLayer.SchemaManager;
+            _eventReader = persistenceLayer.EventReader;
+            _eventWriter = persistenceLayer.EventWriter;
         }
 
         public IEnumerable<IAggregateRootEvent> GetAggregateHistoryForUpdate(Guid aggregateId) => GetAggregateHistoryInternal(aggregateId: aggregateId, takeWriteLock: true);
@@ -140,7 +136,7 @@ namespace Composable.Persistence.EventStore
 
         public void PersistMigrations()
         {
-            this.Log().Warn("Starting to persist migrations");
+            Log.Warning("Starting to persist migrations");
 
             long migratedAggregates = 0;
             long updatedAggregates = 0;
@@ -202,13 +198,13 @@ namespace Composable.Persistence.EventStore
                         }
                         catch(Exception e) when(IsRecoverableSqlException(e) && ++retries <= recoverableErrorRetriesToMake)
                         {
-                            this.Log().Warn($"Failed to persist migrations for aggregate: {aggregateId}. Exception appers to be recoverable so running retry {retries} out of {recoverableErrorRetriesToMake}", e);
+                            Log.Warning(e, $"Failed to persist migrations for aggregate: {aggregateId}. Exception appers to be recoverable so running retry {retries} out of {recoverableErrorRetriesToMake}");
                         }
                     }
                 }
                 catch(Exception exception)
                 {
-                    this.Log().Error($"Failed to persist migrations for aggregate: {aggregateId}", exception: exception);
+                    Log.Error(exception, $"Failed to persist migrations for aggregate: {aggregateId}");
                 }
 
                 if(logInterval < DateTime.Now - lastLogTime)
@@ -217,12 +213,12 @@ namespace Composable.Persistence.EventStore
                     // ReSharper disable once AccessToModifiedClosure
                     int PercentDone() => (int)(((double)migratedAggregates / aggregateIdsInCreationOrder.Count) * 100);
 
-                    this.Log().Info($"{PercentDone()}% done. Inspected: {migratedAggregates} / {aggregateIdsInCreationOrder.Count}, Updated: {updatedAggregates}, New Events: {newEventCount}");
+                    Log.Info($"{PercentDone()}% done. Inspected: {migratedAggregates} / {aggregateIdsInCreationOrder.Count}, Updated: {updatedAggregates}, New Events: {newEventCount}");
                 }
             }
 
-            this.Log().Warn("Done persisting migrations.");
-            this.Log().Info($"Inspected: {migratedAggregates} , Updated: {updatedAggregates}, New Events: {newEventCount}");
+            Log.Warning("Done persisting migrations.");
+            Log.Info($"Inspected: {migratedAggregates} , Updated: {updatedAggregates}, New Events: {newEventCount}");
 
         }
 

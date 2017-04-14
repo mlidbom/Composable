@@ -5,6 +5,7 @@ using Composable.Contracts;
 using Composable.GenericAbstractions.Time;
 using Composable.Messaging.Buses;
 using Composable.Persistence.EventStore;
+using Composable.Persistence.EventStore.MicrosoftSQLServer;
 using Composable.Persistence.EventStore.Refactoring.Migrations;
 using Composable.Persistence.EventStore.Refactoring.Naming;
 using Composable.System.Configuration;
@@ -25,12 +26,11 @@ namespace Composable.DependencyInjection.Persistence
 
         class EventStore<TSessionInterface, TReaderInterface> : EventStore, IEventStore<TSessionInterface, TReaderInterface>
         {
-            public EventStore(string connectionString,
-                              IEventStoreEventSerializer serializer,
+            public EventStore(IEventStoreEventSerializer serializer,
+                              IEventstorePersistenceLayer persistenceLayer,
                               ISingleContextUseGuard usageGuard = null,
                               EventCache cache = null,
-                              IEventNameMapper nameMapper = null,
-                              IEnumerable<IEventMigration> migrations = null) : base(connectionString, serializer, usageGuard, cache, nameMapper, migrations) {}
+                              IEnumerable<IEventMigration> migrations = null) : base(persistenceLayer, serializer, usageGuard, cache, nameMapper:null, migrations:migrations) {}
         }
 
         class InMemoryEventStore<TSessionInterface, TReaderInterface> : InMemoryEventStore, IEventStore<TSessionInterface, TReaderInterface>
@@ -44,6 +44,23 @@ namespace Composable.DependencyInjection.Persistence
                                      IEventStore<TSessionInterface, TReaderInterface> store,
                                      ISingleContextUseGuard usageGuard,
                                      IUtcTimeTimeSource timeSource) : base(bus, store, usageGuard, timeSource) {}
+        }
+
+        interface IEventstorePersistenceLayer<TUpdater> : IEventstorePersistenceLayer
+        {
+        }
+
+        class EventstorePersistenceLayer<TUpdaterType> : IEventstorePersistenceLayer<TUpdaterType>
+        {
+            public EventstorePersistenceLayer(IEventStoreSchemaManager schemaManager, IEventStoreEventReader eventReader, IEventStoreEventWriter eventWriter)
+            {
+                SchemaManager = schemaManager;
+                EventReader = eventReader;
+                EventWriter = eventWriter;
+            }
+            public IEventStoreSchemaManager SchemaManager { get; }
+            public IEventStoreEventReader EventReader { get; }
+            public IEventStoreEventWriter EventWriter { get; }
         }
 
         public static void RegisterSqlServerEventStore<TSessionInterface, TReaderInterface>(this IDependencyInjectionContainer @this,
@@ -90,11 +107,29 @@ namespace Composable.DependencyInjection.Persistence
                                         .LifestyleScoped());
             } else
             {
+                string GetConnectionString(IServiceLocatorKernel sl) => sl.Resolve<IConnectionStringProvider>()
+                                                                    .GetConnectionString(connectionName)
+                                                                    .ConnectionString;
+
+
+                @this.Register(
+                    Component.For<IEventstorePersistenceLayer<TSessionInterface>>()
+                                .UsingFactoryMethod(sl =>
+                                                    {
+                                                        var connectionString = GetConnectionString(sl);
+                                                        IEventNameMapper nameMapper = new DefaultEventNameMapper();
+                                                        var serializer = sl.Resolve<IEventStoreEventSerializer>();
+                                                        var connectionManager = new SqlServerEventStoreConnectionManager(connectionString);
+                                                        var schemaManager = new SqlServerEventStoreSchemaManager(connectionString, nameMapper);
+                                                        var eventReader = new SqlServerEventStoreEventReader(connectionManager, schemaManager, serializer);
+                                                        var eventWriter = new SqlServerEventStoreEventWriter(connectionManager, schemaManager, serializer);
+                                                        return new EventstorePersistenceLayer<TSessionInterface>(schemaManager, eventReader, eventWriter);
+                                                    })
+                                .LifestyleScoped());
+
+
                 @this.Register(Component.For<IEventStore<TSessionInterface, TReaderInterface>>()
-                                        .UsingFactoryMethod(sl => new EventStore<TSessionInterface, TReaderInterface>(
-                                                                connectionString: sl.Resolve<IConnectionStringProvider>()
-                                                                                    .GetConnectionString(connectionName)
-                                                                                    .ConnectionString,
+                                        .UsingFactoryMethod(sl => new EventStore<TSessionInterface, TReaderInterface>(persistenceLayer: sl.Resolve<IEventstorePersistenceLayer<TSessionInterface>>(),
                                                                 serializer: sl.Resolve<IEventStoreEventSerializer>(),
                                                                 migrations: migrations(),
                                                                 cache: cache))

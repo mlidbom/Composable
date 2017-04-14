@@ -31,17 +31,4 @@ namespace Composable.Persistence.EventStore
         IEventStoreEventReader EventReader { get; }
         IEventStoreEventWriter EventWriter { get; }
     }
-
-    class EventstorePersistenceLayer : IEventstorePersistenceLayer
-    {
-        public EventstorePersistenceLayer(IEventStoreSchemaManager schemaManager, IEventStoreEventReader eventReader, IEventStoreEventWriter eventWriter)
-        {
-            SchemaManager = schemaManager;
-            EventReader = eventReader;
-            EventWriter = eventWriter;
-        }
-        public IEventStoreSchemaManager SchemaManager { get; }
-        public IEventStoreEventReader EventReader { get; }
-        public IEventStoreEventWriter EventWriter { get; }
-    }
 }

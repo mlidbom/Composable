@@ -9,6 +9,7 @@ namespace Composable.Logging
     {
         void Error(Exception exception, string message = null);
         void Warning(string message);
+        void Warning(Exception exception, string message);
         void Info(string message);
         void Debug(string message);
         [StringFormatMethod(formatParameterName: "message")]

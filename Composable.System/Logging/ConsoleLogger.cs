@@ -37,6 +37,12 @@ namespace Composable.Logging
                 SafeConsole.WriteLine($"WARNING:{_type}: {message}");
             }
         }
+
+        public void Warning(Exception exception, string message)
+        {
+            SafeConsole.WriteLine($"WARNING:{_type}: {message}, \n: Exception: {exception}");
+        }
+
         public void Info(string message)
         {
             if(logLevel >= LogLevel.Info)

@@ -37,10 +37,10 @@ namespace Composable.Persistence.EventStore
 
             _usageGuard = usageGuard ?? new SingleThreadUseGuard();
             _cache = cache ?? new EventCache();
-            var connectionMananger = new SqlServerEventStoreConnectionManager(connectionString);
+            var connectionManager = new SqlServerEventStoreConnectionManager(connectionString);
             _schemaManager = new SqlServerEventStoreSchemaManager(connectionString, nameMapper);
-            _eventReader = new SqlServerEventStoreEventReader(connectionMananger, _schemaManager, serializer);
-            _eventWriter = new SqlServerEventStoreEventWriter(connectionMananger, _schemaManager, serializer);
+            _eventReader = new SqlServerEventStoreEventReader(connectionManager, _schemaManager, serializer);
+            _eventWriter = new SqlServerEventStoreEventWriter(connectionManager, _schemaManager, serializer);
         }
 
         public IEnumerable<IAggregateRootEvent> GetAggregateHistoryForUpdate(Guid aggregateId) => GetAggregateHistoryInternal(aggregateId: aggregateId, takeWriteLock: true);

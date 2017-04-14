@@ -2,10 +2,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Composable.DDD;
+using Composable.Logging;
 using Composable.System.Linq;
 using Composable.SystemExtensions.Threading;
 using Composable.UnitsOfWork;
-using log4net;
 
 namespace Composable.Persistence.DocumentDb
 {
@@ -22,7 +22,7 @@ namespace Composable.Persistence.DocumentDb
 
         readonly IDictionary<DocumentKey, DocumentItem> _handledDocuments = new Dictionary<DocumentKey, DocumentItem>();
 
-        static readonly ILog Log = LogManager.GetLogger(typeof(DocumentDbSession));
+        static readonly ILogger Log = Logger.For<DocumentDbSession>();
 
         public DocumentDbSession(IDocumentDb backingStore, ISingleContextUseGuard usageGuard)
         {

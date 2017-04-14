@@ -3,12 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using Composable.Contracts;
 using Composable.GenericAbstractions.Time;
+using Composable.Logging;
 using Composable.Messaging.Buses;
-using Composable.Persistence.EventStore.MicrosoftSQLServer;
 using Composable.System.Linq;
 using Composable.SystemExtensions.Threading;
 using Composable.UnitsOfWork;
-using log4net;
 
 namespace Composable.Persistence.EventStore
 {
@@ -20,7 +19,7 @@ namespace Composable.Persistence.EventStore
     {
         readonly IServiceBus _bus;
         readonly IEventStore _store;
-        static readonly ILog Log = LogManager.GetLogger(typeof(EventStoreUpdater));
+        static readonly ILogger Log = Logger.For<EventStoreUpdater>();
         readonly IDictionary<Guid, IEventStored> _idMap = new Dictionary<Guid, IEventStored>();
         readonly HashSet<Guid> _publishedEvents = new HashSet<Guid>();
         readonly ISingleContextUseGuard _usageGuard;

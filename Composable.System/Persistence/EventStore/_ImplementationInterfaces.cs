@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using Composable.Persistence.EventStore.MicrosoftSQLServer;
 
 namespace Composable.Persistence.EventStore
 {

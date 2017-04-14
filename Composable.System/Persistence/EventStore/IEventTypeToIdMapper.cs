@@ -1,6 +1,6 @@
 using System;
 
-namespace Composable.Persistence.EventStore.MicrosoftSQLServer
+namespace Composable.Persistence.EventStore
 {
     interface IEventTypeToIdMapper
     {

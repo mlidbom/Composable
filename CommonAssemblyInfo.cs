@@ -27,7 +27,7 @@ using System.Runtime.InteropServices;
 [assembly: InternalsVisibleTo("NetMqProcess01")]
 [assembly: InternalsVisibleTo("NetMqProcess02")]
 [assembly: InternalsVisibleTo("NSpec.NUnit")]
-[assembly: InternalsVisibleTo("Composable.CQRS")]
+[assembly: InternalsVisibleTo("Composable.ExternalDependencies")]
 [assembly: InternalsVisibleTo("Composable.Core.Tests")]
 [assembly: InternalsVisibleTo("Composable.CQRS.Tests")]
 

@@ -1,13 +1,13 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26228.10
+VisualStudioVersion = 15.0.26403.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Composable.Core", "Composable.System\Composable.Core.csproj", "{3632254D-0C4A-4EB8-B388-4C99F8939584}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Composable.Core.Tests", "Composable.System.Tests\Composable.Core.Tests.csproj", "{4C78131D-DD7B-4C3E-B931-D4C6436EE09E}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Composable.CQRS", "Composable.CQRS\Composable.CQRS.csproj", "{3B776BD4-0EDD-4A83-BC9A-3A53D6649AB0}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Composable.ExternalDependencies", "Composable.ExternalDependencies\Composable.ExternalDependencies.csproj", "{3B776BD4-0EDD-4A83-BC9A-3A53D6649AB0}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Composable.CQRS.Tests", "Composable.CQRS.Tests\Composable.CQRS.Tests.csproj", "{67B7945C-CCBE-43CC-B302-4EFE87DD9DF5}"
 EndProject

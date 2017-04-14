@@ -13,7 +13,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\Composable.CQRS\Composable.CQRS.csproj" />
+    <ProjectReference Include="..\..\..\Composable.ExternalDependencies\Composable.ExternalDependencies.csproj" />
   </ItemGroup>
 
   

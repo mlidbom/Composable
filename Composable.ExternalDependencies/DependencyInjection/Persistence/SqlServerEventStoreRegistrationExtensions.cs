@@ -30,7 +30,7 @@ namespace Composable.DependencyInjection.Persistence
                               IEventstorePersistenceLayer persistenceLayer,
                               ISingleContextUseGuard usageGuard = null,
                               EventCache cache = null,
-                              IEnumerable<IEventMigration> migrations = null) : base(persistenceLayer, serializer, usageGuard, cache, nameMapper:null, migrations:migrations) {}
+                              IEnumerable<IEventMigration> migrations = null) : base(persistenceLayer, serializer, usageGuard, cache, migrations:migrations) {}
         }
 
         class InMemoryEventStore<TSessionInterface, TReaderInterface> : InMemoryEventStore, IEventStore<TSessionInterface, TReaderInterface>
@@ -118,11 +118,10 @@ namespace Composable.DependencyInjection.Persistence
                                                     {
                                                         var connectionString = GetConnectionString(sl);
                                                         IEventNameMapper nameMapper = new DefaultEventNameMapper();
-                                                        var serializer = sl.Resolve<IEventStoreEventSerializer>();
                                                         var connectionManager = new SqlServerEventStoreConnectionManager(connectionString);
                                                         var schemaManager = new SqlServerEventStoreSchemaManager(connectionString, nameMapper);
                                                         var eventReader = new SqlServerEventStoreEventReader(connectionManager, schemaManager);
-                                                        var eventWriter = new SqlServerEventStoreEventWriter(connectionManager, schemaManager, serializer);
+                                                        var eventWriter = new SqlServerEventStoreEventWriter(connectionManager, schemaManager);
                                                         return new EventstorePersistenceLayer<TSessionInterface>(schemaManager, eventReader, eventWriter);
                                                     })
                                 .LifestyleScoped());

@@ -5,7 +5,6 @@ using System.Transactions;
 using Composable.Contracts;
 using Composable.Logging;
 using Composable.Persistence.EventStore.Refactoring.Migrations;
-using Composable.Persistence.EventStore.Refactoring.Naming;
 using Composable.System;
 using Composable.System.Linq;
 using Composable.SystemExtensions.Threading;
@@ -27,7 +26,7 @@ namespace Composable.Persistence.EventStore
 
         readonly HashSet<Guid> _aggregatesWithEventsAddedByThisInstance = new HashSet<Guid>();
 
-        protected EventStore(IEventstorePersistenceLayer persistenceLayer, IEventStoreEventSerializer serializer, ISingleContextUseGuard usageGuard = null, EventCache cache = null, IEventNameMapper nameMapper = null, IEnumerable<IEventMigration> migrations = null)
+        protected EventStore(IEventstorePersistenceLayer persistenceLayer, IEventStoreEventSerializer serializer, ISingleContextUseGuard usageGuard = null, EventCache cache = null, IEnumerable<IEventMigration> migrations = null)
         {
             _serializer = serializer;
             Log.Debug("Constructor called");
@@ -82,7 +81,7 @@ namespace Composable.Persistence.EventStore
             }
         }
 
-        AggregateRootEvent HydrateEvent(EventDataRow eventDataRowRow)
+        AggregateRootEvent HydrateEvent(EventReadDataRow eventDataRowRow)
         {
             var @event = (AggregateRootEvent)_serializer.Deserialize(eventType: _schemaManager.IdMapper.GetType(eventDataRowRow.EventType), eventData: eventDataRowRow.EventJson);
             @event.AggregateRootId = eventDataRowRow.AggregateRootId;
@@ -139,7 +138,11 @@ namespace Composable.Persistence.EventStore
             events = events.ToList();
             var updatedAggregates = events.Select(@event => @event.AggregateRootId).Distinct();
             _aggregatesWithEventsAddedByThisInstance.AddRange(updatedAggregates);
-            _eventWriter.Insert(events.Cast<AggregateRootEvent>());
+
+            var eventRows = events.Cast<AggregateRootEvent>()
+                                  .Select(@this => new EventWriteDataRow(@event: @this, eventAsJson: _serializer.Serialize(@this)))
+                                  .ToList();
+            _eventWriter.Insert(eventRows);
             //todo: move this to the event store updater.
             foreach (var aggregateId in updatedAggregates)
             {
@@ -202,7 +205,11 @@ namespace Composable.Persistence.EventStore
                                             //Make sure we don't try to insert into an occupied InsertedVersion
                                             newEvents.ForEach(@event => @event.InsertedVersion = startInsertingWithVersion++);
                                             //Save all new events so they get an InsertionOrder for the next refactoring to work with in case it acts relative to any of these events
-                                            _eventWriter.InsertRefactoringEvents(newEvents);
+                                            var eventRows = newEvents
+                                                .Select(@this => new EventWriteDataRow(@event: @this, eventAsJson: _serializer.Serialize(@this)))
+                                                .ToList();
+
+                                            _eventWriter.InsertRefactoringEvents(eventRows);
                                             updatedAggregates = updatedAggregatesBeforeMigrationOfThisAggregate + 1;
                                             newEventCount += newEvents.Count;
                                             updatedThisAggregate = true;

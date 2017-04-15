@@ -43,7 +43,7 @@ FROM {EventTable.Name} {lockHint} ";
             _schemaManager = schemaManager;
         }
 
-        static EventDataRow ReadDataRow(SqlDataReader eventReader) => new EventDataRow
+        static EventReadDataRow ReadDataRow(SqlDataReader eventReader) => new EventReadDataRow
                                                                       {
                                                                           EventJson = eventReader.GetString(1),
                                                                           EventType = eventReader.GetInt32(0),
@@ -61,9 +61,9 @@ FROM {EventTable.Name} {lockHint} ";
                                                                           EffectiveVersion = eventReader[3] as int?
                                                                       };
 
-        public IReadOnlyList<EventDataRow> GetAggregateHistory(Guid aggregateId, bool takeWriteLock, int startAfterInsertedVersion = 0)
+        public IReadOnlyList<EventReadDataRow> GetAggregateHistory(Guid aggregateId, bool takeWriteLock, int startAfterInsertedVersion = 0)
         {
-            var historyData = new List<EventDataRow>();
+            var historyData = new List<EventReadDataRow>();
             using (var connection = _connectionMananger.OpenConnection(suppressTransactionWarning: !takeWriteLock))
             {
                 using (var loadCommand = connection.CreateCommand())
@@ -96,7 +96,7 @@ FROM {EventTable.Name} {lockHint} ";
             return historyData;
         }
 
-        public IEnumerable<EventDataRow> StreamEvents(int batchSize)
+        public IEnumerable<EventReadDataRow> StreamEvents(int batchSize)
         {
             SqlDecimal lastReadEventReadOrder = 0;
             using (var connection = _connectionMananger.OpenConnection())
@@ -104,7 +104,7 @@ FROM {EventTable.Name} {lockHint} ";
                 var done = false;
                 while (!done)
                 {
-                    var historyData = new List<EventDataRow>();
+                    var historyData = new List<EventReadDataRow>();
                     using (var loadCommand = connection.CreateCommand())
                     {
 

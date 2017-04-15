@@ -10,7 +10,6 @@ namespace Composable.Persistence.EventStore.MicrosoftSQLServer
     {
         readonly SqlServerEventStoreConnectionManager _connectionMananger;
         readonly IEventStoreSchemaManager _schemaManager;
-        readonly IEventStoreEventSerializer _serializer;
         IEventTypeToIdMapper EventTypeToIdMapper => _schemaManager.IdMapper;
 
         static string GetSelectClause(bool takeWriteLock) => InternalSelect(takeWriteLock: takeWriteLock);
@@ -39,30 +38,10 @@ SELECT {topClause}
 FROM {EventTable.Name} {lockHint} ";
         }
 
-        public SqlServerEventStoreEventReader(SqlServerEventStoreConnectionManager connectionManager, IEventStoreSchemaManager schemaManager, IEventStoreEventSerializer serializer)
+        public SqlServerEventStoreEventReader(SqlServerEventStoreConnectionManager connectionManager, IEventStoreSchemaManager schemaManager)
         {
             _connectionMananger = connectionManager;
             _schemaManager = schemaManager;
-            //todo: This class should not handle serialization.
-            _serializer = serializer;
-        }
-
-        AggregateRootEvent HydrateEvent(EventDataRow eventDataRowRow)
-        {
-            var @event = (AggregateRootEvent)_serializer.Deserialize(eventType: EventTypeToIdMapper.GetType(eventDataRowRow.EventType), eventData: eventDataRowRow.EventJson);
-            @event.AggregateRootId = eventDataRowRow.AggregateRootId;
-            @event.AggregateRootVersion = eventDataRowRow.AggregateRootVersion;
-            @event.EventId = eventDataRowRow.EventId;
-            @event.UtcTimeStamp = eventDataRowRow.UtcTimeStamp;
-            @event.InsertionOrder = eventDataRowRow.InsertionOrder;
-            @event.InsertAfter = eventDataRowRow.InsertAfter;
-            @event.InsertBefore = eventDataRowRow.InsertBefore;
-            @event.Replaces = eventDataRowRow.Replaces;
-            @event.InsertedVersion = eventDataRowRow.InsertedVersion;
-            @event.ManualVersion = eventDataRowRow.ManualVersion;
-            @event.EffectiveVersion = eventDataRowRow.EffectiveVersion;
-
-            return @event;
         }
 
         static EventDataRow ReadDataRow(SqlDataReader eventReader) => new EventDataRow
@@ -72,8 +51,8 @@ FROM {EventTable.Name} {lockHint} ";
                                                                           AggregateRootId = eventReader.GetGuid(2),
                                                                           AggregateRootVersion = eventReader[3] as int? ?? eventReader.GetInt32(10),
                                                                           EventId = eventReader.GetGuid(4),
-                                                                          UtcTimeStamp = DateTime.SpecifyKind(eventReader.GetDateTime(5), DateTimeKind.Utc),
                                                                           //Without this the datetime will be DateTimeKind.Unspecified and will not convert correctly into Local time....
+                                                                          UtcTimeStamp = DateTime.SpecifyKind(eventReader.GetDateTime(5), DateTimeKind.Utc),
                                                                           InsertionOrder = eventReader.GetInt64(6),
                                                                           InsertAfter = eventReader[7] as long?,
                                                                           InsertBefore = eventReader[8] as long?,
@@ -83,17 +62,10 @@ FROM {EventTable.Name} {lockHint} ";
                                                                           EffectiveVersion = eventReader[3] as int?
                                                                       };
 
-        class EventDataRow : AggregateRootEvent
-        {
-            public int EventType { get; set; }
-            public string EventJson { get; set; }
-        }
-
-        //todo: Return some lower level persistence type here. Not AggregateRootEvent. This class should not handle serialization.
-        public IReadOnlyList<AggregateRootEvent> GetAggregateHistory(Guid aggregateId, bool takeWriteLock, int startAfterInsertedVersion = 0)
+        public IReadOnlyList<EventDataRow> GetAggregateHistory(Guid aggregateId, bool takeWriteLock, int startAfterInsertedVersion = 0)
         {
             var historyData = new List<EventDataRow>();
-            using(var connection = _connectionMananger.OpenConnection(suppressTransactionWarning: !takeWriteLock))
+            using (var connection = _connectionMananger.OpenConnection(suppressTransactionWarning: !takeWriteLock))
             {
                 using (var loadCommand = connection.CreateCommand())
                 {
@@ -103,7 +75,7 @@ FROM {EventTable.Name} {lockHint} ";
                     if (startAfterInsertedVersion > 0)
                     {
                         loadCommand.CommandText += $" AND {EventTable.Columns.InsertedVersion} > @CachedVersion";
-                        loadCommand.Parameters.Add(new SqlParameter("CachedVersion", startAfterInsertedVersion ));
+                        loadCommand.Parameters.Add(new SqlParameter("CachedVersion", startAfterInsertedVersion));
                     }
 
                     loadCommand.CommandText += $" ORDER BY {EventTable.Columns.EffectiveReadOrder} ASC";
@@ -113,7 +85,7 @@ FROM {EventTable.Name} {lockHint} ";
                         while (reader.Read())
                         {
                             var eventDataRow = ReadDataRow(reader);
-                            if(eventDataRow.EffectiveVersion > 0)
+                            if (eventDataRow.EffectiveVersion > 0)
                             {
                                 historyData.Add(eventDataRow);
                             }
@@ -122,17 +94,16 @@ FROM {EventTable.Name} {lockHint} ";
                 }
             }
 
-            return historyData.Select(HydrateEvent).ToList();
+            return historyData;
         }
 
-        public IEnumerable<AggregateRootEvent> StreamEvents(int batchSize)
+        public IEnumerable<EventDataRow> StreamEvents(int batchSize)
         {
-
             SqlDecimal lastReadEventReadOrder = 0;
-            using(var connection = _connectionMananger.OpenConnection())
+            using (var connection = _connectionMananger.OpenConnection())
             {
                 var done = false;
-                while(!done)
+                while (!done)
                 {
                     var historyData = new List<EventDataRow>();
                     using (var loadCommand = connection.CreateCommand())
@@ -143,9 +114,9 @@ FROM {EventTable.Name} {lockHint} ";
                         loadCommand.Parameters.Add(new SqlParameter(EventTable.Columns.EffectiveReadOrder, lastReadEventReadOrder));
 
                         var fetchedInThisBatch = 0;
-                        using(var reader = loadCommand.ExecuteReader())
+                        using (var reader = loadCommand.ExecuteReader())
                         {
-                            while(reader.Read())
+                            while (reader.Read())
                             {
                                 historyData.Add(ReadDataRow(reader));
                                 fetchedInThisBatch++;
@@ -155,9 +126,10 @@ FROM {EventTable.Name} {lockHint} ";
                         done = fetchedInThisBatch < batchSize;
                     }
 
-                    foreach(var eventDataRow in historyData)
+                    //We do not yield while reading from the reader since that may cause code to run that will cause another sql call into the same connection. Something that throws an exception unless you use an unusual and non-recommended connection string setting.
+                    foreach (var eventDataRow in historyData)
                     {
-                        yield return HydrateEvent(eventDataRow);
+                        yield return eventDataRow;
                     }
                 }
             }

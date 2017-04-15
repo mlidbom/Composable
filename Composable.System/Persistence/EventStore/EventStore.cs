@@ -14,6 +14,7 @@ namespace Composable.Persistence.EventStore
 {
     class EventStore : IEventStore
     {
+        readonly IEventStoreEventSerializer _serializer;
         static readonly ILogger Log = Logger.For<EventStore>();
 
         readonly ISingleContextUseGuard _usageGuard;
@@ -28,6 +29,7 @@ namespace Composable.Persistence.EventStore
 
         protected EventStore(IEventstorePersistenceLayer persistenceLayer, IEventStoreEventSerializer serializer, ISingleContextUseGuard usageGuard = null, EventCache cache = null, IEventNameMapper nameMapper = null, IEnumerable<IEventMigration> migrations = null)
         {
+            _serializer = serializer;
             Log.Debug("Constructor called");
 
             _migrationFactories = migrations?.ToList() ?? new List<IEventMigration>();
@@ -51,10 +53,7 @@ namespace Composable.Persistence.EventStore
             {
                 var cachedAggregateHistory = _cache.GetCopy(aggregateId);
 
-                var newEventsFromDatabase = _eventReader.GetAggregateHistory(
-                    aggregateId: aggregateId,
-                    startAfterInsertedVersion: cachedAggregateHistory.MaxSeenInsertedVersion,
-                    takeWriteLock: takeWriteLock);
+                var newEventsFromDatabase = GetAggregateHistory(aggregateId, takeWriteLock, cachedAggregateHistory.MaxSeenInsertedVersion);
 
                 var containsRefactoringEvents = newEventsFromDatabase.Where(IsRefactoringEvent).Any();
                 if(containsRefactoringEvents && cachedAggregateHistory.MaxSeenInsertedVersion > 0)
@@ -83,6 +82,31 @@ namespace Composable.Persistence.EventStore
             }
         }
 
+        AggregateRootEvent HydrateEvent(EventDataRow eventDataRowRow)
+        {
+            var @event = (AggregateRootEvent)_serializer.Deserialize(eventType: _schemaManager.IdMapper.GetType(eventDataRowRow.EventType), eventData: eventDataRowRow.EventJson);
+            @event.AggregateRootId = eventDataRowRow.AggregateRootId;
+            @event.AggregateRootVersion = eventDataRowRow.AggregateRootVersion;
+            @event.EventId = eventDataRowRow.EventId;
+            @event.UtcTimeStamp = eventDataRowRow.UtcTimeStamp;
+            @event.InsertionOrder = eventDataRowRow.InsertionOrder;
+            @event.InsertAfter = eventDataRowRow.InsertAfter;
+            @event.InsertBefore = eventDataRowRow.InsertBefore;
+            @event.Replaces = eventDataRowRow.Replaces;
+            @event.InsertedVersion = eventDataRowRow.InsertedVersion;
+            @event.ManualVersion = eventDataRowRow.ManualVersion;
+            @event.EffectiveVersion = eventDataRowRow.EffectiveVersion;
+
+            return @event;
+        }
+
+        IReadOnlyList<AggregateRootEvent> GetAggregateHistory(Guid aggregateId, bool takeWriteLock, int startAfterInsertedVersion = 0)
+            => _eventReader.GetAggregateHistory(aggregateId: aggregateId,
+                                                startAfterInsertedVersion: startAfterInsertedVersion,
+                                                takeWriteLock: takeWriteLock)
+                           .Select(HydrateEvent)
+                           .ToList();
+
         static bool IsRefactoringEvent(AggregateRootEvent @event) => @event.InsertBefore.HasValue || @event.InsertAfter.HasValue || @event.Replaces.HasValue;
 
         public const int StreamEventsBatchSize = 10000;
@@ -94,7 +118,7 @@ namespace Composable.Persistence.EventStore
 
             var streamMutator = CompleteEventStoreStreamMutator.Create(_migrationFactories);
             // ReSharper disable once InconsistentlySynchronizedField
-            return streamMutator.Mutate(_eventReader.StreamEvents(StreamEventsBatchSize));
+            return streamMutator.Mutate(_eventReader.StreamEvents(StreamEventsBatchSize).Select(HydrateEvent));
         }
 
         public void StreamEvents(int batchSize, Action<IReadOnlyList<IAggregateRootEvent>> handleEvents)
@@ -164,7 +188,7 @@ namespace Composable.Persistence.EventStore
                                 lock(AggregateLockManager.GetAggregateLockObject(aggregateId))
                                 {
                                     var updatedThisAggregate = false;
-                                    var original = _eventReader.GetAggregateHistory(aggregateId: aggregateId, takeWriteLock: true).ToList();
+                                    var original = GetAggregateHistory(aggregateId: aggregateId, takeWriteLock: true).ToList();
 
                                     var startInsertingWithVersion = original.Max(@event => @event.InsertedVersion) + 1;
 

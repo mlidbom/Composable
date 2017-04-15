@@ -121,7 +121,7 @@ namespace Composable.DependencyInjection.Persistence
                                                         var serializer = sl.Resolve<IEventStoreEventSerializer>();
                                                         var connectionManager = new SqlServerEventStoreConnectionManager(connectionString);
                                                         var schemaManager = new SqlServerEventStoreSchemaManager(connectionString, nameMapper);
-                                                        var eventReader = new SqlServerEventStoreEventReader(connectionManager, schemaManager, serializer);
+                                                        var eventReader = new SqlServerEventStoreEventReader(connectionManager, schemaManager);
                                                         var eventWriter = new SqlServerEventStoreEventWriter(connectionManager, schemaManager, serializer);
                                                         return new EventstorePersistenceLayer<TSessionInterface>(schemaManager, eventReader, eventWriter);
                                                     })

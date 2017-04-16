@@ -12,11 +12,10 @@ namespace Composable.Persistence.EventStore
 
         readonly MemoryCache _internalCache = new MemoryCache(CacheName);
 
-        static readonly CacheItemPolicy Policy = new CacheItemPolicy()
-                                                         {
-                                                             //todo: this way of doing cache expiration is unlikely to be acceptable in the long run....
-                                                             SlidingExpiration = 20.Minutes()
-                                                         };
+        static readonly CacheItemPolicy Policy = new CacheItemPolicy
+                                                 {
+                                                     SlidingExpiration = 20.Minutes()
+                                                 };
 
         public Entry Get(Guid id) => (Entry)_internalCache.Get(id.ToString()) ?? Entry.Empty;
 

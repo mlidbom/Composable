@@ -63,7 +63,7 @@ namespace Composable.DependencyInjection.Persistence
             public IEventStoreEventWriter EventWriter { get; }
         }
 
-        class EventCache<TUpdaterType> : EventCache
+        [UsedImplicitly] class EventCache<TUpdaterType> : EventCache
         {}
 
         public static void RegisterSqlServerEventStore<TSessionInterface, TReaderInterface>(this IDependencyInjectionContainer @this,

@@ -82,10 +82,11 @@ namespace Composable.Persistence.EventStore
             //Should - within a transaction - a process write events, read them, then fail to commit we will have cached events that are not persisted unless we refuse to cache them here.
             if(!_aggregatesWithEventsAddedByThisInstance.Contains(aggregateId))
             {
+                var maxSeenInsertedVersion =  newEventsFromPersistenceLayer.Max(@event => @event.InsertedVersion);
+
                 _cache.Store(
                     aggregateId,
-                    new EventCache.Entry(events: newAggregateHistory,
-                                         maxSeenInsertedVersion: newEventsFromPersistenceLayer.Max(@event => @event.InsertedVersion)));
+                    new EventCache.Entry(events: newAggregateHistory, maxSeenInsertedVersion: maxSeenInsertedVersion));
             }
 
             return newAggregateHistory;

@@ -49,7 +49,7 @@ namespace Composable.Persistence.EventStore
             _usageGuard.AssertNoContextChangeOccurred(this);
             _schemaManager.SetupSchemaIfDatabaseUnInitialized();
 
-            var cachedAggregateHistory = _cache.GetCopy(aggregateId);
+            var cachedAggregateHistory = _cache.Get(aggregateId);
 
             var newEventsFromPersistenceLayer = GetAggregateEventsFromPersistenceLayer(aggregateId, takeWriteLock, cachedAggregateHistory.MaxSeenInsertedVersion);
 
@@ -158,7 +158,7 @@ namespace Composable.Persistence.EventStore
             //todo: move this to the event store updater.
             foreach(var aggregateId in updatedAggregates)
             {
-                var completeAggregateHistory = _cache.GetCopy(aggregateId)
+                var completeAggregateHistory = _cache.Get(aggregateId)
                                                      .Events.Concat(events.Where(@event => @event.AggregateRootId == aggregateId))
                                                      .Cast<AggregateRootEvent>()
                                                      .ToArray();

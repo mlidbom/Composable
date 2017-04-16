@@ -18,16 +18,7 @@ namespace Composable.Persistence.EventStore
                                                              SlidingExpiration = 20.Minutes()
                                                          };
 
-        public Entry GetCopy(Guid id)
-        {
-            var cached = (Entry)_internalCache.Get(id.ToString());
-            if(cached == null)
-            {
-                return Entry.Empty;
-            }
-            //Make sure each caller gets their own copy.
-            return new Entry(events: cached.Events.ToList(), maxSeenInsertedVersion: cached.MaxSeenInsertedVersion);
-        }
+        public Entry Get(Guid id) => (Entry)_internalCache.Get(id.ToString()) ?? Entry.Empty;
 
         public void Store(Guid id, Entry entry)
         {

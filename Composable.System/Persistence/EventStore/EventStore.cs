@@ -215,11 +215,6 @@ namespace Composable.Persistence.EventStore
                                             updatedThisAggregate = true;
                                         });
 
-                                    if(updatedThisAggregate)
-                                    {
-                                        _eventWriter.FixManualVersions(aggregateId);
-                                    }
-
                                     transaction.Complete();
                                     _cache.Remove(aggregateId);
                                 }

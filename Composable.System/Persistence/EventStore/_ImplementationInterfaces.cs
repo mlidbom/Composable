@@ -22,7 +22,6 @@ namespace Composable.Persistence.EventStore
         void Insert(IEnumerable<EventWriteDataRow> events);
         void InsertRefactoringEvents(IReadOnlyList<EventWriteDataRow> events);
         void DeleteAggregate(Guid aggregateId);
-        void FixManualVersions(Guid aggregateId);
     }
 
 
@@ -62,7 +61,7 @@ namespace Composable.Persistence.EventStore
         public EventWriteDataRow(EventWriteDataRow source, SqlDecimal manualReadOrder) : this(manualReadOrder, source.Event, source.EventJson)
         { }
 
-        public EventWriteDataRow(SqlDecimal manualReadOrder, AggregateRootEvent @event, string eventAsJson)
+        EventWriteDataRow(SqlDecimal manualReadOrder, AggregateRootEvent @event, string eventAsJson)
         {
             Event = @event;
             ManualReadOrder = manualReadOrder;

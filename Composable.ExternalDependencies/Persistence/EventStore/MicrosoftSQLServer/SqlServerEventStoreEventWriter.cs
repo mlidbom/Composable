@@ -124,6 +124,8 @@ SET @{EventTable.Columns.InsertionOrder} = SCOPE_IDENTITY();";
                     rangeStart: eventToInsertAfter.EffectiveReadOrder,
                     rangeEnd: eventToInsertAfter.NextReadOrder);
             }
+
+            FixManualVersions(events.First().AggregateRootId);
         }
 
         void SaveEventsWithinReadOrderRange(EventWriteDataRow[] newEvents, SqlDecimal rangeStart, SqlDecimal rangeEnd)
@@ -137,7 +139,7 @@ SET @{EventTable.Columns.InsertionOrder} = SCOPE_IDENTITY();";
             Insert(eventsToPersist);
         }
 
-        public void FixManualVersions(Guid aggregateId)
+        void FixManualVersions(Guid aggregateId)
         {
             _connectionMananger.UseCommand(
                 command =>

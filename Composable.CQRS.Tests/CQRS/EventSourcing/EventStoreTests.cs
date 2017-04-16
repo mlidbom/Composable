@@ -88,7 +88,7 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing
                 .AggregateRootId;
             aggregatesWithEvents.Remove(2);
 
-            _eventStore.DeleteEvents(toRemove);
+            _eventStore.DeleteAggregate(toRemove);
 
             foreach(var kvp in aggregatesWithEvents)
             {

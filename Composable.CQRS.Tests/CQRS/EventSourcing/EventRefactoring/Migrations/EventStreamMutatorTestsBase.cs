@@ -42,12 +42,12 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
                 {
                     timeSource.UtcNow += 1.Hours(); //No time collision between scenarios please.
                     migrations = migrationScenario.Migrations.ToList();
-                    RunScenarioWithEventStoreType(migrationScenario, EventStoreType, serviceLocator, migrations, scenarioIndex++);
+                    RunScenarioWithEventStoreType(migrationScenario, serviceLocator, migrations, scenarioIndex++);
                 }
             }
         }
 
-        static void RunScenarioWithEventStoreType(MigrationScenario scenario, Type eventStoreType, IServiceLocator serviceLocator, IList<IEventMigration> migrations, int indexOfScenarioInBatch)
+        static void RunScenarioWithEventStoreType(MigrationScenario scenario, IServiceLocator serviceLocator, IList<IEventMigration> migrations, int indexOfScenarioInBatch)
         {
             var startingMigrations = migrations.ToList();
             migrations.Clear();

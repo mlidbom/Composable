@@ -5,7 +5,6 @@ using System.Data.SqlClient;
 using System.Data.SqlTypes;
 using System.Linq;
 using Composable.Contracts;
-using Composable.System;
 using Composable.System.Linq;
 
 namespace Composable.Persistence.EventStore.MicrosoftSQLServer
@@ -153,7 +152,7 @@ SET @{EventTable.Columns.InsertionOrder} = SCOPE_IDENTITY();";
 
         class EventOrderNeighbourhood
         {
-            public long InsertionOrder { get; }
+            long InsertionOrder { get; }
             public SqlDecimal EffectiveReadOrder { get; }
             public SqlDecimal PreviousReadOrder { get; }
             public SqlDecimal NextReadOrder { get; }

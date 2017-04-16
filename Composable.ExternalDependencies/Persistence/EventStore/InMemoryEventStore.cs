@@ -69,7 +69,7 @@ namespace Composable.Persistence.EventStore
             }
         }
 
-        public void DeleteEvents(Guid aggregateId)
+        public void DeleteAggregate(Guid aggregateId)
         {
             lock(_lockObject)
             {

@@ -222,7 +222,7 @@ namespace Composable.Persistence.EventStore
 
             foreach (var toDelete in _pendingDeletes)
             {
-                _store.DeleteEvents(toDelete);
+                _store.DeleteAggregate(toDelete);
                 _idMap.Remove(toDelete);
             }
             _pendingDeletes.Clear();

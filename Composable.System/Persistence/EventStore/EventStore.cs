@@ -165,7 +165,7 @@ namespace Composable.Persistence.EventStore
             }
         }
 
-        public void DeleteEvents(Guid aggregateId)
+        public void DeleteAggregate(Guid aggregateId)
         {
             _usageGuard.AssertNoContextChangeOccurred(this);
             _schemaManager.SetupSchemaIfDatabaseUnInitialized();

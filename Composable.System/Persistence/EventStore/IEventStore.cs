@@ -5,8 +5,8 @@ namespace Composable.Persistence.EventStore
 {
     interface IEventStore : IDisposable
     {
-        IEnumerable<IAggregateRootEvent> GetAggregateHistoryForUpdate(Guid id);
-        IEnumerable<IAggregateRootEvent> GetAggregateHistory(Guid id);
+        IReadOnlyList<IAggregateRootEvent> GetAggregateHistoryForUpdate(Guid id);
+        IReadOnlyList<IAggregateRootEvent> GetAggregateHistory(Guid id);
         void SaveEvents(IEnumerable<IAggregateRootEvent> events);
         void StreamEvents(int batchSize, Action<IReadOnlyList<IAggregateRootEvent>> handleEvents);
         void DeleteEvents(Guid aggregateId);

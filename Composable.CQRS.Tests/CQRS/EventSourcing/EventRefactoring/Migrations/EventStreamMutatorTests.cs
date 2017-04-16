@@ -57,7 +57,7 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
                     otherProcessServiceLocator.ExecuteUnitOfWorkInIsolatedScope(() => OtherEventstoreSession().Get<TestAggregate>(id));
 
                     var test = serviceLocator.ExecuteUnitOfWorkInIsolatedScope(() => PersistingEventStore().GetAggregateHistory(id));
-                    test.Count().Should().BeGreaterThan(0);
+                    test.Count.Should().BeGreaterThan(0);
 
                     serviceLocator.ExecuteInIsolatedScope(() => PersistingEventStore().PersistMigrations());
 

@@ -25,9 +25,9 @@ namespace Composable.Persistence.EventStore
 
         public InMemoryEventStore(IEnumerable<IEventMigration> migrations = null ) => _migrationFactories = migrations?.ToList() ?? new List<IEventMigration>();
 
-        public IEnumerable<IAggregateRootEvent> GetAggregateHistoryForUpdate(Guid id) => GetAggregateHistory(id);
+        public IReadOnlyList<IAggregateRootEvent> GetAggregateHistoryForUpdate(Guid id) => GetAggregateHistory(id);
 
-        public IEnumerable<IAggregateRootEvent> GetAggregateHistory(Guid id)
+        public IReadOnlyList<IAggregateRootEvent> GetAggregateHistory(Guid id)
         {
             lock(_lockObject)
             {

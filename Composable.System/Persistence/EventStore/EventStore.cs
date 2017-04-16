@@ -40,11 +40,11 @@ namespace Composable.Persistence.EventStore
             _eventWriter = persistenceLayer.EventWriter;
         }
 
-        public IEnumerable<IAggregateRootEvent> GetAggregateHistoryForUpdate(Guid aggregateId) => GetAggregateHistoryInternal(aggregateId: aggregateId, takeWriteLock: true);
+        public IReadOnlyList<IAggregateRootEvent> GetAggregateHistoryForUpdate(Guid aggregateId) => GetAggregateHistoryInternal(aggregateId: aggregateId, takeWriteLock: true);
 
-        public IEnumerable<IAggregateRootEvent> GetAggregateHistory(Guid aggregateId) => GetAggregateHistoryInternal(aggregateId, takeWriteLock: false);
+        public IReadOnlyList<IAggregateRootEvent> GetAggregateHistory(Guid aggregateId) => GetAggregateHistoryInternal(aggregateId, takeWriteLock: false);
 
-        IEnumerable<IAggregateRootEvent> GetAggregateHistoryInternal(Guid aggregateId, bool takeWriteLock)
+        IReadOnlyList<IAggregateRootEvent> GetAggregateHistoryInternal(Guid aggregateId, bool takeWriteLock)
         {
             _usageGuard.AssertNoContextChangeOccurred(this);
             _schemaManager.SetupSchemaIfDatabaseUnInitialized();
@@ -65,7 +65,7 @@ namespace Composable.Persistence.EventStore
                 Contract.Assert.That(!(cachedMigratedHistoryExists && newerMigratedEventsExist),
                                      "!(cachedMigratedHistoryExists && newerMigratedEventsExist)");
 
-                var aggregateHistory = cachedAggregateHistory.Events.Count == 0
+                var newAggregateHistory = cachedAggregateHistory.Events.Count == 0
                                            ? SingleAggregateInstanceEventStreamMutator.MutateCompleteAggregateHistory(_migrationFactories, newEventsFromPersistenceLayer)
                                            : cachedAggregateHistory.Events.Concat(newEventsFromPersistenceLayer)
                                                                    .ToArray();
@@ -73,7 +73,7 @@ namespace Composable.Persistence.EventStore
 
                 if(cachedMigratedHistoryExists)
                 {
-                    SingleAggregateInstanceEventStreamMutator.AssertMigrationsAreIdempotent(_migrationFactories, aggregateHistory);
+                    SingleAggregateInstanceEventStreamMutator.AssertMigrationsAreIdempotent(_migrationFactories, newAggregateHistory);
                 }
 
                 //Should - within a transaction - a process write events, read them, then fail to commit we will have cached events that are not persisted unless we refuse to cache them here.
@@ -85,10 +85,10 @@ namespace Composable.Persistence.EventStore
 
                     _cache.Store(
                         aggregateId,
-                        new EventCache.Entry(events: aggregateHistory, maxSeenInsertedVersion: maxSeenInsertedVersion));
+                        new EventCache.Entry(events: newAggregateHistory, maxSeenInsertedVersion: maxSeenInsertedVersion));
                 }
 
-                return aggregateHistory;
+                return newAggregateHistory;
             }
         }
 

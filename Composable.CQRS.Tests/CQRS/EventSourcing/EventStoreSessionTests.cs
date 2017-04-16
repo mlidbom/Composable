@@ -5,7 +5,6 @@ using Composable.DependencyInjection;
 using Composable.DependencyInjection.Testing;
 using Composable.Messaging.Buses;
 using Composable.Persistence.EventStore;
-using Composable.System;
 using Composable.System.Diagnostics;
 using Composable.System.Linq;
 using Composable.SystemExtensions.Threading;
@@ -16,6 +15,8 @@ using NUnit.Framework;
 
 namespace Composable.CQRS.Tests.CQRS.EventSourcing
 {
+    using Composable.System;
+
     [TestFixture]
     public abstract class EventStoreSessionTests
     {
@@ -409,28 +410,30 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing
             UseInTransactionalScope(session => session.Save(user));
 
             var iterations = 20;
-            var delayEachTransactionByMilliseconds = 100;
+            var delayEachTransactionBy = 20.Milliseconds();
 
             void ReadUserHistory()
             {
                 UseInTransactionalScope(session =>
                                         {
                                             ((IEventStoreReader)session).GetHistory(user.Id);
-                                            Thread.Sleep(TimeSpanExtensions.Milliseconds(delayEachTransactionByMilliseconds));
+                                            Thread.Sleep(delayEachTransactionBy);
                                         });
             }
 
             ReadUserHistory();//one warmup to get consistent times later.
             var timeForSingleTransactionalRead = (int)StopwatchExtensions.TimeExecution(ReadUserHistory).TotalMilliseconds;
 
+            var approximateSinglethreadedExecutionTimeInMilliseconds = iterations * timeForSingleTransactionalRead;
+
             var timingsSummary = TimeAsserter.ExecuteThreaded(
                 action: ReadUserHistory,
                 iterations: iterations,
                 timeIndividualExecutions:true,
-                maxTotal: TimeSpanExtensions.Milliseconds(((iterations * timeForSingleTransactionalRead) / 2)),
-                description: $"If access is serialized the time will be approximately {iterations * timeForSingleTransactionalRead} milliseconds. If parelellized it should be far below this value.");
+                maxTotal: (approximateSinglethreadedExecutionTimeInMilliseconds / 2).Milliseconds(),
+                description: $"If access is serialized the time will be approximately {approximateSinglethreadedExecutionTimeInMilliseconds} milliseconds. If parelellized it should be far below this value.");
 
-            timingsSummary.Average.Should().BeLessThan(TimeSpanExtensions.Milliseconds(delayEachTransactionByMilliseconds));
+            timingsSummary.Average.Should().BeLessThan(delayEachTransactionBy);
 
             timingsSummary.IndividualExecutionTimes.Sum().Should().BeGreaterThan(timingsSummary.Total);
         }

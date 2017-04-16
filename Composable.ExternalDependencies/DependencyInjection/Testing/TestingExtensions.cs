@@ -31,7 +31,8 @@ namespace Composable.DependencyInjection.Testing
                                     .LifestyleScoped(),
                            Component.For<IUtcTimeTimeSource, DummyTimeSource>()
                                     .UsingFactoryMethod(_ => dummyTimeSource)
-                                    .LifestyleSingleton(),
+                                    .LifestyleSingleton()
+                                    .DelegateToParentServiceLocatorWhenCloning(),
                            Component.For<IMessageHandlerRegistrar>()
                                     .UsingFactoryMethod(_ => registry)
                                     .LifestyleSingleton(),

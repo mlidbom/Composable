@@ -48,51 +48,49 @@ namespace Composable.Persistence.EventStore
         {
             _usageGuard.AssertNoContextChangeOccurred(this);
             _schemaManager.SetupSchemaIfDatabaseUnInitialized();
-            lock(AggregateLockManager.GetAggregateLockObject(aggregateId))
+
+            var cachedAggregateHistory = _cache.GetCopy(aggregateId);
+
+            var newEventsFromPersistenceLayer = GetAggregateEventsFromPersistenceLayer(aggregateId, takeWriteLock, cachedAggregateHistory.MaxSeenInsertedVersion);
+
+            if(newEventsFromPersistenceLayer.Length == 0)
             {
-                var cachedAggregateHistory = _cache.GetCopy(aggregateId);
-
-                var newEventsFromPersistenceLayer = GetAggregateEventsFromPersistenceLayer(aggregateId, takeWriteLock, cachedAggregateHistory.MaxSeenInsertedVersion);
-
-                if(newEventsFromPersistenceLayer.Length == 0)
-                {
-                    return cachedAggregateHistory.Events;
-                }
-
-                var newerMigratedEventsExist = newEventsFromPersistenceLayer.Where(IsRefactoringEvent)
-                                                                            .Any();
-                var cachedMigratedHistoryExists = cachedAggregateHistory.MaxSeenInsertedVersion > 0;
-                if(cachedMigratedHistoryExists && newerMigratedEventsExist)
-                {
-                    _cache.Remove(aggregateId);
-                    return GetAggregateHistoryInternal(aggregateId, takeWriteLock);
-                }
-
-                var newAggregateHistory = cachedAggregateHistory.Events.Count == 0
-                                           ? SingleAggregateInstanceEventStreamMutator.MutateCompleteAggregateHistory(_migrationFactories, newEventsFromPersistenceLayer)
-                                           : cachedAggregateHistory.Events.Concat(newEventsFromPersistenceLayer)
-                                                                   .ToArray();
-
-
-                if(cachedMigratedHistoryExists)
-                {
-                    SingleAggregateInstanceEventStreamMutator.AssertMigrationsAreIdempotent(_migrationFactories, newAggregateHistory);
-                }
-
-                //Should - within a transaction - a process write events, read them, then fail to commit we will have cached events that are not persisted unless we refuse to cache them here.
-                if(!_aggregatesWithEventsAddedByThisInstance.Contains(aggregateId))
-                {
-                    var maxSeenInsertedVersion = newEventsFromPersistenceLayer.Any()
-                                                     ? newEventsFromPersistenceLayer.Max(@event => @event.InsertedVersion)
-                                                     : cachedAggregateHistory.MaxSeenInsertedVersion;
-
-                    _cache.Store(
-                        aggregateId,
-                        new EventCache.Entry(events: newAggregateHistory, maxSeenInsertedVersion: maxSeenInsertedVersion));
-                }
-
-                return newAggregateHistory;
+                return cachedAggregateHistory.Events;
             }
+
+            var newerMigratedEventsExist = newEventsFromPersistenceLayer.Where(IsRefactoringEvent)
+                                                                        .Any();
+            var cachedMigratedHistoryExists = cachedAggregateHistory.MaxSeenInsertedVersion > 0;
+            if(cachedMigratedHistoryExists && newerMigratedEventsExist)
+            {
+                _cache.Remove(aggregateId);
+                return GetAggregateHistoryInternal(aggregateId, takeWriteLock);
+            }
+
+            var newAggregateHistory = cachedAggregateHistory.Events.Count == 0
+                                        ? SingleAggregateInstanceEventStreamMutator.MutateCompleteAggregateHistory(_migrationFactories, newEventsFromPersistenceLayer)
+                                        : cachedAggregateHistory.Events.Concat(newEventsFromPersistenceLayer)
+                                                                .ToArray();
+
+
+            if(cachedMigratedHistoryExists)
+            {
+                SingleAggregateInstanceEventStreamMutator.AssertMigrationsAreIdempotent(_migrationFactories, newAggregateHistory);
+            }
+
+            //Should - within a transaction - a process write events, read them, then fail to commit we will have cached events that are not persisted unless we refuse to cache them here.
+            if(!_aggregatesWithEventsAddedByThisInstance.Contains(aggregateId))
+            {
+                var maxSeenInsertedVersion = newEventsFromPersistenceLayer.Any()
+                                                    ? newEventsFromPersistenceLayer.Max(@event => @event.InsertedVersion)
+                                                    : cachedAggregateHistory.MaxSeenInsertedVersion;
+
+                _cache.Store(
+                    aggregateId,
+                    new EventCache.Entry(events: newAggregateHistory, maxSeenInsertedVersion: maxSeenInsertedVersion));
+            }
+
+            return newAggregateHistory;
         }
 
         AggregateRootEvent HydrateEvent(EventReadDataRow eventDataRowRow)
@@ -127,7 +125,6 @@ namespace Composable.Persistence.EventStore
         IEnumerable<IAggregateRootEvent> StreamEvents()
         {
             var streamMutator = CompleteEventStoreStreamMutator.Create(_migrationFactories);
-            // ReSharper disable once InconsistentlySynchronizedField
             return streamMutator.Mutate(_eventReader.StreamEvents(StreamEventsBatchSize).Select(HydrateEvent));
         }
 
@@ -158,28 +155,22 @@ namespace Composable.Persistence.EventStore
                                   .ToList();
             _eventWriter.Insert(eventRows);
             //todo: move this to the event store updater.
-            foreach (var aggregateId in updatedAggregates)
+            foreach(var aggregateId in updatedAggregates)
             {
-                lock(AggregateLockManager.GetAggregateLockObject(aggregateId))
-                {
-                    var completeAggregateHistory = _cache.GetCopy(aggregateId)
-                                                         .Events.Concat(events.Where(@event => @event.AggregateRootId == aggregateId))
-                                                         .Cast<AggregateRootEvent>()
-                                                         .ToArray();
-                    SingleAggregateInstanceEventStreamMutator.AssertMigrationsAreIdempotent(_migrationFactories, completeAggregateHistory);
-                }
+                var completeAggregateHistory = _cache.GetCopy(aggregateId)
+                                                     .Events.Concat(events.Where(@event => @event.AggregateRootId == aggregateId))
+                                                     .Cast<AggregateRootEvent>()
+                                                     .ToArray();
+                SingleAggregateInstanceEventStreamMutator.AssertMigrationsAreIdempotent(_migrationFactories, completeAggregateHistory);
             }
         }
 
         public void DeleteAggregate(Guid aggregateId)
         {
-            lock(AggregateLockManager.GetAggregateLockObject(aggregateId))
-            {
-                _usageGuard.AssertNoContextChangeOccurred(this);
-                _schemaManager.SetupSchemaIfDatabaseUnInitialized();
-                _cache.Remove(aggregateId);
-                _eventWriter.DeleteAggregate(aggregateId);
-            }
+            _usageGuard.AssertNoContextChangeOccurred(this);
+            _schemaManager.SetupSchemaIfDatabaseUnInitialized();
+            _cache.Remove(aggregateId);
+            _eventWriter.DeleteAggregate(aggregateId);
         }
 
 
@@ -211,34 +202,32 @@ namespace Composable.Persistence.EventStore
                             //todo: Look at batching the inserting of events in a way that let's us avoid taking a lock for a long time as we do now. This might be a problem in production.
                             using(var transaction = new TransactionScope(TransactionScopeOption.Required, scopeTimeout: 10.Minutes()))
                             {
-                                lock(AggregateLockManager.GetAggregateLockObject(aggregateId))
-                                {
-                                    var original = GetAggregateEventsFromPersistenceLayer(aggregateId: aggregateId, takeWriteLock: true);
+                                var original = GetAggregateEventsFromPersistenceLayer(aggregateId: aggregateId, takeWriteLock: true);
 
-                                    var startInsertingWithVersion = original.Max(@event => @event.InsertedVersion) + 1;
+                                var startInsertingWithVersion = original.Max(@event => @event.InsertedVersion) + 1;
 
-                                    var updatedAggregatesBeforeMigrationOfThisAggregate = updatedAggregates;
+                                var updatedAggregatesBeforeMigrationOfThisAggregate = updatedAggregates;
 
-                                    SingleAggregateInstanceEventStreamMutator.MutateCompleteAggregateHistory(
-                                        _migrationFactories,
-                                        original,
-                                        newEvents =>
-                                        {
-                                            //Make sure we don't try to insert into an occupied InsertedVersion
-                                            newEvents.ForEach(@event => @event.InsertedVersion = startInsertingWithVersion++);
-                                            //Save all new events so they get an InsertionOrder for the next refactoring to work with in case it acts relative to any of these events
-                                            var eventRows = newEvents
-                                                .Select(@this => new EventWriteDataRow(@event: @this, eventAsJson: _serializer.Serialize(@this)))
-                                                .ToList();
+                                SingleAggregateInstanceEventStreamMutator.MutateCompleteAggregateHistory(
+                                    _migrationFactories,
+                                    original,
+                                    newEvents =>
+                                    {
+                                        //Make sure we don't try to insert into an occupied InsertedVersion
+                                        newEvents.ForEach(@event => @event.InsertedVersion = startInsertingWithVersion++);
+                                        //Save all new events so they get an InsertionOrder for the next refactoring to work with in case it acts relative to any of these events
+                                        var eventRows = newEvents
+                                            .Select(@this => new EventWriteDataRow(@event: @this, eventAsJson: _serializer.Serialize(@this)))
+                                            .ToList();
 
-                                            _eventWriter.InsertRefactoringEvents(eventRows);
-                                            updatedAggregates = updatedAggregatesBeforeMigrationOfThisAggregate + 1;
-                                            newEventCount += newEvents.Count;
-                                        });
+                                        _eventWriter.InsertRefactoringEvents(eventRows);
+                                        updatedAggregates = updatedAggregatesBeforeMigrationOfThisAggregate + 1;
+                                        newEventCount += newEvents.Count;
+                                    });
 
-                                    transaction.Complete();
-                                    _cache.Remove(aggregateId);
-                                }
+                                transaction.Complete();
+                                _cache.Remove(aggregateId);
+
                                 migratedAggregates++;
                                 succeeded = true;
                             }
@@ -283,7 +272,6 @@ namespace Composable.Persistence.EventStore
 
             _schemaManager.SetupSchemaIfDatabaseUnInitialized();
 
-            // ReSharper disable once InconsistentlySynchronizedField
             return _eventReader.StreamAggregateIdsInCreationOrder(eventBaseType);
         }
 

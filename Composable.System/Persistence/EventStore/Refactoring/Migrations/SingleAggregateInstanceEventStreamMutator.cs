@@ -90,21 +90,16 @@ namespace Composable.Persistence.EventStore.Refactoring.Migrations
                 return Seq.Empty<AggregateRootEvent>().ToArray();
             }
 
-            var firstEvent = events.First();
-            lock(AggregateLockManager.GetAggregateLockObject(firstEvent.AggregateRootId))
-            {
+            var mutator = Create(events.First(), eventMigrations, eventsAddedCallback);
 
-                var mutator = Create(events.First(), eventMigrations, eventsAddedCallback);
+            var result = events
+                .SelectMany(mutator.Mutate)
+                .Concat(mutator.EndOfAggregate())
+                .ToArray();
 
-                var result = events
-                    .SelectMany(mutator.Mutate)
-                    .Concat(mutator.EndOfAggregate())
-                    .ToArray();
+            AssertMigrationsAreIdempotent(eventMigrations, result);
 
-                AssertMigrationsAreIdempotent(eventMigrations, result);
-
-                return result;
-            }
+            return result;
         }
 
         public static void AssertMigrationsAreIdempotent(IReadOnlyList<IEventMigration> eventMigrations, AggregateRootEvent[] events)

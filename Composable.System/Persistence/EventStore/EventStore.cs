@@ -64,6 +64,7 @@ namespace Composable.Persistence.EventStore
             if(cachedMigratedHistoryExists && newerMigratedEventsExist)
             {
                 _cache.Remove(aggregateId);
+                // ReSharper disable once TailRecursiveCall clarity over micro optimizations any day.
                 return GetAggregateHistoryInternal(aggregateId, takeWriteLock);
             }
 
@@ -147,7 +148,7 @@ namespace Composable.Persistence.EventStore
             _usageGuard.AssertNoContextChangeOccurred(this);
             _schemaManager.SetupSchemaIfDatabaseUnInitialized();
             events = events.ToList();
-            var updatedAggregates = events.Select(@event => @event.AggregateRootId).Distinct();
+            var updatedAggregates = events.Select(@event => @event.AggregateRootId).Distinct().ToList();
             _aggregatesWithEventsAddedByThisInstance.AddRange(updatedAggregates);
 
             var eventRows = events.Cast<AggregateRootEvent>()

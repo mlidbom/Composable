@@ -15,12 +15,9 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.Sql
     class SqlServerEventStoreSessionTests : EventStoreSessionTests
     {
         protected override IServiceLocator CreateServiceLocator() => TestWiringHelper.SetupTestingServiceLocator(TestingMode.RealComponents);
-    }
 
-    [TestFixture] class Serializes_access_to_an_aggregate_so_that_concurrent_transactions_succeed_even_if_history_has_been_read_outside_of_modifying_transactions : SqlServerEventStoreSessionTests
-    {
         [Test]
-        public void Verify_assumption()
+        public void Serializes_access_to_an_aggregate_so_that_concurrent_transactions_succeed_even_if_history_has_been_read_outside_of_modifying_transactions()
         {
             var user = new User();
             user.Register("email@email.se", "password", Guid.NewGuid());
@@ -56,13 +53,9 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.Sql
                                .Be(22); //Make sure that all of the transactions completed
                 });
         }
-    }
 
-    [TestFixture]
-    class Serializes_access_to_an_aggregate_so_that_concurrent_transactions_succeed : SqlServerEventStoreSessionTests
-    {
         [Test]
-        public void Verify_assumption()
+        public void Serializes_access_to_an_aggregate_so_that_concurrent_transactions_succeed()
         {
             var user = new User();
             user.Register("email@email.se", "password", Guid.NewGuid());
@@ -87,15 +80,18 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.Sql
 
             Task.WaitAll(tasks);
 
-            UseInScope(session => ((IEventStoreReader)session).GetHistory(user.Id));
+            UseInScope(
+                session =>
+                {
+                    var userHistory = ((IEventStoreReader)session).GetHistory(user.Id)
+                                                                  .ToArray(); //Reading the aggregate will throw an exception if the history is invalid.
+                    userHistory.Length.Should()
+                               .Be(22); //Make sure that all of the transactions completed
+                });
         }
-    }
 
-    [TestFixture]
-    class InsertNewEventType_should_not_throw_exception_if_the_event_type_has_been_inserted_by_something_else : SqlServerEventStoreSessionTests
-    {
         [Test]
-        public void Verify_assumption()
+        public void InsertNewEventType_should_not_throw_exception_if_the_event_type_has_been_inserted_by_something_else()
         {
             User otherUser = null;
             User user = null;

@@ -75,9 +75,9 @@ namespace Composable.Persistence.EventStore.Refactoring.Migrations
                 .Where(@event => @event.GetType() != typeof(EndOfAggregateHistoryEventPlaceHolder));
         }
 
-        public static IReadOnlyList<AggregateRootEvent> MutateCompleteAggregateHistory
+        public static AggregateRootEvent[] MutateCompleteAggregateHistory
             (IReadOnlyList<IEventMigration> eventMigrations,
-             IReadOnlyList<AggregateRootEvent> events,
+             AggregateRootEvent[] events,
              Action<IReadOnlyList<AggregateRootEvent>> eventsAddedCallback = null)
         {
             if (eventMigrations.None())
@@ -87,7 +87,7 @@ namespace Composable.Persistence.EventStore.Refactoring.Migrations
 
             if(events.None())
             {
-                return Seq.Empty<AggregateRootEvent>().ToList();
+                return Seq.Empty<AggregateRootEvent>().ToArray();
             }
 
             var firstEvent = events.First();

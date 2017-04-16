@@ -52,32 +52,43 @@ namespace Composable.Persistence.EventStore
             {
                 var cachedAggregateHistory = _cache.GetCopy(aggregateId);
 
-                var newEventsFromDatabase = GetAggregateHistory(aggregateId, takeWriteLock, cachedAggregateHistory.MaxSeenInsertedVersion);
+                var newEventsFromPersistenceLayer = GetAggregateEventsFromPersistenceLayer(aggregateId, takeWriteLock, cachedAggregateHistory.MaxSeenInsertedVersion);
 
-                var containsRefactoringEvents = newEventsFromDatabase.Where(IsRefactoringEvent).Any();
-                if(containsRefactoringEvents && cachedAggregateHistory.MaxSeenInsertedVersion > 0)
+                if(newEventsFromPersistenceLayer.Length == 0)
                 {
-                    _cache.Remove(aggregateId);
-                    return GetAggregateHistoryInternal(aggregateId: aggregateId, takeWriteLock: takeWriteLock);
+                    return cachedAggregateHistory.Events;
                 }
 
-                var currentHistory = cachedAggregateHistory.Events.Count == 0
-                                                   ? SingleAggregateInstanceEventStreamMutator.MutateCompleteAggregateHistory(_migrationFactories, newEventsFromDatabase)
-                                                   : cachedAggregateHistory.Events.Concat(newEventsFromDatabase).ToList();
+                var newerMigratedEventsExist = newEventsFromPersistenceLayer.Where(IsRefactoringEvent)
+                                                                            .Any();
+                var cachedMigratedHistoryExists = cachedAggregateHistory.MaxSeenInsertedVersion > 0;
+                Contract.Assert.That(!(cachedMigratedHistoryExists && newerMigratedEventsExist),
+                                     "!(cachedMigratedHistoryExists && newerMigratedEventsExist)");
 
-                //Should within a transaction a process write events, read them, then fail to commit we will have cached events that are not persisted unless we refuse to cache them here.
-                if (!_aggregatesWithEventsAddedByThisInstance.Contains(aggregateId))
+                var aggregateHistory = cachedAggregateHistory.Events.Count == 0
+                                           ? SingleAggregateInstanceEventStreamMutator.MutateCompleteAggregateHistory(_migrationFactories, newEventsFromPersistenceLayer)
+                                           : cachedAggregateHistory.Events.Concat(newEventsFromPersistenceLayer)
+                                                                   .ToArray();
+
+
+                if(cachedMigratedHistoryExists)
                 {
-                    var maxSeenInsertedVersion = newEventsFromDatabase.Any()
-                                                     ? newEventsFromDatabase.Max(@event => @event.InsertedVersion)
+                    SingleAggregateInstanceEventStreamMutator.AssertMigrationsAreIdempotent(_migrationFactories, aggregateHistory);
+                }
+
+                //Should - within a transaction - a process write events, read them, then fail to commit we will have cached events that are not persisted unless we refuse to cache them here.
+                if(!_aggregatesWithEventsAddedByThisInstance.Contains(aggregateId))
+                {
+                    var maxSeenInsertedVersion = newEventsFromPersistenceLayer.Any()
+                                                     ? newEventsFromPersistenceLayer.Max(@event => @event.InsertedVersion)
                                                      : cachedAggregateHistory.MaxSeenInsertedVersion;
 
                     _cache.Store(
                         aggregateId,
-                        new EventCache.Entry(events: currentHistory, maxSeenInsertedVersion: maxSeenInsertedVersion));
+                        new EventCache.Entry(events: aggregateHistory, maxSeenInsertedVersion: maxSeenInsertedVersion));
                 }
 
-                return currentHistory;
+                return aggregateHistory;
             }
         }
 
@@ -99,12 +110,12 @@ namespace Composable.Persistence.EventStore
             return @event;
         }
 
-        IReadOnlyList<AggregateRootEvent> GetAggregateHistory(Guid aggregateId, bool takeWriteLock, int startAfterInsertedVersion = 0)
+        AggregateRootEvent[] GetAggregateEventsFromPersistenceLayer(Guid aggregateId, bool takeWriteLock, int startAfterInsertedVersion = 0)
             => _eventReader.GetAggregateHistory(aggregateId: aggregateId,
                                                 startAfterInsertedVersion: startAfterInsertedVersion,
                                                 takeWriteLock: takeWriteLock)
                            .Select(HydrateEvent)
-                           .ToList();
+                           .ToArray();
 
         static bool IsRefactoringEvent(AggregateRootEvent @event) => @event.InsertBefore.HasValue || @event.InsertAfter.HasValue || @event.Replaces.HasValue;
 
@@ -190,8 +201,7 @@ namespace Composable.Persistence.EventStore
                             {
                                 lock(AggregateLockManager.GetAggregateLockObject(aggregateId))
                                 {
-                                    var updatedThisAggregate = false;
-                                    var original = GetAggregateHistory(aggregateId: aggregateId, takeWriteLock: true).ToList();
+                                    var original = GetAggregateEventsFromPersistenceLayer(aggregateId: aggregateId, takeWriteLock: true);
 
                                     var startInsertingWithVersion = original.Max(@event => @event.InsertedVersion) + 1;
 
@@ -212,7 +222,6 @@ namespace Composable.Persistence.EventStore
                                             _eventWriter.InsertRefactoringEvents(eventRows);
                                             updatedAggregates = updatedAggregatesBeforeMigrationOfThisAggregate + 1;
                                             newEventCount += newEvents.Count;
-                                            updatedThisAggregate = true;
                                         });
 
                                     transaction.Complete();

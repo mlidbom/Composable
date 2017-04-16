@@ -31,7 +31,7 @@ namespace Composable.Persistence.EventStore
         {
             lock(_lockObject)
             {
-                return SingleAggregateInstanceEventStreamMutator.MutateCompleteAggregateHistory(_migrationFactories, _events.Where(e => e.AggregateRootId == id).ToList())
+                return SingleAggregateInstanceEventStreamMutator.MutateCompleteAggregateHistory(_migrationFactories, _events.Where(e => e.AggregateRootId == id).ToArray())
                     .ToList();
             }
         }

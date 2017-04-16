@@ -10,7 +10,7 @@ namespace Composable.Persistence.EventStore
     {
         const string CacheName = "EventStore";
 
-        MemoryCache _internalCache = new MemoryCache(CacheName);
+        readonly MemoryCache _internalCache = new MemoryCache(CacheName);
 
         static readonly CacheItemPolicy Policy = new CacheItemPolicy()
                                                          {
@@ -32,12 +32,6 @@ namespace Composable.Persistence.EventStore
         public void Store(Guid id, Entry entry)
         {
             _internalCache.Set(key: id.ToString(), policy: Policy, value: entry);
-        }
-
-        public void Clear()
-        {
-            _internalCache.Dispose();
-            _internalCache = new MemoryCache(CacheName);
         }
 
         public void Remove(Guid id) { _internalCache.Remove(key: id.ToString()); }

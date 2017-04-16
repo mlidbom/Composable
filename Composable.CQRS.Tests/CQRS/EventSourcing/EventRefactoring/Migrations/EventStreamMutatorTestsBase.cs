@@ -104,27 +104,30 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
 
 
             //Make sure that other processes that might be using the same aggregate also keep working as we persist the migrations.
-            var clonedServiceLocator = serviceLocator.Clone();
-            migratedHistory = clonedServiceLocator.ExecuteUnitOfWorkInIsolatedScope(() => clonedServiceLocator.Resolve<ITestingEventstoreUpdater>()
-                                                                                                        .Get<TestAggregate>(initialAggregate.Id))
-                                                  .History;
-            AssertStreamsAreIdentical(expected, migratedHistory, "Loaded aggregate");
-
-            SafeConsole.WriteLine("  Persisting migrations");
-            using(serviceLocator.BeginScope())
+            using(var clonedServiceLocator = serviceLocator.Clone())
             {
-                serviceLocator.Resolve<IEventStore>()
-                              .PersistMigrations();
+                migratedHistory = clonedServiceLocator.ExecuteUnitOfWorkInIsolatedScope(() => clonedServiceLocator.Resolve<ITestingEventstoreUpdater>()
+                                                                                                                  .Get<TestAggregate>(initialAggregate.Id))
+                                                      .History;
+                AssertStreamsAreIdentical(expected, migratedHistory, "Loaded aggregate");
+
+                SafeConsole.WriteLine("  Persisting migrations");
+                using(serviceLocator.BeginScope())
+                {
+                    serviceLocator.Resolve<IEventStore>()
+                                  .PersistMigrations();
+                }
+
+                migratedHistory = serviceLocator.ExecuteUnitOfWorkInIsolatedScope(() => serviceLocator.Resolve<ITestingEventstoreUpdater>()
+                                                                                                      .Get<TestAggregate>(initialAggregate.Id))
+                                                .History;
+                AssertStreamsAreIdentical(expected, migratedHistory, "Loaded aggregate");
+
+                migratedHistory = clonedServiceLocator.ExecuteUnitOfWorkInIsolatedScope(() => clonedServiceLocator.Resolve<ITestingEventstoreUpdater>()
+                                                                                                                  .Get<TestAggregate>(initialAggregate.Id))
+
+                                                      .History;
             }
-
-            migratedHistory = serviceLocator.ExecuteUnitOfWorkInIsolatedScope(() => serviceLocator.Resolve<ITestingEventstoreUpdater>()
-                                                                                                  .Get<TestAggregate>(initialAggregate.Id))
-                                            .History;
-            AssertStreamsAreIdentical(expected, migratedHistory, "Loaded aggregate");
-
-            migratedHistory = clonedServiceLocator.ExecuteUnitOfWorkInIsolatedScope(() => clonedServiceLocator.Resolve<ITestingEventstoreUpdater>()
-                                                                                                  .Get<TestAggregate>(initialAggregate.Id))
-                                            .History;
             AssertStreamsAreIdentical(expected, migratedHistory, "Loaded aggregate");
 
             SafeConsole.WriteLine("Streaming all events in store");
@@ -147,19 +150,20 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
                                                                                                  .ToList());
             AssertStreamsAreIdentical(expectedCompleteEventstoreStream, streamedEvents, "Streaming all events in store");
 
-            if(eventStoreType == typeof(EventStore))
+
+            SafeConsole.WriteLine("Cloning service locator / starting new instance of application");
+            using(var clonedServiceLocator2 = serviceLocator.Clone())
             {
-                SafeConsole.WriteLine("Clearing sql server eventstore cache");
-                serviceLocator.ExecuteUnitOfWorkInIsolatedScope(() => ((EventStore)serviceLocator.Resolve<IEventStore>()).ClearCache());
-                migratedHistory = serviceLocator.ExecuteUnitOfWorkInIsolatedScope(() => serviceLocator.Resolve<ITestingEventstoreUpdater>()
-                                                                                                      .Get<TestAggregate>(initialAggregate.Id))
+
+                migratedHistory = serviceLocator.ExecuteUnitOfWorkInIsolatedScope(() => clonedServiceLocator2.Resolve<ITestingEventstoreUpdater>()
+                                                                                                        .Get<TestAggregate>(initialAggregate.Id))
                                                 .History;
                 AssertStreamsAreIdentical(expected, migratedHistory, "Loaded aggregate");
 
                 SafeConsole.WriteLine("Streaming all events in store");
-                streamedEvents = serviceLocator.ExecuteUnitOfWorkInIsolatedScope(() => serviceLocator.Resolve<IEventStore>()
-                                                                                                     .ListAllEventsForTestingPurposesAbsolutelyNotUsableForARealEventStoreOfAnySize()
-                                                                                                     .ToList());
+                streamedEvents = clonedServiceLocator2.ExecuteUnitOfWorkInIsolatedScope(() => clonedServiceLocator2.Resolve<IEventStore>()
+                                                                                                        .ListAllEventsForTestingPurposesAbsolutelyNotUsableForARealEventStoreOfAnySize()
+                                                                                                        .ToList());
                 AssertStreamsAreIdentical(expectedCompleteEventstoreStream, streamedEvents, "Streaming all events in store");
             }
         }

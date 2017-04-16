@@ -278,12 +278,6 @@ namespace Composable.Persistence.EventStore
             return _eventReader.StreamAggregateIdsInCreationOrder(eventBaseType);
         }
 
-        internal void ClearCache()
-        {
-            _cache.Clear();
-        }
-
-
         public void Dispose()
         {
         }

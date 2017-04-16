@@ -14,7 +14,7 @@ namespace Composable.System
             Add(disposables);
         }
 
-        void Add(params IDisposable[] disposables) { _managedResources.AddRange(disposables); }
+        internal void Add(params IDisposable[] disposables) { _managedResources.AddRange(disposables); }
 
         protected override void InternalDispose()
         {

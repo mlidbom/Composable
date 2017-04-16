@@ -8,6 +8,7 @@ using Composable.GenericAbstractions.Time;
 using Composable.Logging;
 using Composable.Persistence.EventStore;
 using Composable.Persistence.EventStore.Refactoring.Migrations;
+using Composable.System;
 using Composable.System.Linq;
 using FluentAssertions;
 using NUnit.Framework;
@@ -316,8 +317,11 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
             var emptyMigrationsArray = new IEventMigration[0];
             IReadOnlyList<IEventMigration> migrations = emptyMigrationsArray;
 
-            using(var serviceLocator = CreateServiceLocatorForEventStoreType(() => migrations, EventStoreType))
+            var toDispose = StrictAggregateDisposable.Create();
+            try
             {
+                var serviceLocator = CreateServiceLocatorForEventStoreType(() => migrations, EventStoreType);
+                toDispose.Add(serviceLocator);
 
                 var id = Guid.Parse("00000000-0000-0000-0000-000000000001");
 
@@ -359,7 +363,8 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
                 AssertStreamsAreIdentical(expected: expectedAfterReplacingE1WithE5, migratedHistory: historyAfterPersistingAndReloading, descriptionOfHistory: "migrated, persisted, reloaded");
 
                 migrations = Seq.Create(Replace<E2>.With<E6>()).ToList();
-                ClearEventstoreCache(serviceLocator);
+
+                toDispose.Add(serviceLocator = serviceLocator.Clone());
 
                 migratedHistory = serviceLocator.ExecuteUnitOfWorkInIsolatedScope(() => Session().Get<TestAggregate>(id).History);
                 var expectedAfterReplacingE2WithE6 = TestAggregate.FromEvents(serviceLocator.Resolve<IUtcTimeTimeSource>(), id, Seq.OfTypes<Ec1, E5, E6, E3, E4>()).History;
@@ -375,6 +380,9 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
                 AssertStreamsAreIdentical(expected: expectedAfterReplacingE2WithE6, migratedHistory: historyAfterPersistingButBeforeReload, descriptionOfHistory: "migrated, persisted");
                 historyAfterPersistingAndReloading = serviceLocator.ExecuteUnitOfWorkInIsolatedScope(() => Session().Get<TestAggregate>(id).History);
                 AssertStreamsAreIdentical(expected: expectedAfterReplacingE2WithE6, migratedHistory: historyAfterPersistingAndReloading, descriptionOfHistory: "migrated, persisted, reloaded");
+            }finally
+            {
+                toDispose.Dispose();
             }
 
         }
@@ -386,8 +394,11 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
             var emptyMigrationsArray = new IEventMigration[0];
             IReadOnlyList<IEventMigration> migrations = emptyMigrationsArray;
 
-            using (var serviceLocator = CreateServiceLocatorForEventStoreType(() => migrations, EventStoreType))
+            var toDispose = StrictAggregateDisposable.Create();
+            try
             {
+                var serviceLocator = CreateServiceLocatorForEventStoreType(() => migrations, EventStoreType);
+                toDispose.Add(serviceLocator);
 
                 var id = Guid.Parse("00000000-0000-0000-0000-000000000001");
 
@@ -431,7 +442,7 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
                 serviceLocator.ExecuteUnitOfWorkInIsolatedScope(() => Session().Get<TestAggregate>(id).RaiseEvents(new E6(), new E7()));
 
                 migrations = Seq.Create(Replace<E2>.With<E6>()).ToList();
-                ClearEventstoreCache(serviceLocator);
+                toDispose.Add(serviceLocator = serviceLocator.Clone());
 
                 migratedHistory = serviceLocator.ExecuteUnitOfWorkInIsolatedScope(() => Session().Get<TestAggregate>(id).History);
                 var expectedAfterReplacingE2WithE6 = TestAggregate.FromEvents(serviceLocator.Resolve<IUtcTimeTimeSource>(), id, Seq.OfTypes<Ec1, E5, E6, E3, E4, E6, E7>()).History;
@@ -455,6 +466,10 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
                 AssertStreamsAreIdentical(expected: expectedAfterReplacingE2WithE6AndRaisingE8E9, migratedHistory: historyAfterPersistingAndReloading, descriptionOfHistory: "migrated, persisted, reloaded");
 
             }
+            finally
+            {
+                toDispose.Dispose();
+            }
 
         }
 
@@ -464,8 +479,11 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
             var emptyMigrationsArray = new IEventMigration[0];
             IReadOnlyList<IEventMigration> migrations = emptyMigrationsArray;
 
-            using(var serviceLocator = CreateServiceLocatorForEventStoreType(() => migrations, EventStoreType))
+            var toDispose = StrictAggregateDisposable.Create();
+            try
             {
+                var serviceLocator = CreateServiceLocatorForEventStoreType(() => migrations, EventStoreType);
+                toDispose.Add(serviceLocator);
 
                 var id = Guid.Parse("00000000-0000-0000-0000-000000000001");
 
@@ -499,10 +517,14 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
                 SafeConsole.WriteLine("A E I M");
                 completeEventHistory.ForEach(@event => SafeConsole.WriteLine($"{@event.AggregateRootVersion} {@event.EffectiveVersion} {@event.InsertedVersion} {@event.ManualVersion}"));
 
-                ClearEventstoreCache(serviceLocator);
+                toDispose.Add(serviceLocator = serviceLocator.Clone());
 
                 completeEventHistory = serviceLocator.ExecuteInIsolatedScope(() => EventStore().ListAllEventsForTestingPurposesAbsolutelyNotUsableForARealEventStoreOfAnySize()).Cast<AggregateRootEvent>();
                 AssertStreamsAreIdentical(expected: expected, migratedHistory: completeEventHistory, descriptionOfHistory: "streamed persisted history");
+            }
+            finally
+            {
+                toDispose.Dispose();
             }
         }
 
@@ -512,8 +534,12 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
             var firstMigration = Seq.Create(Before<E1>.Insert<E2>()).ToArray();
             var secondMigration = Seq.Create(Before<E1>.Insert<E3>()).ToArray();
             IReadOnlyList<IEventMigration> migrations = new List<IEventMigration>();
-            using (var serviceLocator = CreateServiceLocatorForEventStoreType(() => migrations, EventStoreType))
+
+            var toDispose = StrictAggregateDisposable.Create();
+            try
             {
+                var serviceLocator = CreateServiceLocatorForEventStoreType(() => migrations, EventStoreType);
+                toDispose.Add(serviceLocator);
                 serviceLocator.Resolve<DummyTimeSource>().UtcNow = DateTime.Parse("2001-01-01 12:00");
 
                 var id = Guid.Parse("00000000-0000-0000-0000-000000000001");
@@ -534,13 +560,17 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
                 AssertStreamsAreIdentical(expectedHistoryAfterFirstMigration, historyAfterPersistingFirstMigration, nameof(historyAfterPersistingFirstMigration));
 
                 migrations = secondMigration;
-                ClearEventstoreCache(serviceLocator);
+                toDispose.Add(serviceLocator = serviceLocator.Clone());
                 var historyWithSecondMigrationUnPersisted = serviceLocator.ExecuteUnitOfWorkInIsolatedScope(() => Session().Get<TestAggregate>(id).History);
 
                 serviceLocator.ExecuteUnitOfWorkInIsolatedScope(() => EventStore().PersistMigrations());
                 var historyAfterPersistingSecondMigration = serviceLocator.ExecuteUnitOfWorkInIsolatedScope(() => Session().Get<TestAggregate>(id).History);
                 AssertStreamsAreIdentical(expectedHistoryAfterSecondMigration, historyWithSecondMigrationUnPersisted, nameof(historyWithSecondMigrationUnPersisted));
                 AssertStreamsAreIdentical(expectedHistoryAfterSecondMigration, historyAfterPersistingSecondMigration, nameof(historyAfterPersistingSecondMigration));
+            }
+            finally
+            {
+                toDispose.Dispose();
             }
         }
 
@@ -550,8 +580,12 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
             var firstMigration = Seq.Create(After<E1>.Insert<E2>()).ToArray();
             var secondMigration = Seq.Create(After<E1>.Insert<E3>()).ToArray();
             IReadOnlyList<IEventMigration> migrations = new List<IEventMigration>();
-            using (var serviceLocator = CreateServiceLocatorForEventStoreType(() => migrations, EventStoreType))
+
+            var toDispose = StrictAggregateDisposable.Create();
+            try
             {
+                var serviceLocator = CreateServiceLocatorForEventStoreType(() => migrations, EventStoreType);
+                toDispose.Add(serviceLocator);
                 serviceLocator.Resolve<DummyTimeSource>().UtcNow = DateTime.Parse("2001-01-01 12:00");
 
                 var id = Guid.Parse("00000000-0000-0000-0000-000000000001");
@@ -572,7 +606,7 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
                 AssertStreamsAreIdentical(expectedHistoryAfterFirstMigration, historyAfterPersistingFirstMigration, nameof(historyAfterPersistingFirstMigration));
 
                 migrations = secondMigration;
-                ClearEventstoreCache(serviceLocator);
+                toDispose.Add(serviceLocator = serviceLocator.Clone());
                 var historyWithSecondMigrationUnPersisted = serviceLocator.ExecuteUnitOfWorkInIsolatedScope(() => Session().Get<TestAggregate>(id).History);
 
                 serviceLocator.ExecuteUnitOfWorkInIsolatedScope(() => EventStore().PersistMigrations());
@@ -580,13 +614,9 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
                 AssertStreamsAreIdentical(expectedHistoryAfterSecondMigration, historyWithSecondMigrationUnPersisted, nameof(historyWithSecondMigrationUnPersisted));
                 AssertStreamsAreIdentical(expectedHistoryAfterSecondMigration, historyAfterPersistingSecondMigration, nameof(historyAfterPersistingSecondMigration));
             }
-        }
-
-        void ClearEventstoreCache(IServiceLocator serviceLocator)
-        {
-            if(EventStoreType == typeof(EventStore))
+            finally
             {
-                serviceLocator.ExecuteUnitOfWorkInIsolatedScope(() => ((EventStore)serviceLocator.Resolve<IEventStore>()).ClearCache());
+                toDispose.Dispose();
             }
         }
 

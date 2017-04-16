@@ -28,9 +28,9 @@ namespace Composable.DependencyInjection.Persistence
         {
             public EventStore(IEventStoreEventSerializer serializer,
                               IEventstorePersistenceLayer persistenceLayer,
-                              ISingleContextUseGuard usageGuard = null,
-                              EventCache cache = null,
-                              IEnumerable<IEventMigration> migrations = null) : base(persistenceLayer, serializer, usageGuard, cache, migrations:migrations) {}
+                              ISingleContextUseGuard usageGuard,
+                              EventCache<TSessionInterface> cache,
+                              IEnumerable<IEventMigration> migrations) : base(persistenceLayer, serializer, usageGuard, cache, migrations:migrations) {}
         }
 
         class InMemoryEventStore<TSessionInterface, TReaderInterface> : InMemoryEventStore, IEventStore<TSessionInterface, TReaderInterface>
@@ -63,6 +63,9 @@ namespace Composable.DependencyInjection.Persistence
             public IEventStoreEventWriter EventWriter { get; }
         }
 
+        class EventCache<TUpdaterType> : EventCache
+        {}
+
         public static void RegisterSqlServerEventStore<TSessionInterface, TReaderInterface>(this IDependencyInjectionContainer @this,
                                                                                             string connectionName,
                                                                                             IReadOnlyList<IEventMigration> migrations = null)
@@ -89,9 +92,12 @@ namespace Composable.DependencyInjection.Persistence
 
             GeneratedLowLevelInterfaceInspector.InspectInterfaces(Seq.OfTypes<TSessionInterface, TReaderInterface>());
 
-            var cache = new EventCache();
 
-            if(@this.RunMode().IsTesting && mode == TestingMode.InMemory)
+            @this.Register(Component.For<EventCache<TSessionInterface>>()
+                                    .ImplementedBy<EventCache<TSessionInterface>>()
+                                    .LifestyleSingleton());
+
+            if (@this.RunMode().IsTesting && mode == TestingMode.InMemory)
             {
                 @this.Register(Component.For<InMemoryEventStore<TSessionInterface, TReaderInterface>>()
                                         .UsingFactoryMethod(sl => new InMemoryEventStore<TSessionInterface, TReaderInterface>(migrations: migrations()))
@@ -129,10 +135,12 @@ namespace Composable.DependencyInjection.Persistence
 
 
                 @this.Register(Component.For<IEventStore<TSessionInterface, TReaderInterface>>()
-                                        .UsingFactoryMethod(sl => new EventStore<TSessionInterface, TReaderInterface>(persistenceLayer: sl.Resolve<IEventstorePersistenceLayer<TSessionInterface>>(),
+                                        .UsingFactoryMethod(sl => new EventStore<TSessionInterface, TReaderInterface>(
+                                                                persistenceLayer: sl.Resolve<IEventstorePersistenceLayer<TSessionInterface>>(),
                                                                 serializer: sl.Resolve<IEventStoreEventSerializer>(),
                                                                 migrations: migrations(),
-                                                                cache: cache))
+                                                                cache: sl.Resolve<EventCache<TSessionInterface>>(),
+                                                                usageGuard: new SingleThreadUseGuard()))
                                         .LifestyleScoped());
             }
 

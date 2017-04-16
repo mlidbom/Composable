@@ -26,15 +26,15 @@ namespace Composable.Persistence.EventStore
 
         readonly HashSet<Guid> _aggregatesWithEventsAddedByThisInstance = new HashSet<Guid>();
 
-        protected EventStore(IEventstorePersistenceLayer persistenceLayer, IEventStoreEventSerializer serializer, ISingleContextUseGuard usageGuard = null, EventCache cache = null, IEnumerable<IEventMigration> migrations = null)
+        protected EventStore(IEventstorePersistenceLayer persistenceLayer, IEventStoreEventSerializer serializer, ISingleContextUseGuard usageGuard, EventCache cache, IEnumerable<IEventMigration> migrations)
         {
             _serializer = serializer;
             Log.Debug("Constructor called");
 
-            _migrationFactories = migrations?.ToList() ?? new List<IEventMigration>();
+            _migrationFactories = migrations.ToList();
 
-            _usageGuard = usageGuard ?? new SingleThreadUseGuard();
-            _cache = cache ?? new EventCache();
+            _usageGuard = usageGuard;
+            _cache = cache;
             _schemaManager = persistenceLayer.SchemaManager;
             _eventReader = persistenceLayer.EventReader;
             _eventWriter = persistenceLayer.EventWriter;
@@ -62,8 +62,11 @@ namespace Composable.Persistence.EventStore
                 var newerMigratedEventsExist = newEventsFromPersistenceLayer.Where(IsRefactoringEvent)
                                                                             .Any();
                 var cachedMigratedHistoryExists = cachedAggregateHistory.MaxSeenInsertedVersion > 0;
-                Contract.Assert.That(!(cachedMigratedHistoryExists && newerMigratedEventsExist),
-                                     "!(cachedMigratedHistoryExists && newerMigratedEventsExist)");
+                if(cachedMigratedHistoryExists && newerMigratedEventsExist)
+                {
+                    _cache.Remove(aggregateId);
+                    return GetAggregateHistoryInternal(aggregateId, takeWriteLock);
+                }
 
                 var newAggregateHistory = cachedAggregateHistory.Events.Count == 0
                                            ? SingleAggregateInstanceEventStreamMutator.MutateCompleteAggregateHistory(_migrationFactories, newEventsFromPersistenceLayer)

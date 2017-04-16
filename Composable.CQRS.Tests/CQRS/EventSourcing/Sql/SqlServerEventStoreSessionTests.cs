@@ -89,36 +89,5 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.Sql
                                .Be(22); //Make sure that all of the transactions completed
                 });
         }
-
-        [Test]
-        public void InsertNewEventType_should_not_throw_exception_if_the_event_type_has_been_inserted_by_something_else()
-        {
-            User otherUser = null;
-            User user = null;
-            void ChangeAnotherUsersEmailInOtherInstance()
-            {
-                using (var clonedServiceLocator = ServiceLocator.Clone())
-                {
-                    clonedServiceLocator.ExecuteUnitOfWorkInIsolatedScope(() =>
-                                                                          {
-                                                                              // ReSharper disable once AccessToDisposedClosure
-                                                                              var session = clonedServiceLocator.Resolve<ITestingEventstoreUpdater>();
-                                                                              otherUser = User.Register(session,
-                                                                                                        "email@email.se",
-                                                                                                        "password",
-                                                                                                        Guid.NewGuid());
-                                                                              otherUser.ChangeEmail("otheruser@email.new");
-                                                                          });
-
-                }
-            }
-
-            UseInTransactionalScope(session => user = User.Register(session, "email@email.se", "password", Guid.NewGuid()));
-
-            ChangeAnotherUsersEmailInOtherInstance();
-            UseInScope(session => session.Get<User>(otherUser.Id).Email.Should().Be("otheruser@email.new"));
-
-            UseInTransactionalScope(session => user.ChangeEmail("some@email.new"));
-        }
     }
 }

@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Threading;
 using Composable.DependencyInjection;
+using Composable.DependencyInjection.Testing;
 using Composable.Messaging.Buses;
 using Composable.Persistence.EventStore;
 using Composable.System;
@@ -468,5 +469,37 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing
                                         MessageSpy.DispatchedMessages.ShouldBeEquivalentTo(allPersistedEvents,options => options.WithStrictOrdering());
                                     });
         }
+
+        [Test]
+        public void InsertNewEventType_should_not_throw_exception_if_the_event_type_has_been_inserted_by_something_else()
+        {
+            User otherUser = null;
+            User user = null;
+            void ChangeAnotherUsersEmailInOtherInstance()
+            {
+                using (var clonedServiceLocator = ServiceLocator.Clone())
+                {
+                    clonedServiceLocator.ExecuteUnitOfWorkInIsolatedScope(() =>
+                                                                          {
+                                                                              // ReSharper disable once AccessToDisposedClosure
+                                                                              var session = clonedServiceLocator.Resolve<ITestingEventstoreUpdater>();
+                                                                              otherUser = User.Register(session,
+                                                                                                        "email@email.se",
+                                                                                                        "password",
+                                                                                                        Guid.NewGuid());
+                                                                              otherUser.ChangeEmail("otheruser@email.new");
+                                                                          });
+
+                }
+            }
+
+            UseInTransactionalScope(session => user = User.Register(session, "email@email.se", "password", Guid.NewGuid()));
+
+            ChangeAnotherUsersEmailInOtherInstance();
+            UseInScope(session => session.Get<User>(otherUser.Id).Email.Should().Be("otheruser@email.new"));
+
+            UseInTransactionalScope(session => user.ChangeEmail("some@email.new"));
+        }
+
     }
 }

@@ -160,17 +160,26 @@ namespace Composable.Persistence.EventStore
             //todo: move this to the event store updater.
             foreach (var aggregateId in updatedAggregates)
             {
-                var completeAggregateHistory = _cache.GetCopy(aggregateId).Events.Concat(events.Where(@event => @event.AggregateRootId == aggregateId)).Cast<AggregateRootEvent>().ToArray();
-                SingleAggregateInstanceEventStreamMutator.AssertMigrationsAreIdempotent(_migrationFactories, completeAggregateHistory);
+                lock(AggregateLockManager.GetAggregateLockObject(aggregateId))
+                {
+                    var completeAggregateHistory = _cache.GetCopy(aggregateId)
+                                                         .Events.Concat(events.Where(@event => @event.AggregateRootId == aggregateId))
+                                                         .Cast<AggregateRootEvent>()
+                                                         .ToArray();
+                    SingleAggregateInstanceEventStreamMutator.AssertMigrationsAreIdempotent(_migrationFactories, completeAggregateHistory);
+                }
             }
         }
 
         public void DeleteAggregate(Guid aggregateId)
         {
-            _usageGuard.AssertNoContextChangeOccurred(this);
-            _schemaManager.SetupSchemaIfDatabaseUnInitialized();
-            _cache.Remove(aggregateId);
-            _eventWriter.DeleteAggregate(aggregateId);
+            lock(AggregateLockManager.GetAggregateLockObject(aggregateId))
+            {
+                _usageGuard.AssertNoContextChangeOccurred(this);
+                _schemaManager.SetupSchemaIfDatabaseUnInitialized();
+                _cache.Remove(aggregateId);
+                _eventWriter.DeleteAggregate(aggregateId);
+            }
         }
 
 

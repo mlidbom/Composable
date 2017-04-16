@@ -31,7 +31,7 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
         public SqlServerEventStoreEventStreamMutatorTests() : base(typeof(EventStore)) { }
 
         [Test]
-        public void PersistingMigrationsAndThenUpdatingTheAggregateFromAnotherProcessesEventStore()
+        public void Persisting_migrations_and_then_updating_the_aggregate_from_another_processes_EventStore_results_in_both_processes_seeing_identical_histories()
         {
             var actualMigrations = Seq.Create(Replace<E1>.With<E2>()).ToArray();
             IReadOnlyList<IEventMigration> migrations = new List<IEventMigration>();
@@ -62,6 +62,11 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
                     serviceLocator.ExecuteInIsolatedScope(() => PersistingEventStore().PersistMigrations());
 
                     otherProcessServiceLocator.ExecuteUnitOfWorkInIsolatedScope(() => OtherEventstoreSession().Get<TestAggregate>(id).RaiseEvents(new E3()));
+
+                    var firstProcessHistory = serviceLocator.ExecuteUnitOfWorkInIsolatedScope(() => PersistingEventStore().GetAggregateHistory(id));
+                    var secondProcessHistory = otherProcessServiceLocator.ExecuteUnitOfWorkInIsolatedScope(() => otherProcessServiceLocator.Resolve<IEventStore>().GetAggregateHistory(id));
+
+                    AssertStreamsAreIdentical(firstProcessHistory, secondProcessHistory, "Both process histories should be identical");
 
                 }
             }

@@ -198,7 +198,7 @@ namespace Composable.Persistence.EventStore
                     {
                         try
                         {
-                            //todo: Look at batching the inserting of events in a way that let's us avoid taking a lock for a long time as we do now. This might be a problem in production.
+                            //todo: Look at ways to avoid taking a lock for a long time as we do now. This might be a problem in production.
                             using(var transaction = new TransactionScope(TransactionScopeOption.Required, scopeTimeout: 10.Minutes()))
                             {
                                 var original = GetAggregateEventsFromPersistenceLayer(aggregateId: aggregateId, takeWriteLock: true);

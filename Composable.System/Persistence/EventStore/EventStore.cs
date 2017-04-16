@@ -225,7 +225,6 @@ namespace Composable.Persistence.EventStore
                                     });
 
                                 transaction.Complete();
-                                _cache.Remove(aggregateId);
 
                                 migratedAggregates++;
                                 succeeded = true;

@@ -123,9 +123,6 @@ namespace Composable.Persistence.EventStore
 
         IEnumerable<IAggregateRootEvent> StreamEvents()
         {
-            _usageGuard.AssertNoContextChangeOccurred(this);
-            _schemaManager.SetupSchemaIfDatabaseUnInitialized();
-
             var streamMutator = CompleteEventStoreStreamMutator.Create(_migrationFactories);
             // ReSharper disable once InconsistentlySynchronizedField
             return streamMutator.Mutate(_eventReader.StreamEvents(StreamEventsBatchSize).Select(HydrateEvent));
@@ -133,6 +130,9 @@ namespace Composable.Persistence.EventStore
 
         public void StreamEvents(int batchSize, Action<IReadOnlyList<IAggregateRootEvent>> handleEvents)
         {
+            _usageGuard.AssertNoContextChangeOccurred(this);
+            _schemaManager.SetupSchemaIfDatabaseUnInitialized();
+
             var batches = StreamEvents()
                 .ChopIntoSizesOf(batchSize)
                 .Select(batch => batch.ToList());

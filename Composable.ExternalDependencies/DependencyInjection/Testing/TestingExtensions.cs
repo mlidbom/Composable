@@ -1,11 +1,10 @@
-﻿using System.Linq;
-using Composable.Contracts;
-using Composable.DependencyInjection.Windsor;
+﻿using Composable.DependencyInjection.Windsor;
 using Composable.GenericAbstractions.Time;
 using Composable.Messaging.Buses;
 using Composable.Persistence.EventStore;
 using Composable.Persistence.EventStore.Serialization.NewtonSoft;
 using Composable.System.Configuration;
+using Composable.System.Linq;
 using Composable.SystemExtensions.Threading;
 
 namespace Composable.DependencyInjection.Testing
@@ -21,10 +20,6 @@ namespace Composable.DependencyInjection.Testing
             var registry = new MessageHandlerRegistry();
             var bus = new TestingOnlyServiceBus(dummyTimeSource, registry);
             var runMode = new RunMode(isTesting:true, mode:mode);
-
-            var masterConnectionString = new ConnectionStringConfigurationParameterProvider().GetConnectionString("MasterDB")
-                                                                                             .ConnectionString;
-            var connectionStringProvider = new SqlServerDatabasePoolConnectionStringProvider(masterConnectionString);
 
             @this.Register(Component.For<IRunMode>()
                                     .UsingFactoryMethod(_ => runMode)
@@ -45,33 +40,27 @@ namespace Composable.DependencyInjection.Testing
                                     .UsingFactoryMethod(_ => bus)
                                     .LifestyleSingleton(),
                            Component.For<IConnectionStringProvider>()
-                                    .UsingFactoryMethod(locator => connectionStringProvider)
+                                    .UsingFactoryMethod(
+                                        locator =>
+                                        {
+                                            var connectionString = new ConnectionStringConfigurationParameterProvider().GetConnectionString("MasterDB")
+                                                                                                                       .ConnectionString;
+                                            return new SqlServerDatabasePoolConnectionStringProvider(connectionString);
+                                        })
                                     .LifestyleSingleton()
-                          );
-            @this.CreateServiceLocator()
-                 .Resolve<IConnectionStringProvider>();//Trigger resolving the dabasepool so that it will be properly disposed with the container
+                                    .DelegateToParentServiceLocatorWhenCloning()
+            );
         }
 
 
         public static IServiceLocator Clone(this IServiceLocator @this)
         {
-            var sourceContainer = ((WindsorDependencyInjectionContainer)@this);
-            var components = sourceContainer.RegisteredComponents().ToList();
-            Contract.Assert.That(components.Count( component => component.ServiceTypes.Contains(typeof(IConnectionStringProvider))) == 1,
-                                $"We can only handle the case with a single {nameof(IConnectionStringProvider)}");
-
-            var toRegister = components.Where(component => !component.ServiceTypes.Contains(typeof(IConnectionStringProvider)))
-                                                                    .ToList();
+            var sourceContainer = (IDependencyInjectionContainer)@this;
 
             var cloneContainer = DependencyInjectionContainer.Create();
 
-            cloneContainer.Register(
-                Component.For<IConnectionStringProvider>()
-                    .Instance(sourceContainer.Resolve<IConnectionStringProvider>())
-                    .LifestyleSingleton()
-                );
-
-            toRegister.ForEach(component => cloneContainer.Register(component));
+            sourceContainer.RegisteredComponents()
+                           .ForEach(componentRegistration => cloneContainer.Register(componentRegistration.CreateCloneRegistration(@this)));
 
             return cloneContainer.CreateServiceLocator();
         }

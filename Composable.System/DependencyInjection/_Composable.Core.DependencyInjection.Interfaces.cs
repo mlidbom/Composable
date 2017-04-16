@@ -129,26 +129,27 @@ namespace Composable.DependencyInjection
         {
             internal ComponentRegistrationBuilderInitial(IEnumerable<Type> serviceTypes) : base(serviceTypes.Concat(new List<Type>() {typeof(TService)})) {}
 
-            public ComponentRegistrationBuilderWithInstantiationSpec ImplementedBy<TImplementation>()
+            public ComponentRegistrationBuilderWithInstantiationSpec<TService> ImplementedBy<TImplementation>()
             {
                 Contract.Arguments.That(ServiceTypes.All(serviceType => serviceType.IsAssignableFrom(typeof(TImplementation))), "The implementing type must implement all the service interfaces.");
-                return new ComponentRegistrationBuilderWithInstantiationSpec(ServiceTypes, InstantiationSpec.ImplementedBy(typeof(TImplementation)));
+                return new ComponentRegistrationBuilderWithInstantiationSpec<TService>(ServiceTypes, InstantiationSpec.ImplementedBy(typeof(TImplementation)));
             }
 
-            internal ComponentRegistrationBuilderWithInstantiationSpec Instance(TService instance)
+            internal ComponentRegistrationBuilderWithInstantiationSpec<TService> Instance(TService instance)
             {
                 Contract.Arguments.That(ServiceTypes.All(serviceType => serviceType.IsInstanceOfType(instance)), "The implementing type must implement all the service interfaces.");
-                return new ComponentRegistrationBuilderWithInstantiationSpec(ServiceTypes, InstantiationSpec.FromInstance(instance));
+                return new ComponentRegistrationBuilderWithInstantiationSpec<TService>(ServiceTypes, InstantiationSpec.FromInstance(instance));
             }
 
-            internal ComponentRegistrationBuilderWithInstantiationSpec UsingFactoryMethod<TImplementation>(Func<IServiceLocatorKernel, TImplementation> factoryMethod)
+            internal ComponentRegistrationBuilderWithInstantiationSpec<TService> UsingFactoryMethod<TImplementation>(Func<IServiceLocatorKernel, TImplementation> factoryMethod)
                 where TImplementation : TService
             {
-                return new ComponentRegistrationBuilderWithInstantiationSpec(ServiceTypes, InstantiationSpec.FromFactoryMethod(serviceLocator => factoryMethod(serviceLocator)));
+                return new ComponentRegistrationBuilderWithInstantiationSpec<TService>(ServiceTypes, InstantiationSpec.FromFactoryMethod(serviceLocator => factoryMethod(serviceLocator)));
             }
+
         }
 
-        public class ComponentRegistrationBuilderWithInstantiationSpec
+        public class ComponentRegistrationBuilderWithInstantiationSpec<TService>
         {
             readonly IEnumerable<Type> _serviceTypes;
             readonly InstantiationSpec _instantInstatiationSpec;
@@ -159,8 +160,8 @@ namespace Composable.DependencyInjection
                 _instantInstatiationSpec = instantInstatiationSpec;
             }
 
-            internal ComponentRegistration LifestyleSingleton() => new ComponentRegistration(Lifestyle.Singleton, _serviceTypes, _instantInstatiationSpec);
-            public ComponentRegistration LifestyleScoped() => new ComponentRegistration(Lifestyle.Scoped, _serviceTypes, _instantInstatiationSpec);
+            internal ComponentRegistration<TService> LifestyleSingleton() => new ComponentRegistration<TService>(Lifestyle.Singleton, _serviceTypes, _instantInstatiationSpec);
+            public ComponentRegistration<TService> LifestyleScoped() => new ComponentRegistration<TService>(Lifestyle.Scoped, _serviceTypes, _instantInstatiationSpec);
 
         }
     }
@@ -190,11 +191,12 @@ namespace Composable.DependencyInjection
         InstantiationSpec(object instance) => Instance = instance;
     }
 
-    public class ComponentRegistration
+    public abstract class ComponentRegistration
     {
         internal IEnumerable<Type> ServiceTypes { get; }
         internal InstantiationSpec InstantiationSpec { get; }
         internal Lifestyle Lifestyle { get; }
+
         internal ComponentRegistration(Lifestyle lifestyle, IEnumerable<Type> serviceTypes, InstantiationSpec instantiationSpec)
         {
             serviceTypes = serviceTypes.ToList();
@@ -205,5 +207,39 @@ namespace Composable.DependencyInjection
             InstantiationSpec = instantiationSpec;
             Lifestyle = lifestyle;
         }
+
+        internal abstract ComponentRegistration CreateCloneRegistration(IServiceLocator currentLocator);
+    }
+
+    public class ComponentRegistration<TService> : ComponentRegistration
+    {
+        bool ShouldDelegateToParentWhenCloning { get; set; }
+
+        internal ComponentRegistration<TService> DelegateToParentServiceLocatorWhenCloning()
+        {
+            Contract.Assert.That(Lifestyle == Lifestyle.Singleton, "Only singletons can be delegated to parent container since disposal concern handling becomes very confused for any other lifestyle");
+            ShouldDelegateToParentWhenCloning = true;
+            return this;
+        }
+
+        internal override ComponentRegistration CreateCloneRegistration(IServiceLocator currentLocator)
+        {
+            if(!ShouldDelegateToParentWhenCloning)
+            {
+                return this;
+            }
+
+            //We must use singleton instance registrations when delegating because otherwise the containers will both attempt to dispose the service.
+            //Instance registrations are not disposed.
+            return new ComponentRegistration<TService>(
+                lifestyle: Lifestyle.Singleton,
+                serviceTypes: ServiceTypes,
+                instantiationSpec: InstantiationSpec.FromInstance(currentLocator.Resolve<TService>())
+            );
+        }
+
+        internal ComponentRegistration(Lifestyle lifestyle, IEnumerable<Type> serviceTypes, InstantiationSpec instantiationSpec)
+            :base(lifestyle, serviceTypes, instantiationSpec)
+        {}
     }
 }

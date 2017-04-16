@@ -53,7 +53,8 @@ namespace Composable.DependencyInjection.Persistence
             {
                 @this.Register(Component.For<IDocumentDb<TUpdater, TReader, TBulkReader>>()
                                          .ImplementedBy<InMemoryDocumentDb<TUpdater, TReader, TBulkReader>>()
-                                         .LifestyleSingleton());
+                                         .LifestyleSingleton()
+                                         .DelegateToParentServiceLocatorWhenCloning());
 
             } else
             {

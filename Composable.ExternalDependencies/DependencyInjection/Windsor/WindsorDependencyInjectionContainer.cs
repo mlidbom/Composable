@@ -40,7 +40,7 @@ namespace Composable.DependencyInjection.Windsor
 
         IRegistration ToWindsorRegistration(ComponentRegistration componentRegistration)
         {
-            ComponentRegistration<object> registration = Castle.MicroKernel.Registration.Component.For(componentRegistration.ServiceTypes);
+            Castle.MicroKernel.Registration.ComponentRegistration<object> registration = Castle.MicroKernel.Registration.Component.For(componentRegistration.ServiceTypes);
 
             if (componentRegistration.InstantiationSpec.Instance != null)
             {

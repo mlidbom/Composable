@@ -95,7 +95,8 @@ namespace Composable.DependencyInjection.Persistence
             {
                 @this.Register(Component.For<InMemoryEventStore<TSessionInterface, TReaderInterface>>()
                                         .UsingFactoryMethod(sl => new InMemoryEventStore<TSessionInterface, TReaderInterface>(migrations: migrations()))
-                                        .LifestyleSingleton());
+                                        .LifestyleSingleton()
+                                        .DelegateToParentServiceLocatorWhenCloning());
 
                 @this.Register(Component.For<IEventStore<TSessionInterface, TReaderInterface>>()
                                         .UsingFactoryMethod(sl =>

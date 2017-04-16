@@ -28,9 +28,9 @@ namespace Composable.Persistence.EventStore.MicrosoftSQLServer
         {
             using(var connection = _connectionMananger.OpenConnection())
             {
-                foreach(var refactoringEvent in events)
+                foreach(var data in events)
                 {
-                    var @event = refactoringEvent.Event;
+                    var @event = data.Event;
                     using(var command = connection.CreateCommand())
                     {
                         command.CommandType = CommandType.Text;
@@ -42,22 +42,22 @@ INSERT {EventTable.Name} With(READCOMMITTED, ROWLOCK)
 VALUES(@{EventTable.Columns.AggregateId}, @{EventTable.Columns.InsertedVersion}, @{EventTable.Columns.ManualVersion}, @{EventTable.Columns.ManualReadOrder}, @{EventTable.Columns.EventType}, @{EventTable.Columns.EventId}, @{EventTable.Columns.UtcTimeStamp}, @{EventTable.Columns.Event}, @{EventTable.Columns.InsertAfter},@{EventTable.Columns.InsertBefore}, @{EventTable.Columns.Replaces})
 SET @{EventTable.Columns.InsertionOrder} = SCOPE_IDENTITY();";
 
-                        command.Parameters.Add(new SqlParameter(EventTable.Columns.AggregateId, @event.AggregateRootId));
+                        command.Parameters.Add(new SqlParameter(EventTable.Columns.AggregateId, data.AggregateRootId));
                         command.Parameters.Add(
                             new SqlParameter(
                                 EventTable.Columns.InsertedVersion,
-                                @event.InsertedVersion > @event.AggregateRootVersion ? @event.InsertedVersion : @event.AggregateRootVersion));
+                                data.InsertedVersion > data.AggregateRootVersion ? data.InsertedVersion : data.AggregateRootVersion));
                         command.Parameters.Add(new SqlParameter(EventTable.Columns.EventType, IdMapper.GetId(@event.GetType())));
-                        command.Parameters.Add(new SqlParameter(EventTable.Columns.EventId, @event.EventId));
-                        command.Parameters.Add(new SqlParameter(EventTable.Columns.UtcTimeStamp, @event.UtcTimeStamp));
-                        command.Parameters.Add(new SqlParameter(EventTable.Columns.ManualReadOrder, refactoringEvent.ManualReadOrder));
+                        command.Parameters.Add(new SqlParameter(EventTable.Columns.EventId, data.EventId));
+                        command.Parameters.Add(new SqlParameter(EventTable.Columns.UtcTimeStamp, data.UtcTimeStamp));
+                        command.Parameters.Add(new SqlParameter(EventTable.Columns.ManualReadOrder, data.ManualReadOrder));
 
-                        command.Parameters.Add(new SqlParameter(EventTable.Columns.Event, refactoringEvent.EventJson));
+                        command.Parameters.Add(new SqlParameter(EventTable.Columns.Event, data.EventJson));
 
-                        command.Parameters.Add(Nullable(new SqlParameter(EventTable.Columns.ManualVersion, @event.ManualVersion)));
-                        command.Parameters.Add(Nullable(new SqlParameter(EventTable.Columns.InsertAfter, @event.InsertAfter)));
-                        command.Parameters.Add(Nullable(new SqlParameter(EventTable.Columns.InsertBefore, @event.InsertBefore)));
-                        command.Parameters.Add(Nullable(new SqlParameter(EventTable.Columns.Replaces, @event.Replaces)));
+                        command.Parameters.Add(Nullable(new SqlParameter(EventTable.Columns.ManualVersion, data.ManualVersion)));
+                        command.Parameters.Add(Nullable(new SqlParameter(EventTable.Columns.InsertAfter, data.InsertAfter)));
+                        command.Parameters.Add(Nullable(new SqlParameter(EventTable.Columns.InsertBefore, data.InsertBefore)));
+                        command.Parameters.Add(Nullable(new SqlParameter(EventTable.Columns.Replaces, data.Replaces)));
 
                         var identityParameter = new SqlParameter(EventTable.Columns.InsertionOrder, SqlDbType.BigInt)
                                                 {
@@ -68,7 +68,7 @@ SET @{EventTable.Columns.InsertionOrder} = SCOPE_IDENTITY();";
 
                         command.ExecuteNonQuery();
 
-                        @event.InsertionOrder = (long)identityParameter.Value;
+                        data.InsertionOrder = @event.InsertionOrder = (long)identityParameter.Value;
                     }
                 }
             }
@@ -173,7 +173,7 @@ SET @{EventTable.Columns.InsertionOrder} = SCOPE_IDENTITY();";
             SqlDecimal UseNextIntegerInsteadIfNullSinceThatMeansThisEventIsTheLastInTheEventStore(SqlDecimal nextReadOrder) => !nextReadOrder.IsNull ? nextReadOrder : ToCorrectPrecisionAndScale(new SqlDecimal(InsertionOrder + 1));
         }
 
-        IReadOnlyList<EventOrderNeighbourhood> LoadRelatedEventRefactoringInformation(IEnumerable<EventWriteDataRow> events)
+        IReadOnlyList<EventOrderNeighbourhood> LoadRelatedEventRefactoringInformation(IReadOnlyList<EventWriteDataRow> events)
         {
             var insertBefore = events.Select(@this => @this.InsertBefore).Where(@this => @this != null).ToSet();
             var insertAfter = events.Select(@this => @this.InsertAfter).Where(@this => @this != null).ToSet();

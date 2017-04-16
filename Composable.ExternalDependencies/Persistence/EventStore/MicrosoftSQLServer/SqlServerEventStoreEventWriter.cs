@@ -76,8 +76,6 @@ SET @{EventTable.Columns.InsertionOrder} = SCOPE_IDENTITY();";
 
         public void InsertRefactoringEvents(IReadOnlyList<EventWriteDataRow> events)
         {
-            var relatedEvents = LoadRelatedEventRefactoringInformation(events);
-
             var replacementGroup = events.Where(@event => @event.Replaces.HasValue)
                                          .GroupBy(@event => @event.Replaces.Value)
                                          .SingleOrDefault();
@@ -95,7 +93,7 @@ SET @{EventTable.Columns.InsertionOrder} = SCOPE_IDENTITY();";
             {
                 Contract.Assert.That(replacementGroup.All(@this => @this.Replaces.HasValue && @this.Replaces > 0),
                                      "replacementGroup.All(@this => @this.Replaces.HasValue && @this.Replaces > 0)");
-                var eventToReplace = relatedEvents.Single(@event => @event.InsertionOrder == replacementGroup.Key);
+                var eventToReplace = LoadEventOrderNeighbourhood(replacementGroup.Key);
 
                 SaveEventsWithinReadOrderRange(
                     newEvents: replacementGroup.ToArray(),
@@ -106,7 +104,7 @@ SET @{EventTable.Columns.InsertionOrder} = SCOPE_IDENTITY();";
             {
                 Contract.Assert.That(insertBeforeGroup.All(@this => @this.InsertBefore.HasValue && @this.InsertBefore.Value > 0),
                                      "insertBeforeGroup.All(@this => @this.InsertBefore.HasValue && @this.InsertBefore.Value > 0)");
-                var eventToInsertBefore = relatedEvents.Single(@event => @event.InsertionOrder == insertBeforeGroup.Key);
+                var eventToInsertBefore = LoadEventOrderNeighbourhood(insertBeforeGroup.Key);
 
                 SaveEventsWithinReadOrderRange(
                     newEvents: insertBeforeGroup.ToArray(),
@@ -117,7 +115,7 @@ SET @{EventTable.Columns.InsertionOrder} = SCOPE_IDENTITY();";
             {
                 Contract.Assert.That(insertAfterGroup.All(@this => @this.InsertAfter.HasValue && @this.InsertAfter.Value > 0),
                                      "insertAfterGroup.All(@this => @this.InsertAfter.HasValue && @this.InsertAfter.Value > 0)");
-                var eventToInsertAfter = relatedEvents.Single(@event => @event.InsertionOrder == insertAfterGroup.Key);
+                var eventToInsertAfter = LoadEventOrderNeighbourhood(insertAfterGroup.Key);
 
                 SaveEventsWithinReadOrderRange(
                     newEvents: insertAfterGroup.ToArray(),
@@ -173,14 +171,8 @@ SET @{EventTable.Columns.InsertionOrder} = SCOPE_IDENTITY();";
             SqlDecimal UseNextIntegerInsteadIfNullSinceThatMeansThisEventIsTheLastInTheEventStore(SqlDecimal nextReadOrder) => !nextReadOrder.IsNull ? nextReadOrder : ToCorrectPrecisionAndScale(new SqlDecimal(InsertionOrder + 1));
         }
 
-        IReadOnlyList<EventOrderNeighbourhood> LoadRelatedEventRefactoringInformation(IReadOnlyList<EventWriteDataRow> events)
+        EventOrderNeighbourhood LoadEventOrderNeighbourhood(long insertionOrder)
         {
-            var relatedEventsInsertionOrderList = events.SelectMany(@this => Seq.Create(@this.InsertBefore, @this.InsertAfter, @this.Replaces))
-                                                        .Where(@this => @this != null)
-                                                        .Select(@this => @this.ToString())
-                                                        .Distinct()
-                                                        .Join(", ");
-
             var lockHintToMinimizeRiskOfDeadlocksByTakingUpdatelockOnInitialRead = "With(UPDLOCK, READCOMMITTED, ROWLOCK)";
 
             var selectStatement = $@"
@@ -188,37 +180,33 @@ SELECT  {EventTable.Columns.InsertionOrder},
         {EventTable.Columns.EffectiveReadOrder},        
         (select top 1 EffectiveReadorder from Event e1 where e1.EffectiveReadOrder < Event.EffectiveReadOrder order by EffectiveReadOrder desc) PreviousReadOrder,
         (select top 1 EffectiveReadorder from Event e1 where e1.EffectiveReadOrder > Event.EffectiveReadOrder order by EffectiveReadOrder) NextReadOrder
-FROM    {EventTable.Name} {lockHintToMinimizeRiskOfDeadlocksByTakingUpdatelockOnInitialRead} ";
+FROM    {EventTable.Name} {lockHintToMinimizeRiskOfDeadlocksByTakingUpdatelockOnInitialRead} 
+where {EventTable.Columns.InsertionOrder} = {insertionOrder}";
 
 
 
-            var originalsStatement =
-                $@"{selectStatement} where {EventTable.Columns.InsertionOrder} in ( {relatedEventsInsertionOrderList} )";
 
-            var relatedEvents = new List<EventOrderNeighbourhood>();
+            EventOrderNeighbourhood neighbourhood = null;
 
             _connectionMananger.UseCommand(
                 command =>
                 {
                     command.CommandType = CommandType.Text;
-                    command.CommandText = originalsStatement;
+                    command.CommandText = selectStatement;
 
                     using (var reader = command.ExecuteReader())
                     {
-                        while (reader.Read())
-                        {
-                            relatedEvents.Add(
-                                new EventOrderNeighbourhood(
-                                    insertionOrder: reader.GetInt64(0),
-                                    effectiveReadOrder: reader.GetSqlDecimal(1),
-                                    previousReadOrder: reader.GetSqlDecimal(2),
-                                    nextReadOrder: reader.GetSqlDecimal(3)
-                                ));
-                        }
+                        reader.Read();
+
+                        neighbourhood = new EventOrderNeighbourhood(
+                            insertionOrder: reader.GetInt64(0),
+                            effectiveReadOrder: reader.GetSqlDecimal(1),
+                            previousReadOrder: reader.GetSqlDecimal(2),
+                            nextReadOrder: reader.GetSqlDecimal(3));
                     }
                 });
 
-            return relatedEvents;
+            return neighbourhood;
         }
 
         static SqlParameter Nullable(SqlParameter @this)

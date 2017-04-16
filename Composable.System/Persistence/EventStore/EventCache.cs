@@ -20,12 +20,9 @@ namespace Composable.Persistence.EventStore
 
         public Entry Get(Guid id) => (Entry)_internalCache.Get(id.ToString()) ?? Entry.Empty;
 
-        public void Store(Guid id, Entry entry)
-        {
-            _internalCache.Set(key: id.ToString(), policy: Policy, value: entry);
-        }
+        public void Store(Guid id, Entry entry) => _internalCache.Set(key: id.ToString(), policy: Policy, value: entry);
 
-        public void Remove(Guid id) { _internalCache.Remove(key: id.ToString()); }
+        public void Remove(Guid id) => _internalCache.Remove(key: id.ToString());
 
         internal class Entry
         {

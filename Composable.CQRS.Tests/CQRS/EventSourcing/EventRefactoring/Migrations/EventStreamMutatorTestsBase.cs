@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Composable.DependencyInjection;
 using Composable.DependencyInjection.Persistence;
+using Composable.DependencyInjection.Testing;
 using Composable.GenericAbstractions.Time;
 using Composable.Logging;
 using Composable.Persistence.EventStore;
@@ -101,6 +102,14 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
 
             AssertStreamsAreIdentical(expectedCompleteEventstoreStream, streamedEvents, "Streaming all events in store");
 
+
+            //Make sure that other processes that might be using the same aggregate also keep working as we persist the migrations.
+            var clonedServiceLocator = serviceLocator.Clone();
+            migratedHistory = clonedServiceLocator.ExecuteUnitOfWorkInIsolatedScope(() => clonedServiceLocator.Resolve<ITestingEventstoreUpdater>()
+                                                                                                        .Get<TestAggregate>(initialAggregate.Id))
+                                                  .History;
+            AssertStreamsAreIdentical(expected, migratedHistory, "Loaded aggregate");
+
             SafeConsole.WriteLine("  Persisting migrations");
             using(serviceLocator.BeginScope())
             {
@@ -109,6 +118,11 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
             }
 
             migratedHistory = serviceLocator.ExecuteUnitOfWorkInIsolatedScope(() => serviceLocator.Resolve<ITestingEventstoreUpdater>()
+                                                                                                  .Get<TestAggregate>(initialAggregate.Id))
+                                            .History;
+            AssertStreamsAreIdentical(expected, migratedHistory, "Loaded aggregate");
+
+            migratedHistory = clonedServiceLocator.ExecuteUnitOfWorkInIsolatedScope(() => clonedServiceLocator.Resolve<ITestingEventstoreUpdater>()
                                                                                                   .Get<TestAggregate>(initialAggregate.Id))
                                             .History;
             AssertStreamsAreIdentical(expected, migratedHistory, "Loaded aggregate");

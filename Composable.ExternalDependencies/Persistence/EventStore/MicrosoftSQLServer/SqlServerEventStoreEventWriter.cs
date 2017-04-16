@@ -175,9 +175,11 @@ SET @{EventTable.Columns.InsertionOrder} = SCOPE_IDENTITY();";
 
         IReadOnlyList<EventOrderNeighbourhood> LoadRelatedEventRefactoringInformation(IReadOnlyList<EventWriteDataRow> events)
         {
-            var insertBefore = events.Select(@this => @this.InsertBefore).Where(@this => @this != null).ToSet();
-            var insertAfter = events.Select(@this => @this.InsertAfter).Where(@this => @this != null).ToSet();
-            var replaces = events.Select(@this => @this.Replaces).Where(@this => @this != null).ToSet();
+            var relatedEventsInsertionOrderList = events.SelectMany(@this => Seq.Create(@this.InsertBefore, @this.InsertAfter, @this.Replaces))
+                                                        .Where(@this => @this != null)
+                                                        .Select(@this => @this.ToString())
+                                                        .Distinct()
+                                                        .Join(", ");
 
             var lockHintToMinimizeRiskOfDeadlocksByTakingUpdatelockOnInitialRead = "With(UPDLOCK, READCOMMITTED, ROWLOCK)";
 
@@ -191,9 +193,7 @@ FROM    {EventTable.Name} {lockHintToMinimizeRiskOfDeadlocksByTakingUpdatelockOn
 
 
             var originalsStatement =
-                $@"{selectStatement} where {EventTable.Columns.InsertionOrder} in ( {replaces.Concat(insertBefore).Concat(insertAfter)
-                                                                                             .Select(@this => @this.ToString())
-                                                                                             .Join(", ")} )";
+                $@"{selectStatement} where {EventTable.Columns.InsertionOrder} in ( {relatedEventsInsertionOrderList} )";
 
             var relatedEvents = new List<EventOrderNeighbourhood>();
 

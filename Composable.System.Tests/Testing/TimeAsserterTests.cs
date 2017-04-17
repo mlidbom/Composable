@@ -14,8 +14,7 @@ namespace Composable.Tests.Testing
                 action: () => {},
                 iterations: 100,
                 timeFormat:"ffff",
-                maxTotal: 1.Milliseconds(),
-                maxTries: 5
+                maxTotal: 1.Milliseconds()
             );
         }
 
@@ -27,8 +26,7 @@ namespace Composable.Tests.Testing
                 action: () => {},
                 iterations: 100,
                 timeFormat: "ffff",
-                maxTotal: 1.Milliseconds(),
-                maxTries: 5
+                maxTotal: 1.Milliseconds()
             );
         }
     }

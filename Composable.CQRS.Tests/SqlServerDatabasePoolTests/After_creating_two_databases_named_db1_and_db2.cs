@@ -67,17 +67,6 @@ namespace Composable.CQRS.Tests.SqlServerDatabasePoolTests
             _dB1ConnectionString.Should().NotBe(_dB2ConnectionString);
         }
 
-
-        [Test]
-        public void Six_competing_threads_can_reserve_and_release_100_databases_in_10_seconds()
-        {
-            TimeAsserter.ExecuteThreaded(action:
-                () =>
-                {
-
-                }, maxTotal: 10.Seconds());
-        }
-
         [TearDown]
         public void TearDownTask()
         {

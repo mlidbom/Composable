@@ -121,8 +121,7 @@ namespace Composable.CQRS.Tests.NewtonSoft
                                      _eventSerializer.Deserialize(typeof(TestEvent), eventJson);
                                  },
                                  iterations:10000,
-                                 maxTotal: 100.Milliseconds().AdjustRuntimeToTestEnvironment(),
-                                 maxTries:10
+                                 maxTotal: 100.Milliseconds().AdjustRuntimeToTestEnvironment()
                                 );
         }
 
@@ -162,8 +161,7 @@ namespace Composable.CQRS.Tests.NewtonSoft
                                      _eventSerializer.Deserialize(typeof(TestEvent), eventJson);
                                  },
                                  iterations: iterations,
-                                 maxTotal: allowedTime,
-                                 maxTries: 10);
+                                 maxTotal: allowedTime);
         }
     }
 }

@@ -19,7 +19,6 @@ namespace Composable.Tests.StrictlyManagedResource
                                  iterations: 40,
                                  maxTotal: 10.Milliseconds()
                                              .AdjustRuntimeToTestEnvironment(),
-                                 maxTries: 10,
                                  timeFormat: "s\\.ffffff");
         }
 
@@ -28,7 +27,6 @@ namespace Composable.Tests.StrictlyManagedResource
             TimeAsserter.Execute(() => new StrictlyManagedResource<StrictResource>().Dispose(),
                                  iterations: 5000,
                                  maxTotal: 10.Milliseconds(),
-                                 maxTries: 10,
                                  timeFormat: "s\\.ffffff");
         }
 
@@ -39,7 +37,6 @@ namespace Composable.Tests.StrictlyManagedResource
                                  iterations: 2000,
                                  maxTotal: 10.Milliseconds()
                                              .AdjustRuntimeToTestEnvironment(),
-                                 maxTries: 10,
                                  timeFormat: "s\\.ffffff");
         }
     }

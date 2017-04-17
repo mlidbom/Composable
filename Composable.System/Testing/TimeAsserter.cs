@@ -45,7 +45,7 @@ namespace Composable.Testing
              TimeSpan? maxTotal = null,
              string description = "",
              string timeFormat = DefaultTimeFormat,
-             int maxTries = 1,
+             int maxTries = 10,
              [InstantHandle]Action setup = null,
              [InstantHandle]Action tearDown = null)
         {
@@ -97,7 +97,7 @@ namespace Composable.Testing
              string timeFormat = DefaultTimeFormat,
              [InstantHandle]Action setup = null,
              [InstantHandle]Action tearDown = null,
-             int maxTries = 1)
+             int maxTries = 10)
         {
             StopwatchExtensions.TimedThreadedExecutionSummary executionSummary = null;
 

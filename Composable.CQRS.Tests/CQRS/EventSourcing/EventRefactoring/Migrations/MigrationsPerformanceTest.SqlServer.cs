@@ -43,8 +43,7 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
                     maxTotal: 20.Milliseconds().AdjustRuntimeToTestEnvironment(),
                     description: "load aggregate in isolated scope",
                     timeFormat: "fff",
-                    action: () => serviceLocator.ExecuteInIsolatedScope(() => serviceLocator.Resolve<ITestingEventstoreUpdater>().Get<TestAggregate>(aggregate.Id)),
-                    maxTries: 3);
+                    action: () => serviceLocator.ExecuteInIsolatedScope(() => serviceLocator.Resolve<ITestingEventstoreUpdater>().Get<TestAggregate>(aggregate.Id)));
             }
         }
 
@@ -58,22 +57,24 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
             Before<E8>.Insert<E4>(),
             Before<E9>.Insert<E5>()).ToArray();
 
-        using (var serviceLocator = CreateServiceLocatorForEventStoreType(() => eventMigrations, EventStoreType))
-        {
-          var timeSource = serviceLocator.Resolve<DummyTimeSource>();
 
-          var history = Seq.OfTypes<Ec1>().Concat(1.Through(10000).Select(index => typeof(E1))).ToArray();
-          var aggregate = TestAggregate.FromEvents(timeSource, Guid.NewGuid(), history);
-          serviceLocator.ExecuteUnitOfWorkInIsolatedScope(() => serviceLocator.Resolve<ITestingEventstoreUpdater>().Save(aggregate));
 
+            IServiceLocator serviceLocator = null;
+
+          TestAggregate aggregate = null;
           TimeAsserter.Execute(
             maxTotal: 500.Milliseconds().AdjustRuntimeToTestEnvironment(),
-            description: "load aggregate in isolated scope",
-            action:
-            () =>
-              serviceLocator.ExecuteInIsolatedScope(
-                () => serviceLocator.Resolve<ITestingEventstoreUpdater>().Get<TestAggregate>(aggregate.Id)));
-        }
+            setup: () =>
+                   {
+                       serviceLocator = CreateServiceLocatorForEventStoreType(() => eventMigrations, EventStoreType);
+                       var timeSource = serviceLocator.Resolve<DummyTimeSource>();
+                       var history = Seq.OfTypes<Ec1>().Concat(1.Through(10000).Select(index => typeof(E1))).ToArray();
+                       aggregate = TestAggregate.FromEvents(timeSource, Guid.NewGuid(), history);
+                       serviceLocator.ExecuteUnitOfWorkInIsolatedScope(() => serviceLocator.Resolve<ITestingEventstoreUpdater>().Save(aggregate));
+
+                   },
+            tearDown: () => serviceLocator?.Dispose(),
+            action:() => serviceLocator.ExecuteInIsolatedScope(() => serviceLocator.Resolve<ITestingEventstoreUpdater>().Get<TestAggregate>(aggregate.Id)));
       }
 
         [Test] public void A_ten_thousand_events_large_aggregate_with_no_migrations_should_load_uncached_in_less_than_300_milliseconds()
@@ -94,8 +95,7 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
                                                                                                                      .Save(aggregate));
                                                        },
                                                 action: () => serviceLocator.ExecuteInIsolatedScope(() => serviceLocator.Resolve<ITestingEventstoreUpdater>()
-                                                                                                              .Get<TestAggregate>(aggregate.Id)),
-                                                maxTries: 10);
+                                                                                                              .Get<TestAggregate>(aggregate.Id)));
 
                 time.Total.Should()
                     .BeGreaterThan(50.Milliseconds(), "It seems we have changed cache behavior and need to refactor this test. We try for speed but this is not likely to ever be achieved uncached.");
@@ -119,8 +119,7 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
           action:
           () =>
             serviceLocator.ExecuteInIsolatedScope(
-              () => serviceLocator.Resolve<ITestingEventstoreUpdater>().Get<TestAggregate>(aggregate.Id)),
-          maxTries: 3);
+              () => serviceLocator.Resolve<ITestingEventstoreUpdater>().Get<TestAggregate>(aggregate.Id)));
       }
     }
 

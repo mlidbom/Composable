@@ -40,8 +40,7 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
 
                 TimeAsserter.Execute(
                     maxTotal: 300.Milliseconds().AdjustRuntimeToTestEnvironment(),
-                    action: () => serviceLocator.ExecuteInIsolatedScope(() => serviceLocator.Resolve<ITestingEventstoreUpdater>().Get<TestAggregate>(aggregate.Id))
-                    , maxTries: 10);
+                    action: () => serviceLocator.ExecuteInIsolatedScope(() => serviceLocator.Resolve<ITestingEventstoreUpdater>().Get<TestAggregate>(aggregate.Id)));
             }
         }
     }

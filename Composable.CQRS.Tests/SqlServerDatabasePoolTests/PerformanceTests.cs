@@ -37,8 +37,7 @@ namespace Composable.CQRS.Tests.SqlServerDatabasePoolTests
                     }
                 },
                 iterations: 10,
-                maxTotal: 30.Milliseconds(),
-                maxTries: 10);
+                maxTotal: 30.Milliseconds());
         }
 
         [Test]
@@ -57,8 +56,7 @@ namespace Composable.CQRS.Tests.SqlServerDatabasePoolTests
                 },
                 iterations: 10,
                 timeIndividualExecutions: true,
-                maxTotal: 50.Milliseconds(),
-                maxTries: 10);
+                maxTotal: 50.Milliseconds());
         }
 
         [Test]
@@ -76,7 +74,6 @@ namespace Composable.CQRS.Tests.SqlServerDatabasePoolTests
                 action: () => manager.ConnectionStringFor(Guid.NewGuid()
                                                               .ToString()),
                 iterations: 10,
-                maxTries: 10,
                 maxTotal: 20.Milliseconds()
             );
         }
@@ -96,7 +93,6 @@ namespace Composable.CQRS.Tests.SqlServerDatabasePoolTests
                 action: () => manager.ConnectionStringFor(Guid.NewGuid()
                                                               .ToString()),
                 iterations: 10,
-                maxTries: 10,
                 maxTotal: 15.Milliseconds()
             );
         }

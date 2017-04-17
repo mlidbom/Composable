@@ -52,7 +52,6 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
                 TimeAsserter.Execute(
                     maxTotal: maxTotal,
                     description: "load aggregate in isolated scope",
-                    maxTries: 10,
                     timeFormat: "ss\\.fff",
                     action: () => container.ExecuteInIsolatedScope(() =>  container.Resolve<ITestingEventstoreUpdater>().Get<TestAggregate>(_aggregate.Id)));
             }
@@ -77,8 +76,7 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
             TimeAsserter.Execute(
                 maxTotal: 180.Milliseconds().AdjustRuntimeToTestEnvironment(),
                 // ReSharper disable once ObjectCreationAsStatement
-                action: () => new TestAggregate2(history),
-                maxTries: 10);
+                action: () => new TestAggregate2(history));
         }
 
         [Test]
@@ -109,17 +107,14 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
                 maxTotal: maxtime,
                 description: $"{nameof(before)}",
                 iterations: numberOfEventsToInspect,
-                maxTries:3,
                 action: () => before.MigrateEvent(@event, eventModifier));
             TimeAsserter.Execute(
                 maxTotal: maxtime,
-                maxTries: 3,
                 description: $"{nameof(replace)}",
                 iterations: numberOfEventsToInspect,
                 action: () => replace.MigrateEvent(@event, eventModifier));
             TimeAsserter.Execute(
                 maxTotal: maxtime,
-                maxTries: 3,
                 description: $"{nameof(after)}",
                 iterations: numberOfEventsToInspect,
                 action: () => after.MigrateEvent(@event, eventModifier));

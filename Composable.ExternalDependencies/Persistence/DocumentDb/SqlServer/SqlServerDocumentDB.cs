@@ -15,7 +15,8 @@ namespace Composable.Persistence.DocumentDb.SqlServer
 {
     class SqlServerDocumentDb : IDocumentDb
     {
-        readonly string _connectionString;
+        readonly Lazy<string> _connectionString;
+        string ConnectionString => _connectionString.Value;
 
         static readonly JsonSerializerSettings JsonSettings = NewtonSoft.JsonSettings.JsonSerializerSettings;
 
@@ -23,7 +24,7 @@ namespace Composable.Persistence.DocumentDb.SqlServer
 
         readonly object _lockObject = new object();
 
-        protected SqlServerDocumentDb(string connectionString) => _connectionString = connectionString;
+        protected SqlServerDocumentDb(Lazy<string> connectionString) => _connectionString = connectionString;
 
         bool _initialized;
         ConcurrentDictionary<Type, int> _knownTypes = null;
@@ -297,7 +298,7 @@ WHERE ValueTypeId ";
 
         SqlConnection OpenSession()
         {
-            var connection = new SqlConnection(_connectionString);
+            var connection = new SqlConnection(ConnectionString);
             connection.Open();
             return connection;
         }

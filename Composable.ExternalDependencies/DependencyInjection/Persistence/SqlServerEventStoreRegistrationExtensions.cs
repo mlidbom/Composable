@@ -114,19 +114,17 @@ namespace Composable.DependencyInjection.Persistence
                                         .LifestyleScoped());
             } else
             {
-                string GetConnectionString(IServiceLocatorKernel sl) => sl.Resolve<IConnectionStringProvider>()
-                                                                    .GetConnectionString(connectionName)
-                                                                    .ConnectionString;
-
-
                 @this.Register(
                     Component.For<IEventstorePersistenceLayer<TSessionInterface>>()
                                 .UsingFactoryMethod(sl =>
                                                     {
-                                                        var connectionString = GetConnectionString(sl);
+                                                        var lazyConnectionString = new Lazy<string>(() => sl.Resolve<IConnectionStringProvider>()
+                                                                                                            .GetConnectionString(connectionName)
+                                                                                                            .ConnectionString);
+
                                                         IEventNameMapper nameMapper = new DefaultEventNameMapper();
-                                                        var connectionManager = new SqlServerEventStoreConnectionManager(connectionString);
-                                                        var schemaManager = new SqlServerEventStoreSchemaManager(connectionString, nameMapper);
+                                                        var connectionManager = new SqlServerEventStoreConnectionManager(lazyConnectionString);
+                                                        var schemaManager = new SqlServerEventStoreSchemaManager(lazyConnectionString, nameMapper);
                                                         var eventReader = new SqlServerEventStoreEventReader(connectionManager, schemaManager);
                                                         var eventWriter = new SqlServerEventStoreEventWriter(connectionManager, schemaManager);
                                                         return new EventstorePersistenceLayer<TSessionInterface>(schemaManager, eventReader, eventWriter);

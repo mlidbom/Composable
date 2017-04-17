@@ -13,18 +13,18 @@ namespace Composable.Persistence.EventStore.MicrosoftSQLServer
         readonly Dictionary<string, IEventTypeToIdMapper> _connectionIdMapper = new Dictionary<string, IEventTypeToIdMapper>();
         readonly EventTableSchemaManager _eventTable = new EventTableSchemaManager();
         readonly EventTypeTableSchemaManager _eventTypeTable = new EventTypeTableSchemaManager();
-        public SqlServerEventStoreSchemaManager(string connectionString, IEventNameMapper nameMapper)
+        public SqlServerEventStoreSchemaManager(Lazy<string> connectionString, IEventNameMapper nameMapper)
         {
-            ConnectionString = connectionString;
+            _connectionString = connectionString;
             _nameMapper = nameMapper;
         }
 
         readonly IEventNameMapper _nameMapper;
 
-
         public IEventTypeToIdMapper IdMapper { get; private set; }
 
-        string ConnectionString { get; }
+        Lazy<string> _connectionString;
+        string ConnectionString => _connectionString.Value;
 
         SqlConnection OpenConnection()
         {
@@ -54,7 +54,7 @@ AT:
                 {
                     using(var connection = OpenConnection())
                     {
-                        IdMapper = new SqlServerEventStoreEventTypeToIdMapper(ConnectionString, _nameMapper);
+                        IdMapper = new SqlServerEventStoreEventTypeToIdMapper(_connectionString, _nameMapper);
 
                         _connectionIdMapper[ConnectionString] = IdMapper;
 

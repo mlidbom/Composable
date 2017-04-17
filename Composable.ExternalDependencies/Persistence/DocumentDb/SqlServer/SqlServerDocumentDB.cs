@@ -56,7 +56,7 @@ SELECT Value, ValueTypeId FROM Store {lockHint}
 WHERE Id=@Id AND ValueTypeId
 ";
                     string idString = GetIdString(key);
-                    command.Parameters.Add(new SqlParameter("Id", idString));
+                    command.Parameters.Add(new SqlParameter("Id", SqlDbType.NVarChar, 500) {Value = idString});
 
                     AddTypeCriteria(command, typeof(TValue));
 
@@ -94,11 +94,11 @@ WHERE Id=@Id AND ValueTypeId
 
                     command.CommandText += @"INSERT INTO Store(Id, ValueTypeId, Value) VALUES(@Id, @ValueTypeId, @Value)";
 
-                    command.Parameters.Add(new SqlParameter("Id", idString));
-                    command.Parameters.Add(new SqlParameter("ValueTypeId", _knownTypes[value.GetType()]));
+                    command.Parameters.Add(new SqlParameter("Id", SqlDbType.NVarChar, 500) { Value = idString });
+                    command.Parameters.Add(new SqlParameter("ValueTypeId", SqlDbType.Int) {Value = _knownTypes[value.GetType()]});
 
                     var stringValue = JsonConvert.SerializeObject(value, Formatting.None, JsonSettings);
-                    command.Parameters.Add(new SqlParameter("Value", stringValue));
+                    command.Parameters.Add(new SqlParameter("Value", SqlDbType.NVarChar, -1) {Value = stringValue});
 
                     persistentValues.GetOrAddDefault(value.GetType())[idString] = stringValue;
                     try
@@ -134,7 +134,7 @@ WHERE Id=@Id AND ValueTypeId
                     command.CommandType = CommandType.Text;
                     command.CommandText += "DELETE Store WHERE ValueTypeId = @TypeId";
 
-                    command.Parameters.Add(new SqlParameter("TypeId", _knownTypes[typeof(T)]));
+                    command.Parameters.Add(new SqlParameter("TypeId", SqlDbType.Int) {Value = _knownTypes[typeof(T)]});
 
                     return command.ExecuteNonQuery();
                 }
@@ -150,7 +150,7 @@ WHERE Id=@Id AND ValueTypeId
                 {
                     command.CommandType = CommandType.Text;
                     command.CommandText += "DELETE Store WHERE Id = @Id AND ValueTypeId ";
-                    command.Parameters.Add(new SqlParameter("Id", GetIdString(id)));
+                    command.Parameters.Add(new SqlParameter("Id", SqlDbType.NVarChar, 500) {Value = GetIdString(id)});
 
                     AddTypeCriteria(command, documentType);
 
@@ -187,11 +187,11 @@ WHERE Id=@Id AND ValueTypeId
                         {
                             persistentValues.GetOrAddDefault(entry.Value.GetType())[idString] = stringValue;
                             command.CommandText += "UPDATE Store SET Value = @Value WHERE Id = @Id AND ValueTypeId \n";
-                            command.Parameters.Add(new SqlParameter("Id", entry.Key));
+                            command.Parameters.Add(new SqlParameter("Id", SqlDbType.NVarChar, 500) {Value = entry.Key});
 
                             AddTypeCriteria(command, entry.Value.GetType());
 
-                            command.Parameters.Add(new SqlParameter("Value", stringValue));
+                            command.Parameters.Add(new SqlParameter("Value", SqlDbType.NVarChar, -1) {Value = stringValue});
                         }
                         if(!command.CommandText.IsNullOrWhiteSpace())
                         {
@@ -325,7 +325,7 @@ ELSE
 	END
 ";
                             command.Parameters.Add(new SqlParameter("ValueTypeId", SqlDbType.Int) {Direction = ParameterDirection.Output});
-                            command.Parameters.Add(new SqlParameter("ValueType", type.FullName));
+                            command.Parameters.Add(new SqlParameter("ValueType", SqlDbType.VarChar, 500) {Value = type.FullName});
                             command.ExecuteNonQuery();
                             _knownTypes.TryAdd(type, (int)command.Parameters["ValueTypeId"].Value);
                         }

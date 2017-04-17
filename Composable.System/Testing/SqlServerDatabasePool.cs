@@ -51,8 +51,12 @@ namespace Composable.Testing
             _masterConnectionString = masterConnectionString;
             _masterConnection = new SqlServerConnectionUtilities(_masterConnectionString);
 
-            var sqlConnectionStringBuilder = new SqlConnectionStringBuilder(_masterConnectionString) {InitialCatalog = ManagerDbName};
-            _managerConnection = new SqlServerConnectionUtilities(sqlConnectionStringBuilder.ConnectionString);
+            var managerConnectionString = masterConnectionString.Replace(";Initial Catalog=master;", $";Initial Catalog={ManagerDbName};");
+            if(managerConnectionString == _masterConnectionString)
+            {
+                throw new ArgumentException("masterConnectionString must contain the exact string: ';Initial Catalog=master;' in order for the manager connection string to be constructed.");
+            }
+            _managerConnection = new SqlServerConnectionUtilities(managerConnectionString);
         }
 
         readonly Dictionary<string, Database> _reservedDatabases = new Dictionary<string, Database>();

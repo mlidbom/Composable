@@ -81,7 +81,7 @@ namespace Composable.System.Data.SqlClient
             {
                 if (Transaction.Current.TransactionInformation.DistributedIdentifier != Guid.Empty)
                 {
-                    throw new Exception($"Opening connection escalated transaction to distributed. For now this is disallowed:\n{Environment.StackTrace}");
+                    throw new Exception($"Opening connection escalated transaction to distributed. For now this is disallowed");
                 }
             }
             return connection;

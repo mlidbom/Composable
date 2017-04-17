@@ -5,6 +5,7 @@ using Composable.Contracts;
 using Composable.CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations.Events;
 using Composable.DependencyInjection;
 using Composable.DependencyInjection.Persistence;
+using Composable.DependencyInjection.Testing;
 using Composable.GenericAbstractions.Time;
 using Composable.Persistence.EventStore;
 using Composable.Persistence.EventStore.AggregateRoots;
@@ -37,10 +38,13 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
         }
 
 
-        void AssertAggregateLoadTime(TimeSpan maxTotal)
+        void AssertUncachedAggregateLoadTime(TimeSpan maxTotal, IReadOnlyList<IEventMigration> migrations)
         {
+            IReadOnlyList<IEventMigration> currentMigrations = Seq.Empty<IEventMigration>().ToList();
             var container = DependencyInjectionContainer.CreateServiceLocatorForTesting(
-                cont => cont.RegisterSqlServerEventStore<ITestingEventstoreUpdater, ITestingEventstoreReader>("dummy connection name"));
+                cont => cont.RegisterSqlServerEventStoreForFlexibleTesting<ITestingEventstoreUpdater, ITestingEventstoreReader>(connectionName: "dummy connection name",
+                                                                                                                                mode: TestingMode.RealComponents,
+                                                                                                                                migrations: () => currentMigrations));
 
             using(container)
             {
@@ -49,11 +53,16 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
                     container.Use<IEventStore<ITestingEventstoreUpdater, ITestingEventstoreReader>>(store => store.SaveEvents(_history));
                 }
 
+                currentMigrations = migrations;
+
+                IServiceLocator clonedLocator = null;
                 TimeAsserter.Execute(
                     maxTotal: maxTotal,
                     description: "load aggregate in isolated scope",
                     timeFormat: "ss\\.fff",
-                    action: () => container.ExecuteInIsolatedScope(() =>  container.Resolve<ITestingEventstoreUpdater>().Get<TestAggregate>(_aggregate.Id)));
+                    setup: () => clonedLocator = container.Clone(),
+                    tearDown: () => clonedLocator?.Dispose(),
+                    action: () => clonedLocator.ExecuteInIsolatedScope(() => clonedLocator.Resolve<ITestingEventstoreUpdater>().Get<TestAggregate>(_aggregate.Id)));
             }
         }
 
@@ -80,15 +89,37 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
         }
 
         [Test]
-        public void With_four_migrations_mutation_that_all_actually_changes_things_loading_takes_less_than_15_milliseconds()
+        public void With_four_migrations_mutation_that_all_actually_changes_things_uncached_loading_takes_less_than_500_milliseconds()
         {
-            AssertAggregateLoadTime(15.Milliseconds().AdjustRuntimeToTestEnvironment());
+            var eventMigrations = Seq.Create<IEventMigration>(
+                Before<E2>.Insert<E3>()
+                ,Before<E4>.Insert<E5>()
+                ,Before<E6>.Insert<E7>()
+                ,Before<E8>.Insert<E9>()
+            ).ToArray();
+
+            AssertUncachedAggregateLoadTime(500.Milliseconds(), eventMigrations);
         }
 
         [Test]
-        public void With_four_migrations_that_change_nothing_loading_takes_less_than_10_milliseconds()
+        public void With_four_migrations_that_change_nothing_uncached_loading_takes_less_than_500_milliseconds()
         {
-            AssertAggregateLoadTime(10.Milliseconds().AdjustRuntimeToTestEnvironment());
+            var eventMigrations = Seq.Create<IEventMigration>(
+                Before<E3>.Insert<E1>(),
+                Before<E5>.Insert<E1>(),
+                Before<E7>.Insert<E1>(),
+                Before<E9>.Insert<E1>()
+            ).ToArray();
+
+            AssertUncachedAggregateLoadTime(500.Milliseconds(), eventMigrations);
+        }
+
+        [Test]
+        public void When_there_are_no_migrations_uncached_loading_takes_less_than_500_milliseconds()
+        {
+            var eventMigrations = Seq.Create<IEventMigration>().ToArray();
+            AssertUncachedAggregateLoadTime(500.Milliseconds(), eventMigrations);
+
         }
 
         [Test]
@@ -118,13 +149,6 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
                 description: $"{nameof(after)}",
                 iterations: numberOfEventsToInspect,
                 action: () => after.MigrateEvent(@event, eventModifier));
-        }
-
-        [Test]
-        public void When_there_are_no_migrations_loading_takes_less_than_40_milliseconds()
-        {
-            AssertAggregateLoadTime(40.Milliseconds());
-
         }
 
         class DummyEventModifier : IEventModifier

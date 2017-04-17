@@ -1,4 +1,4 @@
-﻿namespace AccountManagement.TestHelpers
+﻿namespace AccountManagement.Tests
 {
     public static class TestData
     {
@@ -27,14 +27,14 @@
             static int _passwordCount = 1;
             internal static string CreateValidPasswordString() => "SomeComplexPassword" + _passwordCount++;
 
-            public static Domain.Password CreateValidPassword() => new Domain.Password(CreateValidPasswordString());
+            public static AccountManagement.Domain.Password CreateValidPassword() => new AccountManagement.Domain.Password(CreateValidPasswordString());
         }
 
         internal static class Email
         {
             static int _registeredAccounts = 1;
 
-            public static Domain.Email CreateValidEmail() => Domain.Email.Parse($"test.test@test{_registeredAccounts++}.se");
+            public static AccountManagement.Domain.Email CreateValidEmail() => AccountManagement.Domain.Email.Parse($"test.test@test{_registeredAccounts++}.se");
         }
     }
 }

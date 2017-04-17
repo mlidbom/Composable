@@ -1,10 +1,10 @@
 ﻿using System.Linq;
 using AccountManagement.Domain.Events;
-using AccountManagement.TestHelpers.Scenarios;
+using AccountManagement.Tests.Scenarios;
 using FluentAssertions;
 using NUnit.Framework;
 
-namespace AccountManagement.Domain.Tests.After_a_user_has_registered_an_account
+namespace AccountManagement.Tests.Domain.After_a_user_has_registered_an_account
 {
     public class After_they_change_their_password : DomainTestBase
     {

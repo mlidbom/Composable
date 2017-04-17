@@ -1,9 +1,10 @@
-﻿using AccountManagement.UI.QueryModels.Services;
+﻿using AccountManagement.UI.QueryModels;
+using AccountManagement.UI.QueryModels.Services;
 using Composable.DependencyInjection;
 using FluentAssertions;
 using NUnit.Framework;
 
-namespace AccountManagement.UI.QueryModels.Tests.FetchingAccountByEmailTests
+namespace AccountManagement.Tests.UI.QueryModels.FetchingAccountByEmailTests
 {
     [TestFixture]
     public class AfterAccountIsRegistered : RegistersAccountDuringSetupAccountQueryModelTestBase

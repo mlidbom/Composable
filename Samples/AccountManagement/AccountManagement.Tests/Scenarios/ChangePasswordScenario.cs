@@ -2,7 +2,7 @@
 using AccountManagement.Domain.Services;
 using Composable.DependencyInjection;
 
-namespace AccountManagement.TestHelpers.Scenarios
+namespace AccountManagement.Tests.Scenarios
 {
     public class ChangePasswordScenario
     {

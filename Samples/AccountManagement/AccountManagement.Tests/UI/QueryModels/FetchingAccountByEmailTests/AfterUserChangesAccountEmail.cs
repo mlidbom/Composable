@@ -1,10 +1,11 @@
-﻿using AccountManagement.TestHelpers.Scenarios;
+﻿using AccountManagement.Tests.Scenarios;
+using AccountManagement.UI.QueryModels;
 using AccountManagement.UI.QueryModels.Services;
 using Composable.DependencyInjection;
 using FluentAssertions;
 using NUnit.Framework;
 
-namespace AccountManagement.UI.QueryModels.Tests.FetchingAccountByEmailTests
+namespace AccountManagement.Tests.UI.QueryModels.FetchingAccountByEmailTests
 {
     [TestFixture]
     public class AfterUserChangesAccountEmail : RegistersAccountDuringSetupAccountQueryModelTestBase

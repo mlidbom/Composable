@@ -1,9 +1,9 @@
 ﻿using System;
-using AccountManagement.TestHelpers.Scenarios;
+using AccountManagement.Tests.Scenarios;
 using FluentAssertions;
 using NUnit.Framework;
 
-namespace AccountManagement.Domain.Tests.After_a_user_has_registered_an_account
+namespace AccountManagement.Tests.Domain.After_a_user_has_registered_an_account
 {
     [TestFixture]
     public class When_they_attempt_to_change_their_password_an_exception_is_thrown_if_ : DomainTestBase

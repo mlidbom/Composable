@@ -1,8 +1,9 @@
 ﻿using AccountManagement.Domain;
-using AccountManagement.TestHelpers.Scenarios;
+using AccountManagement.Tests.Scenarios;
+using AccountManagement.UI.QueryModels;
 using NUnit.Framework;
 
-namespace AccountManagement.UI.QueryModels.Tests.AccountMapQueryModelTests
+namespace AccountManagement.Tests.UI.QueryModels.AccountMapQueryModelTests
 {
     public class RegistersAccountDuringSetupTestBase : QueryModelsTestsBase
     {

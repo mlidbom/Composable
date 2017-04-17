@@ -1,13 +1,11 @@
-﻿using AccountManagement.TestHelpers;
-using Composable.DependencyInjection;
+﻿using Composable.DependencyInjection;
+using Composable.Messaging.Buses;
 using Composable.System;
 using NUnit.Framework;
 
-namespace AccountManagement.Domain.Tests
+namespace AccountManagement.Tests.Domain
 {
-  using Composable.Messaging.Buses;
-
-  [TestFixture] public abstract class DomainTestBase
+    [TestFixture] public abstract class DomainTestBase
     {
         protected IServiceLocator ServiceLocator { get; private set; }
         protected IMessageSpy MessageSpy => ServiceLocator.Lease<IMessageSpy>().Instance;

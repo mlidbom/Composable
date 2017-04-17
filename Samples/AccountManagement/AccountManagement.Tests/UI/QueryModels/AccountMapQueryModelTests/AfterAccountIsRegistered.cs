@@ -1,7 +1,7 @@
 ﻿using FluentAssertions;
 using NUnit.Framework;
 
-namespace AccountManagement.UI.QueryModels.Tests.AccountMapQueryModelTests
+namespace AccountManagement.Tests.UI.QueryModels.AccountMapQueryModelTests
 {
     [TestFixture]
     public class AfterAccountIsRegistered : RegistersAccountDuringSetupTestBase

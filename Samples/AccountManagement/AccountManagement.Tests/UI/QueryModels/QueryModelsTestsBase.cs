@@ -1,11 +1,12 @@
 ﻿using System;
 using AccountManagement.Domain;
+using AccountManagement.UI.QueryModels;
 using AccountManagement.UI.QueryModels.DocumentDB.Updaters;
 using AccountManagement.UI.QueryModels.Services;
 using Composable.DependencyInjection;
 using NUnit.Framework;
 
-namespace AccountManagement.UI.QueryModels.Tests
+namespace AccountManagement.Tests.UI.QueryModels
 {
     public class QueryModelsTestsBase
     {

@@ -1,8 +1,8 @@
 ﻿using AccountManagement.Domain;
-using AccountManagement.TestHelpers.Scenarios;
+using AccountManagement.Tests.Scenarios;
 using NUnit.Framework;
 
-namespace AccountManagement.UI.QueryModels.Tests.FetchingAccountByEmailTests
+namespace AccountManagement.Tests.UI.QueryModels.FetchingAccountByEmailTests
 {
     public class RegistersAccountDuringSetupAccountQueryModelTestBase : QueryModelsTestsBase
     {

@@ -1,10 +1,11 @@
 ﻿using System;
+using AccountManagement.Domain;
 using AccountManagement.Domain.Services;
-using AccountManagement.TestHelpers.Scenarios;
+using AccountManagement.Tests.Scenarios;
 using FluentAssertions;
 using NUnit.Framework;
 
-namespace AccountManagement.Domain.Tests.When_a_user_registers_an_account
+namespace AccountManagement.Tests.Domain.When_a_user_registers_an_account
 {
     [TestFixture]
     public class An_exception_of_type_ : DomainTestBase

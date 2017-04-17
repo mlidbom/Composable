@@ -1,9 +1,10 @@
-﻿using Composable;
+﻿using AccountManagement.Domain;
+using Composable;
 using FluentAssertions;
 using JetBrains.Annotations;
 using NUnit.Framework;
 
-namespace AccountManagement.Domain.Tests
+namespace AccountManagement.Tests.Domain
 {
     public class EmailSpecification : nspec
     {

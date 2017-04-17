@@ -1,11 +1,10 @@
 ﻿using System;
 using System.Linq;
-using AccountManagement.TestHelpers;
 using AccountManagement.UI.Commands.UserCommands;
 using FluentAssertions;
 using NUnit.Framework;
 
-namespace AccountManagement.UI.Commands.Tests.UserCommands
+namespace AccountManagement.Tests.UI.Commands.UserCommands
 {
     [TestFixture]
     public class RegisterAccountCommandTests

@@ -1,7 +1,7 @@
 ﻿using AccountManagement.Domain;
 using Composable.DependencyInjection;
 
-namespace AccountManagement.TestHelpers
+namespace AccountManagement.Tests
 {
     public static class DomainTestWiringHelper
     {

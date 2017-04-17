@@ -27,22 +27,39 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.Sql
                                         user.ChangeEmail("newemail@somewhere.not");
                                     });
 
-            void UpdateEmail()
+            void UpdateEmail(WaitHandle waitToCompleteTransaction, ManualResetEvent readyToStart, ManualResetEvent signalReadyToCompleteTransaction)
             {
                 UseInScope(session =>
                                         {
                                             ((IEventStoreReader)session).GetHistory(user.Id);
                                             ServiceLocator.ExecuteUnitOfWork(() =>
                                                                              {
+                                                                                 readyToStart.Set();
                                                                                  var userToUpdate = session.Get<User>(user.Id);
                                                                                  userToUpdate.ChangeEmail($"newemail_{userToUpdate.Version}@somewhere.not");
-                                                                                 Thread.Sleep(100);
+                                                                                 signalReadyToCompleteTransaction.Set();
+                                                                                 waitToCompleteTransaction.WaitOne();
                                                                              });
-                                        }); //Sql duplicate key (AggregateId, Version) Exception would be thrown here if history was not serialized
+                                        });
             }
 
-            var tasks = 1.Through(20).Select(_ => Task.Factory.StartNew(UpdateEmail)).ToArray();
-            Task.WaitAll(tasks);
+            var readyToComplete = new ManualResetEvent(false);
+            var threads = 2;
+            var resetEvents = 1.Through(threads)
+                               .Select(_ => new
+                                            {
+                                                ReadyToStart = new ManualResetEvent(false),
+                                                AllowedToComplete = new ManualResetEvent(false)
+                                            })
+                               .ToList();
+            var tasks = resetEvents.Select(resetEvent => Task.Factory.StartNew(() => UpdateEmail(resetEvent.AllowedToComplete, resetEvent.ReadyToStart, readyToComplete))).ToArray();
+
+            resetEvents.ForEach(@this => @this.ReadyToStart.WaitOne());
+            readyToComplete.WaitOne();
+            Thread.Sleep(50);
+            resetEvents.ForEach(@this => @this.AllowedToComplete.Set());
+
+            Task.WaitAll(tasks);//Sql duplicate key (AggregateId, Version) Exception would be thrown here if history was not serialized
 
             UseInScope(
                 session =>
@@ -50,7 +67,7 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.Sql
                     var userHistory = ((IEventStoreReader)session).GetHistory(user.Id)
                                                                   .ToArray(); //Reading the aggregate will throw an exception if the history is invalid.
                     userHistory.Length.Should()
-                               .Be(22); //Make sure that all of the transactions completed
+                               .Be(threads + 2); //Make sure that all of the transactions completed
                 });
         }
 
@@ -65,20 +82,36 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.Sql
                                         user.ChangeEmail("newemail@somewhere.not");
                                     });
 
-            void UpdateEmail()
+            void UpdateEmail(WaitHandle waitToCompleteTransaction, ManualResetEvent readyToStart, ManualResetEvent signalReadyToCompleteTransaction)
             {
                 UseInTransactionalScope(session =>
                                         {
+                                            readyToStart.Set();
                                             var userToUpdate = session.Get<User>(user.Id);
                                             userToUpdate.ChangeEmail($"newemail_{userToUpdate.Version}@somewhere.not");
-                                            Thread.Sleep(100);
-                                        }); //Sql duplicate key (AggregateId, Version) Exception would be thrown here if history was not serialized
+                                            signalReadyToCompleteTransaction.Set();
+                                            waitToCompleteTransaction.WaitOne();
+                                        });
             }
 
-            var tasks = 1.Through(20).Select(_ => Task.Factory.StartNew(UpdateEmail)).ToArray();
+            var readyToComplete = new ManualResetEvent(false);
+            var threads = 2;
+            var resetEvents = 1.Through(threads)
+                               .Select(_ => new
+                                            {
+                                                ReadyToStart = new ManualResetEvent(false),
+                                                AllowedToComplete = new ManualResetEvent(false)
+                                            })
+                               .ToList();
+            var tasks = resetEvents.Select(resetEvent => Task.Factory.StartNew(() => UpdateEmail(resetEvent.AllowedToComplete, resetEvent.ReadyToStart, readyToComplete))).ToArray();
+
+            resetEvents.ForEach(@this => @this.ReadyToStart.WaitOne());
+            readyToComplete.WaitOne();
+            Thread.Sleep(50);
+            resetEvents.ForEach(@this => @this.AllowedToComplete.Set());
 
 
-            Task.WaitAll(tasks);
+            Task.WaitAll(tasks);//Sql duplicate key (AggregateId, Version) Exception would be thrown here if history was not serialized
 
             UseInScope(
                 session =>
@@ -86,7 +119,7 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.Sql
                     var userHistory = ((IEventStoreReader)session).GetHistory(user.Id)
                                                                   .ToArray(); //Reading the aggregate will throw an exception if the history is invalid.
                     userHistory.Length.Should()
-                               .Be(22); //Make sure that all of the transactions completed
+                               .Be(threads + 2); //Make sure that all of the transactions completed
                 });
         }
     }

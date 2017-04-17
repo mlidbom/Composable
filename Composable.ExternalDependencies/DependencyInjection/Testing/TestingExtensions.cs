@@ -1,4 +1,5 @@
-﻿using Composable.GenericAbstractions.Time;
+﻿using System;
+using Composable.GenericAbstractions.Time;
 using Composable.Messaging.Buses;
 using Composable.Persistence.EventStore;
 using Composable.Persistence.EventStore.Serialization.NewtonSoft;
@@ -10,6 +11,9 @@ namespace Composable.DependencyInjection.Testing
 {
     static class TestingExtensions
     {
+
+        static readonly Lazy<string> MasterDbConnectionString = new Lazy<string>(() => new ConnectionStringConfigurationParameterProvider().GetConnectionString("MasterDB")
+                                                                                                                                           .ConnectionString);
         /// <summary>
         /// <para>SingleThreadUseGuard is registered for the component ISingleContextUseGuard</para>
         /// </summary>
@@ -40,13 +44,7 @@ namespace Composable.DependencyInjection.Testing
                                     .UsingFactoryMethod(_ => bus)
                                     .LifestyleSingleton(),
                            Component.For<IConnectionStringProvider>()
-                                    .UsingFactoryMethod(
-                                        locator =>
-                                        {
-                                            var connectionString = new ConnectionStringConfigurationParameterProvider().GetConnectionString("MasterDB")
-                                                                                                                       .ConnectionString;
-                                            return new SqlServerDatabasePoolConnectionStringProvider(connectionString);
-                                        })
+                                    .UsingFactoryMethod(locator => new SqlServerDatabasePoolConnectionStringProvider(MasterDbConnectionString.Value))
                                     .LifestyleSingleton()
                                     .DelegateToParentServiceLocatorWhenCloning()
             );

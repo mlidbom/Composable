@@ -180,7 +180,7 @@ SELECT  {EventTable.Columns.InsertionOrder},
         (select top 1 EffectiveReadorder from Event e1 where e1.EffectiveReadOrder < Event.EffectiveReadOrder order by EffectiveReadOrder desc) PreviousReadOrder,
         (select top 1 EffectiveReadorder from Event e1 where e1.EffectiveReadOrder > Event.EffectiveReadOrder order by EffectiveReadOrder) NextReadOrder
 FROM    {EventTable.Name} {lockHintToMinimizeRiskOfDeadlocksByTakingUpdatelockOnInitialRead} 
-where {EventTable.Columns.InsertionOrder} = {insertionOrder}";
+where {EventTable.Columns.InsertionOrder} = @{EventTable.Columns.InsertionOrder}";
 
 
 
@@ -192,7 +192,7 @@ where {EventTable.Columns.InsertionOrder} = {insertionOrder}";
                 {
                     command.CommandType = CommandType.Text;
                     command.CommandText = selectStatement;
-
+                    command.Parameters.Add(new SqlParameter(EventTable.Columns.InsertionOrder, SqlDbType.BigInt) {Value = insertionOrder});
                     using (var reader = command.ExecuteReader())
                     {
                         reader.Read();

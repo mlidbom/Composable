@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Data.SqlClient;
 using System.Data.SqlTypes;
 
@@ -69,12 +70,12 @@ FROM {EventTable.Name} {lockHint} ";
                 using (var loadCommand = connection.CreateCommand())
                 {
                     loadCommand.CommandText = $"{GetSelectClause(takeWriteLock)} WHERE {EventTable.Columns.AggregateId} = @{EventTable.Columns.AggregateId}";
-                    loadCommand.Parameters.Add(new SqlParameter($"{EventTable.Columns.AggregateId}", aggregateId));
+                    loadCommand.Parameters.Add(new SqlParameter($"{EventTable.Columns.AggregateId}", SqlDbType.UniqueIdentifier) {Value = aggregateId});
 
                     if (startAfterInsertedVersion > 0)
                     {
                         loadCommand.CommandText += $" AND {EventTable.Columns.InsertedVersion} > @CachedVersion";
-                        loadCommand.Parameters.Add(new SqlParameter("CachedVersion", startAfterInsertedVersion));
+                        loadCommand.Parameters.Add(new SqlParameter("CachedVersion", SqlDbType.Int) {Value = startAfterInsertedVersion});
                     }
 
                     loadCommand.CommandText += $" ORDER BY {EventTable.Columns.EffectiveReadOrder} ASC";
@@ -110,7 +111,7 @@ FROM {EventTable.Name} {lockHint} ";
 
                         loadCommand.CommandText = SelectTopClause(batchSize, takeWriteLock: false) + $"WHERE {EventTable.Columns.EffectiveReadOrder} > 0 AND {EventTable.Columns.EffectiveReadOrder}  > @{EventTable.Columns.EffectiveReadOrder}" + ReadSortOrder;
 
-                        loadCommand.Parameters.Add(new SqlParameter(EventTable.Columns.EffectiveReadOrder, lastReadEventReadOrder));
+                        loadCommand.Parameters.Add(new SqlParameter(EventTable.Columns.EffectiveReadOrder, SqlDbType.Decimal) {Value = lastReadEventReadOrder});
 
                         var fetchedInThisBatch = 0;
                         using (var reader = loadCommand.ExecuteReader())

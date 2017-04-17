@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Data.SqlClient;
 using Composable.Logging.Log4Net;
 using Composable.Persistence.EventStore.Refactoring.Naming;
@@ -91,7 +92,7 @@ namespace Composable.Persistence.EventStore.MicrosoftSQLServer
                 using (var command = connection.CreateCommand())
                 {
                     command.CommandText = $@"SELECT {EventTypeTable.Columns.Id} FROM {EventTypeTable.Name} WHERE {EventTypeTable.Columns.EventType}=@{EventTypeTable.Columns.EventType}";
-                    command.Parameters.Add(new SqlParameter(EventTypeTable.Columns.EventType, _nameMapper.GetName(newType)));
+                    command.Parameters.Add(new SqlParameter(EventTypeTable.Columns.EventType, SqlDbType.NVarChar, 450) {Value = _nameMapper.GetName(newType)});
                     using (var reader = command.ExecuteReader())
                     {
                         if (reader.Read())
@@ -104,7 +105,7 @@ namespace Composable.Persistence.EventStore.MicrosoftSQLServer
                 using (var command = connection.CreateCommand())
                 {
                     command.CommandText = $@"INSERT {EventTypeTable.Name} ( {EventTypeTable.Columns.EventType} ) OUTPUT INSERTED.{EventTypeTable.Columns.Id} VALUES( @{EventTypeTable.Columns.EventType} )";
-                    command.Parameters.Add(new SqlParameter(EventTypeTable.Columns.EventType, _nameMapper.GetName(newType)));
+                    command.Parameters.Add(new SqlParameter(EventTypeTable.Columns.EventType, SqlDbType.NVarChar, 450) {Value = _nameMapper.GetName(newType)});
                     return new IdTypeMapping(id: (int)command.ExecuteScalar(), type: newType);
                 }
             }

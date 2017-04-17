@@ -143,7 +143,7 @@ SET @{EventTable.Columns.InsertionOrder} = SCOPE_IDENTITY();";
                 {
                     command.CommandType = CommandType.Text;
                     command.CommandText = SqlServerEventStore.SqlStatements.FixManualVersionsForAggregate(aggregateId);
-                    command.Parameters.Add(new SqlParameter(EventTable.Columns.AggregateId, aggregateId));
+                    command.Parameters.Add(new SqlParameter(EventTable.Columns.AggregateId, SqlDbType.UniqueIdentifier) {Value = aggregateId});
                     command.ExecuteNonQuery();
                 });
         }
@@ -227,7 +227,7 @@ where {EventTable.Columns.InsertionOrder} = {insertionOrder}";
                     command.CommandType = CommandType.Text;
                     command.CommandText +=
                         $"DELETE {EventTable.Name} With(ROWLOCK) WHERE {EventTable.Columns.AggregateId} = @{EventTable.Columns.AggregateId}";
-                    command.Parameters.Add(new SqlParameter(EventTable.Columns.AggregateId, aggregateId));
+                    command.Parameters.Add(new SqlParameter(EventTable.Columns.AggregateId, SqlDbType.UniqueIdentifier) {Value = aggregateId});
                     command.ExecuteNonQuery();
                 });
         }

@@ -132,6 +132,8 @@ namespace Composable.Persistence.EventStore
             _usageGuard.AssertNoContextChangeOccurred(this);
             _schemaManager.SetupSchemaIfDatabaseUnInitialized();
 
+            _schemaManager.IdMapper.LoadTypesFromDatabase();
+
             var batches = StreamEvents()
                 .ChopIntoSizesOf(batchSize)
                 .Select(batch => batch.ToList());

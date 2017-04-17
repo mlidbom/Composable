@@ -19,8 +19,8 @@ namespace Composable.CQRS.Tests
 
     static class TestWiringHelper
     {
-        static string DocumentDbConnectionStringName = "Fake_connectionstring_for_document_database_testing";
-        internal static string EventStoreConnectionStringName = "Fake_connectionstring_for_event_store_testing";
+        static string DocumentDbConnectionStringName = "Fake_connectionstring_for_database_testing";
+        internal static string EventStoreConnectionStringName = "Fake_connectionstring_for_database_testing";
 
         internal static IEventStore<ITestingEventstoreUpdater, ITestingEventstoreReader> EventStore(this IServiceLocator @this) =>
             @this.Resolve<IEventStore<ITestingEventstoreUpdater, ITestingEventstoreReader>>();

@@ -6,5 +6,6 @@ namespace Composable.Persistence.EventStore
     {
         Type GetType(int id);
         int GetId(Type type);
+        void LoadTypesFromDatabase();
     }
 }

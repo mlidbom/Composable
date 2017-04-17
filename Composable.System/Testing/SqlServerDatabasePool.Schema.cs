@@ -48,7 +48,7 @@ LOG ON  ( NAME = {databaseName}_log, FILENAME = '{DatabaseRootFolderOverride}\{d
 
                 try
                 {
-                    _managerConnection.UseConnection(_ => {});
+                    TransactionScopeCe.SupressAmbient(() => _managerConnection.UseConnection(_ => {}));
                 }
                 catch(Exception exception)
                 {

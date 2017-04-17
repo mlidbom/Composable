@@ -19,7 +19,7 @@ namespace Composable.Persistence.EventStore
 
     interface IEventStoreEventWriter
     {
-        void Insert(IEnumerable<EventWriteDataRow> events);
+        void Insert(IReadOnlyList<EventWriteDataRow> events);
         void InsertRefactoringEvents(IReadOnlyList<EventWriteDataRow> events);
         void DeleteAggregate(Guid aggregateId);
     }

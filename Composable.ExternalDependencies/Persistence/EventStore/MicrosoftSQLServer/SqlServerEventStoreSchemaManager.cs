@@ -4,6 +4,7 @@ using System.Data.SqlClient;
 using System.Transactions;
 using Composable.Logging.Log4Net;
 using Composable.Persistence.EventStore.Refactoring.Naming;
+using Composable.System.Data.SqlClient;
 
 namespace Composable.Persistence.EventStore.MicrosoftSQLServer
 {
@@ -23,21 +24,20 @@ namespace Composable.Persistence.EventStore.MicrosoftSQLServer
 
         public IEventTypeToIdMapper IdMapper { get; private set; }
 
-        Lazy<string> _connectionString;
+        readonly Lazy<string> _connectionString;
+        SqlServerConnectionUtilities ConnectionManager => new SqlServerConnectionUtilities(_connectionString.Value);
         string ConnectionString => _connectionString.Value;
 
         SqlConnection OpenConnection()
         {
-            var connection = new SqlConnection(ConnectionString);
-            connection.Open();
-            if(Transaction.Current == null)
+            if (Transaction.Current == null)
             {
                 this.Log().Warn($@"No ambient transaction. This is dangerous:
 AT: 
 
 {Environment.StackTrace}");
             }
-            return connection;
+            return ConnectionManager.OpenConnection();
         }
 
         public void SetupSchemaIfDatabaseUnInitialized()

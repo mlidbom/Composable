@@ -11,6 +11,7 @@ using Composable.Logging;
 using Composable.System;
 using Composable.System.Data.SqlClient;
 using Composable.System.Linq;
+using Composable.System.Transactions;
 
 namespace Composable.Testing
 {
@@ -100,7 +101,7 @@ namespace Composable.Testing
 
         void SeparatelyForceInitializationOfManagerConnectionPoolToProvideSanityWhenPerformanceProfiling()
         {
-            try { _managerConnection.UseConnection(_ => {}); }
+            try { TransactionScopeCe.SupressAmbient(() => _managerConnection.UseConnection(_ => {})); }
             // ReSharper disable once EmptyGeneralCatchClause
             catch { }
         }

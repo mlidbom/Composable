@@ -1,10 +1,13 @@
 using System;
 using System.Data.SqlClient;
+using System.Transactions;
+using Composable.Logging;
 
 namespace Composable.System.Data.SqlClient
 {
     class SqlServerConnectionUtilities
     {
+        static readonly ILogger Log = Logger.For<SqlServerConnectionUtilities>();
         string ConnectionString { get; }
         public SqlServerConnectionUtilities(string connectionString) => ConnectionString = connectionString;
 
@@ -71,10 +74,18 @@ namespace Composable.System.Data.SqlClient
                                  });
         }
 
-        SqlConnection OpenConnection()
+        public SqlConnection OpenConnection()
         {
+            var transactionInformationDistributedIdentifierBefore = Transaction.Current?.TransactionInformation.DistributedIdentifier;
             var connection = new SqlConnection(ConnectionString);
             connection.Open();
+            if(transactionInformationDistributedIdentifierBefore != null && transactionInformationDistributedIdentifierBefore.Value == Guid.Empty)
+            {
+                if (Transaction.Current.TransactionInformation.DistributedIdentifier != Guid.Empty)
+                {
+                    throw new Exception($"Opening connection escalated transaction to distributed. For now this is disallowed:\n{Environment.StackTrace}");
+                }
+            }
             return connection;
         }
     }

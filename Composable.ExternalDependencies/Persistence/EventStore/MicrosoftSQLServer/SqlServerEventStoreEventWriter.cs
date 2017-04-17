@@ -23,8 +23,13 @@ namespace Composable.Persistence.EventStore.MicrosoftSQLServer
             _schemaManager = schemaManager;
         }
 
-        public void Insert(IEnumerable<EventWriteDataRow> events)
+        public void Insert(IReadOnlyList<EventWriteDataRow> events)
         {
+            //Pull types out here so that we do not open nested connections by calling into the IdMapper below. This will force DTC escalation of the transaction...
+            var eventTypeToId = events.Select(@this => @this.Event.GetType())
+                  .Distinct()
+                  .ToDictionary(keySelector: @this => @this, elementSelector: @this => IdMapper.GetId(@this));
+
             using(var connection = _connectionMananger.OpenConnection())
             {
                 foreach(var data in events)
@@ -46,7 +51,7 @@ SET @{EventTable.Columns.InsertionOrder} = SCOPE_IDENTITY();";
                                                {
                                                    Value = data.InsertedVersion > data.AggregateRootVersion ? data.InsertedVersion : data.AggregateRootVersion
                                                });
-                        command.Parameters.Add(new SqlParameter(EventTable.Columns.EventType,SqlDbType.Int){Value = IdMapper.GetId(@event.GetType()) });
+                        command.Parameters.Add(new SqlParameter(EventTable.Columns.EventType,SqlDbType.Int){Value = eventTypeToId[@event.GetType()] });
                         command.Parameters.Add(new SqlParameter(EventTable.Columns.EventId, SqlDbType.UniqueIdentifier) {Value = data.EventId});
                         command.Parameters.Add(new SqlParameter(EventTable.Columns.UtcTimeStamp, SqlDbType.DateTime2) {Value = data.UtcTimeStamp});
                         command.Parameters.Add(new SqlParameter(EventTable.Columns.ManualReadOrder, SqlDbType.Decimal) {Value = data.ManualReadOrder});

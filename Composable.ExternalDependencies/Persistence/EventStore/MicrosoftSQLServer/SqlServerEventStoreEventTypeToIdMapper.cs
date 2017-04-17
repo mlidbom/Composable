@@ -65,7 +65,7 @@ namespace Composable.Persistence.EventStore.MicrosoftSQLServer
             }
         }
 
-        void LoadTypesFromDatabase()
+        public void LoadTypesFromDatabase()
         {
             lock(_lockObject)
             {

@@ -7,6 +7,7 @@ using System.Linq;
 using Composable.DDD;
 using Composable.System;
 using Composable.System.Collections.Collections;
+using Composable.System.Data.SqlClient;
 using Composable.System.Linq;
 using Composable.System.Reflection;
 using Newtonsoft.Json;
@@ -16,7 +17,8 @@ namespace Composable.Persistence.DocumentDb.SqlServer
     class SqlServerDocumentDb : IDocumentDb
     {
         readonly Lazy<string> _connectionString;
-        string ConnectionString => _connectionString.Value;
+
+        SqlServerConnectionUtilities ConnectionManager => new SqlServerConnectionUtilities(_connectionString.Value);
 
         static readonly JsonSerializerSettings JsonSettings = NewtonSoft.JsonSettings.JsonSerializerSettings;
 
@@ -47,7 +49,7 @@ namespace Composable.Persistence.DocumentDb.SqlServer
             value = default(TValue);
 
             object found;
-            using(var connection = OpenSession())
+            using(var connection = ConnectionManager.OpenConnection())
             {
                 using(var command = connection.CreateCommand())
                 {
@@ -87,7 +89,7 @@ WHERE Id=@Id AND ValueTypeId
 
             string idString = GetIdString(id);
             EnsureTypeRegistered(value.GetType());
-            using(var connection = OpenSession())
+            using(var connection = ConnectionManager.OpenConnection())
             {
                 using(var command = connection.CreateCommand())
                 {
@@ -128,7 +130,7 @@ WHERE Id=@Id AND ValueTypeId
         public int RemoveAll<T>()
         {
             EnsureInitialized();
-            using (var connection = OpenSession())
+            using (var connection = ConnectionManager.OpenConnection())
             {
                 using (var command = connection.CreateCommand())
                 {
@@ -145,7 +147,7 @@ WHERE Id=@Id AND ValueTypeId
         public void Remove(object id, Type documentType)
         {
             EnsureInitialized();
-            using(var connection = OpenSession())
+            using(var connection = ConnectionManager.OpenConnection())
             {
                 using(var command = connection.CreateCommand())
                 {
@@ -172,7 +174,7 @@ WHERE Id=@Id AND ValueTypeId
         {
             EnsureInitialized();
             values = values.ToList();
-            using(var connection = OpenSession())
+            using(var connection = ConnectionManager.OpenConnection())
             {
                 foreach(var entry in values)
                 {
@@ -212,7 +214,7 @@ WHERE Id=@Id AND ValueTypeId
                 yield break;
             }
 
-            using(var connection = OpenSession())
+            using(var connection = ConnectionManager.OpenConnection())
             {
                 using(var loadCommand = connection.CreateCommand())
                 {
@@ -242,7 +244,7 @@ WHERE ValueTypeId ";
                 yield break;
             }
 
-            using (var connection = OpenSession())
+            using (var connection = ConnectionManager.OpenConnection())
             {
                 using (var loadCommand = connection.CreateCommand())
                 {
@@ -274,7 +276,7 @@ WHERE ValueTypeId ";
                 yield break;
             }
 
-            using (var connection = OpenSession())
+            using (var connection = ConnectionManager.OpenConnection())
             {
                 using (var loadCommand = connection.CreateCommand())
                 {
@@ -296,20 +298,13 @@ WHERE ValueTypeId ";
             }
         }
 
-        SqlConnection OpenSession()
-        {
-            var connection = new SqlConnection(ConnectionString);
-            connection.Open();
-            return connection;
-        }
-
         void EnsureTypeRegistered(Type type)
         {
             lock(_lockObject)
             {
                 if(!IsKnownType(type))
                 {
-                    using(var connection = OpenSession())
+                    using(var connection = ConnectionManager.OpenConnection())
                     {
                         using(var command = connection.CreateCommand())
                         {
@@ -339,7 +334,10 @@ ELSE
         {
             if(!_knownTypes.ContainsKey(type))
             {
-                RefreshKnownTypes();
+                using(var connection = ConnectionManager.OpenConnection())
+                {
+                    RefreshKnownTypes(connection);
+                }
             }
             return _knownTypes.ContainsKey(type);
         }
@@ -363,7 +361,7 @@ ELSE
             {
                 if(!_initialized)
                 {
-                    using(var connection = OpenSession())
+                    using(var connection = ConnectionManager.OpenConnection())
                     {
                         using(var checkForValueTypeCommand = connection.CreateCommand())
                         {
@@ -422,27 +420,24 @@ ALTER TABLE [dbo].[Store] CHECK CONSTRAINT [FK_ValueType_Store]
                         _knownTypes = new ConcurrentDictionary<Type, int>();
                         _initialized = true;
 
-                        RefreshKnownTypes();
+                        RefreshKnownTypes(connection);
                     }
                 }
             }
         }
 
-        void RefreshKnownTypes()
+        void RefreshKnownTypes(SqlConnection connection)
         {
             lock(_lockObject)
             {
-                using(var connection = OpenSession())
+                using(var findTypesCommand = connection.CreateCommand())
                 {
-                    using(var findTypesCommand = connection.CreateCommand())
+                    findTypesCommand.CommandText = "SELECT DISTINCT ValueType, Id FROM ValueType";
+                    using(var reader = findTypesCommand.ExecuteReader())
                     {
-                        findTypesCommand.CommandText = "SELECT DISTINCT ValueType, Id FROM ValueType";
-                        using(var reader = findTypesCommand.ExecuteReader())
+                        while(reader.Read())
                         {
-                            while(reader.Read())
-                            {
-                                _knownTypes.TryAdd(reader.GetString(0).AsType(), reader.GetInt32(1));
-                            }
+                            _knownTypes.TryAdd(reader.GetString(0).AsType(), reader.GetInt32(1));
                         }
                     }
                 }

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data.SqlTypes;
-using Composable.Contracts;
 
 namespace Composable.Persistence.EventStore
 {

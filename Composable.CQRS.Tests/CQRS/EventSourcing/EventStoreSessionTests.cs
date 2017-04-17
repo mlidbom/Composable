@@ -409,8 +409,8 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing
 
             UseInTransactionalScope(session => session.Save(user));
 
-            var iterations = 20;
-            var delayEachTransactionBy = 20.Milliseconds();
+            var threadedIterations = 5;
+            var delayEachTransactionBy = 10.Milliseconds();
 
             void ReadUserHistory()
             {
@@ -424,11 +424,11 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing
             ReadUserHistory();//one warmup to get consistent times later.
             var timeForSingleTransactionalRead = (int)StopwatchExtensions.TimeExecution(ReadUserHistory).TotalMilliseconds;
 
-            var approximateSinglethreadedExecutionTimeInMilliseconds = iterations * timeForSingleTransactionalRead;
+            var approximateSinglethreadedExecutionTimeInMilliseconds = threadedIterations * timeForSingleTransactionalRead;
 
             var timingsSummary = TimeAsserter.ExecuteThreaded(
                 action: ReadUserHistory,
-                iterations: iterations,
+                iterations: threadedIterations,
                 timeIndividualExecutions:true,
                 maxTotal: (approximateSinglethreadedExecutionTimeInMilliseconds / 2).Milliseconds(),
                 description: $"If access is serialized the time will be approximately {approximateSinglethreadedExecutionTimeInMilliseconds} milliseconds. If parelellized it should be far below this value.",

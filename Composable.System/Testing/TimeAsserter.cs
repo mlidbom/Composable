@@ -4,6 +4,7 @@ using System.Threading;
 using Composable.Logging;
 using Composable.System;
 using Composable.System.Diagnostics;
+using Composable.System.Threading;
 using JetBrains.Annotations;
 
 namespace Composable.Testing
@@ -13,21 +14,21 @@ namespace Composable.Testing
         static readonly ILogger Log = Logger.For(typeof(TimeAsserter));
         const string DefaultTimeFormat = "ss\\.fff";
 
-        static PerformanceCounter _totalCpu;
+        static readonly Lazy<PerformanceCounter> LazyTotalCpu = new Lazy<PerformanceCounter>(() => new PerformanceCounter("Processor", "% Processor Time", "_Total"));
+
+        static readonly MachineWideSingleThreaded MachineWideSingleThreaded = MachineWideSingleThreaded.For(typeof(TimeAsserter));
+
+        static PerformanceCounter TotalCpu => LazyTotalCpu.Value;
         static void WaitUntilCpuLoadIsBelowPercent(int percent)
         {
             const int waitMilliseconds = 20;
-            if (_totalCpu == null)
-            {
-                _totalCpu = new PerformanceCounter("Processor", "% Processor Time", "_Total");
-            }
 
-            var currentValue = (int)_totalCpu.NextValue();
+            var currentValue = (int)TotalCpu.NextValue();
             while (currentValue > percent || currentValue == 0)
             {
                 Log.Debug($"Waiting {waitMilliseconds} milliseconds for CPU to drop below {percent} percent");
                 Thread.Sleep(waitMilliseconds);
-                currentValue = (int)_totalCpu.NextValue();
+                currentValue = (int)TotalCpu.NextValue();
             }
         }
 
@@ -48,30 +49,36 @@ namespace Composable.Testing
             maxTotal = maxTotal != default(TimeSpan) ? maxTotal : TimeSpan.MaxValue;
 
             string Format(TimeSpan? date) => date?.ToString(timeFormat) ?? "";
+
             StopwatchExtensions.TimedExecutionSummary executionSummary = null;
-            for(var tries = 1; tries <= maxTries; tries++)
-            {
-                WaitUntilCpuLoadIsBelowPercent(waitForCpuLoadToDropBelowPercent);
-                setup?.Invoke();
-                executionSummary = StopwatchExtensions.TimeExecution(action: action, iterations: iterations);
-                tearDown?.Invoke();
-                try
+
+            MachineWideSingleThreaded.Execute(
+                () =>
                 {
-                    RunAsserts(maxAverage: maxAverage, maxTotal: maxTotal, executionSummary: executionSummary, format:Format);
-                }
-                catch(Exception e)
-                {
-                    SafeConsole.WriteLine($"Try: {tries} {e.GetType().FullName}: {e.Message}");
-                    if(tries >= maxTries)
+                    for(var tries = 1; tries <= maxTries; tries++)
                     {
+                        WaitUntilCpuLoadIsBelowPercent(waitForCpuLoadToDropBelowPercent);
+                        setup?.Invoke();
+                        executionSummary = StopwatchExtensions.TimeExecution(action: action, iterations: iterations);
+                        tearDown?.Invoke();
+                        try
+                        {
+                            RunAsserts(maxAverage: maxAverage, maxTotal: maxTotal, executionSummary: executionSummary, format: Format);
+                        }
+                        catch(Exception e)
+                        {
+                            SafeConsole.WriteLine($"Try: {tries} {e.GetType() .FullName}: {e.Message}");
+                            if(tries >= maxTries)
+                            {
+                                PrintSummary(iterations, maxAverage, maxTotal, description, Format, executionSummary);
+                                throw;
+                            }
+                            continue;
+                        }
                         PrintSummary(iterations, maxAverage, maxTotal, description, Format, executionSummary);
-                        throw;
+                        break;
                     }
-                    continue;
-                }
-                PrintSummary(iterations, maxAverage, maxTotal, description, Format, executionSummary);
-                break;
-            }
+                });
 
             return executionSummary;
         }
@@ -88,10 +95,10 @@ namespace Composable.Testing
              [InstantHandle]Action tearDown = null,
              int maxTries = 1)
         {
+            StopwatchExtensions.TimedThreadedExecutionSummary executionSummary = null;
+
             maxAverage = maxAverage != default(TimeSpan) ? maxAverage : TimeSpan.MaxValue;
             maxTotal = maxTotal != default(TimeSpan) ? maxTotal : TimeSpan.MaxValue;
-
-            StopwatchExtensions.TimedThreadedExecutionSummary executionSummary = null;
 
             // ReSharper disable AccessToModifiedClosure
 
@@ -113,28 +120,33 @@ namespace Composable.Testing
             }
             // ReSharper restore AccessToModifiedClosure
 
-            for (int tries = 1; tries <= maxTries; tries++)
-            {
-                setup?.Invoke();
-                executionSummary = StopwatchExtensions.TimeExecutionThreaded(action: action, iterations: iterations, timeIndividualExecutions: timeIndividualExecutions);
-                tearDown?.Invoke();
-                try
+            MachineWideSingleThreaded.Execute(
+                () =>
                 {
-                    RunAsserts(maxAverage, maxTotal, executionSummary, Format);
-                }
-                catch (Exception e)
-                {
-                    SafeConsole.WriteLine($"Try: {tries} {e.GetType().FullName}: {e.Message}");
-                    if (tries >= maxTries)
+
+                    for(int tries = 1; tries <= maxTries; tries++)
                     {
+                        setup?.Invoke();
+                        executionSummary = StopwatchExtensions.TimeExecutionThreaded(action: action, iterations: iterations, timeIndividualExecutions: timeIndividualExecutions);
+                        tearDown?.Invoke();
+                        try
+                        {
+                            RunAsserts(maxAverage, maxTotal, executionSummary, Format);
+                        }
+                        catch(Exception e)
+                        {
+                            SafeConsole.WriteLine($"Try: {tries} {e.GetType() .FullName}: {e.Message}");
+                            if(tries >= maxTries)
+                            {
+                                PrintResults();
+                                throw;
+                            }
+                            continue;
+                        }
                         PrintResults();
-                        throw;
+                        break;
                     }
-                    continue;
-                }
-                PrintResults();
-                break;
-            }
+                });
 
             return executionSummary;
         }

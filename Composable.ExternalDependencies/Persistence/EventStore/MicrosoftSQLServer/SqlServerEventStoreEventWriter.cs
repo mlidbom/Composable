@@ -41,22 +41,22 @@ INSERT {EventTable.Name} With(READCOMMITTED, ROWLOCK)
 VALUES(@{EventTable.Columns.AggregateId}, @{EventTable.Columns.InsertedVersion}, @{EventTable.Columns.ManualVersion}, @{EventTable.Columns.ManualReadOrder}, @{EventTable.Columns.EventType}, @{EventTable.Columns.EventId}, @{EventTable.Columns.UtcTimeStamp}, @{EventTable.Columns.Event}, @{EventTable.Columns.InsertAfter},@{EventTable.Columns.InsertBefore}, @{EventTable.Columns.Replaces})
 SET @{EventTable.Columns.InsertionOrder} = SCOPE_IDENTITY();";
 
-                        command.Parameters.Add(new SqlParameter(EventTable.Columns.AggregateId, data.AggregateRootId));
-                        command.Parameters.Add(
-                            new SqlParameter(
-                                EventTable.Columns.InsertedVersion,
-                                data.InsertedVersion > data.AggregateRootVersion ? data.InsertedVersion : data.AggregateRootVersion));
-                        command.Parameters.Add(new SqlParameter(EventTable.Columns.EventType, IdMapper.GetId(@event.GetType())));
-                        command.Parameters.Add(new SqlParameter(EventTable.Columns.EventId, data.EventId));
-                        command.Parameters.Add(new SqlParameter(EventTable.Columns.UtcTimeStamp, data.UtcTimeStamp));
-                        command.Parameters.Add(new SqlParameter(EventTable.Columns.ManualReadOrder, data.ManualReadOrder));
+                        command.Parameters.Add(new SqlParameter(EventTable.Columns.AggregateId, SqlDbType.UniqueIdentifier){Value = data.AggregateRootId });
+                        command.Parameters.Add(new SqlParameter(EventTable.Columns.InsertedVersion, SqlDbType.Int)
+                                               {
+                                                   Value = data.InsertedVersion > data.AggregateRootVersion ? data.InsertedVersion : data.AggregateRootVersion
+                                               });
+                        command.Parameters.Add(new SqlParameter(EventTable.Columns.EventType,SqlDbType.Int){Value = IdMapper.GetId(@event.GetType()) });
+                        command.Parameters.Add(new SqlParameter(EventTable.Columns.EventId, SqlDbType.UniqueIdentifier) {Value = data.EventId});
+                        command.Parameters.Add(new SqlParameter(EventTable.Columns.UtcTimeStamp, SqlDbType.DateTime2) {Value = data.UtcTimeStamp});
+                        command.Parameters.Add(new SqlParameter(EventTable.Columns.ManualReadOrder, SqlDbType.Decimal) {Value = data.ManualReadOrder});
 
-                        command.Parameters.Add(new SqlParameter(EventTable.Columns.Event, data.EventJson));
+                        command.Parameters.Add(new SqlParameter(EventTable.Columns.Event, SqlDbType.NVarChar, -1) {Value = data.EventJson});
 
-                        command.Parameters.Add(Nullable(new SqlParameter(EventTable.Columns.ManualVersion, data.ManualVersion)));
-                        command.Parameters.Add(Nullable(new SqlParameter(EventTable.Columns.InsertAfter, data.InsertAfter)));
-                        command.Parameters.Add(Nullable(new SqlParameter(EventTable.Columns.InsertBefore, data.InsertBefore)));
-                        command.Parameters.Add(Nullable(new SqlParameter(EventTable.Columns.Replaces, data.Replaces)));
+                        command.Parameters.Add(Nullable(new SqlParameter(EventTable.Columns.ManualVersion, SqlDbType.Int) {Value = data.ManualVersion}));
+                        command.Parameters.Add(Nullable(new SqlParameter(EventTable.Columns.InsertAfter, SqlDbType.BigInt) {Value = data.InsertAfter}));
+                        command.Parameters.Add(Nullable(new SqlParameter(EventTable.Columns.InsertBefore, SqlDbType.BigInt) {Value = data.InsertBefore}));
+                        command.Parameters.Add(Nullable(new SqlParameter(EventTable.Columns.Replaces, SqlDbType.BigInt) {Value = data.Replaces}));
 
                         var identityParameter = new SqlParameter(EventTable.Columns.InsertionOrder, SqlDbType.BigInt)
                                                 {

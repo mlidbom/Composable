@@ -22,16 +22,20 @@ namespace Composable.Testing
         static void WaitUntilCpuLoadIsBelowPercent(int percent)
         {
             const int waitMilliseconds = 20;
+            var separatedForPerformanceVisibility = TotalCpu;
+            InternalWait(percent, waitMilliseconds);
+        }
 
+        static void InternalWait(int percent, int waitMilliseconds)
+        {
             var currentValue = (int)TotalCpu.NextValue();
-            while (currentValue > percent || currentValue == 0)
+            while(currentValue > percent || currentValue == 0)
             {
                 Log.Debug($"Waiting {waitMilliseconds} milliseconds for CPU to drop below {percent} percent");
                 Thread.Sleep(waitMilliseconds);
                 currentValue = (int)TotalCpu.NextValue();
             }
         }
-
 
         public static StopwatchExtensions.TimedExecutionSummary Execute
             ([InstantHandle]Action action,
@@ -42,8 +46,7 @@ namespace Composable.Testing
              string timeFormat = DefaultTimeFormat,
              int maxTries = 1,
              [InstantHandle]Action setup = null,
-             [InstantHandle]Action tearDown = null,
-             int waitForCpuLoadToDropBelowPercent= 50)
+             [InstantHandle]Action tearDown = null)
         {
             maxAverage = maxAverage != default(TimeSpan) ? maxAverage : TimeSpan.MaxValue;
             maxTotal = maxTotal != default(TimeSpan) ? maxTotal : TimeSpan.MaxValue;
@@ -57,7 +60,6 @@ namespace Composable.Testing
                 {
                     for(var tries = 1; tries <= maxTries; tries++)
                     {
-                        WaitUntilCpuLoadIsBelowPercent(waitForCpuLoadToDropBelowPercent);
                         setup?.Invoke();
                         executionSummary = StopwatchExtensions.TimeExecution(action: action, iterations: iterations);
                         tearDown?.Invoke();
@@ -65,14 +67,15 @@ namespace Composable.Testing
                         {
                             RunAsserts(maxAverage: maxAverage, maxTotal: maxTotal, executionSummary: executionSummary, format: Format);
                         }
-                        catch(Exception e)
+                        catch(TimeOutException e)
                         {
-                            SafeConsole.WriteLine($"Try: {tries} {e.GetType() .FullName}: {e.Message}");
+                            SafeConsole.WriteLine($"Try: {tries} {e.Message}");
                             if(tries >= maxTries)
                             {
                                 PrintSummary(iterations, maxAverage, maxTotal, description, Format, executionSummary);
                                 throw;
                             }
+                            WaitUntilCpuLoadIsBelowPercent(50);
                             continue;
                         }
                         PrintSummary(iterations, maxAverage, maxTotal, description, Format, executionSummary);
@@ -123,7 +126,6 @@ namespace Composable.Testing
             MachineWideSingleThreaded.Execute(
                 () =>
                 {
-
                     for(int tries = 1; tries <= maxTries; tries++)
                     {
                         setup?.Invoke();
@@ -133,7 +135,7 @@ namespace Composable.Testing
                         {
                             RunAsserts(maxAverage, maxTotal, executionSummary, Format);
                         }
-                        catch(Exception e)
+                        catch(TimeOutException e)
                         {
                             SafeConsole.WriteLine($"Try: {tries} {e.GetType() .FullName}: {e.Message}");
                             if(tries >= maxTries)
@@ -141,6 +143,7 @@ namespace Composable.Testing
                                 PrintResults();
                                 throw;
                             }
+                            WaitUntilCpuLoadIsBelowPercent(50);
                             continue;
                         }
                         PrintResults();
@@ -155,14 +158,20 @@ namespace Composable.Testing
         {
             if(maxTotal.HasValue && executionSummary.Total > maxTotal.Value)
             {
-                throw new Exception($"{nameof(maxTotal)}: {format(maxTotal)} exceeded. Was: {format(executionSummary.Total)}");
+                throw new TimeOutException($"{nameof(maxTotal)}: {format(maxTotal)} exceeded. Was: {format(executionSummary.Total)}");
             }
 
             if(maxAverage.HasValue && executionSummary.Average > maxAverage.Value)
             {
-                throw new Exception($"{nameof(maxAverage)} exceeded");
+                throw new TimeOutException($"{nameof(maxAverage)} exceeded");
             }
         }
+
+        class TimeOutException : Exception
+        {
+            public TimeOutException(string message) : base(message) {}
+        }
+
         static void PrintSummary
             (int iterations, TimeSpan? maxAverage, TimeSpan? maxTotal, string description, [InstantHandle]Func<TimeSpan?, string> format, StopwatchExtensions.TimedExecutionSummary executionSummary)
         {

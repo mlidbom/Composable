@@ -122,7 +122,7 @@ namespace Composable.CQRS.Tests.NewtonSoft
                                  },
                                  iterations:10000,
                                  maxTotal: 100.Milliseconds().AdjustRuntimeToTestEnvironment(),
-                                 maxTries:3
+                                 maxTries:10
                                 );
         }
 

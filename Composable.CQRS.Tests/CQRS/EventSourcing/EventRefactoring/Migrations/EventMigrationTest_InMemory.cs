@@ -3,8 +3,8 @@ using NUnit.Framework;
 
 namespace Composable.CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations {
     [TestFixture]
-    public class EventStreamMutatorTests_InMemory : EventStreamMutatorTests
+    public class EventMigrationTest_InMemory : EventMigrationTest
     {
-        public EventStreamMutatorTests_InMemory() : base(typeof(InMemoryEventStore)) { }
+        public EventMigrationTest_InMemory() : base(typeof(InMemoryEventStore)) { }
     }
 }

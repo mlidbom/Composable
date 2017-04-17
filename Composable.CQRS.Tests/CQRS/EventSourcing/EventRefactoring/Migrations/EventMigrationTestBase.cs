@@ -23,10 +23,10 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
 {
     [TestFixture]
     //Todo: Refactor this test. It is too monolithic and hard to read and extend.
-    public abstract class EventStreamMutatorTestsBase
+    public abstract class EventMigrationTestBase
     {
         protected readonly Type EventStoreType;
-        protected EventStreamMutatorTestsBase(Type eventStoreType) => EventStoreType = eventStoreType;
+        protected EventMigrationTestBase(Type eventStoreType) => EventStoreType = eventStoreType;
 
         internal void RunMigrationTest(params MigrationScenario[] scenarios)
         {

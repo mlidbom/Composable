@@ -14,9 +14,9 @@ using NUnit.Framework;
 
 namespace Composable.CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations {
     [TestFixture]
-    public class EventStreamMutatorTests_SqlServer : EventStreamMutatorTests
+    public class EventMigrationTest_SqlServer : EventMigrationTest
     {
-        public EventStreamMutatorTests_SqlServer() : base(typeof(EventStore)) { }
+        public EventMigrationTest_SqlServer() : base(typeof(EventStore)) { }
 
         [Test]
         public void Persisting_migrations_and_then_updating_the_aggregate_from_another_processes_EventStore_results_in_both_processes_seeing_identical_histories()
@@ -24,7 +24,7 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations {
             var actualMigrations = Seq.Create(Replace<E1>.With<E2>()).ToArray();
             IReadOnlyList<IEventMigration> migrations = new List<IEventMigration>();
 
-            using (var serviceLocator = EventStreamMutatorTestsBase.CreateServiceLocatorForEventStoreType(() => migrations, EventStoreType))
+            using (var serviceLocator = EventMigrationTestBase.CreateServiceLocatorForEventStoreType(() => migrations, EventStoreType))
             {
                 IEventStore<ITestingEventstoreUpdater, ITestingEventstoreReader> PersistingEventStore() => serviceLocator.Resolve<IEventStore<ITestingEventstoreUpdater, ITestingEventstoreReader>>();
 
@@ -54,7 +54,7 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations {
                     var firstProcessHistory = serviceLocator.ExecuteUnitOfWorkInIsolatedScope(() => PersistingEventStore().GetAggregateHistory(id));
                     var secondProcessHistory = otherProcessServiceLocator.ExecuteUnitOfWorkInIsolatedScope(() => otherProcessServiceLocator.Resolve<IEventStore<ITestingEventstoreUpdater, ITestingEventstoreReader>>().GetAggregateHistory(id));
 
-                    EventStreamMutatorTestsBase.AssertStreamsAreIdentical(firstProcessHistory, secondProcessHistory, "Both process histories should be identical");
+                    EventMigrationTestBase.AssertStreamsAreIdentical(firstProcessHistory, secondProcessHistory, "Both process histories should be identical");
 
                 }
             }

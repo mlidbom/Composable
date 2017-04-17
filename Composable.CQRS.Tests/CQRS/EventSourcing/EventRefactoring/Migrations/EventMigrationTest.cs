@@ -21,9 +21,9 @@ using IEventStore = Composable.DependencyInjection.Persistence.IEventStore<Compo
 namespace Composable.CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
 {
     [TestFixture]
-    public abstract class EventStreamMutatorTests : EventStreamMutatorTestsBase
+    public abstract class EventMigrationTest : EventMigrationTestBase
     {
-        protected EventStreamMutatorTests(Type eventStoreType) : base(eventStoreType) { }
+        protected EventMigrationTest(Type eventStoreType) : base(eventStoreType) { }
 
         [Test]
         public void Base_class_method_should_detect_incorrect_type_order()

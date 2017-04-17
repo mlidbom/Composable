@@ -19,6 +19,7 @@ namespace Composable.Testing
         readonly string _masterConnectionString;
         readonly SqlServerConnectionUtilities _masterConnection;
         readonly SqlServerConnectionUtilities _managerConnection;
+        bool _initialized;
 
         static readonly string DatabaseRootFolderOverride;
 
@@ -58,8 +59,8 @@ namespace Composable.Testing
 
         public string ConnectionStringFor(string connectionStringName)
         {
-            EnsureManagerDbExists();
             Contract.Assert.That(!_disposed, "!_disposed");
+            EnsureInitialized();
 
             Database database;
             if(_reservedDatabases.TryGetValue(connectionStringName, out database))
@@ -85,6 +86,23 @@ namespace Composable.Testing
                                              });
 
             return database.ConnectionString;
+        }
+
+        void EnsureInitialized()
+        {
+            if(!_initialized)
+            {
+                SeparatelyForceInitializationOfManagerConnectionPoolToProvideSanityWhenPerformanceProfiling();
+                EnsureManagerDbExistsAndIsAvailable();
+                _initialized = true;
+            }
+        }
+
+        void SeparatelyForceInitializationOfManagerConnectionPoolToProvideSanityWhenPerformanceProfiling()
+        {
+            try { _managerConnection.UseConnection(_ => {}); }
+            // ReSharper disable once EmptyGeneralCatchClause
+            catch { }
         }
 
         string ConnectionStringForDbNamed(string dbName)

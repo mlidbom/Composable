@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Composable.System;
+using Composable.System.Transactions;
 
 namespace Composable.Testing
 {
@@ -21,8 +22,6 @@ namespace Composable.Testing
 
         static readonly HashSet<string> ConnectionStringsWithKnownManagerDb = new HashSet<string>();
 
-        void SeparatelyInitConnectionPoolSoWeSeeRealisticExecutionTimesWhenProfiling() { _masterConnection.UseConnection(_ => { }); }
-
         void CreateDatabase(string databaseName)
         {
             var createDatabaseCommand = $@"CREATE DATABASE [{databaseName}]";
@@ -38,39 +37,25 @@ LOG ON  ( NAME = {databaseName}_log, FILENAME = '{DatabaseRootFolderOverride}\{d
             //SafeConsole.WriteLine($"Created: {databaseName}");
         }
 
-        bool ManagerDbExists()
-        {
-            if (!ConnectionStringsWithKnownManagerDb.Contains(_masterConnectionString))
-            {
-                SeparatelyInitConnectionPoolSoWeSeeRealisticExecutionTimesWhenProfiling();
-
-                if (_masterConnection.ExecuteScalar($"select DB_ID('{ManagerDbName}')") == DBNull.Value)
-                {
-                    return false;
-                }
-            }
-            try
-            {
-                _managerConnection.UseConnection(_ => {});
-            }
-            catch(Exception exception)
-            {
-                Log.Error(exception, "Failed to open manager database. Assuming it was on a temp drive and is now gone. Dropping everything and starting over.");
-                DropAllAndStartOver();
-                return false;
-            }
-            ConnectionStringsWithKnownManagerDb.Add(_masterConnectionString);
-            return true;
-        }
-
-        void EnsureManagerDbExists()
+        void EnsureManagerDbExistsAndIsAvailable()
         {
             lock(typeof(SqlServerDatabasePool))
             {
-                if(!ManagerDbExists())
+                if(ConnectionStringsWithKnownManagerDb.Contains(_masterConnectionString))
                 {
-                    CreateDatabase(ManagerDbName);
-                    _managerConnection.ExecuteNonQuery(CreateDbTableSql);
+                    return;
+                }
+
+                try
+                {
+                    _managerConnection.UseConnection(_ => {});
+                }
+                catch(Exception exception)
+                {
+                    Log.Error(exception, "Failed to open manager database. Assuming it either does not exist or was on a temp drive and is now gone. Dropping everything and starting over.");
+                    TransactionScopeCe.SupressAmbient(DropAllAndStartOver);
+                    TransactionScopeCe.SupressAmbient(() => CreateDatabase(ManagerDbName));
+                    TransactionScopeCe.SupressAmbient(() => _managerConnection.ExecuteNonQuery(CreateDbTableSql));
                     ConnectionStringsWithKnownManagerDb.Add(_masterConnectionString);
                 }
             }

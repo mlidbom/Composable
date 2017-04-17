@@ -21,60 +21,6 @@ using IEventStore = Composable.DependencyInjection.Persistence.IEventStore<Compo
 namespace Composable.CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
 {
     [TestFixture]
-    public class InMemoryEventStoreEventStreamMutatorTests : EventStreamMutatorTests
-    {
-        public InMemoryEventStoreEventStreamMutatorTests() : base(typeof(InMemoryEventStore)) { }
-    }
-
-    [TestFixture]
-    public class SqlServerEventStoreEventStreamMutatorTests : EventStreamMutatorTests
-    {
-        public SqlServerEventStoreEventStreamMutatorTests() : base(typeof(EventStore)) { }
-
-        [Test]
-        public void Persisting_migrations_and_then_updating_the_aggregate_from_another_processes_EventStore_results_in_both_processes_seeing_identical_histories()
-        {
-            var actualMigrations = Seq.Create(Replace<E1>.With<E2>()).ToArray();
-            IReadOnlyList<IEventMigration> migrations = new List<IEventMigration>();
-
-            using (var serviceLocator = CreateServiceLocatorForEventStoreType(() => migrations, EventStoreType))
-            {
-                IEventStore PersistingEventStore() => serviceLocator.Resolve<IEventStore>();
-
-                using (var otherProcessServiceLocator = serviceLocator.Clone())
-                {
-                    // ReSharper disable once AccessToDisposedClosure
-                    ITestingEventstoreUpdater OtherEventstoreSession() => otherProcessServiceLocator.Resolve<ITestingEventstoreUpdater>();
-
-                    var id = Guid.Parse("00000000-0000-0000-0000-000000000001");
-
-                    var aggregate = TestAggregate.FromEvents(
-                        serviceLocator.Resolve<IUtcTimeTimeSource>(),
-                        id,
-                        Seq.OfTypes<Ec1, E1, E2, E3, E4>());
-
-                    otherProcessServiceLocator.ExecuteUnitOfWorkInIsolatedScope(() => OtherEventstoreSession().Save(aggregate));
-                    migrations = actualMigrations;
-                    otherProcessServiceLocator.ExecuteUnitOfWorkInIsolatedScope(() => OtherEventstoreSession().Get<TestAggregate>(id));
-
-                    var test = serviceLocator.ExecuteUnitOfWorkInIsolatedScope(() => PersistingEventStore().GetAggregateHistory(id));
-                    test.Count.Should().BeGreaterThan(0);
-
-                    serviceLocator.ExecuteInIsolatedScope(() => PersistingEventStore().PersistMigrations());
-
-                    otherProcessServiceLocator.ExecuteUnitOfWorkInIsolatedScope(() => OtherEventstoreSession().Get<TestAggregate>(id).RaiseEvents(new E3()));
-
-                    var firstProcessHistory = serviceLocator.ExecuteUnitOfWorkInIsolatedScope(() => PersistingEventStore().GetAggregateHistory(id));
-                    var secondProcessHistory = otherProcessServiceLocator.ExecuteUnitOfWorkInIsolatedScope(() => otherProcessServiceLocator.Resolve<IEventStore>().GetAggregateHistory(id));
-
-                    AssertStreamsAreIdentical(firstProcessHistory, secondProcessHistory, "Both process histories should be identical");
-
-                }
-            }
-        }
-    }
-
-    [TestFixture]
     public abstract class EventStreamMutatorTests : EventStreamMutatorTestsBase
     {
         protected EventStreamMutatorTests(Type eventStoreType) : base(eventStoreType) { }

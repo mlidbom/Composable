@@ -18,8 +18,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\AccountManagement.TestHelpers\AccountManagement.TestHelpers.csproj" />
+    <ProjectReference Include="..\..\..\NSpec.NUnit\NSpec.NUnit.csproj" />
     <ProjectReference Include="..\AccountManagement.UI.Commands\AccountManagement.UI.Commands.csproj" />
+    <ProjectReference Include="..\AccountManagement.UI.QueryModels.Updaters\AccountManagement.UI.QueryModels.DocumentDB.Updaters.csproj" />
+    <ProjectReference Include="..\AccountManagement.UI.QueryModels\AccountManagement.UI.QueryModels.csproj" />
   </ItemGroup>
 
   

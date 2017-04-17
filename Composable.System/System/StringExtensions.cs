@@ -2,6 +2,7 @@ using System.Collections.Generic;
 
 using System.Linq;
 using Composable.Contracts;
+using JetBrains.Annotations;
 
 namespace Composable.System
 {
@@ -9,6 +10,7 @@ namespace Composable.System
     static class StringExtensions
     {
         ///<summary>returns true if me is null, empty or only whitespace</summary>
+        [ContractAnnotation("null => true")]
         internal static bool IsNullOrWhiteSpace(this string me) => string.IsNullOrWhiteSpace(me);
 
         /// <summary>Delegates to <see cref="string.Join(string,string[])"/> </summary>

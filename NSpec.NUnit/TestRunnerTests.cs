@@ -113,14 +113,8 @@ namespace Composable
         public void any_time()
         {
             context["level1 . level1 ."] =
-                () =>
-                {
-                    context["level2 . level2 ."] =
-                        () =>
-                        {
-                            it["I . Use . Three . Dots"] = () => { throw new Exception(); };
-                        };
-                };
+                () => context["level2 . level2 ."] =
+                          () => it["I . Use . Three . Dots"] = () => throw new Exception();
         }
     }
 }

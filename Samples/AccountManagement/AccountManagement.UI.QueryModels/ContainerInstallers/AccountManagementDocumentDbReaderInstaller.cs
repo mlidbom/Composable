@@ -6,7 +6,7 @@ namespace AccountManagement.UI.QueryModels.ContainerInstallers
 {
     static class AccountManagementDocumentDbReaderInstaller
     {
-        const string ConnectionStringName = "AccountManagementReadModels";
+        const string ConnectionStringName = "AccountManagement";
 
         internal static void Install(IDependencyInjectionContainer container)
         {

@@ -18,10 +18,15 @@ namespace Composable.CQRS.Tests.SqlServerDatabasePoolTests
         const string Db2 = "LocalDBManagerTests_After_creating_connection_Db2";
 
 
+        [OneTimeSetUp] public void OneTimeSetup()
+        {
+            _masterConnectionString = ConfigurationManager.ConnectionStrings["MasterDB"].ConnectionString;
+            //SqlServerDatabasePool.DropAllAndStartOver(_masterConnectionString);
+        }
+
         [SetUp]
         public void SetupTask()
         {
-            _masterConnectionString = ConfigurationManager.ConnectionStrings["MasterDB"].ConnectionString;
             _manager = new SqlServerDatabasePool(_masterConnectionString);
             _dB1ConnectionString = _manager.ConnectionStringFor(Db1);
             _dB2ConnectionString = _manager.ConnectionStringFor(Db2);
@@ -60,17 +65,6 @@ namespace Composable.CQRS.Tests.SqlServerDatabasePoolTests
         public void The_Db1_connectionstring_is_different_from_the_Db2_connection_string()
         {
             _dB1ConnectionString.Should().NotBe(_dB2ConnectionString);
-        }
-
-
-        [Test]
-        public void Six_competing_threads_can_reserve_and_release_100_databases_in_10_seconds()
-        {
-            TimeAsserter.ExecuteThreaded(action:
-                () =>
-                {
-
-                }, maxTotal: 10.Seconds());
         }
 
         [TearDown]

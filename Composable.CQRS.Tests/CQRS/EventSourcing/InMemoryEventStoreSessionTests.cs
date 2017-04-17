@@ -1,4 +1,4 @@
-using Composable.Persistence.EventStore;
+using Composable.DependencyInjection;
 using NUnit.Framework;
 
 namespace Composable.CQRS.Tests.CQRS.EventSourcing
@@ -6,6 +6,6 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing
     [TestFixture]
     class InMemoryEventStoreSessionTests : EventStoreSessionTests
     {
-        protected override IEventStore CreateStore() => new InMemoryEventStore();
+        protected override IServiceLocator CreateServiceLocator() => TestWiringHelper.SetupTestingServiceLocator(TestingMode.InMemory);
     }
 }

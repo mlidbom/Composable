@@ -1,11 +1,8 @@
 ﻿using System;
-using System.Configuration;
 using System.Linq;
-using Composable.Logging;
-using Composable.Persistence.DocumentDb;
-using Composable.Persistence.DocumentDb.SqlServer;
+using Composable.DependencyInjection;
+using Composable.DependencyInjection.Testing;
 using Composable.System.Linq;
-using Composable.Testing;
 using FluentAssertions;
 using NUnit.Framework;
 
@@ -15,99 +12,54 @@ namespace Composable.CQRS.Tests.KeyValueStorage.Sql
     [Serializable]
     class SqlDocumentDbTests : DocumentDbTests
     {
-        static SqlServerDatabasePool _databasePool;
+        protected override IServiceLocator CreateServiceLocator() => TestWiringHelper.SetupTestingServiceLocator(TestingMode.RealComponents);
 
-        string _connectionString;
-
-        [SetUp]
-        public void Setup()
+        void InsertUsersInOtherDocumentDb(Guid userId)
         {
-            var masterConnectionString = ConfigurationManager.ConnectionStrings["MasterDb"].ConnectionString;
-            _databasePool = new SqlServerDatabasePool(masterConnectionString);
-            _connectionString = _databasePool.ConnectionStringFor("SqlDocumentDbTests_DB");
-
-            SqlServerDocumentDb.ResetDb(_connectionString);
-        }
-
-        [TearDown]
-        public void TearDownTask()
-        {
-            _databasePool.Dispose();
-        }
-
-        protected override IDocumentDb CreateStore() => new SqlServerDocumentDb(_connectionString);
-
-        [Serializable]
-        class InsertSomething : MarshalByRefObject
-        {
-            public void InsertSomeUsers(string connectionString, params Guid[] userIds)
+            using(var cloneServiceLocator = ServiceLocator.Clone())
             {
-                var store = new SqlServerDocumentDb(connectionString);
-                using(var session = OpenSession(store))
-                {
-                    SafeConsole.WriteLine(AppDomain.CurrentDomain.FriendlyName);
-                    userIds.ForEach(userId => session.Save(new User(){Id = userId}));
-                    session.SaveChanges();
-                }
-            }
-        }
-
-        void InsertUsersInOtherAppDomain(Guid userIds)
-        {
-            var myDomain = AppDomain.CurrentDomain;
-            var otherDomain = AppDomain.CreateDomain("other domain", myDomain.Evidence, myDomain.BaseDirectory, myDomain.RelativeSearchPath,false);
-
-            var otherType = typeof(InsertSomething);
-            var userInserter = otherDomain.CreateInstanceAndUnwrap(otherType.Assembly.FullName,otherType.FullName) as InsertSomething;
-
-            userInserter.InsertSomeUsers(_connectionString, userIds);
-
-            AppDomain.Unload(otherDomain);
-        }
-
-        [Test]
-        public void CanGetDocumentOfPreviouslyUnKnownClassAddedByAnotherDocumentDBInstance()
-        {
-            var readingDocumentDb = CreateStore();
-
-            var userId = Guid.Parse("00000000-0000-0000-0000-000000000001");
-
-            InsertUsersInOtherAppDomain(userId);
-
-            using (var session = OpenSession(readingDocumentDb))
-            {
-                session.Get<User>(userId);
+                cloneServiceLocator.ExecuteUnitOfWorkInIsolatedScope(() => cloneServiceLocator.DocumentDbUpdater()
+                                                                                    .Save(new User() {Id = userId}));
             }
         }
 
         [Test]
-        public void CanGetAllDocumentOfPreviouslyUnKnownClassAddedByAnotherDocumentDBInstance()
+        public void Can_get_document_of_previously_unknown_class_added_by_onother_documentDb_instance()
         {
-            var readingDocumentDb = CreateStore();
-
             var userId = Guid.Parse("00000000-0000-0000-0000-000000000001");
 
-            InsertUsersInOtherAppDomain(userId);
+            InsertUsersInOtherDocumentDb(userId);
 
-            using (var session = OpenSession(readingDocumentDb))
+            using(ServiceLocator.BeginScope())
             {
-                session.GetAll<User>().Count().Should().Be(1);
+                ServiceLocator.DocumentDbSession().Get<User>(userId);
             }
         }
 
         [Test]
-        public void CanGetAllDocumentOfPreviouslyUnKnownClassAddedByAnotherDocumentDBInstanceById()
+        public void Can_get_all_documents_of_previously_unknown_class_added_by_onother_documentDb_instance()
         {
-            var readingDocumentDb = CreateStore();
-
             var userId = Guid.Parse("00000000-0000-0000-0000-000000000001");
 
-            InsertUsersInOtherAppDomain(userId);
+            InsertUsersInOtherDocumentDb(userId);
 
-            using (var session = OpenSession(readingDocumentDb))
+            using (ServiceLocator.BeginScope())
             {
-                session.Get<User>(Seq.Create(userId)).Count().Should().Be(1);
+                ServiceLocator.DocumentDbSession().GetAll<User>().Count().Should().Be(1);
             }
+        }
+
+        [Test]
+        public void Can_get_all_documents_of_previously_unknown_class_added_by_onother_documentDb_instance_byId()
+        {
+            var userId = Guid.Parse("00000000-0000-0000-0000-000000000001");
+
+            InsertUsersInOtherDocumentDb(userId);
+
+            UseInScope(reader => reader.Get<User>(Seq.Create(userId))
+                                       .Count()
+                                       .Should()
+                                       .Be(1));
         }
     }
 }

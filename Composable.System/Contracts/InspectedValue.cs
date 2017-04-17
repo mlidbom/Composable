@@ -1,6 +1,6 @@
 namespace Composable.Contracts
 {
-    public interface IInspectedValue<TValue> : IInspectedValue
+    public interface IInspectedValue<out TValue> : IInspectedValue
     {
         TValue Value { get; }
     }

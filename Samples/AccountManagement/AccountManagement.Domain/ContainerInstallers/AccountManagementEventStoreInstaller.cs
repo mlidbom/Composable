@@ -6,12 +6,12 @@ namespace AccountManagement.Domain.ContainerInstallers
 {
     static class AccountManagementDomainEventStoreInstaller
     {
-        internal const string ConnectionStringName = "AccountManagementDomain";
+        internal const string ConnectionStringName = "AccountManagement";
 
         internal static void Install(IDependencyInjectionContainer container)
         {
             container.RegisterSqlServerEventStore<
-                IAccountManagementEventStoreSession,
+                IAccountManagementEventStoreUpdater,
                 IAccountManagementEventStoreReader>(ConnectionStringName);
         }
     }

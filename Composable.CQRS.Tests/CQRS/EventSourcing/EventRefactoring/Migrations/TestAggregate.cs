@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Composable.Contracts;
 using Composable.GenericAbstractions.Time;
-using Composable.Persistence.EventSourcing;
+using Composable.Persistence.EventStore;
 using Composable.Persistence.EventStore.AggregateRoots;
 using JetBrains.Annotations;
 

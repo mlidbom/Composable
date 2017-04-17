@@ -1,5 +1,6 @@
 using System;
 using System.Data.SqlClient;
+using System.Transactions;
 
 namespace Composable.System.Data.SqlClient
 {
@@ -7,6 +8,11 @@ namespace Composable.System.Data.SqlClient
     {
         string ConnectionString { get; }
         public SqlServerConnectionUtilities(string connectionString) => ConnectionString = connectionString;
+
+        public void ClearConnectionPool()
+        {
+            SqlConnection.ClearPool(new SqlConnection(connectionString:ConnectionString));
+        }
 
         public int ExecuteNonQuery(string commandText)
         {
@@ -55,7 +61,7 @@ namespace Composable.System.Data.SqlClient
                           });
         }
 
-        public TResult UseCommand<TResult>(Func<SqlCommand, TResult> action)
+        TResult UseCommand<TResult>(Func<SqlCommand, TResult> action)
         {
             return UseConnection(connection =>
                                  {
@@ -66,10 +72,18 @@ namespace Composable.System.Data.SqlClient
                                  });
         }
 
-        SqlConnection OpenConnection()
+        public SqlConnection OpenConnection()
         {
+            var transactionInformationDistributedIdentifierBefore = Transaction.Current?.TransactionInformation.DistributedIdentifier;
             var connection = new SqlConnection(ConnectionString);
             connection.Open();
+            if(transactionInformationDistributedIdentifierBefore != null && transactionInformationDistributedIdentifierBefore.Value == Guid.Empty)
+            {
+                if (Transaction.Current.TransactionInformation.DistributedIdentifier != Guid.Empty)
+                {
+                    throw new Exception("Opening connection escalated transaction to distributed. For now this is disallowed");
+                }
+            }
             return connection;
         }
     }

@@ -4,6 +4,7 @@ using System.Threading;
 using Composable.Logging;
 using Composable.System;
 using Composable.System.Diagnostics;
+using Composable.System.Threading;
 using JetBrains.Annotations;
 
 namespace Composable.Testing
@@ -13,24 +14,29 @@ namespace Composable.Testing
         static readonly ILogger Log = Logger.For(typeof(TimeAsserter));
         const string DefaultTimeFormat = "ss\\.fff";
 
-        static PerformanceCounter _totalCpu;
+        static readonly Lazy<PerformanceCounter> LazyTotalCpu = new Lazy<PerformanceCounter>(() => new PerformanceCounter("Processor", "% Processor Time", "_Total"));
+
+        static readonly MachineWideSingleThreaded MachineWideSingleThreaded = MachineWideSingleThreaded.For(typeof(TimeAsserter));
+
+        static PerformanceCounter TotalCpu => LazyTotalCpu.Value;
         static void WaitUntilCpuLoadIsBelowPercent(int percent)
         {
             const int waitMilliseconds = 20;
-            if (_totalCpu == null)
-            {
-                _totalCpu = new PerformanceCounter("Processor", "% Processor Time", "_Total");
-            }
+            // ReSharper disable once UnusedVariable this makes profiling information sane.
+            var separatedForPerformanceVisibility = TotalCpu;
+            InternalWait(percent, waitMilliseconds);
+        }
 
-            var currentValue = (int)_totalCpu.NextValue();
-            while (currentValue > percent || currentValue == 0)
+        static void InternalWait(int percent, int waitMilliseconds)
+        {
+            var currentValue = (int)TotalCpu.NextValue();
+            while(currentValue > percent || currentValue == 0)
             {
                 Log.Debug($"Waiting {waitMilliseconds} milliseconds for CPU to drop below {percent} percent");
                 Thread.Sleep(waitMilliseconds);
-                currentValue = (int)_totalCpu.NextValue();
+                currentValue = (int)TotalCpu.NextValue();
             }
         }
-
 
         public static StopwatchExtensions.TimedExecutionSummary Execute
             ([InstantHandle]Action action,
@@ -39,39 +45,44 @@ namespace Composable.Testing
              TimeSpan? maxTotal = null,
              string description = "",
              string timeFormat = DefaultTimeFormat,
-             int maxTries = 1,
+             int maxTries = 10,
              [InstantHandle]Action setup = null,
-             [InstantHandle]Action tearDown = null,
-             int waitForCpuLoadToDropBelowPercent= 50)
+             [InstantHandle]Action tearDown = null)
         {
             maxAverage = maxAverage != default(TimeSpan) ? maxAverage : TimeSpan.MaxValue;
             maxTotal = maxTotal != default(TimeSpan) ? maxTotal : TimeSpan.MaxValue;
 
             string Format(TimeSpan? date) => date?.ToString(timeFormat) ?? "";
+
             StopwatchExtensions.TimedExecutionSummary executionSummary = null;
-            for(var tries = 1; tries <= maxTries; tries++)
-            {
-                WaitUntilCpuLoadIsBelowPercent(waitForCpuLoadToDropBelowPercent);
-                setup?.Invoke();
-                executionSummary = StopwatchExtensions.TimeExecution(action: action, iterations: iterations);
-                tearDown?.Invoke();
-                try
+
+            MachineWideSingleThreaded.Execute(
+                () =>
                 {
-                    RunAsserts(maxAverage: maxAverage, maxTotal: maxTotal, executionSummary: executionSummary, format:Format);
-                }
-                catch(Exception e)
-                {
-                    SafeConsole.WriteLine($"Try: {tries} {e.GetType().FullName}: {e.Message}");
-                    if(tries >= maxTries)
+                    for(var tries = 1; tries <= maxTries; tries++)
                     {
+                        setup?.Invoke();
+                        executionSummary = StopwatchExtensions.TimeExecution(action: action, iterations: iterations);
+                        tearDown?.Invoke();
+                        try
+                        {
+                            RunAsserts(maxAverage: maxAverage, maxTotal: maxTotal, executionSummary: executionSummary, format: Format);
+                        }
+                        catch(TimeOutException e)
+                        {
+                            SafeConsole.WriteLine($"Try: {tries} {e.Message}");
+                            if(tries >= maxTries)
+                            {
+                                PrintSummary(iterations, maxAverage, maxTotal, description, Format, executionSummary);
+                                throw;
+                            }
+                            WaitUntilCpuLoadIsBelowPercent(50);
+                            continue;
+                        }
                         PrintSummary(iterations, maxAverage, maxTotal, description, Format, executionSummary);
-                        throw;
+                        break;
                     }
-                    continue;
-                }
-                PrintSummary(iterations, maxAverage, maxTotal, description, Format, executionSummary);
-                break;
-            }
+                });
 
             return executionSummary;
         }
@@ -84,12 +95,14 @@ namespace Composable.Testing
              bool timeIndividualExecutions = false,
              string description = "",
              string timeFormat = DefaultTimeFormat,
-             int maxTries = 1)
+             [InstantHandle]Action setup = null,
+             [InstantHandle]Action tearDown = null,
+             int maxTries = 10)
         {
+            StopwatchExtensions.TimedThreadedExecutionSummary executionSummary = null;
+
             maxAverage = maxAverage != default(TimeSpan) ? maxAverage : TimeSpan.MaxValue;
             maxTotal = maxTotal != default(TimeSpan) ? maxTotal : TimeSpan.MaxValue;
-
-            StopwatchExtensions.TimedThreadedExecutionSummary executionSummary = null;
 
             // ReSharper disable AccessToModifiedClosure
 
@@ -99,7 +112,7 @@ namespace Composable.Testing
             {
                 PrintSummary(iterations, maxAverage, maxTotal, description, Format, executionSummary);
 
-                if(timeIndividualExecutions)
+                if (timeIndividualExecutions)
                 {
                     SafeConsole.WriteLine($@"  
     Individual execution times    
@@ -111,26 +124,33 @@ namespace Composable.Testing
             }
             // ReSharper restore AccessToModifiedClosure
 
-            for (int tries = 1; tries <= maxTries; tries++)
-            {
-                executionSummary = StopwatchExtensions.TimeExecutionThreaded(action: action, iterations: iterations, timeIndividualExecutions: timeIndividualExecutions);
-                try
+            MachineWideSingleThreaded.Execute(
+                () =>
                 {
-                    RunAsserts(maxAverage, maxTotal, executionSummary, Format);
-                }
-                catch (Exception e)
-                {
-                    SafeConsole.WriteLine($"Try: {tries} {e.GetType().FullName}: {e.Message}");
-                    if (tries >= maxTries)
+                    for(int tries = 1; tries <= maxTries; tries++)
                     {
+                        setup?.Invoke();
+                        executionSummary = StopwatchExtensions.TimeExecutionThreaded(action: action, iterations: iterations, timeIndividualExecutions: timeIndividualExecutions);
+                        tearDown?.Invoke();
+                        try
+                        {
+                            RunAsserts(maxAverage, maxTotal, executionSummary, Format);
+                        }
+                        catch(TimeOutException e)
+                        {
+                            SafeConsole.WriteLine($"Try: {tries} {e.GetType() .FullName}: {e.Message}");
+                            if(tries >= maxTries)
+                            {
+                                PrintResults();
+                                throw;
+                            }
+                            WaitUntilCpuLoadIsBelowPercent(50);
+                            continue;
+                        }
                         PrintResults();
-                        throw;
+                        break;
                     }
-                    continue;
-                }
-                PrintResults();
-                break;
-            }
+                });
 
             return executionSummary;
         }
@@ -139,14 +159,20 @@ namespace Composable.Testing
         {
             if(maxTotal.HasValue && executionSummary.Total > maxTotal.Value)
             {
-                throw new Exception($"{nameof(maxTotal)}: {format(maxTotal)} exceeded. Was: {format(executionSummary.Total)}");
+                throw new TimeOutException($"{nameof(maxTotal)}: {format(maxTotal)} exceeded. Was: {format(executionSummary.Total)}");
             }
 
             if(maxAverage.HasValue && executionSummary.Average > maxAverage.Value)
             {
-                throw new Exception($"{nameof(maxAverage)} exceeded");
+                throw new TimeOutException($"{nameof(maxAverage)} exceeded");
             }
         }
+
+        class TimeOutException : Exception
+        {
+            public TimeOutException(string message) : base(message) {}
+        }
+
         static void PrintSummary
             (int iterations, TimeSpan? maxAverage, TimeSpan? maxTotal, string description, [InstantHandle]Func<TimeSpan?, string> format, StopwatchExtensions.TimedExecutionSummary executionSummary)
         {

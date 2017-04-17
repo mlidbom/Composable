@@ -1,7 +1,8 @@
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Data.SqlClient;
-
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Transactions;
@@ -10,14 +11,36 @@ using Composable.Logging;
 using Composable.System;
 using Composable.System.Data.SqlClient;
 using Composable.System.Linq;
+using Composable.System.Transactions;
 
 namespace Composable.Testing
 {
-    sealed class SqlServerDatabasePool : StrictlyManagedResourceBase<SqlServerDatabasePool>
+    sealed partial class SqlServerDatabasePool : StrictlyManagedResourceBase<SqlServerDatabasePool>
     {
         readonly string _masterConnectionString;
         readonly SqlServerConnectionUtilities _masterConnection;
         readonly SqlServerConnectionUtilities _managerConnection;
+        bool _initialized;
+
+        static readonly string DatabaseRootFolderOverride;
+
+        static SqlServerDatabasePool()
+        {
+            var tempDirectory = Environment.GetEnvironmentVariable("COMPOSABLE_TEMP_DRIVE");
+            if (tempDirectory.IsNullOrWhiteSpace())
+                return;
+
+            if(!Directory.Exists(tempDirectory))
+            {
+                Directory.CreateDirectory(tempDirectory);
+            }
+
+            DatabaseRootFolderOverride = Path.Combine(tempDirectory, "DatabasePoolData");
+            if(!Directory.Exists(DatabaseRootFolderOverride))
+            {
+                Directory.CreateDirectory(DatabaseRootFolderOverride);
+            }
+        }
 
         static readonly ILogger Log = Logger.For<SqlServerDatabasePool>();
 
@@ -28,125 +51,64 @@ namespace Composable.Testing
             _masterConnectionString = masterConnectionString;
             _masterConnection = new SqlServerConnectionUtilities(_masterConnectionString);
 
-
-            var sqlConnectionStringBuilder = new SqlConnectionStringBuilder(_masterConnectionString) {InitialCatalog = ManagerDbName};
-            _managerConnection = new SqlServerConnectionUtilities(sqlConnectionStringBuilder.ConnectionString);
-
-            EnsureManagerDbExists();
-            ReleaseOldLocks();
+            var managerConnectionString = masterConnectionString.Replace(";Initial Catalog=master;", $";Initial Catalog={ManagerDbName};");
+            if(managerConnectionString == _masterConnectionString)
+            {
+                throw new ArgumentException("masterConnectionString must contain the exact string: ';Initial Catalog=master;' in order for the manager connection string to be constructed.");
+            }
+            _managerConnection = new SqlServerConnectionUtilities(managerConnectionString);
         }
 
         readonly Dictionary<string, Database> _reservedDatabases = new Dictionary<string, Database>();
         bool _disposed;
 
-        public string ConnectionStringFor(string requestedDbName)
+        public string ConnectionStringFor(string connectionStringName)
         {
-            if(_disposed)
-            {
-                throw new InvalidOperationException("Attempt to use disposed object");
-            }
+            Contract.Assert.That(!_disposed, "!_disposed");
+            EnsureInitialized();
 
             Database database;
-            if(_reservedDatabases.TryGetValue(requestedDbName, out database))
-            {
+            if(_reservedDatabases.TryGetValue(connectionStringName, out database))
                 return database.ConnectionString;
-            }
 
-            bool newDatabase = false;
-            using (var transaction = new TransactionScope())
-            {
-                if(TryReserveDatabase(out database))
-                {
-                    _reservedDatabases.Add(requestedDbName, database);
-                }
-                else
-                {
-                    newDatabase = true;
-                    // ReSharper disable once AssignNullToNotNullAttribute
-                    var newDatabaseName = $"{ManagerDbName}_{Guid.NewGuid()}.mdf";
-                    database = new Database(
-                        name: newDatabaseName,
-                        isFree: false,
-                        connectionString: ConnectionStringForDbNamed(newDatabaseName));
+            RunInIsolatedTransaction(action: () =>
+                                             {
+                                                 if (TryReserveDatabase(out database))
+                                                 {
+                                                     _reservedDatabases.Add(connectionStringName, database);
+                                                 } else
+                                                 {
+                                                     ReleaseOldLocks();
+                                                     if(TryReserveDatabase(out database))
+                                                     {
+                                                         _reservedDatabases.Add(connectionStringName, database);
+                                                     } else
+                                                     {
+                                                         database = InsertDatabase();
+                                                         _reservedDatabases.Add(connectionStringName, database);
+                                                     }
+                                                 }
+                                             });
 
-                    using(new TransactionScope(TransactionScopeOption.Suppress))
-                    {
-                        CreateDatabase(database.Name);
-                    }
-
-                    InsertDatabase(database.Name);
-
-                    _reservedDatabases.Add(requestedDbName, database);
-                }
-                transaction.Complete();
-            }
-
-            if(!newDatabase)
-            {
-                CleanDatabase(database);
-            }
             return database.ConnectionString;
         }
 
-        void CreateDatabase(string databaseName)
+        void EnsureInitialized()
         {
-            _masterConnection.ExecuteNonQuery($"CREATE DATABASE [{databaseName}]");
-            _masterConnection.ExecuteNonQuery($"ALTER DATABASE [{databaseName}] SET RECOVERY SIMPLE;");
-            //SafeConsole.WriteLine($"Created: {databaseName}");
-        }
-
-        void SeparatelyInitConnectionPoolSoWeSeeRealisticExecutionTimesWhenProfiling() { _masterConnection.UseConnection(_ => { }); }
-
-        static readonly HashSet<string> ConnectionStringsWithKnownManagerDb = new HashSet<string>();
-        bool ManagerDbExists()
-        {
-            if(!ConnectionStringsWithKnownManagerDb.Contains(_masterConnectionString))
+            if(!_initialized)
             {
-                SeparatelyInitConnectionPoolSoWeSeeRealisticExecutionTimesWhenProfiling();
-                //Don't go nuts trying to figure out why this line is slow. I got you covered. It is because it is very often the very first time a sql connection is opened. Initializing the DB pool is what is slow.
-                if(_masterConnection.ExecuteScalar($"select DB_ID('{ManagerDbName}')") == DBNull.Value)
-                {
-                    return false;
-                }
-            }
-
-            ConnectionStringsWithKnownManagerDb.Add(_masterConnectionString);
-            return true;
-        }
-
-        void EnsureManagerDbExists()
-        {
-            lock(typeof(SqlServerDatabasePool))
-            {
-                if(!ManagerDbExists())
-                {
-                    CreateDatabase(ManagerDbName);
-                    _managerConnection.ExecuteNonQuery(CreateDbTableSql);
-                    ConnectionStringsWithKnownManagerDb.Add(_masterConnectionString);
-                }
+                SeparatelyForceInitializationOfManagerConnectionPoolToProvideSanityWhenPerformanceProfiling();
+                EnsureManagerDbExistsAndIsAvailable();
+                _initialized = true;
             }
         }
 
-        static class ManagerTableSchema
+        void SeparatelyForceInitializationOfManagerConnectionPoolToProvideSanityWhenPerformanceProfiling()
         {
-            public static readonly string TableName = "Databases";
-            public static readonly string DatabaseName = nameof(DatabaseName);
-            public static readonly string IsFree = nameof(IsFree);
-            public static readonly string ReservationDate = nameof(ReservationDate);
-            public static readonly string ReservationCallStack = nameof(ReservationCallStack);
+            try { TransactionScopeCe.SupressAmbient(() => _managerConnection.UseConnection(_ => {})); }
+            // ReSharper disable once EmptyGeneralCatchClause
+            catch { }
         }
-
-        static readonly string CreateDbTableSql = $@"
-CREATE TABLE [dbo].[{ManagerTableSchema.TableName}](
-	[{ManagerTableSchema.DatabaseName}] [varchar](500) NOT NULL,
-	[{ManagerTableSchema.IsFree}] [bit] NOT NULL,
-    [{ManagerTableSchema.ReservationDate}] [datetime] NOT NULL,
-    [{ManagerTableSchema.ReservationCallStack}] [varchar](max) NOT NULL,
- CONSTRAINT [PK_DataBases] PRIMARY KEY CLUSTERED 
-(
-	[{ManagerTableSchema.DatabaseName}] ASC
-))
-";
 
         string ConnectionStringForDbNamed(string dbName)
         {
@@ -156,151 +118,98 @@ CREATE TABLE [dbo].[{ManagerTableSchema.TableName}](
 
         bool TryReserveDatabase(out Database database)
         {
-            database = null;
-            var freeDbs = GetDatabases().Where(db => db.IsFree).ToList();
-            if(freeDbs.Any())
+            var commandText = $@"
+declare @reservedId integer
+SET @reservedId = (select top 1 {ManagerTableSchema.Id} from {ManagerTableSchema.TableName} {ExclusiveTableLockHint} WHERE {ManagerTableSchema.IsFree} = 1 order by {ManagerTableSchema.ReservationDate} asc)
+
+if ( @reservedId is not null)
+	update {ManagerTableSchema.TableName} 
+        set {ManagerTableSchema.IsFree} = 0, 
+            {ManagerTableSchema.ReservationDate} = getdate(), 
+            {ManagerTableSchema.ReservationCallStack} = @{ManagerTableSchema.ReservationCallStack}
+    where Id = @reservedId
+
+select @reservedId";
+
+            Database otherDb = null;
+            _managerConnection.UseCommand(command =>
+                                          {
+                                              command.CommandType = CommandType.Text;
+                                              command.CommandText = commandText;
+                                              command.Parameters.Add(new SqlParameter(ManagerTableSchema.ReservationCallStack, SqlDbType.VarChar, -1) {Value = Environment.StackTrace});
+
+                                              var idObject = command.ExecuteScalar();
+
+                                              if (!(idObject is DBNull))
+                                              {
+                                                otherDb = new Database(pool: this, id: (int)idObject);
+                                              }
+                                          });
+
+            database = otherDb;
+            return database != null;
+        }
+
+        Database InsertDatabase()
+        {
+            var value = _managerConnection.ExecuteScalar(
+                $@"
+                set nocount on
+                insert {ManagerTableSchema.TableName} ({ManagerTableSchema.IsFree}, {ManagerTableSchema.ReservationDate},  {ManagerTableSchema.ReservationCallStack}) 
+                                                   values(                0      ,                     getdate()       ,                     '{Environment.StackTrace}')
+                select @@IDENTITY");
+            var id = (int)(decimal)value;
+            var database = new Database(pool: this, id: id);
+            using (new TransactionScope(TransactionScopeOption.Suppress))
             {
-                database = freeDbs.First();
-                ReserveDatabase(database.Name);
-                return true;
+                CreateDatabase(database.Name);
             }
-            return false;
+            return database;
         }
 
-        void ReserveDatabase(string dbName)
-        {
-            _managerConnection.ExecuteNonQuery(
-                $"update {ManagerTableSchema.TableName} set {ManagerTableSchema.IsFree} = 0, {ManagerTableSchema.ReservationDate} = getdate(), {ManagerTableSchema.ReservationCallStack} = '{Environment.StackTrace}' where {ManagerTableSchema.DatabaseName} = '{dbName}'");
-            //SafeConsole.WriteLine($"Reserved:{dbName}");
-        }
-
-        void CleanDatabase(Database db)
-        {
-            new SqlServerConnectionUtilities(ConnectionStringForDbNamed(db.Name))
-                .UseConnection(connection => connection.DropAllObjects());
-        }
-
-        void InsertDatabase(string dbName)
-        {
-            _managerConnection.ExecuteNonQuery(
-                $@"insert {ManagerTableSchema.TableName} ({ManagerTableSchema.DatabaseName}, {ManagerTableSchema.IsFree}, {ManagerTableSchema.ReservationDate},  {ManagerTableSchema.ReservationCallStack}) 
-                                                           values('{dbName}'               ,                     0      ,                     getdate()       ,                     '{Environment.StackTrace}')");
-        }
-
-        void ReleaseDatabase(Database database)
-        {
-            _reservedDatabases.Remove(database.Name);
-            Task.Run(
-                () =>
-                {
-                    var releasedDBs = _managerConnection.ExecuteNonQuery(
-                        $"update {ManagerTableSchema.TableName} set {ManagerTableSchema.IsFree} = 1  where {ManagerTableSchema.DatabaseName} = '{database.Name}'");
-
-                    Contract.Assert.That(releasedDBs == 1, "releasedDBs == 1");
-                }
-            );
-        }
-
-        IEnumerable<Database> GetDatabases()
-        {
-            return _managerConnection.UseCommand(
-                command =>
-                {
-                    var names = new List<Database>();
-                    command.CommandText =
-                        $"select {ManagerTableSchema.DatabaseName}, {ManagerTableSchema.IsFree}, {ManagerTableSchema.ReservationDate} from {ManagerTableSchema.TableName} With(TABLOCKX)";
-                    using(var reader = command.ExecuteReader())
-                    {
-                        while(reader.Read())
-                        {
-                            names.Add(
-                                new Database(
-                                    name: reader.GetString(0),
-                                    isFree: reader.GetBoolean(1),
-                                    connectionString: ConnectionStringForDbNamed(reader.GetString(0))));
-                        }
-                    }
-                    return names;
-                });
-        }
 
         void ReleaseOldLocks()
         {
-            Task.Run(
-                () =>
-                {
-                    var count = _managerConnection.ExecuteNonQuery(
-                        $"update {ManagerTableSchema.TableName} With(TABLOCKX) set {ManagerTableSchema.IsFree} = 1 where {ManagerTableSchema.ReservationDate} < dateadd(minute, -10, getdate()) and {ManagerTableSchema.IsFree} = 0");
-                    if(count > 0)
-                    {
-                        //SafeConsole.WriteLine($"Released {count} garbage reservations.");
-                    }
-                });
+            var selectDbsWithOldLocks = $"select {ManagerTableSchema.Id} from {ManagerTableSchema.TableName} {ExclusiveTableLockHint} where {ManagerTableSchema.ReservationDate} < dateadd(minute, -10, getdate()) and {ManagerTableSchema.IsFree} = 0";
+            var oldLockedDatabases = new List<Database>();
+            _managerConnection.UseCommand(command =>
+                                          {
+                                              command.CommandText = selectDbsWithOldLocks;
+                                              command.CommandType = CommandType.Text;
+                                              using(var reader = command.ExecuteReader())
+                                              {
+                                                  while(reader.Read())
+                                                  {
+                                                      oldLockedDatabases.Add(new Database(pool: this, id: reader.GetInt32(0)));
+                                                  }
+                                              }
+                                          });
+            CleanAndRelease(oldLockedDatabases);
         }
+
+        void CleanAndRelease(IReadOnlyList<Database> databases)
+        {
+            void CleanAndReleaseDatabase(Database database)
+            {
+                new SqlServerConnectionUtilities(ConnectionStringForDbNamed(database.Name)).UseConnection(action: connection => connection.DropAllObjects());
+
+                _managerConnection.ExecuteNonQuery($@"update {ManagerTableSchema.TableName} set {ManagerTableSchema.IsFree} = 1  where {ManagerTableSchema.Id} = {database.Id}");
+            }
+
+            databases.ForEach(action: db => _reservedDatabases.Remove(db.Name));
+
+            Task.Run(() => databases.ForEach(CleanAndReleaseDatabase));
+        }
+
+        static readonly string ExclusiveTableLockHint = "With(TABLOCKX)";
 
         protected override void InternalDispose()
         {
             if (!_disposed)
             {
                 _disposed = true;
-                _reservedDatabases.Values.ForEach(ReleaseDatabase);
+                CleanAndRelease(_reservedDatabases.Values.ToList());
             }
-        }
-
-        ~SqlServerDatabasePool()
-        {
-            InternalDispose();
-        }
-
-        class Database
-        {
-            internal string Name { get; }
-            internal bool IsFree { get; }
-            internal string ConnectionString { get; }
-            internal Database(string name,  bool isFree, string connectionString)
-            {
-                Name = name;
-                IsFree = isFree;
-                ConnectionString = connectionString;
-            }
-        }
-
-        // ReSharper disable once UnusedMember.Global
-        internal void RemoveAllDatabases()
-        {
-            var dbsToDrop = new List<string>();
-            _masterConnection.UseCommand(
-                command =>
-                {
-                    command.CommandText = "select name from sysdatabases";
-                    using(var reader = command.ExecuteReader())
-                    {
-                        while(reader.Read())
-                        {
-                            var dbName = reader.GetString(0);
-                            if((dbName.StartsWith(ManagerDbName) && dbName != ManagerDbName))
-                            {
-                                dbsToDrop.Add(dbName);
-                            }
-                        }
-                    }
-                });
-
-            foreach(var db in dbsToDrop)
-            {
-                var dropCommand = $"drop database [{db}]";
-                //SafeConsole.WriteLine(dropCommand);
-                try
-                {
-                    _masterConnection.ExecuteNonQuery(dropCommand);
-                }
-                catch(Exception exception)
-                {
-                    Log.Error(exception);
-                }
-            }
-
-            _managerConnection.ExecuteNonQuery($"delete {ManagerTableSchema.TableName}");
         }
     }
 }

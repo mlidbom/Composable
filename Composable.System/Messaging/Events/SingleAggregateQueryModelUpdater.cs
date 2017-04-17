@@ -1,5 +1,5 @@
 using Composable.Persistence.DocumentDb;
-using Composable.Persistence.EventSourcing;
+using Composable.Persistence.EventStore;
 
 namespace Composable.Messaging.Events
 {
@@ -33,9 +33,6 @@ namespace Composable.Messaging.Events
                                    if(e is IAggregateRootCreatedEvent)
                                    {
                                        session1.Save(Model);
-                                   } else
-                                   {
-                                       session1.SaveChanges();
                                    }
                                });
         }

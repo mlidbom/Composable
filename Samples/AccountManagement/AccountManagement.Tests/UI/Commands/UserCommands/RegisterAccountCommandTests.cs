@@ -1,0 +1,94 @@
+﻿using System;
+using System.Linq;
+using AccountManagement.UI.Commands.UserCommands;
+using FluentAssertions;
+using NUnit.Framework;
+
+namespace AccountManagement.Tests.UI.Commands.UserCommands
+{
+    [TestFixture]
+    public class RegisterAccountCommandTests
+    {
+        RegisterAccountCommand _registerAccountCommand;
+
+        [SetUp]
+        public void CreateValidCommand()
+        {
+            _registerAccountCommand = new RegisterAccountCommand()
+                                      {
+                                          AccountId = Guid.NewGuid(),
+                                          Email = "valid.email@google.com",
+                                          Password = "AComplex!1Password"
+                                      };
+            CommandValidator.ValidationFailures(_registerAccountCommand).Should().BeEmpty();
+        }
+
+        [Test]
+        public void IsInvalidifAccountIdIsEmpty()
+        {
+            _registerAccountCommand.AccountId = Guid.Empty;
+            CommandValidator.ValidationFailures(_registerAccountCommand).Should().NotBeEmpty();
+        }
+
+        [Test]
+        public void IsInvalidIfEmailIsNull()
+        {
+            _registerAccountCommand.Email = null;
+            CommandValidator.ValidationFailures(_registerAccountCommand).Should().NotBeEmpty();
+        }
+
+        [Test]
+        public void IsInvalidIfEmailIsIncorrectFormat()
+        {
+            _registerAccountCommand.Email = "invalid";
+            CommandValidator.ValidationFailures(_registerAccountCommand).Should().NotBeEmpty();
+        }
+
+        [Test]
+        public void IsInvalidIfPasswordIsNull()
+        {
+            _registerAccountCommand.Password = null;
+            CommandValidator.ValidationFailures(_registerAccountCommand).Should().NotBeEmpty();
+        }
+
+        [Test]
+        public void IsInvalidIfPasswordDoesNotMatchPolicy()
+        {
+            foreach(var invalidPassword in TestData.Password.Invalid.All)
+            {
+                _registerAccountCommand.Password = invalidPassword;
+                CommandValidator.ValidationFailures(_registerAccountCommand).Should().NotBeEmpty();
+            }
+        }
+
+        [Test]
+        public void WhenNotMatchingThePolicyTheFailureTellsHow()
+        {
+            _registerAccountCommand.Password = TestData.Password.Invalid.ShorterThanFourCharacters;
+            ValidateAndGetFirstMessage().Should().Be(RegisterAccountCommandResources.Password_ShorterThanFourCharacters);
+
+            _registerAccountCommand.Password = TestData.Password.Invalid.BorderedByWhiteSpaceAtEnd;
+            ValidateAndGetFirstMessage().Should().Be(RegisterAccountCommandResources.Password_BorderedByWhitespace);
+
+            _registerAccountCommand.Password = TestData.Password.Invalid.MissingLowercaseCharacter;
+            ValidateAndGetFirstMessage().Should().Be(RegisterAccountCommandResources.Password_MissingLowerCaseCharacter);
+
+            _registerAccountCommand.Password = TestData.Password.Invalid.MissingUpperCaseCharacter;
+            ValidateAndGetFirstMessage().Should().Be(RegisterAccountCommandResources.Password_MissingUpperCaseCharacter);
+
+            _registerAccountCommand.Password = TestData.Password.Invalid.Null;
+            ValidateAndGetFirstMessage().Should().Be(RegisterAccountCommandResources.PasswordMissing);
+        }
+
+        [Test]
+        public void FailsIfUnHandledPolicyFailureIsDetected()
+        {
+            _registerAccountCommand.Password = null; //Null is normally caught by the Require attribute.
+            // ReSharper disable once AssignNullToNotNullAttribute
+            // ReSharper disable once ReturnValueOfPureMethodIsNotUsed
+            _registerAccountCommand.Invoking(command => command.Validate(null).ToArray()).ShouldThrow<Exception>();
+        }
+
+        string ValidateAndGetFirstMessage() => CommandValidator.ValidationFailures(_registerAccountCommand).First().ErrorMessage;
+    }
+}

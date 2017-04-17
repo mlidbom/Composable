@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Text.RegularExpressions;
 using Composable.DDD;
+using JetBrains.Annotations;
+using Newtonsoft.Json;
 
 namespace AccountManagement.Domain
 {
@@ -11,9 +13,13 @@ namespace AccountManagement.Domain
     /// </summary>
     public class Email : ValueObject<Email>
     {
+        [JsonProperty]
         string Value { get; set; }
 
         public override string ToString() => Value;
+
+
+        [UsedImplicitly] Email() { }
 
         Email(string emailAddress)
         {

@@ -1,4 +1,4 @@
-﻿using Composable.Persistence.EventSourcing;
+﻿using Composable.Persistence.EventStore;
 
 // ReSharper disable MemberHidesStaticFromOuterClass
 // ReSharper disable InconsistentNaming

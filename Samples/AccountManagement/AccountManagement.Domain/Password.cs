@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using JetBrains.Annotations;
 
 namespace AccountManagement.Domain
 {
@@ -10,6 +11,8 @@ namespace AccountManagement.Domain
     {
         public byte[] HashedPassword { get; private set; }
         public byte[] Salt { get; private set; }
+
+        [UsedImplicitly] Password() { }
 
         public Password(string password)
         {

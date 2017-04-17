@@ -56,8 +56,7 @@ namespace Composable.System.Diagnostics
                     }
                     else
                     {
-                        var tasks = 1.Through(iterations).Select(_ => Task.Factory.StartNew(action)).ToArray();
-                        Task.WaitAll(tasks);
+                        Parallel.For(fromInclusive: 0, toExclusive: iterations, body: index => action());
                     }
                 });
 

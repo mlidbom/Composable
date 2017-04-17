@@ -35,13 +35,15 @@ namespace Composable.DDD
 
             var hashCode = startValue;
 
+            // ReSharper disable once ForCanBeConvertedToForeach optimization
             for(var i = 0; i < fields.Length; i++)
             {
                 var value = fields[i](this);
 
-                if (value is IEnumerable && !(value is string))
+                var enumerableValue = value as IEnumerable;
+                if (enumerableValue != null && !(value is string))
                 {
-                    var value1Array = ((IEnumerable)value).Cast<object>().Where(me => !ReferenceEquals(me, null)).ToArray();
+                    var value1Array = enumerableValue.Cast<object>().Where(me => !ReferenceEquals(me, null)).ToArray();
                     foreach(var something in value1Array)
                     {
                         hashCode = hashCode * multiplier + something.GetHashCode();
@@ -68,10 +70,10 @@ namespace Composable.DDD
 
             var fields = MemberAccessorHelper<T>.GetFieldGetters(GetType());
 
-            for(var i = 0; i < fields.Length; i++)
+            foreach(var fieldGetter in fields)
             {
-                var value1 = fields[i](other);
-                var value2 = fields[i]((T)this);
+                var value1 = fieldGetter(other);
+                var value2 = fieldGetter((T)this);
 
                 if(ReferenceEquals(value1, null))
                 {

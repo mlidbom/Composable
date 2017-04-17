@@ -1,7 +1,6 @@
 ﻿using System;
 using Composable.CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations;
 using Composable.GenericAbstractions.Time;
-using Composable.Persistence.EventSourcing;
 using Composable.Persistence.EventStore;
 using Composable.Persistence.EventStore.AggregateRoots;
 using JetBrains.Annotations;
@@ -34,7 +33,7 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing
             RaiseEvent(new UserRegistered() { AggregateRootId = id, UserId = id, Email = email, Password = password});
         }
 
-        public static User Register(IEventStoreSession aggregates, string email, string password, Guid id)
+        public static User Register(IEventStoreUpdater aggregates, string email, string password, Guid id)
         {
             var user = new User();
             user.Register(email, password, id);

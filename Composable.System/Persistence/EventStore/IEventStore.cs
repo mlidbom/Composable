@@ -23,10 +23,10 @@ namespace Composable.Persistence.EventStore
 
     static class EventStoreTestingExtensions
     {
-        public static IReadOnlyList<IAggregateRootEvent> ListAllEventsForTestingPurposesAbsolutelyNotUsableForARealEventStoreOfAnySize(this IEventStore @this)
+        public static IReadOnlyList<IAggregateRootEvent> ListAllEventsForTestingPurposesAbsolutelyNotUsableForARealEventStoreOfAnySize(this IEventStore @this, int batchSize = 10000)
         {
             var events = new List<IAggregateRootEvent>();
-            @this.StreamEvents(10000, events.AddRange);
+            @this.StreamEvents(batchSize, events.AddRange);
             return events;
         }
     }

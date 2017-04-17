@@ -119,12 +119,10 @@ namespace Composable.Persistence.EventStore
 
         static bool IsRefactoringEvent(AggregateRootEvent @event) => @event.InsertBefore.HasValue || @event.InsertAfter.HasValue || @event.Replaces.HasValue;
 
-        public const int StreamEventsBatchSize = 10000;
-
-        IEnumerable<IAggregateRootEvent> StreamEvents()
+        IEnumerable<IAggregateRootEvent> StreamEvents(int batchSize)
         {
             var streamMutator = CompleteEventStoreStreamMutator.Create(_migrationFactories);
-            return streamMutator.Mutate(_eventReader.StreamEvents(StreamEventsBatchSize).Select(HydrateEvent));
+            return streamMutator.Mutate(_eventReader.StreamEvents(batchSize).Select(HydrateEvent));
         }
 
         public void StreamEvents(int batchSize, Action<IReadOnlyList<IAggregateRootEvent>> handleEvents)
@@ -134,7 +132,7 @@ namespace Composable.Persistence.EventStore
 
             _schemaManager.IdMapper.LoadTypesFromDatabase();
 
-            var batches = StreamEvents()
+            var batches = StreamEvents(batchSize)
                 .ChopIntoSizesOf(batchSize)
                 .Select(batch => batch.ToList());
             foreach (var batch in batches)

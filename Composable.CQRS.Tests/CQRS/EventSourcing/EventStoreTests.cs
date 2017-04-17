@@ -53,13 +53,14 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing
                   .HaveCount(10);
         }
 
-        [Test, LongRunning] public void StreamEventsSinceReturnsWholeEventLogWhenFetchingALargeNumberOfEvents_EnsureBatchingDoesNotBreakThings()
+        [Test] public void StreamEventsSinceReturnsWholeEventLogWhenFetchingALargeNumberOfEvents_EnsureBatchingDoesNotBreakThings()
         {
-            const int moreEventsThanTheBatchSizeForStreamingEvents = EventStore.StreamEventsBatchSize + 100;
+            const int batchSize = 100;
+            const int moreEventsThanTheBatchSizeForStreamingEvents = batchSize + 10;
             var aggregateId = Guid.NewGuid();
             _eventStore.SaveEvents(1.Through(moreEventsThanTheBatchSizeForStreamingEvents)
                                    .Select(i => new SomeEvent(aggregateId, i)));
-            var stream = _eventStore.ListAllEventsForTestingPurposesAbsolutelyNotUsableForARealEventStoreOfAnySize()
+            var stream = _eventStore.ListAllEventsForTestingPurposesAbsolutelyNotUsableForARealEventStoreOfAnySize(batchSize: batchSize)
                                    .ToList();
 
             var currentEventNumber = 0;

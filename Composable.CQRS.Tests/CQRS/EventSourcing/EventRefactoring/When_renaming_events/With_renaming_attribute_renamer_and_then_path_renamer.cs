@@ -6,7 +6,7 @@ using NUnit.Framework;
 
 namespace Composable.CQRS.Tests.CQRS.EventSourcing.EventRefactoring.When_renaming_events
 {
-    public class With_renaming_attribute_renamer_and_then_path_renamer
+    [TestFixture] public class With_renaming_attribute_renamer_and_then_path_renamer
     {
         const string OldPath = "Some.Old.Path.";
 

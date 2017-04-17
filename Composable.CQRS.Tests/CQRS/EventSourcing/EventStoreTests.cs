@@ -3,7 +3,6 @@ using System.Linq;
 using Composable.DependencyInjection;
 using Composable.Persistence.EventStore;
 using Composable.System.Linq;
-using Composable.Testing;
 using FluentAssertions;
 using NUnit.Framework;
 

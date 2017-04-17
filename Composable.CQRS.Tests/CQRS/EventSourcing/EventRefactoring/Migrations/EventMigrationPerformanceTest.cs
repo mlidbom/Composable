@@ -25,13 +25,13 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
         IServiceLocator _container;
         IReadOnlyList<IEventMigration> _currentMigrations;
         [OneTimeSetUp]
-        public void Given_a_10000_events_large_aggregate()
+        public void Given_a_1000_events_large_aggregate()
         {
             var historyTypes = Seq.OfTypes<Ec1>()
                                   .Concat(
                                       1.Through(10)
                                        .SelectMany(
-                                           index => 1.Through(996)
+                                           index => 1.Through(96)
                                                      .Select(_ => typeof(E1))
                                                      .Concat(Seq.OfTypes<E2, E4, E6, E8>()))).ToList();
 
@@ -77,7 +77,7 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
         }
 
         [Test]
-        public void With_four_migrations_mutation_that_all_actually_changes_things_uncached_loading_takes_less_than_500_milliseconds_cached_less_than_40_milliseconds()
+        public void With_four_migrations_mutation_that_all_actually_changes_things_uncached_loading_takes_less_than_50_milliseconds_cached_less_than_10_milliseconds()
         {
             var eventMigrations = Seq.Create<IEventMigration>(
                 Before<E2>.Insert<E3>()
@@ -86,11 +86,11 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
                 ,Before<E8>.Insert<E9>()
             ).ToArray();
 
-            AssertUncachedAggregateLoadTime(500.Milliseconds(), 40.Milliseconds(), eventMigrations);
+            AssertUncachedAggregateLoadTime(50.Milliseconds(), 10.Milliseconds(), eventMigrations);
         }
 
         [Test]
-        public void With_four_migrations_that_change_nothing_uncached_loading_takes_less_than_500_milliseconds_cached_less_than_40_milliseconds()
+        public void With_four_migrations_that_change_nothing_uncached_loading_takes_less_than_50_milliseconds_cached_less_than_10_milliseconds()
         {
             var eventMigrations = Seq.Create<IEventMigration>(
                 Before<E3>.Insert<E1>(),
@@ -99,14 +99,14 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
                 Before<E9>.Insert<E1>()
             ).ToArray();
 
-            AssertUncachedAggregateLoadTime(500.Milliseconds(), 40.Milliseconds(), eventMigrations);
+            AssertUncachedAggregateLoadTime(50.Milliseconds(), 10.Milliseconds(), eventMigrations);
         }
 
         [Test]
-        public void When_there_are_no_migrations_uncached_loading_takes_less_than_500_milliseconds_cached_less_than_40_milliseconds()
+        public void When_there_are_no_migrations_uncached_loading_takes_less_than_50_milliseconds_cached_less_than_10_milliseconds()
         {
             var eventMigrations = Seq.Create<IEventMigration>().ToArray();
-            AssertUncachedAggregateLoadTime(500.Milliseconds(), 40.Milliseconds(), eventMigrations);
+            AssertUncachedAggregateLoadTime(50.Milliseconds(), 10.Milliseconds(), eventMigrations);
 
         }
     }

@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Composable.DependencyInjection;
 using Composable.Persistence.EventStore;
 using Composable.System.Linq;
+using Composable.Testing;
 using FluentAssertions;
 using NUnit.Framework;
 
@@ -15,7 +16,7 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.Sql
     {
         protected override IServiceLocator CreateServiceLocator() => TestWiringHelper.SetupTestingServiceLocator(TestingMode.RealComponents);
 
-        [Test]
+        [Test, LongRunning]
         public void Serializes_access_to_an_aggregate_so_that_concurrent_transactions_succeed_even_if_history_has_been_read_outside_of_modifying_transactions()
         {
             var user = new User();
@@ -53,7 +54,7 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.Sql
                 });
         }
 
-        [Test]
+        [Test, LongRunning]
         public void Serializes_access_to_an_aggregate_so_that_concurrent_transactions_succeed()
         {
             var user = new User();

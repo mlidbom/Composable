@@ -12,7 +12,7 @@ using NUnit.Framework;
 
 namespace Composable.CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
 {
-    [TestFixture, Performance]
+    [TestFixture, Performance, LongRunning]
     public class InMemoryMigrationsPerformanceTest : EventStreamMutatorTestsBase
     {
         public InMemoryMigrationsPerformanceTest() : base(typeof(InMemoryEventStore)) { }

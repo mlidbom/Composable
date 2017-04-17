@@ -16,7 +16,7 @@ using NUnit.Framework;
 
 namespace Composable.CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
 {
-    [TestFixture, Performance]
+    [TestFixture, Performance, LongRunning]
     public class SingleAggregateInstanceEventStreamMutatorPerformanceTest_Given_a_10000_events_large_aggregate
     {
         List<AggregateRootEvent> _history;

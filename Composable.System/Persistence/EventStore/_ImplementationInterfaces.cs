@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data.SqlTypes;
+using Composable.Contracts;
 
 namespace Composable.Persistence.EventStore
 {
@@ -63,6 +64,12 @@ namespace Composable.Persistence.EventStore
 
         EventWriteDataRow(SqlDecimal manualReadOrder, AggregateRootEvent @event, string eventAsJson)
         {
+            if(!(manualReadOrder.IsNull || (manualReadOrder.Precision == 38 && manualReadOrder.Scale == 17)))
+            {
+                //Todo:Bug: Do something about this. The precision is not what we think it is. This is not acceptable.
+                //throw new ArgumentException($"$$$$$$$$$$$$$$$$$$$$$$$$$ Found decimal with precision: {manualReadOrder.Precision} and scale: {manualReadOrder.Scale}", nameof(manualReadOrder));
+            }
+
             Event = @event;
             ManualReadOrder = manualReadOrder;
             EventJson = eventAsJson;

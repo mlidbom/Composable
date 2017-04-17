@@ -96,7 +96,7 @@ namespace Composable.Testing
 
         bool TryReserveDatabase(out Database database)
         {
-            var command = $@"
+            var commandText = $@"
 declare @reservedId integer
 SET @reservedId = (select top 1 {ManagerTableSchema.Id} from {ManagerTableSchema.TableName} {ExclusiveTableLockHint} WHERE {ManagerTableSchema.IsFree} = 1 order by {ManagerTableSchema.ReservationDate} asc)
 
@@ -104,20 +104,28 @@ if ( @reservedId is not null)
 	update {ManagerTableSchema.TableName} 
         set {ManagerTableSchema.IsFree} = 0, 
             {ManagerTableSchema.ReservationDate} = getdate(), 
-            {ManagerTableSchema.ReservationCallStack} = '{Environment.StackTrace}'
+            {ManagerTableSchema.ReservationCallStack} = @{ManagerTableSchema.ReservationCallStack}
     where Id = @reservedId
 
 select @reservedId";
 
-            var idObject = _managerConnection.ExecuteScalar(command);
-            if(idObject is DBNull)
-            {
-                database = null;
-                return false;
-            }
+            Database otherDb = null;
+            _managerConnection.UseCommand(command =>
+                                          {
+                                              command.CommandType = CommandType.Text;
+                                              command.CommandText = commandText;
+                                              command.Parameters.Add(new SqlParameter(ManagerTableSchema.ReservationCallStack, SqlDbType.VarChar, -1) {Value = Environment.StackTrace});
 
-            database = new Database(pool: this, id: (int)idObject);
-            return true;
+                                              var idObject = command.ExecuteScalar();
+
+                                              if (!(idObject is DBNull))
+                                              {
+                                                otherDb = new Database(pool: this, id: (int)idObject);
+                                              }
+                                          });
+
+            database = otherDb;
+            return database != null;
         }
 
         Database InsertDatabase()

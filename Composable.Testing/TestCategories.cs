@@ -32,6 +32,13 @@ namespace Composable.Testing
             => context.ParallelScope = NUnit.Framework.ParallelScope.None;
     }
 
+    [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method)] class LongRunningAttribute : Attribute,
+                                                                                                    NUnit.Framework.Interfaces.IApplyToTest
+    {
+        public void ApplyToTest(NUnit.Framework.Internal.Test test)
+            => test.Properties.Add("Category", "LongRunning");
+    }
+
     [Flags]
     enum ResourceType
     {

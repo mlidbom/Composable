@@ -3,6 +3,7 @@ using System.Linq;
 using Composable.DependencyInjection;
 using Composable.Persistence.EventStore;
 using Composable.System.Linq;
+using Composable.Testing;
 using FluentAssertions;
 using NUnit.Framework;
 
@@ -52,7 +53,7 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing
                   .HaveCount(10);
         }
 
-        [Test] public void StreamEventsSinceReturnsWholeEventLogWhenFetchingALargeNumberOfEvents_EnsureBatchingDoesNotBreakThings()
+        [Test, LongRunning] public void StreamEventsSinceReturnsWholeEventLogWhenFetchingALargeNumberOfEvents_EnsureBatchingDoesNotBreakThings()
         {
             const int moreEventsThanTheBatchSizeForStreamingEvents = EventStore.StreamEventsBatchSize + 100;
             var aggregateId = Guid.NewGuid();

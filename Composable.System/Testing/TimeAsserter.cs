@@ -22,6 +22,7 @@ namespace Composable.Testing
         static void WaitUntilCpuLoadIsBelowPercent(int percent)
         {
             const int waitMilliseconds = 20;
+            // ReSharper disable once UnusedVariable this makes profiling information sane.
             var separatedForPerformanceVisibility = TotalCpu;
             InternalWait(percent, waitMilliseconds);
         }

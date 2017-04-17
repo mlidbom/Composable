@@ -18,4 +18,3 @@ namespace Composable.Testing
             => test.Properties.Add("Category", "LongRunning");
     }
 }
-

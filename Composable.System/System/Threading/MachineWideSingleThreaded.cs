@@ -23,6 +23,6 @@ namespace Composable.System.Threading
         }
 
         internal static MachineWideSingleThreaded For<TSynchronized>() => For(typeof(TSynchronized));
-        internal static MachineWideSingleThreaded For(Type synchronized) => new MachineWideSingleThreaded($"{nameof(MachineWideSingleThreaded)}_{synchronized.AssemblyQualifiedName}");        
+        internal static MachineWideSingleThreaded For(Type synchronized) => new MachineWideSingleThreaded($"{nameof(MachineWideSingleThreaded)}_{synchronized.AssemblyQualifiedName}");
     }
 }

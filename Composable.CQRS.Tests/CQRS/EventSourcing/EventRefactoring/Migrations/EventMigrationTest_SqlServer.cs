@@ -24,7 +24,8 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations {
             var actualMigrations = Seq.Create(Replace<E1>.With<E2>()).ToArray();
             IReadOnlyList<IEventMigration> migrations = new List<IEventMigration>();
 
-            using (var serviceLocator = EventMigrationTestBase.CreateServiceLocatorForEventStoreType(() => migrations, EventStoreType))
+            // ReSharper disable once AccessToModifiedClosure this is exactly what we wish to achieve here...
+            using (var serviceLocator = CreateServiceLocatorForEventStoreType(() => migrations, EventStoreType))
             {
                 IEventStore<ITestingEventstoreUpdater, ITestingEventstoreReader> PersistingEventStore() => serviceLocator.Resolve<IEventStore<ITestingEventstoreUpdater, ITestingEventstoreReader>>();
 

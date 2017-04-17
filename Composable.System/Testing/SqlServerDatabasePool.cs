@@ -51,8 +51,6 @@ namespace Composable.Testing
 
             var sqlConnectionStringBuilder = new SqlConnectionStringBuilder(_masterConnectionString) {InitialCatalog = ManagerDbName};
             _managerConnection = new SqlServerConnectionUtilities(sqlConnectionStringBuilder.ConnectionString);
-
-            EnsureManagerDbExists();
         }
 
         readonly Dictionary<string, Database> _reservedDatabases = new Dictionary<string, Database>();
@@ -60,6 +58,7 @@ namespace Composable.Testing
 
         public string ConnectionStringFor(string connectionStringName)
         {
+            EnsureManagerDbExists();
             Contract.Assert.That(!_disposed, "!_disposed");
 
             Database database;

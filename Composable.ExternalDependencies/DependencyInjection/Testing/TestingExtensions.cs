@@ -19,6 +19,7 @@ namespace Composable.DependencyInjection.Testing
         /// </summary>
         public static void ConfigureWiringForTestsCallBeforeAllOtherWiring(this IDependencyInjectionContainer @this, TestingMode mode = TestingMode.RealComponents)
         {
+            var masterConnectionString = MasterDbConnectionString.Value;//evaluate lazy here in order to not pollute profiler timings of component resolution or registering.
             var dummyTimeSource = DummyTimeSource.Now;
             var registry = new MessageHandlerRegistry();
             var bus = new TestingOnlyServiceBus(dummyTimeSource, registry);
@@ -44,7 +45,7 @@ namespace Composable.DependencyInjection.Testing
                                     .UsingFactoryMethod(_ => bus)
                                     .LifestyleSingleton(),
                            Component.For<IConnectionStringProvider>()
-                                    .UsingFactoryMethod(locator => new SqlServerDatabasePoolConnectionStringProvider(MasterDbConnectionString.Value))
+                                    .UsingFactoryMethod(locator => new SqlServerDatabasePoolConnectionStringProvider(masterConnectionString))
                                     .LifestyleSingleton()
                                     .DelegateToParentServiceLocatorWhenCloning()
             );

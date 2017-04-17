@@ -576,15 +576,4 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
                     Before<E1>.Insert<E2>()));
         }
     }
-
-    [TestFixture]
-    public class DropTempdatabases
-    {
-        [Test]
-        public void DropEm()
-        {
-            //new SqlServerDatabasePool(new ConnectionStringConfigurationParameterProvider().ConnectionStringFor("MasterDB").ConnectionString)
-            //    .DropAllAndStartOver();
-        }
-    }
 }

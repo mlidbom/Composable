@@ -1,8 +1,10 @@
 ﻿using System;
+using System.Linq;
 using Composable.Logging;
 using Composable.Persistence.EventStore;
 using Composable.Persistence.EventStore.Serialization.NewtonSoft;
 using Composable.System.Diagnostics;
+using Composable.System.Linq;
 using Composable.Testing;
 using FluentAssertions;
 using JetBrains.Annotations;
@@ -101,7 +103,7 @@ namespace Composable.CQRS.Tests.NewtonSoft
                 );
         }
 
-        [Test] public void Should_roundtrip_simple_event_10000_times_in_100_milliseconds_with_new_instance_for_each_serialization()
+        [Test] public void Should_roundtrip_simple_event_1000_times_in_15_milliseconds_with_new_instance_for_each_serialization()
         {
             var @event = new TestEvent(
                                             test1: "Test1",
@@ -114,23 +116,27 @@ namespace Composable.CQRS.Tests.NewtonSoft
                                             replaces: 30,
                                             insertionOrder: 40,
                                             utcTimeStamp: DateTime.Now + 1.Minutes());
+
+            //Warmup
+            _eventSerializer.Deserialize(typeof(TestEvent), _eventSerializer.Serialize(@event));
+
             TimeAsserter.Execute(
                                  () =>
                                  {
-                                     var eventJson = _eventSerializer.Serialize(@event);
-                                     _eventSerializer.Deserialize(typeof(TestEvent), eventJson);
+                                     var eventJson = new NewtonSoftEventStoreEventSerializer().Serialize(@event);
+                                     new NewtonSoftEventStoreEventSerializer().Deserialize(typeof(TestEvent), eventJson);
                                  },
-                                 iterations:10000,
-                                 maxTotal: 100.Milliseconds().AdjustRuntimeToTestEnvironment()
+                                 iterations:1000,
+                                 maxTotal: 15.Milliseconds()
                                 );
         }
 
-        [Test] public void Should_roundtrip_simple_event_within_20_percent_of_default_serializer_performance_given_all_new_serializer_instances()
+        [Test] public void Should_roundtrip_simple_event_within_40_percent_of_default_serializer_performance_given_all_new_serializer_instances()
         {
             const int iterations = 1000;
-            const double allowedSlowdown = 1.2;
+            const double allowedSlowdown = 1.4;
 
-            var @event = new TestEvent(
+            var events = 1.Through(iterations).Select( index =>  new TestEvent(
                                             test1: "Test1",
                                             test2: "Test2",
                                             aggregateRootId: Guid.NewGuid(),
@@ -140,27 +146,29 @@ namespace Composable.CQRS.Tests.NewtonSoft
                                             insertBefore: 20,
                                             replaces: 30,
                                             insertionOrder: 40,
-                                            utcTimeStamp: DateTime.Now + 1.Minutes());
-
-            _eventSerializer.Serialize(@event);//Warmup
+                                            utcTimeStamp: DateTime.Now + 1.Minutes())).ToList();
 
             var settings = NewtonSoftEventStoreEventSerializer.JsonSettings;
+
+            //Warmup
+            _eventSerializer.Deserialize(typeof(TestEvent), _eventSerializer.Serialize(events.First()));
+            JsonConvert.DeserializeObject<TestEvent>(JsonConvert.SerializeObject(events.First(), settings), settings);
+
             var defaultSerializerPerformanceNumbers = StopwatchExtensions.TimeExecution(() =>
                                                                                         {
-                                                                                            var eventJson = JsonConvert.SerializeObject(@event, settings);
-                                                                                            JsonConvert.DeserializeObject<TestEvent>(eventJson, settings);
-                                                                                        },
+                                                                                            var eventJson = events.Select(@this => JsonConvert.SerializeObject(@this, settings))
+                                                                                                                  .ToList();
+                                                                                            eventJson.ForEach(@this => JsonConvert.DeserializeObject<TestEvent>(@this, settings));
+                                                                                        });
 
-                                                                                        iterations: iterations);
-
-            var allowedTime = TimeSpan.FromMilliseconds(defaultSerializerPerformanceNumbers.Total.TotalMilliseconds * allowedSlowdown);
+            var allowedTime = TimeSpan.FromMilliseconds(defaultSerializerPerformanceNumbers.TotalMilliseconds * allowedSlowdown);
 
             TimeAsserter.Execute(() =>
                                  {
-                                     var eventJson = _eventSerializer.Serialize(@event);
-                                     _eventSerializer.Deserialize(typeof(TestEvent), eventJson);
+                                     var eventJson = events.Select(new NewtonSoftEventStoreEventSerializer().Serialize)
+                                                            .ToList();
+                                     eventJson.ForEach(@this => new NewtonSoftEventStoreEventSerializer().Deserialize(typeof(TestEvent), @this));
                                  },
-                                 iterations: iterations,
                                  maxTotal: allowedTime);
         }
     }

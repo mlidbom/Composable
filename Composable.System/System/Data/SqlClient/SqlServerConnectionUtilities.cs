@@ -1,13 +1,11 @@
 using System;
 using System.Data.SqlClient;
 using System.Transactions;
-using Composable.Logging;
 
 namespace Composable.System.Data.SqlClient
 {
     class SqlServerConnectionUtilities
     {
-        static readonly ILogger Log = Logger.For<SqlServerConnectionUtilities>();
         string ConnectionString { get; }
         public SqlServerConnectionUtilities(string connectionString) => ConnectionString = connectionString;
 

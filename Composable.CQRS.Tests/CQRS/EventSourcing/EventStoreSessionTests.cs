@@ -431,8 +431,7 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing
                 iterations: threadedIterations,
                 timeIndividualExecutions:true,
                 maxTotal: (approximateSinglethreadedExecutionTimeInMilliseconds / 2).Milliseconds(),
-                description: $"If access is serialized the time will be approximately {approximateSinglethreadedExecutionTimeInMilliseconds} milliseconds. If parelellized it should be far below this value.",
-                maxTries: 1);
+                description: $"If access is serialized the time will be approximately {approximateSinglethreadedExecutionTimeInMilliseconds} milliseconds. If parelellized it should be far below this value.");
 
             timingsSummary.Average.Should().BeLessThan(delayEachTransactionBy);
 

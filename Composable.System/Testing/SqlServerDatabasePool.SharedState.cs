@@ -35,16 +35,29 @@ namespace Composable.Testing
                 return true;
             }
 
-            internal bool TryReserve(out Database reserved, string reservationName)
+            internal bool TryGetReserved(out Database reserved, string reservationName, Guid poolId)
+            {
+                reserved = _databases.FirstOrDefault(db => db.IsReserved == true && db.ReservationName == reservationName && db.ReservedByPoolId == poolId);
+                if (reserved == null)
+                {
+                    return false;
+                }
+                return true;
+            }
+
+            internal bool TryReserve(out Database reserved, string reservationName, Guid poolId)
             {
                 reserved = _databases.FirstOrDefault(db => db.IsReserved == false);
                 if(reserved == null)
                 {
                     return false;
                 }
-                reserved.Reserve(reservationName);
+                reserved.Reserve(reservationName, poolId);
                 return true;
             }
+
+            internal IReadOnlyList<Database> DatabasesReservedBy(Guid poolId) => _databases.Where(db => db.IsReserved && db.ReservedByPoolId == poolId)
+                                                                                           .ToList();
 
             internal Database Insert()
             {
@@ -55,7 +68,7 @@ namespace Composable.Testing
 
             internal IReadOnlyList<Database> DbsWithOldLocks() => _databases
                 .Where(db => db.IsReserved)
-                .Where(db => db.ReservationDate < DateTime.UtcNow - 1.Minutes())
+                .Where(db => db.ReservationDate < DateTime.UtcNow - 10.Minutes())
                                                                   .ToList();
 
             Database Get(int id) => _databases.Single(db => db.Id == id);

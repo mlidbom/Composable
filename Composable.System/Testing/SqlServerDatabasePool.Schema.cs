@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.SqlClient;
 using System.IO;
 using System.Linq;
 using Composable.Contracts;
@@ -25,6 +26,7 @@ namespace Composable.Testing
             internal bool IsReserved { get; private set; }
             public DateTime ReservationDate { get; private set; }
             internal string ReservationName { get; private set; }
+            internal Guid ReservedByPoolId { get; private set; }
 
             internal Database() { }
             internal Database(int id) => Id = id;
@@ -42,14 +44,18 @@ namespace Composable.Testing
                 IsReserved = false;
                 ReservationDate = DateTime.MaxValue;
                 ReservationName = string.Empty;
+                ReservedByPoolId = Guid.Empty;
             }
 
-            internal void Reserve(string reservationName)
+            internal void Reserve(string reservationName, Guid poolId)
             {
                 Contract.Assert.That(!IsReserved, "!IsReserved");
+                Contract.Assert.That(poolId != Guid.Empty, "poolId != Guid.Empty");
+
                 IsReserved = true;
                 ReservationName = reservationName;
                 ReservationDate = DateTime.UtcNow;
+                ReservedByPoolId = poolId;
             }
 
             public void Deserialize(BinaryReader reader)
@@ -58,6 +64,7 @@ namespace Composable.Testing
                 IsReserved = reader.ReadBoolean();
                 ReservationDate = DateTime.FromBinary(reader.ReadInt64());
                 ReservationName = reader.ReadString();
+                ReservedByPoolId = new Guid(reader.ReadBytes(16));
             }
 
             public void Serialize(BinaryWriter writer)
@@ -66,6 +73,7 @@ namespace Composable.Testing
                 writer.Write(IsReserved);
                 writer.Write(ReservationDate.ToBinary());
                 writer.Write(ReservationName);
+                writer.Write(ReservedByPoolId.ToByteArray());
             }
         }
 
@@ -110,13 +118,40 @@ LOG ON  ( NAME = {databaseName}_log, FILENAME = '{DatabaseRootFolderOverride}\{d
             lock(RebootedMasterConnections)
             {
                 _log.Warning("Rebooting database pool");
-                _reservedDatabases.Values.ForEach(db => db.Release());
+                var reservedDatabases = machineWide.DatabasesReservedBy(_poolId);
+                if(reservedDatabases.Any())
+                {
+                    foreach(var reservedDatabase in reservedDatabases)
+                    {
+                        reservedDatabase.Release();
+                    }
+                }
+
+                if(_transientCache.Any())
+                {
+                    _transientCache = new List<Database>();
+                }
 
                 var dbsToDrop = ListPoolDatabases();
 
                 _log.Warning("Dropping databases");
                 foreach(var db in dbsToDrop)
                 {
+                    //Clear connection pool
+                    //using (var connection = new SqlConnection(db.ConnectionString(this)))
+                    //{
+                    //    SqlConnection.ClearPool(connection);
+                    //}
+
+                    ////set single user mode
+                    //_masterConnection.ExecuteNonQuery($"alter database [{db.Name()}] set offline with rollback immediate");
+
+                    //Clear connection pool
+                    using (var connection = new SqlConnection(db.ConnectionString(this)))
+                    {
+                        SqlConnection.ClearPool(connection);
+                    }
+
                     var dropCommand = $"drop database [{db.Name()}]";
                     _log.Info(dropCommand);
                     _masterConnection.ExecuteNonQuery(dropCommand);

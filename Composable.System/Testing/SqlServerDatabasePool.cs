@@ -24,6 +24,8 @@ namespace Composable.Testing
         static readonly string DatabaseRootFolderOverride;
         static readonly HashSet<string> RebootedMasterConnections = new HashSet<string>();
 
+        readonly Guid _poolId = Guid.NewGuid();
+
         static SqlServerDatabasePool()
         {
             var tempDirectory = Environment.GetEnvironmentVariable("COMPOSABLE_TEMP_DRIVE");
@@ -58,51 +60,62 @@ namespace Composable.Testing
             _masterConnection = new SqlServerConnectionProvider(_masterConnectionString);
         }
 
-        readonly Dictionary<string, Database> _reservedDatabases = new Dictionary<string, Database>();
         bool _disposed;
         const string InitialCatalogMaster = ";Initial Catalog=master;";
 
+        IReadOnlyList<Database> _transientCache = new List<Database>();
         public ISqlConnectionProvider ConnectionProviderFor(string reservationName)
         {
             Contract.Assert.That(!_disposed, "!_disposed");
 
-            Database database;
-            if(_reservedDatabases.TryGetValue(reservationName, out database))
+            Database database = _transientCache.SingleOrDefault(db => db.IsReserved && db.ReservedByPoolId == _poolId && db.ReservationName == reservationName);
+            if(database != null)
             {
-                _log.Debug($"Retrieving reserved pool database: {database.Id}");
-                if(!database.IsReserved)
-                {
-                    throw new Exception("Db has somehow been released. The pool is probably corrupt and beeing rebooted. Try rerunning your tests");
-                }
-                return new ConnectionProvider(database, this);
+                _log.Debug($"Retrieved reserved pool database: {database.Id}");
+            } else
+            {
+
+                TransactionScopeCe.SupressAmbient(
+                    () =>
+                        _machineWideState.Update(
+                            machineWide =>
+                            {
+                                if(!machineWide.IsValid())
+                                {
+                                    RebootPool(machineWide);
+                                }
+
+                                try
+                                {
+                                    ReleaseOldLocks(machineWide);
+                                }
+                                catch(Exception e)
+                                {
+                                    _log.Error(e, "Failed to clean old locks. Will reboot pool");
+                                    RebootPool(machineWide);
+                                }
+
+                                if(machineWide.TryGetReserved(out database, reservationName, _poolId))
+                                {
+                                    Contract.Assert.That(database.IsReserved, "database.IsReserved");
+                                    Contract.Assert.That(database.ReservationName == reservationName, "database.ReservationName == reservationName");
+
+                                    _log.Debug($"Retrieved reserved pool database: {database.Id}");
+                                } else if(machineWide.TryReserve(out database, reservationName, _poolId))
+                                {
+                                    Contract.Assert.That(database.IsReserved, "database.IsReserved");
+                                    Contract.Assert.That(database.ReservationName == reservationName, "database.ReservationName == reservationName");
+                                    _log.Info($"Reserved pool database: {database.Id}");
+                                } else
+                                {
+                                    database = InsertDatabase(machineWide);
+                                    database.Reserve(reservationName, _poolId);
+                                }
+                                _transientCache = machineWide.DatabasesReservedBy(_poolId);
+                            }));
             }
 
-
-            TransactionScopeCe.SupressAmbient(
-                () =>
-                    _machineWideState.Update(
-                        machineWide =>
-                        {
-                            if(!machineWide.IsValid())
-                            {
-                                RebootPool(machineWide);
-                            }
-
-                            ReleaseOldLocks(machineWide);
-                            if(!machineWide.TryReserve(out database, reservationName))
-                            {
-                                database = InsertDatabase(machineWide);
-                                database.Reserve(reservationName);
-                            }
-
-                            Contract.Assert.That(database.IsReserved, "database.IsReserved");
-                            Contract.Assert.That(database.ReservationName == reservationName, "database.ReservationName == reservationName");
-                            _reservedDatabases.Add(reservationName, database);
-
-                        }));
-
-            _log.Info($"Reserved pool database: {database.Id}");
-            return new ConnectionProvider(database, this);
+            return new ConnectionProvider(database, reservationName, this);
         }
 
         internal string ConnectionStringForDbNamed(string dbName)
@@ -132,12 +145,6 @@ namespace Composable.Testing
                 machineWide.Release(database.Id);
             }
 
-            toGarbageCollect.ForEach(action: db =>
-                                      {
-                                          var dbWasRemovedFromReserved = _reservedDatabases.Remove(db.ReservationName);
-                                          Contract.Assert.That(db.ReservationName != string.Empty, "db.ReservationDate != string.Empty");
-                                          Contract.Assert.That(!dbWasRemovedFromReserved, "!dbWasRemovedFromReserved");
-                                      });
             toGarbageCollect.ForEach(CleanAndReleaseDatabase);
         }
 
@@ -152,11 +159,6 @@ namespace Composable.Testing
                 _machineWideState.Update(machineWide => machineWide.Release(database.Id));
             }
 
-            databases.ForEach(action: db =>
-                                      {
-                                          var dbWasRemovedFromReserved = _reservedDatabases.Remove(db.ReservationName);
-                                          Contract.Assert.That(dbWasRemovedFromReserved, "dbWasRemovedFromReserved");
-                                      });
             Task.Run(()=>  databases.ForEach(CleanAndReleaseDatabase));
         }
 
@@ -165,7 +167,7 @@ namespace Composable.Testing
             if (!_disposed)
             {
                 _disposed = true;
-                CleanAndRelease(_reservedDatabases.Values.ToList());
+                CleanAndRelease(_machineWideState.GetCopy().DatabasesReservedBy(_poolId));
             }
         }
     }

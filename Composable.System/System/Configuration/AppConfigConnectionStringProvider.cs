@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Configuration;
+using Composable.System.Data.SqlClient;
 
 namespace Composable.System.Configuration
 {
@@ -7,17 +8,17 @@ namespace Composable.System.Configuration
     class AppConfigConnectionStringProvider : IConnectionStringProvider
     {
         ///<summary>Returns the connection string with the given name.</summary>
-        public Lazy<string> GetConnectionString(string parameterName)
+        public ISqlConnectionProvider GetConnectionProvider(string parameterName)
         {
-            return new Lazy<string>(() =>
-                                    {
-                                        var parameter = ConfigurationManager.ConnectionStrings[parameterName];
-                                        if(parameter == null)
-                                        {
-                                            throw new ConfigurationErrorsException($"ConnectionString with name {parameterName} does not exists");
-                                        }
-                                        return parameter.ConnectionString;
-                                    });
+            return new SqlServerConnectionProvider(new Lazy<string>(() =>
+                                                                    {
+                                                                        var parameter = ConfigurationManager.ConnectionStrings[parameterName];
+                                                                        if(parameter == null)
+                                                                        {
+                                                                            throw new ConfigurationErrorsException($"ConnectionString with name {parameterName} does not exists");
+                                                                        }
+                                                                        return parameter.ConnectionString;
+                                                                    }));
         }
     }
 }

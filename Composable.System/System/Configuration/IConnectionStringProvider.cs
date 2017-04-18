@@ -1,4 +1,5 @@
 ﻿using System;
+using Composable.System.Data.SqlClient;
 
 namespace Composable.System.Configuration
 {
@@ -6,6 +7,6 @@ namespace Composable.System.Configuration
     interface IConnectionStringProvider
     {
         ///<summary>Returns the connection string with the given name.</summary>
-        Lazy<string> GetConnectionString(string parameterName);
+        ISqlConnectionProvider GetConnectionProvider(string parameterName);
     }
 }

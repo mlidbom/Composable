@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Configuration;
 using Composable.System;
+using Composable.System.Data.SqlClient;
 using Composable.Testing;
 using FluentAssertions;
 using NUnit.Framework;
@@ -29,7 +30,7 @@ namespace Composable.CQRS.Tests.SqlServerDatabasePoolTests
                 {
                     using(var manager = new SqlServerDatabasePool(MasterConnectionString))
                     {
-                        manager.ConnectionStringFor(dbName).TouchValue();
+                        manager.ConnectionProviderFor(dbName).UseConnection(_ => {});
                     }
                 },
                 iterations: 10,
@@ -47,7 +48,7 @@ namespace Composable.CQRS.Tests.SqlServerDatabasePoolTests
                 {
                     using(var manager = new SqlServerDatabasePool(MasterConnectionString))
                     {
-                        manager.ConnectionStringFor(dbName).TouchValue();
+                        manager.ConnectionProviderFor(dbName).UseConnection(_ => { });
                     }
                 },
                 iterations: 10,
@@ -64,10 +65,10 @@ namespace Composable.CQRS.Tests.SqlServerDatabasePoolTests
                 setup: () =>
                        {
                            manager = new SqlServerDatabasePool(MasterConnectionString);
-                           manager.ConnectionStringFor("fake_to_force_creation_of_manager_database").TouchValue();
+                           manager.ConnectionProviderFor("fake_to_force_creation_of_manager_database").UseConnection(_ => { });
                        },
                 tearDown: () => manager.Dispose(),
-                action: () => manager.ConnectionStringFor(Guid.NewGuid().ToString()).TouchValue(),
+                action: () => manager.ConnectionProviderFor(Guid.NewGuid().ToString()).UseConnection(_ => { }),
                 iterations: 10,
                 maxTotal: TimeSpanConversionExtensions.Milliseconds(20)
             );
@@ -82,10 +83,10 @@ namespace Composable.CQRS.Tests.SqlServerDatabasePoolTests
                 setup: () =>
                        {
                            manager = new SqlServerDatabasePool(MasterConnectionString);
-                           manager.ConnectionStringFor("fake_to_force_creation_of_manager_database").TouchValue();
+                           manager.ConnectionProviderFor("fake_to_force_creation_of_manager_database").UseConnection(_ => { });
                        },
                 tearDown: () => manager.Dispose(),
-                action: () => manager.ConnectionStringFor(Guid.NewGuid().ToString()).TouchValue(),
+                action: () => manager.ConnectionProviderFor(Guid.NewGuid().ToString()).UseConnection(_ => { }),
                 iterations: 10,
                 maxTotal: TimeSpanConversionExtensions.Milliseconds(15)
             );
@@ -97,10 +98,10 @@ namespace Composable.CQRS.Tests.SqlServerDatabasePoolTests
             var dbName = "4669B59A-E0AC-4E76-891C-7A2369AE0F2F";
             using(var manager = new SqlServerDatabasePool(MasterConnectionString))
             {
-                manager.ConnectionStringFor(dbName).TouchValue();
+                manager.ConnectionProviderFor(dbName).UseConnection(_ => { });
 
                 TimeAsserter.Execute(
-                    action: () => manager.ConnectionStringFor(dbName).TouchValue(),
+                    action: () => manager.ConnectionProviderFor(dbName).UseConnection(_ => { }),
                     iterations: 200,
                     maxTotal: TimeSpanConversionExtensions.Milliseconds(10)
                 );

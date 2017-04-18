@@ -10,13 +10,12 @@ namespace Composable.Persistence.EventStore.MicrosoftSQLServer
 {
     class SqlServerEventStoreSchemaManager : IEventStoreSchemaManager
     {
-        readonly HashSet<string> _verifiedConnectionStrings = new HashSet<string>();
-        readonly Dictionary<string, IEventTypeToIdMapper> _connectionIdMapper = new Dictionary<string, IEventTypeToIdMapper>();
+        bool _verifiedConnectionString;
         readonly EventTableSchemaManager _eventTable = new EventTableSchemaManager();
         readonly EventTypeTableSchemaManager _eventTypeTable = new EventTypeTableSchemaManager();
-        public SqlServerEventStoreSchemaManager(Lazy<string> connectionString, IEventNameMapper nameMapper)
+        public SqlServerEventStoreSchemaManager(ISqlConnectionProvider connectionString, IEventNameMapper nameMapper)
         {
-            _connectionString = connectionString;
+            _connectionManager = connectionString;
             _nameMapper = nameMapper;
         }
 
@@ -24,9 +23,7 @@ namespace Composable.Persistence.EventStore.MicrosoftSQLServer
 
         public IEventTypeToIdMapper IdMapper { get; private set; }
 
-        readonly Lazy<string> _connectionString;
-        SqlServerConnectionProvider ConnectionManager => new SqlServerConnectionProvider(_connectionString);
-        string ConnectionString => _connectionString.Value;
+        readonly ISqlConnectionProvider _connectionManager;
 
         SqlConnection OpenConnection()
         {
@@ -37,26 +34,18 @@ AT:
 
 {Environment.StackTrace}");
             }
-            return ConnectionManager.OpenConnection();
+            return _connectionManager.OpenConnection();
         }
 
         public void SetupSchemaIfDatabaseUnInitialized()
         {
-            lock(_verifiedConnectionStrings)
+            if(!_verifiedConnectionString)
             {
-                if(_verifiedConnectionStrings.Contains(ConnectionString))
-                {
-                    IdMapper = _connectionIdMapper[ConnectionString];
-                    return;
-                }
-
                 using(var transaction = new TransactionScope())
                 {
                     using(var connection = OpenConnection())
                     {
-                        IdMapper = new SqlServerEventStoreEventTypeToIdMapper(_connectionString, _nameMapper);
-
-                        _connectionIdMapper[ConnectionString] = IdMapper;
+                        IdMapper = new SqlServerEventStoreEventTypeToIdMapper(_connectionManager, _nameMapper);
 
                         if(!_eventTable.Exists(connection))
                         {
@@ -64,7 +53,7 @@ AT:
                             _eventTable.Create(connection);
                         }
 
-                        _verifiedConnectionStrings.Add(ConnectionString);
+                        _verifiedConnectionString = true;
                     }
                     transaction.Complete();
                 }

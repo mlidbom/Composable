@@ -11,13 +11,18 @@ namespace Composable.Testing
     {
         class ConnectionProvider : ISqlConnectionProvider
         {
+            readonly Database _database;
             readonly SqlServerDatabasePool _pool;
             readonly SqlServerConnectionProvider _innerProvider;
             public ConnectionProvider(Database database, SqlServerDatabasePool pool)
             {
+                _database = database;
                 _pool = pool;
-                _innerProvider = new SqlServerConnectionProvider(database.ConnectionString(pool));
+                _innerProvider = new SqlServerConnectionProvider(ConnectionString);
             }
+
+            public string ConnectionString => _database.ConnectionString(_pool);
+
             public SqlConnection OpenConnection()
             {
                 try

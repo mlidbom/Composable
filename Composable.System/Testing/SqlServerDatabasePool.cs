@@ -9,6 +9,7 @@ using System.Transactions;
 using Composable.Contracts;
 using Composable.Logging;
 using Composable.System;
+using Composable.System.Configuration;
 using Composable.System.Data.SqlClient;
 using Composable.System.Linq;
 using Composable.System.Threading;
@@ -61,13 +62,13 @@ namespace Composable.Testing
         bool _disposed;
         string _initialCatalogMaster = ";Initial Catalog=master;";
 
-        public Lazy<string> ConnectionStringFor(string connectionStringName)
+        public ISqlConnectionProvider ConnectionProviderFor(string connectionStringName)
         {
             Contract.Assert.That(!_disposed, "!_disposed");
 
             Database database;
             if(_reservedDatabases.TryGetValue(connectionStringName, out database))
-                return new Lazy<string>(() => database.ConnectionString(this));
+                return new ConnectionProvider(database, this);
 
             _machineWideState.Update(machineWide =>
                                     {
@@ -96,7 +97,7 @@ namespace Composable.Testing
                                                                          });
                                     });
 
-            return new Lazy<string>(() => database.ConnectionString(this));
+            return new ConnectionProvider(database, this);
         }
 
         internal string ConnectionStringForDbNamed(string dbName)

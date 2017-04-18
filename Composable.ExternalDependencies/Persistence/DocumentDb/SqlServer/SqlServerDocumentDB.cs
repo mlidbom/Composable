@@ -16,9 +16,7 @@ namespace Composable.Persistence.DocumentDb.SqlServer
 {
     class SqlServerDocumentDb : IDocumentDb
     {
-        readonly Lazy<string> _connectionString;
-
-        SqlServerConnectionProvider ConnectionManager => new SqlServerConnectionProvider(_connectionString);
+        readonly ISqlConnectionProvider _connectionManager ;
 
         static readonly JsonSerializerSettings JsonSettings = NewtonSoft.JsonSettings.JsonSerializerSettings;
 
@@ -26,7 +24,7 @@ namespace Composable.Persistence.DocumentDb.SqlServer
 
         readonly object _lockObject = new object();
 
-        protected SqlServerDocumentDb(Lazy<string> connectionString) => _connectionString = connectionString;
+        protected SqlServerDocumentDb(ISqlConnectionProvider connectionProvider) => _connectionManager = connectionProvider;
 
         bool _initialized;
         ConcurrentDictionary<Type, int> _knownTypes = null;
@@ -49,7 +47,7 @@ namespace Composable.Persistence.DocumentDb.SqlServer
             value = default(TValue);
 
             object found;
-            using(var connection = ConnectionManager.OpenConnection())
+            using(var connection = _connectionManager.OpenConnection())
             {
                 using(var command = connection.CreateCommand())
                 {
@@ -89,7 +87,7 @@ WHERE Id=@Id AND ValueTypeId
 
             string idString = GetIdString(id);
             EnsureTypeRegistered(value.GetType());
-            using(var connection = ConnectionManager.OpenConnection())
+            using(var connection = _connectionManager.OpenConnection())
             {
                 using(var command = connection.CreateCommand())
                 {
@@ -130,7 +128,7 @@ WHERE Id=@Id AND ValueTypeId
         public int RemoveAll<T>()
         {
             EnsureInitialized();
-            using (var connection = ConnectionManager.OpenConnection())
+            using (var connection = _connectionManager.OpenConnection())
             {
                 using (var command = connection.CreateCommand())
                 {
@@ -147,7 +145,7 @@ WHERE Id=@Id AND ValueTypeId
         public void Remove(object id, Type documentType)
         {
             EnsureInitialized();
-            using(var connection = ConnectionManager.OpenConnection())
+            using(var connection = _connectionManager.OpenConnection())
             {
                 using(var command = connection.CreateCommand())
                 {
@@ -174,7 +172,7 @@ WHERE Id=@Id AND ValueTypeId
         {
             EnsureInitialized();
             values = values.ToList();
-            using(var connection = ConnectionManager.OpenConnection())
+            using(var connection = _connectionManager.OpenConnection())
             {
                 foreach(var entry in values)
                 {
@@ -214,7 +212,7 @@ WHERE Id=@Id AND ValueTypeId
                 yield break;
             }
 
-            using(var connection = ConnectionManager.OpenConnection())
+            using(var connection = _connectionManager.OpenConnection())
             {
                 using(var loadCommand = connection.CreateCommand())
                 {
@@ -244,7 +242,7 @@ WHERE ValueTypeId ";
                 yield break;
             }
 
-            using (var connection = ConnectionManager.OpenConnection())
+            using (var connection = _connectionManager.OpenConnection())
             {
                 using (var loadCommand = connection.CreateCommand())
                 {
@@ -276,7 +274,7 @@ WHERE ValueTypeId ";
                 yield break;
             }
 
-            using (var connection = ConnectionManager.OpenConnection())
+            using (var connection = _connectionManager.OpenConnection())
             {
                 using (var loadCommand = connection.CreateCommand())
                 {
@@ -304,7 +302,7 @@ WHERE ValueTypeId ";
             {
                 if(!IsKnownType(type))
                 {
-                    using(var connection = ConnectionManager.OpenConnection())
+                    using(var connection = _connectionManager.OpenConnection())
                     {
                         using(var command = connection.CreateCommand())
                         {
@@ -334,7 +332,7 @@ ELSE
         {
             if(!_knownTypes.ContainsKey(type))
             {
-                using(var connection = ConnectionManager.OpenConnection())
+                using(var connection = _connectionManager.OpenConnection())
                 {
                     RefreshKnownTypes(connection);
                 }
@@ -361,7 +359,7 @@ ELSE
             {
                 if(!_initialized)
                 {
-                    using(var connection = ConnectionManager.OpenConnection())
+                    using(var connection = _connectionManager.OpenConnection())
                     {
                         using(var checkForValueTypeCommand = connection.CreateCommand())
                         {

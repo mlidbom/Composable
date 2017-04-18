@@ -4,6 +4,7 @@ using System.Data;
 using System.Data.SqlClient;
 using Composable.Logging.Log4Net;
 using Composable.Persistence.EventStore.Refactoring.Naming;
+using Composable.System.Data.SqlClient;
 
 namespace Composable.Persistence.EventStore.MicrosoftSQLServer
 {
@@ -12,10 +13,10 @@ namespace Composable.Persistence.EventStore.MicrosoftSQLServer
         readonly IEventNameMapper _nameMapper;
 
         readonly SqlServerEventStoreConnectionManager _connectionMananger;
-        public SqlServerEventStoreEventTypeToIdMapper(Lazy<string> connectionString, IEventNameMapper nameMapper)
+        public SqlServerEventStoreEventTypeToIdMapper(ISqlConnectionProvider connectionProvider, IEventNameMapper nameMapper)
         {
             _nameMapper = nameMapper;
-            _connectionMananger = new SqlServerEventStoreConnectionManager(connectionString);
+            _connectionMananger = new SqlServerEventStoreConnectionManager(connectionProvider);
         }
 
         public Type GetType(int id)

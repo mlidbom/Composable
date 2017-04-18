@@ -1,4 +1,5 @@
 ﻿using System;
+using Composable.System.Data.SqlClient;
 using Composable.Testing;
 
 namespace Composable.System.Configuration
@@ -7,7 +8,7 @@ namespace Composable.System.Configuration
     {
         readonly SqlServerDatabasePool _pool;
         public SqlServerDatabasePoolConnectionStringProvider(string masterConnectionString) => _pool = new SqlServerDatabasePool(masterConnectionString);
-        public Lazy<string> GetConnectionString(string parameterName) => _pool.ConnectionStringFor(parameterName);
+        public ISqlConnectionProvider GetConnectionProvider(string parameterName) => _pool.ConnectionProviderFor(parameterName);
         public void Dispose() => _pool.Dispose();
     }
 }

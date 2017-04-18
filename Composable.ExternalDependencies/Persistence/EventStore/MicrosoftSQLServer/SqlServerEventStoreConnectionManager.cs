@@ -8,9 +8,8 @@ namespace Composable.Persistence.EventStore.MicrosoftSQLServer
 {
     class SqlServerEventStoreConnectionManager
     {
-        readonly Lazy<string> _connectionString;
-        SqlServerConnectionProvider ConnectionManager => new SqlServerConnectionProvider(_connectionString);
-        public SqlServerEventStoreConnectionManager(Lazy<string> connectionString) => _connectionString = connectionString;
+        readonly ISqlConnectionProvider _connectionManager;
+        public SqlServerEventStoreConnectionManager(ISqlConnectionProvider connectionString) => _connectionManager = connectionString;
 
         void UseConnection(Action<SqlConnection> action, bool suppressTransactionWarning = false)
         {
@@ -40,7 +39,7 @@ AT:
 
 {Environment.StackTrace}");
             }
-            return ConnectionManager.OpenConnection();
+            return _connectionManager.OpenConnection();
         }
     }
 }

@@ -118,13 +118,12 @@ namespace Composable.DependencyInjection.Persistence
                     Component.For<IEventstorePersistenceLayer<TSessionInterface>>()
                                 .UsingFactoryMethod(sl =>
                                                     {
-                                                        var lazyConnectionString = new Lazy<string>(() => sl.Resolve<IConnectionStringProvider>()
-                                                                                                            .GetConnectionString(connectionName)
-                                                                                                            .Value);
+                                                        var connectionProvider = sl.Resolve<IConnectionStringProvider>()
+                                                                                                            .GetConnectionProvider(connectionName);
 
                                                         IEventNameMapper nameMapper = new DefaultEventNameMapper();
-                                                        var connectionManager = new SqlServerEventStoreConnectionManager(lazyConnectionString);
-                                                        var schemaManager = new SqlServerEventStoreSchemaManager(lazyConnectionString, nameMapper);
+                                                        var connectionManager = new SqlServerEventStoreConnectionManager(connectionProvider);
+                                                        var schemaManager = new SqlServerEventStoreSchemaManager(connectionProvider, nameMapper);
                                                         var eventReader = new SqlServerEventStoreEventReader(connectionManager, schemaManager);
                                                         var eventWriter = new SqlServerEventStoreEventWriter(connectionManager, schemaManager);
                                                         return new EventstorePersistenceLayer<TSessionInterface>(schemaManager, eventReader, eventWriter);

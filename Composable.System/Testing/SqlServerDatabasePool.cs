@@ -96,27 +96,13 @@ namespace Composable.Testing
                                     database.Reserve(reservationName, _poolId);
                                 }
 
-                                if (!database.IsClean)
-                                {
-                                    CleanDatabase(database);
-                                    database.Clean();
-                                }
-                                else
-                                {
-                                    int breakpoint = 1;
-                                }
+                                Contract.Assert.That(database.IsClean, "database.IsClean");
 
                                 _transientCache = machineWide.DatabasesReservedBy(_poolId);
                                 snapshot = machineWide;
                             }));
 
-                var dbsThatShouldBeCleaned = snapshot.Databases.Where(db => db.ShouldBeCleaned).ToList();
-                var dbsThatShouldBeReleased = snapshot.Databases.Where(db => db.EligibleForGarbageCollection).ToList();
-                var freeAndClean = snapshot.Databases.Where(db => db.FreeAndClean).ToList();
-
-
-
-                if (freeAndClean.Count < 20 || dbsThatShouldBeCleaned.Count > 20 || dbsThatShouldBeReleased.Count > 20)
+                if (snapshot.NeedsGarbageCollection())
                 {
                     ScheduleGarbageCollectionOnBackgroundThread();
                 }
@@ -134,18 +120,28 @@ namespace Composable.Testing
                          IReadOnlyList<Database> toCleanAndRelease = null;
                          _machineWideState.Update(machineWide =>
                                                   {
-                                                      var toRelease = machineWide.ShouldBeReleased();
-                                                      toRelease.ForEach(db => db.Release().Reserve("Garbage_collection_task",Guid.NewGuid()));
-                                                      toCleanAndRelease = machineWide.ShouldBeCleaned();
-                                                      toCleanAndRelease.ForEach(db => db.Reserve("Garbage_collection_task", Guid.NewGuid()));
-                                                      toCleanAndRelease = toCleanAndRelease.Concat(toRelease).ToList();
+                                                      if(machineWide.NeedsGarbageCollection())
+                                                      {
+                                                          toCleanAndRelease = machineWide.ReserveDatabasesForGarbageCollection();
+                                                      }
                                                   });
 
                          toCleanAndRelease.ForEach(db => Task.Run(() =>
                                                            {
-                                                               CleanDatabase(db);
-                                                               _machineWideState.Update(machineWide => machineWide.Release(db.Id)
-                                                                                                                  .Clean());
+                                                               _log.Debug($"Cleaning: {db.Id}");
+                                                               try
+                                                               {
+                                                                   TransactionScopeCe.SupressAmbient(
+                                                                       () => new SqlServerConnectionProvider(db.ConnectionString(this))
+                                                                           .UseConnection(action: connection => connection.DropAllObjects()));
+                                                                   _machineWideState.Update(machineWide => machineWide.Release(db.Id)
+                                                                                                                      .Clean());
+                                                               }
+                                                               catch(Exception exception)
+                                                               {
+                                                                   ScheduleForRebooting();
+                                                                   throw new Exception("Garbage collection failed and pool has been scheduled for Reboot", exception);
+                                                               }
                                                            }));
                      });
         }
@@ -169,12 +165,6 @@ namespace Composable.Testing
         {
             Task.Run(() => _machineWideState.Update(machineWide => machineWide.DatabasesReservedBy(_poolId)
                                                                               .ForEach(db => db.Release())));
-        }
-
-        void CleanDatabase(Database database)
-        {
-            _log.Debug($"Cleaning: {database.Id}");
-            TransactionScopeCe.SupressAmbient(() => new SqlServerConnectionProvider(database.ConnectionString(this)).UseConnection(action: connection => connection.DropAllObjects()));
         }
 
         protected override void InternalDispose()

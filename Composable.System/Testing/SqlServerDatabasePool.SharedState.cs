@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using Composable.System;
 using JetBrains.Annotations;
 
 namespace Composable.Testing
@@ -12,19 +11,12 @@ namespace Composable.Testing
         [UsedImplicitly] class SharedState : IBinarySerializeMySelf
         {
             readonly List<Database> _databases = new List<Database>();
-            internal IReadOnlyList<Database> Databases => _databases;
+            IReadOnlyList<Database> Databases => _databases;
 
             internal Database Release(int id)
             {
                 var database = Get(id);
                 database.Release();
-                return database;
-            }
-
-            internal Database Clean(int id)
-            {
-                var database = Get(id);
-                database.Clean();
                 return database;
             }
 
@@ -47,24 +39,53 @@ namespace Composable.Testing
 
             internal bool NeedsGarbageCollection()
             {
-                return true;
-                
+                var shouldBeGargarbageCollected = Databases.Where(db => db.EligibleForGarbageCollection).Count();
+                var freeAndClear = Databases.Where(db => db.FreeAndClean).Count();
+
+                if(shouldBeGargarbageCollected > freeAndClear)
+                {
+                    return true;
+                }
+
+                if(shouldBeGargarbageCollected > 40)
+                {
+                    return true;
+                }
+
+                if(freeAndClear < 20)
+                {
+                    return true;
+                }
+
+                return false;
+            }
+
+            internal IReadOnlyList<Database> ReserveDatabasesForGarbageCollection()
+            {
+                var toCollect = Databases.Where(db => db.EligibleForGarbageCollection).OrderBy(db => db.ReservationDate).Take(30).ToList();
+
+                foreach(var database in toCollect)
+                {
+                    if(database.IsReserved)
+                    {
+                        database.Release();
+                    }
+                    database.Reserve("Garbage_collection_task", Guid.NewGuid());
+                }
+
+                return toCollect;
             }
 
             internal bool TryReserve(out Database reserved, string reservationName, Guid poolId)
             {
-                var unreserved = _databases.Where(db => !db.IsReserved)
+                var unreserved = _databases.Where(db => db.FreeAndClean)
                                            .OrderBy(db => db.ReservationDate)
                                            .ToList();
 
-                reserved = unreserved.FirstOrDefault(db => db.IsClean);
+                reserved = unreserved.FirstOrDefault();
                 if(reserved == null)
                 {
-                    reserved = unreserved.FirstOrDefault();
-                    if(reserved == null)
-                    {
-                        return false;
-                    }
+                    return false;
                 }
                 reserved.Reserve(reservationName, poolId);
                 return true;
@@ -79,14 +100,6 @@ namespace Composable.Testing
                 _databases.Add(database);
                 return database;
             }
-
-            internal IReadOnlyList<Database> ShouldBeReleased() => _databases
-                .Where(db => db.ShouldBeReleased).ToList();
-
-            internal IReadOnlyList<Database> ShouldBeCleaned() => _databases
-                .Where(db => db.ShouldBeCleaned)
-                .OrderBy(db => db.ReservationDate)
-                .ToList();
 
             Database Get(int id) => _databases.Single(db => db.Id == id);
 

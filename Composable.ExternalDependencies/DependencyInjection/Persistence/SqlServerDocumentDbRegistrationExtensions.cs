@@ -60,8 +60,7 @@ namespace Composable.DependencyInjection.Persistence
             {
                 @this.Register(Component.For<IDocumentDb<TUpdater, TReader, TBulkReader>>()
                                          .UsingFactoryMethod(kernel => new SqlServerDocumentDb<TUpdater, TReader, TBulkReader>(new Lazy<string>(() => kernel.Resolve<IConnectionStringProvider>()
-                                                                                                                                                            .GetConnectionString(connectionName)
-                                                                                                                                                            .ConnectionString)))
+                                                                                                                                                            .GetConnectionString(connectionName))))
                                          .LifestyleSingleton());
             }
 

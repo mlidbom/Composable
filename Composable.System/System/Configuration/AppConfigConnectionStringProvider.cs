@@ -6,14 +6,14 @@ namespace Composable.System.Configuration
     class AppConfigConnectionStringProvider : IConnectionStringProvider
     {
         ///<summary>Returns the connection string with the given name.</summary>
-        public ConnectionStringSettings GetConnectionString(string parameterName)
+        public string GetConnectionString(string parameterName)
         {
             var parameter = ConfigurationManager.ConnectionStrings[parameterName];
             if (parameter==null)
             {
                 throw new ConfigurationErrorsException($"ConnectionString with name {parameterName} does not exists");
             }
-            return parameter;
+            return parameter.ConnectionString;
         }
     }
 }

@@ -12,8 +12,7 @@ namespace Composable.DependencyInjection.Testing
     static class TestingExtensions
     {
 
-        static readonly Lazy<string> MasterDbConnectionString = new Lazy<string>(() => new AppConfigConnectionStringProvider().GetConnectionString("MasterDB")
-                                                                                                                                           .ConnectionString);
+        static readonly Lazy<string> MasterDbConnectionString = new Lazy<string>(() => new AppConfigConnectionStringProvider().GetConnectionString("MasterDB"));
         /// <summary>
         /// <para>SingleThreadUseGuard is registered for the component ISingleContextUseGuard</para>
         /// </summary>

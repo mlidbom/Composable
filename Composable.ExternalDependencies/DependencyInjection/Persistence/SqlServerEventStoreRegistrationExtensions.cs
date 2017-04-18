@@ -119,8 +119,7 @@ namespace Composable.DependencyInjection.Persistence
                                 .UsingFactoryMethod(sl =>
                                                     {
                                                         var lazyConnectionString = new Lazy<string>(() => sl.Resolve<IConnectionStringProvider>()
-                                                                                                            .GetConnectionString(connectionName)
-                                                                                                            .ConnectionString);
+                                                                                                            .GetConnectionString(connectionName));
 
                                                         IEventNameMapper nameMapper = new DefaultEventNameMapper();
                                                         var connectionManager = new SqlServerEventStoreConnectionManager(lazyConnectionString);

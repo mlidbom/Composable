@@ -6,10 +6,9 @@ namespace Composable.System.Data.SqlClient
 {
     class SqlServerConnectionProvider : ISqlConnectionProvider
     {
-        readonly Lazy<string> _connectionString;
-        public string ConnectionString => _connectionString.Value;
-        public SqlServerConnectionProvider(string connectionString) => _connectionString = new Lazy<string>(() => connectionString);
-        public SqlServerConnectionProvider(Lazy<string> connectionString) => _connectionString = connectionString;
+        public string ConnectionString { get; }
+
+        public SqlServerConnectionProvider(string connectionString) => ConnectionString = connectionString;
 
         public SqlConnection OpenConnection()
         {

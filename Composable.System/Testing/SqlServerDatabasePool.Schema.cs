@@ -8,30 +8,29 @@ namespace Composable.Testing
 {
     static class DatabaseExtensions
     {
-        internal static string Name(this Database @this) => $"{SqlServerDatabasePool.PoolDatabaseNamePrefix}{@this.Id:0000}";
-    }
-
-    [Serializable]
-    public class Database
-    {
-        internal int Id { get; }
-        internal bool IsReserved { get; set; }
-        public DateTime ReservationDate { get; set; }
-
-
-        public Database() { }
-        internal Database(int id) => Id = id;
-        internal Database(SqlServerDatabasePool pool, string name) : this(IdFromName(name)) { }
-
-        static int IdFromName(string name)
-        {
-            var nameIndex = name.Replace(SqlServerDatabasePool.PoolDatabaseNamePrefix, "");
-            return int.Parse(nameIndex);
-        }
+        internal static string Name(this SqlServerDatabasePool.Database @this) => $"{SqlServerDatabasePool.PoolDatabaseNamePrefix}{@this.Id:0000}";
     }
 
     sealed partial class SqlServerDatabasePool
     {
+        [Serializable]
+        internal class Database
+        {
+            internal int Id { get; }
+            internal bool IsReserved { get; set; }
+            public DateTime ReservationDate { get; set; }
+
+            internal Database() { }
+            internal Database(int id) => Id = id;
+            internal Database(SqlServerDatabasePool pool, string name) : this(IdFromName(name)) { }
+
+            static int IdFromName(string name)
+            {
+                var nameIndex = name.Replace(SqlServerDatabasePool.PoolDatabaseNamePrefix, "");
+                return int.Parse(nameIndex);
+            }
+        }
+
         void CreateDatabase(string databaseName)
         {
             var createDatabaseCommand = $@"CREATE DATABASE [{databaseName}]";

@@ -24,9 +24,9 @@ namespace Composable.Testing
         {
             internal int Id { get; private set; }
             internal bool IsReserved { get; private set; }
-            public DateTime ReservationDate { get; private set; }
-            internal string ReservationName { get; private set; }
-            internal Guid ReservedByPoolId { get; private set; }
+            public DateTime ReservationDate { get; private set; } = DateTime.MaxValue;
+            internal string ReservationName { get; private set; } = string.Empty;
+            internal Guid ReservedByPoolId { get; private set; } = Guid.Empty;
 
             internal Database() { }
             internal Database(int id) => Id = id;
@@ -126,6 +126,7 @@ LOG ON  ( NAME = {databaseName}_log, FILENAME = '{DatabaseRootFolderOverride}\{d
                         reservedDatabase.Release();
                     }
                 }
+                machineWide.Reset();
 
                 if(_transientCache.Any())
                 {
@@ -138,15 +139,6 @@ LOG ON  ( NAME = {databaseName}_log, FILENAME = '{DatabaseRootFolderOverride}\{d
                 foreach(var db in dbsToDrop)
                 {
                     //Clear connection pool
-                    //using (var connection = new SqlConnection(db.ConnectionString(this)))
-                    //{
-                    //    SqlConnection.ClearPool(connection);
-                    //}
-
-                    ////set single user mode
-                    //_masterConnection.ExecuteNonQuery($"alter database [{db.Name()}] set offline with rollback immediate");
-
-                    //Clear connection pool
                     using (var connection = new SqlConnection(db.ConnectionString(this)))
                     {
                         SqlConnection.ClearPool(connection);
@@ -157,12 +149,11 @@ LOG ON  ( NAME = {databaseName}_log, FILENAME = '{DatabaseRootFolderOverride}\{d
                     _masterConnection.ExecuteNonQuery(dropCommand);
                 }
 
-                machineWide.Reset();
-
                 _log.Warning("Creating new databases");
 
-                //1.Through(30)
-                // .ForEach(_ => InsertDatabase(machineWide));
+                1.Through(30)
+                 .ForEach(_ => InsertDatabase(machineWide));
+
 
                 RebootedMasterConnections.Add(_masterConnectionString);
             }

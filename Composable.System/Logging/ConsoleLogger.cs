@@ -17,15 +17,15 @@ namespace Composable.Logging
     {
         readonly Type _type;
 
-        LogLevel logLevel = LogLevel.Info;
+        LogLevel _logLevel = LogLevel.Info;
 
         ConsoleLogger(Type type) => _type = type;
 
         public static ILogger Create(Type type) => new ConsoleLogger(type);
-        public void SetLogLevel(LogLevel level) => logLevel = level;
+        public void SetLogLevel(LogLevel level) => _logLevel = level;
         public void Error(Exception exception, string message)
         {
-            if(logLevel >= LogLevel.Error)
+            if(_logLevel >= LogLevel.Error)
             {
                 SafeConsole.WriteLine($"ERROR:{_type}: {message} {exception}");
             }
@@ -33,7 +33,7 @@ namespace Composable.Logging
 
         public void Warning(string message)
         {
-            if(logLevel >= LogLevel.Warning)
+            if(_logLevel >= LogLevel.Warning)
             {
                 SafeConsole.WriteLine($"WARNING:{_type}: {DateTime.Now:HH:mm:ss.fff} {message}");
             }
@@ -41,7 +41,7 @@ namespace Composable.Logging
 
         public void Warning(Exception exception, string message)
         {
-            if(logLevel >= LogLevel.Warning)
+            if(_logLevel >= LogLevel.Warning)
             {
                 SafeConsole.WriteLine($"WARNING:{_type}: {DateTime.Now:HH:mm:ss.fff} {message}, \n: Exception: {exception}");
             }
@@ -49,14 +49,14 @@ namespace Composable.Logging
 
         public void Info(string message)
         {
-            if(logLevel >= LogLevel.Info)
+            if(_logLevel >= LogLevel.Info)
             {
                 SafeConsole.WriteLine($"INFO:{_type}: {DateTime.Now:HH:mm:ss.fff} {message}");
             }
         }
         public void Debug(string message)
         {
-            if(logLevel >= LogLevel.Debug)
+            if(_logLevel >= LogLevel.Debug)
             {
                 SafeConsole.WriteLine($"DEBUG:{_type}: {DateTime.Now:HH:mm:ss.fff} {message}");
             }

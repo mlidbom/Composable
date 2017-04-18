@@ -18,7 +18,7 @@ namespace Composable.Persistence.DocumentDb.SqlServer
     {
         readonly Lazy<string> _connectionString;
 
-        SqlServerConnectionUtilities ConnectionManager => new SqlServerConnectionUtilities(_connectionString.Value);
+        SqlServerConnectionProvider ConnectionManager => new SqlServerConnectionProvider(_connectionString);
 
         static readonly JsonSerializerSettings JsonSettings = NewtonSoft.JsonSettings.JsonSerializerSettings;
 

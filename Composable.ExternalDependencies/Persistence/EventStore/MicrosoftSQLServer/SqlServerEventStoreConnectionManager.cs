@@ -9,7 +9,7 @@ namespace Composable.Persistence.EventStore.MicrosoftSQLServer
     class SqlServerEventStoreConnectionManager
     {
         readonly Lazy<string> _connectionString;
-        SqlServerConnectionUtilities ConnectionManager => new SqlServerConnectionUtilities(_connectionString.Value);
+        SqlServerConnectionProvider ConnectionManager => new SqlServerConnectionProvider(_connectionString);
         public SqlServerEventStoreConnectionManager(Lazy<string> connectionString) => _connectionString = connectionString;
 
         void UseConnection(Action<SqlConnection> action, bool suppressTransactionWarning = false)

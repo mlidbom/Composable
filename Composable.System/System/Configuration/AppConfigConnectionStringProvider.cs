@@ -1,4 +1,5 @@
-﻿using System.Configuration;
+﻿using System;
+using System.Configuration;
 
 namespace Composable.System.Configuration
 {
@@ -6,14 +7,17 @@ namespace Composable.System.Configuration
     class AppConfigConnectionStringProvider : IConnectionStringProvider
     {
         ///<summary>Returns the connection string with the given name.</summary>
-        public string GetConnectionString(string parameterName)
+        public Lazy<string> GetConnectionString(string parameterName)
         {
-            var parameter = ConfigurationManager.ConnectionStrings[parameterName];
-            if (parameter==null)
-            {
-                throw new ConfigurationErrorsException($"ConnectionString with name {parameterName} does not exists");
-            }
-            return parameter.ConnectionString;
+            return new Lazy<string>(() =>
+                                    {
+                                        var parameter = ConfigurationManager.ConnectionStrings[parameterName];
+                                        if(parameter == null)
+                                        {
+                                            throw new ConfigurationErrorsException($"ConnectionString with name {parameterName} does not exists");
+                                        }
+                                        return parameter.ConnectionString;
+                                    });
         }
     }
 }

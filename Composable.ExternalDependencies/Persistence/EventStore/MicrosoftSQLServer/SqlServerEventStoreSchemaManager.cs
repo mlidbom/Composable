@@ -25,7 +25,7 @@ namespace Composable.Persistence.EventStore.MicrosoftSQLServer
         public IEventTypeToIdMapper IdMapper { get; private set; }
 
         readonly Lazy<string> _connectionString;
-        SqlServerConnectionUtilities ConnectionManager => new SqlServerConnectionUtilities(_connectionString.Value);
+        SqlServerConnectionProvider ConnectionManager => new SqlServerConnectionProvider(_connectionString);
         string ConnectionString => _connectionString.Value;
 
         SqlConnection OpenConnection()

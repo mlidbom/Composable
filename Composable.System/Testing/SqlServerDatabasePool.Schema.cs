@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Composable.System;
+using Composable.System.Data.SqlClient;
 using Composable.System.Linq;
 
 namespace Composable.Testing
@@ -9,6 +10,7 @@ namespace Composable.Testing
     static class DatabaseExtensions
     {
         internal static string Name(this SqlServerDatabasePool.Database @this) => $"{SqlServerDatabasePool.PoolDatabaseNamePrefix}{@this.Id:0000}";
+        internal static string ConnectionString(this SqlServerDatabasePool.Database @this, SqlServerDatabasePool pool) { return pool.ConnectionStringForDbNamed(@this.Name()); }
     }
 
     sealed partial class SqlServerDatabasePool
@@ -46,24 +48,28 @@ LOG ON  ( NAME = {databaseName}_log, FILENAME = '{DatabaseRootFolderOverride}\{d
             //SafeConsole.WriteLine($"Created: {databaseName}");
         }
 
-        void DropAllAndStartOver(SharedState machineWide)
+        void DropAllAndStartOver()
         {
-            var dbsToDrop = ListPoolDatabases();
+            _machineWideState.Update(machineWide =>
+                                     {
+                                         var dbsToDrop = ListPoolDatabases();
 
-            foreach (var db in dbsToDrop)
-            {
-                var dropCommand = $"drop database [{db.Name()}]";
-                try
-                {
-                    _masterConnection.ExecuteNonQuery(dropCommand);
-                }
-                catch (Exception exception)
-                {
-                    Log.Error(exception);
-                }
-            }
-            machineWide.Databases = new List<Database>();
-            1.Through(30).ForEach(_ => InsertDatabase(machineWide));
+                                         foreach(var db in dbsToDrop)
+                                         {
+                                             var dropCommand = $"drop database [{db.Name()}]";
+                                             try
+                                             {
+                                                 _masterConnection.ExecuteNonQuery(dropCommand);
+                                             }
+                                             catch(Exception exception)
+                                             {
+                                                 Log.Error(exception);
+                                             }
+                                         }
+                                         machineWide.Databases = new List<Database>();
+                                         1.Through(30)
+                                          .ForEach(_ => InsertDatabase(machineWide));
+                                     });
         }
 
         List<Database> ListPoolDatabases()

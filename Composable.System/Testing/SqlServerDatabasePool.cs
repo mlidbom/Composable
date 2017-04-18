@@ -19,7 +19,7 @@ namespace Composable.Testing
     sealed partial class SqlServerDatabasePool : StrictlyManagedResourceBase<SqlServerDatabasePool>
     {
         readonly string _masterConnectionString;
-        readonly SqlServerConnectionUtilities _masterConnection;
+        readonly SqlServerConnectionProvider _masterConnection;
 
         readonly MachineWideSharedObject<SharedState> _machineWideState;
 
@@ -54,20 +54,20 @@ namespace Composable.Testing
 
             Contract.Assert.That(_masterConnectionString.Contains(_initialCatalogMaster),
                                  $"MasterDB connection string must contain the exact string: '{_initialCatalogMaster}' this is required for technical optimization reasons");
-            _masterConnection = new SqlServerConnectionUtilities(_masterConnectionString);
+            _masterConnection = new SqlServerConnectionProvider(_masterConnectionString);
         }
 
         readonly Dictionary<string, Database> _reservedDatabases = new Dictionary<string, Database>();
         bool _disposed;
         string _initialCatalogMaster = ";Initial Catalog=master;";
 
-        public string ConnectionStringFor(string connectionStringName)
+        public Lazy<string> ConnectionStringFor(string connectionStringName)
         {
             Contract.Assert.That(!_disposed, "!_disposed");
 
             Database database;
             if(_reservedDatabases.TryGetValue(connectionStringName, out database))
-                return ConnectionStringForDbNamed(database.Name());
+                return new Lazy<string>(() => database.ConnectionString(this));
 
             _machineWideState.Update(machineWide =>
                                     {
@@ -93,33 +93,20 @@ namespace Composable.Testing
                                                                                      _reservedDatabases.Add(connectionStringName, database);
                                                                                  }
                                                                              }
-
-                                                                             try
-                                                                             {
-                                                                                 new SqlServerConnectionUtilities(ConnectionStringForDbNamed(database.Name())).UseConnection(_ => { });
-                                                                             }
-                                                                             catch (Exception)
-                                                                             {
-                                                                                 DropAllAndStartOver(machineWide);
-                                                                                 if(!TryReserveDatabase(machineWide, out database))
-                                                                                 {
-                                                                                     throw new Exception("Failed to reboot db pool...");
-                                                                                 }
-                                                                             }
                                                                          });
                                     });
 
-            return ConnectionStringForDbNamed(database.Name());
+            return new Lazy<string>(() => database.ConnectionString(this));
         }
 
-        string ConnectionStringForDbNamed(string dbName) 
+        internal string ConnectionStringForDbNamed(string dbName)
             => _masterConnectionString.Replace(_initialCatalogMaster,$";Initial Catalog={dbName};");
 
         static bool TryReserveDatabase(SharedState machineWide, out Database reserved) => machineWide.TryReserve(out reserved);
 
         Database InsertDatabase(SharedState machineWide)
         {
-            Database database = machineWide.Insert(this);
+            Database database = machineWide.Insert();
 
             using (new TransactionScope(TransactionScopeOption.Suppress))
             {
@@ -134,7 +121,7 @@ namespace Composable.Testing
 
             void CleanAndReleaseDatabase(Database database)
             {
-                new SqlServerConnectionUtilities(ConnectionStringForDbNamed(database.Name())).UseConnection(action: connection => connection.DropAllObjects());
+                new SqlServerConnectionProvider(ConnectionStringForDbNamed(database.Name())).UseConnection(action: connection => connection.DropAllObjects());
 
                 machineWide.Release(database.Name());
             }
@@ -147,7 +134,7 @@ namespace Composable.Testing
         {
             void CleanAndReleaseDatabase(Database database)
             {
-                 new SqlServerConnectionUtilities(ConnectionStringForDbNamed(database.Name())).UseConnection(action: connection => connection.DropAllObjects());
+                 new SqlServerConnectionProvider(ConnectionStringForDbNamed(database.Name())).UseConnection(action: connection => connection.DropAllObjects());
                 _machineWideState.Update(machineWide => machineWide.Release(database.Name()));
             }
 

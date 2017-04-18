@@ -28,7 +28,7 @@ namespace Composable.Testing
                 return true;
             }
 
-            internal Database Insert(SqlServerDatabasePool pool)
+            internal Database Insert()
             {
                 var newId = Databases.Any() ? Databases.Max(db => db.Id) + 1 : 1;
                 var database = new Database(newId);

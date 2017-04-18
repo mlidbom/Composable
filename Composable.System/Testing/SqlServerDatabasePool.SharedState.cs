@@ -12,10 +12,20 @@ namespace Composable.Testing
         [UsedImplicitly] class SharedState : IBinarySerializeMySelf
         {
             readonly List<Database> _databases = new List<Database>();
+            internal IReadOnlyList<Database> Databases => _databases;
 
-            internal void Release(int id)
+            internal Database Release(int id)
             {
-                Get(id).Release();
+                var database = Get(id);
+                database.Release();
+                return database;
+            }
+
+            internal Database Clean(int id)
+            {
+                var database = Get(id);
+                database.Clean();
+                return database;
             }
 
             internal bool IsValid()
@@ -35,12 +45,26 @@ namespace Composable.Testing
                 return true;
             }
 
+            internal bool NeedsGarbageCollection()
+            {
+                return true;
+                
+            }
+
             internal bool TryReserve(out Database reserved, string reservationName, Guid poolId)
             {
-                reserved = _databases.FirstOrDefault(db => db.IsReserved == false);
+                var unreserved = _databases.Where(db => !db.IsReserved)
+                                           .OrderBy(db => db.ReservationDate)
+                                           .ToList();
+
+                reserved = unreserved.FirstOrDefault(db => db.IsClean);
                 if(reserved == null)
                 {
-                    return false;
+                    reserved = unreserved.FirstOrDefault();
+                    if(reserved == null)
+                    {
+                        return false;
+                    }
                 }
                 reserved.Reserve(reservationName, poolId);
                 return true;
@@ -56,10 +80,13 @@ namespace Composable.Testing
                 return database;
             }
 
-            internal IReadOnlyList<Database> DbsWithOldLocks() => _databases
-                .Where(db => db.IsReserved)
-                .Where(db => db.ReservationDate < DateTime.UtcNow - 10.Minutes())
-                                                                  .ToList();
+            internal IReadOnlyList<Database> ShouldBeReleased() => _databases
+                .Where(db => db.ShouldBeReleased).ToList();
+
+            internal IReadOnlyList<Database> ShouldBeCleaned() => _databases
+                .Where(db => db.ShouldBeCleaned)
+                .OrderBy(db => db.ReservationDate)
+                .ToList();
 
             Database Get(int id) => _databases.Single(db => db.Id == id);
 

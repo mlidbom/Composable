@@ -74,7 +74,7 @@ namespace Composable.Testing
                 _log.Debug($"Retrieved reserved pool database: {database.Id}");
             } else
             {
-
+                SharedState snapshot = null;
                 TransactionScopeCe.SupressAmbient(
                     () =>
                         _machineWideState.Update(
@@ -86,17 +86,8 @@ namespace Composable.Testing
                                     RebootPool(machineWide);
                                 }
 
-                                try
-                                {
-                                    ReleaseOldLocks(machineWide);
-                                }
-                                catch(Exception e)
-                                {
-                                    _log.Error(e, "Failed to clean old locks. Will reboot pool");
-                                    RebootPool(machineWide);
-                                }
 
-                                if(machineWide.TryReserve(out database, reservationName, _poolId))
+                                if (machineWide.TryReserve(out database, reservationName, _poolId))
                                 {
                                     _log.Info($"Reserved pool database: {database.Id}");
                                 } else
@@ -104,11 +95,59 @@ namespace Composable.Testing
                                     database = InsertDatabase(machineWide);
                                     database.Reserve(reservationName, _poolId);
                                 }
+
+                                if (!database.IsClean)
+                                {
+                                    CleanDatabase(database);
+                                    database.Clean();
+                                }
+                                else
+                                {
+                                    int breakpoint = 1;
+                                }
+
                                 _transientCache = machineWide.DatabasesReservedBy(_poolId);
+                                snapshot = machineWide;
                             }));
+
+                var dbsThatShouldBeCleaned = snapshot.Databases.Where(db => db.ShouldBeCleaned).ToList();
+                var dbsThatShouldBeReleased = snapshot.Databases.Where(db => db.EligibleForGarbageCollection).ToList();
+                var freeAndClean = snapshot.Databases.Where(db => db.FreeAndClean).ToList();
+
+
+
+                if (freeAndClean.Count < 20 || dbsThatShouldBeCleaned.Count > 20 || dbsThatShouldBeReleased.Count > 20)
+                {
+                    ScheduleGarbageCollectionOnBackgroundThread();
+                }
+
             }
 
             return new ConnectionProvider(database, reservationName, this);
+        }
+
+
+        void ScheduleGarbageCollectionOnBackgroundThread()
+        {
+            Task.Run(() =>
+                     {
+                         IReadOnlyList<Database> toCleanAndRelease = null;
+                         _machineWideState.Update(machineWide =>
+                                                  {
+                                                      var toRelease = machineWide.ShouldBeReleased();
+                                                      toRelease.ForEach(db => db.Release().Reserve("Garbage_collection_task",Guid.NewGuid()));
+                                                      toCleanAndRelease = machineWide.ShouldBeCleaned();
+                                                      toCleanAndRelease.ForEach(db => db.Reserve("Garbage_collection_task", Guid.NewGuid()));
+                                                      toCleanAndRelease = toCleanAndRelease.Concat(toRelease).ToList();
+                                                  });
+
+                         toCleanAndRelease.ForEach(db => Task.Run(() =>
+                                                           {
+                                                               CleanDatabase(db);
+                                                               _machineWideState.Update(machineWide => machineWide.Release(db.Id)
+                                                                                                                  .Clean());
+                                                           }));
+                     });
         }
 
         internal string ConnectionStringForDbNamed(string dbName)
@@ -126,33 +165,16 @@ namespace Composable.Testing
             return database;
         }
 
-        void ReleaseOldLocks(SharedState machineWide)
+        void ReleaseReservedOnBackgroundThread()
         {
-            var toGarbageCollect = machineWide.DbsWithOldLocks();
-
-            void CleanAndReleaseDatabase(Database database)
-            {
-                _log.Info($"Cleaning and releasing from old locks: {database.Id}");
-                new SqlServerConnectionProvider(database.ConnectionString(this)).UseConnection(action: connection => connection.DropAllObjects());
-
-                machineWide.Release(database.Id);
-            }
-
-            toGarbageCollect.ForEach(CleanAndReleaseDatabase);
+            Task.Run(() => _machineWideState.Update(machineWide => machineWide.DatabasesReservedBy(_poolId)
+                                                                              .ForEach(db => db.Release())));
         }
 
-        void CleanAndRelease(IReadOnlyList<Database> databases)
+        void CleanDatabase(Database database)
         {
-            void CleanAndReleaseDatabase(Database database)
-            {
-                _log.Debug($"Cleaning and releasing: {database.Id}");
-                TransactionScopeCe.SupressAmbient(
-                    () => new SqlServerConnectionProvider(database.ConnectionString(this)).UseConnection(action: connection => connection.DropAllObjects()));
-
-                _machineWideState.Update(machineWide => machineWide.Release(database.Id));
-            }
-
-            Task.Run(()=>  databases.ForEach(CleanAndReleaseDatabase));
+            _log.Debug($"Cleaning: {database.Id}");
+            TransactionScopeCe.SupressAmbient(() => new SqlServerConnectionProvider(database.ConnectionString(this)).UseConnection(action: connection => connection.DropAllObjects()));
         }
 
         protected override void InternalDispose()
@@ -160,7 +182,7 @@ namespace Composable.Testing
             if (!_disposed)
             {
                 _disposed = true;
-                CleanAndRelease(_machineWideState.GetCopy().DatabasesReservedBy(_poolId));
+                ReleaseReservedOnBackgroundThread();
             }
         }
     }

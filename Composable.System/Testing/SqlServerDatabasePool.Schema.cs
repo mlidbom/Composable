@@ -23,6 +23,7 @@ namespace Composable.Testing
         {
             internal int Id { get; private set; }
             internal bool IsReserved { get; private set; }
+            internal bool IsClean { get; private set; } = true;
             public DateTime ReservationDate { get; private set; } = DateTime.MaxValue;
             internal string ReservationName { get; private set; } = string.Empty;
             internal Guid ReservedByPoolId { get; private set; } = Guid.Empty;
@@ -31,22 +32,39 @@ namespace Composable.Testing
             internal Database(int id) => Id = id;
             internal Database(string name) : this(IdFromName(name)) { }
 
+            internal bool ReservationIsExpired => ReservationDate < DateTime.UtcNow - 10.Minutes();
+            internal bool ShouldBeReleased => IsReserved && ReservationIsExpired;
+            internal bool ShouldBeCleaned => IsFree && IsDirty;
+            internal bool EligibleForGarbageCollection => ShouldBeReleased || ShouldBeCleaned;
+            internal bool IsFree => !IsReserved;
+            internal bool IsDirty => !IsClean;
+            internal bool FreeAndClean => IsFree && IsClean;
+
             static int IdFromName(string name)
             {
                 var nameIndex = name.Replace(PoolDatabaseNamePrefix, "");
                 return int.Parse(nameIndex);
             }
 
-            internal void Release()
+            internal Database Release()
             {
                 Contract.Assert.That(IsReserved, "IsReserved");
                 IsReserved = false;
-                ReservationDate = DateTime.MaxValue;
+                IsClean = false;
+                ReservationDate = DateTime.UtcNow;//We reuse this value to hold the release time.
                 ReservationName = string.Empty;
                 ReservedByPoolId = Guid.Empty;
+                return this;
             }
 
-            internal void Reserve(string reservationName, Guid poolId)
+            internal Database Clean()
+            {
+                Contract.Assert.That(!IsClean, "!IsClean");
+                IsClean = true;
+                return this;
+            }
+
+            internal Database Reserve(string reservationName, Guid poolId)
             {
                 Contract.Assert.That(!IsReserved, "!IsReserved");
                 Contract.Assert.That(poolId != Guid.Empty, "poolId != Guid.Empty");
@@ -55,6 +73,7 @@ namespace Composable.Testing
                 ReservationName = reservationName;
                 ReservationDate = DateTime.UtcNow;
                 ReservedByPoolId = poolId;
+                return this;
             }
 
             public void Deserialize(BinaryReader reader)
@@ -64,6 +83,7 @@ namespace Composable.Testing
                 ReservationDate = DateTime.FromBinary(reader.ReadInt64());
                 ReservationName = reader.ReadString();
                 ReservedByPoolId = new Guid(reader.ReadBytes(16));
+                IsClean = reader.ReadBoolean();
             }
 
             public void Serialize(BinaryWriter writer)
@@ -73,6 +93,7 @@ namespace Composable.Testing
                 writer.Write(ReservationDate.ToBinary());
                 writer.Write(ReservationName);
                 writer.Write(ReservedByPoolId.ToByteArray());
+                writer.Write(IsClean);
             }
         }
 

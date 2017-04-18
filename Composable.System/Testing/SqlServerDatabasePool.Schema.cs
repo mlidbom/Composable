@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Composable.Contracts;
 using Composable.System;
 using Composable.System.Data.SqlClient;
-using Composable.System.Linq;
 using Composable.System.Transactions;
 
 namespace Composable.Testing
@@ -12,7 +12,7 @@ namespace Composable.Testing
     static class DatabaseExtensions
     {
         internal static string Name(this SqlServerDatabasePool.Database @this) => $"{SqlServerDatabasePool.PoolDatabaseNamePrefix}{@this.Id:0000}";
-        internal static string ConnectionString(this SqlServerDatabasePool.Database @this, SqlServerDatabasePool pool) { return pool.ConnectionStringForDbNamed(@this.Name()); }
+        internal static string ConnectionString(this SqlServerDatabasePool.Database @this, SqlServerDatabasePool pool) => pool.ConnectionStringForDbNamed(@this.Name());
     }
 
     sealed partial class SqlServerDatabasePool
@@ -21,8 +21,9 @@ namespace Composable.Testing
         internal class Database : IBinarySerializeMySelf
         {
             internal int Id { get; private set; }
-            internal bool IsReserved { get; set; }
-            public DateTime ReservationDate { get; set; }
+            internal bool IsReserved { get; private set; }
+            public DateTime ReservationDate { get; private set; }
+            internal string ReservationName { get; private set; }
 
             internal Database() { }
             internal Database(int id) => Id = id;
@@ -32,6 +33,22 @@ namespace Composable.Testing
             {
                 var nameIndex = name.Replace(PoolDatabaseNamePrefix, "");
                 return int.Parse(nameIndex);
+            }
+
+            internal void Release()
+            {
+                Contract.Assert.That(IsReserved, "IsReserved");
+                IsReserved = false;
+                ReservationDate = DateTime.MaxValue;
+                ReservationName = null;
+            }
+
+            internal void Reserve(string reservationName)
+            {
+                Contract.Assert.That(!IsReserved, "!IsReserved");
+                IsReserved = true;
+                ReservationName = reservationName;
+                ReservationDate = DateTime.UtcNow;
             }
 
             public void Deserialize(BinaryReader reader)
@@ -72,36 +89,48 @@ LOG ON  ( NAME = {databaseName}_log, FILENAME = '{DatabaseRootFolderOverride}\{d
                     _machineWideState.Update(
                         machineWide =>
                         {
-                            if(!RebootedMasterConnections.Contains(_masterConnectionString))
+                            lock(RebootedMasterConnections)
                             {
-                                RebootPool(machineWide);
-                                RebootedMasterConnections.Add(_masterConnectionString);
-                            } else
-                            {
-                                Log.Warning("Skipped rebooting");
+                                if(!RebootedMasterConnections.Contains(_masterConnectionString))
+                                {
+                                    RebootPool(machineWide);
+                                } else
+                                {
+                                    Log.Warning("Skipped rebooting");
+                                }
                             }
                         }));
         }
 
         void RebootPool(SharedState machineWide)
         {
-            Log.Warning("Rebooting database pool");
-            _reservedDatabases.Clear();
-            var dbsToDrop = ListPoolDatabases();
-
-            Log.Warning("Dropping databases");
-            foreach(var db in dbsToDrop)
+            lock(RebootedMasterConnections)
             {
-                var dropCommand = $"drop database [{db.Name()}]";
-                Log.Info(dropCommand);
-                _masterConnection.ExecuteNonQuery(dropCommand);
+                Log.Warning("Rebooting database pool");
+                if(_reservedDatabases.Any())
+                {
+                    throw new Exception("WTF?");
+                }
+
+                var dbsToDrop = ListPoolDatabases();
+
+                Log.Warning("Dropping databases");
+                foreach(var db in dbsToDrop)
+                {
+                    var dropCommand = $"drop database [{db.Name()}]";
+                    Log.Info(dropCommand);
+                    _masterConnection.ExecuteNonQuery(dropCommand);
+                }
+
+                machineWide.Reset();
+
+                Log.Warning("Creating new databases");
+
+                //1.Through(30)
+                // .ForEach(_ => InsertDatabase(machineWide));
+
+                RebootedMasterConnections.Add(_masterConnectionString);
             }
-            machineWide.Databases = new List<Database>();
-
-            Log.Warning("Creating new databases");
-
-            1.Through(30)
-             .ForEach(_ => InsertDatabase(machineWide));
         }
 
         IReadOnlyList<Database> ListPoolDatabases()

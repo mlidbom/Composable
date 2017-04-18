@@ -11,21 +11,23 @@ namespace Composable.Testing
     {
         [UsedImplicitly] class SharedState : IBinarySerializeMySelf
         {
-            internal void Release(string name)
+            readonly List<Database> _databases = new List<Database>();
+
+            internal void Release(int id)
             {
-                Get(name).IsReserved = false;
+                Get(id).Release();
             }
 
             internal bool IsValid()
             {
-                if(Databases.Count == 0)
+                if(_databases.Count == 0)
                 {
                     return false;
                 }
 
-                for (int i = 1; i <= Databases.Count; i++)
+                for (int i = 1; i <= _databases.Count; i++)
                 {
-                    if (i != Databases[i - 1].Id)
+                    if (i != _databases[i - 1].Id)
                     {
                         return false;
                     }
@@ -33,47 +35,49 @@ namespace Composable.Testing
                 return true;
             }
 
-            internal bool TryReserve(out Database reserved)
+            internal bool TryReserve(out Database reserved, string reservationName)
             {
-                reserved = Databases.FirstOrDefault(db => db.IsReserved == false);
+                reserved = _databases.FirstOrDefault(db => db.IsReserved == false);
                 if(reserved == null)
                 {
                     return false;
                 }
-
-                reserved.IsReserved = true;
-                reserved.ReservationDate = DateTime.UtcNow;
+                reserved.Reserve(reservationName);
                 return true;
             }
 
             internal Database Insert()
             {
-                var database = new Database(Databases.Count + 1);
-                Databases.Add(database);
+                var database = new Database(_databases.Count + 1);
+                _databases.Add(database);
                 return database;
             }
 
-            internal IReadOnlyList<Database> DbsWithOldLocks() => Databases.Where(db => db.ReservationDate < DateTime.UtcNow - 10.Minutes())
+            internal IReadOnlyList<Database> DbsWithOldLocks() => _databases
+                .Where(db => db.IsReserved)
+                .Where(db => db.ReservationDate < DateTime.UtcNow - 10.Minutes())
                                                                   .ToList();
 
-            Database Get(string name) => Databases.Single(db => db.Name() == name);
+            Database Get(int id) => _databases.Single(db => db.Id == id);
 
-            internal List<Database> Databases { get; set; } = new List<Database>();
+            internal void Reset()
+            {
+                _databases.Clear();
+            }
 
             public void Deserialize(BinaryReader reader)
             {
-                Databases = new List<Database>();
                 while(reader.ReadBoolean())//I use negative boolean to mark end of object
                 {
                     var database = new Database();
                     database.Deserialize(reader);
-                    Databases.Add(database);
+                    _databases.Add(database);
                 }
             }
 
             public void Serialize(BinaryWriter writer)
             {
-                Databases.ForEach(db =>
+                _databases.ForEach(db =>
                                   {
                                       writer.Write(true);
                                       db.Serialize(writer);

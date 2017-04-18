@@ -60,13 +60,23 @@ namespace Composable.Testing
         bool _disposed;
         string _initialCatalogMaster = ";Initial Catalog=master;";
 
-        public ISqlConnectionProvider ConnectionProviderFor(string connectionStringName)
+        public ISqlConnectionProvider ConnectionProviderFor(string reservationName)
         {
             Contract.Assert.That(!_disposed, "!_disposed");
 
             Database database;
-            if(_reservedDatabases.TryGetValue(connectionStringName, out database))
+            if(_reservedDatabases.TryGetValue(reservationName, out database))
+            {
+                Log.Info($"Retrieved reserved pool database: {database.Id}");
                 return new ConnectionProvider(database, this);
+            }
+
+            void SaveReservedDatabase()
+            {
+                Contract.Assert.That(database.IsReserved, "database.IsReserved");
+                Contract.Assert.That(database.ReservationName == reservationName, "database.ReservationName == reservationName");
+                _reservedDatabases.Add(reservationName, database);
+            }
 
             TransactionScopeCe.SupressAmbient(
                 () =>
@@ -78,30 +88,24 @@ namespace Composable.Testing
                                 RebootPool(machineWide);
                             }
 
-                            if(TryReserveDatabase(machineWide, out database))
-                            {
-                                _reservedDatabases.Add(connectionStringName, database);
-                            } else
+                            if(!machineWide.TryReserve(out database, reservationName))
                             {
                                 ReleaseOldLocks(machineWide);
-                                if(TryReserveDatabase(machineWide, out database))
-                                {
-                                    _reservedDatabases.Add(connectionStringName, database);
-                                } else
+                                if (!machineWide.TryReserve(out database, reservationName))
                                 {
                                     database = InsertDatabase(machineWide);
-                                    _reservedDatabases.Add(connectionStringName, database);
+                                    database.Reserve(reservationName);
                                 }
                             }
+                            SaveReservedDatabase();
                         }));
 
+            Log.Info($"Reserved pool database: {database.Id}");
             return new ConnectionProvider(database, this);
         }
 
         internal string ConnectionStringForDbNamed(string dbName)
             => _masterConnectionString.Replace(_initialCatalogMaster,$";Initial Catalog={dbName};");
-
-        static bool TryReserveDatabase(SharedState machineWide, out Database reserved) => machineWide.TryReserve(out reserved);
 
         Database InsertDatabase(SharedState machineWide)
         {
@@ -121,9 +125,10 @@ namespace Composable.Testing
 
             void CleanAndReleaseDatabase(Database database)
             {
-                new SqlServerConnectionProvider(ConnectionStringForDbNamed(database.Name())).UseConnection(action: connection => connection.DropAllObjects());
+                Log.Info($"Cleaning and releasing from old locks: {database.Id}");
+                new SqlServerConnectionProvider(database.ConnectionString(this)).UseConnection(action: connection => connection.DropAllObjects());
 
-                machineWide.Release(database.Name());
+                machineWide.Release(database.Id);
             }
 
             databases.ForEach(action: db => _reservedDatabases.Remove(db.Name()));
@@ -134,11 +139,18 @@ namespace Composable.Testing
         {
             void CleanAndReleaseDatabase(Database database)
             {
-                 new SqlServerConnectionProvider(ConnectionStringForDbNamed(database.Name())).UseConnection(action: connection => connection.DropAllObjects());
-                _machineWideState.Update(machineWide => machineWide.Release(database.Name()));
+                Log.Info($"Cleaning and releasing: {database.Id}");
+                TransactionScopeCe.SupressAmbient(
+                    () => new SqlServerConnectionProvider(database.ConnectionString(this)).UseConnection(action: connection => connection.DropAllObjects()));
+
+                _machineWideState.Update(machineWide => machineWide.Release(database.Id));
             }
 
-            databases.ForEach(action: db => _reservedDatabases.Remove(db.Name()));
+            databases.ForEach(action: db =>
+                                      {
+                                          var dbWasRemovedFromReserved = _reservedDatabases.Remove(db.ReservationName);
+                                          Contract.Assert.That(dbWasRemovedFromReserved, "dbWasRemovedFromReserved");
+                                      });
             Task.Run(()=>  databases.ForEach(CleanAndReleaseDatabase));
         }
 

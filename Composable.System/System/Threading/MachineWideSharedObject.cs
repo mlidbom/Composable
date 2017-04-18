@@ -1,27 +1,85 @@
 ﻿using System;
 using System.IO;
 using System.IO.MemoryMappedFiles;
+using System.Linq;
 using System.Runtime.Serialization.Formatters.Binary;
 using Composable.Contracts;
 
 namespace Composable.System.Threading
 {
+    using Composable.System.Linq;
+
     class MachineWideSharedObject<TObject>
         where TObject : new()
     {
         readonly long _capacity;
         readonly MemoryMappedFile _file;
         readonly MachineWideSingleThreaded _syncronizer;
+        static readonly string DataFolder;
+        static readonly BinaryFormatter BinaryFormatter = new BinaryFormatter();
 
-        internal static MachineWideSharedObject<TObject> For(string name) => new MachineWideSharedObject<TObject>(name, 100000);
+        internal static MachineWideSharedObject<TObject> For(string name, bool usePersistentFile = false, long capacity = 1000_000) => new MachineWideSharedObject<TObject>(name, usePersistentFile, capacity);
 
-        MachineWideSharedObject(string name, long capacity)
+        static MachineWideSharedObject()
         {
-            _capacity = capacity;
+            var tempDirectory = Environment.GetEnvironmentVariable("COMPOSABLE_TEMP_DRIVE");
+            if(tempDirectory.IsNullOrWhiteSpace())
+            {
+                tempDirectory = Path.Combine(Path.GetTempPath(), "Composable_TEMP");
+            }
+
+            if (!Directory.Exists(tempDirectory))
+            {
+                Directory.CreateDirectory(tempDirectory);
+            }
+
+            DataFolder = Path.Combine(tempDirectory, "MemoryMappedFiles");
+            if (!Directory.Exists(DataFolder))
+            {
+                Directory.CreateDirectory(DataFolder);
+            }
+        }
+
+        MachineWideSharedObject(string name, bool usePersistentFile, long capacity)
+        {
+            _capacity = 1000_000;
             Contract.Assert.That(typeof(TObject).IsSerializable, "Shared type must be serializeble");
             var fileName = $"{nameof(MachineWideSharedObject<TObject>)}_{name}";
             _syncronizer = MachineWideSingleThreaded.For($"{fileName}_mutex");
-            _file = MemoryMappedFile.CreateOrOpen(fileName, capacity);
+
+            if(usePersistentFile)
+            {
+                MemoryMappedFile mappedFile = null;
+                _syncronizer.Execute(() =>
+                                     {
+                                         var actualFileName = fileName;
+                                         Path.GetInvalidFileNameChars()
+                                             .ForEach(invalidChar => actualFileName = actualFileName.Replace(invalidChar, '_'));
+
+                                         actualFileName = Path.Combine(DataFolder, actualFileName);
+
+                                         if(File.Exists(actualFileName))
+                                         {
+                                             try
+                                             {
+                                                 mappedFile = MemoryMappedFile.OpenExisting(mapName: name);
+                                                 return;
+                                             }
+                                             catch(IOException) {}
+                                         }
+
+                                         mappedFile = MemoryMappedFile.CreateFromFile(path: actualFileName,
+                                                                                      mode: FileMode.OpenOrCreate,
+                                                                                      mapName: name,
+                                                                                      capacity: capacity,
+                                                                                      access: MemoryMappedFileAccess.ReadWrite);
+                                     });
+                _file = mappedFile;
+            } else
+            {
+                _file = MemoryMappedFile.CreateOrOpen(mapName: name, capacity: capacity);
+            }
+
         }
 
         internal TObject GetCopy()
@@ -40,7 +98,7 @@ namespace Composable.System.Threading
 
                                              using(var objectStream = new MemoryStream(buffer))
                                              {
-                                                 value = (TObject)new BinaryFormatter().Deserialize(objectStream);
+                                                 value = (TObject)BinaryFormatter.Deserialize(objectStream);
                                              }
                                          }
                                      }
@@ -68,10 +126,9 @@ namespace Composable.System.Threading
         {
             _syncronizer.Execute(() =>
                                  {
-                                     var binaryFormatter = new BinaryFormatter();
                                      using(var memoryStream = new MemoryStream())
                                      {
-                                         binaryFormatter.Serialize(memoryStream, value);
+                                         BinaryFormatter.Serialize(memoryStream, value);
                                          var buffer = memoryStream.ToArray();
 
                                          using(var accessor = _file.CreateViewAccessor())

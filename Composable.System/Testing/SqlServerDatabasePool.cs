@@ -11,6 +11,7 @@ using Composable.Logging;
 using Composable.System;
 using Composable.System.Data.SqlClient;
 using Composable.System.Linq;
+using Composable.System.Threading;
 using Composable.System.Transactions;
 
 namespace Composable.Testing
@@ -19,8 +20,8 @@ namespace Composable.Testing
     {
         readonly string _masterConnectionString;
         readonly SqlServerConnectionUtilities _masterConnection;
-        readonly SqlServerConnectionUtilities _managerConnection;
-        bool _initialized;
+
+        readonly MachineWideSharedObject<SharedState> _machineWideState;
 
         static readonly string DatabaseRootFolderOverride;
 
@@ -44,164 +45,115 @@ namespace Composable.Testing
 
         static readonly ILogger Log = Logger.For<SqlServerDatabasePool>();
 
-        static readonly string ManagerDbName = $"{nameof(SqlServerDatabasePool)}";
+        internal static readonly string PoolDatabaseNamePrefix = $"{nameof(SqlServerDatabasePool)}_";
 
         public SqlServerDatabasePool(string masterConnectionString)
         {
+            _machineWideState = MachineWideSharedObject<SharedState>.For(masterConnectionString, usePersistentFile: true);
             _masterConnectionString = masterConnectionString;
-            _masterConnection = new SqlServerConnectionUtilities(_masterConnectionString);
 
-            var managerConnectionString = masterConnectionString.Replace(";Initial Catalog=master;", $";Initial Catalog={ManagerDbName};");
-            if(managerConnectionString == _masterConnectionString)
-            {
-                throw new ArgumentException("masterConnectionString must contain the exact string: ';Initial Catalog=master;' in order for the manager connection string to be constructed.");
-            }
-            _managerConnection = new SqlServerConnectionUtilities(managerConnectionString);
+            Contract.Assert.That(_masterConnectionString.Contains(_initialCatalogMaster),
+                                 $"MasterDB connection string must contain the exact string: '{_initialCatalogMaster}' this is required for technical optimization reasons");
+            _masterConnection = new SqlServerConnectionUtilities(_masterConnectionString);
         }
 
         readonly Dictionary<string, Database> _reservedDatabases = new Dictionary<string, Database>();
         bool _disposed;
+        string _initialCatalogMaster = ";Initial Catalog=master;";
 
         public string ConnectionStringFor(string connectionStringName)
         {
             Contract.Assert.That(!_disposed, "!_disposed");
-            EnsureInitialized();
 
             Database database;
             if(_reservedDatabases.TryGetValue(connectionStringName, out database))
-                return database.ConnectionString;
+                return ConnectionStringForDbNamed(database.Name());
 
-            RunInIsolatedTransaction(action: () =>
-                                             {
-                                                 if (TryReserveDatabase(out database))
-                                                 {
-                                                     _reservedDatabases.Add(connectionStringName, database);
-                                                 } else
-                                                 {
-                                                     ReleaseOldLocks();
-                                                     if(TryReserveDatabase(out database))
-                                                     {
-                                                         _reservedDatabases.Add(connectionStringName, database);
-                                                     } else
-                                                     {
-                                                         database = InsertDatabase();
-                                                         _reservedDatabases.Add(connectionStringName, database);
-                                                     }
-                                                 }
-                                             });
+            _machineWideState.Update(machineWide =>
+                                    {
+                                        if (machineWide.Databases == null)
+                                        {
+                                            machineWide.Databases = TransactionScopeCe.SupressAmbient<IReadOnlyList<Database>>(ListPoolDatabases).ToList();
+                                        }
 
-            return database.ConnectionString;
+                                        TransactionScopeCe.SupressAmbient(action: () =>
+                                                                         {
+                                                                             if(TryReserveDatabase(machineWide, out database))
+                                                                             {
+                                                                                 _reservedDatabases.Add(connectionStringName, database);
+                                                                             } else
+                                                                             {
+                                                                                 ReleaseOldLocks(machineWide);
+                                                                                 if(TryReserveDatabase(machineWide, out database))
+                                                                                 {
+                                                                                     _reservedDatabases.Add(connectionStringName, database);
+                                                                                 } else
+                                                                                 {
+                                                                                     database = InsertDatabase(machineWide);
+                                                                                     _reservedDatabases.Add(connectionStringName, database);
+                                                                                 }
+                                                                             }
+
+                                                                             try
+                                                                             {
+                                                                                 new SqlServerConnectionUtilities(ConnectionStringForDbNamed(database.Name())).UseConnection(_ => { });
+                                                                             }
+                                                                             catch (Exception)
+                                                                             {
+                                                                                 DropAllAndStartOver(machineWide);
+                                                                                 if(!TryReserveDatabase(machineWide, out database))
+                                                                                 {
+                                                                                     throw new Exception("Failed to reboot db pool...");
+                                                                                 }
+                                                                             }
+                                                                         });
+                                    });
+
+            return ConnectionStringForDbNamed(database.Name());
         }
 
-        void EnsureInitialized()
+        string ConnectionStringForDbNamed(string dbName) 
+            => _masterConnectionString.Replace(_initialCatalogMaster,$";Initial Catalog={dbName};");
+
+        static bool TryReserveDatabase(SharedState machineWide, out Database reserved) => machineWide.TryReserve(out reserved);
+
+        Database InsertDatabase(SharedState machineWide)
         {
-            if(!_initialized)
-            {
-                SeparatelyForceInitializationOfManagerConnectionPoolToProvideSanityWhenPerformanceProfiling();
-                EnsureManagerDbExistsAndIsAvailable();
-                _initialized = true;
-            }
-        }
+            Database database = machineWide.Insert(this);
 
-        void SeparatelyForceInitializationOfManagerConnectionPoolToProvideSanityWhenPerformanceProfiling()
-        {
-            try { TransactionScopeCe.SupressAmbient(() => _managerConnection.UseConnection(_ => {})); }
-            // ReSharper disable once EmptyGeneralCatchClause
-            catch { }
-        }
-
-        string ConnectionStringForDbNamed(string dbName)
-        {
-            var sqlConnectionStringBuilder = new SqlConnectionStringBuilder(_masterConnectionString) {InitialCatalog = dbName};
-            return sqlConnectionStringBuilder.ConnectionString;
-        }
-
-        bool TryReserveDatabase(out Database database)
-        {
-            var commandText = $@"
-declare @reservedId integer
-SET @reservedId = (select top 1 {ManagerTableSchema.Id} from {ManagerTableSchema.TableName} {ExclusiveTableLockHint} WHERE {ManagerTableSchema.IsFree} = 1 order by {ManagerTableSchema.ReservationDate} asc)
-
-if ( @reservedId is not null)
-	update {ManagerTableSchema.TableName} 
-        set {ManagerTableSchema.IsFree} = 0, 
-            {ManagerTableSchema.ReservationDate} = getdate(), 
-            {ManagerTableSchema.ReservationCallStack} = @{ManagerTableSchema.ReservationCallStack}
-    where Id = @reservedId
-
-select @reservedId";
-
-            Database otherDb = null;
-            _managerConnection.UseCommand(command =>
-                                          {
-                                              command.CommandType = CommandType.Text;
-                                              command.CommandText = commandText;
-                                              command.Parameters.Add(new SqlParameter(ManagerTableSchema.ReservationCallStack, SqlDbType.VarChar, -1) {Value = Environment.StackTrace});
-
-                                              var idObject = command.ExecuteScalar();
-
-                                              if (!(idObject is DBNull))
-                                              {
-                                                otherDb = new Database(pool: this, id: (int)idObject);
-                                              }
-                                          });
-
-            database = otherDb;
-            return database != null;
-        }
-
-        Database InsertDatabase()
-        {
-            var value = _managerConnection.ExecuteScalar(
-                $@"
-                set nocount on
-                insert {ManagerTableSchema.TableName} ({ManagerTableSchema.IsFree}, {ManagerTableSchema.ReservationDate},  {ManagerTableSchema.ReservationCallStack}) 
-                                                   values(                0      ,                     getdate()       ,                     '{Environment.StackTrace}')
-                select @@IDENTITY");
-            var id = (int)(decimal)value;
-            var database = new Database(pool: this, id: id);
             using (new TransactionScope(TransactionScopeOption.Suppress))
             {
-                CreateDatabase(database.Name);
+                CreateDatabase(database.Name());
             }
             return database;
         }
 
-
-        void ReleaseOldLocks()
+        void ReleaseOldLocks(SharedState machineWide)
         {
-            var selectDbsWithOldLocks = $"select {ManagerTableSchema.Id} from {ManagerTableSchema.TableName} {ExclusiveTableLockHint} where {ManagerTableSchema.ReservationDate} < dateadd(minute, -10, getdate()) and {ManagerTableSchema.IsFree} = 0";
-            var oldLockedDatabases = new List<Database>();
-            _managerConnection.UseCommand(command =>
-                                          {
-                                              command.CommandText = selectDbsWithOldLocks;
-                                              command.CommandType = CommandType.Text;
-                                              using(var reader = command.ExecuteReader())
-                                              {
-                                                  while(reader.Read())
-                                                  {
-                                                      oldLockedDatabases.Add(new Database(pool: this, id: reader.GetInt32(0)));
-                                                  }
-                                              }
-                                          });
-            CleanAndRelease(oldLockedDatabases);
+            var databases = machineWide.DbsWithOldLocks();
+
+            void CleanAndReleaseDatabase(Database database)
+            {
+                new SqlServerConnectionUtilities(ConnectionStringForDbNamed(database.Name())).UseConnection(action: connection => connection.DropAllObjects());
+
+                machineWide.Release(database.Name());
+            }
+
+            databases.ForEach(action: db => _reservedDatabases.Remove(db.Name()));
+            databases.ForEach(CleanAndReleaseDatabase);
         }
 
         void CleanAndRelease(IReadOnlyList<Database> databases)
         {
             void CleanAndReleaseDatabase(Database database)
             {
-                new SqlServerConnectionUtilities(ConnectionStringForDbNamed(database.Name)).UseConnection(action: connection => connection.DropAllObjects());
-
-                _managerConnection.ExecuteNonQuery($@"update {ManagerTableSchema.TableName} set {ManagerTableSchema.IsFree} = 1  where {ManagerTableSchema.Id} = {database.Id}");
+                 new SqlServerConnectionUtilities(ConnectionStringForDbNamed(database.Name())).UseConnection(action: connection => connection.DropAllObjects());
+                _machineWideState.Update(machineWide => machineWide.Release(database.Name()));
             }
 
-            databases.ForEach(action: db => _reservedDatabases.Remove(db.Name));
-
-            Task.Run(() => databases.ForEach(CleanAndReleaseDatabase));
+            databases.ForEach(action: db => _reservedDatabases.Remove(db.Name()));
+            Task.Run(()=>  databases.ForEach(CleanAndReleaseDatabase));
         }
-
-        static readonly string ExclusiveTableLockHint = "With(TABLOCKX)";
 
         protected override void InternalDispose()
         {

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading;
+using JetBrains.Annotations;
 
 namespace Composable.System.Threading
 {
@@ -8,7 +9,7 @@ namespace Composable.System.Threading
         readonly string _lockId;
         MachineWideSingleThreaded(string lockId) => _lockId = lockId;
 
-        internal void Execute(Action action)
+        internal void Execute([InstantHandle]Action action)
         {
             using(var mutex = new Mutex(initiallyOwned: false, name: _lockId))
             {

@@ -11,11 +11,6 @@ namespace Composable.CQRS.Tests.SqlServerDatabasePoolTests
     {
         static readonly string MasterConnectionString = ConfigurationManager.ConnectionStrings["MasterDB"].ConnectionString;
 
-        [OneTimeSetUp] public void ResetDatabases()
-        {
-            //SqlServerDatabasePool.DropAllAndStartOver(MasterConnectionString);
-        }
-
         [SetUp]
         public void WarmUpCache()
         {

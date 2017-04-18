@@ -92,46 +92,20 @@ LOG ON  ( NAME = {databaseName}_log, FILENAME = '{DatabaseRootFolderOverride}\{d
             //SafeConsole.WriteLine($"Created: {databaseName}");
         }
 
-        void RebootPoolIfNotAlreadyRebooted()
+        void ScheduleForRebooting()
         {
-            _log.Warning("Rebooting if required");
-            TransactionScopeCe.SupressAmbient(
-                () =>
-                    _machineWideState.Update(
-                        machineWide =>
-                        {
-                            lock(RebootedMasterConnections)
-                            {
-                                if(!RebootedMasterConnections.Contains(_masterConnectionString))
-                                {
-                                    RebootPool(machineWide);
-                                } else
-                                {
-                                    _log.Warning("Skipped rebooting");
-                                }
-                            }
-                        }));
+            _machineWideState.Update(ResetInMemoryData);
         }
 
         void RebootPool(SharedState machineWide)
         {
             lock(RebootedMasterConnections)
             {
-                _log.Warning("Rebooting database pool");
-                var reservedDatabases = machineWide.DatabasesReservedBy(_poolId);
-                if(reservedDatabases.Any())
-                {
-                    foreach(var reservedDatabase in reservedDatabases)
-                    {
-                        reservedDatabase.Release();
-                    }
-                }
-                machineWide.Reset();
+                RebootedMasterConnections.Add(_masterConnectionString);
 
-                if(_transientCache.Any())
-                {
-                    _transientCache = new List<Database>();
-                }
+                _log.Warning("Rebooting database pool");
+
+                ResetInMemoryData(machineWide);
 
                 var dbsToDrop = ListPoolDatabases();
 
@@ -153,9 +127,23 @@ LOG ON  ( NAME = {databaseName}_log, FILENAME = '{DatabaseRootFolderOverride}\{d
 
                 1.Through(30)
                  .ForEach(_ => InsertDatabase(machineWide));
+            }
+        }
+        void ResetInMemoryData(SharedState machineWide)
+        {
+            var reservedDatabases = machineWide.DatabasesReservedBy(_poolId);
+            if(reservedDatabases.Any())
+            {
+                foreach(var reservedDatabase in reservedDatabases)
+                {
+                    reservedDatabase.Release();
+                }
+            }
+            machineWide.Reset();
 
-
-                RebootedMasterConnections.Add(_masterConnectionString);
+            if(_transientCache.Any())
+            {
+                _transientCache = new List<Database>();
             }
         }
 

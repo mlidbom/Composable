@@ -36,7 +36,7 @@ namespace Composable.Testing
                 }
                 catch(Exception exception)
                 {
-                    _pool.RebootPoolIfNotAlreadyRebooted();
+                    _pool.ScheduleForRebooting();
                     throw new Exception("Dbpool was not working and is being rebooted. Please run your tests again.", exception);
                 }
             }

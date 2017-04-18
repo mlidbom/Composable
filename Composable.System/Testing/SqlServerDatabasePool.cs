@@ -44,9 +44,9 @@ namespace Composable.Testing
             }
         }
 
-        readonly ILogger _log = Logger.For<SqlServerDatabasePool>();
+        ILogger _log = Logger.For<SqlServerDatabasePool>();
 
-        public void SetLogLevel(LogLevel logLevel) => _log.SetLogLevel(logLevel);
+        public void SetLogLevel(LogLevel logLevel) => _log = _log.WithLogLevel(logLevel);
 
         internal static readonly string PoolDatabaseNamePrefix = $"{nameof(SqlServerDatabasePool)}_";
 

@@ -82,6 +82,7 @@ namespace Composable.Testing
                             {
                                 if(!machineWide.IsValid())
                                 {
+                                    _log.Error(null, "Detected corruct database pool. Rebooting pool");
                                     RebootPool(machineWide);
                                 }
 
@@ -95,16 +96,8 @@ namespace Composable.Testing
                                     RebootPool(machineWide);
                                 }
 
-                                if(machineWide.TryGetReserved(out database, reservationName, _poolId))
+                                if(machineWide.TryReserve(out database, reservationName, _poolId))
                                 {
-                                    Contract.Assert.That(database.IsReserved, "database.IsReserved");
-                                    Contract.Assert.That(database.ReservationName == reservationName, "database.ReservationName == reservationName");
-
-                                    _log.Debug($"Retrieved reserved pool database: {database.Id}");
-                                } else if(machineWide.TryReserve(out database, reservationName, _poolId))
-                                {
-                                    Contract.Assert.That(database.IsReserved, "database.IsReserved");
-                                    Contract.Assert.That(database.ReservationName == reservationName, "database.ReservationName == reservationName");
                                     _log.Info($"Reserved pool database: {database.Id}");
                                 } else
                                 {

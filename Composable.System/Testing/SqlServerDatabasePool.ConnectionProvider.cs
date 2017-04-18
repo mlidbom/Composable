@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Data.SqlClient;
-using Composable.Logging;
 using Composable.System.Data.SqlClient;
 
 namespace Composable.Testing

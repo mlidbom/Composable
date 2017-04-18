@@ -35,16 +35,6 @@ namespace Composable.Testing
                 return true;
             }
 
-            internal bool TryGetReserved(out Database reserved, string reservationName, Guid poolId)
-            {
-                reserved = _databases.FirstOrDefault(db => db.IsReserved == true && db.ReservationName == reservationName && db.ReservedByPoolId == poolId);
-                if (reserved == null)
-                {
-                    return false;
-                }
-                return true;
-            }
-
             internal bool TryReserve(out Database reserved, string reservationName, Guid poolId)
             {
                 reserved = _databases.FirstOrDefault(db => db.IsReserved == false);

@@ -7,7 +7,6 @@ using Composable.Contracts;
 using Composable.System;
 using Composable.System.Data.SqlClient;
 using Composable.System.Linq;
-using Composable.System.Transactions;
 
 namespace Composable.Testing
 {

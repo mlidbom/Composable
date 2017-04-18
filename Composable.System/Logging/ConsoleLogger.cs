@@ -22,6 +22,7 @@ namespace Composable.Logging
         ConsoleLogger(Type type) => _type = type;
 
         public static ILogger Create(Type type) => new ConsoleLogger(type);
+        public void SetLogLevel(LogLevel level) => logLevel = level;
         public void Error(Exception exception, string message)
         {
             if(logLevel >= LogLevel.Error)

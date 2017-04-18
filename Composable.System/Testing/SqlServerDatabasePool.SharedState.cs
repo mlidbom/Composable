@@ -55,7 +55,7 @@ namespace Composable.Testing
 
             internal IReadOnlyList<Database> DbsWithOldLocks() => _databases
                 .Where(db => db.IsReserved)
-                .Where(db => db.ReservationDate < DateTime.UtcNow - 10.Minutes())
+                .Where(db => db.ReservationDate < DateTime.UtcNow - 1.Minutes())
                                                                   .ToList();
 
             Database Get(int id) => _databases.Single(db => db.Id == id);

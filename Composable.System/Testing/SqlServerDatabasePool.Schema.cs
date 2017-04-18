@@ -5,6 +5,7 @@ using System.Linq;
 using Composable.Contracts;
 using Composable.System;
 using Composable.System.Data.SqlClient;
+using Composable.System.Linq;
 using Composable.System.Transactions;
 
 namespace Composable.Testing
@@ -40,7 +41,7 @@ namespace Composable.Testing
                 Contract.Assert.That(IsReserved, "IsReserved");
                 IsReserved = false;
                 ReservationDate = DateTime.MaxValue;
-                ReservationName = null;
+                ReservationName = string.Empty;
             }
 
             internal void Reserve(string reservationName)
@@ -56,6 +57,7 @@ namespace Composable.Testing
                 Id = reader.ReadInt32();
                 IsReserved = reader.ReadBoolean();
                 ReservationDate = DateTime.FromBinary(reader.ReadInt64());
+                ReservationName = reader.ReadString();
             }
 
             public void Serialize(BinaryWriter writer)
@@ -63,6 +65,7 @@ namespace Composable.Testing
                 writer.Write(Id);
                 writer.Write(IsReserved);
                 writer.Write(ReservationDate.ToBinary());
+                writer.Write(ReservationName);
             }
         }
 
@@ -83,7 +86,7 @@ LOG ON  ( NAME = {databaseName}_log, FILENAME = '{DatabaseRootFolderOverride}\{d
 
         void RebootPoolIfNotAlreadyRebooted()
         {
-            Log.Warning("Rebooting if required");
+            _log.Warning("Rebooting if required");
             TransactionScopeCe.SupressAmbient(
                 () =>
                     _machineWideState.Update(
@@ -96,7 +99,7 @@ LOG ON  ( NAME = {databaseName}_log, FILENAME = '{DatabaseRootFolderOverride}\{d
                                     RebootPool(machineWide);
                                 } else
                                 {
-                                    Log.Warning("Skipped rebooting");
+                                    _log.Warning("Skipped rebooting");
                                 }
                             }
                         }));
@@ -106,25 +109,22 @@ LOG ON  ( NAME = {databaseName}_log, FILENAME = '{DatabaseRootFolderOverride}\{d
         {
             lock(RebootedMasterConnections)
             {
-                Log.Warning("Rebooting database pool");
-                if(_reservedDatabases.Any())
-                {
-                    throw new Exception("WTF?");
-                }
+                _log.Warning("Rebooting database pool");
+                _reservedDatabases.Values.ForEach(db => db.Release());
 
                 var dbsToDrop = ListPoolDatabases();
 
-                Log.Warning("Dropping databases");
+                _log.Warning("Dropping databases");
                 foreach(var db in dbsToDrop)
                 {
                     var dropCommand = $"drop database [{db.Name()}]";
-                    Log.Info(dropCommand);
+                    _log.Info(dropCommand);
                     _masterConnection.ExecuteNonQuery(dropCommand);
                 }
 
                 machineWide.Reset();
 
-                Log.Warning("Creating new databases");
+                _log.Warning("Creating new databases");
 
                 //1.Through(30)
                 // .ForEach(_ => InsertDatabase(machineWide));

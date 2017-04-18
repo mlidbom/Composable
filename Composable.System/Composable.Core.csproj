@@ -14,11 +14,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="Testing\SqlServerDatabasePool.Schema.cs" />
-    <None Include="Testing\SqlServerDatabasePool.Transactions.cs" />
-  </ItemGroup>
-
-  <ItemGroup>
     <Reference Include="System.ComponentModel.DataAnnotations">
       <HintPath>..\..\..\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.5\System.ComponentModel.DataAnnotations.dll</HintPath>
     </Reference>
@@ -33,10 +28,6 @@
     <Reference Include="System.Web.Extensions">
       <HintPath>..\..\..\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.5.1\System.Web.Extensions.dll</HintPath>
     </Reference>
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="System\Web\" />
   </ItemGroup>
 
 </Project>

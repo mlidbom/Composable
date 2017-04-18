@@ -10,18 +10,21 @@ namespace Composable.System.Threading
 
         internal void Execute(Action action)
         {
-            var mutex = new Mutex(initiallyOwned: false, name: _lockId);
-            try
+            using(var mutex = new Mutex(initiallyOwned: false, name: _lockId))
             {
-                mutex.WaitOne();
-                action();
-            }
-            finally
-            {
-                mutex.ReleaseMutex();
+                try
+                {
+                    mutex.WaitOne();
+                    action();
+                }
+                finally
+                {
+                    mutex.ReleaseMutex();
+                }
             }
         }
 
+        internal static MachineWideSingleThreaded For(string name) => new MachineWideSingleThreaded(name);
         internal static MachineWideSingleThreaded For<TSynchronized>() => For(typeof(TSynchronized));
         internal static MachineWideSingleThreaded For(Type synchronized) => new MachineWideSingleThreaded($"{nameof(MachineWideSingleThreaded)}_{synchronized.AssemblyQualifiedName}");
     }

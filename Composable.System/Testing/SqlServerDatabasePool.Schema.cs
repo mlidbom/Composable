@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using Composable.System;
 using Composable.System.Data.SqlClient;
@@ -16,20 +17,33 @@ namespace Composable.Testing
     sealed partial class SqlServerDatabasePool
     {
         [Serializable]
-        internal class Database
+        internal class Database : IBinarySerializeMySelf
         {
-            internal int Id { get; }
+            internal int Id { get; private set; }
             internal bool IsReserved { get; set; }
             public DateTime ReservationDate { get; set; }
 
             internal Database() { }
             internal Database(int id) => Id = id;
-            internal Database(SqlServerDatabasePool pool, string name) : this(IdFromName(name)) { }
+            internal Database(string name) : this(IdFromName(name)) { }
 
             static int IdFromName(string name)
             {
-                var nameIndex = name.Replace(SqlServerDatabasePool.PoolDatabaseNamePrefix, "");
+                var nameIndex = name.Replace(PoolDatabaseNamePrefix, "");
                 return int.Parse(nameIndex);
+            }
+            public void Deserialize(BinaryReader reader)
+            {
+                Id = reader.ReadInt32();
+                IsReserved = reader.ReadBoolean();
+                ReservationDate = DateTime.FromBinary(reader.ReadInt64());
+            }
+
+            public void Serialize(BinaryWriter writer)
+            {
+                writer.Write(Id);
+                writer.Write(IsReserved);
+                writer.Write(ReservationDate.ToBinary());
             }
         }
 
@@ -90,7 +104,7 @@ LOG ON  ( NAME = {databaseName}_log, FILENAME = '{DatabaseRootFolderOverride}\{d
                             }
                         });
 
-            return databases.Select(name => new Database(this, name))
+            return databases.Select(name => new Database(name))
                             .ToList();
         }
     }

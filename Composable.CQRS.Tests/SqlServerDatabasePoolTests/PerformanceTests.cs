@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Configuration;
-using Composable.System;
 using Composable.System.Data.SqlClient;
 using Composable.Testing;
-using FluentAssertions;
 using NUnit.Framework;
+using Composable.System;
 
 namespace Composable.CQRS.Tests.SqlServerDatabasePoolTests
 {
@@ -34,7 +33,7 @@ namespace Composable.CQRS.Tests.SqlServerDatabasePoolTests
                     }
                 },
                 iterations: 10,
-                maxTotal: TimeSpanConversionExtensions.Milliseconds(30));
+                maxTotal: 30.Milliseconds());
         }
 
         [Test]
@@ -53,7 +52,7 @@ namespace Composable.CQRS.Tests.SqlServerDatabasePoolTests
                 },
                 iterations: 10,
                 timeIndividualExecutions: true,
-                maxTotal: TimeSpanConversionExtensions.Milliseconds(50));
+                maxTotal: 50.Milliseconds());
         }
 
         [Test]
@@ -70,7 +69,7 @@ namespace Composable.CQRS.Tests.SqlServerDatabasePoolTests
                 tearDown: () => manager.Dispose(),
                 action: () => manager.ConnectionProviderFor(Guid.NewGuid().ToString()).UseConnection(_ => { }),
                 iterations: 10,
-                maxTotal: TimeSpanConversionExtensions.Milliseconds(20)
+                maxTotal: 20.Milliseconds()
             );
         }
 
@@ -88,7 +87,7 @@ namespace Composable.CQRS.Tests.SqlServerDatabasePoolTests
                 tearDown: () => manager.Dispose(),
                 action: () => manager.ConnectionProviderFor(Guid.NewGuid().ToString()).UseConnection(_ => { }),
                 iterations: 10,
-                maxTotal: TimeSpanConversionExtensions.Milliseconds(15)
+                maxTotal: 15.Milliseconds()
             );
         }
 
@@ -103,7 +102,7 @@ namespace Composable.CQRS.Tests.SqlServerDatabasePoolTests
                 TimeAsserter.Execute(
                     action: () => manager.ConnectionProviderFor(dbName).UseConnection(_ => { }),
                     iterations: 200,
-                    maxTotal: TimeSpanConversionExtensions.Milliseconds(10)
+                    maxTotal: 10.Milliseconds()
                 );
             }
         }

@@ -1,29 +1,19 @@
 ﻿using System;
 using System.IO;
 using System.IO.MemoryMappedFiles;
-using System.Linq;
-using System.Runtime.Serialization.Formatters.Binary;
-using Composable.Contracts;
+using Composable.Testing;
 
 namespace Composable.System.Threading
 {
     using Composable.System.Linq;
 
-    class MachineWideSharedObject<TObject>
-        where TObject : new()
+    class MachineWideSharedObject
     {
-        readonly long _capacity;
-        readonly MemoryMappedFile _file;
-        readonly MachineWideSingleThreaded _syncronizer;
-        static readonly string DataFolder;
-        static readonly BinaryFormatter BinaryFormatter = new BinaryFormatter();
-
-        internal static MachineWideSharedObject<TObject> For(string name, bool usePersistentFile = false, long capacity = 1000_000) => new MachineWideSharedObject<TObject>(name, usePersistentFile, capacity);
-
+        protected static readonly string DataFolder;
         static MachineWideSharedObject()
         {
             var tempDirectory = Environment.GetEnvironmentVariable("COMPOSABLE_TEMP_DRIVE");
-            if(tempDirectory.IsNullOrWhiteSpace())
+            if (tempDirectory.IsNullOrWhiteSpace())
             {
                 tempDirectory = Path.Combine(Path.GetTempPath(), "Composable_TEMP");
             }
@@ -39,11 +29,18 @@ namespace Composable.System.Threading
                 Directory.CreateDirectory(DataFolder);
             }
         }
+    }
+
+    class MachineWideSharedObject<TObject> : MachineWideSharedObject where TObject : IBinarySerializeMySelf, new()
+    {
+        readonly long _capacity;
+        readonly MemoryMappedFile _file;
+        readonly MachineWideSingleThreaded _syncronizer;
+        internal static MachineWideSharedObject<TObject> For(string name, bool usePersistentFile = false, long capacity = 1000_000) => new MachineWideSharedObject<TObject>(name, usePersistentFile, capacity);
 
         MachineWideSharedObject(string name, bool usePersistentFile, long capacity)
         {
             _capacity = 1000_000;
-            Contract.Assert.That(typeof(TObject).IsSerializable, "Shared type must be serializeble");
             var fileName = $"{nameof(MachineWideSharedObject<TObject>)}_{name}";
             _syncronizer = MachineWideSingleThreaded.For($"{fileName}_mutex");
 
@@ -65,7 +62,9 @@ namespace Composable.System.Threading
                                                  mappedFile = MemoryMappedFile.OpenExisting(mapName: name);
                                                  return;
                                              }
-                                             catch(IOException) {}
+                                             catch(IOException)
+                                             {
+                                             }
                                          }
 
                                          mappedFile = MemoryMappedFile.CreateFromFile(path: actualFileName,
@@ -96,9 +95,11 @@ namespace Composable.System.Threading
                                              byte[] buffer = new byte[objectLength];
                                              accessor.ReadArray(4, buffer, 0, buffer.Length);
 
-                                             using(var objectStream = new MemoryStream(buffer))
+                                             using (var objectStream = new MemoryStream(buffer))
+                                             using(var reader = new BinaryReader(objectStream))
                                              {
-                                                 value = (TObject)BinaryFormatter.Deserialize(objectStream);
+                                                 value = new TObject();
+                                                 value.Deserialize(reader);
                                              }
                                          }
                                      }
@@ -122,16 +123,17 @@ namespace Composable.System.Threading
             return instance;
         }
 
-        internal void Set(TObject value)
+        void Set(TObject value)
         {
             _syncronizer.Execute(() =>
                                  {
-                                     using(var memoryStream = new MemoryStream())
+                                     using (var memoryStream = new MemoryStream())
+                                     using(var writer = new BinaryWriter(memoryStream))
                                      {
-                                         BinaryFormatter.Serialize(memoryStream, value);
+                                         value.Serialize(writer);
                                          var buffer = memoryStream.ToArray();
 
-                                         using(var accessor = _file.CreateViewAccessor())
+                                         using (var accessor = _file.CreateViewAccessor())
                                          {
                                              accessor.Write(0, buffer.Length); //First bytes are an int that tells how far to read when deserializing.
                                              accessor.WriteArray(4, buffer, 0, buffer.Length);

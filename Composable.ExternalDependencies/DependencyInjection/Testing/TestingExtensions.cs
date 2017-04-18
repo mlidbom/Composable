@@ -1,5 +1,4 @@
-﻿using System;
-using Composable.GenericAbstractions.Time;
+﻿using Composable.GenericAbstractions.Time;
 using Composable.Messaging.Buses;
 using Composable.Persistence.EventStore;
 using Composable.Persistence.EventStore.Serialization.NewtonSoft;

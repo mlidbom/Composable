@@ -1,8 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Data.SqlClient;
-using System.Linq;
-using Composable.System;
 using Composable.System.Data.SqlClient;
 
 namespace Composable.Testing

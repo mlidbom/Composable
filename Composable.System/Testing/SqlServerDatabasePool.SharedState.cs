@@ -1,14 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using Composable.System;
+using JetBrains.Annotations;
 
 namespace Composable.Testing
 {
     sealed partial class SqlServerDatabasePool
     {
-        [Serializable]
-        class SharedState
+        [UsedImplicitly] class SharedState : IBinarySerializeMySelf
         {
             internal void Release(string name)
             {
@@ -42,6 +43,33 @@ namespace Composable.Testing
             Database Get(string name) => Databases.Single(db => db.Name() == name);
 
             internal List<Database> Databases { get; set; }
+
+            public void Deserialize(BinaryReader reader)
+            {
+                Databases = new List<Database>();
+                while(reader.ReadBoolean())//I use negative boolean to mark end of object
+                {
+                    var database = new Database();
+                    database.Deserialize(reader);
+                    Databases.Add(database);
+                }
+            }
+
+            public void Serialize(BinaryWriter writer)
+            {
+                Databases.ForEach(db =>
+                                  {
+                                      writer.Write(true);
+                                      db.Serialize(writer);
+                                  });
+                writer.Write(false);//use false to mark end of graph
+            }
         }
+    }
+
+    interface IBinarySerializeMySelf
+    {
+        void Deserialize(BinaryReader reader);
+        void Serialize(BinaryWriter writer);
     }
 }

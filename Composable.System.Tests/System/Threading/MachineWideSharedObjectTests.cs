@@ -1,14 +1,18 @@
 ﻿using System;
+using System.IO;
 using Composable.System.Threading;
+using Composable.Testing;
 using FluentAssertions;
 using NUnit.Framework;
 
 namespace Composable.Tests.System.Threading
 {
     [Serializable]
-    class SharedObject
+    class SharedObject : IBinarySerializeMySelf
     {
         public string Name { get; set; } = "Default";
+        public void Deserialize(BinaryReader reader) { Name = reader.ReadString(); }
+        public void Serialize(BinaryWriter writer) { writer.Write(Name);}
     }
 
     [TestFixture]

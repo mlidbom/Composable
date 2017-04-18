@@ -1,5 +1,4 @@
-﻿using System;
-using Composable.System.Data.SqlClient;
+﻿using Composable.System.Data.SqlClient;
 
 namespace Composable.System.Configuration
 {

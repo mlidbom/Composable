@@ -30,7 +30,7 @@ namespace Composable.CQRS.Tests.SqlServerDatabasePoolTests
                 {
                     using(var manager = new SqlServerDatabasePool(MasterConnectionString))
                     {
-                        manager.SetLogLevel(LogLevel.Error);
+                        manager.SetLogLevel(LogLevel.Warning);
                         manager.ConnectionProviderFor(dbName).UseConnection(_ => {});
                     }
                 },
@@ -49,7 +49,7 @@ namespace Composable.CQRS.Tests.SqlServerDatabasePoolTests
                 {
                     using(var manager = new SqlServerDatabasePool(MasterConnectionString))
                     {
-                        manager.SetLogLevel(LogLevel.Error);
+                        manager.SetLogLevel(LogLevel.Warning);
                         manager.ConnectionProviderFor(dbName).UseConnection(_ => { });
                     }
                 },
@@ -67,7 +67,7 @@ namespace Composable.CQRS.Tests.SqlServerDatabasePoolTests
                 setup: () =>
                        {
                            manager = new SqlServerDatabasePool(MasterConnectionString);
-                           manager.SetLogLevel(LogLevel.Error);
+                           manager.SetLogLevel(LogLevel.Warning);
                            manager.ConnectionProviderFor("fake_to_force_creation_of_manager_database").UseConnection(_ => { });
                        },
                 tearDown: () => manager.Dispose(),
@@ -86,7 +86,7 @@ namespace Composable.CQRS.Tests.SqlServerDatabasePoolTests
                 setup: () =>
                        {
                            manager = new SqlServerDatabasePool(MasterConnectionString);
-                           manager.SetLogLevel(LogLevel.Error);
+                           manager.SetLogLevel(LogLevel.Warning);
                            manager.ConnectionProviderFor("fake_to_force_creation_of_manager_database").UseConnection(_ => { });
                        },
                 tearDown: () => manager.Dispose(),
@@ -102,7 +102,7 @@ namespace Composable.CQRS.Tests.SqlServerDatabasePoolTests
             var dbName = "4669B59A-E0AC-4E76-891C-7A2369AE0F2F";
             using(var manager = new SqlServerDatabasePool(MasterConnectionString))
             {
-                manager.SetLogLevel(LogLevel.Error);
+                manager.SetLogLevel(LogLevel.Warning);
                 manager.ConnectionProviderFor(dbName).UseConnection(_ => { });
 
                 TimeAsserter.Execute(

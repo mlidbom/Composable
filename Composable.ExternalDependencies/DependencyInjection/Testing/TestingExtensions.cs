@@ -16,7 +16,7 @@ namespace Composable.DependencyInjection.Testing
         /// <summary>
         /// <para>SingleThreadUseGuard is registered for the component ISingleContextUseGuard</para>
         /// </summary>
-        public static void ConfigureWiringForTestsCallBeforeAllOtherWiring(this IDependencyInjectionContainer @this, TestingMode mode = TestingMode.RealComponents)
+        public static void ConfigureWiringForTestsCallBeforeAllOtherWiring(this IDependencyInjectionContainer @this, TestingMode mode = TestingMode.DatabasePool)
         {
             MasterDbConnectionProvider.UseConnection(action: _ => {});//evaluate lazy here in order to not pollute profiler timings of component resolution or registering.
             var dummyTimeSource = DummyTimeSource.Now;

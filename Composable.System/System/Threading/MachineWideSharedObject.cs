@@ -1,7 +1,6 @@
 ﻿using System;
 using System.IO;
 using System.IO.MemoryMappedFiles;
-using Composable.Testing;
 
 namespace Composable.System.Threading
 {

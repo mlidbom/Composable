@@ -176,7 +176,7 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
                     TestingMode mode;
                     if(eventStoreType == typeof(EventStore))
                     {
-                        mode = TestingMode.RealComponents;
+                        mode = TestingMode.DatabasePool;
                     } else if(eventStoreType == typeof(InMemoryEventStore))
                     {
                         mode = TestingMode.InMemory;

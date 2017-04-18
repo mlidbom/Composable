@@ -12,7 +12,7 @@ namespace Composable.CQRS.Tests.KeyValueStorage.Sql
     [Serializable]
     class SqlDocumentDbTests : DocumentDbTests
     {
-        protected override IServiceLocator CreateServiceLocator() => TestWiringHelper.SetupTestingServiceLocator(TestingMode.RealComponents);
+        protected override IServiceLocator CreateServiceLocator() => TestWiringHelper.SetupTestingServiceLocator(TestingMode.DatabasePool);
 
         void InsertUsersInOtherDocumentDb(Guid userId)
         {

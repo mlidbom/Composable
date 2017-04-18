@@ -14,7 +14,7 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.Sql
     [TestFixture]
     class SqlServerEventStoreSessionTests : EventStoreSessionTests
     {
-        protected override IServiceLocator CreateServiceLocator() => TestWiringHelper.SetupTestingServiceLocator(TestingMode.RealComponents);
+        protected override IServiceLocator CreateServiceLocator() => TestWiringHelper.SetupTestingServiceLocator(TestingMode.DatabasePool);
 
         [Test, LongRunning]
         public void Serializes_access_to_an_aggregate_so_that_concurrent_transactions_succeed_even_if_history_has_been_read_outside_of_modifying_transactions()

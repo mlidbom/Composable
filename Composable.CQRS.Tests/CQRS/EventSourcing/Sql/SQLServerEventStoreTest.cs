@@ -13,7 +13,7 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.Sql
         IServiceLocator _serviceLocator;
         [SetUp] public void SetupTask()
         {
-            _serviceLocator = TestWiringHelper.SetupTestingServiceLocator(TestingMode.RealComponents);
+            _serviceLocator = TestWiringHelper.SetupTestingServiceLocator(TestingMode.DatabasePool);
         }
 
         [TearDown] public void TearDownTask()

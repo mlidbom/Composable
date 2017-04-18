@@ -22,6 +22,7 @@ namespace Composable.Testing
         readonly MachineWideSharedObject<SharedState> _machineWideState;
 
         static readonly string DatabaseRootFolderOverride;
+        static readonly HashSet<string> RebootedMasterConnections = new HashSet<string>();
 
         static SqlServerDatabasePool()
         {
@@ -67,32 +68,32 @@ namespace Composable.Testing
             if(_reservedDatabases.TryGetValue(connectionStringName, out database))
                 return new ConnectionProvider(database, this);
 
-            _machineWideState.Update(machineWide =>
-                                    {
-                                        if (machineWide.Databases == null)
-                                        {
-                                            machineWide.Databases = TransactionScopeCe.SupressAmbient<IReadOnlyList<Database>>(ListPoolDatabases).ToList();
-                                        }
+            TransactionScopeCe.SupressAmbient(
+                () =>
+                    _machineWideState.Update(
+                        machineWide =>
+                        {
+                            if(!machineWide.IsValid())
+                            {
+                                RebootPool(machineWide);
+                            }
 
-                                        TransactionScopeCe.SupressAmbient(action: () =>
-                                                                         {
-                                                                             if(TryReserveDatabase(machineWide, out database))
-                                                                             {
-                                                                                 _reservedDatabases.Add(connectionStringName, database);
-                                                                             } else
-                                                                             {
-                                                                                 ReleaseOldLocks(machineWide);
-                                                                                 if(TryReserveDatabase(machineWide, out database))
-                                                                                 {
-                                                                                     _reservedDatabases.Add(connectionStringName, database);
-                                                                                 } else
-                                                                                 {
-                                                                                     database = InsertDatabase(machineWide);
-                                                                                     _reservedDatabases.Add(connectionStringName, database);
-                                                                                 }
-                                                                             }
-                                                                         });
-                                    });
+                            if(TryReserveDatabase(machineWide, out database))
+                            {
+                                _reservedDatabases.Add(connectionStringName, database);
+                            } else
+                            {
+                                ReleaseOldLocks(machineWide);
+                                if(TryReserveDatabase(machineWide, out database))
+                                {
+                                    _reservedDatabases.Add(connectionStringName, database);
+                                } else
+                                {
+                                    database = InsertDatabase(machineWide);
+                                    _reservedDatabases.Add(connectionStringName, database);
+                                }
+                            }
+                        }));
 
             return new ConnectionProvider(database, this);
         }
@@ -106,6 +107,7 @@ namespace Composable.Testing
         {
             Database database = machineWide.Insert();
 
+            Log.Warning($"Creating database: {database.Name()}");
             using (new TransactionScope(TransactionScopeOption.Suppress))
             {
                 CreateDatabase(database.Name());

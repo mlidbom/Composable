@@ -16,6 +16,23 @@ namespace Composable.Testing
                 Get(name).IsReserved = false;
             }
 
+            internal bool IsValid()
+            {
+                if(Databases.Count == 0)
+                {
+                    return false;
+                }
+
+                for (int i = 1; i <= Databases.Count; i++)
+                {
+                    if (i != Databases[i - 1].Id)
+                    {
+                        return false;
+                    }
+                }
+                return true;
+            }
+
             internal bool TryReserve(out Database reserved)
             {
                 reserved = Databases.FirstOrDefault(db => db.IsReserved == false);
@@ -31,8 +48,7 @@ namespace Composable.Testing
 
             internal Database Insert()
             {
-                var newId = Databases.Any() ? Databases.Max(db => db.Id) + 1 : 1;
-                var database = new Database(newId);
+                var database = new Database(Databases.Count + 1);
                 Databases.Add(database);
                 return database;
             }
@@ -42,7 +58,7 @@ namespace Composable.Testing
 
             Database Get(string name) => Databases.Single(db => db.Name() == name);
 
-            internal List<Database> Databases { get; set; }
+            internal List<Database> Databases { get; set; } = new List<Database>();
 
             public void Deserialize(BinaryReader reader)
             {

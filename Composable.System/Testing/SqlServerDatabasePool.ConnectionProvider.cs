@@ -10,7 +10,7 @@ namespace Composable.Testing
         {
             readonly Database _database;
             readonly SqlServerDatabasePool _pool;
-            readonly SqlServerConnectionProvider _innerProvider;
+            readonly ISqlConnectionProvider _innerProvider;
             public ConnectionProvider(Database database, SqlServerDatabasePool pool)
             {
                 _database = database;
@@ -28,8 +28,8 @@ namespace Composable.Testing
                 }
                 catch(Exception)
                 {
-                    _pool.DropAllAndStartOver();
-                    throw;
+                    _pool.RebootPoolIfNotAlreadyRebooted();
+                    throw new Exception("Dbpool was not working and is being rebooted. Please run your tests again.");
                 }
             }
         }

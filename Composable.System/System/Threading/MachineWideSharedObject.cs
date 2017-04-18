@@ -5,8 +5,6 @@ using Composable.Testing;
 
 namespace Composable.System.Threading
 {
-    using Composable.System.Linq;
-
     class MachineWideSharedObject
     {
         protected static readonly string DataFolder;
@@ -33,6 +31,7 @@ namespace Composable.System.Threading
 
     class MachineWideSharedObject<TObject> : MachineWideSharedObject where TObject : IBinarySerializeMySelf, new()
     {
+        const int LengthIndicatorIntegerLengthInBytes = 4;
         readonly long _capacity;
         readonly MemoryMappedFile _file;
         readonly MachineWideSingleThreaded _syncronizer;
@@ -40,7 +39,7 @@ namespace Composable.System.Threading
 
         MachineWideSharedObject(string name, bool usePersistentFile, long capacity)
         {
-            _capacity = 1000_000;
+            _capacity = capacity;
             var fileName = $"{nameof(MachineWideSharedObject<TObject>)}_{name}";
             _syncronizer = MachineWideSingleThreaded.For($"{fileName}_mutex");
 
@@ -50,8 +49,10 @@ namespace Composable.System.Threading
                 _syncronizer.Execute(() =>
                                      {
                                          var actualFileName = fileName;
-                                         Path.GetInvalidFileNameChars()
-                                             .ForEach(invalidChar => actualFileName = actualFileName.Replace(invalidChar, '_'));
+                                         foreach(var invalidChar in Path.GetInvalidFileNameChars())
+                                         {
+                                             actualFileName = actualFileName.Replace(invalidChar, '_');
+                                         }
 
                                          actualFileName = Path.Combine(DataFolder, actualFileName);
 
@@ -70,21 +71,23 @@ namespace Composable.System.Threading
                                          mappedFile = MemoryMappedFile.CreateFromFile(path: actualFileName,
                                                                                       mode: FileMode.OpenOrCreate,
                                                                                       mapName: name,
-                                                                                      capacity: capacity,
+                                                                                      capacity: _capacity,
                                                                                       access: MemoryMappedFileAccess.ReadWrite);
                                      });
                 _file = mappedFile;
             } else
             {
-                _file = MemoryMappedFile.CreateOrOpen(mapName: name, capacity: capacity);
+                _file = MemoryMappedFile.CreateOrOpen(mapName: name, capacity: _capacity);
             }
 
         }
 
+        internal void Synchronized(Action action) { _syncronizer.Execute(action); }
+
         internal TObject GetCopy()
         {
             TObject value = default(TObject);
-            _syncronizer.Execute(() =>
+            Synchronized(() =>
                                  {
                                      using(var accessor = _file.CreateViewAccessor())
                                      {
@@ -93,7 +96,7 @@ namespace Composable.System.Threading
                                          if(objectLength != 0)
                                          {
                                              byte[] buffer = new byte[objectLength];
-                                             accessor.ReadArray(4, buffer, 0, buffer.Length);
+                                             accessor.ReadArray(LengthIndicatorIntegerLengthInBytes, buffer, 0, buffer.Length);
 
                                              using (var objectStream = new MemoryStream(buffer))
                                              using(var reader = new BinaryReader(objectStream))
@@ -114,7 +117,7 @@ namespace Composable.System.Threading
         internal TObject Update(Action<TObject> action)
         {
             TObject instance = default(TObject);
-            _syncronizer.Execute(() =>
+            Synchronized(() =>
                                  {
                                      instance = GetCopy();
                                      action(instance);
@@ -125,21 +128,24 @@ namespace Composable.System.Threading
 
         void Set(TObject value)
         {
-            _syncronizer.Execute(() =>
-                                 {
-                                     using (var memoryStream = new MemoryStream())
-                                     using(var writer = new BinaryWriter(memoryStream))
-                                     {
-                                         value.Serialize(writer);
-                                         var buffer = memoryStream.ToArray();
+            using (var memoryStream = new MemoryStream())
+            using(var writer = new BinaryWriter(memoryStream))
+            {
+                value.Serialize(writer);
+                var buffer = memoryStream.ToArray();
 
-                                         using (var accessor = _file.CreateViewAccessor())
-                                         {
-                                             accessor.Write(0, buffer.Length); //First bytes are an int that tells how far to read when deserializing.
-                                             accessor.WriteArray(4, buffer, 0, buffer.Length);
-                                         }
-                                     }
-                                 });
+                var requiredCapacity = buffer.Length + LengthIndicatorIntegerLengthInBytes;
+                if(requiredCapacity >= _capacity)
+                {
+                    throw new Exception($"Deserialized object exceeds storage capacity of:{_capacity} bytes with size: {requiredCapacity} bytes.");
+                }
+
+                using (var accessor = _file.CreateViewAccessor())
+                {
+                    accessor.Write(0, buffer.Length); //First bytes are an int that tells how far to read when deserializing.
+                    accessor.WriteArray(LengthIndicatorIntegerLengthInBytes, buffer, 0, buffer.Length);
+                }
+            }
         }
     }
 }

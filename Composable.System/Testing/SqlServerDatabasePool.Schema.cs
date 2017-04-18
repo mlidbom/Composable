@@ -5,6 +5,7 @@ using System.Linq;
 using Composable.System;
 using Composable.System.Data.SqlClient;
 using Composable.System.Linq;
+using Composable.System.Transactions;
 
 namespace Composable.Testing
 {
@@ -32,6 +33,7 @@ namespace Composable.Testing
                 var nameIndex = name.Replace(PoolDatabaseNamePrefix, "");
                 return int.Parse(nameIndex);
             }
+
             public void Deserialize(BinaryReader reader)
             {
                 Id = reader.ReadInt32();
@@ -62,31 +64,47 @@ LOG ON  ( NAME = {databaseName}_log, FILENAME = '{DatabaseRootFolderOverride}\{d
             //SafeConsole.WriteLine($"Created: {databaseName}");
         }
 
-        void DropAllAndStartOver()
+        void RebootPoolIfNotAlreadyRebooted()
         {
-            _machineWideState.Update(machineWide =>
-                                     {
-                                         var dbsToDrop = ListPoolDatabases();
-
-                                         foreach(var db in dbsToDrop)
-                                         {
-                                             var dropCommand = $"drop database [{db.Name()}]";
-                                             try
-                                             {
-                                                 _masterConnection.ExecuteNonQuery(dropCommand);
-                                             }
-                                             catch(Exception exception)
-                                             {
-                                                 Log.Error(exception);
-                                             }
-                                         }
-                                         machineWide.Databases = new List<Database>();
-                                         1.Through(30)
-                                          .ForEach(_ => InsertDatabase(machineWide));
-                                     });
+            Log.Warning("Rebooting if required");
+            TransactionScopeCe.SupressAmbient(
+                () =>
+                    _machineWideState.Update(
+                        machineWide =>
+                        {
+                            if(!RebootedMasterConnections.Contains(_masterConnectionString))
+                            {
+                                RebootPool(machineWide);
+                                RebootedMasterConnections.Add(_masterConnectionString);
+                            } else
+                            {
+                                Log.Warning("Skipped rebooting");
+                            }
+                        }));
         }
 
-        List<Database> ListPoolDatabases()
+        void RebootPool(SharedState machineWide)
+        {
+            Log.Warning("Rebooting database pool");
+            _reservedDatabases.Clear();
+            var dbsToDrop = ListPoolDatabases();
+
+            Log.Warning("Dropping databases");
+            foreach(var db in dbsToDrop)
+            {
+                var dropCommand = $"drop database [{db.Name()}]";
+                Log.Info(dropCommand);
+                _masterConnection.ExecuteNonQuery(dropCommand);
+            }
+            machineWide.Databases = new List<Database>();
+
+            Log.Warning("Creating new databases");
+
+            1.Through(30)
+             .ForEach(_ => InsertDatabase(machineWide));
+        }
+
+        IReadOnlyList<Database> ListPoolDatabases()
         {
             var databases = new List<string>();
             _masterConnection.UseCommand(

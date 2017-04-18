@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Composable.System.Threading;
 using JetBrains.Annotations;
 
 namespace Composable.Testing
@@ -13,12 +14,7 @@ namespace Composable.Testing
             readonly List<Database> _databases = new List<Database>();
             IReadOnlyList<Database> Databases => _databases;
 
-            internal Database Release(int id)
-            {
-                var database = Get(id);
-                database.Release();
-                return database;
-            }
+            internal Database Release(int id) => Get(id).Release();
 
             internal bool IsValid()
             {
@@ -128,11 +124,5 @@ namespace Composable.Testing
                 writer.Write(false);//use false to mark end of graph
             }
         }
-    }
-
-    interface IBinarySerializeMySelf
-    {
-        void Deserialize(BinaryReader reader);
-        void Serialize(BinaryWriter writer);
     }
 }

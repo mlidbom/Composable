@@ -12,7 +12,7 @@ namespace Composable.Persistence.EventStore.MicrosoftSQLServer
         bool _verifiedConnectionString;
         readonly EventTableSchemaManager _eventTable = new EventTableSchemaManager();
         readonly EventTypeTableSchemaManager _eventTypeTable = new EventTypeTableSchemaManager();
-        public SqlServerEventStoreSchemaManager(ISqlConnectionProvider connectionString, IEventNameMapper nameMapper)
+        public SqlServerEventStoreSchemaManager(ISqlConnection connectionString, IEventNameMapper nameMapper)
         {
             _connectionManager = connectionString;
             _nameMapper = nameMapper;
@@ -22,7 +22,7 @@ namespace Composable.Persistence.EventStore.MicrosoftSQLServer
 
         public IEventTypeToIdMapper IdMapper { get; private set; }
 
-        readonly ISqlConnectionProvider _connectionManager;
+        readonly ISqlConnection _connectionManager;
 
         SqlConnection OpenConnection()
         {

@@ -118,7 +118,7 @@ namespace Composable.DependencyInjection.Persistence
                     Component.For<IEventstorePersistenceLayer<TSessionInterface>>()
                                 .UsingFactoryMethod(sl =>
                                                     {
-                                                        var connectionProvider = sl.Resolve<IConnectionStringProvider>()
+                                                        var connectionProvider = sl.Resolve<ISqlConnectionProvider>()
                                                                                                             .GetConnectionProvider(connectionName);
 
                                                         IEventNameMapper nameMapper = new DefaultEventNameMapper();

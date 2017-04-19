@@ -3,9 +3,9 @@
 namespace Composable.System.Configuration
 {
     ///<summary>Fetches connections strings from a configuration source such as the application configuration file.</summary>
-    interface IConnectionStringProvider
+    interface ISqlConnectionProvider
     {
         ///<summary>Returns the connection string with the given name.</summary>
-        ISqlConnectionProvider GetConnectionProvider(string parameterName);
+        ISqlConnection GetConnectionProvider(string parameterName);
     }
 }

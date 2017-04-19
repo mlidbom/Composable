@@ -12,13 +12,13 @@ namespace Composable.DependencyInjection.Testing
     static class TestingExtensions
     {
 
-        static readonly ISqlConnectionProvider MasterDbConnectionProvider = new AppConfigConnectionStringProvider().GetConnectionProvider(parameterName: "MasterDB");
+        static readonly ISqlConnection MasterDbConnection = new AppConfigSqlConnectionProvider().GetConnectionProvider(parameterName: "MasterDB");
         /// <summary>
         /// <para>SingleThreadUseGuard is registered for the component ISingleContextUseGuard</para>
         /// </summary>
         public static void ConfigureWiringForTestsCallBeforeAllOtherWiring(this IDependencyInjectionContainer @this, TestingMode mode = TestingMode.DatabasePool)
         {
-            MasterDbConnectionProvider.UseConnection(action: _ => {});//evaluate lazy here in order to not pollute profiler timings of component resolution or registering.
+            MasterDbConnection.UseConnection(action: _ => {});//evaluate lazy here in order to not pollute profiler timings of component resolution or registering.
             var dummyTimeSource = DummyTimeSource.Now;
             var registry = new MessageHandlerRegistry();
             var bus = new TestingOnlyServiceBus(dummyTimeSource, registry);
@@ -43,8 +43,8 @@ namespace Composable.DependencyInjection.Testing
                            Component.For<IServiceBus, IMessageSpy>()
                                     .UsingFactoryMethod(factoryMethod: _ => bus)
                                     .LifestyleSingleton(),
-                           Component.For<IConnectionStringProvider>()
-                                    .UsingFactoryMethod(factoryMethod: locator => new SqlServerDatabasePoolConnectionStringProvider(MasterDbConnectionProvider.ConnectionString))
+                           Component.For<ISqlConnectionProvider>()
+                                    .UsingFactoryMethod(factoryMethod: locator => new SqlServerDatabasePoolSqlConnectionProvider(MasterDbConnection.ConnectionString))
                                     .LifestyleSingleton()
                                     .DelegateToParentServiceLocatorWhenCloning()
             );

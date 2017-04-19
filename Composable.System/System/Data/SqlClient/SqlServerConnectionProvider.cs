@@ -4,11 +4,11 @@ using System.Transactions;
 
 namespace Composable.System.Data.SqlClient
 {
-    class SqlServerConnectionProvider : ISqlConnectionProvider
+    class SqlServerConnection : ISqlConnection
     {
         public string ConnectionString { get; }
 
-        public SqlServerConnectionProvider(string connectionString) => ConnectionString = connectionString;
+        public SqlServerConnection(string connectionString) => ConnectionString = connectionString;
 
         public SqlConnection OpenConnection()
         {
@@ -28,7 +28,7 @@ namespace Composable.System.Data.SqlClient
 
     static class SqlConnectionProviderExtensions
     {
-        public static int ExecuteNonQuery(this ISqlConnectionProvider @this, string commandText)
+        public static int ExecuteNonQuery(this ISqlConnection @this, string commandText)
         {
             return @this.UseCommand(
                 command =>
@@ -38,7 +38,7 @@ namespace Composable.System.Data.SqlClient
                 });
         }
 
-        public static object ExecuteScalar(this ISqlConnectionProvider @this, string commandText)
+        public static object ExecuteScalar(this ISqlConnection @this, string commandText)
         {
             return @this.UseCommand(
                 command =>
@@ -48,7 +48,7 @@ namespace Composable.System.Data.SqlClient
                 });
         }
 
-        public static void UseConnection(this ISqlConnectionProvider @this, Action<SqlConnection> action)
+        public static void UseConnection(this ISqlConnection @this, Action<SqlConnection> action)
         {
             using (var connection = @this.OpenConnection())
             {
@@ -56,7 +56,7 @@ namespace Composable.System.Data.SqlClient
             }
         }
 
-        static TResult UseConnection<TResult>(this ISqlConnectionProvider @this, Func<SqlConnection, TResult> action)
+        static TResult UseConnection<TResult>(this ISqlConnection @this, Func<SqlConnection, TResult> action)
         {
             using (var connection = @this.OpenConnection())
             {
@@ -64,7 +64,7 @@ namespace Composable.System.Data.SqlClient
             }
         }
 
-        public static void UseCommand(this ISqlConnectionProvider @this, Action<SqlCommand> action)
+        public static void UseCommand(this ISqlConnection @this, Action<SqlCommand> action)
         {
             @this.UseConnection(connection =>
                           {
@@ -75,7 +75,7 @@ namespace Composable.System.Data.SqlClient
                           });
         }
 
-        static TResult UseCommand<TResult>(this ISqlConnectionProvider @this, Func<SqlCommand, TResult> action)
+        static TResult UseCommand<TResult>(this ISqlConnection @this, Func<SqlCommand, TResult> action)
         {
             return @this.UseConnection(connection =>
                                  {
@@ -87,7 +87,7 @@ namespace Composable.System.Data.SqlClient
         }
     }
 
-    interface ISqlConnectionProvider
+    interface ISqlConnection
     {
         SqlConnection OpenConnection();
         string ConnectionString { get; }

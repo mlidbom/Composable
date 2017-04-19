@@ -11,8 +11,8 @@ namespace Composable.CQRS.Tests.SqlServerDatabasePoolTests
     {
         string _masterConnectionString;
         SqlServerDatabasePool _manager;
-        ISqlConnectionProvider _dB1ConnectionString;
-        ISqlConnectionProvider _dB2ConnectionString;
+        ISqlConnection _dB1ConnectionString;
+        ISqlConnection _dB2ConnectionString;
         const string Db1 = "LocalDBManagerTests_After_creating_connection_Db1";
         const string Db2 = "LocalDBManagerTests_After_creating_connection_Db2";
 

@@ -6,18 +6,18 @@ namespace Composable.Testing
 {
     sealed partial class SqlServerDatabasePool
     {
-        class ConnectionProvider : ISqlConnectionProvider
+        class Connection : ISqlConnection
         {
             readonly Database _database;
             readonly string _reservationName;
             readonly SqlServerDatabasePool _pool;
-            readonly ISqlConnectionProvider _innerProvider;
-            public ConnectionProvider(Database database, string reservationName, SqlServerDatabasePool pool)
+            readonly ISqlConnection _inner;
+            public Connection(Database database, string reservationName, SqlServerDatabasePool pool)
             {
                 _database = database;
                 _reservationName = reservationName;
                 _pool = pool;
-                _innerProvider = new SqlServerConnectionProvider(ConnectionString);
+                _inner = new SqlServerConnection(ConnectionString);
             }
 
             public string ConnectionString => _database.ConnectionString(_pool);
@@ -31,7 +31,7 @@ namespace Composable.Testing
 
                 try
                 {
-                    return _innerProvider.OpenConnection();
+                    return _inner.OpenConnection();
                 }
                 catch(Exception exception)
                 {

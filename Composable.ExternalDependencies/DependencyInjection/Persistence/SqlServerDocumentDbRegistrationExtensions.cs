@@ -21,7 +21,7 @@ namespace Composable.DependencyInjection.Persistence
 
         [UsedImplicitly] class SqlServerDocumentDb<TUpdater, TReader, TBulkReader> : SqlServerDocumentDb, IDocumentDb<TUpdater, TReader, TBulkReader>
         {
-            public SqlServerDocumentDb(ISqlConnectionProvider connectionProvider) : base(connectionProvider)
+            public SqlServerDocumentDb(ISqlConnection connection) : base(connection)
             {
             }
         }
@@ -60,7 +60,7 @@ namespace Composable.DependencyInjection.Persistence
             } else
             {
                 @this.Register(Component.For<IDocumentDb<TUpdater, TReader, TBulkReader>>()
-                                         .UsingFactoryMethod(kernel => new SqlServerDocumentDb<TUpdater, TReader, TBulkReader>(kernel.Resolve<IConnectionStringProvider>()
+                                         .UsingFactoryMethod(kernel => new SqlServerDocumentDb<TUpdater, TReader, TBulkReader>(kernel.Resolve<ISqlConnectionProvider>()
                                                                                                                                                             .GetConnectionProvider(connectionName)))
                                          .LifestyleSingleton());
             }

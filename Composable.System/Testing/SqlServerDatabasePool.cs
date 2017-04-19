@@ -17,7 +17,7 @@ namespace Composable.Testing
     sealed partial class SqlServerDatabasePool : StrictlyManagedResourceBase<SqlServerDatabasePool>
     {
         readonly string _masterConnectionString;
-        readonly SqlServerConnectionProvider _masterConnection;
+        readonly SqlServerConnection _masterConnection;
 
         readonly MachineWideSharedObject<SharedState> _machineWideState;
 
@@ -57,14 +57,14 @@ namespace Composable.Testing
 
             Contract.Assert.That(_masterConnectionString.Contains(InitialCatalogMaster),
                                  $"MasterDB connection string must contain the exact string: '{InitialCatalogMaster}' this is required for technical optimization reasons");
-            _masterConnection = new SqlServerConnectionProvider(_masterConnectionString);
+            _masterConnection = new SqlServerConnection(_masterConnectionString);
         }
 
         bool _disposed;
         const string InitialCatalogMaster = ";Initial Catalog=master;";
 
         IReadOnlyList<Database> _transientCache = new List<Database>();
-        public ISqlConnectionProvider ConnectionProviderFor(string reservationName)
+        public ISqlConnection ConnectionProviderFor(string reservationName)
         {
             Contract.Assert.That(!_disposed, "!_disposed");
 
@@ -109,7 +109,7 @@ namespace Composable.Testing
 
             }
 
-            return new ConnectionProvider(database, reservationName, this);
+            return new Connection(database, reservationName, this);
         }
 
 
@@ -132,7 +132,7 @@ namespace Composable.Testing
                                                                try
                                                                {
                                                                    TransactionScopeCe.SupressAmbient(
-                                                                       () => new SqlServerConnectionProvider(db.ConnectionString(this))
+                                                                       () => new SqlServerConnection(db.ConnectionString(this))
                                                                            .UseConnection(action: connection => connection.DropAllObjects()));
                                                                    _machineWideState.Update(machineWide => machineWide.Release(db.Id)
                                                                                                                       .Clean());

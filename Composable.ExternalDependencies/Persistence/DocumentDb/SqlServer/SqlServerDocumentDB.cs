@@ -16,7 +16,7 @@ namespace Composable.Persistence.DocumentDb.SqlServer
 {
     class SqlServerDocumentDb : IDocumentDb
     {
-        readonly ISqlConnectionProvider _connectionManager ;
+        readonly ISqlConnection _connectionManager ;
 
         static readonly JsonSerializerSettings JsonSettings = NewtonSoft.JsonSettings.JsonSerializerSettings;
 
@@ -24,7 +24,7 @@ namespace Composable.Persistence.DocumentDb.SqlServer
 
         readonly object _lockObject = new object();
 
-        protected SqlServerDocumentDb(ISqlConnectionProvider connectionProvider) => _connectionManager = connectionProvider;
+        protected SqlServerDocumentDb(ISqlConnection connection) => _connectionManager = connection;
 
         bool _initialized;
         ConcurrentDictionary<Type, int> _knownTypes = null;

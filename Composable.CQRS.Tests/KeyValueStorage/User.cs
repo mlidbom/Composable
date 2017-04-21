@@ -12,19 +12,24 @@ namespace Composable.CQRS.Tests.KeyValueStorage
 
     class User : Person
     {
-        public string Email { get; set; }
-        public string Password { get; set; }
+        public User()
+        {
+            Id = Guid.NewGuid();
+        }
 
-        public Address Address { get; set; }
+        public string Email { get; set; } = "some.email@nodomain.not";
+        public string Password { get; set; } = "default";
+
+        public Address Address { get; set; } = new Address();
 
         public HashSet<User> People { get; set; }
     }
 
     class Address : ValueObject<Address>
     {
-        public string Street { [UsedImplicitly] get; set; }
-        public int Streetnumber { [UsedImplicitly] get; set; }
-        public string City { [UsedImplicitly] get; set; }
+        public string Street { [UsedImplicitly] get; set; } = "Somestreet";
+        public int Streetnumber { [UsedImplicitly] get; set; } = 12;
+        public string City { [UsedImplicitly] get; set; } = "Ostnahe";
     }
 
     class Email : ValueObject<Email>

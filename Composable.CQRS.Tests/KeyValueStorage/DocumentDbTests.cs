@@ -7,6 +7,7 @@ using Composable.DependencyInjection;
 using Composable.Persistence.DocumentDb;
 using Composable.System.Linq;
 using Composable.SystemExtensions.Threading;
+using Composable.Testing;
 using FluentAssertions;
 using JetBrains.Annotations;
 using NUnit.Framework;
@@ -74,6 +75,29 @@ namespace Composable.CQRS.Tests.KeyValueStorage
                               });
         }
 
+
+        [Test] public void Saves200NewDocumentsIn100Milliseconds()
+        {
+            ServiceLocator.ExecuteInIsolatedScope(() =>
+                                                  {
+                                                      var updater = ServiceLocator.DocumentDbUpdater();
+
+                                                      void SaveOneNewUserInTransaction()
+                                                      {
+                                                          var user = new User();
+                                                          updater.Save(user);
+                                                      }
+
+                                                      //Warm up caches etc
+                                                      SaveOneNewUserInTransaction();
+
+                                                      TimeAsserter.Execute(
+                                                          action: SaveOneNewUserInTransaction,
+                                                          iterations: 200,
+                                                          maxTotal: 100.Milliseconds()
+                                                      );
+                                                  });
+        }
 
         [Test]
         public void GetAllWithIdsReturnsAsManyResultsAsPassedIds()

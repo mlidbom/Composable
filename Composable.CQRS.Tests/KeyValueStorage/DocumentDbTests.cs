@@ -76,7 +76,7 @@ namespace Composable.CQRS.Tests.KeyValueStorage
         }
 
 
-        [Test] public void Saves200NewDocumentsIn100Milliseconds()
+        [Test] public void Saves200NewDocumentsIn150Milliseconds()
         {
             ServiceLocator.ExecuteInIsolatedScope(() =>
                                                   {
@@ -94,7 +94,7 @@ namespace Composable.CQRS.Tests.KeyValueStorage
                                                       TimeAsserter.Execute(
                                                           action: SaveOneNewUserInTransaction,
                                                           iterations: 200,
-                                                          maxTotal: 100.Milliseconds()
+                                                          maxTotal: 150.Milliseconds()
                                                       );
                                                   });
         }

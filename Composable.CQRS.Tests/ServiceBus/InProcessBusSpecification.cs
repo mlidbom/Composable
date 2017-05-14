@@ -1,4 +1,5 @@
 ﻿using System;
+using Composable.DependencyInjection;
 using Composable.Messaging;
 using Composable.Messaging.Buses;
 using FluentAssertions;
@@ -11,13 +12,15 @@ namespace Composable.CQRS.Tests.ServiceBus
     {
         public void given_no_registered_handlers()
         {
-          IInProcessServiceBus bus = null;
-          IMessageHandlerRegistrar registrar = null;
-          before = () =>
+            IInProcessServiceBus bus = null;
+            IMessageHandlerRegistrar registrar = null;
+            IServiceLocator container = null;
+
+            before = () =>
                    {
-                     var registry = new MessageHandlerRegistry();
-                     registrar = registry;
-                     bus = new InProcessServiceBus(registry);
+                       container = DependencyInjectionContainer.CreateServiceLocatorForTesting(cont => {});
+                       registrar = container.Resolve<IMessageHandlerRegistrar>();
+                        bus = container.Resolve<IInProcessServiceBus>();
                    };
 
             it["Handles(new ACommand()) returns false"] = () => bus.Handles(new ACommand()).Should().Be(false);
@@ -80,7 +83,8 @@ namespace Composable.CQRS.Tests.ServiceBus
 
             before = () =>
                      {
-                       registrar = new MessageHandlerRegistry();
+                         var container = DependencyInjectionContainer.CreateServiceLocatorForTesting(cont => { });
+                         registrar = container.Resolve<IMessageHandlerRegistrar>();
                          registrar.ForCommand<ACommand>(_ => { });
                      };
 

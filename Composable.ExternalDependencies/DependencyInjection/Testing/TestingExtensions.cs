@@ -20,7 +20,7 @@ namespace Composable.DependencyInjection.Testing
         {
             MasterDbConnection.UseConnection(action: _ => {});//evaluate lazy here in order to not pollute profiler timings of component resolution or registering.
             var dummyTimeSource = DummyTimeSource.Now;
-            var registry = new MessageHandlerRegistry();
+            var registry = new MessageHandlerRegistry(@this);
             var bus = new TestingOnlyServiceBus(dummyTimeSource, registry);
             var runMode = new RunMode(isTesting:true, mode:mode);
 
@@ -40,7 +40,7 @@ namespace Composable.DependencyInjection.Testing
                            Component.For<IMessageHandlerRegistrar>()
                                     .UsingFactoryMethod(factoryMethod: _ => registry)
                                     .LifestyleSingleton(),
-                           Component.For<IServiceBus, IMessageSpy>()
+                           Component.For<IServiceBus, IInProcessServiceBus, IMessageSpy>()
                                     .UsingFactoryMethod(factoryMethod: _ => bus)
                                     .LifestyleSingleton(),
                            Component.For<ISqlConnectionProvider>()

@@ -1,5 +1,6 @@
 ﻿using System;
 using Composable.System.Linq;
+// ReSharper disable All
 
 namespace Composable.Messaging.Buses.APIDraft._01
 {

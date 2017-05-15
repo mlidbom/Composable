@@ -14,7 +14,7 @@ namespace Composable.CQRS.Tests.ServiceBus
         {
             IInProcessServiceBus bus = null;
             IMessageHandlerRegistrar registrar = null;
-            IServiceLocator container = null;
+            IServiceLocator container;
 
             before = () =>
                    {

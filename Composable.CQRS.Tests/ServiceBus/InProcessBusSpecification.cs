@@ -42,7 +42,7 @@ namespace Composable.CQRS.Tests.ServiceBus
 
             it["Handles(new AnEvent()) returns false"] = () => bus.Handles(new AnEvent()).Should().BeFalse();
             it["Publish(new AnEvent()) throws no exception"] = () => bus.Publish(new AnEvent());
-            context["after registering a handlerfor AnEvent with bus"] =
+            context["after registering a handler for AnEvent with bus"] =
                 () =>
                 {
                     bool eventHandled = false;

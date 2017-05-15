@@ -37,6 +37,11 @@ namespace Composable.System.Reflection
 
             if(me == implemented) { return true;}
 
+            if(me.IsInterface && me.IsGenericType && me.GetGenericTypeDefinition() == implemented)
+            {
+                return true;
+            }
+
             if(implemented.IsGenericTypeDefinition)
             {
                 return

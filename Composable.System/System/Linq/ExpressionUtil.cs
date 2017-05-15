@@ -8,6 +8,20 @@ namespace Composable.System.Linq
     ///<summary>Extracts member names from expressions</summary>
     static class ExpressionUtil
     {
+
+        public static string ExtractMethodName(Expression<Action> func)
+        {
+            Contract.Argument(() => func).NotNull();
+            return ((MethodCallExpression)func.Body).Method.Name;
+        }
+
+        ///<summary>Extracts the name of the member that the supplied func expression returns.</summary>
+        public static string ExtractMethodName<T>(Expression<Func<T>> func)
+        {
+            Contract.Argument(() => func).NotNull();
+            return ((MethodCallExpression)func.Body).Method.Name;
+        }
+
         ///<summary>Extracts the name of the member that the supplied func expression returns.</summary>
         public static string ExtractMemberName<TValue>(Expression<Func<TValue>> func)
         {

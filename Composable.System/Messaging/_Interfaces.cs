@@ -43,6 +43,17 @@ namespace Composable.Messaging
         void Handle(TEvent message);
     }
 
+    public interface ICommandHandler<in TCommand> where TCommand : ICommand
+    {
+        void Handle(TCommand command);
+    }
+
+    public interface IQueryHandler<in TQuery, out TResult> where TQuery: IQuery<TResult>
+                                                       where TResult : IQueryResult
+    {
+        TResult Handle(TQuery command);
+    }
+
 
     public class SingletonQuery<TSingleton> : IQuery<TSingleton> where TSingleton : IResource<TSingleton>
     {}

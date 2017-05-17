@@ -25,14 +25,28 @@ namespace Composable.Messaging.Buses.APIDraft
                 CommandHandler.For<CreateAccountCommand>("17893552-D533-4A59-A177-63EAF3B7B07E",
                                                          command => {},
                                                          defaultCommandHandlerPolicies,
-                                                         Policy.Updates<AccountAggregate>.WithCurrentMessageAggregateId(),//No message handler is allowed to handle a message related to this aggregate in parallel with this handler.
-                                                         Policy.RequiresUpToDate<EmailToAccountLookupModel>.All),//This handler must wait until there are no messages queued to any handler with policy: Policy.Updates<EmailToAccountLookupModel>. Throws an exception on registration if there are no handlers with matching Updates<> policy.
+                                                         //Being explicit about which events might be published let's the bus reason about possible cascade effects easily and thus guarantee consistency for queries.
+                                                         //It also makes it possible to get an overview of the structure of a complete endpoint in one place.
+                                                         Policy.Publishes<IAccountEvent>(),
+                                                         Policy.RequiresUpToDate<EmailToAccountLookupModel>
+                                                               .All), //This handler must wait until there are no messages queued to any handler with policy: Policy.Updates<EmailToAccountLookupModel>. Throws an exception on registration if there are no handlers with matching Updates<> policy.
+
+
+                //This command handler is completely independent of any other handler since it just sends an email based on the data in the command. It can run any number of threads and run in parallel with any other handler.
+                CommandHandler.For<SendAccountRegistrationWelcomeEmailCommand>("76773E2F-9E44-4150-8C3C-8A4FC93899C3", command => {}, Policy.NoRestrictions),
 
                 //Event handlers
                 EventHandler.For<AccountCreatedEvent>("2E8642CA-6C60-4B91-A92E-54AD3753E7F2",
                                                       @event => {},
                                                       defaultEventHandlerPolicies,
                                                       Policy.Updates<AccountReadModel>.WithCurrentMessageAggregateId()),
+
+                EventHandler.For<AccountCreatedEvent>("A5A1DF35-982C-4962-A7DA-C98AC88633C0", @event => {},
+                                                      defaultEventHandlerPolicies,
+                                                      //Being explicit about which commands might be sent let's the bus reason about possible cascade effects easily and thus guarantee consistency for queries. 
+                                                      //It also makes it possible to get an overview of the structure of a complete endpoint in one place.
+                                                      Policy.Sends<SendAccountRegistrationWelcomeEmailCommand>()
+                                                      ),
 
                 EventHandler.For<AccountCreatedEvent>("E59B41A3-BF32-4B7A-B497-F29E3AF42D42",
                                                       @event => {},
@@ -59,6 +73,10 @@ namespace Composable.Messaging.Buses.APIDraft
 
         static class Policy
         {
+            public static IMessageHandlerPolicy NoRestrictions => null;
+            public static IMessageHandlerPolicy Publishes<T>() => null;
+            public static IMessageHandlerPolicy Sends<T>() => null;
+
             public static class LockExclusively
             {
                 public static IMessageHandlerPolicy ThisHandler;

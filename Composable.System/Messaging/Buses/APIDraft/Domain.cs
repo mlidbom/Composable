@@ -1,6 +1,10 @@
 ﻿namespace Composable.Messaging.Buses.APIDraft
 {
 
+    interface IAccountEvent { }
+
+    class SendAccountRegistrationWelcomeEmailCommand { }
+
     class AccountAggregate { }
     class AccountReadModel { }
     class EmailToAccountLookupModel { }

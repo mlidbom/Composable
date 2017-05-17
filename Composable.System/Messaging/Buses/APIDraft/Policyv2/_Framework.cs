@@ -19,9 +19,6 @@ namespace Composable.Messaging.Buses.APIDraft.Policyv2
         void Configure(IHandlerPolicyConfigurationBuilder builder, IMessage message);
     }
 
-    interface IThreadingPolicy : IMessageHandlerPolicy { } //IEnumerable<string> LocksToTake(IMessage message);
-
-    interface ITransactionPolicy : IMessageHandlerPolicy { } // String TransactionToParticipateIn(IMessage message)
 
     static class Policy
     {

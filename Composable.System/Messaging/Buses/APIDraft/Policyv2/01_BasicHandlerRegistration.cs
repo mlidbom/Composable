@@ -43,6 +43,7 @@ namespace Composable.Messaging.Buses.APIDraft.Policyv2
                     @event => {},
                     defaultEventHandlerPolicies,
                     Policy.Updates<AccountReadModel>.WithCurrentMessageAggregateId()),
+
                 EventHandler.For<AccountCreatedEvent>(
                     "A5A1DF35-982C-4962-A7DA-C98AC88633C0",
                     @event => {},
@@ -51,6 +52,7 @@ namespace Composable.Messaging.Buses.APIDraft.Policyv2
                     //It also makes it possible to get an overview of the structure of a complete endpoint in one place.
                     Policy.Sends<SendAccountRegistrationWelcomeEmailCommand>()
                 ),
+
                 EventHandler.For<AccountCreatedEvent>(
                     "E59B41A3-BF32-4B7A-B497-F29E3AF42D42",
                     @event => {},

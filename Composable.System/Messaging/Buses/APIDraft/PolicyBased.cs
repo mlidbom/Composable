@@ -37,7 +37,6 @@ namespace Composable.Messaging.Buses.APIDraft
 
         enum MessageThreadingPolicy { Serialized, Parallel, SerializeAggregateAccess }
         enum HandlerInvokation { InRegistrationOrder, InParallel }
-        enum EndpointInternalMessageCascadePolicy { Synchronous, Asynchronous }
         enum TransactionBoundary { Message, Handler }
         enum HandlerFailurePolicy { ContinueWithOtherHandlers, StopInvokingHandlers }
 
@@ -60,20 +59,25 @@ namespace Composable.Messaging.Buses.APIDraft
                                  "Command handlers",
                                  MessageThreadingPolicy.Parallel, //Commands should be handled in parallel or we essentially single thread our entire endpoint/service.
                                  MessageThreadingPolicy.SerializeAggregateAccess, //It is useless to try to execute more than one modification of the same aggregate at a time, so let's not waste resources trying.
-                                 HandlerInvokation.InRegistrationOrder, //Meaningless for commands since there can only be one handler.
-                                 TransactionBoundary.Message, //Does not matter for commands since there can only be one handler.
-                                 EndpointInternalMessageCascadePolicy.Asynchronous, //When we send a command that will be handled by another aggregate within the endpoint we do not want it to happen synchronously. It should be part of another transaction.
 
-                                 new MessageHandler("command handler")),
+
+                                 HandlerInvokation.InRegistrationOrder, //Meaningless since there can only be one command handler.
+                                 TransactionBoundary.Message, //Meaningless since there can only be one command handler.
+                                 EndpointInternalEventCascadePolicy.Asynchronous, //Invalid for commands. Overriding the default async behavior should be done by the caller of send, Be part of the bus API
+
+                                 new MessageHandler("command handler 1"),
+                                 new MessageHandler("command handler 2"),
+                                 new MessageHandler("command handler 3"),
+                                 new MessageHandler("command handler 4")),
                              new HandlerGroup(
                                  "Query model updaters",
-                                 EndpointInternalMessageCascadePolicy.Synchronous, //Domain query models should be immediatelly consistent if at all possible..
-                                 TransactionBoundary.Message, //Setting anything else together with EndpointInternalMessageCascadePolicy.Synchronous would be illegal.
+                                 EndpointInternalEventCascadePolicy.Synchronous, //Domain query models should be immediatelly consistent if at all possible..
+                                 TransactionBoundary.Message, //Setting anything else together with EndpointInternalEventCascadePolicy.Synchronous would be illegal.
 
                                  new MessageHandler("Account email query model updater")
                              ),
                              new HandlerGroup(
-
+                                 HandlerInvokation.InParallel,
                                  new MessageHandler(MessageThreadingPolicy.Parallel, "Slow event handler that often receives batches of events from one aggregate. We have verified that handling messages in parallel is safe and it is necessary for latency reasons.")
                                  )
                 );

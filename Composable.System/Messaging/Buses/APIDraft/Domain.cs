@@ -1,6 +1,10 @@
 ﻿namespace Composable.Messaging.Buses.APIDraft
 {
 
+    class AccountAggregate { }
+    class AccountReadModel { }
+    class EmailToAccountLookupModel { }
+
     class GetAccountQuery { }
     class AccountCreatedEvent { }
     class CreateAccountCommand { }

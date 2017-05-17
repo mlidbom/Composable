@@ -26,7 +26,7 @@ namespace Composable.Messaging.Buses.APIDraft
                                                          command => {},
                                                          defaultCommandHandlerPolicies,
                                                          Policy.Updates<AccountAggregate>.WithCurrentMessageAggregateId(),
-                                                         Policy.RequiresUpdToDate<EmailToAccountLookupModel>.All),
+                                                         Policy.RequiresUpToDate<EmailToAccountLookupModel>.All),//This handler must wait until there are no messages queued to any handler with policy: Policy.Updates<EmailToAccountLookupModel>
 
                 //Event handlers
                 EventHandler.For<AccountCreatedEvent>("2E8642CA-6C60-4B91-A92E-54AD3753E7F2",
@@ -37,8 +37,7 @@ namespace Composable.Messaging.Buses.APIDraft
                 EventHandler.For<AccountCreatedEvent>("E59B41A3-BF32-4B7A-B497-F29E3AF42D42",
                                                       @event => {},
                                                       defaultEventHandlerPolicies,
-                                                      Policy.OnCascadedMessage.InvokeWithinTriggeringTransaction, //This denormalizer keeps a domain read model up to date. For the domain to work reliably it needs to be executed within the triggering transaction.
-                                                                                                                  //Alternatively the Policy.RequiresUpdToDate<EmailToAccountLookupModel>.All policy above might force that command handler to wait for any events in flight to this handler?
+                                                      Policy.OnCascadedMessage.InvokeWithinTriggeringTransaction, //(Deprecated. See: Policy.RequiresUpToDate above. )This denormalizer keeps a domain read model up to date. For the domain to work reliably it needs to be executed within the triggering transaction.
                                                       Policy.Updates<EmailToAccountLookupModel>.WithId(new ExtractEmailFromEmailUpdatedEvent())),
 
                 //How to delegate to container registered component to handle the event.
@@ -73,7 +72,7 @@ namespace Composable.Messaging.Buses.APIDraft
                 public static IMessageHandlerPolicy WithId(IMessageDataExtractor extractEmailFromEmailUpdatedEvent) => null;
             }
 
-            public static class RequiresUpdToDate<T>
+            public static class RequiresUpToDate<T>
             {
                 public static IMessageHandlerPolicy All => null;
                 public static IMessageHandlerPolicy WithCurrentMessageAggregateId => null;

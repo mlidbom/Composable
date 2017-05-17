@@ -40,9 +40,12 @@ namespace Composable.Messaging.Buses.APIDraft
                                                       Policy.OnCascadedMessage.InvokeWithinTriggeringTransaction, //This denormalizer keeps a domain read model up to date. For the domain to work reliably it needs to be executed within the triggering transaction.
                                                       Policy.Updates<EmailToAccountLookupModel>.WithId(new ExtractEmailFromEmailUpdatedEvent())),
 
-                EventHandler.For("6E0EA0E6-67DB-4D25-AFE5-99E67130773D", (AccountCreatedEvent @event, AccountController controller) => controller.Handle(@event)),//Illustrate how to delegate to container registered component to handle the event.
+                //How to delegate to container registered component to handle the event.
+                EventHandler.For("6E0EA0E6-67DB-4D25-AFE5-99E67130773D", (AccountCreatedEvent @event, AccountController controller) => controller.Handle(@event)),
 
-                EventHandler.For("85966417-20B9-4373-9A4B-8398ECA86429", (AccountCreatedEvent @event, AccountController controller, ISomeDependency someDependency) => {})//Illustrate how to add parameter injection for methods that have dependencies that do not need to be injected into the handler class itself
+
+                //Illustrate that the injection above is just a special case of the generic parameter injection we for registered handlers.
+                EventHandler.For("85966417-20B9-4373-9A4B-8398ECA86429", (AccountCreatedEvent @event, AccountController controller, ISomeDependency someDependency) => {})
             );
         }
 

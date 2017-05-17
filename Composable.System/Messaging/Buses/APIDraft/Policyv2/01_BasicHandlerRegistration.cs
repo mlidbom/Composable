@@ -10,36 +10,12 @@ namespace Composable.Messaging.Buses.APIDraft.Policyv2
     {
         void IllustratateRegistration()
         {
-            var defaultEventHandlerPolicies = new CompositePolicy(
-                Policy.LockExclusively.ThisHandler, //Ensures that this handler is never invoked in parallel with itself.
-                Policy.LockExclusively.CurrentMessage //Ensures that no other handler handle the same message in parallel with this handler.
-                //Useless when applied to a command handler since there can only be one.
-            );
-
-            var defaultCommandHandlerPolicies = new CompositePolicy(
-                Policy.LockExclusively.AggregateRelatedToMessage
-            );
-
             var endpoint = new Endpoint(
                 //Command handlers
-                CommandHandler.For<CreateAccountCommand>(
-                    "17893552-D533-4A59-A177-63EAF3B7B07E",
-                    command => {},
-                    defaultCommandHandlerPolicies),
-
-                //This command handler is completely independent of any other handler since it just sends an email based on the data in the command.
-                //It can run in parallel with any other handler and itself.
-                CommandHandler.For<SendAccountRegistrationWelcomeEmailCommand>("76773E2F-9E44-4150-8C3C-8A4FC93899C3", command => {}, Policy.NoRestrictions),
+                CommandHandler.For<CreateAccountCommand>("17893552-D533-4A59-A177-63EAF3B7B07E", command => {}),
 
                 //Event handlers
-                EventHandler.For<AccountCreatedEvent>("2E8642CA-6C60-4B91-A92E-54AD3753E7F2", @event => {}, defaultEventHandlerPolicies),
-
-
-                //Delegate to container registered component to handle the event.
-                EventHandler.For("6E0EA0E6-67DB-4D25-AFE5-99E67130773D", (AccountCreatedEvent @event, AccountController controller) => controller.Handle(@event)),
-
-                //Generic parameter injection. Actually the same thing as the example above..
-                EventHandler.For("85966417-20B9-4373-9A4B-8398ECA86429", (AccountCreatedEvent @event, AccountController dependency1, ISomeDependency dependency2) => {})
+                EventHandler.For<AccountCreatedEvent>("2E8642CA-6C60-4B91-A92E-54AD3753E7F2", @event => {})
             );
         }
     }

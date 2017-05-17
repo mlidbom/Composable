@@ -38,6 +38,7 @@ namespace Composable.Messaging.Buses.APIDraft
                                                       @event => {},
                                                       defaultEventHandlerPolicies,
                                                       Policy.OnCascadedMessage.InvokeWithinTriggeringTransaction, //This denormalizer keeps a domain read model up to date. For the domain to work reliably it needs to be executed within the triggering transaction.
+                                                                                                                  //Alternatively the Policy.RequiresUpdToDate<EmailToAccountLookupModel>.All policy above might force that command handler to wait for any events in flight to this handler?
                                                       Policy.Updates<EmailToAccountLookupModel>.WithId(new ExtractEmailFromEmailUpdatedEvent())),
 
                 //How to delegate to container registered component to handle the event.

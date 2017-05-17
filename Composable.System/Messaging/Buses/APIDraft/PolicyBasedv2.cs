@@ -25,7 +25,7 @@ namespace Composable.Messaging.Buses.APIDraft
                 CommandHandler.For<CreateAccountCommand>("17893552-D533-4A59-A177-63EAF3B7B07E",
                                                          command => {},
                                                          defaultCommandHandlerPolicies,
-                                                         Policy.Updates<AccountAggregate>.WithCurrentMessageAggregateId(),
+                                                         Policy.Updates<AccountAggregate>.WithCurrentMessageAggregateId(),//No message handler is allowed to handle a message related to this aggregate in parallel with this handler.
                                                          Policy.RequiresUpToDate<EmailToAccountLookupModel>.All),//This handler must wait until there are no messages queued to any handler with policy: Policy.Updates<EmailToAccountLookupModel>
 
                 //Event handlers

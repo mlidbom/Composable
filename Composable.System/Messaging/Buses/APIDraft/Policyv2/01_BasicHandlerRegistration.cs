@@ -1,8 +1,6 @@
 ﻿// ReSharper disable UnusedParameter.Local
 // ReSharper disable UnusedMember.Local
 
-
-
 // ReSharper disable AccessToStaticMemberViaDerivedType
 
 namespace Composable.Messaging.Buses.APIDraft.Policyv2
@@ -14,7 +12,8 @@ namespace Composable.Messaging.Buses.APIDraft.Policyv2
         {
             var defaultEventHandlerPolicies = new CompositePolicy(
                 Policy.LockExclusively.ThisHandler, //Ensures that this handler is never invoked in parallel with itself.
-                Policy.LockExclusively.CurrentMessage //Ensures that no other handler handle the same message in parallel with this handler. Useless when applied to a command handler since there can only be one.
+                Policy.LockExclusively.CurrentMessage //Ensures that no other handler handle the same message in parallel with this handler.
+                //Useless when applied to a command handler since there can only be one.
             );
 
             var defaultCommandHandlerPolicies = new CompositePolicy(

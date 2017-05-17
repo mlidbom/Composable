@@ -26,9 +26,6 @@ namespace Composable.Messaging.Buses.APIDraft.Policyv2
                     "17893552-D533-4A59-A177-63EAF3B7B07E",
                     command => {},
                     defaultCommandHandlerPolicies,
-                    //Being explicit about which events might be published let's the bus reason about possible cascade effects easily and thus guarantee consistency for queries.
-                    //It also makes it possible to get an overview of the structure of a complete endpoint in one place.
-                    Policy.Publishes<IAccountEvent>(),
                     //This handler must wait until there are no messages queued to any handler with policy:
                     //Policy.Updates<EmailToAccountLookupModel>. Throws an exception on registration if there are no handlers with matching Updates<> policy.
                     Policy.RequiresUpToDate<EmailToAccountLookupModel>.All),
@@ -47,10 +44,7 @@ namespace Composable.Messaging.Buses.APIDraft.Policyv2
                 EventHandler.For<AccountCreatedEvent>(
                     "A5A1DF35-982C-4962-A7DA-C98AC88633C0",
                     @event => {},
-                    defaultEventHandlerPolicies,
-                    //Being explicit about which commands might be sent let's the bus reason about possible cascade effects easily and thus guarantee consistency for queries.
-                    //It also makes it possible to get an overview of the structure of a complete endpoint in one place.
-                    Policy.Sends<SendAccountRegistrationWelcomeEmailCommand>()
+                    defaultEventHandlerPolicies
                 ),
 
                 EventHandler.For<AccountCreatedEvent>(

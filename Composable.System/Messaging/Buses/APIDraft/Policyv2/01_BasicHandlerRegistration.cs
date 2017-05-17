@@ -66,7 +66,7 @@ namespace Composable.Messaging.Buses.APIDraft.Policyv2
                 EventHandler.For("6E0EA0E6-67DB-4D25-AFE5-99E67130773D", (AccountCreatedEvent @event, AccountController controller) => controller.Handle(@event)),
 
                 //Generic parameter injection. Actually the same thing as the example above..
-                EventHandler.For("85966417-20B9-4373-9A4B-8398ECA86429", (AccountCreatedEvent @event, ISomeDependency someDependency, ISomeDependency someOtherDependency) => {})
+                EventHandler.For("85966417-20B9-4373-9A4B-8398ECA86429", (AccountCreatedEvent @event, AccountController dependency1, ISomeDependency dependency2) => {})
             );
         }
     }

@@ -2,7 +2,23 @@
 
 namespace Composable.Messaging.Buses.APIDraft.Policyv2
 {
-    interface IMessageHandlerPolicy { }
+
+    interface IHandlerPolicyConfigurationBuilder
+    {
+        void ExclusivelyLock(string resource);
+        void InclusivelyLock(string resource);
+        void Updates(Type updatedType);
+        void Updates(Type updatedType, string id);
+        void RequiresUpdtodate(Type required);
+        void RequiresUpdtodate(Type required, string id);
+        void TriggerWithinPublishingTransaction();
+    }
+
+    interface IMessageHandlerPolicy
+    {
+        void Configure(IHandlerPolicyConfigurationBuilder builder, IMessage message);
+    }
+
     interface IThreadingPolicy : IMessageHandlerPolicy { } //IEnumerable<string> LocksToTake(IMessage message);
 
     interface ITransactionPolicy : IMessageHandlerPolicy { } // String TransactionToParticipateIn(IMessage message)
@@ -76,5 +92,6 @@ namespace Composable.Messaging.Buses.APIDraft.Policyv2
     class CompositePolicy : IMessageHandlerPolicy
     {
         public CompositePolicy(params IMessageHandlerPolicy[] policies) { }
+        public void Configure(IHandlerPolicyConfigurationBuilder builder, IMessage message) { throw new NotImplementedException(); }
     }
 }

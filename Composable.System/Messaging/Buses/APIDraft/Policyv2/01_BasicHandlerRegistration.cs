@@ -25,36 +25,15 @@ namespace Composable.Messaging.Buses.APIDraft.Policyv2
                 CommandHandler.For<CreateAccountCommand>(
                     "17893552-D533-4A59-A177-63EAF3B7B07E",
                     command => {},
-                    defaultCommandHandlerPolicies,
-                    //This handler must wait until there are no messages queued to any handler with policy:
-                    //Policy.Updates<EmailToAccountLookupModel>. Throws an exception on registration if there are no handlers with matching Updates<> policy.
-                    Policy.RequiresUpToDate<EmailToAccountLookupModel>.All),
+                    defaultCommandHandlerPolicies),
 
                 //This command handler is completely independent of any other handler since it just sends an email based on the data in the command.
                 //It can run in parallel with any other handler and itself.
                 CommandHandler.For<SendAccountRegistrationWelcomeEmailCommand>("76773E2F-9E44-4150-8C3C-8A4FC93899C3", command => {}, Policy.NoRestrictions),
 
                 //Event handlers
-                EventHandler.For<AccountCreatedEvent>(
-                    "2E8642CA-6C60-4B91-A92E-54AD3753E7F2",
-                    @event => {},
-                    defaultEventHandlerPolicies,
-                    Policy.Updates<AccountReadModel>.WithCurrentMessageAggregateId()),
+                EventHandler.For<AccountCreatedEvent>("2E8642CA-6C60-4B91-A92E-54AD3753E7F2", @event => {}, defaultEventHandlerPolicies),
 
-                EventHandler.For<AccountCreatedEvent>(
-                    "A5A1DF35-982C-4962-A7DA-C98AC88633C0",
-                    @event => {},
-                    defaultEventHandlerPolicies
-                ),
-
-                EventHandler.For<AccountCreatedEvent>(
-                    "E59B41A3-BF32-4B7A-B497-F29E3AF42D42",
-                    @event => {},
-                    defaultEventHandlerPolicies,
-                    //(Deprecated. See: Policy.RequiresUpToDate above. )
-                    //This denormalizer keeps a domain read model up to date. For the domain to work reliably it needs to be executed within the triggering transaction.
-                    Policy.OnCascadedMessage.InvokeWithinTriggeringTransaction,
-                    Policy.Updates<EmailToAccountLookupModel>.WithId(new ExtractEmailFromEmailUpdatedEvent())),
 
                 //Delegate to container registered component to handle the event.
                 EventHandler.For("6E0EA0E6-67DB-4D25-AFE5-99E67130773D", (AccountCreatedEvent @event, AccountController controller) => controller.Handle(@event)),

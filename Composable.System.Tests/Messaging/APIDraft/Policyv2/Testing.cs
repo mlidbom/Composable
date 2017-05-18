@@ -18,14 +18,17 @@ namespace Composable.Tests.Messaging.APIDraft.Policyv2
         [Test]
         public void Test()
         {
-            var @event = new AutoResetEvent(false);
+            var @event = new ManualResetEventSlim(false);
+
+            @event.Reset();
+            @event.Reset();
 
             @event.Set();
-            @event.WaitOne(1.Milliseconds())
+            @event.Wait(1.Milliseconds())
                   .Should()
                   .Be(true);
 
-            @event.WaitOne(1.Milliseconds())
+            @event.Wait(1.Milliseconds())
                   .Should()
                   .Be(false);
         }
@@ -53,10 +56,10 @@ namespace Composable.Tests.Messaging.APIDraft.Policyv2
 
         class TestingResetEvent
         {
-            private readonly ManualResetEvent _event = new ManualResetEvent(false);
+            private readonly ManualResetEventSlim _event = new ManualResetEventSlim(false);
             public void Wait()
             {
-                if (!_event.WaitOne(TimeSpanExtensions.Milliseconds(10)))
+                if (!_event.Wait(TimeSpanExtensions.Milliseconds(10)))
                 {
                     throw new Exception("Timed out waiting for lock.");
                 }
@@ -100,14 +103,19 @@ namespace Composable.Tests.Messaging.APIDraft.Policyv2
 
             public void Handle(T message)
             {
+                Completed.Reset();
                 IsCompleted = false;
-                IsStarted = true;
                 Started.Set();
+                IsStarted = true;
+                
+
                 AllowToComplete.Wait();
-                IsCompleted = true;
-                Completed.Set();
-                Started.Reset();
                 AllowToComplete.Reset();
+
+                Completed.Set();
+                IsCompleted = true;                
+                Started.Reset();
+                IsStarted = false;                
             }
         }
     }

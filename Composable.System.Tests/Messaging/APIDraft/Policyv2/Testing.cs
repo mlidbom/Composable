@@ -4,10 +4,33 @@ using System.Threading;
 using Composable.System;
 using Composable.System.Collections.Collections;
 using FluentAssertions;
+using NUnit.Framework;
+
 // ReSharper disable All
 
 namespace Composable.Tests.Messaging.APIDraft.Policyv2
 {
+    using Composable.System;
+
+    [TestFixture]
+    public class TestResetEvent
+    {
+        [Test]
+        public void Test()
+        {
+            var @event = new AutoResetEvent(false);
+
+            @event.Set();
+            @event.WaitOne(1.Milliseconds())
+                  .Should()
+                  .Be(true);
+
+            @event.WaitOne(1.Milliseconds())
+                  .Should()
+                  .Be(false);
+        }
+    }
+
     public class Testing
     {
         public void Test()
@@ -40,6 +63,7 @@ namespace Composable.Tests.Messaging.APIDraft.Policyv2
             }
 
             public void Set() => _event.Set();
+            public void Reset() => _event.Reset();
         }
 
 
@@ -82,6 +106,8 @@ namespace Composable.Tests.Messaging.APIDraft.Policyv2
                 AllowToComplete.Wait();
                 IsCompleted = true;
                 Completed.Set();
+                Started.Reset();
+                AllowToComplete.Reset();
             }
         }
     }

@@ -1,9 +1,6 @@
-﻿// ReSharper disable UnusedParameter.Local
-// ReSharper disable UnusedMember.Local
+﻿// ReSharper disable All
 
-// ReSharper disable AccessToStaticMemberViaDerivedType
-
-namespace Composable.Messaging.Buses.APIDraft.Policyv2
+namespace Composable.Tests.Messaging.APIDraft.Policyv2
 {
     // ReSharper disable once UnusedMember.Global
     public class ModifyTheDefaults

@@ -1,8 +1,9 @@
 ﻿using System;
 using Composable.System.Linq;
+
 // ReSharper disable All
 
-namespace Composable.Messaging.Buses.APIDraft._01
+namespace Composable.Tests.Messaging.APIDraft._01
 {
     class APIDraft01
     {

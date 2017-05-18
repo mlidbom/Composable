@@ -1,6 +1,9 @@
-﻿using System;
+﻿// ReSharper disable All
 
-namespace Composable.Messaging.Buses.APIDraft.Policyv2
+using System;
+using Composable.Messaging;
+
+namespace Composable.Tests.Messaging.APIDraft.Policyv2
 {
 
     interface IHandlerPolicyConfigurationBuilder

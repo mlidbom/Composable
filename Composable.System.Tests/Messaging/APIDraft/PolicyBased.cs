@@ -1,8 +1,7 @@
-﻿// ReSharper disable UnusedParameter.Local
-// ReSharper disable UnusedMember.Local
-namespace Composable.Messaging.Buses.APIDraft
+﻿// ReSharper disable All
+
+namespace Composable.Tests.Messaging.APIDraft
 {
-    // ReSharper disable once UnusedMember.Global
     public class PolicyBased
     {
         interface IThreadingPolicy { } //IEnumerable<string> LocksToTake(IMessage message);

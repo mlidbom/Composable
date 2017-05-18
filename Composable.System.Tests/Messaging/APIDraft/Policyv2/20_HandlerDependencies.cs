@@ -1,11 +1,7 @@
-﻿// ReSharper disable UnusedParameter.Local
-// ReSharper disable UnusedMember.Local
+﻿// ReSharper disable All
 
-// ReSharper disable AccessToStaticMemberViaDerivedType
-
-namespace Composable.Messaging.Buses.APIDraft.Policyv2
-{
-    // ReSharper disable once UnusedMember.Global
+namespace Composable.Tests.Messaging.APIDraft.Policyv2
+{   
     public class HandlerDependencies
     {
         void IllustratateRegistration()

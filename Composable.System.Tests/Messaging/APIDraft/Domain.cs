@@ -1,4 +1,4 @@
-﻿namespace Composable.Messaging.Buses.APIDraft
+﻿namespace Composable.Tests.Messaging.APIDraft
 {
 
     interface IAccountEvent { }

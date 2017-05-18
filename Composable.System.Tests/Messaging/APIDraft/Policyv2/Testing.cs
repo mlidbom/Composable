@@ -28,6 +28,7 @@ namespace Composable.Tests.Messaging.APIDraft.Policyv2
                   .Should()
                   .Be(true);
 
+            @event.Reset();
             @event.Wait(1.Milliseconds())
                   .Should()
                   .Be(false);

@@ -35,8 +35,6 @@ namespace AccountManagement.Domain.Events
                     Password = password;
                 }
 
-                //The setters should be private but NServiceBus does not work with private setters :(
-                //Hopefully they will fix this or we will create our own serializer for NServiceBus
                 public Email Email { get; private set; }
                 public Password Password { get; private set; }
             }

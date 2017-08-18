@@ -22,7 +22,7 @@ namespace Composable.Tests.Messaging.APIDraft.Policyv2
                 EventHandler.For<AccountCreatedEvent>(
                     "E59B41A3-BF32-4B7A-B497-F29E3AF42D42",
                     @event => {},
-                    Policy.Updates<EmailToAccountLookupModel>.WithId(new ExtractEmailFromEmailUpdatedEvent()))
+                    Policy.Updates<EmailToAccountLookupModel>.WithId(new ExtractEmailFromEmailUpdatedEvent()))//Maybe use a lambda for extraction here instead of forcing a separate class?
             );
         }
     }

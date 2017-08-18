@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Threading;
 using Composable.System;
@@ -55,14 +56,24 @@ namespace Composable.Tests.Messaging.APIDraft.Policyv2
         }
 
 
+
         class TestingResetEvent
         {
             private readonly ManualResetEventSlim _event = new ManualResetEventSlim(false);
+            private readonly TimeSpan timeout_;
+            private readonly string name_;
+
+            public TestingResetEvent(string name, TimeSpan? timeout = null)
+            {
+                timeout_ = timeout ?? TimeSpan.FromSeconds(1);
+                name_ = name;
+            }
+
             public void Wait()
             {
-                if (!_event.Wait(TimeSpanExtensions.Milliseconds(10)))
+                if (!_event.Wait(timeout_))
                 {
-                    throw new Exception("Timed out waiting for lock.");
+                    throw new Exception($"Timed out waiting for lock: {name_}");
                 }
             }
 
@@ -71,15 +82,21 @@ namespace Composable.Tests.Messaging.APIDraft.Policyv2
         }
 
 
-        class ResetEvents
+        class TestingResetEventCollection
         {
-            private readonly Dictionary<string, TestingResetEvent> _manuals = new Dictionary<string, TestingResetEvent>();
+            private readonly ConcurrentDictionary<string, TestingResetEvent> _manuals = new ConcurrentDictionary<string, TestingResetEvent>();
+
+            private TimeSpan timeout_;
+            public TestingResetEventCollection(TimeSpan? timeout = null)
+            {
+                timeout_ = timeout ?? TimeSpan.FromSeconds(1);
+            }
 
             public TestingResetEvent Manual(string name)
             {
                 lock (_manuals)
                 {
-                    return _manuals.GetOrAdd(name, () => new TestingResetEvent());
+                    return _manuals.GetOrAdd(name, _ => new TestingResetEvent(name, timeout_));
                 }
             }
 
@@ -93,9 +110,9 @@ namespace Composable.Tests.Messaging.APIDraft.Policyv2
         //This should give us full testability of invokation policies :)
         class TestMessageHandler<T>
         {
-            public readonly TestingResetEvent Started = new TestingResetEvent();
-            public readonly  TestingResetEvent Completed = new TestingResetEvent();
-            public  readonly  TestingResetEvent AllowToComplete = new TestingResetEvent();
+            public readonly TestingResetEvent Started = new TestingResetEvent(nameof(Started));
+            public readonly  TestingResetEvent Completed = new TestingResetEvent(nameof(Completed));
+            public  readonly  TestingResetEvent AllowToComplete = new TestingResetEvent(nameof(AllowToComplete));
 
             public bool IsStarted = false;
             public bool IsCompleted = false;

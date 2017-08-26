@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Composable.Contracts;
 using SimpleInjector;
 using SimpleInjector.Lifestyles;
 
@@ -39,6 +40,7 @@ namespace Composable.DependencyInjection.SimpleInjectorImplementation
 
                 if (componentRegistration.InstantiationSpec.Instance != null)
                 {
+                    Contract.Assert.That(lifestyle == SimpleInjector.Lifestyle.Singleton, "Instance can only be used with singletons.");
                     foreach(var serviceType in componentRegistration.ServiceTypes)
                     {
                         _container.RegisterSingleton(serviceType, componentRegistration.InstantiationSpec.Instance);

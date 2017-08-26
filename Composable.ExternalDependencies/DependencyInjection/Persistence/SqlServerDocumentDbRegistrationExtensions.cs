@@ -7,7 +7,6 @@ using Composable.System.Configuration;
 using Composable.System.Data.SqlClient;
 using Composable.System.Linq;
 using Composable.SystemExtensions.Threading;
-using Composable.UnitsOfWork;
 using JetBrains.Annotations;
 // ReSharper disable UnusedTypeParameter the type parameters allow non-ambiguous registrations in the container. They are in fact used.
 

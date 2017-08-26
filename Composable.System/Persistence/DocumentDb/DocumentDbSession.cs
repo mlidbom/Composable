@@ -1,14 +1,11 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.InteropServices;
 using System.Transactions;
-using Composable.Contracts;
 using Composable.DDD;
 using Composable.Logging;
 using Composable.System.Linq;
 using Composable.SystemExtensions.Threading;
-using Composable.UnitsOfWork;
 
 namespace Composable.Persistence.DocumentDb
 {

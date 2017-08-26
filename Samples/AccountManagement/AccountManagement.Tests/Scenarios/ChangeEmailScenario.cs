@@ -22,7 +22,7 @@ namespace AccountManagement.Tests.Scenarios
 
         public void Execute()
         {
-            _serviceLocator.ExecuteUnitOfWork(() => _serviceLocator.Use<IAccountRepository>(repo => repo.Get(Account.Id).ChangeEmail(NewEmail)));
+            _serviceLocator.ExecuteTransaction(() => _serviceLocator.Use<IAccountRepository>(repo => repo.Get(Account.Id).ChangeEmail(NewEmail)));
         }
     }
 }

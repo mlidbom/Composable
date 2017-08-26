@@ -21,7 +21,7 @@ namespace AccountManagement.Tests.Scenarios
 
         public Account Execute()
         {
-            return _serviceLocator.ExecuteUnitOfWork(
+            return _serviceLocator.ExecuteTransaction(
                 () =>
                 {
                     using(var duplicateAccountChecker = _serviceLocator.Lease<IDuplicateAccountChecker>())

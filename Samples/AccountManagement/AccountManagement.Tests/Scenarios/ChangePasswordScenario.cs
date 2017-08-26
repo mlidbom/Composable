@@ -24,7 +24,7 @@ namespace AccountManagement.Tests.Scenarios
 
         public void Execute()
         {
-            _serviceLocator.ExecuteUnitOfWork(() => _serviceLocator.Use<IAccountRepository>(repo => repo.Get(Account.Id)
+            _serviceLocator.ExecuteTransaction(() => _serviceLocator.Use<IAccountRepository>(repo => repo.Get(Account.Id)
                                                                                               .ChangePassword(oldPassword: OldPassword,
                                                                                                               newPassword: NewPassword)));
         }

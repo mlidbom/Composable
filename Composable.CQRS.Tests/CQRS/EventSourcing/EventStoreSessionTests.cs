@@ -37,7 +37,7 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing
 
 
         protected void UseInTransactionalScope([InstantHandle] Action<IEventStoreUpdater> useSession)
-            => ServiceLocator.ExecuteUnitOfWorkInIsolatedScope(
+            => ServiceLocator.ExecuteTransactionInIsolatedScope(
                 () => useSession(ServiceLocator.Resolve<ITestingEventstoreUpdater>()));
 
         protected void UseInScope([InstantHandle]Action<IEventStoreUpdater> useSession)
@@ -482,7 +482,7 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing
             {
                 using (var clonedServiceLocator = ServiceLocator.Clone())
                 {
-                    clonedServiceLocator.ExecuteUnitOfWorkInIsolatedScope(() =>
+                    clonedServiceLocator.ExecuteTransactionInIsolatedScope(() =>
                                                                           {
                                                                               // ReSharper disable once AccessToDisposedClosure
                                                                               var session = clonedServiceLocator.Resolve<ITestingEventstoreUpdater>();

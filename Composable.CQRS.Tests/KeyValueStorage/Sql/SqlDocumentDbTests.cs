@@ -18,7 +18,7 @@ namespace Composable.CQRS.Tests.KeyValueStorage.Sql
         {
             using(var cloneServiceLocator = ServiceLocator.Clone())
             {
-                cloneServiceLocator.ExecuteUnitOfWorkInIsolatedScope(() => cloneServiceLocator.DocumentDbUpdater()
+                cloneServiceLocator.ExecuteTransactionInIsolatedScope(() => cloneServiceLocator.DocumentDbUpdater()
                                                                                     .Save(new User() {Id = userId}));
             }
         }

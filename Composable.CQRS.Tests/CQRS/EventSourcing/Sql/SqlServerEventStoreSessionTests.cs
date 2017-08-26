@@ -32,7 +32,7 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.Sql
                 UseInScope(session =>
                                         {
                                             ((IEventStoreReader)session).GetHistory(user.Id);
-                                            ServiceLocator.ExecuteUnitOfWork(() =>
+                                            ServiceLocator.ExecuteTransaction(() =>
                                                                              {
                                                                                  readyToStart.Set();
                                                                                  var userToUpdate = session.Get<User>(user.Id);

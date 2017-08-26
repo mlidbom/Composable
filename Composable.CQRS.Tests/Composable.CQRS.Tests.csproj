@@ -41,9 +41,4 @@
     </Reference>
   </ItemGroup>
 
-  
-  <ItemGroup>
-    <Folder Include="UnitOfWorkTests\" />
-  </ItemGroup>
-
 </Project>

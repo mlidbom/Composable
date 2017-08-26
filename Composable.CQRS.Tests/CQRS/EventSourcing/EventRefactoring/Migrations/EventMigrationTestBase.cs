@@ -81,22 +81,22 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
 
             timeSource.UtcNow += 1.Hours(); //Bump clock to ensure that times will be be wrong unless the time from the original events are used..
 
-            serviceLocator.ExecuteUnitOfWorkInIsolatedScope(() => serviceLocator.Resolve<ITestingEventstoreUpdater>()
+            serviceLocator.ExecuteTransactionInIsolatedScope(() => serviceLocator.Resolve<ITestingEventstoreUpdater>()
                                                                                 .Save(initialAggregate));
             migrations.AddRange(startingMigrations);
-            var migratedHistory = serviceLocator.ExecuteUnitOfWorkInIsolatedScope(() => serviceLocator.Resolve<ITestingEventstoreUpdater>()
+            var migratedHistory = serviceLocator.ExecuteTransactionInIsolatedScope(() => serviceLocator.Resolve<ITestingEventstoreUpdater>()
                                                                                                       .Get<TestAggregate>(initialAggregate.Id))
                                                 .History;
 
             AssertStreamsAreIdentical(expected, migratedHistory, "Loaded un-cached aggregate");
 
-            var migratedCachedHistory = serviceLocator.ExecuteUnitOfWorkInIsolatedScope(() => serviceLocator.Resolve<ITestingEventstoreUpdater>()
+            var migratedCachedHistory = serviceLocator.ExecuteTransactionInIsolatedScope(() => serviceLocator.Resolve<ITestingEventstoreUpdater>()
                                                                                                             .Get<TestAggregate>(initialAggregate.Id))
                                                       .History;
             AssertStreamsAreIdentical(expected, migratedCachedHistory, "Loaded cached aggregate");
 
             SafeConsole.WriteLine("  Streaming all events in store");
-            var streamedEvents = serviceLocator.ExecuteUnitOfWorkInIsolatedScope(() => serviceLocator.Resolve<IEventStore>()
+            var streamedEvents = serviceLocator.ExecuteTransactionInIsolatedScope(() => serviceLocator.Resolve<IEventStore>()
                                                                                                      .ListAllEventsForTestingPurposesAbsolutelyNotUsableForARealEventStoreOfAnySize()
                                                                                                      .ToList());
 
@@ -106,7 +106,7 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
             //Make sure that other processes that might be using the same aggregate also keep working as we persist the migrations.
             using(var clonedServiceLocator = serviceLocator.Clone())
             {
-                migratedHistory = clonedServiceLocator.ExecuteUnitOfWorkInIsolatedScope(() => clonedServiceLocator.Resolve<ITestingEventstoreUpdater>()
+                migratedHistory = clonedServiceLocator.ExecuteTransactionInIsolatedScope(() => clonedServiceLocator.Resolve<ITestingEventstoreUpdater>()
                                                                                                                   .Get<TestAggregate>(initialAggregate.Id))
                                                       .History;
                 AssertStreamsAreIdentical(expected, migratedHistory, "Loaded aggregate");
@@ -118,12 +118,12 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
                                   .PersistMigrations();
                 }
 
-                migratedHistory = serviceLocator.ExecuteUnitOfWorkInIsolatedScope(() => serviceLocator.Resolve<ITestingEventstoreUpdater>()
+                migratedHistory = serviceLocator.ExecuteTransactionInIsolatedScope(() => serviceLocator.Resolve<ITestingEventstoreUpdater>()
                                                                                                       .Get<TestAggregate>(initialAggregate.Id))
                                                 .History;
                 AssertStreamsAreIdentical(expected, migratedHistory, "Loaded aggregate");
 
-                migratedHistory = clonedServiceLocator.ExecuteUnitOfWorkInIsolatedScope(() => clonedServiceLocator.Resolve<ITestingEventstoreUpdater>()
+                migratedHistory = clonedServiceLocator.ExecuteTransactionInIsolatedScope(() => clonedServiceLocator.Resolve<ITestingEventstoreUpdater>()
                                                                                                                   .Get<TestAggregate>(initialAggregate.Id))
 
                                                       .History;
@@ -131,7 +131,7 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
             AssertStreamsAreIdentical(expected, migratedHistory, "Loaded aggregate");
 
             SafeConsole.WriteLine("Streaming all events in store");
-            streamedEvents = serviceLocator.ExecuteUnitOfWorkInIsolatedScope(() => serviceLocator.Resolve<IEventStore>()
+            streamedEvents = serviceLocator.ExecuteTransactionInIsolatedScope(() => serviceLocator.Resolve<IEventStore>()
                                                                                                  .ListAllEventsForTestingPurposesAbsolutelyNotUsableForARealEventStoreOfAnySize()
                                                                                                  .ToList());
             AssertStreamsAreIdentical(expectedCompleteEventstoreStream, streamedEvents, "Streaming all events in store");
@@ -139,13 +139,13 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
             SafeConsole.WriteLine("  Disable all migrations so that none are used when reading from the event stores");
             migrations.Clear();
 
-            migratedHistory = serviceLocator.ExecuteUnitOfWorkInIsolatedScope(() => serviceLocator.Resolve<ITestingEventstoreUpdater>()
+            migratedHistory = serviceLocator.ExecuteTransactionInIsolatedScope(() => serviceLocator.Resolve<ITestingEventstoreUpdater>()
                                                                                                   .Get<TestAggregate>(initialAggregate.Id))
                                             .History;
             AssertStreamsAreIdentical(expected, migratedHistory, "loaded aggregate");
 
             SafeConsole.WriteLine("Streaming all events in store");
-            streamedEvents = serviceLocator.ExecuteUnitOfWorkInIsolatedScope(() => serviceLocator.Resolve<IEventStore>()
+            streamedEvents = serviceLocator.ExecuteTransactionInIsolatedScope(() => serviceLocator.Resolve<IEventStore>()
                                                                                                  .ListAllEventsForTestingPurposesAbsolutelyNotUsableForARealEventStoreOfAnySize()
                                                                                                  .ToList());
             AssertStreamsAreIdentical(expectedCompleteEventstoreStream, streamedEvents, "Streaming all events in store");
@@ -155,13 +155,13 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
             using(var clonedServiceLocator2 = serviceLocator.Clone())
             {
 
-                migratedHistory = serviceLocator.ExecuteUnitOfWorkInIsolatedScope(() => clonedServiceLocator2.Resolve<ITestingEventstoreUpdater>()
+                migratedHistory = serviceLocator.ExecuteTransactionInIsolatedScope(() => clonedServiceLocator2.Resolve<ITestingEventstoreUpdater>()
                                                                                                         .Get<TestAggregate>(initialAggregate.Id))
                                                 .History;
                 AssertStreamsAreIdentical(expected, migratedHistory, "Loaded aggregate");
 
                 SafeConsole.WriteLine("Streaming all events in store");
-                streamedEvents = clonedServiceLocator2.ExecuteUnitOfWorkInIsolatedScope(() => clonedServiceLocator2.Resolve<IEventStore>()
+                streamedEvents = clonedServiceLocator2.ExecuteTransactionInIsolatedScope(() => clonedServiceLocator2.Resolve<IEventStore>()
                                                                                                         .ListAllEventsForTestingPurposesAbsolutelyNotUsableForARealEventStoreOfAnySize()
                                                                                                         .ToList());
                 AssertStreamsAreIdentical(expectedCompleteEventstoreStream, streamedEvents, "Streaming all events in store");

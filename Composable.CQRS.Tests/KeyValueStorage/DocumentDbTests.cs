@@ -37,7 +37,7 @@ namespace Composable.CQRS.Tests.KeyValueStorage
 
         void UseInTransactionalScope([InstantHandle] Action<ITestingDocumentDbReader, ITestingDocumentDbUpdater> useSession)
         {
-            ServiceLocator.ExecuteUnitOfWorkInIsolatedScope(() => useSession(ServiceLocator.DocumentDbReader(), ServiceLocator.DocumentDbUpdater()));
+            ServiceLocator.ExecuteTransactionInIsolatedScope(() => useSession(ServiceLocator.DocumentDbReader(), ServiceLocator.DocumentDbUpdater()));
         }
 
         internal void UseInScope([InstantHandle]Action<ITestingDocumentDbReader> useSession)
@@ -233,7 +233,7 @@ namespace Composable.CQRS.Tests.KeyValueStorage
         }
 
         [Test]
-        public void AddingRemovingAndAddingObjectInUnitOfWorkResultsInNoObjectBeingSaved()
+        public void AddingRemovingAndAddingObjectInTransactionResultsInNoObjectBeingSaved()
         {
             var user = new User { Id = Guid.NewGuid() };
 
@@ -343,7 +343,7 @@ namespace Composable.CQRS.Tests.KeyValueStorage
         }
 
         [Test]
-        public void LoadingRemovingAndAddingObjectInUnitOfWorkResultsInObjectBeingSaved()
+        public void LoadingRemovingAndAddingObjectInTransactionResultsInObjectBeingSaved()
         {
             var user = new User { Id = Guid.NewGuid() };
 

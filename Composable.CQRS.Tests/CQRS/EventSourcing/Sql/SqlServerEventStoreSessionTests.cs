@@ -6,6 +6,7 @@ using Composable.DependencyInjection;
 using Composable.Persistence.EventStore;
 using Composable.System.Linq;
 using Composable.Testing;
+using Composable.Tests.Testing;
 using FluentAssertions;
 using NUnit.Framework;
 
@@ -38,13 +39,13 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.Sql
                                                                                  var userToUpdate = session.Get<User>(user.Id);
                                                                                  userToUpdate.ChangeEmail($"newemail_{userToUpdate.Version}@somewhere.not");
                                                                                  signalReadyToCompleteTransaction.Set();
-                                                                                 waitToCompleteTransaction.WaitOne();
+                                                                                 waitToCompleteTransaction.AssertWaitOneDoesNotTimeout(20.Seconds());
                                                                              });
                                         });
             }
 
             var readyToComplete = new ManualResetEvent(false);
-            var threads = 2;
+            var threads = 8;
             var resetEvents = 1.Through(threads)
                                .Select(_ => new
                                             {
@@ -54,8 +55,8 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.Sql
                                .ToList();
             var tasks = resetEvents.Select(resetEvent => Task.Factory.StartNew(() => UpdateEmail(resetEvent.AllowedToComplete, resetEvent.ReadyToStart, readyToComplete))).ToArray();
 
-            resetEvents.ForEach(@this => @this.ReadyToStart.WaitOne());
-            readyToComplete.WaitOne();
+            resetEvents.AsParallel().ForEach(@this => @this.ReadyToStart.AssertWaitOneDoesNotTimeout(20.Seconds()));
+            readyToComplete.AssertWaitOneDoesNotTimeout(5.Seconds());
             Thread.Sleep(50);
             resetEvents.ForEach(@this => @this.AllowedToComplete.Set());
 
@@ -90,7 +91,7 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.Sql
                                             var userToUpdate = session.Get<User>(user.Id);
                                             userToUpdate.ChangeEmail($"newemail_{userToUpdate.Version}@somewhere.not");
                                             signalReadyToCompleteTransaction.Set();
-                                            waitToCompleteTransaction.WaitOne();
+                                            waitToCompleteTransaction.AssertWaitOneDoesNotTimeout(5.Seconds());
                                         });
             }
 
@@ -105,7 +106,7 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.Sql
                                .ToList();
             var tasks = resetEvents.Select(resetEvent => Task.Factory.StartNew(() => UpdateEmail(resetEvent.AllowedToComplete, resetEvent.ReadyToStart, readyToComplete))).ToArray();
 
-            resetEvents.ForEach(@this => @this.ReadyToStart.WaitOne());
+            resetEvents.ForEach(@this => @this.ReadyToStart.AssertWaitOneDoesNotTimeout(5.Seconds()));
             readyToComplete.WaitOne();
             Thread.Sleep(50);
             resetEvents.ForEach(@this => @this.AllowedToComplete.Set());

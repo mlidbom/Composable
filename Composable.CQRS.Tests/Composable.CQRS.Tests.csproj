@@ -19,6 +19,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Composable.ExternalDependencies\Composable.ExternalDependencies.csproj" />
+    <ProjectReference Include="..\Composable.System.Tests\Composable.Core.Tests.csproj" />
     <ProjectReference Include="..\Composable.System\Composable.Core.csproj" />
     <ProjectReference Include="..\Composable.Testing\Composable.Testing.csproj" />
     <ProjectReference Include="..\NSpec.NUnit\NSpec.NUnit.csproj" />

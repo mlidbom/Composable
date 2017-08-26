@@ -1,6 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
+using System.Transactions;
+using Composable.Contracts;
 using Composable.DDD;
 using Composable.Logging;
 using Composable.System.Linq;
@@ -10,7 +13,7 @@ using Composable.UnitsOfWork;
 namespace Composable.Persistence.DocumentDb
 {
     // ReSharper disable once ClassWithVirtualMembersNeverInherited.Global
-    partial class DocumentDbSession : IDocumentDbSession, IUnitOfWorkParticipant
+    partial class DocumentDbSession : IDocumentDbSession, IEnlistmentNotification
     {
         [ThreadStatic]
         internal static bool UseUpdateLock;
@@ -34,11 +37,12 @@ namespace Composable.Persistence.DocumentDb
 
         bool TryGetInternal<TValue>(object key, Type documentType, out TValue value)
         {
-            if(documentType.IsInterface)
+            _usageGuard.AssertNoContextChangeOccurred(this);
+            EnsureParticipatingInTransaction();
+            if (documentType.IsInterface)
             {
                 throw new ArgumentException("You cannot query by id for an interface type. There is no guarantee of uniqueness");
             }
-            _usageGuard.AssertNoContextChangeOccurred(this);
 
             if (_idMap.TryGet(key, out value) && documentType.IsInstanceOfType(value))
             {
@@ -76,8 +80,7 @@ namespace Composable.Persistence.DocumentDb
 
         public virtual TValue GetForUpdate<TValue>(object key)
         {
-            _usageGuard.AssertNoContextChangeOccurred(this);
-            using(new UpdateLock())
+            using (new UpdateLock())
             {
                 return Get<TValue>(key);
             }
@@ -116,6 +119,7 @@ namespace Composable.Persistence.DocumentDb
         public virtual TValue Get<TValue>(object key)
         {
             _usageGuard.AssertNoContextChangeOccurred(this);
+            EnsureParticipatingInTransaction();
             TValue value;
             if(TryGet(key, out value))
             {
@@ -128,6 +132,7 @@ namespace Composable.Persistence.DocumentDb
         public virtual void Save<TValue>(object id, TValue value)
         {
             _usageGuard.AssertNoContextChangeOccurred(this);
+            EnsureParticipatingInTransaction();
 
             TValue ignored;
             if (TryGetInternal(id, value.GetType(), out ignored))
@@ -139,19 +144,15 @@ namespace Composable.Persistence.DocumentDb
             documentItem.Save(value);
 
             _idMap.Add(id, value);
-            if(_unitOfWork == null)
-            {
-                documentItem.CommitChangesToBackingStore();
-            }else
-            {
-                Log.DebugFormat("{0} postponed persisting object from call to Save since participating in a unit of work", _id);
-            }
+            documentItem.CommitChangesToBackingStore();
         }
 
         public virtual void Save<TEntity>(TEntity entity) where TEntity : IHasPersistentIdentity<Guid>
         {
             _usageGuard.AssertNoContextChangeOccurred(this);
-            if(entity.Id.Equals(Guid.Empty))
+            EnsureParticipatingInTransaction();
+
+            if (entity.Id.Equals(Guid.Empty))
             {
                 throw new DocumentIdIsEmptyGuidException();
             }
@@ -161,12 +162,16 @@ namespace Composable.Persistence.DocumentDb
         public virtual void Delete<TEntity>(TEntity entity) where TEntity : IHasPersistentIdentity<Guid>
         {
             _usageGuard.AssertNoContextChangeOccurred(this);
+            EnsureParticipatingInTransaction();
+
             Delete<TEntity>(entity.Id);
         }
 
         public virtual void Delete<T>(object id)
         {
             _usageGuard.AssertNoContextChangeOccurred(this);
+            EnsureParticipatingInTransaction();
+
             T ignored;
             if(!TryGet(id, out ignored))
             {
@@ -177,20 +182,7 @@ namespace Composable.Persistence.DocumentDb
             documentItem.Delete();
 
             _idMap.Remove<T>(id);
-            if(_unitOfWork == null)
-            {
-                documentItem.CommitChangesToBackingStore();
-            }
-            else
-            {
-                Log.DebugFormat("{0} postponed deleting object since participating in a unit of work", _id);
-            }
-        }
-
-        void InternalSaveChanges()
-        {
-            Log.DebugFormat("{0} saving changes. Unit of work: {1}",_id, _unitOfWork ?? (object)"null");
-            _handledDocuments.ForEach(p => p.Value.CommitChangesToBackingStore());
+            documentItem.CommitChangesToBackingStore();
         }
 
         public virtual IEnumerable<T> GetAll<T>() where T : IHasPersistentIdentity<Guid>
@@ -213,28 +205,51 @@ namespace Composable.Persistence.DocumentDb
 
         public override string ToString() => $"{_id}: {GetType().FullName}";
 
-        IUnitOfWork _unitOfWork;
         readonly Guid _id = Guid.NewGuid();
         readonly Dictionary<Type, Dictionary<string, string>> _persistentValues = new Dictionary<Type, Dictionary<string, string>>();
 
 
-        IUnitOfWork IUnitOfWorkParticipant.UnitOfWork => _unitOfWork;
-        Guid IUnitOfWorkParticipant.Id => _id;
-
-        void IUnitOfWorkParticipant.Join(IUnitOfWork unit)
+        Transaction _participatingIn = null;
+        void EnsureParticipatingInTransaction()
         {
-            _unitOfWork = unit;
+            var ambientTransaction = Transaction.Current;
+            if(ambientTransaction != null)
+            {
+                if(_participatingIn == null)
+                {
+                    _participatingIn = ambientTransaction;
+                    ambientTransaction.EnlistVolatile(this, EnlistmentOptions.EnlistDuringPrepareRequired);
+                }
+                else if(_participatingIn != ambientTransaction)
+                {
+                    throw new Exception($"Somehow switched to a new transaction. Original: {_participatingIn.TransactionInformation.LocalIdentifier} new: {ambientTransaction.TransactionInformation.LocalIdentifier}");
+                }
+            }
+        }
+        public void Prepare(PreparingEnlistment preparingEnlistment)
+        {
+            using(var transactionscope = new TransactionScope(_participatingIn))
+            {
+                Log.Debug($"{_id} saving changes. Unit of work: {1}");
+                _handledDocuments.ForEach(p => p.Value.CommitChangesToBackingStore());
+                transactionscope.Complete();
+            }
+            preparingEnlistment.Prepared();
         }
 
-        void IUnitOfWorkParticipant.Commit(IUnitOfWork unit)
+        public void Commit(Enlistment enlistment)
         {
-            InternalSaveChanges();
-            _unitOfWork = null;
+            _usageGuard.AssertNoContextChangeOccurred(this);
+            enlistment.Done();
+            _participatingIn = null;
         }
 
-        void IUnitOfWorkParticipant.Rollback(IUnitOfWork unit)
+        public void Rollback(Enlistment enlistment)
         {
-            _unitOfWork = null;
+            _usageGuard.AssertNoContextChangeOccurred(this);
+            enlistment.Done();
         }
+
+        public void InDoubt(Enlistment enlistment) { throw new NotImplementedException(); }
     }
 }

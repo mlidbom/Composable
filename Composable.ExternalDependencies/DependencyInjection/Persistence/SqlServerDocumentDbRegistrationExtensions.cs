@@ -66,7 +66,7 @@ namespace Composable.DependencyInjection.Persistence
             }
 
 
-            @this.Register(Component.For<IDocumentDbSession<TUpdater, TReader, TBulkReader>, IUnitOfWorkParticipant>()
+            @this.Register(Component.For<IDocumentDbSession<TUpdater, TReader, TBulkReader>>()
                                      .ImplementedBy<DocumentDbSession<TUpdater, TReader, TBulkReader>>()
                                      .LifestyleScoped());
             @this.Register(Component.For<TUpdater>(Seq.OfTypes<TUpdater, TReader, TBulkReader>())

@@ -6,7 +6,7 @@ namespace AccountManagement.UI.QueryModels.ContainerInstallers
 {
     static class AccountManagementQueryModelReaderInstaller
     {
-        internal static void Install(IDependencyInjectionContainer container)
+        internal static void SetupContainer(IDependencyInjectionContainer container)
         {
             container.Register(
                 Component.For<IAccountManagementQueryModelsReader>()

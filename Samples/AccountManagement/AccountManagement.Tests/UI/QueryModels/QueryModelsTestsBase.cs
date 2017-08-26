@@ -4,6 +4,7 @@ using AccountManagement.UI.QueryModels;
 using AccountManagement.UI.QueryModels.DocumentDB.Updaters;
 using AccountManagement.UI.QueryModels.Services;
 using Composable.DependencyInjection;
+using Composable.Messaging.Buses;
 using NUnit.Framework;
 
 namespace AccountManagement.Tests.UI.QueryModels
@@ -26,10 +27,17 @@ namespace AccountManagement.Tests.UI.QueryModels
 
             ServiceLocator = DependencyInjectionContainer.CreateServiceLocatorForTesting(container =>
                                                                                    {
-                                                                                       AccountManagementDomainBootstrapper.SetupForTesting(container);
-                                                                                       AccountManagementUiQueryModelsBootstrapper.BootstrapForTesting(container);
-                                                                                       AccountManagementUiQueryModelsDocumentDbUpdatersBootstrapper.BootstrapForTesting(container);
+                                                                                       AccountManagementDomainBootstrapper.SetupContainer(container);
+                                                                                       AccountManagementUiQueryModelsBootstrapper.SetupContainer(container);
+                                                                                       AccountManagementUiQueryModelsDocumentDbUpdatersBootstrapper.SetupContainer(container);
                                                                                    });
+
+            ServiceLocator.Use<IMessageHandlerRegistrar>(registrar =>
+                                                         {
+                                                             AccountManagementDomainBootstrapper.RegisterHandlers(registrar, ServiceLocator);
+                                                             AccountManagementUiQueryModelsBootstrapper.RegisterHandlers(registrar, ServiceLocator);
+                                                             AccountManagementUiQueryModelsDocumentDbUpdatersBootstrapper.RegisterHandlers(registrar, ServiceLocator);
+                                                         });
 
 
 

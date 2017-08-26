@@ -10,15 +10,16 @@ namespace Composable.DependencyInjection.SimpleInjectorImplementation
     {
         readonly Container _container;
         readonly List<ComponentRegistration> _registeredComponents = new List<ComponentRegistration>();
-        internal SimpleInjectorDependencyInjectionContainer() => _container = new Container();
+        internal SimpleInjectorDependencyInjectionContainer(IRunMode runMode) => RunMode = runMode;
 
+        public IRunMode RunMode { get; }
         public void Register(params ComponentRegistration[] registrations)
         {
             _registeredComponents.AddRange(registrations);
 
             foreach(var componentRegistration in registrations)
             {
-                SimpleInjector.Lifestyle lifestyle = null;
+                SimpleInjector.Lifestyle lifestyle;
                 switch (componentRegistration.Lifestyle)
                 {
                     case Lifestyle.Singleton:

@@ -8,7 +8,7 @@ namespace AccountManagement.Domain.ContainerInstallers
     {
         internal const string ConnectionStringName = "AccountManagement";
 
-        internal static void Install(IDependencyInjectionContainer container)
+        internal static void SetupContainer(IDependencyInjectionContainer container)
         {
             container.RegisterSqlServerEventStore<
                 IAccountManagementEventStoreUpdater,

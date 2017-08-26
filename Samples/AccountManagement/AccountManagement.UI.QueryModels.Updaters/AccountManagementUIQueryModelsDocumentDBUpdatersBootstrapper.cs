@@ -5,13 +5,19 @@ namespace AccountManagement.UI.QueryModels.DocumentDB.Updaters
 {
     public static class AccountManagementUiQueryModelsDocumentDbUpdatersBootstrapper
     {
-        public static void BootstrapForTesting(IDependencyInjectionContainer container)
+        public static void SetupContainer(IDependencyInjectionContainer container)
         {
-            container.CreateServiceLocator()
+
+            ContainerInstallers.EventHandlersInstaller.Install(container);
+
+            var serviceLocator = container.CreateServiceLocator();
+            serviceLocator
                      .Use<IMessageHandlerRegistrar>(registrar =>
                                                     {
-                                                        ContainerInstallers.EventHandlersInstaller.Install(registrar);
+                                                        ContainerInstallers.EventHandlersInstaller.Install(registrar, serviceLocator);
                                                     });
         }
+
+        public static void RegisterHandlers(IMessageHandlerRegistrar registrar, IServiceLocator serviceLocator) {}
     }
 }

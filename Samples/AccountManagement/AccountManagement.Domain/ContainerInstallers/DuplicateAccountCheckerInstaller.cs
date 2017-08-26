@@ -5,7 +5,7 @@ namespace AccountManagement.Domain.ContainerInstallers
 {
     static class DuplicateAccountCheckerInstaller
     {
-        internal static void Install(IDependencyInjectionContainer container)
+        internal static void SetupContainer(IDependencyInjectionContainer container)
         {
             container.Register(
                 Component.For<IDuplicateAccountChecker>()

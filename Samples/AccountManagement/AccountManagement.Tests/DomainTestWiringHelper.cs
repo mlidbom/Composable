@@ -1,5 +1,6 @@
 ﻿using AccountManagement.Domain;
 using Composable.DependencyInjection;
+using Composable.Messaging.Buses;
 
 namespace AccountManagement.Tests
 {
@@ -7,7 +8,11 @@ namespace AccountManagement.Tests
     {
         public static IServiceLocator CreateServiceLocator()
         {
-            return DependencyInjectionContainer.CreateServiceLocatorForTesting(AccountManagementDomainBootstrapper.SetupForTesting);
+            var locator =  DependencyInjectionContainer.CreateServiceLocatorForTesting(AccountManagementDomainBootstrapper.SetupContainer);
+
+            locator.Use<IMessageHandlerRegistrar>(registrar => AccountManagementDomainBootstrapper.RegisterHandlers(registrar, locator));
+
+            return locator;
         }
     }
 }

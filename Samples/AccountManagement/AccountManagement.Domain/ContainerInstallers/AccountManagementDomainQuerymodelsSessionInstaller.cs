@@ -6,7 +6,7 @@ namespace AccountManagement.Domain.ContainerInstallers
 {
     static class AccountManagementDomainQuerymodelsSessionInstaller
     {
-        internal static void Install(IDependencyInjectionContainer container)
+        internal static void SetupContainer(IDependencyInjectionContainer container)
         {
             container
                 .RegisterSqlServerDocumentDb<

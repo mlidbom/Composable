@@ -5,7 +5,7 @@ namespace AccountManagement.UI.QueryModels.ContainerInstallers
 {
     static class QueryModelGeneratorsInstaller
     {
-        internal static void Install(IDependencyInjectionContainer container)
+        internal static void SetupContainer(IDependencyInjectionContainer container)
         {
             container.Register(Component.For<AccountQueryModelGenerator>()
                 .ImplementedBy<AccountQueryModelGenerator>()

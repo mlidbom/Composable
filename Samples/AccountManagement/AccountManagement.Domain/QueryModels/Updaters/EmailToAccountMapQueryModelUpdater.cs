@@ -1,12 +1,11 @@
 ﻿using AccountManagement.Domain.Events;
 using AccountManagement.Domain.Services;
-using Composable.Messaging;
 using JetBrains.Annotations;
 
 namespace AccountManagement.Domain.QueryModels.Updaters
 {
     [UsedImplicitly]
-    class EmailToAccountMapQueryModelUpdater : IEventSubscriber<AccountEvent.PropertyUpdated.Email>
+    class EmailToAccountMapQueryModelUpdater
     {
         readonly IAccountManagementDomainDocumentDbUpdater _querymodels;
         readonly IAccountRepository _repository;

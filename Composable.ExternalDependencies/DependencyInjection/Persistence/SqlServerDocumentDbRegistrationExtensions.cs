@@ -50,7 +50,7 @@ namespace Composable.DependencyInjection.Persistence
 
             GeneratedLowLevelInterfaceInspector.InspectInterfaces(Seq.OfTypes<TUpdater, TReader, TBulkReader>());
 
-            if(@this.RunMode().IsTesting && @this.RunMode().Mode == TestingMode.InMemory)
+            if(@this.RunMode.IsTesting && @this.RunMode.Mode == TestingMode.InMemory)
             {
                 @this.Register(Component.For<IDocumentDb<TUpdater, TReader, TBulkReader>>()
                                          .ImplementedBy<InMemoryDocumentDb<TUpdater, TReader, TBulkReader>>()

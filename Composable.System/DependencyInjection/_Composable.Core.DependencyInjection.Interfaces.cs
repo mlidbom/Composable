@@ -27,12 +27,13 @@ namespace Composable.DependencyInjection
 
     public interface IDependencyInjectionContainer : IDisposable
     {
+        IRunMode RunMode { get; }
         void Register(params ComponentRegistration[] registrations);
         IEnumerable<ComponentRegistration> RegisteredComponents();
         IServiceLocator CreateServiceLocator();
     }
 
-    interface IRunMode
+    public interface IRunMode
     {
         bool IsTesting { get; }
         TestingMode Mode { get; }
@@ -43,6 +44,8 @@ namespace Composable.DependencyInjection
         readonly bool _isTesting;
         bool IRunMode.IsTesting => _isTesting;
         public TestingMode Mode { get; }
+
+        public static readonly IRunMode Production = new RunMode(isTesting:false, mode: TestingMode.DatabasePool);
 
         public RunMode(bool isTesting, TestingMode mode)
         {

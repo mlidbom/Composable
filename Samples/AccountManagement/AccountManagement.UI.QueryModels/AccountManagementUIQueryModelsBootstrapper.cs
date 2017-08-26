@@ -1,14 +1,19 @@
 ﻿using Composable.DependencyInjection;
+using Composable.Messaging.Buses;
 
 namespace AccountManagement.UI.QueryModels
 {
     public static class AccountManagementUiQueryModelsBootstrapper
     {
-        public static void BootstrapForTesting(IDependencyInjectionContainer container)
+        public static void SetupContainer(IDependencyInjectionContainer container)
         {
-            ContainerInstallers.AccountManagementDocumentDbReaderInstaller.Install(container);
-            ContainerInstallers.AccountManagementQueryModelReaderInstaller.Install(container);
-            ContainerInstallers.QueryModelGeneratorsInstaller.Install(container);
+            ContainerInstallers.AccountManagementDocumentDbReaderInstaller.SetupContainer(container);
+            ContainerInstallers.AccountManagementQueryModelReaderInstaller.SetupContainer(container);
+            ContainerInstallers.QueryModelGeneratorsInstaller.SetupContainer(container);
+        }
+
+        public static void RegisterHandlers(IMessageHandlerRegistrar registrar, IServiceLocator serviceLocator)
+        {
         }
     }
 }

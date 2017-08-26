@@ -6,7 +6,7 @@ using JetBrains.Annotations;
 namespace AccountManagement.UI.QueryModels.DocumentDB.Updaters
 {
     [UsedImplicitly]
-    class EmailToAccountMapQueryModelUpdater : IEventSubscriber<AccountEvent.PropertyUpdated.Email>
+    class EmailToAccountMapQueryModelUpdater
     {
         readonly IAccountManagementUiDocumentDbUpdater _documentDbModels;
         readonly IAccountManagementQueryModelsReader _generatedModels;

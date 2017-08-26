@@ -1,4 +1,5 @@
 ﻿using System;
+using Composable.DependencyInjection.SimpleInjectorImplementation;
 using Composable.DependencyInjection.Testing;
 using JetBrains.Annotations;
 
@@ -20,6 +21,6 @@ namespace Composable.DependencyInjection
             return @this.CreateServiceLocator();
         }
 
-        internal static IDependencyInjectionContainer Create(IRunMode runMode = null) => new Windsor.WindsorDependencyInjectionContainer(runMode ?? DependencyInjection.RunMode.Production);
+        internal static IDependencyInjectionContainer Create(IRunMode runMode = null) => new SimpleInjectorDependencyInjectionContainer(runMode ?? DependencyInjection.RunMode.Production);
     }
 }

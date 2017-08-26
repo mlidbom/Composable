@@ -155,7 +155,7 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
             using(var clonedServiceLocator2 = serviceLocator.Clone())
             {
 
-                migratedHistory = serviceLocator.ExecuteTransactionInIsolatedScope(() => clonedServiceLocator2.Resolve<ITestingEventstoreUpdater>()
+                migratedHistory = clonedServiceLocator2.ExecuteTransactionInIsolatedScope(() => clonedServiceLocator2.Resolve<ITestingEventstoreUpdater>()
                                                                                                         .Get<TestAggregate>(initialAggregate.Id))
                                                 .History;
                 AssertStreamsAreIdentical(expected, migratedHistory, "Loaded aggregate");

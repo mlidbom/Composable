@@ -10,7 +10,12 @@ namespace Composable.DependencyInjection.SimpleInjectorImplementation
     {
         readonly Container _container;
         readonly List<ComponentRegistration> _registeredComponents = new List<ComponentRegistration>();
-        internal SimpleInjectorDependencyInjectionContainer(IRunMode runMode) => RunMode = runMode;
+        internal SimpleInjectorDependencyInjectionContainer(IRunMode runMode)
+        {
+            RunMode = runMode;
+            _container = new Container();
+            _container.Options.DefaultScopedLifestyle = new AsyncScopedLifestyle();
+        }
 
         public IRunMode RunMode { get; }
         public void Register(params ComponentRegistration[] registrations)
@@ -36,7 +41,7 @@ namespace Composable.DependencyInjection.SimpleInjectorImplementation
                 {
                     foreach(var serviceType in componentRegistration.ServiceTypes)
                     {
-                        _container.Register(serviceType, () => componentRegistration.InstantiationSpec.Instance, lifestyle);
+                        _container.RegisterSingleton(serviceType, componentRegistration.InstantiationSpec.Instance);
                     }
                 } else if(componentRegistration.InstantiationSpec.ImplementationType != null)
                 {
@@ -46,9 +51,9 @@ namespace Composable.DependencyInjection.SimpleInjectorImplementation
                     }
                 } else if(componentRegistration.InstantiationSpec.FactoryMethod != null)
                 {
-                    foreach (var serviceType in componentRegistration.ServiceTypes)
+                    foreach (var someCompletelyOtherName in componentRegistration.ServiceTypes)
                     {
-                        _container.Register(serviceType, () => componentRegistration.InstantiationSpec.FactoryMethod(this), lifestyle);
+                        _container.Register(someCompletelyOtherName, () => componentRegistration.InstantiationSpec.FactoryMethod(this), lifestyle);
                     }
                 } else
                 {

@@ -141,7 +141,7 @@ namespace Composable.DependencyInjection.Persistence
                                         .LifestyleScoped());
             }
 
-            @this.Register(Component.For<IEventStoreUpdater<TSessionInterface, TReaderInterface>, IUnitOfWorkParticipant>()
+            @this.Register(Component.For<IEventStoreUpdater<TSessionInterface, TReaderInterface>>()
                                     .ImplementedBy<EventStoreUpdater<TSessionInterface, TReaderInterface>>()
                                     .LifestyleScoped());
 

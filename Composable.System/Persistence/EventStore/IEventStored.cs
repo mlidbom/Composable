@@ -12,5 +12,6 @@ namespace Composable.Persistence.EventStore
         void AcceptChanges();
         void LoadFromHistory(IEnumerable<IAggregateRootEvent> history);
         void SetTimeSource(IUtcTimeTimeSource timeSource);
+        IObservable<IAggregateRootEvent> EventStream { get; }
     }
 }

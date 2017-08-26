@@ -6,6 +6,7 @@ using Composable.DDD;
 using Composable.GenericAbstractions.Time;
 using Composable.Messaging.Events;
 using Composable.System.Linq;
+using Composable.System.Reactive;
 
 namespace Composable.Persistence.EventStore.AggregateRoots
 {
@@ -20,6 +21,9 @@ namespace Composable.Persistence.EventStore.AggregateRoots
 
         int _insertedVersionToAggregateVersionOffset = 0;
 
+        SimpleObservable<TAggregateRootBaseEventClass> _simpleObservable = new SimpleObservable<TAggregateRootBaseEventClass>();
+        public IObservable<IAggregateRootEvent> EventStream => _simpleObservable;
+
         //Yes empty. Id should be assigned by an action and it should be obvious that the aggregate in invalid until that happens
         protected AggregateRoot(IUtcTimeTimeSource timeSource) : base(Guid.Empty)
         {
@@ -31,7 +35,7 @@ namespace Composable.Persistence.EventStore.AggregateRoots
 
         readonly IList<IAggregateRootEvent> _unCommittedEvents = new List<IAggregateRootEvent>();
         readonly CallMatchingHandlersInRegistrationOrderEventDispatcher<TAggregateRootBaseEventInterface> _eventDispatcher = new CallMatchingHandlersInRegistrationOrderEventDispatcher<TAggregateRootBaseEventInterface>();
-        readonly CallMatchingHandlersInRegistrationOrderEventDispatcher<TAggregateRootBaseEventInterface> _eventHandlersEventDispatcher = new CallMatchingHandlersInRegistrationOrderEventDispatcher<TAggregateRootBaseEventInterface>();
+        readonly CallMatchingHandlersInRegistrationOrderEventDispatcher<TAggregateRootBaseEventInterface> _eventHandlersEventDispatcher = new CallMatchingHandlersInRegistrationOrderEventDispatcher<TAggregateRootBaseEventInterface>();        
 
         protected void RaiseEvent(TAggregateRootBaseEventClass theEvent)
         {
@@ -60,6 +64,9 @@ namespace Composable.Persistence.EventStore.AggregateRoots
             ApplyEvent(theEvent);
             AssertInvariantsAreMet();
             _unCommittedEvents.Add(theEvent);
+
+            _simpleObservable.OnNext(theEvent);
+
             _eventHandlersEventDispatcher.Dispatch(theEvent);
         }
 

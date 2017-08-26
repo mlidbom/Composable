@@ -439,28 +439,28 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing
         }
 
         [Test]
-        public void EventsArePublishedOnSaveChangesAndThisInteractsWithUnitOfWorkParticipations()
+        public void EventsArePublishedImmediatelyOnAggregateChanges()
         {
             var users = 1.Through(9).Select(i => { var u = new User(); u.Register(i + "@test.com", "abcd", Guid.NewGuid()); u.ChangeEmail("new" + i + "@test.com"); return u; }).ToList();
 
             UseInTransactionalScope(session =>
                                     {
                                         users.Take(3).ForEach(session.Save);
-                                        Assert.That(MessageSpy.DispatchedMessages.Count, Is.EqualTo(0));
+                                        Assert.That(MessageSpy.DispatchedMessages.Count, Is.EqualTo(6));
                                     });
 
             UseInTransactionalScope(session =>
                                     {
                                         Assert.That(MessageSpy.DispatchedMessages.Count, Is.EqualTo(6));
                                         users.Skip(3).Take(3).ForEach(session.Save);
-                                        Assert.That(MessageSpy.DispatchedMessages.Count, Is.EqualTo(6));
+                                        Assert.That(MessageSpy.DispatchedMessages.Count, Is.EqualTo(12));
                                     });
 
             UseInTransactionalScope(session =>
                                     {
                                         Assert.That(MessageSpy.DispatchedMessages.Count, Is.EqualTo(12));
                                         users.Skip(6).Take(3).ForEach(session.Save);
-                                        Assert.That(MessageSpy.DispatchedMessages.Count, Is.EqualTo(12));
+                                        Assert.That(MessageSpy.DispatchedMessages.Count, Is.EqualTo(18));
                                     });
 
             UseInTransactionalScope(session =>

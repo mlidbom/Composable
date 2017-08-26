@@ -6,24 +6,22 @@ using Composable.GenericAbstractions.Time;
 using Composable.Logging;
 using Composable.Messaging.Buses;
 using Composable.System.Linq;
+using Composable.System.Reactive;
 using Composable.SystemExtensions.Threading;
-using Composable.UnitsOfWork;
 
 namespace Composable.Persistence.EventStore
 {
     //Review:mlidbo: Detect and warn about using the updater within multiple transactions. That it is likely to result in optimistic concurrency exceptions.
     class EventStoreUpdater :
         IEventStoreReader,
-        IEventStoreUpdater,
-        IUnitOfWorkParticipantWhoseCommitMayTriggerChangesInOtherParticipantsMustImplementIdemponentCommit
+        IEventStoreUpdater
     {
         readonly IServiceBus _bus;
         readonly IEventStore _store;
         static readonly ILogger Log = Logger.For<EventStoreUpdater>();
         readonly IDictionary<Guid, IEventStored> _idMap = new Dictionary<Guid, IEventStored>();
-        readonly HashSet<Guid> _publishedEvents = new HashSet<Guid>();
         readonly ISingleContextUseGuard _usageGuard;
-        readonly List<Guid> _pendingDeletes = new List<Guid>();
+        readonly List<IDisposable> _disposableResources = new List<IDisposable>();
         IUtcTimeTimeSource TimeSource { get; set; }
 
         public EventStoreUpdater(IServiceBus bus, IEventStore store, ISingleContextUseGuard usageGuard, IUtcTimeTimeSource timeSource)
@@ -81,66 +79,39 @@ namespace Composable.Persistence.EventStore
             {
                 throw new AttemptToSaveEmptyAggregate(aggregate);
             }
+
+            var events = aggregate.GetChanges().ToList();
+            _store.SaveEvents(events);
+            events.ForEach(_bus.Publish);
+            aggregate.AcceptChanges();
             _idMap.Add(aggregate.Id, aggregate);
+
+            _disposableResources.Add(aggregate.EventStream.Subscribe(OnAggregateEvent));
+        }
+
+        void OnAggregateEvent(IAggregateRootEvent @event)
+        {
+            Contract.Assert.That(_idMap.ContainsKey(@event.AggregateRootId), "Got event from aggregate that is not tracked!");
+            _store.SaveEvents(new[] { @event });
+            _bus.Publish(@event);
         }
 
         public void Delete(Guid aggregateId)
         {
-            _usageGuard.AssertNoContextChangeOccurred(this);
-            _pendingDeletes.Add(aggregateId);
+            _store.DeleteAggregate(aggregateId);
+            _idMap.Remove(aggregateId);
         }
 
         public void Dispose()
         {
             _usageGuard.AssertNoContextChangeOccurred(this);
+            _disposableResources.ForEach(resource => resource.Dispose());
             _store.Dispose();
         }
 
 
         public override string ToString() => $"{_id}: {GetType().FullName}";
-
-        IUnitOfWork _unitOfWork;
         readonly Guid _id = Guid.NewGuid();
-
-        IUnitOfWork IUnitOfWorkParticipant.UnitOfWork => _unitOfWork;
-        Guid IUnitOfWorkParticipant.Id => _id;
-
-        void IUnitOfWorkParticipant.Join(IUnitOfWork unit)
-        {
-            _usageGuard.AssertNoContextChangeOccurred(this);
-            if (_unitOfWork != null)
-            {
-                throw new ReuseOfEventStoreSessionException(_unitOfWork, unit);
-            }
-            _unitOfWork = unit;
-        }
-
-        void IUnitOfWorkParticipant.Commit(IUnitOfWork unit)
-        {
-            if (unit != _unitOfWork)
-            {
-                throw new ParticipantAccessedByWrongUnitOfWork();
-            }
-            _usageGuard.AssertNoContextChangeOccurred(this);
-            ((IUnitOfWorkParticipantWhoseCommitMayTriggerChangesInOtherParticipantsMustImplementIdemponentCommit)this).CommitAndReportIfCommitMayHaveCausedChangesInOtherParticipantsExpectAnotherCommitSoDoNotLeaveUnitOfWork();
-            _unitOfWork = null;
-        }
-
-        void IUnitOfWorkParticipant.Rollback(IUnitOfWork unit)
-        {
-            if (unit != _unitOfWork)
-            {
-                throw new ParticipantAccessedByWrongUnitOfWork();
-            }
-            _usageGuard.AssertNoContextChangeOccurred(this);
-            _unitOfWork = null;
-        }
-
-        bool IUnitOfWorkParticipantWhoseCommitMayTriggerChangesInOtherParticipantsMustImplementIdemponentCommit.CommitAndReportIfCommitMayHaveCausedChangesInOtherParticipantsExpectAnotherCommitSoDoNotLeaveUnitOfWork()
-        {
-            _usageGuard.AssertNoContextChangeOccurred(this);
-            return InternalSaveChanges();
-        }
 
         public IEnumerable<IAggregateRootEvent> GetHistory(Guid aggregateId) => GetHistoryInternal(aggregateId, takeWriteLock:false);
 
@@ -163,12 +134,6 @@ namespace Composable.Persistence.EventStore
 
         bool DoTryGet<TAggregate>(Guid aggregateId, out TAggregate aggregate) where TAggregate : IEventStored
         {
-            if (_pendingDeletes.Contains(aggregateId))
-            {
-                aggregate = default(TAggregate);
-                return false;
-            }
-
             IEventStored es;
             if (_idMap.TryGetValue(aggregateId, out es))
             {
@@ -182,6 +147,7 @@ namespace Composable.Persistence.EventStore
                 aggregate = CreateInstance<TAggregate>();
                 aggregate.LoadFromHistory(history);
                 _idMap.Add(aggregateId, aggregate);
+                _disposableResources.Add(aggregate.EventStream.Subscribe(OnAggregateEvent));
                 return true;
             }
             else
@@ -197,39 +163,5 @@ namespace Composable.Persistence.EventStore
             aggregate.SetTimeSource(TimeSource);
             return aggregate;
         }
-
-        void PublishUnpublishedEvents(IEnumerable<IAggregateRootEvent> events)
-        {
-            var unpublishedEvents = events.Where(e => !_publishedEvents.Contains(e.EventId))
-                                          .ToList();
-            _publishedEvents.AddRange(unpublishedEvents.Select(e => e.EventId));
-            unpublishedEvents.ForEach(_bus.Publish);
-        }
-
-        bool InternalSaveChanges()
-        {
-            Log.DebugFormat("{0} saving changes with {1} changes from transaction within unit of work {2}", _id, _idMap.Count, _unitOfWork ?? (object)"null");
-
-            var aggregates = _idMap.Select(p => p.Value).ToList();
-
-            var newEvents = aggregates.SelectMany(a => a.GetChanges()).ToList();
-            aggregates.ForEach(a => a.AcceptChanges());
-            _store.SaveEvents(newEvents);
-
-            PublishUnpublishedEvents(newEvents);
-
-            bool result = newEvents.Any() || _pendingDeletes.Any();
-
-            foreach (var toDelete in _pendingDeletes)
-            {
-                _store.DeleteAggregate(toDelete);
-                _idMap.Remove(toDelete);
-            }
-            _pendingDeletes.Clear();
-
-            return result;
-        }
     }
-
-    class ParticipantAccessedByWrongUnitOfWork : Exception { }
 }

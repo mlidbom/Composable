@@ -1,10 +1,10 @@
 ﻿using System.Threading;
-using Composable.System;
 using FluentAssertions;
 using NUnit.Framework;
 
 namespace Composable.Tests.StrictlyManagedResource
 {
+    using Composable.System;
     public class When_max_lifetime_is_exceeded_without_dispose_being_called
     {
         // ReSharper disable once ClassNeverInstantiated.Local
@@ -27,7 +27,7 @@ namespace Composable.Tests.StrictlyManagedResource
 
             using(new StrictlyManagedResource<StrictResource>(forceStackTraceCollection: forceStackTraceCollection, maxLifetime: TimeSpanExtensions.Milliseconds(10)))
             {
-                exceptionThrown.WaitOne(TimeSpanExtensions.Milliseconds(100))
+                exceptionThrown.WaitOne(1.Seconds())
                                .Should()
                                .BeTrue("Timed out waiting for exception to be thrown.");
             }

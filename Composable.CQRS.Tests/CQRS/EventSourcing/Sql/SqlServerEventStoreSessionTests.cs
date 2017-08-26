@@ -28,7 +28,7 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.Sql
                                         user.ChangeEmail("newemail@somewhere.not");
                                     });
 
-            void UpdateEmail(WaitHandle waitToCompleteTransaction, ManualResetEvent readyToStart)
+            void UpdateEmail(WaitHandle waitToCompleteTransaction, ManualResetEvent readyToStart, ManualResetEvent signalReadyToCompleteTransaction)
             {
                 UseInScope(session =>
                                         {
@@ -36,13 +36,15 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.Sql
                                             ServiceLocator.ExecuteTransaction(() =>
                                                                              {
                                                                                  readyToStart.Set();
-                                                                                 waitToCompleteTransaction.AssertWaitOneDoesNotTimeout(20.Seconds());
                                                                                  var userToUpdate = session.Get<User>(user.Id);
                                                                                  userToUpdate.ChangeEmail($"newemail_{userToUpdate.Version}@somewhere.not");
+                                                                                 signalReadyToCompleteTransaction.Set();
+                                                                                 waitToCompleteTransaction.AssertWaitOneDoesNotTimeout(20.Seconds());
                                                                              });
                                         });
             }
 
+            var readyToComplete = new ManualResetEvent(false);
             var threads = 8;
             var resetEvents = 1.Through(threads)
                                .Select(_ => new
@@ -51,14 +53,17 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.Sql
                                                 AllowedToComplete = new ManualResetEvent(false)
                                             })
                                .ToList();
-            var tasks = resetEvents.Select(resetEvent => Task.Factory.StartNew(() => UpdateEmail(resetEvent.AllowedToComplete, resetEvent.ReadyToStart))).ToArray();
+            var tasks = resetEvents.Select(resetEvent => Task.Factory.StartNew(() => UpdateEmail(resetEvent.AllowedToComplete, resetEvent.ReadyToStart, readyToComplete))).ToArray();
 
-            resetEvents.ForEach(@this => @this.ReadyToStart.AssertWaitOneDoesNotTimeout(20.Seconds()));
+            resetEvents.AsParallel().ForEach(@this => @this.ReadyToStart.AssertWaitOneDoesNotTimeout(20.Seconds()));
+            readyToComplete.AssertWaitOneDoesNotTimeout(5.Seconds());
+            Thread.Sleep(50);
             resetEvents.ForEach(@this => @this.AllowedToComplete.Set());
 
             Task.WaitAll(tasks);//Sql duplicate key (AggregateId, Version) Exception would be thrown here if history was not serialized
 
-            UseInScope(session =>
+            UseInScope(
+                session =>
                 {
                     var userHistory = ((IEventStoreReader)session).GetHistory(user.Id)
                                                                   .ToArray(); //Reading the aggregate will throw an exception if the history is invalid.

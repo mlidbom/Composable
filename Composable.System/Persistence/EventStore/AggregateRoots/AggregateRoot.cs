@@ -5,6 +5,7 @@ using Composable.Contracts;
 using Composable.DDD;
 using Composable.GenericAbstractions.Time;
 using Composable.Messaging.Events;
+using Composable.System;
 using Composable.System.Linq;
 using Composable.System.Reactive;
 
@@ -35,39 +36,60 @@ namespace Composable.Persistence.EventStore.AggregateRoots
 
         readonly IList<IAggregateRootEvent> _unCommittedEvents = new List<IAggregateRootEvent>();
         readonly CallMatchingHandlersInRegistrationOrderEventDispatcher<TAggregateRootBaseEventInterface> _eventDispatcher = new CallMatchingHandlersInRegistrationOrderEventDispatcher<TAggregateRootBaseEventInterface>();
-        readonly CallMatchingHandlersInRegistrationOrderEventDispatcher<TAggregateRootBaseEventInterface> _eventHandlersEventDispatcher = new CallMatchingHandlersInRegistrationOrderEventDispatcher<TAggregateRootBaseEventInterface>();        
+        readonly CallMatchingHandlersInRegistrationOrderEventDispatcher<TAggregateRootBaseEventInterface> _eventHandlersEventDispatcher = new CallMatchingHandlersInRegistrationOrderEventDispatcher<TAggregateRootBaseEventInterface>();
 
+        int _raiseEventReentrancyLevel = 0;
+        List<TAggregateRootBaseEventClass> _raiseEventUnpushedEvents = new List<TAggregateRootBaseEventClass>();
+        bool _applyingEvents;
         protected void RaiseEvent(TAggregateRootBaseEventClass theEvent)
         {
-            theEvent.AggregateRootVersion = Version + 1;
-            theEvent.UtcTimeStamp = TimeSource.UtcNow;
-            if (Version == 0)
+            Contract.Assert.That(!_applyingEvents, "You cannot raise events from within event appliers");
+
+            try
             {
-                if(!(theEvent is IAggregateRootCreatedEvent))
+                _raiseEventReentrancyLevel++;
+                theEvent.AggregateRootVersion = Version + 1;
+                theEvent.UtcTimeStamp = TimeSource.UtcNow;
+                if(Version == 0)
                 {
-                    throw new Exception($"The first raised event type {theEvent.GetType()} did not inherit {nameof(IAggregateRootCreatedEvent)}");
-                }
-                theEvent.AggregateRootVersion = 1;
-            }else
-            {
-                if(theEvent.AggregateRootId != Guid.Empty && theEvent.AggregateRootId != Id)
+                    if(!(theEvent is IAggregateRootCreatedEvent))
+                    {
+                        throw new Exception($"The first raised event type {theEvent.GetType()} did not inherit {nameof(IAggregateRootCreatedEvent)}");
+                    }
+                    theEvent.AggregateRootVersion = 1;
+                } else
                 {
-                    throw new ArgumentOutOfRangeException($"Tried to raise event for AggregateRootId: {theEvent.AggregateRootId} from AggregateRoot with Id: {Id}.");
+                    if(theEvent.AggregateRootId != Guid.Empty && theEvent.AggregateRootId != Id)
+                    {
+                        throw new ArgumentOutOfRangeException($"Tried to raise event for AggregateRootId: {theEvent.AggregateRootId} from AggregateRoot with Id: {Id}.");
+                    }
+                    if(_insertedVersionToAggregateVersionOffset != 0)
+                    {
+                        theEvent.InsertedVersion = theEvent.AggregateRootVersion + _insertedVersionToAggregateVersionOffset;
+                        theEvent.ManualVersion = theEvent.AggregateRootVersion;
+                    }
+                    theEvent.AggregateRootId = Id;
                 }
-                if(_insertedVersionToAggregateVersionOffset != 0)
-                {
-                    theEvent.InsertedVersion = theEvent.AggregateRootVersion + _insertedVersionToAggregateVersionOffset;
-                    theEvent.ManualVersion = theEvent.AggregateRootVersion;
-                }
-                theEvent.AggregateRootId = Id;
+
+                ApplyEvent(theEvent);
+                AssertInvariantsAreMet();
+                _unCommittedEvents.Add(theEvent);
+                _raiseEventUnpushedEvents.Add(theEvent);
+                _eventHandlersEventDispatcher.Dispatch(theEvent);
             }
-            ApplyEvent(theEvent);
-            AssertInvariantsAreMet();
-            _unCommittedEvents.Add(theEvent);
+            finally
+            {
+                _raiseEventReentrancyLevel--;
+            }
 
-            _simpleObservable.OnNext(theEvent);
-
-            _eventHandlersEventDispatcher.Dispatch(theEvent);
+            if(_raiseEventReentrancyLevel == 0)
+            {
+                foreach(var @event in _raiseEventUnpushedEvents)
+                {
+                    _simpleObservable.OnNext(@event);
+                }
+                _raiseEventUnpushedEvents.Clear();
+            }
         }
 
         protected IEventHandlerRegistrar<TAggregateRootBaseEventInterface> RegisterEventAppliers() => _eventDispatcher.RegisterHandlers();
@@ -77,12 +99,20 @@ namespace Composable.Persistence.EventStore.AggregateRoots
 
         void ApplyEvent(TAggregateRootBaseEventInterface theEvent)
         {
-            if (theEvent is IAggregateRootCreatedEvent)
+            try
             {
-                SetIdBeVerySureYouKnowWhatYouAreDoing(theEvent.AggregateRootId);
+                _applyingEvents = true;
+                if (theEvent is IAggregateRootCreatedEvent)
+                {
+                    SetIdBeVerySureYouKnowWhatYouAreDoing(theEvent.AggregateRootId);
+                }
+                Version = theEvent.AggregateRootVersion;
+                _eventDispatcher.Dispatch(theEvent);
             }
-            Version = theEvent.AggregateRootVersion;
-            _eventDispatcher.Dispatch(theEvent);
+            finally
+            {
+                _applyingEvents = false;
+            }
         }
 
         protected virtual void AssertInvariantsAreMet()

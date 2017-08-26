@@ -41,7 +41,7 @@ namespace Composable.DependencyInjection.Persistence
 
         public static void RegisterSqlServerDocumentDb<TUpdater, TReader, TBulkReader>(this IDependencyInjectionContainer @this,
                                                                                                  string connectionName)
-            where TUpdater : IDocumentDbUpdater
+            where TUpdater : class, IDocumentDbUpdater
             where TReader : IDocumentDbReader
             where TBulkReader : IDocumentDbBulkReader
         {

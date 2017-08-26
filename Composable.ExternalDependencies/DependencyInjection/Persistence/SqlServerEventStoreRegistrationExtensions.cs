@@ -69,7 +69,7 @@ namespace Composable.DependencyInjection.Persistence
         public static void RegisterSqlServerEventStore<TSessionInterface, TReaderInterface>(this IDependencyInjectionContainer @this,
                                                                                             string connectionName,
                                                                                             IReadOnlyList<IEventMigration> migrations = null)
-            where TSessionInterface : IEventStoreUpdater
+            where TSessionInterface : class, IEventStoreUpdater
             where TReaderInterface : IEventStoreReader
             => @this.RegisterSqlServerEventStoreForFlexibleTesting<TSessionInterface, TReaderInterface>(
                 @this.RunMode().Mode,
@@ -83,7 +83,7 @@ namespace Composable.DependencyInjection.Persistence
                                                                                                                 TestingMode mode,
                                                                                                                 string connectionName,
                                                                                                                 Func<IReadOnlyList<IEventMigration>> migrations)
-            where TSessionInterface : IEventStoreUpdater
+            where TSessionInterface : class, IEventStoreUpdater
             where TReaderInterface : IEventStoreReader
         {
             Contract.Argument(() => connectionName)

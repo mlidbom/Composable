@@ -54,25 +54,25 @@ namespace Composable.DependencyInjection
     ///<summary></summary>
     public interface IServiceLocator : IDisposable
     {
-        IComponentLease<TComponent> Lease<TComponent>();
-        IMultiComponentLease<TComponent> LeaseAll<TComponent>();
+        IComponentLease<TComponent> Lease<TComponent>() where TComponent : class;
+        IMultiComponentLease<TComponent> LeaseAll<TComponent>() where TComponent : class;
         IDisposable BeginScope();
     }
 
     interface IServiceLocatorKernel
     {
-        TComponent Resolve<TComponent>();
+        TComponent Resolve<TComponent>() where TComponent : class;
     }
 
     public static class ServiceLocator
     {
-        internal static TComponent Resolve<TComponent>(this IServiceLocator @this) => @this.Lease<TComponent>()
+        internal static TComponent Resolve<TComponent>(this IServiceLocator @this) where TComponent : class => @this.Lease<TComponent>()
                                                                                          .Instance;
 
-        internal static TComponent[] ResolveAll<TComponent>(this IServiceLocator @this) => @this.LeaseAll<TComponent>()
+        internal static TComponent[] ResolveAll<TComponent>(this IServiceLocator @this) where TComponent : class => @this.LeaseAll<TComponent>()
                                                                                          .Instances;
 
-        public static void Use<TComponent>(this IServiceLocator @this,[InstantHandle] Action<TComponent> useComponent)
+        public static void Use<TComponent>(this IServiceLocator @this,[InstantHandle] Action<TComponent> useComponent) where TComponent : class
         {
             using (var lease = @this.Lease<TComponent>())
             {
@@ -80,7 +80,7 @@ namespace Composable.DependencyInjection
             }
         }
 
-        public static TResult Use<TComponent, TResult>(this IServiceLocator @this, Func<TComponent, TResult> useComponent)
+        public static TResult Use<TComponent, TResult>(this IServiceLocator @this, Func<TComponent, TResult> useComponent) where TComponent : class
         {
             using (var lease = @this.Lease<TComponent>())
             {
@@ -88,7 +88,7 @@ namespace Composable.DependencyInjection
             }
         }
 
-        internal static void UseAll<TComponent>(this IServiceLocator @this, [InstantHandle] Action<TComponent[]> useComponent)
+        internal static void UseAll<TComponent>(this IServiceLocator @this, [InstantHandle] Action<TComponent[]> useComponent) where TComponent : class
         {
             using (var lease = @this.LeaseAll<TComponent>())
             {
@@ -96,7 +96,7 @@ namespace Composable.DependencyInjection
             }
         }
 
-        public static TResult UseAll<TComponent, TResult>(this IServiceLocator @this, Func<TComponent[], TResult> useComponent)
+        public static TResult UseAll<TComponent, TResult>(this IServiceLocator @this, Func<TComponent[], TResult> useComponent) where TComponent : class
         {
             using (var lease = @this.LeaseAll<TComponent>())
             {
@@ -107,17 +107,13 @@ namespace Composable.DependencyInjection
 
     public static class Component
     {
-        internal static ComponentRegistrationBuilderInitial<TService1> For<TService1, TService2, TService3>()
-            => For<TService1>(Seq.OfTypes<TService2, TService3>());
+        internal static ComponentRegistrationBuilderInitial<TService1> For<TService1, TService2, TService3>() where TService1 : class => For<TService1>(Seq.OfTypes<TService2, TService3>());
 
-        internal static ComponentRegistrationBuilderInitial<TService1> For<TService1, TService2>()
-            => For<TService1>(Seq.OfTypes<TService2>());
+        internal static ComponentRegistrationBuilderInitial<TService1> For<TService1, TService2>() where TService1 : class => For<TService1>(Seq.OfTypes<TService2>());
 
-        public static ComponentRegistrationBuilderInitial<TService> For<TService>()
-            => For<TService>(new List<Type>());
+        public static ComponentRegistrationBuilderInitial<TService> For<TService>() where TService : class => For<TService>(new List<Type>());
 
-        internal static ComponentRegistrationBuilderInitial<TService> For<TService>(IEnumerable<Type> additionalServices)
-            => new ComponentRegistrationBuilderInitial<TService>(additionalServices);
+        internal static ComponentRegistrationBuilderInitial<TService> For<TService>(IEnumerable<Type> additionalServices) where TService : class => new ComponentRegistrationBuilderInitial<TService>(additionalServices);
 
         public class ComponentRegistrationBuilderInitialBase
         {
@@ -125,7 +121,7 @@ namespace Composable.DependencyInjection
             protected ComponentRegistrationBuilderInitialBase(IEnumerable<Type> serviceTypes) => ServiceTypes = serviceTypes;
         }
 
-        public class ComponentRegistrationBuilderInitial<TService> : ComponentRegistrationBuilderInitialBase
+        public class ComponentRegistrationBuilderInitial<TService> : ComponentRegistrationBuilderInitialBase where TService : class
         {
             internal ComponentRegistrationBuilderInitial(IEnumerable<Type> serviceTypes) : base(serviceTypes.Concat(new List<Type>() {typeof(TService)})) {}
 
@@ -143,7 +139,7 @@ namespace Composable.DependencyInjection
 
         }
 
-        public class ComponentRegistrationBuilderWithInstantiationSpec<TService>
+        public class ComponentRegistrationBuilderWithInstantiationSpec<TService> where TService : class
         {
             readonly IEnumerable<Type> _serviceTypes;
             readonly InstantiationSpec _instantInstatiationSpec;
@@ -205,7 +201,7 @@ namespace Composable.DependencyInjection
         internal abstract ComponentRegistration CreateCloneRegistration(IServiceLocator currentLocator);
     }
 
-    public class ComponentRegistration<TService> : ComponentRegistration
+    public class ComponentRegistration<TService> : ComponentRegistration where TService : class
     {
         bool ShouldDelegateToParentWhenCloning { get; set; }
 

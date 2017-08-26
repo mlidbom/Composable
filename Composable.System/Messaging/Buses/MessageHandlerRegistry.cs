@@ -13,9 +13,6 @@ namespace Composable.Messaging.Buses
         readonly List<EventHandlerRegistration> _eventHandlerRegistrations = new List<EventHandlerRegistration>();
 
         readonly object _lock = new object();
-        public MessageHandlerRegistry()
-        {
-        }
 
         IMessageHandlerRegistrar IMessageHandlerRegistrar.ForEvent<TEvent>(Action<TEvent> handler)
         {

@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using Composable.Contracts;
 using Composable.GenericAbstractions.Time;
-using Composable.Logging;
 using Composable.Messaging.Buses;
 using Composable.System.Linq;
 using Composable.System.Reactive;
@@ -18,7 +17,6 @@ namespace Composable.Persistence.EventStore
     {
         readonly IServiceBus _bus;
         readonly IEventStore _store;
-        static readonly ILogger Log = Logger.For<EventStoreUpdater>();
         readonly IDictionary<Guid, IEventStored> _idMap = new Dictionary<Guid, IEventStored>();
         readonly ISingleContextUseGuard _usageGuard;
         readonly List<IDisposable> _disposableResources = new List<IDisposable>();

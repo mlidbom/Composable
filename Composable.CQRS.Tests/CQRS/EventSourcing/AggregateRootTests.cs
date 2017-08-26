@@ -85,8 +85,8 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing
                     .For<TriggeringEvent>(@event => TriggeringEventApplied = true)
                     .For<TriggeredEvent>(@event => TriggeredEventApplied = true);
             }
-            public bool TriggeredEventApplied { get; set; }
-            public bool TriggeringEventApplied { get; set; }
+            public bool TriggeredEventApplied { get; private set; }
+            public bool TriggeringEventApplied { get; private set; }
             public void RaiseTriggeringEvent()
             {
                 RaiseEvent(new TriggeringEvent());

@@ -1,6 +1,6 @@
 ﻿using System.Data;
 
-namespace Composable.Testing
+namespace Composable.Testing.Databases
 {
     static class DatabaseHelpers
     {

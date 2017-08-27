@@ -2,7 +2,7 @@
 using System.Data.SqlClient;
 using Composable.System.Data.SqlClient;
 
-namespace Composable.Testing
+namespace Composable.Testing.Databases
 {
     sealed partial class SqlServerDatabasePool
     {

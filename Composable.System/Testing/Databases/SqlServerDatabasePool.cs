@@ -12,7 +12,7 @@ using Composable.System.Linq;
 using Composable.System.Threading;
 using Composable.System.Transactions;
 
-namespace Composable.Testing
+namespace Composable.Testing.Databases
 {
     sealed partial class SqlServerDatabasePool : StrictlyManagedResourceBase<SqlServerDatabasePool>
     {

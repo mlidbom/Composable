@@ -5,7 +5,7 @@ using System.Linq;
 using Composable.System.Threading;
 using JetBrains.Annotations;
 
-namespace Composable.Testing
+namespace Composable.Testing.Databases
 {
     sealed partial class SqlServerDatabasePool
     {

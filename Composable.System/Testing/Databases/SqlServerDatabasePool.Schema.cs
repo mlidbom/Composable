@@ -9,7 +9,7 @@ using Composable.System.Data.SqlClient;
 using Composable.System.Linq;
 using Composable.System.Threading;
 
-namespace Composable.Testing
+namespace Composable.Testing.Databases
 {
     static class DatabaseExtensions
     {

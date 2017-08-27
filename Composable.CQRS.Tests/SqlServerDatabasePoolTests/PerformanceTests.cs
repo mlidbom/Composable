@@ -5,6 +5,7 @@ using Composable.System.Data.SqlClient;
 using Composable.Testing;
 using NUnit.Framework;
 using Composable.System;
+using Composable.Testing.Databases;
 
 namespace Composable.CQRS.Tests.SqlServerDatabasePoolTests
 {

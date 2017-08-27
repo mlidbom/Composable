@@ -45,7 +45,7 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.Sql
             }
 
             var readyToComplete = new ManualResetEvent(false);
-            var threads = 8;
+            var threads = 2;
             var resetEvents = 1.Through(threads)
                                .Select(_ => new
                                             {

@@ -116,10 +116,4 @@ namespace Composable.System.Threading
             }
         }
     }
-
-    [Serializable] public class UndisposedLockException : Exception
-    {
-        public UndisposedLockException(string message) : base(message) {}
-        protected UndisposedLockException(SerializationInfo info, StreamingContext context) : base(info, context) {}
-    }
 }

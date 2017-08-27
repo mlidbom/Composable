@@ -1,9 +1,8 @@
-﻿using Composable.Testing;
-using Composable.Testing.Performance;
+﻿using Composable.Testing.Performance;
 using FluentAssertions;
 using NUnit.Framework;
 
-namespace Composable.Tests.Testing
+namespace Composable.Tests.Testing.Performance
 {
     [TestFixture] public class TimeAsserterTests
     {

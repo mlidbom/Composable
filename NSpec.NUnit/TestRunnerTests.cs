@@ -39,6 +39,7 @@ namespace Composable
         public void reports_first_error()
         {
             var exception = Assert.Throws<SpecificationException>(() => new reports_first_failure().ValidateSpec());
+            // ReSharper disable once PossibleNullReferenceException
             exception.InnerException.Message.Should().Be("first error");
         }
     }

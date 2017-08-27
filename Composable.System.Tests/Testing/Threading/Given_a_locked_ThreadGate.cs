@@ -1,7 +1,5 @@
 ﻿using NUnit.Framework;
-using NUnit.Framework.Internal;
 using System.Threading;
-using System.Threading.Tasks;
 using Composable.Testing.Threading;
 using FluentAssertions;
 
@@ -34,7 +32,6 @@ namespace Composable.Tests.Testing.Threading
 
         [Test] public void Expectation()
         {
-            
             Assert.Inconclusive();
         }
 
@@ -42,7 +39,6 @@ namespace Composable.Tests.Testing.Threading
         {
             [Test] public void Expectation()
             {
-                
                 Assert.Inconclusive();
             }
         }

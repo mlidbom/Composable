@@ -130,7 +130,7 @@ namespace Composable.Tests.Testing.Threading
 
             static void DisposeOwningThreadLock(IDisposable disposable) { disposable.Dispose(); }
 
-            Exception RunScenario(TimeSpan ownerThreadWaitTime)
+            static Exception RunScenario(TimeSpan ownerThreadWaitTime)
             {
                 var lockedObject = new object();
                 var objectLock = ObjectLock.Get(lockedObject, 1.Milliseconds());

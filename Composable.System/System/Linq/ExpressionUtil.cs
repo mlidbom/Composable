@@ -87,6 +87,7 @@ namespace Composable.System.Linq
                 memberExpression = (MemberExpression)body;
             }
 
+            // ReSharper disable once PossibleNullReferenceException
             return $"{memberExpression.Member.DeclaringType.FullName}.{memberExpression.Member.Name}" ;
         }
     }

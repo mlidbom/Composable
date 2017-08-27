@@ -18,6 +18,11 @@ namespace Composable.Persistence.DocumentDb
 
             public bool Equals(DocumentKey other)
             {
+                if(other == null)
+                {
+                    return false;
+                }
+
                 if(!Equals(Id, other.Id))
                 {
                     return false;

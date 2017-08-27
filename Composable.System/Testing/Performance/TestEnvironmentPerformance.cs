@@ -6,7 +6,7 @@ using System.Reflection;
 using Composable.Logging;
 using Composable.System;
 
-namespace Composable.Testing
+namespace Composable.Testing.Performance
 {
     static class TestEnvironment
     {

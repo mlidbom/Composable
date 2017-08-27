@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Diagnostics;
 using System.Threading;
 using Composable.Logging;
@@ -7,7 +7,7 @@ using Composable.System.Diagnostics;
 using Composable.System.Threading;
 using JetBrains.Annotations;
 
-namespace Composable.Testing
+namespace Composable.Testing.Performance
 {
     static class TimeAsserter
     {

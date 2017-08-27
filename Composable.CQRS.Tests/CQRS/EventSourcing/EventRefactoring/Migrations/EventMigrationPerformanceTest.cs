@@ -10,6 +10,7 @@ using Composable.Persistence.EventStore;
 using Composable.Persistence.EventStore.Refactoring.Migrations;
 using Composable.System.Linq;
 using Composable.Testing;
+using Composable.Testing.Performance;
 using FluentAssertions;
 using NUnit.Framework;
 

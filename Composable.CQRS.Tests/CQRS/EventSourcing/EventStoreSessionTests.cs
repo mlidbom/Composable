@@ -9,6 +9,7 @@ using Composable.System.Diagnostics;
 using Composable.System.Linq;
 using Composable.SystemExtensions.Threading;
 using Composable.Testing;
+using Composable.Testing.Performance;
 using FluentAssertions;
 using JetBrains.Annotations;
 using NUnit.Framework;

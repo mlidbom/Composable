@@ -7,6 +7,7 @@ using Composable.Persistence.EventStore;
 using Composable.System.Linq;
 using Composable.Testing;
 using Composable.Tests.Testing;
+using Composable.Tests.Testing.Threading;
 using FluentAssertions;
 using NUnit.Framework;
 

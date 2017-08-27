@@ -85,8 +85,7 @@ namespace Composable.System.Threading
         {
             lock(TimedOutLocks)
             {
-                var waitHandle = new ManualResetEvent(false);
-                TimedOutLocks[lockedObject] = waitHandle;
+                TimedOutLocks[lockedObject] = new ManualResetEvent(false);
             }
             _lockedObject = lockedObject;
         }

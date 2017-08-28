@@ -57,13 +57,12 @@ namespace Composable.System.Threading
         class ObjectLockInstance : IObjectLock
         {
             readonly object _lockedObject;
-            readonly TimeSpan _timeout;
+            readonly TimeSpan _defaultTimeout;
 
-            public ObjectLockInstance(TimeSpan timeout) : this(new object(), timeout) { }
-            public ObjectLockInstance(object lockedObject, TimeSpan timeout)
+            public ObjectLockInstance(TimeSpan defaultTimeout)
             {
-                _lockedObject = lockedObject;
-                _timeout = timeout;
+                _lockedObject = new object();
+                _defaultTimeout = defaultTimeout;
             }
 
             public IDisposable LockForExclusiveUse_LowLevelOnlyForBuildingSynchronizationLibraryStyleThingsMethod() => InternalLockForExclusiveUse(null);
@@ -71,7 +70,20 @@ namespace Composable.System.Threading
 
             IDisposable InternalLockForExclusiveUse(TimeSpan? timeout = null)
             {
-                if (!Monitor.TryEnter(_lockedObject, timeout ?? _timeout))
+                bool lockTaken = false;
+                try //It is rare, but apparently possible for Enter to throw an exception after the lock is taken. So we do need to catch it and call Monitor.Exit if that happens.
+                {
+                    Monitor.TryEnter(_lockedObject, timeout ?? _defaultTimeout, ref lockTaken);
+                }
+                catch(Exception)
+                {
+                    if(lockTaken)
+                    {
+                        Monitor.Exit(_lockedObject);
+                    }
+                }
+
+                if (!lockTaken)
                 {
                     throw new ObjectLockTimedOutException(_lockedObject);
                 }

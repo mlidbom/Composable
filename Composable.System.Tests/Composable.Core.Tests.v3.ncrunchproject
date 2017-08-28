@@ -8,15 +8,6 @@
       <FixtureTestSelector>
         <FixtureName>Composable.Tests.SystemExtensions.ExceptionExtensions</FixtureName>
       </FixtureTestSelector>
-      <NamedTestSelector>
-        <TestName>Composable.Tests.Testing.Threading.Given_a_locked_ThreadGate.Code_after_the_gate_is_not_executed_until_the_gate_is_opened</TestName>
-      </NamedTestSelector>
-      <NamedTestSelector>
-        <TestName>Composable.Tests.Testing.Threading.Given_a_TestingAutoResetEvent.Expectation</TestName>
-      </NamedTestSelector>
-      <NamedTestSelector>
-        <TestName>Composable.Tests.Testing.Threading.Given_a_TestingAutoResetEvent+Scenario.Expectation</TestName>
-      </NamedTestSelector>
     </IgnoredTests>
     <PreviouslyBuiltSuccessfully>True</PreviouslyBuiltSuccessfully>
   </Settings>

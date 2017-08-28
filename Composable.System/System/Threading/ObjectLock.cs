@@ -7,10 +7,16 @@ namespace Composable.System.Threading
 {
     interface IObjectLock
     {
-        [Obsolete("This is a low level abstraction that is very easily misued resulting in hard to fix threading problems. If possible use the extension methods that take Func and Action arguments instead")]
-        IDisposable LockForExclusiveUse_LowLevelOnlyForBuildingSynchronizationLibraryStyleThingsMethod();
-        [Obsolete("This is a low level abstraction that is very easily misued resulting in hard to fix threading problems. If possible use the extension methods that take Func and Action arguments instead")]
-        IDisposable LockForExclusiveUse_LowLevelOnlyForBuildingSynchronizationLibraryStyleThingsMethod(TimeSpan timeout);
+        IObjectLockOwner LockForExclusiveUse();
+        IObjectLockOwner LockForExclusiveUse(TimeSpan timeout);
+    }
+
+    interface IObjectLockOwner : IDisposable
+    {
+        void Wait();
+        void Pulse();
+        void PulseAll();
+        void Wait(TimeSpan timeout);
     }
 
     static class ObjectLock
@@ -35,7 +41,7 @@ namespace Composable.System.Threading
 
         public static void ExecuteWithExclusiveLock(this IObjectLock @lock, TimeSpan timeout, Action action)
         {
-            using (@lock.LockForExclusiveUse(timeout))
+            using (@lock.LockForExclusiveUse())
             {
                 action();
             }
@@ -43,16 +49,11 @@ namespace Composable.System.Threading
 
         public static TResult ExecuteWithExclusiveLock<TResult>(this IObjectLock @lock, TimeSpan timeout, Func<TResult> function)
         {
-            using (@lock.LockForExclusiveUse(timeout))
+            using (@lock.LockForExclusiveUse())
             {
                 return function();
             }
         }
-
-#pragma warning disable CS0618 // Type or member is obsolete
-        static IDisposable LockForExclusiveUse(this IObjectLock @this) => @this.LockForExclusiveUse_LowLevelOnlyForBuildingSynchronizationLibraryStyleThingsMethod();
-        static IDisposable LockForExclusiveUse(this IObjectLock @this, TimeSpan timeout) => @this.LockForExclusiveUse_LowLevelOnlyForBuildingSynchronizationLibraryStyleThingsMethod(timeout);
-#pragma warning restore CS0618 // Type or member is obsolete
 
         class ObjectLockInstance : IObjectLock
         {
@@ -65,10 +66,10 @@ namespace Composable.System.Threading
                 _defaultTimeout = defaultTimeout;
             }
 
-            public IDisposable LockForExclusiveUse_LowLevelOnlyForBuildingSynchronizationLibraryStyleThingsMethod() => InternalLockForExclusiveUse(null);
-            public IDisposable LockForExclusiveUse_LowLevelOnlyForBuildingSynchronizationLibraryStyleThingsMethod(TimeSpan timeout) => InternalLockForExclusiveUse(timeout);
+            public IObjectLockOwner LockForExclusiveUse() => InternalLockForExclusiveUse(null);
+            public IObjectLockOwner LockForExclusiveUse(TimeSpan timeout) => InternalLockForExclusiveUse(timeout);
 
-            IDisposable InternalLockForExclusiveUse(TimeSpan? timeout = null)
+            IObjectLockOwner InternalLockForExclusiveUse(TimeSpan? timeout = null)
             {
                 bool lockTaken = false;
                 try //It is rare, but apparently possible for Enter to throw an exception after the lock is taken. So we do need to catch it and call Monitor.Exit if that happens.
@@ -77,18 +78,7 @@ namespace Composable.System.Threading
 
                     if (lockTaken)
                     {
-                        return Disposable.Create(
-                            () =>
-                            {
-                                try
-                                {
-                                    ObjectLockTimedOutException.ReportStackTraceIfError(_lockedObject);
-                                }
-                                finally
-                                {
-                                    Monitor.Exit(_lockedObject);
-                                }
-                            });
+                        return new ObjectLockOwner(this);
                     }
 
                     throw new ObjectLockTimedOutException(_lockedObject);
@@ -100,6 +90,49 @@ namespace Composable.System.Threading
                         Monitor.Exit(_lockedObject);
                     }
                     throw;
+                }
+            }
+
+            class ObjectLockOwner : IObjectLockOwner
+            {
+                readonly ObjectLockInstance _parent;
+                public ObjectLockOwner(ObjectLockInstance parent) { _parent = parent; }
+                public void Dispose()
+                {
+                    try
+                    {
+                        ObjectLockTimedOutException.ReportStackTraceIfError(_parent._lockedObject);
+                    }
+                    finally
+                    {
+                        Monitor.Exit(_parent._lockedObject);
+                    }
+                }
+
+                public void Wait()
+                {
+                    if(!Monitor.Wait(_parent._lockedObject, _parent._defaultTimeout))
+                    {
+                        throw new ObjectLockTimedOutException(_parent._lockedObject);
+                    }
+                }
+
+                public void Wait(TimeSpan timeout)
+                {
+                    if (!Monitor.Wait(_parent._lockedObject, timeout))
+                    {
+                        throw new ObjectLockTimedOutException(_parent._lockedObject);
+                    }
+                }
+
+                public void Pulse()
+                {
+                    Monitor.Pulse(_parent._lockedObject);
+                }
+
+                public void PulseAll()
+                {
+                    Monitor.PulseAll(_parent._lockedObject);
                 }
             }
         }
@@ -134,7 +167,7 @@ namespace Composable.System.Threading
             }
         }
 
-        internal ObjectLockTimedOutException(object lockedObject) : base("Timeout waiting for lock")
+        internal ObjectLockTimedOutException(object lockedObject) : base("_defaultTimeout waiting for lock")
         {
             lock(TimedOutLocks)
             {

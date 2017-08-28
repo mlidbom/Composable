@@ -136,10 +136,10 @@ namespace Composable.Tests.Testing.Threading
                 var objectLock = ObjectLock.WithTimeout(10.Milliseconds());
 
 #pragma warning disable 618
-                var exclusiveLock = objectLock.LockForExclusiveUse_LowLevelOnlyForBuildingSynchronizationLibraryStyleThingsMethod(0.Milliseconds());
+                var exclusiveLock = objectLock.LockForExclusiveUse(0.Milliseconds());
 
                 var thrownException = Assert.Throws<AggregateException>(
-                                                () => Task.Run(() => objectLock.LockForExclusiveUse_LowLevelOnlyForBuildingSynchronizationLibraryStyleThingsMethod(15.Milliseconds()))
+                                                () => Task.Run(() => objectLock.LockForExclusiveUse(15.Milliseconds()))
                                                           .Wait())
                                             .InnerExceptions.Single();
 #pragma warning restore 618

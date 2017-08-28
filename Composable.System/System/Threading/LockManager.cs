@@ -7,15 +7,17 @@ namespace Composable.System.Threading
 {
     interface IObjectLock
     {
-        IDisposable LockForExclusiveUse();
-        IDisposable LockForExclusiveUse(TimeSpan timeout);
+        [Obsolete("This is a low level abstraction that is very easily misued resulting in hard to fix threading problems. If possible use the extension methods that take Func and Action arguments instead")]
+        IDisposable LockForExclusiveUse_LowLevelOnlyForBuildingSynchronizationLibraryStyleThingsMethod();
+        [Obsolete("This is a low level abstraction that is very easily misued resulting in hard to fix threading problems. If possible use the extension methods that take Func and Action arguments instead")]
+        IDisposable LockForExclusiveUse_LowLevelOnlyForBuildingSynchronizationLibraryStyleThingsMethod(TimeSpan timeout);
     }
 
     static class ObjectLock
     {
         public static IObjectLock WithTimeout(TimeSpan timeout) => new ObjectLockInstance(timeout);
 
-        public static void RunWithExclusiveLock(this IObjectLock @lock, Action action)
+        public static void ExecuteWithExclusiveLock(this IObjectLock @lock, Action action)
         {
             using (@lock.LockForExclusiveUse())
             {
@@ -23,7 +25,7 @@ namespace Composable.System.Threading
             }
         }
 
-        public static TResult RunWithExclusiveLock<TResult>(this IObjectLock @lock, Func<TResult> function)
+        public static TResult ExecuteWithExclusiveLock<TResult>(this IObjectLock @lock, Func<TResult> function)
         {
             using (@lock.LockForExclusiveUse())
             {
@@ -31,7 +33,7 @@ namespace Composable.System.Threading
             }
         }
 
-        public static void RunWithExclusiveLock(this IObjectLock @lock, TimeSpan timeout, Action action)
+        public static void ExecuteWithExclusiveLock(this IObjectLock @lock, TimeSpan timeout, Action action)
         {
             using (@lock.LockForExclusiveUse(timeout))
             {
@@ -39,13 +41,18 @@ namespace Composable.System.Threading
             }
         }
 
-        public static TResult RunWithExclusiveLock<TResult>(this IObjectLock @lock, TimeSpan timeout, Func<TResult> function)
+        public static TResult ExecuteWithExclusiveLock<TResult>(this IObjectLock @lock, TimeSpan timeout, Func<TResult> function)
         {
             using (@lock.LockForExclusiveUse(timeout))
             {
                 return function();
             }
         }
+
+#pragma warning disable CS0618 // Type or member is obsolete
+        static IDisposable LockForExclusiveUse(this IObjectLock @this) => @this.LockForExclusiveUse_LowLevelOnlyForBuildingSynchronizationLibraryStyleThingsMethod();
+        static IDisposable LockForExclusiveUse(this IObjectLock @this, TimeSpan timeout) => @this.LockForExclusiveUse_LowLevelOnlyForBuildingSynchronizationLibraryStyleThingsMethod(timeout);
+#pragma warning restore CS0618 // Type or member is obsolete
 
         class ObjectLockInstance : IObjectLock
         {
@@ -59,8 +66,8 @@ namespace Composable.System.Threading
                 _timeout = timeout;
             }
 
-            public IDisposable LockForExclusiveUse() => InternalLockForExclusiveUse(null);
-            public IDisposable LockForExclusiveUse(TimeSpan timeout) => InternalLockForExclusiveUse(timeout);
+            public IDisposable LockForExclusiveUse_LowLevelOnlyForBuildingSynchronizationLibraryStyleThingsMethod() => InternalLockForExclusiveUse(null);
+            public IDisposable LockForExclusiveUse_LowLevelOnlyForBuildingSynchronizationLibraryStyleThingsMethod(TimeSpan timeout) => InternalLockForExclusiveUse(timeout);
 
             IDisposable InternalLockForExclusiveUse(TimeSpan? timeout = null)
             {

@@ -128,6 +128,9 @@
       <FixtureTestSelector>
         <FixtureName>CQRS.Tests.CQRS.EventSourcing.AggregateRoot.NestedEntitiesTests.GuidId.NestedEntitiesTests</FixtureName>
       </FixtureTestSelector>
+      <NamedTestSelector>
+        <TestName>Composable.CQRS.Tests.CQRS.EventSourcing.Sql.SqlServerEventStoreSessionTests.Serializes_access_to_an_aggregate_so_that_concurrent_transactions_succeed_even_if_history_has_been_read_outside_of_modifying_transactions</TestName>
+      </NamedTestSelector>
     </IgnoredTests>
     <PreviouslyBuiltSuccessfully>True</PreviouslyBuiltSuccessfully>
   </Settings>

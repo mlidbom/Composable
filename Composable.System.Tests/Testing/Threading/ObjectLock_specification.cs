@@ -17,7 +17,7 @@ namespace Composable.Tests.Testing.Threading
             var firstThreadHasEnteredExecute = new ManualResetEventSlim(false);
             var allowFirstThreadToExitExecute = new ManualResetEventSlim(false);
             var firstThreadTask = Task.Run(
-                () => objectLock.RunWithExclusiveLock(2.Seconds(),
+                () => objectLock.ExecuteWithExclusiveLock(2.Seconds(),
                     () =>
                     {
                         firstThreadHasEnteredExecute.Set();
@@ -32,8 +32,7 @@ namespace Composable.Tests.Testing.Threading
                 () =>
                 {
                     Task.Run(() => otherThreadIsWaitingForLock.Set());
-                    objectLock.LockForExclusiveUse(1.Seconds());
-                    otherThreadGotLock.Set();
+                    objectLock.ExecuteWithExclusiveLock(1.Seconds(), () => otherThreadGotLock.Set());
                 });
 
             otherThreadIsWaitingForLock.Wait();
@@ -60,7 +59,7 @@ namespace Composable.Tests.Testing.Threading
             var firstThreadTask = Task.Run(
                 () =>
                 {
-                    objectLock.RunWithExclusiveLock(
+                    objectLock.ExecuteWithExclusiveLock(
                         2.Seconds(),
                         () =>
                         {
@@ -78,8 +77,13 @@ namespace Composable.Tests.Testing.Threading
                 () =>
                 {
                     Task.Run(() => otherThreadIsWaitingForLock.Set());
-                    objectLock.LockForExclusiveUse(1.Seconds());
-                    otherThreadGotLock.Set();
+                    objectLock.ExecuteWithExclusiveLock(
+                        1.Seconds(),
+                        () =>
+                        {
+                            otherThreadGotLock.Set();
+                            return new object();
+                        });
                 });
 
             otherThreadIsWaitingForLock.Wait();
@@ -129,14 +133,16 @@ namespace Composable.Tests.Testing.Threading
 
             static Exception RunScenario(TimeSpan ownerThreadWaitTime)
             {
-                var objectLock = ObjectLock.WithTimeout(1.Seconds());
+                var objectLock = ObjectLock.WithTimeout(10.Milliseconds());
 
-                var exclusiveLock = objectLock.LockForExclusiveUse(0.Milliseconds());
+#pragma warning disable 618
+                var exclusiveLock = objectLock.LockForExclusiveUse_LowLevelOnlyForBuildingSynchronizationLibraryStyleThingsMethod(0.Milliseconds());
 
                 var thrownException = Assert.Throws<AggregateException>(
-                                                () => Task.Run(() => objectLock.LockForExclusiveUse(15.Milliseconds()))
+                                                () => Task.Run(() => objectLock.LockForExclusiveUse_LowLevelOnlyForBuildingSynchronizationLibraryStyleThingsMethod(15.Milliseconds()))
                                                           .Wait())
                                             .InnerExceptions.Single();
+#pragma warning restore 618
 
                 Task.Run(
                     () =>

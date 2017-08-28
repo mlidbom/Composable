@@ -1,50 +1,68 @@
 ﻿using System;
 using System.Threading;
+using Composable.System.Threading;
 
 namespace Composable.Testing.Threading
 {
-
-
-    ///<summary>A block of code with <see cref="ThreadGate"/>s for <see cref="EntryGate"/> and <see cref="ExitGate"/>. Useful for controlling multithreaded code for testing purposes.</summary>
+    ///<summary>A block of code with <see cref="ThreadGate"/>s for <see cref="EntranceGate"/> and <see cref="ExitGate"/>. Useful for controlling multithreaded code for testing purposes.</summary>
     class GatedCodeBlock
     {
-        public ThreadGate EntryGate { get; }
+        public ThreadGate EntranceGate { get; }
         public ThreadGate ExitGate { get; }
-
 
         readonly Action _codeBlock;
 
-        GatedCodeBlock(Action codeBlock, ThreadGate entryGate, ThreadGate exitGate)
+        GatedCodeBlock(Action codeBlock, ThreadGate entranceGate, ThreadGate exitGate)
         {
-            EntryGate = entryGate;
+            EntranceGate = entranceGate;
             ExitGate = exitGate;
             _codeBlock = codeBlock;
         }
     }
 
-
-
-    enum ThreadGateOptions
+    [Flags] enum ThreadGateOptions
     {
-        LockOnNextPass,
-        LockOnEveryPass
+        LockOnNextPass = 1,
+        LockOnEveryPass = 2,
+        Locked = 4
     }
 
-    ///<summary>Blocks threads calling <see cref="BlockUntilOpen"/> until the the gate is opened.</summary>
+    ///<summary>Blocks threads calling <see cref="PassThrough"/> until the the gate is opened.</summary>
     class ThreadGate
     {
         ///<summary>Opens the gate</summary>
         public void Open() {}
         public void Close() {}
-        public void BlockUntilOpen(TimeSpan timeout) {}
-        public int Passed { get; }
-        public string Name { get; }
-        public ThreadGateOptions Options { get; }
 
-        ThreadGate(ThreadGateOptions options)
+        public void PassThrough(TimeSpan timeout)
         {
-            Options = options;
         }
+
+        public string Name { get; }
+        public bool LockOnNextPass { get; private set; }
+        public bool LockEveryPass { get; private set; }
+
+        ThreadGate(string name, TimeSpan timeout, ThreadGateOptions options)
+        {
+            _gateLock = new object();
+            _settingsLock = new object();
+            _timeout = timeout;
+            _options = options;
+            Name = name;
+
+            if((options & ThreadGateOptions.Locked) != 0)
+            {
+                Close();
+            }
+
+            LockOnNextPass = (options & ThreadGateOptions.LockOnNextPass) != 0;
+            LockEveryPass = (options & ThreadGateOptions.LockOnEveryPass) != 0;
+        }
+
+        readonly TimeSpan _timeout;
+        readonly ThreadGateOptions _options;
+        object _gateLock;
+        object _settingsLock;
     }
 
     class TestingManualResetEvent
@@ -86,7 +104,7 @@ namespace Composable.Testing.Threading
 
         public void Wait()
         {
-            if (!_event.WaitOne(_timeout))
+            if(!_event.WaitOne(_timeout))
             {
                 throw new Exception($"Timed out waiting for lock: {_name}");
             }

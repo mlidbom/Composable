@@ -5,50 +5,84 @@ using System.Threading;
 
 namespace Composable.System.Threading
 {
-    struct ObjectLock : IDisposable
+    interface IObjectLock
     {
-        public static void Execute(object lockedObject, TimeSpan timeout, Action action)
+        IDisposable LockForExclusiveUse();
+        IDisposable LockForExclusiveUse(TimeSpan timeout);
+    }
+
+    static class ObjectLock
+    {
+        public static IObjectLock WithTimeout(TimeSpan timeout) => new ObjectLockInstance(timeout);
+
+        public static void RunWithExclusiveLock(this IObjectLock @lock, Action action)
         {
-            using(Get(lockedObject, timeout))
+            using (@lock.LockForExclusiveUse())
             {
                 action();
             }
         }
 
-        public static TResult Execute<TResult>(object lockedObject, TimeSpan timeout, Func<TResult> function)
+        public static TResult RunWithExclusiveLock<TResult>(this IObjectLock @lock, Func<TResult> function)
         {
-            using (Get(lockedObject, timeout))
+            using (@lock.LockForExclusiveUse())
             {
                 return function();
             }
         }
 
-        ObjectLock(object lockedObject) => _lockedObject = lockedObject;
-
-        public void Dispose()
+        public static void RunWithExclusiveLock(this IObjectLock @lock, TimeSpan timeout, Action action)
         {
-            try
+            using (@lock.LockForExclusiveUse(timeout))
             {
-                ObjectLockTimedOutException.ReportStackTraceIfError(_lockedObject);
-            }
-            finally
-            {
-                Monitor.Exit(_lockedObject);
+                action();
             }
         }
 
-
-        internal static IDisposable Get(object lockedObject, TimeSpan timeout)
+        public static TResult RunWithExclusiveLock<TResult>(this IObjectLock @lock, TimeSpan timeout, Func<TResult> function)
         {
-            var timedLock = new ObjectLock(lockedObject);
-            if (!Monitor.TryEnter(lockedObject, timeout))
+            using (@lock.LockForExclusiveUse(timeout))
             {
-                throw new ObjectLockTimedOutException(lockedObject);
+                return function();
             }
-            return timedLock;
         }
 
-        readonly object _lockedObject;
+        class ObjectLockInstance : IObjectLock
+        {
+            readonly object _lockedObject;
+            readonly TimeSpan _timeout;
+
+            public ObjectLockInstance(TimeSpan timeout) : this(new object(), timeout) { }
+            public ObjectLockInstance(object lockedObject, TimeSpan timeout)
+            {
+                _lockedObject = lockedObject;
+                _timeout = timeout;
+            }
+
+            public IDisposable LockForExclusiveUse() => InternalLockForExclusiveUse(null);
+            public IDisposable LockForExclusiveUse(TimeSpan timeout) => InternalLockForExclusiveUse(timeout);
+
+            IDisposable InternalLockForExclusiveUse(TimeSpan? timeout = null)
+            {
+                if (!Monitor.TryEnter(_lockedObject, timeout ?? _timeout))
+                {
+                    throw new ObjectLockTimedOutException(_lockedObject);
+                }
+
+                return Disposable.Create(
+                    () =>
+                    {
+                        try
+                        {
+                            ObjectLockTimedOutException.ReportStackTraceIfError(_lockedObject);
+                        }
+                        finally
+                        {
+                            Monitor.Exit(_lockedObject);
+                        }
+                    });
+            }
+        }
     }
 
     class ObjectLockTimedOutException : Exception

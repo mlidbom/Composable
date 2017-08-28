@@ -12,14 +12,12 @@ namespace Composable.Tests.Testing.Threading
     {
         [Test] public void When_one_thread_is_running_action_version_of_execute_other_thread_is_blocked_until_first_thread_exits_execute()
         {
-            var lockedObject = new object();
+            var objectLock = ObjectLock.WithTimeout(1.Seconds());
 
             var firstThreadHasEnteredExecute = new ManualResetEventSlim(false);
             var allowFirstThreadToExitExecute = new ManualResetEventSlim(false);
             var firstThreadTask = Task.Run(
-                () => ObjectLock.Execute(
-                    lockedObject,
-                    2.Seconds(),
+                () => objectLock.RunWithExclusiveLock(2.Seconds(),
                     () =>
                     {
                         firstThreadHasEnteredExecute.Set();
@@ -34,7 +32,7 @@ namespace Composable.Tests.Testing.Threading
                 () =>
                 {
                     Task.Run(() => otherThreadIsWaitingForLock.Set());
-                    ObjectLock.Get(lockedObject, 1.Seconds());
+                    objectLock.LockForExclusiveUse(1.Seconds());
                     otherThreadGotLock.Set();
                 });
 
@@ -55,15 +53,14 @@ namespace Composable.Tests.Testing.Threading
         [Test]
         public void When_one_thread_is_running_func_version_of_execute_other_thread_is_blocked_until_first_thread_exits_execute()
         {
-            var lockedObject = new object();
+            var objectLock = ObjectLock.WithTimeout(1.Seconds());
 
             var firstThreadHasEnteredExecute = new ManualResetEventSlim(false);
             var allowFirstThreadToExitExecute = new ManualResetEventSlim(false);
             var firstThreadTask = Task.Run(
                 () =>
                 {
-                    ObjectLock.Execute(
-                        lockedObject,
+                    objectLock.RunWithExclusiveLock(
                         2.Seconds(),
                         () =>
                         {
@@ -81,7 +78,7 @@ namespace Composable.Tests.Testing.Threading
                 () =>
                 {
                     Task.Run(() => otherThreadIsWaitingForLock.Set());
-                    ObjectLock.Get(lockedObject, 1.Seconds());
+                    objectLock.LockForExclusiveUse(1.Seconds());
                     otherThreadGotLock.Set();
                 });
 
@@ -132,11 +129,12 @@ namespace Composable.Tests.Testing.Threading
 
             static Exception RunScenario(TimeSpan ownerThreadWaitTime)
             {
-                var lockedObject = new object();
-                var objectLock = ObjectLock.Get(lockedObject, 1.Milliseconds());
+                var objectLock = ObjectLock.WithTimeout(1.Seconds());
+
+                var exclusiveLock = objectLock.LockForExclusiveUse(0.Milliseconds());
 
                 var thrownException = Assert.Throws<AggregateException>(
-                                                () => Task.Run(() => ObjectLock.Get(lockedObject, 15.Milliseconds()))
+                                                () => Task.Run(() => objectLock.LockForExclusiveUse(15.Milliseconds()))
                                                           .Wait())
                                             .InnerExceptions.Single();
 
@@ -144,7 +142,7 @@ namespace Composable.Tests.Testing.Threading
                     () =>
                     {
                         Thread.Sleep(ownerThreadWaitTime);
-                        DisposeOwningThreadLock(objectLock);
+                        DisposeOwningThreadLock(exclusiveLock);
                     });
 
                 return thrownException;

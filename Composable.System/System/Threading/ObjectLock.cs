@@ -74,6 +74,24 @@ namespace Composable.System.Threading
                 try //It is rare, but apparently possible for Enter to throw an exception after the lock is taken. So we do need to catch it and call Monitor.Exit if that happens.
                 {
                     Monitor.TryEnter(_lockedObject, timeout ?? _defaultTimeout, ref lockTaken);
+
+                    if (lockTaken)
+                    {
+                        return Disposable.Create(
+                            () =>
+                            {
+                                try
+                                {
+                                    ObjectLockTimedOutException.ReportStackTraceIfError(_lockedObject);
+                                }
+                                finally
+                                {
+                                    Monitor.Exit(_lockedObject);
+                                }
+                            });
+                    }
+
+                    throw new ObjectLockTimedOutException(_lockedObject);
                 }
                 catch(Exception)
                 {
@@ -81,25 +99,8 @@ namespace Composable.System.Threading
                     {
                         Monitor.Exit(_lockedObject);
                     }
+                    throw;
                 }
-
-                if (!lockTaken)
-                {
-                    throw new ObjectLockTimedOutException(_lockedObject);
-                }
-
-                return Disposable.Create(
-                    () =>
-                    {
-                        try
-                        {
-                            ObjectLockTimedOutException.ReportStackTraceIfError(_lockedObject);
-                        }
-                        finally
-                        {
-                            Monitor.Exit(_lockedObject);
-                        }
-                    });
             }
         }
     }

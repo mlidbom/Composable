@@ -19,8 +19,7 @@ namespace Composable.Persistence.EventStore.Refactoring.Naming
             get => _fullName;
             set
             {
-                Type ignored;
-                if (value != Type.FullName && value.TryGetType(out ignored))
+                if (value != Type.FullName && value.TryGetType(out _))
                 {
                     throw new Exception($"Attempted to rename event type { Type.FullName } to { value }, but there is already a class with that FullName");
                 }

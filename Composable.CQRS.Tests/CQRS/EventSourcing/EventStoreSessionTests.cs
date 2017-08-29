@@ -89,13 +89,11 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing
                                          });
             wait.Wait();
 
-            User user;
-
             Assert.Throws<MultiThreadedUseException>(() => updater.Get<User>(Guid.NewGuid()));
             Assert.Throws<MultiThreadedUseException>(() => updater.Dispose());
             Assert.Throws<MultiThreadedUseException>(() => reader.LoadSpecificVersion<User>(Guid.NewGuid(), 1));
             Assert.Throws<MultiThreadedUseException>(() => updater.Save(new User()));
-            Assert.Throws<MultiThreadedUseException>(() => updater.TryGet(Guid.NewGuid(), out user));
+            Assert.Throws<MultiThreadedUseException>(() => updater.TryGet(Guid.NewGuid(), out User _));
 
         }
 
@@ -269,8 +267,7 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing
                                     {
                                         session.Delete(user1.Id);
 
-                                        User loadedUser1;
-                                        Assert.IsFalse(session.TryGet(user1.Id, out loadedUser1));
+                                        Assert.IsFalse(session.TryGet(user1.Id, out User _));
 
                                         var loadedUser2 = session.Get<User>(user2.Id);
                                         Assert.That(loadedUser2.Id, Is.EqualTo(user2.Id));

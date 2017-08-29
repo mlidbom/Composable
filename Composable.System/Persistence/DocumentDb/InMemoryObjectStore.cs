@@ -17,8 +17,7 @@ namespace Composable.Persistence.DocumentDb
         {
             lock(LockObject)
             {
-                object value;
-                return TryGet(type, id, out value);
+                return TryGet(type, id, out _);
             }
         }
 

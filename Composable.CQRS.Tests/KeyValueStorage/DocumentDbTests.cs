@@ -355,20 +355,19 @@ namespace Composable.CQRS.Tests.KeyValueStorage
                                         user = reader.Get<User>(user.Id);
                                         updater.Delete(user);
 
-                                        User tmpUser;
-                                        reader.TryGet(user.Id, out tmpUser)
+                                        reader.TryGet(user.Id, out User _)
                                               .Should()
                                               .Be(false);
                                         updater.Save(user);
-                                        reader.TryGet(user.Id, out tmpUser)
+                                        reader.TryGet(user.Id, out User _)
                                               .Should()
                                               .Be(true);
                                         updater.Delete(user);
-                                        reader.TryGet(user.Id, out tmpUser)
+                                        reader.TryGet(user.Id, out User _)
                                               .Should()
                                               .Be(false);
                                         updater.Save(user);
-                                        reader.TryGet(user.Id, out tmpUser)
+                                        reader.TryGet(user.Id, out User _)
                                               .Should()
                                               .Be(true);
                                     });

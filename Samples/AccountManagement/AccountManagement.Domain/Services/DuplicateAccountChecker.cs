@@ -14,8 +14,7 @@ namespace AccountManagement.Domain.Services
         {
             Contract.Argument(() => email).NotNull();
 
-            EmailToAccountMapQueryModel ignored;
-            if(_querymodels.TryGet(email, out ignored))
+            if(_querymodels.TryGet(email, out EmailToAccountMapQueryModel _))
             {
                 throw new DuplicateAccountException(email);
             }

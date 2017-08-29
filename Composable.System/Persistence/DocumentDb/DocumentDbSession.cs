@@ -131,8 +131,7 @@ namespace Composable.Persistence.DocumentDb
             _usageGuard.AssertNoContextChangeOccurred(this);
             EnsureParticipatingInTransaction();
 
-            TValue ignored;
-            if (TryGetInternal(id, value.GetType(), out ignored))
+            if (TryGetInternal(id, value.GetType(), out TValue _))
             {
                 throw new AttemptToSaveAlreadyPersistedValueException(id, value);
             }
@@ -169,8 +168,7 @@ namespace Composable.Persistence.DocumentDb
             _usageGuard.AssertNoContextChangeOccurred(this);
             EnsureParticipatingInTransaction();
 
-            T ignored;
-            if(!TryGet(id, out ignored))
+            if(!TryGet(id, out T _))
             {
                 throw new NoSuchDocumentException(id, typeof(T));
             }

@@ -118,7 +118,7 @@ namespace Composable.System.Threading.ResourceAccess
                 Assert(_threadsWithSharedLocks  == 0 || _currentThreadUnreleasedSharedLocks.Values.Count(unreleased => unreleased > 0) == 1, "If there are shared locks the threads with shared locks match the recorded number");
             }
 
-            // ReSharper disable once UnusedParameter.Local
+            // ReSharper disable once ParameterOnlyUsedForPreconditionCheck.Local
             static void Assert(bool condition, string error)
             {
                 if(!condition)

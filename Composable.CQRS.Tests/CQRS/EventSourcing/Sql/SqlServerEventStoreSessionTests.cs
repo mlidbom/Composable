@@ -58,7 +58,7 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.Sql
             getHistorySection.LetOneThreadPass();
             changeEmailSection.LetOneThreadEnterAndReachExit();
             changeEmailSection.Open();
-            getHistorySection.LetOneThreadPass();
+            getHistorySection.Open();
 
             Task.WaitAll(tasks);//Sql duplicate key (AggregateId, Version) Exception would be thrown here if history was not serialized
 

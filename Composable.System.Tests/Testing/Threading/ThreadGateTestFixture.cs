@@ -54,7 +54,7 @@ namespace Composable.Tests.Testing.Threading
                                                   () =>
                                                   {
                                                       entrantEvent.HasStarted.Set();
-                                                      Gate.PassThrough();
+                                                      Gate.Pass();
                                                       entrantEvent.HasCompleted.Set();
                                                   },
                                                   TaskCreationOptions.LongRunning))
@@ -69,7 +69,7 @@ namespace Composable.Tests.Testing.Threading
 
         public ThreadGateTestFixture WaitForAllThreadsToQueueUpAtPassThrough()
         {
-            ThreadGateExtensions.WaitUntil(Gate, _ => _.QueueLength == NumberOfThreads);
+            ThreadGateExtensions.Await(Gate, _ => _.Queued == NumberOfThreads);
             return this;
         }
 

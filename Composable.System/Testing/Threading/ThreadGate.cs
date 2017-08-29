@@ -1,4 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
 using Composable.Contracts;
 using Composable.System.Threading;
 
@@ -6,8 +9,8 @@ namespace Composable.Testing.Threading
 {
     interface IThreadGateVisitor
     {
-        void PassThrough();
-        void PassThrough(TimeSpan timeout);
+        void Pass();
+        void Pass(TimeSpan timeout);
     }
 
     interface IThreadGate : IThreadGateVisitor
@@ -15,8 +18,8 @@ namespace Composable.Testing.Threading
         ///<summary>Opens the gate and lets all threads through.</summary>
         IThreadGate Open();
 
-        ///<summary>Lets a single thread through.</summary>
-        IThreadGate LetOneThreadPassThrough();
+        ///<summary>Lets a single thread pass.</summary>
+        IThreadGate LetOneThreadPass();
 
         ///<summary>Blocks all threads from passing.</summary>
         IThreadGate Close();
@@ -25,23 +28,38 @@ namespace Composable.Testing.Threading
         IThreadGate ExecuteOnce(TimeSpan timeout, Predicate<IThreadGate> condition, Action<IThreadGate, IObjectLockOwner> action);
 
         bool IsOpen { get; }
-        long QueueLength { get; }
-        long RequestCount { get; }
-        long PassedThrough { get; }
+
+        long Queued { get; }
+        long Requested { get; }
+        long Passed { get; }
         TimeSpan DefaultTimeout { get; }
+
+        IReadOnlyList<Thread> RequestedThreads { get; }
+        IReadOnlyList<Thread> QueuedThreads { get; }
+        IReadOnlyList<Thread> PassedThreads { get; }
     }
 
     static class ThreadGateExtensions
     {
-        public static IThreadGate WaitUntilClosed(this IThreadGate @this) => @this.WaitUntil(_ => !@this.IsOpen);
-        public static IThreadGate WaitUntil(this IThreadGate @this, Predicate<IThreadGate> condition) => @this.WaitUntil(@this.DefaultTimeout, condition);
-        public static IThreadGate WaitUntil(this IThreadGate @this, TimeSpan timeout, Predicate<IThreadGate> condition) => @this.ExecuteOnce(@this.DefaultTimeout, condition, (gate, owner) => { });
-        public static IThreadGate WaitUntilQueueIsEmpty(this IThreadGate @this) => @this.WaitUntil(me => me.QueueLength == 0);
+        public static IThreadGate Await(this IThreadGate @this, Predicate<IThreadGate> condition) => @this.Await(@this.DefaultTimeout, condition);
+        public static IThreadGate Await(this IThreadGate @this, TimeSpan timeout, Predicate<IThreadGate> condition) => @this.ExecuteOnce(timeout, condition, (gate, owner) => {});
+        public static IThreadGate AwaitClosed(this IThreadGate @this) => @this.Await(_ => !@this.IsOpen);
+        public static IThreadGate AwaitEmptyQueue(this IThreadGate @this) => @this.Await(me => me.Queued == 0);
     }
 
     class ThreadGate : IThreadGate
     {
         public static IThreadGate WithTimeout(TimeSpan timeout) => new ThreadGate("unnamed", timeout);
+
+        public TimeSpan DefaultTimeout => _defaultTimeout;
+        public bool IsOpen => _open;
+        public long Queued => _settingsLock.ExecuteWithExclusiveLock(() => _queuedThreads.Count);
+        public long Passed => _settingsLock.ExecuteWithExclusiveLock(() => _passedThreads.Count);
+        public long Requested => _settingsLock.ExecuteWithExclusiveLock(() => _requestsThreads.Count);
+
+        public IReadOnlyList<Thread> RequestedThreads => _settingsLock.ExecuteWithExclusiveLock(() => _requestsThreads.ToList());
+        public IReadOnlyList<Thread> QueuedThreads => _settingsLock.ExecuteWithExclusiveLock(() => _queuedThreads.ToList());
+        public IReadOnlyList<Thread> PassedThreads => _settingsLock.ExecuteWithExclusiveLock(() => _passedThreads.ToList());
 
         public IThreadGate Open()
         {
@@ -55,7 +73,7 @@ namespace Composable.Testing.Threading
             return this;
         }
 
-        public IThreadGate LetOneThreadPassThrough()
+        public IThreadGate LetOneThreadPass()
         {
             using(var ownedLock = _settingsLock.LockForExclusiveUse())
             {
@@ -80,25 +98,21 @@ namespace Composable.Testing.Threading
             return this;
         }
 
-        public TimeSpan DefaultTimeout => _defaultTimeout;
-        public long QueueLength => _settingsLock.ExecuteWithExclusiveLock(() => _requestedPassThrough - _passedThrough);
-        public long PassedThrough => _settingsLock.ExecuteWithExclusiveLock(() => _passedThrough);
-        public long RequestCount => _settingsLock.ExecuteWithExclusiveLock(() => _requestedPassThrough);
-        public bool IsOpen => _open;
-
         public IThreadGate Close()
         {
             _settingsLock.ExecuteWithExclusiveLock(() => _open = false);
             return this;
         }
 
-        public void PassThrough() => PassThrough(_defaultTimeout);
+        public void Pass() => Pass(_defaultTimeout);
 
-        public void PassThrough(TimeSpan timeout)
+        public void Pass(TimeSpan timeout)
         {
             using(var ownedLock = _settingsLock.LockForExclusiveUse(_defaultTimeout))
             {
-                _requestedPassThrough++;
+                var currentThread = Thread.CurrentThread;
+                _requestsThreads.Add(currentThread);
+                _queuedThreads.AddLast(currentThread);
                 ownedLock.PulseAll();
                 while(!_open)
                 {
@@ -110,15 +124,15 @@ namespace Composable.Testing.Threading
                     _lockOnNextPass = false;
                     _open = false;
                 }
-                _passedThrough++;
+
+                _queuedThreads.Remove(currentThread);
+                _passedThreads.Add(currentThread);
                 ownedLock.PulseAll();
             }
         }
 
         public string Name { get; }
         bool _lockOnNextPass;
-        long _requestedPassThrough;
-        long _passedThrough;
 
         ThreadGate(string name, TimeSpan defaultTimeout)
         {
@@ -130,5 +144,9 @@ namespace Composable.Testing.Threading
         public readonly TimeSpan _defaultTimeout;
         readonly IObjectLock _settingsLock;
         bool _open;
+
+        List<Thread> _requestsThreads = new List<Thread>();
+        LinkedList<Thread> _queuedThreads = new LinkedList<Thread>();
+        List<Thread> _passedThreads = new List<Thread>();
     }
 }

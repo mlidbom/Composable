@@ -10,14 +10,14 @@ namespace Composable.Tests.Testing.Threading
     [TestFixture] public class Given_a_locked_ThreadGate
     {
         [Test] public void Calling_AllowOneThreadToPassThrough_twice_throws_an_ObjectTimeOutException_since_the_gate_is_open_due_to_the_first_call_and_no_threads_having_passed()
-            => Assert.Throws<Composable.Contracts.AssertionException>(() => ThreadGate.WithTimeout(10.Milliseconds()).LetOneThreadPassThrough().LetOneThreadPassThrough());
+            => Assert.Throws<Composable.Contracts.AssertionException>(() => ThreadGate.WithTimeout(10.Milliseconds()).LetOneThreadPass().LetOneThreadPass());
 
         public class After_starting_10_threads_that_all_call_PassThrough
         {
             [Test] public void Within_10_milliseconds_all_threads_are_blocked_on_Passthrough_and_none_have_passed_the_gate()
             {
                 var fixture = ThreadGateTestFixture.StartEntrantsOnThreads(10);
-                fixture.Gate.WaitUntil(10.Milliseconds(), gate => gate.QueueLength == fixture.NumberOfThreads);
+                fixture.Gate.Await(10.Milliseconds(), gate => gate.Queued == fixture.NumberOfThreads);
                 fixture.ThreadsPassedTheGate(0.Milliseconds()).Should().Be(0);
             }
 
@@ -31,11 +31,11 @@ namespace Composable.Tests.Testing.Threading
 
                 [Test] public void _10_milliseconds_later_no_thread_has_passed_the_gate() => _fixture.ThreadsPassedTheGate(10.Milliseconds()).Should().Be(0);
 
-                [Test] public void PassedThrough_is_0() => _fixture.Gate.PassedThrough.Should().Be(0);
+                [Test] public void PassedThrough_is_0() => _fixture.Gate.Passed.Should().Be(0);
 
-                [Test] public void QueueLength_is_10() => _fixture.Gate.QueueLength.Should().Be(10);
+                [Test] public void QueueLength_is_10() => _fixture.Gate.Queued.Should().Be(10);
 
-                [Test] public void RequestCount_is_10() => _fixture.Gate.RequestCount.Should().Be(10);
+                [Test] public void RequestCount_is_10() => _fixture.Gate.Requested.Should().Be(10);
             }
         }
 
@@ -45,18 +45,18 @@ namespace Composable.Tests.Testing.Threading
             [SetUp] public void SetupTask()
             {
                 _fixture = ThreadGateTestFixture.StartEntrantsOnThreads(10).WaitForAllThreadsToQueueUpAtPassThrough();
-                _fixture.Gate.LetOneThreadPassThrough();
+                _fixture.Gate.LetOneThreadPass();
             }
 
             [TearDown] public void TearDownTask() => _fixture.Dispose();
 
             [Test] public void _10_milliseconds_later_one_thread_has_passed_the_gate() => _fixture.ThreadsPassedTheGate(10.Milliseconds()).Should().Be(1);
 
-            [Test] public void PassedThrough_is_1() => _fixture.Gate.PassedThrough.Should().Be(1);
+            [Test] public void PassedThrough_is_1() => _fixture.Gate.Passed.Should().Be(1);
 
-            [Test] public void QueueLength_is_9() => _fixture.Gate.QueueLength.Should().Be(9);
+            [Test] public void QueueLength_is_9() => _fixture.Gate.Queued.Should().Be(9);
 
-            [Test] public void RequestCount_is_10() => _fixture.Gate.RequestCount.Should().Be(10);
+            [Test] public void RequestCount_is_10() => _fixture.Gate.Requested.Should().Be(10);
         }
 
         [TestFixture] public class After_10_threads_have_queued_up_at_PassThrough_and_LetOneThreadPassThrough_is_called_five_times
@@ -65,18 +65,18 @@ namespace Composable.Tests.Testing.Threading
             [SetUp] public void SetupTask()
             {
                 _fixture = ThreadGateTestFixture.StartEntrantsOnThreads(10).WaitForAllThreadsToQueueUpAtPassThrough();
-                1.Through(5).ForEach(_ => _fixture.Gate.LetOneThreadPassThrough());
+                1.Through(5).ForEach(_ => _fixture.Gate.LetOneThreadPass().AwaitClosed());
             }
 
             [TearDown] public void TearDownTask() => _fixture.Dispose();
 
             [Test] public void _10_milliseconds_later_five_threads_have_passed_the_gate() => _fixture.ThreadsPassedTheGate(10.Milliseconds()).Should().Be(5);
 
-            [Test] public void PassedThrough_is_5() => _fixture.Gate.PassedThrough.Should().Be(5);
+            [Test] public void PassedThrough_is_5() => _fixture.Gate.Passed.Should().Be(5);
 
-            [Test] public void QueueLength_is_5() => _fixture.Gate.QueueLength.Should().Be(5);
+            [Test] public void QueueLength_is_5() => _fixture.Gate.Queued.Should().Be(5);
 
-            [Test] public void RequestCount_is_10() => _fixture.Gate.RequestCount.Should().Be(10);
+            [Test] public void RequestCount_is_10() => _fixture.Gate.Requested.Should().Be(10);
         }
 
         [TestFixture(3, 1)]
@@ -108,18 +108,18 @@ namespace Composable.Tests.Testing.Threading
             [SetUp] public void SetupTask()
             {
                 _fixture = ThreadGateTestFixture.StartEntrantsOnThreads(_threads).WaitForAllThreadsToQueueUpAtPassThrough();
-                1.Through(_timesToCallLetOneThreadPassThrough).ForEach(_ => _fixture.Gate.LetOneThreadPassThrough().WaitUntilClosed());
+                1.Through(_timesToCallLetOneThreadPassThrough).ForEach(_ => _fixture.Gate.LetOneThreadPass().AwaitClosed());
             }
 
             [TearDown] public void TearDownTask() => _fixture.Dispose();
 
             [Test] public void _100_milliseconds_later_X_threads_have_passed_the_gate() => _fixture.ThreadsPassedTheGate(100.Milliseconds()).Should().Be(_timesToCallLetOneThreadPassThrough);
 
-            [Test] public void PassedThrough_is_X() => _fixture.Gate.PassedThrough.Should().Be(_timesToCallLetOneThreadPassThrough);
+            [Test] public void PassedThrough_is_X() => _fixture.Gate.Passed.Should().Be(_timesToCallLetOneThreadPassThrough);
 
-            [Test] public void QueueLength_is_Y_minus_X() => _fixture.Gate.QueueLength.Should().Be(Math.Max(0, _threads - _timesToCallLetOneThreadPassThrough));
+            [Test] public void QueueLength_is_Y_minus_X() => _fixture.Gate.Queued.Should().Be(Math.Max(0, _threads - _timesToCallLetOneThreadPassThrough));
 
-            [Test] public void RequestCount_is_Y() => _fixture.Gate.RequestCount.Should().Be(_threads);
+            [Test] public void RequestCount_is_Y() => _fixture.Gate.Requested.Should().Be(_threads);
         }
     }
 }

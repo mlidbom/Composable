@@ -24,11 +24,10 @@ namespace Composable.Testing.Threading
         ///<summary>Blocks all threads from passing.</summary>
         IThreadGate Close();
 
-        ///<summary>Blocks until the gate is in a state which satisfies <see cref="condition"/> and then while owning the lock execuces <see cref="action"/></summary>
-        IThreadGate ExecuteOnce(TimeSpan timeout, Predicate<IThreadGate> condition, Action<IThreadGate, IObjectLockOwner> action);
+        ///<summary>Blocks until the gate is in a state which satisfies <see cref="condition"/> and then while owning the lock executes <see cref="action"/></summary>
+        IThreadGate ExecuteLockedOnce(TimeSpan timeout, Predicate<IThreadGate> condition, Action<IThreadGate, IObjectLockOwner> action);
 
         bool IsOpen { get; }
-
         long Queued { get; }
         long Requested { get; }
         long Passed { get; }
@@ -42,31 +41,31 @@ namespace Composable.Testing.Threading
     static class ThreadGateExtensions
     {
         public static IThreadGate Await(this IThreadGate @this, Predicate<IThreadGate> condition) => @this.Await(@this.DefaultTimeout, condition);
-        public static IThreadGate Await(this IThreadGate @this, TimeSpan timeout, Predicate<IThreadGate> condition) => @this.ExecuteOnce(timeout, condition, (gate, owner) => {});
+        public static IThreadGate Await(this IThreadGate @this, TimeSpan timeout, Predicate<IThreadGate> condition) => @this.ExecuteLockedOnce(timeout, condition, (gate, owner) => {});
         public static IThreadGate AwaitClosed(this IThreadGate @this) => @this.Await(_ => !@this.IsOpen);
         public static IThreadGate AwaitEmptyQueue(this IThreadGate @this) => @this.Await(me => me.Queued == 0);
     }
 
     class ThreadGate : IThreadGate
     {
-        public static IThreadGate WithTimeout(TimeSpan timeout) => new ThreadGate("unnamed", timeout);
+        public static IThreadGate WithTimeout(TimeSpan timeout) => new ThreadGate(timeout);
 
         public TimeSpan DefaultTimeout => _defaultTimeout;
-        public bool IsOpen => _open;
-        public long Queued => _settingsLock.ExecuteWithExclusiveLock(() => _queuedThreads.Count);
-        public long Passed => _settingsLock.ExecuteWithExclusiveLock(() => _passedThreads.Count);
-        public long Requested => _settingsLock.ExecuteWithExclusiveLock(() => _requestsThreads.Count);
+        public bool IsOpen => _isOpen;
+        public long Queued => _lock.ExecuteWithExclusiveLock(() => _queuedThreads.Count);
+        public long Passed => _lock.ExecuteWithExclusiveLock(() => _passedThreads.Count);
+        public long Requested => _lock.ExecuteWithExclusiveLock(() => _requestsThreads.Count);
 
-        public IReadOnlyList<Thread> RequestedThreads => _settingsLock.ExecuteWithExclusiveLock(() => _requestsThreads.ToList());
-        public IReadOnlyList<Thread> QueuedThreads => _settingsLock.ExecuteWithExclusiveLock(() => _queuedThreads.ToList());
-        public IReadOnlyList<Thread> PassedThreads => _settingsLock.ExecuteWithExclusiveLock(() => _passedThreads.ToList());
+        public IReadOnlyList<Thread> RequestedThreads => _lock.ExecuteWithExclusiveLock(() => _requestsThreads.ToList());
+        public IReadOnlyList<Thread> QueuedThreads => _lock.ExecuteWithExclusiveLock(() => _queuedThreads.ToList());
+        public IReadOnlyList<Thread> PassedThreads => _lock.ExecuteWithExclusiveLock(() => _passedThreads.ToList());
 
         public IThreadGate Open()
         {
-            using(var ownedLock = _settingsLock.LockForExclusiveUse())
+            using(var ownedLock = _lock.LockForExclusiveUse())
             {
-                Contract.Assert.That(!_open, "Gate must be closed to call this method.");
-                _open = true;
+                Contract.Assert.That(!_isOpen, "Gate must be closed to call this method.");
+                _isOpen = true;
                 _lockOnNextPass = false;
                 ownedLock.PulseAll();
             }
@@ -75,19 +74,19 @@ namespace Composable.Testing.Threading
 
         public IThreadGate LetOneThreadPass()
         {
-            using(var ownedLock = _settingsLock.LockForExclusiveUse())
+            using(var ownedLock = _lock.LockForExclusiveUse())
             {
-                Contract.Assert.That(!_open, "Gate must be closed to call this method.");
-                _open = true;
+                Contract.Assert.That(!_isOpen, "Gate must be closed to call this method.");
+                _isOpen = true;
                 _lockOnNextPass = true;
                 ownedLock.PulseAll();
             }
             return this;
         }
 
-        public IThreadGate ExecuteOnce(TimeSpan timeout, Predicate<IThreadGate> condition, Action<IThreadGate, IObjectLockOwner> action)
+        public IThreadGate ExecuteLockedOnce(TimeSpan timeout, Predicate<IThreadGate> condition, Action<IThreadGate, IObjectLockOwner> action)
         {
-            using(var ownedLock = _settingsLock.LockForExclusiveUse(timeout))
+            using(var ownedLock = _lock.LockForExclusiveUse(timeout))
             {
                 while(!condition(this))
                 {
@@ -100,7 +99,7 @@ namespace Composable.Testing.Threading
 
         public IThreadGate Close()
         {
-            _settingsLock.ExecuteWithExclusiveLock(() => _open = false);
+            _lock.ExecuteWithExclusiveLock(() => _isOpen = false);
             return this;
         }
 
@@ -108,13 +107,13 @@ namespace Composable.Testing.Threading
 
         public void Pass(TimeSpan timeout)
         {
-            using(var ownedLock = _settingsLock.LockForExclusiveUse(_defaultTimeout))
+            using(var ownedLock = _lock.LockForExclusiveUse(_defaultTimeout))
             {
                 var currentThread = Thread.CurrentThread;
                 _requestsThreads.Add(currentThread);
                 _queuedThreads.AddLast(currentThread);
                 ownedLock.PulseAll();
-                while(!_open)
+                while(!_isOpen)
                 {
                     ownedLock.Wait();
                 }
@@ -122,7 +121,7 @@ namespace Composable.Testing.Threading
                 if(_lockOnNextPass)
                 {
                     _lockOnNextPass = false;
-                    _open = false;
+                    _isOpen = false;
                 }
 
                 _queuedThreads.Remove(currentThread);
@@ -131,22 +130,18 @@ namespace Composable.Testing.Threading
             }
         }
 
-        public string Name { get; }
-        bool _lockOnNextPass;
-
-        ThreadGate(string name, TimeSpan defaultTimeout)
+        ThreadGate(TimeSpan defaultTimeout)
         {
-            _settingsLock = ObjectLock.WithTimeout(defaultTimeout);
+            _lock = ObjectLock.WithTimeout(defaultTimeout);
             _defaultTimeout = defaultTimeout;
-            Name = name;
         }
 
-        public readonly TimeSpan _defaultTimeout;
-        readonly IObjectLock _settingsLock;
-        bool _open;
-
-        List<Thread> _requestsThreads = new List<Thread>();
-        LinkedList<Thread> _queuedThreads = new LinkedList<Thread>();
-        List<Thread> _passedThreads = new List<Thread>();
+        readonly TimeSpan _defaultTimeout;
+        readonly IObjectLock _lock;
+        bool _lockOnNextPass;
+        bool _isOpen;
+        readonly List<Thread> _requestsThreads = new List<Thread>();
+        readonly LinkedList<Thread> _queuedThreads = new LinkedList<Thread>();
+        readonly List<Thread> _passedThreads = new List<Thread>();
     }
 }

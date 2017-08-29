@@ -11,9 +11,8 @@ namespace Composable.System.Threading.ResourceAccess
 
     interface IExclusiveResourceLock : IResourceLock
     {
-        void ReleaseLockAwaitUpdateNotificationAndAwaitExclusiveLock();
         void SendUpdateNotificationToOneThreadAwaitingUpdateNotification();
         void SendUpdateNotificationToAllThreadsAwaitingUpdateNotification();
-        void ReleaseLockAwaitUpdateNotificationAndAwaitExclusiveLock(TimeSpan timeout);
+        void ReleaseLockAwaitUpdateNotificationAndAwaitExclusiveLock(TimeSpan? timeout = null);
     }
 }

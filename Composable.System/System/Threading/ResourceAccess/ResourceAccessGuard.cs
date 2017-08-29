@@ -58,17 +58,9 @@ namespace Composable.System.Threading.ResourceAccess
                     }
                 }
 
-                public void ReleaseLockAwaitUpdateNotificationAndAwaitExclusiveLock()
+                public void ReleaseLockAwaitUpdateNotificationAndAwaitExclusiveLock(TimeSpan? timeoutOwerride = null)
                 {
-                    if(!Monitor.Wait(_parent._lockedObject, _parent._defaultTimeout))
-                    {
-                        throw new AwaitingExclusiveResourceLockTimeoutException(_parent._lockedObject);
-                    }
-                }
-
-                public void ReleaseLockAwaitUpdateNotificationAndAwaitExclusiveLock(TimeSpan timeout)
-                {
-                    if(!Monitor.Wait(_parent._lockedObject, timeout))
+                    if(!Monitor.Wait(_parent._lockedObject, timeoutOwerride ?? _parent._defaultTimeout))
                     {
                         throw new AwaitingExclusiveResourceLockTimeoutException(_parent._lockedObject);
                     }

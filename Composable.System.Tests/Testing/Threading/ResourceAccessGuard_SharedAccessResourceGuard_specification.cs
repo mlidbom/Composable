@@ -29,16 +29,10 @@ namespace Composable.Tests.Testing.Threading
                 });
 
             otherThreadIsWaitingForLock.Wait();
-
-            otherThreadGotLock.Wait(10.Milliseconds())
-                              .Should()
-                              .BeFalse();
+            otherThreadGotLock.Wait(10.Milliseconds()).Should().BeFalse();
 
             exclusiveLock.Dispose();
-
-            otherThreadGotLock.Wait(10.Milliseconds())
-                              .Should()
-                              .BeTrue();
+            otherThreadGotLock.Wait(10.Milliseconds()).Should().BeTrue();
 
             Task.WaitAll(otherThreadTask);
         }
@@ -63,15 +57,12 @@ namespace Composable.Tests.Testing.Threading
                 });
 
             otherThreadIsWaitingForLock.Wait();
-
             otherThreadGotLock.Wait(10.Milliseconds()).Should().BeFalse();
 
             exclusiveLock1.Dispose();
-
             otherThreadGotLock.Wait(10.Milliseconds()).Should().BeFalse();
 
             exclusiveLock2.Dispose();
-
             otherThreadGotLock.Wait(10.Milliseconds()).Should().BeTrue();
 
             Task.WaitAll(otherThreadTask);
@@ -79,30 +70,18 @@ namespace Composable.Tests.Testing.Threading
 
         [TestFixture] public class Given_a_timeout_of_10_milliseconds_an_exception_is_thrown_By_Get_within_15_milliseconds_if_lock_is_not_acquired
         {
-            [Test] public void Exception_is_ObjectLockTimedOutException()
-            {
-                RunScenario(ownerThreadWaitTime: 0.Milliseconds())
-                    .Should()
-                    .BeOfType<AwaitingExclusiveResourceLockTimeoutException>();
-            }
+            [Test] public void Exception_is_ObjectLockTimedOutException() 
+                => RunScenario(ownerThreadWaitTime: 0.Milliseconds()).Should().BeOfType<AwaitingExclusiveResourceLockTimeoutException>();
 
-            [Test] public void If_owner_thread_blocks_for_less_than_stacktrace_timeout_Exception_contains_owning_threads_stack_trace()
-            {
-                RunScenario(ownerThreadWaitTime: 30.Milliseconds())
-                    .Message.Should()
-                    .Contain(nameof(DisposeOwningThreadLock));
-            }
+            [Test] public void If_owner_thread_blocks_for_less_than_stacktrace_timeout_Exception_contains_owning_threads_stack_trace() 
+                => RunScenario(ownerThreadWaitTime: 30.Milliseconds()).Message.Should().Contain(nameof(DisposeOwningThreadLock));
 
-            [Test] public void If_owner_thread_blocks_for_more_than_stacktrace_timeout__Exception_does_not_contain_owning_threads_stack_trace()
-            {
-                RunScenario(ownerThreadWaitTime: 100.Milliseconds())
-                    .Message.Should()
-                    .Contain(nameof(DisposeOwningThreadLock));
-            }
+            [Test] public void If_owner_thread_blocks_for_more_than_stacktrace_timeout__Exception_does_not_contain_owning_threads_stack_trace() 
+                => RunScenario(ownerThreadWaitTime: 100.Milliseconds()).Message.Should().Contain(nameof(DisposeOwningThreadLock));
 
-            [Test] public void PrintException() { Console.WriteLine(RunScenario(0.Milliseconds())); }
+            [Test] public void PrintException() => Console.WriteLine(RunScenario(0.Milliseconds()));
 
-            static void DisposeOwningThreadLock(IDisposable disposable) { disposable.Dispose(); }
+            static void DisposeOwningThreadLock(IDisposable disposable) => disposable.Dispose();
 
             static Exception RunScenario(TimeSpan ownerThreadWaitTime)
             {

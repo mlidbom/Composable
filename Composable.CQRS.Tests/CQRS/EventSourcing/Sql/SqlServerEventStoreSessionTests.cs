@@ -53,10 +53,10 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.Sql
             }
 
             var threads = 2;
-            var tasks = 1.Through(threads).Select(resetEvent => Task.Factory.StartNew(() => UpdateEmail())).ToArray();
+            var tasks = 1.Through(threads).Select(resetEvent => Task.Factory.StartNew(UpdateEmail)).ToArray();
 
             getHistorySection.LetOneThreadPass();
-            changeEmailSection.LetOneThreadEnter().ExitGate.AwaitQueueLength(1);
+            changeEmailSection.LetOneThreadEnterAndReachExit();
             changeEmailSection.Open();
             getHistorySection.LetOneThreadPass();
 

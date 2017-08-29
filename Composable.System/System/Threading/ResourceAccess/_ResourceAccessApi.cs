@@ -7,10 +7,9 @@ namespace Composable.System.Threading.ResourceAccess
         IExclusiveResourceLock AwaitExclusiveLock(TimeSpan? timeoutOverride = null);
     }
 
-    interface ISharedResourceAccessGuard
+    interface ISharedResourceAccessGuard : IExclusiveResourceAccessGuard
     {
         IDisposable AwaitSharedLock(TimeSpan? timeoutOverride = null);
-        IDisposable AwaitExclusiveLock(TimeSpan? timeoutOverride = null);
     }
 
     interface IResourceLock : IDisposable {}
@@ -19,6 +18,6 @@ namespace Composable.System.Threading.ResourceAccess
     {
         void SendUpdateNotificationToOneThreadAwaitingUpdateNotification();
         void SendUpdateNotificationToAllThreadsAwaitingUpdateNotification();
-        void ReleaseLockAwaitUpdateNotificationAndAwaitExclusiveLock(TimeSpan? timeout = null);
+        void ReleaseLockAwaitUpdateNotificationAndAwaitExclusiveLock(TimeSpan? timeoutOverride = null);
     }
 }

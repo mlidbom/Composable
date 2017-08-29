@@ -84,9 +84,9 @@ namespace Composable.System.Threading.ResourceAccess
                     }
                 }
 
-                public void ReleaseLockAwaitUpdateNotificationAndAwaitExclusiveLock(TimeSpan? timeoutOwerride = null)
+                public void ReleaseLockAwaitUpdateNotificationAndAwaitExclusiveLock(TimeSpan? timeoutOverride = null)
                 {
-                    if(!Monitor.Wait(_parent._lockedObject, timeoutOwerride ?? _parent._defaultTimeout))
+                    if(!Monitor.Wait(_parent._lockedObject, timeoutOverride ?? _parent._defaultTimeout))
                     {
                         throw new AwaitingExclusiveResourceLockTimeoutException();
                     }
@@ -112,34 +112,6 @@ namespace Composable.System.Threading.ResourceAccess
                 _maxSharedLocks = maxSharedLocks;
             }
 
-            public IDisposable AwaitExclusiveLock(TimeSpan? timeoutOverride = null)
-            {
-                IExclusiveResourceLock exclusiveLock = null;
-                try
-                {
-                    exclusiveLock = _exclusiveAccessGuard.AwaitExclusiveLock(timeoutOverride);
-                    _waitingForExclusiveLock = true;
-                    while(_exclusivelyLocked || _currentSharedLocks != 0)
-                    {
-                        exclusiveLock.ReleaseLockAwaitUpdateNotificationAndAwaitExclusiveLock(timeoutOverride);
-                    }
-                    _exclusivelyLocked = true;
-                    _waitingForExclusiveLock = false;
-                }
-                catch(Exception)
-                {
-                    exclusiveLock?.Dispose();
-                    throw;
-                }
-
-                return Disposable.Create(
-                    () =>
-                    {
-                        exclusiveLock.SendUpdateNotificationToAllThreadsAwaitingUpdateNotification();
-                        exclusiveLock.Dispose();
-                    });
-            }
-
             public IDisposable AwaitSharedLock(TimeSpan? timeoutOverride = null)
             {
                 using(var exclusiveLock = _exclusiveAccessGuard.AwaitExclusiveLock(timeoutOverride))
@@ -160,6 +132,71 @@ namespace Composable.System.Threading.ResourceAccess
                                 disposingExclusiveLock.SendUpdateNotificationToOneThreadAwaitingUpdateNotification();
                             }
                         });
+                }
+            }
+
+            public IExclusiveResourceLock AwaitExclusiveLock(TimeSpan? timeoutOverride = null)
+            {
+                IExclusiveResourceLock exclusiveLock = null;
+                try
+                {
+                    exclusiveLock = _exclusiveAccessGuard.AwaitExclusiveLock(timeoutOverride);
+                    AwaitExclusiveLock(timeoutOverride, exclusiveLock);
+                }
+                catch (Exception)
+                {
+                    exclusiveLock?.Dispose();
+                    throw;
+                }
+
+                return new ExclusiveResourceAccessLockToSharedResource(this, exclusiveLock);
+            }
+
+            void AwaitExclusiveLock(TimeSpan? timeoutOverride, IExclusiveResourceLock exclusiveLock)
+            {
+                _waitingForExclusiveLock = true;
+                while(_exclusivelyLocked || _currentSharedLocks != 0)
+                {
+                    exclusiveLock.ReleaseLockAwaitUpdateNotificationAndAwaitExclusiveLock(timeoutOverride);
+                }
+                _exclusivelyLocked = true;
+                _waitingForExclusiveLock = false;
+            }
+
+            class ExclusiveResourceAccessLockToSharedResource : IExclusiveResourceLock
+            {
+                readonly SharedResourceAccessGuard _parent;
+                readonly IExclusiveResourceLock _parentLock;
+
+                public ExclusiveResourceAccessLockToSharedResource(SharedResourceAccessGuard parent, IExclusiveResourceLock parentLock)
+                {
+                    _parent = parent;
+                    _parentLock = parentLock;
+                }
+
+
+                public void SendUpdateNotificationToOneThreadAwaitingUpdateNotification()
+                {
+                    _parentLock.SendUpdateNotificationToOneThreadAwaitingUpdateNotification();
+                }
+
+                public void SendUpdateNotificationToAllThreadsAwaitingUpdateNotification()
+                {
+                    _parentLock.SendUpdateNotificationToAllThreadsAwaitingUpdateNotification();
+                }
+
+                public void ReleaseLockAwaitUpdateNotificationAndAwaitExclusiveLock(TimeSpan? timeoutOverride = null)
+                {
+                    _parent._exclusivelyLocked = false;
+                    _parent.AwaitExclusiveLock(timeoutOverride);
+                }
+
+                public void Dispose()
+                {
+                    using(_parentLock)
+                    {
+                        _parentLock.SendUpdateNotificationToAllThreadsAwaitingUpdateNotification();
+                    }
                 }
             }
         }

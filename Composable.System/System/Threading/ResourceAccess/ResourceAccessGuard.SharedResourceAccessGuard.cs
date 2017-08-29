@@ -94,6 +94,7 @@ namespace Composable.System.Threading.ResourceAccess
                 {
                     using (_parentLock)
                     {
+                        _parent._exclusivelyLocked = false;
                         _parentLock.SendUpdateNotificationToAllThreadsAwaitingUpdateNotification();
                     }
                 }

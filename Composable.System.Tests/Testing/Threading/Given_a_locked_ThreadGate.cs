@@ -2,6 +2,7 @@
 using System.Threading;
 using Composable.System.Linq;
 using Composable.System.Threading;
+using Composable.System.Threading.ResourceAccess;
 using Composable.Testing.Threading;
 using FluentAssertions;
 using NUnit.Framework;
@@ -11,7 +12,7 @@ namespace Composable.Tests.Testing.Threading
     [TestFixture] public class Given_a_locked_ThreadGate
     {
         [Test] public void Calling_AllowOneThreadToPassThrough_throws_an_ObjectTimeOutException_since_no_threads_are_waiting_to_pass()
-            => Assert.Throws<ObjectLockTimedOutException>(() => ThreadGate.WithTimeout(10.Milliseconds()).LetOneThreadPass());
+            => Assert.Throws<AwaitingExclusiveResourcAccessLeaseTimeoutException>(() => ThreadGate.WithTimeout(10.Milliseconds()).LetOneThreadPass());
 
         public class After_starting_10_threads_that_all_call_PassThrough
         {

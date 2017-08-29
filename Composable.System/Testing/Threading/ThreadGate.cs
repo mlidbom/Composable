@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading;
 using Composable.Contracts;
 using Composable.System.Threading;
+using Composable.System.Threading.ResourceAccess;
 
 namespace Composable.Testing.Threading
 {
@@ -25,7 +26,7 @@ namespace Composable.Testing.Threading
         IThreadGate Close();
 
         ///<summary>Blocks until the gate is in a state which satisfies <see cref="condition"/> and then while owning the lock executes <see cref="action"/></summary>
-        IThreadGate ExecuteLockedOnce(TimeSpan timeout, Predicate<IThreadGate> condition, Action<IThreadGate, IObjectLockOwner> action);
+        IThreadGate ExecuteLockedOnce(TimeSpan timeout, Predicate<IThreadGate> condition, Action<IThreadGate, IExclusiveResourceLock> action);
 
         bool IsOpen { get; }
         long Queued { get; }
@@ -64,35 +65,35 @@ namespace Composable.Testing.Threading
 
         public IThreadGate Open()
         {
-            using(var ownedLock = _lock.LockForExclusiveUse())
+            using(var ownedLock = _lock.AwaitExclusiveLock())
             {
                 Contract.Assert.That(!_isOpen, "Gate must be closed to call this method.");
                 _isOpen = true;
                 _lockOnNextPass = false;
-                ownedLock.PulseAll();
+                ownedLock.SendUpdateNotificationToAllThreadsAwaitingUpdateNotification();
             }
             return this;
         }
 
         public IThreadGate LetOneThreadPass()
         {
-            using(var ownedLock = _lock.LockForExclusiveUse())
+            using(var ownedLock = _lock.AwaitExclusiveLock())
             {
                 Contract.Assert.That(!_isOpen, "Gate must be closed to call this method.");
                 _isOpen = true;
                 _lockOnNextPass = true;
-                ownedLock.PulseAll();
+                ownedLock.SendUpdateNotificationToAllThreadsAwaitingUpdateNotification();
             }
             return this.AwaitClosed();
         }
 
-        public IThreadGate ExecuteLockedOnce(TimeSpan timeout, Predicate<IThreadGate> condition, Action<IThreadGate, IObjectLockOwner> action)
+        public IThreadGate ExecuteLockedOnce(TimeSpan timeout, Predicate<IThreadGate> condition, Action<IThreadGate, IExclusiveResourceLock> action)
         {
-            using(var ownedLock = _lock.LockForExclusiveUse(timeout))
+            using(var ownedLock = _lock.AwaitExclusiveLock(timeout))
             {
                 while(!condition(this))
                 {
-                    ownedLock.Wait();
+                    ownedLock.ReleaseLockAwaitUpdateNotificationAndAwaitExclusiveLock();
                 }
                 action(this, ownedLock);
             }
@@ -109,15 +110,15 @@ namespace Composable.Testing.Threading
 
         public void Pass(TimeSpan timeout)
         {
-            using(var ownedLock = _lock.LockForExclusiveUse(_defaultTimeout))
+            using(var ownedLock = _lock.AwaitExclusiveLock(_defaultTimeout))
             {
                 var currentThread = Thread.CurrentThread;
                 _requestsThreads.Add(currentThread);
                 _queuedThreads.AddLast(currentThread);
-                ownedLock.PulseAll();
+                ownedLock.SendUpdateNotificationToAllThreadsAwaitingUpdateNotification();
                 while(!_isOpen)
                 {
-                    ownedLock.Wait();
+                    ownedLock.ReleaseLockAwaitUpdateNotificationAndAwaitExclusiveLock();
                 }
 
                 if(_lockOnNextPass)
@@ -128,18 +129,18 @@ namespace Composable.Testing.Threading
 
                 _queuedThreads.Remove(currentThread);
                 _passedThreads.Add(currentThread);
-                ownedLock.PulseAll();
+                ownedLock.SendUpdateNotificationToAllThreadsAwaitingUpdateNotification();
             }
         }
 
         ThreadGate(TimeSpan defaultTimeout)
         {
-            _lock = ObjectLock.WithTimeout(defaultTimeout);
+            _lock = ResourceLockManager.WithTimeout(defaultTimeout);
             _defaultTimeout = defaultTimeout;
         }
 
         readonly TimeSpan _defaultTimeout;
-        readonly IObjectLock _lock;
+        readonly IExclusiveResourceLockManager _lock;
         bool _lockOnNextPass;
         bool _isOpen;
         readonly List<Thread> _requestsThreads = new List<Thread>();

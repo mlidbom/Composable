@@ -3,16 +3,17 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Composable.System.Threading;
+using Composable.System.Threading.ResourceAccess;
 using FluentAssertions;
 using NUnit.Framework;
 
 namespace Composable.Tests.Testing.Threading
 {
-    [TestFixture] public class ObjectLock_specification
+    [TestFixture] public class ResourceAccessGuard_specification
     {
         [Test] public void When_one_thread_is_running_action_version_of_execute_other_thread_is_blocked_until_first_thread_exits_execute()
         {
-            var objectLock = ObjectLock.WithTimeout(1.Seconds());
+            var objectLock = ResourceLockManager.WithTimeout(1.Seconds());
 
             var firstThreadHasEnteredExecute = new ManualResetEventSlim(false);
             var allowFirstThreadToExitExecute = new ManualResetEventSlim(false);
@@ -52,7 +53,7 @@ namespace Composable.Tests.Testing.Threading
         [Test]
         public void When_one_thread_is_running_func_version_of_execute_other_thread_is_blocked_until_first_thread_exits_execute()
         {
-            var objectLock = ObjectLock.WithTimeout(1.Seconds());
+            var objectLock = ResourceLockManager.WithTimeout(1.Seconds());
 
             var firstThreadHasEnteredExecute = new ManualResetEventSlim(false);
             var allowFirstThreadToExitExecute = new ManualResetEventSlim(false);
@@ -106,12 +107,12 @@ namespace Composable.Tests.Testing.Threading
             {
                 RunScenario(ownerThreadWaitTime: 0.Milliseconds())
                     .Should()
-                    .BeOfType<ObjectLockTimedOutException>();
+                    .BeOfType<AwaitingExclusiveResourcAccessLeaseTimeoutException>();
             }
 
             [Test] public void If_owner_thread_blocks_for_less_than_stacktrace_timeout_Exception_contain_owning_threads_stack_trace()
             {
-                ObjectLockTimedOutException.TestingOnlyRunWithModifiedTimeToWaitForOwningThreadStacktrace(
+                AwaitingExclusiveResourcAccessLeaseTimeoutException.TestingOnlyRunWithModifiedTimeToWaitForOwningThreadStacktrace(
                     50.Milliseconds(),
                     () => RunScenario(ownerThreadWaitTime: 30.Milliseconds())
                         .Message.Should()
@@ -120,7 +121,7 @@ namespace Composable.Tests.Testing.Threading
 
             [Test] public void If_owner_thread_blocks_for_more_than_stacktrace_timeout__Exception_does_not_contain_owning_threads_stack_trace()
             {
-                ObjectLockTimedOutException.TestingOnlyRunWithModifiedTimeToWaitForOwningThreadStacktrace(
+                AwaitingExclusiveResourcAccessLeaseTimeoutException.TestingOnlyRunWithModifiedTimeToWaitForOwningThreadStacktrace(
                     50.Milliseconds(),
                     () => RunScenario(ownerThreadWaitTime: 100.Milliseconds())
                         .Message.Should()
@@ -133,13 +134,13 @@ namespace Composable.Tests.Testing.Threading
 
             static Exception RunScenario(TimeSpan ownerThreadWaitTime)
             {
-                var objectLock = ObjectLock.WithTimeout(10.Milliseconds());
+                var objectLock = ResourceLockManager.WithTimeout(10.Milliseconds());
 
 #pragma warning disable 618
-                var exclusiveLock = objectLock.LockForExclusiveUse(0.Milliseconds());
+                var exclusiveLock = objectLock.AwaitExclusiveLock(0.Milliseconds());
 
                 var thrownException = Assert.Throws<AggregateException>(
-                                                () => Task.Run(() => objectLock.LockForExclusiveUse(15.Milliseconds()))
+                                                () => Task.Run(() => objectLock.AwaitExclusiveLock(15.Milliseconds()))
                                                           .Wait())
                                             .InnerExceptions.Single();
 #pragma warning restore 618

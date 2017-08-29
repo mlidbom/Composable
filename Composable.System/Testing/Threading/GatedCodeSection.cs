@@ -2,6 +2,7 @@
 using Composable.Contracts;
 using Composable.System;
 using Composable.System.Threading;
+using Composable.System.Threading.ResourceAccess;
 
 namespace Composable.Testing.Threading
 {
@@ -64,7 +65,7 @@ namespace Composable.Testing.Threading
     ///<summary>A block of code with <see cref="ThreadGate"/>s for <see cref="EntranceGate"/> and <see cref="ExitGate"/>. Useful for controlling multithreaded code for testing purposes.</summary>
     class GatedCodeSection : IGatedCodeSection
     {
-        readonly IObjectLock _lock;
+        readonly IExclusiveResourceLockManager _lock;
         public IThreadGate EntranceGate { get; }
         public IThreadGate ExitGate { get; }
 
@@ -72,14 +73,14 @@ namespace Composable.Testing.Threading
 
         GatedCodeSection(TimeSpan timeout)
         {
-            _lock = ObjectLock.WithTimeout(timeout);
+            _lock = ResourceLockManager.WithTimeout(timeout);
             EntranceGate = ThreadGate.WithTimeout(timeout);
             ExitGate = ThreadGate.WithTimeout(timeout);
         }
 
         public IGatedCodeSection WithExclusiveLock(Action action)
         {
-            using(_lock.LockForExclusiveUse())
+            using(_lock.AwaitExclusiveLock())
             {
                 //The reason for taking the lock is to inspect/modify both gates. So Take the locks right away and ensure consistency throughout the action
                 EntranceGate.WithExclusiveLock(() => ExitGate.WithExclusiveLock(action));

@@ -11,7 +11,7 @@ namespace Composable.System.Threading.ResourceAccess
 
         class ResourceLockManagerInstance : IExclusiveResourceLockManager
         {
-            List<AwaitingExclusiveResourceLockTimeoutException> _timeOutExceptionsOnOtherThreads = new List<AwaitingExclusiveResourceLockTimeoutException>();
+            readonly List<AwaitingExclusiveResourceLockTimeoutException> _timeOutExceptionsOnOtherThreads = new List<AwaitingExclusiveResourceLockTimeoutException>();
             int _timeoutsThrownDuringCurrentLock;
 
             readonly object _lockedObject;
@@ -73,7 +73,7 @@ namespace Composable.System.Threading.ResourceAccess
                                 {
                                     exception.SetBlockingThreadsDisposeStackTrace(stackTrace);
                                 }
-                                _parent._timeOutExceptionsOnOtherThreads = new List<AwaitingExclusiveResourceLockTimeoutException>();
+                                _parent._timeOutExceptionsOnOtherThreads.Clear();
                             }
                         }
                     }

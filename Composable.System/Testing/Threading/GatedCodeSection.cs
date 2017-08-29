@@ -55,9 +55,12 @@ namespace Composable.Testing.Threading
 
         public static IGatedCodeSection LetOneThreadPass(this IGatedCodeSection @this)
         {
-            @this.EntranceGate.LetOneThreadPass();
-            @this.ExitGate.LetOneThreadPass();
-            return @this;
+            return @this.WithExclusiveLock(
+                () =>
+                {
+                    @this.LetOneThreadEnterAndReachExit();
+                    @this.ExitGate.LetOneThreadPass();
+                });
         }
     }
 
@@ -81,7 +84,8 @@ namespace Composable.Testing.Threading
         {
             using (_lock.LockForExclusiveUse())
             {
-                action();
+                //The reason for taking the lock is to inspect/modify both gates. So Take the locks right away and ensure consistency throughout the action
+                EntranceGate.WithExclusiveLock(() => ExitGate.WithExclusiveLock(action));
             }
             return this;
         }

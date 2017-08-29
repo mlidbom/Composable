@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Threading;
 using Composable.Contracts;
 
@@ -13,8 +14,8 @@ namespace Composable.System.Threading.ResourceAccess
             bool _isExclusivelyLocked;
             int _threadsWithSharedLocks;
 
-            readonly ThreadLocal<int> _currentThreadUnreleasedExclusiveLocks = new ThreadLocal<int>();
-            readonly ThreadLocal<int> _currentThreadUnreleasedSharedLocks = new ThreadLocal<int>();
+            readonly ThreadLocal<int> _currentThreadUnreleasedExclusiveLocks = new ThreadLocal<int>(trackAllValues:true);
+            readonly ThreadLocal<int> _currentThreadUnreleasedSharedLocks = new ThreadLocal<int>(trackAllValues: true);
 
             readonly IExclusiveResourceAccessGuard _resourceGuard;
 
@@ -121,11 +122,27 @@ namespace Composable.System.Threading.ResourceAccess
 
             void AssertInvariantsAreMet()
             {
-                Contract.Assert.That(_currentThreadUnreleasedSharedLocks.Value > -1, "_currentThreadUnreleasedSharedLocks.Value cannot be negative");
-                Contract.Assert.That(_currentThreadUnreleasedExclusiveLocks.Value > -1, "_currentThreadUnreleasedExclusiveLocks.Value > 0");
-                Contract.Assert.That(_threadsWithSharedLocks - _currentThreadUnreleasedSharedLocks.Value == 0 || !_isExclusivelyLocked, "It is not possible for there to be both exclusive and shared locks on different threads.");
-                Contract.Assert.That(_threadsWithSharedLocks <= _maxSharedLocks, "There must not be more shared locks than are allowed");
+                var currentThreadUnreleasedSharedLocks = _currentThreadUnreleasedSharedLocks.Value;
+                var currentThreadUnreleasedExclusiveLocks = _currentThreadUnreleasedExclusiveLocks.Value;
+                var otherThreadsWithSharedlocks = _threadsWithSharedLocks - currentThreadUnreleasedSharedLocks;
 
+                Assert(currentThreadUnreleasedSharedLocks > -1, "Current thread cannot have a negative number of shared locks.");
+                Assert(currentThreadUnreleasedExclusiveLocks > -1, "Current thread cannot have a negative number of exclusive locks.");
+                Assert(_threadsWithSharedLocks <= _maxSharedLocks, "Shared locks must not exceed maximum limit.");
+                Assert(currentThreadUnreleasedSharedLocks == 0 || _threadsWithSharedLocks > 0, "If current thread has shared lock there must be shared locks");
+                Assert(currentThreadUnreleasedExclusiveLocks == 0 || _isExclusivelyLocked, "If current thread has exclusive lock there must be an exclusive lock.");
+                Assert(currentThreadUnreleasedExclusiveLocks == 0 || otherThreadsWithSharedlocks == 0, "If current thread has exclusive lock no other threads can have shared locks");
+                Assert(!_isExclusivelyLocked || _currentThreadUnreleasedExclusiveLocks.Values.Count( unreleased => unreleased > 0) == 1, "If there is an exclusive lock exactly one thread has an exclusive lock");
+                Assert(_threadsWithSharedLocks  == 0 || _currentThreadUnreleasedSharedLocks.Values.Count(unreleased => unreleased > 0) == 1, "If there are shared locks the threads with shared locks match the recorded number");
+            }
+
+            // ReSharper disable once UnusedParameter.Local
+            static void Assert(bool condition, string error)
+            {
+                if(!condition)
+                {
+                    throw new Exception(error);
+                }
             }
 
             class ExclusiveResourceAccessLockToSharedResource : IExclusiveResourceLock

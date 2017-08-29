@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 
 namespace Composable.System.Threading.ResourceAccess
 {
@@ -7,8 +8,12 @@ namespace Composable.System.Threading.ResourceAccess
         class SharedResourceAccessGuard : ISharedResourceAccessGuard
         {
             readonly int _maxSharedLocks;
-            bool _waitingForExclusiveLock;
-            bool _exclusivelyLocked;
+            int _threadsWaitingForExclusiveLock;
+            bool _isExclusivelyLocked;
+
+            readonly ThreadLocal<int> _exclusiveLockRecursionLevel = new ThreadLocal<int>();
+            readonly ThreadLocal<int> _sharedLockRecursionLevel = new ThreadLocal<int>();
+
             readonly IExclusiveResourceAccessGuard _exclusiveAccessGuard;
             int _currentSharedLocks;
 
@@ -22,24 +27,40 @@ namespace Composable.System.Threading.ResourceAccess
             {
                 using (var exclusiveLock = _exclusiveAccessGuard.AwaitExclusiveLock(timeoutOverride))
                 {
-                    while (_exclusivelyLocked || _waitingForExclusiveLock || _currentSharedLocks == _maxSharedLocks)
+                    if (!_sharedLockRecursionLevel.IsValueCreated)
+                    {
+                        _sharedLockRecursionLevel.Value = 0;
+                    }
+
+                    while (!CurrentThreadCanAcquireReadLock)
                     {
                         exclusiveLock.ReleaseLockAwaitUpdateNotificationAndAwaitExclusiveLock(timeoutOverride);
                     }
 
-                    _currentSharedLocks++;
+                    _sharedLockRecursionLevel.Value++;
+                    if(_sharedLockRecursionLevel.Value == 1)
+                    {
+                        _currentSharedLocks++;
+                    }
 
                     return Disposable.Create(
                         () =>
                         {
                             using (var disposingExclusiveLock = _exclusiveAccessGuard.AwaitExclusiveLock())
                             {
-                                _currentSharedLocks--;
+                                _sharedLockRecursionLevel.Value--;
+                                if(_sharedLockRecursionLevel.Value == 0)
+                                {
+                                    _currentSharedLocks--;
+                                }
                                 disposingExclusiveLock.SendUpdateNotificationToOneThreadAwaitingUpdateNotification();
                             }
                         });
                 }
             }
+
+            bool CurrentThreadCanAcquireReadLock => _sharedLockRecursionLevel.Value != 0 || (!_isExclusivelyLocked && _threadsWaitingForExclusiveLock == 0 && !AtSharedLockLimit);
+            bool AtSharedLockLimit => _currentSharedLocks == _maxSharedLocks;
 
             public IExclusiveResourceLock AwaitExclusiveLock(TimeSpan? timeoutOverride = null)
             {
@@ -60,14 +81,25 @@ namespace Composable.System.Threading.ResourceAccess
 
             void AwaitExclusiveLock(TimeSpan? timeoutOverride, IExclusiveResourceLock exclusiveLock)
             {
-                _waitingForExclusiveLock = true;
-                while (_exclusivelyLocked || _currentSharedLocks != 0)
+                if(!_exclusiveLockRecursionLevel.IsValueCreated)
+                {
+                    _exclusiveLockRecursionLevel.Value = 0;
+                }
+
+                _threadsWaitingForExclusiveLock++;
+                while (!CurrentThreadCanAquireExclusiveLock)
                 {
                     exclusiveLock.ReleaseLockAwaitUpdateNotificationAndAwaitExclusiveLock(timeoutOverride);
                 }
-                _exclusivelyLocked = true;
-                _waitingForExclusiveLock = false;
+
+                _exclusiveLockRecursionLevel.Value++;
+                _isExclusivelyLocked = true;
+                _threadsWaitingForExclusiveLock--;
             }
+
+            bool CurrentThreadCanAquireExclusiveLock => CurrentThreadHoldsExclusiveLock || (!_isExclusivelyLocked && OnlyCurrentThreadsHoldsAReadLock);
+            bool OnlyCurrentThreadsHoldsAReadLock => _currentSharedLocks - _sharedLockRecursionLevel.Value == 0;
+            bool CurrentThreadHoldsExclusiveLock => _exclusiveLockRecursionLevel.Value != 0;
 
             class ExclusiveResourceAccessLockToSharedResource : IExclusiveResourceLock
             {
@@ -86,7 +118,7 @@ namespace Composable.System.Threading.ResourceAccess
 
                 public void ReleaseLockAwaitUpdateNotificationAndAwaitExclusiveLock(TimeSpan? timeoutOverride = null)
                 {
-                    _parent._exclusivelyLocked = false;
+                    _parent._isExclusivelyLocked = false;
                     _parent.AwaitExclusiveLock(timeoutOverride);
                 }
 
@@ -94,7 +126,11 @@ namespace Composable.System.Threading.ResourceAccess
                 {
                     try
                     {
-                        _parent._exclusivelyLocked = false;
+                        _parent._exclusiveLockRecursionLevel.Value--;
+                        if(_parent._exclusiveLockRecursionLevel.Value == 0)
+                        {
+                            _parent._isExclusivelyLocked = false;
+                        }
                         _parentLock.SendUpdateNotificationToAllThreadsAwaitingUpdateNotification();
                     }
                     finally

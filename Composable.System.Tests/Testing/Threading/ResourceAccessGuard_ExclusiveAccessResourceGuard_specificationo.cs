@@ -8,11 +8,11 @@ using NUnit.Framework;
 
 namespace Composable.Tests.Testing.Threading
 {
-    [TestFixture] public class ResourceAccessGuard_SharedAccessResourceguard_specification
+    [TestFixture] public class ResourceAccessGuard_ExclusiveAccessResourceGuard_specification
     {
         [Test] public void When_one_thread_has_ExclusiveLock_other_thread_is_blocked_until_first_thread_disposes_lock()
         {
-            var resourceGuard = ResourceAccessGuard.CreateWithMaxSharedLocksAndTimeout(10, 1.Seconds());
+            var resourceGuard = ResourceAccessGuard.ExclusiveWithTimeout(1.Seconds());
 
             var exclusiveLock = resourceGuard.AwaitExclusiveLock();
 
@@ -43,7 +43,7 @@ namespace Composable.Tests.Testing.Threading
         [Test]
         public void When_one_thread_calls_AwaitExclusiveLock_twice_other_thread_is_blocked_until_first_thread_disposes_both_locks()
         {
-            var resourceGuard = ResourceAccessGuard.CreateWithMaxSharedLocksAndTimeout(10, 1.Seconds());
+            var resourceGuard = ResourceAccessGuard.ExclusiveWithTimeout(1.Seconds());
 
             var exclusiveLock1 = resourceGuard.AwaitExclusiveLock();
             var exclusiveLock2 = resourceGuard.AwaitExclusiveLock();
@@ -102,7 +102,7 @@ namespace Composable.Tests.Testing.Threading
 
             static Exception RunScenario(TimeSpan ownerThreadWaitTime)
             {
-                var resourceGuaard = ResourceAccessGuard.CreateWithMaxSharedLocksAndTimeout(10, 10.Milliseconds());
+                var resourceGuaard = ResourceAccessGuard.ExclusiveWithTimeout(10.Milliseconds());
 
                 var exclusiveLock = resourceGuaard.AwaitExclusiveLock(0.Milliseconds());
 

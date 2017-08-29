@@ -2,30 +2,19 @@ using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Composable.System.Threading;
 using Composable.System.Threading.ResourceAccess;
 using FluentAssertions;
 using NUnit.Framework;
 
 namespace Composable.Tests.Testing.Threading
 {
-    [TestFixture] public class ResourceAccessGuard_specification
+    [TestFixture] public class ResourceAccessGuard_ExclusiveAccessResourceguard_specification
     {
-        [Test] public void When_one_thread_is_running_action_version_of_execute_other_thread_is_blocked_until_first_thread_exits_execute()
+        [Test] public void When_one_thread_has_ExclusiveLock_other_thread_is_blocked_until_first_thread_disposes_lock()
         {
-            var objectLock = ResourceAccessGuard.ExclusiveWithTimeout(1.Seconds());
+            var resourceGuard = ResourceAccessGuard.ExclusiveWithTimeout(1.Seconds());
 
-            var firstThreadHasEnteredExecute = new ManualResetEventSlim(false);
-            var allowFirstThreadToExitExecute = new ManualResetEventSlim(false);
-            var firstThreadTask = Task.Run(
-                () => objectLock.ExecuteWithExclusiveLock(2.Seconds(),
-                    () =>
-                    {
-                        firstThreadHasEnteredExecute.Set();
-                        allowFirstThreadToExitExecute.Wait();
-                    }));
-
-            firstThreadHasEnteredExecute.Wait();
+            var exclusiveLock = resourceGuard.AwaitExclusiveLock();
 
             var otherThreadIsWaitingForLock = new ManualResetEventSlim(false);
             var otherThreadGotLock = new ManualResetEventSlim(false);
@@ -33,7 +22,8 @@ namespace Composable.Tests.Testing.Threading
                 () =>
                 {
                     Task.Run(() => otherThreadIsWaitingForLock.Set());
-                    objectLock.ExecuteWithExclusiveLock(1.Seconds(), () => otherThreadGotLock.Set());
+                    using(resourceGuard.AwaitExclusiveLock()) ;
+                    otherThreadGotLock.Set();
                 });
 
             otherThreadIsWaitingForLock.Wait();
@@ -41,36 +31,22 @@ namespace Composable.Tests.Testing.Threading
             otherThreadGotLock.Wait(10.Milliseconds()).Should()
                               .BeFalse();
 
-            allowFirstThreadToExitExecute.Set();
+            exclusiveLock.Dispose();
 
             otherThreadGotLock.Wait(10.Milliseconds())
                               .Should()
                               .BeTrue();
 
-            Task.WaitAll(firstThreadTask, otherThreadTask);
+            Task.WaitAll(otherThreadTask);
         }
 
         [Test]
-        public void When_one_thread_is_running_func_version_of_execute_other_thread_is_blocked_until_first_thread_exits_execute()
+        public void When_one_thread_calls_AwaitExclusiveLock_twice_other_thread_is_blocked_until_first_thread_disposes_both_locks()
         {
-            var objectLock = ResourceAccessGuard.ExclusiveWithTimeout(1.Seconds());
+            var resourceGuard = ResourceAccessGuard.ExclusiveWithTimeout(1.Seconds());
 
-            var firstThreadHasEnteredExecute = new ManualResetEventSlim(false);
-            var allowFirstThreadToExitExecute = new ManualResetEventSlim(false);
-            var firstThreadTask = Task.Run(
-                () =>
-                {
-                    objectLock.ExecuteWithExclusiveLock(
-                        2.Seconds(),
-                        () =>
-                        {
-                            firstThreadHasEnteredExecute.Set();
-                            allowFirstThreadToExitExecute.Wait();
-                            return new object();
-                        });
-                });
-
-            firstThreadHasEnteredExecute.Wait();
+            var exclusiveLock1 = resourceGuard.AwaitExclusiveLock();
+            var exclusiveLock2 = resourceGuard.AwaitExclusiveLock();
 
             var otherThreadIsWaitingForLock = new ManualResetEventSlim(false);
             var otherThreadGotLock = new ManualResetEventSlim(false);
@@ -78,27 +54,23 @@ namespace Composable.Tests.Testing.Threading
                 () =>
                 {
                     Task.Run(() => otherThreadIsWaitingForLock.Set());
-                    objectLock.ExecuteWithExclusiveLock(
-                        1.Seconds(),
-                        () =>
-                        {
-                            otherThreadGotLock.Set();
-                            return new object();
-                        });
+                    using (resourceGuard.AwaitExclusiveLock()) ;
+                    otherThreadGotLock.Set();
                 });
 
             otherThreadIsWaitingForLock.Wait();
 
-            otherThreadGotLock.Wait(10.Milliseconds()).Should()
-                              .BeFalse();
+            otherThreadGotLock.Wait(10.Milliseconds()).Should().BeFalse();
 
-            allowFirstThreadToExitExecute.Set();
+            exclusiveLock1.Dispose();
 
-            otherThreadGotLock.Wait(10.Milliseconds())
-                              .Should()
-                              .BeTrue();
+            otherThreadGotLock.Wait(10.Milliseconds()).Should().BeFalse();
 
-            Task.WaitAll(firstThreadTask, otherThreadTask);
+            exclusiveLock2.Dispose();
+
+            otherThreadGotLock.Wait(10.Milliseconds()).Should().BeTrue();
+
+            Task.WaitAll(otherThreadTask);
         }
 
         [TestFixture] public class Given_a_timeout_of_10_milliseconds_an_exception_is_thrown_By_Get_within_15_milliseconds_if_lock_is_not_acquired
@@ -130,12 +102,12 @@ namespace Composable.Tests.Testing.Threading
 
             static Exception RunScenario(TimeSpan ownerThreadWaitTime)
             {
-                var objectLock = ResourceAccessGuard.ExclusiveWithTimeout(10.Milliseconds());
+                var resourceGuaard = ResourceAccessGuard.ExclusiveWithTimeout(10.Milliseconds());
 
-                var exclusiveLock = objectLock.AwaitExclusiveLock(0.Milliseconds());
+                var exclusiveLock = resourceGuaard.AwaitExclusiveLock(0.Milliseconds());
 
                 var thrownException = Assert.Throws<AggregateException>(
-                                                () => Task.Run(() => objectLock.AwaitExclusiveLock(15.Milliseconds()))
+                                                () => Task.Run(() => resourceGuaard.AwaitExclusiveLock(15.Milliseconds()))
                                                           .Wait())
                                             .InnerExceptions.Single();
 

@@ -59,14 +59,12 @@ namespace Composable.Testing.Threading
             @this.WithExclusiveLock(() => result = function());
             return result;
         }
-
-
     }
 
     ///<summary>A block of code with <see cref="ThreadGate"/>s for <see cref="EntranceGate"/> and <see cref="ExitGate"/>. Useful for controlling multithreaded code for testing purposes.</summary>
     class GatedCodeSection : IGatedCodeSection
     {
-        IObjectLock _lock;
+        readonly IObjectLock _lock;
         public IThreadGate EntranceGate { get; }
         public IThreadGate ExitGate { get; }
 

@@ -21,7 +21,7 @@ namespace Composable.Tests.Testing.Threading
             var otherThreadTask = Task.Run(
                 () =>
                 {
-                    Task.Run(() => otherThreadIsWaitingForLock.Set());
+                    otherThreadIsWaitingForLock.Set();
                     using(resourceGuard.AwaitExclusiveLock())
                     {
                         otherThreadGotLock.Set();
@@ -55,7 +55,7 @@ namespace Composable.Tests.Testing.Threading
             var otherThreadTask = Task.Run(
                 () =>
                 {
-                    Task.Run(() => otherThreadIsWaitingForLock.Set());
+                    otherThreadIsWaitingForLock.Set();
                     using(resourceGuard.AwaitExclusiveLock())
                     {
                         otherThreadGotLock.Set();

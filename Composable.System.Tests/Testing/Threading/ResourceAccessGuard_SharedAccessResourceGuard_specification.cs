@@ -10,7 +10,7 @@ namespace Composable.Tests.Testing.Threading
 {
     [TestFixture] public class ResourceAccessGuard_SharedAccessResourceGuard_specification
     {
-        [Test] public void When_one_thread_has_ExclusiveLock_other_thread_is_blocked_until_first_thread_disposes_lock()
+        [Test] public void When_one_thread_has_ExclusiveLock_other_thread_requesting_exclusive_lock_is_blocked_until_first_thread_disposes_lock()
         {
             var resourceGuard = ResourceAccessGuard.CreateWithMaxSharedLocksAndTimeout(10, 1.Seconds());
 
@@ -21,7 +21,7 @@ namespace Composable.Tests.Testing.Threading
             var otherThreadTask = Task.Run(
                 () =>
                 {
-                    Task.Run(() => otherThreadIsWaitingForLock.Set());
+                    otherThreadIsWaitingForLock.Set();
                     using(resourceGuard.AwaitExclusiveLock())
                     {
                         otherThreadGotLock.Set();
@@ -43,7 +43,7 @@ namespace Composable.Tests.Testing.Threading
             Task.WaitAll(otherThreadTask);
         }
 
-        [Test] public void When_one_thread_calls_AwaitExclusiveLock_twice_other_thread_is_blocked_until_first_thread_disposes_both_locks()
+        [Test] public void When_one_thread_calls_AwaitExclusiveLock_twice_other_thread_requesting_exclusive_lock_is_blocked_until_first_thread_disposes_both_locks()
         {
             var resourceGuard = ResourceAccessGuard.CreateWithMaxSharedLocksAndTimeout(10, 1.Seconds());
 
@@ -55,7 +55,7 @@ namespace Composable.Tests.Testing.Threading
             var otherThreadTask = Task.Run(
                 () =>
                 {
-                    Task.Run(() => otherThreadIsWaitingForLock.Set());
+                    otherThreadIsWaitingForLock.Set();
                     using(resourceGuard.AwaitExclusiveLock())
                     {
                         otherThreadGotLock.Set();

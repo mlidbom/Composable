@@ -7,38 +7,6 @@ namespace Composable.System.Threading.ResourceAccess
     {
         public static IExclusiveResourceLockManager WithTimeout(TimeSpan timeout) => new ResourceLockManagerInstance(timeout);
 
-        public static void ExecuteWithExclusiveLock(this IExclusiveResourceLockManager @lock, Action action)
-        {
-            using (@lock.AwaitExclusiveLock())
-            {
-                action();
-            }
-        }
-
-        public static TResult ExecuteWithExclusiveLock<TResult>(this IExclusiveResourceLockManager @lock, Func<TResult> function)
-        {
-            using (@lock.AwaitExclusiveLock())
-            {
-                return function();
-            }
-        }
-
-        public static void ExecuteWithExclusiveLock(this IExclusiveResourceLockManager @lock, TimeSpan timeout, Action action)
-        {
-            using (@lock.AwaitExclusiveLock())
-            {
-                action();
-            }
-        }
-
-        public static TResult ExecuteWithExclusiveLock<TResult>(this IExclusiveResourceLockManager @lock, TimeSpan timeout, Func<TResult> function)
-        {
-            using (@lock.AwaitExclusiveLock())
-            {
-                return function();
-            }
-        }
-
         class ResourceLockManagerInstance : IExclusiveResourceLockManager
         {
             readonly object _lockedObject;
@@ -65,7 +33,7 @@ namespace Composable.System.Threading.ResourceAccess
                         return new ExclusiveResourceLock(this);
                     }
 
-                    throw new AwaitingExclusiveResourcAccessLeaseTimeoutException(_lockedObject);
+                    throw new AwaitingExclusiveResourceLockTimeoutException(_lockedObject);
                 }
                 catch(Exception)
                 {
@@ -85,7 +53,7 @@ namespace Composable.System.Threading.ResourceAccess
                 {
                     try
                     {
-                        AwaitingExclusiveResourcAccessLeaseTimeoutException.ReportStackTraceIfError(_parent._lockedObject);
+                        AwaitingExclusiveResourceLockTimeoutException.ReportStackTraceIfError(_parent._lockedObject);
                     }
                     finally
                     {
@@ -97,7 +65,7 @@ namespace Composable.System.Threading.ResourceAccess
                 {
                     if(!Monitor.Wait(_parent._lockedObject, _parent._defaultTimeout))
                     {
-                        throw new AwaitingExclusiveResourcAccessLeaseTimeoutException(_parent._lockedObject);
+                        throw new AwaitingExclusiveResourceLockTimeoutException(_parent._lockedObject);
                     }
                 }
 
@@ -105,7 +73,7 @@ namespace Composable.System.Threading.ResourceAccess
                 {
                     if (!Monitor.Wait(_parent._lockedObject, timeout))
                     {
-                        throw new AwaitingExclusiveResourcAccessLeaseTimeoutException(_parent._lockedObject);
+                        throw new AwaitingExclusiveResourceLockTimeoutException(_parent._lockedObject);
                     }
                 }
 

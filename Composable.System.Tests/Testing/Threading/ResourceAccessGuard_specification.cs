@@ -107,12 +107,12 @@ namespace Composable.Tests.Testing.Threading
             {
                 RunScenario(ownerThreadWaitTime: 0.Milliseconds())
                     .Should()
-                    .BeOfType<AwaitingExclusiveResourcAccessLeaseTimeoutException>();
+                    .BeOfType<AwaitingExclusiveResourceLockTimeoutException>();
             }
 
             [Test] public void If_owner_thread_blocks_for_less_than_stacktrace_timeout_Exception_contain_owning_threads_stack_trace()
             {
-                AwaitingExclusiveResourcAccessLeaseTimeoutException.TestingOnlyRunWithModifiedTimeToWaitForOwningThreadStacktrace(
+                AwaitingExclusiveResourceLockTimeoutException.TestingOnlyRunWithModifiedTimeToWaitForOwningThreadStacktrace(
                     50.Milliseconds(),
                     () => RunScenario(ownerThreadWaitTime: 30.Milliseconds())
                         .Message.Should()
@@ -121,7 +121,7 @@ namespace Composable.Tests.Testing.Threading
 
             [Test] public void If_owner_thread_blocks_for_more_than_stacktrace_timeout__Exception_does_not_contain_owning_threads_stack_trace()
             {
-                AwaitingExclusiveResourcAccessLeaseTimeoutException.TestingOnlyRunWithModifiedTimeToWaitForOwningThreadStacktrace(
+                AwaitingExclusiveResourceLockTimeoutException.TestingOnlyRunWithModifiedTimeToWaitForOwningThreadStacktrace(
                     50.Milliseconds(),
                     () => RunScenario(ownerThreadWaitTime: 100.Milliseconds())
                         .Message.Should()

@@ -5,7 +5,7 @@ using System.Threading;
 
 namespace Composable.System.Threading.ResourceAccess
 {
-    class AwaitingExclusiveResourcAccessLeaseTimeoutException : Exception
+    class AwaitingExclusiveResourceLockTimeoutException : Exception
     {
         static TimeSpan _timeToWaitForOwningThreadStacktrace = 30.Seconds();
 
@@ -34,7 +34,7 @@ namespace Composable.System.Threading.ResourceAccess
             }
         }
 
-        internal AwaitingExclusiveResourcAccessLeaseTimeoutException(object lockedObject) : base("Timed out awaiting exclusive access to resource.")
+        internal AwaitingExclusiveResourceLockTimeoutException(object lockedObject) : base("Timed out awaiting exclusive access to resource.")
         {
             lock (TimedOutLocks)
             {

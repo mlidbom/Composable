@@ -79,8 +79,6 @@ namespace Composable.Tests.Testing.Threading
             [Test] public void If_owner_thread_blocks_for_more_than_stacktrace_timeout__Exception_does_not_contain_owning_threads_stack_trace()
                 => RunScenario(ownerThreadWaitTime: 100.Milliseconds()).Message.Should().Contain(nameof(DisposeOwningThreadLock));
 
-            [Test] public void PrintException() => Console.WriteLine(RunScenario(0.Milliseconds()));
-
             static void DisposeOwningThreadLock(IDisposable disposable) => disposable.Dispose();
 
             static Exception RunScenario(TimeSpan ownerThreadWaitTime)

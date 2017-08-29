@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Linq;
 using System.Threading;
-using Composable.Contracts;
 
 namespace Composable.System.Threading.ResourceAccess
 {

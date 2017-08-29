@@ -17,7 +17,7 @@ namespace Composable.System.Threading.ResourceAccess
             }
         }
 
-        internal AwaitingExclusiveResourceLockTimeoutException(object lockedObject) : base("Timed out awaiting exclusive access to resource.") { }
+        internal AwaitingExclusiveResourceLockTimeoutException() : base("Timed out awaiting exclusive access to resource.") { }
 
         string _blockingThreadStacktrace;
         readonly ManualResetEvent _blockingStacktraceWaitHandle = new ManualResetEvent(false);

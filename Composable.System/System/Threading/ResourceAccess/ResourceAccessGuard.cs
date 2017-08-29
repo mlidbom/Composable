@@ -35,7 +35,7 @@ namespace Composable.System.Threading.ResourceAccess
                         lock(_timeOutExceptionsOnOtherThreads)
                         {
                             Interlocked.Increment(ref _timeoutsThrownDuringCurrentLock);
-                            var exception = new AwaitingExclusiveResourceLockTimeoutException(_lockedObject);
+                            var exception = new AwaitingExclusiveResourceLockTimeoutException();
                             _timeOutExceptionsOnOtherThreads.Add(exception);
                             throw exception;
                         }
@@ -87,7 +87,7 @@ namespace Composable.System.Threading.ResourceAccess
                 {
                     if(!Monitor.Wait(_parent._lockedObject, timeoutOwerride ?? _parent._defaultTimeout))
                     {
-                        throw new AwaitingExclusiveResourceLockTimeoutException(_parent._lockedObject);
+                        throw new AwaitingExclusiveResourceLockTimeoutException();
                     }
                 }
 

@@ -81,7 +81,7 @@ namespace Composable.Testing.Threading
                 _lockOnNextPass = true;
                 ownedLock.PulseAll();
             }
-            return this;
+            return this.AwaitClosed();
         }
 
         public IThreadGate ExecuteLockedOnce(TimeSpan timeout, Predicate<IThreadGate> condition, Action<IThreadGate, IObjectLockOwner> action)

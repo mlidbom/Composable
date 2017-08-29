@@ -135,7 +135,7 @@ namespace Composable.Testing.Threading
 
         ThreadGate(TimeSpan defaultTimeout)
         {
-            _lock = ResourceLockManager.WithTimeout(defaultTimeout);
+            _lock = ResourceAccessGuard.WithTimeout(defaultTimeout);
             _defaultTimeout = defaultTimeout;
         }
 

@@ -3,7 +3,7 @@ using System.Threading;
 
 namespace Composable.System.Threading.ResourceAccess
 {
-    static class ResourceLockManager
+    static class ResourceAccessGuard
     {
         public static IExclusiveResourceLockManager WithTimeout(TimeSpan timeout) => new ResourceLockManagerInstance(timeout);
 
@@ -18,22 +18,19 @@ namespace Composable.System.Threading.ResourceAccess
                 _defaultTimeout = defaultTimeout;
             }
 
-            public IExclusiveResourceLock AwaitExclusiveLock() => InternalLockForExclusiveUse(null);
-            public IExclusiveResourceLock AwaitExclusiveLock(TimeSpan timeout) => InternalLockForExclusiveUse(timeout);
-
-            IExclusiveResourceLock InternalLockForExclusiveUse(TimeSpan? timeout = null)
+            public IExclusiveResourceLock AwaitExclusiveLock(TimeSpan? timeout = null)
             {
-                bool lockTaken = false;
-                try //It is rare, but apparently possible for Enter to throw an exception after the lock is taken. So we do need to catch it and call Monitor.Exit if that happens.
+                var lockTaken = false;
+                try //It is rare, but apparently possible, for TryEnter to throw an exception after the lock is taken. So we do need to catch it and call Monitor.Exit if that happens to avoid leaking locks.
                 {
                     Monitor.TryEnter(_lockedObject, timeout ?? _defaultTimeout, ref lockTaken);
 
-                    if (lockTaken)
+                    if(!lockTaken)
                     {
-                        return new ExclusiveResourceLock(this);
+                        throw new AwaitingExclusiveResourceLockTimeoutException(_lockedObject);
                     }
 
-                    throw new AwaitingExclusiveResourceLockTimeoutException(_lockedObject);
+                    return new ExclusiveResourceLock(this);
                 }
                 catch(Exception)
                 {
@@ -71,21 +68,15 @@ namespace Composable.System.Threading.ResourceAccess
 
                 public void ReleaseLockAwaitUpdateNotificationAndAwaitExclusiveLock(TimeSpan timeout)
                 {
-                    if (!Monitor.Wait(_parent._lockedObject, timeout))
+                    if(!Monitor.Wait(_parent._lockedObject, timeout))
                     {
                         throw new AwaitingExclusiveResourceLockTimeoutException(_parent._lockedObject);
                     }
                 }
 
-                public void SendUpdateNotificationToOneThreadAwaitingUpdateNotification()
-                {
-                    Monitor.Pulse(_parent._lockedObject);
-                }
+                public void SendUpdateNotificationToOneThreadAwaitingUpdateNotification() { Monitor.Pulse(_parent._lockedObject); }
 
-                public void SendUpdateNotificationToAllThreadsAwaitingUpdateNotification()
-                {
-                    Monitor.PulseAll(_parent._lockedObject);
-                }
+                public void SendUpdateNotificationToAllThreadsAwaitingUpdateNotification() { Monitor.PulseAll(_parent._lockedObject); }
             }
         }
     }

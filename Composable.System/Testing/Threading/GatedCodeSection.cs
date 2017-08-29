@@ -73,7 +73,7 @@ namespace Composable.Testing.Threading
 
         GatedCodeSection(TimeSpan timeout)
         {
-            _lock = ResourceLockManager.WithTimeout(timeout);
+            _lock = ResourceAccessGuard.WithTimeout(timeout);
             EntranceGate = ThreadGate.WithTimeout(timeout);
             ExitGate = ThreadGate.WithTimeout(timeout);
         }

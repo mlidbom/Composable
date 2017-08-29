@@ -58,7 +58,7 @@ namespace Composable.Tests.Testing.Threading
                                                       entrantEvent.HasCompleted.Set();
                                                   },
                                                   TaskCreationOptions.LongRunning))
-                                          .ToArray<Task>();
+                                          .ToArray();
         }
 
         public int ThreadsPassedTheGate(TimeSpan waitTime)

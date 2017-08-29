@@ -4,8 +4,7 @@ namespace Composable.System.Threading.ResourceAccess
 {
     interface IExclusiveResourceLockManager
     {
-        IExclusiveResourceLock AwaitExclusiveLock();
-        IExclusiveResourceLock AwaitExclusiveLock(TimeSpan timeout);
+        IExclusiveResourceLock AwaitExclusiveLock(TimeSpan? timeoutOverride = null);
     }
 
     interface IResourceLock : IDisposable {}

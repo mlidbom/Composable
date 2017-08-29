@@ -22,8 +22,10 @@ namespace Composable.Tests.Testing.Threading
                 () =>
                 {
                     Task.Run(() => otherThreadIsWaitingForLock.Set());
-                    using(resourceGuard.AwaitExclusiveLock()) ;
-                    otherThreadGotLock.Set();
+                    using(resourceGuard.AwaitExclusiveLock())
+                    {
+                        otherThreadGotLock.Set();
+                    }
                 });
 
             otherThreadIsWaitingForLock.Wait();
@@ -54,8 +56,10 @@ namespace Composable.Tests.Testing.Threading
                 () =>
                 {
                     Task.Run(() => otherThreadIsWaitingForLock.Set());
-                    using (resourceGuard.AwaitExclusiveLock()) ;
-                    otherThreadGotLock.Set();
+                    using(resourceGuard.AwaitExclusiveLock())
+                    {
+                        otherThreadGotLock.Set();
+                    }
                 });
 
             otherThreadIsWaitingForLock.Wait();

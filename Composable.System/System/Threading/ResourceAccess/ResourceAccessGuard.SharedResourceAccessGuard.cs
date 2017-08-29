@@ -92,10 +92,14 @@ namespace Composable.System.Threading.ResourceAccess
 
                 public void Dispose()
                 {
-                    using (_parentLock)
+                    try
                     {
                         _parent._exclusivelyLocked = false;
                         _parentLock.SendUpdateNotificationToAllThreadsAwaitingUpdateNotification();
+                    }
+                    finally
+                    {
+                        _parentLock.Dispose();
                     }
                 }
             }

@@ -9,9 +9,7 @@ using Newtonsoft.Json;
 namespace Composable.Persistence.DocumentDb
 {
     //todo: Refactor to use the same serialization code as the sql document db so that tests actually tests roundtrip serialization
-#pragma warning disable 618
     class InMemoryDocumentDb : InMemoryObjectStore, IDocumentDb
-#pragma warning restore 618
     {
         readonly Dictionary<Type, Dictionary<string, string>> _persistentValues = new Dictionary<Type, Dictionary<string, string>>();
 

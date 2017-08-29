@@ -132,14 +132,12 @@ namespace Composable.Tests.Testing.Threading
             {
                 var objectLock = ResourceAccessGuard.ExclusiveWithTimeout(10.Milliseconds());
 
-#pragma warning disable 618
                 var exclusiveLock = objectLock.AwaitExclusiveLock(0.Milliseconds());
 
                 var thrownException = Assert.Throws<AggregateException>(
                                                 () => Task.Run(() => objectLock.AwaitExclusiveLock(15.Milliseconds()))
                                                           .Wait())
                                             .InnerExceptions.Single();
-#pragma warning restore 618
 
                 Task.Run(
                     () =>

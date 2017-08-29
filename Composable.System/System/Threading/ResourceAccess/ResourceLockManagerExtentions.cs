@@ -4,7 +4,7 @@ namespace Composable.System.Threading.ResourceAccess
 {
     static class ResourceLockManagerExtentions
     {
-        public static void ExecuteWithExclusiveLock(this IExclusiveResourceLockManager @lock, Action action)
+        public static void ExecuteWithExclusiveLock(this IExclusiveResourceAccessGuard @lock, Action action)
         {
             using(@lock.AwaitExclusiveLock())
             {
@@ -12,7 +12,7 @@ namespace Composable.System.Threading.ResourceAccess
             }
         }
 
-        public static TResult ExecuteWithExclusiveLock<TResult>(this IExclusiveResourceLockManager @lock, Func<TResult> function)
+        public static TResult ExecuteWithExclusiveLock<TResult>(this IExclusiveResourceAccessGuard @lock, Func<TResult> function)
         {
             using(@lock.AwaitExclusiveLock())
             {
@@ -20,7 +20,7 @@ namespace Composable.System.Threading.ResourceAccess
             }
         }
 
-        public static void ExecuteWithExclusiveLock(this IExclusiveResourceLockManager @lock, TimeSpan timeout, Action action)
+        public static void ExecuteWithExclusiveLock(this IExclusiveResourceAccessGuard @lock, TimeSpan timeout, Action action)
         {
             using(@lock.AwaitExclusiveLock())
             {
@@ -28,7 +28,7 @@ namespace Composable.System.Threading.ResourceAccess
             }
         }
 
-        public static TResult ExecuteWithExclusiveLock<TResult>(this IExclusiveResourceLockManager @lock, TimeSpan timeout, Func<TResult> function)
+        public static TResult ExecuteWithExclusiveLock<TResult>(this IExclusiveResourceAccessGuard @lock, TimeSpan timeout, Func<TResult> function)
         {
             using(@lock.AwaitExclusiveLock())
             {

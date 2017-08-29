@@ -93,12 +93,12 @@ namespace Composable.Testing.Threading
 
         ThreadGate(TimeSpan defaultTimeout)
         {
-            _lock = ResourceAccessGuard.WithTimeout(defaultTimeout);
+            _lock = ResourceAccessGuard.ExclusiveWithTimeout(defaultTimeout);
             _defaultTimeout = defaultTimeout;
         }
 
         readonly TimeSpan _defaultTimeout;
-        readonly IExclusiveResourceLockManager _lock;
+        readonly IExclusiveResourceAccessGuard _lock;
         bool _lockOnNextPass;
         bool _isOpen;
         readonly List<Thread> _requestsThreads = new List<Thread>();

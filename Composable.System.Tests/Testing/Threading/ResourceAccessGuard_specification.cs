@@ -13,7 +13,7 @@ namespace Composable.Tests.Testing.Threading
     {
         [Test] public void When_one_thread_is_running_action_version_of_execute_other_thread_is_blocked_until_first_thread_exits_execute()
         {
-            var objectLock = ResourceAccessGuard.WithTimeout(1.Seconds());
+            var objectLock = ResourceAccessGuard.ExclusiveWithTimeout(1.Seconds());
 
             var firstThreadHasEnteredExecute = new ManualResetEventSlim(false);
             var allowFirstThreadToExitExecute = new ManualResetEventSlim(false);
@@ -53,7 +53,7 @@ namespace Composable.Tests.Testing.Threading
         [Test]
         public void When_one_thread_is_running_func_version_of_execute_other_thread_is_blocked_until_first_thread_exits_execute()
         {
-            var objectLock = ResourceAccessGuard.WithTimeout(1.Seconds());
+            var objectLock = ResourceAccessGuard.ExclusiveWithTimeout(1.Seconds());
 
             var firstThreadHasEnteredExecute = new ManualResetEventSlim(false);
             var allowFirstThreadToExitExecute = new ManualResetEventSlim(false);
@@ -134,7 +134,7 @@ namespace Composable.Tests.Testing.Threading
 
             static Exception RunScenario(TimeSpan ownerThreadWaitTime)
             {
-                var objectLock = ResourceAccessGuard.WithTimeout(10.Milliseconds());
+                var objectLock = ResourceAccessGuard.ExclusiveWithTimeout(10.Milliseconds());
 
 #pragma warning disable 618
                 var exclusiveLock = objectLock.AwaitExclusiveLock(0.Milliseconds());

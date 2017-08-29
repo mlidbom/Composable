@@ -2,9 +2,15 @@
 
 namespace Composable.System.Threading.ResourceAccess
 {
-    interface IExclusiveResourceLockManager
+    interface IExclusiveResourceAccessGuard
     {
         IExclusiveResourceLock AwaitExclusiveLock(TimeSpan? timeoutOverride = null);
+    }
+
+    interface ISharedResourceAccessGuard
+    {
+        IDisposable AwaitSharedLock(TimeSpan? timeoutOverride = null);
+        IDisposable AwaitExclusiveLock(TimeSpan? timeoutOverride = null);
     }
 
     interface IResourceLock : IDisposable {}

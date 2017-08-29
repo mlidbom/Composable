@@ -6,7 +6,7 @@ namespace Composable.Testing.Threading
 {
     class GatedCodeSection : IGatedCodeSection
     {
-        readonly IExclusiveResourceLockManager _lock;
+        readonly IExclusiveResourceAccessGuard _lock;
         public IThreadGate EntranceGate { get; }
         public IThreadGate ExitGate { get; }
 
@@ -14,7 +14,7 @@ namespace Composable.Testing.Threading
 
         GatedCodeSection(TimeSpan timeout)
         {
-            _lock = ResourceAccessGuard.WithTimeout(timeout);
+            _lock = ResourceAccessGuard.ExclusiveWithTimeout(timeout);
             EntranceGate = ThreadGate.WithTimeout(timeout);
             ExitGate = ThreadGate.WithTimeout(timeout);
         }

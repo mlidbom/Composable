@@ -3,13 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using Composable.Contracts;
-using Composable.System.Threading;
 using Composable.System.Threading.ResourceAccess;
 
 namespace Composable.Testing.Threading
 {
-
-
     static class ThreadGateExtensions
     {
         public static IThreadGate Await(this IThreadGate @this, Predicate<IThreadGate> condition) => @this.Await(@this.DefaultTimeout, condition);
@@ -17,7 +14,7 @@ namespace Composable.Testing.Threading
         public static IThreadGate AwaitClosed(this IThreadGate @this) => @this.Await(_ => !@this.IsOpen);
         public static IThreadGate AwaitQueueLength(this IThreadGate @this, int length) => @this.Await(me => me.Queued == length);
         public static IThreadGate AwaitEmptyQueue(this IThreadGate @this) => @this.Await(me => me.Queued == 0);
-        public static IThreadGate WithExclusiveLock(this IThreadGate @this, Action action) => @this.ExecuteLockedOnce(@this.DefaultTimeout, _ => true, (gate,owner)=> action());
+        public static IThreadGate WithExclusiveLock(this IThreadGate @this, Action action) => @this.ExecuteLockedOnce(@this.DefaultTimeout, _ => true, (gate, owner) => action());
     }
 
     class ThreadGate : IThreadGate

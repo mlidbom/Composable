@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Diagnostics;
 using System.Threading;
 
 namespace Composable.System.Threading.ResourceAccess
@@ -9,6 +11,9 @@ namespace Composable.System.Threading.ResourceAccess
 
         class ResourceLockManagerInstance : IExclusiveResourceLockManager
         {
+            List<AwaitingExclusiveResourceLockTimeoutException> _timeOutExceptionsOnOtherThreads = new List<AwaitingExclusiveResourceLockTimeoutException>();
+            int _timeoutsThrownDuringCurrentLock;
+
             readonly object _lockedObject;
             readonly TimeSpan _defaultTimeout;
 
@@ -27,7 +32,13 @@ namespace Composable.System.Threading.ResourceAccess
 
                     if(!lockTaken)
                     {
-                        throw new AwaitingExclusiveResourceLockTimeoutException(_lockedObject);
+                        lock(_timeOutExceptionsOnOtherThreads)
+                        {
+                            Interlocked.Increment(ref _timeoutsThrownDuringCurrentLock);
+                            var exception = new AwaitingExclusiveResourceLockTimeoutException(_lockedObject);
+                            _timeOutExceptionsOnOtherThreads.Add(exception);
+                            throw exception;
+                        }
                     }
 
                     return new ExclusiveResourceLock(this);
@@ -50,7 +61,21 @@ namespace Composable.System.Threading.ResourceAccess
                 {
                     try
                     {
-                        AwaitingExclusiveResourceLockTimeoutException.ReportStackTraceIfError(_parent._lockedObject);
+                        //Using this exchange trick spares us from taking one more lock every time we release one at the cost of a negligible decrease in the chances for an exception to contain the blocking stacktrace.
+                        var timeoutExceptionsOnOtherThreads = Interlocked.Exchange(ref _parent._timeoutsThrownDuringCurrentLock, 0);
+
+                        if(timeoutExceptionsOnOtherThreads > 0)
+                        {
+                            lock(_parent._timeOutExceptionsOnOtherThreads)
+                            {
+                                var stackTrace = new StackTrace(fNeedFileInfo: true);
+                                foreach (var exception in _parent._timeOutExceptionsOnOtherThreads)
+                                {
+                                    exception.SetBlockingThreadsDisposeStackTrace(stackTrace);
+                                }
+                                _parent._timeOutExceptionsOnOtherThreads = new List<AwaitingExclusiveResourceLockTimeoutException>();
+                            }
+                        }
                     }
                     finally
                     {

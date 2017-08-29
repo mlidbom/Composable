@@ -2,7 +2,7 @@
 
 namespace Composable.System.Threading.ResourceAccess
 {
-    static class ResourceLockManagerExtentions
+    static class ResourceAccessGuardExtensions
     {
         public static void ExecuteWithExclusiveLock(this IExclusiveResourceAccessGuard @lock, Action action)
         {

@@ -110,22 +110,18 @@ namespace Composable.Tests.Testing.Threading
                     .BeOfType<AwaitingExclusiveResourceLockTimeoutException>();
             }
 
-            [Test] public void If_owner_thread_blocks_for_less_than_stacktrace_timeout_Exception_contain_owning_threads_stack_trace()
+            [Test] public void If_owner_thread_blocks_for_less_than_stacktrace_timeout_Exception_contains_owning_threads_stack_trace()
             {
-                AwaitingExclusiveResourceLockTimeoutException.TestingOnlyRunWithModifiedTimeToWaitForOwningThreadStacktrace(
-                    50.Milliseconds(),
-                    () => RunScenario(ownerThreadWaitTime: 30.Milliseconds())
-                        .Message.Should()
-                        .Contain(nameof(DisposeOwningThreadLock)));
+                RunScenario(ownerThreadWaitTime: 30.Milliseconds())
+                    .Message.Should()
+                    .Contain(nameof(DisposeOwningThreadLock));
             }
 
             [Test] public void If_owner_thread_blocks_for_more_than_stacktrace_timeout__Exception_does_not_contain_owning_threads_stack_trace()
             {
-                AwaitingExclusiveResourceLockTimeoutException.TestingOnlyRunWithModifiedTimeToWaitForOwningThreadStacktrace(
-                    50.Milliseconds(),
-                    () => RunScenario(ownerThreadWaitTime: 100.Milliseconds())
-                        .Message.Should()
-                        .Contain(nameof(DisposeOwningThreadLock)));
+                RunScenario(ownerThreadWaitTime: 100.Milliseconds())
+                    .Message.Should()
+                    .Contain(nameof(DisposeOwningThreadLock));
             }
 
             [Test] public void PrintException() { Console.WriteLine(RunScenario(0.Milliseconds())); }

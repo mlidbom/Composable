@@ -6,7 +6,7 @@ using Composable.System.Threading.ResourceAccess;
 using FluentAssertions;
 using NUnit.Framework;
 
-namespace Composable.Tests.Testing.Threading
+namespace Composable.Tests.System.Threading.ResourceAccess
 {
     [TestFixture] public class ResourceAccessGuard_SharedAccessResourceGuard_specification
     {

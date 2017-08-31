@@ -47,12 +47,8 @@ namespace Composable.Testing.Threading
 
         public IThreadGate ExecuteLockedOnce(TimeSpan timeout, Predicate<IThreadGate> condition, Action<IThreadGate, IExclusiveResourceLock> action)
         {
-            using(var ownedLock = _lock.AwaitExclusiveLock(timeout))
+            using(var ownedLock = _lock.AwaitExclusiveLockWhen(timeout, () => condition(this)))
             {
-                while(!condition(this))
-                {
-                    ownedLock.ReleaseLockAwaitUpdateNotificationAndAwaitExclusiveLock();
-                }
                 action(this, ownedLock);
             }
             return this;

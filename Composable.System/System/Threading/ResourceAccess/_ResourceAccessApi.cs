@@ -4,6 +4,7 @@ namespace Composable.System.Threading.ResourceAccess
 {
     interface IExclusiveResourceAccessGuard
     {
+        TimeSpan DefaultTimeout { get; }
         IExclusiveResourceLock AwaitExclusiveLock(TimeSpan? timeoutOverride = null);
     }
 

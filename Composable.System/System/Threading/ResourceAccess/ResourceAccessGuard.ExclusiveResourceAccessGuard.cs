@@ -13,12 +13,12 @@ namespace Composable.System.Threading.ResourceAccess
             int _timeoutsThrownDuringCurrentLock;
 
             readonly object _lockedObject;
-            readonly TimeSpan _defaultTimeout;
+            public TimeSpan DefaultTimeout { get; }
 
             public ExclusiveResourceAccessGuard(TimeSpan defaultTimeout)
             {
                 _lockedObject = new object();
-                _defaultTimeout = defaultTimeout;
+                DefaultTimeout = defaultTimeout;
             }
 
             public IExclusiveResourceLock AwaitExclusiveLock(TimeSpan? timeout = null)
@@ -26,7 +26,7 @@ namespace Composable.System.Threading.ResourceAccess
                 var lockTaken = false;
                 try //It is rare, but apparently possible, for TryEnter to throw an exception after the lock is taken. So we do need to catch it and call Monitor.Exit if that happens to avoid leaking locks.
                 {
-                    Monitor.TryEnter(_lockedObject, timeout ?? _defaultTimeout, ref lockTaken);
+                    Monitor.TryEnter(_lockedObject, timeout ?? DefaultTimeout, ref lockTaken);
 
                     if (!lockTaken)
                     {
@@ -83,7 +83,7 @@ namespace Composable.System.Threading.ResourceAccess
 
                 public void ReleaseLockAwaitUpdateNotificationAndAwaitExclusiveLock(TimeSpan? timeoutOverride = null)
                 {
-                    if (!Monitor.Wait(_parent._lockedObject, timeoutOverride ?? _parent._defaultTimeout))
+                    if (!Monitor.Wait(_parent._lockedObject, timeoutOverride ?? _parent.DefaultTimeout))
                     {
                         throw new AwaitingExclusiveResourceLockTimeoutException();
                     }

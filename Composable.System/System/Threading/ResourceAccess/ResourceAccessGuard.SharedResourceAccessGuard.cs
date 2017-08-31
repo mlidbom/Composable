@@ -18,8 +18,6 @@ namespace Composable.System.Threading.ResourceAccess
 
             readonly IExclusiveResourceAccessGuard _resourceGuard;
 
-            public TimeSpan DefaultTimeout => _resourceGuard.DefaultTimeout;
-
             public SharedResourceAccessGuard(int maxSharedLocks, TimeSpan defaultTimeout)
             {
                 _resourceGuard = ExclusiveWithTimeout(defaultTimeout);
@@ -30,8 +28,13 @@ namespace Composable.System.Threading.ResourceAccess
             public IDisposable AwaitSharedLock(TimeSpan? timeoutOverride = null)
             {
                 AssertInvariantsAreMet();
-                using (_resourceGuard.AwaitExclusiveLockWhen(timeoutOverride ?? _resourceGuard.DefaultTimeout, () => !CurrentThreadCanAcquireReadLock))
+                using (var exclusiveLock = _resourceGuard.AwaitExclusiveLock(timeoutOverride))
                 {
+                    while (!CurrentThreadCanAcquireReadLock)
+                    {
+                        exclusiveLock.ReleaseLockAwaitUpdateNotificationAndAwaitExclusiveLock(timeoutOverride);
+                    }
+
                     _currentThreadUnreleasedSharedLocks.Value++;
                     if(_currentThreadUnreleasedSharedLocks.Value == 1)
                     {

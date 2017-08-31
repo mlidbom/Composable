@@ -64,12 +64,12 @@ namespace Composable.Tests.Testing.Threading
         public int ThreadsPassedTheGate(TimeSpan waitTime)
         {
             Thread.Sleep(waitTime);
-            return Enumerable.Count(EntrantEvents, entrant => entrant.HasCompleted.IsSet);
+            return EntrantEvents.Count(entrant => entrant.HasCompleted.IsSet);
         }
 
         public ThreadGateTestFixture WaitForAllThreadsToQueueUpAtPassThrough()
         {
-            ThreadGateExtensions.Await(Gate, _ => _.Queued == NumberOfThreads);
+            Gate.Await(() => Gate.Queued == NumberOfThreads);
             return this;
         }
 

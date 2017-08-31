@@ -41,18 +41,14 @@ namespace Composable.Testing.Threading
                 _isOpen = true;
                 _lockOnNextPass = true;
                 ownedLock.SendUpdateNotificationToAllThreadsAwaitingUpdateNotification();
+                return this.AwaitClosed();
             }
-            return this.AwaitClosed();
         }
 
-        public IThreadGate ExecuteLockedOnce(TimeSpan timeout, Predicate<IThreadGate> condition, Action<IThreadGate, IExclusiveResourceLock> action)
+        public IThreadGate ExecuteLockedOnce(TimeSpan timeout, Func<bool> condition, Action<IThreadGate, IExclusiveResourceLock> action)
         {
-            using(var ownedLock = _lock.AwaitExclusiveLock(timeout))
+            using (var ownedLock = _lock.AwaitExclusiveLockWhen(timeout, condition))
             {
-                while(!condition(this))
-                {
-                    ownedLock.ReleaseLockAwaitUpdateNotificationAndAwaitExclusiveLock();
-                }
                 action(this, ownedLock);
             }
             return this;

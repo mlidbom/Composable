@@ -11,15 +11,15 @@ namespace Composable.Tests.Testing.Threading
 {
     [TestFixture] public class Given_a_locked_ThreadGate
     {
-        [Test] public void Calling_AllowOneThreadToPassThrough_throws_an_ObjectTimeOutException_since_no_threads_are_waiting_to_pass()
-            => Assert.Throws<AwaitingExclusiveResourceLockTimeoutException>(() => ThreadGate.WithTimeout(10.Milliseconds()).LetOneThreadPass());
+        [Test] public void Calling_AllowOneThreadToPassThrough_throws_an_AwaitingConditionTimedOutException_since_no_threads_are_waiting_to_pass()
+            => Assert.Throws<AwaitingConditionTimedOutException>(() => ThreadGate.WithTimeout(10.Milliseconds()).LetOneThreadPass());
 
         public class After_starting_10_threads_that_all_call_PassThrough
         {
             [Test] public void Within_10_milliseconds_all_threads_are_blocked_on_Passthrough_and_none_have_passed_the_gate()
             {
                 var fixture = ThreadGateTestFixture.StartEntrantsOnThreads(10);
-                fixture.Gate.Await(10.Milliseconds(), gate => gate.Queued == fixture.NumberOfThreads);
+                fixture.Gate.Await(10.Milliseconds(), () => fixture.Gate.Queued == fixture.NumberOfThreads);
                 fixture.ThreadsPassedTheGate(0.Milliseconds()).Should().Be(0);
             }
 

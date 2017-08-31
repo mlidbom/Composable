@@ -85,7 +85,7 @@ namespace Composable.System.Threading.ResourceAccess
                 {
                     if (!Monitor.Wait(_parent._lockedObject, timeoutOverride ?? _parent._defaultTimeout))
                     {
-                        throw new AwaitingExclusiveResourceLockTimeoutException();
+                        throw new AwaitingUpdateNotificationTimedOutException();
                     }
                 }
 

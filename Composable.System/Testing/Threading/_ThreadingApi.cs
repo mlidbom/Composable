@@ -23,7 +23,7 @@ namespace Composable.Testing.Threading
         IThreadGate Close();
 
         ///<summary>Blocks until the gate is in a state which satisfies <see cref="condition"/> and then while owning the lock executes <see cref="action"/></summary>
-        IThreadGate ExecuteLockedOnce(TimeSpan timeout, Predicate<IThreadGate> condition, Action<IThreadGate, IExclusiveResourceLock> action);
+        IThreadGate ExecuteLockedOnce(TimeSpan timeout, Func<bool> condition, Action<IThreadGate, IExclusiveResourceLock> action);
 
         bool IsOpen { get; }
         long Queued { get; }

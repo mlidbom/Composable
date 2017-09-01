@@ -19,5 +19,6 @@ namespace Composable.System.Threading.ResourceAccess
         void SendUpdateNotificationToOneThreadAwaitingUpdateNotification();
         void SendUpdateNotificationToAllThreadsAwaitingUpdateNotification();
         void ReleaseLockAwaitUpdateNotificationAndAwaitExclusiveLock(TimeSpan? timeoutOverride = null);
+        bool TryReleaseLockAwaitUpdateNotificationAndAwaitExclusiveLock(TimeSpan? timeoutOverride = null);
     }
 }

@@ -25,7 +25,6 @@ namespace Composable.Testing.Threading
         {
             using(var ownedLock = _lock.AwaitExclusiveLock())
             {
-                Contract.Assert.That(!_isOpen, "Gate must be closed to call this method.");
                 _isOpen = true;
                 _lockOnNextPass = false;
                 ownedLock.SendUpdateNotificationToAllThreadsAwaitingUpdateNotification();
@@ -44,6 +43,8 @@ namespace Composable.Testing.Threading
                 return this.AwaitClosed();
             }
         }
+
+        public bool TryAwait(TimeSpan timeout, Func<bool> condition) => _lock.TryAwait(timeout, condition);
 
         public IThreadGate ExecuteLockedOnce(TimeSpan timeout, Func<bool> condition, Action<IThreadGate, IExclusiveResourceLock> action)
         {

@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Composable.DependencyInjection;
 using Composable.Persistence.EventStore;
 using Composable.System.Linq;
+using Composable.System.Threading.ResourceAccess;
 using Composable.Testing;
 using Composable.Testing.Threading;
 using Composable.Tests.Testing;
@@ -83,34 +84,30 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.Sql
                                         user.ChangeEmail("newemail@somewhere.not");
                                     });
 
-            void UpdateEmail(WaitHandle waitToCompleteTransaction, ManualResetEvent readyToStart, ManualResetEvent signalReadyToCompleteTransaction)
+
+            var changeEmailSection = GatedCodeSection.WithTimeout(2.Seconds());
+            void UpdateEmail()
             {
                 UseInTransactionalScope(session =>
                                         {
-                                            readyToStart.Set();
-                                            var userToUpdate = session.Get<User>(user.Id);
-                                            userToUpdate.ChangeEmail($"newemail_{userToUpdate.Version}@somewhere.not");
-                                            signalReadyToCompleteTransaction.Set();
-                                            waitToCompleteTransaction.AssertWaitOneDoesNotTimeout(5.Seconds());
+                                            using(changeEmailSection.Enter())
+                                            {
+                                                var userToUpdate = session.Get<User>(user.Id);
+                                                userToUpdate.ChangeEmail($"newemail_{userToUpdate.Version}@somewhere.not");
+                                            }
                                         });
             }
 
-            var readyToComplete = new ManualResetEvent(false);
-            var threads = 2;
-            var resetEvents = 1.Through(threads)
-                               .Select(_ => new
-                                            {
-                                                ReadyToStart = new ManualResetEvent(false),
-                                                AllowedToComplete = new ManualResetEvent(false)
-                                            })
-                               .ToList();
-            var tasks = resetEvents.Select(resetEvent => Task.Factory.StartNew(() => UpdateEmail(resetEvent.AllowedToComplete, resetEvent.ReadyToStart, readyToComplete))).ToArray();
+               var threads = 2;
 
-            resetEvents.ForEach(@this => @this.ReadyToStart.AssertWaitOneDoesNotTimeout(5.Seconds()));
-            readyToComplete.WaitOne();
-            Thread.Sleep(50);
-            resetEvents.ForEach(@this => @this.AllowedToComplete.Set());
+            var tasks = 1.Through(threads).Select(resetEvent => Task.Factory.StartNew(() => UpdateEmail())).ToArray();
 
+            changeEmailSection.EntranceGate.Open();
+            changeEmailSection.ExitGate.AwaitQueueLength(1);
+
+            changeEmailSection.ExitGate.TryAwaitQueueLengthExceeding(2, 10.Milliseconds()).Should().BeFalse();
+
+            changeEmailSection.Open();
 
             Task.WaitAll(tasks);//Sql duplicate key (AggregateId, Version) Exception would be thrown here if history was not serialized
 

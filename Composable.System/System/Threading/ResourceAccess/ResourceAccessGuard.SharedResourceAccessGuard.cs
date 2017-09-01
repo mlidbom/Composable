@@ -142,6 +142,8 @@ namespace Composable.System.Threading.ResourceAccess
 
                 public void SendUpdateNotificationToAllThreadsAwaitingUpdateNotification() => _parentLock.SendUpdateNotificationToAllThreadsAwaitingUpdateNotification();
 
+                public bool TryReleaseLockAwaitUpdateNotificationAndAwaitExclusiveLock(TimeSpan? timeoutOverride = null) => _parentLock.TryReleaseLockAwaitUpdateNotificationAndAwaitExclusiveLock(timeoutOverride);
+
                 public void ReleaseLockAwaitUpdateNotificationAndAwaitExclusiveLock(TimeSpan? timeoutOverride = null)
                 {
                     _parent.AssertInvariantsAreMet();

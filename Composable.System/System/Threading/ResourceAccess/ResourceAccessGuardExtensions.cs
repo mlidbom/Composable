@@ -28,6 +28,23 @@ namespace Composable.System.Threading.ResourceAccess
             }
         }
 
+        public static bool TryAwait(this IExclusiveResourceAccessGuard @this, TimeSpan timeout, Func<bool> condition)
+        {
+            var startTime = DateTime.Now;
+            using (var @lock = @this.AwaitExclusiveLock(timeout))
+            {
+                while (!condition())
+                {
+                    if (DateTime.Now - startTime > timeout)
+                    {
+                        return false;
+                    }
+                    @lock.TryReleaseLockAwaitUpdateNotificationAndAwaitExclusiveLock(timeout);
+                }
+                return true;
+            }
+        }
+
         public static void ExecuteWithExclusiveLock(this IExclusiveResourceAccessGuard @lock, Action action)
         {
             using(@lock.AwaitExclusiveLock())

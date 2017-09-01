@@ -81,6 +81,15 @@ namespace Composable.System.Threading.ResourceAccess
                     }
                 }
 
+                public bool TryReleaseLockAwaitUpdateNotificationAndAwaitExclusiveLock(TimeSpan? timeoutOverride = null)
+                {
+                    if (!Monitor.Wait(_parent._lockedObject, timeoutOverride ?? _parent._defaultTimeout))
+                    {
+                        return false;
+                    }
+                    return true;
+                }
+
                 public void ReleaseLockAwaitUpdateNotificationAndAwaitExclusiveLock(TimeSpan? timeoutOverride = null)
                 {
                     if (!Monitor.Wait(_parent._lockedObject, timeoutOverride ?? _parent._defaultTimeout))

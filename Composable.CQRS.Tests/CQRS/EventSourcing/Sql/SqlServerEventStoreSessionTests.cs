@@ -1,15 +1,11 @@
 ﻿using System;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using Composable.DependencyInjection;
 using Composable.Persistence.EventStore;
 using Composable.System.Linq;
-using Composable.System.Threading.ResourceAccess;
 using Composable.Testing;
 using Composable.Testing.Threading;
-using Composable.Tests.Testing;
-using Composable.Tests.Testing.Threading;
 using FluentAssertions;
 using NUnit.Framework;
 

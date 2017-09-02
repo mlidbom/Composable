@@ -100,11 +100,12 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.Sql
             var tasks = 1.Through(threads).Select(resetEvent => Task.Factory.StartNew(() => UpdateEmail())).ToArray();
 
             changeEmailSection.EntranceGate.Open();
+            changeEmailSection.EntranceGate.AwaitPassedCount(2);
             changeEmailSection.ExitGate.AwaitQueueLength(1);
 
-            Thread.Sleep(100.Milliseconds());
+            Thread.Sleep(10.Milliseconds());
 
-            changeEmailSection.ExitGate.Queued.Should().Be(1);//One thread should be blocked by transaction and never reach here.
+            changeEmailSection.ExitGate.Queued.Should().Be(1);//One thread should be blocked by transaction and never reach here until the other completes the transaction.
 
             changeEmailSection.Open();
 

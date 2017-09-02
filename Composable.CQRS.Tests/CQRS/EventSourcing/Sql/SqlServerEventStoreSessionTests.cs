@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Composable.DependencyInjection;
 using Composable.Persistence.EventStore;
@@ -101,7 +102,9 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.Sql
             changeEmailSection.EntranceGate.Open();
             changeEmailSection.ExitGate.AwaitQueueLength(1);
 
-            changeEmailSection.ExitGate.TryAwaitQueueLengthExceeding(2, 10.Milliseconds()).Should().BeFalse();
+            Thread.Sleep(100.Milliseconds());
+
+            changeEmailSection.ExitGate.Queued.Should().Be(1);//One thread should be blocked by transaction and never reach here.
 
             changeEmailSection.Open();
 

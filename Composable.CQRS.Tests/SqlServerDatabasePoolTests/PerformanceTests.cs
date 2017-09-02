@@ -80,7 +80,7 @@ namespace Composable.CQRS.Tests.SqlServerDatabasePoolTests
         }
 
         [Test]
-        public void Single_thread_can_reserve_and_release_10_differently_named_databases_in_15_milliseconds()
+        public void Single_thread_can_reserve_and_release_10_differently_named_databases_in_20_milliseconds()
         {
             SqlServerDatabasePool manager = null;
 
@@ -94,7 +94,7 @@ namespace Composable.CQRS.Tests.SqlServerDatabasePoolTests
                 tearDown: () => manager.Dispose(),
                 action: () => manager.ConnectionProviderFor(Guid.NewGuid().ToString()).UseConnection(_ => { }),
                 iterations: 10,
-                maxTotal: 15.Milliseconds()
+                maxTotal: 20.Milliseconds()
             );
         }
 

@@ -18,7 +18,10 @@ namespace Composable.DependencyInjection.Testing
         /// </summary>
         public static void ConfigureWiringForTestsCallBeforeAllOtherWiring(this IDependencyInjectionContainer @this, TestingMode mode = TestingMode.DatabasePool)
         {
-            MasterDbConnection.UseConnection(action: _ => {});//evaluate lazy here in order to not pollute profiler timings of component resolution or registering.
+            if(mode == TestingMode.DatabasePool)
+            {
+                MasterDbConnection.UseConnection(action: _ => {}); //evaluate lazy here in order to not pollute profiler timings of component resolution or registering.
+            }
             var dummyTimeSource = DummyTimeSource.Now;
             var registry = new MessageHandlerRegistry();
             var bus = new TestingOnlyServiceBus(dummyTimeSource, registry);

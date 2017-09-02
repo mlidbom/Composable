@@ -1,9 +1,6 @@
 ﻿<ProjectConfiguration>
   <Settings>
-    <CopyReferencedAssembliesToWorkspace>True</CopyReferencedAssembliesToWorkspace>
-    <HiddenComponentWarnings>
-      <Value>CopyReferencedAssembliesToWorkspaceIsOn</Value>
-    </HiddenComponentWarnings>
+    <HiddenComponentWarnings />
     <IgnoredTests>
       <FixtureTestSelector>
         <FixtureName>Composable.Tests.SystemExtensions.ExceptionExtensions</FixtureName>

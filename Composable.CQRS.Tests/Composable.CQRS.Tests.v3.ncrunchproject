@@ -1,9 +1,6 @@
 ﻿<ProjectConfiguration>
   <Settings>
-    <CopyReferencedAssembliesToWorkspace>True</CopyReferencedAssembliesToWorkspace>
-    <HiddenComponentWarnings>
-      <Value>CopyReferencedAssembliesToWorkspaceIsOn</Value>
-    </HiddenComponentWarnings>
+    <HiddenComponentWarnings />
     <IgnoredTests>
       <NamedTestSelector>
         <TestName>CQRS.Tests.SqlServerDatabasePoolTests.PerformanceTests.Single_thread_can_reserve_and_release_10_identically_named_databases_in_500_milliseconds</TestName>

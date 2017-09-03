@@ -6,25 +6,22 @@
 
   <PropertyGroup>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <SignAssembly>False</SignAssembly>
+    <AssemblyOriginatorKeyFile>Void.snk</AssemblyOriginatorKeyFile>
+    <DelaySign>False</DelaySign>
+    <RootNamespace>Composable</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Include="..\AccountManagementCommonAssemblyInfoInternalsVisibleToComposable.cs" Link="Properties\AccountManagementCommonAssemblyInfoInternalsVisibleToComposable.cs" />
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="FluentAssertions" Version="4.19.2" />
+    <PackageReference Include="nspec" Version="3.0.3" />
     <PackageReference Include="NUnit" Version="3.6.1" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\NSpec.NUnit\NSpec.NUnit.csproj" />
-    <ProjectReference Include="..\AccountManagement.UI.Commands\AccountManagement.UI.Commands.csproj" />
-    <ProjectReference Include="..\AccountManagement.UI.QueryModels.Updaters\AccountManagement.UI.QueryModels.DocumentDB.Updaters.csproj" />
-    <ProjectReference Include="..\AccountManagement.UI.QueryModels\AccountManagement.UI.QueryModels.csproj" />
+    <ProjectReference Include="..\..\framework\Composable.System\Composable.Core.csproj" />
   </ItemGroup>
 
-  
   <ItemGroup>
     <Reference Include="System.ComponentModel.DataAnnotations">
       <HintPath>..\..\..\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.5\System.ComponentModel.DataAnnotations.dll</HintPath>

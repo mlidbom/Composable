@@ -10,10 +10,19 @@
 
   <ItemGroup>
     <PackageReference Include="Castle.Windsor" Version="3.4.0" />
+    <PackageReference Include="FluentAssertions" Version="4.19.2" />
+    <PackageReference Include="Moq" Version="4.5.30" />
+    <PackageReference Include="NCrunch.Framework" Version="3.3.0.6" />
+    <PackageReference Include="nspec" Version="3.0.3" />
+    <PackageReference Include="NUnit" Version="3.6.1" />
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Composable.ExternalDependencies\Composable.ExternalDependencies.csproj" />
+    <ProjectReference Include="..\Composable.System.Tests\Composable.Core.Tests.csproj" />
     <ProjectReference Include="..\Composable.System\Composable.Core.csproj" />
+    <ProjectReference Include="..\Composable.Testing\Composable.Testing.csproj" />
+    <ProjectReference Include="..\..\legacy\NSpec.NUnit\NSpec.NUnit.csproj" />
   </ItemGroup>
 
   

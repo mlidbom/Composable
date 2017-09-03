@@ -9,16 +9,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Include="..\AccountManagementCommonAssemblyInfoInternalsVisibleToComposable.cs" Link="Properties\AccountManagementCommonAssemblyInfoInternalsVisibleToComposable.cs" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <PackageReference Include="Castle.Windsor" Version="3.4.0" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\..\..\Composable.ExternalDependencies\Composable.ExternalDependencies.csproj" />
-    <ProjectReference Include="..\..\..\Composable.System\Composable.Core.csproj" />
+    <ProjectReference Include="..\..\..\framework\Composable.System\Composable.Core.csproj" />
     <ProjectReference Include="..\AccountManagement.Domain\AccountManagement.Domain.csproj" />
   </ItemGroup>
 
@@ -37,6 +28,23 @@
     <Reference Include="System.Web.Extensions">
       <HintPath>..\..\..\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.5.1\System.Web.Extensions.dll</HintPath>
     </Reference>
+  </ItemGroup>
+
+  
+  <ItemGroup>
+    <Compile Update="UserCommands\RegisterAccountCommandResources.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>RegisterAccountCommandResources.resx</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
+  
+  <ItemGroup>
+    <EmbeddedResource Update="UserCommands\RegisterAccountCommandResources.resx">
+      <Generator>PublicResXFileCodeGenerator</Generator>
+      <LastGenOutput>RegisterAccountCommandResources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
   </ItemGroup>
 
 </Project>

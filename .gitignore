@@ -21,7 +21,7 @@ CQRS/CQRS/__EmbeddedAssemblies/*.pdb
 packages/*
 Samples/AccountManagement/packages/*
 !repositories.config
-_NCrunch_Composable.Everything/StoredText/*
+_NCrunch_*
 *.favdoc
 *.orig
 Samples/AccountManagement/_NCrunch_Sample.AccountManagement

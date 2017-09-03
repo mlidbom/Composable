@@ -6,17 +6,26 @@
 
   <PropertyGroup>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <SignAssembly>False</SignAssembly>
+    <AssemblyOriginatorKeyFile>Void.snk</AssemblyOriginatorKeyFile>
+    <DelaySign>False</DelaySign>
+    <RootNamespace>Composable.Tests</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Include="..\AccountManagementCommonAssemblyInfoInternalsVisibleToComposable.cs" Link="Properties\AccountManagementCommonAssemblyInfoInternalsVisibleToComposable.cs" />
+    <PackageReference Include="FluentAssertions" Version="4.19.2" />
+    <PackageReference Include="NCrunch.Framework" Version="3.3.0.6" />
+    <PackageReference Include="nspec" Version="3.0.3" />
+    <PackageReference Include="NUnit" Version="3.6.1" />
+    <PackageReference Include="System.ValueTuple" Version="4.3.0" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\Composable.ExternalDependencies\Composable.ExternalDependencies.csproj" />
+    <ProjectReference Include="..\Composable.System\Composable.Core.csproj" />
+    <ProjectReference Include="..\Composable.Testing\Composable.Testing.csproj" />
+    <ProjectReference Include="..\..\legacy\NSpec.NUnit\NSpec.NUnit.csproj" />
   </ItemGroup>
 
-  
   <ItemGroup>
     <Reference Include="System.ComponentModel.DataAnnotations">
       <HintPath>..\..\..\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.5\System.ComponentModel.DataAnnotations.dll</HintPath>

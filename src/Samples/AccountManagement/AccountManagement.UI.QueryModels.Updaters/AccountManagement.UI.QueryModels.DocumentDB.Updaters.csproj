@@ -17,7 +17,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\framework\Composable.System\Composable.Core.csproj" />
+    <ProjectReference Include="..\..\..\framework\Composable.CQRS\Composable.CQRS.csproj" />
     <ProjectReference Include="..\AccountManagement.UI.QueryModels\AccountManagement.UI.QueryModels.csproj" />
   </ItemGroup>
 

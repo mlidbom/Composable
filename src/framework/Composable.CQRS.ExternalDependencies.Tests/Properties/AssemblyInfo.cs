@@ -1,17 +1,18 @@
 ﻿using System.Reflection;
 using System.Runtime.InteropServices;
+using Composable;
 using NUnit.Framework;
 
 // General Information about an assembly is controlled through the following
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 
-[assembly: AssemblyTitle("Core.Tests")]
+[assembly: AssemblyTitle("CQRS.Tests")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Microsoft")]
-[assembly: AssemblyProduct("Core.Tests")]
-[assembly: AssemblyCopyright("Copyright © Microsoft 2009")]
+[assembly: AssemblyProduct("CQRS.Tests")]
+[assembly: AssemblyCopyright("Copyright © Microsoft 2010")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -23,7 +24,7 @@ using NUnit.Framework;
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
 
-[assembly: Guid("750bf622-43eb-4542-9043-8b99dd374195")]
+[assembly: Guid("bc5ee5a6-c6d2-4bbf-8a48-7da7ff6ef3d4")]
 
 // Version information for an assembly consists of the following four values:
 //
@@ -36,5 +37,11 @@ using NUnit.Framework;
 // by using the '*' as shown below:
 
 [assembly: AssemblyVersion("1.0.0.0")]
+
+[assembly: System.Runtime.CompilerServices.InternalsVisibleTo(InternalsRequiredToBeVisibleTo.Assembly1)]
+[assembly: System.Runtime.CompilerServices.InternalsVisibleTo(InternalsRequiredToBeVisibleTo.Assembly2)]
+[assembly: System.Runtime.CompilerServices.InternalsVisibleTo(InternalsRequiredToBeVisibleTo.Assembly3)]
+[assembly: System.Runtime.CompilerServices.InternalsVisibleTo(InternalsRequiredToBeVisibleTo.Assembly4)]
+
 
 [assembly: Parallelizable(ParallelScope.Fixtures)]

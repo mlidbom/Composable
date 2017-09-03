@@ -17,8 +17,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\framework\Composable.ExternalDependencies\Composable.ExternalDependencies.csproj" />
-    <ProjectReference Include="..\..\..\framework\Composable.System\Composable.Core.csproj" />
+    <ProjectReference Include="..\..\..\framework\Composable.CQRS.ExternalDependencies\Composable.CQRS.ExternalDependencies.csproj" />
+    <ProjectReference Include="..\..\..\framework\Composable.CQRS\Composable.CQRS.csproj" />
     <ProjectReference Include="..\AccountManagement.Domain\AccountManagement.Domain.csproj" />
   </ItemGroup>
 

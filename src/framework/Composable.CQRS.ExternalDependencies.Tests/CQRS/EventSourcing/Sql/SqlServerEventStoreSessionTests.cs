@@ -105,7 +105,7 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.Sql
 
             Thread.Sleep(10.Milliseconds());
 
-            //changeEmailSection.ExitGate.Queued.Should().Be(1, "One thread should be blocked by transaction and never reach here until the other completes the transaction.");
+            changeEmailSection.ExitGate.Queued.Should().Be(1, "One thread should be blocked by transaction and never reach here until the other completes the transaction.");
 
             changeEmailSection.Open();
 

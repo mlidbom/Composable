@@ -7,8 +7,6 @@ namespace Composable.Persistence.EventStore
 {
     class EventCache
     {
-        const string CacheName = "EventStore";
-
         readonly MemoryCache _internalCache = new MemoryCache(new MemoryCacheOptions())
                                               {
                                               };

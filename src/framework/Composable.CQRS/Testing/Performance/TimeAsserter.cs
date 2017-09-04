@@ -1,6 +1,4 @@
 using System;
-using System.Diagnostics;
-using System.Threading;
 using Composable.Logging;
 using Composable.System;
 using Composable.System.Diagnostics;
@@ -11,7 +9,6 @@ namespace Composable.Testing.Performance
 {
     static class TimeAsserter
     {
-        static readonly ILogger Log = Logger.For(typeof(TimeAsserter));
         const string DefaultTimeFormat = "ss\\.fff";
 
         static readonly MachineWideSingleThreaded MachineWideSingleThreaded = MachineWideSingleThreaded.For(typeof(TimeAsserter));

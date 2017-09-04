@@ -80,6 +80,7 @@ SET @{EventTable.Columns.InsertionOrder} = SCOPE_IDENTITY();";
 
         public void InsertRefactoringEvents(IReadOnlyList<EventWriteDataRow> events)
         {
+            // ReSharper disable PossibleInvalidOperationException
             var replacementGroup = events.Where(@event => @event.Replaces.HasValue)
                                          .GroupBy(@event => @event.Replaces.Value)
                                          .SingleOrDefault();
@@ -89,6 +90,7 @@ SET @{EventTable.Columns.InsertionOrder} = SCOPE_IDENTITY();";
             var insertAfterGroup = events.Where(@event => @event.InsertAfter.HasValue)
                                          .GroupBy(@event => @event.InsertAfter.Value)
                                          .SingleOrDefault();
+            // ReSharper restore PossibleInvalidOperationException
 
             Contract.Assert.That(Seq.Create(replacementGroup, insertBeforeGroup, insertAfterGroup).Where(@this => @this != null).Count() == 1,
                                  "Seq.Create(replacementGroup, insertBeforeGroup, insertAfterGroup).Where(@this => @this != null).Count() == 1");

@@ -8,6 +8,7 @@ using Castle.MicroKernel.Registration;
 using Castle.MicroKernel.Resolvers.SpecializedResolvers;
 using Castle.Windsor;
 using Composable.Contracts;
+using Composable.System.Linq;
 
 namespace Composable.DependencyInjection.Windsor
 {

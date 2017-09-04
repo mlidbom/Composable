@@ -2,7 +2,7 @@ using System;
 using System.Collections;
 using System.Linq;
 using Composable.System.Reflection;
-using System.Web.Script.Serialization;
+using Newtonsoft.Json;
 
 namespace Composable.DDD
 {
@@ -127,7 +127,7 @@ namespace Composable.DDD
         {
             try
             {
-                return GetType().FullName + ":" + new JavaScriptSerializer().Serialize(this);
+                return GetType().FullName + ":" + JsonConvert.SerializeObject(this);
             }
             catch (Exception)
             {

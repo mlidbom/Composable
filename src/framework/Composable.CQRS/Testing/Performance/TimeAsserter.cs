@@ -14,29 +14,7 @@ namespace Composable.Testing.Performance
         static readonly ILogger Log = Logger.For(typeof(TimeAsserter));
         const string DefaultTimeFormat = "ss\\.fff";
 
-        static readonly Lazy<PerformanceCounter> LazyTotalCpu = new Lazy<PerformanceCounter>(() => new PerformanceCounter("Processor", "% Processor Time", "_Total"));
-
         static readonly MachineWideSingleThreaded MachineWideSingleThreaded = MachineWideSingleThreaded.For(typeof(TimeAsserter));
-
-        static PerformanceCounter TotalCpu => LazyTotalCpu.Value;
-        static void WaitUntilCpuLoadIsBelowPercent(int percent)
-        {
-            const int waitMilliseconds = 20;
-            // ReSharper disable once UnusedVariable this makes profiling information sane.
-            var separatedForPerformanceVisibility = TotalCpu;
-            InternalWait(percent, waitMilliseconds);
-        }
-
-        static void InternalWait(int percent, int waitMilliseconds)
-        {
-            var currentValue = (int)TotalCpu.NextValue();
-            while(currentValue > percent || currentValue == 0)
-            {
-                Log.Debug($"Waiting {waitMilliseconds} milliseconds for CPU to drop below {percent} percent");
-                Thread.Sleep(waitMilliseconds);
-                currentValue = (int)TotalCpu.NextValue();
-            }
-        }
 
         public static StopwatchExtensions.TimedExecutionSummary Execute
             ([InstantHandle]Action action,
@@ -76,7 +54,6 @@ namespace Composable.Testing.Performance
                                 PrintSummary(iterations, maxAverage, maxTotal, description, Format, executionSummary);
                                 throw;
                             }
-                            WaitUntilCpuLoadIsBelowPercent(50);
                             continue;
                         }
                         PrintSummary(iterations, maxAverage, maxTotal, description, Format, executionSummary);
@@ -144,7 +121,6 @@ namespace Composable.Testing.Performance
                                 PrintResults();
                                 throw;
                             }
-                            WaitUntilCpuLoadIsBelowPercent(50);
                             continue;
                         }
                         PrintResults();

@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Runtime.Remoting.Messaging;
-using System.Transactions;
 using Composable.System.Transactions;
 using JetBrains.Annotations;
 

@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net451</TargetFramework>
+    <TargetFramework>net461</TargetFramework>
   </PropertyGroup>
 
   <PropertyGroup>
@@ -9,7 +9,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Castle.Windsor" Version="3.4.0" />
+    <PackageReference Include="Castle.Core" Version="4.1.1" />
+    <PackageReference Include="Castle.Windsor" Version="4.0.0" />
   </ItemGroup>
 
   <ItemGroup>

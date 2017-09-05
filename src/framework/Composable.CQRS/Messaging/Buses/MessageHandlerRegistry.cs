@@ -8,9 +8,9 @@ namespace Composable.Messaging.Buses
 {
     class MessageHandlerRegistry : IMessageHandlerRegistrar, IMessageHandlerRegistry
     {
-        readonly Dictionary<Type, Action<object>> _commandHandlers = new Dictionary<Type, Action<object>>();
-        readonly Dictionary<Type, Func<object,object>> _queryHandlers = new Dictionary<Type, Func<object, object>>();
-        readonly List<EventHandlerRegistration> _eventHandlerRegistrations = new List<EventHandlerRegistration>();
+        internal readonly Dictionary<Type, Action<object>> _commandHandlers = new Dictionary<Type, Action<object>>();
+        internal readonly Dictionary<Type, Func<object,object>> _queryHandlers = new Dictionary<Type, Func<object, object>>();
+        internal readonly List<EventHandlerRegistration> _eventHandlerRegistrations = new List<EventHandlerRegistration>();
 
         readonly object _lock = new object();
 
@@ -102,7 +102,7 @@ namespace Composable.Messaging.Buses
             throw new Exception($"Unhandled message type: {aMessage.GetType()}");
         }
 
-        class EventHandlerRegistration
+        internal class EventHandlerRegistration
         {
             public Type Type { get; }
             public Action<IEventHandlerRegistrar<IEvent>> RegisterHandlerWithRegistrar { get; }

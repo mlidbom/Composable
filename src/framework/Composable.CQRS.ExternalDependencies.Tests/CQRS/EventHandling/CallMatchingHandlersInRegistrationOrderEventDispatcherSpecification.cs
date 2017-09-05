@@ -3,6 +3,7 @@ using Composable.Messaging.Events;
 using Composable.Persistence.EventStore;
 using FluentAssertions;
 using Xunit;
+// ReSharper disable InconsistentNaming
 
 namespace Composable.CQRS.Tests.CQRS.EventHandling
 {
@@ -20,9 +21,6 @@ namespace Composable.CQRS.Tests.CQRS.EventHandling
                 int? BeforeHandlers2CallOrder { get; set; }
 
                 int? UserCreatedCallOrder { get; set; }
-                int? UserRegisteredCallOrder { get; set; }
-                int? SkillsAddedCallOrder { get; set; }
-                int? SkillsRemovedCallOrder { get; set; }
 
                 int? AfterHandlers1CallOrder { get; set; }
                 int? AfterHandlers2CallOrder { get; set; }
@@ -36,9 +34,9 @@ namespace Composable.CQRS.Tests.CQRS.EventHandling
                                .AfterHandlers(e => AfterHandlers1CallOrder = ++CallsMade)
                                .AfterHandlers(e => AfterHandlers2CallOrder = ++CallsMade)
                                .For<IUserCreatedEvent>(e => UserCreatedCallOrder = ++CallsMade)
-                               .For<IUserRegistered>(e => UserRegisteredCallOrder = ++CallsMade)
-                               .For<IUserSkillsRemoved>(e => SkillsRemovedCallOrder = ++CallsMade)
-                               .For<IUserSkillsAdded>(e => SkillsAddedCallOrder = ++CallsMade);
+                               .For<IUserRegistered>(e => ++CallsMade)
+                               .For<IUserSkillsRemoved>(e => ++CallsMade)
+                               .For<IUserSkillsAdded>(e => ++CallsMade);
                 }
 
                 [Fact] void when_dispatching_an_ignored_event_no_calls_are_made_to_any_handlers()
@@ -67,7 +65,7 @@ namespace Composable.CQRS.Tests.CQRS.EventHandling
             {
                 [Fact] void handlers_are_called_in_registration_order()
                 {
-                    int calls = 0;
+                    var calls = 0;
                     int handler1CallOrder = 0;
                     int handler2CallOrder = 0;
 

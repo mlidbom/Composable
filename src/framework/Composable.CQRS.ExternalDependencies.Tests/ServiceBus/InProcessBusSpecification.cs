@@ -3,95 +3,110 @@ using Composable.DependencyInjection;
 using Composable.Messaging;
 using Composable.Messaging.Buses;
 using FluentAssertions;
+using Xunit;
+
+// ReSharper disable InconsistentNaming
 
 // ReSharper disable UnusedMember.Global
 
 namespace Composable.CQRS.Tests.ServiceBus
 {
-    public class InProcessBusSpecification : nspec
+    public class InProcessBusSpecification : IDisposable
     {
-        public void given_no_registered_handlers()
+        readonly IServiceLocator _container;
+
+        IMessageHandlerRegistrar Registrar => _container.Resolve<IMessageHandlerRegistrar>();
+        IInProcessServiceBus Bus => _container.Resolve<IInProcessServiceBus>();
+
+        InProcessBusSpecification() { _container = DependencyInjectionContainer.CreateServiceLocatorForTesting(_ => {}); }
+
+        public void Dispose() { _container.Dispose(); }
+
+        public class Given_a_bus : InProcessBusSpecification
         {
-            IInProcessServiceBus bus = null;
-            IMessageHandlerRegistrar registrar = null;
-            IServiceLocator container;
+            public class With_no_registered_handlers : Given_a_bus
+            {
+                [Fact] public void Handles_new_ACommand_is_false() => Bus.Handles(new ACommand()).Should().BeFalse();
+                [Fact] public void Handle_new_AQuery_is_false() => Bus.Handles(new AQuery()).Should().BeFalse();
+                [Fact] public void Handles_new_AnEvent_is_false() => Bus.Handles(new AnEvent()).Should().BeFalse();
 
-            before = () =>
-                   {
-                       container = DependencyInjectionContainer.CreateServiceLocatorForTesting(cont => {});
-                       registrar = container.Resolve<IMessageHandlerRegistrar>();
-                        bus = container.Resolve<IInProcessServiceBus>();
-                   };
+                [Fact] public void Send_new_ACommand_throws_an_Exception() => Bus.Invoking(_ => Bus.Send(new ACommand())).ShouldThrow<NoHandlerException>();
+                [Fact] public void Get_new_AQuery_throws_an_Exception() => Bus.Invoking(_ => Bus.Send(new ACommand())).ShouldThrow<NoHandlerException>();
+                [Fact] public void Publish_new_AnEvent_throws_no_exception() => Bus.Publish(new AnEvent());
+            }
 
-            it["Handles(new ACommand()) returns false"] = () => bus.Handles(new ACommand()).Should().Be(false);
-            it["Send(new ACommand()) throws NoHandlerException"] = expect<NoHandlerException>(() => bus.Send(new ACommand()));
-            context["after registering a command handler for ACommand with bus"] =
-                () =>
+            public class With_registered_handler_for_ACommand : Given_a_bus
+            {
+                bool _commandHandled;
+                public With_registered_handler_for_ACommand()
                 {
-                    bool commandHandled = false;
-                    before = () => registrar.ForCommand<ACommand>(command => commandHandled = true);
-                    it["Handles(new ACommand()) returns true"] = () => bus.Handles(new ACommand()).Should().Be(true);
+                    _commandHandled = false;
+                    Registrar.ForCommand((ACommand command) => _commandHandled = true);
+                }
+                [Fact] public void Handles_new_ACommand_is_true() => Bus.Handles(new ACommand()).Should().BeTrue();
 
-                    it["Send(new ACommand()) dispatches to registered handler"] = () =>
-                                                                               {
-                                                                                   bus.Send(new ACommand());
-                                                                                   commandHandled.Should().Be(true);
-                                                                               };
-
-                };
-
-            it["Handles(new AnEvent()) returns false"] = () => bus.Handles(new AnEvent()).Should().BeFalse();
-            it["Publish(new AnEvent()) throws no exception"] = () => bus.Publish(new AnEvent());
-            context["after registering a handler for AnEvent with bus"] =
-                () =>
+                [Fact] public void Sending_new_ACommand_calls_the_handler()
                 {
-                    bool eventHandled = false;
-                    before = () => registrar.ForEvent<AnEvent>(command => eventHandled = true);
-                    it["Handles(new AnEvent()) returns true"] = () => bus.Handles(new AnEvent()).Should().Be(true);
-                    it["Publish(new AnEvent()) throws no exception"] = () => bus.Publish(new AnEvent());
-                    it["Publish(new AnEvent()) dispatches to AnEventHandler"] = () =>
-                    {
-                        bus.Publish(new AnEvent());
-                        eventHandled.Should().Be(true);
-                    };
+                    Bus.Send(new ACommand());
+                    _commandHandled.Should().Be(true);
+                }
+            }
 
-                };
-
-            it["Handles(new AQuery()) returns false"] = () => bus.Handles(new AQuery()).Should().Be(false);
-            it["Get(new AQuery()) throws NoHandlerException"] = expect<NoHandlerException>(() => bus.Get(new AQuery()));
-            context["after registering a handler for AQuery with bus"] =
-                () =>
+            public class With_registered_handler_for_AQuery : Given_a_bus
+            {
+                readonly AQueryResult _aQueryResult;
+                public With_registered_handler_for_AQuery()
                 {
-                    before = () => registrar.ForQuery<AQuery, AQueryResult>(query => new AQueryResult());
-                    it["Handles(new AQuery()) returns true"] = () => bus.Handles(new AQuery()).Should().Be(true);
-                    it["Get(new AQuery()) throws no exception"] = () => bus.Get(new AQuery());
-                    it["Get(new AQuery()) returns an instance of AQueryResult"] = () =>
-                                                                                 {
-                                                                                     var aQueryResult = bus.Get(new AQuery());
-                                                                                     aQueryResult.Should()
-                                                                                                 .NotBeNull();
-                                                                                     aQueryResult.Should().BeOfType<AQueryResult>();
+                    _aQueryResult = new AQueryResult();
+                    Registrar.ForQuery((AQuery query) => _aQueryResult);
+                }
 
-                                                                                 };
+                [Fact] public void Handles_new_AQuery_is_true() => Bus.Handles(new AQuery()).Should().BeTrue();
 
-                };
-        }
+                [Fact] public void Getting_new_AQuery_returns_the_instance_returned_by_the_handler() => Bus.Get(new AQuery()).Should().Be(_aQueryResult);
+            }
 
-        public void when_there_is_one_handler_registered_for_a_message()
-        {
-          IMessageHandlerRegistrar registrar = null;
+            public class With_one_registered_handler_for_AnEvent : Given_a_bus
+            {
+                bool _eventHandler1Called;
+                public With_one_registered_handler_for_AnEvent()
+                {
+                    _eventHandler1Called = false;
+                    Registrar.ForEvent((AnEvent @event) => _eventHandler1Called = true);
+                }
 
-            before = () =>
-                     {
-                         var container = DependencyInjectionContainer.CreateServiceLocatorForTesting(cont => { });
-                         registrar = container.Resolve<IMessageHandlerRegistrar>();
-                         registrar.ForCommand<ACommand>(_ => { });
-                     };
+                [Fact] public void Handles_new_AnEvent_is_true() => Bus.Handles(new AnEvent()).Should().BeTrue();
 
-            context["when you add another handler for that command that does not implement ISynchronousBusMessageSpy"] =
-                () => it["an exception is thrown"] =  () => this.Invoking(_ => registrar.ForCommand<ACommand>(cmd => {})).ShouldThrow<Exception>();
+                [Fact] public void Publishing_new_AnEvent_calls_the_handler()
+                {
+                    Bus.Publish(new AnEvent());
+                    _eventHandler1Called.Should().BeTrue();
+                }
+            }
 
+            public class With_two_registered_handlers_for_AnEvent : Given_a_bus
+            {
+                bool _eventHandler1Called;
+                bool _eventHandler2Called;
 
+                public With_two_registered_handlers_for_AnEvent()
+                {
+                    _eventHandler1Called = false;
+                    _eventHandler2Called = false;
+                    Registrar.ForEvent((AnEvent @event) => _eventHandler1Called = true);
+                    Registrar.ForEvent((AnEvent @event) => _eventHandler2Called = true);
+                }
+
+                [Fact] public void Handles_new_AnEvent_is_true() => Bus.Handles(new AnEvent()).Should().BeTrue();
+
+                [Fact] public void Publishing_new_AnEvent_calls_both_handlers()
+                {
+                    Bus.Publish(new AnEvent());
+
+                    _eventHandler1Called.Should().BeTrue();
+                    _eventHandler2Called.Should().BeTrue();
+                }
+            }
         }
 
         class ACommand : ICommand
@@ -99,13 +114,10 @@ namespace Composable.CQRS.Tests.ServiceBus
             public Guid Id { get; } = Guid.NewGuid();
         }
 
-        class AQuery : IQuery<AQueryResult>
-        {
+        class AQuery : IQuery<AQueryResult> {}
 
-        }
+        class AQueryResult : IQueryResult {}
 
-        class AQueryResult : IQueryResult { }
-
-        class AnEvent : IEvent { }
+        class AnEvent : IEvent {}
     }
 }

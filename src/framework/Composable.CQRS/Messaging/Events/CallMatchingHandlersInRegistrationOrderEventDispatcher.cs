@@ -81,7 +81,7 @@ namespace Composable.Messaging.Events
                 return AfterHandlers(e => runAfterHandlers((THandledEvent)e));
             }
 
-            IEventHandlerRegistrar<TEvent> IEventHandlerRegistrar<TEvent>.IgnoreUnhandled<T>() => IgnoreUnhandled<TEvent>();
+            IEventHandlerRegistrar<TEvent> IEventHandlerRegistrar<TEvent>.IgnoreUnhandled<THandledEvent>() => IgnoreUnhandled<THandledEvent>();
 
             IEventHandlerRegistrar<TEvent> IEventHandlerRegistrar<TEvent>.For<THandledEvent>(Action<THandledEvent> handler) => For(handler);
 

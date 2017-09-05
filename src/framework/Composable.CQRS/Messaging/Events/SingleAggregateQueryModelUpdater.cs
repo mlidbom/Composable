@@ -3,7 +3,7 @@ using Composable.Persistence.EventStore;
 
 namespace Composable.Messaging.Events
 {
-    public abstract class SingleAggregateQueryModelUpdater<TImplementer, TViewModel, TEvent, TSession> : CallsMatchingHandlersInRegistrationOrderEventHandler<TEvent>
+    public abstract class SingleAggregateQueryModelUpdater<TImplementer, TViewModel, TEvent, TSession> : CallsMatchingHandlersInRegistrationOrderEventDispatcherSpecification<TEvent>
         where TImplementer : SingleAggregateQueryModelUpdater<TImplementer, TViewModel, TEvent, TSession>
         where TSession : IDocumentDbUpdater
         where TEvent : class, IAggregateRootEvent

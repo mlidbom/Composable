@@ -1,8 +1,9 @@
-﻿using JetBrains.Annotations;
+﻿using System.Collections.Generic;
+using JetBrains.Annotations;
 
 namespace Composable.Messaging.Buses
 {
-    [UsedImplicitly] class InProcessServiceBus : IInProcessServiceBus
+    [UsedImplicitly] class InProcessServiceBus : IInProcessServiceBus, IMessageSpy
     {
         readonly IMessageHandlerRegistry _handlerRegistry;
 
@@ -30,6 +31,12 @@ namespace Composable.Messaging.Buses
             return returnValue;
         }
 
-        protected virtual void AfterDispatchingMessage(IMessage message) { }
+        readonly List<IMessage> _dispatchedMessages = new List<IMessage>();
+        public IEnumerable<IMessage> DispatchedMessages => _dispatchedMessages;
+
+        protected virtual void AfterDispatchingMessage(IMessage message)
+        {
+            _dispatchedMessages.Add(message);
+        }
     }
 }

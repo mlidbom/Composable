@@ -24,7 +24,8 @@ namespace Composable.DependencyInjection.Testing
             }
             var dummyTimeSource = DummyTimeSource.Now;
             var registry = new MessageHandlerRegistry();
-            var bus = new TestingOnlyServiceBus(dummyTimeSource, registry);
+            var inprocessBus = new InProcessServiceBus(registry);
+            var testingOnlyServiceBus = new TestingOnlyInterprocessServiceBus(dummyTimeSource, inprocessBus);
             var runMode = new RunMode(isTesting:true, mode:mode);
 
             @this.Register(Component.For<IRunMode>()
@@ -43,8 +44,11 @@ namespace Composable.DependencyInjection.Testing
                            Component.For<IMessageHandlerRegistrar>()
                                     .UsingFactoryMethod(factoryMethod: _ => registry)
                                     .LifestyleSingleton(),
-                           Component.For<IServiceBus, IInProcessServiceBus, IMessageSpy>()
-                                    .UsingFactoryMethod(factoryMethod: _ => bus)
+                           Component.For<IInProcessServiceBus, IMessageSpy>()
+                                    .UsingFactoryMethod(_ => inprocessBus)
+                                    .LifestyleSingleton(),
+                           Component.For<IInterProcessServiceBus>()
+                                    .UsingFactoryMethod(factoryMethod: _ => testingOnlyServiceBus)
                                     .LifestyleSingleton(),
                            Component.For<ISqlConnectionProvider>()
                                     .UsingFactoryMethod(factoryMethod: locator => new SqlServerDatabasePoolSqlConnectionProvider(MasterDbConnection.ConnectionString))

@@ -106,6 +106,11 @@ namespace Composable.CQRS.Tests.ServiceBus
 
             _registry = new MessageHandlerRegistry();
 
+            var dummyTimeSource = DummyTimeSource.Now;
+            var inprocessBus = new InProcessServiceBus(_registry);
+            var testingOnlyServiceBus = new TestingOnlyInterprocessServiceBus(dummyTimeSource, inprocessBus);
+
+
             _container.Register(Component.For<ISingleContextUseGuard>()
                                          .ImplementedBy<SingleThreadUseGuard>()
                                          .LifestyleScoped(),
@@ -119,8 +124,11 @@ namespace Composable.CQRS.Tests.ServiceBus
                                 Component.For<IMessageHandlerRegistrar, MessageHandlerRegistry>()
                                          .UsingFactoryMethod(factoryMethod: _ => _registry)
                                          .LifestyleSingleton(),
-                                Component.For<IServiceBus, IInProcessServiceBus>()
-                                         .UsingFactoryMethod(factoryMethod: _ => new TestingOnlyServiceBus(DummyTimeSource.Now, _registry))
+                                Component.For<IInProcessServiceBus, IMessageSpy>()
+                                         .UsingFactoryMethod(_ => inprocessBus)
+                                         .LifestyleSingleton(),
+                                Component.For<IInterProcessServiceBus>()
+                                         .UsingFactoryMethod(factoryMethod: _ => testingOnlyServiceBus)
                                          .LifestyleSingleton());
         }
 
@@ -149,14 +157,14 @@ namespace Composable.CQRS.Tests.ServiceBus
                                           builder.Registrar.ForCommand((MyCommand command) =>
                                                                        {
                                                                            commandReceived.Pass();
-                                                                           builder.Container.CreateServiceLocator().Resolve<IServiceBus>().Publish(new MyEvent());
+                                                                           builder.Container.CreateServiceLocator().Resolve<IInterProcessServiceBus>().Publish(new MyEvent());
                                                                        });
                                           builder.Registrar.ForQuery((MyQuery query) => new QueryResult());
                                       });
 
                 var clientEndpoint = host.RegisterEndpoint(builder => builder.Registrar.ForEvent((MyEvent @event)=> eventReceived.Pass()));
 
-                var clientBus = clientEndpoint.ServiceLocator.Resolve<IServiceBus>();
+                var clientBus = clientEndpoint.ServiceLocator.Resolve<IInterProcessServiceBus>();
 
                 clientBus.Send(new MyCommand());
 

@@ -39,7 +39,7 @@ namespace Composable.DependencyInjection.Persistence
 
         [UsedImplicitly] class EventStoreUpdater<TSessionInterface, TReaderInterface> : EventStoreUpdater, IEventStoreUpdater<TSessionInterface, TReaderInterface>
         {
-            public EventStoreUpdater(IServiceBus bus,
+            public EventStoreUpdater(IInProcessServiceBus bus,
                                      IEventStore<TSessionInterface, TReaderInterface> store,
                                      ISingleContextUseGuard usageGuard,
                                      IUtcTimeTimeSource timeSource) : base(bus, store, usageGuard, timeSource) {}

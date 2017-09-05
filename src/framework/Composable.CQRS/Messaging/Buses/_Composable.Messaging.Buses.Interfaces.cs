@@ -16,9 +16,10 @@ namespace Composable.Messaging.Buses
     interface IInterProcessServiceBus
     {
         void SendAtTime(DateTime sendAt, ICommand message);
+        void Publish(IEvent anEvent);
+        TResult Get<TResult>(IQuery<TResult> query) where TResult : IQueryResult;
+        void Send(ICommand command);
     }
-
-    interface IServiceBus : IInProcessServiceBus, IInterProcessServiceBus {}
 
     public interface IMessageSpy
     {

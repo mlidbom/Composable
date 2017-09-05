@@ -15,14 +15,14 @@ namespace Composable.Persistence.EventStore
         IEventStoreReader,
         IEventStoreUpdater
     {
-        readonly IServiceBus _bus;
+        readonly IInProcessServiceBus _bus;
         readonly IEventStore _store;
         readonly IDictionary<Guid, IEventStored> _idMap = new Dictionary<Guid, IEventStored>();
         readonly ISingleContextUseGuard _usageGuard;
         readonly List<IDisposable> _disposableResources = new List<IDisposable>();
         IUtcTimeTimeSource TimeSource { get; set; }
 
-        public EventStoreUpdater(IServiceBus bus, IEventStore store, ISingleContextUseGuard usageGuard, IUtcTimeTimeSource timeSource)
+        public EventStoreUpdater(IInProcessServiceBus bus, IEventStore store, ISingleContextUseGuard usageGuard, IUtcTimeTimeSource timeSource)
         {
             Contract.Argument(() => bus, () => store, () => usageGuard, () => timeSource)
                         .NotNull();

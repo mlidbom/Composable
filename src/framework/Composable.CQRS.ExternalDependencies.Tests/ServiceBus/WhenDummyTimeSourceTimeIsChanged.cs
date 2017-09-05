@@ -1,36 +1,40 @@
 ﻿using System;
+using System.Threading;
 using Composable.DependencyInjection;
 using Composable.GenericAbstractions.Time;
 using Composable.Messaging.Buses;
 using Composable.Messaging.Commands;
 using Composable.System;
+using Composable.Testing.Threading;
 using FluentAssertions;
 using NUnit.Framework;
 
 namespace Composable.CQRS.Tests.ServiceBus
 {
+    using Composable.System;
+
     [TestFixture]
     public class WhenDummyTimeSourceTimeIsChanged
     {
-        IServiceBus _bus;
+        IInterProcessServiceBus _bus;
         DummyTimeSource _timeSource;
         IDisposable _scope;
         IServiceLocator _serviceLocator;
-        ScheduledCommand _receivedCommand = null;
+        IThreadGate _receivedCommandGate = null;
 
         [SetUp]
         public void SetupTask()
         {
             _serviceLocator = DependencyInjectionContainer.CreateServiceLocatorForTesting(cont => {});
-            _receivedCommand = null;
+            _receivedCommandGate = ThreadGate.WithTimeout(10.Milliseconds()).Open();
 
             _timeSource = _serviceLocator.Resolve<DummyTimeSource>();
             _timeSource.UtcNow = DateTime.Parse("2015-01-01 10:00");
             _scope = _serviceLocator.BeginScope();
 
-            _bus = _serviceLocator.Resolve<IServiceBus>();
+            _bus = _serviceLocator.Resolve<IInterProcessServiceBus>();
             _serviceLocator.Resolve<IMessageHandlerRegistrar>()
-                      .ForCommand<ScheduledCommand>(cmd => _receivedCommand = cmd);
+                      .ForCommand<ScheduledCommand>(cmd => _receivedCommandGate.Pass());
         }
 
         [Test]
@@ -38,12 +42,11 @@ namespace Composable.CQRS.Tests.ServiceBus
         {
             var now = _timeSource.UtcNow;
             var inOneHour = new ScheduledCommand();
-            _bus.SendAtTime(now + TimeSpanExtensions.Hours(1), inOneHour);
+            _bus.SendAtTime(now + 1.Hours(), inOneHour);
 
-            _timeSource.UtcNow = now + TimeSpanExtensions.Hours(1);
+            _timeSource.UtcNow = now + 1.Hours();
 
-            _receivedCommand.Should()
-                           .Be(inOneHour);
+            _receivedCommandGate.AwaitPassedCount(1);
         }
 
         [Test]
@@ -51,12 +54,13 @@ namespace Composable.CQRS.Tests.ServiceBus
         {
             var now = _timeSource.UtcNow;
             var inOneHour = new ScheduledCommand();
-            _bus.SendAtTime(now + TimeSpanExtensions.Hours(1), inOneHour);
+            _bus.SendAtTime(now + 1.Hours(), inOneHour);
 
-            _timeSource.UtcNow = now + TimeSpanExtensions.Minutes(1);
+            _timeSource.UtcNow = now + 1.Minutes();
 
-            _receivedCommand.Should()
-                           .Be(null);
+            Thread.Sleep(10.Milliseconds());
+
+            _receivedCommandGate.Passed.Should().Be(0);
         }
 
         [TearDown]

@@ -1,19 +1,22 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Composable.GenericAbstractions.Time;
 using Composable.System;
 using Composable.System.Reactive;
 
 namespace Composable.Messaging.Buses
 {
-    class TestingOnlyServiceBus : InProcessServiceBus, IServiceBus, IDisposable, IMessageSpy
+    class TestingOnlyInterprocessServiceBus : IInterProcessServiceBus, IDisposable
     {
         readonly DummyTimeSource _timeSource;
+        readonly IInProcessServiceBus _inProcessServiceBus;
         readonly List<ScheduledMessage> _scheduledMessages = new List<ScheduledMessage>();
-        public TestingOnlyServiceBus(DummyTimeSource timeSource, IMessageHandlerRegistry registry) : base(registry)
+        public TestingOnlyInterprocessServiceBus(DummyTimeSource timeSource, IInProcessServiceBus inProcessServiceBus)
         {
             _timeSource = timeSource;
+            _inProcessServiceBus = inProcessServiceBus;
             _managedResources = timeSource.UtcNowChanged.Subscribe(SendDueMessages);
         }
 
@@ -21,7 +24,7 @@ namespace Composable.Messaging.Buses
         {
             var dueMessages = _scheduledMessages.Where(message => message.SendAt <= currentTime)
                                                 .ToList();
-            dueMessages.ForEach(scheduledMessage => ((IInProcessServiceBus)this).Send(scheduledMessage.Message));
+            dueMessages.ForEach(scheduledMessage => _inProcessServiceBus.Send(scheduledMessage.Message));
             dueMessages.ForEach(message => _scheduledMessages.Remove(message));
         }
 
@@ -47,15 +50,14 @@ namespace Composable.Messaging.Buses
             }
         }
 
-        readonly List<IMessage> _dispatchedMessages = new List<IMessage>();
-        public IEnumerable<IMessage> DispatchedMessages => _dispatchedMessages;
-
-        protected override void AfterDispatchingMessage(IMessage message) { _dispatchedMessages.Add(message); }
-
         readonly IDisposable _managedResources;
         public void Dispose()
         {
             _managedResources.Dispose();
         }
+
+        public void Publish(IEvent anEvent) => Task.Run(() => _inProcessServiceBus.Publish(anEvent));
+        public void Send(ICommand command) => Task.Run(() => _inProcessServiceBus.Send(command));
+        public TResult Get<TResult>(IQuery<TResult> query) where TResult : IQueryResult => _inProcessServiceBus.Get(query);
     }
 }

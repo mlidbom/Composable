@@ -19,7 +19,6 @@
     <PackageReference Include="FluentAssertions" Version="4.19.4" />
     <PackageReference Include="Moq" Version="4.7.99" />
     <PackageReference Include="NCrunch.Framework" Version="3.11.0.9" />
-    <PackageReference Include="nspec" Version="3.1.0" />
     <PackageReference Include="NUnit" Version="3.8.1" />
     <PackageReference Include="xunit" Version="2.2.0" />
   </ItemGroup>
@@ -29,7 +28,6 @@
     <ProjectReference Include="..\Composable.CQRS.Tests\Composable.CQRS.Tests.csproj" />
     <ProjectReference Include="..\Composable.CQRS\Composable.CQRS.csproj" />
     <ProjectReference Include="..\Composable.Testing\Composable.Testing.csproj" />
-    <ProjectReference Include="..\..\legacy\NSpec.NUnit\NSpec.NUnit.csproj" />
   </ItemGroup>
 
   

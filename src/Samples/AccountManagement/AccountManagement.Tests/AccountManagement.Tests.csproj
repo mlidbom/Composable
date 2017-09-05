@@ -24,7 +24,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\..\framework\Composable.Testing\Composable.Testing.csproj" />
-    <ProjectReference Include="..\..\..\legacy\NSpec.NUnit\NSpec.NUnit.csproj" />
     <ProjectReference Include="..\AccountManagement.UI.Commands\AccountManagement.UI.Commands.csproj" />
     <ProjectReference Include="..\AccountManagement.UI.QueryModels.Updaters\AccountManagement.UI.QueryModels.DocumentDB.Updaters.csproj" />
     <ProjectReference Include="..\AccountManagement.UI.QueryModels\AccountManagement.UI.QueryModels.csproj" />

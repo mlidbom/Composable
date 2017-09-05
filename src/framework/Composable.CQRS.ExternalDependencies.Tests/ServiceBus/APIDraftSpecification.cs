@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Composable.DependencyInjection;
 using Composable.GenericAbstractions.Time;
 using Composable.Messaging;
@@ -145,7 +146,7 @@ namespace Composable.CQRS.Tests.ServiceBus
 
     public class APIDraftSpecification
     {
-        [Fact] void SettingUpAHost()
+        [Fact] async Task SettingUpAHost()
         {
             using(var host = EndpointHost.CreateForTesting())
             {
@@ -169,11 +170,13 @@ namespace Composable.CQRS.Tests.ServiceBus
                 clientBus.Send(new MyCommand());
 
                 commandReceived.AwaitPassedCount(1);
+                eventReceived.AwaitPassedCount(1);
 
-                var result = clientBus.Get(new MyQuery());
+                var result = clientBus.Query(new MyQuery());
                 result.Should().NotBeNull();
 
-                eventReceived.AwaitPassedCount(1);
+                result = await clientBus.QueryAsync(new MyQuery());
+                result.Should().NotBeNull();
             }
         }
     }

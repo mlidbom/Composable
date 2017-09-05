@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Composable.Messaging.Events;
 
 namespace Composable.Messaging.Buses
@@ -17,7 +18,9 @@ namespace Composable.Messaging.Buses
     {
         void SendAtTime(DateTime sendAt, ICommand message);
         void Publish(IEvent anEvent);
-        TResult Get<TResult>(IQuery<TResult> query) where TResult : IQueryResult;
+        TResult Query<TResult>(IQuery<TResult> query) where TResult : IQueryResult;
+        Task<TResult> QueryAsync<TResult>(IQuery<TResult> query) where TResult : IQueryResult;
+
         void Send(ICommand command);
     }
 

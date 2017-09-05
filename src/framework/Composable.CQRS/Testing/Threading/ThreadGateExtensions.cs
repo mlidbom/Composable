@@ -14,6 +14,7 @@ namespace Composable.Testing.Threading
         public static bool TryAwaitQueueLengthExceeding(this IThreadGate @this, int length, TimeSpan timeout) => @this.TryAwait(timeout, () => @this.Queued >= length);
 
         public static IThreadGate AwaitPassedCount(this IThreadGate @this, int length) => @this.Await(() => @this.Passed >= length);
+        public static IThreadGate AwaitPassedCount(this IThreadGate @this, int length, TimeSpan timeout) => @this.Await(timeout, () => @this.Passed >= length);
         public static bool TryPassedCount(this IThreadGate @this, int count, TimeSpan timeout) => @this.TryAwait(timeout, () => @this.Passed >= count);
 
         public static IThreadGate AwaitEmptyQueue(this IThreadGate @this) => @this.Await(() => @this.Queued == 0);

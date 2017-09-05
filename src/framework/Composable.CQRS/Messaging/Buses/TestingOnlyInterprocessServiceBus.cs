@@ -58,6 +58,7 @@ namespace Composable.Messaging.Buses
 
         public void Publish(IEvent anEvent) => Task.Run(() => _inProcessServiceBus.Publish(anEvent));
         public void Send(ICommand command) => Task.Run(() => _inProcessServiceBus.Send(command));
-        public TResult Get<TResult>(IQuery<TResult> query) where TResult : IQueryResult => _inProcessServiceBus.Get(query);
+        public TResult Query<TResult>(IQuery<TResult> query) where TResult : IQueryResult => _inProcessServiceBus.Get(query);
+        public Task<TResult> QueryAsync<TResult>(IQuery<TResult> query) where TResult : IQueryResult => Task.Run(() => _inProcessServiceBus.Get(query));
     }
 }

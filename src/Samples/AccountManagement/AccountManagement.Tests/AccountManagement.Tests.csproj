@@ -41,9 +41,4 @@
     </Reference>
   </ItemGroup>
 
-  
-  <ItemGroup>
-    <Folder Include="Domain\EmailSpecification\When_creating_a_new_email\" />
-  </ItemGroup>
-
 </Project>

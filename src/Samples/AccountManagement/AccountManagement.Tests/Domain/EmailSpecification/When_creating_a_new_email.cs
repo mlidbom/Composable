@@ -9,9 +9,9 @@ namespace AccountManagement.Tests.Domain.EmailSpecification
 {
     [TestFixture] public class When_creating_a_new_email
     {
-        [TestFixture] public class An_InvalidEmailException_containing_the_email_is_thrown_when_the_given_string_is
+        [TestFixture] public class An_InvalidEmailException_containing_the_email_is_thrown_
         {
-            [Test, TestCaseSource(typeof(An_InvalidEmailException_containing_the_email_is_thrown_when_the_given_string_is), nameof(InvalidEmails))]
+            [Test, TestCaseSource(typeof(An_InvalidEmailException_containing_the_email_is_thrown_), nameof(InvalidEmails))]
             public void in_each_of_these_cases_and_the_message_contains_the_email(string invalidEmail)
             {
                 Assert.Throws<InvalidEmailException>(() => Email.Parse(invalidEmail))

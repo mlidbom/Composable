@@ -18,7 +18,7 @@ namespace Composable.CQRS.Tests.ServiceBus
         IMessageHandlerRegistrar Registrar => _container.Resolve<IMessageHandlerRegistrar>();
         IInProcessServiceBus Bus => _container.Resolve<IInProcessServiceBus>();
 
-        InProcessBusSpecification() { _container = DependencyInjectionContainer.CreateServiceLocatorForTesting(_ => {}); }
+        InProcessBusSpecification() => _container = DependencyInjectionContainer.CreateServiceLocatorForTesting(_ => {});
 
         public void Dispose() { _container.Dispose(); }
 
@@ -26,10 +26,6 @@ namespace Composable.CQRS.Tests.ServiceBus
         {
             public class With_no_registered_handlers : Given_a_bus
             {
-                [Fact] public void Handles_new_ACommand_is_false() => Bus.Handles(new ACommand()).Should().BeFalse();
-                [Fact] public void Handle_new_AQuery_is_false() => Bus.Handles(new AQuery()).Should().BeFalse();
-                [Fact] public void Handles_new_AnEvent_is_false() => Bus.Handles(new AnEvent()).Should().BeFalse();
-
                 [Fact] public void Send_new_ACommand_throws_an_Exception() => Bus.Invoking(_ => Bus.Send(new ACommand())).ShouldThrow<NoHandlerException>();
                 [Fact] public void Get_new_AQuery_throws_an_Exception() => Bus.Invoking(_ => Bus.Send(new ACommand())).ShouldThrow<NoHandlerException>();
                 [Fact] public void Publish_new_AnEvent_throws_no_exception() => Bus.Publish(new AnEvent());
@@ -43,7 +39,6 @@ namespace Composable.CQRS.Tests.ServiceBus
                     _commandHandled = false;
                     Registrar.ForCommand((ACommand command) => _commandHandled = true);
                 }
-                [Fact] public void Handles_new_ACommand_is_true() => Bus.Handles(new ACommand()).Should().BeTrue();
 
                 [Fact] public void Sending_new_ACommand_calls_the_handler()
                 {
@@ -61,8 +56,6 @@ namespace Composable.CQRS.Tests.ServiceBus
                     Registrar.ForQuery((AQuery query) => _aQueryResult);
                 }
 
-                [Fact] public void Handles_new_AQuery_is_true() => Bus.Handles(new AQuery()).Should().BeTrue();
-
                 [Fact] public void Getting_new_AQuery_returns_the_instance_returned_by_the_handler() => Bus.Get(new AQuery()).Should().Be(_aQueryResult);
             }
 
@@ -74,8 +67,6 @@ namespace Composable.CQRS.Tests.ServiceBus
                     _eventHandler1Called = false;
                     Registrar.ForEvent((AnEvent @event) => _eventHandler1Called = true);
                 }
-
-                [Fact] public void Handles_new_AnEvent_is_true() => Bus.Handles(new AnEvent()).Should().BeTrue();
 
                 [Fact] public void Publishing_new_AnEvent_calls_the_handler()
                 {
@@ -96,8 +87,6 @@ namespace Composable.CQRS.Tests.ServiceBus
                     Registrar.ForEvent((AnEvent @event) => _eventHandler1Called = true);
                     Registrar.ForEvent((AnEvent @event) => _eventHandler2Called = true);
                 }
-
-                [Fact] public void Handles_new_AnEvent_is_true() => Bus.Handles(new AnEvent()).Should().BeTrue();
 
                 [Fact] public void Publishing_new_AnEvent_calls_both_handlers()
                 {

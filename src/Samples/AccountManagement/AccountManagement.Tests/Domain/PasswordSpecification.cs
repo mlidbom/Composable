@@ -1,71 +1,56 @@
-﻿using AccountManagement.Domain;
-using Composable;
+﻿using System.Linq;
+using AccountManagement.Domain;
 using FluentAssertions;
 using JetBrains.Annotations;
-using NUnit.Framework;
-
-// ReSharper disable ObjectCreationAsStatement
+using Xunit;
+// ReSharper disable InconsistentNaming
+// ReSharper disable ClassNeverInstantiated.Global
 
 namespace AccountManagement.Tests.Domain
 {
-    //Review:mlidbo: Replace with standard nunit test.
-    public class PasswordSpecification : nspec
+    [UsedImplicitly] public class PasswordSpecification
     {
-        [UsedImplicitly]
-        public void when_creating_a_new_password()
+        public class When_creating_a_password
         {
-            context["from_the_string 'Pass'"] =
-                () =>
-                {
-                    var password = TestData.Password.CreateValidPassword();
-                    before = () => password = new Password("Pass");
+            public class From_the_string_Pass
+            {
+                readonly Password _password;
+                public From_the_string_Pass() => _password = new Password("Pass");
 
-                    it["HashedPassword is not null"] = () => password.HashedPassword.Should().NotBeNull();
-                    it["HashedPassword is not an empty array"] = () => password.HashedPassword.Should().NotBeEmpty();
-                    it["Salt is not null"] = () => password.Salt.Should().NotBeNull();
-                    it["Salt is not empty"] = () => password.Salt.Should().NotBeEmpty();
-                    it["IsCorrectPassword('Pass') ==  true"] = () => password.IsCorrectPassword("Pass").Should().BeTrue();
-                    it["IsCorrectPassword('pass') !=  true"] = () => password.IsCorrectPassword("pass").Should().BeFalse();
-                    it["IsCorrectPassword('Pass ') !=  true"] = () => password.IsCorrectPassword("Pass ").Should().BeFalse();
-                    it["IsCorrectPassword(' Pass') !=  true"] = () => password.IsCorrectPassword(" Pass").Should().BeFalse();
-                    context["when comparing to another password created from the string 'otherPassword'"] =
-                        () =>
+                [Fact] void HashedPassword_is_not_null() => _password.HashedPassword.Should().NotBeNull();
+                [Fact] void HashedPassword_is_not_an_empty_array() => _password.HashedPassword.Should().NotBeEmpty();
+                [Fact] void Salt_is_not_null() => _password.Salt.Should().NotBeNull();
+
+                public class IsCorrectPassword_is_ : From_the_string_Pass
+                {
+                    [Fact] void true_if_string_is_Pass() => _password.IsCorrectPassword("Pass").Should().BeTrue();
+
+                    public class false_if : IsCorrectPassword_is_
+                    {
+                        [Fact] void _case_changes()
                         {
-                            var otherPassword = new Password("AnotherPassword1!");
-                            before = () => otherPassword = new Password("otherPassword");
-                            it["the Salt members are different"] = () => password.Salt.Should().NotEqual(otherPassword.Salt);
-                            it["the HashedPassword members are different"] = () => password.HashedPassword.Should().NotEqual(otherPassword.HashedPassword);
-                        };
-                };
+                            _password.IsCorrectPassword("pass").Should().BeFalse();
+                            _password.IsCorrectPassword("PasS").Should().BeFalse();
+                        }
 
-            context["allThesePasswordsAreInvalid with the mentioned failures"] =
-                () =>
-                {
-                    it["[[null]]"] = () => Assert.Throws<PasswordDoesNotMatchPolicyException>(() => new Password(null))
-                        .Failures.Should().Contain(Password.Policy.Failures.Null);
-                    it["'' too short"] = () => Assert.Throws<PasswordDoesNotMatchPolicyException>(() => new Password(""))
-                        .Failures.Should().Contain(Password.Policy.Failures.ShorterThanFourCharacters);
-                    it["' ' whitespace and too short"] = () => Assert.Throws<PasswordDoesNotMatchPolicyException>(() => new Password(" "))
-                        .Failures.Should()
-                        .Contain(Password.Policy.Failures.ShorterThanFourCharacters)
-                        .And
-                        .Contain(Password.Policy.Failures.BorderedByWhitespace);
-                    it["'Urdu ' whitespace"] = () => Assert.Throws<PasswordDoesNotMatchPolicyException>(() => new Password("Urdu "))
-                        .Failures.Should()
-                        .Contain(Password.Policy.Failures.BorderedByWhitespace);
-                    it["' Urdu' whitespace"] = () => Assert.Throws<PasswordDoesNotMatchPolicyException>(() => new Password(" Urdu"))
-                        .Failures.Should()
-                        .Contain(Password.Policy.Failures.BorderedByWhitespace);
-                    it["'urdu' lowercase"] = () => Assert.Throws<PasswordDoesNotMatchPolicyException>(() => new Password("urdu"))
-                        .Failures.Should()
-                        .Contain(Password.Policy.Failures.MissingUppercaseCharacter);
-                    it["'URDU' uppercase"] = () => Assert.Throws<PasswordDoesNotMatchPolicyException>(() => new Password("URDU"))
-                        .Failures.Should()
-                        .Contain(Password.Policy.Failures.MissingLowerCaseCharacter);
-                };
+                        [Fact] void space_is_prepended() => _password.IsCorrectPassword(" Pass").Should().BeFalse();
+                        [Fact] void space_is_appended() => _password.IsCorrectPassword("Pass ").Should().BeFalse();
+                    }
+                }
+            }
 
+            public class a_PasswordDoesNotMatchPolicyException_with_matching_failure_is_thrown_when_password_
+            {
+                [Fact] void is_null() => AssertCreatingPasswordThrowsExceptionContainingFailure(null, Password.Policy.Failures.Null);
+                [Fact] void is_shorter_than_four_characters() => AssertCreatingPasswordThrowsExceptionContainingFailure("abc", Password.Policy.Failures.ShorterThanFourCharacters);
+                [Fact] void starts_with_whitespace() => AssertCreatingPasswordThrowsExceptionContainingFailure(" Pass", Password.Policy.Failures.BorderedByWhitespace);
+                [Fact] void ends_with_whitespace() => AssertCreatingPasswordThrowsExceptionContainingFailure("Pass ", Password.Policy.Failures.BorderedByWhitespace);
+                [Fact] void contains_only_lowercase_characters() => AssertCreatingPasswordThrowsExceptionContainingFailure("pass", Password.Policy.Failures.MissingUppercaseCharacter);
+                [Fact] void contains_only_uppercase_characters() => AssertCreatingPasswordThrowsExceptionContainingFailure("PASS", Password.Policy.Failures.MissingLowerCaseCharacter);
 
-            it["from the string 'Urdu' no exception is thrown"] = () => new Password("Urdu");
+                static void AssertCreatingPasswordThrowsExceptionContainingFailure(string password, Password.Policy.Failures expectedFailure)
+                    => Assert.Throws<PasswordDoesNotMatchPolicyException>(() => new Password(password)).Failures.Should().Contain(expectedFailure);
+            }
         }
     }
 }

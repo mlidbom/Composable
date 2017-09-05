@@ -68,6 +68,6 @@ namespace AccountManagement.Domain
 
     public class InvalidEmailException : ArgumentException
     {
-        internal InvalidEmailException(string message) : base(message ?? "[null]") {}
+        internal InvalidEmailException(string message) : base($"Supplied string: '{message ?? "[null]"}'") {}
     }
 }

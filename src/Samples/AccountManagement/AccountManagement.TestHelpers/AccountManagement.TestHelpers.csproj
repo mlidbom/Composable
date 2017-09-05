@@ -7,6 +7,10 @@
   <PropertyGroup>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
   </PropertyGroup>
+    
+  <PropertyGroup>
+    <LangVersion>latest</LangVersion>
+  </PropertyGroup>
 
   <ItemGroup>
     <Compile Include="..\AccountManagementCommonAssemblyInfoInternalsVisibleToComposable.cs" Link="Properties\AccountManagementCommonAssemblyInfoInternalsVisibleToComposable.cs" />

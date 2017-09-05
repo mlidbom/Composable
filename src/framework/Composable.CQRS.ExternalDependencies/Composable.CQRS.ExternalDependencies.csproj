@@ -10,6 +10,10 @@
     <AssemblyOriginatorKeyFile>Void.snk</AssemblyOriginatorKeyFile>
     <RootNamespace>Composable</RootNamespace>
   </PropertyGroup>
+  
+  <PropertyGroup>
+    <LangVersion>latest</LangVersion>
+  </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="Castle.Core" Version="4.1.1" />

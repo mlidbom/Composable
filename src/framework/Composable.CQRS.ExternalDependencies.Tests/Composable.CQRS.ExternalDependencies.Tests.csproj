@@ -9,6 +9,10 @@
     <RootNamespace>Composable.CQRS.Tests</RootNamespace>
   </PropertyGroup>
 
+  <PropertyGroup>
+    <LangVersion>latest</LangVersion>
+  </PropertyGroup>
+
   <ItemGroup>
     <PackageReference Include="Castle.Core" Version="4.1.1" />
     <PackageReference Include="Castle.Windsor" Version="4.0.0" />

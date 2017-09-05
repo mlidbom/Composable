@@ -8,6 +8,9 @@
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
   </PropertyGroup>
 
+  <PropertyGroup>
+    <LangVersion>latest</LangVersion>
+  </PropertyGroup>
   
   <ItemGroup>
     <Reference Include="System.ComponentModel.DataAnnotations">

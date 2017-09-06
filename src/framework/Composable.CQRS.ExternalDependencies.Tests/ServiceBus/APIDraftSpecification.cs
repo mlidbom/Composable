@@ -43,8 +43,15 @@ namespace Composable.CQRS.Tests.ServiceBus
 
         protected EndpointHost(IRunMode mode) => _mode = mode;
 
-        public static IEndpointHost Create(IRunMode mode) => new EndpointHost(mode);
-        public static ITestingEndpointHost CreateForTesting(TestingMode mode = TestingMode.DatabasePool) => new TestingEndpointHost(new RunMode(isTesting: true, mode: mode));
+        public static class Production
+        {
+            public static IEndpointHost Create() => new EndpointHost(RunMode.Production);
+        }
+
+        public static class Testing
+        {
+            public static ITestingEndpointHost Create(TestingMode mode = TestingMode.DatabasePool) => new TestingEndpointHost(new RunMode(isTesting: true, mode: mode));
+        }
 
         public IEndpoint RegisterEndpoint(Action<IEndpointBuilder> setup)
         {
@@ -146,7 +153,7 @@ namespace Composable.CQRS.Tests.ServiceBus
     {
         [Fact] async Task SettingUpAHost()
         {
-            using(var host = EndpointHost.CreateForTesting())
+            using(var host = EndpointHost.Testing.Create())
             {
                 var commandReceived = ThreadGate.WithTimeout(10.Milliseconds()).Open();
                 var eventReceived = ThreadGate.WithTimeout(10.Milliseconds()).Open();

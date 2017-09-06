@@ -67,7 +67,7 @@ namespace Composable.CQRS.Tests.ServiceBus
             var currentQueryHandlers = currentRegistry._queryHandlers.ToArray();
             var currentEventRegistrations = currentRegistry._eventHandlerRegistrations.ToArray();
 
-            foreach (var otherEndpoint in _endpoints)
+            foreach(var otherEndpoint in _endpoints)
             {
                 var otherRegistry = otherEndpoint.ServiceLocator.Resolve<MessageHandlerRegistry>();
 
@@ -78,7 +78,6 @@ namespace Composable.CQRS.Tests.ServiceBus
                 currentCommandHandlers.ForEach(handler => otherRegistry._commandHandlers.Add(handler.Key, handler.Value));
                 currentEventRegistrations.ForEach(registration => otherRegistry._eventHandlerRegistrations.Add(registration));
                 currentQueryHandlers.ForEach(handler => otherRegistry._queryHandlers.Add(handler.Key, handler.Value));
-
             }
         }
 
@@ -110,7 +109,6 @@ namespace Composable.CQRS.Tests.ServiceBus
             var dummyTimeSource = DummyTimeSource.Now;
             var inprocessBus = new InProcessServiceBus(_registry);
             var testingOnlyServiceBus = new TestingOnlyInterprocessServiceBus(dummyTimeSource, inprocessBus);
-
 
             _container.Register(Component.For<ISingleContextUseGuard>()
                                          .ImplementedBy<SingleThreadUseGuard>()
@@ -154,16 +152,16 @@ namespace Composable.CQRS.Tests.ServiceBus
                 var eventReceived = ThreadGate.WithTimeout(10.Milliseconds()).Open();
 
                 host.RegisterEndpoint(builder =>
-                                      {
-                                          builder.Registrar.ForCommand((MyCommand command) =>
-                                                                       {
-                                                                           commandReceived.Pass();
-                                                                           builder.Container.CreateServiceLocator().Resolve<IInterProcessServiceBus>().Publish(new MyEvent());
-                                                                       });
-                                          builder.Registrar.ForQuery((MyQuery query) => new QueryResult());
-                                      });
+                {
+                    builder.Registrar.ForCommand((MyCommand command) =>
+                    {
+                        commandReceived.Pass();
+                        builder.Container.CreateServiceLocator().Resolve<IInterProcessServiceBus>().Publish(new MyEvent());
+                    });
+                    builder.Registrar.ForQuery((MyQuery query) => new QueryResult());
+                });
 
-                var clientEndpoint = host.RegisterEndpoint(builder => builder.Registrar.ForEvent((MyEvent @event)=> eventReceived.Pass()));
+                var clientEndpoint = host.RegisterEndpoint(builder => builder.Registrar.ForEvent((MyEvent @event) => eventReceived.Pass()));
 
                 var clientBus = clientEndpoint.ServiceLocator.Resolve<IInterProcessServiceBus>();
 
@@ -181,7 +179,7 @@ namespace Composable.CQRS.Tests.ServiceBus
         }
     }
 
-    class MyEvent : IEvent { }
+    class MyEvent : IEvent {}
     class QueryResult : IQueryResult {}
     class MyQuery : IQuery<QueryResult> {}
     class MyCommand : Command {}

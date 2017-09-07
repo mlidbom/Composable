@@ -77,7 +77,18 @@ namespace Composable.Tests.System.Threading.ResourceAccess
                 => RunScenario(ownerThreadWaitTime: 30.Milliseconds()).Message.Should().Contain(nameof(DisposeOwningThreadLock));
 
             [Test] public void If_owner_thread_blocks_for_more_than_stacktrace_timeout__Exception_does_not_contain_owning_threads_stack_trace()
-                => RunScenario(ownerThreadWaitTime: 100.Milliseconds()).Message.Should().Contain(nameof(DisposeOwningThreadLock));
+            {
+                var normalTimeout = AwaitingExclusiveResourceLockTimeoutException.TimeToWaitForOwningThreadStacktrace;
+                try
+                {
+                    AwaitingExclusiveResourceLockTimeoutException.TimeToWaitForOwningThreadStacktrace = 10.Milliseconds();
+                    RunScenario(ownerThreadWaitTime: 100.Milliseconds()).Message.Should().NotContain(nameof(DisposeOwningThreadLock));
+                }
+                finally
+                {
+                    AwaitingExclusiveResourceLockTimeoutException.TimeToWaitForOwningThreadStacktrace = normalTimeout;
+                }
+            }
 
             static void DisposeOwningThreadLock(IDisposable disposable) => disposable.Dispose();
 

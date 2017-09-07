@@ -2,11 +2,10 @@
 using System.IO;
 using Composable.System.Threading;
 using FluentAssertions;
-using NUnit.Framework;
+using Xunit;
 
 namespace Composable.Testing.Tests.Threading
 {
-    [Serializable]
     class SharedObject : IBinarySerializeMySelf
     {
         public string Name { get; set; } = "Default";
@@ -14,10 +13,9 @@ namespace Composable.Testing.Tests.Threading
         public void Serialize(BinaryWriter writer) { writer.Write(Name);}
     }
 
-    [TestFixture]
     public class MachineWideSharedObjectTests
     {
-        [Test] public void Create()
+        [Fact] public void Create()
         {
             var shared = MachineWideSharedObject<SharedObject>.For("somethingprettyunique");
             var test = shared.GetCopy();
@@ -26,7 +24,7 @@ namespace Composable.Testing.Tests.Threading
                 .Be("Default");
         }
 
-        [Test]
+        [Fact]
         public void Create_update_and_get()
         {
             var shared = MachineWideSharedObject<SharedObject>.For("somethingmoreunique");

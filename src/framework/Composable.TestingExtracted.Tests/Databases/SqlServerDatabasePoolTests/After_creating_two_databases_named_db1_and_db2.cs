@@ -3,11 +3,11 @@ using System.Configuration;
 using Composable.System.Data.SqlClient;
 using Composable.Testing.Databases;
 using FluentAssertions;
-using NUnit.Framework;
+using Xunit;
 
 namespace Composable.Testing.Tests.Databases.SqlServerDatabasePoolTests
 {
-    [TestFixture] public class After_creating_two_databases_named_db1_and_db2
+    public class After_creating_two_databases_named_db1_and_db2 : IDisposable
     {
         string _masterConnectionString;
         SqlServerDatabasePool _manager;
@@ -16,20 +16,18 @@ namespace Composable.Testing.Tests.Databases.SqlServerDatabasePoolTests
         const string Db1 = "LocalDBManagerTests_After_creating_connection_Db1";
         const string Db2 = "LocalDBManagerTests_After_creating_connection_Db2";
 
-        [OneTimeSetUp] public void OneTimeSetup()
+
+        public After_creating_two_databases_named_db1_and_db2()
         {
             _masterConnectionString = ConfigurationManager.ConnectionStrings["MasterDB"]
                                                           .ConnectionString;
-        }
 
-        [SetUp] public void SetupTask()
-        {
             _manager = new SqlServerDatabasePool(_masterConnectionString);
             _dB1ConnectionString = _manager.ConnectionProviderFor(Db1);
             _dB2ConnectionString = _manager.ConnectionProviderFor(Db2);
         }
 
-        [Test] public void Connection_to_Db1_can_be_opened_and_used()
+        [Fact] public void Connection_to_Db1_can_be_opened_and_used()
         {
             _manager.ConnectionProviderFor(Db1)
                     .ExecuteScalar("select 1")
@@ -37,14 +35,14 @@ namespace Composable.Testing.Tests.Databases.SqlServerDatabasePoolTests
                     .Be(1);
         }
 
-        [Test] public void Connection_to_Db2_can_be_opened_and_used()
+        [Fact] public void Connection_to_Db2_can_be_opened_and_used()
         {
             _dB2ConnectionString.ExecuteScalar("select 1")
                                 .Should()
                                 .Be(1);
         }
 
-        [Test] public void The_same_connection_string_is_returned_by_each_call_to_CreateOrGetLocalDb_Db1()
+        [Fact] public void The_same_connection_string_is_returned_by_each_call_to_CreateOrGetLocalDb_Db1()
         {
             _manager.ConnectionProviderFor(Db1)
                     .ConnectionString
@@ -52,7 +50,7 @@ namespace Composable.Testing.Tests.Databases.SqlServerDatabasePoolTests
                     .Be(_dB1ConnectionString.ConnectionString);
         }
 
-        [Test] public void The_same_connection_string_is_returned_by_each_call_to_CreateOrGetLocalDb_Db2()
+        [Fact] public void The_same_connection_string_is_returned_by_each_call_to_CreateOrGetLocalDb_Db2()
         {
             _manager.ConnectionProviderFor(Db2)
                     .ConnectionString
@@ -60,13 +58,13 @@ namespace Composable.Testing.Tests.Databases.SqlServerDatabasePoolTests
                     .Be(_dB2ConnectionString.ConnectionString);
         }
 
-        [Test] public void The_Db1_connectionstring_is_different_from_the_Db2_connection_string()
+        [Fact] public void The_Db1_connectionstring_is_different_from_the_Db2_connection_string()
         {
             _dB1ConnectionString.ConnectionString.Should()
                                 .NotBe(_dB2ConnectionString.ConnectionString);
         }
 
-        [TearDown] public void TearDownTask()
+        public void Dispose()
         {
             _manager.Dispose();
 

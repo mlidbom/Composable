@@ -5,22 +5,20 @@ using Composable.System;
 using Composable.System.Data.SqlClient;
 using Composable.Testing.Databases;
 using Composable.Testing.Performance;
-using NUnit.Framework;
+using Xunit;
 
 namespace Composable.Testing.Tests.Databases.SqlServerDatabasePoolTests
 {
-    [TestFixture, Performance]
     public class PerformanceTests
     {
         static readonly string MasterConnectionString = ConfigurationManager.ConnectionStrings["MasterDB"].ConnectionString;
 
-        [SetUp]
-        public void WarmUpCache()
+        public PerformanceTests()
         {
             using(new SqlServerDatabasePool(MasterConnectionString)) { }
         }
 
-        [Test]
+        [Fact]
         public void Single_thread_can_reserve_and_release_10_identically_named_databases_in_30_milliseconds()
         {
             var dbName = "74EA37DF-03CE-49C4-BDEC-EAD40FAFB3A1";
@@ -39,7 +37,7 @@ namespace Composable.Testing.Tests.Databases.SqlServerDatabasePoolTests
                 maxTotal: 30.Milliseconds());
         }
 
-        [Test]
+        [Fact]
         public void Multiple_threads_can_reserve_and_release_10_identically_named_databases_in_50_milliseconds()
         {
             var dbName = "EB82270F-E0BA-49F7-BC09-79AE95BA109F";
@@ -59,7 +57,7 @@ namespace Composable.Testing.Tests.Databases.SqlServerDatabasePoolTests
                 maxTotal: 50.Milliseconds());
         }
 
-        [Test]
+        [Fact]
         public void Multiple_threads_can_reserve_and_release_10_differently_named_databases_in_20_milliseconds()
         {
             SqlServerDatabasePool manager = null;
@@ -78,7 +76,7 @@ namespace Composable.Testing.Tests.Databases.SqlServerDatabasePoolTests
             );
         }
 
-        [Test]
+        [Fact]
         public void Single_thread_can_reserve_and_release_10_differently_named_databases_in_20_milliseconds()
         {
             SqlServerDatabasePool manager = null;
@@ -97,7 +95,7 @@ namespace Composable.Testing.Tests.Databases.SqlServerDatabasePoolTests
             );
         }
 
-        [Test]
+        [Fact]
         public void Repeated_fetching_of_same_connection_runs_200_times_in_ten_milliseconds()
         {
             var dbName = "4669B59A-E0AC-4E76-891C-7A2369AE0F2F";

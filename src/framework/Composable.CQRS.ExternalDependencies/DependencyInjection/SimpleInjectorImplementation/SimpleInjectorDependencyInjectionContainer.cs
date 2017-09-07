@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Composable.Contracts;
+using Composable.System.Threading.ResourceAccess;
 using SimpleInjector;
 using SimpleInjector.Lifestyles;
 
@@ -65,7 +66,16 @@ namespace Composable.DependencyInjection.SimpleInjectorImplementation
         }
         public IEnumerable<ComponentRegistration> RegisteredComponents() => _registeredComponents;
 
-        IServiceLocator IDependencyInjectionContainer.CreateServiceLocator() => this;
+        bool _verified;
+        IServiceLocator IDependencyInjectionContainer.CreateServiceLocator()
+        {
+            if(!_verified)
+            {
+                _verified = true;
+                _container.Verify();
+            }
+            return this;
+        }
 
         IComponentLease<TComponent> IServiceLocator.Lease<TComponent>() => new SimpleInjectorComponentLease<TComponent>(_container.GetInstance<TComponent>());
         IMultiComponentLease<TComponent> IServiceLocator.LeaseAll<TComponent>() => new SimpleInjectorMultiComponentLease<TComponent>(_container.GetAllInstances<TComponent>().ToArray());

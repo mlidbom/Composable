@@ -123,7 +123,7 @@ namespace Composable.CQRS.Tests.ServiceBus
                                 Component.For<IEventStoreEventSerializer>()
                                          .ImplementedBy<NewtonSoftEventStoreEventSerializer>()
                                          .LifestyleScoped(),
-                                Component.For<IUtcTimeTimeSource, DummyTimeSource>()
+                                Component.For<IUtcTimeTimeSource>()
                                          .UsingFactoryMethod(factoryMethod: _ => DateTimeNowTimeSource.Instance)
                                          .LifestyleSingleton()
                                          .DelegateToParentServiceLocatorWhenCloning(),

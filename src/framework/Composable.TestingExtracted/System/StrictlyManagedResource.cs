@@ -7,8 +7,7 @@ namespace Composable.Testing.System
 {
     static class StrictlyManagedResources
     {
-        public static readonly string CollectStackTracesForAllStrictlyManagedResourcesConfigurationParamaterName =
-            ExpressionUtil.ExtractMemberPath(() => CollectStackTracesForAllStrictlyManagedResources);
+        public static readonly string CollectStackTracesForAllStrictlyManagedResourcesConfigurationParamaterName = "StrictlyManagedResources.CollectStackTracesForAllStrictlyManagedResources";
 
         public static readonly bool CollectStackTracesForAllStrictlyManagedResources =
             AppConfigConfigurationParameterProvider.Instance.GetBoolean(CollectStackTracesForAllStrictlyManagedResourcesConfigurationParamaterName,

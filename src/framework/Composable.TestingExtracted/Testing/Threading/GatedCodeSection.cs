@@ -4,7 +4,7 @@ using Composable.Testing.System.Threading.ResourceAccess;
 
 namespace Composable.Testing.Testing.Threading
 {
-    class GatedCodeSection : IGatedCodeSection
+    public class GatedCodeSection : IGatedCodeSection
     {
         readonly IExclusiveResourceAccessGuard _lock;
         public IThreadGate EntranceGate { get; }

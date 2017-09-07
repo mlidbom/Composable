@@ -4,7 +4,7 @@ using System;
 namespace Composable.Testing.System
 {
     /// <summary>A collection of extensions to work with timespans</summary>
-    static class TimeSpanExtensions
+    public static class TimeSpanExtensions
     {
         /// <summary>Returns a TimeSpan <paramref name="me"/> milliseconds long.</summary>
         public static TimeSpan Milliseconds(this int me) => TimeSpan.FromMilliseconds(me);

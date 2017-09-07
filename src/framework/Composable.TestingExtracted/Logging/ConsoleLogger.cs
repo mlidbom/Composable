@@ -3,8 +3,7 @@ using JetBrains.Annotations;
 
 namespace Composable.Testing.Logging
 {
-
-    enum LogLevel
+    public enum LogLevel
     {
         None = 0,
         Error = 1,

@@ -14,7 +14,7 @@ using Composable.Testing.System.Transactions;
 
 namespace Composable.Testing.Testing.Databases
 {
-    sealed partial class SqlServerDatabasePool : StrictlyManagedResourceBase<SqlServerDatabasePool>
+    public sealed partial class SqlServerDatabasePool : StrictlyManagedResourceBase<SqlServerDatabasePool>
     {
         readonly string _masterConnectionString;
         readonly SqlServerConnection _masterConnection;
@@ -132,7 +132,7 @@ namespace Composable.Testing.Testing.Databases
                                                                try
                                                                {
                                                                    TransactionScopeCe.SupressAmbient(
-                                                                       () => new SqlServerConnection(DatabaseExtensions.ConnectionString(db, this))
+                                                                       () => new SqlServerConnection(db.ConnectionString(this))
                                                                            .UseConnection(action: connection => connection.DropAllObjects()));
                                                                    _machineWideState.Update(machineWide => machineWide.Release(db.Id)
                                                                                                                       .Clean());

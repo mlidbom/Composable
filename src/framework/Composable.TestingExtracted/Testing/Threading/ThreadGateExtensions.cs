@@ -2,7 +2,7 @@ using System;
 
 namespace Composable.Testing.Testing.Threading
 {
-    static class ThreadGateExtensions
+    public static class ThreadGateExtensions
     {
         public static IThreadGate Await(this IThreadGate @this, Func<bool> condition) => @this.Await(@this.DefaultTimeout, condition);
         public static IThreadGate Await(this IThreadGate @this, TimeSpan timeout, Func<bool> condition) => @this.ExecuteLockedOnce(timeout, condition, (gate, owner) => {});

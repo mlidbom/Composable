@@ -26,7 +26,7 @@ namespace Composable.Testing.System.Data.SqlClient
         }
     }
 
-    static class SqlConnectionProviderExtensions
+    public static class SqlConnectionProviderExtensions
     {
         public static int ExecuteNonQuery(this ISqlConnection @this, string commandText)
         {
@@ -87,7 +87,7 @@ namespace Composable.Testing.System.Data.SqlClient
         }
     }
 
-    interface ISqlConnection
+    public interface ISqlConnection
     {
         SqlConnection OpenConnection();
         string ConnectionString { get; }

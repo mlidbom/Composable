@@ -5,13 +5,13 @@ using Composable.Testing.System.Threading.ResourceAccess;
 
 namespace Composable.Testing.Testing.Threading
 {
-    interface IThreadGateVisitor
+    public interface IThreadGateVisitor
     {
         void Pass();
         void Pass(TimeSpan timeout);
     }
 
-    interface IThreadGate : IThreadGateVisitor
+    public interface IThreadGate : IThreadGateVisitor
     {
         ///<summary>Opens the gate and lets all threads through.</summary>
         IThreadGate Open();
@@ -39,7 +39,7 @@ namespace Composable.Testing.Testing.Threading
     }
 
     ///<summary>A block of code with <see cref="ThreadGate"/>s for <see cref="EntranceGate"/> and <see cref="ExitGate"/>. Useful for controlling multithreaded code for testing purposes.</summary>
-    interface IGatedCodeSection
+    public interface IGatedCodeSection
     {
         IThreadGate EntranceGate { get; }
         IThreadGate ExitGate { get; }

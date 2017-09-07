@@ -7,7 +7,7 @@ using JetBrains.Annotations;
 
 namespace Composable.Testing.Testing.Performance
 {
-    static class TimeAsserter
+    public static class TimeAsserter
     {
         const string DefaultTimeFormat = "ss\\.fff";
 

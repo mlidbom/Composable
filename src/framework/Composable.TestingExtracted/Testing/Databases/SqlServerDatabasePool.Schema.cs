@@ -17,7 +17,7 @@ namespace Composable.Testing.Testing.Databases
         internal static string ConnectionString(this SqlServerDatabasePool.Database @this, SqlServerDatabasePool pool) => pool.ConnectionStringForDbNamed(@this.Name());
     }
 
-    sealed partial class SqlServerDatabasePool
+    public sealed partial class SqlServerDatabasePool
     {
         [Serializable]
         internal class Database : IBinarySerializeMySelf

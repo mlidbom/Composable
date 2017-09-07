@@ -9,7 +9,7 @@ using JetBrains.Annotations;
 namespace Composable.Testing.System.Diagnostics
 {
     ///<summary>Extensions to the Stopwatch class and related functionality.</summary>
-    static class StopwatchExtensions
+    public static class StopwatchExtensions
     {
         ///<summary>Measures how long it takes to execute <paramref name="action"/></summary>
         public static TimeSpan TimeExecution([InstantHandle]Action action) => new Stopwatch().TimeExecution(action);
@@ -63,8 +63,7 @@ namespace Composable.Testing.System.Diagnostics
             return new TimedThreadedExecutionSummary(iterations, executionTimes, total);
         }
 
-
-        internal class TimedExecutionSummary
+        public class TimedExecutionSummary
         {
             public TimedExecutionSummary(int iterations, TimeSpan total)
             {
@@ -77,7 +76,7 @@ namespace Composable.Testing.System.Diagnostics
             public TimeSpan Average => (Total.TotalMilliseconds / Iterations).Milliseconds();
         }
 
-        internal class TimedThreadedExecutionSummary : TimedExecutionSummary
+        public class TimedThreadedExecutionSummary : TimedExecutionSummary
         {
             public TimedThreadedExecutionSummary(int iterations, IReadOnlyList<TimeSpan> individualExecutionTimes, TimeSpan total): base(iterations, total) => IndividualExecutionTimes = individualExecutionTimes;
 

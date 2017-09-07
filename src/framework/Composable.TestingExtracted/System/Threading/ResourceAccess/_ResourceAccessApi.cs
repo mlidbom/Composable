@@ -2,14 +2,14 @@
 
 namespace Composable.Testing.System.Threading.ResourceAccess
 {
-    interface IExclusiveResourceAccessGuard
+    public interface IExclusiveResourceAccessGuard
     {
         IExclusiveResourceLock AwaitExclusiveLock(TimeSpan? timeoutOverride = null);
     }
 
-    interface IResourceLock : IDisposable {}
+    public interface IResourceLock : IDisposable {}
 
-    interface IExclusiveResourceLock : IResourceLock
+    public interface IExclusiveResourceLock : IResourceLock
     {
         void SendUpdateNotificationToOneThreadAwaitingUpdateNotification();
         void SendUpdateNotificationToAllThreadsAwaitingUpdateNotification();

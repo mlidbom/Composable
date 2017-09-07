@@ -2,7 +2,7 @@
 
 namespace Composable.Testing.System.Threading.ResourceAccess
 {
-    static partial class ResourceAccessGuard
+    public static partial class ResourceAccessGuard
     {
         public static IExclusiveResourceAccessGuard ExclusiveWithTimeout(TimeSpan timeout) => new ExclusiveResourceAccessGuard(timeout);
     }

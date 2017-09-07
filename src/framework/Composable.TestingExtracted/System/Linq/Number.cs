@@ -3,7 +3,7 @@ using System.Collections.Generic;
 namespace Composable.Testing.System.Linq
 {
     /// <summary/>
-    static class Number
+    public static class Number
     {
         /// <summary>
         /// generates a sequence of integers beginning with <paramref name="me"/> where each element is

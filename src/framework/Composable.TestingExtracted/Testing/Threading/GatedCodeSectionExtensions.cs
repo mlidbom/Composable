@@ -3,7 +3,7 @@ using Composable.Testing.Contracts;
 
 namespace Composable.Testing.Testing.Threading
 {
-    static class GatedCodeSectionExtensions
+    public static class GatedCodeSectionExtensions
     {
         public static IGatedCodeSection Open(this IGatedCodeSection @this)
             => @this.WithExclusiveLock(

@@ -7,7 +7,7 @@ using Composable.Testing.System.Threading.ResourceAccess;
 
 namespace Composable.Testing.Testing.Threading
 {
-    class ThreadGate : IThreadGate
+    public class ThreadGate : IThreadGate
     {
         public static IThreadGate WithTimeout(TimeSpan timeout) => new ThreadGate(timeout);
 

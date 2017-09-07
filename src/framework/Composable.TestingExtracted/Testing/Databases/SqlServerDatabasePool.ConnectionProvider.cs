@@ -4,7 +4,7 @@ using Composable.Testing.System.Data.SqlClient;
 
 namespace Composable.Testing.Testing.Databases
 {
-    sealed partial class SqlServerDatabasePool
+    public sealed partial class SqlServerDatabasePool
     {
         class Connection : ISqlConnection
         {

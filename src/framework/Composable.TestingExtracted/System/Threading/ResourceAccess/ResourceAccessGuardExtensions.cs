@@ -78,7 +78,7 @@ namespace Composable.Testing.System.Threading.ResourceAccess
         }
     }
 
-    class AwaitingConditionTimedOutException : Exception
+    public class AwaitingConditionTimedOutException : Exception
     {
         public AwaitingConditionTimedOutException(AwaitingUpdateNotificationTimedOutException notificationTimeout) : base("Timed out waiting for condiditon to become true. Never got any update notifications", innerException: notificationTimeout){  }
     }

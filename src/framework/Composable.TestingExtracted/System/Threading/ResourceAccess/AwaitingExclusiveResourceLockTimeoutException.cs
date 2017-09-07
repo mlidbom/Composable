@@ -4,7 +4,7 @@ using System.Threading;
 
 namespace Composable.Testing.System.Threading.ResourceAccess
 {
-    class AwaitingExclusiveResourceLockTimeoutException : Exception
+    public class AwaitingExclusiveResourceLockTimeoutException : Exception
     {
         static readonly TimeSpan TimeToWaitForOwningThreadStacktrace = 30.Seconds();
 

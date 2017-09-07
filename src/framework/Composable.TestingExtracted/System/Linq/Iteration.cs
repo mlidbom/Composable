@@ -12,8 +12,7 @@ namespace Composable.Testing.System.Linq
         /// </summary>
         public static void ForEach<TSource, TReturn>(this IEnumerable<TSource> source, Func<TSource, TReturn> action)
         {
-            ContractOptimized.Argument(source, nameof(source), action, nameof(action))
-                             .NotNull();
+            Contract.AssertThat(source != null && action != null);
             foreach(var item in source)
             {
                 action(item);

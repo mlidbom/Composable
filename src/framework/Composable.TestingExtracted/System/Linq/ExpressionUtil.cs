@@ -9,13 +9,13 @@ namespace Composable.Testing.System.Linq
     {
         public static string ExtractMemberPath<TValue>(Expression<Func<TValue>> func)
         {
-            Contract.Argument(() => func).NotNull();
+            Contract.AssertThat(func != null);
             return ExtractMemberPath((LambdaExpression)func);
         }
 
         static string ExtractMemberPath(LambdaExpression lambda)
         {
-            Contract.Argument(() => lambda).NotNull();
+            Contract.AssertThat(lambda != null);
             var body = lambda.Body;
             MemberExpression memberExpression;
 

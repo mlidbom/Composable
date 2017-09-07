@@ -11,7 +11,7 @@ namespace Composable.Testing.System
         ///<summary>Constructs an instance that will call <param name="action"> when disposed.</param></summary>
         public Disposable(Action action)
         {
-            Contract.Argument(() => action).NotNull();
+            Contract.AssertThat(action != null);
             _action = action;
         }
 

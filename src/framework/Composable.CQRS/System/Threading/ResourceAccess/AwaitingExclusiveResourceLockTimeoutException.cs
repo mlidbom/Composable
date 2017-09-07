@@ -6,7 +6,21 @@ namespace Composable.System.Threading.ResourceAccess
 {
     class AwaitingExclusiveResourceLockTimeoutException : Exception
     {
-        internal static TimeSpan TimeToWaitForOwningThreadStacktrace = 30.Seconds();
+        internal static void TestingOnlyRunWithAlternativeTimeToWaitForOwningThreadStacktrace(TimeSpan timeoutOverride, Action action)
+        {
+            var originalTimeout = _timeToWaitForOwningThreadStacktrace;
+            try
+            {
+                _timeToWaitForOwningThreadStacktrace = timeoutOverride;
+                action();
+            }
+            finally
+            {
+                _timeToWaitForOwningThreadStacktrace = originalTimeout;
+            }
+        }
+
+        static TimeSpan _timeToWaitForOwningThreadStacktrace = 30.Seconds();
 
         internal AwaitingExclusiveResourceLockTimeoutException() : base("Timed out awaiting exclusive access to resource.") { }
 
@@ -17,7 +31,7 @@ namespace Composable.System.Threading.ResourceAccess
         {
             get
             {
-                _blockingStacktraceWaitHandle.WaitOne(TimeToWaitForOwningThreadStacktrace);
+                _blockingStacktraceWaitHandle.WaitOne(_timeToWaitForOwningThreadStacktrace);
                 Interlocked.CompareExchange(ref _blockingThreadStacktrace, "Failed to get blocking thread stack trace", null);
 
                 return $@"{base.Message}

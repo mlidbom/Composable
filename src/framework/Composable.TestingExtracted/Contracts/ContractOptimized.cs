@@ -1,6 +1,6 @@
 ﻿using JetBrains.Annotations;
 
-namespace Composable.Testing.Contracts
+namespace Composable.Contracts
 {
     static class ContractOptimized
     {

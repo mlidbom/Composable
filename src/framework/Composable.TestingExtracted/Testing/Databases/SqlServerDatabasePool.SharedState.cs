@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using Composable.Testing.System.Threading;
+using Composable.System.Threading;
 using JetBrains.Annotations;
 
 namespace Composable.Testing.Databases

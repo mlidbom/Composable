@@ -1,4 +1,4 @@
-namespace Composable.Testing.Contracts
+namespace Composable.Contracts
 {
     ///<summary>Exception thrown when guid is empty when that is not allowed.</summary>
     class GuidIsEmptyContractViolationException : ContractViolationException

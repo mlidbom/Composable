@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Composable.Testing.Contracts
+namespace Composable.Contracts
 {
     public interface IInspected<TValue> {
         /// <summary>

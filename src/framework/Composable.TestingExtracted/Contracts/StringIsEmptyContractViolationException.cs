@@ -1,4 +1,4 @@
-﻿namespace Composable.Testing.Contracts
+﻿namespace Composable.Contracts
 {
     ///<summary>Exception thrown when string is empty and that is not allowed.</summary>
     class StringIsEmptyContractViolationException : ContractViolationException

@@ -1,6 +1,6 @@
-﻿using Composable.Testing.System.Data.SqlClient;
+﻿using Composable.System.Data.SqlClient;
 
-namespace Composable.Testing.System.Configuration
+namespace Composable.System.Configuration
 {
     ///<summary>Fetches connections strings from a configuration source such as the application configuration file.</summary>
     interface ISqlConnectionProvider

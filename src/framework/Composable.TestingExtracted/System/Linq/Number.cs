@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace Composable.Testing.System.Linq
+namespace Composable.System.Linq
 {
     /// <summary/>
     static class Number

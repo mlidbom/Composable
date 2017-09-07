@@ -2,7 +2,7 @@ using System;
 using System.Linq.Expressions;
 using System.Reflection;
 
-namespace Composable.Testing.Contracts
+namespace Composable.Contracts
 {
     ///<summary>Extracts values and names from the parts of a lambda expression</summary>
     static class ContractsExpression

@@ -1,9 +1,9 @@
 using System;
 using System.Collections.Generic;
-using Composable.Testing.Contracts;
+using Composable.Contracts;
 using JetBrains.Annotations;
 
-namespace Composable.Testing.System.Linq
+namespace Composable.System.Linq
 {
     /// <summary/>
     static class Iteration

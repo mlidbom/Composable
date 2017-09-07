@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Data.SqlClient;
-using Composable.Testing.System.Data.SqlClient;
+using Composable.System.Data.SqlClient;
 
 namespace Composable.Testing.Databases
 {

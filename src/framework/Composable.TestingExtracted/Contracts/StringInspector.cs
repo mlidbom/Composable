@@ -2,7 +2,7 @@ using System;
 
 // ReSharper disable UnusedMethodReturnValue.Global
 
-namespace Composable.Testing.Contracts
+namespace Composable.Contracts
 {
     ///<summary>Performs inspections on string instances</summary>
     public static class StringInspector

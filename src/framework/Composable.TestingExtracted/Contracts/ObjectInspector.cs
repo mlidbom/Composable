@@ -3,7 +3,7 @@
 // ReSharper disable UnusedMethodReturnValue.Global
 // ReSharper disable UnusedMember.Global
 
-namespace Composable.Testing.Contracts
+namespace Composable.Contracts
 {
     ///<summary>Performs inspections on objects</summary>
     public static class ObjectInspector

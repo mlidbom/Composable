@@ -2,7 +2,7 @@
 
 // ReSharper disable UnusedMethodReturnValue.Global
 
-namespace Composable.Testing.Contracts
+namespace Composable.Contracts
 {
     ///<summary>Performs inspections on Guid instances</summary>
     static class GuidInspector

@@ -1,8 +1,8 @@
 ﻿using System;
+using Composable.System.Data.SqlClient;
 using Composable.Testing.Databases;
-using Composable.Testing.System.Data.SqlClient;
 
-namespace Composable.Testing.System.Configuration
+namespace Composable.System.Configuration
 {
     class SqlServerDatabasePoolSqlConnectionProvider : ISqlConnectionProvider, IDisposable
     {

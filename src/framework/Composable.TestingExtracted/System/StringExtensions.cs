@@ -1,9 +1,9 @@
 using System.Collections.Generic;
 using System.Linq;
-using Composable.Testing.Contracts;
+using Composable.Contracts;
 using JetBrains.Annotations;
 
-namespace Composable.Testing.System
+namespace Composable.System
 {
     ///<summary>Contains extensions on <see cref="string"/></summary>
     static class StringExtensions

@@ -1,8 +1,8 @@
 using System;
 using System.Linq.Expressions;
-using Composable.Testing.Contracts;
+using Composable.Contracts;
 
-namespace Composable.Testing.System.Linq
+namespace Composable.System.Linq
 {
     ///<summary>Extracts member names from expressions</summary>
     static class ExpressionUtil

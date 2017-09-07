@@ -4,7 +4,7 @@ using System.Linq;
 
 // ReSharper disable UnusedMethodReturnValue.Global
 
-namespace Composable.Testing.Contracts
+namespace Composable.Contracts
 {
     ///<summary>Performs inspections on <see cref="IEnumerable{T}"/> instances</summary>
     static class EnumerableInspector

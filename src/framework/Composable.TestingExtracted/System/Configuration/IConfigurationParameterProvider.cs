@@ -1,4 +1,4 @@
-﻿namespace Composable.Testing.System.Configuration
+﻿namespace Composable.System.Configuration
 {
     ///<summary>Allows for reading configuration parameters from a source such as a configuration file</summary>
     interface IConfigurationParameterProvider

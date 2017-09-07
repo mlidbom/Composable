@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading;
 
-namespace Composable.Testing.System.Threading.ResourceAccess
+namespace Composable.System.Threading.ResourceAccess
 {
     static partial class ResourceAccessGuard
     {

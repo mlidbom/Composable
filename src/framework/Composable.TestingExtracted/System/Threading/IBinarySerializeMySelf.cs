@@ -1,6 +1,6 @@
 using System.IO;
 
-namespace Composable.Testing.System.Threading
+namespace Composable.System.Threading
 {
     interface IBinarySerializeMySelf
     {

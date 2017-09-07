@@ -3,11 +3,11 @@ using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.IO;
 using System.Linq;
-using Composable.Testing.Contracts;
-using Composable.Testing.System;
-using Composable.Testing.System.Data.SqlClient;
-using Composable.Testing.System.Linq;
-using Composable.Testing.System.Threading;
+using Composable.Contracts;
+using Composable.System;
+using Composable.System.Data.SqlClient;
+using Composable.System.Linq;
+using Composable.System.Threading;
 
 namespace Composable.Testing.Databases
 {

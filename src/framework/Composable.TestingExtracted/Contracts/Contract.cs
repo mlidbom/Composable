@@ -3,7 +3,7 @@ using System.Linq.Expressions;
 
 // ReSharper disable UnusedParameter.Global
 
-namespace Composable.Testing.Contracts
+namespace Composable.Contracts
 {
  /// <summary>
     /// Ensures that a class's contract is followed.

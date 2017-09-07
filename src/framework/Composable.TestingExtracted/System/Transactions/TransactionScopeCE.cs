@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Transactions;
 
-namespace Composable.Testing.System.Transactions
+namespace Composable.System.Transactions
 {
     public static class TransactionScopeCe
     {

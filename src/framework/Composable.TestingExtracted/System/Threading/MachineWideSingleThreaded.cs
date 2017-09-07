@@ -2,7 +2,7 @@
 using System.Threading;
 using JetBrains.Annotations;
 
-namespace Composable.Testing.System.Threading
+namespace Composable.System.Threading
 {
     class MachineWideSingleThreaded
     {

@@ -1,4 +1,4 @@
-﻿namespace Composable.Testing.Contracts
+﻿namespace Composable.Contracts
 {
     ///<summary>Exception thrown when string is only whitespace when that is not allowed.</summary>
     class StringIsWhitespaceContractViolationException : ContractViolationException

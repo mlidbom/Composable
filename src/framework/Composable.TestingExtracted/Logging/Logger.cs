@@ -3,7 +3,7 @@ using JetBrains.Annotations;
 
 // ReSharper disable UnusedMember.Global
 
-namespace Composable.Logging
+namespace Composable.Testing.Logging
 {
     interface ILogger
     {

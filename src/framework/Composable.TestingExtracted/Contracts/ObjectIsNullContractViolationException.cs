@@ -1,4 +1,4 @@
-﻿namespace Composable.Contracts
+﻿namespace Composable.Testing.Contracts
 {
     ///<summary>Exception thrown when object is null and that is not allowed.</summary>
     class ObjectIsNullContractViolationException : ContractViolationException

@@ -1,6 +1,6 @@
 using System;
 
-namespace Composable.Testing.Threading
+namespace Composable.Testing.Testing.Threading
 {
     static class ThreadGateExtensions
     {

@@ -1,4 +1,4 @@
-namespace Composable.Contracts
+namespace Composable.Testing.Contracts
 {
     public interface IInspectedValue<out TValue> : IInspectedValue
     {

@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Composable.System.Linq;
-using Composable.Testing.Threading;
+using Composable.Testing.System.Linq;
+using Composable.Testing.Testing.Threading;
 using FluentAssertions;
 
 namespace Composable.Testing.Tests.Threading

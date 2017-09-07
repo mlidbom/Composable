@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Composable.System.Threading.ResourceAccess
+namespace Composable.Testing.System.Threading.ResourceAccess
 {
     class AwaitingUpdateNotificationTimedOutException : Exception
     {

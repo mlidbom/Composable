@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Threading.Tasks;
-using Composable.System.Configuration;
-using Composable.System.Linq;
+using Composable.Testing.System.Configuration;
+using Composable.Testing.System.Linq;
 
-namespace Composable.System
+namespace Composable.Testing.System
 {
     static class StrictlyManagedResources
     {

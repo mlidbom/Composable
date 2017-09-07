@@ -1,7 +1,7 @@
 using System;
 
 // ReSharper disable UnusedMember.Global todo: write the ridiculously simple tests.
-namespace Composable.System
+namespace Composable.Testing.System
 {
     /// <summary>A collection of extensions to work with timespans</summary>
     static class TimeSpanExtensions

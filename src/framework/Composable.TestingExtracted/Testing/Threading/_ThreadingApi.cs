@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading;
-using Composable.System.Threading.ResourceAccess;
+using Composable.Testing.System.Threading.ResourceAccess;
 
-namespace Composable.Testing.Threading
+namespace Composable.Testing.Testing.Threading
 {
     interface IThreadGateVisitor
     {

@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Threading;
-using Composable.System.Linq;
-using Composable.System.Threading.ResourceAccess;
-using Composable.Testing.Threading;
+using Composable.Testing.System.Linq;
+using Composable.Testing.System.Threading.ResourceAccess;
+using Composable.Testing.Testing.Threading;
 using FluentAssertions;
 using Xunit;
 

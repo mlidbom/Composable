@@ -1,9 +1,8 @@
 using System;
 using System.Collections.Generic;
-using Composable.Contracts;
-using JetBrains.Annotations;
+using Composable.Testing.Contracts;
 
-namespace Composable.System.Linq
+namespace Composable.Testing.System.Linq
 {
     /// <summary/>
     static class Iteration
@@ -18,35 +17,6 @@ namespace Composable.System.Linq
             foreach(var item in source)
             {
                 action(item);
-            }
-        }
-
-        /// <summary>
-        /// Executes <paramref name="action"/> for each element in the sequence <paramref name="source"/>.
-        /// </summary>
-        public static void ForEach<T>(this IEnumerable<T> source, [InstantHandle]Action<T> action)
-        {
-            ContractOptimized.Argument(source, nameof(source), action, nameof(action))
-                             .NotNull();
-
-            foreach (var item in source)
-            {
-                action(item);
-            }
-        }
-
-        /// <summary>
-        /// Executes <paramref name="action"/> for each element in the sequence <paramref name="source"/>.
-        /// </summary>
-        public static void ForEach<T>(this IEnumerable<T> source, Action<T, int> action)
-        {
-            ContractOptimized.Argument(source, nameof(source), action, nameof(action))
-                             .NotNull();
-
-            var index = 0;
-            foreach(var item in source)
-            {
-                action(item, index++);
             }
         }
     }

@@ -1,8 +1,8 @@
 ﻿using System;
-using Composable.System;
+using Composable.Testing.System;
 using JetBrains.Annotations;
 
-namespace Composable.Contracts
+namespace Composable.Testing.Contracts
 {
     static class ContractAssertion
     {

@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Configuration;
-using Composable.Logging;
-using Composable.System;
-using Composable.System.Data.SqlClient;
-using Composable.Testing.Databases;
-using Composable.Testing.Performance;
+using Composable.Testing.Logging;
+using Composable.Testing.System;
+using Composable.Testing.System.Data.SqlClient;
+using Composable.Testing.Testing.Databases;
+using Composable.Testing.Testing.Performance;
 using Xunit;
 
 namespace Composable.Testing.Tests.Databases.SqlServerDatabasePoolTests

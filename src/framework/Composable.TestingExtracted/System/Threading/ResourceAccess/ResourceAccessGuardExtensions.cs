@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Composable.System.Threading.ResourceAccess
+namespace Composable.Testing.System.Threading.ResourceAccess
 {
     static class ResourceAccessGuardExtensions
     {
@@ -81,6 +81,5 @@ namespace Composable.System.Threading.ResourceAccess
     class AwaitingConditionTimedOutException : Exception
     {
         public AwaitingConditionTimedOutException(AwaitingUpdateNotificationTimedOutException notificationTimeout) : base("Timed out waiting for condiditon to become true. Never got any update notifications", innerException: notificationTimeout){  }
-        public AwaitingConditionTimedOutException() : base("Timed out waiting for condiditon to become true.") { }
     }
 }

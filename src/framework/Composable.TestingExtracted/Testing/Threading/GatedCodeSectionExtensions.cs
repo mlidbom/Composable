@@ -1,7 +1,7 @@
 ﻿using System;
-using Composable.Contracts;
+using Composable.Testing.Contracts;
 
-namespace Composable.Testing.Threading
+namespace Composable.Testing.Testing.Threading
 {
     static class GatedCodeSectionExtensions
     {

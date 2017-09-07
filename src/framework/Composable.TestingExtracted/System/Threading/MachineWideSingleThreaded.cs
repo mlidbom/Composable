@@ -2,7 +2,7 @@
 using System.Threading;
 using JetBrains.Annotations;
 
-namespace Composable.System.Threading
+namespace Composable.Testing.System.Threading
 {
     class MachineWideSingleThreaded
     {
@@ -26,7 +26,6 @@ namespace Composable.System.Threading
         }
 
         internal static MachineWideSingleThreaded For(string name) => new MachineWideSingleThreaded(name);
-        internal static MachineWideSingleThreaded For<TSynchronized>() => For(typeof(TSynchronized));
         internal static MachineWideSingleThreaded For(Type synchronized) => new MachineWideSingleThreaded($"{nameof(MachineWideSingleThreaded)}_{synchronized.AssemblyQualifiedName}");
     }
 }

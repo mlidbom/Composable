@@ -1,6 +1,6 @@
 using System;
 
-namespace Composable.Contracts
+namespace Composable.Testing.Contracts
 {
     ///<summary>Exception thrown when an unsupported lambda expression is used.</summary>
     class InvalidAccessorLambdaException : Exception

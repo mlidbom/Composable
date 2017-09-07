@@ -2,7 +2,7 @@
 using System.Diagnostics;
 using System.Threading;
 
-namespace Composable.System.Threading.ResourceAccess
+namespace Composable.Testing.System.Threading.ResourceAccess
 {
     class AwaitingExclusiveResourceLockTimeoutException : Exception
     {

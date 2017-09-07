@@ -2,7 +2,7 @@ using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Composable.System.Threading.ResourceAccess;
+using Composable.Testing.System.Threading.ResourceAccess;
 using FluentAssertions;
 using Xunit;
 using Assert = Xunit.Assert;

@@ -1,6 +1,6 @@
 ﻿using System.Configuration;
 
-namespace Composable.System.Configuration
+namespace Composable.Testing.System.Configuration
 {
     ///<summary>Fetches configuration variables from the application configuration file.</summary>
     class AppConfigConfigurationParameterProvider : IConfigurationParameterProvider

@@ -1,7 +1,7 @@
 using System;
 using System.Configuration;
-using Composable.System.Data.SqlClient;
-using Composable.Testing.Databases;
+using Composable.Testing.System.Data.SqlClient;
+using Composable.Testing.Testing.Databases;
 using FluentAssertions;
 using Xunit;
 
@@ -9,7 +9,6 @@ namespace Composable.Testing.Tests.Databases.SqlServerDatabasePoolTests
 {
     public class After_creating_two_databases_named_db1_and_db2 : IDisposable
     {
-        string _masterConnectionString;
         SqlServerDatabasePool _manager;
         ISqlConnection _dB1ConnectionString;
         ISqlConnection _dB2ConnectionString;
@@ -19,10 +18,10 @@ namespace Composable.Testing.Tests.Databases.SqlServerDatabasePoolTests
 
         public After_creating_two_databases_named_db1_and_db2()
         {
-            _masterConnectionString = ConfigurationManager.ConnectionStrings["MasterDB"]
-                                                          .ConnectionString;
+            var masterConnectionString = ConfigurationManager.ConnectionStrings["MasterDB"]
+                                                                 .ConnectionString;
 
-            _manager = new SqlServerDatabasePool(_masterConnectionString);
+            _manager = new SqlServerDatabasePool(masterConnectionString);
             _dB1ConnectionString = _manager.ConnectionProviderFor(Db1);
             _dB2ConnectionString = _manager.ConnectionProviderFor(Db2);
         }

@@ -1,7 +1,7 @@
 ﻿using System;
-using Composable.Contracts;
+using Composable.Testing.Contracts;
 
-namespace Composable.System
+namespace Composable.Testing.System
 {
     ///<summary>Simple utility class that calls the supplied action when the instance is disposed. Gets rid of the need to create a ton of small classes to do cleanup.</summary>
     class Disposable : IDisposable

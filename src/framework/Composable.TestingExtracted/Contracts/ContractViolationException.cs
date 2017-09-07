@@ -1,6 +1,6 @@
 using System;
 
-namespace Composable.Contracts
+namespace Composable.Testing.Contracts
 {
     /// <summary>
     /// Exceptions raise by the inspectors should inherit this exception type.

@@ -1,11 +1,11 @@
 using System;
-using Composable.Logging;
-using Composable.System;
-using Composable.System.Diagnostics;
-using Composable.System.Threading;
+using Composable.Testing.Logging;
+using Composable.Testing.System;
+using Composable.Testing.System.Diagnostics;
+using Composable.Testing.System.Threading;
 using JetBrains.Annotations;
 
-namespace Composable.Testing.Performance
+namespace Composable.Testing.Testing.Performance
 {
     static class TimeAsserter
     {

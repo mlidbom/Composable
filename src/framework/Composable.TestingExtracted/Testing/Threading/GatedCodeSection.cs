@@ -1,8 +1,8 @@
 ﻿using System;
-using Composable.System;
-using Composable.System.Threading.ResourceAccess;
+using Composable.Testing.System;
+using Composable.Testing.System.Threading.ResourceAccess;
 
-namespace Composable.Testing.Threading
+namespace Composable.Testing.Testing.Threading
 {
     class GatedCodeSection : IGatedCodeSection
     {

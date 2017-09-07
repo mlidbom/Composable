@@ -1,6 +1,6 @@
 ﻿using System;
 using System.IO;
-using Composable.System.Threading;
+using Composable.Testing.System.Threading;
 using FluentAssertions;
 using Xunit;
 

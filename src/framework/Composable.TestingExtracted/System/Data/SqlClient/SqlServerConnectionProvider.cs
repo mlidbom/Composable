@@ -2,7 +2,7 @@ using System;
 using System.Data.SqlClient;
 using System.Transactions;
 
-namespace Composable.System.Data.SqlClient
+namespace Composable.Testing.System.Data.SqlClient
 {
     class SqlServerConnection : ISqlConnection
     {

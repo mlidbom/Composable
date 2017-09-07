@@ -1,7 +1,7 @@
 ﻿using System;
 using JetBrains.Annotations;
 
-namespace Composable.Logging
+namespace Composable.Testing.Logging
 {
 
     enum LogLevel

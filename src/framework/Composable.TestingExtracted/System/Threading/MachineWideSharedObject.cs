@@ -2,7 +2,7 @@
 using System.IO;
 using System.IO.MemoryMappedFiles;
 
-namespace Composable.System.Threading
+namespace Composable.Testing.System.Threading
 {
     class MachineWideSharedObject
     {

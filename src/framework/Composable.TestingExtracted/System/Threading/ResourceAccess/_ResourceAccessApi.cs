@@ -1,15 +1,10 @@
 ﻿using System;
 
-namespace Composable.System.Threading.ResourceAccess
+namespace Composable.Testing.System.Threading.ResourceAccess
 {
     interface IExclusiveResourceAccessGuard
     {
         IExclusiveResourceLock AwaitExclusiveLock(TimeSpan? timeoutOverride = null);
-    }
-
-    interface ISharedResourceAccessGuard : IExclusiveResourceAccessGuard
-    {
-        IDisposable AwaitSharedLock(TimeSpan? timeoutOverride = null);
     }
 
     interface IResourceLock : IDisposable {}

@@ -4,15 +4,15 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Transactions;
-using Composable.Contracts;
-using Composable.Logging;
-using Composable.System;
-using Composable.System.Data.SqlClient;
-using Composable.System.Linq;
-using Composable.System.Threading;
-using Composable.System.Transactions;
+using Composable.Testing.Contracts;
+using Composable.Testing.Logging;
+using Composable.Testing.System;
+using Composable.Testing.System.Data.SqlClient;
+using Composable.Testing.System.Linq;
+using Composable.Testing.System.Threading;
+using Composable.Testing.System.Transactions;
 
-namespace Composable.Testing.Databases
+namespace Composable.Testing.Testing.Databases
 {
     sealed partial class SqlServerDatabasePool : StrictlyManagedResourceBase<SqlServerDatabasePool>
     {
@@ -132,7 +132,7 @@ namespace Composable.Testing.Databases
                                                                try
                                                                {
                                                                    TransactionScopeCe.SupressAmbient(
-                                                                       () => new SqlServerConnection(db.ConnectionString(this))
+                                                                       () => new SqlServerConnection(DatabaseExtensions.ConnectionString(db, this))
                                                                            .UseConnection(action: connection => connection.DropAllObjects()));
                                                                    _machineWideState.Update(machineWide => machineWide.Release(db.Id)
                                                                                                                       .Clean());

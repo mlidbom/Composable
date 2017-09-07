@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
-using Composable.System.Linq;
+using Composable.Testing.System.Linq;
 using JetBrains.Annotations;
 
-namespace Composable.System.Diagnostics
+namespace Composable.Testing.System.Diagnostics
 {
     ///<summary>Extensions to the Stopwatch class and related functionality.</summary>
     static class StopwatchExtensions

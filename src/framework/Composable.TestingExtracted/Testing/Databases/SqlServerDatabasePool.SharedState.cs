@@ -2,10 +2,10 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using Composable.System.Threading;
+using Composable.Testing.System.Threading;
 using JetBrains.Annotations;
 
-namespace Composable.Testing.Databases
+namespace Composable.Testing.Testing.Databases
 {
     sealed partial class SqlServerDatabasePool
     {

@@ -2,10 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
-using Composable.Contracts;
-using Composable.System.Threading.ResourceAccess;
+using Composable.Testing.Contracts;
+using Composable.Testing.System.Threading.ResourceAccess;
 
-namespace Composable.Testing.Threading
+namespace Composable.Testing.Testing.Threading
 {
     class ThreadGate : IThreadGate
     {

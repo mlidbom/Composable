@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Composable.System
+namespace Composable.Testing.System
 {
     ///<summary>Methods like Sum,Min,Average etc for IEnumerable&lt;TimeSpan&gt;</summary>
     static class TimeSpanEnumerableExtensions

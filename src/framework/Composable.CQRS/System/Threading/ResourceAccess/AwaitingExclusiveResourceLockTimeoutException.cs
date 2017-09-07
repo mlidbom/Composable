@@ -6,7 +6,7 @@ namespace Composable.System.Threading.ResourceAccess
 {
     class AwaitingExclusiveResourceLockTimeoutException : Exception
     {
-        static readonly TimeSpan TimeToWaitForOwningThreadStacktrace = 30.Seconds();
+        internal static TimeSpan TimeToWaitForOwningThreadStacktrace = 30.Seconds();
 
         internal AwaitingExclusiveResourceLockTimeoutException() : base("Timed out awaiting exclusive access to resource.") { }
 

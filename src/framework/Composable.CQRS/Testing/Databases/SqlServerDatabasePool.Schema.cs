@@ -120,36 +120,34 @@ LOG ON  ( NAME = {databaseName}_log, FILENAME = '{DatabaseRootFolderOverride}\{d
 
         void RebootPool(SharedState machineWide)
         {
-            lock(RebootedMasterConnections)
+            RebootedMasterConnections.Add(_masterConnectionString);
+
+            _log.Warning("Rebooting database pool");
+
+            ResetInMemoryData(machineWide);
+
+            var dbsToDrop = ListPoolDatabases();
+
+            _log.Warning("Dropping databases");
+            foreach(var db in dbsToDrop)
             {
-                RebootedMasterConnections.Add(_masterConnectionString);
-
-                _log.Warning("Rebooting database pool");
-
-                ResetInMemoryData(machineWide);
-
-                var dbsToDrop = ListPoolDatabases();
-
-                _log.Warning("Dropping databases");
-                foreach(var db in dbsToDrop)
+                //Clear connection pool
+                using(var connection = new SqlConnection(db.ConnectionString(this)))
                 {
-                    //Clear connection pool
-                    using (var connection = new SqlConnection(db.ConnectionString(this)))
-                    {
-                        SqlConnection.ClearPool(connection);
-                    }
-
-                    var dropCommand = $"drop database [{db.Name()}]";
-                    _log.Info(dropCommand);
-                    _masterConnection.ExecuteNonQuery(dropCommand);
+                    SqlConnection.ClearPool(connection);
                 }
 
-                _log.Warning("Creating new databases");
-
-                1.Through(30)
-                 .ForEach(_ => InsertDatabase(machineWide));
+                var dropCommand = $"drop database [{db.Name()}]";
+                _log.Info(dropCommand);
+                _masterConnection.ExecuteNonQuery(dropCommand);
             }
+
+            _log.Warning("Creating new databases");
+
+            1.Through(30)
+             .ForEach(_ => InsertDatabase(machineWide));
         }
+
         void ResetInMemoryData(SharedState machineWide)
         {
             var reservedDatabases = machineWide.DatabasesReservedBy(_poolId);

@@ -23,7 +23,7 @@ namespace Composable.Messaging.Buses
             }
         }
 
-        IMessageHandlerRegistrar IMessageHandlerRegistrar.ForCommand<TCommand>(Action<TCommand> handler)
+        IMessageHandlerRegistrar IMessageHandlerRegistrar.CommandHandler<TCommand>(Action<TCommand> handler)
         {
             lock(_lock)
             {
@@ -32,7 +32,7 @@ namespace Composable.Messaging.Buses
             }
         }
 
-        IMessageHandlerRegistrar IMessageHandlerRegistrar.ForQuery<TQuery,TResult>(Func<TQuery, TResult> handler)
+        IMessageHandlerRegistrar IMessageHandlerRegistrar.QueryHandler<TQuery,TResult>(Func<TQuery, TResult> handler)
         {
             lock (_lock)
             {

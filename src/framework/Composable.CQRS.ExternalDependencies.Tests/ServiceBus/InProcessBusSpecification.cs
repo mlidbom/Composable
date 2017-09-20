@@ -37,7 +37,7 @@ namespace Composable.CQRS.Tests.ServiceBus
                 public With_registered_handler_for_ACommand()
                 {
                     _commandHandled = false;
-                    Registrar.ForCommand((ACommand command) => _commandHandled = true);
+                    Registrar.CommandHandler((ACommand command) => _commandHandled = true);
                 }
 
                 [Fact] public void Sending_new_ACommand_calls_the_handler()
@@ -53,7 +53,7 @@ namespace Composable.CQRS.Tests.ServiceBus
                 public With_registered_handler_for_AQuery()
                 {
                     _aQueryResult = new AQueryResult();
-                    Registrar.ForQuery((AQuery query) => _aQueryResult);
+                    Registrar.QueryHandler((AQuery query) => _aQueryResult);
                 }
 
                 [Fact] public void Getting_new_AQuery_returns_the_instance_returned_by_the_handler() => Bus.Get(new AQuery()).Should().Be(_aQueryResult);

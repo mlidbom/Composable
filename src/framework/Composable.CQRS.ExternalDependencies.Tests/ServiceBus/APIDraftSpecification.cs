@@ -27,7 +27,7 @@ namespace Composable.CQRS.Tests.ServiceBus
     interface IEndpointBuilder
     {
         IDependencyInjectionContainer Container { get; }
-        IMessageHandlerRegistrar Registrar { get; }
+        IMessageHandlerRegistrar Register { get; }
     }
 
     interface IEndpoint
@@ -139,7 +139,7 @@ namespace Composable.CQRS.Tests.ServiceBus
         }
 
         public IDependencyInjectionContainer Container => _container;
-        public IMessageHandlerRegistrar Registrar => _registry;
+        public IMessageHandlerRegistrar Register => _registry;
         public IEndpoint Build() => new Endpoint(_container.CreateServiceLocator());
     }
 
@@ -158,17 +158,17 @@ namespace Composable.CQRS.Tests.ServiceBus
                 var commandReceivedGate = ThreadGate.CreateOpenGateWithTimeout(10.Milliseconds());
                 var eventReceivedGate = ThreadGate.CreateOpenGateWithTimeout(10.Milliseconds());
 
-                host.RegisterEndpoint(builder =>
+                host.RegisterEndpoint(endpoint =>
                 {
-                    builder.Registrar.ForCommand((MyCommand command) =>
+                    endpoint.Register.CommandHandler((MyCommand command) =>
                     {
                         commandReceivedGate.AwaitPassthrough();
-                        builder.Container.CreateServiceLocator().Resolve<IInterProcessServiceBus>().Publish(new MyEvent());
+                        endpoint.Container.CreateServiceLocator().Resolve<IInterProcessServiceBus>().Publish(new MyEvent());
                     });
-                    builder.Registrar.ForQuery((MyQuery query) => new QueryResult());
+                    endpoint.Register.QueryHandler((MyQuery query) => new QueryResult());
                 });
 
-                var clientEndpoint = host.RegisterEndpoint(builder => builder.Registrar.ForEvent((MyEvent @event) => eventReceivedGate.AwaitPassthrough()));
+                var clientEndpoint = host.RegisterEndpoint(builder => builder.Register.ForEvent((MyEvent @event) => eventReceivedGate.AwaitPassthrough()));
 
                 var clientBus = clientEndpoint.ServiceLocator.Resolve<IInterProcessServiceBus>();
 

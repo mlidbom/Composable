@@ -162,13 +162,13 @@ namespace Composable.CQRS.Tests.ServiceBus
                 {
                     builder.Registrar.ForCommand((MyCommand command) =>
                     {
-                        commandReceived.Pass();
+                        commandReceived.AwaitPassthrough();
                         builder.Container.CreateServiceLocator().Resolve<IInterProcessServiceBus>().Publish(new MyEvent());
                     });
                     builder.Registrar.ForQuery((MyQuery query) => new QueryResult());
                 });
 
-                var clientEndpoint = host.RegisterEndpoint(builder => builder.Registrar.ForEvent((MyEvent @event) => eventReceived.Pass()));
+                var clientEndpoint = host.RegisterEndpoint(builder => builder.Registrar.ForEvent((MyEvent @event) => eventReceived.AwaitPassthrough()));
 
                 var clientBus = clientEndpoint.ServiceLocator.Resolve<IInterProcessServiceBus>();
 

@@ -31,8 +31,8 @@ namespace Composable.Testing.Threading
 
         public IDisposable Enter()
         {
-            EntranceGate.Pass();
-            return Disposable.Create(() => ExitGate.Pass());
+            EntranceGate.AwaitPassthrough();
+            return Disposable.Create(() => ExitGate.AwaitPassthrough());
         }
     }
 }

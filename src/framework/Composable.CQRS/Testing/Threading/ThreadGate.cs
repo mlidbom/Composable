@@ -61,9 +61,9 @@ namespace Composable.Testing.Threading
             return this;
         }
 
-        public void Pass() => Pass(_defaultTimeout);
+        public void AwaitPassthrough() => AwaitPassthrough(_defaultTimeout);
 
-        public void Pass(TimeSpan timeout)
+        public void AwaitPassthrough(TimeSpan timeout)
         {
             using(var ownedLock = _lock.AwaitExclusiveLock(_defaultTimeout))
             {

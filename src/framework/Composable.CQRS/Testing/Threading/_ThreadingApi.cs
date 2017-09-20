@@ -7,8 +7,8 @@ namespace Composable.Testing.Threading
 {
     interface IThreadGateVisitor
     {
-        void Pass();
-        void Pass(TimeSpan timeout);
+        void AwaitPassthrough();
+        void AwaitPassthrough(TimeSpan timeout);
     }
 
     interface IThreadGate : IThreadGateVisitor

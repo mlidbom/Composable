@@ -54,7 +54,7 @@ namespace Composable.Tests.Testing.Threading
                                                   () =>
                                                   {
                                                       entrantEvent.HasStarted.Set();
-                                                      Gate.Pass();
+                                                      Gate.AwaitPassthrough();
                                                       entrantEvent.HasCompleted.Set();
                                                   },
                                                   TaskCreationOptions.LongRunning))

@@ -50,7 +50,7 @@ namespace Composable.CQRS.Tests.ServiceBus
 
         public static class Testing
         {
-            public static ITestingEndpointHost Create(TestingMode mode = TestingMode.DatabasePool) => new TestingEndpointHost(new RunMode(isTesting: true, mode: mode));
+            public static ITestingEndpointHost CreateHost(TestingMode mode = TestingMode.DatabasePool) => new TestingEndpointHost(new RunMode(isTesting: true, mode: mode));
         }
 
         public IEndpoint RegisterEndpoint(Action<IEndpointBuilder> setup)
@@ -153,29 +153,29 @@ namespace Composable.CQRS.Tests.ServiceBus
     {
         [Fact] async Task SettingUpAHost()
         {
-            using(var host = EndpointHost.Testing.Create())
+            using(var host = EndpointHost.Testing.CreateHost())
             {
-                var commandReceived = ThreadGate.WithTimeout(10.Milliseconds()).Open();
-                var eventReceived = ThreadGate.WithTimeout(10.Milliseconds()).Open();
+                var commandReceivedGate = ThreadGate.CreateOpenGateWithTimeout(10.Milliseconds());
+                var eventReceivedGate = ThreadGate.CreateOpenGateWithTimeout(10.Milliseconds());
 
                 host.RegisterEndpoint(builder =>
                 {
                     builder.Registrar.ForCommand((MyCommand command) =>
                     {
-                        commandReceived.AwaitPassthrough();
+                        commandReceivedGate.AwaitPassthrough();
                         builder.Container.CreateServiceLocator().Resolve<IInterProcessServiceBus>().Publish(new MyEvent());
                     });
                     builder.Registrar.ForQuery((MyQuery query) => new QueryResult());
                 });
 
-                var clientEndpoint = host.RegisterEndpoint(builder => builder.Registrar.ForEvent((MyEvent @event) => eventReceived.AwaitPassthrough()));
+                var clientEndpoint = host.RegisterEndpoint(builder => builder.Registrar.ForEvent((MyEvent @event) => eventReceivedGate.AwaitPassthrough()));
 
                 var clientBus = clientEndpoint.ServiceLocator.Resolve<IInterProcessServiceBus>();
 
                 clientBus.Send(new MyCommand());
 
-                commandReceived.AwaitPassedCount(1);
-                eventReceived.AwaitPassedCount(1);
+                commandReceivedGate.AwaitPassedCount(1);
+                eventReceivedGate.AwaitPassedCount(1);
 
                 var result = clientBus.Query(new MyQuery());
                 result.Should().NotBeNull();

@@ -34,7 +34,7 @@ namespace Composable.Tests.Testing.Threading
 
         ThreadGateTestFixture()
         {
-            Gate = ThreadGate.WithTimeout(1.Seconds());
+            Gate = ThreadGate.CreateClosedGateWithTimeout(1.Seconds());
             NumberOfThreads = 10;
         }
 

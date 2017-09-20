@@ -157,6 +157,7 @@ namespace Composable.System.Threading.ResourceAccess
                 {
                     try
                     {
+                        //todo: Log a warning if disposing after a longer time than the default lock timeout.
                         _parent._currentThreadUnreleasedExclusiveLocks.Value--;
                         if(_parent._currentThreadUnreleasedExclusiveLocks.Value == 0)
                         {

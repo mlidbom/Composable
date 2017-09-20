@@ -47,7 +47,7 @@ namespace Composable.Testing.Threading
 
         public bool TryAwait(TimeSpan timeout, Func<bool> condition) => _resourceGuard.TryAwait(timeout, condition);
 
-        public IThreadGate ExecuteLockedOnce(TimeSpan timeout, Func<bool> condition, Action<IThreadGate, IExclusiveResourceLock> action)
+        public IThreadGate ExecuteWithExclusiveLockWhen(TimeSpan timeout, Func<bool> condition, Action<IThreadGate, IExclusiveResourceLock> action)
         {
             using (var ownedLock = _resourceGuard.AwaitExclusiveLockWhen(timeout, condition))
             {

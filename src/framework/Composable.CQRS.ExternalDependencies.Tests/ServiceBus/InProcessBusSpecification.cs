@@ -37,7 +37,7 @@ namespace Composable.CQRS.Tests.ServiceBus
                 public With_registered_handler_for_ACommand()
                 {
                     _commandHandled = false;
-                    Registrar.CommandHandler((ACommand command) => _commandHandled = true);
+                    Registrar.RegisterCommandHandler((ACommand command) => _commandHandled = true);
                 }
 
                 [Fact] public void Sending_new_ACommand_calls_the_handler()
@@ -53,7 +53,7 @@ namespace Composable.CQRS.Tests.ServiceBus
                 public With_registered_handler_for_AQuery()
                 {
                     _aQueryResult = new AQueryResult();
-                    Registrar.QueryHandler((AQuery query) => _aQueryResult);
+                    Registrar.RegisterQueryHandler((AQuery query) => _aQueryResult);
                 }
 
                 [Fact] public void Getting_new_AQuery_returns_the_instance_returned_by_the_handler() => Bus.Get(new AQuery()).Should().Be(_aQueryResult);
@@ -65,7 +65,7 @@ namespace Composable.CQRS.Tests.ServiceBus
                 public With_one_registered_handler_for_AnEvent()
                 {
                     _eventHandler1Called = false;
-                    Registrar.EventHandler((AnEvent @event) => _eventHandler1Called = true);
+                    Registrar.RegisterEventHandler((AnEvent @event) => _eventHandler1Called = true);
                 }
 
                 [Fact] public void Publishing_new_AnEvent_calls_the_handler()
@@ -84,8 +84,8 @@ namespace Composable.CQRS.Tests.ServiceBus
                 {
                     _eventHandler1Called = false;
                     _eventHandler2Called = false;
-                    Registrar.EventHandler((AnEvent @event) => _eventHandler1Called = true);
-                    Registrar.EventHandler((AnEvent @event) => _eventHandler2Called = true);
+                    Registrar.RegisterEventHandler((AnEvent @event) => _eventHandler1Called = true);
+                    Registrar.RegisterEventHandler((AnEvent @event) => _eventHandler2Called = true);
                 }
 
                 [Fact] public void Publishing_new_AnEvent_calls_both_handlers()

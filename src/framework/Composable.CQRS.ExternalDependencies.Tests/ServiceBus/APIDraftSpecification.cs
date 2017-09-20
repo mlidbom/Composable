@@ -27,7 +27,7 @@ namespace Composable.CQRS.Tests.ServiceBus
     interface IEndpointBuilder
     {
         IDependencyInjectionContainer Container { get; }
-        IMessageHandlerRegistrar Register { get; }
+        IMessageHandlerRegistrar MessageHandlerRegistrar { get; }
     }
 
     interface IEndpoint
@@ -139,7 +139,7 @@ namespace Composable.CQRS.Tests.ServiceBus
         }
 
         public IDependencyInjectionContainer Container => _container;
-        public IMessageHandlerRegistrar Register => _registry;
+        public IMessageHandlerRegistrar MessageHandlerRegistrar => _registry;
         public IEndpoint Build() => new Endpoint(_container.CreateServiceLocator());
     }
 
@@ -160,15 +160,15 @@ namespace Composable.CQRS.Tests.ServiceBus
 
                 host.RegisterEndpoint(endpointBuilder =>
                 {
-                    endpointBuilder.Register.CommandHandler((MyCommand command) =>
+                    endpointBuilder.MessageHandlerRegistrar.RegisterCommandHandler((MyCommand command) =>
                     {
                         commandReceivedGate.AwaitPassthrough();
                         endpointBuilder.Container.CreateServiceLocator().Resolve<IInterProcessServiceBus>().Publish(new MyEvent());
                     });
-                    endpointBuilder.Register.QueryHandler((MyQuery query) => new QueryResult());
+                    endpointBuilder.MessageHandlerRegistrar.RegisterQueryHandler((MyQuery query) => new QueryResult());
                 });
 
-                var clientEndpoint = host.RegisterEndpoint(endpointBuilder => endpointBuilder.Register.EventHandler((MyEvent @event) => eventReceivedGate.AwaitPassthrough()));
+                var clientEndpoint = host.RegisterEndpoint(endpointBuilder => endpointBuilder.MessageHandlerRegistrar.RegisterEventHandler((MyEvent @event) => eventReceivedGate.AwaitPassthrough()));
 
                 var clientBus = clientEndpoint.ServiceLocator.Resolve<IInterProcessServiceBus>();
 

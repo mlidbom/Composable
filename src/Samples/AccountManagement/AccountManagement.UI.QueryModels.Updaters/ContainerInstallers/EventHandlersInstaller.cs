@@ -13,7 +13,7 @@ namespace AccountManagement.UI.QueryModels.DocumentDB.Updaters.ContainerInstalle
 
         internal static void Install(IMessageHandlerRegistrar messageHandlerRegistrar, IServiceLocator serviceLocator)
         {
-            messageHandlerRegistrar.EventHandler<AccountEvent.PropertyUpdated.Email>(@event => serviceLocator.Use<EmailToAccountMapQueryModelUpdater>(updater => updater.Handle(@event)));
+            messageHandlerRegistrar.RegisterEventHandler<AccountEvent.PropertyUpdated.Email>(@event => serviceLocator.Use<EmailToAccountMapQueryModelUpdater>(updater => updater.Handle(@event)));
         }
     }
 }

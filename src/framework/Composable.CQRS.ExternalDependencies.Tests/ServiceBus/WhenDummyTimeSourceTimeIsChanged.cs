@@ -34,7 +34,7 @@ namespace Composable.CQRS.Tests.ServiceBus
 
             _bus = _serviceLocator.Resolve<IInterProcessServiceBus>();
             _serviceLocator.Resolve<IMessageHandlerRegistrar>()
-                      .CommandHandler<ScheduledCommand>(cmd => _receivedCommandGate.AwaitPassthrough());
+                      .RegisterCommandHandler<ScheduledCommand>(cmd => _receivedCommandGate.AwaitPassthrough());
         }
 
         [Test]

@@ -14,7 +14,7 @@ namespace Composable.Messaging.Buses
 
         readonly object _lock = new object();
 
-        IMessageHandlerRegistrar IMessageHandlerRegistrar.ForEvent<TEvent>(Action<TEvent> handler)
+        IMessageHandlerRegistrar IMessageHandlerRegistrar.EventHandler<TEvent>(Action<TEvent> handler)
         {
             lock(_lock)
             {

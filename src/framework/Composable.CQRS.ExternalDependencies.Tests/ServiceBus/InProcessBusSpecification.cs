@@ -65,7 +65,7 @@ namespace Composable.CQRS.Tests.ServiceBus
                 public With_one_registered_handler_for_AnEvent()
                 {
                     _eventHandler1Called = false;
-                    Registrar.ForEvent((AnEvent @event) => _eventHandler1Called = true);
+                    Registrar.EventHandler((AnEvent @event) => _eventHandler1Called = true);
                 }
 
                 [Fact] public void Publishing_new_AnEvent_calls_the_handler()
@@ -84,8 +84,8 @@ namespace Composable.CQRS.Tests.ServiceBus
                 {
                     _eventHandler1Called = false;
                     _eventHandler2Called = false;
-                    Registrar.ForEvent((AnEvent @event) => _eventHandler1Called = true);
-                    Registrar.ForEvent((AnEvent @event) => _eventHandler2Called = true);
+                    Registrar.EventHandler((AnEvent @event) => _eventHandler1Called = true);
+                    Registrar.EventHandler((AnEvent @event) => _eventHandler2Called = true);
                 }
 
                 [Fact] public void Publishing_new_AnEvent_calls_both_handlers()

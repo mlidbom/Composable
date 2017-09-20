@@ -43,7 +43,7 @@ namespace Composable.Messaging.Buses
     public interface IMessageHandlerRegistrar
     {
         // ReSharper disable UnusedMethodReturnValue.Global
-        IMessageHandlerRegistrar ForEvent<TEvent>(Action<TEvent> handler) where TEvent : IEvent;
+        IMessageHandlerRegistrar EventHandler<TEvent>(Action<TEvent> handler) where TEvent : IEvent;
         IMessageHandlerRegistrar CommandHandler<TCommand>(Action<TCommand> handler) where TCommand : ICommand;
         IMessageHandlerRegistrar QueryHandler<TQuery, TResult>(Func<TQuery, TResult> handler) where TQuery : IQuery<TResult> where TResult : IQueryResult;
         // ReSharper restore UnusedMethodReturnValue.Global

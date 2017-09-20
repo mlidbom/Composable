@@ -158,17 +158,17 @@ namespace Composable.CQRS.Tests.ServiceBus
                 var commandReceivedGate = ThreadGate.CreateOpenGateWithTimeout(10.Milliseconds());
                 var eventReceivedGate = ThreadGate.CreateOpenGateWithTimeout(10.Milliseconds());
 
-                host.RegisterEndpoint(endpoint =>
+                host.RegisterEndpoint(endpointBuilder =>
                 {
-                    endpoint.Register.CommandHandler((MyCommand command) =>
+                    endpointBuilder.Register.CommandHandler((MyCommand command) =>
                     {
                         commandReceivedGate.AwaitPassthrough();
-                        endpoint.Container.CreateServiceLocator().Resolve<IInterProcessServiceBus>().Publish(new MyEvent());
+                        endpointBuilder.Container.CreateServiceLocator().Resolve<IInterProcessServiceBus>().Publish(new MyEvent());
                     });
-                    endpoint.Register.QueryHandler((MyQuery query) => new QueryResult());
+                    endpointBuilder.Register.QueryHandler((MyQuery query) => new QueryResult());
                 });
 
-                var clientEndpoint = host.RegisterEndpoint(builder => builder.Register.ForEvent((MyEvent @event) => eventReceivedGate.AwaitPassthrough()));
+                var clientEndpoint = host.RegisterEndpoint(endpointBuilder => endpointBuilder.Register.EventHandler((MyEvent @event) => eventReceivedGate.AwaitPassthrough()));
 
                 var clientBus = clientEndpoint.ServiceLocator.Resolve<IInterProcessServiceBus>();
 

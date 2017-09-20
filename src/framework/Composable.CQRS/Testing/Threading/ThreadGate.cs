@@ -14,17 +14,17 @@ namespace Composable.Testing.Threading
 
         public TimeSpan DefaultTimeout => _defaultTimeout;
         public bool IsOpen => _isOpen;
-        public long Queued => _lock.ExecuteWithExclusiveLock(() => _queuedThreads.Count);
-        public long Passed => _lock.ExecuteWithExclusiveLock(() => _passedThreads.Count);
-        public long Requested => _lock.ExecuteWithExclusiveLock(() => _requestsThreads.Count);
+        public long Queued => _resourceGuard.ExecuteWithResourceExclusivelyLocked(() => _queuedThreads.Count);
+        public long Passed => _resourceGuard.ExecuteWithResourceExclusivelyLocked(() => _passedThreads.Count);
+        public long Requested => _resourceGuard.ExecuteWithResourceExclusivelyLocked(() => _requestsThreads.Count);
 
-        public IReadOnlyList<Thread> RequestedThreads => _lock.ExecuteWithExclusiveLock(() => _requestsThreads.ToList());
-        public IReadOnlyList<Thread> QueuedThreads => _lock.ExecuteWithExclusiveLock(() => _queuedThreads.ToList());
-        public IReadOnlyList<Thread> PassedThreads => _lock.ExecuteWithExclusiveLock(() => _passedThreads.ToList());
+        public IReadOnlyList<Thread> RequestedThreads => _resourceGuard.ExecuteWithResourceExclusivelyLocked(() => _requestsThreads.ToList());
+        public IReadOnlyList<Thread> QueuedThreads => _resourceGuard.ExecuteWithResourceExclusivelyLocked(() => _queuedThreads.ToList());
+        public IReadOnlyList<Thread> PassedThreads => _resourceGuard.ExecuteWithResourceExclusivelyLocked(() => _passedThreads.ToList());
 
         public IThreadGate Open()
         {
-            using(var ownedLock = _lock.AwaitExclusiveLock())
+            using(var ownedLock = _resourceGuard.AwaitExclusiveLock())
             {
                 _isOpen = true;
                 _lockOnNextPass = false;
@@ -35,7 +35,7 @@ namespace Composable.Testing.Threading
 
         public IThreadGate LetOneThreadPass()
         {
-            using(var ownedLock = _lock.AwaitExclusiveLock())
+            using(var ownedLock = _resourceGuard.AwaitExclusiveLock())
             {
                 Contract.Assert.That(!_isOpen, "Gate must be closed to call this method.");
                 _isOpen = true;
@@ -45,11 +45,11 @@ namespace Composable.Testing.Threading
             }
         }
 
-        public bool TryAwait(TimeSpan timeout, Func<bool> condition) => _lock.TryAwait(timeout, condition);
+        public bool TryAwait(TimeSpan timeout, Func<bool> condition) => _resourceGuard.TryAwait(timeout, condition);
 
         public IThreadGate ExecuteLockedOnce(TimeSpan timeout, Func<bool> condition, Action<IThreadGate, IExclusiveResourceLock> action)
         {
-            using (var ownedLock = _lock.AwaitExclusiveLockWhen(timeout, condition))
+            using (var ownedLock = _resourceGuard.AwaitExclusiveLockWhen(timeout, condition))
             {
                 action(this, ownedLock);
             }
@@ -58,7 +58,7 @@ namespace Composable.Testing.Threading
 
         public IThreadGate Close()
         {
-            _lock.ExecuteWithExclusiveLock(() => _isOpen = false);
+            _resourceGuard.ExecuteWithResourceExclusivelyLocked(() => _isOpen = false);
             return this;
         }
 
@@ -66,7 +66,7 @@ namespace Composable.Testing.Threading
 
         public void AwaitPassthrough(TimeSpan timeout)
         {
-            using(var ownedLock = _lock.AwaitExclusiveLock(_defaultTimeout))
+            using(var ownedLock = _resourceGuard.AwaitExclusiveLock(_defaultTimeout))
             {
                 var currentThread = Thread.CurrentThread;
                 _requestsThreads.Add(currentThread);
@@ -91,12 +91,12 @@ namespace Composable.Testing.Threading
 
         ThreadGate(TimeSpan defaultTimeout)
         {
-            _lock = ResourceAccessGuard.ExclusiveWithTimeout(defaultTimeout);
+            _resourceGuard = ResourceAccessGuard.ExclusiveWithTimeout(defaultTimeout);
             _defaultTimeout = defaultTimeout;
         }
 
         readonly TimeSpan _defaultTimeout;
-        readonly IExclusiveResourceAccessGuard _lock;
+        readonly IExclusiveResourceAccessGuard _resourceGuard;
         bool _lockOnNextPass;
         bool _isOpen;
         readonly List<Thread> _requestsThreads = new List<Thread>();

@@ -45,7 +45,7 @@ namespace Composable.System.Threading.ResourceAccess
             }
         }
 
-        public static void ExecuteWithExclusiveLock(this IExclusiveResourceAccessGuard @lock, Action action)
+        public static void ExecuteWithResourceExclusivelyLocked(this IExclusiveResourceAccessGuard @lock, Action action)
         {
             using(@lock.AwaitExclusiveLock())
             {
@@ -53,7 +53,7 @@ namespace Composable.System.Threading.ResourceAccess
             }
         }
 
-        public static TResult ExecuteWithExclusiveLock<TResult>(this IExclusiveResourceAccessGuard @lock, Func<TResult> function)
+        public static TResult ExecuteWithResourceExclusivelyLocked<TResult>(this IExclusiveResourceAccessGuard @lock, Func<TResult> function)
         {
             using(@lock.AwaitExclusiveLock())
             {
@@ -61,7 +61,7 @@ namespace Composable.System.Threading.ResourceAccess
             }
         }
 
-        public static void ExecuteWithExclusiveLock(this IExclusiveResourceAccessGuard @lock, TimeSpan timeout, Action action)
+        public static void ExecuteWithResourceExclusivelyLocked(this IExclusiveResourceAccessGuard @lock, TimeSpan timeout, Action action)
         {
             using(@lock.AwaitExclusiveLock())
             {
@@ -69,7 +69,7 @@ namespace Composable.System.Threading.ResourceAccess
             }
         }
 
-        public static TResult ExecuteWithExclusiveLock<TResult>(this IExclusiveResourceAccessGuard @lock, TimeSpan timeout, Func<TResult> function)
+        public static TResult ExecuteWithResourceExclusivelyLocked<TResult>(this IExclusiveResourceAccessGuard @lock, TimeSpan timeout, Func<TResult> function)
         {
             using(@lock.AwaitExclusiveLock())
             {

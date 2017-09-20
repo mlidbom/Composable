@@ -46,7 +46,7 @@ namespace Composable.CQRS.Tests.ServiceBus
 
             _timeSource.UtcNow = now + 1.Hours();
 
-            _receivedCommandGate.AwaitPassedCount(1);
+            _receivedCommandGate.AwaitPassedThroughCountEqualTo(1);
         }
 
         [Test]

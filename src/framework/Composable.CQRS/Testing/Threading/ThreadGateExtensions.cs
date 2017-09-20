@@ -10,12 +10,12 @@ namespace Composable.Testing.Threading
         public static IThreadGate AwaitClosed(this IThreadGate @this) => @this.Await(() => !@this.IsOpen);
         public static bool TryAwaitClosed(this IThreadGate @this, TimeSpan timeout) => @this.TryAwait(timeout, () => !@this.IsOpen);
 
-        public static IThreadGate AwaitQueueLength(this IThreadGate @this, int length) => @this.Await(() => @this.Queued >= length);
-        public static bool TryAwaitQueueLengthExceeding(this IThreadGate @this, int length, TimeSpan timeout) => @this.TryAwait(timeout, () => @this.Queued >= length);
+        public static IThreadGate AwaitQueueLengthEqualTo(this IThreadGate @this, int length) => @this.Await(() => @this.Queued == length);
+        public static bool TryAwaitQueueLengthEqualTo(this IThreadGate @this, int length, TimeSpan timeout) => @this.TryAwait(timeout, () => @this.Queued == length);
 
-        public static IThreadGate AwaitPassedCount(this IThreadGate @this, int length) => @this.Await(() => @this.Passed >= length);
-        public static IThreadGate AwaitPassedCount(this IThreadGate @this, int length, TimeSpan timeout) => @this.Await(timeout, () => @this.Passed >= length);
-        public static bool TryPassedCount(this IThreadGate @this, int count, TimeSpan timeout) => @this.TryAwait(timeout, () => @this.Passed >= count);
+        public static IThreadGate AwaitPassedThroughCountEqualTo(this IThreadGate @this, int length) => @this.Await(() => @this.Passed == length);
+        public static IThreadGate AwaitPassedThroughCountEqualTo(this IThreadGate @this, int length, TimeSpan timeout) => @this.Await(timeout, () => @this.Passed == length);
+        public static bool TryAwaitPassededThroughCountEqualTo(this IThreadGate @this, int count, TimeSpan timeout) => @this.TryAwait(timeout, () => @this.Passed == count);
 
         public static IThreadGate AwaitEmptyQueue(this IThreadGate @this) => @this.Await(() => @this.Queued == 0);
         public static bool TryAwaitEmptyQueue(this IThreadGate @this, TimeSpan timeout) => @this.TryAwait(timeout, () => @this.Queued == 0);

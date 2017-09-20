@@ -26,7 +26,7 @@ namespace Composable.Testing.Threading
                 () =>
                 {
                     @this.LetOneThreadEnter();
-                    @this.ExitGate.AwaitQueueLength(1);
+                    @this.ExitGate.AwaitQueueLengthEqualTo(1);
                 });
 
         public static IGatedCodeSection LetOneThreadPass(this IGatedCodeSection @this)

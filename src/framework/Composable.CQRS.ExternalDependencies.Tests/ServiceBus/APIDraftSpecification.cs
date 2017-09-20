@@ -174,8 +174,8 @@ namespace Composable.CQRS.Tests.ServiceBus
 
                 clientBus.Send(new MyCommand());
 
-                commandReceivedGate.AwaitPassedCount(1);
-                eventReceivedGate.AwaitPassedCount(1);
+                commandReceivedGate.AwaitPassedThroughCountEqualTo(1);
+                eventReceivedGate.AwaitPassedThroughCountEqualTo(1);
 
                 var result = clientBus.Query(new MyQuery());
                 result.Should().NotBeNull();

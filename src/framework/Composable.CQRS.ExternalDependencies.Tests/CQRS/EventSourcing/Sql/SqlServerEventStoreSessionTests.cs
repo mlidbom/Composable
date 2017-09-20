@@ -100,8 +100,8 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing.Sql
             var tasks = 1.Through(threads).Select(resetEvent => Task.Factory.StartNew(() => UpdateEmail())).ToArray();
 
             changeEmailSection.EntranceGate.Open();
-            changeEmailSection.EntranceGate.AwaitPassedCount(2);
-            changeEmailSection.ExitGate.AwaitQueueLength(1);
+            changeEmailSection.EntranceGate.AwaitPassedThroughCountEqualTo(2);
+            changeEmailSection.ExitGate.AwaitQueueLengthEqualTo(1);
 
             Thread.Sleep(10.Milliseconds());
 

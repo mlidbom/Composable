@@ -59,6 +59,7 @@ namespace Composable.System.Threading.ResourceAccess
                 {
                     try
                     {
+                        //todo: Log a warning if disposing after a longer time than the default lock timeout.
                         //Using this exchange trick spares us from taking one more lock every time we release one at the cost of a negligible decrease in the chances for an exception to contain the blocking stacktrace.
                         var timeoutExceptionsOnOtherThreads = Interlocked.Exchange(ref _parent._timeoutsThrownDuringCurrentLock, 0);
 

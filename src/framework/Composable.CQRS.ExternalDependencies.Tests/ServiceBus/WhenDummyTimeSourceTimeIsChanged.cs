@@ -26,7 +26,7 @@ namespace Composable.CQRS.Tests.ServiceBus
         public void SetupTask()
         {
             _serviceLocator = DependencyInjectionContainer.CreateServiceLocatorForTesting(cont => {});
-            _receivedCommandGate = ThreadGate.CreateOpenGateWithTimeout(10.Milliseconds());
+            _receivedCommandGate = ThreadGate.CreateOpenWithTimeout(10.Milliseconds());
 
             _timeSource = _serviceLocator.Resolve<DummyTimeSource>();
             _timeSource.UtcNow = DateTime.Parse("2015-01-01 10:00");

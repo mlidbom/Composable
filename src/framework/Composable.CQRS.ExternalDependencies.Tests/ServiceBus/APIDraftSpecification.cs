@@ -155,8 +155,8 @@ namespace Composable.CQRS.Tests.ServiceBus
         {
             using(var host = EndpointHost.Testing.CreateHost())
             {
-                var commandReceivedGate = ThreadGate.CreateOpenGateWithTimeout(10.Milliseconds());
-                var eventReceivedGate = ThreadGate.CreateOpenGateWithTimeout(10.Milliseconds());
+                var commandReceivedGate = ThreadGate.CreateOpenWithTimeout(10.Milliseconds());
+                var eventReceivedGate = ThreadGate.CreateOpenWithTimeout(10.Milliseconds());
 
                 host.RegisterEndpoint(endpointBuilder =>
                 {

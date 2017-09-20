@@ -15,8 +15,8 @@ namespace Composable.Testing.Threading
         GatedCodeSection(TimeSpan timeout)
         {
             _lock = ResourceAccessGuard.ExclusiveWithTimeout(timeout);
-            EntranceGate = ThreadGate.CreateClosedGateWithTimeout(timeout);
-            ExitGate = ThreadGate.CreateClosedGateWithTimeout(timeout);
+            EntranceGate = ThreadGate.CreateClosedWithTimeout(timeout);
+            ExitGate = ThreadGate.CreateClosedWithTimeout(timeout);
         }
 
         public IGatedCodeSection WithExclusiveLock(Action action)

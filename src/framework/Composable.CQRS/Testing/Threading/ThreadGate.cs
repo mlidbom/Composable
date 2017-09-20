@@ -9,8 +9,8 @@ namespace Composable.Testing.Threading
 {
     class ThreadGate : IThreadGate
     {
-        public static IThreadGate CreateClosedGateWithTimeout(TimeSpan timeout) => new ThreadGate(timeout);
-        public static IThreadGate CreateOpenGateWithTimeout(TimeSpan timeout) => new ThreadGate(timeout).Open();
+        public static IThreadGate CreateClosedWithTimeout(TimeSpan timeout) => new ThreadGate(timeout);
+        public static IThreadGate CreateOpenWithTimeout(TimeSpan timeout) => new ThreadGate(timeout).Open();
 
         public TimeSpan DefaultTimeout => _defaultTimeout;
         public bool IsOpen => _isOpen;

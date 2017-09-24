@@ -39,7 +39,7 @@ namespace Composable.Messaging.Buses
             {
                 while(true)
                 {
-                    exclusiveAccess.ReleaseLockAwaitUpdateNotificationAndAwaitExclusiveLock(TimeSpan.FromMilliseconds(int.MaxValue));
+                    exclusiveAccess.ReleaseLockAwaitUpdateNotificationAndAwaitExclusiveLock(7.Days());
                     if(_dispatchingTasks.Count > 0)
                     {
                         try

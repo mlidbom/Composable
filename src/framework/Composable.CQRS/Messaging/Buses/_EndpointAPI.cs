@@ -3,9 +3,11 @@ using Composable.DependencyInjection;
 
 namespace Composable.Messaging.Buses
 {
-    interface IEndpoint
+    interface IEndpoint : IDisposable
     {
         IServiceLocator ServiceLocator { get; }
+        void Start();
+        void Stop();
     }
 
     interface IEndpointBuilder
@@ -17,6 +19,8 @@ namespace Composable.Messaging.Buses
     interface IEndpointHost : IDisposable
     {
         IEndpoint RegisterEndpoint(Action<IEndpointBuilder> setup);
+        void Start();
+        void Stop();
     }
 
     interface ITestingEndpointHost : IEndpointHost { }

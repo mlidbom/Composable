@@ -38,6 +38,9 @@ namespace Composable.Messaging.Buses
             return endpoint;
         }
 
+        public void Start() => _endpoints.ForEach(endpoint => endpoint.Start());
+        public void Stop() => _endpoints.ForEach(endpoint => endpoint.Stop());
+
         void ConnectEndpoint(IEndpoint endpoint)
         {
             var currentRegistry = endpoint.ServiceLocator.Resolve<MessageHandlerRegistry>();
@@ -64,6 +67,8 @@ namespace Composable.Messaging.Buses
             if(!_disposed)
             {
                 _disposed = true;
+                Stop();
+
                 var exceptions = _endpoints
                     .SelectMany(endpoint => endpoint.ServiceLocator
                                                     .Resolve<TestingOnlyInterprocessServiceBus>().ThrownExceptions)

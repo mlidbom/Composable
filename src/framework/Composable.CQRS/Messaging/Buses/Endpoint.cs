@@ -6,5 +6,11 @@ namespace Composable.Messaging.Buses
     {
         public Endpoint(IServiceLocator serviceLocator) => ServiceLocator = serviceLocator;
         public IServiceLocator ServiceLocator { get; }
+
+        public void Start() => Bus.Start();
+        public void Stop() => Bus.Stop();
+        public void Dispose() => Bus.Dispose();
+
+        IInterProcessServiceBus Bus { get { return ServiceLocator.Resolve<IInterProcessServiceBus>(); } }
     }
 }

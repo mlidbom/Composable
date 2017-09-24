@@ -14,7 +14,7 @@ namespace Composable.Messaging.Buses
     }
 
     ///<summary>Dispatches messages between processes.</summary>
-    interface IInterProcessServiceBus
+    interface IInterProcessServiceBus : IDisposable
     {
         void SendAtTime(DateTime sendAt, ICommand message);
         void Publish(IEvent anEvent);
@@ -22,6 +22,8 @@ namespace Composable.Messaging.Buses
         Task<TResult> QueryAsync<TResult>(IQuery<TResult> query) where TResult : IQueryResult;
 
         void Send(ICommand command);
+        void Start();
+        void Stop();
     }
 
     public interface IMessageSpy

@@ -28,6 +28,8 @@ namespace Composable.CQRS.Tests.ServiceBus
                     endpointBuilder.MessageHandlerRegistrar.RegisterQueryHandler((MyQuery query) => new QueryResult());
                 });
 
+                host.Start();
+
                 var clientEndpoint = host.RegisterEndpoint(endpointBuilder => endpointBuilder.MessageHandlerRegistrar.RegisterEventHandler((MyEvent @event) => eventReceivedGate.AwaitPassthrough()));
 
                 var clientBus = clientEndpoint.ServiceLocator.Resolve<IInterProcessServiceBus>();

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Composable.GenericAbstractions.Time;
 using Composable.System;
@@ -18,26 +19,28 @@ namespace Composable.Messaging.Buses
         readonly IDisposable _managedResources;
         readonly IExclusiveResourceAccessGuard _resourceGuard;
         readonly IList<Exception> _thrownExceptions = new List<Exception>();
-
+        readonly CancellationTokenSource _cancellationTokenSource;
 
         public IReadOnlyList<Exception> ThrownExceptions => _thrownExceptions.ToList();
 
         public TestingOnlyInterprocessServiceBus(DummyTimeSource timeSource, IInProcessServiceBus inProcessServiceBus)
         {
             _timeSource = timeSource;
+            _cancellationTokenSource = new CancellationTokenSource();
             _inProcessServiceBus = inProcessServiceBus;
             _managedResources = timeSource.UtcNowChanged.Subscribe(SendDueMessages);
             _resourceGuard = ResourceAccessGuard.ExclusiveWithTimeout(30.Seconds());
             Start();
         }
 
-        internal void Start() { Task.Factory.StartNew(MessagePumpThread_, TaskCreationOptions.LongRunning); }
+        public void Start() => Task.Factory.StartNew(MessagePumpThread_, TaskCreationOptions.LongRunning);
+        public void Stop() => _cancellationTokenSource.Cancel();
 
         void MessagePumpThread_()
         {
             using(var exclusiveAccess = _resourceGuard.AwaitExclusiveLock())
             {
-                while(true)
+                while(!_cancellationTokenSource.IsCancellationRequested)
                 {
                     exclusiveAccess.ReleaseLockAwaitUpdateNotificationAndAwaitExclusiveLock(7.Days());
                     if(_dispatchingTasks.Count > 0)

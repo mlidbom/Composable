@@ -35,6 +35,7 @@ namespace Composable.Messaging.Buses
 
         public void Start() => Task.Factory.StartNew(MessagePumpThread_, TaskCreationOptions.LongRunning);
         public void Stop() => _cancellationTokenSource.Cancel();
+        public void AwaitNoMessagesInFlight() => _resourceGuard.ExecuteWithResourceExclusivelyLockedWhen(condition: () => _dispatchingTasks.Count == 0, action: () => {});
 
         void MessagePumpThread_()
         {
@@ -44,7 +45,6 @@ namespace Composable.Messaging.Buses
                 {
                     exclusiveAccess.ReleaseLockAwaitUpdateNotificationAndAwaitExclusiveLock(7.Days());
                     if(_dispatchingTasks.Count > 0)
-                    {
                         try
                         {
                             _dispatchingTasks.Dequeue().RunSynchronously();
@@ -53,7 +53,6 @@ namespace Composable.Messaging.Buses
                         {
                             _thrownExceptions.Add(exception);
                         }
-                    }
                 }
             }
             // ReSharper disable once FunctionNeverReturns
@@ -61,10 +60,10 @@ namespace Composable.Messaging.Buses
 
         void SendDueMessages(DateTime currentTime)
         {
-            var dueMessages = _scheduledMessages.Where(message => message.SendAt <= currentTime)
+            var dueMessages = _scheduledMessages.Where(predicate: message => message.SendAt <= currentTime)
                                                 .ToList();
-            dueMessages.ForEach(scheduledMessage => _inProcessServiceBus.Send(scheduledMessage.Message));
-            dueMessages.ForEach(message => _scheduledMessages.Remove(message));
+            dueMessages.ForEach(action: scheduledMessage => _inProcessServiceBus.Send(scheduledMessage.Message));
+            dueMessages.ForEach(action: message => _scheduledMessages.Remove(message));
         }
 
         public void SendAtTime(DateTime sendAt, ICommand message)
@@ -72,9 +71,7 @@ namespace Composable.Messaging.Buses
             using(_resourceGuard.AwaitExclusiveLock())
             {
                 if(_timeSource.UtcNow > sendAt.ToUniversalTime())
-                {
-                    throw new InvalidOperationException("You cannot schedule a message to be sent in the past.");
-                }
+                    throw new InvalidOperationException(message: "You cannot schedule a message to be sent in the past.");
 
                 _scheduledMessages.Add(new ScheduledMessage(sendAt, message));
             }
@@ -92,34 +89,22 @@ namespace Composable.Messaging.Buses
             }
         }
 
-        public void Dispose()
-        {
-            _managedResources.Dispose();
-        }
+        public void Dispose() { _managedResources.Dispose(); }
 
         public void Publish(IEvent anEvent) =>
             _resourceGuard.ExecuteWithResourceExclusivelyLockedAndNotifyWaitingThreadsAboutUpdate(
-                () => _dispatchingTasks.Enqueue(new Task(() => _inProcessServiceBus.Publish(anEvent))));
+                action: () => _dispatchingTasks.Enqueue(new Task(action: () => _inProcessServiceBus.Publish(anEvent))));
 
         public void Send(ICommand command) =>
             _resourceGuard.ExecuteWithResourceExclusivelyLockedAndNotifyWaitingThreadsAboutUpdate(
-                () => _dispatchingTasks.Enqueue(new Task(() => _inProcessServiceBus.Send(command))));
+                action: () => _dispatchingTasks.Enqueue(new Task(action: () => _inProcessServiceBus.Send(command))));
 
         public TResult Query<TResult>(IQuery<TResult> query) where TResult : IQueryResult
             => _resourceGuard.ExecuteWithResourceExclusivelyLockedWhen(
                 condition: () => _dispatchingTasks.Count == 0,
                 function: () => _inProcessServiceBus.Get(query));
 
-
         public Task<TResult> QueryAsync<TResult>(IQuery<TResult> query) where TResult : IQueryResult
-        {
-            return _resourceGuard.ExecuteWithResourceExclusivelyLockedAndNotifyWaitingThreadsAboutUpdate(
-                () =>
-                {
-                    var queryTask = new Task<TResult>(() => _inProcessServiceBus.Get(query));
-                    _dispatchingTasks.Enqueue(queryTask);
-                    return queryTask;
-                });
-        }
+            => _resourceGuard.ExecuteWithResourceExclusivelyLocked(function: () => Task.Run(function: () => Query(query)));
     }
 }

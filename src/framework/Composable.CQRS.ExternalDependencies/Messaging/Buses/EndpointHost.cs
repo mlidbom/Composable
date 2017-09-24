@@ -10,7 +10,7 @@ namespace Composable.Messaging.Buses
     {
         readonly IRunMode _mode;
         bool _disposed;
-        readonly List<IEndpoint> _endpoints = new List<IEndpoint>();
+        protected readonly List<IEndpoint> Endpoints = new List<IEndpoint>();
 
         protected EndpointHost(IRunMode mode) => _mode = mode;
 
@@ -33,13 +33,13 @@ namespace Composable.Messaging.Buses
             var endpoint = builder.Build();
             ConnectEndpoint(endpoint);
 
-            _endpoints.Add(endpoint);
+            Endpoints.Add(endpoint);
 
             return endpoint;
         }
 
-        public void Start() => _endpoints.ForEach(endpoint => endpoint.Start());
-        public void Stop() => _endpoints.ForEach(endpoint => endpoint.Stop());
+        public void Start() => Endpoints.ForEach(endpoint => endpoint.Start());
+        public void Stop() => Endpoints.ForEach(endpoint => endpoint.Stop());
 
         void ConnectEndpoint(IEndpoint endpoint)
         {
@@ -48,7 +48,7 @@ namespace Composable.Messaging.Buses
             var currentQueryHandlers = currentRegistry._queryHandlers.ToArray();
             var currentEventRegistrations = currentRegistry._eventHandlerRegistrations.ToArray();
 
-            foreach(var otherEndpoint in _endpoints)
+            foreach(var otherEndpoint in Endpoints)
             {
                 var otherRegistry = otherEndpoint.ServiceLocator.Resolve<MessageHandlerRegistry>();
 
@@ -69,7 +69,7 @@ namespace Composable.Messaging.Buses
                 _disposed = true;
                 Stop();
 
-                var exceptions = _endpoints
+                var exceptions = Endpoints
                     .SelectMany(endpoint => endpoint.ServiceLocator
                                                     .Resolve<TestingOnlyInterprocessServiceBus>().ThrownExceptions)
                     .ToList();

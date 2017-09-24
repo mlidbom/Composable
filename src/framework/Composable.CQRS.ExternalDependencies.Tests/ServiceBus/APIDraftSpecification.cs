@@ -1,9 +1,12 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading;
+using System.Threading.Tasks;
+using Composable.DDD;
 using Composable.DependencyInjection;
 using Composable.Messaging;
 using Composable.Messaging.Buses;
 using Composable.Messaging.Commands;
-using Composable.Testing.Threading;
+using Composable.Persistence.EventStore;
 using FluentAssertions;
 using Xunit;
 
@@ -13,31 +16,31 @@ namespace Composable.CQRS.Tests.ServiceBus
     {
         [Fact] async Task SettingUpAHost()
         {
+            var aggregateId = Guid.NewGuid();
+
             using(var host = EndpointHost.Testing.CreateHost())
             {
-                var commandReceivedGate = ThreadGate.CreateOpenWithTimeout(10.Milliseconds());
-                var eventReceivedGate = ThreadGate.CreateOpenWithTimeout(10.Milliseconds());
-
                 host.RegisterEndpoint(endpointBuilder =>
                 {
-                    endpointBuilder.MessageHandlerRegistrar.RegisterCommandHandler((MyCommand command) =>
-                    {
-                        commandReceivedGate.AwaitPassthrough();
-                        endpointBuilder.Container.CreateServiceLocator().Resolve<IInterProcessServiceBus>().Publish(new MyEvent());
-                    });
-                    endpointBuilder.MessageHandlerRegistrar.RegisterQueryHandler((MyQuery query) => new QueryResult());
+                    endpointBuilder.MessageHandlerRegistrar.RegisterCommandHandler(
+                        (MyCommand command) => endpointBuilder.Container.CreateServiceLocator().Resolve<IInterProcessServiceBus>().Publish(
+                            new MyEvent()));
+
+                    QueryResult queryResult = null;
+                    endpointBuilder.MessageHandlerRegistrar.RegisterEventHandler((MyEvent @event) => queryResult = new QueryResult());
+
+                    endpointBuilder.MessageHandlerRegistrar.RegisterQueryHandler((MyQuery query) => queryResult);
                 });
 
                 host.Start();
 
-                var clientEndpoint = host.RegisterEndpoint(endpointBuilder => endpointBuilder.MessageHandlerRegistrar.RegisterEventHandler((MyEvent @event) => eventReceivedGate.AwaitPassthrough()));
+                var clientEndpoint = host.RegisterEndpoint(_ => {});
 
                 var clientBus = clientEndpoint.ServiceLocator.Resolve<IInterProcessServiceBus>();
 
                 clientBus.Send(new MyCommand());
 
-                commandReceivedGate.AwaitPassedThroughCountEqualTo(1);
-                eventReceivedGate.AwaitPassedThroughCountEqualTo(1);
+                Thread.Sleep(500);
 
                 var result = clientBus.Query(new MyQuery());
                 result.Should().NotBeNull();
@@ -48,8 +51,11 @@ namespace Composable.CQRS.Tests.ServiceBus
         }
     }
 
-    class MyEvent : IEvent {}
-    class QueryResult : IQueryResult {}
+    class MyEvent : AggregateRootEvent {}
+    class QueryResult : IQueryResult, IHasPersistentIdentity<Guid>
+    {
+        public Guid Id { get; set; }
+    }
     class MyQuery : IQuery<QueryResult> {}
     class MyCommand : Command {}
 }

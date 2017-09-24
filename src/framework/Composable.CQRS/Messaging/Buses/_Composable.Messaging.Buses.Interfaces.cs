@@ -24,6 +24,7 @@ namespace Composable.Messaging.Buses
         void Send(ICommand command);
         void Start();
         void Stop();
+        void AwaitNoMessagesInFlight();
     }
 
     public interface IMessageSpy

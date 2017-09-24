@@ -8,6 +8,7 @@ namespace Composable.Messaging.Buses
         IServiceLocator ServiceLocator { get; }
         void Start();
         void Stop();
+        void AwaitNoMessagesInFlight();
     }
 
     interface IEndpointBuilder
@@ -23,5 +24,8 @@ namespace Composable.Messaging.Buses
         void Stop();
     }
 
-    interface ITestingEndpointHost : IEndpointHost { }
+    interface ITestingEndpointHost : IEndpointHost
+    {
+        void WaitForEndpointsToBeAtRest();
+    }
 }

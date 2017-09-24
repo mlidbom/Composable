@@ -9,6 +9,7 @@ namespace Composable.Messaging.Buses
 
         public void Start() => Bus.Start();
         public void Stop() => Bus.Stop();
+        public void AwaitNoMessagesInFlight() => Bus.AwaitNoMessagesInFlight();
         public void Dispose() => Bus.Dispose();
 
         IInterProcessServiceBus Bus { get { return ServiceLocator.Resolve<IInterProcessServiceBus>(); } }

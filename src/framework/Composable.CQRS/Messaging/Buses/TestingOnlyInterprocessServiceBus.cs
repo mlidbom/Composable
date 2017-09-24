@@ -105,6 +105,6 @@ namespace Composable.Messaging.Buses
                 function: () => _inProcessServiceBus.Get(query));
 
         public Task<TResult> QueryAsync<TResult>(IQuery<TResult> query) where TResult : IQueryResult
-            => _resourceGuard.ExecuteWithResourceExclusivelyLocked(function: () => Task.Run(function: () => Query(query)));
+            => Task.Run(() => Query(query));
     }
 }

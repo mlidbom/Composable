@@ -53,6 +53,7 @@ namespace Composable.Messaging.Buses
                     }
                 }
             }
+            // ReSharper disable once FunctionNeverReturns
         }
 
         void SendDueMessages(DateTime currentTime)

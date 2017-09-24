@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Threading;
-using System.Threading.Tasks;
 using Composable.Testing.Threading;
 using FluentAssertions;
 using Xunit;
@@ -70,7 +68,7 @@ namespace Composable.Tests.System.Threading
             var threadOneWaitsOnLockSection = GatedCodeSection.WithTimeout(5.Seconds()).Open();
             var threadTwoHasAquiredLockAndWishesToReleaseItGate = ThreadGate.CreateClosedWithTimeout(5.Seconds());
 
-            var waitTimeout = TimeSpan.FromMilliseconds((long)int.MaxValue);
+            var waitTimeout = TimeSpan.FromMilliseconds(int.MaxValue);
 
             bool waitSucceeded = false;
             using (var taskRunner = TestingTaskRunner.WithTimeout(1.Seconds()))
@@ -106,35 +104,5 @@ namespace Composable.Tests.System.Threading
         }
 
         //[Fact] void MonitorHangs() => Test.Main();
-    }
-
-    class Test
-    {
-        static object foo = new object();
-
-        public static void Main()
-        {
-            new Thread(AcquireAndWait).Start();
-            Thread.Sleep(200);
-
-            while(true)
-            {
-                lock(foo)
-                {
-                    Console.WriteLine("First thread sleeping");
-                    Thread.Sleep(500);
-                }
-            }
-        }
-
-        static void AcquireAndWait()
-        {
-            lock(foo)
-            {
-                Console.WriteLine("Second thread waiting");
-                Monitor.Wait(foo, 1000);
-                Console.WriteLine("Second thread finished waiting");
-            }
-        }
     }
 }

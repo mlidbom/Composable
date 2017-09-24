@@ -18,6 +18,9 @@ namespace Composable.System.Threading.ResourceAccess
     {
         void SendUpdateNotificationToOneThreadAwaitingUpdateNotification();
         void SendUpdateNotificationToAllThreadsAwaitingUpdateNotification();
+
+        //todo: These two timeouts are fundamentally different from the timeout waiting to get a lock.
+        //Consider a better design. They should probably not share the default timeout designed for lock aquisition.
         void ReleaseLockAwaitUpdateNotificationAndAwaitExclusiveLock(TimeSpan? timeoutOverride = null);
         bool TryReleaseLockAwaitUpdateNotificationAndAwaitExclusiveLock(TimeSpan? timeoutOverride = null);
     }

@@ -45,6 +45,25 @@ namespace Composable.System.Threading.ResourceAccess
             }
         }
 
+        public static void ExecuteWithResourceExclusivelyLockedAndNotifyWaitingThreadsAboutUpdate(this IExclusiveResourceAccessGuard @this, Action action)
+        {
+            using (var @lock = @this.AwaitExclusiveLock())
+            {
+                action();
+                @lock.SendUpdateNotificationToAllThreadsAwaitingUpdateNotification();
+            }
+        }
+
+        public static TResult ExecuteWithResourceExclusivelyLockedAndNotifyWaitingThreadsAboutUpdate<TResult>(this IExclusiveResourceAccessGuard @this, Func<TResult> action)
+        {
+            using (var @lock = @this.AwaitExclusiveLock())
+            {
+                var result = action();
+                @lock.SendUpdateNotificationToAllThreadsAwaitingUpdateNotification();
+                return result;
+            }
+        }
+
         public static void ExecuteWithResourceExclusivelyLocked(this IExclusiveResourceAccessGuard @lock, Action action)
         {
             using(@lock.AwaitExclusiveLock())
@@ -57,6 +76,19 @@ namespace Composable.System.Threading.ResourceAccess
         {
             using(@lock.AwaitExclusiveLock())
             {
+                return function();
+            }
+        }
+
+        public static TResult ExecuteWithResourceExclusivelyLockedWhen<TResult>(this IExclusiveResourceAccessGuard @this, Func<bool> condition, Func<TResult> function)
+        {
+            using (var @lock = @this.AwaitExclusiveLock())
+            {
+                while(!condition())
+                {
+                    @lock.ReleaseLockAwaitUpdateNotificationAndAwaitExclusiveLock();
+                }
+
                 return function();
             }
         }

@@ -18,7 +18,7 @@ namespace Composable.Testing.Threading
                 () =>
                 {
                     @this.AssertIsEmpty();
-                    @this.EntranceGate.LetOneThreadPass();
+                    @this.EntranceGate.AwaitLetOneThreadPassthrough();
                 });
 
         public static IGatedCodeSection LetOneThreadEnterAndReachExit(this IGatedCodeSection @this)
@@ -34,8 +34,16 @@ namespace Composable.Testing.Threading
                 () =>
                 {
                     @this.LetOneThreadEnterAndReachExit();
-                    @this.ExitGate.LetOneThreadPass();
+                    @this.ExitGate.AwaitLetOneThreadPassthrough();
                 });
+
+        public static void Execute(this IGatedCodeSection @this, Action action)
+        {
+            using(@this.Enter())
+            {
+                action();
+            }
+        }
 
         public static bool IsEmpty(this IGatedCodeSection @this)
             => @this.WithExclusiveLock(() => @this.EntranceGate.Passed == @this.ExitGate.Passed);

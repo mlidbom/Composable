@@ -17,7 +17,7 @@ namespace Composable.Testing.Threading
         IThreadGate Open();
 
         ///<summary>Lets a single thread pass.</summary>
-        IThreadGate LetOneThreadPass();
+        IThreadGate AwaitLetOneThreadPassthrough();
 
         ///<summary>Blocks all threads from passing.</summary>
         IThreadGate Close();

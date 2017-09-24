@@ -47,7 +47,7 @@ namespace Composable.DependencyInjection.Testing
                            Component.For<IInProcessServiceBus, IMessageSpy>()
                                     .UsingFactoryMethod(_ => inprocessBus)
                                     .LifestyleSingleton(),
-                           Component.For<IInterProcessServiceBus>()
+                           Component.For<IInterProcessServiceBus, TestingOnlyInterprocessServiceBus>()
                                     .UsingFactoryMethod(factoryMethod: _ => testingOnlyServiceBus)
                                     .LifestyleSingleton(),
                            Component.For<ISqlConnectionProvider>()

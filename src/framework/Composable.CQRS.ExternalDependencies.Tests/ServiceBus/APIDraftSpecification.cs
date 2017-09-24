@@ -93,6 +93,16 @@ namespace Composable.CQRS.Tests.ServiceBus
             if(!_disposed)
             {
                 _disposed = true;
+                var exceptions = _endpoints
+                    .SelectMany(endpoint => endpoint.ServiceLocator
+                                                    .Resolve<TestingOnlyInterprocessServiceBus>().ThrownExceptions)
+                    .ToList();
+
+                if(exceptions.Any())
+                {
+                    throw new AggregateException("Unhandled exceptions thrown in bus", exceptions.ToArray());
+                }
+
             }
         }
     }
@@ -133,7 +143,7 @@ namespace Composable.CQRS.Tests.ServiceBus
                                 Component.For<IInProcessServiceBus, IMessageSpy>()
                                          .UsingFactoryMethod(_ => inprocessBus)
                                          .LifestyleSingleton(),
-                                Component.For<IInterProcessServiceBus>()
+                                Component.For<IInterProcessServiceBus, TestingOnlyInterprocessServiceBus>()
                                          .UsingFactoryMethod(factoryMethod: _ => testingOnlyServiceBus)
                                          .LifestyleSingleton());
         }

@@ -33,7 +33,7 @@ namespace Composable.Testing.Threading
             return this;
         }
 
-        public IThreadGate LetOneThreadPass()
+        public IThreadGate AwaitLetOneThreadPassthrough()
         {
             using(var ownedLock = _resourceGuard.AwaitExclusiveLock())
             {

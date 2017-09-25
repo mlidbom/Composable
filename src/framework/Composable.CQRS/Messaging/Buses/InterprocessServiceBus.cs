@@ -112,12 +112,20 @@ namespace Composable.Messaging.Buses
         {
             while(!_cancellationTokenSource.Token.IsCancellationRequested)
             {
-                DispatchingTask dispatchingTask = null;
+                DispatchingTask dispatchingTask;
                 try
                 {
                     dispatchingTask = _dispatchingTasks.Take(_cancellationTokenSource.Token);
+                }
+                catch(OperationCanceledException)
+                {
+                    return;
+                }
+
+                try
+                {
                     dispatchingTask.DispatchMessageTask.RunSynchronously();
-                    _globalStateTracker.ResourceGuard.ExecuteWithResourceExclusivelyLockedAndNotifyWaitingThreadsAboutUpdate(() =>
+                    _globalStateTracker.ResourceGuard.ExecuteWithResourceExclusivelyLocked(() =>
                     {
                         _queuedTasks.Remove(dispatchingTask);
                         dispatchingTask.MessageDispatchingTracker.Succeeded();
@@ -127,19 +135,12 @@ namespace Composable.Messaging.Buses
                 {
                     return;
                 }
-                catch(OperationCanceledException)
-                {
-                    return;
-                }
                 catch(Exception exception)
                 {
-                    _globalStateTracker.ResourceGuard.ExecuteWithResourceExclusivelyLockedAndNotifyWaitingThreadsAboutUpdate(() =>
+                    _globalStateTracker.ResourceGuard.ExecuteWithResourceExclusivelyLocked(() =>
                     {
-                        if(dispatchingTask != null)
-                        {
-                            _queuedTasks.Remove(dispatchingTask);
-                            dispatchingTask.MessageDispatchingTracker.Failed();
-                        }
+                        _queuedTasks.Remove(dispatchingTask);
+                        dispatchingTask.MessageDispatchingTracker.Failed();
                         _thrownExceptions.Add(exception);
                     });
                 }
@@ -182,7 +183,7 @@ namespace Composable.Messaging.Buses
         public void Dispose() { _managedResources.Dispose(); }
 
         public void Publish(IEvent anEvent) =>
-            _globalStateTracker.ResourceGuard.ExecuteWithResourceExclusivelyLockedAndNotifyWaitingThreadsAboutUpdate(
+            _globalStateTracker.ResourceGuard.ExecuteWithResourceExclusivelyLocked(
                 () =>
                 {
                     var messageDispatchingTracker = _globalStateTracker.QueuedMessage(anEvent, null);
@@ -190,7 +191,7 @@ namespace Composable.Messaging.Buses
                 });
 
         public void Send(ICommand command) =>
-            _globalStateTracker.ResourceGuard.ExecuteWithResourceExclusivelyLockedAndNotifyWaitingThreadsAboutUpdate(
+            _globalStateTracker.ResourceGuard.ExecuteWithResourceExclusivelyLocked(
                 () =>
                 {
                     var messageDispatchingTracker = _globalStateTracker.QueuedMessage(command, null);
@@ -200,7 +201,7 @@ namespace Composable.Messaging.Buses
         public TResult Query<TResult>(IQuery<TResult> query) where TResult : IQueryResult => QueryAsync(query).Result;
 
         public Task<TResult> QueryAsync<TResult>(IQuery<TResult> query) where TResult : IQueryResult
-            => _globalStateTracker.ResourceGuard.ExecuteWithResourceExclusivelyLockedAndNotifyWaitingThreadsAboutUpdate(
+            => _globalStateTracker.ResourceGuard.ExecuteWithResourceExclusivelyLocked(
                 () =>
                 {
                     var messageDispatchingTracker = _globalStateTracker.QueuedMessage(query, null);

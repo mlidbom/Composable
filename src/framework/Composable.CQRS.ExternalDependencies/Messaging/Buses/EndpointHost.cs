@@ -78,7 +78,6 @@ namespace Composable.Messaging.Buses
 
         protected virtual void InternalDispose()
         {
-            _disposed = true;
             Stop();
         }
 

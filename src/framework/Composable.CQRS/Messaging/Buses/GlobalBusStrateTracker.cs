@@ -1,6 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
-using Composable.System;
 using Composable.System.Threading.ResourceAccess;
 using JetBrains.Annotations;
 
@@ -10,16 +10,23 @@ namespace Composable.Messaging.Buses
     {
         readonly List<IInflightMessage> _inflightMessages = new List<IInflightMessage>();
 
-        //It is never OK for this class to block. So make that explicit with a really strict timeout on all public operations
-        readonly IExclusiveResourceAccessGuard _guard = ResourceAccessGuard.ExclusiveWithTimeout(1.Milliseconds());
+        //It is never OK for this class to block. So make that explicit with a really strict timeout on all operations waiting for access.
+        readonly IExclusiveResourceAccessGuard _guard = ResourceAccessGuard.ExclusiveWithTimeout(TimeSpan.FromTicks(1));
 
         public IGlobalBusStateSnapshot CreateSnapshot()
             => _guard.ExecuteWithResourceExclusivelyLocked(
                 () => new GlobalBusStateSnapshot(_inflightMessages.ToList()));
 
-        public void QueuedMessage(IMessage message, [CanBeNull] IMessage triggeringMessage)
+        public IMessageDispatchingTracker QueuedMessage(IMessage message, [CanBeNull] IMessage triggeringMessage)
             => _guard.ExecuteWithResourceExclusivelyLocked(
-                () => _inflightMessages.Add(new InflightMessage(message, triggeringMessage)));
+                () =>
+                {
+                    var inflightMessage = new InflightMessage(message, triggeringMessage, this);
+                    _inflightMessages.Add(inflightMessage);
+                    return inflightMessage;
+                });
+
+        void DoneWith(IInflightMessage message) => _guard.ExecuteWithResourceExclusivelyLocked(() => _inflightMessages.Remove(message));
 
         class GlobalBusStateSnapshot : IGlobalBusStateSnapshot
         {
@@ -27,15 +34,21 @@ namespace Composable.Messaging.Buses
             public IEnumerable<IInflightMessage> InflightMessages { get; }
         }
 
-        class InflightMessage : IInflightMessage
+        class InflightMessage : IInflightMessage, IMessageDispatchingTracker
         {
-            public InflightMessage(IMessage message, IMessage triggeringMessage)
+            readonly GlobalBusStrateTracker _globalBusStrateTracker;
+            public InflightMessage(IMessage message, IMessage triggeringMessage, GlobalBusStrateTracker globalBusStrateTracker)
             {
+                _globalBusStrateTracker = globalBusStrateTracker;
                 Message = message;
                 TriggeringMessage = triggeringMessage;
             }
             public IMessage Message { get; }
             public IMessage TriggeringMessage { get; }
+
+            public void Succeeded() => _globalBusStrateTracker.DoneWith(this);
+
+            public void Failed() => _globalBusStrateTracker.DoneWith(this);
         }
     }
 }

@@ -112,6 +112,6 @@ namespace Composable.Messaging.Buses
     interface IGlobalBusStrateTracker
     {
         IGlobalBusStateSnapshot CreateSnapshot();
-        void QueuedMessage(IMessage message, IMessage triggeringMessage);
+        IMessageDispatchingTracker QueuedMessage(IMessage message, IMessage triggeringMessage);
     }
 }

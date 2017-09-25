@@ -100,7 +100,7 @@ namespace Composable.Messaging.Buses
                     {
                         globalStateLock.ReleaseLockAwaitUpdateNotificationAndAwaitExclusiveLock(7.Days());
                     }
-                    catch(ThreadInterruptedException)
+                    catch (Exception exception) when (IsShuttingDownException(exception))
                     {
                         return;
                     }
@@ -117,7 +117,7 @@ namespace Composable.Messaging.Buses
                 {
                     dispatchingTask = _dispatchingTasks.Take(_cancellationTokenSource.Token);
                 }
-                catch(OperationCanceledException)
+                catch(Exception exception) when (IsShuttingDownException(exception))
                 {
                     return;
                 }
@@ -131,7 +131,7 @@ namespace Composable.Messaging.Buses
                         dispatchingTask.MessageDispatchingTracker.Succeeded();
                     });
                 }
-                catch(ThreadInterruptedException)
+                catch(Exception exception) when (IsShuttingDownException(exception))
                 {
                     return;
                 }
@@ -146,6 +146,8 @@ namespace Composable.Messaging.Buses
                 }
             }
         }
+
+        static bool IsShuttingDownException(Exception exception) => exception is OperationCanceledException || exception is ThreadInterruptedException;
 
         bool TryGetDispatchableMessages(out DispatchingTask dispatchingTask)
         {
@@ -209,5 +211,7 @@ namespace Composable.Messaging.Buses
                     _queuedTasks.Add(new DispatchingTask(query, messageDispatchingTracker, dispatchMessageTask));
                     return dispatchMessageTask;
                 });
+
+        public override string ToString() => _name;
     }
 }

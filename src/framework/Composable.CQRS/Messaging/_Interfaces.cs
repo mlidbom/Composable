@@ -24,9 +24,10 @@ namespace Composable.Messaging
     /// </summary>
     public interface IEvent : IMessage {}
 
+    public interface IQuery : IMessage {}
 
     ///<summary>An <see cref="IMessage"/> that instructs the receiver to return some data.</summary>
-    public interface IQuery<TResult> : IMessage where TResult : IQueryResult {}
+    public interface IQuery<TResult> : IMessage, IQuery where TResult : IQueryResult {}
 
     ///<summary>Represent an entity within the domain of the current API that is uniquely identifiable through a query.</summary>
     public interface IResource<TResource> : IQueryResult where TResource : IResource<TResource>

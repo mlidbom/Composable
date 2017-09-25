@@ -16,8 +16,6 @@ namespace Composable.CQRS.Tests.ServiceBus
     {
         [Fact] async Task SettingUpAHost()
         {
-            var aggregateId = Guid.NewGuid();
-
             using(var host = EndpointHost.Testing.CreateHost())
             {
                 host.RegisterEndpoint(endpointBuilder =>

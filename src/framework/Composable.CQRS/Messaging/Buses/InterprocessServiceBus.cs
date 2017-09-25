@@ -10,20 +10,26 @@ using Composable.System.Threading.ResourceAccess;
 
 namespace Composable.Messaging.Buses
 {
-    class TestingOnlyInterprocessServiceBus : IInterProcessServiceBus, IDisposable
+    partial class InterprocessServiceBus : IInterProcessServiceBus
     {
         readonly DummyTimeSource _timeSource;
         readonly IInProcessServiceBus _inProcessServiceBus;
         readonly List<ScheduledMessage> _scheduledMessages = new List<ScheduledMessage>();
-        readonly Queue<Task> _dispatchingTasks = new Queue<Task>();
+        readonly List<DispatchingTask> _dispatchingTasks = new List<DispatchingTask>();
+
         readonly IDisposable _managedResources;
         readonly IExclusiveResourceAccessGuard _resourceGuard;
         readonly IList<Exception> _thrownExceptions = new List<Exception>();
         readonly CancellationTokenSource _cancellationTokenSource;
 
+        readonly IReadOnlyList<IMessageDispatchingRule> _dispatchingRules = new List<IMessageDispatchingRule>()
+                                                                            {
+                                                                                new QueriesExecuteAfterAllCommandsAndEventsAreDone()
+                                                                            };
+
         public IReadOnlyList<Exception> ThrownExceptions => _thrownExceptions.ToList();
 
-        public TestingOnlyInterprocessServiceBus(DummyTimeSource timeSource, IInProcessServiceBus inProcessServiceBus)
+        public InterprocessServiceBus(DummyTimeSource timeSource, IInProcessServiceBus inProcessServiceBus)
         {
             _timeSource = timeSource;
             _cancellationTokenSource = new CancellationTokenSource();
@@ -43,20 +49,27 @@ namespace Composable.Messaging.Buses
             {
                 while(!_cancellationTokenSource.IsCancellationRequested)
                 {
-                    exclusiveAccess.ReleaseLockAwaitUpdateNotificationAndAwaitExclusiveLock(7.Days());
-                    if(_dispatchingTasks.Count > 0)
+                    var state = new BusStateSnapshot(this);
+                    DispatchingTask dispatchingTask;
+                    while(null != (dispatchingTask = _dispatchingTasks.FirstOrDefault(task => CanBeDispatched(state, task))))
+                    {
                         try
                         {
-                            _dispatchingTasks.Dequeue().RunSynchronously();
+                            dispatchingTask.DispatchMessageTask.RunSynchronously();
+                            _dispatchingTasks.Remove(dispatchingTask);
                         }
                         catch(Exception exception)
                         {
                             _thrownExceptions.Add(exception);
                         }
+                    }
+                    exclusiveAccess.ReleaseLockAwaitUpdateNotificationAndAwaitExclusiveLock(7.Days());
                 }
             }
             // ReSharper disable once FunctionNeverReturns
         }
+
+        bool CanBeDispatched(BusStateSnapshot state, DispatchingTask task) => _dispatchingRules.All(rule => rule.CanBeDispatched(state, task.Message));
 
         void SendDueMessages(DateTime currentTime)
         {
@@ -77,27 +90,15 @@ namespace Composable.Messaging.Buses
             }
         }
 
-        class ScheduledMessage
-        {
-            public DateTime SendAt { get; }
-            public ICommand Message { get; }
-
-            public ScheduledMessage(DateTime sendAt, ICommand message)
-            {
-                SendAt = sendAt.SafeToUniversalTime();
-                Message = message;
-            }
-        }
-
         public void Dispose() { _managedResources.Dispose(); }
 
         public void Publish(IEvent anEvent) =>
             _resourceGuard.ExecuteWithResourceExclusivelyLockedAndNotifyWaitingThreadsAboutUpdate(
-                action: () => _dispatchingTasks.Enqueue(new Task(action: () => _inProcessServiceBus.Publish(anEvent))));
+                action: () => _dispatchingTasks.Add(new DispatchingTask(anEvent, () => _inProcessServiceBus.Publish(anEvent))));
 
         public void Send(ICommand command) =>
             _resourceGuard.ExecuteWithResourceExclusivelyLockedAndNotifyWaitingThreadsAboutUpdate(
-                action: () => _dispatchingTasks.Enqueue(new Task(action: () => _inProcessServiceBus.Send(command))));
+                action: () => _dispatchingTasks.Add(new DispatchingTask(command, () => _inProcessServiceBus.Send(command))));
 
         public TResult Query<TResult>(IQuery<TResult> query) where TResult : IQueryResult
             => _resourceGuard.ExecuteWithResourceExclusivelyLockedWhen(

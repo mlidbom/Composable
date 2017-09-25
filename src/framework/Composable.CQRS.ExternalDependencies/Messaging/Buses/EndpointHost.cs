@@ -71,7 +71,7 @@ namespace Composable.Messaging.Buses
 
                 var exceptions = Endpoints
                     .SelectMany(endpoint => endpoint.ServiceLocator
-                                                    .Resolve<TestingOnlyInterprocessServiceBus>().ThrownExceptions)
+                                                    .Resolve<InterprocessServiceBus>().ThrownExceptions)
                     .ToList();
 
                 if(exceptions.Any())

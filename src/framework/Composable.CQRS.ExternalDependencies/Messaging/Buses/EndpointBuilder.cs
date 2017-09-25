@@ -19,7 +19,7 @@ namespace Composable.Messaging.Buses
 
             var dummyTimeSource = DummyTimeSource.Now;
             var inprocessBus = new InProcessServiceBus(_registry);
-            var testingOnlyServiceBus = new TestingOnlyInterprocessServiceBus(dummyTimeSource, inprocessBus);
+            var testingOnlyServiceBus = new InterprocessServiceBus(dummyTimeSource, inprocessBus);
 
             _container.Register(Component.For<ISingleContextUseGuard>()
                                          .ImplementedBy<SingleThreadUseGuard>()
@@ -37,7 +37,7 @@ namespace Composable.Messaging.Buses
                                 Component.For<IInProcessServiceBus, IMessageSpy>()
                                          .UsingFactoryMethod(_ => inprocessBus)
                                          .LifestyleSingleton(),
-                                Component.For<IInterProcessServiceBus, TestingOnlyInterprocessServiceBus>()
+                                Component.For<IInterProcessServiceBus, InterprocessServiceBus>()
                                          .UsingFactoryMethod(factoryMethod: _ => testingOnlyServiceBus)
                                          .LifestyleSingleton());
         }

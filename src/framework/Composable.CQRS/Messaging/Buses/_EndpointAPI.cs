@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Composable.DependencyInjection;
 
 namespace Composable.Messaging.Buses
@@ -27,5 +28,16 @@ namespace Composable.Messaging.Buses
     interface ITestingEndpointHost : IEndpointHost
     {
         void WaitForEndpointsToBeAtRest();
+    }
+
+    interface IBusStateSnapshot
+    {
+        IReadOnlyList<IMessage> LocallyQueued { get; }
+        IReadOnlyList<IMessage> LocallyExecuting { get; }
+    }
+
+    interface IMessageDispatchingRule
+    {
+        bool CanBeDispatched(IBusStateSnapshot busState, IMessage message);
     }
 }

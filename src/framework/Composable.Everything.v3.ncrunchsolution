@@ -1,6 +1,7 @@
 ﻿<SolutionConfiguration>
   <Settings>
     <AllowParallelTestExecution>True</AllowParallelTestExecution>
+    <AllowTestsToRunInParallelWithThemselves>True</AllowTestsToRunInParallelWithThemselves>
     <SolutionConfigured>True</SolutionConfigured>
   </Settings>
   <EngineModes>

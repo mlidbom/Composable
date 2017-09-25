@@ -29,9 +29,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Reference Include="Composable.CQRS">
-      <HintPath>..\..\Samples\AccountManagement\AccountManagement.Domain\bin\Debug\net461\Composable.CQRS.dll</HintPath>
-    </Reference>
     <Reference Include="System.ComponentModel.DataAnnotations">
       <HintPath>..\..\..\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.5\System.ComponentModel.DataAnnotations.dll</HintPath>
     </Reference>

@@ -24,7 +24,7 @@ namespace Composable.DependencyInjection.Testing
             }
             var dummyTimeSource = DummyTimeSource.Now;
             var registry = new MessageHandlerRegistry();
-            
+
             var inprocessBus = new InProcessServiceBus(registry);
 
             var globalStateTracker = new GlobalBusStrateTracker();

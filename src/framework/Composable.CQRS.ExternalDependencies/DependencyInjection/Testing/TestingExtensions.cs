@@ -28,7 +28,7 @@ namespace Composable.DependencyInjection.Testing
             var inprocessBus = new InProcessServiceBus(registry);
 
             var globalStateTracker = new GlobalBusStrateTracker();
-            var serviceBus = new InterprocessServiceBus(dummyTimeSource, inprocessBus, globalStateTracker);
+            var serviceBus = new InterprocessServiceBus("testendpoint", dummyTimeSource, inprocessBus, globalStateTracker);
             var runMode = new RunMode(isTesting:true, mode:mode);
 
             @this.Register(Component.For<IRunMode>()

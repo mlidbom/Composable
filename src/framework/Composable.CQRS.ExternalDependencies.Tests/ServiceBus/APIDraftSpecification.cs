@@ -18,7 +18,7 @@ namespace Composable.CQRS.Tests.ServiceBus
         {
             using(var host = EndpointHost.Testing.CreateHost())
             {
-                host.RegisterEndpoint(endpointBuilder =>
+                host.RegisterEndpoint("Backend", endpointBuilder =>
                 {
                     endpointBuilder.MessageHandlerRegistrar.RegisterCommandHandler(
                         (MyCommand command) => endpointBuilder.Container.CreateServiceLocator().Resolve<IInterProcessServiceBus>().Publish(
@@ -30,9 +30,9 @@ namespace Composable.CQRS.Tests.ServiceBus
                     endpointBuilder.MessageHandlerRegistrar.RegisterQueryHandler((MyQuery query) => queryResult);
                 });
 
-                host.Start();
+                var clientEndpoint = host.RegisterEndpoint("client", _ => {});
 
-                var clientEndpoint = host.RegisterEndpoint(_ => {});
+                host.Start();
 
                 var clientBus = clientEndpoint.ServiceLocator.Resolve<IInterProcessServiceBus>();
 

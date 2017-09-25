@@ -1,6 +1,4 @@
-﻿using System;
-using Composable.Messaging.Events;
-using Composable.Persistence.EventStore;
+﻿using Composable.Messaging.Events;
 using FluentAssertions;
 using Xunit;
 // ReSharper disable InconsistentNaming
@@ -80,27 +78,23 @@ namespace Composable.CQRS.Tests.CQRS.EventHandling
                 }
             }
 
-            interface IUserEvent : IAggregateRootEvent {}
+            interface IUserEvent {}
             interface IUserCreatedEvent : IUserEvent {}
-            interface IUserRegistered : IUserCreatedEvent, IAggregateRootCreatedEvent {}
+            interface IUserRegistered : IUserCreatedEvent{}
             interface IUserSkillsEvent : IUserEvent {}
             interface IUserSkillsAdded : IUserSkillsEvent {}
             interface IUserSkillsRemoved : IUserSkillsEvent {}
             interface IIgnoredUserEvent : IUserEvent {}
 
-            class UnHandledUserEvent : AggregateRootEvent, IUserEvent {}
+            class UnHandledUserEvent : IUserEvent {}
 
-            class IgnoredUserEvent : AggregateRootEvent, IIgnoredUserEvent {}
+            class IgnoredUserEvent : IIgnoredUserEvent {}
 
-            class UserCreatedEvent : AggregateRootEvent, IUserCreatedEvent
-            {
-                public UserCreatedEvent() : base(Guid.NewGuid()) {}
-            }
+            class UserCreatedEvent : IUserCreatedEvent
+            {}
 
-            class UserRegistered : AggregateRootEvent, IUserRegistered
-            {
-                public UserRegistered() : base(Guid.NewGuid()) {}
-            }
+            class UserRegistered : IUserRegistered
+            {}
         }
     }
 }

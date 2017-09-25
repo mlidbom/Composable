@@ -38,12 +38,10 @@ namespace Composable.CQRS.Tests.ServiceBus
 
                 clientBus.Send(new MyCommand());
 
-                Thread.Sleep(500);
-
-                var result = clientBus.Query(new MyQuery());
+                var result = await clientBus.QueryAsync(new MyQuery());
                 result.Should().NotBeNull();
 
-                result = await clientBus.QueryAsync(new MyQuery());
+                result = clientBus.Query(new MyQuery());
                 result.Should().NotBeNull();
             }
         }

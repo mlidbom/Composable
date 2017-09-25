@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -16,12 +17,14 @@ namespace Composable.Messaging.Buses
         readonly IInProcessServiceBus _inProcessServiceBus;
         readonly IGlobalBusStrateTracker _globalStateTracker;
         readonly List<ScheduledMessage> _scheduledMessages = new List<ScheduledMessage>();
-        readonly List<DispatchingTask> _dispatchingTasks = new List<DispatchingTask>();
+        readonly List<DispatchingTask> _queuedTasks = new List<DispatchingTask>();
 
         readonly IDisposable _managedResources;
         readonly IExclusiveResourceAccessGuard _resourceGuard;
         readonly IList<Exception> _thrownExceptions = new List<Exception>();
         readonly CancellationTokenSource _cancellationTokenSource;
+
+        readonly BlockingCollection<DispatchingTask> _dispatchingTasks = new BlockingCollection<DispatchingTask>();
 
         readonly IReadOnlyList<IMessageDispatchingRule> _dispatchingRules = new List<IMessageDispatchingRule>()
                                                                             {
@@ -41,37 +44,66 @@ namespace Composable.Messaging.Buses
             Start();
         }
 
-        public void Start() => Task.Factory.StartNew(MessagePumpThread_, TaskCreationOptions.LongRunning);
+        public void Start()
+        {
+            Task.Factory.StartNew(MessagePumpThread_, TaskCreationOptions.LongRunning);
+            Task.Factory.StartNew(MessageDispatchThread_, TaskCreationOptions.LongRunning);
+        }
+
         public void Stop() => _cancellationTokenSource.Cancel();
-        public void AwaitNoMessagesInFlight() => _resourceGuard.ExecuteWithResourceExclusivelyLockedWhen(condition: () => _dispatchingTasks.Count == 0, action: () => {});
+        public void AwaitNoMessagesInFlight() => _resourceGuard.ExecuteWithResourceExclusivelyLockedWhen(condition: () => _queuedTasks.Count == 0, action: () => {});
 
         void MessagePumpThread_()
         {
-            using(var exclusiveAccess = _resourceGuard.AwaitExclusiveLock())
+            using(var globalStateLock = _globalStateTracker.ResourceGuard.AwaitExclusiveLock())
             {
                 while(!_cancellationTokenSource.IsCancellationRequested)
                 {
-                    var state = _globalStateTracker.CreateSnapshot();
-                    DispatchingTask dispatchingTask;
-                    while(null != (dispatchingTask = _dispatchingTasks.FirstOrDefault(task => CanBeDispatched(state, task))))
+                    using(_resourceGuard.AwaitExclusiveLock())
                     {
-                        try
+                        while(TryGetDispatchableMessages(out var dispatchingTask))
                         {
-                            dispatchingTask.DispatchMessageTask.RunSynchronously();
-                            _dispatchingTasks.Remove(dispatchingTask);
-                            dispatchingTask.MessageDispatchingTracker.Succeeded();
-                        }
-                        catch(Exception exception)
-                        {
-                            _dispatchingTasks.Remove(dispatchingTask);
-                            dispatchingTask.MessageDispatchingTracker.Failed();
-                            _thrownExceptions.Add(exception);
+                            dispatchingTask.IsDispatching = true;
+                            _dispatchingTasks.Add(dispatchingTask);
                         }
                     }
-                    exclusiveAccess.ReleaseLockAwaitUpdateNotificationAndAwaitExclusiveLock(7.Days());
+
+                    globalStateLock.ReleaseLockAwaitUpdateNotificationAndAwaitExclusiveLock(7.Days());
                 }
             }
-            // ReSharper disable once FunctionNeverReturns
+        }
+
+        void MessageDispatchThread_()
+        {
+            while(!_cancellationTokenSource.Token.IsCancellationRequested)
+            {
+                var dispatchingTask = _dispatchingTasks.Take(_cancellationTokenSource.Token);
+                try
+                {
+                    dispatchingTask.DispatchMessageTask.RunSynchronously();
+                    _resourceGuard.ExecuteWithResourceExclusivelyLockedAndNotifyWaitingThreadsAboutUpdate(() =>
+                    {
+                        _queuedTasks.Remove(dispatchingTask);
+                        dispatchingTask.MessageDispatchingTracker.Succeeded();
+                    });
+                }
+                catch(Exception exception)
+                {
+                    _resourceGuard.ExecuteWithResourceExclusivelyLockedAndNotifyWaitingThreadsAboutUpdate(() =>
+                    {
+                        _queuedTasks.Remove(dispatchingTask);
+                        dispatchingTask.MessageDispatchingTracker.Failed();
+                        _thrownExceptions.Add(exception);
+                    });
+                }
+            }
+        }
+
+        bool TryGetDispatchableMessages(out DispatchingTask dispatchingTask)
+        {
+            var state = _globalStateTracker.CreateSnapshot();
+            dispatchingTask = _queuedTasks.Where(task => !task.IsDispatching).FirstOrDefault(task => CanBeDispatched(state, task));
+            return dispatchingTask != null;
         }
 
         bool CanBeDispatched(IGlobalBusStateSnapshot state, DispatchingTask task) => _dispatchingRules.All(rule => rule.CanBeDispatched(state, task.Message));
@@ -99,26 +131,30 @@ namespace Composable.Messaging.Buses
 
         public void Publish(IEvent anEvent) =>
             _resourceGuard.ExecuteWithResourceExclusivelyLockedAndNotifyWaitingThreadsAboutUpdate(
-                action: () =>
+                () =>
                 {
-                    var messageDispatchingTracker =  _globalStateTracker.QueuedMessage(anEvent, null);
-                    _dispatchingTasks.Add(new DispatchingTask(anEvent, messageDispatchingTracker, () => _inProcessServiceBus.Publish(anEvent)));
+                    var messageDispatchingTracker = _globalStateTracker.QueuedMessage(anEvent, null);
+                    _queuedTasks.Add(new DispatchingTask(anEvent, messageDispatchingTracker, () => _inProcessServiceBus.Publish(anEvent)));
                 });
 
         public void Send(ICommand command) =>
             _resourceGuard.ExecuteWithResourceExclusivelyLockedAndNotifyWaitingThreadsAboutUpdate(
-                action: () =>
+                () =>
                 {
                     var messageDispatchingTracker = _globalStateTracker.QueuedMessage(command, null);
-                    _dispatchingTasks.Add(new DispatchingTask(command, messageDispatchingTracker, () => _inProcessServiceBus.Send(command)));
+                    _queuedTasks.Add(new DispatchingTask(command, messageDispatchingTracker, () => _inProcessServiceBus.Send(command)));
                 });
 
-        public TResult Query<TResult>(IQuery<TResult> query) where TResult : IQueryResult
-            => _resourceGuard.ExecuteWithResourceExclusivelyLockedWhen(
-                condition: () => _dispatchingTasks.Count == 0,
-                function: () => _inProcessServiceBus.Get(query));
+        public TResult Query<TResult>(IQuery<TResult> query) where TResult : IQueryResult => QueryAsync(query).Result;
 
         public Task<TResult> QueryAsync<TResult>(IQuery<TResult> query) where TResult : IQueryResult
-            => Task.Run(() => Query(query));
+            => _resourceGuard.ExecuteWithResourceExclusivelyLockedAndNotifyWaitingThreadsAboutUpdate(
+                () =>
+                {
+                    var messageDispatchingTracker = _globalStateTracker.QueuedMessage(query, null);
+                    var dispatchMessageTask = new Task<TResult>(() => _inProcessServiceBus.Get(query));
+                    _queuedTasks.Add(new DispatchingTask(query, messageDispatchingTracker, dispatchMessageTask));
+                    return dispatchMessageTask;
+                });
     }
 }

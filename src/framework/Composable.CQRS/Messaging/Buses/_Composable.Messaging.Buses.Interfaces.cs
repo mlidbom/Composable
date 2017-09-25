@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Composable.DependencyInjection;
 using Composable.Messaging.Events;
+using Composable.System.Threading.ResourceAccess;
 using JetBrains.Annotations;
 
 namespace Composable.Messaging.Buses
@@ -105,6 +106,7 @@ namespace Composable.Messaging.Buses
 
     interface IGlobalBusStrateTracker
     {
+        IExclusiveResourceAccessGuard ResourceGuard { get; }
         IGlobalBusStateSnapshot CreateSnapshot();
         IMessageDispatchingTracker QueuedMessage(IMessage message, IMessage triggeringMessage);
     }

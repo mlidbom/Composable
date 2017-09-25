@@ -10,12 +10,19 @@ namespace Composable.Messaging.Buses
             public IMessage Message { get; }
             public IMessageDispatchingTracker MessageDispatchingTracker { get; }
             public Task DispatchMessageTask { get; }
+            public bool IsDispatching { get; set; }
 
             public DispatchingTask(IMessage message, IMessageDispatchingTracker messageDispatchingTracker, Action dispatchMessageTask)
+                :this(message, messageDispatchingTracker, new Task(dispatchMessageTask))
+            {
+
+            }
+
+            public DispatchingTask(IMessage message, IMessageDispatchingTracker messageDispatchingTracker, Task dispatchMessageTask)
             {
                 Message = message;
                 MessageDispatchingTracker = messageDispatchingTracker;
-                DispatchMessageTask = new Task(dispatchMessageTask);
+                DispatchMessageTask = dispatchMessageTask;
             }
         }
     }

@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Composable.Contracts;
 using Composable.GenericAbstractions.Time;
 using Composable.System;
+using Composable.System.Linq;
 using Composable.System.Reactive;
 using Composable.System.Threading.ResourceAccess;
 
@@ -32,8 +33,10 @@ namespace Composable.Messaging.Buses
                                                                                 new QueriesExecuteAfterAllCommandsAndEventsAreDone()
                                                                             };
         bool _running;
-        Thread _messagePumpThread;
-        readonly Thread _messageDispatchThread;
+        readonly Thread _messagePumpThread;
+
+        const int DispatchThreadCount = 5;
+        readonly List<Thread> _messageDispatchThread;
 
         public IReadOnlyList<Exception> ThrownExceptions => _thrownExceptions.ToList();
 
@@ -51,10 +54,10 @@ namespace Composable.Messaging.Buses
                                      Name = $"{_name}_MessagePump"
                                  };
 
-            _messageDispatchThread = new Thread(MessageDispatchThread)
-                                     {
-                                         Name = $"{_name}_MessageDispatch"
-                                     };
+            _messageDispatchThread = 1.Through(DispatchThreadCount).Select(index => new Thread(MessageDispatchThread)
+                                                                                    {
+                                                                                        Name = $"{_name}_MessageDispatchThread_{index}"
+                                                                                    }).ToList();
         }
 
         public void Start()
@@ -64,7 +67,7 @@ namespace Composable.Messaging.Buses
                 Contract.Assert.That(!_running, "!_running");
                 _running = true;
                 _messagePumpThread.Start();
-                _messageDispatchThread.Start();
+                _messageDispatchThread.ForEach(thread => thread.Start());
             }
         }
 
@@ -73,9 +76,9 @@ namespace Composable.Messaging.Buses
             Contract.Assert.That(_running, "_running");
             _running = false;
             _cancellationTokenSource.Cancel();
-            _messageDispatchThread.Interrupt();
+            _messageDispatchThread.ForEach(thread => thread.Interrupt());
             _messagePumpThread.Interrupt();
-            _messageDispatchThread.Join();
+            _messageDispatchThread.ForEach(thread => thread.Join());
             _messagePumpThread.Join();
         }
 
@@ -87,12 +90,11 @@ namespace Composable.Messaging.Buses
             {
                 while(!_cancellationTokenSource.Token.IsCancellationRequested)
                 {
-
-                        while(TryGetDispatchableMessages(out var dispatchingTask))
-                        {
-                            dispatchingTask.IsDispatching = true;
-                            _dispatchingTasks.Add(dispatchingTask);
-                        }
+                    while(TryGetDispatchableMessages(out var dispatchingTask))
+                    {
+                        dispatchingTask.IsDispatching = true;
+                        _dispatchingTasks.Add(dispatchingTask);
+                    }
 
                     try
                     {
@@ -110,18 +112,10 @@ namespace Composable.Messaging.Buses
         {
             while(!_cancellationTokenSource.Token.IsCancellationRequested)
             {
-                DispatchingTask dispatchingTask;
+                DispatchingTask dispatchingTask = null;
                 try
                 {
                     dispatchingTask = _dispatchingTasks.Take(_cancellationTokenSource.Token);
-                }
-                catch (OperationCanceledException)
-                {
-                    break;
-                }
-
-                try
-                {
                     dispatchingTask.DispatchMessageTask.RunSynchronously();
                     _globalStateTracker.ResourceGuard.ExecuteWithResourceExclusivelyLockedAndNotifyWaitingThreadsAboutUpdate(() =>
                     {
@@ -133,12 +127,19 @@ namespace Composable.Messaging.Buses
                 {
                     return;
                 }
-                catch (Exception exception)
+                catch(OperationCanceledException)
+                {
+                    return;
+                }
+                catch(Exception exception)
                 {
                     _globalStateTracker.ResourceGuard.ExecuteWithResourceExclusivelyLockedAndNotifyWaitingThreadsAboutUpdate(() =>
                     {
-                        _queuedTasks.Remove(dispatchingTask);
-                        dispatchingTask.MessageDispatchingTracker.Failed();
+                        if(dispatchingTask != null)
+                        {
+                            _queuedTasks.Remove(dispatchingTask);
+                            dispatchingTask.MessageDispatchingTracker.Failed();
+                        }
                         _thrownExceptions.Add(exception);
                     });
                 }

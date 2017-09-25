@@ -27,7 +27,6 @@ namespace Composable.Messaging.Buses
         void Send(ICommand command);
         void Start();
         void Stop();
-        void AwaitNoMessagesInFlight();
     }
 
     public interface IMessageSpy
@@ -109,5 +108,6 @@ namespace Composable.Messaging.Buses
         IExclusiveResourceAccessGuard ResourceGuard { get; }
         IGlobalBusStateSnapshot CreateSnapshot();
         IMessageDispatchingTracker QueuedMessage(IMessage message, IMessage triggeringMessage);
+        void AwaitNoMessagesInFlight();
     }
 }

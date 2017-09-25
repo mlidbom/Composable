@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Composable.System.Linq;
 using Composable.System.Threading.ResourceAccess;
 using JetBrains.Annotations;
 
@@ -27,6 +28,8 @@ namespace Composable.Messaging.Buses
                     _inflightMessages.Add(inflightMessage);
                     return inflightMessage;
                 });
+
+        public void AwaitNoMessagesInFlight() => _guard.ExecuteWithResourceExclusivelyLockedWhen(() => _inflightMessages.None(), () => {});
 
         void DoneWith(IInflightMessage message) => _guard.ExecuteWithResourceExclusivelyLockedAndNotifyWaitingThreadsAboutUpdate(() => _inflightMessages.Remove(message));
 

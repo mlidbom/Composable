@@ -54,21 +54,19 @@ namespace Composable.Messaging.Buses
                                      Name = $"{_name}_MessagePump"
                                  };
 
-            _messageDispatchThread = 1.Through(DispatchThreadCount).Select(index => new Thread(MessageDispatchThread)
-                                                                                    {
-                                                                                        Name = $"{_name}_MessageDispatchThread_{index}"
-                                                                                    }).ToList();
+            _messageDispatchThread = 1.Through(DispatchThreadCount)
+                                      .Select(index => new Thread(MessageDispatchThread)
+                                                       {
+                                                           Name = $"{_name}_MessageDispatchThread_{index}"
+                                                       }).ToList();
         }
 
         public void Start()
         {
-            using(_globalStateTracker.ResourceGuard.AwaitExclusiveLock())
-            {
-                Contract.Assert.That(!_running, "!_running");
-                _running = true;
-                _messagePumpThread.Start();
-                _messageDispatchThread.ForEach(thread => thread.Start());
-            }
+            Contract.Assert.That(!_running, "!_running");
+            _running = true;
+            _messagePumpThread.Start();
+            _messageDispatchThread.ForEach(thread => thread.Start());
         }
 
         public void Stop()
@@ -82,7 +80,44 @@ namespace Composable.Messaging.Buses
             _messagePumpThread.Join();
         }
 
-        public void AwaitNoMessagesInFlight() => _globalStateTracker.ResourceGuard.ExecuteWithResourceExclusivelyLockedWhen(condition: () => _queuedTasks.Count == 0, action: () => {});
+        public void SendAtTime(DateTime sendAt, ICommand message)
+        {
+            using(_globalStateTracker.ResourceGuard.AwaitExclusiveLock())
+            {
+                if(_timeSource.UtcNow > sendAt.ToUniversalTime())
+                    throw new InvalidOperationException(message: "You cannot schedule a message to be sent in the past.");
+
+                _scheduledMessages.Add(new ScheduledMessage(sendAt, message));
+            }
+        }
+
+        public void Send(ICommand command) =>
+            _globalStateTracker.ResourceGuard.ExecuteWithResourceExclusivelyLocked(
+                () =>
+                {
+                    var messageDispatchingTracker = _globalStateTracker.QueuedMessage(command, null);
+                    _queuedTasks.Add(new DispatchingTask(command, messageDispatchingTracker, () => _inProcessServiceBus.Send(command)));
+                });
+
+        public void Publish(IEvent anEvent) =>
+            _globalStateTracker.ResourceGuard.ExecuteWithResourceExclusivelyLocked(
+                () =>
+                {
+                    var messageDispatchingTracker = _globalStateTracker.QueuedMessage(anEvent, null);
+                    _queuedTasks.Add(new DispatchingTask(anEvent, messageDispatchingTracker, () => _inProcessServiceBus.Publish(anEvent)));
+                });
+
+        public Task<TResult> QueryAsync<TResult>(IQuery<TResult> query) where TResult : IQueryResult
+            => _globalStateTracker.ResourceGuard.ExecuteWithResourceExclusivelyLocked(
+                () =>
+                {
+                    var messageDispatchingTracker = _globalStateTracker.QueuedMessage(query, null);
+                    var dispatchMessageTask = new Task<TResult>(() => _inProcessServiceBus.Get(query));
+                    _queuedTasks.Add(new DispatchingTask(query, messageDispatchingTracker, dispatchMessageTask));
+                    return dispatchMessageTask;
+                });
+
+        public TResult Query<TResult>(IQuery<TResult> query) where TResult : IQueryResult => QueryAsync(query).Result;
 
         void MessagePumpThread()
         {
@@ -100,7 +135,7 @@ namespace Composable.Messaging.Buses
                     {
                         globalStateLock.ReleaseLockAwaitUpdateNotificationAndAwaitExclusiveLock(7.Days());
                     }
-                    catch (Exception exception) when (IsShuttingDownException(exception))
+                    catch(Exception exception) when(IsShuttingDownException(exception))
                     {
                         return;
                     }
@@ -117,7 +152,7 @@ namespace Composable.Messaging.Buses
                 {
                     dispatchingTask = _dispatchingTasks.Take(_cancellationTokenSource.Token);
                 }
-                catch(Exception exception) when (IsShuttingDownException(exception))
+                catch(Exception exception) when(IsShuttingDownException(exception))
                 {
                     return;
                 }
@@ -131,7 +166,7 @@ namespace Composable.Messaging.Buses
                         dispatchingTask.MessageDispatchingTracker.Succeeded();
                     });
                 }
-                catch(Exception exception) when (IsShuttingDownException(exception))
+                catch(Exception exception) when(IsShuttingDownException(exception))
                 {
                     return;
                 }
@@ -171,47 +206,8 @@ namespace Composable.Messaging.Buses
             dueMessages.ForEach(action: message => _scheduledMessages.Remove(message));
         }
 
-        public void SendAtTime(DateTime sendAt, ICommand message)
-        {
-            using(_globalStateTracker.ResourceGuard.AwaitExclusiveLock())
-            {
-                if(_timeSource.UtcNow > sendAt.ToUniversalTime())
-                    throw new InvalidOperationException(message: "You cannot schedule a message to be sent in the past.");
-
-                _scheduledMessages.Add(new ScheduledMessage(sendAt, message));
-            }
-        }
+        public override string ToString() => _name;
 
         public void Dispose() { _managedResources.Dispose(); }
-
-        public void Publish(IEvent anEvent) =>
-            _globalStateTracker.ResourceGuard.ExecuteWithResourceExclusivelyLocked(
-                () =>
-                {
-                    var messageDispatchingTracker = _globalStateTracker.QueuedMessage(anEvent, null);
-                    _queuedTasks.Add(new DispatchingTask(anEvent, messageDispatchingTracker, () => _inProcessServiceBus.Publish(anEvent)));
-                });
-
-        public void Send(ICommand command) =>
-            _globalStateTracker.ResourceGuard.ExecuteWithResourceExclusivelyLocked(
-                () =>
-                {
-                    var messageDispatchingTracker = _globalStateTracker.QueuedMessage(command, null);
-                    _queuedTasks.Add(new DispatchingTask(command, messageDispatchingTracker, () => _inProcessServiceBus.Send(command)));
-                });
-
-        public TResult Query<TResult>(IQuery<TResult> query) where TResult : IQueryResult => QueryAsync(query).Result;
-
-        public Task<TResult> QueryAsync<TResult>(IQuery<TResult> query) where TResult : IQueryResult
-            => _globalStateTracker.ResourceGuard.ExecuteWithResourceExclusivelyLocked(
-                () =>
-                {
-                    var messageDispatchingTracker = _globalStateTracker.QueuedMessage(query, null);
-                    var dispatchMessageTask = new Task<TResult>(() => _inProcessServiceBus.Get(query));
-                    _queuedTasks.Add(new DispatchingTask(query, messageDispatchingTracker, dispatchMessageTask));
-                    return dispatchMessageTask;
-                });
-
-        public override string ToString() => _name;
     }
 }

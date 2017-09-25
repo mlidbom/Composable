@@ -40,6 +40,9 @@ namespace Composable.Messaging.Buses
                                          .LifestyleSingleton(),
                                 Component.For<IInterProcessServiceBus, InterprocessServiceBus>()
                                          .UsingFactoryMethod(factoryMethod: _ => serviceBus)
+                                         .LifestyleSingleton(),
+                                Component.For<IGlobalBusStrateTracker>()
+                                         .UsingFactoryMethod(_ => globalStateTracker)
                                          .LifestyleSingleton());
         }
 

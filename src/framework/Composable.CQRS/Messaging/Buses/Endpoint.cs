@@ -9,9 +9,10 @@ namespace Composable.Messaging.Buses
 
         public void Start() => Bus.Start();
         public void Stop() => Bus.Stop();
-        public void AwaitNoMessagesInFlight() => Bus.AwaitNoMessagesInFlight();
+        public void AwaitNoMessagesInFlight() => GlobalStateTracker.AwaitNoMessagesInFlight();
         public void Dispose() => Bus.Dispose();
 
-        IInterProcessServiceBus Bus { get { return ServiceLocator.Resolve<IInterProcessServiceBus>(); } }
+        IGlobalBusStrateTracker GlobalStateTracker => ServiceLocator.Resolve<IGlobalBusStrateTracker>();
+        IInterProcessServiceBus Bus => ServiceLocator.Resolve<IInterProcessServiceBus>();
     }
 }

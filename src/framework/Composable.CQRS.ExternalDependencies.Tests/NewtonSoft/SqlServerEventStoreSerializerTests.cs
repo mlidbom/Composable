@@ -132,10 +132,10 @@ namespace Composable.CQRS.Tests.NewtonSoft
                                 );
         }
 
-        [Test] public void Should_roundtrip_simple_event_within_40_percent_of_default_serializer_performance_given_all_new_serializer_instances()
+        [Test] public void Should_roundtrip_simple_event_within_50_percent_of_default_serializer_performance_given_all_new_serializer_instances()
         {
             const int iterations = 1000;
-            const double allowedSlowdown = 1.4;
+            const double allowedSlowdown = 1.5;
 
             var events = 1.Through(iterations).Select( index =>  new TestEvent(
                                             test1: "Test1",

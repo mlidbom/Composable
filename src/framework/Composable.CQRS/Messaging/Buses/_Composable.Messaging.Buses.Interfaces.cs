@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Composable.DependencyInjection;
 using Composable.Messaging.Events;
+using JetBrains.Annotations;
 
 namespace Composable.Messaging.Buses
 {
@@ -48,7 +50,68 @@ namespace Composable.Messaging.Buses
         // ReSharper disable UnusedMethodReturnValue.Global
         IMessageHandlerRegistrar RegisterEventHandler<TEvent>(Action<TEvent> handler) where TEvent : IEvent;
         IMessageHandlerRegistrar RegisterCommandHandler<TCommand>(Action<TCommand> handler) where TCommand : ICommand;
-        IMessageHandlerRegistrar RegisterQueryHandler<TQuery, TResult>(Func<TQuery, TResult> handler) where TQuery : IQuery<TResult> where TResult : IQueryResult;
+        IMessageHandlerRegistrar RegisterQueryHandler<TQuery, TResult>(Func<TQuery, TResult> handler) where TQuery : IQuery<TResult>
+                                                                                                      where TResult : IQueryResult;
         // ReSharper restore UnusedMethodReturnValue.Global
+    }
+
+    interface IEndpoint : IDisposable
+    {
+        IServiceLocator ServiceLocator { get; }
+        void Start();
+        void Stop();
+        void AwaitNoMessagesInFlight();
+    }
+
+    interface IEndpointBuilder
+    {
+        IDependencyInjectionContainer Container { get; }
+        IMessageHandlerRegistrar MessageHandlerRegistrar { get; }
+    }
+
+    interface IEndpointHost : IDisposable
+    {
+        IEndpoint RegisterEndpoint(Action<IEndpointBuilder> setup);
+        void Start();
+        void Stop();
+    }
+
+    interface ITestingEndpointHost : IEndpointHost
+    {
+        void WaitForEndpointsToBeAtRest();
+    }
+
+    interface IBusStateSnapshot
+    {
+        IReadOnlyList<IMessage> InFlightMessages { get; }
+        IReadOnlyList<IMessage> LocallyExecuting { get; }
+    }
+
+    interface IGlobalBusStateSnapshot
+    {
+        IEnumerable<IInflightMessage> InflightMessages { get; }
+    }
+
+    interface IInflightMessage
+    {
+        IMessage Message { get; }
+        [CanBeNull] IMessage TriggeringMessage { get; }
+    }
+
+    interface IMessageDispatchingRule
+    {
+        bool CanBeDispatched(IBusStateSnapshot busState, IMessage message);
+    }
+
+    interface IMessageDispatchingTracker
+    {
+        void Succeeded();
+        void Failed();
+    }
+
+    interface IGlobalBusStrateTracker
+    {
+        IGlobalBusStateSnapshot CreateSnapshot();
+        void QueuedMessage(IMessage message, IMessage triggeringMessage);
     }
 }

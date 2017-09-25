@@ -11,7 +11,7 @@ namespace Composable.Messaging.Buses
         readonly IDependencyInjectionContainer _container;
         readonly MessageHandlerRegistry _registry;
 
-        public EndpointBuilder(IRunMode mode)
+        public EndpointBuilder(IRunMode mode, IGlobalBusStrateTracker globalStateTracker)
         {
             _container = DependencyInjectionContainer.Create(mode);
 
@@ -19,7 +19,8 @@ namespace Composable.Messaging.Buses
 
             var dummyTimeSource = DummyTimeSource.Now;
             var inprocessBus = new InProcessServiceBus(_registry);
-            var testingOnlyServiceBus = new InterprocessServiceBus(dummyTimeSource, inprocessBus);
+
+            var serviceBus = new InterprocessServiceBus(dummyTimeSource, inprocessBus, globalStateTracker);
 
             _container.Register(Component.For<ISingleContextUseGuard>()
                                          .ImplementedBy<SingleThreadUseGuard>()
@@ -38,7 +39,7 @@ namespace Composable.Messaging.Buses
                                          .UsingFactoryMethod(_ => inprocessBus)
                                          .LifestyleSingleton(),
                                 Component.For<IInterProcessServiceBus, InterprocessServiceBus>()
-                                         .UsingFactoryMethod(factoryMethod: _ => testingOnlyServiceBus)
+                                         .UsingFactoryMethod(factoryMethod: _ => serviceBus)
                                          .LifestyleSingleton());
         }
 

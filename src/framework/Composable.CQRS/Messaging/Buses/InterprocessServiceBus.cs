@@ -14,6 +14,7 @@ namespace Composable.Messaging.Buses
     {
         readonly DummyTimeSource _timeSource;
         readonly IInProcessServiceBus _inProcessServiceBus;
+        readonly IGlobalBusStrateTracker _globalStateTracker;
         readonly List<ScheduledMessage> _scheduledMessages = new List<ScheduledMessage>();
         readonly List<DispatchingTask> _dispatchingTasks = new List<DispatchingTask>();
 
@@ -29,11 +30,12 @@ namespace Composable.Messaging.Buses
 
         public IReadOnlyList<Exception> ThrownExceptions => _thrownExceptions.ToList();
 
-        public InterprocessServiceBus(DummyTimeSource timeSource, IInProcessServiceBus inProcessServiceBus)
+        public InterprocessServiceBus(DummyTimeSource timeSource, IInProcessServiceBus inProcessServiceBus, IGlobalBusStrateTracker globalStateTracker)
         {
             _timeSource = timeSource;
             _cancellationTokenSource = new CancellationTokenSource();
             _inProcessServiceBus = inProcessServiceBus;
+            _globalStateTracker = globalStateTracker;
             _managedResources = timeSource.UtcNowChanged.Subscribe(SendDueMessages);
             _resourceGuard = ResourceAccessGuard.ExclusiveWithTimeout(30.Seconds());
             Start();
@@ -94,11 +96,19 @@ namespace Composable.Messaging.Buses
 
         public void Publish(IEvent anEvent) =>
             _resourceGuard.ExecuteWithResourceExclusivelyLockedAndNotifyWaitingThreadsAboutUpdate(
-                action: () => _dispatchingTasks.Add(new DispatchingTask(anEvent, () => _inProcessServiceBus.Publish(anEvent))));
+                action: () =>
+                {
+                    _globalStateTracker.QueuedMessage(anEvent, null);
+                    _dispatchingTasks.Add(new DispatchingTask(anEvent, () => _inProcessServiceBus.Publish(anEvent)));
+                });
 
         public void Send(ICommand command) =>
             _resourceGuard.ExecuteWithResourceExclusivelyLockedAndNotifyWaitingThreadsAboutUpdate(
-                action: () => _dispatchingTasks.Add(new DispatchingTask(command, () => _inProcessServiceBus.Send(command))));
+                action: () =>
+                {
+                    _globalStateTracker.QueuedMessage(command, null);
+                    _dispatchingTasks.Add(new DispatchingTask(command, () => _inProcessServiceBus.Send(command)));
+                });
 
         public TResult Query<TResult>(IQuery<TResult> query) where TResult : IQueryResult
             => _resourceGuard.ExecuteWithResourceExclusivelyLockedWhen(

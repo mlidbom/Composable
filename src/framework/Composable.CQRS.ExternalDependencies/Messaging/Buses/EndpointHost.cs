@@ -11,6 +11,7 @@ namespace Composable.Messaging.Buses
         readonly IRunMode _mode;
         bool _disposed;
         protected readonly List<IEndpoint> Endpoints = new List<IEndpoint>();
+        readonly IGlobalBusStrateTracker _globalBusStrateTracker = new GlobalBusStrateTracker();
 
         protected EndpointHost(IRunMode mode) => _mode = mode;
 
@@ -26,7 +27,7 @@ namespace Composable.Messaging.Buses
 
         public IEndpoint RegisterEndpoint(Action<IEndpointBuilder> setup)
         {
-            var builder = new EndpointBuilder(_mode);
+            var builder = new EndpointBuilder(_mode, _globalBusStrateTracker);
 
             setup(builder);
 

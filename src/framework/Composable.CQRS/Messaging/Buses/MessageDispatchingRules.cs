@@ -11,7 +11,7 @@ namespace Composable.Messaging.Buses
                 return true;
             }
 
-            if(busState.LocallyQueued.Concat(busState.LocallyExecuting).Any(dispatching => dispatching is ICommand || dispatching is IEvent))
+            if(busState.InFlightMessages.Concat(busState.LocallyExecuting).Any(dispatching => dispatching is ICommand || dispatching is IEvent))
             {
                 return false;
             }

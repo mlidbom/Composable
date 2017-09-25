@@ -9,10 +9,10 @@ namespace Composable.Messaging.Buses
         {
             public BusStateSnapshot(InterprocessServiceBus bus)
             {
-                LocallyQueued = bus._dispatchingTasks.Select(task => task.Message).ToList();
+                InFlightMessages = bus._dispatchingTasks.Select(task => task.Message).ToList();
                 LocallyExecuting = new List<IMessage>();
             }
-            public IReadOnlyList<IMessage> LocallyQueued { get; }
+            public IReadOnlyList<IMessage> InFlightMessages { get; }
             public IReadOnlyList<IMessage> LocallyExecuting { get; }
         }
     }

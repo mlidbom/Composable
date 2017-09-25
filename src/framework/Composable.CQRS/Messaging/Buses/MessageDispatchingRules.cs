@@ -4,14 +4,14 @@ namespace Composable.Messaging.Buses
 {
     class QueriesExecuteAfterAllCommandsAndEventsAreDone : IMessageDispatchingRule
     {
-        public bool CanBeDispatched(IBusStateSnapshot busState, IMessage message)
+        public bool CanBeDispatched(IGlobalBusStateSnapshot busState, IMessage message)
         {
             if(!(message is IQuery))
             {
                 return true;
             }
 
-            if(busState.InFlightMessages.Concat(busState.LocallyExecuting).Any(dispatching => dispatching is ICommand || dispatching is IEvent))
+            if(busState.InflightMessages.Select(dispatching => dispatching.Message).Any(dispatching => dispatching is ICommand || dispatching is IEvent))
             {
                 return false;
             }

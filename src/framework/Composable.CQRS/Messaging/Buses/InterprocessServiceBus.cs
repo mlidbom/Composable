@@ -51,7 +51,7 @@ namespace Composable.Messaging.Buses
             {
                 while(!_cancellationTokenSource.IsCancellationRequested)
                 {
-                    var state = new BusStateSnapshot(this);
+                    var state = _globalStateTracker.CreateSnapshot();
                     DispatchingTask dispatchingTask;
                     while(null != (dispatchingTask = _dispatchingTasks.FirstOrDefault(task => CanBeDispatched(state, task))))
                     {
@@ -74,7 +74,7 @@ namespace Composable.Messaging.Buses
             // ReSharper disable once FunctionNeverReturns
         }
 
-        bool CanBeDispatched(BusStateSnapshot state, DispatchingTask task) => _dispatchingRules.All(rule => rule.CanBeDispatched(state, task.Message));
+        bool CanBeDispatched(IGlobalBusStateSnapshot state, DispatchingTask task) => _dispatchingRules.All(rule => rule.CanBeDispatched(state, task.Message));
 
         void SendDueMessages(DateTime currentTime)
         {

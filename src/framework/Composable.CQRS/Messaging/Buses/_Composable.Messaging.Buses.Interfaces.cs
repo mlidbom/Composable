@@ -100,7 +100,7 @@ namespace Composable.Messaging.Buses
 
     interface IMessageDispatchingRule
     {
-        bool CanBeDispatched(IBusStateSnapshot busState, IMessage message);
+        bool CanBeDispatched(IGlobalBusStateSnapshot busState, IMessage message);
     }
 
     interface IMessageDispatchingTracker

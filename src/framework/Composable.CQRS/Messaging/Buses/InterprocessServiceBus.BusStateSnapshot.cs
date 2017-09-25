@@ -3,7 +3,7 @@ using System.Linq;
 
 namespace Composable.Messaging.Buses
 {
-    partial class InterprocessServiceBus : IInterProcessServiceBus
+    partial class InterprocessServiceBus
     {
         class BusStateSnapshot : IBusStateSnapshot
         {

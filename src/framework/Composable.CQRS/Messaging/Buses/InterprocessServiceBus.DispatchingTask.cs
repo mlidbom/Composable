@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 
 namespace Composable.Messaging.Buses
 {
-    partial class InterprocessServiceBus : IInterProcessServiceBus
+    partial class InterprocessServiceBus
     {
         class DispatchingTask
         {

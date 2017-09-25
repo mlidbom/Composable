@@ -59,9 +59,12 @@ namespace Composable.Messaging.Buses
                         {
                             dispatchingTask.DispatchMessageTask.RunSynchronously();
                             _dispatchingTasks.Remove(dispatchingTask);
+                            dispatchingTask.MessageDispatchingTracker.Succeeded();
                         }
                         catch(Exception exception)
                         {
+                            _dispatchingTasks.Remove(dispatchingTask);
+                            dispatchingTask.MessageDispatchingTracker.Failed();
                             _thrownExceptions.Add(exception);
                         }
                     }
@@ -98,16 +101,16 @@ namespace Composable.Messaging.Buses
             _resourceGuard.ExecuteWithResourceExclusivelyLockedAndNotifyWaitingThreadsAboutUpdate(
                 action: () =>
                 {
-                    _globalStateTracker.QueuedMessage(anEvent, null);
-                    _dispatchingTasks.Add(new DispatchingTask(anEvent, () => _inProcessServiceBus.Publish(anEvent)));
+                    var messageDispatchingTracker =  _globalStateTracker.QueuedMessage(anEvent, null);
+                    _dispatchingTasks.Add(new DispatchingTask(anEvent, messageDispatchingTracker, () => _inProcessServiceBus.Publish(anEvent)));
                 });
 
         public void Send(ICommand command) =>
             _resourceGuard.ExecuteWithResourceExclusivelyLockedAndNotifyWaitingThreadsAboutUpdate(
                 action: () =>
                 {
-                    _globalStateTracker.QueuedMessage(command, null);
-                    _dispatchingTasks.Add(new DispatchingTask(command, () => _inProcessServiceBus.Send(command)));
+                    var messageDispatchingTracker = _globalStateTracker.QueuedMessage(command, null);
+                    _dispatchingTasks.Add(new DispatchingTask(command, messageDispatchingTracker, () => _inProcessServiceBus.Send(command)));
                 });
 
         public TResult Query<TResult>(IQuery<TResult> query) where TResult : IQueryResult

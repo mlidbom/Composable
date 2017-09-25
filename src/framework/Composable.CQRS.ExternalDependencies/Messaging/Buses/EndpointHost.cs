@@ -75,24 +75,20 @@ namespace Composable.Messaging.Buses
             }
         }
 
+
+        protected virtual void InternalDispose()
+        {
+            _disposed = true;
+            Stop();
+        }
+
         public void Dispose()
         {
             if(!_disposed)
             {
                 _disposed = true;
-                Stop();
-
-                var exceptions = Endpoints
-                    .SelectMany(endpoint => endpoint.ServiceLocator
-                                                    .Resolve<InterprocessServiceBus>().ThrownExceptions)
-                    .ToList();
-
-                Endpoints.ForEach(endpoint => endpoint.Dispose());
-
-                if(exceptions.Any())
-                {
-                    throw new AggregateException("Unhandled exceptions thrown in bus", exceptions.ToArray());
-                }
+                InternalDispose();
+                GC.SuppressFinalize(this);
             }
         }
     }

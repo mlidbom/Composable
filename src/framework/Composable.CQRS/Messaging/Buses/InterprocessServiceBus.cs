@@ -72,6 +72,7 @@ namespace Composable.Messaging.Buses
                 _cancellationTokenSource.Cancel();
             }
         }
+
         public void AwaitNoMessagesInFlight() => _globalStateTracker.ResourceGuard.ExecuteWithResourceExclusivelyLockedWhen(condition: () => _queuedTasks.Count == 0, action: () => {});
 
         void MessagePumpThread()

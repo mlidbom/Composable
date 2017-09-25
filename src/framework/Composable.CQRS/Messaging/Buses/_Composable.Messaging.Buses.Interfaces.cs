@@ -81,12 +81,6 @@ namespace Composable.Messaging.Buses
         void WaitForEndpointsToBeAtRest();
     }
 
-    interface IBusStateSnapshot
-    {
-        IReadOnlyList<IMessage> InFlightMessages { get; }
-        IReadOnlyList<IMessage> LocallyExecuting { get; }
-    }
-
     interface IGlobalBusStateSnapshot
     {
         IEnumerable<IInflightMessage> InflightMessages { get; }

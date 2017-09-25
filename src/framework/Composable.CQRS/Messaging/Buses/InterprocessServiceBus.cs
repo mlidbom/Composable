@@ -32,6 +32,8 @@ namespace Composable.Messaging.Buses
                                                                                 new QueriesExecuteAfterAllCommandsAndEventsAreDone()
                                                                             };
         bool _running;
+        Thread _messagePumpThread;
+        readonly Thread _messageDispatchThread;
 
         public IReadOnlyList<Exception> ThrownExceptions => _thrownExceptions.ToList();
 
@@ -43,6 +45,16 @@ namespace Composable.Messaging.Buses
             _inProcessServiceBus = inProcessServiceBus;
             _globalStateTracker = globalStateTracker;
             _managedResources = timeSource.UtcNowChanged.Subscribe(SendDueMessages);
+
+            _messagePumpThread = new Thread(MessagePumpThread)
+                                 {
+                                     Name = $"{_name}_MessagePump"
+                                 };
+
+            _messageDispatchThread = new Thread(MessageDispatchThread)
+                                     {
+                                         Name = $"{_name}_MessageDispatch"
+                                     };
         }
 
         public void Start()
@@ -51,26 +63,20 @@ namespace Composable.Messaging.Buses
             {
                 Contract.Assert.That(!_running, "!_running");
                 _running = true;
-
-                new Thread(MessagePumpThread)
-                {
-                    Name = $"{_name}_MessagePump"
-                }.Start();
-
-                new Thread(MessageDispatchThread)
-                {
-                    Name = $"{_name}_MessageDispatch"
-                }.Start();
+                _messagePumpThread.Start();
+                _messageDispatchThread.Start();
             }
         }
 
         public void Stop()
         {
-            using(_globalStateTracker.ResourceGuard.AwaitExclusiveLock())
-            {
-                _running = false;
-                _cancellationTokenSource.Cancel();
-            }
+            Contract.Assert.That(_running, "_running");
+            _running = false;
+            _cancellationTokenSource.Cancel();
+            _messageDispatchThread.Interrupt();
+            _messagePumpThread.Interrupt();
+            _messageDispatchThread.Join();
+            _messagePumpThread.Join();
         }
 
         public void AwaitNoMessagesInFlight() => _globalStateTracker.ResourceGuard.ExecuteWithResourceExclusivelyLockedWhen(condition: () => _queuedTasks.Count == 0, action: () => {});
@@ -79,7 +85,7 @@ namespace Composable.Messaging.Buses
         {
             using(var globalStateLock = _globalStateTracker.ResourceGuard.AwaitExclusiveLock())
             {
-                while(!_cancellationTokenSource.IsCancellationRequested)
+                while(!_cancellationTokenSource.Token.IsCancellationRequested)
                 {
 
                         while(TryGetDispatchableMessages(out var dispatchingTask))
@@ -92,9 +98,9 @@ namespace Composable.Messaging.Buses
                     {
                         globalStateLock.ReleaseLockAwaitUpdateNotificationAndAwaitExclusiveLock(7.Days());
                     }
-                    catch(OperationCanceledException)
+                    catch(ThreadInterruptedException)
                     {
-                        break;
+                        return;
                     }
                 }
             }
@@ -122,6 +128,10 @@ namespace Composable.Messaging.Buses
                         _queuedTasks.Remove(dispatchingTask);
                         dispatchingTask.MessageDispatchingTracker.Succeeded();
                     });
+                }
+                catch(ThreadInterruptedException)
+                {
+                    return;
                 }
                 catch (Exception exception)
                 {

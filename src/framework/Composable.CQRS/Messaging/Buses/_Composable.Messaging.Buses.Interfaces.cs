@@ -45,12 +45,10 @@ namespace Composable.Messaging.Buses
 
     public interface IMessageHandlerRegistrar
     {
-        // ReSharper disable UnusedMethodReturnValue.Global
         IMessageHandlerRegistrar ForEvent<TEvent>(Action<TEvent> handler) where TEvent : IEvent;
         IMessageHandlerRegistrar ForCommand<TCommand>(Action<TCommand> handler) where TCommand : ICommand;
         IMessageHandlerRegistrar ForQuery<TQuery, TResult>(Func<TQuery, TResult> handler) where TQuery : IQuery<TResult>
                                                                                                       where TResult : IQueryResult;
-        // ReSharper restore UnusedMethodReturnValue.Global
     }
 
     interface IEndpoint : IDisposable
@@ -64,7 +62,7 @@ namespace Composable.Messaging.Buses
     interface IEndpointBuilder
     {
         IDependencyInjectionContainer Container { get; }
-        IMessageHandlerRegistrar RegisterHandler { get; }
+        MessageHandlerRegistrarWithDependencyInjectionSupport RegisterHandler { get; }
     }
 
     interface IEndpointHost : IDisposable

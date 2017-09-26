@@ -24,7 +24,7 @@ namespace Composable.CQRS.Tests.ServiceBus
                         QueryResult queryResult = null;
 
                         endpointBuilder.RegisterHandler
-                                       .ForCommand((MyCommand command) => endpointBuilder.Container.CreateServiceLocator().Resolve<IServiceBus>().Publish(new MyEvent()))
+                                       .ForCommand((MyCommand command, IServiceBus bus) => bus.Publish(new MyEvent()))
                                        .ForEvent((MyEvent @event) => queryResult = new QueryResult())
                                        .ForQuery((MyQuery query) => queryResult);
                     });

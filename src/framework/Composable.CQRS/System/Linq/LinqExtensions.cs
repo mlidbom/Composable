@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 
 using System.Linq;
@@ -29,6 +30,19 @@ namespace Composable.System.Linq
                              .NotNull();
 
             return !me.Any();
+        }
+
+        /// <summary>
+        /// <para>The inversion of Enumerable.Any() .</para>
+        /// <para>Returns true if <paramref name="me"/> contains no elements.</para>
+        /// </summary>
+        /// <returns>true if <paramref name="me"/> contains no objects. Otherwise false.</returns>
+        public static bool None<T>(this IEnumerable<T> me, Func<T,bool> condition)
+        {
+            ContractOptimized.Argument(me, nameof(me), condition, nameof(condition))
+                             .NotNull();
+
+            return !me.Any(condition);
         }
 
         /// <summary>

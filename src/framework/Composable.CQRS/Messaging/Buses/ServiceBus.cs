@@ -11,7 +11,6 @@ using Composable.System.Linq;
 using Composable.System.Reactive;
 using Composable.System.Threading.ResourceAccess;
 using Composable.System.Transactions;
-// ReSharper disable LoopCanBeConvertedToQuery : Performance critical code in this file so let's allow less readable code here.
 
 namespace Composable.Messaging.Buses
 {
@@ -202,41 +201,15 @@ namespace Composable.Messaging.Buses
         {
             var state = _globalStateTracker.CreateSnapshot();
 
-            var locallyExecutingMessages = new List<IMessage>();
-            foreach (var queuedTask in _queuedTasks)
-            {
-                if(queuedTask.IsDispatching)
-                {
-                    locallyExecutingMessages.Add(queuedTask.Message);
-                }
-            }
+            var locallyExecutingMessages = _queuedTasks.Where(queuedTask => queuedTask.IsDispatching).Select(queuedTask => queuedTask.Message).ToList();
 
-            foreach(var queuedTask in _queuedTasks)
-            {
-                if(!queuedTask.IsDispatching)
-                {
-                    if(CanbeDispatched(state, locallyExecutingMessages, queuedTask))
-                    {
-                        dispatchingTask = queuedTask;
-                        return true;
-                    }
-                }
-            }
-
-            dispatchingTask = null;
-            return false;
+            dispatchingTask = _queuedTasks.FirstOrDefault(queuedTask => CanbeDispatched(state, locallyExecutingMessages, queuedTask));
+            return dispatchingTask != null;
         }
 
-        bool CanbeDispatched(IGlobalBusStateSnapshot state, List<IMessage> locallyExecutingMessages, DispatchingTask queuedTask)
+        bool CanbeDispatched(IGlobalBusStateSnapshot state, IReadOnlyList<IMessage> locallyExecutingMessages, DispatchingTask queuedTask)
         {
-            foreach (var rule in _dispatchingRules)
-            {
-                if(!rule.CanBeDispatched(state, locallyExecutingMessages, queuedTask.Message))
-                {
-                    return false;
-                }
-            }
-            return true;
+            return !queuedTask.IsDispatching && _dispatchingRules.All(rule => rule.CanBeDispatched(state, locallyExecutingMessages, queuedTask.Message));
         }
 
         void SendDueMessages(DateTime currentTime)

@@ -6,11 +6,9 @@ using System.Threading;
 using System.Threading.Tasks;
 using Composable.Contracts;
 using Composable.GenericAbstractions.Time;
-using Composable.System;
 using Composable.System.Linq;
 using Composable.System.Reactive;
 using Composable.System.Threading.ResourceAccess;
-using Composable.System.Transactions;
 
 namespace Composable.Messaging.Buses
 {
@@ -121,96 +119,7 @@ namespace Composable.Messaging.Buses
 
         public TResult Query<TResult>(IQuery<TResult> query) where TResult : IQueryResult => QueryAsync(query).Result;
 
-        void MessagePumpThread()
-        {
-            using(var globalStateLock = _globalStateTracker.ResourceGuard.AwaitExclusiveLock())
-            {
-                while(!_cancellationTokenSource.Token.IsCancellationRequested)
-                {
-                    while(TryGetDispatchableMessage(out var dispatchingTask))
-                    {
-                        dispatchingTask.IsDispatching = true;
-                        _dispatchingTasks.Add(dispatchingTask);
-                    }
-
-                    try
-                    {
-                        globalStateLock.ReleaseLockAwaitUpdateNotificationAndAwaitExclusiveLock(7.Days());
-                    }
-                    catch(Exception exception) when(IsShuttingDownException(exception))
-                    {
-                        return;
-                    }
-                }
-            }
-        }
-
-        void MessageDispatchThread()
-        {
-            while(!_cancellationTokenSource.Token.IsCancellationRequested)
-            {
-                DispatchingTask dispatchingTask;
-                try
-                {
-                    dispatchingTask = _dispatchingTasks.Take(_cancellationTokenSource.Token);
-                }
-                catch(Exception exception) when(IsShuttingDownException(exception))
-                {
-                    return;
-                }
-
-                try
-                {
-                    switch(dispatchingTask.Message)
-                    {
-                        case ICommand _:
-                        case IEvent _:
-                            TransactionScopeCe.Execute(action: () => dispatchingTask.DispatchMessageTask.RunSynchronously());
-                            break;
-                        case IQuery _:
-                            dispatchingTask.DispatchMessageTask.RunSynchronously();
-                            break;
-                        default: throw new Exception($"Unknown message type {dispatchingTask.Message.GetType().AssemblyQualifiedName}");
-                    }
-
-                    _globalStateTracker.ResourceGuard.ExecuteWithResourceExclusivelyLocked(action: () =>
-                    {
-                        _queuedTasks.Remove(dispatchingTask);
-                        dispatchingTask.MessageDispatchingTracker.Succeeded();
-                    });
-                }
-                catch(Exception exception) when(IsShuttingDownException(exception))
-                {
-                    return;
-                }
-                catch(Exception exception)
-                {
-                    _globalStateTracker.ResourceGuard.ExecuteWithResourceExclusivelyLocked(action: () =>
-                    {
-                        _queuedTasks.Remove(dispatchingTask);
-                        dispatchingTask.MessageDispatchingTracker.Failed();
-                        _thrownExceptions.Add(exception);
-                    });
-                }
-            }
-        }
-
         static bool IsShuttingDownException(Exception exception) => exception is OperationCanceledException || exception is ThreadInterruptedException;
-
-        bool TryGetDispatchableMessage(out DispatchingTask dispatchingTask)
-        {
-            var state = _globalStateTracker.CreateSnapshot();
-
-            var locallyExecutingMessages = _queuedTasks.Where(queuedTask => queuedTask.IsDispatching).Select(queuedTask => queuedTask.Message).ToList();
-
-            dispatchingTask = _queuedTasks.FirstOrDefault(queuedTask => CanbeDispatched(state, locallyExecutingMessages, queuedTask));
-            return dispatchingTask != null;
-        }
-
-        bool CanbeDispatched(IGlobalBusStateSnapshot state, IReadOnlyList<IMessage> locallyExecutingMessages, DispatchingTask queuedTask)
-        {
-            return !queuedTask.IsDispatching && _dispatchingRules.All(rule => rule.CanBeDispatched(state, locallyExecutingMessages, queuedTask.Message));
-        }
 
         void SendDueMessages(DateTime currentTime)
         {
@@ -222,6 +131,13 @@ namespace Composable.Messaging.Buses
 
         public override string ToString() => _name;
 
-        public void Dispose() { _managedResources.Dispose(); }
+        public void Dispose()
+        {
+            if(_running)
+            {
+                Stop();
+            }
+            _managedResources.Dispose();
+        }
     }
 }

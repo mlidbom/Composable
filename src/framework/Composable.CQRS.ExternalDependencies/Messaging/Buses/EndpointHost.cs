@@ -79,6 +79,7 @@ namespace Composable.Messaging.Buses
         protected virtual void InternalDispose()
         {
             Stop();
+            Endpoints.ForEach(endpoint => endpoint.Dispose());
         }
 
         public void Dispose()

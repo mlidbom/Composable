@@ -26,9 +26,8 @@ namespace Composable.Messaging.Buses
                                                 .Resolve<ServiceBus>().ThrownExceptions)
                 .ToList();
 
-            Endpoints.ForEach(endpoint => endpoint.Dispose());
-
             base.InternalDispose();
+
 
             if(exceptions.Any())
             {

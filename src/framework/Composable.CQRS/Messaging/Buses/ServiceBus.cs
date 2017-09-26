@@ -11,6 +11,7 @@ using Composable.System.Linq;
 using Composable.System.Reactive;
 using Composable.System.Threading.ResourceAccess;
 using Composable.System.Transactions;
+// ReSharper disable LoopCanBeConvertedToQuery : Performance critical code in this file so let's allow less readable code here.
 
 namespace Composable.Messaging.Buses
 {
@@ -201,10 +202,8 @@ namespace Composable.Messaging.Buses
         {
             var state = _globalStateTracker.CreateSnapshot();
 
-            //Performance critical code so let's dispense with Linq
             var locallyExecutingMessages = new List<IMessage>();
-
-            foreach(var queuedTask in _queuedTasks)
+            foreach (var queuedTask in _queuedTasks)
             {
                 if(queuedTask.IsDispatching)
                 {
@@ -230,7 +229,7 @@ namespace Composable.Messaging.Buses
 
         bool CanbeDispatched(IGlobalBusStateSnapshot state, List<IMessage> locallyExecutingMessages, DispatchingTask queuedTask)
         {
-            foreach(var rule in _dispatchingRules)
+            foreach (var rule in _dispatchingRules)
             {
                 if(!rule.CanBeDispatched(state, locallyExecutingMessages, queuedTask.Message))
                 {

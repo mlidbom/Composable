@@ -10,6 +10,7 @@ using Composable.System;
 using Composable.System.Linq;
 using Composable.System.Reactive;
 using Composable.System.Threading.ResourceAccess;
+using Composable.System.Transactions;
 
 namespace Composable.Messaging.Buses
 {
@@ -159,7 +160,18 @@ namespace Composable.Messaging.Buses
 
                 try
                 {
-                    dispatchingTask.DispatchMessageTask.RunSynchronously();
+                    switch(dispatchingTask.Message)
+                    {
+                        case ICommand _:
+                        case IEvent _:
+                            TransactionScopeCe.Execute(() => dispatchingTask.DispatchMessageTask.RunSynchronously());
+                            break;
+                        case IQuery _:
+                            dispatchingTask.DispatchMessageTask.RunSynchronously();
+                            break;
+                        default: throw new Exception($"Unknown message type {dispatchingTask.Message.GetType().AssemblyQualifiedName}");
+                    }
+
                     _globalStateTracker.ResourceGuard.ExecuteWithResourceExclusivelyLocked(() =>
                     {
                         _queuedTasks.Remove(dispatchingTask);

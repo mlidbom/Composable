@@ -56,8 +56,7 @@ namespace Composable.CQRS.Tests.ServiceBusSpecification
                                    .PassedThreads.Single().Should().NotBe(Thread.CurrentThread);
         }
 
-        [Fact]
-        public async Task Two_query_handler_can_execute_in_parallel_when_using_QueryAsync()
+        [Fact] public async Task Two_query_handler_can_execute_in_parallel_when_using_QueryAsync()
         {
             _queryHandlerThreadGate.Close();
 
@@ -68,6 +67,32 @@ namespace Composable.CQRS.Tests.ServiceBusSpecification
             _queryHandlerThreadGate.Open();
 
             await queryTasks;
+        }
+
+        [Fact] void Command_handler_runs_in_transaction()
+        {
+            _host.ClientBus.Send(new MyCommand());
+
+            _commandHandlerThreadGate.AwaitPassedThroughCountEqualTo(1)
+                                     .PassedThreads.Single().Transaction.Should().NotBeNull();
+        }
+
+        [Fact]
+        void Event_handler_runs_in_transaction()
+        {
+            _host.ClientBus.Publish(new MyEvent());
+
+            _eventHandlerThreadGate.AwaitPassedThroughCountEqualTo(1)
+                                     .PassedThreads.Single().Transaction.Should().NotBeNull();
+        }
+
+        [Fact]
+        void Query_handler_does_not_run_in_transaction()
+        {
+            _host.ClientBus.Query(new MyQuery());
+
+            _queryHandlerThreadGate.AwaitPassedThroughCountEqualTo(1)
+                                   .PassedThreads.Single().Transaction.Should().BeNull();
         }
 
         class MyCommand : Command {}

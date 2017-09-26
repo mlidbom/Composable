@@ -9,7 +9,7 @@ using Xunit;
 
 namespace Composable.CQRS.Tests.ServiceBusSpecification
 {
-    using System;
+    using Composable.System;
 
     public class When_scheduling_commands_to_be_sent_in_the_future : IDisposable
     {

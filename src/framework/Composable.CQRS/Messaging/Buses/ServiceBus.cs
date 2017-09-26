@@ -8,7 +8,6 @@ using Composable.Contracts;
 using Composable.GenericAbstractions.Time;
 using Composable.System;
 using Composable.System.Linq;
-using Composable.System.Reactive;
 using Composable.System.Threading.ResourceAccess;
 
 namespace Composable.Messaging.Buses
@@ -60,7 +59,7 @@ namespace Composable.Messaging.Buses
                                                                      Name = $"{_name}_MessageDispatchThread_{index}"
                                                                  }).ToList();
 
-            _scheduledMessagesTimer = new Timer(_ => SendDueMessages(_timeSource.UtcNow), null, 1.Milliseconds(), 100.Milliseconds());
+            _scheduledMessagesTimer = new Timer(_ => SendDueMessages(), null, 0.Seconds(), 100.Milliseconds());
         }
 
         public void Start()
@@ -124,10 +123,10 @@ namespace Composable.Messaging.Buses
 
         static bool IsShuttingDownException(Exception exception) => exception is OperationCanceledException || exception is ThreadInterruptedException;
 
-        void SendDueMessages(DateTime currentTime)
+        void SendDueMessages()
             => _globalStateTracker.ResourceGuard.ExecuteWithResourceExclusivelyLocked(() =>
             {
-                var dueMessages = _scheduledMessages.Where(predicate: message => message.SendAt <= currentTime)
+                var dueMessages = _scheduledMessages.Where(predicate: message => message.SendAt <= _timeSource.UtcNow)
                                                     .ToList();
                 dueMessages.ForEach(action: scheduledCommand => Send(scheduledCommand.Command));
                 dueMessages.ForEach(action: message => _scheduledMessages.Remove(message));

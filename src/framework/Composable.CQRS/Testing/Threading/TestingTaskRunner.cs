@@ -5,6 +5,9 @@ using System.Threading.Tasks;
 
 namespace Composable.Testing.Threading
 {
+    ///<summary>
+    /// Runs and monitors tasks on background threads.
+    /// Throws <see cref="AggregateException"/> on dispose if any throw exceptions or do not complete within timeout. </summary>
     public class TestingTaskRunner : IDisposable
     {
         readonly List<Task> _tasks = new List<Task>();
@@ -13,6 +16,8 @@ namespace Composable.Testing.Threading
         public static TestingTaskRunner WithTimeout(TimeSpan timeout) { return new TestingTaskRunner(timeout); }
 
         public TestingTaskRunner(TimeSpan timeout) => _timeout = timeout;
+
+        public void Monitor(params Task[] task) => _tasks.AddRange(task);
 
         public void Run(Action task) => _tasks.Add(Task.Run(task));
 

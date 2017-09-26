@@ -12,14 +12,16 @@ using Xunit;
 
 namespace Composable.CQRS.Tests.ServiceBusSpecification
 {
-    public class Given_a_backend_endpoint_and_a_client_endpoint : IDisposable
+    public class Given_a_backend_endpoint_with_a_command_event_and_query_handler : IDisposable
     {
         readonly ITestingEndpointHost _host;
         readonly IThreadGate _commandHandlerThreadGate = ThreadGate.CreateOpenWithTimeout(1.Seconds());
         readonly IThreadGate _eventHandlerThreadGate = ThreadGate.CreateOpenWithTimeout(1.Seconds());
         readonly IThreadGate _queryHandlerThreadGate = ThreadGate.CreateOpenWithTimeout(1.Seconds());
 
-        public Given_a_backend_endpoint_and_a_client_endpoint()
+        readonly TestingTaskRunner _taskRunner = TestingTaskRunner.WithTimeout(1.Seconds());
+
+        public Given_a_backend_endpoint_with_a_command_event_and_query_handler()
         {
             _host = EndpointHost.Testing.BuildHost(
                 buildHost => buildHost.RegisterAndStartEndpoint(
@@ -30,7 +32,11 @@ namespace Composable.CQRS.Tests.ServiceBusSpecification
                                       .ForQuery((MyQuery query) => _queryHandlerThreadGate.AwaitPassthroughAndReturn(new MyQueryResult()))));
         }
 
-        public void Dispose() { _host.Dispose(); }
+        public void Dispose()
+        {
+            _taskRunner.Dispose();
+            _host.Dispose();
+        }
 
         [Fact] public void Command_handler_executes_on_different_thread_from_client_sending_command()
         {
@@ -60,13 +66,23 @@ namespace Composable.CQRS.Tests.ServiceBusSpecification
         {
             _queryHandlerThreadGate.Close();
 
-            var queryTasks = Task.WhenAll(_host.ClientBus.QueryAsync(new MyQuery()),
-                                          _host.ClientBus.QueryAsync(new MyQuery()));
+            _taskRunner.Monitor(_host.ClientBus.QueryAsync(new MyQuery()),
+                                _host.ClientBus.QueryAsync(new MyQuery()));
 
             _queryHandlerThreadGate.AwaitQueueLengthEqualTo(2);
             _queryHandlerThreadGate.Open();
+        }
 
-            await queryTasks;
+        [Fact]
+        public async Task Two_event_handlers_cannot_execute_in_parallel()
+        {
+            _eventHandlerThreadGate.Close();
+
+            _host.ClientBus.Publish(new MyEvent());
+            _host.ClientBus.Publish(new MyEvent());
+
+             _eventHandlerThreadGate.TryAwaitQueueLengthEqualTo(2, 1.Seconds())
+                .Should().BeFalse();
         }
 
         [Fact] void Command_handler_runs_in_transaction()
@@ -77,17 +93,15 @@ namespace Composable.CQRS.Tests.ServiceBusSpecification
                                      .PassedThreads.Single().Transaction.Should().NotBeNull();
         }
 
-        [Fact]
-        void Event_handler_runs_in_transaction()
+        [Fact] void Event_handler_runs_in_transaction()
         {
             _host.ClientBus.Publish(new MyEvent());
 
             _eventHandlerThreadGate.AwaitPassedThroughCountEqualTo(1)
-                                     .PassedThreads.Single().Transaction.Should().NotBeNull();
+                                   .PassedThreads.Single().Transaction.Should().NotBeNull();
         }
 
-        [Fact]
-        void Query_handler_does_not_run_in_transaction()
+        [Fact] void Query_handler_does_not_run_in_transaction()
         {
             _host.ClientBus.Query(new MyQuery());
 

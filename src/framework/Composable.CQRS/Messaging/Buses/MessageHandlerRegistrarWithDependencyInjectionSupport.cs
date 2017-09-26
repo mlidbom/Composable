@@ -40,7 +40,7 @@ namespace Composable.Messaging.Buses
             this MessageHandlerRegistrarWithDependencyInjectionSupport @this,
             Action<TEvent> action) where TEvent : IEvent
         {
-            @this.Register.ForEvent<TEvent>(action);
+            @this.Register.ForEvent(action);
             return @this;
         }
 

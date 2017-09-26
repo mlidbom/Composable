@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Composable.Contracts;
 using Composable.DependencyInjection;
 using Composable.System.Linq;
 
@@ -23,6 +22,12 @@ namespace Composable.Messaging.Buses
 
         public static class Testing
         {
+            public static ITestingEndpointHost BuildHost(Action<ITestingEndpointHost> build,  TestingMode mode = TestingMode.DatabasePool)
+            {
+                var testingEndpointHost = new TestingEndpointHost(new RunMode(isTesting: true, mode: mode));
+                build(testingEndpointHost);
+                return testingEndpointHost;
+            }
             public static ITestingEndpointHost CreateHost(TestingMode mode = TestingMode.DatabasePool) => new TestingEndpointHost(new RunMode(isTesting: true, mode: mode));
         }
 
@@ -49,22 +54,24 @@ namespace Composable.Messaging.Buses
 
         void ConnectEndpoint(IEndpoint endpoint)
         {
-            var currentRegistry = endpoint.ServiceLocator.Resolve<MessageHandlerRegistry>();
-            var currentCommandHandlers = currentRegistry._commandHandlers.ToArray();
-            var currentQueryHandlers = currentRegistry._queryHandlers.ToArray();
-            var currentEventRegistrations = currentRegistry._eventHandlerRegistrations.ToArray();
+            var myRegistry = endpoint.ServiceLocator.Resolve<MessageHandlerRegistry>();
+            var myCommandHandlers = myRegistry._commandHandlers.ToArray();
+            var myQueryHandlers = myRegistry._queryHandlers.ToArray();
+            var myEventRegistrations = myRegistry._eventHandlerRegistrations.ToArray();
 
-            foreach(var otherEndpoint in Endpoints)
+            var registryWithAllAlreadyCrossConnectedHandlers = Endpoints.FirstOrDefault()?.ServiceLocator.Resolve<MessageHandlerRegistry>();
+            if(registryWithAllAlreadyCrossConnectedHandlers != null)
             {
-                var otherRegistry = otherEndpoint.ServiceLocator.Resolve<MessageHandlerRegistry>();
+                registryWithAllAlreadyCrossConnectedHandlers._commandHandlers.ForEach(handler => myRegistry._commandHandlers.Add(handler.Key, handler.Value));
+                registryWithAllAlreadyCrossConnectedHandlers._eventHandlerRegistrations.ForEach(registration => myRegistry._eventHandlerRegistrations.Add(registration));
+                registryWithAllAlreadyCrossConnectedHandlers._queryHandlers.ForEach(handler => myRegistry._queryHandlers.Add(handler.Key, handler.Value));
+            }
 
-                otherRegistry._commandHandlers.ForEach(handler => currentRegistry._commandHandlers.Add(handler.Key, handler.Value));
-                otherRegistry._eventHandlerRegistrations.ForEach(registration => currentRegistry._eventHandlerRegistrations.Add(registration));
-                otherRegistry._queryHandlers.ForEach(handler => currentRegistry._queryHandlers.Add(handler.Key, handler.Value));
-
-                currentCommandHandlers.ForEach(handler => otherRegistry._commandHandlers.Add(handler.Key, handler.Value));
-                currentEventRegistrations.ForEach(registration => otherRegistry._eventHandlerRegistrations.Add(registration));
-                currentQueryHandlers.ForEach(handler => otherRegistry._queryHandlers.Add(handler.Key, handler.Value));
+            foreach(var registryWithoutMyHandlers in Endpoints.Select(endpointWithoutMyHandlers => endpointWithoutMyHandlers.ServiceLocator.Resolve<MessageHandlerRegistry>()))
+            {
+                myCommandHandlers.ForEach(handler => registryWithoutMyHandlers._commandHandlers.Add(handler.Key, handler.Value));
+                myEventRegistrations.ForEach(registration => registryWithoutMyHandlers._eventHandlerRegistrations.Add(registration));
+                myQueryHandlers.ForEach(handler => registryWithoutMyHandlers._queryHandlers.Add(handler.Key, handler.Value));
             }
         }
 

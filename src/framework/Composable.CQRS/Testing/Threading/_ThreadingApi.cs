@@ -33,9 +33,9 @@ namespace Composable.Testing.Threading
         long Passed { get; }
         TimeSpan DefaultTimeout { get; }
 
-        IReadOnlyList<Thread> RequestedThreads { get; }
-        IReadOnlyList<Thread> QueuedThreads { get; }
-        IReadOnlyList<Thread> PassedThreads { get; }
+        IReadOnlyList<ThreadSnapshot> RequestedThreads { get; }
+        IReadOnlyList<ThreadSnapshot> QueuedThreads { get; }
+        IReadOnlyList<ThreadSnapshot> PassedThreads { get; }
     }
 
     ///<summary>A block of code with <see cref="ThreadGate"/>s for <see cref="EntranceGate"/> and <see cref="ExitGate"/>. Useful for controlling multithreaded code for testing purposes.</summary>

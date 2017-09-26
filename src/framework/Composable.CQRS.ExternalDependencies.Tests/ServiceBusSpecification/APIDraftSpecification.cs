@@ -9,7 +9,7 @@ using Composable.Persistence.EventStore;
 using FluentAssertions;
 using Xunit;
 
-namespace Composable.CQRS.Tests.ServiceBus
+namespace Composable.CQRS.Tests.ServiceBusSpecification
 {
     public class APIDraftSpecification
     {
@@ -31,6 +31,7 @@ namespace Composable.CQRS.Tests.ServiceBus
 
                 var clientEndpoint = host.RegisterAndStartEndpoint("client", _ => {});
 
+
                 var clientBus = clientEndpoint.ServiceLocator.Resolve<IServiceBus>();
 
                 clientBus.Send(new MyCommand());
@@ -42,13 +43,10 @@ namespace Composable.CQRS.Tests.ServiceBus
                 result.Should().NotBeNull();
             }
         }
-    }
 
-    class MyEvent : AggregateRootEvent {}
-    class QueryResult : IQueryResult, IHasPersistentIdentity<Guid>
-    {
-        public Guid Id { get; set; }
+        class MyEvent : AggregateRootEvent { }
+        class QueryResult : IQueryResult { }
+        class MyQuery : IQuery<QueryResult> { }
+        class MyCommand : Command { }
     }
-    class MyQuery : IQuery<QueryResult> {}
-    class MyCommand : Command {}
 }

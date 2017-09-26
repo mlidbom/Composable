@@ -4,6 +4,18 @@ namespace Composable.Testing.Threading
 {
     static class ThreadGateExtensions
     {
+        public static TResult AwaitPassthroughAndReturn<TResult>(this IThreadGate @this, TResult returnValue)
+        {
+            @this.AwaitPassthrough();
+            return returnValue;
+        }
+
+        public static TResult AwaitPassthroughAndExecute<TResult>(this IThreadGate @this, Func<TResult> func)
+        {
+            @this.AwaitPassthrough();
+            return func();
+        }
+
         public static IThreadGate Await(this IThreadGate @this, Func<bool> condition) => @this.Await(@this.DefaultTimeout, condition);
         public static IThreadGate Await(this IThreadGate @this, TimeSpan timeout, Func<bool> condition) => @this.ExecuteWithExclusiveLockWhen(timeout, condition, (gate, owner) => {});
 

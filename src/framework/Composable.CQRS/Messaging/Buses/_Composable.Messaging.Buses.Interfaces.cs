@@ -74,6 +74,8 @@ namespace Composable.Messaging.Buses
     interface ITestingEndpointHost : IEndpointHost
     {
         void WaitForEndpointsToBeAtRest();
+
+        IServiceBus ClientBus { get; }
     }
 
     interface IGlobalBusStateSnapshot

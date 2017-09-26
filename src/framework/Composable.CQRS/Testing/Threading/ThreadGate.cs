@@ -2,11 +2,18 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
+using System.Transactions;
 using Composable.Contracts;
 using Composable.System.Threading.ResourceAccess;
 
 namespace Composable.Testing.Threading
 {
+    class ThreadSnapshot
+    {
+        public Thread Thread { get; } = Thread.CurrentThread;
+        public Transaction Transaction { get; } = Transaction.Current;
+    }
+
     class ThreadGate : IThreadGate
     {
         public static IThreadGate CreateClosedWithTimeout(TimeSpan timeout) => new ThreadGate(timeout);
@@ -18,9 +25,9 @@ namespace Composable.Testing.Threading
         public long Passed => _resourceGuard.ExecuteWithResourceExclusivelyLocked(() => _passedThreads.Count);
         public long Requested => _resourceGuard.ExecuteWithResourceExclusivelyLocked(() => _requestsThreads.Count);
 
-        public IReadOnlyList<Thread> RequestedThreads => _resourceGuard.ExecuteWithResourceExclusivelyLocked(() => _requestsThreads.ToList());
-        public IReadOnlyList<Thread> QueuedThreads => _resourceGuard.ExecuteWithResourceExclusivelyLocked(() => _queuedThreads.ToList());
-        public IReadOnlyList<Thread> PassedThreads => _resourceGuard.ExecuteWithResourceExclusivelyLocked(() => _passedThreads.ToList());
+        public IReadOnlyList<ThreadSnapshot> RequestedThreads => _resourceGuard.ExecuteWithResourceExclusivelyLocked(() => _requestsThreads.ToList());
+        public IReadOnlyList<ThreadSnapshot> QueuedThreads => _resourceGuard.ExecuteWithResourceExclusivelyLocked(() => _queuedThreads.ToList());
+        public IReadOnlyList<ThreadSnapshot> PassedThreads => _resourceGuard.ExecuteWithResourceExclusivelyLocked(() => _passedThreads.ToList());
 
         public IThreadGate Open()
         {
@@ -68,7 +75,7 @@ namespace Composable.Testing.Threading
         {
             using(var ownedLock = _resourceGuard.AwaitExclusiveLock(_defaultTimeout))
             {
-                var currentThread = Thread.CurrentThread;
+                var currentThread = new ThreadSnapshot();
                 _requestsThreads.Add(currentThread);
                 _queuedThreads.AddLast(currentThread);
                 ownedLock.SendUpdateNotificationToAllThreadsAwaitingUpdateNotification();
@@ -99,8 +106,8 @@ namespace Composable.Testing.Threading
         readonly IExclusiveResourceAccessGuard _resourceGuard;
         bool _lockOnNextPass;
         bool _isOpen;
-        readonly List<Thread> _requestsThreads = new List<Thread>();
-        readonly LinkedList<Thread> _queuedThreads = new LinkedList<Thread>();
-        readonly List<Thread> _passedThreads = new List<Thread>();
+        readonly List<ThreadSnapshot> _requestsThreads = new List<ThreadSnapshot>();
+        readonly LinkedList<ThreadSnapshot> _queuedThreads = new LinkedList<ThreadSnapshot>();
+        readonly List<ThreadSnapshot> _passedThreads = new List<ThreadSnapshot>();
     }
 }

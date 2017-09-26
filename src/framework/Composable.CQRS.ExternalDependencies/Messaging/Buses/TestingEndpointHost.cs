@@ -15,7 +15,7 @@ namespace Composable.Messaging.Buses
 
             var exceptions = Endpoints
                 .SelectMany(endpoint => endpoint.ServiceLocator
-                                                .Resolve<InterprocessServiceBus>().ThrownExceptions)
+                                                .Resolve<ServiceBus>().ThrownExceptions)
                 .ToList();
 
             Endpoints.ForEach(endpoint => endpoint.Dispose());

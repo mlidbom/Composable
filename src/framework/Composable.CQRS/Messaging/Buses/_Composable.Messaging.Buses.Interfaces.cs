@@ -17,7 +17,7 @@ namespace Composable.Messaging.Buses
     }
 
     ///<summary>Dispatches messages between processes.</summary>
-    interface IInterProcessServiceBus : IDisposable
+    interface IServiceBus : IDisposable
     {
         void SendAtTime(DateTime sendAt, ICommand message);
         void Publish(IEvent anEvent);
@@ -71,8 +71,7 @@ namespace Composable.Messaging.Buses
 
     interface IEndpointHost : IDisposable
     {
-        IEndpoint RegisterEndpoint(string name, Action<IEndpointBuilder> setup);
-        void Start();
+        IEndpoint RegisterAndStartEndpoint(string name, Action<IEndpointBuilder> setup);
         void Stop();
     }
 

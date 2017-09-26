@@ -28,7 +28,7 @@ namespace Composable.DependencyInjection.Testing
             var inprocessBus = new InProcessServiceBus(registry);
 
             var globalStateTracker = new GlobalBusStrateTracker();
-            var serviceBus = new InterprocessServiceBus("testendpoint", dummyTimeSource, inprocessBus, globalStateTracker);
+            var serviceBus = new ServiceBus("testendpoint", dummyTimeSource, inprocessBus, globalStateTracker);
             var runMode = new RunMode(isTesting:true, mode:mode);
 
             @this.Register(Component.For<IRunMode>()
@@ -50,7 +50,7 @@ namespace Composable.DependencyInjection.Testing
                            Component.For<IInProcessServiceBus, IMessageSpy>()
                                     .UsingFactoryMethod(_ => inprocessBus)
                                     .LifestyleSingleton(),
-                           Component.For<IInterProcessServiceBus, InterprocessServiceBus>()
+                           Component.For<IServiceBus, ServiceBus>()
                                     .UsingFactoryMethod(factoryMethod: _ => serviceBus)
                                     .LifestyleSingleton(),
                            Component.For<ISqlConnectionProvider>()

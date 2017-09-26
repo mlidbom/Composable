@@ -13,6 +13,6 @@ namespace Composable.Messaging.Buses
         public void Dispose() => Bus.Dispose();
 
         IGlobalBusStrateTracker GlobalStateTracker => ServiceLocator.Resolve<IGlobalBusStrateTracker>();
-        IInterProcessServiceBus Bus => ServiceLocator.Resolve<IInterProcessServiceBus>();
+        IServiceBus Bus => ServiceLocator.Resolve<IServiceBus>();
     }
 }

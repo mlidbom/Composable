@@ -13,7 +13,7 @@ using Composable.System.Threading.ResourceAccess;
 
 namespace Composable.Messaging.Buses
 {
-    partial class InterprocessServiceBus : IInterProcessServiceBus
+    partial class ServiceBus : IServiceBus
     {
         readonly string _name;
         readonly DummyTimeSource _timeSource;
@@ -40,7 +40,7 @@ namespace Composable.Messaging.Buses
 
         public IReadOnlyList<Exception> ThrownExceptions => _thrownExceptions.ToList();
 
-        public InterprocessServiceBus(string name, DummyTimeSource timeSource, IInProcessServiceBus inProcessServiceBus, IGlobalBusStrateTracker globalStateTracker)
+        public ServiceBus(string name, DummyTimeSource timeSource, IInProcessServiceBus inProcessServiceBus, IGlobalBusStrateTracker globalStateTracker)
         {
             _name = name;
             _timeSource = timeSource;

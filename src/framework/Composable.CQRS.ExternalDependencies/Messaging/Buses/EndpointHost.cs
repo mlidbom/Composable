@@ -13,7 +13,6 @@ namespace Composable.Messaging.Buses
         bool _disposed;
         protected readonly List<IEndpoint> Endpoints = new List<IEndpoint>();
         readonly IGlobalBusStrateTracker _globalBusStrateTracker = new GlobalBusStrateTracker();
-        bool _running;
 
         protected EndpointHost(IRunMode mode) => _mode = mode;
 
@@ -27,9 +26,8 @@ namespace Composable.Messaging.Buses
             public static ITestingEndpointHost CreateHost(TestingMode mode = TestingMode.DatabasePool) => new TestingEndpointHost(new RunMode(isTesting: true, mode: mode));
         }
 
-        public IEndpoint RegisterEndpoint(string name, Action<IEndpointBuilder> setup)
+        public IEndpoint RegisterAndStartEndpoint(string name, Action<IEndpointBuilder> setup)
         {
-            Contract.Assert.That(!_running, "!_running");
             var builder = new EndpointBuilder(name, _mode, _globalBusStrateTracker);
 
             setup(builder);
@@ -39,18 +37,13 @@ namespace Composable.Messaging.Buses
 
             Endpoints.Add(endpoint);
 
+            endpoint.Start();
+
             return endpoint;
         }
 
-        public void Start()
-        {
-            Contract.Assert.That(!_running, "!_running");
-            _running = true;
-            Endpoints.ForEach(endpoint => endpoint.Start());
-        }
         public void Stop()
         {
-            _running = false;
             Endpoints.ForEach(endpoint => endpoint.Stop());
         }
 

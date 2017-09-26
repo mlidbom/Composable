@@ -16,7 +16,7 @@ namespace Composable.CQRS.Tests.ServiceBus
     [TestFixture]
     public class WhenDummyTimeSourceTimeIsChanged
     {
-        IInterProcessServiceBus _bus;
+        IServiceBus _bus;
         DummyTimeSource _timeSource;
         IDisposable _scope;
         IServiceLocator _serviceLocator;
@@ -32,7 +32,7 @@ namespace Composable.CQRS.Tests.ServiceBus
             _timeSource.UtcNow = DateTime.Parse("2015-01-01 10:00");
             _scope = _serviceLocator.BeginScope();
 
-            _bus = _serviceLocator.Resolve<IInterProcessServiceBus>();
+            _bus = _serviceLocator.Resolve<IServiceBus>();
             _serviceLocator.Resolve<IMessageHandlerRegistrar>()
                       .RegisterCommandHandler<ScheduledCommand>(cmd => _receivedCommandGate.AwaitPassthrough());
         }

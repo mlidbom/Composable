@@ -3,7 +3,7 @@ using Composable.System;
 
 namespace Composable.Messaging.Buses
 {
-    partial class InterprocessServiceBus
+    partial class ServiceBus
     {
         class ScheduledMessage
         {

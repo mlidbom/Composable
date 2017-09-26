@@ -11,6 +11,8 @@ using NUnit.Framework;
 
 namespace Composable.CQRS.Tests.ServiceBusSpecification
 {
+    using Composable.System;
+
     [TestFixture]
     public class WhenDummyTimeSourceTimeIsChanged
     {
@@ -24,7 +26,7 @@ namespace Composable.CQRS.Tests.ServiceBusSpecification
         public void SetupTask()
         {
             _serviceLocator = DependencyInjectionContainer.CreateServiceLocatorForTesting(cont => {});
-            _receivedCommandGate = ThreadGate.CreateOpenWithTimeout(TimeSpanExtensions.Milliseconds(10));
+            _receivedCommandGate = ThreadGate.CreateOpenWithTimeout(1.Seconds());
 
             _timeSource = _serviceLocator.Resolve<DummyTimeSource>();
             _timeSource.UtcNow = DateTime.Parse("2015-01-01 10:00");
@@ -40,9 +42,9 @@ namespace Composable.CQRS.Tests.ServiceBusSpecification
         {
             var now = _timeSource.UtcNow;
             var inOneHour = new ScheduledCommand();
-            _bus.SendAtTime(now + TimeSpanExtensions.Hours(1), inOneHour);
+            _bus.SendAtTime(now + 1.Hours(), inOneHour);
 
-            _timeSource.UtcNow = now + TimeSpanExtensions.Hours(1);
+            _timeSource.UtcNow = now + 1.Hours();
 
             _receivedCommandGate.AwaitPassedThroughCountEqualTo(1);
         }
@@ -52,11 +54,11 @@ namespace Composable.CQRS.Tests.ServiceBusSpecification
         {
             var now = _timeSource.UtcNow;
             var inOneHour = new ScheduledCommand();
-            _bus.SendAtTime(now + TimeSpanExtensions.Hours(1), inOneHour);
+            _bus.SendAtTime(now + 1.Hours(), inOneHour);
 
-            _timeSource.UtcNow = now + TimeSpanExtensions.Minutes(1);
+            _timeSource.UtcNow = now + 1.Minutes();
 
-            Thread.Sleep(TimeSpanExtensions.Milliseconds(10));
+            Thread.Sleep(10.Milliseconds());
 
             _receivedCommandGate.Passed.Should().Be(0);
         }

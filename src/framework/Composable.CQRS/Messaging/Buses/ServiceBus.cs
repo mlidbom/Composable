@@ -93,7 +93,7 @@ namespace Composable.Messaging.Buses
 
         public void Send(ICommand command) =>
             _globalStateTracker.ResourceGuard.ExecuteWithResourceExclusivelyLocked(
-                action: () =>
+                () =>
                 {
                     var messageDispatchingTracker = _globalStateTracker.QueuedMessage(command, triggeringMessage: null);
                     _queuedTasks.Add(new DispatchingTask(command, messageDispatchingTracker, dispatchMessageTask: () => _inProcessServiceBus.Send(command)));
@@ -101,7 +101,7 @@ namespace Composable.Messaging.Buses
 
         public void Publish(IEvent anEvent) =>
             _globalStateTracker.ResourceGuard.ExecuteWithResourceExclusivelyLocked(
-                action: () =>
+                () =>
                 {
                     var messageDispatchingTracker = _globalStateTracker.QueuedMessage(anEvent, triggeringMessage: null);
                     _queuedTasks.Add(new DispatchingTask(anEvent, messageDispatchingTracker, dispatchMessageTask: () => _inProcessServiceBus.Publish(anEvent)));
@@ -109,7 +109,7 @@ namespace Composable.Messaging.Buses
 
         public Task<TResult> QueryAsync<TResult>(IQuery<TResult> query) where TResult : IQueryResult
             => _globalStateTracker.ResourceGuard.ExecuteWithResourceExclusivelyLocked(
-                function: () =>
+                () =>
                 {
                     var messageDispatchingTracker = _globalStateTracker.QueuedMessage(query, triggeringMessage: null);
                     var dispatchMessageTask = new Task<TResult>(function: () => _inProcessServiceBus.Get(query));
@@ -123,10 +123,10 @@ namespace Composable.Messaging.Buses
 
         void SendDueMessages(DateTime currentTime)
         {
-            var dueMessages = _scheduledMessages.Where(predicate: message => message.SendAt <= currentTime)
-                                                .ToList();
+                var dueMessages = _scheduledMessages.Where(predicate: message => message.SendAt <= currentTime)
+                                                    .ToList();
             dueMessages.ForEach(action: scheduledMessage => _inProcessServiceBus.Send(scheduledMessage.Message));
-            dueMessages.ForEach(action: message => _scheduledMessages.Remove(message));
+                dueMessages.ForEach(action: message => _scheduledMessages.Remove(message));
         }
 
         public override string ToString() => _name;

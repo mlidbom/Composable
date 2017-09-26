@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Threading;
 using System.Threading.Tasks;
 using Composable.DDD;
 using Composable.DependencyInjection;
@@ -18,20 +17,19 @@ namespace Composable.CQRS.Tests.ServiceBus
         {
             using(var host = EndpointHost.Testing.CreateHost())
             {
-                host.RegisterAndStartEndpoint("Backend", endpointBuilder =>
-                {
-                    endpointBuilder.MessageHandlerRegistrar.RegisterCommandHandler(
-                        (MyCommand command) => endpointBuilder.Container.CreateServiceLocator().Resolve<IServiceBus>().Publish(
-                            new MyEvent()));
+                host.RegisterAndStartEndpoint(
+                    "Backend",
+                    endpointBuilder =>
+                    {
+                        QueryResult queryResult = null;
 
-                    QueryResult queryResult = null;
-                    endpointBuilder.MessageHandlerRegistrar.RegisterEventHandler((MyEvent @event) => queryResult = new QueryResult());
-
-                    endpointBuilder.MessageHandlerRegistrar.RegisterQueryHandler((MyQuery query) => queryResult);
-                });
+                        endpointBuilder.RegisterHandler
+                                       .ForCommand((MyCommand command) => endpointBuilder.Container.CreateServiceLocator().Resolve<IServiceBus>().Publish(new MyEvent()))
+                                       .ForEvent((MyEvent @event) => queryResult = new QueryResult())
+                                       .ForQuery((MyQuery query) => queryResult);
+                    });
 
                 var clientEndpoint = host.RegisterAndStartEndpoint("client", _ => {});
-
 
                 var clientBus = clientEndpoint.ServiceLocator.Resolve<IServiceBus>();
 

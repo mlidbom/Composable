@@ -12,7 +12,7 @@ namespace Composable.Messaging.Buses
 
         readonly object _lock = new object();
 
-        IMessageHandlerRegistrar IMessageHandlerRegistrar.RegisterEventHandler<TEvent>(Action<TEvent> handler)
+        IMessageHandlerRegistrar IMessageHandlerRegistrar.ForEvent<TEvent>(Action<TEvent> handler)
         {
             lock(_lock)
             {
@@ -21,7 +21,7 @@ namespace Composable.Messaging.Buses
             }
         }
 
-        IMessageHandlerRegistrar IMessageHandlerRegistrar.RegisterCommandHandler<TCommand>(Action<TCommand> handler)
+        IMessageHandlerRegistrar IMessageHandlerRegistrar.ForCommand<TCommand>(Action<TCommand> handler)
         {
             lock(_lock)
             {
@@ -30,7 +30,7 @@ namespace Composable.Messaging.Buses
             }
         }
 
-        IMessageHandlerRegistrar IMessageHandlerRegistrar.RegisterQueryHandler<TQuery, TResult>(Func<TQuery, TResult> handler)
+        IMessageHandlerRegistrar IMessageHandlerRegistrar.ForQuery<TQuery, TResult>(Func<TQuery, TResult> handler)
         {
             lock(_lock)
             {

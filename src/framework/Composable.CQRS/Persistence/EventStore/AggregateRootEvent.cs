@@ -1,5 +1,6 @@
 ﻿using System;
 using Composable.DDD;
+using Newtonsoft.Json;
 
 namespace Composable.Persistence.EventStore
 {
@@ -56,5 +57,8 @@ namespace Composable.Persistence.EventStore
         internal long? InsertBefore { get; set; }
 
         internal long? InsertAfter { get; set; }
+
+        [JsonIgnore]
+        public Guid MessageId => EventId;
     }
 }

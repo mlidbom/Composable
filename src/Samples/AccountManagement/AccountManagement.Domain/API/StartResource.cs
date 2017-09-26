@@ -1,4 +1,5 @@
-﻿using Composable.Contracts;
+﻿using System;
+using Composable.Contracts;
 using Composable.Messaging;
 using Composable.Messaging.Commands;
 // ReSharper disable UnusedParameter.Local
@@ -18,6 +19,8 @@ namespace AccountManagement.Domain.API
         {
             public CreateAccountCommand CreateAccount(Email email, Password password) => new CreateAccountCommand(email, password);
         }
+
+        public Guid MessageId { get; } = Guid.NewGuid();
     }
 
     public class AccountResource : EntityResource<AccountResource>

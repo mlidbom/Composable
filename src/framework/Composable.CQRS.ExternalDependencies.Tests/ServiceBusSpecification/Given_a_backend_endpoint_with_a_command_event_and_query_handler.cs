@@ -8,6 +8,7 @@ using Composable.Messaging.Events;
 using Composable.Testing.Threading;
 using FluentAssertions;
 using Xunit;
+// ReSharper disable InconsistentNaming
 
 namespace Composable.CQRS.Tests.ServiceBusSpecification
 {
@@ -153,7 +154,7 @@ namespace Composable.CQRS.Tests.ServiceBusSpecification
 
         class MyCommand : Command {}
         class MyEvent : Event {}
-        class MyQuery : IQuery<MyQueryResult> {}
-        class MyQueryResult : IQueryResult {}
+        class MyQuery : Query<MyQueryResult> {}
+        class MyQueryResult : QueryResult {}
     }
 }

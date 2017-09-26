@@ -100,13 +100,13 @@ namespace Composable.CQRS.Tests.ServiceBusSpecification
 
         class ACommand : ICommand
         {
-            public Guid Id { get; } = Guid.NewGuid();
+            public Guid MessageId { get; } = Guid.NewGuid();
         }
 
-        class AQuery : IQuery<AQueryResult> {}
+        class AQuery : Query<AQueryResult> {}
 
-        class AQueryResult : IQueryResult {}
+        class AQueryResult : QueryResult {}
 
-        class AnEvent : IEvent {}
+        class AnEvent : Event {}
     }
 }

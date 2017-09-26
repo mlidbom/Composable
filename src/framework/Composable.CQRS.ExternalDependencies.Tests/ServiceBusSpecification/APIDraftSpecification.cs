@@ -5,6 +5,7 @@ using Composable.DependencyInjection;
 using Composable.Messaging;
 using Composable.Messaging.Buses;
 using Composable.Messaging.Commands;
+using Composable.Messaging.Events;
 using Composable.Persistence.EventStore;
 using FluentAssertions;
 using Xunit;
@@ -21,11 +22,11 @@ namespace Composable.CQRS.Tests.ServiceBusSpecification
                     "Backend",
                     endpointBuilder =>
                     {
-                        QueryResult queryResult = null;
+                        MyQueryResult queryResult = null;
 
                         endpointBuilder.RegisterHandler
                                        .ForCommand((MyCommand command, IServiceBus bus) => bus.Publish(new MyEvent()))
-                                       .ForEvent((MyEvent @event) => queryResult = new QueryResult())
+                                       .ForEvent((MyEvent @event) => queryResult = new MyQueryResult())
                                        .ForQuery((MyQuery query) => queryResult);
                     });
 
@@ -44,9 +45,9 @@ namespace Composable.CQRS.Tests.ServiceBusSpecification
             }
         }
 
-        class MyEvent : AggregateRootEvent { }
-        class QueryResult : IQueryResult { }
-        class MyQuery : IQuery<QueryResult> { }
+        class MyEvent : Event { }
+        class MyQueryResult : QueryResult { }
+        class MyQuery : Query<MyQueryResult> { }
         class MyCommand : Command { }
     }
 }

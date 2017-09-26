@@ -101,6 +101,7 @@ namespace Composable.CQRS.Tests.NewtonSoft
             roundTripped.ShouldBeEquivalentTo(eventWithOnlySubclassValues,
                 config => config.Excluding(@event => @event.UtcTimeStamp)//Timestamp is defaulted in the constructor used by serialization.
                         .Excluding(@event => @event.EventId)
+                        .Excluding(@event => @event.MessageId)
                 );
         }
 

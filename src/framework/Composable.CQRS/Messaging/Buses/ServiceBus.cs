@@ -31,7 +31,8 @@ namespace Composable.Messaging.Buses
 
         readonly IReadOnlyList<IMessageDispatchingRule> _dispatchingRules = new List<IMessageDispatchingRule>()
                                                                             {
-                                                                                new QueriesExecuteAfterAllCommandsAndEventsAreDone()
+                                                                                new QueriesExecuteAfterAllCommandsAndEventsAreDone(),
+                                                                                new CommandsAndEventHandlersDoNotRunInParallelWithEachOtherInTheSameEndpoint()
                                                                             };
         bool _running;
         readonly Thread _messagePumpThread;
@@ -56,7 +57,7 @@ namespace Composable.Messaging.Buses
                                  };
 
             _messageDispatchThread = 1.Through(DispatchThreadCount)
-                                      .Select(index => new Thread(MessageDispatchThread)
+                                      .Select(selector: index => new Thread(MessageDispatchThread)
                                                        {
                                                            Name = $"{_name}_MessageDispatchThread_{index}"
                                                        }).ToList();
@@ -64,20 +65,20 @@ namespace Composable.Messaging.Buses
 
         public void Start()
         {
-            Contract.Assert.That(!_running, "!_running");
+            Contract.Assert.That(!_running, message: "!_running");
             _running = true;
             _messagePumpThread.Start();
-            _messageDispatchThread.ForEach(thread => thread.Start());
+            _messageDispatchThread.ForEach(action: thread => thread.Start());
         }
 
         public void Stop()
         {
-            Contract.Assert.That(_running, "_running");
+            Contract.Assert.That(_running, message: "_running");
             _running = false;
             _cancellationTokenSource.Cancel();
-            _messageDispatchThread.ForEach(thread => thread.Interrupt());
+            _messageDispatchThread.ForEach(action: thread => thread.Interrupt());
             _messagePumpThread.Interrupt();
-            _messageDispatchThread.ForEach(thread => thread.Join());
+            _messageDispatchThread.ForEach(action: thread => thread.Join());
             _messagePumpThread.Join();
         }
 
@@ -94,26 +95,26 @@ namespace Composable.Messaging.Buses
 
         public void Send(ICommand command) =>
             _globalStateTracker.ResourceGuard.ExecuteWithResourceExclusivelyLocked(
-                () =>
+                action: () =>
                 {
-                    var messageDispatchingTracker = _globalStateTracker.QueuedMessage(command, null);
-                    _queuedTasks.Add(new DispatchingTask(command, messageDispatchingTracker, () => _inProcessServiceBus.Send(command)));
+                    var messageDispatchingTracker = _globalStateTracker.QueuedMessage(command, triggeringMessage: null);
+                    _queuedTasks.Add(new DispatchingTask(command, messageDispatchingTracker, dispatchMessageTask: () => _inProcessServiceBus.Send(command)));
                 });
 
         public void Publish(IEvent anEvent) =>
             _globalStateTracker.ResourceGuard.ExecuteWithResourceExclusivelyLocked(
-                () =>
+                action: () =>
                 {
-                    var messageDispatchingTracker = _globalStateTracker.QueuedMessage(anEvent, null);
-                    _queuedTasks.Add(new DispatchingTask(anEvent, messageDispatchingTracker, () => _inProcessServiceBus.Publish(anEvent)));
+                    var messageDispatchingTracker = _globalStateTracker.QueuedMessage(anEvent, triggeringMessage: null);
+                    _queuedTasks.Add(new DispatchingTask(anEvent, messageDispatchingTracker, dispatchMessageTask: () => _inProcessServiceBus.Publish(anEvent)));
                 });
 
         public Task<TResult> QueryAsync<TResult>(IQuery<TResult> query) where TResult : IQueryResult
             => _globalStateTracker.ResourceGuard.ExecuteWithResourceExclusivelyLocked(
-                () =>
+                function: () =>
                 {
-                    var messageDispatchingTracker = _globalStateTracker.QueuedMessage(query, null);
-                    var dispatchMessageTask = new Task<TResult>(() => _inProcessServiceBus.Get(query));
+                    var messageDispatchingTracker = _globalStateTracker.QueuedMessage(query, triggeringMessage: null);
+                    var dispatchMessageTask = new Task<TResult>(function: () => _inProcessServiceBus.Get(query));
                     _queuedTasks.Add(new DispatchingTask(query, messageDispatchingTracker, dispatchMessageTask));
                     return dispatchMessageTask;
                 });
@@ -164,7 +165,7 @@ namespace Composable.Messaging.Buses
                     {
                         case ICommand _:
                         case IEvent _:
-                            TransactionScopeCe.Execute(() => dispatchingTask.DispatchMessageTask.RunSynchronously());
+                            TransactionScopeCe.Execute(action: () => dispatchingTask.DispatchMessageTask.RunSynchronously());
                             break;
                         case IQuery _:
                             dispatchingTask.DispatchMessageTask.RunSynchronously();
@@ -172,7 +173,7 @@ namespace Composable.Messaging.Buses
                         default: throw new Exception($"Unknown message type {dispatchingTask.Message.GetType().AssemblyQualifiedName}");
                     }
 
-                    _globalStateTracker.ResourceGuard.ExecuteWithResourceExclusivelyLocked(() =>
+                    _globalStateTracker.ResourceGuard.ExecuteWithResourceExclusivelyLocked(action: () =>
                     {
                         _queuedTasks.Remove(dispatchingTask);
                         dispatchingTask.MessageDispatchingTracker.Succeeded();
@@ -184,7 +185,7 @@ namespace Composable.Messaging.Buses
                 }
                 catch(Exception exception)
                 {
-                    _globalStateTracker.ResourceGuard.ExecuteWithResourceExclusivelyLocked(() =>
+                    _globalStateTracker.ResourceGuard.ExecuteWithResourceExclusivelyLocked(action: () =>
                     {
                         _queuedTasks.Remove(dispatchingTask);
                         dispatchingTask.MessageDispatchingTracker.Failed();
@@ -199,16 +200,15 @@ namespace Composable.Messaging.Buses
         bool TryGetDispatchableMessages(out DispatchingTask dispatchingTask)
         {
             var state = _globalStateTracker.CreateSnapshot();
-            dispatchingTask = _queuedTasks.Where(task => !task.IsDispatching).FirstOrDefault(task => CanBeDispatched(state, task));
+            var locallyExecutingMessages = _queuedTasks.Where(predicate: task => task.IsDispatching).Select(selector: task => task.Message).ToList();
+            dispatchingTask = _queuedTasks.Where(predicate: task => !task.IsDispatching).FirstOrDefault(predicate: task => CanBeDispatched(state, locallyExecutingMessages, task));
             if(dispatchingTask != null)
-            {
                 return true;
-            }
 
             return false;
         }
 
-        bool CanBeDispatched(IGlobalBusStateSnapshot state, DispatchingTask task) => _dispatchingRules.All(rule => rule.CanBeDispatched(state, task.Message));
+        bool CanBeDispatched(IGlobalBusStateSnapshot state, IReadOnlyList<IMessage> locallyExecutingMessages, DispatchingTask task) => _dispatchingRules.All(predicate: rule => rule.CanBeDispatched(state, locallyExecutingMessages, task.Message));
 
         void SendDueMessages(DateTime currentTime)
         {

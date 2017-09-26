@@ -12,7 +12,7 @@ namespace Composable.Messaging.Buses
         readonly List<IInflightMessage> _inflightMessages = new List<IInflightMessage>();
 
         //It is never OK for this class to block. So make that explicit with a really strict timeout on all operations waiting for access.
-        readonly IExclusiveResourceAccessGuard _guard = ResourceAccessGuard.ExclusiveWithTimeout(TimeSpan.FromSeconds(2));
+        readonly IExclusiveResourceAccessGuard _guard = ResourceAccessGuard.ExclusiveWithTimeout(TimeSpan.FromSeconds(360));
 
         public IExclusiveResourceAccessGuard ResourceGuard => _guard;
 

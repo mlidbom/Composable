@@ -1,10 +1,12 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
+using Composable.System.Linq;
 
 namespace Composable.Messaging.Buses
 {
     class QueriesExecuteAfterAllCommandsAndEventsAreDone : IMessageDispatchingRule
     {
-        public bool CanBeDispatched(IGlobalBusStateSnapshot busState, IMessage message)
+        public bool CanBeDispatched(IGlobalBusStateSnapshot busState, IReadOnlyList<IMessage> locallyExecutingMessages, IMessage message)
         {
             if(!(message is IQuery))
             {
@@ -17,6 +19,20 @@ namespace Composable.Messaging.Buses
             }
 
             return true;
+        }
+    }
+
+
+    class CommandsAndEventHandlersDoNotRunInParallelWithEachOtherInTheSameEndpoint : IMessageDispatchingRule
+    {
+        public bool CanBeDispatched(IGlobalBusStateSnapshot busState, IReadOnlyList<IMessage> locallyExecutingMessages, IMessage message)
+        {
+            if (message is IQuery)
+            {
+                return true;
+            }
+
+            return locallyExecutingMessages.OfType<IEvent>().None() && locallyExecutingMessages.OfType<ICommand>().None();
         }
     }
 }

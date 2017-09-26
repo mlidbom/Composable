@@ -91,7 +91,7 @@ namespace Composable.Messaging.Buses
 
     interface IMessageDispatchingRule
     {
-        bool CanBeDispatched(IGlobalBusStateSnapshot busState, IMessage message);
+        bool CanBeDispatched(IGlobalBusStateSnapshot busState, IReadOnlyList<IMessage> locallyExecutingMessages, IMessage message);
     }
 
     interface IMessageDispatchingTracker

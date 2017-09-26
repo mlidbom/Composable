@@ -17,10 +17,10 @@ namespace Composable.Messaging.Buses
 
             _registry = new MessageHandlerRegistry();
 
-            var dummyTimeSource = DummyTimeSource.Now;
+            var timeSource = new DateTimeNowTimeSource();
             var inprocessBus = new InProcessServiceBus(_registry);
 
-            var serviceBus = new ServiceBus(name, dummyTimeSource, inprocessBus, globalStateTracker);
+            var serviceBus = new ServiceBus(name, timeSource, inprocessBus, globalStateTracker);
 
             _container.Register(Component.For<ISingleContextUseGuard>()
                                          .ImplementedBy<SingleThreadUseGuard>()
@@ -29,7 +29,7 @@ namespace Composable.Messaging.Buses
                                          .ImplementedBy<NewtonSoftEventStoreEventSerializer>()
                                          .LifestyleScoped(),
                                 Component.For<IUtcTimeTimeSource>()
-                                         .UsingFactoryMethod(factoryMethod: _ => DateTimeNowTimeSource.Instance)
+                                         .UsingFactoryMethod(factoryMethod: _ => timeSource)
                                          .LifestyleSingleton()
                                          .DelegateToParentServiceLocatorWhenCloning(),
                                 Component.For<IMessageHandlerRegistrar, MessageHandlerRegistry>()

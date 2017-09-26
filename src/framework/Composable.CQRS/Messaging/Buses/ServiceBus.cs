@@ -6,6 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Composable.Contracts;
 using Composable.GenericAbstractions.Time;
+using Composable.System;
 using Composable.System.Linq;
 using Composable.System.Reactive;
 using Composable.System.Threading.ResourceAccess;
@@ -15,13 +16,12 @@ namespace Composable.Messaging.Buses
     partial class ServiceBus : IServiceBus
     {
         readonly string _name;
-        readonly DummyTimeSource _timeSource;
+        readonly IUtcTimeTimeSource _timeSource;
         readonly IInProcessServiceBus _inProcessServiceBus;
         readonly IGlobalBusStrateTracker _globalStateTracker;
         readonly List<ScheduledCommand> _scheduledMessages = new List<ScheduledCommand>();
         readonly List<DispatchingTask> _queuedTasks = new List<DispatchingTask>();
 
-        readonly IDisposable _managedResources;
         readonly IList<Exception> _thrownExceptions = new List<Exception>();
         readonly CancellationTokenSource _cancellationTokenSource;
 
@@ -37,17 +37,17 @@ namespace Composable.Messaging.Buses
 
         const int DispatchThreadCount = 5;
         readonly List<Thread> _messageDispatchThread;
+        readonly Timer _scheduledMessagesTimer;
 
         public IReadOnlyList<Exception> ThrownExceptions => _thrownExceptions.ToList();
 
-        public ServiceBus(string name, DummyTimeSource timeSource, IInProcessServiceBus inProcessServiceBus, IGlobalBusStrateTracker globalStateTracker)
+        public ServiceBus(string name, IUtcTimeTimeSource timeSource, IInProcessServiceBus inProcessServiceBus, IGlobalBusStrateTracker globalStateTracker)
         {
             _name = name;
             _timeSource = timeSource;
             _cancellationTokenSource = new CancellationTokenSource();
             _inProcessServiceBus = inProcessServiceBus;
             _globalStateTracker = globalStateTracker;
-            _managedResources = timeSource.UtcNowChanged.Subscribe(SendDueMessages);
 
             _messagePumpThread = new Thread(MessagePumpThread)
                                  {
@@ -59,6 +59,8 @@ namespace Composable.Messaging.Buses
                                                                  {
                                                                      Name = $"{_name}_MessageDispatchThread_{index}"
                                                                  }).ToList();
+
+            _scheduledMessagesTimer = new Timer(_ => SendDueMessages(_timeSource.UtcNow), null, 1.Milliseconds(), 100.Milliseconds());
         }
 
         public void Start()
@@ -73,6 +75,7 @@ namespace Composable.Messaging.Buses
         {
             Contract.Assert.That(_running, message: "_running");
             _running = false;
+            _scheduledMessagesTimer.Dispose();
             _cancellationTokenSource.Cancel();
             _messageDispatchThread.ForEach(action: thread => thread.Interrupt());
             _messagePumpThread.Interrupt();
@@ -125,7 +128,7 @@ namespace Composable.Messaging.Buses
         {
             var dueMessages = _scheduledMessages.Where(predicate: message => message.SendAt <= currentTime)
                                                 .ToList();
-            dueMessages.ForEach(action: scheduledCommand => _inProcessServiceBus.Send(scheduledCommand.Command));
+            dueMessages.ForEach(action: scheduledCommand => Send(scheduledCommand.Command));
             dueMessages.ForEach(action: message => _scheduledMessages.Remove(message));
         }
 
@@ -137,7 +140,6 @@ namespace Composable.Messaging.Buses
             {
                 Stop();
             }
-            _managedResources.Dispose();
         }
     }
 }

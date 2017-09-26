@@ -5,15 +5,15 @@ namespace Composable.Messaging.Buses
 {
     partial class ServiceBus
     {
-        class ScheduledMessage
+        class ScheduledCommand
         {
             public DateTime SendAt { get; }
-            public ICommand Message { get; }
+            public ICommand Command { get; }
 
-            public ScheduledMessage(DateTime sendAt, ICommand message)
+            public ScheduledCommand(DateTime sendAt, ICommand command)
             {
                 SendAt = sendAt.SafeToUniversalTime();
-                Message = message;
+                Command = command;
             }
         }
     }

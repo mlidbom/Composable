@@ -18,7 +18,7 @@ namespace Composable.Messaging.Buses
         readonly DummyTimeSource _timeSource;
         readonly IInProcessServiceBus _inProcessServiceBus;
         readonly IGlobalBusStrateTracker _globalStateTracker;
-        readonly List<ScheduledMessage> _scheduledMessages = new List<ScheduledMessage>();
+        readonly List<ScheduledCommand> _scheduledMessages = new List<ScheduledCommand>();
         readonly List<DispatchingTask> _queuedTasks = new List<DispatchingTask>();
 
         readonly IDisposable _managedResources;
@@ -87,7 +87,7 @@ namespace Composable.Messaging.Buses
                 if(_timeSource.UtcNow > sendAt.ToUniversalTime())
                     throw new InvalidOperationException(message: "You cannot schedule a message to be sent in the past.");
 
-                _scheduledMessages.Add(new ScheduledMessage(sendAt, message));
+                _scheduledMessages.Add(new ScheduledCommand(sendAt, message));
             }
         }
 
@@ -123,10 +123,10 @@ namespace Composable.Messaging.Buses
 
         void SendDueMessages(DateTime currentTime)
         {
-                var dueMessages = _scheduledMessages.Where(predicate: message => message.SendAt <= currentTime)
-                                                    .ToList();
-            dueMessages.ForEach(action: scheduledMessage => _inProcessServiceBus.Send(scheduledMessage.Message));
-                dueMessages.ForEach(action: message => _scheduledMessages.Remove(message));
+            var dueMessages = _scheduledMessages.Where(predicate: message => message.SendAt <= currentTime)
+                                                .ToList();
+            dueMessages.ForEach(action: scheduledCommand => _inProcessServiceBus.Send(scheduledCommand.Command));
+            dueMessages.ForEach(action: message => _scheduledMessages.Remove(message));
         }
 
         public override string ToString() => _name;

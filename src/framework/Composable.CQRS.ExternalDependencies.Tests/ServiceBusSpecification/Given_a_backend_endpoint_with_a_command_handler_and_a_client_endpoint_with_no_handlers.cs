@@ -33,6 +33,10 @@ namespace Composable.CQRS.Tests.ServiceBusSpecification
 
         public void Dispose()
         {
+            _commandHandlerThreadGate.Open();
+            _eventHandlerThreadGate.Open();
+            _queryHandlerThreadGate.Open();
+
             _taskRunner.Dispose();
             _host.Dispose();
         }

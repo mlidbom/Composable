@@ -1,4 +1,5 @@
-﻿using Composable.DependencyInjection;
+﻿using System;
+using Composable.DependencyInjection;
 
 namespace Composable.Messaging.Buses
 {
@@ -9,7 +10,7 @@ namespace Composable.Messaging.Buses
 
         public void Start() => Bus.Start();
         public void Stop() => Bus.Stop();
-        public void AwaitNoMessagesInFlight() => GlobalStateTracker.AwaitNoMessagesInFlight();
+        public void AwaitNoMessagesInFlight(TimeSpan? timeoutOverride) => GlobalStateTracker.AwaitNoMessagesInFlight(timeoutOverride);
         public void Dispose() => Bus.Dispose();
 
         IGlobalBusStrateTracker GlobalStateTracker => ServiceLocator.Resolve<IGlobalBusStrateTracker>();

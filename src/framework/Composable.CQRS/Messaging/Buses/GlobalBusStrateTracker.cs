@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Composable.System;
 using Composable.System.Linq;
 using Composable.System.Threading.ResourceAccess;
 using JetBrains.Annotations;
@@ -12,7 +13,7 @@ namespace Composable.Messaging.Buses
         readonly List<IInflightMessage> _inflightMessages = new List<IInflightMessage>();
 
         //It is never OK for this class to block. So make that explicit with a really strict timeout on all operations waiting for access.
-        readonly IExclusiveResourceAccessGuard _guard = ResourceAccessGuard.ExclusiveWithTimeout(TimeSpan.FromSeconds(360));
+        readonly IExclusiveResourceAccessGuard _guard = ResourceAccessGuard.ExclusiveWithTimeout(1.Milliseconds());
 
         public IExclusiveResourceAccessGuard ResourceGuard => _guard;
 
@@ -29,14 +30,18 @@ namespace Composable.Messaging.Buses
                     return inflightMessage;
                 });
 
-        public void AwaitNoMessagesInFlight() => _guard.ExecuteWithResourceExclusivelyLockedWhen(() => _inflightMessages.None(), () => {});
+        public void AwaitNoMessagesInFlight(TimeSpan? timeoutOverride)
+            => _guard.ExecuteWithResourceExclusivelyLockedWhen(
+                timeout: timeoutOverride ?? 30.Seconds(),
+                condition: () => _inflightMessages.None(),
+                action: () => {});
 
         void DoneWith(IInflightMessage message) => _guard.ExecuteWithResourceExclusivelyLockedAndNotifyWaitingThreadsAboutUpdate(() => _inflightMessages.Remove(message));
 
         class GlobalBusStateSnapshot : IGlobalBusStateSnapshot
         {
-            public GlobalBusStateSnapshot(IEnumerable<IInflightMessage> inflightMessages) => InflightMessages = inflightMessages;
-            public IEnumerable<IInflightMessage> InflightMessages { get; }
+            public GlobalBusStateSnapshot(IReadOnlyList<IInflightMessage> inflightMessages) => InflightMessages = inflightMessages;
+            public IReadOnlyList<IInflightMessage> InflightMessages { get; }
         }
 
         class InflightMessage : IInflightMessage, IMessageDispatchingTracker

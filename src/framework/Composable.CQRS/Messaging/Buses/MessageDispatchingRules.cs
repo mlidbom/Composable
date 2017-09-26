@@ -13,9 +13,12 @@ namespace Composable.Messaging.Buses
                 return true;
             }
 
-            if(busState.InflightMessages.Select(dispatching => dispatching.Message).Any(dispatching => dispatching is ICommand || dispatching is IEvent))
+            foreach(var inflightMessage in busState.InflightMessages)
             {
-                return false;
+                if(inflightMessage.Message is IEvent || inflightMessage.Message is ICommand)
+                {
+                    return false;
+                }
             }
 
             return true;
@@ -32,7 +35,15 @@ namespace Composable.Messaging.Buses
                 return true;
             }
 
-            return locallyExecutingMessages.OfType<IEvent>().None() && locallyExecutingMessages.OfType<ICommand>().None();
+            foreach(var executingMessage in locallyExecutingMessages)
+            {
+                if(executingMessage is IEvent || executingMessage is ICommand)
+                {
+                    return false;
+                }
+            }
+
+            return true;
         }
     }
 }

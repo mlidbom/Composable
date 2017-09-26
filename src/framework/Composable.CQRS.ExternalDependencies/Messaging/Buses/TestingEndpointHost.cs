@@ -13,13 +13,13 @@ namespace Composable.Messaging.Buses
         }
 
 
-        public void WaitForEndpointsToBeAtRest() { Endpoints.ForEach(endpoint => endpoint.AwaitNoMessagesInFlight()); }
+        public void WaitForEndpointsToBeAtRest(TimeSpan? timeoutOverride) { Endpoints.ForEach(endpoint => endpoint.AwaitNoMessagesInFlight(timeoutOverride)); }
 
         public IServiceBus ClientBus => _clientEndpoint.ServiceLocator.Resolve<IServiceBus>();
 
         protected override void InternalDispose()
         {
-            WaitForEndpointsToBeAtRest();
+            WaitForEndpointsToBeAtRest(null);
 
             var exceptions = Endpoints
                 .SelectMany(endpoint => endpoint.ServiceLocator

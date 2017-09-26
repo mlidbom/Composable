@@ -58,9 +58,9 @@ namespace Composable.Messaging.Buses
 
             _messageDispatchThread = 1.Through(DispatchThreadCount)
                                       .Select(selector: index => new Thread(MessageDispatchThread)
-                                                       {
-                                                           Name = $"{_name}_MessageDispatchThread_{index}"
-                                                       }).ToList();
+                                                                 {
+                                                                     Name = $"{_name}_MessageDispatchThread_{index}"
+                                                                 }).ToList();
         }
 
         public void Start()
@@ -127,7 +127,7 @@ namespace Composable.Messaging.Buses
             {
                 while(!_cancellationTokenSource.Token.IsCancellationRequested)
                 {
-                    while(TryGetDispatchableMessages(out var dispatchingTask))
+                    while(TryGetDispatchableMessage(out var dispatchingTask))
                     {
                         dispatchingTask.IsDispatching = true;
                         _dispatchingTasks.Add(dispatchingTask);
@@ -197,18 +197,48 @@ namespace Composable.Messaging.Buses
 
         static bool IsShuttingDownException(Exception exception) => exception is OperationCanceledException || exception is ThreadInterruptedException;
 
-        bool TryGetDispatchableMessages(out DispatchingTask dispatchingTask)
+        bool TryGetDispatchableMessage(out DispatchingTask dispatchingTask)
         {
             var state = _globalStateTracker.CreateSnapshot();
-            var locallyExecutingMessages = _queuedTasks.Where(predicate: task => task.IsDispatching).Select(selector: task => task.Message).ToList();
-            dispatchingTask = _queuedTasks.Where(predicate: task => !task.IsDispatching).FirstOrDefault(predicate: task => CanBeDispatched(state, locallyExecutingMessages, task));
-            if(dispatchingTask != null)
-                return true;
 
+            //Performance critical code so let's dispense with Linq
+            var locallyExecutingMessages = new List<IMessage>();
+
+            foreach(var queuedTask in _queuedTasks)
+            {
+                if(queuedTask.IsDispatching)
+                {
+                    locallyExecutingMessages.Add(queuedTask.Message);
+                }
+            }
+
+            foreach(var queuedTask in _queuedTasks)
+            {
+                if(!queuedTask.IsDispatching)
+                {
+                    if(CanbeDispatched(state, locallyExecutingMessages, queuedTask))
+                    {
+                        dispatchingTask = queuedTask;
+                        return true;
+                    }
+                }
+            }
+
+            dispatchingTask = null;
             return false;
         }
 
-        bool CanBeDispatched(IGlobalBusStateSnapshot state, IReadOnlyList<IMessage> locallyExecutingMessages, DispatchingTask task) => _dispatchingRules.All(predicate: rule => rule.CanBeDispatched(state, locallyExecutingMessages, task.Message));
+        bool CanbeDispatched(IGlobalBusStateSnapshot state, List<IMessage> locallyExecutingMessages, DispatchingTask queuedTask)
+        {
+            foreach(var rule in _dispatchingRules)
+            {
+                if(!rule.CanBeDispatched(state, locallyExecutingMessages, queuedTask.Message))
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
 
         void SendDueMessages(DateTime currentTime)
         {

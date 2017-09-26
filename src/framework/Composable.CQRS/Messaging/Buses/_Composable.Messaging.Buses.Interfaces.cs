@@ -56,7 +56,7 @@ namespace Composable.Messaging.Buses
         IServiceLocator ServiceLocator { get; }
         void Start();
         void Stop();
-        void AwaitNoMessagesInFlight();
+        void AwaitNoMessagesInFlight(TimeSpan? timeoutOverride);
     }
 
     interface IEndpointBuilder
@@ -73,14 +73,14 @@ namespace Composable.Messaging.Buses
 
     interface ITestingEndpointHost : IEndpointHost
     {
-        void WaitForEndpointsToBeAtRest();
+        void WaitForEndpointsToBeAtRest(TimeSpan? timeoutOverride);
 
         IServiceBus ClientBus { get; }
     }
 
     interface IGlobalBusStateSnapshot
     {
-        IEnumerable<IInflightMessage> InflightMessages { get; }
+        IReadOnlyList<IInflightMessage> InflightMessages { get; }
     }
 
     interface IInflightMessage
@@ -105,6 +105,6 @@ namespace Composable.Messaging.Buses
         IExclusiveResourceAccessGuard ResourceGuard { get; }
         IGlobalBusStateSnapshot CreateSnapshot();
         IMessageDispatchingTracker QueuedMessage(IMessage message, IMessage triggeringMessage);
-        void AwaitNoMessagesInFlight();
+        void AwaitNoMessagesInFlight(TimeSpan? timeoutOverride);
     }
 }

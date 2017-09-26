@@ -1,15 +1,13 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using Composable.Messaging.Events;
-using Composable.System.Reflection;
 
 namespace Composable.Messaging.Buses
 {
     class MessageHandlerRegistry : IMessageHandlerRegistrar, IMessageHandlerRegistry
     {
         internal readonly Dictionary<Type, Action<object>> _commandHandlers = new Dictionary<Type, Action<object>>();
-        internal readonly Dictionary<Type, Func<object,object>> _queryHandlers = new Dictionary<Type, Func<object, object>>();
+        internal readonly Dictionary<Type, Func<object, object>> _queryHandlers = new Dictionary<Type, Func<object, object>>();
         internal readonly List<EventHandlerRegistration> _eventHandlerRegistrations = new List<EventHandlerRegistration>();
 
         readonly object _lock = new object();
@@ -32,9 +30,9 @@ namespace Composable.Messaging.Buses
             }
         }
 
-        IMessageHandlerRegistrar IMessageHandlerRegistrar.RegisterQueryHandler<TQuery,TResult>(Func<TQuery, TResult> handler)
+        IMessageHandlerRegistrar IMessageHandlerRegistrar.RegisterQueryHandler<TQuery, TResult>(Func<TQuery, TResult> handler)
         {
-            lock (_lock)
+            lock(_lock)
             {
                 _queryHandlers.Add(typeof(TQuery), query => handler((TQuery)query));
                 return this;
@@ -60,13 +58,13 @@ namespace Composable.Messaging.Buses
         {
             try
             {
-                lock (_lock)
+                lock(_lock)
                 {
                     var typeUnsafeQuery = _queryHandlers[query.GetType()];
                     return actualQuery => (TResult)typeUnsafeQuery(actualQuery);
                 }
             }
-            catch (KeyNotFoundException)
+            catch(KeyNotFoundException)
             {
                 throw new NoHandlerException(query.GetType());
             }
@@ -83,23 +81,6 @@ namespace Composable.Messaging.Buses
             }
 
             return dispatcher;
-        }
-
-        bool IMessageHandlerRegistry.Handles(object aMessage)
-        {
-            lock(_lock)
-            {
-                if(aMessage is IEvent)
-                    return _eventHandlerRegistrations.Any(registration => registration.Type.IsInstanceOfType(aMessage));
-
-                if(aMessage is ICommand)
-                    return _commandHandlers.ContainsKey(aMessage.GetType());
-
-                if(aMessage.GetType().Implements(typeof(IQuery<>)))
-                    return _queryHandlers.ContainsKey(aMessage.GetType());
-            }
-
-            throw new Exception($"Unhandled message type: {aMessage.GetType()}");
         }
 
         internal class EventHandlerRegistration

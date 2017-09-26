@@ -41,8 +41,6 @@ namespace Composable.Messaging.Buses
         Func<IQuery<TResult>, TResult> GetQueryHandler<TResult>(IQuery<TResult> query) where TResult : IQueryResult;
 
         IEventDispatcher<IEvent> CreateEventDispatcher();
-
-        bool Handles(object aMessage);
     }
 
     public interface IMessageHandlerRegistrar

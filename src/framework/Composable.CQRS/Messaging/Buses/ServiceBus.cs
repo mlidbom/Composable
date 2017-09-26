@@ -125,12 +125,13 @@ namespace Composable.Messaging.Buses
         static bool IsShuttingDownException(Exception exception) => exception is OperationCanceledException || exception is ThreadInterruptedException;
 
         void SendDueMessages(DateTime currentTime)
-        {
-            var dueMessages = _scheduledMessages.Where(predicate: message => message.SendAt <= currentTime)
-                                                .ToList();
-            dueMessages.ForEach(action: scheduledCommand => Send(scheduledCommand.Command));
-            dueMessages.ForEach(action: message => _scheduledMessages.Remove(message));
-        }
+            => _globalStateTracker.ResourceGuard.ExecuteWithResourceExclusivelyLocked(() =>
+            {
+                var dueMessages = _scheduledMessages.Where(predicate: message => message.SendAt <= currentTime)
+                                                    .ToList();
+                dueMessages.ForEach(action: scheduledCommand => Send(scheduledCommand.Command));
+                dueMessages.ForEach(action: message => _scheduledMessages.Remove(message));
+            });
 
         public override string ToString() => _name;
 

@@ -1,60 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
-using System.Transactions;
 using Composable.Contracts;
 using Composable.System.Threading.ResourceAccess;
 
 namespace Composable.Testing.Threading
 {
-    class ThreadSnapshot
-    {
-        public Thread Thread { get; } = Thread.CurrentThread;
-
-
-        public TransactionSnapshot Transaction { get; } = TransactionSnapshot.TakeSnapshot();
-    }
-
-    class TransactionSnapshot
-    {
-        public TransactionSnapshot(Transaction transaction)
-        {
-            IsolationLevel = transaction.IsolationLevel;
-            TransactionInformation = new TransactionInformationSnapshot(transaction.TransactionInformation);
-
-        }
-
-        public class TransactionInformationSnapshot
-        {
-            public TransactionInformationSnapshot(TransactionInformation information)
-            {
-                LocalIdentifier = information.LocalIdentifier;
-                DistributedIdentifier = information.DistributedIdentifier;
-                Status = information.Status;
-            }
-
-            public string LocalIdentifier { get; }
-            public Guid DistributedIdentifier { get; }
-            public TransactionStatus Status { get; }
-        }
-
-        public IsolationLevel IsolationLevel { get; }
-
-        public TransactionInformationSnapshot TransactionInformation { get; }
-
-        public static TransactionSnapshot TakeSnapshot()
-        {
-            var currentTransaction = Transaction.Current;
-            if(currentTransaction == null)
-            {
-                return null;
-            }
-
-            return  new TransactionSnapshot(currentTransaction);
-        }
-    }
-
     class ThreadGate : IThreadGate
     {
         public static IThreadGate CreateClosedWithTimeout(TimeSpan timeout) => new ThreadGate(timeout);

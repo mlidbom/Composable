@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Threading;
+using System.Transactions;
 using Composable.Messaging;
 using Composable.Messaging.Buses;
 using Composable.Messaging.Commands;
@@ -128,20 +129,24 @@ namespace Composable.CQRS.Tests.ServiceBusSpecification
                                    .Should().BeFalse();
         }
 
-        [Fact] void Command_handler_runs_in_transaction()
+        [Fact] void Command_handler_runs_in_transaction_with_isolation_level_Serializable()
         {
             _host.ClientBus.Send(new MyCommand());
 
-            _commandHandlerThreadGate.AwaitPassedThroughCountEqualTo(1)
-                                     .PassedThreads.Single().Transaction.Should().NotBeNull();
+            var transaction = _commandHandlerThreadGate.AwaitPassedThroughCountEqualTo(1)
+                                                       .PassedThreads.Single().Transaction;
+            transaction.Should().NotBeNull();
+            transaction.IsolationLevel.Should().Be(IsolationLevel.Serializable);
         }
 
-        [Fact] void Event_handler_runs_in_transaction()
+        [Fact] void Event_handler_runs_in_transaction_with_isolation_level_Serializable()
         {
             _host.ClientBus.Publish(new MyEvent());
 
-            _eventHandlerThreadGate.AwaitPassedThroughCountEqualTo(1)
-                                   .PassedThreads.Single().Transaction.Should().NotBeNull();
+            var transaction = _eventHandlerThreadGate.AwaitPassedThroughCountEqualTo(1)
+                                                     .PassedThreads.Single().Transaction;
+            transaction.Should().NotBeNull();
+            transaction.IsolationLevel.Should().Be(IsolationLevel.Serializable);
         }
 
         [Fact] void Query_handler_does_not_run_in_transaction()

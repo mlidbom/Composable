@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using Composable.System.Configuration;
 using Composable.System.Linq;
+using Composable.System.Threading;
 
 namespace Composable.System
 {
@@ -76,7 +77,7 @@ namespace Composable.System
         static async Task ScheduleDisposalAndExistenceTest(StrictlyManagedResource<TManagedResource> resource, TimeSpan maxLifeSpan)
         {
             var resourceReference = new WeakReference<StrictlyManagedResource<TManagedResource>>(resource);
-            await Task.Delay(maxLifeSpan).ConfigureAwait(false);
+            await Task.Delay(maxLifeSpan).IgnoreSynchronizationContext();
             StrictlyManagedResource<TManagedResource> stillLivingResource;
             if(resourceReference.TryGetTarget(out stillLivingResource) && !stillLivingResource._disposed)
             {

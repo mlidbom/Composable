@@ -9,6 +9,7 @@ using Composable.Contracts;
 using Composable.GenericAbstractions.Time;
 using Composable.System;
 using Composable.System.Linq;
+using Composable.System.Threading;
 using Composable.System.Threading.ResourceAccess;
 
 namespace Composable.Messaging.Buses
@@ -112,30 +113,28 @@ namespace Composable.Messaging.Buses
 
         public async Task<TResult> SendAsync<TResult>(ICommand<TResult> command) where TResult : IMessage
         {
-            var taskCompletionSource = new TaskCompletionSource<TResult>();
+            var taskCompletionSource = new TaskCompletionSource<TResult>(TaskCreationOptions.RunContinuationsAsynchronously);
             _globalStateTracker.ResourceGuard.ExecuteWithResourceExclusivelyLocked(
                 () =>
                 {
                     var messageDispatchingTracker = _globalStateTracker.QueuedMessage(command, triggeringMessage: null);
-                    TResult result = default;
-                    _queuedTasks.Add(new DispatchingTask(command, messageDispatchingTracker, () => result = _inProcessServiceBus.Send(command), () => taskCompletionSource.SetResult(result)));
+                    _queuedTasks.Add(new DispatchingTask(command, messageDispatchingTracker, () => taskCompletionSource.SetResult(_inProcessServiceBus.Send(command))));
                 });
 
-            return await taskCompletionSource.Task.ConfigureAwait(false);
+            return await taskCompletionSource.Task.IgnoreSynchronizationContext();
         }
 
         public async Task<TResult> QueryAsync<TResult>(IQuery<TResult> query) where TResult : IQueryResult
         {
-            TaskCompletionSource<TResult> taskCompletionSource = new TaskCompletionSource<TResult>();
+            TaskCompletionSource<TResult> taskCompletionSource = new TaskCompletionSource<TResult>(TaskCreationOptions.RunContinuationsAsynchronously);
             _globalStateTracker.ResourceGuard.ExecuteWithResourceExclusivelyLocked(
                 () =>
                 {
                     var messageDispatchingTracker = _globalStateTracker.QueuedMessage(query, triggeringMessage: null);
-                    TResult result = default;
-                    _queuedTasks.Add(new DispatchingTask(query, messageDispatchingTracker, () => result = _inProcessServiceBus.Get(query), () => taskCompletionSource.SetResult(result)));
+                    _queuedTasks.Add(new DispatchingTask(query, messageDispatchingTracker, () => taskCompletionSource.SetResult(_inProcessServiceBus.Get(query))));
                 });
 
-            return await taskCompletionSource.Task.ConfigureAwait(false);
+            return await taskCompletionSource.Task.IgnoreSynchronizationContext();
         }
 
         public TResult Query<TResult>(IQuery<TResult> query) where TResult : IQueryResult => QueryAsync(query).Result;

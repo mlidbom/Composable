@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Threading.Tasks;
 
 namespace Composable.Messaging.Buses
 {
@@ -7,17 +6,13 @@ namespace Composable.Messaging.Buses
     {
         class DispatchingTask
         {
-            Action _completeAction;
             public IMessage Message { get; }
             public IMessageDispatchingTracker MessageDispatchingTracker { get; }
             public Action DispatchMessageTask { get; }
             public bool IsDispatching { get; set; }
 
-            public void Complete() => Task.Run(_completeAction);
-
-            public DispatchingTask(IMessage message, IMessageDispatchingTracker messageDispatchingTracker, Action dispatchMessageTask, Action completeAction = null)
+            public DispatchingTask(IMessage message, IMessageDispatchingTracker messageDispatchingTracker, Action dispatchMessageTask)
             {
-                _completeAction = completeAction ?? (() => {});
                 Message = message;
                 MessageDispatchingTracker = messageDispatchingTracker;
                 DispatchMessageTask = dispatchMessageTask;

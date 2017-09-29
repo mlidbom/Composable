@@ -28,11 +28,9 @@ namespace Composable.Messaging.Buses
                         case ICommand _:
                         case IEvent _:
                             TransactionScopeCe.Execute(action: () => dispatchingTask.DispatchMessageTask());
-                            dispatchingTask.Complete();
                             break;
                         case IQuery _:
                             dispatchingTask.DispatchMessageTask();
-                            dispatchingTask.Complete();
                             break;
                         default: throw new Exception($"Unknown message type {dispatchingTask.Message.GetType().AssemblyQualifiedName}");
                     }

@@ -7,6 +7,6 @@ namespace Composable.Testing.Threading
     {
         public Thread Thread { get; } = Thread.CurrentThread;
 
-        [CanBeNull] public TransactionSnapshot Transaction { get; } = TransactionSnapshot.TakeSnapshot();
+        public TransactionSnapshot Transaction { get; } = TransactionSnapshot.TakeSnapshot();
     }
 }

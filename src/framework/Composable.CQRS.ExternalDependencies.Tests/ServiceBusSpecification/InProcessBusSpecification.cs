@@ -37,7 +37,7 @@ namespace Composable.CQRS.Tests.ServiceBusSpecification
                 public With_registered_handler_for_ACommand()
                 {
                     _commandHandled = false;
-                    Registrar.ForCommand((ACommand command) => _commandHandled = true);
+                    Registrar.ForCommand((ACommand command) => { _commandHandled = true; });
                 }
 
                 [Fact] public void Sending_new_ACommand_calls_the_handler()

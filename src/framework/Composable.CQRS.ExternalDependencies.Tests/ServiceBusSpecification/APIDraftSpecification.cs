@@ -27,21 +27,21 @@ namespace Composable.CQRS.Tests.ServiceBusSpecification
                         endpointBuilder.RegisterHandler
                                        .ForCommand((MyCommand command, IServiceBus bus) => bus.Publish(new MyEvent()))
                                        .ForEvent((MyEvent @event) => queryResult = new MyQueryResult())
-                                       .ForQuery((MyQuery query) => queryResult);
+                                       .ForQuery((MyQuery query) => queryResult)
+                                       .ForCommand((MyCommandWithResult command) => new MyCommandResult());
                     });
 
-                var clientEndpoint = host.RegisterAndStartEndpoint("client", _ => {});
+                host.ClientBus.Send(new MyCommand());
 
-
-                var clientBus = clientEndpoint.ServiceLocator.Resolve<IServiceBus>();
-
-                clientBus.Send(new MyCommand());
-
-                var result = clientBus.Query(new MyQuery());
+                var result = host.ClientBus.Query(new MyQuery());
                 result.Should().NotBeNull();
 
-                result = await clientBus.QueryAsync(new MyQuery());
+                result = await host.ClientBus.QueryAsync(new MyQuery());
                 result.Should().NotBeNull();
+
+                var commandResult = await host.ClientBus.SendAsync(new MyCommandWithResult());
+                commandResult.Should().NotBe(null);
+
             }
         }
 
@@ -49,5 +49,10 @@ namespace Composable.CQRS.Tests.ServiceBusSpecification
         class MyQueryResult : QueryResult { }
         class MyQuery : Query<MyQueryResult> { }
         class MyCommand : Command { }
+        class MyCommandWithResult : Command<MyCommandResult> { }
+
+        class MyCommandResult : Message
+        {
+        }
     }
 }

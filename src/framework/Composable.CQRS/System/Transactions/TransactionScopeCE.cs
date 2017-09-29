@@ -24,7 +24,10 @@ namespace Composable.System.Transactions
 
         internal static void Execute(Action action, TransactionScopeOption option = TransactionScopeOption.Required, IsolationLevel isolationLevel = IsolationLevel.Serializable)
         {
-            using(var transaction = new TransactionScope(option, new TransactionOptions() {IsolationLevel = isolationLevel}))
+            using(var transaction = new TransactionScope(option, new TransactionOptions()
+                                                                 {
+                                                                     IsolationLevel = isolationLevel
+                                                                 }, TransactionScopeAsyncFlowOption.Enabled))
             {
                 action();
                 transaction.Complete();

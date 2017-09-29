@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 using Composable.System.Threading.ResourceAccess;
 using Composable.System.Transactions;
 
@@ -26,10 +27,12 @@ namespace Composable.Messaging.Buses
                     {
                         case ICommand _:
                         case IEvent _:
-                            TransactionScopeCe.Execute(action: () => dispatchingTask.DispatchMessageTask.RunSynchronously());
+                            TransactionScopeCe.Execute(action: () => dispatchingTask.DispatchMessageTask());
+                            dispatchingTask.Complete();
                             break;
                         case IQuery _:
-                            dispatchingTask.DispatchMessageTask.RunSynchronously();
+                            dispatchingTask.DispatchMessageTask();
+                            dispatchingTask.Complete();
                             break;
                         default: throw new Exception($"Unknown message type {dispatchingTask.Message.GetType().AssemblyQualifiedName}");
                     }

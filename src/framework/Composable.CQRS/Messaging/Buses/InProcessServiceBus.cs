@@ -16,6 +16,18 @@ namespace Composable.Messaging.Buses
             AfterDispatchingMessage(anEvent);
         }
 
+
+        public TResult Send<TResult>(ICommand<TResult> command) where TResult : IMessage
+        {
+
+            var returnValue = _handlerRegistry.GetCommandHandler(command)
+                                              .Invoke(command);
+            AfterDispatchingMessage(command);
+            AfterDispatchingMessage(returnValue);
+            return returnValue;
+        }
+
+
         void IInProcessServiceBus.Send(ICommand message)
         {
             _handlerRegistry.GetCommandHandler(message)(message);

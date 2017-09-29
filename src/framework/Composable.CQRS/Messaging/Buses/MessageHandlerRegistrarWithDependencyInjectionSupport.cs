@@ -27,6 +27,15 @@ namespace Composable.Messaging.Buses
             return @this;
         }
 
+        public static MessageHandlerRegistrarWithDependencyInjectionSupport ForCommand<TCommand, TResult>(
+            this MessageHandlerRegistrarWithDependencyInjectionSupport @this,
+            Func<TCommand, TResult> action) where TCommand : ICommand<TResult>
+                                            where TResult : IMessage
+        {
+            @this.Register.ForCommand(action);
+            return @this;
+        }
+
         public static MessageHandlerRegistrarWithDependencyInjectionSupport ForCommand<TCommand, TDependency1>(
             this MessageHandlerRegistrarWithDependencyInjectionSupport @this,
             Action<TCommand, TDependency1> action) where TCommand : ICommand

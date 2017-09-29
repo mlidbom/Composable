@@ -13,6 +13,7 @@ namespace Composable.Messaging.Buses
     {
         void Publish(IEvent anEvent);
         TResult Get<TResult>(IQuery<TResult> query) where TResult : IQueryResult;
+        TResult Send<TResult>(ICommand<TResult> command) where TResult : IMessage;
         void Send(ICommand message);
     }
 
@@ -25,6 +26,7 @@ namespace Composable.Messaging.Buses
         Task<TResult> QueryAsync<TResult>(IQuery<TResult> query) where TResult : IQueryResult;
 
         void Send(ICommand command);
+        Task<TResult> SendAsync<TResult>(ICommand<TResult> command) where TResult : IMessage;
         void Start();
         void Stop();
     }
@@ -40,6 +42,8 @@ namespace Composable.Messaging.Buses
 
         Func<IQuery<TResult>, TResult> GetQueryHandler<TResult>(IQuery<TResult> query) where TResult : IQueryResult;
 
+        Func<ICommand<TResult>, TResult> GetCommandHandler<TResult>(ICommand<TResult> command) where TResult : IMessage;
+
         IEventDispatcher<IEvent> CreateEventDispatcher();
     }
 
@@ -47,6 +51,8 @@ namespace Composable.Messaging.Buses
     {
         IMessageHandlerRegistrar ForEvent<TEvent>(Action<TEvent> handler) where TEvent : IEvent;
         IMessageHandlerRegistrar ForCommand<TCommand>(Action<TCommand> handler) where TCommand : ICommand;
+        IMessageHandlerRegistrar ForCommand<TCommand, TResult>(Func<TCommand, TResult> handler) where TCommand : ICommand<TResult>
+                                                                                                  where TResult : IMessage;
         IMessageHandlerRegistrar ForQuery<TQuery, TResult>(Func<TQuery, TResult> handler) where TQuery : IQuery<TResult>
                                                                                                       where TResult : IQueryResult;
     }

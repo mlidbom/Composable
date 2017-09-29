@@ -56,6 +56,7 @@ namespace Composable.Messaging.Buses
         {
             var myRegistry = endpoint.ServiceLocator.Resolve<MessageHandlerRegistry>();
             var myCommandHandlers = myRegistry._commandHandlers.ToArray();
+            var myCommandHandlersReturningResults = myRegistry._commandHandlersReturningResults.ToArray();
             var myQueryHandlers = myRegistry._queryHandlers.ToArray();
             var myEventRegistrations = myRegistry._eventHandlerRegistrations.ToArray();
 
@@ -63,6 +64,7 @@ namespace Composable.Messaging.Buses
             if(registryWithAllAlreadyCrossConnectedHandlers != null)
             {
                 registryWithAllAlreadyCrossConnectedHandlers._commandHandlers.ForEach(handler => myRegistry._commandHandlers.Add(handler.Key, handler.Value));
+                registryWithAllAlreadyCrossConnectedHandlers._commandHandlersReturningResults.ForEach(handler => myRegistry._commandHandlersReturningResults.Add(handler.Key, handler.Value));
                 registryWithAllAlreadyCrossConnectedHandlers._eventHandlerRegistrations.ForEach(registration => myRegistry._eventHandlerRegistrations.Add(registration));
                 registryWithAllAlreadyCrossConnectedHandlers._queryHandlers.ForEach(handler => myRegistry._queryHandlers.Add(handler.Key, handler.Value));
             }
@@ -70,6 +72,7 @@ namespace Composable.Messaging.Buses
             foreach(var registryWithoutMyHandlers in Endpoints.Select(endpointWithoutMyHandlers => endpointWithoutMyHandlers.ServiceLocator.Resolve<MessageHandlerRegistry>()))
             {
                 myCommandHandlers.ForEach(handler => registryWithoutMyHandlers._commandHandlers.Add(handler.Key, handler.Value));
+                myCommandHandlersReturningResults.ForEach(handler => registryWithoutMyHandlers._commandHandlersReturningResults.Add(handler.Key, handler.Value));
                 myEventRegistrations.ForEach(registration => registryWithoutMyHandlers._eventHandlerRegistrations.Add(registration));
                 myQueryHandlers.ForEach(handler => registryWithoutMyHandlers._queryHandlers.Add(handler.Key, handler.Value));
             }

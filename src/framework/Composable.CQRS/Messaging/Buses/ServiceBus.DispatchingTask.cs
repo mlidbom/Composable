@@ -7,19 +7,17 @@ namespace Composable.Messaging.Buses
     {
         class DispatchingTask
         {
+            Action _completeAction;
             public IMessage Message { get; }
             public IMessageDispatchingTracker MessageDispatchingTracker { get; }
-            public Task DispatchMessageTask { get; }
+            public Action DispatchMessageTask { get; }
             public bool IsDispatching { get; set; }
 
-            public DispatchingTask(IMessage message, IMessageDispatchingTracker messageDispatchingTracker, Action dispatchMessageTask)
-                :this(message, messageDispatchingTracker, new Task(dispatchMessageTask))
-            {
+            public void Complete() => Task.Run(_completeAction);
 
-            }
-
-            public DispatchingTask(IMessage message, IMessageDispatchingTracker messageDispatchingTracker, Task dispatchMessageTask)
+            public DispatchingTask(IMessage message, IMessageDispatchingTracker messageDispatchingTracker, Action dispatchMessageTask, Action completeAction = null)
             {
+                _completeAction = completeAction ?? (() => {});
                 Message = message;
                 MessageDispatchingTracker = messageDispatchingTracker;
                 DispatchMessageTask = dispatchMessageTask;

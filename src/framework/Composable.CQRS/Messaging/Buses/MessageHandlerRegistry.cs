@@ -8,6 +8,7 @@ namespace Composable.Messaging.Buses
     {
         internal readonly Dictionary<Type, Action<object>> _commandHandlers = new Dictionary<Type, Action<object>>();
         internal readonly Dictionary<Type, Func<object, object>> _queryHandlers = new Dictionary<Type, Func<object, object>>();
+        internal readonly Dictionary<Type, Func<object, object>> _commandHandlersReturningResults = new Dictionary<Type, Func<object, object>>();
         internal readonly List<EventHandlerRegistration> _eventHandlerRegistrations = new List<EventHandlerRegistration>();
 
         readonly object _lock = new object();
@@ -30,6 +31,16 @@ namespace Composable.Messaging.Buses
             }
         }
 
+        public IMessageHandlerRegistrar ForCommand<TCommand, TResult>(Func<TCommand, TResult> handler) where TCommand : ICommand<TResult>
+                                                                                      where TResult : IMessage
+        {
+            lock (_lock)
+            {
+                _commandHandlersReturningResults.Add(typeof(TCommand), command => handler((TCommand)command));
+                return this;
+            }
+        }
+
         IMessageHandlerRegistrar IMessageHandlerRegistrar.ForQuery<TQuery, TResult>(Func<TQuery, TResult> handler)
         {
             lock(_lock)
@@ -38,6 +49,8 @@ namespace Composable.Messaging.Buses
                 return this;
             }
         }
+
+
 
         Action<object> IMessageHandlerRegistry.GetCommandHandler(ICommand message)
         {
@@ -69,6 +82,23 @@ namespace Composable.Messaging.Buses
                 throw new NoHandlerException(query.GetType());
             }
         }
+
+        public Func<ICommand<TResult>, TResult> GetCommandHandler<TResult>(ICommand<TResult> command) where TResult : IMessage
+        {
+            try
+            {
+                lock (_lock)
+                {
+                    var typeUnsafeHandler = _commandHandlersReturningResults[command.GetType()];
+                    return actualCommand => (TResult)typeUnsafeHandler(command);
+                }
+            }
+            catch (KeyNotFoundException)
+            {
+                throw new NoHandlerException(command.GetType());
+            }
+        }
+
 
         IEventDispatcher<IEvent> IMessageHandlerRegistry.CreateEventDispatcher()
         {

@@ -9,6 +9,7 @@ using Composable.Messaging.Events;
 using Composable.Testing.Threading;
 using FluentAssertions;
 using Xunit;
+
 // ReSharper disable InconsistentNaming
 
 namespace Composable.CQRS.Tests.ServiceBusSpecification
@@ -86,8 +87,7 @@ namespace Composable.CQRS.Tests.ServiceBusSpecification
             _host.ClientBus.Publish(new MyEvent());
 
             _eventHandlerThreadGate.AwaitQueueLengthEqualTo(1)
-                                   .TryAwaitQueueLengthEqualTo(2, 100.Milliseconds())
-                                   .Should().Be(false);
+                                   .TryAwaitQueueLengthEqualTo(2, timeout: 100.Milliseconds()).Should().Be(false);
         }
 
         [Fact] public void Two_command_handlers_cannot_execute_in_parallel()
@@ -97,8 +97,8 @@ namespace Composable.CQRS.Tests.ServiceBusSpecification
             _host.ClientBus.Send(new MyCommand());
             _host.ClientBus.Send(new MyCommand());
 
-            _commandHandlerThreadGate.AwaitQueueLengthEqualTo(1).TryAwaitQueueLengthEqualTo(2, 100.Milliseconds())
-                                     .Should().Be(false);
+            _commandHandlerThreadGate.AwaitQueueLengthEqualTo(1)
+                                     .TryAwaitQueueLengthEqualTo(2, timeout: 100.Milliseconds()).Should().Be(false);
         }
 
         [Fact] public void Command_handler_cannot_execute_if_event_handler_is_executing()
@@ -154,7 +154,7 @@ namespace Composable.CQRS.Tests.ServiceBusSpecification
             _host.ClientBus.Query(new MyQuery());
 
             _queryHandlerThreadGate.AwaitPassedThroughCountEqualTo(1)
-                                   .PassedThreads.Single().Transaction.Should().BeNull();
+                                   .PassedThreads.Single().Transaction.Should().Be(null);
         }
 
         class MyCommand : Command {}

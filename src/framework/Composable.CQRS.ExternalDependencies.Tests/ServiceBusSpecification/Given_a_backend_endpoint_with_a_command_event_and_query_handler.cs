@@ -6,7 +6,6 @@ using System.Transactions;
 using Composable.Messaging;
 using Composable.Messaging.Buses;
 using Composable.Messaging.Commands;
-using Composable.Messaging.Events;
 using Composable.Testing.Threading;
 using FluentAssertions;
 using Xunit;
@@ -114,8 +113,7 @@ namespace Composable.CQRS.Tests.ServiceBusSpecification
                                      .Should().Be(false);
         }
 
-        [Fact]
-        public async Task Command_handler_with_result_cannot_execute_if_event_handler_is_executing()
+        [Fact] public async Task Command_handler_with_result_cannot_execute_if_event_handler_is_executing()
         {
             CloseGates();
 
@@ -144,8 +142,7 @@ namespace Composable.CQRS.Tests.ServiceBusSpecification
                                    .Should().BeFalse();
         }
 
-        [Fact]
-        public async Task Event_handler_cannot_execute_if_command_handler_with_result_is_executing()
+        [Fact] public async Task Event_handler_cannot_execute_if_command_handler_with_result_is_executing()
         {
             CloseGates();
 
@@ -172,8 +169,7 @@ namespace Composable.CQRS.Tests.ServiceBusSpecification
             transaction.IsolationLevel.Should().Be(IsolationLevel.Serializable);
         }
 
-        [Fact]
-        async Task Command_handler_with_result_runs_in_transaction_with_isolation_level_Serializable()
+        [Fact] async Task Command_handler_with_result_runs_in_transaction_with_isolation_level_Serializable()
         {
             var commandResult = await _host.ClientBus.SendAsync(new MyCommandWithResult());
 
@@ -221,7 +217,7 @@ namespace Composable.CQRS.Tests.ServiceBusSpecification
         class MyEvent : Event {}
         class MyQuery : Query<MyQueryResult> {}
         class MyQueryResult : QueryResult {}
-        class MyCommandWithResult : Command<MyCommandResult> { }
-        class MyCommandResult : Message { }
+        class MyCommandWithResult : Command<MyCommandResult> {}
+        class MyCommandResult : Message {}
     }
 }

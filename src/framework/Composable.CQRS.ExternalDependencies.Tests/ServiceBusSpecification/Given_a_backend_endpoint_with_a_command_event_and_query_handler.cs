@@ -38,9 +38,7 @@ namespace Composable.CQRS.Tests.ServiceBusSpecification
 
         public void Dispose()
         {
-            _commandHandlerThreadGate.Open();
-            _eventHandlerThreadGate.Open();
-            _queryHandlerThreadGate.Open();
+            OpenGates();
 
             _taskRunner.Dispose();
             _host.Dispose();
@@ -78,7 +76,6 @@ namespace Composable.CQRS.Tests.ServiceBusSpecification
                                 _host.ClientBus.QueryAsync(new MyQuery()));
 
             _queryHandlerThreadGate.AwaitQueueLengthEqualTo(2);
-            _queryHandlerThreadGate.Open();
         }
 
         [Fact] public void Two_event_handlers_cannot_execute_in_parallel()
@@ -120,24 +117,23 @@ namespace Composable.CQRS.Tests.ServiceBusSpecification
         [Fact]
         public async Task Command_handler_with_result_cannot_execute_if_event_handler_is_executing()
         {
-            _commandHandlerThreadGate.Close();
-            _eventHandlerThreadGate.Close();
+            CloseGates();
 
             _host.ClientBus.Publish(new MyEvent());
             _eventHandlerThreadGate.AwaitQueueLengthEqualTo(1);
 
-            var result = await _host.ClientBus.SendAsync(new MyCommandWithResult());
-
-            result.Should().NotBe(null);
+            var result = _host.ClientBus.SendAsync(new MyCommandWithResult());
 
             _commandHandlerThreadGate.TryAwaitQueueLengthEqualTo(1, 100.Milliseconds())
                                      .Should().Be(false);
+
+            OpenGates();
+            (await result).Should().NotBe(null);
         }
 
         [Fact] public void Event_handler_cannot_execute_if_command_handler_is_executing()
         {
-            _commandHandlerThreadGate.Close();
-            _eventHandlerThreadGate.Close();
+            CloseGates();
 
             _host.ClientBus.Send(new MyCommand());
             _commandHandlerThreadGate.AwaitQueueLengthEqualTo(1);
@@ -151,11 +147,9 @@ namespace Composable.CQRS.Tests.ServiceBusSpecification
         [Fact]
         public async Task Event_handler_cannot_execute_if_command_handler_with_result_is_executing()
         {
-            _commandHandlerThreadGate.Close();
-            _eventHandlerThreadGate.Close();
+            CloseGates();
 
-            var result = await _host.ClientBus.SendAsync(new MyCommandWithResult());
-            result.Should().NotBe(null);
+            var result = _host.ClientBus.SendAsync(new MyCommandWithResult());
 
             _commandHandlerThreadGate.AwaitQueueLengthEqualTo(1);
 
@@ -163,6 +157,9 @@ namespace Composable.CQRS.Tests.ServiceBusSpecification
 
             _eventHandlerThreadGate.TryAwaitQueueLengthEqualTo(1, 100.Milliseconds())
                                    .Should().BeFalse();
+
+            OpenGates();
+            (await result).Should().NotBe(null);
         }
 
         [Fact] void Command_handler_runs_in_transaction_with_isolation_level_Serializable()
@@ -204,6 +201,20 @@ namespace Composable.CQRS.Tests.ServiceBusSpecification
 
             _queryHandlerThreadGate.AwaitPassedThroughCountEqualTo(1)
                                    .PassedThreads.Single().Transaction.Should().Be(null);
+        }
+
+        void CloseGates()
+        {
+            _eventHandlerThreadGate.Close();
+            _commandHandlerThreadGate.Close();
+            _queryHandlerThreadGate.Close();
+        }
+
+        void OpenGates()
+        {
+            _eventHandlerThreadGate.Open();
+            _commandHandlerThreadGate.Open();
+            _queryHandlerThreadGate.Open();
         }
 
         class MyCommand : Command {}

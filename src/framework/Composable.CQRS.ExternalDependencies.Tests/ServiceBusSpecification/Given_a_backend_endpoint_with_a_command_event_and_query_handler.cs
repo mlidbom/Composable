@@ -28,7 +28,7 @@ namespace Composable.CQRS.Tests.ServiceBusSpecification
                 buildHost => buildHost.RegisterAndStartEndpoint(
                     "Backend",
                     builder => builder.RegisterHandler
-                                      .ForCommand((MyCommand command) => _commandHandlerThreadGate.AwaitPassthrough())
+                                      .ForCommand((MyCommand command, IServiceBus bus) => _commandHandlerThreadGate.AwaitPassthrough())
                                       .ForEvent((MyEvent myEvent) => _eventHandlerThreadGate.AwaitPassthrough())
                                       .ForQuery((MyQuery query) => _queryHandlerThreadGate.AwaitPassthroughAndReturn(new MyQueryResult()))));
         }
@@ -67,7 +67,7 @@ namespace Composable.CQRS.Tests.ServiceBusSpecification
                                    .PassedThreads.Single().Should().NotBe(Thread.CurrentThread);
         }
 
-        [Fact] public void Two_query_handler_can_execute_in_parallel_when_using_QueryAsync()
+        [Fact] public void Two_query_handlers_can_execute_in_parallel_when_using_QueryAsync()
         {
             _queryHandlerThreadGate.Close();
 

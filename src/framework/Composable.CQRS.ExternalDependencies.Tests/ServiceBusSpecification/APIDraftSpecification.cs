@@ -50,9 +50,6 @@ namespace Composable.CQRS.Tests.ServiceBusSpecification
         class MyQuery : Query<MyQueryResult> { }
         class MyCommand : Command { }
         class MyCommandWithResult : Command<MyCommandResult> { }
-
-        class MyCommandResult : Message
-        {
-        }
+        class MyCommandResult : Message { }
     }
 }

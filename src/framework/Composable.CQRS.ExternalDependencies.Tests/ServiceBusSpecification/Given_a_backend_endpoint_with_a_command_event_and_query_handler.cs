@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Transactions;
 using Composable.Messaging;
 using Composable.Messaging.Buses;
@@ -14,7 +15,7 @@ using Xunit;
 
 namespace Composable.CQRS.Tests.ServiceBusSpecification
 {
-    public class Given_a_backend_endpoint_with_a_command_event_and_query_handler : IDisposable
+    public class Given_a_backend_endpoint_with_command_event_and_query_handlers : IDisposable
     {
         readonly ITestingEndpointHost _host;
         readonly IThreadGate _commandHandlerThreadGate = ThreadGate.CreateOpenWithTimeout(1.Seconds());
@@ -23,7 +24,7 @@ namespace Composable.CQRS.Tests.ServiceBusSpecification
 
         readonly TestingTaskRunner _taskRunner = TestingTaskRunner.WithTimeout(1.Seconds());
 
-        public Given_a_backend_endpoint_with_a_command_event_and_query_handler()
+        public Given_a_backend_endpoint_with_command_event_and_query_handlers()
         {
             _host = EndpointHost.Testing.BuildHost(
                 buildHost => buildHost.RegisterAndStartEndpoint(
@@ -31,7 +32,8 @@ namespace Composable.CQRS.Tests.ServiceBusSpecification
                     builder => builder.RegisterHandler
                                       .ForCommand((MyCommand command, IServiceBus bus) => _commandHandlerThreadGate.AwaitPassthrough())
                                       .ForEvent((MyEvent myEvent) => _eventHandlerThreadGate.AwaitPassthrough())
-                                      .ForQuery((MyQuery query) => _queryHandlerThreadGate.AwaitPassthroughAndReturn(new MyQueryResult()))));
+                                      .ForQuery((MyQuery query) => _queryHandlerThreadGate.AwaitPassthroughAndReturn(new MyQueryResult()))
+                                      .ForCommand((MyCommandWithResult command) => _commandHandlerThreadGate.AwaitPassthroughAndReturn(new MyCommandResult()))));
         }
 
         public void Dispose()
@@ -115,6 +117,23 @@ namespace Composable.CQRS.Tests.ServiceBusSpecification
                                      .Should().Be(false);
         }
 
+        [Fact]
+        public async Task Command_handler_with_result_cannot_execute_if_event_handler_is_executing()
+        {
+            _commandHandlerThreadGate.Close();
+            _eventHandlerThreadGate.Close();
+
+            _host.ClientBus.Publish(new MyEvent());
+            _eventHandlerThreadGate.AwaitQueueLengthEqualTo(1);
+
+            var result = await _host.ClientBus.SendAsync(new MyCommandWithResult());
+
+            result.Should().NotBe(null);
+
+            _commandHandlerThreadGate.TryAwaitQueueLengthEqualTo(1, 100.Milliseconds())
+                                     .Should().Be(false);
+        }
+
         [Fact] public void Event_handler_cannot_execute_if_command_handler_is_executing()
         {
             _commandHandlerThreadGate.Close();
@@ -129,9 +148,39 @@ namespace Composable.CQRS.Tests.ServiceBusSpecification
                                    .Should().BeFalse();
         }
 
+        [Fact]
+        public async Task Event_handler_cannot_execute_if_command_handler_with_result_is_executing()
+        {
+            _commandHandlerThreadGate.Close();
+            _eventHandlerThreadGate.Close();
+
+            var result = await _host.ClientBus.SendAsync(new MyCommandWithResult());
+            result.Should().NotBe(null);
+
+            _commandHandlerThreadGate.AwaitQueueLengthEqualTo(1);
+
+            _host.ClientBus.Publish(new MyEvent());
+
+            _eventHandlerThreadGate.TryAwaitQueueLengthEqualTo(1, 100.Milliseconds())
+                                   .Should().BeFalse();
+        }
+
         [Fact] void Command_handler_runs_in_transaction_with_isolation_level_Serializable()
         {
             _host.ClientBus.Send(new MyCommand());
+
+            var transaction = _commandHandlerThreadGate.AwaitPassedThroughCountEqualTo(1)
+                                                       .PassedThreads.Single().Transaction;
+            transaction.Should().NotBeNull();
+            transaction.IsolationLevel.Should().Be(IsolationLevel.Serializable);
+        }
+
+        [Fact]
+        async Task Command_handler_with_result_runs_in_transaction_with_isolation_level_Serializable()
+        {
+            var commandResult = await _host.ClientBus.SendAsync(new MyCommandWithResult());
+
+            commandResult.Should().NotBe(null);
 
             var transaction = _commandHandlerThreadGate.AwaitPassedThroughCountEqualTo(1)
                                                        .PassedThreads.Single().Transaction;
@@ -161,5 +210,7 @@ namespace Composable.CQRS.Tests.ServiceBusSpecification
         class MyEvent : Event {}
         class MyQuery : Query<MyQueryResult> {}
         class MyQueryResult : QueryResult {}
+        class MyCommandWithResult : Command<MyCommandResult> { }
+        class MyCommandResult : Message { }
     }
 }

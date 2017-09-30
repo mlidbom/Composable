@@ -1,6 +1,8 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Composable.System.Linq;
 using Composable.Testing.Threading;
 using FluentAssertions;
 using Xunit;
@@ -34,14 +36,23 @@ namespace Composable.CQRS.Tests.ServiceBusSpecification.Given_a_backend_endpoint
                                    .PassedThreads.Single().Should().NotBe(Thread.CurrentThread);
         }
 
-        [Fact] public void Two_query_handlers_can_execute_in_parallel_when_using_QueryAsync()
+        [Fact] public void Five_query_handlers_can_execute_in_parallel_when_using_QueryAsync()
         {
             CloseGates();
-            TaskRunner.Monitor(Host.ClientBus.QueryAsync(new MyQuery()),
-                                Host.ClientBus.QueryAsync(new MyQuery()));
+            TaskRunner.RunTimes(5, () => Host.ClientBus.QueryAsync(new MyQuery()));
 
-            QueryHandlerThreadGate.AwaitQueueLengthEqualTo(2);
+            QueryHandlerThreadGate.AwaitQueueLengthEqualTo(5);
         }
+
+        [Fact]
+        public void Five_query_handlers_can_execute_in_parallel_when_using_Query()
+        {
+            CloseGates();
+            TaskRunner.RunTimes(5, () => Host.ClientBus.Query(new MyQuery()));
+
+            QueryHandlerThreadGate.AwaitQueueLengthEqualTo(5);
+        }
+
 
         [Fact] public void Two_event_handlers_cannot_execute_in_parallel()
         {

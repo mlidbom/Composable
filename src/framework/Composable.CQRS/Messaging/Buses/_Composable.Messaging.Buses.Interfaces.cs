@@ -31,6 +31,16 @@ namespace Composable.Messaging.Buses
         void Stop();
     }
 
+    public static class ServiceBusExtensions
+    {
+        public static IApiNavigator<TReturnResource> Get<TReturnResource>(this IServiceBus @this, IQuery<TReturnResource> createQuery) where TReturnResource : IQueryResult
+            => new ApiNavigator<TReturnResource>(@this, () => @this.QueryAsync(createQuery));
+
+        public static IApiNavigator<TCommandResult> Post<TCommandResult>(this IServiceBus @this, ICommand<TCommandResult> command) where TCommandResult : IMessage
+            => new ApiNavigator<TCommandResult>(@this, () => @this.SendAsync(command));
+
+    }
+
     public interface IMessageSpy
     {
         IEnumerable<IMessage> DispatchedMessages { get; }
@@ -124,8 +134,8 @@ namespace Composable.Messaging.Buses
     public interface IApiNavigator<TCurrentResource>
     {
         IApiNavigator<TReturnResource> Get<TReturnResource>(Func<TCurrentResource, IQuery<TReturnResource>> selectQuery) where TReturnResource : IQueryResult;
-        IApiNavigator<TReturnResource> Execute<TReturnResource>(Func<TCurrentResource, ICommand<TReturnResource>> selectCommand) where TReturnResource : IMessage;
-        Task<TCurrentResource> NavigateAsync();
-        TCurrentResource Navigate();
+        IApiNavigator<TReturnResource> Post<TReturnResource>(Func<TCurrentResource, ICommand<TReturnResource>> selectCommand) where TReturnResource : IMessage;
+        Task<TCurrentResource> ExecuteNavigationAsync();
+        TCurrentResource ExecuteNavigation();
     }
 }

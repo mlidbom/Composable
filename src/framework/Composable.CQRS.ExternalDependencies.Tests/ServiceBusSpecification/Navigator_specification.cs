@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Composable.Messaging;
 using Composable.Messaging.Buses;
 using Composable.Messaging.Commands;
 using FluentAssertions;
 using Xunit;
+
 // ReSharper disable MemberCanBeMadeStatic.Local
 
 namespace Composable.CQRS.Tests.ServiceBusSpecification
@@ -34,31 +36,35 @@ namespace Composable.CQRS.Tests.ServiceBusSpecification
                                           })));
             }
 
-
             [Fact] void Can_get_command_result()
             {
-                var nav = new ApiNavigator(Host.ClientBus);
-
-                UserRegisteredConfirmationResource commandResult1 = nav.Execute(new RegisterUserCommand("new-user-name")).Navigate();
+                UserRegisteredConfirmationResource commandResult1 = Host.ClientBus.Post(new RegisterUserCommand("new-user-name")).ExecuteNavigation();
                 commandResult1.Name.Should().Be("new-user-name");
             }
 
-            [Fact]
-            void Can_navigate_to_startpage_execute_command_and_follow_command_result_link_to_the_created_resource()
+            [Fact] void Can_navigate_to_startpage_execute_command_and_follow_command_result_link_to_the_created_resource()
             {
-                var userResource = Host.ClientNavigator
-                    .Get(UserApiStartPage.Self)
-                    .Execute(startpage => startpage.RegisterUserCommand("new-user-name"))
-                    .Get(registerUserResult => registerUserResult.User)
-                    .Navigate();
+                var userResource = Host.ClientBus
+                                       .Get(UserApiStartPage.Self)
+                                       .Post(startpage => startpage.RegisterUserCommand("new-user-name"))
+                                       .Get(registerUserResult => registerUserResult.User)
+                                       .ExecuteNavigation();
 
                 userResource.Name.Should().Be("new-user-name");
             }
 
-            public void Dispose()
+            [Fact] async Task Can_navigate_async_to_startpage_execute_command_and_follow_command_result_link_to_the_created_resource()
             {
-                Host.Dispose();
+                var userResource = Host.ClientNavigator
+                                       .Get(UserApiStartPage.Self)
+                                       .Post(startpage => startpage.RegisterUserCommand("new-user-name"))
+                                       .Get(registerUserResult => registerUserResult.User)
+                                       .ExecuteNavigationAsync();
+
+                (await userResource).Name.Should().Be("new-user-name");
             }
+
+            public void Dispose() { Host.Dispose(); }
 
             class UserApiStartPage : QueryResult
             {
@@ -97,7 +103,7 @@ namespace Composable.CQRS.Tests.ServiceBusSpecification
                 public string Name { get; }
             }
 
-            class UserApiStartPageQuery : Query<UserApiStartPage> { }
+            class UserApiStartPageQuery : Query<UserApiStartPage> {}
         }
     }
 }

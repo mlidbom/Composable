@@ -16,6 +16,7 @@ namespace Composable.Messaging.Buses
         public void WaitForEndpointsToBeAtRest(TimeSpan? timeoutOverride) { Endpoints.ForEach(endpoint => endpoint.AwaitNoMessagesInFlight(timeoutOverride)); }
 
         public IServiceBus ClientBus => _clientEndpoint.ServiceLocator.Resolve<IServiceBus>();
+        public IApiNavigator ClientNavigator => new ApiNavigator(ClientBus);
 
         protected override void InternalDispose()
         {

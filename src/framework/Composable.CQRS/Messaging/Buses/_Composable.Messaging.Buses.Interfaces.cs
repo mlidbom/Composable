@@ -18,7 +18,7 @@ namespace Composable.Messaging.Buses
     }
 
     ///<summary>Dispatches messages between processes.</summary>
-    interface IServiceBus : IDisposable
+    public interface IServiceBus : IDisposable
     {
         void SendAtTime(DateTime sendAt, ICommand message);
         void Publish(IEvent anEvent);
@@ -82,6 +82,7 @@ namespace Composable.Messaging.Buses
         void WaitForEndpointsToBeAtRest(TimeSpan? timeoutOverride);
 
         IServiceBus ClientBus { get; }
+        IApiNavigator ClientNavigator { get; }
     }
 
     interface IGlobalBusStateSnapshot
@@ -112,5 +113,19 @@ namespace Composable.Messaging.Buses
         IGlobalBusStateSnapshot CreateSnapshot();
         IMessageDispatchingTracker QueuedMessage(IMessage message, IMessage triggeringMessage);
         void AwaitNoMessagesInFlight(TimeSpan? timeoutOverride);
+    }
+
+    public interface IApiNavigator
+    {
+        IApiNavigator<TReturnResource> Get<TReturnResource>(IQuery<TReturnResource> createQuery) where TReturnResource : IQueryResult;
+        IApiNavigator Execute(ICommand createCommand);
+    }
+
+    public interface IApiNavigator<TCurrentResource>
+    {
+        IApiNavigator<TReturnResource> Get<TReturnResource>(Func<TCurrentResource, IQuery<TReturnResource>> selectQuery) where TReturnResource : IQueryResult;
+        IApiNavigator<TReturnResource> Execute<TReturnResource>(Func<TCurrentResource, ICommand<TReturnResource>> selectCommand) where TReturnResource : IMessage;
+        Task<TCurrentResource> NavigateAsync();
+        TCurrentResource Navigate();
     }
 }

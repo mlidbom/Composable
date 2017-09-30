@@ -16,6 +16,12 @@ namespace Composable.Testing.Threading
             return func();
         }
 
+        public static void AwaitPassthroughAndExecute(this IThreadGate @this, Action action)
+        {
+            @this.AwaitPassthrough();
+            action();
+        }
+
         public static IThreadGate Await(this IThreadGate @this, Func<bool> condition) => @this.Await(@this.DefaultTimeout, condition);
         public static IThreadGate Await(this IThreadGate @this, TimeSpan timeout, Func<bool> condition) => @this.ExecuteWithExclusiveLockWhen(timeout, condition, (gate, owner) => {});
 

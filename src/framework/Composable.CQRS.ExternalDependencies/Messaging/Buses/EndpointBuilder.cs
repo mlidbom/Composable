@@ -47,7 +47,7 @@ namespace Composable.Messaging.Buses
         }
 
         public IDependencyInjectionContainer Container => _container;
-        public MessageHandlerRegistrarWithDependencyInjectionSupport RegisterHandler => new MessageHandlerRegistrarWithDependencyInjectionSupport(_registry, _container.CreateServiceLocator());
+        public MessageHandlerRegistrarWithDependencyInjectionSupport RegisterHandlers => new MessageHandlerRegistrarWithDependencyInjectionSupport(_registry, _container.CreateServiceLocator());
         public IEndpoint Build() => new Endpoint(_container.CreateServiceLocator());
     }
 }

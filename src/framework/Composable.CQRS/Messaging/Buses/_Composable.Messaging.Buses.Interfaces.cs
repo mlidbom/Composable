@@ -68,7 +68,7 @@ namespace Composable.Messaging.Buses
     interface IEndpointBuilder
     {
         IDependencyInjectionContainer Container { get; }
-        MessageHandlerRegistrarWithDependencyInjectionSupport RegisterHandler { get; }
+        MessageHandlerRegistrarWithDependencyInjectionSupport RegisterHandlers { get; }
     }
 
     interface IEndpointHost : IDisposable

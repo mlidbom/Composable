@@ -13,6 +13,14 @@ namespace Composable.Testing.Threading
                     @this.ExitGate.Open();
                 });
 
+        public static IGatedCodeSection Close(this IGatedCodeSection @this)
+            => @this.WithExclusiveLock(
+                () =>
+                {
+                    @this.EntranceGate.Close();
+                    @this.ExitGate.Close();
+                });
+
         public static IGatedCodeSection LetOneThreadEnter(this IGatedCodeSection @this)
             => @this.WithExclusiveLock(
                 () =>

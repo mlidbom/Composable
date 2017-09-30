@@ -24,7 +24,7 @@ namespace Composable.CQRS.Tests.ServiceBusSpecification
 
             var endpoint = _host.RegisterAndStartEndpoint(
                 "endpoint",
-                builder => builder.RegisterHandler.ForCommand<ScheduledCommand>(
+                builder => builder.RegisterHandlers.ForCommand<ScheduledCommand>(
                     cmd => _receivedCommandGate.AwaitPassthrough()));
 
             var serviceLocator = endpoint.ServiceLocator;

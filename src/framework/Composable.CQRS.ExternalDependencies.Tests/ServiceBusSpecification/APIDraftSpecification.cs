@@ -24,7 +24,7 @@ namespace Composable.CQRS.Tests.ServiceBusSpecification
                     {
                         MyQueryResult queryResult = null;
 
-                        endpointBuilder.RegisterHandler
+                        endpointBuilder.RegisterHandlers
                                        .ForCommand((MyCommand command, IServiceBus bus) => bus.Publish(new MyEvent()))
                                        .ForEvent((MyEvent @event) => queryResult = new MyQueryResult())
                                        .ForQuery((MyQuery query) => queryResult)

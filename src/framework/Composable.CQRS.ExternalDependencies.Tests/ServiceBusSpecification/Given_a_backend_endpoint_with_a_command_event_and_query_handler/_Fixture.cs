@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using Composable.Messaging;
 using Composable.Messaging.Buses;
 using Composable.Messaging.Commands;
@@ -8,18 +7,18 @@ using FluentAssertions;
 
 // ReSharper disable InconsistentNaming
 
-namespace Composable.CQRS.Tests.ServiceBusSpecification
+namespace Composable.CQRS.Tests.ServiceBusSpecification.Given_a_backend_endpoint_with_a_command_event_and_query_handler
 {
-    public partial class Given_a_backend_endpoint_with_command_event_and_query_handlers : IDisposable
+    public class _Fixture : IDisposable
     {
-        readonly ITestingEndpointHost _host;
-        readonly IThreadGate _commandHandlerThreadGate = ThreadGate.CreateOpenWithTimeout(1.Seconds());
-        readonly IThreadGate _eventHandlerThreadGate = ThreadGate.CreateOpenWithTimeout(1.Seconds());
-        readonly IThreadGate _queryHandlerThreadGate = ThreadGate.CreateOpenWithTimeout(1.Seconds());
+        internal readonly ITestingEndpointHost _host;
+        internal readonly IThreadGate _commandHandlerThreadGate = ThreadGate.CreateOpenWithTimeout(1.Seconds());
+        internal readonly IThreadGate _eventHandlerThreadGate = ThreadGate.CreateOpenWithTimeout(1.Seconds());
+        internal readonly IThreadGate _queryHandlerThreadGate = ThreadGate.CreateOpenWithTimeout(1.Seconds());
 
-        readonly TestingTaskRunner _taskRunner = TestingTaskRunner.WithTimeout(1.Seconds());
+        protected readonly TestingTaskRunner _taskRunner = TestingTaskRunner.WithTimeout(1.Seconds());
 
-        protected Given_a_backend_endpoint_with_command_event_and_query_handlers()
+        protected _Fixture()
         {
             _host = EndpointHost.Testing.BuildHost(
                 buildHost => buildHost.RegisterAndStartEndpoint(
@@ -39,25 +38,25 @@ namespace Composable.CQRS.Tests.ServiceBusSpecification
             _host.Dispose();
         }
 
-        void CloseGates()
+        protected void CloseGates()
         {
             _eventHandlerThreadGate.Close();
             _commandHandlerThreadGate.Close();
             _queryHandlerThreadGate.Close();
         }
 
-        void OpenGates()
+        protected void OpenGates()
         {
             _eventHandlerThreadGate.Open();
             _commandHandlerThreadGate.Open();
             _queryHandlerThreadGate.Open();
         }
 
-        class MyCommand : Command {}
-        class MyEvent : Event {}
-        class MyQuery : Query<MyQueryResult> {}
-        class MyQueryResult : QueryResult {}
-        class MyCommandWithResult : Command<MyCommandResult> {}
-        class MyCommandResult : Message {}
+        protected class MyCommand : Command {}
+        protected class MyEvent : Event {}
+        protected class MyQuery : Query<MyQueryResult> {}
+        protected class MyQueryResult : QueryResult {}
+        protected class MyCommandWithResult : Command<MyCommandResult> {}
+        protected class MyCommandResult : Message {}
     }
 }

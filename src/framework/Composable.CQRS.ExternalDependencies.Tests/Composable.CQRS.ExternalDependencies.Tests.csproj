@@ -14,10 +14,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Include="ServiceBusSpecification\Given_a_backend_endpoint_with_command_event_and_query_handlers.paralellism_policies.cs" />
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="Castle.Core" Version="4.1.1" />
     <PackageReference Include="Castle.Windsor" Version="4.0.0" />
     <PackageReference Include="FluentAssertions" Version="4.19.4" />

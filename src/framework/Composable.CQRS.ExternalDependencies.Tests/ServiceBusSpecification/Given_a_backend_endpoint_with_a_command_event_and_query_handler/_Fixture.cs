@@ -22,7 +22,7 @@ namespace Composable.CQRS.Tests.ServiceBusSpecification.Given_a_backend_endpoint
                 buildHost => buildHost.RegisterAndStartEndpoint(
                     "Backend",
                     builder => builder.RegisterHandlers
-                                      .ForCommand((MyCommand command, IServiceBus bus) => CommandHandlerThreadGate.AwaitPassthrough())
+                                      .ForCommand((MyCommand command) => CommandHandlerThreadGate.AwaitPassthrough())
                                       .ForEvent((MyEvent myEvent) => EventHandlerThreadGate.AwaitPassthrough())
                                       .ForQuery((MyQuery query) => QueryHandlerThreadGate.AwaitPassthroughAndReturn(new MyQueryResult()))
                                       .ForCommand((MyCommandWithResult command) => CommandHandlerThreadGate.AwaitPassthroughAndReturn(new MyCommandResult()))));

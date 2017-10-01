@@ -3,8 +3,6 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Composable.DependencyInjection;
 using Composable.Messaging.Events;
-using Composable.System.Threading.ResourceAccess;
-using JetBrains.Annotations;
 
 namespace Composable.Messaging.Buses
 {
@@ -29,16 +27,6 @@ namespace Composable.Messaging.Buses
         Task<TResult> SendAsync<TResult>(ICommand<TResult> command) where TResult : IMessage;
         void Start();
         void Stop();
-    }
-
-    public static class ServiceBusExtensions
-    {
-        public static IApiNavigator<TReturnResource> Get<TReturnResource>(this IServiceBus @this, IQuery<TReturnResource> createQuery) where TReturnResource : IQueryResult
-            => new ApiNavigator<TReturnResource>(@this, () => @this.QueryAsync(createQuery));
-
-        public static IApiNavigator<TCommandResult> Post<TCommandResult>(this IServiceBus @this, ICommand<TCommandResult> command) where TCommandResult : IMessage
-            => new ApiNavigator<TCommandResult>(@this, () => @this.SendAsync(command));
-
     }
 
     public interface IMessageSpy

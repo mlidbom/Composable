@@ -90,8 +90,8 @@ namespace JetBrains.Annotations
     /// should be in <see cref="string.Format(IFormatProvider,string,object[])"/>-like form.
     /// </summary>
     /// <example><code>
-    /// [StringFormatMethod("message")]
-    /// void ShowError(string message, params object[] args) { /* do something */ }
+    /// [StringFormatMethod("queuedMessageInformation")]
+    /// void ShowError(string queuedMessageInformation, params object[] args) { /* do something */ }
     /// 
     /// void Foo() {
     ///   ShowError("Failed: {0}"); // Warning: Non-existing argument in format string

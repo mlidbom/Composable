@@ -9,7 +9,7 @@ namespace Composable.Tests.Messaging.APIDraft.Policyv2
         {
             var defaultEventHandlerPolicies = new CompositePolicy(
                 Policy.LockExclusively.ThisHandler, //Ensures that this handler is never invoked in parallel with itself.
-                Policy.LockExclusively.CurrentMessage //Ensures that no other handler handle the same message in parallel with this handler.
+                Policy.LockExclusively.CurrentMessage //Ensures that no other handler handle the same queuedMessageInformation in parallel with this handler.
                 //Useless when applied to a command handler since there can only be one.
             );
 

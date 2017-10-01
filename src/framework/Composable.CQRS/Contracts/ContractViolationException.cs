@@ -7,7 +7,7 @@ namespace Composable.Contracts
     /// </summary>
     class ContractViolationException : Exception
     {
-        ///<summary>Standard constructor that will construct a message based on the name and value of the failing member. </summary>
+        ///<summary>Standard constructor that will construct a queuedMessageInformation based on the name and value of the failing member. </summary>
         public ContractViolationException(IInspectedValue badValue) => BadValue = badValue;
 
         ///<summary>The value that failed inspection.</summary>

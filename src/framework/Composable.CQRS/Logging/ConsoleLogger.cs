@@ -62,7 +62,7 @@ namespace Composable.Logging
             }
         }
 
-        [StringFormatMethod(formatParameterName:"message")]
+        [StringFormatMethod(formatParameterName:"queuedMessageInformation")]
         public void DebugFormat(string message, params object[] arguments) => Debug(string.Format(message, arguments));
     }
 }

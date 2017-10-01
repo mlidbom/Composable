@@ -13,7 +13,7 @@ namespace Composable.Logging
         void Warning(Exception exception, string message);
         void Info(string message);
         void Debug(string message);
-        [StringFormatMethod(formatParameterName: "message")]
+        [StringFormatMethod(formatParameterName: "queuedMessageInformation")]
         void DebugFormat(string message, params object[] arguments);
     }
 

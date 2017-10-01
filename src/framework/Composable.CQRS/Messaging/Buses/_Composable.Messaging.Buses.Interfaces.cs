@@ -97,31 +97,35 @@ namespace Composable.Messaging.Buses
 
     interface IGlobalBusStateSnapshot
     {
-        IReadOnlyList<IInflightMessage> InflightMessages { get; }
+        IEnumerable<IQueuedMessage> GlobalInflightMessages { get; }
+        IEnumerable<IQueuedMessage> LocallyQueuedMessages { get; }
+        IReadOnlyList<IQueuedMessage> LocallyExecutingMessages { get; }
     }
 
-    interface IInflightMessage
+    interface IQueuedMessageInformation
     {
         IMessage Message { get; }
-        [CanBeNull] IMessage TriggeringMessage { get; }
+        bool IsExecuting { get; }
     }
 
     interface IMessageDispatchingRule
     {
-        bool CanBeDispatched(IGlobalBusStateSnapshot busState, IReadOnlyList<IMessage> locallyExecutingMessages, IMessage message);
+        bool CanBeDispatched(IGlobalBusStateSnapshot busState, IQueuedMessageInformation queuedMessageInformation);
     }
 
-    interface IMessageDispatchingTracker
+    interface IQueuedMessage : IQueuedMessageInformation
     {
-        void Succeeded();
-        void Failed();
+        void Run();
     }
 
     interface IGlobalBusStrateTracker
     {
+        IReadOnlyList<Exception> GetExceptionsFor(IServiceBus bus);
         IExclusiveResourceAccessGuard ResourceGuard { get; }
-        IGlobalBusStateSnapshot CreateSnapshot();
-        IMessageDispatchingTracker QueuedMessage(IMessage message, IMessage triggeringMessage);
+
+        IQueuedMessage AwaitDispatchableMessage(IServiceBus bus, IReadOnlyList<IMessageDispatchingRule> dispatchingRules);
+
+        void EnqueueMessageTask(IServiceBus bus, IMessage message, Action messageTask);
         void AwaitNoMessagesInFlight(TimeSpan? timeoutOverride);
     }
 

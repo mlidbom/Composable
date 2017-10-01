@@ -4,9 +4,9 @@ namespace Composable.Tests.Messaging.APIDraft
 {
     public class PolicyBased
     {
-        interface IThreadingPolicy { } //IEnumerable<string> LocksToTake(IMessage message);
+        interface IThreadingPolicy { } //IEnumerable<string> LocksToTake(IMessage queuedMessageInformation);
 
-        interface ITransactionPolicy { } // String TransactionToParticipateIn(IMessage message)
+        interface ITransactionPolicy { } // String TransactionToParticipateIn(IMessage queuedMessageInformation)
 
         class OneOperationOnAnAggregateAtATime: IThreadingPolicy { }
         class OneHandlerAtATimePerMessage : IThreadingPolicy {}
@@ -48,8 +48,8 @@ namespace Composable.Tests.Messaging.APIDraft
             var policiesAsInterfaces = new Endpoint(
 
                 new MessageHandler(
-                    new OneHandlerAtATimePerMessage(),//Only one handler at a time can handle a specific message.
-                    new OneOperationOnAnAggregateAtATime())//Only one handler at a time can handle a message about a certain aggregate.
+                    new OneHandlerAtATimePerMessage(),//Only one handler at a time can handle a specific queuedMessageInformation.
+                    new OneOperationOnAnAggregateAtATime())//Only one handler at a time can handle a queuedMessageInformation about a certain aggregate.
                 );
 
             var policiesAsEnums =

@@ -12,16 +12,14 @@ using Composable.System.Transactions;
 
 namespace Composable.Messaging.Buses
 {
-    partial class ServiceBus : IServiceBus
+    class ServiceBus : IServiceBus
     {
         readonly string _name;
         readonly IUtcTimeTimeSource _timeSource;
         readonly IInProcessServiceBus _inProcessServiceBus;
         readonly IGlobalBusStrateTracker _globalStateTracker;
         readonly List<ScheduledCommand> _scheduledMessages = new List<ScheduledCommand>();
-        readonly List<DispatchingTask> _queuedTasks = new List<DispatchingTask>();
 
-        readonly IList<Exception> _thrownExceptions = new List<Exception>();
         readonly CancellationTokenSource _cancellationTokenSource;
 
         readonly IReadOnlyList<IMessageDispatchingRule> _dispatchingRules = new List<IMessageDispatchingRule>()
@@ -34,7 +32,7 @@ namespace Composable.Messaging.Buses
 
         readonly Timer _scheduledMessagesTimer;
 
-        public IReadOnlyList<Exception> ThrownExceptions => _thrownExceptions.ToList();
+        public IReadOnlyList<Exception> ThrownExceptions => _globalStateTracker.GetExceptionsFor(this);
 
         public ServiceBus(string name, IUtcTimeTimeSource timeSource, IInProcessServiceBus inProcessServiceBus, IGlobalBusStrateTracker globalStateTracker)
         {
@@ -74,7 +72,7 @@ namespace Composable.Messaging.Buses
             using(_globalStateTracker.ResourceGuard.AwaitExclusiveLock())
             {
                 if(_timeSource.UtcNow > sendAt.ToUniversalTime())
-                    throw new InvalidOperationException(message: "You cannot schedule a message to be sent in the past.");
+                    throw new InvalidOperationException(message: "You cannot schedule a queuedMessageInformation to be sent in the past.");
 
                 _scheduledMessages.Add(new ScheduledCommand(sendAt, message));
             }
@@ -103,8 +101,7 @@ namespace Composable.Messaging.Buses
         void EnqueueTransactionalTask(IMessage message, Action action) { EnqueueNonTransactionalTask(message, () => TransactionScopeCe.Execute(action)); }
 
         void EnqueueNonTransactionalTask(IMessage message, Action action)
-            => _globalStateTracker.ResourceGuard.ExecuteWithResourceExclusivelyLocked(
-                () => _queuedTasks.Add(new DispatchingTask(message, _globalStateTracker.QueuedMessage(message, triggeringMessage: null), dispatchMessageTask: action)));
+            => _globalStateTracker.EnqueueMessageTask(this, message, messageTask: action);
 
         void SendDueMessages()
             => _globalStateTracker.ResourceGuard.ExecuteWithResourceExclusivelyLocked(() =>
@@ -114,6 +111,34 @@ namespace Composable.Messaging.Buses
                 dueMessages.ForEach(action: scheduledCommand => Send(scheduledCommand.Command));
                 dueMessages.ForEach(action: message => _scheduledMessages.Remove(message));
             });
+
+        void MessagePumpThread()
+        {
+            while(!_cancellationTokenSource.Token.IsCancellationRequested)
+            {
+                try
+                {
+                    _globalStateTracker.AwaitDispatchableMessage(this, _dispatchingRules).Run();
+                }
+                catch(Exception exception) when(exception is OperationCanceledException || exception is ThreadInterruptedException)
+                {
+                    return;
+                }
+            }
+        }
+
+        class ScheduledCommand
+        {
+            public DateTime SendAt { get; }
+            public ICommand Command { get; }
+
+            public ScheduledCommand(DateTime sendAt, ICommand command)
+            {
+                SendAt = sendAt.SafeToUniversalTime();
+                Command = command;
+            }
+        }
+
 
         public override string ToString() => _name;
 

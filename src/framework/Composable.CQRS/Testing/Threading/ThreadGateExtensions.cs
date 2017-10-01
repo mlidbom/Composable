@@ -1,4 +1,7 @@
 using System;
+using System.Threading.Tasks;
+using Composable.System;
+using Composable.System.Threading.ResourceAccess;
 
 namespace Composable.Testing.Threading
 {
@@ -38,7 +41,16 @@ namespace Composable.Testing.Threading
         public static IThreadGate AwaitEmptyQueue(this IThreadGate @this) => @this.Await(() => @this.Queued == 0);
         public static bool TryAwaitEmptyQueue(this IThreadGate @this, TimeSpan timeout) => @this.TryAwait(timeout, () => @this.Queued == 0);
 
+        public static Task<IThreadGate> ThrowOnNextPassThroughAsync(this IThreadGate @this, Func<ThreadSnapshot, Exception> exceptionFactory)
+        {
+            var currentPassthroughAction = @this.PassThroughAction;
+            var currentPassedThroughCountPlusOne = @this.PassedThrough.Count + 1;
+            @this.SetPassThroughAction(threadSnapshot => throw exceptionFactory(threadSnapshot));
+            return @this.ExecuteWithExclusiveLockWhenAsync(1.Minutes(), () => currentPassedThroughCountPlusOne == @this.PassedThrough.Count, (gate, @lock) => @this.SetPassThroughAction(currentPassthroughAction));
+        }
 
+        public static Task<IThreadGate> ExecuteWithExclusiveLockWhenAsync(this IThreadGate @this, TimeSpan timeout, Func<bool> condition, Action<IThreadGate, IExclusiveResourceLock> action)
+            => Task.Run(() => @this.ExecuteWithExclusiveLockWhen(timeout, condition, action));
 
         public static IThreadGate WithExclusiveLock(this IThreadGate @this, Action action) => @this.ExecuteWithExclusiveLockWhen(@this.DefaultTimeout, () => true, (gate, owner) => action());
     }

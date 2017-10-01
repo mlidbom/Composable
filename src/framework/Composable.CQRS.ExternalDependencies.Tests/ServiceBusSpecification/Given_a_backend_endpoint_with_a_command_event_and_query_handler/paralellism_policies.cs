@@ -17,7 +17,7 @@ namespace Composable.CQRS.Tests.ServiceBusSpecification.Given_a_backend_endpoint
             Host.ClientBus.Send(new MyCommand());
 
             CommandHandlerThreadGate.AwaitPassedThroughCountEqualTo(1);
-            CommandHandlerThreadGate.PassedThreads.Single().Should().NotBe(Thread.CurrentThread);
+            CommandHandlerThreadGate.PassedThrough.Single().Should().NotBe(Thread.CurrentThread);
         }
 
         [Fact] public void Event_handler_executes_on_different_thread_from_client_publishing_event()
@@ -25,7 +25,7 @@ namespace Composable.CQRS.Tests.ServiceBusSpecification.Given_a_backend_endpoint
             Host.ClientBus.Publish(new MyEvent());
 
             EventHandlerThreadGate.AwaitPassedThroughCountEqualTo(1);
-            EventHandlerThreadGate.PassedThreads.Single().Should().NotBe(Thread.CurrentThread);
+            EventHandlerThreadGate.PassedThrough.Single().Should().NotBe(Thread.CurrentThread);
         }
 
         [Fact] public void Query_handler_executes_on_different_thread_from_client_sending_query()
@@ -33,7 +33,7 @@ namespace Composable.CQRS.Tests.ServiceBusSpecification.Given_a_backend_endpoint
             Host.ClientBus.Query(new MyQuery());
 
             QueryHandlerThreadGate.AwaitPassedThroughCountEqualTo(1)
-                                   .PassedThreads.Single().Should().NotBe(Thread.CurrentThread);
+                                   .PassedThrough.Single().Should().NotBe(Thread.CurrentThread);
         }
 
         [Fact] public void Five_query_handlers_can_execute_in_parallel_when_using_QueryAsync()
@@ -114,7 +114,7 @@ namespace Composable.CQRS.Tests.ServiceBusSpecification.Given_a_backend_endpoint
             CloseGates();
 
             var result = Host.ClientBus.SendAsync(new MyCommandWithResult());
-            CommandHandlerThreadGate.AwaitQueueLengthEqualTo(1);
+            CommandHandlerWithResultThreadGate.AwaitQueueLengthEqualTo(1);
 
             Host.ClientBus.Publish(new MyEvent());
             EventHandlerThreadGate.TryAwaitQueueLengthEqualTo(1, 100.Milliseconds()).Should().Be(false);

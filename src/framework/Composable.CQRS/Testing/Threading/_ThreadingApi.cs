@@ -22,6 +22,10 @@ namespace Composable.Testing.Threading
         ///<summary>Blocks all threads from passing.</summary>
         IThreadGate Close();
 
+        IThreadGate SetPassThroughAction(Action<ThreadSnapshot> action);
+
+        Action<ThreadSnapshot> PassThroughAction { get; }
+
         ///<summary>Blocks until the gate is in a state which satisfies <see cref="condition"/> and then while owning the lock executes <see cref="action"/></summary>
         IThreadGate ExecuteWithExclusiveLockWhen(TimeSpan timeout, Func<bool> condition, Action<IThreadGate, IExclusiveResourceLock> action);
 
@@ -35,7 +39,7 @@ namespace Composable.Testing.Threading
 
         IReadOnlyList<ThreadSnapshot> RequestedThreads { get; }
         IReadOnlyList<ThreadSnapshot> QueuedThreads { get; }
-        IReadOnlyList<ThreadSnapshot> PassedThreads { get; }
+        IReadOnlyList<ThreadSnapshot> PassedThrough { get; }
     }
 
     ///<summary>A block of code with <see cref="ThreadGate"/>s for <see cref="EntranceGate"/> and <see cref="ExitGate"/>. Useful for controlling multithreaded code for testing purposes.</summary>

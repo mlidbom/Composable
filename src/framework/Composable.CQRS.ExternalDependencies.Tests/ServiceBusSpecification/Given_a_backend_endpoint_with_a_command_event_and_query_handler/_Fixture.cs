@@ -11,6 +11,7 @@ namespace Composable.CQRS.Tests.ServiceBusSpecification.Given_a_backend_endpoint
     {
         internal readonly ITestingEndpointHost Host;
         internal readonly IThreadGate CommandHandlerThreadGate = ThreadGate.CreateOpenWithTimeout(1.Seconds());
+        internal readonly IThreadGate CommandHandlerWithResultThreadGate = ThreadGate.CreateOpenWithTimeout(1.Seconds());
         internal readonly IThreadGate EventHandlerThreadGate = ThreadGate.CreateOpenWithTimeout(1.Seconds());
         internal readonly IThreadGate QueryHandlerThreadGate = ThreadGate.CreateOpenWithTimeout(1.Seconds());
 
@@ -25,10 +26,14 @@ namespace Composable.CQRS.Tests.ServiceBusSpecification.Given_a_backend_endpoint
                                       .ForCommand((MyCommand command) => CommandHandlerThreadGate.AwaitPassthrough())
                                       .ForEvent((MyEvent myEvent) => EventHandlerThreadGate.AwaitPassthrough())
                                       .ForQuery((MyQuery query) => QueryHandlerThreadGate.AwaitPassthroughAndReturn(new MyQueryResult()))
-                                      .ForCommand((MyCommandWithResult command) => CommandHandlerThreadGate.AwaitPassthroughAndReturn(new MyCommandResult()))));
+                                      .ForCommand((MyCommandWithResult command) => CommandHandlerWithResultThreadGate.AwaitPassthroughAndReturn(new MyCommandResult()))));
         }
 
-        public void Dispose()
+        public void Dispose() { ActualDispose(isTestingFixture: false); }
+
+        protected void TestDispose() => ActualDispose(isTestingFixture: true);
+
+        void ActualDispose(bool isTestingFixture)
         {
             OpenGates();
 
@@ -40,6 +45,7 @@ namespace Composable.CQRS.Tests.ServiceBusSpecification.Given_a_backend_endpoint
         {
             EventHandlerThreadGate.Close();
             CommandHandlerThreadGate.Close();
+            CommandHandlerWithResultThreadGate.Close();
             QueryHandlerThreadGate.Close();
         }
 
@@ -47,6 +53,7 @@ namespace Composable.CQRS.Tests.ServiceBusSpecification.Given_a_backend_endpoint
         {
             EventHandlerThreadGate.Open();
             CommandHandlerThreadGate.Open();
+            CommandHandlerWithResultThreadGate.Open();
             QueryHandlerThreadGate.Open();
         }
 

@@ -85,6 +85,18 @@ namespace Composable.System.Threading.ResourceAccess
             }
         }
 
+        public static TResult ExecuteWithResourceExclusivelyLockedAndReturn<TResult>(this IExclusiveResourceAccessGuard @lock, Action action, TResult result)
+            => @lock.ExecuteWithResourceExclusivelyLockedAndReturn(action, () => result);
+
+        public static TResult ExecuteWithResourceExclusivelyLockedAndReturn<TResult>(this IExclusiveResourceAccessGuard @lock, Action action, Func<TResult> resultFunction)
+        {
+            using (@lock.AwaitExclusiveLock())
+            {
+                action();
+                return resultFunction();
+            }
+        }
+
         public static void ExecuteWithResourceExclusivelyLockedWhen(this IExclusiveResourceAccessGuard @this, TimeSpan timeout, Func<bool> condition, Action action)
         {
             using(@this.AwaitExclusiveLockWhen(timeout, condition))

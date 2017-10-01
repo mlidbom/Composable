@@ -14,7 +14,7 @@ namespace Composable.CQRS.Tests.ServiceBusSpecification.Given_a_backend_endpoint
             Host.ClientBus.Send(new MyCommand());
 
             var transaction = CommandHandlerThreadGate.AwaitPassedThroughCountEqualTo(1)
-                                                       .PassedThreads.Single().Transaction;
+                                                       .PassedThrough.Single().Transaction;
             transaction.Should().NotBeNull();
             transaction.IsolationLevel.Should().Be(IsolationLevel.Serializable);
         }
@@ -25,8 +25,8 @@ namespace Composable.CQRS.Tests.ServiceBusSpecification.Given_a_backend_endpoint
 
             commandResult.Should().NotBe(null);
 
-            var transaction = CommandHandlerThreadGate.AwaitPassedThroughCountEqualTo(1)
-                                                       .PassedThreads.Single().Transaction;
+            var transaction = CommandHandlerWithResultThreadGate.AwaitPassedThroughCountEqualTo(1)
+                                                       .PassedThrough.Single().Transaction;
             transaction.Should().NotBeNull();
             transaction.IsolationLevel.Should().Be(IsolationLevel.Serializable);
         }
@@ -36,7 +36,7 @@ namespace Composable.CQRS.Tests.ServiceBusSpecification.Given_a_backend_endpoint
             Host.ClientBus.Publish(new MyEvent());
 
             var transaction = EventHandlerThreadGate.AwaitPassedThroughCountEqualTo(1)
-                                                     .PassedThreads.Single().Transaction;
+                                                     .PassedThrough.Single().Transaction;
             transaction.Should().NotBeNull();
             transaction.IsolationLevel.Should().Be(IsolationLevel.Serializable);
         }
@@ -46,7 +46,7 @@ namespace Composable.CQRS.Tests.ServiceBusSpecification.Given_a_backend_endpoint
             Host.ClientBus.Query(new MyQuery());
 
             QueryHandlerThreadGate.AwaitPassedThroughCountEqualTo(1)
-                                   .PassedThreads.Single().Transaction.Should().Be(null);
+                                   .PassedThrough.Single().Transaction.Should().Be(null);
         }
     }
 }

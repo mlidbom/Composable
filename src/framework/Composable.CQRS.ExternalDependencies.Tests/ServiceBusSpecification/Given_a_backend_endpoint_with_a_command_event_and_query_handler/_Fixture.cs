@@ -29,14 +29,9 @@ namespace Composable.CQRS.Tests.ServiceBusSpecification.Given_a_backend_endpoint
                                       .ForCommand((MyCommandWithResult command) => CommandHandlerWithResultThreadGate.AwaitPassthroughAndReturn(new MyCommandResult()))));
         }
 
-        public void Dispose() { ActualDispose(isTestingFixture: false); }
-
-        protected void TestDispose() => ActualDispose(isTestingFixture: true);
-
-        void ActualDispose(bool isTestingFixture)
+        public void Dispose()
         {
             OpenGates();
-
             TaskRunner.Dispose();
             Host.Dispose();
         }

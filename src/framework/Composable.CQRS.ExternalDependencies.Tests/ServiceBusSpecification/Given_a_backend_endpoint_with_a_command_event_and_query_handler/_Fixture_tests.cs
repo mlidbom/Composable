@@ -30,7 +30,7 @@ namespace Composable.CQRS.Tests.ServiceBusSpecification.Given_a_backend_endpoint
         {
             EventHandlerThreadGate.ThrowOnPassThrough(_thrownException);
             Host.ClientBus.Publish(new MyEvent());
-            AssertThrowsAggregateExceptionWithSingleInnerExceptionThatIsThrownException(TestDispose);
+            AssertThrowsAggregateExceptionWithSingleInnerExceptionThatIsThrownException(Host.Dispose);
         }
 
         [Fact] public async Task If_query_handler_throws_disposing_host_throws_AggregateException_containing_a_single_exception_that_is_the_thrown_exception()
@@ -38,7 +38,7 @@ namespace Composable.CQRS.Tests.ServiceBusSpecification.Given_a_backend_endpoint
             QueryHandlerThreadGate.ThrowOnPassThrough(_thrownException);
             var queryResult = Host.ClientBus.QueryAsync(new MyQuery());
 
-            AssertThrowsAggregateExceptionWithSingleInnerExceptionThatIsThrownException(TestDispose);
+            AssertThrowsAggregateExceptionWithSingleInnerExceptionThatIsThrownException(Host.Dispose);
 
             (await Assert.ThrowsAsync<IntentionalException>(async () => await queryResult)).Should().Be(_thrownException);
         }
@@ -49,7 +49,7 @@ namespace Composable.CQRS.Tests.ServiceBusSpecification.Given_a_backend_endpoint
 
             AssertThrowsAggregateExceptionWithSingleInnerExceptionThatIsThrownException(
                 () => Host.ClientBus.Query(new MyQuery()),
-                TestDispose);
+                Host.Dispose);
         }
 
         void AssertThrowsAggregateExceptionWithSingleInnerExceptionThatIsThrownException(params Action[] actions)

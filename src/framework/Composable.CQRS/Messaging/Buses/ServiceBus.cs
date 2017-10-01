@@ -86,14 +86,38 @@ namespace Composable.Messaging.Buses
         public async Task<TResult> SendAsync<TResult>(ICommand<TResult> command) where TResult : IMessage
         {
             var taskCompletionSource = new TaskCompletionSource<TResult>(TaskCreationOptions.RunContinuationsAsynchronously);
-            EnqueueTransactionalTask(command, () => taskCompletionSource.SetResult(_inProcessServiceBus.Send(command)));
+            EnqueueTransactionalTask(command, () =>
+            {
+                try
+                {
+                    var result = _inProcessServiceBus.Send(command);
+                    taskCompletionSource.SetResult(result);
+                }
+                catch(Exception exception)
+                {
+                    taskCompletionSource.SetException(exception);
+                    throw;
+                }
+            });
             return await taskCompletionSource.Task.NoMarshalling();
         }
 
         public async Task<TResult> QueryAsync<TResult>(IQuery<TResult> query) where TResult : IQueryResult
         {
             TaskCompletionSource<TResult> taskCompletionSource = new TaskCompletionSource<TResult>(TaskCreationOptions.RunContinuationsAsynchronously);
-            EnqueueNonTransactionalTask(query, () => taskCompletionSource.SetResult(_inProcessServiceBus.Get(query)));
+            EnqueueNonTransactionalTask(query, () =>
+            {
+                try
+                {
+                    var result = _inProcessServiceBus.Get(query);
+                    taskCompletionSource.SetResult(result);
+                }
+                catch(Exception exception)
+                {
+                    taskCompletionSource.SetException(exception);
+                    throw;
+                }
+            });
             return await taskCompletionSource.Task.NoMarshalling();
         }
 

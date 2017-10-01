@@ -18,6 +18,7 @@ namespace Composable.Messaging.Buses
         public IServiceBus ClientBus => _clientEndpoint.ServiceLocator.Resolve<IServiceBus>();
         public IApiNavigator ClientNavigator => new ApiNavigator(ClientBus);
 
+
         protected override void InternalDispose()
         {
             WaitForEndpointsToBeAtRest(null);

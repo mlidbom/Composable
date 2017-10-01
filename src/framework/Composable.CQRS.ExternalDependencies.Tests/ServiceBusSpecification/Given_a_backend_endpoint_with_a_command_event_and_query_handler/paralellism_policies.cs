@@ -5,7 +5,6 @@ using Composable.Testing.Threading;
 using FluentAssertions;
 using Xunit;
 
-
 namespace Composable.CQRS.Tests.ServiceBusSpecification.Given_a_backend_endpoint_with_a_command_event_and_query_handler
 {
     public class Paralellism_policies : Fixture
@@ -31,7 +30,7 @@ namespace Composable.CQRS.Tests.ServiceBusSpecification.Given_a_backend_endpoint
             Host.ClientBus.Query(new MyQuery());
 
             QueryHandlerThreadGate.AwaitPassedThroughCountEqualTo(1)
-                                   .PassedThrough.Single().Should().NotBe(Thread.CurrentThread);
+                                  .PassedThrough.Single().Should().NotBe(Thread.CurrentThread);
         }
 
         [Fact] public void Five_query_handlers_can_execute_in_parallel_when_using_QueryAsync()
@@ -42,15 +41,13 @@ namespace Composable.CQRS.Tests.ServiceBusSpecification.Given_a_backend_endpoint
             QueryHandlerThreadGate.AwaitQueueLengthEqualTo(5);
         }
 
-        [Fact]
-        public void Five_query_handlers_can_execute_in_parallel_when_using_Query()
+        [Fact] public void Five_query_handlers_can_execute_in_parallel_when_using_Query()
         {
             CloseGates();
             TaskRunner.RunTimes(5, () => Host.ClientBus.Query(new MyQuery()));
 
             QueryHandlerThreadGate.AwaitQueueLengthEqualTo(5);
         }
-
 
         [Fact] public void Two_event_handlers_cannot_execute_in_parallel()
         {
@@ -59,7 +56,7 @@ namespace Composable.CQRS.Tests.ServiceBusSpecification.Given_a_backend_endpoint
             Host.ClientBus.Publish(new MyEvent());
 
             EventHandlerThreadGate.AwaitQueueLengthEqualTo(1)
-                                   .TryAwaitQueueLengthEqualTo(2, timeout: 100.Milliseconds()).Should().Be(false);
+                                  .TryAwaitQueueLengthEqualTo(2, timeout: 100.Milliseconds()).Should().Be(false);
         }
 
         [Fact] public void Two_command_handlers_cannot_execute_in_parallel()
@@ -69,7 +66,7 @@ namespace Composable.CQRS.Tests.ServiceBusSpecification.Given_a_backend_endpoint
             Host.ClientBus.Send(new MyCommand());
 
             CommandHandlerThreadGate.AwaitQueueLengthEqualTo(1)
-                                     .TryAwaitQueueLengthEqualTo(2, timeout: 100.Milliseconds()).Should().Be(false);
+                                    .TryAwaitQueueLengthEqualTo(2, timeout: 100.Milliseconds()).Should().Be(false);
         }
 
         [Fact] public void Command_handler_cannot_execute_if_event_handler_is_executing()

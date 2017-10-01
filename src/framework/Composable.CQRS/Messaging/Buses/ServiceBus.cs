@@ -6,6 +6,8 @@ using System.Threading.Tasks;
 using Composable.Contracts;
 using Composable.GenericAbstractions.Time;
 using Composable.System;
+using Composable.System.Collections.Collections;
+using Composable.System.Linq;
 using Composable.System.Threading;
 using Composable.System.Threading.ResourceAccess;
 using Composable.System.Transactions;
@@ -105,13 +107,9 @@ namespace Composable.Messaging.Buses
             => _globalStateTracker.EnqueueMessageTask(this, message, messageTask: action);
 
         void SendDueMessages()
-            => _guard.ExecuteWithResourceExclusivelyLocked(() =>
-            {
-                var dueMessages = _scheduledMessages.Where(predicate: message => message.SendAt <= _timeSource.UtcNow)
-                                                    .ToList();
-                dueMessages.ForEach(action: scheduledCommand => Send(scheduledCommand.Command));
-                dueMessages.ForEach(action: message => _scheduledMessages.Remove(message));
-            });
+            => _guard.ExecuteWithResourceExclusivelyLocked(
+                () => _scheduledMessages.RemoveWhere(message => message.SendAt <= _timeSource.UtcNow)
+                                        .ForEach(scheduledCommand => Send(scheduledCommand.Command)));
 
         void MessagePumpThread()
         {
@@ -139,7 +137,6 @@ namespace Composable.Messaging.Buses
                 Command = command;
             }
         }
-
 
         public override string ToString() => _name;
 

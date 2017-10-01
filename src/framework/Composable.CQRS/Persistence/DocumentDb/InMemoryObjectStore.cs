@@ -93,11 +93,11 @@ namespace Composable.Persistence.DocumentDb
             {
                 var idstring = GetIdString(id);
                 var removed = _db.GetOrAddDefault(idstring).RemoveWhere(documentType.IsInstanceOfType);
-                if(removed < 1)
+                if(removed.None())
                 {
                     throw new NoSuchDocumentException(id, documentType);
                 }
-                if (removed > 1)
+                if (removed.Count > 1)
                 {
                     throw new Exception("It really should be impossible to hit multiple documents with one Id, but apparently you just did it!");
                 }

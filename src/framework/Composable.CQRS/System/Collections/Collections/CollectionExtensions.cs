@@ -11,12 +11,12 @@ namespace Composable.System.Collections.Collections
     static class CollectionExtensions
     {
         ///<summary>Remove entries matching the condition from the collection.</summary>
-        public static int RemoveWhere<T>(this ICollection<T> me, Func<T, bool> condition)
+        public static IReadOnlyList<T> RemoveWhere<T>(this ICollection<T> me, Func<T, bool> condition)
         {
             ContractOptimized.Argument(me, nameof(me), condition, nameof(condition)).NotNull();
-            var toRemove = me.Where(condition).ToList();
-            toRemove.ForEach(removeMe => me.Remove(removeMe));
-            return toRemove.Count;
+            var removed = me.Where(condition).ToList();
+            removed.ForEach(removeMe => me.Remove(removeMe));
+            return removed;
         }
 
         ///<summary>Add all instances in <param name="toAdd"> to the collection <param name="me"></param>.</param></summary>

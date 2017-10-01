@@ -21,25 +21,29 @@ namespace Composable.Messaging.Buses
         public IReadOnlyList<Exception> GetExceptionsFor(IServiceBus bus) => _guard.ExecuteWithResourceExclusivelyLocked(() => _busExceptions.GetOrAdd(bus, () => new List<Exception>()).ToList());
         public IExclusiveResourceAccessGuard ResourceGuard => _guard;
 
+        public IGlobalBusStateSnapshot CreateSnapshotFor(IServiceBus bus)
+            => _guard.ExecuteWithResourceExclusivelyLocked(
+                () => new GlobalBusStateSnapshot(bus, _inflightMessages.ToList()));
+
         public IQueuedMessage AwaitDispatchableMessage(IServiceBus bus, IReadOnlyList<IMessageDispatchingRule> dispatchingRules)
         {
+            IQueuedMessage result = null;
             using(var @lock = ResourceGuard.AwaitExclusiveLock())
             {
-                IQueuedMessage result;
                 do
                 {
-                    var snapshot = new GlobalBusStateSnapshot(bus, this);
+                    var snapshot = CreateSnapshotFor(bus);
 
                     result = snapshot
                         .LocallyQueuedMessages
                         .Where(queuedTask => !queuedTask.IsExecuting)
                         .FirstOrDefault(queuedTask => dispatchingRules.All(rule => rule.CanBeDispatched(snapshot, queuedTask)));
 
-                    if(result == null)
+                    if (result == null)
                     {
                         @lock.ReleaseLockAwaitUpdateNotificationAndAwaitExclusiveLock();
                     }
-                } while(result == null);
+                }while(result == null);
                 return result;
 
             }
@@ -72,18 +76,17 @@ namespace Composable.Messaging.Buses
 
         class GlobalBusStateSnapshot : IGlobalBusStateSnapshot
         {
-            readonly GlobalBusStrateTracker _tracker;
-            readonly IServiceBus _bus;
-
-            public GlobalBusStateSnapshot(IServiceBus bus, GlobalBusStrateTracker tracker)
+            public GlobalBusStateSnapshot(IServiceBus bus, IReadOnlyList<QueuedMessage> inflightMessages)
             {
-                _tracker = tracker;
-                _bus = bus;
+                var bus1 = bus;
+                InflightMessages = inflightMessages;
+                LocallyExecutingMessages = inflightMessages.Where(message => message.Bus == bus1 && message.IsExecuting).ToList();
+                LocallyQueuedMessages = inflightMessages.Where(message => message.Bus == bus1 && !message.IsExecuting).ToList();
             }
 
-            public IEnumerable<IQueuedMessage> GlobalInflightMessages => _tracker._inflightMessages.Where(message => message.Bus == _bus && message.IsExecuting);
-            public IEnumerable<IQueuedMessage> LocallyQueuedMessages => _tracker._inflightMessages.Where(message => message.Bus == _bus && !message.IsExecuting);
-            public IReadOnlyList<IQueuedMessage> LocallyExecutingMessages => _tracker._inflightMessages;
+            public IReadOnlyList<IQueuedMessageInformation> InflightMessages { get; }
+            public IReadOnlyList<IQueuedMessage> LocallyQueuedMessages { get; }
+            public IReadOnlyList<IQueuedMessage> LocallyExecutingMessages { get; }
         }
 
         class QueuedMessage : IQueuedMessage

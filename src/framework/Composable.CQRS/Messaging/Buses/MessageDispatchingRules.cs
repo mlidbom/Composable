@@ -12,7 +12,7 @@ namespace Composable.Messaging.Buses
                 return true;
             }
 
-            return busState.GlobalInflightMessages.None(queued => queued.Message is IEvent || queued.Message is ICommand);
+            return busState.InflightMessages.None(queued => queued.Message is IEvent || queued.Message is ICommand);
         }
     }
 

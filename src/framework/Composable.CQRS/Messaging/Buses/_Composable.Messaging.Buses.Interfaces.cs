@@ -97,8 +97,8 @@ namespace Composable.Messaging.Buses
 
     interface IGlobalBusStateSnapshot
     {
-        IEnumerable<IQueuedMessage> GlobalInflightMessages { get; }
-        IEnumerable<IQueuedMessage> LocallyQueuedMessages { get; }
+        IReadOnlyList<IQueuedMessageInformation> InflightMessages { get; }
+        IReadOnlyList<IQueuedMessage> LocallyQueuedMessages { get; }
         IReadOnlyList<IQueuedMessage> LocallyExecutingMessages { get; }
     }
 

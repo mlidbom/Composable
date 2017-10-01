@@ -13,22 +13,22 @@ namespace Composable.CQRS.Tests.ServiceBusSpecification.Given_a_backend_endpoint
         {
             CommandHandlerThreadGate.ThrowOnPassThrough(_thrownException);
             Host.ClientBus.Send(new MyCommand());
-            AssertThrowsAggregateExceptionWithSingleInnerExceptionThatIsThrownException(Host.Dispose);
+            AssertDisposingHostThrowsAggregateExceptionContainingOnlyThrownException();
         }
 
         [Fact] public void If_command_handler_with_result_throws_disposing_host_throws_AggregateException_containing_a_single_exception_that_is_the_thrown_exception()
         {
             CommandHandlerWithResultThreadGate.ThrowOnPassThrough(_thrownException);
-            var exceptionResult = Host.ClientBus.SendAsync(new MyCommandWithResult());
+            Host.ClientBus.SendAsync(new MyCommandWithResult());
 
-            AssertThrowsAggregateExceptionWithSingleInnerExceptionThatIsThrownException(Host.Dispose);
+            AssertDisposingHostThrowsAggregateExceptionContainingOnlyThrownException();
         }
 
         [Fact] public void If_event_handler_throws_disposing_host_throws_AggregateException_containing_a_single_exception_that_is_the_thrown_exception()
         {
             EventHandlerThreadGate.ThrowOnPassThrough(_thrownException);
             Host.ClientBus.Publish(new MyEvent());
-            AssertThrowsAggregateExceptionWithSingleInnerExceptionThatIsThrownException(Host.Dispose);
+            AssertDisposingHostThrowsAggregateExceptionContainingOnlyThrownException();
         }
 
         [Fact] public void If_query_handler_throws_disposing_host_throws_AggregateException_containing_a_single_exception_that_is_the_thrown_exception()
@@ -36,16 +36,13 @@ namespace Composable.CQRS.Tests.ServiceBusSpecification.Given_a_backend_endpoint
             QueryHandlerThreadGate.ThrowOnPassThrough(_thrownException);
             Host.ClientBus.QueryAsync(new MyQuery());
 
-            AssertThrowsAggregateExceptionWithSingleInnerExceptionThatIsThrownException(Host.Dispose);
+            AssertDisposingHostThrowsAggregateExceptionContainingOnlyThrownException();
         }
 
-        void AssertThrowsAggregateExceptionWithSingleInnerExceptionThatIsThrownException(params Action[] actions)
+        void AssertDisposingHostThrowsAggregateExceptionContainingOnlyThrownException()
         {
-            foreach(var action in actions)
-            {
-                Assert.Throws<AggregateException>(action)
-                      .InnerExceptions.Single().Should().Be(_thrownException);
-            }
+            Assert.Throws<AggregateException>((Action)Host.Dispose)
+                  .InnerExceptions.Single().Should().Be(_thrownException);
         }
 
         readonly IntentionalException _thrownException = new IntentionalException();

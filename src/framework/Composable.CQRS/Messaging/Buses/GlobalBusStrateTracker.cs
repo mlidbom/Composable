@@ -14,7 +14,7 @@ namespace Composable.Messaging.Buses
         readonly List<QueuedMessage> _inflightMessages = new List<QueuedMessage>();
 
         //It is never OK for this class to block. So make that explicit with a really strict timeout on all operations waiting for access.
-        readonly IExclusiveResourceAccessGuard _guard = ResourceAccessGuard.ExclusiveWithTimeout(1.Seconds());
+        readonly IExclusiveResourceAccessGuard _guard = ResourceAccessGuard.ExclusiveWithTimeout(1.Milliseconds());
 
         readonly Dictionary<IServiceBus, IList<Exception>> _busExceptions = new Dictionary<IServiceBus, IList<Exception>>();
 
@@ -35,7 +35,7 @@ namespace Composable.Messaging.Buses
 
                     if(result == null)
                     {
-                        @lock.ReleaseLockAwaitUpdateNotificationAndAwaitExclusiveLock();
+                        @lock.ReleaseLockAwaitUpdateNotificationAndAwaitExclusiveLock(7.Days());
                     }
                 } while(result == null);
                 result.SetIsExecuting();

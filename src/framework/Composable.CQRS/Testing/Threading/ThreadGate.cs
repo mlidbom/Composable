@@ -73,7 +73,7 @@ namespace Composable.Testing.Threading
                 ownedLock.SendUpdateNotificationToAllThreadsAwaitingUpdateNotification();
                 while(!_isOpen)
                 {
-                    ownedLock.ReleaseLockAwaitUpdateNotificationAndAwaitExclusiveLock();
+                    ownedLock.ReleaseLockAwaitUpdateNotificationAndAwaitExclusiveLock(_defaultTimeout);
                 }
 
                 if(_lockOnNextPass)

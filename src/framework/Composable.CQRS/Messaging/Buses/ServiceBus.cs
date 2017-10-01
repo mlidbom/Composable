@@ -42,16 +42,14 @@ namespace Composable.Messaging.Buses
         {
             _name = name;
             _timeSource = timeSource;
-            _cancellationTokenSource = new CancellationTokenSource();
             _inProcessServiceBus = inProcessServiceBus;
             _globalStateTracker = globalStateTracker;
-
+            _cancellationTokenSource = new CancellationTokenSource();
+            _scheduledMessagesTimer = new Timer(_ => SendDueMessages(), null, 0.Seconds(), 100.Milliseconds());
             _messagePumpThread = new Thread(MessagePumpThread)
                                  {
                                      Name = $"{_name}_MessagePump"
                                  };
-
-            _scheduledMessagesTimer = new Timer(_ => SendDueMessages(), null, 0.Seconds(), 100.Milliseconds());
         }
 
         public void Start()

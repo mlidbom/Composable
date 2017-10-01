@@ -13,7 +13,7 @@ namespace Composable.System.Threading.ResourceAccess
             int _timeoutsThrownDuringCurrentLock;
 
             readonly object _lockedObject;
-            readonly TimeSpan _defaultTimeout;
+            internal readonly TimeSpan _defaultTimeout;
 
             public ExclusiveResourceAccessGuard(TimeSpan defaultTimeout)
             {
@@ -82,18 +82,18 @@ namespace Composable.System.Threading.ResourceAccess
                     }
                 }
 
-                public bool TryReleaseLockAwaitUpdateNotificationAndAwaitExclusiveLock(TimeSpan? timeoutOverride = null)
+                public bool TryReleaseLockAwaitUpdateNotificationAndAwaitExclusiveLock(TimeSpan timeout)
                 {
-                    if (!Monitor.Wait(_parent._lockedObject, timeoutOverride ?? _parent._defaultTimeout))
+                    if (!Monitor.Wait(_parent._lockedObject, timeout))
                     {
                         return false;
                     }
                     return true;
                 }
 
-                public void ReleaseLockAwaitUpdateNotificationAndAwaitExclusiveLock(TimeSpan? timeoutOverride = null)
+                public void ReleaseLockAwaitUpdateNotificationAndAwaitExclusiveLock(TimeSpan timeout)
                 {
-                    if (!Monitor.Wait(_parent._lockedObject, timeoutOverride ?? _parent._defaultTimeout))
+                    if (!Monitor.Wait(_parent._lockedObject, timeout))
                     {
                         throw new AwaitingUpdateNotificationTimedOutException();
                     }

@@ -85,37 +85,11 @@ namespace Composable.System.Threading.ResourceAccess
             }
         }
 
-        public static void ExecuteWithResourceExclusivelyLockedWhen(this IExclusiveResourceAccessGuard @this, Func<bool> condition, Action action)
-        {
-            using(var @lock = @this.AwaitExclusiveLock())
-            {
-                while(!condition())
-                {
-                    @lock.ReleaseLockAwaitUpdateNotificationAndAwaitExclusiveLock();
-                }
-
-                action();
-            }
-        }
-
         public static void ExecuteWithResourceExclusivelyLockedWhen(this IExclusiveResourceAccessGuard @this, TimeSpan timeout, Func<bool> condition, Action action)
         {
             using(@this.AwaitExclusiveLockWhen(timeout, condition))
             {
                 action();
-            }
-        }
-
-        public static TResult ExecuteWithResourceExclusivelyLockedWhen<TResult>(this IExclusiveResourceAccessGuard @this, Func<bool> condition, Func<TResult> function)
-        {
-            using(var @lock = @this.AwaitExclusiveLock())
-            {
-                while(!condition())
-                {
-                    @lock.ReleaseLockAwaitUpdateNotificationAndAwaitExclusiveLock();
-                }
-
-                return function();
             }
         }
 

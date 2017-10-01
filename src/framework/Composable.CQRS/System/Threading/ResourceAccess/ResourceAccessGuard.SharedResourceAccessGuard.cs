@@ -16,11 +16,11 @@ namespace Composable.System.Threading.ResourceAccess
             readonly ThreadLocal<int> _currentThreadUnreleasedExclusiveLocks = new ThreadLocal<int>(trackAllValues:true, valueFactory: () => 0);
             readonly ThreadLocal<int> _currentThreadUnreleasedSharedLocks = new ThreadLocal<int>(trackAllValues: true, valueFactory: () => 0);
 
-            readonly IExclusiveResourceAccessGuard _resourceGuard;
+            readonly ExclusiveResourceAccessGuard _resourceGuard;
 
             public SharedResourceAccessGuard(int maxSharedLocks, TimeSpan defaultTimeout)
             {
-                _resourceGuard = ExclusiveWithTimeout(defaultTimeout);
+                _resourceGuard = new ExclusiveResourceAccessGuard(defaultTimeout);
                 _maxSharedLocks = maxSharedLocks;
                 AssertInvariantsAreMet();
             }
@@ -32,7 +32,7 @@ namespace Composable.System.Threading.ResourceAccess
                 {
                     while (!CurrentThreadCanAcquireReadLock)
                     {
-                        exclusiveLock.ReleaseLockAwaitUpdateNotificationAndAwaitExclusiveLock(timeoutOverride);
+                        exclusiveLock.ReleaseLockAwaitUpdateNotificationAndAwaitExclusiveLock(timeoutOverride ?? _resourceGuard._defaultTimeout);
                     }
 
                     _currentThreadUnreleasedSharedLocks.Value++;
@@ -90,7 +90,7 @@ namespace Composable.System.Threading.ResourceAccess
                 _threadsWaitingForExclusiveLock++;
                 while (!CurrentThreadCanAquireExclusiveLock)
                 {
-                    exclusiveLock.ReleaseLockAwaitUpdateNotificationAndAwaitExclusiveLock(timeoutOverride);
+                    exclusiveLock.ReleaseLockAwaitUpdateNotificationAndAwaitExclusiveLock(timeoutOverride ?? _resourceGuard._defaultTimeout);
                 }
 
                 _currentThreadUnreleasedExclusiveLocks.Value++;
@@ -142,14 +142,14 @@ namespace Composable.System.Threading.ResourceAccess
 
                 public void SendUpdateNotificationToAllThreadsAwaitingUpdateNotification() => _parentLock.SendUpdateNotificationToAllThreadsAwaitingUpdateNotification();
 
-                public bool TryReleaseLockAwaitUpdateNotificationAndAwaitExclusiveLock(TimeSpan? timeoutOverride = null) => _parentLock.TryReleaseLockAwaitUpdateNotificationAndAwaitExclusiveLock(timeoutOverride);
+                public bool TryReleaseLockAwaitUpdateNotificationAndAwaitExclusiveLock(TimeSpan timeout) => _parentLock.TryReleaseLockAwaitUpdateNotificationAndAwaitExclusiveLock(timeout);
 
-                public void ReleaseLockAwaitUpdateNotificationAndAwaitExclusiveLock(TimeSpan? timeoutOverride = null)
+                public void ReleaseLockAwaitUpdateNotificationAndAwaitExclusiveLock(TimeSpan timeout)
                 {
                     _parent.AssertInvariantsAreMet();
                     _parent._isExclusivelyLocked = false;
                     _parent.AssertInvariantsAreMet();
-                    _parent.AwaitExclusiveLock(timeoutOverride, _parentLock);
+                    _parent.AwaitExclusiveLock(timeout, _parentLock);
                     _parent.AssertInvariantsAreMet();
                 }
 

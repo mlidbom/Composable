@@ -65,8 +65,7 @@ namespace Composable.Messaging.Buses
             _running = false;
             _scheduledMessagesTimer.Dispose();
             _cancellationTokenSource.Cancel();
-            _messagePumpThread.Interrupt();
-            _messagePumpThread.Join();
+            _messagePumpThread.InterruptAndJoin();
         }
 
         public void SendAtTime(DateTime sendAt, ICommand message)
@@ -88,14 +87,14 @@ namespace Composable.Messaging.Buses
         {
             var taskCompletionSource = new TaskCompletionSource<TResult>(TaskCreationOptions.RunContinuationsAsynchronously);
             EnqueueTransactionalTask(command, () => taskCompletionSource.SetResult(_inProcessServiceBus.Send(command)));
-            return await taskCompletionSource.Task.IgnoreSynchronizationContext();
+            return await taskCompletionSource.Task.NoMarshalling();
         }
 
         public async Task<TResult> QueryAsync<TResult>(IQuery<TResult> query) where TResult : IQueryResult
         {
             TaskCompletionSource<TResult> taskCompletionSource = new TaskCompletionSource<TResult>(TaskCreationOptions.RunContinuationsAsynchronously);
             EnqueueNonTransactionalTask(query, () => taskCompletionSource.SetResult(_inProcessServiceBus.Get(query)));
-            return await taskCompletionSource.Task.IgnoreSynchronizationContext();
+            return await taskCompletionSource.Task.NoMarshalling();
         }
 
         public TResult Query<TResult>(IQuery<TResult> query) where TResult : IQueryResult => QueryAsync(query).Result;

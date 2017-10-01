@@ -77,7 +77,7 @@ namespace Composable.System
         static async Task ScheduleDisposalAndExistenceTest(StrictlyManagedResource<TManagedResource> resource, TimeSpan maxLifeSpan)
         {
             var resourceReference = new WeakReference<StrictlyManagedResource<TManagedResource>>(resource);
-            await Task.Delay(maxLifeSpan).IgnoreSynchronizationContext();
+            await Task.Delay(maxLifeSpan).NoMarshalling();
             StrictlyManagedResource<TManagedResource> stillLivingResource;
             if(resourceReference.TryGetTarget(out stillLivingResource) && !stillLivingResource._disposed)
             {

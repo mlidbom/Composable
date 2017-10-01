@@ -1,16 +1,14 @@
 ﻿using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Transactions;
 using Composable.Contracts;
 using Composable.GenericAbstractions.Time;
 using Composable.System;
-using Composable.System.Linq;
 using Composable.System.Threading;
 using Composable.System.Threading.ResourceAccess;
+using Composable.System.Transactions;
 
 namespace Composable.Messaging.Buses
 {
@@ -26,8 +24,6 @@ namespace Composable.Messaging.Buses
         readonly IList<Exception> _thrownExceptions = new List<Exception>();
         readonly CancellationTokenSource _cancellationTokenSource;
 
-        readonly BlockingCollection<DispatchingTask> _dispatchingTasks = new BlockingCollection<DispatchingTask>();
-
         readonly IReadOnlyList<IMessageDispatchingRule> _dispatchingRules = new List<IMessageDispatchingRule>()
                                                                             {
                                                                                 new QueriesExecuteAfterAllCommandsAndEventsAreDone(),
@@ -36,8 +32,6 @@ namespace Composable.Messaging.Buses
         bool _running;
         readonly Thread _messagePumpThread;
 
-        const int DispatchThreadCount = 5;
-        readonly List<Thread> _messageDispatchThread;
         readonly Timer _scheduledMessagesTimer;
 
         public IReadOnlyList<Exception> ThrownExceptions => _thrownExceptions.ToList();
@@ -55,12 +49,6 @@ namespace Composable.Messaging.Buses
                                      Name = $"{_name}_MessagePump"
                                  };
 
-            _messageDispatchThread = 1.Through(DispatchThreadCount)
-                                      .Select(selector: index => new Thread(MessageDispatchThread)
-                                                                 {
-                                                                     Name = $"{_name}_MessageDispatchThread_{index}"
-                                                                 }).ToList();
-
             _scheduledMessagesTimer = new Timer(_ => SendDueMessages(), null, 0.Seconds(), 100.Milliseconds());
         }
 
@@ -69,7 +57,6 @@ namespace Composable.Messaging.Buses
             Contract.Assert.That(!_running, message: "!_running");
             _running = true;
             _messagePumpThread.Start();
-            _messageDispatchThread.ForEach(action: thread => thread.Start());
         }
 
         public void Stop()
@@ -78,9 +65,7 @@ namespace Composable.Messaging.Buses
             _running = false;
             _scheduledMessagesTimer.Dispose();
             _cancellationTokenSource.Cancel();
-            _messageDispatchThread.ForEach(action: thread => thread.Interrupt());
             _messagePumpThread.Interrupt();
-            _messageDispatchThread.ForEach(action: thread => thread.Join());
             _messagePumpThread.Join();
         }
 
@@ -95,51 +80,31 @@ namespace Composable.Messaging.Buses
             }
         }
 
-        public void Send(ICommand command) =>
-            _globalStateTracker.ResourceGuard.ExecuteWithResourceExclusivelyLocked(
-                () =>
-                {
-                    var messageDispatchingTracker = _globalStateTracker.QueuedMessage(command, triggeringMessage: null);
-                    _queuedTasks.Add(new DispatchingTask(command, messageDispatchingTracker, dispatchMessageTask: () => _inProcessServiceBus.Send(command)));
-                });
+        public void Send(ICommand command) => EnqueueTransactionalTask(command, () => _inProcessServiceBus.Send(command));
 
-        public void Publish(IEvent anEvent) =>
-            _globalStateTracker.ResourceGuard.ExecuteWithResourceExclusivelyLocked(
-                () =>
-                {
-                    var messageDispatchingTracker = _globalStateTracker.QueuedMessage(anEvent, triggeringMessage: null);
-                    _queuedTasks.Add(new DispatchingTask(anEvent, messageDispatchingTracker, dispatchMessageTask: () => _inProcessServiceBus.Publish(anEvent)));
-                });
+        public void Publish(IEvent anEvent) => EnqueueTransactionalTask(anEvent, () => _inProcessServiceBus.Publish(anEvent));
 
         public async Task<TResult> SendAsync<TResult>(ICommand<TResult> command) where TResult : IMessage
         {
             var taskCompletionSource = new TaskCompletionSource<TResult>(TaskCreationOptions.RunContinuationsAsynchronously);
-            _globalStateTracker.ResourceGuard.ExecuteWithResourceExclusivelyLocked(
-                () =>
-                {
-                    var messageDispatchingTracker = _globalStateTracker.QueuedMessage(command, triggeringMessage: null);
-                    _queuedTasks.Add(new DispatchingTask(command, messageDispatchingTracker, () => taskCompletionSource.SetResult(_inProcessServiceBus.Send(command))));
-                });
-
+            EnqueueTransactionalTask(command, () => taskCompletionSource.SetResult(_inProcessServiceBus.Send(command)));
             return await taskCompletionSource.Task.IgnoreSynchronizationContext();
         }
 
         public async Task<TResult> QueryAsync<TResult>(IQuery<TResult> query) where TResult : IQueryResult
         {
             TaskCompletionSource<TResult> taskCompletionSource = new TaskCompletionSource<TResult>(TaskCreationOptions.RunContinuationsAsynchronously);
-            _globalStateTracker.ResourceGuard.ExecuteWithResourceExclusivelyLocked(
-                () =>
-                {
-                    var messageDispatchingTracker = _globalStateTracker.QueuedMessage(query, triggeringMessage: null);
-                    _queuedTasks.Add(new DispatchingTask(query, messageDispatchingTracker, () => taskCompletionSource.SetResult(_inProcessServiceBus.Get(query))));
-                });
-
+            EnqueueNonTransactionalTask(query, () => taskCompletionSource.SetResult(_inProcessServiceBus.Get(query)));
             return await taskCompletionSource.Task.IgnoreSynchronizationContext();
         }
 
         public TResult Query<TResult>(IQuery<TResult> query) where TResult : IQueryResult => QueryAsync(query).Result;
 
-        static bool IsShuttingDownException(Exception exception) => exception is OperationCanceledException || exception is ThreadInterruptedException;
+        void EnqueueTransactionalTask(IMessage message, Action action) { EnqueueNonTransactionalTask(message, () => TransactionScopeCe.Execute(action)); }
+
+        void EnqueueNonTransactionalTask(IMessage message, Action action)
+            => _globalStateTracker.ResourceGuard.ExecuteWithResourceExclusivelyLocked(
+                () => _queuedTasks.Add(new DispatchingTask(message, _globalStateTracker.QueuedMessage(message, triggeringMessage: null), dispatchMessageTask: action)));
 
         void SendDueMessages()
             => _globalStateTracker.ResourceGuard.ExecuteWithResourceExclusivelyLocked(() =>

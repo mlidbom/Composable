@@ -6,14 +6,15 @@ namespace Composable.Messaging.Buses
     {
         class DispatchingTask
         {
-            public IMessage Message { get; }
-            public IMessageDispatchingTracker MessageDispatchingTracker { get; }
-            public Action DispatchMessageTask { get; }
+            public readonly IMessage Message;
+            public readonly IMessageDispatchingTracker MessageDispatchingTracker;
+            public readonly Action DispatchMessageTask;
             public bool IsDispatching { get; set; }
 
             public DispatchingTask(IMessage message, IMessageDispatchingTracker messageDispatchingTracker, Action dispatchMessageTask)
             {
                 Message = message;
+
                 MessageDispatchingTracker = messageDispatchingTracker;
                 DispatchMessageTask = dispatchMessageTask;
             }

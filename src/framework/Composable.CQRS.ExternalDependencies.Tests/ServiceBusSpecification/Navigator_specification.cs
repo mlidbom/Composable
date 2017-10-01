@@ -46,7 +46,7 @@ namespace Composable.CQRS.Tests.ServiceBusSpecification
             {
                 var userResource = Host.ClientBus
                                        .Get(UserApiStartPage.Self)
-                                       .Post(startpage => startpage.RegisterUserCommand("new-user-name"))
+                                       .Post(startpage => startpage.RegisterUser("new-user-name"))
                                        .Get(registerUserResult => registerUserResult.User)
                                        .ExecuteNavigation();
 
@@ -57,7 +57,7 @@ namespace Composable.CQRS.Tests.ServiceBusSpecification
             {
                 var userResource = Host.ClientNavigator
                                        .Get(UserApiStartPage.Self)
-                                       .Post(startpage => startpage.RegisterUserCommand("new-user-name"))
+                                       .Post(startpage => startpage.RegisterUser("new-user-name"))
                                        .Get(registerUserResult => registerUserResult.User)
                                        .ExecuteNavigationAsync();
 
@@ -69,7 +69,7 @@ namespace Composable.CQRS.Tests.ServiceBusSpecification
             class UserApiStartPage : QueryResult
             {
                 public static UserApiStartPageQuery Self => new UserApiStartPageQuery();
-                public RegisterUserCommand RegisterUserCommand(string userName) => new RegisterUserCommand(userName);
+                public RegisterUserCommand RegisterUser(string userName) => new RegisterUserCommand(userName);
             }
 
             class UserRegisteredEvent : Event

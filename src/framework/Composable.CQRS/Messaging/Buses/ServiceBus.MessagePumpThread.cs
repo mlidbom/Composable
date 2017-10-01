@@ -1,7 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using Composable.System;
+using Composable.System.Threading.ResourceAccess;
 
 namespace Composable.Messaging.Buses
 {
@@ -13,21 +16,45 @@ namespace Composable.Messaging.Buses
             {
                 while(!_cancellationTokenSource.Token.IsCancellationRequested)
                 {
-                    while(TryGetDispatchableMessage(out var dispatchingTask))
+                    while(TryGetDispatchableMessage(out var task))
                     {
+                        var dispatchingTask = task;
                         dispatchingTask.IsDispatching = true;
-                        _dispatchingTasks.Add(dispatchingTask);
+                        Task.Run(() => DispatchTask(dispatchingTask));
                     }
 
                     try
                     {
                         globalStateLock.ReleaseLockAwaitUpdateNotificationAndAwaitExclusiveLock(7.Days());
                     }
-                    catch(Exception exception) when(IsShuttingDownException(exception))
+                    catch(Exception exception) when(exception is OperationCanceledException || exception is ThreadInterruptedException)
                     {
                         return;
                     }
                 }
+            }
+        }
+
+        void DispatchTask(DispatchingTask task)
+        {
+            try
+            {
+                task.DispatchMessageTask();
+
+                _globalStateTracker.ResourceGuard.ExecuteWithResourceExclusivelyLocked(action: () =>
+                {
+                    _queuedTasks.Remove(task);
+                    task.MessageDispatchingTracker.Succeeded();
+                });
+            }
+            catch(Exception exception)
+            {
+                _globalStateTracker.ResourceGuard.ExecuteWithResourceExclusivelyLocked(action: () =>
+                {
+                    _queuedTasks.Remove(task);
+                    task.MessageDispatchingTracker.Failed();
+                    _thrownExceptions.Add(exception);
+                });
             }
         }
 

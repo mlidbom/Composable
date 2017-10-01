@@ -24,7 +24,7 @@ namespace Composable.Messaging.Buses
         {
             using(var @lock = _guard.AwaitExclusiveLock())
             {
-                IQueuedMessage result;
+                QueuedMessage result;
                 do
                 {
                     var snapshot = new GlobalBusStateSnapshot(bus, _inflightMessages.ToList());
@@ -38,6 +38,7 @@ namespace Composable.Messaging.Buses
                         @lock.ReleaseLockAwaitUpdateNotificationAndAwaitExclusiveLock();
                     }
                 } while(result == null);
+                result.SetIsExecuting();
                 return result;
             }
         }
@@ -82,15 +83,17 @@ namespace Composable.Messaging.Buses
         {
             public readonly IServiceBus Bus;
             readonly GlobalBusStrateTracker _globalBusStrateTracker;
+            readonly Action _messageTask;
+            public IMessage Message { get; }
+            public bool IsExecuting { get; private set; }
 
             public void Run()
             {
-                _globalBusStrateTracker._guard.ExecuteWithResourceExclusivelyLocked(() => IsExecuting = true);
                 Task.Run(() =>
                 {
                     try
                     {
-                        MessageTask();
+                        _messageTask();
                         _globalBusStrateTracker.Succeeded(this);
                     }
                     catch(Exception exception)
@@ -100,16 +103,15 @@ namespace Composable.Messaging.Buses
                 });
             }
 
-            Action MessageTask { get; }
             public QueuedMessage(IServiceBus bus, IMessage message, GlobalBusStrateTracker globalBusStrateTracker, Action messageTask)
             {
                 Bus = bus;
                 _globalBusStrateTracker = globalBusStrateTracker;
-                MessageTask = messageTask;
+                _messageTask = messageTask;
                 Message = message;
             }
-            public IMessage Message { get; }
-            public bool IsExecuting { get; private set; }
+
+            public void SetIsExecuting() => IsExecuting = true;
         }
     }
 }

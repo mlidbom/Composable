@@ -98,7 +98,6 @@ namespace Composable.Messaging.Buses
     interface IGlobalBusStateSnapshot
     {
         IReadOnlyList<IQueuedMessageInformation> InflightMessages { get; }
-        IReadOnlyList<IQueuedMessage> LocallyQueuedMessages { get; }
         IReadOnlyList<IQueuedMessage> LocallyExecutingMessages { get; }
     }
 
@@ -121,7 +120,6 @@ namespace Composable.Messaging.Buses
     interface IGlobalBusStrateTracker
     {
         IReadOnlyList<Exception> GetExceptionsFor(IServiceBus bus);
-        IExclusiveResourceAccessGuard ResourceGuard { get; }
 
         IQueuedMessage AwaitDispatchableMessage(IServiceBus bus, IReadOnlyList<IMessageDispatchingRule> dispatchingRules);
 

@@ -19,36 +19,28 @@ namespace Composable.Messaging.Buses
         readonly Dictionary<IServiceBus, IList<Exception>> _busExceptions = new Dictionary<IServiceBus, IList<Exception>>();
 
         public IReadOnlyList<Exception> GetExceptionsFor(IServiceBus bus) => _guard.ExecuteWithResourceExclusivelyLocked(() => _busExceptions.GetOrAdd(bus, () => new List<Exception>()).ToList());
-        public IExclusiveResourceAccessGuard ResourceGuard => _guard;
-
-        public IGlobalBusStateSnapshot CreateSnapshotFor(IServiceBus bus)
-            => _guard.ExecuteWithResourceExclusivelyLocked(
-                () => new GlobalBusStateSnapshot(bus, _inflightMessages.ToList()));
 
         public IQueuedMessage AwaitDispatchableMessage(IServiceBus bus, IReadOnlyList<IMessageDispatchingRule> dispatchingRules)
         {
-            IQueuedMessage result = null;
-            using(var @lock = ResourceGuard.AwaitExclusiveLock())
+            using(var @lock = _guard.AwaitExclusiveLock())
             {
+                IQueuedMessage result;
                 do
                 {
-                    var snapshot = CreateSnapshotFor(bus);
+                    var snapshot = new GlobalBusStateSnapshot(bus, _inflightMessages.ToList());
 
-                    result = snapshot
-                        .LocallyQueuedMessages
-                        .Where(queuedTask => !queuedTask.IsExecuting)
+                    result = _inflightMessages
+                        .Where(queuedMessage => queuedMessage.Bus == bus && !queuedMessage.IsExecuting)
                         .FirstOrDefault(queuedTask => dispatchingRules.All(rule => rule.CanBeDispatched(snapshot, queuedTask)));
 
-                    if (result == null)
+                    if(result == null)
                     {
                         @lock.ReleaseLockAwaitUpdateNotificationAndAwaitExclusiveLock();
                     }
-                }while(result == null);
+                } while(result == null);
                 return result;
-
             }
         }
-
 
         public void EnqueueMessageTask(IServiceBus bus, IMessage message, Action messageTask)
             => _guard.ExecuteWithResourceExclusivelyLockedAndNotifyWaitingThreadsAboutUpdate(
@@ -60,19 +52,18 @@ namespace Composable.Messaging.Buses
                 });
 
         public void AwaitNoMessagesInFlight(TimeSpan? timeoutOverride)
-            => _guard.ExecuteWithResourceExclusivelyLockedWhen(
-                timeout: timeoutOverride ?? 30.Seconds(),
-                condition: () => _inflightMessages.None(),
-                action: () => {});
+            => _guard.Await(timeout: timeoutOverride ?? 30.Seconds(),
+                            condition: () => _inflightMessages.None());
 
-        void DoneWith(QueuedMessage queuedMessageInformation, Exception exception = null) => _guard.ExecuteWithResourceExclusivelyLockedAndNotifyWaitingThreadsAboutUpdate(() =>
-        {
-            if(exception != null)
+        void Succeeded(QueuedMessage queuedMessageInformation)
+            => _guard.ExecuteWithResourceExclusivelyLockedAndNotifyWaitingThreadsAboutUpdate(() => _inflightMessages.Remove(queuedMessageInformation));
+
+        void Failed(QueuedMessage queuedMessageInformation, Exception exception)
+            => _guard.ExecuteWithResourceExclusivelyLockedAndNotifyWaitingThreadsAboutUpdate(() =>
             {
                 _busExceptions.GetOrAdd(queuedMessageInformation.Bus, () => new List<Exception>()).Add(exception);
-            }
-            _inflightMessages.Remove(queuedMessageInformation);
-        });
+                _inflightMessages.Remove(queuedMessageInformation);
+            });
 
         class GlobalBusStateSnapshot : IGlobalBusStateSnapshot
         {
@@ -81,11 +72,9 @@ namespace Composable.Messaging.Buses
                 var bus1 = bus;
                 InflightMessages = inflightMessages;
                 LocallyExecutingMessages = inflightMessages.Where(message => message.Bus == bus1 && message.IsExecuting).ToList();
-                LocallyQueuedMessages = inflightMessages.Where(message => message.Bus == bus1 && !message.IsExecuting).ToList();
             }
 
             public IReadOnlyList<IQueuedMessageInformation> InflightMessages { get; }
-            public IReadOnlyList<IQueuedMessage> LocallyQueuedMessages { get; }
             public IReadOnlyList<IQueuedMessage> LocallyExecutingMessages { get; }
         }
 
@@ -96,17 +85,17 @@ namespace Composable.Messaging.Buses
 
             public void Run()
             {
-                _globalBusStrateTracker.ResourceGuard.ExecuteWithResourceExclusivelyLocked(() => IsExecuting = true);
+                _globalBusStrateTracker._guard.ExecuteWithResourceExclusivelyLocked(() => IsExecuting = true);
                 Task.Run(() =>
                 {
                     try
                     {
                         MessageTask();
-                        _globalBusStrateTracker.DoneWith(this);
+                        _globalBusStrateTracker.Succeeded(this);
                     }
                     catch(Exception exception)
                     {
-                        _globalBusStrateTracker.DoneWith(this, exception);
+                        _globalBusStrateTracker.Failed(this, exception);
                     }
                 });
             }

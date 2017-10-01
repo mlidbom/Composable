@@ -16,26 +16,31 @@ namespace Composable.System.Threading.ResourceAccess
                 }
                 return exclusiveLock;
             }
-            catch (AwaitingUpdateNotificationTimedOutException notificationTimeout)
+            catch(AwaitingUpdateNotificationTimedOutException notificationTimeout)
             {
                 exclusiveLock?.Dispose();
                 throw new AwaitingConditionTimedOutException(notificationTimeout);
             }
-            catch (Exception)
+            catch(Exception)
             {
                 exclusiveLock?.Dispose();
                 throw;
             }
         }
 
+        public static void Await(this IExclusiveResourceAccessGuard @this, TimeSpan timeout, Func<bool> condition)
+        {
+            using(@this.AwaitExclusiveLockWhen(timeout, condition)) {}
+        }
+
         public static bool TryAwait(this IExclusiveResourceAccessGuard @this, TimeSpan timeout, Func<bool> condition)
         {
             var startTime = DateTime.Now;
-            using (var @lock = @this.AwaitExclusiveLock(timeout))
+            using(var @lock = @this.AwaitExclusiveLock(timeout))
             {
-                while (!condition())
+                while(!condition())
                 {
-                    if (DateTime.Now - startTime > timeout)
+                    if(DateTime.Now - startTime > timeout)
                     {
                         return false;
                     }
@@ -47,7 +52,7 @@ namespace Composable.System.Threading.ResourceAccess
 
         public static void ExecuteWithResourceExclusivelyLockedAndNotifyWaitingThreadsAboutUpdate(this IExclusiveResourceAccessGuard @this, Action action)
         {
-            using (var @lock = @this.AwaitExclusiveLock())
+            using(var @lock = @this.AwaitExclusiveLock())
             {
                 action();
                 @lock.SendUpdateNotificationToAllThreadsAwaitingUpdateNotification();
@@ -56,7 +61,7 @@ namespace Composable.System.Threading.ResourceAccess
 
         public static TResult ExecuteWithResourceExclusivelyLockedAndNotifyWaitingThreadsAboutUpdate<TResult>(this IExclusiveResourceAccessGuard @this, Func<TResult> action)
         {
-            using (var @lock = @this.AwaitExclusiveLock())
+            using(var @lock = @this.AwaitExclusiveLock())
             {
                 var result = action();
                 @lock.SendUpdateNotificationToAllThreadsAwaitingUpdateNotification();
@@ -82,9 +87,9 @@ namespace Composable.System.Threading.ResourceAccess
 
         public static void ExecuteWithResourceExclusivelyLockedWhen(this IExclusiveResourceAccessGuard @this, Func<bool> condition, Action action)
         {
-            using (var @lock = @this.AwaitExclusiveLock())
+            using(var @lock = @this.AwaitExclusiveLock())
             {
-                while (!condition())
+                while(!condition())
                 {
                     @lock.ReleaseLockAwaitUpdateNotificationAndAwaitExclusiveLock();
                 }
@@ -95,20 +100,15 @@ namespace Composable.System.Threading.ResourceAccess
 
         public static void ExecuteWithResourceExclusivelyLockedWhen(this IExclusiveResourceAccessGuard @this, TimeSpan timeout, Func<bool> condition, Action action)
         {
-            using (var @lock = @this.AwaitExclusiveLock())
+            using(@this.AwaitExclusiveLockWhen(timeout, condition))
             {
-                while (!condition())
-                {
-                    @lock.ReleaseLockAwaitUpdateNotificationAndAwaitExclusiveLock(timeout);
-                }
-
                 action();
             }
         }
 
         public static TResult ExecuteWithResourceExclusivelyLockedWhen<TResult>(this IExclusiveResourceAccessGuard @this, Func<bool> condition, Func<TResult> function)
         {
-            using (var @lock = @this.AwaitExclusiveLock())
+            using(var @lock = @this.AwaitExclusiveLock())
             {
                 while(!condition())
                 {
@@ -138,7 +138,9 @@ namespace Composable.System.Threading.ResourceAccess
 
     class AwaitingConditionTimedOutException : Exception
     {
-        public AwaitingConditionTimedOutException(AwaitingUpdateNotificationTimedOutException notificationTimeout) : base("Timed out waiting for condiditon to become true. Never got any update notifications", innerException: notificationTimeout){  }
-        public AwaitingConditionTimedOutException() : base("Timed out waiting for condiditon to become true.") { }
+        public AwaitingConditionTimedOutException(AwaitingUpdateNotificationTimedOutException notificationTimeout) : base(
+            "Timed out waiting for condiditon to become true. Never got any update notifications",
+            innerException: notificationTimeout) {}
+        public AwaitingConditionTimedOutException() : base("Timed out waiting for condiditon to become true.") {}
     }
 }

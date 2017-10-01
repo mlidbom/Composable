@@ -20,6 +20,8 @@ namespace Composable.Messaging.Buses
         readonly IGlobalBusStrateTracker _globalStateTracker;
         readonly List<ScheduledCommand> _scheduledMessages = new List<ScheduledCommand>();
 
+        readonly IExclusiveResourceAccessGuard _guard = ResourceAccessGuard.ExclusiveWithTimeout(1.Seconds());
+
         readonly CancellationTokenSource _cancellationTokenSource;
 
         readonly IReadOnlyList<IMessageDispatchingRule> _dispatchingRules = new List<IMessageDispatchingRule>()
@@ -69,7 +71,7 @@ namespace Composable.Messaging.Buses
 
         public void SendAtTime(DateTime sendAt, ICommand message)
         {
-            using(_globalStateTracker.ResourceGuard.AwaitExclusiveLock())
+            using(_guard.AwaitExclusiveLock())
             {
                 if(_timeSource.UtcNow > sendAt.ToUniversalTime())
                     throw new InvalidOperationException(message: "You cannot schedule a queuedMessageInformation to be sent in the past.");
@@ -104,7 +106,7 @@ namespace Composable.Messaging.Buses
             => _globalStateTracker.EnqueueMessageTask(this, message, messageTask: action);
 
         void SendDueMessages()
-            => _globalStateTracker.ResourceGuard.ExecuteWithResourceExclusivelyLocked(() =>
+            => _guard.ExecuteWithResourceExclusivelyLocked(() =>
             {
                 var dueMessages = _scheduledMessages.Where(predicate: message => message.SendAt <= _timeSource.UtcNow)
                                                     .ToList();

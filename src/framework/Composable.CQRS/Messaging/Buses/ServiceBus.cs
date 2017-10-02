@@ -48,7 +48,8 @@ namespace Composable.Messaging.Buses
             _scheduledMessagesTimer = new Timer(_ => SendDueMessages(), null, 0.Seconds(), 100.Milliseconds());
             _messagePumpThread = new Thread(MessagePumpThread)
                                  {
-                                     Name = $"{_name}_MessagePump"
+                                     Name = $"{_name}_MessagePump",
+                                     Priority = ThreadPriority.AboveNormal
                                  };
         }
 

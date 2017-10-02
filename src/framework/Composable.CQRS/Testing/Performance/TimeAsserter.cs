@@ -152,7 +152,7 @@ namespace Composable.Testing.Performance
             if(iterations > 1)
             {
                 SafeConsole.WriteLine(
-                    $@"Executed {iterations} iterations of {description}  
+                    $@"Executed {iterations} iterations of ""{description}""
     Total:   {format(executionSummary.Total)} Limit: {format(maxTotal)} 
     Average: {format
                         (executionSummary.Average)} Limit: {format(maxAverage)}");
@@ -160,7 +160,7 @@ namespace Composable.Testing.Performance
             else
             {
                 SafeConsole.WriteLine(
-                    $@"Executed {iterations} iterations of {description}  
+                    $@"Executed {iterations} iterations of ""{description}""
     Total:   {format(executionSummary.Total)} Limit: {format(maxTotal)}");
             }
         }

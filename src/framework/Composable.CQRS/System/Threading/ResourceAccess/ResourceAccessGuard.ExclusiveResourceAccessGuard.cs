@@ -5,21 +5,27 @@ using System.Threading;
 
 namespace Composable.System.Threading.ResourceAccess
 {
-    static partial class ResourceAccessGuard
+    static partial class GuardedResource
     {
-        class ExclusiveResourceAccessGuard : IExclusiveResourceAccessGuard
+        class ExclusiveAccessGuardedResource : IGuardedResource
         {
             readonly List<AwaitingExclusiveResourceLockTimeoutException> _timeOutExceptionsOnOtherThreads = new List<AwaitingExclusiveResourceLockTimeoutException>();
             int _timeoutsThrownDuringCurrentLock;
 
             readonly object _lockedObject;
-            internal readonly TimeSpan _defaultTimeout;
+            readonly TimeSpan _defaultTimeout;
 
-            public ExclusiveResourceAccessGuard(TimeSpan defaultTimeout)
+            public ExclusiveAccessGuardedResource(TimeSpan defaultTimeout)
             {
                 _lockedObject = new object();
                 _defaultTimeout = defaultTimeout;
             }
+
+            public IResourceReadLock AwaitReadLock(TimeSpan? timeoutOverride = null)
+                => new ReadResourceLock(AwaitExclusiveLock(timeoutOverride));
+
+            public IResourceUpdateLock AwaitUpdateLock(TimeSpan? timeoutOverride = null)
+                => new UpdateResourceLock(AwaitExclusiveLock(timeoutOverride));
 
             public IExclusiveResourceLock AwaitExclusiveLock(TimeSpan? timeout = null)
             {
@@ -51,10 +57,34 @@ namespace Composable.System.Threading.ResourceAccess
                 }
             }
 
+
+            class ReadResourceLock : IResourceReadLock
+            {
+                readonly IExclusiveResourceLock _lock;
+                public ReadResourceLock(IExclusiveResourceLock @lock) => _lock = @lock;
+
+                public void Dispose()
+                {
+                    _lock.Dispose();
+                }
+            }
+
+            class UpdateResourceLock : IResourceUpdateLock
+            {
+                readonly IExclusiveResourceLock _lock;
+                public UpdateResourceLock(IExclusiveResourceLock @lock) => _lock = @lock;
+
+                public void Dispose()
+                {
+                    _lock.NotifyWaitingThreadsAboutUpdate();
+                    _lock.Dispose();
+                }
+            }
+
             class ExclusiveResourceLock : IExclusiveResourceLock
             {
-                readonly ExclusiveResourceAccessGuard _parent;
-                public ExclusiveResourceLock(ExclusiveResourceAccessGuard parent) { _parent = parent; }
+                readonly ExclusiveAccessGuardedResource _parent;
+                public ExclusiveResourceLock(ExclusiveAccessGuardedResource parent) { _parent = parent; }
                 public void Dispose()
                 {
                     try
@@ -99,9 +129,9 @@ namespace Composable.System.Threading.ResourceAccess
                     }
                 }
 
-                public void SendUpdateNotificationToOneThreadAwaitingUpdateNotification() { Monitor.Pulse(_parent._lockedObject); }
+                public void NotifyASingleWaitingThreadAboutUpdate() { Monitor.Pulse(_parent._lockedObject); }
 
-                public void SendUpdateNotificationToAllThreadsAwaitingUpdateNotification() { Monitor.PulseAll(_parent._lockedObject); }
+                public void NotifyWaitingThreadsAboutUpdate() { Monitor.PulseAll(_parent._lockedObject); }
             }
         }
     }

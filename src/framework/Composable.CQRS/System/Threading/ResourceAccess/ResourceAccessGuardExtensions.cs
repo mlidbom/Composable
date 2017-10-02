@@ -4,7 +4,7 @@ namespace Composable.System.Threading.ResourceAccess
 {
     static class ResourceAccessGuardExtensions
     {
-        public static IExclusiveResourceLock AwaitExclusiveLockWhen(this IExclusiveResourceAccessGuard @this, TimeSpan timeout, Func<bool> condition)
+        public static IExclusiveResourceLock AwaitExclusiveLockWhen(this IGuardedResource @this, TimeSpan timeout, Func<bool> condition)
         {
             IExclusiveResourceLock exclusiveLock = null;
             try
@@ -28,12 +28,12 @@ namespace Composable.System.Threading.ResourceAccess
             }
         }
 
-        public static void Await(this IExclusiveResourceAccessGuard @this, TimeSpan timeout, Func<bool> condition)
+        public static void AwaitCondition(this IGuardedResource @this, TimeSpan timeout, Func<bool> condition)
         {
             using(@this.AwaitExclusiveLockWhen(timeout, condition)) {}
         }
 
-        public static bool TryAwait(this IExclusiveResourceAccessGuard @this, TimeSpan timeout, Func<bool> condition)
+        public static bool TryAwaitCondition(this IGuardedResource @this, TimeSpan timeout, Func<bool> condition)
         {
             var startTime = DateTime.Now;
             using(var @lock = @this.AwaitExclusiveLock(timeout))
@@ -50,76 +50,47 @@ namespace Composable.System.Threading.ResourceAccess
             }
         }
 
-        public static void ExecuteWithResourceExclusivelyLockedAndNotifyWaitingThreadsAboutUpdate(this IExclusiveResourceAccessGuard @this, Action action)
+
+        public static TResult Read<TResult>(this IGuardedResource @this, Func<TResult> read)
+        {
+            using(@this.AwaitExclusiveLock())
+            {
+                return read();
+            }
+        }
+
+        public static void Update(this IGuardedResource @this, Action action)
         {
             using(var @lock = @this.AwaitExclusiveLock())
             {
                 action();
-                @lock.SendUpdateNotificationToAllThreadsAwaitingUpdateNotification();
+                @lock.NotifyWaitingThreadsAboutUpdate();
             }
         }
 
-        public static TResult ExecuteWithResourceExclusivelyLockedAndNotifyWaitingThreadsAboutUpdate<TResult>(this IExclusiveResourceAccessGuard @this, Func<TResult> action)
+        public static TResult Update<TResult>(this IGuardedResource @this, Func<TResult> action)
         {
             using(var @lock = @this.AwaitExclusiveLock())
             {
                 var result = action();
-                @lock.SendUpdateNotificationToAllThreadsAwaitingUpdateNotification();
+                @lock.NotifyWaitingThreadsAboutUpdate();
                 return result;
             }
         }
 
-        public static void ExecuteWithResourceExclusivelyLocked(this IExclusiveResourceAccessGuard @lock, Action action)
-        {
-            using(@lock.AwaitExclusiveLock())
+        public static TResult UpdateAndReturn<TResult>(this IGuardedResource @this, Action action, TResult result)
+            => @this.Update(() =>
             {
                 action();
-            }
-        }
+                return result;
+            });
 
-        public static TResult ExecuteWithResourceExclusivelyLocked<TResult>(this IExclusiveResourceAccessGuard @lock, Func<TResult> function)
-        {
-            using(@lock.AwaitExclusiveLock())
-            {
-                return function();
-            }
-        }
-
-        public static TResult ExecuteWithResourceExclusivelyLockedAndReturn<TResult>(this IExclusiveResourceAccessGuard @lock, Action action, TResult result)
-            => @lock.ExecuteWithResourceExclusivelyLockedAndReturn(action, () => result);
-
-        public static TResult ExecuteWithResourceExclusivelyLockedAndReturn<TResult>(this IExclusiveResourceAccessGuard @lock, Action action, Func<TResult> resultFunction)
-        {
-            using (@lock.AwaitExclusiveLock())
+        public static TResult UpdateAndReturn<TResult>(this IGuardedResource @this, Action action, Func<TResult> resultFunction)
+            => @this.Update(() =>
             {
                 action();
                 return resultFunction();
-            }
-        }
-
-        public static void ExecuteWithResourceExclusivelyLockedWhen(this IExclusiveResourceAccessGuard @this, TimeSpan timeout, Func<bool> condition, Action action)
-        {
-            using(@this.AwaitExclusiveLockWhen(timeout, condition))
-            {
-                action();
-            }
-        }
-
-        public static void ExecuteWithResourceExclusivelyLocked(this IExclusiveResourceAccessGuard @lock, TimeSpan timeout, Action action)
-        {
-            using(@lock.AwaitExclusiveLock())
-            {
-                action();
-            }
-        }
-
-        public static TResult ExecuteWithResourceExclusivelyLocked<TResult>(this IExclusiveResourceAccessGuard @lock, TimeSpan timeout, Func<TResult> function)
-        {
-            using(@lock.AwaitExclusiveLock())
-            {
-                return function();
-            }
-        }
+            });
     }
 
     class AwaitingConditionTimedOutException : Exception

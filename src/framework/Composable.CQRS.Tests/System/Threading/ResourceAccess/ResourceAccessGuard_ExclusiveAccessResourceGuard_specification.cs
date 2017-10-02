@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Composable.System.Threading.ResourceAccess;
 using FluentAssertions;
 using NUnit.Framework;
+using Assert = NUnit.Framework.Assert;
 
 namespace Composable.Tests.System.Threading.ResourceAccess
 {
@@ -12,7 +13,7 @@ namespace Composable.Tests.System.Threading.ResourceAccess
     {
         [Test] public void When_one_thread_has_ExclusiveLock_other_thread_is_blocked_until_first_thread_disposes_lock()
         {
-            var resourceGuard = ResourceAccessGuard.ExclusiveWithTimeout(1.Seconds());
+            var resourceGuard = GuardedResource.WithTimeout(1.Seconds());
 
             var exclusiveLock = resourceGuard.AwaitExclusiveLock();
 
@@ -39,7 +40,7 @@ namespace Composable.Tests.System.Threading.ResourceAccess
 
         [Test] public void When_one_thread_calls_AwaitExclusiveLock_twice_other_thread_is_blocked_until_first_thread_disposes_both_locks()
         {
-            var resourceGuard = ResourceAccessGuard.ExclusiveWithTimeout(1.Seconds());
+            var resourceGuard = GuardedResource.WithTimeout(1.Seconds());
 
             var exclusiveLock1 = resourceGuard.AwaitExclusiveLock();
             var exclusiveLock2 = resourceGuard.AwaitExclusiveLock();
@@ -87,7 +88,7 @@ namespace Composable.Tests.System.Threading.ResourceAccess
 
             static Exception RunScenario(TimeSpan ownerThreadWaitTime)
             {
-                var resourceGuaard = ResourceAccessGuard.ExclusiveWithTimeout(10.Milliseconds());
+                var resourceGuaard = GuardedResource.WithTimeout(10.Milliseconds());
 
                 var exclusiveLock = resourceGuaard.AwaitExclusiveLock(0.Milliseconds());
 

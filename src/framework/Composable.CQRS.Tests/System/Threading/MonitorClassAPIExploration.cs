@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Threading;
+using Composable.System.Threading.ResourceAccess;
+using Composable.Testing.Performance;
 using Composable.Testing.Threading;
 using FluentAssertions;
 using Xunit;
@@ -56,12 +58,10 @@ namespace Composable.Tests.System.Threading
                 threadOneWaitsOnLockSection.ExitGate.AwaitPassedThroughCountEqualTo(1);
 
                 waitSucceeded.Should().Be(false);
-
             }
         }
 
-        [Fact]
-        void Wait_does_not_hang_on_long_timeout_values()
+        [Fact] void Wait_does_not_hang_on_long_timeout_values()
         {
             var guarded = new object();
 
@@ -71,7 +71,7 @@ namespace Composable.Tests.System.Threading
             var waitTimeout = TimeSpan.FromMilliseconds(int.MaxValue);
 
             bool waitSucceeded = false;
-            using (var taskRunner = TestingTaskRunner.WithTimeout(1.Seconds()))
+            using(var taskRunner = TestingTaskRunner.WithTimeout(1.Seconds()))
             {
                 taskRunner.Run(() =>
                 {
@@ -102,7 +102,5 @@ namespace Composable.Tests.System.Threading
                 waitSucceeded.Should().Be(true);
             }
         }
-
-        //[Fact] void MonitorHangs() => Test.Main();
     }
 }

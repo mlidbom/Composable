@@ -14,14 +14,14 @@ namespace Composable.Testing.Threading
 
         public TimeSpan DefaultTimeout => _defaultTimeout;
         public bool IsOpen => _isOpen;
-        public long Queued => _resourceGuard.ExecuteWithResourceExclusivelyLocked(() => _queuedThreads.Count);
-        public long Passed => _resourceGuard.ExecuteWithResourceExclusivelyLocked(() => _passedThreads.Count);
-        public long Requested => _resourceGuard.ExecuteWithResourceExclusivelyLocked(() => _requestsThreads.Count);
+        public long Queued => _resourceGuard.Read(() => _queuedThreads.Count);
+        public long Passed => _resourceGuard.Read(() => _passedThreads.Count);
+        public long Requested => _resourceGuard.Read(() => _requestsThreads.Count);
 
-        public IReadOnlyList<ThreadSnapshot> RequestedThreads => _resourceGuard.ExecuteWithResourceExclusivelyLocked(() => _requestsThreads.ToList());
-        public IReadOnlyList<ThreadSnapshot> QueuedThreads => _resourceGuard.ExecuteWithResourceExclusivelyLocked(() => _queuedThreads.ToList());
-        public IReadOnlyList<ThreadSnapshot> PassedThrough => _resourceGuard.ExecuteWithResourceExclusivelyLocked(() => _passedThreads.ToList());
-        public Action<ThreadSnapshot> PassThroughAction => _resourceGuard.ExecuteWithResourceExclusivelyLocked(() => _passThroughAction);
+        public IReadOnlyList<ThreadSnapshot> RequestedThreads => _resourceGuard.Read(() => _requestsThreads.ToList());
+        public IReadOnlyList<ThreadSnapshot> QueuedThreads => _resourceGuard.Read(() => _queuedThreads.ToList());
+        public IReadOnlyList<ThreadSnapshot> PassedThrough => _resourceGuard.Read(() => _passedThreads.ToList());
+        public Action<ThreadSnapshot> PassThroughAction => _resourceGuard.Read(() => _passThroughAction);
 
         public IThreadGate Open()
         {
@@ -29,7 +29,7 @@ namespace Composable.Testing.Threading
             {
                 _isOpen = true;
                 _lockOnNextPass = false;
-                ownedLock.SendUpdateNotificationToAllThreadsAwaitingUpdateNotification();
+                ownedLock.NotifyWaitingThreadsAboutUpdate();
             }
             return this;
         }
@@ -41,14 +41,14 @@ namespace Composable.Testing.Threading
                 Contract.Assert.That(!_isOpen, "Gate must be closed to call this method.");
                 _isOpen = true;
                 _lockOnNextPass = true;
-                ownedLock.SendUpdateNotificationToAllThreadsAwaitingUpdateNotification();
+                ownedLock.NotifyWaitingThreadsAboutUpdate();
                 return this.AwaitClosed();
             }
         }
 
-        public bool TryAwait(TimeSpan timeout, Func<bool> condition) => _resourceGuard.TryAwait(timeout, condition);
+        public bool TryAwait(TimeSpan timeout, Func<bool> condition) => _resourceGuard.TryAwaitCondition(timeout, condition);
 
-        public IThreadGate SetPassThroughAction(Action<ThreadSnapshot> action) => _resourceGuard.ExecuteWithResourceExclusivelyLockedAndReturn(() => _passThroughAction = action, this);
+        public IThreadGate SetPassThroughAction(Action<ThreadSnapshot> action) => _resourceGuard.UpdateAndReturn(() => _passThroughAction = action, this);
 
         public IThreadGate ExecuteWithExclusiveLockWhen(TimeSpan timeout, Func<bool> condition, Action<IThreadGate, IExclusiveResourceLock> action)
         {
@@ -61,7 +61,7 @@ namespace Composable.Testing.Threading
 
         public IThreadGate Close()
         {
-            _resourceGuard.ExecuteWithResourceExclusivelyLocked(() => _isOpen = false);
+            _resourceGuard.Update(() => _isOpen = false);
             return this;
         }
 
@@ -74,7 +74,7 @@ namespace Composable.Testing.Threading
                 var currentThread = new ThreadSnapshot();
                 _requestsThreads.Add(currentThread);
                 _queuedThreads.AddLast(currentThread);
-                ownedLock.SendUpdateNotificationToAllThreadsAwaitingUpdateNotification();
+                ownedLock.NotifyWaitingThreadsAboutUpdate();
                 while(!_isOpen)
                 {
                     ownedLock.ReleaseLockAwaitUpdateNotificationAndAwaitExclusiveLock(_defaultTimeout);
@@ -88,19 +88,19 @@ namespace Composable.Testing.Threading
 
                 _queuedThreads.Remove(currentThread);
                 _passedThreads.Add(currentThread);
-                ownedLock.SendUpdateNotificationToAllThreadsAwaitingUpdateNotification();
+                ownedLock.NotifyWaitingThreadsAboutUpdate();
                 _passThroughAction?.Invoke(currentThread);
             }
         }
 
         ThreadGate(TimeSpan defaultTimeout)
         {
-            _resourceGuard = ResourceAccessGuard.ExclusiveWithTimeout(defaultTimeout);
+            _resourceGuard = GuardedResource.WithTimeout(defaultTimeout);
             _defaultTimeout = defaultTimeout;
         }
 
         readonly TimeSpan _defaultTimeout;
-        readonly IExclusiveResourceAccessGuard _resourceGuard;
+        readonly IGuardedResource _resourceGuard;
         bool _lockOnNextPass;
         Action<ThreadSnapshot> _passThroughAction;
         bool _isOpen;

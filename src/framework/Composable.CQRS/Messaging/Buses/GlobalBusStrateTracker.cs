@@ -14,11 +14,11 @@ namespace Composable.Messaging.Buses
         readonly List<QueuedMessage> _inflightMessages = new List<QueuedMessage>();
 
         //It is never OK for this class to block. So make that explicit with a really strict timeout on all operations waiting for access.
-        readonly IExclusiveResourceAccessGuard _guard = ResourceAccessGuard.ExclusiveWithTimeout(1.Milliseconds());
+        readonly IGuardedResource _guard = GuardedResource.WithTimeout(1.Milliseconds());
 
         readonly Dictionary<IServiceBus, IList<Exception>> _busExceptions = new Dictionary<IServiceBus, IList<Exception>>();
 
-        public IReadOnlyList<Exception> GetExceptionsFor(IServiceBus bus) => _guard.ExecuteWithResourceExclusivelyLocked(() => _busExceptions.GetOrAdd(bus, () => new List<Exception>()).ToList());
+        public IReadOnlyList<Exception> GetExceptionsFor(IServiceBus bus) => _guard.Update(() => _busExceptions.GetOrAdd(bus, () => new List<Exception>()).ToList());
 
         public IQueuedMessage AwaitDispatchableMessage(IServiceBus bus, IReadOnlyList<IMessageDispatchingRule> dispatchingRules)
         {
@@ -44,7 +44,7 @@ namespace Composable.Messaging.Buses
         }
 
         public void EnqueueMessageTask(IServiceBus bus, IMessage message, Action messageTask)
-            => _guard.ExecuteWithResourceExclusivelyLockedAndNotifyWaitingThreadsAboutUpdate(
+            => _guard.Update(
                 () =>
                 {
                     var inflightMessage = new QueuedMessage(bus, message, this, messageTask);
@@ -53,14 +53,14 @@ namespace Composable.Messaging.Buses
                 });
 
         public void AwaitNoMessagesInFlight(TimeSpan? timeoutOverride)
-            => _guard.Await(timeout: timeoutOverride ?? 30.Seconds(),
+            => _guard.AwaitCondition(timeout: timeoutOverride ?? 30.Seconds(),
                             condition: () => _inflightMessages.None());
 
         void Succeeded(QueuedMessage queuedMessageInformation)
-            => _guard.ExecuteWithResourceExclusivelyLockedAndNotifyWaitingThreadsAboutUpdate(() => _inflightMessages.Remove(queuedMessageInformation));
+            => _guard.Update(() => _inflightMessages.Remove(queuedMessageInformation));
 
         void Failed(QueuedMessage queuedMessageInformation, Exception exception)
-            => _guard.ExecuteWithResourceExclusivelyLockedAndNotifyWaitingThreadsAboutUpdate(() =>
+            => _guard.Update(() =>
             {
                 _busExceptions.GetOrAdd(queuedMessageInformation.Bus, () => new List<Exception>()).Add(exception);
                 _inflightMessages.Remove(queuedMessageInformation);

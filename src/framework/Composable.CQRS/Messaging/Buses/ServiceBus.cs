@@ -18,7 +18,7 @@ namespace Composable.Messaging.Buses
         readonly IGlobalBusStrateTracker _globalStateTracker;
         readonly CommandScheduler _commandScheduler;
 
-        readonly IExclusiveResourceAccessGuard _guard = ResourceAccessGuard.ExclusiveWithTimeout(1.Seconds());
+        readonly IGuardedResource _guardedResource = GuardedResource.WithTimeout(1.Seconds());
 
         readonly CancellationTokenSource _cancellationTokenSource;
 
@@ -46,7 +46,7 @@ namespace Composable.Messaging.Buses
                                  };
         }
 
-        public void Start() => _guard.ExecuteWithResourceExclusivelyLocked(() =>
+        public void Start() => _guardedResource.Update(() =>
         {
             Contract.Assert.That(!_running, message: "!_running");
             _running = true;
@@ -54,7 +54,7 @@ namespace Composable.Messaging.Buses
             _messagePumpThread.Start();
         });
 
-        public void Stop() => _guard.ExecuteWithResourceExclusivelyLocked(() =>
+        public void Stop() => _guardedResource.Update(() =>
         {
             Contract.Assert.That(_running, message: "_running");
             _running = false;
@@ -65,14 +65,14 @@ namespace Composable.Messaging.Buses
 
         public void SendAtTime(DateTime sendAt, ICommand command) => _commandScheduler.Schedule(sendAt, command);
 
-        public void Send(ICommand command) => _guard.ExecuteWithResourceExclusivelyLocked(() => EnqueueTransactionalTask(command, () => _inProcessServiceBus.Send(command)));
+        public void Send(ICommand command) => _guardedResource.Update(() => EnqueueTransactionalTask(command, () => _inProcessServiceBus.Send(command)));
 
-        public void Publish(IEvent anEvent) => _guard.ExecuteWithResourceExclusivelyLocked(() => EnqueueTransactionalTask(anEvent, () => _inProcessServiceBus.Publish(anEvent)));
+        public void Publish(IEvent anEvent) => _guardedResource.Update(() => EnqueueTransactionalTask(anEvent, () => _inProcessServiceBus.Publish(anEvent)));
 
         public async Task<TResult> SendAsync<TResult>(ICommand<TResult> command) where TResult : IMessage
         {
             var taskCompletionSource = new TaskCompletionSource<TResult>(TaskCreationOptions.RunContinuationsAsynchronously);
-            using(_guard.AwaitExclusiveLock())
+            using(_guardedResource.AwaitExclusiveLock())
             {
                 EnqueueTransactionalTask(command,
                                          () =>
@@ -95,7 +95,7 @@ namespace Composable.Messaging.Buses
         public async Task<TResult> QueryAsync<TResult>(IQuery<TResult> query) where TResult : IQueryResult
         {
             var taskCompletionSource = new TaskCompletionSource<TResult>(TaskCreationOptions.RunContinuationsAsynchronously);
-            using(_guard.AwaitExclusiveLock())
+            using(_guardedResource.AwaitExclusiveLock())
             {
                 EnqueueNonTransactionalTask(query,
                                             () =>

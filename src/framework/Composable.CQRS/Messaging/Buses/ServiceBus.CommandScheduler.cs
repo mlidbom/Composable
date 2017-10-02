@@ -17,7 +17,7 @@ namespace Composable.Messaging.Buses
             readonly IUtcTimeTimeSource _timeSource;
             Timer _scheduledMessagesTimer;
             readonly List<ScheduledCommand> _scheduledMessages = new List<ScheduledCommand>();
-            readonly IExclusiveResourceAccessGuard _guard = ResourceAccessGuard.ExclusiveWithTimeout(1.Seconds());
+            readonly IGuardedResource _guard = GuardedResource.WithTimeout(1.Seconds());
 
             public CommandScheduler(IServiceBus bus, IUtcTimeTimeSource timeSource)
             {
@@ -25,10 +25,9 @@ namespace Composable.Messaging.Buses
                 _timeSource = timeSource;
             }
 
-            public void Start() => _guard.ExecuteWithResourceExclusivelyLocked(
-                () => _scheduledMessagesTimer = new Timer(callback: _ => SendDueCommands(), state: null, dueTime: 0.Seconds(), period: 100.Milliseconds()));
+            public void Start() => _guard.Update(() => _scheduledMessagesTimer = new Timer(callback: _ => SendDueCommands(), state: null, dueTime: 0.Seconds(), period: 100.Milliseconds()));
 
-            public void Schedule(DateTime sendAt, ICommand message) => _guard.ExecuteWithResourceExclusivelyLocked(() =>
+            public void Schedule(DateTime sendAt, ICommand message) => _guard.Update(() =>
             {
                 if(_timeSource.UtcNow > sendAt.ToUniversalTime())
                     throw new InvalidOperationException(message: "You cannot schedule a queuedMessageInformation to be sent in the past.");
@@ -36,8 +35,7 @@ namespace Composable.Messaging.Buses
                 _scheduledMessages.Add(new ScheduledCommand(sendAt, message));
             });
 
-            void SendDueCommands() => _guard.ExecuteWithResourceExclusivelyLocked(
-                () => _scheduledMessages.RemoveWhere(HasPassedSendtime).ForEach(Send));
+            void SendDueCommands() => _guard.Update(() => _scheduledMessages.RemoveWhere(HasPassedSendtime).ForEach(Send));
 
             bool HasPassedSendtime(ScheduledCommand message) => _timeSource.UtcNow >= message.SendAt;
 

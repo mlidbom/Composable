@@ -9,11 +9,6 @@ namespace Composable.System.Threading.ResourceAccess
         IResourceUpdateLock AwaitUpdateLock(TimeSpan? timeoutOverride = null);
     }
 
-    interface ISharedGuardedResource : IGuardedResource
-    {
-        IDisposable AwaitSharedLock(TimeSpan? timeoutOverride = null);
-    }
-
     interface IResourceLock : IDisposable {}
 
     interface IResourceUpdateLock : IDisposable
@@ -26,7 +21,6 @@ namespace Composable.System.Threading.ResourceAccess
 
     interface IExclusiveResourceLock : IResourceLock
     {
-        void NotifyASingleWaitingThreadAboutUpdate();
         void NotifyWaitingThreadsAboutUpdate();
 
         //todo: These two timeouts are fundamentally different from the timeout waiting to get a lock.

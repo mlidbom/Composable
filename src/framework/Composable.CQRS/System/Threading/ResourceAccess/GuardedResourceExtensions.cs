@@ -2,7 +2,7 @@
 
 namespace Composable.System.Threading.ResourceAccess
 {
-    static class ResourceAccessGuardExtensions
+    static class GuardedResourceExtensions
     {
         public static IExclusiveResourceLock AwaitExclusiveLockWhen(this IGuardedResource @this, TimeSpan timeout, Func<bool> condition)
         {
@@ -50,10 +50,9 @@ namespace Composable.System.Threading.ResourceAccess
             }
         }
 
-
         public static TResult Read<TResult>(this IGuardedResource @this, Func<TResult> read)
         {
-            using(@this.AwaitExclusiveLock())
+            using(@this.AwaitReadLock())
             {
                 return read();
             }
@@ -61,20 +60,17 @@ namespace Composable.System.Threading.ResourceAccess
 
         public static void Update(this IGuardedResource @this, Action action)
         {
-            using(var @lock = @this.AwaitExclusiveLock())
+            using(@this.AwaitUpdateLock())
             {
                 action();
-                @lock.NotifyWaitingThreadsAboutUpdate();
             }
         }
 
         public static TResult Update<TResult>(this IGuardedResource @this, Func<TResult> action)
         {
-            using(var @lock = @this.AwaitExclusiveLock())
+            using(@this.AwaitUpdateLock())
             {
-                var result = action();
-                @lock.NotifyWaitingThreadsAboutUpdate();
-                return result;
+                return action();
             }
         }
 

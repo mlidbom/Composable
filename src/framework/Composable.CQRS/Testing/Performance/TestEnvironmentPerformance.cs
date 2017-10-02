@@ -10,11 +10,21 @@ namespace Composable.Testing.Performance
 {
     static class TestEnvironment
     {
+        public static TimeSpan NCrunchSlowdownFactor(this TimeSpan original, double nCrunchSlowdownFactor)
+        {
+            if(TestRunner.Instance.Name == TestRunner.NCrunchRunnerName)
+            {
+                return ((int)(original.TotalMilliseconds * nCrunchSlowdownFactor)).Milliseconds();
+            }
+            return original;
+        }
+
         public static TimeSpan AdjustRuntimeToTestEnvironment(this TimeSpan original) => ((int)(original.TotalMilliseconds * TestRunner.Instance.SlowDownFactor)).Milliseconds();
     }
 
     class TestRunner
     {
+        public const string NCrunchRunnerName = "NCRunch";
         public static readonly TestRunner Instance = GetInstance();
         static readonly ILogger Log = Logger.For<TestRunner>();
 
@@ -24,7 +34,7 @@ namespace Composable.Testing.Performance
             var processName = Process.GetCurrentProcess().ProcessName;
             if (loadedAssemblies.Any(assembly => assembly.FullName.StartsWith("nCrunch.TaskRunner")))
             {
-                return new TestRunner("NCRunch", 5.0);
+                return new TestRunner(NCrunchRunnerName, 5.0);
             }
 
             if (processName.StartsWith("nunit-gui"))
@@ -62,9 +72,11 @@ namespace Composable.Testing.Performance
         TestRunner(string name, double slowDownFactor = 1.0)
         {
             SafeConsole.WriteLine($"Setting up performance adjustments for {name} with {nameof(slowDownFactor)}: {slowDownFactor}");
+            Name = name;
             SlowDownFactor = slowDownFactor;
         }
 
+        public string Name { get; }
         public double SlowDownFactor { get; }
     }
 }

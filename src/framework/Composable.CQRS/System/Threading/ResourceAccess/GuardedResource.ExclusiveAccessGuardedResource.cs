@@ -34,9 +34,9 @@ namespace Composable.System.Threading.ResourceAccess
                 {
                     Monitor.TryEnter(_lockedObject, timeout ?? _defaultTimeout, ref lockTaken);
 
-                    if (!lockTaken)
+                    if(!lockTaken)
                     {
-                        lock (_timeOutExceptionsOnOtherThreads)
+                        lock(_timeOutExceptionsOnOtherThreads)
                         {
                             Interlocked.Increment(ref _timeoutsThrownDuringCurrentLock);
                             var exception = new AwaitingExclusiveResourceLockTimeoutException();
@@ -47,9 +47,9 @@ namespace Composable.System.Threading.ResourceAccess
 
                     return new ExclusiveResourceLock(this);
                 }
-                catch (Exception)
+                catch(Exception)
                 {
-                    if (lockTaken)
+                    if(lockTaken)
                     {
                         Monitor.Exit(_lockedObject);
                     }
@@ -57,16 +57,12 @@ namespace Composable.System.Threading.ResourceAccess
                 }
             }
 
-
             class ReadResourceLock : IResourceReadLock
             {
                 readonly IExclusiveResourceLock _lock;
                 public ReadResourceLock(IExclusiveResourceLock @lock) => _lock = @lock;
 
-                public void Dispose()
-                {
-                    _lock.Dispose();
-                }
+                public void Dispose() { _lock.Dispose(); }
             }
 
             class UpdateResourceLock : IResourceUpdateLock
@@ -84,7 +80,7 @@ namespace Composable.System.Threading.ResourceAccess
             class ExclusiveResourceLock : IExclusiveResourceLock
             {
                 readonly ExclusiveAccessGuardedResource _parent;
-                public ExclusiveResourceLock(ExclusiveAccessGuardedResource parent) { _parent = parent; }
+                public ExclusiveResourceLock(ExclusiveAccessGuardedResource parent) => _parent = parent;
                 public void Dispose()
                 {
                     try
@@ -93,12 +89,12 @@ namespace Composable.System.Threading.ResourceAccess
                         //Using this exchange trick spares us from taking one more lock every time we release one at the cost of a negligible decrease in the chances for an exception to contain the blocking stacktrace.
                         var timeoutExceptionsOnOtherThreads = Interlocked.Exchange(ref _parent._timeoutsThrownDuringCurrentLock, 0);
 
-                        if (timeoutExceptionsOnOtherThreads > 0)
+                        if(timeoutExceptionsOnOtherThreads > 0)
                         {
-                            lock (_parent._timeOutExceptionsOnOtherThreads)
+                            lock(_parent._timeOutExceptionsOnOtherThreads)
                             {
                                 var stackTrace = new StackTrace(fNeedFileInfo: true);
-                                foreach (var exception in _parent._timeOutExceptionsOnOtherThreads)
+                                foreach(var exception in _parent._timeOutExceptionsOnOtherThreads)
                                 {
                                     exception.SetBlockingThreadsDisposeStackTrace(stackTrace);
                                 }
@@ -114,7 +110,7 @@ namespace Composable.System.Threading.ResourceAccess
 
                 public bool TryReleaseLockAwaitUpdateNotificationAndAwaitExclusiveLock(TimeSpan timeout)
                 {
-                    if (!Monitor.Wait(_parent._lockedObject, timeout))
+                    if(!Monitor.Wait(_parent._lockedObject, timeout))
                     {
                         return false;
                     }
@@ -123,13 +119,11 @@ namespace Composable.System.Threading.ResourceAccess
 
                 public void ReleaseLockAwaitUpdateNotificationAndAwaitExclusiveLock(TimeSpan timeout)
                 {
-                    if (!Monitor.Wait(_parent._lockedObject, timeout))
+                    if(!Monitor.Wait(_parent._lockedObject, timeout))
                     {
                         throw new AwaitingUpdateNotificationTimedOutException();
                     }
                 }
-
-                public void NotifyASingleWaitingThreadAboutUpdate() { Monitor.Pulse(_parent._lockedObject); }
 
                 public void NotifyWaitingThreadsAboutUpdate() { Monitor.PulseAll(_parent._lockedObject); }
             }

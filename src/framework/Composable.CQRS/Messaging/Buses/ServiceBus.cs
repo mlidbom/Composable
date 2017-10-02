@@ -72,7 +72,7 @@ namespace Composable.Messaging.Buses
         public async Task<TResult> SendAsync<TResult>(ICommand<TResult> command) where TResult : IMessage
         {
             var taskCompletionSource = new TaskCompletionSource<TResult>(TaskCreationOptions.RunContinuationsAsynchronously);
-            using(_guardedResource.AwaitExclusiveLock())
+            using(_guardedResource.AwaitUpdateLock())
             {
                 EnqueueTransactionalTask(command,
                                          () =>
@@ -95,7 +95,7 @@ namespace Composable.Messaging.Buses
         public async Task<TResult> QueryAsync<TResult>(IQuery<TResult> query) where TResult : IQueryResult
         {
             var taskCompletionSource = new TaskCompletionSource<TResult>(TaskCreationOptions.RunContinuationsAsynchronously);
-            using(_guardedResource.AwaitExclusiveLock())
+            using(_guardedResource.AwaitUpdateLock())
             {
                 EnqueueNonTransactionalTask(query,
                                             () =>

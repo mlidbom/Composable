@@ -7,11 +7,11 @@ namespace Composable.Tests.System.Threading.ResourceAccess
 {
     public class ResourceAccessGuardPerformanceTests
     {
-        [Fact] void Multiple_threads_take_100_000_update_locks_in_40_milliseconds()
+        [Fact] void Multiple_threads_take_10_000_update_locks_in_3_milliseconds()
         {
             var guard = GuardedResource.WithTimeout(100.Milliseconds());
 
-            const int totalLocks = 100_000;
+            const int totalLocks = 10_000;
             const int iterations = 100;
             const int locksPerIteration = totalLocks / iterations;
 
@@ -26,14 +26,14 @@ namespace Composable.Tests.System.Threading.ResourceAccess
             TimeAsserter.ExecuteThreaded(HammerUpdateLocks,
                                          iterations: iterations,
                                          description: $"Take {locksPerIteration} update locks",
-                                         maxTotal: 40.Milliseconds().NCrunchSlowdownFactor(11));
+                                         maxTotal: 4.Milliseconds().NCrunchSlowdownFactor(10));
         }
 
-        [Fact] void Multiple_threads_take_100_000_read_locks_in_40_milliseconds()
+        [Fact] void Multiple_threads_take_10_000_read_locks_in_3_milliseconds()
         {
             var guard = GuardedResource.WithTimeout(100.Milliseconds());
 
-            const int totalLocks = 100_000;
+            const int totalLocks = 10_000;
             const int iterations = 100;
             const int locksPerIteration = totalLocks / iterations;
 
@@ -48,7 +48,7 @@ namespace Composable.Tests.System.Threading.ResourceAccess
             TimeAsserter.ExecuteThreaded(HammerUpdateLocks,
                                          iterations: iterations,
                                          description: $"Take {locksPerIteration} update locks",
-                                         maxTotal: 40.Milliseconds().NCrunchSlowdownFactor(11));
+                                         maxTotal: 4.Milliseconds().NCrunchSlowdownFactor(10));
         }
     }
 }

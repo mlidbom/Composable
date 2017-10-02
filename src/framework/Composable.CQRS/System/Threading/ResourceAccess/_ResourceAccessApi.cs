@@ -5,8 +5,7 @@ namespace Composable.System.Threading.ResourceAccess
     interface IGuardedResource
     {
         IExclusiveResourceLock AwaitExclusiveLock(TimeSpan? timeoutOverride = null);
-        IResourceReadLock AwaitReadLock(TimeSpan? timeoutOverride = null);
-        IResourceUpdateLock AwaitUpdateLock(TimeSpan? timeoutOverride = null);
+        TimeSpan DefaultTimeout { get; }
     }
 
     interface IResourceLock : IDisposable {}

@@ -27,7 +27,7 @@ namespace Composable.Testing.Threading
         Action<ThreadSnapshot> PassThroughAction { get; }
 
         ///<summary>Blocks until the gate is in a state which satisfies <see cref="condition"/> and then while owning the lock executes <see cref="action"/></summary>
-        IThreadGate ExecuteWithExclusiveLockWhen(TimeSpan timeout, Func<bool> condition, Action<IThreadGate, IExclusiveResourceLock> action);
+        IThreadGate ExecuteWithExclusiveLockWhen(TimeSpan timeout, Func<bool> condition, Action action);
 
         bool TryAwait(TimeSpan timeout, Func<bool> condition);
 

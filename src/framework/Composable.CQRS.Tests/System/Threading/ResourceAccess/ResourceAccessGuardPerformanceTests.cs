@@ -7,7 +7,7 @@ namespace Composable.Tests.System.Threading.ResourceAccess
 {
     public class ResourceAccessGuardPerformanceTests
     {
-        [Fact] void Multiple_threads_take_100_000_update_locks_in_30_milliseconds()
+        [Fact] void Multiple_threads_take_100_000_update_locks_in_40_milliseconds()
         {
             var guard = GuardedResource.WithTimeout(100.Milliseconds());
 
@@ -26,10 +26,10 @@ namespace Composable.Tests.System.Threading.ResourceAccess
             TimeAsserter.ExecuteThreaded(HammerUpdateLocks,
                                          iterations: iterations,
                                          description: $"Take {locksPerIteration} update locks",
-                                         maxTotal: 30.Milliseconds().NCrunchSlowdownFactor(11));
+                                         maxTotal: 40.Milliseconds().NCrunchSlowdownFactor(11));
         }
 
-        [Fact] void Multiple_threads_take_100_000_read_locks_in_30_milliseconds()
+        [Fact] void Multiple_threads_take_100_000_read_locks_in_40_milliseconds()
         {
             var guard = GuardedResource.WithTimeout(100.Milliseconds());
 
@@ -48,7 +48,7 @@ namespace Composable.Tests.System.Threading.ResourceAccess
             TimeAsserter.ExecuteThreaded(HammerUpdateLocks,
                                          iterations: iterations,
                                          description: $"Take {locksPerIteration} update locks",
-                                         maxTotal: 30.Milliseconds().NCrunchSlowdownFactor(11));
+                                         maxTotal: 40.Milliseconds().NCrunchSlowdownFactor(11));
         }
     }
 }

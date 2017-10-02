@@ -13,26 +13,20 @@ namespace Composable.System.Threading.ResourceAccess
             int _timeoutsThrownDuringCurrentLock;
 
             readonly object _lockedObject;
-            readonly TimeSpan _defaultTimeout;
+            public TimeSpan DefaultTimeout { get; private set; }
 
             public ExclusiveAccessGuardedResource(TimeSpan defaultTimeout)
             {
                 _lockedObject = new object();
-                _defaultTimeout = defaultTimeout;
+                DefaultTimeout = defaultTimeout;
             }
-
-            public IResourceReadLock AwaitReadLock(TimeSpan? timeoutOverride = null)
-                => new ReadResourceLock(AwaitExclusiveLock(timeoutOverride));
-
-            public IResourceUpdateLock AwaitUpdateLock(TimeSpan? timeoutOverride = null)
-                => new UpdateResourceLock(AwaitExclusiveLock(timeoutOverride));
 
             public IExclusiveResourceLock AwaitExclusiveLock(TimeSpan? timeout = null)
             {
                 var lockTaken = false;
                 try //It is rare, but apparently possible, for TryEnter to throw an exception after the lock is taken. So we do need to catch it and call Monitor.Exit if that happens to avoid leaking locks.
                 {
-                    Monitor.TryEnter(_lockedObject, timeout ?? _defaultTimeout, ref lockTaken);
+                    Monitor.TryEnter(_lockedObject, timeout ?? DefaultTimeout, ref lockTaken);
 
                     if(!lockTaken)
                     {
@@ -54,26 +48,6 @@ namespace Composable.System.Threading.ResourceAccess
                         Monitor.Exit(_lockedObject);
                     }
                     throw;
-                }
-            }
-
-            class ReadResourceLock : IResourceReadLock
-            {
-                readonly IExclusiveResourceLock _lock;
-                public ReadResourceLock(IExclusiveResourceLock @lock) => _lock = @lock;
-
-                public void Dispose() { _lock.Dispose(); }
-            }
-
-            class UpdateResourceLock : IResourceUpdateLock
-            {
-                readonly IExclusiveResourceLock _lock;
-                public UpdateResourceLock(IExclusiveResourceLock @lock) => _lock = @lock;
-
-                public void Dispose()
-                {
-                    _lock.NotifyWaitingThreadsAboutUpdate();
-                    _lock.Dispose();
                 }
             }
 

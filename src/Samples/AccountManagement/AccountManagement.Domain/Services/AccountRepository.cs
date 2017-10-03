@@ -5,7 +5,7 @@ using AccountEvent = AccountManagement.Domain.Events.AccountEvent;
 
 namespace AccountManagement.Domain.Services
 {
-    interface IAccountManagementDomainDocumentDbUpdater : IDocumentDbUpdater, IAccountManagementDomainDocumentDbReader, IAccountManagementDomainDocumentDbBulkReader { }
+    interface IAccountManagementDomainDocumentDbUpdater : IDocumentDbUpdater { }
 
     interface IAccountManagementDomainDocumentDbReader : IDocumentDbReader { }
 

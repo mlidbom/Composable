@@ -68,8 +68,9 @@ namespace Composable.DependencyInjection.Persistence
             @this.Register(Component.For<IDocumentDbSession<TUpdater, TReader, TBulkReader>>()
                                      .ImplementedBy<DocumentDbSession<TUpdater, TReader, TBulkReader>>()
                                      .LifestyleScoped());
-            @this.Register(Component.For<TUpdater>(Seq.OfTypes<TReader, TBulkReader>())
-                                    .UsingFactoryMethod(kernel => CreateProxyFor<TUpdater, TReader, TBulkReader>(kernel.Resolve<IDocumentDbSession<TUpdater, TReader, TBulkReader>>()))
+            @this.Register(Component.For<TUpdater, TReader, TBulkReader>()
+                                    .UsingFactoryMethod(EventStoreSessionProxyFactory<TUpdater, TReader, TBulkReader>.ProxyType,
+                                                        kernel => CreateProxyFor<TUpdater, TReader, TBulkReader>(kernel.Resolve<IDocumentDbSession<TUpdater, TReader, TBulkReader>>()))
                                     .LifestyleScoped()
                           );
         }

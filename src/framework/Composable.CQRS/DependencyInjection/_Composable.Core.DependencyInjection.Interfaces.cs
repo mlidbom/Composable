@@ -145,6 +145,13 @@ namespace Composable.DependencyInjection
                                                                                        InstantiationSpec.FromFactoryMethod(serviceLocator => factoryMethod(serviceLocator), implementationType));
             }
 
+            internal ComponentRegistrationBuilderWithInstantiationSpec<TService> UsingFactoryMethod(Type implementationType, Func<IServiceLocatorKernel, object> factoryMethod)
+            {
+                AssertImplementsAllServices(implementationType);
+                return new ComponentRegistrationBuilderWithInstantiationSpec<TService>(ServiceTypes,
+                                                                                       InstantiationSpec.FromFactoryMethod(serviceLocator => factoryMethod(serviceLocator), implementationType));
+            }
+
             void AssertImplementsAllServices(Type implementationType)
             {
                 var unImplementedService = ServiceTypes.FirstOrDefault(serviceType => !serviceType.IsAssignableFrom(implementationType));

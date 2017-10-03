@@ -9,13 +9,13 @@ namespace Composable.CQRS.Tests
 {
     interface ITestingEventstoreReader : IEventStoreReader { }
 
-    interface ITestingEventstoreUpdater : IEventStoreUpdater, ITestingEventstoreReader { }
+    interface ITestingEventstoreUpdater : IEventStoreUpdater { }
 
     interface ITestingDocumentDbBulkReader : IDocumentDbBulkReader { }
 
     interface ITestingDocumentDbReader : IDocumentDbReader { }
 
-    interface ITestingDocumentDbUpdater : IDocumentDbUpdater, ITestingDocumentDbReader, ITestingDocumentDbBulkReader { }
+    interface ITestingDocumentDbUpdater : IDocumentDbUpdater { }
 
     static class TestWiringHelper
     {

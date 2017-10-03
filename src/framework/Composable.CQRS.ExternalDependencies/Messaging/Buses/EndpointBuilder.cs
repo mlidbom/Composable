@@ -2,6 +2,8 @@
 using Composable.GenericAbstractions.Time;
 using Composable.Persistence.EventStore;
 using Composable.Persistence.EventStore.Serialization.NewtonSoft;
+using Composable.System.Configuration;
+using Composable.System.Data.SqlClient;
 using Composable.SystemExtensions.Threading;
 
 namespace Composable.Messaging.Buses
@@ -11,8 +13,13 @@ namespace Composable.Messaging.Buses
         readonly IDependencyInjectionContainer _container;
         readonly MessageHandlerRegistry _registry;
 
+
+        static readonly ISqlConnection MasterDbConnection = new AppConfigSqlConnectionProvider().GetConnectionProvider(parameterName: "MasterDB");
+
         public EndpointBuilder(string name, IRunMode mode, IGlobalBusStrateTracker globalStateTracker)
         {
+            MasterDbConnection.UseConnection(action: _ => { }); //evaluate lazy here in order to not pollute profiler timings of component resolution or registering.
+
             _container = DependencyInjectionContainer.Create(mode);
 
             _registry = new MessageHandlerRegistry();
@@ -43,7 +50,11 @@ namespace Composable.Messaging.Buses
                                          .LifestyleSingleton(),
                                 Component.For<IGlobalBusStrateTracker>()
                                          .UsingFactoryMethod(_ => globalStateTracker)
-                                         .LifestyleSingleton());
+                                         .LifestyleSingleton(),
+                                Component.For<ISqlConnectionProvider>()
+                                         .UsingFactoryMethod(factoryMethod: locator => new SqlServerDatabasePoolSqlConnectionProvider(MasterDbConnection.ConnectionString))
+                                         .LifestyleSingleton()
+                                         .DelegateToParentServiceLocatorWhenCloning());
         }
 
         public IDependencyInjectionContainer Container => _container;

@@ -11,7 +11,10 @@ namespace Composable.Messaging.Buses
         public void Start() => Bus.Start();
         public void Stop() => Bus.Stop();
         public void AwaitNoMessagesInFlight(TimeSpan? timeoutOverride) => GlobalStateTracker.AwaitNoMessagesInFlight(timeoutOverride);
-        public void Dispose() => Bus.Dispose();
+        public void Dispose()
+        {
+            ServiceLocator.Dispose();
+        }
 
         IGlobalBusStrateTracker GlobalStateTracker => ServiceLocator.Resolve<IGlobalBusStrateTracker>();
         IServiceBus Bus => ServiceLocator.Resolve<IServiceBus>();

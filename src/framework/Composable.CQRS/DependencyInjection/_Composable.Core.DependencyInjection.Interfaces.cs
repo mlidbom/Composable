@@ -110,6 +110,10 @@ namespace Composable.DependencyInjection
 
     public static class Component
     {
+        internal static ComponentRegistrationBuilderInitial<TService1> For<TService1, TService2, TService3, TService4>() where TService1 : class => For<TService1>(Seq.OfTypes<TService2, TService3, TService4>());
+
+        internal static ComponentRegistrationBuilderInitial<TService1> For<TService1, TService2, TService3>() where TService1 : class => For<TService1>(Seq.OfTypes<TService2, TService3>());
+
         internal static ComponentRegistrationBuilderInitial<TService1> For<TService1, TService2>() where TService1 : class => For<TService1>(Seq.OfTypes<TService2>());
 
         public static ComponentRegistrationBuilderInitial<TService> For<TService>() where TService : class => For<TService>(new List<Type>());

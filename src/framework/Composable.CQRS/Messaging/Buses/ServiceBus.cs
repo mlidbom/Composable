@@ -11,7 +11,8 @@ using Composable.System.Transactions;
 
 namespace Composable.Messaging.Buses
 {
-    partial class ServiceBus : IServiceBus
+    partial class 
+        ServiceBus : IServiceBus
     {
         readonly string _name;
         readonly IInProcessServiceBus _inProcessServiceBus;

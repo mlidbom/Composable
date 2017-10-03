@@ -11,7 +11,6 @@ namespace Composable.DependencyInjection.Testing
 {
     static class TestingExtensions
     {
-
         static readonly ISqlConnection MasterDbConnection = new AppConfigSqlConnectionProvider().GetConnectionProvider(parameterName: "MasterDB");
         /// <summary>
         /// <para>SingleThreadUseGuard is registered for the component ISingleContextUseGuard</para>
@@ -27,12 +26,13 @@ namespace Composable.DependencyInjection.Testing
 
             var inprocessBus = new InProcessServiceBus(registry);
 
-            var globalStateTracker = new GlobalBusStrateTracker();
-            var serviceBus = new ServiceBus("testendpoint", dummyTimeSource, inprocessBus, globalStateTracker);
-            var runMode = new RunMode(isTesting:true, mode:mode);
+            var runMode = new RunMode(isTesting: true, mode: mode);
 
             @this.Register(Component.For<IRunMode>()
                                     .UsingFactoryMethod(factoryMethod: _ => runMode)
+                                    .LifestyleSingleton(),
+                           Component.For<IGlobalBusStrateTracker>()
+                                    .UsingFactoryMethod(_ => new GlobalBusStrateTracker())
                                     .LifestyleSingleton(),
                            Component.For<ISingleContextUseGuard>()
                                     .ImplementedBy<SingleThreadUseGuard>()
@@ -51,7 +51,7 @@ namespace Composable.DependencyInjection.Testing
                                     .UsingFactoryMethod(_ => inprocessBus)
                                     .LifestyleSingleton(),
                            Component.For<IServiceBus, ServiceBus>()
-                                    .UsingFactoryMethod(factoryMethod: _ => serviceBus)
+                                    .UsingFactoryMethod(factoryMethod: kernel => new ServiceBus("testendpoint", kernel.Resolve<DummyTimeSource>(), kernel.Resolve<IInProcessServiceBus>(), kernel.Resolve<IGlobalBusStrateTracker>()))
                                     .LifestyleSingleton(),
                            Component.For<ISqlConnectionProvider>()
                                     .UsingFactoryMethod(factoryMethod: locator => new SqlServerDatabasePoolSqlConnectionProvider(MasterDbConnection.ConnectionString))
@@ -59,7 +59,6 @@ namespace Composable.DependencyInjection.Testing
                                     .DelegateToParentServiceLocatorWhenCloning()
             );
         }
-
 
         public static IServiceLocator Clone(this IServiceLocator @this)
         {

@@ -33,7 +33,8 @@ namespace Composable.CQRS.Tests.ServiceBusSpecification.Given_a_backend_endpoint
                                      builder.RegisterHandlers
                                             .ForEvent((UserEvent.Implementation.UserRegisteredEvent myEvent) => {})
                                             .ForQuery((GetUserQuery query) => new UserResource())
-                                            .ForCommand((UserRegistrarCommand.RegisterUserCommand command, IUserEventStoreUpdater store) => store.Save(UserAggregate.Register(command)));
+                                            .ForCommand((UserRegistrarCommand.RegisterUserCommand command, IUserEventStoreUpdater store) =>
+                                                            store.Save(UserAggregate.Register(command)));
                                  }));
 
             _userDomainServiceLocator = _userManagementDomainEndpoint.ServiceLocator;
@@ -41,9 +42,7 @@ namespace Composable.CQRS.Tests.ServiceBusSpecification.Given_a_backend_endpoint
         }
 
         [Fact] void FACT() => _userDomainServiceLocator.ExecuteTransactionInIsolatedScope(
-            () => _userDomainServiceLocator.Resolve<IUserEventStoreUpdater>()
-                                           .Get<UserRegistrarAggregate>(UserRegistrarAggregate.SingleId)
-                                           .RegisterUser(_userDomainServiceLocator.Resolve<IServiceBus>()));
+            () => UserRegistrarAggregate.RegisterUser(_userDomainServiceLocator.Resolve<IServiceBus>()));
 
         public virtual void Dispose()
         {
@@ -106,8 +105,8 @@ namespace Composable.CQRS.Tests.ServiceBusSpecification.Given_a_backend_endpoint
 
         public class UserRegistrarAggregate : AggregateRoot<UserRegistrarAggregate, UserRegistrarEvent.Implementation.Root, UserRegistrarEvent.IRoot>
         {
-            public static Guid SingleId = Guid.Parse("5C400DD9-50FB-40C7-8A13-265005588AED");
-            public static UserRegistrarAggregate Create()
+            internal static Guid SingleId = Guid.Parse("5C400DD9-50FB-40C7-8A13-265005588AED");
+            internal static UserRegistrarAggregate Create()
             {
                 var registrar = new UserRegistrarAggregate();
                 registrar.RaiseEvent(new UserRegistrarEvent.Implementation.Created());
@@ -118,16 +117,16 @@ namespace Composable.CQRS.Tests.ServiceBusSpecification.Given_a_backend_endpoint
                 => RegisterEventAppliers()
                     .IgnoreUnhandled<UserRegistrarEvent.IRoot>();
 
-            public void RegisterUser(IServiceBus bus)
-            {
-                bus.Send(new UserRegistrarCommand.RegisterUserCommand());
-            }
+            internal static void RegisterUser(IServiceBus bus) { bus.Send(new UserRegistrarCommand.RegisterUserCommand()); }
         }
 
         public class UserAggregate : AggregateRoot<UserAggregate, UserEvent.Implementation.Root, UserEvent.IRoot>
         {
-            protected UserAggregate() : base(DateTimeNowTimeSource.Instance) {}
-            public static IEventStored Register(UserRegistrarCommand.RegisterUserCommand command)
+            UserAggregate() : base(DateTimeNowTimeSource.Instance)
+                => RegisterEventAppliers()
+                    .IgnoreUnhandled<UserEvent.IRoot>();
+
+            internal static IEventStored Register(UserRegistrarCommand.RegisterUserCommand command)
             {
                 var registered = new UserAggregate();
                 registered.RaiseEvent(new UserEvent.Implementation.UserRegisteredEvent());
@@ -135,8 +134,8 @@ namespace Composable.CQRS.Tests.ServiceBusSpecification.Given_a_backend_endpoint
             }
         }
 
-        public class GetUserQuery : Query<UserResource> {}
-        public class UserResource : QueryResult {}
+        class GetUserQuery : Query<UserResource> {}
+        class UserResource : QueryResult {}
         public class RegisterUserResult : Message {}
     }
 }

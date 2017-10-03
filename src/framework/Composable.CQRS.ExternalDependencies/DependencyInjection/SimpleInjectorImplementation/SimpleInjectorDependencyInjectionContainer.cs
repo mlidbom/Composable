@@ -92,7 +92,7 @@ namespace Composable.DependencyInjection.SimpleInjectorImplementation
             if(!_verified)
             {
                 _verified = true;
-                //_container.Verify();
+                _container.Verify();
             }
             return this;
         }

@@ -1,9 +1,10 @@
 ﻿using System;
 using System.Linq;
-using System.Threading.Tasks;
 using Composable.Testing.Threading;
 using FluentAssertions;
 using Xunit;
+
+// ReSharper disable InconsistentNaming
 
 namespace Composable.CQRS.Tests.ServiceBusSpecification.Given_a_backend_endpoint_with_a_command_event_and_query_handler
 {

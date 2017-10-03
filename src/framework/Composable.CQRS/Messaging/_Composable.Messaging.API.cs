@@ -60,7 +60,7 @@ namespace Composable.Messaging
 
 
     ///<summary>Any type that subscribes to an event should implement this interface. Regardless of wether the event was Published or Replayed.</summary>
-    public interface IEventSubscriber<in TEvent> where TEvent : IEvent
+    interface IEventSubscriber<in TEvent> where TEvent : IEvent
     {
         void Handle(TEvent message);
     }

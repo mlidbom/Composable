@@ -41,6 +41,7 @@ namespace Composable.Messaging.Buses
                 Component.For<IServiceBus, ServiceBus>()
                          .UsingFactoryMethod(kernel => new ServiceBus(name,
                                                                       kernel.Resolve<IUtcTimeTimeSource>(),
+                                                                      kernel.Resolve<IServiceLocator>(),
                                                                       kernel.Resolve<IInProcessServiceBus>(),
                                                                       kernel.Resolve<IGlobalBusStrateTracker>()))
                          .LifestyleSingleton(),

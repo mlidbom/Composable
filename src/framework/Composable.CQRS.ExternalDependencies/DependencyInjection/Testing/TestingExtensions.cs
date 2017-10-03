@@ -1,4 +1,9 @@
-﻿using Composable.GenericAbstractions.Time;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using Composable.DependencyInjection.SimpleInjectorImplementation;
+using Composable.DependencyInjection.Windsor;
+using Composable.GenericAbstractions.Time;
 using Composable.Messaging.Buses;
 using Composable.Persistence.EventStore;
 using Composable.Persistence.EventStore.Serialization.NewtonSoft;
@@ -46,6 +51,7 @@ namespace Composable.DependencyInjection.Testing
                          .UsingFactoryMethod(factoryMethod: kernel =>
                                                  new ServiceBus("testendpoint",
                                                                 kernel.Resolve<DummyTimeSource>(),
+                                                                kernel.Resolve<IServiceLocator>(),
                                                                 kernel.Resolve<IInProcessServiceBus>(),
                                                                 kernel.Resolve<IGlobalBusStrateTracker>()))
                          .LifestyleSingleton(),
@@ -56,6 +62,9 @@ namespace Composable.DependencyInjection.Testing
             );
         }
 
+        static readonly IReadOnlyList<Type> TypesThatReferenceTheContainer = Seq.OfTypes<IDependencyInjectionContainer, IServiceLocator, SimpleInjectorDependencyInjectionContainer, WindsorDependencyInjectionContainer>()
+                                                         .ToList();
+
         public static IServiceLocator Clone(this IServiceLocator @this)
         {
             var sourceContainer = (IDependencyInjectionContainer)@this;
@@ -63,6 +72,7 @@ namespace Composable.DependencyInjection.Testing
             var cloneContainer = DependencyInjectionContainer.Create();
 
             sourceContainer.RegisteredComponents()
+                           .Where(component => TypesThatReferenceTheContainer.None(type => component.ServiceTypes.Contains(type)))
                            .ForEach(action: componentRegistration => cloneContainer.Register(componentRegistration.CreateCloneRegistration(@this)));
 
             return cloneContainer.CreateServiceLocator();

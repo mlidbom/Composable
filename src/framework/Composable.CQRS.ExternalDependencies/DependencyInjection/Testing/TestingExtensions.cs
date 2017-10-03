@@ -22,15 +22,14 @@ namespace Composable.DependencyInjection.Testing
                 MasterDbConnection.UseConnection(action: _ => {}); //evaluate lazy here in order to not pollute profiler timings of component resolution or registering.
             }
 
-            var registry = new MessageHandlerRegistry();
-
-            var inprocessBus = new InProcessServiceBus(registry);
-
             @this.Register(Component.For<IRunMode>()
                                     .UsingFactoryMethod(factoryMethod: _ => new RunMode(isTesting: true, mode: mode))
                                     .LifestyleSingleton(),
                            Component.For<IGlobalBusStrateTracker>()
                                     .UsingFactoryMethod(_ => new GlobalBusStrateTracker())
+                                    .LifestyleSingleton(),
+                           Component.For<IMessageHandlerRegistry, IMessageHandlerRegistrar>()
+                                    .UsingFactoryMethod(_ => new MessageHandlerRegistry())
                                     .LifestyleSingleton(),
                            Component.For<ISingleContextUseGuard>()
                                     .ImplementedBy<SingleThreadUseGuard>()
@@ -42,14 +41,15 @@ namespace Composable.DependencyInjection.Testing
                                     .UsingFactoryMethod(factoryMethod: _ => DummyTimeSource.Now)
                                     .LifestyleSingleton()
                                     .DelegateToParentServiceLocatorWhenCloning(),
-                           Component.For<IMessageHandlerRegistrar>()
-                                    .UsingFactoryMethod(factoryMethod: _ => registry)
-                                    .LifestyleSingleton(),
                            Component.For<IInProcessServiceBus, IMessageSpy>()
-                                    .UsingFactoryMethod(_ => inprocessBus)
+                                    .UsingFactoryMethod(_ => new InProcessServiceBus(_.Resolve<IMessageHandlerRegistry>()))
                                     .LifestyleSingleton(),
                            Component.For<IServiceBus, ServiceBus>()
-                                    .UsingFactoryMethod(factoryMethod: kernel => new ServiceBus("testendpoint", kernel.Resolve<DummyTimeSource>(), kernel.Resolve<IInProcessServiceBus>(), kernel.Resolve<IGlobalBusStrateTracker>()))
+                                    .UsingFactoryMethod(factoryMethod: kernel =>
+                                                            new ServiceBus("testendpoint",
+                                                                           kernel.Resolve<DummyTimeSource>(),
+                                                                           kernel.Resolve<IInProcessServiceBus>(),
+                                                                           kernel.Resolve<IGlobalBusStrateTracker>()))
                                     .LifestyleSingleton(),
                            Component.For<ISqlConnectionProvider>()
                                     .UsingFactoryMethod(factoryMethod: locator => new SqlServerDatabasePoolSqlConnectionProvider(MasterDbConnection.ConnectionString))

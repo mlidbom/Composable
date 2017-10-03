@@ -21,15 +21,13 @@ namespace Composable.DependencyInjection.Testing
             {
                 MasterDbConnection.UseConnection(action: _ => {}); //evaluate lazy here in order to not pollute profiler timings of component resolution or registering.
             }
-            var dummyTimeSource = DummyTimeSource.Now;
+
             var registry = new MessageHandlerRegistry();
 
             var inprocessBus = new InProcessServiceBus(registry);
 
-            var runMode = new RunMode(isTesting: true, mode: mode);
-
             @this.Register(Component.For<IRunMode>()
-                                    .UsingFactoryMethod(factoryMethod: _ => runMode)
+                                    .UsingFactoryMethod(factoryMethod: _ => new RunMode(isTesting: true, mode: mode))
                                     .LifestyleSingleton(),
                            Component.For<IGlobalBusStrateTracker>()
                                     .UsingFactoryMethod(_ => new GlobalBusStrateTracker())
@@ -41,7 +39,7 @@ namespace Composable.DependencyInjection.Testing
                                     .ImplementedBy<NewtonSoftEventStoreEventSerializer>()
                                     .LifestyleScoped(),
                            Component.For<IUtcTimeTimeSource, DummyTimeSource>()
-                                    .UsingFactoryMethod(factoryMethod: _ => dummyTimeSource)
+                                    .UsingFactoryMethod(factoryMethod: _ => DummyTimeSource.Now)
                                     .LifestyleSingleton()
                                     .DelegateToParentServiceLocatorWhenCloning(),
                            Component.For<IMessageHandlerRegistrar>()

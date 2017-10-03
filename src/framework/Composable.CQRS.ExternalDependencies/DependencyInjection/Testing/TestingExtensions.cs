@@ -11,7 +11,6 @@ namespace Composable.DependencyInjection.Testing
 {
     static class TestingExtensions
     {
-
         static readonly ISqlConnection MasterDbConnection = new AppConfigSqlConnectionProvider().GetConnectionProvider(parameterName: "MasterDB");
         /// <summary>
         /// <para>SingleThreadUseGuard is registered for the component ISingleContextUseGuard</para>
@@ -22,44 +21,40 @@ namespace Composable.DependencyInjection.Testing
             {
                 MasterDbConnection.UseConnection(action: _ => {}); //evaluate lazy here in order to not pollute profiler timings of component resolution or registering.
             }
-            var dummyTimeSource = DummyTimeSource.Now;
-            var registry = new MessageHandlerRegistry();
 
-            var inprocessBus = new InProcessServiceBus(registry);
-
-            var globalStateTracker = new GlobalBusStrateTracker();
-            var serviceBus = new ServiceBus("testendpoint", dummyTimeSource, inprocessBus, globalStateTracker);
-            var runMode = new RunMode(isTesting:true, mode:mode);
-
-            @this.Register(Component.For<IRunMode>()
-                                    .UsingFactoryMethod(factoryMethod: _ => runMode)
-                                    .LifestyleSingleton(),
-                           Component.For<ISingleContextUseGuard>()
-                                    .ImplementedBy<SingleThreadUseGuard>()
-                                    .LifestyleScoped(),
-                           Component.For<IEventStoreEventSerializer>()
-                                    .ImplementedBy<NewtonSoftEventStoreEventSerializer>()
-                                    .LifestyleScoped(),
-                           Component.For<IUtcTimeTimeSource, DummyTimeSource>()
-                                    .UsingFactoryMethod(factoryMethod: _ => dummyTimeSource)
-                                    .LifestyleSingleton()
-                                    .DelegateToParentServiceLocatorWhenCloning(),
-                           Component.For<IMessageHandlerRegistrar>()
-                                    .UsingFactoryMethod(factoryMethod: _ => registry)
-                                    .LifestyleSingleton(),
-                           Component.For<IInProcessServiceBus, IMessageSpy>()
-                                    .UsingFactoryMethod(_ => inprocessBus)
-                                    .LifestyleSingleton(),
-                           Component.For<IServiceBus, ServiceBus>()
-                                    .UsingFactoryMethod(factoryMethod: _ => serviceBus)
-                                    .LifestyleSingleton(),
-                           Component.For<ISqlConnectionProvider>()
-                                    .UsingFactoryMethod(factoryMethod: locator => new SqlServerDatabasePoolSqlConnectionProvider(MasterDbConnection.ConnectionString))
-                                    .LifestyleSingleton()
-                                    .DelegateToParentServiceLocatorWhenCloning()
+            @this.Register(
+                Component.For<ISingleContextUseGuard>()
+                         .ImplementedBy<SingleThreadUseGuard>()
+                         .LifestyleScoped(),
+                Component.For<IGlobalBusStrateTracker>()
+                         .UsingFactoryMethod(_ => new GlobalBusStrateTracker())
+                         .LifestyleSingleton(),
+                Component.For<IMessageHandlerRegistry, IMessageHandlerRegistrar, MessageHandlerRegistry>()
+                         .UsingFactoryMethod(_ => new MessageHandlerRegistry())
+                         .LifestyleSingleton(),
+                Component.For<IEventStoreEventSerializer>()
+                         .ImplementedBy<NewtonSoftEventStoreEventSerializer>()
+                         .LifestyleScoped(),
+                Component.For<IUtcTimeTimeSource, DummyTimeSource>()
+                         .UsingFactoryMethod(factoryMethod: _ => DummyTimeSource.Now)
+                         .LifestyleSingleton()
+                         .DelegateToParentServiceLocatorWhenCloning(),
+                Component.For<IInProcessServiceBus, IMessageSpy>()
+                         .UsingFactoryMethod(_ => new InProcessServiceBus(_.Resolve<IMessageHandlerRegistry>()))
+                         .LifestyleSingleton(),
+                Component.For<IServiceBus, ServiceBus>()
+                         .UsingFactoryMethod(factoryMethod: kernel =>
+                                                 new ServiceBus("testendpoint",
+                                                                kernel.Resolve<DummyTimeSource>(),
+                                                                kernel.Resolve<IInProcessServiceBus>(),
+                                                                kernel.Resolve<IGlobalBusStrateTracker>()))
+                         .LifestyleSingleton(),
+                Component.For<ISqlConnectionProvider>()
+                         .UsingFactoryMethod(factoryMethod: locator => new SqlServerDatabasePoolSqlConnectionProvider(MasterDbConnection.ConnectionString))
+                         .LifestyleSingleton()
+                         .DelegateToParentServiceLocatorWhenCloning()
             );
         }
-
 
         public static IServiceLocator Clone(this IServiceLocator @this)
         {

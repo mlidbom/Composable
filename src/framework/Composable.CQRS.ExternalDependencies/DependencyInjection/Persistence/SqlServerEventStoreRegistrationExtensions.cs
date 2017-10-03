@@ -146,7 +146,7 @@ namespace Composable.DependencyInjection.Persistence
                                     .LifestyleScoped());
 
             @this.Register(Component.For<TSessionInterface>(Seq.OfTypes<TReaderInterface>())
-                                    .UsingFactoryMethod(locator => CreateProxyFor<TSessionInterface, TReaderInterface>(locator.Resolve<IEventStoreUpdater<TSessionInterface, TReaderInterface>>()))
+                                    .UsingFactoryMethod(EventStoreSessionProxyFactory<TSessionInterface, TReaderInterface>.ProxyType, locator => CreateProxyFor<TSessionInterface, TReaderInterface>(locator.Resolve<IEventStoreUpdater<TSessionInterface, TReaderInterface>>()))
                                     .LifestyleScoped());
         }
 

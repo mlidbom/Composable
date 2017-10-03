@@ -110,6 +110,8 @@ namespace Composable.DependencyInjection
 
     public static class Component
     {
+        internal static ComponentRegistrationBuilderInitial<TService1> For<TService1, TService2, TService3, TService4>() where TService1 : class => For<TService1>(Seq.OfTypes<TService2, TService3, TService4>());
+
         internal static ComponentRegistrationBuilderInitial<TService1> For<TService1, TService2, TService3>() where TService1 : class => For<TService1>(Seq.OfTypes<TService2, TService3>());
 
         internal static ComponentRegistrationBuilderInitial<TService1> For<TService1, TService2>() where TService1 : class => For<TService1>(Seq.OfTypes<TService2>());
@@ -130,14 +132,33 @@ namespace Composable.DependencyInjection
 
             public ComponentRegistrationBuilderWithInstantiationSpec<TService> ImplementedBy<TImplementation>()
             {
-                Contract.Arguments.That(ServiceTypes.All(serviceType => serviceType.IsAssignableFrom(typeof(TImplementation))), "The implementing type must implement all the service interfaces.");
+                AssertImplementsAllServices(typeof(TImplementation));
                 return new ComponentRegistrationBuilderWithInstantiationSpec<TService>(ServiceTypes, InstantiationSpec.ImplementedBy(typeof(TImplementation)));
             }
 
             internal ComponentRegistrationBuilderWithInstantiationSpec<TService> UsingFactoryMethod<TImplementation>(Func<IServiceLocatorKernel, TImplementation> factoryMethod)
                 where TImplementation : TService
             {
-                return new ComponentRegistrationBuilderWithInstantiationSpec<TService>(ServiceTypes, InstantiationSpec.FromFactoryMethod(serviceLocator => factoryMethod(serviceLocator)));
+                var implementationType = typeof(TImplementation);
+                AssertImplementsAllServices(implementationType);
+                return new ComponentRegistrationBuilderWithInstantiationSpec<TService>(ServiceTypes,
+                                                                                       InstantiationSpec.FromFactoryMethod(serviceLocator => factoryMethod(serviceLocator), implementationType));
+            }
+
+            internal ComponentRegistrationBuilderWithInstantiationSpec<TService> UsingFactoryMethod(Type implementationType, Func<IServiceLocatorKernel, object> factoryMethod)
+            {
+                AssertImplementsAllServices(implementationType);
+                return new ComponentRegistrationBuilderWithInstantiationSpec<TService>(ServiceTypes,
+                                                                                       InstantiationSpec.FromFactoryMethod(serviceLocator => factoryMethod(serviceLocator), implementationType));
+            }
+
+            void AssertImplementsAllServices(Type implementationType)
+            {
+                var unImplementedService = ServiceTypes.FirstOrDefault(serviceType => !serviceType.IsAssignableFrom(implementationType));
+                if(unImplementedService != null)
+                {
+                    throw new ArgumentException($"{implementationType.FullName} does not implement: {unImplementedService.FullName}");
+                }
             }
 
         }
@@ -170,16 +191,21 @@ namespace Composable.DependencyInjection
         internal object Instance { get; }
         internal Type ImplementationType { get; }
         internal Func<IServiceLocatorKernel, object> FactoryMethod { get; }
+        internal Type FactoryMethodReturnType { get; }
 
         internal static InstantiationSpec FromInstance(object instance) => new InstantiationSpec(instance);
 
         internal static InstantiationSpec ImplementedBy(Type implementationType) => new InstantiationSpec(implementationType);
 
-        internal static InstantiationSpec FromFactoryMethod(Func<IServiceLocatorKernel, object> factoryMethod) => new InstantiationSpec(factoryMethod);
+        internal static InstantiationSpec FromFactoryMethod(Func<IServiceLocatorKernel, object> factoryMethod, Type factoryMethodReturnType) => new InstantiationSpec(factoryMethod, factoryMethodReturnType);
 
         InstantiationSpec(Type implementationType) => ImplementationType = implementationType;
 
-        InstantiationSpec(Func<IServiceLocatorKernel, object> factoryMethod) => FactoryMethod = factoryMethod;
+        InstantiationSpec(Func<IServiceLocatorKernel, object> factoryMethod, Type factoryMethodReturnType)
+        {
+            FactoryMethod = factoryMethod;
+            FactoryMethodReturnType = factoryMethodReturnType;
+        }
 
         InstantiationSpec(object instance) => Instance = instance;
     }

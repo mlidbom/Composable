@@ -48,15 +48,19 @@ namespace Composable.DependencyInjection.SimpleInjectorImplementation
                     }
                 } else if(componentRegistration.InstantiationSpec.ImplementationType != null)
                 {
+                    var baseRegistration = GetSimpleinjectorLifestyle(componentRegistration.Lifestyle).CreateRegistration(componentRegistration.InstantiationSpec.ImplementationType, _container);
+
                     foreach (var serviceType in componentRegistration.ServiceTypes)
                     {
-                        _container.Register(serviceType, componentRegistration.InstantiationSpec.ImplementationType, lifestyle);
+                        _container.AddRegistration(serviceType, baseRegistration);
                     }
+
                 } else if(componentRegistration.InstantiationSpec.FactoryMethod != null)
                 {
+                    var baseRegistration = GetSimpleinjectorLifestyle(componentRegistration.Lifestyle).CreateRegistration(componentRegistration.InstantiationSpec.FactoryMethodReturnType, () => componentRegistration.InstantiationSpec.FactoryMethod(this), _container);
                     foreach (var someCompletelyOtherName in componentRegistration.ServiceTypes)
                     {
-                        _container.Register(someCompletelyOtherName, () => componentRegistration.InstantiationSpec.FactoryMethod(this), lifestyle);
+                        _container.AddRegistration(someCompletelyOtherName, baseRegistration);
                     }
                 } else
                 {
@@ -64,6 +68,21 @@ namespace Composable.DependencyInjection.SimpleInjectorImplementation
                 }
             }
         }
+
+
+        SimpleInjector.Lifestyle GetSimpleinjectorLifestyle(Lifestyle @this)
+        {
+            switch(@this)
+            {
+                case Lifestyle.Singleton:
+                    return SimpleInjector.Lifestyle.Singleton;
+                case Lifestyle.Scoped:
+                    return SimpleInjector.Lifestyle.Scoped;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(@this), @this, null);
+            }
+        }
+
         public IEnumerable<ComponentRegistration> RegisteredComponents() => _registeredComponents;
 
         bool _verified;

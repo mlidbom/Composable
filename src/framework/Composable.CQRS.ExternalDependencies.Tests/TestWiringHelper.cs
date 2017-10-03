@@ -9,7 +9,7 @@ namespace Composable.CQRS.Tests
 {
     interface ITestingEventstoreReader : IEventStoreReader { }
 
-    interface ITestingEventstoreUpdater : IEventStoreUpdater{ }
+    interface ITestingEventstoreUpdater : IEventStoreUpdater { }
 
     interface ITestingDocumentDbBulkReader : IDocumentDbBulkReader { }
 

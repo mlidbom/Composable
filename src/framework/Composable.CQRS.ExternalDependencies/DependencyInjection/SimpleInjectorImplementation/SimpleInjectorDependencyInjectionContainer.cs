@@ -86,6 +86,7 @@ namespace Composable.DependencyInjection.SimpleInjectorImplementation
         public IEnumerable<ComponentRegistration> RegisteredComponents() => _registeredComponents;
 
         bool _verified;
+
         IServiceLocator IDependencyInjectionContainer.CreateServiceLocator()
         {
             if(!_verified)
@@ -99,6 +100,8 @@ namespace Composable.DependencyInjection.SimpleInjectorImplementation
         IComponentLease<TComponent> IServiceLocator.Lease<TComponent>() => new SimpleInjectorComponentLease<TComponent>(_container.GetInstance<TComponent>());
         IMultiComponentLease<TComponent> IServiceLocator.LeaseAll<TComponent>() => new SimpleInjectorMultiComponentLease<TComponent>(_container.GetAllInstances<TComponent>().ToArray());
         IDisposable IServiceLocator.BeginScope() => AsyncScopedLifestyle.BeginScope(_container);
+
+
         void IDisposable.Dispose() => _container.Dispose();
 
         sealed class SimpleInjectorComponentLease<T> : IComponentLease<T>

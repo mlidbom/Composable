@@ -2,6 +2,7 @@
 using System.Linq;
 using Composable.DependencyInjection;
 using Composable.DependencyInjection.Testing;
+using Composable.GenericAbstractions.Time;
 using Composable.System.Linq;
 using FluentAssertions;
 using NUnit.Framework;

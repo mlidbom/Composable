@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Composable.Contracts;
+using Composable.DependencyInjection;
 using Composable.GenericAbstractions.Time;
 using Composable.System;
 using Composable.System.Threading;
@@ -11,10 +12,10 @@ using Composable.System.Transactions;
 
 namespace Composable.Messaging.Buses
 {
-    partial class 
-        ServiceBus : IServiceBus
+    partial class ServiceBus : IServiceBus
     {
         readonly string _name;
+        readonly IServiceLocator _serviceLocator;
         readonly IInProcessServiceBus _inProcessServiceBus;
         readonly IGlobalBusStrateTracker _globalStateTracker;
         readonly CommandScheduler _commandScheduler;
@@ -33,9 +34,10 @@ namespace Composable.Messaging.Buses
 
         public IReadOnlyList<Exception> ThrownExceptions => _globalStateTracker.GetExceptionsFor(this);
 
-        public ServiceBus(string name, IUtcTimeTimeSource timeSource, IInProcessServiceBus inProcessServiceBus, IGlobalBusStrateTracker globalStateTracker)
+        public ServiceBus(string name, IUtcTimeTimeSource timeSource, IServiceLocator serviceLocator, IInProcessServiceBus inProcessServiceBus, IGlobalBusStrateTracker globalStateTracker)
         {
             _name = name;
+            _serviceLocator = serviceLocator;
             _inProcessServiceBus = inProcessServiceBus;
             _globalStateTracker = globalStateTracker;
             _commandScheduler = new CommandScheduler(this, timeSource);
@@ -138,7 +140,7 @@ namespace Composable.Messaging.Buses
             => EnqueueNonTransactionalTask(message, () => TransactionScopeCe.Execute(action));
 
         void EnqueueNonTransactionalTask(IMessage message, Action action)
-            => _globalStateTracker.EnqueueMessageTask(this, message, messageTask: action);
+            => _globalStateTracker.EnqueueMessageTask(this, message, messageTask: () => _serviceLocator.ExecuteInIsolatedScope(action));
 
         public override string ToString() => _name;
 

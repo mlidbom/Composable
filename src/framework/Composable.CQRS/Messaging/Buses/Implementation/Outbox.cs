@@ -9,7 +9,6 @@ namespace Composable.Messaging.Buses.Implementation
 {
     partial class Outbox : IOutbox
     {
-        readonly Inbox _inbox;
         readonly IInterprocessTransport _transport;
         readonly CommandScheduler _commandScheduler;
 
@@ -17,9 +16,8 @@ namespace Composable.Messaging.Buses.Implementation
 
         bool _running;
 
-        public Outbox(IUtcTimeTimeSource timeSource, Inbox inbox, IInterprocessTransport transport)
+        public Outbox(IUtcTimeTimeSource timeSource, IInterprocessTransport transport)
         {
-            _inbox = inbox;
             _transport = transport;
             _commandScheduler = new CommandScheduler(this, timeSource);
         }

@@ -9,6 +9,7 @@
         Invariant,
         ///<summary>The inspected value is a return value</summary>
         ReturnValue,
-        Assertion
+        Assertion,
+        State
     }
 }

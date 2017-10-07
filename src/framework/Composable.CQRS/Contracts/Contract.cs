@@ -3,16 +3,17 @@ using JetBrains.Annotations;
 
 namespace Composable.Contracts
 {
-    class Contract
+    static class Contract
     {
-        internal static BaseAssertion State => BaseAssertion.Invariant;
-        internal static BaseAssertion Invariant => BaseAssertion.Invariant;
-        internal static BaseAssertion Arguments => BaseAssertion.Arguments;
+        internal static BaseAssertion State { get; } = BaseAssertion.StateInstance;
+        internal static BaseAssertion Invariant { get; } = BaseAssertion.InvariantInstance;
+        internal static BaseAssertion Arguments { get; } = BaseAssertion.ArgumentsInstance;
 
         public struct BaseAssertion
         {
-            internal static BaseAssertion Invariant = new BaseAssertion(InspectionType.Invariant);
-            internal static BaseAssertion Arguments = new BaseAssertion(InspectionType.Argument);
+            internal static BaseAssertion InvariantInstance = new BaseAssertion(InspectionType.Invariant);
+            internal static BaseAssertion ArgumentsInstance = new BaseAssertion(InspectionType.Argument);
+            internal static BaseAssertion StateInstance = new BaseAssertion(InspectionType.State);
 
             readonly InspectionType _assertionType;
             BaseAssertion(InspectionType assertionType) => _assertionType = assertionType;

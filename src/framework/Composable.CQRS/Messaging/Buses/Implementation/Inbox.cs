@@ -16,7 +16,6 @@ namespace Composable.Messaging.Buses.Implementation
     class Inbox : IInbox, IDisposable
     {
         readonly IServiceLocator _serviceLocator;
-        readonly IInProcessServiceBus _inProcessServiceBus;
         readonly IGlobalBusStrateTracker _globalStateTracker;
         readonly IMessageHandlerRegistry _handlerRegistry;
 
@@ -34,10 +33,9 @@ namespace Composable.Messaging.Buses.Implementation
 
         public IReadOnlyList<Exception> ThrownExceptions => _globalStateTracker.GetExceptionsFor(this);
 
-        public Inbox(IServiceLocator serviceLocator, IInProcessServiceBus inProcessServiceBus, IGlobalBusStrateTracker globalStateTracker, IMessageHandlerRegistry handlerRegistry)
+        public Inbox(IServiceLocator serviceLocator, IGlobalBusStrateTracker globalStateTracker, IMessageHandlerRegistry handlerRegistry)
         {
             _serviceLocator = serviceLocator;
-            _inProcessServiceBus = inProcessServiceBus;
             _globalStateTracker = globalStateTracker;
             _handlerRegistry = handlerRegistry;
             _cancellationTokenSource = new CancellationTokenSource();

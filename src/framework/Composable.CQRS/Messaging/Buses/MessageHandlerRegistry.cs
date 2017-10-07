@@ -75,7 +75,7 @@ namespace Composable.Messaging.Buses
         {
             if(_commandHandlers.TryGetValue(commandType, out Action<object> handler))
             {
-                return (command) =>
+                return command =>
                 {
                     handler(command);
                     return null;

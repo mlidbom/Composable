@@ -40,7 +40,7 @@ namespace Composable.Messaging.Buses
         Func<ICommand, object> GetCommandHandler(Type commandType);
         Func<IQuery, object> GetQueryHandler(Type commandType);
         IReadOnlyList<Action<IEvent>> GetEventHandlers(Type eventType);
-            
+
         Func<IQuery<TResult>, TResult> GetQueryHandler<TResult>(IQuery<TResult> query) where TResult : IQueryResult;
 
         Func<ICommand<TResult>, TResult> GetCommandHandler<TResult>(ICommand<TResult> command) where TResult : IMessage;
@@ -55,9 +55,9 @@ namespace Composable.Messaging.Buses
         IMessageHandlerRegistrar ForEvent<TEvent>(Action<TEvent> handler) where TEvent : IEvent;
         IMessageHandlerRegistrar ForCommand<TCommand>(Action<TCommand> handler) where TCommand : ICommand;
         IMessageHandlerRegistrar ForCommand<TCommand, TResult>(Func<TCommand, TResult> handler) where TCommand : ICommand<TResult>
-                                                                                                  where TResult : IMessage;
+                                                                                                where TResult : IMessage;
         IMessageHandlerRegistrar ForQuery<TQuery, TResult>(Func<TQuery, TResult> handler) where TQuery : IQuery<TResult>
-                                                                                                      where TResult : IQueryResult;
+                                                                                          where TResult : IQueryResult;
     }
 
     interface IEndpoint : IDisposable

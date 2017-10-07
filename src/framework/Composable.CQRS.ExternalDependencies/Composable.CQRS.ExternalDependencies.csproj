@@ -16,11 +16,11 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Castle.Core" Version="4.1.1" />
-    <PackageReference Include="Castle.Windsor" Version="4.0.0" />
+    <PackageReference Include="Castle.Core" Version="4.2.0" />
+    <PackageReference Include="Castle.Windsor" Version="4.1.0" />
     <PackageReference Include="log4net" Version="2.0.8" />
     <PackageReference Include="Newtonsoft.Json" Version="10.0.3" />
-    <PackageReference Include="SimpleInjector" Version="4.0.8" />
+    <PackageReference Include="SimpleInjector" Version="4.0.11" />
   </ItemGroup>
   
   <ItemGroup>

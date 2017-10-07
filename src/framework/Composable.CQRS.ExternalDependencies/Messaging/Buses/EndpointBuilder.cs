@@ -1,5 +1,6 @@
 ﻿using Composable.DependencyInjection;
 using Composable.GenericAbstractions.Time;
+using Composable.Messaging.Buses.Implementation;
 using Composable.Persistence.EventStore;
 using Composable.Persistence.EventStore.Serialization.NewtonSoft;
 using Composable.System.Configuration;
@@ -38,12 +39,16 @@ namespace Composable.Messaging.Buses
                 Component.For<IInProcessServiceBus, IMessageSpy>()
                          .UsingFactoryMethod(kernel => new InProcessServiceBus(kernel.Resolve<IMessageHandlerRegistry>()))
                          .LifestyleSingleton(),
+                Component.For<IInterprocessTransport, InterprocessTransport>()
+                         .UsingFactoryMethod(factoryMethod: kernel =>
+                                                 new InterprocessTransport(name,
+                                                                           kernel.Resolve<IUtcTimeTimeSource>(),
+                                                                           kernel.Resolve<IServiceLocator>(),
+                                                                           kernel.Resolve<IInProcessServiceBus>(),
+                                                                           kernel.Resolve<IGlobalBusStrateTracker>()))
+                         .LifestyleSingleton(),
                 Component.For<IServiceBus, ServiceBus>()
-                         .UsingFactoryMethod(kernel => new ServiceBus(name,
-                                                                      kernel.Resolve<IUtcTimeTimeSource>(),
-                                                                      kernel.Resolve<IServiceLocator>(),
-                                                                      kernel.Resolve<IInProcessServiceBus>(),
-                                                                      kernel.Resolve<IGlobalBusStrateTracker>()))
+                         .ImplementedBy<ServiceBus>()
                          .LifestyleSingleton(),
                 Component.For<ISqlConnectionProvider>()
                          .UsingFactoryMethod(factoryMethod: locator => new SqlServerDatabasePoolSqlConnectionProvider(MasterDbConnection.ConnectionString))

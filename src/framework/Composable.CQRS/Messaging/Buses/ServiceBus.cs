@@ -1,155 +1,33 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Threading;
 using System.Threading.Tasks;
-using Composable.Contracts;
-using Composable.DependencyInjection;
-using Composable.GenericAbstractions.Time;
-using Composable.System;
-using Composable.System.Threading;
-using Composable.System.Threading.ResourceAccess;
-using Composable.System.Transactions;
+using Composable.Messaging.Buses.Implementation;
 
 namespace Composable.Messaging.Buses
 {
     partial class ServiceBus : IServiceBus
     {
-        readonly string _name;
-        readonly IServiceLocator _serviceLocator;
-        readonly IInProcessServiceBus _inProcessServiceBus;
-        readonly IGlobalBusStrateTracker _globalStateTracker;
-        readonly CommandScheduler _commandScheduler;
+        readonly InterprocessTransport _transport;
 
-        readonly IGuardedResource _guardedResource = GuardedResource.WithTimeout(1.Seconds());
 
-        readonly CancellationTokenSource _cancellationTokenSource;
+        public IReadOnlyList<Exception> ThrownExceptions => _transport.ThrownExceptions;
 
-        readonly IReadOnlyList<IMessageDispatchingRule> _dispatchingRules = new List<IMessageDispatchingRule>()
-                                                                            {
-                                                                                new QueriesExecuteAfterAllCommandsAndEventsAreDone(),
-                                                                                new CommandsAndEventHandlersDoNotRunInParallelWithEachOtherInTheSameEndpoint()
-                                                                            };
-        bool _running;
-        readonly Thread _messagePumpThread;
+        public ServiceBus(InterprocessTransport transport) => _transport = transport;
 
-        public IReadOnlyList<Exception> ThrownExceptions => _globalStateTracker.GetExceptionsFor(this);
+        public void SendAtTime(DateTime sendAt, ICommand command) => _transport.SendAtTime(sendAt, command);
 
-        public ServiceBus(string name, IUtcTimeTimeSource timeSource, IServiceLocator serviceLocator, IInProcessServiceBus inProcessServiceBus, IGlobalBusStrateTracker globalStateTracker)
-        {
-            _name = name;
-            _serviceLocator = serviceLocator;
-            _inProcessServiceBus = inProcessServiceBus;
-            _globalStateTracker = globalStateTracker;
-            _commandScheduler = new CommandScheduler(this, timeSource);
-            _cancellationTokenSource = new CancellationTokenSource();
-            _messagePumpThread = new Thread(MessagePumpThread)
-                                 {
-                                     Name = $"{_name}_MessagePump",
-                                     Priority = ThreadPriority.AboveNormal
-                                 };
-        }
+        public void Send(ICommand command) => _transport.Send(command);
 
-        public void Start() => _guardedResource.Update(() =>
-        {
-            Contract.Assert.That(!_running, message: "!_running");
-            _running = true;
-            _commandScheduler.Start();
-            _messagePumpThread.Start();
-        });
-
-        public void Stop() => _guardedResource.Update(() =>
-        {
-            Contract.Assert.That(_running, message: "_running");
-            _running = false;
-            _cancellationTokenSource.Cancel();
-            _commandScheduler.Dispose();
-            _messagePumpThread.InterruptAndJoin();
-        });
-
-        public void SendAtTime(DateTime sendAt, ICommand command) => _commandScheduler.Schedule(sendAt, command);
-
-        public void Send(ICommand command) => _guardedResource.Update(() => EnqueueTransactionalTask(command, () => _inProcessServiceBus.Send(command)));
-
-        public void Publish(IEvent anEvent) => _guardedResource.Update(() => EnqueueTransactionalTask(anEvent, () => _inProcessServiceBus.Publish(anEvent)));
+        public void Publish(IEvent anEvent) => _transport.Publish(anEvent);
 
         public async Task<TResult> SendAsync<TResult>(ICommand<TResult> command) where TResult : IMessage
-        {
-            var taskCompletionSource = new TaskCompletionSource<TResult>(TaskCreationOptions.RunContinuationsAsynchronously);
-            using(_guardedResource.AwaitUpdateLock())
-            {
-                EnqueueTransactionalTask(command,
-                                         () =>
-                                         {
-                                             try
-                                             {
-                                                 var result = _inProcessServiceBus.Send(command);
-                                                 taskCompletionSource.SetResult(result);
-                                             }
-                                             catch(Exception exception)
-                                             {
-                                                 taskCompletionSource.SetException(exception);
-                                                 throw;
-                                             }
-                                         });
-            }
-            return await taskCompletionSource.Task.NoMarshalling();
-        }
+            => await _transport.SendAsync(command);
 
         public async Task<TResult> QueryAsync<TResult>(IQuery<TResult> query) where TResult : IQueryResult
-        {
-            var taskCompletionSource = new TaskCompletionSource<TResult>(TaskCreationOptions.RunContinuationsAsynchronously);
-            using(_guardedResource.AwaitUpdateLock())
-            {
-                EnqueueNonTransactionalTask(query,
-                                            () =>
-                                            {
-                                                try
-                                                {
-                                                    var result = _inProcessServiceBus.Get(query);
-                                                    taskCompletionSource.SetResult(result);
-                                                }
-                                                catch(Exception exception)
-                                                {
-                                                    taskCompletionSource.SetException(exception);
-                                                    throw;
-                                                }
-                                            });
-            }
-            return await taskCompletionSource.Task.NoMarshalling();
-        }
+            =>  await _transport.QueryAsync(query);
 
         public TResult Query<TResult>(IQuery<TResult> query) where TResult : IQueryResult
-            => QueryAsync(query).Result;
+            => _transport.Query(query);
 
-        void MessagePumpThread()
-        {
-            while(!_cancellationTokenSource.Token.IsCancellationRequested)
-            {
-                try
-                {
-                    _globalStateTracker.AwaitDispatchableMessage(this, _dispatchingRules).Run();
-                }
-                catch(Exception exception) when(exception is OperationCanceledException || exception is ThreadInterruptedException)
-                {
-                    return;
-                }
-            }
-        }
-
-        void EnqueueTransactionalTask(IMessage message, Action action)
-            => EnqueueNonTransactionalTask(message, () => TransactionScopeCe.Execute(action));
-
-        void EnqueueNonTransactionalTask(IMessage message, Action action)
-            => _globalStateTracker.EnqueueMessageTask(this, message, messageTask: () => _serviceLocator.ExecuteInIsolatedScope(action));
-
-        public override string ToString() => _name;
-
-        public void Dispose()
-        {
-            if(_running)
-            {
-                Stop();
-            }
-        }
     }
 }

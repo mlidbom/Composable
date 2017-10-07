@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Composable.DependencyInjection;
+using Composable.Messaging.Buses.Implementation;
 using Composable.Messaging.Events;
 
 namespace Composable.Messaging.Buses
@@ -16,7 +17,7 @@ namespace Composable.Messaging.Buses
     }
 
     ///<summary>Dispatches messages between processes.</summary>
-    public interface IServiceBus : IDisposable
+    public interface IServiceBus
     {
         void SendAtTime(DateTime sendAt, ICommand command);
         void Publish(IEvent anEvent);
@@ -25,8 +26,6 @@ namespace Composable.Messaging.Buses
 
         void Send(ICommand command);
         Task<TResult> SendAsync<TResult>(ICommand<TResult> command) where TResult : IMessage;
-        void Start();
-        void Stop();
     }
 
     public interface IMessageSpy
@@ -107,11 +106,11 @@ namespace Composable.Messaging.Buses
 
     interface IGlobalBusStrateTracker
     {
-        IReadOnlyList<Exception> GetExceptionsFor(IServiceBus bus);
+        IReadOnlyList<Exception> GetExceptionsFor(IInterprocessTransport bus);
 
-        IQueuedMessage AwaitDispatchableMessage(IServiceBus bus, IReadOnlyList<IMessageDispatchingRule> dispatchingRules);
+        IQueuedMessage AwaitDispatchableMessage(IInterprocessTransport bus, IReadOnlyList<IMessageDispatchingRule> dispatchingRules);
 
-        void EnqueueMessageTask(IServiceBus bus, IMessage message, Action messageTask);
+        void EnqueueMessageTask(IInterprocessTransport bus, IMessage message, Action messageTask);
         void AwaitNoMessagesInFlight(TimeSpan? timeoutOverride);
     }
 

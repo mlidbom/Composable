@@ -5,6 +5,7 @@ using Composable.DependencyInjection.SimpleInjectorImplementation;
 using Composable.DependencyInjection.Windsor;
 using Composable.GenericAbstractions.Time;
 using Composable.Messaging.Buses;
+using Composable.Messaging.Buses.Implementation;
 using Composable.Persistence.EventStore;
 using Composable.Persistence.EventStore.Serialization.NewtonSoft;
 using Composable.System.Configuration;
@@ -47,13 +48,16 @@ namespace Composable.DependencyInjection.Testing
                 Component.For<IInProcessServiceBus, IMessageSpy>()
                          .UsingFactoryMethod(_ => new InProcessServiceBus(_.Resolve<IMessageHandlerRegistry>()))
                          .LifestyleSingleton(),
-                Component.For<IServiceBus, ServiceBus>()
+                Component.For<IInterprocessTransport, InterprocessTransport>()
                          .UsingFactoryMethod(factoryMethod: kernel =>
-                                                 new ServiceBus("testendpoint",
+                                                 new InterprocessTransport("testendpoint",
                                                                 kernel.Resolve<DummyTimeSource>(),
                                                                 kernel.Resolve<IServiceLocator>(),
                                                                 kernel.Resolve<IInProcessServiceBus>(),
                                                                 kernel.Resolve<IGlobalBusStrateTracker>()))
+                                                                .LifestyleSingleton(),
+                Component.For<IServiceBus, ServiceBus>()
+                         .ImplementedBy<ServiceBus>()
                          .LifestyleSingleton(),
                 Component.For<ISqlConnectionProvider>()
                          .UsingFactoryMethod(factoryMethod: locator => new SqlServerDatabasePoolSqlConnectionProvider(MasterDbConnection.ConnectionString))

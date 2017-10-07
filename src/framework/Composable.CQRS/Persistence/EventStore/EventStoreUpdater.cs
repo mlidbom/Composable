@@ -15,19 +15,21 @@ namespace Composable.Persistence.EventStore
         IEventStoreReader,
         IEventStoreUpdater
     {
-        readonly IInProcessServiceBus _bus;
+        readonly IInProcessServiceBus _inprocessBus;
+        readonly IServiceBus _bus;
         readonly IEventStore _store;
         readonly IDictionary<Guid, IEventStored> _idMap = new Dictionary<Guid, IEventStored>();
         readonly ISingleContextUseGuard _usageGuard;
         readonly List<IDisposable> _disposableResources = new List<IDisposable>();
         IUtcTimeTimeSource TimeSource { get; set; }
 
-        public EventStoreUpdater(IInProcessServiceBus bus, IEventStore store, ISingleContextUseGuard usageGuard, IUtcTimeTimeSource timeSource)
+        public EventStoreUpdater(IInProcessServiceBus inprocessBus, IServiceBus bus, IEventStore store, ISingleContextUseGuard usageGuard, IUtcTimeTimeSource timeSource)
         {
-            Contract.Argument(() => bus, () => store, () => usageGuard, () => timeSource)
+            Contract.Argument(() => inprocessBus, () => store, () => usageGuard, () => timeSource)
                         .NotNull();
 
             _usageGuard = usageGuard;
+            _inprocessBus = inprocessBus;
             _bus = bus;
             _store = store;
             TimeSource = timeSource ?? DateTimeNowTimeSource.Instance;
@@ -80,7 +82,10 @@ namespace Composable.Persistence.EventStore
 
             var events = aggregate.GetChanges().ToList();
             _store.SaveEvents(events);
+
+            events.ForEach(_inprocessBus.Publish);
             events.ForEach(_bus.Publish);
+
             aggregate.AcceptChanges();
             _idMap.Add(aggregate.Id, aggregate);
 
@@ -91,6 +96,7 @@ namespace Composable.Persistence.EventStore
         {
             Contract.Assert.That(_idMap.ContainsKey(@event.AggregateRootId), "Got event from aggregate that is not tracked!");
             _store.SaveEvents(new[] { @event });
+            _inprocessBus.Publish(@event);
             _bus.Publish(@event);
         }
 

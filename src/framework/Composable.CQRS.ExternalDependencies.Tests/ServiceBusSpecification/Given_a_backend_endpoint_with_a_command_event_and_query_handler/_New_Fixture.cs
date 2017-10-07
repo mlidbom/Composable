@@ -33,16 +33,20 @@ namespace Composable.CQRS.Tests.ServiceBusSpecification.Given_a_backend_endpoint
                                      builder.RegisterHandlers
                                             .ForEvent((UserEvent.Implementation.UserRegisteredEvent myEvent) => {})
                                             .ForQuery((GetUserQuery query) => new UserResource())
-                                            .ForCommand((UserRegistrarCommand.RegisterUserCommand command, IUserEventStoreUpdater store) =>
-                                                            store.Save(UserAggregate.Register(command)));
+                                            .ForCommand((UserRegistrarCommand.RegisterUserCommand command, IUserEventStoreUpdater store) =>  store.Save(UserAggregate.Register(command)));
                                  }));
 
             _userDomainServiceLocator = _userManagementDomainEndpoint.ServiceLocator;
             _userDomainServiceLocator.ExecuteTransactionInIsolatedScope(() => _userDomainServiceLocator.Resolve<IUserEventStoreUpdater>().Save(UserRegistrarAggregate.Create()));
         }
 
-        [Fact] void FACT() => _userDomainServiceLocator.ExecuteTransactionInIsolatedScope(
-            () => UserRegistrarAggregate.RegisterUser(_userDomainServiceLocator.Resolve<IServiceBus>()));
+        [Fact] void FACT()
+        {
+            _userDomainServiceLocator.ExecuteTransactionInIsolatedScope(
+                () => UserRegistrarAggregate.RegisterUser(_userDomainServiceLocator.Resolve<IServiceBus>()));
+
+            var user = Host.ClientBus.Query(new GetUserQuery());
+        }
 
         public virtual void Dispose()
         {

@@ -40,35 +40,15 @@ namespace Composable.Messaging.Buses.Implementation
 
         public void SendAtTime(DateTime sendAt, ICommand command) => _commandScheduler.Schedule(sendAt, command);
 
-        public void Send(ICommand command)
-        {
-            var result = _transport.Dispatch(command);
-            _inbox.Send(command);
-        }
+        public void Send(ICommand command) => _transport.Dispatch(command);
 
-        public void Publish(IEvent anEvent)
-        {
-            _inbox.Publish(anEvent);
-        }
+        public void Publish(IEvent anEvent) => _transport.Dispatch(anEvent);
 
         public async Task<TResult> SendAsync<TResult>(ICommand<TResult> command) where TResult : IMessage
-        {
-            var result = _transport.Dispatch(command);
-            return await _inbox.SendAsync(command);
-        }
+            => (TResult)await _transport.Dispatch(command);
 
-        public async Task<TResult> QueryAsync<TResult>(IQuery<TResult> query) where TResult : IQueryResult
-        {
-            var result = _transport.Dispatch(query);
-            return await _inbox.QueryAsync(query);
-        }
+        public async Task<TResult> QueryAsync<TResult>(IQuery<TResult> query) where TResult : IQueryResult => (TResult)await _transport.Dispatch(query);
 
-        public TResult Query<TResult>(IQuery<TResult> query) where TResult : IQueryResult
-        {
-            var result = _transport.Dispatch(query);
-            return _inbox.Query(query);
-        }
-
-        public Task<object> Dispatch(IMessage message) => Task.FromResult((object)null);
+        public TResult Query<TResult>(IQuery<TResult> query) where TResult : IQueryResult => (TResult)_transport.Dispatch(query).Result;
     }
 }

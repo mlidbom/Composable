@@ -37,6 +37,10 @@ namespace Composable.Messaging.Buses
     {
         Action<object> GetCommandHandler(ICommand message);
 
+        Func<ICommand, object> GetCommandHandler(Type commandType);
+        Func<IQuery, object> GetQueryHandler(Type commandType);
+        IReadOnlyList<Action<IEvent>> GetEventHandlers(Type eventType);
+            
         Func<IQuery<TResult>, TResult> GetQueryHandler<TResult>(IQuery<TResult> query) where TResult : IQueryResult;
 
         Func<ICommand<TResult>, TResult> GetCommandHandler<TResult>(ICommand<TResult> command) where TResult : IMessage;

@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Composable.Contracts;
 using Composable.DependencyInjection;
 using Composable.System;
+using Composable.System.Linq;
 using Composable.System.Reflection;
 using Composable.System.Threading;
 using Composable.System.Threading.ResourceAccess;
@@ -17,6 +18,7 @@ namespace Composable.Messaging.Buses.Implementation
         readonly IServiceLocator _serviceLocator;
         readonly IInProcessServiceBus _inProcessServiceBus;
         readonly IGlobalBusStrateTracker _globalStateTracker;
+        readonly IMessageHandlerRegistry _handlerRegistry;
 
         readonly IGuardedResource _guardedResource = GuardedResource.WithTimeout(1.Seconds());
 
@@ -32,11 +34,12 @@ namespace Composable.Messaging.Buses.Implementation
 
         public IReadOnlyList<Exception> ThrownExceptions => _globalStateTracker.GetExceptionsFor(this);
 
-        public Inbox(IServiceLocator serviceLocator, IInProcessServiceBus inProcessServiceBus, IGlobalBusStrateTracker globalStateTracker)
+        public Inbox(IServiceLocator serviceLocator, IInProcessServiceBus inProcessServiceBus, IGlobalBusStrateTracker globalStateTracker, IMessageHandlerRegistry handlerRegistry)
         {
             _serviceLocator = serviceLocator;
             _inProcessServiceBus = inProcessServiceBus;
             _globalStateTracker = globalStateTracker;
+            _handlerRegistry = handlerRegistry;
             _cancellationTokenSource = new CancellationTokenSource();
             _messagePumpThread = new Thread(MessagePumpThread)
             {
@@ -59,59 +62,6 @@ namespace Composable.Messaging.Buses.Implementation
             _cancellationTokenSource.Cancel();
             _messagePumpThread.InterruptAndJoin();
         });
-
-        public void Send(ICommand command) => _guardedResource.Update(() => EnqueueTransactionalTask(command, () => _inProcessServiceBus.Send(command)));
-
-        public void Publish(IEvent anEvent) => _guardedResource.Update(() => EnqueueTransactionalTask(anEvent, () => _inProcessServiceBus.Publish(anEvent)));
-
-        public async Task<TResult> SendAsync<TResult>(ICommand<TResult> command) where TResult : IMessage
-        {
-            var taskCompletionSource = new TaskCompletionSource<TResult>(TaskCreationOptions.RunContinuationsAsynchronously);
-            using (_guardedResource.AwaitUpdateLock())
-            {
-                EnqueueTransactionalTask(command,
-                                         () =>
-                                         {
-                                             try
-                                             {
-                                                 var result = _inProcessServiceBus.Send(command);
-                                                 taskCompletionSource.SetResult(result);
-                                             }
-                                             catch (Exception exception)
-                                             {
-                                                 taskCompletionSource.SetException(exception);
-                                                 throw;
-                                             }
-                                         });
-            }
-            return await taskCompletionSource.Task.NoMarshalling();
-        }
-
-        public async Task<TResult> QueryAsync<TResult>(IQuery<TResult> query) where TResult : IQueryResult
-        {
-            var taskCompletionSource = new TaskCompletionSource<TResult>(TaskCreationOptions.RunContinuationsAsynchronously);
-            using (_guardedResource.AwaitUpdateLock())
-            {
-                EnqueueNonTransactionalTask(query,
-                                            () =>
-                                            {
-                                                try
-                                                {
-                                                    var result = _inProcessServiceBus.Get(query);
-                                                    taskCompletionSource.SetResult(result);
-                                                }
-                                                catch (Exception exception)
-                                                {
-                                                    taskCompletionSource.SetException(exception);
-                                                    throw;
-                                                }
-                                            });
-            }
-            return await taskCompletionSource.Task.NoMarshalling();
-        }
-
-        public TResult Query<TResult>(IQuery<TResult> query) where TResult : IQueryResult
-            => QueryAsync(query).Result;
 
         void MessagePumpThread()
         {
@@ -139,34 +89,90 @@ namespace Composable.Messaging.Buses.Implementation
             switch (message)
             {
                 case ICommand command:
-                    return Dispatch(command);
+                    return DispatchAsync(command);
                 case IEvent @event:
-                    return Dispatch(@event);
+                    return DispatchAsync(@event);
                 case IQuery query:
-                    return Dispatch(query);
+                    return DispatchAsync(query);
                 default:
                     throw new Exception($"Unsupported message type: {message.GetType()}");
             }
         }
 
-        Task<object> Dispatch(IQuery query)
+        async Task<object> DispatchAsync(IQuery query)
         {
-            if(query.GetType().Implements(typeof(IQuery<>)))
+            var handler = _handlerRegistry.GetQueryHandler(query.GetType());
+
+            var taskCompletionSource = new TaskCompletionSource<object>(TaskCreationOptions.RunContinuationsAsynchronously);
+            using (_guardedResource.AwaitUpdateLock())
             {
-                
+                EnqueueNonTransactionalTask(query,
+                                            () =>
+                                            {
+                                                try
+                                                {
+                                                    var result = handler(query);
+                                                    taskCompletionSource.SetResult(result);
+                                                }
+                                                catch (Exception exception)
+                                                {
+                                                    taskCompletionSource.SetException(exception);
+                                                    throw;
+                                                }
+                                            });
             }
+            return await taskCompletionSource.Task.NoMarshalling();
 
-            return Task.FromResult((object)null);
         }
 
-        Task<object> Dispatch(IEvent @event)
+        async Task<object> DispatchAsync(IEvent @event)
         {
-            return Task.FromResult((object)null);
+            var handler = _handlerRegistry.GetEventHandlers(@event.GetType());
+            var taskCompletionSource = new TaskCompletionSource<object>(TaskCreationOptions.RunContinuationsAsynchronously);
+            using (_guardedResource.AwaitUpdateLock())
+            {
+                EnqueueTransactionalTask(@event,
+                                         () =>
+                                         {
+                                             try
+                                             {
+                                                 handler.ForEach(@this => @this(@event));
+                                                 taskCompletionSource.SetResult(null);
+                                             }
+                                             catch (Exception exception)
+                                             {
+                                                 taskCompletionSource.SetException(exception);
+                                                 throw;
+                                             }
+                                         });
+            }
+            return await taskCompletionSource.Task.NoMarshalling();
+
         }
 
-        Task<object> Dispatch(ICommand command)
+        async Task<object> DispatchAsync(ICommand command)
         {
-            return Task.FromResult((object)null);
+            var handler = _handlerRegistry.GetCommandHandler(command.GetType());
+
+            var taskCompletionSource = new TaskCompletionSource<object>(TaskCreationOptions.RunContinuationsAsynchronously);
+            using (_guardedResource.AwaitUpdateLock())
+            {
+                EnqueueTransactionalTask(command,
+                                         () =>
+                                         {
+                                             try
+                                             {
+                                                 var result = handler(command);
+                                                 taskCompletionSource.SetResult(result);
+                                             }
+                                             catch (Exception exception)
+                                             {
+                                                 taskCompletionSource.SetException(exception);
+                                                 throw;
+                                             }
+                                         });
+            }
+            return await taskCompletionSource.Task.NoMarshalling();
         }
 
         public void Dispose()

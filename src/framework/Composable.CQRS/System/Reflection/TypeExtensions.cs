@@ -53,7 +53,7 @@ namespace Composable.System.Reflection
 
         internal static Type GetGenericInterface(this Type me, Type implemented)
         {
-            Contract.Arguments.Assert(me != null, implemented != null).And(me.IsInterface, implemented.IsGenericTypeDefinition);
+            Contract.Arguments.Assert(me != null, implemented != null).And(implemented.IsGenericTypeDefinition);
 
             return me.GetInterfaces().Single(i => i.IsGenericType && i.GetGenericTypeDefinition() == implemented);
         }

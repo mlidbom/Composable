@@ -2,15 +2,17 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Composable.Messaging.Events;
+using Composable.System.Collections.Collections;
 
 namespace Composable.Messaging.Buses
 {
     class MessageHandlerRegistry : IMessageHandlerRegistrar, IMessageHandlerRegistry
     {
-        internal readonly Dictionary<Type, Action<object>> _commandHandlers = new Dictionary<Type, Action<object>>();
-        internal readonly Dictionary<Type, Func<object, object>> _queryHandlers = new Dictionary<Type, Func<object, object>>();
-        internal readonly Dictionary<Type, Func<object, object>> _commandHandlersReturningResults = new Dictionary<Type, Func<object, object>>();
-        internal readonly List<EventHandlerRegistration> _eventHandlerRegistrations = new List<EventHandlerRegistration>();
+        readonly Dictionary<Type, Action<object>> _commandHandlers = new Dictionary<Type, Action<object>>();
+        readonly Dictionary<Type, List<Action<IEvent>>> _eventHandlers = new Dictionary<Type, List<Action<IEvent>>>();
+        readonly Dictionary<Type, Func<object, object>> _queryHandlers = new Dictionary<Type, Func<object, object>>();
+        readonly Dictionary<Type, Func<object, object>> _commandHandlersReturningResults = new Dictionary<Type, Func<object, object>>();
+        readonly List<EventHandlerRegistration> _eventHandlerRegistrations = new List<EventHandlerRegistration>();
 
         readonly object _lock = new object();
 
@@ -18,6 +20,7 @@ namespace Composable.Messaging.Buses
         {
             lock(_lock)
             {
+                _eventHandlers.GetOrAdd(typeof(TEvent), () => new List<Action<IEvent>>()).Add(@event => handler((TEvent)@event));
                 _eventHandlerRegistrations.Add(new EventHandlerRegistration(typeof(TEvent), registrar => registrar.For(handler)));
                 return this;
             }
@@ -66,6 +69,27 @@ namespace Composable.Messaging.Buses
             {
                 throw new NoHandlerException(message.GetType());
             }
+        }
+
+        public Func<ICommand, object> GetCommandHandler(Type commandType)
+        {
+            if(_commandHandlers.TryGetValue(commandType, out Action<object> handler))
+            {
+                return (command) =>
+                {
+                    handler(command);
+                    return null;
+                };
+            }
+
+            return _commandHandlersReturningResults[commandType];
+        }
+
+        public Func<IQuery, object> GetQueryHandler(Type queryType) => _queryHandlers[queryType];
+
+        public IReadOnlyList<Action<IEvent>> GetEventHandlers(Type eventType)
+        {
+            return _eventHandlers.Where(@this => @this.Key.IsAssignableFrom(eventType)).SelectMany(@this => @this.Value).ToList();
         }
 
         Func<IQuery<TResult>, TResult> IMessageHandlerRegistry.GetQueryHandler<TResult>(IQuery<TResult> query)

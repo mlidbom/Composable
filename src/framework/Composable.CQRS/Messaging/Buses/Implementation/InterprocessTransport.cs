@@ -42,6 +42,8 @@ namespace Composable.Messaging.Buses.Implementation
         static bool IsEvent(Type type) => typeof(IEvent).IsAssignableFrom(type);
         static bool IsQuery(Type type) => typeof(IQuery).IsAssignableFrom(type);
 
+
+
         public Task<object> Dispatch(IMessage message)
         {
             switch(message)

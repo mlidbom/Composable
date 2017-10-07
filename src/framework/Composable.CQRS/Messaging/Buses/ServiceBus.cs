@@ -6,24 +6,24 @@ namespace Composable.Messaging.Buses
 {
     class ServiceBus : IServiceBus
     {
-        readonly Outbox _transport;
+        readonly Outbox _outbox;
 
-        public ServiceBus(Outbox transport) => _transport = transport;
+        public ServiceBus(Outbox transport) => _outbox = transport;
 
-        public void SendAtTime(DateTime sendAt, ICommand command) => _transport.SendAtTime(sendAt, command);
+        public void SendAtTime(DateTime sendAt, ICommand command) => _outbox.SendAtTime(sendAt, command);
 
-        public void Send(ICommand command) => _transport.Send(command);
+        public void Send(ICommand command) => _outbox.Send(command);
 
-        public void Publish(IEvent anEvent) => _transport.Publish(anEvent);
+        public void Publish(IEvent anEvent) => _outbox.Publish(anEvent);
 
         public async Task<TResult> SendAsync<TResult>(ICommand<TResult> command) where TResult : IMessage
-            => await _transport.SendAsync(command);
+            => await _outbox.SendAsync(command);
 
         public async Task<TResult> QueryAsync<TResult>(IQuery<TResult> query) where TResult : IQueryResult
-            =>  await _transport.QueryAsync(query);
+            =>  await _outbox.QueryAsync(query);
 
         public TResult Query<TResult>(IQuery<TResult> query) where TResult : IQueryResult
-            => _transport.Query(query);
+            => _outbox.Query(query);
 
     }
 }

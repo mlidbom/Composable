@@ -18,11 +18,9 @@ namespace Composable.Messaging.Buses.Implementation
     }
 
 
-    interface IRouter
+    interface IInterprocessTransport
     {
-        IInbox RouteFor(ICommand command);
-        IEnumerable<IInbox> RouteFor(IEvent @event);
-        IInbox RouteFor(IQuery query);
+        Task<object> Dispatch(IMessage message);
     }
 
     interface IInbox

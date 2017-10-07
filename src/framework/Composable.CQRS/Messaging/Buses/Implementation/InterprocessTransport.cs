@@ -1,68 +1,61 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Composable.Contracts;
-using Composable.GenericAbstractions.Time;
-using Composable.System;
-using Composable.System.Threading.ResourceAccess;
+using Composable.DependencyInjection;
+using Composable.System.Collections.Collections;
+using Composable.System.Linq;
 
 namespace Composable.Messaging.Buses.Implementation
 {
-    partial class Outbox : IOutbox
+    class InterprocessTransport : IInterprocessTransport
     {
-        readonly Inbox _inbox;
-        readonly CommandScheduler _commandScheduler;
+        readonly Dictionary<Type, IList<IInbox>> _eventRoutes = new Dictionary<Type, IList<IInbox>>();
+        readonly Dictionary<Type, IInbox> _commandRoutes = new Dictionary<Type, IInbox>();
+        readonly Dictionary<Type, IInbox> _queryRoutes = new Dictionary<Type, IInbox>();
 
-        readonly IGuardedResource _guardedResource = GuardedResource.WithTimeout(1.Seconds());
-
-        bool _running;
-
-        public Outbox(IUtcTimeTimeSource timeSource, Inbox inbox)
+        public void Connect(IEndpoint endpoint)
         {
-            _inbox = inbox;
-            _commandScheduler = new CommandScheduler(this, timeSource);
+            IMessageHandlerRegistry messageHandlers = endpoint.ServiceLocator.Resolve<IMessageHandlerRegistry>();
+            var inbox = endpoint.ServiceLocator.Resolve<IInbox>();
+            foreach (var messageType in messageHandlers.HandledTypes())
+            {
+                if(IsEvent(messageType))
+                {
+                    BetterContract.Assert.That(!IsCommand(messageType), !IsQuery(messageType));
+                    _eventRoutes.GetOrAdd(messageType, () => new List<IInbox>()).Add(inbox);
+                }else if(typeof(ICommand).IsAssignableFrom(messageType))
+                {
+                    BetterContract.Assert.That(!IsEvent(messageType), !IsQuery(messageType), !_commandRoutes.ContainsKey(messageType));
+                    _commandRoutes.Add(messageType, inbox);
+                }
+                else if(typeof(IQuery).IsAssignableFrom(messageType))
+                {
+                    BetterContract.Assert.That(!IsEvent(messageType), !IsCommand(messageType), !_queryRoutes.ContainsKey(messageType));
+                    _queryRoutes.Add(messageType, inbox);
+                }
+            }
         }
 
-        public void Start() => _guardedResource.Update(() =>
-        {
-            Contract.Assert.That(!_running, message: "!_running");
-            _running = true;
-            _commandScheduler.Start();
-        });
+        static bool IsCommand(Type type) => typeof(ICommand).IsAssignableFrom(type);
+        static bool IsEvent(Type type) => typeof(IEvent).IsAssignableFrom(type);
+        static bool IsQuery(Type type) => typeof(IQuery).IsAssignableFrom(type);
 
-        public void Stop() => _guardedResource.Update(() =>
+        public Task<object> Dispatch(IMessage message)
         {
-            Contract.Assert.That(_running, message: "_running");
-            _running = false;
-            _commandScheduler.Dispose();
-        });
-
-        public void SendAtTime(DateTime sendAt, ICommand command) => _commandScheduler.Schedule(sendAt, command);
-
-        public void Send(ICommand command)
-        {
-            _inbox.Send(command);
+            switch(message)
+            {
+                case ICommand command:
+                    return _commandRoutes[message.GetType()].Dispatch(command);
+                case IEvent @event:
+                    _eventRoutes[message.GetType()].ForEach(inbox => inbox.Dispatch(@event));
+                    return Task.FromResult((object)null);
+                case IQuery query:
+                    return _queryRoutes[query.GetType()].Dispatch(query);
+               default:
+                    throw new Exception($"Unsupported message type: {message.GetType()}");
+            }
         }
-
-        public void Publish(IEvent anEvent)
-        {
-            _inbox.Publish(anEvent);
-        }
-
-        public async Task<TResult> SendAsync<TResult>(ICommand<TResult> command) where TResult : IMessage
-        {
-            return await _inbox.SendAsync(command);
-        }
-
-        public async Task<TResult> QueryAsync<TResult>(IQuery<TResult> query) where TResult : IQueryResult
-        {
-            return await _inbox.QueryAsync(query);
-        }
-
-        public TResult Query<TResult>(IQuery<TResult> query) where TResult : IQueryResult
-        {
-            return _inbox.Query(query);
-        }
-
-        public Task<object> Dispatch(IMessage message) => Task.FromResult((object)null);
     }
 }

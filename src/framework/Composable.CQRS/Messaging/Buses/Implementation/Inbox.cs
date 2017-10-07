@@ -5,13 +5,14 @@ using System.Threading.Tasks;
 using Composable.Contracts;
 using Composable.DependencyInjection;
 using Composable.System;
+using Composable.System.Reflection;
 using Composable.System.Threading;
 using Composable.System.Threading.ResourceAccess;
 using Composable.System.Transactions;
 
 namespace Composable.Messaging.Buses.Implementation
 {
-    class Inbox : IInbox
+    class Inbox : IInbox, IDisposable
     {
         readonly IServiceLocator _serviceLocator;
         readonly IInProcessServiceBus _inProcessServiceBus;
@@ -46,14 +47,14 @@ namespace Composable.Messaging.Buses.Implementation
 
         public void Start() => _guardedResource.Update(() =>
         {
-            Contract.Assert.That(!_running, message: "!_running");
+            BetterContract.Assert.That(!_running);
             _running = true;
             _messagePumpThread.Start();
         });
 
         public void Stop() => _guardedResource.Update(() =>
         {
-            Contract.Assert.That(_running, message: "_running");
+            BetterContract.Assert.That(_running);
             _running = false;
             _cancellationTokenSource.Cancel();
             _messagePumpThread.InterruptAndJoin();
@@ -133,7 +134,40 @@ namespace Composable.Messaging.Buses.Implementation
         void EnqueueNonTransactionalTask(IMessage message, Action action)
             => _globalStateTracker.EnqueueMessageTask(this, message, messageTask: () => _serviceLocator.ExecuteInIsolatedScope(action));
 
-        public Task<object> Dispatch(IMessage message) => Task.FromResult((object)null);
+        public Task<object> Dispatch(IMessage message)
+        {
+            switch (message)
+            {
+                case ICommand command:
+                    return Dispatch(command);
+                case IEvent @event:
+                    return Dispatch(@event);
+                case IQuery query:
+                    return Dispatch(query);
+                default:
+                    throw new Exception($"Unsupported message type: {message.GetType()}");
+            }
+        }
+
+        Task<object> Dispatch(IQuery query)
+        {
+            if(query.GetType().Implements(typeof(IQuery<>)))
+            {
+                
+            }
+
+            return Task.FromResult((object)null);
+        }
+
+        Task<object> Dispatch(IEvent @event)
+        {
+            return Task.FromResult((object)null);
+        }
+
+        Task<object> Dispatch(ICommand command)
+        {
+            return Task.FromResult((object)null);
+        }
 
         public void Dispose()
         {

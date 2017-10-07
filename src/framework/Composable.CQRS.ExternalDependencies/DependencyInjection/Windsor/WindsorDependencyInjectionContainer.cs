@@ -27,7 +27,7 @@ namespace Composable.DependencyInjection.Windsor
         public IRunMode RunMode { get; }
         public void Register(params ComponentRegistration[] registrations)
         {
-            Contract.Assert.That(!_locked, "You cannot modify the container once you have started using it to resolve components");
+            OldContract.Assert.That(!_locked, "You cannot modify the container once you have started using it to resolve components");
 
             _registeredComponents.AddRange(registrations);
 

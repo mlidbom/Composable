@@ -44,7 +44,7 @@ namespace Composable.DependencyInjection.Persistence
             where TReader : IDocumentDbReader
             where TBulkReader : IDocumentDbBulkReader
         {
-            Contract.Argument(() => connectionName)
+            OldContract.Argument(() => connectionName)
                     .NotNullEmptyOrWhiteSpace();
 
             GeneratedLowLevelInterfaceInspector.InspectInterfaces(Seq.OfTypes<TUpdater, TReader, TBulkReader>());

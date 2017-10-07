@@ -57,7 +57,7 @@ namespace Composable.Testing.Threading
             => @this.WithExclusiveLock(() => @this.EntranceGate.Passed == @this.ExitGate.Passed);
 
         public static IGatedCodeSection AssertIsEmpty(this IGatedCodeSection @this)
-            => @this.WithExclusiveLock(() => Contract.Assert.That(@this.IsEmpty(), "Code section should be empty"));
+            => @this.WithExclusiveLock(() => OldContract.Assert.That(@this.IsEmpty(), "Code section should be empty"));
 
         public static TResult WithExclusiveLock<TResult>(this IGatedCodeSection @this, Func<TResult> function)
         {

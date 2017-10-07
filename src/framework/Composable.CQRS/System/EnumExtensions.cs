@@ -16,7 +16,7 @@ namespace Composable.System
         /// <returns></returns>
         public static bool HasFlag(this Enum value, Enum flag)
         {
-            Contract.Argument(() => value, () => flag).NotNull();
+            OldContract.Argument(() => value, () => flag).NotNull();
 
             if(value.GetType() != flag.GetType())
             {

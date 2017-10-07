@@ -23,16 +23,16 @@ namespace Composable.Messaging.Buses.Implementation
             {
                 if(IsEvent(messageType))
                 {
-                    BetterContract.Assert.That(!IsCommand(messageType), !IsQuery(messageType));
+                    Contract.Invariant.Assert(!IsCommand(messageType), !IsQuery(messageType));
                     _eventRoutes.GetOrAdd(messageType, () => new List<IInbox>()).Add(inbox);
                 }else if(typeof(ICommand).IsAssignableFrom(messageType))
                 {
-                    BetterContract.Assert.That(!IsEvent(messageType), !IsQuery(messageType), !_commandRoutes.ContainsKey(messageType));
+                    Contract.Invariant.Assert(!IsEvent(messageType), !IsQuery(messageType), !_commandRoutes.ContainsKey(messageType));
                     _commandRoutes.Add(messageType, inbox);
                 }
                 else if(typeof(IQuery).IsAssignableFrom(messageType))
                 {
-                    BetterContract.Assert.That(!IsEvent(messageType), !IsCommand(messageType), !_queryRoutes.ContainsKey(messageType));
+                    Contract.Invariant.Assert(!IsEvent(messageType), !IsCommand(messageType), !_queryRoutes.ContainsKey(messageType));
                     _queryRoutes.Add(messageType, inbox);
                 }
             }

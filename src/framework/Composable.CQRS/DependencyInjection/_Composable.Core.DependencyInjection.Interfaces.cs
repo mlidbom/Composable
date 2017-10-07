@@ -220,7 +220,7 @@ namespace Composable.DependencyInjection
         {
             serviceTypes = serviceTypes.ToList();
 
-            Contract.Arguments.That(lifestyle == Lifestyle.Singleton || instantiationSpec.Instance == null, $"{nameof(InstantiationSpec.Instance)} registrations must be {nameof(Lifestyle.Singleton)}s");
+            OldContract.Arguments.That(lifestyle == Lifestyle.Singleton || instantiationSpec.Instance == null, $"{nameof(InstantiationSpec.Instance)} registrations must be {nameof(Lifestyle.Singleton)}s");
 
             ServiceTypes = serviceTypes;
             InstantiationSpec = instantiationSpec;
@@ -236,7 +236,7 @@ namespace Composable.DependencyInjection
 
         internal ComponentRegistration<TService> DelegateToParentServiceLocatorWhenCloning()
         {
-            Contract.Assert.That(Lifestyle == Lifestyle.Singleton, "Only singletons can be delegated to parent container since disposal concern handling becomes very confused for any other lifestyle");
+            OldContract.Assert.That(Lifestyle == Lifestyle.Singleton, "Only singletons can be delegated to parent container since disposal concern handling becomes very confused for any other lifestyle");
             ShouldDelegateToParentWhenCloning = true;
             return this;
         }

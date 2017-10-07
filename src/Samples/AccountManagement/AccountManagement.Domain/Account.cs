@@ -28,7 +28,7 @@ namespace AccountManagement.Domain
         //Called after every call to RaiseEvent.
         protected override void AssertInvariantsAreMet()
         {
-            Contract.Invariant(() => Email, () => Password, () => Id).NotNullOrDefault();
+            OldContract.Invariant(() => Email, () => Password, () => Id).NotNullOrDefault();
         }
 
         /// <summary><para>Used when a user manually creates an account themselves.</para>
@@ -46,7 +46,7 @@ namespace AccountManagement.Domain
         {
             //Ensure that it is impossible to call with invalid arguments.
             //Since all domain types should ensure that it is impossible to create a non-default value that is invalid we only have to disallow default values.
-            Contract.Argument(() => email, () => password, () => accountId, () => repository, () => duplicateAccountChecker).NotNullOrDefault();
+            OldContract.Argument(() => email, () => password, () => accountId, () => repository, () => duplicateAccountChecker).NotNullOrDefault();
 
             //The email is the unique identifier for logging into the account so obviously duplicates are forbidden.
             duplicateAccountChecker.AssertAccountDoesNotExist(email);
@@ -55,13 +55,13 @@ namespace AccountManagement.Domain
             created.RaiseEvent(new AccountEvent.Implementation.UserRegistered(accountId: accountId, email: email, password: password));
             repository.Add(created);
 
-            return Contract.Return(created, inspect => inspect.NotNull()); //Promise and ensure that you will never return null.
+            return OldContract.Return(created, inspect => inspect.NotNull()); //Promise and ensure that you will never return null.
         }
 
         public void ChangePassword(string oldPassword, Password newPassword)
         {
-            Contract.Argument(() => newPassword).NotNullOrDefault();
-            Contract.Argument(() => oldPassword).NotNullEmptyOrWhiteSpace();
+            OldContract.Argument(() => newPassword).NotNullOrDefault();
+            OldContract.Argument(() => oldPassword).NotNullEmptyOrWhiteSpace();
 
             Password.AssertIsCorrectPassword(oldPassword);
 
@@ -70,7 +70,7 @@ namespace AccountManagement.Domain
 
         public void ChangeEmail(Email email)
         {
-            Contract.Argument(() => email).NotNullOrDefault();
+            OldContract.Argument(() => email).NotNullOrDefault();
 
             RaiseEvent(new AccountEvent.Implementation.UserChangedEmail(email));
         }

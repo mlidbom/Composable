@@ -28,8 +28,8 @@ namespace Composable.Persistence.EventStore.AggregateRoots
         //Yes empty. Id should be assigned by an action and it should be obvious that the aggregate in invalid until that happens
         protected AggregateRoot(IUtcTimeTimeSource timeSource) : base(Guid.Empty)
         {
-            Contract.Assert.That(timeSource != null, "timeSource != null");
-            Contract.Assert.That(typeof(TAggregateRootBaseEventInterface).IsInterface, "typeof(TAggregateRootBaseEventInterface).IsInterface");
+            OldContract.Assert.That(timeSource != null, "timeSource != null");
+            OldContract.Assert.That(typeof(TAggregateRootBaseEventInterface).IsInterface, "typeof(TAggregateRootBaseEventInterface).IsInterface");
             TimeSource = timeSource;
             _eventHandlersEventDispatcher.Register().IgnoreUnhandled<IAggregateRootEvent>();
         }
@@ -43,7 +43,7 @@ namespace Composable.Persistence.EventStore.AggregateRoots
         bool _applyingEvents;
         protected void RaiseEvent(TAggregateRootBaseEventClass theEvent)
         {
-            Contract.Assert.That(!_applyingEvents, "You cannot raise events from within event appliers");
+            OldContract.Assert.That(!_applyingEvents, "You cannot raise events from within event appliers");
 
             try
             {

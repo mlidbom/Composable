@@ -36,7 +36,7 @@ namespace Composable.Persistence.EventStore.Refactoring.Migrations
 
         public IEnumerable<AggregateRootEvent> Mutate(AggregateRootEvent @event)
         {
-            Contract.Assert.That(_aggregateId == @event.AggregateRootId, "_aggregateId == @event.AggregateRootId");
+            OldContract.Assert.That(_aggregateId == @event.AggregateRootId, "_aggregateId == @event.AggregateRootId");
             if (_eventMigrators.Length == 0)
             {
                 return Seq.Create(@event);

@@ -49,7 +49,7 @@ namespace Composable.Testing.Databases
 
             internal Database Release()
             {
-                Contract.Assert.That(IsReserved, "IsReserved");
+                OldContract.Assert.That(IsReserved, "IsReserved");
                 IsReserved = false;
                 IsClean = false;
                 ReservationDate = DateTime.UtcNow;//We reuse this value to hold the release time.
@@ -60,15 +60,15 @@ namespace Composable.Testing.Databases
 
             internal Database Clean()
             {
-                Contract.Assert.That(!IsClean, "!IsClean");
+                OldContract.Assert.That(!IsClean, "!IsClean");
                 IsClean = true;
                 return this;
             }
 
             internal Database Reserve(string reservationName, Guid poolId)
             {
-                Contract.Assert.That(!IsReserved, "!IsReserved");
-                Contract.Assert.That(poolId != Guid.Empty, "poolId != Guid.Empty");
+                OldContract.Assert.That(!IsReserved, "!IsReserved");
+                OldContract.Assert.That(poolId != Guid.Empty, "poolId != Guid.Empty");
 
                 IsReserved = true;
                 ReservationName = reservationName;

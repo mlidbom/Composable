@@ -28,7 +28,7 @@ namespace AccountManagement.Domain.Events
                 /// </summary>
                 public UserRegistered(Guid accountId, Email email, Password password) : base(accountId)
                 {
-                    Contract.Argument(() => email, () => password)
+                    OldContract.Argument(() => email, () => password)
                             .NotNull();
 
                     Email = email;

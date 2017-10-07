@@ -85,7 +85,7 @@ namespace Composable.DependencyInjection.Persistence
             where TSessionInterface : class, IEventStoreUpdater
             where TReaderInterface : IEventStoreReader
         {
-            Contract.Argument(() => connectionName)
+            OldContract.Argument(() => connectionName)
                     .NotNullEmptyOrWhiteSpace();
             migrations = migrations ?? (() => EmptyMigrationsArray);
 

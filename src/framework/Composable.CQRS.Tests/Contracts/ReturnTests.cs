@@ -17,8 +17,8 @@ namespace Composable.Tests.Contracts
 
         static string ReturnInputStringAndRefuseToReturnNull(string returnMe)
         {
-            Contract.ReturnValue(returnMe).NotNullEmptyOrWhiteSpace();
-            return Contract.Return(returnMe, assert => assert.NotNullEmptyOrWhiteSpace());
+            OldContract.ReturnValue(returnMe).NotNullEmptyOrWhiteSpace();
+            return OldContract.Return(returnMe, assert => assert.NotNullEmptyOrWhiteSpace());
         }
     }
 }

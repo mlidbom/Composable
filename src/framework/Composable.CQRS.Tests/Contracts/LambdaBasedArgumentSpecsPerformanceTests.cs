@@ -14,7 +14,7 @@ namespace Composable.Tests.Contracts {
             var notNullOrDefault = new object();
 
             TimeAsserter.Execute(
-                action: () => Contract.Argument(() => notNullOrDefault).NotNullOrDefault(),
+                action: () => OldContract.Argument(() => notNullOrDefault).NotNullOrDefault(),
                 iterations: 500,
                 maxTotal: 10.Milliseconds().AdjustRuntimeToTestEnvironment()
             );

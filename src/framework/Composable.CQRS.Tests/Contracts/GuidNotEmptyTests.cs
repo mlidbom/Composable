@@ -14,14 +14,14 @@ namespace Composable.Tests.Contracts
             var emptyGuid = Guid.Empty;
             var aGuid = Guid.NewGuid();
 
-            Assert.Throws<GuidIsEmptyContractViolationException>(() => Contract.ReturnValue(emptyGuid).NotEmpty())
+            Assert.Throws<GuidIsEmptyContractViolationException>(() => OldContract.ReturnValue(emptyGuid).NotEmpty())
                 .Message.Should().Contain("ReturnValue");
 
-            Assert.Throws<GuidIsEmptyContractViolationException>(() => Contract.Argument(() => emptyGuid).NotEmpty());
-            Assert.Throws<GuidIsEmptyContractViolationException>(() => Contract.Argument(() => emptyGuid).NotEmpty())
+            Assert.Throws<GuidIsEmptyContractViolationException>(() => OldContract.Argument(() => emptyGuid).NotEmpty());
+            Assert.Throws<GuidIsEmptyContractViolationException>(() => OldContract.Argument(() => emptyGuid).NotEmpty())
                 .Message.Should().Contain("emptyGuid");
 
-            Assert.Throws<GuidIsEmptyContractViolationException>(() => Contract.Argument(() => aGuid, () => emptyGuid).NotEmpty())
+            Assert.Throws<GuidIsEmptyContractViolationException>(() => OldContract.Argument(() => aGuid, () => emptyGuid).NotEmpty())
                 .Message.Should().Contain("emptyGuid");
         }
 

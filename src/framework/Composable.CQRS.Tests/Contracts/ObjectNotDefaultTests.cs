@@ -15,10 +15,10 @@ namespace Composable.Tests.Contracts
             var zero = 0;
             // ReSharper restore ConvertToConstant.Local
 
-            Assert.Throws<ObjectIsDefaultContractViolationException>(() => Contract.Argument(() => zero).NotDefault());
-            Assert.Throws<ObjectIsDefaultContractViolationException>(() => Contract.Argument(() => zero).NotDefault());
-            Assert.Throws<ObjectIsDefaultContractViolationException>(() => Contract.Argument(() => myStructure).NotDefault());
-            Assert.Throws<ObjectIsDefaultContractViolationException>(() => Contract.Argument(() => myStructure).NotDefault());
+            Assert.Throws<ObjectIsDefaultContractViolationException>(() => OldContract.Argument(() => zero).NotDefault());
+            Assert.Throws<ObjectIsDefaultContractViolationException>(() => OldContract.Argument(() => zero).NotDefault());
+            Assert.Throws<ObjectIsDefaultContractViolationException>(() => OldContract.Argument(() => myStructure).NotDefault());
+            Assert.Throws<ObjectIsDefaultContractViolationException>(() => OldContract.Argument(() => myStructure).NotDefault());
 
             InspectionTestHelper.InspectBadValue<ObjectIsDefaultContractViolationException, MyStructure>(
                 inspected => inspected.NotDefault(),

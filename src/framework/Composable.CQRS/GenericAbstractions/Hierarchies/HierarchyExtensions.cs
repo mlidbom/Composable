@@ -52,7 +52,7 @@ namespace Composable.GenericAbstractions.Hierarchies
         public static IAutoHierarchy<T> AsHierarchy<T>(this T me, Func<T, IEnumerable<T>> childGetter)
         {
             ContractOptimized.Argument(me, nameof(me), childGetter, nameof(childGetter)).NotNull();
-            return Contract.Return(new Hierarchy<T>(me, childGetter), inspect => inspect.NotNull());
+            return OldContract.Return(new Hierarchy<T>(me, childGetter), inspect => inspect.NotNull());
         }
 
         /// <summary>

@@ -11,7 +11,7 @@ namespace AccountManagement.Domain.QueryModels
 
         public EmailToAccountMapQueryModel(Email email, Guid accountId)
         {
-            Contract.Argument(() => email, () => accountId).NotNullOrDefault();
+            OldContract.Argument(() => email, () => accountId).NotNullOrDefault();
 
             Email = email;
         }

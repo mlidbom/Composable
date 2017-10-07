@@ -22,7 +22,7 @@ namespace Composable.System.Collections.Collections
         ///<summary>Add all instances in <param name="toAdd"> to the collection <param name="me"></param>.</param></summary>
         public static void AddRange<T>(this ICollection<T> me, IEnumerable<T> toAdd)
         {
-            Contract.Argument(() => me, () => toAdd).NotNull();
+            OldContract.Argument(() => me, () => toAdd).NotNull();
             toAdd.ForEach(me.Add);
         }
     }

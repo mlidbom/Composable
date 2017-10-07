@@ -12,7 +12,7 @@ namespace AccountManagement.Domain.Services
 
         public void AssertAccountDoesNotExist(Email email)
         {
-            Contract.Argument(() => email).NotNull();
+            OldContract.Argument(() => email).NotNull();
 
             if(_querymodels.TryGet(email, out EmailToAccountMapQueryModel _))
             {

@@ -11,7 +11,7 @@ namespace Composable {
         {
             AssertTypesAssemblyHasRequiredAttributes(types);
 
-//            Contract.Assert.That(types.All(type => type.IsVisible == false),
+//            OldContract.Assert.That(types.All(type => type.IsVisible == false),
 //                                 @"
 //The interface implementations generated here are low level implementation interfaces that should not be exposed. They are therefore required to be internal.
 //If you wish to expose services outside your assembly you should create custom interfaces for your use case and expose those instead.

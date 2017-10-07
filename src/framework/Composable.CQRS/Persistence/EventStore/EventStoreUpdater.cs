@@ -24,7 +24,7 @@ namespace Composable.Persistence.EventStore
 
         public EventStoreUpdater(IInProcessServiceBus inprocessBus, IEventStore store, ISingleContextUseGuard usageGuard, IUtcTimeTimeSource timeSource)
         {
-            Contract.Argument(() => inprocessBus, () => store, () => usageGuard, () => timeSource)
+            OldContract.Argument(() => inprocessBus, () => store, () => usageGuard, () => timeSource)
                         .NotNull();
 
             _usageGuard = usageGuard;
@@ -52,7 +52,7 @@ namespace Composable.Persistence.EventStore
 
         public TAggregate LoadSpecificVersion<TAggregate>(Guid aggregateId, int version) where TAggregate : IEventStored
         {
-            Contract.Assert.That(version > 0, "version > 0");
+            OldContract.Assert.That(version > 0, "version > 0");
 
             _usageGuard.AssertNoContextChangeOccurred(this);
             var aggregate = CreateInstance<TAggregate>();
@@ -91,7 +91,7 @@ namespace Composable.Persistence.EventStore
 
         void OnAggregateEvent(IAggregateRootEvent @event)
         {
-            Contract.Assert.That(_idMap.ContainsKey(@event.AggregateRootId), "Got event from aggregate that is not tracked!");
+            OldContract.Assert.That(_idMap.ContainsKey(@event.AggregateRootId), "Got event from aggregate that is not tracked!");
             _store.SaveEvents(new[] { @event });
             _inprocessBus.Publish(@event);
         }

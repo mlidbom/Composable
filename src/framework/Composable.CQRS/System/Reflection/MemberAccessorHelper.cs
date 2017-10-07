@@ -19,7 +19,7 @@ namespace Composable.System.Reflection
             ContractOptimized.Argument(field, nameof(field))
                              .NotNull();
 
-            Contract.Assert.That(field.DeclaringType != null, "field.DeclaringType != null");
+            OldContract.Assert.That(field.DeclaringType != null, "field.DeclaringType != null");
 
             var obj = Expression.Parameter(typeof(object), "obj");
 

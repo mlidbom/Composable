@@ -44,7 +44,7 @@ namespace AccountManagement.Domain.API
 
         internal CreateAccountCommand(Email email, Password password)
         {
-            Contract.Argument(() => email, () => password)
+            OldContract.Argument(() => email, () => password)
                     .NotNull();
             Email = email;
             Password = password;

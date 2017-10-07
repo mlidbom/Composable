@@ -42,6 +42,8 @@ namespace Composable.Messaging.Buses
         Func<ICommand<TResult>, TResult> GetCommandHandler<TResult>(ICommand<TResult> command) where TResult : IMessage;
 
         IEventDispatcher<IEvent> CreateEventDispatcher();
+
+        IEnumerable<Type> HandledTypes();
     }
 
     public interface IMessageHandlerRegistrar

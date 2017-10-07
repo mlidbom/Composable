@@ -1,14 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Threading;
 using System.Threading.Tasks;
-using Composable.Contracts;
-using Composable.DependencyInjection;
-using Composable.GenericAbstractions.Time;
-using Composable.System;
-using Composable.System.Threading;
-using Composable.System.Threading.ResourceAccess;
-using Composable.System.Transactions;
 
 namespace Composable.Messaging.Buses.Implementation
 {
@@ -23,5 +15,18 @@ namespace Composable.Messaging.Buses.Implementation
         Task<TResult> SendAsync<TResult>(ICommand<TResult> command) where TResult : IMessage;
         void Start();
         void Stop();
+    }
+
+
+    interface IRouter
+    {
+        IInbox RouteFor(ICommand command);
+        IEnumerable<IInbox> RouteFor(IEvent @event);
+        IInbox RouteFor(IQuery query);
+    }
+
+    interface IInbox
+    {
+        Task<object> Dispatch(IMessage message);
     }
 }

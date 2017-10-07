@@ -10,7 +10,12 @@ namespace Composable.Messaging.Buses
         public Endpoint(IServiceLocator serviceLocator) => ServiceLocator = serviceLocator;
         public IServiceLocator ServiceLocator { get; }
 
-        public void Start() => Transport.Start();
+        public void Start()
+        {
+            Transport.Start();
+        }
+
+
         public void Stop() => Transport.Stop();
         public void AwaitNoMessagesInFlight(TimeSpan? timeoutOverride) => GlobalStateTracker.AwaitNoMessagesInFlight(timeoutOverride);
         public void Dispose() => ServiceLocator.Dispose();

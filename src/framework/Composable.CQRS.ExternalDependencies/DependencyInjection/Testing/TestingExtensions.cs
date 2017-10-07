@@ -48,17 +48,6 @@ namespace Composable.DependencyInjection.Testing
                 Component.For<IInProcessServiceBus, IMessageSpy>()
                          .UsingFactoryMethod(_ => new InProcessServiceBus(_.Resolve<IMessageHandlerRegistry>()))
                          .LifestyleSingleton(),
-                Component.For<IInterprocessTransport, InterprocessTransport>()
-                         .UsingFactoryMethod(factoryMethod: kernel =>
-                                                 new InterprocessTransport("testendpoint",
-                                                                kernel.Resolve<DummyTimeSource>(),
-                                                                kernel.Resolve<IServiceLocator>(),
-                                                                kernel.Resolve<IInProcessServiceBus>(),
-                                                                kernel.Resolve<IGlobalBusStrateTracker>()))
-                                                                .LifestyleSingleton(),
-                Component.For<IServiceBus, ServiceBus>()
-                         .ImplementedBy<ServiceBus>()
-                         .LifestyleSingleton(),
                 Component.For<ISqlConnectionProvider>()
                          .UsingFactoryMethod(factoryMethod: locator => new SqlServerDatabasePoolSqlConnectionProvider(MasterDbConnection.ConnectionString))
                          .LifestyleSingleton()

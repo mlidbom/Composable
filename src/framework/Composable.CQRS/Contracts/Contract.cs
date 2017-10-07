@@ -79,11 +79,28 @@ namespace Composable.Contracts
         internal static readonly IContractAssertion Assert = new ContractAssertionImplementation(InspectionType.Assertion);
         internal static readonly IContractAssertion Arguments = new ContractAssertionImplementation(InspectionType.Argument);
 
+        internal static void AssertThat(params bool[] conditions)
+        {
+            for(int condition = 0; condition < conditions.Length; condition++)
+            {
+                if(!conditions[condition])
+                {
+                    throw new ContractAssertThatException(condition);
+                }
+            }
+        }
+
         class ContractAssertionImplementation : IContractAssertion
         {
             public ContractAssertionImplementation(InspectionType inspectionType) => InspectionType = inspectionType;
             public InspectionType InspectionType { get; }
         }
+    }
+
+    public class ContractAssertThatException : Exception
+    {
+        public ContractAssertThatException(int condition):base($"Condition: {condition} was false")
+        {}
     }
 
     interface IContractAssertion

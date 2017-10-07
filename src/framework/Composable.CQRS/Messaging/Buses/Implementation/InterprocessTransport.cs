@@ -12,13 +12,14 @@ using Composable.System.Transactions;
 
 namespace Composable.Messaging.Buses.Implementation
 {
-    partial class InterprocessTransport : IInterprocessTransport
+    partial class InterprocessTransport : IInterprocessTransport, IInbox
     {
         readonly string _name;
         readonly IServiceLocator _serviceLocator;
         readonly IInProcessServiceBus _inProcessServiceBus;
         readonly IGlobalBusStrateTracker _globalStateTracker;
-        readonly InterprocessTransport.CommandScheduler _commandScheduler;
+        readonly IRouter _router;
+        readonly CommandScheduler _commandScheduler;
 
         readonly IGuardedResource _guardedResource = GuardedResource.WithTimeout(1.Seconds());
 
@@ -34,13 +35,14 @@ namespace Composable.Messaging.Buses.Implementation
 
         public IReadOnlyList<Exception> ThrownExceptions => _globalStateTracker.GetExceptionsFor(this);
 
-        public InterprocessTransport(string name, IUtcTimeTimeSource timeSource, IServiceLocator serviceLocator, IInProcessServiceBus inProcessServiceBus, IGlobalBusStrateTracker globalStateTracker)
+        public InterprocessTransport(string name, IUtcTimeTimeSource timeSource, IServiceLocator serviceLocator, IInProcessServiceBus inProcessServiceBus, IGlobalBusStrateTracker globalStateTracker, IRouter router)
         {
             _name = name;
             _serviceLocator = serviceLocator;
             _inProcessServiceBus = inProcessServiceBus;
             _globalStateTracker = globalStateTracker;
-            _commandScheduler = new InterprocessTransport.CommandScheduler(this, timeSource);
+            _router = router;
+            _commandScheduler = new CommandScheduler(this, timeSource);
             _cancellationTokenSource = new CancellationTokenSource();
             _messagePumpThread = new Thread(MessagePumpThread)
             {
@@ -143,6 +145,8 @@ namespace Composable.Messaging.Buses.Implementation
             => _globalStateTracker.EnqueueMessageTask(this, message, messageTask: () => _serviceLocator.ExecuteInIsolatedScope(action));
 
         public override string ToString() => _name;
+
+        public Task<object> Dispatch(IMessage message) => Task.FromResult((object)null);
 
         public void Dispose()
         {

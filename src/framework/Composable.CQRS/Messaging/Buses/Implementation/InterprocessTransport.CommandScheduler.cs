@@ -9,7 +9,7 @@ using Composable.System.Threading.ResourceAccess;
 
 namespace Composable.Messaging.Buses.Implementation
 {
-    partial class InterprocessTransport : IInterprocessTransport
+    partial class InterprocessTransport
     {
         class CommandScheduler : IDisposable
         {

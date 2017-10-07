@@ -15,11 +15,14 @@ namespace Composable.Messaging.Buses
 
         readonly IDependencyInjectionContainer _container;
 
-        public EndpointBuilder(string name, IRunMode mode, IGlobalBusStrateTracker globalStateTracker)
+        public EndpointBuilder(string name, IRunMode mode, IGlobalBusStrateTracker globalStateTracker, IRouter router)
         {
             _container = DependencyInjectionContainer.Create(mode);
 
             _container.Register(
+                Component.For<IRouter>()
+                         .UsingFactoryMethod(kern => router)
+                         .LifestyleSingleton(),
                 Component.For<ISingleContextUseGuard>()
                          .ImplementedBy<SingleThreadUseGuard>()
                          .LifestyleScoped(),
@@ -39,13 +42,14 @@ namespace Composable.Messaging.Buses
                 Component.For<IInProcessServiceBus, IMessageSpy>()
                          .UsingFactoryMethod(kernel => new InProcessServiceBus(kernel.Resolve<IMessageHandlerRegistry>()))
                          .LifestyleSingleton(),
-                Component.For<IInterprocessTransport, InterprocessTransport>()
+                Component.For<IInterprocessTransport, IInbox, InterprocessTransport>()
                          .UsingFactoryMethod(factoryMethod: kernel =>
                                                  new InterprocessTransport(name,
                                                                            kernel.Resolve<IUtcTimeTimeSource>(),
                                                                            kernel.Resolve<IServiceLocator>(),
                                                                            kernel.Resolve<IInProcessServiceBus>(),
-                                                                           kernel.Resolve<IGlobalBusStrateTracker>()))
+                                                                           kernel.Resolve<IGlobalBusStrateTracker>(),
+                                                                           kernel.Resolve<IRouter>()))
                          .LifestyleSingleton(),
                 Component.For<IServiceBus, ServiceBus>()
                          .ImplementedBy<ServiceBus>()

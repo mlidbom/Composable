@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Composable.Messaging.Events;
 
 namespace Composable.Messaging.Buses
@@ -111,6 +112,14 @@ namespace Composable.Messaging.Buses
             }
 
             return dispatcher;
+        }
+
+        public IEnumerable<Type> HandledTypes()
+        {
+            return _commandHandlers.Keys
+                .Concat(_commandHandlersReturningResults.Keys).
+                Concat(_queryHandlers.Keys)
+                .Concat(_eventHandlerRegistrations.Select(reg => reg.Type));
         }
 
         internal class EventHandlerRegistration

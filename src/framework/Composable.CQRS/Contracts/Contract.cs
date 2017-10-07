@@ -5,6 +5,7 @@ namespace Composable.Contracts
 {
     class Contract
     {
+        internal static BaseAssertion State => BaseAssertion.Invariant;
         internal static BaseAssertion Invariant => BaseAssertion.Invariant;
         internal static BaseAssertion Arguments => BaseAssertion.Arguments;
 

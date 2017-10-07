@@ -17,6 +17,14 @@ namespace Composable.DependencyInjection.SimpleInjectorImplementation
             RunMode = runMode;
             _container = new Container();
             _container.Options.DefaultScopedLifestyle = new AsyncScopedLifestyle();
+
+            _container.ResolveUnregisteredType += (sender, unregisteredTypeEventArgs) =>
+            {
+                if (!unregisteredTypeEventArgs.Handled && !unregisteredTypeEventArgs.UnregisteredServiceType.IsAbstract)
+                {
+                    throw new InvalidOperationException(unregisteredTypeEventArgs.UnregisteredServiceType.ToFriendlyName() + " has not been registered.");
+                }
+            };
         }
 
         public IRunMode RunMode { get; }

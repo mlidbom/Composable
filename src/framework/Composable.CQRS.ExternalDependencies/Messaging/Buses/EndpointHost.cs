@@ -40,7 +40,6 @@ namespace Composable.Messaging.Buses
             setup(builder);
 
             var endpoint = builder.Build();
-            ConnectEndpoint(endpoint);
 
             Endpoints.Add(endpoint);
 
@@ -52,11 +51,6 @@ namespace Composable.Messaging.Buses
         public void Stop()
         {
             Endpoints.ForEach(endpoint => endpoint.Stop());
-        }
-
-        void ConnectEndpoint(IEndpoint endpoint)
-        {
-            _interprocessTransport.Connect(endpoint);
         }
 
 

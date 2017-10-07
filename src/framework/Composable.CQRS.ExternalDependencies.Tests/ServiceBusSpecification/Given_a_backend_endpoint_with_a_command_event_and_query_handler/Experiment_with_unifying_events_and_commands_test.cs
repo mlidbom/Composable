@@ -13,17 +13,17 @@ using Xunit;
 
 namespace Composable.CQRS.Tests.ServiceBusSpecification.Given_a_backend_endpoint_with_a_command_event_and_query_handler
 {
-    public class New_Fixture : IDisposable
+    public class Experiment_with_unifying_events_and_commands_test : IDisposable
     {
-        internal readonly ITestingEndpointHost Host;
+        readonly ITestingEndpointHost _host;
 
-        protected readonly TestingTaskRunner TaskRunner = TestingTaskRunner.WithTimeout(1.Seconds());
+        readonly TestingTaskRunner _taskRunner = TestingTaskRunner.WithTimeout(1.Seconds());
         IEndpoint _userManagementDomainEndpoint;
-        IServiceLocator _userDomainServiceLocator;
+        readonly IServiceLocator _userDomainServiceLocator;
 
-        public New_Fixture()
+        public Experiment_with_unifying_events_and_commands_test()
         {
-            Host = EndpointHost.Testing.BuildHost(
+            _host = EndpointHost.Testing.BuildHost(
                 buildHost => _userManagementDomainEndpoint = buildHost.RegisterAndStartEndpoint(
                                  "UserManagement.Domain",
                                  builder =>
@@ -40,18 +40,19 @@ namespace Composable.CQRS.Tests.ServiceBusSpecification.Given_a_backend_endpoint
             _userDomainServiceLocator.ExecuteTransactionInIsolatedScope(() => _userDomainServiceLocator.Resolve<IUserEventStoreUpdater>().Save(UserRegistrarAggregate.Create()));
         }
 
-        [Fact] void FACT()
+        [Fact] void Can_register_user_and_fetch_user_resource()
         {
             _userDomainServiceLocator.ExecuteTransactionInIsolatedScope(
                 () => UserRegistrarAggregate.RegisterUser(_userDomainServiceLocator.Resolve<IServiceBus>()));
 
-            var user = Host.ClientBus.Query(new GetUserQuery());
+            var user = _host.ClientBus.Query(new GetUserQuery());
+            user.Should().NotBe(null);
         }
 
-        public virtual void Dispose()
+        public void Dispose()
         {
-            TaskRunner.Dispose();
-            Host.Dispose();
+            _taskRunner.Dispose();
+            _host.Dispose();
         }
 
         public interface IUserEventStoreUpdater : IEventStoreUpdater {}

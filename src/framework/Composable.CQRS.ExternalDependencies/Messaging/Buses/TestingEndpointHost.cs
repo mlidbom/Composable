@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using Composable.DependencyInjection;
+using Composable.Messaging.Buses.Implementation;
 
 namespace Composable.Messaging.Buses
 {
@@ -25,7 +26,7 @@ namespace Composable.Messaging.Buses
 
             var exceptions = Endpoints
                 .SelectMany(endpoint => endpoint.ServiceLocator
-                                                .Resolve<ServiceBus>().ThrownExceptions)
+                                                .Resolve<Inbox>().ThrownExceptions)
                 .ToList();
 
             base.InternalDispose();

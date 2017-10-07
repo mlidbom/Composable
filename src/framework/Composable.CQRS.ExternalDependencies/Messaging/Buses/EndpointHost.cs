@@ -37,7 +37,7 @@ namespace Composable.Messaging.Buses
 
         public IEndpoint RegisterAndStartEndpoint(string name, Action<IEndpointBuilder> setup)
         {
-            var builder = new EndpointBuilder(name, _mode, _globalBusStrateTracker, _router);
+            var builder = new EndpointBuilder(_mode, _globalBusStrateTracker, _router);
 
             setup(builder);
 

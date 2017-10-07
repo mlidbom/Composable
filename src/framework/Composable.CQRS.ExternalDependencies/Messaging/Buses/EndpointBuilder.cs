@@ -15,7 +15,7 @@ namespace Composable.Messaging.Buses
 
         readonly IDependencyInjectionContainer _container;
 
-        public EndpointBuilder(string name, IRunMode mode, IGlobalBusStrateTracker globalStateTracker, IRouter router)
+        public EndpointBuilder(IRunMode mode, IGlobalBusStrateTracker globalStateTracker, IRouter router)
         {
             _container = DependencyInjectionContainer.Create(mode);
 
@@ -42,15 +42,12 @@ namespace Composable.Messaging.Buses
                 Component.For<IInProcessServiceBus, IMessageSpy>()
                          .UsingFactoryMethod(kernel => new InProcessServiceBus(kernel.Resolve<IMessageHandlerRegistry>()))
                          .LifestyleSingleton(),
-                Component.For<IInterprocessTransport, IInbox, InterprocessTransport>()
-                         .UsingFactoryMethod(factoryMethod: kernel =>
-                                                 new InterprocessTransport(name,
-                                                                           kernel.Resolve<IUtcTimeTimeSource>(),
-                                                                           kernel.Resolve<IServiceLocator>(),
-                                                                           kernel.Resolve<IInProcessServiceBus>(),
-                                                                           kernel.Resolve<IGlobalBusStrateTracker>(),
-                                                                           kernel.Resolve<IRouter>()))
-                         .LifestyleSingleton(),
+                Component.For<IInbox, Inbox>()
+                    .ImplementedBy<Inbox>()
+                    .LifestyleSingleton(),
+                Component.For<IOutbox, Outbox>()
+                        .ImplementedBy<Outbox>()
+                        .LifestyleSingleton(),
                 Component.For<IServiceBus, ServiceBus>()
                          .ImplementedBy<ServiceBus>()
                          .LifestyleSingleton(),

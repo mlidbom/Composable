@@ -13,6 +13,7 @@ namespace Composable.Messaging.Buses
         public void Start()
         {
             Transport.Start();
+            Inbox.Start();
         }
 
 
@@ -21,7 +22,7 @@ namespace Composable.Messaging.Buses
         public void Dispose() => ServiceLocator.Dispose();
 
         IGlobalBusStrateTracker GlobalStateTracker => ServiceLocator.Resolve<IGlobalBusStrateTracker>();
-        IServiceBus Bus => ServiceLocator.Resolve<IServiceBus>();
-        IInterprocessTransport Transport => ServiceLocator.Resolve<IInterprocessTransport>();
+        IOutbox Transport => ServiceLocator.Resolve<IOutbox>();
+        Inbox Inbox => ServiceLocator.Resolve<Inbox>();
     }
 }

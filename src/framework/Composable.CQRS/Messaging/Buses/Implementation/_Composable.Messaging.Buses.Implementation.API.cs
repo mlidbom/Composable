@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 
 namespace Composable.Messaging.Buses.Implementation
 {
-    interface IInterprocessTransport
+    interface IOutbox
     {
         void SendAtTime(DateTime sendAt, ICommand command);
         void Publish(IEvent anEvent);

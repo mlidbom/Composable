@@ -108,11 +108,11 @@ namespace Composable.Messaging.Buses
 
     interface IGlobalBusStrateTracker
     {
-        IReadOnlyList<Exception> GetExceptionsFor(IInterprocessTransport bus);
+        IReadOnlyList<Exception> GetExceptionsFor(IInbox bus);
 
-        IQueuedMessage AwaitDispatchableMessage(IInterprocessTransport bus, IReadOnlyList<IMessageDispatchingRule> dispatchingRules);
+        IQueuedMessage AwaitDispatchableMessage(IInbox bus, IReadOnlyList<IMessageDispatchingRule> dispatchingRules);
 
-        void EnqueueMessageTask(IInterprocessTransport bus, IMessage message, Action messageTask);
+        void EnqueueMessageTask(IInbox bus, IMessage message, Action messageTask);
         void AwaitNoMessagesInFlight(TimeSpan? timeoutOverride);
     }
 

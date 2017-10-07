@@ -9,17 +9,17 @@ using Composable.System.Threading.ResourceAccess;
 
 namespace Composable.Messaging.Buses.Implementation
 {
-    partial class InterprocessTransport
+    partial class Outbox
     {
         class CommandScheduler : IDisposable
         {
-            readonly InterprocessTransport _transport;
+            readonly Outbox _transport;
             readonly IUtcTimeTimeSource _timeSource;
             Timer _scheduledMessagesTimer;
             readonly List<ScheduledCommand> _scheduledMessages = new List<ScheduledCommand>();
             readonly IGuardedResource _guard = GuardedResource.WithTimeout(1.Seconds());
 
-            public CommandScheduler(InterprocessTransport transport, IUtcTimeTimeSource timeSource)
+            public CommandScheduler(Outbox transport, IUtcTimeTimeSource timeSource)
             {
                 _transport = transport;
                 _timeSource = timeSource;

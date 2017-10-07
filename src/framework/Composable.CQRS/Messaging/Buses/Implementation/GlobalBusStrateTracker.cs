@@ -2,13 +2,12 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Composable.Messaging.Buses.Implementation;
 using Composable.System;
 using Composable.System.Collections.Collections;
 using Composable.System.Linq;
 using Composable.System.Threading.ResourceAccess;
 
-namespace Composable.Messaging.Buses
+namespace Composable.Messaging.Buses.Implementation
 {
     class GlobalBusStrateTracker : IGlobalBusStrateTracker
     {
@@ -17,11 +16,11 @@ namespace Composable.Messaging.Buses
         //It is never OK for this class to block for a significant amount of time. So make that explicit with a really strict timeout on all operations waiting for access.
         readonly IGuardedResource _guard = GuardedResource.WithTimeout(10.Milliseconds());
 
-        readonly Dictionary<IInterprocessTransport, IList<Exception>> _busExceptions = new Dictionary<IInterprocessTransport, IList<Exception>>();
+        readonly Dictionary<IInbox, IList<Exception>> _busExceptions = new Dictionary<IInbox, IList<Exception>>();
 
-        public IReadOnlyList<Exception> GetExceptionsFor(IInterprocessTransport bus) => _guard.Update(() => _busExceptions.GetOrAdd(bus, () => new List<Exception>()).ToList());
+        public IReadOnlyList<Exception> GetExceptionsFor(IInbox bus) => _guard.Update(() => _busExceptions.GetOrAdd(bus, () => new List<Exception>()).ToList());
 
-        public IQueuedMessage AwaitDispatchableMessage(IInterprocessTransport bus, IReadOnlyList<IMessageDispatchingRule> dispatchingRules)
+        public IQueuedMessage AwaitDispatchableMessage(IInbox bus, IReadOnlyList<IMessageDispatchingRule> dispatchingRules)
         {
             using(var @lock = _guard.AwaitExclusiveLock())
             {
@@ -44,7 +43,7 @@ namespace Composable.Messaging.Buses
             }
         }
 
-        public void EnqueueMessageTask(IInterprocessTransport bus, IMessage message, Action messageTask)
+        public void EnqueueMessageTask(IInbox bus, IMessage message, Action messageTask)
             => _guard.Update(
                 () =>
                 {
@@ -69,7 +68,7 @@ namespace Composable.Messaging.Buses
 
         class GlobalBusStateSnapshot : IGlobalBusStateSnapshot
         {
-            public GlobalBusStateSnapshot(IInterprocessTransport bus, IReadOnlyList<QueuedMessage> inflightMessages)
+            public GlobalBusStateSnapshot(IInbox bus, IReadOnlyList<QueuedMessage> inflightMessages)
             {
                 var bus1 = bus;
                 InflightMessages = inflightMessages;
@@ -82,7 +81,7 @@ namespace Composable.Messaging.Buses
 
         class QueuedMessage : IQueuedMessage
         {
-            public readonly IInterprocessTransport Bus;
+            public readonly IInbox Bus;
             readonly GlobalBusStrateTracker _globalBusStrateTracker;
             readonly Action _messageTask;
             public IMessage Message { get; }
@@ -104,7 +103,7 @@ namespace Composable.Messaging.Buses
                 });
             }
 
-            public QueuedMessage(IInterprocessTransport bus, IMessage message, GlobalBusStrateTracker globalBusStrateTracker, Action messageTask)
+            public QueuedMessage(IInbox bus, IMessage message, GlobalBusStrateTracker globalBusStrateTracker, Action messageTask)
             {
                 Bus = bus;
                 _globalBusStrateTracker = globalBusStrateTracker;

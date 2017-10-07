@@ -1,18 +1,14 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using Composable.Messaging.Buses.Implementation;
 
 namespace Composable.Messaging.Buses
 {
-    partial class ServiceBus : IServiceBus
+    class ServiceBus : IServiceBus
     {
-        readonly InterprocessTransport _transport;
+        readonly Outbox _transport;
 
-
-        public IReadOnlyList<Exception> ThrownExceptions => _transport.ThrownExceptions;
-
-        public ServiceBus(InterprocessTransport transport) => _transport = transport;
+        public ServiceBus(Outbox transport) => _transport = transport;
 
         public void SendAtTime(DateTime sendAt, ICommand command) => _transport.SendAtTime(sendAt, command);
 

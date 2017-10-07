@@ -20,7 +20,10 @@ namespace Composable.Messaging.Buses.Implementation
 
     interface IInterprocessTransport
     {
-        Task<object> Dispatch(IMessage message);
+        void Dispatch(IEvent message);
+        void Dispatch(ICommand command);
+        Task<TCommandResult> Dispatch<TCommandResult>(ICommand<TCommandResult> command) where TCommandResult : IMessage;
+        Task<TQueryResult> Dispatch<TQueryResult>(IQuery<TQueryResult> command) where TQueryResult : IQueryResult;
     }
 
     interface IInbox

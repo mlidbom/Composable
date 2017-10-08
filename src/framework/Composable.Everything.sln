@@ -49,8 +49,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NetMqProcess01", "..\experi
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NetMqProcess02", "..\experiments\BusFuture\NetMqProcess2\NetMqProcess02.csproj", "{4F93CA8C-D3EE-4FB5-B357-98510A967436}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Composable.Testing", "Composable.Testing\Composable.Testing.csproj", "{97A297D3-CAA7-4ECD-82A2-0987A1E00A80}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "_experiments", "_experiments", "{B3096AB7-66BF-47C2-8EFE-92DB9B5CB295}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "BusFuture", "BusFuture", "{E58CA837-214A-4CBD-9C11-E7E1FAB841E6}"
@@ -127,12 +125,6 @@ Global
 		{4F93CA8C-D3EE-4FB5-B357-98510A967436}.docs|Any CPU.Build.0 = Debug|Any CPU
 		{4F93CA8C-D3EE-4FB5-B357-98510A967436}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4F93CA8C-D3EE-4FB5-B357-98510A967436}.Release|Any CPU.Build.0 = Release|Any CPU
-		{97A297D3-CAA7-4ECD-82A2-0987A1E00A80}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{97A297D3-CAA7-4ECD-82A2-0987A1E00A80}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{97A297D3-CAA7-4ECD-82A2-0987A1E00A80}.docs|Any CPU.ActiveCfg = Debug|Any CPU
-		{97A297D3-CAA7-4ECD-82A2-0987A1E00A80}.docs|Any CPU.Build.0 = Debug|Any CPU
-		{97A297D3-CAA7-4ECD-82A2-0987A1E00A80}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{97A297D3-CAA7-4ECD-82A2-0987A1E00A80}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

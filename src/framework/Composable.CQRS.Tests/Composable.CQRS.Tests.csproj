@@ -26,7 +26,6 @@
   <ItemGroup>
     <ProjectReference Include="..\Composable.CQRS.ExternalDependencies\Composable.CQRS.ExternalDependencies.csproj" />
     <ProjectReference Include="..\Composable.CQRS\Composable.CQRS.csproj" />
-    <ProjectReference Include="..\Composable.Testing\Composable.Testing.csproj" />
   </ItemGroup>
 
   <ItemGroup>

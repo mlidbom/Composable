@@ -15,7 +15,7 @@ using NUnit.Framework;
 namespace Composable.CQRS.Tests.NewtonSoft
 {
     [TestFixture, Performance]
-    public class SqlServerEventStoreSerializerTests
+    public class NewtonSoftEventStoreEventSerializerTests
     {
         readonly IEventStoreEventSerializer _eventSerializer = new NewtonSoftEventStoreEventSerializer();
 

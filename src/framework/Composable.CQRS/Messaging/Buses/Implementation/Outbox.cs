@@ -24,14 +24,14 @@ namespace Composable.Messaging.Buses.Implementation
 
         public void Start() => _guardedResource.Update(() =>
         {
-            Contract.Invariant.Assert(!_running);
+            Contract.State.Assert(!_running);
             _running = true;
             _commandScheduler.Start();
         });
 
         public void Stop() => _guardedResource.Update(() =>
         {
-            Contract.Invariant.Assert(_running);
+            Contract.State.Assert(_running);
             _running = false;
             _commandScheduler.Dispose();
         });

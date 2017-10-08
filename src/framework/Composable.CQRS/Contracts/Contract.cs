@@ -5,9 +5,14 @@ namespace Composable.Contracts
 {
     static class Contract
     {
+        ///<summary>Assert conditions about current state of "this". Failures would mean that someone made a call that is illegal given state of "this".</summary>
         internal static BaseAssertion State { get; } = BaseAssertion.StateInstance;
+
+        ///<summary>Assert something that must always be true for "this".</summary>
         internal static BaseAssertion Invariant { get; } = BaseAssertion.InvariantInstance;
-        internal static BaseAssertion Arguments { get; } = BaseAssertion.ArgumentsInstance;
+
+        ///<summary>Assert conditions on arguments to current method.</summary>
+        internal static BaseAssertion Argument { get; } = BaseAssertion.ArgumentsInstance;
 
         public struct BaseAssertion
         {

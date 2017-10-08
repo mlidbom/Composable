@@ -20,7 +20,7 @@ namespace Composable.CQRS.Tests.ServiceBusSpecification
 
         public When_scheduling_commands_to_be_sent_in_the_future()
         {
-            _host = EndpointHost.Testing.CreateHost();
+            _host = EndpointHost.Testing.CreateHost(DependencyInjectionContainer.Create);
 
             var endpoint = _host.RegisterAndStartEndpoint(
                 "endpoint",

@@ -41,10 +41,10 @@ namespace Composable {
                     throw new Exception($@"
 The assembly: {assemblyToInspect.GetName().Name} is missing attributes required for proxy generation to work correctly. Please ensure that you have these attributes in your assembly:
 
-[assembly: System.Runtime.CompilerServices.InternalsVisibleTo(Composable.CQRS.InternalsRequiredToBeVisibleTo.Assembly1)]
-[assembly: System.Runtime.CompilerServices.InternalsVisibleTo(Composable.CQRS.InternalsRequiredToBeVisibleTo.Assembly2)]
-[assembly: System.Runtime.CompilerServices.InternalsVisibleTo(Composable.CQRS.InternalsRequiredToBeVisibleTo.Assembly3)]
-[assembly: System.Runtime.CompilerServices.InternalsVisibleTo(Composable.CQRS.InternalsRequiredToBeVisibleTo.Assembly4)]
+[assembly: System.Runtime.CompilerServices.InternalsVisibleTo({typeof(InternalsRequiredToBeVisibleTo).FullName}.{nameof(InternalsRequiredToBeVisibleTo.Assembly1)})]
+[assembly: System.Runtime.CompilerServices.InternalsVisibleTo({typeof(InternalsRequiredToBeVisibleTo).FullName}.{nameof(InternalsRequiredToBeVisibleTo.Assembly2)})]
+[assembly: System.Runtime.CompilerServices.InternalsVisibleTo({typeof(InternalsRequiredToBeVisibleTo).FullName}.{nameof(InternalsRequiredToBeVisibleTo.Assembly3)})]
+[assembly: System.Runtime.CompilerServices.InternalsVisibleTo({typeof(InternalsRequiredToBeVisibleTo).FullName}.{nameof(InternalsRequiredToBeVisibleTo.Assembly4)})]
 ");
                 }
             }

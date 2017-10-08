@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Composable.DependencyInjection;
 using Composable.Messaging;
 using Composable.Messaging.Buses;
 using Composable.Messaging.Commands;
@@ -23,6 +24,7 @@ namespace Composable.CQRS.Tests.ServiceBusSpecification
                 var queryResults = new List<UserResource>();
 
                 Host = EndpointHost.Testing.BuildHost(
+                    DependencyInjectionContainer.Create,
                     buildHost => buildHost.RegisterAndStartEndpoint(
                         "Backend",
                         builder => builder.RegisterHandlers

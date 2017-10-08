@@ -24,6 +24,7 @@ namespace Composable.CQRS.Tests.ServiceBusSpecification.Given_a_backend_endpoint
         public Experiment_with_unifying_events_and_commands_test()
         {
             _host = EndpointHost.Testing.BuildHost(
+                DependencyInjectionContainer.Create,
                 buildHost => _userManagementDomainEndpoint = buildHost.RegisterAndStartEndpoint(
                                  "UserManagement.Domain",
                                  builder =>

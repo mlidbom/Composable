@@ -1,4 +1,5 @@
 ﻿using System;
+using Composable.DependencyInjection;
 using Composable.Messaging;
 using Composable.Messaging.Buses;
 using Composable.Messaging.Commands;
@@ -20,6 +21,7 @@ namespace Composable.CQRS.Tests.ServiceBusSpecification.Given_a_backend_endpoint
         protected Fixture()
         {
             Host = EndpointHost.Testing.BuildHost(
+                DependencyInjectionContainer.Create,
                 buildHost => buildHost.RegisterAndStartEndpoint(
                     "Backend",
                     builder => builder.RegisterHandlers

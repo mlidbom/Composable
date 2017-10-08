@@ -8,7 +8,7 @@ namespace Composable.Messaging.Buses
     class TestingEndpointHost : EndpointHost, ITestingEndpointHost
     {
         readonly IEndpoint _clientEndpoint;
-        public TestingEndpointHost(IRunMode mode) : base(mode)
+        public TestingEndpointHost(IRunMode mode, Func<IRunMode, IDependencyInjectionContainer> containerFactory) : base(mode, containerFactory)
         {
             _clientEndpoint = RegisterAndStartEndpoint($"{nameof(TestingEndpointHost)}_Default_Client_Endpoint", _ => { });
         }

@@ -1,7 +1,7 @@
 ﻿using Composable.DependencyInjection;
 using NUnit.Framework;
 
-namespace Composable.CQRS.Tests.KeyValueStorage
+namespace Composable.Tests.KeyValueStorage
 {
     [TestFixture]
     class InMemoryDocumentDbTests : DocumentDbTests

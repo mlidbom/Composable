@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using Composable.DDD;
 using JetBrains.Annotations;
 
-namespace Composable.CQRS.Tests.KeyValueStorage
+namespace Composable.Tests.KeyValueStorage
 {
     class Person : ValueObject<Person>, IPersistentEntity<Guid>
     {

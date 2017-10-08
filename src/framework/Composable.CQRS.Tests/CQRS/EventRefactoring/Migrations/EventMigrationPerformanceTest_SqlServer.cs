@@ -1,7 +1,7 @@
 using Composable.Persistence.EventStore;
 using NUnit.Framework;
 
-namespace Composable.CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
+namespace Composable.Tests.CQRS.EventRefactoring.Migrations
 {
     [TestFixture]
     public class EventMigrationPerformanceTest_SqlServer : EventMigrationPerformanceTest

@@ -14,12 +14,11 @@ using Composable.System.Linq;
 using FluentAssertions;
 using Newtonsoft.Json;
 using NUnit.Framework;
-
-using IEventStore = Composable.DependencyInjection.Persistence.IEventStore<Composable.CQRS.Tests.ITestingEventstoreUpdater, Composable.CQRS.Tests.ITestingEventstoreReader>;
+using IEventStore = Composable.DependencyInjection.Persistence.IEventStore<Composable.Tests.ITestingEventstoreUpdater, Composable.Tests.ITestingEventstoreReader>;
 
 // ReSharper disable AccessToModifiedClosure
 
-namespace Composable.CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
+namespace Composable.Tests.CQRS.EventRefactoring.Migrations
 {
     [TestFixture]
     //Todo: Refactor this test. It is too monolithic and hard to read and extend.

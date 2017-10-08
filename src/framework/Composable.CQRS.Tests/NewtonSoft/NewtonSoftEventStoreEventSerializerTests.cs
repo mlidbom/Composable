@@ -5,14 +5,13 @@ using Composable.Persistence.EventStore;
 using Composable.Persistence.EventStore.Serialization.NewtonSoft;
 using Composable.System.Diagnostics;
 using Composable.System.Linq;
-using Composable.Testing;
 using Composable.Testing.Performance;
 using FluentAssertions;
 using JetBrains.Annotations;
 using Newtonsoft.Json;
 using NUnit.Framework;
 
-namespace Composable.CQRS.Tests.NewtonSoft
+namespace Composable.Tests.NewtonSoft
 {
     [TestFixture, Performance]
     public class NewtonSoftEventStoreEventSerializerTests

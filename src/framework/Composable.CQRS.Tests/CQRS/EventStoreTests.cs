@@ -6,7 +6,7 @@ using Composable.System.Linq;
 using FluentAssertions;
 using NUnit.Framework;
 
-namespace Composable.CQRS.Tests.CQRS.EventSourcing
+namespace Composable.Tests.CQRS
 {
     interface ISomeEvent : IAggregateRootEvent {}
 

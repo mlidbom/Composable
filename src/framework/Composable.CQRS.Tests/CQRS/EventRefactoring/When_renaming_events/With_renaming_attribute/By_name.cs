@@ -4,7 +4,7 @@ using Composable.System.Linq;
 using FluentAssertions;
 using NUnit.Framework;
 
-namespace Composable.CQRS.Tests.CQRS.EventSourcing.EventRefactoring.When_renaming_events.With_renaming_attribute
+namespace Composable.Tests.CQRS.EventRefactoring.When_renaming_events.With_renaming_attribute
 {
     [TestFixture]
     public class By_name

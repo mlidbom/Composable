@@ -2,7 +2,7 @@ using System;
 using Composable.GenericAbstractions.Time;
 using Composable.Persistence.EventStore.AggregateRoots;
 
-namespace Composable.CQRS.Tests.CQRS.EventSourcing.AggregateRoot.NestedEntitiesTests.IntegerId
+namespace Composable.Tests.CQRS.AggregateRoot.NestedEntitiesTests.IntegerId
 {
     class Root : AggregateRoot<Root, RootEvent.Implementation.Root, RootEvent.IRoot>
     {

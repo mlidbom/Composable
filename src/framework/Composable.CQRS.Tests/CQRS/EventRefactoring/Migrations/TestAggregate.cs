@@ -7,7 +7,7 @@ using Composable.Persistence.EventStore;
 using Composable.Persistence.EventStore.AggregateRoots;
 using JetBrains.Annotations;
 
-namespace Composable.CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
+namespace Composable.Tests.CQRS.EventRefactoring.Migrations
 {
     interface IRootEvent : IAggregateRootEvent { }
 

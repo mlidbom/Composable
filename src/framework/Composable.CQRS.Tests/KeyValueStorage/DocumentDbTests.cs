@@ -7,13 +7,12 @@ using Composable.DependencyInjection;
 using Composable.Persistence.DocumentDb;
 using Composable.System.Linq;
 using Composable.SystemExtensions.Threading;
-using Composable.Testing;
 using Composable.Testing.Performance;
 using FluentAssertions;
 using JetBrains.Annotations;
 using NUnit.Framework;
 
-namespace Composable.CQRS.Tests.KeyValueStorage
+namespace Composable.Tests.KeyValueStorage
 {
     [TestFixture]
     public abstract class DocumentDbTests

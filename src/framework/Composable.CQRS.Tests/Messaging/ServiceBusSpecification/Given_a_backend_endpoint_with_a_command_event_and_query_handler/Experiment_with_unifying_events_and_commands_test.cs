@@ -11,7 +11,7 @@ using Composable.Testing.Threading;
 using FluentAssertions;
 using Xunit;
 
-namespace Composable.CQRS.Tests.ServiceBusSpecification.Given_a_backend_endpoint_with_a_command_event_and_query_handler
+namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_endpoint_with_a_command_event_and_query_handler
 {
     public class Experiment_with_unifying_events_and_commands_test : IDisposable
     {

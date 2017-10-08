@@ -3,14 +3,13 @@ using Composable.DependencyInjection;
 using Composable.GenericAbstractions.Time;
 using Composable.Messaging.Buses;
 using Composable.Messaging.Commands;
+using Composable.System;
 using Composable.Testing.Threading;
 using FluentAssertions;
 using Xunit;
 
-namespace Composable.CQRS.Tests.ServiceBusSpecification
+namespace Composable.Tests.Messaging.ServiceBusSpecification
 {
-    using Composable.System;
-
     public class When_scheduling_commands_to_be_sent_in_the_future : IDisposable
     {
         readonly IServiceBus _bus;
@@ -28,7 +27,7 @@ namespace Composable.CQRS.Tests.ServiceBusSpecification
                     cmd => _receivedCommandGate.AwaitPassthrough()));
 
             var serviceLocator = endpoint.ServiceLocator;
-            _receivedCommandGate = ThreadGate.CreateOpenWithTimeout(1.Seconds());
+            _receivedCommandGate = ThreadGate.CreateOpenWithTimeout(TimeSpanExtensions.Seconds(1));
 
             _timeSource = serviceLocator.Resolve<IUtcTimeTimeSource>();
             _bus = serviceLocator.Resolve<IServiceBus>();
@@ -47,7 +46,7 @@ namespace Composable.CQRS.Tests.ServiceBusSpecification
         {
             var now = _timeSource.UtcNow;
             var inOneHour = new ScheduledCommand();
-            _bus.SendAtTime(now + 2.Seconds(), inOneHour);
+            _bus.SendAtTime(now + TimeSpanExtensions.Seconds(2), inOneHour);
 
             _receivedCommandGate.TryAwaitPassededThroughCountEqualTo(1, timeout: .5.Seconds())
                                 .Should().Be(false);

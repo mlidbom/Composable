@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Composable.CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations.Events;
 using Composable.DependencyInjection;
 using Composable.DependencyInjection.Persistence;
 using Composable.DependencyInjection.Testing;
@@ -9,10 +8,11 @@ using Composable.GenericAbstractions.Time;
 using Composable.Persistence.EventStore;
 using Composable.Persistence.EventStore.Refactoring.Migrations;
 using Composable.System.Linq;
+using Composable.Tests.CQRS.EventRefactoring.Migrations.Events;
 using FluentAssertions;
 using NUnit.Framework;
 
-namespace Composable.CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations {
+namespace Composable.Tests.CQRS.EventRefactoring.Migrations {
     [TestFixture]
     public class EventMigrationTest_SqlServer : EventMigrationTest
     {

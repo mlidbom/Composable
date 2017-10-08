@@ -5,12 +5,12 @@ using System.Threading.Tasks;
 using Composable.DependencyInjection;
 using Composable.Persistence.EventStore;
 using Composable.System.Linq;
-using Composable.Testing;
 using Composable.Testing.Threading;
+using Composable.Tests.CQRS;
 using FluentAssertions;
 using NUnit.Framework;
 
-namespace Composable.CQRS.Tests.CQRS.EventSourcing.Sql
+namespace Composable.Tests.ExternalDependencies.CQRS.EventSourcing.Sql
 {
     [TestFixture]
     class SqlServerEventStoreSessionTests : EventStoreSessionTests

@@ -11,7 +11,7 @@ using Xunit;
 
 // ReSharper disable MemberCanBeMadeStatic.Local
 
-namespace Composable.CQRS.Tests.ServiceBusSpecification
+namespace Composable.Tests.Messaging.ServiceBusSpecification
 {
     public class Navigator_specification
     {

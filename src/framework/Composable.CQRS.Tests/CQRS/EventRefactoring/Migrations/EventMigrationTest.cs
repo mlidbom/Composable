@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Composable.CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations.Events;
 using Composable.DependencyInjection;
 using Composable.DependencyInjection.Testing;
 using Composable.GenericAbstractions.Time;
@@ -10,15 +9,15 @@ using Composable.Persistence.EventStore;
 using Composable.Persistence.EventStore.Refactoring.Migrations;
 using Composable.System;
 using Composable.System.Linq;
+using Composable.Tests.CQRS.EventRefactoring.Migrations.Events;
 using FluentAssertions;
 using NUnit.Framework;
-
-using IEventStore = Composable.DependencyInjection.Persistence.IEventStore<Composable.CQRS.Tests.ITestingEventstoreUpdater, Composable.CQRS.Tests.ITestingEventstoreReader>;
+using IEventStore = Composable.DependencyInjection.Persistence.IEventStore<Composable.Tests.ITestingEventstoreUpdater, Composable.Tests.ITestingEventstoreReader>;
 
 // ReSharper disable AccessToDisposedClosure
 // ReSharper disable AccessToModifiedClosure
 
-namespace Composable.CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
+namespace Composable.Tests.CQRS.EventRefactoring.Migrations
 {
     [TestFixture]
     public abstract class EventMigrationTest : EventMigrationTestBase

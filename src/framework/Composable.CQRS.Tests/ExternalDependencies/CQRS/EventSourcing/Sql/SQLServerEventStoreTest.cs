@@ -3,9 +3,10 @@ using System.Linq;
 using System.Transactions;
 using Composable.DependencyInjection;
 using Composable.Persistence.EventStore;
+using Composable.Tests.CQRS;
 using NUnit.Framework;
 
-namespace Composable.CQRS.Tests.CQRS.EventSourcing.Sql
+namespace Composable.Tests.ExternalDependencies.CQRS.EventSourcing.Sql
 {
     [TestFixture]
     public class SqlServerEventStoreTest

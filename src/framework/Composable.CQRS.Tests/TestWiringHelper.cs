@@ -5,7 +5,7 @@ using Composable.Persistence.DocumentDb;
 using Composable.Persistence.EventStore;
 using JetBrains.Annotations;
 
-namespace Composable.CQRS.Tests
+namespace Composable.Tests
 {
     interface ITestingEventstoreReader : IEventStoreReader { }
 

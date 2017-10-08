@@ -1,8 +1,8 @@
 using System;
-using Composable.CQRS.Tests.CQRS.EventSourcing.AggregateRoot.NestedEntitiesTests.GuidId.Domain.Events;
 using Composable.Persistence.EventStore.AggregateRoots;
+using Composable.Tests.CQRS.AggregateRoot.NestedEntitiesTests.GuidId.Domain.Events;
 
-namespace Composable.CQRS.Tests.CQRS.EventSourcing.AggregateRoot.NestedEntitiesTests.GuidId.Domain
+namespace Composable.Tests.CQRS.AggregateRoot.NestedEntitiesTests.GuidId.Domain
 {
     partial class Entity : Root.Entity<Entity,
                               Guid,

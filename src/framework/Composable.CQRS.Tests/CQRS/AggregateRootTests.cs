@@ -7,7 +7,7 @@ using Composable.System.Reactive;
 using FluentAssertions;
 using NUnit.Framework;
 
-namespace Composable.CQRS.Tests.CQRS.EventSourcing
+namespace Composable.Tests.CQRS
 {
     [TestFixture]
     public class AggregateRootTests

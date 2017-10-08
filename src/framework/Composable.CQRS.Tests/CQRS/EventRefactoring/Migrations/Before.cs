@@ -5,7 +5,7 @@ using Composable.Persistence.EventStore;
 using Composable.Persistence.EventStore.Refactoring.Migrations;
 using Composable.System.Linq;
 
-namespace Composable.CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
+namespace Composable.Tests.CQRS.EventRefactoring.Migrations
 {
     class Before<TEvent> : EventMigration<IRootEvent>
     {

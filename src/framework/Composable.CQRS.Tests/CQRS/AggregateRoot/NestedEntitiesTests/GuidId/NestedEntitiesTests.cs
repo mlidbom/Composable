@@ -1,12 +1,12 @@
 ﻿using System;
-using Composable.CQRS.Tests.CQRS.EventSourcing.AggregateRoot.NestedEntitiesTests.GuidId.Domain;
+using Composable.Tests.CQRS.AggregateRoot.NestedEntitiesTests.GuidId.Domain;
 using FluentAssertions;
 using NUnit.Framework;
 
 // ReSharper disable InconsistentNaming
 
 // ReSharper disable MemberHidesStaticFromOuterClass
-namespace Composable.CQRS.Tests.CQRS.EventSourcing.AggregateRoot.NestedEntitiesTests.GuidId
+namespace Composable.Tests.CQRS.AggregateRoot.NestedEntitiesTests.GuidId
 {
     [TestFixture]
     public class NestedEntitiesTests

@@ -1,9 +1,10 @@
 ﻿using Composable.Messaging.Events;
 using FluentAssertions;
 using Xunit;
+
 // ReSharper disable InconsistentNaming
 
-namespace Composable.CQRS.Tests.CQRS.EventHandling
+namespace Composable.Tests.CQRS.EventHandling
 {
     public abstract class CallMatchingHandlersInRegistrationOrderEventDispatcherSpecification
     {

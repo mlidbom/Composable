@@ -5,19 +5,17 @@ using Composable.DependencyInjection;
 using Composable.DependencyInjection.Testing;
 using Composable.Messaging.Buses;
 using Composable.Persistence.EventStore;
+using Composable.System;
 using Composable.System.Diagnostics;
 using Composable.System.Linq;
 using Composable.SystemExtensions.Threading;
-using Composable.Testing;
 using Composable.Testing.Performance;
 using FluentAssertions;
 using JetBrains.Annotations;
 using NUnit.Framework;
 
-namespace Composable.CQRS.Tests.CQRS.EventSourcing
+namespace Composable.Tests.CQRS
 {
-    using Composable.System;
-
     [TestFixture]
     public abstract class EventStoreSessionTests
     {
@@ -408,7 +406,7 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing
             UseInTransactionalScope(session => session.Save(user));
 
             var threadedIterations = 5;
-            var delayEachTransactionBy = 10.Milliseconds();
+            var delayEachTransactionBy = TimeSpanExtensions.Milliseconds(10);
 
             void ReadUserHistory()
             {
@@ -428,7 +426,7 @@ namespace Composable.CQRS.Tests.CQRS.EventSourcing
                 action: ReadUserHistory,
                 iterations: threadedIterations,
                 timeIndividualExecutions:true,
-                maxTotal: (approximateSinglethreadedExecutionTimeInMilliseconds / 2).Milliseconds(),
+                maxTotal: TimeSpanExtensions.Milliseconds((approximateSinglethreadedExecutionTimeInMilliseconds / 2)),
                 description: $"If access is serialized the time will be approximately {approximateSinglethreadedExecutionTimeInMilliseconds} milliseconds. If parelellized it should be far below this value.");
 
             timingsSummary.Average.Should().BeLessThan(delayEachTransactionBy);

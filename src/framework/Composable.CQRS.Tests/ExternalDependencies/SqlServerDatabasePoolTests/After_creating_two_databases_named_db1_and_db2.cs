@@ -1,12 +1,11 @@
 using System;
 using System.Configuration;
 using Composable.System.Data.SqlClient;
-using Composable.Testing;
 using Composable.Testing.Databases;
 using FluentAssertions;
 using NUnit.Framework;
 
-namespace Composable.CQRS.Tests.SqlServerDatabasePoolTests
+namespace Composable.Tests.ExternalDependencies.SqlServerDatabasePoolTests
 {
     [TestFixture] public class After_creating_two_databases_named_db1_and_db2
     {

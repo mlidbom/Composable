@@ -2,7 +2,7 @@
 using FluentAssertions;
 using NUnit.Framework;
 
-namespace Composable.CQRS.Tests.KeyValueStorage
+namespace Composable.Tests.KeyValueStorage
 {
     [TestFixture]
     public class DocumentDBSession_DocumentKeyTests

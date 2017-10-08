@@ -2,12 +2,12 @@
 using System.Linq;
 using Composable.DependencyInjection;
 using Composable.DependencyInjection.Testing;
-using Composable.GenericAbstractions.Time;
 using Composable.System.Linq;
+using Composable.Tests.KeyValueStorage;
 using FluentAssertions;
 using NUnit.Framework;
 
-namespace Composable.CQRS.Tests.KeyValueStorage.Sql
+namespace Composable.Tests.ExternalDependencies.KeyValueStorage.Sql
 {
     [TestFixture]
     [Serializable]

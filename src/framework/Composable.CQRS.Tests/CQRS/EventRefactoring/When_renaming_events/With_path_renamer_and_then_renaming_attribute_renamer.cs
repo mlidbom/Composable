@@ -4,7 +4,7 @@ using Composable.System.Linq;
 using FluentAssertions;
 using NUnit.Framework;
 
-namespace Composable.CQRS.Tests.CQRS.EventSourcing.EventRefactoring.When_renaming_events
+namespace Composable.Tests.CQRS.EventRefactoring.When_renaming_events
 {
     public class With_path_renamer_and_then_renaming_attribute_renamer
     {

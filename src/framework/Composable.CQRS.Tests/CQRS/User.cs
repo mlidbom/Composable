@@ -1,11 +1,11 @@
 ﻿using System;
-using Composable.CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations;
 using Composable.GenericAbstractions.Time;
 using Composable.Persistence.EventStore;
 using Composable.Persistence.EventStore.AggregateRoots;
+using Composable.Tests.CQRS.EventRefactoring.Migrations;
 using JetBrains.Annotations;
 
-namespace Composable.CQRS.Tests.CQRS.EventSourcing
+namespace Composable.Tests.CQRS
 {
     class User : AggregateRoot<User,UserEvent, IUserEvent>
     {

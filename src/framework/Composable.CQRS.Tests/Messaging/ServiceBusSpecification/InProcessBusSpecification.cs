@@ -9,7 +9,7 @@ using Xunit;
 
 // ReSharper disable UnusedMember.Global
 
-namespace Composable.CQRS.Tests.ServiceBusSpecification
+namespace Composable.Tests.Messaging.ServiceBusSpecification
 {
     public class InProcessBusSpecification : IDisposable
     {

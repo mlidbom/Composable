@@ -1,14 +1,13 @@
 ﻿using System;
 using System.Configuration;
 using Composable.Logging;
-using Composable.System.Data.SqlClient;
-using Composable.Testing;
-using NUnit.Framework;
 using Composable.System;
+using Composable.System.Data.SqlClient;
 using Composable.Testing.Databases;
 using Composable.Testing.Performance;
+using NUnit.Framework;
 
-namespace Composable.CQRS.Tests.SqlServerDatabasePoolTests
+namespace Composable.Tests.ExternalDependencies.SqlServerDatabasePoolTests
 {
     [TestFixture, Performance]
     public class PerformanceTests

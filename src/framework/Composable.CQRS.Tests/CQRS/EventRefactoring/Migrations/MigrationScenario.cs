@@ -4,7 +4,7 @@ using System.Linq;
 using System.Threading;
 using Composable.Persistence.EventStore.Refactoring.Migrations;
 
-namespace Composable.CQRS.Tests.CQRS.EventSourcing.EventRefactoring.Migrations
+namespace Composable.Tests.CQRS.EventRefactoring.Migrations
 {
     class MigrationScenario
     {

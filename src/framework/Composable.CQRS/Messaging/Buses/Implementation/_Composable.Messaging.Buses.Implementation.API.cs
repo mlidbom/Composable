@@ -20,6 +20,8 @@ namespace Composable.Messaging.Buses.Implementation
 
     interface IInterprocessTransport
     {
+        void Stop();
+        void Start();
         void Dispatch(IEvent message);
         void Dispatch(ICommand command);
         Task<TCommandResult> Dispatch<TCommandResult>(ICommand<TCommandResult> command) where TCommandResult : IMessage;
@@ -29,5 +31,6 @@ namespace Composable.Messaging.Buses.Implementation
     interface IInbox
     {
         Task<object> Dispatch(IMessage message);
+        string Address { get; }
     }
 }

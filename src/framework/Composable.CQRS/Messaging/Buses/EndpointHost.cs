@@ -20,6 +20,7 @@ namespace Composable.Messaging.Buses
         {
             _mode = mode;
             _containerFactory = containerFactory;
+            _interprocessTransport.Start();
         }
 
         public static class Production

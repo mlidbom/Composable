@@ -14,11 +14,17 @@ namespace Composable.Contracts
         ///<summary>Assert conditions on arguments to current method.</summary>
         internal static BaseAssertion Argument { get; } = BaseAssertion.ArgumentsInstance;
 
+        ///<summary>Assert conditions on the result of makeing a method call.</summary>
+        internal static BaseAssertion Result { get; } = BaseAssertion.Result;
+
+
+
         public struct BaseAssertion
         {
             internal static BaseAssertion InvariantInstance = new BaseAssertion(InspectionType.Invariant);
             internal static BaseAssertion ArgumentsInstance = new BaseAssertion(InspectionType.Argument);
             internal static BaseAssertion StateInstance = new BaseAssertion(InspectionType.State);
+            internal static BaseAssertion Result = new BaseAssertion(InspectionType.Result);
 
             readonly InspectionType _assertionType;
             BaseAssertion(InspectionType assertionType) => _assertionType = assertionType;

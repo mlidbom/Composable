@@ -10,6 +10,9 @@
         ///<summary>The inspected value is a return value</summary>
         ReturnValue,
         Assertion,
-        State
+        ///<summary>The inspected value is part of the current state of the calling code.</summary>
+        State,
+        ///<summary>The inspected value is the return value of something the calling code called.</summary>
+        Result
     }
 }

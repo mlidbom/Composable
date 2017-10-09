@@ -35,11 +35,10 @@ namespace Composable.Messaging.Buses.Implementation
         bool _running;
         readonly Thread _messagePumpThread;
         readonly string _address;
-        ResponseSocket _responseSocket;
-        Thread _responseSocketThread;
+        RouterSocket _responseSocket;
 
         public IReadOnlyList<Exception> ThrownExceptions => _globalStateTracker.GetExceptionsFor(this);
-        ManualResetEvent _responseSocketStarted = new ManualResetEvent(initialState: false);
+        NetMQPoller _poller;
 
         public Inbox(IServiceLocator serviceLocator, IGlobalBusStrateTracker globalStateTracker, IMessageHandlerRegistry handlerRegistry)
         {
@@ -57,53 +56,86 @@ namespace Composable.Messaging.Buses.Implementation
         }
 
 
-        void ResponseSocketThread()
-        {
-            _responseSocket = new ResponseSocket();
-            _responseSocket.Bind(_address);
-            _responseSocketStarted.Set();
-            while(!_cancellationTokenSource.IsCancellationRequested)
-                try
-                {
-                    var messageTypeString = _responseSocket.ReceiveFrameString();
-                    var messageBody = _responseSocket.ReceiveFrameString();
-                    var messageType = messageTypeString.AsType();
-
-                    var message = JsonConvert.DeserializeObject(messageBody, messageType, JsonSettings.JsonSerializerSettings);
-
-                    _responseSocket.SendFrame(message: "Response");
-                }
-                catch(Exception exception) when(_cancellationTokenSource.IsCancellationRequested)
-                {
-                    //shutting down
-                }
-        }
-
         public void Start() => _guardedResource.Update(action: () =>
         {
             Contract.Invariant.Assert(!_running);
             _running = true;
 
-            _responseSocketThread = new Thread(ResponseSocketThread)
-                                    {
-                                        Name = $"{nameof(Inbox)}_{nameof(ResponseSocketThread)}"
-                                    };
-            _responseSocketThread.Start();
-
-            Contract.Result.Assert(_responseSocketStarted.WaitOne(1.Seconds()));
+            _responseSocket = new RouterSocket();
+            _responseSocket.Options.Linger = 0.Milliseconds();
+            _responseSocket.Bind(_address);
+            _responseSocket.ReceiveReady += HandleIncomingMessage;
+            _poller = new NetMQPoller() {_responseSocket};
+            _poller.RunAsync();
 
             _messagePumpThread.Start();
         });
 
-        public void Stop() => _guardedResource.Update(action: () =>
+        void HandleIncomingMessage(object sender, NetMQSocketEventArgs e)
+        {
+            Contract.Argument.Assert(e.IsReadyToReceive);
+            var receivedMessage = _guardedResource.Update(() => _responseSocket.ReceiveMultipartMessage());
+
+            var client = receivedMessage[0].ToByteArray();
+            var messageId = new Guid(receivedMessage[1].ToByteArray());
+            var messageTypeString = receivedMessage[2].ConvertToString();
+            var messageBody = receivedMessage[3].ConvertToString();
+            var messageType = messageTypeString.AsType();
+
+            var message = (IMessage)JsonConvert.DeserializeObject(messageBody, messageType, JsonSettings.JsonSerializerSettings);
+
+            Contract.State.Assert(messageId == message.MessageId);
+
+            var task = Dispatch(message);
+
+            if(message is IQuery || message.GetType().Implements(typeof(ICommand<>)))
+            {
+                task.ContinueWith(taskResult =>
+                {
+                    if(taskResult.IsFaulted)
+                    {
+                        _guardedResource.Update(() =>
+                        {
+                            _responseSocket.SendMoreFrame(client);
+                            _responseSocket.SendMoreFrame(messageId.ToByteArray());
+                            _responseSocket.SendFrame("FAIL");
+                        });
+
+                        return;
+                    }
+
+                    if(taskResult.IsCompleted)
+                    {
+                        var responseMessage = taskResult.Result;
+                        if(responseMessage == null)
+                        {
+                            return;
+                        }
+
+                        _guardedResource.Update(() =>
+                        {
+                            _responseSocket.SendMoreFrame(client);
+                            _responseSocket.SendMoreFrame(messageId.ToByteArray());
+                            _responseSocket.SendMoreFrame("OK");
+                            _responseSocket.SendMoreFrame(responseMessage.GetType().FullName);
+                            _responseSocket.SendFrame(JsonConvert.SerializeObject(responseMessage, Formatting.Indented, JsonSettings.JsonSerializerSettings));
+                        });
+                    }
+                });
+            }
+
+        }
+
+        public void Stop()
         {
             Contract.Invariant.Assert(_running);
             _running = false;
             _cancellationTokenSource.Cancel();
+            _poller.Dispose();
             _responseSocket.Close();
             _responseSocket.Dispose();
             _messagePumpThread.InterruptAndJoin();
-        });
+        }
 
         void MessagePumpThread()
         {

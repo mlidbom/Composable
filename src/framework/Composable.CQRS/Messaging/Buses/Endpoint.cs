@@ -16,9 +16,9 @@ namespace Composable.Messaging.Buses
         {
             Contract.State.Assert(!_running);
             _running = true;
-            InterprocessTransport.Connect(this);
             Outbox.Start();
             Inbox.Start();
+            InterprocessTransport.Connect(this);
         }
 
 

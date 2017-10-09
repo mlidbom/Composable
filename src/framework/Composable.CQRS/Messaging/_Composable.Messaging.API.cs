@@ -15,7 +15,8 @@ namespace Composable.Messaging
     {
         protected Message():this(Guid.NewGuid()) {}
         protected Message(Guid id) => MessageId = id;
-        public Guid MessageId { get; }
+
+        public Guid MessageId { get; private set; }//Do not remove setter. Required for serialization
     }
 
     ///<summary>An <see cref="IMessage"/> that instructs the receiver to perform an action.

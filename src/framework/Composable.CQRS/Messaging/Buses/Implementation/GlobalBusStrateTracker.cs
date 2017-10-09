@@ -17,6 +17,7 @@ namespace Composable.Messaging.Buses.Implementation
         readonly IGuardedResource _guard = GuardedResource.WithTimeout(10.Milliseconds());
 
         readonly Dictionary<IInbox, IList<Exception>> _busExceptions = new Dictionary<IInbox, IList<Exception>>();
+        readonly Dictionary<Guid, int> _inflightMessageIds = new Dictionary<Guid, int>();
 
         public IReadOnlyList<Exception> GetExceptionsFor(IInbox bus) => _guard.Update(() => _busExceptions.GetOrAdd(bus, () => new List<Exception>()).ToList());
 
@@ -43,6 +44,12 @@ namespace Composable.Messaging.Buses.Implementation
             }
         }
 
+        public void SendingMessageOnTransport(IMessage message) => _guard.Update(() =>
+        {
+            var value = _inflightMessageIds.GetOrAdd(message.MessageId, () => 0);
+            _inflightMessageIds[message.MessageId] = value + 1;
+        });
+
         public void EnqueueMessageTask(IInbox bus, IMessage message, Action messageTask)
             => _guard.Update(
                 () =>
@@ -54,17 +61,28 @@ namespace Composable.Messaging.Buses.Implementation
 
         public void AwaitNoMessagesInFlight(TimeSpan? timeoutOverride)
             => _guard.AwaitCondition(timeout: timeoutOverride ?? 30.Seconds(),
-                            condition: () => _inflightMessages.None());
+                            condition: () => _inflightMessages.None() && _inflightMessageIds.None());
 
         void Succeeded(QueuedMessage queuedMessageInformation)
-            => _guard.Update(() => _inflightMessages.Remove(queuedMessageInformation));
+            => _guard.Update(() => DoneDispatching(queuedMessageInformation));
 
         void Failed(QueuedMessage queuedMessageInformation, Exception exception)
             => _guard.Update(() =>
             {
                 _busExceptions.GetOrAdd(queuedMessageInformation.Bus, () => new List<Exception>()).Add(exception);
-                _inflightMessages.Remove(queuedMessageInformation);
+                DoneDispatching(queuedMessageInformation);
             });
+
+
+        void DoneDispatching(QueuedMessage queuedMessageInformation)
+        {
+            _inflightMessages.Remove(queuedMessageInformation);
+            var currentCount = _inflightMessageIds[queuedMessageInformation.Message.MessageId] -= 1;
+            if (currentCount == 0)
+            {
+                _inflightMessageIds.Remove(queuedMessageInformation.Message.MessageId);
+            }
+        }
 
         class GlobalBusStateSnapshot : IGlobalBusStateSnapshot
         {

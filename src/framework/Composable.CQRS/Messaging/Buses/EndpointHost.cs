@@ -14,12 +14,13 @@ namespace Composable.Messaging.Buses
         bool _disposed;
         protected readonly List<IEndpoint> Endpoints = new List<IEndpoint>();
         readonly IGlobalBusStrateTracker _globalBusStrateTracker = new GlobalBusStrateTracker();
-        readonly InterprocessTransport _interprocessTransport = new InterprocessTransport();
+        readonly InterprocessTransport _interprocessTransport;
 
         protected EndpointHost(IRunMode mode, Func<IRunMode, IDependencyInjectionContainer> containerFactory)
         {
             _mode = mode;
             _containerFactory = containerFactory;
+            _interprocessTransport = new InterprocessTransport(_globalBusStrateTracker);
             _interprocessTransport.Start();
         }
 
@@ -56,6 +57,7 @@ namespace Composable.Messaging.Buses
 
         public void Stop()
         {
+            _interprocessTransport.Stop();
             Endpoints.ForEach(endpoint => endpoint.Stop());
         }
 

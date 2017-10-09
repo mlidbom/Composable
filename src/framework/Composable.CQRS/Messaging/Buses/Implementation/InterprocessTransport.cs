@@ -10,6 +10,8 @@ using Composable.NewtonSoft;
 using Composable.System;
 using Composable.System.Collections.Collections;
 using Composable.System.Linq;
+using Composable.System.Reflection;
+using Composable.System.Threading.ResourceAccess;
 using NetMQ;
 using NetMQ.Sockets;
 using Newtonsoft.Json;
@@ -18,37 +20,73 @@ namespace Composable.Messaging.Buses.Implementation
 {
     class InterprocessTransport : IInterprocessTransport, IDisposable
     {
-        readonly Dictionary<Type, IList<IInbox>> _eventRoutes = new Dictionary<Type, IList<IInbox>>();
-        readonly Dictionary<Type, IInbox> _commandRoutes = new Dictionary<Type, IInbox>();
-        readonly Dictionary<Type, IInbox> _queryRoutes = new Dictionary<Type, IInbox>();
-        readonly Dictionary<Type, List<RequestSocket>> _netMqRoutes = new Dictionary<Type, List<RequestSocket>>(); 
+        readonly IGlobalBusStrateTracker _globalBusStrateTracker;
+        readonly Dictionary<Type, HashSet<DealerSocket>> _netMqEventRoutes = new Dictionary<Type, HashSet<DealerSocket>>();
+        readonly Dictionary<Type, DealerSocket> _netMqCommandRoutes = new Dictionary<Type, DealerSocket>();
+        readonly Dictionary<Type, DealerSocket> _netMqQueryRoutes = new Dictionary<Type, DealerSocket>();
 
         bool _running;
-        CancellationTokenSource _canceller = new CancellationTokenSource();
-        Thread _sendThread;
-        readonly ManualResetEvent _sendThreadStarted = new ManualResetEvent(false);
-        readonly BlockingCollection<IMessage> _sendQueue = new BlockingCollection<IMessage>();
+        readonly CancellationTokenSource _canceller = new CancellationTokenSource();
+        IGuardedResource _guard = GuardedResource.WithTimeout(3.Seconds());
+        readonly IList<DealerSocket> _dealerSockets = new List<DealerSocket>();
+        readonly Dictionary<Guid, TaskCompletionSource<IMessage>> _outStandingTasks = new Dictionary<Guid, TaskCompletionSource<IMessage>>();
 
-        public void Connect(IEndpoint endpoint)
+
+        NetMQPoller _poller;
+
+        public InterprocessTransport(IGlobalBusStrateTracker globalBusStrateTracker) => _globalBusStrateTracker = globalBusStrateTracker;
+
+        public void Connect(IEndpoint endpoint) => _guard.Update(() =>
         {
-            IMessageHandlerRegistry messageHandlers = endpoint.ServiceLocator.Resolve<IMessageHandlerRegistry>();
+            var messageHandlers = endpoint.ServiceLocator.Resolve<IMessageHandlerRegistry>();
             var inbox = endpoint.ServiceLocator.Resolve<IInbox>();
+
+            var dealerSocket = new DealerSocket();
+            dealerSocket.ReceiveReady += ReceiveResponse;
+            _dealerSockets.Add(dealerSocket);
+            dealerSocket.Options.Linger = 0.Milliseconds();
+            dealerSocket.Connect(inbox.Address);
+            _poller.Add(dealerSocket);
+
             foreach(var messageType in messageHandlers.HandledTypes())
             {
                 if(IsEvent(messageType))
                 {
                     Contract.Argument.Assert(!IsCommand(messageType), !IsQuery(messageType));
-                    _eventRoutes.GetOrAdd(messageType, () => new List<IInbox>()).Add(inbox);
+                    _netMqEventRoutes.GetOrAdd(messageType, () => new HashSet<DealerSocket>()).Add(dealerSocket);
                 } else if(typeof(ICommand).IsAssignableFrom(messageType))
                 {
-                    Contract.Argument.Assert(!IsEvent(messageType), !IsQuery(messageType), !_commandRoutes.ContainsKey(messageType));
-                    _commandRoutes.Add(messageType, inbox);
+                    Contract.Argument.Assert(!IsEvent(messageType), !IsQuery(messageType), !_netMqCommandRoutes.ContainsKey(messageType));
+                    _netMqCommandRoutes.Add(messageType, dealerSocket);
                 } else if(typeof(IQuery).IsAssignableFrom(messageType))
                 {
-                    Contract.Argument.Assert(!IsEvent(messageType), !IsCommand(messageType), !_queryRoutes.ContainsKey(messageType));
-                    _queryRoutes.Add(messageType, inbox);
+                    Contract.Argument.Assert(!IsEvent(messageType), !IsCommand(messageType), !_netMqQueryRoutes.ContainsKey(messageType));
+                    _netMqQueryRoutes.Add(messageType, dealerSocket);
                 }
             }
+        });
+
+        void ReceiveResponse(object sender, NetMQSocketEventArgs e)
+        {
+            var message = _guard.Update(() => e.Socket.ReceiveMultipartMessage());
+
+            var messageId = new Guid(message[0].ToByteArray());
+            var result = message[1].ConvertToString();
+            var task = _outStandingTasks[messageId];
+            _outStandingTasks.Remove(messageId);
+
+            if(result == "OK")
+            {
+
+                var responseType = message[2].ConvertToString().AsType();
+                var responseBody = message[3].ConvertToString();
+                var responseObject = JsonConvert.DeserializeObject(responseBody, responseType, JsonSettings.JsonSerializerSettings);
+                task.SetResult((IMessage)responseObject);
+            } else
+            {
+                task.SetException(new Exception("Dispatching message failed"));
+            }
+
         }
 
         static bool IsCommand(Type type) => typeof(ICommand).IsAssignableFrom(type);
@@ -60,70 +98,68 @@ namespace Composable.Messaging.Buses.Implementation
             Contract.State.Assert(_running);
             _running = false;
             _canceller.Cancel();
+            _poller.Dispose();
+            _dealerSockets.ForEach(@this => @this.Dispose());
         }
 
-        public void Start()
+        public void Start() => _guard.Update(() =>
         {
             Contract.State.Assert(!_running);
             _running = true;
-            _sendThread = new Thread(SendThread)
-                          {
-                              Name = $"{nameof(InterprocessTransport)}_{nameof(SendThread)}"
-                          };
-            _sendThread.Start();
-            Contract.Result.Assert(_sendThreadStarted.WaitOne(1.Seconds()));
-        }
+            _poller = new NetMQPoller();
+            _poller.RunAsync();
+        });
 
-        void SendThread()
+        public void Dispatch(IEvent @event) => _guard.Update(() =>
         {
-            _sendThreadStarted.Set();
-
-            while(!_canceller.IsCancellationRequested)
+            foreach(var socket in _netMqEventRoutes[@event.GetType()])
             {
-               var message = _sendQueue.Take();
-
-                if(!_netMqRoutes.TryGetValue(message.GetType(), out List<RequestSocket> requestSocket))
-                {
-                    switch(message)
-                    {
-                        case ICommand command:
-                            requestSocket = new List<RequestSocket>() { new RequestSocket() };
-                            requestSocket.Single().Connect(_commandRoutes[message.GetType()].Address);
-                            break;
-                        case IEvent @event:
-                            requestSocket = _eventRoutes[@event.GetType()].Select(inbox => new RequestSocket(inbox.Address)).ToList();
-                            break;
-                        case IQuery query:
-                            requestSocket = new List<RequestSocket>() { new RequestSocket() };
-                            requestSocket.Single().Connect(_queryRoutes[message.GetType()].Address);
-                            break;
-                    }
-                    _netMqRoutes.Add(message.GetType(), requestSocket);
-                }
-
-                foreach(var socket in requestSocket)
-                {
-                    socket.SendMoreFrame(message.GetType().FullName);
-                    socket.SendFrame(JsonConvert.SerializeObject(message, Formatting.Indented, JsonSettings.JsonSerializerSettings));
-                    var response = socket.ReceiveMultipartMessage();
-                }
+                _globalBusStrateTracker.SendingMessageOnTransport(@event);
+                socket.SendMoreFrame(@event.MessageId.ToByteArray());
+                socket.SendMoreFrame(@event.GetType().FullName);
+                socket.SendFrame(JsonConvert.SerializeObject(@event, Formatting.Indented, JsonSettings.JsonSerializerSettings));
             }
-        }
+        });
 
-        public void Dispatch(IEvent @event)
+        public void Dispatch(ICommand command) => _guard.Update(() =>
         {
-            _eventRoutes[@event.GetType()].ForEach(inbox => inbox.Dispatch(@event));
-        }
+            _globalBusStrateTracker.SendingMessageOnTransport(command);
+            var socket = _netMqCommandRoutes[command.GetType()];
+            socket.SendMoreFrame(command.MessageId.ToByteArray());
+            socket.SendMoreFrame(command.GetType().FullName);
+            socket.SendFrame(JsonConvert.SerializeObject(command, Formatting.Indented, JsonSettings.JsonSerializerSettings));
+        });
 
-        public void Dispatch(ICommand command)
+        public async Task<TCommandResult> Dispatch<TCommandResult>(ICommand<TCommandResult> command) where TCommandResult : IMessage
         {
-            _sendQueue.Add(command);
-            _commandRoutes[command.GetType()].Dispatch(command);
+            var taskCompletionSource = new TaskCompletionSource<IMessage>(TaskCreationOptions.RunContinuationsAsynchronously);
+            _outStandingTasks.Add(command.MessageId, taskCompletionSource);
+            _guard.Update(() =>
+            {
+                _globalBusStrateTracker.SendingMessageOnTransport(command);
+                var socket = _netMqCommandRoutes[command.GetType()];
+                socket.SendMoreFrame(command.MessageId.ToByteArray());
+                socket.SendMoreFrame(command.GetType().FullName);
+                socket.SendFrame(JsonConvert.SerializeObject(command, Formatting.Indented, JsonSettings.JsonSerializerSettings));
+            });
+
+            return (TCommandResult)await taskCompletionSource.Task;
         }
-        public async Task<TCommandResult> Dispatch<TCommandResult>(ICommand<TCommandResult> command) where TCommandResult : IMessage => (TCommandResult)await _commandRoutes[command.GetType()].Dispatch(command);
-        public async Task<TQueryResult> Dispatch<TQueryResult>(IQuery<TQueryResult> query) where TQueryResult : IQueryResult => (TQueryResult)await _queryRoutes[query.GetType()].Dispatch(query);
 
-
+        public async Task<TQueryResult> Dispatch<TQueryResult>(IQuery<TQueryResult> query) where TQueryResult : IQueryResult
+        {
+            var taskCompletionSource = new TaskCompletionSource<IMessage>(TaskCreationOptions.RunContinuationsAsynchronously);
+            _outStandingTasks.Add(query.MessageId,taskCompletionSource);
+            _guard.Update(() =>
+            {
+                _globalBusStrateTracker.SendingMessageOnTransport(query);
+                var socket = _netMqQueryRoutes[query.GetType()];
+                socket.SendMoreFrame(query.MessageId.ToByteArray());
+                socket.SendMoreFrame(query.GetType().FullName);
+                socket.SendFrame(JsonConvert.SerializeObject(query, Formatting.Indented, JsonSettings.JsonSerializerSettings));
+            });
+            return (TQueryResult)await taskCompletionSource.Task;
+        }
 
         public void Dispose()
         {

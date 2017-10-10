@@ -25,7 +25,7 @@ namespace Composable.Messaging.Buses.Implementation {
             socket.SendFrame(JsonConvert.SerializeObject(message, Formatting.Indented, JsonSettings.JsonSerializerSettings));
         }
 
-        public static Response ReadResponse(DealerSocket socket)
+        public static Response ReadResponse(IReceivingSocket socket)
         {
             var message = socket.ReceiveMultipartMessage();
             var messageId = new Guid(message[0].ToByteArray());
@@ -33,13 +33,12 @@ namespace Composable.Messaging.Buses.Implementation {
 
             if(result == "OK")
             {
-                var responseType = message[2].ConvertToString().AsType();
+                var responseType = message[2].ConvertToString();
                 var responseBody = message[3].ConvertToString();
-                var responseObject = (IMessage)JsonConvert.DeserializeObject(responseBody, responseType, JsonSettings.JsonSerializerSettings);
-                return new Response(successFull: true, messageId: messageId, result: responseObject);
+                return new Response(successFull: true, messageId: messageId, resultJson: responseBody, responseType: responseType);
             } else
             {
-                return new Response(successFull: false, messageId: messageId, result: null);
+                return new Response(successFull: false, messageId: messageId, resultJson: null, responseType: null);
             }
         }
 
@@ -87,15 +86,27 @@ namespace Composable.Messaging.Buses.Implementation {
 
         public class Response
         {
+            readonly string _resultJson;
+            readonly string _responseType;
+            IMessage _result;
             public bool SuccessFull { get; }
             public Guid MessageId { get; }
-            public IMessage Result { get; }
 
-            public Response(bool successFull, Guid messageId, IMessage result)
+            public IMessage DeserializeResult()
             {
+                if(_result == null)
+                {
+                    _result = (IMessage)JsonConvert.DeserializeObject(_resultJson, _responseType.AsType(), JsonSettings.JsonSerializerSettings);
+                }
+                return _result;
+            }
+
+            public Response(bool successFull, Guid messageId, string resultJson, string responseType)
+            {
+                _resultJson = resultJson;
+                _responseType = responseType;
                 SuccessFull = successFull;
                 MessageId = messageId;
-                Result = result;
             }
         }
     }

@@ -69,7 +69,7 @@ namespace Composable.Messaging.Buses.Implementation
         {
             var (message, task) = _this.Locked(@this =>
             {
-                var theMessage = TransportMessage.ReadResponse((DealerSocket)e.Socket);
+                var theMessage = TransportMessage.ReadResponse(e.Socket);
                 var theTask = @this._outStandingTasks.GetAndRemove(theMessage.MessageId);
 
                 return (theMessage, theTask);
@@ -77,8 +77,20 @@ namespace Composable.Messaging.Buses.Implementation
 
             if(message.SuccessFull)
             {
-                task.SetResult(message.Result);
-            } else
+                Task.Run(() =>
+                {
+                    try
+                    {
+                        task.SetResult(message.DeserializeResult());
+                    }
+                    catch (Exception exception)
+                    {
+                        task.SetException(exception);
+                    }
+                });
+
+            }
+            else
             {
                 task.SetException(new Exception("Dispatching message failed"));
             }
@@ -115,7 +127,7 @@ namespace Composable.Messaging.Buses.Implementation
             foreach(var socket in @this._eventRoutes[@event.GetType()])
             {
                 @this._globalBusStrateTracker.SendingMessageOnTransport(@event);
-                TransportMessage.Send(socket, @event);
+                @this._poller.RunOnPollerThread(() => TransportMessage.Send(socket, @event));
             }
         });
 
@@ -124,7 +136,8 @@ namespace Composable.Messaging.Buses.Implementation
             var taskCompletionSource = new TaskCompletionSource<IMessage>(TaskCreationOptions.RunContinuationsAsynchronously);
             @this._outStandingTasks.Add(command.MessageId, taskCompletionSource);
             @this._globalBusStrateTracker.SendingMessageOnTransport(command);
-            TransportMessage.Send(@this._commandRoutes[command.GetType()], command);
+            var route = @this._commandRoutes[command.GetType()];
+            @this._poller.RunOnPollerThread(() => TransportMessage.Send(route, command));
         });
 
         public async Task<TCommandResult> Dispatch<TCommandResult>(ICommand<TCommandResult> command) where TCommandResult : IMessage
@@ -134,7 +147,8 @@ namespace Composable.Messaging.Buses.Implementation
             {
                 @this._outStandingTasks.Add(command.MessageId, taskCompletionSource);
                 @this._globalBusStrateTracker.SendingMessageOnTransport(command);
-                TransportMessage.Send(@this._commandRoutes[command.GetType()], command);
+                var route = @this._commandRoutes[command.GetType()];
+                @this._poller.RunOnPollerThread(() => TransportMessage.Send(route, command));
             });
             return (TCommandResult)await taskCompletionSource.Task;
         }
@@ -146,7 +160,8 @@ namespace Composable.Messaging.Buses.Implementation
             {
                 @this._outStandingTasks.Add(query.MessageId, taskCompletionSource);
                 @this._globalBusStrateTracker.SendingMessageOnTransport(query);
-                TransportMessage.Send(@this._queryRoutes[query.GetType()], query);
+                var route = @this._queryRoutes[query.GetType()];
+                @this._poller.RunOnPollerThread(() => TransportMessage.Send(route, query));
             });
             return (TQueryResult)await taskCompletionSource.Task;
         }

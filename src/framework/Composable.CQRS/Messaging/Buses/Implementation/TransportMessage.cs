@@ -90,9 +90,12 @@ namespace Composable.Messaging.Buses.Implementation
 
             public void Send(IOutgoingSocket socket)
             {
-                socket.SendMoreFrame(_messageId.ToByteArray());
-                socket.SendMoreFrame(_messageType);
-                socket.SendFrame(_messageBody);
+                var message = new NetMQMessage(4);
+                message.Append(_messageId);
+                message.Append(_messageType);
+                message.Append(_messageBody);
+
+                socket.SendMultipartMessage(message);
             }
 
             public static OutGoing Create(IMessage message)

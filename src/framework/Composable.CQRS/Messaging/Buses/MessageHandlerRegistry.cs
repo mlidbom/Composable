@@ -1,8 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Composable.Contracts;
 using Composable.Messaging.Events;
 using Composable.System.Collections.Collections;
+using Composable.System.Linq;
 
 namespace Composable.Messaging.Buses
 {
@@ -20,6 +22,7 @@ namespace Composable.Messaging.Buses
         {
             lock(_lock)
             {
+                Contract.Argument.Assert(!(typeof(TEvent)).IsAssignableFrom(typeof(ICommand)), !(typeof(TEvent)).IsAssignableFrom(typeof(IQuery)));
                 _eventHandlers.GetOrAdd(typeof(TEvent), () => new List<Action<IEvent>>()).Add(@event => handler((TEvent)@event));
                 _eventHandlerRegistrations.Add(new EventHandlerRegistration(typeof(TEvent), registrar => registrar.For(handler)));
                 return this;
@@ -30,6 +33,7 @@ namespace Composable.Messaging.Buses
         {
             lock(_lock)
             {
+                Contract.Argument.Assert(!(typeof(TCommand)).IsAssignableFrom(typeof(IEvent)), !(typeof(TCommand)).IsAssignableFrom(typeof(IQuery)));
                 _commandHandlers.Add(typeof(TCommand), command => handler((TCommand)command));
                 return this;
             }
@@ -40,9 +44,11 @@ namespace Composable.Messaging.Buses
         {
             lock (_lock)
             {
+                Contract.Argument.Assert(!(typeof(TCommand)).IsAssignableFrom(typeof(IEvent)), !(typeof(TCommand)).IsAssignableFrom(typeof(IQuery)));
                 _commandHandlersReturningResults.Add(typeof(TCommand), command =>
                 {
                     var result = handler((TCommand)command);
+                    // ReSharper disable once CompareNonConstrainedGenericWithNull (null is never OK, but defaults might possibly be fine for structs..)
                     if(result == null)
                     {
                         throw new Exception("You cannot return null from a command handler");
@@ -57,6 +63,7 @@ namespace Composable.Messaging.Buses
         {
             lock(_lock)
             {
+                Contract.Argument.Assert(!(typeof(TQuery)).IsAssignableFrom(typeof(IEvent)), !(typeof(TQuery)).IsAssignableFrom(typeof(ICommand)));
                 _queryHandlers.Add(typeof(TQuery), query => handler((TQuery)query));
                 return this;
             }
@@ -146,12 +153,13 @@ namespace Composable.Messaging.Buses
             return dispatcher;
         }
 
-        public IEnumerable<Type> HandledTypes()
+        public ISet<Type> HandledTypes()
         {
             return _commandHandlers.Keys
                 .Concat(_commandHandlersReturningResults.Keys).
                 Concat(_queryHandlers.Keys)
-                .Concat(_eventHandlerRegistrations.Select(reg => reg.Type));
+                .Concat(_eventHandlerRegistrations.Select(reg => reg.Type))
+                .ToSet();
         }
 
         internal class EventHandlerRegistration

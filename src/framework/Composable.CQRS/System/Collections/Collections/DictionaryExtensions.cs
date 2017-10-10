@@ -44,5 +44,13 @@ namespace Composable.System.Collections.Collections
             me.Add(key, value);
             return value;
         }
+
+
+        public static TValue GetAndRemove<TKey, TValue>(this IDictionary<TKey, TValue> @this, TKey key)
+        {
+            var value = @this[key];
+            @this.Remove(key);
+            return value;
+        }
     }
 }

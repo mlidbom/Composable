@@ -47,7 +47,7 @@ namespace Composable.Messaging.Buses
 
         IEventDispatcher<IEvent> CreateEventDispatcher();
 
-        IEnumerable<Type> HandledTypes();
+        ISet<Type> HandledTypes();
     }
 
     public interface IMessageHandlerRegistrar
@@ -63,6 +63,7 @@ namespace Composable.Messaging.Buses
     interface IEndpoint : IDisposable
     {
         IServiceLocator ServiceLocator { get; }
+        string Address { get; } //todo: not a string!
         void Start();
         void Stop();
         void AwaitNoMessagesInFlight(TimeSpan? timeoutOverride);

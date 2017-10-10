@@ -4,7 +4,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Composable.Contracts;
 using Composable.DependencyInjection;
-using Composable.NewtonSoft;
 using Composable.System;
 using Composable.System.Linq;
 using Composable.System.Reflection;
@@ -13,7 +12,6 @@ using Composable.System.Threading.ResourceAccess;
 using Composable.System.Transactions;
 using NetMQ;
 using NetMQ.Sockets;
-using Newtonsoft.Json;
 
 namespace Composable.Messaging.Buses.Implementation
 {

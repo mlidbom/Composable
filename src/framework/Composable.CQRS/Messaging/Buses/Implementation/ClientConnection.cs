@@ -13,19 +13,17 @@ namespace Composable.Messaging.Buses.Implementation
     {
         class Implementation
         {
-            // ReSharper disable InconsistentNaming
-            public IGlobalBusStrateTracker _globalBusStrateTracker;
-            public readonly Dictionary<Guid, TaskCompletionSource<IMessage>> _outStandingTasks = new Dictionary<Guid, TaskCompletionSource<IMessage>>();
-            public DealerSocket _socket;
-            public NetMQPoller _poller;
-            public NetMQQueue<IMessage> _dispatchQueue = new NetMQQueue<IMessage>();
-            // ReSharper restore InconsistentNaming
+            public IGlobalBusStrateTracker GlobalBusStrateTracker;
+            public readonly Dictionary<Guid, TaskCompletionSource<IMessage>> OutStandingTasks = new Dictionary<Guid, TaskCompletionSource<IMessage>>();
+            public DealerSocket Socket;
+            public NetMQPoller Poller;
+            public readonly NetMQQueue<IMessage> DispatchQueue = new NetMQQueue<IMessage>();
 
             public void DispatchMessage(object sender, NetMQQueueEventArgs<IMessage> e)
             {
                 while (e.Queue.TryDequeue(out IMessage message, TimeSpan.Zero))
                 {
-                    TransportMessage.Send(_socket, message);
+                    TransportMessage.Send(Socket, message);
                 }
             }
         }
@@ -36,27 +34,27 @@ namespace Composable.Messaging.Buses.Implementation
         {
             _this.Locked(@this =>
             {
-                @this._globalBusStrateTracker = globalBusStrateTracker;
+                @this.GlobalBusStrateTracker = globalBusStrateTracker;
 
-                @this._poller = poller;
+                @this.Poller = poller;
 
-                @this._poller.Add(@this._dispatchQueue);
+                @this.Poller.Add(@this.DispatchQueue);
 
-                @this._dispatchQueue.ReceiveReady += @this.DispatchMessage;
+                @this.DispatchQueue.ReceiveReady += @this.DispatchMessage;
 
-                @this._socket = new DealerSocket();
+                @this.Socket = new DealerSocket();
 
                 //Should we screw up with the pipelining we prefer performance problems (memory usage) to lost messages or blocking
-                @this._socket.Options.SendHighWatermark = int.MaxValue;
-                @this._socket.Options.ReceiveHighWatermark = int.MaxValue;
+                @this.Socket.Options.SendHighWatermark = int.MaxValue;
+                @this.Socket.Options.ReceiveHighWatermark = int.MaxValue;
 
                 //We guarantee delivery upon restart in other ways. When we shut down, just do it.
-                @this._socket.Options.Linger = 0.Milliseconds();
+                @this.Socket.Options.Linger = 0.Milliseconds();
 
-                @this._socket.ReceiveReady += ReceiveResponse;
+                @this.Socket.ReceiveReady += ReceiveResponse;
 
-                @this._socket.Connect(endpoint.Address);
-                poller.Add(@this._socket);
+                @this.Socket.Connect(endpoint.Address);
+                poller.Add(@this.Socket);
             });
         }
 
@@ -66,7 +64,7 @@ namespace Composable.Messaging.Buses.Implementation
             //todo: performance: The message is deserialized here which adds some time to execution. Move this to another thread to avoid blocking poller thread.
             var message = TransportMessage.ReadResponse(e.Socket);
 
-            var completedTask = _this.Locked(@this => @this._outStandingTasks.GetAndRemove(message.MessageId));
+            var completedTask = _this.Locked(@this => @this.OutStandingTasks.GetAndRemove(message.MessageId));
 
             if (message.SuccessFull)
             {
@@ -91,20 +89,20 @@ namespace Composable.Messaging.Buses.Implementation
         {
             var taskCompletionSource = new TaskCompletionSource<IMessage>(TaskCreationOptions.RunContinuationsAsynchronously);
 
-            @this._outStandingTasks.Add(@event.MessageId, taskCompletionSource);
-            @this._globalBusStrateTracker.SendingMessageOnTransport(@event);
+            @this.OutStandingTasks.Add(@event.MessageId, taskCompletionSource);
+            @this.GlobalBusStrateTracker.SendingMessageOnTransport(@event);
 
-            @this._dispatchQueue.Enqueue(@event);
+            @this.DispatchQueue.Enqueue(@event);
         });
 
         public void Dispatch(ICommand command) => _this.Locked(@this =>
         {
             var taskCompletionSource = new TaskCompletionSource<IMessage>(TaskCreationOptions.RunContinuationsAsynchronously);
 
-            @this._outStandingTasks.Add(command.MessageId, taskCompletionSource);
-            @this._globalBusStrateTracker.SendingMessageOnTransport(command);
+            @this.OutStandingTasks.Add(command.MessageId, taskCompletionSource);
+            @this.GlobalBusStrateTracker.SendingMessageOnTransport(command);
 
-            @this._dispatchQueue.Enqueue(command);
+            @this.DispatchQueue.Enqueue(command);
         });
 
         public async Task<TCommandResult> Dispatch<TCommandResult>(ICommand<TCommandResult> command) where TCommandResult : IMessage
@@ -112,9 +110,9 @@ namespace Composable.Messaging.Buses.Implementation
             var taskCompletionSource = new TaskCompletionSource<IMessage>(TaskCreationOptions.RunContinuationsAsynchronously);
             _this.Locked(@this =>
             {
-                @this._outStandingTasks.Add(command.MessageId, taskCompletionSource);
-                @this._globalBusStrateTracker.SendingMessageOnTransport(command);
-                @this._dispatchQueue.Enqueue(command);
+                @this.OutStandingTasks.Add(command.MessageId, taskCompletionSource);
+                @this.GlobalBusStrateTracker.SendingMessageOnTransport(command);
+                @this.DispatchQueue.Enqueue(command);
             });
             return (TCommandResult)await taskCompletionSource.Task;
         }
@@ -124,18 +122,17 @@ namespace Composable.Messaging.Buses.Implementation
             var taskCompletionSource = new TaskCompletionSource<IMessage>(TaskCreationOptions.RunContinuationsAsynchronously);
             _this.Locked(@this =>
             {
-                @this._outStandingTasks.Add(query.MessageId, taskCompletionSource);
-                @this._globalBusStrateTracker.SendingMessageOnTransport(query);
-                @this._dispatchQueue.Enqueue(query);
+                @this.OutStandingTasks.Add(query.MessageId, taskCompletionSource);
+                @this.GlobalBusStrateTracker.SendingMessageOnTransport(query);
+                @this.DispatchQueue.Enqueue(query);
             });
             return (TQueryResult)await taskCompletionSource.Task;
         }
 
         public void Dispose() => _this.Locked(@this =>
         {
-            @this._poller.Remove(@this._dispatchQueue);
-            @this._poller.Remove(@this._socket);
-            @this._socket.Dispose();
+            @this.Socket.Dispose();
+            @this.DispatchQueue.Dispose();
         });
     }
 }

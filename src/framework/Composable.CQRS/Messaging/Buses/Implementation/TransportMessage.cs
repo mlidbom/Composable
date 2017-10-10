@@ -12,13 +12,29 @@ namespace Composable.Messaging.Buses.Implementation
     {
         public class InComing
         {
-            public IMessage Message { get; }
             readonly byte[] _client;
+            readonly Guid _messageId;
+            readonly string _body;
+            readonly string _messageType;
 
-            InComing(IMessage message, byte[] client)
+            IMessage _message = null;
+
+            public IMessage DeserializedPayload()
             {
-                Message = message;
+                if(_message == null)
+                {
+                    _message = (IMessage)JsonConvert.DeserializeObject(_body, _messageType.AsType(), JsonSettings.JsonSerializerSettings);
+                    Contract.State.Assert(_messageId == _message.MessageId);
+                }
+                return _message;
+            }
+
+            InComing(string body, string messageType, byte[] client, Guid messageId)
+            {
+                _body = body;
+                _messageType = messageType;
                 _client = client;
+                _messageId = messageId;
             }
 
             public static InComing Receive(RouterSocket socket)
@@ -29,13 +45,9 @@ namespace Composable.Messaging.Buses.Implementation
                 var messageId = new Guid(receivedMessage[1].ToByteArray());
                 var messageTypeString = receivedMessage[2].ConvertToString();
                 var messageBody = receivedMessage[3].ConvertToString();
-                var messageType = messageTypeString.AsType();
+                var messageType = messageTypeString.AsType();                
 
-                var message = (IMessage)JsonConvert.DeserializeObject(messageBody, messageType, JsonSettings.JsonSerializerSettings);
-
-                Contract.State.Assert(messageId == message.MessageId);
-
-                return new InComing(message, client);
+                return new InComing(messageBody, messageTypeString, client, messageId);
             }
 
             public void RespondSucess(IMessage response, RouterSocket socket)
@@ -43,7 +55,7 @@ namespace Composable.Messaging.Buses.Implementation
                 var netMqMessage = new NetMQMessage();
 
                 netMqMessage.Append(_client);
-                netMqMessage.Append(Message.MessageId.ToByteArray());
+                netMqMessage.Append(DeserializedPayload().MessageId.ToByteArray());
                 netMqMessage.Append("OK");
 
                 if(response != null)
@@ -64,7 +76,7 @@ namespace Composable.Messaging.Buses.Implementation
                 var netMqMessage = new NetMQMessage();
 
                 netMqMessage.Append(_client);
-                netMqMessage.Append(Message.MessageId.ToByteArray());
+                netMqMessage.Append(DeserializedPayload().MessageId.ToByteArray());
                 netMqMessage.Append("FAIL");
 
                 socket.SendMultipartMessage(netMqMessage);

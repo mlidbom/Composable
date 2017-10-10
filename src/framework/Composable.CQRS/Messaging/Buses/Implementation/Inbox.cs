@@ -79,7 +79,7 @@ namespace Composable.Messaging.Buses.Implementation
             Contract.Argument.Assert(e.IsReadyToReceive);
             var transportMessage = _resourceGuard.Update(() => TransportMessage.InComing.Receive(_responseSocket));
 
-            Dispatch(transportMessage.Message)
+            Dispatch(transportMessage)
                 .ContinueWith(dispatchResult =>
                 {
                     if(dispatchResult.IsFaulted)
@@ -122,19 +122,22 @@ namespace Composable.Messaging.Buses.Implementation
         void EnqueueNonTransactionalTask(IMessage message, Action action)
             => _globalStateTracker.EnqueueMessageTask(this, message, messageTask: () => _serviceLocator.ExecuteInIsolatedScope(action));
 
-        public Task<object> Dispatch(IMessage message)
+        public Task<object> Dispatch(TransportMessage.InComing message)
         {
-            switch(message)
+            return Task.Run(() =>
             {
-                case ICommand command:
-                    return DispatchAsync(command);
-                case IEvent @event:
-                    return DispatchAsync(@event);
-                case IQuery query:
-                    return DispatchAsync(query);
-                default:
-                    throw new Exception($"Unsupported message type: {message.GetType()}");
-            }
+                switch(message.DeserializedPayload())
+                {
+                    case ICommand command:
+                        return DispatchAsync(command);
+                    case IEvent @event:
+                        return DispatchAsync(@event);
+                    case IQuery query:
+                        return DispatchAsync(query);
+                    default:
+                        throw new Exception($"Unsupported message type: {message.GetType()}");
+                }
+            });
         }
         public string Address => _address;
 

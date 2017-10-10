@@ -6,7 +6,6 @@ using Composable.Contracts;
 using Composable.DependencyInjection;
 using Composable.System;
 using Composable.System.Linq;
-using Composable.System.Reflection;
 using Composable.System.Threading;
 using Composable.System.Threading.ResourceAccess;
 using Composable.System.Transactions;
@@ -32,7 +31,7 @@ namespace Composable.Messaging.Buses.Implementation
                                                                             };
         bool _running;
         readonly Thread _messagePumpThread;
-        readonly string _address;
+        string _address;
         RouterSocket _responseSocket;
 
         public IReadOnlyList<Exception> ThrownExceptions => _globalStateTracker.GetExceptionsFor(this);
@@ -40,7 +39,7 @@ namespace Composable.Messaging.Buses.Implementation
 
         public Inbox(IServiceLocator serviceLocator, IGlobalBusStrateTracker globalStateTracker, IMessageHandlerRegistry handlerRegistry)
         {
-            _address = $"inproc://{Guid.NewGuid()}";
+            _address = $"tcp://localhost:0";
             _serviceLocator = serviceLocator;
             _globalStateTracker = globalStateTracker;
             _handlerRegistry = handlerRegistry;
@@ -67,7 +66,7 @@ namespace Composable.Messaging.Buses.Implementation
             //We guarantee delivery upon restart in other ways. When we shut down, just do it.
             _responseSocket.Options.Linger = 0.Milliseconds();
 
-            _responseSocket.Bind(_address);
+            _address = _responseSocket.BindAndReturnActualAddress(_address);
             _responseSocket.ReceiveReady += HandleIncomingMessage;
             _poller = new NetMQPoller() {_responseSocket};
             _poller.RunAsync();

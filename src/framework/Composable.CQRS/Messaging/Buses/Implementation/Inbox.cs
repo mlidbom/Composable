@@ -37,9 +37,9 @@ namespace Composable.Messaging.Buses.Implementation
         public IReadOnlyList<Exception> ThrownExceptions => _globalStateTracker.GetExceptionsFor(this);
         NetMQPoller _poller;
 
-        public Inbox(IServiceLocator serviceLocator, IGlobalBusStrateTracker globalStateTracker, IMessageHandlerRegistry handlerRegistry)
+        public Inbox(IServiceLocator serviceLocator, IGlobalBusStrateTracker globalStateTracker, IMessageHandlerRegistry handlerRegistry, EndpointConfiguration configuration)
         {
-            _address = "tcp://localhost:0";
+            _address = configuration.Address;
             _serviceLocator = serviceLocator;
             _globalStateTracker = globalStateTracker;
             _handlerRegistry = handlerRegistry;

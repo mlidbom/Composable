@@ -20,6 +20,9 @@ namespace Composable.Messaging.Buses
             _container = container;
 
             _container.Register(
+                Component.For<EndpointConfiguration>()
+                         .UsingFactoryMethod(kern => new EndpointConfiguration())
+                         .LifestyleSingleton(),
                 Component.For<IInterprocessTransport, InterprocessTransport>()
                          .UsingFactoryMethod(kern => new InterprocessTransport(globalStateTracker))
                          .LifestyleSingleton(),
@@ -43,11 +46,11 @@ namespace Composable.Messaging.Buses
                          .UsingFactoryMethod(kernel => new InProcessServiceBus(kernel.Resolve<IMessageHandlerRegistry>()))
                          .LifestyleSingleton(),
                 Component.For<IInbox, Inbox>()
-                    .ImplementedBy<Inbox>()
-                    .LifestyleSingleton(),
+                         .ImplementedBy<Inbox>()
+                         .LifestyleSingleton(),
                 Component.For<IOutbox, Outbox>()
-                        .ImplementedBy<Outbox>()
-                        .LifestyleSingleton(),
+                         .ImplementedBy<Outbox>()
+                         .LifestyleSingleton(),
                 Component.For<IServiceBus, ServiceBus>()
                          .ImplementedBy<ServiceBus>()
                          .LifestyleSingleton(),

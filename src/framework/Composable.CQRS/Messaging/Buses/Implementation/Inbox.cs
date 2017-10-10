@@ -39,7 +39,7 @@ namespace Composable.Messaging.Buses.Implementation
 
         public Inbox(IServiceLocator serviceLocator, IGlobalBusStrateTracker globalStateTracker, IMessageHandlerRegistry handlerRegistry)
         {
-            _address = $"tcp://localhost:0";
+            _address = "tcp://localhost:0";
             _serviceLocator = serviceLocator;
             _globalStateTracker = globalStateTracker;
             _handlerRegistry = handlerRegistry;

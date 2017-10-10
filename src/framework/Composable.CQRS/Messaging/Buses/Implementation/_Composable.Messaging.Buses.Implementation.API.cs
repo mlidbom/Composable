@@ -30,6 +30,5 @@ namespace Composable.Messaging.Buses.Implementation
 
     interface IInbox
     {
-        Task<object> Dispatch(TransportMessage.InComing message);
     }
 }

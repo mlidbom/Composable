@@ -15,13 +15,13 @@ namespace Composable.Messaging.Buses
 
         readonly IDependencyInjectionContainer _container;
 
-        public EndpointBuilder(IGlobalBusStrateTracker globalStateTracker, InterprocessTransport interprocessTransport, IDependencyInjectionContainer container)
+        public EndpointBuilder(IGlobalBusStrateTracker globalStateTracker, IDependencyInjectionContainer container)
         {
             _container = container;
 
             _container.Register(
                 Component.For<IInterprocessTransport, InterprocessTransport>()
-                         .UsingFactoryMethod(kern => interprocessTransport)
+                         .UsingFactoryMethod(kern => new InterprocessTransport(globalStateTracker))
                          .LifestyleSingleton(),
                 Component.For<ISingleContextUseGuard>()
                          .ImplementedBy<SingleThreadUseGuard>()

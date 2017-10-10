@@ -17,13 +17,13 @@ namespace Composable.Messaging.Buses.Implementation
             public readonly Dictionary<Guid, TaskCompletionSource<IMessage>> OutStandingTasks = new Dictionary<Guid, TaskCompletionSource<IMessage>>();
             public DealerSocket Socket;
             public NetMQPoller Poller;
-            public readonly NetMQQueue<IMessage> DispatchQueue = new NetMQQueue<IMessage>();
+            public readonly NetMQQueue<TransportMessage.OutGoing> DispatchQueue = new NetMQQueue<TransportMessage.OutGoing>();
 
-            public void DispatchMessage(object sender, NetMQQueueEventArgs<IMessage> e)
+            public void DispatchMessage(object sender, NetMQQueueEventArgs<TransportMessage.OutGoing> e)
             {
-                while (e.Queue.TryDequeue(out IMessage message, TimeSpan.Zero))
+                while (e.Queue.TryDequeue(out TransportMessage.OutGoing message, TimeSpan.Zero))
                 {
-                    TransportMessage.Send(Socket, message);
+                  Socket.Send(message);
                 }
             }
         }
@@ -62,7 +62,7 @@ namespace Composable.Messaging.Buses.Implementation
         void ReceiveResponse(object sender, NetMQSocketEventArgs e)
         {
             //todo: performance: The message is deserialized here which adds some time to execution. Move this to another thread to avoid blocking poller thread.
-            var message = TransportMessage.ReadResponse(e.Socket);
+            var message = TransportMessage.Response.Receive(e.Socket);
 
             var completedTask = _this.Locked(@this => @this.OutStandingTasks.GetAndRemove(message.MessageId));
 
@@ -92,7 +92,7 @@ namespace Composable.Messaging.Buses.Implementation
             @this.OutStandingTasks.Add(@event.MessageId, taskCompletionSource);
             @this.GlobalBusStrateTracker.SendingMessageOnTransport(@event);
 
-            @this.DispatchQueue.Enqueue(@event);
+            @this.DispatchQueue.Enqueue(TransportMessage.OutGoing.Create(@event));
         });
 
         public void Dispatch(ICommand command) => _this.Locked(@this =>
@@ -102,7 +102,7 @@ namespace Composable.Messaging.Buses.Implementation
             @this.OutStandingTasks.Add(command.MessageId, taskCompletionSource);
             @this.GlobalBusStrateTracker.SendingMessageOnTransport(command);
 
-            @this.DispatchQueue.Enqueue(command);
+            @this.DispatchQueue.Enqueue(TransportMessage.OutGoing.Create(command));
         });
 
         public async Task<TCommandResult> Dispatch<TCommandResult>(ICommand<TCommandResult> command) where TCommandResult : IMessage
@@ -112,7 +112,7 @@ namespace Composable.Messaging.Buses.Implementation
             {
                 @this.OutStandingTasks.Add(command.MessageId, taskCompletionSource);
                 @this.GlobalBusStrateTracker.SendingMessageOnTransport(command);
-                @this.DispatchQueue.Enqueue(command);
+                @this.DispatchQueue.Enqueue(TransportMessage.OutGoing.Create(command));
             });
             return (TCommandResult)await taskCompletionSource.Task;
         }
@@ -124,7 +124,7 @@ namespace Composable.Messaging.Buses.Implementation
             {
                 @this.OutStandingTasks.Add(query.MessageId, taskCompletionSource);
                 @this.GlobalBusStrateTracker.SendingMessageOnTransport(query);
-                @this.DispatchQueue.Enqueue(query);
+                @this.DispatchQueue.Enqueue(TransportMessage.OutGoing.Create(query));
             });
             return (TQueryResult)await taskCompletionSource.Task;
         }

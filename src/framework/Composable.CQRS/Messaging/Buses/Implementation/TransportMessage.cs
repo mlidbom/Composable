@@ -6,82 +6,89 @@ using NetMQ;
 using NetMQ.Sockets;
 using Newtonsoft.Json;
 
-namespace Composable.Messaging.Buses.Implementation {
-    class TransportMessage
+namespace Composable.Messaging.Buses.Implementation
+{
+    static class TransportMessage
     {
-        public IMessage Message { get; }
-        public byte[] Client { get; }
-
-        TransportMessage(IMessage message, byte[] client)
+        public class InComing
         {
-            Message = message;
-            Client = client;
-        }
+            public IMessage Message { get; }
+            readonly byte[] _client;
 
-        public static void Send(DealerSocket socket, IMessage message)
-        {
-            socket.SendMoreFrame(message.MessageId.ToByteArray());
-            socket.SendMoreFrame(message.GetType().FullName);
-            socket.SendFrame(JsonConvert.SerializeObject(message, Formatting.Indented, JsonSettings.JsonSerializerSettings));
-        }
-
-        public static Response ReadResponse(IReceivingSocket socket)
-        {
-            var message = socket.ReceiveMultipartMessage();
-            var messageId = new Guid(message[0].ToByteArray());
-            var result = message[1].ConvertToString();
-
-            if(result == "OK")
+            InComing(IMessage message, byte[] client)
             {
-                var responseType = message[2].ConvertToString();
-                var responseBody = message[3].ConvertToString();
-                return new Response(successFull: true, messageId: messageId, resultJson: responseBody, responseType: responseType);
-            } else
+                Message = message;
+                _client = client;
+            }
+
+            public static InComing Receive(RouterSocket socket)
             {
-                return new Response(successFull: false, messageId: messageId, resultJson: null, responseType: null);
+                var receivedMessage = socket.ReceiveMultipartMessage();
+
+                var client = receivedMessage[0].ToByteArray();
+                var messageId = new Guid(receivedMessage[1].ToByteArray());
+                var messageTypeString = receivedMessage[2].ConvertToString();
+                var messageBody = receivedMessage[3].ConvertToString();
+                var messageType = messageTypeString.AsType();
+
+                var message = (IMessage)JsonConvert.DeserializeObject(messageBody, messageType, JsonSettings.JsonSerializerSettings);
+
+                Contract.State.Assert(messageId == message.MessageId);
+
+                return new InComing(message, client);
+            }
+
+            public void RespondSucess(IMessage response, RouterSocket socket)
+            {
+                var netMqMessage = new NetMQMessage();
+
+                netMqMessage.Append(_client);
+                netMqMessage.Append(Message.MessageId.ToByteArray());
+                netMqMessage.Append("OK");
+
+                netMqMessage.Append(response.GetType().FullName);
+                netMqMessage.Append(JsonConvert.SerializeObject(response, Formatting.Indented, JsonSettings.JsonSerializerSettings));
+
+                socket.SendMultipartMessage(netMqMessage);
+            }
+
+            public void RespondError(Exception exception, RouterSocket socket)
+            {
+                var netMqMessage = new NetMQMessage();
+
+                netMqMessage.Append(_client);
+                netMqMessage.Append(Message.MessageId.ToByteArray());
+                netMqMessage.Append("FAIL");
+
+                socket.SendMultipartMessage(netMqMessage);
             }
         }
 
-        public static TransportMessage ReadFromSocket(RouterSocket socket)
+        public class OutGoing
         {
-            var receivedMessage = socket.ReceiveMultipartMessage();
+            readonly string _messageType;
+            readonly Guid _messageId;
+            readonly string _messageBody;
 
-            var client = receivedMessage[0].ToByteArray();
-            var messageId = new Guid(receivedMessage[1].ToByteArray());
-            var messageTypeString = receivedMessage[2].ConvertToString();
-            var messageBody = receivedMessage[3].ConvertToString();
-            var messageType = messageTypeString.AsType();
+            public void Send(IOutgoingSocket socket)
+            {
+                socket.SendMoreFrame(_messageId.ToByteArray());
+                socket.SendMoreFrame(_messageType);
+                socket.SendFrame(_messageBody);
+            }
 
-            var message = (IMessage)JsonConvert.DeserializeObject(messageBody, messageType, JsonSettings.JsonSerializerSettings);
+            public static OutGoing Create(IMessage message)
+            {
+                var body = JsonConvert.SerializeObject(message, Formatting.Indented, JsonSettings.JsonSerializerSettings);
+                return new OutGoing(message.GetType(), message.MessageId, body);
+            }
 
-            Contract.State.Assert(messageId == message.MessageId);
-
-            return new TransportMessage(message, client);
-        }
-
-        public void RespondSucess(IMessage response, RouterSocket socket)
-        {
-            var netMqMessage = new NetMQMessage();
-
-            netMqMessage.Append(Client);
-            netMqMessage.Append(Message.MessageId.ToByteArray());
-            netMqMessage.Append("OK");
-
-            netMqMessage.Append(response.GetType().FullName);
-            netMqMessage.Append(JsonConvert.SerializeObject(response, Formatting.Indented, JsonSettings.JsonSerializerSettings));
-
-            socket.SendMultipartMessage(netMqMessage);
-        }
-
-        public void RespondError(Exception exception, RouterSocket socket)
-        {
-            var netMqMessage = new NetMQMessage();
-
-            netMqMessage.Append(Client);
-            netMqMessage.Append(Message.MessageId.ToByteArray());
-            netMqMessage.Append("FAIL");
-
-            socket.SendMultipartMessage(netMqMessage);
+            public OutGoing(Type messageType, Guid messageId, string messageBody)
+            {
+                _messageType = messageType.FullName;
+                _messageId = messageId;
+                _messageBody = messageBody;
+            }
         }
 
         public class Response
@@ -101,7 +108,24 @@ namespace Composable.Messaging.Buses.Implementation {
                 return _result;
             }
 
-            public Response(bool successFull, Guid messageId, string resultJson, string responseType)
+            public static Response Receive(IReceivingSocket socket)
+            {
+                var message = socket.ReceiveMultipartMessage();
+                var messageId = new Guid(message[0].ToByteArray());
+                var result = message[1].ConvertToString();
+
+                if(result == "OK")
+                {
+                    var responseType = message[2].ConvertToString();
+                    var responseBody = message[3].ConvertToString();
+                    return new Response(successFull: true, messageId: messageId, resultJson: responseBody, responseType: responseType);
+                } else
+                {
+                    return new Response(successFull: false, messageId: messageId, resultJson: null, responseType: null);
+                }
+            }
+
+            Response(bool successFull, Guid messageId, string resultJson, string responseType)
             {
                 _resultJson = resultJson;
                 _responseType = responseType;

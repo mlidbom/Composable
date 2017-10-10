@@ -79,7 +79,7 @@ namespace Composable.Messaging.Buses.Implementation
         void HandleIncomingMessage(object sender, NetMQSocketEventArgs e)
         {
             Contract.Argument.Assert(e.IsReadyToReceive);
-            var transportMessage = _resourceGuard.Update(() => TransportMessage.ReadFromSocket(_responseSocket));
+            var transportMessage = _resourceGuard.Update(() => TransportMessage.InComing.Receive(_responseSocket));
 
             var task = Dispatch(transportMessage.Message);
 

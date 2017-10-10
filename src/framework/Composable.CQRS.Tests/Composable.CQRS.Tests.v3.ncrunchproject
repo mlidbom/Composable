@@ -3,10 +3,5 @@
     <HiddenComponentWarnings>
       <Value>AbnormalReferenceResolution</Value>
     </HiddenComponentWarnings>
-    <IgnoredTests>
-      <NamedTestSelector>
-        <TestName>Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_endpoint_with_a_command_event_and_query_handler.Paralellism_policies.Five_query_handlers_can_execute_in_parallel_when_using_Query</TestName>
-      </NamedTestSelector>
-    </IgnoredTests>
   </Settings>
 </ProjectConfiguration>

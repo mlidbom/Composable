@@ -99,7 +99,7 @@ namespace Composable.Messaging.Buses.Implementation
         Task<IMessage> DispatchMessage(IMessage message) => _this.Locked(@this =>
         {
             var taskCompletionSource = new TaskCompletionSource<IMessage>(TaskCreationOptions.RunContinuationsAsynchronously);
-            if(message is IQuery || message.GetType().Implements(typeof(ICommand<>)))
+            if(message.RequiresResponse())
             {
                 @this.OutStandingTasks.Add(message.MessageId, taskCompletionSource);
             } else

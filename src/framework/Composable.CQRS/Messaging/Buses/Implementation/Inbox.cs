@@ -86,7 +86,7 @@ namespace Composable.Messaging.Buses.Implementation
             dispatchTask.ContinueWith(dispatchResult =>
             {
                 var deserializedPayload = transportMessage.DeserializedPayload();
-                if(deserializedPayload is IQuery || deserializedPayload.GetType().Implements(typeof(ICommand<>)))
+                if(deserializedPayload.RequiresResponse())
                 {
                     if(dispatchResult.IsFaulted)
                     {

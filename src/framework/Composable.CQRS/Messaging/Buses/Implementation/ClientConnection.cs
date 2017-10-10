@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Composable.System;
 using Composable.System.Collections.Collections;
+using Composable.System.Reflection;
 using Composable.System.Threading.ResourceAccess;
 using NetMQ;
 using NetMQ.Sockets;
@@ -98,11 +99,20 @@ namespace Composable.Messaging.Buses.Implementation
         Task<IMessage> DispatchMessage(IMessage message) => _this.Locked(@this =>
         {
             var taskCompletionSource = new TaskCompletionSource<IMessage>(TaskCreationOptions.RunContinuationsAsynchronously);
-            @this.OutStandingTasks.Add(message.MessageId, taskCompletionSource);
+            if(message is IQuery || message.GetType().Implements(typeof(ICommand<>)))
+            {
+                @this.OutStandingTasks.Add(message.MessageId, taskCompletionSource);
+            } else
+            {
+                taskCompletionSource.SetResult(null);
+            }
+
             @this.GlobalBusStrateTracker.SendingMessageOnTransport(message);
             @this.DispatchQueue.Enqueue(TransportMessage.OutGoing.Create(message));
+
             return taskCompletionSource.Task;
         });
+
 
         public void Dispose() => _this.Locked(@this =>
         {

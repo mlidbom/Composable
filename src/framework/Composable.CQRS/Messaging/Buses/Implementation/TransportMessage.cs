@@ -19,7 +19,7 @@ namespace Composable.Messaging.Buses.Implementation
 
             IMessage _message = null;
 
-            public IMessage DeserializedPayload()
+            public IMessage DeserializeMessageAndCacheForNextCall()
             {
                 if(_message == null)
                 {
@@ -54,7 +54,7 @@ namespace Composable.Messaging.Buses.Implementation
                 var netMqMessage = new NetMQMessage();
 
                 netMqMessage.Append(_client);
-                netMqMessage.Append(DeserializedPayload().MessageId.ToByteArray());
+                netMqMessage.Append(DeserializeMessageAndCacheForNextCall().MessageId.ToByteArray());
                 netMqMessage.Append("OK");
 
                 if(response != null)
@@ -75,7 +75,7 @@ namespace Composable.Messaging.Buses.Implementation
                 var netMqMessage = new NetMQMessage();
 
                 netMqMessage.Append(_client);
-                netMqMessage.Append(DeserializedPayload().MessageId.ToByteArray());
+                netMqMessage.Append(DeserializeMessageAndCacheForNextCall().MessageId.ToByteArray());
                 netMqMessage.Append("FAIL");
 
                 socket.SendMultipartMessage(netMqMessage);

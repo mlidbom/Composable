@@ -85,8 +85,8 @@ namespace Composable.Messaging.Buses.Implementation
 
             dispatchTask.ContinueWith(dispatchResult =>
             {
-                var deserializedPayload = transportMessage.DeserializedPayload();
-                if(deserializedPayload.RequiresResponse())
+                var message = transportMessage.DeserializeMessageAndCacheForNextCall();
+                if(message.RequiresResponse())
                 {
                     if(dispatchResult.IsFaulted)
                     {
@@ -133,7 +133,7 @@ namespace Composable.Messaging.Buses.Implementation
         {
             return Task.Run(() =>
             {
-                switch(message.DeserializedPayload())
+                switch(message.DeserializeMessageAndCacheForNextCall())
                 {
                     case ICommand command:
                         return DispatchAsync(command);

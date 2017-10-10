@@ -40,7 +40,15 @@ namespace Composable.Messaging.Buses
         {
             lock (_lock)
             {
-                _commandHandlersReturningResults.Add(typeof(TCommand), command => handler((TCommand)command));
+                _commandHandlersReturningResults.Add(typeof(TCommand), command =>
+                {
+                    var result = handler((TCommand)command);
+                    if(result == null)
+                    {
+                        throw new Exception("You cannot return null from a command handler");
+                    }
+                    return result;
+                });
                 return this;
             }
         }

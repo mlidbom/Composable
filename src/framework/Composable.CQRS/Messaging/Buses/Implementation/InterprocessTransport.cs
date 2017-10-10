@@ -1,20 +1,15 @@
 ﻿using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Composable.Contracts;
 using Composable.DependencyInjection;
-using Composable.NewtonSoft;
 using Composable.System;
 using Composable.System.Collections.Collections;
 using Composable.System.Linq;
-using Composable.System.Reflection;
 using Composable.System.Threading.ResourceAccess;
 using NetMQ;
 using NetMQ.Sockets;
-using Newtonsoft.Json;
 
 namespace Composable.Messaging.Buses.Implementation
 {
@@ -30,7 +25,6 @@ namespace Composable.Messaging.Buses.Implementation
         IGuardedResource _guard = GuardedResource.WithTimeout(3.Seconds());
         readonly IList<DealerSocket> _dealerSockets = new List<DealerSocket>();
         readonly Dictionary<Guid, TaskCompletionSource<IMessage>> _outStandingTasks = new Dictionary<Guid, TaskCompletionSource<IMessage>>();
-
 
         NetMQPoller _poller;
 
@@ -68,25 +62,18 @@ namespace Composable.Messaging.Buses.Implementation
 
         void ReceiveResponse(object sender, NetMQSocketEventArgs e)
         {
-            var message = _guard.Update(() => e.Socket.ReceiveMultipartMessage());
+            var message = _guard.Update(() => TransportMessage.ReadResponse((DealerSocket)e.Socket));
 
-            var messageId = new Guid(message[0].ToByteArray());
-            var result = message[1].ConvertToString();
-            var task = _outStandingTasks[messageId];
-            _outStandingTasks.Remove(messageId);
+            var task = _outStandingTasks[message.MessageId];
+            _outStandingTasks.Remove(message.MessageId);
 
-            if(result == "OK")
+            if(message.SuccessFull)
             {
-
-                var responseType = message[2].ConvertToString().AsType();
-                var responseBody = message[3].ConvertToString();
-                var responseObject = JsonConvert.DeserializeObject(responseBody, responseType, JsonSettings.JsonSerializerSettings);
-                task.SetResult((IMessage)responseObject);
+                task.SetResult(message.Result);
             } else
             {
                 task.SetException(new Exception("Dispatching message failed"));
             }
-
         }
 
         static bool IsCommand(Type type) => typeof(ICommand).IsAssignableFrom(type);
@@ -115,53 +102,38 @@ namespace Composable.Messaging.Buses.Implementation
             foreach(var socket in _netMqEventRoutes[@event.GetType()])
             {
                 _globalBusStrateTracker.SendingMessageOnTransport(@event);
-                socket.SendMoreFrame(@event.MessageId.ToByteArray());
-                socket.SendMoreFrame(@event.GetType().FullName);
-                socket.SendFrame(JsonConvert.SerializeObject(@event, Formatting.Indented, JsonSettings.JsonSerializerSettings));
+                TransportMessage.Send(socket, @event);
             }
         });
 
         public void Dispatch(ICommand command) => _guard.Update(() =>
         {
-                        var taskCompletionSource = new TaskCompletionSource<IMessage>(TaskCreationOptions.RunContinuationsAsynchronously);
+            var taskCompletionSource = new TaskCompletionSource<IMessage>(TaskCreationOptions.RunContinuationsAsynchronously);
             _outStandingTasks.Add(command.MessageId, taskCompletionSource);
-            _guard.Update(() =>
-            {
-                _globalBusStrateTracker.SendingMessageOnTransport(command);
-                var socket = _netMqCommandRoutes[command.GetType()];
-                socket.SendMoreFrame(command.MessageId.ToByteArray());
-                socket.SendMoreFrame(command.GetType().FullName);
-                socket.SendFrame(JsonConvert.SerializeObject(command, Formatting.Indented, JsonSettings.JsonSerializerSettings));
-            });
+            _globalBusStrateTracker.SendingMessageOnTransport(command);
+            TransportMessage.Send(_netMqCommandRoutes[command.GetType()], command);
         });
 
         public async Task<TCommandResult> Dispatch<TCommandResult>(ICommand<TCommandResult> command) where TCommandResult : IMessage
         {
             var taskCompletionSource = new TaskCompletionSource<IMessage>(TaskCreationOptions.RunContinuationsAsynchronously);
-            _outStandingTasks.Add(command.MessageId, taskCompletionSource);
             _guard.Update(() =>
             {
+                _outStandingTasks.Add(command.MessageId, taskCompletionSource);
                 _globalBusStrateTracker.SendingMessageOnTransport(command);
-                var socket = _netMqCommandRoutes[command.GetType()];
-                socket.SendMoreFrame(command.MessageId.ToByteArray());
-                socket.SendMoreFrame(command.GetType().FullName);
-                socket.SendFrame(JsonConvert.SerializeObject(command, Formatting.Indented, JsonSettings.JsonSerializerSettings));
+                TransportMessage.Send(_netMqCommandRoutes[command.GetType()], command);
             });
-
             return (TCommandResult)await taskCompletionSource.Task;
         }
 
         public async Task<TQueryResult> Dispatch<TQueryResult>(IQuery<TQueryResult> query) where TQueryResult : IQueryResult
         {
             var taskCompletionSource = new TaskCompletionSource<IMessage>(TaskCreationOptions.RunContinuationsAsynchronously);
-            _outStandingTasks.Add(query.MessageId,taskCompletionSource);
             _guard.Update(() =>
             {
+                _outStandingTasks.Add(query.MessageId, taskCompletionSource);
                 _globalBusStrateTracker.SendingMessageOnTransport(query);
-                var socket = _netMqQueryRoutes[query.GetType()];
-                socket.SendMoreFrame(query.MessageId.ToByteArray());
-                socket.SendMoreFrame(query.GetType().FullName);
-                socket.SendFrame(JsonConvert.SerializeObject(query, Formatting.Indented, JsonSettings.JsonSerializerSettings));
+                TransportMessage.Send(_netMqQueryRoutes[query.GetType()], query);
             });
             return (TQueryResult)await taskCompletionSource.Task;
         }
@@ -172,68 +144,6 @@ namespace Composable.Messaging.Buses.Implementation
             {
                 Stop();
             }
-        }
-    }
-
-    class TransportMessage
-    {
-        public IMessage Message { get; }
-        public byte[] Client { get; }
-
-        TransportMessage(IMessage message, byte[] client)
-        {
-            Message = message;
-            Client = client;
-        }
-
-        public static TransportMessage ReadFromSocket(RouterSocket socket)
-        {
-            var receivedMessage = socket.ReceiveMultipartMessage();
-
-            var client = receivedMessage[0].ToByteArray();
-            var messageId = new Guid(receivedMessage[1].ToByteArray());
-            var messageTypeString = receivedMessage[2].ConvertToString();
-            var messageBody = receivedMessage[3].ConvertToString();
-            var messageType = messageTypeString.AsType();
-
-            var message = (IMessage)JsonConvert.DeserializeObject(messageBody, messageType, JsonSettings.JsonSerializerSettings);
-
-            Contract.State.Assert(messageId == message.MessageId);
-
-            return new TransportMessage(message, client);
-        }
-
-        public void RespondSucess(IMessage response, RouterSocket socket)
-        {
-            var netMqMessage = new NetMQMessage();
-
-            netMqMessage.Append(Client);
-            netMqMessage.Append(Message.MessageId.ToByteArray());
-            netMqMessage.Append("OK");
-
-            netMqMessage.Append(response.GetType().FullName);
-            netMqMessage.Append(JsonConvert.SerializeObject(response, Formatting.Indented, JsonSettings.JsonSerializerSettings));
-
-            socket.SendMultipartMessage(netMqMessage);
-        }
-
-        public void RespondError(Exception exception, RouterSocket socket)
-        {
-            var netMqMessage = new NetMQMessage();
-
-            netMqMessage.Append(Client);
-            netMqMessage.Append(Message.MessageId.ToByteArray());
-            netMqMessage.Append("FAIL");
-
-            socket.SendMultipartMessage(netMqMessage);
-        }
-
-        enum Type
-        {
-            Event = 1,
-            Query = 2, 
-            Command = 3,
-            CommandWithResult = 4
         }
     }
 }

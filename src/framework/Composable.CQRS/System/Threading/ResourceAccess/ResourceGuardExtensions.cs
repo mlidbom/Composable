@@ -2,9 +2,9 @@
 
 namespace Composable.System.Threading.ResourceAccess
 {
-    static class GuardedResourceExtensions
+    static class ResourceGuardExtensions
     {
-        static IExclusiveResourceLock AwaitExclusiveLockWhen(this IGuardedResource @this, TimeSpan timeout, Func<bool> condition)
+        static IExclusiveResourceLock AwaitExclusiveLockWhen(this IResourceGuard @this, TimeSpan timeout, Func<bool> condition)
         {
             IExclusiveResourceLock exclusiveLock = null;
             try
@@ -28,27 +28,27 @@ namespace Composable.System.Threading.ResourceAccess
             }
         }
 
-        public static IResourceUpdateLock AwaitUpdateLock(this IGuardedResource @this, TimeSpan? timeout = null)
+        public static IResourceUpdateLock AwaitUpdateLock(this IResourceGuard @this, TimeSpan? timeout = null)
             => new UpdateResourceLock(@this.AwaitExclusiveLock(timeout));
 
-        public static IResourceReadLock AwaitReadLock(this IGuardedResource @this, TimeSpan? timeout = null)
+        public static IResourceReadLock AwaitReadLock(this IResourceGuard @this, TimeSpan? timeout = null)
             => new ReadResourceLock(@this.AwaitExclusiveLock(timeout));
 
-        public static IResourceUpdateLock AwaitUpdateLockWhen(this IGuardedResource @this, Func<bool> condition)
+        public static IResourceUpdateLock AwaitUpdateLockWhen(this IResourceGuard @this, Func<bool> condition)
             => new UpdateResourceLock(@this.AwaitExclusiveLockWhen(@this.DefaultTimeout, condition));
 
-        public static IResourceUpdateLock AwaitUpdateLockWhen(this IGuardedResource @this, TimeSpan timeout, Func<bool> condition)
+        public static IResourceUpdateLock AwaitUpdateLockWhen(this IResourceGuard @this, TimeSpan timeout, Func<bool> condition)
             => new UpdateResourceLock(@this.AwaitExclusiveLockWhen(timeout, condition));
 
-        public static IResourceReadLock AwaitReadLockWhen(this IGuardedResource @this, TimeSpan timeout, Func<bool> condition)
+        public static IResourceReadLock AwaitReadLockWhen(this IResourceGuard @this, TimeSpan timeout, Func<bool> condition)
             => new ReadResourceLock(@this.AwaitExclusiveLockWhen(timeout, condition));
 
-        public static void AwaitCondition(this IGuardedResource @this, TimeSpan timeout, Func<bool> condition)
+        public static void AwaitCondition(this IResourceGuard @this, TimeSpan timeout, Func<bool> condition)
         {
             using(@this.AwaitExclusiveLockWhen(timeout, condition)) {}
         }
 
-        public static bool TryAwaitCondition(this IGuardedResource @this, TimeSpan timeout, Func<bool> condition)
+        public static bool TryAwaitCondition(this IResourceGuard @this, TimeSpan timeout, Func<bool> condition)
         {
             var startTime = DateTime.Now;
             using(var @lock = @this.AwaitExclusiveLock(timeout))
@@ -65,7 +65,7 @@ namespace Composable.System.Threading.ResourceAccess
             }
         }
 
-        public static TResult Read<TResult>(this IGuardedResource @this, Func<TResult> read)
+        public static TResult Read<TResult>(this IResourceGuard @this, Func<TResult> read)
         {
             using(@this.AwaitReadLock())
             {
@@ -73,7 +73,7 @@ namespace Composable.System.Threading.ResourceAccess
             }
         }
 
-        public static void Update(this IGuardedResource @this, Action action)
+        public static void Update(this IResourceGuard @this, Action action)
         {
             using(@this.AwaitUpdateLock())
             {
@@ -81,7 +81,7 @@ namespace Composable.System.Threading.ResourceAccess
             }
         }
 
-        public static void UpdateWhen(this IGuardedResource @this, Func<bool> condition, Action action)
+        public static void UpdateWhen(this IResourceGuard @this, Func<bool> condition, Action action)
         {
             using (@this.AwaitUpdateLockWhen(@this.DefaultTimeout, condition))
             {
@@ -89,7 +89,7 @@ namespace Composable.System.Threading.ResourceAccess
             }
         }
 
-        public static TResult ReadWhen<TResult>(this IGuardedResource @this, TimeSpan timeout, Func<TResult> read, Func<bool> condition)
+        public static TResult ReadWhen<TResult>(this IResourceGuard @this, TimeSpan timeout, Func<TResult> read, Func<bool> condition)
         {
             using (@this.AwaitUpdateLockWhen(timeout, condition))
             {
@@ -97,7 +97,7 @@ namespace Composable.System.Threading.ResourceAccess
             }
         }
 
-        public static TResult Update<TResult>(this IGuardedResource @this, Func<TResult> action)
+        public static TResult Update<TResult>(this IResourceGuard @this, Func<TResult> action)
         {
             using(@this.AwaitUpdateLock())
             {
@@ -105,14 +105,14 @@ namespace Composable.System.Threading.ResourceAccess
             }
         }
 
-        public static TResult UpdateAndReturn<TResult>(this IGuardedResource @this, Action action, TResult result)
+        public static TResult UpdateAndReturn<TResult>(this IResourceGuard @this, Action action, TResult result)
             => @this.Update(() =>
             {
                 action();
                 return result;
             });
 
-        public static TResult UpdateAndReturn<TResult>(this IGuardedResource @this, Action action, Func<TResult> resultFunction)
+        public static TResult UpdateAndReturn<TResult>(this IResourceGuard @this, Action action, Func<TResult> resultFunction)
             => @this.Update(() =>
             {
                 action();

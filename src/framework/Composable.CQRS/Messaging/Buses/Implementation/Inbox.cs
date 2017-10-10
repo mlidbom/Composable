@@ -23,7 +23,7 @@ namespace Composable.Messaging.Buses.Implementation
         readonly IGlobalBusStrateTracker _globalStateTracker;
         readonly IMessageHandlerRegistry _handlerRegistry;
 
-        readonly IGuardedResource _guardedResource = GuardedResource.WithTimeout(1.Seconds());
+        readonly IResourceGuard _resourceGuard = ResourceGuard.WithTimeout(1.Seconds());
 
         readonly CancellationTokenSource _cancellationTokenSource;
 
@@ -56,7 +56,7 @@ namespace Composable.Messaging.Buses.Implementation
         }
 
 
-        public void Start() => _guardedResource.Update(action: () =>
+        public void Start() => _resourceGuard.Update(action: () =>
         {
             Contract.Invariant.Assert(!_running);
             _running = true;
@@ -74,7 +74,7 @@ namespace Composable.Messaging.Buses.Implementation
         void HandleIncomingMessage(object sender, NetMQSocketEventArgs e)
         {
             Contract.Argument.Assert(e.IsReadyToReceive);
-            var transportMessage = _guardedResource.Update(() => TransportMessage.ReadFromSocket(_responseSocket));
+            var transportMessage = _resourceGuard.Update(() => TransportMessage.ReadFromSocket(_responseSocket));
 
             var task = Dispatch(transportMessage.Message);
 
@@ -84,10 +84,10 @@ namespace Composable.Messaging.Buses.Implementation
                 {
                     if(taskResult.IsFaulted)
                     {
-                        _guardedResource.Update(() => transportMessage.RespondError(taskResult.Exception, _responseSocket));
+                        _resourceGuard.Update(() => transportMessage.RespondError(taskResult.Exception, _responseSocket));
                     } else if(taskResult.IsCompleted)
                     {
-                        _guardedResource.Update(() => transportMessage.RespondSucess((IMessage)taskResult.Result, _responseSocket));
+                        _resourceGuard.Update(() => transportMessage.RespondSucess((IMessage)taskResult.Result, _responseSocket));
                     }
                 });
             }
@@ -144,7 +144,7 @@ namespace Composable.Messaging.Buses.Implementation
             var handler = _handlerRegistry.GetQueryHandler(query.GetType());
 
             var taskCompletionSource = new TaskCompletionSource<object>(TaskCreationOptions.RunContinuationsAsynchronously);
-            using(_guardedResource.AwaitUpdateLock())
+            using(_resourceGuard.AwaitUpdateLock())
             {
                 EnqueueNonTransactionalTask(query,
                                             action: () =>
@@ -168,7 +168,7 @@ namespace Composable.Messaging.Buses.Implementation
         {
             var handler = _handlerRegistry.GetEventHandlers(@event.GetType());
             var taskCompletionSource = new TaskCompletionSource<object>(TaskCreationOptions.RunContinuationsAsynchronously);
-            using(_guardedResource.AwaitUpdateLock())
+            using(_resourceGuard.AwaitUpdateLock())
             {
                 EnqueueTransactionalTask(@event,
                                          action: () =>
@@ -193,7 +193,7 @@ namespace Composable.Messaging.Buses.Implementation
             var handler = _handlerRegistry.GetCommandHandler(command.GetType());
 
             var taskCompletionSource = new TaskCompletionSource<object>(TaskCreationOptions.RunContinuationsAsynchronously);
-            using(_guardedResource.AwaitUpdateLock())
+            using(_resourceGuard.AwaitUpdateLock())
             {
                 EnqueueTransactionalTask(command,
                                          action: () =>

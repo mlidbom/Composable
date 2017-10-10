@@ -9,7 +9,7 @@ namespace Composable.Tests.System.Threading.ResourceAccess
     {
         [Fact] void Multiple_threads_take_10_000_update_locks_in_3_milliseconds()
         {
-            var guard = GuardedResource.WithTimeout(100.Milliseconds());
+            var guard = ResourceGuard.WithTimeout(100.Milliseconds());
 
             const int totalLocks = 10_000;
             const int iterations = 100;
@@ -31,7 +31,7 @@ namespace Composable.Tests.System.Threading.ResourceAccess
 
         [Fact] void Multiple_threads_take_10_000_read_locks_in_3_milliseconds()
         {
-            var guard = GuardedResource.WithTimeout(100.Milliseconds());
+            var guard = ResourceGuard.WithTimeout(100.Milliseconds());
 
             const int totalLocks = 10_000;
             const int iterations = 100;

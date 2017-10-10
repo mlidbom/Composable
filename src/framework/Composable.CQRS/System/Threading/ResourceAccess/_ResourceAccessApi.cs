@@ -2,7 +2,7 @@
 
 namespace Composable.System.Threading.ResourceAccess
 {
-    interface IGuardedResource
+    interface IResourceGuard
     {
         IExclusiveResourceLock AwaitExclusiveLock(TimeSpan? timeoutOverride = null);
         TimeSpan DefaultTimeout { get; }

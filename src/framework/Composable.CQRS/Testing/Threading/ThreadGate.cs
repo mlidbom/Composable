@@ -13,18 +13,18 @@ namespace Composable.Testing.Threading
 
         public TimeSpan DefaultTimeout => _defaultTimeout;
         public bool IsOpen => _isOpen;
-        public long Queued => _guardedResource.Read(() => _queuedThreads.Count);
-        public long Passed => _guardedResource.Read(() => _passedThreads.Count);
-        public long Requested => _guardedResource.Read(() => _requestsThreads.Count);
+        public long Queued => _resourceGuard.Read(() => _queuedThreads.Count);
+        public long Passed => _resourceGuard.Read(() => _passedThreads.Count);
+        public long Requested => _resourceGuard.Read(() => _requestsThreads.Count);
 
-        public IReadOnlyList<ThreadSnapshot> RequestedThreads => _guardedResource.Read(() => _requestsThreads.ToList());
-        public IReadOnlyList<ThreadSnapshot> QueuedThreads => _guardedResource.Read(() => _queuedThreads.ToList());
-        public IReadOnlyList<ThreadSnapshot> PassedThrough => _guardedResource.Read(() => _passedThreads.ToList());
-        public Action<ThreadSnapshot> PassThroughAction => _guardedResource.Read(() => _passThroughAction);
+        public IReadOnlyList<ThreadSnapshot> RequestedThreads => _resourceGuard.Read(() => _requestsThreads.ToList());
+        public IReadOnlyList<ThreadSnapshot> QueuedThreads => _resourceGuard.Read(() => _queuedThreads.ToList());
+        public IReadOnlyList<ThreadSnapshot> PassedThrough => _resourceGuard.Read(() => _passedThreads.ToList());
+        public Action<ThreadSnapshot> PassThroughAction => _resourceGuard.Read(() => _passThroughAction);
 
         public IThreadGate Open()
         {
-            using(var ownedLock = _guardedResource.AwaitExclusiveLock())
+            using(var ownedLock = _resourceGuard.AwaitExclusiveLock())
             {
                 _isOpen = true;
                 _lockOnNextPass = false;
@@ -35,7 +35,7 @@ namespace Composable.Testing.Threading
 
         public IThreadGate AwaitLetOneThreadPassthrough()
         {
-            using(var ownedLock = _guardedResource.AwaitExclusiveLock())
+            using(var ownedLock = _resourceGuard.AwaitExclusiveLock())
             {
                 OldContract.Assert.That(!_isOpen, "Gate must be closed to call this method.");
                 _isOpen = true;
@@ -45,15 +45,15 @@ namespace Composable.Testing.Threading
             }
         }
 
-        public bool TryAwait(TimeSpan timeout, Func<bool> condition) => _guardedResource.TryAwaitCondition(timeout, condition);
+        public bool TryAwait(TimeSpan timeout, Func<bool> condition) => _resourceGuard.TryAwaitCondition(timeout, condition);
 
-        public IThreadGate SetPassThroughAction(Action<ThreadSnapshot> action) => _guardedResource.UpdateAndReturn(() => _passThroughAction = action, this);
+        public IThreadGate SetPassThroughAction(Action<ThreadSnapshot> action) => _resourceGuard.UpdateAndReturn(() => _passThroughAction = action, this);
 
         public IThreadGate ExecuteWithExclusiveLockWhen(TimeSpan timeout, Func<bool> condition, Action action)
         {
             try
             {
-                using(_guardedResource.AwaitUpdateLockWhen(timeout, condition))
+                using(_resourceGuard.AwaitUpdateLockWhen(timeout, condition))
                 {
                     action();
                 }
@@ -69,7 +69,7 @@ Current state of gate:
 
         public IThreadGate Close()
         {
-            _guardedResource.Update(() => _isOpen = false);
+            _resourceGuard.Update(() => _isOpen = false);
             return this;
         }
 
@@ -79,14 +79,14 @@ Current state of gate:
         {
             var currentThread = new ThreadSnapshot();
 
-            _guardedResource.Update(() =>
+            _resourceGuard.Update(() =>
             {
                 _requestsThreads.Add(currentThread);
                 _queuedThreads.AddLast(currentThread);
             });
 
 
-            using(_guardedResource.AwaitUpdateLockWhen(() => _isOpen))
+            using(_resourceGuard.AwaitUpdateLockWhen(() => _isOpen))
             {
                 if(_lockOnNextPass)
                 {
@@ -102,7 +102,7 @@ Current state of gate:
 
         ThreadGate(TimeSpan defaultTimeout)
         {
-            _guardedResource = GuardedResource.WithTimeout(defaultTimeout);
+            _resourceGuard = ResourceGuard.WithTimeout(defaultTimeout);
             _defaultTimeout = defaultTimeout;
         }
 
@@ -113,7 +113,7 @@ Current state of gate:
 ";
 
         readonly TimeSpan _defaultTimeout;
-        readonly IGuardedResource _guardedResource;
+        readonly IResourceGuard _resourceGuard;
         bool _lockOnNextPass;
         Action<ThreadSnapshot> _passThroughAction;
         bool _isOpen;

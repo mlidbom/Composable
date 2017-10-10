@@ -12,7 +12,7 @@ namespace Composable.Messaging.Buses.Implementation
         readonly IInterprocessTransport _transport;
         readonly CommandScheduler _commandScheduler;
 
-        readonly IGuardedResource _guardedResource = GuardedResource.WithTimeout(1.Seconds());
+        readonly IResourceGuard _resourceGuard = ResourceGuard.WithTimeout(1.Seconds());
 
         bool _running;
 
@@ -22,14 +22,14 @@ namespace Composable.Messaging.Buses.Implementation
             _commandScheduler = new CommandScheduler(this, timeSource);
         }
 
-        public void Start() => _guardedResource.Update(() =>
+        public void Start() => _resourceGuard.Update(() =>
         {
             Contract.State.Assert(!_running);
             _running = true;
             _commandScheduler.Start();
         });
 
-        public void Stop() => _guardedResource.Update(() =>
+        public void Stop() => _resourceGuard.Update(() =>
         {
             Contract.State.Assert(_running);
             _running = false;

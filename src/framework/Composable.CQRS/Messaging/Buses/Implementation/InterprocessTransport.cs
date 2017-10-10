@@ -22,7 +22,7 @@ namespace Composable.Messaging.Buses.Implementation
 
         bool _running;
         readonly CancellationTokenSource _canceller = new CancellationTokenSource();
-        IGuardedResource _guard = GuardedResource.WithTimeout(3.Seconds());
+        IResourceGuard _guard = ResourceGuard.WithTimeout(3.Seconds());
         readonly IList<DealerSocket> _dealerSockets = new List<DealerSocket>();
         readonly Dictionary<Guid, TaskCompletionSource<IMessage>> _outStandingTasks = new Dictionary<Guid, TaskCompletionSource<IMessage>>();
 

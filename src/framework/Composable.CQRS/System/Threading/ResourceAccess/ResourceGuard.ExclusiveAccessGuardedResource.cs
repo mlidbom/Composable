@@ -5,9 +5,9 @@ using System.Threading;
 
 namespace Composable.System.Threading.ResourceAccess
 {
-    static partial class GuardedResource
+    static partial class ResourceGuard
     {
-        class ExclusiveAccessGuardedResource : IGuardedResource
+        class ExclusiveAccessResourceGuard : IResourceGuard
         {
             readonly List<AwaitingExclusiveResourceLockTimeoutException> _timeOutExceptionsOnOtherThreads = new List<AwaitingExclusiveResourceLockTimeoutException>();
             int _timeoutsThrownDuringCurrentLock;
@@ -15,7 +15,7 @@ namespace Composable.System.Threading.ResourceAccess
             readonly object _lockedObject;
             public TimeSpan DefaultTimeout { get; private set; }
 
-            public ExclusiveAccessGuardedResource(TimeSpan defaultTimeout)
+            public ExclusiveAccessResourceGuard(TimeSpan defaultTimeout)
             {
                 _lockedObject = new object();
                 DefaultTimeout = defaultTimeout;
@@ -53,8 +53,8 @@ namespace Composable.System.Threading.ResourceAccess
 
             class ExclusiveResourceLock : IExclusiveResourceLock
             {
-                readonly ExclusiveAccessGuardedResource _parent;
-                public ExclusiveResourceLock(ExclusiveAccessGuardedResource parent) => _parent = parent;
+                readonly ExclusiveAccessResourceGuard _parent;
+                public ExclusiveResourceLock(ExclusiveAccessResourceGuard parent) => _parent = parent;
                 public void Dispose()
                 {
                     try

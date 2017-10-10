@@ -17,7 +17,7 @@ namespace Composable.Messaging.Buses.Implementation
             readonly IUtcTimeTimeSource _timeSource;
             Timer _scheduledMessagesTimer;
             readonly List<ScheduledCommand> _scheduledMessages = new List<ScheduledCommand>();
-            readonly IGuardedResource _guard = GuardedResource.WithTimeout(1.Seconds());
+            readonly IResourceGuard _guard = ResourceGuard.WithTimeout(1.Seconds());
 
             public CommandScheduler(Outbox transport, IUtcTimeTimeSource timeSource)
             {

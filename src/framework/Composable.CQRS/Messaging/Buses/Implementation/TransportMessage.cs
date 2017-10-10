@@ -45,7 +45,6 @@ namespace Composable.Messaging.Buses.Implementation
                 var messageId = new Guid(receivedMessage[1].ToByteArray());
                 var messageTypeString = receivedMessage[2].ConvertToString();
                 var messageBody = receivedMessage[3].ConvertToString();
-                var messageType = messageTypeString.AsType();                
 
                 return new InComing(messageBody, messageTypeString, client, messageId);
             }
@@ -122,6 +121,10 @@ namespace Composable.Messaging.Buses.Implementation
             {
                 if(_result == null)
                 {
+                    if(_resultJson == "NULL")
+                    {
+                        return null;
+                    }
                     _result = (IMessage)JsonConvert.DeserializeObject(_resultJson, _responseType.AsType(), JsonSettings.JsonSerializerSettings);
                 }
                 return _result;

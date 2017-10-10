@@ -123,11 +123,16 @@ namespace Composable.Messaging.Buses.Implementation
 
         public void Dispatch(ICommand command) => _guard.Update(() =>
         {
-            _globalBusStrateTracker.SendingMessageOnTransport(command);
-            var socket = _netMqCommandRoutes[command.GetType()];
-            socket.SendMoreFrame(command.MessageId.ToByteArray());
-            socket.SendMoreFrame(command.GetType().FullName);
-            socket.SendFrame(JsonConvert.SerializeObject(command, Formatting.Indented, JsonSettings.JsonSerializerSettings));
+                        var taskCompletionSource = new TaskCompletionSource<IMessage>(TaskCreationOptions.RunContinuationsAsynchronously);
+            _outStandingTasks.Add(command.MessageId, taskCompletionSource);
+            _guard.Update(() =>
+            {
+                _globalBusStrateTracker.SendingMessageOnTransport(command);
+                var socket = _netMqCommandRoutes[command.GetType()];
+                socket.SendMoreFrame(command.MessageId.ToByteArray());
+                socket.SendMoreFrame(command.GetType().FullName);
+                socket.SendFrame(JsonConvert.SerializeObject(command, Formatting.Indented, JsonSettings.JsonSerializerSettings));
+            });
         });
 
         public async Task<TCommandResult> Dispatch<TCommandResult>(ICommand<TCommandResult> command) where TCommandResult : IMessage
@@ -167,6 +172,68 @@ namespace Composable.Messaging.Buses.Implementation
             {
                 Stop();
             }
+        }
+    }
+
+    class TransportMessage
+    {
+        public IMessage Message { get; }
+        public byte[] Client { get; }
+
+        TransportMessage(IMessage message, byte[] client)
+        {
+            Message = message;
+            Client = client;
+        }
+
+        public static TransportMessage ReadFromSocket(RouterSocket socket)
+        {
+            var receivedMessage = socket.ReceiveMultipartMessage();
+
+            var client = receivedMessage[0].ToByteArray();
+            var messageId = new Guid(receivedMessage[1].ToByteArray());
+            var messageTypeString = receivedMessage[2].ConvertToString();
+            var messageBody = receivedMessage[3].ConvertToString();
+            var messageType = messageTypeString.AsType();
+
+            var message = (IMessage)JsonConvert.DeserializeObject(messageBody, messageType, JsonSettings.JsonSerializerSettings);
+
+            Contract.State.Assert(messageId == message.MessageId);
+
+            return new TransportMessage(message, client);
+        }
+
+        public void RespondSucess(IMessage response, RouterSocket socket)
+        {
+            var netMqMessage = new NetMQMessage();
+
+            netMqMessage.Append(Client);
+            netMqMessage.Append(Message.MessageId.ToByteArray());
+            netMqMessage.Append("OK");
+
+            netMqMessage.Append(response.GetType().FullName);
+            netMqMessage.Append(JsonConvert.SerializeObject(response, Formatting.Indented, JsonSettings.JsonSerializerSettings));
+
+            socket.SendMultipartMessage(netMqMessage);
+        }
+
+        public void RespondError(Exception exception, RouterSocket socket)
+        {
+            var netMqMessage = new NetMQMessage();
+
+            netMqMessage.Append(Client);
+            netMqMessage.Append(Message.MessageId.ToByteArray());
+            netMqMessage.Append("FAIL");
+
+            socket.SendMultipartMessage(netMqMessage);
+        }
+
+        enum Type
+        {
+            Event = 1,
+            Query = 2, 
+            Command = 3,
+            CommandWithResult = 4
         }
     }
 }

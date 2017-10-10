@@ -1,5 +1,6 @@
 using System;
 using Composable.DependencyInjection;
+using Composable.System.Reflection;
 
 namespace Composable.Messaging.Buses
 {
@@ -51,6 +52,11 @@ namespace Composable.Messaging.Buses
             Action<TCommand, TDependency1> action) where TCommand : ICommand
                                                    where TDependency1 : class
         {
+            if(typeof(TCommand).Implements(typeof(ICommand<>)))
+            {
+                throw new Exception($"{typeof(TCommand)} expects a result. You must register a method that returns a result.");
+            }
+
             @this.ForCommand<TCommand>(command => action(command, @this.ServiceLocator.Resolve<TDependency1>()));
             return @this;
         }

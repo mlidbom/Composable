@@ -34,7 +34,11 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
                                      builder.RegisterHandlers
                                             .ForEvent((UserEvent.Implementation.UserRegisteredEvent myEvent) => {})
                                             .ForQuery((GetUserQuery query) => new UserResource())
-                                            .ForCommand((UserRegistrarCommand.RegisterUserCommand command, IUserEventStoreUpdater store) =>  store.Save(UserAggregate.Register(command)));
+                                            .ForCommand((UserRegistrarCommand.RegisterUserCommand command, IUserEventStoreUpdater store) =>
+                                            {
+                                                store.Save(UserAggregate.Register(command));
+                                                return new RegisterUserResult();
+                                            });
                                  }));
 
             _userDomainServiceLocator = _userManagementDomainEndpoint.ServiceLocator;

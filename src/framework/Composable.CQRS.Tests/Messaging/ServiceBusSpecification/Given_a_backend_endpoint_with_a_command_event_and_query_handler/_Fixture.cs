@@ -11,10 +11,10 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
     public class Fixture : IDisposable
     {
         internal readonly ITestingEndpointHost Host;
-        internal readonly IThreadGate CommandHandlerThreadGate = ThreadGate.CreateOpenWithTimeout(1.Seconds());
-        internal readonly IThreadGate CommandHandlerWithResultThreadGate = ThreadGate.CreateOpenWithTimeout(1.Seconds());
-        internal readonly IThreadGate EventHandlerThreadGate = ThreadGate.CreateOpenWithTimeout(1.Seconds());
-        internal readonly IThreadGate QueryHandlerThreadGate = ThreadGate.CreateOpenWithTimeout(1.Seconds());
+        internal readonly IThreadGate CommandHandlerThreadGate = ThreadGate.CreateOpenWithTimeout(5.Seconds());
+        internal readonly IThreadGate CommandHandlerWithResultThreadGate = ThreadGate.CreateOpenWithTimeout(5.Seconds());
+        internal readonly IThreadGate EventHandlerThreadGate = ThreadGate.CreateOpenWithTimeout(5.Seconds());
+        internal readonly IThreadGate QueryHandlerThreadGate = ThreadGate.CreateOpenWithTimeout(5.Seconds());
 
         protected readonly TestingTaskRunner TaskRunner = TestingTaskRunner.WithTimeout(1.Seconds());
 

@@ -74,56 +74,23 @@ namespace Composable.Messaging.Buses.Implementation
         void HandleIncomingMessage(object sender, NetMQSocketEventArgs e)
         {
             Contract.Argument.Assert(e.IsReadyToReceive);
-            var receivedMessage = _guardedResource.Update(() => _responseSocket.ReceiveMultipartMessage());
+            var transportMessage = _guardedResource.Update(() => TransportMessage.ReadFromSocket(_responseSocket));
 
-            var client = receivedMessage[0].ToByteArray();
-            var messageId = new Guid(receivedMessage[1].ToByteArray());
-            var messageTypeString = receivedMessage[2].ConvertToString();
-            var messageBody = receivedMessage[3].ConvertToString();
-            var messageType = messageTypeString.AsType();
+            var task = Dispatch(transportMessage.Message);
 
-            var message = (IMessage)JsonConvert.DeserializeObject(messageBody, messageType, JsonSettings.JsonSerializerSettings);
-
-            Contract.State.Assert(messageId == message.MessageId);
-
-            var task = Dispatch(message);
-
-            if(message is IQuery || message.GetType().Implements(typeof(ICommand<>)))
+            if(transportMessage.Message is IQuery || transportMessage.Message.GetType().Implements(typeof(ICommand<>)))
             {
                 task.ContinueWith(taskResult =>
                 {
                     if(taskResult.IsFaulted)
                     {
-                        _guardedResource.Update(() =>
-                        {
-                            _responseSocket.SendMoreFrame(client);
-                            _responseSocket.SendMoreFrame(messageId.ToByteArray());
-                            _responseSocket.SendFrame("FAIL");
-                        });
-
-                        return;
-                    }
-
-                    if(taskResult.IsCompleted)
+                        _guardedResource.Update(() => transportMessage.RespondError(taskResult.Exception, _responseSocket));
+                    } else if(taskResult.IsCompleted)
                     {
-                        var responseMessage = taskResult.Result;
-                        if(responseMessage == null)
-                        {
-                            return;
-                        }
-
-                        _guardedResource.Update(() =>
-                        {
-                            _responseSocket.SendMoreFrame(client);
-                            _responseSocket.SendMoreFrame(messageId.ToByteArray());
-                            _responseSocket.SendMoreFrame("OK");
-                            _responseSocket.SendMoreFrame(responseMessage.GetType().FullName);
-                            _responseSocket.SendFrame(JsonConvert.SerializeObject(responseMessage, Formatting.Indented, JsonSettings.JsonSerializerSettings));
-                        });
+                        _guardedResource.Update(() => transportMessage.RespondSucess((IMessage)taskResult.Result, _responseSocket));
                     }
                 });
             }
-
         }
 
         public void Stop()

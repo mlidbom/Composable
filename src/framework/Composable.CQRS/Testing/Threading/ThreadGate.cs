@@ -51,9 +51,18 @@ namespace Composable.Testing.Threading
 
         public IThreadGate ExecuteWithExclusiveLockWhen(TimeSpan timeout, Func<bool> condition, Action action)
         {
-            using (_guardedResource.AwaitUpdateLockWhen(timeout, condition))
+            try
             {
-                action();
+                using(_guardedResource.AwaitUpdateLockWhen(timeout, condition))
+                {
+                    action();
+                }
+            }
+            catch(AwaitingConditionTimedOutException parentException)
+            {
+                throw new AwaitingConditionTimedOutException(parentException, $@"
+Current state of gate: 
+{this}");
             }
             return this;
         }
@@ -96,6 +105,12 @@ namespace Composable.Testing.Threading
             _guardedResource = GuardedResource.WithTimeout(defaultTimeout);
             _defaultTimeout = defaultTimeout;
         }
+
+        public override string ToString() =>  $@"{nameof(IsOpen)} : {IsOpen},
+{nameof(Queued)}: {Queued},
+{nameof(Passed)}: {Passed},
+{nameof(Requested)}: {Requested},
+";
 
         readonly TimeSpan _defaultTimeout;
         readonly IGuardedResource _guardedResource;

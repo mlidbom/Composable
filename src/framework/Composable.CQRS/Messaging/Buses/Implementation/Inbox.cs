@@ -6,7 +6,6 @@ using Composable.Contracts;
 using Composable.DependencyInjection;
 using Composable.System;
 using Composable.System.Linq;
-using Composable.System.Reflection;
 using Composable.System.Threading;
 using Composable.System.Threading.ResourceAccess;
 using Composable.System.Transactions;
@@ -67,7 +66,6 @@ namespace Composable.Messaging.Buses.Implementation
             //We guarantee delivery upon restart in other ways. When we shut down, just do it.
             _responseSocket.Options.Linger = 0.Milliseconds();
 
-
             _responseSocket.Bind(_address);
             _responseSocket.ReceiveReady += HandleIncomingMessage;
             _poller = new NetMQPoller() {_responseSocket};
@@ -81,21 +79,17 @@ namespace Composable.Messaging.Buses.Implementation
             Contract.Argument.Assert(e.IsReadyToReceive);
             var transportMessage = _resourceGuard.Update(() => TransportMessage.InComing.Receive(_responseSocket));
 
-            var task = Dispatch(transportMessage.Message);
-
-            if(transportMessage.Message is IQuery || transportMessage.Message.GetType().Implements(typeof(ICommand<>)))
-            {
-                task.ContinueWith(taskResult =>
+            Dispatch(transportMessage.Message)
+                .ContinueWith(dispatchResult =>
                 {
-                    if(taskResult.IsFaulted)
+                    if(dispatchResult.IsFaulted)
                     {
-                        _resourceGuard.Update(() => transportMessage.RespondError(taskResult.Exception, _responseSocket));
-                    } else if(taskResult.IsCompleted)
+                        _resourceGuard.Update(() => transportMessage.RespondError(dispatchResult.Exception, _responseSocket));
+                    } else if(dispatchResult.IsCompleted)
                     {
-                        _resourceGuard.Update(() => transportMessage.RespondSucess((IMessage)taskResult.Result, _responseSocket));
+                        _resourceGuard.Update(() => transportMessage.RespondSucess((IMessage)dispatchResult.Result, _responseSocket));
                     }
                 });
-            }
         }
 
         public void Stop()

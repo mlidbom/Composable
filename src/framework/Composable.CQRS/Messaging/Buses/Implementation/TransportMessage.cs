@@ -46,8 +46,15 @@ namespace Composable.Messaging.Buses.Implementation
                 netMqMessage.Append(Message.MessageId.ToByteArray());
                 netMqMessage.Append("OK");
 
-                netMqMessage.Append(response.GetType().FullName);
-                netMqMessage.Append(JsonConvert.SerializeObject(response, Formatting.Indented, JsonSettings.JsonSerializerSettings));
+                if(response != null)
+                {
+                    netMqMessage.Append(response.GetType().FullName);
+                    netMqMessage.Append(JsonConvert.SerializeObject(response, Formatting.Indented, JsonSettings.JsonSerializerSettings));
+                } else
+                {
+                    netMqMessage.Append("NULL");
+                    netMqMessage.Append("NULL");
+                }
 
                 socket.SendMultipartMessage(netMqMessage);
             }

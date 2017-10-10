@@ -6,6 +6,7 @@ using Composable.Contracts;
 using Composable.DependencyInjection;
 using Composable.System;
 using Composable.System.Linq;
+using Composable.System.Reflection;
 using Composable.System.Threading;
 using Composable.System.Threading.ResourceAccess;
 using Composable.System.Transactions;
@@ -79,8 +80,13 @@ namespace Composable.Messaging.Buses.Implementation
             Contract.Argument.Assert(e.IsReadyToReceive);
             var transportMessage = _resourceGuard.Update(() => TransportMessage.InComing.Receive(_responseSocket));
 
-            Dispatch(transportMessage)
-                .ContinueWith(dispatchResult =>
+            var dispatchTask = DispatchAsync(transportMessage);
+
+
+            dispatchTask.ContinueWith(dispatchResult =>
+            {
+                var deserializedPayload = transportMessage.DeserializedPayload();
+                if(deserializedPayload is IQuery || deserializedPayload.GetType().Implements(typeof(ICommand<>)))
                 {
                     if(dispatchResult.IsFaulted)
                     {
@@ -89,7 +95,8 @@ namespace Composable.Messaging.Buses.Implementation
                     {
                         _resourceGuard.Update(() => transportMessage.RespondSucess((IMessage)dispatchResult.Result, _responseSocket));
                     }
-                });
+                }
+            });
         }
 
         public void Stop()
@@ -122,7 +129,7 @@ namespace Composable.Messaging.Buses.Implementation
         void EnqueueNonTransactionalTask(IMessage message, Action action)
             => _globalStateTracker.EnqueueMessageTask(this, message, messageTask: () => _serviceLocator.ExecuteInIsolatedScope(action));
 
-        Task<object> Dispatch(TransportMessage.InComing message)
+        Task<object> DispatchAsync(TransportMessage.InComing message)
         {
             return Task.Run(() =>
             {

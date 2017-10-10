@@ -60,7 +60,14 @@ namespace Composable.Messaging.Buses.Implementation
             _running = true;
 
             _responseSocket = new RouterSocket();
+            //Should we screw up with the pipelining we prefer performance problems (memory usage) to lost messages or blocking
+            _responseSocket.Options.SendHighWatermark = int.MaxValue;
+            _responseSocket.Options.ReceiveHighWatermark = int.MaxValue;
+
+            //We guarantee delivery upon restart in other ways. When we shut down, just do it.
             _responseSocket.Options.Linger = 0.Milliseconds();
+
+
             _responseSocket.Bind(_address);
             _responseSocket.ReceiveReady += HandleIncomingMessage;
             _poller = new NetMQPoller() {_responseSocket};

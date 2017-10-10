@@ -38,6 +38,13 @@ namespace Composable.Messaging.Buses.Implementation
             var messageHandlers = endpoint.ServiceLocator.Resolve<IMessageHandlerRegistry>();
 
             var dealerSocket = new DealerSocket();
+            //Should we screw up with the pipelining we prefer performance problems (memory usage) to lost messages or blocking
+            dealerSocket.Options.SendHighWatermark = int.MaxValue;
+            dealerSocket.Options.ReceiveHighWatermark = int.MaxValue;
+
+            //We guarantee delivery upon restart in other ways. When we shut down, just do it.
+            dealerSocket.Options.Linger = 0.Milliseconds();
+
             dealerSocket.ReceiveReady += ReceiveResponse;
             @this._dealerSockets.Add(dealerSocket);
             dealerSocket.Connect(endpoint.Address);

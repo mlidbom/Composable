@@ -15,9 +15,9 @@ namespace Composable.Tests.ExternalDependencies.Messaging.NetMQ
                 var dealerId = new Byte[] { 5 };
                 dealer.Options.Identity = dealerId;
 
-                var port = router.BindLocalhostPort();
-                dealer.ConnectLocalhostPort(port);
-                Console.WriteLine(port);
+                var address = router.BindLocalhostPort();
+                dealer.Connect(address);
+                Console.WriteLine(address);
 
                 dealer.SendMoreFrame(new byte[0]);
                 dealer.SendFrame("Hello!");
@@ -31,7 +31,6 @@ namespace Composable.Tests.ExternalDependencies.Messaging.NetMQ
 
     static class SocketExtensions
     {
-        public static int BindLocalhostPort(this NetMQSocket @this) => @this.BindRandomPort("tcp://localhost");
-        public static void ConnectLocalhostPort(this NetMQSocket @this, int port) => @this.Connect($"tcp://localhost:{port}");
+        public static string BindLocalhostPort(this NetMQSocket @this) => $"tcp://localhost:{@this.BindRandomPort("tcp://localhost")}";
     }
 }

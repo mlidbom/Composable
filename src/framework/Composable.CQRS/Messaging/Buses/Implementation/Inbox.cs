@@ -49,9 +49,9 @@ namespace Composable.Messaging.Buses.Implementation
                                      Name = "_MessagePump",
                                      Priority = ThreadPriority.AboveNormal
                                  };
-
         }
 
+        public string Address => _address;
 
         public void Start() => _resourceGuard.Update(action: () =>
         {
@@ -122,7 +122,7 @@ namespace Composable.Messaging.Buses.Implementation
         void EnqueueNonTransactionalTask(IMessage message, Action action)
             => _globalStateTracker.EnqueueMessageTask(this, message, messageTask: () => _serviceLocator.ExecuteInIsolatedScope(action));
 
-        public Task<object> Dispatch(TransportMessage.InComing message)
+        Task<object> Dispatch(TransportMessage.InComing message)
         {
             return Task.Run(() =>
             {
@@ -139,7 +139,6 @@ namespace Composable.Messaging.Buses.Implementation
                 }
             });
         }
-        public string Address => _address;
 
         async Task<object> DispatchAsync(IQuery query)
         {

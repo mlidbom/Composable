@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Composable.Contracts;
 using Composable.DependencyInjection;
@@ -18,14 +19,15 @@ namespace Composable.Messaging.Buses.Implementation
         {
             // ReSharper disable InconsistentNaming
             public IGlobalBusStrateTracker _globalBusStrateTracker;
-            public readonly Dictionary<Type, HashSet<DealerSocket>> _eventRoutes = new Dictionary<Type, HashSet<DealerSocket>>();
-            public readonly Dictionary<Type, DealerSocket> _commandRoutes = new Dictionary<Type, DealerSocket>();
-            public readonly Dictionary<Type, DealerSocket> _queryRoutes = new Dictionary<Type, DealerSocket>();
+
+            public readonly Dictionary<Type, HashSet<ClientConnection>> _eventConnections = new Dictionary<Type, HashSet<ClientConnection>>();
+            public readonly Dictionary<Type, ClientConnection> _commandConnections = new Dictionary<Type, ClientConnection>();
+            public readonly Dictionary<Type, ClientConnection> _queryConnections = new Dictionary<Type, ClientConnection>();
 
             public bool _running;
-            public readonly IList<DealerSocket> _dealerSockets = new List<DealerSocket>();
-            public readonly Dictionary<Guid, TaskCompletionSource<IMessage>> _outStandingTasks = new Dictionary<Guid, TaskCompletionSource<IMessage>>();
+            public readonly IList<ClientConnection> _clientConnections = new List<ClientConnection>();
             public NetMQPoller _poller;
+
             // ReSharper restore InconsistentNaming
         }
 
@@ -37,6 +39,8 @@ namespace Composable.Messaging.Buses.Implementation
         {
             var messageHandlers = endpoint.ServiceLocator.Resolve<IMessageHandlerRegistry>();
 
+            var clientConnection = new ClientConnection(@this._globalBusStrateTracker, endpoint, @this._poller);
+
             var dealerSocket = new DealerSocket();
             //Should we screw up with the pipelining we prefer performance problems (memory usage) to lost messages or blocking
             dealerSocket.Options.SendHighWatermark = int.MaxValue;
@@ -45,8 +49,7 @@ namespace Composable.Messaging.Buses.Implementation
             //We guarantee delivery upon restart in other ways. When we shut down, just do it.
             dealerSocket.Options.Linger = 0.Milliseconds();
 
-            dealerSocket.ReceiveReady += ReceiveResponse;
-            @this._dealerSockets.Add(dealerSocket);
+            @this._clientConnections.Add(clientConnection);
             dealerSocket.Connect(endpoint.Address);
             @this._poller.Add(dealerSocket);
 
@@ -54,47 +57,17 @@ namespace Composable.Messaging.Buses.Implementation
             {
                 if(IsEvent(messageType))
                 {
-                    @this._eventRoutes.GetOrAdd(messageType, () => new HashSet<DealerSocket>()).Add(dealerSocket);
+                    @this._eventConnections.GetOrAdd(messageType, () => new HashSet<ClientConnection>()).Add(clientConnection);
                 } else if(IsCommand(messageType))
                 {
-                    @this._commandRoutes.Add(messageType, dealerSocket);
+                    @this._commandConnections.Add(messageType, clientConnection);
                 } else if(IsQuery(messageType))
                 {
-                    @this._queryRoutes.Add(messageType, dealerSocket);
+                    @this._queryConnections.Add(messageType, clientConnection);
                 }
             }
         });
 
-        void ReceiveResponse(object sender, NetMQSocketEventArgs e)
-        {
-            var (message, task) = _this.Locked(@this =>
-            {
-                var theMessage = TransportMessage.ReadResponse(e.Socket);
-                var theTask = @this._outStandingTasks.GetAndRemove(theMessage.MessageId);
-
-                return (theMessage, theTask);
-            });
-
-            if(message.SuccessFull)
-            {
-                Task.Run(() =>
-                {
-                    try
-                    {
-                        task.SetResult(message.DeserializeResult());
-                    }
-                    catch (Exception exception)
-                    {
-                        task.SetException(exception);
-                    }
-                });
-
-            }
-            else
-            {
-                task.SetException(new Exception("Dispatching message failed"));
-            }
-        }
 
         static bool IsCommand(Type type) => typeof(ICommand).IsAssignableFrom(type);
         static bool IsEvent(Type type) => typeof(IEvent).IsAssignableFrom(type);
@@ -106,12 +79,11 @@ namespace Composable.Messaging.Buses.Implementation
             {
                 Contract.State.Assert(@this._running);
                 @this._running = false;
+                //@this._clientConnections.ForEach(socket => socket.Dispose());
                 return @this;
             });
 
             cheatingToAvoiddeadlockingWithReceiveResponseMethod._poller.Dispose();
-
-            _this.Locked(@this => @this._dealerSockets.ForEach(socket => socket.Dispose()));
         }
 
         public void Start() => _this.Locked(@this =>
@@ -122,48 +94,24 @@ namespace Composable.Messaging.Buses.Implementation
             @this._poller.RunAsync();
         });
 
-        public void Dispatch(IEvent @event) => _this.Locked(@this =>
+        public void Dispatch(IEvent @event)
         {
-            foreach(var socket in @this._eventRoutes[@event.GetType()])
-            {
-                @this._globalBusStrateTracker.SendingMessageOnTransport(@event);
-                @this._poller.RunOnPollerThread(() => TransportMessage.Send(socket, @event));
-            }
-        });
-
-        public void Dispatch(ICommand command) => _this.Locked(@this =>
-        {
-            var taskCompletionSource = new TaskCompletionSource<IMessage>(TaskCreationOptions.RunContinuationsAsynchronously);
-            @this._outStandingTasks.Add(command.MessageId, taskCompletionSource);
-            @this._globalBusStrateTracker.SendingMessageOnTransport(command);
-            var route = @this._commandRoutes[command.GetType()];
-            @this._poller.RunOnPollerThread(() => TransportMessage.Send(route, command));
-        });
-
-        public async Task<TCommandResult> Dispatch<TCommandResult>(ICommand<TCommandResult> command) where TCommandResult : IMessage
-        {
-            var taskCompletionSource = new TaskCompletionSource<IMessage>(TaskCreationOptions.RunContinuationsAsynchronously);
-            _this.Locked(@this =>
-            {
-                @this._outStandingTasks.Add(command.MessageId, taskCompletionSource);
-                @this._globalBusStrateTracker.SendingMessageOnTransport(command);
-                var route = @this._commandRoutes[command.GetType()];
-                @this._poller.RunOnPollerThread(() => TransportMessage.Send(route, command));
-            });
-            return (TCommandResult)await taskCompletionSource.Task;
+            var eventReceivers = _this.Locked(@this => @this._eventConnections[@event.GetType()].ToList());
+            eventReceivers.ForEach(receiver => receiver.Dispatch(@event));
         }
 
-        public async Task<TQueryResult> Dispatch<TQueryResult>(IQuery<TQueryResult> query) where TQueryResult : IQueryResult
+        public void Dispatch(ICommand command) => _this.Locked(@this => @this._commandConnections[command.GetType()]).Dispatch(command);
+
+        public Task<TCommandResult> Dispatch<TCommandResult>(ICommand<TCommandResult> command) where TCommandResult : IMessage
         {
-            var taskCompletionSource = new TaskCompletionSource<IMessage>(TaskCreationOptions.RunContinuationsAsynchronously);
-            _this.Locked(@this =>
-            {
-                @this._outStandingTasks.Add(query.MessageId, taskCompletionSource);
-                @this._globalBusStrateTracker.SendingMessageOnTransport(query);
-                var route = @this._queryRoutes[query.GetType()];
-                @this._poller.RunOnPollerThread(() => TransportMessage.Send(route, query));
-            });
-            return (TQueryResult)await taskCompletionSource.Task;
+            var commandHandlerConnection = _this.Locked(@this => @this._commandConnections[command.GetType()]);
+            return commandHandlerConnection.Dispatch(command);
+        }
+
+        public Task<TQueryResult> Dispatch<TQueryResult>(IQuery<TQueryResult> query) where TQueryResult : IQueryResult
+        {
+            var commandHandlerConnection = _this.Locked(@this => @this._queryConnections[query.GetType()]);
+            return commandHandlerConnection.Dispatch(query);
         }
 
         public void Dispose() => _this.Locked(@this =>

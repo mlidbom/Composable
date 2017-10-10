@@ -18,7 +18,16 @@ namespace Composable.Messaging.Buses.Implementation
             public readonly Dictionary<Guid, TaskCompletionSource<IMessage>> _outStandingTasks = new Dictionary<Guid, TaskCompletionSource<IMessage>>();
             public DealerSocket _socket;
             public NetMQPoller _poller;
+            public NetMQQueue<IMessage> _dispatchQueue = new NetMQQueue<IMessage>();
             // ReSharper restore InconsistentNaming
+
+            public void DispatchMessage(object sender, NetMQQueueEventArgs<IMessage> e)
+            {
+                while (e.Queue.TryDequeue(out IMessage message, TimeSpan.Zero))
+                {
+                    TransportMessage.Send(_socket, message);
+                }
+            }
         }
 
         readonly IGuardedResource<Implementation> _this = GuardedResource<Implementation>.WithTimeout(10.Seconds());
@@ -30,6 +39,10 @@ namespace Composable.Messaging.Buses.Implementation
                 @this._globalBusStrateTracker = globalBusStrateTracker;
 
                 @this._poller = poller;
+
+                @this._poller.Add(@this._dispatchQueue);
+
+                @this._dispatchQueue.ReceiveReady += @this.DispatchMessage;
 
                 @this._socket = new DealerSocket();
 
@@ -74,6 +87,15 @@ namespace Composable.Messaging.Buses.Implementation
             }
         }
 
+        public void Dispatch(IEvent @event) => _this.Locked(@this =>
+        {
+            var taskCompletionSource = new TaskCompletionSource<IMessage>(TaskCreationOptions.RunContinuationsAsynchronously);
+
+            @this._outStandingTasks.Add(@event.MessageId, taskCompletionSource);
+            @this._globalBusStrateTracker.SendingMessageOnTransport(@event);
+
+            @this._dispatchQueue.Enqueue(@event);
+        });
 
         public void Dispatch(ICommand command) => _this.Locked(@this =>
         {
@@ -82,7 +104,7 @@ namespace Composable.Messaging.Buses.Implementation
             @this._outStandingTasks.Add(command.MessageId, taskCompletionSource);
             @this._globalBusStrateTracker.SendingMessageOnTransport(command);
 
-            @this._poller.RunOnPollerThread(() => TransportMessage.Send(@this._socket, command));
+            @this._dispatchQueue.Enqueue(command);
         });
 
         public async Task<TCommandResult> Dispatch<TCommandResult>(ICommand<TCommandResult> command) where TCommandResult : IMessage
@@ -92,7 +114,7 @@ namespace Composable.Messaging.Buses.Implementation
             {
                 @this._outStandingTasks.Add(command.MessageId, taskCompletionSource);
                 @this._globalBusStrateTracker.SendingMessageOnTransport(command);
-                @this._poller.RunOnPollerThread(() => TransportMessage.Send(@this._socket, command));
+                @this._dispatchQueue.Enqueue(command);
             });
             return (TCommandResult)await taskCompletionSource.Task;
         }
@@ -104,13 +126,14 @@ namespace Composable.Messaging.Buses.Implementation
             {
                 @this._outStandingTasks.Add(query.MessageId, taskCompletionSource);
                 @this._globalBusStrateTracker.SendingMessageOnTransport(query);
-                @this._poller.RunOnPollerThread(() => TransportMessage.Send(@this._socket, query));
+                @this._dispatchQueue.Enqueue(query);
             });
             return (TQueryResult)await taskCompletionSource.Task;
         }
 
         public void Dispose() => _this.Locked(@this =>
         {
+            @this._poller.Remove(@this._dispatchQueue);
             @this._poller.Remove(@this._socket);
             @this._socket.Dispose();
         });

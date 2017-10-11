@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Composable.System;
 using Composable.System.Collections.Collections;
-using Composable.System.Reflection;
 using Composable.System.Threading.ResourceAccess;
 using NetMQ;
 using NetMQ.Sockets;
@@ -15,7 +14,7 @@ namespace Composable.Messaging.Buses.Implementation
         class Implementation
         {
             public IGlobalBusStrateTracker GlobalBusStrateTracker;
-            public readonly Dictionary<Guid, TaskCompletionSource<IMessage>> OutStandingTasks = new Dictionary<Guid, TaskCompletionSource<IMessage>>();
+            public readonly Dictionary<Guid, TaskCompletionSource<IMessage>> ExpectedResponseTasks = new Dictionary<Guid, TaskCompletionSource<IMessage>>();
             public DealerSocket Socket;
             public NetMQPoller Poller;
             public readonly NetMQQueue<TransportMessage.OutGoing> DispatchQueue = new NetMQQueue<TransportMessage.OutGoing>();
@@ -62,29 +61,29 @@ namespace Composable.Messaging.Buses.Implementation
         //Runs on poller thread so NO BLOCKING HERE!
         void ReceiveResponse(object sender, NetMQSocketEventArgs e)
         {
-            var messageBatch = TransportMessage.Response.Incoming.ReceiveBatch(e.Socket, batchMaximum: 100);
+            var responseBatch = TransportMessage.Response.Incoming.ReceiveBatch(e.Socket, batchMaximum: 100);
 
             _this.Locked(@this =>
             {
-                foreach(var message in messageBatch)
+                foreach(var response in responseBatch)
                 {
-                    var completedTask = @this.OutStandingTasks.GetAndRemove(message.MessageId);
-                    if(message.SuccessFull)
+                    var responseTask = @this.ExpectedResponseTasks.GetAndRemove(response.RespondingToMessageId);
+                    if(response.SuccessFull)
                     {
                         Task.Run(() =>
                         {
                             try
                             {
-                                completedTask.SetResult(message.DeserializeResult());
+                                responseTask.SetResult(response.DeserializeResult());
                             }
                             catch(Exception exception)
                             {
-                                completedTask.SetException(exception);
+                                responseTask.SetException(exception);
                             }
                         });
                     } else
                     {
-                        completedTask.SetException(new Exception("Dispatching message failed"));
+                        responseTask.SetException(new Exception("Dispatching message failed"));
                     }
                 }
             });
@@ -105,7 +104,7 @@ namespace Composable.Messaging.Buses.Implementation
             var taskCompletionSource = new TaskCompletionSource<IMessage>(TaskCreationOptions.RunContinuationsAsynchronously);
             if(message.RequiresResponse())
             {
-                @this.OutStandingTasks.Add(message.MessageId, taskCompletionSource);
+                @this.ExpectedResponseTasks.Add(message.MessageId, taskCompletionSource);
             } else
             {
                 taskCompletionSource.SetResult(null);

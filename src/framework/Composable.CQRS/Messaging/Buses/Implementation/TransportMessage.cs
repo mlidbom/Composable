@@ -140,7 +140,7 @@ namespace Composable.Messaging.Buses.Implementation
                 readonly string _responseType;
                 IMessage _result;
                 public bool SuccessFull { get; }
-                public Guid MessageId { get; }
+                public Guid RespondingToMessageId { get; }
 
                 public IMessage DeserializeResult()
                 {
@@ -166,12 +166,6 @@ namespace Composable.Messaging.Buses.Implementation
                     return result;
                 }
 
-                public static Incoming Receive(IReceivingSocket socket)
-                {
-                    var message = socket.ReceiveMultipartMessage();
-                    return FromMultipartMessage(message);
-                }
-
                 static Incoming FromMultipartMessage(NetMQMessage message)
                 {
                     var messageId = new Guid(message[0].ToByteArray());
@@ -181,19 +175,19 @@ namespace Composable.Messaging.Buses.Implementation
                     {
                         var responseType = message[2].ConvertToString();
                         var responseBody = message[3].ConvertToString();
-                        return new Incoming(successFull: true, messageId: messageId, resultJson: responseBody, responseType: responseType);
+                        return new Incoming(successFull: true, respondingToMessageId: messageId, resultJson: responseBody, responseType: responseType);
                     } else
                     {
-                        return new Incoming(successFull: false, messageId: messageId, resultJson: null, responseType: null);
+                        return new Incoming(successFull: false, respondingToMessageId: messageId, resultJson: null, responseType: null);
                     }
                 }
 
-                Incoming(bool successFull, Guid messageId, string resultJson, string responseType)
+                Incoming(bool successFull, Guid respondingToMessageId, string resultJson, string responseType)
                 {
                     _resultJson = resultJson;
                     _responseType = responseType;
                     SuccessFull = successFull;
-                    MessageId = messageId;
+                    RespondingToMessageId = respondingToMessageId;
                 }
             }
         }

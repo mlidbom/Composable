@@ -10,6 +10,13 @@ namespace Composable.Messaging.Buses.Implementation
 {
     static class TransportMessage
     {
+        static class Constants
+        {
+            public const string ReplySuccess = "OK";
+            public const string ReplyFailure = "FAIL";
+            public const string NullString = "NULL";
+        }
+
         public class InComing
         {
             readonly byte[] _client;
@@ -55,7 +62,7 @@ namespace Composable.Messaging.Buses.Implementation
 
                 netMqMessage.Append(_client);
                 netMqMessage.Append(DeserializeMessageAndCacheForNextCall().MessageId.ToByteArray());
-                netMqMessage.Append("FAIL");
+                netMqMessage.Append(Constants.ReplyFailure);
                 return netMqMessage;
             }
 
@@ -65,7 +72,7 @@ namespace Composable.Messaging.Buses.Implementation
 
                 netMqMessage.Append(_client);
                 netMqMessage.Append(DeserializeMessageAndCacheForNextCall().MessageId.ToByteArray());
-                netMqMessage.Append("OK");
+                netMqMessage.Append(Constants.ReplySuccess);
 
                 if (response != null)
                 {
@@ -74,8 +81,8 @@ namespace Composable.Messaging.Buses.Implementation
                 }
                 else
                 {
-                    netMqMessage.Append("NULL");
-                    netMqMessage.Append("NULL");
+                    netMqMessage.Append(Constants.NullString);
+                    netMqMessage.Append(Constants.NullString);
                 }
 
                 return netMqMessage;
@@ -124,7 +131,7 @@ namespace Composable.Messaging.Buses.Implementation
             {
                 if(_result == null)
                 {
-                    if(_resultJson == "NULL")
+                    if(_resultJson == Constants.NullString)
                     {
                         return null;
                     }
@@ -139,7 +146,7 @@ namespace Composable.Messaging.Buses.Implementation
                 var messageId = new Guid(message[0].ToByteArray());
                 var result = message[1].ConvertToString();
 
-                if(result == "OK")
+                if(result == Constants.ReplySuccess)
                 {
                     var responseType = message[2].ConvertToString();
                     var responseBody = message[3].ConvertToString();

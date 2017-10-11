@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Composable.Contracts;
 using Composable.NewtonSoft;
 using Composable.System.Reflection;
@@ -154,9 +155,25 @@ namespace Composable.Messaging.Buses.Implementation
                     return _result;
                 }
 
+                public static IReadOnlyList<Response.Incoming> ReceiveBatch(IReceivingSocket socket, int batchMaximum)
+                {
+                    List<Response.Incoming> result = new List<Response.Incoming>();
+                    NetMQMessage received = null;
+                    while(socket.TryReceiveMultipartMessage(TimeSpan.Zero, ref received))
+                    {
+                        result.Add(FromMultipartMessage(received));
+                    }
+                    return result;
+                }
+
                 public static Incoming Receive(IReceivingSocket socket)
                 {
                     var message = socket.ReceiveMultipartMessage();
+                    return FromMultipartMessage(message);
+                }
+
+                static Incoming FromMultipartMessage(NetMQMessage message)
+                {
                     var messageId = new Guid(message[0].ToByteArray());
                     var result = message[1].ConvertToString();
 

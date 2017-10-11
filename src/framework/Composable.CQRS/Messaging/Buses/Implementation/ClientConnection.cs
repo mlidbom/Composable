@@ -62,28 +62,32 @@ namespace Composable.Messaging.Buses.Implementation
         //Runs on poller thread so NO BLOCKING HERE!
         void ReceiveResponse(object sender, NetMQSocketEventArgs e)
         {
-            //todo: performance: The message is deserialized here which adds some time to execution. Move this to another thread to avoid blocking poller thread.
-            var message = TransportMessage.Response.Incoming.Receive(e.Socket);
+            var messageBatch = TransportMessage.Response.Incoming.ReceiveBatch(e.Socket, batchMaximum: 100);
 
-            var completedTask = _this.Locked(@this => @this.OutStandingTasks.GetAndRemove(message.MessageId));
-
-            if(message.SuccessFull)
+            _this.Locked(@this =>
             {
-                Task.Run(() =>
+                foreach(var message in messageBatch)
                 {
-                    try
+                    var completedTask = @this.OutStandingTasks.GetAndRemove(message.MessageId);
+                    if(message.SuccessFull)
                     {
-                        completedTask.SetResult(message.DeserializeResult());
-                    }
-                    catch(Exception exception)
+                        Task.Run(() =>
+                        {
+                            try
+                            {
+                                completedTask.SetResult(message.DeserializeResult());
+                            }
+                            catch(Exception exception)
+                            {
+                                completedTask.SetException(exception);
+                            }
+                        });
+                    } else
                     {
-                        completedTask.SetException(exception);
+                        completedTask.SetException(new Exception("Dispatching message failed"));
                     }
-                });
-            } else
-            {
-                completedTask.SetException(new Exception("Dispatching message failed"));
-            }
+                }
+            });
         }
 
         public void Dispatch(IEvent @event) => DispatchMessage(@event);

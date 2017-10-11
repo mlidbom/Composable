@@ -63,7 +63,7 @@ namespace Composable.Messaging.Buses.Implementation
         void ReceiveResponse(object sender, NetMQSocketEventArgs e)
         {
             //todo: performance: The message is deserialized here which adds some time to execution. Move this to another thread to avoid blocking poller thread.
-            var message = TransportMessage.Response.Receive(e.Socket);
+            var message = TransportMessage.Response.Incoming.Receive(e.Socket);
 
             var completedTask = _this.Locked(@this => @this.OutStandingTasks.GetAndRemove(message.MessageId));
 

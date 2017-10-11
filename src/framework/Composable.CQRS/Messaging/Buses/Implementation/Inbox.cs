@@ -33,7 +33,7 @@ namespace Composable.Messaging.Buses.Implementation
         Thread _messagePumpThread;
         string _address;
 
-        readonly NetMQQueue<NetMQMessage> _responseQueue = new NetMQQueue<NetMQMessage>(); 
+        readonly NetMQQueue<TransportMessage.Response.Outgoing> _responseQueue = new NetMQQueue<TransportMessage.Response.Outgoing>();
 
 
         RouterSocket _responseSocket;
@@ -83,11 +83,11 @@ namespace Composable.Messaging.Buses.Implementation
         });
 
 
-        void SendResponseMessage(object sender, NetMQQueueEventArgs<NetMQMessage> e)
+        void SendResponseMessage(object sender, NetMQQueueEventArgs<TransportMessage.Response.Outgoing> e)
         {
-            while (e.Queue.TryDequeue(out NetMQMessage response, TimeSpan.Zero))
+            while (e.Queue.TryDequeue(out TransportMessage.Response.Outgoing response, TimeSpan.Zero))
             {
-                _responseSocket.SendMultipartMessage(response);
+                _responseSocket.Send(response);
             }
         }
 

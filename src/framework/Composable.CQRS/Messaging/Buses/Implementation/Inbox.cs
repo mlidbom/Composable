@@ -22,7 +22,7 @@ namespace Composable.Messaging.Buses.Implementation
 
         readonly IResourceGuard _resourceGuard = ResourceGuard.WithTimeout(1.Seconds());
 
-        readonly CancellationTokenSource _cancellationTokenSource;
+        CancellationTokenSource _cancellationTokenSource;
 
         readonly IReadOnlyList<IMessageDispatchingRule> _dispatchingRules = new List<IMessageDispatchingRule>()
                                                                             {
@@ -30,8 +30,12 @@ namespace Composable.Messaging.Buses.Implementation
                                                                                 new CommandsAndEventHandlersDoNotRunInParallelWithEachOtherInTheSameEndpoint()
                                                                             };
         bool _running;
-        readonly Thread _messagePumpThread;
+        Thread _messagePumpThread;
         string _address;
+
+        readonly NetMQQueue<NetMQMessage> _responseQueue = new NetMQQueue<NetMQMessage>(); 
+
+
         RouterSocket _responseSocket;
 
         public IReadOnlyList<Exception> ThrownExceptions => _globalStateTracker.GetExceptionsFor(this);
@@ -43,12 +47,6 @@ namespace Composable.Messaging.Buses.Implementation
             _serviceLocator = serviceLocator;
             _globalStateTracker = globalStateTracker;
             _handlerRegistry = handlerRegistry;
-            _cancellationTokenSource = new CancellationTokenSource();
-            _messagePumpThread = new Thread(MessagePumpThread)
-                                 {
-                                     Name = "_MessagePump",
-                                     Priority = ThreadPriority.AboveNormal
-                                 };
         }
 
         public string Address => _address;
@@ -68,16 +66,35 @@ namespace Composable.Messaging.Buses.Implementation
 
             _address = _responseSocket.BindAndReturnActualAddress(_address);
             _responseSocket.ReceiveReady += HandleIncomingMessage;
-            _poller = new NetMQPoller() {_responseSocket};
+
+            _responseQueue.ReceiveReady += SendResponseMessage;
+
+            _poller = new NetMQPoller() {_responseSocket, _responseQueue };
             _poller.RunAsync();
+
+            _cancellationTokenSource = new CancellationTokenSource();
+            _messagePumpThread = new Thread(MessagePumpThread)
+                                 {
+                                     Name = "_MessagePump",
+                                     Priority = ThreadPriority.AboveNormal
+                                 };
 
             _messagePumpThread.Start();
         });
 
+
+        void SendResponseMessage(object sender, NetMQQueueEventArgs<NetMQMessage> e)
+        {
+            while (e.Queue.TryDequeue(out NetMQMessage response, TimeSpan.Zero))
+            {
+                _responseSocket.SendMultipartMessage(response);
+            }
+        }
+
         void HandleIncomingMessage(object sender, NetMQSocketEventArgs e)
         {
             Contract.Argument.Assert(e.IsReadyToReceive);
-            var transportMessage = _resourceGuard.Update(() => TransportMessage.InComing.Receive(_responseSocket));
+            var transportMessage = TransportMessage.InComing.Receive(_responseSocket);
 
             var dispatchTask = DispatchAsync(transportMessage);
 
@@ -89,10 +106,10 @@ namespace Composable.Messaging.Buses.Implementation
                 {
                     if(dispatchResult.IsFaulted)
                     {
-                        _resourceGuard.Update(() => transportMessage.RespondError(dispatchResult.Exception, _responseSocket));
+                        _responseQueue.Enqueue(transportMessage.CreateFailureResponse(dispatchResult.Exception));
                     } else if(dispatchResult.IsCompleted)
                     {
-                        _resourceGuard.Update(() => transportMessage.RespondSucess((IMessage)dispatchResult.Result, _responseSocket));
+                        _responseQueue.Enqueue(transportMessage.CreateSuccessResponse((IMessage)dispatchResult.Result));
                     }
                 }
             });

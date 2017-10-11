@@ -17,7 +17,7 @@ namespace Composable.Messaging.Buses.Implementation
             readonly string _body;
             readonly string _messageType;
 
-            IMessage _message = null;
+            IMessage _message;
 
             public IMessage DeserializeMessageAndCacheForNextCall()
             {
@@ -49,7 +49,17 @@ namespace Composable.Messaging.Buses.Implementation
                 return new InComing(messageBody, messageTypeString, client, messageId);
             }
 
-            public void RespondSucess(IMessage response, RouterSocket socket)
+            public NetMQMessage CreateFailureResponse(Exception exception)
+            {
+                var netMqMessage = new NetMQMessage();
+
+                netMqMessage.Append(_client);
+                netMqMessage.Append(DeserializeMessageAndCacheForNextCall().MessageId.ToByteArray());
+                netMqMessage.Append("FAIL");
+                return netMqMessage;
+            }
+
+            public NetMQMessage CreateSuccessResponse(IMessage response)
             {
                 var netMqMessage = new NetMQMessage();
 
@@ -57,28 +67,18 @@ namespace Composable.Messaging.Buses.Implementation
                 netMqMessage.Append(DeserializeMessageAndCacheForNextCall().MessageId.ToByteArray());
                 netMqMessage.Append("OK");
 
-                if(response != null)
+                if (response != null)
                 {
                     netMqMessage.Append(response.GetType().FullName);
                     netMqMessage.Append(JsonConvert.SerializeObject(response, Formatting.Indented, JsonSettings.JsonSerializerSettings));
-                } else
+                }
+                else
                 {
                     netMqMessage.Append("NULL");
                     netMqMessage.Append("NULL");
                 }
 
-                socket.SendMultipartMessage(netMqMessage);
-            }
-
-            public void RespondError(Exception exception, RouterSocket socket)
-            {
-                var netMqMessage = new NetMQMessage();
-
-                netMqMessage.Append(_client);
-                netMqMessage.Append(DeserializeMessageAndCacheForNextCall().MessageId.ToByteArray());
-                netMqMessage.Append("FAIL");
-
-                socket.SendMultipartMessage(netMqMessage);
+                return netMqMessage;
             }
         }
 

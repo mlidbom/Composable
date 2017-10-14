@@ -13,8 +13,9 @@ namespace Composable.Messaging.Buses.Implementation
     {
         readonly List<QueuedMessage> _inflightMessages = new List<QueuedMessage>();
 
-        //It is never OK for this class to block for a significant amount of time. So make that explicit with a really strict timeout on all operations waiting for access.
-        readonly IResourceGuard _guard = ResourceGuard.WithTimeout(10.Milliseconds());
+        //Todo: It is never OK for this class to block for a significant amount of time. So make that explicit with a really strict timeout on all operations waiting for access.
+        //Currently we cannot make the timeout really strict because it does time out....
+        readonly IResourceGuard _guard = ResourceGuard.WithTimeout(100.Milliseconds());
 
         readonly Dictionary<IInbox, IList<Exception>> _busExceptions = new Dictionary<IInbox, IList<Exception>>();
         readonly Dictionary<Guid, int> _inflightMessageIds = new Dictionary<Guid, int>();
@@ -50,35 +51,30 @@ namespace Composable.Messaging.Buses.Implementation
             _inflightMessageIds[message.MessageId] = value + 1;
         });
 
-        public void EnqueueMessageTask(IInbox bus, IMessage message, Action messageTask)
-            => _guard.Update(
-                () =>
-                {
-                    var inflightMessage = new QueuedMessage(bus, message, this, messageTask);
-                    _inflightMessages.Add(inflightMessage);
-                    return inflightMessage;
-                });
+        public void EnqueueMessageTask(IInbox bus, IMessage message, Action messageTask) => _guard.Update(() =>
+        {
+            var inflightMessage = new QueuedMessage(bus, message, this, messageTask);
+            _inflightMessages.Add(inflightMessage);
+            return inflightMessage;
+        });
 
         public void AwaitNoMessagesInFlight(TimeSpan? timeoutOverride)
             => _guard.AwaitCondition(timeout: timeoutOverride ?? 30.Seconds(),
-                            condition: () => _inflightMessages.None() && _inflightMessageIds.None());
+                                     condition: () => _inflightMessages.None() && _inflightMessageIds.None());
 
-        void Succeeded(QueuedMessage queuedMessageInformation)
-            => _guard.Update(() => DoneDispatching(queuedMessageInformation));
+        void Succeeded(QueuedMessage queuedMessageInformation) => _guard.Update(() => DoneDispatching(queuedMessageInformation));
 
-        void Failed(QueuedMessage queuedMessageInformation, Exception exception)
-            => _guard.Update(() =>
-            {
-                _busExceptions.GetOrAdd(queuedMessageInformation.Bus, () => new List<Exception>()).Add(exception);
-                DoneDispatching(queuedMessageInformation);
-            });
-
+        void Failed(QueuedMessage queuedMessageInformation, Exception exception) => _guard.Update(() =>
+        {
+            _busExceptions.GetOrAdd(queuedMessageInformation.Bus, () => new List<Exception>()).Add(exception);
+            DoneDispatching(queuedMessageInformation);
+        });
 
         void DoneDispatching(QueuedMessage queuedMessageInformation)
         {
             _inflightMessages.Remove(queuedMessageInformation);
             var currentCount = _inflightMessageIds[queuedMessageInformation.Message.MessageId] -= 1;
-            if (currentCount == 0)
+            if(currentCount == 0)
             {
                 _inflightMessageIds.Remove(queuedMessageInformation.Message.MessageId);
             }

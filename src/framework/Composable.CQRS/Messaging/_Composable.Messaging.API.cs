@@ -6,13 +6,11 @@
 namespace Composable.Messaging
 {
     ///<summary>An object that is used to transfer data from a sender to a receiver through a messaging infrastructure.</summary>
-    public interface IMessage
-    {
-        Guid MessageId { get; }
-    }
+    public interface IMessage {}
 
     public interface IExactlyOnceDeliveryMessage : IMessage
     {
+        Guid MessageId { get; }
     }
 
     public abstract class Message : IMessage

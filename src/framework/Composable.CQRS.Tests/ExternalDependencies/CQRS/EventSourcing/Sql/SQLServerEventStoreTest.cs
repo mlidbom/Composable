@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Transactions;
 using Composable.DependencyInjection;
+using Composable.Messaging;
 using Composable.Persistence.EventStore;
 using Composable.Tests.CQRS;
 using NUnit.Framework;

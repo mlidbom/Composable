@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using Composable.Messaging;
 using Composable.Messaging.Events;
 using Composable.System.Reflection;
 

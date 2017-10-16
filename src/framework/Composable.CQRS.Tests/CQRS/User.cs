@@ -1,5 +1,6 @@
 ﻿using System;
 using Composable.GenericAbstractions.Time;
+using Composable.Messaging;
 using Composable.Persistence.EventStore;
 using Composable.Persistence.EventStore.AggregateRoots;
 using Composable.Tests.CQRS.EventRefactoring.Migrations;

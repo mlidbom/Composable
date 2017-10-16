@@ -1,4 +1,6 @@
-﻿namespace Composable.Persistence.EventStore
+﻿using Composable.Messaging;
+
+namespace Composable.Persistence.EventStore
 {
     public interface IAggregateRootDeletedEvent : IAggregateRootEvent
     {

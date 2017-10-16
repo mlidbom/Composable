@@ -1,5 +1,6 @@
 ﻿using System;
 using Composable.DDD;
+using Composable.Messaging;
 using Newtonsoft.Json;
 
 namespace Composable.Persistence.EventStore

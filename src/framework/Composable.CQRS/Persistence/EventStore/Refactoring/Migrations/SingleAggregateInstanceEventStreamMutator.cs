@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Composable.Contracts;
+using Composable.Messaging;
 using Composable.System.Linq;
 
 // ReSharper disable ForCanBeConvertedToForeach

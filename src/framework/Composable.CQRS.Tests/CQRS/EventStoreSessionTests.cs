@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading;
 using Composable.DependencyInjection;
 using Composable.DependencyInjection.Testing;
+using Composable.Messaging;
 using Composable.Messaging.Buses;
 using Composable.Persistence.EventStore;
 using Composable.System;

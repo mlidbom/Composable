@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using Composable.DependencyInjection;
 using Composable.GenericAbstractions.Time;
+using Composable.Messaging;
 using Composable.Messaging.Events;
 using Composable.Persistence.DocumentDb;
 using Composable.Persistence.EventStore;

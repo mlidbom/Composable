@@ -4,6 +4,7 @@ using System.Linq;
 using Composable.Contracts;
 using Composable.DDD;
 using Composable.GenericAbstractions.Time;
+using Composable.Messaging;
 using Composable.Messaging.Events;
 using Composable.System;
 using Composable.System.Linq;

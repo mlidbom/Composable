@@ -1,4 +1,5 @@
 ﻿using System;
+using Composable.Messaging;
 using Composable.Messaging.Events;
 
 namespace Composable.Persistence.EventStore.AggregateRoots

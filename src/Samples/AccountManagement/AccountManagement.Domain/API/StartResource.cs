@@ -9,7 +9,7 @@ using Composable.Messaging.Commands;
 
 namespace AccountManagement.Domain.API
 {
-    public class StartResource : IResource<StartResource>
+    public class StartResource
     {
         public IQuery<StartResource> Self { get; } = new SingletonQuery<StartResource>();
 
@@ -37,7 +37,7 @@ namespace AccountManagement.Domain.API
         }
     }
 
-    public class CreateAccountCommand : Command, ICommand<AccountResource>
+    public class CreateAccountCommand : DomainCommand, IDomainCommand<AccountResource>
     {
         Email Email { get; }
         Password Password { get; }

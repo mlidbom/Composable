@@ -463,10 +463,10 @@ namespace Composable.Tests.CQRS
             UseInTransactionalScope(session =>
                                     {
                                         Assert.That(MessageSpy.DispatchedMessages.Count, Is.EqualTo(18));
-                                        Assert.That(MessageSpy.DispatchedMessages.OfType<IAggregateRootEvent>().Select(e => e.EventId).Distinct().Count(), Is.EqualTo(18));
+                                        Assert.That(MessageSpy.DispatchedMessages.OfType<IDomainEvent>().Select(e => e.EventId).Distinct().Count(), Is.EqualTo(18));
                                         var allPersistedEvents = ServiceLocator.EventStore().ListAllEventsForTestingPurposesAbsolutelyNotUsableForARealEventStoreOfAnySize();
 
-                                        MessageSpy.DispatchedMessages.ShouldBeEquivalentTo(allPersistedEvents,options => options.WithStrictOrdering());
+                                        MessageSpy.DispatchedMessages.OfType<IDomainEvent>().ShouldBeEquivalentTo(allPersistedEvents,options => options.WithStrictOrdering());
                                     });
         }
 

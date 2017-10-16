@@ -5,7 +5,7 @@ using Composable.Messaging;
 namespace Composable.Persistence.EventStore.Refactoring.Migrations
 {
     abstract class EventMigration<TMigratedAggregateEventHierarchyRootInterface> : IEventMigration
-        where TMigratedAggregateEventHierarchyRootInterface : IAggregateRootEvent
+        where TMigratedAggregateEventHierarchyRootInterface : IDomainEvent
     {
         protected EventMigration(Guid id, string name, string description)
         {

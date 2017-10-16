@@ -35,7 +35,7 @@ namespace Composable.Persistence.EventStore.Refactoring.Naming
         public RenamingEventNameMapper(IEnumerable<Type> eventTypes, params IRenameEvents[] renamers)
         {
             var nameMappings = eventTypes
-                .Where(type => type.Implements<IAggregateRootEvent>())
+                .Where(type => type.Implements<IDomainEvent>())
                 .Select(type => new EventNameMapping(type))
                 .ToArray();
 

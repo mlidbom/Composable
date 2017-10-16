@@ -75,15 +75,15 @@ namespace Composable.Messaging.Buses.Implementation
             eventReceivers.ForEach(receiver => receiver.Dispatch(@event));
         });
 
-        public void Dispatch(ICommand command) => _this.Locked(@this => @this.CommandConnections[command.GetType()]).Dispatch(command);
+        public void Dispatch(IDomainCommand command) => _this.Locked(@this => @this.CommandConnections[command.GetType()]).Dispatch(command);
 
-        public Task<TCommandResult> Dispatch<TCommandResult>(ICommand<TCommandResult> command) where TCommandResult : IMessage => _this.Locked(@this =>
+        public Task<TCommandResult> Dispatch<TCommandResult>(IDomainCommand<TCommandResult> command) where TCommandResult : IMessage => _this.Locked(@this =>
         {
             var commandHandlerConnection = @this.CommandConnections[command.GetType()];
             return commandHandlerConnection.Dispatch(command);
         });
 
-        public Task<TQueryResult> Dispatch<TQueryResult>(IQuery<TQueryResult> query) where TQueryResult : IQueryResult => _this.Locked(@this =>
+        public Task<TQueryResult> Dispatch<TQueryResult>(IQuery<TQueryResult> query) => _this.Locked(@this =>
         {
             var commandHandlerConnection = @this.QueryConnections[query.GetType()];
             return commandHandlerConnection.Dispatch(query);
@@ -98,7 +98,7 @@ namespace Composable.Messaging.Buses.Implementation
         });
 
 
-        static bool IsCommand(Type type) => typeof(ICommand).IsAssignableFrom(type);
+        static bool IsCommand(Type type) => typeof(IDomainCommand).IsAssignableFrom(type);
         static bool IsEvent(Type type) => typeof(IEvent).IsAssignableFrom(type);
         static bool IsQuery(Type type) => typeof(IQuery).IsAssignableFrom(type);
     }

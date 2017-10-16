@@ -76,13 +76,13 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
 
         public static class UserEvent
         {
-            public interface IRoot : IAggregateRootEvent {}
+            public interface IRoot : IDomainEvent {}
 
             public interface UserRegistered : IRoot, IAggregateRootCreatedEvent {}
 
             public static class Implementation
             {
-                public class Root : AggregateRootEvent, IRoot
+                public class Root : DomainEvent, IRoot
                 {
                     protected Root() {}
                     protected Root(Guid aggregateRootId) : base(aggregateRootId) {}
@@ -97,10 +97,10 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
 
         public static class UserRegistrarCommand
         {
-            public interface IRoot : ICommand {}
+            public interface IRoot : IDomainCommand {}
 
-            public class Root : Command, IRoot {}
-            public class Root<TResult> : Command<TResult>, IRoot where TResult : IMessage {}
+            public class Root : DomainCommand, IRoot {}
+            public class Root<TResult> : DomainCommand<TResult>, IRoot where TResult : IMessage {}
 
             public class RegisterUserCommand : Root<RegisterUserResult>
             {
@@ -110,10 +110,10 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
 
         public static class UserRegistrarEvent
         {
-            public interface IRoot : IAggregateRootEvent {}
+            public interface IRoot : IDomainEvent {}
             public static class Implementation
             {
-                public class Root : AggregateRootEvent, IRoot
+                public class Root : DomainEvent, IRoot
                 {
                     protected Root() {}
                     protected Root(Guid aggregateRootId) : base(aggregateRootId) {}
@@ -165,8 +165,8 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
 
         public class UserResource : QueryResult
         {
-            public IEnumerable<IAggregateRootEvent> History { get; }
-            public UserResource(IEnumerable<IAggregateRootEvent> history) { History = history; }
+            public IEnumerable<IDomainEvent> History { get; }
+            public UserResource(IEnumerable<IDomainEvent> history) { History = history; }
         }
 
         public class RegisterUserResult : Message

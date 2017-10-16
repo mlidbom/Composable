@@ -14,7 +14,7 @@ namespace Composable.NewtonSoft
         {
             var property = base.CreateProperty(member, memberSerialization);
 
-            if(property.DeclaringType == typeof(AggregateRootEvent))
+            if(property.DeclaringType == typeof(DomainEvent))
             {
                 property.Ignored = true;
             }

@@ -92,7 +92,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification
                 public string Name { get; }
             }
 
-            protected class RegisterUserCommand : Command<UserRegisteredConfirmationResource>
+            protected class RegisterUserCommand : DomainCommand<UserRegisteredConfirmationResource>
             {
                 public RegisterUserCommand(string name) => Name = name;
                 public string Name { get; }

@@ -72,13 +72,13 @@ namespace Composable.Tests.ExternalDependencies.CQRS.EventSourcing.Sql
                 }
             }
 
-            IAggregateRootEvent firstRead;
+            IDomainEvent firstRead;
             using(_serviceLocator.BeginScope())
             {
                 firstRead = _serviceLocator.SqlEventStore().GetAggregateHistory(user.Id).Single();
             }
 
-            IAggregateRootEvent secondRead;
+            IDomainEvent secondRead;
             using (_serviceLocator.BeginScope())
             {
                 secondRead = _serviceLocator.SqlEventStore().GetAggregateHistory(user.Id).Single();

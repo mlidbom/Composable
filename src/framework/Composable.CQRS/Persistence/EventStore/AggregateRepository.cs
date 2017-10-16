@@ -6,8 +6,8 @@ namespace Composable.Persistence.EventStore
 {
     public class AggregateRepository<TAggregate, TBaseEventClass, TBaseEventInterface> : IAggregateRepository<TAggregate>
         where TAggregate : AggregateRoot<TAggregate, TBaseEventClass, TBaseEventInterface>, IEventStored
-        where TBaseEventClass : AggregateRootEvent, TBaseEventInterface
-        where TBaseEventInterface : class, IAggregateRootEvent
+        where TBaseEventClass : DomainEvent, TBaseEventInterface
+        where TBaseEventInterface : class, IDomainEvent
     {
         readonly IEventStoreReader _reader;
         readonly IEventStoreUpdater _aggregates;

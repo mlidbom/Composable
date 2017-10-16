@@ -14,8 +14,8 @@ namespace Composable.Persistence.EventStore.AggregateRoots
 {
     public partial class AggregateRoot<TAggregateRoot, TAggregateRootBaseEventClass, TAggregateRootBaseEventInterface> : VersionedPersistentEntity<TAggregateRoot>, IEventStored
         where TAggregateRoot : AggregateRoot<TAggregateRoot, TAggregateRootBaseEventClass, TAggregateRootBaseEventInterface>
-        where TAggregateRootBaseEventInterface : class, IAggregateRootEvent
-        where TAggregateRootBaseEventClass : AggregateRootEvent, TAggregateRootBaseEventInterface
+        where TAggregateRootBaseEventInterface : class, IDomainEvent
+        where TAggregateRootBaseEventClass : DomainEvent, TAggregateRootBaseEventInterface
     {
         IUtcTimeTimeSource TimeSource { get; set; }
 
@@ -24,7 +24,7 @@ namespace Composable.Persistence.EventStore.AggregateRoots
         int _insertedVersionToAggregateVersionOffset = 0;
 
         SimpleObservable<TAggregateRootBaseEventClass> _simpleObservable = new SimpleObservable<TAggregateRootBaseEventClass>();
-        public IObservable<IAggregateRootEvent> EventStream => _simpleObservable;
+        public IObservable<IDomainEvent> EventStream => _simpleObservable;
 
         //Yes empty. Id should be assigned by an action and it should be obvious that the aggregate in invalid until that happens
         protected AggregateRoot(IUtcTimeTimeSource timeSource) : base(Guid.Empty)
@@ -32,10 +32,10 @@ namespace Composable.Persistence.EventStore.AggregateRoots
             OldContract.Assert.That(timeSource != null, "timeSource != null");
             OldContract.Assert.That(typeof(TAggregateRootBaseEventInterface).IsInterface, "typeof(TAggregateRootBaseEventInterface).IsInterface");
             TimeSource = timeSource;
-            _eventHandlersEventDispatcher.Register().IgnoreUnhandled<IAggregateRootEvent>();
+            _eventHandlersEventDispatcher.Register().IgnoreUnhandled<IDomainEvent>();
         }
 
-        readonly IList<IAggregateRootEvent> _unCommittedEvents = new List<IAggregateRootEvent>();
+        readonly IList<IDomainEvent> _unCommittedEvents = new List<IDomainEvent>();
         readonly CallMatchingHandlersInRegistrationOrderEventDispatcher<TAggregateRootBaseEventInterface> _eventDispatcher = new CallMatchingHandlersInRegistrationOrderEventDispatcher<TAggregateRootBaseEventInterface>();
         readonly CallMatchingHandlersInRegistrationOrderEventDispatcher<TAggregateRootBaseEventInterface> _eventHandlersEventDispatcher = new CallMatchingHandlersInRegistrationOrderEventDispatcher<TAggregateRootBaseEventInterface>();
 
@@ -125,17 +125,17 @@ namespace Composable.Persistence.EventStore.AggregateRoots
             _unCommittedEvents.Clear();
         }
 
-        IEnumerable<IAggregateRootEvent> IEventStored.GetChanges() => _unCommittedEvents;
+        IEnumerable<IDomainEvent> IEventStored.GetChanges() => _unCommittedEvents;
 
         void IEventStored.SetTimeSource(IUtcTimeTimeSource timeSource)
         {
             TimeSource = timeSource;
         }
 
-        void IEventStored.LoadFromHistory(IEnumerable<IAggregateRootEvent> history)
+        void IEventStored.LoadFromHistory(IEnumerable<IDomainEvent> history)
         {
             history.ForEach(theEvent => ApplyEvent((TAggregateRootBaseEventInterface)theEvent));
-            var maxInsertedVersion = history.Max(@event => ((AggregateRootEvent)@event).InsertedVersion);
+            var maxInsertedVersion = history.Max(@event => ((DomainEvent)@event).InsertedVersion);
             if(maxInsertedVersion != Version)
             {
                 _insertedVersionToAggregateVersionOffset = maxInsertedVersion - Version;

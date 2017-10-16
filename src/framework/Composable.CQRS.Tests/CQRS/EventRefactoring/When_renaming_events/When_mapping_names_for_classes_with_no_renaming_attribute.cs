@@ -33,8 +33,8 @@ namespace Composable.Tests.CQRS.EventRefactoring.When_renaming_events
             _nameMapper.GetType(typeof(Event2).FullName).Should().Be(typeof(Event2));
         }
 
-        class Event1 : AggregateRootEvent { }
+        class Event1 : DomainEvent { }
 
-        class Event2 : AggregateRootEvent { }
+        class Event2 : DomainEvent { }
     }
 }

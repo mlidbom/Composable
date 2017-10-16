@@ -9,9 +9,9 @@ using NUnit.Framework;
 
 namespace Composable.Tests.CQRS
 {
-    interface ISomeEvent : IAggregateRootEvent {}
+    interface ISomeEvent : IDomainEvent {}
 
-    class SomeEvent : AggregateRootEvent, ISomeEvent
+    class SomeEvent : DomainEvent, ISomeEvent
     {
         public SomeEvent(Guid aggregateRootId, int version) : base(aggregateRootId)
         {

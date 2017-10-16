@@ -4,6 +4,6 @@ namespace Composable.Persistence.EventStore.Refactoring.Migrations
 {
     interface ICompleteEventStreamMutator
     {
-        IEnumerable<AggregateRootEvent> Mutate(IEnumerable<AggregateRootEvent> eventStream);
+        IEnumerable<DomainEvent> Mutate(IEnumerable<DomainEvent> eventStream);
     }
 }

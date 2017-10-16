@@ -9,10 +9,10 @@ namespace Composable.Persistence.EventStore
     {
         Guid Id { get; }
         int Version { get; }
-        IEnumerable<IAggregateRootEvent> GetChanges();
+        IEnumerable<IDomainEvent> GetChanges();
         void AcceptChanges();
-        void LoadFromHistory(IEnumerable<IAggregateRootEvent> history);
+        void LoadFromHistory(IEnumerable<IDomainEvent> history);
         void SetTimeSource(IUtcTimeTimeSource timeSource);
-        IObservable<IAggregateRootEvent> EventStream { get; }
+        IObservable<IDomainEvent> EventStream { get; }
     }
 }

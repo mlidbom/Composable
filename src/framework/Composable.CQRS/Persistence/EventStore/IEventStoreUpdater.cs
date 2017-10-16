@@ -6,7 +6,7 @@ namespace Composable.Persistence.EventStore
 {
     public interface IEventStoreReader
     {
-        IEnumerable<IAggregateRootEvent> GetHistory(Guid aggregateId);
+        IEnumerable<IDomainEvent> GetHistory(Guid aggregateId);
         /// <summary>
         /// Loads a specific version of the aggregate.
         /// This instance is NOT tracked for changes.

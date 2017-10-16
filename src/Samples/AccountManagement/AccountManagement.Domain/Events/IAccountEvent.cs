@@ -8,7 +8,7 @@ namespace AccountManagement.Domain.Events
 {
     public static partial class AccountEvent
     {
-        public interface Root : IAggregateRootEvent {}
+        public interface Root : IDomainEvent {}
 
         public interface Created :
                 Root,

@@ -2,7 +2,7 @@
 {
     public interface IEventModifier
     {
-        void Replace(params AggregateRootEvent[] events);
-        void InsertBefore(params AggregateRootEvent[] insert);
+        void Replace(params DomainEvent[] events);
+        void InsertBefore(params DomainEvent[] insert);
     }
 }

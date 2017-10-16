@@ -22,7 +22,7 @@ namespace Composable.Messaging.Buses
         {
             lock(_lock)
             {
-                Contract.Argument.Assert(!(typeof(TEvent)).IsAssignableFrom(typeof(ICommand)), !(typeof(TEvent)).IsAssignableFrom(typeof(IQuery)));
+                Contract.Argument.Assert(!(typeof(TEvent)).IsAssignableFrom(typeof(IDomainCommand)), !(typeof(TEvent)).IsAssignableFrom(typeof(IQuery)));
                 _eventHandlers.GetOrAdd(typeof(TEvent), () => new List<Action<IEvent>>()).Add(@event => handler((TEvent)@event));
                 _eventHandlerRegistrations.Add(new EventHandlerRegistration(typeof(TEvent), registrar => registrar.For(handler)));
                 return this;
@@ -39,7 +39,7 @@ namespace Composable.Messaging.Buses
             }
         }
 
-        public IMessageHandlerRegistrar ForCommand<TCommand, TResult>(Func<TCommand, TResult> handler) where TCommand : ICommand<TResult>
+        public IMessageHandlerRegistrar ForCommand<TCommand, TResult>(Func<TCommand, TResult> handler) where TCommand : IDomainCommand<TResult>
                                                                                       where TResult : IMessage
         {
             lock (_lock)
@@ -63,7 +63,7 @@ namespace Composable.Messaging.Buses
         {
             lock(_lock)
             {
-                Contract.Argument.Assert(!(typeof(TQuery)).IsAssignableFrom(typeof(IEvent)), !(typeof(TQuery)).IsAssignableFrom(typeof(ICommand)));
+                Contract.Argument.Assert(!(typeof(TQuery)).IsAssignableFrom(typeof(IEvent)), !(typeof(TQuery)).IsAssignableFrom(typeof(IDomainCommand)));
                 _queryHandlers.Add(typeof(TQuery), query => handler((TQuery)query));
                 return this;
             }
@@ -71,7 +71,7 @@ namespace Composable.Messaging.Buses
 
 
 
-        Action<object> IMessageHandlerRegistry.GetCommandHandler(ICommand message)
+        Action<object> IMessageHandlerRegistry.GetCommandHandler(IDomainCommand message)
         {
             try
             {
@@ -86,7 +86,7 @@ namespace Composable.Messaging.Buses
             }
         }
 
-        public Func<ICommand, object> GetCommandHandler(Type commandType)
+        public Func<IDomainCommand, object> GetCommandHandler(Type commandType)
         {
             if(_commandHandlers.TryGetValue(commandType, out Action<object> handler))
             {
@@ -123,7 +123,7 @@ namespace Composable.Messaging.Buses
             }
         }
 
-        public Func<ICommand<TResult>, TResult> GetCommandHandler<TResult>(ICommand<TResult> command) where TResult : IMessage
+        public Func<IDomainCommand<TResult>, TResult> GetCommandHandler<TResult>(IDomainCommand<TResult> command) where TResult : IMessage
         {
             try
             {

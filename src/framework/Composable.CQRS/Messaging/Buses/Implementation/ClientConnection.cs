@@ -91,12 +91,12 @@ namespace Composable.Messaging.Buses.Implementation
 
         public void Dispatch(IEvent @event) => DispatchMessage(@event);
 
-        public void Dispatch(ICommand command) => DispatchMessage(command);
+        public void Dispatch(IDomainCommand command) => DispatchMessage(command);
 
-        public async Task<TCommandResult> Dispatch<TCommandResult>(ICommand<TCommandResult> command) where TCommandResult : IMessage
+        public async Task<TCommandResult> Dispatch<TCommandResult>(IDomainCommand<TCommandResult> command) where TCommandResult : IMessage
             => (TCommandResult)await DispatchMessage(command);
 
-        public async Task<TQueryResult> Dispatch<TQueryResult>(IQuery<TQueryResult> query) where TQueryResult : IQueryResult
+        public async Task<TQueryResult> Dispatch<TQueryResult>(IQuery<TQueryResult> query)
             => (TQueryResult)await DispatchMessage(query);
 
         Task<IMessage> DispatchMessage(IMessage message) => _this.Locked(@this =>

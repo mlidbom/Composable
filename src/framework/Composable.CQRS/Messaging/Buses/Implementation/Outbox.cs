@@ -36,22 +36,22 @@ namespace Composable.Messaging.Buses.Implementation
             _commandScheduler.Dispose();
         });
 
-        public void SendAtTime(DateTime sendAt, ICommand command)
+        public void SendAtTime(DateTime sendAt, IDomainCommand command)
             => _commandScheduler.Schedule(sendAt, command);
 
-        public void Send(ICommand command)
+        public void Send(IDomainCommand command)
             => _transport.Dispatch(command);
 
         public void Publish(IEvent anEvent)
             => _transport.Dispatch(anEvent);
 
-        public TResult Query<TResult>(IQuery<TResult> query) where TResult : IQueryResult
+        public TResult Query<TResult>(IQuery<TResult> query)
             => _transport.Dispatch(query).Result;
 
-        public async Task<TResult> SendAsync<TResult>(ICommand<TResult> command) where TResult : IMessage
+        public async Task<TResult> SendAsync<TResult>(IDomainCommand<TResult> command) where TResult : IMessage
             => await _transport.Dispatch(command);
 
-        public async Task<TResult> QueryAsync<TResult>(IQuery<TResult> query) where TResult : IQueryResult
+        public async Task<TResult> QueryAsync<TResult>(IQuery<TResult> query)
             => await _transport.Dispatch(query);
     }
 }

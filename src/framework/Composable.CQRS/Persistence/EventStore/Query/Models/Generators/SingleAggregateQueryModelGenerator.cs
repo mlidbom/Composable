@@ -13,7 +13,7 @@ namespace Composable.Persistence.EventStore.Query.Models.Generators
         IVersioningQueryModelGenerator<TViewModel>
         where TImplementer : SingleAggregateQueryModelGenerator<TImplementer, TViewModel, TEvent, TSession>
         where TSession : IEventStoreReader
-        where TEvent : class, IAggregateRootEvent
+        where TEvent : class, IDomainEvent
         where TViewModel : class, ISingleAggregateQueryModel, new()
     {
         readonly CallMatchingHandlersInRegistrationOrderEventDispatcher<TEvent> _eventDispatcher = new CallMatchingHandlersInRegistrationOrderEventDispatcher<TEvent>();

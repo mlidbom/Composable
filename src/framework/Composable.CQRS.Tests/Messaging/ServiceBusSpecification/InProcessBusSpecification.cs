@@ -98,7 +98,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification
             }
         }
 
-        class ACommand : ICommand
+        class ACommand : IDomainCommand
         {
             public Guid MessageId { get; } = Guid.NewGuid();
         }

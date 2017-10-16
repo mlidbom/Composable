@@ -25,11 +25,11 @@ namespace Composable.Tests.CQRS.EventRefactoring.Migrations
 
             public Migrator(IEnumerable<Type> replaceWith) => _replaceWith = replaceWith;
 
-            public void MigrateEvent(IAggregateRootEvent @event, IEventModifier modifier)
+            public void MigrateEvent(IDomainEvent @event, IEventModifier modifier)
             {
                 if (@event.GetType() == typeof(TEvent))
                 {
-                    modifier.Replace(_replaceWith.Select(Activator.CreateInstance).Cast<AggregateRootEvent>().ToArray());
+                    modifier.Replace(_replaceWith.Select(Activator.CreateInstance).Cast<DomainEvent>().ToArray());
                 }
             }
         }

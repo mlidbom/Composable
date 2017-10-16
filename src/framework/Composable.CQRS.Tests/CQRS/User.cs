@@ -53,10 +53,10 @@ namespace Composable.Tests.CQRS
         }
     }
 
-    interface IUserEvent : IAggregateRootEvent, IRootEvent
+    interface IUserEvent : IDomainEvent, IRootEvent
     { }
 
-    abstract class UserEvent : AggregateRootEvent, IUserEvent
+    abstract class UserEvent : DomainEvent, IUserEvent
     {}
 
     class UserChangedEmail : UserEvent, IUserEvent

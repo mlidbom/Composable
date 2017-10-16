@@ -54,11 +54,11 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
             QueryHandlerThreadGate.Open();
         }
 
-        protected class MyCommand : Command {}
+        protected class MyCommand : DomainCommand {}
         protected class MyEvent : Event {}
         protected class MyQuery : Query<MyQueryResult> {}
         protected class MyQueryResult : QueryResult {}
-        protected class MyCommandWithResult : Command<MyCommandResult> {}
+        protected class MyCommandWithResult : DomainCommand<MyCommandResult> {}
         protected class MyCommandResult : Message {}
     }
 }

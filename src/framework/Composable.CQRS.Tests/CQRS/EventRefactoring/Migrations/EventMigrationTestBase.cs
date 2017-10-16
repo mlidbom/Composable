@@ -54,7 +54,7 @@ namespace Composable.Tests.CQRS.EventRefactoring.Migrations
 
             var timeSource = serviceLocator.Resolve<DummyTimeSource>();
 
-            IReadOnlyList<IAggregateRootEvent> eventsInStoreAtStart;
+            IReadOnlyList<IDomainEvent> eventsInStoreAtStart;
             using(serviceLocator.BeginScope()) //Why is this needed? It fails without it but I do not understand why...
             {
                 var eventStore = serviceLocator.Resolve<IEventStore>();
@@ -195,7 +195,7 @@ namespace Composable.Tests.CQRS.EventRefactoring.Migrations
             return serviceLocator;
         }
 
-        protected static void AssertStreamsAreIdentical(IEnumerable<IAggregateRootEvent> expected, IEnumerable<IAggregateRootEvent> migratedHistory, string descriptionOfHistory)
+        protected static void AssertStreamsAreIdentical(IEnumerable<IDomainEvent> expected, IEnumerable<IDomainEvent> migratedHistory, string descriptionOfHistory)
         {
             try
             {
@@ -210,7 +210,7 @@ namespace Composable.Tests.CQRS.EventRefactoring.Migrations
                         }
                     });
 
-                migratedHistory.Cast<AggregateRootEvent>()
+                migratedHistory.Cast<DomainEvent>()
                                .ShouldAllBeEquivalentTo(
                                    expected,
                                    config => config.RespectingRuntimeTypes()

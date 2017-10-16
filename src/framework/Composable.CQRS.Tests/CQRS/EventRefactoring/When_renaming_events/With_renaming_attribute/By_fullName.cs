@@ -33,12 +33,12 @@ namespace Composable.Tests.CQRS.EventRefactoring.When_renaming_events.With_renam
             _nameMapper.GetType(Event2.OldName).Should().Be(typeof(Event2));
         }
 
-        [EventRenamedFrom(FullName = OldName)] class Event1 : AggregateRootEvent
+        [EventRenamedFrom(FullName = OldName)] class Event1 : DomainEvent
         {
             public const string OldName= "Even1OldName";
         }
 
-        [EventRenamedFrom(FullName = OldName)] class Event2 : AggregateRootEvent
+        [EventRenamedFrom(FullName = OldName)] class Event2 : DomainEvent
         {
             public const string OldName = "Event2OldName";
         }

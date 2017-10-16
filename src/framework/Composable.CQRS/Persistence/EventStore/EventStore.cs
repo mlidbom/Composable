@@ -41,11 +41,11 @@ namespace Composable.Persistence.EventStore
             _eventWriter = persistenceLayer.EventWriter;
         }
 
-        public IReadOnlyList<IAggregateRootEvent> GetAggregateHistoryForUpdate(Guid aggregateId) => GetAggregateHistoryInternal(aggregateId: aggregateId, takeWriteLock: true);
+        public IReadOnlyList<IDomainEvent> GetAggregateHistoryForUpdate(Guid aggregateId) => GetAggregateHistoryInternal(aggregateId: aggregateId, takeWriteLock: true);
 
-        public IReadOnlyList<IAggregateRootEvent> GetAggregateHistory(Guid aggregateId) => GetAggregateHistoryInternal(aggregateId, takeWriteLock: false);
+        public IReadOnlyList<IDomainEvent> GetAggregateHistory(Guid aggregateId) => GetAggregateHistoryInternal(aggregateId, takeWriteLock: false);
 
-        IReadOnlyList<IAggregateRootEvent> GetAggregateHistoryInternal(Guid aggregateId, bool takeWriteLock)
+        IReadOnlyList<IDomainEvent> GetAggregateHistoryInternal(Guid aggregateId, bool takeWriteLock)
         {
             _usageGuard.AssertNoContextChangeOccurred(this);
             _schemaManager.SetupSchemaIfDatabaseUnInitialized();
@@ -93,9 +93,9 @@ namespace Composable.Persistence.EventStore
             return newAggregateHistory;
         }
 
-        AggregateRootEvent HydrateEvent(EventReadDataRow eventDataRowRow)
+        DomainEvent HydrateEvent(EventReadDataRow eventDataRowRow)
         {
-            var @event = (AggregateRootEvent)_serializer.Deserialize(eventType: _schemaManager.IdMapper.GetType(eventDataRowRow.EventType), eventData: eventDataRowRow.EventJson);
+            var @event = (DomainEvent)_serializer.Deserialize(eventType: _schemaManager.IdMapper.GetType(eventDataRowRow.EventType), eventData: eventDataRowRow.EventJson);
             @event.AggregateRootId = eventDataRowRow.AggregateRootId;
             @event.AggregateRootVersion = eventDataRowRow.AggregateRootVersion;
             @event.EventId = eventDataRowRow.EventId;
@@ -111,22 +111,22 @@ namespace Composable.Persistence.EventStore
             return @event;
         }
 
-        AggregateRootEvent[] GetAggregateEventsFromPersistenceLayer(Guid aggregateId, bool takeWriteLock, int startAfterInsertedVersion = 0)
+        DomainEvent[] GetAggregateEventsFromPersistenceLayer(Guid aggregateId, bool takeWriteLock, int startAfterInsertedVersion = 0)
             => _eventReader.GetAggregateHistory(aggregateId: aggregateId,
                                                 startAfterInsertedVersion: startAfterInsertedVersion,
                                                 takeWriteLock: takeWriteLock)
                            .Select(HydrateEvent)
                            .ToArray();
 
-        static bool IsRefactoringEvent(AggregateRootEvent @event) => @event.InsertBefore.HasValue || @event.InsertAfter.HasValue || @event.Replaces.HasValue;
+        static bool IsRefactoringEvent(DomainEvent @event) => @event.InsertBefore.HasValue || @event.InsertAfter.HasValue || @event.Replaces.HasValue;
 
-        IEnumerable<IAggregateRootEvent> StreamEvents(int batchSize)
+        IEnumerable<IDomainEvent> StreamEvents(int batchSize)
         {
             var streamMutator = CompleteEventStoreStreamMutator.Create(_migrationFactories);
             return streamMutator.Mutate(_eventReader.StreamEvents(batchSize).Select(HydrateEvent));
         }
 
-        public void StreamEvents(int batchSize, Action<IReadOnlyList<IAggregateRootEvent>> handleEvents)
+        public void StreamEvents(int batchSize, Action<IReadOnlyList<IDomainEvent>> handleEvents)
         {
             _usageGuard.AssertNoContextChangeOccurred(this);
             _schemaManager.SetupSchemaIfDatabaseUnInitialized();
@@ -142,7 +142,7 @@ namespace Composable.Persistence.EventStore
             }
         }
 
-        public void SaveEvents(IEnumerable<IAggregateRootEvent> events)
+        public void SaveEvents(IEnumerable<IDomainEvent> events)
         {
             _usageGuard.AssertNoContextChangeOccurred(this);
             _schemaManager.SetupSchemaIfDatabaseUnInitialized();
@@ -150,7 +150,7 @@ namespace Composable.Persistence.EventStore
             var updatedAggregates = events.Select(@event => @event.AggregateRootId).Distinct().ToList();
             _aggregatesWithEventsAddedByThisInstance.AddRange(updatedAggregates);
 
-            var eventRows = events.Cast<AggregateRootEvent>()
+            var eventRows = events.Cast<DomainEvent>()
                                   .Select(@this => new EventWriteDataRow(@event: @this, eventAsJson: _serializer.Serialize(@this)))
                                   .ToList();
             _eventWriter.Insert(eventRows);
@@ -159,7 +159,7 @@ namespace Composable.Persistence.EventStore
             {
                 var completeAggregateHistory = _cache.Get(aggregateId)
                                                      .Events.Concat(events.Where(@event => @event.AggregateRootId == aggregateId))
-                                                     .Cast<AggregateRootEvent>()
+                                                     .Cast<DomainEvent>()
                                                      .ToArray();
                 SingleAggregateInstanceEventStreamMutator.AssertMigrationsAreIdempotent(_migrationFactories, completeAggregateHistory);
             }
@@ -265,7 +265,7 @@ namespace Composable.Persistence.EventStore
 
         public IEnumerable<Guid> StreamAggregateIdsInCreationOrder(Type eventBaseType = null)
         {
-            OldContract.Assert.That(eventBaseType == null || eventBaseType.IsInterface && typeof(IAggregateRootEvent).IsAssignableFrom(eventBaseType),
+            OldContract.Assert.That(eventBaseType == null || eventBaseType.IsInterface && typeof(IDomainEvent).IsAssignableFrom(eventBaseType),
                 "eventBaseType == null || eventBaseType.IsInterface && typeof(IAggregateRootEvent).IsAssignableFrom(eventBaseType)");
             _usageGuard.AssertNoContextChangeOccurred(this);
 

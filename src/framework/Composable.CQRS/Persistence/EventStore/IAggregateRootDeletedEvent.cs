@@ -2,7 +2,7 @@
 
 namespace Composable.Persistence.EventStore
 {
-    public interface IAggregateRootDeletedEvent : IAggregateRootEvent
+    public interface IAggregateRootDeletedEvent : IDomainEvent
     {
 
     }

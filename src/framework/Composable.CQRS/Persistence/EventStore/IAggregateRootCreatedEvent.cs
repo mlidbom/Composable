@@ -9,7 +9,7 @@ namespace Composable.Persistence.EventStore
     /// <para>AggregateRoot: Id is only set when such an event is raised. It is only ever possibly to raise 1 such event. More than one will cause an exception</para>
     /// <para>SingleAggregateQueryModelUpdater: Creates the initial query model when it receives such an event</para>
     /// </summary>
-    public interface IAggregateRootCreatedEvent : IAggregateRootEvent
+    public interface IAggregateRootCreatedEvent : IDomainEvent
     {
 
     }

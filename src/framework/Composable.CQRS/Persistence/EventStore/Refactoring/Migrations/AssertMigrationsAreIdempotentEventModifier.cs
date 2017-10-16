@@ -5,8 +5,8 @@ namespace Composable.Persistence.EventStore.Refactoring.Migrations
         public static readonly IEventModifier Instance = new AssertMigrationsAreIdempotentEventModifier();
         AssertMigrationsAreIdempotentEventModifier() { }
 
-        public void Replace(params AggregateRootEvent[] events) { throw new NonIdempotentMigrationDetectedException(); }
+        public void Replace(params DomainEvent[] events) { throw new NonIdempotentMigrationDetectedException(); }
 
-        public void InsertBefore(params AggregateRootEvent[] insert) { throw new NonIdempotentMigrationDetectedException(); }
+        public void InsertBefore(params DomainEvent[] insert) { throw new NonIdempotentMigrationDetectedException(); }
     }
 }

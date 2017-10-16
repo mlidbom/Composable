@@ -22,7 +22,7 @@ namespace Composable.Messaging.Buses
 
         public static MessageHandlerRegistrarWithDependencyInjectionSupport ForCommand<TCommand>(
             this MessageHandlerRegistrarWithDependencyInjectionSupport @this,
-            Action<TCommand> action) where TCommand : ICommand
+            Action<TCommand> action) where TCommand : IDomainCommand
         {
             @this.Register.ForCommand(action);
             return @this;
@@ -30,7 +30,7 @@ namespace Composable.Messaging.Buses
 
         public static MessageHandlerRegistrarWithDependencyInjectionSupport ForCommand<TCommand, TResult>(
             this MessageHandlerRegistrarWithDependencyInjectionSupport @this,
-            Func<TCommand, TResult> action) where TCommand : ICommand<TResult>
+            Func<TCommand, TResult> action) where TCommand : IDomainCommand<TResult>
                                             where TResult : IMessage
         {
             @this.Register.ForCommand(action);
@@ -39,7 +39,7 @@ namespace Composable.Messaging.Buses
 
         public static MessageHandlerRegistrarWithDependencyInjectionSupport ForCommand<TCommand, TDependency1, TResult>(
             this MessageHandlerRegistrarWithDependencyInjectionSupport @this,
-            Func<TCommand, TDependency1, TResult> action) where TCommand : ICommand<TResult>
+            Func<TCommand, TDependency1, TResult> action) where TCommand : IDomainCommand<TResult>
                                             where TResult : IMessage
                                                           where TDependency1 : class
         {
@@ -49,10 +49,10 @@ namespace Composable.Messaging.Buses
 
         public static MessageHandlerRegistrarWithDependencyInjectionSupport ForCommand<TCommand, TDependency1>(
             this MessageHandlerRegistrarWithDependencyInjectionSupport @this,
-            Action<TCommand, TDependency1> action) where TCommand : ICommand
+            Action<TCommand, TDependency1> action) where TCommand : IDomainCommand
                                                    where TDependency1 : class
         {
-            if(typeof(TCommand).Implements(typeof(ICommand<>)))
+            if(typeof(TCommand).Implements(typeof(IDomainCommand<>)))
             {
                 throw new Exception($"{typeof(TCommand)} expects a result. You must register a method that returns a result.");
             }
@@ -81,7 +81,6 @@ namespace Composable.Messaging.Buses
         public static MessageHandlerRegistrarWithDependencyInjectionSupport ForQuery<TQuery, TResult>(
             this MessageHandlerRegistrarWithDependencyInjectionSupport @this,
             Func<TQuery, TResult> action) where TQuery : IQuery<TResult>
-                                          where TResult : IQueryResult
         {
             @this.Register.ForQuery(action);
             return @this;
@@ -90,7 +89,6 @@ namespace Composable.Messaging.Buses
         public static MessageHandlerRegistrarWithDependencyInjectionSupport ForQuery<TQuery, TDependency1, TResult>(
             this MessageHandlerRegistrarWithDependencyInjectionSupport @this,
             Func<TQuery, TDependency1, TResult> action) where TQuery : IQuery<TResult>
-                                          where TResult : IQueryResult
                                                         where TDependency1 : class
         {
             @this.Register.ForQuery<TQuery,TResult>(query =>  action(query, @this.ServiceLocator.Resolve<TDependency1>()));

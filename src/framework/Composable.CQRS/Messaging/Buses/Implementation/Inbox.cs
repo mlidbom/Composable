@@ -148,7 +148,7 @@ namespace Composable.Messaging.Buses.Implementation
             {
                 switch(message.DeserializeMessageAndCacheForNextCall())
                 {
-                    case ICommand command:
+                    case IDomainCommand command:
                         return DispatchAsync(command, message);
                     case IEvent @event:
                         return DispatchAsync(@event, message);
@@ -209,7 +209,7 @@ namespace Composable.Messaging.Buses.Implementation
             return await taskCompletionSource.Task.NoMarshalling();
         }
 
-        async Task<object> DispatchAsync(ICommand command, TransportMessage.InComing message)
+        async Task<object> DispatchAsync(IDomainCommand command, TransportMessage.InComing message)
         {
             var handler = _handlerRegistry.GetCommandHandler(command.GetType());
 

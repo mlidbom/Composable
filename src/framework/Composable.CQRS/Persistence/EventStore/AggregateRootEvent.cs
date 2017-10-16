@@ -7,17 +7,17 @@ namespace Composable.Persistence.EventStore
 {
     //review:mlidbo: Make instances immutable.
     //Review:mlidbo: Extract refactoring information into a separate abstraction?
-    public class AggregateRootEvent : ValueObject<AggregateRootEvent>, IAggregateRootEvent
+    public class DomainEvent : ValueObject<DomainEvent>, IDomainEvent
     {
-        protected AggregateRootEvent()
+        protected DomainEvent()
         {
             EventId = Guid.NewGuid();
             UtcTimeStamp = DateTime.UtcNow;//Todo: Should use timesource.
         }
 
-        protected AggregateRootEvent(Guid aggregateRootId) : this() => AggregateRootId = aggregateRootId;
+        protected DomainEvent(Guid aggregateRootId) : this() => AggregateRootId = aggregateRootId;
 
-        [Obsolete("Only intended for testing. Do not use for normal inheritance.")] protected AggregateRootEvent(Guid? eventId = null,
+        [Obsolete("Only intended for testing. Do not use for normal inheritance.")] protected DomainEvent(Guid? eventId = null,
                                                                                                                  int? aggregateRootVersion = null,
                                                                                                                  Guid? aggregateRootId = null,
                                                                                                                  DateTime? utcTimeStamp = null,

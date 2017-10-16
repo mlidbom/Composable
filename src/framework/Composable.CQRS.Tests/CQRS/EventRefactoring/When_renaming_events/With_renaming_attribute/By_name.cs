@@ -35,14 +35,14 @@ namespace Composable.Tests.CQRS.EventRefactoring.When_renaming_events.With_renam
     }
 
     [EventRenamedFrom(Name = OldName)]
-    class Event1 : AggregateRootEvent
+    class Event1 : DomainEvent
     {
         const string OldName = "Even1OldName";
         public static readonly string OldFullName = $"{typeof(Event1).Namespace}.{OldName}";
     }
 
     [EventRenamedFrom(Name = OldName)]
-    class Event2 : AggregateRootEvent
+    class Event2 : DomainEvent
     {
         const string OldName = "Event2OldName";
         public static readonly string OldFullName = $"{typeof(Event1).Namespace}.{OldName}";

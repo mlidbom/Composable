@@ -12,7 +12,7 @@ namespace Composable.Messaging.Buses
                 return true;
             }
 
-            return busState.InflightMessages.None(queued => queued.Message is IEvent || queued.Message is ICommand);
+            return busState.InflightMessages.None(queued => queued.Message is IEvent || queued.Message is IDomainCommand);
         }
     }
 
@@ -25,7 +25,7 @@ namespace Composable.Messaging.Buses
                 return true;
             }
 
-            return busState.LocallyExecutingMessages.None(executing => executing.Message is IEvent || executing.Message is ICommand);
+            return busState.LocallyExecutingMessages.None(executing => executing.Message is IEvent || executing.Message is IDomainCommand);
         }
     }
 }

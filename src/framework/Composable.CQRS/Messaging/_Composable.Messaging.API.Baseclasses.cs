@@ -5,7 +5,7 @@
 
 namespace Composable.Messaging
 {
-    public abstract class QueryResult : Message, IQueryResult
+    public abstract class QueryResult : Message
     {
     }
 
@@ -13,19 +13,20 @@ namespace Composable.Messaging
     {
     }
 
-    public abstract class Query<TResult> : Message, IQuery<TResult> where TResult : IQueryResult
+    public abstract class Query<TResult> : Message, IQuery<TResult>
     {
     }
 
-    public class SingletonQuery<TSingleton> : Message, IQuery<TSingleton> where TSingleton : IResource<TSingleton>
+    public class SingletonQuery<TSingleton> : Message, IQuery<TSingleton>
     { }
 
-    public interface IEntityResource<TResource> : IResource<TResource> where TResource : IEntityResource<TResource>
+    ///<summary>Represent an entity within the domain of the current API that is uniquely identifiable through its type and Id.</summary>
+    public interface IEntityResource<TResource>
     {
         Guid Id { get; }
     }
 
-    class EntityQuery<TEntity> : Message, IEntityQuery<TEntity> where TEntity : IResource<TEntity>
+    class EntityQuery<TEntity> : Message, IEntityQuery<TEntity>
     {
         public EntityQuery(Guid id) => Id = id;
         public Guid Id { get; }

@@ -17,7 +17,7 @@ namespace Composable.Messaging.Buses
         }
 
 
-        public TResult Send<TResult>(ICommand<TResult> command) where TResult : IMessage
+        public TResult Send<TResult>(IDomainCommand<TResult> command) where TResult : IMessage
         {
 
             var returnValue = _handlerRegistry.GetCommandHandler(command)
@@ -28,7 +28,7 @@ namespace Composable.Messaging.Buses
         }
 
 
-        void IInProcessServiceBus.Send(ICommand message)
+        void IInProcessServiceBus.Send(IDomainCommand message)
         {
             _handlerRegistry.GetCommandHandler(message)(message);
             AfterDispatchingMessage(message);
@@ -43,10 +43,10 @@ namespace Composable.Messaging.Buses
             return returnValue;
         }
 
-        readonly List<IMessage> _dispatchedMessages = new List<IMessage>();
-        public IEnumerable<IMessage> DispatchedMessages => _dispatchedMessages;
+        readonly List<object> _dispatchedMessages = new List<object>();
+        public IEnumerable<object> DispatchedMessages => _dispatchedMessages;
 
-        protected virtual void AfterDispatchingMessage(IMessage message)
+        protected virtual void AfterDispatchingMessage(object message)
         {
             _dispatchedMessages.Add(message);
         }

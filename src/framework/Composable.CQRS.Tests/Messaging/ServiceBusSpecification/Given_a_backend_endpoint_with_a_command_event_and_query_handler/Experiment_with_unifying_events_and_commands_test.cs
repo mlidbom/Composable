@@ -55,30 +55,14 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
         [Fact] async Task Can_register_user_and_fetch_user_resource()
         {
             var registrationResult = await _userDomainServiceLocator.ExecuteTransactionInIsolatedScope(
-                () => UserRegistrarAggregate.RegisterUser(_userDomainServiceLocator.Resolve<IServiceBus>()));
+                                         () => UserRegistrarAggregate.RegisterUser(_userDomainServiceLocator.Resolve<IServiceBus>()));
 
             var user = _host.ClientBus.Query(registrationResult.UserLink);
+
             user.Should().NotBe(null);
+            user.History.Count().Should().Be(1);
         }
 
-        [Fact]
-        void PerformanceTest2()
-        {
-            TimeAsserter.Execute(() =>
-                                 {
-                                     var queries = 1.Through(100).Select(_ => TaskRegisterUserAndGetUserResource()).ToArray();
-                                     Task.WaitAll(queries);
-                                 },
-                                 maxTotal: 500.Milliseconds());
-        }
-
-        async Task TaskRegisterUserAndGetUserResource()
-        {
-            var registrationResult = await _userDomainServiceLocator.ExecuteTransactionInIsolatedScope(
-                                                     () => UserRegistrarAggregate.RegisterUser(_userDomainServiceLocator.Resolve<IServiceBus>()));
-
-            await _host.ClientBus.QueryAsync(registrationResult.UserLink);
-        }
 
         public void Dispose()
         {
@@ -106,7 +90,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
 
                 public class UserRegisteredEvent : Root, UserEvent.UserRegistered
                 {
-                    public UserRegisteredEvent() : base(Guid.NewGuid()) {}
+                    public UserRegisteredEvent(Guid userId) : base(userId) {}
                 }
             }
         }
@@ -168,7 +152,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
             internal static IEventStored Register(UserRegistrarCommand.RegisterUserCommand command)
             {
                 var registered = new UserAggregate();
-                registered.RaiseEvent(new UserEvent.Implementation.UserRegisteredEvent());
+                registered.RaiseEvent(new UserEvent.Implementation.UserRegisteredEvent(command.UserId));
                 return registered;
             }
         }
@@ -179,10 +163,10 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
             public GetUserQuery(Guid userId) => UserId = userId;
         }
 
-        public class UserResource : QueryResult {
-            public UserResource(IEnumerable<IAggregateRootEvent> getHistory)
-            {
-            }
+        public class UserResource : QueryResult
+        {
+            public IEnumerable<IAggregateRootEvent> History { get; }
+            public UserResource(IEnumerable<IAggregateRootEvent> history) { History = history; }
         }
 
         public class RegisterUserResult : Message

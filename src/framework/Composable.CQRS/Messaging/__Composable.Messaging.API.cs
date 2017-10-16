@@ -51,22 +51,4 @@ namespace Composable.Messaging
     {
         Guid Id { get; }
     }
-
-
-    ///<summary>Any type that subscribes to an event should implement this interface. Regardless of wether the event was Published or Replayed.</summary>
-    interface IEventSubscriber<in TEvent> where TEvent : IEvent
-    {
-        void Handle(TEvent message);
-    }
-
-    public interface ICommandHandler<in TCommand> where TCommand : ICommand
-    {
-        void Handle(TCommand command);
-    }
-
-    public interface IQueryHandler<in TQuery, out TResult> where TQuery: IQuery<TResult>
-                                                       where TResult : IQueryResult
-    {
-        TResult Handle(TQuery command);
-    }
 }

@@ -11,6 +11,10 @@ namespace Composable.Messaging
         Guid MessageId { get; }
     }
 
+    public interface IExactlyOnceDeliveryMessage : IMessage
+    {
+    }
+
     public abstract class Message : IMessage
     {
         protected Message():this(Guid.NewGuid()) {}
@@ -21,8 +25,8 @@ namespace Composable.Messaging
 
     ///<summary>An <see cref="IMessage"/> that instructs the receiver to perform an action.
     /// <para>Implementations should be named as an imperative sentence with an optional(but standardized "Command" suffix): RegisterUserAccount[Command]</para></summary>
-    public interface ICommand : IMessage
-    {}
+    public interface ICommand : IExactlyOnceDeliveryMessage
+    { }
 
     public interface ICommand<TResult> : ICommand where TResult : IMessage
     {
@@ -31,7 +35,7 @@ namespace Composable.Messaging
     ///<summary>An <see cref="IMessage"/> which informs the receiver that something has happened.
     /// <para>Should be immutable since it is impossible to change something that has already happened.</para>
     /// </summary>
-    public interface IEvent : IMessage {}
+    public interface IEvent : IExactlyOnceDeliveryMessage {}
 
     public abstract class Event : Message, IEvent
     {

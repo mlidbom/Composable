@@ -102,16 +102,19 @@ namespace Composable.Messaging.Buses.Implementation
         Task<IMessage> DispatchMessage(IMessage message) => _this.Locked(@this =>
         {
             var taskCompletionSource = new TaskCompletionSource<IMessage>(TaskCreationOptions.RunContinuationsAsynchronously);
-            if(message.RequiresResponse())
+
+            var outGoingMessage = TransportMessage.OutGoing.Create(message);
+
+            if (message.RequiresResponse())
             {
-                @this.ExpectedResponseTasks.Add(message.MessageId, taskCompletionSource);
+                @this.ExpectedResponseTasks.Add(outGoingMessage.MessageId, taskCompletionSource);
             } else
             {
                 taskCompletionSource.SetResult(null);
             }
 
-            @this.GlobalBusStrateTracker.SendingMessageOnTransport(message);
-            @this.DispatchQueue.Enqueue(TransportMessage.OutGoing.Create(message));
+            @this.GlobalBusStrateTracker.SendingMessageOnTransport(outGoingMessage);
+            @this.DispatchQueue.Enqueue(outGoingMessage);
 
             return taskCompletionSource.Task;
         });

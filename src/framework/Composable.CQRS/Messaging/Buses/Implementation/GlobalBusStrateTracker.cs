@@ -45,13 +45,13 @@ namespace Composable.Messaging.Buses.Implementation
             }
         }
 
-        public void SendingMessageOnTransport(IMessage message) => _guard.Update(() =>
+        public void SendingMessageOnTransport(TransportMessage.OutGoing message) => _guard.Update(() =>
         {
             var value = _inflightMessageIds.GetOrAdd(message.MessageId, () => 0);
             _inflightMessageIds[message.MessageId] = value + 1;
         });
 
-        public void EnqueueMessageTask(IInbox bus, IMessage message, Action messageTask) => _guard.Update(() =>
+        public void EnqueueMessageTask(IInbox bus, TransportMessage.InComing message, Action messageTask) => _guard.Update(() =>
         {
             var inflightMessage = new QueuedMessage(bus, message, this, messageTask);
             _inflightMessages.Add(inflightMessage);
@@ -73,10 +73,10 @@ namespace Composable.Messaging.Buses.Implementation
         void DoneDispatching(QueuedMessage queuedMessageInformation)
         {
             _inflightMessages.Remove(queuedMessageInformation);
-            var currentCount = _inflightMessageIds[queuedMessageInformation.Message.MessageId] -= 1;
+            var currentCount = _inflightMessageIds[queuedMessageInformation.MessageId] -= 1;
             if(currentCount == 0)
             {
-                _inflightMessageIds.Remove(queuedMessageInformation.Message.MessageId);
+                _inflightMessageIds.Remove(queuedMessageInformation.MessageId);
             }
         }
 
@@ -99,6 +99,7 @@ namespace Composable.Messaging.Buses.Implementation
             readonly GlobalBusStrateTracker _globalBusStrateTracker;
             readonly Action _messageTask;
             public IMessage Message { get; }
+            public Guid MessageId { get; }
             public bool IsExecuting { get; private set; }
 
             public void Run()
@@ -117,12 +118,13 @@ namespace Composable.Messaging.Buses.Implementation
                 });
             }
 
-            public QueuedMessage(IInbox bus, IMessage message, GlobalBusStrateTracker globalBusStrateTracker, Action messageTask)
+            public QueuedMessage(IInbox bus, TransportMessage.InComing message, GlobalBusStrateTracker globalBusStrateTracker, Action messageTask)
             {
                 Bus = bus;
+                MessageId = message.MessageId;
                 _globalBusStrateTracker = globalBusStrateTracker;
                 _messageTask = messageTask;
-                Message = message;
+                Message = message.DeserializeMessageAndCacheForNextCall();
             }
 
             public void SetIsExecuting() => IsExecuting = true;

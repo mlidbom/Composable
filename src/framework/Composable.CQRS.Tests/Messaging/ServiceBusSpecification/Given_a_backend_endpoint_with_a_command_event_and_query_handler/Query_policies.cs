@@ -1,5 +1,4 @@
-﻿using System;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using Composable.Testing.Threading;
 using Xunit;
 
@@ -16,7 +15,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
             var result1 = Host.ClientBus.QueryAsync(test);
             var result2 = Host.ClientBus.QueryAsync(test);
 
-            QueryHandlerThreadGate.AwaitQueueLengthEqualTo(2);
+            QueryHandlerThreadGate.AwaitQueueLengthEqualTo(length: 2);
             QueryHandlerThreadGate.Open();
 
             Task.WaitAll(result1, result2);

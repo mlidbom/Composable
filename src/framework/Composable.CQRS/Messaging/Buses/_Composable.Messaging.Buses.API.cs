@@ -117,8 +117,8 @@ namespace Composable.Messaging.Buses
 
         IQueuedMessage AwaitDispatchableMessage(IInbox bus, IReadOnlyList<IMessageDispatchingRule> dispatchingRules);
 
-        void SendingMessageOnTransport(IMessage message);
-        void EnqueueMessageTask(IInbox bus, IMessage message, Action messageTask);
+        void SendingMessageOnTransport(TransportMessage.OutGoing message);
+        void EnqueueMessageTask(IInbox bus, TransportMessage.InComing message, Action messageTask);
         void AwaitNoMessagesInFlight(TimeSpan? timeoutOverride);
     }
 

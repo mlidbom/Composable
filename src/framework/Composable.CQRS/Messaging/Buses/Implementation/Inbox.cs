@@ -35,7 +35,6 @@ namespace Composable.Messaging.Buses.Implementation
 
         readonly NetMQQueue<TransportMessage.Response.Outgoing> _responseQueue = new NetMQQueue<TransportMessage.Response.Outgoing>();
 
-
         RouterSocket _responseSocket;
 
         public IReadOnlyList<Exception> ThrownExceptions => _globalStateTracker.GetExceptionsFor(this);
@@ -69,7 +68,7 @@ namespace Composable.Messaging.Buses.Implementation
 
             _responseQueue.ReceiveReady += SendResponseMessage;
 
-            _poller = new NetMQPoller() {_responseSocket, _responseQueue };
+            _poller = new NetMQPoller() {_responseSocket, _responseQueue};
             _poller.RunAsync();
 
             _cancellationTokenSource = new CancellationTokenSource();
@@ -82,10 +81,9 @@ namespace Composable.Messaging.Buses.Implementation
             _messagePumpThread.Start();
         });
 
-
         void SendResponseMessage(object sender, NetMQQueueEventArgs<TransportMessage.Response.Outgoing> e)
         {
-            while (e.Queue.TryDequeue(out TransportMessage.Response.Outgoing response, TimeSpan.Zero))
+            while(e.Queue.TryDequeue(out TransportMessage.Response.Outgoing response, TimeSpan.Zero))
             {
                 _responseSocket.Send(response);
             }
@@ -97,7 +95,6 @@ namespace Composable.Messaging.Buses.Implementation
             var transportMessage = TransportMessage.InComing.Receive(_responseSocket);
 
             var dispatchTask = DispatchAsync(transportMessage);
-
 
             dispatchTask.ContinueWith(dispatchResult =>
             {
@@ -139,10 +136,10 @@ namespace Composable.Messaging.Buses.Implementation
                 }
         }
 
-        void EnqueueTransactionalTask(IMessage message, Action action)
+        void EnqueueTransactionalTask(TransportMessage.InComing message, Action action)
             => EnqueueNonTransactionalTask(message, action: () => TransactionScopeCe.Execute(action));
 
-        void EnqueueNonTransactionalTask(IMessage message, Action action)
+        void EnqueueNonTransactionalTask(TransportMessage.InComing message, Action action)
             => _globalStateTracker.EnqueueMessageTask(this, message, messageTask: () => _serviceLocator.ExecuteInIsolatedScope(action));
 
         Task<object> DispatchAsync(TransportMessage.InComing message)
@@ -152,25 +149,25 @@ namespace Composable.Messaging.Buses.Implementation
                 switch(message.DeserializeMessageAndCacheForNextCall())
                 {
                     case ICommand command:
-                        return DispatchAsync(command);
+                        return DispatchAsync(command, message);
                     case IEvent @event:
-                        return DispatchAsync(@event);
+                        return DispatchAsync(@event, message);
                     case IQuery query:
-                        return DispatchAsync(query);
+                        return DispatchAsync(query, message);
                     default:
                         throw new Exception($"Unsupported message type: {message.GetType()}");
                 }
             });
         }
 
-        async Task<object> DispatchAsync(IQuery query)
+        async Task<object> DispatchAsync(IQuery query, TransportMessage.InComing message)
         {
             var handler = _handlerRegistry.GetQueryHandler(query.GetType());
 
             var taskCompletionSource = new TaskCompletionSource<object>(TaskCreationOptions.RunContinuationsAsynchronously);
             using(_resourceGuard.AwaitUpdateLock())
             {
-                EnqueueNonTransactionalTask(query,
+                EnqueueNonTransactionalTask(message,
                                             action: () =>
                                             {
                                                 try
@@ -188,13 +185,13 @@ namespace Composable.Messaging.Buses.Implementation
             return await taskCompletionSource.Task.NoMarshalling();
         }
 
-        async Task<object> DispatchAsync(IEvent @event)
+        async Task<object> DispatchAsync(IEvent @event, TransportMessage.InComing message)
         {
             var handler = _handlerRegistry.GetEventHandlers(@event.GetType());
             var taskCompletionSource = new TaskCompletionSource<object>(TaskCreationOptions.RunContinuationsAsynchronously);
             using(_resourceGuard.AwaitUpdateLock())
             {
-                EnqueueTransactionalTask(@event,
+                EnqueueTransactionalTask(message,
                                          action: () =>
                                          {
                                              try
@@ -212,14 +209,14 @@ namespace Composable.Messaging.Buses.Implementation
             return await taskCompletionSource.Task.NoMarshalling();
         }
 
-        async Task<object> DispatchAsync(ICommand command)
+        async Task<object> DispatchAsync(ICommand command, TransportMessage.InComing message)
         {
             var handler = _handlerRegistry.GetCommandHandler(command.GetType());
 
             var taskCompletionSource = new TaskCompletionSource<object>(TaskCreationOptions.RunContinuationsAsynchronously);
             using(_resourceGuard.AwaitUpdateLock())
             {
-                EnqueueTransactionalTask(command,
+                EnqueueTransactionalTask(message,
                                          action: () =>
                                          {
                                              try

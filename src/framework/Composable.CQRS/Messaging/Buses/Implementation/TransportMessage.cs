@@ -25,7 +25,7 @@ namespace Composable.Messaging.Buses.Implementation
                 if(_message == null)
                 {
                     _message = (IMessage)JsonConvert.DeserializeObject(_body, _messageType.AsType(), JsonSettings.JsonSerializerSettings);
-                    Contract.State.Assert(MessageId == _message.MessageId);
+                    Contract.State.Assert(!(_message is IExactlyOnceDeliveryMessage) || MessageId == _message.MessageId);
                 }
                 return _message;
             }
@@ -58,13 +58,13 @@ namespace Composable.Messaging.Buses.Implementation
         public class OutGoing
         {
             readonly string _messageType;
-            readonly Guid _messageId;
+            public readonly Guid MessageId;
             readonly string _messageBody;
 
             public void Send(IOutgoingSocket socket)
             {
                 var message = new NetMQMessage(4);
-                message.Append(_messageId);
+                message.Append(MessageId);
                 message.Append(_messageType);
                 message.Append(_messageBody);
 
@@ -73,14 +73,15 @@ namespace Composable.Messaging.Buses.Implementation
 
             public static OutGoing Create(IMessage message)
             {
+                var messageId = (message as IExactlyOnceDeliveryMessage)?.MessageId ?? Guid.NewGuid();
                 var body = JsonConvert.SerializeObject(message, Formatting.Indented, JsonSettings.JsonSerializerSettings);
-                return new OutGoing(message.GetType(), message.MessageId, body);
+                return new OutGoing(message.GetType(), messageId, body);
             }
 
             OutGoing(Type messageType, Guid messageId, string messageBody)
             {
                 _messageType = messageType.FullName;
-                _messageId = messageId;
+                MessageId = messageId;
                 _messageBody = messageBody;
             }
         }

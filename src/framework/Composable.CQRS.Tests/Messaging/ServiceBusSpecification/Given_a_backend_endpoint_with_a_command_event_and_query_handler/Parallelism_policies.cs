@@ -7,7 +7,7 @@ using Xunit;
 
 namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_endpoint_with_a_command_event_and_query_handler
 {
-    public class Paralellism_policies : Fixture
+    public class Parallelism_policies : Fixture
     {
         [Fact] public void Command_handler_executes_on_different_thread_from_client_sending_command()
         {

@@ -16,7 +16,7 @@ namespace Composable.Messaging.Buses
 
         public void Publish(IEvent anEvent) => _outbox.Publish(anEvent);
 
-        public async Task<TResult> SendAsync<TResult>(IDomainCommand<TResult> command) where TResult : IMessage
+        public async Task<TResult> SendAsync<TResult>(IDomainCommand<TResult> command)
             => await _outbox.SendAsync(command);
 
         public async Task<TResult> QueryAsync<TResult>(IQuery<TResult> query)

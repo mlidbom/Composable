@@ -12,7 +12,7 @@ namespace Composable.Messaging.Buses
     {
         void Publish(IEvent anEvent);
         TResult Get<TResult>(IQuery<TResult> query);
-        TResult Send<TResult>(IDomainCommand<TResult> command) where TResult : IMessage;
+        TResult Send<TResult>(IDomainCommand<TResult> command);
         void Send(IDomainCommand message);
     }
 
@@ -25,7 +25,7 @@ namespace Composable.Messaging.Buses
         Task<TResult> QueryAsync<TResult>(IQuery<TResult> query);
 
         void Send(IDomainCommand command);
-        Task<TResult> SendAsync<TResult>(IDomainCommand<TResult> command) where TResult : IMessage;
+        Task<TResult> SendAsync<TResult>(IDomainCommand<TResult> command);
     }
 
     public interface IMessageSpy
@@ -43,7 +43,7 @@ namespace Composable.Messaging.Buses
 
         Func<IQuery<TResult>, TResult> GetQueryHandler<TResult>(IQuery<TResult> query);
 
-        Func<IDomainCommand<TResult>, TResult> GetCommandHandler<TResult>(IDomainCommand<TResult> command) where TResult : IMessage;
+        Func<IDomainCommand<TResult>, TResult> GetCommandHandler<TResult>(IDomainCommand<TResult> command);
 
         IEventDispatcher<IEvent> CreateEventDispatcher();
 
@@ -54,8 +54,7 @@ namespace Composable.Messaging.Buses
     {
         IMessageHandlerRegistrar ForEvent<TEvent>(Action<TEvent> handler) where TEvent : IEvent;
         IMessageHandlerRegistrar ForCommand<TCommand>(Action<TCommand> handler) where TCommand : IDomainCommand;
-        IMessageHandlerRegistrar ForCommand<TCommand, TResult>(Func<TCommand, TResult> handler) where TCommand : IDomainCommand<TResult>
-                                                                                                where TResult : IMessage;
+        IMessageHandlerRegistrar ForCommand<TCommand, TResult>(Func<TCommand, TResult> handler) where TCommand : IDomainCommand<TResult>;
         IMessageHandlerRegistrar ForQuery<TQuery, TResult>(Func<TQuery, TResult> handler) where TQuery : IQuery<TResult>;
     }
 

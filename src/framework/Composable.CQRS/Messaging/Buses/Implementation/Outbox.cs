@@ -48,7 +48,7 @@ namespace Composable.Messaging.Buses.Implementation
         public TResult Query<TResult>(IQuery<TResult> query)
             => _transport.Dispatch(query).Result;
 
-        public async Task<TResult> SendAsync<TResult>(IDomainCommand<TResult> command) where TResult : IMessage
+        public async Task<TResult> SendAsync<TResult>(IDomainCommand<TResult> command)
             => await _transport.Dispatch(command);
 
         public async Task<TResult> QueryAsync<TResult>(IQuery<TResult> query)

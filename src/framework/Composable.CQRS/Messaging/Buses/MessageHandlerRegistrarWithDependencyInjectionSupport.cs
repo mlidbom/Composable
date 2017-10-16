@@ -31,7 +31,6 @@ namespace Composable.Messaging.Buses
         public static MessageHandlerRegistrarWithDependencyInjectionSupport ForCommand<TCommand, TResult>(
             this MessageHandlerRegistrarWithDependencyInjectionSupport @this,
             Func<TCommand, TResult> action) where TCommand : IDomainCommand<TResult>
-                                            where TResult : IMessage
         {
             @this.Register.ForCommand(action);
             return @this;
@@ -40,7 +39,6 @@ namespace Composable.Messaging.Buses
         public static MessageHandlerRegistrarWithDependencyInjectionSupport ForCommand<TCommand, TDependency1, TResult>(
             this MessageHandlerRegistrarWithDependencyInjectionSupport @this,
             Func<TCommand, TDependency1, TResult> action) where TCommand : IDomainCommand<TResult>
-                                            where TResult : IMessage
                                                           where TDependency1 : class
         {
             @this.Register.ForCommand<TCommand,TResult>(command => action(command, @this.ServiceLocator.Resolve<TDependency1>()));

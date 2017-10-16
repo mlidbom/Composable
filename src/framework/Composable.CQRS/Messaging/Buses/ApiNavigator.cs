@@ -15,7 +15,7 @@ namespace Composable.Messaging.Buses
             return this;
         }
 
-        public IApiNavigator<TCommandResult> Execute<TCommandResult>(IDomainCommand<TCommandResult> command) where TCommandResult : IMessage
+        public IApiNavigator<TCommandResult> Execute<TCommandResult>(IDomainCommand<TCommandResult> command)
             => new ApiNavigator<TCommandResult>(_bus, () => _bus.SendAsync(command));
 
 

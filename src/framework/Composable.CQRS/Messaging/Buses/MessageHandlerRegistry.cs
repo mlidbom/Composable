@@ -40,7 +40,6 @@ namespace Composable.Messaging.Buses
         }
 
         public IMessageHandlerRegistrar ForCommand<TCommand, TResult>(Func<TCommand, TResult> handler) where TCommand : IDomainCommand<TResult>
-                                                                                      where TResult : IMessage
         {
             lock (_lock)
             {
@@ -123,7 +122,7 @@ namespace Composable.Messaging.Buses
             }
         }
 
-        public Func<IDomainCommand<TResult>, TResult> GetCommandHandler<TResult>(IDomainCommand<TResult> command) where TResult : IMessage
+        public Func<IDomainCommand<TResult>, TResult> GetCommandHandler<TResult>(IDomainCommand<TResult> command)
         {
             try
             {

@@ -93,7 +93,7 @@ namespace Composable.Messaging.Buses.Implementation
 
         public void Dispatch(IDomainCommand command) => DispatchMessage(command);
 
-        public async Task<TCommandResult> Dispatch<TCommandResult>(IDomainCommand<TCommandResult> command) where TCommandResult : IMessage
+        public async Task<TCommandResult> Dispatch<TCommandResult>(IDomainCommand<TCommandResult> command)
             => (TCommandResult)await DispatchMessage(command);
 
         public async Task<TQueryResult> Dispatch<TQueryResult>(IQuery<TQueryResult> query)

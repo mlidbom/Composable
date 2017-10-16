@@ -28,7 +28,7 @@ namespace Composable.Messaging
     }
 
     public interface IDomainCommand : ICommand, IExactlyOnceDeliveryMessage { }
-    public interface IDomainCommand<TResult> : IDomainCommand where TResult : IMessage { }
+    public interface IDomainCommand<TResult> : IDomainCommand { }
 
 
     public interface IDomainEvent : IEvent, IExactlyOnceDeliveryMessage

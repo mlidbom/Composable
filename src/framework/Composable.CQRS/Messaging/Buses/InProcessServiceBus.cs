@@ -17,7 +17,7 @@ namespace Composable.Messaging.Buses
         }
 
 
-        public TResult Send<TResult>(IDomainCommand<TResult> command) where TResult : IMessage
+        public TResult Send<TResult>(IDomainCommand<TResult> command)
         {
 
             var returnValue = _handlerRegistry.GetCommandHandler(command)

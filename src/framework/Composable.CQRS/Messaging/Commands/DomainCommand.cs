@@ -13,5 +13,5 @@ namespace Composable.Messaging.Commands
         DomainCommand(Guid id) => MessageId = id;
     }
 
-    public class DomainCommand<TResult> : DomainCommand, IDomainCommand<TResult> where TResult : IMessage {}
+    public class DomainCommand<TResult> : DomainCommand, IDomainCommand<TResult> {}
 }

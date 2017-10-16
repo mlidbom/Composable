@@ -77,7 +77,7 @@ namespace Composable.Messaging.Buses.Implementation
 
         public void Dispatch(IDomainCommand command) => _this.Locked(@this => @this.CommandConnections[command.GetType()]).Dispatch(command);
 
-        public Task<TCommandResult> Dispatch<TCommandResult>(IDomainCommand<TCommandResult> command) where TCommandResult : IMessage => _this.Locked(@this =>
+        public Task<TCommandResult> Dispatch<TCommandResult>(IDomainCommand<TCommandResult> command) => _this.Locked(@this =>
         {
             var commandHandlerConnection = @this.CommandConnections[command.GetType()];
             return commandHandlerConnection.Dispatch(command);

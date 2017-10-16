@@ -12,7 +12,7 @@ namespace Composable.Messaging.Buses.Implementation
         Task<TResult> QueryAsync<TResult>(IQuery<TResult> query);
 
         void Send(IDomainCommand command);
-        Task<TResult> SendAsync<TResult>(IDomainCommand<TResult> command) where TResult : IMessage;
+        Task<TResult> SendAsync<TResult>(IDomainCommand<TResult> command);
         void Start();
         void Stop();
     }
@@ -24,7 +24,7 @@ namespace Composable.Messaging.Buses.Implementation
         void Start();
         void Dispatch(IEvent message);
         void Dispatch(IDomainCommand command);
-        Task<TCommandResult> Dispatch<TCommandResult>(IDomainCommand<TCommandResult> command) where TCommandResult : IMessage;
+        Task<TCommandResult> Dispatch<TCommandResult>(IDomainCommand<TCommandResult> command);
         Task<TQueryResult> Dispatch<TQueryResult>(IQuery<TQueryResult> command);
     }
 

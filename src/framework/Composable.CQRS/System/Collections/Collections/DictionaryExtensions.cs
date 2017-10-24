@@ -16,7 +16,7 @@ namespace Composable.System.Collections.Collections
         {
             OldContract.Argument(() => me, () => key, () => constructor).NotNull();
 
-            if (me.TryGetValue(key, out TValue value))
+            if (me.TryGetValue(key, out var value))
             {
                 return value;
             }
@@ -33,7 +33,7 @@ namespace Composable.System.Collections.Collections
         {
             OldContract.Argument(() => me, () => key).NotNull();
             //Originally written to delegate to the above method. Belive it or not this causes a performancedecrease that is actually significant in tight loops.
-            if (me.TryGetValue(key, out TValue value))
+            if (me.TryGetValue(key, out var value))
             {
                 return value;
             }

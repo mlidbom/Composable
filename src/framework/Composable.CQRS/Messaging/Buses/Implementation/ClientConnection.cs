@@ -21,7 +21,7 @@ namespace Composable.Messaging.Buses.Implementation
 
             public void DispatchMessage(object sender, NetMQQueueEventArgs<TransportMessage.OutGoing> e)
             {
-                while(e.Queue.TryDequeue(out TransportMessage.OutGoing message, TimeSpan.Zero))
+                while(e.Queue.TryDequeue(out var message, TimeSpan.Zero))
                 {
                     Socket.Send(message);
                 }

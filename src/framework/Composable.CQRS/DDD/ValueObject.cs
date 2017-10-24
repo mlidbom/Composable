@@ -92,7 +92,7 @@ namespace Composable.DDD
                     {
                         return false;
                     }
-                    for (int j = 0; j < value1Array.Length ; ++j)
+                    for (var j = 0; j < value1Array.Length ; ++j)
                     {
                         if (!Equals(value1Array[j], value2Array[j]))
                         {

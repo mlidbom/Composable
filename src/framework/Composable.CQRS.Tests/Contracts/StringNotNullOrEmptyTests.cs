@@ -11,14 +11,14 @@ namespace Composable.Tests.Contracts
         [Test]
         public void NotEmptyThrowsStringIsEmptyArgumentExceptionForEmptyString()
         {
-            string emptyString = "";
+            var emptyString = "";
             Assert.Throws<StringIsEmptyContractViolationException>(() => OldContract.Argument(() => emptyString).NotNullOrEmpty());
         }
 
         [Test]
         public void UsesArgumentNameForExceptionMessage()
         {
-            string emptyString = "";
+            var emptyString = "";
             Assert.Throws<StringIsEmptyContractViolationException>(() => OldContract.Argument(() => emptyString).NotNullOrEmpty())
                 .Message.Should().Contain("emptyString");
         }

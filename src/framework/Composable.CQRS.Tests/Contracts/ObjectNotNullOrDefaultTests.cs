@@ -15,7 +15,7 @@ namespace Composable.Tests.Contracts
         {
             var anObject = new object();
             object nullObject = null;
-            string emptyString = "";
+            var emptyString = "";
 
             Assert.Throws<ObjectIsNullContractViolationException>(() => OldContract.Argument(() => nullObject).NotNullOrDefault());
             Assert.Throws<ObjectIsNullContractViolationException>(() => OldContract.Argument(() => anObject, () => nullObject).NotNullOrDefault());
@@ -26,7 +26,7 @@ namespace Composable.Tests.Contracts
         public void ThrowsObjectIsDefaultExceptionIfAnyValueIsDefault()
         {
             var anObject = new object();
-            string emptyString = "";
+            var emptyString = "";
             var zero = 0;
             var defaultMyStructure = new MyStructure();
             var aMyStructure = new MyStructure(1);

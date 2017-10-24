@@ -194,7 +194,7 @@ namespace Composable.Persistence.EventStore
                 try
                 {
                     var succeeded = false;
-                    int retries = 0;
+                    var retries = 0;
                     while(!succeeded)
                     {
                         try

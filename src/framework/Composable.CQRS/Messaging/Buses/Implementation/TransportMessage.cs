@@ -160,7 +160,7 @@ namespace Composable.Messaging.Buses.Implementation
 
                 public static IReadOnlyList<Response.Incoming> ReceiveBatch(IReceivingSocket socket, int batchMaximum)
                 {
-                    List<Response.Incoming> result = new List<Response.Incoming>();
+                    var result = new List<Response.Incoming>();
                     NetMQMessage received = null;
                     while(socket.TryReceiveMultipartMessage(TimeSpan.Zero, ref received))
                     {

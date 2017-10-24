@@ -12,7 +12,7 @@ namespace Composable.Persistence.EventStore.Refactoring.Naming
     {
         public string GetName(Type eventType)
         {
-            if (_typeToNameMappings.TryGetValue(eventType, out string name))
+            if (_typeToNameMappings.TryGetValue(eventType, out var name))
             {
                 return name;
             }
@@ -22,7 +22,7 @@ namespace Composable.Persistence.EventStore.Refactoring.Naming
 
         public Type GetType(string eventTypeName)
         {
-            if (_nameToTypeMappings.TryGetValue(eventTypeName, out Type type))
+            if (_nameToTypeMappings.TryGetValue(eventTypeName, out var type))
             {
                 return type;
             }

@@ -30,7 +30,7 @@ namespace Composable.System.Diagnostics
             var total = TimeExecution(
                 () =>
                 {
-                    for(int i = 0; i < iterations; i++)
+                    for(var i = 0; i < iterations; i++)
                     {
                         action();
                     }

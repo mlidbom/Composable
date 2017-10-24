@@ -83,7 +83,7 @@ namespace Composable.Messaging.Buses.Implementation
 
         void SendResponseMessage(object sender, NetMQQueueEventArgs<TransportMessage.Response.Outgoing> e)
         {
-            while(e.Queue.TryDequeue(out TransportMessage.Response.Outgoing response, TimeSpan.Zero))
+            while(e.Queue.TryDequeue(out var response, TimeSpan.Zero))
             {
                 _responseSocket.Send(response);
             }

@@ -14,8 +14,8 @@ namespace Composable.Tests.Contracts
         public void CorrectlyExtractsParameterNamesAndValues()
         {
             var notNullObject = new object();
-            string okString = "okString";
-            string emptyString = "";
+            var okString = "okString";
+            var emptyString = "";
             string nullString = null;
             Assert.Throws<ObjectIsNullContractViolationException>(() => OldContract.Argument(() => nullString).NotNull())
                 .Message.Should().Contain(nameof(nullString));

@@ -45,7 +45,7 @@ namespace Composable.System.Reflection
         static Func<object, object>[] InnerGetFields(Type type)
         {
 
-            if (!TypeFields.TryGetValue(type, out Func<object, object>[] fields))
+            if (!TypeFields.TryGetValue(type, out var fields))
             {
                 var newFields = new List<Func<Object, object>>();
                 if (!type.IsPrimitive)

@@ -54,7 +54,7 @@ namespace Composable.Contracts
 
         static ChainedAssertion RunAssertions(int recursionLevel, InspectionType inspectionType, params bool[] conditions)
         {
-            for (int condition = 0; condition < conditions.Length; condition++)
+            for (var condition = 0; condition < conditions.Length; condition++)
             {
                 if (!conditions[condition])
                 {

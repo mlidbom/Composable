@@ -60,7 +60,7 @@ namespace Composable.Persistence.DocumentDb
         {
             var documentKey = new DocumentKey(key, documentType);
 
-            if (!_handledDocuments.TryGetValue(documentKey, out DocumentItem doc))
+            if (!_handledDocuments.TryGetValue(documentKey, out var doc))
             {
                 doc = new DocumentItem(documentKey, _backingStore, _persistentValues);
                 _handledDocuments.Add(documentKey, doc);

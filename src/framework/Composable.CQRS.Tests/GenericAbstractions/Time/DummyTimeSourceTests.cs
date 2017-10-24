@@ -18,7 +18,7 @@ namespace Composable.Tests.GenericAbstractions.Time
         [Test]
         public void FromUtcTime_returns_an_instance_with_UtcTime_equal_to_supplied_value()
         {
-            DateTime utcNow = DateTime.UtcNow;
+            var utcNow = DateTime.UtcNow;
             var uut = DummyTimeSource.FromUtcTime(utcNow);
             uut.UtcNow.Should().Be(utcNow);
         }

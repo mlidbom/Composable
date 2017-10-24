@@ -29,7 +29,7 @@ namespace Composable.Tests.System.Threading
 
             var waitTimeout = 100.Milliseconds();
 
-            bool waitSucceeded = false;
+            var waitSucceeded = false;
             using(var taskRunner = TestingTaskRunner.WithTimeout(1.Seconds()))
             {
                 taskRunner.Run(() =>
@@ -70,7 +70,7 @@ namespace Composable.Tests.System.Threading
 
             var waitTimeout = TimeSpan.FromMilliseconds(int.MaxValue);
 
-            bool waitSucceeded = false;
+            var waitSucceeded = false;
             using(var taskRunner = TestingTaskRunner.WithTimeout(1.Seconds()))
             {
                 taskRunner.Run(() =>

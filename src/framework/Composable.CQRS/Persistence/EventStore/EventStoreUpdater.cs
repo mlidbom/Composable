@@ -134,7 +134,7 @@ namespace Composable.Persistence.EventStore
 
         bool DoTryGet<TAggregate>(Guid aggregateId, out TAggregate aggregate) where TAggregate : IEventStored
         {
-            if (_idMap.TryGetValue(aggregateId, out IEventStored es))
+            if (_idMap.TryGetValue(aggregateId, out var es))
             {
                 aggregate = (TAggregate)es;
                 return true;

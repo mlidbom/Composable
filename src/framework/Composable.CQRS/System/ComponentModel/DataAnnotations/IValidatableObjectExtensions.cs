@@ -15,7 +15,7 @@ namespace Composable.System.ComponentModel.DataAnnotations
         {
             OldContract.Argument(() => accessor).NotNull();
 
-            Expression expr = accessor.Body;
+            var expr = accessor.Body;
             while (expr.NodeType == ExpressionType.Convert || expr.NodeType == ExpressionType.ConvertChecked)
                 expr = ((UnaryExpression)expr).Operand;
 

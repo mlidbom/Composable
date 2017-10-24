@@ -40,7 +40,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification
 
             [Fact] void Can_get_command_result()
             {
-                UserRegisteredConfirmationResource commandResult1 = Host.ClientBus.Post(new RegisterUserCommand("new-user-name")).ExecuteNavigation();
+                var commandResult1 = Host.ClientBus.Post(new RegisterUserCommand("new-user-name")).ExecuteNavigation();
                 commandResult1.Name.Should().Be("new-user-name");
             }
 

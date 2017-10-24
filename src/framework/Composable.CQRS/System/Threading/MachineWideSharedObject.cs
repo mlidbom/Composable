@@ -85,7 +85,7 @@ namespace Composable.System.Threading
 
         internal TObject GetCopy()
         {
-            TObject value = default(TObject);
+            var value = default(TObject);
             Synchronized(() =>
                                  {
                                      using(var accessor = _file.CreateViewAccessor())
@@ -94,7 +94,7 @@ namespace Composable.System.Threading
                                          var objectLength = accessor.ReadInt32(0);
                                          if(objectLength != 0)
                                          {
-                                             byte[] buffer = new byte[objectLength];
+                                             var buffer = new byte[objectLength];
                                              accessor.ReadArray(LengthIndicatorIntegerLengthInBytes, buffer, 0, buffer.Length);
 
                                              using (var objectStream = new MemoryStream(buffer))
@@ -115,7 +115,7 @@ namespace Composable.System.Threading
 
         internal TObject Update(Action<TObject> action)
         {
-            TObject instance = default(TObject);
+            var instance = default(TObject);
             Synchronized(() =>
                                  {
                                      instance = GetCopy();

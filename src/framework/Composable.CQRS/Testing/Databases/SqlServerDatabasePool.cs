@@ -68,7 +68,7 @@ namespace Composable.Testing.Databases
         {
             OldContract.Assert.That(!_disposed, "!_disposed");
 
-            Database database = _transientCache.SingleOrDefault(db => db.IsReserved && db.ReservedByPoolId == _poolId && db.ReservationName == reservationName);
+            var database = _transientCache.SingleOrDefault(db => db.IsReserved && db.ReservedByPoolId == _poolId && db.ReservationName == reservationName);
             if(database != null)
             {
                 _log.Debug($"Retrieved reserved pool database: {database.Id}");
@@ -151,7 +151,7 @@ namespace Composable.Testing.Databases
 
         Database InsertDatabase(SharedState machineWide)
         {
-            Database database = machineWide.Insert();
+            var database = machineWide.Insert();
 
             _log.Warning($"Creating database: {database.Id}");
             using (new TransactionScope(TransactionScopeOption.Suppress))

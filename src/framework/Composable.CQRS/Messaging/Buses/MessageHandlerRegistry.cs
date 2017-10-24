@@ -87,7 +87,7 @@ namespace Composable.Messaging.Buses
 
         public Func<IDomainCommand, object> GetCommandHandler(Type commandType)
         {
-            if(_commandHandlers.TryGetValue(commandType, out Action<object> handler))
+            if(_commandHandlers.TryGetValue(commandType, out var handler))
             {
                 return command =>
                 {

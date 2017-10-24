@@ -753,7 +753,7 @@ namespace Composable.Tests.KeyValueStorage
         {
             var store = CreateStore();
 
-            Dictionary<Type, Dictionary<string, string>> adict = new Dictionary<Type, Dictionary<string, string>>();
+            var adict = new Dictionary<Type, Dictionary<string, string>>();
 
             1.Through(4).ForEach(num =>
             {
@@ -783,7 +783,7 @@ namespace Composable.Tests.KeyValueStorage
         {
             var store = CreateStore();
 
-            Dictionary<Type, Dictionary<string, string>> adict = new Dictionary<Type, Dictionary<string, string>>();
+            var adict = new Dictionary<Type, Dictionary<string, string>>();
 
             1.Through(4).ForEach(num =>
             {

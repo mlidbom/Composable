@@ -23,7 +23,7 @@ namespace Composable.Testing.Databases
                     return false;
                 }
 
-                for (int i = 1; i <= _databases.Count; i++)
+                for (var i = 1; i <= _databases.Count; i++)
                 {
                     if (i != _databases[i - 1].Id)
                     {

@@ -51,12 +51,12 @@ namespace Composable.Persistence.DocumentDb.SqlServer
             {
                 using(var command = connection.CreateCommand())
                 {
-                    string lockHint = DocumentDbSession.UseUpdateLock ? "With(UPDLOCK, ROWLOCK)" : "";
+                    var lockHint = DocumentDbSession.UseUpdateLock ? "With(UPDLOCK, ROWLOCK)" : "";
                     command.CommandText = $@"
 SELECT Value, ValueTypeId FROM Store {lockHint} 
 WHERE Id=@Id AND ValueTypeId
 ";
-                    string idString = GetIdString(key);
+                    var idString = GetIdString(key);
                     command.Parameters.Add(new SqlParameter("Id", SqlDbType.NVarChar, 500) {Value = idString});
 
                     AddTypeCriteria(command, typeof(TValue));
@@ -85,7 +85,7 @@ WHERE Id=@Id AND ValueTypeId
         {
             EnsureInitialized();
 
-            string idString = GetIdString(id);
+            var idString = GetIdString(id);
             EnsureTypeRegistered(value.GetType());
             using(var connection = _connectionManager.OpenConnection())
             {
@@ -181,8 +181,8 @@ WHERE Id=@Id AND ValueTypeId
                         command.CommandType = CommandType.Text;
                         var stringValue = JsonConvert.SerializeObject(entry.Value, Formatting.None, JsonSettings);
 
-                        string idString = GetIdString(entry.Key);
-                        var needsUpdate = !persistentValues.GetOrAddDefault(entry.Value.GetType()).TryGetValue(idString, out string oldValue) || stringValue != oldValue;
+                        var idString = GetIdString(entry.Key);
+                        var needsUpdate = !persistentValues.GetOrAddDefault(entry.Value.GetType()).TryGetValue(idString, out var oldValue) || stringValue != oldValue;
                         if(needsUpdate)
                         {
                             persistentValues.GetOrAddDefault(entry.Value.GetType())[idString] = stringValue;

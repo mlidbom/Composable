@@ -101,7 +101,7 @@ namespace Composable.Testing.Performance
             MachineWideSingleThreaded.Execute(
                 () =>
                 {
-                    for(int tries = 1; tries <= maxTries; tries++)
+                    for(var tries = 1; tries <= maxTries; tries++)
                     {
                         setup?.Invoke();
                         executionSummary = StopwatchExtensions.TimeExecutionThreaded(action: action, iterations: iterations, timeIndividualExecutions: timeIndividualExecutions);

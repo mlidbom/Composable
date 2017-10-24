@@ -24,7 +24,7 @@ namespace Composable.Persistence.EventStore.MicrosoftSQLServer
             lock(_lockObject)
             {
                 EnsureInitialized();
-                if (_idToTypeMap.TryGetValue(id, out IIdTypeMapping result))
+                if (_idToTypeMap.TryGetValue(id, out var result))
                 {
                     return result.Type;
                 }
@@ -45,7 +45,7 @@ namespace Composable.Persistence.EventStore.MicrosoftSQLServer
             lock(_lockObject)
             {
                 EnsureInitialized();
-                if (!_typeToIdMap.TryGetValue(type, out int value))
+                if (!_typeToIdMap.TryGetValue(type, out var value))
                 {
                     var mapping = InsertNewType(type);
                     _idToTypeMap.Add(mapping.Id, mapping);

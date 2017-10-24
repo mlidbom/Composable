@@ -65,8 +65,8 @@ namespace Composable.Tests.CQRS.EventHandling
                 [Fact] void handlers_are_called_in_registration_order()
                 {
                     var calls = 0;
-                    int handler1CallOrder = 0;
-                    int handler2CallOrder = 0;
+                    var handler1CallOrder = 0;
+                    var handler2CallOrder = 0;
 
                     _dispatcher.RegisterHandlers()
                                .For<IUserRegistered>(e => handler1CallOrder = ++calls)

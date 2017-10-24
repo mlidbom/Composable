@@ -57,7 +57,7 @@ namespace Composable.Tests.CQRS
         public void When_Raising_event_that_triggers_another_event_both_events_are_outputted_on_the_observable_only_after_the_triggered_event_and_in_the_raised_order()
         {
             var aggregate = new CascadingEventsAggregate();
-            List<IDomainEvent> receivedEvents = new List<IDomainEvent>();
+            var receivedEvents = new List<IDomainEvent>();
             using(aggregate.EventStream.Subscribe(@event =>
                                                   {
                                                       receivedEvents.Add(@event);

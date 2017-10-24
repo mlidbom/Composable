@@ -44,7 +44,7 @@ namespace Composable.Tests.CQRS
 
         [Test] public void StreamEventsSinceReturnsWholeEventLogWhenFromEventIdIsNull()
         {
-            Guid aggregateId = Guid.NewGuid();
+            var aggregateId = Guid.NewGuid();
             _eventStore.SaveEvents(1.Through(10)
                                    .Select(i => new SomeEvent(aggregateId, i)));
             var stream = _eventStore.ListAllEventsForTestingPurposesAbsolutelyNotUsableForARealEventStoreOfAnySize();

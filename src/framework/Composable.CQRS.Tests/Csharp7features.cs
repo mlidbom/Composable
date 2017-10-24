@@ -11,7 +11,7 @@ namespace Composable.Tests
     {
         [Test] public void Out_variables()
         {
-            if(TryGet(out int val1, out var val2))
+            if(TryGet(out var val1, out var val2))
             {
                 SafeConsole.WriteLine($"{val1}, {val2}");
             }
@@ -110,7 +110,7 @@ namespace Composable.Tests
         {
             ref int Find(int number, int[] numbers)
             {
-                for (int i = 0; i < numbers.Length; i++)
+                for (var i = 0; i < numbers.Length; i++)
                 {
                     if (numbers[i] == number)
                     {
@@ -121,7 +121,7 @@ namespace Composable.Tests
             }
 
             int[] array = { 0, 1, 2,3,4,5,6,7,8,9 };
-            ref int place = ref Find(4, array); // aliases 7's place in the array
+            ref var place = ref Find(4, array); // aliases 7's place in the array
             array[4]
                 .Should()
                 .Be(4);

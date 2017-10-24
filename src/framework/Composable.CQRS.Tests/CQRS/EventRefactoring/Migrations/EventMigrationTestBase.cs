@@ -37,7 +37,7 @@ namespace Composable.Tests.CQRS.EventRefactoring.Migrations
             {
                 var timeSource = serviceLocator.Resolve<DummyTimeSource>();
                 timeSource.UtcNow = DateTime.Parse("2001-01-01 01:01:01.01");
-                int scenarioIndex = 1;
+                var scenarioIndex = 1;
                 foreach(var migrationScenario in scenarios)
                 {
                     timeSource.UtcNow += 1.Hours(); //No time collision between scenarios please.

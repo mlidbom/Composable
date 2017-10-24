@@ -78,8 +78,7 @@ namespace Composable.System
         {
             var resourceReference = new WeakReference<StrictlyManagedResource<TManagedResource>>(resource);
             await Task.Delay(maxLifeSpan).NoMarshalling();
-            StrictlyManagedResource<TManagedResource> stillLivingResource;
-            if(resourceReference.TryGetTarget(out stillLivingResource) && !stillLivingResource._disposed)
+            if (resourceReference.TryGetTarget(out StrictlyManagedResource<TManagedResource> stillLivingResource) && !stillLivingResource._disposed)
             {
                 ThrowCreatedExceptionWhenLifespanWasExceeded(new StrictlyManagedResourceLifespanWasExceededException(stillLivingResource.GetType(), stillLivingResource.ReservationCallStack, maxLifeSpan));
             }

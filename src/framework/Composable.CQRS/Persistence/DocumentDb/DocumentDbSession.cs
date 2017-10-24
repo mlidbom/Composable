@@ -58,10 +58,9 @@ namespace Composable.Persistence.DocumentDb
 
         DocumentItem GetDocumentItem(object key, Type documentType)
         {
-            DocumentItem doc;
             var documentKey = new DocumentKey(key, documentType);
 
-            if (!_handledDocuments.TryGetValue(documentKey, out doc))
+            if (!_handledDocuments.TryGetValue(documentKey, out DocumentItem doc))
             {
                 doc = new DocumentItem(documentKey, _backingStore, _persistentValues);
                 _handledDocuments.Add(documentKey, doc);
@@ -117,8 +116,7 @@ namespace Composable.Persistence.DocumentDb
         {
             _usageGuard.AssertNoContextChangeOccurred(this);
             EnsureParticipatingInTransaction();
-            TValue value;
-            if(TryGet(key, out value))
+            if (TryGet(key, out TValue value))
             {
                 return value;
             }

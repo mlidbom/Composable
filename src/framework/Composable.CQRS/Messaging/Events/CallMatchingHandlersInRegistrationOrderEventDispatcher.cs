@@ -101,8 +101,7 @@ namespace Composable.Messaging.Events
                 _typeToHandlerCache = new Dictionary<Type, Action<object>[]>();
             }
 
-            Action<object>[] arrayResult;
-            if(_typeToHandlerCache.TryGetValue(type, out arrayResult))
+            if (_typeToHandlerCache.TryGetValue(type, out Action<object>[] arrayResult))
             {
                 return arrayResult;
             }

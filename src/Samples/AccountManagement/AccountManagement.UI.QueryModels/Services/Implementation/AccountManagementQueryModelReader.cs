@@ -24,8 +24,7 @@ namespace AccountManagement.UI.QueryModels.Services.Implementation
 
         public bool TryGetAccountByEmail(Email accountEmail, out AccountQueryModel account)
         {
-            EmailToAccountMapQueryModel accountMap;
-            if(_documentDbQueryModels.TryGet(accountEmail.ToString(), out accountMap))
+            if (_documentDbQueryModels.TryGet(accountEmail.ToString(), out EmailToAccountMapQueryModel accountMap))
             {
                 account = GetAccount(accountMap.AccountId);
                 return true;

@@ -26,8 +26,7 @@ namespace Composable.Persistence.EventStore.Query.Models.Generators
         public virtual TValue Get<TValue>(object key)
         {
             _usageGuard.AssertNoContextChangeOccurred(this);
-            TValue value;
-            if (TryGet(key, out value))
+            if (TryGet(key, out TValue value))
             {
                 return value;
             }
@@ -38,8 +37,7 @@ namespace Composable.Persistence.EventStore.Query.Models.Generators
         public virtual TValue GetVersion<TValue>(object key, int version)
         {
             _usageGuard.AssertNoContextChangeOccurred(this);
-            TValue value;
-            if (TryGetVersion(key, out value, version))
+            if (TryGetVersion(key, out TValue value, version))
             {
                 return value;
             }

@@ -25,8 +25,7 @@ namespace Composable.Persistence.DocumentDb
         {
             lock(LockObject)
             {
-                object found;
-                if(TryGet(typeof(T), id, out found))
+                if (TryGet(typeof(T), id, out object found))
                 {
                     value = (T)found;
                     return true;
@@ -41,8 +40,7 @@ namespace Composable.Persistence.DocumentDb
             var idstring = GetIdString(id);
             value = null;
 
-            List<Object> matchesId;
-            if(!_db.TryGetValue(idstring, out matchesId))
+            if (!_db.TryGetValue(idstring, out List<object> matchesId))
             {
                 return false;
             }
@@ -128,12 +126,11 @@ namespace Composable.Persistence.DocumentDb
         {
             lock(LockObject)
             {
-                object existing;
-                if(!TryGet(value.GetType(), key, out existing))
+                if (!TryGet(value.GetType(), key, out object existing))
                 {
                     throw new NoSuchDocumentException(key, value.GetType());
                 }
-                if(!ReferenceEquals(existing, value))
+                if (!ReferenceEquals(existing, value))
                 {
                     Remove(key, value.GetType());
                     Add(key, value);

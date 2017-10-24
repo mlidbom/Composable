@@ -107,8 +107,7 @@ namespace NetMqProcess01._50_Router_Dealer
 
         static void Client_ReceiveReady(object sender, NetMQSocketEventArgs e)
         {
-            string frameString;
-            if (e.Socket.TryReceiveFrameString(10.Milliseconds(), out frameString))
+            if (e.Socket.TryReceiveFrameString(10.Milliseconds(), out string frameString))
             {
                 SafeConsole.WriteLine("REPLY {0}", frameString);
             }

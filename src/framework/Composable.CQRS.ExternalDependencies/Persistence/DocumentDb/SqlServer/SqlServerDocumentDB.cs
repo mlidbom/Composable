@@ -181,9 +181,8 @@ WHERE Id=@Id AND ValueTypeId
                         command.CommandType = CommandType.Text;
                         var stringValue = JsonConvert.SerializeObject(entry.Value, Formatting.None, JsonSettings);
 
-                        string oldValue;
                         string idString = GetIdString(entry.Key);
-                        var needsUpdate = !persistentValues.GetOrAddDefault(entry.Value.GetType()).TryGetValue(idString, out oldValue) || stringValue != oldValue;
+                        var needsUpdate = !persistentValues.GetOrAddDefault(entry.Value.GetType()).TryGetValue(idString, out string oldValue) || stringValue != oldValue;
                         if(needsUpdate)
                         {
                             persistentValues.GetOrAddDefault(entry.Value.GetType())[idString] = stringValue;

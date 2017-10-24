@@ -45,17 +45,15 @@ namespace Composable.Persistence.DocumentDb
         {
             lock(LockObject)
             {
-                string oldValue;
                 string idString = GetIdString(key);
                 var stringValue = JsonConvert.SerializeObject(value, JsonSettings.JsonSerializerSettings);
                 var needsUpdate = !_persistentValues
                     .GetOrAdd(value.GetType(), () => new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase))
-                    .TryGetValue(idString, out oldValue) || stringValue != oldValue;
+                    .TryGetValue(idString, out string oldValue) || stringValue != oldValue;
 
                 if(!needsUpdate)
                 {
-                    object existingValue;
-                    base.TryGet(value.GetType(), key, out existingValue);
+                    base.TryGet(value.GetType(), key, out object existingValue);
                     needsUpdate = !(ReferenceEquals(existingValue, value));
                 }
 

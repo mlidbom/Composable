@@ -63,8 +63,7 @@ namespace Composable.System.Reflection
         ///<summary>Finds the class that the string represents within any loaded assembly. Calling with "MyNameSpace.MyObject" would return the same type as typeof(MyNameSpace.MyObject) etc.</summary>
         public static Type AsType(this string valueType)
         {
-            Type type;
-            if(valueType.TryGetType(out type))
+            if (valueType.TryGetType(out Type type))
             {
                 return type;
             }

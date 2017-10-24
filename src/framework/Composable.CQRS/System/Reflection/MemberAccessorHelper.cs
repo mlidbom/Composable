@@ -44,9 +44,8 @@ namespace Composable.System.Reflection
 
         static Func<object, object>[] InnerGetFields(Type type)
         {
-            Func<Object, Object>[] fields;
 
-            if (!TypeFields.TryGetValue(type, out fields))
+            if (!TypeFields.TryGetValue(type, out Func<object, object>[] fields))
             {
                 var newFields = new List<Func<Object, object>>();
                 if (!type.IsPrimitive)
@@ -54,7 +53,7 @@ namespace Composable.System.Reflection
                     newFields.AddRange(type.GetFields(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public).Select(BuildFieldGetter));
 
                     var baseType = type.BaseType;
-                    if (baseType != null && baseType != typeof (object))
+                    if (baseType != null && baseType != typeof(object))
                     {
                         newFields.AddRange(GetFieldGetters(baseType));
                     }

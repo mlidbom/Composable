@@ -37,8 +37,7 @@ namespace Composable.Persistence.EventStore
         public TAggregate Get<TAggregate>(Guid aggregateId) where TAggregate : IEventStored
         {
             _usageGuard.AssertNoContextChangeOccurred(this);
-            TAggregate result;
-            if (!DoTryGet(aggregateId, out result))
+            if (!DoTryGet(aggregateId, out TAggregate result))
             {
                 throw new AggregateRootNotFoundException(aggregateId);
             }
@@ -135,8 +134,7 @@ namespace Composable.Persistence.EventStore
 
         bool DoTryGet<TAggregate>(Guid aggregateId, out TAggregate aggregate) where TAggregate : IEventStored
         {
-            IEventStored es;
-            if (_idMap.TryGetValue(aggregateId, out es))
+            if (_idMap.TryGetValue(aggregateId, out IEventStored es))
             {
                 aggregate = (TAggregate)es;
                 return true;

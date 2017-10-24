@@ -50,6 +50,9 @@ namespace Composable.Messaging.Buses.Implementation
                 } else if(IsQuery(messageType))
                 {
                     @this.QueryConnections.Add(messageType, clientConnection);
+                } else
+                {
+                    Contract.Argument.Assert(false);
                 }
             }
         });

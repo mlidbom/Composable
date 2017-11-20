@@ -25,10 +25,11 @@ namespace Composable.Tests.StrictlyManagedResource
 
             GC.Collect();
             GC.WaitForPendingFinalizers();
+
             return exception;
         }
 
-        [Test] public void Lead_is_detected() =>
+        [Test] public void Leak_is_detected() =>
             LeakResourceAndRunGarbageCollection(forceStackTraceCollection: false)
                 .Should()
                 .NotBeNull();

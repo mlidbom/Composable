@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Threading.Tasks;
 using Composable.System.Configuration;
 using Composable.System.Linq;
@@ -63,7 +64,7 @@ namespace Composable.System
         {
             if(forceStackTraceCollection || CollectStacktraces || StrictlyManagedResources.CollectStackTracesForAllStrictlyManagedResources)
             {
-                ReservationCallStack = Environment.StackTrace;
+                ReservationCallStack = new StackTrace(fNeedFileInfo:false).ToString();
             }
             if(maxLifetime.HasValue)
             {

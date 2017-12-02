@@ -11,15 +11,15 @@ namespace Composable.System
     {
         ///<summary>returns true if me is null, empty or only whitespace</summary>
         [ContractAnnotation("null => true")]
-        internal static bool IsNullOrWhiteSpace(this string me) => string.IsNullOrWhiteSpace(me);
+        internal static bool IsNullOrWhiteSpace(this string @this) => string.IsNullOrWhiteSpace(@this);
 
         /// <summary>Delegates to <see cref="string.Join(string,string[])"/> </summary>
-        public static string Join(this IEnumerable<string> strings, string separator)
+        public static string Join(this IEnumerable<string> @this, string separator)
         {
-            ContractOptimized.Argument(strings, nameof(strings), separator, nameof(separator))
+            ContractOptimized.Argument(@this, nameof(@this), separator, nameof(separator))
                              .NotNull();
 
-            return string.Join(separator, strings.ToArray());
+            return string.Join(separator, @this.ToArray());
         }
     }
 }

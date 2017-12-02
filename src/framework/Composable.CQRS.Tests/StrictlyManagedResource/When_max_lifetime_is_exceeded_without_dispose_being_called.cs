@@ -25,7 +25,7 @@ namespace Composable.Tests.StrictlyManagedResource
                                                                                                        exceptionThrown.Set();
                                                                                                    };
 
-            using(new StrictlyManagedResource<StrictResource>(forceStackTraceCollection: forceStackTraceCollection, maxLifetime: TimeSpanExtensions.Milliseconds(10)))
+            using(new StrictlyManagedResource<StrictResource>(forceStackTraceCollection: forceStackTraceCollection, maxLifetime: 10.Milliseconds()))
             {
                 exceptionThrown.WaitOne(1.Seconds())
                                .Should()

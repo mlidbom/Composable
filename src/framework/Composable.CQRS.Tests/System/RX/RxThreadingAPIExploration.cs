@@ -109,7 +109,7 @@ namespace Composable.Tests.System.RX
                 var subject = new Subject<int>();
                 var synchronized = subject.Synchronize();
 
-                const int subscriberCount = 5;
+                const int subscriberCount = 3;
                 const int onNextCalls = 5;
 
                 var concurrentCalls = 0;
@@ -135,9 +135,8 @@ namespace Composable.Tests.System.RX
                                                                             });
                                                                         })).ToList();
 
-                _taskRunner.Run(1.Through(onNextCalls).Select(index => (Action)(() => subject.OnNext(index))));
-
-                _taskRunner.WaitForTasksToComplete();
+                _taskRunner.Run(1.Through(onNextCalls).Select(index => (Action)(() => subject.OnNext(index))))
+                           .WaitForTasksToComplete();
 
                 Console.WriteLine($"{nameof(maxConcurrentCalls)}: {maxConcurrentCalls}");
                 maxConcurrentCalls.Should().Be(Math.Min(subscriberCount, onNextCalls));
@@ -208,7 +207,7 @@ namespace Composable.Tests.System.RX
                     _taskRunner.Run(1.Through(100).Select(index => (Action)(() => subject.OnNext(index.ToString()))));
 
                     subscriberGate.AwaitQueueLengthEqualTo(1);
-                    AssertionExtensions.ShouldThrow<Exception>(() => subscriberGate.AwaitQueueLengthEqualTo(2, 1.Seconds()));
+                    AssertionExtensions.ShouldThrow<Exception>(() => subscriberGate.AwaitQueueLengthEqualTo(2, 0.1.Seconds()));
                     subscriberGate.Open();
 
                     _taskRunner.WaitForTasksToComplete();

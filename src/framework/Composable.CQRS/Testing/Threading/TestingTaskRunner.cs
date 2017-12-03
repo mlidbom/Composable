@@ -24,12 +24,19 @@ namespace Composable.Testing.Threading
         public void RunTimes(int times, Func<Task> task) => Monitor(1.Through(times).Select(index => task()));
         public void RunTimes(int times, Func<int, Task> task) => Monitor(1.Through(times).Select(task));
 
-        public void Run(IEnumerable<Action> tasks) => Run(tasks.ToArray());
-        public void Run(params Action[] tasks) => tasks.ForEach(task => _tasks.Add(Task.Run(task)));
+        public TestingTaskRunner Run(IEnumerable<Action> tasks) => Run(tasks.ToArray());
+        public TestingTaskRunner Run(params Action[] tasks)
+        {
+            tasks.ForEach(task => _tasks.Add(Task.Run(task)));
+            return this;
+        }
+
         public void RunTimes(int times, Action task) => Run(1.Through(times).Select(index => task));
         public void RunTimes(int times, Action<int> task) => Run(1.Through(times).Select<int, Action>(index => () => task(index)));
 
-        public void Dispose()
+        public void Dispose() => WaitForTasksToComplete();
+
+        public void WaitForTasksToComplete()
         {
             if(!Task.WaitAll(_tasks.ToArray(), timeout: _timeout))
             {

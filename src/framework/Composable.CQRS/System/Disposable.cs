@@ -10,7 +10,7 @@ namespace Composable.System
         readonly Action _action;
 
         ///<summary>Constructs an instance that will call <param name="action"> when disposed.</param></summary>
-        public Disposable(Action action)
+        Disposable(Action action)
         {
             OldContract.Argument(() => action).NotNull();
             _action = action;

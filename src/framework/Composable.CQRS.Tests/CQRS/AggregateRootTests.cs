@@ -10,6 +10,8 @@ using NUnit.Framework;
 
 namespace Composable.Tests.CQRS
 {
+    using Composable.System.Reactive;
+
     [TestFixture]
     public class AggregateRootTests
     {

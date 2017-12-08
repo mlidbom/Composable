@@ -89,8 +89,9 @@ namespace Composable.Messaging.Buses
 
     interface IGlobalBusStateSnapshot
     {
-        IReadOnlyList<IQueuedMessageInformation> InflightMessages { get; }
-        IReadOnlyList<IQueuedMessage> LocallyExecutingMessages { get; }
+        IReadOnlyList<IQueuedMessageInformation> MessagesQueuedForExecution { get; }
+        IReadOnlyList<IQueuedMessage> MessagesQueuedForExecutionLocally { get; }
+        IReadOnlyList<IMessage> InFlightMessages { get; }
     }
 
     interface IQueuedMessageInformation
@@ -115,7 +116,7 @@ namespace Composable.Messaging.Buses
 
         IQueuedMessage AwaitDispatchableMessage(IInbox bus, IReadOnlyList<IMessageDispatchingRule> dispatchingRules);
 
-        void SendingMessageOnTransport(TransportMessage.OutGoing message);
+        void SendingMessageOnTransport(TransportMessage.OutGoing transportMessage, IMessage message);
         void EnqueueMessageTask(IInbox bus, TransportMessage.InComing message, Action messageTask);
         void AwaitNoMessagesInFlight(TimeSpan? timeoutOverride);
     }

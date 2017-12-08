@@ -11,14 +11,15 @@ namespace Composable.Messaging.Buses.Implementation
 {
     class GlobalBusStrateTracker : IGlobalBusStrateTracker
     {
-        readonly List<QueuedMessage> _inflightMessages = new List<QueuedMessage>();
+        readonly List<QueuedMessage> _queuedMessages = new List<QueuedMessage>();
 
         //Todo: It is never OK for this class to block for a significant amount of time. So make that explicit with a really strict timeout on all operations waiting for access.
         //Currently we cannot make the timeout really strict because it does time out....
         readonly IResourceGuard _guard = ResourceGuard.WithTimeout(100.Milliseconds());
 
         readonly Dictionary<IInbox, IList<Exception>> _busExceptions = new Dictionary<IInbox, IList<Exception>>();
-        readonly Dictionary<Guid, int> _inflightMessageIds = new Dictionary<Guid, int>();
+
+        readonly Dictionary<Guid, InFlightMessage> _inflightMessages = new Dictionary<Guid, InFlightMessage>();
 
         public IReadOnlyList<Exception> GetExceptionsFor(IInbox bus) => _guard.Update(() => _busExceptions.GetOrAdd(bus, () => new List<Exception>()).ToList());
 
@@ -29,9 +30,9 @@ namespace Composable.Messaging.Buses.Implementation
                 QueuedMessage result;
                 do
                 {
-                    var snapshot = new GlobalBusStateSnapshot(bus, _inflightMessages.ToList());
+                    var snapshot = new GlobalBusStateSnapshot(bus, _queuedMessages.ToList(), _inflightMessages.Values.Select(msg => msg.Message).ToList());
 
-                    result = _inflightMessages
+                    result = _queuedMessages
                         .Where(queuedMessage => queuedMessage.Bus == bus && !queuedMessage.IsExecuting)
                         .FirstOrDefault(queuedTask => dispatchingRules.All(rule => rule.CanBeDispatched(snapshot, queuedTask)));
 
@@ -45,22 +46,22 @@ namespace Composable.Messaging.Buses.Implementation
             }
         }
 
-        public void SendingMessageOnTransport(TransportMessage.OutGoing message) => _guard.Update(() =>
+        public void SendingMessageOnTransport(TransportMessage.OutGoing transportMessage, IMessage message) => _guard.Update(() =>
         {
-            var value = _inflightMessageIds.GetOrAdd(message.MessageId, () => 0);
-            _inflightMessageIds[message.MessageId] = value + 1;
+            var value = _inflightMessages.GetOrAdd(transportMessage.MessageId, () => new InFlightMessage());
+            _inflightMessages[transportMessage.MessageId].RemainingReceivers++;
         });
 
         public void EnqueueMessageTask(IInbox bus, TransportMessage.InComing message, Action messageTask) => _guard.Update(() =>
         {
             var inflightMessage = new QueuedMessage(bus, message, this, messageTask);
-            _inflightMessages.Add(inflightMessage);
+            _queuedMessages.Add(inflightMessage);
             return inflightMessage;
         });
 
         public void AwaitNoMessagesInFlight(TimeSpan? timeoutOverride)
             => _guard.AwaitCondition(timeout: timeoutOverride ?? 30.Seconds(),
-                                     condition: () => _inflightMessages.None() && _inflightMessageIds.None());
+                                     condition: () => _queuedMessages.None() && _inflightMessages.None());
 
         void Succeeded(QueuedMessage queuedMessageInformation) => _guard.Update(() => DoneDispatching(queuedMessageInformation));
 
@@ -72,25 +73,33 @@ namespace Composable.Messaging.Buses.Implementation
 
         void DoneDispatching(QueuedMessage queuedMessageInformation)
         {
-            _inflightMessages.Remove(queuedMessageInformation);
-            var currentCount = _inflightMessageIds[queuedMessageInformation.MessageId] -= 1;
+            _queuedMessages.Remove(queuedMessageInformation);
+            var currentCount = -- _inflightMessages[queuedMessageInformation.MessageId].RemainingReceivers;
             if(currentCount == 0)
             {
-                _inflightMessageIds.Remove(queuedMessageInformation.MessageId);
+                _inflightMessages.Remove(queuedMessageInformation.MessageId);
             }
+        }
+
+        class InFlightMessage
+        {
+            public int RemainingReceivers { get; set; }
+            public IMessage Message { get; set; }
         }
 
         class GlobalBusStateSnapshot : IGlobalBusStateSnapshot
         {
-            public GlobalBusStateSnapshot(IInbox bus, IReadOnlyList<QueuedMessage> inflightMessages)
+            public GlobalBusStateSnapshot(IInbox bus, IReadOnlyList<QueuedMessage> queuedMessages, IReadOnlyList<IMessage> inFlightMessages)
             {
                 var bus1 = bus;
-                InflightMessages = inflightMessages;
-                LocallyExecutingMessages = inflightMessages.Where(message => message.Bus == bus1 && message.IsExecuting).ToList();
+                MessagesQueuedForExecution = queuedMessages;
+                InFlightMessages = inFlightMessages;
+                MessagesQueuedForExecutionLocally = queuedMessages.Where(message => message.Bus == bus1 && message.IsExecuting).ToList();
             }
 
-            public IReadOnlyList<IQueuedMessageInformation> InflightMessages { get; }
-            public IReadOnlyList<IQueuedMessage> LocallyExecutingMessages { get; }
+            public IReadOnlyList<IQueuedMessageInformation> MessagesQueuedForExecution { get; }
+            public IReadOnlyList<IQueuedMessage> MessagesQueuedForExecutionLocally { get; }
+            public IReadOnlyList<IMessage> InFlightMessages { get; }
         }
 
         class QueuedMessage : IQueuedMessage

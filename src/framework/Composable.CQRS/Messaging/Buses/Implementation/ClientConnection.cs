@@ -113,7 +113,7 @@ namespace Composable.Messaging.Buses.Implementation
                 taskCompletionSource.SetResult(null);
             }
 
-            @this.GlobalBusStrateTracker.SendingMessageOnTransport(outGoingMessage);
+            @this.GlobalBusStrateTracker.SendingMessageOnTransport(outGoingMessage, message);
             @this.DispatchQueue.Enqueue(outGoingMessage);
 
             return taskCompletionSource.Task;

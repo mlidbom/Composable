@@ -35,10 +35,10 @@ namespace Composable.Messaging.Buses
         }
 
         public IApiNavigator<TReturnResource> Get<TReturnResource>(Func<TCurrentResource, IQuery<TReturnResource>> selectQuery)
-            => new ApiNavigator<TReturnResource>(_bus, () => _bus.QueryAsync(selectQuery(_getCurrentResource().Result)));
+            => new ApiNavigator<TReturnResource>(_bus, getCurrentResource: () => _bus.QueryAsync(selectQuery(_getCurrentResource().Result)));
 
         public IApiNavigator<TReturnResource> Post<TReturnResource>(Func<TCurrentResource, IDomainCommand<TReturnResource>> selectCommand) where TReturnResource : IMessage
-            => new ApiNavigator<TReturnResource>(_bus, () => _bus.SendAsync(selectCommand(_getCurrentResource().Result)));
+            => new ApiNavigator<TReturnResource>(_bus, getCurrentResource: () => _bus.SendAsync(selectCommand(_getCurrentResource().Result)));
 
         public async Task<TCurrentResource> ExecuteNavigationAsync() => await _getCurrentResource().NoMarshalling();
 

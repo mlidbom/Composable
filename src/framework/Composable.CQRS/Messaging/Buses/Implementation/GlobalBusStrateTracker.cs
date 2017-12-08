@@ -86,7 +86,7 @@ namespace Composable.Messaging.Buses.Implementation
         {
             public InFlightMessage(TransportMessage.OutGoing message) => Message = message;
             public int RemainingReceivers { get; set; }
-            public TransportMessage.OutGoing Message { get; set; }
+            public TransportMessage.OutGoing Message { get; private set; }
         }
 
         class GlobalBusStateSnapshot : IGlobalBusStateSnapshot

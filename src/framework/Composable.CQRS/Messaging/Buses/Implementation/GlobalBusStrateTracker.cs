@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Composable.Contracts;
 using Composable.System;
 using Composable.System.Collections.Collections;
 using Composable.System.Linq;
@@ -48,8 +49,8 @@ namespace Composable.Messaging.Buses.Implementation
 
         public void SendingMessageOnTransport(TransportMessage.OutGoing transportMessage, IMessage message) => _guard.Update(() =>
         {
-            var value = _inflightMessages.GetOrAdd(transportMessage.MessageId, () => new InFlightMessage());
-            _inflightMessages[transportMessage.MessageId].RemainingReceivers++;
+            var inFlightMessage = _inflightMessages.GetOrAdd(transportMessage.MessageId, () => new InFlightMessage(message));
+            inFlightMessage.RemainingReceivers++;
         });
 
         public void EnqueueMessageTask(IInbox bus, TransportMessage.InComing message, Action messageTask) => _guard.Update(() =>
@@ -74,8 +75,9 @@ namespace Composable.Messaging.Buses.Implementation
         void DoneDispatching(QueuedMessage queuedMessageInformation)
         {
             _queuedMessages.Remove(queuedMessageInformation);
-            var currentCount = -- _inflightMessages[queuedMessageInformation.MessageId].RemainingReceivers;
-            if(currentCount == 0)
+            var inFlightMessage = _inflightMessages[queuedMessageInformation.MessageId];
+            inFlightMessage.RemainingReceivers--;
+            if(inFlightMessage.RemainingReceivers == 0)
             {
                 _inflightMessages.Remove(queuedMessageInformation.MessageId);
             }
@@ -83,6 +85,7 @@ namespace Composable.Messaging.Buses.Implementation
 
         class InFlightMessage
         {
+            public InFlightMessage(IMessage message) => Message = message;
             public int RemainingReceivers { get; set; }
             public IMessage Message { get; set; }
         }

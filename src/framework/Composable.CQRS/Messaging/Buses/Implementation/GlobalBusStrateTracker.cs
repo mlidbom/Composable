@@ -13,14 +13,13 @@ namespace Composable.Messaging.Buses.Implementation
     class GlobalBusStrateTracker : IGlobalBusStrateTracker
     {
         readonly List<QueuedMessage> _queuedMessages = new List<QueuedMessage>();
+        readonly Dictionary<Guid, InFlightMessage> _inflightMessages = new Dictionary<Guid, InFlightMessage>();
 
         //Todo: It is never OK for this class to block for a significant amount of time. So make that explicit with a really strict timeout on all operations waiting for access.
         //Currently we cannot make the timeout really strict because it does time out....
         readonly IResourceGuard _guard = ResourceGuard.WithTimeout(100.Milliseconds());
 
         readonly Dictionary<IInbox, IList<Exception>> _busExceptions = new Dictionary<IInbox, IList<Exception>>();
-
-        readonly Dictionary<Guid, InFlightMessage> _inflightMessages = new Dictionary<Guid, InFlightMessage>();
 
         public IReadOnlyList<Exception> GetExceptionsFor(IInbox bus) => _guard.Update(() => _busExceptions.GetOrAdd(bus, () => new List<Exception>()).ToList());
 
@@ -49,7 +48,7 @@ namespace Composable.Messaging.Buses.Implementation
 
         public void SendingMessageOnTransport(TransportMessage.OutGoing transportMessage, IMessage message) => _guard.Update(() =>
         {
-            var inFlightMessage = _inflightMessages.GetOrAdd(transportMessage.MessageId, () => new InFlightMessage(message));
+            var inFlightMessage = _inflightMessages.GetOrAdd(transportMessage.MessageId, () => new InFlightMessage(transportMessage));
             inFlightMessage.RemainingReceivers++;
         });
 
@@ -85,14 +84,14 @@ namespace Composable.Messaging.Buses.Implementation
 
         class InFlightMessage
         {
-            public InFlightMessage(IMessage message) => Message = message;
+            public InFlightMessage(TransportMessage.OutGoing message) => Message = message;
             public int RemainingReceivers { get; set; }
-            public IMessage Message { get; set; }
+            public TransportMessage.OutGoing Message { get; set; }
         }
 
         class GlobalBusStateSnapshot : IGlobalBusStateSnapshot
         {
-            public GlobalBusStateSnapshot(IInbox bus, IReadOnlyList<QueuedMessage> queuedMessages, IReadOnlyList<IMessage> inFlightMessages)
+            public GlobalBusStateSnapshot(IInbox bus, IReadOnlyList<QueuedMessage> queuedMessages, List<TransportMessage.OutGoing> inFlightMessages)
             {
                 var bus1 = bus;
                 MessagesQueuedForExecution = queuedMessages;
@@ -102,7 +101,7 @@ namespace Composable.Messaging.Buses.Implementation
 
             public IReadOnlyList<IQueuedMessageInformation> MessagesQueuedForExecution { get; }
             public IReadOnlyList<IQueuedMessage> MessagesQueuedForExecutionLocally { get; }
-            public IReadOnlyList<IMessage> InFlightMessages { get; }
+            public IReadOnlyList<TransportMessage.OutGoing> InFlightMessages { get; }
         }
 
         class QueuedMessage : IQueuedMessage

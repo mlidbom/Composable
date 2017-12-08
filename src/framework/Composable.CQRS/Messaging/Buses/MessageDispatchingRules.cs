@@ -1,4 +1,5 @@
 ﻿using System.Linq;
+using Composable.Messaging.Buses.Implementation;
 using Composable.System.Linq;
 
 namespace Composable.Messaging.Buses
@@ -12,7 +13,7 @@ namespace Composable.Messaging.Buses
                 return true;
             }
 
-            if(busState.InFlightMessages.None(message => message is IEvent || message is IDomainCommand))
+            if(busState.InFlightMessages.None(message => message.Type == TransportMessage.TransportMessageType.Event || message.Type == TransportMessage.TransportMessageType.Command))
             {
                 return true;
             }

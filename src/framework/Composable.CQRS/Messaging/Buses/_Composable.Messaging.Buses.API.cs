@@ -91,7 +91,7 @@ namespace Composable.Messaging.Buses
     {
         IReadOnlyList<IQueuedMessageInformation> MessagesQueuedForExecution { get; }
         IReadOnlyList<IQueuedMessage> MessagesQueuedForExecutionLocally { get; }
-        IReadOnlyList<IMessage> InFlightMessages { get; }
+        IReadOnlyList<TransportMessage.OutGoing> InFlightMessages { get; }
     }
 
     interface IQueuedMessageInformation

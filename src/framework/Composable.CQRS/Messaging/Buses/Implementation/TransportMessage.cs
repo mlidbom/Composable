@@ -11,6 +11,13 @@ namespace Composable.Messaging.Buses.Implementation
 {
     static class TransportMessage
     {
+        public enum TransportMessageType
+        {
+            Event,
+            Command,
+            Query
+        }
+
         public class InComing
         {
             public readonly byte[] Client;
@@ -59,8 +66,10 @@ namespace Composable.Messaging.Buses.Implementation
 
         public class OutGoing
         {
-            readonly string _messageType;
             public readonly Guid MessageId;
+            public readonly TransportMessageType Type;
+
+            readonly string _messageType;
             readonly string _messageBody;
 
             public void Send(IOutgoingSocket socket)
@@ -77,11 +86,26 @@ namespace Composable.Messaging.Buses.Implementation
             {
                 var messageId = (message as IExactlyOnceDeliveryMessage)?.MessageId ?? Guid.NewGuid();
                 var body = JsonConvert.SerializeObject(message, Formatting.Indented, JsonSettings.JsonSerializerSettings);
-                return new OutGoing(message.GetType(), messageId, body);
+                return new OutGoing(message.GetType(), messageId, body, GetMessageType(message));
             }
 
-            OutGoing(Type messageType, Guid messageId, string messageBody)
+            static TransportMessageType GetMessageType(IMessage message)
             {
+                switch(message) {
+                    case IEvent _:
+                        return TransportMessageType.Event;
+                    case ICommand _:
+                        return TransportMessageType.Command;
+                    case IQuery _:
+                        return TransportMessageType.Query;
+                    default:
+                        throw new ArgumentOutOfRangeException();
+                }
+            }
+
+            OutGoing(Type messageType, Guid messageId, string messageBody, TransportMessageType type)
+            {
+                Type = type;
                 _messageType = messageType.FullName;
                 MessageId = messageId;
                 _messageBody = messageBody;

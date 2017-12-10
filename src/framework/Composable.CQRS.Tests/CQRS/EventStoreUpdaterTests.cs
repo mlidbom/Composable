@@ -20,7 +20,7 @@ using NUnit.Framework;
 namespace Composable.Tests.CQRS
 {
     [TestFixture]
-    public abstract class EventStoreSessionTests
+    public abstract class EventStoreUpdaterTests
     {
         IMessageSpy MessageSpy => ServiceLocator.Resolve<IMessageSpy>();
 

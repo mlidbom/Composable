@@ -13,7 +13,7 @@ using NUnit.Framework;
 namespace Composable.Tests.ExternalDependencies.CQRS.EventSourcing.Sql
 {
     [TestFixture]
-    class SqlServerEventStoreSessionTests : EventStoreSessionTests
+    class SqlServerEventStoreUpdaterTests : EventStoreUpdaterTests
     {
         protected override IServiceLocator CreateServiceLocator() => TestWiringHelper.SetupTestingServiceLocator(TestingMode.DatabasePool);
 

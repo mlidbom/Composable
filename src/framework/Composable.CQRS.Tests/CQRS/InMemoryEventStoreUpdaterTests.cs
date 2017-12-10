@@ -4,7 +4,7 @@ using NUnit.Framework;
 namespace Composable.Tests.CQRS
 {
     [TestFixture]
-    class InMemoryEventStoreSessionTests : EventStoreSessionTests
+    class InMemoryEventStoreUpdaterTests : EventStoreUpdaterTests
     {
         protected override IServiceLocator CreateServiceLocator() => TestWiringHelper.SetupTestingServiceLocator(TestingMode.InMemory);
     }

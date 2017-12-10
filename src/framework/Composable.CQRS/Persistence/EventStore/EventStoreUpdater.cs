@@ -28,7 +28,7 @@ namespace Composable.Persistence.EventStore
             OldContract.Argument(() => inprocessBus, () => store, () => usageGuard, () => timeSource)
                         .NotNull();
 
-            _usageGuard = usageGuard;
+            _usageGuard = new CombinationUsageGuard(usageGuard, new SingleTransactionUsageGuard());
             _inprocessBus = inprocessBus;
             _store = store;
             TimeSource = timeSource ?? DateTimeNowTimeSource.Instance;
@@ -91,6 +91,7 @@ namespace Composable.Persistence.EventStore
 
         void OnAggregateEvent(IDomainEvent @event)
         {
+            _usageGuard.AssertNoContextChangeOccurred(this);
             OldContract.Assert.That(_idMap.ContainsKey(@event.AggregateRootId), "Got event from aggregate that is not tracked!");
             _store.SaveEvents(new[] { @event });
             _inprocessBus.Publish(@event);

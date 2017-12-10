@@ -4,6 +4,7 @@ using System.Transactions;
 using Composable.Logging.Log4Net;
 using Composable.Persistence.EventStore.Refactoring.Naming;
 using Composable.System.Data.SqlClient;
+using Composable.System.Transactions;
 
 namespace Composable.Persistence.EventStore.MicrosoftSQLServer
 {
@@ -36,27 +37,23 @@ AT:
             return _connectionManager.OpenConnection();
         }
 
-        public void SetupSchemaIfDatabaseUnInitialized()
+        public void SetupSchemaIfDatabaseUnInitialized() => TransactionScopeCe.SuppressAmbientAndExecuteInNewTransaction(() =>
         {
             if(!_verifiedConnectionString)
             {
-                using(var transaction = new TransactionScope())
+                using(var connection = OpenConnection())
                 {
-                    using(var connection = OpenConnection())
+                    IdMapper = new SqlServerEventStoreEventTypeToIdMapper(_connectionManager, _nameMapper);
+
+                    if(!_eventTable.Exists(connection))
                     {
-                        IdMapper = new SqlServerEventStoreEventTypeToIdMapper(_connectionManager, _nameMapper);
-
-                        if(!_eventTable.Exists(connection))
-                        {
-                            _eventTypeTable.Create(connection);
-                            _eventTable.Create(connection);
-                        }
-
-                        _verifiedConnectionString = true;
+                        _eventTypeTable.Create(connection);
+                        _eventTable.Create(connection);
                     }
-                    transaction.Complete();
+
+                    _verifiedConnectionString = true;
                 }
             }
-        }
+        });
     }
 }

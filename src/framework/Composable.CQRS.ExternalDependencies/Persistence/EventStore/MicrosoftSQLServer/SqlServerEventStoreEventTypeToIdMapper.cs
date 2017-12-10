@@ -2,9 +2,12 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
+using System.Diagnostics.Contracts;
+using System.Transactions;
 using Composable.Logging.Log4Net;
 using Composable.Persistence.EventStore.Refactoring.Naming;
 using Composable.System.Data.SqlClient;
+using Composable.System.Transactions;
 
 namespace Composable.Persistence.EventStore.MicrosoftSQLServer
 {
@@ -84,42 +87,43 @@ namespace Composable.Persistence.EventStore.MicrosoftSQLServer
             }
         }
 
-        IdTypeMapping InsertNewType(Type newType)
+        IdTypeMapping InsertNewType(Type newType) => TransactionScopeCe.SuppressAmbientAndExecuteInNewTransaction(() =>
         {
-            using (var connection = _connectionMananger.OpenConnection())
+            using(var connection = _connectionMananger.OpenConnection())
             {
-                using (var command = connection.CreateCommand())
+                using(var command = connection.CreateCommand())
                 {
                     command.CommandText = $@"SELECT {EventTypeTable.Columns.Id} FROM {EventTypeTable.Name} WHERE {EventTypeTable.Columns.EventType}=@{EventTypeTable.Columns.EventType}";
                     command.Parameters.Add(new SqlParameter(EventTypeTable.Columns.EventType, SqlDbType.NVarChar, 450) {Value = _nameMapper.GetName(newType)});
-                    using (var reader = command.ExecuteReader())
+                    using(var reader = command.ExecuteReader())
                     {
-                        if (reader.Read())
+                        if(reader.Read())
                         {
                             return new IdTypeMapping(id: reader.GetInt32(0), type: newType);
                         }
                     }
                 }
 
-                using (var command = connection.CreateCommand())
+                using(var command = connection.CreateCommand())
                 {
                     command.CommandText = $@"INSERT {EventTypeTable.Name} ( {EventTypeTable.Columns.EventType} ) OUTPUT INSERTED.{EventTypeTable.Columns.Id} VALUES( @{EventTypeTable.Columns.EventType} )";
                     command.Parameters.Add(new SqlParameter(EventTypeTable.Columns.EventType, SqlDbType.NVarChar, 450) {Value = _nameMapper.GetName(newType)});
                     return new IdTypeMapping(id: (int)command.ExecuteScalar(), type: newType);
                 }
             }
-        }
+        });
 
-        IEnumerable<IIdTypeMapping> GetTypes()
+        IEnumerable<IIdTypeMapping> GetTypes() => TransactionScopeCe.SuppressAmbient(() =>
         {
-            using(var connection = _connectionMananger.OpenConnection(suppressTransactionWarning:true))
+            var types = new List<IIdTypeMapping>();
+            using(var connection = _connectionMananger.OpenConnection(suppressTransactionWarning: true))
             {
                 using(var command = connection.CreateCommand())
                 {
                     command.CommandText = $"SELECT {EventTypeTable.Columns.Id} , {EventTypeTable.Columns.EventType} FROM {EventTypeTable.Name}";
-                    using (var reader = command.ExecuteReader())
+                    using(var reader = command.ExecuteReader())
                     {
-                        while (reader.Read())
+                        while(reader.Read())
                         {
                             var eventTypeName = reader.GetString(1);
                             var eventTypeId = reader.GetInt32(0);
@@ -129,24 +133,24 @@ namespace Composable.Persistence.EventStore.MicrosoftSQLServer
                             {
                                 foundEventType = _nameMapper.GetType(eventTypeName);
                             }
-                            catch (CouldNotFindTypeBasedOnName)
+                            catch(CouldNotFindTypeBasedOnName)
                             {
                                 this.Log().Warn($"The type of event: Id: {eventTypeId}, Name: {eventTypeName} that exists in the database could not be found in the loaded assemblies. No mapping will be created for this class. If an event of this type is read from the store an exception will be thrown");
                             }
 
                             if(foundEventType != null)
                             {
-                                yield return new IdTypeMapping(id: eventTypeId, type: foundEventType);
-                            }
-                            else
+                                types.Add(new IdTypeMapping(id: eventTypeId, type: foundEventType));
+                            } else
                             {
-                                yield return new BrokenIdTypeMapping(id: eventTypeId, typeName: eventTypeName);
+                                types.Add(new BrokenIdTypeMapping(id: eventTypeId, typeName: eventTypeName));
                             }
                         }
                     }
                 }
             }
-        }
+            return types;
+        });
 
         Dictionary<int, IIdTypeMapping> _idToTypeMap;
         Dictionary<Type, int> _typeToIdMap;

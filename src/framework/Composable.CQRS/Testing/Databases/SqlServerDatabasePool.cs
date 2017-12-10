@@ -75,7 +75,7 @@ namespace Composable.Testing.Databases
             } else
             {
                 SharedState snapshot = null;
-                TransactionScopeCe.SupressAmbient(
+                TransactionScopeCe.SuppressAmbient(
                     () =>
                         _machineWideState.Update(
                             machineWide =>
@@ -131,7 +131,7 @@ namespace Composable.Testing.Databases
                                                                _log.Debug($"Cleaning: {db.Id}");
                                                                try
                                                                {
-                                                                   TransactionScopeCe.SupressAmbient(
+                                                                   TransactionScopeCe.SuppressAmbient(
                                                                        () => new SqlServerConnection(db.ConnectionString(this))
                                                                            .UseConnection(action: connection => connection.DropAllObjects()));
                                                                    _machineWideState.Update(machineWide => machineWide.Release(db.Id)

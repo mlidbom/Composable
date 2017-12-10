@@ -1,11 +1,12 @@
 ﻿using System;
+using JetBrains.Annotations;
 using NUnit.Framework;
 
 namespace Composable.Tests
 {
     static class AssertThrows
     {
-        internal static TException Exception<TException>(Func<object> action) where TException : Exception
+        internal static TException Exception<TException>([InstantHandle]Func<object> action) where TException : Exception
         {
             return Exception<TException>(() =>
             {
@@ -13,7 +14,7 @@ namespace Composable.Tests
             });
         }
 
-        internal static TException Exception<TException>(Action action) where TException : Exception
+        internal static TException Exception<TException>([InstantHandle]Action action) where TException : Exception
         {
             try
             {

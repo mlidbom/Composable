@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Composable.DependencyInjection;
 using Composable.Persistence.EventStore;
 using Composable.System.Linq;
+using Composable.System.Transactions;
 using Composable.Testing.Threading;
 using Composable.Tests.CQRS;
 using FluentAssertions;
@@ -119,6 +120,24 @@ namespace Composable.Tests.ExternalDependencies.CQRS.EventSourcing.Sql
                     userHistory.Length.Should()
                                .Be(threads + 2); //Make sure that all of the transactions completed
                 });
+        }
+
+        [Test]
+        public void If_an_updater_is_used_in_two_transactions_and_an_aggregate_is_changed_in_both_transactions_and_another_updater_changes_the_aggregate_in_between_the_two_transactions_the_second_transaction_fails_with_an_explanatory_exception()
+        {
+            using (ServiceLocator.BeginScope())
+            {
+                using (var updater = ServiceLocator.Resolve<ITestingEventstoreUpdater>())
+                {
+                    var user = new User();
+                    user.Register("email@email.se", "password", Guid.NewGuid());
+
+                    TransactionScopeCe.Execute(() => updater.Save(user));
+                    TransactionScopeCe.SuppressAmbient(() => UseInTransactionalScope(otherUpdater => otherUpdater.Get<User>(user.Id).ChangeEmail("some@new.email")));
+
+                    AssertThrows.Exception<EventStoreOptimisticConcurrencyException>(() => TransactionScopeCe.Execute(() => updater.Get<User>(user.Id).ChangeEmail("some@newer.email")));
+                }
+            }
         }
     }
 }

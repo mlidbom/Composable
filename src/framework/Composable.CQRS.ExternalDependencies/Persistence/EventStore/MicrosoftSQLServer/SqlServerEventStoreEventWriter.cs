@@ -11,6 +11,8 @@ namespace Composable.Persistence.EventStore.MicrosoftSQLServer
 {
     class SqlServerEventStoreEventWriter : IEventStoreEventWriter
     {
+        const int PrimaryKeyViolationSqlErrorNumber = 2627;
+
         readonly SqlServerEventStoreConnectionManager _connectionManager;
         IEventTypeToIdMapper IdMapper => _schemaManager.IdMapper;
         readonly IEventStoreSchemaManager _schemaManager;
@@ -70,7 +72,14 @@ SET @{EventTable.Columns.InsertionOrder} = SCOPE_IDENTITY();";
 
                         command.Parameters.Add(identityParameter);
 
-                        command.ExecuteNonQuery();
+                        try
+                        {
+                            command.ExecuteNonQuery();
+                        }
+                        catch(SqlException e) when(e.Number == PrimaryKeyViolationSqlErrorNumber)
+                        {
+                            throw new EventStoreOptimisticConcurrencyException(e);
+                        }
 
                         data.InsertionOrder = @event.InsertionOrder = (long)identityParameter.Value;
                     }

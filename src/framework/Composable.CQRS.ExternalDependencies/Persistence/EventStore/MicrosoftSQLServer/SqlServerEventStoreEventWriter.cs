@@ -11,15 +11,15 @@ namespace Composable.Persistence.EventStore.MicrosoftSQLServer
 {
     class SqlServerEventStoreEventWriter : IEventStoreEventWriter
     {
-        readonly SqlServerEventStoreConnectionManager _connectionMananger;
+        readonly SqlServerEventStoreConnectionManager _connectionManager;
         IEventTypeToIdMapper IdMapper => _schemaManager.IdMapper;
         readonly IEventStoreSchemaManager _schemaManager;
 
         public SqlServerEventStoreEventWriter
-            (SqlServerEventStoreConnectionManager connectionMananger,
+            (SqlServerEventStoreConnectionManager connectionManager,
              IEventStoreSchemaManager schemaManager)
         {
-            _connectionMananger = connectionMananger;
+            _connectionManager = connectionManager;
             _schemaManager = schemaManager;
         }
 
@@ -30,7 +30,7 @@ namespace Composable.Persistence.EventStore.MicrosoftSQLServer
                   .Distinct()
                   .ToDictionary(keySelector: @this => @this, elementSelector: @this => IdMapper.GetId(@this));
 
-            using(var connection = _connectionMananger.OpenConnection())
+            using(var connection = _connectionManager.OpenConnection())
             {
                 foreach(var data in events)
                 {
@@ -145,7 +145,7 @@ SET @{EventTable.Columns.InsertionOrder} = SCOPE_IDENTITY();";
 
         void FixManualVersions(Guid aggregateId)
         {
-            _connectionMananger.UseCommand(
+            _connectionManager.UseCommand(
                 command =>
                 {
                     command.CommandType = CommandType.Text;
@@ -194,7 +194,7 @@ where {EventTable.Columns.InsertionOrder} = @{EventTable.Columns.InsertionOrder}
 
             EventOrderNeighbourhood neighbourhood = null;
 
-            _connectionMananger.UseCommand(
+            _connectionManager.UseCommand(
                 command =>
                 {
                     command.CommandType = CommandType.Text;
@@ -228,7 +228,7 @@ where {EventTable.Columns.InsertionOrder} = @{EventTable.Columns.InsertionOrder}
 
         public void DeleteAggregate(Guid aggregateId)
         {
-            _connectionMananger.UseCommand(
+            _connectionManager.UseCommand(
                 command =>
                 {
                     command.CommandType = CommandType.Text;

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Threading;
+using System.Transactions;
 using Composable.DependencyInjection;
 using Composable.DependencyInjection.Testing;
 using Composable.Messaging;
@@ -11,6 +12,7 @@ using Composable.System.Diagnostics;
 using Composable.System.Linq;
 using Composable.SystemExtensions.Threading;
 using Composable.Testing.Performance;
+using Composable.Tests.System.TransactionsApiExploration;
 using FluentAssertions;
 using JetBrains.Annotations;
 using NUnit.Framework;
@@ -501,5 +503,30 @@ namespace Composable.Tests.CQRS
             UseInTransactionalScope(session => user.ChangeEmail("some@email.new"));
         }
 
+
+        [Test] public void If_the_first_transaction_to_insert_an_event_of_specific_type_fails_the_next_succeeds()
+        {
+            var user = new User();
+            user.Register("email@email.se", "password", Guid.NewGuid());
+
+            UseInTransactionalScope(session => session.Save(user));
+
+            void ChangeUserEmail(bool failOnPrepare)
+            {
+                UseInTransactionalScope(session =>
+                {
+                    if(failOnPrepare)
+                    {
+                        Transaction.Current.FailOnPrepare();
+                    }
+                    var loadedUser = session.Get<User>(user.Id);
+                    loadedUser.ChangeEmail("new@email.com");
+                });
+            }
+
+            AssertThrows.Exception<Exception>(() => ChangeUserEmail(failOnPrepare: true));
+
+            ChangeUserEmail(failOnPrepare: false);
+        }
     }
 }

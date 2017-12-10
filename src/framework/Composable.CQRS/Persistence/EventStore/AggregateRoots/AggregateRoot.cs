@@ -23,9 +23,6 @@ namespace Composable.Persistence.EventStore.AggregateRoots
 
         int _insertedVersionToAggregateVersionOffset = 0;
 
-        SimpleObservable<TAggregateRootBaseEventClass> _simpleObservable = new SimpleObservable<TAggregateRootBaseEventClass>();
-        public IObservable<IDomainEvent> EventStream => _simpleObservable;
-
         //Yes empty. Id should be assigned by an action and it should be obvious that the aggregate in invalid until that happens
         protected AggregateRoot(IUtcTimeTimeSource timeSource) : base(Guid.Empty)
         {
@@ -119,6 +116,9 @@ namespace Composable.Persistence.EventStore.AggregateRoots
         protected virtual void AssertInvariantsAreMet()
         {
         }
+
+        readonly SimpleObservable<TAggregateRootBaseEventClass> _simpleObservable = new SimpleObservable<TAggregateRootBaseEventClass>();
+        IObservable<IDomainEvent> IEventStored.EventStream => _simpleObservable;
 
         void IEventStored.AcceptChanges()
         {

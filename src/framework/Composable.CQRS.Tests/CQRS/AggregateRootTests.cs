@@ -60,7 +60,7 @@ namespace Composable.Tests.CQRS
         {
             var aggregate = new CascadingEventsAggregate();
             var receivedEvents = new List<IDomainEvent>();
-            using(aggregate.EventStream.Subscribe(@event =>
+            using(((IEventStored)aggregate).EventStream.Subscribe(@event =>
                                                   {
                                                       receivedEvents.Add(@event);
                                                       aggregate.TriggeringEventApplied.Should()

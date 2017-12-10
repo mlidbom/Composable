@@ -127,7 +127,7 @@ namespace Composable.DependencyInjection.Persistence
                                                         var eventWriter = new SqlServerEventStoreEventWriter(connectionManager, schemaManager);
                                                         return new EventstorePersistenceLayer<TSessionInterface>(schemaManager, eventReader, eventWriter);
                                                     })
-                                .LifestyleScoped());
+                                .LifestyleSingleton());
 
 
                 @this.Register(Component.For<IEventStore<TSessionInterface, TReaderInterface>>()

@@ -5,6 +5,7 @@ using System.Data;
 using System.Data.SqlClient;
 using System.Linq;
 using Composable.DDD;
+using Composable.GenericAbstractions.Time;
 using Composable.System;
 using Composable.System.Collections.Collections;
 using Composable.System.Data.SqlClient;
@@ -17,6 +18,7 @@ namespace Composable.Persistence.DocumentDb.SqlServer
     class SqlServerDocumentDb : IDocumentDb
     {
         readonly ISqlConnection _connectionManager ;
+        readonly IUtcTimeTimeSource _timeSource;
 
         static readonly JsonSerializerSettings JsonSettings = NewtonSoft.JsonSettings.JsonSerializerSettings;
 
@@ -24,7 +26,11 @@ namespace Composable.Persistence.DocumentDb.SqlServer
 
         readonly object _lockObject = new object();
 
-        protected SqlServerDocumentDb(ISqlConnection connection) => _connectionManager = connection;
+        protected SqlServerDocumentDb(ISqlConnection connection, IUtcTimeTimeSource timeSource)
+        {
+            _connectionManager = connection;
+            _timeSource = timeSource;
+        }
 
         bool _initialized;
         ConcurrentDictionary<Type, int> _knownTypes = null;
@@ -91,12 +97,15 @@ WHERE Id=@Id AND ValueTypeId
             {
                 using(var command = connection.CreateCommand())
                 {
+                    var now = _timeSource.UtcNow;
                     command.CommandType = CommandType.Text;
 
-                    command.CommandText += @"INSERT INTO Store(Id, ValueTypeId, Value) VALUES(@Id, @ValueTypeId, @Value)";
+                    command.CommandText += @"INSERT INTO Store(Id, ValueTypeId, Value, Created, Updated) VALUES(@Id, @ValueTypeId, @Value, @Created, @Updated)";
 
                     command.Parameters.Add(new SqlParameter("Id", SqlDbType.NVarChar, 500) { Value = idString });
                     command.Parameters.Add(new SqlParameter("ValueTypeId", SqlDbType.Int) {Value = _knownTypes[value.GetType()]});
+                    command.Parameters.Add(new SqlParameter("Created", SqlDbType.DateTime2) {Value = now});
+                    command.Parameters.Add(new SqlParameter("Updated", SqlDbType.DateTime2) { Value = now });
 
                     var stringValue = JsonConvert.SerializeObject(value, Formatting.None, JsonSettings);
                     command.Parameters.Add(new SqlParameter("Value", SqlDbType.NVarChar, -1) {Value = stringValue});
@@ -186,8 +195,9 @@ WHERE Id=@Id AND ValueTypeId
                         if(needsUpdate)
                         {
                             persistentValues.GetOrAddDefault(entry.Value.GetType())[idString] = stringValue;
-                            command.CommandText += "UPDATE Store SET Value = @Value WHERE Id = @Id AND ValueTypeId \n";
+                            command.CommandText += "UPDATE Store SET Value = @Value, Updated = @Updated WHERE Id = @Id AND ValueTypeId \n";
                             command.Parameters.Add(new SqlParameter("Id", SqlDbType.NVarChar, 500) {Value = entry.Key});
+                            command.Parameters.Add(new SqlParameter("Updated", SqlDbType.DateTime2) { Value = _timeSource.UtcNow });
 
                             AddTypeCriteria(command, entry.Value.GetType());
 
@@ -395,6 +405,8 @@ CREATE TABLE [dbo].[ValueType](
 CREATE TABLE [dbo].[Store](
 	[Id] [nvarchar](500) NOT NULL,
 	[ValueTypeId] [int] NOT NULL,
+    [Created] [datetime2] NOT NULL,
+    [Updated] [datetime2] NOT NULL,
 	[Value] [nvarchar](max) NOT NULL,
  CONSTRAINT [PK_Store] PRIMARY KEY CLUSTERED 
 (

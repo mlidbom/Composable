@@ -1,6 +1,7 @@
 using System;
 using Castle.DynamicProxy;
 using Composable.Contracts;
+using Composable.GenericAbstractions.Time;
 using Composable.Persistence.DocumentDb;
 using Composable.Persistence.DocumentDb.SqlServer;
 using Composable.System.Configuration;
@@ -20,7 +21,7 @@ namespace Composable.DependencyInjection.Persistence
 
         [UsedImplicitly] class SqlServerDocumentDb<TUpdater, TReader, TBulkReader> : SqlServerDocumentDb, IDocumentDb<TUpdater, TReader, TBulkReader>
         {
-            public SqlServerDocumentDb(ISqlConnection connection) : base(connection)
+            public SqlServerDocumentDb(ISqlConnection connection, IUtcTimeTimeSource timeSource) : base(connection, timeSource)
             {
             }
         }
@@ -59,8 +60,8 @@ namespace Composable.DependencyInjection.Persistence
             } else
             {
                 @this.Register(Component.For<IDocumentDb<TUpdater, TReader, TBulkReader>>()
-                                         .UsingFactoryMethod(kernel => new SqlServerDocumentDb<TUpdater, TReader, TBulkReader>(kernel.Resolve<ISqlConnectionProvider>()
-                                                                                                                                                            .GetConnectionProvider(connectionName)))
+                                         .UsingFactoryMethod(kernel => new SqlServerDocumentDb<TUpdater, TReader, TBulkReader>(kernel.Resolve<ISqlConnectionProvider>().GetConnectionProvider(connectionName),
+                                                                                                                               kernel.Resolve<IUtcTimeTimeSource>()))
                                          .LifestyleSingleton());
             }
 

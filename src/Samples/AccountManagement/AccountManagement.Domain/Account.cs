@@ -51,11 +51,11 @@ namespace AccountManagement.Domain
             //The email is the unique identifier for logging into the account so obviously duplicates are forbidden.
             duplicateAccountChecker.AssertAccountDoesNotExist(email);
 
-            var created = new Account();
-            created.Publish(new AccountEvent.Implementation.UserRegistered(accountId: accountId, email: email, password: password));
-            repository.Add(created);
+            var newAccount = new Account();
+            newAccount.Publish(new AccountEvent.Implementation.UserRegistered(accountId: accountId, email: email, password: password));
+            repository.Add(newAccount);
 
-            return OldContract.Return(created, inspect => inspect.NotNull()); //Promise and ensure that you will never return null.
+            return newAccount;
         }
 
         public void ChangePassword(string oldPassword, Password newPassword)

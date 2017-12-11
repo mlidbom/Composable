@@ -132,7 +132,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
             internal static UserRegistrarAggregate Create()
             {
                 var registrar = new UserRegistrarAggregate();
-                registrar.RaiseEvent(new UserRegistrarEvent.Implementation.Created());
+                registrar.Publish(new UserRegistrarEvent.Implementation.Created());
                 return registrar;
             }
 
@@ -152,7 +152,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
             internal static IEventStored Register(UserRegistrarCommand.RegisterUserCommand command)
             {
                 var registered = new UserAggregate();
-                registered.RaiseEvent(new UserEvent.Implementation.UserRegisteredEvent(command.UserId));
+                registered.Publish(new UserEvent.Implementation.UserRegisteredEvent(command.UserId));
                 return registered;
             }
         }

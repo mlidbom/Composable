@@ -51,7 +51,7 @@ namespace Composable.Tests.CQRS.EventRefactoring.Migrations
 
             foreach (var @event in events)
             {
-                RaiseEvent(@event);
+                Publish(@event);
             }
         }
 

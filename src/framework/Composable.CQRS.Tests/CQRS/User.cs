@@ -31,7 +31,7 @@ namespace Composable.Tests.CQRS
 
         public void Register(string email, string password, Guid id)
         {
-            RaiseEvent(new UserRegistered() { AggregateRootId = id, UserId = id, Email = email, Password = password});
+            Publish(new UserRegistered() { AggregateRootId = id, UserId = id, Email = email, Password = password});
         }
 
         public static User Register(IEventStoreUpdater aggregates, string email, string password, Guid id)
@@ -44,12 +44,12 @@ namespace Composable.Tests.CQRS
 
         public void ChangePassword(string password)
         {
-            RaiseEvent(new UserChangedPassword() { Password = password });
+            Publish(new UserChangedPassword() { Password = password });
         }
 
         public void ChangeEmail(string email)
         {
-            RaiseEvent(new UserChangedEmail(email));
+            Publish(new UserChangedEmail(email));
         }
     }
 

@@ -44,7 +44,7 @@ namespace Composable.Persistence.EventStore.AggregateRoots
                 =>
                     new CollectionManager(
                         parent: parent,
-                        raiseEventThroughParent: parent.RaiseEvent,
+                        raiseEventThroughParent: parent.Publish,
                         appliersRegistrar: parent.RegisterEventAppliers());
 
             internal new class CollectionManager : EntityCollectionManager<TAggregateRoot,

@@ -31,7 +31,7 @@ namespace Composable.Persistence.EventStore.AggregateRoots
             protected Component(TAggregateRoot aggregateRoot)
                 : this(
                     timeSource: aggregateRoot.TimeSource,
-                    raiseEventThroughParent: aggregateRoot.RaiseEvent,
+                    raiseEventThroughParent: aggregateRoot.Publish,
                     appliersRegistrar: aggregateRoot.RegisterEventAppliers(),
                     registerEventAppliers: true)
             {}

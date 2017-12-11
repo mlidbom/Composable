@@ -52,7 +52,7 @@ namespace AccountManagement.Domain
             duplicateAccountChecker.AssertAccountDoesNotExist(email);
 
             var created = new Account();
-            created.RaiseEvent(new AccountEvent.Implementation.UserRegistered(accountId: accountId, email: email, password: password));
+            created.Publish(new AccountEvent.Implementation.UserRegistered(accountId: accountId, email: email, password: password));
             repository.Add(created);
 
             return OldContract.Return(created, inspect => inspect.NotNull()); //Promise and ensure that you will never return null.
@@ -65,14 +65,14 @@ namespace AccountManagement.Domain
 
             Password.AssertIsCorrectPassword(oldPassword);
 
-            RaiseEvent(new AccountEvent.Implementation.UserChangedPassword(newPassword));
+            Publish(new AccountEvent.Implementation.UserChangedPassword(newPassword));
         }
 
         public void ChangeEmail(Email email)
         {
             OldContract.Argument(() => email).NotNullOrDefault();
 
-            RaiseEvent(new AccountEvent.Implementation.UserChangedEmail(email));
+            Publish(new AccountEvent.Implementation.UserChangedEmail(email));
         }
     }
 }

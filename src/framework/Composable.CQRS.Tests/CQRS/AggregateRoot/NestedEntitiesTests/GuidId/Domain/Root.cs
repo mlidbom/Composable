@@ -21,7 +21,7 @@ namespace Composable.Tests.CQRS.AggregateRoot.NestedEntitiesTests.GuidId.Domain
             RegisterEventAppliers()
                 .For<RootEvent.PropertyUpdated.Name>(e => Name = e.Name);
 
-            RaiseEvent(new RootEvent.Implementation.Created(Guid.NewGuid(), name));
+            Publish(new RootEvent.Implementation.Created(Guid.NewGuid(), name));
         }
 
         public IReadOnlyEntityCollection<Entity, Guid> Entities => _entities.Entities;

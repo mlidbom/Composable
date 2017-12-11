@@ -35,7 +35,7 @@ namespace Composable.Persistence.EventStore.AggregateRoots
             internal TEntityId Id { get; private set; }
 
             protected Entity(TAggregateRoot aggregateRoot)
-                : this(aggregateRoot.TimeSource, aggregateRoot.RaiseEvent, aggregateRoot.RegisterEventAppliers()) {}
+                : this(aggregateRoot.TimeSource, aggregateRoot.Publish, aggregateRoot.RegisterEventAppliers()) {}
 
             Entity
                 (IUtcTimeTimeSource timeSource,
@@ -63,7 +63,7 @@ namespace Composable.Persistence.EventStore.AggregateRoots
 
             // ReSharper disable once UnusedMember.Global todo: write tests.
             public static CollectionManager CreateSelfManagingCollection(TAggregateRoot parent)
-                => new CollectionManager(parent, parent.RaiseEvent, parent.RegisterEventAppliers());
+                => new CollectionManager(parent, parent.Publish, parent.RegisterEventAppliers());
 
             public class CollectionManager : EntityCollectionManager<
                                                  TAggregateRoot,

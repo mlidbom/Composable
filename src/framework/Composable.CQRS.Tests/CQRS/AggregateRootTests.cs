@@ -82,7 +82,7 @@ namespace Composable.Tests.CQRS
             public CascadingEventsAggregate():base(DummyTimeSource.Now)
             {
                 RegisterEventHandlers()
-                    .For<TriggeringEvent>(@event => RaiseEvent(new TriggeredEvent()));
+                    .For<TriggeringEvent>(@event => Publish(new TriggeredEvent()));
 
                 RegisterEventAppliers()
                     .For<TriggeringEvent>(@event => TriggeringEventApplied = true)
@@ -92,7 +92,7 @@ namespace Composable.Tests.CQRS
             public bool TriggeringEventApplied { get; private set; }
             public void RaiseTriggeringEvent()
             {
-                RaiseEvent(new TriggeringEvent());
+                Publish(new TriggeringEvent());
             }
         }
 

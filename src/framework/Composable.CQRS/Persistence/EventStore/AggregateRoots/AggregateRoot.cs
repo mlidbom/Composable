@@ -39,7 +39,7 @@ namespace Composable.Persistence.EventStore.AggregateRoots
         int _raiseEventReentrancyLevel = 0;
         List<TAggregateRootBaseEventClass> _raiseEventUnpushedEvents = new List<TAggregateRootBaseEventClass>();
         bool _applyingEvents;
-        protected void RaiseEvent(TAggregateRootBaseEventClass theEvent)
+        protected void Publish(TAggregateRootBaseEventClass theEvent)
         {
             OldContract.Assert.That(!_applyingEvents, "You cannot raise events from within event appliers");
 

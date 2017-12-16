@@ -40,7 +40,7 @@ namespace Composable.Messaging
     }
 
 
-    interface IEntityQuery<TEntity> : IQuery<TEntity>
+    public interface IEntityQuery<TEntity> : IQuery<TEntity>
     {
         Guid Id { get; }
     }

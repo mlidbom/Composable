@@ -41,7 +41,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
                                      builder.RegisterHandlers
                                             .ForEvent((UserEvent.Implementation.UserRegisteredEvent myEvent) => {})
                                             .ForQuery((GetUserQuery query, IUserEventStoreReader eventReader) => new UserResource(eventReader.GetHistory(query.UserId)))
-                                            .ForCommand((UserRegistrarCommand.RegisterUserCommand command, IUserEventStoreUpdater store) =>
+                                            .ForCommandWithResult((UserRegistrarCommand.RegisterUserCommand command, IUserEventStoreUpdater store) =>
                                             {
                                                 store.Save(UserAggregate.Register(command));
                                                 return new RegisterUserResult(command.UserId);

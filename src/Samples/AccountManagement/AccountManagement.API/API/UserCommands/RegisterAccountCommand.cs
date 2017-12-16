@@ -3,18 +3,18 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using AccountManagement.API.ValidationAttributes;
-using Composable.DDD;
+using Composable.Messaging.Commands;
 using Composable.System.ComponentModel.DataAnnotations;
 using JetBrains.Annotations;
 
 namespace AccountManagement.API.UserCommands
 {
-    public class RegisterAccountCommand : ValueObject<RegisterAccountCommand>, IValidatableObject
+    public class RegisterAccountCommand : DomainCommand<AccountResource>, IValidatableObject
     {
         //Note the use of a custom validation attribute.
         [Required(ErrorMessageResourceType = typeof(RegisterAccountCommandResources), ErrorMessageResourceName = "IdInvalid")]
         [EntityId(ErrorMessageResourceType = typeof(RegisterAccountCommandResources), ErrorMessageResourceName = "IdMissing")]
-        public Guid AccountId { [UsedImplicitly] get; set; }
+        public Guid AccountId { [UsedImplicitly] get; set; } = Guid.NewGuid();
 
         //Note the use of a custom validation attribute.
         [Email(ErrorMessageResourceType = typeof(RegisterAccountCommandResources), ErrorMessageResourceName = "EmailInvalid")]

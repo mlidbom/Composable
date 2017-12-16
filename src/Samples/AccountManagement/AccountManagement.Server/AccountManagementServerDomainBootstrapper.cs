@@ -31,6 +31,7 @@ namespace AccountManagement
         public static void RegisterHandlers(MessageHandlerRegistrarWithDependencyInjectionSupport registrar)
         {
             MessageHandlersInstaller.RegisterHandlers(registrar);
+            ApiMessageHandlersInstaller.RegisterHandlers(registrar);
         }
     }
 }

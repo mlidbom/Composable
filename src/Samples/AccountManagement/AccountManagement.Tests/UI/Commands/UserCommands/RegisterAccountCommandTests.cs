@@ -16,7 +16,6 @@ namespace AccountManagement.Tests.UI.Commands.UserCommands
         {
             _registerAccountCommand = new RegisterAccountCommand()
                                       {
-                                          AccountId = Guid.NewGuid(),
                                           Email = "valid.email@google.com",
                                           Password = "AComplex!1Password"
                                       };

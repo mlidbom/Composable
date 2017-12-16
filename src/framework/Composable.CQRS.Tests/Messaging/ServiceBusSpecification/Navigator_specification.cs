@@ -31,7 +31,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification
                                           .ForEvent((UserRegisteredEvent myEvent) => queryResults.Add(new UserResource(myEvent.Name)))
                                           .ForQuery((GetUserQuery query) => queryResults.Single(result => result.Name == query.Name))
                                           .ForQuery((UserApiStartPageQuery query) => new UserApiStartPage())
-                                          .ForCommand((RegisterUserCommand command, IServiceBus bus) =>
+                                          .ForCommandWithResult((RegisterUserCommand command, IServiceBus bus) =>
                                           {
                                               bus.Publish(new UserRegisteredEvent(command.Name));
                                               return new UserRegisteredConfirmationResource(command.Name);

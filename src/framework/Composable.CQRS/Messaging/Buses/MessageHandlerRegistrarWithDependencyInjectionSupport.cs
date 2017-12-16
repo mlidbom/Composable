@@ -28,7 +28,7 @@ namespace Composable.Messaging.Buses
             return @this;
         }
 
-        public static MessageHandlerRegistrarWithDependencyInjectionSupport ForCommand<TCommand, TResult>(
+        public static MessageHandlerRegistrarWithDependencyInjectionSupport ForCommandWithResult<TCommand, TResult>(
             this MessageHandlerRegistrarWithDependencyInjectionSupport @this,
             Func<TCommand, TResult> action) where TCommand : IDomainCommand<TResult>
         {
@@ -36,13 +36,22 @@ namespace Composable.Messaging.Buses
             return @this;
         }
 
-        public static MessageHandlerRegistrarWithDependencyInjectionSupport ForCommand<TCommand, TDependency1, TResult>(
+        public static MessageHandlerRegistrarWithDependencyInjectionSupport ForCommandWithResult<TCommand, TDependency1, TResult>(
             this MessageHandlerRegistrarWithDependencyInjectionSupport @this,
             Func<TCommand, TDependency1, TResult> action) where TCommand : IDomainCommand<TResult>
                                                           where TDependency1 : class
         {
             @this.Register.ForCommand<TCommand,TResult>(command => action(command, @this.ServiceLocator.Resolve<TDependency1>()));
             return @this;
+        }
+
+        public static MessageHandlerRegistrarWithDependencyInjectionSupport ForCommandWithResult<TCommand, TDependency1, TDependency2, TResult>(
+            this MessageHandlerRegistrarWithDependencyInjectionSupport @this,
+            Func<TCommand, TDependency1, TDependency2, TResult> action) where TCommand : IDomainCommand<TResult>
+                                                          where TDependency1 : class
+                                                          where TDependency2 : class
+        {
+            return @this.ForCommandWithResult<TCommand, TDependency1, TResult>((command, d1)=> action(command, d1, @this.ServiceLocator.Resolve<TDependency2>()));
         }
 
         public static MessageHandlerRegistrarWithDependencyInjectionSupport ForCommand<TCommand, TDependency1>(
@@ -57,6 +66,15 @@ namespace Composable.Messaging.Buses
 
             @this.ForCommand<TCommand>(command => action(command, @this.ServiceLocator.Resolve<TDependency1>()));
             return @this;
+        }
+
+        public static MessageHandlerRegistrarWithDependencyInjectionSupport ForCommand<TCommand, TDependency1, TDependency2>(
+            this MessageHandlerRegistrarWithDependencyInjectionSupport @this,
+            Action<TCommand, TDependency1, TDependency2> action) where TCommand : IDomainCommand
+                                                                 where TDependency1 : class
+                                                                 where TDependency2 : class
+        {
+            return @this.ForCommand<TCommand, TDependency1>((command, d1) => action(command, d1, @this.ServiceLocator.Resolve<TDependency2>()));
         }
 
         public static MessageHandlerRegistrarWithDependencyInjectionSupport ForEvent<TEvent>(

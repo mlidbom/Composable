@@ -28,7 +28,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
                                       .ForCommand((MyCommand command) => CommandHandlerThreadGate.AwaitPassthrough())
                                       .ForEvent((MyEvent myEvent) => EventHandlerThreadGate.AwaitPassthrough())
                                       .ForQuery((MyQuery query) => QueryHandlerThreadGate.AwaitPassthroughAndReturn(new MyQueryResult()))
-                                      .ForCommand((MyCommandWithResult command) => CommandHandlerWithResultThreadGate.AwaitPassthroughAndReturn(new MyCommandResult()))));
+                                      .ForCommandWithResult((MyCommandWithResult command) => CommandHandlerWithResultThreadGate.AwaitPassthroughAndReturn(new MyCommandResult()))));
         }
 
         public virtual void Dispose()

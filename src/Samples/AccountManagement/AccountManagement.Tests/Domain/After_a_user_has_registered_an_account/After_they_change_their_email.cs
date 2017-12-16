@@ -3,6 +3,7 @@ using System.Linq;
 using AccountManagement.Domain;
 using AccountManagement.Domain.Events;
 using AccountManagement.Tests.Scenarios;
+using Composable.Messaging.Buses;
 using Composable.Testing;
 using FluentAssertions;
 using NUnit.Framework;
@@ -53,8 +54,8 @@ namespace AccountManagement.Tests.Domain.After_a_user_has_registered_an_account
         {
             var scenario = new RegisterAccountScenario(ClientBus, email: _changeEmailScenario.NewEmail.ToString());
 
-            AssertThrows.Exception<Exception>(() => scenario.Execute());
-            Host.AssertThrown<DuplicateAccountException>();
+            Host.AssertThatRunningScenarioThrowsBackendException<DuplicateAccountException>(() => scenario.Execute())
+                .Message.Should().Contain(_changeEmailScenario.Account.Email.ToString());
         }
     }
 }

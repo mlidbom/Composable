@@ -83,7 +83,7 @@ namespace Composable.Messaging.Buses.Implementation
                         });
                     } else
                     {
-                        responseTask.SetException(new Exception("Dispatching message failed"));
+                        responseTask.SetException(new MessageDispatchingFailedException());
                     }
                 }
             });

@@ -18,16 +18,16 @@ namespace Composable.Messaging.Buses
 
         public void WaitForEndpointsToBeAtRest(TimeSpan? timeoutOverride = null) { Endpoints.ForEach(endpoint => endpoint.AwaitNoMessagesInFlight(timeoutOverride)); }
 
-        public void AssertThrown<TException>(Func<TException, bool> condition = null) where TException : Exception
+        public TException AssertThrown<TException>() where TException : Exception
         {
             WaitForEndpointsToBeAtRest();
-            condition = condition ?? (exception => true);
-            var matchingExceptions = GetThrownExceptions().OfType<TException>().Where(condition).ToList();
-            if(matchingExceptions.None())
+            var matchingException = GetThrownExceptions().OfType<TException>().SingleOrDefault();
+            if(matchingException == null)
             {
                 throw new Exception("Matching exception not thrown.");
             }
-            _handledExceptions.AddRange(matchingExceptions);
+            _handledExceptions.Add(matchingException);
+            return matchingException;
         }
 
         public IServiceBus ClientBus => _clientEndpoint.ServiceLocator.Resolve<IServiceBus>();

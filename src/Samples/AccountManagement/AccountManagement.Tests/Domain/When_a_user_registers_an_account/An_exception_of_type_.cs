@@ -2,6 +2,7 @@
 using AccountManagement.Domain;
 using AccountManagement.Domain.Services;
 using AccountManagement.Tests.Scenarios;
+using Composable.Messaging.Buses;
 using Composable.Testing;
 using FluentAssertions;
 using NUnit.Framework;
@@ -23,8 +24,8 @@ namespace AccountManagement.Tests.Domain.When_a_user_registers_an_account
         public void DuplicateAccountException_is_thrown_if_email_is_already_registered()
         {
             _registerAccountScenario.Execute();
-            AssertThrows.Exception<Exception>(() => _registerAccountScenario.Execute());
-            Host.AssertThrown<DuplicateAccountException>();
+            Host.AssertThatRunningScenarioThrowsBackendException<DuplicateAccountException>(() => _registerAccountScenario.Execute())
+                .Message.Should().Contain(_registerAccountScenario.Command.Email);
         }
 
         [Test]

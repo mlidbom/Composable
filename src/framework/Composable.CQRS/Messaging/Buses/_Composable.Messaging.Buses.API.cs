@@ -83,7 +83,7 @@ namespace Composable.Messaging.Buses
     {
         void WaitForEndpointsToBeAtRest(TimeSpan? timeoutOverride = null);
 
-        void AssertThrown<TException>(Func<TException, bool> condition = null) where TException : Exception;
+        TException AssertThrown<TException>() where TException : Exception;
 
         IServiceBus ClientBus { get; }
         IApiNavigator ClientNavigator { get; }

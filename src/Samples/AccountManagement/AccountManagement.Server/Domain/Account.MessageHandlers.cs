@@ -8,7 +8,7 @@ namespace AccountManagement.Domain
 {
     public partial class Account
     {
-        public static class MessageHandlers
+        internal static class MessageHandlers
         {
             public static void RegisterHandlers(MessageHandlerRegistrarWithDependencyInjectionSupport registrar)
             {

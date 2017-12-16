@@ -11,7 +11,7 @@ namespace AccountManagement
             return host.RegisterAndStartEndpoint("UserManagement.Domain", builder =>
             {
                 SetupContainer(builder.Container);
-                RegisterHandlers(builder.RegisterHandlers, builder.Container.CreateServiceLocator());
+                RegisterHandlers(builder.RegisterHandlers);
             });
         }
 
@@ -28,9 +28,9 @@ namespace AccountManagement
 
         }
 
-        public static void RegisterHandlers(MessageHandlerRegistrarWithDependencyInjectionSupport registrar, IServiceLocator serviceLocator)
+        public static void RegisterHandlers(MessageHandlerRegistrarWithDependencyInjectionSupport registrar)
         {
-            MessageHandlersInstaller.RegisterHandlers(registrar, serviceLocator);
+            MessageHandlersInstaller.RegisterHandlers(registrar);
         }
     }
 }

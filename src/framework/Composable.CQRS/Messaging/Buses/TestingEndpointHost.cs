@@ -38,7 +38,7 @@ namespace Composable.Messaging.Buses
         {
             WaitForEndpointsToBeAtRest();
 
-            var unHandledExceptions = GetThrownExceptions().Except(_handledExceptions);
+            var unHandledExceptions = GetThrownExceptions().Except(_handledExceptions).ToList();
 
             base.InternalDispose();
 

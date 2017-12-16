@@ -15,7 +15,8 @@ namespace AccountManagement.Domain
                 registrar.ForQuery((SingletonQuery<StartResource> query) => new StartResource())
                          .ForQuery((EntityQuery<AccountResource> accountQuery, IAccountRepository repository) => new AccountResource(repository.Get(accountQuery.Id)))
                          .ForCommandWithResult((RegisterAccountCommand command, IDuplicateAccountChecker duplicateChecker, IAccountRepository repository) => Register(command, repository, duplicateChecker))
-                         .ForCommand((AccountResource.ChangeEmailCommand command, IAccountRepository repository) => repository.Get(command.AccountId).ChangeEmail(Email.Parse(command.Email)));
+                         .ForCommand((AccountResource.ChangeEmailCommand command, IAccountRepository repository) => repository.Get(command.AccountId).ChangeEmail(Email.Parse(command.Email)))
+                         .ForCommand((AccountResource.ChangePasswordCommand command, IAccountRepository repository) => repository.Get(command.AccountId).ChangePassword(command.OldPassword, new Password(command.NewPassword)));
             }
 
             static AccountResource Register(RegisterAccountCommand command, IAccountRepository repository, IDuplicateAccountChecker duplicateChecker)

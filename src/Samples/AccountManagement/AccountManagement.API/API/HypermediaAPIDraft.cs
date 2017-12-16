@@ -1,5 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using AccountManagement.API.UserCommands;
+using AccountManagement.API.ValidationAttributes;
 using AccountManagement.Domain;
 using Composable.Messaging;
 using Composable.Messaging.Commands;
@@ -51,7 +54,7 @@ namespace AccountManagement.API
         {
             [JsonProperty] Guid _accountId;
 
-            [UsedImplicitly]AccountResourceCommands() {}
+            [UsedImplicitly] AccountResourceCommands() {}
 
             public AccountResourceCommands(AccountResource accountResource) => _accountId = accountResource.Id;
 
@@ -60,12 +63,28 @@ namespace AccountManagement.API
                                                                        Email = email,
                                                                        AccountId = _accountId
                                                                    };
+
+            public ChangePasswordCommand ChangePassword(string oldPassword, string newPassword) => new ChangePasswordCommand()
+                                                                                                   {
+                                                                                                       AccountId = _accountId,
+                                                                                                       OldPassword = oldPassword,
+                                                                                                       NewPassword = newPassword
+                                                                                                   };
+        }
+
+        public class ChangePasswordCommand : DomainCommand, IValidatableObject
+        {
+            [Required] [EntityId] public Guid AccountId { get; set; }
+            [Required] public string OldPassword { get; set; }
+            [Required] public string NewPassword { get; set; }
+
+            public IEnumerable<ValidationResult> Validate(ValidationContext validationContext) => Domain.Password.Validate(NewPassword, this, () => NewPassword);
         }
 
         public class ChangeEmailCommand : DomainCommand
         {
-            public string Email { get; set; }
-            public Guid AccountId { get; set; }
+            [Required] [EntityId] public Guid AccountId { get; set; }
+            [Required][Email] public string Email { get; set; }
         }
     }
 

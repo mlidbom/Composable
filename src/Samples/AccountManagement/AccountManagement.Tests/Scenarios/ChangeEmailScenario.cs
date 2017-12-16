@@ -1,14 +1,12 @@
 ﻿using AccountManagement.API;
 using AccountManagement.Domain;
 using AccountManagement.Domain.Services;
-using Composable.DependencyInjection;
 using Composable.Messaging.Buses;
 
 namespace AccountManagement.Tests.Scenarios
 {
     public class ChangeAccountEmailScenario
     {
-        readonly IServiceLocator _serviceLocator;
         readonly IServiceBus _clientBus;
 
         public Email NewEmail = TestData.Email.CreateValidEmail();
@@ -16,9 +14,8 @@ namespace AccountManagement.Tests.Scenarios
         public AccountResource Account { get; private set; }
 
         //Review:mlidbo: Replace optional parameters in scenario constructors with constructor overloading throughout the sample project.
-        public ChangeAccountEmailScenario(IServiceLocator serviceLocator, IServiceBus clientBus, AccountResource account = null)
+        public ChangeAccountEmailScenario(IServiceBus clientBus, AccountResource account = null)
         {
-            _serviceLocator = serviceLocator;
             _clientBus = clientBus;
             Account = account ?? new RegisterAccountScenario(clientBus).Execute();
             OldEmail = Account.Email;

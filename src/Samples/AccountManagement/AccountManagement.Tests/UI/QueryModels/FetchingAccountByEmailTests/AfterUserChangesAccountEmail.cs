@@ -15,7 +15,7 @@ namespace AccountManagement.Tests.UI.QueryModels.FetchingAccountByEmailTests
         [SetUp]
         public void ChangeEmail()
         {
-            _scenario = new ChangeAccountEmailScenario(ServiceLocator, ClientBus, RegisteredAccount);
+            _scenario = new ChangeAccountEmailScenario(ClientBus, RegisteredAccount);
             _scenario.Execute();
             ReplaceContainerScope();//Changes are not expected to be visible in the same scope so start a new one.
         }

@@ -17,7 +17,7 @@ namespace AccountManagement.Tests.Domain.After_a_user_has_registered_an_account
         [SetUp]
         public void ChangeEmail()
         {
-            _changeEmailScenario = new ChangeAccountEmailScenario(ServiceLocator, ClientBus);
+            _changeEmailScenario = new ChangeAccountEmailScenario(ClientBus);
             _changeEmailScenario.Execute();
         }
 

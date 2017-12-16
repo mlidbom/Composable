@@ -1,17 +1,10 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using AccountManagement.API.ValidationAttributes.Utilities;
 using AccountManagement.Domain;
 
 namespace AccountManagement.API.ValidationAttributes
 {
-    public class EmailAttribute : ValidationAttribute
+    public class EmailAttribute : StringValidationAttribute
     {
-        public override bool IsValid(object value)
-        {
-            if(string.IsNullOrEmpty((string)value))
-            {
-                return true; //We validate that values are correct emails. Not that they are present. That is the job of the Required attribute.
-            }
-            return Email.IsValidEmail((string)value);
-        }
+        protected override bool IsValid(string value) => string.IsNullOrEmpty(value) || Email.IsValidEmail(value);
     }
 }

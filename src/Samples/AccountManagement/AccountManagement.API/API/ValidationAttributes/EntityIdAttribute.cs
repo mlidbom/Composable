@@ -1,17 +1,10 @@
 ﻿using System;
-using System.ComponentModel.DataAnnotations;
+using AccountManagement.API.ValidationAttributes.Utilities;
 
 namespace AccountManagement.API.ValidationAttributes
 {
-    public class EntityIdAttribute : ValidationAttribute
+    public class EntityIdAttribute : GuidValidationAttribute
     {
-        public override bool IsValid(object value)
-        {
-            if(value == null)
-            {
-                return true; //We validate that values are correct entity ids. Not that they are present. That is the job of the Required attribute.
-            }
-            return (Guid)value != Guid.Empty;
-        }
+        protected override bool IsValid(Guid value) => value != Guid.Empty;
     }
 }

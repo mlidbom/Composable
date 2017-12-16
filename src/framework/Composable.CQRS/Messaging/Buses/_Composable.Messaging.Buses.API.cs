@@ -58,7 +58,7 @@ namespace Composable.Messaging.Buses
         IMessageHandlerRegistrar ForQuery<TQuery, TResult>(Func<TQuery, TResult> handler) where TQuery : IQuery<TResult>;
     }
 
-    interface IEndpoint : IDisposable
+    public interface IEndpoint : IDisposable
     {
         IServiceLocator ServiceLocator { get; }
         string Address { get; } //todo: not a string!
@@ -67,19 +67,19 @@ namespace Composable.Messaging.Buses
         void AwaitNoMessagesInFlight(TimeSpan? timeoutOverride);
     }
 
-    interface IEndpointBuilder
+    public interface IEndpointBuilder
     {
         IDependencyInjectionContainer Container { get; }
         MessageHandlerRegistrarWithDependencyInjectionSupport RegisterHandlers { get; }
     }
 
-    interface IEndpointHost : IDisposable
+    public interface IEndpointHost : IDisposable
     {
         IEndpoint RegisterAndStartEndpoint(string name, Action<IEndpointBuilder> setup);
         void Stop();
     }
 
-    interface ITestingEndpointHost : IEndpointHost
+    public interface ITestingEndpointHost : IEndpointHost
     {
         void WaitForEndpointsToBeAtRest(TimeSpan? timeoutOverride);
 

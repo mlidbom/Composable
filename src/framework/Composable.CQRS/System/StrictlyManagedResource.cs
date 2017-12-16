@@ -132,6 +132,7 @@ namespace Composable.System
 
         public void Dispose()
         {
+            //todo: _disposed should be set to true before calling something that might conceivable cause reentrancy...
             GC.SuppressFinalize(this);
             if(!_disposed)
             {

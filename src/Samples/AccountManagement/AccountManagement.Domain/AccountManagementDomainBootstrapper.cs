@@ -19,7 +19,7 @@ namespace AccountManagement.Domain
 
         }
 
-        public static void RegisterHandlers(IMessageHandlerRegistrar registrar, IServiceLocator serviceLocator)
+        public static void RegisterHandlers(MessageHandlerRegistrarWithDependencyInjectionSupport registrar, IServiceLocator serviceLocator)
         {
             MessageHandlersInstaller.RegisterHandlers(registrar, serviceLocator);
         }

@@ -10,7 +10,7 @@ namespace AccountManagement.Tests
         {
             var locator =  DependencyInjectionContainer.CreateServiceLocatorForTesting(AccountManagementDomainBootstrapper.SetupContainer);
 
-            locator.Use<IMessageHandlerRegistrar>(registrar => AccountManagementDomainBootstrapper.RegisterHandlers(registrar, locator));
+            locator.Use<IMessageHandlerRegistrar>(registrar => AccountManagementDomainBootstrapper.RegisterHandlers(new MessageHandlerRegistrarWithDependencyInjectionSupport(registrar, locator), locator));
 
             return locator;
         }

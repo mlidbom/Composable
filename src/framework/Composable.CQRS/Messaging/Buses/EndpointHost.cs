@@ -7,7 +7,7 @@ using Composable.System.Linq;
 
 namespace Composable.Messaging.Buses
 {
-    class EndpointHost : IEndpointHost
+    public class EndpointHost : IEndpointHost
     {
         readonly IRunMode _mode;
         readonly Func<IRunMode, IDependencyInjectionContainer> _containerFactory;

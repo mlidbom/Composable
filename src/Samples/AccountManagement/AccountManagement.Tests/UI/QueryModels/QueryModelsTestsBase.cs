@@ -34,7 +34,7 @@ namespace AccountManagement.Tests.UI.QueryModels
 
             ServiceLocator.Use<IMessageHandlerRegistrar>(registrar =>
                                                          {
-                                                             AccountManagementDomainBootstrapper.RegisterHandlers(registrar, ServiceLocator);
+                                                             AccountManagementDomainBootstrapper.RegisterHandlers(new MessageHandlerRegistrarWithDependencyInjectionSupport(registrar, ServiceLocator), ServiceLocator);
                                                              AccountManagementUiQueryModelsBootstrapper.RegisterHandlers(registrar, ServiceLocator);
                                                              AccountManagementUiQueryModelsDocumentDbUpdatersBootstrapper.RegisterHandlers(registrar, ServiceLocator);
                                                          });

@@ -21,7 +21,7 @@ namespace Composable.DependencyInjection
             return @this.CreateServiceLocator();
         }
 
-        internal static IDependencyInjectionContainer Create(IRunMode runMode = null)
+        public static IDependencyInjectionContainer Create(IRunMode runMode = null)
         {
             IDependencyInjectionContainer container = new SimpleInjectorDependencyInjectionContainer(runMode ?? DependencyInjection.RunMode.Production);
             container.Register(Component.For<IServiceLocator>()

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using System.Runtime.Serialization;
 using System.Threading.Tasks;
 using Composable.Messaging.Buses.Implementation;
 
@@ -61,6 +62,9 @@ namespace Composable.Messaging.Buses
 
     public class CommandValidationFailureException : Exception
     {
-        public CommandValidationFailureException(IEnumerable<ValidationResult> failures) {  }
+        public CommandValidationFailureException(IEnumerable<ValidationResult> failures) : base(CreateMessage(failures)) {  }
+
+
+        static string CreateMessage(IEnumerable<ValidationResult> failures) => string.Join(Environment.NewLine, failures);
     }
 }

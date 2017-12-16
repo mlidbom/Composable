@@ -10,7 +10,7 @@ namespace AccountManagement.Tests.Scenarios
     {
         readonly IServiceBus _bus;
 
-        public RegisterAccountCommand Command { get; } 
+        public RegisterAccountCommand Command { get; }
 
         public RegisterAccountScenario(IServiceBus bus, string email = null, string password = null)
         {

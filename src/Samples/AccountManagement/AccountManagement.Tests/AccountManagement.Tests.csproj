@@ -25,8 +25,6 @@
   <ItemGroup>
     <ProjectReference Include="..\AccountManagement.API\AccountManagement.API.csproj" />
     <ProjectReference Include="..\AccountManagement.Server\AccountManagement.Server.csproj" />
-    <ProjectReference Include="..\AccountManagement.UI.QueryModels.Updaters\AccountManagement.UI.QueryModels.DocumentDB.Updaters.csproj" />
-    <ProjectReference Include="..\AccountManagement.UI.QueryModels\AccountManagement.UI.QueryModels.csproj" />
   </ItemGroup>
 
   

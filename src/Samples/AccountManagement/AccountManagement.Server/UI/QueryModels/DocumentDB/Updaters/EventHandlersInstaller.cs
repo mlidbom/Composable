@@ -2,7 +2,7 @@
 using Composable.DependencyInjection;
 using Composable.Messaging.Buses;
 
-namespace AccountManagement.UI.QueryModels.DocumentDB.Updaters.ContainerInstallers
+namespace AccountManagement.UI.QueryModels.DocumentDB.Updaters
 {
     static class EventHandlersInstaller
     {

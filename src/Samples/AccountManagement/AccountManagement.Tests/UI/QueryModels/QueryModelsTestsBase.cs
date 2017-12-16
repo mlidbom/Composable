@@ -27,14 +27,14 @@ namespace AccountManagement.Tests.UI.QueryModels
 
             ServiceLocator = DependencyInjectionContainer.CreateServiceLocatorForTesting(container =>
                                                                                    {
-                                                                                       AccountManagementDomainBootstrapper.SetupContainer(container);
+                                                                                       AccountManagementServerDomainBootstrapper.SetupContainer(container);
                                                                                        AccountManagementUiQueryModelsBootstrapper.SetupContainer(container);
                                                                                        AccountManagementUiQueryModelsDocumentDbUpdatersBootstrapper.SetupContainer(container);
                                                                                    });
 
             ServiceLocator.Use<IMessageHandlerRegistrar>(registrar =>
                                                          {
-                                                             AccountManagementDomainBootstrapper.RegisterHandlers(new MessageHandlerRegistrarWithDependencyInjectionSupport(registrar, ServiceLocator), ServiceLocator);
+                                                             AccountManagementServerDomainBootstrapper.RegisterHandlers(new MessageHandlerRegistrarWithDependencyInjectionSupport(registrar, ServiceLocator), ServiceLocator);
                                                              AccountManagementUiQueryModelsBootstrapper.RegisterHandlers(registrar, ServiceLocator);
                                                              AccountManagementUiQueryModelsDocumentDbUpdatersBootstrapper.RegisterHandlers(registrar, ServiceLocator);
                                                          });

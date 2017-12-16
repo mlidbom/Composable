@@ -8,13 +8,13 @@ namespace AccountManagement.UI.QueryModels.DocumentDB.Updaters
         public static void SetupContainer(IDependencyInjectionContainer container)
         {
 
-            ContainerInstallers.EventHandlersInstaller.Install(container);
+            EventHandlersInstaller.Install(container);
 
             var serviceLocator = container.CreateServiceLocator();
             serviceLocator
                      .Use<IMessageHandlerRegistrar>(registrar =>
                                                     {
-                                                        ContainerInstallers.EventHandlersInstaller.Install(registrar, serviceLocator);
+                                                        EventHandlersInstaller.Install(registrar, serviceLocator);
                                                     });
         }
 

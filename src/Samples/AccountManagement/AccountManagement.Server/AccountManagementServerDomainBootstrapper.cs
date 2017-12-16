@@ -1,10 +1,10 @@
-﻿using AccountManagement.Domain.ContainerInstallers;
+﻿using AccountManagement.ContainerInstallers;
 using Composable.DependencyInjection;
 using Composable.Messaging.Buses;
 
-namespace AccountManagement.Domain
+namespace AccountManagement
 {
-    public static class AccountManagementDomainBootstrapper
+    public static class AccountManagementServerDomainBootstrapper
     {
         public static IEndpoint RegisterWith(IEndpointHost host)
         {

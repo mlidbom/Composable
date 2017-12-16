@@ -1,7 +1,7 @@
 ﻿using AccountManagement.Domain.Services;
 using Composable.DependencyInjection;
 
-namespace AccountManagement.Domain.ContainerInstallers
+namespace AccountManagement.ContainerInstallers
 {
     static class AccountRepositoryInstaller
     {

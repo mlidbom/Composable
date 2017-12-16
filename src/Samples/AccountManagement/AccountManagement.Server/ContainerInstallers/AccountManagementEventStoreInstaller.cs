@@ -2,7 +2,7 @@
 using Composable.DependencyInjection;
 using Composable.DependencyInjection.Persistence;
 
-namespace AccountManagement.Domain.ContainerInstallers
+namespace AccountManagement.ContainerInstallers
 {
     static class AccountManagementDomainEventStoreInstaller
     {

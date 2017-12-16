@@ -3,7 +3,7 @@ using AccountManagement.Domain.QueryModels.Updaters;
 using Composable.DependencyInjection;
 using Composable.Messaging.Buses;
 
-namespace AccountManagement.Domain.ContainerInstallers
+namespace AccountManagement.ContainerInstallers
 {
     static class MessageHandlersInstaller
     {

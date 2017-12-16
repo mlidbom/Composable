@@ -8,9 +8,9 @@ namespace AccountManagement.Tests
     {
         public static IServiceLocator CreateServiceLocator()
         {
-            var locator =  DependencyInjectionContainer.CreateServiceLocatorForTesting(AccountManagementDomainBootstrapper.SetupContainer);
+            var locator =  DependencyInjectionContainer.CreateServiceLocatorForTesting(AccountManagementServerDomainBootstrapper.SetupContainer);
 
-            locator.Use<IMessageHandlerRegistrar>(registrar => AccountManagementDomainBootstrapper.RegisterHandlers(new MessageHandlerRegistrarWithDependencyInjectionSupport(registrar, locator), locator));
+            locator.Use<IMessageHandlerRegistrar>(registrar => AccountManagementServerDomainBootstrapper.RegisterHandlers(new MessageHandlerRegistrarWithDependencyInjectionSupport(registrar, locator), locator));
 
             return locator;
         }

@@ -1,5 +1,7 @@
 ﻿using System;
 using AccountManagement.Tests.Scenarios;
+using Composable.Messaging.Buses;
+using Composable.Testing;
 using FluentAssertions;
 using NUnit.Framework;
 
@@ -14,18 +16,16 @@ namespace AccountManagement.Tests.Domain.After_a_user_has_registered_an_account
         [SetUp]
         public void RegisterAccount()
         {
-            _registerAccountScenario = new RegisterAccountScenario(ServiceLocator);
+            _registerAccountScenario = new RegisterAccountScenario(ClientBus);
             _registerAccountScenario.Execute();
-            _changePasswordScenario = new ChangePasswordScenario(ServiceLocator);
+            _changePasswordScenario = new ChangePasswordScenario(ClientBus);
         }
 
         [Test]
         public void Password_is_null()
         {
-            _changePasswordScenario.NewPassword = null;
-            _changePasswordScenario
-                .Invoking(scenario => scenario.Execute())
-                .ShouldThrow<Exception>();
+            _changePasswordScenario.NewPasswordAsString = null;
+            AssertThrows.Exception<Exception>(() => _changePasswordScenario.Execute());
         }
 
         [Test]
@@ -50,9 +50,9 @@ namespace AccountManagement.Tests.Domain.After_a_user_has_registered_an_account
         public void OldPassword_is_not_the_current_password_of_the_account()
         {
             _changePasswordScenario.OldPassword = "Wrong";
-            _changePasswordScenario
-                .Invoking(scenario => scenario.Execute())
-                .ShouldThrow<Exception>();
+
+            Host.AssertThatRunningScenarioThrowsBackendException<Exception>(() => _changePasswordScenario.Execute())
+                .Message.ToLower().Should().Contain("wrongpassword");
         }
     }
 }

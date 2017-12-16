@@ -81,7 +81,9 @@ namespace Composable.Messaging.Buses
 
     public interface ITestingEndpointHost : IEndpointHost
     {
-        void WaitForEndpointsToBeAtRest(TimeSpan? timeoutOverride);
+        void WaitForEndpointsToBeAtRest(TimeSpan? timeoutOverride = null);
+
+        TException AssertThrown<TException>() where TException : Exception;
 
         IServiceBus ClientBus { get; }
         IApiNavigator ClientNavigator { get; }

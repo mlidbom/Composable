@@ -1,38 +1,24 @@
 using System;
-using AccountManagement.Domain;
-using AccountManagement.Domain.Services;
-using Composable.DependencyInjection;
+using AccountManagement.API;
+using AccountManagement.API.UserCommands;
+using Composable.Messaging.Buses;
 
 namespace AccountManagement.Tests.Scenarios
 {
-    public class RegisterAccountScenario
+    class RegisterAccountScenario
     {
-        readonly IServiceLocator _serviceLocator;
-        public readonly string PasswordAsString = TestData.Password.CreateValidPasswordString();
-        public Password Password;
-        public Email Email = TestData.Email.CreateValidEmail();
-        public Guid AccountId = Guid.NewGuid();
+        readonly IServiceBus _bus;
 
-        public RegisterAccountScenario(IServiceLocator serviceLocator)
+        public RegisterAccountCommand Command { get; }
+
+        public RegisterAccountScenario(IServiceBus bus, string email = null, string password = null)
         {
-            Password = new Password(PasswordAsString);
-            _serviceLocator = serviceLocator;
+            _bus = bus;
+            Command = AccountApi.Start.Commands.CreateAccount(accountId: Guid.NewGuid(),
+                                                              password: password ?? TestData.Password.CreateValidPasswordString(),
+                                                              email: email ?? TestData.Email.CreateValidEmail().ToString());
         }
 
-        public Account Execute()
-        {
-            return _serviceLocator.ExecuteTransaction(
-                () =>
-                {
-                    using(var duplicateAccountChecker = _serviceLocator.Lease<IDuplicateAccountChecker>())
-                    using(var repository = _serviceLocator.Lease<IAccountRepository>())
-                    {
-                        var registered = Account.Register(Email, Password, AccountId, repository.Instance, duplicateAccountChecker.Instance);
-
-                        return registered;
-                    }
-                });
-
-        }
+        public AccountResource Execute() => _bus.SendAsync(Command).Result;
     }
 }

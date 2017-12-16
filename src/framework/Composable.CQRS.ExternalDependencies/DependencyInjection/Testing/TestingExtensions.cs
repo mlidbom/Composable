@@ -33,23 +33,23 @@ namespace Composable.DependencyInjection.Testing
                          .ImplementedBy<SingleThreadUseGuard>()
                          .LifestyleScoped(),
                 Component.For<IGlobalBusStrateTracker>()
-                         .UsingFactoryMethod(_ => new GlobalBusStrateTracker())
+                         .UsingFactoryMethod(() => new GlobalBusStrateTracker())
                          .LifestyleSingleton(),
                 Component.For<IMessageHandlerRegistry, IMessageHandlerRegistrar, MessageHandlerRegistry>()
-                         .UsingFactoryMethod(_ => new MessageHandlerRegistry())
+                         .UsingFactoryMethod(() => new MessageHandlerRegistry())
                          .LifestyleSingleton(),
                 Component.For<IEventStoreEventSerializer>()
                          .ImplementedBy<NewtonSoftEventStoreEventSerializer>()
                          .LifestyleScoped(),
                 Component.For<IUtcTimeTimeSource, DummyTimeSource>()
-                         .UsingFactoryMethod(factoryMethod: _ => DummyTimeSource.Now)
+                         .UsingFactoryMethod(() => DummyTimeSource.Now)
                          .LifestyleSingleton()
                          .DelegateToParentServiceLocatorWhenCloning(),
                 Component.For<IInProcessServiceBus, IMessageSpy>()
-                         .UsingFactoryMethod(_ => new InProcessServiceBus(_.Resolve<IMessageHandlerRegistry>()))
+                         .UsingFactoryMethod((IMessageHandlerRegistry registry) => new InProcessServiceBus(registry))
                          .LifestyleSingleton(),
                 Component.For<ISqlConnectionProvider>()
-                         .UsingFactoryMethod(factoryMethod: locator => new SqlServerDatabasePoolSqlConnectionProvider(MasterDbConnection.ConnectionString))
+                         .UsingFactoryMethod(() => new SqlServerDatabasePoolSqlConnectionProvider(MasterDbConnection.ConnectionString))
                          .LifestyleSingleton()
                          .DelegateToParentServiceLocatorWhenCloning()
             );

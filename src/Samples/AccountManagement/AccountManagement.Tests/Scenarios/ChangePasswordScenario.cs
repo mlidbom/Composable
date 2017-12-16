@@ -1,32 +1,28 @@
-﻿using AccountManagement.Domain;
-using AccountManagement.Domain.Services;
-using Composable.DependencyInjection;
+﻿using AccountManagement.API;
+using Composable.Messaging.Buses;
 
 namespace AccountManagement.Tests.Scenarios
 {
-    public class ChangePasswordScenario
+    class ChangePasswordScenario
     {
-        readonly IServiceLocator _serviceLocator;
+        readonly IServiceBus _clientBus;
 
         public string OldPassword;
-        public readonly string NewPasswordAsString = TestData.Password.CreateValidPasswordString();
-        public Password NewPassword;
-        public readonly Account Account;
+        public string NewPasswordAsString = TestData.Password.CreateValidPasswordString();
+        public AccountResource Account { get; private set; }
 
-        public ChangePasswordScenario(IServiceLocator serviceLocator)
+        public ChangePasswordScenario(IServiceBus clientBus)
         {
-            _serviceLocator = serviceLocator;
-            NewPassword = new Password(NewPasswordAsString);
-            var registerAccountScenario = new RegisterAccountScenario(serviceLocator);
+            _clientBus = clientBus;
+            var registerAccountScenario = new RegisterAccountScenario(clientBus);
             Account = registerAccountScenario.Execute();
-            OldPassword = registerAccountScenario.PasswordAsString;
+            OldPassword = registerAccountScenario.Command.Password;
         }
 
         public void Execute()
         {
-            _serviceLocator.ExecuteTransaction(() => _serviceLocator.Use<IAccountRepository>(repo => repo.Get(Account.Id)
-                                                                                              .ChangePassword(oldPassword: OldPassword,
-                                                                                                              newPassword: NewPassword)));
+            _clientBus.Send(Account.Commands.ChangePassword(oldPassword:OldPassword, newPassword: NewPasswordAsString));
+            Account = _clientBus.Query(AccountApi.Start.Queries.AccountById(Account.Id));
         }
     }
 }

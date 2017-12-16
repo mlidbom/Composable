@@ -17,8 +17,20 @@ namespace Composable.Messaging
     {
     }
 
+    public static class SingletonQuery
+    {
+        public static SingletonQuery<TResource> For<TResource>() => SingletonQueryCacheTrick<TResource>.Instance;
+
+        static class SingletonQueryCacheTrick<TResource>
+        {
+            public static readonly SingletonQuery<TResource> Instance = new SingletonQuery<TResource>();
+        }
+    }
+
     public class SingletonQuery<TSingleton> : Message, IQuery<TSingleton>
-    { }
+    {
+        internal SingletonQuery() {}
+    }
 
     ///<summary>Represent an entity within the domain of the current API that is uniquely identifiable through its type and Id.</summary>
     public interface IEntityResource<TResource>
@@ -26,10 +38,11 @@ namespace Composable.Messaging
         Guid Id { get; }
     }
 
-    class EntityQuery<TEntity> : Message, IEntityQuery<TEntity>
+    public class EntityQuery<TEntity> : Message, IEntityQuery<TEntity>
     {
+        public EntityQuery() {}
         public EntityQuery(Guid id) => Id = id;
-        public Guid Id { get; }
+        public Guid Id { get; set; }
     }
 
     public abstract class Message : IMessage
@@ -42,12 +55,13 @@ namespace Composable.Messaging
 
     public abstract class EntityResource<TResource> : Message, IEntityResource<TResource> where TResource : EntityResource<TResource>
     {
+        protected EntityResource() {}
         protected EntityResource(Guid id)
         {
             Id = id;
             Self = new EntityQuery<TResource>(id);
         }
-        public IQuery<TResource> Self { get; }
-        public Guid Id { get; }
+        public IQuery<TResource> Self { get; private set; }
+        public Guid Id { get; private set; }
     }
 }

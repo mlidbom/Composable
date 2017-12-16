@@ -21,29 +21,29 @@ namespace Composable.Messaging.Buses
 
             _container.Register(
                 Component.For<EndpointConfiguration>()
-                         .UsingFactoryMethod(kern => new EndpointConfiguration())
+                         .UsingFactoryMethod(() => new EndpointConfiguration())
                          .LifestyleSingleton(),
                 Component.For<IInterprocessTransport, InterprocessTransport>()
-                         .UsingFactoryMethod(kern => new InterprocessTransport(globalStateTracker))
+                         .UsingFactoryMethod(() => new InterprocessTransport(globalStateTracker))
                          .LifestyleSingleton(),
                 Component.For<ISingleContextUseGuard>()
                          .ImplementedBy<SingleThreadUseGuard>()
                          .LifestyleScoped(),
                 Component.For<IGlobalBusStrateTracker>()
-                         .UsingFactoryMethod(_ => globalStateTracker)
+                         .UsingFactoryMethod(() => globalStateTracker)
                          .LifestyleSingleton(),
                 Component.For<IMessageHandlerRegistry, IMessageHandlerRegistrar, MessageHandlerRegistry>()
-                         .UsingFactoryMethod(factoryMethod: _ => new MessageHandlerRegistry())
+                         .UsingFactoryMethod(() => new MessageHandlerRegistry())
                          .LifestyleSingleton(),
                 Component.For<IEventStoreEventSerializer>()
                          .ImplementedBy<NewtonSoftEventStoreEventSerializer>()
                          .LifestyleScoped(),
                 Component.For<IUtcTimeTimeSource>()
-                         .UsingFactoryMethod(factoryMethod: _ => new DateTimeNowTimeSource())
+                         .UsingFactoryMethod(() => new DateTimeNowTimeSource())
                          .LifestyleSingleton()
                          .DelegateToParentServiceLocatorWhenCloning(),
                 Component.For<IInProcessServiceBus, IMessageSpy>()
-                         .UsingFactoryMethod(kernel => new InProcessServiceBus(kernel.Resolve<IMessageHandlerRegistry>()))
+                         .UsingFactoryMethod((IMessageHandlerRegistry registry) => new InProcessServiceBus(registry))
                          .LifestyleSingleton(),
                 Component.For<IInbox, Inbox>()
                          .ImplementedBy<Inbox>()
@@ -52,10 +52,10 @@ namespace Composable.Messaging.Buses
                          .ImplementedBy<Outbox>()
                          .LifestyleSingleton(),
                 Component.For<IServiceBus, ServiceBus>()
-                         .ImplementedBy<ServiceBus>()
+                         .UsingFactoryMethod((Outbox outbox) => new ServiceBus(outbox))
                          .LifestyleSingleton(),
                 Component.For<ISqlConnectionProvider>()
-                         .UsingFactoryMethod(factoryMethod: locator => new SqlServerDatabasePoolSqlConnectionProvider(MasterDbConnection.ConnectionString))
+                         .UsingFactoryMethod(() => new SqlServerDatabasePoolSqlConnectionProvider(MasterDbConnection.ConnectionString))
                          .LifestyleSingleton()
                          .DelegateToParentServiceLocatorWhenCloning());
         }

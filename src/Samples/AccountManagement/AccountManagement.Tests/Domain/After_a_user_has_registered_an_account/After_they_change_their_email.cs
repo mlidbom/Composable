@@ -2,6 +2,7 @@
 using AccountManagement.Domain;
 using AccountManagement.Domain.Events;
 using AccountManagement.Tests.Scenarios;
+using Composable.Messaging.Buses;
 using FluentAssertions;
 using NUnit.Framework;
 
@@ -14,7 +15,7 @@ namespace AccountManagement.Tests.Domain.After_a_user_has_registered_an_account
         [SetUp]
         public void ChangeEmail()
         {
-            _changeEmailScenario = new ChangeAccountEmailScenario(ServiceLocator);
+            _changeEmailScenario = new ChangeAccountEmailScenario(ClientBus);
             _changeEmailScenario.Execute();
         }
 
@@ -43,20 +44,16 @@ namespace AccountManagement.Tests.Domain.After_a_user_has_registered_an_account
         [Test]
         public void Registering_an_account_with_the_old_email_works()
         {
-            new RegisterAccountScenario(ServiceLocator)
-            {
-                Email = _changeEmailScenario.OldEmail
-            }.Execute();
+            new RegisterAccountScenario(ClientBus,email: _changeEmailScenario.OldEmail.ToString()).Execute();
         }
 
         [Test]
         public void Attempting_to_register_an_account_with_the_new_email_throws_a_DuplicateAccountException()
         {
-            new RegisterAccountScenario(ServiceLocator)
-                {
-                    Email = _changeEmailScenario.NewEmail
-                }.Invoking(me => me.Execute())
-                .ShouldThrow<DuplicateAccountException>();
+            var scenario = new RegisterAccountScenario(ClientBus, email: _changeEmailScenario.NewEmail.ToString());
+
+            Host.AssertThatRunningScenarioThrowsBackendException<DuplicateAccountException>(() => scenario.Execute())
+                .Message.Should().Contain(_changeEmailScenario.Account.Email.ToString());
         }
     }
 }

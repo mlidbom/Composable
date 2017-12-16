@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Composable.DependencyInjection;
 using Composable.Messaging.Buses.Implementation;
+using Composable.System.Linq;
 
 namespace Composable.Messaging.Buses
 {
@@ -14,7 +16,19 @@ namespace Composable.Messaging.Buses
         }
 
 
-        public void WaitForEndpointsToBeAtRest(TimeSpan? timeoutOverride) { Endpoints.ForEach(endpoint => endpoint.AwaitNoMessagesInFlight(timeoutOverride)); }
+        public void WaitForEndpointsToBeAtRest(TimeSpan? timeoutOverride = null) { Endpoints.ForEach(endpoint => endpoint.AwaitNoMessagesInFlight(timeoutOverride)); }
+
+        public TException AssertThrown<TException>() where TException : Exception
+        {
+            WaitForEndpointsToBeAtRest();
+            var matchingException = GetThrownExceptions().OfType<TException>().SingleOrDefault();
+            if(matchingException == null)
+            {
+                throw new Exception("Matching exception not thrown.");
+            }
+            _handledExceptions.Add(matchingException);
+            return matchingException;
+        }
 
         public IServiceBus ClientBus => _clientEndpoint.ServiceLocator.Resolve<IServiceBus>();
         public IApiNavigator ClientNavigator => new ApiNavigator(ClientBus);
@@ -22,20 +36,27 @@ namespace Composable.Messaging.Buses
 
         protected override void InternalDispose()
         {
-            WaitForEndpointsToBeAtRest(null);
+            WaitForEndpointsToBeAtRest();
 
-            var exceptions = Endpoints
-                .SelectMany(endpoint => endpoint.ServiceLocator
-                                                .Resolve<Inbox>().ThrownExceptions)
-                .ToList();
+            var unHandledExceptions = GetThrownExceptions().Except(_handledExceptions).ToList();
 
             base.InternalDispose();
 
 
-            if(exceptions.Any())
+            if(unHandledExceptions.Any())
             {
-                throw new AggregateException("Unhandled exceptions thrown in bus", exceptions.ToArray());
+                throw new AggregateException("Unhandled exceptions thrown in bus", unHandledExceptions.ToArray());
             }
+        }
+
+        List<Exception> _handledExceptions = new List<Exception>();
+
+        List<Exception> GetThrownExceptions()
+        {
+            return Endpoints
+                .SelectMany(endpoint => endpoint.ServiceLocator
+                                                .Resolve<Inbox>().ThrownExceptions)
+                .ToList();
         }
     }
 }

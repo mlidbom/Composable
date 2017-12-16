@@ -10,6 +10,7 @@
     
   <PropertyGroup>
     <LangVersion>latest</LangVersion>
+    <RootNamespace>AccountManagement</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>
@@ -18,6 +19,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\..\framework\Composable.CQRS.ExternalDependencies\Composable.CQRS.ExternalDependencies.csproj" />
+    <ProjectReference Include="..\AccountManagement.API\AccountManagement.API.csproj" />
   </ItemGroup>
 
   

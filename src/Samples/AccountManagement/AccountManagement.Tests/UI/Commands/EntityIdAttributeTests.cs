@@ -1,6 +1,6 @@
 ﻿using System;
+using AccountManagement.API.ValidationAttributes;
 using AccountManagement.Tests.UI.Commands.UserCommands;
-using AccountManagement.UI.Commands.ValidationAttributes;
 using FluentAssertions;
 using JetBrains.Annotations;
 using NUnit.Framework;

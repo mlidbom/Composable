@@ -2,12 +2,12 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
-using AccountManagement.UI.Commands.ValidationAttributes;
+using AccountManagement.API.ValidationAttributes;
 using Composable.DDD;
 using Composable.System.ComponentModel.DataAnnotations;
 using JetBrains.Annotations;
 
-namespace AccountManagement.UI.Commands.UserCommands
+namespace AccountManagement.API.UserCommands
 {
     public class RegisterAccountCommand : ValueObject<RegisterAccountCommand>, IValidatableObject
     {

@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Linq;
-using AccountManagement.UI.Commands.UserCommands;
+using AccountManagement.API.UserCommands;
 using FluentAssertions;
 using NUnit.Framework;
 

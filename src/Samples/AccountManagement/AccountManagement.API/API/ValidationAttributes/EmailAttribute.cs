@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using AccountManagement.Domain;
 
-namespace AccountManagement.UI.Commands.ValidationAttributes
+namespace AccountManagement.API.ValidationAttributes
 {
     public class EmailAttribute : ValidationAttribute
     {

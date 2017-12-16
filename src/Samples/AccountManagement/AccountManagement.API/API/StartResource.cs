@@ -25,13 +25,13 @@ namespace AccountManagement.Domain.API
 
     public class AccountResource : EntityResource<AccountResource>
     {
-        public AccountResource(Account account) : base(account.Id) => Commands = new AccountResourceCommands(account);
+        public AccountResource(Guid accountId) : base(accountId) => Commands = new AccountResourceCommands(accountId);
 
         AccountResourceCommands Commands { get; }
 
         class AccountResourceCommands
         {
-            internal AccountResourceCommands(Account account)
+            internal AccountResourceCommands(Guid accountId)
             {
             }
         }

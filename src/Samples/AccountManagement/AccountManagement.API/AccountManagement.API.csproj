@@ -10,11 +10,11 @@
     
   <PropertyGroup>
     <LangVersion>latest</LangVersion>
+    <RootNamespace>AccountManagement</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\..\..\framework\Composable.CQRS\Composable.CQRS.csproj" />
-    <ProjectReference Include="..\AccountManagement.Domain\AccountManagement.Domain.csproj" />
   </ItemGroup>
 
   
@@ -36,7 +36,7 @@
 
   
   <ItemGroup>
-    <Compile Update="UserCommands\RegisterAccountCommandResources.Designer.cs">
+    <Compile Update="API\UserCommands\RegisterAccountCommandResources.Designer.cs">
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
       <DependentUpon>RegisterAccountCommandResources.resx</DependentUpon>
@@ -45,7 +45,7 @@
 
   
   <ItemGroup>
-    <EmbeddedResource Update="UserCommands\RegisterAccountCommandResources.resx">
+    <EmbeddedResource Update="API\UserCommands\RegisterAccountCommandResources.resx">
       <Generator>PublicResXFileCodeGenerator</Generator>
       <LastGenOutput>RegisterAccountCommandResources.Designer.cs</LastGenOutput>
     </EmbeddedResource>

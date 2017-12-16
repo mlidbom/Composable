@@ -1,7 +1,7 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
 
-namespace AccountManagement.UI.Commands.ValidationAttributes
+namespace AccountManagement.API.ValidationAttributes
 {
     public class EntityIdAttribute : ValidationAttribute
     {

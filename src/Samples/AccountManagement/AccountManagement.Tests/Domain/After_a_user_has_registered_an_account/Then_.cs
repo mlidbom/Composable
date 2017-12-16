@@ -11,12 +11,12 @@ namespace AccountManagement.Tests.Domain.After_a_user_has_registered_an_account
     public class Then_ : DomainTestBase
     {
         AccountResource _registeredAccount;
-        RegisterAccountScenarioNew _registerAccountScenario;
+        RegisterAccountScenario _registerAccountScenario;
 
         [SetUp]
         public void RegisterAccount()
         {
-            _registerAccountScenario = new RegisterAccountScenarioNew(ClientBus);
+            _registerAccountScenario = new RegisterAccountScenario(ClientBus);
             _registeredAccount = _registerAccountScenario.Execute();
         }
 

@@ -14,8 +14,8 @@ namespace AccountManagement.API
     {
         public static IQuery<StartResource> Self => SingletonQuery.For<StartResource>();
 
-        public SingletonQuery<StartResourceCommands> Commands => SingletonQuery.For<StartResourceCommands>();
-        public SingletonQuery<StartResourceQueries> Queries => SingletonQuery.For<StartResourceQueries >();
+        public StartResourceCommands Commands => new StartResourceCommands();
+        public StartResourceQueries Queries => new StartResourceQueries();
 
         public class StartResourceQueries
         {

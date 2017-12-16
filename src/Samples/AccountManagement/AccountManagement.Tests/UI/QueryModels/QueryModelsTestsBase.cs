@@ -14,6 +14,8 @@ namespace AccountManagement.Tests.UI.QueryModels
         IEndpoint _domainEndpoint;
         protected IAccountManagementQueryModelsReader QueryModelsReader => ServiceLocator.Lease<IAccountManagementQueryModelsReader>().Instance;
 
+        protected IServiceBus ClientBus => _host.ClientBus;
+
         protected void ReplaceContainerScope()
         {
             _scope.Dispose();

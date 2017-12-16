@@ -6,6 +6,7 @@ using Composable.DependencyInjection;
 using Composable.Persistence.EventStore;
 using Composable.System.Linq;
 using Composable.System.Transactions;
+using Composable.Testing;
 using Composable.Testing.Threading;
 using Composable.Tests.CQRS;
 using FluentAssertions;

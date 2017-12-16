@@ -9,7 +9,7 @@ using Composable.Persistence.EventStore.AggregateRoots;
 namespace AccountManagement.Domain
 {
     ///Completely encapsulates all the business logic for an account.  Should make it impossible for clients to use the class incorrectly.
-    public class Account : AggregateRoot<Account, AccountEvent.Implementation.Root, AccountEvent.Root>
+    public partial class Account : AggregateRoot<Account, AccountEvent.Implementation.Root, AccountEvent.Root>
     {
         public Email Email { get; private set; } //Never public setters on an aggregate.
         public Password Password { get; private set; } //Never public setters on an aggregate.

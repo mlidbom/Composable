@@ -12,7 +12,7 @@ namespace AccountManagement.Tests.UI.QueryModels.AccountMapQueryModelTests
         [SetUp]
         public void ChangeAccountEmail()
         {
-            _scenario = new ChangeAccountEmailScenario(ServiceLocator, RegisteredAccount);
+            _scenario = new ChangeAccountEmailScenario(ServiceLocator, ClientBus, RegisteredAccount);
             _scenario.Execute();
             ReplaceContainerScope();
         }

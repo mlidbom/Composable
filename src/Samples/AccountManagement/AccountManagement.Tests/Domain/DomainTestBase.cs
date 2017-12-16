@@ -11,18 +11,18 @@ namespace AccountManagement.Tests.Domain
         protected IMessageSpy MessageSpy => ServiceLocator.Lease<IMessageSpy>().Instance;
 
         StrictAggregateDisposable _managedResources;
-        ITestingEndpointHost _host;
+        protected ITestingEndpointHost Host;
         IEndpoint _domainEndpoint;
-        protected IServiceBus ClientBus => _host.ClientBus;
+        protected IServiceBus ClientBus => Host.ClientBus;
 
         [SetUp] public void SetupContainerAndBeginScope()
         {
-            _host = EndpointHost.Testing.CreateHost(DependencyInjectionContainer.Create);
-            _domainEndpoint = AccountManagementServerDomainBootstrapper.RegisterWith(_host);
+            Host = EndpointHost.Testing.CreateHost(DependencyInjectionContainer.Create);
+            _domainEndpoint = AccountManagementServerDomainBootstrapper.RegisterWith(Host);
 
             ServiceLocator = _domainEndpoint.ServiceLocator;
 
-            _managedResources = StrictAggregateDisposable.Create(ServiceLocator.BeginScope(), _host);
+            _managedResources = StrictAggregateDisposable.Create(ServiceLocator.BeginScope(), Host);
         }
 
         [TearDown] public void DisposeScopeAndContainer() { _managedResources.Dispose(); }

@@ -60,7 +60,7 @@ namespace Composable.Messaging
             Id = id;
             Self = new EntityQuery<TResource>(id);
         }
-        public IQuery<TResource> Self { get; }
-        public Guid Id { get; }
+        public IQuery<TResource> Self { get; private set; }
+        public Guid Id { get; private set; }
     }
 }

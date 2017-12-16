@@ -2,6 +2,7 @@
 using System.Threading;
 using System.Transactions;
 using Composable.System.Transactions;
+using Composable.Testing;
 using FluentAssertions;
 using NUnit.Framework;
 

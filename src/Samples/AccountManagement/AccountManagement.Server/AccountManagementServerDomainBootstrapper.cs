@@ -1,4 +1,5 @@
 ﻿using AccountManagement.ContainerInstallers;
+using AccountManagement.Domain;
 using AccountManagement.UI.QueryModels;
 using AccountManagement.UI.QueryModels.DocumentDB.Updaters;
 using Composable.DependencyInjection;
@@ -39,7 +40,7 @@ namespace AccountManagement
         public static void RegisterHandlers(MessageHandlerRegistrarWithDependencyInjectionSupport registrar)
         {
             MessageHandlersInstaller.RegisterHandlers(registrar);
-            ApiMessageHandlersInstaller.RegisterHandlers(registrar);
+            Account.MessageHandlers.RegisterHandlers(registrar);
         }
     }
 }

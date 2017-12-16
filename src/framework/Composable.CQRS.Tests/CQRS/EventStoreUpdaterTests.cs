@@ -11,6 +11,7 @@ using Composable.System;
 using Composable.System.Diagnostics;
 using Composable.System.Linq;
 using Composable.SystemExtensions.Threading;
+using Composable.Testing;
 using Composable.Testing.Performance;
 using Composable.Tests.System.TransactionsApiExploration;
 using FluentAssertions;

@@ -1,4 +1,4 @@
-﻿using AccountManagement.API.ValidationAttributes.Utilities;
+﻿using AccountManagement.API.ValidationAttributes.Helpers;
 using AccountManagement.Domain;
 
 namespace AccountManagement.API.ValidationAttributes

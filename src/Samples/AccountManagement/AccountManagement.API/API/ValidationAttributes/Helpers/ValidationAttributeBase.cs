@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace AccountManagement.API.ValidationAttributes.Utilities
+namespace AccountManagement.API.ValidationAttributes.Helpers
 {
     public abstract class ValidationAttributeBase : ValidationAttribute
     {

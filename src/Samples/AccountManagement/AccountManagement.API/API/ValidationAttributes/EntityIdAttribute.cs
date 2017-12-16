@@ -1,5 +1,5 @@
 ﻿using System;
-using AccountManagement.API.ValidationAttributes.Utilities;
+using AccountManagement.API.ValidationAttributes.Helpers;
 
 namespace AccountManagement.API.ValidationAttributes
 {

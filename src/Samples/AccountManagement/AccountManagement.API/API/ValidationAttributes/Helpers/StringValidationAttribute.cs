@@ -1,4 +1,4 @@
-﻿namespace AccountManagement.API.ValidationAttributes.Utilities
+﻿namespace AccountManagement.API.ValidationAttributes.Helpers
 {
     public abstract class StringValidationAttribute : ValidationAttributeBase
     {

@@ -1,14 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
 using System.Runtime.Serialization;
 using System.Threading.Tasks;
 using Composable.Messaging.Buses.Implementation;
 
 namespace Composable.Messaging.Buses
 {
-    class ServiceBus : IServiceBus
+    partial class ServiceBus : IServiceBus
     {
         readonly Outbox _outbox;
 
@@ -36,35 +33,5 @@ namespace Composable.Messaging.Buses
         public TResult Query<TResult>(IQuery<TResult> query)
             => _outbox.Query(query);
 
-
-        static class CommandValidator
-        {
-            public static void AssertCommandIsValid(IDomainCommand command)
-            {
-                var failures = ValidationFailures(command);
-                if(failures.Any())
-                {
-                    throw new CommandValidationFailureException(failures);
-                }
-            }
-
-            static IEnumerable<ValidationResult> ValidationFailures(object command)
-            {
-                var context = new ValidationContext(command, serviceProvider: null, items: null);
-                var results = new List<ValidationResult>();
-
-                Validator.TryValidateObject(command, context, results, validateAllProperties: true);
-                return results;
-            }
-        }
-
-    }
-
-    public class CommandValidationFailureException : Exception
-    {
-        public CommandValidationFailureException(IEnumerable<ValidationResult> failures) : base(CreateMessage(failures)) {  }
-
-
-        static string CreateMessage(IEnumerable<ValidationResult> failures) => string.Join(Environment.NewLine, failures);
     }
 }

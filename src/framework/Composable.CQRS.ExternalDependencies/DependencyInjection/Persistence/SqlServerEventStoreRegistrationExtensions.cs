@@ -99,14 +99,13 @@ namespace Composable.DependencyInjection.Persistence
             if (@this.RunMode.IsTesting && mode == TestingMode.InMemory)
             {
                 @this.Register(Component.For<InMemoryEventStore<TSessionInterface, TReaderInterface>>()
-                                        .UsingFactoryMethod(sl => new InMemoryEventStore<TSessionInterface, TReaderInterface>(migrations: migrations()))
+                                        .UsingFactoryMethod(() => new InMemoryEventStore<TSessionInterface, TReaderInterface>(migrations: migrations()))
                                         .LifestyleSingleton()
                                         .DelegateToParentServiceLocatorWhenCloning());
 
                 @this.Register(Component.For<IEventStore<TSessionInterface, TReaderInterface>>()
-                                        .UsingFactoryMethod(sl =>
+                                        .UsingFactoryMethod((InMemoryEventStore<TSessionInterface, TReaderInterface> store) =>
                                                             {
-                                                                var store = sl.Resolve<InMemoryEventStore<TSessionInterface, TReaderInterface>>();
                                                                 store.TestingOnlyReplaceMigrations(migrations());
                                                                 return store;
                                                             })
@@ -115,10 +114,9 @@ namespace Composable.DependencyInjection.Persistence
             {
                 @this.Register(
                     Component.For<IEventstorePersistenceLayer<TSessionInterface>>()
-                                .UsingFactoryMethod(sl =>
+                                .UsingFactoryMethod((ISqlConnectionProvider connectionProvider1) =>
                                                     {
-                                                        var connectionProvider = sl.Resolve<ISqlConnectionProvider>()
-                                                                                                            .GetConnectionProvider(connectionName);
+                                                        var connectionProvider = connectionProvider1.GetConnectionProvider(connectionName);
 
                                                         IEventNameMapper nameMapper = new DefaultEventNameMapper();
                                                         var connectionManager = new SqlServerEventStoreConnectionManager(connectionProvider);
@@ -131,12 +129,14 @@ namespace Composable.DependencyInjection.Persistence
 
 
                 @this.Register(Component.For<IEventStore<TSessionInterface, TReaderInterface>>()
-                                        .UsingFactoryMethod(sl => new EventStore<TSessionInterface, TReaderInterface>(
-                                                                persistenceLayer: sl.Resolve<IEventstorePersistenceLayer<TSessionInterface>>(),
-                                                                serializer: sl.Resolve<IEventStoreEventSerializer>(),
-                                                                migrations: migrations(),
-                                                                cache: sl.Resolve<EventCache<TSessionInterface>>(),
-                                                                usageGuard: new SingleThreadUseGuard()))
+                                        .UsingFactoryMethod(
+                                            (IEventstorePersistenceLayer<TSessionInterface> persistenceLayer, IEventStoreEventSerializer serializer, EventCache<TSessionInterface> cache) =>
+                                                new EventStore<TSessionInterface, TReaderInterface>(
+                                                    persistenceLayer: persistenceLayer,
+                                                    serializer: serializer,
+                                                    migrations: migrations(),
+                                                    cache: cache,
+                                                    usageGuard: new SingleThreadUseGuard()))
                                         .LifestyleScoped());
             }
 

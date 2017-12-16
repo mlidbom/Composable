@@ -25,7 +25,7 @@ namespace Composable.DependencyInjection
         {
             IDependencyInjectionContainer container = new SimpleInjectorDependencyInjectionContainer(runMode ?? DependencyInjection.RunMode.Production);
             container.Register(Component.For<IServiceLocator>()
-                                        .UsingFactoryMethod(_ => container.CreateServiceLocator())
+                                        .UsingFactoryMethod(() => container.CreateServiceLocator())
                                         .LifestyleSingleton());
             return container;
         }

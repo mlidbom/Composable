@@ -60,8 +60,7 @@ namespace Composable.DependencyInjection.Persistence
             } else
             {
                 @this.Register(Component.For<IDocumentDb<TUpdater, TReader, TBulkReader>>()
-                                         .UsingFactoryMethod(kernel => new SqlServerDocumentDb<TUpdater, TReader, TBulkReader>(kernel.Resolve<ISqlConnectionProvider>().GetConnectionProvider(connectionName),
-                                                                                                                               kernel.Resolve<IUtcTimeTimeSource>()))
+                                         .UsingFactoryMethod((ISqlConnectionProvider connectionProvider, IUtcTimeTimeSource timeSource) => new SqlServerDocumentDb<TUpdater, TReader, TBulkReader>(connectionProvider.GetConnectionProvider(connectionName), timeSource))
                                          .LifestyleSingleton());
             }
 

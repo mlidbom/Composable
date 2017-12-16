@@ -1,9 +1,10 @@
 ﻿using System;
+using AccountManagement.Domain.Events;
 using AccountManagement.Domain.Services;
 using Composable.Contracts;
 using Composable.GenericAbstractions.Time;
 using Composable.Persistence.EventStore.AggregateRoots;
-using AccountEvent = AccountManagement.Domain.Events.AccountEvent;
+
 
 namespace AccountManagement.Domain
 {

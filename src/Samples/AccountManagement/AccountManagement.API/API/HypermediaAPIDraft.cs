@@ -2,7 +2,9 @@
 using AccountManagement.API.UserCommands;
 using AccountManagement.Domain;
 using Composable.Messaging;
+using Composable.Messaging.Commands;
 using JetBrains.Annotations;
+using Newtonsoft.Json;
 
 namespace AccountManagement.API
 {
@@ -31,11 +33,11 @@ namespace AccountManagement.API
 
     public class AccountResource : EntityResource<AccountResource>
     {
-        [UsedImplicitly]AccountResource() {}
+        [UsedImplicitly] AccountResource() {}
 
         internal AccountResource(IAccountResourceData account) : base(account.Id)
         {
-            Commands = new AccountResourceCommands();
+            Commands = new AccountResourceCommands(this);
             Email = account.Email;
             Password = account.Password;
         }
@@ -46,9 +48,26 @@ namespace AccountManagement.API
         public AccountResourceCommands Commands { get; private set; }
 
         public class AccountResourceCommands
-        {}
-    }
+        {
+            [JsonProperty] Guid _accountId;
 
+            [UsedImplicitly]AccountResourceCommands() {}
+
+            public AccountResourceCommands(AccountResource accountResource) => _accountId = accountResource.Id;
+
+            public ChangeEmailCommand ChangeEmail(string email) => new ChangeEmailCommand()
+                                                                   {
+                                                                       Email = email,
+                                                                       AccountId = _accountId
+                                                                   };
+        }
+
+        public class ChangeEmailCommand : DomainCommand
+        {
+            public string Email { get; set; }
+            public Guid AccountId { get; set; }
+        }
+    }
 
     interface IAccountResourceData
     {

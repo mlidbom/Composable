@@ -26,8 +26,7 @@ namespace AccountManagement.Tests.Scenarios
 
         public void Execute()
         {
-            _serviceLocator.ExecuteTransaction(() => _serviceLocator.Use<IAccountRepository>(repo => repo.Get(Account.Id).ChangeEmail(NewEmail)));
-
+            _clientBus.Send(Account.Commands.ChangeEmail(NewEmail.ToString()));
             Account = _clientBus.Query(AccountApi.Start.Queries.AccountById(Account.Id));
         }
     }

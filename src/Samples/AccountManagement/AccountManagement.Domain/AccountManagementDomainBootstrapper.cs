@@ -6,6 +6,15 @@ namespace AccountManagement.Domain
 {
     public static class AccountManagementDomainBootstrapper
     {
+        public static IEndpoint RegisterWith(IEndpointHost host)
+        {
+            return host.RegisterAndStartEndpoint("UserManagement.Domain", builder =>
+            {
+                SetupContainer(builder.Container);
+                RegisterHandlers(builder.RegisterHandlers, builder.Container.CreateServiceLocator());
+            });
+        }
+
         public static void SetupContainer(IDependencyInjectionContainer container)
         {
 

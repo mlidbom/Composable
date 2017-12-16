@@ -18,12 +18,7 @@ namespace AccountManagement.Tests.Domain
         [SetUp] public void SetupContainerAndBeginScope()
         {
             _host = EndpointHost.Testing.CreateHost(DependencyInjectionContainer.Create);
-            _domainEndpoint = _host.RegisterAndStartEndpoint("UserManagement.Domain",
-                                                             builder =>
-                                                             {
-                                                                 AccountManagementDomainBootstrapper.SetupContainer(builder.Container);
-                                                                 AccountManagementDomainBootstrapper.RegisterHandlers(builder.RegisterHandlers, builder.Container.CreateServiceLocator());
-                                                             });
+            _domainEndpoint = AccountManagementDomainBootstrapper.RegisterWith(_host);
 
             ServiceLocator = _domainEndpoint.ServiceLocator;
 

@@ -55,6 +55,7 @@ namespace Composable.Messaging
 
     public abstract class EntityResource<TResource> : Message, IEntityResource<TResource> where TResource : EntityResource<TResource>
     {
+        protected EntityResource() {}
         protected EntityResource(Guid id)
         {
             Id = id;

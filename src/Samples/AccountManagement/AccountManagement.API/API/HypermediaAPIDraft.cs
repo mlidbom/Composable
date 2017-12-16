@@ -2,6 +2,7 @@
 using AccountManagement.API.UserCommands;
 using AccountManagement.Domain;
 using Composable.Messaging;
+using JetBrains.Annotations;
 
 namespace AccountManagement.API
 {
@@ -30,14 +31,29 @@ namespace AccountManagement.API
 
     public class AccountResource : EntityResource<AccountResource>
     {
-        public AccountResource(Guid accountId) : base(accountId) => Commands = new AccountResourceCommands();
+        [UsedImplicitly]AccountResource() {}
 
-        public Email Email { get; set; }
-        public Password Password { get; set; }
+        internal AccountResource(IAccountResourceData account) : base(account.Id)
+        {
+            Commands = new AccountResourceCommands();
+            Email = account.Email;
+            Password = account.Password;
+        }
 
-        public AccountResourceCommands Commands { get; }
+        public Email Email { get; private set; }
+        public Password Password { get; private set; }
+
+        public AccountResourceCommands Commands { get; private set; }
 
         public class AccountResourceCommands
         {}
+    }
+
+
+    interface IAccountResourceData
+    {
+        Guid Id { get; }
+        Email Email { get; }
+        Password Password { get; }
     }
 }

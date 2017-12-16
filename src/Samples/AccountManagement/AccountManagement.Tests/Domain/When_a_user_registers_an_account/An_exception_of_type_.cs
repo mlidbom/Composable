@@ -1,9 +1,7 @@
 ﻿using System;
 using AccountManagement.Domain;
-using AccountManagement.Domain.Services;
 using AccountManagement.Tests.Scenarios;
 using Composable.Messaging.Buses;
-using Composable.Testing;
 using FluentAssertions;
 using NUnit.Framework;
 

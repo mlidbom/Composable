@@ -8,6 +8,7 @@ using Composable.Messaging;
 using Composable.Messaging.Commands;
 using JetBrains.Annotations;
 using Newtonsoft.Json;
+// ReSharper disable MemberCanBeMadeStatic.Global
 
 namespace AccountManagement.API
 {
@@ -30,7 +31,7 @@ namespace AccountManagement.API
 
         public class StartResourceCommands
         {
-            public RegisterAccountCommand CreateAccount => new RegisterAccountCommand();
+            public RegisterAccountCommand CreateAccount(Guid accountId, string email, string password) => new RegisterAccountCommand(accountId, email, password);
         }
     }
 

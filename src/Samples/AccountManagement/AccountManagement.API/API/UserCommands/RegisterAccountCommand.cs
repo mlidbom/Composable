@@ -1,17 +1,22 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Linq.Expressions;
 using AccountManagement.API.ValidationAttributes;
 using Composable.Messaging.Commands;
-using Composable.System.ComponentModel.DataAnnotations;
 using JetBrains.Annotations;
 
 namespace AccountManagement.API.UserCommands
 {
     public class RegisterAccountCommand : DomainCommand<AccountResource>, IValidatableObject
     {
+        public RegisterAccountCommand() {}
+        public RegisterAccountCommand(Guid accountId, string email, string password)
+        {
+            AccountId = accountId;
+            Email = email;
+            Password = password;
+        }
+
         //Note the use of a custom validation attribute.
         [Required(ErrorMessageResourceType = typeof(RegisterAccountCommandResources), ErrorMessageResourceName = "IdInvalid")]
         [EntityId(ErrorMessageResourceType = typeof(RegisterAccountCommandResources), ErrorMessageResourceName = "IdMissing")]

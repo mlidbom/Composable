@@ -3,7 +3,7 @@ using Composable.Messaging.Buses;
 
 namespace AccountManagement.Tests.Scenarios
 {
-    public class ChangePasswordScenario
+    class ChangePasswordScenario
     {
         readonly IServiceBus _clientBus;
 

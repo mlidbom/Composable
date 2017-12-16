@@ -1,10 +1,8 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
 using AccountManagement.Domain;
 using AccountManagement.Domain.Events;
 using AccountManagement.Tests.Scenarios;
 using Composable.Messaging.Buses;
-using Composable.Testing;
 using FluentAssertions;
 using NUnit.Framework;
 

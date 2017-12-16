@@ -1,5 +1,6 @@
 ﻿using System;
 using AccountManagement.API.UserCommands;
+using AccountManagement.Domain;
 using Composable.Messaging;
 
 namespace AccountManagement.API
@@ -30,6 +31,9 @@ namespace AccountManagement.API
     public class AccountResource : EntityResource<AccountResource>
     {
         public AccountResource(Guid accountId) : base(accountId) => Commands = new AccountResourceCommands();
+
+        public Email Email { get; set; }
+        public Password Password { get; set; }
 
         public AccountResourceCommands Commands { get; }
 

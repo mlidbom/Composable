@@ -1,4 +1,6 @@
 ﻿using AccountManagement.ContainerInstallers;
+using AccountManagement.UI.QueryModels;
+using AccountManagement.UI.QueryModels.DocumentDB.Updaters;
 using Composable.DependencyInjection;
 using Composable.Messaging.Buses;
 
@@ -23,7 +25,13 @@ namespace AccountManagement
             AccountRepositoryInstaller.SetupContainer(container);
             DuplicateAccountCheckerInstaller.SetupContainer(container);
 
+
+            AccountManagementUiQueryModelsBootstrapper.SetupContainer(container);
+
             MessageHandlersInstaller.SetupContainer(container);
+
+            AccountManagementUiQueryModelsDocumentDbUpdatersBootstrapper.SetupContainer(container);
+
 
 
         }

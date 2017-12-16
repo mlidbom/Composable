@@ -12,11 +12,23 @@ namespace AccountManagement.ContainerInstallers
         public static void RegisterHandlers(MessageHandlerRegistrarWithDependencyInjectionSupport registrar)
         {
             registrar.ForQuery((SingletonQuery<StartResource> query) => new StartResource())
-                .ForQuery((EntityQuery<AccountResource> accountQuery, IAccountRepository repository) => new AccountResource(repository.Get(accountQuery.Id).Id))
+                .ForQuery((EntityQuery<AccountResource> accountQuery, IAccountRepository repository) =>
+                     {
+                         var account = repository.Get(accountQuery.Id);
+                         return new AccountResource(account.Id)
+                                {
+                                    Email = account.Email,
+                                    Password = account.Password
+                                };
+                     })
                 .ForCommandWithResult((RegisterAccountCommand command, IDuplicateAccountChecker duplicateChecker, IAccountRepository repository) =>
                      {
-                         Account.Register(Email.Parse(command.Email), new Password(command.Password), command.AccountId, repository, duplicateChecker);
-                         return new AccountResource(command.AccountId);
+                         var account = Account.Register(Email.Parse(command.Email), new Password(command.Password), command.AccountId, repository, duplicateChecker);
+                         return new AccountResource(account.Id)
+                                {
+                                    Email = account.Email,
+                                    Password = account.Password
+                                };
                      })
                 ;
         }

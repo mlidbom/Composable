@@ -1,5 +1,5 @@
 ﻿using System.Linq;
-using AccountManagement.Domain;
+using AccountManagement.API;
 using AccountManagement.Domain.Events;
 using AccountManagement.Tests.Scenarios;
 using FluentAssertions;
@@ -10,13 +10,13 @@ namespace AccountManagement.Tests.Domain.After_a_user_has_registered_an_account
     [TestFixture]
     public class Then_ : DomainTestBase
     {
-        Account _registeredAccount;
-        RegisterAccountScenario _registerAccountScenario;
+        AccountResource _registeredAccount;
+        RegisterAccountScenarioNew _registerAccountScenario;
 
         [SetUp]
         public void RegisterAccount()
         {
-            _registerAccountScenario = new RegisterAccountScenario(ServiceLocator);
+            _registerAccountScenario = new RegisterAccountScenarioNew(ClientBus);
             _registeredAccount = _registerAccountScenario.Execute();
         }
 
@@ -29,13 +29,13 @@ namespace AccountManagement.Tests.Domain.After_a_user_has_registered_an_account
         [Test]
         public void AccountEmail_is_the_one_used_for_registration()
         {
-            Assert.That(_registeredAccount.Email, Is.EqualTo(_registerAccountScenario.Email));
+            Assert.That(_registeredAccount.Email.ToString(), Is.EqualTo(_registerAccountScenario.Command.Email));
         }
 
         [Test]
         public void AccountPassword_is_the_one_used_for_registration()
         {
-            Assert.True(_registeredAccount.Password.IsCorrectPassword(_registerAccountScenario.PasswordAsString));
+            Assert.True(_registeredAccount.Password.IsCorrectPassword(_registerAccountScenario.Command.Password));
         }
     }
 }

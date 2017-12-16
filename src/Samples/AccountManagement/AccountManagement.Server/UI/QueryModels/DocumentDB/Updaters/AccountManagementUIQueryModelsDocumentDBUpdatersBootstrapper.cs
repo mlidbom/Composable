@@ -17,7 +17,5 @@ namespace AccountManagement.UI.QueryModels.DocumentDB.Updaters
                                                         EventHandlersInstaller.Install(registrar, serviceLocator);
                                                     });
         }
-
-        public static void RegisterHandlers(IMessageHandlerRegistrar registrar, IServiceLocator serviceLocator) {}
     }
 }

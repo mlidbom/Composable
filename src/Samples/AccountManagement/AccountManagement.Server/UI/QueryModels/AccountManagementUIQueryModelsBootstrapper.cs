@@ -11,9 +11,5 @@ namespace AccountManagement.UI.QueryModels
             ContainerInstallers.AccountManagementQueryModelReaderInstaller.SetupContainer(container);
             ContainerInstallers.QueryModelGeneratorsInstaller.SetupContainer(container);
         }
-
-        public static void RegisterHandlers(IMessageHandlerRegistrar registrar, IServiceLocator serviceLocator)
-        {
-        }
     }
 }

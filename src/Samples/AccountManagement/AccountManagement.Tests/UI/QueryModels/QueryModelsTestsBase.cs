@@ -1,7 +1,4 @@
 ﻿using System;
-using AccountManagement.Domain;
-using AccountManagement.UI.QueryModels;
-using AccountManagement.UI.QueryModels.DocumentDB.Updaters;
 using AccountManagement.UI.QueryModels.Services;
 using Composable.DependencyInjection;
 using Composable.Messaging.Buses;
@@ -13,6 +10,8 @@ namespace AccountManagement.Tests.UI.QueryModels
     {
         protected IServiceLocator ServiceLocator;
         IDisposable _scope;
+        ITestingEndpointHost _host;
+        IEndpoint _domainEndpoint;
         protected IAccountManagementQueryModelsReader QueryModelsReader => ServiceLocator.Lease<IAccountManagementQueryModelsReader>().Instance;
 
         protected void ReplaceContainerScope()
@@ -24,22 +23,10 @@ namespace AccountManagement.Tests.UI.QueryModels
         [SetUp]
         public void SetupContainerAndScope()
         {
+            _host = EndpointHost.Testing.CreateHost(DependencyInjectionContainer.Create);
+            _domainEndpoint = AccountManagementServerDomainBootstrapper.RegisterWith(_host);
 
-            ServiceLocator = DependencyInjectionContainer.CreateServiceLocatorForTesting(container =>
-                                                                                   {
-                                                                                       AccountManagementServerDomainBootstrapper.SetupContainer(container);
-                                                                                       AccountManagementUiQueryModelsBootstrapper.SetupContainer(container);
-                                                                                       AccountManagementUiQueryModelsDocumentDbUpdatersBootstrapper.SetupContainer(container);
-                                                                                   });
-
-            ServiceLocator.Use<IMessageHandlerRegistrar>(registrar =>
-                                                         {
-                                                             AccountManagementServerDomainBootstrapper.RegisterHandlers(new MessageHandlerRegistrarWithDependencyInjectionSupport(registrar, ServiceLocator));
-                                                             AccountManagementUiQueryModelsBootstrapper.RegisterHandlers(registrar, ServiceLocator);
-                                                             AccountManagementUiQueryModelsDocumentDbUpdatersBootstrapper.RegisterHandlers(registrar, ServiceLocator);
-                                                         });
-
-
+            ServiceLocator = _domainEndpoint.ServiceLocator;
 
             _scope = ServiceLocator.BeginScope();
         }
@@ -48,7 +35,7 @@ namespace AccountManagement.Tests.UI.QueryModels
         public void DisposeScopeAndContainer()
         {
             _scope.Dispose();
-            ServiceLocator.Dispose();
+            _host.Dispose();
         }
     }
 }

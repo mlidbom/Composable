@@ -1,5 +1,4 @@
-﻿using AccountManagement.Domain;
-using Composable.DependencyInjection;
+﻿using Composable.DependencyInjection;
 using Composable.Messaging.Buses;
 using Composable.System;
 using NUnit.Framework;
@@ -14,6 +13,7 @@ namespace AccountManagement.Tests.Domain
         StrictAggregateDisposable _managedResources;
         ITestingEndpointHost _host;
         IEndpoint _domainEndpoint;
+        protected IServiceBus ClientBus => _host.ClientBus;
 
         [SetUp] public void SetupContainerAndBeginScope()
         {

@@ -18,6 +18,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\..\framework\AccountManagement.Domain.Events\AccountManagement.Domain.Events.csproj" />
     <ProjectReference Include="..\..\..\framework\Composable.CQRS.ExternalDependencies\Composable.CQRS.ExternalDependencies.csproj" />
     <ProjectReference Include="..\AccountManagement.API\AccountManagement.API.csproj" />
   </ItemGroup>

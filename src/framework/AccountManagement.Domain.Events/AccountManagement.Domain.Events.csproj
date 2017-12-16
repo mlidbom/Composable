@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net461</TargetFramework>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <LangVersion>latest</LangVersion>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Samples\AccountManagement\AccountManagement.API\AccountManagement.API.csproj" />
+    <ProjectReference Include="..\Composable.CQRS\Composable.CQRS.csproj" />
+  </ItemGroup>
+  
+
+</Project>

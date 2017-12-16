@@ -15,7 +15,7 @@ namespace AccountManagement.Domain.ContainerInstallers
 
         public static void RegisterHandlers(MessageHandlerRegistrarWithDependencyInjectionSupport registrar, IServiceLocator serviceLocator)
         {
-            registrar.ForEvent<AccountEvent.PropertyUpdated.Email>(@event => serviceLocator.Use<EmailToAccountMapQueryModelUpdater>(updater => updater.Handle(@event)));
+            registrar.ForEvent((AccountEvent.PropertyUpdated.Email @event, EmailToAccountMapQueryModelUpdater updater) => updater.Handle(@event));
         }
     }
 }

@@ -5,7 +5,7 @@ using Newtonsoft.Json;
 
 namespace AccountManagement.UI.QueryModels
 {
-    public class EmailToAccountMapQueryModel
+    class EmailToAccountMapQueryModel
     {
         [UsedImplicitly] EmailToAccountMapQueryModel() {}
         public EmailToAccountMapQueryModel(Email email, Guid accountId)

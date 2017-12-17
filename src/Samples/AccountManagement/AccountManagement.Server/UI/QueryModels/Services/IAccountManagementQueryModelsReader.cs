@@ -10,7 +10,7 @@ namespace AccountManagement.UI.QueryModels.Services
 
     interface IAccountManagementUiDocumentDbBulkReader : IDocumentDbBulkReader { }
 
-    public interface IAccountManagementQueryModelsReader
+    interface IAccountManagementQueryModelsReader
     {
         AccountQueryModel GetAccount(Guid accountId);
         AccountQueryModel GetAccount(Guid accountId, int version);

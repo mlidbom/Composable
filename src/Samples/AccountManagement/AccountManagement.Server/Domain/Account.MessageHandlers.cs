@@ -6,7 +6,7 @@ using Composable.Messaging.Buses;
 
 namespace AccountManagement.Domain
 {
-    public partial class Account
+    partial class Account
     {
         internal static class MessageHandlers
         {

@@ -2,5 +2,5 @@
 
 namespace AccountManagement.Domain.Services
 {
-    public interface IAccountRepository : IAggregateRepository<Account> {}
+    interface IAccountRepository : IAggregateRepository<Account> {}
 }

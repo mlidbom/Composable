@@ -219,30 +219,31 @@ namespace Composable.Persistence.DocumentDb
                 }
             }
         }
-        public void Prepare(PreparingEnlistment preparingEnlistment)
+
+        void IEnlistmentNotification.Prepare(PreparingEnlistment preparingEnlistment)
         {
-            using(var transactionscope = new TransactionScope(_participatingIn))
+            using(var transactionScope = new TransactionScope(_participatingIn))
             {
                 Log.Debug($"{_id} saving changes. Unit of work: {1}");
                 _handledDocuments.ForEach(p => p.Value.CommitChangesToBackingStore());
-                transactionscope.Complete();
+                transactionScope.Complete();
             }
             preparingEnlistment.Prepared();
         }
 
-        public void Commit(Enlistment enlistment)
+        void IEnlistmentNotification.Commit(Enlistment enlistment)
         {
             _usageGuard.AssertNoContextChangeOccurred(this);
             enlistment.Done();
             _participatingIn = null;
         }
 
-        public void Rollback(Enlistment enlistment)
+        void IEnlistmentNotification.Rollback(Enlistment enlistment)
         {
             _usageGuard.AssertNoContextChangeOccurred(this);
             enlistment.Done();
         }
 
-        public void InDoubt(Enlistment enlistment) { throw new NotImplementedException(); }
+        void IEnlistmentNotification.InDoubt(Enlistment enlistment) => enlistment.Done();
     }
 }

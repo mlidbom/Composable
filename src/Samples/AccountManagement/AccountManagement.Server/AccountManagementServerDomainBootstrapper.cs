@@ -1,4 +1,5 @@
-﻿using AccountManagement.Domain;
+﻿using AccountManagement.API;
+using AccountManagement.Domain;
 using AccountManagement.Domain.QueryModels;
 using AccountManagement.Domain.Services;
 using AccountManagement.UI.QueryModels;
@@ -6,6 +7,7 @@ using AccountManagement.UI.QueryModels.Services;
 using AccountManagement.UI.QueryModels.Services.Implementation;
 using Composable.DependencyInjection;
 using Composable.DependencyInjection.Persistence;
+using Composable.Messaging;
 using Composable.Messaging.Buses;
 using Composable.SystemExtensions.Threading;
 
@@ -62,7 +64,12 @@ namespace AccountManagement
         {
             EmailToAccountMapQueryModel.RegisterHandlers(registrar);
             EmailExistsQueryModel.RegisterHandlers(registrar);
+
+
+            registrar.ForQuery((SingletonQuery<StartResource> query) => new StartResource());
+
             Account.MessageHandlers.RegisterHandlers(registrar);
+
         }
     }
 }

@@ -21,7 +21,7 @@ namespace Composable.Tests.ExternalDependencies.SqlServerDatabasePoolTests
         }
 
         [Test]
-        public void Single_thread_can_reserve_and_release_10_identically_named_databases_in_30_milliseconds()
+        public void Single_thread_can_reserve_and_release_10_identically_named_databases_in_300_milliseconds()
         {
             var dbName = "74EA37DF-03CE-49C4-BDEC-EAD40FAFB3A1";
 
@@ -36,11 +36,11 @@ namespace Composable.Tests.ExternalDependencies.SqlServerDatabasePoolTests
                     }
                 },
                 iterations: 10,
-                maxTotal: 30.Milliseconds());
+                maxTotal: 300.Milliseconds());
         }
 
         [Test]
-        public void Multiple_threads_can_reserve_and_release_10_identically_named_databases_in_50_milliseconds()
+        public void Multiple_threads_can_reserve_and_release_10_identically_named_databases_in_300_milliseconds()
         {
             var dbName = "EB82270F-E0BA-49F7-BC09-79AE95BA109F";
 
@@ -56,11 +56,11 @@ namespace Composable.Tests.ExternalDependencies.SqlServerDatabasePoolTests
                 },
                 iterations: 10,
                 timeIndividualExecutions: true,
-                maxTotal: 50.Milliseconds());
+                maxTotal: 300.Milliseconds());
         }
 
         [Test]
-        public void Multiple_threads_can_reserve_and_release_10_differently_named_databases_in_20_milliseconds()
+        public void Multiple_threads_can_reserve_and_release_10_differently_named_databases_in_300_milliseconds()
         {
             SqlServerDatabasePool manager = null;
 
@@ -74,12 +74,12 @@ namespace Composable.Tests.ExternalDependencies.SqlServerDatabasePoolTests
                 tearDown: () => manager.Dispose(),
                 action: () => manager.ConnectionProviderFor(Guid.NewGuid().ToString()).UseConnection(_ => { }),
                 iterations: 10,
-                maxTotal: 20.Milliseconds()
+                maxTotal: 300.Milliseconds()
             );
         }
 
         [Test]
-        public void Single_thread_can_reserve_and_release_10_differently_named_databases_in_20_milliseconds()
+        public void Single_thread_can_reserve_and_release_10_differently_named_databases_in_300_milliseconds()
         {
             SqlServerDatabasePool manager = null;
 
@@ -93,7 +93,7 @@ namespace Composable.Tests.ExternalDependencies.SqlServerDatabasePoolTests
                 tearDown: () => manager.Dispose(),
                 action: () => manager.ConnectionProviderFor(Guid.NewGuid().ToString()).UseConnection(_ => { }),
                 iterations: 10,
-                maxTotal: 20.Milliseconds()
+                maxTotal: 300.Milliseconds()
             );
         }
 

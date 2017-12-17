@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Composable.System.Linq;
 using Composable.System.Threading;
 using JetBrains.Annotations;
 
@@ -14,18 +15,20 @@ namespace Composable.Testing.Databases
             readonly List<Database> _databases = new List<Database>();
             IReadOnlyList<Database> Databases => _databases;
 
-            internal Database Release(int id) => Get(id).Release();
+            Database Release(int id) => Get(id).Release();
+
+            internal bool IsEmpty => _databases.Count == 0;
 
             internal bool IsValid()
             {
-                if(_databases.Count == 0)
+                if(_databases.Count != 30)
                 {
                     return false;
                 }
 
-                for (var i = 1; i <= _databases.Count; i++)
+                for(var i = 1; i <= _databases.Count; i++)
                 {
-                    if (i != _databases[i - 1].Id)
+                    if(i != _databases[i - 1].Id)
                     {
                         return false;
                     }
@@ -33,32 +36,26 @@ namespace Composable.Testing.Databases
                 return true;
             }
 
-            internal bool NeedsGarbageCollection()
+            internal bool TryReserve(out Database reserved, string reservationName, Guid poolId)
             {
-                var shouldBeGargarbageCollected = Databases.Where(db => db.EligibleForGarbageCollection).Count();
-                var freeAndClear = Databases.Where(db => db.FreeAndClean).Count();
+                CollectGarbage();
 
-                if(shouldBeGargarbageCollected > freeAndClear)
+                reserved = _databases.Where(db => !db.IsReserved)
+                                     .OrderBy(db => db.ReservationDate)
+                                     .FirstOrDefault();
+
+                if(reserved == null)
                 {
-                    return true;
+                    return false;
                 }
 
-                if(shouldBeGargarbageCollected > 40)
-                {
-                    return true;
-                }
-
-                if(freeAndClear < 20)
-                {
-                    return true;
-                }
-
-                return false;
+                reserved.Reserve(reservationName, poolId);
+                return true;
             }
 
-            internal IReadOnlyList<Database> ReserveDatabasesForGarbageCollection()
+            void CollectGarbage()
             {
-                var toCollect = Databases.Where(db => db.EligibleForGarbageCollection).OrderBy(db => db.ReservationDate).Take(30).ToList();
+                var toCollect = Databases.Where(db => db.ShouldBeReleased).OrderBy(db => db.ReservationDate).Take(30).ToList();
 
                 foreach(var database in toCollect)
                 {
@@ -69,23 +66,10 @@ namespace Composable.Testing.Databases
                     database.Reserve("Garbage_collection_task", Guid.NewGuid());
                 }
 
-                return toCollect;
+                toCollect.ForEach(db => Release(db.Id).Clean());
             }
 
-            internal bool TryReserve(out Database reserved, string reservationName, Guid poolId)
-            {
-                var unreserved = _databases.Where(db => db.FreeAndClean)
-                                           .OrderBy(db => db.ReservationDate)
-                                           .ToList();
-
-                reserved = unreserved.FirstOrDefault();
-                if(reserved == null)
-                {
-                    return false;
-                }
-                reserved.Reserve(reservationName, poolId);
-                return true;
-            }
+            internal void ReleaseReservationsFor(Guid poolId) { DatabasesReservedBy(poolId).ForEach(db => db.Release()); }
 
             internal IReadOnlyList<Database> DatabasesReservedBy(Guid poolId) => _databases.Where(db => db.IsReserved && db.ReservedByPoolId == poolId)
                                                                                            .ToList();
@@ -99,14 +83,11 @@ namespace Composable.Testing.Databases
 
             Database Get(int id) => _databases.Single(db => db.Id == id);
 
-            internal void Reset()
-            {
-                _databases.Clear();
-            }
+            internal void Reset() { _databases.Clear(); }
 
             public void Deserialize(BinaryReader reader)
             {
-                while(reader.ReadBoolean())//I use negative boolean to mark end of object
+                while(reader.ReadBoolean()) //I use negative boolean to mark end of object
                 {
                     var database = new Database();
                     database.Deserialize(reader);
@@ -117,11 +98,11 @@ namespace Composable.Testing.Databases
             public void Serialize(BinaryWriter writer)
             {
                 _databases.ForEach(db =>
-                                  {
-                                      writer.Write(true);
-                                      db.Serialize(writer);
-                                  });
-                writer.Write(false);//use false to mark end of graph
+                {
+                    writer.Write(true);
+                    db.Serialize(writer);
+                });
+                writer.Write(false); //use false to mark end of graph
             }
         }
     }

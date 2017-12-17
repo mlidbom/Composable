@@ -78,7 +78,7 @@ namespace Composable.Testing.Databases
             }
 
             var startTime = DateTime.Now;
-            var timeoutAt = startTime + 5.Seconds();
+            var timeoutAt = startTime + 15.Seconds();
             while(reservedDatabase == null)
             {
                 if(DateTime.Now > timeoutAt)

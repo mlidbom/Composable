@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Threading.Tasks;
 using System.Transactions;
 using Composable.Contracts;
 using Composable.Logging;
@@ -82,8 +81,9 @@ namespace Composable.Testing.Databases
                             {
                                 if(!machineWide.IsValid())
                                 {
-                                    _log.Error(null, "Detected corruct database pool. Rebooting pool");
+                                    _log.Error(null, "Detected corrupt database pool. Rebooting pool");
                                     RebootPool(machineWide);
+                                    throw new Exception("Detected corrupt database pool. Pool was rebooted");
                                 }
 
 
@@ -102,48 +102,17 @@ namespace Composable.Testing.Databases
                                 snapshot = machineWide;
                             }));
 
-                if (snapshot.NeedsGarbageCollection())
-                {
-                    ScheduleGarbageCollectionOnBackgroundThread();
-                }
-
+                ResetDatabase(database);
             }
 
             return new Connection(database, reservationName, this);
         }
 
-
-        void ScheduleGarbageCollectionOnBackgroundThread()
+        void ResetDatabase(Database db)
         {
-            Task.Run(() =>
-                     {
-                         IReadOnlyList<Database> toCleanAndRelease = null;
-                         _machineWideState.Update(machineWide =>
-                                                  {
-                                                      if(machineWide.NeedsGarbageCollection())
-                                                      {
-                                                          toCleanAndRelease = machineWide.ReserveDatabasesForGarbageCollection();
-                                                      }
-                                                  });
-
-                         toCleanAndRelease.ForEach(db => Task.Run(() =>
-                                                           {
-                                                               _log.Debug($"Cleaning: {db.Id}");
-                                                               try
-                                                               {
-                                                                   TransactionScopeCe.SuppressAmbient(
-                                                                       () => new SqlServerConnection(db.ConnectionString(this))
-                                                                           .UseConnection(action: connection => connection.DropAllObjectsAndSetReadCommittedSnapshotIsolationLevel()));
-                                                                   _machineWideState.Update(machineWide => machineWide.Release(db.Id)
-                                                                                                                      .Clean());
-                                                               }
-                                                               catch(Exception exception)
-                                                               {
-                                                                   ScheduleForRebooting();
-                                                                   throw new Exception("Garbage collection failed and pool has been scheduled for Reboot", exception);
-                                                               }
-                                                           }));
-                     });
+            TransactionScopeCe.SuppressAmbient(
+                () => new SqlServerConnection(db.ConnectionString(this))
+                    .UseConnection(action: connection => connection.DropAllObjectsAndSetReadCommittedSnapshotIsolationLevel()));
         }
 
         internal string ConnectionStringForDbNamed(string dbName)
@@ -161,18 +130,13 @@ namespace Composable.Testing.Databases
             return database;
         }
 
-        void ReleaseReservedOnBackgroundThread()
-        {
-            Task.Run(() => _machineWideState.Update(machineWide => machineWide.DatabasesReservedBy(_poolId)
-                                                                              .ForEach(db => db.Release())));
-        }
-
         protected override void InternalDispose()
         {
             if (!_disposed)
             {
                 _disposed = true;
-                ReleaseReservedOnBackgroundThread();
+                _machineWideState.Update(machineWide => machineWide.DatabasesReservedBy(_poolId)
+                                                                                  .ForEach(db => db.Release()));
             }
         }
     }

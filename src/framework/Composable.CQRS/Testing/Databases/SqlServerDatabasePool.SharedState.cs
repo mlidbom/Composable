@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Composable.System.Linq;
 using Composable.System.Threading;
 using JetBrains.Annotations;
 
@@ -74,6 +75,7 @@ namespace Composable.Testing.Databases
 
             internal bool TryReserve(out Database reserved, string reservationName, Guid poolId)
             {
+                CollectGarbage();
                 var unreserved = _databases.Where(db => db.FreeAndClean)
                                            .OrderBy(db => db.ReservationDate)
                                            .ToList();
@@ -86,6 +88,8 @@ namespace Composable.Testing.Databases
                 reserved.Reserve(reservationName, poolId);
                 return true;
             }
+
+            void CollectGarbage() { ReserveDatabasesForGarbageCollection().ForEach(db => Release(db.Id).Clean()); }
 
             internal IReadOnlyList<Database> DatabasesReservedBy(Guid poolId) => _databases.Where(db => db.IsReserved && db.ReservedByPoolId == poolId)
                                                                                            .ToList();

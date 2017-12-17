@@ -25,6 +25,8 @@ namespace Composable.Testing.Databases
         static readonly string DatabaseRootFolderOverride;
         static readonly HashSet<string> RebootedMasterConnections = new HashSet<string>();
 
+        readonly TimeSpan _reservationLength;
+
         readonly Guid _poolId = Guid.NewGuid();
 
         static SqlServerDatabasePool()
@@ -53,6 +55,8 @@ namespace Composable.Testing.Databases
 
         public SqlServerDatabasePool(string masterConnectionString)
         {
+            _reservationLength = global::System.Diagnostics.Debugger.IsAttached ? 10.Minutes() : 1.Minutes();
+
             _machineWideState = MachineWideSharedObject<SharedState>.For(masterConnectionString, usePersistentFile: true);
             _masterConnectionString = masterConnectionString;
 
@@ -97,14 +101,14 @@ namespace Composable.Testing.Databases
                                     RebootPool(machineWide);
                                 }
 
-                                if(!machineWide.IsValid())
+                                if(!machineWide.IsValid)
                                 {
                                     _log.Error(null, "Detected corrupt database pool. Rebooting pool");
                                     RebootPool(machineWide);
                                     thrownException = new Exception("Detected corrupt database pool.Rebooting pool");
                                 }
 
-                                if(machineWide.TryReserve(out reservedDatabase, reservationName, _poolId))
+                                if(machineWide.TryReserve(out reservedDatabase, reservationName, _poolId, _reservationLength))
                                 {
                                     ResetDatabase(reservedDatabase);
                                     _log.Info($"Reserved pool database: {reservedDatabase.Id}");

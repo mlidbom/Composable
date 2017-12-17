@@ -14,7 +14,7 @@ namespace Composable.Testing.Databases
             internal int Id { get; private set; }
             internal bool IsReserved { get; private set; }
             internal bool IsClean { get; private set; } = true;
-            public DateTime ReservationDate { get; private set; } = DateTime.MaxValue;
+            public DateTime ExpirationDateTime { get; private set; } = DateTime.MinValue;
             internal string ReservationName { get; private set; } = string.Empty;
             internal Guid ReservedByPoolId { get; private set; } = Guid.Empty;
 
@@ -22,8 +22,7 @@ namespace Composable.Testing.Databases
             internal Database(int id) => Id = id;
             internal Database(string name) : this(IdFromName(name)) { }
 
-            internal bool ReservationIsExpired => ReservationDate < DateTime.UtcNow - 1.Minutes();
-            internal bool ShouldBeReleased => IsReserved && ReservationIsExpired;
+            internal bool ShouldBeReleased => IsReserved && ExpirationDateTime < DateTime.UtcNow;
             internal bool IsFree => !IsReserved;
 
             static int IdFromName(string name)
@@ -37,7 +36,6 @@ namespace Composable.Testing.Databases
                 OldContract.Assert.That(IsReserved, "IsReserved");
                 IsReserved = false;
                 IsClean = false;
-                ReservationDate = DateTime.UtcNow;//We reuse this value to hold the release time.
                 ReservationName = string.Empty;
                 ReservedByPoolId = Guid.Empty;
                 return this;
@@ -50,14 +48,14 @@ namespace Composable.Testing.Databases
                 return this;
             }
 
-            internal Database Reserve(string reservationName, Guid poolId)
+            internal Database Reserve(string reservationName, Guid poolId, TimeSpan reservationLength)
             {
                 OldContract.Assert.That(!IsReserved, "!IsReserved");
                 OldContract.Assert.That(poolId != Guid.Empty, "poolId != Guid.Empty");
 
                 IsReserved = true;
                 ReservationName = reservationName;
-                ReservationDate = DateTime.UtcNow;
+                ExpirationDateTime = DateTime.UtcNow + reservationLength;
                 ReservedByPoolId = poolId;
                 return this;
             }
@@ -66,7 +64,7 @@ namespace Composable.Testing.Databases
             {
                 Id = reader.ReadInt32();
                 IsReserved = reader.ReadBoolean();
-                ReservationDate = DateTime.FromBinary(reader.ReadInt64());
+                ExpirationDateTime = DateTime.FromBinary(reader.ReadInt64());
                 ReservationName = reader.ReadString();
                 ReservedByPoolId = new Guid(reader.ReadBytes(16));
                 IsClean = reader.ReadBoolean();
@@ -76,13 +74,13 @@ namespace Composable.Testing.Databases
             {
                 writer.Write(Id);
                 writer.Write(IsReserved);
-                writer.Write(ReservationDate.ToBinary());
+                writer.Write(ExpirationDateTime.ToBinary());
                 writer.Write(ReservationName);
                 writer.Write(ReservedByPoolId.ToByteArray());
                 writer.Write(IsClean);
             }
 
-            public override string ToString() => $"{nameof(Id)}: {Id}, {nameof(IsReserved)}: {IsReserved}, {nameof(ReservationDate)}: {ReservationDate}, {nameof(ReservationName)}:{ReservationName}, {nameof(ReservedByPoolId)}:{ReservedByPoolId}";
+            public override string ToString() => $"{nameof(Id)}: {Id}, {nameof(IsReserved)}: {IsReserved}, {nameof(ExpirationDateTime)}: {ExpirationDateTime}, {nameof(ReservationName)}:{ReservationName}, {nameof(ReservedByPoolId)}:{ReservedByPoolId}";
         }
     }
 }

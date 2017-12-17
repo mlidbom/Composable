@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
-using System.Threading.Tasks;
 using Composable.System.Configuration;
 using Composable.System.Linq;
-using Composable.System.Threading;
 
 namespace Composable.System
 {
@@ -54,34 +52,12 @@ namespace Composable.System
     ///</example>
     class StrictlyManagedResource<TManagedResource> : IStrictlyManagedResource where TManagedResource : IStrictlyManagedResource
     {
-        // ReSharper disable once StaticMemberInGenericType
-        public static Action<StrictlyManagedResourceWasFinalizedException> ThrowCreatedExceptionWhenFinalizerIsCalled = exception => throw exception;
-        // ReSharper disable once StaticMemberInGenericType
-        public static Action<StrictlyManagedResourceLifespanWasExceededException> ThrowCreatedExceptionWhenLifespanWasExceeded = exception => throw exception;
-
         static readonly bool CollectStacktraces = StrictlyManagedResources.CollectStackTracesFor<TManagedResource>();
-        public StrictlyManagedResource(TimeSpan? maxLifetime = null, bool forceStackTraceCollection = false)
+        public StrictlyManagedResource(bool forceStackTraceCollection = false)
         {
             if(forceStackTraceCollection || CollectStacktraces || StrictlyManagedResources.CollectStackTracesForAllStrictlyManagedResources)
             {
                 ReservationCallStack = new StackTrace(fNeedFileInfo:false).ToString();
-            }
-            if(maxLifetime.HasValue)
-            {
-#pragma warning disable 4014
-                ScheduleDisposalAndExistenceTest(this, maxLifetime.Value);
-#pragma warning restore 4014
-            }
-        }
-
-        // ReSharper disable once UnusedMethodReturnValue.Local
-        static async Task ScheduleDisposalAndExistenceTest(StrictlyManagedResource<TManagedResource> resource, TimeSpan maxLifeSpan)
-        {
-            var resourceReference = new WeakReference<StrictlyManagedResource<TManagedResource>>(resource);
-            await Task.Delay(maxLifeSpan).NoMarshalling();
-            if (resourceReference.TryGetTarget(out var stillLivingResource) && !stillLivingResource._disposed)
-            {
-                ThrowCreatedExceptionWhenLifespanWasExceeded(new StrictlyManagedResourceLifespanWasExceededException(stillLivingResource.GetType(), stillLivingResource.ReservationCallStack, maxLifeSpan));
             }
         }
 
@@ -99,7 +75,7 @@ namespace Composable.System
         {
             if(!_disposed)
             {
-                ThrowCreatedExceptionWhenFinalizerIsCalled(new StrictlyManagedResourceWasFinalizedException(GetType(), ReservationCallStack));
+                throw new StrictlyManagedResourceWasFinalizedException(GetType(), ReservationCallStack);
             }
         }
     }

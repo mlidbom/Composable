@@ -26,7 +26,7 @@ namespace AccountManagement
                                                  });
         }
 
-        public static void SetupContainer(IDependencyInjectionContainer container)
+        static void SetupContainer(IDependencyInjectionContainer container)
         {
             RegisterDomainComponents(container);
 
@@ -70,7 +70,7 @@ namespace AccountManagement
             );
         }
 
-        public static void RegisterHandlers(MessageHandlerRegistrarWithDependencyInjectionSupport registrar)
+        static void RegisterHandlers(MessageHandlerRegistrarWithDependencyInjectionSupport registrar)
         {
             EmailToAccountMapQueryModel.RegisterHandlers(registrar);
             EmailExistsQueryModel.RegisterHandlers(registrar);

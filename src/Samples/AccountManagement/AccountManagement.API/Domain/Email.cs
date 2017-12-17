@@ -23,7 +23,7 @@ namespace AccountManagement.Domain
 
         Email(string emailAddress)
         {
-            Validate(emailAddress);
+            AssertIsValid(emailAddress);
             Value = emailAddress;
         }
 
@@ -57,7 +57,7 @@ namespace AccountManagement.Domain
         public static Email Parse(string emailAddress) => new Email(emailAddress);
 
         //Note how all the exceptions contain the invalid email address. Always make sure that exceptions contain the relevant information.
-        static void Validate(string emailAddress)
+        static void AssertIsValid(string emailAddress)
         {
             if(!IsValidEmail(emailAddress))
             {

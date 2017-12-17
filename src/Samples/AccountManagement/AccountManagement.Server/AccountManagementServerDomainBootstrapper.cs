@@ -2,7 +2,6 @@
 using AccountManagement.Domain.QueryModels;
 using AccountManagement.Domain.Services;
 using AccountManagement.UI.QueryModels;
-using AccountManagement.UI.QueryModels.EventStoreGenerated;
 using AccountManagement.UI.QueryModels.Services;
 using AccountManagement.UI.QueryModels.Services.Implementation;
 using Composable.DependencyInjection;
@@ -37,13 +36,13 @@ namespace AccountManagement
 
             container.Register(
                 Component.For<IAccountManagementQueryModelsReader>()
-                         .UsingFactoryMethod((IAccountManagementUiDocumentDbReader documentDbQueryModels, AccountQueryModelGenerator accountQueryModelGenerator, ISingleContextUseGuard usageGuard) =>
+                         .UsingFactoryMethod((IAccountManagementUiDocumentDbReader documentDbQueryModels, AccountQueryModel.Generator accountQueryModelGenerator, ISingleContextUseGuard usageGuard) =>
                                                  new AccountManagementQueryModelReader(documentDbQueryModels, accountQueryModelGenerator, usageGuard))
                          .LifestyleScoped()
             );
 
-            container.Register(Component.For<AccountQueryModelGenerator>()
-                                        .ImplementedBy<AccountQueryModelGenerator>()
+            container.Register(Component.For<AccountQueryModel.Generator>()
+                                        .UsingFactoryMethod((IAccountManagementEventStoreReader session) => new AccountQueryModel.Generator(session))
                                         .LifestyleScoped());
         }
 

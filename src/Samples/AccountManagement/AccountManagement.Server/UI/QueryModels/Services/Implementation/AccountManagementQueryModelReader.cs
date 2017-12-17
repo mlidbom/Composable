@@ -1,6 +1,5 @@
 ﻿using System;
 using AccountManagement.Domain;
-using AccountManagement.UI.QueryModels.EventStoreGenerated;
 using Composable.Persistence.EventStore.Query.Models.Generators;
 using Composable.SystemExtensions.Threading;
 using JetBrains.Annotations;
@@ -13,7 +12,7 @@ namespace AccountManagement.UI.QueryModels.Services.Implementation
         readonly QueryModelGeneratingDocumentDbReader _generatedModels;
 
         public AccountManagementQueryModelReader(IAccountManagementUiDocumentDbReader documentDbQueryModels,
-                                                 AccountQueryModelGenerator accountQueryModelGenerator,
+                                                 AccountQueryModel.Generator accountQueryModelGenerator,
                                                  ISingleContextUseGuard usageGuard)
         {
             _documentDbQueryModels = documentDbQueryModels;

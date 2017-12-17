@@ -1,14 +1,12 @@
-﻿using System.Linq;
-using AccountManagement.Domain;
+﻿using AccountManagement.Domain;
 using FluentAssertions;
-using JetBrains.Annotations;
 using Xunit;
 // ReSharper disable InconsistentNaming
 // ReSharper disable ClassNeverInstantiated.Global
 
 namespace AccountManagement.Tests.Domain
 {
-    [UsedImplicitly] public class PasswordSpecification
+    public class PasswordSpecification
     {
         public class When_creating_a_password
         {

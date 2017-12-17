@@ -1,4 +1,5 @@
-﻿These classes implement the ability to create query models ad hoc by using the events from the event store. 
+﻿AccountQuerymodel is an example of an eventstore generated query model.
+Such query models implement the ability to create query models ad hoc by using the events from the event store. 
 
 Advantages:
 * You don't need to spend time populating/Repopulating the query models.

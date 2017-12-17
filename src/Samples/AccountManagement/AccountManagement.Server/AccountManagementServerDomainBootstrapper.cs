@@ -29,13 +29,10 @@ namespace AccountManagement
         {
             RegisterDomainComponents(container);
 
-            container.RegisterSqlServerDocumentDb<
-                IAccountManagementUiDocumentDbUpdater,
-                IAccountManagementUiDocumentDbReader,
-                IAccountManagementUiDocumentDbBulkReader>(ConnectionStringName);
+            container.RegisterSqlServerDocumentDb<IAccountManagementUiDocumentDbUpdater, IAccountManagementUiDocumentDbReader, IAccountManagementUiDocumentDbBulkReader>(ConnectionStringName);
 
             container.Register(
-                Component.For<IAccountManagementQueryModelsReader>()
+                Component.For<AccountManagementQueryModelReader>()
                          .UsingFactoryMethod((IAccountManagementUiDocumentDbReader documentDbQueryModels, AccountQueryModel.Generator accountQueryModelGenerator, ISingleContextUseGuard usageGuard) =>
                                                  new AccountManagementQueryModelReader(documentDbQueryModels, accountQueryModelGenerator, usageGuard))
                          .LifestyleScoped()
@@ -49,15 +46,9 @@ namespace AccountManagement
 
         static void RegisterDomainComponents(IDependencyInjectionContainer container)
         {
-            container.RegisterSqlServerEventStore<
-                IAccountManagementEventStoreUpdater,
-                IAccountManagementEventStoreReader>(ConnectionStringName);
+            container.RegisterSqlServerEventStore<IAccountManagementEventStoreUpdater, IAccountManagementEventStoreReader>(ConnectionStringName);
 
-            container
-                .RegisterSqlServerDocumentDb<
-                    IAccountManagementDomainDocumentDbUpdater,
-                    IAccountManagementDomainDocumentDbReader,
-                    IAccountManagementDomainDocumentDbBulkReader>(ConnectionStringName);
+            container.RegisterSqlServerDocumentDb<IAccountManagementDomainDocumentDbUpdater, IAccountManagementDomainDocumentDbReader, IAccountManagementDomainDocumentDbBulkReader>(ConnectionStringName);
 
             container.Register(
                 Component.For<IAccountRepository>()

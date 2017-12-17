@@ -2,6 +2,7 @@
 using AccountManagement.Domain;
 using AccountManagement.Domain.Events;
 using AccountManagement.UI.QueryModels.Services;
+using AccountManagement.UI.QueryModels.Services.Implementation;
 using Composable.Messaging.Buses;
 using JetBrains.Annotations;
 using Newtonsoft.Json;
@@ -23,7 +24,7 @@ namespace AccountManagement.UI.QueryModels
 
         internal static void RegisterHandlers(MessageHandlerRegistrarWithDependencyInjectionSupport registrar)
         {
-            registrar.ForEvent((AccountEvent.PropertyUpdated.Email message, IAccountManagementQueryModelsReader generatedModels, IAccountManagementUiDocumentDbUpdater documentDbModels) =>
+            registrar.ForEvent((AccountEvent.PropertyUpdated.Email message, AccountManagementQueryModelReader generatedModels, IAccountManagementUiDocumentDbUpdater documentDbModels) =>
             {
                 if (message.AggregateRootVersion > 1)
                 {

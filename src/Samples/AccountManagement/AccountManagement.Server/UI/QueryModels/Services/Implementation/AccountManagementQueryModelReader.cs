@@ -6,7 +6,7 @@ using JetBrains.Annotations;
 
 namespace AccountManagement.UI.QueryModels.Services.Implementation
 {
-    [UsedImplicitly] class AccountManagementQueryModelReader : IAccountManagementQueryModelsReader
+    [UsedImplicitly] class AccountManagementQueryModelReader
     {
         readonly IAccountManagementUiDocumentDbReader _documentDbQueryModels;
         readonly QueryModelGeneratingDocumentDbReader _generatedModels;

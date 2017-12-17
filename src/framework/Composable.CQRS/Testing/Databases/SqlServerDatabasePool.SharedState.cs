@@ -17,6 +17,8 @@ namespace Composable.Testing.Databases
 
             Database Release(int id) => Get(id).Release();
 
+            internal bool IsEmpty => _databases.Count == 0;
+
             internal bool IsValid()
             {
                 if(_databases.Count == 0)
@@ -38,7 +40,7 @@ namespace Composable.Testing.Databases
             {
                 CollectGarbage();
 
-                reserved = _databases.Where(db => db.FreeAndClean)
+                reserved = _databases.Where(db => !db.IsReserved)
                                      .OrderBy(db => db.ReservationDate)
                                      .FirstOrDefault();
 
@@ -53,7 +55,7 @@ namespace Composable.Testing.Databases
 
             void CollectGarbage()
             {
-                var toCollect = Databases.Where(db => db.EligibleForGarbageCollection).OrderBy(db => db.ReservationDate).Take(30).ToList();
+                var toCollect = Databases.Where(db => db.ShouldBeReleased).OrderBy(db => db.ReservationDate).Take(30).ToList();
 
                 foreach(var database in toCollect)
                 {

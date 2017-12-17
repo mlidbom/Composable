@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Transactions;
 using Composable.Contracts;
 using Composable.Logging;
@@ -9,6 +10,7 @@ using Composable.System;
 using Composable.System.Data.SqlClient;
 using Composable.System.Linq;
 using Composable.System.Threading;
+using Composable.System.Threading.ResourceAccess;
 using Composable.System.Transactions;
 
 namespace Composable.Testing.Databases
@@ -19,6 +21,7 @@ namespace Composable.Testing.Databases
         readonly SqlServerConnection _masterConnection;
 
         readonly MachineWideSharedObject<SharedState> _machineWideState;
+        readonly IResourceGuard _guard = ResourceGuard.WithTimeout(30.Seconds());
 
         static readonly string DatabaseRootFolderOverride;
         static readonly HashSet<string> RebootedMasterConnections = new HashSet<string>();
@@ -28,7 +31,7 @@ namespace Composable.Testing.Databases
         static SqlServerDatabasePool()
         {
             var tempDirectory = Environment.GetEnvironmentVariable("COMPOSABLE_TEMP_DRIVE");
-            if (tempDirectory.IsNullOrWhiteSpace())
+            if(tempDirectory.IsNullOrWhiteSpace())
                 return;
 
             if(!Directory.Exists(tempDirectory))
@@ -45,7 +48,7 @@ namespace Composable.Testing.Databases
 
         ILogger _log = Logger.For<SqlServerDatabasePool>();
 
-        public void SetLogLevel(LogLevel logLevel) => _log = _log.WithLogLevel(logLevel);
+        public void SetLogLevel(LogLevel logLevel) => _guard.Update(() => _log = _log.WithLogLevel(logLevel));
 
         internal static readonly string PoolDatabaseNamePrefix = $"{nameof(SqlServerDatabasePool)}_";
 
@@ -55,7 +58,7 @@ namespace Composable.Testing.Databases
             _masterConnectionString = masterConnectionString;
 
             OldContract.Assert.That(_masterConnectionString.Contains(InitialCatalogMaster),
-                                 $"MasterDB connection string must contain the exact string: '{InitialCatalogMaster}' this is required for technical optimization reasons");
+                                    $"MasterDB connection string must contain the exact string: '{InitialCatalogMaster}' this is required for technical optimization reasons");
             _masterConnection = new SqlServerConnection(_masterConnectionString);
         }
 
@@ -63,47 +66,72 @@ namespace Composable.Testing.Databases
         const string InitialCatalogMaster = ";Initial Catalog=master;";
 
         IReadOnlyList<Database> _transientCache = new List<Database>();
-        public ISqlConnection ConnectionProviderFor(string reservationName)
+        public ISqlConnection ConnectionProviderFor(string reservationName) => _guard.Update(() =>
         {
             OldContract.Assert.That(!_disposed, "!_disposed");
 
-            var database = _transientCache.SingleOrDefault(db => db.IsReserved && db.ReservedByPoolId == _poolId && db.ReservationName == reservationName);
-            if(database != null)
+            var reservedDatabase = _transientCache.SingleOrDefault(db => db.IsReserved && db.ReservedByPoolId == _poolId && db.ReservationName == reservationName);
+            if(reservedDatabase != null)
             {
-                _log.Debug($"Retrieved reserved pool database: {database.Id}");
-            } else
+                _log.Debug($"Retrieved reserved pool database: {reservedDatabase.Id}");
+                return new Connection(reservedDatabase, reservationName, this);
+            }
+
+            var startTime = DateTime.Now;
+            var timeoutAt = startTime + 5.Seconds();
+            while(reservedDatabase == null)
             {
+                if(DateTime.Now > timeoutAt)
+                {
+                    throw new Exception("Timed out waiting for database. Have you missed disposing a database pool? Please check your logs for errors about non-disposed pools.");
+                }
+
+                Exception thrownException = null;
                 TransactionScopeCe.SuppressAmbient(
-                    () =>
-                        _machineWideState.Update(
-                            machineWide =>
+                    () => _machineWideState.Update(
+                        machineWide =>
+                        {
+                            try
                             {
+                                if(machineWide.IsEmpty)
+                                {
+                                    RebootPool(machineWide);
+                                }
+
                                 if(!machineWide.IsValid())
                                 {
                                     _log.Error(null, "Detected corrupt database pool. Rebooting pool");
                                     RebootPool(machineWide);
-                                    throw new Exception("Detected corrupt database pool. Pool was rebooted");
+                                    thrownException = new Exception("Detected corrupt database pool.Rebooting pool");
                                 }
 
-                                if (machineWide.TryReserve(out database, reservationName, _poolId))
+                                if(machineWide.TryReserve(out reservedDatabase, reservationName, _poolId))
                                 {
-                                    _log.Info($"Reserved pool database: {database.Id}");
-                                } else
-                                {
-                                    database = InsertDatabase(machineWide);
-                                    database.Reserve(reservationName, _poolId);
+                                    ResetDatabase(reservedDatabase);
+                                    _log.Info($"Reserved pool database: {reservedDatabase.Id}");
+                                    _transientCache = machineWide.DatabasesReservedBy(_poolId);
                                 }
+                            }
+                            catch(Exception exception)
+                            {
+                                RebootPool(machineWide);
+                                thrownException = exception;
+                            }
+                        }));
 
-                                OldContract.Assert.That(database.IsClean, "database.IsClean");
+                if(thrownException != null)
+                {
+                    throw new Exception("Something went wrong with the database pool and it was rebooted. You may see other test failures due to this", thrownException);
+                }
 
-                                _transientCache = machineWide.DatabasesReservedBy(_poolId);
-                            }));
-
-                ResetDatabase(database);
+                if(reservedDatabase == null)
+                {
+                    Thread.Sleep(10);
+                }
             }
 
-            return new Connection(database, reservationName, this);
-        }
+            return new Connection(reservedDatabase, reservationName, this);
+        });
 
         void ResetDatabase(Database db)
         {
@@ -113,14 +141,14 @@ namespace Composable.Testing.Databases
         }
 
         internal string ConnectionStringForDbNamed(string dbName)
-            => _masterConnectionString.Replace(InitialCatalogMaster,$";Initial Catalog={dbName};");
+            => _masterConnectionString.Replace(InitialCatalogMaster, $";Initial Catalog={dbName};");
 
         Database InsertDatabase(SharedState machineWide)
         {
             var database = machineWide.Insert();
 
             _log.Warning($"Creating database: {database.Id}");
-            using (new TransactionScope(TransactionScopeOption.Suppress))
+            using(new TransactionScope(TransactionScopeOption.Suppress))
             {
                 CreateDatabase(database.Name());
             }

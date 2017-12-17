@@ -1,7 +1,7 @@
 ﻿using AccountManagement.Domain;
-using AccountManagement.Domain.Events;
-using AccountManagement.Domain.QueryModels.Updaters;
+using AccountManagement.Domain.QueryModels;
 using AccountManagement.Domain.Services;
+using AccountManagement.UI.QueryModels;
 using AccountManagement.UI.QueryModels.EventStoreGenerated;
 using AccountManagement.UI.QueryModels.Services;
 using AccountManagement.UI.QueryModels.Services.Implementation;
@@ -45,13 +45,6 @@ namespace AccountManagement
             container.Register(Component.For<AccountQueryModelGenerator>()
                                         .ImplementedBy<AccountQueryModelGenerator>()
                                         .LifestyleScoped());
-
-            container.Register(Component.For<EmailExistsQueryModelUpdater>()
-                                        .ImplementedBy<EmailExistsQueryModelUpdater>()
-                                        .LifestyleScoped(),
-                               Component.For<UI.QueryModels.DocumentDB.Updaters.EmailToAccountMapQueryModelUpdater>()
-                                        .ImplementedBy<UI.QueryModels.DocumentDB.Updaters.EmailToAccountMapQueryModelUpdater>()
-                                        .LifestyleScoped());
         }
 
 
@@ -79,10 +72,8 @@ namespace AccountManagement
 
         public static void RegisterHandlers(MessageHandlerRegistrarWithDependencyInjectionSupport registrar)
         {
-            registrar.ForEvent((AccountEvent.PropertyUpdated.Email @event, UI.QueryModels.DocumentDB.Updaters.EmailToAccountMapQueryModelUpdater updater) => updater.Handle(@event));
-
-            registrar.ForEvent((AccountEvent.PropertyUpdated.Email @event, EmailExistsQueryModelUpdater updater) => updater.Handle(@event));
-
+            EmailToAccountMapQueryModel.RegisterHandlers(registrar);
+            EmailExistsQueryModel.RegisterHandlers(registrar);
             Account.MessageHandlers.RegisterHandlers(registrar);
         }
     }

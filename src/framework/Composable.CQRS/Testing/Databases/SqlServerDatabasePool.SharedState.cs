@@ -21,7 +21,7 @@ namespace Composable.Testing.Databases
 
             internal bool IsValid()
             {
-                if(_databases.Count == 0)
+                if(_databases.Count != 30)
                 {
                     return false;
                 }

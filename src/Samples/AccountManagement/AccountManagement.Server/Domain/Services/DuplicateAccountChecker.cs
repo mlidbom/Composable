@@ -14,7 +14,7 @@ namespace AccountManagement.Domain.Services
         {
             OldContract.Argument(() => email).NotNull();
 
-            if(_querymodels.TryGet(email, out EmailToAccountMapQueryModel _))
+            if(_querymodels.TryGet(email, out EmailExistsQueryModel _))
             {
                 throw new DuplicateAccountException(email);
             }

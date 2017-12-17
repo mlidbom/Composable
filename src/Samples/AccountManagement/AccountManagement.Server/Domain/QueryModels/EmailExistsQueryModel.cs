@@ -5,11 +5,11 @@ using JetBrains.Annotations;
 namespace AccountManagement.Domain.QueryModels
 {
     //todo: Hmm, does not use the account id, so what exactly is this for? Does not seem to match the name.
-    class EmailToAccountMapQueryModel
+    class EmailExistsQueryModel
     {
-        EmailToAccountMapQueryModel() { }
+        EmailExistsQueryModel() { }
 
-        public EmailToAccountMapQueryModel(Email email, Guid accountId)
+        public EmailExistsQueryModel(Email email, Guid accountId)
         {
             OldContract.Argument(() => email, () => accountId).NotNullOrDefault();
 

@@ -5,12 +5,12 @@ using JetBrains.Annotations;
 namespace AccountManagement.Domain.QueryModels.Updaters
 {
     [UsedImplicitly]
-    class EmailToAccountMapQueryModelUpdater
+    class EmailExistsQueryModelUpdater
     {
         readonly IAccountManagementDomainDocumentDbUpdater _querymodels;
         readonly IAccountRepository _repository;
 
-        public EmailToAccountMapQueryModelUpdater(IAccountManagementDomainDocumentDbUpdater querymodels, IAccountRepository repository)
+        public EmailExistsQueryModelUpdater(IAccountManagementDomainDocumentDbUpdater querymodels, IAccountRepository repository)
         {
             _querymodels = querymodels;
             _repository = repository;
@@ -25,12 +25,12 @@ namespace AccountManagement.Domain.QueryModels.Updaters
 
                 if(previousEmail != null)
                 {
-                    _querymodels.Delete<EmailToAccountMapQueryModel>(previousEmail);
+                    _querymodels.Delete<EmailExistsQueryModel>(previousEmail);
                 }
             }
 
             var newEmail = message.Email;
-            _querymodels.Save(newEmail, new EmailToAccountMapQueryModel(newEmail, message.AggregateRootId));
+            _querymodels.Save(newEmail, new EmailExistsQueryModel(newEmail, message.AggregateRootId));
         }
     }
 }

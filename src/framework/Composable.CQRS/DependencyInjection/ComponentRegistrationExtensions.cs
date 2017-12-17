@@ -2,7 +2,7 @@
 
 namespace Composable.DependencyInjection
 {
-    static class ComponentRegistrationExtensions
+    public static class ComponentRegistrationExtensions
     {
         public static Component.ComponentRegistrationBuilderWithInstantiationSpec<TService> UsingFactoryMethod<TService, TImplementation>(
             this Component.ComponentRegistrationBuilderInitial<TService> @this,

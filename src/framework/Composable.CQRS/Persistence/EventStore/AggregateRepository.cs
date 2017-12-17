@@ -25,6 +25,8 @@ namespace Composable.Persistence.EventStore
             _aggregates.Save(aggregate);
         }
 
-        public virtual TAggregate GetVersion(Guid aggregateRootId, int version) => _reader.LoadSpecificVersion<TAggregate>(aggregateRootId, version);
+        public TAggregate GetReadonlyCopy(Guid aggregateRootId) => GetReadonlyCopyOfVersion(aggregateRootId, int.MaxValue);
+
+        public virtual TAggregate GetReadonlyCopyOfVersion(Guid aggregateRootId, int version) => _reader.LoadSpecificVersion<TAggregate>(aggregateRootId, version);
     }
 }

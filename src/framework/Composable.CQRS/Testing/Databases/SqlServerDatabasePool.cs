@@ -73,7 +73,6 @@ namespace Composable.Testing.Databases
                 _log.Debug($"Retrieved reserved pool database: {database.Id}");
             } else
             {
-                SharedState snapshot = null;
                 TransactionScopeCe.SuppressAmbient(
                     () =>
                         _machineWideState.Update(
@@ -85,7 +84,6 @@ namespace Composable.Testing.Databases
                                     RebootPool(machineWide);
                                     throw new Exception("Detected corrupt database pool. Pool was rebooted");
                                 }
-
 
                                 if (machineWide.TryReserve(out database, reservationName, _poolId))
                                 {
@@ -99,7 +97,6 @@ namespace Composable.Testing.Databases
                                 OldContract.Assert.That(database.IsClean, "database.IsClean");
 
                                 _transientCache = machineWide.DatabasesReservedBy(_poolId);
-                                snapshot = machineWide;
                             }));
 
                 ResetDatabase(database);
@@ -132,12 +129,9 @@ namespace Composable.Testing.Databases
 
         protected override void InternalDispose()
         {
-            if (!_disposed)
-            {
-                _disposed = true;
-                _machineWideState.Update(machineWide => machineWide.DatabasesReservedBy(_poolId)
-                                                                                  .ForEach(db => db.Release()));
-            }
+            if(_disposed) return;
+            _disposed = true;
+            _machineWideState.Update(machineWide => machineWide.ReleaseReservationsFor(_poolId));
         }
     }
 }

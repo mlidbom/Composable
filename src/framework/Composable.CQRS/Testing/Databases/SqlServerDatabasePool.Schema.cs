@@ -117,11 +117,6 @@ ALTER DATABASE[{ databaseName}] SET READ_COMMITTED_SNAPSHOT ON";
             //SafeConsole.WriteLine($"Created: {databaseName}");
         }
 
-        void ScheduleForRebooting()
-        {
-            _machineWideState.Update(ResetInMemoryData);
-        }
-
         void RebootPool(SharedState machineWide)
         {
             RebootedMasterConnections.Add(_masterConnectionString);

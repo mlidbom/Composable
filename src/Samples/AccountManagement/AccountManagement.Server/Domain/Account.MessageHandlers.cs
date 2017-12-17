@@ -4,7 +4,6 @@ using AccountManagement.API.UserCommands;
 using AccountManagement.Domain.Services;
 using Composable.Messaging;
 using Composable.Messaging.Buses;
-using Composable.Persistence.EventStore;
 
 namespace AccountManagement.Domain
 {

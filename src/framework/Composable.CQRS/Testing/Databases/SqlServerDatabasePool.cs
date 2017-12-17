@@ -133,7 +133,7 @@ namespace Composable.Testing.Databases
                                                                {
                                                                    TransactionScopeCe.SuppressAmbient(
                                                                        () => new SqlServerConnection(db.ConnectionString(this))
-                                                                           .UseConnection(action: connection => connection.DropAllObjects()));
+                                                                           .UseConnection(action: connection => connection.DropAllObjectsAndSetReadCommittedSnapshotIsolationLevel()));
                                                                    _machineWideState.Update(machineWide => machineWide.Release(db.Id)
                                                                                                                       .Clean());
                                                                }

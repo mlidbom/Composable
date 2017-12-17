@@ -107,9 +107,13 @@ namespace Composable.Testing.Databases
 ON      ( NAME = {databaseName}_data, FILENAME = '{DatabaseRootFolderOverride}\{databaseName}.mdf') 
 LOG ON  ( NAME = {databaseName}_log, FILENAME = '{DatabaseRootFolderOverride}\{databaseName}.ldf');";
             }
+
+            createDatabaseCommand += $@"
+ALTER DATABASE [{databaseName}] SET RECOVERY SIMPLE;
+ALTER DATABASE[{ databaseName}] SET READ_COMMITTED_SNAPSHOT ON";
+
             _masterConnection.ExecuteNonQuery(createDatabaseCommand);
 
-            _masterConnection.ExecuteNonQuery($"ALTER DATABASE [{databaseName}] SET RECOVERY SIMPLE;");
             //SafeConsole.WriteLine($"Created: {databaseName}");
         }
 

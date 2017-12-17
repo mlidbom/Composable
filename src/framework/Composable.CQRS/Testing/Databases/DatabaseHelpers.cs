@@ -41,6 +41,13 @@ CLOSE cur
 DEALLOCATE cur
 ";
 
+        internal static readonly string SetReadCommittedSnapshotOnStatment = @"
+declare @databaseName varchar(1000)
+select @databaseName = DB_NAME()
+declare @sql nvarchar(500)
+set @sql = 'ALTER DATABASE [' + @databaseName +  '] SET READ_COMMITTED_SNAPSHOT ON'
+exec sp_executesql @sql";
+
         internal static void DropAllObjects(this IDbConnection connection) {
             using (var cmd = connection.CreateCommand())
             {
@@ -49,5 +56,17 @@ DEALLOCATE cur
                 cmd.ExecuteNonQuery();
             }
         }
+
+        internal static void DropAllObjectsAndSetReadCommittedSnapshotIsolationLevel(this IDbConnection connection)
+        {
+            using (var cmd = connection.CreateCommand())
+            {
+                cmd.CommandType = CommandType.Text;
+                cmd.CommandText = DropAllObjectsStatement + SetReadCommittedSnapshotOnStatment;
+                cmd.ExecuteNonQuery();
+            }
+        }
+
+
     }
 }

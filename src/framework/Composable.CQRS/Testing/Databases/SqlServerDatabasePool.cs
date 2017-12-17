@@ -8,7 +8,6 @@ using Composable.Contracts;
 using Composable.Logging;
 using Composable.System;
 using Composable.System.Data.SqlClient;
-using Composable.System.Linq;
 using Composable.System.Threading;
 using Composable.System.Threading.ResourceAccess;
 using Composable.System.Transactions;

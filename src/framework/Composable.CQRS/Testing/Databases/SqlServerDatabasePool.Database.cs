@@ -22,7 +22,7 @@ namespace Composable.Testing.Databases
             internal Database(int id) => Id = id;
             internal Database(string name) : this(IdFromName(name)) { }
 
-            internal bool ReservationIsExpired => ReservationDate < DateTime.UtcNow - 10.Minutes();
+            internal bool ReservationIsExpired => ReservationDate < DateTime.UtcNow - 1.Minutes();
             internal bool ShouldBeReleased => IsReserved && ReservationIsExpired;
             internal bool IsFree => !IsReserved;
 

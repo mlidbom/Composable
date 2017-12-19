@@ -1,4 +1,5 @@
-﻿namespace Composable.Tests.Messaging.APIDraft
+﻿// ReSharper disable All
+namespace Composable.Tests.Messaging.APIDraft
 {
 
     interface IAccountEvent { }

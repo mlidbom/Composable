@@ -89,8 +89,11 @@ namespace Composable.Messaging.Buses.Implementation
 
         public Task<TCommandResult> Dispatch<TCommandResult>(IDomainCommand<TCommandResult> command) => _this.Locked(@this =>
         {
-            var commandHandlerConnection = @this.CommandConnections[command.GetType()];
-            return commandHandlerConnection.Dispatch(command);
+            if (!@this.CommandConnections.TryGetValue(command.GetType(), out var connection))
+            {
+                throw new NoHandlerForcommandTypeException(command.GetType());
+            }
+            return connection.Dispatch(command);
         });
 
         public Task<TQueryResult> Dispatch<TQueryResult>(IQuery<TQueryResult> query) => _this.Locked(@this =>

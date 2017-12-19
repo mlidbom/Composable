@@ -15,7 +15,7 @@ namespace AccountManagement.API
         {
             public static class Register
             {
-                public class DomainCommand : DomainCommand<AccountResource>
+                internal class DomainCommand : DomainCommand<AccountResource>
                 {
                     [UsedImplicitly] DomainCommand() { }
                     public DomainCommand(Guid accountId, Password password, Email email)
@@ -52,7 +52,7 @@ namespace AccountManagement.API
 
                     public IEnumerable<ValidationResult> Validate(ValidationContext validationContext) => Domain.Password.Validate(Password, this, () => Password);
 
-                    public DomainCommand ToDomainCommand() => new DomainCommand(AccountId, new Password(Password), Domain.Email.Parse(Email));
+                    internal DomainCommand ToDomainCommand() => new DomainCommand(AccountId, new Password(Password), Domain.Email.Parse(Email));
                 }
             }
         }

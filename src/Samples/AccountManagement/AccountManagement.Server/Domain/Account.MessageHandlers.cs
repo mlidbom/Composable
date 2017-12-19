@@ -11,12 +11,12 @@ namespace AccountManagement.Domain
         {
             public static void RegisterHandlers(MessageHandlerRegistrarWithDependencyInjectionSupport registrar)
             {
-                registrar.ForQuery((EntityQuery<AccountResource> accountQuery, IAccountRepository repository) => new AccountResource(repository.GetReadonlyCopy(accountQuery.Id)));
-
-                registrar.ForCommandWithResult((AccountResource.Command.Register.DomainCommand command, IDuplicateAccountChecker duplicateChecker, IAccountRepository repository) => new AccountResource(Account.Register(command, repository, duplicateChecker)));
-
-                registrar.ForCommand((AccountResource.Command.ChangeEmail.UI command, IAccountRepository repository) => repository.Get(command.AccountId).ChangeEmail(command.ToDomainCommand()))
-                    .ForCommand((AccountResource.Command.ChangePassword.Domain command, IAccountRepository repository) => repository.Get(command.AccountId).ChangePassword(command));
+                registrar.ForQuery((EntityQuery<AccountResource> accountQuery, IAccountRepository repository) => new AccountResource(repository.GetReadonlyCopy(accountQuery.Id)))
+                         .ForCommandWithResult((AccountResource.Command.Register.UICommand command, IDuplicateAccountChecker duplicateChecker, IAccountRepository repository) =>
+                                                   new AccountResource(Account.Register(command.ToDomainCommand(), repository, duplicateChecker)))
+                         .ForCommand((AccountResource.Command.ChangeEmail.UI command, IAccountRepository repository) => repository.Get(command.AccountId).ChangeEmail(command.ToDomainCommand()))
+                         .ForCommand((AccountResource.Command.ChangePassword.UI command, IAccountRepository repository) =>
+                                         repository.Get(command.AccountId).ChangePassword(command.ToDomainCommand()));
             }
         }
     }

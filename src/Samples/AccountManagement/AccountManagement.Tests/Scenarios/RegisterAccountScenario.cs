@@ -18,6 +18,6 @@ namespace AccountManagement.Tests.Scenarios
                                                               email: email ?? TestData.Email.CreateValidEmail().ToString());
         }
 
-        public AccountResource Execute() => _bus.SendAsync(Command.ToDomainCommand()).Result;
+        public AccountResource Execute() => _bus.SendAsync(Command).Result;
     }
 }

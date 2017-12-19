@@ -15,7 +15,7 @@ namespace AccountManagement.API
         {
             public static class ChangePassword
             {
-                public class Domain : DomainCommand
+                internal class Domain : DomainCommand
                 {
                     [UsedImplicitly] Domain() {}
                     public Domain(Guid accountId, string oldPassword, Password newPassword)
@@ -33,7 +33,7 @@ namespace AccountManagement.API
                     public Password NewPassword { get; private set; }
                 }
 
-                public class UI : IValidatableObject
+                public class UI : DomainCommand, IValidatableObject
                 {
                     [Required] [EntityId] public Guid AccountId { get; set; }
                     [Required] public string OldPassword { get; set; }
@@ -41,7 +41,7 @@ namespace AccountManagement.API
 
                     public IEnumerable<ValidationResult> Validate(ValidationContext validationContext) => AccountManagement.Domain.Password.Validate(NewPassword, this, () => NewPassword);
 
-                    public Domain ToDomainCommand() => new Domain(AccountId, OldPassword, new Password(NewPassword) );
+                    internal Domain ToDomainCommand() => new Domain(AccountId, OldPassword, new Password(NewPassword) );
                 }
             }
         }

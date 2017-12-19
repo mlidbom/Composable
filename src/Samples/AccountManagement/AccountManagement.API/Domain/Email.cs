@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Text.RegularExpressions;
 using Composable.DDD;
-using JetBrains.Annotations;
 using Newtonsoft.Json;
 
 namespace AccountManagement.Domain
@@ -13,18 +12,15 @@ namespace AccountManagement.Domain
     /// </summary>
     public class Email : ValueObject<Email>
     {
-        [JsonProperty]
-        string Value { get; set; }
+        [JsonProperty]string Value { get; }
 
         public override string ToString() => Value;
 
 
-        [UsedImplicitly] Email() { }
-
-        Email(string emailAddress)
+        [JsonConstructor]Email(string value)
         {
-            AssertIsValid(emailAddress);
-            Value = emailAddress;
+            AssertIsValid(value);
+            Value = value;
         }
 
         public static bool IsValidEmail(string emailAddress)

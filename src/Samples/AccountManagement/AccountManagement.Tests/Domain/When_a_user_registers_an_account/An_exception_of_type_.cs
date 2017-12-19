@@ -23,13 +23,13 @@ namespace AccountManagement.Tests.Domain.When_a_user_registers_an_account
         {
             _registerAccountScenario.Execute();
             Host.AssertThatRunningScenarioThrowsBackendException<DuplicateAccountException>(() => _registerAccountScenario.Execute())
-                .Message.Should().Contain(_registerAccountScenario.UiCommand.Email);
+                .Message.Should().Contain(_registerAccountScenario.Command.Email);
         }
 
         [Test]
         public void ObjectIsNullContractViolationException_is_thrown_if_Password_is_null()
         {
-            _registerAccountScenario.UiCommand.Password = null;
+            _registerAccountScenario.Command.Password = null;
             this.Invoking(_ =>_registerAccountScenario.Execute())
                 .ShouldThrow<Exception>();
         }
@@ -37,7 +37,7 @@ namespace AccountManagement.Tests.Domain.When_a_user_registers_an_account
         [Test]
         public void ObjectIsNullContractViolationException_is_thrown_if_Email_is_null()
         {
-            _registerAccountScenario.UiCommand.Email = null;
+            _registerAccountScenario.Command.Email = null;
             this.Invoking(_ => _registerAccountScenario.Execute())
                 .ShouldThrow<Exception>();
         }
@@ -45,7 +45,7 @@ namespace AccountManagement.Tests.Domain.When_a_user_registers_an_account
         [Test]
         public void ObjectIsDefaultContractViolationException_is_thrown_if_AccountId_is_empty()
         {
-            _registerAccountScenario.UiCommand.AccountId = Guid.Empty;
+            _registerAccountScenario.Command.AccountId = Guid.Empty;
             this.Invoking(_ => _registerAccountScenario.Execute())
                 .ShouldThrow<Exception>();
         }

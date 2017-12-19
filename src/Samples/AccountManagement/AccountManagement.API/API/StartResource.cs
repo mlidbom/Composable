@@ -17,7 +17,6 @@ namespace AccountManagement.API
 
         public class StartResourceCommands
         {
-            public AccountResource.RegisterAccountUICommand CreateAccount(Guid accountId, string email, string password) => new AccountResource.RegisterAccountUICommand(accountId, email, password);
         }
     }
 }

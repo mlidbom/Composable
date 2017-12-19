@@ -16,12 +16,12 @@ namespace AccountManagement.Tests.Scenarios
             _clientBus = clientBus;
             var registerAccountScenario = new RegisterAccountScenario(clientBus);
             Account = registerAccountScenario.Execute();
-            OldPassword = registerAccountScenario.UiCommand.Password;
+            OldPassword = registerAccountScenario.Command.Password;
         }
 
         public void Execute()
         {
-            _clientBus.Send(Account.Commands.ChangePassword(oldPassword:OldPassword, newPassword: NewPasswordAsString));
+            _clientBus.Send(Account.CommandsCollections.ChangePassword(oldPassword:OldPassword, newPassword: NewPasswordAsString));
             Account = _clientBus.Query(AccountApi.Start.Queries.AccountById(Account.Id));
         }
     }

@@ -97,6 +97,7 @@ namespace Composable.Tests.CQRS
 
         class TriggeringEvent : DomainEvent, IAggregateRootCreatedEvent
         {
+            public TriggeringEvent() : base(Guid.NewGuid()) {}
         }
 
         class TriggeredEvent : DomainEvent

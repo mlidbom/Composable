@@ -10,22 +10,22 @@ namespace AccountManagement.API
 {
     public partial class AccountResource
     {
-        public AccountResourceCommands Commands { get; private set; }
-        public class AccountResourceCommands
+        public CommandsCollection CommandsCollections { get; private set; }
+        public partial class CommandsCollection
         {
             [JsonProperty] Guid _accountId;
 
-            [UsedImplicitly] AccountResourceCommands() {}
+            [UsedImplicitly] CommandsCollection() {}
 
-            public AccountResourceCommands(AccountResource accountResource) => _accountId = accountResource.Id;
+            public CommandsCollection(AccountResource accountResource) => _accountId = accountResource.Id;
 
-            public ChangeEmailCommand ChangeEmail(string email) => new ChangeEmailCommand()
+            public ChangeEmailUICommand ChangeEmail(string email) => new ChangeEmailUICommand()
                                                                    {
                                                                        Email = email,
                                                                        AccountId = _accountId
                                                                    };
 
-            public ChangePasswordCommand ChangePassword(string oldPassword, string newPassword) => new ChangePasswordCommand()
+            public ChangePasswordUICommand ChangePassword(string oldPassword, string newPassword) => new ChangePasswordUICommand()
                                                                                                    {
                                                                                                        AccountId = _accountId,
                                                                                                        OldPassword = oldPassword,
@@ -33,7 +33,7 @@ namespace AccountManagement.API
                                                                                                    };
         }
 
-        public class ChangePasswordCommand : DomainCommand, IValidatableObject
+        public class ChangePasswordUICommand : DomainCommand, IValidatableObject
         {
             [Required] [EntityId] public Guid AccountId { get; set; }
             [Required] public string OldPassword { get; set; }
@@ -42,38 +42,10 @@ namespace AccountManagement.API
             public IEnumerable<ValidationResult> Validate(ValidationContext validationContext) => Domain.Password.Validate(NewPassword, this, () => NewPassword);
         }
 
-        public class ChangeEmailCommand : DomainCommand
+        public class ChangeEmailUICommand : DomainCommand
         {
             [Required] [EntityId] public Guid AccountId { get; set; }
             [Required] [Email] public string Email { get; set; }
-        }
-
-        public class RegisterAccountUICommand : DomainCommand<AccountResource>, IValidatableObject
-        {
-            public RegisterAccountUICommand() { }
-            public RegisterAccountUICommand(Guid accountId, string email, string password)
-            {
-                AccountId = accountId;
-                Email = email;
-                Password = password;
-            }
-
-            //Note the use of a custom validation attribute.
-            [Required(ErrorMessageResourceType = typeof(RegisterAccountCommandResources), ErrorMessageResourceName = "IdInvalid")]
-            [EntityId(ErrorMessageResourceType = typeof(RegisterAccountCommandResources), ErrorMessageResourceName = "IdMissing")]
-            public Guid AccountId { [UsedImplicitly] get; set; } = Guid.NewGuid();
-
-            //Note the use of a custom validation attribute.
-            [Email(ErrorMessageResourceType = typeof(RegisterAccountCommandResources), ErrorMessageResourceName = "EmailInvalid")]
-            [Required(ErrorMessageResourceType = typeof(RegisterAccountCommandResources), ErrorMessageResourceName = "EmailMissing")]
-            public string Email { [UsedImplicitly] get; set; }
-
-            [Required(ErrorMessageResourceType = typeof(RegisterAccountCommandResources), ErrorMessageResourceName = "PasswordMissing")]
-            // ReSharper disable once MemberCanBePrivate.Global
-            public string Password { get; set; }
-
-            public IEnumerable<ValidationResult> Validate(ValidationContext validationContext) => Domain.Password.Validate(Password, this, () => Password);
-
         }
     }
 }

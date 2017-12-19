@@ -53,6 +53,10 @@ namespace Composable.Persistence.EventStore.AggregateRoots
                     {
                         throw new Exception($"The first raised event type {theEvent.GetType()} did not inherit {nameof(IAggregateRootCreatedEvent)}");
                     }
+                    if(theEvent.AggregateRootId == Guid.Empty)
+                    {
+                        throw new Exception($"{nameof(IAggregateRootDeletedEvent.AggregateRootId)} was empty in {nameof(IAggregateRootCreatedEvent)}");
+                    }
                     theEvent.AggregateRootVersion = 1;
                 } else
                 {

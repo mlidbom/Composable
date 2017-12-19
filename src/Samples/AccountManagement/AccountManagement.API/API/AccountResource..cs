@@ -10,7 +10,7 @@ namespace AccountManagement.API
 
         internal AccountResource(IAccountResourceData account) : base(account.Id)
         {
-            Commands = new AccountResourceCommands(this);
+            CommandsCollections = new CommandsCollection(this);
             Email = account.Email;
             Password = account.Password;
         }

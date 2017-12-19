@@ -45,6 +45,7 @@ namespace AccountManagement.Tests.Domain
                 [Test] public void contains_only_uppercase_characters() => AssertCreatingPasswordThrowsExceptionContainingFailure("PASS", Password.Policy.Failures.MissingLowerCaseCharacter);
 
                 static void AssertCreatingPasswordThrowsExceptionContainingFailure(string password, Password.Policy.Failures expectedFailure)
+                    // ReSharper disable once ObjectCreationAsStatement
                     => Assert.Throws<PasswordDoesNotMatchPolicyException>(() => new Password(password)).Failures.Should().Contain(expectedFailure);
             }
         }

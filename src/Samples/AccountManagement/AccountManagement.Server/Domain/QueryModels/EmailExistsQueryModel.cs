@@ -21,7 +21,7 @@ namespace AccountManagement.Domain.QueryModels
         Email Email { [UsedImplicitly] get; set; }
 
 
-        public static void RegisterHandlers(MessageHandlerRegistrarWithDependencyInjectionSupport registrar) =>
+        internal static void RegisterHandlers(MessageHandlerRegistrarWithDependencyInjectionSupport registrar) =>
             registrar.ForEvent((AccountEvent.PropertyUpdated.Email message, IAccountManagementDomainDocumentDbUpdater queryModels, IAccountRepository repository) =>
             {
                 if(message.AggregateRootVersion > 1)

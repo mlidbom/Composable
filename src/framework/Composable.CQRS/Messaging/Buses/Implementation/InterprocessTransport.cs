@@ -78,7 +78,14 @@ namespace Composable.Messaging.Buses.Implementation
             eventReceivers.ForEach(receiver => receiver.Dispatch(@event));
         });
 
-        public void Dispatch(IDomainCommand command) => _this.Locked(@this => @this.CommandConnections[command.GetType()]).Dispatch(command);
+        public void Dispatch(IDomainCommand command) => _this.Locked(@this =>
+        {
+            if(!@this.CommandConnections.TryGetValue(command.GetType(), out var connection))
+            {
+                throw new NoHandlerForcommandTypeException(command.GetType());
+            }
+            connection.Dispatch(command);
+        });
 
         public Task<TCommandResult> Dispatch<TCommandResult>(IDomainCommand<TCommandResult> command) => _this.Locked(@this =>
         {

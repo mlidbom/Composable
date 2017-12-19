@@ -36,7 +36,7 @@ namespace AccountManagement.Domain
         /// <para> * makes it impossible to use the class incorrectly, such as forgetting to check for duplicates or save the new instance in the repository.</para>
         /// <para> * reduces code duplication since multiple callers are not burdened with saving the instance, checking for duplicates etc.</para>
         /// </summary>
-        public static Account Register(AccountResource.Command.Register.DomainCommand command, IAccountRepository repository, IDuplicateAccountChecker duplicateAccountChecker)
+        static Account Register(AccountResource.Command.Register.DomainCommand command, IAccountRepository repository, IDuplicateAccountChecker duplicateAccountChecker)
         {
             //Ensure that it is impossible to call with invalid arguments.
             //Since all domain types should ensure that it is impossible to create a non-default value that is invalid we only have to disallow default values.
@@ -52,7 +52,7 @@ namespace AccountManagement.Domain
             return newAccount;
         }
 
-        public void ChangePassword(AccountResource.Command.ChangePassword.Domain command)
+        void ChangePassword(AccountResource.Command.ChangePassword.Domain command)
         {
             OldContract.Argument(() => command).NotNullOrDefault();
 
@@ -61,11 +61,11 @@ namespace AccountManagement.Domain
             Publish(new AccountEvent.Implementation.UserChangedPassword(command.NewPassword));
         }
 
-        public void ChangeEmail(Email email)
+        void ChangeEmail(AccountResource.Command.ChangeEmail.Domain command)
         {
-            OldContract.Argument(() => email).NotNullOrDefault();
+            OldContract.Argument(() => command).NotNullOrDefault();
 
-            Publish(new AccountEvent.Implementation.UserChangedEmail(email));
+            Publish(new AccountEvent.Implementation.UserChangedEmail(command.Email));
         }
     }
 }

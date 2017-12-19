@@ -1,9 +1,5 @@
 ﻿using System;
-using System.ComponentModel.DataAnnotations;
-using AccountManagement.API.ValidationAttributes;
-using Composable.Messaging.Commands;
 using JetBrains.Annotations;
-using Newtonsoft.Json;
 
 namespace AccountManagement.API
 {
@@ -12,32 +8,20 @@ namespace AccountManagement.API
         public CommandsCollection CommandsCollections { get; private set; }
         public class CommandsCollection
         {
-            [JsonProperty] Guid _accountId;
+            public Guid AccountId { get; private set; }
 
             [UsedImplicitly] CommandsCollection() {}
 
-            public CommandsCollection(AccountResource accountResource) => _accountId = accountResource.Id;
+            public CommandsCollection(AccountResource accountResource) => AccountId = accountResource.Id;
 
-            public ChangeEmailUICommand ChangeEmail(string email) => new ChangeEmailUICommand()
-                                                                   {
-                                                                       Email = email,
-                                                                       AccountId = _accountId
-                                                                   };
+            public Command.ChangeEmail.UI ChangeEmail => new Command.ChangeEmail.UI(AccountId);
 
-            public AccountResource.Command.ChangePassword.UI ChangePassword(string oldPassword, string newPassword) => new AccountResource.Command.ChangePassword.UI()
+            public Command.ChangePassword.UI ChangePassword(string oldPassword, string newPassword) => new Command.ChangePassword.UI()
                                                                                                    {
-                                                                                                       AccountId = _accountId,
+                                                                                                       AccountId = AccountId,
                                                                                                        OldPassword = oldPassword,
                                                                                                        NewPassword = newPassword
                                                                                                    };
-        }
-
-
-
-        public class ChangeEmailUICommand : DomainCommand
-        {
-            [Required] [EntityId] public Guid AccountId { get; set; }
-            [Required] [Email] public string Email { get; set; }
         }
     }
 }

@@ -15,7 +15,7 @@ namespace AccountManagement.Domain
 
                 registrar.ForCommandWithResult((AccountResource.Command.Register.DomainCommand command, IDuplicateAccountChecker duplicateChecker, IAccountRepository repository) => new AccountResource(Account.Register(command, repository, duplicateChecker)));
 
-                registrar.ForCommand((AccountResource.ChangeEmailUICommand command, IAccountRepository repository) => repository.Get(command.AccountId).ChangeEmail(Email.Parse(command.Email)))
+                registrar.ForCommand((AccountResource.Command.ChangeEmail.UI command, IAccountRepository repository) => repository.Get(command.AccountId).ChangeEmail(command.ToDomainCommand()))
                     .ForCommand((AccountResource.Command.ChangePassword.Domain command, IAccountRepository repository) => repository.Get(command.AccountId).ChangePassword(command));
             }
         }

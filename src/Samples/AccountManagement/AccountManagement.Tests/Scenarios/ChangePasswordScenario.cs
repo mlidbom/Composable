@@ -21,7 +21,11 @@ namespace AccountManagement.Tests.Scenarios
 
         public void Execute()
         {
-            _clientBus.Send(Account.CommandsCollections.ChangePassword(oldPassword:OldPassword, newPassword: NewPasswordAsString));
+            var command = Account.CommandsCollections.ChangePassword;
+            command.NewPassword = NewPasswordAsString;
+            command.OldPassword = OldPassword;
+
+            _clientBus.Send(command);
             Account = _clientBus.Query(AccountApi.Start.Queries.AccountById(Account.Id));
         }
     }

@@ -35,11 +35,13 @@ namespace AccountManagement.API
 
                 public class UI : DomainCommand, IValidatableObject
                 {
-                    [Required] [EntityId] public Guid AccountId { get; set; }
+                    public UI(Guid accountId) => AccountId = accountId;
+
+                    [Required] [EntityId] public Guid AccountId { get; private set; }
                     [Required] public string OldPassword { get; set; }
                     [Required] public string NewPassword { get; set; }
 
-                    public IEnumerable<ValidationResult> Validate(ValidationContext validationContext) => AccountManagement.Domain.Password.Validate(NewPassword, this, () => NewPassword);
+                    public IEnumerable<ValidationResult> Validate(ValidationContext validationContext) => Password.Validate(NewPassword, this, () => NewPassword);
 
                     internal Domain ToDomainCommand() => new Domain(AccountId, OldPassword, new Password(NewPassword) );
                 }

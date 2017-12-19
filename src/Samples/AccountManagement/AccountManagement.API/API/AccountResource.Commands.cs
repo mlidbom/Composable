@@ -1,5 +1,4 @@
-﻿using System;
-using JetBrains.Annotations;
+﻿using JetBrains.Annotations;
 
 namespace AccountManagement.API
 {
@@ -8,20 +7,17 @@ namespace AccountManagement.API
         public CommandsCollection CommandsCollections { get; private set; }
         public class CommandsCollection
         {
-            public Guid AccountId { get; private set; }
-
             [UsedImplicitly] CommandsCollection() {}
 
-            public CommandsCollection(AccountResource accountResource) => AccountId = accountResource.Id;
+            public CommandsCollection(AccountResource accountResource)
+            {
+                ChangeEmail = new Command.ChangeEmail.UI(accountResource.Id);
+                ChangePassword = new Command.ChangePassword.UI(accountResource.Id);
+            }
 
-            public Command.ChangeEmail.UI ChangeEmail => new Command.ChangeEmail.UI(AccountId);
+            public Command.ChangeEmail.UI ChangeEmail { get; private set; }
 
-            public Command.ChangePassword.UI ChangePassword(string oldPassword, string newPassword) => new Command.ChangePassword.UI()
-                                                                                                   {
-                                                                                                       AccountId = AccountId,
-                                                                                                       OldPassword = oldPassword,
-                                                                                                       NewPassword = newPassword
-                                                                                                   };
+            public Command.ChangePassword.UI ChangePassword { get; private set; }
         }
     }
 }

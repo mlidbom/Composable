@@ -52,14 +52,13 @@ namespace AccountManagement.Domain
             return newAccount;
         }
 
-        public void ChangePassword(string oldPassword, Password newPassword)
+        public void ChangePassword(AccountResource.Command.ChangePassword.Domain command)
         {
-            OldContract.Argument(() => newPassword).NotNullOrDefault();
-            OldContract.Argument(() => oldPassword).NotNullEmptyOrWhiteSpace();
+            OldContract.Argument(() => command).NotNullOrDefault();
 
-            Password.AssertIsCorrectPassword(oldPassword);
+            Password.AssertIsCorrectPassword(command.OldPassword);
 
-            Publish(new AccountEvent.Implementation.UserChangedPassword(newPassword));
+            Publish(new AccountEvent.Implementation.UserChangedPassword(command.NewPassword));
         }
 
         public void ChangeEmail(Email email)

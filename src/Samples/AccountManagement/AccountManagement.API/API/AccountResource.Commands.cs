@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using AccountManagement.API.ValidationAttributes;
 using Composable.Messaging.Commands;
@@ -11,7 +10,7 @@ namespace AccountManagement.API
     public partial class AccountResource
     {
         public CommandsCollection CommandsCollections { get; private set; }
-        public partial class CommandsCollection
+        public class CommandsCollection
         {
             [JsonProperty] Guid _accountId;
 
@@ -25,7 +24,7 @@ namespace AccountManagement.API
                                                                        AccountId = _accountId
                                                                    };
 
-            public ChangePasswordUICommand ChangePassword(string oldPassword, string newPassword) => new ChangePasswordUICommand()
+            public AccountResource.Command.ChangePassword.UI ChangePassword(string oldPassword, string newPassword) => new AccountResource.Command.ChangePassword.UI()
                                                                                                    {
                                                                                                        AccountId = _accountId,
                                                                                                        OldPassword = oldPassword,
@@ -33,14 +32,7 @@ namespace AccountManagement.API
                                                                                                    };
         }
 
-        public class ChangePasswordUICommand : DomainCommand, IValidatableObject
-        {
-            [Required] [EntityId] public Guid AccountId { get; set; }
-            [Required] public string OldPassword { get; set; }
-            [Required] public string NewPassword { get; set; }
 
-            public IEnumerable<ValidationResult> Validate(ValidationContext validationContext) => Domain.Password.Validate(NewPassword, this, () => NewPassword);
-        }
 
         public class ChangeEmailUICommand : DomainCommand
         {

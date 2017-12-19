@@ -7,11 +7,11 @@ namespace Composable.System
 {
     static class StrictlyManagedResources
     {
-        public static readonly string CollectStackTracesForAllStrictlyManagedResourcesConfigurationParamaterName =
+        public static readonly string CollectStackTracesForAllStrictlyManagedResourcesConfigurationParameterName =
             ExpressionUtil.ExtractMemberPath(() => CollectStackTracesForAllStrictlyManagedResources);
 
         public static readonly bool CollectStackTracesForAllStrictlyManagedResources =
-            AppConfigConfigurationParameterProvider.Instance.GetBoolean(CollectStackTracesForAllStrictlyManagedResourcesConfigurationParamaterName,
+            AppConfigConfigurationParameterProvider.Instance.GetBoolean(CollectStackTracesForAllStrictlyManagedResourcesConfigurationParameterName,
                                                                         valueIfMissing: false);
 
         public static bool CollectStackTracesFor<TManagedResource>()
@@ -52,10 +52,10 @@ namespace Composable.System
     ///</example>
     class StrictlyManagedResource<TManagedResource> : IStrictlyManagedResource where TManagedResource : IStrictlyManagedResource
     {
-        static readonly bool CollectStacktraces = StrictlyManagedResources.CollectStackTracesFor<TManagedResource>();
+        static readonly bool CollectStackTraces = StrictlyManagedResources.CollectStackTracesFor<TManagedResource>();
         public StrictlyManagedResource(bool forceStackTraceCollection = false)
         {
-            if(forceStackTraceCollection || CollectStacktraces || StrictlyManagedResources.CollectStackTracesForAllStrictlyManagedResources)
+            if(forceStackTraceCollection || CollectStackTraces || StrictlyManagedResources.CollectStackTracesForAllStrictlyManagedResources)
             {
                 ReservationCallStack = new StackTrace(fNeedFileInfo:false).ToString();
             }
@@ -133,7 +133,7 @@ namespace Composable.System
 Construction call stack: {reservationCallStack}"
                    : $@"No allocation stack trace collected. 
 Set configuration value: {StrictlyManagedResources.ConfigurationParamaterNameFor(instanceType)} to ""true"" to collect allocation stack traces for this type.
-Set configuration value: {StrictlyManagedResources.CollectStackTracesForAllStrictlyManagedResourcesConfigurationParamaterName} to ""true"" to collect allocation stack traces for all types.
+Set configuration value: {StrictlyManagedResources.CollectStackTracesForAllStrictlyManagedResourcesConfigurationParameterName} to ""true"" to collect allocation stack traces for all types.
 Please note that this will decrease performance and should only be set while debugging resource leaks.";
     }
 
@@ -147,7 +147,7 @@ Please note that this will decrease performance and should only be set while deb
 Construction call stack: {reservationCallStack}"
                    : $@"No allocation stack trace collected. 
 Set configuration value: {StrictlyManagedResources.ConfigurationParamaterNameFor(instanceType)} to ""true"" to collect allocation stack traces for this type.
-Set configuration value: {StrictlyManagedResources.CollectStackTracesForAllStrictlyManagedResourcesConfigurationParamaterName} to ""true"" to collect allocation stack traces for all types.
+Set configuration value: {StrictlyManagedResources.CollectStackTracesForAllStrictlyManagedResourcesConfigurationParameterName} to ""true"" to collect allocation stack traces for all types.
 Please note that this will decrease performance and should only be set while debugging resource leaks.";
     }
 }

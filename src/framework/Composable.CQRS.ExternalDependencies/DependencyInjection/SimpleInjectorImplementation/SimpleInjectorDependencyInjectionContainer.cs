@@ -56,7 +56,7 @@ namespace Composable.DependencyInjection.SimpleInjectorImplementation
                     }
                 } else if(componentRegistration.InstantiationSpec.ImplementationType != null)
                 {
-                    var baseRegistration = GetSimpleinjectorLifestyle(componentRegistration.Lifestyle).CreateRegistration(componentRegistration.InstantiationSpec.ImplementationType, _container);
+                    var baseRegistration = GetSimpleInjectorLifestyle(componentRegistration.Lifestyle).CreateRegistration(componentRegistration.InstantiationSpec.ImplementationType, _container);
 
                     foreach (var serviceType in componentRegistration.ServiceTypes)
                     {
@@ -65,7 +65,7 @@ namespace Composable.DependencyInjection.SimpleInjectorImplementation
 
                 } else if(componentRegistration.InstantiationSpec.FactoryMethod != null)
                 {
-                    var baseRegistration = GetSimpleinjectorLifestyle(componentRegistration.Lifestyle).CreateRegistration(componentRegistration.InstantiationSpec.FactoryMethodReturnType, () => componentRegistration.InstantiationSpec.FactoryMethod(this), _container);
+                    var baseRegistration = GetSimpleInjectorLifestyle(componentRegistration.Lifestyle).CreateRegistration(componentRegistration.InstantiationSpec.FactoryMethodReturnType, () => componentRegistration.InstantiationSpec.FactoryMethod(this), _container);
                     foreach (var someCompletelyOtherName in componentRegistration.ServiceTypes)
                     {
                         _container.AddRegistration(someCompletelyOtherName, baseRegistration);
@@ -78,7 +78,7 @@ namespace Composable.DependencyInjection.SimpleInjectorImplementation
         }
 
 
-        SimpleInjector.Lifestyle GetSimpleinjectorLifestyle(Lifestyle @this)
+        SimpleInjector.Lifestyle GetSimpleInjectorLifestyle(Lifestyle @this)
         {
             switch(@this)
             {

@@ -1,5 +1,4 @@
-﻿using System.Linq;
-using Composable.Messaging.Buses.Implementation;
+﻿using Composable.Messaging.Buses.Implementation;
 using Composable.System.Linq;
 
 namespace Composable.Messaging.Buses

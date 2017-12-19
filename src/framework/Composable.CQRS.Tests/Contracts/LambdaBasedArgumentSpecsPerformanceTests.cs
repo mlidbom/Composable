@@ -1,5 +1,4 @@
 using Composable.Contracts;
-using Composable.Testing;
 using Composable.Testing.Performance;
 using FluentAssertions;
 using NUnit.Framework;

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Threading;
 using Composable.System.Linq;
-using Composable.System.Threading;
 using Composable.System.Threading.ResourceAccess;
 using Composable.Testing.Threading;
 using FluentAssertions;

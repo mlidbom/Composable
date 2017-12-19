@@ -1,11 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Reactive.Concurrency;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Threading;
-using Composable.System.Collections.Collections;
 using Composable.System.Linq;
 using Composable.System.Threading.ResourceAccess;
 using Composable.Testing.Threading;

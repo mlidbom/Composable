@@ -1,9 +1,6 @@
 ﻿using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.Threading;
-using Composable.System;
-using Composable.System.Collections.Collections;
 using FluentAssertions;
 using NUnit.Framework;
 

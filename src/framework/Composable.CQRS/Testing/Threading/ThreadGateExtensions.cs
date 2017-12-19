@@ -1,7 +1,6 @@
 using System;
 using System.Threading.Tasks;
 using Composable.System;
-using Composable.System.Threading.ResourceAccess;
 
 namespace Composable.Testing.Threading
 {

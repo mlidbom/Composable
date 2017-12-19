@@ -1,5 +1,4 @@
 ﻿using Composable.System;
-using Composable.Testing;
 using Composable.Testing.Performance;
 using NUnit.Framework;
 // ReSharper disable StringLiteralTypo

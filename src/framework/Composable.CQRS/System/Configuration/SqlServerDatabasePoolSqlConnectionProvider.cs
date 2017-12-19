@@ -1,6 +1,5 @@
 ﻿using System;
 using Composable.System.Data.SqlClient;
-using Composable.Testing;
 using Composable.Testing.Databases;
 
 namespace Composable.System.Configuration

@@ -2,8 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
-using System.Diagnostics.Contracts;
-using System.Transactions;
 using Composable.Logging.Log4Net;
 using Composable.Persistence.EventStore.Refactoring.Naming;
 using Composable.System.Data.SqlClient;

@@ -10,8 +10,6 @@ using Composable.Messaging.Buses;
 using Composable.Messaging.Commands;
 using Composable.Persistence.EventStore;
 using Composable.Persistence.EventStore.AggregateRoots;
-using Composable.System.Linq;
-using Composable.Testing.Performance;
 using Composable.Testing.Threading;
 using FluentAssertions;
 using Xunit;

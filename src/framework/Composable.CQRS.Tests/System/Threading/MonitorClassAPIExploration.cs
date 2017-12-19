@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Threading;
-using Composable.System.Threading.ResourceAccess;
-using Composable.Testing.Performance;
 using Composable.Testing.Threading;
 using FluentAssertions;
 using Xunit;

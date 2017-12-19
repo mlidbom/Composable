@@ -1,5 +1,4 @@
 ﻿using System.Threading;
-using JetBrains.Annotations;
 
 namespace Composable.Testing.Threading
 {

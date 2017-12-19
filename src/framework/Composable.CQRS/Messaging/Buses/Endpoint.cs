@@ -1,5 +1,4 @@
 ﻿using System;
-using System.ComponentModel;
 using Composable.Contracts;
 using Composable.DependencyInjection;
 using Composable.Messaging.Buses.Implementation;

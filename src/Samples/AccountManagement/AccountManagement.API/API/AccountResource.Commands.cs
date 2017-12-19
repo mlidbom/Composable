@@ -48,10 +48,10 @@ namespace AccountManagement.API
             [Required] [Email] public string Email { get; set; }
         }
 
-        public class RegisterAccountCommand : DomainCommand<AccountResource>, IValidatableObject
+        public class RegisterAccountUICommand : DomainCommand<AccountResource>, IValidatableObject
         {
-            public RegisterAccountCommand() { }
-            public RegisterAccountCommand(Guid accountId, string email, string password)
+            public RegisterAccountUICommand() { }
+            public RegisterAccountUICommand(Guid accountId, string email, string password)
             {
                 AccountId = accountId;
                 Email = email;

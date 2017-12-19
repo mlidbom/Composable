@@ -7,47 +7,47 @@ using NUnit.Framework;
 namespace AccountManagement.Tests.UI.Commands.UserCommands
 {
     [TestFixture]
-    public class RegisterAccountCommandTests
+    public class RegisterAccountUICommandTests
     {
-        AccountResource.RegisterAccountCommand _registerAccountCommand;
+        AccountResource.RegisterAccountUICommand _registerAccountUiCommand;
 
         [SetUp]
         public void CreateValidCommand()
         {
-            _registerAccountCommand = new AccountResource.RegisterAccountCommand()
+            _registerAccountUiCommand = new AccountResource.RegisterAccountUICommand()
                                       {
                                           Email = "valid.email@google.com",
                                           Password = "AComplex!1Password"
                                       };
-            CommandValidator.ValidationFailures(_registerAccountCommand).Should().BeEmpty();
+            CommandValidator.ValidationFailures(_registerAccountUiCommand).Should().BeEmpty();
         }
 
         [Test]
         public void IsInvalidifAccountIdIsEmpty()
         {
-            _registerAccountCommand.AccountId = Guid.Empty;
-            CommandValidator.ValidationFailures(_registerAccountCommand).Should().NotBeEmpty();
+            _registerAccountUiCommand.AccountId = Guid.Empty;
+            CommandValidator.ValidationFailures(_registerAccountUiCommand).Should().NotBeEmpty();
         }
 
         [Test]
         public void IsInvalidIfEmailIsNull()
         {
-            _registerAccountCommand.Email = null;
-            CommandValidator.ValidationFailures(_registerAccountCommand).Should().NotBeEmpty();
+            _registerAccountUiCommand.Email = null;
+            CommandValidator.ValidationFailures(_registerAccountUiCommand).Should().NotBeEmpty();
         }
 
         [Test]
         public void IsInvalidIfEmailIsIncorrectFormat()
         {
-            _registerAccountCommand.Email = "invalid";
-            CommandValidator.ValidationFailures(_registerAccountCommand).Should().NotBeEmpty();
+            _registerAccountUiCommand.Email = "invalid";
+            CommandValidator.ValidationFailures(_registerAccountUiCommand).Should().NotBeEmpty();
         }
 
         [Test]
         public void IsInvalidIfPasswordIsNull()
         {
-            _registerAccountCommand.Password = null;
-            CommandValidator.ValidationFailures(_registerAccountCommand).Should().NotBeEmpty();
+            _registerAccountUiCommand.Password = null;
+            CommandValidator.ValidationFailures(_registerAccountUiCommand).Should().NotBeEmpty();
         }
 
         [Test]
@@ -55,39 +55,39 @@ namespace AccountManagement.Tests.UI.Commands.UserCommands
         {
             foreach(var invalidPassword in TestData.Password.Invalid.All)
             {
-                _registerAccountCommand.Password = invalidPassword;
-                CommandValidator.ValidationFailures(_registerAccountCommand).Should().NotBeEmpty();
+                _registerAccountUiCommand.Password = invalidPassword;
+                CommandValidator.ValidationFailures(_registerAccountUiCommand).Should().NotBeEmpty();
             }
         }
 
         [Test]
         public void WhenNotMatchingThePolicyTheFailureTellsHow()
         {
-            _registerAccountCommand.Password = TestData.Password.Invalid.ShorterThanFourCharacters;
+            _registerAccountUiCommand.Password = TestData.Password.Invalid.ShorterThanFourCharacters;
             ValidateAndGetFirstMessage().Should().Be(RegisterAccountCommandResources.Password_ShorterThanFourCharacters);
 
-            _registerAccountCommand.Password = TestData.Password.Invalid.BorderedByWhiteSpaceAtEnd;
+            _registerAccountUiCommand.Password = TestData.Password.Invalid.BorderedByWhiteSpaceAtEnd;
             ValidateAndGetFirstMessage().Should().Be(RegisterAccountCommandResources.Password_BorderedByWhitespace);
 
-            _registerAccountCommand.Password = TestData.Password.Invalid.MissingLowercaseCharacter;
+            _registerAccountUiCommand.Password = TestData.Password.Invalid.MissingLowercaseCharacter;
             ValidateAndGetFirstMessage().Should().Be(RegisterAccountCommandResources.Password_MissingLowerCaseCharacter);
 
-            _registerAccountCommand.Password = TestData.Password.Invalid.MissingUpperCaseCharacter;
+            _registerAccountUiCommand.Password = TestData.Password.Invalid.MissingUpperCaseCharacter;
             ValidateAndGetFirstMessage().Should().Be(RegisterAccountCommandResources.Password_MissingUpperCaseCharacter);
 
-            _registerAccountCommand.Password = TestData.Password.Invalid.Null;
+            _registerAccountUiCommand.Password = TestData.Password.Invalid.Null;
             ValidateAndGetFirstMessage().Should().Be(RegisterAccountCommandResources.PasswordMissing);
         }
 
         [Test]
         public void FailsIfUnHandledPolicyFailureIsDetected()
         {
-            _registerAccountCommand.Password = null; //Null is normally caught by the Require attribute.
+            _registerAccountUiCommand.Password = null; //Null is normally caught by the Require attribute.
             // ReSharper disable once AssignNullToNotNullAttribute
             // ReSharper disable once ReturnValueOfPureMethodIsNotUsed
-            _registerAccountCommand.Invoking(command => command.Validate(null).ToArray()).ShouldThrow<Exception>();
+            _registerAccountUiCommand.Invoking(command => command.Validate(null).ToArray()).ShouldThrow<Exception>();
         }
 
-        string ValidateAndGetFirstMessage() => CommandValidator.ValidationFailures(_registerAccountCommand).First().ErrorMessage;
+        string ValidateAndGetFirstMessage() => CommandValidator.ValidationFailures(_registerAccountUiCommand).First().ErrorMessage;
     }
 }

@@ -1,6 +1,7 @@
 ﻿using AccountManagement.Domain;
 using FluentAssertions;
 using NUnit.Framework;
+// ReSharper disable InconsistentNaming
 
 namespace AccountManagement.Tests.Domain
 {
@@ -8,7 +9,7 @@ namespace AccountManagement.Tests.Domain
     {
         static class When_creating_a_password
         {
-            class From_the_string_Pass
+            static class From_the_string_Pass
             {
                 static readonly Password _password = new Password("Pass");
 
@@ -36,12 +37,12 @@ namespace AccountManagement.Tests.Domain
 
             static class a_PasswordDoesNotMatchPolicyException_with_matching_failure_is_thrown_when_password_
             {
-                [Test] public static void is_null() => AssertCreatingPasswordThrowsExceptionContainingFailure(null, Password.Policy.Failures.Null);
-                [Test] public static void is_shorter_than_four_characters() => AssertCreatingPasswordThrowsExceptionContainingFailure("abc", Password.Policy.Failures.ShorterThanFourCharacters);
-                [Test] public static void starts_with_whitespace() => AssertCreatingPasswordThrowsExceptionContainingFailure(" Pass", Password.Policy.Failures.BorderedByWhitespace);
-                [Test] public static void ends_with_whitespace() => AssertCreatingPasswordThrowsExceptionContainingFailure("Pass ", Password.Policy.Failures.BorderedByWhitespace);
-                [Test] public static void contains_only_lowercase_characters() => AssertCreatingPasswordThrowsExceptionContainingFailure("pass", Password.Policy.Failures.MissingUppercaseCharacter);
-                [Test] public static void contains_only_uppercase_characters() => AssertCreatingPasswordThrowsExceptionContainingFailure("PASS", Password.Policy.Failures.MissingLowerCaseCharacter);
+                [Test] public static void Is_null() => AssertCreatingPasswordThrowsExceptionContainingFailure(null, Password.Policy.Failures.Null);
+                [Test] public static void Is_shorter_than_four_characters() => AssertCreatingPasswordThrowsExceptionContainingFailure("abc", Password.Policy.Failures.ShorterThanFourCharacters);
+                [Test] public static void Starts_with_whitespace() => AssertCreatingPasswordThrowsExceptionContainingFailure(" Pass", Password.Policy.Failures.BorderedByWhitespace);
+                [Test] public static void Ends_with_whitespace() => AssertCreatingPasswordThrowsExceptionContainingFailure("Pass ", Password.Policy.Failures.BorderedByWhitespace);
+                [Test] public static void Contains_only_lowercase_characters() => AssertCreatingPasswordThrowsExceptionContainingFailure("pass", Password.Policy.Failures.MissingUppercaseCharacter);
+                [Test] public static void Contains_only_uppercase_characters() => AssertCreatingPasswordThrowsExceptionContainingFailure("PASS", Password.Policy.Failures.MissingLowerCaseCharacter);
 
                 static void AssertCreatingPasswordThrowsExceptionContainingFailure(string password, Password.Policy.Failures expectedFailure)
                     // ReSharper disable once ObjectCreationAsStatement

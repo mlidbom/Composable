@@ -28,9 +28,9 @@ namespace AccountManagement.API
                         NewPassword = newPassword;
                     }
 
-                    public Guid AccountId { get; set; }
-                    public string OldPassword { get; set; }
-                    public Password NewPassword { get; set; }
+                    public Guid AccountId { get; private set; }
+                    public string OldPassword { get; private set; }
+                    public Password NewPassword { get; private set; }
                 }
 
                 public class UI : IValidatableObject

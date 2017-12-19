@@ -26,7 +26,7 @@ namespace Composable.Tests.ExternalDependencies.CQRS.EventSourcing.Sql
         [Test]
         public void Does_not_call_db_in_constructor()
         {
-                _serviceLocator.ExecuteInIsolatedScope(() => _serviceLocator.Resolve<ITestingEventstoreUpdater>());
+                _serviceLocator.ExecuteInIsolatedScope(() => _serviceLocator.Resolve<ITestingEventStoreUpdater>());
         }
 
         [Test]

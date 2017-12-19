@@ -43,7 +43,7 @@ namespace Composable.Messaging.Buses
             ServiceLocator.Dispose();
         }
 
-        IGlobalBusStrateTracker GlobalStateTracker => ServiceLocator.Resolve<IGlobalBusStrateTracker>();
+        IGlobalBusStateTracker GlobalStateTracker => ServiceLocator.Resolve<IGlobalBusStateTracker>();
         IOutbox Outbox => ServiceLocator.Resolve<IOutbox>();
         InterprocessTransport InterprocessTransport => ServiceLocator.Resolve<InterprocessTransport>();
         Inbox Inbox => ServiceLocator.Resolve<Inbox>();

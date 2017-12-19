@@ -112,7 +112,7 @@ namespace Composable.Messaging.Buses
         void Run();
     }
 
-    interface IGlobalBusStrateTracker
+    interface IGlobalBusStateTracker
     {
         IReadOnlyList<Exception> GetExceptionsFor(IInbox bus);
 

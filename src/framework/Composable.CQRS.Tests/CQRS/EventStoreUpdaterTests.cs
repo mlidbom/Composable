@@ -41,11 +41,11 @@ namespace Composable.Tests.CQRS
 
         protected void UseInTransactionalScope([InstantHandle] Action<IEventStoreUpdater> useSession)
             => ServiceLocator.ExecuteTransactionInIsolatedScope(
-                () => useSession(ServiceLocator.Resolve<ITestingEventstoreUpdater>()));
+                () => useSession(ServiceLocator.Resolve<ITestingEventStoreUpdater>()));
 
         protected void UseInScope([InstantHandle]Action<IEventStoreUpdater> useSession)
             => ServiceLocator.ExecuteInIsolatedScope(
-                () => useSession(ServiceLocator.Resolve<ITestingEventstoreUpdater>()));
+                () => useSession(ServiceLocator.Resolve<ITestingEventStoreUpdater>()));
 
         [Test]
         public void WhenFetchingAggregateThatDoesNotExistNoSuchAggregateExceptionIsThrown()
@@ -84,8 +84,8 @@ namespace Composable.Tests.CQRS
                                          {
                                              ServiceLocator.ExecuteInIsolatedScope(() =>
                                                                                    {
-                                                                                       updater = ServiceLocator.Resolve<ITestingEventstoreUpdater>();
-                                                                                       reader = ServiceLocator.Resolve<ITestingEventstoreReader>();
+                                                                                       updater = ServiceLocator.Resolve<ITestingEventStoreUpdater>();
+                                                                                       reader = ServiceLocator.Resolve<ITestingEventStoreReader>();
                                                                                    });
                                              wait.Set();
                                          });
@@ -111,7 +111,7 @@ namespace Composable.Tests.CQRS
 
             UseInScope(session =>
                        {
-                           var reader = ServiceLocator.Resolve<ITestingEventstoreReader>();
+                           var reader = ServiceLocator.Resolve<ITestingEventStoreReader>();
                            var loadedUser = reader.LoadSpecificVersion<User>(user.Id, 1);
                            Assert.That(loadedUser.Id, Is.EqualTo(user.Id));
                            Assert.That(loadedUser.Email, Is.EqualTo("email@email.se"));
@@ -193,7 +193,7 @@ namespace Composable.Tests.CQRS
 
             UseInTransactionalScope(session =>
                                     {
-                                        var loadedUser = ServiceLocator.Resolve<ITestingEventstoreReader>().LoadSpecificVersion<User>(user.Id, 1);
+                                        var loadedUser = ServiceLocator.Resolve<ITestingEventStoreReader>().LoadSpecificVersion<User>(user.Id, 1);
                                         loadedUser.ChangeEmail("NewEmail");
                                     });
 
@@ -214,7 +214,7 @@ namespace Composable.Tests.CQRS
             Assert.That(((IEventStored)user).GetChanges(), Is.Empty);
         }
 
-        [Test, Ignore("TODO. Fix this long standing design issue. This test will probably be removed because get changes is refactored out of existance as we force the store updater to create the instances and it will immediately track updates via observables")]
+        [Test, Ignore("TODO. Fix this long standing design issue. This test will probably be removed because get changes is refactored out of existence as we force the store updater to create the instances and it will immediately track updates via observables")]
         public void Resets_aggregate_immediately_upon_save()
         {
             var user = new User();
@@ -251,7 +251,7 @@ namespace Composable.Tests.CQRS
         }
 
         [Test]
-        public void AggregateCannotBeRetreivedAfterBeingDeleted()
+        public void AggregateCannotBeRetrievedAfterBeingDeleted()
         {
             var user1 = new User();
             user1.Register("email1@email.se", "password", Guid.NewGuid());
@@ -402,7 +402,7 @@ namespace Composable.Tests.CQRS
 
 
         [Test]
-        public void Concurrent_read_only_access_to_aggregate_history_can_occur_in_paralell()
+        public void Concurrent_read_only_access_to_aggregate_history_can_occur_in_parallel()
         {
             var user = new User();
             user.Register("email@email.se", "password", Guid.NewGuid());
@@ -431,7 +431,7 @@ namespace Composable.Tests.CQRS
                 iterations: threadedIterations,
                 timeIndividualExecutions:true,
                 maxTotal: TimeSpanExtensions.Milliseconds((approximateSinglethreadedExecutionTimeInMilliseconds / 2)),
-                description: $"If access is serialized the time will be approximately {approximateSinglethreadedExecutionTimeInMilliseconds} milliseconds. If parelellized it should be far below this value.");
+                description: $"If access is serialized the time will be approximately {approximateSinglethreadedExecutionTimeInMilliseconds} milliseconds. If parallelized it should be far below this value.");
 
             timingsSummary.Average.Should().BeLessThan(delayEachTransactionBy);
 
@@ -485,7 +485,7 @@ namespace Composable.Tests.CQRS
                     clonedServiceLocator.ExecuteTransactionInIsolatedScope(() =>
                                                                           {
                                                                               // ReSharper disable once AccessToDisposedClosure
-                                                                              var session = clonedServiceLocator.Resolve<ITestingEventstoreUpdater>();
+                                                                              var session = clonedServiceLocator.Resolve<ITestingEventStoreUpdater>();
                                                                               otherUser = User.Register(session,
                                                                                                         "email@email.se",
                                                                                                         "password",

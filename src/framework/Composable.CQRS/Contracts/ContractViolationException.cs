@@ -13,7 +13,7 @@ namespace Composable.Contracts
         ///<summary>The value that failed inspection.</summary>
         public IInspectedValue BadValue { get; private set; }
 
-        ///<summary>Tells which field/property/argument failded inspection and what value it had.</summary>
+        ///<summary>Tells which field/property/argument failed inspection and what value it had.</summary>
         public override string Message => $"{BadValue.Type}: {BadValue.Name}";
     }
 }

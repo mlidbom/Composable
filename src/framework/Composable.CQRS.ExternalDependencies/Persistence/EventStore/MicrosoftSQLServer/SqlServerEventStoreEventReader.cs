@@ -8,7 +8,7 @@ namespace Composable.Persistence.EventStore.MicrosoftSQLServer
 {
     class SqlServerEventStoreEventReader : IEventStoreEventReader
     {
-        readonly SqlServerEventStoreConnectionManager _connectionMananger;
+        readonly SqlServerEventStoreConnectionManager _connectionManager;
         readonly IEventStoreSchemaManager _schemaManager;
         IEventTypeToIdMapper EventTypeToIdMapper => _schemaManager.IdMapper;
 
@@ -40,7 +40,7 @@ FROM {EventTable.Name} {lockHint} ";
 
         public SqlServerEventStoreEventReader(SqlServerEventStoreConnectionManager connectionManager, IEventStoreSchemaManager schemaManager)
         {
-            _connectionMananger = connectionManager;
+            _connectionManager = connectionManager;
             _schemaManager = schemaManager;
         }
 
@@ -65,7 +65,7 @@ FROM {EventTable.Name} {lockHint} ";
         public IReadOnlyList<EventReadDataRow> GetAggregateHistory(Guid aggregateId, bool takeWriteLock, int startAfterInsertedVersion = 0)
         {
             var historyData = new List<EventReadDataRow>();
-            using (var connection = _connectionMananger.OpenConnection(suppressTransactionWarning: !takeWriteLock))
+            using (var connection = _connectionManager.OpenConnection(suppressTransactionWarning: !takeWriteLock))
             {
                 using (var loadCommand = connection.CreateCommand())
                 {
@@ -100,7 +100,7 @@ FROM {EventTable.Name} {lockHint} ";
         public IEnumerable<EventReadDataRow> StreamEvents(int batchSize)
         {
             SqlDecimal lastReadEventReadOrder = 0;
-            using (var connection = _connectionMananger.OpenConnection())
+            using (var connection = _connectionManager.OpenConnection())
             {
                 var done = false;
                 while (!done)
@@ -138,7 +138,7 @@ FROM {EventTable.Name} {lockHint} ";
         public IEnumerable<Guid> StreamAggregateIdsInCreationOrder(Type eventBaseType = null)
         {
             var ids = new List<Guid>();
-            using (var connection = _connectionMananger.OpenConnection(suppressTransactionWarning:true))
+            using (var connection = _connectionManager.OpenConnection(suppressTransactionWarning:true))
             {
                 using (var loadCommand = connection.CreateCommand())
                 {

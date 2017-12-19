@@ -32,8 +32,8 @@ namespace Composable.DependencyInjection.Testing
                 Component.For<ISingleContextUseGuard>()
                          .ImplementedBy<SingleThreadUseGuard>()
                          .LifestyleScoped(),
-                Component.For<IGlobalBusStrateTracker>()
-                         .UsingFactoryMethod(() => new GlobalBusStrateTracker())
+                Component.For<IGlobalBusStateTracker>()
+                         .UsingFactoryMethod(() => new GlobalBusStateTracker())
                          .LifestyleSingleton(),
                 Component.For<IMessageHandlerRegistry, IMessageHandlerRegistrar, MessageHandlerRegistry>()
                          .UsingFactoryMethod(() => new MessageHandlerRegistry())

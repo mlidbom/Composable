@@ -43,7 +43,7 @@ namespace Composable.Tests.CQRS.EventRefactoring.Migrations
 
             using (_container.BeginScope())
             {
-                _container.Use<IEventStore<ITestingEventstoreUpdater, ITestingEventstoreReader>>(store => store.SaveEvents(_history));
+                _container.Use<IEventStore<ITestingEventStoreUpdater, ITestingEventStoreReader>>(store => store.SaveEvents(_history));
             }
         }
 
@@ -56,7 +56,7 @@ namespace Composable.Tests.CQRS.EventRefactoring.Migrations
 
                 IServiceLocator clonedLocator = null;
 
-            void LoadWithCloneLocator() => clonedLocator.ExecuteInIsolatedScope(() => clonedLocator.Resolve<ITestingEventstoreUpdater>()
+            void LoadWithCloneLocator() => clonedLocator.ExecuteInIsolatedScope(() => clonedLocator.Resolve<ITestingEventStoreUpdater>()
                                                                                                    .Get<TestAggregate>(_aggregate.Id));
                 TimeAsserter.Execute(
                     maxTotal: maxUncachedLoadTime,

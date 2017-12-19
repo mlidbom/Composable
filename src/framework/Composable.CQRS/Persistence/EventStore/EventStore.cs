@@ -27,7 +27,7 @@ namespace Composable.Persistence.EventStore
 
         readonly HashSet<Guid> _aggregatesWithEventsAddedByThisInstance = new HashSet<Guid>();
 
-        protected EventStore(IEventstorePersistenceLayer persistenceLayer, IEventStoreEventSerializer serializer, ISingleContextUseGuard usageGuard, EventCache cache, IEnumerable<IEventMigration> migrations)
+        protected EventStore(IEventStorePersistenceLayer persistenceLayer, IEventStoreEventSerializer serializer, ISingleContextUseGuard usageGuard, EventCache cache, IEnumerable<IEventMigration> migrations)
         {
             _serializer = serializer;
             Log.Debug("Constructor called");
@@ -233,7 +233,7 @@ namespace Composable.Persistence.EventStore
                         }
                         catch(Exception e) when(IsRecoverableSqlException(e) && ++retries <= recoverableErrorRetriesToMake)
                         {
-                            Log.Warning(e, $"Failed to persist migrations for aggregate: {aggregateId}. Exception appers to be recoverable so running retry {retries} out of {recoverableErrorRetriesToMake}");
+                            Log.Warning(e, $"Failed to persist migrations for aggregate: {aggregateId}. Exception appears to be recoverable so running retry {retries} out of {recoverableErrorRetriesToMake}");
                         }
                     }
                 }

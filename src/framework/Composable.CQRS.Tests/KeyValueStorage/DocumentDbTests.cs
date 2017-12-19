@@ -55,8 +55,8 @@ namespace Composable.Tests.KeyValueStorage
                            Password = "password",
                            Address = new Address
                                      {
-                                         City = "Stockholm",
-                                         Street = "Brännkyrkag",
+                                         City = "MyTown",
+                                         Street = "MyStreet",
                                          Streetnumber = 234
                                      }
                        };
@@ -166,8 +166,8 @@ namespace Composable.Tests.KeyValueStorage
                            Password = "password",
                            Address = new Address
                                      {
-                                         City = "Stockholm",
-                                         Street = "Brännkyrkag",
+                                         City = "MyTown",
+                                         Street = "MyStreet",
                                          Streetnumber = 234
                                      }
                        };
@@ -248,7 +248,7 @@ namespace Composable.Tests.KeyValueStorage
         }
 
         [Test]
-        public void ObjectsWhoseKeysDifferOnlyByCaseAreConsideredTheSameObjectForCompatabilityWithSqlServer()
+        public void ObjectsWhoseKeysDifferOnlyByCaseAreConsideredTheSameObjectForCompatibilityWithSqlServer()
         {
             var lowerCase = new Email("theemail");
             var upperCase = new Email(lowerCase.TheEmail.ToUpper());
@@ -281,7 +281,7 @@ namespace Composable.Tests.KeyValueStorage
         }
 
         [Test]
-        public void ObjectsWhoseKeysDifferOnlyByTrailingSpacesTrailingWhiteSpaceCaseAreConsideredTheSameObjectForCompatabilityWithSqlServer()
+        public void ObjectsWhoseKeysDifferOnlyByTrailingSpacesTrailingWhiteSpaceCaseAreConsideredTheSameObjectForCompatibilityWithSqlServer()
         {
             var noWhitespace = new Email("theemail");
             var withWhitespace = new Email(noWhitespace.TheEmail + "  ");
@@ -753,18 +753,18 @@ namespace Composable.Tests.KeyValueStorage
         {
             var store = CreateStore();
 
-            var adict = new Dictionary<Type, Dictionary<string, string>>();
+            var dictionary = new Dictionary<Type, Dictionary<string, string>>();
 
             1.Through(4).ForEach(num =>
             {
                 var user = new User() { Id = Guid.NewGuid()};
-                store.Add(user.Id, user, adict);
+                store.Add(user.Id, user, dictionary);
             });
 
             1.Through(4).ForEach(num =>
             {
                 var person = new Person() { Id = Guid.NewGuid() };
-                store.Add(person.Id, person, adict);
+                store.Add(person.Id, person, dictionary);
             });
 
             store.GetAll<User>().Should().HaveCount(4);
@@ -783,18 +783,18 @@ namespace Composable.Tests.KeyValueStorage
         {
             var store = CreateStore();
 
-            var adict = new Dictionary<Type, Dictionary<string, string>>();
+            var dictionary = new Dictionary<Type, Dictionary<string, string>>();
 
             1.Through(4).ForEach(num =>
             {
                 var user = new User() { Id = Guid.NewGuid() };
-                store.Add(user.Id, user, adict);
+                store.Add(user.Id, user, dictionary);
             });
 
             1.Through(4).ForEach(num =>
             {
                 var person = new Person() { Id = Guid.NewGuid() };
-                store.Add(person.Id, person, adict);
+                store.Add(person.Id, person, dictionary);
             });
 
             store.GetAll<User>().Should().HaveCount(4);

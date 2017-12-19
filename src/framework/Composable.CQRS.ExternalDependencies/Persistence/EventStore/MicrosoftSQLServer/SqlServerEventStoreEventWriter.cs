@@ -108,7 +108,7 @@ SET @{EventTable.Columns.InsertionOrder} = SCOPE_IDENTITY();";
             {
                 OldContract.Assert.That(replacementGroup.All(@this => @this.Replaces.HasValue && @this.Replaces > 0),
                                      "replacementGroup.All(@this => @this.Replaces.HasValue && @this.Replaces > 0)");
-                var eventToReplace = LoadEventOrderNeighbourhood(replacementGroup.Key);
+                var eventToReplace = LoadEventOrderNeighborhood(replacementGroup.Key);
 
                 SaveEventsWithinReadOrderRange(
                     newEvents: replacementGroup.ToArray(),
@@ -119,7 +119,7 @@ SET @{EventTable.Columns.InsertionOrder} = SCOPE_IDENTITY();";
             {
                 OldContract.Assert.That(insertBeforeGroup.All(@this => @this.InsertBefore.HasValue && @this.InsertBefore.Value > 0),
                                      "insertBeforeGroup.All(@this => @this.InsertBefore.HasValue && @this.InsertBefore.Value > 0)");
-                var eventToInsertBefore = LoadEventOrderNeighbourhood(insertBeforeGroup.Key);
+                var eventToInsertBefore = LoadEventOrderNeighborhood(insertBeforeGroup.Key);
 
                 SaveEventsWithinReadOrderRange(
                     newEvents: insertBeforeGroup.ToArray(),
@@ -130,7 +130,7 @@ SET @{EventTable.Columns.InsertionOrder} = SCOPE_IDENTITY();";
             {
                 OldContract.Assert.That(insertAfterGroup.All(@this => @this.InsertAfter.HasValue && @this.InsertAfter.Value > 0),
                                      "insertAfterGroup.All(@this => @this.InsertAfter.HasValue && @this.InsertAfter.Value > 0)");
-                var eventToInsertAfter = LoadEventOrderNeighbourhood(insertAfterGroup.Key);
+                var eventToInsertAfter = LoadEventOrderNeighborhood(insertAfterGroup.Key);
 
                 SaveEventsWithinReadOrderRange(
                     newEvents: insertAfterGroup.ToArray(),
@@ -166,14 +166,14 @@ SET @{EventTable.Columns.InsertionOrder} = SCOPE_IDENTITY();";
 
         static SqlDecimal ToCorrectPrecisionAndScale(SqlDecimal value) => SqlDecimal.ConvertToPrecScale(value, 38, 19);
 
-        class EventOrderNeighbourhood
+        class EventOrderNeighborhood
         {
             long InsertionOrder { get; }
             public SqlDecimal EffectiveReadOrder { get; }
             public SqlDecimal PreviousReadOrder { get; }
             public SqlDecimal NextReadOrder { get; }
 
-            public EventOrderNeighbourhood(long insertionOrder, SqlDecimal effectiveReadOrder, SqlDecimal previousReadOrder, SqlDecimal nextReadOrder)
+            public EventOrderNeighborhood(long insertionOrder, SqlDecimal effectiveReadOrder, SqlDecimal previousReadOrder, SqlDecimal nextReadOrder)
             {
                 InsertionOrder = insertionOrder;
                 EffectiveReadOrder = effectiveReadOrder;
@@ -186,22 +186,22 @@ SET @{EventTable.Columns.InsertionOrder} = SCOPE_IDENTITY();";
             SqlDecimal UseNextIntegerInsteadIfNullSinceThatMeansThisEventIsTheLastInTheEventStore(SqlDecimal nextReadOrder) => !nextReadOrder.IsNull ? nextReadOrder : ToCorrectPrecisionAndScale(new SqlDecimal(InsertionOrder + 1));
         }
 
-        EventOrderNeighbourhood LoadEventOrderNeighbourhood(long insertionOrder)
+        EventOrderNeighborhood LoadEventOrderNeighborhood(long insertionOrder)
         {
-            var lockHintToMinimizeRiskOfDeadlocksByTakingUpdatelockOnInitialRead = "With(UPDLOCK, READCOMMITTED, ROWLOCK)";
+            var lockHintToMinimizeRiskOfDeadlocksByTakingUpdateLockOnInitialRead = "With(UPDLOCK, READCOMMITTED, ROWLOCK)";
 
             var selectStatement = $@"
 SELECT  {EventTable.Columns.InsertionOrder},
         {EventTable.Columns.EffectiveReadOrder},        
         (select top 1 EffectiveReadorder from Event e1 where e1.EffectiveReadOrder < Event.EffectiveReadOrder order by EffectiveReadOrder desc) PreviousReadOrder,
         (select top 1 EffectiveReadorder from Event e1 where e1.EffectiveReadOrder > Event.EffectiveReadOrder order by EffectiveReadOrder) NextReadOrder
-FROM    {EventTable.Name} {lockHintToMinimizeRiskOfDeadlocksByTakingUpdatelockOnInitialRead} 
+FROM    {EventTable.Name} {lockHintToMinimizeRiskOfDeadlocksByTakingUpdateLockOnInitialRead} 
 where {EventTable.Columns.InsertionOrder} = @{EventTable.Columns.InsertionOrder}";
 
 
 
 
-            EventOrderNeighbourhood neighbourhood = null;
+            EventOrderNeighborhood neighborhood = null;
 
             _connectionManager.UseCommand(
                 command =>
@@ -213,7 +213,7 @@ where {EventTable.Columns.InsertionOrder} = @{EventTable.Columns.InsertionOrder}
                     {
                         reader.Read();
 
-                        neighbourhood = new EventOrderNeighbourhood(
+                        neighborhood = new EventOrderNeighborhood(
                             insertionOrder: reader.GetInt64(0),
                             effectiveReadOrder: reader.GetSqlDecimal(1),
                             previousReadOrder: reader.GetSqlDecimal(2),
@@ -221,7 +221,7 @@ where {EventTable.Columns.InsertionOrder} = @{EventTable.Columns.InsertionOrder}
                     }
                 });
 
-            return neighbourhood;
+            return neighborhood;
         }
 
         static SqlParameter Nullable(SqlParameter @this)

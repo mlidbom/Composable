@@ -166,16 +166,16 @@ namespace Composable.DependencyInjection
         public class ComponentRegistrationBuilderWithInstantiationSpec<TService> where TService : class
         {
             readonly IEnumerable<Type> _serviceTypes;
-            readonly InstantiationSpec _instantInstatiationSpec;
+            readonly InstantiationSpec _instantiationSpec;
 
-            internal ComponentRegistrationBuilderWithInstantiationSpec(IEnumerable<Type> serviceTypes, InstantiationSpec instantInstatiationSpec)
+            internal ComponentRegistrationBuilderWithInstantiationSpec(IEnumerable<Type> serviceTypes, InstantiationSpec instantiationSpec)
             {
                 _serviceTypes = serviceTypes;
-                _instantInstatiationSpec = instantInstatiationSpec;
+                _instantiationSpec = instantiationSpec;
             }
 
-            internal ComponentRegistration<TService> LifestyleSingleton() => new ComponentRegistration<TService>(Lifestyle.Singleton, _serviceTypes, _instantInstatiationSpec);
-            public ComponentRegistration<TService> LifestyleScoped() => new ComponentRegistration<TService>(Lifestyle.Scoped, _serviceTypes, _instantInstatiationSpec);
+            internal ComponentRegistration<TService> LifestyleSingleton() => new ComponentRegistration<TService>(Lifestyle.Singleton, _serviceTypes, _instantiationSpec);
+            public ComponentRegistration<TService> LifestyleScoped() => new ComponentRegistration<TService>(Lifestyle.Scoped, _serviceTypes, _instantiationSpec);
 
         }
     }

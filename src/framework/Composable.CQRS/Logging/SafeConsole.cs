@@ -3,13 +3,13 @@ using JetBrains.Annotations;
 
 namespace Composable.Logging
 {
-    ///<summary>This class exists mostly because nspec breaks System.Console somehow when tests run in paralell. We are forced to syncronize these tests with other tests and this is the current workaround.</summary>
+    ///<summary>This class exists mostly because NSpec breaks System.Console somehow when tests run in parallel. We are forced to synchronize these tests with other tests and this is the current workaround.</summary>
     static class SafeConsole
     {
-        internal static readonly object SyncronizationRoot = typeof(SafeConsole);
+        internal static readonly object SynchronizationRoot = typeof(SafeConsole);
         internal static void WriteLine(string message)
         {
-            lock(SyncronizationRoot)
+            lock(SynchronizationRoot)
             {
                 Console.WriteLine(message);
             }
@@ -21,7 +21,7 @@ namespace Composable.Logging
 
         static void Write(string message)
         {
-            lock(SyncronizationRoot)
+            lock(SynchronizationRoot)
             {
                 Console.Write(message);
             }

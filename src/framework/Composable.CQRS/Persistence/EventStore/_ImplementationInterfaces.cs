@@ -25,7 +25,7 @@ namespace Composable.Persistence.EventStore
     }
 
 
-    interface IEventstorePersistenceLayer
+    interface IEventStorePersistenceLayer
     {
         IEventStoreSchemaManager SchemaManager { get; }
         IEventStoreEventReader EventReader { get; }

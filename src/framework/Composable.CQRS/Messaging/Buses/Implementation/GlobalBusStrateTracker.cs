@@ -10,7 +10,7 @@ using Composable.System.Threading.ResourceAccess;
 
 namespace Composable.Messaging.Buses.Implementation
 {
-    class GlobalBusStrateTracker : IGlobalBusStrateTracker
+    class GlobalBusStateTracker : IGlobalBusStateTracker
     {
         readonly List<QueuedMessage> _queuedMessages = new List<QueuedMessage>();
         readonly Dictionary<Guid, InFlightMessage> _inflightMessages = new Dictionary<Guid, InFlightMessage>();
@@ -107,7 +107,7 @@ namespace Composable.Messaging.Buses.Implementation
         class QueuedMessage : IQueuedMessage
         {
             public readonly IInbox Bus;
-            readonly GlobalBusStrateTracker _globalBusStrateTracker;
+            readonly GlobalBusStateTracker _globalBusStateTracker;
             readonly Action _messageTask;
             public IMessage Message { get; }
             public Guid MessageId { get; }
@@ -120,20 +120,20 @@ namespace Composable.Messaging.Buses.Implementation
                     try
                     {
                         _messageTask();
-                        _globalBusStrateTracker.Succeeded(this);
+                        _globalBusStateTracker.Succeeded(this);
                     }
                     catch(Exception exception)
                     {
-                        _globalBusStrateTracker.Failed(this, exception);
+                        _globalBusStateTracker.Failed(this, exception);
                     }
                 });
             }
 
-            public QueuedMessage(IInbox bus, TransportMessage.InComing message, GlobalBusStrateTracker globalBusStrateTracker, Action messageTask)
+            public QueuedMessage(IInbox bus, TransportMessage.InComing message, GlobalBusStateTracker globalBusStateTracker, Action messageTask)
             {
                 Bus = bus;
                 MessageId = message.MessageId;
-                _globalBusStrateTracker = globalBusStrateTracker;
+                _globalBusStateTracker = globalBusStateTracker;
                 _messageTask = messageTask;
                 Message = message.DeserializeMessageAndCacheForNextCall();
             }

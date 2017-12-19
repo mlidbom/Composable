@@ -9,7 +9,7 @@ namespace Composable.Tests.GenericAbstractions.Time
     public class DummyTimeSourceTests
     {
         [Test]
-        public void Now_should_return_within_100_millisecond_of_datetime_utcnow()
+        public void Now_should_return_within_100_millisecond_of_datetime_UtcNow()
         {
             var uut = DummyTimeSource.Now;
             Math.Abs((uut.UtcNow - DateTime.UtcNow).TotalMilliseconds).Should().BeLessThan(100);

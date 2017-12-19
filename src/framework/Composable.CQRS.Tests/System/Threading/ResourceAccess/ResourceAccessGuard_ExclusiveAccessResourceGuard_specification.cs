@@ -74,7 +74,7 @@ namespace Composable.Tests.System.Threading.ResourceAccess
             [Test] public void Exception_is_ObjectLockTimedOutException()
                 => RunScenario(ownerThreadWaitTime: 0.Milliseconds()).Should().BeOfType<AwaitingExclusiveResourceLockTimeoutException>();
 
-            [Test] public void If_owner_thread_blocks_for_less_than_stacktrace_timeout_Exception_contains_owning_threads_stack_trace()
+            [Test] public void If_owner_thread_blocks_for_less_than_stackTrace_timeout_Exception_contains_owning_threads_stack_trace()
                 => RunScenario(ownerThreadWaitTime: 30.Milliseconds()).Message.Should().Contain(nameof(DisposeOwningThreadLock));
 
             [Test] public void If_owner_thread_blocks_for_more_than_stacktrace_timeout__Exception_does_not_contain_owning_threads_stack_trace()
@@ -88,12 +88,12 @@ namespace Composable.Tests.System.Threading.ResourceAccess
 
             static Exception RunScenario(TimeSpan ownerThreadWaitTime)
             {
-                var resourceGuaard = ResourceGuard.WithTimeout(10.Milliseconds());
+                var resourceGuard = ResourceGuard.WithTimeout(10.Milliseconds());
 
-                var exclusiveLock = resourceGuaard.AwaitExclusiveLock(0.Milliseconds());
+                var exclusiveLock = resourceGuard.AwaitExclusiveLock(0.Milliseconds());
 
                 var thrownException = Assert.Throws<AggregateException>(
-                                                () => Task.Run(() => resourceGuaard.AwaitExclusiveLock(15.Milliseconds()))
+                                                () => Task.Run(() => resourceGuard.AwaitExclusiveLock(15.Milliseconds()))
                                                           .Wait())
                                             .InnerExceptions.Single();
 

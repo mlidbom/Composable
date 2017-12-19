@@ -33,19 +33,19 @@ namespace Composable.System.Threading
         const int LengthIndicatorIntegerLengthInBytes = 4;
         readonly long _capacity;
         readonly MemoryMappedFile _file;
-        readonly MachineWideSingleThreaded _syncronizer;
+        readonly MachineWideSingleThreaded _synchronizer;
         internal static MachineWideSharedObject<TObject> For(string name, bool usePersistentFile = false, long capacity = 1000_000) => new MachineWideSharedObject<TObject>(name, usePersistentFile, capacity);
 
         MachineWideSharedObject(string name, bool usePersistentFile, long capacity)
         {
             _capacity = capacity;
             var fileName = $"{nameof(MachineWideSharedObject<TObject>)}_{name}";
-            _syncronizer = MachineWideSingleThreaded.For($"{fileName}_mutex");
+            _synchronizer = MachineWideSingleThreaded.For($"{fileName}_mutex");
 
             if(usePersistentFile)
             {
                 MemoryMappedFile mappedFile = null;
-                _syncronizer.Execute(() =>
+                _synchronizer.Execute(() =>
                                      {
                                          var actualFileName = fileName;
                                          foreach(var invalidChar in Path.GetInvalidFileNameChars())
@@ -81,7 +81,7 @@ namespace Composable.System.Threading
 
         }
 
-        internal void Synchronized(Action action) { _syncronizer.Execute(action); }
+        internal void Synchronized(Action action) { _synchronizer.Execute(action); }
 
         internal TObject GetCopy()
         {

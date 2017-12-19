@@ -16,7 +16,7 @@ namespace Composable.Messaging.Buses.Implementation
     {
         class Implementation
         {
-            public IGlobalBusStrateTracker GlobalBusStrateTracker;
+            public IGlobalBusStateTracker GlobalBusStateTracker;
 
             public readonly Dictionary<Type, HashSet<ClientConnection>> EventConnections = new Dictionary<Type, HashSet<ClientConnection>>();
             public readonly Dictionary<Type, ClientConnection> CommandConnections = new Dictionary<Type, ClientConnection>();
@@ -29,13 +29,13 @@ namespace Composable.Messaging.Buses.Implementation
 
         readonly IGuardedResource<Implementation> _this = GuardedResource<Implementation>.WithTimeout(10.Seconds());
 
-        public InterprocessTransport(IGlobalBusStrateTracker globalBusStrateTracker) => _this.Locked(@this => @this.GlobalBusStrateTracker = globalBusStrateTracker);
+        public InterprocessTransport(IGlobalBusStateTracker globalBusStateTracker) => _this.Locked(@this => @this.GlobalBusStateTracker = globalBusStateTracker);
 
         public void Connect(IEndpoint endpoint) => _this.Locked(@this =>
         {
             var messageHandlers = endpoint.ServiceLocator.Resolve<IMessageHandlerRegistry>();
 
-            var clientConnection = new ClientConnection(@this.GlobalBusStrateTracker, endpoint, @this.Poller);
+            var clientConnection = new ClientConnection(@this.GlobalBusStateTracker, endpoint, @this.Poller);
 
             @this.ClientConnections.Add(clientConnection);
 

@@ -30,10 +30,10 @@ namespace Composable.Persistence.EventStore.Query.Models
 
         IEventHandlerRegistrar<TAggregateRootBaseEventInterface> RegisterEventAppliers() => _eventAppliersEventDispatcher.Register();
 
-        public abstract class Entity<TEntitity, TEntityId, TEntityBaseEventClass, TEntityBaseEventInterface, TEntityCreatedEventInterface, TEventEntityIdGetter>
+        public abstract class Entity<TEntity, TEntityId, TEntityBaseEventClass, TEntityBaseEventInterface, TEntityCreatedEventInterface, TEventEntityIdGetter>
             where TEntityBaseEventInterface : class, TAggregateRootBaseEventInterface
             where TEntityCreatedEventInterface : TEntityBaseEventInterface
-            where TEntitity : Entity<TEntitity, TEntityId, TEntityBaseEventClass, TEntityBaseEventInterface, TEntityCreatedEventInterface, TEventEntityIdGetter>
+            where TEntity : Entity<TEntity, TEntityId, TEntityBaseEventClass, TEntityBaseEventInterface, TEntityCreatedEventInterface, TEventEntityIdGetter>
             where TEventEntityIdGetter : IGetAggregateRootEntityEventEntityId<TEntityBaseEventInterface, TEntityId>, new()
         {
             readonly CallMatchingHandlersInRegistrationOrderEventDispatcher<TEntityBaseEventInterface> _eventAppliersEventDispatcher =
@@ -45,9 +45,9 @@ namespace Composable.Persistence.EventStore.Query.Models
 
             protected IEventHandlerRegistrar<TEntityBaseEventInterface> RegisterEventAppliers() => _eventAppliersEventDispatcher.Register();
 
-            public static IReadOnlyEntityCollection<TEntitity, TEntityId> CreateSelfManagingCollection(TRootQueryModel rootQueryModel) => new Collection(rootQueryModel);
+            public static IReadOnlyEntityCollection<TEntity, TEntityId> CreateSelfManagingCollection(TRootQueryModel rootQueryModel) => new Collection(rootQueryModel);
 
-            class Collection : IReadOnlyEntityCollection<TEntitity, TEntityId>
+            class Collection : IReadOnlyEntityCollection<TEntity, TEntityId>
             {
                 public Collection(TRootQueryModel aggregate)
                 {
@@ -55,7 +55,7 @@ namespace Composable.Persistence.EventStore.Query.Models
                          .For<TEntityCreatedEventInterface>(
                             e =>
                             {
-                                var component = (TEntitity)Activator.CreateInstance(typeof(TEntitity), nonPublic:true);
+                                var component = (TEntity)Activator.CreateInstance(typeof(TEntity), nonPublic:true);
 
                                 _entities.Add(IdGetter.GetId(e), component);
                                 _entitiesInCreationOrder.Add(component);
@@ -64,17 +64,17 @@ namespace Composable.Persistence.EventStore.Query.Models
                 }
 
 
-                public IReadOnlyList<TEntitity> InCreationOrder => _entitiesInCreationOrder;
+                public IReadOnlyList<TEntity> InCreationOrder => _entitiesInCreationOrder;
 
-                public bool TryGet(TEntityId id, out TEntitity component) => _entities.TryGetValue(id, out component);
+                public bool TryGet(TEntityId id, out TEntity component) => _entities.TryGetValue(id, out component);
                 public bool Exists(TEntityId id) => _entities.ContainsKey(id);
-                public TEntitity Get(TEntityId id) => _entities[id];
-                public TEntitity this[TEntityId id] => _entities[id];
+                public TEntity Get(TEntityId id) => _entities[id];
+                public TEntity this[TEntityId id] => _entities[id];
 
-                readonly Dictionary<TEntityId, TEntitity> _entities = new Dictionary<TEntityId, TEntitity>();
-                readonly List<TEntitity> _entitiesInCreationOrder = new List<TEntitity>();
+                readonly Dictionary<TEntityId, TEntity> _entities = new Dictionary<TEntityId, TEntity>();
+                readonly List<TEntity> _entitiesInCreationOrder = new List<TEntity>();
 
-                public IEnumerator<TEntitity> GetEnumerator() => _entitiesInCreationOrder.GetEnumerator();
+                public IEnumerator<TEntity> GetEnumerator() => _entitiesInCreationOrder.GetEnumerator();
                 IEnumerator IEnumerable.GetEnumerator() => _entitiesInCreationOrder.GetEnumerator();
             }
         }

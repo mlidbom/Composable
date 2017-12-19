@@ -28,7 +28,7 @@ namespace Composable.Tests.DDD
         }
 
         [Test]
-        public void ReturnsHirerarchicalDescriptionOfData()
+        public void ReturnsHierarchicalDescriptionOfData()
         {
             var description = new Root
                                   {

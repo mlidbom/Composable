@@ -47,7 +47,7 @@ namespace Composable.Messaging.Buses
                 _commandHandlersReturningResults.Add(typeof(TCommand), command =>
                 {
                     var result = handler((TCommand)command);
-                    // ReSharper disable once CompareNonConstrainedGenericWithNull (null is never OK, but defaults might possibly be fine for structs..)
+                    // ReSharper disable once CompareNonConstrainedGenericWithNull (null is never OK, but defaults might possibly be fine for structs.)
                     if(result == null)
                     {
                         throw new Exception("You cannot return null from a command handler");

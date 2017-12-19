@@ -128,7 +128,7 @@ namespace Composable.Tests.ExternalDependencies.CQRS.EventSourcing.Sql
         {
             using (ServiceLocator.BeginScope())
             {
-                using (var updater = ServiceLocator.Resolve<ITestingEventstoreUpdater>())
+                using (var updater = ServiceLocator.Resolve<ITestingEventStoreUpdater>())
                 {
                     var user = new User();
                     user.Register("email@email.se", "password", Guid.NewGuid());

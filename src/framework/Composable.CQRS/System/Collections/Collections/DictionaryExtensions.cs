@@ -32,7 +32,7 @@ namespace Composable.System.Collections.Collections
         public static TValue GetOrAddDefault<TKey, TValue>(this IDictionary<TKey, TValue> me, TKey key) where TValue : new()
         {
             OldContract.Argument(() => me, () => key).NotNull();
-            //Originally written to delegate to the above method. Belive it or not this causes a performancedecrease that is actually significant in tight loops.
+            //Originally written to delegate to the above method. Believe it or not this causes a performance decrease that is actually significant in tight loops.
             if (me.TryGetValue(key, out var value))
             {
                 return value;

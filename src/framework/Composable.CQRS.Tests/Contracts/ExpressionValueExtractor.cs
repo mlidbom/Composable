@@ -13,7 +13,7 @@ namespace Composable.Tests.Contracts
         readonly object _wrappedIntOne = 1;
 
         [Test]
-        public void ExtractsValuesromFieldAccessingLambdas()
+        public void ExtractsValuesFromFieldAccessingLambdas()
         {
             var result = ContractsExpression.ExtractValue(() => _testString);
             Assert.That(result, Is.SameAs(_testString));

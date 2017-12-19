@@ -13,7 +13,7 @@ namespace Composable.Messaging.Buses.Implementation
     {
         class Implementation
         {
-            public IGlobalBusStrateTracker GlobalBusStrateTracker;
+            public IGlobalBusStateTracker GlobalBusStateTracker;
             public readonly Dictionary<Guid, TaskCompletionSource<IMessage>> ExpectedResponseTasks = new Dictionary<Guid, TaskCompletionSource<IMessage>>();
             public DealerSocket Socket;
             public NetMQPoller Poller;
@@ -30,11 +30,11 @@ namespace Composable.Messaging.Buses.Implementation
 
         readonly IGuardedResource<Implementation> _this = GuardedResource<Implementation>.WithTimeout(10.Seconds());
 
-        public ClientConnection(IGlobalBusStrateTracker globalBusStrateTracker, IEndpoint endpoint, NetMQPoller poller)
+        public ClientConnection(IGlobalBusStateTracker globalBusStateTracker, IEndpoint endpoint, NetMQPoller poller)
         {
             _this.Locked(@this =>
             {
-                @this.GlobalBusStrateTracker = globalBusStrateTracker;
+                @this.GlobalBusStateTracker = globalBusStateTracker;
 
                 @this.Poller = poller;
 
@@ -113,7 +113,7 @@ namespace Composable.Messaging.Buses.Implementation
                 taskCompletionSource.SetResult(null);
             }
 
-            @this.GlobalBusStrateTracker.SendingMessageOnTransport(outGoingMessage, message);
+            @this.GlobalBusStateTracker.SendingMessageOnTransport(outGoingMessage, message);
             @this.DispatchQueue.Enqueue(outGoingMessage);
 
             return taskCompletionSource.Task;

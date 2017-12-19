@@ -17,7 +17,7 @@ namespace Composable.Messaging.Buses.Implementation
     class Inbox : IInbox, IDisposable
     {
         readonly IServiceLocator _serviceLocator;
-        readonly IGlobalBusStrateTracker _globalStateTracker;
+        readonly IGlobalBusStateTracker _globalStateTracker;
         readonly IMessageHandlerRegistry _handlerRegistry;
 
         readonly IResourceGuard _resourceGuard = ResourceGuard.WithTimeout(1.Seconds());
@@ -40,7 +40,7 @@ namespace Composable.Messaging.Buses.Implementation
         public IReadOnlyList<Exception> ThrownExceptions => _globalStateTracker.GetExceptionsFor(this);
         NetMQPoller _poller;
 
-        public Inbox(IServiceLocator serviceLocator, IGlobalBusStrateTracker globalStateTracker, IMessageHandlerRegistry handlerRegistry, EndpointConfiguration configuration)
+        public Inbox(IServiceLocator serviceLocator, IGlobalBusStateTracker globalStateTracker, IMessageHandlerRegistry handlerRegistry, EndpointConfiguration configuration)
         {
             _address = configuration.Address;
             _serviceLocator = serviceLocator;

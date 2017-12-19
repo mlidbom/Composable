@@ -15,7 +15,7 @@ namespace Composable.Tests.System.Configuration
                                                 .ConnectionString,
                             _provider.GetConnectionProvider("CSTest1").ConnectionString);
 
-        [Test] public void ConnectionStringProvider_shuld_throw_ConfigurationErrorsException_when_name_does_not_exist() =>
+        [Test] public void ConnectionStringProvider_should_throw_ConfigurationErrorsException_when_name_does_not_exist() =>
             this.Invoking(_ => _provider.GetConnectionProvider("ErrorTest1").OpenConnection())
                 .ShouldThrow<ConfigurationErrorsException>();
 

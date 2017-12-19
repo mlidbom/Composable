@@ -20,12 +20,12 @@ namespace Composable.Tests.System.Threading
                    .BeFalse();
         }
 
-        [Fact] void Wait_does_not_return_return_until_lock_is_available_to_reaquire_after_timeout()
+        [Fact] void Wait_does_not_return_return_until_lock_is_available_to_reacquire_after_timeout()
         {
             var guarded = new object();
 
             var threadOneWaitsOnLockSection = GatedCodeSection.WithTimeout(5.Seconds()).Open();
-            var threadTwoHasAquiredLockAndWishesToReleaseItGate = ThreadGate.CreateClosedWithTimeout(5.Seconds());
+            var threadTwoHasAcquiredLockAndWishesToReleaseItGate = ThreadGate.CreateClosedWithTimeout(5.Seconds());
 
             var waitTimeout = 100.Milliseconds();
 
@@ -43,17 +43,17 @@ namespace Composable.Tests.System.Threading
                 taskRunner.Run(() =>
                 {
                     Monitor.Enter(guarded);
-                    threadTwoHasAquiredLockAndWishesToReleaseItGate.AwaitPassthrough();
+                    threadTwoHasAcquiredLockAndWishesToReleaseItGate.AwaitPassthrough();
                     Monitor.Exit(guarded);
                 });
 
-                threadTwoHasAquiredLockAndWishesToReleaseItGate.AwaitQueueLengthEqualTo(1);
+                threadTwoHasAcquiredLockAndWishesToReleaseItGate.AwaitQueueLengthEqualTo(1);
 
                 threadOneWaitsOnLockSection.ExitGate
                                            .TryAwaitPassededThroughCountEqualTo(1, timeout: 200.Milliseconds())
                                            .Should().Be(false);
 
-                threadTwoHasAquiredLockAndWishesToReleaseItGate.AwaitLetOneThreadPassthrough();
+                threadTwoHasAcquiredLockAndWishesToReleaseItGate.AwaitLetOneThreadPassthrough();
 
                 threadOneWaitsOnLockSection.ExitGate.AwaitPassedThroughCountEqualTo(1);
 
@@ -66,7 +66,7 @@ namespace Composable.Tests.System.Threading
             var guarded = new object();
 
             var threadOneWaitsOnLockSection = GatedCodeSection.WithTimeout(5.Seconds()).Open();
-            var threadTwoHasAquiredLockAndWishesToReleaseItGate = ThreadGate.CreateClosedWithTimeout(5.Seconds());
+            var threadTwoHasAcquiredLockAndWishesToReleaseItGate = ThreadGate.CreateClosedWithTimeout(5.Seconds());
 
             var waitTimeout = TimeSpan.FromMilliseconds(int.MaxValue);
 
@@ -84,18 +84,18 @@ namespace Composable.Tests.System.Threading
                 taskRunner.Run(() =>
                 {
                     Monitor.Enter(guarded);
-                    threadTwoHasAquiredLockAndWishesToReleaseItGate.AwaitPassthrough();
+                    threadTwoHasAcquiredLockAndWishesToReleaseItGate.AwaitPassthrough();
                     Monitor.PulseAll(guarded);
                     Monitor.Exit(guarded);
                 });
 
-                threadTwoHasAquiredLockAndWishesToReleaseItGate.AwaitQueueLengthEqualTo(1);
+                threadTwoHasAcquiredLockAndWishesToReleaseItGate.AwaitQueueLengthEqualTo(1);
 
                 threadOneWaitsOnLockSection.ExitGate
                                            .TryAwaitPassededThroughCountEqualTo(1, timeout: 200.Milliseconds())
                                            .Should().Be(false);
 
-                threadTwoHasAquiredLockAndWishesToReleaseItGate.AwaitLetOneThreadPassthrough();
+                threadTwoHasAcquiredLockAndWishesToReleaseItGate.AwaitLetOneThreadPassthrough();
 
                 threadOneWaitsOnLockSection.ExitGate.AwaitPassedThroughCountEqualTo(1);
 

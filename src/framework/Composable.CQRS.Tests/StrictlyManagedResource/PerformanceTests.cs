@@ -2,6 +2,7 @@
 using Composable.Testing;
 using Composable.Testing.Performance;
 using NUnit.Framework;
+// ReSharper disable StringLiteralTypo
 
 namespace Composable.Tests.StrictlyManagedResource
 {

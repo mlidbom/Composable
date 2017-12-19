@@ -42,7 +42,7 @@ namespace Composable.Tests.Contracts
 
 
             var badValues = new List<string> {space, tab, lineBreak, newLine, environmentNewLine};
-            var goodValues = new List<string> {"aoeu", "lorem"};
+            var goodValues = new List<string> {"good1", "good2"};
 
             InspectionTestHelper.BatchTestInspection<StringIsWhitespaceContractViolationException, string>(
                 assert: inspected => inspected.NotNullEmptyOrWhiteSpace(),

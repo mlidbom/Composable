@@ -15,11 +15,11 @@ namespace Composable.Persistence.EventStore.MicrosoftSQLServer
     {
         readonly IEventNameMapper _nameMapper;
 
-        readonly SqlServerEventStoreConnectionManager _connectionMananger;
+        readonly SqlServerEventStoreConnectionManager _connectionManager;
         public SqlServerEventStoreEventTypeToIdMapper(ISqlConnection connection, IEventNameMapper nameMapper)
         {
             _nameMapper = nameMapper;
-            _connectionMananger = new SqlServerEventStoreConnectionManager(connection);
+            _connectionManager = new SqlServerEventStoreConnectionManager(connection);
         }
 
         public Type GetType(int id)
@@ -89,7 +89,7 @@ namespace Composable.Persistence.EventStore.MicrosoftSQLServer
 
         IdTypeMapping InsertNewType(Type newType) => TransactionScopeCe.SuppressAmbientAndExecuteInNewTransaction(() =>
         {
-            using(var connection = _connectionMananger.OpenConnection())
+            using(var connection = _connectionManager.OpenConnection())
             {
                 using(var command = connection.CreateCommand())
                 {
@@ -116,7 +116,7 @@ namespace Composable.Persistence.EventStore.MicrosoftSQLServer
         IEnumerable<IIdTypeMapping> GetTypes() => TransactionScopeCe.SuppressAmbient(() =>
         {
             var types = new List<IIdTypeMapping>();
-            using(var connection = _connectionMananger.OpenConnection(suppressTransactionWarning: true))
+            using(var connection = _connectionManager.OpenConnection(suppressTransactionWarning: true))
             {
                 using(var command = connection.CreateCommand())
                 {

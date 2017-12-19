@@ -26,7 +26,7 @@ namespace Composable.DependencyInjection.Persistence
         class EventStore<TSessionInterface, TReaderInterface> : EventStore, IEventStore<TSessionInterface, TReaderInterface>
         {
             public EventStore(IEventStoreEventSerializer serializer,
-                              IEventstorePersistenceLayer persistenceLayer,
+                              IEventStorePersistenceLayer persistenceLayer,
                               ISingleContextUseGuard usageGuard,
                               EventCache<TSessionInterface> cache,
                               IEnumerable<IEventMigration> migrations) : base(persistenceLayer, serializer, usageGuard, cache, migrations:migrations) {}
@@ -45,7 +45,7 @@ namespace Composable.DependencyInjection.Persistence
                                      IUtcTimeTimeSource timeSource) : base(inprocessBus, store, usageGuard, timeSource) {}
         }
 
-        interface IEventStorePersistenceLayer<TUpdater> : IEventstorePersistenceLayer
+        interface IEventStorePersistenceLayer<TUpdater> : IEventStorePersistenceLayer
         {
         }
 

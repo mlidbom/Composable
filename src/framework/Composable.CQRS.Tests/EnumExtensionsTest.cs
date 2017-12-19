@@ -5,7 +5,7 @@ namespace Composable.Tests
     [TestFixture]
     public class EnumExtensionsTest
     {
-        enum Flaggy
+        enum FlagsEnum
         {
             Flag1 = 1,
             Flag2 = 2,
@@ -15,22 +15,22 @@ namespace Composable.Tests
         [Test]
         public void HasFlagShouldReturnTrueIfTheEnumHasEqualsTheFlag()
         {
-            Assert.That(Flaggy.Flag1.HasFlag(Flaggy.Flag1));
-            Assert.That(Flaggy.Flag2.HasFlag(Flaggy.Flag2));
-            Assert.That(Flaggy.Flag3.HasFlag(Flaggy.Flag3));
+            Assert.That(FlagsEnum.Flag1.HasFlag(FlagsEnum.Flag1));
+            Assert.That(FlagsEnum.Flag2.HasFlag(FlagsEnum.Flag2));
+            Assert.That(FlagsEnum.Flag3.HasFlag(FlagsEnum.Flag3));
         }
 
         [Test]
         public void HasFlagShouldNotReturnTrueForAnyOfTheOtherFlags()
         {
-            Assert.That(Flaggy.Flag1.HasFlag(Flaggy.Flag2), Is.False);
-            Assert.That(Flaggy.Flag1.HasFlag(Flaggy.Flag3), Is.False);
+            Assert.That(FlagsEnum.Flag1.HasFlag(FlagsEnum.Flag2), Is.False);
+            Assert.That(FlagsEnum.Flag1.HasFlag(FlagsEnum.Flag3), Is.False);
 
-            Assert.That(Flaggy.Flag2.HasFlag(Flaggy.Flag1), Is.False);
-            Assert.That(Flaggy.Flag2.HasFlag(Flaggy.Flag3), Is.False);
+            Assert.That(FlagsEnum.Flag2.HasFlag(FlagsEnum.Flag1), Is.False);
+            Assert.That(FlagsEnum.Flag2.HasFlag(FlagsEnum.Flag3), Is.False);
 
-            Assert.That(Flaggy.Flag3.HasFlag(Flaggy.Flag1), Is.False);
-            Assert.That(Flaggy.Flag3.HasFlag(Flaggy.Flag2), Is.False);
+            Assert.That(FlagsEnum.Flag3.HasFlag(FlagsEnum.Flag1), Is.False);
+            Assert.That(FlagsEnum.Flag3.HasFlag(FlagsEnum.Flag2), Is.False);
         }
     }
 }

@@ -15,7 +15,7 @@ namespace Composable.Messaging.Buses
 
         readonly IDependencyInjectionContainer _container;
 
-        public EndpointBuilder(IGlobalBusStrateTracker globalStateTracker, IDependencyInjectionContainer container)
+        public EndpointBuilder(IGlobalBusStateTracker globalStateTracker, IDependencyInjectionContainer container)
         {
             _container = container;
 
@@ -29,7 +29,7 @@ namespace Composable.Messaging.Buses
                 Component.For<ISingleContextUseGuard>()
                          .ImplementedBy<SingleThreadUseGuard>()
                          .LifestyleScoped(),
-                Component.For<IGlobalBusStrateTracker>()
+                Component.For<IGlobalBusStateTracker>()
                          .UsingFactoryMethod(() => globalStateTracker)
                          .LifestyleSingleton(),
                 Component.For<IMessageHandlerRegistry, IMessageHandlerRegistrar, MessageHandlerRegistry>()

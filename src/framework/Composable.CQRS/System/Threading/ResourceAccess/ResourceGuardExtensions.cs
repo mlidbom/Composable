@@ -143,12 +143,12 @@ namespace Composable.System.Threading.ResourceAccess
     class AwaitingConditionTimedOutException : Exception
     {
         public AwaitingConditionTimedOutException(AwaitingUpdateNotificationTimedOutException notificationTimeout) : base(
-            "Timed out waiting for condiditon to become true. Never got any update notifications",
+            "Timed out waiting for condition to become true. Never got any update notifications",
             innerException: notificationTimeout) {}
 
         public AwaitingConditionTimedOutException(AwaitingConditionTimedOutException parent, string message) : base(message, innerException: parent)
         { }
 
-        public AwaitingConditionTimedOutException() : base("Timed out waiting for condiditon to become true.") {}
+        public AwaitingConditionTimedOutException() : base("Timed out waiting for condition to become true.") {}
     }
 }

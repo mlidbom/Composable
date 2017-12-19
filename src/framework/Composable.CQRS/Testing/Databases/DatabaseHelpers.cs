@@ -41,7 +41,7 @@ CLOSE cur
 DEALLOCATE cur
 ";
 
-        internal static readonly string SetReadCommittedSnapshotOnStatment = @"
+        internal static readonly string SetReadCommittedSnapshotOnStatement = @"
 declare @databaseName varchar(1000)
 select @databaseName = DB_NAME()
 declare @sql nvarchar(500)
@@ -62,7 +62,7 @@ exec sp_executesql @sql";
             using (var cmd = connection.CreateCommand())
             {
                 cmd.CommandType = CommandType.Text;
-                cmd.CommandText = DropAllObjectsStatement + SetReadCommittedSnapshotOnStatment;
+                cmd.CommandText = DropAllObjectsStatement + SetReadCommittedSnapshotOnStatement;
                 cmd.ExecuteNonQuery();
             }
         }

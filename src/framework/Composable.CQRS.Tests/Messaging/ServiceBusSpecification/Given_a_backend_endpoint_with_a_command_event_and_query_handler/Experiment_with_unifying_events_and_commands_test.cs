@@ -36,7 +36,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
                                  "UserManagement.Domain",
                                  builder =>
                                  {
-                                     builder.Container.RegisterSqlServerEventStore<IUserEventStoreUpdater, IUserEventStoreReader>("Someconnectionname");
+                                     builder.Container.RegisterSqlServerEventStore<IUserEventStoreUpdater, IUserEventStoreReader>("SomeConnectionName");
 
                                      builder.RegisterHandlers
                                             .ForEvent((UserEvent.Implementation.UserRegisteredEvent myEvent) => {})

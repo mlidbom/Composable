@@ -27,9 +27,9 @@ namespace Composable.Tests.KeyValueStorage
 
     class Address : ValueObject<Address>
     {
-        public string Street { [UsedImplicitly] get; set; } = "Somestreet";
+        public string Street { [UsedImplicitly] get; set; } = "SomeStreet";
         public int Streetnumber { [UsedImplicitly] get; set; } = 12;
-        public string City { [UsedImplicitly] get; set; } = "Ostnahe";
+        public string City { [UsedImplicitly] get; set; } = "SomeCity";
     }
 
     class Email : ValueObject<Email>

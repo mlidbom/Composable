@@ -23,7 +23,7 @@ namespace Composable.System.Threading.ResourceAccess
         void NotifyWaitingThreadsAboutUpdate();
 
         //todo: These two timeouts are fundamentally different from the timeout waiting to get a lock.
-        //Consider a better design. They should probably not share the default timeout designed for lock aquisition.
+        //Consider a better design. They should probably not share the default timeout designed for lock acquisition.
         void ReleaseLockAwaitUpdateNotificationAndAwaitExclusiveLock(TimeSpan timeout);
         bool TryReleaseLockAwaitUpdateNotificationAndAwaitExclusiveLock(TimeSpan timeout);
     }

@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Linq;
-using AccountManagement.API.UserCommands;
+using AccountManagement.API;
 using FluentAssertions;
 using NUnit.Framework;
 
@@ -9,12 +9,12 @@ namespace AccountManagement.Tests.UI.Commands.UserCommands
     [TestFixture]
     public class RegisterAccountCommandTests
     {
-        RegisterAccountCommand _registerAccountCommand;
+        AccountResource.RegisterAccountCommand _registerAccountCommand;
 
         [SetUp]
         public void CreateValidCommand()
         {
-            _registerAccountCommand = new RegisterAccountCommand()
+            _registerAccountCommand = new AccountResource.RegisterAccountCommand()
                                       {
                                           Email = "valid.email@google.com",
                                           Password = "AComplex!1Password"

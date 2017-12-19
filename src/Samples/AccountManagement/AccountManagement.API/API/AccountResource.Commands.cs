@@ -1,56 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using AccountManagement.API.UserCommands;
 using AccountManagement.API.ValidationAttributes;
-using AccountManagement.Domain;
-using Composable.Messaging;
 using Composable.Messaging.Commands;
 using JetBrains.Annotations;
 using Newtonsoft.Json;
-// ReSharper disable MemberCanBeMadeStatic.Global
 
 namespace AccountManagement.API
 {
-    public static class AccountApi
+    public partial class AccountResource
     {
-        public static StartResource Start => new StartResource();
-    }
-
-    public class StartResource
-    {
-        public static IQuery<StartResource> Self => SingletonQuery.For<StartResource>();
-
-        public StartResourceCommands Commands => new StartResourceCommands();
-        public StartResourceQueries Queries => new StartResourceQueries();
-
-        public class StartResourceQueries
-        {
-            public EntityQuery<AccountResource> AccountById(Guid accountId) => new EntityQuery<AccountResource>(accountId);
-        }
-
-        public class StartResourceCommands
-        {
-            public RegisterAccountCommand CreateAccount(Guid accountId, string email, string password) => new RegisterAccountCommand(accountId, email, password);
-        }
-    }
-
-    public class AccountResource : EntityResource<AccountResource>
-    {
-        [UsedImplicitly] AccountResource() {}
-
-        internal AccountResource(IAccountResourceData account) : base(account.Id)
-        {
-            Commands = new AccountResourceCommands(this);
-            Email = account.Email;
-            Password = account.Password;
-        }
-
-        public Email Email { get; private set; }
-        public Password Password { get; private set; }
-
         public AccountResourceCommands Commands { get; private set; }
-
         public class AccountResourceCommands
         {
             [JsonProperty] Guid _accountId;
@@ -85,14 +45,35 @@ namespace AccountManagement.API
         public class ChangeEmailCommand : DomainCommand
         {
             [Required] [EntityId] public Guid AccountId { get; set; }
-            [Required][Email] public string Email { get; set; }
+            [Required] [Email] public string Email { get; set; }
         }
-    }
 
-    interface IAccountResourceData
-    {
-        Guid Id { get; }
-        Email Email { get; }
-        Password Password { get; }
+        public class RegisterAccountCommand : DomainCommand<AccountResource>, IValidatableObject
+        {
+            public RegisterAccountCommand() { }
+            public RegisterAccountCommand(Guid accountId, string email, string password)
+            {
+                AccountId = accountId;
+                Email = email;
+                Password = password;
+            }
+
+            //Note the use of a custom validation attribute.
+            [Required(ErrorMessageResourceType = typeof(RegisterAccountCommandResources), ErrorMessageResourceName = "IdInvalid")]
+            [EntityId(ErrorMessageResourceType = typeof(RegisterAccountCommandResources), ErrorMessageResourceName = "IdMissing")]
+            public Guid AccountId { [UsedImplicitly] get; set; } = Guid.NewGuid();
+
+            //Note the use of a custom validation attribute.
+            [Email(ErrorMessageResourceType = typeof(RegisterAccountCommandResources), ErrorMessageResourceName = "EmailInvalid")]
+            [Required(ErrorMessageResourceType = typeof(RegisterAccountCommandResources), ErrorMessageResourceName = "EmailMissing")]
+            public string Email { [UsedImplicitly] get; set; }
+
+            [Required(ErrorMessageResourceType = typeof(RegisterAccountCommandResources), ErrorMessageResourceName = "PasswordMissing")]
+            // ReSharper disable once MemberCanBePrivate.Global
+            public string Password { get; set; }
+
+            public IEnumerable<ValidationResult> Validate(ValidationContext validationContext) => Domain.Password.Validate(Password, this, () => Password);
+
+        }
     }
 }

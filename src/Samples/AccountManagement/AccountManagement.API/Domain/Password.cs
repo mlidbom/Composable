@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Linq.Expressions;
-using AccountManagement.API.UserCommands;
+using AccountManagement.API;
 using Composable.System.ComponentModel.DataAnnotations;
 using JetBrains.Annotations;
 

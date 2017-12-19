@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace AccountManagement.API.UserCommands {
+namespace AccountManagement.API {
     using System;
     
     
@@ -39,7 +39,7 @@ namespace AccountManagement.API.UserCommands {
         public static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
-                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("AccountManagement.API.UserCommands.RegisterAccountCommandResources", typeof(RegisterAccountCommandResources).Assembly);
+                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("AccountManagement.API.RegisterAccountCommandResources", typeof(RegisterAccountCommandResources).Assembly);
                     resourceMan = temp;
                 }
                 return resourceMan;

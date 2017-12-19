@@ -1,6 +1,5 @@
 using System;
 using AccountManagement.API;
-using AccountManagement.API.UserCommands;
 using Composable.Messaging.Buses;
 
 namespace AccountManagement.Tests.Scenarios
@@ -9,7 +8,7 @@ namespace AccountManagement.Tests.Scenarios
     {
         readonly IServiceBus _bus;
 
-        public RegisterAccountCommand Command { get; }
+        public AccountResource.RegisterAccountCommand Command { get; }
 
         public RegisterAccountScenario(IServiceBus bus, string email = null, string password = null)
         {

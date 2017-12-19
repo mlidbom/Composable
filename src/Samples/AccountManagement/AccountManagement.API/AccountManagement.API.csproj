@@ -36,7 +36,7 @@
 
   
   <ItemGroup>
-    <Compile Update="API\UserCommands\RegisterAccountCommandResources.Designer.cs">
+    <Compile Update="API\RegisterAccountCommandResources.Designer.cs">
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
       <DependentUpon>RegisterAccountCommandResources.resx</DependentUpon>
@@ -45,7 +45,7 @@
 
   
   <ItemGroup>
-    <EmbeddedResource Update="API\UserCommands\RegisterAccountCommandResources.resx">
+    <EmbeddedResource Update="API\RegisterAccountCommandResources.resx">
       <Generator>PublicResXFileCodeGenerator</Generator>
       <LastGenOutput>RegisterAccountCommandResources.Designer.cs</LastGenOutput>
     </EmbeddedResource>

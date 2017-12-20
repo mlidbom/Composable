@@ -2,6 +2,7 @@
 using Composable.Contracts;
 using Composable.Persistence.EventStore;
 using JetBrains.Annotations;
+
 // ReSharper disable MemberHidesStaticFromOuterClass
 // ReSharper disable InconsistentNaming
 
@@ -19,7 +20,7 @@ namespace AccountManagement.Domain.Events
 
             public class UserRegistered : Root, AccountEvent.UserRegistered
             {
-                [UsedImplicitly] UserRegistered() { } //ncrunch: no coverage
+                [UsedImplicitly] UserRegistered() {} //ncrunch: no coverage
 
                 ///<summary>
                 /// The constructor should guarantee that the event is correctly created.
@@ -29,7 +30,7 @@ namespace AccountManagement.Domain.Events
                 public UserRegistered(Guid accountId, Email email, Password password) : base(accountId)
                 {
                     OldContract.Argument(() => email, () => password)
-                            .NotNull();
+                               .NotNull();
 
                     Email = email;
                     Password = password;
@@ -41,7 +42,7 @@ namespace AccountManagement.Domain.Events
 
             public class UserChangedEmail : Root, AccountEvent.UserChangedEmail
             {
-                [UsedImplicitly] UserChangedEmail() { } //ncrunch: no coverage
+                [UsedImplicitly] UserChangedEmail() {} //ncrunch: no coverage
 
                 public UserChangedEmail(Email email) => Email = email;
 
@@ -50,12 +51,21 @@ namespace AccountManagement.Domain.Events
 
             public class UserChangedPassword : Root, AccountEvent.UserChangedPassword
             {
-                [UsedImplicitly] public UserChangedPassword() { } //ncrunch: no coverage
+                [UsedImplicitly] public UserChangedPassword() {} //ncrunch: no coverage
 
                 public UserChangedPassword(Password password) => Password = password;
 
                 public Password Password { get; private set; }
             }
+
+            public class LoggedIn : Root, AccountEvent.LoggedIn
+            {
+                public string Token { get; }
+
+                public LoggedIn(string token) => Token = token;
+            }
+
+            public class LoginFailed : Root, AccountEvent.LoginFailed {}
         }
     }
 }

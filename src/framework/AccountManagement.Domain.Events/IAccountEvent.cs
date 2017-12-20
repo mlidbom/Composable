@@ -42,5 +42,13 @@ namespace AccountManagement.Domain.Events
                 Domain.Email Email { get; /* Never add a setter! */ }
             }
         }
+
+        public interface LoggedIn
+        {
+        }
+
+        public interface LoginFailed
+        {
+        }
     }
 }

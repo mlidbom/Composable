@@ -32,8 +32,6 @@ namespace AccountManagement.API
 
                 public class UI : DomainCommand<LoginAttemptResult>
                 {
-                    public UI() {}
-
                     [Required] [Email] public string Email { get; set; }
                     [Required] public string Password { get; set; }
 

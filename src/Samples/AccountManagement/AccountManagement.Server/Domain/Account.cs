@@ -24,7 +24,9 @@ namespace AccountManagement.Domain
             //Use property updated events whenever possible. Changes to public state should be represented by property updated events.
             RegisterEventAppliers()
                 .For<AccountEvent.PropertyUpdated.Email>(e => Email = e.Email)
-                .For<AccountEvent.PropertyUpdated.Password>(e => Password = e.Password);
+                .For<AccountEvent.PropertyUpdated.Password>(e => Password = e.Password)
+                .IgnoreUnhandled<AccountEvent.LoggedIn>()
+                .IgnoreUnhandled<AccountEvent.LoginFailed>();
         }
 
         //Ensure that the state of the instance is sane. If not throw an exception.
@@ -69,12 +71,26 @@ namespace AccountManagement.Domain
             Publish(new AccountEvent.Implementation.UserChangedEmail(command.Email));
         }
 
+        bool Login(string logInPassword, out string authenticationToken)
+        {
+            if(Password.IsCorrectPassword(logInPassword))
+            {
+                authenticationToken = Guid.NewGuid().ToString();
+                Publish(new AccountEvent.Implementation.LoggedIn(authenticationToken));
+                return true;
+            }
+
+            Publish(new AccountEvent.Implementation.LoginFailed());
+            authenticationToken = null;
+            return false;
+        }
+
         static LoginAttemptResult Login(AccountResource.Command.LogIn.Domain logIn, IInProcessServiceBus bus)
         {
-            var account = bus.Get(new PrivateApi.TryGetAccountByEmailQuery(logIn.Email));
-            if(account != null && account.Password.IsCorrectPassword(logIn.Password))
+            var account = bus.Query(new PrivateApi.TryGetAccountByEmailQuery(logIn.Email));
+            if(account != null && account.Login(logIn.Password, out var authenticationToken))
             {
-                return LoginAttemptResult.Success();
+                return LoginAttemptResult.Success(authenticationToken);
             }
 
             return LoginAttemptResult.Failure();

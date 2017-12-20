@@ -34,7 +34,7 @@ namespace Composable.Messaging.Buses
             AfterDispatchingMessage(message);
         }
 
-        TResult IInProcessServiceBus.Get<TResult>(IQuery<TResult> query)
+        TResult IInProcessServiceBus.Query<TResult>(IQuery<TResult> query)
         {
             var returnValue = _handlerRegistry.GetQueryHandler(query)
                                               .Invoke(query);

@@ -7,9 +7,9 @@ namespace AccountManagement.API
         public string AuthenticationToken { get; private set; }
         public bool Succeeded { get; private set; }
 
-        public static LoginAttemptResult Success() => new LoginAttemptResult()
+        public static LoginAttemptResult Success(string authenticationToken) => new LoginAttemptResult()
                                                       {
-                                                          AuthenticationToken = Guid.NewGuid().ToString(),
+                                                          AuthenticationToken = authenticationToken,
                                                           Succeeded = true
                                                       };
 

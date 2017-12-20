@@ -7,7 +7,6 @@ using Composable.GenericAbstractions.Time;
 using Composable.Messaging.Buses;
 using Composable.Persistence.EventStore.AggregateRoots;
 
-
 namespace AccountManagement.Domain
 {
     ///Completely encapsulates all the business logic for an account.  Should make it impossible for clients to use the class incorrectly.
@@ -71,29 +70,23 @@ namespace AccountManagement.Domain
             Publish(new AccountEvent.Implementation.UserChangedEmail(command.Email));
         }
 
-        bool Login(string logInPassword, out string authenticationToken)
+        LoginAttemptResult Login(string logInPassword)
         {
             if(Password.IsCorrectPassword(logInPassword))
             {
-                authenticationToken = Guid.NewGuid().ToString();
+                var authenticationToken = Guid.NewGuid().ToString();
                 Publish(new AccountEvent.Implementation.LoggedIn(authenticationToken));
-                return true;
+                return LoginAttemptResult.Success(authenticationToken);
             }
 
             Publish(new AccountEvent.Implementation.LoginFailed());
-            authenticationToken = null;
-            return false;
+            return LoginAttemptResult.Failure();
         }
 
         static LoginAttemptResult Login(AccountResource.Command.LogIn.Domain logIn, IInProcessServiceBus bus)
         {
             var account = bus.Query(new PrivateApi.TryGetAccountByEmailQuery(logIn.Email));
-            if(account != null && account.Login(logIn.Password, out var authenticationToken))
-            {
-                return LoginAttemptResult.Success(authenticationToken);
-            }
-
-            return LoginAttemptResult.Failure();
+            return account == null ? LoginAttemptResult.Failure() : account.Login(logIn.Password);
         }
     }
 }

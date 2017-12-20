@@ -44,7 +44,7 @@ namespace Composable.Messaging.Events
 
         IEventHandlerRegistrar<TBaseEvent> BeforeHandlers<THandledEvent>(Action<THandledEvent> runBeforeHandlers) where THandledEvent : TBaseEvent;
         IEventHandlerRegistrar<TBaseEvent> AfterHandlers<THandledEvent>(Action<THandledEvent> runAfterHandlers) where THandledEvent : TBaseEvent;
-        IEventHandlerRegistrar<TBaseEvent> IgnoreUnhandled<T>();
+        IEventHandlerRegistrar<TBaseEvent> IgnoreUnhandled<TIgnored>() where TIgnored : TBaseEvent;
     }
 
     static class EventHandlerRegistrar

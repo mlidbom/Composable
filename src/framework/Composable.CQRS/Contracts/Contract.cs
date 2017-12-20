@@ -3,19 +3,19 @@ using JetBrains.Annotations;
 
 namespace Composable.Contracts
 {
-    static class Contract
+    public class Contract
     {
         ///<summary>Assert conditions about current state of "this". Failures would mean that someone made a call that is illegal given state of "this".</summary>
-        internal static BaseAssertion State { get; } = BaseAssertion.StateInstance;
+        public static BaseAssertion State { get; } = BaseAssertion.StateInstance;
 
         ///<summary>Assert something that must always be true for "this".</summary>
-        internal static BaseAssertion Invariant { get; } = BaseAssertion.InvariantInstance;
+        public static BaseAssertion Invariant { get; } = BaseAssertion.InvariantInstance;
 
         ///<summary>Assert conditions on arguments to current method.</summary>
-        internal static BaseAssertion Argument { get; } = BaseAssertion.ArgumentsInstance;
+        public static BaseAssertion Argument { get; } = BaseAssertion.ArgumentsInstance;
 
         ///<summary>Assert conditions on the result of makeing a method call.</summary>
-        internal static BaseAssertion Result { get; } = BaseAssertion.ResultInstance;
+        public static BaseAssertion Result { get; } = BaseAssertion.ResultInstance;
 
 
 

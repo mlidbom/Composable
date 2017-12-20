@@ -1,11 +1,8 @@
-﻿using System;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using AccountManagement.API.ValidationAttributes;
 using AccountManagement.Domain;
 using Composable.Contracts;
 using Composable.Messaging.Commands;
-using JetBrains.Annotations;
-using Newtonsoft.Json;
 
 namespace AccountManagement.API
 {
@@ -17,7 +14,7 @@ namespace AccountManagement.API
             {
                 internal class Domain : DomainCommand<LoginAttemptResult>
                 {
-                    [JsonConstructor]internal Domain(Email email, string password)
+                    internal Domain(Email email, string password)
                     {
                         OldContract.Argument(() => email).NotNullOrDefault();
                         OldContract.Argument(() => password).NotNullEmptyOrWhiteSpace();

@@ -29,8 +29,7 @@ namespace AccountManagement.Domain.Events
                 /// </summary>
                 public UserRegistered(Guid accountId, Email email, Password password) : base(accountId)
                 {
-                    OldContract.Argument(() => email, () => password)
-                               .NotNull();
+                    Contract.Argument.Assert(email != null, password != null);
 
                     Email = email;
                     Password = password;
@@ -42,8 +41,6 @@ namespace AccountManagement.Domain.Events
 
             public class UserChangedEmail : Root, AccountEvent.UserChangedEmail
             {
-                [UsedImplicitly] UserChangedEmail() {} //ncrunch: no coverage
-
                 public UserChangedEmail(Email email) => Email = email;
 
                 public Email Email { get; private set; }
@@ -51,8 +48,6 @@ namespace AccountManagement.Domain.Events
 
             public class UserChangedPassword : Root, AccountEvent.UserChangedPassword
             {
-                [UsedImplicitly] public UserChangedPassword() {} //ncrunch: no coverage
-
                 public UserChangedPassword(Password password) => Password = password;
 
                 public Password Password { get; private set; }
@@ -60,9 +55,9 @@ namespace AccountManagement.Domain.Events
 
             public class LoggedIn : Root, AccountEvent.LoggedIn
             {
-                public string Token { get; }
+                public string AuthenticationToken { get; }
 
-                public LoggedIn(string token) => Token = token;
+                public LoggedIn(string token) => AuthenticationToken = token;
             }
 
             public class LoginFailed : Root, AccountEvent.LoginFailed {}

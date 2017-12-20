@@ -43,11 +43,12 @@ namespace AccountManagement.Domain.Events
             }
         }
 
-        public interface LoggedIn
+        public interface LoggedIn : AccountEvent.Root
         {
+            string AuthenticationToken { get; }
         }
 
-        public interface LoginFailed
+        public interface LoginFailed : AccountEvent.Root
         {
         }
     }

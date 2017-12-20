@@ -28,7 +28,7 @@ namespace Composable.Persistence.EventStore.AggregateRoots
             OldContract.Assert.That(timeSource != null, "timeSource != null");
             OldContract.Assert.That(typeof(TAggregateRootBaseEventInterface).IsInterface, "typeof(TAggregateRootBaseEventInterface).IsInterface");
             TimeSource = timeSource;
-            _eventHandlersEventDispatcher.Register().IgnoreUnhandled<IDomainEvent>();
+            _eventHandlersEventDispatcher.Register().IgnoreUnhandled<TAggregateRootBaseEventInterface>();
         }
 
         readonly IList<IDomainEvent> _unCommittedEvents = new List<IDomainEvent>();

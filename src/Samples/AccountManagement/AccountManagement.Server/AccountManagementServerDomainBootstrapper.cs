@@ -40,8 +40,8 @@ namespace AccountManagement
                 Component.For<IAccountRepository>()
                          .UsingFactoryMethod((IAccountManagementEventStoreUpdater aggregates, IAccountManagementEventStoreReader reader) => new AccountRepository(aggregates, reader))
                          .LifestyleScoped(),
-                Component.For<IDuplicateAccountChecker>()
-                         .UsingFactoryMethod((IAccountManagementDomainDocumentDbReader queryModels) => new DuplicateAccountChecker(queryModels))
+                Component.For<IFindAccountByEmail>()
+                         .UsingFactoryMethod((IAccountManagementDomainDocumentDbReader queryModels) => new FindAccountByEmail(queryModels))
                          .LifestyleScoped());
         }
 
@@ -63,7 +63,7 @@ namespace AccountManagement
         static void RegisterHandlers(MessageHandlerRegistrarWithDependencyInjectionSupport registrar)
         {
             EmailToAccountMapQueryModel.RegisterHandlers(registrar);
-            EmailExistsQueryModel.RegisterHandlers(registrar);
+            EmailToAccountIdQueryModel.RegisterHandlers(registrar);
 
 
             registrar.ForQuery((SingletonQuery<StartResource> query) => new StartResource());

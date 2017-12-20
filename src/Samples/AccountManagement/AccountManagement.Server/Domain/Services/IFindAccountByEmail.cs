@@ -1,6 +1,6 @@
 namespace AccountManagement.Domain.Services
 {
-    interface IDuplicateAccountChecker
+    interface IFindAccountByEmail
     {
         void AssertAccountDoesNotExist(Email email);
     }

@@ -17,6 +17,7 @@ namespace AccountManagement.API
 
         public class StartResourceCommands
         {
+            public AccountResource.Command.LogIn.UI Login { get; private set; } = new AccountResource.Command.LogIn.UI();
         }
     }
 }

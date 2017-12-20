@@ -8,7 +8,7 @@ using Composable.Messaging.Events;
 namespace Composable.Messaging.Buses
 {
     ///<summary>Dispatches messages within a process.</summary>
-    interface IInProcessServiceBus
+    public interface IInProcessServiceBus
     {
         void Publish(IEvent anEvent);
         TResult Get<TResult>(IQuery<TResult> query);

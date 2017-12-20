@@ -61,7 +61,7 @@ namespace Composable.Messaging.Buses.Implementation
 
             public Response.Outgoing CreateFailureResponse(Exception exception) => Response.Outgoing.Failure(this, exception);
 
-            public Response.Outgoing CreateSuccessResponse(IMessage response) => Response.Outgoing.Success(this, response);
+            public Response.Outgoing CreateSuccessResponse(object response) => Response.Outgoing.Success(this, response);
         }
 
         public class OutGoing
@@ -129,7 +129,7 @@ namespace Composable.Messaging.Buses.Implementation
 
                 public void Send(IOutgoingSocket socket) => socket.SendMultipartMessage(_response);
 
-                public static Outgoing Success(TransportMessage.InComing incoming, IMessage result)
+                public static Outgoing Success(TransportMessage.InComing incoming, object result)
                 {
                     var responseMessage = new NetMQMessage();
 
@@ -165,11 +165,11 @@ namespace Composable.Messaging.Buses.Implementation
             {
                 readonly string _resultJson;
                 readonly string _responseType;
-                IMessage _result;
+                object _result;
                 public bool SuccessFull { get; }
                 public Guid RespondingToMessageId { get; }
 
-                public IMessage DeserializeResult()
+                public object DeserializeResult()
                 {
                     if(_result == null)
                     {
@@ -177,7 +177,7 @@ namespace Composable.Messaging.Buses.Implementation
                         {
                             return null;
                         }
-                        _result = (IMessage)JsonConvert.DeserializeObject(_resultJson, _responseType.AsType(), JsonSettings.JsonSerializerSettings);
+                        _result = JsonConvert.DeserializeObject(_resultJson, _responseType.AsType(), JsonSettings.JsonSerializerSettings);
                     }
                     return _result;
                 }

@@ -4,17 +4,17 @@ using JetBrains.Annotations;
 
 namespace AccountManagement.Domain.Services
 {
-    [UsedImplicitly] class DuplicateAccountChecker : IDuplicateAccountChecker
+    [UsedImplicitly] class FindAccountByEmail : IFindAccountByEmail
     {
         readonly IAccountManagementDomainDocumentDbReader _querymodels;
 
-        public DuplicateAccountChecker(IAccountManagementDomainDocumentDbReader querymodels) => _querymodels = querymodels;
+        public FindAccountByEmail(IAccountManagementDomainDocumentDbReader querymodels) => _querymodels = querymodels;
 
         public void AssertAccountDoesNotExist(Email email)
         {
             OldContract.Argument(() => email).NotNull();
 
-            if(_querymodels.TryGet(email, out EmailExistsQueryModel _))
+            if(_querymodels.TryGet(email, out EmailToAccountIdQueryModel _))
             {
                 throw new DuplicateAccountException(email);
             }

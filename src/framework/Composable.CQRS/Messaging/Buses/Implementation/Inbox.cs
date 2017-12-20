@@ -106,7 +106,7 @@ namespace Composable.Messaging.Buses.Implementation
                         _responseQueue.Enqueue(transportMessage.CreateFailureResponse(dispatchResult.Exception));
                     } else if(dispatchResult.IsCompleted)
                     {
-                        _responseQueue.Enqueue(transportMessage.CreateSuccessResponse((IMessage)dispatchResult.Result));
+                        _responseQueue.Enqueue(transportMessage.CreateSuccessResponse(dispatchResult.Result));
                     }
                 }
             });

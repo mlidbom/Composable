@@ -14,7 +14,7 @@ namespace Composable.Messaging.Buses.Implementation
         class Implementation
         {
             public IGlobalBusStateTracker GlobalBusStateTracker;
-            public readonly Dictionary<Guid, TaskCompletionSource<IMessage>> ExpectedResponseTasks = new Dictionary<Guid, TaskCompletionSource<IMessage>>();
+            public readonly Dictionary<Guid, TaskCompletionSource<object>> ExpectedResponseTasks = new Dictionary<Guid, TaskCompletionSource<object>>();
             public DealerSocket Socket;
             public NetMQPoller Poller;
             public readonly NetMQQueue<TransportMessage.OutGoing> DispatchQueue = new NetMQQueue<TransportMessage.OutGoing>();
@@ -99,9 +99,9 @@ namespace Composable.Messaging.Buses.Implementation
         public async Task<TQueryResult> Dispatch<TQueryResult>(IQuery<TQueryResult> query)
             => (TQueryResult)await DispatchMessage(query);
 
-        Task<IMessage> DispatchMessage(IMessage message) => _this.Locked(@this =>
+        Task<object> DispatchMessage(IMessage message) => _this.Locked(@this =>
         {
-            var taskCompletionSource = new TaskCompletionSource<IMessage>(TaskCreationOptions.RunContinuationsAsynchronously);
+            var taskCompletionSource = new TaskCompletionSource<object>(TaskCreationOptions.RunContinuationsAsynchronously);
 
             var outGoingMessage = TransportMessage.OutGoing.Create(message);
 

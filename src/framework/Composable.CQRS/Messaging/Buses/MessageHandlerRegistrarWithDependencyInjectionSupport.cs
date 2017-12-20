@@ -128,5 +128,14 @@ namespace Composable.Messaging.Buses
             @this.Register.ForQuery<TQuery, TResult>(query => action(query, @this.ServiceLocator.Resolve<TDependency1>()));
             return @this;
         }
+
+        public static MessageHandlerRegistrarWithDependencyInjectionSupport ForQuery<TQuery, TDependency1, TDependency2, TResult>(
+            this MessageHandlerRegistrarWithDependencyInjectionSupport @this,
+            Func<TQuery, TDependency1, TDependency2, TResult> action) where TQuery : IQuery<TResult>
+                                                        where TDependency1 : class
+                                                        where TDependency2 : class
+        {
+            return @this.ForQuery<TQuery, TDependency1, TResult>((query, d1) => action(query, d1, @this.ServiceLocator.Resolve<TDependency2>()));
+        }
     }
 }

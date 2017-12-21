@@ -5,16 +5,16 @@ namespace AccountManagement.Tests.Scenarios
 {
     class ChangePasswordScenario
     {
-        readonly IServiceBus _clientBus;
+        readonly IServiceBus _bus;
 
         public string OldPassword;
         public string NewPasswordAsString = TestData.Password.CreateValidPasswordString();
         public AccountResource Account { get; private set; }
 
-        public ChangePasswordScenario(IServiceBus clientBus)
+        public ChangePasswordScenario(IServiceBus bus)
         {
-            _clientBus = clientBus;
-            var registerAccountScenario = new RegisterAccountScenario(clientBus);
+            _bus = bus;
+            var registerAccountScenario = new RegisterAccountScenario(bus);
             Account = registerAccountScenario.Execute();
             OldPassword = registerAccountScenario.Command.Password;
         }
@@ -25,8 +25,8 @@ namespace AccountManagement.Tests.Scenarios
             command.NewPassword = NewPasswordAsString;
             command.OldPassword = OldPassword;
 
-            _clientBus.Send(command);
-            Account = _clientBus.Query(AccountApi.Start.Queries.AccountById(Account.Id));
+            _bus.Send(command);
+            Account = _bus.Query(AccountApi.Start.Get().Queries.AccountById.WithId(Account.Id));
         }
     }
 }

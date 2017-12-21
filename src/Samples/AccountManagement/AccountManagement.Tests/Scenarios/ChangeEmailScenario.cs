@@ -25,7 +25,8 @@ namespace AccountManagement.Tests.Scenarios
             command.Email = NewEmail.ToString();
 
             _clientBus.Send(command);
-            Account = _clientBus.Query(AccountApi.Start.Queries.AccountById(Account.Id));
+
+            Account = _clientBus.Query(AccountApi.Start.Get().Queries.AccountById.WithId(Account.Id));
         }
     }
 }

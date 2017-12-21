@@ -1,6 +1,6 @@
 ﻿namespace Composable.Messaging.Buses
 {
-    static class ServiceBusExtensions
+    public static class ServiceBusExtensions
     {
         public static IApiNavigator<TReturnResource> Get<TReturnResource>(this IServiceBus @this, IQuery<TReturnResource> createQuery)
             => new ApiNavigator<TReturnResource>(@this, () => @this.QueryAsync(createQuery));

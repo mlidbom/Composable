@@ -19,17 +19,20 @@ namespace Composable.Messaging
 
     public static class SingletonQuery
     {
-        public static SingletonQuery<TResource> For<TResource>() => SingletonQueryCacheTrick<TResource>.Instance;
+        public static SingletonQuery<TResource> For<TResource>() => new SingletonQuery<TResource>();
 
-        static class SingletonQueryCacheTrick<TResource>
-        {
-            public static readonly SingletonQuery<TResource> Instance = new SingletonQuery<TResource>();
-        }
+        public static NewableSingletonQuery<TResource> NewableFor<TResource>() where TResource : new() => new NewableSingletonQuery<TResource>();
     }
 
-    public class SingletonQuery<TSingleton> : Message, IQuery<TSingleton>
+    public class SingletonQuery<TSingleton> : Query<TSingleton>
     {
         internal SingletonQuery() {}
+    }
+
+    public class NewableSingletonQuery<TSingleton> : SingletonQuery<TSingleton> where TSingleton : new()
+    {
+        internal NewableSingletonQuery() {}
+        public TSingleton Get() => new TSingleton();
     }
 
     ///<summary>Represent an entity within the domain of the current API that is uniquely identifiable through its type and Id.</summary>
@@ -43,6 +46,7 @@ namespace Composable.Messaging
         public EntityQuery() {}
         public EntityQuery(Guid id) => Id = id;
         public Guid Id { get; set; }
+        public EntityQuery<TEntity> WithId(Guid id) => new EntityQuery<TEntity>(id);
     }
 
     public abstract class Message : IMessage

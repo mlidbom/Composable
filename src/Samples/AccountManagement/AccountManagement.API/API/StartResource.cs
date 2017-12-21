@@ -5,14 +5,12 @@ namespace AccountManagement.API
 {
     public class StartResource
     {
-        public static IQuery<StartResource> Self => SingletonQuery.For<StartResource>();
-
-        public StartResourceCommands Commands => new StartResourceCommands();
-        public StartResourceQueries Queries => new StartResourceQueries();
+        public StartResourceCommands Commands { get; private set; } = new StartResourceCommands();
+        public StartResourceQueries Queries { get; private set;} = new StartResourceQueries();
 
         public class StartResourceQueries
         {
-            public EntityQuery<AccountResource> AccountById(Guid accountId) => new EntityQuery<AccountResource>(accountId);
+            public EntityQuery<AccountResource> AccountById { get; private set; } = new EntityQuery<AccountResource>();
         }
 
         public class StartResourceCommands

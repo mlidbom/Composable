@@ -62,14 +62,13 @@ namespace AccountManagement
 
         static void RegisterHandlers(MessageHandlerRegistrarWithDependencyInjectionSupport registrar)
         {
+            registrar.ForQuery((NewableSingletonQuery<StartResource> query) =>
+                                   new StartResource());
+
             EmailToAccountMapQueryModel.RegisterHandlers(registrar);
             EmailToAccountIdQueryModel.RegisterHandlers(registrar);
 
-
-            registrar.ForQuery((SingletonQuery<StartResource> query) => new StartResource());
-
             Account.MessageHandlers.RegisterHandlers(registrar);
-
         }
     }
 }

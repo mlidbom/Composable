@@ -87,7 +87,7 @@ namespace Composable.Persistence.EventStore.MicrosoftSQLServer
 
         IdTypeMapping InsertNewType(Type newType) => TransactionScopeCe.SuppressAmbientAndExecuteInNewTransaction(() =>
         {
-            using(var connection = _connectionManager.OpenConnection())
+            using(var connection = _connectionManager.OpenConnection(suppressTransactionWarning: true))
             {
                 using(var command = connection.CreateCommand())
                 {

@@ -31,7 +31,7 @@ namespace Composable.Messaging.Buses
             =>  await _outbox.QueryAsync(query).NoMarshalling();
 
         public TResult Query<TResult>(IQuery<TResult> query)
-            => _outbox.Query(query);
+            => QueryAsync(query).Result;
 
     }
 }

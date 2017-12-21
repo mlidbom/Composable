@@ -53,6 +53,8 @@ namespace AccountManagement.API
                     public IEnumerable<ValidationResult> Validate(ValidationContext validationContext) => Domain.Password.Validate(Password, this, () => Password);
 
                     internal DomainCommand ToDomainCommand() => new DomainCommand(AccountId, new Password(Password), Domain.Email.Parse(Email));
+
+                    public UICommand New(Guid accountId, string email, string password) => new UICommand(accountId, email, password);
                 }
             }
         }

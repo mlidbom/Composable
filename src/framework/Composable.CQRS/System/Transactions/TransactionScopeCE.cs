@@ -6,9 +6,9 @@ namespace Composable.System.Transactions
 {
     public static class TransactionScopeCe
     {
-        internal static void SuppressAmbientAndExecuteInNewTransaction(Action action) => SuppressAmbient(() =>Execute(action, TransactionScopeOption.Suppress));
+        internal static void SuppressAmbientAndExecuteInNewTransaction(Action action) => SuppressAmbient(() =>Execute(action));
 
-        internal static TResult SuppressAmbientAndExecuteInNewTransaction<TResult>([InstantHandle]Func<TResult> action) => SuppressAmbient(() => Execute(action, TransactionScopeOption.Suppress));
+        internal static TResult SuppressAmbientAndExecuteInNewTransaction<TResult>([InstantHandle]Func<TResult> action) => SuppressAmbient(() => Execute(action));
 
         internal static void SuppressAmbient(Action action) => Execute(action, TransactionScopeOption.Suppress);
 

@@ -13,9 +13,9 @@ namespace AccountManagement.Tests.Scenarios
         public RegisterAccountScenario(IServiceBus bus, string email = null, string password = null)
         {
             _bus = bus;
-            Command = new AccountResource.Command.Register.UICommand(accountId: Guid.NewGuid(),
-                                                              password: password ?? TestData.Password.CreateValidPasswordString(),
-                                                              email: email ?? TestData.Email.CreateValidEmail().ToString());
+            Command = _bus.Query(AccountApi.Start).Commands.Register.New(accountId: Guid.NewGuid(),
+                                                                         password: password ?? TestData.Password.CreateValidPasswordString(),
+                                                                         email: email ?? TestData.Email.CreateValidEmail().ToString());
         }
 
         public AccountResource Execute() => _bus.SendAsync(Command).Result;

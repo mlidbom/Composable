@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 using Composable.Messaging.Buses.Implementation;
+using Composable.System.Threading;
 
 namespace Composable.Messaging.Buses
 {
@@ -23,11 +24,11 @@ namespace Composable.Messaging.Buses
         public async Task<TResult> SendAsync<TResult>(IDomainCommand<TResult> command)
         {
             CommandValidator.AssertCommandIsValid(command);
-            return await _outbox.SendAsync(command);
+            return await _outbox.SendAsync(command).NoMarshalling();
         }
 
         public async Task<TResult> QueryAsync<TResult>(IQuery<TResult> query)
-            =>  await _outbox.QueryAsync(query);
+            =>  await _outbox.QueryAsync(query).NoMarshalling();
 
         public TResult Query<TResult>(IQuery<TResult> query)
             => _outbox.Query(query);

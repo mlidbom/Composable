@@ -25,8 +25,8 @@ namespace Composable.Testing.Performance
     class TestRunner
     {
         public const string NCrunchRunnerName = "NCRunch";
-        public static readonly TestRunner Instance = GetInstance();
         static readonly ILogger Log = Logger.For<TestRunner>();
+        public static readonly TestRunner Instance = GetInstance();
 
         static TestRunner GetInstance()
         {

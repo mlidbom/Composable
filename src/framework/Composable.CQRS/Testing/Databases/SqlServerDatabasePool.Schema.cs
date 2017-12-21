@@ -35,6 +35,8 @@ ALTER DATABASE[{ databaseName}] SET READ_COMMITTED_SNAPSHOT ON";
             //SafeConsole.WriteLine($"Created: {databaseName}");
         }
 
+        void RebootPool() => _machineWideState.Update(RebootPool);
+
         void RebootPool(SharedState machineWide) => TransactionScopeCe.SuppressAmbient(() =>
         {
             RebootedMasterConnections.Add(_masterConnectionString);

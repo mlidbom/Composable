@@ -90,37 +90,35 @@ namespace Composable.Testing.Databases
                 }
 
                 Exception thrownException = null;
-                TransactionScopeCe.SuppressAmbient(
-                    () => _machineWideState.Update(
-                        machineWide =>
+                _machineWideState.Update(
+                    machineWide =>
+                    {
+                        try
                         {
-                            try
-                            {
-                                if(machineWide.IsEmpty)
-                                {
-                                    RebootPool(machineWide);
-                                }
-
-                                if(!machineWide.IsValid)
-                                {
-                                    _log.Error(null, "Detected corrupt database pool. Rebooting pool");
-                                    RebootPool(machineWide);
-                                    thrownException = new Exception("Detected corrupt database pool.Rebooting pool");
-                                }
-
-                                if(machineWide.TryReserve(out reservedDatabase, reservationName, _poolId, _reservationLength))
-                                {
-                                    ResetDatabase(reservedDatabase);
-                                    _log.Info($"Reserved pool database: {reservedDatabase.Id}");
-                                    _transientCache = machineWide.DatabasesReservedBy(_poolId);
-                                }
-                            }
-                            catch(Exception exception)
+                            if(machineWide.IsEmpty)
                             {
                                 RebootPool(machineWide);
-                                thrownException = exception;
                             }
-                        }));
+
+                            if(!machineWide.IsValid)
+                            {
+                                _log.Error(null, "Detected corrupt database pool. Rebooting pool");
+                                RebootPool(machineWide);
+                                thrownException = new Exception("Detected corrupt database pool.Rebooting pool");
+                            }
+
+                            if(machineWide.TryReserve(out reservedDatabase, reservationName, _poolId, _reservationLength))
+                            {
+                                _log.Info($"Reserved pool database: {reservedDatabase.Id}");
+                                _transientCache = machineWide.DatabasesReservedBy(_poolId);
+                            }
+                        }
+                        catch(Exception exception)
+                        {
+                            RebootPool(machineWide);
+                            thrownException = exception;
+                        }
+                    });
 
                 if(thrownException != null)
                 {
@@ -131,6 +129,16 @@ namespace Composable.Testing.Databases
                 {
                     Thread.Sleep(10);
                 }
+            }
+
+            try
+            {
+                ResetDatabase(reservedDatabase);
+            }
+            catch(Exception exception)
+            {
+                RebootPool();
+                throw new Exception("Something went wrong with the database pool and it was rebooted. You may see other test failures due to this", exception);
             }
 
             return new Connection(reservedDatabase, reservationName, this);

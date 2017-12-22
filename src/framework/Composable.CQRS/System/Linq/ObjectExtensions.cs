@@ -1,4 +1,6 @@
+using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 
 namespace Composable.System.Linq
 {
@@ -17,5 +19,14 @@ namespace Composable.System.Linq
                 yield return me;
             }
         }
+
+
+        public static T Mutate<T>(this T @this, Action<T> mutate)
+        {
+            mutate(@this);
+            return @this;
+        }
+
+        public static TResult MapTo<TValue, TResult>(this TValue @this, Func<TValue, TResult> transform) => transform(@this);
     }
 }

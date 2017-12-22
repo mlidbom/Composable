@@ -29,6 +29,37 @@ namespace Composable.System.Data.SqlClient
         }
     }
 
+    static class SqlConnectionExtensions
+    {
+        public static void UseCommand(this SqlConnection @this, Action<SqlCommand> action)
+        {
+            using(var command = @this.CreateCommand())
+            {
+                action(command);
+            }
+        }
+
+        public static TResult UseCommand<TResult>(this SqlConnection @this, Func<SqlCommand, TResult> action)
+        {
+            using(var command = @this.CreateCommand())
+            {
+                return action(command);
+            }
+        }
+
+        public static void ExecuteNonQuery(this SqlConnection @this, string commandText) => @this.UseCommand(command => command.ExecuteNonQuery(commandText));
+        public static object ExecuteScalar(this SqlConnection @this, string commandText) => @this.UseCommand(command => command.ExecuteScalar(commandText));
+        public static void ExecuteReader(this SqlConnection @this, string commandText, Action<SqlDataReader> forEach) => @this.UseCommand(command => command.ExecuteReader(commandText, forEach));
+    }
+
+    static class SqlDataReaderExtensions
+    {
+        public static void ForEachSuccessfulRead(this SqlDataReader @this, Action<SqlDataReader> forEach)
+        {
+            while(@this.Read()) forEach(@this);
+        }
+    }
+
     static class SqlConnectionProviderExtensions
     {
         public static int ExecuteNonQuery(this ISqlConnection @this, string commandText) => @this.UseCommand(command => command.SetCommandText(commandText).ExecuteNonQuery());
@@ -51,31 +82,17 @@ namespace Composable.System.Data.SqlClient
             }
         }
 
-        public static void UseCommand(this ISqlConnection @this, Action<SqlCommand> action)
-        {
-            @this.UseConnection(connection =>
-            {
-                using(var command = connection.CreateCommand())
-                {
-                    action(command);
-                }
-            });
-        }
+        public static void UseCommand(this ISqlConnection @this, Action<SqlCommand> action) => @this.UseConnection(connection => connection.UseCommand(action));
 
-        public static TResult UseCommand<TResult>(this ISqlConnection @this, Func<SqlCommand, TResult> action)
-        {
-            return @this.UseConnection(connection =>
-            {
-                using(var command = connection.CreateCommand())
-                {
-                    return action(command);
-                }
-            });
-        }
+        public static TResult UseCommand<TResult>(this ISqlConnection @this, Func<SqlCommand, TResult> action) => @this.UseConnection(connection => connection.UseCommand(action));
     }
 
     static class SqlCommandExtensions
     {
+        public static void ExecuteReader(this SqlCommand @this, string commandText, Action<SqlDataReader> forEach) => @this.ExecuteReader(commandText).ForEachSuccessfulRead(forEach);
+        public static SqlDataReader ExecuteReader(this SqlCommand @this, string commandText) => @this.SetCommandText(commandText).ExecuteReader();
+        public static object ExecuteScalar(this SqlCommand @this, string commandText) => @this.SetCommandText(commandText).ExecuteScalar();
+        public static void ExecuteNonQuery(this SqlCommand @this, string commandText) => @this.SetCommandText(commandText).ExecuteNonQuery();
         public static SqlCommand SetCommandText(this SqlCommand @this, string commandText) => @this.Mutate(me => me.CommandText = commandText);
     }
 

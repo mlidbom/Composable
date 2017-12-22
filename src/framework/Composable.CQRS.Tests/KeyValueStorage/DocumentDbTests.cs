@@ -76,7 +76,7 @@ namespace Composable.Tests.KeyValueStorage
         }
 
 
-        [Test] public void Saves200NewDocumentsIn150Milliseconds()
+        [Test] public void Saves100NewDocumentsIn100Milliseconds()
         {
             ServiceLocator.ExecuteInIsolatedScope(() =>
                                                   {
@@ -93,8 +93,8 @@ namespace Composable.Tests.KeyValueStorage
 
                                                       TimeAsserter.Execute(
                                                           action: SaveOneNewUserInTransaction,
-                                                          iterations: 200,
-                                                          maxTotal: 150.Milliseconds()
+                                                          iterations: 100,
+                                                          maxTotal: 100.Milliseconds()
                                                       );
                                                   });
         }

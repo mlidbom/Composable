@@ -66,6 +66,8 @@ namespace Composable.System.Data.SqlClient
 
         public static object ExecuteScalar(this ISqlConnection @this, string commandText) => @this.UseCommand(command => command.SetCommandText(commandText).ExecuteScalar());
 
+        public static void ExecuteReader(this ISqlConnection @this, string commandText, Action<SqlDataReader> forEach) => @this.UseCommand(command => command.ExecuteReader(commandText, forEach));
+
         public static void UseConnection(this ISqlConnection @this, Action<SqlConnection> action)
         {
             using(var connection = @this.OpenConnection())

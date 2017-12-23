@@ -15,7 +15,7 @@ using Newtonsoft.Json;
 
 namespace Composable.Persistence.DocumentDb.SqlServer
 {
-    class SqlServerDocumentDb : IDocumentDb
+    partial class SqlServerDocumentDb : IDocumentDb
     {
         readonly ISqlConnection _connectionManager;
         readonly IUtcTimeTimeSource _timeSource;
@@ -25,15 +25,16 @@ namespace Composable.Persistence.DocumentDb.SqlServer
         const int UniqueConstraintViolationErrorNumber = 2627;
 
         readonly object _lockObject = new object();
+        bool _initialized;
+        ConcurrentDictionary<Type, int> _knownTypes = null;
+        SchemaManager _schemaManager;
 
         protected SqlServerDocumentDb(ISqlConnection connection, IUtcTimeTimeSource timeSource)
         {
+            _schemaManager = new SqlServerDocumentDb.SchemaManager(connection);
             _connectionManager = connection;
             _timeSource = timeSource;
         }
-
-        bool _initialized;
-        ConcurrentDictionary<Type, int> _knownTypes = null;
 
         Type GetTypeFromId(int id) { return _knownTypes.Single(pair => pair.Value == id).Key; }
 
@@ -225,10 +226,7 @@ WHERE Id=@Id AND ValueTypeId
             {
                 using(var loadCommand = connection.CreateCommand())
                 {
-                    loadCommand.CommandText = @"
-SELECT Id, Value, ValueTypeId 
-FROM Store 
-WHERE ValueTypeId ";
+                    loadCommand.CommandText = @" SELECT Id, Value, ValueTypeId FROM Store WHERE ValueTypeId ";
 
                     AddTypeCriteria(loadCommand, typeof(T));
 
@@ -255,10 +253,7 @@ WHERE ValueTypeId ";
             {
                 using(var loadCommand = connection.CreateCommand())
                 {
-                    loadCommand.CommandText = @"
-SELECT Id, Value, ValueTypeId 
-FROM Store 
-WHERE ValueTypeId ";
+                    loadCommand.CommandText = @"SELECT Id, Value, ValueTypeId FROM Store WHERE ValueTypeId ";
 
                     AddTypeCriteria(loadCommand, typeof(T));
 
@@ -287,10 +282,7 @@ WHERE ValueTypeId ";
             {
                 using(var loadCommand = connection.CreateCommand())
                 {
-                    loadCommand.CommandText = @"
-SELECT Id 
-FROM Store 
-WHERE ValueTypeId ";
+                    loadCommand.CommandText = @"SELECT Id FROM Store WHERE ValueTypeId ";
 
                     AddTypeCriteria(loadCommand, typeof(T));
 
@@ -341,7 +333,7 @@ ELSE
         {
             if(!_knownTypes.ContainsKey(type))
             {
-                _connectionManager.UseConnection(RefreshKnownTypes);
+                RefreshKnownTypes();
             }
 
             return _knownTypes.ContainsKey(type);
@@ -367,63 +359,21 @@ ELSE
             {
                 if(!_initialized)
                 {
-                    using(var connection = _connectionManager.OpenConnection())
-                    {
-                        var valueTypeExists = (int)connection.ExecuteScalar("select count(*) from sys.tables where name = 'ValueType'");
-                        if(valueTypeExists == 0)
-                        {
-                            connection.ExecuteNonQuery(@"
-CREATE TABLE [dbo].[ValueType](
-	[Id] [int] IDENTITY(1,1) NOT NULL,
-	[ValueType] [varchar](500) NOT NULL,
- CONSTRAINT [PK_ValueType] PRIMARY KEY CLUSTERED 
-(
-	[Id] ASC
-)WITH (PAD_INDEX  = OFF, STATISTICS_NORECOMPUTE  = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS  = ON, ALLOW_PAGE_LOCKS  = ON) ON [PRIMARY]
-) ON [PRIMARY]
-");
-                        }
+                    _schemaManager.EnsureInitialized();
 
-                        var storeExists = (int)connection.ExecuteScalar("select count(*) from sys.tables where name = 'Store'");
-                        if(storeExists == 0)
-                        {
-                            connection.ExecuteNonQuery(
-                                @"
-CREATE TABLE [dbo].[Store](
-	[Id] [nvarchar](500) NOT NULL,
-	[ValueTypeId] [int] NOT NULL,
-    [Created] [datetime2] NOT NULL,
-    [Updated] [datetime2] NOT NULL,
-	[Value] [nvarchar](max) NOT NULL,
- CONSTRAINT [PK_Store] PRIMARY KEY CLUSTERED 
-(
-	[Id] ASC,
-	[ValueTypeId] ASC
-)WITH (PAD_INDEX  = OFF, STATISTICS_NORECOMPUTE  = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS  = ON, ALLOW_PAGE_LOCKS  = OFF) ON [PRIMARY]
-) ON [PRIMARY]
+                    _knownTypes = new ConcurrentDictionary<Type, int>();
+                    _initialized = true;
 
-ALTER TABLE [dbo].[Store]  WITH CHECK ADD  CONSTRAINT [FK_ValueType_Store] FOREIGN KEY([ValueTypeId])
-REFERENCES [dbo].[ValueType] ([Id])
-
-ALTER TABLE [dbo].[Store] CHECK CONSTRAINT [FK_ValueType_Store]
-
-");
-                        }
-
-                        _knownTypes = new ConcurrentDictionary<Type, int>();
-                        _initialized = true;
-
-                        RefreshKnownTypes(connection);
-                    }
+                    RefreshKnownTypes();
                 }
             }
         }
 
-        void RefreshKnownTypes(SqlConnection connection)
+        void RefreshKnownTypes()
         {
             lock(_lockObject)
             {
-                connection.ExecuteReader("SELECT DISTINCT ValueType, Id FROM ValueType",
+                _connectionManager.ExecuteReader("SELECT DISTINCT ValueType, Id FROM ValueType",
                                          reader => _knownTypes.TryAdd(reader.GetString(0).AsType(), reader.GetInt32(1)));
             }
         }

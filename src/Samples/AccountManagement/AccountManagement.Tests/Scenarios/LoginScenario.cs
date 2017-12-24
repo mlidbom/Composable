@@ -1,6 +1,7 @@
 ﻿using System.Threading.Tasks;
 using AccountManagement.API;
 using Composable.Messaging.Buses;
+using Composable.System.Linq;
 
 namespace AccountManagement.Tests.Scenarios
 {
@@ -31,7 +32,11 @@ namespace AccountManagement.Tests.Scenarios
         public Task<LoginAttemptResult> ExecuteAsync()
         {
             return _bus.Get(AccountApi.Start)
-                .Post(start => start.Commands.Login.New(Email, Password))
+                .Post(start => start.Commands.Login.Mutate(@this =>
+                       {
+                           @this.Email = Email;
+                           @this.Password = Password;
+                       }))
                 .ExecuteAsync();
         }
     }

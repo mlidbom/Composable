@@ -32,8 +32,6 @@ namespace AccountManagement.API
                     [Required] [Email] public string Email { get; set; }
                     [Required] public string Password { get; set; }
 
-                    public UI New(string email, string password) => new UI() {Email = email, Password = password};
-
                     internal Domain ToDomainCommand() => new Domain(AccountManagement.Domain.Email.Parse(Email), Password);
                 }
             }

@@ -126,14 +126,15 @@ namespace Composable.Messaging.Buses
     public interface IApiNavigator
     {
         IApiNavigator<TReturnResource> Get<TReturnResource>(IQuery<TReturnResource> createQuery);
-        IApiNavigator Execute(IDomainCommand createCommand);
+        IApiNavigator Post(IDomainCommand createCommand);
+        IApiNavigator<TCommandResult> Post<TCommandResult>(IDomainCommand<TCommandResult> command);
     }
 
     public interface IApiNavigator<TCurrentResource>
     {
         IApiNavigator<TReturnResource> Get<TReturnResource>(Func<TCurrentResource, IQuery<TReturnResource>> selectQuery);
         IApiNavigator<TReturnResource> Post<TReturnResource>(Func<TCurrentResource, IDomainCommand<TReturnResource>> selectCommand);
-        Task<TCurrentResource> ExecuteNavigationAsync();
-        TCurrentResource ExecuteNavigation();
+        Task<TCurrentResource> ExecuteAsync();
+        TCurrentResource Execute();
     }
 }

@@ -1,6 +1,7 @@
 using System;
 using AccountManagement.API;
 using Composable.Messaging.Buses;
+using Composable.System.Linq;
 
 namespace AccountManagement.Tests.Scenarios
 {
@@ -8,16 +9,28 @@ namespace AccountManagement.Tests.Scenarios
     {
         readonly IServiceBus _bus;
 
-        public AccountResource.Command.Register.UICommand Command { get; }
+        public Guid AccountId;
+        public String Email;
+        public string Password;
 
         public RegisterAccountScenario(IServiceBus bus, string email = null, string password = null)
         {
             _bus = bus;
-            Command = _bus.Query(AccountApi.Start).Commands.Register.New(accountId: Guid.NewGuid(),
-                                                                         password: password ?? TestData.Password.CreateValidPasswordString(),
-                                                                         email: email ?? TestData.Email.CreateValidEmail().ToString());
+            AccountId = Guid.NewGuid();
+            Password = password ?? TestData.Password.CreateValidPasswordString();
+            Email = email ?? TestData.Email.CreateValidEmail().ToString();
         }
 
-        public AccountResource Execute() => _bus.SendAsync(Command).Result;
+        public AccountResource Execute()
+        {
+            return _bus.Get(AccountApi.Start)
+                       .Post(start => start.Commands.Register.Mutate(@this =>
+                       {
+                           @this.AccountId = AccountId;
+                           @this.Email = Email;
+                           @this.Password = Password;
+                       }))
+                       .Execute();
+        }
     }
 }

@@ -40,7 +40,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification
 
             [Fact] void Can_get_command_result()
             {
-                var commandResult1 = Host.ClientBus.Post(new RegisterUserCommand("new-user-name")).ExecuteNavigation();
+                var commandResult1 = Host.ClientBus.Post(new RegisterUserCommand("new-user-name")).Execute();
                 commandResult1.Name.Should().Be("new-user-name");
             }
 
@@ -50,7 +50,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification
                                        .Get(UserApiStartPage.Self)
                                        .Post(startpage => startpage.RegisterUser("new-user-name"))
                                        .Get(registerUserResult => registerUserResult.User)
-                                       .ExecuteNavigation();
+                                       .Execute();
 
                 userResource.Name.Should().Be("new-user-name");
             }
@@ -61,7 +61,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification
                                        .Get(UserApiStartPage.Self)
                                        .Post(startpage => startpage.RegisterUser("new-user-name"))
                                        .Get(registerUserResult => registerUserResult.User)
-                                       .ExecuteNavigationAsync();
+                                       .ExecuteAsync();
 
                 (await userResource).Name.Should().Be("new-user-name");
             }

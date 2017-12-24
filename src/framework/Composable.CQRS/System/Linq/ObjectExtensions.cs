@@ -7,12 +7,12 @@ namespace Composable.System.Linq
     ///<summary>
     /// Methods useful for any type when used in a Linq context
     ///</summary>
-    static class ObjectExtensions
+    public static class ObjectExtensions
     {
         /// <summary>
         /// Returns <paramref name="me"/> repeated <paramref name="times"/> times.
         /// </summary>
-        public static IEnumerable<T> Repeat<T>(this T me, int times)
+        internal static IEnumerable<T> Repeat<T>(this T me, int times)
         {
             while(times-- > 0)
             {

@@ -16,7 +16,7 @@ namespace AccountManagement.Tests.Scenarios
             _bus = bus;
             var registerAccountScenario = new RegisterAccountScenario(bus);
             Account = registerAccountScenario.Execute();
-            OldPassword = registerAccountScenario.Command.Password;
+            OldPassword = registerAccountScenario.Password;
         }
 
         public void Execute()

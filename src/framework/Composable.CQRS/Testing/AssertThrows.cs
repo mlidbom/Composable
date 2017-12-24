@@ -5,6 +5,14 @@ namespace Composable.Testing
 {
     public static class AssertThrows
     {
+        public static TInnerException AggregateException<TInnerException>([InstantHandle]Func<object> action) where TInnerException : Exception
+        {
+            return (TInnerException)Exception<AggregateException>(() =>
+            {
+                action();
+            }).InnerException;
+        }
+
         public static TException Exception<TException>([InstantHandle]Func<object> action) where TException : Exception
         {
             return Exception<TException>(() =>

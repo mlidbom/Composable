@@ -11,7 +11,7 @@ namespace Composable.Messaging.Buses
 
         public ServiceBus(Outbox transport) => _outbox = transport;
 
-        public Task SendAtTimeAsync(DateTime sendAt, IDomainCommand command) => _outbox.SendAtTimeAsync(sendAt, command);
+        public async Task SendAtTimeAsync(DateTime sendAt, IDomainCommand command) => await _outbox.SendAtTimeAsync(sendAt, command).NoMarshalling();
 
         public async Task SendAsync(IDomainCommand command)
         {

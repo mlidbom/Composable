@@ -87,19 +87,19 @@ namespace Composable.Messaging.Buses.Implementation
             return connection.DispatchAsync(command);
         });
 
-        public Task<TCommandResult> DispatchAsync<TCommandResult>(IDomainCommand<TCommandResult> command) => _this.Locked(@this =>
+        public async Task<TCommandResult> DispatchAsync<TCommandResult>(IDomainCommand<TCommandResult> command) => await _this.Locked(async @this =>
         {
             if (!@this.CommandConnections.TryGetValue(command.GetType(), out var connection))
             {
                 throw new NoHandlerForcommandTypeException(command.GetType());
             }
-            return connection.DispatchAsync(command);
+            return await connection.DispatchAsync(command);
         });
 
-        public Task<TQueryResult> DispatchAsync<TQueryResult>(IQuery<TQueryResult> query) => _this.Locked(@this =>
+        public async Task<TQueryResult> DispatchAsync<TQueryResult>(IQuery<TQueryResult> query) => await _this.Locked(async @this =>
         {
             var commandHandlerConnection = @this.QueryConnections[query.GetType()];
-            return commandHandlerConnection.DispatchAsync(query);
+            return await commandHandlerConnection.DispatchAsync(query);
         });
 
         public void Dispose() => _this.Locked(@this =>

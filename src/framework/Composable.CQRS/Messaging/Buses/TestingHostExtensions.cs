@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 using Composable.Messaging.Buses.Implementation;
 
 namespace Composable.Messaging.Buses
@@ -10,6 +11,17 @@ namespace Composable.Messaging.Buses
             try
             {
                 action();
+            }
+            catch(AggregateException exception) when(exception.InnerException is MessageDispatchingFailedException) {}
+
+            return @this.AssertThrown<TException>();
+        }
+
+        public static async Task<TException> AssertThatRunningScenarioThrowsBackendExceptionAsync<TException>(this ITestingEndpointHost @this, Func<Task> action) where TException : Exception
+        {
+            try
+            {
+                await action();
             }
             catch(AggregateException exception) when(exception.InnerException is MessageDispatchingFailedException) {}
 

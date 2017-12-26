@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 using AccountManagement.Domain;
 using AccountManagement.Tests.Scenarios;
 using Composable.Messaging.Buses;
@@ -15,20 +16,20 @@ namespace AccountManagement.Tests.Domain.When_a_user_registers_an_account
 
         [SetUp] public void SetupWiringAndCreateRepositoryAndScope() { _registerAccountScenario = new RegisterAccountScenario(ClientBus); }
 
-        [Test] public void DuplicateAccountException_is_thrown_if_email_is_already_registered()
+        [Test] public async Task DuplicateAccountException_is_thrown_if_email_is_already_registered()
         {
-            _registerAccountScenario.Execute();
-            Host.AssertThatRunningScenarioThrowsBackendException<DuplicateAccountException>(() => _registerAccountScenario.Execute())
+            await _registerAccountScenario.ExecuteAsync();
+            Host.AssertThatRunningScenarioThrowsBackendException<DuplicateAccountException>(() => _registerAccountScenario.ExecuteAsync().Wait())
                 .Message.Should().Contain(_registerAccountScenario.Email);
         }
 
-        [Test] public void CommandValidationFailureException_is_thrown_if_Password_is_null() =>
-            AssertThrows.AggregateException<CommandValidationFailureException>(() => _registerAccountScenario.Mutate(@this => @this.Password = null).Execute());
+        [Test] public async Task  CommandValidationFailureException_is_thrown_if_Password_is_null() =>
+            await AssertThrows.Async<CommandValidationFailureException>(() => _registerAccountScenario.Mutate(@this => @this.Password = null).ExecuteAsync());
 
-        [Test] public void CommandValidationFailureException_is_thrown_if_Email_is_null()
-            => AssertThrows.AggregateException<CommandValidationFailureException>(() => _registerAccountScenario.Mutate(@this => @this.Email = null).Execute());
+        [Test] public async Task  CommandValidationFailureException_is_thrown_if_Email_is_null()
+            => await AssertThrows.Async<CommandValidationFailureException>(() => _registerAccountScenario.Mutate(@this => @this.Email = null).ExecuteAsync());
 
-        [Test] public void CommandValidationFailureException_is_thrown_if_AccountId_is_empty()
-            => AssertThrows.AggregateException<CommandValidationFailureException>(() => _registerAccountScenario.Mutate(@this => @this.AccountId = Guid.Empty).Execute());
+        [Test] public async Task CommandValidationFailureException_is_thrown_if_AccountId_is_empty()
+            => await AssertThrows.Async<CommandValidationFailureException>(() => _registerAccountScenario.Mutate(@this => @this.AccountId = Guid.Empty).ExecuteAsync());
     }
 }

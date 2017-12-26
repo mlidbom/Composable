@@ -1,4 +1,5 @@
-﻿using AccountManagement.API;
+﻿using System.Threading.Tasks;
+using AccountManagement.API;
 using AccountManagement.Domain;
 using Composable.Messaging.Buses;
 
@@ -12,10 +13,13 @@ namespace AccountManagement.Tests.Scenarios
         public readonly Email OldEmail;
         public AccountResource Account { get; private set; }
 
-        public ChangeAccountEmailScenario(IServiceBus clientBus, AccountResource account = null)
+        public static async Task<ChangeAccountEmailScenario> CreateAsync(IServiceBus clientBus)
+            => new ChangeAccountEmailScenario(clientBus, await new RegisterAccountScenario(clientBus).ExecuteAsync());
+
+        public ChangeAccountEmailScenario(IServiceBus clientBus, AccountResource account)
         {
             _clientBus = clientBus;
-            Account = account ?? new RegisterAccountScenario(clientBus).Execute();
+            Account = account;
             OldEmail = Account.Email;
         }
 

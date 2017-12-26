@@ -1,4 +1,5 @@
-﻿using AccountManagement.API;
+﻿using System.Threading.Tasks;
+using AccountManagement.API;
 using Composable.Messaging.Buses;
 
 namespace AccountManagement.Tests.Scenarios
@@ -8,15 +9,23 @@ namespace AccountManagement.Tests.Scenarios
         readonly IServiceBus _bus;
 
         public string OldPassword;
-        public string NewPasswordAsString = TestData.Password.CreateValidPasswordString();
+        public string NewPasswordAsString;
         public AccountResource Account { get; private set; }
 
-        public ChangePasswordScenario(IServiceBus bus)
+        public static async Task<ChangePasswordScenario> Create(IServiceBus bus)
+        {
+            var registerAccountScenario = new RegisterAccountScenario(bus);
+            var account = await registerAccountScenario.ExecuteAsync();
+
+            return new ChangePasswordScenario(bus, account, registerAccountScenario.Password);
+        }
+
+        public ChangePasswordScenario(IServiceBus bus, AccountResource account, string oldPassword, string newPassword = null)
         {
             _bus = bus;
-            var registerAccountScenario = new RegisterAccountScenario(bus);
-            Account = registerAccountScenario.Execute();
-            OldPassword = registerAccountScenario.Password;
+            Account = account;
+            OldPassword = oldPassword;
+            NewPasswordAsString = newPassword ?? TestData.Password.CreateValidPasswordString();
         }
 
         public void Execute()

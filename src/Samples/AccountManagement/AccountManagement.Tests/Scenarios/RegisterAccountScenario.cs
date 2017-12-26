@@ -1,7 +1,9 @@
 using System;
+using System.Threading.Tasks;
 using AccountManagement.API;
 using Composable.Messaging.Buses;
 using Composable.System.Linq;
+using Composable.System.Threading;
 
 namespace AccountManagement.Tests.Scenarios
 {
@@ -21,16 +23,16 @@ namespace AccountManagement.Tests.Scenarios
             Email = email ?? TestData.Email.CreateValidEmail().ToString();
         }
 
-        public AccountResource Execute()
+        public async Task<AccountResource> ExecuteAsync()
         {
-            return _bus.Get(AccountApi.Start)
+            return await _bus.Get(AccountApi.Start)
                        .Post(start => start.Commands.Register.Mutate(@this =>
                        {
                            @this.AccountId = AccountId;
                            @this.Email = Email;
                            @this.Password = Password;
                        }))
-                       .Execute();
+                       .ExecuteAsync();
         }
     }
 }

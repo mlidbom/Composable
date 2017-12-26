@@ -9,10 +9,10 @@ namespace AccountManagement.Tests.Domain.After_a_user_has_registered_an_account
     {
         RegisterAccountScenario _registerAccountScenario;
 
-        [SetUp] public void RegisterAccount()
+        [SetUp] public async Task RegisterAccount()
         {
             _registerAccountScenario = new RegisterAccountScenario(ClientBus);
-            _registerAccountScenario.Execute();
+            await _registerAccountScenario.ExecuteAsync();
         }
 
         [Test] public async Task Login_with_the_correct_email_and_password_succeeds_returning_non_null_and_nonEmpty_authenticationToken()

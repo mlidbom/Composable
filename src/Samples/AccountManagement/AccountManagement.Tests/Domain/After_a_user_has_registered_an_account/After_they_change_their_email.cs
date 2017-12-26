@@ -1,8 +1,10 @@
 ﻿using System.Linq;
+using System.Threading.Tasks;
 using AccountManagement.Domain;
 using AccountManagement.Domain.Events;
 using AccountManagement.Tests.Scenarios;
 using Composable.Messaging.Buses;
+using Composable.System.Threading;
 using FluentAssertions;
 using NUnit.Framework;
 
@@ -13,9 +15,9 @@ namespace AccountManagement.Tests.Domain.After_a_user_has_registered_an_account
         ChangeAccountEmailScenario _changeEmailScenario;
 
         [SetUp]
-        public void ChangeEmail()
+        public async Task ChangeEmail()
         {
-            _changeEmailScenario = new ChangeAccountEmailScenario(ClientBus);
+            _changeEmailScenario = await ChangeAccountEmailScenario.CreateAsync(ClientBus);
             _changeEmailScenario.Execute();
         }
 
@@ -42,9 +44,9 @@ namespace AccountManagement.Tests.Domain.After_a_user_has_registered_an_account
         }
 
         [Test]
-        public void Registering_an_account_with_the_old_email_works()
+        public async Task Registering_an_account_with_the_old_email_works()
         {
-            new RegisterAccountScenario(ClientBus,email: _changeEmailScenario.OldEmail.ToString()).Execute();
+            await new RegisterAccountScenario(ClientBus,email: _changeEmailScenario.OldEmail.ToString()).ExecuteAsync();
         }
 
         [Test]
@@ -52,7 +54,7 @@ namespace AccountManagement.Tests.Domain.After_a_user_has_registered_an_account
         {
             var scenario = new RegisterAccountScenario(ClientBus, email: _changeEmailScenario.NewEmail.ToString());
 
-            Host.AssertThatRunningScenarioThrowsBackendException<DuplicateAccountException>(() => scenario.Execute())
+            Host.AssertThatRunningScenarioThrowsBackendException<DuplicateAccountException>(() => scenario.ExecuteAsync().Wait())
                 .Message.Should().Contain(_changeEmailScenario.Account.Email.ToString());
         }
     }

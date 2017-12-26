@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 using AccountManagement.Tests.Scenarios;
 using Composable.Messaging.Buses;
 using Composable.Testing;
@@ -14,11 +15,11 @@ namespace AccountManagement.Tests.Domain.After_a_user_has_registered_an_account
         ChangePasswordScenario _changePasswordScenario;
 
         [SetUp]
-        public void RegisterAccount()
+        public async Task RegisterAccount()
         {
             _registerAccountScenario = new RegisterAccountScenario(ClientBus);
-            _registerAccountScenario.Execute();
-            _changePasswordScenario = new ChangePasswordScenario(ClientBus);
+            await _registerAccountScenario.ExecuteAsync();
+            _changePasswordScenario = await ChangePasswordScenario.Create(ClientBus);
         }
 
         [Test]

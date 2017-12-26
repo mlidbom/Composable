@@ -1,6 +1,8 @@
 ﻿using System.Linq;
+using System.Threading.Tasks;
 using AccountManagement.Domain.Events;
 using AccountManagement.Tests.Scenarios;
+using Composable.System.Threading;
 using FluentAssertions;
 using NUnit.Framework;
 
@@ -11,9 +13,9 @@ namespace AccountManagement.Tests.Domain.After_a_user_has_registered_an_account
         ChangePasswordScenario _changePasswordScenario;
 
         [SetUp]
-        public void RegisterAccount()
+        public async Task RegisterAccount()
         {
-            _changePasswordScenario = new ChangePasswordScenario(ClientBus);
+            _changePasswordScenario = await ChangePasswordScenario.Create(ClientBus);
             _changePasswordScenario.Execute();
         }
 

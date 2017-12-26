@@ -4,6 +4,7 @@ using AccountManagement.API;
 using AccountManagement.Domain.Events;
 using AccountManagement.Tests.Scenarios;
 using Composable.Messaging.Buses;
+using Composable.System.Threading;
 using FluentAssertions;
 using NUnit.Framework;
 
@@ -14,10 +15,10 @@ namespace AccountManagement.Tests.Domain.After_a_user_has_registered_an_account
         AccountResource _registeredAccount;
         RegisterAccountScenario _registerAccountScenario;
 
-        [SetUp] public void RegisterAccount()
+        [SetUp] public async Task RegisterAccount()
         {
             _registerAccountScenario = new RegisterAccountScenario(ClientBus);
-            _registeredAccount = _registerAccountScenario.Execute();
+            _registeredAccount = await _registerAccountScenario.ExecuteAsync();
         }
 
         [Test] public void An_IUserRegisteredAccountEvent_is_published() => MessageSpy.DispatchedMessages.OfType<AccountEvent.UserRegistered>().ToList().Should().HaveCount(1);

@@ -1,24 +1,27 @@
 ﻿using System;
+using System.Threading.Tasks;
 using JetBrains.Annotations;
 
 namespace Composable.Testing
 {
     public static class AssertThrows
     {
-        public static TInnerException AggregateException<TInnerException>([InstantHandle]Func<object> action) where TInnerException : Exception
+        public static async Task<TException> Async<TException>([InstantHandle]Func<Task> action) where TException : Exception
         {
-            return (TInnerException)Exception<AggregateException>(() =>
+         try
             {
-                action();
-            }).InnerException;
-        }
+                await action();
+            }
+            catch(TException exception)
+            {
+                return exception;
+            }
+            catch(Exception anyException)
+            {
+                throw new Exception($"Expected exception of type: {typeof(TException)}, but thrown exception is: {anyException.GetType()}", anyException);
+            }
 
-        public static TException Exception<TException>([InstantHandle]Func<object> action) where TException : Exception
-        {
-            return Exception<TException>(() =>
-            {
-                action();
-            });
+            throw new Exception($"Expected exception of type: {typeof(TException)}, but no exception was thrown");
         }
 
         public static TException Exception<TException>([InstantHandle]Action action) where TException : Exception

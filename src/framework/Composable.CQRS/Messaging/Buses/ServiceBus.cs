@@ -11,15 +11,15 @@ namespace Composable.Messaging.Buses
 
         public ServiceBus(Outbox transport) => _outbox = transport;
 
-        public void SendAtTime(DateTime sendAt, IDomainCommand command) => _outbox.SendAtTime(sendAt, command);
+        public Task SendAtTimeAsync(DateTime sendAt, IDomainCommand command) => _outbox.SendAtTimeAsync(sendAt, command);
 
-        public void Send(IDomainCommand command)
+        public Task SendAsync(IDomainCommand command)
         {
             CommandValidator.AssertCommandIsValid(command);
-            _outbox.Send(command);
+            return _outbox.SendAsync(command);
         }
 
-        public void Publish(IEvent anEvent) => _outbox.Publish(anEvent);
+        public Task PublishAsync(IEvent anEvent) => _outbox.PublishAsync(anEvent);
 
         public async Task<TResult> SendAsync<TResult>(IDomainCommand<TResult> command)
         {

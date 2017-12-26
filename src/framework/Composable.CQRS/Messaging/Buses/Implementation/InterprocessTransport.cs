@@ -72,34 +72,34 @@ namespace Composable.Messaging.Buses.Implementation
             @this.Poller.RunAsync();
         });
 
-        public void Dispatch(IEvent @event) => _this.Locked(@this =>
+        public async Task DispatchAsync(IEvent @event) => await _this.Locked(async @this =>
         {
             var eventReceivers = @this.EventConnections[@event.GetType()].ToList();
-            eventReceivers.ForEach(receiver => receiver.Dispatch(@event));
+            await Task.WhenAll(eventReceivers.Select(receiver => receiver.DispatchAsync(@event)).ToList());
         });
 
-        public void Dispatch(IDomainCommand command) => _this.Locked(@this =>
+        public Task DispatchAsync(IDomainCommand command) => _this.Locked(@this =>
         {
             if(!@this.CommandConnections.TryGetValue(command.GetType(), out var connection))
             {
                 throw new NoHandlerForcommandTypeException(command.GetType());
             }
-            connection.Dispatch(command);
+            return connection.DispatchAsync(command);
         });
 
-        public Task<TCommandResult> Dispatch<TCommandResult>(IDomainCommand<TCommandResult> command) => _this.Locked(@this =>
+        public Task<TCommandResult> DispatchAsync<TCommandResult>(IDomainCommand<TCommandResult> command) => _this.Locked(@this =>
         {
             if (!@this.CommandConnections.TryGetValue(command.GetType(), out var connection))
             {
                 throw new NoHandlerForcommandTypeException(command.GetType());
             }
-            return connection.Dispatch(command);
+            return connection.DispatchAsync(command);
         });
 
-        public Task<TQueryResult> Dispatch<TQueryResult>(IQuery<TQueryResult> query) => _this.Locked(@this =>
+        public Task<TQueryResult> DispatchAsync<TQueryResult>(IQuery<TQueryResult> query) => _this.Locked(@this =>
         {
             var commandHandlerConnection = @this.QueryConnections[query.GetType()];
-            return commandHandlerConnection.Dispatch(query);
+            return commandHandlerConnection.DispatchAsync(query);
         });
 
         public void Dispose() => _this.Locked(@this =>

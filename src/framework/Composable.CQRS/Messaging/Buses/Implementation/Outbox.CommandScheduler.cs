@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading;
+using System.Threading.Tasks;
 using Composable.GenericAbstractions.Time;
 using Composable.System;
 using Composable.System.Collections.Collections;
@@ -27,19 +28,20 @@ namespace Composable.Messaging.Buses.Implementation
 
             public void Start() => _guard.Update(() => _scheduledMessagesTimer = new Timer(callback: _ => SendDueCommands(), state: null, dueTime: 0.Seconds(), period: 100.Milliseconds()));
 
-            public void Schedule(DateTime sendAt, IDomainCommand message) => _guard.Update(() =>
+            public Task Schedule(DateTime sendAt, IDomainCommand message) => _guard.Update(() =>
             {
                 if(_timeSource.UtcNow > sendAt.ToUniversalTime())
                     throw new InvalidOperationException(message: "You cannot schedule a queuedMessageInformation to be sent in the past.");
 
                 _scheduledMessages.Add(new ScheduledCommand(sendAt, message));
+                return Task.FromResult(0);
             });
 
             void SendDueCommands() => _guard.Update(() => _scheduledMessages.RemoveWhere(HasPassedSendtime).ForEach(Send));
 
             bool HasPassedSendtime(ScheduledCommand message) => _timeSource.UtcNow >= message.SendAt;
 
-            void Send(ScheduledCommand scheduledCommand) => _transport.Send(scheduledCommand.Command);
+            void Send(ScheduledCommand scheduledCommand) => _transport.SendAsync(scheduledCommand.Command);
 
             public void Dispose() => _scheduledMessagesTimer?.Dispose();
 

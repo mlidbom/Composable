@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Threading.Tasks;
 using Composable.Testing.Threading;
 using FluentAssertions;
 using Xunit;
@@ -13,7 +14,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
         [Fact] public void If_command_handler_throws_disposing_host_throws_AggregateException_containing_a_single_exception_that_is_the_thrown_exception()
         {
             CommandHandlerThreadGate.ThrowOnPassThrough(_thrownException);
-            Host.ClientBus.Send(new MyCommand());
+            Host.ClientBus.SendAsync(new MyCommand());
             AssertDisposingHostThrowsAggregateExceptionContainingOnlyThrownException();
         }
 
@@ -25,10 +26,10 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
             AssertDisposingHostThrowsAggregateExceptionContainingOnlyThrownException();
         }
 
-        [Fact] public void If_event_handler_throws_disposing_host_throws_AggregateException_containing_a_single_exception_that_is_the_thrown_exception()
+        [Fact] public async Task If_event_handler_throws_disposing_host_throws_AggregateException_containing_a_single_exception_that_is_the_thrown_exception()
         {
             EventHandlerThreadGate.ThrowOnPassThrough(_thrownException);
-            Host.ClientBus.Publish(new MyEvent());
+            await Host.ClientBus.PublishAsync(new MyEvent());
             AssertDisposingHostThrowsAggregateExceptionContainingOnlyThrownException();
         }
 

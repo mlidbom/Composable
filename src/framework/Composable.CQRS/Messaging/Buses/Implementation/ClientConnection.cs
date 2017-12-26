@@ -89,17 +89,17 @@ namespace Composable.Messaging.Buses.Implementation
             });
         }
 
-        public void Dispatch(IEvent @event) => DispatchMessage(@event);
+        public Task DispatchAsync(IEvent @event) => DispatchMessageAsync(@event);
 
-        public void Dispatch(IDomainCommand command) => DispatchMessage(command);
+        public Task DispatchAsync(IDomainCommand command) => DispatchMessageAsync(command);
 
-        public async Task<TCommandResult> Dispatch<TCommandResult>(IDomainCommand<TCommandResult> command)
-            => (TCommandResult)await DispatchMessage(command);
+        public async Task<TCommandResult> DispatchAsync<TCommandResult>(IDomainCommand<TCommandResult> command)
+            => (TCommandResult)await DispatchMessageAsync(command);
 
-        public async Task<TQueryResult> Dispatch<TQueryResult>(IQuery<TQueryResult> query)
-            => (TQueryResult)await DispatchMessage(query);
+        public async Task<TQueryResult> DispatchAsync<TQueryResult>(IQuery<TQueryResult> query)
+            => (TQueryResult)await DispatchMessageAsync(query);
 
-        Task<object> DispatchMessage(IMessage message) => _this.Locked(@this =>
+        Task<object> DispatchMessageAsync(IMessage message) => _this.Locked(@this =>
         {
             var taskCompletionSource = new TaskCompletionSource<object>(TaskCreationOptions.RunContinuationsAsynchronously);
 

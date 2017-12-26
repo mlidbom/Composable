@@ -33,7 +33,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification
                                           .ForQuery((UserApiStartPageQuery query) => new UserApiStartPage())
                                           .ForCommandWithResult((RegisterUserCommand command, IServiceBus bus) =>
                                           {
-                                              bus.Publish(new UserRegisteredEvent(command.Name));
+                                              bus.PublishAsync(new UserRegisteredEvent(command.Name));
                                               return new UserRegisteredConfirmationResource(command.Name);
                                           })));
             }

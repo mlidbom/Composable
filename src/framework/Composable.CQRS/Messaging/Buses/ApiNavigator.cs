@@ -11,7 +11,7 @@ namespace Composable.Messaging.Buses
 
         public IApiNavigator Post(IDomainCommand command)
         {
-            _bus.Send(command);
+            _bus.SendAsync(command);
             return this;
         }
 

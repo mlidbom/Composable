@@ -6,19 +6,19 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
 {
     public class Query_policies : Fixture
     {
-        [Fact] public void The_same_query_can_be_reused_in_parallel_without_issues()
+        [Fact] public async Task The_same_query_can_be_reused_in_parallel_without_issues()
         {
             var test = new MyQuery();
 
             QueryHandlerThreadGate.Close();
 
-            var result1 = Host.ClientBus.QueryAsync(test);
-            var result2 = Host.ClientBus.QueryAsync(test);
+            var result1 = Host.ClientBus.QueryAsync(test); //awaiting later
+            var result2 = Host.ClientBus.QueryAsync(test); //awaiting later
 
             QueryHandlerThreadGate.AwaitQueueLengthEqualTo(length: 2);
             QueryHandlerThreadGate.Open();
 
-            Task.WaitAll(result1, result2);
+            await Task.WhenAll(result1, result2);
         }
     }
 }

@@ -21,7 +21,6 @@ namespace Composable.Messaging.Buses
     {
         Task SendAtTimeAsync(DateTime sendAt, IDomainCommand command);
         Task PublishAsync(IEvent anEvent);
-        TResult Query<TResult>(IQuery<TResult> query);
         Task<TResult> QueryAsync<TResult>(IQuery<TResult> query);
 
         Task SendAsync(IDomainCommand command);
@@ -126,7 +125,6 @@ namespace Composable.Messaging.Buses
     public interface IApiNavigator
     {
         IApiNavigator<TReturnResource> Get<TReturnResource>(IQuery<TReturnResource> createQuery);
-        IApiNavigator Post(IDomainCommand createCommand);
         IApiNavigator<TCommandResult> Post<TCommandResult>(IDomainCommand<TCommandResult> command);
     }
 
@@ -135,6 +133,5 @@ namespace Composable.Messaging.Buses
         IApiNavigator<TReturnResource> Get<TReturnResource>(Func<TCurrentResource, IQuery<TReturnResource>> selectQuery);
         IApiNavigator<TReturnResource> Post<TReturnResource>(Func<TCurrentResource, IDomainCommand<TReturnResource>> selectCommand);
         Task<TCurrentResource> ExecuteAsync();
-        TCurrentResource Execute();
     }
 }

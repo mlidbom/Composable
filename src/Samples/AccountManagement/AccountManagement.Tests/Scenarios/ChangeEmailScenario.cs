@@ -28,9 +28,11 @@ namespace AccountManagement.Tests.Scenarios
             var command = Account.CommandsCollections.ChangeEmail;
             command.Email = NewEmail.ToString();
 
-            _clientBus.SendAsync(command);
+            _clientBus.Send(command);
 
-            Account = _clientBus.Query(AccountApi.Start.Get().Queries.AccountById.WithId(Account.Id));
+            Account = _clientBus.Get(AccountApi.Start)
+                                .Get(start => start.Queries.AccountById.WithId(Account.Id))
+                                .Execute();
         }
     }
 }

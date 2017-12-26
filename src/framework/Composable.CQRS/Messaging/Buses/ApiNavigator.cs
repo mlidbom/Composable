@@ -9,15 +9,8 @@ namespace Composable.Messaging.Buses
         readonly IServiceBus _bus;
         public ApiNavigator(IServiceBus bus) => _bus = bus;
 
-        public IApiNavigator Post(IDomainCommand command)
-        {
-            _bus.SendAsync(command);
-            return this;
-        }
-
         public IApiNavigator<TCommandResult> Post<TCommandResult>(IDomainCommand<TCommandResult> command)
             => new ApiNavigator<TCommandResult>(_bus, () => _bus.SendAsync(command));
-
 
         public IApiNavigator<TReturnResource> Get<TReturnResource>(IQuery<TReturnResource> query)
             => new ApiNavigator<TReturnResource>(_bus, () => _bus.QueryAsync(query));
@@ -41,7 +34,5 @@ namespace Composable.Messaging.Buses
             => new ApiNavigator<TReturnResource>(_bus, getCurrentResource: async () => await _bus.SendAsync(selectCommand(await _getCurrentResource())).NoMarshalling());
 
         public async Task<TCurrentResource> ExecuteAsync() => await _getCurrentResource().NoMarshalling();
-
-        public TCurrentResource Execute() => ExecuteAsync().Result;
     }
 }

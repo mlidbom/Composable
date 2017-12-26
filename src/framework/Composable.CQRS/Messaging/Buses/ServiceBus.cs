@@ -13,13 +13,13 @@ namespace Composable.Messaging.Buses
 
         public Task SendAtTimeAsync(DateTime sendAt, IDomainCommand command) => _outbox.SendAtTimeAsync(sendAt, command);
 
-        public Task SendAsync(IDomainCommand command)
+        public async Task SendAsync(IDomainCommand command)
         {
             CommandValidator.AssertCommandIsValid(command);
-            return _outbox.SendAsync(command);
+            await _outbox.SendAsync(command).NoMarshalling();
         }
 
-        public Task PublishAsync(IEvent anEvent) => _outbox.PublishAsync(anEvent);
+        public async Task PublishAsync(IEvent anEvent) => await _outbox.PublishAsync(anEvent).NoMarshalling();
 
         public async Task<TResult> SendAsync<TResult>(IDomainCommand<TResult> command)
         {
@@ -29,9 +29,6 @@ namespace Composable.Messaging.Buses
 
         public async Task<TResult> QueryAsync<TResult>(IQuery<TResult> query)
             =>  await _outbox.QueryAsync(query).NoMarshalling();
-
-        public TResult Query<TResult>(IQuery<TResult> query)
-            => QueryAsync(query).Result;
 
     }
 }

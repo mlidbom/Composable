@@ -33,7 +33,7 @@ namespace Composable.Tests.System.RX
 
                 using(subject.Subscribe(value => subscriberGate.AwaitPassthrough()))
                 {
-                    _taskRunner.Run(() => subject.OnNext("1"), () => subject.OnNext("2"));
+                    _taskRunner.Start(() => subject.OnNext("1"), () => subject.OnNext("2"));
 
                     subscriberGate.AwaitQueueLengthEqualTo(2);
 
@@ -57,7 +57,7 @@ namespace Composable.Tests.System.RX
 
                 using (synchronized.Subscribe(value => subscriberGate.AwaitPassthrough()))
                 {
-                    _taskRunner.Run(() => subject.OnNext("1"), () => subject.OnNext("2"));
+                    _taskRunner.Start(() => subject.OnNext("1"), () => subject.OnNext("2"));
 
                     subscriberGate.AwaitQueueLengthEqualTo(1);
                     AssertionExtensions.ShouldThrow<Exception>(() => subscriberGate.AwaitQueueLengthEqualTo(2, 0.1.Seconds()));
@@ -133,7 +133,7 @@ namespace Composable.Tests.System.RX
                                                                             });
                                                                         })).ToList();
 
-                _taskRunner.Run(1.Through(onNextCalls).Select(index => (Action)(() => subject.OnNext(index))))
+                _taskRunner.Start(1.Through(onNextCalls).Select(index => (Action)(() => subject.OnNext(index))))
                            .WaitForTasksToComplete();
 
                 Console.WriteLine($"{nameof(maxConcurrentCalls)}: {maxConcurrentCalls}");
@@ -178,7 +178,7 @@ namespace Composable.Tests.System.RX
                                                                             });
                                                                         })).ToList();
 
-                _taskRunner.Run(1.Through(onNextCalls).Select(index => (Action)(() => subject.OnNext(index))));
+                _taskRunner.Start(1.Through(onNextCalls).Select(index => (Action)(() => subject.OnNext(index))));
 
                 _taskRunner.WaitForTasksToComplete();
                 subscriberThreadGate.AwaitPassedThroughCountEqualTo(subscriberCount * onNextCalls);
@@ -202,7 +202,7 @@ namespace Composable.Tests.System.RX
 
                 using (synchronized.Subscribe(value => subscriberGate.AwaitPassthrough()))
                 {
-                    _taskRunner.Run(1.Through(100).Select(index => (Action)(() => subject.OnNext(index.ToString()))));
+                    _taskRunner.Start(1.Through(100).Select(index => (Action)(() => subject.OnNext(index.ToString()))));
 
                     subscriberGate.AwaitQueueLengthEqualTo(1);
                     AssertionExtensions.ShouldThrow<Exception>(() => subscriberGate.AwaitQueueLengthEqualTo(2, 0.1.Seconds()));

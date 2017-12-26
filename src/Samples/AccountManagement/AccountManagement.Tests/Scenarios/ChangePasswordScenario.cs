@@ -35,7 +35,7 @@ namespace AccountManagement.Tests.Scenarios
             command.OldPassword = OldPassword;
 
             await _bus.SendAsync(command);
-            Account = await _bus.QueryAsync(AccountApi.Start.Get().Queries.AccountById.WithId(Account.Id));
+            Account = await _bus.Get(AccountApi.Start).Get(start => start.Queries.AccountById.WithId(Account.Id)).ExecuteAsync();
         }
     }
 }

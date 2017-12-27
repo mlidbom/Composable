@@ -48,11 +48,11 @@ namespace Composable.Messaging.Buses
                 Component.For<IInbox, Inbox>()
                          .ImplementedBy<Inbox>()
                          .LifestyleSingleton(),
-                Component.For<IOutbox, Outbox>()
-                         .ImplementedBy<Outbox>()
+                Component.For<IOutbox>()
+                         .UsingFactoryMethod((IUtcTimeTimeSource timeSource, IInterprocessTransport transport) => new Outbox(timeSource, transport))
                          .LifestyleSingleton(),
                 Component.For<IServiceBus, ServiceBus>()
-                         .UsingFactoryMethod((Outbox outbox) => new ServiceBus(outbox))
+                         .UsingFactoryMethod((IOutbox outbox) => new ServiceBus(outbox))
                          .LifestyleSingleton(),
                 Component.For<ISqlConnectionProvider>()
                          .UsingFactoryMethod(() => new SqlServerDatabasePoolSqlConnectionProvider(MasterDbConnection.ConnectionString))

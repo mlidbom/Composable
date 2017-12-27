@@ -7,9 +7,9 @@ namespace Composable.Messaging.Buses
 {
     partial class ServiceBus : IServiceBus
     {
-        readonly Outbox _outbox;
+        readonly IOutbox _outbox;
 
-        public ServiceBus(Outbox transport) => _outbox = transport;
+        public ServiceBus(IOutbox transport) => _outbox = transport;
 
         public async Task SendAtTimeAsync(DateTime sendAt, IDomainCommand command) => await _outbox.SendAtTimeAsync(sendAt, command).NoMarshalling();
 

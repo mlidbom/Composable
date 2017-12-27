@@ -40,10 +40,16 @@ namespace Composable.Messaging.Buses.Implementation
             => _commandScheduler.Schedule(sendAt, command);
 
         public Task SendAsync(IDomainCommand command)
-            => _transport.DispatchAsync(command);
+        {
+            _transport.Dispatch(command);
+            return Task.CompletedTask;
+        }
 
         public Task PublishAsync(IEvent anEvent)
-            => _transport.DispatchAsync(anEvent);
+        {
+            _transport.Dispatch(anEvent);
+            return Task.CompletedTask;
+        }
 
         public TResult Query<TResult>(IQuery<TResult> query)
             => _transport.DispatchAsync(query).Result;

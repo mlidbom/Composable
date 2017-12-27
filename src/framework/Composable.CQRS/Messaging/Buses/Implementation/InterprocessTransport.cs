@@ -72,19 +72,19 @@ namespace Composable.Messaging.Buses.Implementation
             @this.Poller.RunAsync();
         });
 
-        public async Task DispatchAsync(IEvent @event) => await _this.Locked(async @this =>
+        public void Dispatch(IEvent @event) => _this.Locked(@this =>
         {
             var eventReceivers = @this.EventConnections[@event.GetType()].ToList();
-            await Task.WhenAll(eventReceivers.Select(receiver => receiver.DispatchAsync(@event)).ToList());
+            eventReceivers.ForEach(receiver => receiver.Dispatch(@event));
         });
 
-        public Task DispatchAsync(IDomainCommand command) => _this.Locked(@this =>
+        public void Dispatch(IDomainCommand command) => _this.Locked(@this =>
         {
             if(!@this.CommandConnections.TryGetValue(command.GetType(), out var connection))
             {
                 throw new NoHandlerForcommandTypeException(command.GetType());
             }
-            return connection.DispatchAsync(command);
+            connection.Dispatch(command);
         });
 
         public async Task<TCommandResult> DispatchAsync<TCommandResult>(IDomainCommand<TCommandResult> command) => await _this.Locked(async @this =>

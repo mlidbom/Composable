@@ -89,17 +89,17 @@ namespace Composable.Messaging.Buses.Implementation
             });
         }
 
-        public Task DispatchAsync(IEvent @event) => DispatchMessageAsync(@event);
+        public void Dispatch(IEvent @event) => _this.Locked(@this => DispatchMessage(@event, @this, TransportMessage.OutGoing.Create(@event)));
 
-        public Task DispatchAsync(IDomainCommand command) => DispatchMessageAsync(command);
+        public void Dispatch(IDomainCommand command) => _this.Locked(@this => DispatchMessage(command, @this, TransportMessage.OutGoing.Create(command)));
 
         public async Task<TCommandResult> DispatchAsync<TCommandResult>(IDomainCommand<TCommandResult> command)
-            => (TCommandResult)await DispatchMessageAsync(command);
+            => (TCommandResult)await DispatchMessageWithResponse(command);
 
         public async Task<TQueryResult> DispatchAsync<TQueryResult>(IQuery<TQueryResult> query)
-            => (TQueryResult)await DispatchMessageAsync(query);
+            => (TQueryResult)await DispatchMessageWithResponse(query);
 
-        Task<object> DispatchMessageAsync(IMessage message) => _this.Locked(@this =>
+        Task<object> DispatchMessageWithResponse(IMessage message) => _this.Locked(@this =>
         {
             var taskCompletionSource = new TaskCompletionSource<object>(TaskCreationOptions.RunContinuationsAsynchronously);
 
@@ -113,12 +113,16 @@ namespace Composable.Messaging.Buses.Implementation
                 taskCompletionSource.SetResult(null);
             }
 
-            @this.GlobalBusStateTracker.SendingMessageOnTransport(outGoingMessage, message);
-            @this.DispatchQueue.Enqueue(outGoingMessage);
+            DispatchMessage(message, @this, outGoingMessage);
 
             return taskCompletionSource.Task;
         });
 
+        static void DispatchMessage(IMessage message, Implementation @this, TransportMessage.OutGoing outGoingMessage)
+        {
+            @this.GlobalBusStateTracker.SendingMessageOnTransport(outGoingMessage, message);
+            @this.DispatchQueue.Enqueue(outGoingMessage);
+        }
 
         public void Dispose() => _this.Locked(@this =>
         {

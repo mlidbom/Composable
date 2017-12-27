@@ -1,5 +1,4 @@
-﻿using System;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 
 namespace Composable.Messaging.Buses.Implementation
 {
@@ -21,8 +20,8 @@ namespace Composable.Messaging.Buses.Implementation
     {
         void Stop();
         void Start();
-        Task DispatchAsync(IEvent message);
-        Task DispatchAsync(IDomainCommand command);
+        void Dispatch(IEvent message);
+        void Dispatch(IDomainCommand command);
         Task<TCommandResult> DispatchAsync<TCommandResult>(IDomainCommand<TCommandResult> command);
         Task<TQueryResult> DispatchAsync<TQueryResult>(IQuery<TQueryResult> command);
     }

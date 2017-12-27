@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace Composable.Messaging.Buses.Implementation
@@ -36,7 +37,11 @@ namespace Composable.Messaging.Buses.Implementation
         Task<TQueryResult> DispatchAsync<TQueryResult>(IQuery<TQueryResult> query);
     }
 
-    interface IInbox
+    interface IInbox : IDisposable
     {
+        IReadOnlyList<Exception> ThrownExceptions { get; }
+        string Address { get; }
+        void Start();
+        void Stop();
     }
 }

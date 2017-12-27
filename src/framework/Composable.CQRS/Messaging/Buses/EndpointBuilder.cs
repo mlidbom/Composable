@@ -45,8 +45,8 @@ namespace Composable.Messaging.Buses
                 Component.For<IInProcessServiceBus, IMessageSpy>()
                          .UsingFactoryMethod((IMessageHandlerRegistry registry) => new InProcessServiceBus(registry))
                          .LifestyleSingleton(),
-                Component.For<IInbox, Inbox>()
-                         .ImplementedBy<Inbox>()
+                Component.For<IInbox>()
+                         .UsingFactoryMethod((IServiceLocator serviceLocator, IGlobalBusStateTracker stateTracker, IMessageHandlerRegistry messageHandlerRegistry, EndpointConfiguration configuration) => new Inbox(serviceLocator, stateTracker, messageHandlerRegistry, configuration))
                          .LifestyleSingleton(),
                 Component.For<IOutbox>()
                          .UsingFactoryMethod((IUtcTimeTimeSource timeSource, IInterprocessTransport transport) => new Outbox(timeSource, transport))

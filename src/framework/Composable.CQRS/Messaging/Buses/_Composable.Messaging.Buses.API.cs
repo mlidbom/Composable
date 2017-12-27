@@ -17,8 +17,11 @@ namespace Composable.Messaging.Buses
     }
 
     ///<summary>Dispatches messages between processes.</summary>
-    public interface IServiceBus
+    public interface IServiceBus : IDisposable
     {
+        void Start();
+        void Stop();
+
         Task SendAtTimeAsync(DateTime sendAt, IDomainCommand command);
         Task PublishAsync(IEvent anEvent);
         Task<TResult> QueryAsync<TResult>(IQuery<TResult> query);

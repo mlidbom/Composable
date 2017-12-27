@@ -6,7 +6,7 @@ using Composable.System.Threading;
 
 namespace Composable.Messaging.Buses
 {
-    partial class ServiceBus : IServiceBus
+    partial class ServiceBus : IServiceBus, IServiceBusControl
     {
         readonly IInterprocessTransport _transport;
         readonly IInbox _inbox;
@@ -20,6 +20,7 @@ namespace Composable.Messaging.Buses
             _commandScheduler = commandScheduler;
         }
 
+        #region IServicebus
         public void Start()
         {
             Contract.State.Assert(!_started);
@@ -58,17 +59,17 @@ namespace Composable.Messaging.Buses
 
         public async Task<TResult> QueryAsync<TResult>(IQuery<TResult> query) =>
             await _transport.DispatchAsync(query).NoMarshalling();
-
-        public void Dispose() { Contract.State.Assert(!_started); }
+        #endregion
 
         #region ISimpleServicebus
-
         public void Publish(IEvent @event) => PublishAsync(@event).Wait();
         public void Send(IDomainCommand command) => SendAsync(command).Wait();
+        public void SendAtTime(DateTime sendAt, IDomainCommand command) => SendAtTimeAsync(sendAt, command).Wait();
         public TResult Send<TResult>(IDomainCommand<TResult> command) => SendAsync(command).Result;
         public TResult Query<TResult>(IQuery<TResult> query) => QueryAsync(query).Result;
         public async Task<TResult> SendAsync<TResult>(IDomainCommand<TResult> command) => await SendAsyncAsync(command).Result.NoMarshalling();
-
         #endregion
+
+        public void Dispose() { Contract.State.Assert(!_started); }
     }
 }

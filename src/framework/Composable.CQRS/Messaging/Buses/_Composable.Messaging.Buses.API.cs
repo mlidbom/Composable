@@ -21,18 +21,23 @@ namespace Composable.Messaging.Buses
         void Publish(IEvent @event);
         void Send(IDomainCommand command);
 
+        void SendAtTime(DateTime sendAt, IDomainCommand command);
+
         TResult Send<TResult>(IDomainCommand<TResult> command);
         TResult Query<TResult>(IQuery<TResult> query);
 
         Task<TResult> SendAsync<TResult>(IDomainCommand<TResult> command);
     }
 
-    ///<summary>Dispatches messages between processes.</summary>
-    public interface IServiceBus : ISimpleServiceBus, IDisposable
+    interface IServiceBusControl
     {
         void Start();
         void Stop();
+    }
 
+    ///<summary>Dispatches messages between processes.</summary>
+    public interface IServiceBus : ISimpleServiceBus, IDisposable
+    {
         Task SendAtTimeAsync(DateTime sendAt, IDomainCommand command);
         Task PublishAsync(IEvent anEvent);
         Task<TResult> QueryAsync<TResult>(IQuery<TResult> query);

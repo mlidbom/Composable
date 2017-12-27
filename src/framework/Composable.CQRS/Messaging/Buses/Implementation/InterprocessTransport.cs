@@ -18,9 +18,9 @@ namespace Composable.Messaging.Buses.Implementation
         {
             public IGlobalBusStateTracker GlobalBusStateTracker;
 
-            public readonly Dictionary<Type, HashSet<ClientConnection>> EventConnections = new Dictionary<Type, HashSet<ClientConnection>>();
-            public readonly Dictionary<Type, ClientConnection> CommandConnections = new Dictionary<Type, ClientConnection>();
-            public readonly Dictionary<Type, ClientConnection> QueryConnections = new Dictionary<Type, ClientConnection>();
+            public readonly Dictionary<Type, HashSet<IClientConnection>> EventConnections = new Dictionary<Type, HashSet<IClientConnection>>();
+            public readonly Dictionary<Type, IClientConnection> CommandConnections = new Dictionary<Type, IClientConnection>();
+            public readonly Dictionary<Type, IClientConnection> QueryConnections = new Dictionary<Type, IClientConnection>();
 
             public bool Running;
             public readonly IList<ClientConnection> ClientConnections = new List<ClientConnection>();
@@ -43,7 +43,7 @@ namespace Composable.Messaging.Buses.Implementation
             {
                 if(IsEvent(messageType))
                 {
-                    @this.EventConnections.GetOrAdd(messageType, () => new HashSet<ClientConnection>()).Add(clientConnection);
+                    @this.EventConnections.GetOrAdd(messageType, () => new HashSet<IClientConnection>()).Add(clientConnection);
                 } else if(IsCommand(messageType))
                 {
                     @this.CommandConnections.Add(messageType, clientConnection);

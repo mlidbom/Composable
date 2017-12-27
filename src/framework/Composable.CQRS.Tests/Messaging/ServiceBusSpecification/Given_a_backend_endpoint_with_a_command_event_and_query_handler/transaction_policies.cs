@@ -22,7 +22,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
 
         [Fact] async Task Command_handler_with_result_runs_in_transaction_with_isolation_level_Serializable()
         {
-            var commandResult = await Host.ClientBus.SendAsync(new MyCommandWithResult());
+            var commandResult = await Host.ClientBus.SendAsyncAsync(new MyCommandWithResult());
 
             commandResult.Should().NotBe(null);
 

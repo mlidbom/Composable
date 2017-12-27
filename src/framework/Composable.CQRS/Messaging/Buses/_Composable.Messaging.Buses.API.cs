@@ -27,7 +27,7 @@ namespace Composable.Messaging.Buses
         Task<TResult> QueryAsync<TResult>(IQuery<TResult> query);
 
         Task SendAsync(IDomainCommand command);
-        Task<TResult> SendAsync<TResult>(IDomainCommand<TResult> command);
+        Task<Task<TResult>> SendAsyncAsync<TResult>(IDomainCommand<TResult> command);
     }
 
     public interface IMessageSpy

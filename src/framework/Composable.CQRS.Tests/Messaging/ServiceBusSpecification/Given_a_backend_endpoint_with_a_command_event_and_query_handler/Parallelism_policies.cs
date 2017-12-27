@@ -88,7 +88,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
             await Host.ClientBus.PublishAsync(new MyEvent());
             EventHandlerThreadGate.AwaitQueueLengthEqualTo(1);
 
-            var result = Host.ClientBus.SendAsync(new MyCommandWithResult()); //awaiting later
+            var result = Host.ClientBus.SendAsyncAsync(new MyCommandWithResult()); //awaiting later
             CommandHandlerThreadGate.TryAwaitQueueLengthEqualTo(1, 100.Milliseconds()).Should().Be(false);
 
             OpenGates();
@@ -109,7 +109,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
         {
             CloseGates();
 
-            var result = Host.ClientBus.SendAsync(new MyCommandWithResult()); //awaiting later
+            var result = Host.ClientBus.SendAsyncAsync(new MyCommandWithResult()); //awaiting later
             CommandHandlerWithResultThreadGate.AwaitQueueLengthEqualTo(1);
 
             await Host.ClientBus.PublishAsync(new MyEvent());

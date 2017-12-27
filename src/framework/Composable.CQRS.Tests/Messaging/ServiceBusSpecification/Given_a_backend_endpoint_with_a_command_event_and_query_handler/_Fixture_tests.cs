@@ -23,7 +23,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
         [Fact] public async Task If_command_handler_with_result_throws_disposing_host_throws_AggregateException_containing_a_single_exception_that_is_the_thrown_exception_and_SendAsync_throws_MessageDispatchingFailedException()
         {
             CommandHandlerWithResultThreadGate.ThrowOnPassThrough(_thrownException);
-            await AssertThrows.Async<MessageDispatchingFailedException>(() => Host.ClientBus.SendAsync(new MyCommandWithResult()));
+            await AssertThrows.Async<MessageDispatchingFailedException>(async () => await await Host.ClientBus.SendAsyncAsync(new MyCommandWithResult()));
 
             AssertDisposingHostThrowsAggregateExceptionContainingOnlyThrownException();
         }

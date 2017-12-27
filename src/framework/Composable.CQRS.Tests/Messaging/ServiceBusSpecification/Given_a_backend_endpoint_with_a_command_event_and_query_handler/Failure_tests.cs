@@ -12,7 +12,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
         [Fact] public async Task If_command_handler_with_result_throws_awaiting_SendAsync_throws()
         {
             CommandHandlerWithResultThreadGate.ThrowOnPassThrough(_thrownException);
-            await AssertThrows.Async<Exception>(() => Host.ClientBus.SendAsync(new MyCommandWithResult()));
+            await AssertThrows.Async<Exception>(async () => await await Host.ClientBus.SendAsyncAsync(new MyCommandWithResult()));
         }
 
         [Fact] public async Task If_query_handler_throws_awaiting_QueryAsync_throws()

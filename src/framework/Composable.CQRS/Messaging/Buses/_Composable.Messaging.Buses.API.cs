@@ -29,12 +29,6 @@ namespace Composable.Messaging.Buses
         Task<TResult> SendAsync<TResult>(IDomainCommand<TResult> command);
     }
 
-    interface IServiceBusControl
-    {
-        void Start();
-        void Stop();
-    }
-
     ///<summary>Dispatches messages between processes.</summary>
     public interface IServiceBus : ISimpleServiceBus, IDisposable
     {

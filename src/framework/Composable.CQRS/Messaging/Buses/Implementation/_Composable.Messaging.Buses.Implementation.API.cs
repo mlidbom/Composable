@@ -4,6 +4,12 @@ using System.Threading.Tasks;
 
 namespace Composable.Messaging.Buses.Implementation
 {
+    interface IServiceBusControl
+    {
+        void Start();
+        void Stop();
+    }
+
     interface IInterprocessTransport
     {
         void Stop();

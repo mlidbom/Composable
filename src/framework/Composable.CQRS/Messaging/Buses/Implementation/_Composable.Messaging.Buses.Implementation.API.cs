@@ -25,6 +25,7 @@ namespace Composable.Messaging.Buses.Implementation
         void Dispatch(IDomainCommand command);
         Task<TCommandResult> DispatchAsync<TCommandResult>(IDomainCommand<TCommandResult> command);
         Task<TQueryResult> DispatchAsync<TQueryResult>(IQuery<TQueryResult> command);
+        void Connect(IEndpoint endpoint);
     }
 
     interface IClientConnection : IDisposable

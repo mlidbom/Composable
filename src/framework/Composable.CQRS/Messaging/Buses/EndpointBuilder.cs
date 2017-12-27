@@ -23,7 +23,7 @@ namespace Composable.Messaging.Buses
                 Component.For<EndpointConfiguration>()
                          .UsingFactoryMethod(() => new EndpointConfiguration())
                          .LifestyleSingleton(),
-                Component.For<IInterprocessTransport, InterprocessTransport>()
+                Component.For<IInterprocessTransport>()
                          .UsingFactoryMethod(() => new InterprocessTransport(globalStateTracker))
                          .LifestyleSingleton(),
                 Component.For<ISingleContextUseGuard>()

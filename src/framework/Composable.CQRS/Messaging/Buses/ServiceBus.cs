@@ -60,5 +60,15 @@ namespace Composable.Messaging.Buses
             await _transport.DispatchAsync(query).NoMarshalling();
 
         public void Dispose() { Contract.State.Assert(!_started); }
+
+        #region ISimpleServicebus
+
+        public void Publish(IEvent @event) => PublishAsync(@event).Wait();
+        public void Send(IDomainCommand command) => SendAsync(command).Wait();
+        public TResult Send<TResult>(IDomainCommand<TResult> command) => SendAsync(command).Result;
+        public TResult Query<TResult>(IQuery<TResult> query) => QueryAsync(query).Result;
+        public async Task<TResult> SendAsync<TResult>(IDomainCommand<TResult> command) => await SendAsyncAsync(command).Result.NoMarshalling();
+
+        #endregion
     }
 }

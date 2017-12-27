@@ -16,8 +16,19 @@ namespace Composable.Messaging.Buses
         void Send(IDomainCommand message);
     }
 
+    public interface ISimpleServiceBus
+    {
+        void Publish(IEvent @event);
+        void Send(IDomainCommand command);
+
+        TResult Send<TResult>(IDomainCommand<TResult> command);
+        TResult Query<TResult>(IQuery<TResult> query);
+
+        Task<TResult> SendAsync<TResult>(IDomainCommand<TResult> command);
+    }
+
     ///<summary>Dispatches messages between processes.</summary>
-    public interface IServiceBus : IDisposable
+    public interface IServiceBus : ISimpleServiceBus, IDisposable
     {
         void Start();
         void Stop();
@@ -136,5 +147,6 @@ namespace Composable.Messaging.Buses
         IApiNavigator<TReturnResource> Get<TReturnResource>(Func<TCurrentResource, IQuery<TReturnResource>> selectQuery);
         IApiNavigator<TReturnResource> Post<TReturnResource>(Func<TCurrentResource, IDomainCommand<TReturnResource>> selectCommand);
         Task<TCurrentResource> ExecuteAsync();
+        TCurrentResource Execute();
     }
 }

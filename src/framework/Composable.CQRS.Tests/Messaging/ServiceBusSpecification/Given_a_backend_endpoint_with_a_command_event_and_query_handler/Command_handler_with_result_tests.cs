@@ -10,7 +10,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
             CommandHandlerWithResultThreadGate.Close();
             var sentTask = await Host.ClientBus.SendAsyncAsync(new MyCommandWithResult());
             CommandHandlerWithResultThreadGate.Open();
-            var result = await sentTask;
+            await sentTask;
         }
     }
 }

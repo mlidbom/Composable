@@ -5,8 +5,8 @@ using Newtonsoft.Json;
 
 namespace Composable.Persistence.EventStore
 {
-    //review:mlidbo: Make instances immutable.
-    //Review:mlidbo: Extract refactoring information into a separate abstraction?
+    //Review:mlidbo: Make instances immutable: Inspect inheriting types and throw exception if mutable.
+    //Review:mlidbo: Extract refactoring information into a separate abstraction.
     public class DomainEvent : ValueObject<DomainEvent>, IDomainEvent
     {
         protected DomainEvent()

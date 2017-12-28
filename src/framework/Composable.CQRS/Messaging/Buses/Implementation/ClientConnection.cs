@@ -9,26 +9,15 @@ using NetMQ.Sockets;
 
 namespace Composable.Messaging.Buses.Implementation
 {
-    class ClientConnection
+    class ClientConnection : IClientConnection
     {
-        class Implementation
-        {
-            public IGlobalBusStateTracker GlobalBusStateTracker;
-            public readonly Dictionary<Guid, TaskCompletionSource<object>> ExpectedResponseTasks = new Dictionary<Guid, TaskCompletionSource<object>>();
-            public DealerSocket Socket;
-            public NetMQPoller Poller;
-            public readonly NetMQQueue<TransportMessage.OutGoing> DispatchQueue = new NetMQQueue<TransportMessage.OutGoing>();
+        public void Dispatch(IEvent @event) => _this.Locked(@this => DispatchMessage(@event, @this, TransportMessage.OutGoing.Create(@event)));
 
-            public void DispatchMessage(object sender, NetMQQueueEventArgs<TransportMessage.OutGoing> e)
-            {
-                while(e.Queue.TryDequeue(out var message, TimeSpan.Zero))
-                {
-                    Socket.Send(message);
-                }
-            }
-        }
+        public void Dispatch(IDomainCommand command) => _this.Locked(@this => DispatchMessage(command, @this, TransportMessage.OutGoing.Create(command)));
 
-        readonly IGuardedResource<Implementation> _this = GuardedResource<Implementation>.WithTimeout(10.Seconds());
+        public async Task<TCommandResult> DispatchAsync<TCommandResult>(IDomainCommand<TCommandResult> command) => (TCommandResult)await DispatchMessageWithResponse(command);
+
+        public async Task<TQueryResult> DispatchAsync<TQueryResult>(IQuery<TQueryResult> query) => (TQueryResult)await DispatchMessageWithResponse(query);
 
         public ClientConnection(IGlobalBusStateTracker globalBusStateTracker, IEndpoint endpoint, NetMQPoller poller)
         {
@@ -57,6 +46,31 @@ namespace Composable.Messaging.Buses.Implementation
                 poller.Add(@this.Socket);
             });
         }
+
+        public void Dispose() => _this.Locked(@this =>
+        {
+            @this.Socket.Dispose();
+            @this.DispatchQueue.Dispose();
+        });
+
+        class Implementation
+        {
+            public IGlobalBusStateTracker GlobalBusStateTracker;
+            public readonly Dictionary<Guid, TaskCompletionSource<object>> ExpectedResponseTasks = new Dictionary<Guid, TaskCompletionSource<object>>();
+            public DealerSocket Socket;
+            public NetMQPoller Poller;
+            public readonly NetMQQueue<TransportMessage.OutGoing> DispatchQueue = new NetMQQueue<TransportMessage.OutGoing>();
+
+            public void DispatchMessage(object sender, NetMQQueueEventArgs<TransportMessage.OutGoing> e)
+            {
+                while(e.Queue.TryDequeue(out var message, TimeSpan.Zero))
+                {
+                    Socket.Send(message);
+                }
+            }
+        }
+
+        readonly IGuardedResource<Implementation> _this = GuardedResource<Implementation>.WithTimeout(10.Seconds());
 
         //Runs on poller thread so NO BLOCKING HERE!
         void ReceiveResponse(object sender, NetMQSocketEventArgs e)
@@ -89,23 +103,13 @@ namespace Composable.Messaging.Buses.Implementation
             });
         }
 
-        public void Dispatch(IEvent @event) => DispatchMessage(@event);
-
-        public void Dispatch(IDomainCommand command) => DispatchMessage(command);
-
-        public async Task<TCommandResult> Dispatch<TCommandResult>(IDomainCommand<TCommandResult> command)
-            => (TCommandResult)await DispatchMessage(command);
-
-        public async Task<TQueryResult> Dispatch<TQueryResult>(IQuery<TQueryResult> query)
-            => (TQueryResult)await DispatchMessage(query);
-
-        Task<object> DispatchMessage(IMessage message) => _this.Locked(@this =>
+        Task<object> DispatchMessageWithResponse(IMessage message) => _this.Locked(@this =>
         {
             var taskCompletionSource = new TaskCompletionSource<object>(TaskCreationOptions.RunContinuationsAsynchronously);
 
             var outGoingMessage = TransportMessage.OutGoing.Create(message);
 
-            if (message.RequiresResponse())
+            if(message.RequiresResponse())
             {
                 @this.ExpectedResponseTasks.Add(outGoingMessage.MessageId, taskCompletionSource);
             } else
@@ -113,17 +117,15 @@ namespace Composable.Messaging.Buses.Implementation
                 taskCompletionSource.SetResult(null);
             }
 
-            @this.GlobalBusStateTracker.SendingMessageOnTransport(outGoingMessage, message);
-            @this.DispatchQueue.Enqueue(outGoingMessage);
+            DispatchMessage(message, @this, outGoingMessage);
 
             return taskCompletionSource.Task;
         });
 
-
-        public void Dispose() => _this.Locked(@this =>
+        static void DispatchMessage(IMessage message, Implementation @this, TransportMessage.OutGoing outGoingMessage)
         {
-            @this.Socket.Dispose();
-            @this.DispatchQueue.Dispose();
-        });
+            @this.GlobalBusStateTracker.SendingMessageOnTransport(outGoingMessage, message);
+            @this.DispatchQueue.Enqueue(outGoingMessage);
+        }
     }
 }

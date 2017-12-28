@@ -18,9 +18,9 @@ namespace Composable.Messaging.Buses.Implementation
         {
             public IGlobalBusStateTracker GlobalBusStateTracker;
 
-            public readonly Dictionary<Type, HashSet<ClientConnection>> EventConnections = new Dictionary<Type, HashSet<ClientConnection>>();
-            public readonly Dictionary<Type, ClientConnection> CommandConnections = new Dictionary<Type, ClientConnection>();
-            public readonly Dictionary<Type, ClientConnection> QueryConnections = new Dictionary<Type, ClientConnection>();
+            public readonly Dictionary<Type, HashSet<IClientConnection>> EventConnections = new Dictionary<Type, HashSet<IClientConnection>>();
+            public readonly Dictionary<Type, IClientConnection> CommandConnections = new Dictionary<Type, IClientConnection>();
+            public readonly Dictionary<Type, IClientConnection> QueryConnections = new Dictionary<Type, IClientConnection>();
 
             public bool Running;
             public readonly IList<ClientConnection> ClientConnections = new List<ClientConnection>();
@@ -43,7 +43,7 @@ namespace Composable.Messaging.Buses.Implementation
             {
                 if(IsEvent(messageType))
                 {
-                    @this.EventConnections.GetOrAdd(messageType, () => new HashSet<ClientConnection>()).Add(clientConnection);
+                    @this.EventConnections.GetOrAdd(messageType, () => new HashSet<IClientConnection>()).Add(clientConnection);
                 } else if(IsCommand(messageType))
                 {
                     @this.CommandConnections.Add(messageType, clientConnection);
@@ -72,34 +72,36 @@ namespace Composable.Messaging.Buses.Implementation
             @this.Poller.RunAsync();
         });
 
-        public void Dispatch(IEvent @event) => _this.Locked(@this =>
+        public Task DispatchAsync(IEvent @event) => _this.Locked(@this =>
         {
             var eventReceivers = @this.EventConnections[@event.GetType()].ToList();
             eventReceivers.ForEach(receiver => receiver.Dispatch(@event));
+            return Task.CompletedTask;
         });
 
-        public void Dispatch(IDomainCommand command) => _this.Locked(@this =>
+        public Task DispatchAsync(IDomainCommand command) => _this.Locked(@this =>
         {
             if(!@this.CommandConnections.TryGetValue(command.GetType(), out var connection))
             {
                 throw new NoHandlerForcommandTypeException(command.GetType());
             }
             connection.Dispatch(command);
+            return Task.CompletedTask;
         });
 
-        public Task<TCommandResult> Dispatch<TCommandResult>(IDomainCommand<TCommandResult> command) => _this.Locked(@this =>
+        public async Task<TCommandResult> DispatchAsync<TCommandResult>(IDomainCommand<TCommandResult> command) => await _this.Locked(async @this =>
         {
             if (!@this.CommandConnections.TryGetValue(command.GetType(), out var connection))
             {
                 throw new NoHandlerForcommandTypeException(command.GetType());
             }
-            return connection.Dispatch(command);
+            return await connection.DispatchAsync(command);
         });
 
-        public Task<TQueryResult> Dispatch<TQueryResult>(IQuery<TQueryResult> query) => _this.Locked(@this =>
+        public async Task<TQueryResult> DispatchAsync<TQueryResult>(IQuery<TQueryResult> query) => await _this.Locked(async @this =>
         {
             var commandHandlerConnection = @this.QueryConnections[query.GetType()];
-            return commandHandlerConnection.Dispatch(query);
+            return await commandHandlerConnection.DispatchAsync(query);
         });
 
         public void Dispose() => _this.Locked(@this =>

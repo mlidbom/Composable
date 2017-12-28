@@ -1,5 +1,8 @@
 ﻿using System;
 using System.Linq;
+using System.Threading.Tasks;
+using Composable.Messaging.Buses.Implementation;
+using Composable.Testing;
 using Composable.Testing.Threading;
 using FluentAssertions;
 using Xunit;
@@ -10,32 +13,32 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
 {
     public class Fixture_tests : Fixture
     {
-        [Fact] public void If_command_handler_throws_disposing_host_throws_AggregateException_containing_a_single_exception_that_is_the_thrown_exception()
+        [Fact] public async Task If_command_handler_throws_disposing_host_throws_AggregateException_containing_a_single_exception_that_is_the_thrown_exception()
         {
             CommandHandlerThreadGate.ThrowOnPassThrough(_thrownException);
-            Host.ClientBus.Send(new MyCommand());
+            await Host.ClientBus.SendAsync(new MyCommand());
             AssertDisposingHostThrowsAggregateExceptionContainingOnlyThrownException();
         }
 
-        [Fact] public void If_command_handler_with_result_throws_disposing_host_throws_AggregateException_containing_a_single_exception_that_is_the_thrown_exception()
+        [Fact] public async Task If_command_handler_with_result_throws_disposing_host_throws_AggregateException_containing_a_single_exception_that_is_the_thrown_exception_and_SendAsync_throws_MessageDispatchingFailedException()
         {
             CommandHandlerWithResultThreadGate.ThrowOnPassThrough(_thrownException);
-            Host.ClientBus.SendAsync(new MyCommandWithResult());
+            await AssertThrows.Async<MessageDispatchingFailedException>(async () => await await Host.ClientBus.SendAsyncAsync(new MyCommandWithResult()));
 
             AssertDisposingHostThrowsAggregateExceptionContainingOnlyThrownException();
         }
 
-        [Fact] public void If_event_handler_throws_disposing_host_throws_AggregateException_containing_a_single_exception_that_is_the_thrown_exception()
+        [Fact] public async Task If_event_handler_throws_disposing_host_throws_AggregateException_containing_a_single_exception_that_is_the_thrown_exception()
         {
             EventHandlerThreadGate.ThrowOnPassThrough(_thrownException);
-            Host.ClientBus.Publish(new MyEvent());
+            await Host.ClientBus.PublishAsync(new MyEvent());
             AssertDisposingHostThrowsAggregateExceptionContainingOnlyThrownException();
         }
 
-        [Fact] public void If_query_handler_throws_disposing_host_throws_AggregateException_containing_a_single_exception_that_is_the_thrown_exception()
+        [Fact] public async Task If_query_handler_throws_disposing_host_throws_AggregateException_containing_a_single_exception_that_is_the_thrown_exception_and_SendAsync_throws_MessageDispatchingFailedException()
         {
             QueryHandlerThreadGate.ThrowOnPassThrough(_thrownException);
-            Host.ClientBus.QueryAsync(new MyQuery());
+            await AssertThrows.Async<MessageDispatchingFailedException>(() => Host.ClientBus.QueryAsync(new MyQuery()));
 
             AssertDisposingHostThrowsAggregateExceptionContainingOnlyThrownException();
         }

@@ -16,16 +16,28 @@ namespace Composable.Messaging.Buses
         void Send(IDomainCommand message);
     }
 
-    ///<summary>Dispatches messages between processes.</summary>
-    public interface IServiceBus
+    public interface ISimpleServiceBus
     {
+        void Publish(IEvent @event);
+        void Send(IDomainCommand command);
+
         void SendAtTime(DateTime sendAt, IDomainCommand command);
-        void Publish(IEvent anEvent);
+
+        TResult Send<TResult>(IDomainCommand<TResult> command);
         TResult Query<TResult>(IQuery<TResult> query);
+
+        Task<TResult> SendAsync<TResult>(IDomainCommand<TResult> command);
+    }
+
+    ///<summary>Dispatches messages between processes.</summary>
+    public interface IServiceBus : ISimpleServiceBus, IDisposable
+    {
+        Task SendAtTimeAsync(DateTime sendAt, IDomainCommand command);
+        Task PublishAsync(IEvent anEvent);
         Task<TResult> QueryAsync<TResult>(IQuery<TResult> query);
 
-        void Send(IDomainCommand command);
-        Task<TResult> SendAsync<TResult>(IDomainCommand<TResult> command);
+        Task SendAsync(IDomainCommand command);
+        Task<Task<TResult>> SendAsyncAsync<TResult>(IDomainCommand<TResult> command);
     }
 
     public interface IMessageSpy
@@ -126,7 +138,6 @@ namespace Composable.Messaging.Buses
     public interface IApiNavigator
     {
         IApiNavigator<TReturnResource> Get<TReturnResource>(IQuery<TReturnResource> createQuery);
-        IApiNavigator Post(IDomainCommand createCommand);
         IApiNavigator<TCommandResult> Post<TCommandResult>(IDomainCommand<TCommandResult> command);
     }
 

@@ -9,18 +9,16 @@ namespace Composable.Messaging.Buses
         readonly IServiceBus _bus;
         public ApiNavigator(IServiceBus bus) => _bus = bus;
 
-        public IApiNavigator Post(IDomainCommand command)
-        {
-            _bus.Send(command);
-            return this;
-        }
-
         public IApiNavigator<TCommandResult> Post<TCommandResult>(IDomainCommand<TCommandResult> command)
-            => new ApiNavigator<TCommandResult>(_bus, () => _bus.SendAsync(command));
-
+            => new ApiNavigator<TCommandResult>(_bus,
+                                                getCurrentResource: async () =>
+                                                {
+                                                    var commandResultTask = await _bus.SendAsyncAsync(command);
+                                                    return await commandResultTask;
+                                                });
 
         public IApiNavigator<TReturnResource> Get<TReturnResource>(IQuery<TReturnResource> query)
-            => new ApiNavigator<TReturnResource>(_bus, () => _bus.QueryAsync(query));
+            => new ApiNavigator<TReturnResource>(_bus, getCurrentResource: async () => await _bus.QueryAsync(query));
     }
 
     class ApiNavigator<TCurrentResource> : IApiNavigator<TCurrentResource>
@@ -35,10 +33,21 @@ namespace Composable.Messaging.Buses
         }
 
         public IApiNavigator<TReturnResource> Get<TReturnResource>(Func<TCurrentResource, IQuery<TReturnResource>> selectQuery)
-            => new ApiNavigator<TReturnResource>(_bus, getCurrentResource: async () => await _bus.QueryAsync(selectQuery(await _getCurrentResource())).NoMarshalling());
+            => new ApiNavigator<TReturnResource>(_bus,
+                                                 getCurrentResource: async () =>
+                                                 {
+                                                     var currentResource = await _getCurrentResource();
+                                                     return await _bus.QueryAsync(selectQuery(currentResource));
+                                                 });
 
         public IApiNavigator<TReturnResource> Post<TReturnResource>(Func<TCurrentResource, IDomainCommand<TReturnResource>> selectCommand)
-            => new ApiNavigator<TReturnResource>(_bus, getCurrentResource: async () => await _bus.SendAsync(selectCommand(await _getCurrentResource())).NoMarshalling());
+            => new ApiNavigator<TReturnResource>(_bus,
+                                                 getCurrentResource: async () =>
+                                                 {
+                                                     var currentResource = await _getCurrentResource();
+                                                     var commandResultTask = await _bus.SendAsyncAsync(selectCommand(currentResource));
+                                                     return await commandResultTask;
+                                                 });
 
         public async Task<TCurrentResource> ExecuteAsync() => await _getCurrentResource().NoMarshalling();
 

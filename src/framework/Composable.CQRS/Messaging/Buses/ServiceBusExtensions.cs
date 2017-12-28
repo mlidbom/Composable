@@ -6,6 +6,10 @@
             => new ApiNavigator<TReturnResource>(@this, () => @this.QueryAsync(createQuery));
 
         public static IApiNavigator<TCommandResult> Post<TCommandResult>(this IServiceBus @this, IDomainCommand<TCommandResult> command)
-            => new ApiNavigator<TCommandResult>(@this, () => @this.SendAsync(command));
+            => new ApiNavigator<TCommandResult>(@this, async () =>
+            {
+                var commandResultTask = await @this.SendAsyncAsync(command);
+                return await commandResultTask;
+            });
     }
 }

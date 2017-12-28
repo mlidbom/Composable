@@ -45,7 +45,7 @@ namespace Composable.Tests.Messaging.APIDraft.Policyv2
                 EventHandler.For<AccountCreatedEvent>("AD198D3E-5340-4CB3-8BDB-31AFD0C7FC9A", accountQueryModelUpdater.Handle)
                 );
 
-            //bus.Send(new CreateAccountCommand)
+            //bus.SendAsyncAsync(new CreateAccountCommand)
             createAccountHandler.Started.Wait();
             accountQueryModelUpdater.IsStarted.Should().Be(false);
             createAccountHandler.AllowToComplete.Set();

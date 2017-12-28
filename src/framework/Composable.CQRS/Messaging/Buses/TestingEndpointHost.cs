@@ -48,13 +48,13 @@ namespace Composable.Messaging.Buses
             }
         }
 
-        List<Exception> _handledExceptions = new List<Exception>();
+        readonly List<Exception> _handledExceptions = new List<Exception>();
 
         List<Exception> GetThrownExceptions()
         {
             return Endpoints
                 .SelectMany(endpoint => endpoint.ServiceLocator
-                                                .Resolve<Inbox>().ThrownExceptions)
+                                                .Resolve<IInbox>().ThrownExceptions)
                 .ToList();
         }
     }

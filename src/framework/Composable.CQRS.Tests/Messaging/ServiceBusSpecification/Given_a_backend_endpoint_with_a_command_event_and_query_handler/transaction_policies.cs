@@ -1,6 +1,7 @@
 ﻿using System.Linq;
 using System.Threading.Tasks;
 using System.Transactions;
+using Composable.Messaging.Buses;
 using Composable.Testing.Threading;
 using FluentAssertions;
 using Xunit;
@@ -9,9 +10,9 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
 {
     public class Transaction_policies : Fixture
     {
-        [Fact] void Command_handler_runs_in_transaction_with_isolation_level_Serializable()
+        [Fact] async Task Command_handler_runs_in_transaction_with_isolation_level_Serializable()
         {
-            Host.ClientBus.Send(new MyCommand());
+            await Host.ClientBus.SendAsync(new MyCommand());
 
             var transaction = CommandHandlerThreadGate.AwaitPassedThroughCountEqualTo(1)
                                                        .PassedThrough.Single().Transaction;
@@ -21,7 +22,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
 
         [Fact] async Task Command_handler_with_result_runs_in_transaction_with_isolation_level_Serializable()
         {
-            var commandResult = await Host.ClientBus.SendAsync(new MyCommandWithResult());
+            var commandResult = await Host.ClientBus.SendAsyncAsync(new MyCommandWithResult());
 
             commandResult.Should().NotBe(null);
 
@@ -31,9 +32,9 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
             transaction.IsolationLevel.Should().Be(IsolationLevel.Serializable);
         }
 
-        [Fact] void Event_handler_runs_in_transaction_with_isolation_level_Serializable()
+        [Fact] async Task Event_handler_runs_in_transaction_with_isolation_level_Serializable()
         {
-            Host.ClientBus.Publish(new MyEvent());
+            await Host.ClientBus.PublishAsync(new MyEvent());
 
             var transaction = EventHandlerThreadGate.AwaitPassedThroughCountEqualTo(1)
                                                      .PassedThrough.Single().Transaction;

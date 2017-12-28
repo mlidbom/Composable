@@ -23,7 +23,7 @@ namespace Composable.Messaging.Buses
                 Component.For<EndpointConfiguration>()
                          .UsingFactoryMethod(() => new EndpointConfiguration())
                          .LifestyleSingleton(),
-                Component.For<IInterprocessTransport, InterprocessTransport>()
+                Component.For<IInterprocessTransport>()
                          .UsingFactoryMethod(() => new InterprocessTransport(globalStateTracker))
                          .LifestyleSingleton(),
                 Component.For<ISingleContextUseGuard>()
@@ -45,14 +45,14 @@ namespace Composable.Messaging.Buses
                 Component.For<IInProcessServiceBus, IMessageSpy>()
                          .UsingFactoryMethod((IMessageHandlerRegistry registry) => new InProcessServiceBus(registry))
                          .LifestyleSingleton(),
-                Component.For<IInbox, Inbox>()
-                         .ImplementedBy<Inbox>()
+                Component.For<IInbox>()
+                         .UsingFactoryMethod((IServiceLocator serviceLocator, IGlobalBusStateTracker stateTracker, IMessageHandlerRegistry messageHandlerRegistry, EndpointConfiguration configuration) => new Inbox(serviceLocator, stateTracker, messageHandlerRegistry, configuration))
                          .LifestyleSingleton(),
-                Component.For<IOutbox, Outbox>()
-                         .ImplementedBy<Outbox>()
+                Component.For<CommandScheduler>()
+                         .UsingFactoryMethod((IInterprocessTransport transport, IUtcTimeTimeSource timeSource) => new CommandScheduler(transport, timeSource))
                          .LifestyleSingleton(),
-                Component.For<IServiceBus, ServiceBus>()
-                         .UsingFactoryMethod((Outbox outbox) => new ServiceBus(outbox))
+                Component.For<IServiceBus, ISimpleServiceBus, IServiceBusControl>()
+                         .UsingFactoryMethod((IInterprocessTransport transport, IInbox inbox, CommandScheduler scheduler) => new ServiceBus(transport, inbox, scheduler))
                          .LifestyleSingleton(),
                 Component.For<ISqlConnectionProvider>()
                          .UsingFactoryMethod(() => new SqlServerDatabasePoolSqlConnectionProvider(MasterDbConnection.ConnectionString))

@@ -15,8 +15,8 @@ namespace AccountManagement.Tests.Domain.After_a_user_has_registered_an_account
         [SetUp]
         public async Task RegisterAccount()
         {
-            _changePasswordScenario = await ChangePasswordScenario.Create(ClientBus);
-            _changePasswordScenario.Execute();
+            _changePasswordScenario = await ChangePasswordScenario.CreateAsync(ClientBus);
+            await _changePasswordScenario.ExecuteAsync();
         }
 
         [Test]

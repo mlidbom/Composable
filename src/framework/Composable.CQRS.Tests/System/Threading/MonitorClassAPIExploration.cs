@@ -30,7 +30,7 @@ namespace Composable.Tests.System.Threading
             var waitSucceeded = false;
             using(var taskRunner = TestingTaskRunner.WithTimeout(1.Seconds()))
             {
-                taskRunner.Run(() =>
+                taskRunner.Start(() =>
                 {
                     Monitor.Enter(guarded);
                     threadOneWaitsOnLockSection.Execute(() => waitSucceeded = Monitor.Wait(guarded, waitTimeout));
@@ -38,7 +38,7 @@ namespace Composable.Tests.System.Threading
 
                 threadOneWaitsOnLockSection.EntranceGate.AwaitPassedThroughCountEqualTo(1);
 
-                taskRunner.Run(() =>
+                taskRunner.Start(() =>
                 {
                     Monitor.Enter(guarded);
                     threadTwoHasAcquiredLockAndWishesToReleaseItGate.AwaitPassthrough();
@@ -71,7 +71,7 @@ namespace Composable.Tests.System.Threading
             var waitSucceeded = false;
             using(var taskRunner = TestingTaskRunner.WithTimeout(1.Seconds()))
             {
-                taskRunner.Run(() =>
+                taskRunner.Start(() =>
                 {
                     Monitor.Enter(guarded);
                     threadOneWaitsOnLockSection.Execute(() => waitSucceeded = Monitor.Wait(guarded, waitTimeout));
@@ -79,7 +79,7 @@ namespace Composable.Tests.System.Threading
 
                 threadOneWaitsOnLockSection.EntranceGate.AwaitPassedThroughCountEqualTo(1);
 
-                taskRunner.Run(() =>
+                taskRunner.Start(() =>
                 {
                     Monitor.Enter(guarded);
                     threadTwoHasAcquiredLockAndWishesToReleaseItGate.AwaitPassthrough();

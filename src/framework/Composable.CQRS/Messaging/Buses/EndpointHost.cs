@@ -52,12 +52,12 @@ namespace Composable.Messaging.Buses
             Endpoints.Add(endpoint);
 
             endpoint.Start();
-            var endpointTransport = endpoint.ServiceLocator.Resolve<InterprocessTransport>();
+            var endpointTransport = endpoint.ServiceLocator.Resolve<IInterprocessTransport>();
             endpointTransport.Connect(endpoint);//Yes connect it to itself so that it can send messages to itself :)
 
             existingEndpoints.ForEach(existingEndpoint =>
             {
-                existingEndpoint.ServiceLocator.Resolve<InterprocessTransport>().Connect(endpoint);
+                existingEndpoint.ServiceLocator.Resolve<IInterprocessTransport>().Connect(endpoint);
                 endpointTransport.Connect(existingEndpoint);
             });
 

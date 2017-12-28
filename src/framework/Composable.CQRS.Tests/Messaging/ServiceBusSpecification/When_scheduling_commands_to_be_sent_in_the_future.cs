@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 using Composable.DependencyInjection;
 using Composable.GenericAbstractions.Time;
 using Composable.Messaging.Buses;
@@ -33,20 +34,20 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification
             _bus = serviceLocator.Resolve<IServiceBus>();
         }
 
-        [Fact] public void Messages_whose_due_time_has_passed_are_delivered()
+        [Fact] public async Task Messages_whose_due_time_has_passed_are_delivered()
         {
             var now = _timeSource.UtcNow;
             var inOneHour = new ScheduledCommand();
-            _bus.SendAtTime(now + .1.Seconds(), inOneHour);
+            await _bus.SendAtTimeAsync(now + .1.Seconds(), inOneHour);
 
             _receivedCommandGate.AwaitPassedThroughCountEqualTo(1, timeout: .5.Seconds());
         }
 
-        [Fact] public void Messages_whose_due_time_have_not_passed_are_not_delivered()
+        [Fact] public async Task Messages_whose_due_time_have_not_passed_are_not_delivered()
         {
             var now = _timeSource.UtcNow;
             var inOneHour = new ScheduledCommand();
-            _bus.SendAtTime(now + TimeSpanExtensions.Seconds(2), inOneHour);
+            await _bus.SendAtTimeAsync(now + TimeSpanExtensions.Seconds(2), inOneHour);
 
             _receivedCommandGate.TryAwaitPassededThroughCountEqualTo(1, timeout: .5.Seconds())
                                 .Should().Be(false);

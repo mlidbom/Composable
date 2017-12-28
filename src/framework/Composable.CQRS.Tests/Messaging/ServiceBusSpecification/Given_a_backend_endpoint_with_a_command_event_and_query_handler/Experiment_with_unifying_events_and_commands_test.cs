@@ -138,7 +138,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
                 => RegisterEventAppliers()
                     .IgnoreUnhandled<UserRegistrarEvent.IRoot>();
 
-            internal static async Task<RegisterUserResult> RegisterUser(IServiceBus bus) => await bus.SendAsync(new UserRegistrarCommand.RegisterUserCommand());
+            internal static async Task<RegisterUserResult> RegisterUser(IServiceBus bus) => await await bus.SendAsyncAsync(new UserRegistrarCommand.RegisterUserCommand());
         }
 
         public class UserAggregate : AggregateRoot<UserAggregate, UserEvent.Implementation.Root, UserEvent.IRoot>

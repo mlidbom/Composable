@@ -11,7 +11,7 @@ namespace Composable.Testing.Threading
     /// Throws <see cref="AggregateException"/> on dispose if any throw exceptions or do not complete within timeout. </summary>
     public class TestingTaskRunner : IDisposable
     {
-        readonly List<Task> _tasks = new List<Task>();
+        readonly List<Task> _monitoredTasks = new List<Task>();
         readonly TimeSpan _timeout;
 
         public static TestingTaskRunner WithTimeout(TimeSpan timeout) { return new TestingTaskRunner(timeout); }
@@ -19,28 +19,28 @@ namespace Composable.Testing.Threading
         public TestingTaskRunner(TimeSpan timeout) => _timeout = timeout;
 
         public void Monitor(IEnumerable<Task> tasks) => Monitor(tasks.ToArray());
-        public void Monitor(params Task[] task) => _tasks.AddRange(task);
+        public void Monitor(params Task[] task) => _monitoredTasks.AddRange(task);
 
-        public void RunTimes(int times, Func<Task> task) => Monitor(1.Through(times).Select(index => task()));
-        public void RunTimes(int times, Func<int, Task> task) => Monitor(1.Through(times).Select(task));
+        public void StartTimes(int times, Func<Task> task) => Monitor(1.Through(times).Select(index => task()));
+        public void StartTimes(int times, Func<int, Task> task) => Monitor(1.Through(times).Select(task));
 
-        public TestingTaskRunner Run(IEnumerable<Action> tasks) => Run(tasks.ToArray());
-        public TestingTaskRunner Run(params Action[] tasks)
+        public TestingTaskRunner Start(IEnumerable<Action> tasks) => Start(tasks.ToArray());
+        public TestingTaskRunner Start(params Action[] tasks)
         {
-            tasks.ForEach(task => _tasks.Add(Task.Run(task)));
+            tasks.ForEach(task => _monitoredTasks.Add(Task.Run(task)));
             return this;
         }
 
-        public void RunTimes(int times, Action task) => Run(1.Through(times).Select(index => task));
-        public void RunTimes(int times, Action<int> task) => Run(1.Through(times).Select<int, Action>(index => () => task(index)));
+        public void StartTimes(int times, Action task) => Start(1.Through(times).Select(index => task));
+        public void StartTimes(int times, Action<int> task) => Start(1.Through(times).Select<int, Action>(index => () => task(index)));
 
         public void Dispose() => WaitForTasksToComplete();
 
         public void WaitForTasksToComplete()
         {
-            if(!Task.WaitAll(_tasks.ToArray(), timeout: _timeout))
+            if(!Task.WaitAll(_monitoredTasks.ToArray(), timeout: _timeout))
             {
-                var exceptions = _tasks.Where(@this => @this.IsFaulted)
+                var exceptions = _monitoredTasks.Where(@this => @this.IsFaulted)
                                        .Select(@this => @this.Exception)
                                        .ToList();
 

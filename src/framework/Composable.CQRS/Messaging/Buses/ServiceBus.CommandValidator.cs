@@ -17,7 +17,7 @@ namespace Composable.Messaging.Buses
                 }
             }
 
-            static IEnumerable<ValidationResult> ValidationFailures(object command)
+            static IReadOnlyList<ValidationResult> ValidationFailures(object command)
             {
                 var context = new ValidationContext(command, serviceProvider: null, items: null);
                 var results = new List<ValidationResult>();

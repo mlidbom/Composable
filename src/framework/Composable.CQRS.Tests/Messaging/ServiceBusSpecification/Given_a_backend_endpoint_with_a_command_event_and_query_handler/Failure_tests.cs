@@ -1,4 +1,7 @@
 ﻿using System;
+using System.Threading.Tasks;
+using Composable.Messaging.Buses;
+using Composable.Testing;
 using Composable.Testing.Threading;
 using Xunit;
 
@@ -6,16 +9,16 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
 {
     public class Failure_tests : Fixture
     {
-        [Fact] public void If_command_handler_with_result_throws_awaiting_SendAsync_throws()
+        [Fact] public async Task If_command_handler_with_result_throws_awaiting_SendAsync_throws()
         {
             CommandHandlerWithResultThreadGate.ThrowOnPassThrough(_thrownException);
-            Assert.ThrowsAny<Exception>(() => Host.ClientBus.SendAsync(new MyCommandWithResult()).Result);
+            await AssertThrows.Async<Exception>(async () => await await Host.ClientBus.SendAsyncAsync(new MyCommandWithResult()));
         }
 
-        [Fact] public void If_query_handler_throws_awaiting_QueryAsync_throws()
+        [Fact] public async Task If_query_handler_throws_awaiting_QueryAsync_throws()
         {
             QueryHandlerThreadGate.ThrowOnPassThrough(_thrownException);
-            Assert.ThrowsAny<Exception>(() => Host.ClientBus.QueryAsync(new MyQuery()).Result);
+            await AssertThrows.Async<Exception>(() => Host.ClientBus.QueryAsync(new MyQuery()));
         }
 
         [Fact] public void If_query_handler_throws_Query_throws()

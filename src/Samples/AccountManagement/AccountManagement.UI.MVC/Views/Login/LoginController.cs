@@ -12,10 +12,7 @@ namespace AccountManagement.UI.MVC.Views.Login
 
         public async Task<IActionResult> Login(AccountResource.Command.LogIn.UI loginCommand)
         {
-            if(!ModelState.IsValid)
-            {
-                return View("Index");
-            }
+            if(!ModelState.IsValid) return View("LoginForm");
 
             var result = await await _serviceBus.SendAsyncAsync(loginCommand);
             if(result.Succeeded)
@@ -24,9 +21,9 @@ namespace AccountManagement.UI.MVC.Views.Login
             }
 
             ModelState.AddModelError("Something", "Login Failed");
-            return View("Index");
+            return View("LoginForm");
         }
 
-        public async Task<IActionResult> Index() => View("Index", (await _serviceBus.QueryAsync(AccountApi.Start)).Commands.Login);
+        public async Task<IActionResult> LoginForm() => View("LoginForm", (await _serviceBus.QueryAsync(AccountApi.Start)).Commands.Login);
     }
 }

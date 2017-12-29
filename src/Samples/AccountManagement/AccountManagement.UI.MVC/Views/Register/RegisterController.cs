@@ -2,7 +2,6 @@
 using System.Threading.Tasks;
 using AccountManagement.API;
 using Composable.Messaging.Buses;
-using Composable.System.Linq;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AccountManagement.UI.MVC.Views.Register
@@ -14,21 +13,21 @@ namespace AccountManagement.UI.MVC.Views.Register
 
         public async Task<IActionResult> Register(AccountResource.Command.Register.UICommand registrationCommand)
         {
-            if(!ModelState.IsValid) return View("Register");
+            if(!ModelState.IsValid) return View("RegistrationForm");
 
             var result = await _serviceBus.SendAsync<AccountResource.Command.Register.RegistrationAttemptResult>(registrationCommand);
             switch(result)
             {
                 case AccountResource.Command.Register.RegistrationAttemptResult.Successful:
-                    return View("ValidateYourEmail", await _serviceBus.Get(AccountApi.Start).Get(start => start.Queries.AccountById.Mutate(@this => @this.Id = registrationCommand.AccountId)).ExecuteAsync());
+                    return View("ValidateYourEmail", await _serviceBus.Get(AccountApi.Start).Get(start => start.Queries.AccountById.WithId(registrationCommand.AccountId)).ExecuteAsync());
                 case AccountResource.Command.Register.RegistrationAttemptResult.EmailAlreadyRegistered:
                     ModelState.AddModelError(nameof(registrationCommand.Email), "Email is already registered");
-                    return View("Register");
+                    return View("RegistrationForm");
                 default:
                     throw new ArgumentOutOfRangeException();
             }
         }
 
-        public async Task<IActionResult> Index() => View("Register", (await _serviceBus.QueryAsync(AccountApi.Start)).Commands.Register);
+        public async Task<IActionResult> RegistrationForm() => View("RegistrationForm", (await _serviceBus.QueryAsync(AccountApi.Start)).Commands.Register);
     }
 }

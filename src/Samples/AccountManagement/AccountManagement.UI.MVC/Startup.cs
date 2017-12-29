@@ -27,8 +27,10 @@ namespace AccountManagement.UI.MVC
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddMvc();
+
             _host = EndpointHost.Testing.CreateHost(DependencyInjectionContainer.Create);
             _domainEndpoint = AccountManagementServerDomainBootstrapper.RegisterWith(_host);
+            services.AddSingleton(_ => _domainEndpoint.ServiceLocator.Resolve<IServiceBus>());
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

@@ -14,22 +14,19 @@ namespace AccountManagement.UI.MVC.Views.Register
 
         public async Task<IActionResult> Register(AccountResource.Command.Register.UICommand registrationCommand)
         {
-            if(ModelState.IsValid)
-            {
-                var result = await _serviceBus.SendAsync<AccountResource.Command.Register.RegistrationAttemptResult>(registrationCommand);
-                switch(result)
-                {
-                    case AccountResource.Command.Register.RegistrationAttemptResult.Successful:
-                        return View("ValidateYourEmail", await _serviceBus.Get(AccountApi.Start).Get(start => start.Queries.AccountById.Mutate(@this => @this.Id = registrationCommand.AccountId)).ExecuteAsync());
-                    case AccountResource.Command.Register.RegistrationAttemptResult.EmailAlreadyRegistered:
-                        ModelState.AddModelError(nameof(registrationCommand.Email), "Email is already registered");
-                        break;
-                    default:
-                        throw new ArgumentOutOfRangeException();
-                }
-            }
+            if(!ModelState.IsValid) return View("Register");
 
-            return View("Register");
+            var result = await _serviceBus.SendAsync<AccountResource.Command.Register.RegistrationAttemptResult>(registrationCommand);
+            switch(result)
+            {
+                case AccountResource.Command.Register.RegistrationAttemptResult.Successful:
+                    return View("ValidateYourEmail", await _serviceBus.Get(AccountApi.Start).Get(start => start.Queries.AccountById.Mutate(@this => @this.Id = registrationCommand.AccountId)).ExecuteAsync());
+                case AccountResource.Command.Register.RegistrationAttemptResult.EmailAlreadyRegistered:
+                    ModelState.AddModelError(nameof(registrationCommand.Email), "Email is already registered");
+                    return View("Register");
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
         }
 
         public async Task<IActionResult> Index() => View("Register", (await _serviceBus.QueryAsync(AccountApi.Start)).Commands.Register);

@@ -15,7 +15,7 @@ namespace AccountManagement.UI.MVC.Views.Register
         {
             if(!ModelState.IsValid) return View("RegistrationForm");
 
-            var result = await _serviceBus.SendAsync<AccountResource.Command.Register.RegistrationAttemptResult>(registrationCommand);
+            var result = await await _serviceBus.SendAsyncAsync(registrationCommand);
             switch(result)
             {
                 case AccountResource.Command.Register.RegistrationAttemptResult.Successful:

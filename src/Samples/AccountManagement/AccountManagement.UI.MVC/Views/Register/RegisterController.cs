@@ -12,8 +12,7 @@ namespace AccountManagement.UI.MVC.Views.Register
         readonly IServiceBus _serviceBus;
         public RegisterController(IServiceBus serviceBus) => _serviceBus = serviceBus;
 
-        [HttpPost]
-        public async Task<IActionResult> Index(AccountResource.Command.Register.UICommand registrationCommand)
+        public async Task<IActionResult> Register(AccountResource.Command.Register.UICommand registrationCommand)
         {
             if(ModelState.IsValid)
             {
@@ -33,7 +32,6 @@ namespace AccountManagement.UI.MVC.Views.Register
             return View("Register");
         }
 
-        [HttpGet]
         public async Task<IActionResult> Index() => View("Register", (await _serviceBus.QueryAsync(AccountApi.Start)).Commands.Register);
     }
 }

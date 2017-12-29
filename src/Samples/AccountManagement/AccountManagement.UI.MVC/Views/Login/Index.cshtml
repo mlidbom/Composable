@@ -1,0 +1,20 @@
+﻿@model AccountManagement.API.AccountResource.Command.LogIn.UI
+
+@{
+	ViewData["Title"] = "title";
+}
+
+<h2>Login</h2>
+
+<form method="post" asp-action="Login">
+
+	@Html.LabelFor(@this => @this.Email)
+	@Html.TextBoxFor(@this => @this.Email)
+
+	@Html.LabelFor(@this => @this.Password)
+	@Html.PasswordFor(@this => @this.Password)
+
+	<button type="submit">Login</button>
+
+	@Html.ValidationSummary()
+</form>

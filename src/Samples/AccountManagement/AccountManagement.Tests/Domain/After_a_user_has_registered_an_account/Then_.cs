@@ -46,7 +46,7 @@ namespace AccountManagement.Tests.Domain.After_a_user_has_registered_an_account
         [Test]
         public async Task Attempting_to_register_an_account_with_the_new_email_fails_with_email_already_registered_message()
         {
-            var scenario = new RegisterAccountScenario(ClientBus, email: _registerAccountScenario.Email.ToString());
+            var scenario = new RegisterAccountScenario(ClientBus, email: _registerAccountScenario.Email);
 
             var (result, _) = await scenario.ExecuteAsync();
             result.Should().Be(AccountResource.Command.Register.RegistrationAttemptResult.EmailAlreadyRegistered);

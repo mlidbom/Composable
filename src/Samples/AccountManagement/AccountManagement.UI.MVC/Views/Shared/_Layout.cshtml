@@ -32,8 +32,7 @@
                 <ul class="nav navbar-nav">
 	                <li><a asp-area="" asp-controller="Home" asp-action="Index">Home</a></li>
 	                <li><a asp-area="" asp-controller="Register" asp-action="Index">Register</a></li>
-                    <li><a asp-area="" asp-controller="Home" asp-action="About">About</a></li>
-                    <li><a asp-area="" asp-controller="Home" asp-action="Contact">Contact</a></li>
+	                <li><a asp-area="" asp-controller="Login" asp-action="Index">Log in</a></li>
                 </ul>
             </div>
         </div>
@@ -41,9 +40,6 @@
     <div class="container body-content">
         @RenderBody()
         <hr />
-        <footer>
-            <p>&copy; 2017 - AccountManagement.UI.MVC</p>
-        </footer>
     </div>
 
     <environment include="Development">

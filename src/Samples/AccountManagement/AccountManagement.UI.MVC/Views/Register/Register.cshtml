@@ -1,17 +1,17 @@
 ﻿@model AccountManagement.API.AccountResource.Command.Register.UICommand
 @{
-    ViewData["Title"] = "About";
+	ViewData["Title"] = "Register account";
 }
-<h2>@ViewData["Title"]</h2>
-<h3>@ViewData["Message"]</h3>
 
-<p>Use this area to provide additional information.</p>
+<h2>@ViewData["Title"]</h2>
 
 <form method="post">
 
 	@Html.HiddenFor(@this => @this.AccountId)
+
 	@Html.LabelFor(@this => @this.Email)
 	@Html.TextBoxFor(@this => @this.Email)
+
 	@Html.LabelFor(@this => @this.Password)
 	@Html.PasswordFor(@this => @this.Password)
 

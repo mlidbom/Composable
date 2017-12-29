@@ -39,8 +39,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AccountManagement.Domain.Events", "..\Samples\AccountManagement\AccountManagement.Domain.Events\AccountManagement.Domain.Events.csproj", "{1D6122CA-D55B-44C1-B313-0BC0D6F39A59}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AccountManagement.UI.Angular", "..\Samples\AccountManagement\AccountManagement.UI.Angular\AccountManagement.UI.Angular.csproj", "{005450CD-5CD0-4A10-8E13-C0DB6E57DCFE}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AccountManagement.UI.MVC", "..\Samples\AccountManagement\AccountManagement.UI.MVC\AccountManagement.UI.MVC.csproj", "{151A5ECC-76FE-47C3-A0BB-54F7FDF80736}"
 EndProject
 Global
@@ -97,12 +95,6 @@ Global
 		{1D6122CA-D55B-44C1-B313-0BC0D6F39A59}.docs|Any CPU.Build.0 = Debug|Any CPU
 		{1D6122CA-D55B-44C1-B313-0BC0D6F39A59}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1D6122CA-D55B-44C1-B313-0BC0D6F39A59}.Release|Any CPU.Build.0 = Release|Any CPU
-		{005450CD-5CD0-4A10-8E13-C0DB6E57DCFE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{005450CD-5CD0-4A10-8E13-C0DB6E57DCFE}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{005450CD-5CD0-4A10-8E13-C0DB6E57DCFE}.docs|Any CPU.ActiveCfg = Debug|Any CPU
-		{005450CD-5CD0-4A10-8E13-C0DB6E57DCFE}.docs|Any CPU.Build.0 = Debug|Any CPU
-		{005450CD-5CD0-4A10-8E13-C0DB6E57DCFE}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{005450CD-5CD0-4A10-8E13-C0DB6E57DCFE}.Release|Any CPU.Build.0 = Release|Any CPU
 		{151A5ECC-76FE-47C3-A0BB-54F7FDF80736}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{151A5ECC-76FE-47C3-A0BB-54F7FDF80736}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{151A5ECC-76FE-47C3-A0BB-54F7FDF80736}.docs|Any CPU.ActiveCfg = Debug|Any CPU
@@ -119,7 +111,6 @@ Global
 		{15EE4C6D-8DA3-487C-B0CD-17777214D7FA} = {FE65D43F-7A41-4448-A23E-E574CC91A185}
 		{19B23E13-70E8-4E18-A2FA-F0C3F37313FE} = {FE65D43F-7A41-4448-A23E-E574CC91A185}
 		{1D6122CA-D55B-44C1-B313-0BC0D6F39A59} = {FE65D43F-7A41-4448-A23E-E574CC91A185}
-		{005450CD-5CD0-4A10-8E13-C0DB6E57DCFE} = {FE65D43F-7A41-4448-A23E-E574CC91A185}
 		{151A5ECC-76FE-47C3-A0BB-54F7FDF80736} = {FE65D43F-7A41-4448-A23E-E574CC91A185}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution

@@ -15,7 +15,7 @@ namespace AccountManagement.Tests.Scenarios
         public static async Task<ChangePasswordScenario> CreateAsync(IServiceBus bus)
         {
             var registerAccountScenario = new RegisterAccountScenario(bus);
-            var account = (await registerAccountScenario.ExecuteAsync()).Item2;
+            var account = (await registerAccountScenario.ExecuteAsync()).Account;
 
             return new ChangePasswordScenario(bus, account, registerAccountScenario.Password);
         }

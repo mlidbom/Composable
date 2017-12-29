@@ -18,6 +18,7 @@ namespace AccountManagement.Tests.Domain.After_a_user_has_registered_an_account
         {
             _registerAccountScenario = new RegisterAccountScenario(ClientBus);
             (_result, _registeredAccount) = await _registerAccountScenario.ExecuteAsync();
+            _result.Should().Be(AccountResource.Command.Register.RegistrationAttemptResult.Successful);
         }
 
         [Test] public void An_IUserRegisteredAccountEvent_is_published() => MessageSpy.DispatchedMessages.OfType<AccountEvent.UserRegistered>().ToList().Should().HaveCount(1);

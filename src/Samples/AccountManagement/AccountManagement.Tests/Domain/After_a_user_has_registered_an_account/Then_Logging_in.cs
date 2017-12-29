@@ -15,7 +15,7 @@ namespace AccountManagement.Tests.Domain.After_a_user_has_registered_an_account
             await _registerAccountScenario.ExecuteAsync();
         }
 
-        [Test] public async Task Login_with_the_correct_email_and_password_succeeds_returning_non_null_and_nonEmpty_authenticationToken()
+        [Test] public async Task with_the_correct_email_and_password_succeeds_returning_non_null_and_nonEmpty_authenticationToken()
         {
             var result = await new LoginScenario(ClientBus, _registerAccountScenario.Email, _registerAccountScenario.Password).ExecuteAsync();
 
@@ -23,11 +23,11 @@ namespace AccountManagement.Tests.Domain.After_a_user_has_registered_an_account
             result.AuthenticationToken.Should().NotBe(null).And.NotBe(string.Empty);
         }
 
-        [Test] public async Task Login_with_the_correct_email_but_wrong_password_fails()
+        [Test] public async Task with_the_correct_email_but_wrong_password_fails()
             => (await new LoginScenario(ClientBus, _registerAccountScenario.Email, "SomeOtherPassword").ExecuteAsync())
                .Succeeded.Should().Be(false);
 
-        [Test] public async Task Login_with_the_wrong_email_but_correct_password_fails()
+        [Test] public async Task with_the_wrong_email_but_correct_password_fails()
             => (await new LoginScenario(ClientBus, "some_other@email.com", _registerAccountScenario.Password).ExecuteAsync())
                .Succeeded.Should().Be(false);
     }

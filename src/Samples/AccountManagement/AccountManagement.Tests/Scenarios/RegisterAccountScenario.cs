@@ -23,7 +23,7 @@ namespace AccountManagement.Tests.Scenarios
             Email = email ?? TestData.Email.CreateValidEmail().ToString();
         }
 
-        public async Task<(AccountResource.Command.Register.RegistrationAttemptResult, AccountResource)> ExecuteAsync()
+        public async Task<(AccountResource.Command.Register.RegistrationAttemptResult Result, AccountResource Account)> ExecuteAsync()
         {
             var result = await _bus.Get(AccountApi.Start)
                        .Post(start => start.Commands.Register.Mutate(@this =>

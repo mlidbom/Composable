@@ -14,7 +14,7 @@ namespace AccountManagement.Tests.Scenarios
         public AccountResource Account { get; private set; }
 
         public static async Task<ChangeAccountEmailScenario> CreateAsync(IServiceBus clientBus)
-            => new ChangeAccountEmailScenario(clientBus, (await new RegisterAccountScenario(clientBus).ExecuteAsync()).Item2);
+            => new ChangeAccountEmailScenario(clientBus, (await new RegisterAccountScenario(clientBus).ExecuteAsync()).Account);
 
         public ChangeAccountEmailScenario(IServiceBus clientBus, AccountResource account)
         {

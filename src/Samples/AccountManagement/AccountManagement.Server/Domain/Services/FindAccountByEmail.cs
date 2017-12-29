@@ -10,14 +10,11 @@ namespace AccountManagement.Domain.Services
 
         public FindAccountByEmail(IAccountManagementDomainDocumentDbReader querymodels) => _querymodels = querymodels;
 
-        public void AssertAccountDoesNotExist(Email email)
+        public bool AccountExists(Email email)
         {
             OldContract.Argument(() => email).NotNull();
 
-            if(_querymodels.TryGet(email, out EmailToAccountIdQueryModel _))
-            {
-                throw new DuplicateAccountException(email);
-            }
+            return _querymodels.TryGet(email, out EmailToAccountIdQueryModel _);
         }
     }
 }

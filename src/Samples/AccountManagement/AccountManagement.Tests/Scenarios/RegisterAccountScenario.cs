@@ -23,9 +23,9 @@ namespace AccountManagement.Tests.Scenarios
             Email = email ?? TestData.Email.CreateValidEmail().ToString();
         }
 
-        public async Task<AccountResource> ExecuteAsync()
+        public async Task<(AccountResource.Command.Register.RegistrationAttemptResult, AccountResource)> ExecuteAsync()
         {
-            return await _bus.Get(AccountApi.Start)
+            var result = await _bus.Get(AccountApi.Start)
                        .Post(start => start.Commands.Register.Mutate(@this =>
                        {
                            @this.AccountId = AccountId;
@@ -33,6 +33,16 @@ namespace AccountManagement.Tests.Scenarios
                            @this.Password = Password;
                        }))
                        .ExecuteAsync();
+
+            switch(result)
+            {
+                case AccountResource.Command.Register.RegistrationAttemptResult.Successful:
+                    return (result, await _bus.Get(AccountApi.Start).Get(start => start.Queries.AccountById.WithId(AccountId)).ExecuteAsync());
+                case AccountResource.Command.Register.RegistrationAttemptResult.EmailAlreadyRegistered:
+                    return (result, null);
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
         }
     }
 }

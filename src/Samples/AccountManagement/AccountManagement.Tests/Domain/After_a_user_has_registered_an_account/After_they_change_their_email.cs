@@ -1,5 +1,6 @@
 ﻿using System.Linq;
 using System.Threading.Tasks;
+using AccountManagement.API;
 using AccountManagement.Domain;
 using AccountManagement.Domain.Events;
 using AccountManagement.Tests.Scenarios;
@@ -50,12 +51,12 @@ namespace AccountManagement.Tests.Domain.After_a_user_has_registered_an_account
         }
 
         [Test]
-        public void Attempting_to_register_an_account_with_the_new_email_throws_a_DuplicateAccountException()
+        public async Task Attempting_to_register_an_account_with_the_new_email_fails_with_email_already_registered_message()
         {
             var scenario = new RegisterAccountScenario(ClientBus, email: _changeEmailScenario.NewEmail.ToString());
 
-            Host.AssertThatRunningScenarioThrowsBackendException<DuplicateAccountException>(() => scenario.ExecuteAsync().Wait())
-                .Message.Should().Contain(_changeEmailScenario.Account.Email.ToString());
+            var (result, _) = await scenario.ExecuteAsync();
+            result.Should().Be(AccountResource.Command.Register.RegistrationAttemptResult.EmailAlreadyRegistered);
         }
     }
 }

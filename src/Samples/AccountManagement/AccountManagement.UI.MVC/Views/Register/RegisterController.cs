@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using AccountManagement.API;
 using Composable.Messaging.Buses;
+using Composable.System.Linq;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AccountManagement.UI.MVC.Views.Register
@@ -16,8 +17,17 @@ namespace AccountManagement.UI.MVC.Views.Register
         {
             if(ModelState.IsValid)
             {
-                var account = await _serviceBus.SendAsync<AccountResource>(registrationCommand);
-                return View("ValidateYourEmail", account);
+                var result = await _serviceBus.SendAsync<AccountResource.Command.Register.RegistrationAttemptResult>(registrationCommand);
+                switch(result)
+                {
+                    case AccountResource.Command.Register.RegistrationAttemptResult.Successful:
+                        return View("ValidateYourEmail", await _serviceBus.Get(AccountApi.Start).Get(start => start.Queries.AccountById.Mutate(@this => @this.Id = registrationCommand.AccountId)).ExecuteAsync());
+                    case AccountResource.Command.Register.RegistrationAttemptResult.EmailAlreadyRegistered:
+                        ModelState.AddModelError(nameof(registrationCommand.Email), "Email is already registered");
+                        break;
+                    default:
+                        throw new ArgumentOutOfRangeException();
+                }
             }
 
             return View("Register");

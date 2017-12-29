@@ -24,9 +24,6 @@ namespace AccountManagement.UI.MVC.Views.Register
         }
 
         [HttpGet]
-        public IActionResult Index()
-        {
-            return View("Register", _serviceBus.Get(AccountApi.Start).Execute().Commands.Register);
-        }
+        public async Task<IActionResult> Index() => View("Register", (await _serviceBus.QueryAsync(AccountApi.Start)).Commands.Register);
     }
 }

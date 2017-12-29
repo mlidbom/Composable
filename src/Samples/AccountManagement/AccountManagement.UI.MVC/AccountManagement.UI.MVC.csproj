@@ -16,4 +16,10 @@
     <DotNetCliToolReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Tools" Version="2.0.1" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\framework\Composable.CQRS.ExternalDependencies\Composable.CQRS.ExternalDependencies.csproj" />
+    <ProjectReference Include="..\..\..\framework\Composable.CQRS\Composable.CQRS.csproj" />
+    <ProjectReference Include="..\AccountManagement.Server\AccountManagement.Server.csproj" />
+  </ItemGroup>
+
 </Project>

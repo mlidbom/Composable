@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Composable.DependencyInjection;
+using Composable.Messaging.Buses;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -11,6 +13,9 @@ namespace AccountManagement.UI.MVC
 {
     public class Startup
     {
+        ITestingEndpointHost _host;
+        IEndpoint _domainEndpoint;
+
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
@@ -22,6 +27,8 @@ namespace AccountManagement.UI.MVC
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddMvc();
+            _host = EndpointHost.Testing.CreateHost(DependencyInjectionContainer.Create);
+            _domainEndpoint = AccountManagementServerDomainBootstrapper.RegisterWith(_host);
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

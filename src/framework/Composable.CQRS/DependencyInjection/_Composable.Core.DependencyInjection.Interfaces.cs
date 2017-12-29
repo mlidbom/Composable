@@ -69,7 +69,7 @@ namespace Composable.DependencyInjection
 
     public static class ServiceLocator
     {
-        internal static TComponent Resolve<TComponent>(this IServiceLocator @this) where TComponent : class => @this.Lease<TComponent>()
+        public static TComponent Resolve<TComponent>(this IServiceLocator @this) where TComponent : class => @this.Lease<TComponent>()
                                                                                          .Instance;
 
         internal static TComponent[] ResolveAll<TComponent>(this IServiceLocator @this) where TComponent : class => @this.LeaseAll<TComponent>()

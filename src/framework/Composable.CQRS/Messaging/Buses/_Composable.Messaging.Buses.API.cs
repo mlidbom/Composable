@@ -73,7 +73,7 @@ namespace Composable.Messaging.Buses
     public interface IEndpoint : IDisposable
     {
         IServiceLocator ServiceLocator { get; }
-        string Address { get; } //todo: not a string!
+        EndPointAddress Address { get; }
         void Start();
         void Stop();
         void AwaitNoMessagesInFlight(TimeSpan? timeoutOverride);

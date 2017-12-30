@@ -10,7 +10,7 @@ namespace Composable.Messaging.Buses
         bool _running;
         public Endpoint(IServiceLocator serviceLocator) => ServiceLocator = serviceLocator;
         public IServiceLocator ServiceLocator { get; }
-        public string Address => Inbox.Address;
+        public EndPointAddress Address => Inbox.Address;
 
         IServiceBusControl BusControl => ServiceLocator.Resolve<IServiceBusControl>();
 

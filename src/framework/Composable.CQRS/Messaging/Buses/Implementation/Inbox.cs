@@ -48,7 +48,7 @@ namespace Composable.Messaging.Buses.Implementation
             _handlerRegistry = handlerRegistry;
         }
 
-        public string Address => _address;
+        public EndPointAddress Address => new EndPointAddress(_address);
 
         public void Start() => _resourceGuard.Update(action: () =>
         {

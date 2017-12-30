@@ -32,7 +32,7 @@ namespace Composable.Messaging.Buses.Implementation
     interface IInbox : IDisposable
     {
         IReadOnlyList<Exception> ThrownExceptions { get; }
-        string Address { get; }
+        EndPointAddress Address { get; }
         void Start();
         void Stop();
     }

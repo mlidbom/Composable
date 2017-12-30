@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Composable.Messaging.NetMQCE;
 using Composable.System;
 using Composable.System.Collections.Collections;
 using Composable.System.Threading.ResourceAccess;

@@ -74,7 +74,7 @@ namespace Composable.Messaging.Buses.Implementation
 
         public Task DispatchAsync(IEvent @event) => _this.Locked(@this =>
         {
-            var eventReceivers = @this.EventConnections[@event.GetType()].ToList();
+            var eventReceivers = @this.EventConnections.Where(me => me.Key.IsInstanceOfType(@event)).SelectMany(me => me.Value).Distinct().ToList();
             eventReceivers.ForEach(receiver => receiver.Dispatch(@event));
             return Task.CompletedTask;
         });

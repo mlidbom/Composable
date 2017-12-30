@@ -40,8 +40,7 @@ namespace Composable.DDD
             {
                 var value = fields[i](this);
 
-                var enumerableValue = value as IEnumerable;
-                if (enumerableValue != null && !(value is string))
+                if (value is IEnumerable enumerableValue && !(value is string))
                 {
                     var value1Array = enumerableValue.Cast<object>().Where(me => !ReferenceEquals(me, null)).ToArray();
                     foreach(var something in value1Array)

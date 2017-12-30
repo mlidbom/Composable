@@ -1,5 +1,4 @@
 using System;
-
 using System.Linq.Expressions;
 using Composable.Contracts;
 
@@ -8,7 +7,6 @@ namespace Composable.System.Linq
     ///<summary>Extracts member names from expressions</summary>
     static class ExpressionUtil
     {
-
         public static string ExtractMethodName(Expression<Action> func)
         {
             OldContract.Argument(() => func).NotNull();
@@ -29,7 +27,6 @@ namespace Composable.System.Linq
             return ExtractMemberName((LambdaExpression)func);
         }
 
-
         ///<summary>Extracts the name of the member that the supplied func expression returns.</summary>
         public static string ExtractMemberName<TParam, TValue>(Expression<Func<TParam, TValue>> func)
         {
@@ -48,22 +45,13 @@ namespace Composable.System.Linq
         static string ExtractMemberName(LambdaExpression lambda)
         {
             OldContract.Argument(() => lambda).NotNull();
-            var body = lambda.Body;
-            MemberExpression memberExpression;
 
-            var expression = body as UnaryExpression;
-            if(expression != null)
-            {
-                memberExpression = (MemberExpression)expression.Operand;
-            }
-            else
-            {
-                memberExpression = (MemberExpression)body;
-            }
+            var memberExpression = lambda.Body is UnaryExpression unaryExpression
+                                       ? (MemberExpression)unaryExpression.Operand
+                                       : (MemberExpression)lambda.Body;
 
             return memberExpression.Member.Name;
         }
-
 
         public static string ExtractMemberPath<TValue>(Expression<Func<TValue>> func)
         {
@@ -74,21 +62,12 @@ namespace Composable.System.Linq
         static string ExtractMemberPath(LambdaExpression lambda)
         {
             OldContract.Argument(() => lambda).NotNull();
-            var body = lambda.Body;
-            MemberExpression memberExpression;
-
-            var expression = body as UnaryExpression;
-            if (expression != null)
-            {
-                memberExpression = (MemberExpression)expression.Operand;
-            }
-            else
-            {
-                memberExpression = (MemberExpression)body;
-            }
+            var memberExpression = lambda.Body is UnaryExpression unaryExpression
+                                       ? (MemberExpression)unaryExpression.Operand
+                                       : (MemberExpression)lambda.Body;
 
             // ReSharper disable once PossibleNullReferenceException
-            return $"{memberExpression.Member.DeclaringType.FullName}.{memberExpression.Member.Name}" ;
+            return $"{memberExpression.Member.DeclaringType.FullName}.{memberExpression.Member.Name}";
         }
     }
 }

@@ -38,20 +38,23 @@ namespace AccountManagement.Domain
         /// <para> * makes it impossible to use the class incorrectly, such as forgetting to check for duplicates or save the new instance in the repository.</para>
         /// <para> * reduces code duplication since multiple callers are not burdened with saving the instance, checking for duplicates etc.</para>
         /// </summary>
-        static Account Register(AccountResource.Command.Register.DomainCommand command, IAccountRepository repository, IFindAccountByEmail findAccountByEmail)
+        static AccountResource.Command.Register.RegistrationAttemptResult Register(AccountResource.Command.Register.DomainCommand command, IAccountRepository repository, IFindAccountByEmail findAccountByEmail)
         {
             //Ensure that it is impossible to call with invalid arguments.
             //Since all domain types should ensure that it is impossible to create a non-default value that is invalid we only have to disallow default values.
             OldContract.Argument(() => command, () => repository, () => findAccountByEmail).NotNullOrDefault();
 
             //The email is the unique identifier for logging into the account so obviously duplicates are forbidden.
-            findAccountByEmail.AssertAccountDoesNotExist(command.Email);
+            if(findAccountByEmail.AccountExists(command.Email))
+            {
+                return AccountResource.Command.Register.RegistrationAttemptResult.EmailAlreadyRegistered;
+            }
 
             var newAccount = new Account();
             newAccount.Publish(new AccountEvent.Implementation.UserRegistered(accountId: command.AccountId, email: command.Email, password: command.Password));
             repository.Add(newAccount);
 
-            return newAccount;
+            return AccountResource.Command.Register.RegistrationAttemptResult.Successful;
         }
 
         void ChangePassword(AccountResource.Command.ChangePassword.Domain command)

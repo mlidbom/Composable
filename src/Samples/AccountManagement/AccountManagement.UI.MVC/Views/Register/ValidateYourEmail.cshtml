@@ -1,0 +1,13 @@
+﻿@model AccountManagement.API.AccountResource
+@{
+    ViewData["Title"] = "Validate your email";
+}
+<h2>@ViewData["Title"]</h2>
+<h3>@ViewData["Message"]</h3>
+
+<p>Please check your email and click the validation link to complete the registration .</p>
+
+@Html.LabelFor(@this => @this.Id): @Html.DisplayTextFor(@this => @this.Id)
+@Html.LabelFor(@this => @this.Email): @Html.DisplayTextFor(@this => @this.Email)
+
+

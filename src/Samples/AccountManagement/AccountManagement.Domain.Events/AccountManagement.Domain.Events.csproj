@@ -13,8 +13,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\Samples\AccountManagement\AccountManagement.API\AccountManagement.API.csproj" />
-    <ProjectReference Include="..\Composable.CQRS\Composable.CQRS.csproj" />
+    <ProjectReference Include="..\AccountManagement.API\AccountManagement.API.csproj" />
+    <ProjectReference Include="..\..\..\framework\Composable.CQRS\Composable.CQRS.csproj" />
   </ItemGroup>
   
 

@@ -12,11 +12,13 @@ namespace AccountManagement.Tests.Domain.After_a_user_has_registered_an_account
     {
         AccountResource _registeredAccount;
         RegisterAccountScenario _registerAccountScenario;
+        AccountResource.Command.Register.RegistrationAttemptResult _result;
 
         [SetUp] public async Task RegisterAccount()
         {
             _registerAccountScenario = new RegisterAccountScenario(ClientBus);
-            _registeredAccount = await _registerAccountScenario.ExecuteAsync();
+            (_result, _registeredAccount) = await _registerAccountScenario.ExecuteAsync();
+            _result.Should().Be(AccountResource.Command.Register.RegistrationAttemptResult.Successful);
         }
 
         [Test] public void An_IUserRegisteredAccountEvent_is_published() => MessageSpy.DispatchedMessages.OfType<AccountEvent.UserRegistered>().ToList().Should().HaveCount(1);
@@ -40,5 +42,14 @@ namespace AccountManagement.Tests.Domain.After_a_user_has_registered_an_account
         [Test] public async Task Login_with_the_wrong_email_but_correct_password_fails()
             => (await new LoginScenario(ClientBus, "some_other@email.com", _registerAccountScenario.Password).ExecuteAsync())
                .Succeeded.Should().Be(false);
+
+        [Test]
+        public async Task Attempting_to_register_an_account_with_the_new_email_fails_with_email_already_registered_message()
+        {
+            var scenario = new RegisterAccountScenario(ClientBus, email: _registerAccountScenario.Email);
+
+            var (result, _) = await scenario.ExecuteAsync();
+            result.Should().Be(AccountResource.Command.Register.RegistrationAttemptResult.EmailAlreadyRegistered);
+        }
     }
 }

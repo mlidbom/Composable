@@ -15,7 +15,7 @@ namespace AccountManagement.API
         {
             public static class Register
             {
-                internal class DomainCommand : DomainCommand<AccountResource>
+                internal class DomainCommand : DomainCommand<RegistrationAttemptResult>
                 {
                     [UsedImplicitly] DomainCommand() { }
                     public DomainCommand(Guid accountId, Password password, Email email)
@@ -31,7 +31,7 @@ namespace AccountManagement.API
                     public Email Email { get; private set; }
                 }
 
-                public class UICommand : DomainCommand<AccountResource>, IValidatableObject
+                public class UICommand : DomainCommand<RegistrationAttemptResult>, IValidatableObject
                 {
                     public UICommand() {}
                     public UICommand(Guid accountId, string email, string password)
@@ -53,6 +53,12 @@ namespace AccountManagement.API
                     public IEnumerable<ValidationResult> Validate(ValidationContext validationContext) => Domain.Password.Validate(Password, this, () => Password);
 
                     internal DomainCommand ToDomainCommand() => new DomainCommand(AccountId, new Password(Password), Domain.Email.Parse(Email));
+                }
+
+                public enum RegistrationAttemptResult
+                {
+                    Successful = 1,
+                    EmailAlreadyRegistered=2
                 }
             }
         }

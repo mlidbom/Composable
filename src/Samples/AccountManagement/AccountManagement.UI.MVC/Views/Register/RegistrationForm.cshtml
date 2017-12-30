@@ -1,0 +1,21 @@
+﻿@model AccountManagement.API.AccountResource.Command.Register.UICommand
+@{
+  ViewData["Title"] = "Register account";
+}
+
+<h2>@ViewData["Title"]</h2>
+
+<form method="post" asp-action="Register">
+
+	@Html.HiddenFor(@this => @this.AccountId)
+
+	@Html.LabelFor(@this => @this.Email)
+	@Html.TextBoxFor(@this => @this.Email)
+
+	@Html.LabelFor(@this => @this.Password)
+	@Html.PasswordFor(@this => @this.Password)
+
+	<button type="submit">Register</button>
+
+	@Html.ValidationSummary()
+</form>

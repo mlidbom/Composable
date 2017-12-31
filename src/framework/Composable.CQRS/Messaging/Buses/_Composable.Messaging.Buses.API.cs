@@ -75,7 +75,7 @@ namespace Composable.Messaging.Buses
 
     public interface IEndpoint : IDisposable
     {
-        EndPointId Id { get; }
+        EndpointId Id { get; }
         IServiceLocator ServiceLocator { get; }
         EndPointAddress Address { get; }
         void Start();
@@ -83,10 +83,10 @@ namespace Composable.Messaging.Buses
         void AwaitNoMessagesInFlight(TimeSpan? timeoutOverride);
     }
 
-    public class EndPointId : ValueObject<EndPointId>
+    public class EndpointId : ValueObject<EndpointId>
     {
         public Guid GuidValue { get; }
-        public EndPointId(Guid guidValue)
+        public EndpointId(Guid guidValue)
         {
             Contract.Argument.Assert(guidValue != Guid.Empty);
             GuidValue = guidValue;
@@ -101,7 +101,7 @@ namespace Composable.Messaging.Buses
 
     public interface IEndpointHost : IDisposable
     {
-        IEndpoint RegisterAndStartEndpoint(string name, EndPointId id, Action<IEndpointBuilder> setup);
+        IEndpoint RegisterAndStartEndpoint(string name, EndpointId id, Action<IEndpointBuilder> setup);
         void Stop();
     }
 

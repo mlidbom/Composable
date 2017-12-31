@@ -8,14 +8,14 @@ namespace Composable.Messaging.Buses
     class Endpoint : IEndpoint
     {
         bool _running;
-        public Endpoint(IServiceLocator serviceLocator, EndPointId id, string name)
+        public Endpoint(IServiceLocator serviceLocator, EndpointId id, string name)
         {
             Contract.Argument.Assert(serviceLocator != null, id != null);
             ServiceLocator = serviceLocator;
             Id = id;
             Name = name;
         }
-        public EndPointId Id { get; }
+        public EndpointId Id { get; }
         public string Name { get; }
         public IServiceLocator ServiceLocator { get; }
         public EndPointAddress Address => Inbox.Address;

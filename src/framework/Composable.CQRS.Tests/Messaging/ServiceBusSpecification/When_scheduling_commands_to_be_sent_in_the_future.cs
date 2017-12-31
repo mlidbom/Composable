@@ -24,7 +24,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification
 
             var endpoint = _host.RegisterAndStartEndpoint(
                 "endpoint",
-                new EndPointId(Guid.Parse("17ED9DF9-33A8-4DF8-B6EC-6ED97AB2030B")),
+                new EndpointId(Guid.Parse("17ED9DF9-33A8-4DF8-B6EC-6ED97AB2030B")),
                 builder => builder.RegisterHandlers.ForCommand<ScheduledCommand>(
                     cmd => _receivedCommandGate.AwaitPassthrough()));
 

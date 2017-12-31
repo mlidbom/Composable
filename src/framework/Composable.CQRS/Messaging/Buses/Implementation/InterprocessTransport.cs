@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 using Composable.Contracts;
 using Composable.DependencyInjection;
 using Composable.System;
-using Composable.System.Collections.Collections;
 using Composable.System.Linq;
 using Composable.System.Threading.ResourceAccess;
 using NetMQ;
@@ -16,16 +15,11 @@ namespace Composable.Messaging.Buses.Implementation
     {
         class Implementation
         {
+            internal bool Running;
             public IGlobalBusStateTracker GlobalBusStateTracker;
-
-            public readonly Dictionary<Type, HashSet<IClientConnection>> EventConnections = new Dictionary<Type, HashSet<IClientConnection>>();
-            public readonly Dictionary<Type, IClientConnection> CommandConnections = new Dictionary<Type, IClientConnection>();
-            public readonly Dictionary<Type, IClientConnection> QueryConnections = new Dictionary<Type, IClientConnection>();
-
-            public bool Running;
-            public readonly IList<ClientConnection> ClientConnections = new List<ClientConnection>();
-            public HandlerStorage HandlerStorage = new HandlerStorage();
-            public readonly NetMQPoller Poller = new NetMQPoller();
+            internal readonly Dictionary<EndpointId, ClientConnection> EndpointConnections = new Dictionary<EndpointId, ClientConnection>();
+            internal readonly HandlerStorage HandlerStorage = new HandlerStorage();
+            internal readonly NetMQPoller Poller = new NetMQPoller();
         }
 
         readonly IGuardedResource<Implementation> _this = GuardedResource<Implementation>.WithTimeout(10.Seconds());
@@ -38,27 +32,9 @@ namespace Composable.Messaging.Buses.Implementation
 
             var clientConnection = new ClientConnection(@this.GlobalBusStateTracker, endpoint, @this.Poller);
 
-            @this.ClientConnections.Add(clientConnection);
+            @this.EndpointConnections.Add(endpoint.Id, clientConnection);
 
-            foreach(var messageType in messageHandlers.HandledTypes())
-            {
-                if(IsEvent(messageType))
-                {
-                    @this.HandlerStorage.AddEventHandler(messageType);
-                    @this.EventConnections.GetOrAdd(messageType, () => new HashSet<IClientConnection>()).Add(clientConnection);
-                } else if(IsCommand(messageType))
-                {
-                    @this.HandlerStorage.AddCommandHandler(messageType);
-                    @this.CommandConnections.Add(messageType, clientConnection);
-                } else if(IsQuery(messageType))
-                {
-                    @this.HandlerStorage.AddQueryHandler(messageType);
-                    @this.QueryConnections.Add(messageType, clientConnection);
-                } else
-                {
-                    Contract.Argument.Assert(false);
-                }
-            }
+            @this.HandlerStorage.AddRegistrations(endpoint.Id, messageHandlers.HandledTypes());
         });
 
         public void Stop() => _this.Locked(@this =>
@@ -66,7 +42,7 @@ namespace Composable.Messaging.Buses.Implementation
             Contract.State.Assert(@this.Running);
             @this.Running = false;
             @this.Poller.Dispose();
-            @this.ClientConnections.ForEach(socket => socket.Dispose());
+            @this.EndpointConnections.Values.ForEach(socket => socket.Dispose());
         });
 
         public void Start() => _this.Locked(@this =>
@@ -78,34 +54,32 @@ namespace Composable.Messaging.Buses.Implementation
 
         public Task DispatchAsync(IEvent @event) => _this.Locked(@this =>
         {
-            var eventReceivers = @this.EventConnections.Where(me => me.Key.IsInstanceOfType(@event)).SelectMany(me => me.Value).Distinct().ToList();
-            eventReceivers.ForEach(receiver => receiver.Dispatch(@event));
+            var something = @this.HandlerStorage.GetEventHandlerEndpoints(@event);
+            var connections = something.Select(endpointId => @this.EndpointConnections[endpointId]).ToList();
+            connections.ForEach(receiver => receiver.Dispatch(@event));
             return Task.CompletedTask;
         });
 
         public Task DispatchAsync(IDomainCommand command) => _this.Locked(@this =>
         {
-            if(!@this.CommandConnections.TryGetValue(command.GetType(), out var connection))
-            {
-                throw new NoHandlerForcommandTypeException(command.GetType());
-            }
+            var endPointId = @this.HandlerStorage.GetCommandHandler(command);
+            var connection = @this.EndpointConnections[endPointId];
             connection.Dispatch(command);
             return Task.CompletedTask;
         });
 
         public async Task<TCommandResult> DispatchAsync<TCommandResult>(IDomainCommand<TCommandResult> command) => await _this.Locked(async @this =>
         {
-            if (!@this.CommandConnections.TryGetValue(command.GetType(), out var connection))
-            {
-                throw new NoHandlerForcommandTypeException(command.GetType());
-            }
+            var endPointId = @this.HandlerStorage.GetCommandHandler(command);
+            var connection = @this.EndpointConnections[endPointId];
             return await connection.DispatchAsync(command);
         });
 
         public async Task<TQueryResult> DispatchAsync<TQueryResult>(IQuery<TQueryResult> query) => await _this.Locked(async @this =>
         {
-            var commandHandlerConnection = @this.QueryConnections[query.GetType()];
-            return await commandHandlerConnection.DispatchAsync(query);
+            var endPointId = @this.HandlerStorage.GetQueryHandler(query);
+            var connection = @this.EndpointConnections[endPointId];
+            return await connection.DispatchAsync(query);
         });
 
         public void Dispose() => _this.Locked(@this =>
@@ -115,10 +89,5 @@ namespace Composable.Messaging.Buses.Implementation
                 Stop();
             }
         });
-
-
-        static bool IsCommand(Type type) => typeof(IDomainCommand).IsAssignableFrom(type);
-        static bool IsEvent(Type type) => typeof(IEvent).IsAssignableFrom(type);
-        static bool IsQuery(Type type) => typeof(IQuery).IsAssignableFrom(type);
     }
 }

@@ -24,7 +24,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
                 DependencyInjectionContainer.Create,
                 buildHost => buildHost.RegisterAndStartEndpoint(
                     "Backend",
-                    new EndPointId(Guid.Parse("DDD0A67C-D2A2-4197-9AF8-38B6AEDF8FA6")),
+                    new EndpointId(Guid.Parse("DDD0A67C-D2A2-4197-9AF8-38B6AEDF8FA6")),
                     builder => builder.RegisterHandlers
                                       .ForCommand((MyCommand command) => CommandHandlerThreadGate.AwaitPassthrough())
                                       .ForEvent((MyEvent myEvent) => EventHandlerThreadGate.AwaitPassthrough())

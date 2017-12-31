@@ -55,6 +55,6 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification
 
         public void Dispose() { _host.Dispose(); }
 
-        class ScheduledCommand : DomainCommand {}
+        [TypeId("BEB1E3BA-3515-43EA-A33D-1EE7A5775A11")]class ScheduledCommand : DomainCommand {}
     }
 }

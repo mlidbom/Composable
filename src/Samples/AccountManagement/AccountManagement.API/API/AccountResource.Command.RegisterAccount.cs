@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using AccountManagement.API.ValidationAttributes;
 using AccountManagement.Domain;
+using Composable;
 using Composable.Contracts;
 using Composable.Messaging.Commands;
 using JetBrains.Annotations;
@@ -15,7 +16,7 @@ namespace AccountManagement.API
         {
             public static class Register
             {
-                internal class DomainCommand : DomainCommand<RegistrationAttemptResult>
+                [TypeId("B0CAD429-295D-43E7-8441-566B7887C7F0")]internal class DomainCommand : DomainCommand<RegistrationAttemptResult>
                 {
                     [UsedImplicitly] DomainCommand() { }
                     public DomainCommand(Guid accountId, Password password, Email email)
@@ -31,7 +32,7 @@ namespace AccountManagement.API
                     public Email Email { get; private set; }
                 }
 
-                public class UICommand : DomainCommand<RegistrationAttemptResult>, IValidatableObject
+                [TypeId("B1406B7E-A51C-4487-845C-AB7326465AD0")]public class UICommand : DomainCommand<RegistrationAttemptResult>, IValidatableObject
                 {
                     public UICommand() {}
                     public UICommand(Guid accountId, string email, string password)

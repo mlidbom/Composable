@@ -98,7 +98,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification
             }
         }
 
-        class ACommand : IDomainCommand
+        [TypeId("857392BE-FF1E-45D0-A11F-D5BB0FFC3DCE")]class ACommand : IDomainCommand
         {
             public Guid MessageId { get; } = Guid.NewGuid();
         }

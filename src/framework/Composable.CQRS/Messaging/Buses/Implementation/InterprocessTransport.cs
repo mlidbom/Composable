@@ -48,6 +48,7 @@ namespace Composable.Messaging.Buses.Implementation
                     @this.EventConnections.GetOrAdd(messageType, () => new HashSet<IClientConnection>()).Add(clientConnection);
                 } else if(IsCommand(messageType))
                 {
+                    @this.HandlerStorage.AddCommandHandler(messageType);
                     @this.CommandConnections.Add(messageType, clientConnection);
                 } else if(IsQuery(messageType))
                 {

@@ -10,6 +10,10 @@ namespace Composable.Messaging.Buses.Implementation
             {
                 Guid eventId = TypeIdAttribute.Extract(eventType);
             }
+            public void AddCommandHandler(Type commandType)
+            {
+                Guid commandId = TypeIdAttribute.Extract(commandType);
+            }
         }
 
 

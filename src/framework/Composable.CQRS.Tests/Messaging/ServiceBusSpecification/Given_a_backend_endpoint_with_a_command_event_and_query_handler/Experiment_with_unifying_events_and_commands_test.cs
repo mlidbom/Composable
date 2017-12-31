@@ -100,7 +100,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
             public class Root : DomainCommand, IRoot {}
             public class Root<TResult> : DomainCommand<TResult>, IRoot where TResult : IMessage {}
 
-            public class RegisterUserCommand : Root<RegisterUserResult>
+            [TypeId("ED0AFADB-AD2D-4212-833A-CB14266204ED")]public class RegisterUserCommand : Root<RegisterUserResult>
             {
                 public Guid UserId { get; private set; } = Guid.NewGuid();
             }

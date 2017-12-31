@@ -65,7 +65,7 @@ namespace Composable.Messaging.Buses.Implementation
                 _queryHandlerMap.Add(queryTypeId, endpointId);
             }
 
-            internal EndpointId GetCommandHandler(IDomainCommand command)
+            internal EndpointId GetCommandHandlerEndpoint(IDomainCommand command)
             {
                 var commandTypeId = _typeToIdMap[command.GetType()];
 
@@ -77,7 +77,7 @@ namespace Composable.Messaging.Buses.Implementation
                 return endpointId;
             }
 
-            internal EndpointId GetQueryHandler(IQuery query)
+            internal EndpointId GetQueryHandlerEndpoint(IQuery query)
             {
                 var queryTypeId = _typeToIdMap[query.GetType()];
                 return _queryHandlerMap[queryTypeId];

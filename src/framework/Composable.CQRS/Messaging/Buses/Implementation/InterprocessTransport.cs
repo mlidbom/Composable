@@ -28,13 +28,9 @@ namespace Composable.Messaging.Buses.Implementation
 
         public void Connect(IEndpoint endpoint) => _state.WithExclusiveAccess(@this =>
         {
-            var messageHandlers = endpoint.ServiceLocator.Resolve<IMessageHandlerRegistry>();
+            @this.EndpointConnections.Add(endpoint.Id, new ClientConnection(@this.GlobalBusStateTracker, endpoint, @this.Poller));
 
-            var clientConnection = new ClientConnection(@this.GlobalBusStateTracker, endpoint, @this.Poller);
-
-            @this.EndpointConnections.Add(endpoint.Id, clientConnection);
-
-            @this.HandlerStorage.AddRegistrations(endpoint.Id, messageHandlers.HandledTypes());
+            @this.HandlerStorage.AddRegistrations(endpoint.Id, endpoint.ServiceLocator.Resolve<IMessageHandlerRegistry>().HandledTypes());
         });
 
         public void Stop() => _state.WithExclusiveAccess(state =>
@@ -62,7 +58,7 @@ namespace Composable.Messaging.Buses.Implementation
 
         public Task DispatchAsync(IDomainCommand command) => _state.WithExclusiveAccess(state =>
         {
-            var endPointId = state.HandlerStorage.GetCommandHandler(command);
+            var endPointId = state.HandlerStorage.GetCommandHandlerEndpoint(command);
             var connection = state.EndpointConnections[endPointId];
             connection.Dispatch(command);
             return Task.CompletedTask;
@@ -70,14 +66,14 @@ namespace Composable.Messaging.Buses.Implementation
 
         public async Task<TCommandResult> DispatchAsync<TCommandResult>(IDomainCommand<TCommandResult> command) => await _state.WithExclusiveAccess(async state =>
         {
-            var endPointId = state.HandlerStorage.GetCommandHandler(command);
+            var endPointId = state.HandlerStorage.GetCommandHandlerEndpoint(command);
             var connection = state.EndpointConnections[endPointId];
             return await connection.DispatchAsync(command);
         });
 
         public async Task<TQueryResult> DispatchAsync<TQueryResult>(IQuery<TQueryResult> query) => await _state.WithExclusiveAccess(async state =>
         {
-            var endPointId = state.HandlerStorage.GetQueryHandler(query);
+            var endPointId = state.HandlerStorage.GetQueryHandlerEndpoint(query);
             var connection = state.EndpointConnections[endPointId];
             return await connection.DispatchAsync(query);
         });

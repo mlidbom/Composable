@@ -48,26 +48,49 @@ namespace Composable.Messaging.Buses.Implementation
             @this.Poller.RunAsync();
         });
 
-        public Task DispatchAsync(IEvent @event) => _state.WithExclusiveAccess(state =>
+        public async Task DispatchAsync(IEvent @event) => await _state.WithExclusiveAccess(async state =>
         {
-            var something = state.HandlerStorage.GetEventHandlerEndpoints(@event);
-            var connections = something.Select(endpointId => state.EndpointConnections[endpointId]).ToList();
+            var eventHandlerEndpointIds = state.HandlerStorage.GetEventHandlerEndpoints(@event);
+
+            var saveMessage = SaveMessage(@event);
+            var saveDispatchInfo = eventHandlerEndpointIds.Select(endpointId => SaveDispatchInfo(endpointId, @event)).ToList();
+
+            var connections = eventHandlerEndpointIds.Select(endpointId => state.EndpointConnections[endpointId]).ToList();
+
+            await Task.WhenAll(saveMessage);
+            await Task.WhenAll(saveDispatchInfo);
+
+            //todo: send after transaction
             connections.ForEach(receiver => receiver.Dispatch(@event));
-            return Task.CompletedTask;
+            await Task.CompletedTask;
         });
 
-        public Task DispatchAsync(IDomainCommand command) => _state.WithExclusiveAccess(state =>
+        public async Task DispatchAsync(IDomainCommand command) => await _state.WithExclusiveAccess(async state =>
         {
+            var saveMessage = SaveMessage(command);
             var endPointId = state.HandlerStorage.GetCommandHandlerEndpoint(command);
+
+            var dispatchSave = SaveDispatchInfo(endPointId, command);
+            //todo: send after transaction
             var connection = state.EndpointConnections[endPointId];
             connection.Dispatch(command);
-            return Task.CompletedTask;
+
+            await Task.WhenAll(saveMessage, dispatchSave);
         });
 
         public async Task<TCommandResult> DispatchAsync<TCommandResult>(IDomainCommand<TCommandResult> command) => await _state.WithExclusiveAccess(async state =>
         {
+            var saveMessage = SaveMessage(command);
+
             var endPointId = state.HandlerStorage.GetCommandHandlerEndpoint(command);
+
+            var dispatchSave = SaveDispatchInfo(endPointId, command);
+
             var connection = state.EndpointConnections[endPointId];
+
+            await Task.WhenAll(saveMessage, dispatchSave);
+
+            //todo: send after transaction
             return await connection.DispatchAsync(command);
         });
 
@@ -77,6 +100,10 @@ namespace Composable.Messaging.Buses.Implementation
             var connection = state.EndpointConnections[endPointId];
             return await connection.DispatchAsync(query);
         });
+
+        async Task SaveMessage(IMessage message) => await Task.CompletedTask;
+
+        async Task SaveDispatchInfo(EndpointId endpoint, IMessage message) => await Task.CompletedTask;
 
         public void Dispose() => _state.WithExclusiveAccess(state =>
         {

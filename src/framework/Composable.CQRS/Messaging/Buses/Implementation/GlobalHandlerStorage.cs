@@ -8,11 +8,15 @@ namespace Composable.Messaging.Buses.Implementation
         {
             internal void AddEventHandler(Type eventType)
             {
-                Guid eventId = TypeIdAttribute.Extract(eventType);
+                Guid eventTypeId = TypeIdAttribute.Extract(eventType);
             }
             public void AddCommandHandler(Type commandType)
             {
-                Guid commandId = TypeIdAttribute.Extract(commandType);
+                Guid commandTypeId = TypeIdAttribute.Extract(commandType);
+            }
+            public void AddQueryHandler(Type queryType)
+            {
+                Guid queryTypeId = TypeIdAttribute.Extract(queryType);
             }
         }
 

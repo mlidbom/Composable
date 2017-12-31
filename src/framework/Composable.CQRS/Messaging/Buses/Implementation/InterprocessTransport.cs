@@ -52,6 +52,7 @@ namespace Composable.Messaging.Buses.Implementation
                     @this.CommandConnections.Add(messageType, clientConnection);
                 } else if(IsQuery(messageType))
                 {
+                    @this.HandlerStorage.AddQueryHandler(messageType);
                     @this.QueryConnections.Add(messageType, clientConnection);
                 } else
                 {

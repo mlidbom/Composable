@@ -1,4 +1,5 @@
-﻿using Composable.Messaging;
+﻿using Composable;
+using Composable.Messaging;
 using Composable.Messaging.Buses;
 
 namespace AccountManagement.API
@@ -7,12 +8,15 @@ namespace AccountManagement.API
     public class StartResource
     {
         public StartResourceCommands Commands { get; private set; } = new StartResourceCommands();
-        public StartResourceQueries Queries { get; private set;} = new StartResourceQueries();
+        public Query Queries { get; private set; } = new Query();
 
         [ClientCacheable(ClientCachingStrategy.CreateNewInstanceWithDefaultConstructor, validForSeconds: int.MaxValue)]
-        public class StartResourceQueries
+        public class Query
         {
-            public EntityQuery<AccountResource> AccountById { get; private set; } = new EntityQuery<AccountResource>();
+            public AccountByIdQuery AccountById { get; private set; } = new AccountByIdQuery();
+
+            [TypeId("444153B1-7B35-4F17-9FF3-85040CEEBAAB")]
+            public class AccountByIdQuery : EntityByIdQuery<AccountResource, AccountByIdQuery> {}
         }
 
         [ClientCacheable(ClientCachingStrategy.CreateNewInstanceWithDefaultConstructor, validForSeconds: int.MaxValue)]

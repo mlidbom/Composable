@@ -1,5 +1,6 @@
 ﻿using System;
 using AccountManagement.Domain;
+using Composable;
 using Composable.Contracts;
 using Composable.Messaging;
 
@@ -7,7 +8,7 @@ namespace AccountManagement
 {
     static class PrivateApi
     {
-        internal class TryGetAccountByEmailQuery : IQuery<Account>
+        [TypeId("D57E5445-4D18-4A0F-AFE9-05B8BED78251")]internal class TryGetAccountByEmailQuery : IQuery<Account>
         {
             public TryGetAccountByEmailQuery(Email accountId)
             {

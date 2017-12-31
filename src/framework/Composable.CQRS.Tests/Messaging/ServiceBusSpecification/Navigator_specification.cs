@@ -80,7 +80,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification
                 public string Name { get; }
             }
 
-            protected class GetUserQuery : Query<UserResource>
+            [TypeId("3D2C5363-620E-4859-BF94-9535BCC994FA")]protected class GetUserQuery : Query<UserResource>
             {
                 public GetUserQuery(string name) => Name = name;
                 public string Name { get; }
@@ -105,7 +105,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification
                 public string Name { get; }
             }
 
-            class UserApiStartPageQuery : Query<UserApiStartPage> {}
+            [TypeId("F762C93B-8F03-4A1C-BCCA-DC43A5EC4459")]class UserApiStartPageQuery : Query<UserApiStartPage> {}
         }
     }
 }

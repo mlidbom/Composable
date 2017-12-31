@@ -103,7 +103,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification
             public Guid MessageId { get; } = Guid.NewGuid();
         }
 
-        class AQuery : Query<AQueryResult> {}
+        [TypeId("4DB866F4-2FD9-4CEA-832E-2C17FE52450C")]class AQuery : Query<AQueryResult> {}
 
         class AQueryResult : QueryResult {}
 

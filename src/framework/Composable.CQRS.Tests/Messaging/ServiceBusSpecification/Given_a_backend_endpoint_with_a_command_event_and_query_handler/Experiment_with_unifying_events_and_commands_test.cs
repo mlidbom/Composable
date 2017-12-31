@@ -155,7 +155,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
             }
         }
 
-        public class GetUserQuery : Query<UserResource>
+        [TypeId("ADFEAF4F-DD79-4BC1-9B34-82816CCAA752")]public class GetUserQuery : Query<UserResource>
         {
             public Guid UserId { get; private set; }
             public GetUserQuery(Guid userId) => UserId = userId;

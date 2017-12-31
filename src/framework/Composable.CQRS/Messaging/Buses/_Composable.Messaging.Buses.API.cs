@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Threading.Tasks;
 using Composable.DependencyInjection;
 using Composable.Messaging.Buses.Implementation;
@@ -147,5 +148,25 @@ namespace Composable.Messaging.Buses
         IApiNavigator<TReturnResource> Post<TReturnResource>(Func<TCurrentResource, IDomainCommand<TReturnResource>> selectCommand);
         Task<TCurrentResource> ExecuteAsync();
         TCurrentResource Execute();
+    }
+
+    //todo: Actually use this attribute to do caching.
+    public class ClientCacheableAttribute : Attribute
+    {
+        public ClientCachingStrategy Strategy { get; }
+        public TimeSpan ValidFor { get; }
+
+        public ClientCacheableAttribute(ClientCachingStrategy strategy, int validForSeconds)
+        {
+            Strategy = strategy;
+            ValidFor = TimeSpan.FromSeconds(validForSeconds);
+        }
+    }
+
+    public enum ClientCachingStrategy
+    {
+        ReuseSingletonInstance = 1,
+        ReuseOriginalSerializedData = 2 ,
+        CreateNewInstanceWithDefaultConstructor =  3
     }
 }

@@ -62,7 +62,7 @@ namespace AccountManagement
 
         static void RegisterHandlers(MessageHandlerRegistrarWithDependencyInjectionSupport registrar)
         {
-            registrar.ForQuery((NewableSingletonQuery<StartResource> query) =>
+            registrar.ForQuery((SingletonQuery<StartResource> query) =>
                                    new StartResource());
 
             EmailToAccountMapQueryModel.RegisterHandlers(registrar);

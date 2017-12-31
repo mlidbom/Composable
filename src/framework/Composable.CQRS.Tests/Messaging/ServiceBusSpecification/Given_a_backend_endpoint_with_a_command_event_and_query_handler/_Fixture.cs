@@ -55,7 +55,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
         }
 
         protected class MyCommand : DomainCommand {}
-        protected class MyEvent : Event {}
+        [TypeId("20B798AF-F7D7-448A-9F78-A189D4D5499A")]protected class MyEvent : Event {}
         protected class MyQuery : Query<MyQueryResult> {}
         protected class MyQueryResult : QueryResult {}
         protected class MyCommandWithResult : DomainCommand<MyCommandResult> {}

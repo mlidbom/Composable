@@ -9,13 +9,13 @@ namespace Composable.Tests.CQRS.AggregateRoot.NestedEntitiesTests.GuidId.Domain.
 {
     static partial class RootEvent
     {
-        public interface IRoot : IDomainEvent {}
+        [TypeId("61466CDB-38A8-450F-96CC-420F7C76BC99")]public interface IRoot : IDomainEvent {}
 
-        interface Created : IRoot, IAggregateRootCreatedEvent, PropertyUpdated.Name {}
+        [TypeId("8FD0CA5E-C85F-4A98-AAEE-7F778D297488")]interface Created : IRoot, IAggregateRootCreatedEvent, PropertyUpdated.Name {}
 
         public static class PropertyUpdated
         {
-            public interface Name : RootEvent.IRoot
+            [TypeId("991BAC11-47B0-47FD-B0D2-DE41CE2F74E8")]public interface Name : RootEvent.IRoot
             {
                 string Name { get; }
             }
@@ -29,7 +29,7 @@ namespace Composable.Tests.CQRS.AggregateRoot.NestedEntitiesTests.GuidId.Domain.
                 protected Root(Guid aggregateRootId) : base(aggregateRootId) { }
             }
 
-            public class Created : Root, RootEvent.Created
+            [TypeId("5B92E574-A4B5-461F-8065-5C2A1FE6F2F3")]public class Created : Root, RootEvent.Created
             {
                 public Created(Guid id, string name) : base(id) => Name = name;
                 public string Name { get; }

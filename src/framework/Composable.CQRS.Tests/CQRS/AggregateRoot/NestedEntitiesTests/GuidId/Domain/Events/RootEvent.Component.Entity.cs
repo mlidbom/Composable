@@ -12,20 +12,20 @@ namespace Composable.Tests.CQRS.AggregateRoot.NestedEntitiesTests.GuidId.Domain.
         {
             public static class Entity
             {
-                public interface IRoot : RootEvent.Component.IRoot
+                [TypeId("C886F0E5-99F6-46EC-A968-3DA1DB4D0E2D")]public interface IRoot : RootEvent.Component.IRoot
                 {
                     Guid EntityId { get; }
                 }
 
-                public interface Created : IRoot, PropertyUpdated.Name {}
+                [TypeId("052FBB2C-F65E-44E9-9C60-BAF6B8AB9CFD")]public interface Created : IRoot, PropertyUpdated.Name {}
 
-                interface Renamed : IRoot, PropertyUpdated.Name {}
+                [TypeId("53BC2503-3296-45EC-A299-68D88D7000B4")]interface Renamed : IRoot, PropertyUpdated.Name {}
 
-                public interface Removed : IRoot {}
+                [TypeId("AF0D7496-518B-4EA2-A914-700164D9C6A8")]public interface Removed : IRoot {}
 
                 public static class PropertyUpdated
                 {
-                    public interface Name : IRoot
+                    [TypeId("11332A4B-4E1B-49C2-9B64-EDFC0787BA3A")]public interface Name : IRoot
                     {
                         string Name { get; }
                     }
@@ -44,7 +44,7 @@ namespace Composable.Tests.CQRS.AggregateRoot.NestedEntitiesTests.GuidId.Domain.
                         }
                     }
 
-                    public class Created : Root, Entity.Created
+                    [TypeId("CA0CB176-C760-4A78-818B-60F577193B4E")]public class Created : Root, Entity.Created
                     {
                         public Created(Guid entityId, string name)
                         {
@@ -54,13 +54,13 @@ namespace Composable.Tests.CQRS.AggregateRoot.NestedEntitiesTests.GuidId.Domain.
                         public string Name { get; }
                     }
 
-                    public class Renamed : Root, Entity.Renamed
+                    [TypeId("3353D035-24D1-4787-AE76-4B8C1027BDF0")]public class Renamed : Root, Entity.Renamed
                     {
                         public Renamed(string name) => Name = name;
                         public string Name { get; }
                     }
 
-                    public class Removed : Root, Entity.Removed {}
+                    [TypeId("8220C48C-4BE0-4BC4-8330-A9DFCA231C1E")]public class Removed : Root, Entity.Removed {}
                 }
             }
         }

@@ -74,7 +74,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification
                 public RegisterUserCommand RegisterUser(string userName) => new RegisterUserCommand(userName);
             }
 
-            class UserRegisteredEvent : Event
+            [TypeId("6EDCBCD0-C1DE-4499-9CBB-8E8E8405A9C3")]class UserRegisteredEvent : Event
             {
                 public UserRegisteredEvent(string name) => Name = name;
                 public string Name { get; }

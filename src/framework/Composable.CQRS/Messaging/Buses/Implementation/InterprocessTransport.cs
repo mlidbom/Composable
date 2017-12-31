@@ -12,7 +12,7 @@ using NetMQ;
 
 namespace Composable.Messaging.Buses.Implementation
 {
-    class InterprocessTransport : IInterprocessTransport, IDisposable
+    partial class InterprocessTransport : IInterprocessTransport, IDisposable
     {
         class Implementation
         {
@@ -24,6 +24,7 @@ namespace Composable.Messaging.Buses.Implementation
 
             public bool Running;
             public readonly IList<ClientConnection> ClientConnections = new List<ClientConnection>();
+            public HandlerStorage HandlerStorage = new HandlerStorage();
             public readonly NetMQPoller Poller = new NetMQPoller();
         }
 
@@ -43,6 +44,7 @@ namespace Composable.Messaging.Buses.Implementation
             {
                 if(IsEvent(messageType))
                 {
+                    @this.HandlerStorage.AddEventHandler(messageType);
                     @this.EventConnections.GetOrAdd(messageType, () => new HashSet<IClientConnection>()).Add(clientConnection);
                 } else if(IsCommand(messageType))
                 {

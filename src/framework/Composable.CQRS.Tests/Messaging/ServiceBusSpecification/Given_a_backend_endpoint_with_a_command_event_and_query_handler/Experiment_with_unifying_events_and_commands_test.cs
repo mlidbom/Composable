@@ -74,19 +74,19 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
 
         public static class UserEvent
         {
-            public interface IRoot : IDomainEvent {}
+            [TypeId("176EE1DD-8D56-4879-8230-46FCAF30E523")]public interface IRoot : IDomainEvent {}
 
-            public interface UserRegistered : IRoot, IAggregateRootCreatedEvent {}
+            [TypeId("86B52908-5201-45B5-B504-23776CB58480")]public interface UserRegistered : IRoot, IAggregateRootCreatedEvent {}
 
             public static class Implementation
             {
-                public class Root : DomainEvent, IRoot
+                [TypeId("F53F2EB7-F856-4743-B90D-6AD96C95883D")]public class Root : DomainEvent, IRoot
                 {
                     protected Root() {}
                     protected Root(Guid aggregateRootId) : base(aggregateRootId) {}
                 }
 
-                public class UserRegisteredEvent : Root, UserEvent.UserRegistered
+                [TypeId("3210D879-0D81-4DAB-9254-CA85B9D70F69")]public class UserRegisteredEvent : Root, UserEvent.UserRegistered
                 {
                     public UserRegisteredEvent(Guid userId) : base(userId) {}
                 }
@@ -108,16 +108,16 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
 
         public static class UserRegistrarEvent
         {
-            public interface IRoot : IDomainEvent {}
+            [TypeId("B4C43E2D-5B17-4FE2-8E81-2135F6934807")]public interface IRoot : IDomainEvent {}
             public static class Implementation
             {
-                public class Root : DomainEvent, IRoot
+                [TypeId("F4FE9D4A-082C-4B1E-A703-CD392E8D6946")]public class Root : DomainEvent, IRoot
                 {
                     protected Root() {}
                     protected Root(Guid aggregateRootId) : base(aggregateRootId) {}
                 }
 
-                public class Created : Root, IAggregateRootCreatedEvent
+                [TypeId("0B8E14C7-56BA-4EC1-98D3-A213385ADB88")]public class Created : Root, IAggregateRootCreatedEvent
                 {
                     public Created() : base(UserRegistrarAggregate.SingleId) {}
                 }

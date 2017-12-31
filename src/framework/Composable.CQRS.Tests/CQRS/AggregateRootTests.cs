@@ -95,12 +95,12 @@ namespace Composable.Tests.CQRS
             }
         }
 
-        class TriggeringEvent : DomainEvent, IAggregateRootCreatedEvent
+        [TypeId("116B5753-FA3F-4E90-AA2F-1E0F54407DC1")]class TriggeringEvent : DomainEvent, IAggregateRootCreatedEvent
         {
             public TriggeringEvent() : base(Guid.NewGuid()) {}
         }
 
-        class TriggeredEvent : DomainEvent
+        [TypeId("30206FD8-AA2C-48EC-B31E-50D2C648F0CF")]class TriggeredEvent : DomainEvent
         {
         }
     }

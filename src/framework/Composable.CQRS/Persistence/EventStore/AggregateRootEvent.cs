@@ -7,6 +7,7 @@ namespace Composable.Persistence.EventStore
 {
     //Review:mlidbo: Make instances immutable: Inspect inheriting types and throw exception if mutable.
     //Review:mlidbo: Extract refactoring information into a separate abstraction.
+    //todo: make abstract
     public class DomainEvent : ValueObject<DomainEvent>, IDomainEvent
     {
         protected DomainEvent()

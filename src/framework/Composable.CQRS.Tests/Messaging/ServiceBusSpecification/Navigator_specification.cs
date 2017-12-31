@@ -27,6 +27,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification
                     DependencyInjectionContainer.Create,
                     buildHost => buildHost.RegisterAndStartEndpoint(
                         "Backend",
+                        new EndPointId(Guid.Parse("3A1B6A8C-D232-476C-A15A-9C8295413210")),
                         builder => builder.RegisterHandlers
                                           .ForEvent((UserRegisteredEvent myEvent) => queryResults.Add(new UserResource(myEvent.Name)))
                                           .ForQuery((GetUserQuery query) => queryResults.Single(result => result.Name == query.Name))

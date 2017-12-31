@@ -1,4 +1,5 @@
-﻿using AccountManagement.API;
+﻿using System;
+using AccountManagement.API;
 using AccountManagement.Domain;
 using AccountManagement.Domain.QueryModels;
 using AccountManagement.Domain.Services;
@@ -20,6 +21,7 @@ namespace AccountManagement
         public static IEndpoint RegisterWith(IEndpointHost host)
         {
             return host.RegisterAndStartEndpoint("UserManagement.Domain",
+                                                 new EndPointId(Guid.Parse("1A1BE9C8-C8F6-4E38-ABFB-F101E5EDB00D")),
                                                  builder =>
                                                  {
                                                      RegisterDomainComponents(builder.Container);

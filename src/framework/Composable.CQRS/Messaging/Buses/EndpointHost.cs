@@ -39,13 +39,13 @@ namespace Composable.Messaging.Buses
                 new TestingEndpointHost(new RunMode(isTesting: true, mode: mode), containerFactory);
         }
 
-        public IEndpoint RegisterAndStartEndpoint(string name, Action<IEndpointBuilder> setup)
+        public IEndpoint RegisterAndStartEndpoint(string name, EndPointId id, Action<IEndpointBuilder> setup)
         {
             var builder = new EndpointBuilder(_globalBusStateTracker, _containerFactory(_mode));
 
             setup(builder);
 
-            var endpoint = builder.Build();
+            var endpoint = builder.Build(name, id);
 
             var existingEndpoints = Endpoints.ToList();
 

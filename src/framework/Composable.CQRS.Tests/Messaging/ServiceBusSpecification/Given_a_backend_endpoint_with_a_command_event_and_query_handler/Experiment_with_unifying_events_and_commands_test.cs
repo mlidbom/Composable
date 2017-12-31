@@ -32,6 +32,7 @@ namespace Composable.Tests.Messaging.ServiceBusSpecification.Given_a_backend_end
                 DependencyInjectionContainer.Create,
                 buildHost => _userManagementDomainEndpoint = buildHost.RegisterAndStartEndpoint(
                                  "UserManagement.Domain",
+                                 new EndPointId(Guid.Parse("A4A2BA96-8D82-47AC-8A1B-38476C7B5D5D")),
                                  builder =>
                                  {
                                      builder.Container.RegisterSqlServerEventStore<IUserEventStoreUpdater, IUserEventStoreReader>("SomeConnectionName");

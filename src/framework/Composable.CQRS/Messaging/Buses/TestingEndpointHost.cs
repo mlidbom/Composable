@@ -11,7 +11,7 @@ namespace Composable.Messaging.Buses
         readonly IEndpoint _clientEndpoint;
         public TestingEndpointHost(IRunMode mode, Func<IRunMode, IDependencyInjectionContainer> containerFactory) : base(mode, containerFactory)
         {
-            _clientEndpoint = RegisterAndStartEndpoint($"{nameof(TestingEndpointHost)}_Default_Client_Endpoint", _ => { });
+            _clientEndpoint = RegisterAndStartEndpoint($"{nameof(TestingEndpointHost)}_Default_Client_Endpoint", new EndPointId(Guid.Parse("D4C869D2-68EF-469C-A5D6-37FCF2EC152A")), _ => { });
         }
 
 

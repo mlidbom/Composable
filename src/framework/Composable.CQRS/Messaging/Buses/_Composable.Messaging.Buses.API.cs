@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Threading.Tasks;
+using Composable.Contracts;
+using Composable.DDD;
 using Composable.DependencyInjection;
 using Composable.Messaging.Buses.Implementation;
 using Composable.Messaging.Events;
@@ -73,11 +75,22 @@ namespace Composable.Messaging.Buses
 
     public interface IEndpoint : IDisposable
     {
+        EndPointId Id { get; }
         IServiceLocator ServiceLocator { get; }
         EndPointAddress Address { get; }
         void Start();
         void Stop();
         void AwaitNoMessagesInFlight(TimeSpan? timeoutOverride);
+    }
+
+    public class EndPointId : ValueObject<EndPointId>
+    {
+        public Guid GuidValue { get; }
+        public EndPointId(Guid guidValue)
+        {
+            Contract.Argument.Assert(guidValue != Guid.Empty);
+            GuidValue = guidValue;
+        }
     }
 
     public interface IEndpointBuilder
@@ -88,7 +101,7 @@ namespace Composable.Messaging.Buses
 
     public interface IEndpointHost : IDisposable
     {
-        IEndpoint RegisterAndStartEndpoint(string name, Action<IEndpointBuilder> setup);
+        IEndpoint RegisterAndStartEndpoint(string name, EndPointId id, Action<IEndpointBuilder> setup);
         void Stop();
     }
 

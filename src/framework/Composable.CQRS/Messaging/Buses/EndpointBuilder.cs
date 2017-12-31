@@ -65,6 +65,6 @@ namespace Composable.Messaging.Buses
         public MessageHandlerRegistrarWithDependencyInjectionSupport RegisterHandlers =>
             new MessageHandlerRegistrarWithDependencyInjectionSupport(_container.CreateServiceLocator().Resolve<IMessageHandlerRegistrar>(), _container.CreateServiceLocator());
 
-        public IEndpoint Build() => new Endpoint(_container.CreateServiceLocator());
+        public IEndpoint Build(string name, EndPointId id) => new Endpoint(_container.CreateServiceLocator(), id, name);
     }
 }

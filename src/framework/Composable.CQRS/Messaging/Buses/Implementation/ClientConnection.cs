@@ -12,9 +12,9 @@ namespace Composable.Messaging.Buses.Implementation
 {
     class ClientConnection : IClientConnection
     {
-        public void Dispatch(IEvent @event) => _this.Locked(@this => DispatchMessage(@event, @this, TransportMessage.OutGoing.Create(@event)));
+        public void Dispatch(IEvent @event) => _this.WithExclusiveAccess(@this => DispatchMessage(@event, @this, TransportMessage.OutGoing.Create(@event)));
 
-        public void Dispatch(IDomainCommand command) => _this.Locked(@this => DispatchMessage(command, @this, TransportMessage.OutGoing.Create(command)));
+        public void Dispatch(IDomainCommand command) => _this.WithExclusiveAccess(@this => DispatchMessage(command, @this, TransportMessage.OutGoing.Create(command)));
 
         public async Task<TCommandResult> DispatchAsync<TCommandResult>(IDomainCommand<TCommandResult> command) => (TCommandResult)await DispatchMessageWithResponse(command);
 
@@ -22,7 +22,7 @@ namespace Composable.Messaging.Buses.Implementation
 
         public ClientConnection(IGlobalBusStateTracker globalBusStateTracker, IEndpoint endpoint, NetMQPoller poller)
         {
-            _this.Locked(@this =>
+            _this.WithExclusiveAccess(@this =>
             {
                 @this.GlobalBusStateTracker = globalBusStateTracker;
 
@@ -48,7 +48,7 @@ namespace Composable.Messaging.Buses.Implementation
             });
         }
 
-        public void Dispose() => _this.Locked(@this =>
+        public void Dispose() => _this.WithExclusiveAccess(@this =>
         {
             @this.Socket.Dispose();
             @this.DispatchQueue.Dispose();
@@ -71,14 +71,14 @@ namespace Composable.Messaging.Buses.Implementation
             }
         }
 
-        readonly IGuardedResource<Implementation> _this = GuardedResource<Implementation>.WithTimeout(10.Seconds());
+        readonly IThreadShared<Implementation> _this = ThreadShared<Implementation>.WithTimeout(10.Seconds());
 
         //Runs on poller thread so NO BLOCKING HERE!
         void ReceiveResponse(object sender, NetMQSocketEventArgs e)
         {
             var responseBatch = TransportMessage.Response.Incoming.ReceiveBatch(e.Socket, batchMaximum: 100);
 
-            _this.Locked(@this =>
+            _this.WithExclusiveAccess(@this =>
             {
                 foreach(var response in responseBatch)
                 {
@@ -104,7 +104,7 @@ namespace Composable.Messaging.Buses.Implementation
             });
         }
 
-        Task<object> DispatchMessageWithResponse(IMessage message) => _this.Locked(@this =>
+        Task<object> DispatchMessageWithResponse(IMessage message) => _this.WithExclusiveAccess(@this =>
         {
             var taskCompletionSource = new TaskCompletionSource<object>(TaskCreationOptions.RunContinuationsAsynchronously);
 

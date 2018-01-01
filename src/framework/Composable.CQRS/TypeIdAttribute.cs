@@ -15,19 +15,6 @@ namespace Composable
         internal TypeId Id { get; }
 
         public TypeIdAttribute(string guid) => Id = new TypeId(Guid.Parse(guid));
-
-        internal static TypeId Extract(object instance) => Extract(instance.GetType());
-
-        internal static TypeId Extract(Type eventType)
-        {
-            var attribute = eventType.GetCustomAttribute<TypeIdAttribute>();
-            if(attribute == null)
-            {
-                //todo: check if we can get newtonsoft to use this to identify types instead of the name.
-                throw new Exception($"Type: {eventType.FullName} must have a {typeof(TypeIdAttribute).FullName}. It is used to refer to the type in persisted data. By requiring this attribute we can give you the ability to rename or move types without breaking anything.");
-            }
-            return attribute.Id;
-        }
     }
 
     [AttributeUsage(AttributeTargets.Assembly)]
@@ -55,7 +42,9 @@ namespace Composable
                             .ToDictionary(me => me.TypeId, me => me.Type);
         }
 
-        public Type ToType()
+        public bool TryGetType(out Type type)  => TypeIdToTypemap.TryGetValue(this, out type);
+
+        public Type GetRuntimeType()
         {
             if(!TypeIdToTypemap.TryGetValue(this, out var type))
             {
@@ -63,6 +52,17 @@ namespace Composable
             }
 
             return type;
+        }
+
+        internal static TypeId FromType(Type eventType)
+        {
+            var attribute = eventType.GetCustomAttribute<TypeIdAttribute>();
+            if(attribute == null)
+            {
+                //todo: check if we can get newtonsoft to use this to identify types instead of the name.
+                throw new Exception($"Type: {eventType.FullName} must have a {typeof(TypeIdAttribute).FullName}. It is used to refer to the type in persisted data. By requiring this attribute we can give you the ability to rename or move types without breaking anything.");
+            }
+            return attribute.Id;
         }
     }
 }

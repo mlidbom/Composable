@@ -30,7 +30,7 @@ namespace Composable.Messaging.Buses.Implementation
         {
             @this.EndpointConnections.Add(endpoint.Id, new ClientConnection(@this.GlobalBusStateTracker, endpoint, @this.Poller));
 
-            @this.HandlerStorage.AddRegistrations(endpoint.Id, endpoint.ServiceLocator.Resolve<IMessageHandlerRegistry>().HandledTypes().Select(TypeIdAttribute.Extract).ToSet());
+            @this.HandlerStorage.AddRegistrations(endpoint.Id, endpoint.ServiceLocator.Resolve<IMessageHandlerRegistry>().HandledTypes().Select(TypeId.FromType).ToSet());
         });
 
         public void Stop() => _state.WithExclusiveAccess(state =>

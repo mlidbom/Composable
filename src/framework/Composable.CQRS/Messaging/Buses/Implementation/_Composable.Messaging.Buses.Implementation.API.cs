@@ -16,7 +16,7 @@ namespace Composable.Messaging.Buses.Implementation
         void Start();
         Task DispatchAsync(IEvent message);
         Task DispatchAsync(IDomainCommand command);
-        Task<TCommandResult> DispatchAsync<TCommandResult>(IDomainCommand<TCommandResult> command);
+        Task<Task<TCommandResult>> DispatchAsyncAsync<TCommandResult>(IDomainCommand<TCommandResult> command);
         Task<TQueryResult> DispatchAsync<TQueryResult>(IQuery<TQueryResult> command);
         void Connect(IEndpoint endpoint);
     }

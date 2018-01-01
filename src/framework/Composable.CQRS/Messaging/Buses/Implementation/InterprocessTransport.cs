@@ -77,7 +77,7 @@ namespace Composable.Messaging.Buses.Implementation
             await Task.WhenAll(saveMessage, dispatchSave);
         });
 
-        public async Task<TCommandResult> DispatchAsync<TCommandResult>(IDomainCommand<TCommandResult> command) => await _state.WithExclusiveAccess(async state =>
+        public async Task<Task<TCommandResult>> DispatchAsyncAsync<TCommandResult>(IDomainCommand<TCommandResult> command) => await _state.WithExclusiveAccess(async state =>
         {
             var saveMessage = SaveMessage(command);
 
@@ -90,7 +90,7 @@ namespace Composable.Messaging.Buses.Implementation
             await Task.WhenAll(saveMessage, dispatchSave);
 
             //todo: send after transaction
-            return await connection.DispatchAsync(command);
+            return await Task.FromResult(connection.DispatchAsync(command));
         });
 
         public async Task<TQueryResult> DispatchAsync<TQueryResult>(IQuery<TQueryResult> query) => await _state.WithExclusiveAccess(async state =>

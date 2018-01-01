@@ -54,7 +54,7 @@ namespace Composable.Messaging.Buses
         public async Task<Task<TResult>> SendAsyncAsync<TResult>(IDomainCommand<TResult> command)
         {
             CommandValidator.AssertCommandIsValid(command);
-            return await Task.FromResult(_transport.DispatchAsync(command)).NoMarshalling();
+            return await _transport.DispatchAsyncAsync(command).NoMarshalling();
         }
 
         public async Task<TResult> QueryAsync<TResult>(IQuery<TResult> query) =>

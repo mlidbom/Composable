@@ -62,7 +62,6 @@ namespace Composable.Messaging.Buses.Implementation
 
             //todo: send after transaction
             connections.ForEach(receiver => receiver.Dispatch(@event));
-            await Task.CompletedTask;
         });
 
         public async Task DispatchAsync(IDomainCommand command) => await _state.WithExclusiveAccess(async state =>

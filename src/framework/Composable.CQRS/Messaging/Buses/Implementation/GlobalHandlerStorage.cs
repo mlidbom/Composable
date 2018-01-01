@@ -64,7 +64,7 @@ namespace Composable.Messaging.Buses.Implementation
 
                 if(!_commandHandlerMap.TryGetValue(commandTypeId, out var endpointId))
                 {
-                    throw new NoHandlerForcommandTypeException(command.GetType());
+                    throw new NoHandlerForMessageTypeException(command.GetType());
                 }
 
                 return endpointId;
@@ -74,7 +74,12 @@ namespace Composable.Messaging.Buses.Implementation
             {
                 var queryTypeId = TypeId.FromType(query.GetType());
 
-                return _queryHandlerMap[queryTypeId];
+                if(!_queryHandlerMap.TryGetValue(queryTypeId, out var endpointId))
+                {
+                    throw new NoHandlerForMessageTypeException(query.GetType());
+                }
+
+                return endpointId;
             }
 
             internal IReadOnlyList<EndpointId> GetEventHandlerEndpoints(IEvent @event)
@@ -82,17 +87,16 @@ namespace Composable.Messaging.Buses.Implementation
                 var typedEventHandlerRegistrations = _eventHandlerRegistrations
                                                      .Where(me => me.EventType.TryGetType(out var _))
                                                      .Select(me => new
-                                                                                             {
-                                                                                                 EventType = me.EventType.GetRuntimeType(),
-                                                                                                 me.EndPointId
-                                                                                             }).ToList();
+                                                                   {
+                                                                       EventType = me.EventType.GetRuntimeType(),
+                                                                       me.EndPointId
+                                                                   }).ToList();
 
                 return typedEventHandlerRegistrations
                        .Where(@this => @this.EventType.IsInstanceOfType(@event))
                        .Select(@this => @this.EndPointId)
                        .ToList();
             }
-
 
             static bool IsCommand(Type type) => typeof(IDomainCommand).IsAssignableFrom(type);
             static bool IsEvent(Type type) => typeof(IEvent).IsAssignableFrom(type);

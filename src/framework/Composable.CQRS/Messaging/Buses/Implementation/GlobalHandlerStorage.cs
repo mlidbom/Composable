@@ -16,20 +16,21 @@ namespace Composable.Messaging.Buses.Implementation
 
             readonly List<(TypeId EventType, EndpointId EndPointId)> _eventHandlerRegistrations = new List<(TypeId EventType, EndpointId EndPointId)>();
 
-
-            internal void AddRegistrations(EndpointId endpointId, ISet<Type> handledTypes)
+            internal void AddRegistrations(EndpointId endpointId, ISet<TypeId> handledTypeIds)
             {
-                foreach(var messageType in handledTypes)
+                foreach(var typeId in handledTypeIds)
                 {
-                    if(IsEvent(messageType))
+                    var type = typeId.ToType();
+
+                    if(IsEvent(type))
                     {
-                        AddEventHandler(messageType, endpointId);
-                    } else if(IsCommand(messageType))
+                        AddEventHandler(type, endpointId);
+                    } else if(IsCommand(type))
                     {
-                        AddCommandHandler(messageType, endpointId);
-                    } else if(IsQuery(messageType))
+                        AddCommandHandler(type, endpointId);
+                    } else if(IsQuery(type))
                     {
-                        AddQueryHandler(messageType, endpointId);
+                        AddQueryHandler(type, endpointId);
                     } else
                     {
                         Contract.Argument.Assert(false);
